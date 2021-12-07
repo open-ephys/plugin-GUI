@@ -399,6 +399,12 @@ public:
     /** Sets the list of recently used directories for saving data. */
     void setRecentlyUsedFilenames (const StringArray& filenames);
 
+    /** Generates prepend string for recording directory */
+    String generatePrepend(String format);
+
+    /** Generates append string for recording directory */
+    String generateAppend(String format);
+
     /** Generates the next recording directory based on field settings **/  
     String generateFilenameFromFields(bool usePlaceholderText, bool updateControlPanel);
 

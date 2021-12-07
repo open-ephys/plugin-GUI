@@ -76,7 +76,7 @@ void FilenameFieldComponent::buttonClicked(Button* button)
         {
           case FilenameFieldComponent::Type::PREPEND:
 
-            valueLabel->setText("", sendNotification);
+            valueLabel->setText("001_", sendNotification);
             break;
 
           case FilenameFieldComponent::Type::MAIN:
@@ -86,7 +86,7 @@ void FilenameFieldComponent::buttonClicked(Button* button)
 
           case FilenameFieldComponent::Type::APPEND:
 
-            valueLabel->setText("_1", sendNotification);
+            valueLabel->setText("_001", sendNotification);
             break;
 
           default:

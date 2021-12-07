@@ -403,7 +403,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     filenameFields.add(std::make_shared<FilenameFieldComponent>(
         FilenameFieldComponent::Type::MAIN, FilenameFieldComponent::State::AUTO,"MM-DD-YYYY_HH-MM-SS"));
     filenameFields.add(std::make_shared<FilenameFieldComponent>(
-        FilenameFieldComponent::Type::APPEND, FilenameFieldComponent::State::AUTO,"_1"));
+        FilenameFieldComponent::Type::APPEND, FilenameFieldComponent::State::NONE,"_001"));
 
     filenameText = std::make_unique<FilenameEditorButton>();
     generateFilenameFromFields(true, true);
@@ -1250,8 +1250,9 @@ String ControlPanel::generateFilenameFromFields(bool usePlaceholderText, bool up
 
                     if (usePlaceholderText)
                         filename += field->value;
-                    else //TODO: Generate some dynamic prepend based on field->value
-                        filename += field->value;
+                    else 
+                        filename += generatePrepend(field->value);
+
                     break;
 
                 case FilenameFieldComponent::Type::MAIN:
@@ -1266,8 +1267,8 @@ String ControlPanel::generateFilenameFromFields(bool usePlaceholderText, bool up
 
                     if (usePlaceholderText)
                         filename += field->value;
-                    else //TODO: Generate some dynamic append based on field->value
-                        filename += field->value;
+                    else 
+                        filename += generateAppend(field->value);
                     break;       
                 
                 default:
@@ -1279,7 +1280,8 @@ String ControlPanel::generateFilenameFromFields(bool usePlaceholderText, bool up
 
     }
 
-    if (checkForExistingFilename && getRecordingDirectory().getChildFile(filename).exists())
+    // Disallow overwrite of an existing data directory
+    if (!usePlaceholderText && checkForExistingFilename && getRecordingDirectory().getChildFile(filename).exists())
     {
 
         AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
@@ -1289,6 +1291,22 @@ String ControlPanel::generateFilenameFromFields(bool usePlaceholderText, bool up
                 + newLine
                 + TRANS ("Please change the directory name: \"XYZ\"")
                 .replace ("XYZ", filename),
+            TRANS ("OK"),
+            filenameText.get(),
+            ModalCallbackFunction::create (forceFilenameEditor, this));
+
+        return filename;
+    }
+
+    // Disallow both Prepend and Append fields to have state AUTO
+    if (filenameFields[0]->state == FilenameFieldComponent::State::AUTO &&  filenameFields[2]->state == FilenameFieldComponent::State::AUTO)
+    {
+
+        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+            TRANS("Recording Directory Name Conflict"),
+            TRANS("Auto mode cannot be enabled for both Prepend and Append fields simultaneously")
+                + newLine
+                + TRANS ("Please fix to continue"),
             TRANS ("OK"),
             filenameText.get(),
             ModalCallbackFunction::create (forceFilenameEditor, this));
@@ -1335,5 +1353,84 @@ String ControlPanel::generateDatetimeFromFormat(String format)
     }
 
     return datestring;
+
+}
+
+String ControlPanel::generatePrepend(String format)
+{
+
+    if (filenameFields[1]->state == FilenameFieldComponent::State::CUSTOM)
+    {
+        int maxIdx = 0;
+        for (DirectoryEntry entry : RangedDirectoryIterator (getRecordingDirectory(), false, "*", 1))
+        {
+            if (entry.getFile().getFileName().contains(filenameFields[1]->value) > 0)
+            {
+                int idx;
+                try
+                {
+                    idx = std::stoi(entry.getFile().getFileName().substring(0,3).toStdString());
+                    if (idx > maxIdx)
+                        maxIdx = idx;
+                }
+                catch(const std::exception& e)
+                {
+                    idx = 999;
+                }
+
+            }
+        }
+
+        if (!maxIdx) return format;
+
+        String prependText = String(maxIdx + 1);
+        for (int i = 0; i < 4 - prependText.length(); i++)
+            prependText = "0" + prependText;
+
+        return prependText + "_";
+        
+    }
+
+    return format;
+
+}
+
+String ControlPanel::generateAppend(String format)
+{
+    
+    if (filenameFields[1]->state == FilenameFieldComponent::State::CUSTOM)
+    {
+        int maxIdx = 0;
+        for (DirectoryEntry entry : RangedDirectoryIterator (getRecordingDirectory(), false, "*", 1))
+        {
+            if (entry.getFile().getFileName().indexOfWholeWordIgnoreCase(filenameFields[1]->value) == 0)
+            {
+                int idx;
+                try
+                {
+                    String fn = entry.getFile().getFileName();
+                    idx = std::stoi(entry.getFile().getFileName().substring(fn.length()-3,fn.length()).toStdString());
+                    if (idx > maxIdx)
+                        maxIdx = idx;
+                }
+                catch(const std::exception& e)
+                {
+                    idx = 999;
+                }
+
+            }
+        }
+
+        if (!maxIdx) return format;
+
+        String appendText = String(maxIdx + 1);
+        for (int i = 0; i < 4 - appendText.length(); i++)
+            appendText = "0" + appendText;
+
+        return "_" + appendText;
+        
+    }
+
+    return format;
 
 }

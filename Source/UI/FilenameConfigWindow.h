@@ -59,6 +59,8 @@ public:
     State state;
     String value;
 
+    int index;
+
     std::unique_ptr<Label> typeLabel;
     std::unique_ptr<Button> stateButton;
     std::unique_ptr<Label> valueLabel;
