@@ -683,7 +683,7 @@ void LfpDisplayCanvas::removeBufferForDisplay(int splitID)
     displaySplits[splitID]->displayBuffer = nullptr;
 }
 
-void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
+void LfpDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
 {
 
     for (int i = 0; i < 3; i++)
@@ -702,10 +702,10 @@ void LfpDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
     xmlNode->setAttribute("showAllOptions", optionsDrawerIsOpen);
 
     LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
-    ed->saveVisualizerParameters(xml);
+
 }
 
-void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
+void LfpDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 {
     for (int i = 0; i < 3; i++)
     {
@@ -737,7 +737,6 @@ void LfpDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
 	}
 
     LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
-    ed->loadVisualizerParameters(xml);
 
     resized();
 }

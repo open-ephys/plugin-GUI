@@ -54,15 +54,14 @@ private:
 
 /**
     @brief
-    Base class for creating editors with visualizers.
+    Base class for creating editors with visualizers (large graphical displays
+    that appear in a tab or a separate window).
 
     @details
     Automatically adds buttons (and their handlers) which open the canvas in a window or
-    a tab. Just like any other editor, do not override VisualizerEditor::buttonClicked.
+    a tab.
     @see GenericEditor, Visualizer
 
-    If you must add buttons to your editor, handle them by overiding VisualizerEditor::buttonEvent
-    @see RHD2000Editor, PCIeRhythm::RHD2000Editor
 */
 
 
@@ -79,16 +78,16 @@ public:
         will not work.
 
         @param      processor                   The processor
-        @param[in]  desired_width               The desired width
-        @param[in]  useDefaultParameterEditors  ``true`` if you want a _default_ editor.
+        @param[in]  desired_width               The desired width of the editor
 
         @see GenericEditor
     */
-    VisualizerEditor (GenericProcessor* processor, int desired_width);
+    VisualizerEditor (GenericProcessor* processor, int desired_width = 180);
 
-    VisualizerEditor (GenericProcessor* processor);
+    /** Destructor -- closes the tab if it's still open */
     ~VisualizerEditor();
 
+    /** Sets the location of the window + tab buttons*/
     void resized() override;
 
     /**
@@ -107,12 +106,13 @@ public:
     void saveCustomParametersToXml (XmlElement* xml) override;
     void loadCustomParametersFromXml (XmlElement* xml) override;
 
-    virtual void saveVisualizerParameters (XmlElement* xml);
-    virtual void loadVisualizerParameters (XmlElement* xml);
+    virtual void saveVisualizerEditorParameters (XmlElement* xml) { }
+    virtual void loadVisualizerEditorParameters (XmlElement* xml) { }
 
     std::unique_ptr<DataWindow> dataWindow;
     std::unique_ptr<Visualizer> canvas;
 
+    /** The text shown in this visualizer's tab*/
     String tabText;
 
 

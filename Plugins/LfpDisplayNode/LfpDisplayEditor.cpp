@@ -214,7 +214,7 @@ void LfpDisplayEditor::removeBufferForDisplay(int splitID)
 }
 
 
-void LfpDisplayEditor::saveVisualizerParameters(XmlElement* xml)
+void LfpDisplayEditor::saveVisualizerEditorParameters(XmlElement* xml)
 {
 
 	xml->setAttribute("Type", "LfpDisplayEditor");
@@ -223,7 +223,7 @@ void LfpDisplayEditor::saveVisualizerParameters(XmlElement* xml)
 	values->setAttribute("SelectedLayout", static_cast<int>(selectedLayout));
 }
 
-void LfpDisplayEditor::loadVisualizerParameters(XmlElement* xml)
+void LfpDisplayEditor::loadVisualizerEditorParameters(XmlElement* xml)
 {
 
 	forEachXmlChildElement(*xml, xmlNode)
@@ -232,7 +232,9 @@ void LfpDisplayEditor::loadVisualizerParameters(XmlElement* xml)
 		{
 			LOGD("Loading saved layout: ", xmlNode->getIntAttribute("SelectedLayout"));
 			selectedLayout = static_cast<SplitLayouts>(xmlNode->getIntAttribute("SelectedLayout"));
-            static_cast<LfpDisplayCanvas*>(canvas.get())->setLayout(selectedLayout);
+
+            if (canvas != nullptr)
+                static_cast<LfpDisplayCanvas*>(canvas.get())->setLayout(selectedLayout);
 
             if (selectedLayout == SplitLayouts::SINGLE)
                 singleDisplay->setToggleState(true, dontSendNotification);

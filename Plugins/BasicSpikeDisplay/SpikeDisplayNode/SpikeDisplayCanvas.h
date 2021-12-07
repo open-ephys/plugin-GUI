@@ -101,9 +101,9 @@ public:
 
     SpikeDisplayNode* processor;
 
-    void saveVisualizerParameters(XmlElement* xml);
+    void saveCustomParametersToXml(XmlElement* xml);
 
-    void loadVisualizerParameters(XmlElement* xml);
+    void loadCustomParametersFromXml(XmlElement* xml);
 
 
 

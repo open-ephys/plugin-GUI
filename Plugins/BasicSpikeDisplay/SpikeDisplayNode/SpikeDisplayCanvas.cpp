@@ -182,7 +182,7 @@ void SpikeDisplayCanvas::buttonClicked(Button* button)
     }
 }
 
-void SpikeDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
+void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
 {
 
     XmlElement* xmlNode = xml->createNewChildElement("SPIKEDISPLAY");
@@ -204,7 +204,7 @@ void SpikeDisplayCanvas::saveVisualizerParameters(XmlElement* xml)
 
 }
 
-void SpikeDisplayCanvas::loadVisualizerParameters(XmlElement* xml)
+void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 {
     forEachXmlChildElement(*xml, xmlNode)
     {

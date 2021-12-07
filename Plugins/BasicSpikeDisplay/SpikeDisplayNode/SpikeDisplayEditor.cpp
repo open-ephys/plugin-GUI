@@ -26,28 +26,12 @@
 #include <string>
 
 SpikeDisplayEditor::SpikeDisplayEditor(GenericProcessor* parentNode)
-    : VisualizerEditor(parentNode,200)
+    : VisualizerEditor(parentNode, 200)
 
 {
-    // // Get the number of sub channels from the parentNode
-    // // Assume all plots have the same number of subChannels
-    // // Otherwise we'll have to track the number of subChannels
-    // nSubChannels = 4;
-
-    // for (int i=0; i<nSubChannels; i++)
-    //     subChanSelected[i] = true;
-
-    // initializeButtons();
-
     tabText = "Spikes";
-
-
-
 }
 
-SpikeDisplayEditor::~SpikeDisplayEditor()
-{
-}
 
 void SpikeDisplayEditor::initializeButtons()
 {
@@ -178,24 +162,6 @@ Visualizer* SpikeDisplayEditor::createNewCanvas()
 
     SpikeDisplayNode* processor = (SpikeDisplayNode*) getProcessor();
     return new SpikeDisplayCanvas(processor);
-
-}
-
-void SpikeDisplayEditor::startRecording()
-{
-
-    SpikeDisplayCanvas* sdc = (SpikeDisplayCanvas*) canvas.get();
-
-    sdc->startRecording();
-
-}
-
-void SpikeDisplayEditor::stopRecording()
-{
-
-    SpikeDisplayCanvas* sdc = (SpikeDisplayCanvas*) canvas.get();
-
-    sdc->stopRecording();
 
 }
 

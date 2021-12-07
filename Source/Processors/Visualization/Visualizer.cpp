@@ -23,13 +23,6 @@
 
 #include "Visualizer.h"
 
-Visualizer::Visualizer()
-{
-	refreshRate = 50;    // 50 Hz default refresh rate
-}
-
-Visualizer::~Visualizer() {}
-
 void Visualizer::startCallbacks()
 {
 	startTimer(1/float(refreshRate)*1000.0f);
@@ -44,7 +37,3 @@ void Visualizer::timerCallback()
 {
 	refresh();
 }
-
-void Visualizer::saveVisualizerParameters(XmlElement* xml) { }
-
-void Visualizer::loadVisualizerParameters(XmlElement* xml) { }
