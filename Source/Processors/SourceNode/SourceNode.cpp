@@ -41,6 +41,8 @@ SourceNode::SourceNode (const String& name_, DataThreadCreator dt)
     , numStreams            (0)
 {
 
+    setProcessorType(Plugin::Processor::SOURCE);
+
     dataThread = dt (this);
 
     if (dataThread != nullptr)

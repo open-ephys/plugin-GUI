@@ -154,9 +154,9 @@ void MergerEditor::mouseDown(const MouseEvent& e)
     {
 
         PopupMenu menu;
-        int menuItemIndex = 1;
-        int continuousMergeIndexA = -1;
-        int continuousMergeIndexB = -1;
+        int menuItemIndex = 0;
+        int sourceNodeAIndex = -1;
+        int sourceNodeBIndex = -1;
         int inputSelectionIndexA = -1;
         int inputSelectionIndexB = -1;
         
@@ -164,16 +164,15 @@ void MergerEditor::mouseDown(const MouseEvent& e)
         
         if (merger->sourceNodeA != 0)
         {
-            menu.addItem(menuItemIndex, // index
-            "Input A: " + getNameString(merger->sourceNodeA), // message
+            menu.addItem(++menuItemIndex, // index
+            "Input A: ", // message
             false); // isSelectable
-            
-            continuousMergeIndexA = ++menuItemIndex;
-            
-            menu.addItem(continuousMergeIndexA,
-                         "Merge continuous data",
-                         !acquisitionIsActive,
-                         merger->mergeContinuousA);
+
+            menu.addItem(++menuItemIndex, // index
+                getNameString(merger->sourceNodeA), // message
+                false); // isSelectable, isTicked
+
+            sourceNodeAIndex = menuItemIndex;
 
         } else {
             menu.addItem(++menuItemIndex, // index
@@ -204,16 +203,15 @@ void MergerEditor::mouseDown(const MouseEvent& e)
         
         if (merger->sourceNodeB != 0)
         {
-            menu.addItem(menuItemIndex, // index
-            "Input B: " + getNameString(merger->sourceNodeB), // message
-            false); // isSelectable
-            
-            continuousMergeIndexB = ++menuItemIndex;
-            
-            menu.addItem(continuousMergeIndexB,
-                         "Merge continuous data",
-                         !acquisitionIsActive,
-                         merger->mergeContinuousB);
+            menu.addItem(++menuItemIndex, // index
+                        "Input B: ", // message
+                        false); // isSelectable
+
+            menu.addItem(++menuItemIndex, // index
+                getNameString(merger->sourceNodeB), // message
+                false); // isSelectable, isTicked
+
+            sourceNodeBIndex = menuItemIndex;
 
         } else {
             menu.addItem(++menuItemIndex, // index
@@ -242,17 +240,25 @@ void MergerEditor::mouseDown(const MouseEvent& e)
         LOGD("Selection: ", result);
 
         
-        if (result == continuousMergeIndexA)
+        /*if (result == sourceNodeAIndex)
         {
-            merger->mergeContinuousA = !merger->mergeContinuousA;
-            CoreServices::updateSignalChain(this);
+           
+            switchSource(0);
+            merger->getSourceNode(0)->setDestNode(nullptr);
+            merger->setMergerSourceNode(nullptr);
+            
+            AccessClass::getProcessorGraph()->updateSettings(getProcessor());
             return;
-        } else if (result == continuousMergeIndexB)
+        } else if (result == sourceNodeBIndex)
         {
-            merger->mergeContinuousB = !merger->mergeContinuousB;
-            CoreServices::updateSignalChain(this);
+            
+            switchSource(1);
+            merger->getSourceNode(1)->setDestNode(nullptr);
+            merger->setMergerSourceNode(nullptr);
+
+            AccessClass::getProcessorGraph()->updateSettings(getProcessor());
             return;
-        }
+        }*/
         
         if (inputSelectionIndexA > 0)
         {

@@ -74,22 +74,16 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
 void Merger::switchIO(int sourceNum)
 {
 
-//LOGDD("Switching to source number ", sourceNum);
-
     activePath = sourceNum;
 
     if (sourceNum == 0)
     {
         sourceNode = sourceNodeA;
-//LOGDD("Source node: ", getSourceNode());
     }
     else
     {
         sourceNode = sourceNodeB;
-//LOGDD("Source node: ", getSourceNode());
     }
-
-    // getEditorViewport()->makeEditorVisible((GenericEditor*) getEditor(), false);
 
 }
 

@@ -332,7 +332,8 @@ void VisualizerEditor::loadCustomParametersFromXml (XmlElement* xml)
     {
         //Canvas is created on button callback, so open/close tab to simulate a hidden canvas
         tabSelector->setToggleState(true, sendNotification);
-        canvas->loadCustomParametersFromXml(xml);
+        if (canvas != nullptr)
+            canvas->loadCustomParametersFromXml(xml);
         tabSelector->setToggleState(false, sendNotification);
     }
     else if (canvas != nullptr)
