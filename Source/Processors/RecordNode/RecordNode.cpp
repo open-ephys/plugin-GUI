@@ -74,6 +74,24 @@ RecordNode::~RecordNode()
 {
 }
 
+String RecordNode::handleConfigMessage(String msg)
+{
+
+	const MessageManagerLock mml;
+
+    StringArray tokens;
+    tokens.addTokens (msg, "=", "\"");
+
+    if (tokens.size() != 2) return "Invalid msg";
+
+    if (tokens[0] == "engine")
+        static_cast<RecordNodeEditor*> (getEditor())->engineSelectCombo->setSelectedItemIndex(std::stoi(tokens[1].toStdString()), sendNotification);
+    else
+        std::cout << "Invalid key" << std::endl;
+
+    return "Record Node received config: " + msg;
+}
+
 void RecordNode::updateBlockSize(int newBlockSize)
 {
 	if (dataQueue->getBlockSize() != newBlockSize)
