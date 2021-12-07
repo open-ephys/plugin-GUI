@@ -849,6 +849,11 @@ void FileReaderEditor::updateScrubInterface(bool reset)
 
 }
 
+void FileReaderEditor::timerCallback()
+{
+    setCurrentTime(fileReader->samplesToMilliseconds(fileReader->getCurrentSample()));
+}
+
 
 void FileReaderEditor::setCurrentTime (unsigned int ms)
 {

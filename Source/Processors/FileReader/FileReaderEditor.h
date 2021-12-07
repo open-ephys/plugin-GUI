@@ -131,6 +131,7 @@ class FileReaderEditor  : public GenericEditor
                         , public FileDragAndDropTarget
                         , public ComboBox::Listener
                         , public Button::Listener
+                        , public Timer
 {
 public:
     FileReaderEditor (GenericProcessor* parentNode);
@@ -205,6 +206,8 @@ private:
     int scrubInterfaceWidth;
 
     File lastFilePath;
+
+    void timerCallback();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReaderEditor);
 };

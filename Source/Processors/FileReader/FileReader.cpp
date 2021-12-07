@@ -213,6 +213,8 @@ bool FileReader::startAcquisition()
 	bufferCacheWindow = 0;
 	m_shouldFillBackBuffer.set(false);
 
+    static_cast<FileReaderEditor*> (getEditor())->startTimer(100);
+
 	startThread(); // start async file reader thread
 
 	return true;
@@ -221,6 +223,7 @@ bool FileReader::startAcquisition()
 bool FileReader::stopAcquisition()
 {
 	stopThread(500);
+    static_cast<FileReaderEditor*> (getEditor())->stopTimer();
 	return true;
 }
 
@@ -330,6 +333,11 @@ void FileReader::setActiveRecording (int index)
     gotNewFile = true;
 
    
+}
+
+int64 FileReader::getCurrentSample()
+{
+    return currentSample;
 }
 
 void FileReader::setPlaybackStart(int64 timestamp)
