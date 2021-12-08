@@ -74,6 +74,24 @@ RecordNode::~RecordNode()
 {
 }
 
+String RecordNode::handleConfigMessage(String msg)
+{
+
+	const MessageManagerLock mml;
+
+    StringArray tokens;
+    tokens.addTokens (msg, "=", "\"");
+
+    if (tokens.size() != 2) return "Invalid msg";
+
+    if (tokens[0] == "engine")
+        static_cast<RecordNodeEditor*> (getEditor())->engineSelectCombo->setSelectedItemIndex(std::stoi(tokens[1].toStdString()), sendNotification);
+    else
+        std::cout << "Invalid key" << std::endl;
+
+    return "Record Node received config: " + msg;
+}
+
 void RecordNode::updateBlockSize(int newBlockSize)
 {
 	if (dataQueue->getBlockSize() != newBlockSize)
@@ -104,45 +122,7 @@ std::vector<RecordEngineManager*> RecordNode::getAvailableRecordEngines()
 
 String RecordNode::generateDirectoryName()
 {
-	Time calendar = Time::getCurrentTime();
-
-	Array<int> t;
-	t.add(calendar.getYear());
-	t.add(calendar.getMonth() + 1); // January = 0 
-	t.add(calendar.getDayOfMonth());
-	t.add(calendar.getHours());
-	t.add(calendar.getMinutes());
-	t.add(calendar.getSeconds());
-
-	//Any custom text to prepend;
-	String filename = AccessClass::getControlPanel()->getTextToPrepend();
-
-	String datestring = "";
-
-	for (int n = 0; n < t.size(); n++)
-	{
-		if (t[n] < 10)
-			datestring += "0";
-
-		datestring += t[n];
-
-		if (n == 2)
-			datestring += "_";
-		else if (n < 5)
-			datestring += "-";
-	}
-
-	AccessClass::getControlPanel()->setDateText(datestring);
-
-	if (filename.length() < 24) // this is a hack, to prevent ov
-		filename += datestring;
-	else
-		filename = filename.substring(0, filename.length() - 1);
-
-	filename += AccessClass::getControlPanel()->getTextToAppend();
-
-	return filename;
-
+	return AccessClass::getControlPanel()->generateFilenameFromFields(false, true);
 }
 
 // called by FifoMonitor
@@ -760,6 +740,8 @@ void RecordNode::stopRecording()
 	else
 		getEditor()->setBackgroundColor(Colour(255, 0, 0));
 
+	receivedSoftwareTime = false;
+
 }
 
 bool RecordNode::getRecordingStatus() const
@@ -856,6 +838,19 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 		for (int ch = 0; ch < channelMap.size(); ch++)
 		{
 
+			if (!receivedSoftwareTime)
+			{
+				MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
+				HeapBlock<char> data;
+
+				size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getGlobalTimestamp(), true);
+
+				handleTimestampSyncTexts(EventPacket(data, dataSize));
+
+				receivedSoftwareTime = true;
+
+			}
+
 			ContinuousChannel* chan = continuousChannels[channelMap[ch]];
 
 			uint64 streamId = ((ChannelInfoObject*)chan)->getStreamId();
@@ -865,6 +860,20 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 			{
 				numSamples = getNumSamples(channelMap[ch]);
 				timestamp = getTimestamp(channelMap[ch]);
+
+				if (!setFirstBlock)
+				{
+
+					MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
+					HeapBlock<char> data;
+
+					GenericProcessor* src = AccessClass::getProcessorGraph()->getProcessorWithNodeId(getDataStream(streamId)->getSourceNodeId());
+
+					size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, src, streamId, timestamp, false);
+
+					handleTimestampSyncTexts(EventPacket(data, dataSize));
+
+				}
 			}
 
 			bool shouldWrite = validBlocks[ch];

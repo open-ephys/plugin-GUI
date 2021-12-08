@@ -213,6 +213,8 @@ bool FileReader::startAcquisition()
 	bufferCacheWindow = 0;
 	m_shouldFillBackBuffer.set(false);
 
+    static_cast<FileReaderEditor*> (getEditor())->startTimer(100);
+
 	startThread(); // start async file reader thread
 
 	return true;
@@ -221,6 +223,7 @@ bool FileReader::startAcquisition()
 bool FileReader::stopAcquisition()
 {
 	stopThread(500);
+    static_cast<FileReaderEditor*> (getEditor())->stopTimer();
 	return true;
 }
 
@@ -330,6 +333,11 @@ void FileReader::setActiveRecording (int index)
     gotNewFile = true;
 
    
+}
+
+int64 FileReader::getCurrentSample()
+{
+    return currentSample;
 }
 
 void FileReader::setPlaybackStart(int64 timestamp)
@@ -459,6 +467,25 @@ void FileReader::handleEvent(const EventChannel* eventInfo, const MidiMessage& e
 
 String FileReader::handleConfigMessage(String msg)
 {
+
+    const MessageManagerLock mml;
+
+    StringArray tokens;
+    tokens.addTokens (msg, "=", "\"");
+
+    if (tokens.size() != 2) return "Invalid msg";
+
+    if (tokens[0] == "file")
+        static_cast<FileReaderEditor*> (getEditor())->setFile(tokens[1]);
+    else if (tokens[0] == "index")
+        static_cast<FileReaderEditor*> (getEditor())->setRecording(std::stoi(tokens[1].toStdString()));
+    else if (tokens[0] == "start")
+        static_cast<FileReaderEditor*> (getEditor())->setPlaybackStartTime(std::stoi(tokens[1].toStdString()));
+    else if (tokens[0] == "stop")
+        static_cast<FileReaderEditor*> (getEditor())->setPlaybackStartTime(std::stoi(tokens[1].toStdString()));
+    else
+        std::cout << "Invalid key" << std::endl;
+
     return "File Reader received config: " + msg;
 }
 

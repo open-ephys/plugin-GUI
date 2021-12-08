@@ -27,7 +27,8 @@ String BinaryRecording::getEngineID() const
 String BinaryRecording::getProcessorString(const InfoObject* channelInfo)
 {
     String fName = channelInfo->getSourceNodeName().replaceCharacter(' ', '_') + "-";
-    fName += String(((ChannelInfoObject*)channelInfo)->getStreamId());
+    fName += String(((ChannelInfoObject*)channelInfo)->getSourceNodeId());
+    fName += "_" + String(((ChannelInfoObject*)channelInfo)->getStreamId());
 	fName += File::getSeparatorString();
 	return fName;
 }
@@ -273,7 +274,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             uint32 procID = 0; // FIXME GenericProcessor::getProcessorFullId(ch->getSourceNodeID(), ch->getSubProcessorIdx());
             int groupIndex = ++groupMap[procID];
 
-            String spikeName = getProcessorString(ch) + "spike_group_" + String(groupIndex) + File::getSeparatorString();
+            String spikeName = getProcessorString(ch) + + File::getSeparatorString() + "spike_group_" + String(groupIndex) + File::getSeparatorString();
 
             rec->mainFile = std::make_unique<NpyFile>(spikePath + spikeName + "spike_waveforms.npy", NpyType(BaseType::INT16, ch->getTotalSamples()), ch->getNumChannels());
             rec->timestampFile = std::make_unique<NpyFile>(spikePath + spikeName + "spike_times.npy", NpyType(BaseType::INT64, 1));

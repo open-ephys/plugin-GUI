@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../../Utils/Utils.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 
 #include "../PluginManager/OpenEphysPlugin.h"
 

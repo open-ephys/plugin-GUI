@@ -169,6 +169,8 @@ void BinaryFileSource::fillRecordInfo()
 
 			int channelFileSize = channelFile.getSize(); 
 
+			if (!channelFileSize) continue;
+
 			int nEvents = (channelFileSize - EVENT_HEADER_SIZE_IN_BYTES) / BYTES_PER_EVENT; 
 		
 			EventInfo eventInfo;
