@@ -28,12 +28,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../AccessClass.h"
 #include "../Processors/RecordNode/RecordEngine.h"
 #include "../Processors/PluginManager/PluginManager.h"
+#include "FilenameConfigWindow.h"
 
 
 const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
 //const int SIZE_AUDIO_EDITOR_MIN_WIDTH = 250;
 
 #define defaultButtonColour Colour(180,180,180)
+
+
+FilenameEditorButton::FilenameEditorButton()
+    : TextButton("FilenameEditor")
+{
+    setTooltip("Edit the recording filename");
+}
 
 PlayButton::PlayButton()
     : DrawableButton("PlayButton", DrawableButton::ImageFitted)
@@ -381,24 +389,19 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
                                               "");
     addChildComponent(filenameComponent.get());
 
-    prependText = std::make_unique<Label>("Prepend","");
-    prependText->setEditable(true);
-    prependText->addListener(this);
-    prependText->setColour(Label::backgroundColourId, Colours::lightgrey);
-    prependText->setTooltip("Prepend to name of data directory");
-    addChildComponent(prependText.get());
+    filenameFields.add(std::make_shared<FilenameFieldComponent>(
+        FilenameFieldComponent::Type::PREPEND, FilenameFieldComponent::State::NONE, ""));
+    filenameFields.add(std::make_shared<FilenameFieldComponent>(
+        FilenameFieldComponent::Type::MAIN, FilenameFieldComponent::State::AUTO,"MM-DD-YYYY_HH-MM-SS"));
+    filenameFields.add(std::make_shared<FilenameFieldComponent>(
+        FilenameFieldComponent::Type::APPEND, FilenameFieldComponent::State::NONE,""));
 
-    dateText = std::make_unique<Label>("Date","YYYY-MM-DD_HH-MM-SS");
-    dateText->setColour(Label::backgroundColourId, Colours::lightgrey);
-    dateText->setColour(Label::textColourId, Colours::grey);
-    addChildComponent(dateText.get());
+    filenameText = std::make_unique<FilenameEditorButton>();
+    generateFilenameFromFields(true, true);
+    filenameText->addListener(this);
+    addAndMakeVisible(filenameText.get());
 
-    appendText = std::make_unique<Label>("Append","");
-    appendText->setEditable(true);
-    appendText->addListener(this);
-    appendText->setColour(Label::backgroundColourId, Colours::lightgrey);
-    addChildComponent(appendText.get());
-    appendText->setTooltip("Append to name of data directory");
+    filenameConfigWindow = std::make_unique<FilenameConfigWindow>(filenameFields);
 
     refreshMeters();
 
@@ -764,23 +767,15 @@ void ControlPanel::resized()
         newDirectoryButton->setBounds (w - h + 4, topBound, h - 10, h - 10);
         newDirectoryButton->setVisible (true);
 
-        prependText->setBounds (165 + w - 490, topBound, 50, h - 10);
-        prependText->setVisible (true);
-
-        dateText->setBounds (165 + w - 435, topBound, 175, h - 10);
-        dateText->setVisible (true);
-
-        appendText->setBounds (165 + w - 255, topBound, 50, h - 10);
-        appendText->setVisible (true);
+        filenameText->setBounds (165 + w - 490, topBound, 280, h - 10);
+        filenameText->setVisible (true);
 
     }
     else
     {
         filenameComponent->setVisible   (false);
         newDirectoryButton->setVisible  (false);
-        prependText->setVisible         (false);
-        dateText->setVisible            (false);
-        appendText->setVisible          (false);
+        filenameText->setVisible            (false);
         recordSelector->setVisible      (false);
         recordOptionsButton->setVisible (false);
     }
@@ -806,7 +801,7 @@ void ControlPanel::labelTextChanged(Label* label)
     newDirectoryButton->setEnabledState(false);
     masterClock->resetRecordTime();
 
-    dateText->setColour(Label::textColourId, Colours::grey);
+    filenameText->setColour(Label::textColourId, Colours::grey);
 }
 
 void ControlPanel::startRecording()
@@ -814,9 +809,8 @@ void ControlPanel::startRecording()
 
     masterClock->startRecording(); // turn on recording
     backgroundColour = Colour(255,0,0);
-    prependText->setEditable(false);
-    appendText->setEditable(false);
-    dateText->setColour(Label::textColourId, Colours::black);
+
+    filenameText->setColour(Label::textColourId, Colours::black);
     
     recordButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
 
@@ -835,20 +829,45 @@ void ControlPanel::stopRecording()
     
     recordButton->getNormalImage()->replaceColour(Colours::yellow, defaultButtonColour);
 
-    prependText->setEditable(true);
-    appendText->setEditable(true);
-
     recordButton->setToggleState(false, dontSendNotification);
 
     repaint();
 }
 
-void ControlPanel::buttonClicked(Button* button)
-
+void ControlPanel::componentBeingDeleted(Component &component)
 {
+	/*Update filename fields as configured in the popup box upon exit. */
+	filenameConfigWindow = std::make_unique<FilenameConfigWindow>(filenameFields);
+    filenameText->setButtonText(generateFilenameFromFields(true, true));
+
+    //TODO: Assumes any change in filename settings should start a new directory next recording
+    if (newDirectoryButton->getEnabledState())
+        buttonClicked(newDirectoryButton.get());
+
+	component.removeComponentListener(this);
+}
+
+void ControlPanel::buttonClicked(Button* button)
+{
+
+    if (button == filenameText.get())
+    {
+
+        CallOutBox& myBox
+            = CallOutBox::launchAsynchronously(std::move(filenameConfigWindow), 
+                button->getScreenBounds(),
+                nullptr);
+        myBox.addComponentListener(this);
+        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+        
+        return;
+    }
+
+
     if (button == newDirectoryButton.get()
         && newDirectoryButton->getEnabledState())
     {
+
         for (auto* node : AccessClass::getProcessorGraph()->getRecordNodes())
         {   
             node->newDirectoryNeeded = true;
@@ -856,7 +875,9 @@ void ControlPanel::buttonClicked(Button* button)
         newDirectoryButton->setEnabledState(false);
         masterClock->resetRecordTime();
 
-        dateText->setColour(Label::textColourId, Colours::grey);
+        filenameText->setColour(Label::textColourId, Colours::grey);
+
+        generateFilenameFromFields(true, true);
 
         return;
     }
@@ -942,7 +963,7 @@ void ControlPanel::comboBoxChanged(ComboBox* combo)
     newDirectoryButton->setEnabledState(false);
     masterClock->resetRecordTime();
 
-    dateText->setColour(Label::textColourId, Colours::grey);
+    filenameText->setColour(Label::textColourId, Colours::grey);
     lastEngineIndex=combo->getSelectedId()-1;
 }
 
@@ -1020,49 +1041,10 @@ void ControlPanel::toggleState()
     AccessClass::getUIComponent()->childComponentChanged();
 }
 
-String ControlPanel::getTextToAppend()
+void ControlPanel::setFilenameText(String t)
 {
-    String t = appendText->getText();
-
-    if (t.length() > 0)
-    {
-        return "_" + t;
-    }
-    else
-    {
-        return t;
-    }
+    filenameText->setButtonText(t);
 }
-
-String ControlPanel::getTextToPrepend()
-{
-    String t = prependText->getText();
-
-    if (t.length() > 0)
-    {
-        return t + "_";
-    }
-    else
-    {
-        return t;
-    }
-}
-
-void ControlPanel::setPrependText(String t)
-{
-    prependText->setText(t, sendNotificationSync);
-}
-
-void ControlPanel::setAppendText(String t)
-{
-    appendText->setText(t, sendNotificationSync);
-}
-
-void ControlPanel::setDateText(String t)
-{
-    dateText->setText(t, dontSendNotification);
-}
-
 
 void ControlPanel::saveStateToXml(XmlElement* xml)
 {
@@ -1070,8 +1052,8 @@ void ControlPanel::saveStateToXml(XmlElement* xml)
     XmlElement* controlPanelState = xml->createNewChildElement("CONTROLPANEL");
     controlPanelState->setAttribute("isOpen",open);
 	controlPanelState->setAttribute("recordPath", filenameComponent->getCurrentFile().getFullPathName());
-    controlPanelState->setAttribute("prependText",prependText->getText());
-    controlPanelState->setAttribute("appendText",appendText->getText());
+    //controlPanelState->setAttribute("prependText",prependText->getText());
+    //controlPanelState->setAttribute("appendText",appendText->getText());
     controlPanelState->setAttribute("recordEngine",recordEngines[recordSelector->getSelectedId()-1]->getID());
 
     audioEditor->saveStateToXml(xml);
@@ -1087,6 +1069,8 @@ void ControlPanel::saveStateToXml(XmlElement* xml)
     }
     */
 
+    filenameConfigWindow->saveStateToXml(xml);
+
 }
 
 void ControlPanel::loadStateFromXml(XmlElement* xml)
@@ -1101,8 +1085,7 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
 			{
 				filenameComponent->setCurrentFile(File(recordPath), true, sendNotificationAsync);
 			}
-            appendText->setText(xmlNode->getStringAttribute("appendText", ""), dontSendNotification);
-            prependText->setText(xmlNode->getStringAttribute("prependText", ""), dontSendNotification);
+
 			String selectedEngine = xmlNode->getStringAttribute("recordEngine");
 			for (int i = 0; i < recordEngines.size(); i++)
 			{
@@ -1131,6 +1114,9 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
 
     audioEditor->loadStateFromXml(xml);
 
+    filenameConfigWindow->loadStateFromXml(xml);
+    generateFilenameFromFields(true, true);
+
 }
 
 
@@ -1143,4 +1129,226 @@ StringArray ControlPanel::getRecentlyUsedFilenames()
 void ControlPanel::setRecentlyUsedFilenames(const StringArray& filenames)
 {
     filenameComponent->setRecentlyUsedFilenames(filenames);
+}
+
+static void forceFilenameEditor (int result, ControlPanel* panel)
+{
+    CallOutBox& myBox
+        = CallOutBox::launchAsynchronously(std::move(panel->filenameConfigWindow), 
+            panel->filenameText->getScreenBounds(),
+            nullptr);
+    myBox.addComponentListener(panel);
+    myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+
+    return;
+}
+
+String ControlPanel::generateFilenameFromFields(bool usePlaceholderText, bool updateControlPanel)
+{
+
+    bool checkForExistingFilename = false;
+
+    String filename = "";
+
+    for (auto& field : filenameFields) //loops in order through prepend, main, append 
+    {
+
+        if (field->state == FilenameFieldComponent::State::NONE)
+
+            continue; //don't add to the filename
+
+        else if (field->state == FilenameFieldComponent::State::CUSTOM)
+        {
+            filename += field->value; //Add filename field exactly as entered in popup window
+            checkForExistingFilename = true; 
+        }
+        else //FilenameFieldComponent::State::AUTO
+        {
+
+            if (usePlaceholderText)
+            {
+                filename += field->value;
+                continue;
+            }
+
+            switch (field->type)
+            {
+
+                case FilenameFieldComponent::Type::PREPEND:
+
+                    filename += generatePrepend(field->value);
+                    break;
+
+                case FilenameFieldComponent::Type::MAIN:
+
+                    filename += generateDatetimeFromFormat(field->value);
+                    break;
+
+                case FilenameFieldComponent::Type::APPEND:
+
+                    filename += generateAppend(field->value);
+                    break;       
+                
+                default:
+                    break;
+
+            }
+
+        }
+
+    }
+
+    // Disallow overwrite of an existing data directory
+    if (!usePlaceholderText && checkForExistingFilename && getRecordingDirectory().getChildFile(filename).exists())
+    {
+
+        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+            TRANS("Recording Directory Name Conflict"),
+            TRANS("The current custom recording directory name already exists and "
+                    "would overwrite existing data. ")
+                + newLine
+                + TRANS ("Please change the directory name: \"XYZ\"")
+                .replace ("XYZ", filename),
+            TRANS ("OK"),
+            filenameText.get(),
+            ModalCallbackFunction::create (forceFilenameEditor, this));
+
+        return filename;
+    }
+
+    // Disallow both Prepend and Append fields to have state AUTO
+    if (filenameFields[0]->state == FilenameFieldComponent::State::AUTO &&  filenameFields[2]->state == FilenameFieldComponent::State::AUTO)
+    {
+
+        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+            TRANS("Recording Directory Name Conflict"),
+            TRANS("Auto mode cannot be enabled for both Prepend and Append fields simultaneously")
+                + newLine
+                + TRANS ("Please fix to continue"),
+            TRANS ("OK"),
+            filenameText.get(),
+            ModalCallbackFunction::create (forceFilenameEditor, this));
+
+        return filename;
+    }
+
+    if (updateControlPanel)
+        filenameText->setButtonText(filename);
+
+    return filename;
+}
+
+String ControlPanel::generateDatetimeFromFormat(String format)
+{
+
+    //TODO: Parse format and generate the proper date string
+    //For now use default format: "MM-DD-YYYY_HH-MM-SS"
+
+    //Generate current datetime in default format
+    Time calendar = Time::getCurrentTime();
+
+    Array<int> t;
+    t.add(calendar.getMonth() + 1); // January = 0 
+    t.add(calendar.getDayOfMonth());
+    t.add(calendar.getYear());
+    t.add(calendar.getHours());
+    t.add(calendar.getMinutes());
+    t.add(calendar.getSeconds());
+
+    String datestring = "";
+
+    for (int n = 0; n < t.size(); n++)
+    {
+        if (t[n] < 10)
+            datestring += "0";
+
+        datestring += t[n];
+
+        if (n == 2)
+            datestring += "_";
+        else if (n < 5)
+            datestring += "-";
+    }
+
+    return datestring;
+
+}
+
+String ControlPanel::generatePrepend(String format)
+{
+
+    if (filenameFields[1]->state == FilenameFieldComponent::State::CUSTOM)
+    {
+        int maxIdx = 0;
+        for (DirectoryEntry entry : RangedDirectoryIterator (getRecordingDirectory(), false, "*", 1))
+        {
+            if (entry.getFile().getFileName().contains(filenameFields[1]->value) > 0)
+            {
+                int idx;
+                try
+                {
+                    idx = std::stoi(entry.getFile().getFileName().substring(0,3).toStdString());
+                    if (idx > maxIdx)
+                        maxIdx = idx;
+                }
+                catch(const std::exception& e)
+                {
+                    idx = 999;
+                }
+
+            }
+        }
+
+        if (!maxIdx) return format;
+
+        String prependText = String(maxIdx + 1);
+        for (int i = 0; i < 4 - prependText.length(); i++)
+            prependText = "0" + prependText;
+
+        return prependText + "_";
+        
+    }
+
+    return format;
+
+}
+
+String ControlPanel::generateAppend(String format)
+{
+    
+    if (filenameFields[1]->state == FilenameFieldComponent::State::CUSTOM)
+    {
+        int maxIdx = 0;
+        for (DirectoryEntry entry : RangedDirectoryIterator (getRecordingDirectory(), false, "*", 1))
+        {
+            if (entry.getFile().getFileName().indexOfWholeWordIgnoreCase(filenameFields[1]->value) == 0)
+            {
+                int idx;
+                try
+                {
+                    String fn = entry.getFile().getFileName();
+                    idx = std::stoi(entry.getFile().getFileName().substring(fn.length()-3,fn.length()).toStdString());
+                    if (idx > maxIdx)
+                        maxIdx = idx;
+                }
+                catch(const std::exception& e)
+                {
+                    idx = 999;
+                }
+
+            }
+        }
+
+        if (!maxIdx) return format;
+
+        String appendText = String(maxIdx + 1);
+        for (int i = 0; i < 4 - appendText.length(); i++)
+            appendText = "0" + appendText;
+
+        return "_" + appendText;
+        
+    }
+
+    return format;
+
 }

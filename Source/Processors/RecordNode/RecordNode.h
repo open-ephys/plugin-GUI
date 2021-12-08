@@ -73,6 +73,9 @@ public:
     /** Destructor */
 	~RecordNode();
 
+	/** Allow configuration via HTTPServer */
+	String handleConfigMessage(String msg) override;
+
 	/** Update DataQueue block size when Audio Settings buffer size changes */
 	void updateBlockSize(int newBlockSize);
 

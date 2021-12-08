@@ -1,5 +1,8 @@
 # Files and folders to ignore
 
+# 0. log files
+*.log
+
 # 1. intermediate files
 *.o
 *.d

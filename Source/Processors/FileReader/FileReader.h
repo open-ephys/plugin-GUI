@@ -78,6 +78,7 @@ public:
     int64 getCurrentNumTotalSamples();
     int64 getCurrentNumScrubbedSamples();
     float getCurrentSampleRate() const;
+    int64 getCurrentSample();
 
     void setPlaybackStart(int64 timestamp);
     int getPlaybackStart();
@@ -93,6 +94,9 @@ public:
 
     bool loopPlayback;
 
+    unsigned int samplesToMilliseconds (int64 samples)  const;
+    int64 millisecondsToSamples (unsigned int ms)       const;
+
 private:
     Array<const EventChannel*> moduleEventChannels;
     ScopedPointer<EventChannel> eventChannel;
@@ -102,9 +106,6 @@ private:
     bool gotNewFile;
     
     void setActiveRecording (int index);
-
-    unsigned int samplesToMilliseconds (int64 samples)  const;
-    int64 millisecondsToSamples (unsigned int ms)       const;
 
     int64 timestamp;
 
