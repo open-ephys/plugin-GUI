@@ -45,36 +45,52 @@ public:
     /** Destructor*/
     ~SpikeDisplayNode() {}
 
+    /** Creates the editor */
     AudioProcessorEditor* createEditor() override;
 
+    /** Sends incoming spikes to the SpikeDisplayCanvas */
     void process (AudioBuffer<float>& buffer) override;
 
+    /** Informs the SpikeDisplayNode when a redraw is needed*/
     void setParameter(int, float) override;
 
+    /** Called for each incoming spike*/
 	void handleSpike(const SpikeChannel* spikeInfo, const EventPacket& spike, int samplePosition) override;
 
+    /** Creates a display for each incoming spike channel*/
     void updateSettings() override;
 
+    /** Starts animation*/
     bool startAcquisition()   override;
+
+    /** Stops animation*/
     bool stopAcquisition()  override;
 
+    /** Returns the name of an electrode for a given index*/
     String getNameForElectrode (int i) const;
+
+    /** Returns the channel count for an electrode*/
     int getNumberOfChannelsForElectrode (int i) const;
+
+    /** Returns the total number of available electrodes*/
     int getNumElectrodes() const;
 
+    /** Sets the corresponding spike plot for an electrode*/
     void addSpikePlotForElectrode (SpikePlot* sp, int i);
+
+
     void removeSpikePlots();
 
     bool checkThreshold (int, float, Spike*);
 
 
 private:
+    
     struct Electrode
     {
         String name;
 
         int numChannels;
-        int recordIndex;
         int currentSpikeIndex;
 
         Array<float> displayThresholds;
@@ -93,6 +109,7 @@ private:
     int totalCallbacks;
 
     int displayBufferSize;
+
     bool redrawRequested;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayNode);
