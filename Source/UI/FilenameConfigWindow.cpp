@@ -28,19 +28,21 @@ FilenameFieldComponent::FilenameFieldComponent(int type_, int state_, String val
         : type(static_cast<Type>(type_)), state(static_cast<State>(state_)), value(value_)
 {
 
-    typeLabel = std::make_unique<Label>("Type", types[type_]);
-    typeLabel->setBounds(0, 0, 95, 32);
+    typeLabel = std::make_unique<Label>("Type", types[type_] + ":");
+    //typeLabel->setFont(Font(1.5*typeLabel->getFont().getHeight()));
+    typeLabel->setColour(Label::textColourId, Colours::white);
+    typeLabel->setBounds(0, 0, 80, 32);
     addAndMakeVisible(typeLabel.get());
 
     stateButton = std::make_unique<TextButton>("State");
     stateButton->setButtonText(states[state_]);
-    stateButton->setBounds(100, 0, 95, 32);
+    stateButton->setBounds(85, 0, 80, 32);
     stateButton->addListener(this);
     addAndMakeVisible(stateButton.get());
 
     valueLabel = std::make_unique<Label>("Value", value_);
     valueLabel->setEditable(true);
-    valueLabel->setBounds(200, 0, 200, 32);
+    valueLabel->setBounds(170, 0, 230, 32);
     valueLabel->addListener(this);
     valueLabel->setColour(
         Label::ColourIds::backgroundColourId, 

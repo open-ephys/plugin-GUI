@@ -389,21 +389,12 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
                                               "");
     addChildComponent(filenameComponent.get());
 
-    /*
-    prependText = std::make_unique<Label>("Prepend","");
-    prependText->setEditable(true);
-    prependText->addListener(this);
-    prependText->setColour(Label::backgroundColourId, Colours::lightgrey);
-    prependText->setTooltip("Prepend to name of data directory");
-    addChildComponent(prependText.get());
-    */
-
     filenameFields.add(std::make_shared<FilenameFieldComponent>(
-        FilenameFieldComponent::Type::PREPEND, FilenameFieldComponent::State::AUTO, ""));
+        FilenameFieldComponent::Type::PREPEND, FilenameFieldComponent::State::NONE, ""));
     filenameFields.add(std::make_shared<FilenameFieldComponent>(
         FilenameFieldComponent::Type::MAIN, FilenameFieldComponent::State::AUTO,"MM-DD-YYYY_HH-MM-SS"));
     filenameFields.add(std::make_shared<FilenameFieldComponent>(
-        FilenameFieldComponent::Type::APPEND, FilenameFieldComponent::State::NONE,"_001"));
+        FilenameFieldComponent::Type::APPEND, FilenameFieldComponent::State::NONE,""));
 
     filenameText = std::make_unique<FilenameEditorButton>();
     generateFilenameFromFields(true, true);
@@ -411,15 +402,6 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     addAndMakeVisible(filenameText.get());
 
     filenameConfigWindow = std::make_unique<FilenameConfigWindow>(filenameFields);
-
-    /*
-    appendText = std::make_unique<Label>("Append","");
-    appendText->setEditable(true);
-    appendText->addListener(this);
-    appendText->setColour(Label::backgroundColourId, Colours::lightgrey);
-    addChildComponent(appendText.get());
-    appendText->setTooltip("Append to name of data directory");
-    */
 
     refreshMeters();
 
@@ -785,25 +767,15 @@ void ControlPanel::resized()
         newDirectoryButton->setBounds (w - h + 4, topBound, h - 10, h - 10);
         newDirectoryButton->setVisible (true);
 
-        /*
-        prependText->setBounds (165 + w - 490, topBound, 50, h - 10);
-        prependText->setVisible (true);
-        */
         filenameText->setBounds (165 + w - 490, topBound, 280, h - 10);
         filenameText->setVisible (true);
-        /*
-        appendText->setBounds (165 + w - 255, topBound, 50, h - 10);
-        appendText->setVisible (true);
-        */
 
     }
     else
     {
         filenameComponent->setVisible   (false);
         newDirectoryButton->setVisible  (false);
-        //prependText->setVisible         (false);
         filenameText->setVisible            (false);
-        //appendText->setVisible          (false);
         recordSelector->setVisible      (false);
         recordOptionsButton->setVisible (false);
     }
@@ -837,8 +809,7 @@ void ControlPanel::startRecording()
 
     masterClock->startRecording(); // turn on recording
     backgroundColour = Colour(255,0,0);
-    //prependText->setEditable(false);
-    //appendText->setEditable(false);
+
     filenameText->setColour(Label::textColourId, Colours::black);
     
     recordButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
@@ -857,9 +828,6 @@ void ControlPanel::stopRecording()
     backgroundColour = Colour (51, 51, 51);
     
     recordButton->getNormalImage()->replaceColour(Colours::yellow, defaultButtonColour);
-
-    //prependText->setEditable(true);
-    //appendText->setEditable(true);
 
     recordButton->setToggleState(false, dontSendNotification);
 
@@ -1073,51 +1041,6 @@ void ControlPanel::toggleState()
     AccessClass::getUIComponent()->childComponentChanged();
 }
 
-/*
-String ControlPanel::getTextToAppend()
-{
-    String t = appendText->getText();
-
-    if (t.length() > 0)
-    {
-        return "_" + t;
-    }
-    else
-    {
-        return t;
-    }
-}
-
-String ControlPanel::getTextToPrepend()
-{
-    String t = prependText->getText();
-
-    if (t.length() > 0)
-    {
-        return t + "_";
-    }
-    else
-    {
-        return t;
-    }
-}
-
-void ControlPanel::setPrependText(String t)
-{
-    prependText->setText(t, sendNotificationSync);
-}
-
-void ControlPanel::setAppendText(String t)
-{
-    appendText->setText(t, sendNotificationSync);
-}
-
-void ControlPanel::setDateText(String t)
-{
-    dateText->setText(t, dontSendNotification);
-}
-*/
-
 void ControlPanel::setFilenameText(String t)
 {
     filenameText->setButtonText(t);
@@ -1162,8 +1085,7 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
 			{
 				filenameComponent->setCurrentFile(File(recordPath), true, sendNotificationAsync);
 			}
-            //appendText->setText(xmlNode->getStringAttribute("appendText", ""), dontSendNotification);
-            //prependText->setText(xmlNode->getStringAttribute("prependText", ""), dontSendNotification);
+
 			String selectedEngine = xmlNode->getStringAttribute("recordEngine");
 			for (int i = 0; i < recordEngines.size(); i++)
 			{
