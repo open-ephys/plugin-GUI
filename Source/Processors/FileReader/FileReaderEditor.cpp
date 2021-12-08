@@ -578,8 +578,6 @@ void FileReaderEditor::updateZoomTimeLabels()
 
     }
 
-    
-
 }
 
 void FileReaderEditor::setFile (String file)
