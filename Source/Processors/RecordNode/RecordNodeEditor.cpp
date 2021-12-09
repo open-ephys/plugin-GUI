@@ -124,7 +124,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 
 RecordNodeEditor::~RecordNodeEditor() {}
 
-void RecordNodeEditor::saveCustomParameters(XmlElement* xml) 
+void RecordNodeEditor::saveCustomParametersToXml(XmlElement* xml)
 {  
 	
 	xml->setAttribute ("Type", "RecordNode");
@@ -163,7 +163,7 @@ void RecordNodeEditor::saveCustomParameters(XmlElement* xml)
 	
 }
 
-void RecordNodeEditor::loadCustomParameters(XmlElement* xml) 
+void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 {
 
 	forEachXmlChildElement(*xml, xmlNode)
