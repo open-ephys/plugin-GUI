@@ -23,6 +23,9 @@
 
 #include "SpikeDisplayEditor.h"
 
+#include "SpikeDisplayNode.h"
+#include "SpikeDisplayCanvas.h"
+
 #include <string>
 
 SpikeDisplayEditor::SpikeDisplayEditor(GenericProcessor* parentNode)

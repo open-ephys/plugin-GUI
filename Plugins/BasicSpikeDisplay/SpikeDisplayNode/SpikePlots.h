@@ -27,13 +27,38 @@
 
 #include <VisualizerWindowHeaders.h>
 
-
 class SpikeDisplayCanvas;
+class SpikeThresholdCoordinator;
 
 class SpikeDisplay;
 class GenericAxes;
 class ProjectionAxes;
 class WaveAxes;
+
+enum WaveAxesSubPlots {
+    WAVE1 = 0,
+    WAVE2 = 1,
+    WAVE3 = 2,
+    WAVE4 = 3
+};
+
+enum Projection {
+    PROJ1x2 = 4,
+    PROJ1x3 = 5,
+    PROJ1x4 = 6,
+    PROJ2x3 = 7,
+    PROJ2x4 = 8,
+    PROJ3x4 = 9
+};
+
+enum SpikePlotType {
+    WAVE_AXES,
+    PROJECTION_AXES
+};
+
+#define TETRODE_PLOT 1004
+#define STEREO_PLOT  1002
+#define SINGLE_PLOT  1001
 
 /**
 

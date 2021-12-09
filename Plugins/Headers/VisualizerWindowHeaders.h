@@ -29,3 +29,5 @@ graphic representations must be coded using standard Juce methods.
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../../Source/Processors/Visualization/Visualizer.h"
+#include "../../Source/Processors/Events/Spike.h"
+#include "../../Source/Processors/Editors/GenericEditor.h"

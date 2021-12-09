@@ -23,13 +23,60 @@
 
 #include "SpikeDisplayCanvas.h"
 
+#include "SpikeDisplayNode.h"
+#include "SpikePlots.h"
+
+SpikeThresholdCoordinator::SpikeThresholdCoordinator() :
+    lockThresholds(false)
+{
+
+}
+
+SpikeThresholdCoordinator::~SpikeThresholdCoordinator()
+{
+    masterReference.clear();
+}
+
+void SpikeThresholdCoordinator::registerSpikePlot(SpikePlot* sp)
+{
+    registeredPlots.addIfNotAlreadyThere(sp);
+}
+
+void SpikeThresholdCoordinator::deregisterSpikePlot(SpikePlot* sp)
+{
+    registeredPlots.removeAllInstancesOf(sp);
+}
+
+void SpikeThresholdCoordinator::setLockThresholds(bool en)
+{
+    lockThresholds = en;
+}
+
+bool SpikeThresholdCoordinator::getLockThresholds()
+{
+    return lockThresholds;
+}
+
+void SpikeThresholdCoordinator::thresholdChanged(float displayThreshold, float range)
+{
+    if (lockThresholds)
+    {
+        for (int i = 0; i < registeredPlots.size(); i++)
+        {
+            registeredPlots[i]->setAllThresholds(displayThreshold, range);
+        }
+    }
+}
+
+
 SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
     processor(processor_), 
     newSpike(false)
 {
 
     viewport = std::make_unique<Viewport>();
-    spikeDisplay = std::make_unique<SpikeDisplay>(this, viewport);
+    spikeDisplay = std::make_unique<SpikeDisplay>(this, viewport.get());
+
     thresholdCoordinator = std::make_unique < SpikeThresholdCoordinator>();
     spikeDisplay->registerThresholdCoordinator(thresholdCoordinator.get());
 
@@ -229,10 +276,6 @@ SpikeDisplay::SpikeDisplay(SpikeDisplayCanvas* sdc, Viewport* v) :
 
 }
 
-SpikeDisplay::~SpikeDisplay()
-{
-
-}
 
 void SpikeDisplay::clear()
 {
@@ -387,11 +430,6 @@ void SpikeDisplay::resized()
 
 }
 
-void SpikeDisplay::mouseDown(const MouseEvent& event)
-{
-
-}
-
 
 void SpikeDisplay::invertSpikes(bool shouldInvert_)
 {
@@ -455,7 +493,7 @@ void SpikeDisplay::setRangeForWaveAxis(int plotNum, int axisNum, float range)
 // ----------------------------------------------------------------
 
 SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, int elecNum, int p, String name_) :
-    canvas(sdc), isSelected(false), electrodeNumber(elecNum),  plotType(p),
+    canvas(sdc), electrodeNumber(elecNum),  plotType(p),
     limitsChanged(true), name(name_)
 
 {
@@ -523,7 +561,7 @@ SpikePlot::~SpikePlot()
 {
     if (thresholdCoordinator)
     {
-        thresholdCoordinator->unregisterSpikePlot(this);
+        thresholdCoordinator->deregisterSpikePlot(this);
     }
 }
 
@@ -550,16 +588,16 @@ void SpikePlot::processSpikeObject(const Spike* s)
 
     // for (int i = 0; i < nWaveAx; i++)
     // {
-    //     aboveThreshold = aboveThreshold | wAxes[i]->checkThreshold(s);
+    //     aboveThreshold = aboveThreshold | waveAxes[i]->checkThreshold(s);
     // }
 
     // if (aboveThreshold)
     // {
     for (int i = 0; i < nWaveAx; i++)
-        wAxes[i]->updateSpikeData(s);
+        waveAxes[i]->updateSpikeData(s);
 
     for (int i = 0; i < nProjAx; i++)
-        pAxes[i]->updateSpikeData(s);
+        projectionAxes[i]->updateSpikeData(s);
     // }
 
     //     if (aboveThreshold && isRecording)
@@ -570,15 +608,6 @@ void SpikePlot::processSpikeObject(const Spike* s)
 
 }
 
-void SpikePlot::select()
-{
-    isSelected = true;
-}
-
-void SpikePlot::deselect()
-{
-    isSelected = false;
-}
 
 void SpikePlot::initAxes()
 {
@@ -587,15 +616,15 @@ void SpikePlot::initAxes()
     for (int i = 0; i < nWaveAx; i++)
     {
         WaveAxes* wAx = new WaveAxes(WAVE1 + i);
-        wAxes.add(wAx);
+        waveAxes.add(wAx);
         addAndMakeVisible(wAx);
         ranges.add(250.0f); // default range is 250 microvolts
     }
 
     for (int i = 0; i < nProjAx; i++)
     {
-        ProjectionAxes* pAx = new ProjectionAxes(PROJ1x2 + i);
-        pAxes.add(pAx);
+        ProjectionAxes* pAx = new ProjectionAxes((Projection) (PROJ1x2 + i));
+        projectionAxes.add(pAx);
         addAndMakeVisible(pAx);
     }
 
@@ -641,14 +670,14 @@ void SpikePlot::resized()
 
     for (int i = 0; i < nWaveAx; i++)
     {
-        wAxes[i]->setBounds(5 + (i % nWaveCols) * axesWidth/nWaveCols, 20 + (i/nWaveCols) * axesHeight, axesWidth/nWaveCols, axesHeight);
+        waveAxes[i]->setBounds(5 + (i % nWaveCols) * axesWidth/nWaveCols, 20 + (i/nWaveCols) * axesHeight, axesWidth/nWaveCols, axesHeight);
         rangeButtons[i]->setBounds(8 + (i % nWaveCols) * axesWidth/nWaveCols,
                                    20 + (i/nWaveCols) * axesHeight + axesHeight - 18,
                                    25, 15);
     }
 
     for (int i = 0; i < nProjAx; i++)
-        pAxes[i]->setBounds(5 + (1 + i%nProjCols) * axesWidth, 20 + (i/nProjCols) * axesHeight, axesWidth, axesHeight);
+        projectionAxes[i]->setBounds(5 + (1 + i%nProjCols) * axesWidth, 20 + (i/nProjCols) * axesHeight, axesWidth, axesHeight);
 
     monitorButton->setBounds(getWidth() - 40, 3, 35, 15);
 }
@@ -695,15 +724,15 @@ void SpikePlot::setLimitsOnAxes()
     //std::cout<<"SpikePlot::setLimitsOnAxes()"<<std::endl;
 
     for (int i = 0; i < nWaveAx; i++)
-        wAxes[i]->setRange(ranges[i]);
+        waveAxes[i]->setRange(ranges[i]);
 
     // Each projection sets its limits using the limits of the two waveform dims it represents.
     // Convert projection number to indices, and then set the limits using those indices
     int j1, j2;
     for (int i = 0; i < nProjAx; i++)
     {
-        pAxes[i]->n2ProjIdx(pAxes[i]->getType(), &j1, &j2);
-        pAxes[i]->setRange(ranges[j1], ranges[j2]);
+        projectionAxes[i]->n2ProjIdx(projectionAxes[i]->getProjection(), &j1, &j2);
+        projectionAxes[i]->setRange(ranges[j1], ranges[j2]);
     }
 }
 
@@ -745,47 +774,47 @@ void SpikePlot::clear()
     std::cout << "SpikePlot::clear()" << std::endl;
 
     for (int i = 0; i < nWaveAx; i++)
-        wAxes[i]->clear();
+        waveAxes[i]->clear();
     for (int i = 0; i < nProjAx; i++)
-        pAxes[i]->clear();
+        projectionAxes[i]->clear();
 }
 
 float SpikePlot::getDisplayThresholdForChannel(int i)
 {
-    return wAxes[i]->getDisplayThreshold();
+    return waveAxes[i]->getDisplayThreshold();
 }
 
 void SpikePlot::setDisplayThresholdForChannel(int i, float thresh)
 {
     //std::cout << "Setting threshold to " << thresh << std::endl;
-    wAxes[i]->setDisplayThreshold(thresh);
+    waveAxes[i]->setDisplayThreshold(thresh);
 }
 
 float SpikePlot::getRangeForChannel(int i)
 {
-    return wAxes[i]->getRange();
+    return waveAxes[i]->getRange();
 }
 
 void SpikePlot::setRangeForChannel(int i, float range)
 {
     //std::cout << "Setting range to " << range << std::endl;
-    wAxes[i]->setRange(range);
+    waveAxes[i]->setRange(range);
     rangeButtons[i]->setLabel(String(int(range)));
 }
 
 void SpikePlot::setDetectorThresholdForChannel(int i, float t)
 {
     // std::cout << "Setting threshold to " << t << std::endl;
-    wAxes[i]->setDetectorThreshold(t);
+    waveAxes[i]->setDetectorThreshold(t);
 }
 
 void SpikePlot::registerThresholdCoordinator(SpikeThresholdCoordinator* stc)
 {
     thresholdCoordinator = stc;
     stc->registerSpikePlot(this);
-    for (int i=0; i < wAxes.size(); i++)
+    for (int i=0; i < waveAxes.size(); i++)
     {
-        wAxes[i]->registerThresholdCoordinator(stc);
+        waveAxes[i]->registerThresholdCoordinator(stc);
     }
 }
 
@@ -795,7 +824,7 @@ void SpikePlot::setAllThresholds(float displayThreshold, float range)
     for (int i=0; i< nWaveAx; i++)
     {
         ranges.set(i,range);
-        wAxes[i]->setDisplayThreshold(displayThreshold);
+        waveAxes[i]->setDisplayThreshold(displayThreshold);
     }
 
     if (range == 100)
@@ -823,14 +852,14 @@ void SpikePlot::invertSpikes(bool shouldInvert)
 {
     for (int i = 0; i < nWaveAx; i++)
     {
-        wAxes[i]->invertSpikes(shouldInvert);
+        waveAxes[i]->invertSpikes(shouldInvert);
     }
 }
 
 // --------------------------------------------------
 
 
-WaveAxes::WaveAxes(int channel) : GenericAxes(channel),
+WaveAxes::WaveAxes(int channel) : GenericAxes(WAVE_AXES),
     drawGrid(true),
     displayThresholdLevel(0.0f),
     detectorThresholdLevel(0.0f),
@@ -1120,14 +1149,6 @@ void WaveAxes::mouseMove(const MouseEvent& event)
 
 }
 
-void WaveAxes::mouseDown(const MouseEvent& event)
-{
-    // if (isOverThresholdSlider)
-    // {
-    //     cursorType = MouseCursor::DraggingHandCursor;
-    // }
-}
-
 void WaveAxes::mouseDrag(const MouseEvent& event)
 {
     if (isOverThresholdSlider)
@@ -1206,19 +1227,17 @@ void WaveAxes::setDisplayThreshold(float threshold)
 
 // --------------------------------------------------
 
-ProjectionAxes::ProjectionAxes(int projectionNum) : GenericAxes(projectionNum), imageDim(500),
+ProjectionAxes::ProjectionAxes(Projection proj_) : 
+    GenericAxes(PROJECTION_AXES), 
+    proj(proj_),
+    imageDim(500),
     rangeX(250), rangeY(250), spikesReceivedSinceLastRedraw(0)
 {
     projectionImage = Image(Image::RGB, imageDim, imageDim, true);
 
     clear();
-    //Graphics g(projectionImage);
-    //g.setColour(Colours::red);
-    //g.fillEllipse(20, 20, 300, 200);
 
-    n2ProjIdx(projectionNum, &ampDim1, &ampDim2);
-
-
+    n2ProjIdx(proj, &ampDim1, &ampDim2);
 }
 
 void ProjectionAxes::setRange(float x, float y)
@@ -1316,7 +1335,7 @@ void ProjectionAxes::clear()
     repaint();
 }
 
-void ProjectionAxes::n2ProjIdx(int proj, int* p1, int* p2)
+void ProjectionAxes::n2ProjIdx(Projection proj, int* p1, int* p2)
 {
     int d1, d2;
     if (proj==PROJ1x2)
@@ -1362,7 +1381,7 @@ void ProjectionAxes::n2ProjIdx(int proj, int* p1, int* p2)
 
 // --------------------------------------------------
 
-GenericAxes::GenericAxes(int t)
+GenericAxes::GenericAxes(SpikePlotType t)
     : gotFirstSpike(false), type(t)
 {
     ylims[0] = 0;
@@ -1415,21 +1434,6 @@ void GenericAxes::getXLims(double* min, double* max)
 }
 
 
-void GenericAxes::setType(int t)
-{
-    if (t < WAVE1 || t > PROJ3x4)
-    {
-        std::cout<<"Invalid Axes type specified";
-        return;
-    }
-    type = t;
-}
-
-int GenericAxes::getType()
-{
-    return type;
-}
-
 int GenericAxes::roundUp(int numToRound, int multiple)
 {
     if (multiple == 0)
@@ -1472,42 +1476,4 @@ double GenericAxes::ad16ToUv(int x, int gain)
 {
     int result = (double)(x * 20e6) / (double)(gain * pow(2.0,16));
     return result;
-}
-
-SpikeThresholdCoordinator::SpikeThresholdCoordinator() : lockThresholds(false) {}
-
-SpikeThresholdCoordinator::~SpikeThresholdCoordinator()
-{
-    masterReference.clear();
-}
-
-void SpikeThresholdCoordinator::registerSpikePlot(SpikePlot* sp)
-{
-    registeredPlots.addIfNotAlreadyThere(sp);
-}
-
-void SpikeThresholdCoordinator::unregisterSpikePlot(SpikePlot* sp)
-{
-    registeredPlots.removeAllInstancesOf(sp);
-}
-
-void SpikeThresholdCoordinator::setLockThresholds(bool en)
-{
-    lockThresholds = en;
-}
-
-bool SpikeThresholdCoordinator::getLockThresholds()
-{
-    return lockThresholds;
-}
-
-void SpikeThresholdCoordinator::thresholdChanged(float displayThreshold, float range)
-{
-    if (lockThresholds)
-    {
-        for (int i = 0; i < registeredPlots.size(); i++)
-        {
-            registeredPlots[i]->setAllThresholds(displayThreshold,range);
-        }
-    }
 }

@@ -23,6 +23,8 @@
 
 #include "SpikeDisplay.h"
 
+#include "SpikeDisplayCanvas.h"
+#include "SpikePlots.h"
 
 SpikeDisplay::SpikeDisplay(SpikeDisplayCanvas* sdc, Viewport* v) :
     canvas(sdc), 
@@ -246,46 +248,4 @@ void SpikeDisplay::setRangeForWaveAxis(int plotNum, int axisNum, float range)
 {
     if (spikePlots.size() > plotNum)
         return spikePlots[plotNum]->setRangeForChannel(axisNum, range);
-}
-
-SpikeThresholdCoordinator::SpikeThresholdCoordinator() : 
-    lockThresholds(false) 
-{ 
-
-}
-
-SpikeThresholdCoordinator::~SpikeThresholdCoordinator()
-{
-    masterReference.clear();
-}
-
-void SpikeThresholdCoordinator::registerSpikePlot(SpikePlot* sp)
-{
-    registeredPlots.addIfNotAlreadyThere(sp);
-}
-
-void SpikeThresholdCoordinator::deregisterSpikePlot(SpikePlot* sp)
-{
-    registeredPlots.removeAllInstancesOf(sp);
-}
-
-void SpikeThresholdCoordinator::setLockThresholds(bool en)
-{
-    lockThresholds = en;
-}
-
-bool SpikeThresholdCoordinator::getLockThresholds()
-{
-    return lockThresholds;
-}
-
-void SpikeThresholdCoordinator::thresholdChanged(float displayThreshold, float range)
-{
-    if (lockThresholds)
-    {
-        for (int i = 0; i < registeredPlots.size(); i++)
-        {
-            registeredPlots[i]->setAllThresholds(displayThreshold,range);
-        }
-    }
 }

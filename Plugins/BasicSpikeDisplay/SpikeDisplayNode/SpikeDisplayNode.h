@@ -25,7 +25,6 @@
 #define SPIKEDISPLAYNODE_H_
 
 #include <ProcessorHeaders.h>
-#include "SpikeDisplayEditor.h"
 
 class DataViewport;
 class SpikePlot;

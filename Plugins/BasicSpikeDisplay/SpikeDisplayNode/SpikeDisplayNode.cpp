@@ -22,7 +22,9 @@
 */
 
 #include "SpikeDisplayNode.h"
-#include "SpikeDisplayCanvas.h"
+
+#include "SpikeDisplayEditor.h"
+#include "SpikePlots.h"
 
 #include <stdio.h>
 
@@ -229,7 +231,7 @@ void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const EventPac
 	// update threshold / check threshold
 	for (int i = 0; i < e->numChannels; ++i)
 	{
-		e->detectorThresholds.set(i, float(newSpike->getThreshold(i))); // / float(newSpike.gain[i]));
+		e->detectorThresholds.set(i, float(newSpike->getThreshold(i))); 
 
 		aboveThreshold = aboveThreshold | checkThreshold(i, e->displayThresholds[i], newSpike);
 	}

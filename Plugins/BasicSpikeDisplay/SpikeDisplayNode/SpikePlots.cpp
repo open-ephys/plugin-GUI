@@ -25,7 +25,7 @@
 
 #include "SpikeDisplay.h"
 #include "SpikeDisplayCanvas.h"
-
+#include "SpikeDisplayNode.h"
 
 SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, 
                      int elecNum, 
@@ -145,7 +145,8 @@ void SpikePlot::initAxes()
 
     for (int i = 0; i < nProjAx; i++)
     {
-        ProjectionAxes* pAx = new ProjectionAxes((Projection) PROJ1x2 + i);
+        Projection proj = Projection(int(PROJ1x2) + i);
+        ProjectionAxes* pAx = new ProjectionAxes(proj);
         projectionAxes.add(pAx);
         addAndMakeVisible(pAx);
     }

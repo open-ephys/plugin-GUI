@@ -25,11 +25,6 @@
 #define SPIKEDISPLAYEDITOR_H_
 
 #include <VisualizerEditorHeaders.h>
-#include <RecordingLib.h>
-#include "SpikeDisplayNode.h"
-#include "SpikeDisplayCanvas.h"
-
-#define MAX_N_SUB_CHAN 8
 
 class Visualizer;
 class UtilityButton;
@@ -41,6 +36,8 @@ class UtilityButton;
   @see SpikeDisplayNode, SpikeDisplayCanvas
 
 */
+
+#define MAX_N_SUB_CHAN 8
 
 class SpikeDisplayEditor : public VisualizerEditor,
                            public Button::Listener

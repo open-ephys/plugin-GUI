@@ -27,11 +27,8 @@
 
 #include <VisualizerWindowHeaders.h>
 
-#include "SpikeDisplayCanvas.h"
-
-class SpikeDisplay;
 class SpikePlot;
-
+class SpikeDisplayCanvas;
 class SpikeThresholdCoordinator;
 
 /** 
@@ -104,49 +101,11 @@ private:
     SpikeDisplayCanvas* canvas;
     Viewport* viewport;
 
-    OwnedArray<SpikePlot> spikePlots;
+    Array<SpikePlot*> spikePlots;
 
     bool shouldInvert;
 
     SpikeThresholdCoordinator* thresholdCoordinator;
-
-};
-
-/** 
-    Allows spike plot thresholds to be adjusted synchronously
-*/
-class SpikeThresholdCoordinator
-{
-public:
-
-    /** Constructor*/
-    SpikeThresholdCoordinator();
-
-    /** Destructor*/
-    ~SpikeThresholdCoordinator();
-
-    /** Registers a plot to interact with this coordinator*/
-    void registerSpikePlot(SpikePlot* sp);
-
-    /** De-registers a plot to interact with this coordinators*/
-    void deregisterSpikePlot(SpikePlot* sp);
-
-    /** Sets the lock threshold state*/
-    void setLockThresholds(bool en);
-
-    /** Returns the lock threshold state*/
-    bool getLockThresholds();
-
-    /** Sets the thresholds of all registered plots*/
-    void thresholdChanged(float displayThreshold, float range);
-
-private:
-
-    bool lockThresholds;
-    Array<SpikePlot*> registeredPlots;
-
-    WeakReference<SpikeThresholdCoordinator>::Master masterReference;
-    friend class WeakReference<SpikeThresholdCoordinator>;
 
 };
 
