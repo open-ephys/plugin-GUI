@@ -37,8 +37,6 @@ class MessageCenter;
 class SignalChainTabButton;
 class TimestampSourceSelectionWindow;
 
-class ProcessorGraphHttpServer;
-
 
 struct ChannelKey {
     int inputNodeId;

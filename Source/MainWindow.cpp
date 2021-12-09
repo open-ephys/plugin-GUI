@@ -22,6 +22,7 @@
  */
 
 #include "MainWindow.h"
+#include "Utils/OpenEphysHttpServer.h"
 #include "UI/UIComponent.h"
 #include "UI/EditorViewport.h"
 #include <stdio.h>
@@ -108,7 +109,7 @@ MainWindow::MainWindow(const File& fileToLoad)
 		}
 	}
 
-	http_server_thread = std::make_unique<OpenEphysHttpServer>(this, processorGraph.get());
+	http_server_thread = std::make_unique<OpenEphysHttpServer>(processorGraph.get());
 
 	if (shouldEnableHttpServer) {
 		enableHttpServer();

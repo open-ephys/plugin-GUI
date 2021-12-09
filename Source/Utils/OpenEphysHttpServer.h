@@ -31,6 +31,7 @@
 #include "json.hpp"
 
 #include "../MainWindow.h"
+#include "../AccessClass.h"
 
 using json = nlohmann::json;
 
@@ -61,8 +62,7 @@ class OpenEphysHttpServer : juce::Thread {
 public:
     static const int PORT = 37497;
 
-    explicit OpenEphysHttpServer(MainWindow* main, ProcessorGraph* graph) :
-        main_(main),
+    explicit OpenEphysHttpServer(ProcessorGraph* graph) :
         graph_(graph),
         juce::Thread("HttpServer") {}
 
@@ -429,6 +429,35 @@ public:
                        parameter_to_json(parameter, &ret);
                        res.set_content(ret.dump(), "application/json");
                    });
+
+        svr_->Put("/api/window/config", [this](const httplib::Request& req, httplib::Response& res) {
+            std::string message_str;
+            std::cout << "Received PUT WINDOW request" << std::endl;
+
+            try {
+                std::cout << "Trying to decode" << std::endl;
+                json request_json;
+                request_json = json::parse(req.body);
+                std::cout << "Parsed" << std::endl;
+                message_str = request_json["text"];
+                std::cout << "Message string: " << message_str << std::endl;
+            }
+            catch (json::exception& e) {
+                std::cout << "Hit exception" << std::endl;
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
+
+            JUCEApplication::getInstance()->systemRequestedQuit();
+
+            /*
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json");
+            */
+
+            });
                    
         std::cout << "Beginning HTTP server on port " << PORT << std::endl;
         svr_->listen("0.0.0.0", PORT);

@@ -31,6 +31,8 @@
 #include "UI/DefaultConfig.h"
 #include "Utils/OpenEphysHttpServer.h"
 
+class OpenEphysHttpServer;
+
 /**
   The main window for the GUI application.
 
@@ -40,8 +42,6 @@
   @see AudioComponent, ProcessorGraph, UIComponent
 
 */
-
-class OpenEphysHttpServer;
 
 class MainWindow   : public DocumentWindow
 {
