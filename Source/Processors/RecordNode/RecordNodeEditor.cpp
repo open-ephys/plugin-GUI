@@ -172,7 +172,10 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 		{
 			
 			//Get saved record path
-		    dataPathLabel->setText(xmlNode->getStringAttribute("path"), juce::NotificationType::sendNotification);
+			String savedPath = xmlNode->getStringAttribute("path");
+			if (!File(savedPath).exists())
+				savedPath = CoreServices::getDefaultRecordingDirectory().getFullPathName();
+		    dataPathLabel->setText(savedPath, juce::NotificationType::sendNotification);
 			engineSelectCombo->setSelectedId(xmlNode->getStringAttribute("engine").getIntValue());
 			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::sendNotification);
 			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::sendNotification);
