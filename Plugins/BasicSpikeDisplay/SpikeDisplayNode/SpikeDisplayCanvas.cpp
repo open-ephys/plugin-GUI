@@ -23,72 +23,63 @@
 
 #include "SpikeDisplayCanvas.h"
 
-
-SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* n) :
-    processor(n), newSpike(false)
+SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
+    processor(processor_), 
+    newSpike(false)
 {
 
-    viewport = new Viewport();
-    spikeDisplay = new SpikeDisplay(this, viewport);
-    thresholdCoordinator = new SpikeThresholdCoordinator();
-    spikeDisplay->registerThresholdCoordinator(thresholdCoordinator);
+    viewport = std::make_unique<Viewport>();
+    spikeDisplay = std::make_unique<SpikeDisplay>(this, viewport);
+    thresholdCoordinator = std::make_unique < SpikeThresholdCoordinator>();
+    spikeDisplay->registerThresholdCoordinator(thresholdCoordinator.get());
 
-    viewport->setViewedComponent(spikeDisplay, false);
+    viewport->setViewedComponent(spikeDisplay.get(), false);
     viewport->setScrollBarsShown(true, false);
 
     scrollBarThickness = viewport->getScrollBarThickness();
 
-    clearButton = new UtilityButton("Clear plots", Font("Small Text", 13, Font::plain));
+    clearButton = std::make_unique <UtilityButton>("Clear plots", Font("Small Text", 13, Font::plain));
     clearButton->setRadius(3.0f);
     clearButton->addListener(this);
-    addAndMakeVisible(clearButton);
+    addAndMakeVisible(clearButton.get());
 
-    lockThresholdsButton = new UtilityButton("Lock Thresholds", Font("Small Text", 13, Font::plain));
+    lockThresholdsButton = std::make_unique<UtilityButton>("Lock Thresholds", Font("Small Text", 13, Font::plain));
     lockThresholdsButton->setRadius(3.0f);
     lockThresholdsButton->addListener(this);
     lockThresholdsButton->setClickingTogglesState(true);
-    addAndMakeVisible(lockThresholdsButton);
+    addAndMakeVisible(lockThresholdsButton.get());
 
-    invertSpikesButton = new UtilityButton("Invert Spikes", Font("Small Text", 13, Font::plain));
+    invertSpikesButton = std::make_unique <UtilityButton>("Invert Spikes", Font("Small Text", 13, Font::plain));
     invertSpikesButton->setRadius(3.0f);
     invertSpikesButton->addListener(this);
     invertSpikesButton->setClickingTogglesState(true);
     invertSpikesButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(invertSpikesButton);
+    addAndMakeVisible(invertSpikesButton.get());
 
-    addAndMakeVisible(viewport);
-
-    setWantsKeyboardFocus(true);
+    addAndMakeVisible(viewport.get());
 
     update();
-
 }
 
 void SpikeDisplayCanvas::beginAnimation()
 {
-    std::cout << "SpikeDisplayCanvas beginning animation." << std::endl;
-
     startCallbacks();
 }
 
 void SpikeDisplayCanvas::endAnimation()
 {
-    std::cout << "SpikeDisplayCanvas ending animation." << std::endl;
-
     stopCallbacks();
 }
 
 void SpikeDisplayCanvas::update()
 {
 
-    std::cout << "Updating SpikeDisplayCanvas" << std::endl;
-    
     int scrollHeight = viewport->getViewPositionY();
 
     int nPlots = processor->getNumElectrodes();
+    
     processor->removeSpikePlots();
 
-    //std::cout << "  Different number detected" << std::endl;
     spikeDisplay->removePlots();
 
     for (int i = 0; i < nPlots; i++)
@@ -98,10 +89,7 @@ void SpikeDisplayCanvas::update()
         processor->addSpikePlotForElectrode(sp, i);
     }
 
-    //std::cout << "Resized" << std::endl;
     spikeDisplay->resized();
-    
-    viewport->setViewPosition(0, scrollHeight);
     
 }
 
@@ -135,48 +123,24 @@ void SpikeDisplayCanvas::paint(Graphics& g)
 
 void SpikeDisplayCanvas::refresh()
 {
-    processSpikeEvents();
+    processor->setParameter(2, 0.0f); // request redraw
 
     repaint();
 }
 
 
-void SpikeDisplayCanvas::processSpikeEvents()
-{
-
-    processor->setParameter(2, 0.0f); // request redraw
-
-}
-
-//bool SpikeDisplayCanvas::keyPressed(const KeyPress& key)
-//{
-
-    //KeyPress c = KeyPress::createFromDescription("c");
-
-    //if (key.isKeyCode(c.getKeyCode())) // C
-    //{
-     //   spikeDisplay->clear();//
-
-     //   std::cout << "Clearing display" << std::endl;
-     //   return true;
-    //}
-
-    //return false;
-
-//}
-
 void SpikeDisplayCanvas::buttonClicked(Button* button)
 {
 
-    if (button == clearButton)
+    if (button == clearButton.get())
     {
         spikeDisplay->clear();
     }
-    else if (button == lockThresholdsButton)
+    else if (button == lockThresholdsButton.get())
     {
         thresholdCoordinator->setLockThresholds(button->getToggleState());
     }
-    else if (button == invertSpikesButton)
+    else if (button == invertSpikesButton.get())
     {
         spikeDisplay->invertSpikes(button->getToggleState());
     }
@@ -187,8 +151,8 @@ void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
 
     XmlElement* xmlNode = xml->createNewChildElement("SPIKEDISPLAY");
 
-    xmlNode->setAttribute("LockThresholds",lockThresholdsButton->getToggleState());
-    xmlNode->setAttribute("InvertSpikes",invertSpikesButton->getToggleState());
+    xmlNode->setAttribute("LockThresholds", lockThresholdsButton->getToggleState());
+    xmlNode->setAttribute("InvertSpikes", invertSpikesButton->getToggleState());
 
     for (int i = 0; i < spikeDisplay->getNumPlots(); i++)
     {

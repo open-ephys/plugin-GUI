@@ -100,6 +100,9 @@ public:
     // ** Allows the DataThread plugin to handle a config message while acquisition is not active. */
     virtual String handleConfigMessage(String msg) { return ""; }
 
+    /** Allows the DataThread to set its default state, depending on whether the signal chain is loading */
+    virtual void initialize(bool signalChainIsLoading) { }
+
     // ---------------------
     // NON-VIRTUAL METHODS
     // ---------------------

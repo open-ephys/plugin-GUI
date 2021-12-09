@@ -163,7 +163,12 @@ public:
     /** Writes the document to a file as UTF-8.
         @see writeTo, toString
     */
-    bool writeTo (const File& destinationFile, const TextFormat& format = {}) const;
+    bool writeTo (const File& destinationFile, const TextFormat& format) const;
+
+    /** Writes the document to a file as UTF-8.
+        @see writeTo, toString
+    */
+    bool writeTo(const File& destinationFile) const;
 
     //==============================================================================
     /** Returns this element's tag type name.

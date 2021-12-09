@@ -106,6 +106,11 @@ void SourceNode::resizeBuffers()
 	}
 }
 
+void SourceNode::initialize(bool signalChainIsLoading)
+{
+    dataThread->initialize(signalChainIsLoading);
+}
+
 
 void SourceNode::requestSignalChainUpdate()
 {

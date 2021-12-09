@@ -28,9 +28,9 @@
 
 
 SpikeDisplayNode::SpikeDisplayNode()
-    : GenericProcessor  ("Spike Viewer")
-    , displayBufferSize (5)
-    ,  redrawRequested  (false)
+    : GenericProcessor  ("Spike Viewer"), 
+      displayBufferSize (5),  
+      redrawRequested  (false)
 {
 }
 
@@ -202,7 +202,6 @@ void SpikeDisplayNode::process (AudioBuffer<float>& buffer)
             // transfer buffered spikes to spike plot
             for (int j = 0; j < e->currentSpikeIndex; ++j)
             {
-                //std::cout << "Transferring spikes." << std::endl;
                 e->spikePlot->processSpikeObject (e->mostRecentSpikes[j]);
                 e->currentSpikeIndex = 0;
             }
@@ -216,23 +215,14 @@ void SpikeDisplayNode::process (AudioBuffer<float>& buffer)
 void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& spike, int samplePosition)
 {
 	SpikePtr newSpike = Spike::deserialize(spike, spikeInfo);
-    
-    //std::cout << "Received spike" << std::endl;
-    
+
 	if (!newSpike) return;
 
 	int electrodeNum = newSpike->getChannelIndex();
 
     spikeCount++;
 
-    //const float* data = newSpike->getDataPointer();
-
-    //float peak = data[9];
-
-    //std::cout << peak << std::endl;
-
 	Electrode* e = electrodes[electrodeNum];
-	//std::cout << electrodeNum << std::endl;
 
 	bool aboveThreshold = false;
 
@@ -249,7 +239,7 @@ void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeInfo, const EventPac
 		// add to buffer
 		if (e->currentSpikeIndex < displayBufferSize)
 		{
-			//This releases the spike from the smart pointer to avoid copies, so it's done latest.
+			//This releases the spike from the smart pointer to avoid copies
 			e->mostRecentSpikes.set(e->currentSpikeIndex, newSpike.release());
 			e->currentSpikeIndex++;
 		}
