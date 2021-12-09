@@ -173,7 +173,7 @@ public:
     GenericAxes(SpikePlotType type);
 
     /** Destructor */
-    virtual ~GenericAxes();
+    virtual ~GenericAxes() { }
 
     /** Called when a new spike is received*/
     virtual bool updateSpikeData(const Spike* s) = 0;
