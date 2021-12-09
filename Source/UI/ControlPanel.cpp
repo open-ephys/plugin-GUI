@@ -755,11 +755,11 @@ void ControlPanel::resized()
     {
         int topBound = getHeight() - h + 10 - 5;
 
-        recordSelector->setBounds ( (w - 435) > 40 ? 35 : w - 450, topBound, 100, h - 10);
+        recordSelector->setBounds ( (w - 435) > 40 ? 35 : w - 450, topBound, 125, h - 10);
         recordSelector->setVisible (true);
 
         recordOptionsButton->setBounds ( (w - 435) > 40 ? 140 : w - 350, topBound, h - 10, h - 10);
-        recordOptionsButton->setVisible (true);
+        recordOptionsButton->setVisible (false);
 
         filenameComponent->setBounds (165, topBound, w - 500, h - 10);
         filenameComponent->setVisible (true);
