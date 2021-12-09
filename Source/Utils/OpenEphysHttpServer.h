@@ -24,12 +24,13 @@
 #ifndef __PROCESSORGRAPHHTTPSERVER_H_124F8B50__
 #define __PROCESSORGRAPHHTTPSERVER_H_124F8B50__
 
-#include "ProcessorGraph.h"
-#include "../Parameter/Parameter.h"
-#include "../GenericProcessor/GenericProcessor.h"
+#include "../Processors/Parameter/Parameter.h"
+#include "../Processors/GenericProcessor/GenericProcessor.h"
 #include <sstream>
-#include "../../Utils/httplib.h"
-#include "../../Utils/json.hpp"
+#include "httplib.h"
+#include "json.hpp"
+
+#include "../MainWindow.h"
 
 using json = nlohmann::json;
 
@@ -56,11 +57,12 @@ using json = nlohmann::json;
  * All endpoints are JSON endpoints. The PUT endpoint expects two parameters: "channel" (an integer), and "value",
  * which should have a type matching the type of the parameter.
  */
-class ProcessorGraphHttpServer : juce::Thread {
+class OpenEphysHttpServer : juce::Thread {
 public:
     static const int PORT = 37497;
 
-    explicit ProcessorGraphHttpServer(ProcessorGraph* graph) :
+    explicit OpenEphysHttpServer(MainWindow* main, ProcessorGraph* graph) :
+        main_(main),
         graph_(graph),
         juce::Thread("HttpServer") {}
 
@@ -427,7 +429,7 @@ public:
                        parameter_to_json(parameter, &ret);
                        res.set_content(ret.dump(), "application/json");
                    });
-
+                   
         std::cout << "Beginning HTTP server on port " << PORT << std::endl;
         svr_->listen("0.0.0.0", PORT);
     }
@@ -449,6 +451,7 @@ public:
 
 private:
     std::unique_ptr<httplib::Server> svr_;
+    MainWindow* main_;
     ProcessorGraph* graph_;
 
     var json_to_var(const json& value) {

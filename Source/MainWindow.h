@@ -29,6 +29,7 @@
 #include "Audio/AudioComponent.h"
 #include "Processors/ProcessorGraph/ProcessorGraph.h"
 #include "UI/DefaultConfig.h"
+#include "Utils/OpenEphysHttpServer.h"
 
 /**
   The main window for the GUI application.
@@ -40,6 +41,7 @@
 
 */
 
+class OpenEphysHttpServer;
 
 class MainWindow   : public DocumentWindow
 {
@@ -74,6 +76,12 @@ public:
     /** Called when the GUI crashes unexpectedly.*/
     static void handleCrash(void *);
 
+    /** Start thread which listens to remote commands to control the GUI */
+    void enableHttpServer();
+
+    /** Stop thread which listens to remote commands to control the GUI */
+    void disableHttpServer();
+
 private:
 
     /** Saves the MainWindow's boundaries into the file "windowState.xml", located in the directory
@@ -96,6 +104,9 @@ private:
 
     /** A weak reference to devfault config window. */
     WeakReference<DefaultConfigWindow> defaultConfigWindow;
+
+    /** A pointer to the application's HttpServer (owned by the MainWindow). */
+    std::unique_ptr<OpenEphysHttpServer> http_server_thread;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 

@@ -94,12 +94,6 @@ public:
 
     /* Determines which processor to create, based on the description provided*/
     std::unique_ptr<GenericProcessor> createProcessorFromDescription(Plugin::Description& description);
-
-    /* Starts the HTTP server for interacting with the GUI. */
-    void enableHttpServer();
-
-    /* Stops the HTTP server for interacting with the GUI. */
-    void disableHttpServer();
     
     /* Checks whether an action has create the need for new 'root' processors (first in signal chain)*/
     bool checkForNewRootNodes(GenericProcessor* processor,
@@ -245,8 +239,6 @@ private:
 
     bool isLoadingSignalChain;
 
-
-    std::unique_ptr<ProcessorGraphHttpServer> http_server_thread;
 
 };
 

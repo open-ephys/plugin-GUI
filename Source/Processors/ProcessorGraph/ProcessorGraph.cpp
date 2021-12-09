@@ -44,8 +44,6 @@
 #include "../../Audio/AudioComponent.h"
 #include "../../AccessClass.h"
 
-#include "ProcessorGraphHttpServer.h"
-
 std::map< ChannelKey, bool> ProcessorGraph::bufferLookupMap;
 
 ProcessorGraph::ProcessorGraph() : currentNodeId(100), isLoadingSignalChain(false)
@@ -58,23 +56,10 @@ ProcessorGraph::ProcessorGraph() : currentNodeId(100), isLoadingSignalChain(fals
                          44100.0, // sampleRate
                          1024);    // blockSize
 
-    http_server_thread = std::make_unique<ProcessorGraphHttpServer>(this);
 }
 
 ProcessorGraph::~ProcessorGraph()
 {
-    if (http_server_thread) {
-        http_server_thread->stop();
-    }
-}
-
-
-void ProcessorGraph::enableHttpServer() {
-    http_server_thread->start();
-}
-
-void ProcessorGraph::disableHttpServer() {
-    http_server_thread->stop();
 }
 
 void ProcessorGraph::createDefaultNodes()
