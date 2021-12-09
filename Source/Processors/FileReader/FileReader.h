@@ -66,6 +66,8 @@ public:
 	bool startAcquisition() override;
 	bool stopAcquisition() override;
 
+    void initialize(bool signalChainIsLoading) override;
+
     String getFile() const;
     bool setFile (String fullpath);
 

@@ -111,7 +111,23 @@ FileReader::~FileReader()
 AudioProcessorEditor* FileReader::createEditor()
 {
     editor = std::make_unique<FileReaderEditor>(this);
+
     return editor.get();
+}
+
+void FileReader::initialize(bool signalChainIsLoading)
+{
+    if (signalChainIsLoading)
+        return;
+
+    File executable = File::getSpecialLocation(File::currentExecutableFile);
+    File defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
+
+    if (defaultFile.exists())
+    {
+        FileReaderEditor* ed = (FileReaderEditor*)editor.get();
+        ed->setFile(defaultFile.getFullPathName());
+    }
 }
 
 void FileReader::togglePlayback()

@@ -877,6 +877,7 @@ void FileReaderEditor::populateRecordings (FileSource* source)
     recordSelector->clear (dontSendNotification);
 
     const int numRecords = source->getNumRecords();
+
     for (int i = 0; i < numRecords; ++i)
     {
         //sendActionMessage("Got file " + source->getRecordName(i));

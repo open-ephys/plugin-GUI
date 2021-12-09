@@ -380,6 +380,14 @@ public:
     //     UPDATING SETTINGS
     // --------------------------------------------
 
+    /** Allows the processor to load its default state after the editor is created.
+
+        The "signalChainIsLoading" flag can be used to prevent the processor from
+        performing unnecessary steps before it receives information
+        about its previous settings.
+    */
+    virtual void initialize(bool signalChainIsLoading) { }
+
     /** Method for updating settings, called by ProcessorGraph.*/
     void update();
 
@@ -392,6 +400,7 @@ public:
 
     /** Load generic settings from XML (called by all processors). */
     void loadFromXml();
+
 
     // --------------------------------------------
    //     SAVING + LOADING SETTINGS
