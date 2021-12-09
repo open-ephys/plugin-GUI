@@ -582,6 +582,17 @@ void FileReaderEditor::updateZoomTimeLabels()
 
 void FileReaderEditor::setFile (String file)
 {
+    if (file.equalsIgnoreCase("default"))
+    {
+        File executable = File::getSpecialLocation(File::currentExecutableFile);
+        File defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
+
+        if (defaultFile.exists())
+        {
+            file = defaultFile.getFullPathName();
+        }
+    }
+
     File fileToRead (file);
     lastFilePath = fileToRead.getParentDirectory();
 
