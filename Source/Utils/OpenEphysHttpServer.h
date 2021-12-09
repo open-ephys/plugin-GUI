@@ -24,12 +24,14 @@
 #ifndef __PROCESSORGRAPHHTTPSERVER_H_124F8B50__
 #define __PROCESSORGRAPHHTTPSERVER_H_124F8B50__
 
-#include "ProcessorGraph.h"
-#include "../Parameter/Parameter.h"
-#include "../GenericProcessor/GenericProcessor.h"
+#include "../Processors/Parameter/Parameter.h"
+#include "../Processors/GenericProcessor/GenericProcessor.h"
 #include <sstream>
-#include "../../Utils/httplib.h"
-#include "../../Utils/json.hpp"
+#include "httplib.h"
+#include "json.hpp"
+
+#include "../MainWindow.h"
+#include "../AccessClass.h"
 
 using json = nlohmann::json;
 
@@ -56,11 +58,11 @@ using json = nlohmann::json;
  * All endpoints are JSON endpoints. The PUT endpoint expects two parameters: "channel" (an integer), and "value",
  * which should have a type matching the type of the parameter.
  */
-class ProcessorGraphHttpServer : juce::Thread {
+class OpenEphysHttpServer : juce::Thread {
 public:
     static const int PORT = 37497;
 
-    explicit ProcessorGraphHttpServer(ProcessorGraph* graph) :
+    explicit OpenEphysHttpServer(ProcessorGraph* graph) :
         graph_(graph),
         juce::Thread("HttpServer") {}
 
@@ -428,6 +430,35 @@ public:
                        res.set_content(ret.dump(), "application/json");
                    });
 
+        svr_->Put("/api/window/config", [this](const httplib::Request& req, httplib::Response& res) {
+            std::string message_str;
+            std::cout << "Received PUT WINDOW request" << std::endl;
+
+            try {
+                std::cout << "Trying to decode" << std::endl;
+                json request_json;
+                request_json = json::parse(req.body);
+                std::cout << "Parsed" << std::endl;
+                message_str = request_json["text"];
+                std::cout << "Message string: " << message_str << std::endl;
+            }
+            catch (json::exception& e) {
+                std::cout << "Hit exception" << std::endl;
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
+
+            JUCEApplication::getInstance()->systemRequestedQuit();
+
+            /*
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json");
+            */
+
+            });
+                   
         std::cout << "Beginning HTTP server on port " << PORT << std::endl;
         svr_->listen("0.0.0.0", PORT);
     }
@@ -449,6 +480,7 @@ public:
 
 private:
     std::unique_ptr<httplib::Server> svr_;
+    MainWindow* main_;
     ProcessorGraph* graph_;
 
     var json_to_var(const json& value) {

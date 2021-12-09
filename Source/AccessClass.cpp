@@ -31,6 +31,7 @@ namespace AccessClass
 {
 namespace
 {
+
 UIComponent* ui = nullptr;
 EditorViewport* ev = nullptr;
 ProcessorList* pl = nullptr;

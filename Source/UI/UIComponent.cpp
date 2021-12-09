@@ -758,10 +758,10 @@ bool UIComponent::perform(const InvocationInfo& info)
 			mainWindow->shouldEnableHttpServer = !mainWindow->shouldEnableHttpServer;
 
 			if (mainWindow->shouldEnableHttpServer) {
-				AccessClass::getProcessorGraph()->enableHttpServer();
+				mainWindow->enableHttpServer();
 			}
 			else {
-				AccessClass::getProcessorGraph()->disableHttpServer();
+				mainWindow->disableHttpServer();
 			}
 			break;
 
