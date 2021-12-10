@@ -54,7 +54,7 @@ RecordNode::RecordNode()
 	spikeQueue = std::make_unique<SpikeMsgQueue>(SPIKE_BUFFER_NSPIKES);
 
 	synchronizer = new Synchronizer(this);
-
+	
 	isSyncReady = true;
 
 	/* New record nodes default to the record engine currently selected in the Control Panel */
@@ -63,11 +63,11 @@ RecordNode::RecordNode()
 	dataDirectory = CoreServices::getDefaultRecordingDirectory();
 
 	recordThread = new RecordThread(this, recordEngine);
-
+	
 	lastDataChannelArraySize = 0;
 
 	eventMonitor = new EventMonitor();
-
+	
 }
 
 RecordNode::~RecordNode()
@@ -234,7 +234,7 @@ void RecordNode::setParameter(int parameterIndex, float newValue)
 }
 
 // Called when deleting FifoMonitor
-void RecordNode::updateChannelStates(uint64 streamId, std::vector<bool> channelStates)
+void RecordNode::updateChannelStates(uint16 streamId, std::vector<bool> channelStates)
 {
 	this->dataChannelStates[streamId] = channelStates;
 }
@@ -301,8 +301,8 @@ void RecordNode::updateSettings()
 				dataChannelOrder[count] = channel->getLocalIndex();
 				count++;
 			}
-			
-		} 
+
+		}
 		else
 		{
 			//An existing data stream has changed its number of input channels
@@ -318,194 +318,19 @@ void RecordNode::updateSettings()
 			}
 			else //Found existing data stream, only need to increment channel counter
 			{
-				count+=stream->getContinuousChannels().size();
+				count += stream->getContinuousChannels().size();
 			}
 
 		}
 
 	}
 
-	std::cout << "Record Node found " << eventChannels.size() << " event channels " << std::endl;
-
-	// Remove any previous data streams that are no longer coming into the Record Node
-	/* Temporarily remove for now */
-	/*
-	if (activeStreamIds.size() < dataChannelStates.size())
-		for (auto const& [id, states] : dataChannelStates)
-			if (!std::count(activeStreamIds.begin(), activeStreamIds.end(), id)) 
-				dataChannelStates.erase(id);
-	*/
-
-	
 	//Refresh editor as needed
 	if (static_cast<RecordNodeEditor*> (getEditor())->subprocessorsVisible)
 	{
 		static_cast<RecordNodeEditor*> (getEditor())->showSubprocessorFifos(false);
 		static_cast<RecordNodeEditor*> (getEditor())->buttonClicked(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
 	}
-
-	for (auto const& [ch, order] : dataChannelOrder)
-		std::cout << "(" << ch << "," << order << ")" << std::endl;
-
-
-	/*OLD CODE STARTS HERE
-
-	bool refreshEditor = false;
-
-	std::map<int, std::vector<int>> inputs;
-
-	int updatedNumSubprocessors = 0;
-	int originalChannelCount = numChannels;
-	int ch = 0;
-
-	while (ch < continuousChannels.size())
-	{
-
-		ContinuousChannel* chan = continuousChannels[ch];
-		int sourceID = chan->getSourceNodeId();
-		int streamId = chan->getStreamId();
-
-		if (inputs.empty() || inputs[sourceID].empty() || inputs[sourceID].back() != streamId)
-		{
-
-			//Check if this (src,sub) combo has already been seen and show warning
-			if (!inputs.empty() && !inputs[sourceID].empty() 
-				&& std::find(inputs[sourceID].begin(), inputs[sourceID].end(), streamId) != inputs[sourceID].end())
-			{
-				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
-					"WARNING!", "Detected input channels re-mapped from different subprocessors. Please correct the channel mapping or else the RecordNode will crash!");
-				return;
-			}
-
-			//Found a new subprocessor
-			inputs[sourceID].push_back(streamId);
-			fifoUsage[sourceID][streamId] = 0.0f;
-			updatedNumSubprocessors++;
-		}
-
-		//Add any new sources
-		if (!dataChannelStates.count(sourceID) || !dataChannelStates[sourceID].count(streamId))
-		{
-			int orderInSubprocessor = 0;
-			synchronizer->addDataStream(chan->getStreamId(), chan->getSampleRate());
-
-			if (synchronizer->primaryProcessorId < 0)
-			{
-				synchronizer->addDataStream(chan->getStreamId(), chan->getSampleRate());
-			}
-			while (ch < continuousChannels.size() && continuousChannels[ch]->getStreamId() == streamId
-				& continuousChannels[ch]->getSourceNodeId() == sourceID)
-			{
-				dataChannelStates[sourceID][continuousChannels[ch]->getStreamId()].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
-				dataChannelOrder[ch] = orderInSubprocessor++;
-
-				//std::cout << " Channel " << ch << ", " << " order: " << dataChannelOrder[ch] << ", record state: " << dataChannelStates[sourceID][subProcIdx].back() << std::endl;
-
-
-				ch++;
-
-
-			}
-			refreshEditor = true;
-
-			//LOGDD("RecordNode found ", orderInSubprocessor, " channels in ", sourceID, ".", subProcIdx);
-		}
-		else
-		{
-			// check if channel count has changed for existing source
-			int count = 0;
-			int originalSize = dataChannelStates[sourceID][streamId].size();
-
-			for (int i = 0; i < continuousChannels.size(); i++)
-			{
-
-				//std::cout << "Channel " << i << ": " << dataChannelArray[i]->getSourceNodeID() << "." << dataChannelArray[i]->getSubProcessorIdx() << std::endl;
-				if (continuousChannels[i]->getSourceNodeId() == sourceID && continuousChannels[i]->getStreamId() == streamId)
-				{
-					dataChannelOrder[ch + count] = count;
-					count++;
-				}
-
-			}
-			//If channel count is greater, add new channels to dataChannelStates
-			if (count > originalSize)
-			{
-				for (int i = 0; i < count - originalSize; i++)
-				{
-					dataChannelStates[sourceID][streamId].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
-
-				}
-			} //else if less, remove n channels from dataChannelStates
-			else if (count < dataChannelStates[sourceID][streamId].size())
-			{
-				for (int i = 0; i < originalSize - count; i++)
-				{
-					dataChannelStates[sourceID][streamId].pop_back();
-				}
-			}
-			else
-			{
-				//else do nothing
-			}
-
-			//LOGDD("RecordNode found ", count, " channels in ", sourceID, ".", subProcIdx);
-
-			ch += count;
-
-			//std::cout << " Channel " << ch << " record state: " << dataChannelStates[sourceID][subProcIdx].back() << std::endl;
-		}
-
-	}
-
-	//Remove any stale processors
-	std::vector<int> sources;
-	for (auto const& sourceID : inputs)
-		sources.push_back(sourceID.first);
-	std::vector<int> toErase;
-
-	std::map<int, std::map<int, std::vector<bool>>>::iterator it;
-	for (it = dataChannelStates.begin(); it != dataChannelStates.end(); it++)
-	{	
-		if (std::find(sources.begin(), sources.end(), it->first) == sources.end())
-			toErase.push_back(it->first);
-	}
-
-	for (int i = 0; i < toErase.size(); i++)
-		dataChannelStates.erase(toErase[i]);
-
-	if (refreshEditor && static_cast<RecordNodeEditor*> (getEditor())->subprocessorsVisible)
-	{
-		numDataStreams = updatedNumSubprocessors;
-		static_cast<RecordNodeEditor*> (getEditor())->showSubprocessorFifos(false);
-		static_cast<RecordNodeEditor*> (getEditor())->buttonEvent(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
-	}
-
-	numDataStreams = updatedNumSubprocessors;
-
-	eventMap.clear();
-	syncChannelMap.clear();
-	syncOrderMap.clear();
-
-	LOGDD("Record Node: ", getNodeId(), " has ", eventChannels.size(), " event channels");
-	for (int ch = 0; ch < eventChannels.size(); ch++)
-	{
-
-		EventChannel* chan = eventChannels[ch];
-		int sourceID = chan->getSourceNodeId();
-		int streamId = chan->getStreamId();
-
-		// WHAT IS THIS USED FOR?
-		eventMap[sourceID][streamId] = 256; // chan->getNumChannels();
-
-		if (dataChannelStates[sourceID][streamId].size() && !syncChannelMap[sourceID][streamId])
-		{
-			syncOrderMap[sourceID][streamId] = ch;
-			syncChannelMap[sourceID][streamId] = 0;
-			synchronizer->setSyncBit(chan->getStreamId(), ch);
-		}
-
-	}
-	*/
 
 }
 

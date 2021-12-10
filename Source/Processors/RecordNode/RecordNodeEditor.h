@@ -40,7 +40,9 @@ private:
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
-class FifoMonitor : public Component, public Timer, public ComponentListener
+class FifoMonitor : public Component, 
+					public Timer, 
+				    public PopupChannelSelector::Listener
 {
 public:
 	FifoMonitor(RecordNode*, uint64);
@@ -48,6 +50,8 @@ public:
 	void setFillPercentage(float percentage);
 
 	void timerCallback();
+
+	void channelStateChanged(Array<int> selectedChannels);
 
 	void mouseDoubleClick(const MouseEvent &event);
 
@@ -104,7 +108,6 @@ class RecordNodeEditor :
 		   ComboBox::Listener, 
 	       Label::Listener,
 		   Button::Listener,
-		   PopupChannelSelector::Listener,
 		   Timer
 {
 public:
@@ -120,8 +123,6 @@ public:
 	int getSelectedEngineIdx();
     
 	bool subprocessorsVisible;
-
-	void channelStateChanged(Array<int> selectedChannels) { }
 
 	void timerCallback() override;
 	void comboBoxChanged(ComboBox*); 

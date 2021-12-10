@@ -759,8 +759,6 @@ struct RenderSequenceBuilder
             jassert (index != 0);
             audioChannelsToUse.add (index);
 
-            //std::cout << "   Output channel " << outputChan << " buffer: " << index << std::endl;
-
             audioBuffers.getReference (index).channel = { node.nodeID, outputChan };
         }
 
@@ -780,15 +778,6 @@ struct RenderSequenceBuilder
         LOGG(" ", "    Midi buffers in ", interval * 1000, " milliseconds");
 
         start = Time::getHighResolutionTicks();
-
-        //delays.set (node.nodeID.uid, maxLatency + processor.getLatencySamples());
-
-        //interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
-
-        //std::cout << " " << "    Delays in " << interval * 1000 << " milliseconds" << std::endl;
-
-        //if (numOuts == 0)
-        //    totalLatency = maxLatency;
 
         sequence.addProcessOp (node, audioChannelsToUse, totalChans, midiBufferToUse);
 

@@ -26,6 +26,7 @@
 #include "DelayMonitor.h"
 #include "TTLMonitor.h"
 #include "GenericEditor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 #include "../Settings/DataStream.h"
 
@@ -36,12 +37,18 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
 
     updateInfoString();
 
-    enableButton = std::make_unique<StreamEnableButton>("x");
-    enableButton->addListener(this);
-    enableButton->setClickingTogglesState(true);
-    enableButton->setToggleState(true, dontSendNotification);
-    addAndMakeVisible(enableButton.get());
-
+    if (editor->getProcessor()->isFilter())
+    {
+        enableButton = std::make_unique<StreamEnableButton>("x");
+        enableButton->addListener(this);
+        enableButton->setClickingTogglesState(true);
+        enableButton->setToggleState(true, dontSendNotification);
+        addAndMakeVisible(enableButton.get());
+        enabledString = "Bypass";
+    }
+    else {
+        enabledString = "";
+    }
 
     delayMonitor = std::make_unique<DelayMonitor>();
     addAndMakeVisible(delayMonitor.get());
@@ -49,7 +56,7 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     ttlMonitor = std::make_unique<TTLMonitor>();
     addAndMakeVisible(ttlMonitor.get());
         
-    enabledString = "Bypass";
+    
 
 }
 
@@ -139,7 +146,8 @@ void StreamInfoView::buttonClicked(Button* button)
 
 void StreamInfoView::resized()
 {
-    enableButton->setBounds(6, 38, 12, 12);
+    if (enableButton != nullptr)
+        enableButton->setBounds(6, 38, 12, 12);
     
     if (delayMonitor != nullptr)
     {
