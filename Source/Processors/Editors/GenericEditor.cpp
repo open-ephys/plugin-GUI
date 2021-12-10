@@ -1139,7 +1139,7 @@ void GenericEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled, b
     
     getProcessor()->setStreamEnabled(streamId, isEnabled);
 
-    if ((isMerger() || isSplitter()) && !isLoading)
+    if (!isLoading)
         CoreServices::updateSignalChain(this);
 
 }

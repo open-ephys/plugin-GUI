@@ -855,6 +855,12 @@ void GenericProcessor::update()
       {
         
           DataStream* similarStream = spikeChannel->findSimilarStream(dataStreams);
+
+          if (similarStream != nullptr)
+          {
+              if (!(*similarStream)["enable_stream"])
+                  continue;
+          }
          
           spikeChannel->setDataStream(similarStream, true);
           
