@@ -136,8 +136,6 @@ void ProcessorList::drawItems(Graphics& g)
 							hasSubItems());
 					drawItem(g, baseItem->getSubItem(n)->getSubItem(m));
                     
-                    totalHeight += itemHeight;
-
 				}
 			}
 		}
