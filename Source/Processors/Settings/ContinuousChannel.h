@@ -51,8 +51,8 @@ public:
 
 	struct Impedance
 	{
-		float frequency = -1.0f;
-		float value = -1.0f;
+		float magnitude = -1.0f;
+		float phase = -1.0f;
 		bool measured = false;
 	};
 
