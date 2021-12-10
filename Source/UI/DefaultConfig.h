@@ -24,6 +24,15 @@ private:
     std::unique_ptr<ComboBox> configSelector;
     std::unique_ptr<TextButton> goButton;
 
+    std::unique_ptr<ImageButton> acqBoardButton;
+    std::unique_ptr<Label> acqBoardLabel;
+
+    std::unique_ptr<ImageButton> fileReaderButton;
+    std::unique_ptr<Label> fileReaderLabel;
+
+    std::unique_ptr<ImageButton> neuropixelsButton;
+    std::unique_ptr<Label> neuropixelsLabel;
+
     Font configFont;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DefaultConfigComponent);

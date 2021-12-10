@@ -206,6 +206,14 @@ void PluginInstaller::installPluginAndDependency(const String& plugin, String ve
 
 	requiredPluginInfo.versions.clear();
 
+	for (String v : *allVersions)
+	{
+		String apiVer = v.substring(v.indexOf("I") + 1);
+		
+		if (apiVer.equalsIgnoreCase(String(PLUGIN_API_VER)))
+			requiredPluginInfo.versions.add(v);
+	}
+
 	requiredPluginInfo.dependencies.clear();
 	auto dependencies = pluginData[pIndex].getProperty("dependencies", "NULL").getArray();
 	for (juce::String dependency : *dependencies)
@@ -234,9 +242,12 @@ void PluginInstaller::installPluginAndDependency(const String& plugin, String ve
 	}
 	
 	// download the plugin
-	if(version.isEmpty())
+	if(version.isEmpty() || !requiredPluginInfo.versions.contains(version))
+	{
+		LOGC(plugin, " version ", version, " not found! Installing the latest version");
 		version = requiredPluginInfo.latestVersion;
-
+	}
+	
 	int code = tempInfoComponent.downloadPlugin(requiredPluginInfo.pluginName, version, false);
 
 	if(code == 1)

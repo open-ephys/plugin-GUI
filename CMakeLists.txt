@@ -85,17 +85,17 @@ target_compile_features(open-ephys PUBLIC cxx_auto_type cxx_generalized_initiali
 
 #output folders and specific options
 if (MSVC OR LINUX)
-set(BIN_PLUGIN_DIR $<TARGET_FILE_DIR:open-ephys>/plugins)
-set(BIN_SHARED_DIR $<TARGET_FILE_DIR:open-ephys>/shared)
-add_custom_command(TARGET open-ephys POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_SHARED_DIR}"
-		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_PLUGIN_DIR}"
-		)
+	set(BIN_PLUGIN_DIR $<TARGET_FILE_DIR:open-ephys>/plugins)
+	set(BIN_SHARED_DIR $<TARGET_FILE_DIR:open-ephys>/shared)
+	add_custom_command(TARGET open-ephys POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_SHARED_DIR}"
+			COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_PLUGIN_DIR}"
+			)
 
-file(GLOB _bitfiles "${RESOURCES_DIRECTORY}/Bitfiles/*.bit")
-add_custom_command(TARGET open-ephys POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy ${_bitfiles} $<TARGET_FILE_DIR:open-ephys>
-		)
+	file(GLOB _bitfiles "${RESOURCES_DIRECTORY}/Bitfiles/*.bit")
+	add_custom_command(TARGET open-ephys POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy ${_bitfiles} "${BIN_SHARED_DIR}"
+			)
 
 elseif(APPLE)
 	set(BIN_PLUGIN_DIR $<TARGET_FILE_DIR:open-ephys>/../PlugIns)
@@ -103,6 +103,20 @@ elseif(APPLE)
 			COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_PLUGIN_DIR}"
 			)
 endif()
+
+# copy default configs and their icons
+file(GLOB _xmlfiles "${RESOURCES_DIRECTORY}/Configs/*.xml")
+add_custom_command(TARGET open-ephys POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:open-ephys>/configs
+			COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:open-ephys>/configs/icons
+			COMMAND ${CMAKE_COMMAND} -E copy ${_xmlfiles} $<TARGET_FILE_DIR:open-ephys>/configs
+			COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIRECTORY}/Configs/Icons $<TARGET_FILE_DIR:open-ephys>/configs/icons
+			)
+
+#copy FileReader resources to output directory
+add_custom_command(TARGET open-ephys POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIRECTORY}/FileReader/resources $<TARGET_FILE_DIR:open-ephys>/resources
+			)
 
 if(MSVC)
 	set_property(TARGET open-ephys APPEND PROPERTY COMPILE_DEFINITIONS "JUCE_API=__declspec(dllexport)")

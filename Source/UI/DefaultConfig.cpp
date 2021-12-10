@@ -58,7 +58,7 @@ void DefaultConfigWindow::launchWindow()
 	configComponent = new DefaultConfigComponent();
 	options.content.setOwned (configComponent);
 
-	Rectangle<int> area (0, 0, 400, 200);
+	Rectangle<int> area (0, 0, 450, 300);
 	options.content->setSize (area.getWidth(), area.getHeight());
 
 	options.componentToCentreAround 	  = parent;
@@ -87,21 +87,74 @@ DefaultConfigComponent::DefaultConfigComponent()
 	configLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(configLabel.get());
 
-	File configsDir = CoreServices::getSavedStateDirectory().getChildFile("configs");
-	auto configFiles = configsDir.findChildFiles(File::findFiles, true, "*.xml");
+	File iconsDir = CoreServices::getSavedStateDirectory().getChildFile("configs/icons");
 
-	configSelector = std::make_unique<ComboBox>("Config Selector");
-	configSelector->setJustificationType(Justification::centredLeft);
+	acqBoardButton = std::make_unique<ImageButton>("AcquisitionBoard");	
+	File acqIconFile = iconsDir.getChildFile("acq_board_icon.png");
+	Image acqBoardIcon = ImageFileFormat::loadFrom(acqIconFile);
+	acqBoardButton->setImages(false, true, true, 
+							  acqBoardIcon, 1.0f, Colour(), 
+							  acqBoardIcon, 1.0f, Colours::grey.withAlpha(0.5f),
+							  acqBoardIcon, 1.0f, Colours::aliceblue.withAlpha(0.5f));
 	
-	int id = 1;
+	acqBoardButton->setClickingTogglesState(true);
+	acqBoardButton->setTooltip("Acquistion Board");
+	acqBoardButton->addListener(this);
+	acqBoardButton->setRadioGroupId(101, dontSendNotification);
+	addAndMakeVisible(acqBoardButton.get());
 
-	for(auto file : configFiles)
-	{
-		configSelector->addItem(file.getFileNameWithoutExtension(), id);
-		id++;
-	}
-	configSelector->setSelectedId(1, dontSendNotification);
-	addAndMakeVisible(configSelector.get());
+	acqBoardLabel = std::make_unique<Label>("Acq. Board Label");
+	acqBoardLabel->setColour(Label::textColourId, Colours::white);
+	acqBoardLabel->setFont(configFont);
+	acqBoardLabel->setText("Acq. Board", dontSendNotification);
+	acqBoardLabel->setJustificationType(Justification::centred);
+	addAndMakeVisible(acqBoardLabel.get());
+
+
+	fileReaderButton = std::make_unique<ImageButton>("FileReader");	
+	File fRIconFile = iconsDir.getChildFile("file_reader_icon.png");
+	Image fRIcon = ImageFileFormat::loadFrom(fRIconFile);
+	fileReaderButton->setImages(false, true, true, 
+							  fRIcon, 1.0f, Colour(), 
+							  fRIcon, 1.0f, Colours::grey.withAlpha(0.5f),
+							  fRIcon, 1.0f, Colours::aliceblue.withAlpha(0.5f));
+	
+	fileReaderButton->setClickingTogglesState(true);
+	fileReaderButton->setTooltip("File Reader");
+	fileReaderButton->addListener(this);
+	fileReaderButton->setRadioGroupId(101, dontSendNotification);
+	fileReaderButton->setToggleState(true, dontSendNotification);
+	addAndMakeVisible(fileReaderButton.get());
+
+	fileReaderLabel = std::make_unique<Label>("File Reader Label");
+	fileReaderLabel->setColour(Label::textColourId, Colours::white);
+	fileReaderLabel->setFont(configFont);
+	fileReaderLabel->setText("File Reader", dontSendNotification);
+	fileReaderLabel->setJustificationType(Justification::centred);
+	addAndMakeVisible(fileReaderLabel.get());
+
+
+
+	neuropixelsButton = std::make_unique<ImageButton>("Neuropixels-PXI");	
+	File npxIconFile = iconsDir.getChildFile("neuropixels_icon.png");
+	Image npxIcon = ImageFileFormat::loadFrom(npxIconFile);
+	neuropixelsButton->setImages(false, true, true, 
+							  npxIcon, 1.0f, Colour(), 
+							  npxIcon, 1.0f, Colours::grey.withAlpha(0.5f),
+							  npxIcon, 1.0f, Colours::aliceblue.withAlpha(0.5f));
+	
+	neuropixelsButton->setClickingTogglesState(true);
+	neuropixelsButton->setTooltip("Neuropixels-PXI");
+	neuropixelsButton->addListener(this);
+	neuropixelsButton->setRadioGroupId(101, dontSendNotification);
+	addAndMakeVisible(neuropixelsButton.get());
+
+	neuropixelsLabel = std::make_unique<Label>("Npx Label");
+	neuropixelsLabel->setColour(Label::textColourId, Colours::white);
+	neuropixelsLabel->setFont(configFont);
+	neuropixelsLabel->setText("Neuropixels", dontSendNotification);
+	neuropixelsLabel->setJustificationType(Justification::centred);
+	addAndMakeVisible(neuropixelsLabel.get());
 
 	goButton = std::make_unique<TextButton>("Go");
 	goButton->setButtonText("Go!");
@@ -121,13 +174,31 @@ void DefaultConfigComponent::paint(Graphics& g)
 	g.fillAll (Colours::darkgrey);
 	g.setColour(Colour::fromRGB(110, 110, 110));
 	g.fillRect(10, 0, getWidth() - 20, getHeight() - 10);
+
+	g.setColour(Colours::lightgreen);
+
+	if(acqBoardButton->getToggleState())
+		g.drawRoundedRectangle(acqBoardButton->getBounds().expanded(5).toFloat(), 3.0f, 1.0f);
+	else if(fileReaderButton->getToggleState())
+		g.drawRoundedRectangle(fileReaderButton->getBounds().expanded(5).toFloat(), 3.0f, 1.0f);
+	else
+		g.drawRoundedRectangle(neuropixelsButton->getBounds().expanded(5).toFloat(), 3.0f, 1.0f);
 }
 
 void DefaultConfigComponent::resized()
 {
-	configLabel->setBounds(10, 20, 380, 50);
-	configSelector->setBounds((getWidth() / 2) - 100, 80, 200, 30);
-	goButton->setBounds( (getWidth()/2) - 25, getHeight() - 60, 50, 30);
+	configLabel->setBounds(10, 20, getWidth() - 20, 50);
+
+	acqBoardButton->setBounds((getWidth() / 5) - 50, 90, 100, 100);
+	acqBoardLabel->setBounds((getWidth() / 5) - 50, 205, 100, 20);
+
+	fileReaderButton->setBounds((getWidth() / 2) - 50, 90, 100, 100);
+	fileReaderLabel->setBounds((getWidth() / 2) - 50, 205, 100, 20);
+
+	neuropixelsButton->setBounds(( 4 * getWidth() / 5) - 50, 90, 100, 100);
+	neuropixelsLabel->setBounds(( 4 * getWidth() / 5) - 50, 205, 100, 20);
+	
+	goButton->setBounds( (getWidth()/2) - 25, getHeight() - 50, 50, 30);
 }
 
 void DefaultConfigComponent::buttonClicked(Button* button)
@@ -135,10 +206,17 @@ void DefaultConfigComponent::buttonClicked(Button* button)
 	if(button == goButton.get())
 	{
 		// Get selected config file name with full path
-		String fileName = configSelector->getItemText(configSelector->getSelectedItemIndex());
-		String filePath = "configs" + File::getSeparatorString() + fileName + ".xml";
-		File configFile = CoreServices::getSavedStateDirectory().getChildFile(filePath);
+		String filePath;
 
+		if(acqBoardButton->getToggleState())
+			filePath = "configs" + File::getSeparatorString() + "acq_board_config.xml";
+		else if(fileReaderButton->getToggleState())
+			filePath = "configs" + File::getSeparatorString() + "file_reader_config.xml";
+		else
+			filePath = "configs" + File::getSeparatorString() + "neuropixels_pxi_config.xml";
+
+
+		File configFile = CoreServices::getSavedStateDirectory().getChildFile(filePath);
 		// Load the config file
 		AccessClass::getUIComponent()->getEditorViewport()->loadState(configFile);
 
@@ -146,5 +224,9 @@ void DefaultConfigComponent::buttonClicked(Button* button)
 		if (DialogWindow* dw = this->findParentComponentOfClass<DialogWindow>())
     		dw->exitModalState (0);
 
+	}
+	else if(button->getRadioGroupId() == 101)
+	{
+		this->repaint();
 	}
 }
