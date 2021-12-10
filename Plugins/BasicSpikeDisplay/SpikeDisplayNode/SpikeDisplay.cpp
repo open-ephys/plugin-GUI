@@ -186,6 +186,14 @@ void SpikeDisplay::resized()
 
 }
 
+void SpikeDisplay::refresh()
+{
+    for (auto plot : spikePlots)
+    {
+        plot->refresh();
+    }
+}
+
 
 void SpikeDisplay::plotSpike(const Spike* spike, int electrodeNum)
 {

@@ -86,6 +86,9 @@ public:
     /** Sets bounds of sub-axes*/
     void resized();
 
+    /** Plots latest spikes in buffer*/
+    void refresh();
+
     /** Handles an incoming spike*/
     void processSpikeObject(const Spike* s);
 
@@ -120,6 +123,8 @@ public:
 
     SpikeDisplayCanvas* canvas;
 
+    void addSpikeToBuffer(const Spike* spike);
+
     int electrodeNumber;
 
     int nChannels;
@@ -133,6 +138,11 @@ private:
     int plotType;
     int nWaveAx;
     int nProjAx;
+
+    const int bufferSize = 5;
+    int spikesInBuffer;
+
+    OwnedArray<Spike> mostRecentSpikes;
 
     bool limitsChanged;
 

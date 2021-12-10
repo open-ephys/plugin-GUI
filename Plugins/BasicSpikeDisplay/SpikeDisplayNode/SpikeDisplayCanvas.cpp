@@ -74,7 +74,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
     newSpike(false)
 {
 
-    refreshRate = 50;
+    refreshRate = 15; // Hz
 
     viewport = std::make_unique<Viewport>();
     spikeDisplay = std::make_unique<SpikeDisplay>(this, viewport.get());
@@ -112,14 +112,12 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
 
 void SpikeDisplayCanvas::beginAnimation()
 {
-    //startCallbacks();
-    startTimer(200);
+    startCallbacks();
 }
 
 void SpikeDisplayCanvas::endAnimation()
 {
-    //stopCallbacks();
-    stopTimer();
+    stopCallbacks();
 }
 
 void SpikeDisplayCanvas::update()
@@ -174,12 +172,7 @@ void SpikeDisplayCanvas::paint(Graphics& g)
 
 void SpikeDisplayCanvas::refresh()
 {
-
-    std::cout << "Refresh. " << std::endl;
-
-    processor->setParameter(2, 0.0f); // request redraw
-
-    repaint();
+    spikeDisplay->refresh();
 }
 
 

@@ -65,6 +65,9 @@ public:
     /** Sets the locations of available spike plots*/
     void resized();
 
+    /** Refreshes sub-plots*/
+    void refresh();
+
     /** Sends a spike to a given spike plot*/
     void plotSpike(const Spike* spike, int electrodeNum);
 
