@@ -1258,14 +1258,34 @@ bool AudioProcessorGraph::isAnInputTo (Node& src, Node& dst) const noexcept
 
 bool AudioProcessorGraph::isAnInputTo (Node& src, Node& dst, int recursionCheck) const noexcept
 {
-    for (auto&& i : dst.inputs)
-        if (i.otherNode == &src)
-            return true;
+
+    if (dst.inputs.size() == 0)
+        return false;
+
+    Node::Connection& firstConnection = dst.inputs.getReference(0);
+    Node::Connection& lastConnection = dst.inputs.getReference(dst.inputs.size()-1);
+
+    if (firstConnection.otherNode == &src ||
+        lastConnection.otherNode == &src)
+        return true;
 
     if (recursionCheck > 0)
-        for (auto&& i : dst.inputs)
-            if (isAnInputTo (src, *i.otherNode, recursionCheck - 1))
-                return true;
+    {
+        if (isAnInputTo(src, *firstConnection.otherNode, recursionCheck -1))
+            return true;
+
+        if (isAnInputTo(src, *lastConnection.otherNode, recursionCheck - 1))
+            return true;
+    }
+
+    //for (auto&& i : dst.inputs)
+    //    if (i.otherNode == &src)
+     //       return true;
+
+    //if (recursionCheck > 0)
+    //    for (auto&& i : dst.inputs)
+     //       if (isAnInputTo (src, *i.otherNode, recursionCheck - 1))
+     //           return true;
 
     return false;
 }
