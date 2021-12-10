@@ -32,7 +32,9 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param) : ParameterEdit
         || param->getType() == Parameter::STRING_PARAM);
 
     parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
-    parameterNameLabel->setFont(Font("Small Text", 12, Font::plain));
+    Font labelFont = Font("Small Text", 12, Font::plain);
+    int labelWidth = labelFont.getStringWidth(param->getName());
+    parameterNameLabel->setFont(labelFont);
     parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(parameterNameLabel.get());
 
@@ -48,8 +50,10 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param) : ParameterEdit
     valueTextBox->addListener(this);
     valueTextBox->setTooltip(param->getDescription());
     addAndMakeVisible(valueTextBox.get());
+    
+    finalWidth = std::max(labelWidth, 80);
 
-    setBounds(0, 0, 80, 42);
+    setBounds(0, 0, finalWidth, 42);
 }
 
 void TextBoxParameterEditor::labelTextChanged(Label* label)
@@ -81,7 +85,7 @@ void TextBoxParameterEditor::updateView()
 
 void TextBoxParameterEditor::resized()
 {
-    parameterNameLabel->setBounds(0, 0, 80, 20);
+    parameterNameLabel->setBounds(0, 0, finalWidth, 20);
     valueTextBox->setBounds(0, 22, getWidth(), 18);
 }
 

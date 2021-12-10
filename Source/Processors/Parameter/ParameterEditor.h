@@ -86,6 +86,8 @@ public:
 private:
     std::unique_ptr<Label> parameterNameLabel;
     std::unique_ptr<Label> valueTextBox;
+
+    int finalWidth;
 };
 
 
