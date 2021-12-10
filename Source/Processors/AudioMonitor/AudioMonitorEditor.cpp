@@ -197,6 +197,13 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode)
 
 void AudioMonitorEditor::selectedStreamHasChanged()
 {
+
+    if (selectedStream == 0)
+    {
+        spikeChannelSelector->clear();
+        return;
+    }
+        
     const DataStream* stream = getProcessor()->getDataStream(selectedStream);
 
     spikeChannels = stream->getSpikeChannels();
