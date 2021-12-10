@@ -31,7 +31,11 @@
 #include "../Settings/DataStream.h"
 
 StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_, bool isEnabled_) :
-    isEnabled(isEnabled_), stream(stream_), editor(editor_), streamIsStillNeeded(true)
+    isEnabled(isEnabled_), 
+    stream(stream_), 
+    editor(editor_), 
+    streamIsStillNeeded(true),
+    acquisitionIsActive(false)
 {
     LOGD("Adding stream ", getStreamId(), " with ", stream->getChannelCount(), " channels ");
 
@@ -103,6 +107,11 @@ void StreamInfoView::startAcquisition()
         delayMonitor->startAcquisition();
         ttlMonitor->startAcquisition();
     }
+
+    acquisitionIsActive = true;
+
+    if (enableButton != nullptr)
+        enableButton->setClickingTogglesState(false);
     
 }
 
@@ -113,6 +122,11 @@ void StreamInfoView::stopAcquisition()
         delayMonitor->stopAcquisition();
         ttlMonitor->stopAcquisition();
     }
+
+    acquisitionIsActive = false;
+
+    if (enableButton != nullptr)
+        enableButton->setClickingTogglesState(true);
     
 }
 
@@ -132,12 +146,12 @@ void StreamInfoView::update(const DataStream* newStream)
 
 void StreamInfoView::buttonClicked(Button* button)
 {
-    if (button == enableButton.get())
+    if (button == enableButton.get() && !acquisitionIsActive)
     {
         setEnabled(!isEnabled);
         enableButton->setToggleState(isEnabled, dontSendNotification);
 
-        std::cout << "Button clicked --- Stream " << getStreamId() << " enabled: " << isEnabled << std::endl;
+        LOGA("Button clicked --- Stream ", getStreamId(), " enabled: ", isEnabled);
 
         repaint();
         editor->streamEnabledStateChanged(getStreamId(), isEnabled);

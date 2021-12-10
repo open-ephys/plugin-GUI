@@ -756,6 +756,9 @@ void GenericProcessor::update()
             messageChannel->addProcessor(processorInfo.get());
             messageChannel->setDataStream(dataStreams.getLast());
 
+            if (!isSource())
+                isEnabled = false;
+
             std::cout << getNodeId() << " connected to Message Center" << std::endl;
         }
     } else {

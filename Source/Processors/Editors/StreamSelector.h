@@ -120,6 +120,8 @@ private:
 
     GenericEditor* editor;
 
+    bool acquisitionIsActive;
+
     std::unique_ptr<StreamEnableButton> enableButton;
     std::unique_ptr<TTLMonitor> ttlMonitor;
     std::unique_ptr<DelayMonitor> delayMonitor;
