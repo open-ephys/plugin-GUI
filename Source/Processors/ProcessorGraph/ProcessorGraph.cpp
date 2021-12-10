@@ -1776,18 +1776,10 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 
     checkForNewRootNodes(processor, false, false);
 
-    //// need this on Mac in order to prevent double-deletion of plugin editors
-    //// (not entirely sure why)
-
-    
-
-    //if (processor->isRecordNode())
-    //{
-    //    std::unique_ptr<GenericEditor> editor;
-    //    editor.swap(processor->editor);
-    //    editor.reset();
-    //}
-    // 
+    //// need this to prevent editors from remaining after starting acquisition
+    std::unique_ptr<GenericEditor> editor;
+    editor.swap(processor->editor);
+    editor.reset();
 
     Node::Ptr node = removeNode(nodeId);
     node.reset();
