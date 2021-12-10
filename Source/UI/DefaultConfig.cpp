@@ -60,7 +60,7 @@ void DefaultConfigWindow::launchWindow()
 	configComponent = new DefaultConfigComponent();
 	options.content.setOwned (configComponent);
 
-	Rectangle<int> area (0, 0, 400, 200);
+	Rectangle<int> area (0, 0, 450, 300);
 	options.content->setSize (area.getWidth(), area.getHeight());
 
 	options.componentToCentreAround 	  = parent;
@@ -105,6 +105,13 @@ DefaultConfigComponent::DefaultConfigComponent()
 	acqBoardButton->setRadioGroupId(101, dontSendNotification);
 	addAndMakeVisible(acqBoardButton.get());
 
+	acqBoardLabel = std::make_unique<Label>("Acq. Board Label");
+	acqBoardLabel->setColour(Label::textColourId, Colours::white);
+	acqBoardLabel->setFont(configFont);
+	acqBoardLabel->setText("Acq. Board", dontSendNotification);
+	acqBoardLabel->setJustificationType(Justification::centred);
+	addAndMakeVisible(acqBoardLabel.get());
+
 
 	fileReaderButton = std::make_unique<ImageButton>("FileReader");	
 	File fRIconFile = iconsDir.getChildFile("file_reader_icon.png");
@@ -121,6 +128,14 @@ DefaultConfigComponent::DefaultConfigComponent()
 	fileReaderButton->setToggleState(true, dontSendNotification);
 	addAndMakeVisible(fileReaderButton.get());
 
+	fileReaderLabel = std::make_unique<Label>("File Reader Label");
+	fileReaderLabel->setColour(Label::textColourId, Colours::white);
+	fileReaderLabel->setFont(configFont);
+	fileReaderLabel->setText("File Reader", dontSendNotification);
+	fileReaderLabel->setJustificationType(Justification::centred);
+	addAndMakeVisible(fileReaderLabel.get());
+
+
 
 	neuropixelsButton = std::make_unique<ImageButton>("Neuropixels-PXI");	
 	File npxIconFile = iconsDir.getChildFile("neuropixels_icon.png");
@@ -136,20 +151,12 @@ DefaultConfigComponent::DefaultConfigComponent()
 	neuropixelsButton->setRadioGroupId(101, dontSendNotification);
 	addAndMakeVisible(neuropixelsButton.get());
 
-
-
-	// configSelector = std::make_unique<ComboBox>("Config Selector");
-	// configSelector->setJustificationType(Justification::centredLeft);
-	
-	// int id = 1;
-
-	// for(auto file : configFiles)
-	// {
-	// 	configSelector->addItem(file.getFileNameWithoutExtension(), id);
-	// 	id++;
-	// }
-	// configSelector->setSelectedId(1, dontSendNotification);
-	// addAndMakeVisible(configSelector.get());
+	neuropixelsLabel = std::make_unique<Label>("Npx Label");
+	neuropixelsLabel->setColour(Label::textColourId, Colours::white);
+	neuropixelsLabel->setFont(configFont);
+	neuropixelsLabel->setText("Neuropixels", dontSendNotification);
+	neuropixelsLabel->setJustificationType(Justification::centred);
+	addAndMakeVisible(neuropixelsLabel.get());
 
 	goButton = std::make_unique<TextButton>("Go");
 	goButton->setButtonText("Go!");
@@ -182,10 +189,17 @@ void DefaultConfigComponent::paint(Graphics& g)
 
 void DefaultConfigComponent::resized()
 {
-	configLabel->setBounds(10, 20, 380, 50);
-	acqBoardButton->setBounds((getWidth() / 5) - 25, 80, 50, 50);
-	fileReaderButton->setBounds((getWidth() / 2) - 25, 80, 50, 50);
-	neuropixelsButton->setBounds(( 4 * getWidth() / 5) - 25, 80, 50, 50);
+	configLabel->setBounds(10, 20, getWidth() - 20, 50);
+
+	acqBoardButton->setBounds((getWidth() / 5) - 50, 90, 100, 100);
+	acqBoardLabel->setBounds((getWidth() / 5) - 50, 205, 100, 20);
+
+	fileReaderButton->setBounds((getWidth() / 2) - 50, 90, 100, 100);
+	fileReaderLabel->setBounds((getWidth() / 2) - 50, 205, 100, 20);
+
+	neuropixelsButton->setBounds(( 4 * getWidth() / 5) - 50, 90, 100, 100);
+	neuropixelsLabel->setBounds(( 4 * getWidth() / 5) - 50, 205, 100, 20);
+	
 	goButton->setBounds( (getWidth()/2) - 25, getHeight() - 50, 50, 30);
 }
 
@@ -197,14 +211,13 @@ void DefaultConfigComponent::buttonClicked(Button* button)
 		String filePath;
 
 		if(acqBoardButton->getToggleState())
-			filePath = "configs" + File::getSeparatorString() + acqBoardButton->getName() + ".xml";
+			filePath = "configs" + File::getSeparatorString() + "acq_board_config.xml";
 		else if(fileReaderButton->getToggleState())
-			filePath = "configs" + File::getSeparatorString() + fileReaderButton->getName() + ".xml";
+			filePath = "configs" + File::getSeparatorString() + "file_reader_config.xml";
 		else
-			filePath = "configs" + File::getSeparatorString() + neuropixelsButton->getName() + ".xml";
+			filePath = "configs" + File::getSeparatorString() + "neuropixels_pxi_config.xml";
 
-		LOGC("**************** LOADING CONFIG: ", filePath);
-		
+
 		File configFile = CoreServices::getSavedStateDirectory().getChildFile(filePath);
 		// Load the config file
 		AccessClass::getUIComponent()->getEditorViewport()->loadState(configFile);
