@@ -305,7 +305,7 @@ namespace CoreServices
 		if(appDir.contains("plugin-GUI/Build/"))
 			dir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
 		else
-			dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys");;
+			dir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("open-ephys");;
 #endif
 		if (!dir.isDirectory()) {
 			dir.createDirectory();
