@@ -89,8 +89,8 @@ public:
 
     int getTotalSplits();
 
-    void saveVisualizerParameters(XmlElement* xml);
-    void loadVisualizerParameters(XmlElement* xml);
+    void saveCustomParametersToXml(XmlElement* xml) override;
+    void loadCustomParametersFromXml(XmlElement* xml) override;
 
     bool keyPressed(const KeyPress& key);
     bool keyPressed(const KeyPress& key, Component* orig);

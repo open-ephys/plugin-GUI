@@ -39,16 +39,16 @@
 */
 
 class PLUGIN_API Visualizer : public Component,
-    public Timer
+                              public Timer
 
 {
 public:
 
     /** Constructor */
-	Visualizer();
+	Visualizer() { }
 
     /** Destructor */
-	virtual ~Visualizer();
+	virtual ~Visualizer() { }
 
     /** Called when the component's tab becomes visible again.*/
     virtual void refreshState() = 0;
@@ -65,12 +65,6 @@ public:
     /** Called when data acquisition ends.*/
     virtual void endAnimation() = 0;
 
-    /** Called by an editor to initiate a parameter change.*/
-    virtual void setParameter(int, float) = 0;
-
-    /** Called by an editor to initiate a parameter change.*/
-    virtual void setParameter(int, int, int, float) = 0;
-
     /** Starts the animation. */
 	void startCallbacks();
 
@@ -81,13 +75,13 @@ public:
 	void timerCallback();
 
     /** Refresh rate in Hz. */
-    float refreshRate;
+    float refreshRate = 50;
 
     /** Saves parameters as XML */
-	virtual void saveVisualizerParameters(XmlElement* xml);
+    virtual void saveCustomParametersToXml(XmlElement* xml) { }
 
     /** Loads parameters from XML */
-	virtual void loadVisualizerParameters(XmlElement* xml);
+    virtual void loadCustomParametersFromXml(XmlElement* xml) { }
 
 };
 

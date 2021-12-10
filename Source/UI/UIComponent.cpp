@@ -443,8 +443,8 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 		menu.addCommandItem(commandManager, pasteSignalChain);
 		menu.addSeparator();
 		menu.addCommandItem(commandManager, clearSignalChain);
-		menu.addSeparator();
-		menu.addCommandItem(commandManager, openTimestampSelectionWindow);
+		//menu.addSeparator();
+		//menu.addCommandItem(commandManager, openTimestampSelectionWindow);
 
 	}
 	else if (menuIndex == 2)

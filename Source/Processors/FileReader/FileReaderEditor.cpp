@@ -578,12 +578,21 @@ void FileReaderEditor::updateZoomTimeLabels()
 
     }
 
-    
-
 }
 
 void FileReaderEditor::setFile (String file)
 {
+    if (file.equalsIgnoreCase("default"))
+    {
+        File executable = File::getSpecialLocation(File::currentExecutableFile);
+        File defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
+
+        if (defaultFile.exists())
+        {
+            file = defaultFile.getFullPathName();
+        }
+    }
+
     File fileToRead (file);
     lastFilePath = fileToRead.getParentDirectory();
 
@@ -849,6 +858,16 @@ void FileReaderEditor::updateScrubInterface(bool reset)
 
 }
 
+void FileReaderEditor::setRecording(int index)
+{
+    recordSelector->setSelectedItemIndex(index, sendNotification);
+}
+
+void FileReaderEditor::timerCallback()
+{
+    setCurrentTime(fileReader->samplesToMilliseconds(fileReader->getCurrentSample()));
+}
+
 
 void FileReaderEditor::setCurrentTime (unsigned int ms)
 {
@@ -869,6 +888,7 @@ void FileReaderEditor::populateRecordings (FileSource* source)
     recordSelector->clear (dontSendNotification);
 
     const int numRecords = source->getNumRecords();
+
     for (int i = 0; i < numRecords; ++i)
     {
         //sendActionMessage("Got file " + source->getRecordName(i));

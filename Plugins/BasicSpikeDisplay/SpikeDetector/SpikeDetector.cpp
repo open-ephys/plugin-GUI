@@ -66,6 +66,166 @@ bool AbsValueThresholder::checkSample(int channel, float sample)
     
     return false;
 }
+
+
+StdDevThresholder::StdDevThresholder(int numChannels) : Thresholder()
+{
+    for (int i = 0; i < numChannels; i++)
+    {
+        stdLevels.set(i, 4.0f);
+        thresholds.set(i, -50.0f);
+        sampleBuffer.add(new Array<float>());
+        bufferIndex.add(-1);
+    }
+}
+
+void StdDevThresholder::setThreshold(int channel, float threshold)
+{
+    if (channel >= 0 && channel < stdLevels.size())
+        stdLevels.set(channel, threshold);
+}
+
+float StdDevThresholder::getThreshold(int channel)
+{
+    if (channel >= 0 && channel < stdLevels.size())
+        return stdLevels[channel];
+
+    return 0.0f;
+}
+
+bool StdDevThresholder::checkSample(int channel, float sample)
+{
+
+    index += 1;
+    index %= skipSamples;
+
+    if (index == 0)
+    {
+        // update buffer
+        int nextIndex = (bufferIndex[channel] + 1) % bufferSize;
+
+        //std::cout << "Setting sample to " << sample << std::endl;
+        //Array<float>* buffer = sampleBuffer[channel];
+        
+        sampleBuffer[channel]->set(nextIndex, sample);
+
+        //std::cout << sampleBuffer[channel][nextIndex] << std::endl;
+
+        bufferIndex.set(channel, nextIndex);
+
+        // compute threshold
+        if (nextIndex == bufferSize - 1)
+            computeStd(channel);
+    }
+
+    if (sample < thresholds[channel])
+        return true;
+
+    return false;
+}
+
+void StdDevThresholder::computeStd(int channel)
+{
+    float mean = 0;
+
+    for (int i = 0; i < bufferSize; i++)
+        mean += sampleBuffer[channel]->getUnchecked(i);
+
+    mean /= bufferSize;
+
+   // std::cout << "Mean: " << mean << std::endl;
+
+    float std = 0;
+
+    for (int i = 0; i < bufferSize; i++)
+        std += pow(sampleBuffer[channel]->getUnchecked(i) - mean, 2);
+
+    std = pow(std / bufferSize, 0.5);
+
+    //std::cout << "Std: " << std << std::endl;
+  
+    float threshold =  - std * stdLevels[channel];
+
+    //std::cout << "Threshold ch " << channel << " : " << threshold << std::endl;
+
+    thresholds.set(channel, threshold);
+}
+
+
+DynamicThresholder::DynamicThresholder(int numChannels) : Thresholder()
+{
+    for (int i = 0; i < numChannels; i++)
+    {
+        sigmaLevels.set(i, 4.0f);
+        thresholds.set(i, -50.0f);
+        sampleBuffer.add(new std::vector<float>(bufferSize));
+        bufferIndex.add(-1);
+    }
+}
+
+void DynamicThresholder::setThreshold(int channel, float threshold)
+{
+    std::cout << "Setting threshold to " << threshold << std::endl;
+    if (channel >= 0 && channel < sigmaLevels.size())
+        sigmaLevels.set(channel, threshold);
+}
+
+float DynamicThresholder::getThreshold(int channel)
+{
+    if (channel >= 0 && channel < sigmaLevels.size())
+        return sigmaLevels[channel];
+
+    return 0.0f;
+}
+
+bool DynamicThresholder::checkSample(int channel, float sample)
+{
+
+    index += 1;
+    index %= skipSamples;
+
+    if (index == 0)
+    {
+        // update buffer
+        int nextIndex = (bufferIndex[channel] + 1) % bufferSize;
+
+        //std::cout << "Setting sample to " << sample << std::endl;
+        //Array<float>* buffer = sampleBuffer[channel];
+
+        sampleBuffer.getUnchecked(channel)->at(nextIndex) = abs(sample) / scalar;
+
+        //std::cout << sampleBuffer.getUnchecked(channel)->at(nextIndex) << std::endl;
+
+        bufferIndex.set(channel, nextIndex);
+
+        // compute threshold
+        if (nextIndex == bufferSize - 1)
+            computeSigma(channel);
+    }
+
+    if (sample < thresholds[channel])
+        return true;
+
+    return false;
+}
+
+void DynamicThresholder::computeSigma(int channel)
+{
+   
+    std::sort(sampleBuffer.getUnchecked(channel)->begin(),
+        sampleBuffer.getUnchecked(channel)->end());
+    
+    float median = sampleBuffer.getUnchecked(channel)->at(bufferSize / 2);
+
+    std::cout << "Median: " << median << std::endl;
+
+    float threshold = - ( median * sigmaLevels[channel]);
+
+    std::cout << "Threshold ch " << channel << " : " << threshold << std::endl;
+
+    thresholds.set(channel, threshold);
+}
+
     
 
 SpikeDetector::SpikeDetector()
@@ -229,7 +389,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
         spikeChannel->setDataStream(getDataStream(currentStream), false);
     
     spikeChannel->thresholder =
-        std::make_unique<AbsValueThresholder>(
+        std::make_unique<DynamicThresholder>(
             SpikeChannel::getNumChannels(type));
     
     spikeChannel->addParameter(new StringParameter(this,
@@ -246,13 +406,14 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
                             0));
     
     spikeChannel->addParameter(new FloatParameter(this,
-                       Parameter::SPIKE_CHANNEL_SCOPE,
-                      "threshold",
-                      "The threshold used for spike detection",
-                      -50.0f,
-                      -500.0f,
-                      -20.0f,
-                      1.0f));
+        Parameter::SPIKE_CHANNEL_SCOPE,
+        "threshold",
+        "The threshold used for spike detection",
+        4.0f, 1.0f, 10.0f, 0.01f));
+                      //-50.0f,
+                      //-500.0f,
+                      //-20.0f,
+                      //1.0f));
     
     spikeChannel->addParameter(new SelectedChannelsParameter(this,
                      Parameter::SPIKE_CHANNEL_SCOPE,

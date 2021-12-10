@@ -41,6 +41,8 @@ SourceNode::SourceNode (const String& name_, DataThreadCreator dt)
     , numStreams            (0)
 {
 
+    setProcessorType(Plugin::Processor::SOURCE);
+
     dataThread = dt (this);
 
     if (dataThread != nullptr)
@@ -102,6 +104,11 @@ void SourceNode::resizeBuffers()
 			eventStates.add(0);
 		}
 	}
+}
+
+void SourceNode::initialize(bool signalChainIsLoading)
+{
+    dataThread->initialize(signalChainIsLoading);
 }
 
 

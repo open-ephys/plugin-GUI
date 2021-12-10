@@ -73,8 +73,8 @@ public:
 	void startAcquisition();
 	void stopAcquisition();
 
-	void saveVisualizerParameters(XmlElement* xml);
-	void loadVisualizerParameters(XmlElement* xml);
+    void saveVisualizerEditorParameters(XmlElement* xml) override;
+    void loadVisualizerEditorParameters(XmlElement* xml) override;
 
     void resized() override;
 

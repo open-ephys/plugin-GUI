@@ -42,18 +42,15 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     enableButton->setToggleState(true, dontSendNotification);
     addAndMakeVisible(enableButton.get());
 
-    if (!editor->isSplitter() && !editor->isMerger())
-    {
-        delayMonitor = std::make_unique<DelayMonitor>();
-        addAndMakeVisible(delayMonitor.get());
 
-        ttlMonitor = std::make_unique<TTLMonitor>();
-        addAndMakeVisible(ttlMonitor.get());
+    delayMonitor = std::make_unique<DelayMonitor>();
+    addAndMakeVisible(delayMonitor.get());
+
+    ttlMonitor = std::make_unique<TTLMonitor>();
+    addAndMakeVisible(ttlMonitor.get());
         
-        enabledString = "Bypass";
-    } else {
-        enabledString = "Send downstream";
-    }
+    enabledString = "Bypass";
+
 }
 
 uint16 StreamInfoView::getStreamId() const
@@ -158,7 +155,7 @@ void StreamInfoView::paint(Graphics& g)
     if (isEnabled)
         g.setColour(Colours::black);
     else
-        g.setColour(Colours::grey);
+        g.setColour(Colours::darkgrey);
 
     g.setFont(12);
     g.drawMultiLineText(infoString, 5, 18, getWidth() - 5, Justification::left);
@@ -524,14 +521,18 @@ StreamEnableButton::StreamEnableButton(const String& name) :
 void StreamEnableButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
  
-    g.setColour(Colours::black);
-    g.drawRect(0,0,getWidth(),getHeight(), 1.0);
-    
     if (!getToggleState())
     {
+        g.setColour(Colours::darkgrey);
+        g.drawRect(0, 0, getWidth(), getHeight(), 1.0);
         g.drawLine(0, 0, getWidth(), getHeight(), 1.0);
         g.drawLine(0, getHeight(), getWidth(), 0, 1.0);
+
+        return;
     }
+
+    g.setColour(Colours::black);
+    g.drawRect(0, 0, getWidth(), getHeight(), 1.0);
 }
 
 

@@ -60,7 +60,9 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
 
     drawerButton = std::make_unique<DrawerButton>("name");
     drawerButton->addListener(&drawerButtonListener);
-    addAndMakeVisible(drawerButton.get());
+
+    if (!owner->isSplitter() && !owner->isMerger())
+        addAndMakeVisible(drawerButton.get());
 
     if (!owner->isSplitter())
     {

@@ -16,6 +16,8 @@ add_sources(open-ephys
 	EditorViewportActions.h
 	EditorViewportButtons.cpp
 	EditorViewportButtons.h
+	FilenameConfigWindow.cpp
+	FilenameConfigWindow.h
 	GraphViewer.cpp
 	GraphViewer.h
 	InfoLabel.cpp

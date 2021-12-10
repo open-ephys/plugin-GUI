@@ -25,12 +25,7 @@
 #define SPIKEDISPLAYEDITOR_H_
 
 #include <VisualizerEditorHeaders.h>
-#include <RecordingLib.h>
-#include "SpikeDisplayNode.h"
-#include "SpikeDisplayCanvas.h"
 
-
-#define MAX_N_SUB_CHAN 8
 class Visualizer;
 class UtilityButton;
 
@@ -42,21 +37,23 @@ class UtilityButton;
 
 */
 
+#define MAX_N_SUB_CHAN 8
+
 class SpikeDisplayEditor : public VisualizerEditor,
                            public Button::Listener
 {
 public:
-    SpikeDisplayEditor(GenericProcessor*);
-    ~SpikeDisplayEditor();
 
+    /** Constructor */
+    SpikeDisplayEditor(GenericProcessor*);
+
+    /** Destructor*/
+    ~SpikeDisplayEditor() { }
+
+    /** Sends messages from control buttons to canvas (currently disabled) */
     void buttonClicked(Button* button);
 
-    void startRecording();
-    void stopRecording();
-
-    // void updateSettings();
-    // void updateVisualizer();
-
+    /** Creates the SpikeDisplayCanvas */
     Visualizer* createNewCanvas();
 
 private:

@@ -344,7 +344,7 @@ struct RenderSequenceBuilder
         : graph (g), sequence (s)
     {
 
-        LOGG("Creating rendering sequence for graph");
+        LOGC("Creating rendering sequence for graph");
 
         int64 start = Time::getHighResolutionTicks();
 
@@ -352,7 +352,7 @@ struct RenderSequenceBuilder
 
         double interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        LOGG("Created ordered nodes list in ", interval * 1000, " milliseconds.");
+        LOGC("Created ordered nodes list in ", interval * 1000, " milliseconds.");
 
         LOGG("  Creating buffer 0");
         audioBuffers.add (AssignedBuffer::createReadOnlyEmpty()); // first buffer is read-only zeros
@@ -384,7 +384,7 @@ struct RenderSequenceBuilder
 
         interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        LOGG("Finished building rendering sequence in ", interval * 1000, " milliseconds.");
+        LOGC("Finished building rendering sequence in ", interval * 1000, " milliseconds.");
     }
 
     //==============================================================================
@@ -703,7 +703,7 @@ struct RenderSequenceBuilder
     void createRenderingOpsForNode (AudioProcessorGraph::Node& node, const int ourRenderingIndex)
     {
 
-        LOGG("Creating rendering ops for ", node.getProcessor()->getName(), " (index ", ourRenderingIndex, ")");
+        LOGC("Creating rendering ops for ", node.getProcessor()->getName(), " (index ", ourRenderingIndex, ")");
 
         int64 start = Time::getHighResolutionTicks();
 
@@ -726,9 +726,6 @@ struct RenderSequenceBuilder
         //  - loop through streams
         //  - check only channel 0
         //  - apply same settings to channel in stream
-
-        // clear once before checking inputs -- findBufferForInputAudioChannel calls isBufferNeededLater
-        streamIsNeededLater.clear();
 
         for (int inputChan = 0; inputChan < numIns; ++inputChan)
         {
@@ -797,7 +794,7 @@ struct RenderSequenceBuilder
 
         interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        LOGG(" ", "Finished in ", interval * 1000, " milliseconds");
+        LOGC(" ", "Finished in ", interval * 1000, " milliseconds");
     }
 
     //==============================================================================
@@ -848,9 +845,6 @@ struct RenderSequenceBuilder
 
         int64 start = Time::getHighResolutionTicks();
 
-        // clear again before looping through channels
-        streamIsNeededLater.clear();
-
         for (auto& b : buffers)
         {
             if (b.isAssigned() && !isBufferNeededLater(stepIndex, -1, b.channel))
@@ -862,7 +856,7 @@ struct RenderSequenceBuilder
 
         double interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        LOGG("   Took ", interval * 1000, " milliseconds.");
+        LOGC("   Marking unused buffers took ", interval * 1000, " milliseconds.");
 
             
     }
@@ -877,12 +871,39 @@ struct RenderSequenceBuilder
             output.nodeID.uid, ":",
             output.channelIndex);
 
-        bool prediction = ProcessorGraph::isBufferNeededLater(orderedNodes.getUnchecked(stepIndexToSearchFrom)->nodeID.uid, 
-            inputChannelOfIndexToIgnore,
-            output.nodeID.uid,
-            output.channelIndex);
+        bool isValid;
+
+        int inputNodeId = orderedNodes.getUnchecked(stepIndexToSearchFrom)->nodeID.uid;
+        int outputNodeId = output.nodeID.uid;
+
+        int inputChannel, outputChannel;
+
+        if (inputChannelOfIndexToIgnore == -1)
+            inputChannel = -1;
+        else if (inputChannelOfIndexToIgnore > -1 && !output.isMIDI())
+            inputChannel = 0;
+        else
+            inputChannel = inputChannelOfIndexToIgnore;
+
+        if (output.channelIndex == -1)
+            outputChannel = -1;
+        else if (output.channelIndex > -1 && !output.isMIDI())
+            outputChannel = 0;
+        else
+            outputChannel = output.channelIndex;
+
+        bool prediction = ProcessorGraph::isBufferNeededLater(inputNodeId, 
+            inputChannel,
+            outputNodeId,
+            outputChannel,
+            &isValid
+            );
+
+        if (isValid)
+            return prediction;
 
         LOGG("PREDICTION: ", prediction ? "TRUE" : "FALSE");
+        LOGG("ISVALID: ", isValid ? "TRUE" : "FALSE");
 
        // return false;
         uint16 streamId;
@@ -902,7 +923,16 @@ struct RenderSequenceBuilder
                                             { node->nodeID,  AudioProcessorGraph::midiChannelIndex } }))
                 {
                     LOGG("         --> MIDI CH: TRUE");
-                    //jassert(prediction);
+                    
+                    if (isValid)
+                        jassert(prediction);
+
+                    ProcessorGraph::updateBufferMap(inputNodeId,
+                        inputChannel,
+                        outputNodeId,
+                        outputChannel,
+                        true);
+
                     return true;
                 }
                     
@@ -916,52 +946,36 @@ struct RenderSequenceBuilder
                     if (i != inputChannelOfIndexToIgnore && graph.isConnected({ output, { node->nodeID, i } }))
                     {
                         LOGG("         --> CH ", i, ": TRUE");
-                        //jassert(prediction);
+
+                        if (isValid)
+                            jassert(prediction);
+
+                        ProcessorGraph::updateBufferMap(inputNodeId,
+                            inputChannel,
+                            outputNodeId,
+                            outputChannel,
+                            true);
+
                         return true;
                     }
-                }
-
-                /*
-                for (int i = 0; i < node->getProcessor()->getTotalNumInputChannels(); ++i)
-                {
-                   
-                    
-                    streamId = ProcessorGraph::getStreamIdForChannel(*node, i);
-
-                    std::cout << "          Channel " << i << " streamId = " << streamId << std::endl;
-
-                    if (streamIsNeededLater.find(streamId) != streamIsNeededLater.end())
-                    {
-                        std::cout << "        ----- Returning EXISTING value: " << streamIsNeededLater[streamId] << std::endl;
-                        return streamIsNeededLater[streamId];
-                    }
-                    else {
-                       
-                        if (i != inputChannelOfIndexToIgnore) 
-                        {
-                            
-
-                            if (graph.isConnected({ output, { node->nodeID, i } }))
-                            {
-                                std::cout << "     +++++ Adding NEW value:" << 1 << std::endl;
-                                streamIsNeededLater[streamId] = true;
-                                return true;
-                            }
-
-                        }
-                    }
-                }*/
-                    
+                }   
             }
 
             inputChannelOfIndexToIgnore = -1;
             ++stepIndexToSearchFrom;
         }
 
-        //std::cout << "     +++++ Adding NEW value:" << 0 << std::endl;
-        //streamIsNeededLater[streamId] = false;
         LOGG("         ---> FALSE");
-        //jassert(!prediction);
+        
+        if (isValid)
+            jassert(!prediction);
+
+        ProcessorGraph::updateBufferMap(inputNodeId,
+            inputChannel,
+            outputNodeId,
+            outputChannel,
+            false);
+
         return false;
 
     }

@@ -43,8 +43,6 @@ DefaultConfigWindow::~DefaultConfigWindow()
 	if(configWindow != nullptr)
 	{
 		configWindow->exitModalState (0);
-
-		delete configWindow;
 	}
 	
 	masterReference.clear();

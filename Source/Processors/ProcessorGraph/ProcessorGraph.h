@@ -40,6 +40,19 @@ class TimestampSourceSelectionWindow;
 class ProcessorGraphHttpServer;
 
 
+struct ChannelKey {
+    int inputNodeId;
+    int inputIndex;
+    int outputNodeId;
+    int outputIndex;
+
+    bool operator< (const ChannelKey& key) const
+    {
+        return std::tie(inputNodeId, inputIndex, outputNodeId, outputIndex)
+            < std::tie(key.inputNodeId, key.inputIndex, key.outputNodeId, key.outputIndex);
+    }
+};
+
 /**
   Owns all processors and constructs the signal chain.
 
@@ -196,8 +209,13 @@ public:
 
     static int getStreamIdForChannel(Node& node, int channel);
 
-    static bool isBufferNeededLater(int inputNodeId, int inputIndex, int outputNodeId, int outputIndex);
+    static bool isBufferNeededLater(int inputNodeId, int inputIndex, int outputNodeId, int outputIndex, bool* isValid);
+
+    static void updateBufferMap(int inputNodeId, int inputIndex, int outputNodeId, int outputIndex, bool isNeededLater);
     
+    static std::map< ChannelKey, bool> bufferLookupMap;
+
+
 private:
 
     /* Disconnect all processors*/
@@ -226,6 +244,7 @@ private:
     int currentNodeId;
 
     bool isLoadingSignalChain;
+
 
     std::unique_ptr<ProcessorGraphHttpServer> http_server_thread;
 

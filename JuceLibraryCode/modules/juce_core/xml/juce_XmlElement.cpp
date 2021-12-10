@@ -404,6 +404,11 @@ void XmlElement::writeTo (OutputStream& output, const TextFormat& options) const
         output << options.newLineChars;
 }
 
+bool XmlElement::writeTo(const File& destinationFile) const
+{
+    return writeTo(destinationFile, {});
+}
+
 bool XmlElement::writeTo (const File& destinationFile, const TextFormat& options) const
 {
     TemporaryFile tempFile (destinationFile);

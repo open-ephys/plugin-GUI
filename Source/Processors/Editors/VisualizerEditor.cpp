@@ -100,20 +100,6 @@ VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width)
     initializeSelectors();
 }
 
-
-VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode)
-    : GenericEditor (parentNode)
-    , dataWindow    (nullptr)
-    , canvas        (nullptr)
-    , isPlaying     (false)
-    , tabIndex      (-1)
-    , dataWindowButtonListener(this)
-{
-    desiredWidth = 180;
-    initializeSelectors();
-}
-
-
 void VisualizerEditor::initializeSelectors()
 {
     windowSelector = std::make_unique<SelectorButton> ("window");
@@ -155,6 +141,7 @@ void VisualizerEditor::resized()
 void VisualizerEditor::enable()
 {
     LOGD("   Enabling VisualizerEditor");
+
     if (canvas != nullptr)
         canvas->beginAnimation();
 
@@ -286,17 +273,14 @@ void VisualizerEditor::saveCustomParametersToXml (XmlElement* xml)
         windowButtonState->setAttribute ("height",  dataWindow->getHeight());
     }
 
+    saveVisualizerEditorParameters(xml);
+
     if (canvas != nullptr)
     {
-        canvas->saveVisualizerParameters (xml);
+        canvas->saveCustomParametersToXml(xml);
     }
-    else
-    {
-        tabSelector->setToggleState(true, sendNotification);
-        // FIXME: Above statement will create canvas only if it is defined in the derived class 
-        if (canvas != nullptr)
-            canvas->saveVisualizerParameters(xml);
-        tabSelector->setToggleState(false, sendNotification);
+    else {
+        // if canvas was never created, we don't need to save custom parameters
     }
 
 }
@@ -342,16 +326,19 @@ void VisualizerEditor::loadCustomParametersFromXml (XmlElement* xml)
         }
     }
 
+    loadVisualizerEditorParameters(xml);
+
     if (canvasHidden)
     {
         //Canvas is created on button callback, so open/close tab to simulate a hidden canvas
         tabSelector->setToggleState(true, sendNotification);
-        canvas->loadVisualizerParameters(xml);
+        if (canvas != nullptr)
+            canvas->loadCustomParametersFromXml(xml);
         tabSelector->setToggleState(false, sendNotification);
     }
     else if (canvas != nullptr)
     {
-        canvas->loadVisualizerParameters (xml);
+        canvas->loadCustomParametersFromXml(xml);
     }
 
 }
@@ -404,14 +391,4 @@ int VisualizerEditor::addTab (String textOfTab, Visualizer* contentComponent)
     tabIndex = AccessClass::getDataViewport()->addTabToDataViewport (textOfTab, contentComponent, this);
 
     return tabIndex;
-}
-
-
-void VisualizerEditor::saveVisualizerParameters (XmlElement* xml)
-{
-}
-
-
-void VisualizerEditor::loadVisualizerParameters (XmlElement* xml)
-{
 }
