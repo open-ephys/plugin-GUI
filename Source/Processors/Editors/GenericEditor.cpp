@@ -1097,9 +1097,8 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
     std::cout << "UPDATE SELECTED STREAM" << std::endl;
     selectedStream = streamId;
     std::cout << "Selected stream: " << selectedStream << std::endl;
-    
-    if (streamId == 0)
-        return;
+
+    bool streamAvailable = streamId > 0 ? true : false;
 
     for (auto ed : parameterEditors)
     {
@@ -1116,14 +1115,11 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
         }
         else if (param->getScope() == Parameter::STREAM_SCOPE)
         {
-            std::cout << "Updating parameter!" << std::endl;
-            ed->setParameter(getProcessor()->getDataStream(streamId)->getParameter(param->getName()));
-            
-            if (getProcessor()->getDataStream(streamId)->getParameter(param->getName())->getType() == Parameter::SELECTED_CHANNELS_PARAM)
-            {
-                SelectedChannelsParameter* p = (SelectedChannelsParameter*) getProcessor()->getDataStream(streamId)->getParameter(param->getName());
-                std::cout << "CHANNEL COUNT: " << p->getChannelStates().size() << std::endl;
-            }
+            //std::cout << "Updating parameter!" << std::endl;
+            if (streamAvailable)
+                ed->setParameter(getProcessor()->getDataStream(streamId)->getParameter(param->getName()));
+            else
+                ed->setParameter(nullptr);
         }
         
         ed->updateView();

@@ -71,14 +71,18 @@ void TextBoxParameterEditor::updateView()
     
     if (param != nullptr)
     {
-        std::cout << "Updating view for " << param->getName() << std::endl;
-        std::cout << "Value is int?: " << param->getValue().isInt() << std::endl;
-        std::cout << "Value: " << param->getValue().toString() << std::endl;
+        valueTextBox->setEditable(true);
+        //std::cout << "Updating view for " << param->getName() << std::endl;
+        //std::cout << "Value is int?: " << param->getValue().isInt() << std::endl;
+        //std::cout << "Value: " << param->getValue().toString() << std::endl;
 
         if(param->getType() == Parameter::FLOAT_PARAM)
             valueTextBox->setText(String(float(param->getValue())), dontSendNotification);
         else
             valueTextBox->setText(param->getValue().toString(), dontSendNotification);
+    }
+    else {
+        valueTextBox->setEditable(false);
     }
 
 }
@@ -112,13 +116,15 @@ CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param) : ParameterEd
 
 void CheckBoxParameterEditor::buttonClicked(Button* button)
 {
-    param->setNextValue(button->getToggleState());
+    if (param != nullptr)
+        param->setNextValue(button->getToggleState());
 }
 
 void CheckBoxParameterEditor::updateView()
 {
     if (param != nullptr)
         valueCheckBox->setToggleState(param->getValue(), dontSendNotification);
+    
     
     repaint();
 }
@@ -182,11 +188,26 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param) : ParameterEd
 
 void ComboBoxParameterEditor::comboBoxChanged(ComboBox* comboBox)
 {
-    param->setNextValue(comboBox->getSelectedId() - offset);
+    if (param != nullptr)
+        param->setNextValue(comboBox->getSelectedId() - offset);
 }
 
 void ComboBoxParameterEditor::updateView()
 {
+
+    if (param == nullptr)
+    {
+        for (int i = 0; i < valueComboBox->getNumItems(); i++)
+            valueComboBox->setItemEnabled(valueComboBox->getItemId(i), false);
+
+        return;
+    }
+    else {
+        for (int i = 0; i < valueComboBox->getNumItems(); i++)
+            valueComboBox->setItemEnabled(valueComboBox->getItemId(i), true);
+    }
+
+
     if (param->getType() == Parameter::CATEGORICAL_PARAM)
     {
         CategoricalParameter* p = (CategoricalParameter*)param;
@@ -211,7 +232,7 @@ void ComboBoxParameterEditor::resized()
     valueComboBox->setBounds(0, 22, 80, 18);
 }
 
-CustomSlider::CustomSlider()
+CustomSlider::CustomSlider() : isEnabled(true)
 {
     
     setColour (Slider::textBoxTextColourId, Colours::black);
@@ -239,13 +260,27 @@ CustomSlider::CustomSlider()
 
 void CustomSlider::mouseDown (const MouseEvent& event)
 {
+    if (!isEnabled)
+        return;
+
     Slider::mouseDown (event);
 
     setMouseCursor (MouseCursor::NoCursor);
 }
 
+void CustomSlider::mouseDrag(const MouseEvent& event)
+{
+    if (!isEnabled)
+        return;
+
+    Slider::mouseDrag(event);
+}
+
 void CustomSlider::mouseUp (const MouseEvent& event)
 {
+    if (!isEnabled)
+        return;
+
     Slider::mouseUp (event);
 
     Desktop::getInstance().getMainMouseSource().setScreenPosition (event.source.getLastMouseDownPosition());
@@ -371,13 +406,18 @@ SliderParameterEditor::SliderParameterEditor(Parameter* param) : ParameterEditor
 
 void SliderParameterEditor::sliderValueChanged(Slider* slider)
 {
-    param->setNextValue(slider->getValue());
+
+    if (param != nullptr)
+        param->setNextValue(slider->getValue());
 }
 
 void SliderParameterEditor::updateView()
 {
     if (param != nullptr)
     {
+        slider->setColour(Slider::rotarySliderFillColourId,
+            Colour(0, 174, 239));
+
         if (param->getType() == Parameter::FLOAT_PARAM)
         {
             FloatParameter* p = (FloatParameter*)param;
@@ -389,6 +429,10 @@ void SliderParameterEditor::updateView()
 
             slider->setValue(p->getIntValue(), dontSendNotification);
         }
+    }
+    else {
+        slider->setColour(Slider::rotarySliderFillColourId,
+            Colour(150, 150, 150));
     }
         
     repaint();
@@ -426,6 +470,8 @@ void SelectedChannelsParameterEditor::channelStateChanged(Array<int> newChannels
 
 void SelectedChannelsParameterEditor::buttonClicked(Button* button_)
 {
+    if (param == nullptr)
+        return;
 
     SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
 
@@ -446,6 +492,11 @@ void SelectedChannelsParameterEditor::buttonClicked(Button* button_)
 
 void SelectedChannelsParameterEditor::updateView()
 {
+    if (param == nullptr)
+        button->setEnabled(false);
+
+    else
+        button->setEnabled(true);
 }
 
 void SelectedChannelsParameterEditor::resized()
@@ -481,6 +532,9 @@ void MaskChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
 void MaskChannelsParameterEditor::buttonClicked(Button* button_)
 {
 
+    if (param == nullptr)
+        return;
+
     MaskChannelsParameter* p = (MaskChannelsParameter*)param;
     
     std::vector<bool> channelStates = p->getChannelStates();
@@ -499,6 +553,11 @@ void MaskChannelsParameterEditor::buttonClicked(Button* button_)
 
 void MaskChannelsParameterEditor::updateView()
 {
+    if (param == nullptr)
+        button->setEnabled(false);
+
+    else
+        button->setEnabled(true);
 }
 
 void MaskChannelsParameterEditor::resized()

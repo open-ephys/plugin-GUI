@@ -759,7 +759,7 @@ void GenericProcessor::update()
             if (!isSource())
                 isEnabled = false;
 
-            std::cout << getNodeId() << " connected to Message Center" << std::endl;
+            LOGD(getNodeId(), " connected to Message Center");
         }
     } else {
         
@@ -771,7 +771,7 @@ void GenericProcessor::update()
     /// UPDATE PARAMETERS FOR STREAMS
 	for (auto stream : dataStreams)
 	{
-		std::cout << "Stream " << stream->getStreamId() << " num channels: " << stream->getChannelCount() << std::endl;
+		LOGD( "Stream ", stream->getStreamId(), " num channels: ", stream->getChannelCount());
         
         if (stream->numParameters() == 0)
         {
@@ -880,15 +880,9 @@ void GenericProcessor::update()
                           // setting isEnabled variable
 
 	LOGD("Updated custom settings.");
-    
-    std::cout << "After custom settings -- Num local spike channels: " << spikeChannels.size() << std::endl;
-    //std::cout << "After custom settings -- Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() //<< std::endl;
 
 	updateChannelIndexMaps();
     
-    std::cout << "After channel index maps -- Num local spike channels: " << spikeChannels.size() << std::endl;
-   // std::cout << "After channel index maps -- Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() << //std::endl;
-
 	m_needsToSendTimestampMessages.clear();
 	for (auto stream : getDataStreams())
 		m_needsToSendTimestampMessages[stream->getStreamId()] = true;
@@ -909,6 +903,9 @@ void GenericProcessor::updateChannelIndexMaps()
 	eventChannelMap.clear();
 	spikeChannelMap.clear();
 	dataStreamMap.clear();
+
+    if (dataStreams.size() == 0)
+        return;
 
 	for (int i = 0; i < continuousChannels.size(); i++)
 	{
