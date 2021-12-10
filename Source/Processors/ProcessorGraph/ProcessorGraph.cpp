@@ -185,7 +185,7 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
 	std::unique_ptr<GenericProcessor> processor = nullptr;
     GenericProcessor* addedProc = nullptr;
     
-    LOGD("Creating processor with name: ", description.name);
+    LOGC("Creating processor with name: ", description.name);
     
     if (sourceNode != nullptr)
         LOGDD("Source node: ", sourceNode->getName());
@@ -775,12 +775,14 @@ void ProcessorGraph::restoreParameters()
     // load source node parameters
     for (auto p : rootNodes)
     {
+        std::cout << "Loading root node parameters for " << p->getName() << " : " << p->getNodeId() << std::endl;
         p->loadFromXml();
     }
 
     // update everyone's settings
     for (auto p : rootNodes)
     {
+        std::cout << "Updating settings for " << p->getName() << " : " << p->getNodeId() << std::endl;
         updateSettings(p, true);
     }
     

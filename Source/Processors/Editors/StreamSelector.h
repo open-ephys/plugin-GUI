@@ -109,9 +109,13 @@ public:
     /** Set to 'true' after update, if stream still exists*/
     bool streamIsStillNeeded;
 
+    uint16 streamId;
+
 private:
 
     const DataStream* stream;
+
+    
     
     bool isEnabled;
 

@@ -155,7 +155,8 @@ void SpikeDisplayEditor::initializeButtons()
 
     addAndMakeVisible(subChanLabel);
     addAndMakeVisible(allSubChansBtn);
-    for (int i=0; i<nSubChannels; i++)
+
+    for (int i = 0; i < nSubChannels; i++)
         addAndMakeVisible(subChanBtn[i]);
 
 }

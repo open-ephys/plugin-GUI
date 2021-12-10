@@ -33,6 +33,7 @@
 StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_, bool isEnabled_) :
     isEnabled(isEnabled_), 
     stream(stream_), 
+    streamId(stream_->getStreamId()),
     editor(editor_), 
     streamIsStillNeeded(true),
     acquisitionIsActive(false)
@@ -77,7 +78,7 @@ void StreamInfoView::updateInfoString()
     if (stream->getChannelCount() > 1)
         channelString += "s";
     
-    infoString = "ID: " + String(getStreamId()) + " : " + stream->getSourceNodeName()
+    infoString = stream->getSourceNodeName() + " (" + String(stream->getSourceNodeId()) + ")"
         + "\n"
         + String(stream->getChannelCount()) + channelString + " @ " +
         String(stream->getSampleRate()) + " Hz";
@@ -139,6 +140,8 @@ void StreamInfoView::update(const DataStream* newStream)
 {
     streamIsStillNeeded = true;
 
+    streamId = newStream->getStreamId();
+
     stream = newStream;
 
     updateInfoString();
@@ -180,7 +183,7 @@ void StreamInfoView::paint(Graphics& g)
         g.setColour(Colours::darkgrey);
 
     g.setFont(12);
-    g.drawMultiLineText(infoString, 5, 18, getWidth() - 5, Justification::left);
+    g.drawMultiLineText(infoString, 5, 18, getWidth() +100, Justification::left);
     g.drawText(enabledString, 22, 38, 120, 12, Justification::left);
 
 }
@@ -220,9 +223,14 @@ StreamSelector::StreamSelector(GenericEditor* ed_) :
 
 StreamInfoView* StreamSelector::getStreamInfoView(const DataStream* streamToCheck)
 {
+
+    std::cout << "Checking existing streams..." << std::endl;
+    std::cout << " Searching for " << streamToCheck->getStreamId() << std::endl;
+
     for (auto stream : streams)
     {
-        if (stream->getStreamId() == streamToCheck->getStreamId())
+        std::cout << "  This one has: " << stream->getStreamId() << std::endl;
+        if (stream->streamId == streamToCheck->getStreamId())
             return stream;
     }
 
@@ -396,7 +404,7 @@ void StreamSelector::buttonClicked(Button* button)
     }
 
     if (currentlyViewedStream != viewedStreamIndex)
-        editor->updateSelectedStream(streams[viewedStreamIndex]->getStream()->getStreamId());
+        editor->updateSelectedStream(streams[viewedStreamIndex]->streamId);
 }
 
 int StreamSelector::getViewedIndex()
@@ -410,7 +418,7 @@ void StreamSelector::setViewedIndex(int i)
     if (i >= 0 && i < streams.size())
     {
         viewedStreamIndex = i;
-        editor->updateSelectedStream(streams[viewedStreamIndex]->getStream()->getStreamId());
+        editor->updateSelectedStream(streams[viewedStreamIndex]->streamId);
     }
         
 }
@@ -443,11 +451,13 @@ void StreamSelector::add(const DataStream* stream)
 
     if (getStreamInfoView(stream) == nullptr)
     {
+        std::cout << " ... Did not find, adding new stream " << std::endl;
         streams.add(new StreamInfoView(stream, editor, checkStream(stream)));
         viewedComponent->addAndMakeVisible(streams.getLast());
     }
     else
     {
+        std::cout << " ... Found, simply updating " << std::endl;
         getStreamInfoView(stream)->update(stream);
     }
     
@@ -469,20 +479,20 @@ void StreamSelector::beginUpdate()
 uint16 StreamSelector::finishedUpdate()
 {
 
-    LOGD("END UPDATE --- NUM STREAMS: ", streams.size());
+    LOGC("END UPDATE --- NUM STREAMS: ", streams.size());
 
     Array<StreamInfoView*> streamsToRemove;
 
     for (auto stream : streams)
     {
-        LOGD("Checking viewer for stream ");
+        LOGC("Checking viewer for stream ");
 
         if (!stream->streamIsStillNeeded)
         {
             streamsToRemove.add(stream);
         }
         else {
-            LOGD(" STILL NEEDED.");
+            LOGC(" STILL NEEDED.");
         }
 
     }

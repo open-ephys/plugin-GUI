@@ -472,7 +472,7 @@ void GenericProcessor::clearSettings()
 {
     std::cout << " " << std::endl;
     std::cout << " " << std::endl;
-	std::cout << "Clearing settings for " << getName()  << std::endl;
+	std::cout << "Clearing settings for " << getName()  << " (" << getNodeId() << ")" << std::endl;
     
     Array<ContinuousChannel*> continuousChannelsToKeep;
     
@@ -575,7 +575,7 @@ void GenericProcessor::setStreamEnabled(uint16 streamId, bool isEnabled)
 int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int continuousChannelGlobalIndex)
 {
 
-	if (true)
+	if (false)
 	{
         std::cout << getName() << " " << getNodeId() << std::endl;
 		std::cout << "Copying stream " << stream->getName() << ":" << std::endl;
@@ -855,7 +855,7 @@ void GenericProcessor::update()
       {
         
           DataStream* similarStream = spikeChannel->findSimilarStream(dataStreams);
-          
+         
           spikeChannel->setDataStream(similarStream, true);
           
           int channelCount = similarStream != nullptr ?
@@ -1408,10 +1408,17 @@ DataStream* GenericProcessor::getDataStream(uint16 streamId) const
 	return dataStreamMap.at(streamId);
 }
 
-uint16 GenericProcessor::findSimilarStream(int sourceNodeId, String name, float sample_rate)
+uint16 GenericProcessor::findSimilarStream(int sourceNodeId, String name, float sample_rate, bool sourceNodeIdMustMatch)
 {
+    std::cout << "Searching for similar stream, nodeId: " << sourceNodeId << "; name: " << name << ", sample rate: " << sample_rate
+        << std::endl;
+
     if (dataStreams.size() > 0)
     {
+
+        if (sourceNodeId == 0) // previously empty stream
+            return dataStreams[0]->getStreamId(); // add to first stream
+
         for (auto stream : dataStreams)
         {
             if (stream->getSourceNodeId() == sourceNodeId
@@ -1423,24 +1430,27 @@ uint16 GenericProcessor::findSimilarStream(int sourceNodeId, String name, float 
             }
         }
 
-        for (auto stream : dataStreams)
+        if (!sourceNodeIdMustMatch)
         {
-            if (stream->getName() == name
-                && stream->getSampleRate() == sample_rate)
+            for (auto stream : dataStreams)
             {
-                // name and sample rate match
-                return stream->getStreamId();
+                if (stream->getName() == name
+                    && stream->getSampleRate() == sample_rate)
+                {
+                    // name and sample rate match
+                    return stream->getStreamId();
+                }
             }
-        }
 
-        for (auto stream : dataStreams)
-        {
-            if (stream->getSampleRate() == sample_rate)
+            for (auto stream : dataStreams)
             {
-                // sample rate match
-                return stream->getStreamId();
+                if (stream->getSampleRate() == sample_rate)
+                {
+                    // sample rate match
+                    return stream->getStreamId();
+                }
             }
-        }
+        }   
     }
 
     // no streams with any matching characteristics

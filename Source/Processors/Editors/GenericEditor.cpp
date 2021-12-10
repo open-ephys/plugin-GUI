@@ -463,7 +463,7 @@ void GenericEditor::update(bool isEnabled_)
 
         for (auto stream : p->getDataStreams())
         {
-            std::cout << "Selector adding stream with name " << stream->getName() << std::endl;
+            std::cout << "Selector adding stream with name " << stream->getName() << " : " << stream->getSourceNodeId() << std::endl;
             streamSelector->add(stream);
             delayMonitors[stream->getStreamId()] = streamSelector->getDelayMonitor(stream);
             ttlMonitors[stream->getStreamId()] = streamSelector->getTTLMonitor(stream);

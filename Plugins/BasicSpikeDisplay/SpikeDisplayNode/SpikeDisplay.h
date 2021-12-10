@@ -27,7 +27,8 @@
 
 #include <VisualizerWindowHeaders.h>
 
-class SpikePlot;
+#include "SpikePlots.h";
+
 class SpikeDisplayCanvas;
 class SpikeThresholdCoordinator;
 
@@ -101,7 +102,7 @@ private:
     SpikeDisplayCanvas* canvas;
     Viewport* viewport;
 
-    Array<SpikePlot*> spikePlots;
+    OwnedArray<SpikePlot> spikePlots;
 
     bool shouldInvert;
 
