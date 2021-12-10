@@ -152,6 +152,7 @@ PopupChannelSelector::PopupChannelSelector(PopupChannelSelector::Listener* liste
     int height = buttonSize * nRows;
 
     maxSelectable = (maxSelectable == -1) ? nChannels : maxSelectable;
+    maxSelectable = (maxSelectable > nChannels) ? nChannels : maxSelectable;
 
     buttonColour = Colours::azure;
 
@@ -227,6 +228,8 @@ PopupChannelSelector::~PopupChannelSelector() {}
 void PopupChannelSelector::setMaximumSelectableChannels(int num)
 {
     maxSelectable = num;
+
+    maxSelectable = (maxSelectable > nChannels) ? nChannels : maxSelectable;
 }
 
 void PopupChannelSelector::setChannelButtonColour(Colour clr)
