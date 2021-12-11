@@ -339,7 +339,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                         tempBuffer->addFrom(0,    // destination channel
                             0,                // destination start sample
                             *overflowBuffer,  // source
-                            i,                // source channel
+                            0,                // source channel
                             0,                // source start sample
                             (int) samplesToCopyFromOverflowBuffer,    // number of samples
                             1.0f              // gain to apply
@@ -355,7 +355,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                             backupBuffer->addFrom(0, // destination channel
                                 0,                     // destination start sample
                                 *overflowBuffer,       // source
-                                i,                     // source channel
+                                0,                     // source channel
                                 (int) samplesToCopyFromOverflowBuffer,         // source start sample
                                 (int) leftoverSamples,       // number of samples
                                 1.0f                   // gain to apply
