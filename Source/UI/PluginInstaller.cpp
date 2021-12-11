@@ -244,8 +244,17 @@ void PluginInstaller::installPluginAndDependency(const String& plugin, String ve
 	// download the plugin
 	if(version.isEmpty() || !requiredPluginInfo.versions.contains(version))
 	{
-		LOGC(plugin, " version ", version, " not found! Installing the latest version");
-		version = requiredPluginInfo.latestVersion;
+		if(!requiredPluginInfo.versions.isEmpty())
+		{
+			LOGC(plugin, " version ", version, " not found! Installing the latest version");
+			requiredPluginInfo.versions.sort(false);
+			version = requiredPluginInfo.versions[requiredPluginInfo.versions.size()];
+		}
+		else
+		{
+			LOGC("Automated Plugin Installation Failed! Compatible plugin version not found!")
+			return;
+		}
 	}
 	
 	int code = tempInfoComponent.downloadPlugin(requiredPluginInfo.pluginName, version, false);
