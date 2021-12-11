@@ -192,8 +192,15 @@ private:
     
     StreamSettings<SpikeDetectorSettings> settings;
 
+    bool alreadyLoaded(String name, SpikeChannel::Type type, int stream_source);
+
     int totalCallbacks;
     int spikeCount;
+
+    int nextAvailableChannel;
+    int singleElectrodeCount;
+    int stereotrodeCount;
+    int tetrodeCount;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetector);
 };

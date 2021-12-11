@@ -121,7 +121,7 @@ public:
 	void setSyncBit(uint16 streamId, int bit);
 	int getSyncBit(uint16 streamId);
 
-	void updateChannelStates(uint64 satreamId, std::vector<bool> enabled);
+	void updateChannelStates(uint16 streamId, std::vector<bool> enabled);
 
 	bool isFirstChannelInRecordedSubprocessor(int channel);
 

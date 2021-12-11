@@ -76,52 +76,58 @@ void CommonAverageRef::process (AudioBuffer<float>& buffer)
 
     for (auto stream : getDataStreams())
     {
-        CARSettings* settings_ = settings[stream->getStreamId()];
 
-        const int numSamples = getNumSourceSamples(stream->getStreamId());
-        const int numReferenceChannels = (*stream)["reference_channels"].getArray()->size();
-        const int numAffectedChannels = (*stream)["affected_channels"].getArray()->size();
-
-        // There is no need to do any processing if either number of reference or affected channels is zero.
-        if (!numReferenceChannels
-            || !numAffectedChannels)
+        if ((*stream)["enable_stream"])
         {
-            return;
+            CARSettings* settings_ = settings[stream->getStreamId()];
+
+            const int numSamples = getNumSourceSamples(stream->getStreamId());
+            const int numReferenceChannels = (*stream)["reference_channels"].getArray()->size();
+            const int numAffectedChannels = (*stream)["affected_channels"].getArray()->size();
+
+            // There is no need to do any processing if either number of reference or affected channels is zero.
+            if (!numReferenceChannels
+                || !numAffectedChannels)
+            {
+                return;
+            }
+
+            settings_->m_avgBuffer.clear();
+
+            for (int i = 0; i < numReferenceChannels; ++i)
+            {
+                int localIndex = (*stream)["reference_channels"][i];
+                int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
+
+                settings_->m_avgBuffer.addFrom(0,       // destChannel
+                    0,                                  // destStartSample
+                    buffer,                             // source
+                    globalIndex,                        // sourceChannel
+                    0,                                  // sourceStartSample
+                    numSamples,                         // numSamples
+                    1.0f);                              // gain to apply
+            }
+
+            settings_->m_avgBuffer.applyGain(1.0f / float(numReferenceChannels));
+
+            const float gain = -1.0f * float((*stream)["gain_level"]) / 100.f;
+
+            for (int i = 0; i < numAffectedChannels; ++i)
+            {
+                int localIndex = (*stream)["affected_channels"][i];
+                int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
+
+                buffer.addFrom(globalIndex,                // destChannel
+                    0,                                     // destStartSample
+                    settings_->m_avgBuffer,                // source
+                    0,                                     // sourceChannel
+                    0,                                     // sourceStartSample
+                    numSamples,                            // numSamples
+                    gain);                                 // gain to apply
+            }
         }
 
-        settings_->m_avgBuffer.clear();
-
-        for (int i = 0; i < numReferenceChannels; ++i)
-        {
-            int localIndex = (*stream)["reference_channels"][i];
-            int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
-
-            settings_->m_avgBuffer.addFrom(0,       // destChannel
-                0,                                  // destStartSample
-                buffer,                             // source
-                globalIndex,                        // sourceChannel
-                0,                                  // sourceStartSample
-                numSamples,                         // numSamples
-                1.0f);                              // gain to apply
-        }
-
-        settings_->m_avgBuffer.applyGain(1.0f / float(numReferenceChannels));
-
-        const float gain = -1.0f * float((*stream)["gain_level"]) / 100.f;
-
-        for (int i = 0; i < numAffectedChannels; ++i)
-        {
-            int localIndex = (*stream)["affected_channels"][i];
-            int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
-
-            buffer.addFrom(globalIndex,                // destChannel
-                0,                                     // destStartSample
-                settings_->m_avgBuffer,                // source
-                0,                                     // sourceChannel
-                0,                                     // sourceStartSample
-                numSamples,                            // numSamples
-                gain);                                 // gain to apply
-        }
+        
     }
 
    

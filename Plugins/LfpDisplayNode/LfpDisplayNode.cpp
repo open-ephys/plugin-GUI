@@ -82,7 +82,12 @@ void LfpDisplayNode::updateSettings()
             displayBufferMap[streamId]->sampleRate = channel->getSampleRate();
         }
 
-        displayBufferMap[streamId]->addChannel(channel->getName(), ch, channel->getChannelType(), 0.0f, 0.0f);
+        displayBufferMap[streamId]->addChannel(channel->getName(), // name
+                                               ch, // index
+                                               channel->getChannelType(), // type
+                                               0, // group 
+                                               channel->position.y // ypos
+                                                );
     }
 
     Array<DisplayBuffer*> toDelete;

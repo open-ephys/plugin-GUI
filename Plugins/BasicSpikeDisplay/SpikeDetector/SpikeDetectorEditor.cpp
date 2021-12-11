@@ -104,6 +104,18 @@ void SpikeDetectorEditor::labelTextChanged(Label* label)
 
 }
 
+void SpikeDetectorEditor::selectedStreamHasChanged()
+{
+    SpikeDetector* processor = (SpikeDetector*)getProcessor();
+
+    Array<SpikeChannel*> spikeChannels = processor->getSpikeChannelsForStream(getCurrentStream());
+
+    if (spikeChannels.size() > 0)
+        configureButton->setEnabled(true);
+    else
+        configureButton->setEnabled(false);
+}
+
 void SpikeDetectorEditor::buttonClicked(Button* button)
 {
 
@@ -128,7 +140,7 @@ void SpikeDetectorEditor::buttonClicked(Button* button)
         
         return;
     }
-    else if (button == plusButton.get() && !acquisitionIsActive)
+    else if (button == plusButton.get() && !acquisitionIsActive && getCurrentStream() != 0)
     {
         
         int numSpikeChannelsToAdd = spikeChannelCountLabel->getText().getIntValue();

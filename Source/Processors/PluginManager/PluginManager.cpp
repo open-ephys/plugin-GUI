@@ -101,7 +101,7 @@ PluginManager::PluginManager()
     }
 
 #elif __linux__
-	File installSharedPath = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys/shared");
+	File installSharedPath = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("open-ephys/shared");
 	if (!installSharedPath.isDirectory()) {
         installSharedPath.createDirectory();
     }
@@ -131,7 +131,7 @@ void PluginManager::loadAllPlugins()
 
     String appDir = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
     if(!appDir.contains("plugin-GUI/Build/"))
-	    paths.add(File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(".open-ephys/plugins"));	
+	    paths.add(File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("open-ephys/plugins"));	
 #endif
 
     for (auto &pluginPath : paths) {

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<SETTINGS>
+  <INFO>
+    <VERSION>0.6.0</VERSION>
+    <PLUGIN_API_VERSION>8</PLUGIN_API_VERSION>
+    <DATE>9 Dec 2021 9:23:41</DATE>
+    <OS>Windows 10</OS>
+    <MACHINE>W10LTPC11LLXH</MACHINE>
+  </INFO>
+  <SIGNALCHAIN>
+    <PROCESSOR name="Neuropix-PXI" insertionPoint="0" pluginName="Neuropix-PXI"
+               type="4" index="3" libraryName="Neuropix-PXI" libraryVersion="0.3.4"
+               processorType="2" nodeId="100">
+      <GLOBAL_PARAMETERS/>
+      <STREAM name="ProbeA-AP" description="description" sample_rate="30000.0"
+              channel_count="385">
+        <PARAMETERS/>
+      </STREAM>
+      <STREAM name="ProbeA-LFP" description="description" sample_rate="2500.0"
+              channel_count="385">
+        <PARAMETERS/>
+      </STREAM>
+      <STREAM name="ProbeB-AP" description="description" sample_rate="30000.0"
+              channel_count="385">
+        <PARAMETERS/>
+      </STREAM>
+      <STREAM name="ProbeB-LFP" description="description" sample_rate="2500.0"
+              channel_count="385">
+        <PARAMETERS/>
+      </STREAM>
+      <STREAM name="ProbeC-AP" description="description" sample_rate="30000.0"
+              channel_count="385">
+        <PARAMETERS/>
+      </STREAM>
+      <STREAM name="ProbeC-LFP" description="description" sample_rate="2500.0"
+              channel_count="385">
+        <PARAMETERS/>
+      </STREAM>
+      <STREAM name="ProbeD-AP" description="description" sample_rate="30000.0"
+              channel_count="385">
+        <PARAMETERS/>
+      </STREAM>
+      <STREAM name="ProbeD-LFP" description="description" sample_rate="2500.0"
+              channel_count="385">
+        <PARAMETERS/>
+      </STREAM>
+      <CUSTOM_PARAMETERS>
+        <CHANNEL_INFO/>
+      </CUSTOM_PARAMETERS>
+      <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Neuropix-PXI" activeStream="0"
+              Type="Visualizer">
+        <TAB Active="1"/>
+        <WINDOW Active="0"/>
+      </EDITOR>
+    </PROCESSOR>
+    <PROCESSOR name="Record Node" insertionPoint="1" pluginName="Record Node"
+               type="0" index="3" libraryName="" libraryVersion="" processorType="8"
+               nodeId="101">
+      <GLOBAL_PARAMETERS/>
+      <STREAM name="ProbeA-AP" description="description" sample_rate="30000.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <STREAM name="ProbeA-LFP" description="description" sample_rate="2500.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <STREAM name="ProbeB-AP" description="description" sample_rate="30000.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <STREAM name="ProbeB-LFP" description="description" sample_rate="2500.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <STREAM name="ProbeC-AP" description="description" sample_rate="30000.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <STREAM name="ProbeC-LFP" description="description" sample_rate="2500.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <STREAM name="ProbeD-AP" description="description" sample_rate="30000.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <STREAM name="ProbeD-LFP" description="description" sample_rate="2500.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <CUSTOM_PARAMETERS/>
+      <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"/>
+    </PROCESSOR>
+    <PROCESSOR name="LFP Viewer" insertionPoint="1" pluginName="LFP Viewer"
+               type="1" index="4" libraryName="LFP viewer" libraryVersion="0.1.0"
+               processorType="3" nodeId="102">
+      <GLOBAL_PARAMETERS/>
+      <STREAM name="ProbeA-AP" description="description" sample_rate="30000.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <STREAM name="ProbeA-LFP" description="description" sample_rate="2500.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <STREAM name="ProbeB-AP" description="description" sample_rate="30000.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <STREAM name="ProbeB-LFP" description="description" sample_rate="2500.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <STREAM name="ProbeC-AP" description="description" sample_rate="30000.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <STREAM name="ProbeC-LFP" description="description" sample_rate="2500.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <STREAM name="ProbeD-AP" description="description" sample_rate="30000.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <STREAM name="ProbeD-LFP" description="description" sample_rate="2500.0"
+              channel_count="385">
+        <PARAMETERS enable_stream="1"/>
+      </STREAM>
+      <CUSTOM_PARAMETERS/>
+      <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="LFP Viewer" activeStream="0"
+              Type="LfpDisplayEditor">
+        <TAB Active="1"/>
+        <WINDOW Active="0"/>
+        <VALUES SelectedLayout="1"/>
+        <LFPDISPLAY0 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+                     colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
+                     satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
+                     showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
+                     trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+                     ScrollX="0" ScrollY="0"/>
+        <LFPDISPLAY1 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+                     colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
+                     satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
+                     showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
+                     trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+                     ScrollX="0" ScrollY="0"/>
+        <LFPDISPLAY2 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+                     colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
+                     satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
+                     showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
+                     trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+                     ScrollX="0" ScrollY="0"/>
+        <CANVAS doubleVerticalSplitRatio="0.5" doubleHorizontalSplitRatio="0.5"
+                tripleHorizontalSplitRatio="0.33,0.66" tripleVerticalSplitRatio="0.33,0.66"
+                showAllOptions="0"/>
+      </EDITOR>
+    </PROCESSOR>
+  </SIGNALCHAIN>
+  <EDITORVIEWPORT scroll="0"/>
+  <AUDIO sampleRate="48000.0" bufferSize="1024" deviceType="Windows Audio">
+    <DEVICESETUP deviceType="Windows Audio" audioOutputDeviceName="Speaker/HP (Realtek High Definition Audio)"
+                 audioInputDeviceName="" audioDeviceRate="48000.0" audioDeviceBufferSize="1024"
+                 audioDeviceInChans="0"/>
+  </AUDIO>
+  <GLOBAL_TIMESTAMP selected_index="0" selected_sub_index="0"/>
+  <CONTROLPANEL isOpen="1" recordPath="C:\Users\joshs\Documents\Open Ephys" recordEngine="OPENEPHYS"/>
+  <AUDIOEDITOR isMuted="0" volume="50.0" noiseGate="0.0"/>
+  <FILENAMECONFIG>
+    <PREPEND state="0" value=""/>
+    <MAIN state="1" value="MM-DD-YYYY_HH-MM-SS"/>
+    <APPEND state="0" value=""/>
+  </FILENAMECONFIG>
+  <PROCESSORLIST>
+    <COLOR ID="801" R="59" G="59" B="59"/>
+    <COLOR ID="804" R="241" G="90" B="41"/>
+    <COLOR ID="802" R="0" G="174" B="239"/>
+    <COLOR ID="803" R="0" G="166" B="81"/>
+    <COLOR ID="805" R="147" G="149" B="152"/>
+    <COLOR ID="806" R="255" G="0" B="0"/>
+    <COLOR ID="807" R="0" G="0" B="0"/>
+  </PROCESSORLIST>
+  <UICOMPONENT isProcessorListOpen="1" isEditorViewportOpen="1"/>
+</SETTINGS>

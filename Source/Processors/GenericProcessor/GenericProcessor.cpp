@@ -472,7 +472,7 @@ void GenericProcessor::clearSettings()
 {
     std::cout << " " << std::endl;
     std::cout << " " << std::endl;
-	std::cout << "Clearing settings for " << getName()  << std::endl;
+	std::cout << "Clearing settings for " << getName()  << " (" << getNodeId() << ")" << std::endl;
     
     Array<ContinuousChannel*> continuousChannelsToKeep;
     
@@ -575,7 +575,7 @@ void GenericProcessor::setStreamEnabled(uint16 streamId, bool isEnabled)
 int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int continuousChannelGlobalIndex)
 {
 
-	if (true)
+	if (false)
 	{
         std::cout << getName() << " " << getNodeId() << std::endl;
 		std::cout << "Copying stream " << stream->getName() << ":" << std::endl;
@@ -756,7 +756,10 @@ void GenericProcessor::update()
             messageChannel->addProcessor(processorInfo.get());
             messageChannel->setDataStream(dataStreams.getLast());
 
-            std::cout << getNodeId() << " connected to Message Center" << std::endl;
+            if (!isSource())
+                isEnabled = false;
+
+            LOGD(getNodeId(), " connected to Message Center");
         }
     } else {
         
@@ -768,7 +771,7 @@ void GenericProcessor::update()
     /// UPDATE PARAMETERS FOR STREAMS
 	for (auto stream : dataStreams)
 	{
-		std::cout << "Stream " << stream->getStreamId() << " num channels: " << stream->getChannelCount() << std::endl;
+		LOGD( "Stream ", stream->getStreamId(), " num channels: ", stream->getChannelCount());
         
         if (stream->numParameters() == 0)
         {
@@ -852,7 +855,13 @@ void GenericProcessor::update()
       {
         
           DataStream* similarStream = spikeChannel->findSimilarStream(dataStreams);
-          
+
+          if (similarStream != nullptr)
+          {
+              if (!(*similarStream)["enable_stream"])
+                  continue;
+          }
+         
           spikeChannel->setDataStream(similarStream, true);
           
           int channelCount = similarStream != nullptr ?
@@ -877,15 +886,9 @@ void GenericProcessor::update()
                           // setting isEnabled variable
 
 	LOGD("Updated custom settings.");
-    
-    std::cout << "After custom settings -- Num local spike channels: " << spikeChannels.size() << std::endl;
-    //std::cout << "After custom settings -- Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() //<< std::endl;
 
 	updateChannelIndexMaps();
     
-    std::cout << "After channel index maps -- Num local spike channels: " << spikeChannels.size() << std::endl;
-   // std::cout << "After channel index maps -- Num local stream spike channels: " << dataStreams.getLast()->getSpikeChannels().size() << //std::endl;
-
 	m_needsToSendTimestampMessages.clear();
 	for (auto stream : getDataStreams())
 		m_needsToSendTimestampMessages[stream->getStreamId()] = true;
@@ -906,6 +909,9 @@ void GenericProcessor::updateChannelIndexMaps()
 	eventChannelMap.clear();
 	spikeChannelMap.clear();
 	dataStreamMap.clear();
+
+    if (dataStreams.size() == 0)
+        return;
 
 	for (int i = 0; i < continuousChannels.size(); i++)
 	{
@@ -1408,10 +1414,17 @@ DataStream* GenericProcessor::getDataStream(uint16 streamId) const
 	return dataStreamMap.at(streamId);
 }
 
-uint16 GenericProcessor::findSimilarStream(int sourceNodeId, String name, float sample_rate)
+uint16 GenericProcessor::findSimilarStream(int sourceNodeId, String name, float sample_rate, bool sourceNodeIdMustMatch)
 {
+    std::cout << "Searching for similar stream, nodeId: " << sourceNodeId << "; name: " << name << ", sample rate: " << sample_rate
+        << std::endl;
+
     if (dataStreams.size() > 0)
     {
+
+        if (sourceNodeId == 0) // previously empty stream
+            return dataStreams[0]->getStreamId(); // add to first stream
+
         for (auto stream : dataStreams)
         {
             if (stream->getSourceNodeId() == sourceNodeId
@@ -1423,24 +1436,27 @@ uint16 GenericProcessor::findSimilarStream(int sourceNodeId, String name, float 
             }
         }
 
-        for (auto stream : dataStreams)
+        if (!sourceNodeIdMustMatch)
         {
-            if (stream->getName() == name
-                && stream->getSampleRate() == sample_rate)
+            for (auto stream : dataStreams)
             {
-                // name and sample rate match
-                return stream->getStreamId();
+                if (stream->getName() == name
+                    && stream->getSampleRate() == sample_rate)
+                {
+                    // name and sample rate match
+                    return stream->getStreamId();
+                }
             }
-        }
 
-        for (auto stream : dataStreams)
-        {
-            if (stream->getSampleRate() == sample_rate)
+            for (auto stream : dataStreams)
             {
-                // sample rate match
-                return stream->getStreamId();
+                if (stream->getSampleRate() == sample_rate)
+                {
+                    // sample rate match
+                    return stream->getStreamId();
+                }
             }
-        }
+        }   
     }
 
     // no streams with any matching characteristics
@@ -1803,7 +1819,7 @@ void LatencyMeter::update(Array<const DataStream*>dataStreams)
 void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartTimes)
 {
 
-	if (counter % 10 == 0) // update latency estimate every 10 blocks
+	if (counter % 10 == 0) // update latency estimate every 10 process blocks
 	{
 
 		std::map<uint16, juce::int64>::iterator it = processStartTimes.begin();
@@ -1816,7 +1832,7 @@ void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartT
 			it++;
 		}
 
-		if (counter % 50 == 0)
+		if (counter % 50 == 0) // compute mean latency every 50 process blocks
 		{
 
 			std::map<uint16, juce::int64>::iterator it = processStartTimes.begin();
@@ -1828,11 +1844,9 @@ void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartT
 				for (int i = 0; i < 10; i++)
 					totalLatency += float(latencies[it->first][i]);
 
-				totalLatency = totalLatency / 5.0f
+				totalLatency = totalLatency / 10.0f
 					/ float(Time::getHighResolutionTicksPerSecond())
 					* 1000.0f;
-
-				//std::cout << "Total latency for " << processor->getNodeId() << ": " << totalLatency << " ms" << std::endl;
 
 				processor->getEditor()->setMeanLatencyMs(it->first, totalLatency);
 

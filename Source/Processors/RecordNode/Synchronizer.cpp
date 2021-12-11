@@ -196,7 +196,8 @@ Synchronizer::Synchronizer(RecordNode* parentNode)
 
 Synchronizer::~Synchronizer()
 {
-
+	for (auto [id, stream] : streams)
+		delete stream;
 }
 
 void Synchronizer::reset()

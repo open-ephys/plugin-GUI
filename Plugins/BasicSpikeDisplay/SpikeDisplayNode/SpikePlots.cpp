@@ -25,7 +25,7 @@
 
 #include "SpikeDisplay.h"
 #include "SpikeDisplayCanvas.h"
-
+#include "SpikeDisplayNode.h"
 
 SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, 
                      int elecNum, 
@@ -82,11 +82,14 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc,
         addAndMakeVisible(rangeButton);
 
         rangeButtons.add(rangeButton);
+        setDisplayThresholdForChannel(i, 0);
     }
 
     monitorButton = std::make_unique<UtilityButton>("MON", Font("Small Text", 8, Font::plain));
     monitorButton->addListener(this);
     addAndMakeVisible(monitorButton.get());
+
+    mostRecentSpikes.ensureStorageAllocated(bufferSize);
 
 }
 
@@ -109,8 +112,25 @@ void SpikePlot::paint(Graphics& g)
 
 }
 
+void SpikePlot::refresh()
+{
+    for (auto spike : mostRecentSpikes)
+    {
+        processSpikeObject(spike);
+    }
+
+    mostRecentSpikes.clear();
+    spikesInBuffer = 0;
+
+    repaint();
+}
+
 void SpikePlot::processSpikeObject(const Spike* s)
 {
+    for (int i = 0; i < waveAxes.size(); ++i)
+    {
+        setDetectorThresholdForChannel(i, s->getThreshold(i));
+    }
 
     // first, check if it's above threshold
     bool aboveThreshold = false;
@@ -131,6 +151,15 @@ void SpikePlot::processSpikeObject(const Spike* s)
 
 }
 
+void SpikePlot::addSpikeToBuffer(const Spike* spike)
+{
+    if (spikesInBuffer < bufferSize)
+    {
+        mostRecentSpikes.add(new Spike(*spike));
+        spikesInBuffer++;
+    }
+}
+
 void SpikePlot::initAxes()
 {
     initLimits();
@@ -145,7 +174,8 @@ void SpikePlot::initAxes()
 
     for (int i = 0; i < nProjAx; i++)
     {
-        ProjectionAxes* pAx = new ProjectionAxes((Projection) PROJ1x2 + i);
+        Projection proj = Projection(int(PROJ1x2) + i);
+        ProjectionAxes* pAx = new ProjectionAxes(proj);
         projectionAxes.add(pAx);
         addAndMakeVisible(pAx);
     }

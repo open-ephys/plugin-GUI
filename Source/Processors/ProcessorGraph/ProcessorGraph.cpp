@@ -170,7 +170,7 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
 	std::unique_ptr<GenericProcessor> processor = nullptr;
     GenericProcessor* addedProc = nullptr;
     
-    LOGD("Creating processor with name: ", description.name);
+    LOGC("Creating processor with name: ", description.name);
     
     if (sourceNode != nullptr)
         LOGDD("Source node: ", sourceNode->getName());
@@ -760,12 +760,14 @@ void ProcessorGraph::restoreParameters()
     // load source node parameters
     for (auto p : rootNodes)
     {
+        std::cout << "Loading root node parameters for " << p->getName() << " : " << p->getNodeId() << std::endl;
         p->loadFromXml();
     }
 
     // update everyone's settings
     for (auto p : rootNodes)
     {
+        std::cout << "Updating settings for " << p->getName() << " : " << p->getNodeId() << std::endl;
         updateSettings(p, true);
     }
     
@@ -1759,13 +1761,15 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 
     checkForNewRootNodes(processor, false, false);
 
-    //// need this on Mac in order to prevent double-deletion of plugin editors
-    //// (not entirely sure why)
-    // std::unique_ptr<GenericEditor> editor;
-    // editor.swap(processor->editor);
+    //// need this to prevent editors from remaining after starting acquisition
+    std::unique_ptr<GenericEditor> editor;
+    editor.swap(processor->editor);
+    editor.reset();
 
     Node::Ptr node = removeNode(nodeId);
     node.reset();
+
+    
 
 }
 

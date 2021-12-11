@@ -26,22 +26,34 @@
 #include "DelayMonitor.h"
 #include "TTLMonitor.h"
 #include "GenericEditor.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 #include "../Settings/DataStream.h"
 
 StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_, bool isEnabled_) :
-    isEnabled(isEnabled_), stream(stream_), editor(editor_), streamIsStillNeeded(true)
+    isEnabled(isEnabled_), 
+    stream(stream_), 
+    streamId(stream_->getStreamId()),
+    editor(editor_), 
+    streamIsStillNeeded(true),
+    acquisitionIsActive(false)
 {
     LOGD("Adding stream ", getStreamId(), " with ", stream->getChannelCount(), " channels ");
 
     updateInfoString();
 
-    enableButton = std::make_unique<StreamEnableButton>("x");
-    enableButton->addListener(this);
-    enableButton->setClickingTogglesState(true);
-    enableButton->setToggleState(true, dontSendNotification);
-    addAndMakeVisible(enableButton.get());
-
+    if (editor->getProcessor()->isFilter())
+    {
+        enableButton = std::make_unique<StreamEnableButton>("x");
+        enableButton->addListener(this);
+        enableButton->setClickingTogglesState(true);
+        enableButton->setToggleState(true, dontSendNotification);
+        addAndMakeVisible(enableButton.get());
+        enabledString = "Bypass";
+    }
+    else {
+        enabledString = "";
+    }
 
     delayMonitor = std::make_unique<DelayMonitor>();
     addAndMakeVisible(delayMonitor.get());
@@ -49,7 +61,7 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     ttlMonitor = std::make_unique<TTLMonitor>();
     addAndMakeVisible(ttlMonitor.get());
         
-    enabledString = "Bypass";
+    
 
 }
 
@@ -66,7 +78,7 @@ void StreamInfoView::updateInfoString()
     if (stream->getChannelCount() > 1)
         channelString += "s";
     
-    infoString = "ID: " + String(getStreamId()) + " : " + stream->getSourceNodeName()
+    infoString = stream->getSourceNodeName() + " (" + String(stream->getSourceNodeId()) + ")"
         + "\n"
         + String(stream->getChannelCount()) + channelString + " @ " +
         String(stream->getSampleRate()) + " Hz";
@@ -96,6 +108,11 @@ void StreamInfoView::startAcquisition()
         delayMonitor->startAcquisition();
         ttlMonitor->startAcquisition();
     }
+
+    acquisitionIsActive = true;
+
+    if (enableButton != nullptr)
+        enableButton->setClickingTogglesState(false);
     
 }
 
@@ -106,6 +123,11 @@ void StreamInfoView::stopAcquisition()
         delayMonitor->stopAcquisition();
         ttlMonitor->stopAcquisition();
     }
+
+    acquisitionIsActive = false;
+
+    if (enableButton != nullptr)
+        enableButton->setClickingTogglesState(true);
     
 }
 
@@ -118,6 +140,8 @@ void StreamInfoView::update(const DataStream* newStream)
 {
     streamIsStillNeeded = true;
 
+    streamId = newStream->getStreamId();
+
     stream = newStream;
 
     updateInfoString();
@@ -125,12 +149,12 @@ void StreamInfoView::update(const DataStream* newStream)
 
 void StreamInfoView::buttonClicked(Button* button)
 {
-    if (button == enableButton.get())
+    if (button == enableButton.get() && !acquisitionIsActive)
     {
         setEnabled(!isEnabled);
         enableButton->setToggleState(isEnabled, dontSendNotification);
 
-        std::cout << "Button clicked --- Stream " << getStreamId() << " enabled: " << isEnabled << std::endl;
+        LOGA("Button clicked --- Stream ", getStreamId(), " enabled: ", isEnabled);
 
         repaint();
         editor->streamEnabledStateChanged(getStreamId(), isEnabled);
@@ -139,7 +163,8 @@ void StreamInfoView::buttonClicked(Button* button)
 
 void StreamInfoView::resized()
 {
-    enableButton->setBounds(6, 38, 12, 12);
+    if (enableButton != nullptr)
+        enableButton->setBounds(6, 38, 12, 12);
     
     if (delayMonitor != nullptr)
     {
@@ -158,7 +183,7 @@ void StreamInfoView::paint(Graphics& g)
         g.setColour(Colours::darkgrey);
 
     g.setFont(12);
-    g.drawMultiLineText(infoString, 5, 18, getWidth() - 5, Justification::left);
+    g.drawMultiLineText(infoString, 5, 18, getWidth() +100, Justification::left);
     g.drawText(enabledString, 22, 38, 120, 12, Justification::left);
 
 }
@@ -198,9 +223,14 @@ StreamSelector::StreamSelector(GenericEditor* ed_) :
 
 StreamInfoView* StreamSelector::getStreamInfoView(const DataStream* streamToCheck)
 {
+
+    std::cout << "Checking existing streams..." << std::endl;
+    std::cout << " Searching for " << streamToCheck->getStreamId() << std::endl;
+
     for (auto stream : streams)
     {
-        if (stream->getStreamId() == streamToCheck->getStreamId())
+        std::cout << "  This one has: " << stream->getStreamId() << std::endl;
+        if (stream->streamId == streamToCheck->getStreamId())
             return stream;
     }
 
@@ -374,7 +404,7 @@ void StreamSelector::buttonClicked(Button* button)
     }
 
     if (currentlyViewedStream != viewedStreamIndex)
-        editor->updateSelectedStream(streams[viewedStreamIndex]->getStream()->getStreamId());
+        editor->updateSelectedStream(streams[viewedStreamIndex]->streamId);
 }
 
 int StreamSelector::getViewedIndex()
@@ -388,7 +418,7 @@ void StreamSelector::setViewedIndex(int i)
     if (i >= 0 && i < streams.size())
     {
         viewedStreamIndex = i;
-        editor->updateSelectedStream(streams[viewedStreamIndex]->getStream()->getStreamId());
+        editor->updateSelectedStream(streams[viewedStreamIndex]->streamId);
     }
         
 }
@@ -421,11 +451,13 @@ void StreamSelector::add(const DataStream* stream)
 
     if (getStreamInfoView(stream) == nullptr)
     {
+        std::cout << " ... Did not find, adding new stream " << std::endl;
         streams.add(new StreamInfoView(stream, editor, checkStream(stream)));
         viewedComponent->addAndMakeVisible(streams.getLast());
     }
     else
     {
+        std::cout << " ... Found, simply updating " << std::endl;
         getStreamInfoView(stream)->update(stream);
     }
     
@@ -447,20 +479,20 @@ void StreamSelector::beginUpdate()
 uint16 StreamSelector::finishedUpdate()
 {
 
-    LOGD("END UPDATE --- NUM STREAMS: ", streams.size());
+    LOGC("END UPDATE --- NUM STREAMS: ", streams.size());
 
     Array<StreamInfoView*> streamsToRemove;
 
     for (auto stream : streams)
     {
-        LOGD("Checking viewer for stream ");
+        LOGC("Checking viewer for stream ");
 
         if (!stream->streamIsStillNeeded)
         {
             streamsToRemove.add(stream);
         }
         else {
-            LOGD(" STILL NEEDED.");
+            LOGC(" STILL NEEDED.");
         }
 
     }

@@ -441,7 +441,7 @@ public:
 
     DataStream* getDataStream(uint16 streamId) const;
 
-    uint16 findSimilarStream(int sourceNodeId, String name, float sample_rate);
+    uint16 findSimilarStream(int sourceNodeId, String name, float sample_rate, bool sourceNodeIdMustMatch = false);
 
     virtual Array<const DataStream*> getStreamsForDestNode(GenericProcessor* processor);
 

@@ -108,11 +108,19 @@ void BinaryFileSource::fillRecordInfo()
 		
 		//Get start timestsamp to align any associated events with
 		File tsFile = m_rootPath.getChildFile("continuous").getChildFile(folderName).getChildFile("timestamps.npy");
-		std::unique_ptr<FileInputStream> tsDataStream = tsFile.createInputStream();
-		MemoryBlock tsData;
-		if (!(tsDataStream->readIntoMemoryBlock (tsData, maxSensibleFileSize))) continue;
-		int64* startTimestamp = (int64 *)tsData.getData() + EVENT_HEADER_SIZE_IN_BYTES;
-		info.startTimestamp = startTimestamp[0];
+
+		if (tsFile.exists())
+		{
+			std::unique_ptr<FileInputStream> tsDataStream = tsFile.createInputStream();
+			MemoryBlock tsData;
+			if (!(tsDataStream->readIntoMemoryBlock(tsData, maxSensibleFileSize))) continue;
+			int64* startTimestamp = (int64*)tsData.getData() + EVENT_HEADER_SIZE_IN_BYTES;
+			info.startTimestamp = startTimestamp[0];
+		}
+		else {
+			info.startTimestamp = 0;
+		}
+		
 
 		for (int c = 0; c < numChannels; c++)
 		{

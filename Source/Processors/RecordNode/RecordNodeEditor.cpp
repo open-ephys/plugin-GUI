@@ -453,6 +453,10 @@ void RecordNodeEditor::showSubprocessorFifos(bool show)
 		spikeRecord->getX() + dX, spikeRecord->getY(),
 		spikeRecord->getWidth(), spikeRecord->getHeight());
 
+	streamSelector->setBounds(
+		streamSelector->getX() + dX, streamSelector->getY(),
+		streamSelector->getWidth(), streamSelector->getHeight());
+
 	for (auto spl : subProcLabels)
 		spl->setVisible(show);
 	for (auto spm : subProcMonitors)
@@ -677,28 +681,27 @@ void FifoMonitor::mouseDoubleClick(const MouseEvent &event)
 	channelStates = recordNode->dataChannelStates[streamId];
 	
 	bool editable = !recordNode->recordThread->isThreadRunning();
-    auto* channelSelector = new PopupChannelSelector((PopupChannelSelector::Listener*) recordNode->getEditor(), channelStates);
+    auto* channelSelector = new PopupChannelSelector(this, channelStates);
+	channelSelector->setChannelButtonColour(Colours::red);
  
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
 
-	myBox.addComponentListener(this);
-
 }
-void FifoMonitor::componentBeingDeleted(Component &component)
+
+void FifoMonitor::channelStateChanged(Array<int> selectedChannels)
 {
-	/*Capture button channel states and send back to record node. */
-
-	auto* channelSelector = (PopupChannelSelector*)component.getChildComponent(0);
-
-	channelStates.clear();
-	for (auto* btn : channelSelector->channelButtons)
-		channelStates.push_back(btn->getToggleState());
+	for (int i = 0; i < channelStates.size(); i++)
+	{
+		if (selectedChannels.contains(i))
+			channelStates[i] = true;
+		else
+			channelStates[i] = false;
+	}
 
 	recordNode->updateChannelStates(streamId, channelStates);
-
-	component.removeComponentListener(this);
 }
+
 
 void FifoMonitor::timerCallback()
 {

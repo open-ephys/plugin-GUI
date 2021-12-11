@@ -109,9 +109,13 @@ public:
     /** Set to 'true' after update, if stream still exists*/
     bool streamIsStillNeeded;
 
+    uint16 streamId;
+
 private:
 
     const DataStream* stream;
+
+    
     
     bool isEnabled;
 
@@ -119,6 +123,8 @@ private:
     String enabledString;
 
     GenericEditor* editor;
+
+    bool acquisitionIsActive;
 
     std::unique_ptr<StreamEnableButton> enableButton;
     std::unique_ptr<TTLMonitor> ttlMonitor;

@@ -13,10 +13,9 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 #add plugin subdirectories
 add_subdirectory(ArduinoOutput)
 add_subdirectory(BasicSpikeDisplay)
-add_subdirectory(CommonAverageRef)
 add_subdirectory(ChannelMappingNode)
+add_subdirectory(CommonAverageRef)
 add_subdirectory(FilterNode)
 add_subdirectory(LfpDisplayNode)
 add_subdirectory(PhaseDetector)
 add_subdirectory(RecordControl)
-add_subdirectory(SpikeSorter)

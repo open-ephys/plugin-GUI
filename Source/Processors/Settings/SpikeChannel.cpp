@@ -75,24 +75,24 @@ void SpikeChannel::setDataStream(DataStream* dataStream, bool addToStream)
     
     Array<ContinuousChannel*> availableChannels;
     
-    std::cout << "Setting data stream to " << dataStream->getName() << " (" << dataStream->getStreamId() << ")" << std::endl;
-    std::cout << "Num local channels in SpikeChannel: " << localChannelIndexes.size() << std::endl;
+    //std::cout << "Setting data stream to " << dataStream->getName() << " (" << dataStream->getStreamId() << ")" << std::endl;
+    //std::cout << "Num local channels in SpikeChannel: " << localChannelIndexes.size() << std::endl;
     
     
     if (dataStream != nullptr)
     {
         availableChannels = dataStream->getContinuousChannels();
-        std::cout << "Num local channels in dataStream: " << dataStream->getChannelCount() << std::endl;
-    } else {
-        std::cout << "Num local channels in dataStream: 0" << std::endl;
-    }
+        //std::cout << "Num local channels in dataStream: " << dataStream->getChannelCount() << std::endl;
+    } //else {
+      //  std::cout << "Num local channels in dataStream: 0" << std::endl;
+   // }
         
     
     for (int i = 0; i < getNumChannels(); i++)
     {
         if (i >= localChannelIndexes.size())
         {
-            std::cout << "Adding continuous channel NULL (not enough available)" << std::endl;
+            //std::cout << "Adding continuous channel NULL (not enough available)" << std::endl;
             channelIsEnabled.add(false);
             newSourceChannels.add(nullptr);
             continue;
@@ -100,13 +100,13 @@ void SpikeChannel::setDataStream(DataStream* dataStream, bool addToStream)
             
         if (localChannelIndexes[i] < availableChannels.size())
         {
-            std::cout << "Adding continuous channel " << availableChannels[localChannelIndexes[i]]->getName() << std::endl;
+            //std::cout << "Adding continuous channel " << availableChannels[localChannelIndexes[i]]->getName() << std::endl;
             newSourceChannels.add(availableChannels[localChannelIndexes[i]]);
             channelIsEnabled.add(true);
             continue;
         }
         
-        std::cout << "Adding continuous channel NULL (no data stream)" << std::endl;
+        //std::cout << "Adding continuous channel NULL (no data stream)" << std::endl;
         channelIsEnabled.add(false);
         newSourceChannels.add(nullptr);
     }
@@ -122,7 +122,7 @@ void SpikeChannel::setDataStream(DataStream* dataStream, bool addToStream)
         
         if (addToStream)
         {
-            std::cout << "Data stream adding spike channel" << std::endl;
+            //std::cout << "Data stream adding spike channel" << std::endl;
             dataStream->addChannel(this);
         }
             

@@ -180,118 +180,124 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
     // loop through the streams
     for (auto stream : getDataStreams())
     {
-        PhaseDetectorSettings* module = settings[stream->getStreamId()];
 
-        // check to see if it's active and has a channel
-        if (module->isActive && module->outputBit >= 0
-            && module->triggerChannel >= 0
-            && module->triggerChannel < buffer.getNumChannels())
+        if ((*stream)["enable_stream"])
         {
-            for (int i = 0; i < getNumSourceSamples(stream->getStreamId()); ++i)
+            PhaseDetectorSettings* module = settings[stream->getStreamId()];
+
+            // check to see if it's active and has a channel
+            if (module->isActive && module->outputBit >= 0
+                && module->triggerChannel >= 0
+                && module->triggerChannel < buffer.getNumChannels())
             {
-                const float sample = *buffer.getReadPointer (module->triggerChannel, i);
-
-                if (sample < module->lastSample
-                    && sample > 0
-                    && module->currentPhase != FALLING_POS)
+                for (int i = 0; i < getNumSourceSamples(stream->getStreamId()); ++i)
                 {
-                    if (module->detectorType == PEAK)
+                    const float sample = *buffer.getReadPointer(module->triggerChannel, i);
+
+                    if (sample < module->lastSample
+                        && sample > 0
+                        && module->currentPhase != FALLING_POS)
                     {
-                        TTLEventPtr ptr = module->createEvent(
-                            getTimestamp(module->triggerChannel) + i,
-                            true);
-                        
+                        if (module->detectorType == PEAK)
+                        {
+                            TTLEventPtr ptr = module->createEvent(
+                                getTimestamp(module->triggerChannel) + i,
+                                true);
+
+                            addEvent(ptr, i);
+
+                            //LOGD("PEAK");
+                        }
+
+                        module->currentPhase = FALLING_POS;
+                    }
+                    else if (sample < 0
+                        && module->lastSample >= 0
+                        && module->currentPhase != FALLING_NEG)
+                    {
+                        if (module->detectorType == FALLING_ZERO)
+                        {
+
+                            TTLEventPtr ptr = module->createEvent(
+                                getTimestamp(module->triggerChannel) + i,
+                                true);
+
+                            addEvent(ptr, i);
+
+                            //("FALLING ZERO");
+                        }
+
+                        module->currentPhase = FALLING_NEG;
+                    }
+                    else if (sample > module->lastSample
+                        && sample < 0
+                        && module->currentPhase != RISING_NEG)
+                    {
+                        if (module->detectorType == TROUGH)
+                        {
+
+                            TTLEventPtr ptr = module->createEvent(
+                                getTimestamp(module->triggerChannel) + i,
+                                true);
+
+                            addEvent(ptr, i);
+
+                            //LOGD("TROUGH");
+                        }
+
+                        module->currentPhase = RISING_NEG;
+                    }
+                    else if (sample > 0
+                        && module->lastSample <= 0
+                        && module->currentPhase != RISING_POS)
+                    {
+                        if (module->detectorType == RISING_ZERO)
+                        {
+                            TTLEventPtr ptr = module->createEvent(
+                                getTimestamp(module->triggerChannel) + i,
+                                true);
+
+                            addEvent(ptr, i);
+
+                            //LOGD("RISING ZERO");
+                        }
+
+                        module->currentPhase = RISING_POS;
+                    }
+
+                    module->lastSample = sample;
+
+                    if (module->wasTriggered)
+                    {
+                        if (module->samplesSinceTrigger > 2000)
+                        {
+                            TTLEventPtr ptr = module->createEvent(
+                                getTimestamp(module->triggerChannel) + i,
+                                false);
+
+                            addEvent(ptr, i);
+
+                            //LOGD("TURNING OFF");
+                        }
+                        else
+                        {
+                            module->samplesSinceTrigger++;
+                        }
+                    }
+
+                    if (module->outputBitChanged)
+                    {
+                        TTLEventPtr ptr = module->clearOutputBit(
+                            getTimestamp(module->triggerChannel) + i);
+
                         addEvent(ptr, i);
-                        
-                        //LOGD("PEAK");
+
                     }
-
-                    module->currentPhase = FALLING_POS;
-                }
-                else if (sample < 0
-                         && module->lastSample >= 0
-                         && module->currentPhase != FALLING_NEG)
-                {
-                    if (module->detectorType == FALLING_ZERO)
-                    {
-
-                        TTLEventPtr ptr = module->createEvent(
-                            getTimestamp(module->triggerChannel) + i,
-                            true);
-
-                        addEvent(ptr, i);
-
-                        //("FALLING ZERO");
-                    }
-
-                    module->currentPhase = FALLING_NEG;
-                }
-                else if (sample > module->lastSample 
-                         && sample < 0 
-                         && module->currentPhase != RISING_NEG)
-                {
-                    if (module->detectorType == TROUGH)
-                    {
-
-                        TTLEventPtr ptr = module->createEvent(
-                            getTimestamp(module->triggerChannel) + i,
-                            true);
-
-                        addEvent(ptr, i);
-
-                        //LOGD("TROUGH");
-                    }
-
-                    module->currentPhase = RISING_NEG;
-                }
-                else if (sample > 0
-                         && module->lastSample <= 0
-                         && module->currentPhase != RISING_POS)
-                {
-                    if (module->detectorType == RISING_ZERO)
-                    {
-                        TTLEventPtr ptr = module->createEvent(
-                            getTimestamp(module->triggerChannel) + i,
-                            true);
-
-                        addEvent(ptr, i);
-
-                        //LOGD("RISING ZERO");
-                    }
-
-                    module->currentPhase = RISING_POS;
-                }
-
-                module->lastSample = sample;
-
-                if (module->wasTriggered)
-                {
-                    if (module->samplesSinceTrigger > 2000)
-                    {
-                        TTLEventPtr ptr = module->createEvent(
-                            getTimestamp(module->triggerChannel) + i,
-                            false);
-
-                        addEvent(ptr, i);
-
-                        //LOGD("TURNING OFF");
-                    }
-                    else
-                    {
-                        module->samplesSinceTrigger++;
-                    }
-                }
-                
-                if (module->outputBitChanged)
-                {
-                    TTLEventPtr ptr = module->clearOutputBit(
-                        getTimestamp(module->triggerChannel) + i);
-
-                    addEvent(ptr, i);
-                    
                 }
             }
         }
+
+        
     }
 }
 

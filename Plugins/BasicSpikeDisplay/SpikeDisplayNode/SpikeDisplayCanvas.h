@@ -27,44 +27,50 @@
 
 #include <VisualizerWindowHeaders.h>
 
-#include "SpikeDisplayNode.h"
+#include "SpikeDisplay.h"
 
 #include <vector>
 
-enum WaveAxesSubPlots {
-    WAVE1 = 0,
-    WAVE2 = 1,
-    WAVE3 = 2,
-    WAVE4 = 3
-};
-
-enum Projection {
-    PROJ1x2 4,
-    PROJ1x3 5,
-    PROJ1x4 6,
-    PROJ2x3 7,
-    PROJ2x4 8,
-    PROJ3x4 9
-};
-
-enum SpikePlotType {
-    WAVE_AXES,
-    PROJECTION_AXES
-};
-
-#define TETRODE_PLOT 1004
-#define STEREO_PLOT  1002
-#define SINGLE_PLOT  1001
-
+class SpikePlot;
 class SpikeDisplayNode;
 
-class SpikeDisplay;
-class GenericAxes;
-class ProjectionAxes;
-class WaveAxes;
-class SpikePlot;
-class RecordNode;
-class SpikeThresholdCoordinator;
+/**
+    Allows spike plot thresholds to be adjusted synchronously
+*/
+class SpikeThresholdCoordinator
+{
+public:
+
+    /** Constructor*/
+    SpikeThresholdCoordinator();
+
+    /** Destructor*/
+    ~SpikeThresholdCoordinator();
+
+    /** Registers a plot to interact with this coordinator*/
+    void registerSpikePlot(SpikePlot* sp);
+
+    /** De-registers a plot to interact with this coordinators*/
+    void deregisterSpikePlot(SpikePlot* sp);
+
+    /** Sets the lock threshold state*/
+    void setLockThresholds(bool en);
+
+    /** Returns the lock threshold state*/
+    bool getLockThresholds();
+
+    /** Sets the thresholds of all registered plots*/
+    void thresholdChanged(float displayThreshold, float range);
+
+private:
+
+    bool lockThresholds;
+    Array<SpikePlot*> registeredPlots;
+
+    WeakReference<SpikeThresholdCoordinator>::Master masterReference;
+    friend class WeakReference<SpikeThresholdCoordinator>;
+
+};
 
 /**
 

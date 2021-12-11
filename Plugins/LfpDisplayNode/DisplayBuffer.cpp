@@ -66,7 +66,13 @@ namespace LfpViewer {
         isNeeded = false;
     }
 
-    void DisplayBuffer::addChannel(String name, int channelNum, ContinuousChannel::Type type, int group, float ypos, String structure)
+    void DisplayBuffer::addChannel(
+        String name, 
+        int channelNum, 
+        ContinuousChannel::Type type, 
+        int group, 
+        float ypos, 
+        String structure)
     {
         ChannelMetadata metadata = ChannelMetadata();
         metadata.name = name;
@@ -75,6 +81,8 @@ namespace LfpViewer {
         metadata.ypos = ypos;
         metadata.structure = structure;
         metadata.type = type;
+
+        //std::cout << "LFP Viewer depth for channel " << channelNum << ": " << ypos << std::endl;
 
         channelMetadata.add(metadata);
         channelMap[channelNum] = numChannels;

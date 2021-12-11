@@ -85,6 +85,9 @@ DetectorInterface::DetectorInterface(Parameter* param) : ParameterEditor(param)
 void DetectorInterface::buttonClicked(Button* b)
 {
 
+    if (param == nullptr)
+        return;
+
     if (b->getState())
     {
         ElectrodeButton* pb = (ElectrodeButton*)b;
@@ -100,10 +103,19 @@ void DetectorInterface::updateView()
 {
     for (int i = 0; i < 4; i++)
     {
-        if (i == (int)param->getValue())
-            phaseButtons[i]->setToggleState(true, dontSendNotification);
-        else
-            phaseButtons[i]->setToggleState(false, dontSendNotification);
+        if (param != nullptr)
+        {
+            phaseButtons[i]->setClickingTogglesState(true);
+
+            if (i == (int)param->getValue())
+                phaseButtons[i]->setToggleState(true, dontSendNotification);
+            else
+                phaseButtons[i]->setToggleState(false, dontSendNotification);
+        }
+        else {
+            phaseButtons[i]->setClickingTogglesState(false);
+        }
+        
     }
     
 }

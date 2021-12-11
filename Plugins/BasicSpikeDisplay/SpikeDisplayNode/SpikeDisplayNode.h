@@ -25,7 +25,6 @@
 #define SPIKEDISPLAYNODE_H_
 
 #include <ProcessorHeaders.h>
-#include "SpikeDisplayEditor.h"
 
 class DataViewport;
 class SpikePlot;
@@ -78,11 +77,8 @@ public:
     /** Sets the corresponding spike plot for an electrode*/
     void addSpikePlotForElectrode (SpikePlot* sp, int i);
 
-
+    /** Removes pointers to SpikePlot objects*/
     void removeSpikePlots();
-
-    bool checkThreshold (int, float, Spike*);
-
 
 private:
     
@@ -91,19 +87,14 @@ private:
         String name;
 
         int numChannels;
-        int currentSpikeIndex;
-
-        Array<float> displayThresholds;
-        Array<float> detectorThresholds;
-
-        OwnedArray<Spike> mostRecentSpikes;
-
-		float bitVolts;
 
         SpikePlot* spikePlot;
+        SpikeChannel* spikeChannel;
     };
 
     OwnedArray<Electrode> electrodes;
+
+    std::map<const SpikeChannel*, SpikePlot*> electrodeMap;
 
     int spikeCount;
     int totalCallbacks;

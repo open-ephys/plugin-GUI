@@ -463,7 +463,7 @@ void GenericEditor::update(bool isEnabled_)
 
         for (auto stream : p->getDataStreams())
         {
-            std::cout << "Selector adding stream with name " << stream->getName() << std::endl;
+            std::cout << "Selector adding stream with name " << stream->getName() << " : " << stream->getSourceNodeId() << std::endl;
             streamSelector->add(stream);
             delayMonitors[stream->getStreamId()] = streamSelector->getDelayMonitor(stream);
             ttlMonitors[stream->getStreamId()] = streamSelector->getTTLMonitor(stream);
@@ -1097,9 +1097,8 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
     std::cout << "UPDATE SELECTED STREAM" << std::endl;
     selectedStream = streamId;
     std::cout << "Selected stream: " << selectedStream << std::endl;
-    
-    if (streamId == 0)
-        return;
+
+    bool streamAvailable = streamId > 0 ? true : false;
 
     for (auto ed : parameterEditors)
     {
@@ -1116,14 +1115,11 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
         }
         else if (param->getScope() == Parameter::STREAM_SCOPE)
         {
-            std::cout << "Updating parameter!" << std::endl;
-            ed->setParameter(getProcessor()->getDataStream(streamId)->getParameter(param->getName()));
-            
-            if (getProcessor()->getDataStream(streamId)->getParameter(param->getName())->getType() == Parameter::SELECTED_CHANNELS_PARAM)
-            {
-                SelectedChannelsParameter* p = (SelectedChannelsParameter*) getProcessor()->getDataStream(streamId)->getParameter(param->getName());
-                std::cout << "CHANNEL COUNT: " << p->getChannelStates().size() << std::endl;
-            }
+            //std::cout << "Updating parameter!" << std::endl;
+            if (streamAvailable)
+                ed->setParameter(getProcessor()->getDataStream(streamId)->getParameter(param->getName()));
+            else
+                ed->setParameter(nullptr);
         }
         
         ed->updateView();
@@ -1143,7 +1139,7 @@ void GenericEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled, b
     
     getProcessor()->setStreamEnabled(streamId, isEnabled);
 
-    if ((isMerger() || isSplitter()) && !isLoading)
+    if (!isLoading)
         CoreServices::updateSignalChain(this);
 
 }

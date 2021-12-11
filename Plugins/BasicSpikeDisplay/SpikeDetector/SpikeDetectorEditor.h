@@ -68,6 +68,9 @@ public:
 
     /** Removes a spike channel based on a pointer to a SpikeChannel object*/
     void removeSpikeChannels(Array<SpikeChannel*> spikeChannelsToRemove);
+
+    /** Called when stream is updated */
+    void selectedStreamHasChanged() override;
     
 private:
 

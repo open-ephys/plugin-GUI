@@ -53,7 +53,10 @@ public:
 
     bool shouldDeactivateDuringAcquisition()
     {
-        return param->shouldDeactivateDuringAcquisition();
+        if (param != nullptr)
+            return param->shouldDeactivateDuringAcquisition();
+        else
+            return false;
     }
 
     const String getParameterName() { return name; }
@@ -86,6 +89,8 @@ public:
 private:
     std::unique_ptr<Label> parameterNameLabel;
     std::unique_ptr<Label> valueTextBox;
+
+    int finalWidth;
 };
 
 
@@ -171,10 +176,16 @@ public:
 
     void mouseDown (const MouseEvent& event) override;
     void mouseUp (const MouseEvent& event) override;
+    void mouseDrag(const MouseEvent& event) override;
     
     SliderLookAndFeel sliderLookAndFeel;
 
+    void setEnabled(bool isEnabled_) { isEnabled = isEnabled_; }
+
 private:
+
+    bool isEnabled;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomSlider)
 };
 
