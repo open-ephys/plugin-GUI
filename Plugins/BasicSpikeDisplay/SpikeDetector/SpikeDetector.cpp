@@ -217,11 +217,11 @@ void DynamicThresholder::computeSigma(int channel)
     
     float median = sampleBuffer.getUnchecked(channel)->at(bufferSize / 2);
 
-    std::cout << "Median: " << median << std::endl;
+    //std::cout << "Median: " << median << std::endl;
 
     float threshold = - ( median * sigmaLevels[channel]);
 
-    std::cout << "Threshold ch " << channel << " : " << threshold << std::endl;
+   // std::cout << "Threshold ch " << channel << " : " << threshold << std::endl;
 
     thresholds.set(channel, threshold);
 }
