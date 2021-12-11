@@ -1819,7 +1819,7 @@ void LatencyMeter::update(Array<const DataStream*>dataStreams)
 void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartTimes)
 {
 
-	if (counter % 10 == 0) // update latency estimate every 10 blocks
+	if (counter % 10 == 0) // update latency estimate every 10 process blocks
 	{
 
 		std::map<uint16, juce::int64>::iterator it = processStartTimes.begin();
@@ -1832,7 +1832,7 @@ void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartT
 			it++;
 		}
 
-		if (counter % 50 == 0)
+		if (counter % 50 == 0) // compute mean latency every 50 process blocks
 		{
 
 			std::map<uint16, juce::int64>::iterator it = processStartTimes.begin();
@@ -1844,11 +1844,9 @@ void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartT
 				for (int i = 0; i < 10; i++)
 					totalLatency += float(latencies[it->first][i]);
 
-				totalLatency = totalLatency / 5.0f
+				totalLatency = totalLatency / 10.0f
 					/ float(Time::getHighResolutionTicksPerSecond())
 					* 1000.0f;
-
-				//std::cout << "Total latency for " << processor->getNodeId() << ": " << totalLatency << " ms" << std::endl;
 
 				processor->getEditor()->setMeanLatencyMs(it->first, totalLatency);
 
