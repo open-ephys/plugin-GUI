@@ -40,81 +40,133 @@ public:
 
 };
 
+/** 
+    Thresholder based on signal absolute value.
+
+    If a sample is below the threshold value,
+    a spike will be triggered.
+
+*/
 class AbsValueThresholder : public Thresholder
 {
 public:
+
+    /** Constructor */
     AbsValueThresholder(int numChannels);
+
+    /** Destructor */
     virtual ~AbsValueThresholder() { }
+
+    /** Checks whether a sample should trigger a spike*/
+    bool checkSample(int channel, float sample);
     
+    /** Sets the threshold for a given channel*/
     void setThreshold(int channel, float threshold);
     
+    /** Gets the threshold for a given channel*/
     float getThreshold(int channel);
     
+    /** Gets an array of thresholds for all channels*/
     Array<float>& getThresholds() {return thresholds;}
-    
-    bool checkSample(int channel, float sample);
     
 private:
     
     Array<float> thresholds;
 };
 
+/**
+    Thresholder based on the standard deviation
+    of an input signal.
+
+    If a sample is below a multiple of the standard
+    deviation, a spike will be triggered.
+
+*/
 class StdDevThresholder : public Thresholder
 {
 public:
+
+    /** Constructor*/
     StdDevThresholder(int numChannels);
+
+    /** Destructor */
     virtual ~StdDevThresholder() { }
 
-    void setThreshold(int channel, float threshold);
-    float getThreshold(int channel);
-
-    Array<float>& getThresholds() { return thresholds; }
-
-    void computeStd(int channel);
-
+    /** Checks whether a sample should trigger a spike*/
     bool checkSample(int channel, float sample);
 
+    /** Sets the threshold for a given channel*/
+    void setThreshold(int channel, float threshold);
+
+    /** Gets the threshold for a given channel*/
+    float getThreshold(int channel);
+
+    /** Gets an array of thresholds for all channels*/
+    Array<float>& getThresholds() { return thresholds; }
+
 private:
+
+    /** Computes the standard deviation of a given channel*/
+    void computeStd(int channel);
 
     Array<float> thresholds;
     Array<float> stdLevels;
     OwnedArray<Array<float>> sampleBuffer;
     Array<int> bufferIndex;
 
-    int bufferSize = 4000;
+    const int bufferSize = 4000;
+    const int skipSamples = 50;
 
     int index;
-    int skipSamples = 50;
+
 };
 
+/**
+    Thresholder based on method from Quian Quiroga et al.
+    https://pubmed.ncbi.nlm.nih.gov/15228749/
+
+    Thr = 4 * s
+    s = median{ |x| / 0.6745 }
+*/
 class DynamicThresholder : public Thresholder
 {
 public:
+
+    /** Constructor */
     DynamicThresholder(int numChannels);
+
+    /** Destructor */
     virtual ~DynamicThresholder() { }
 
-    void setThreshold(int channel, float threshold);
-    float getThreshold(int channel);
-
-    Array<float>& getThresholds() { return thresholds; }
-
-    void computeSigma(int channel);
-
+    /** Checks whether a sample should trigger a spike*/
     bool checkSample(int channel, float sample);
 
+    /** Sets the threshold for a given channel*/
+    void setThreshold(int channel, float threshold);
+
+    /** Gets the threshold for a given channel*/
+    float getThreshold(int channel);
+
+    /** Gets an array of thresholds for all channels*/
+    Array<float>& getThresholds() { return thresholds; }
+
 private:
+
+    /** Computes sigma value used for dynamic thresholding*/
+    void computeSigma(int channel);
 
     Array<float> thresholds;
     Array<float> sigmaLevels;
     OwnedArray< std::vector<float>> sampleBuffer;
     Array<int> bufferIndex;
 
-    int bufferSize = 4000;
+    const int bufferSize = 4000;
+    const int skipSamples = 50;
 
-    float scalar = 0.6745f;
+    const float scalar = 0.6745f;
 
     int index;
-    int skipSamples = 50;
+    
 };
 
 
@@ -152,10 +204,10 @@ public:
     /** Creates the SpikeDetectorEditor. */
     AudioProcessorEditor* createEditor() override;
 
-    /** Saves custom parameters */
+    /** Saves spike channels to the settings file */
     void saveCustomParametersToXml (XmlElement* parentElement)  override;
     
-    /** Loads custom parameters*/
+    /** Loads spike channels from the settings file */
     void loadCustomParametersFromXml(XmlElement* xml)           override;
 
 
@@ -182,17 +234,20 @@ private:
     AudioBuffer<float> overflowBuffer;
     // =====================================================================
 
+    /** Returns the sample value at a given index, taking into account 
+        the overflow buffer */
     float getSample(int globalChannelIndex, int sampleIndex, AudioBuffer<float>& buffer);
 
+    /** Adds a waveform (starting a given sample) to spike data buffer*/
     void addWaveformToSpikeBuffer (Spike::Buffer& s,
                                     int sampleIndex,
                                    AudioBuffer<float>& buffer);
     
-    //ParameterCollection mostRecentParameters;
-    
-    StreamSettings<SpikeDetectorSettings> settings;
-
+    /** Checks whether a spike channel has been loaded, to prevent double-loading
+        when there is a Merger in the signal chain */
     bool alreadyLoaded(String name, SpikeChannel::Type type, int stream_source);
+
+    StreamSettings<SpikeDetectorSettings> settings;
 
     int totalCallbacks;
     int spikeCount;
