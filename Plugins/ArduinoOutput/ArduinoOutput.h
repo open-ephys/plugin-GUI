@@ -26,8 +26,8 @@
 
 #include <SerialLib.h>
 #include <ProcessorHeaders.h>
-#include "serial/ofArduino.h"
 
+#include "serial/ofArduino.h"
 
 /**
 

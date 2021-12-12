@@ -54,6 +54,9 @@ AudioProcessorEditor* ArduinoOutput::createEditor()
 
 void ArduinoOutput::setDevice (String devName)
 {
+
+    LOGC("Selecting device ", devName);
+
     if (devName.length() == 0)
         return;
 
@@ -61,16 +64,26 @@ void ArduinoOutput::setDevice (String devName)
 
     arduino.connect (devName.toStdString());
 
+    LOGC("Connected");
+
     if (arduino.isArduinoReady())
     {
         uint32 currentTime = timer.getMillisecondCounter();
 
+        LOGC("Sending protocol version request");
         arduino.sendProtocolVersionRequest();
-        timer.waitForMillisecondCounter (currentTime + 2000);
+        
+        timer.waitForMillisecondCounter (currentTime + 200);
+
+        LOGC("Updating...");
         arduino.update();
+
+        LOGC("Sending firmware version request...");
         arduino.sendFirmwareVersionRequest();
 
-        timer.waitForMillisecondCounter (currentTime + 4000);
+        timer.waitForMillisecondCounter (currentTime + 500);
+
+        LOGC("Updating...");
         arduino.update();
 
         std::cout << "firmata v" << arduino.getMajorFirmwareVersion()
@@ -163,4 +176,8 @@ void ArduinoOutput::saveCustomParametersToXml(XmlElement* parentElement)
 void ArduinoOutput::loadCustomParametersFromXml(XmlElement* xml)
 {
     setDevice(xml->getStringAttribute("device", ""));
+    ArduinoOutputEditor* ed = (ArduinoOutputEditor*) editor.get();
+
+    ed->updateDevice(xml->getStringAttribute("device", ""));
+
 }

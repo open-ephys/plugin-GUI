@@ -30,12 +30,12 @@ ArduinoOutputEditor::ArduinoOutputEditor(GenericProcessor* parentNode)
 
 {
 
-    desiredWidth = 150;
+    desiredWidth = 240;
 
     vector <ofSerialDeviceInfo> devices = serial.getDeviceList();
 
     deviceSelector = new ComboBox();
-    deviceSelector->setBounds(10, 105, 125, 20);
+    deviceSelector->setBounds(10, 40, 100, 20);
     deviceSelector->addListener(this);
     deviceSelector->addItem("Device",1);
     
@@ -47,13 +47,9 @@ ArduinoOutputEditor::ArduinoOutputEditor(GenericProcessor* parentNode)
     deviceSelector->setSelectedId(1, dontSendNotification);
     addAndMakeVisible(deviceSelector);
 
-    addComboBoxParameterEditor("output_pin", 10, 10);
-    addComboBoxParameterEditor("input_bit", 10, 30);
-    addComboBoxParameterEditor("gate_bit", 10, 50);
-}
-
-ArduinoOutputEditor::~ArduinoOutputEditor()
-{
+    addComboBoxParameterEditor("output_pin", 10, 70);
+    addComboBoxParameterEditor("input_bit", 140, 35);
+    addComboBoxParameterEditor("gate_bit", 140, 80);
 }
 
 
@@ -63,5 +59,15 @@ void ArduinoOutputEditor::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
     {
         ArduinoOutput* processor = (ArduinoOutput*) getProcessor();
         processor->setDevice(deviceSelector->getText());
+        CoreServices::updateSignalChain(this);
+    }
+}
+
+void ArduinoOutputEditor::updateDevice(String deviceName)
+{
+    for (int i = 0; i < deviceSelector->getNumItems(); i++)
+    {
+        if (deviceSelector->getItemText(i).equalsIgnoreCase(deviceName))
+            deviceSelector->setSelectedId(deviceSelector->getItemId(i), dontSendNotification);
     }
 }

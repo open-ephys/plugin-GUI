@@ -47,10 +47,13 @@ public:
     ArduinoOutputEditor(GenericProcessor* parentNode);
 
     /** Destructor*/
-    virtual ~ArduinoOutputEditor();
+    ~ArduinoOutputEditor() { }
 
     /** Called when selected device is changed.*/
     void comboBoxChanged(ComboBox* comboBoxThatHasChanged);
+
+    /** Gets the latest device from the processor*/
+    void updateDevice(String deviceName);
 
 private:
 
