@@ -30,7 +30,11 @@
 class PlaceholderProcessorEditor : public GenericEditor
 {
 public:
+
+    /** Constructor */
 	PlaceholderProcessorEditor(GenericProcessor* parentNode, String pName, String lName, String lVer);
+
+    /** Destructor */
 	~PlaceholderProcessorEditor();
 
 private:

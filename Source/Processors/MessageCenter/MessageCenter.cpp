@@ -34,7 +34,8 @@
 //---------------------------------------------------------------------
 
 MessageCenter::MessageCenter() :
-GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false)
+    GenericProcessor("Message Center"), 
+    newEventAvailable(false)
 {
 
     setPlayConfigDetails(0, // number of inputs
@@ -44,14 +45,8 @@ GenericProcessor("Message Center"), newEventAvailable(false), isRecording(false)
 
     eventChannel = nullptr;
 
-    needsToSendTimestampMessage = true;
-
 }
 
-MessageCenter::~MessageCenter()
-{
-
-}
 
 void MessageCenter::addSpecialProcessorChannels() 
 {
@@ -129,20 +124,6 @@ bool MessageCenter::stopAcquisition()
 
 void MessageCenter::process(AudioSampleBuffer& buffer)
 {
-
-    //if (needsToSendTimestampMessage)
-    //{
-	//	MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
-	//	HeapBlock<char> data;
-
-	//	size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getGlobalTimestamp(), true);
-
-	//	eventBuffer.addEvent(data, dataSize, 0);
-
-    //    needsToSendTimestampMessage = false;
-    //}
-
-    //m_currentMidiBuffer->clear();
     
     if (newEventAvailable)
     {
@@ -159,7 +140,7 @@ void MessageCenter::process(AudioSampleBuffer& buffer)
 
 		addEvent(event, 0);
 
-        std::cout << "Message Center added " << eventString << " with timestamp " <<  ts << std::endl;
+        //std::cout << "Message Center added " << eventString << " with timestamp " <<  ts << std::endl;
 
         newEventAvailable = false;
     }

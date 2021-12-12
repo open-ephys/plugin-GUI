@@ -36,6 +36,24 @@
 #include "FilenameConfigWindow.h"
 #include <queue>
 
+/** 
+
+    Allows the user to specify custom file names,
+    instead of always using the auto-generated date string
+
+*/
+class FilenameEditorButton : public TextButton
+{
+public:
+
+    /** Constructor */
+    FilenameEditorButton();
+
+    /** Destructor */
+    ~FilenameEditorButton() {}
+};
+
+
 /**
 
   Toggles data acquisition on and off.
@@ -50,17 +68,6 @@
   @see ControlPanel, ProcessorGraph
 
 */
-
-class FilenameEditorButton : public TextButton
-{
-public:
-
-    FilenameEditorButton();
-    ~FilenameEditorButton() {}
-};
-
-
-
 class PlayButton : public DrawableButton
 {
 public:

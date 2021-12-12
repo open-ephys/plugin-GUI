@@ -50,7 +50,7 @@ public:
     Merger();
 
     /** Destructor */
-    ~Merger();
+    ~Merger() { }
 
     /** Create the Merger's custom editor */
     AudioProcessorEditor* createEditor();

@@ -47,8 +47,10 @@ public:
 	*/
 	ConfigurationObject(ProcessorInfoObject* source, String name, String description = "");
 
+	/** Destructor */
     virtual ~ConfigurationObject();
 
+	/** Returns the info about the processor that created this object*/
 	const ProcessorInfoObject* getSource() const;
 
 private:

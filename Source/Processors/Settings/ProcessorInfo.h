@@ -34,8 +34,10 @@ class PLUGIN_API ProcessorInfoObject : public InfoObject
 {
 public:
 
+	/** Constructor */
 	ProcessorInfoObject(GenericProcessor* processor);
 
+	/** Destructor */
     virtual ~ProcessorInfoObject();
 
 	/** Gets the ID of the processor */

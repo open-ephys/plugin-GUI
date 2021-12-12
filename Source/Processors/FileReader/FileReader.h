@@ -40,21 +40,28 @@
 
   @see GenericProcessor
 */
-class FileReader : public GenericProcessor,
+class FileReader : 
+    public GenericProcessor,
     private Thread
 {
 public:
+
+    /** Constructor */
     FileReader();
+
+    /** Destructor */
     ~FileReader();
 
+    /** Add latest samples to the signal chain buffer */
     void process (AudioBuffer<float>& buffer) override;
 
-    void handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int sampleNum) override;
-
+    /** Makes it possible to set the selected file remotely */
     String handleConfigMessage(String msg) override;
 
+    /** Allows parameters to change during acquisition*/
     void setParameter (int parameterIndex, float newValue) override;
 
+    /** Creates the editor */
     AudioProcessorEditor* createEditor() override;
 
     bool generatesTimestamps()    const  override { return true; }

@@ -49,10 +49,16 @@ public:
 	};
     const std::vector<std::string> states = { "None", "Auto", "Custom" };
 
+    /** Constructor */
     FilenameFieldComponent(int type, int state, String value);
+
+    /** Destructor */
     ~FilenameFieldComponent() {}
 
+    /** Responds to changes in the file name labels*/
     void labelTextChanged(Label* label);
+
+    /** Responds to changes in the state buttons*/
     void buttonClicked(Button*);
 
     Type type;
@@ -73,6 +79,7 @@ class FilenameConfigWindow : public Component
 
 public:
     
+    /** Constructor */
     FilenameConfigWindow(Array<std::shared_ptr<FilenameFieldComponent>> _fields) 
     {
         setSize(360, 100);
@@ -86,6 +93,7 @@ public:
 
     }
 
+    /** Destructor */
     ~FilenameConfigWindow() {}
 
     Array<std::shared_ptr<FilenameFieldComponent>> fields;

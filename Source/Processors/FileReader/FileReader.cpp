@@ -167,21 +167,6 @@ float FileReader::getCurrentSampleRate() const
     return input->getActiveSampleRate();
 }
 
-/*
-bool FileReader::isReady()
-{
-    if (! input)
-    {
-        //CoreServices::sendStatusMessage ("No file selected in File Reader.");
-        return false;
-    }
-    else
-    {
-        return input->isReady();
-    }
-}
-*/
-
 
 float FileReader::getDefaultSampleRate() const
 {
@@ -191,11 +176,6 @@ float FileReader::getDefaultSampleRate() const
         return 44100.0;
 }
 
-
-/*void FileReader::setEnabledState (bool t)
-{
-    isEnabled = t;
-}*/
 
 bool FileReader::startAcquisition()
 {
@@ -446,10 +426,6 @@ void FileReader::updateSettings()
 
     };
 
-    
-
-    
-
     isEnabled = true;
 
 }
@@ -469,17 +445,6 @@ Array<EventInfo> FileReader::getActiveEventInfo()
     return input->getEventInfo();
 }
 
-void FileReader::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int sampleNum)
-{
-
-    if (Event::getProcessorId(event) > 900)
-    {
-
-        TextEventPtr textEvent = TextEvent::deserialize(event, eventInfo);
-
-        std::cout << "File Reader received: " << textEvent->getText() << std::endl;
-    }
-}
 
 String FileReader::handleConfigMessage(String msg)
 {
@@ -507,9 +472,6 @@ String FileReader::handleConfigMessage(String msg)
 
 void FileReader::process(AudioBuffer<float>& buffer)
 {
-
-    //std::cout << "FILE READER PROCESS" << std::endl;
-    //checkForEvents();
 
     int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
 

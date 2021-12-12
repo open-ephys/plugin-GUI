@@ -27,14 +27,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../../Utils/Utils.h"
 
-/***************** 
- * CHANNEL BUTTON
-******************/
-ChannelButton::ChannelButton(int _id, PopupChannelSelector* _parent) : Button(String(_id)), id(_id), parent(_parent) {
+
+ChannelButton::ChannelButton(int _id, PopupChannelSelector* _parent) : 
+    Button(String(_id)), 
+    id(_id), 
+    parent(_parent) 
+{
     setClickingTogglesState(true);
 }
-
-ChannelButton::~ChannelButton() {}
 
 void ChannelButton::mouseDown(const MouseEvent &event)
 {
@@ -83,15 +83,10 @@ void ChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown
 
 }
 
-/****************
- * SELECT BUTTON
-*****************/
 
 SelectButton::SelectButton(const String& name) : Button(name) {
 	setClickingTogglesState(true);
 }
-
-SelectButton::~SelectButton() {}
 
 void SelectButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
@@ -117,20 +112,11 @@ void SelectButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 }
 
 
-/*************** 
- * RANGE EDITOR
-****************/
-
-RangeEditor::RangeEditor(const String& name, const Font& font) : TextEditor(name)
+RangeEditor::RangeEditor(const String& name, const Font& font) : 
+    TextEditor(name)
 {
     setFont(font);
 }
-
-RangeEditor::~RangeEditor() {}
-
-/**************************
- * POPUP CHANNEL SELECTOR
-***************************/
 
 PopupChannelSelector::PopupChannelSelector(PopupChannelSelector::Listener* listener_, std::vector<bool> channelStates) 
     : listener(listener_),
@@ -222,8 +208,6 @@ PopupChannelSelector::PopupChannelSelector(PopupChannelSelector::Listener* liste
 	setColour(ColourSelector::backgroundColourId, Colours::transparentBlack);
 
 }
-
-PopupChannelSelector::~PopupChannelSelector() {}
 
 void PopupChannelSelector::setMaximumSelectableChannels(int num)
 {

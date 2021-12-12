@@ -5,18 +5,31 @@
 
 class MainWindow;
 
+/** 
+
+    Allows the user to select one of several different
+    default signal chains.
+
+*/
 class DefaultConfigComponent : 
 	public Component,
     public Button::Listener
 {
 public:
+
+    /** Constructor */
 	DefaultConfigComponent();
+
+    /** Destructor */
 	~DefaultConfigComponent();
 
+    /** Renders the component*/
 	void paint(Graphics& g) override;
 
+    /** Sets sub-component layout*/
     void resized() override;
 
+    /** Responds to button clicks*/
     void buttonClicked(Button*) override;
 
 private:

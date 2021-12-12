@@ -24,13 +24,11 @@
 #include "DelayMonitor.h"
 
 
-DelayMonitor::DelayMonitor() : delay(0.0f), isEnabled(true), colour(Colours::black)
+DelayMonitor::DelayMonitor() : 
+    delay(0.0f), 
+    isEnabled(true), 
+    colour(Colours::black)
 {
-}
-
-DelayMonitor::~DelayMonitor()
-{
-
 }
 
 void DelayMonitor::setDelay(float delayMs)

@@ -45,13 +45,20 @@ class MonitorMuteButton : public ParameterEditor,
     public Button::Listener
 {
 public:
+
+    /** Constructor */
     MonitorMuteButton(Parameter* param);
+
+    /** Destructor*/
     ~MonitorMuteButton() { }
 
+    /** Respond to mute button clicks*/
     void buttonClicked(Button* label);
 
+    /** Ensures button state aligns with underlying parameter*/
     virtual void updateView() override;
 
+    /** Sets component layout*/
     virtual void resized();
 
 private:
@@ -69,13 +76,20 @@ class AudioOutputSelector : public ParameterEditor,
     public Button::Listener
 {
 public:
+
+    /** Constructor */
     AudioOutputSelector(Parameter* param);
+
+    /** Destructor */
     ~AudioOutputSelector() { }
 
+    /** Responds to button clicks*/
     void buttonClicked(Button* label);
 
+    /** Ensures button state aligns with underlying parameter*/
     virtual void updateView() override;
 
+    /** Sets component layout*/
     virtual void resized();
 
 private:

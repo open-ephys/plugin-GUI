@@ -60,32 +60,78 @@ struct LoadedPluginInfo : public T
 class GenericProcessor;
 
 /**
-Retrieves information about available plugins
+* 
+	Retrieves information about available plugins
+
  */
 class PluginManager {
 
 public:
+
+	/** Constructor */
 	PluginManager();
+
+	/** Destructor */
 	~PluginManager();
+
+	/** Loads all available plugins, using default OS-dependent plugin paths*/
 	void loadAllPlugins();
+
+	/** Loads plugins in a particular directory */
     void loadPlugins(const File &pluginPath);
+
+	/** Loads a plugin at a particular path*/
 	int loadPlugin(const String&);
+
+	/** Unloads a plugin (not implemented yet) */
 	//void unloadPlugin(Plugin *);
-	void removeAllPlugins();
+
+	/** Uploads all plugins (not implemented yet) */
+	//void removeAllPlugins();
+
+	/** Returns the total number of processor plugins*/
 	int getNumProcessors() const;
+
+	/** Returns the total number of data thread plugins*/
 	int getNumDataThreads() const;
+
+	/** Returns the total number of record engine plugins*/
 	int getNumRecordEngines() const;
+	
+	/** Returns the total number of file source plugins*/
 	int getNumFileSources() const;
+
+	/** Returns info about a processor plugin at a given index */
 	Plugin::ProcessorInfo getProcessorInfo(int index) const;
+
+	/** Returns info about a processor plugin with a given name */
 	Plugin::ProcessorInfo getProcessorInfo(String name, String libName = String()) const;
+
+	/** Returns info about a data thread plugin at a given index */
 	Plugin::DataThreadInfo getDataThreadInfo(int index) const;
+
+	/** Returns info about a data thread plugin with a given name */
 	Plugin::DataThreadInfo getDataThreadInfo(String name, String libName = String()) const;
+
+	/** Returns info about a record engine plugin at a given index */
 	Plugin::RecordEngineInfo getRecordEngineInfo(int index) const;
+
+	/** Returns info about a record engine plugin with a given name */
 	Plugin::RecordEngineInfo getRecordEngineInfo(String name, String libName = String()) const;
+
+	/** Returns info about a file source plugin at a given index */
 	Plugin::FileSourceInfo getFileSourceInfo(int index) const;
+
+	/** Returns info about a file source plugin with a given name */
 	Plugin::FileSourceInfo getFileSourceInfo(String name, String libName = String()) const;
+
+	/** Returns the library name for a plugin at a given index */
 	String getLibraryName(int index) const;
+
+	/** Returns library version for a plugin at a given index */
 	String getLibraryVersion(int index) const;
+
+	/** Returns the library index based on a plugin type/index combination */
 	int getLibraryIndexFromPlugin(Plugin::Type type, int index);
 
 private:

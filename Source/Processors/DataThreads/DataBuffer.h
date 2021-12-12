@@ -35,8 +35,12 @@
 class PLUGIN_API DataBuffer
 {
 public:
+
+    /** Constructor */
     DataBuffer (int chans, int size);
-    ~DataBuffer();
+
+    /** Destructor */
+    ~DataBuffer() { }
 
     /** Clears the buffer.*/
     void clear();

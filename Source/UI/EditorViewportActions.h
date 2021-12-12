@@ -26,19 +26,32 @@
 
 #include "EditorViewport.h"
 
+/** 
+    Adds a processor to the signal chain, 
+    based on the description.
+
+    Undo: remove the processor from the 
+    signal chain.
+*/
 class AddProcessor : public UndoableAction
 {
     
 public:
+
+    /** Constructor*/
     AddProcessor(Plugin::Description description,
                  GenericProcessor* source,
                  GenericProcessor* dest,
                  EditorViewport*,
                  bool signalChainIsLoading = false);
  
+    /** Destructor */
     ~AddProcessor();
     
+    /** Perform the action*/
     bool perform();
+
+    /** Undo the action*/
     bool undo();
     
     GenericProcessor* processor;
@@ -60,15 +73,28 @@ private:
 
 };
 
+
+/**
+    Deletes a processor to the signal chain,
+    based on a pointer to the GenericProcessor object
+
+    Undo: adds the processor back to the signal chain
+*/
 class DeleteProcessor : public UndoableAction
 {
     
 public:
+
+    /** Constructor */
     DeleteProcessor(GenericProcessor* p, EditorViewport*);
  
+    /** Destructor */
     ~DeleteProcessor();
     
+    /** Perform the action*/
     bool perform();
+
+    /** Undo the action*/
     bool undo();
     
 private:
@@ -86,19 +112,30 @@ private:
 };
 
 
+/**
+    Moves a processor to a new location in the signal chain
 
+    Undo: moves the processor back to its 
+    original location
+*/
 class MoveProcessor : public UndoableAction
 {
     
 public:
+
+    /** Constructor */
     MoveProcessor(GenericProcessor* p,
                   GenericProcessor* source,
                   GenericProcessor* dest,
                   bool moveDownstream);
  
+    /** Destructor */
     ~MoveProcessor();
     
+    /** Perform the action*/
     bool perform();
+
+    /** Undo the action*/
     bool undo();
     
 private:
@@ -116,15 +153,28 @@ private:
     
 };
 
+/**
+    
+    Clears the signal chain
+
+    Undo: restores the signal chain back to its
+    state prior to being cleared.
+*/
 class ClearSignalChain : public UndoableAction
 {
     
 public:
+
+    /** Constructor */
     ClearSignalChain(EditorViewport*);
  
+    /** Destructor */
     ~ClearSignalChain();
     
+    /** Perform the action*/
     bool perform();
+
+    /** Undo the action*/
     bool undo();
     
 private:
@@ -135,15 +185,25 @@ private:
 
 };
 
+/**
+    Loads a signal chain from an XML settings object
+
+    Undo: restores the signal chain to its previous state
+*/
 class LoadSignalChain : public UndoableAction
 {
     
 public:
+    /** Constructor */
     LoadSignalChain(EditorViewport*, std::unique_ptr<XmlElement>& newSettings);
  
+    /** Destructor */
     ~LoadSignalChain();
     
+    /** Perform the action*/
     bool perform();
+
+    /** Undo the action*/
     bool undo();
     
     const String getError();
@@ -159,15 +219,25 @@ private:
 
 };
 
+/**
+    Loads the settings for an individual plugin
+
+    Undo: restores the plugin back to its previous state
+*/
 class LoadPluginSettings : public UndoableAction
 {
     
 public:
+    /** Constructor */
     LoadPluginSettings(EditorViewport*, GenericProcessor* processor, XmlElement* newSettings);
  
+    /** Destructor */
     ~LoadPluginSettings();
     
+    /** Perform the action*/
     bool perform();
+
+    /** Undo the action*/
     bool undo();
     
     const String getError();
@@ -184,15 +254,27 @@ private:
 
 };
 
+/**
+    Changes the path displayed by a merger or splitter
+
+    Undo: restores the merger or splitter back to its
+    original state
+
+*/
 class SwitchIO : public UndoableAction
 {
     
 public:
+    /** Constructor */
     SwitchIO(GenericProcessor* processor, int path);
  
+    /** Destructor */
     ~SwitchIO();
     
+    /** Perform the action*/
     bool perform();
+
+    /** Undo the action*/
     bool undo();
 
 private:

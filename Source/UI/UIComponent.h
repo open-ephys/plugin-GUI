@@ -70,7 +70,11 @@ class UIComponent : public Component,
 
 {
 public:
+
+    /** Constructor */
     UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio);
+
+    /** Destructor */
     ~UIComponent();
 
     /** Returns a pointer to the EditorViewport. */

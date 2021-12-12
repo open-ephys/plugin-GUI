@@ -40,13 +40,20 @@ class GenericEditor;
 class PLUGIN_API TTLBitDisplay : public Component
 {
 public:
-    TTLBitDisplay(Colour colour, String tooltipString);
-    ~TTLBitDisplay();
 
+    /** Constructor */
+    TTLBitDisplay(Colour colour, String tooltipString);
+
+    /** Destructor */
+    ~TTLBitDisplay() { }
+
+    /** Enables tooltip hover strings*/
     String getTooltip();
 
+    /** Turns a bit display on or off*/
     void setState(bool state);
 
+    /** Renders the state of a single bit*/
     void paint(Graphics& g);
 
     bool changedSinceLastRedraw;
@@ -69,16 +76,26 @@ class PLUGIN_API TTLMonitor : public Component,
     public Timer
 {
 public:
-    TTLMonitor();
-	~TTLMonitor();
 
+    /** Constructor */
+    TTLMonitor();
+
+    /** Destructor */
+	~TTLMonitor() { }
+
+    /** Updates settings based on incoming event channels (not used) */
 	int updateSettings(Array<EventChannel*> eventChannels);
 
+    /** Sets the state of a particular bit*/
     void setState(int bit, bool state);
     
+    /** Starts rendering timer*/
     void startAcquisition();
+
+    /** Stops rendering timer*/
     void stopAcquisition();
 
+    /** Repaints the TTL bits*/
     void timerCallback();
 
 private:
@@ -87,7 +104,5 @@ private:
 
     OwnedArray<TTLBitDisplay> displays;
 };
-
-
 
 #endif  // __TTLMONITOR_H_BDCEE716__

@@ -50,7 +50,7 @@ public:
     MergerEditor(GenericProcessor* parentNode);
     
     /** Destructor*/
-    virtual ~MergerEditor();
+    virtual ~MergerEditor() { }
 
     /** Called whenever the pathway selector button or stream selector button is pressed.*/
     void buttonClicked(Button* button);

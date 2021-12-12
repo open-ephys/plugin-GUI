@@ -67,11 +67,6 @@ MessageCenterEditor::MessageCenterEditor(MessageCenter* owner) :
     addAndMakeVisible(sendMessageButton);
 }
 
-MessageCenterEditor::~MessageCenterEditor()
-{
-
-}
-
 
 void MessageCenterEditor::buttonClicked(Button* button)
 {
@@ -84,11 +79,6 @@ void MessageCenterEditor::buttonClicked(Button* button)
     
     resized();
    startTimer(75);
-
-}
-
-void MessageCenterEditor::labelTextChanged(Label* label)
-{
 
 }
 
@@ -162,16 +152,6 @@ void MessageCenterEditor::startAcquisition()
 void MessageCenterEditor::stopAcquisition()
 {
     acquisitionIsActive = false;
-}
-
-void MessageCenterEditor::enable()
-{
-    //sendMessageButton->setVisible(true);
-}
-
-void MessageCenterEditor::disable()
-{
-    //sendMessageButton->setVisible(false);
 }
 
 void MessageCenterEditor::expand()
@@ -376,11 +356,6 @@ void MessageCenterEditor::actionListenerCallback(const String& message)
 void MessageCenterEditor::broadcastMessage(String msg)
 {
     outgoingMessage = msg;
-
-    //outgoingMessageLog->addMessage(new MessageLabel("message", outgoingMessage);
-    //outgoingBackground = Colour(244, 208, 80);
-
-    //startTimer(75);
     
     messageCenter->setParameter(1, 1);
 }
@@ -459,11 +434,6 @@ void MessageLog::resized()
     }
 }
 
-void MessageLog::paint(Graphics& g)
-{
-    //g.setColour(Colours::white);
-    //g.fillAll();
-}
 
 void MessageLog::copyText()
 {

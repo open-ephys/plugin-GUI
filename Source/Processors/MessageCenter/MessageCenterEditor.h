@@ -40,23 +40,24 @@ class MessageLog;
 
 class MessageCenterEditor : public AudioProcessorEditor,
     public Button::Listener,
-    public Label::Listener,
     public Timer,
     public ActionListener
 
 {
 public:
-    MessageCenterEditor(MessageCenter* owner);
-    ~MessageCenterEditor();
 
+    /** Constructor */
+    MessageCenterEditor(MessageCenter* owner);
+
+    /** Destructor */
+    ~MessageCenterEditor() { }
+
+    /** Renders the editor */
     void paint(Graphics& g);
 
     bool keyPressed(const KeyPress& key);
 
     void resized();
-
-    void enable();
-    void disable();
     
     void expand();
     void collapse();
@@ -76,7 +77,6 @@ public:
 private:
 
     void buttonClicked(Button* button);
-    void labelTextChanged(Label* slider);
     void timerCallback();
     bool acquisitionIsActive;
 
@@ -125,9 +125,7 @@ public:
     MessageLog(Viewport * vp);
     
     void addMessage(MessageLabel* message);
-    
-    void paint(Graphics& g);
-    
+
     int getDesiredHeight();
     
     void resized();

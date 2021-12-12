@@ -39,18 +39,23 @@ class ParameterEditor : public Component
 {
 public:
 
+    /** Constructor */
     ParameterEditor(Parameter* param_) : param(param_), name(param_->getName()) { }
 
+    /** Destructor */
     virtual ~ParameterEditor() { }
 
+    /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() = 0;
 
+    /** Sets the parameter corresponding to this editor*/
     void setParameter(Parameter* param_)
     {
         param = param_;
         updateView();
     }
 
+    /** Returns true if this editor should be disabled during acquisition*/
     bool shouldDeactivateDuringAcquisition()
     {
         if (param != nullptr)
@@ -59,6 +64,7 @@ public:
             return false;
     }
 
+    /** Returns the name of the underlying parameter*/
     const String getParameterName() { return name; }
 
 protected:
@@ -77,13 +83,20 @@ class PLUGIN_API TextBoxParameterEditor : public ParameterEditor,
     public Label::Listener
 {
 public:
+
+    /** Constructor */
     TextBoxParameterEditor(Parameter* param);
+
+    /** Destructor */
     virtual ~TextBoxParameterEditor() { }
 
+    /** Called when the text box contents are changed*/
     void labelTextChanged(Label* label);
 
+    /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
+    /** Sets sub-component locations */
     virtual void resized();
 
 private:
@@ -104,13 +117,20 @@ class PLUGIN_API CheckBoxParameterEditor : public ParameterEditor,
     public Button::Listener
 {
 public:
+
+    /** Constructor */
     CheckBoxParameterEditor(Parameter* param);
+
+    /** Destructor */
     virtual ~CheckBoxParameterEditor() { }
 
+    /** Responds to checkbox clicks */
     void buttonClicked(Button* label);
 
+    /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
+    /** Sets sub-component locations */
     virtual void resized();
 
 private:
@@ -129,13 +149,20 @@ class PLUGIN_API ComboBoxParameterEditor : public ParameterEditor,
     public ComboBox::Listener
 {
 public:
+
+    /** Constructor */
     ComboBoxParameterEditor(Parameter* param);
+
+    /** Destructor */
     virtual ~ComboBoxParameterEditor() { }
 
+    /** Responds to checkbox clicks */
     void comboBoxChanged(ComboBox* comboBox);
 
+    /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
+    /** Sets sub-component locations */
     virtual void resized();
 
 private:
@@ -148,7 +175,11 @@ private:
 class SliderLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
+
+    /** Constructor */
     SliderLookAndFeel() { }
+
+    /** Destructor */
     ~SliderLookAndFeel() { }
 
     Slider::SliderLayout getSliderLayout (Slider& slider) override;
@@ -200,13 +231,20 @@ class PLUGIN_API SliderParameterEditor : public ParameterEditor,
     public Slider::Listener
 {
 public:
+
+    /** Constructor */
     SliderParameterEditor(Parameter* param);
+
+    /** Destructor */
     virtual ~SliderParameterEditor() { }
     
+    /** Responds to slider value changes */
     void sliderValueChanged(Slider* slider) override;
 
+    /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
+    /** Sets sub-component locations */
     virtual void resized() override;
 
 private:
@@ -222,20 +260,29 @@ private:
     and makes it possible to select them by clicking.
 
 */
-class PLUGIN_API SelectedChannelsParameterEditor : public ParameterEditor,
+class PLUGIN_API SelectedChannelsParameterEditor : 
+    public ParameterEditor,
     public Button::Listener,
     public PopupChannelSelector::Listener
 {
 public:
+
+    /** Constructor */
     SelectedChannelsParameterEditor(Parameter* param);
+
+    /** Destructor */
     virtual ~SelectedChannelsParameterEditor() { }
 
+    /** Displays the PopupChannelSelector*/
     void buttonClicked(Button* label);
 
+    /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
+    /** Responds to changes in the PopupChannelSelector*/
     void channelStateChanged(Array<int> selectedChannels);
 
+    /** Sets sub-component locations */
     virtual void resized();
 
 private:
@@ -254,15 +301,23 @@ class PLUGIN_API MaskChannelsParameterEditor : public ParameterEditor,
     public PopupChannelSelector::Listener
 {
 public:
+
+    /** Constructor */
     MaskChannelsParameterEditor(Parameter* param);
+
+    /** Destructor */
     virtual ~MaskChannelsParameterEditor() { }
 
+    /** Displays the PopupChannelSelector*/
     void buttonClicked(Button* label);
 
+    /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
+    /** Responds to changes in the PopupChannelSelector*/
     void channelStateChanged(Array<int> selectedChannels);
 
+    /** Sets sub-component locations */
     virtual void resized();
 
 private:
