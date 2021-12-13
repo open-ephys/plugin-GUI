@@ -54,7 +54,7 @@ public:
     /** Empty method */
     void process (AudioBuffer<float>& continuousBuffer) override { }
 
-    /** Set isEnabled to 'false'*/
+    /** Set isEnabled to 'false', since this plugin will not work in the signal chain*/
     void updateSettings() override;
 
 private:

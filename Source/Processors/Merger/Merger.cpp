@@ -42,11 +42,6 @@ Merger::Merger()
     sendSampleCount = false;
 }
 
-Merger::~Merger()
-{
-
-}
-
 AudioProcessorEditor* Merger::createEditor()
 {
     editor = std::make_unique<MergerEditor>(this);

@@ -125,7 +125,7 @@ void SpikeDetectorEditor::buttonClicked(Button* button)
         SpikeDetector* processor = (SpikeDetector*)getProcessor();
         
         Array<SpikeChannel*> spikeChannels = processor->getSpikeChannelsForStream(getCurrentStream());
-        std::cout << spikeChannels.size() << " spike channels found." << std::endl;
+        //std::cout << spikeChannels.size() << " spike channels found." << std::endl;
 
         currentConfigWindow = new PopupConfigurationWindow(this,
                                                            spikeChannels,
@@ -170,7 +170,7 @@ void SpikeDetectorEditor::addSpikeChannels(SpikeChannel::Type type, int count)
 {
     SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
-    std::cout << "Editor adding " << count << " spike channels with " << SpikeChannel::getNumChannels(type) << " electrodes." << std::endl;
+    //std::cout << "Editor adding " << count << " spike channels with " << SpikeChannel::getNumChannels(type) << " electrodes." << std::endl;
 
     for (int i = 0; i < count; i++)
         processor->addSpikeChannel(type, getCurrentStream());

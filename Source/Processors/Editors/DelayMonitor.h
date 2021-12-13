@@ -29,32 +29,50 @@
 
 class GenericEditor;
 
+/** 
+* 
+    Displays the amount of time elapsed between the 
+    start of each data processing cycle and the end of 
+    one plugin's process() callback.
 
-class PLUGIN_API DelayMonitor : public Component,
+    Makes it possible to see which plugins are taking
+    the most time to complete their work.
+
+*/
+class PLUGIN_API DelayMonitor : 
+    public Component,
     public Timer
 {
 public:
-    DelayMonitor();
-	~DelayMonitor();
 
+    /** Constructor */
+    DelayMonitor();
+
+    /** Destructor */
+	~DelayMonitor() { }
+
+    /** Sets the most recent delay (in ms)*/
     void setDelay(float delayMs);
     
+    /** Enable or disable this component*/
     void setEnabled(bool isEnabled);
 
+    /** Render the delay*/
     void paint(Graphics& g);
 
+    /** Calls 'repaint' to display the latest delay*/
     void timerCallback();
 
+    /** Starts the 500 ms painting timer */
     void startAcquisition();
 
+    /** Stops the timer*/
     void stopAcquisition();
 
 private:
     
     bool isEnabled;
-    
     Colour colour;
-    
     float delay;
 };
 

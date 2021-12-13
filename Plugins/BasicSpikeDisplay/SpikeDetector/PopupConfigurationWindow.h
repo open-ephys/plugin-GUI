@@ -38,11 +38,16 @@ class SpikeDetectorTableModel;
  //   SpikeDetector
 //}
 
-
-class EditableTextCustomComponent : public juce::Label,
+/** 
+*   Table component used to edit Spike Channel names
+*/
+class EditableTextCustomComponent : 
+    public juce::Label,
     public Label::Listener
 {
 public:
+
+    /** Constructor */
     EditableTextCustomComponent(StringParameter* name_, bool acquisitionIsActive_)
         : name(name_),
           acquisitionIsActive(acquisitionIsActive_)
@@ -70,6 +75,10 @@ private:
     int columnId;
 };
 
+/**
+*   Table component used to edit the continuous channels
+*   used by a Spike Channel
+*/
 class ChannelSelectorCustomComponent : public juce::Label,
 public PopupChannelSelector::Listener
 {
@@ -121,6 +130,10 @@ private:
     bool acquisitionIsActive;
 };
 
+/**
+*   Table component used to edit the thresholds
+*   used by a Spike Channel
+*/
 class ThresholdSelectorCustomComponent : public juce::Label,
     public Label::Listener
 {
@@ -158,6 +171,10 @@ private:
     bool acquisitionIsActive;
 };
 
+/**
+*   Table component used to select the waveform type
+*   (full vs. peak) for a Spike Channel.
+*/
 class WaveformSelectorCustomComponent : public Component
 {
 public:
@@ -189,6 +206,9 @@ private:
     bool acquisitionIsActive;
 };
 
+/**
+*   TableListBoxModel used for editing Spike Channel parameters
+*/
 class SpikeDetectorTableModel : public TableListBoxModel
 {
 
@@ -239,24 +259,35 @@ private:
 
 };
 
-
+/**
+*   Popup window used to edit Spike Channel settings
+*/
 class PopupConfigurationWindow : public Component
 {
 
 public:
     
+    /** Constructor */
     PopupConfigurationWindow(SpikeDetectorEditor* editor, 
                              Array<SpikeChannel*> spikeChannels,
                              bool acquisitionIsActive);
 
-    ~PopupConfigurationWindow();
+    /** Destructor */
+    ~PopupConfigurationWindow() { }
 
+    /** Updates the window with a new set of Spike Channels*/
     void update(Array<SpikeChannel*> spikeChannels);
 
+    /** Viewport to allow scrolling of the table*/
     std::unique_ptr<Viewport> tableViewport;
 
+    /** Custom table header component (not currently used)*/
     //std::unique_ptr<TableHeaderComponent> tableHeader;
+
+    /** Custom table model*/
     std::unique_ptr<SpikeDetectorTableModel> tableModel;
+
+    /** Custom list box for Spike Channel settings*/
     std::unique_ptr<TableListBox> electrodeTable;
 
 private:

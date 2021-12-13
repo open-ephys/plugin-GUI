@@ -29,6 +29,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "InfoObject.h"
 
+/** 
+	Allows device info to propagate through the signal chain
+
+	For example, this could allow downstream plugins to recognize
+	the particular kind of Neuropixels probe used for acquisition.
+
+*/
 class PLUGIN_API DeviceInfo :
 	public InfoObject
 {
@@ -45,8 +52,10 @@ public:
 		String manufacturer = "Open Ephys";
 	};
 
+	/** Constructor */
 	DeviceInfo(Settings settings);
 
+	/** Destructor */
 	virtual ~DeviceInfo();
 
 	const String manufacturer;

@@ -163,17 +163,13 @@ SpikeDetectorTableModel::SpikeDetectorTableModel(SpikeDetectorEditor* editor_,
 
 void SpikeDetectorTableModel::cellClicked(int rowNumber, int columnId, const MouseEvent& event)
 {
-    std::cout << rowNumber << " " << columnId << " : selected " << std::endl;
+    //std::cout << rowNumber << " " << columnId << " : selected " << std::endl;
     
     SparseSet<int> selectedRows = table->getSelectedRows();
 
-    //for (int i = 0; i < selectedRows.size(); i++)
-    //{
-    //    std::cout << selectedRows[i] << " ";
-    //}
     if (columnId == SpikeDetectorTableModel::Columns::DELETE && !acquisitionIsActive)
     {
-        std::cout << "Delete " << selectedRows.size() << " electrodes?" << std::endl;
+        //std::cout << "Delete " << selectedRows.size() << " electrodes?" << std::endl;
         
         Array<SpikeChannel*> channelsToDelete;
         Array<SpikeChannel*> channelsToKeep;
@@ -191,8 +187,8 @@ void SpikeDetectorTableModel::cellClicked(int rowNumber, int columnId, const Mou
         editor->removeSpikeChannels(channelsToDelete);
     }
 
-    if (event.mods.isRightButtonDown())
-        std::cout << "Right click!" << std::endl;
+    //if (event.mods.isRightButtonDown())
+    //    std::cout << "Right click!" << std::endl;
 }
 
 void SpikeDetectorTableModel::broadcastWaveformTypeToSelectedRows(int rowThatWasClicked, int value)
@@ -230,7 +226,6 @@ void SpikeDetectorTableModel::broadcastThresholdToSelectedRows(int rowThatWasCli
         if (selectedRows.contains(i) || i == rowThatWasClicked)
         {
 
-            std::cout << "Row " << i << ": " << " threshold = " << value << std::endl;
             Component* c = refreshComponentForCell(i, SpikeDetectorTableModel::THRESHOLD, selectedRows.contains(i), nullptr);
 
             jassert(c != nullptr);
@@ -386,7 +381,7 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
             g.setColour(Colours::blue);
             g.fillRoundedRectangle(6, 6, width - 12, height - 12, 4);
             g.setColour(Colours::white);
-            g.drawText("SE", 4, 4, width-8, height-8, Justification::centred);
+            g.drawText("SE", 4, 4, width - 8, height - 8, Justification::centred);
             break;
         case SpikeChannel::Type::STEREOTRODE:
             g.setColour(Colours::purple);
@@ -401,26 +396,8 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
             g.drawText("TT", 4, 4, width - 8, height - 8, Justification::centred);
             break;
         }
-        
+
     }
-    else if (columnId == SpikeDetectorTableModel::Columns::CHANNELS)
-    {
-        g.setColour(Colours::white);
-
-        String channelString = "[";
-
-        for (int i = 0; i < spikeChannels[rowNumber]->getNumChannels(); i++)
-        {
-            //channelString += String(spikeChannels[rowNumber]->localChannelIndexes[i]);
-            
-            //if (i != spikeChannels[rowNumber]->expectedChannelCount - 1)
-             //   channelString += ", ";
-        }
-        
-        channelString += "]";
-           
-        g.drawText(channelString, 4, 4, width - 8, height - 8, Justification::centred);
-    } 
     else if (columnId == SpikeDetectorTableModel::Columns::DELETE)
     {
         g.setColour(Colours::red);
@@ -469,19 +446,10 @@ PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_,
     update(spikeChannels);
 }
 
-PopupConfigurationWindow::~PopupConfigurationWindow()
-{
-    //countMenu.release();
-}
-
 
 void PopupConfigurationWindow::update(Array<SpikeChannel*> spikeChannels)
 {
 
-    std::cout << "Updating configuration window" << std::endl;
-    
-    std::cout << spikeChannels.size() << " spike channels found." << std::endl;
-    
     if (spikeChannels.size() > 0)
     {
         electrodeTable->setVisible(true);

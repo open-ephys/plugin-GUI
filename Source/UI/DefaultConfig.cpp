@@ -156,8 +156,8 @@ DefaultConfigComponent::DefaultConfigComponent()
 	neuropixelsLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(neuropixelsLabel.get());
 
-	goButton = std::make_unique<TextButton>("Go");
-	goButton->setButtonText("Go!");
+	goButton = std::make_unique<TextButton>("Load");
+	goButton->setButtonText("Load...");
 	goButton->setColour(TextButton::buttonColourId, Colours::lightgreen);
 	goButton->addListener(this);
 	addAndMakeVisible(goButton.get());

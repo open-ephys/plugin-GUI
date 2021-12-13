@@ -114,19 +114,25 @@ void SpikePlot::paint(Graphics& g)
 
 void SpikePlot::refresh()
 {
-    for (auto spike : mostRecentSpikes)
+
     {
-        processSpikeObject(spike);
+        const ScopedLock myScopedLock(spikeArrayLock);
+
+        for (auto spike : mostRecentSpikes)
+        {
+            processSpikeObject(spike);
+        }
+
+        mostRecentSpikes.clearQuick(true);
+        spikesInBuffer = 0;
     }
-
-    mostRecentSpikes.clear();
-    spikesInBuffer = 0;
-
+    
     repaint();
 }
 
 void SpikePlot::processSpikeObject(const Spike* s)
 {
+
     for (int i = 0; i < waveAxes.size(); ++i)
     {
         setDetectorThresholdForChannel(i, s->getThreshold(i));
@@ -155,6 +161,8 @@ void SpikePlot::addSpikeToBuffer(const Spike* spike)
 {
     if (spikesInBuffer < bufferSize)
     {
+        const ScopedLock myScopedLock(spikeArrayLock);
+
         mostRecentSpikes.add(new Spike(*spike));
         spikesInBuffer++;
     }
@@ -571,8 +579,13 @@ void WaveAxes::plotSpike(const Spike* s, Graphics& g)
 
     float h = getHeight();
 
+    const SpikeChannel* sc = s->getChannelInfo();
+
+    if (sc == nullptr)
+        return;
+
     //compute the spatial width for each waveform sample
-	int nSamples = s->getChannelInfo()->getTotalSamples();
+	int nSamples = sc->getTotalSamples();
 	float dx = getWidth() / float(nSamples);
 
     //TODO: check for special metadata for this

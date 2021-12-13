@@ -38,17 +38,23 @@
 class PLUGIN_API ImageIcon : public Component
 {
 public:
+
+    /** Constructor */
     ImageIcon(Image& image_)
     {
         image = image_;
         opacity = 1.0;
     }
+
+    /** Destructor */
     ~ImageIcon() {}
 
+    /** Sets the opacity of the image*/
     void setOpacity(float);
 
 private:
 
+    /** Renders the image within the component*/
     void paint(Graphics& g)
     {
         g.setOpacity(opacity);

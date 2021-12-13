@@ -36,36 +36,47 @@ class Parameter;
 
     @see GenericProcessor, GenericEditor
 */
-
-
 class PLUGIN_API ParameterCollection
 {
 public:
 
+    /** Constructor */
     ParameterCollection() { }
     
+    /** Initializes parameters from an InfoObject */
     ParameterCollection(InfoObject* object);
     
+    /** Destructor */
     virtual ~ParameterCollection();
     
+    /** Adds a new parameter to the collection */
     void addParameter(Parameter*);
     
+    /** Returns pointers to all parameters in the collection */
     Array<Parameter*> getParameters();
     
+    /** Copies parameters to an InfoObject */
     void copyParametersTo(InfoObject* object);
     
+    /** Copies parameters from an InfoObject */
     void copyParametersFrom(InfoObject* object);
     
+    /** Overload indexing operator */
     Parameter* operator [](String name) const {return parameterMap.at(name) ;}
     
+    /** Overload indexing operator */
     Parameter*& operator [](String name) {return parameterMap[name];}
     
+    /** Returns the total number of parameters in this collection*/
     int size() const {return parameters.size(); }
     
+    /** Sets the InfoObject that owns a particular parameter*/
     void setParameterOwner(Parameter* p, InfoObject* object);
     
+    /** Clears the owner of a particular parameter*/
     void clearParameterOwner(Parameter* p);
     
+    /** Removes all parameters from the collection*/
     void clear();
     
 private:

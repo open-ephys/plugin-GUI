@@ -35,19 +35,29 @@ class Visualizer;
 
 /**
     Button for selecting the location of a visualizer.
+    (either in a tab or a separate window)
 
     @see VisualizerEditor
 */
 class PLUGIN_API SelectorButton : public Button
 {
 public:
+
+    /** Constructor */
     SelectorButton (const String& buttonName);
-    ~SelectorButton();
+
+    /** Destructor */
+    ~SelectorButton() { }
 
 private:
+
+    /** Renders the button*/
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 
+    /** Returns true if it's a window button*/
     bool isOpenWindowButton() const;
+
+    /** Returns true if it's a tab button*/
     bool isOpenTabButton() const;
 };
 

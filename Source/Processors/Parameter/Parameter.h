@@ -87,6 +87,7 @@ public:
     {
     }
 
+    /** Destructor */
     virtual ~Parameter() { }
 
     /** Returns the name of the parameter.*/

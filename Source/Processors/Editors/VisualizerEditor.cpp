@@ -41,11 +41,6 @@ SelectorButton::SelectorButton (const String& buttonName)
 }
 
 
-SelectorButton::~SelectorButton()
-{
-}
-
-
 void SelectorButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (getToggleState() == true)

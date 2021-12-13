@@ -175,6 +175,7 @@ void FilterNode::parameterValueChanged(Parameter* param)
 
 void FilterNode::process (AudioSampleBuffer& buffer)
 {
+
     for (auto stream : getDataStreams())
     {
 

@@ -70,9 +70,6 @@ MergerEditor::MergerEditor(GenericProcessor* parentNode)
 
 }
 
-MergerEditor::~MergerEditor()
-{
-}
 
 void MergerEditor::startAcquisition()
 {

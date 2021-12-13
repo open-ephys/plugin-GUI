@@ -36,6 +36,8 @@ class MessageCenterEditor;
 
   Allows the application to display messages to the user.
 
+  Also distributes broadcast messages to all plugins in the signal chain.
+
   The MessageCenter is located along the bottom left of the application window.
 
   @see UIComponent
@@ -46,8 +48,12 @@ class MessageCenter : public GenericProcessor
 
 {
 public:
+
+    /** Constructor */
     MessageCenter();
-    ~MessageCenter();
+
+    /** Destructor */
+    ~MessageCenter() { }
 
     /** Handle incoming data and decide which files and events to write to disk. */
     void process(AudioSampleBuffer& buffer) override;
@@ -61,30 +67,20 @@ public:
     /** A pointer to the Message Center editor. */
     ScopedPointer<MessageCenterEditor> messageCenterEditor;
 
+    /** Returns a pointer to the Message Center event channel*/
     const EventChannel* getMessageChannel();
 
-    //DataStream* getMessageDataStream();
-
+    /** Informs the editor that acquisition has started*/
     bool startAcquisition() override;
+
+    /** Informs the editor that acquisition has ended*/
     bool stopAcquisition() override;
 
-    void startRecording() override
-    {
-        isRecording = true;
-        needsToSendTimestampMessage = true;
-    }
-    void stopRecording() override
-    {
-        isRecording = false;
-        needsToSendTimestampMessage = false;
-    }
-
+    /** Creates the Message Center event channel*/
 	void addSpecialProcessorChannels();
 private:
 
     bool newEventAvailable;
-    bool isRecording;
-    bool needsToSendTimestampMessage;
 
     ScopedPointer<EventChannel> eventChannel;
 

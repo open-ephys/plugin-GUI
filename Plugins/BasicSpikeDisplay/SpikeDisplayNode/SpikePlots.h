@@ -163,6 +163,8 @@ private:
     String name;
     Font font;
 
+    CriticalSection spikeArrayLock;
+
     WeakReference<SpikeThresholdCoordinator> thresholdCoordinator;
 
 };

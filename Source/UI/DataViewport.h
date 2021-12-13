@@ -77,6 +77,7 @@ private:
 
     /** Maps processor editors to their respective tabs within the DataViewport. */
     Array<GenericEditor*> editorArray;
+
     void paint(Graphics& g);
     int tabDepth;
     int tabIndex;

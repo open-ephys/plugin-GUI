@@ -68,27 +68,40 @@ public:
 	name and humanDescription will be saved in most data formats for latter reference
 	*/
 	MetadataDescriptor(MetadataTypes type, unsigned int length, String name, String description, String identifier);
+	
+	/** Destructor */
 	~MetadataDescriptor();
+
+	/** Copy constructor */
 	MetadataDescriptor(const MetadataDescriptor& other);
+
+	/** Copy construtor */
 	MetadataDescriptor& operator=(const MetadataDescriptor& other);
 
 	/** Gets the primitive type of this field */
 	MetadataTypes getType() const;
+
 	/** Gets the number of elements in this field */
 	unsigned int getLength() const;
+
 	/** Gets the total data in bytes for this field */
 	size_t getDataSize() const;
+
 	/** Gets the human-readable name of this field */
 	String getName() const;
+
 	/** Gets the human-readable description of the field */
 	String getDescription() const;
+
 	/** Gets the machine-readable identifier for this field */
 	String getIdentifier() const;
 
 	/** Returns true if both descriptors have the same type, length and identifier */
 	bool isEqual(const MetadataDescriptor& other) const;
+
 	/** Returns true if both descriptors have the same type, length and identifier */
 	bool operator==(const MetadataDescriptor& other) const;
+
 	/** Returns true if both descriptors have the same type and length, regardless of the identifier */
 	bool isSimilar(const MetadataDescriptor& other) const;
 
@@ -109,6 +122,8 @@ class PLUGIN_API MetadataValue
 {
 	friend MetadataEvent; //The Serialize method must access the raw data pointer.
 public:
+
+	/** Constructor */
 	MetadataValue(MetadataDescriptor::MetadataTypes type, unsigned int length);
 	MetadataValue(const MetadataDescriptor& desc);
 	//To be able to set value at object creation

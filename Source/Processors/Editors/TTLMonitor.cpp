@@ -34,11 +34,6 @@ TTLBitDisplay::TTLBitDisplay(Colour colour_, String tooltipString_)
 
 }
 
-TTLBitDisplay::~TTLBitDisplay()
-{
-
-}
-
 String TTLBitDisplay::getTooltip()
 {
     return tooltipString;
@@ -91,11 +86,6 @@ TTLMonitor::TTLMonitor()
         addAndMakeVisible(displays.getLast());
         xloc += 11;
     }
-}
-
-TTLMonitor::~TTLMonitor()
-{
-
 }
 
 int TTLMonitor::updateSettings(Array<EventChannel*> eventChannels)

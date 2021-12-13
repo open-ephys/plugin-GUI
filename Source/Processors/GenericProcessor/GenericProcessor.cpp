@@ -1844,7 +1844,7 @@ void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartT
 				for (int i = 0; i < 10; i++)
 					totalLatency += float(latencies[it->first][i]);
 
-				totalLatency = totalLatency / 10.0f
+				totalLatency = totalLatency 
 					/ float(Time::getHighResolutionTicksPerSecond())
 					* 1000.0f;
 

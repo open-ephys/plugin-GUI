@@ -95,6 +95,7 @@ public:
 	/** Gets the data units*/
 	String getUnits() const;
 
+	/** Returns the type of this channel */
 	const Type getChannelType() const;
 
 private:

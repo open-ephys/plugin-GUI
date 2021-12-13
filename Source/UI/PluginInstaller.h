@@ -143,7 +143,7 @@ private:
 };
 
 /**
- *  Create a Table of all the plugins hosted on bintray
+ *  Create a Table of all the plugins hosted on JFrong Artifactory
 */
 class PluginListBoxComponent : public Component,
                                public ListBoxModel,
