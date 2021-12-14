@@ -83,7 +83,8 @@ public:
 
         if (channelGroup.equalsWithSameType(returnVal))
         {
-            return "Not a valid .prb file.";
+            std::cout << "Not a valid .prb file." << std::endl;
+            return;
         }
 
         var mapping = channelGroup[Identifier("mapping")];
