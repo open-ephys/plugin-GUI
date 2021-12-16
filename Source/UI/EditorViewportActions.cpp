@@ -78,6 +78,9 @@ bool AddProcessor::perform()
         processor->parametersAsXml = settings;
         processor->loadFromXml();
     }
+
+    if (processor != nullptr && !signalChainIsLoading)
+        processor->initialize(false);
     
     if (processor != nullptr)
         return true;

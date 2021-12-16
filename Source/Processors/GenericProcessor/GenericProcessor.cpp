@@ -74,8 +74,8 @@ GenericProcessor::GenericProcessor(const String& name)
 GenericProcessor::~GenericProcessor()
 {
     
-    std::cout << getName() << " being deleted." << std::endl;
-    std::cout << "Num parameters: " << availableParameters.size() << std::endl;
+    //std::cout << getName() << " being deleted." << std::endl;
+    //std::cout << "Num parameters: " << availableParameters.size() << std::endl;
     availableParameters.clear(true);
 }
 
@@ -108,7 +108,7 @@ Parameter* GenericProcessor::getParameter(const String& name)
 			return param;
 	}
 
-	std::cout << "Could not find parameter named " << name << std::endl;
+	//std::cout << "Could not find parameter named " << name << std::endl;
 
 	return nullptr;
 }
@@ -116,7 +116,7 @@ Parameter* GenericProcessor::getParameter(const String& name)
 Parameter* GenericProcessor::getParameter(uint16 streamId, const String& name)
 {
 
-    std::cout << "Getting " << name << " for streamId " << streamId << std::endl;
+    //std::cout << "Getting " << name << " for streamId " << streamId << std::endl;
 
     // no checking, so it's fast; but take care to provide a valid stream / name
     return streamParameterMap[streamId][name];
@@ -470,9 +470,9 @@ void GenericProcessor::setDestNode(GenericProcessor* dn)
 
 void GenericProcessor::clearSettings()
 {
-    std::cout << " " << std::endl;
-    std::cout << " " << std::endl;
-	std::cout << "Clearing settings for " << getName()  << " (" << getNodeId() << ")" << std::endl;
+    //std::cout << " " << std::endl;
+    //std::cout << " " << std::endl;
+	//std::cout << "Clearing settings for " << getName()  << " (" << getNodeId() << ")" << std::endl;
     
     Array<ContinuousChannel*> continuousChannelsToKeep;
     
@@ -492,7 +492,7 @@ void GenericProcessor::clearSettings()
     
     for (auto obj : eventChannels)
     {
-        std::cout << obj->getName() << std::endl;
+        //std::cout << obj->getName() << std::endl;
         if (!obj->isLocal())
             delete obj;
         else
@@ -502,13 +502,13 @@ void GenericProcessor::clearSettings()
     eventChannels.clearQuick(false);
     eventChannels.addArray(eventChannelsToKeep);
     
-    std::cout << "Total spike channels: "  << spikeChannels.size() << std::endl;
+   // std::cout << "Total spike channels: "  << spikeChannels.size() << std::endl;
     
     Array<SpikeChannel*> spikeChannelsToKeep;
     
     for (auto obj : spikeChannels)
     {
-        std::cout << obj->getName() << std::endl;
+       // std::cout << obj->getName() << std::endl;
         if (!obj->isLocal())
             delete obj;
         else
@@ -519,13 +519,13 @@ void GenericProcessor::clearSettings()
     spikeChannels.clearQuick(false);
     spikeChannels.addArray(spikeChannelsToKeep);
     
-    std::cout << "Total spike channels: "  << spikeChannels.size() << std::endl;
+   // std::cout << "Total spike channels: "  << spikeChannels.size() << std::endl;
     
     Array<ConfigurationObject*> configurationObjectsToKeep;
     
     for (auto obj : configurationObjects)
     {
-        std::cout << obj->getName() << std::endl;
+       // std::cout << obj->getName() << std::endl;
         if (!obj->isLocal())
             delete obj;
         else
@@ -540,13 +540,13 @@ void GenericProcessor::clearSettings()
     
     for (auto obj : dataStreams)
     {
-        std::cout << obj->getName() << std::endl;
+       // std::cout << obj->getName() << std::endl;
         
         if (!obj->isLocal())
         {
             savedDataStreamParameters.add(new ParameterCollection());
             
-            std::cout << "Saving settings for stream " << obj->getStreamId() << std::endl;
+            //std::cout << "Saving settings for stream " << obj->getStreamId() << std::endl;
         
             savedDataStreamParameters.getLast()->copyParametersFrom(obj);
             
@@ -592,21 +592,21 @@ int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int conti
 	
     dataStreams.add(new DataStream(*stream));
     
-    std::cout << "Copied stream name: " << dataStreams.getLast()->getName() << std::endl;
+    //std::cout << "Copied stream name: " << dataStreams.getLast()->getName() << std::endl;
 
 	dataStreams.getLast()->clearChannels();
 	dataStreams.getLast()->addProcessor(processorInfo.get());
     
     if (savedDataStreamParameters.size() > 0)
     {
-        std::cout << "Saved parameters found, adding..." << std::endl;
-        std::cout << "Num existing parameters: " << dataStreams.getLast()->numParameters()  << std::endl;
+       // std::cout << "Saved parameters found, adding..." << std::endl;
+       // std::cout << "Num existing parameters: " << dataStreams.getLast()->numParameters()  << std::endl;
         
         savedDataStreamParameters[0]->copyParametersTo(dataStreams.getLast());
         
         savedDataStreamParameters.remove(0);
         
-        std::cout << "New parameter count: " << dataStreams.getLast()->numParameters()  << std::endl;
+       // std::cout << "New parameter count: " << dataStreams.getLast()->numParameters()  << std::endl;
     }
         
 	
@@ -1416,8 +1416,8 @@ DataStream* GenericProcessor::getDataStream(uint16 streamId) const
 
 uint16 GenericProcessor::findSimilarStream(int sourceNodeId, String name, float sample_rate, bool sourceNodeIdMustMatch)
 {
-    std::cout << "Searching for similar stream, nodeId: " << sourceNodeId << "; name: " << name << ", sample rate: " << sample_rate
-        << std::endl;
+    //std::cout << "Searching for similar stream, nodeId: " << sourceNodeId << "; name: " << name << ", sample rate: " << sample_rate
+    //    << std::endl;
 
     if (dataStreams.size() > 0)
     {

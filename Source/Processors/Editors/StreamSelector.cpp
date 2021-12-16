@@ -224,12 +224,12 @@ StreamSelector::StreamSelector(GenericEditor* ed_) :
 StreamInfoView* StreamSelector::getStreamInfoView(const DataStream* streamToCheck)
 {
 
-    std::cout << "Checking existing streams..." << std::endl;
-    std::cout << " Searching for " << streamToCheck->getStreamId() << std::endl;
+    //std::cout << "Checking existing streams..." << std::endl;
+    //std::cout << " Searching for " << streamToCheck->getStreamId() << std::endl;
 
     for (auto stream : streams)
     {
-        std::cout << "  This one has: " << stream->getStreamId() << std::endl;
+        //std::cout << "  This one has: " << stream->getStreamId() << std::endl;
         if (stream->streamId == streamToCheck->getStreamId())
             return stream;
     }
@@ -371,7 +371,7 @@ void StreamSelector::buttonClicked(Button* button)
             scrollOffset.setTargetValue(viewedStreamIndex * streamInfoViewWidth);
             startTimer(50);
 
-            std::cout << "  Target value: " << viewedStreamIndex * streamInfoViewWidth << std::endl;
+            //std::cout << "  Target value: " << viewedStreamIndex * streamInfoViewWidth << std::endl;
 
             streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
             streamSelectorButton->repaint();
@@ -379,7 +379,7 @@ void StreamSelector::buttonClicked(Button* button)
     }
     else if (button == streamSelectorButton.get())
     {
-        std::cout << "Select stream" << std::endl;
+        //std::cout << "Select stream" << std::endl;
 
         PopupMenu menu;
 
@@ -451,13 +451,13 @@ void StreamSelector::add(const DataStream* stream)
 
     if (getStreamInfoView(stream) == nullptr)
     {
-        std::cout << " ... Did not find, adding new stream " << std::endl;
+        //std::cout << " ... Did not find, adding new stream " << std::endl;
         streams.add(new StreamInfoView(stream, editor, checkStream(stream)));
         viewedComponent->addAndMakeVisible(streams.getLast());
     }
     else
     {
-        std::cout << " ... Found, simply updating " << std::endl;
+        //std::cout << " ... Found, simply updating " << std::endl;
         getStreamInfoView(stream)->update(stream);
     }
     
@@ -479,20 +479,20 @@ void StreamSelector::beginUpdate()
 uint16 StreamSelector::finishedUpdate()
 {
 
-    LOGC("END UPDATE --- NUM STREAMS: ", streams.size());
+    //LOGC("END UPDATE --- NUM STREAMS: ", streams.size());
 
     Array<StreamInfoView*> streamsToRemove;
 
     for (auto stream : streams)
     {
-        LOGC("Checking viewer for stream ");
+        //LOGC("Checking viewer for stream ");
 
         if (!stream->streamIsStillNeeded)
         {
             streamsToRemove.add(stream);
         }
         else {
-            LOGC(" STILL NEEDED.");
+            //LOGC(" STILL NEEDED.");
         }
 
     }

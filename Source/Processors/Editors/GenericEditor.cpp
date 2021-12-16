@@ -127,7 +127,7 @@ void GenericEditor::addCheckBoxParameterEditor(const String& parameterName, int 
 void GenericEditor::addSliderParameterEditor(const String& parameterName, int xPos_, int yPos_)
 {
     
-    std::cout << "CREATING EDITOR: " << parameterName << std::endl;
+    //std::cout << "CREATING EDITOR: " << parameterName << std::endl;
 
     Parameter* param = getProcessor()->getParameter(parameterName);
 
@@ -147,7 +147,7 @@ void GenericEditor::addComboBoxParameterEditor(const String& parameterName, int 
 void GenericEditor::addSelectedChannelsParameterEditor(const String& parameterName, int xPos_, int yPos_)
 {
 
-    std::cout << "CREATING EDITOR: " << parameterName << std::endl;
+    //std::cout << "CREATING EDITOR: " << parameterName << std::endl;
     
     Parameter* param = getProcessor()->getParameter(parameterName);
 
@@ -157,7 +157,7 @@ void GenericEditor::addSelectedChannelsParameterEditor(const String& parameterNa
 void GenericEditor::addMaskChannelsParameterEditor(const String& parameterName, int xPos_, int yPos_)
 {
 
-    std::cout << "CREATING EDITOR: " << parameterName << std::endl;
+    //std::cout << "CREATING EDITOR: " << parameterName << std::endl;
     
     Parameter* param = getProcessor()->getParameter(parameterName);
 
@@ -463,7 +463,7 @@ void GenericEditor::update(bool isEnabled_)
 
         for (auto stream : p->getDataStreams())
         {
-            std::cout << "Selector adding stream with name " << stream->getName() << " : " << stream->getSourceNodeId() << std::endl;
+            //std::cout << "Selector adding stream with name " << stream->getName() << " : " << stream->getSourceNodeId() << std::endl;
             streamSelector->add(stream);
             delayMonitors[stream->getStreamId()] = streamSelector->getDelayMonitor(stream);
             ttlMonitors[stream->getStreamId()] = streamSelector->getTTLMonitor(stream);
@@ -1094,9 +1094,9 @@ Array<GenericEditor*> GenericEditor::getConnectedEditors()
 void GenericEditor::updateSelectedStream(uint16 streamId) 
 {
 
-    std::cout << "UPDATE SELECTED STREAM" << std::endl;
+    //std::cout << "UPDATE SELECTED STREAM" << std::endl;
     selectedStream = streamId;
-    std::cout << "Selected stream: " << selectedStream << std::endl;
+   // std::cout << "Selected stream: " << selectedStream << std::endl;
 
     bool streamAvailable = streamId > 0 ? true : false;
 

@@ -618,6 +618,10 @@ void EditorViewport::paste()
             
             AccessClass::getProcessorGraph()->updateSettings(newProcessors[0]);
 
+            // initialize in background thread if necessary
+            for (auto p : newProcessors)
+                p->initialize(false);
+
         } else {
             CoreServices::sendStatusMessage("Select an insertion point to paste.");
         }

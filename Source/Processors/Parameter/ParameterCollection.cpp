@@ -172,7 +172,7 @@ void ParameterCollection::addParameter(Parameter* p)
 {
     parameters.add(p);
     
-    std::cout << "Adding parameter with name " << p->getName() << std::endl;
+   // std::cout << "Adding parameter with name " << p->getName() << std::endl;
     
     parameterMap[p->getName()] = p;
 }
