@@ -775,7 +775,7 @@ void GenericProcessor::update()
         
         if (stream->numParameters() == 0)
         {
-            std::cout << "No parameters found, adding..." << std::endl;
+            //std::cout << "No parameters found, adding..." << std::endl;
             
             for (auto param : availableParameters)
             {
