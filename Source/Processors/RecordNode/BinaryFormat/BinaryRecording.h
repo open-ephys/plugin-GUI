@@ -35,11 +35,13 @@ private:
     class EventRecording
     {
     public:
-		std::unique_ptr<NpyFile> mainFile;
-		std::unique_ptr<NpyFile> timestampFile;
-		std::unique_ptr<NpyFile> metaDataFile;
-		std::unique_ptr<NpyFile> channelFile;
-		std::unique_ptr<NpyFile> extraFile;
+
+		std::unique_ptr<NpyFile> data;
+		std::unique_ptr<NpyFile> samples;
+		std::unique_ptr<NpyFile> timestamps;
+		std::unique_ptr<NpyFile> channels;
+		std::unique_ptr<NpyFile> extra;
+
     };
 
     std::unique_ptr<NpyFile> createEventMetadataFile(const MetadataEventObject* channel, String fileName, DynamicObject* jsonObject);
