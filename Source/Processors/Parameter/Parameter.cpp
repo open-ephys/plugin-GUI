@@ -135,7 +135,7 @@ void CategoricalParameter::setNextValue(var newValue_)
 {
     newValue = (int) newValue_;
     
-    std::cout << "Next categorical param value: " << int(newValue) << std::endl;
+    //std::cout << "Next categorical param value: " << int(newValue) << std::endl;
 
     processor->parameterChangeRequest(this);
 }
