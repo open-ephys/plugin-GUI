@@ -308,9 +308,9 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 
 		setTimestampAndSamples(timestamp, nSamples, dataStreams[streamIdx]->getStreamId());
 
-		if (eventChannels[streamIdx + 1])
+		if (eventChannels[streamIdx])
 		{
-            int maxTTLBits = eventChannels[streamIdx+1]->getMaxTTLBits();
+            int maxTTLBits = eventChannels[streamIdx]->getMaxTTLBits();
 
 			uint64 lastCode = eventStates[streamIdx];
 
@@ -326,7 +326,7 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 					{
 						if (((currentCode >> c) & 0x01) != ((lastCode >> c) & 0x01))
 						{
-							TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[streamIdx+1], 
+							TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[streamIdx], 
                                 timestamp + sample,
                                 c, 
                                 (currentCode >> c) & 0x01);
