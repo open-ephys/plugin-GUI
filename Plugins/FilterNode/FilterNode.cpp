@@ -162,13 +162,36 @@ void FilterNode::parameterValueChanged(Parameter* param)
 
     //std::cout << "---> Value changed for " << param->getName() << " : " << (int) param->getValue() << std::endl;
 
-    if (param->getName().equalsIgnoreCase("low_cut")
-     || param->getName().equalsIgnoreCase("high_cut"))
+    if (param->getName().equalsIgnoreCase("low_cut"))
     {
+
+        if ((*getDataStream(currentStream))["low_cut"] >= (*getDataStream(currentStream))["high_cut"])
+        {
+            //std::cout << "Invalid low cut" << std::endl;
+            getDataStream(currentStream)->getParameter("low_cut")->restorePreviousValue();
+            return;
+        }
+            
+
         settings[currentStream]->updateFilters(
             (*getDataStream(currentStream))["low_cut"],
             (*getDataStream(currentStream))["high_cut"]
             );
+    }
+    else if (param->getName().equalsIgnoreCase("high_cut"))
+    {
+
+        if ((*getDataStream(currentStream))["high_cut"] <= (*getDataStream(currentStream))["low_cut"])
+        {
+            //std::cout << "Invalid high cut" << std::endl;
+            getDataStream(currentStream)->getParameter("high_cut")->restorePreviousValue();
+            return;
+        }
+
+        settings[currentStream]->updateFilters(
+            (*getDataStream(currentStream))["low_cut"],
+            (*getDataStream(currentStream))["high_cut"]
+        );
     }
 }
 
