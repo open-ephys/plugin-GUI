@@ -46,7 +46,7 @@ AudioMonitor::AudioMonitor()
                             1);
     
     addSelectedChannelsParameter(Parameter::STREAM_SCOPE,
-                                 String("selected_channels"),
+                                 String("Channels"),
                                  "Channels to monitor",
                                  4);
 
@@ -80,7 +80,7 @@ void AudioMonitor::updateSettings()
     for (auto stream : dataStreams)
     {
 
-        Array<var>* activeChannels = stream->getParameter("selected_channels")->getValue().getArray();
+        Array<var>* activeChannels = stream->getParameter("Channels")->getValue().getArray();
         
         if (activeChannels->size() > 0)
         {
@@ -172,7 +172,7 @@ void AudioMonitor::parameterValueChanged(Parameter* param)
     std::cout << "---> Value changed for " << param->getName() << " : " << (int) param->getValue() << std::endl;
 
 
-    if (param->getName().equalsIgnoreCase("selected_channels"))
+    if (param->getName().equalsIgnoreCase("Channels"))
     {
         
         selectedStream = param->getStreamId();
@@ -186,7 +186,7 @@ void AudioMonitor::parameterValueChanged(Parameter* param)
             
             int globalIndex = getDataStream(selectedStream)->getContinuousChannels()[localIndex]->getGlobalIndex();
             
-             std::cout << "CHANNEL " << i << " stream " << selectedStream <<  " : " << localIndex << " : " << globalIndex << std::endl;
+             //std::cout << "CHANNEL " << i << " stream " << selectedStream <<  " : " << localIndex << " : " << globalIndex << std::endl;
             
             updateFilter(i, selectedStream);
         }
@@ -196,7 +196,7 @@ void AudioMonitor::parameterValueChanged(Parameter* param)
         {
             if (stream->getStreamId() != selectedStream)
             {
-                stream->getParameter("selected_channels")->currentValue = Array<var>();
+                stream->getParameter("Channels")->currentValue = Array<var>();
             }
         }
     }
@@ -256,7 +256,7 @@ void AudioMonitor::handleBroadcastMessage(String msg)
                             Array<var> ch;
                             ch.add(localChannel);
                             
-                            stream->getParameter("selected_channels")->setNextValue(ch);
+                            stream->getParameter("Channels")->setNextValue(ch);
                         }
                     }
                 }
@@ -289,7 +289,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                 AudioSampleBuffer* overflowBuffer;
                 AudioSampleBuffer* backupBuffer;
 
-                Array<var>* activeChannels = stream->getParameter("selected_channels")->getValue().getArray();
+                Array<var>* activeChannels = stream->getParameter("Channels")->getValue().getArray();
 
                 for (int i = 0; i < activeChannels->size(); i++)
                 {

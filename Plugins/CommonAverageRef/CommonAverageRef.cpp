@@ -36,11 +36,11 @@ CommonAverageRef::CommonAverageRef()
     : GenericProcessor ("Common Avg Ref") 
 {
     addSelectedChannelsParameter(Parameter::STREAM_SCOPE,
-                                 "affected_channels",
+                                 "Affected",
                                  "Channels from which the average is subtracted");
     
     addSelectedChannelsParameter(Parameter::STREAM_SCOPE,
-                                 "reference_channels",
+                                 "Reference",
                                  "Channels to use as the reference");
     
     addFloatParameter(Parameter::STREAM_SCOPE,
@@ -82,8 +82,8 @@ void CommonAverageRef::process (AudioBuffer<float>& buffer)
             CARSettings* settings_ = settings[stream->getStreamId()];
 
             const int numSamples = getNumSourceSamples(stream->getStreamId());
-            const int numReferenceChannels = (*stream)["reference_channels"].getArray()->size();
-            const int numAffectedChannels = (*stream)["affected_channels"].getArray()->size();
+            const int numReferenceChannels = (*stream)["Reference"].getArray()->size();
+            const int numAffectedChannels = (*stream)["Affected"].getArray()->size();
 
             // There is no need to do any processing if either number of reference or affected channels is zero.
             if (!numReferenceChannels
@@ -96,7 +96,7 @@ void CommonAverageRef::process (AudioBuffer<float>& buffer)
 
             for (int i = 0; i < numReferenceChannels; ++i)
             {
-                int localIndex = (*stream)["reference_channels"][i];
+                int localIndex = (*stream)["Reference"][i];
                 int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
 
                 settings_->m_avgBuffer.addFrom(0,       // destChannel
@@ -114,7 +114,7 @@ void CommonAverageRef::process (AudioBuffer<float>& buffer)
 
             for (int i = 0; i < numAffectedChannels; ++i)
             {
-                int localIndex = (*stream)["affected_channels"][i];
+                int localIndex = (*stream)["Affected"][i];
                 int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
 
                 buffer.addFrom(globalIndex,                // destChannel

@@ -131,7 +131,7 @@ void SourceNode::updateSettings()
 		
         resizeBuffers();
 
-        std::cout << " Source node num continuous channels: " << continuousChannels.size() << std::endl;
+        //std::cout << " Source node num continuous channels: " << continuousChannels.size() << std::endl;
 
         for (int i = 0; i < continuousChannels.size(); i++)
             continuousChannels[i]->addProcessor(processorInfo.get());
@@ -308,9 +308,9 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 
 		setTimestampAndSamples(timestamp, nSamples, dataStreams[streamIdx]->getStreamId());
 
-		if (eventChannels[streamIdx + 1])
+		if (eventChannels[streamIdx])
 		{
-            int maxTTLBits = eventChannels[streamIdx+1]->getMaxTTLBits();
+            int maxTTLBits = eventChannels[streamIdx]->getMaxTTLBits();
 
 			uint64 lastCode = eventStates[streamIdx];
 
@@ -326,7 +326,7 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 					{
 						if (((currentCode >> c) & 0x01) != ((lastCode >> c) & 0x01))
 						{
-							TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[streamIdx+1], 
+							TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[streamIdx], 
                                 timestamp + sample,
                                 c, 
                                 (currentCode >> c) & 0x01);

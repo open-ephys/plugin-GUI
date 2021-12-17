@@ -1610,7 +1610,17 @@ void GenericProcessor::loadFromXml()
                         {
                             for (int i = 0; i < streamParams->getNumAttributes(); i++)
                             {
-                                Parameter* p = availableStreams[streamIndex]->getParameter(streamParams->getAttributeName(i));
+
+                                Parameter* p;
+
+                                if (availableStreams[streamIndex]->hasParameter(streamParams->getAttributeName(i)))
+                                {
+                                    p = availableStreams[streamIndex]->getParameter(streamParams->getAttributeName(i));
+                                }
+                                else 
+                                {
+                                    continue;
+                                }
                                 
                                 if (p != nullptr)
                                 {

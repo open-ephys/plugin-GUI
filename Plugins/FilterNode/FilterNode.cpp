@@ -71,7 +71,7 @@ FilterNode::FilterNode()
 
     addIntParameter(Parameter::STREAM_SCOPE, "high_cut", "Filter high cut", 6000, 1, 15000, false);
     addIntParameter(Parameter::STREAM_SCOPE, "low_cut", "Filter low cut", 300, 1, 15000, false);
-    addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels_to_filter", "Channels to filter for this stream");
+    addMaskChannelsParameter(Parameter::STREAM_SCOPE, "Channels", "Channels to filter for this stream");
 
 }
 
@@ -162,13 +162,36 @@ void FilterNode::parameterValueChanged(Parameter* param)
 
     //std::cout << "---> Value changed for " << param->getName() << " : " << (int) param->getValue() << std::endl;
 
-    if (param->getName().equalsIgnoreCase("low_cut")
-     || param->getName().equalsIgnoreCase("high_cut"))
+    if (param->getName().equalsIgnoreCase("low_cut"))
     {
+
+        if ((*getDataStream(currentStream))["low_cut"] >= (*getDataStream(currentStream))["high_cut"])
+        {
+            //std::cout << "Invalid low cut" << std::endl;
+            getDataStream(currentStream)->getParameter("low_cut")->restorePreviousValue();
+            return;
+        }
+            
+
         settings[currentStream]->updateFilters(
             (*getDataStream(currentStream))["low_cut"],
             (*getDataStream(currentStream))["high_cut"]
             );
+    }
+    else if (param->getName().equalsIgnoreCase("high_cut"))
+    {
+
+        if ((*getDataStream(currentStream))["high_cut"] <= (*getDataStream(currentStream))["low_cut"])
+        {
+            //std::cout << "Invalid high cut" << std::endl;
+            getDataStream(currentStream)->getParameter("high_cut")->restorePreviousValue();
+            return;
+        }
+
+        settings[currentStream]->updateFilters(
+            (*getDataStream(currentStream))["low_cut"],
+            (*getDataStream(currentStream))["high_cut"]
+        );
     }
 }
 
@@ -183,7 +206,7 @@ void FilterNode::process (AudioSampleBuffer& buffer)
         {
             BandpassFilterSettings* streamSettings = settings[stream->getStreamId()];
 
-            for (auto localChannelIndex : *((*stream)["channels_to_filter"].getArray()))
+            for (auto localChannelIndex : *((*stream)["Channels"].getArray()))
             {
                 int globalChannelIndex = getGlobalChannelIndex(stream->getStreamId(), (int) localChannelIndex);
 

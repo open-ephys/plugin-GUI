@@ -142,6 +142,7 @@ public:
     /** Updates parameter value (called by GenericProcessor::setParameter)*/
     void updateValue()
     {
+        previousValue = currentValue;
         currentValue = newValue;
     }
 
@@ -157,8 +158,14 @@ public:
     /** Returns the value as a string**/
     virtual String getValueAsString() = 0;
     
-    /** Can be used to directly set the paramete value (but be careful with this)*/
+    /** Can be used to directly set the parameter value (but be careful with this)*/
     var currentValue;
+
+    /** Can be used to restore the previous value if the new value is out of range*/
+    void restorePreviousValue() 
+    {
+        currentValue = previousValue;
+    }
     
     /** Returns a pointer to the processor this parameter is associated with**/
     GenericProcessor* getProcessor() {return processor; }
@@ -173,7 +180,8 @@ protected:
     ContinuousChannel* continuousChannel;
 
     var newValue;
-    
+    var previousValue;
+   
     var defaultValue;
 
 private:
