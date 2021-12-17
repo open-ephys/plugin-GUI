@@ -70,6 +70,9 @@ public:
     /** Returns a pointer to the Message Center event channel*/
     const EventChannel* getMessageChannel();
 
+    /** Returns a pointer to the Message Center DataStream*/
+    DataStream* getMessageStream();
+
     /** Informs the editor that acquisition has started*/
     bool startAcquisition() override;
 

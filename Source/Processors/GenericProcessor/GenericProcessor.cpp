@@ -492,7 +492,9 @@ void GenericProcessor::clearSettings()
     
     for (auto obj : eventChannels)
     {
-        //std::cout << obj->getName() << std::endl;
+
+        std::cout << obj->getName() << std::endl;
+
         if (!obj->isLocal())
             delete obj;
         else
@@ -502,7 +504,7 @@ void GenericProcessor::clearSettings()
     eventChannels.clearQuick(false);
     eventChannels.addArray(eventChannelsToKeep);
     
-   // std::cout << "Total spike channels: "  << spikeChannels.size() << std::endl;
+    //std::cout << "Total event channels: "  << eventChannels.size() << std::endl;
     
     Array<SpikeChannel*> spikeChannelsToKeep;
     
@@ -711,7 +713,7 @@ void GenericProcessor::update()
             messageChannel.reset();
             messageChannel = std::make_unique<EventChannel>(*sourceNode->getMessageChannel());
             messageChannel->addProcessor(processorInfo.get());
-            messageChannel->setDataStream(dataStreams.getLast());
+            messageChannel->setDataStream(AccessClass::getMessageCenter()->messageCenter->getMessageStream());
 
             if (sourceNode->isSplitter())
             {
@@ -754,12 +756,12 @@ void GenericProcessor::update()
             messageChannel.reset();
             messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
             messageChannel->addProcessor(processorInfo.get());
-            messageChannel->setDataStream(dataStreams.getLast());
+            messageChannel->setDataStream(AccessClass::getMessageCenter()->messageCenter->getMessageStream());
 
             if (!isSource())
                 isEnabled = false;
 
-            LOGD(getNodeId(), " connected to Message Center");
+            LOGC(getNodeId(), " connected to Message Center");
         }
     } else {
         

@@ -371,6 +371,8 @@ void FileReader::updateSettings()
     if (gotNewFile)
     {
         
+        std::cout << "GOT NEW FILE" << std::endl;
+
         dataStreams.clear();
         continuousChannels.clear();
         eventChannels.clear();

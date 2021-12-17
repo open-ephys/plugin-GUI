@@ -100,6 +100,12 @@ const EventChannel* MessageCenter::getMessageChannel()
         return nullptr;
 }
 
+DataStream* MessageCenter::getMessageStream()
+{
+    if (dataStreams.size() > 0)
+        return dataStreams[0];
+}
+
 void MessageCenter::setParameter(int parameterIndex, float newValue)
 {
     if (parameterIndex == 1)
