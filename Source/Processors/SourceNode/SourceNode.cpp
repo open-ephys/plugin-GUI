@@ -131,7 +131,7 @@ void SourceNode::updateSettings()
 		
         resizeBuffers();
 
-        std::cout << " Source node num continuous channels: " << continuousChannels.size() << std::endl;
+        //std::cout << " Source node num continuous channels: " << continuousChannels.size() << std::endl;
 
         for (int i = 0; i < continuousChannels.size(); i++)
             continuousChannels[i]->addProcessor(processorInfo.get());

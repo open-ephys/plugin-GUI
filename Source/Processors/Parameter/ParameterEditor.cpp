@@ -58,7 +58,7 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param) : ParameterEdit
 
 void TextBoxParameterEditor::labelTextChanged(Label* label)
 {
-    std::cout << "Label text: " << label->getText() << std::endl;
+    //std::cout << "Label text: " << label->getText() << std::endl;
 
     if(param->getType() == Parameter::FLOAT_PARAM)
         param->setNextValue(label->getText().getFloatValue());
