@@ -128,8 +128,8 @@ public:
 	void comboBoxChanged(ComboBox*); 
 	void labelTextChanged(Label*);
 
-	void saveCustomParameters(XmlElement* xml);
-	void loadCustomParameters(XmlElement* xml);
+	void saveCustomParametersToXml(XmlElement* xml) override;
+	void loadCustomParametersFromXml(XmlElement* xml) override;
     
     void buttonClicked(Button* button);
     ScopedPointer<FifoDrawerButton> fifoDrawerButton;

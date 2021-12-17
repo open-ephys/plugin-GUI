@@ -1083,6 +1083,8 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
 			String recordPath = xmlNode->getStringAttribute("recordPath", String());
 			if (!recordPath.isEmpty())
 			{
+                if (!File(recordPath).exists())
+                    recordPath = CoreServices::getDefaultRecordingDirectory().getFullPathName();
 				filenameComponent->setCurrentFile(File(recordPath), true, sendNotificationAsync);
 			}
 
