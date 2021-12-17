@@ -87,7 +87,8 @@ DefaultConfigComponent::DefaultConfigComponent()
 	configLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(configLabel.get());
 
-	File iconsDir = CoreServices::getSavedStateDirectory().getChildFile("configs/icons");
+	File appDir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
+	File iconsDir = appDir.getChildFile("configs").getChildFile("icons");
 
 	acqBoardButton = std::make_unique<ImageButton>("AcquisitionBoard");	
 	File acqIconFile = iconsDir.getChildFile("acq_board_icon.png");
@@ -144,7 +145,6 @@ DefaultConfigComponent::DefaultConfigComponent()
 							  npxIcon, 1.0f, Colours::aliceblue.withAlpha(0.5f));
 	
 	neuropixelsButton->setClickingTogglesState(true);
-	neuropixelsButton->setTooltip("Neuropixels-PXI");
 	neuropixelsButton->addListener(this);
 	neuropixelsButton->setRadioGroupId(101, dontSendNotification);
 	addAndMakeVisible(neuropixelsButton.get());
@@ -155,6 +155,14 @@ DefaultConfigComponent::DefaultConfigComponent()
 	neuropixelsLabel->setText("Neuropixels", dontSendNotification);
 	neuropixelsLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(neuropixelsLabel.get());
+
+#ifdef _WIN32
+    neuropixelsButton->setTooltip("Neuropixels-PXI");
+#else
+    neuropixelsButton->setTooltip("Neuropixels-PXI (Unsupported)");
+	neuropixelsButton->setEnabled(false);
+	neuropixelsLabel->setEnabled(false);
+#endif
 
 	goButton = std::make_unique<TextButton>("Load");
 	goButton->setButtonText("Load...");
@@ -198,7 +206,7 @@ void DefaultConfigComponent::resized()
 	neuropixelsButton->setBounds(( 4 * getWidth() / 5) - 50, 90, 100, 100);
 	neuropixelsLabel->setBounds(( 4 * getWidth() / 5) - 50, 205, 100, 20);
 	
-	goButton->setBounds( (getWidth()/2) - 25, getHeight() - 50, 50, 30);
+	goButton->setBounds( (getWidth()/2) - 35, getHeight() - 50, 70, 30);
 }
 
 void DefaultConfigComponent::buttonClicked(Button* button)
@@ -215,14 +223,16 @@ void DefaultConfigComponent::buttonClicked(Button* button)
 		else
 			filePath = "configs" + File::getSeparatorString() + "neuropixels_pxi_config.xml";
 
+		File configFile = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile(filePath);
 
-		File configFile = CoreServices::getSavedStateDirectory().getChildFile(filePath);
+		DialogWindow* dw = this->findParentComponentOfClass<DialogWindow>();
+		dw->setVisible(false);
+		
 		// Load the config file
 		AccessClass::getUIComponent()->getEditorViewport()->loadState(configFile);
 
 		// Close config window after loading the config file
-		if (DialogWindow* dw = this->findParentComponentOfClass<DialogWindow>())
-    		dw->exitModalState (0);
+    	dw->exitModalState (0);
 
 	}
 	else if(button->getRadioGroupId() == 101)
