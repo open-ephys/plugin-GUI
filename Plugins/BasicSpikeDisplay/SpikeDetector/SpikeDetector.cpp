@@ -726,7 +726,7 @@ void SpikeDetector::loadCustomParametersFromXml(XmlElement* xml)
 
                 if (streamId > 0)
                 {
-                    std::cout << "STREAM ID: " << streamId << std::endl;
+                    //std::cout << "STREAM ID: " << streamId << std::endl;
 
                     SpikeChannel* spikeChannel = addSpikeChannel(type, streamId, name);
 

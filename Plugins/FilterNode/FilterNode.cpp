@@ -71,7 +71,7 @@ FilterNode::FilterNode()
 
     addIntParameter(Parameter::STREAM_SCOPE, "high_cut", "Filter high cut", 6000, 1, 15000, false);
     addIntParameter(Parameter::STREAM_SCOPE, "low_cut", "Filter low cut", 300, 1, 15000, false);
-    addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels_to_filter", "Channels to filter for this stream");
+    addMaskChannelsParameter(Parameter::STREAM_SCOPE, "Channels", "Channels to filter for this stream");
 
 }
 
@@ -206,7 +206,7 @@ void FilterNode::process (AudioSampleBuffer& buffer)
         {
             BandpassFilterSettings* streamSettings = settings[stream->getStreamId()];
 
-            for (auto localChannelIndex : *((*stream)["channels_to_filter"].getArray()))
+            for (auto localChannelIndex : *((*stream)["Channels"].getArray()))
             {
                 int globalChannelIndex = getGlobalChannelIndex(stream->getStreamId(), (int) localChannelIndex);
 

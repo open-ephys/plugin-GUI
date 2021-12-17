@@ -448,7 +448,7 @@ void SliderParameterEditor::resized()
 SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* param) : ParameterEditor(param)
 {
 
-    button = std::make_unique<UtilityButton>("Channels", Font("Default", 10, Font::plain));
+    button = std::make_unique<UtilityButton>(param->getName(), Font("Default", 10, Font::plain));
     button->addListener(this);
     button->setClickingTogglesState(false);
     button->setTooltip(param->getDescription());
@@ -509,7 +509,7 @@ void SelectedChannelsParameterEditor::resized()
 MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param) : ParameterEditor(param)
 {
 
-    button = std::make_unique<UtilityButton>("Channels", Font("Default", 10, Font::plain));
+    button = std::make_unique<UtilityButton>(param->getName(), Font("Default", 10, Font::plain));
     button->addListener(this);
     button->setClickingTogglesState(false);
     button->setTooltip("Mask channels to filter within this stream");

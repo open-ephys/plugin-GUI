@@ -66,6 +66,9 @@ public:
     
     /** Overload indexing operator */
     Parameter*& operator [](String name) {return parameterMap[name];}
+
+    /** Returns true if a parameter with a given name exists */
+    bool contains(String name) const { return parameterMap.find(name) != parameterMap.end(); }
     
     /** Returns the total number of parameters in this collection*/
     int size() const {return parameters.size(); }

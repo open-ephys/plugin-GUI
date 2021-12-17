@@ -182,6 +182,9 @@ public:
     
     /** Returns a pointer to a parameter with a given name**/
     Parameter* getParameter(String name) const { return parameters[name]; }
+
+	/** Returns true if an object has a parameter with a given name**/
+	bool hasParameter(String name) const { return parameters.contains(name); }
     
     /** Returns a pointer to a parameter with a given name**/
     Array<Parameter*> getParameters() { return parameters.getParameters(); }
