@@ -1528,6 +1528,7 @@ const String EditorViewport::loadState(File fileToLoad)
 
 const String EditorViewport::loadStateFromXml(XmlElement* xml)
 {
+
     Array<GenericProcessor*> splitPoints;
 
     bool sameVersion = false;
@@ -1599,6 +1600,8 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 		return "Failed To Open " + currentFile.getFileName();
 	}
     
+    MouseCursor::showWaitCursor();
+
     AccessClass::getProcessorGraph()->clearSignalChain();
     
     loadingConfig = true; //Indicate config is being loaded into the GUI
@@ -1688,6 +1691,8 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
     error += currentFile.getFileName();
 
     loadingConfig = false;
+
+    MouseCursor::hideWaitCursor();
     
     return error;
 }

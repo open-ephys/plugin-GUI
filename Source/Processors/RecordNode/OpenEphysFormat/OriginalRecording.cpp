@@ -152,6 +152,7 @@ void OriginalRecording::openFile(File rootFolder, const ChannelInfoObject* ch, i
 
 	if (!fileExists)
 	{
+
 		// create and write header
 		LOGD("Writing header.");
 		String header = generateHeader(ch);

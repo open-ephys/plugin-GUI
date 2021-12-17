@@ -181,6 +181,7 @@ void GraphViewer::paint (Graphics& g)
     
     // Draw connections
     const int numAvailableNodes = availableNodes.size();
+
     for (int i = 0; i < numAvailableNodes; ++i)
     {
         if (! availableNodes[i]->isSplitter())
