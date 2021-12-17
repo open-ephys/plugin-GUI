@@ -649,7 +649,7 @@ private:
     
     static inline Parameter* find_parameter(GenericProcessor* processor, uint16 streamId, const std::string& parameter_name)
     {
-        Parameter* parameter = processor->getParameter(streamId, juce::String(parameter_name));
+        Parameter* parameter = processor->getDataStream(streamId)->getParameter(parameter_name);
         
         if (parameter != nullptr)
         {
