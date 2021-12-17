@@ -108,8 +108,10 @@ public:
             }
             else if (desired_mode == "IDLE") {
                 const MessageManagerLock mmLock;
-                CoreServices::setAcquisitionStatus(false);
-                CoreServices::setRecordingStatus(false);
+                if (!CoreServices::getRecordingStatus())
+                    CoreServices::setAcquisitionStatus(false);
+                else
+                    CoreServices::setRecordingStatus(false);
             }
 
             json ret;
@@ -449,6 +451,7 @@ public:
                 return;
             }
 
+            const MessageManagerLock mml;
             JUCEApplication::getInstance()->systemRequestedQuit();
 
             /*
