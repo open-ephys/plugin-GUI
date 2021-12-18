@@ -36,6 +36,8 @@ String Parameter::getParameterTypeString() const
         return "Float";
     else if (m_parameterType == Parameter::SELECTED_CHANNELS_PARAM)
         return "Selected Channels";
+    else if (m_parameterType == Parameter::MASK_CHANNELS_PARAM)
+        return "Mask Channels";
 
     // This should never happen
     jassertfalse;

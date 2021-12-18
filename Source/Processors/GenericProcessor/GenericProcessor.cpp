@@ -162,9 +162,9 @@ Array<Parameter*> GenericProcessor::getParameters(uint16 streamId)
 {
     Array<Parameter*> params;
     
-    for (const auto & [key, value] : streamParameterMap[streamId])
+    if (getDataStream(streamId) != nullptr)
     {
-        params.add(value);
+        params = getDataStream(streamId)->getParameters();
     }
     
     return params;
@@ -175,10 +175,8 @@ Array<Parameter*> GenericProcessor::getParameters(EventChannel* eventChannel)
 {
     Array<Parameter*> params;
     
-    for (const auto & [key, value] : eventChannelParameterMap[eventChannel])
-    {
-        params.add(value);
-    }
+    if (eventChannel != nullptr)
+        params = eventChannel->getParameters();
     
     return params;
 }
@@ -187,10 +185,8 @@ Array<Parameter*> GenericProcessor::getParameters(ContinuousChannel* continuousC
 {
     Array<Parameter*> params;
     
-    for (const auto & [key, value] : continuousChannelParameterMap[continuousChannel])
-    {
-        params.add(value);
-    }
+    if (continuousChannel != nullptr)
+        params = continuousChannel->getParameters();
     
     return params;
 }
@@ -199,10 +195,8 @@ Array<Parameter*> GenericProcessor::getParameters(SpikeChannel* spikeChannel)
 {
     Array<Parameter*> params;
     
-    for (const auto & [key, value] : spikeChannelParameterMap[spikeChannel])
-    {
-        params.add(value);
-    }
+    if (spikeChannel != nullptr)
+        params = spikeChannel->getParameters();
     
     return params;
 }

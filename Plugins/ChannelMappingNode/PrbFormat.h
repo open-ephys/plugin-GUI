@@ -68,10 +68,11 @@ public:
 
         var channelGroup = json.getProperty(Identifier("0"), returnVal);
 
-        //if (channelGroup.equalsWithSameType(returnVal))
-        //{
-        //    return "Not a valid .prb file.";
-        //}
+        if (channelGroup.equalsWithSameType(returnVal))
+        {
+            std::cout << "Not a valid .prb file." << std::endl;
+            return;
+        }
 
         var mapping = channelGroup[Identifier("mapping")];
         Array<var>* map = mapping.getArray();

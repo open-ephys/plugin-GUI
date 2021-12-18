@@ -22,6 +22,7 @@
  */
 
 #include "MainWindow.h"
+#include "Utils/OpenEphysHttpServer.h"
 #include "UI/UIComponent.h"
 #include "UI/EditorViewport.h"
 #include <stdio.h>
@@ -108,11 +109,13 @@ MainWindow::MainWindow(const File& fileToLoad)
 		}
 	}
 
+	http_server_thread = std::make_unique<OpenEphysHttpServer>(processorGraph.get());
+
 	if (shouldEnableHttpServer) {
-		processorGraph->enableHttpServer();
+		enableHttpServer();
 	}
 	else {
-		processorGraph->disableHttpServer();
+		disableHttpServer();
 	}
 
 }
@@ -137,12 +140,25 @@ MainWindow::~MainWindow()
 	ui->getEditorViewport()->saveState(lastConfig);
 	ui->getEditorViewport()->saveState(recoveryConfig);
 
+	//TODO: Possibly send some message inidicating everything has been saved successfully
+	if (http_server_thread) {
+        disableHttpServer();
+    }
+
 	setMenuBar(0);
 
 #if JUCE_MAC
 	MenuBarModel::setMacMainMenu(0);
 #endif
 
+}
+
+void MainWindow::enableHttpServer() {
+    http_server_thread->start();
+}
+
+void MainWindow::disableHttpServer() {
+    http_server_thread->stop();
 }
 
 void MainWindow::closeButtonPressed()

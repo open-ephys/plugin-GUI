@@ -2,9 +2,10 @@
 
 #add files in this folder
 add_sources(open-ephys 
-	Utils.h
+	OpenEphysHttpServer.h
 	ListSliceParser.h
 	ListSliceParser.cpp
+	Utils.h
 )
 
 #add nested directories
