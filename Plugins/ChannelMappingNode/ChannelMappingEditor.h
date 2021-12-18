@@ -38,8 +38,7 @@
 
 class ChannelMappingEditor : public GenericEditor,
     public DragAndDropContainer,
-    public Button::Listener,
-    public PopupChannelSelector::Listener
+    public Button::Listener
 
 {
 public:
@@ -49,53 +48,45 @@ public:
     /** Destructor*/
     virtual ~ChannelMappingEditor() {}
 
-    // Called when a custom button is clicked
+    // Called when an electrode button is clicked
     void buttonClicked(Button* button);
 
+    /** Called when the signal chain is updated*/
     void updateSettings();
 
-    void createElectrodeButtons(int numNeeded, bool clearPrevious = true);
+    /** Called when the viewed stream is updated*/
+    void selectedStreamHasChanged() override;
 
-    void saveCustomParameters(XmlElement* xml);
-    void loadCustomParameters(XmlElement* xml);
+    /** Disables channel re-ordering when acquisition is active */
+    void startAcquisition() override;
 
-    void channelStateChanged (Array<int> selectedChannels);
+    /** Enables channel re-ordering when acquisition stops*/
+    void stopAcquisition() override;
 
     /** Mouse actions */
     void mouseDrag(const MouseEvent& e);
     void mouseUp(const MouseEvent& e);
-    void mouseDoubleClick(const MouseEvent& e);
 
+    /** Called when the editor is collapsed or re-opened*/
     void collapsedStateChanged();
-
-    /** Called at start of acquisition*/
-	void startAcquisition();
-
-	//int getChannelDisplayNumber(int chan) const override;
 
 private:
     
-    String loadPrbFile(File& file);
-    String writePrbFile(File& file);
+    /** Load settings from .prb JSON */
+    void loadPrbFile(File& file);
 
-    void setChannelReference(ElectrodeButton* button);
-    void setChannelPosition(int position, int channel);
-    void checkUnusedChannels();
-    void setConfigured(bool state);
+    /** Write settings to .prb JSON */
+    void writePrbFile(File& file);
 
-    void newReferenceSelected();
-
-    void refreshButtonLocations();
+    /** Updates the electrode button number and location*/
+    void refreshElectrodeButtons();
 
     OwnedArray<ElectrodeButton> electrodeButtons;
-    OwnedArray<ElectrodeButton> referenceButtons;
-    ScopedPointer<ElectrodeEditorButton> selectAllButton;
-    ScopedPointer<ElectrodeEditorButton> modifyButton;
-    ScopedPointer<ElectrodeEditorButton> resetButton;
-    ScopedPointer<LoadButton> loadButton;
-    ScopedPointer<SaveButton> saveButton;
-    ScopedPointer<Viewport> electrodeButtonViewport;
-    ScopedPointer<Component> electrodeButtonHolder;
+   
+    std::unique_ptr<LoadButton> loadButton;
+    std::unique_ptr<SaveButton> saveButton;
+    std::unique_ptr<Viewport> electrodeButtonViewport;
+    std::unique_ptr<Component> electrodeButtonHolder;
 
     bool reorderActive;
     int previousClickedChan;

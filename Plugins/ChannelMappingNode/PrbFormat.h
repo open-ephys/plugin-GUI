@@ -43,30 +43,17 @@ public:
 
         Array<var> arr;
         Array<var> arr2;
-        Array<var> arr3;
         
         for (int i = 0; i < settings.channelOrder.size(); i++)
         {
             arr.add(var(settings.channelOrder[i]));
-            arr2.add(var(settings.referenceIndex[i]));
-            arr3.add(var(settings.isEnabled[i]));
+            arr2.add(var(settings.isEnabled[i]));
         }
         
         nestedObj->setProperty("mapping", var(arr));
-        nestedObj->setProperty("reference", var(arr2));
-        nestedObj->setProperty("enabled", var(arr3));
+        nestedObj->setProperty("enabled", var(arr2));
 
         info->setProperty("0", nestedObj.get());
-
-        DynamicObject* nestedObj2 = new DynamicObject();
-        Array<var> arr4;
-        for (int i = 0; i < settings.referenceChannels.size(); i++)
-        {
-            arr4.add(var(settings.referenceChannels[i]));
-        }
-        nestedObj2->setProperty("channels", var(arr4));
-
-        info->setProperty("refs", nestedObj2);
 
         info->writeAsJSON(outputStream, 2, false, 3);
     }
@@ -81,16 +68,13 @@ public:
 
         var channelGroup = json.getProperty(Identifier("0"), returnVal);
 
-        if (channelGroup.equalsWithSameType(returnVal))
-        {
-            return "Not a valid .prb file.";
-        }
+        //if (channelGroup.equalsWithSameType(returnVal))
+        //{
+        //    return "Not a valid .prb file.";
+        //}
 
         var mapping = channelGroup[Identifier("mapping")];
         Array<var>* map = mapping.getArray();
-
-        var reference = channelGroup[Identifier("reference")];
-        Array<var>* ref = reference.getArray();
 
         var enabled = channelGroup[Identifier("enabled")];
         Array<var>* enbl = enabled.getArray();
@@ -102,23 +86,8 @@ public:
             int ch = map->getUnchecked(i);
             settings.channelOrder.set(i, ch);
 
-            int rf = ref->getUnchecked(i);
-            settings.referenceIndex.set(i, rf);
-
             bool en = enbl->getUnchecked(i);
             settings.isEnabled.set(i, en);
-        }
-        
-        var refChans = json[Identifier("refs")];
-        var channels = refChans[Identifier("channels")];
-        Array<var>* chans = channels.getArray();
-
-        settings.referenceChannels.clear();
-        
-        for (int i = 0; i < chans->size(); i++)
-        {
-            int ch = chans->getUnchecked(i);
-            settings.referenceChannels.add(ch);
         }
     }
 };

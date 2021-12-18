@@ -45,22 +45,6 @@ void ChannelMapSettings::updateNumChannels(int newChannelCount)
         {
             channelOrder.add(i);
             isEnabled.add(true);
-            referenceIndex.add(-1);
-        }
-    }
-
-    if (referenceChannels.size() < 4)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            referenceChannels.add(-1);
-        }
-    }
-    else {
-        for (int i = 0; i < 4; i++)
-        {
-            if (referenceChannels[i] > newChannelCount)
-                referenceChannels.set(i, -1);
         }
     }
 
@@ -75,13 +59,6 @@ void ChannelMapSettings::toXml(XmlElement* xml)
         xml->setAttribute("index", ch);
         xml->setAttribute("order", channelOrder[ch]);
         xml->setAttribute("enabled", isEnabled[ch]);
-        xml->setAttribute("referenceIndex", referenceIndex[ch]);
-    }
-
-    for (int i = 0; i < referenceChannels.size(); i++)
-    {
-        XmlElement* node = xml->createNewChildElement("REFERENCE");
-        xml->setAttribute("channel", referenceChannels[i]);
     }
 
 }
@@ -90,8 +67,6 @@ void ChannelMapSettings::fromXml(XmlElement* xml)
 {
     channelOrder.clear();
     isEnabled.clear();
-    referenceIndex.clear();
-    referenceChannels.clear();
 
     int channelIndex = 0;
 
@@ -101,13 +76,7 @@ void ChannelMapSettings::fromXml(XmlElement* xml)
         {
             channelOrder.add(channelParams->getIntAttribute("order", channelIndex));
             isEnabled.add(channelParams->getBoolAttribute("enabled"), true);
-            referenceIndex.add(channelParams->getIntAttribute("referenceIndex"), -1);
             channelIndex++;
-        }
-
-        if (channelParams->hasTagName("REFERENCE"))
-        {
-            referenceChannels.add(channelParams->getIntAttribute("channel"));
         }
     }
 }
@@ -150,7 +119,9 @@ void ChannelMappingNode::updateSettings()
     {
         settings[stream->getStreamId()]->updateNumChannels(stream->getChannelCount());
 
-        for (int ch = 0; ch < stream->getChannelCount(); ch++)
+    }
+
+    /*    for (int ch = 0; ch < stream->getChannelCount(); ch++)
         {
             int localIndex = settings[stream->getStreamId()]->channelOrder[ch];
             int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
@@ -172,7 +143,7 @@ void ChannelMappingNode::updateSettings()
         continuousChannels.add(channel);
     }
 
-    channelsToDelete.clear(); // delete the unused channels
+    channelsToDelete.clear(); // delete the unused channels*/
 
 }
 
@@ -185,23 +156,6 @@ void ChannelMappingNode::setChannelEnabled(uint16 streamId, int channelNum, int 
 void ChannelMappingNode::setChannelOrder(uint16 streamId, Array<int> order)
 {
     settings[streamId]->channelOrder = order;
-}
-
-void ChannelMappingNode::setReferenceChannel(uint16 streamId, int referenceNum, int localChannel)
-{
-    currentStream = streamId;
-    currentChannel = referenceNum;
-
-    setParameter(1, localChannel);
-}
-
-
-void ChannelMappingNode::setReferenceIndex(uint16 streamId, int channelNum, int referenceIndex)
-{
-    currentStream = streamId;
-    currentChannel = channelNum;
-
-    setParameter(2, referenceIndex);
 }
 
 Array<int> ChannelMappingNode::getChannelOrder(uint16 streamId)
@@ -229,42 +183,12 @@ Array<bool> ChannelMappingNode::getChannelEnabledState(uint16 streamId)
     return settings[streamId]->isEnabled;
 }
 
-int ChannelMappingNode::getReferenceChannel(uint16 streamId, int referenceIndex)
-{
-    return settings[streamId]->referenceChannels[referenceIndex];
-}
-
-Array<int> ChannelMappingNode::getChannelsForReference(uint16 streamId, int referenceIndex)
-{
-    Array<int> channels;
-
-    for (int i = 0; i < settings[streamId]->referenceIndex.size(); i++)
-    {
-        if (settings[streamId]->referenceIndex[i] == referenceIndex)
-            channels.add(i);
-    }
-
-    return channels;
-}
-
-
-void ChannelMappingNode::setParameter (int parameterIndex, float newValue)
-{
-    if (parameterIndex == 1)
-    {
-        settings[currentStream]->referenceChannels.set (currentChannel, (int) newValue);
-    }
-    else if (parameterIndex == 2)
-    {
-        settings[currentStream]->referenceIndex.set (currentChannel, (int) newValue);
-    }
-}
 
 
 void ChannelMappingNode::process (AudioBuffer<float>& buffer)
 {
 
-    for (auto stream : getDataStreams())
+    /*for (auto stream : getDataStreams())
     {
         uint16 streamId = stream->getStreamId();
 
@@ -289,7 +213,7 @@ void ChannelMappingNode::process (AudioBuffer<float>& buffer)
                 }
             }
         }
-    }
+    }*/
 
     /*int j = 0;
     int i = 0;
