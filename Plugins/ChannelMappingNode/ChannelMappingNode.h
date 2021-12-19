@@ -45,12 +45,6 @@ public:
     /** Enabled channels*/
     Array<bool> isEnabled;
 
-    /** -1 if no reference is used; otherwise holds the index of the reference channel*/
-    Array<bool> referenceIndex;
-
-    /** Holds up to 4 reference channels*/
-    Array<int> referenceChannels;
-
     /** Writes settings to XML*/
     void toXml(XmlElement* xml);
 
@@ -86,11 +80,8 @@ public:
     /** Creates the plugin's editor*/
     AudioProcessorEditor* createEditor() override;
 
-    /** Performs channel remapping and referencing*/
+    /** Channel remap happens automatically via channel connections; does nothing*/
     void process (AudioBuffer<float>& buffer) override;
-
-    /** Used to update parameters during acquisition*/
-    void setParameter (int parameterIndex, float newValue) override;
 
     /** Informs downstream plugins of channel remapping*/
     void updateSettings() override;
@@ -106,18 +97,6 @@ public:
 
     /** Gets the channel enabled state */
     Array<bool> getChannelEnabledState(uint16 streamId);
-
-    /** Returns reference channel*/
-    int getReferenceChannel(uint16 streamId, int referenceIndex);
-
-    /** Returns channels that use a reference*/
-    Array<int> getChannelsForReference(uint16 streamId, int referenceIndex);
-
-    /** Updates the reference channel for a reference group*/
-    void setReferenceChannel(uint16 streamId, int referenceNum, int localChannel);
-
-    /** Updates the reference index for a particular channel*/
-    void setReferenceIndex(uint16 streamId, int channelNum, int referenceIndex);
 
     /** Updates the reference channel for a reference group*/
     void saveCustomParametersToXml(XmlElement* xml) override;
@@ -137,8 +116,6 @@ private:
     StreamSettings<ChannelMapSettings> settings;
 
     uint16 currentStream;
-
-    int currentChannel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelMappingNode);
 };
