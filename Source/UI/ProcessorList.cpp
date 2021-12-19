@@ -44,13 +44,16 @@ enum colorIds
 	AUDIO_COLOR = 807
 };
 
-ProcessorList::ProcessorList() :
+ProcessorList::ProcessorList(Viewport* v) :
+    viewport(v),
     isDragging(false),
     totalHeight(800),
     itemHeight(32),
     subItemHeight(22),
 	xBuffer(1),
-    yBuffer(1)
+    yBuffer(1),
+    hoverItem(nullptr),
+    maximumNameOffset(0)
 {
 
 	listFontLight = Font("Default Light", 25, Font::plain);
@@ -96,6 +99,12 @@ void ProcessorList::resized()
 	setBounds(0,0,195,getTotalHeight());
 }
 
+void ProcessorList::timerCallback()
+{
+    maximumNameOffset += 1;
+    
+    repaint();
+}
 
 
 bool ProcessorList::isOpen()
@@ -152,7 +161,7 @@ void ProcessorList::drawItem(Graphics& g, ProcessorListItem* item)
 	Colour c = findColour(item->colorId);
 
 	g.setColour(c);
-
+    
 	if (item->hasSubItems())
 		g.fillRect(1.0, 0.0, getWidth()-2, itemHeight);
 	else
@@ -163,9 +172,7 @@ void ProcessorList::drawItem(Graphics& g, ProcessorListItem* item)
 
 void ProcessorList::drawItemName(Graphics& g, ProcessorListItem* item)
 {
-
-	String name;
-
+    
 	g.setColour(Colours::white);
 	g.setFont(listFontPlain);
 
@@ -173,34 +180,49 @@ void ProcessorList::drawItemName(Graphics& g, ProcessorListItem* item)
 
 	if (item->getNumSubItems() == 0)
 	{
-		if (item->isSelected())
-		{
-			g.drawText(">", 5, 5, getWidth()-9, itemHeight, Justification::left, false);
-		}
-
-		name = item->getName();
+		
+		String name = item->getName();
+        
+        float scrollbarOffset = 0.0f; //viewport->isVerticalScrollBarShown() ? 15.0f : 0.0f;
+        float maxWidth = getWidth();
 
 		offsetX = 20.0f;
-
+        
+        if (item == hoverItem)
+        {
+            maxWidth = listFontPlain.getStringWidthFloat(name);
+            
+            if (maxWidth + 25 < getWidth() - scrollbarOffset)
+            {
+                maximumNameOffset = 0;
+                stopTimer();
+            } else if (maximumNameOffset + getWidth() > maxWidth + 25 + scrollbarOffset)
+            {
+                stopTimer();
+            }
+            
+            offsetX -= maximumNameOffset;
+        }
+        
 		offsetY = 0.72f;
+        
+        g.setFont(listFontPlain);
+        
+        if (item->isSelected())
+        {
+            g.drawText(">", offsetX - 15, 5, getWidth()-9, itemHeight, Justification::left, false);
+        }
+        g.drawText(name, offsetX, 5, maxWidth, itemHeight, Justification::left, false);
+
 	}
 	else
 	{
-		name = item->getName().toUpperCase();
+		String name = item->getName().toUpperCase();
 		offsetX = 5.0f;
 		offsetY = 0.75f;
-	}
-
-	if (item->getNumSubItems() == 0)
-	{
-		g.setFont(listFontPlain);
-		g.drawText(name, offsetX, 5, getWidth()-offsetX, itemHeight, Justification::left, false);
-
-	}
-	else
-	{
-		g.setFont(listFontLight);
-		g.drawText(name, offsetX, 0, getWidth()-offsetX, itemHeight, Justification::left, false);
+        
+        g.setFont(listFontLight);
+        g.drawText(name, offsetX, 0, getWidth(), itemHeight, Justification::left, false);
 	}
 
 
@@ -416,6 +438,37 @@ void ProcessorList::changeListenerCallback(ChangeBroadcaster* source)
 
 	repaint();
 
+}
+
+void ProcessorList::mouseMove(const MouseEvent& e)
+{
+
+    if (e.getMouseDownX() < getWidth() && !(isDragging))
+    {
+        ProcessorListItem* listItem = getListItemForYPos(e.getMouseDownY());
+        
+        if (hoverItem != listItem) // new hover item
+        {
+            hoverItem = listItem;
+            maximumNameOffset = 0;
+            startTimer(50);
+            
+            //std::cout << "Hover: " << listItem->getName() << std::endl;
+        }
+    }
+}
+
+
+void ProcessorList::mouseExit(const MouseEvent& e)
+{
+
+    //std::cout << "Exit" << std::endl;
+    hoverItem = nullptr;
+    maximumNameOffset = 0;
+    stopTimer();
+    isDragging = false;
+    
+    repaint();
 }
 
 void ProcessorList::mouseDrag(const MouseEvent& e)

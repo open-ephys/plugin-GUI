@@ -78,7 +78,7 @@
     
 	LOGD("Created control panel.");
 
-	processorList = new ProcessorList();
+	processorList = new ProcessorList(&processorListViewport);
 	processorListViewport.setViewedComponent(processorList,false);
 	processorListViewport.setScrollBarsShown(true,false);
 	addAndMakeVisible(&processorListViewport);

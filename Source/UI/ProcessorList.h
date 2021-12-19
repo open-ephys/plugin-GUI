@@ -48,13 +48,14 @@ class UIComponent;
 
 class ProcessorList : public Component,
     public DragAndDropContainer,
-    public ChangeListener
+    public ChangeListener,
+    public Timer
 
 {
 public:
 
     /** Constructor**/
-    ProcessorList();
+    ProcessorList(Viewport* v);
     
     /** Destructor*/
     ~ProcessorList() {}
@@ -89,7 +90,11 @@ public:
     /** Get list of processors **/
     Array<String> getItemList();
 
+    /** Set component bounds */
     void resized();
+    
+    /** Used to animate list item location */
+    void timerCallback();
 
     /** Returns the height requested by the ProcessorList. Determines whether or not
     to draw scroll bars.*/
@@ -105,9 +110,6 @@ private:
 
     /** Draws the name of a single item within the ProcessorList.*/
     void drawItemName(Graphics& g, ProcessorListItem*);
-    
-    /** Draws the open/close button.*/
-    //void drawButton(Graphics& g, bool isOpen);
 
     /** Returns the ProcessorListItem that sits at a given y coordinate.*/
     ProcessorListItem* getListItemForYPos(int y);
@@ -126,6 +128,12 @@ private:
 
     String category;
 
+    /** Called when the mouse moves within the boundaries of the ProcessorList.*/
+    void mouseMove(const MouseEvent& e);
+    
+    /** Called when the mouse exits the boundaries of the ProcessorList.*/
+    void mouseExit(const MouseEvent& e);
+    
     /** Called when a mouse click begins within the boundaries of the ProcessorList.*/
     void mouseDown(const MouseEvent& e);
 
@@ -137,6 +145,11 @@ private:
 
     Font listFontLight;
     Font listFontPlain;
+    
+    ProcessorListItem* hoverItem;
+    int maximumNameOffset;
+    
+    Viewport* viewport;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProcessorList);
 
