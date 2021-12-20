@@ -80,7 +80,7 @@
 
 	processorList = new ProcessorList(&processorListViewport);
 	processorListViewport.setViewedComponent(processorList,false);
-	processorListViewport.setScrollBarsShown(true,false);
+	processorListViewport.setScrollBarsShown(false,false);
 	addAndMakeVisible(&processorListViewport);
     
     messageCenterButton.addListener(this);
@@ -295,7 +295,7 @@ void UIComponent::resized()
 			else
 				processorListViewport.setBounds(5,5,195,h-50);
 
-			processorListViewport.setScrollBarsShown(true,false);
+			processorListViewport.setScrollBarsShown(false,false,true,false);
 
 		}
 		else

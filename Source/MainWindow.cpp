@@ -176,6 +176,7 @@ void MainWindow::shutDownGUI()
 	}
 
 	processorGraph->stopAcquisition();
+
 }
 
 void MainWindow::handleCrash(void* input)

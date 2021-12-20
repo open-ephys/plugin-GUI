@@ -384,26 +384,26 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 				}
 
 				int options=0;
-				options += (0 << 0); // showAlpha
-				options += (0 << 1); // showColorAtTop
-				options += (0 << 2); // showSliders
-				options += (1 << 3); // showColourSpace
+				options += (1 << 1); // showColorAtTop
+				options += (1 << 2); // editableColour
+                options += (1 << 3); // showSliders
+				options += (1 << 4); // showColourSpace
 
-				ColourSelector colourSelector(options);
-				colourSelector.setName("background");
-				colourSelector.setCurrentColour(findColour(currentColor));
-				colourSelector.addChangeListener(this);
-				colourSelector.addChangeListener(AccessClass::getProcessorGraph());
-				colourSelector.setColour(ColourSelector::backgroundColourId, Colours::transparentBlack);
-				colourSelector.setSize(300, 275);
+				auto* colourSelector = new ColourSelector(options);
+				colourSelector->setName("background");
+				colourSelector->setCurrentColour(findColour(currentColor));
+				colourSelector->addChangeListener(this);
+				colourSelector->addChangeListener(AccessClass::getProcessorGraph());
+				colourSelector->setColour(ColourSelector::backgroundColourId, Colours::lightgrey);
+				colourSelector->setSize(300, 375);
 
-				juce::Rectangle<int> rect = juce::Rectangle<int>(0,0,10,10);
+				juce::Rectangle<int> rect = juce::Rectangle<int>(e.getScreenPosition().getX(),
+                                                                 e.getScreenPosition().getY(),1,1);
 
-				CallOutBox callOut(colourSelector, rect, nullptr);
-				callOut.setTopLeftPosition(e.getScreenX(), e.getScreenY());
-				callOut.setArrowSize(0.0f);
-
-				callOut.runModalLoop();
+				CallOutBox& myBox
+                    = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(colourSelector),
+                                                       rect,
+                                                       nullptr);
 
 			}
 			else
@@ -451,7 +451,7 @@ void ProcessorList::mouseMove(const MouseEvent& e)
         {
             hoverItem = listItem;
             maximumNameOffset = 0;
-            startTimer(50);
+            startTimer(33);
             
             //std::cout << "Hover: " << listItem->getName() << std::endl;
         }
