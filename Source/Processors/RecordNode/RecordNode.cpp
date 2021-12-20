@@ -63,6 +63,8 @@ RecordNode::RecordNode()
 	dataDirectory = CoreServices::getDefaultRecordingDirectory();
 
 	recordThread = new RecordThread(this, recordEngine);
+
+	lastPrimaryStreamTimestamp = 0;
 	
 	lastDataChannelArraySize = 0;
 
@@ -90,6 +92,20 @@ String RecordNode::handleConfigMessage(String msg)
         std::cout << "Invalid key" << std::endl;
 
     return "Record Node received config: " + msg;
+}
+
+void RecordNode::handleBroadcastMessage(String msg)
+{
+
+	TextEventPtr event = TextEvent::createTextEvent(getMessageChannel(), lastPrimaryStreamTimestamp, msg);
+
+	size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
+
+	HeapBlock<char> buffer(size);
+
+	event->serialize(buffer, size);
+
+	handleEvent(getMessageChannel(), EventPacket(buffer, size), lastPrimaryStreamTimestamp);
 }
 
 void RecordNode::updateBlockSize(int newBlockSize)
@@ -338,6 +354,8 @@ void RecordNode::updateSettings()
 bool RecordNode::startAcquisition()
 {
 
+	eventChannels.add(new EventChannel(*sourceNode->getMessageChannel()));
+
 	bool openEphysFormatSelected = static_cast<RecordNodeEditor*> (getEditor())->getSelectedEngineIdx() == 1;
 
 	if (openEphysFormatSelected && getNumInputs() > 300)
@@ -367,6 +385,7 @@ bool RecordNode::startAcquisition()
 
 bool RecordNode::stopAcquisition()
 {
+	eventChannels.removeLast();
 	return true;
 }
 
@@ -719,11 +738,17 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 						double first = synchronizer->convertTimestamp(streamId, timestamp);
 						double second = synchronizer->convertTimestamp(streamId, timestamp + 1);
 						fifoUsage[streamId] = dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
+
+						if (streamId == synchronizer->primaryStreamId)
+							lastPrimaryStreamTimestamp = timestamp;
+
 					}
 					else
 					{
 						fifoUsage[streamId] = dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
 						samplesWritten+=numSamples;
+
+						lastPrimaryStreamTimestamp = timestamp;
 						continue;
 					}
 

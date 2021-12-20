@@ -76,6 +76,9 @@ public:
 	/** Allow configuration via HTTPServer */
 	String handleConfigMessage(String msg) override;
 
+	/** Handle string messages sent from the MessageCenter */
+	void handleBroadcastMessage(String msg) override;
+
 	/** Update DataQueue block size when Audio Settings buffer size changes */
 	void updateBlockSize(int newBlockSize);
 
@@ -224,6 +227,8 @@ private:
 
 	/**RecordEngines loaded**/
 	OwnedArray<RecordEngine> engineArray;
+
+	int64 lastPrimaryStreamTimestamp;
 
 	bool useSynchronizer; 
 

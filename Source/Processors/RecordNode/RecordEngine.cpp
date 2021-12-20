@@ -59,7 +59,11 @@ const ContinuousChannel* RecordEngine::getContinuousChannel(int index) const
 
 const EventChannel* RecordEngine::getEventChannel(int index) const
 {
-	return recordNode->eventChannels[index];
+	if (index >= 0)
+		return recordNode->eventChannels[index];
+
+	return recordNode->getMessageChannel();
+
 }
 
 

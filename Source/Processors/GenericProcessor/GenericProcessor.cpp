@@ -1392,7 +1392,10 @@ int GenericProcessor::getIndexOfMatchingChannel(const SpikeChannel* channel) con
 
 const EventChannel* GenericProcessor::getEventChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const
 {
-	return eventChannelMap.at(processorId).at(streamId).at(localIndex); 
+	if (eventChannelMap.find(processorId) != eventChannelMap.end())
+		return eventChannelMap.at(processorId).at(streamId).at(localIndex);
+
+	return getMessageChannel();
 }
 
 const EventChannel* GenericProcessor::getMessageChannel() const
