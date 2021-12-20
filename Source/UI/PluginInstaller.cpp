@@ -1377,6 +1377,10 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 		if(fName.contains("plugins"))
 		{
 			fName = fName.substring(fName.indexOf(File::getSeparatorString()) + 1);
+
+			if(fName.isEmpty())
+				continue;
+
 			innerFile = getPluginsDirectory().getChildFile(fName);
 			pluginDllPath = innerFile.getFullPathName();
 
@@ -1404,6 +1408,10 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 		else if(fName.contains("shared"))
 		{
 			fName = fName.substring(fName.indexOf(File::getSeparatorString()) + 1);
+
+			if(fName.isEmpty())
+				continue;
+				
 			innerFile = getSharedDirectory().getChildFile(fName);
 		}
 		else
