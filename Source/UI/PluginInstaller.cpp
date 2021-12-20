@@ -36,6 +36,27 @@
 
 
 //-----------------------------------------------------------------------
+static inline File getPluginsDirectory() {
+
+	File dir = CoreServices::getSavedStateDirectory();
+	if(!dir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
+		dir = dir.getChildFile("plugins-api" + String(PLUGIN_API_VER));
+	else
+		dir = dir.getChildFile("plugins");
+
+    return std::move(dir);
+}
+
+static inline File getSharedDirectory() {
+
+	File dir = CoreServices::getSavedStateDirectory();
+	if(!dir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
+		dir = dir.getChildFile("shared-api" + String(PLUGIN_API_VER));
+	else
+		dir = dir.getChildFile("shared");
+
+    return std::move(dir);
+}
 
 static juce::String osType;
 StringArray updatablePlugins;
@@ -95,12 +116,8 @@ void PluginInstaller::closeButtonPressed()
 
 void PluginInstaller::createXmlFile()
 {
-	File pluginsDir = CoreServices::getSavedStateDirectory().getChildFile("plugins");
-    if (!pluginsDir.isDirectory())
-        pluginsDir.createDirectory();
     
-    juce::String xmlFile = "plugins" + File::getSeparatorString() + "installedPlugins.xml";
-	File file = CoreServices::getSavedStateDirectory().getChildFile(xmlFile);
+	File file = getPluginsDirectory().getChildFile("installedPlugins.xml");
 
 	XmlDocument doc(file);
 	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
@@ -119,14 +136,12 @@ void PluginInstaller::createXmlFile()
 	}
 	else
 	{
-		juce::String baseStr = "plugins" + File::getSeparatorString();
-
 		auto child = xml->getFirstChildElement();
 		Array<XmlElement*> elementsToRemove;
 
 		forEachXmlChildElement(*child, e)
 		{
-			File pluginPath = CoreServices::getSavedStateDirectory().getChildFile(baseStr + e->getAttributeValue(1));
+			File pluginPath = getPluginsDirectory().getChildFile(e->getAttributeValue(1));
 			if (!pluginPath.exists())
 				elementsToRemove.add(e);	
 		}
@@ -405,8 +420,7 @@ void PluginInstallerComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 
 void PluginInstallerComponent::run()
 {
-	juce::String fileStr = "plugins" + File::getSeparatorString() + "installedPlugins.xml";
-	File xmlFile = CoreServices::getSavedStateDirectory().getChildFile(fileStr);
+	File xmlFile = getPluginsDirectory().getChildFile("installedPlugins.xml");
 
 	XmlDocument doc(xmlFile);
 	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
@@ -735,8 +749,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 	}
 
 	// If the plugin is already installed, get installed version number
-	juce::String fileStr = "plugins" + File::getSeparatorString() + "installedPlugins.xml";
-	File xmlFile = CoreServices::getSavedStateDirectory().getChildFile(fileStr);
+	File xmlFile = getPluginsDirectory().getChildFile("installedPlugins.xml");;
 
 	XmlDocument doc(xmlFile);
 	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
@@ -1187,8 +1200,7 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 	}
 	
 	// Open installedPluings.xml file
-	juce::String fileStr = "plugins" + File::getSeparatorString() + "installedPlugins.xml";
-	File xmlFile = CoreServices::getSavedStateDirectory().getChildFile(fileStr);
+	File xmlFile = getPluginsDirectory().getChildFile("installedPlugins.xml");
 
 	XmlDocument doc(xmlFile);
 	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
@@ -1214,8 +1226,7 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 	}
 
 	//delete plugin file
-	fileStr = "plugins" + File::getSeparatorString() + dllName;
-	File pluginFile = CoreServices::getSavedStateDirectory().getChildFile(fileStr);;
+	File pluginFile = getPluginsDirectory().getChildFile(dllName);
 	pluginFile.deleteFile();
 
 	AccessClass::getProcessorList()->fillItemList();
@@ -1261,11 +1272,8 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 	if(fileStream->getTotalLength() == 0)
 		return 0;
 
-	//Get path to plugins directory
-	File pluginsPath = CoreServices::getSavedStateDirectory();
-
 	//Construct path for downloaded zip file
-	juce::String pluginFilePath = pluginsPath.getFullPathName();
+	juce::String pluginFilePath = CoreServices::getSavedStateDirectory().getFullPathName();
 	pluginFilePath += File::getSeparatorString();
 	pluginFilePath += filename;
 
@@ -1289,8 +1297,7 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 #endif
 
 	// Open installedPluings.xml file
-	juce::String fileStr = "plugins" + File::getSeparatorString() + "installedPlugins.xml";
-	File xmlFile = pluginsPath.getChildFile(fileStr);
+	File xmlFile = getPluginsDirectory().getChildFile("installedPlugins.xml");
 
 	XmlDocument doc(xmlFile);
 	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
@@ -1357,47 +1364,57 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 		}
 	}
 
-	// Uncompress the downloaded plugin's zip file
-	Result rs = pluginZip.uncompressTo(pluginsPath, true);
 
-	if (rs.failed())
+	pluginZip.sortEntriesByFilename();
+
+	String pluginDllPath;
+
+	for(int i = 0; i < pluginZip.getNumEntries(); i++)
 	{
-		juce::String errorMsg = rs.getErrorMessage();
+		File innerFile;
+		String fName = pluginZip.getEntry(i)->filename;
 
-		if(errorMsg.containsIgnoreCase("Failed to write to target file"))
+		if(fName.contains("plugins"))
 		{
-			if(!isDependency)
+			fName = fName.substring(fName.indexOf(File::getSeparatorString()) + 1);
+			innerFile = getPluginsDirectory().getChildFile(fName);
+			pluginDllPath = innerFile.getFullPathName();
+
+			if (innerFile.exists())
 			{
-#ifdef WIN32
-				juce::String dllToUnload = errorMsg.substring(errorMsg.lastIndexOf("\\") + 1);
-				const char* processorLocCString = static_cast<const char*>(dllToUnload.toUTF8());
-				HMODULE md = GetModuleHandleA(processorLocCString);
-
-				if(FreeLibrary(md))
-					LOGD("Unloaded old ", dllToUnload);
-#endif
-				rs = pluginZip.uncompressTo(pluginsPath, true);
-
-				if(rs.failed())
+				if (!innerFile.deleteFile())
 				{
-					LOGD(rs.getErrorMessage());
-					pluginFile.deleteFile();
-					return 2;
+#ifdef _WIN32
+					const char* processorLocCString = static_cast<const char*>(innerFile.getFullPathName().toUTF8());
+					HMODULE md = GetModuleHandleA(processorLocCString);
+
+					if(FreeLibrary(md))
+						LOGD("Unloaded old ", fName);
+					
+					if(!innerFile.deleteFile())
+					{
+						LOGC("Unable to replace/update exisiting plugin file!");
+						pluginFile.deleteFile();
+						return 2;
+					}
+#endif
 				}
 			}
-			else
-			{
-				LOGD("Dependency already exists");
-			}
-			
-
+		}
+		else if(fName.contains("shared"))
+		{
+			fName = fName.substring(fName.indexOf(File::getSeparatorString()) + 1);
+			innerFile = getSharedDirectory().getChildFile(fName);
 		}
 		else
 		{
-			LOGE(rs.getErrorMessage());
-			pluginFile.deleteFile(); // delete zip after uncompressing
-			return 2;
+			innerFile =  CoreServices::getSavedStateDirectory().getChildFile(fName);
 		}
+			
+		//Use the zip's input stream and write it to a file using output stream
+		std::unique_ptr<FileOutputStream> fOut = innerFile.createOutputStream();
+		fOut->writeFromInputStream(*pluginZip.createStreamForEntry(i), -1);
+		fOut->flush();
 	}
 
 	pluginFile.deleteFile(); // delete zip after uncompressing
@@ -1412,9 +1429,7 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 			return 5;
 		}
 		
-		juce::String libName = pluginsPath.getFullPathName() + File::getSeparatorString() + entry->filename;
-
-		int loadPlugin = AccessClass::getPluginManager()->loadPlugin(libName);
+		int loadPlugin = AccessClass::getPluginManager()->loadPlugin(pluginDllPath);
 
 		if (loadPlugin == -1)
 			return 6;

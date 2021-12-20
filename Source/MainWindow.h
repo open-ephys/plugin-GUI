@@ -96,6 +96,9 @@ private:
      *  match or not. */
     bool compareConfigFiles(File file1, File file2);
 
+    /** API respective configs directory */
+    File configsDir;
+
     /** A pointer to the application's AudioComponent (owned by the MainWindow). */
     std::unique_ptr<AudioComponent> audioComponent;
 

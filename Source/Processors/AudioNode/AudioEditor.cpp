@@ -328,7 +328,11 @@ AudioConfigurationWindow::~AudioConfigurationWindow()
 
 void AudioConfigurationWindow::closeButtonPressed()
 {
-    File recoveryFile = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
+    File configsDir = CoreServices::getSavedStateDirectory();
+	if(!configsDir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
+		configsDir = configsDir.getChildFile("configs-api" + String(PLUGIN_API_VER));
+        
+    File recoveryFile = configsDir.getChildFile("recoveryConfig.xml");
     AccessClass::getEditorViewport()->saveState(recoveryFile);
 
     controlButton->setToggleState (false, dontSendNotification);

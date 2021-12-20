@@ -41,6 +41,13 @@ MainWindow::MainWindow(const File& fileToLoad)
 	shouldEnableHttpServer = true;
 	openDefaultConfigWindow = false;
 
+	configsDir = CoreServices::getSavedStateDirectory();
+	if(!configsDir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
+		configsDir = configsDir.getChildFile("configs-api" + String(PLUGIN_API_VER));
+	
+	if(!configsDir.isDirectory())
+		configsDir.createDirectory();
+
 	// Create ProcessorGraph and AudioComponent, and connect them.
 	// Callbacks will be set by the play button in the control panel
 
@@ -83,8 +90,8 @@ MainWindow::MainWindow(const File& fileToLoad)
 	}
 	else if (shouldReloadOnStartup)
 	{
-		File lastConfig = CoreServices::getSavedStateDirectory().getChildFile("lastConfig.xml");
-		File recoveryConfig = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
+		File lastConfig = configsDir.getChildFile("lastConfig.xml");
+		File recoveryConfig = configsDir.getChildFile("recoveryConfig.xml");
 
 		if(lastConfig.existsAsFile())
 		{
@@ -135,8 +142,8 @@ MainWindow::~MainWindow()
 	UIComponent* ui = (UIComponent*) getContentComponent();
 	ui->disableDataViewport();
 	
-	File lastConfig = CoreServices::getSavedStateDirectory().getChildFile("lastConfig.xml");
-	File recoveryConfig = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
+	File lastConfig = configsDir.getChildFile("lastConfig.xml");
+	File recoveryConfig = configsDir.getChildFile("recoveryConfig.xml");
 	ui->getEditorViewport()->saveState(lastConfig);
 	ui->getEditorViewport()->saveState(recoveryConfig);
 
@@ -202,7 +209,7 @@ void MainWindow::saveWindowBounds()
 	LOGDD("Saving window bounds.");
 	LOGDD("");
 
-	File file = CoreServices::getSavedStateDirectory().getChildFile("windowState.xml");
+	File file = configsDir.getChildFile("windowState.xml");
 
 	XmlElement* xml = new XmlElement("MAINWINDOW");
 
@@ -249,7 +256,7 @@ void MainWindow::loadWindowBounds()
 	LOGDD("Loading window bounds.");
 	std::cout << std::endl;
 
-	File file = CoreServices::getSavedStateDirectory().getChildFile("windowState.xml");
+	File file = configsDir.getChildFile("windowState.xml");
 
 	if(!file.exists())
 		openDefaultConfigWindow = true;

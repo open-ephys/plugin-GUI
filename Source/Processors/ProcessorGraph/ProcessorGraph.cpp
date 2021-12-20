@@ -519,8 +519,12 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
     
     if(!signalChainIsLoading)
     {
+        File configsDir = CoreServices::getSavedStateDirectory();
+	    if(!configsDir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
+		    configsDir = configsDir.getChildFile("configs-api" + String(PLUGIN_API_VER));
+        
         EditorViewport* ev = AccessClass::getEditorViewport();
-        File recoveryFile = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml");
+        File recoveryFile = configsDir.getChildFile("recoveryConfig.xml");
         ev->saveState(recoveryFile);
     }
     
