@@ -261,7 +261,7 @@ void MainWindow::loadWindowBounds()
 	{
 
 		LOGDD("File not found.");
-		centreWithSize(800, 600);
+		centreWithSize(1200, 800);
 
 	}
 	else

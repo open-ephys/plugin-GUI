@@ -815,7 +815,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 			break;
 
 		case resizeWindow:
-			mainWindow->centreWithSize(800, 600);
+			mainWindow->centreWithSize(1200, 800);
 			break;
 
 		case openTimestampSelectionWindow:
