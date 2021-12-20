@@ -374,7 +374,7 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 				{
 					currentColor = SINK_COLOR;
 				}
-				else if (listItem->getName().equalsIgnoreCase("Record Node"))
+				else if (listItem->getName().equalsIgnoreCase("Recording"))
 				{
 					currentColor = RECORD_COLOR;
 				}
@@ -386,7 +386,6 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 				int options=0;
 				options += (1 << 1); // showColorAtTop
 				options += (1 << 2); // editableColour
-                options += (1 << 3); // showSliders
 				options += (1 << 4); // showColourSpace
 
 				auto* colourSelector = new ColourSelector(options);
@@ -395,7 +394,7 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 				colourSelector->addChangeListener(this);
 				colourSelector->addChangeListener(AccessClass::getProcessorGraph());
 				colourSelector->setColour(ColourSelector::backgroundColourId, Colours::lightgrey);
-				colourSelector->setSize(300, 375);
+				colourSelector->setSize(250, 270);
 
 				juce::Rectangle<int> rect = juce::Rectangle<int>(e.getScreenPosition().getX(),
                                                                  e.getScreenPosition().getY(),1,1);
