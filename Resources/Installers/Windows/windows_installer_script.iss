@@ -23,8 +23,7 @@ Name: install_usb; Description: "Install Opal Kelly Front Panel USB driver for O
 
 [Files]
 Source: "..\..\..\Build\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; BeforeInstall: UpdateProgress(0);
-Source: "..\..\..\Build\Release\shared\*"; DestDir: "{commonappdata}\Open Ephys\shared"; Flags: ignoreversion recursesubdirs; BeforeInstall: UpdateProgress(55);
-Source: "..\..\DataFiles\*"; DestDir: "{userdocs}\Open Ephys\DataFiles"; Flags: ignoreversion recursesubdirs; BeforeInstall: UpdateProgress(60);
+Source: "..\..\..\Build\Release\shared\*"; DestDir: "{commonappdata}\Open Ephys\shared-api8"; Flags: ignoreversion recursesubdirs; BeforeInstall: UpdateProgress(55);
 Source: "vcredist_x64.exe"; DestDir: {tmp}; Flags: deleteafterinstall; BeforeInstall: UpdateProgress(70);
 Source: "..\..\DLLs\FrontPanelUSB-DriverOnly-4.5.5.exe"; DestDir: {tmp}; Flags: deleteafterinstall; BeforeInstall: UpdateProgress(90);
 
