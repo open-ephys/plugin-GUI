@@ -120,7 +120,7 @@ void FileReader::initialize(bool signalChainIsLoading)
     if (signalChainIsLoading)
         return;
 
-    File executable = File::getSpecialLocation(File::currentExecutableFile);
+    File executable = File::getSpecialLocation(File::currentApplicationFile);
     File defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
 
     if (defaultFile.exists())
