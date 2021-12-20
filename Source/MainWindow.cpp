@@ -236,7 +236,7 @@ void MainWindow::saveWindowBounds()
 
 	String error;
 
-	if (! xml->writeToFile(file, String()))
+	if (! xml->writeTo(file))
 		error = "Couldn't write to file";
 
 	delete xml;

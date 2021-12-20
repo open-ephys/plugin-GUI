@@ -1536,7 +1536,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
     Array<GenericProcessor*> splitPoints;
 
     bool sameVersion = false;
-	bool pluginAPI = false;
+    bool compatibleVersion = false;
 
     String versionString;
 
@@ -1549,23 +1549,45 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
                 if (element2->hasTagName("VERSION"))
                 {
                     versionString = element2->getAllSubText();
-					StringArray tokens;
-					tokens.addTokens(versionString, ".", String());
-
+					
                     if (versionString.equalsIgnoreCase(JUCEApplication::getInstance()->getApplicationVersion()))
+                    {
                         sameVersion = true;
+                        compatibleVersion = true;
+                        break;
+                    }
+                    
+                    StringArray tokens;
+                    tokens.addTokens(versionString, ".", "");
+                    
+                    //std::cout << "Version string: " << versionString << std::endl;
+                    //std::cout << "Tokens: " << std::endl;
+                    
+                    for (int i = 0; i < tokens.size(); i++)
+                        std::cout << tokens[i] << std::endl;
+
+                    if (tokens.size() > 1)
+                    {
+                        if (tokens[0].getIntValue() >= 0 && tokens[1].getIntValue() > 5)
+                            compatibleVersion = true;
+                    }
                 }
-				else if (element2->hasTagName("PLUGIN_API_VERSION"))
-				{
-					//API version should be the same between the same binary release and, in any case, do not necessarily
-					//change processor configurations. We simply check if the save file has been written from a plugin
-					//capable build, as the save format itself is different.
-					pluginAPI = true;
-				}
             }
-            break;
         }
     }
+    
+    if (!compatibleVersion)
+    {
+        String responseString = "Your configuration file was saved by an older version of the GUI (";
+        responseString += versionString;
+        responseString += "), and is not compatible with the version you're currently running. \n\n";
+        responseString += "In order to replicate the signal chain you'll have to re-build it from scratch.";
+
+        AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Incompatible configuration file", responseString);
+        
+        return "Failed To Open " + currentFile.getFileName();
+    }
+    
     if (!sameVersion)
     {
         String responseString = "Your configuration file was saved from a different version of the GUI than the one you're using. \n";
@@ -1574,7 +1596,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
         responseString += ", but the file you selected ";
         if (versionString.length() > 0)
         {
-            responseString += " is version ";
+            responseString += "was saved by version ";
             responseString += versionString;
         }
         else
@@ -1589,20 +1611,9 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
                                                      "Yes", "No", 0, 0);
         if (!response)
         {
-            delete xml;
             return "Failed To Open " + currentFile.getFileName();
         }
-            
-
     }
-	if (!pluginAPI)
-	{
-		String responseString = "Your configuration file was saved from a non-plugin version of the GUI.\n";
-		responseString += "Save files from non-plugin versions are incompatible with the current load system.\n";
-		responseString += "The chain file will not load.";
-		AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Non-plugin save file", responseString);
-		return "Failed To Open " + currentFile.getFileName();
-	}
     
     MouseCursor::showWaitCursor();
 

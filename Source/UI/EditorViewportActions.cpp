@@ -349,7 +349,6 @@ LoadPluginSettings::LoadPluginSettings(EditorViewport* editorViewport_,
 LoadPluginSettings::~LoadPluginSettings()
 {
     delete oldSettings;
-    delete newSettings;
 }
     
 bool LoadPluginSettings::perform()

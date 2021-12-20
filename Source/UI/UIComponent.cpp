@@ -645,7 +645,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 				if (fc.browseForFileToOpen())
 				{
 					currentConfigFile = fc.getResult();
-					sendActionMessage(getEditorViewport()->loadState(currentConfigFile));
+					getEditorViewport()->loadState(currentConfigFile);
 				}
 				else
 				{
