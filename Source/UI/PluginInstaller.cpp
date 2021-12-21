@@ -1380,15 +1380,16 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 							.copyFileTo(getPluginsDirectory().getChildFile(dllName));
 
 		File dllFile = getPluginsDirectory().getChildFile(dllName);
+		pluginDllPath = dllFile.getFullPathName();
 
 		if(!copySuccess && dllFile.exists())
 		{
 #ifdef _WIN32
-			const char* processorLocCString = static_cast<const char*>(dllFile.getFullPathName().toUTF8());
+			const char* processorLocCString = static_cast<const char*>(pluginDllPath.toUTF8());
 			HMODULE md = GetModuleHandleA(processorLocCString);
 
 			if(FreeLibrary(md))
-				LOGD("Unloaded old ", fName);
+				LOGD("Unloaded old ", dllName);
 			
 			// try copying again after unloading old DLL
 			copySuccess = tempDir.getChildFile("plugins").getChildFile(dllName)
