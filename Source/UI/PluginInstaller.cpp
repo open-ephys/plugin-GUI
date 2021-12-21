@@ -1296,6 +1296,9 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 	auto entry = pluginZip.getEntry(1);
 #endif
 
+	String dllName = entry->filename;
+	dllName = dllName.substring(dllName.indexOf(File::getSeparatorString()) + 1);
+
 	// Open installedPluings.xml file
 	File xmlFile = getPluginsDirectory().getChildFile("installedPlugins.xml");
 
@@ -1309,8 +1312,6 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 
 		// set version and dllName attributes of the plugins
 		pluginEntry->setAttribute("version", version);
-		juce::String dllName = entry->filename;
-		dllName = dllName.substring(dllName.indexOf(File::getSeparatorString()) + 1);
 		pluginEntry->setAttribute("dllName", dllName);
 
 		if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
@@ -1364,67 +1365,65 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 		}
 	}
 
-
-	pluginZip.sortEntriesByFilename();
-
+	// Uncompress plugin zip file in temp directory
 	String pluginDllPath;
 
-	for(int i = 0; i < pluginZip.getNumEntries(); i++)
+	File tempDir = File::getSpecialLocation(File::tempDirectory).getChildFile("open-ephys");
+	tempDir.createDirectory();
+
+	pluginZip.uncompressTo(tempDir);
+
+	if(!isDependency)
 	{
-		File innerFile;
-		String fName = pluginZip.getEntry(i)->filename;
+		// copy plugin DLL from temp directory to actual location
+		bool copySuccess = tempDir.getChildFile("plugins").getChildFile(dllName)
+							.copyFileTo(getPluginsDirectory().getChildFile(dllName));
 
-		if(fName.contains("plugins"))
+		File dllFile = getPluginsDirectory().getChildFile(dllName);
+
+		if(!copySuccess && dllFile.exists())
 		{
-			fName = fName.substring(fName.indexOf(File::getSeparatorString()) + 1);
-
-			if(fName.isEmpty())
-				continue;
-
-			innerFile = getPluginsDirectory().getChildFile(fName);
-			pluginDllPath = innerFile.getFullPathName();
-
-			if (innerFile.exists())
-			{
-				if (!innerFile.deleteFile())
-				{
 #ifdef _WIN32
-					const char* processorLocCString = static_cast<const char*>(innerFile.getFullPathName().toUTF8());
-					HMODULE md = GetModuleHandleA(processorLocCString);
+			const char* processorLocCString = static_cast<const char*>(dllFile.getFullPathName().toUTF8());
+			HMODULE md = GetModuleHandleA(processorLocCString);
 
-					if(FreeLibrary(md))
-						LOGD("Unloaded old ", fName);
-					
-					if(!innerFile.deleteFile())
-					{
-						LOGC("Unable to replace/update exisiting plugin file!");
-						pluginFile.deleteFile();
-						return 2;
-					}
-#endif
-				}
-			}
-		}
-		else if(fName.contains("shared"))
-		{
-			fName = fName.substring(fName.indexOf(File::getSeparatorString()) + 1);
-
-			if(fName.isEmpty())
-				continue;
-				
-			innerFile = getSharedDirectory().getChildFile(fName);
-		}
-		else
-		{
-			innerFile =  CoreServices::getSavedStateDirectory().getChildFile(fName);
-		}
+			if(FreeLibrary(md))
+				LOGD("Unloaded old ", fName);
 			
-		//Use the zip's input stream and write it to a file using output stream
-		std::unique_ptr<FileOutputStream> fOut = innerFile.createOutputStream();
-		fOut->writeFromInputStream(*pluginZip.createStreamForEntry(i), -1);
-		fOut->flush();
+			// try copying again after unloading old DLL
+			copySuccess = tempDir.getChildFile("plugins").getChildFile(dllName)
+							.copyFileTo(getPluginsDirectory().getChildFile(dllName));
+
+			if(!copySuccess)
+			{
+				LOGC("Unable to replace/update exisiting plugin file!");
+				pluginFile.deleteFile();
+				return 2;
+			}
+#endif		
+		}
 	}
 
+	// copy shared files
+	Array<File> sFiles = tempDir.getChildFile("shared").findChildFiles(File::findFilesAndDirectories, false);
+
+	for(int i = 0; i < sFiles.size() ; i++)
+	{	
+		if(sFiles[i].isDirectory())
+			sFiles[i].copyDirectoryTo(getSharedDirectory().getChildFile(sFiles[i].getFileName()));
+		else
+			sFiles[i].copyFileTo(getSharedDirectory().getChildFile(sFiles[i].getFileName()));
+	}
+
+	// copy any extra files
+	Array<File> extraFiles = tempDir.findChildFiles(File::findFiles, false);
+
+	for(int j = 0; j < extraFiles.size() ; j++)
+	{	
+		extraFiles[j].copyFileTo(CoreServices::getSavedStateDirectory().getChildFile(extraFiles[j].getFileName()));
+	}
+
+	tempDir.deleteRecursively();
 	pluginFile.deleteFile(); // delete zip after uncompressing
 
 	// if the plugin is not a dependency, load the plugin and show it in processor list	
