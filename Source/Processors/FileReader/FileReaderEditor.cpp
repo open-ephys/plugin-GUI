@@ -585,8 +585,13 @@ void FileReaderEditor::setFile (String file)
     if (file.equalsIgnoreCase("default"))
     {
         File executable = File::getSpecialLocation(File::currentApplicationFile);
+        
+#ifdef __APPLE__
+        File defaultFile = executable.getChildFile("Contents/Resources/resources").getChildFile("structure.oebin");
+#else
         File defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
-
+#endif
+        
         if (defaultFile.exists())
         {
             file = defaultFile.getFullPathName();

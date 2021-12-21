@@ -87,8 +87,12 @@ DefaultConfigComponent::DefaultConfigComponent()
 	configLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(configLabel.get());
 
-	File appDir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
-	File iconsDir = appDir.getChildFile("configs").getChildFile("icons");
+	File appDir = File::getSpecialLocation(File::currentApplicationFile);
+#ifdef __APPLE__
+    File iconsDir = appDir.getChildFile("Contents/Resources").getChildFile("configs/icons");
+#else
+    File iconsDir = appDir.getParentDirectory().getChildFile("configs/icons");
+#endif
 
 	acqBoardButton = std::make_unique<ImageButton>("AcquisitionBoard");	
 	File acqIconFile = iconsDir.getChildFile("acq_board_icon.png");
@@ -223,8 +227,14 @@ void DefaultConfigComponent::buttonClicked(Button* button)
 		else
 			filePath = "configs" + File::getSeparatorString() + "neuropixels_pxi_config.xml";
 
-		File configFile = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile(filePath);
-
+#ifdef __APPLE__
+		File configFile = File::getSpecialLocation(File::currentApplicationFile)
+            .getChildFile("Contents/Resources")
+            .getChildFile(filePath);
+#else
+        File configFile = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile(filePath);
+#endif
+        
 		DialogWindow* dw = this->findParentComponentOfClass<DialogWindow>();
 		dw->setVisible(false);
 		

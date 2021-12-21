@@ -121,7 +121,11 @@ void FileReader::initialize(bool signalChainIsLoading)
         return;
 
     File executable = File::getSpecialLocation(File::currentApplicationFile);
+#ifdef __APPLE__
+    File defaultFile = executable.getChildFile("Contents/Resources/resources").getChildFile("structure.oebin");
+#else
     File defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
+#endif
 
     if (defaultFile.exists())
     {

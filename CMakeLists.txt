@@ -83,6 +83,8 @@ add_executable(open-ephys
 target_include_directories(open-ephys PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules)
 target_compile_features(open-ephys PUBLIC cxx_auto_type cxx_generalized_initializers)
 
+file(GLOB _bitfiles "${RESOURCES_DIRECTORY}/Bitfiles/*.bit")
+file(GLOB _xmlfiles "${RESOURCES_DIRECTORY}/Configs/*.xml")
 #output folders and specific options
 if (MSVC OR LINUX)
 	set(BIN_PLUGIN_DIR $<TARGET_FILE_DIR:open-ephys>/plugins)
@@ -92,31 +94,50 @@ if (MSVC OR LINUX)
 			COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_PLUGIN_DIR}"
 			)
 
-	file(GLOB _bitfiles "${RESOURCES_DIRECTORY}/Bitfiles/*.bit")
+	#copy bitfiles
 	add_custom_command(TARGET open-ephys POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy ${_bitfiles} "${BIN_SHARED_DIR}"
 			)
 
+	# copy default configs and their icons
+	add_custom_command(TARGET open-ephys POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:open-ephys>/configs
+				COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:open-ephys>/configs/icons
+				COMMAND ${CMAKE_COMMAND} -E copy ${_xmlfiles} $<TARGET_FILE_DIR:open-ephys>/configs
+				COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIRECTORY}/Configs/Icons $<TARGET_FILE_DIR:open-ephys>/configs/icons
+				)
+
+	#copy FileReader resources to output directory
+	add_custom_command(TARGET open-ephys POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIRECTORY}/FileReader/resources $<TARGET_FILE_DIR:open-ephys>/resources
+				)
+
 elseif(APPLE)
 	set(BIN_PLUGIN_DIR $<TARGET_FILE_DIR:open-ephys>/../PlugIns)
+	set(BIN_SHARED_DIR $<TARGET_FILE_DIR:open-ephys>/../Resources/shared)
 	add_custom_command(TARGET open-ephys POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_PLUGIN_DIR}"
+			COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_SHARED_DIR}"
 			)
+	
+	#copy bitfiles
+	add_custom_command(TARGET open-ephys POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy ${_bitfiles} "${BIN_SHARED_DIR}"
+			)
+
+	# copy default configs and their icons
+	add_custom_command(TARGET open-ephys POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:open-ephys>/../Resources/configs
+				COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:open-ephys>/../Resources/configs/icons
+				COMMAND ${CMAKE_COMMAND} -E copy ${_xmlfiles} $<TARGET_FILE_DIR:open-ephys>/../Resources/configs
+				COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIRECTORY}/Configs/Icons $<TARGET_FILE_DIR:open-ephys>/../Resources/configs/icons
+				)
+	
+	#copy FileReader resources to output directory
+	add_custom_command(TARGET open-ephys POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIRECTORY}/FileReader/resources $<TARGET_FILE_DIR:open-ephys>/../Resources/resources
+				)
 endif()
-
-# copy default configs and their icons
-file(GLOB _xmlfiles "${RESOURCES_DIRECTORY}/Configs/*.xml")
-add_custom_command(TARGET open-ephys POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:open-ephys>/configs
-			COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:open-ephys>/configs/icons
-			COMMAND ${CMAKE_COMMAND} -E copy ${_xmlfiles} $<TARGET_FILE_DIR:open-ephys>/configs
-			COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIRECTORY}/Configs/Icons $<TARGET_FILE_DIR:open-ephys>/configs/icons
-			)
-
-#copy FileReader resources to output directory
-add_custom_command(TARGET open-ephys POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIRECTORY}/FileReader/resources $<TARGET_FILE_DIR:open-ephys>/resources
-			)
 
 if(MSVC)
 	set_property(TARGET open-ephys APPEND PROPERTY COMPILE_DEFINITIONS "JUCE_API=__declspec(dllexport)")
@@ -209,8 +230,6 @@ elseif(APPLE)
 			${RESOURCES_DIRECTORY}/Build-files/Icon.icns
 			${RESOURCES_DIRECTORY}/Build-files/dmg_background.png
 			${RESOURCES_DIRECTORY}/Build-files/RecentFilesMenuTemplate.nib
-			${RESOURCES_DIRECTORY}/Bitfiles/rhd2000.bit
-			${RESOURCES_DIRECTORY}/Bitfiles/rhd2000_usb3.bit
 			${RESOURCES_DIRECTORY}/Fonts/unibody-8.otf
 		)
 		set_source_files_properties(${MAC_RESOURCE_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)

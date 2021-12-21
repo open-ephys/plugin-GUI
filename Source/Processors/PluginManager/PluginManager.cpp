@@ -110,6 +110,14 @@ PluginManager::PluginManager()
 	if (!installSharedPath.isDirectory()) {
         installSharedPath.createDirectory();
     }
+#else
+	File installSharedPath = File::getSpecialLocation(File::userApplicationDataDirectory)
+							.getChildFile("Application Support/open-ephys")
+							.getChildFile("shared-api" + String(PLUGIN_API_VER));
+							
+	if (!installSharedPath.isDirectory()) {
+        installSharedPath.createDirectory();
+    }
 #endif
 }
 
