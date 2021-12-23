@@ -354,7 +354,9 @@ void RecordNode::updateSettings()
 bool RecordNode::startAcquisition()
 {
 
-	eventChannels.add(new EventChannel(*sourceNode->getMessageChannel()));
+    eventChannels.add(new EventChannel(*messageChannel));
+    eventChannels.getLast()->addProcessor(processorInfo.get());
+    eventChannels.getLast()->setDataStream(dataStreams.getLast(), true);
 
 	bool openEphysFormatSelected = static_cast<RecordNodeEditor*> (getEditor())->getSelectedEngineIdx() == 1;
 
