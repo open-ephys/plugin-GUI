@@ -414,6 +414,9 @@ public:
 
     /** Generates the next recording directory based on field settings **/  
     String generateFilenameFromFields(bool usePlaceholderText, bool updateControlPanel);
+    
+    /** Generates the current datetime based on the input formatting string */
+    String generateDatetimeFromFormat(String format);
 
     /** Adds the RecordNode as a listener of the FilenameComponent
     (so it knows when the data directory has changed).*/
@@ -447,8 +450,6 @@ private:
 
     /* Popup window for editing recording filename fields */
     void componentBeingDeleted(Component &component);
-
-    String generateDatetimeFromFormat(String format);
 
     ProcessorGraph* graph;
     AudioComponent* audio;

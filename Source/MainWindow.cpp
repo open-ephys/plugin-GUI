@@ -33,6 +33,10 @@ MainWindow::MainWindow(const File& fileToLoad)
 		Colour(Colours::black),
 		DocumentWindow::allButtons)
 {
+    
+    File activityLog = File::getCurrentWorkingDirectory().getChildFile("activity.log");
+    if (activityLog.exists())
+        activityLog.deleteFile();
 
 	setResizable(true,      // isResizable
 			false);   // useBottomCornerRisizer -- doesn't work very well
@@ -196,11 +200,19 @@ void MainWindow::handleCrash(void* input)
 		"Close"
 	);
 
-	//File file = CoreServices::getSavedStateDirectory().getChildFile("crash_report.txt");
-		
-	//String backtrace = SystemStats::getStackBacktrace();
-
-	//file.replaceWithText(backtrace);
+	String backtrace = SystemStats::getStackBacktrace();
+    LOGD("\n", backtrace);
+    std::flush(std::cout);
+    
+    File activityLog = File::getCurrentWorkingDirectory().getChildFile("activity.log");
+    
+    if (activityLog.exists())
+    {
+        String dt = AccessClass::getControlPanel()->generateDatetimeFromFormat("MM-DD-YYYY_HH_MM_SS");
+        activityLog.copyFileTo(File(File::getCurrentWorkingDirectory().getChildFile("activity_" + dt + ".log")));
+        activityLog.deleteFile();
+    }
+    
 }
 
 void MainWindow::saveWindowBounds()
