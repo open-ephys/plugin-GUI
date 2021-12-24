@@ -23,6 +23,8 @@
   ==============================================================================
 */
 
+#include "../Source/Utils/Utils.h"
+
 namespace juce
 {
 
@@ -416,6 +418,8 @@ void Label::removeListener (Label::Listener* l)     { listeners.remove (l); }
 
 void Label::callChangeListeners()
 {
+    LOGA("Label '", getName(), "' text changed to ", getText());
+
     Component::BailOutChecker checker (this);
     listeners.callChecked (checker, [this] (Listener& l) { l.labelTextChanged (this); });
 

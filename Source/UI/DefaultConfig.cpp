@@ -52,9 +52,6 @@ void DefaultConfigWindow::launchWindow()
 {
 	DialogWindow::LaunchOptions options;
 
-	// auto* label = new Label();
-	// label->setText ("m", dontSendNotification);
-	// label->setColour (Label::textColourId, Colours::whitesmoke);
 	configComponent = new DefaultConfigComponent();
 	options.content.setOwned (configComponent);
 
@@ -94,7 +91,7 @@ DefaultConfigComponent::DefaultConfigComponent()
     File iconsDir = appDir.getParentDirectory().getChildFile("configs/icons");
 #endif
 
-	acqBoardButton = std::make_unique<ImageButton>("AcquisitionBoard");	
+	acqBoardButton = std::make_unique<ImageButton>("Default Config Selector - Acquisition Board");	
 	File acqIconFile = iconsDir.getChildFile("acq_board_icon.png");
 	Image acqBoardIcon = ImageFileFormat::loadFrom(acqIconFile);
 	acqBoardButton->setImages(false, true, true, 
@@ -103,7 +100,7 @@ DefaultConfigComponent::DefaultConfigComponent()
 							  acqBoardIcon, 1.0f, Colours::aliceblue.withAlpha(0.5f));
 	
 	acqBoardButton->setClickingTogglesState(true);
-	acqBoardButton->setTooltip("Acquistion Board");
+	acqBoardButton->setTooltip("Acquire data from an Open Ephys Acquisition Board");
 	acqBoardButton->addListener(this);
 	acqBoardButton->setRadioGroupId(101, dontSendNotification);
 	addAndMakeVisible(acqBoardButton.get());
@@ -116,7 +113,7 @@ DefaultConfigComponent::DefaultConfigComponent()
 	addAndMakeVisible(acqBoardLabel.get());
 
 
-	fileReaderButton = std::make_unique<ImageButton>("FileReader");	
+	fileReaderButton = std::make_unique<ImageButton>("Default Config Selector - File Reader");	
 	File fRIconFile = iconsDir.getChildFile("file_reader_icon.png");
 	Image fRIcon = ImageFileFormat::loadFrom(fRIconFile);
 	fileReaderButton->setImages(false, true, true, 
@@ -125,7 +122,7 @@ DefaultConfigComponent::DefaultConfigComponent()
 							  fRIcon, 1.0f, Colours::aliceblue.withAlpha(0.5f));
 	
 	fileReaderButton->setClickingTogglesState(true);
-	fileReaderButton->setTooltip("File Reader");
+	fileReaderButton->setTooltip("Read data from a file");
 	fileReaderButton->addListener(this);
 	fileReaderButton->setRadioGroupId(101, dontSendNotification);
 	fileReaderButton->setToggleState(true, dontSendNotification);
@@ -140,7 +137,7 @@ DefaultConfigComponent::DefaultConfigComponent()
 
 
 
-	neuropixelsButton = std::make_unique<ImageButton>("Neuropixels-PXI");	
+	neuropixelsButton = std::make_unique<ImageButton>("Default Config Selector - Neuropixels-PXI");	
 	File npxIconFile = iconsDir.getChildFile("neuropixels_icon.png");
 	Image npxIcon = ImageFileFormat::loadFrom(npxIconFile);
 	neuropixelsButton->setImages(false, true, true, 
@@ -161,14 +158,14 @@ DefaultConfigComponent::DefaultConfigComponent()
 	addAndMakeVisible(neuropixelsLabel.get());
 
 #ifdef _WIN32
-    neuropixelsButton->setTooltip("Neuropixels-PXI");
+    neuropixelsButton->setTooltip("Acquire data from Neuropixels probes");
 #else
-    neuropixelsButton->setTooltip("Neuropixels-PXI (Unsupported)");
+    neuropixelsButton->setTooltip("Acquire data from Neuropixels probes (Windows only)");
 	neuropixelsButton->setEnabled(false);
 	neuropixelsLabel->setEnabled(false);
 #endif
 
-	goButton = std::make_unique<TextButton>("Load");
+	goButton = std::make_unique<TextButton>("Default Config Selector - Load Button");
 	goButton->setButtonText("Load...");
 	goButton->setColour(TextButton::buttonColourId, Colours::lightgreen);
 	goButton->addListener(this);

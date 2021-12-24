@@ -23,7 +23,7 @@ EventMonitor::~EventMonitor() {}
 
 void EventMonitor::displayStatus()
 {
-	LOGD("Received ", receivedEvents, " totalEvents.");
+	LOGD("Record Node received ", receivedEvents, " total events");
 }
 
 RecordNode::RecordNode() 
@@ -428,8 +428,8 @@ void RecordNode::startRecording()
 				pi->recordedChannels.add(channelMap.size() - 1);
 				chanProcessorMap.add(stream->getSourceNodeId());
 				chanOrderinProc.add(channelIndexInSourceProcessor);
-				//ftsChannelMap.add(streamId); //Shouldn't be necessary anymore
 			}
+
 			channelIndexInRecordNode++;
 			channelIndexInSourceProcessor++;
 		}
@@ -437,61 +437,6 @@ void RecordNode::startRecording()
 		procInfo.add(pi);
 
 	}
-
-
-	/* OLD CODE 
-
-	channelMap.clear();
-	ftsChannelMap.clear();
-	int totChans = continuousChannels.size();
-	OwnedArray<RecordProcessorInfo> procInfo;
-	Array<int> chanProcessorMap;
-	Array<int> chanOrderinProc;
-	int lastProcessor = -1;
-	int lastStreamId = -1;
-	int procIndex = -1;
-	int chanSubIdx = 0;
-
-	int streamIdx = -1;
-
-	int recordedProcessorIdx = -1;
-
-	for (int ch = 0; ch < totChans; ++ch)
-	{
-
-		ContinuousChannel* chan = continuousChannels[ch];
-		int srcIndex = chan->getSourceNodeId();
-		int streamId = chan->getStreamId();
-
-		if (dataChannelStates[streamId][dataChannelOrder[ch]])
-		{
-
-			//TODO: This logic will not work after a channel mapper with channels mapped from different subprocessors!
-			if (chan->getStreamId() != lastStreamId)
-			{
-				recordedProcessorIdx++;
-				startRecChannels.push_back(ch);
-				lastStreamId = chan->getStreamId();
-
-				RecordProcessorInfo* pi = new RecordProcessorInfo();
-				pi->processorId = chan->getSourceNodeId();
-				procInfo.add(pi);
-
-				streamIdx++;
-			}
-
-			//FIX: This assumes each data stream within a processor has the same number of channels
-			int channelIndexInSourceProcessor = streamIdx * dataChannelStates[streamId].size() + dataChannelOrder[ch];
-			channelMap.add(ch);
-
-			procInfo.getLast()->recordedChannels.add(channelMap.size() - 1);
-			chanProcessorMap.add(srcIndex);
-			chanOrderinProc.add(channelIndexInSourceProcessor);
-			ftsChannelMap.add(recordedProcessorIdx);
-		}
-	}
-
-	*/
 
 	int numRecordedChannels = channelMap.size();
 	
@@ -547,8 +492,6 @@ void RecordNode::startRecording()
 		useSynchronizer = static_cast<RecordNodeEditor*> (getEditor())->getSelectedEngineIdx() == 0;
 
 		recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
-
-		//LOGD("Num event channels: ", eventChannelArray.size());
 
 		recordThread->startThread();
 		isRecording = true;
@@ -608,7 +551,8 @@ void RecordNode::setRecordSpikes(bool recordSpikes)
 void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& packet, int samplePosition)
 {
 
-	//Does not receive message events.:q
+	// Only handles TTL events (TEXT events are handled separately)
+
 	eventMonitor->receivedEvents++;
 
 	if (recordEvents) 
@@ -646,8 +590,6 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 void RecordNode::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition)
 {
 
-	//LOGD("Record node got spike!");
-    
 	SpikePtr newSpike = Spike::deserialize(packet, spikeInfo);
 
 	if (!newSpike) 

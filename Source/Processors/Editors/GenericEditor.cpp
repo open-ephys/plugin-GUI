@@ -58,7 +58,7 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
 
     titleFont = Font("Default", 14, Font::bold);
 
-    drawerButton = std::make_unique<DrawerButton>("name");
+    drawerButton = std::make_unique<DrawerButton>(getNameAndId() + " Drawer Button");
     drawerButton->addListener(&drawerButtonListener);
 
     if (!owner->isSplitter() && !owner->isMerger())
@@ -177,7 +177,7 @@ void GenericEditor::addCustomParameterEditor(ParameterEditor* ed, int xPos_, int
 void GenericEditor::refreshColors()
 {
 
-LOGDD(getName(), " refreshing colors.");
+    LOGDD(getNameAndId(), " refreshing colors.");
 
     enum
     {
@@ -190,15 +190,16 @@ LOGDD(getName(), " refreshing colors.");
     };
 
     if (getProcessor()->isSource())
-        backgroundColor = AccessClass::getProcessorList()->findColour(SOURCE_COLOR);// Colour(255, 0, 0);//Colour(int(0.9*255.0f),int(0.019*255.0f),int(0.16*255.0f));
+        backgroundColor = AccessClass::getProcessorList()->findColour(SOURCE_COLOR);
     else if (getProcessor()->isSink())
-        backgroundColor = AccessClass::getProcessorList()->findColour(SINK_COLOR);//Colour(255, 149, 0);//Colour(int(0.06*255.0f),int(0.46*255.0f),int(0.9*255.0f));
+        backgroundColor = AccessClass::getProcessorList()->findColour(SINK_COLOR);
     else if (getProcessor()->isSplitter() || getProcessor()->isMerger() || getProcessor()->isAudioMonitor() || getProcessor()->isUtility())
-        backgroundColor = AccessClass::getProcessorList()->findColour(UTILITY_COLOR);//Colour(40, 40, 40);//Colour(int(0.7*255.0f),int(0.7*255.0f),int(0.7*255.0f));
+        backgroundColor = AccessClass::getProcessorList()->findColour(UTILITY_COLOR);
     else if (getProcessor()->isRecordNode())
-        backgroundColor = AccessClass::getProcessorList()->findColour(RECORD_COLOR);//Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
+        backgroundColor = AccessClass::getProcessorList()->findColour(RECORD_COLOR);
     else
-        backgroundColor = AccessClass::getProcessorList()->findColour(FILTER_COLOR);//Colour(255, 89, 0);//Colour(int(1.0*255.0f),int(0.5*255.0f),int(0.0*255.0f));
+        backgroundColor = AccessClass::getProcessorList()->findColour(FILTER_COLOR);
+
     repaint();
 
 }
@@ -228,7 +229,7 @@ bool GenericEditor::keyPressed(const KeyPress& key)
 
 void GenericEditor::switchSelectedState()
 {
-LOGDD("Switching selected state");
+    LOGDD(getNameAndId(), " switching selected state");
     isSelected = !isSelected;
     repaint();
 }
@@ -238,7 +239,7 @@ void GenericEditor::select()
     isSelected = true;
     repaint();
 
-    LOGA(getNameAndId(), " editor selected.");
+    LOGD(getNameAndId(), " editor selected");
 
     editorWasClicked();
 }
@@ -265,7 +266,6 @@ void GenericEditor::deselect()
 {
     isSelected = false;
     repaint();
-    //setWantsKeyboardFocus(false);
 }
 
 void GenericEditor::setDesiredWidth (int width)
@@ -284,8 +284,10 @@ void GenericEditor::stopRecording()
 
 void GenericEditor::editorStartAcquisition()
 {
+    
+    LOGDD(getNameAndId(), " received message to start acquisition.");
+
 	startAcquisition();
-    LOGDD("GenericEditor received message to start acquisition.");
 
 	if (streamSelector != 0)
 	{
@@ -306,6 +308,9 @@ void GenericEditor::editorStartAcquisition()
 
 void GenericEditor::editorStopAcquisition()
 {
+
+    LOGDD(getNameAndId(), " received message to stop acquisition.");
+
 	stopAcquisition();
 
     if (streamSelector != 0)
@@ -393,7 +398,6 @@ void GenericEditor::paint(Graphics& g)
 
 void GenericEditor::ButtonResponder::buttonClicked(Button* button)
 {
-    LOGA(editor->getNameAndId(), " drawer button clicked.");
     editor->checkDrawerButton(button);
 }
 
@@ -438,7 +442,7 @@ void GenericEditor::update(bool isEnabled_)
 
     GenericProcessor* p = getProcessor();
 
-    LOGDD("Editor for ", p->getName(), " updating settings.");
+    LOGDD(getNameAndId(), " editor updating settings");
 
     int numChannels;
 
@@ -465,7 +469,7 @@ void GenericEditor::update(bool isEnabled_)
 
         for (auto stream : p->getDataStreams())
         {
-            //std::cout << "Selector adding stream with name " << stream->getName() << " : " << stream->getSourceNodeId() << std::endl;
+
             streamSelector->add(stream);
             delayMonitors[stream->getStreamId()] = streamSelector->getDelayMonitor(stream);
             ttlMonitors[stream->getStreamId()] = streamSelector->getTTLMonitor(stream);
@@ -1102,9 +1106,9 @@ Array<GenericEditor*> GenericEditor::getConnectedEditors()
 void GenericEditor::updateSelectedStream(uint16 streamId) 
 {
 
-    //std::cout << "UPDATE SELECTED STREAM" << std::endl;
+    LOGDD(getNameAndId(), " updating selected stream to ", streamId);
+
     selectedStream = streamId;
-   // std::cout << "Selected stream: " << selectedStream << std::endl;
 
     bool streamAvailable = streamId > 0 ? true : false;
 
@@ -1123,7 +1127,6 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
         }
         else if (param->getScope() == Parameter::STREAM_SCOPE)
         {
-            //std::cout << "Updating parameter!" << std::endl;
             if (streamAvailable)
                 ed->setParameter(getProcessor()->getDataStream(streamId)->getParameter(param->getName()));
             else

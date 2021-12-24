@@ -418,7 +418,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     , scrubInterfaceWidth(420)
 {
 
-    scrubDrawerButton = new ScrubDrawerButton("ScrubDrawer");
+    scrubDrawerButton = new ScrubDrawerButton(getNameAndId() + " Scrub Drawer Button");
 	scrubDrawerButton->setBounds(4, 40, 10, 78);
 	scrubDrawerButton->addListener(this);
 	addChildComponent(scrubDrawerButton);
@@ -470,7 +470,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     fileNameLabel->setBounds (50, 25, 140, 20);
     addAndMakeVisible (fileNameLabel);
 
-    recordSelector = new ComboBox ("Recordings");
+    recordSelector = new ComboBox (getNameAndId() + " Recording Selector");
     recordSelector->setBounds (50, 50, 120, 20);
     recordSelector->addListener (this);
     addAndMakeVisible (recordSelector);

@@ -400,8 +400,6 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
 
     };
     
-    LOGA("Added spike channel.");
-    
     spikeChannels.add(new SpikeChannel(spikeChannelSettings));
     
     SpikeChannel* spikeChannel = spikeChannels.getLast();

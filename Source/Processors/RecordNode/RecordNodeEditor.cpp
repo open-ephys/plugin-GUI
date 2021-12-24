@@ -34,7 +34,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 
 	recordNode = parentNode;
 
-	fifoDrawerButton = new FifoDrawerButton("FifoDrawer");
+	fifoDrawerButton = new FifoDrawerButton(getNameAndId() + " Fifo Drawer Button");
 	fifoDrawerButton->setBounds(4, 40, 10, 78);
 	fifoDrawerButton->addListener(this);
 	addAndMakeVisible(fifoDrawerButton);
@@ -42,23 +42,14 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	masterLabel = new Label("masterLabel", "Avail:");
 	masterLabel->setBounds(7, 21, 40, 20);
 	masterLabel->setFont(Font("Small Text", 8.0f, Font::plain));
-	//addAndMakeVisible(masterLabel);
 
 	masterMonitor = new FifoMonitor(recordNode, 0, "Available Disk Space");
 	masterMonitor->setBounds(18, 33, 15, 92);
 	addAndMakeVisible(masterMonitor);
 
-	masterRecord = new RecordToggleButton(recordNode, "MasterRecord");
+	masterRecord = new RecordToggleButton(recordNode, getNameAndId() + " Master Record Button");
 	masterRecord->setBounds(18, 110, 15, 15);
 	masterRecord->addListener(this);
-	//addAndMakeVisible(masterRecord);
-
-	/*
-	engineSelectLabel = new Label("engineSelect", "ENGINE");
-	engineSelectLabel->setBounds(36, 33, 80, 20);
-	engineSelectLabel->setFont(Font("Small Text", 9.0f, Font::plain));
-	addAndMakeVisible(engineSelectLabel);
-	*/
 
 	dataPathLabel = new Label(CoreServices::getDefaultRecordingDirectory().getFullPathName());
 	dataPathLabel->setText(CoreServices::getDefaultRecordingDirectory().getFullPathName(), juce::NotificationType::dontSendNotification);
@@ -92,7 +83,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	recordEventsLabel->setFont(Font("Small Text", 10.0f, Font::plain));
 	addAndMakeVisible(recordEventsLabel);
 
-	eventRecord = new RecordToggleButton(recordNode, "EventRecord");
+	eventRecord = new RecordToggleButton(recordNode, getNameAndId() + " Event Recording Toggle Button");
 	eventRecord->setBounds(120, 93, 15, 15);
 	eventRecord->addListener(this);
 	eventRecord->setToggleState(1, sendNotification); //enable event recortding by default
@@ -103,7 +94,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	recordSpikesLabel->setFont(Font("Small Text", 10.0f, Font::plain));
 	addAndMakeVisible(recordSpikesLabel);
 
-	spikeRecord = new RecordToggleButton(recordNode, "SpikeRecord");
+	spikeRecord = new RecordToggleButton(recordNode, getNameAndId() + " Spike Recording Toggle Button");
 	spikeRecord->setBounds(120, 110, 15, 15);
 	spikeRecord->addListener(this);
 	spikeRecord->setToggleState(1, sendNotification); //enable spike recording by default

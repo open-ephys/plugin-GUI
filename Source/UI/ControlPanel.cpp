@@ -536,21 +536,22 @@ void ControlPanel::updateRecordEngineList()
 	recordEngines.clear();
 	int id = 1;
 
-    LOGC("Num built in engines: ", RecordEngineManager::getNumOfBuiltInEngines());
+    LOGD("Built-in Record Engine count: ", RecordEngineManager::getNumOfBuiltInEngines());
+
 	for (int i = 0; i < RecordEngineManager::getNumOfBuiltInEngines(); i++)
 	{
 		RecordEngineManager* rem = RecordEngineManager::createBuiltInEngineManager(i);
 		recordSelector->addItem(rem->getName(), id++);
-        LOGC("Adding engine: ", rem->getName());
+        LOGD("Adding Record Engine: ", rem->getName());
 		recordEngines.add(rem);
 	}
-    LOGC("Num plugin engines: ", AccessClass::getPluginManager()->getNumRecordEngines());
+    LOGD("Plugin Record Engine count: ", AccessClass::getPluginManager()->getNumRecordEngines());
 	for (int i = 0; i < AccessClass::getPluginManager()->getNumRecordEngines(); i++)
 	{
 		Plugin::RecordEngineInfo info;
 		info = AccessClass::getPluginManager()->getRecordEngineInfo(i);
 		recordSelector->addItem(info.name, id++);
-        LOGC("Adding engine: ", info.name);
+        LOGD("Adding Record Engine: ", info.name);
 		recordEngines.add(info.creator());
 	}
 
@@ -943,23 +944,20 @@ void ControlPanel::comboBoxChanged(ComboBox* combo)
             recordEngines[lastEngineIndex]->toggleConfigWindow();
     }
     ScopedPointer<RecordEngine> re;
-    //AccessClass::getProcessorGraph()->getRecordNode()->clearRecordEngines();
+
     if (combo->getSelectedId() > 0)
     {
-        LOGD("Num engines: ", recordEngines.size());
+        LOGD("Instantiating Record Engine ", combo->getText());
         re = recordEngines[combo->getSelectedId()-1]->instantiateEngine();
     }
     else
     {
-        LOGE("Engine ComboBox: Bad ID");
+        LOGE("Record Engine ComboBox: Bad ID");
         combo->setSelectedId(1,dontSendNotification);
         re = recordEngines[0]->instantiateEngine();
     }
-    //re->setUIComponent(getUIComponent());
     re->registerManager(recordEngines[combo->getSelectedId()-1]);
-    //AccessClass::getProcessorGraph()->getRecordNode()->registerRecordEngine(re);
 
-    //graph->getRecordNode()->newDirectoryNeeded = true;
     newDirectoryButton->setEnabledState(false);
     masterClock->resetRecordTime();
 
@@ -1052,22 +1050,9 @@ void ControlPanel::saveStateToXml(XmlElement* xml)
     XmlElement* controlPanelState = xml->createNewChildElement("CONTROLPANEL");
     controlPanelState->setAttribute("isOpen",open);
 	controlPanelState->setAttribute("recordPath", filenameComponent->getCurrentFile().getFullPathName());
-    //controlPanelState->setAttribute("prependText",prependText->getText());
-    //controlPanelState->setAttribute("appendText",appendText->getText());
     controlPanelState->setAttribute("recordEngine",recordEngines[recordSelector->getSelectedId()-1]->getID());
 
     audioEditor->saveStateToXml(xml);
-
-    /*
-    XmlElement* recordEnginesState = xml->createNewChildElement("RECORDENGINES");
-    for (int i=0; i < recordEngines.size(); i++)
-    {
-        XmlElement* reState = recordEnginesState->createNewChildElement("ENGINE");
-        reState->setAttribute("id",recordEngines[i]->getID());
-        reState->setAttribute("name",recordEngines[i]->getName());
-        recordEngines[i]->saveParametersToXml(reState);
-    }
-    */
 
     filenameConfigWindow->saveStateToXml(xml);
 

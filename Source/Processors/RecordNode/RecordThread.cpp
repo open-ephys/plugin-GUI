@@ -22,8 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "RecordThread.h"
-//#include "RecordEngine.h"
-//#include "../ProcessorGraph/ProcessorGraph.h"
 #include "RecordNode.h"
 
 //#define EVERY_ENGINE for(int eng = 0; eng < m_engineArray.size(); eng++) m_engineArray[eng]

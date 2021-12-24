@@ -34,10 +34,10 @@ SelectorButton::SelectorButton (const String& buttonName)
 {
     setClickingTogglesState (true);
 
-    if (getName().equalsIgnoreCase ("window"))
-        setTooltip ("Open this visualizer in its own window");
+    if (getName().contains ("Window"))
+        setTooltip ("Open visualizer in its own window");
     else
-        setTooltip ("Open this visualizer in a tab");
+        setTooltip ("Open visualizer in a tab");
 }
 
 
@@ -52,7 +52,7 @@ void SelectorButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDo
         g.setColour (Colours::yellow);
 
 
-    if (getName().equalsIgnoreCase ("window"))
+    if (getName().contains ("Window"))
     {
         // window icon
         g.drawRect(0,0,getWidth(),getHeight(),1.0);
@@ -71,7 +71,7 @@ void SelectorButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDo
 
 bool SelectorButton::isOpenWindowButton() const
 {
-    return getName().equalsIgnoreCase ("window");
+    return getName().contains ("Window");
 }
 
 
@@ -97,13 +97,13 @@ VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width)
 
 void VisualizerEditor::initializeSelectors()
 {
-    windowSelector = std::make_unique<SelectorButton> ("window");
+    windowSelector = std::make_unique<SelectorButton> (getNameAndId() + " Visualizer Window Button");
     windowSelector->setBounds (desiredWidth - 40, 7, 14, 10);
     windowSelector->setToggleState (false, dontSendNotification);
     windowSelector->addListener (&dataWindowButtonListener);
     addAndMakeVisible (windowSelector.get());
 
-    tabSelector = std::make_unique<SelectorButton> ("tab");
+    tabSelector = std::make_unique<SelectorButton> (getNameAndId() + " Visualizer Tab Button");
     tabSelector->setToggleState (false, dontSendNotification);
     tabSelector->setBounds (desiredWidth - 20, 7, 15, 10);
     tabSelector->addListener (&dataWindowButtonListener);
@@ -135,7 +135,6 @@ void VisualizerEditor::resized()
 
 void VisualizerEditor::enable()
 {
-    LOGD("   Enabling VisualizerEditor");
 
     if (canvas != nullptr)
         canvas->beginAnimation();
@@ -255,10 +254,10 @@ void VisualizerEditor::saveCustomParametersToXml (XmlElement* xml)
     xml->setAttribute ("Type", "Visualizer");
 
     XmlElement* tabButtonState = xml->createNewChildElement (EDITOR_TAG_TAB);
-    tabButtonState->setAttribute ("Active",tabSelector->getToggleState());
+    tabButtonState->setAttribute ("Active", tabSelector->getToggleState());
 
     XmlElement* windowButtonState = xml->createNewChildElement (EDITOR_TAG_WINDOW);
-    windowButtonState->setAttribute ("Active",windowSelector->getToggleState());
+    windowButtonState->setAttribute ("Active", windowSelector->getToggleState());
 
     if (dataWindow != nullptr)
     {

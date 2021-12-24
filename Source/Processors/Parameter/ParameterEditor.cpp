@@ -58,8 +58,6 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param) : ParameterEdit
 
 void TextBoxParameterEditor::labelTextChanged(Label* label)
 {
-    //std::cout << "Label text: " << label->getText() << std::endl;
-
     if(param->getType() == Parameter::FLOAT_PARAM)
         param->setNextValue(label->getText().getFloatValue());
     else
@@ -72,9 +70,6 @@ void TextBoxParameterEditor::updateView()
     if (param != nullptr)
     {
         valueTextBox->setEditable(true);
-        //std::cout << "Updating view for " << param->getName() << std::endl;
-        //std::cout << "Value is int?: " << param->getValue().isInt() << std::endl;
-        //std::cout << "Value: " << param->getValue().toString() << std::endl;
 
         if(param->getType() == Parameter::FLOAT_PARAM)
             valueTextBox->setText(String(float(param->getValue())), dontSendNotification);
@@ -479,15 +474,12 @@ void SelectedChannelsParameterEditor::buttonClicked(Button* button_)
 
     channelSelector->setChannelButtonColour(Colour(0, 174, 239));
     
-    std::cout << "Setting max selectable channels to " << p->getMaxSelectableChannels() << std::endl;
     channelSelector->setMaximumSelectableChannels(p->getMaxSelectableChannels());
 
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
             button->getScreenBounds(),
             nullptr);
-
-    //myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
 }
 
 void SelectedChannelsParameterEditor::updateView()
@@ -547,8 +539,6 @@ void MaskChannelsParameterEditor::buttonClicked(Button* button_)
         = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
             button->getScreenBounds(),
             nullptr);
-
-    //myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
 }
 
 void MaskChannelsParameterEditor::updateView()

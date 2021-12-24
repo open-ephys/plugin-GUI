@@ -59,7 +59,8 @@ AddProcessor::~AddProcessor()
    
 bool AddProcessor::perform()
 {
-    LOGDD("Performing add processor.");
+    LOGDD("Performing ADD for processor ", nodeId);
+
     GenericProcessor* sourceProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(sourceNodeId);
     
     GenericProcessor* destProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(destNodeId);
@@ -90,7 +91,8 @@ bool AddProcessor::perform()
 
 bool AddProcessor::undo()
 {
-    LOGDD("Undoing add processor.");
+    LOGDD("Undoing ADD for processor ", nodeId);
+
     Array<GenericProcessor*> processorToDelete;
     
     processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
@@ -134,7 +136,8 @@ DeleteProcessor::~DeleteProcessor()
    
 bool DeleteProcessor::perform()
 {
-    LOGDD("Peforming delete processor.");
+    LOGDD("Peforming DELETE for processor ", nodeId);
+
     Array<GenericProcessor*> processorToDelete;
     
     processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
@@ -148,7 +151,8 @@ bool DeleteProcessor::perform()
 
 bool DeleteProcessor::undo()
 {
-    LOGDD("Undoing delete processor.");
+    LOGDD("Undoing DELETE for processor ", nodeId);
+
     Plugin::Description description = editorViewport->getDescriptionFromXml(settings, false);
 
     GenericProcessor* sourceProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(sourceNodeId);
@@ -222,7 +226,7 @@ MoveProcessor::~MoveProcessor()
    
 bool MoveProcessor::perform()
 {
-    LOGDD("Peforming move processor.");
+    LOGDD("Peforming MOVE for processor ", nodeId);
     
     GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
     
@@ -240,9 +244,11 @@ bool MoveProcessor::perform()
 
 bool MoveProcessor::undo()
 {
+
+    LOGDD("Undoing MOVE for processor ", nodeId);
+
     GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
     
-    LOGDD("Undoing move processor.");
     GenericProcessor* sourceProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(originalSourceNodeId);
     
     GenericProcessor* destProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(originalDestNodeId);
@@ -281,6 +287,7 @@ ClearSignalChain::~ClearSignalChain()
 bool ClearSignalChain::perform()
 {
     LOGDD("Performing clear signal chain.");
+
     AccessClass::getProcessorGraph()->clearSignalChain();
     
     return true;
@@ -289,6 +296,7 @@ bool ClearSignalChain::perform()
 bool ClearSignalChain::undo()
 {
     LOGDD("Undoing clear signal chain.");
+
     editorViewport->loadStateFromXml(settings.get());
     
     return true;
@@ -314,6 +322,7 @@ LoadSignalChain::~LoadSignalChain()
 bool LoadSignalChain::perform()
 {
     LOGDD("Performing load signal chain.");
+
     error = editorViewport->loadStateFromXml(newSettings.get());
     
     return true;
@@ -322,6 +331,7 @@ bool LoadSignalChain::perform()
 bool LoadSignalChain::undo()
 {
     LOGDD("Undoing load signal chain.");
+
     error = editorViewport->loadStateFromXml(oldSettings.get());
     
     return true;
@@ -359,7 +369,7 @@ bool LoadPluginSettings::perform()
     
     if (oldPluginType.equalsIgnoreCase(newPluginType))
     {
-        LOGDD("Performing load plugin settings.");
+        LOGDD("Performing load plugin settings for processor ", processorId);
         LOGDD("Getting processor");
         GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(processorId);
         
@@ -385,7 +395,7 @@ bool LoadPluginSettings::perform()
 
 bool LoadPluginSettings::undo()
 {
-    LOGDD("Undoing load plugin settings.");
+    LOGDD("Undoing load plugin settings for processor ", processorId);
     GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(processorId);
     
     processor->parametersAsXml = oldSettings;
@@ -412,6 +422,8 @@ SwitchIO::~SwitchIO()
     
 bool SwitchIO::perform()
 {
+    LOGDD("Performing SwitchIO for processor ", processorId);
+
     GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(processorId);
     
     processor->getEditor()->switchIO(originalPath);
@@ -423,6 +435,9 @@ bool SwitchIO::perform()
     
 bool SwitchIO::undo()
 {
+
+    LOGDD("Undoing SwitchIO for processor ", processorId);
+
     GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(processorId);
     
     processor->getEditor()->switchIO(1 - originalPath);

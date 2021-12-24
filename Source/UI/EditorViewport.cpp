@@ -1114,7 +1114,6 @@ int SignalChainTabComponent::getScrollOffset()
 
 void SignalChainTabComponent::setScrollOffset(int offset)
 {
-    //std::cout << "Setting scroll offset to " << offset << std::endl;
     viewport->setViewPosition(offset, 0);
 }
 
@@ -1272,7 +1271,7 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
 
     error += currentFile.getFileName();
     
-    std::cout << "Editor viewport saved state." << std::endl;
+    LOGD("Editor viewport saved state.");
 
     return error;
     
@@ -1560,11 +1559,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
                     StringArray tokens;
                     tokens.addTokens(versionString, ".", "");
                     
-                    //std::cout << "Version string: " << versionString << std::endl;
-                    //std::cout << "Tokens: " << std::endl;
-                    
-                    for (int i = 0; i < tokens.size(); i++)
-                        std::cout << tokens[i] << std::endl;
+                    LOGD("Version string: ", versionString);
 
                     if (tokens.size() > 1)
                     {
@@ -1583,7 +1578,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
         responseString += "), and is not compatible with the version you're currently running. \n\n";
         responseString += "In order to replicate the signal chain you'll have to re-build it from scratch.";
 
-        AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Incompatible configuration file", responseString);
+        NativeMessageBox::showMessageBox(AlertWindow::WarningIcon, "Incompatible configuration file", responseString);
         
         return "Failed To Open " + currentFile.getFileName();
     }
@@ -1606,9 +1601,9 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 
         responseString += ".\n This file may not load properly. Continue?";
 
-        bool response = AlertWindow::showOkCancelBox(AlertWindow::NoIcon,
-                                                     "Version mismatch", responseString,
-                                                     "Yes", "No", 0, 0);
+        bool response = NativeMessageBox::showOkCancelBox(AlertWindow::NoIcon,
+            "Configuration file version mismatch", responseString);
+
         if (!response)
         {
             return "Failed To Open " + currentFile.getFileName();
