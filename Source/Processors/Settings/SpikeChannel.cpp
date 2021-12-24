@@ -182,7 +182,7 @@ void SpikeChannel::setSourceChannels(Array<const ContinuousChannel*>& newChannel
 
 	//jassert(newChannels.size() == sourceChannels.size());
 
-    std::cout << "SETTING SOURCE CHANNELS: " << newChannels.size() << std::endl;
+    //std::cout << "SETTING SOURCE CHANNELS: " << newChannels.size() << std::endl;
 
 	sourceChannels.clear();
     globalChannelIndexes.clear();
@@ -190,14 +190,14 @@ void SpikeChannel::setSourceChannels(Array<const ContinuousChannel*>& newChannel
 	for (int i = 0; i < newChannels.size(); i++)
 	{
 		sourceChannels.add(newChannels[i]);
-        std::cout << "Spike channel adding source channel: " << newChannels[i] << std::endl;
+        //std::cout << "Spike channel adding source channel: " << newChannels[i] << std::endl;
         
         if (newChannels[i] != nullptr)
             globalChannelIndexes.add(newChannels[i]->getGlobalIndex());
         else
             globalChannelIndexes.add(-1);
 
-        std::cout << " >>> Global index: " << globalChannelIndexes[i] << std::endl;
+        //std::cout << " >>> Global index: " << globalChannelIndexes[i] << std::endl;
 	}
     
 }

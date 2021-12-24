@@ -375,7 +375,7 @@ void FileReader::updateSettings()
     if (gotNewFile)
     {
         
-        std::cout << "GOT NEW FILE" << std::endl;
+        //std::cout << "GOT NEW FILE" << std::endl;
 
         dataStreams.clear();
         continuousChannels.clear();
@@ -471,7 +471,7 @@ String FileReader::handleConfigMessage(String msg)
     else if (tokens[0] == "stop")
         static_cast<FileReaderEditor*> (getEditor())->setPlaybackStartTime(std::stoi(tokens[1].toStdString()));
     else
-        std::cout << "Invalid key" << std::endl;
+        LOGD("Invalid key");
 
     return "File Reader received config: " + msg;
 }

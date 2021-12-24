@@ -26,12 +26,15 @@
 
 #include "../Processors/Parameter/Parameter.h"
 #include "../Processors/GenericProcessor/GenericProcessor.h"
+
 #include <sstream>
 #include "httplib.h"
 #include "json.hpp"
 
 #include "../MainWindow.h"
 #include "../AccessClass.h"
+
+#include "Utils.h"
 
 using json = nlohmann::json;
 
@@ -75,18 +78,18 @@ public:
         svr_->Put("/api/status", [this](const httplib::Request& req, httplib::Response& res) {
             std::string desired_mode;
             std::string desired_data_parent_dir;
-            std::cout << "Received PUT request" << std::endl;
+            LOGD("Received PUT request");
             try {
-                std::cout << "Trying to decode" << std::endl;
+                LOGD("Trying to decode");
                 json request_json;
                 request_json = json::parse(req.body);
-                std::cout << "Parsed" << std::endl;
+                LOGD("Parsed");
                 desired_mode = request_json["mode"];
-                std::cout << "Desired mode: " << desired_mode << std::endl;
+                LOGD("Desired mode: ",desired_mode);
                 desired_data_parent_dir = request_json["data_parent_dir"];
             }
             catch (json::exception& e) {
-                std::cout << "Hit exception" << std::endl;
+                LOGD("Hit exception");
                 res.set_content(e.what(), "text/plain");
                 res.status = 400;
                 return;
@@ -120,17 +123,17 @@ public:
             });
         svr_->Put("/api/message", [this](const httplib::Request& req, httplib::Response& res) {
             std::string message_str;
-            std::cout << "Received PUT request" << std::endl;
+            LOGD("Received PUT request");
             try {
-                std::cout << "Trying to decode" << std::endl;
+                LOGD( "Trying to decode" );
                 json request_json;
                 request_json = json::parse(req.body);
-                std::cout << "Parsed" << std::endl;
+                LOGD( "Parsed" );
                 message_str = request_json["text"];
-                std::cout << "Message string: " << message_str << std::endl;
+                LOGD( "Message string: ", message_str );
             }
             catch (json::exception& e) {
-                std::cout << "Hit exception" << std::endl;
+                LOGD( "Hit exception" );
                 res.set_content(e.what(), "text/plain");
                 res.status = 400;
                 return;
@@ -265,23 +268,23 @@ public:
         
         svr_->Put("/api/processors/([0-9]+)/config", [this](const httplib::Request& req, httplib::Response& res) {
             std::string message_str;
-            std::cout << "Received PUT request" << std::endl;
+            LOGD( "Received PUT request" );
             auto processor = find_processor(req.matches[1]);
             if (processor == nullptr) {
-                std::cout << "Could not find processor" << std::endl;
+                LOGD( "Could not find processor" );
                 res.status = 404;
                 return;
             }
             try {
-                std::cout << "Trying to decode" << std::endl;
+                LOGD( "Trying to decode" );
                 json request_json;
                 request_json = json::parse(req.body);
-                std::cout << "Parsed" << std::endl;
+                LOGD( "Parsed" );
                 message_str = request_json["text"];
-                std::cout << "Message string: " << message_str << std::endl;
+                LOGD( "Message string: ", message_str );
             }
             catch (json::exception& e) {
-                std::cout << "Hit exception" << std::endl;
+                LOGD( "Hit exception" );
                 res.set_content(e.what(), "text/plain");
                 res.status = 400;
                 return;
@@ -308,7 +311,7 @@ public:
                     res.status = 404;
                     return;
                 } else {
-                    std::cout << "Found parameter: " << parameter->getName() << std::endl;
+                    LOGD( "Found parameter: ", parameter->getName() );
                 }
 
                 json request_json;
@@ -316,19 +319,19 @@ public:
                     request_json = json::parse(req.body);
                 }
                 catch (json::exception& e) {
-                    std::cout << "Failed to parse request body." << std::endl;
+                    LOGD( "Failed to parse request body." );
                     res.set_content(e.what(), "text/plain");
                     res.status = 400;
                     return;
                 }
 
                 if (!request_json.contains("value")) {
-                    std::cout << "No 'value' element found." << std::endl;
+                    LOGD( "No 'value' element found." );
                     res.set_content("Request must contain value.", "text/plain");
                     res.status = 400;
                     return;
                 } else {
-                    std::cout << "Found a value." << std::endl;
+                    LOGD( "Found a value." );
                 }
             
                 var val;
@@ -343,7 +346,7 @@ public:
                     return;
                 }
             
-               //std::cout << "Got value: " << String(val) << std::endl;
+               //LOGD( "Got value: " << String(val) );
  
                 if (val.isUndefined()) {
                     res.set_content("Request value could not be converted.", "text/plain");
@@ -373,7 +376,7 @@ public:
                            res.status = 404;
                            return;
                        } else {
-                           std::cout << "Found stream: " << stream->getName() << std::endl;
+                           LOGD( "Found stream: ", stream->getName() );
                        }
             
                         auto parameter = find_parameter(processor, stream->getStreamId(), req.matches[3]);
@@ -382,7 +385,7 @@ public:
                             res.status = 404;
                             return;
                         } else {
-                            std::cout << "Found parameter: " << parameter->getName() << std::endl;
+                            LOGD( "Found parameter: ", parameter->getName() );
                         }
 
                        json request_json;
@@ -390,19 +393,19 @@ public:
                            request_json = json::parse(req.body);
                        }
                        catch (json::exception& e) {
-                           std::cout << "Failed to parse request body." << std::endl;
+                           LOGD( "Failed to parse request body." );
                            res.set_content(e.what(), "text/plain");
                            res.status = 400;
                            return;
                        }
 
                        if (!request_json.contains("value")) {
-                           std::cout << "No 'value' element found." << std::endl;
+                           LOGD( "No 'value' element found." );
                            res.set_content("Request must contain value.", "text/plain");
                            res.status = 400;
                            return;
                        } else {
-                           std::cout << "Found a value." << std::endl;
+                           LOGD( "Found a value." );
                        }
                    
                        var val;
@@ -417,7 +420,7 @@ public:
                            return;
                        }
                    
-                      //std::cout << "Got value: " << String(val) << std::endl;
+                      //LOGD( "Got value: " << String(val) );
         
                        if (val.isUndefined()) {
                            res.set_content("Request value could not be converted.", "text/plain");
@@ -434,18 +437,18 @@ public:
 
         svr_->Put("/api/window/config", [this](const httplib::Request& req, httplib::Response& res) {
             std::string message_str;
-            std::cout << "Received PUT WINDOW request" << std::endl;
+            LOGD( "Received PUT WINDOW request" );
 
             try {
-                std::cout << "Trying to decode" << std::endl;
+                LOGD( "Trying to decode" );
                 json request_json;
                 request_json = json::parse(req.body);
-                std::cout << "Parsed" << std::endl;
+                LOGD( "Parsed" );
                 message_str = request_json["text"];
-                std::cout << "Message string: " << message_str << std::endl;
+                LOGD( "Message string: ", message_str );
             }
             catch (json::exception& e) {
-                std::cout << "Hit exception" << std::endl;
+                LOGD( "Hit exception" );
                 res.set_content(e.what(), "text/plain");
                 res.status = 400;
                 return;
@@ -462,7 +465,7 @@ public:
 
             });
                    
-        std::cout << "Beginning HTTP server on port " << PORT << std::endl;
+        LOGC("Beginning HTTP server on port ", PORT);
         svr_->listen("0.0.0.0", PORT);
     }
 
@@ -475,7 +478,7 @@ public:
 
     void stop() {
         if (svr_) {
-            std::cout << "Shutting down HTTP server" << std::endl;
+            LOGC("Shutting down HTTP server");
             svr_->stop();
         }
         stopThread(1000);
@@ -611,7 +614,7 @@ private:
 
     inline GenericProcessor* find_processor(const std::string& id_string) {
         int processor_id = juce::String(id_string).getIntValue();
-        std::cout << "Processor ID: " << processor_id << std::endl;
+        LOGD("Searching for processor with ID ", processor_id);
 
         auto processors = graph_->getListOfProcessors();
         for (const auto& processor : processors) {

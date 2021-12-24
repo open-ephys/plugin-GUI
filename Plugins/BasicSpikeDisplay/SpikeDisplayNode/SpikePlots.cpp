@@ -65,7 +65,7 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc,
             aspectRatio = 0.5f;
             break;
         default: // unsupported number of axes provided
-            std::cout << "SpikePlot as UNKNOWN, defaulting to SINGLE_PLOT" << std::endl;
+            //std::cout << "SpikePlot as UNKNOWN, defaulting to SINGLE_PLOT" << std::endl;
             nWaveAx = 1;
             nProjAx = 0;
             plotType = SINGLE_PLOT;
@@ -988,7 +988,7 @@ void ProjectionAxes::n2ProjIdx(Projection proj, int* p1, int* p2)
     }
     else
     {
-        std::cout<<"Invalid projection: "<<proj<<"! Cannot determine d1 and d2"<<std::endl;
+        //std::cout<<"Invalid projection: "<<proj<<"! Cannot determine d1 and d2"<<std::endl;
         *p1 = -1;
         *p2 = -1;
         return;

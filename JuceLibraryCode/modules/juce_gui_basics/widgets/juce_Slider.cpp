@@ -23,6 +23,8 @@
   ==============================================================================
 */
 
+#include "../Source/Utils/Utils.h"
+
 namespace juce
 {
 
@@ -330,6 +332,8 @@ public:
     void handleAsyncUpdate() override
     {
         cancelPendingUpdate();
+
+        LOGA("Slider '", owner.getName(), "' set value to ", owner.getValue());
 
         Component::BailOutChecker checker (&owner);
         listeners.callChecked (checker, [&] (Slider::Listener& l) { l.sliderValueChanged (&owner); });

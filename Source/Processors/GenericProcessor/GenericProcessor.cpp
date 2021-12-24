@@ -487,7 +487,7 @@ void GenericProcessor::clearSettings()
     for (auto obj : eventChannels)
     {
 
-        std::cout << obj->getName() << std::endl;
+        //std::cout << obj->getName() << std::endl;
 
         if (!obj->isLocal())
             delete obj;

@@ -44,7 +44,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	masterLabel->setFont(Font("Small Text", 8.0f, Font::plain));
 	//addAndMakeVisible(masterLabel);
 
-	masterMonitor = new FifoMonitor(recordNode, -1);
+	masterMonitor = new FifoMonitor(recordNode, 0, "Available Disk Space");
 	masterMonitor->setBounds(18, 33, 15, 92);
 	addAndMakeVisible(masterMonitor);
 
@@ -278,15 +278,15 @@ void RecordNodeEditor::updateSubprocessorFifos()
 		for (auto const& [streamId, channelStates] : recordNode->dataChannelStates)
 		{
 
-			String name = "SP" + String(streamCount);
-			subProcLabels.add(new Label(name, name));
-			subProcLabels.getLast()->setBounds(13 + streamCount * 20, 24, 40, 20);
-			subProcLabels.getLast()->setFont(Font("Small Text", 7.0f, Font::plain));
-			addAndMakeVisible(subProcLabels.getLast());
-			subProcLabels.getLast()->setVisible(false);
+			//String name = String(streamCount + 1);
+			//subProcLabels.add(new Label(name, name));
+			//subProcLabels.getLast()->setBounds(13 + streamCount * 20, 24, 40, 20);
+			//subProcLabels.getLast()->setFont(Font("Small Text", 7.0f, Font::plain));
+			//addAndMakeVisible(subProcLabels.getLast());
+			//subProcLabels.getLast()->setVisible(false);
 
-			subProcMonitors.add(new FifoMonitor(recordNode, streamId));
-			subProcMonitors.getLast()->setBounds(18 + streamCount * 20, 43, 15, 62);
+			subProcMonitors.add(new FifoMonitor(recordNode, streamId, recordNode->getDataStream(streamId)->getName()));
+			subProcMonitors.getLast()->setBounds(18 + streamCount * 20, 32, 15, 73);
 			addAndMakeVisible(subProcMonitors.getLast());
 			subProcMonitors.getLast()->setVisible(false);
 
@@ -321,6 +321,7 @@ void RecordNodeEditor::buttonClicked(Button *button)
 	else if (button == fifoDrawerButton)
 	{
 		updateSubprocessorFifos();
+
 		if (button->getToggleState())
 			showSubprocessorFifos(true);
 		else
@@ -661,22 +662,29 @@ void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButto
 
 }
 
-FifoMonitor::FifoMonitor(RecordNode* node, uint64 streamId) : recordNode(node), streamId(streamId), fillPercentage(0.5)
+FifoMonitor::FifoMonitor(RecordNode* node, uint16 streamId_, String streamName_) : 
+	recordNode(node), 
+	streamId(streamId_),
+	streamName(streamName_),
+	fillPercentage(0.0)
 {
 
 	startTimer(500);
+	setTooltip(streamName);
 }
 
 /* RECORD CHANNEL SELECTOR LISTENER */
-void FifoMonitor::mouseDoubleClick(const MouseEvent &event)
+void FifoMonitor::mouseDown(const MouseEvent &event)
 {
 
 	// Ignore right-clicks...add functionality for right-clicks later...
 	if (event.mods.isRightButtonDown())
 		return;
 
-	if (streamId < 0) //TODO: Master box was selected; show read-only channel selector
+	if (streamId == 0) // Disk space box was selected
 		return;
+
+	LOGA("Show Record Node channel selector for stream ", streamName);
 
 	channelStates = recordNode->dataChannelStates[streamId];
 	
@@ -706,16 +714,27 @@ void FifoMonitor::channelStateChanged(Array<int> selectedChannels)
 void FifoMonitor::timerCallback()
 {
 
-	if (streamId < 0) /* Disk space monitor */
-	{
-		float diskSpace = (float)recordNode->getDataDirectory().getBytesFreeOnVolume() / recordNode->getDataDirectory().getVolumeTotalSize();
+	//std::cout << "Timer callback for stream " << streamId << std::endl;
 
-		if (diskSpace > 0)
-			setFillPercentage(1.0f - diskSpace);
+	if (streamId == 0) /* Disk space monitor */
+	{
+		float bytesFree = (float) recordNode->getDataDirectory().getBytesFreeOnVolume();
+		float volumeSize = (float) recordNode->getDataDirectory().getVolumeTotalSize();
+
+		float ratio = bytesFree / volumeSize;
+
+		if (ratio > 0)
+			setFillPercentage(1.0f - ratio);
+
+		//std::cout << "Setting fill percentage for " << streamId << " to " << 1 - ratio << std::endl;
+
+		setTooltip(String(bytesFree / pow(2, 30)) + " GB available");
 	}
 	else /* Subprocessor monitor */
 	{
 		setFillPercentage(recordNode->fifoUsage[streamId]);
+
+		//std::cout << "Setting fill percentage for " << streamId << " to " << recordNode->fifoUsage[streamId] << std::endl;
 	}
 
 }

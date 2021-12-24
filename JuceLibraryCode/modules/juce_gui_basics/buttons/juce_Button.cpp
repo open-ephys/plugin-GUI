@@ -23,6 +23,8 @@
   ==============================================================================
 */
 
+#include "../Source/Utils/Utils.h"
+
 namespace juce
 {
 
@@ -397,6 +399,8 @@ void Button::sendClickMessage (const ModifierKeys& modifiers)
 
     if (checker.shouldBailOut())
         return;
+
+    LOGA("Button '", getName(), "' clicked");
 
     buttonListeners.callChecked (checker, [this] (Listener& l) { l.buttonClicked (this); });
 

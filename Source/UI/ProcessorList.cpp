@@ -650,8 +650,6 @@ void ProcessorList::fillItemList()
 	for (auto pluginType : ProcessorManager::getAvailablePluginTypes())
 	{
         
-        std::cout << "PLUGIN TYPE: " << pluginType << std::endl;
-        
 		for (int i = 0; i < ProcessorManager::getNumProcessorsForPluginType(pluginType); i++)
 		{
 

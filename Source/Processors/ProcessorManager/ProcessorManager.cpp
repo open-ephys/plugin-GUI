@@ -189,15 +189,18 @@ namespace ProcessorManager
 	std::unique_ptr<GenericProcessor> createProcessor(Plugin::Description description)
 	{
         
-        std::cout << "DESCRIPTION: " << std::endl;
-        std::cout << "From processor list: " << description.fromProcessorList << std::endl;
-        std::cout << "Name: " << description.name << std::endl;
-        std::cout << "Index: " << description.index << std::endl;
-        std::cout << "Type: " << description.type << std::endl;
-        std::cout << "ProcessorType: " << description.processorType << std::endl;
-        std::cout << "NodeId: " << description.nodeId << std::endl;
-        std::cout << "LibName: " << description.libName << std::endl;
-        std::cout << "LibVersion: " << description.libVersion << std::endl;
+        if (false)
+        {
+            std::cout << "DESCRIPTION: " << std::endl;
+            std::cout << "From processor list: " << description.fromProcessorList << std::endl;
+            std::cout << "Name: " << description.name << std::endl;
+            std::cout << "Index: " << description.index << std::endl;
+            std::cout << "Type: " << description.type << std::endl;
+            std::cout << "ProcessorType: " << description.processorType << std::endl;
+            std::cout << "NodeId: " << description.nodeId << std::endl;
+            std::cout << "LibName: " << description.libName << std::endl;
+            std::cout << "LibVersion: " << description.libVersion << std::endl;
+        }
                 
         if (description.fromProcessorList)
         {

@@ -129,6 +129,9 @@ public:
     /** Get name on title bar. */
     String getDisplayName();
 
+    /** Returns a string containing the editor name and underlying processor ID. */
+    String getNameAndId();
+
 	/** Returns a custom channel number for the Channel Selector buttons. Useful for channel mappers */
 	virtual int getChannelDisplayNumber(int chan) const;
 

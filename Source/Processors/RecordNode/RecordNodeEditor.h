@@ -41,11 +41,12 @@ private:
 };
 
 class FifoMonitor : public Component, 
+					public SettableTooltipClient,
 					public Timer, 
 				    public PopupChannelSelector::Listener
 {
 public:
-	FifoMonitor(RecordNode*, uint64);
+	FifoMonitor(RecordNode* recordNode, uint16 streamId, String streamName);
 
 	void setFillPercentage(float percentage);
 
@@ -53,7 +54,7 @@ public:
 
 	void channelStateChanged(Array<int> selectedChannels);
 
-	void mouseDoubleClick(const MouseEvent &event);
+	void mouseDown(const MouseEvent &event);
 
 	void componentBeingDeleted(Component &component);
 
@@ -66,7 +67,8 @@ private :
 
 	float fillPercentage;
 	RecordNode *recordNode;
-	int streamId;
+	uint16 streamId;
+	String streamName;
 	Random random;
 	
 };

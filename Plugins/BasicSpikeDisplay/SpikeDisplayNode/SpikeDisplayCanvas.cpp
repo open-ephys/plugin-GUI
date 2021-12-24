@@ -234,7 +234,7 @@ void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 
                     plotIndex++;
 
-                    std::cout << "PLOT NUMBER " << plotIndex << std::endl;
+                    //std::cout << "PLOT NUMBER " << plotIndex << std::endl;
 
                     int channelIndex = -1;
 
@@ -245,7 +245,7 @@ void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
                         {
                             channelIndex++;
 
-                            std::cout << "CHANNEL NUMBER " << channelIndex << std::endl;
+                            //std::cout << "CHANNEL NUMBER " << channelIndex << std::endl;
 
                             spikeDisplay->setThresholdForWaveAxis(plotIndex,
                                                                   channelIndex,

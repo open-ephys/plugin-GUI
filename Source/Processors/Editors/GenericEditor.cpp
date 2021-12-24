@@ -238,6 +238,8 @@ void GenericEditor::select()
     isSelected = true;
     repaint();
 
+    LOGA(getNameAndId(), " editor selected.");
+
     editorWasClicked();
 }
 
@@ -391,7 +393,7 @@ void GenericEditor::paint(Graphics& g)
 
 void GenericEditor::ButtonResponder::buttonClicked(Button* button)
 {
-    LOGA("Drawer button clicked.");
+    LOGA(editor->getNameAndId(), " drawer button clicked.");
     editor->checkDrawerButton(button);
 }
 
@@ -1009,6 +1011,12 @@ String GenericEditor::getName()
 {
     return name;
 }
+
+String GenericEditor::getNameAndId()
+{
+    return name + " (" + String(getProcessor()->getNodeId()) + ")";
+}
+
 
 void GenericEditor::tabNumber(int t)
 {

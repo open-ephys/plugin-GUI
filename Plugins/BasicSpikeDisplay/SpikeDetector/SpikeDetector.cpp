@@ -165,7 +165,7 @@ DynamicThresholder::DynamicThresholder(int numChannels) : Thresholder()
 
 void DynamicThresholder::setThreshold(int channel, float threshold)
 {
-    std::cout << "Setting threshold to " << threshold << std::endl;
+    //std::cout << "Setting threshold to " << threshold << std::endl;
     if (channel >= 0 && channel < sigmaLevels.size())
         sigmaLevels.set(channel, threshold);
 }
@@ -254,7 +254,7 @@ void SpikeDetector::parameterValueChanged(Parameter* p)
 {
     if (p->getName().equalsIgnoreCase("name"))
     {
-        std::cout << "Value changed." << std::endl;
+        //std::cout << "Value changed." << std::endl;
         p->getSpikeChannel()->setName(p->getValueAsString());
         CoreServices::updateSignalChain(getEditor());
     }
@@ -320,12 +320,12 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
     Array<var> selectedChannels;
     Array<int> localChannels;
 
-    std::cout << "ADDING SPIKE CHANNEL WITH TYPE " << (int)type << std::endl;
+    //std::cout << "ADDING SPIKE CHANNEL WITH TYPE " << (int)type << std::endl;
     //bool useDefaultChannels = localChannels.size() > 0 ? false : true;
 
-    std::cout << "SpikeDetector adding spike channel." << std::endl;
+    //std::cout << "SpikeDetector adding spike channel." << std::endl;
     
-    std::cout << "Local channels: ";
+    //std::cout << "Local channels: ";
     
     for (int i = 0; i < SpikeChannel::getNumChannels(type); i++)
     {
@@ -700,7 +700,7 @@ void SpikeDetector::saveCustomParametersToXml (XmlElement* xml)
 void SpikeDetector::loadCustomParametersFromXml(XmlElement* xml)
 {
 
-    std::cout << "Spike detector loading params" << std::endl;
+    //std::cout << "Spike detector loading params" << std::endl;
 
     Array<const DataStream*> availableStreams = getDataStreams();
 
@@ -749,26 +749,26 @@ void SpikeDetector::loadCustomParametersFromXml(XmlElement* xml)
 
 bool SpikeDetector::alreadyLoaded(String name, SpikeChannel::Type type, int stream_source)
 {
-    std::cout << "Next channel: " << name << ", " << (int) type << ", " << stream_source << std::endl;
+    //std::cout << "Next channel: " << name << ", " << (int) type << ", " << stream_source << std::endl;
 
     for (auto ch : spikeChannels)
     {
-        std::cout << "Existing channel: " << ch->getName() << ", " << (int)ch->getChannelType() << ", " << getDataStream(ch->getStreamId())->getSourceNodeId() << std::endl;
+        //std::cout << "Existing channel: " << ch->getName() << ", " << (int)ch->getChannelType() << ", " << getDataStream(ch->getStreamId())->getSourceNodeId() << std::endl;
 
         if (ch->isLocal())
         {
             
-            std::cout << "LOCAL" << std::endl;
+            //std::cout << "LOCAL" << std::endl;
 
             if (ch->getName() == name && ch->getChannelType() == type && getDataStream(ch->getStreamId())->getSourceNodeId() == stream_source)
             {
-                std::cout << "found match." << std::endl;
+                //std::cout << "found match." << std::endl;
                 return true;
             }
                 
         }
        else {
-            std::cout << "Not local" << std::endl;
+            //std::cout << "Not local" << std::endl;
         }
     }
 

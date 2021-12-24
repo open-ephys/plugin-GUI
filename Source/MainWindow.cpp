@@ -193,25 +193,30 @@ void MainWindow::shutDownGUI()
 void MainWindow::handleCrash(void* input)
 {
 
-	AlertWindow::showMessageBox(AlertWindow::NoIcon,
-		"Open Ephys has stopped working",
-		"Something caused the GUI to crash. To help fix the problem, please email recoveryConfig.xml to support@open-ephys.org. "
-		"\n\nIf you have any other information about what happened just prior to the crash, please include that in your message.",
-		"Close"
-	);
-
 	String backtrace = SystemStats::getStackBacktrace();
     LOGD("\n", backtrace);
     std::flush(std::cout);
     
     File activityLog = File::getCurrentWorkingDirectory().getChildFile("activity.log");
+	String dt = AccessClass::getControlPanel()->generateDatetimeFromFormat("MM-DD-YYYY_HH_MM_SS");
+	File crashLog = File::getCurrentWorkingDirectory().getChildFile("activity_" + dt + ".log");
     
     if (activityLog.exists())
     {
-        String dt = AccessClass::getControlPanel()->generateDatetimeFromFormat("MM-DD-YYYY_HH_MM_SS");
-        activityLog.copyFileTo(File(File::getCurrentWorkingDirectory().getChildFile("activity_" + dt + ".log")));
+        
+        activityLog.copyFileTo(File(crashLog));
         activityLog.deleteFile();
     }
+
+	String recoveryFileLocation = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml").getFullPathName();
+
+	NativeMessageBox::showMessageBox(AlertWindow::NoIcon,
+		"Open Ephys has stopped working",
+		"To help fix the problem, please email the following files to support@open-ephys.org: \n\n"
+		+ recoveryFileLocation
+		+ "\n\n"
+		+ crashLog.getFullPathName()
+	);
     
 }
 

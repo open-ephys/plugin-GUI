@@ -763,14 +763,13 @@ void ProcessorGraph::restoreParameters()
     // load source node parameters
     for (auto p : rootNodes)
     {
-        std::cout << "Loading root node parameters for " << p->getName() << " : " << p->getNodeId() << std::endl;
         p->loadFromXml();
     }
 
     // update everyone's settings
     for (auto p : rootNodes)
     {
-        std::cout << "Updating settings for " << p->getName() << " : " << p->getNodeId() << std::endl;
+        LOGG("Updating settings for ", p->getName(), " : ", p->getNodeId());
         updateSettings(p, true);
     }
     

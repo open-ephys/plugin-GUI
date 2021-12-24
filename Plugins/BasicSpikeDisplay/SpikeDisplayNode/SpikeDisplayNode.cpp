@@ -109,7 +109,7 @@ void SpikeDisplayNode::setParameter(int param, float val)
             msg += String(ch) + " ";
         }
 
-        std::cout << "MESSAGE: " << msg << std::endl;
+        //std::cout << "MESSAGE: " << msg << std::endl;
         broadcastMessage(msg);
 
     }

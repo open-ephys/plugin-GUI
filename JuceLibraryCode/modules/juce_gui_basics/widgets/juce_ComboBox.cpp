@@ -23,6 +23,8 @@
   ==============================================================================
 */
 
+#include "../Source/Utils/Utils.h"
+
 namespace juce
 {
 
@@ -617,6 +619,8 @@ void ComboBox::removeListener (ComboBox::Listener* l)    { listeners.remove (l);
 void ComboBox::handleAsyncUpdate()
 {
     Component::BailOutChecker checker (this);
+
+    LOGA("ComboBox '", getName(), "' selected option ", getSelectedId(), ": ", getText());
     listeners.callChecked (checker, [this] (Listener& l) { l.comboBoxChanged (this); });
 
     if (checker.shouldBailOut())

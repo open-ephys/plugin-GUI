@@ -72,10 +72,9 @@ public:
             SMALL_RECT windowSize = { 0, 0, 85 - 1, 35 - 1 };
             COORD bufferSize = { 85 , 9999 };
             HANDLE wHnd = GetStdHandle(STD_OUTPUT_HANDLE);
-            SetConsoleTitle("[Open Ephys] Debug Console");
+            SetConsoleTitle("Open Ephys GUI ::: Console");
             SetConsoleWindowInfo(wHnd, true, &windowSize);
             SetConsoleScreenBufferSize(wHnd, bufferSize);
-            std::cout << "Debug console..." << std::endl;
         }
 
 #endif

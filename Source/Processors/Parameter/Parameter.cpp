@@ -467,7 +467,7 @@ void SelectedChannelsParameter::setChannelCount(int count)
 {
     channelCount = count;
     
-    std::cout << getName() << " setting channel count to " << count << std::endl;
+    //std::cout << getName() << " setting channel count to " << count << std::endl;
     
 }
 
@@ -606,7 +606,7 @@ void MaskChannelsParameter::setChannelCount(int count)
     
     channelCount = count;
     
-    std::cout << getName() << " setting channel count to " << count << std::endl;
+    //std::cout << getName() << " setting channel count to " << count << std::endl;
     
 }
 

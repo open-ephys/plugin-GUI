@@ -338,21 +338,23 @@ void PopupChannelSelector::mouseUp(const MouseEvent &event)
         {
             if (button->getBounds().contains(startDragCoords))
             {
-                if(button->getToggleState())
+                if (button->getToggleState())
                 {
                     button->triggerClick();
-                    activeChannels.removeFirstMatchingValue(button->getId());
+                    LOGA("Deselecting channel ", button->getId() + 1);
+                    activeChannels.removeFirstMatchingValue(button->getId() + 1);
                 }
                 else
                 {
                     button->triggerClick();
 
-                    if(activeChannels.size() == maxSelectable)
+                    if(activeChannels.size() == maxSelectable && maxSelectable != nChannels)
                     {
                         getButtonForId(activeChannels.getFirst())->triggerClick();
                         activeChannels.remove(0);
                     }
 
+                    LOGA("Selecting channel ", button->getId() + 1);
                     activeChannels.add(button->getId());
                 }
 
@@ -366,6 +368,8 @@ void PopupChannelSelector::mouseUp(const MouseEvent &event)
 
 void PopupChannelSelector::textEditorReturnKeyPressed(TextEditor& editor)
 {
+
+    LOGA("RANGE select requested: ", editor.getText());
 
     if (editable)
     {
@@ -419,6 +423,8 @@ void PopupChannelSelector::buttonClicked(Button* button)
         
         if (button->getButtonText() == String("ALL"))
         {
+            LOGA("ALL button clicked");
+
             activeChannels.clear();
             
             for (auto* btn : channelButtons)
@@ -435,6 +441,9 @@ void PopupChannelSelector::buttonClicked(Button* button)
         }
         else if (button->getButtonText() == String("NONE"))
         {
+
+            LOGA("NONE button clicked");
+
             for (auto* btn : channelButtons)
                 btn->setToggleState(false, NotificationType::dontSendNotification);
             
@@ -444,6 +453,8 @@ void PopupChannelSelector::buttonClicked(Button* button)
         }
         else if (button->getButtonText() == String("RANGE"))
         {
+            LOGA("RANGE button clicked");
+
             button->setToggleState(true, NotificationType::dontSendNotification);
             this->textEditorReturnKeyPressed(*rangeEditor);
         }
