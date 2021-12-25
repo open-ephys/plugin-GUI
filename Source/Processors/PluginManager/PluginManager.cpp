@@ -189,14 +189,16 @@ void PluginManager::loadPlugins(const File &pluginPath) {
 	for (int i = 0; i < foundDLLs.size(); i++)
 	{
 		LOGD("Loading Plugin: ", foundDLLs[i].getFileNameWithoutExtension(), "... ");
+		
 		int res = loadPlugin(foundDLLs[i].getFullPathName());
+		
 		if (res < 0)
 		{
-			LOGE(" DLL Load FAILED");
+			LOGE("  DLL Load FAILED");
 		}
 		else
 		{
-			LOGD("Loaded with ", res, " plugin", (res > 1 ? "s" : ""));
+			LOGD("  Loaded with ", res, " plugin", (res > 1 ? "s" : ""));
 		}
 	}
 }

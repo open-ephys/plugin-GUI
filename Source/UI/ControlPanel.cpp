@@ -38,13 +38,13 @@ const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
 
 
 FilenameEditorButton::FilenameEditorButton()
-    : TextButton("FilenameEditor")
+    : TextButton("Filename Editor")
 {
     setTooltip("Edit the recording filename");
 }
 
 PlayButton::PlayButton()
-    : DrawableButton("PlayButton", DrawableButton::ImageFitted)
+    : DrawableButton("Play Button", DrawableButton::ImageFitted)
 {
 
     DrawablePath normal, over, down;
@@ -73,7 +73,7 @@ PlayButton::PlayButton()
 }
 
 RecordButton::RecordButton()
-    : DrawableButton("RecordButton", DrawableButton::ImageFitted)
+    : DrawableButton("Record Button", DrawableButton::ImageFitted)
 {
 
     DrawablePath normal, over, down;
@@ -361,7 +361,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     cpb = std::make_unique<ControlPanelButton>(this);
     addAndMakeVisible(cpb.get());
 
-    recordSelector = std::make_unique<ComboBox>();
+    recordSelector = std::make_unique<ComboBox>("Control Panel Record Engine Selector");
     recordSelector->addListener(this);
     addChildComponent(recordSelector.get());
 

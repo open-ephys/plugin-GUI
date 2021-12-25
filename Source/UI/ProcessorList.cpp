@@ -88,7 +88,7 @@ ProcessorList::ProcessorList(Viewport* v) :
 		baseItem->getSubItem(n)->setParentName(category);
 		for (int m = 0; m < baseItem->getSubItem(n)->getNumSubItems(); m++)
 		{
-			baseItem->getSubItem(n)->getSubItem(m)->setParentName(category);// = category;
+			baseItem->getSubItem(n)->getSubItem(m)->setParentName(category);
 		}
 	}
 }
@@ -183,7 +183,7 @@ void ProcessorList::drawItemName(Graphics& g, ProcessorListItem* item)
 		
 		String name = item->getName();
         
-        float scrollbarOffset = 0.0f; //viewport->isVerticalScrollBarShown() ? 15.0f : 0.0f;
+        float scrollbarOffset = 0.0f; 
         float maxWidth = getWidth();
 
 		offsetX = 20.0f;
@@ -246,10 +246,7 @@ void ProcessorList::clearSelectionState()
 
 ProcessorListItem* ProcessorList::getListItemForYPos(int y)
 {
-	int bottom = (yBuffer + itemHeight); // - getScrollAmount();
-
-	LOGDD("Bottom: ", bottom);
-	LOGDD("Y coordinate: ", y);
+	int bottom = (yBuffer + itemHeight);
 
 	if (y < bottom)
 	{
@@ -338,17 +335,14 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 
 	if (listItem != 0)
 	{
-		//LOGDD("Selecting: ", listItem->getName());
+		LOGA("Processor List Selecting: ", listItem->getName());
+
 		if (!listItem->hasSubItems())
 		{
 			clearSelectionState();
 			listItem->setSelected(true);
 		}
 
-	}
-	else
-	{
-		//LOGDD("No selection.");
 	}
 
 	if (listItem != 0)
@@ -420,7 +414,6 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 			else
 			{
 				AccessClass::getUIComponent()->childComponentChanged();
-				// totalHeight = itemHeight + 2*yBuffer;
 			}
 
 		}
@@ -451,8 +444,6 @@ void ProcessorList::mouseMove(const MouseEvent& e)
             hoverItem = listItem;
             maximumNameOffset = 0;
             startTimer(33);
-            
-            //std::cout << "Hover: " << listItem->getName() << std::endl;
         }
     }
 }
@@ -461,7 +452,6 @@ void ProcessorList::mouseMove(const MouseEvent& e)
 void ProcessorList::mouseExit(const MouseEvent& e)
 {
 
-    //std::cout << "Exit" << std::endl;
     hoverItem = nullptr;
     maximumNameOffset = 0;
     stopTimer();
@@ -493,6 +483,8 @@ void ProcessorList::mouseDrag(const MouseEvent& e)
 					if (dragContainer != 0)
 					{
 						Image dragImage(Image::ARGB, 100, 15, true);
+
+						LOGA("Processor List - ", listItem->getName(), " drag start.");
 
 						Graphics g(dragImage);
 						g.setColour(findColour(listItem->colorId));
@@ -641,6 +633,8 @@ void ProcessorList::setColours(Array<Colour> c)
 void ProcessorList::fillItemList()
 {
 
+	LOGD("ProcessorList::fillItemList()");
+
 	baseItem->getSubItem(0)->clearSubItems(); //Sources
 	baseItem->getSubItem(1)->clearSubItems(); //Filters
 	baseItem->getSubItem(2)->clearSubItems(); //Sinks
@@ -654,6 +648,8 @@ void ProcessorList::fillItemList()
 		{
 
             Plugin::Description description = ProcessorManager::getPluginDescription(pluginType, i);
+
+			LOGD("Processor List - creating item for ", description.name);
             
             ProcessorListItem* item = new ProcessorListItem(description.name,
                                             i,

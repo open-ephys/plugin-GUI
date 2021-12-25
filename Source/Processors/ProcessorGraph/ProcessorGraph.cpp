@@ -846,7 +846,7 @@ bool ProcessorGraph::isBufferNeededLater(int inputNodeId,
     bool* isValid)
 
 {
-    LOGG(inputNodeId, ":", inputIndex, " --> ", outputNodeId, ":", outputIndex);
+    //LOGG(inputNodeId, ":", inputIndex, " --> ", outputNodeId, ":", outputIndex);
 
     ChannelKey key;
     key.inputNodeId = inputNodeId;
@@ -861,21 +861,6 @@ bool ProcessorGraph::isBufferNeededLater(int inputNodeId,
         *isValid = true;
         return bufferLookupMap[key];
     }
-
-    /*GenericProcessor* inputProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(inputNodeId);
-    GenericProcessor* outputProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(outputNodeId);
-
-    if (inputProcessor != nullptr && outputProcessor != nullptr)
-      
-    {
-        if (inputProcessor->isSource() && inputIndex == -1 && inputProcessor == outputProcessor)
-        {
-            bufferLookupMap.insert(std::make_pair(key, true));
-            *isValid = true;
-            return true;
-        }
-        
-    }*/
 
     *isValid = false;
 
@@ -1533,7 +1518,7 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
             cs.channelIndex = chan;
             cd.channelIndex = dest->getIndexOfMatchingChannel(source->getContinuousChannel(chan));
 
-            LOGG("  Source channel: ",", Dest Channel: ", cd.channelIndex);
+            LOGG("  Source channel: ", cs.channelIndex, ", Dest Channel: ", cd.channelIndex);
 
             if (cd.channelIndex > -1)
             {

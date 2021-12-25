@@ -111,9 +111,7 @@ void AudioMonitor::updatePlaybackBuffer()
 
 void AudioMonitor::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 {
-    //std::cout << "Audio card sample rate: " << sampleRate_ << std::endl;
-    //std::cout << "Samples per block: " << estimatedSamplesPerBlock << std::endl;
-    
+
 	destBufferSampleRate = sampleRate_;
     estimatedSamples = estimatedSamplesPerBlock;
     recreateBuffers();
@@ -139,9 +137,6 @@ void AudioMonitor::recreateBuffers()
         
         ratio.emplace(i, sourceBufferSampleRate[i]/destBufferSampleRate);
         
-        //std::cout << "Incoming sample rate " << i << ": " << sourceBufferSampleRate[i] << std::endl;
-        //std::cout << "Ratio " << i << ": " << ratio[i] << std::endl;
-        //std::cout << "Samples expected " << i << ": " << numSamplesExpected[i] << std::endl;
     }
 
     samplesInBackupBuffer.clear();
@@ -169,8 +164,8 @@ void AudioMonitor::recreateBuffers()
 
 void AudioMonitor::parameterValueChanged(Parameter* param)
 {
-    std::cout << "---> Value changed for " << param->getName() << " : " << (int) param->getValue() << std::endl;
-
+    
+    LOGD("Audio Monitor: Value changed for ", param->getName(), ": ", (int)param->getValue());
 
     if (param->getName().equalsIgnoreCase("Channels"))
     {
@@ -185,9 +180,7 @@ void AudioMonitor::parameterValueChanged(Parameter* param)
             int localIndex =(int) activeChannels->getReference(i);
             
             int globalIndex = getDataStream(selectedStream)->getContinuousChannels()[localIndex]->getGlobalIndex();
-            
-             //std::cout << "CHANNEL " << i << " stream " << selectedStream <<  " : " << localIndex << " : " << globalIndex << std::endl;
-            
+                        
             updateFilter(i, selectedStream);
         }
         
@@ -229,6 +222,8 @@ void AudioMonitor::updateFilter(int i, uint16 streamId)
 
 void AudioMonitor::handleBroadcastMessage(String msg)
 {
+
+    LOGD("Audio Monitor received message: ", msg);
     
     StringArray parts = StringArray::fromTokens(msg, " ", "");
 
@@ -414,8 +409,6 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                     
                     //std::cout << "Total copied: " << samplesToCopyFromOverflowBuffer + samplesToCopyFromIncomingBuffer << std::endl;
 
-                    
-                    
                     // now that our tempBuffer is ready, we can filter it and copy it into the
                     // original buffer
                     float* ptr = tempBuffer->getWritePointer(0);

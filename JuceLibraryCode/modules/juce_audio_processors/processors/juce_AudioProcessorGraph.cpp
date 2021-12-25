@@ -344,7 +344,7 @@ struct RenderSequenceBuilder
         : graph (g), sequence (s)
     {
 
-        LOGC("Creating rendering sequence for graph");
+        LOGG("Creating rendering sequence for graph");
 
         int64 start = Time::getHighResolutionTicks();
 
@@ -352,9 +352,9 @@ struct RenderSequenceBuilder
 
         double interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        LOGC("Created ordered nodes list in ", interval * 1000, " milliseconds.");
+        LOGG("Created ordered nodes list in ", interval * 1000, " milliseconds.");
 
-        LOGG("  Creating buffer 0");
+        //LOGG("  Creating buffer 0");
         audioBuffers.add (AssignedBuffer::createReadOnlyEmpty()); // first buffer is read-only zeros
         midiBuffers .add (AssignedBuffer::createReadOnlyEmpty());
 
@@ -366,10 +366,10 @@ struct RenderSequenceBuilder
         {
             createRenderingOpsForNode (*orderedNodes.getUnchecked(i), i);
 
-            LOGG(" * Marking unused audio buffers.");
+            //LOGG(" * Marking unused audio buffers.");
             markAnyUnusedBuffersAsFree (audioBuffers, i);
 
-            LOGG(" * Marking unused midi buffers.");
+            //LOGG(" * Marking unused midi buffers.");
             markAnyUnusedBuffersAsFree (midiBuffers, i);
         }
 
@@ -384,7 +384,7 @@ struct RenderSequenceBuilder
 
         interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        LOGC("Finished building rendering sequence in ", interval * 1000, " milliseconds.");
+        LOGG("Finished building rendering sequence in ", interval * 1000, " milliseconds.");
     }
 
     //==============================================================================
@@ -703,7 +703,7 @@ struct RenderSequenceBuilder
     void createRenderingOpsForNode (AudioProcessorGraph::Node& node, const int ourRenderingIndex)
     {
 
-        LOGC("Creating rendering ops for ", node.getProcessor()->getName(), " (index ", ourRenderingIndex, ")");
+        LOGG("Creating rendering ops for ", node.getProcessor()->getName(), " (index ", ourRenderingIndex, ")");
 
         int64 start = Time::getHighResolutionTicks();
 
@@ -783,7 +783,7 @@ struct RenderSequenceBuilder
 
         interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        LOGC(" ", "Finished in ", interval * 1000, " milliseconds");
+        LOGG(" ", "Finished in ", interval * 1000, " milliseconds");
     }
 
     //==============================================================================
@@ -845,7 +845,7 @@ struct RenderSequenceBuilder
 
         double interval = Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start);
 
-        LOGC("   Marking unused buffers took ", interval * 1000, " milliseconds.");
+        LOGG("   Marking unused buffers took ", interval * 1000, " milliseconds.");
 
             
     }
@@ -854,11 +854,11 @@ struct RenderSequenceBuilder
                               int inputChannelOfIndexToIgnore,
                               AudioProcessorGraph::NodeAndChannel output) 
     {
-        LOGG("    isBufferNeededLater? ",
-            "Rendering index: ", stepIndexToSearchFrom, ", ",
-            "Channel to ignore: ", inputChannelOfIndexToIgnore, ", Output to check: ",
-            output.nodeID.uid, ":",
-            output.channelIndex);
+        //LOGG("    isBufferNeededLater? ",
+        //    "Rendering index: ", stepIndexToSearchFrom, ", ",
+        //    "Channel to ignore: ", inputChannelOfIndexToIgnore, ", Output to check: ",
+        //    output.nodeID.uid, ":",
+        //    output.channelIndex);
 
         bool isValid;
 
@@ -891,27 +891,25 @@ struct RenderSequenceBuilder
         if (isValid)
             return prediction;
 
-        LOGG("PREDICTION: ", prediction ? "TRUE" : "FALSE");
-        LOGG("ISVALID: ", isValid ? "TRUE" : "FALSE");
+        //LOGG("PREDICTION: ", prediction ? "TRUE" : "FALSE");
+        //LOGG("ISVALID: ", isValid ? "TRUE" : "FALSE");
 
-       // return false;
         uint16 streamId;
 
         while (stepIndexToSearchFrom < orderedNodes.size())
         {
             auto* node = orderedNodes.getUnchecked (stepIndexToSearchFrom);
 
-            LOGG("        Checking ", node->getProcessor()->getName(), " ");
+            //LOGG("        Checking ", node->getProcessor()->getName(), " ");
 
             if (output.isMIDI()) // midi channel
             {
-                //std::cout << "MIDI CHANNEL" << std::endl;
 
                 if (inputChannelOfIndexToIgnore != AudioProcessorGraph::midiChannelIndex
                     && graph.isConnected({ { output.nodeID, AudioProcessorGraph::midiChannelIndex },
                                             { node->nodeID,  AudioProcessorGraph::midiChannelIndex } }))
                 {
-                    LOGG("         --> MIDI CH: TRUE");
+                    //LOGG("         --> MIDI CH: TRUE");
                     
                     if (isValid)
                         jassert(prediction);
@@ -928,13 +926,13 @@ struct RenderSequenceBuilder
             }
             else // audio channel
             {
-                LOGG("         Total inputs: ", node->getProcessor()->getTotalNumInputChannels(), " ");
+                //LOGG("         Total inputs: ", node->getProcessor()->getTotalNumInputChannels(), " ");
 
                 for (int i = 0; i < node->getProcessor()->getTotalNumInputChannels(); ++i)
                 {
                     if (i != inputChannelOfIndexToIgnore && graph.isConnected({ output, { node->nodeID, i } }))
                     {
-                        LOGG("         --> CH ", i, ": TRUE");
+                        //LOGG("         --> CH ", i, ": TRUE");
 
                         if (isValid)
                             jassert(prediction);
@@ -954,7 +952,7 @@ struct RenderSequenceBuilder
             ++stepIndexToSearchFrom;
         }
 
-        LOGG("         ---> FALSE");
+        //LOGG("         ---> FALSE");
         
         if (isValid)
             jassert(!prediction);

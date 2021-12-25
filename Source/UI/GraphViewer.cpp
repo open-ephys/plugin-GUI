@@ -174,8 +174,6 @@ void GraphViewer::paint (Graphics& g)
     g.setOpacity(1.0f);
     g.setColour (Colours::grey);
     
-    //g.drawFittedText ("open ephys", 40, 40, getWidth()-50, getHeight()-60, Justification::bottomRight, 100);
-    
     g.setFont (Font("Small Text", 14, Font::plain));
     g.drawFittedText (currentVersionText, 40, 40, getWidth()-55, getHeight()-50, Justification::bottomRight, 100);
     
@@ -570,8 +568,7 @@ void GraphNode::updateBoundaries()
 
 void GraphNode::verticalShift(int pixels)
 {
-    std::cout << "Node " << getName() << " shifting by " << pixels << " pixels " << std::endl;
-    
+ 
     setBounds(getX(), getY() + pixels, getWidth(), getHeight());
 
     if (!processor->isSplitter())

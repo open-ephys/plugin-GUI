@@ -38,7 +38,7 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     streamIsStillNeeded(true),
     acquisitionIsActive(false)
 {
-    LOGD("Adding stream ", getStreamId(), " with ", stream->getChannelCount(), " channels ");
+    LOGD(editor->getNameAndId(), " adding stream ", getStreamId(), " with ", stream->getChannelCount(), " channels ");
 
     updateInfoString();
 
@@ -154,7 +154,7 @@ void StreamInfoView::buttonClicked(Button* button)
         setEnabled(!isEnabled);
         enableButton->setToggleState(isEnabled, dontSendNotification);
 
-        LOGD("Stream ", getStreamId(), " enabled: ", isEnabled);
+        //LOGD("Stream ", getStreamId(), " enabled: ", isEnabled);
 
         repaint();
         editor->streamEnabledStateChanged(getStreamId(), isEnabled);
@@ -239,27 +239,27 @@ bool StreamSelector::checkStream(const DataStream* streamToCheck)
 
     std::map<uint16, bool>::iterator it = streamStates.begin();
 
-    LOGD("STREAM STATES");
     while (it != streamStates.end())
     {
         // Accessing KEY from element pointed by it.
         uint16 streamId = it->first;
         // Accessing VALUE from element pointed by it.
         bool state = it->second;
-        LOGD(streamId, " :: ", state);
+        //LOGD(streamId, " :: ", state);
+
         // Increment the Iterator to point to next entry
         it++;
     }
 
     if (streamStates.count(streamToCheck->getStreamId()) > 0)
     {
-        LOGD(" Stream Selector returning ", streamStates[streamToCheck->getStreamId()]);
+        //LOGD(" Stream Selector returning ", streamStates[streamToCheck->getStreamId()]);
         return streamStates[streamToCheck->getStreamId()];
     }
         
     else
     {
-        LOGD(" Stream not found, returning 1.");
+        //LOGD(" Stream not found, returning 1.");
         return true;
     }
         
@@ -320,8 +320,8 @@ void StreamSelector::resized()
     rightScrollButton->setBounds(getWidth() - 20, 2, 18, 18);
     streamSelectorButton->setBounds(20, 2, getWidth() - 40, 18);
 
-    LOGD("StreamSelector resized, num streams: ", streams.size());
-    LOGD(" Scroll offset: ", scrollOffset.getCurrentValue());
+    //LOGD("StreamSelector resized, num streams: ", streams.size());
+    //LOGD(" Scroll offset: ", scrollOffset.getCurrentValue());
 
     for (int i = 0; i < streams.size(); i++)
     {
