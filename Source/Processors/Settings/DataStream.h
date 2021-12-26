@@ -94,6 +94,10 @@ public:
 	*/
 	void clearChannels();
 
+	/** Same as above, but for continuous channels only
+	*/
+	void clearContinuousChannels();
+
 	/** Adds a spike, continuous, or event channel to the DataStream. 
 	* Sets the channel's localIndex.
 	*/

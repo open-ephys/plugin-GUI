@@ -33,7 +33,7 @@
     component - button manager. It is responsible for positioning of buttons, any animations
     during switching, etc.
 
-    All buttons will be stored lineary - either in horizontal or vertical
+    All buttons will be stored linearly - either in horizontal or vertical
     box-like component. (only horizontal mode available now)
 
 */
@@ -41,6 +41,8 @@ class PLUGIN_API LinearButtonGroupManager : public ButtonGroupManager
                                           , private Timer
 {
 public:
+
+    /** Constructor */
     LinearButtonGroupManager();
 
     //==============================================================================

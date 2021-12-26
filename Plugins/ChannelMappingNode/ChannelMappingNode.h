@@ -115,8 +115,6 @@ private:
     /** Holds settings for individual streams*/
     StreamSettings<ChannelMapSettings> settings;
 
-    uint16 currentStream;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelMappingNode);
 };
 

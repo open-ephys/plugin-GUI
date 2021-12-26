@@ -38,7 +38,7 @@
 
 /* Log Graph -- gets logs related to processor graph generation/modification events */
 #define LOGG(...) \
-    OELogger::instance().LOGConsole("[open-ephys][graph] ", __VA_ARGS__);
+    OELogger::instance().LOGFile("[open-ephys][graph] ", __VA_ARGS__);
 
 /* Thread-safe logger */
 class OELogger

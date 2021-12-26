@@ -43,12 +43,12 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode)
     electrodeButtonHolder = std::make_unique<Component>();
     electrodeButtonViewport->setViewedComponent(electrodeButtonHolder.get(), false);
 
-    loadButton = std::make_unique<LoadButton>();
+    loadButton = std::make_unique<LoadButton>(getNameAndId() + " Load Prb File");
     loadButton->addListener(this);
     loadButton->setBounds(325,5,15,15);
     addAndMakeVisible(loadButton.get());
 
-    saveButton = std::make_unique<SaveButton>();
+    saveButton = std::make_unique<SaveButton>(getNameAndId() + " Save Prb File");
     saveButton->addListener(this);
     saveButton->setBounds(305,5,15,15);
     addAndMakeVisible(saveButton.get());
@@ -92,8 +92,10 @@ void ChannelMappingEditor::refreshElectrodeButtons()
     {
         ElectrodeButton* button = new ElectrodeButton(buttonOrder[i]+1);
         button->setRadioGroupId(0);
+        button->setClickingTogglesState(false);
+        button->setToggleState(true, dontSendNotification);
         electrodeButtonHolder->addAndMakeVisible(button);
-        button->addListener(this);
+        button->addMouseListener(this, true);
         button->setBounds(column*width, row*height, width, height);
         totalWidth =  jmax(totalWidth, ++column*width);
         
@@ -126,10 +128,10 @@ void ChannelMappingEditor::startAcquisition()
 {
     reorderActive = false;
 
-    for (auto button : electrodeButtons)
-    {
-        button->setEnabled(false);
-    }
+    //for (auto button : electrodeButtons)
+    //{
+    //    button->setEnabled(false);
+    //}
 }
 
 
@@ -137,10 +139,10 @@ void ChannelMappingEditor::stopAcquisition()
 {
     reorderActive = true;
 
-    for (auto button : electrodeButtons)
-    {
-        button->setEnabled(true);
-    }
+    //for (auto button : electrodeButtons)
+    //{
+    //    button->setEnabled(true);
+    //}
 }
 
 
@@ -148,16 +150,8 @@ void ChannelMappingEditor::stopAcquisition()
 void ChannelMappingEditor::buttonClicked(Button* button)
 {
 
-    if (electrodeButtons.contains((ElectrodeButton*) button))
+    if (button == saveButton.get())
     {
-        ElectrodeButton* b = (ElectrodeButton*)button;
-
-        std::cout << "Button " << b->getChannelNum() << " clicked " << std::endl;
-    }
-
-    else if (button == saveButton.get())
-    {
-        //std::cout << "Save button clicked." << std::endl;
 
         if (!acquisitionIsActive)
         {
@@ -179,7 +173,6 @@ void ChannelMappingEditor::buttonClicked(Button* button)
 
     } else if (button == loadButton.get())
     {
-        //std::cout << "Load button clicked." << std::endl;
 
         if (!acquisitionIsActive)
         {
@@ -216,18 +209,69 @@ void ChannelMappingEditor::loadPrbFile(File& file)
 }
 
 
+void ChannelMappingEditor::mouseDown(const MouseEvent& e)
+{
+
+    if (e.mods.isRightButtonDown())
+    {
+
+        if (electrodeButtons.contains((ElectrodeButton*) e.originalComponent))
+        {
+            ElectrodeButton* button = (ElectrodeButton*) e.originalComponent;
+
+            PopupMenu menu;
+
+            int buttonIndex = electrodeButtons.indexOf(button);
+
+            ChannelMappingNode* processor = (ChannelMappingNode*)getProcessor();
+            Array<bool> buttonStates = processor->getChannelEnabledState(getCurrentStream());
+
+            bool isActive = buttonStates[buttonIndex];
+
+            String displayString;
+
+            if (isActive)
+            {
+                displayString = "Disable Input Channel "; 
+            }
+            else {
+                displayString = "Enable Input Channel ";
+            }
+
+            displayString += String(button->getChannelNum());
+
+            menu.addItem(1,     // index
+                displayString,  // message
+                true);          // isSelectable
+
+            const int result = menu.show(); // returns 0 if nothing is selected
+
+            if (result > 0)
+            {
+                std::cout << "Selected." << std::endl;
+                processor->setChannelEnabled(getCurrentStream(), buttonIndex, !isActive);
+                CoreServices::updateSignalChain(this);
+            }
+            else {
+                std::cout << "Not Selected." << std::endl;
+            }
+        }
+
+        
+    }
+}
+
+
 void ChannelMappingEditor::mouseDrag(const MouseEvent& e)
 {
 
-    std::cout << "Drag" << std::endl;
-
     if (reorderActive)
     {
-        std::cout << "Active " << std::endl;
+        //std::cout << "Active " << std::endl;
 
         if (!isDragging) 
         {
-            std::cout << "Not dragging " << std::endl;
+            //std::cout << "Not dragging " << std::endl;
 
             std::cout << e.originalComponent->getName() << std::endl;
 
@@ -353,11 +397,27 @@ void ChannelMappingEditor::mouseDrag(const MouseEvent& e)
 
 void ChannelMappingEditor::mouseUp(const MouseEvent& e)
 {
+
     if (isDragging)
     {
         isDragging = false;
+        
         electrodeButtons[lastHoverButton]->setVisible(true);
-        int from, to;
+
+        Array<int> order;
+
+        for (auto button : electrodeButtons)
+        {
+            order.add(button->getChannelNum() - 1);
+        }
+
+        ChannelMappingNode* processor = (ChannelMappingNode*)getProcessor();
+
+        processor->setChannelOrder(getCurrentStream(), order);
+
+        CoreServices::updateSignalChain(this);
+        
+        /*int from, to;
         if (lastHoverButton == initialDraggedButton)
         {
             return;
@@ -371,7 +431,7 @@ void ChannelMappingEditor::mouseUp(const MouseEvent& e)
         {
             from = initialDraggedButton;
             to = lastHoverButton;
-        }
+        }*/
 
         //for (int i=from; i <= to; i++)
         //{

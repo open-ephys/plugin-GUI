@@ -958,7 +958,7 @@ void TriangleButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDow
 
 }
 
-LoadButton::LoadButton() : ImageButton("Load")
+LoadButton::LoadButton(const String& name) : ImageButton(name)
 {
 
     Image icon = ImageCache::getFromMemory(BinaryData::upload2_png,
@@ -985,7 +985,7 @@ LoadButton::~LoadButton()
 
 }
 
-SaveButton::SaveButton() : ImageButton("Save")
+SaveButton::SaveButton(const String& name) : ImageButton(name)
 {
     Image icon = ImageCache::getFromMemory(BinaryData::floppy5_png,
                                            BinaryData::floppy5_pngSize);

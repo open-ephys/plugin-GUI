@@ -977,7 +977,9 @@ bool EditorViewport::isSignalChainEmpty()
 ////////////////SIGNAL CHAIN TAB BUTTON///////////
 ///////////////////////////////////////////////////////////////////
 
-SignalChainTabButton::SignalChainTabButton(int index) : Button("Name"), num(index)
+SignalChainTabButton::SignalChainTabButton(int index) : 
+    Button("Signal Chain Tab Button " + String(index)), 
+    num(index)
 {
     setRadioGroupId(99);
     setClickingTogglesState(true);
@@ -1300,15 +1302,15 @@ std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
 
     Time currentTime = Time::getCurrentTime();
 
-    XmlElement* date = info->createNewChildElement("DATE");
-    date->addTextElement(currentTime.toString(true, true, true, true));
-
-    XmlElement* operatingSystem = info->createNewChildElement("OS");
-    operatingSystem->addTextElement(SystemStats::getOperatingSystemName());
-
-    XmlElement* machineName = info->createNewChildElement("MACHINE");
-    machineName->addTextElement(SystemStats::getComputerName());
+    info->createNewChildElement("DATE")->addTextElement(currentTime.toString(true, true, true, true));
+    info->createNewChildElement("OS")->addTextElement(SystemStats::getOperatingSystemName());
     
+    XmlElement* machine = info->createNewChildElement("MACHINE");
+    machine->setAttribute("name", SystemStats::getComputerName());
+    machine->setAttribute("cpu_model", SystemStats::getCpuModel());
+    machine->setAttribute("cpu_speed_mhz", SystemStats::getCpuSpeedInMegahertz());
+    machine->setAttribute("cpu_num_cores", SystemStats::getNumCpus());
+
     Array<GenericProcessor*> rootNodes = AccessClass::getProcessorGraph()->getRootNodes();
     
     for (int i = 0; i < rootNodes.size(); i++)
@@ -1510,6 +1512,8 @@ const String EditorViewport::loadState(File fileToLoad)
 {
     
     currentFile = fileToLoad;
+
+    LOGC("Loading configuration from ", fileToLoad.getFullPathName());
 
     XmlDocument doc(currentFile);
     std::unique_ptr<XmlElement> xml = doc.getDocumentElement();

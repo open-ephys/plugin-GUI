@@ -390,7 +390,7 @@ private:
 class PLUGIN_API LoadButton : public ImageButton
 {
 public:
-    LoadButton();
+    LoadButton(const String& name);
     ~LoadButton();
 };
 
@@ -403,7 +403,7 @@ public:
 class PLUGIN_API SaveButton : public ImageButton
 {
 public:
-    SaveButton();
+    SaveButton(const String& name);
     ~SaveButton();
 };
 

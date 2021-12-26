@@ -423,8 +423,6 @@ void PopupChannelSelector::buttonClicked(Button* button)
         
         if (button->getButtonText() == String("ALL"))
         {
-            LOGA("ALL button clicked");
-
             activeChannels.clear();
             
             for (auto* btn : channelButtons)
@@ -441,9 +439,6 @@ void PopupChannelSelector::buttonClicked(Button* button)
         }
         else if (button->getButtonText() == String("NONE"))
         {
-
-            LOGA("NONE button clicked");
-
             for (auto* btn : channelButtons)
                 btn->setToggleState(false, NotificationType::dontSendNotification);
             
@@ -453,8 +448,6 @@ void PopupChannelSelector::buttonClicked(Button* button)
         }
         else if (button->getButtonText() == String("RANGE"))
         {
-            LOGA("RANGE button clicked");
-
             button->setToggleState(true, NotificationType::dontSendNotification);
             this->textEditorReturnKeyPressed(*rangeEditor);
         }

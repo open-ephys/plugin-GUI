@@ -38,7 +38,8 @@
 
 class ChannelMappingEditor : public GenericEditor,
     public DragAndDropContainer,
-    public Button::Listener
+    public Button::Listener,
+    public MouseListener
 
 {
 public:
@@ -64,8 +65,9 @@ public:
     void stopAcquisition() override;
 
     /** Mouse actions */
-    void mouseDrag(const MouseEvent& e);
-    void mouseUp(const MouseEvent& e);
+    void mouseDrag(const MouseEvent& e) override;
+    void mouseUp(const MouseEvent& e) override;
+    void mouseDown(const MouseEvent& e) override;
 
     /** Called when the editor is collapsed or re-opened*/
     void collapsedStateChanged();

@@ -35,17 +35,28 @@ ChannelMapSettings::ChannelMapSettings()
 
 void ChannelMapSettings::updateNumChannels(int newChannelCount)
 {
-    
-    if (newChannelCount < channelOrder.size())
+
+    Array<int> newChannelOrder;
+    Array<bool> newIsEnabled;
+
+    // handle case where channel order is reduced
+    for (int i = 0; i < channelOrder.size(); i++)
     {
-        // TODO: deal with case where some channels may be out of range
-    }
-    else {
-        for (int i = channelOrder.size(); i < newChannelCount; i++)
+        if (channelOrder[i] < newChannelCount)
         {
-            channelOrder.add(i);
-            isEnabled.add(true);
+            newChannelOrder.add(channelOrder[i]);
+            newIsEnabled.add(isEnabled[i]);
         }
+    }
+
+    channelOrder = newChannelOrder;
+    isEnabled = newIsEnabled;
+
+    // add more channels if necessary
+    for (int i = channelOrder.size(); i < newChannelCount; i++)
+    {
+        channelOrder.add(i);
+        isEnabled.add(true);
     }
 
 }
@@ -56,9 +67,8 @@ void ChannelMapSettings::toXml(XmlElement* xml)
     for (int ch = 0; ch < channelOrder.size(); ch++)
     {
         XmlElement* node = xml->createNewChildElement("CH");
-        xml->setAttribute("index", ch);
-        xml->setAttribute("order", channelOrder[ch]);
-        xml->setAttribute("enabled", isEnabled[ch]);
+        node->setAttribute("index", channelOrder[ch]);
+        node->setAttribute("enabled", isEnabled[ch]);
     }
 
 }
@@ -74,7 +84,7 @@ void ChannelMapSettings::fromXml(XmlElement* xml)
     {
         if (channelParams->hasTagName("CH"))
         {
-            channelOrder.add(channelParams->getIntAttribute("order", channelIndex));
+            channelOrder.add(channelParams->getIntAttribute("index", channelIndex));
             isEnabled.add(channelParams->getBoolAttribute("enabled"), true);
             channelIndex++;
         }
@@ -112,38 +122,38 @@ void ChannelMappingNode::updateSettings()
 
     settings.update(getDataStreams());
 
-    Array<ContinuousChannel*> newChannelOrder;
-    OwnedArray<ContinuousChannel> channelsToDelete;
-
     for (auto stream : getDataStreams())
     {
         settings[stream->getStreamId()]->updateNumChannels(stream->getChannelCount());
 
-    }
-
-    /*    for (int ch = 0; ch < stream->getChannelCount(); ch++)
+        if ((*stream)["enable_stream"])
         {
-            int localIndex = settings[stream->getStreamId()]->channelOrder[ch];
-            int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
+            Array<ContinuousChannel*> newChannelOrder;
 
-            if (settings[stream->getStreamId()]->isEnabled[ch])
+            for (int ch = 0; ch < stream->getChannelCount(); ch++)
             {
-                newChannelOrder.add(continuousChannels[globalIndex]);
+
+                int localIndex = settings[stream->getStreamId()]->channelOrder[ch];
+                Array<ContinuousChannel*> channelsForStream = stream->getContinuousChannels();
+
+                int globalIndex = channelsForStream[localIndex]->getGlobalIndex();
+
+                if (settings[stream->getStreamId()]->isEnabled[ch])
+                {
+                    newChannelOrder.add(channelsForStream[localIndex]);
+                }
+
             }
-            else {
-                channelsToDelete.add(continuousChannels[globalIndex]);
-            }
+
+            DataStream* currentStream = getDataStream(stream->getStreamId());
+
+            currentStream->clearContinuousChannels();
+
+            for (int i = 0; i < newChannelOrder.size(); i++)
+                currentStream->addChannel(newChannelOrder[i]);
         }
+
     }
-
-    continuousChannels.clear(false); // don't delete the remaining channels
-
-    for (auto channel : newChannelOrder)
-    {
-        continuousChannels.add(channel);
-    }
-
-    channelsToDelete.clear(); // delete the unused channels*/
 
 }
 
@@ -272,7 +282,6 @@ void ChannelMappingNode::saveCustomParametersToXml(XmlElement* xml)
 void ChannelMappingNode::loadCustomParametersFromXml(XmlElement* xml)
 {
 
-    std::cout << "Filter node loading custom parameters" << std::endl;
     int streamIndex = 0;
     Array<const DataStream*> availableStreams = getDataStreams();
 
@@ -280,15 +289,11 @@ void ChannelMappingNode::loadCustomParametersFromXml(XmlElement* xml)
     {
         if (streamParams->hasTagName("STREAM"))
         {
-
-            LOGD("STREAM ", streamIndex);
             if (availableStreams.size() > streamIndex)
             {
-                LOGD("FOUND IT!");
                 settings[availableStreams[streamIndex]->getStreamId()]->fromXml(streamParams);
             }
             else {
-                LOGD("DID NOT FIND IT!");
             }
 
             streamIndex++;

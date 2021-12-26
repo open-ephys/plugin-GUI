@@ -38,6 +38,14 @@ MainWindow::MainWindow(const File& fileToLoad)
     if (activityLog.exists())
         activityLog.deleteFile();
 
+	std::cout << "Session Start Time: " << Time::getCurrentTime().toString(true, true, true, true) << std::endl;
+	std::cout << std::endl;
+	LOGC("Open Ephys GUI v", JUCEApplication::getInstance()->getApplicationVersion(), " (Plugin API v", PLUGIN_API_VER, ")");
+	LOGC(SystemStats::getJUCEVersion());
+	LOGC("Operating System: ", SystemStats::getOperatingSystemName());
+	LOGC("CPU: ", SystemStats::getCpuModel(), " (", SystemStats::getNumCpus(), " core)");
+	std::cout << std::endl;
+
 	setResizable(true,      // isResizable
 			false);   // useBottomCornerRisizer -- doesn't work very well
 
@@ -55,14 +63,16 @@ MainWindow::MainWindow(const File& fileToLoad)
 	// Create ProcessorGraph and AudioComponent, and connect them.
 	// Callbacks will be set by the play button in the control panel
 
+	LOGD("Creating processor graph...");
 	processorGraph = std::make_unique<ProcessorGraph>();
-	LOGDD("Created processor graph.");
-
+	
+	LOGD("Creating audio component...");
 	audioComponent = std::make_unique<AudioComponent>();
-	LOGDD("Created audio component.");
-
+	
+	LOGD("Connecting audio component to processor graph...");
 	audioComponent->connectToProcessorGraph(processorGraph.get());
 
+	LOGD("Creating UI component...");
 	setContentOwned(new UIComponent(this, processorGraph.get(), audioComponent.get()), true);
 
 	UIComponent* ui = (UIComponent*) getContentComponent();
@@ -74,10 +84,11 @@ MainWindow::MainWindow(const File& fileToLoad)
 
 	addKeyListener(commandManager.getKeyMappings());
 
+	LOGD("Loading window bounds...");
 	loadWindowBounds();
 	setUsingNativeTitleBar(true);
 	Component::addToDesktop(getDesktopWindowStyleFlags());  // prevents the maximize
-	// button from randomly disappearing
+														    // button from randomly disappearing
 	setVisible(true);
 
 	// Constraining the window's size doesn't seem to work:
@@ -99,23 +110,31 @@ MainWindow::MainWindow(const File& fileToLoad)
 
 		if(lastConfig.existsAsFile())
 		{
-			LOGDD("Comparing configs");
+			LOGD("Comparing configurations...");
+
 			if(compareConfigFiles(lastConfig, recoveryConfig))
 			{
 				ui->getEditorViewport()->loadState(lastConfig);
 			}
 			else
 			{
-				bool loadRecovery = AlertWindow::showOkCancelBox(AlertWindow::WarningIcon, "Reloading Settings",
+				LOGD("Detected difference between recoveryConfig and lastConfig; displaying alert window...");
+				bool loadRecovery = NativeMessageBox::showOkCancelBox(AlertWindow::WarningIcon, "Reloading Settings",
 																"It looks like the GUI crashed during your last run, " 
 																"causing the configured settings to not save properly. "
-																"Do you want to load the recovery config instead?",
-																"Yes", "No");
+																"Do you want to load the recovery config instead?");
 				
-				if(loadRecovery)
+				if (loadRecovery)
+				{
+					LOGA("User chose OK, loading recoveryConfig...");
 					ui->getEditorViewport()->loadState(recoveryConfig);
+				}
 				else
+				{
+					LOGA("User chose cancel, loading lastConfig...");
 					ui->getEditorViewport()->loadState(lastConfig);
+				}
+					
 			}
 		}
 	}

@@ -24,7 +24,7 @@
 #include "EditorViewportButtons.h"
 
 SignalChainScrollButton::SignalChainScrollButton(int d)
-    : DrawableButton("SCSB", DrawableButton::ImageFitted)
+    : DrawableButton("Signal Chain Scroll Button " + String(d), DrawableButton::ImageFitted)
 {
 
     direction = d;

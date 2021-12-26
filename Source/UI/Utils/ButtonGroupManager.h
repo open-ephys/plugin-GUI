@@ -38,7 +38,11 @@ class PLUGIN_API ButtonGroupManager : public Component
                                     , public Button::Listener
 {
 public:
+
+    /** Constructor */
     ButtonGroupManager();
+
+    /** Destructor */
     virtual ~ButtonGroupManager();
 
     //==============================================================================

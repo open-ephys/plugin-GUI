@@ -81,9 +81,6 @@ AudioComponent::AudioComponent() : isPlaying(false)
         JUCEApplication::quit();
     }
 
-
-    LOGC("Got audio device.");
-
     String devName = aIOd->getName();
 
     LOGC("Audio device name: ", devName);
@@ -111,6 +108,7 @@ AudioComponent::AudioComponent() : isPlaying(false)
     LOGC("Audio output channels: ", oC.toInteger());
     LOGC("Audio device sample rate: ", sr);
     LOGC("Audio device buffer size: ", buffSize);
+    std::cout << std::endl;
 
     graphPlayer = std::make_unique<AudioProcessorPlayer>();
 

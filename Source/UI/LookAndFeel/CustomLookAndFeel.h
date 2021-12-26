@@ -40,7 +40,11 @@
 class CustomLookAndFeel : public LookAndFeel_V2
 {
 public:
+
+    /** Constructor */
     CustomLookAndFeel();
+
+    /** Destructor */
     ~CustomLookAndFeel();
 
     // ======== custom typeface getter: =============================

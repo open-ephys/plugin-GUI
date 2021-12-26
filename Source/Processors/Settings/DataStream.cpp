@@ -52,6 +52,11 @@ void DataStream::clearChannels()
 	eventChannels.clear();
 }
 
+void DataStream::clearContinuousChannels()
+{
+	continuousChannels.clear();
+}
+
 void DataStream::addChannel(InfoObject* channel)
 {
 	if (channel->getType() == InfoObject::Type::CONTINUOUS_CHANNEL)

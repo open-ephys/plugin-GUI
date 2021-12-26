@@ -1022,7 +1022,7 @@ DualTimeComponent::DualTimeComponent (FileReaderEditor* e, bool editable)
     , isEditable  (editable)
 {
     Label* l;
-    l = new Label ("Time1");
+    l = new Label (editor->getNameAndId() + " Start Time");
     l->setBounds (0, 0, 75, 20);
     l->setEditable (isEditable);
     l->setFont (Font("Small Text", 10, Font::plain));
@@ -1036,7 +1036,7 @@ DualTimeComponent::DualTimeComponent (FileReaderEditor* e, bool editable)
     addAndMakeVisible (l);
     timeLabel[0] = l;
 
-    l = new Label ("Time2");
+    l = new Label(editor->getNameAndId() + " End Time");
     l->setBounds (85, 0, 75, 20);
     l->setEditable (isEditable);
     l->setFont (Font("Small Text", 10, Font::plain));
