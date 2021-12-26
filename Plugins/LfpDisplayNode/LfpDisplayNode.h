@@ -59,6 +59,8 @@ public:
 
     void updateSettings() override;
 
+    void initialize(bool signalChainIsLoading) override;
+
     bool startAcquisition()   override;
     bool stopAcquisition()  override;
 

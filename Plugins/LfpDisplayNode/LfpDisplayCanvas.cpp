@@ -33,6 +33,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <math.h>
 
+#define MS_FROM_START Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start) * 1000
+
+
 using namespace LfpViewer;
 
 #pragma  mark - LfpDisplayCanvas -
@@ -40,10 +43,14 @@ using namespace LfpViewer;
 #define MAX_N_SAMP 3000 // used for screen buffer; this could be resized dynamically depending on the display width
 
 
-LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl) :
-                  processor(processor_), selectedLayout(sl)
+LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl, bool isLoading_) :
+                  processor(processor_), selectedLayout(sl), isLoading(isLoading_)
 {
     
+    LOGD("Creating LfpDisplayCanvas");
+
+    int64 start = Time::getHighResolutionTicks();
+
     juce::TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
     
     optionsDrawerIsOpen = false;
@@ -56,25 +63,15 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl) 
         displaySplits.add(new LfpDisplaySplitter(processor, this, displayBuffers[0], i));
         addChildComponent(displaySplits[i]);
         splits.add(displaySplits[i]);
-        
-        
-        // create options menu per split display
-        //options.add(new LfpDisplayOptions(this, 
-        //    displaySplits[i], 
-        //    displaySplits[i]->timescale, 
-        //    displaySplits[i]->lfpDisplay, 
-        //    processor));
 
         addChildComponent(displaySplits[i]->options.get());
         displaySplits[i]->options->setAlwaysOnTop(true);
 
         if (i == 0)
             displaySplits[i]->options->setVisible(true);
-
-        //displaySplits[i]->lfpDisplay->options = options[i];
-        //displaySplits[i]->lfpDisplay->setNumChannels(displaySplits[i]->nChans);
-
     }
+
+    LOGG("    Created split displays in ", MS_FROM_START, " milliseconds");
 
     processor->setSplitDisplays(splits);
 
@@ -87,11 +84,13 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl) 
     tripleVerticalSplitRatio.add(0.33f);
     tripleVerticalSplitRatio.add(0.66f);
 
-    setLayout(sl);
-
     addMouseListener(this, true);
 
     borderToDrag = -1;
+
+    resized();
+
+    LOGG("    Finished in ", MS_FROM_START, " milliseconds");
     
 }
 
@@ -103,12 +102,8 @@ LfpDisplayCanvas::~LfpDisplayCanvas()
 void LfpDisplayCanvas::resized()
 {
 
-    ///refresh();
-
-    //for (auto split : displaySplits)
-   // {
-   //     split->setVisible(false);
-   // }
+    if (isLoading)
+        return;
 
     int borderSize = 5;
 
@@ -322,7 +317,8 @@ void LfpDisplayCanvas::setLayout(SplitLayouts sl)
 {
     selectedLayout = sl;
 
-    resized();
+    if (!isLoading)
+        resized();
 }
 
 bool LfpDisplayCanvas::makeRoomForOptions(int splitID)
@@ -707,10 +703,18 @@ void LfpDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
 
 void LfpDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 {
+    LOGD("LfpDisplayCanvas loading custom parameters.");
+
+    int64 start = Time::getHighResolutionTicks();
+
     for (int i = 0; i < 3; i++)
     {
         displaySplits[i]->options->loadParameters(xml);
     }
+
+    LOGG("    Loaded split display parameters in ", MS_FROM_START, " milliseconds");
+
+    start = Time::getHighResolutionTicks();
 
     forEachXmlChildElement(*xml, xmlNode)
 	{
@@ -732,13 +736,17 @@ void LfpDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 
             toggleOptionsDrawer(xmlNode->getBoolAttribute("showAllOptions", false));
 
-            //resized();
+            LOGG("    Loaded canvas split settings in ", MS_FROM_START, " milliseconds");
+
 		}
 	}
 
-    LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
+    start = Time::getHighResolutionTicks();
 
+    isLoading = false;
     resized();
+
+    LOGG("    Resized in ", MS_FROM_START, " milliseconds");
 }
 
 

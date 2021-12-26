@@ -1616,6 +1616,10 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
     
     MouseCursor::showWaitCursor();
 
+    AccessClass::getControlPanel()->loadStateFromXml(xml);  // load the control panel settings
+    AccessClass::getProcessorList()->loadStateFromXml(xml); // load the processor list settings
+    AccessClass::getUIComponent()->loadStateFromXml(xml);   // load the UI settings
+
     AccessClass::getProcessorGraph()->clearSignalChain();
     
     loadingConfig = true; //Indicate config is being loaded into the GUI
@@ -1697,9 +1701,6 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
     }
 
     AccessClass::getProcessorGraph()->restoreParameters();  // loads the processor graph settings
-    AccessClass::getControlPanel()->loadStateFromXml(xml);  // load the control panel settings
-    AccessClass::getProcessorList()->loadStateFromXml(xml); // load the processor list settings
-    AccessClass::getUIComponent()->loadStateFromXml(xml);   // load the UI settings
 
     String error = "Opened ";
     error += currentFile.getFileName();

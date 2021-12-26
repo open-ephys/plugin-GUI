@@ -493,13 +493,16 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
         if (processor != nullptr)
         {
             processor->update();
+
+            if (!signalChainIsLoading)
+                processor->initialize(false);
             
             if (signalChainIsLoading && processor->getSourceNode() != nullptr)
             {
                 processor->loadFromXml();
                 processor->update();
             }
-                
+  
             if (processor->isSplitter())
             {
                 splitters.add((Splitter*) processor);

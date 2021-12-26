@@ -73,6 +73,8 @@ public:
 	void startAcquisition();
 	void stopAcquisition();
 
+    void initialize(bool signalChainIsLoading);
+
     void saveVisualizerEditorParameters(XmlElement* xml) override;
     void loadVisualizerEditorParameters(XmlElement* xml) override;
 
@@ -100,6 +102,8 @@ private:
     SplitLayouts selectedLayout;
 
     void enableLayoutSelection(bool);
+
+    bool signalChainIsLoading;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplayEditor);
 

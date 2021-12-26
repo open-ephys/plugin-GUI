@@ -25,6 +25,9 @@
 
 #include <stdio.h>
 
+#define MS_FROM_START Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start) * 1000
+
+
 using namespace LfpViewer;
 
 
@@ -54,10 +57,22 @@ AudioProcessorEditor* LfpDisplayNode::createEditor()
 }
 
 
+void LfpDisplayNode::initialize(bool signalChainIsLoading)
+{
+    if (!signalChainIsLoading)
+    {
+        LfpDisplayEditor* editor = (LfpDisplayEditor*)getEditor();
+        editor->initialize(signalChainIsLoading);
+    }
+}
+
+
 void LfpDisplayNode::updateSettings()
 {
 
-    LOGD("Setting num inputs on LfpDisplayNode to ", getNumInputs());
+    LOGG("Setting num inputs on LfpDisplayNode to ", getNumInputs());
+
+    int64 start = Time::getHighResolutionTicks();
 
     for (auto displayBuffer : displayBuffers)
     {
@@ -98,11 +113,9 @@ void LfpDisplayNode::updateSettings()
         if (displayBuffer->isNeeded)
         {
             displayBuffer->update();
-            //std::cout << "Updating displayBuffer with id " << displayBuffer->id << std::endl;
         }
         else {
 
-            //std::cout << "Erasing displayBuffer with id " << displayBuffer->id << std::endl;
             displayBufferMap.erase(displayBuffer->id);
             toDelete.add(displayBuffer);
 
@@ -120,10 +133,8 @@ void LfpDisplayNode::updateSettings()
         displayBuffers.removeObject(displayBuffer, true);
     }
 
-   
-    //std::cout << "Total display buffers: " << displayBuffers.size() << std::endl;
+    LOGG("    Finished creating buffers in ", MS_FROM_START, " milliseconds");
 
-    // TODO: add event channels separately, as they may have a different source
 }
 
 void LfpDisplayNode::setSplitDisplays(Array<LfpDisplaySplitter*> splits)

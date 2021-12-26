@@ -53,7 +53,7 @@ class LfpDisplayCanvas : public Visualizer,
 {
 public:
 
-    LfpDisplayCanvas(LfpDisplayNode* n, SplitLayouts sl);
+    LfpDisplayCanvas(LfpDisplayNode* n, SplitLayouts sl, bool isLoading);
     ~LfpDisplayCanvas();
 
     void beginAnimation();
@@ -106,6 +106,8 @@ public:
     void mouseUp(const MouseEvent&) override;
 
     void removeBufferForDisplay(int);
+
+    bool isLoading;
 
 private:
 

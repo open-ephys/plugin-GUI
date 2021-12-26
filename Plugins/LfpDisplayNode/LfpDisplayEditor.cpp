@@ -23,6 +23,9 @@
 
 #include "LfpDisplayEditor.h"
 
+#define MS_FROM_START Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start) * 1000
+
+
 using namespace LfpViewer;
 
 
@@ -84,8 +87,9 @@ void LayoutButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 
 
 LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode)
-    : VisualizerEditor(parentNode)
-, hasNoInputs(true)
+    : VisualizerEditor(parentNode),
+       hasNoInputs(true),
+       signalChainIsLoading(true)
 {
     lfpProcessor = (LfpDisplayNode*) parentNode;
     tabText = "LFP";
@@ -149,8 +153,14 @@ void LfpDisplayEditor::stopAcquisition()
 
 Visualizer* LfpDisplayEditor::createNewCanvas()
 {
-    return new LfpDisplayCanvas(lfpProcessor, selectedLayout);
+    return new LfpDisplayCanvas(lfpProcessor, selectedLayout, signalChainIsLoading);
 }
+
+void LfpDisplayEditor::initialize(bool signalChainIsLoading_)
+{
+    signalChainIsLoading = signalChainIsLoading_;
+}
+
 
 void LfpDisplayEditor::buttonClicked(Button* button)
 {
@@ -230,7 +240,9 @@ void LfpDisplayEditor::loadVisualizerEditorParameters(XmlElement* xml)
 	{
 		if (xmlNode->hasTagName("VALUES"))
 		{
-			LOGD("Loading saved layout: ", xmlNode->getIntAttribute("SelectedLayout"));
+
+            int64 start = Time::getHighResolutionTicks();
+
 			selectedLayout = static_cast<SplitLayouts>(xmlNode->getIntAttribute("SelectedLayout"));
 
             if (canvas != nullptr)
@@ -246,6 +258,8 @@ void LfpDisplayEditor::loadVisualizerEditorParameters(XmlElement* xml)
                 twoHoriDisplay->setToggleState(true, dontSendNotification);
             else
                 threeHoriDisplay->setToggleState(true, dontSendNotification);
+
+            LOGG("    Loaded layout in ", MS_FROM_START, " milliseconds");
 		}
 	}
 

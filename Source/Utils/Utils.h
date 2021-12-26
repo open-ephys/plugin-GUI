@@ -15,7 +15,7 @@
 
 /* Log Buffer -- related logs i.e. inside process() method */
 #define LOGB(...) \
-    OELogger::instance().LOGConsole("[open-ephys][buffer] ", __VA_ARGS__);
+    OELogger::instance().LOGFile("[open-ephys][buffer] ", __VA_ARGS__);
 
 /* Log Console -- gets printed to the GUI Debug Console */
 #define LOGC(...) \
@@ -23,11 +23,11 @@
 
 /* Log Debug -- gets printed to the log file */
 #define LOGD(...) \
-    OELogger::instance().LOGConsole("[open-ephys][debug] ", __VA_ARGS__);
+    OELogger::instance().LOGFile("[open-ephys][debug] ", __VA_ARGS__);
 
 /* Log Deep Debug -- gets printed to log file (e.g. enable after a crash to get more details) */
 #define LOGDD(...) \
-    OELogger::instance().LOGConsole("[open-ephys][ddebug] ", __VA_ARGS__);
+    OELogger::instance().LOGFile("[open-ephys][ddebug] ", __VA_ARGS__);
 
 /* Log Error -- gets printed to console with flare */
 #define LOGE(...) \
@@ -38,7 +38,7 @@
 
 /* Log Graph -- gets logs related to processor graph generation/modification events */
 #define LOGG(...) \
-    OELogger::instance().LOGFile("[open-ephys][graph] ", __VA_ARGS__);
+    OELogger::instance().LOGConsole("[open-ephys][graph] ", __VA_ARGS__);
 
 /* Thread-safe logger */
 class OELogger

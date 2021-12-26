@@ -44,6 +44,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ColourSchemes/OELogoColourScheme.h"
 #include "ColourSchemes/TropicalColourScheme.h"
 
+#define MS_FROM_START Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start) * 1000
+
 
 #include <math.h>
 #include <numeric>
@@ -281,8 +283,27 @@ void LfpDisplay::resized()
 {
     int totalHeight = 0;
 
-   // std::cout << "LFP display width: " << getWidth() << std::endl;
+    LOGG(" !! LFP DISPLAY RESIZED TO: ", getWidth(), " pixels.");
 
+    if (getWidth() > 0 && getHeight() > 0)
+        lfpChannelBitmap = Image(Image::ARGB, getWidth() - canvasSplit->leftmargin, getHeight(), false);
+    else
+        lfpChannelBitmap = Image(Image::ARGB, 10, 10, false);
+
+    //  std::cout << "Bitmap width: " << lfpChannelBitmap.getWidth() << std::endl;
+
+      //inititalize background
+    Graphics gLfpChannelBitmap(lfpChannelBitmap);
+    gLfpChannelBitmap.setColour(getColourSchemePtr()->getBackgroundColour()); //background color
+    gLfpChannelBitmap.fillRect(0, 0, lfpChannelBitmap.getWidth(), lfpChannelBitmap.getHeight());
+
+    if (getWidth() == 0)
+    {
+        LOGG("   ::: Not visible, returning.");
+        return;
+    }
+
+    int64 start = Time::getHighResolutionTicks();
 
     //std::cout << "Resizing channels" << std::endl;
     
@@ -324,23 +345,15 @@ void LfpDisplay::resized()
         //std::cout << "Setting view position for single channel " << std::endl;
         viewport->setViewPosition(0, 0);
     }
-       
-    if (getWidth() > 0 && getHeight() > 0)
-        lfpChannelBitmap = Image(Image::ARGB, getWidth() - canvasSplit->leftmargin, getHeight(), false);
-    else
-        lfpChannelBitmap = Image(Image::ARGB, 10, 10, false);
-    
-  //  std::cout << "Bitmap width: " << lfpChannelBitmap.getWidth() << std::endl;
-
-
-    //inititalize background
-    Graphics gLfpChannelBitmap(lfpChannelBitmap);
-    gLfpChannelBitmap.setColour(getColourSchemePtr()->getBackgroundColour()); //background color
-    gLfpChannelBitmap.fillRect(0,0, lfpChannelBitmap.getWidth(), lfpChannelBitmap.getHeight());
 
     canvasSplit->fullredraw = true;
     
+    LOGG("    RESIZED IN: ", MS_FROM_START, " milliseconds");
+    start = Time::getHighResolutionTicks();
+
     refresh();
+
+    LOGG("    REFRESHED IN: ", MS_FROM_START, " milliseconds");
     
     //std::cout << "Total height: " << totalHeight << std::endl;
 
@@ -390,15 +403,11 @@ void LfpDisplay::refresh()
         if (fillfrom < fillto)
         {
             gLfpChannelBitmap.fillRect(fillfrom, 0, (fillto - fillfrom) + 2, lfpChannelBitmap.getHeight()); // just clear one section
-            //std::cout << "Clearing " << fillfrom << " to " << fillto << std::endl;
         }
         else if (fillfrom > fillto) {
 
             gLfpChannelBitmap.fillRect(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom + 2, lfpChannelBitmap.getHeight()); // first segment
             gLfpChannelBitmap.fillRect(0, 0, fillto + 2, lfpChannelBitmap.getHeight()); // second segment
-
-            //std::cout << "Clearing " << fillfrom << " to " << lfpChannelBitmap.getWidth() << std::endl;
-            //std::cout << "Clearing " << 0 << " to " << fillto << std::endl;
         }
         else {
             return; // no change, do nothing
@@ -406,8 +415,6 @@ void LfpDisplay::refresh()
         
     }
 
-
-    
     for (int i = 0; i < numChans; i++)
     {
 
@@ -459,14 +466,11 @@ void LfpDisplay::refresh()
     
     if (canvasSplit->fullredraw)
     {
-        repaint(0,topBorder,getWidth(),bottomBorder-topBorder);
-    } else {
-        //repaint(fillfrom, topBorder, (fillto-fillfrom)+1, bottomBorder-topBorder); // doesn't seem to be needed and results in duplicate repaint calls
+        repaint(0, topBorder, getWidth(), bottomBorder - topBorder);
     }
     
     canvasSplit->fullredraw = false;
 
-    //std::cout << "REFRESH" << std::endl;
 }
 
 void LfpDisplay::setRange(float r, ContinuousChannel::Type type)
@@ -543,7 +547,7 @@ void LfpDisplay::setInputInverted(bool isInverted)
         channels[i]->setInputInverted(isInverted);
     }
 
-    resized();
+    //resized();
 
 }
 
@@ -644,7 +648,7 @@ void LfpDisplay::setChannelsReversed(bool state)
     }
     
     // necessary to overwrite lfpChannelBitmap's display
-    refresh();
+    //refresh();
 }
 
 void LfpDisplay::orderChannelsByDepth(bool state)
@@ -730,7 +734,7 @@ void LfpDisplay::orderChannelsByDepth(bool state)
     setColors();
 
     // necessary to overwrite lfpChannelBitmap's display
-    resized();
+    //resized();
 }
 
 int LfpDisplay::getChannelDisplaySkipAmount()

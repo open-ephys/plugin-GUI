@@ -42,6 +42,8 @@
 
 #include <exception>
 
+#define MS_FROM_START Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start) * 1000
+
 const String GenericProcessor::m_unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");
 
 GenericProcessor::GenericProcessor(const String& name)
@@ -690,7 +692,10 @@ void GenericProcessor::updateDisplayName(String name)
 
 void GenericProcessor::update()
 {
-	LOGD(getName(), " updating settings.");
+
+    LOGG("Updating settings for ", getName(), " (", getNodeId(), ")");
+
+    int64 start = Time::getHighResolutionTicks();
 
 	clearSettings();
 
@@ -763,6 +768,8 @@ void GenericProcessor::update()
     }
 
 	updateChannelIndexMaps();
+
+    LOGG("    Copied upstream settings in ", MS_FROM_START, " milliseconds");
 
     /// UPDATE PARAMETERS FOR STREAMS
 	for (auto stream : dataStreams)
@@ -876,12 +883,14 @@ void GenericProcessor::update()
        }
     }
 
+    LOGG("    Copied parameters in ", MS_FROM_START, " milliseconds");
+
     if (!isMerger())
         updateSettings(); // allow processors to change custom settings,
                           // including creation of streams / channels and
                           // setting isEnabled variable
 
-	LOGD("Updated custom settings.");
+    LOGG("    Updated custom settings in ", MS_FROM_START, " milliseconds");
 
 	updateChannelIndexMaps();
     
@@ -897,6 +906,8 @@ void GenericProcessor::update()
 		128);            // blockSize
 
 	editor->update(isEnabled); // allow the editor to update its settings
+
+    LOGG("    TOTAL TIME: ", MS_FROM_START, " milliseconds");
 }
 
 void GenericProcessor::updateChannelIndexMaps()
@@ -1291,19 +1302,10 @@ void GenericProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& even
 
 	m_currentMidiBuffer = &eventBuffer;
     
-    //std::cout << getNodeId() << " process block." << std::endl;
-
 	processEventBuffer(); // extract buffer sizes and timestamps,
 
 	process(buffer);
     
-    //if (isSource())
-   // {
-    //    m_currentMidiBuffer->addEvents(messageCenterBuffer, 0, 1, 1);
-    //    messageCenterBuffer.clear();
-    //}
-        
-
 	latencyMeter->setLatestLatency(processStartTimes);
 }
 
@@ -1584,7 +1586,10 @@ void GenericProcessor::loadFromXml()
 	{
        // if (!m_paramsWereLoaded)
        // {
-		LOGD("Loading parameters for ", m_name);
+        LOGG("Loading parameters for ", getName(), " (", getNodeId(), ")");
+
+        int64 start = Time::getHighResolutionTicks();
+
 
 		int streamIndex = 0;
 		Array<const DataStream*> availableStreams = getDataStreams();
@@ -1601,8 +1606,6 @@ void GenericProcessor::loadFromXml()
 			{
 				if (availableStreams.size() > streamIndex)
 				{
-					LOGD("FOUND IT!");
-                    
                     forEachXmlChildElement(*xmlNode, streamParams)
                     {
                         if (streamParams->hasTagName("PARAMETERS"))
@@ -1635,13 +1638,11 @@ void GenericProcessor::loadFromXml()
                         }
                     }
 				}
-				else {
-					LOGD("DID NOT FIND IT!");
-				}
-
 				streamIndex++;
 			}
 		}
+
+        LOGG("    Loaded stream parameters in ", MS_FROM_START, " milliseconds");
 
         forEachXmlChildElement(*parametersAsXml, xmlNode)
         {
@@ -1651,6 +1652,8 @@ void GenericProcessor::loadFromXml()
             }
         }
 
+        LOGG("    Loaded custom parameters in ", MS_FROM_START, " milliseconds");
+
         // load editor parameters
         forEachXmlChildElement(*parametersAsXml, xmlNode)
         {
@@ -1659,6 +1662,8 @@ void GenericProcessor::loadFromXml()
                 getEditor()->loadFromXml(xmlNode);
             }
         }
+
+        LOGG("    Loaded editor parameters in ", MS_FROM_START, " milliseconds");
 	}
 
 	m_paramsWereLoaded = true;
