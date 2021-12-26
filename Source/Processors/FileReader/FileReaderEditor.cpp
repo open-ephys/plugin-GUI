@@ -580,7 +580,7 @@ void FileReaderEditor::updateZoomTimeLabels()
 
 }
 
-void FileReaderEditor::setFile (String file)
+void FileReaderEditor::setFile (String file, bool shouldUpdateSignalChain)
 {
     if (file.equalsIgnoreCase("default"))
     {
@@ -597,6 +597,8 @@ void FileReaderEditor::setFile (String file)
             file = defaultFile.getFullPathName();
         }
     }
+
+    LOGD("Setting file to ", file);
 
     File fileToRead (file);
     lastFilePath = fileToRead.getParentDirectory();
@@ -618,7 +620,8 @@ void FileReaderEditor::setFile (String file)
         clearEditor();
     }
 
-    CoreServices::updateSignalChain (this);
+    if (shouldUpdateSignalChain)
+        CoreServices::updateSignalChain (this);
 
     repaint();
 }

@@ -159,7 +159,7 @@ public:
 	void startAcquisition() override;
 	void stopAcquisition()  override;
 
-    void setFile (String file);
+    void setFile (String file, bool shouldUpdateSignalChain = true);
 
     void comboBoxChanged (ComboBox* combo);
     void populateRecordings (FileSource* source);

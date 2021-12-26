@@ -210,6 +210,9 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
         
         GenericEditor* editor = (GenericEditor*)addedProc->createEditor();
 
+        if (!signalChainIsLoading)
+            addedProc->initialize(false);
+
         editor->refreshColors();
         
 		if (addedProc->isSource()) // if we are adding a source processor
@@ -493,9 +496,6 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
         if (processor != nullptr)
         {
             processor->update();
-
-            if (!signalChainIsLoading)
-                processor->initialize(false);
             
             if (signalChainIsLoading && processor->getSourceNode() != nullptr)
             {
