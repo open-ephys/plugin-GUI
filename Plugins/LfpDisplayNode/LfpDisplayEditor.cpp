@@ -25,9 +25,7 @@
 
 #define MS_FROM_START Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start) * 1000
 
-
 using namespace LfpViewer;
-
 
 LayoutButton::LayoutButton(const String& buttonName)
             : Button(buttonName)
@@ -137,19 +135,6 @@ LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode)
     addAndMakeVisible(syncButton);
 }
 
-LfpDisplayEditor::~LfpDisplayEditor()
-{
-}
-
-void LfpDisplayEditor::startAcquisition()
-{
-	//enableLayoutSelection(false);
-}
-
-void LfpDisplayEditor::stopAcquisition()
-{
-	//enableLayoutSelection(true);
-}
 
 Visualizer* LfpDisplayEditor::createNewCanvas()
 {
@@ -187,15 +172,6 @@ void LfpDisplayEditor::buttonClicked(Button* button)
     if (button->getRadioGroupId() == 201 && canvas != nullptr)
         static_cast<LfpDisplayCanvas*>(canvas.get())->setLayout(selectedLayout);
 
-}
-
-void LfpDisplayEditor::enableLayoutSelection(bool state)
-{
-    singleDisplay->setEnabled(state);
-    twoVertDisplay->setEnabled(state);
-    threeVertDisplay->setEnabled(state);
-    twoHoriDisplay->setEnabled(state);
-    threeHoriDisplay->setEnabled(state);
 }
 
 void LfpDisplayEditor::resized()
@@ -259,7 +235,7 @@ void LfpDisplayEditor::loadVisualizerEditorParameters(XmlElement* xml)
             else
                 threeHoriDisplay->setToggleState(true, dontSendNotification);
 
-            LOGG("    Loaded layout in ", MS_FROM_START, " milliseconds");
+            LOGDD("    Loaded layout in ", MS_FROM_START, " milliseconds");
 		}
 	}
 

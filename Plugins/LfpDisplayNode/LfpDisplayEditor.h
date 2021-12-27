@@ -53,12 +53,17 @@ private:
 
 */
 
-class LfpDisplayEditor : public VisualizerEditor,
+class LfpDisplayEditor : 
+    public VisualizerEditor,
     public Button::Listener
 {
 public:
+
+    /** Constructor*/
     LfpDisplayEditor(GenericProcessor*);
-    ~LfpDisplayEditor();
+
+    /** Destructor */
+    ~LfpDisplayEditor() { }
 
     // Override VisualEditor behavior to add support for Layout switching
     void buttonClicked(Button* button) override;
@@ -70,16 +75,19 @@ public:
      */
     Visualizer* createNewCanvas() override;
 
-	void startAcquisition();
-	void stopAcquisition();
-
+    /** Tells the LFP Viewer whether the signal chain is loading, to prevent unnecessary redraws*/
     void initialize(bool signalChainIsLoading);
 
+    /** Saves layout type */
     void saveVisualizerEditorParameters(XmlElement* xml) override;
+
+    /** Loads layout type*/
     void loadVisualizerEditorParameters(XmlElement* xml) override;
 
+    /** Sets button locations*/
     void resized() override;
 
+    /** Removes buffers for unused streams (called during updateSettings) */
     void removeBufferForDisplay(int);
 
 private:
@@ -100,8 +108,6 @@ private:
     std::unique_ptr<LayoutButton> threeHoriDisplay;
 
     SplitLayouts selectedLayout;
-
-    void enableLayoutSelection(bool);
 
     bool signalChainIsLoading;
 

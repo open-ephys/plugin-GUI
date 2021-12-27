@@ -39,9 +39,6 @@ LfpViewport::LfpViewport(LfpDisplaySplitter *split)
 
 void LfpViewport::visibleAreaChanged(const Rectangle<int>& newVisibleArea)
 {
-
     canvasSplit->visibleAreaChanged();
-
-
 }
 

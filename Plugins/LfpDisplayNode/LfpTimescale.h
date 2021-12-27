@@ -41,19 +41,25 @@ namespace LfpViewer {
 class LfpTimescale : public Component
 {
 public:
-    LfpTimescale(LfpDisplaySplitter*, LfpDisplay*);
-    ~LfpTimescale();
 
+    /** Constructor */
+    LfpTimescale(LfpDisplaySplitter*, LfpDisplay*);
+
+    /** Destructor */
+    ~LfpTimescale() { }
+
+    /** Renders timescale*/
     void paint(Graphics& g);
     
+    /** Updates time markers to fit display width*/
     void resized();
     
     /** Handles the drag to zoom feature on the timescale. The display must
         be paused to zoom */
     void mouseDrag(const MouseEvent &e) override;
-    
     void mouseUp(const MouseEvent &e) override;
 
+    /** Changes the time interval*/
     void setTimebase(float t, float offset = 0.0f);
 
 private:

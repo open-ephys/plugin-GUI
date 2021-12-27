@@ -40,7 +40,11 @@ namespace LfpViewer {
 class PerPixelBitmapPlotter : public LfpBitmapPlotter
 {
 public:
+
+    /** Constructor */
     PerPixelBitmapPlotter(LfpDisplay * lfpDisplay);
+
+    /** Destructor */
     virtual ~PerPixelBitmapPlotter() {}
     
     /** Plots one subsample of data from a single channel to the bitmap provided */

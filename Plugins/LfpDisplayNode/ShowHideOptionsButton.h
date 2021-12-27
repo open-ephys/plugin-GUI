@@ -41,9 +41,16 @@ namespace LfpViewer {
 class ShowHideOptionsButton : public Button
 {
 public:
+
+    /** Constructor */
     ShowHideOptionsButton(LfpDisplayOptions*);
+
+    /** Destructor */
     virtual ~ShowHideOptionsButton();
+
+    /** Renders the button */
     void paintButton(Graphics& g, bool, bool);
+
     LfpDisplayOptions* options;
 };
     

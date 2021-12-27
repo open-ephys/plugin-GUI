@@ -46,9 +46,6 @@ namespace LfpViewer {
         }
 
         ttlState = 0;
-
-       // std::cout << "Subprocessor " << id << " has " << displays.size() << " displays." << std::endl;
-        //std::cout << "Display buffer sample rate: " << sampleRate << std::endl;
     }
 
     DisplayBuffer::~DisplayBuffer()
@@ -140,27 +137,27 @@ namespace LfpViewer {
         if (nSamples < samplesLeft)
         {
 
-            copyFrom(numChannels,                                      // destChannel
-                displayBufferIndices[numChannels],             // destStartSample
-                arrayOfOnes,                               // source
-                nSamples,                                  // numSamples
-                float(ttlState));     // gain
+            copyFrom(numChannels,                   // destChannel
+                displayBufferIndices[numChannels],  // destStartSample
+                arrayOfOnes,                        // source
+                nSamples,                           // numSamples
+                float(ttlState));                   // gain
         }
         else
         {
             int extraSamples = nSamples - samplesLeft;
 
-            copyFrom(numChannels,                               // destChannel
-                displayBufferIndices[numChannels],             // destStartSample
-                arrayOfOnes,                               // source
-                samplesLeft,                               // numSamples
-                float(ttlState));                        // gain
+            copyFrom(numChannels,                   // destChannel
+                displayBufferIndices[numChannels],  // destStartSample
+                arrayOfOnes,                        // source
+                samplesLeft,                        // numSamples
+                float(ttlState));                   // gain
 
-            copyFrom(numChannels,                                      // destChannel
-                0,                                         // destStartSample
-                arrayOfOnes,                               // source
-                extraSamples,                              // numSamples
-                float(ttlState));     // gain
+            copyFrom(numChannels,                   // destChannel
+                0,                                  // destStartSample
+                arrayOfOnes,                        // source
+                extraSamples,                       // numSamples
+                float(ttlState));                   // gain
         }
     }
 
@@ -247,12 +244,12 @@ namespace LfpViewer {
         
         if (nSamples < samplesLeft)
         {
-            copyFrom(channelMap[chan],                      // destChannel
+            copyFrom(channelMap[chan],                   // destChannel
                 displayBufferIndices[channelMap[chan]],  // destStartSample
-                buffer,                    // source
-                chan,                      // source channel
-                0,                         // source start sample
-                nSamples);                 // numSamples
+                buffer,                                  // source
+                chan,                                    // source channel
+                0,                                       // source start sample
+                nSamples);                               // numSamples
 
             int lastIndex = displayBufferIndices[channelMap[chan]];
 
@@ -263,19 +260,19 @@ namespace LfpViewer {
         {
             const int extraSamples = nSamples - samplesLeft;
 
-            copyFrom(channelMap[chan],                      // destChannel
+            copyFrom(channelMap[chan],                   // destChannel
                 displayBufferIndices[channelMap[chan]],  // destStartSample
-                buffer,                    // source
-                chan,                      // source channel
-                0,                         // source start sample
-                samplesLeft);              // numSamples
+                buffer,                                  // source
+                chan,                                    // source channel
+                0,                                       // source start sample
+                samplesLeft);                            // numSamples
 
-            copyFrom(channelMap[chan],                      // destChannel
-                0,                         // destStartSample
-                buffer,                    // source
-                chan,                      // source channel
-                samplesLeft,               // source start sample
-                extraSamples);             // numSamples
+            copyFrom(channelMap[chan],                   // destChannel
+                0,                                       // destStartSample
+                buffer,                                  // source
+                chan,                                    // source channel
+                samplesLeft,                             // source start sample
+                extraSamples);                           // numSamples
 
             newIndex = extraSamples;
         }

@@ -45,7 +45,11 @@ namespace LfpViewer {
 class LfpViewport : public Viewport
 {
 public:
+
+    /** Constructor */
     LfpViewport(LfpDisplaySplitter* canvasSplit);
+
+    /** Called when the viewport is scrolled*/
     void visibleAreaChanged(const Rectangle<int>& newVisibleArea);
 
 private:

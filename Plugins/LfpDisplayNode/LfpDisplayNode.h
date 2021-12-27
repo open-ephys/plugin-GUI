@@ -48,100 +48,67 @@ class LfpDisplayNode :  public GenericProcessor
 
 {
 public:
-    LfpDisplayNode();
-    ~LfpDisplayNode();
 
+    /** Constructor */
+    LfpDisplayNode();
+
+    /** Destructor*/
+    ~LfpDisplayNode() { }
+
+    /** Creates the LfpDisplayEditor*/
     AudioProcessorEditor* createEditor() override;
 
+    /** Pushes incoming data into a drawing buffer*/
     void process (AudioSampleBuffer& buffer) override;
 
+    /** Used to set display trigger channels*/
     void setParameter (int parameterIndex, float newValue) override;
 
+    /** Creates buffers for incoming data streams*/
     void updateSettings() override;
 
+    /** Informs editor whether or not the signal chain is loading, to prevent unnecessary redraws*/
     void initialize(bool signalChainIsLoading) override;
 
+    /** Starts display animation */
     bool startAcquisition()   override;
+
+    /** Stops display animations*/
     bool stopAcquisition()  override;
 
+    /** Used for TTL event overlay*/
     void handleEvent (const EventChannel* eventInfo, const EventPacket& packet, int samplePosition = 0) override;
 
-    //std::shared_ptr<AudioSampleBuffer> getDisplayBufferAddress(int bufferIndex) const 
-    //{ 
-    //    return displayBuffers[bufferIndex]; // displayBuffers[inputSubprocessors.indexOf(subprocessorToDraw[splitId])];
-    //}
-
-    //int getDisplayBufferIndex (int chan, int splitId) const 
-    //{ 
-    //    return displayBufferIndices[inputSubprocessors.indexOf(subprocessorToDraw[splitId])][chan]; 
-    //}
-
-    //SortedSet<uint32> inputSubprocessors;
-    String getSubprocessorName(int ch); // { return subprocessorNames[sn]; }
-
+    /** Returns an array of pointers to the availble displayBuffers*/
     Array<DisplayBuffer*> getDisplayBuffers();
+
+    /** Map between data stream IDs and display buffer pointers*/
     std::map<uint16, DisplayBuffer*> displayBufferMap;
 
+    /** Sets an array of pointers to the 3 available split displays*/
     void setSplitDisplays(Array<LfpDisplaySplitter*>);
 
-   // void setSubprocessor(uint32 sp, int splitId); // should not be needed
-   // uint32 getSubprocessor(int splitId) const; // should not be needed
-   // void setDefaultSubprocessors(); // should not be needed
-    
-    //int getNumSubprocessorChannels(int splitId);
-
-   // float getSubprocessorSampleRate(uint32 subprocId);
-
-    //uint32 getDataSubprocId(int chan) const;
-
-   // void setNumberOfDisplays(int num); // should not be needed
-
-    void setTriggerSource(int ch, int splitId); 
-    int getTriggerSource(int splitId) const;
+    /** Returns the latest sample number that triggered a given split display*/
     int64 getLatestTriggerTime(int splitId) const;
+
+    /** Acknowledges receipt of a trigger for a given split display*/
     void acknowledgeTrigger(int splitId);
+
 private:
+
+    /** Initializes trigger channels within a process block*/
     void initializeEventChannels();
+
+    /** Called after all events have been received within a process block*/
     void finalizeEventChannels();
 
-    //std::vector<std::shared_ptr<DisplayBuffer>> displayBuffers;
-    
     OwnedArray<DisplayBuffer> displayBuffers;
 
     Array<LfpDisplaySplitter*> splitDisplays;
 
-
-   // std::vector<std::vector<int>> displayBufferIndices;
-    //Array<int> channelIndices;
-
-    //Array<uint32> eventSourceNodes;
-
-   // float displayGain; //
-   // float bufferLength; // s
-
-    //std::map<uint32, uint64> ttlState;
-    //float* arrayOfOnes;
-    //int totalSamples;
-    
-    //int numDisplays; // total number of split displays
-
-   // Array<int> triggerSource;
-
     Array<int> triggerChannels;
     Array<int64> latestTrigger; // overall timestamp
     Array<int> latestCurrentTrigger; // within current input buffer
-
-    //HashMap<int, String> subprocessorNames;
-    //void updateInputSubprocessors();
-    
-    //bool resizeBuffer();
-
-    //int numSubprocessors;
-    //Array<uint32> subprocessorToDraw;
- 
-    //std::map<uint32, int> numChannelsInSubprocessor;
-    //std::map<uint32, float> subprocessorSampleRate;
-
 
     static uint16 getEventSourceId(const EventChannel* event);
     static uint16 getChannelSourceId(const ChannelInfoObject* chan);

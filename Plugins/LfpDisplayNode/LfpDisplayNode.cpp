@@ -34,19 +34,13 @@ using namespace LfpViewer;
 LfpDisplayNode::LfpDisplayNode()
     : GenericProcessor  ("LFP Viewer")
 {
-    for (int i = 0; i <= 3; i++)
+    for (int displayIndex = 0; displayIndex <= 3; displayIndex++)
     {
         triggerChannels.add(-1);
         latestTrigger.add(-1);
         latestCurrentTrigger.add(-1);
     }
     
-}
-
-
-LfpDisplayNode::~LfpDisplayNode()
-{
-   
 }
 
 
@@ -133,7 +127,7 @@ void LfpDisplayNode::updateSettings()
         displayBuffers.removeObject(displayBuffer, true);
     }
 
-    LOGG("    Finished creating buffers in ", MS_FROM_START, " milliseconds");
+    LOGDD("    Finished creating buffers in ", MS_FROM_START, " milliseconds");
 
 }
 
@@ -150,19 +144,6 @@ uint16 LfpDisplayNode::getEventSourceId(const EventChannel* event)
 uint16 LfpDisplayNode::getChannelSourceId(const ChannelInfoObject* chan)
 {
     return chan->getStreamId();
-}
-
-String LfpDisplayNode::getSubprocessorName(int channel)
-{
-
-	if (getNumOutputs() != 0)
-	{
-
-        return continuousChannels[channel]->getSourceNodeName();
-    }
-    else {
-        return " ";
-    }
 }
 
 Array<DisplayBuffer*> LfpDisplayNode::getDisplayBuffers()
@@ -182,7 +163,6 @@ Array<DisplayBuffer*> LfpDisplayNode::getDisplayBuffers()
 bool LfpDisplayNode::startAcquisition()
 {
 
-
     LfpDisplayEditor* editor = (LfpDisplayEditor*)getEditor();
     editor->enable();
 
@@ -193,15 +173,17 @@ bool LfpDisplayNode::startAcquisition()
 
 bool LfpDisplayNode::stopAcquisition()
 {
+
     LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
     editor->disable();
+
     return true;
+
 }
 
 
 void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 {
-    //std::cout << "Setting trigger channel for display index " << int(newValue) << " to " << parameterIndex << std::endl;
     triggerChannels.set(int(newValue), parameterIndex);
 }
 
@@ -324,24 +306,12 @@ void LfpDisplayNode::process (AudioSampleBuffer& buffer)
     }
 }
 
-//void LfpDisplayNode::setTriggerSource(int ch, int id)
-//{
-//  printf("Trigger source: %i\n", ch);
-//  triggerSource.set(id, ch);
-//}
-
-//int LfpDisplayNode::getTriggerSource(int id) const
-//{
- // return triggerSource[id];
-//}
-
 int64 LfpDisplayNode::getLatestTriggerTime(int id) const
 {
-  return latestTrigger[id];
+    return latestTrigger[id];
 }
 
 void LfpDisplayNode::acknowledgeTrigger(int id)
 {
-  latestTrigger.set(id, -1);
-  //std::cout << "Display " << id << " acknowledging trigger." << std::endl;
+    latestTrigger.set(id, -1);
 }

@@ -51,10 +51,6 @@ LfpTimescale::LfpTimescale(LfpDisplaySplitter* c, LfpDisplay* lfpDisplay)
     font = Font("Default", 16, Font::plain);
 }
 
-LfpTimescale::~LfpTimescale()
-{
-
-}
 
 void LfpTimescale::paint(Graphics& g)
 {

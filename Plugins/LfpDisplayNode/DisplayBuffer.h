@@ -32,19 +32,35 @@ namespace LfpViewer {
     //==============================================================================
     /**
 
+        Temporary buffer for incoming continous and event data.
 
+        Data is transferred from the displayBuffer to the screenBuffer, 
+        after which it is drawn.
 
     */
-    class DisplayBuffer : public AudioSampleBuffer
+    class DisplayBuffer : public AudioBuffer<float>
     {
     public:
+
+        /** Constructor */
         DisplayBuffer(int id, String name, float sampleRate);
+
+        /** Destructor */
         ~DisplayBuffer();
 
+        /** Resets buffer*/
         void prepareToUpdate();
+
+        /** Updates buffer settings*/
         void update();
 
-        void addChannel(String name, int channelNum, ContinuousChannel::Type channelType, int group = 0, float ypos = 0, String structure = "None");
+        /** Adds a continuous channel to the buffer*/
+        void addChannel(String name, 
+                        int channelNum, 
+                        ContinuousChannel::Type channelType, 
+                        int group = 0, 
+                        float ypos = 0, 
+                        String structure = "None");
 
         void initializeEventChannel(int nSamples);
         void finalizeEventChannel(int nSamples);
