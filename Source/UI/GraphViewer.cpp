@@ -249,6 +249,7 @@ DataStreamInfo::~DataStreamInfo()
 
 void DataStreamInfo::paint(Graphics& g)
 {
+    g.setFont(Font("Fira Sans", "SemiBold", 14));
     g.setColour(Colour(30, 30, 30));
     g.drawRect(0, 0, getWidth(), getHeight(), 1);
     g.setColour(Colours::white.withAlpha(0.3f));
@@ -677,11 +678,10 @@ void GraphNode::paint (Graphics& g)
     }
     g.fillEllipse (5.5, 5.5, 11, 11);
 
+    g.setFont(Font("Fira Code", "SemiBold", 14));
     g.setColour (Colours::black); // : editor->getBackgroundColor());
     g.drawText (String(nodeId), 24, 0, 23, 20, Justification::centred, true);
     g.setColour(Colours::white); // : editor->getBackgroundColor());
     g.drawText(getName(), 52, 0, getWidth() - 52, 20, Justification::left, true);
-    
-   // g.setColour (Colours::black); // : editor->getBackgroundColor());
-    //g.drawFittedText (getInfoString(), 10, 25, getWidth() - 5, 70, Justification::left, true);
+
 }

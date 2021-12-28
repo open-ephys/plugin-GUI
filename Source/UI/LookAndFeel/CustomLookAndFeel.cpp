@@ -230,7 +230,7 @@ Typeface::Ptr CustomLookAndFeel::getTypefaceForFont(const Font& font)
     }
     else   // default
     {
-        return firaCodeSemiBold;
+        return firaCodeRetina;
     }
 
 }
@@ -437,13 +437,6 @@ void CustomLookAndFeel::drawLinearSliderBackground(Graphics& g,
         indent.addRoundedRectangle(x - sliderRadius * 0.5f, iy,
                                    width + sliderRadius, ih,
                                    5.0f);
-
-        //   backgroundPath.addRoundedRectangle (x - sliderRadius * 0.5f, iy,
-        //                              (width + sliderRadius)*minSliderPos, ih,
-        //                              5.0f);
-
-        //  g.setColour(Colours::orange);
-        //  g.fillPath (backgroundPath);
     }
     else
     {
@@ -452,14 +445,6 @@ void CustomLookAndFeel::drawLinearSliderBackground(Graphics& g,
         indent.addRoundedRectangle(ix, y - sliderRadius * 0.5f,
                                    iw, height + sliderRadius,
                                    5.0f);
-
-        //   backgroundPath.addRoundedRectangle (ix, y - sliderRadius * 0.5f,
-        //                              iw, (height + sliderRadius)*sliderPos,
-        //                              5.0f);
-
-        //  g.setColour(Colours::orange);
-        //  g.fillPath (backgroundPath);
-        //g.fillPath (indent);
     }
 
     g.setColour(Colours::darkgrey);
@@ -577,7 +562,7 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
 
 Font CustomLookAndFeel::getComboBoxFont (ComboBox& box)
 {
-    return Font(getCommonMenuFont().getTypefaceName(), box.getHeight() * 0.75f, Font::plain);
+    return Font("Fira Sans", "Regular", box.getHeight() * 0.75f);
 }
 
 
@@ -715,7 +700,7 @@ Font CustomLookAndFeel::getTextButtonFont (TextButton&, int buttonHeight)
 
 Font CustomLookAndFeel::getCommonMenuFont()
 {
-    return Font ("FiraSans", "Regular", 20.f);
+    return Font ("Fira Sans", "Regular", 20.f);
 }
 
 //==================================================================

@@ -421,8 +421,6 @@ ControlPanel::~ControlPanel()
 void ControlPanel::setRecordState(bool t)
 {
 
-    //MessageManager* mm = MessageManager::getInstance();
-
     recordButton->setToggleState(t, sendNotification);
 
 }

@@ -27,7 +27,8 @@
 DelayMonitor::DelayMonitor() : 
     delay(0.0f), 
     isEnabled(true), 
-    colour(Colours::black)
+    colour(Colours::black),
+    font("Fira Sans", "SemiBold", 12)
 {
 }
 
@@ -66,6 +67,6 @@ void DelayMonitor::timerCallback()
 void DelayMonitor::paint(Graphics& g)
 {
     g.setColour(colour);
-    g.setFont(12);
+    g.setFont(font);
     g.drawText(String(delay, 2) + " ms", 0, 0, 60, 15, Justification::left);
 }

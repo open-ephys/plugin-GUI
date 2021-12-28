@@ -182,7 +182,7 @@ void StreamInfoView::paint(Graphics& g)
     else
         g.setColour(Colours::darkgrey);
 
-    g.setFont(12);
+    g.setFont(Font("Fira Sans", "SemiBold", 12));
     g.drawMultiLineText(infoString, 5, 18, getWidth() +100, Justification::left);
     g.drawText(enabledString, 22, 38, 120, 12, Justification::left);
 

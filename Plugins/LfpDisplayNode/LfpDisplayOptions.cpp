@@ -55,7 +55,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
       timescale(timescale_),
       processor(processor_),
       selectedChannelType(ContinuousChannel::Type::ELECTRODE),
-      labelFont("Default", 13.0f, Font::plain),
+      labelFont("Fira Sans", "Regular", 13.0f),
       labelColour(100, 100, 100),
       medianOffsetOnForSpikeRaster(false)
 {
@@ -128,7 +128,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     typeNames.add("DATA");
 
     UtilityButton* tbut;
-    tbut = new UtilityButton("DATA", Font("Small Text", 9, Font::plain));
+    tbut = new UtilityButton("DATA", Font("Silkscreen", "Regular", 9));
     tbut->setEnabledState(true);
     tbut->setCorners(false, false, false, false);
     tbut->addListener(this);
@@ -154,7 +154,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     rangeUnits.add("mV");
     typeNames.add("AUX");
 
-    tbut = new UtilityButton("AUX", Font("Small Text", 9, Font::plain));
+    tbut = new UtilityButton("AUX", Font("Silkscreen", "Regular", 9));
     tbut->setEnabledState(true);
     tbut->setCorners(false, false, false, false);
     tbut->addListener(this);
@@ -179,7 +179,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     rangeUnits.add("V");
     typeNames.add("ADC");
 
-    tbut = new UtilityButton("ADC", Font("Small Text", 9, Font::plain));
+    tbut = new UtilityButton("ADC", Font("Silkscreen", "Regular", 9));
     tbut->setEnabledState(true);
     tbut->setCorners(false, false, false, false);
     tbut->addListener(this);
@@ -211,7 +211,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     }
 
     // Pause button
-    pauseButton = new UtilityButton("Pause", Font("Small Text", 13, Font::plain));
+    pauseButton = new UtilityButton("Pause", Font("Default", "Plain", 15));
     pauseButton->setRadius(5.0f);
     pauseButton->setEnabledState(true);
     pauseButton->setCorners(true, true, true, true);
@@ -680,7 +680,7 @@ void LfpDisplayOptions::paint(Graphics& g)
   
     }
 
-    g.setFont(Font("FiraSans", 16, Font::plain));
+    g.setFont(Font("Fira Sans", 16, Font::plain));
     g.drawText("Timebase (s)", timebaseSelection->getX(), timebaseSelection->getY()-22, 300, 20, Justification::left, false);
     g.drawText("Chan height (px)", spreadSelection->getX(), spreadSelection->getY() - 22, 300, 20, Justification::left, false);
     //g.drawText("Overlap", overlapSelection->getX(), overlapSelection->getY() - 22, 300, 20, Justification::left, false);
