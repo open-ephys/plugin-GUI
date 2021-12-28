@@ -342,7 +342,7 @@ void PopupChannelSelector::mouseUp(const MouseEvent &event)
                 {
                     button->triggerClick();
                     LOGA("Deselecting channel ", button->getId() + 1);
-                    activeChannels.removeFirstMatchingValue(button->getId() + 1);
+                    activeChannels.removeFirstMatchingValue(button->getId());
                 }
                 else
                 {

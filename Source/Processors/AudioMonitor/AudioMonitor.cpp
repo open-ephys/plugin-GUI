@@ -174,10 +174,15 @@ void AudioMonitor::parameterValueChanged(Parameter* param)
         
         Array<var>* activeChannels = param->getValue().getArray();
 
+        if (activeChannels->size() == 0)
+            LOGA("No channels selected.");
+
         for (int i = 0; i < activeChannels->size(); i++)
         {
             
             int localIndex =(int) activeChannels->getReference(i);
+
+            LOGA("Selected channel ", localIndex);
             
             int globalIndex = getDataStream(selectedStream)->getContinuousChannels()[localIndex]->getGlobalIndex();
                         
