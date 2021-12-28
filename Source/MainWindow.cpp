@@ -205,7 +205,8 @@ void MainWindow::shutDownGUI()
 		audioComponent->endCallbacks();
 	}
 
-	processorGraph->stopAcquisition();
+	if (CoreServices::getAcquisitionStatus())
+		processorGraph->stopAcquisition();
 
 }
 

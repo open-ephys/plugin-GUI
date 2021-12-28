@@ -38,8 +38,7 @@
 
 class ChannelMappingEditor : public GenericEditor,
     public DragAndDropContainer,
-    public Button::Listener,
-    public MouseListener
+    public Button::Listener
 
 {
 public:
@@ -50,10 +49,10 @@ public:
     virtual ~ChannelMappingEditor() {}
 
     // Called when an electrode button is clicked
-    void buttonClicked(Button* button);
+    void buttonClicked(Button* button) override;
 
     /** Called when the signal chain is updated*/
-    void updateSettings();
+    void updateSettings() override;
 
     /** Called when the viewed stream is updated*/
     void selectedStreamHasChanged() override;
@@ -70,7 +69,7 @@ public:
     void mouseDown(const MouseEvent& e) override;
 
     /** Called when the editor is collapsed or re-opened*/
-    void collapsedStateChanged();
+    void collapsedStateChanged() override;
 
 private:
     
