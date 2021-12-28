@@ -165,9 +165,7 @@ void SpikeDisplayCanvas::resized()
 
 void SpikeDisplayCanvas::paint(Graphics& g)
 {
-
     g.fillAll(Colours::black);
-
 }
 
 void SpikeDisplayCanvas::refresh()

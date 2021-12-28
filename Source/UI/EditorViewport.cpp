@@ -1308,7 +1308,6 @@ std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
     XmlElement* machine = info->createNewChildElement("MACHINE");
     machine->setAttribute("name", SystemStats::getComputerName());
     machine->setAttribute("cpu_model", SystemStats::getCpuModel());
-    machine->setAttribute("cpu_speed_mhz", SystemStats::getCpuSpeedInMegahertz());
     machine->setAttribute("cpu_num_cores", SystemStats::getNumCpus());
 
     Array<GenericProcessor*> rootNodes = AccessClass::getProcessorGraph()->getRootNodes();
