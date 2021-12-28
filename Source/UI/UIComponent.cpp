@@ -57,8 +57,8 @@
 
 	dataViewport = new DataViewport();
 	addChildComponent(dataViewport);
-	dataViewport->addTabToDataViewport("Info", infoLabel,0);
-	dataViewport->addTabToDataViewport("Graph", graphViewer,0);
+	dataViewport->addTabToDataViewport("Info", infoLabel, nullptr);
+	dataViewport->addTabToDataViewport("Graph", graphViewer->getGraphViewport(), nullptr);
 
 	LOGD("Created data viewport.");
 

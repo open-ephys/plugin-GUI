@@ -30,7 +30,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 class DataStream;
-
+class GraphViewer;
 
 
 /**
@@ -188,6 +188,36 @@ private:
     int verticalOffset;
 };
 
+
+/**
+    Allows the GraphViewer to be scrolled
+
+ */
+class GraphViewport : public Component
+{
+public:
+    /** Constructor */
+    GraphViewport(GraphViewer* gv);
+
+    /** Destructor */
+    ~GraphViewport() { }
+
+    /** Draws the Open Ephys Logo*/
+    void paint(Graphics& g) override;
+
+    /** Sets viewport bounds*/
+    void resized() override;
+
+    /** Scroll area*/
+    std::unique_ptr<Viewport> viewport;
+
+    /** Holds the Open Ephys application version*/
+    String currentVersionText;
+
+    /** Logo to display*/
+    Image bw_logo;
+};
+
 /**
 
  Displays the full processor graph for a given session.
@@ -205,10 +235,13 @@ public:
     GraphViewer();
     
     /** Destructor */
-    ~GraphViewer();
+    ~GraphViewer() { }
     
     /** Draws the GraphViewer.*/
     void paint (Graphics& g)    override;
+
+    /** Resizes the component, based on the bottom-most node*/
+    void updateBoundaries();
     
     /** Adds a graph node for a particular processor */
     void updateNodes    (Array<GenericProcessor*> rootProcessors);
@@ -226,20 +259,23 @@ public:
     
     /** Checks if a node exists for a given processor*/
     bool nodeExists(GenericProcessor* processor);
+
+    /** Returns a pointer to the top-level component */
+    GraphViewport* getGraphViewport() { return graphViewport.get(); }
     
 private:
     void connectNodes (int, int, Graphics&);
 
     int rootNum;
 
-    String currentVersionText;
-    
     OwnedArray<GraphNode> availableNodes;
 
-    Image bw_logo;
-    
+    std::unique_ptr<GraphViewport> graphViewport;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphViewer);
 };
+
+
 
 
 

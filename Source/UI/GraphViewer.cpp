@@ -33,21 +33,63 @@ const int NODE_WIDTH = 165;
 const int NODE_HEIGHT = 50;
 const int BORDER_SIZE = 20;
 
-
-GraphViewer::GraphViewer()
+GraphViewport::GraphViewport(GraphViewer* gv)
 {
+    viewport = std::make_unique<Viewport>();
+    viewport->setViewedComponent(gv, false);
+    gv->setVisible(true);
+    addAndMakeVisible(viewport.get());
+
     JUCEApplication* app = JUCEApplication::getInstance();
     currentVersionText = "GUI version " + app->getApplicationVersion();
 
     bw_logo = ImageCache::getFromMemory(BinaryData::bw_logo72_png, BinaryData::bw_logo72_pngSize);
-    
-    rootNum = 0;
+
 }
 
-
-GraphViewer::~GraphViewer()
+void GraphViewport::paint(Graphics& g)
 {
+    g.fillAll(Colour(20, 20, 20));
+    g.setOpacity(0.6f);
+    g.drawImageAt(bw_logo, getWidth() - 175, getHeight() - 115);
+    
+
+    g.setOpacity(1.0f);
+    g.setColour(Colours::grey);
+
+    g.setFont(Font("Silkscreen", "Regular", 14));
+    g.drawFittedText(currentVersionText, 40, 40, getWidth() - 65, getHeight() - 60, Justification::bottomRight, 100);
 }
+
+void GraphViewport::resized()
+{
+    viewport->setBounds(0, 0, getWidth(), getHeight());
+}
+
+GraphViewer::GraphViewer()
+{
+    rootNum = 0;
+
+    graphViewport = std::make_unique<GraphViewport>(this);
+}
+
+void GraphViewer::updateBoundaries()
+{
+    int maxHeight = 0;
+    int maxWidth = 0;
+
+    for (auto node : availableNodes)
+    {
+        if (node->getBottom() > maxHeight)
+            maxHeight = node->getBottom();
+
+        if (node->getRight() > maxWidth)
+            maxWidth = node->getRight();
+    }
+
+    setBounds(0, 0, maxWidth + 10, maxHeight + 10);
+}
+
 
 void GraphViewer::updateNodes(Array<GenericProcessor*> rootProcessors)
 {
@@ -92,7 +134,7 @@ void GraphViewer::updateNodes(Array<GenericProcessor*> rootProcessors)
         }
     }
     
-    //updateNodeLocations();
+    
 }
 
 bool GraphViewer::nodeExists(GenericProcessor* p)
@@ -121,6 +163,8 @@ void GraphViewer::addNode (GenericEditor* editor, int level, int offset)
     gn->setHorzShift(offset);
     gn->setWidth(thisNodeWidth);
     gn->updateBoundaries();
+
+    updateBoundaries();
     
 }
 
@@ -166,15 +210,6 @@ GraphNode* GraphViewer::getNodeForEditor (GenericEditor* editor) const
 
 void GraphViewer::paint (Graphics& g)
 {
-    g.fillAll (Colour(20,20,20));
-    g.setOpacity(0.6f);
-    g.drawImageAt(bw_logo, getWidth()-165, getHeight()-105);
-
-    g.setOpacity(1.0f);
-    g.setColour (Colours::grey);
-    
-    g.setFont (Font("Silkscreen", "Regular", 14));
-    g.drawFittedText (currentVersionText, 40, 40, getWidth()-55, getHeight()-50, Justification::bottomRight, 100);
     
     // Draw connections
     const int numAvailableNodes = availableNodes.size();
@@ -427,6 +462,7 @@ void GraphNode::buttonClicked(Button* button)
     else
         dataStreamPanel.setPanelSize(dsb->getComponent(), 0, false);
 
+    gv->updateBoundaries();
     gv->repaint();
 }
 
