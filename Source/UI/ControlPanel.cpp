@@ -100,7 +100,7 @@ RecordButton::RecordButton()
 CPUMeter::CPUMeter() : Label("CPU Meter","0.0"), cpu(0.0f)
 {
 
-    font = Font("Small Text", 12, Font::plain);
+    font = Font("Silkscreen", "Regular", 12);
     
     setTooltip("CPU usage");
 }
@@ -132,7 +132,7 @@ DiskSpaceMeter::DiskSpaceMeter()
 
 {
 
-    font = Font("Small Text", 12, Font::plain);
+    font = Font("Silkscreen", "Regular", 12);
     
     setTooltip("Disk space available");
 }
@@ -169,7 +169,7 @@ Clock::Clock() : isRunning(false),
                  isRecording(false)
 {
 
-    clockFont = Font("Default Light", 30, Font::plain);
+    clockFont = Font("CP Mono", "Light", 30);
     clockFont.setHorizontalScale(0.95f);
 
     totalTime = 0;
@@ -336,7 +336,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     : graph(graph_), audio(audio_), initialize(true), open(false), lastEngineIndex(-1)
 {
 
-    font = Font("Paragraph", 13, Font::plain);
+    font = Font("Miso", "Regular", 13);
 
     audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
     addAndMakeVisible(audioEditor);
@@ -365,13 +365,13 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     recordSelector->addListener(this);
     addChildComponent(recordSelector.get());
 
-    recordOptionsButton = std::make_unique<UtilityButton>("R",Font("Small Text", 15, Font::plain));
+    recordOptionsButton = std::make_unique<UtilityButton>("R", Font("Silkscreen", "Regular", 15));
     recordOptionsButton->setEnabledState(true);
     recordOptionsButton->addListener(this);
     recordOptionsButton->setTooltip("Configure options for selected record engine");
     addChildComponent(recordOptionsButton.get());
 
-    newDirectoryButton = std::make_unique<UtilityButton>("+", Font("Small Text", 15, Font::plain));
+    newDirectoryButton = std::make_unique<UtilityButton>("+", Font("Silkscreen", "Regular", 15));
     newDirectoryButton->setEnabledState(false);
     newDirectoryButton->addListener(this);
     newDirectoryButton->setTooltip("Start a new data directory");

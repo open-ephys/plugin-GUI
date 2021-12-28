@@ -26,29 +26,29 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
-#include "../Editors/ImageIcon.h"
-
-class ImageIcon;
 
 /**
 
-  User interface for the SourceNode.
+  Default interface for the SourceNode.
+
+  Ideally, DataThreads should create custom
+  editors to use instead.
 
   @see SourceNode
 
 */
-
-
 class SourceNodeEditor : public GenericEditor
 
 {
 public:
+
+    /** Constructor */
     SourceNodeEditor(GenericProcessor* parentNode);
-    virtual ~SourceNodeEditor();
+
+    /** Destructor */
+    virtual ~SourceNodeEditor() { }
 
 private:
-
-    ImageIcon* icon;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SourceNodeEditor);
     

@@ -1028,7 +1028,7 @@ DualTimeComponent::DualTimeComponent (FileReaderEditor* e, bool editable)
     l = new Label (editor->getNameAndId() + " Start Time");
     l->setBounds (0, 0, 75, 20);
     l->setEditable (isEditable);
-    l->setFont (Font("Small Text", 10, Font::plain));
+    l->setFont (Font("Silkscreen", "Regular", 10));
     if (isEditable)
     {
         l->addListener (this);
@@ -1042,7 +1042,7 @@ DualTimeComponent::DualTimeComponent (FileReaderEditor* e, bool editable)
     l = new Label(editor->getNameAndId() + " End Time");
     l->setBounds (85, 0, 75, 20);
     l->setEditable (isEditable);
-    l->setFont (Font("Small Text", 10, Font::plain));
+    l->setFont(Font("Silkscreen", "Regular", 10));
     if (isEditable)
     {
         l->addListener (this);
@@ -1070,7 +1070,7 @@ void DualTimeComponent::paint (Graphics& g)
         sep = "-";
     else
         sep = "/";
-    g.setFont (Font("Small Text", 10, Font::plain));
+    g.setFont(Font("Silkscreen", "Regular", 10));
     g.setColour (Colours::darkgrey);
     g.drawText (sep, 78, 0, 5, 20, Justification::centred, false);
 }

@@ -122,7 +122,7 @@ void InfoLabel::buttonClicked(Button* button)
 
 void InfoLabel::resized()
 {
-    viewport->setBounds(20, 65, getWidth()-20, getHeight() - 60);
+    viewport->setBounds(20, 65, getWidth()-20, getHeight() - 63);
 
     if (tabButtons.getFirst()->getToggleState())
     {

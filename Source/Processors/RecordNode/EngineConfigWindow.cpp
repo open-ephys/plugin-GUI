@@ -53,7 +53,7 @@ EngineParameterComponent::EngineParameterComponent(EngineParameter& param)
     else
     {
         Label* lab = new Label();
-        lab->setFont(Font("Small Text",10,Font::plain));
+        lab->setFont(Font("Silkscreen", "Regular", 10));
 		name = param.name;
         switch (param.type)
         {

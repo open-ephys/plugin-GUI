@@ -62,8 +62,6 @@ public:
     /* Broadcasts a message from the DataThread to all other processors*/
     void broadcastDataThreadMessage(String msg);
 
-    //void setParameter (int parameterIndex, float newValue) override;
-
     /* Saves custom parameters to the settings file*/
     void saveCustomParametersToXml (XmlElement* parentElement)  override;
 
@@ -115,23 +113,20 @@ private:
     void resizeBuffers();
 
     /* Interval (in ms) for checking for the data source*/
-    int sourceCheckInterval;
+    int sourceCheckInterval = 2000;
 
-    bool wasDisabled;
-
-    int numStreams;
+    bool wasDisabled = false;
+    int numStreams = 0;
+    int ttlState = 0;
 
     ScopedPointer<DataThread> dataThread;
     Array<DataBuffer*> inputBuffers;
 
-    uint64 timestamp;
+    uint64 timestamp = 0;
 
     OwnedArray<MemoryBlock> eventCodeBuffers;
 	Array<uint64> eventStates;
 	Array<EventChannel*> ttlChannels;
-
-    int ttlState;
-	
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceNode);
 };

@@ -161,33 +161,34 @@ public:
 
 private:
 
-    // UNCOMMENT AFTER UPDATE
-    // this maps strings to customtypeface pointers
-    HashMap<String, Typeface::Ptr> typefaceMap;
-
-    MemoryInputStream
-    cpmonoExtraLightStream,
-    cpmonoLightStream,
-    cpmonoPlainStream,
-    cpmonoBoldStream,
-    cpmonoBlackStream,
-    misoRegularStream,
-    silkscreenStream;
-
     Typeface::Ptr
-    cpmonoExtraLight,
-    cpmonoLight,
-    cpmonoPlain,
-    cpmonoBold,
-    cpmonoBlack,
-    misoRegular,
-    silkscreen,
-    firasansExtraLight,
-    firasansRegular,
-    firasansSemiBold,
-    firasansExtraBold,
-    firaCode,
-    nimbusSans;
+        bebasNeue,
+
+        cpmonoExtraLight,
+        cpmonoLight,
+        cpmonoPlain,
+        cpmonoBold,
+        
+        firaCodeLight,
+        firaCodeMedium,
+        firaCodeRetina,
+        firaCodeRegular,
+        firaCodeSemiBold,
+        firaCodeBold,
+
+        firaSansExtraLight,
+        firaSansRegular,
+        firaSansSemiBold,
+        firaSansExtraBold,
+
+        misoRegular,
+        misoLight,
+        misoBold,
+
+        nimbusSans,
+        nordic,
+        ostrich,
+        silkscreen;
 
     Font getCommonMenuFont();
 };

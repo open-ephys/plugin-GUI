@@ -25,63 +25,63 @@
 #include "../CustomArrowButton.h"
 
 CustomLookAndFeel::CustomLookAndFeel() :
-    // third argument to MIS means don't copy the binary data to make a new stream
-    cpmonoExtraLightStream(BinaryData::cpmonoextralightserialized,
-        BinaryData::cpmonoextralightserializedSize,
-        false),
-    cpmonoLightStream(BinaryData::cpmonolightserialized,
-        BinaryData::cpmonolightserializedSize,
-        false),
-    cpmonoPlainStream(BinaryData::cpmonoplainserialized,
-        BinaryData::cpmonoplainserializedSize,
-        false),
-    cpmonoBoldStream(BinaryData::cpmonoboldserialized,
-        BinaryData::cpmonoboldserializedSize,
-        false),
-    cpmonoBlackStream(BinaryData::cpmonoblackserialized,
-        BinaryData::cpmonoblackserializedSize,
-        false),
-    misoRegularStream(BinaryData::misoserialized,
-        BinaryData::misoserializedSize,
-        false),
-    silkscreenStream(BinaryData::silkscreenserialized,
-        BinaryData::silkscreenserializedSize,
-        false),
+
     // heap allocation is necessary here, because otherwise the typefaces are
     // deleted too soon (there's a singleton typefacecache that holds references
     // to them whenever they're used).
-    cpmonoExtraLight(new CustomTypeface(cpmonoExtraLightStream)),
-    cpmonoLight(new CustomTypeface(cpmonoLightStream)),
-    cpmonoPlain(new CustomTypeface(cpmonoPlainStream)),
-    cpmonoBold(new CustomTypeface(cpmonoBoldStream)),
-    cpmonoBlack(new CustomTypeface(cpmonoBlackStream)),
-    misoRegular(new CustomTypeface(misoRegularStream)),
-    silkscreen(new CustomTypeface(silkscreenStream)),
-    firasansExtraLight(Typeface::createSystemTypefaceFor(BinaryData::FiraSansExtraLight_ttf,
+
+    silkscreen(new CustomTypeface(MemoryInputStream(BinaryData::silkscreenserialized,
+        BinaryData::silkscreenserializedSize,
+        false))),
+
+    cpmonoExtraLight(Typeface::createSystemTypefaceFor(BinaryData::CPMonoExtraLight_otf,
+        BinaryData::CPMonoExtraLight_otfSize)),
+    cpmonoLight(Typeface::createSystemTypefaceFor(BinaryData::CPMonoLight_otf,
+        BinaryData::CPMonoLight_otfSize)),
+    cpmonoPlain(Typeface::createSystemTypefaceFor(BinaryData::CPMonoPlain_otf,
+        BinaryData::CPMonoPlain_otfSize)),
+    cpmonoBold(Typeface::createSystemTypefaceFor(BinaryData::CPMonoBold_otf,
+        BinaryData::CPMonoBold_otfSize)),
+
+    firaCodeLight(Typeface::createSystemTypefaceFor(BinaryData::FiraCodeLight_ttf,
+        BinaryData::FiraCodeLight_ttfSize)),
+    firaCodeMedium(Typeface::createSystemTypefaceFor(BinaryData::FiraCodeMedium_ttf,
+        BinaryData::FiraCodeMedium_ttfSize)),
+    firaCodeRetina(Typeface::createSystemTypefaceFor(BinaryData::FiraCodeRetina_ttf,
+        BinaryData::FiraCodeRetina_ttfSize)),
+    firaCodeRegular(Typeface::createSystemTypefaceFor(BinaryData::FiraCodeRegular_ttf,
+        BinaryData::FiraCodeRegular_ttfSize)),
+    firaCodeSemiBold(Typeface::createSystemTypefaceFor(BinaryData::FiraCodeSemiBold_ttf,
+        BinaryData::FiraCodeSemiBold_ttfSize)),
+    firaCodeBold(Typeface::createSystemTypefaceFor(BinaryData::FiraCodeBold_ttf,
+        BinaryData::FiraCodeBold_ttfSize)),
+
+    firaSansExtraLight(Typeface::createSystemTypefaceFor(BinaryData::FiraSansExtraLight_ttf,
         BinaryData::FiraSansExtraLight_ttfSize)),
-    firasansRegular(Typeface::createSystemTypefaceFor(BinaryData::FiraSansRegular_ttf,
+    firaSansRegular(Typeface::createSystemTypefaceFor(BinaryData::FiraSansRegular_ttf,
         BinaryData::FiraSansRegular_ttfSize)),
-    firasansSemiBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansSemiBold_ttf,
+    firaSansSemiBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansSemiBold_ttf,
         BinaryData::FiraSansSemiBold_ttfSize)),
-    firasansExtraBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansExtraBold_ttf,
+    firaSansExtraBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansExtraBold_ttf,
         BinaryData::FiraSansExtraBold_ttfSize)),
 
-    firaCode(Typeface::createSystemTypefaceFor(BinaryData::FiraCodeRegular_ttf,
-        BinaryData::FiraCodeRegular_ttfSize)),
+    misoRegular(Typeface::createSystemTypefaceFor(BinaryData::MisoRegular_ttf,
+        BinaryData::MisoRegular_ttfSize)),
+    misoLight(Typeface::createSystemTypefaceFor(BinaryData::MisoLight_ttf,
+        BinaryData::MisoLight_ttfSize)),
+    misoBold(Typeface::createSystemTypefaceFor(BinaryData::MisoBold_ttf,
+        BinaryData::MisoBold_ttfSize)),
 
     nimbusSans(Typeface::createSystemTypefaceFor(BinaryData::NimbusSans_otf,
-        BinaryData::NimbusSans_otfSize))
+        BinaryData::NimbusSans_otfSize)),
+    nordic(Typeface::createSystemTypefaceFor(BinaryData::Nordic_ttf,
+        BinaryData::Nordic_ttfSize)),
+    ostrich(Typeface::createSystemTypefaceFor(BinaryData::Ostrich_ttf,
+        BinaryData::Ostrich_ttfSize)),
+    bebasNeue(Typeface::createSystemTypefaceFor(BinaryData::BebasNeue_otf,
+        BinaryData::BebasNeue_otfSize))
 
 {
-
-    // UNCOMMENT AFTER UPDATE
-    // typefaceMap.set(String("Default Extra Light"), cpmonoExtraLight);
-    // typefaceMap.set(String("Default Light"), cpmonoLight);
-    // typefaceMap.set(String("Default"), cpmonoPlain);
-    // typefaceMap.set(String("Default Bold"), cpmonoBold);
-    // typefaceMap.set(String("Default Black"), cpmonoBlack);
-    // typefaceMap.set(String("Paragraph"), misoRegular);
-    // typefaceMap.set(String("Silkscreen"), silkscreen);
 
     enum
     {
@@ -114,71 +114,125 @@ CustomLookAndFeel::~CustomLookAndFeel() {}
 Typeface::Ptr CustomLookAndFeel::getTypefaceForFont(const Font& font)
 {
     String typefaceName = font.getTypefaceName();
+    String typefaceStyle = font.getTypefaceStyle();
 
-    // some of these names might be unnecessary, and there may be good ones
-    // missing.  adjust as needed
-    if (typefaceName.equalsIgnoreCase("Default Extra Light"))
+    if (typefaceName.equalsIgnoreCase("CP Mono"))
     {
-        return cpmonoExtraLight;
-    }
-    else if (typefaceName.equalsIgnoreCase("Default Light"))
-    {
-        return cpmonoLight;
-    }
-    else if (typefaceName.equalsIgnoreCase("Default"))
-    {
-        return cpmonoPlain;
-    }
-    else if (typefaceName.equalsIgnoreCase("Default Bold"))
-    {
-        return cpmonoBold;
-    }
-    else if (typefaceName.equalsIgnoreCase("Default Black"))
-    {
-        return cpmonoBlack;
-    }
-    else if (typefaceName.equalsIgnoreCase("Paragraph"))
-    {
-        return misoRegular;
-    }
-    else if (typefaceName.equalsIgnoreCase("Small Text"))
-    {
-        return silkscreen;
-    }
-    else if (typefaceName.equalsIgnoreCase("FiraSans Light"))
-    {
-        return firasansExtraLight;
-    }
-    else if (typefaceName.equalsIgnoreCase("FiraSans"))
-    {
-        return firasansRegular;
-    }
-    else if (typefaceName.equalsIgnoreCase("FiraSans Bold"))
-    {
-        return firasansSemiBold;
-    }
-    else if (typefaceName.equalsIgnoreCase("FiraSans Extra Bold"))
-    {
-        return firasansExtraBold;
+        if (typefaceStyle.equalsIgnoreCase("Plain"))
+        {
+            return cpmonoPlain;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("Extra Light"))
+        {
+            return cpmonoExtraLight;
+        } 
+        else if (typefaceStyle.equalsIgnoreCase("Light"))
+        {
+            return cpmonoLight;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("Bold"))
+        {
+            return cpmonoBold;
+        }
+        else {
+            return cpmonoPlain; // default weight
+        }
     }
     else if (typefaceName.equalsIgnoreCase("Fira Code"))
     {
-        return firaCode;
+        if (typefaceStyle.equalsIgnoreCase("Light"))
+        {
+            return firaCodeLight;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("Medium"))
+        {
+            return firaCodeMedium;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("Regular"))
+        {
+            return firaCodeRegular;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("Retina"))
+        {
+            return firaCodeRetina;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("SemiBold"))
+        {
+            return firaCodeSemiBold;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("Bold"))
+        {
+            return firaCodeBold;
+        }
+        else {
+            return firaCodeRegular; // default weight
+        }
+    }
+    else if (typefaceName.equalsIgnoreCase("Fira Sans"))
+    {
+        if (typefaceStyle.equalsIgnoreCase("Extra Light"))
+        {
+            return firaSansExtraLight;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("Regular"))
+        {
+            return firaSansRegular;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("SemiBold"))
+        {
+            return firaSansSemiBold;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("Extra Bold"))
+        {
+            return firaSansExtraBold;
+        }
+        else {
+            return firaSansSemiBold; // default weight
+        }
+    }
+    else if (typefaceName.equalsIgnoreCase("Miso"))
+    {
+        if (typefaceStyle.equalsIgnoreCase("Regular"))
+        {
+            return misoRegular;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("Bold"))
+        {
+            return misoBold;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("Light"))
+        {
+            return misoLight;
+        }
+        else {
+            return misoRegular; // default weight
+        }
     }
     else if (typefaceName.equalsIgnoreCase("Nimbus Sans"))
     {
         return nimbusSans;
     }
+    else if (typefaceName.equalsIgnoreCase("Silkscreen"))
+    {
+        return silkscreen;
+    }
+    else if (typefaceName.equalsIgnoreCase("Ostrich"))
+    {
+        return ostrich;
+    }
+    else if (typefaceName.equalsIgnoreCase("Bebas Neue"))
+    {
+        return bebasNeue;
+    }
+    else if (typefaceName.equalsIgnoreCase("Nordic"))
+    {
+        return nordic;
+    }
     else   // default
     {
-        return firasansSemiBold;
+        return firaCodeSemiBold;
     }
 
-    // UNCOMMENT AFTER UPDATE
-    // if (typefaceMap.contains(typefaceName))
-    //     return typefaceMap[typefaceName];
-    // else
-    //     return LookAndFeel::getTypefaceForFont(font);
 }
 
 //==================================================================
@@ -661,7 +715,7 @@ Font CustomLookAndFeel::getTextButtonFont (TextButton&, int buttonHeight)
 
 Font CustomLookAndFeel::getCommonMenuFont()
 {
-    return Font ("FiraSans", 20.f, Font::plain);
+    return Font ("FiraSans", "Regular", 20.f);
 }
 
 //==================================================================

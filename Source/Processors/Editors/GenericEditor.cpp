@@ -56,7 +56,7 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
 
     nodeId = owner->getNodeId();
 
-    titleFont = Font("Default", 14, Font::bold);
+    titleFont = Font("CP Mono", "Plain", 14);
 
     drawerButton = std::make_unique<DrawerButton>(getNameAndId() + " Drawer Button");
     drawerButton->addListener(&drawerButtonListener);
@@ -961,8 +961,8 @@ void TriangleButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDow
 LoadButton::LoadButton(const String& name) : ImageButton(name)
 {
 
-    Image icon = ImageCache::getFromMemory(BinaryData::upload2_png,
-                                           BinaryData::upload2_pngSize);
+    Image icon = ImageCache::getFromMemory(BinaryData::upload_png,
+                                           BinaryData::upload_pngSize);
 
     setImages(false, // resizeButtonNowToFitThisImage
               true,  // rescaleImagesWhenButtonSizeChanges
@@ -987,8 +987,8 @@ LoadButton::~LoadButton()
 
 SaveButton::SaveButton(const String& name) : ImageButton(name)
 {
-    Image icon = ImageCache::getFromMemory(BinaryData::floppy5_png,
-                                           BinaryData::floppy5_pngSize);
+    Image icon = ImageCache::getFromMemory(BinaryData::floppy_png,
+                                           BinaryData::floppy_pngSize);
 
     setImages(false, // resizeButtonNowToFitThisImage
               true,  // rescaleImagesWhenButtonSizeChanges

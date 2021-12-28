@@ -32,7 +32,7 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param) : ParameterEdit
         || param->getType() == Parameter::STRING_PARAM);
 
     parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
-    Font labelFont = Font("Small Text", 12, Font::plain);
+    Font labelFont = Font("Silkscreen", "Regular", 12);
     int labelWidth = labelFont.getStringWidth(param->getName());
     parameterNameLabel->setFont(labelFont);
     parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
@@ -43,7 +43,7 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param) : ParameterEdit
     else
         valueTextBox = std::make_unique<Label>("Parameter value", param->getValue().toString());
 
-    valueTextBox->setFont(Font("Default", 15, Font::plain));
+    valueTextBox->setFont(Font("CP Mono", "Plain", 15));
     valueTextBox->setColour(Label::textColourId, Colours::white);
     valueTextBox->setColour(Label::backgroundColourId, Colours::grey);
     valueTextBox->setEditable(true);
@@ -95,7 +95,7 @@ CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param) : ParameterEd
     jassert(param->getType() == Parameter::BOOLEAN_PARAM);
 
     parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
-    parameterNameLabel->setFont(Font("Small Text", 12, Font::plain));
+    parameterNameLabel->setFont(Font("Silkscreen", "Regular", 12));
     parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(parameterNameLabel.get());
 
@@ -139,7 +139,7 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param) : ParameterEd
         || param->getType() == Parameter::INT_PARAM);
 
     parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
-    parameterNameLabel->setFont(Font("Small Text", 12, Font::plain));
+    parameterNameLabel->setFont(Font("Silkscreen", "Regular", 12));
     parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(parameterNameLabel.get());
 
@@ -369,7 +369,7 @@ SliderParameterEditor::SliderParameterEditor(Parameter* param) : ParameterEditor
         || param->getType() == Parameter::INT_PARAM);
 
     parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
-    parameterNameLabel->setFont(Font("Small Text", 12, Font::plain));
+    parameterNameLabel->setFont(Font("Silkscreen", "Regular", 12));
     parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(parameterNameLabel.get());
 
@@ -443,7 +443,7 @@ void SliderParameterEditor::resized()
 SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* param) : ParameterEditor(param)
 {
 
-    button = std::make_unique<UtilityButton>(param->getName(), Font("Default", 10, Font::plain));
+    button = std::make_unique<UtilityButton>(param->getName(), Font("CP Mono", "Plain", 10));
     button->addListener(this);
     button->setClickingTogglesState(false);
     button->setTooltip(param->getDescription());
@@ -501,7 +501,7 @@ void SelectedChannelsParameterEditor::resized()
 MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param) : ParameterEditor(param)
 {
 
-    button = std::make_unique<UtilityButton>(param->getName(), Font("Default", 10, Font::plain));
+    button = std::make_unique<UtilityButton>(param->getName(), Font("CP Mono", "Plain", 10));
     button->addListener(this);
     button->setClickingTogglesState(false);
     button->setTooltip("Mask channels to filter within this stream");

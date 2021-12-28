@@ -56,8 +56,8 @@ ProcessorList::ProcessorList(Viewport* v) :
     maximumNameOffset(0)
 {
 
-	listFontLight = Font("Default Light", 25, Font::plain);
-	listFontPlain = Font("Default", 20, Font::plain);
+	listFontLight = Font("CP Mono", "Light", 25);
+	listFontPlain = Font("CP Mono", "Plain", 20);
 
 	setColour(PROCESSOR_COLOR, Colour(59, 59, 59));
 	setColour(FILTER_COLOR, Colour(0, 174, 239));

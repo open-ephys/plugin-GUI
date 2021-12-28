@@ -256,7 +256,7 @@ void MessageCenterEditor::paint(Graphics& g)
     
     if (isExpanded)
     {
-        g.setFont (Font("Default Bold", 80, Font::plain));
+        g.setFont (Font("CP Mono", "Bold", 80));
         g.setColour(Colours::white.withAlpha(0.1f));
         g.drawText("INCOMING", 4,
         25,
@@ -370,7 +370,7 @@ MessageLabel::MessageLabel(const String& componentName, const String& labelText)
     setColour(Label::textColourId, Colours::black);
     setColour(Label::textWhenEditingColourId, Colours::black);
     setColour(Label::outlineWhenEditingColourId, Colours::darkgrey);
-    setFont(Font("Default", 15, Font::plain));
+    setFont(Font("CP Mono", "Plain", 15));
     setBorderSize(BorderSize<int>(0, 7, 2, 0));
     setMinimumHorizontalScale (1.0f);
     

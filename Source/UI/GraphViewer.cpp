@@ -169,12 +169,11 @@ void GraphViewer::paint (Graphics& g)
     g.fillAll (Colour(20,20,20));
     g.setOpacity(0.6f);
     g.drawImageAt(bw_logo, getWidth()-165, getHeight()-105);
-    g.setFont (Font("Paragraph",  50, Font::plain));
-    
+
     g.setOpacity(1.0f);
     g.setColour (Colours::grey);
     
-    g.setFont (Font("Small Text", 14, Font::plain));
+    g.setFont (Font("Silkscreen", "Regular", 14));
     g.drawFittedText (currentVersionText, 40, 40, getWidth()-55, getHeight()-50, Justification::bottomRight, 100);
     
     // Draw connections

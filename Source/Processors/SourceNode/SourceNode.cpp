@@ -32,18 +32,13 @@
 #include "../Events/Event.h"
 #include "../Settings/DataStream.h"
 
-SourceNode::SourceNode (const String& name_, DataThreadCreator dt)
+SourceNode::SourceNode (const String& name_, DataThreadCreator dataThreadCreator)
     : GenericProcessor      (name_)
-    , sourceCheckInterval   (2000)
-    , wasDisabled           (true)
-    , dataThread            (nullptr)
-    , ttlState              (0)
-    , numStreams            (0)
 {
 
     setProcessorType(Plugin::Processor::SOURCE);
 
-    dataThread = dt (this);
+    dataThread = dataThreadCreator (this);
 
     if (dataThread != nullptr)
     {
@@ -56,13 +51,11 @@ SourceNode::SourceNode (const String& name_, DataThreadCreator dt)
     else
     {
         isEnabled = false;
-        //   eventChannelState = 0;
     }
 
     // check for input source every few seconds
     startTimer (sourceCheckInterval);
 
-    timestamp = 0;
 }
 
 
@@ -70,7 +63,7 @@ SourceNode::~SourceNode()
 {
     if (dataThread->isThreadRunning())
     {
-        LOGD("Forcing thread to stop.");
+        LOGD(getName(), "forcing DataThread to stop.");
         dataThread->stopThread (500);
     }
 }
