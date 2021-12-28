@@ -77,7 +77,7 @@ TTLEventPtr PhaseDetectorSettings::clearOutputBit(int64 timestamp)
 PhaseDetector::PhaseDetector() : GenericProcessor ("Phase Detector")
 {
 
-    addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "input_channel", "The continuous channel to analyze", 1);
+    addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "Channel", "The continuous channel to analyze", 1);
     addIntParameter(Parameter::STREAM_SCOPE, "output_bit", "The output TTL bit", 1, 1, 16);
     addIntParameter(Parameter::STREAM_SCOPE,"gate_bit", "The input TTL bit for gating the signal", 1, 1, 16);
     addCategoricalParameter(Parameter::STREAM_SCOPE,
@@ -104,7 +104,7 @@ void PhaseDetector::parameterValueChanged(Parameter* param)
     {
         settings[param->getStreamId()]->detectorType = DetectorType((int) param->getValue());
     } 
-    else if (param->getName().equalsIgnoreCase("input_channel"))
+    else if (param->getName().equalsIgnoreCase("Channel"))
     {
         int localIndex = (int)param->getValue();
         int globalIndex = getDataStream(param->getStreamId())->getContinuousChannels()[localIndex]->getGlobalIndex();
@@ -131,7 +131,7 @@ void PhaseDetector::updateSettings()
 	{
         // update "settings" objects
         parameterValueChanged(stream->getParameter("phase"));
-        parameterValueChanged(stream->getParameter("input_channel"));
+        parameterValueChanged(stream->getParameter("Channel"));
         parameterValueChanged(stream->getParameter("output_bit"));
         parameterValueChanged(stream->getParameter("gate_bit"));
 

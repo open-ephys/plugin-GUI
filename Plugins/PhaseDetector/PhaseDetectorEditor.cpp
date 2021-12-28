@@ -35,7 +35,7 @@ PhaseDetectorEditor::PhaseDetectorEditor(GenericProcessor* parentNode)
 {
     desiredWidth = 220;
 
-    addSelectedChannelsParameterEditor("input_channel", 120, 105);
+    addSelectedChannelsParameterEditor("Channel", 120, 105);
     addComboBoxParameterEditor("output_bit", 15, 30);
     addComboBoxParameterEditor("gate_bit", 15, 80);
 
