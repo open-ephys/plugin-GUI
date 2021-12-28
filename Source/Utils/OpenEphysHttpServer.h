@@ -38,6 +38,8 @@
 
 using json = nlohmann::json;
 
+#define PORT 37497
+
 
 /**
  * HTTP server thread for controlling Processor Parameters via an HTTP API. This starts an HTTP server on port 37497
@@ -63,7 +65,6 @@ using json = nlohmann::json;
  */
 class OpenEphysHttpServer : juce::Thread {
 public:
-    static const int PORT = 37497;
 
     explicit OpenEphysHttpServer(ProcessorGraph* graph) :
         graph_(graph),
