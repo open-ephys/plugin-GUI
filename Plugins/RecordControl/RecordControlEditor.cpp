@@ -28,9 +28,9 @@
 RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode)
     : GenericEditor(parentNode)
 {
-    desiredWidth = 170;
+    desiredWidth = 200;
 
-    addComboBoxParameterEditor("trigger_type", 10, 20);
-    addComboBoxParameterEditor("edge", 10, 50);
-    addComboBoxParameterEditor("trigger_bit", 10, 80);
+    addComboBoxParameterEditor("trigger_type", 10, 30);
+    addComboBoxParameterEditor("edge", 10, 70);
+    addComboBoxParameterEditor("trigger_bit", 100, 70);
 }

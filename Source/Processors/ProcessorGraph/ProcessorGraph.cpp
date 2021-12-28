@@ -1521,7 +1521,7 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
             cs.channelIndex = chan;
             cd.channelIndex = dest->getIndexOfMatchingChannel(source->getContinuousChannel(chan));
 
-            LOGG("  Source channel: ", cs.channelIndex, ", Dest Channel: ", cd.channelIndex);
+            //LOGG("  Source channel: ", cs.channelIndex, ", Dest Channel: ", cd.channelIndex);
 
             if (cd.channelIndex > -1)
             {

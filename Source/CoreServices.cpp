@@ -50,6 +50,7 @@ namespace CoreServices
 
 	void setAcquisitionStatus(bool enable)
 	{
+		const MessageManagerLock mml;
 		getControlPanel()->setAcquisitionState(enable);
 	}
 
@@ -60,6 +61,7 @@ namespace CoreServices
 
 	void setRecordingStatus(bool enable)
 	{
+		const MessageManagerLock mml;
 		getControlPanel()->setRecordState(enable);
 	}
 

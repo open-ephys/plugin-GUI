@@ -68,13 +68,13 @@ void RecordControl::handleEvent (const EventChannel* eventInfo, const EventPacke
     {
         TTLEventPtr ttl = TTLEvent::deserialize (packet, eventInfo);
 
-        uint16 streamId = ttl->getStreamId();
+        DataStream* stream = getDataStream(ttl->getStreamId());
 
-		if (ttl->getBit() == ( int(getParameter(streamId, "Trigger Bit")->getValue()) - 1))
+		if (ttl->getBit() == ( int((*stream)["trigger_bit"]) - 1))
 		{
-			if (int(getParameter("Trigger Type")->getValue()) == 0)
+			if (int(getParameter("trigger_type")->getValue()) == 0)
 			{
-				if (ttl->getState() == bool(getParameter("Edge")->getValue()))
+				if (ttl->getState() == bool(getParameter("edge")->getValue()))
 				{
 					CoreServices::setRecordingStatus(true);
 				}
