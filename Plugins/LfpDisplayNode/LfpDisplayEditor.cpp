@@ -97,7 +97,7 @@ LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode)
 	defaultSubprocessor = 0;
 
     layoutLabel = std::make_unique<Label>("layout", "Layout:");
-    addAndMakeVisible(layoutLabel.get());
+    //addAndMakeVisible(layoutLabel.get());
     
     singleDisplay = std::make_unique<LayoutButton>("single");
     singleDisplay->setToggleState(true, dontSendNotification);
@@ -178,14 +178,16 @@ void LfpDisplayEditor::resized()
 {
     VisualizerEditor::resized();
 
-    layoutLabel->setBounds(5, 40, 50, 20);
-    singleDisplay->setBounds(55, 40, 20, 20);
-    twoVertDisplay->setBounds(80, 40, 20, 20);
-    threeVertDisplay->setBounds(105, 40, 20, 20);
-    twoHoriDisplay->setBounds(130, 40, 20, 20);
-    threeHoriDisplay->setBounds(155, 40, 20, 20);
+    int buttonSize = 25;
 
-    syncButton->setBounds(40, 80, 110, 30);
+    //layoutLabel->setBounds(5, 40, 50, 20);
+    singleDisplay->setBounds(22, 43, buttonSize, buttonSize);
+    twoVertDisplay->setBounds(52, 43, buttonSize, buttonSize);
+    threeVertDisplay->setBounds(82, 43, buttonSize, buttonSize);
+    twoHoriDisplay->setBounds(112, 43, buttonSize, buttonSize);
+    threeHoriDisplay->setBounds(142, 43, buttonSize, buttonSize);
+
+    syncButton->setBounds(40, 84, 110, 30);
 }
 
 void LfpDisplayEditor::removeBufferForDisplay(int splitID)

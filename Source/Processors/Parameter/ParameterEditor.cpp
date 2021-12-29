@@ -44,6 +44,7 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param) : ParameterEdit
         valueTextBox = std::make_unique<Label>("Parameter value", param->getValue().toString());
 
     valueTextBox->setFont(Font("CP Mono", "Plain", 15));
+    valueTextBox->setName(param->getProcessor()->getName() + " (" + String(param->getProcessor()->getNodeId()) + ") - " + param->getName());
     valueTextBox->setColour(Label::textColourId, Colours::white);
     valueTextBox->setColour(Label::backgroundColourId, Colours::grey);
     valueTextBox->setEditable(true);
@@ -100,6 +101,7 @@ CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param) : ParameterEd
     addAndMakeVisible(parameterNameLabel.get());
 
     valueCheckBox = std::make_unique<ToggleButton>("Parameter value");
+    valueCheckBox->setName(param->getProcessor()->getName() + " (" + String(param->getProcessor()->getNodeId()) + ") - " + param->getName());
     valueCheckBox->setToggleState(bool(param->getValue()), dontSendNotification);
     valueCheckBox->addListener(this);
     valueCheckBox->setTooltip(param->getDescription());
@@ -143,7 +145,8 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param) : ParameterEd
     parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(parameterNameLabel.get());
 
-    valueComboBox = std::make_unique<ComboBox>(param->getName());
+    valueComboBox = std::make_unique<ComboBox>();
+    valueComboBox->setName(param->getProcessor()->getName() + " (" + String(param->getProcessor()->getNodeId()) + ") - " + param->getName());
     valueComboBox->addListener(this);
     valueComboBox->setTooltip(param->getDescription());
     addAndMakeVisible(valueComboBox.get());
@@ -245,9 +248,9 @@ CustomSlider::CustomSlider() : isEnabled(true)
     onValueChange = [&]()
     {
         if (getValue() < 10)
-            setNumDecimalPlacesToDisplay (2);
-        else if (10 <= getValue() && getValue() < 100)
             setNumDecimalPlacesToDisplay (1);
+        else if (10 <= getValue() && getValue() < 100)
+            setNumDecimalPlacesToDisplay (0);
         else
             setNumDecimalPlacesToDisplay (0);
     };
@@ -374,6 +377,7 @@ SliderParameterEditor::SliderParameterEditor(Parameter* param) : ParameterEditor
     addAndMakeVisible(parameterNameLabel.get());
 
     slider = std::make_unique<CustomSlider>();
+    slider->setName(param->getProcessor()->getName() + " (" + String(param->getProcessor()->getNodeId()) + ") - " + param->getName());
     slider->addListener(this);
     slider->setTooltip(param->getDescription());
     
@@ -444,6 +448,7 @@ SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* para
 {
 
     button = std::make_unique<UtilityButton>(param->getName(), Font("CP Mono", "Plain", 10));
+    button->setName(param->getProcessor()->getName() + " (" + String(param->getProcessor()->getNodeId()) + ") - " + param->getName());
     button->addListener(this);
     button->setClickingTogglesState(false);
     button->setTooltip(param->getDescription());
@@ -502,6 +507,7 @@ MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param) : Par
 {
 
     button = std::make_unique<UtilityButton>(param->getName(), Font("CP Mono", "Plain", 10));
+    button->setName(param->getProcessor()->getName() + " (" + String(param->getProcessor()->getNodeId()) + ") - " + param->getName());
     button->addListener(this);
     button->setClickingTogglesState(false);
     button->setTooltip("Mask channels to filter within this stream");

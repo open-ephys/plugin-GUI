@@ -164,12 +164,17 @@ public:
     //void switchIO (int path);
     void verticalShift(int pixels);
     
+    /** Adjusts the boundaries of this node, based on its inputs and outputs*/
     void updateBoundaries();
+
+    /** True if processor still exists */
+    bool stillNeeded;
     
 private:
     GenericEditor* editor;
     GenericProcessor* processor;
     GraphViewer* gv;
+    
 
     String getInfoString();
 

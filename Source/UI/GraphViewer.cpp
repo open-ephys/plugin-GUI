@@ -93,7 +93,11 @@ void GraphViewer::updateBoundaries()
 
 void GraphViewer::updateNodes(Array<GenericProcessor*> rootProcessors)
 {
-    removeAllNodes(); // clear the current nodes
+
+    removeAllNodes();
+
+    //for (auto node : availableNodes)
+    //    node->stillNeeded = false;
             
     Array<Splitter*> splitters;
 
@@ -114,6 +118,12 @@ void GraphViewer::updateNodes(Array<GenericProcessor*> rootProcessors)
                 {
                     addNode(processor->getEditor(), level, rootNum);
                 }
+                //else {
+                //    GraphNode* node = getNodeForEditor(processor->getEditor());
+                //    node->stillNeeded = true;
+                //    node->setLevel(level);
+                //    node->setHorzShift(rootNum);
+                //}
                 
                 if (processor->isSplitter())
                 {
@@ -133,6 +143,21 @@ void GraphViewer::updateNodes(Array<GenericProcessor*> rootProcessors)
             }
         }
     }
+
+    /*Array<GraphNode*> nodesToDelete;
+
+    for (auto node : availableNodes)
+    {
+        if (!node->stillNeeded)
+            nodesToDelete.add(node);
+    }
+
+    for (auto node : nodesToDelete)
+    {
+        availableNodes.removeObject(node, true);
+    }*/
+
+    updateBoundaries();
     
     
 }
@@ -164,8 +189,6 @@ void GraphViewer::addNode (GenericEditor* editor, int level, int offset)
     gn->setWidth(thisNodeWidth);
     gn->updateBoundaries();
 
-    updateBoundaries();
-    
 }
 
 
@@ -357,6 +380,7 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
 , processor     (ed->getProcessor())
 , gv            (g)
 , isMouseOver   (false)
+, stillNeeded   (true)
 {
     nodeId = processor->getNodeId();
     horzShift = 0;
