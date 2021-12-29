@@ -914,6 +914,13 @@ void LfpDisplaySplitter::timerCallback()
     refresh();
 }
 
+void LfpDisplaySplitter::monitorChannel(int chan)
+{
+    int globalIndex = processor->getDataStream(subprocessorId)->getContinuousChannels()[chan]->getGlobalIndex();
+
+    processor->setParameter(99, globalIndex);
+}
+
 void LfpDisplaySplitter::select()
 {
     if (canvas->canSelect(splitID))
@@ -984,6 +991,8 @@ void LfpDisplaySplitter::updateSettings()
         displayBuffer->addDisplay(splitID);
         
         subprocessorSelection->setSelectedId(displayBuffer->id, dontSendNotification);
+        subprocessorId = displayBuffer->id;
+
         displayBufferSize = displayBuffer->getNumSamples();
         nChans = displayBuffer->numChannels;
         //resizeSamplesPerPixelBuffer(nChans);
@@ -1631,7 +1640,7 @@ void LfpDisplaySplitter::setDrawableSampleRate(float samplerate)
     displayedSampleRate = samplerate;
 }
 
-void LfpDisplaySplitter::setDrawableSubprocessor(uint32 sp)
+void LfpDisplaySplitter::setDrawableSubprocessor(uint16 sp)
 {
    
     subprocessorId = sp;

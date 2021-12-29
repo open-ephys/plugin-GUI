@@ -194,7 +194,7 @@ public:
 
     /** Delegates a subprocessor for drawing to the LfpDisplay referenced by this
         this canvas */
-    void setDrawableSubprocessor(uint32 sp);
+    void setDrawableSubprocessor(uint16 sp);
 
     const float getXCoord(int chan, int samp);
     const float getYCoord(int chan, int samp);
@@ -270,6 +270,8 @@ public:
 
     void timerCallback();
 
+    void monitorChannel(int channel);
+
 private:
 
     bool isSelected;
@@ -289,7 +291,7 @@ private:
     int triggerChannel;
     bool reachedEnd;
 
-	uint32 subprocessorId;
+	uint16 subprocessorId;
 	float displayedSampleRate;
 
     int samplesPerBufferPass;
