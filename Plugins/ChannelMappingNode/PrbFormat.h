@@ -32,33 +32,34 @@ class PrbFormat
 {
 public:
 
-    static void write(File filename, ChannelMapSettings& settings)
+    static void write(File filename, ChannelMapSettings* settings)
     {
         FileOutputStream outputStream(filename);
         outputStream.setPosition(0);
         outputStream.truncate();
 
-        std::unique_ptr<DynamicObject> info = std::make_unique<DynamicObject>();
-        std::unique_ptr<DynamicObject> nestedObj = std::make_unique<DynamicObject>();
+        DynamicObject info;
+        DynamicObject* nestedObj = new DynamicObject();
 
         Array<var> arr;
         Array<var> arr2;
         
-        for (int i = 0; i < settings.channelOrder.size(); i++)
+        for (int i = 0; i < settings->channelOrder.size(); i++)
         {
-            arr.add(var(settings.channelOrder[i]));
-            arr2.add(var(settings.isEnabled[i]));
+            arr.add(var(settings->channelOrder[i]));
+            arr2.add(var(settings->isEnabled[i]));
         }
         
         nestedObj->setProperty("mapping", var(arr));
         nestedObj->setProperty("enabled", var(arr2));
 
-        info->setProperty("0", nestedObj.get());
+        info.setProperty("0", nestedObj);
 
-        info->writeAsJSON(outputStream, 2, false, 3);
+        info.writeAsJSON(outputStream, 2, false, 3);
+        
     }
 
-    static void read(File filename, ChannelMapSettings& settings)
+    static void read(File filename, ChannelMapSettings* settings)
     {
         FileInputStream inputStream(filename);
 
@@ -85,10 +86,10 @@ public:
         for (int i = 0; i < map->size(); i++)
         {
             int ch = map->getUnchecked(i);
-            settings.channelOrder.set(i, ch);
+            settings->channelOrder.set(i, ch);
 
             bool en = enbl->getUnchecked(i);
-            settings.isEnabled.set(i, en);
+            settings->isEnabled.set(i, en);
         }
     }
 };

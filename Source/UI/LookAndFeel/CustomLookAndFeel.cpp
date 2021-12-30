@@ -30,9 +30,9 @@ CustomLookAndFeel::CustomLookAndFeel() :
     // deleted too soon (there's a singleton typefacecache that holds references
     // to them whenever they're used).
 
-    silkscreen(new CustomTypeface(MemoryInputStream(BinaryData::silkscreenserialized,
+    silkscreenStream(BinaryData::silkscreenserialized,
         BinaryData::silkscreenserializedSize,
-        false))),
+        false),
 
     cpmonoExtraLight(Typeface::createSystemTypefaceFor(BinaryData::CPMonoExtraLight_otf,
         BinaryData::CPMonoExtraLight_otfSize)),
@@ -81,8 +81,11 @@ CustomLookAndFeel::CustomLookAndFeel() :
     bebasNeue(Typeface::createSystemTypefaceFor(BinaryData::BebasNeue_otf,
         BinaryData::BebasNeue_otfSize))
 
+
 {
 
+    silkscreen = new CustomTypeface(silkscreenStream);
+    
     enum
     {
         PROCESSOR_COLOR = 0x801,

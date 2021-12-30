@@ -80,25 +80,32 @@ void ChannelMapSettings::fromXml(XmlElement* xml)
 
     int channelIndex = 0;
 
-    forEachXmlChildElement(*xml, channelParams)
+    for (auto* channelParams : xml->getChildIterator())
     {
         if (channelParams->hasTagName("CH"))
         {
+            
+            //std::cout << "ORDER: " << channelParams->getIntAttribute("index") << ", ENABLED: " << channelParams->getBoolAttribute("enabled") << std::endl;
+            
             channelOrder.add(channelParams->getIntAttribute("index", channelIndex));
-            isEnabled.add(channelParams->getBoolAttribute("enabled"), true);
+            isEnabled.add(channelParams->getBoolAttribute("enabled", true));
+            
+            
             channelIndex++;
+        } else {
+            std::cout << channelParams->getTagName() << std::endl;
         }
     }
 }
 
 void ChannelMapSettings::toJson(File filename)
 {
-    PrbFormat::write(filename, *this);
+    PrbFormat::write(filename, this);
 }
 
 void ChannelMapSettings::fromJson(File filename)
 {
-    PrbFormat::read(filename, *this);
+    PrbFormat::read(filename, this);
 }
 
 // =====================================================
