@@ -189,6 +189,8 @@ private:
         nordic,
         ostrich,
         silkscreen;
+    
+    MemoryInputStream silkscreenStream;
 
     Font getCommonMenuFont();
 };

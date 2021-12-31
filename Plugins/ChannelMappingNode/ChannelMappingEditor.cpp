@@ -38,7 +38,7 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode)
     electrodeButtonViewport = std::make_unique<Viewport>();
 
     addAndMakeVisible(electrodeButtonViewport.get());
-    electrodeButtonViewport->setBounds(10,30,330,70);
+    electrodeButtonViewport->setBounds(10,30,325,90);
     electrodeButtonViewport->setScrollBarsShown(true,false,true,true);
     electrodeButtonHolder = std::make_unique<Component>();
     electrodeButtonViewport->setViewedComponent(electrodeButtonHolder.get(), false);
@@ -244,7 +244,9 @@ void ChannelMappingEditor::mouseDown(const MouseEvent& e)
                 displayString,  // message
                 true);          // isSelectable
 
-            const int result = menu.show(); // returns 0 if nothing is selected
+            const int result = menu.showMenu(PopupMenu::Options()); // returns 0 if nothing is selected
+            
+            //delete menu;
 
             if (result > 0)
             {
