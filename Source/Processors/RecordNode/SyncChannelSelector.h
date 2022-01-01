@@ -4,15 +4,25 @@
 
 class SyncChannelSelector;
 
+/** 
+
+Allows the user to select the TTL line to use for synchronization
+
+*/
 class SyncChannelButton : public Button	
 {
 public:
+
+	/** Constructor */
 	SyncChannelButton(int id, SyncChannelSelector* parent);
+
+	/** Destructor */
 	~SyncChannelButton();
+
+	/** Returns the ID for this button's stream*/
     int getId() { return id; };
+
 private:
-	//void mouseDown(const MouseEvent &event);
-	//void mouseUp(const MouseEvent &event);
 
 	int id; 
 	SyncChannelSelector* parent;
@@ -24,28 +34,39 @@ private:
 class SetButton : public Button	
 {
 public:
+
+	/** Constructor */
 	SetButton(const String& name);
+
+	/** Destructor */
 	~SetButton();
+
 private:
+	/** Renders the button*/
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
-class SyncControlButton;
 
 class SyncChannelSelector : public Component, public Button::Listener
 {
 public:
-	SyncChannelSelector(int nChans, int selectedChannelIdx, bool isMaster);
+	/** Constructor */
+	SyncChannelSelector(int nChans, int selectedChannelIdx, bool isPrimary);
+
+	/** Destructor */
 	~SyncChannelSelector();
 
+	/** Mouse listener methods*/
 	void mouseDown(const MouseEvent &event);
 	void mouseMove(const MouseEvent &event);
 	void mouseUp(const MouseEvent &event);
+
+	/** Responds to button clicks*/
 	void buttonClicked(Button*);
 
 	int nChannels;
 	int selectedId;
-	bool isMaster;
+	bool isPrimary;
 
 	int buttonSize;
 	int nRows;
@@ -57,6 +78,6 @@ public:
 
 private:
 
-    ScopedPointer<SetButton> setMasterSubprocessorButton;
+    ScopedPointer<SetButton> setPrimaryStreamButton;
     
 };

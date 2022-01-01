@@ -25,7 +25,11 @@
 #include <stdio.h>
 
 FilenameFieldComponent::FilenameFieldComponent(int type_, int state_, String value_) 
-        : type(static_cast<Type>(type_)), state(static_cast<State>(state_)), value(value_)
+        : type(static_cast<Type>(type_)), 
+          state(static_cast<State>(state_)), 
+          value(value_),
+          index(0),
+          newDirectoryNeeded(true)
 {
 
     typeLabel = std::make_unique<Label>("Type", types[type_] + ":");
@@ -41,7 +45,14 @@ FilenameFieldComponent::FilenameFieldComponent(int type_, int state_, String val
     addAndMakeVisible(stateButton.get());
 
     valueLabel = std::make_unique<Label>("Value", value_);
-    valueLabel->setEditable(true);
+    if (state != FilenameFieldComponent::State::AUTO)
+    {
+        valueLabel->setEditable(true);
+    }
+    else {
+        valueLabel->setEditable(false);
+    }
+    
     valueLabel->setBounds(170, 0, 230, 32);
     valueLabel->addListener(this);
     valueLabel->setColour(
@@ -49,51 +60,185 @@ FilenameFieldComponent::FilenameFieldComponent(int type_, int state_, String val
         state == FilenameFieldComponent::State::CUSTOM ? Colours::white : Colours::grey);
     addAndMakeVisible(valueLabel.get());
 
+    if (type == FilenameFieldComponent::Type::MAIN)
+    {
+        savedValue = "directory_name";
+    }
+    else if (type == FilenameFieldComponent::Type::PREPEND)
+    {
+        savedValue = "prepend_";
+    }
+    else
+    {
+        savedValue = "_append";
+    }
+
 }
 
 void FilenameFieldComponent::labelTextChanged(Label* label)
 {
-    //TODO: Do some basic string validation here
-    value = label->getText();
+    String candidateValue = label->getText();
+
+    if (candidateValue.length() == 0)
+    {
+        label->setText(value, dontSendNotification);
+        AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Invalid file name", "File name must have at least 1 character.");
+        return;
+    }
+
+    if (candidateValue.contains(File::getSeparatorString()))
+    {
+        label->setText(value, dontSendNotification);
+        AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Invalid file name", "File name cannot contain slashes.");
+        return;
+    }
+
+    if (candidateValue.contains("."))
+    {
+        label->setText(value, dontSendNotification);
+        AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Invalid file name", "File name cannot contain periods.");
+        return;
+    }
+
+    value = candidateValue;
+    
+}
+
+void FilenameFieldComponent::incrementDirectoryIndex()
+{
+    index++;
+    newDirectoryNeeded = true;
+}
+
+String FilenameFieldComponent::getNextValue(bool usePlaceholderText)
+{
+
+    if (newDirectoryNeeded)
+    {
+        //std::cout << "New directory needed." << std::endl;
+
+        newDirectoryNeeded = false;
+
+        if (state == FilenameFieldComponent::State::CUSTOM)
+        {
+            return value;
+        }
+
+        if (state == FilenameFieldComponent::State::NONE)
+        {
+            return "";
+        }
+
+        if (state == FilenameFieldComponent::State::AUTO)
+        {
+            if (type == FilenameFieldComponent::Type::MAIN)
+            {
+
+                if (usePlaceholderText)
+                {
+                    value = "YYYY-MM-DD_HH-MM-SS";
+                    valueLabel->setText(value, dontSendNotification);
+                    return value;
+                }
+                else {
+                    Time calendar = Time::getCurrentTime();
+
+                    Array<int> t;
+                    t.add(calendar.getYear());
+                    t.add(calendar.getMonth() + 1); // January = 0 
+                    t.add(calendar.getDayOfMonth());
+                    t.add(calendar.getHours());
+                    t.add(calendar.getMinutes());
+                    t.add(calendar.getSeconds());
+
+                    String datestring = "";
+
+                    for (int n = 0; n < t.size(); n++)
+                    {
+                        if (t[n] < 10)
+                            datestring += "0";
+
+                        datestring += t[n];
+
+                        if (n == 2)
+                            datestring += "_";
+                        else if (n < 5)
+                            datestring += "-";
+                    }
+
+                    value = datestring;
+                }
+
+                valueLabel->setText(value, dontSendNotification);
+                return value;
+            }
+            else {
+
+                value = "";
+
+                if (type == FilenameFieldComponent::Type::APPEND)
+                    value += "_";
+
+                if (index < 100)
+                    value += "0";
+
+                if (index < 10)
+                    value += "0";
+
+                value += String(index);
+
+                if (type == FilenameFieldComponent::Type::PREPEND)
+                    value += "_";
+
+                valueLabel->setText(value, dontSendNotification);
+                return value;
+            }
+        }
+    }
+    else {
+        
+        //std::cout << "New directory NOT needed." << std::endl;
+        //std::cout << "Returning: " << value << std::endl;
+
+        return value;
+    }
+
+    
 }
 
 void FilenameFieldComponent::buttonClicked(Button* button)
 {
+
     state = static_cast<State>(int(state + 1) % states.size());
+
+    if (type == FilenameFieldComponent::Type::MAIN 
+        && state == FilenameFieldComponent::State::NONE) // MAIN string cannot be empty
+    {
+        state = FilenameFieldComponent::State::AUTO;
+    }
+
     stateButton->setButtonText(states[state]);
 
     valueLabel->setEditable(false);
     valueLabel->setColour(Label::ColourIds::backgroundColourId, Colours::grey);
 
     if (state == FilenameFieldComponent::State::NONE)
-        valueLabel->setText("", sendNotification);
+    {
+        savedValue = value;
+        value = "";
+        valueLabel->setText("", dontSendNotification);
+    }
     else if (state == FilenameFieldComponent::State::CUSTOM)
     {
+        value = savedValue;
         valueLabel->setEditable(true);
         valueLabel->setColour(Label::ColourIds::backgroundColourId, Colours::white);
+        valueLabel->setText(value, sendNotification);
     }
     else //AUTO
     {
-        switch (type)
-        {
-          case FilenameFieldComponent::Type::PREPEND:
-
-            valueLabel->setText("001_", sendNotification);
-            break;
-
-          case FilenameFieldComponent::Type::MAIN:
-
-            valueLabel->setText("MM-DD-YYYY_HH-MM-SS", sendNotification);
-            break;
-
-          case FilenameFieldComponent::Type::APPEND:
-
-            valueLabel->setText("_001", sendNotification);
-            break;
-
-          default:
-            break;
-        }
+        newDirectoryNeeded = true;
+        getNextValue(true);
     }
 
 }
@@ -133,8 +278,18 @@ void FilenameConfigWindow::loadStateFromXml(XmlElement* xml)
 
                 fields[type]->state = static_cast<FilenameFieldComponent::State>(fieldNode->getIntAttribute("state",0));
                 fields[type]->stateButton->setButtonText(fields[type]->states[fields[type]->state]);
-                fields[type]->value = fieldNode->getStringAttribute("value","");
-                fields[type]->valueLabel->setText(fields[type]->value, sendNotification);
+
+                if (fields[type]->state != FilenameFieldComponent::State::AUTO)
+                {
+                    fields[type]->value = fieldNode->getStringAttribute("value", "");
+                    fields[type]->valueLabel->setText(fields[type]->value, sendNotification);
+                    fields[type]->valueLabel->setEditable(false);
+                }
+                else {
+                    fields[type]->newDirectoryNeeded = true;
+                    fields[type]->getNextValue(true);
+                }
+                
                 if (fields[type]->state == FilenameFieldComponent::State::CUSTOM)
                 {
                     fields[type]->valueLabel->setEditable(true, sendNotification);

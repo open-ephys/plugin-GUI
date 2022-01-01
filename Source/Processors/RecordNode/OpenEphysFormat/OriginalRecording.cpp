@@ -36,10 +36,7 @@ OriginalRecording::OriginalRecording() : separateFiles(false),
 recordingNumber(0), experimentNumber(0), zeroBuffer(1, 50000),
 eventFile(nullptr), messageFile(nullptr), lastProcId(0), procIndex(0)
 {
-	/*continuousDataIntegerBuffer = new int16[10000];
-	continuousDataFloatBuffer = new float[10000];
 
-	recordMarker = new char[10];*/
 	continuousDataIntegerBuffer.malloc(10000);
 	continuousDataFloatBuffer.malloc(10000);
 	recordMarker.malloc(10);
@@ -64,12 +61,9 @@ OriginalRecording::~OriginalRecording()
 	{
 		if (spikeFileArray[i] != nullptr) fclose(spikeFileArray[i]);
 	}
-	/*   delete continuousDataFloatBuffer;
-	delete continuousDataIntegerBuffer;
-	delete recordMarker;*/
 }
 
-String OriginalRecording::getEngineID() const
+String OriginalRecording::getEngineId() const
 {
 	return "OPENEPHYS";
 }
@@ -158,7 +152,6 @@ void OriginalRecording::openFile(File rootFolder, const ChannelInfoObject* ch, i
 		String header = generateHeader(ch);
 		LOGDD(header);
 		LOGD("File ID: ", chFile, ", number of bytes: ", header.getNumBytesAsUTF8());
-
 
 		fwrite(header.toUTF8(), 1, header.getNumBytesAsUTF8(), chFile);
 
@@ -400,6 +393,7 @@ String OriginalRecording::generateSpikeHeader(const SpikeChannel* elec)
 void OriginalRecording::writeEvent(int eventIndex, const MidiMessage& event)
 {
 	writeTTLEvent(eventIndex, event);
+
 	if (Event::getEventType(event) == EventChannel::TEXT)
 	{
 		TextEventPtr ev = TextEvent::deserialize(event, getEventChannel(eventIndex));
@@ -424,7 +418,7 @@ void OriginalRecording::writeMessage(String message, uint16 processorID,  int64 
 
 	diskWriteLock.enter();
 	fwrite(timestampText.toUTF8(), 1, timestampText.length(), messageFile);
-	fwrite(" ", 1, 1, messageFile);
+	fwrite(", ", 1, 2, messageFile);
 	fwrite(message.toUTF8(), 1, msgLength, messageFile);
 	fwrite("\n", 1, 1, messageFile);
 	diskWriteLock.exit();
@@ -455,10 +449,10 @@ void OriginalRecording::writeTTLEvent(int eventIndex, const EventPacket& packet)
 
 	diskWriteLock.enter();
 
-	fwrite(&data,					// ptr
-		sizeof(uint8),   							// size of each element
-		16, 		  						// count
-		eventFile);   			// ptr to FILE object
+	fwrite(&data,			// ptr
+		sizeof(uint8),   	// size of each element
+		16, 		  		// count
+		eventFile);   		// ptr to FILE object
 
 	diskWriteLock.exit();
 }

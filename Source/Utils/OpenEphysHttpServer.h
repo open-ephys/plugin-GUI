@@ -46,10 +46,33 @@ using json = nlohmann::json;
  * (== "EPHYS" on a phone keypad) and allows remote manipulation of parameters of processors currently in the graph.
  *
  * The API is "RESTful", such that the resource URLs are:
- * - GET /api/status
- * - PUT /api/status
- * - PUT /api/message
- * - GET /api/processors
+ * 
+ * - GET /api/status : 
+ *          returns a JSON string with the GUI's current mode (IDLE, ACQUIRE, RECORD)
+ * 
+ * - PUT /api/status : 
+ *          sets the GUI's mode, e.g.: {"mode" : "ACQUIRE"}
+ * 
+ * - PUT /api/message :
+ *          sends a broadcast message to all processors, e.g.: {"text" : "Message content"}
+ *          only works while acquisition is active
+ * 
+ * - GET /api/recording :
+ *          returns a JSON string with the following information:
+ *          - default recording directory ("directory")
+ *          - default data format ("format")
+ *          - default directory name prepend + append text
+ *          - default directory name string
+ *          - available Record Nodes
+ *          - directory and format for each Record Node
+ * 
+ * - PUT /api/recording :
+ *          used to set the default recording options
+ * 
+ * - PUT /api/recording/<processor_id> :
+ *          used to set the options for a given Record Node
+ * 
+ * - GET /api/processors :
  * - GET /api/processors/<processor_id>
  * - GET /api/processors/<processor_id>/parameters
  * - GET /api/processors/<processor_id>/parameters/<parameter_name>
@@ -71,34 +94,31 @@ public:
         juce::Thread("HttpServer") {}
 
     void run() override {
+        
         svr_->Get("/api/status", [this](const httplib::Request&, httplib::Response& res) {
             json ret;
             status_to_json(graph_, &ret);
             res.set_content(ret.dump(), "application/json");
             });
-        svr_->Put("/api/status", [this](const httplib::Request& req, httplib::Response& res) {
+        
+        svr_->Put("/api/status", [this](const httplib::Request& req, httplib::Response& res) 
+        {
             std::string desired_mode;
-            std::string desired_data_parent_dir;
-            LOGD("Received PUT request");
+
+            LOGD("Received PUT request with content: ", req.body);
             try {
-                LOGD("Trying to decode");
+                LOGD("Trying to decode request");
                 json request_json;
                 request_json = json::parse(req.body);
-                LOGD("Parsed");
+                LOGD("Successfully parsed body");
                 desired_mode = request_json["mode"];
-                LOGD("Desired mode: ",desired_mode);
-                desired_data_parent_dir = request_json["data_parent_dir"];
+                LOGD("Found 'mode': ", desired_mode);
             }
             catch (json::exception& e) {
-                LOGD("Hit exception");
+                LOGD("Hit exception: ", String(e.what()));
                 res.set_content(e.what(), "text/plain");
                 res.status = 400;
                 return;
-            }
-
-            if (desired_data_parent_dir != CoreServices::getDefaultRecordingDirectory().getFullPathName()) {
-                const MessageManagerLock mmLock;
-                CoreServices::setDefaultRecordingDirectory(desired_data_parent_dir);
             }
 
             if (desired_mode == "RECORD" && !CoreServices::getRecordingStatus()) {
@@ -122,6 +142,127 @@ public:
             status_to_json(graph_, &ret);
             res.set_content(ret.dump(), "application/json");
             });
+
+        svr_->Get("/api/recording", [this](const httplib::Request&, httplib::Response& res) {
+            json ret;
+            recording_info_to_json(graph_, &ret);
+            res.set_content(ret.dump(), "application/json");
+            });
+
+        svr_->Put("/api/recording", [this](const httplib::Request& req, httplib::Response& res)
+            {
+                
+                json request_json;
+
+                LOGD("Received PUT request at /api/recording with content: ", req.body);
+
+                try 
+                {
+                    LOGD("Trying to decode request");
+                    request_json = json::parse(req.body);
+                    LOGD("Successfully parsed body");
+                }
+                catch (json::exception& e) 
+                {
+                    LOGD("Could not parse input.");
+                    res.set_content(e.what(), "text/plain");
+                    res.status = 400;
+                    return;
+                }
+               
+                try {
+                    std::string parent_directory = request_json["parent_directory"];
+                    LOGD("Found 'parent_directory': ", parent_directory);
+                    const MessageManagerLock mml;
+                    CoreServices::setRecordingParentDirectory(String(parent_directory));
+                }
+                catch (json::exception& e) {
+                    LOGD("'parent_directory' not specified'");
+                }
+
+                try {
+                    std::string prepend_text = request_json["prepend_text"];
+                    LOGD("Found 'prepend_text': ", prepend_text);
+                    const MessageManagerLock mml;
+                    CoreServices::setRecordingDirectoryPrependText(String(prepend_text));
+                }
+                catch (json::exception& e) {
+                    LOGD("'prepend_text' not specified'");
+                }
+
+                try {
+                    std::string append_text = request_json["append_text"];
+                    LOGD("Found 'append_text': ", append_text);
+                    const MessageManagerLock mml;
+                    CoreServices::setRecordingDirectoryAppendText(String(append_text));
+                }
+                catch (json::exception& e) {
+                    LOGD("'append_text' not specified'");
+                }
+
+                try {
+                    std::string default_record_engine = request_json["default_record_engine"];
+                    LOGD("Found 'default_record_engine': ", default_record_engine);
+                    const MessageManagerLock mml;
+                    CoreServices::setDefaultRecordEngine(String(default_record_engine));
+                }
+                catch (json::exception& e) {
+                    LOGD("'default_record_engine' not specified'");
+                }
+
+                json ret;
+                recording_info_to_json(graph_, &ret);
+                res.set_content(ret.dump(), "application/json");
+            });
+
+        svr_->Put("/api/recording/([0-9]+)", [this](const httplib::Request& req, httplib::Response& res)
+            {
+
+                json request_json;
+
+                int id = juce::String(req.matches[1]).getIntValue();
+
+                LOGD("Received PUT request at /api/recording/", id, ":", req.body);
+
+                try
+                {
+                    LOGD("Trying to decode request");
+                    request_json = json::parse(req.body);
+                    LOGD("Successfully parsed body");
+                }
+                catch (json::exception& e)
+                {
+                    LOGD("Could not parse input.");
+                    res.set_content(e.what(), "text/plain");
+                    res.status = 400;
+                    return;
+                }
+
+                try {
+                    std::string parent_directory = request_json["parent_directory"];
+                    LOGD("Found 'parent_directory': ", parent_directory);
+                    const MessageManagerLock mml;
+                    CoreServices::RecordNode::setRecordingDirectory(String(parent_directory), id);
+                }
+                catch (json::exception& e) {
+                    LOGD("'parent_directory' not specified'");
+                }
+
+                try {
+                    std::string record_engine = request_json["record_engine"];
+                    LOGD("Found 'record_engine': ", record_engine);
+                    const MessageManagerLock mml;
+                    CoreServices::RecordNode::setRecordEngine(String(record_engine), id);
+                }
+                catch (json::exception& e) {
+                    LOGD("'record_engine' not specified'");
+                }
+                
+                json ret;
+                recording_info_to_json(graph_, &ret);
+                res.set_content(ret.dump(), "application/json");
+            });
+        
         svr_->Put("/api/message", [this](const httplib::Request& req, httplib::Response& res) {
             std::string message_str;
             LOGD("Received PUT request");
@@ -146,6 +287,7 @@ public:
             status_to_json(graph_, &ret);
             res.set_content(ret.dump(), "application/json");
             });
+        
         svr_->Get("/api/processors", [this](const httplib::Request&, httplib::Response& res) {
             Array<GenericProcessor*> processors = graph_->getListOfProcessors();
 
@@ -160,6 +302,7 @@ public:
 
             res.set_content(ret.dump(), "application/json");
             });
+        
         svr_->Get(R"(/api/processors/([0-9]+))", [this](const httplib::Request& req, httplib::Response& res) {
             auto processor = find_processor(req.matches[1]);
             if (processor == nullptr) {
@@ -170,6 +313,7 @@ public:
             processor_to_json(processor, &processor_json);
             res.set_content(processor_json.dump(), "application/json");
             });
+        
         svr_->Get(R"(/api/processors/([0-9]+)/parameters)", [this](const httplib::Request& req, httplib::Response& res) {
             auto processor = find_processor(req.matches[1]);
             if (processor == nullptr) {
@@ -182,6 +326,7 @@ public:
             ret["parameters"] = parameters_json;
             res.set_content(ret.dump(), "application/json");
             });
+        
         svr_->Get(R"(/api/processors/([0-9]+)/parameters/([A-Za-z0-9_\.\-]+))",
             [this](const httplib::Request& req, httplib::Response& res) {
                 auto processor = find_processor(req.matches[1]);
@@ -362,7 +507,6 @@ public:
                 res.set_content(ret.dump(), "application/json");
             });
         
-    
         svr_->Put(R"(/api/processors/([0-9]+)/streams/([0-9]+)/parameters/([A-Za-z0-9_\.\-]+))",
                    [this](const httplib::Request& req, httplib::Response& res) {
                        auto processor = find_processor(req.matches[1]);
@@ -458,12 +602,6 @@ public:
             const MessageManagerLock mml;
             JUCEApplication::getInstance()->systemRequestedQuit();
 
-            /*
-            json ret;
-            ret["info"] = return_msg.toStdString();
-            res.set_content(ret.dump(), "application/json");
-            */
-
             });
                    
         LOGC("Beginning HTTP server on port ", PORT);
@@ -482,7 +620,7 @@ public:
             LOGC("Shutting down HTTP server");
             svr_->stop();
         }
-        stopThread(1000);
+        stopThread(5000);
     }
 
 private:
@@ -527,7 +665,48 @@ private:
         return "";
     }
 
-    inline static void status_to_json(const ProcessorGraph* graph, json* ret) {
+    inline static void recording_info_to_json(const ProcessorGraph* graph, json* ret)
+    {
+        
+        (*ret)["parent_directory"] = CoreServices::getRecordingParentDirectory().getFullPathName().toStdString();
+
+        (*ret)["current_directory_name"] = CoreServices::getRecordingDirectoryName().toStdString();
+
+        (*ret)["prepend_text"] = CoreServices::getRecordingDirectoryPrependText().toStdString();
+
+        (*ret)["append_text"] = CoreServices::getRecordingDirectoryAppendText().toStdString();
+
+        (*ret)["default_record_engine"] = CoreServices::getDefaultRecordEngineId().toStdString();
+
+        std::vector<json> record_nodes_json;
+
+        for (int nodeId : CoreServices::getAvailableRecordNodeIds()) 
+        {
+            json record_node_json;
+            record_node_to_json(nodeId, &record_node_json);
+            record_nodes_json.push_back(record_node_json);
+        }
+
+        (*ret)["record_nodes"] = record_nodes_json;
+
+    }
+
+    inline static void record_node_to_json(int nodeId, json* ret)
+    {
+
+        (*ret)["node_id"] = nodeId;
+
+        (*ret)["parent_directory"] = CoreServices::RecordNode::getRecordingDirectory(nodeId).getFullPathName().toStdString();
+
+        (*ret)["record_engine"] = CoreServices::RecordNode::getRecordEngineId(nodeId).toStdString();
+
+        (*ret)["experiment_number"] = CoreServices::RecordNode::getExperimentNumber(nodeId);
+
+        (*ret)["recording_number"] = CoreServices::RecordNode::getRecordingNumber(nodeId);
+    }
+
+    inline static void status_to_json(const ProcessorGraph* graph, json* ret) 
+    {
         if (CoreServices::getRecordingStatus()) {
             (*ret)["mode"] = "RECORD";
         }
@@ -536,16 +715,6 @@ private:
         }
         else {
             (*ret)["mode"] = "IDLE";
-        }
-
-        (*ret)["data_parent_dir"] = CoreServices::getDefaultRecordingDirectory().getFullPathName().toStdString();
-
-        auto current_data_dir = getCurrentDataDir(graph);
-        if (current_data_dir.isEmpty()) {
-            (*ret)["data_dir"] = json::value_t::null;
-        }
-        else {
-            (*ret)["data_dir"] = current_data_dir.toStdString();
         }
     }
 
@@ -664,4 +833,4 @@ private:
     }
 };
 
-#endif  // __PROCESSORGRAPH_H_124F8B50__
+#endif  // __PROCESSORGRAPHHTTPSERVER_H_124F8B50__

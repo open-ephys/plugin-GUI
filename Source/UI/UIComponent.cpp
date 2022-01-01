@@ -101,7 +101,7 @@
 	getPluginManager()->loadAllPlugins();
 
 	getProcessorList()->fillItemList();
-	controlPanel->updateChildComponents();
+	controlPanel->updateRecordEngineList();
 
 	processorGraph->updateBufferSize(); // needs to happen after processorGraph gets the right pointers
 

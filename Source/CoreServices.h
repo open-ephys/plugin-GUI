@@ -42,6 +42,12 @@ namespace CoreServices
 */
 PLUGIN_API void updateSignalChain(GenericEditor* source);
 
+/** Saves the recoveryConfig.xml settings file*/
+PLUGIN_API void saveRecoveryConfig();
+
+/** Loads signal chain from a given path*/
+PLUGIN_API void loadSignalChain(String path);
+
 /** Returns true if the GUI is acquiring data */
 PLUGIN_API bool getAcquisitionStatus();
 
@@ -93,17 +99,29 @@ PLUGIN_API juce::int64 getSoftwareTimestamp();
 PLUGIN_API float getSoftwareSampleRate();
 
 /** Sets new default recording directory. This will only affect new Record Nodes */
-PLUGIN_API void setDefaultRecordingDirectory(String dir);
+PLUGIN_API void setRecordingParentDirectory(String dir);
 
 /** Returns the default recording directory.*/
-PLUGIN_API File getDefaultRecordingDirectory();
+PLUGIN_API File getRecordingParentDirectory();
+
+/** Sets new basename for the recording directory (does not affect prepend/append text) */
+PLUGIN_API void setRecordingDirectoryBasename(String dir);
+
+/** Returns the full name of the current recording directory (empty string if none has started) */
+PLUGIN_API String getRecordingDirectoryName();
 
 /** Creates new directory the next time recording is started.
 * This will apply to all Record Nodes*/
 PLUGIN_API void createNewRecordingDirectory();
 
 /** Set the text to be prepended to the name of newly created recording directories. */
-PLUGIN_API void setRecordDirectoryPrependText(String text);
+PLUGIN_API String getRecordingDirectoryPrependText();
+
+/** Set the text to be appended to the name of newly reated recording directories. */
+PLUGIN_API String getRecordingDirectoryAppendText();
+
+/** Set the text to be prepended to the name of newly created recording directories. */
+PLUGIN_API void setRecordingDirectoryPrependText(String text);
 
 /** Set the text to be appended to the name of newly reated recording directories. */
 PLUGIN_API void setRecordingDirectoryAppendText(String text);
@@ -114,13 +132,13 @@ PLUGIN_API std::vector<RecordEngineManager*> getAvailableRecordEngines();
 /** Gets the ID of the default Record Engine*/
 PLUGIN_API String getDefaultRecordEngineId();
 
-/** Returns the index of the default record engine in the RecordEngineManager vector.*/
-PLUGIN_API int getDefaultRecordEngineIdx();
-
 /** Sets a specific RecordEngine to be used based on its id. 
 * Returns true if there is an engine with the specified ID and it's possible to
 * change the current engine or false otherwise. */
 PLUGIN_API bool setDefaultRecordEngine(String id);
+
+/** Returns an array of IDs for Record Nodes currently in the signal chain*/
+PLUGIN_API Array<int> getAvailableRecordNodeIds();
 
 namespace RecordNode
 {
@@ -135,13 +153,13 @@ PLUGIN_API File getRecordingDirectory(int nodeId);
 /** Returns the free space available (in kB) for a Record Node's directory */
 PLUGIN_API float getFreeSpaceAvailable(int nodeId);
 
-/** Instructs a specific Record Node to creates new directory the next time recording is started.*/
-PLUGIN_API void createNewRecordingDirectory(int nodeId);
-
 /** Sets the RecordEngine for a specific Record Nodes.
 * If applyToAll=true, the nodeId is ignored, and the setting is applied to all Record Nodes
 * in the signal chain. */
 PLUGIN_API void setRecordEngine(String id, int nodeId, bool applyToAll = false);
+
+/** Returns the active RecordEngine for a specific Record Node*/
+PLUGIN_API String getRecordEngineId(int nodeId);
 
 /** Returns the recording number for a specific Record Node (number of times recording 
 * was stopped and re-started).*/
@@ -151,11 +169,18 @@ PLUGIN_API int getRecordingNumber(int nodeId);
 * was stopped and re-started).*/
 PLUGIN_API int getExperimentNumber(int nodeId);
 
+/** Instructs a specific Record Node to creates new directory the next time recording is started.*/
+PLUGIN_API void createNewRecordingDirectory(int nodeId);
+
+// FUNCTIONS BELOW ARE NOT YET IMPLEMENTED: 
+
 /** Toggles recording for a specific Record Node.*/
-PLUGIN_API void setRecordingStatus(int nodeId, bool status);
+//PLUGIN_API void setRecordingStatus(int nodeId, bool status);
 
 /** Gets the recording status for a specific Record Node.*/
-PLUGIN_API bool getRecordingStatus(int nodeId);
+//PLUGIN_API bool getRecordingStatus(int nodeId);
+
+
 
 };
 

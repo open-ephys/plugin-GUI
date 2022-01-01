@@ -71,12 +71,12 @@ public:
 	RecordNode();
     
     /** Destructor */
-	~RecordNode();
+	~RecordNode() { }
 
-	/** Allow configuration via HTTPServer */
+	/** Allow configuration via OpenEphysHttpServer */
 	String handleConfigMessage(String msg) override;
 
-	/** Handle string messages sent from the MessageCenter */
+	/** Writes TEXT messages sent from the MessageCenter to disk */
 	void handleBroadcastMessage(String msg) override;
 
 	/** Update DataQueue block size when Audio Settings buffer size changes */
@@ -130,32 +130,26 @@ public:
 
 	void process(AudioBuffer<float>& buffer) override;
 
-	void setParameter(int parameterIndex, float newValue) override;
-
 	std::vector<RecordEngineManager*> getAvailableRecordEngines();
 
-	void setEngine(int selectedEngineIndex);
+	String getEngineId();
 	void setEngine(String engineId);
 	void setRecordEvents(bool);
 	void setRecordSpikes(bool);
+
+	/** Sets the parent directory for this Record Node (can be different from default directory) */
 	void setDataDirectory(File);
+
+	/** Returns the parent directory for this Record Node (can be different from default directory) */
 	File getDataDirectory();
+
+	/** Returns true if this Record Node is writing data*/
 	bool getRecordingStatus() const;
 
 	/** Get the last settings.xml in string form. Since the string will be large, returns a const ref.*/
 	const String &getLastSettingsXml() const;
 
-    /** Must be called by a spike recording source on the "enable" method */
-    void registerSpikeSource(const GenericProcessor *processor);
-
-    /** Registers an electrode group for spike recording
-    Must be called by a spike recording source on the "enable" method
-    after the call to registerSpikeSource
-    */
-    int addSpikeElectrode(const SpikeChannel *elec);
-
-    /** Called by a spike recording source to write a spike to file
-    */
+    /** Called by handleEvent() */
     void writeSpike(const Spike *spike, const SpikeChannel *spikeElectrode);
 
     /** Called by the ControlPanel to determine the amount of space
@@ -167,8 +161,6 @@ public:
 		in kilobytes in the current dataDirectory.
 	*/
 	float getFreeSpaceKilobytes() const;
-
-	void registerProcessor(const GenericProcessor* sourceNode);
 
     /** Adds a Record Engine to use */
     void registerRecordEngine(RecordEngine *engine);

@@ -336,18 +336,6 @@ public:
     /** Toggles the visibility of the FilenameComponent.*/
     void toggleState();
 
-    /** Used to manually turn recording on and off.*/
-    void setRecordState(bool isRecording);
-
-    /** Return current recording state.*/
-    bool getRecordingState();
-
-    /** Set recording directory and update FilenameComponent */
-    void setRecordingDirectory(String path);
-
-    /** Returns the current global recording diretory*/
-    File getRecordingDirectory();
-
     /** Return current acquisition state.*/
     bool getAcquisitionState();
 
@@ -370,23 +358,60 @@ public:
     /** Notifies the control panel when the filename is updated */
     void labelTextChanged(Label*);
 
-    /** Used by RecordNode to set the filename. */
-    //String getTextToPrepend();
+    /** Used to manually turn recording on and off.*/
+    void setRecordingState(bool isRecording);
 
-    /** Used by RecordNode to set the filename. */
-    //String getTextToAppend();
+    /** Returns true if recording is active, false otherwise. */
+    bool getRecordingState();
 
-    /** Manually set the text to be prepended to the recording directory */
-    //void setPrependText(String text);
+    /** Sets the parent recording directory.
 
-    /** Manually set the text to be appended to the recording directory */
-    //void setAppendText(String text);
+        The parent recording directory is inherited by all subsequent Record Nodes
+        that are placed in the signal chain. Existing Record Nodes will not be
+        affected by this change.
 
-    /** Set date text. */
-    //void setDateText(String);
+        The actual recording location is determined by three strings:
 
-    /** Set filename text. */
-    void setFilenameText(String);
+        <parent_directory>/<directory_name>/Record Node <ID>
+
+        "parent_directory" can be set independently in the Control Panel
+        and individual Record Nodes.
+
+        "directory_name" is generated when recording starts, and is
+        shared by all Record Nodes
+
+        "Record Node <ID>" is based on the processor ID for each Record Node,
+        and can't be changed manually.
+    */
+    void setRecordingParentDirectory(String path);
+
+    /** Returns the current parent recording diretory*/
+    File getRecordingParentDirectory();
+
+    /** Sets the base name of the recording directory (overrides the auto-generated text,
+        but not prepend or append text)*/
+    void setRecordingDirectoryBasename(String text);
+
+    /** Gets the name of the current recording directory (including prepend and append text)
+    
+        Returns an empty string if recording has not been started yet.
+    */
+    String getRecordingDirectoryName();
+
+    /** Will generate a new directory name the next time recording is started*/
+    void createNewRecordingDirectory();
+
+    /** Returns the prepend text used to generate the recording directory name */
+    String getRecordingDirectoryPrependText();
+
+    /** Manually sets the text to be prepended to the recording directory (overrides auto-generated text)*/
+    void setRecordingDirectoryPrependText(String text);
+
+    /** Returns the append text used to generate the recording directory name */
+    String getRecordingDirectoryAppendText();
+
+    /** Manually sets the text to be appended to the recording directory (overrides auto-generated text)*/
+    void setRecordingDirectoryAppendText(String text);
 
     /** Save settings. */
     void saveStateToXml(XmlElement*);
@@ -394,17 +419,37 @@ public:
     /** Load settings. */
     void loadStateFromXml(XmlElement*);
 
-    /** Informs the Control Panel that recording has begun.*/
-    void startRecording();
-
-    /** Informs the Control Panel that recording has stopped.*/
-    void stopRecording();
-
     /** Returns a list of recently used directories for saving data. */
     StringArray getRecentlyUsedFilenames();
 
     /** Sets the list of recently used directories for saving data. */
     void setRecentlyUsedFilenames (const StringArray& filenames);
+
+    /** Queries the RecordEnginerManager for available engines when the GUI launches*/
+    void updateRecordEngineList();
+
+    /** Returns a list of available engines*/
+    std::vector<RecordEngineManager*> getAvailableRecordEngines();
+
+    /** Returns the name of the currently selected record engine*/
+    String getSelectedRecordEngineId();
+
+    /** Sets the current record engine (will only apply to future Record Nodes) */
+	bool setSelectedRecordEngineId(String id);
+
+    /** Generates the current datetime based on the input formatting string */
+    String generateDatetimeFromFormat(String format);
+
+    std::unique_ptr<FilenameEditorButton> filenameText;
+    std::unique_ptr<FilenameConfigWindow> filenameConfigWindow;
+
+private:
+
+    /** Informs the Control Panel that recording has begun.*/
+    void startRecording();
+
+    /** Informs the Control Panel that recording has stopped.*/
+    void stopRecording();
 
     /** Generates prepend string for recording directory */
     String generatePrepend(String format);
@@ -412,29 +457,10 @@ public:
     /** Generates append string for recording directory */
     String generateAppend(String format);
 
-    /** Generates the next recording directory based on field settings **/  
-    String generateFilenameFromFields(bool usePlaceholderText, bool updateControlPanel);
-    
-    /** Generates the current datetime based on the input formatting string */
-    String generateDatetimeFromFormat(String format);
+    /** Generates the next recording directory based on field settings **/
+    String generateFilenameFromFields(bool usePlaceholderText);
 
-    /** Adds the RecordNode as a listener of the FilenameComponent
-    (so it knows when the data directory has changed).*/
-    void updateChildComponents();
 
-    /** Record-engine functions*/
-    void updateRecordEngineList();
-    std::vector<RecordEngineManager*> getAvailableRecordEngines();
-    String getSelectedRecordEngineId();
-	bool setSelectedRecordEngineId(String id);
-
-    std::unique_ptr<RecordButton> recordButton;
-    std::unique_ptr<ComboBox> recordSelector;
-
-    std::unique_ptr<FilenameEditorButton> filenameText;
-    std::unique_ptr<FilenameConfigWindow> filenameConfigWindow;
-
-private:
     std::unique_ptr<PlayButton> playButton;
 
     std::unique_ptr<Clock> masterClock;
@@ -443,6 +469,9 @@ private:
     std::unique_ptr<FilenameComponent> filenameComponent;
     std::unique_ptr<UtilityButton> newDirectoryButton;
     std::unique_ptr<ControlPanelButton> cpb;
+
+    std::unique_ptr<RecordButton> recordButton;
+    std::unique_ptr<ComboBox> recordSelector;
 
     //std::unique_ptr<Label> prependText;
     Array<std::shared_ptr<FilenameFieldComponent>> filenameFields;
@@ -481,6 +510,8 @@ private:
 
     /** Draws the boundaries around the FilenameComponent.*/
     void createPaths();
+
+    String recordingDirectoryName;
 
     Colour backgroundColour;
 

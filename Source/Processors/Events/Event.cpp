@@ -181,21 +181,19 @@ size_t SystemEvent::fillTimestampSyncTextData(HeapBlock<char>& data,
 	String eventString;
 	if (softwareTime)
 	{
-		eventString = "Software time: " + String(timestamp) + "@" + String(Time::getHighResolutionTicksPerSecond()) + "Hz";
+		eventString = "Software Time (milliseconds since midnight Jan 1st 1970 UTC)";
 	}
 	else
 	{
-		eventString = "Processor: "
+		eventString = "Start Time for " 
 			+ proc->getName()
-			+ " Id: "
+			+ " ("
 			+ String(proc->getNodeId())
-			+ " streamId: "
-			+ String(streamId)
-		+" start time: "
-			+ String(timestamp)
-			+ "@"
+			+ ") - "
+			+ String(proc->getDataStream(streamId)->getName())
+			+" @ "
 			+ String(proc->getSampleRate(streamId))
-			+ "Hz";
+			+ " Hz";
 	}
 	size_t textSize = eventString.getNumBytesAsUTF8();
 	size_t dataSize = 17 + textSize;

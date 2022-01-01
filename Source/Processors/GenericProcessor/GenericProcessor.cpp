@@ -554,7 +554,7 @@ void GenericProcessor::setStreamEnabled(uint16 streamId, bool isEnabled)
 int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int continuousChannelGlobalIndex)
 {
 
-	if (false)
+	if (true)
 	{
         std::cout << getName() << " " << getNodeId() << std::endl;
 		std::cout << "Copying stream " << stream->getName() << ":" << std::endl;
@@ -609,7 +609,7 @@ int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int conti
 	for (auto eventChannel : stream->getEventChannels())
 	{
 
-		if (false)
+		if (true)
 		{
 			std::cout << "Copying event channel: " << std::endl;
 			std::cout << "  Source Node ID: " << eventChannel->getSourceNodeId() << std::endl;

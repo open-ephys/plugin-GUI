@@ -35,18 +35,15 @@ RecordEngine::RecordEngine()
 {
 }
 
-RecordEngine::~RecordEngine() {}
-
-void RecordEngine::setParameter(EngineParameter& parameter) {}
-
-void RecordEngine::resetChannels() {}
-
 void RecordEngine::registerRecordNode(RecordNode* node)
 {
 	recordNode = node;
 }
 
-void RecordEngine::registerProcessor(const GenericProcessor* processor) {}
+void RecordEngine::registerManager(RecordEngineManager* recordManager)
+{
+	manager = recordManager;
+}
 
 void RecordEngine::startChannelBlock(bool lastBlock) {}
 
@@ -147,10 +144,7 @@ void RecordEngine::startAcquisition() {}
 
 void RecordEngine::directoryChanged() {}
 
-void RecordEngine::registerManager(RecordEngineManager* recordManager)
-{
-	manager = recordManager;
-}
+
 
 void RecordEngine::configureEngine()
 {
@@ -275,7 +269,8 @@ RecordEngine* RecordEngineManager::instantiateEngine()
 	//Built-in engines
 
 	LOGD("Got:", id);
-	if (id == "RAWBINARY")
+
+	if (id == "BINARY")
 	{
 		return new BinaryRecording();
 	}

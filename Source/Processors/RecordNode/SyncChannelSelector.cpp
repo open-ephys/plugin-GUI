@@ -2,25 +2,14 @@
 #include <string>
 #include <vector>
 
-SyncChannelButton::SyncChannelButton(int _id, SyncChannelSelector* _parent) : Button(String(_id)), id(_id), parent(_parent) {
-    //setClickingTogglesState(true);
+SyncChannelButton::SyncChannelButton(int _id, SyncChannelSelector* _parent) 
+    : Button(String(_id)), id(_id), parent(_parent) 
+{
+
 }
 
 
 SyncChannelButton::~SyncChannelButton() {}
-
-/*
-void SyncChannelButton::mouseDown(const MouseEvent &event)
-{
-    this->mouseDown(event);
-    parent->mouseDown(event);
-}
-
-void SyncChannelButton::mouseUp(const MouseEvent &event)
-{
-    parent->mouseUp(event);
-}
-*/
 
 void SyncChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
@@ -51,8 +40,9 @@ void SyncChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
 
 }
 
-SetButton::SetButton(const String& name) : Button(name) {
-	//setClickingTogglesState(true);
+SetButton::SetButton(const String& name) : Button(name) 
+{
+
 }
 
 SetButton::~SetButton() {}
@@ -80,11 +70,11 @@ void SetButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 	g.drawText (String(getName()), 0, 0, getWidth(), getHeight(), Justification::centred);
 }
 
-SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx, bool isMaster_) 
+SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx, bool isPrimary_)
     : Component(), 
     nChannels(nChans),
     selectedId(selectedIdx),
-    isMaster(isMaster_)
+    isPrimary(isPrimary_)
 {
 
     width = 368; //can use any multiples of 16 here for dynamic resizing
@@ -110,12 +100,12 @@ SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx, bool isMas
 		}
 	}
     
-    if (!isMaster)
+    if (!isPrimary)
     {
-        setMasterSubprocessorButton = new SetButton("Set as Master Subprocessor");
-        setMasterSubprocessorButton->setBounds(0, height, 0.5*width, width / nColumns);
-        setMasterSubprocessorButton->addListener(this);
-        addChildAndSetID(setMasterSubprocessorButton,"SETMASTER");
+        setPrimaryStreamButton = new SetButton("Set as timestamp source");
+        setPrimaryStreamButton->setBounds(0, height, 0.5*width, width / nColumns);
+        setPrimaryStreamButton->addListener(this);
+        addChildAndSetID(setPrimaryStreamButton,"SETPRIMARY");
     }
     else
     {
@@ -142,11 +132,11 @@ void SyncChannelSelector::mouseUp(const MouseEvent &event) {}
 void SyncChannelSelector::buttonClicked(Button* button)
 {
 
-    if (button->getComponentID() == "SETMASTER")
+    if (button->getComponentID() == "SETPRIMARY")
     {
         setSize (width, buttonSize * nRows);
         height = buttonSize * (nRows);
-        isMaster = true;
+        isPrimary = true;
         findParentComponentOfClass<CallOutBox>()->exitModalState(0);
     }
     else

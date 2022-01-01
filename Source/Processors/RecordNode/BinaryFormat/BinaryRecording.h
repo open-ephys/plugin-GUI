@@ -13,10 +13,15 @@
 class BinaryRecording : public RecordEngine
 {
 public:
+
+	/** Constructor */
 	BinaryRecording();
+
+	/** Destructor */
 	~BinaryRecording();
 
-	String getEngineID() const override;
+	/** Returns the unique identifier of this RecordEngine */
+	String getEngineId() const override;
 
 	void openFiles(File rootFolder, int experimentNumber, int recordingNumber) override;
 	void closeFiles() override;

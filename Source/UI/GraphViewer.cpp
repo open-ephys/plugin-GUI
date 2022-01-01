@@ -76,7 +76,7 @@ GraphViewer::GraphViewer()
 void GraphViewer::updateBoundaries()
 {
     int maxHeight = 0;
-    int maxWidth = 0;
+    int maxWidth = graphViewport->getWidth() - 30;
 
     for (auto node : availableNodes)
     {

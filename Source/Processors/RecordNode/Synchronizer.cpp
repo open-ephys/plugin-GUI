@@ -212,6 +212,12 @@ void Synchronizer::reset()
 
 }
 
+void Synchronizer::prepareForUpdate()
+{
+	lastPrimaryStreamId = primaryStreamId;
+	primaryStreamId = -1;
+}
+
 /*
 Adds a new data stream to the synchronizer
 If this is the first stream, set it as the primary stream
@@ -221,6 +227,9 @@ void Synchronizer::addDataStream(uint16 streamId, float expectedSampleRate)
 {
 	if (primaryStreamId < 0)
 		primaryStreamId = streamId;
+
+	if (streamId == lastPrimaryStreamId)
+		primaryStreamId = lastPrimaryStreamId;
 
 	streams[streamId] = (new Stream(expectedSampleRate));
 	setSyncBit(streamId, 0);

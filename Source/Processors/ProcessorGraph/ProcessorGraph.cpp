@@ -522,13 +522,7 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
     
     if(!signalChainIsLoading)
     {
-        File configsDir = CoreServices::getSavedStateDirectory();
-	    if(!configsDir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
-		    configsDir = configsDir.getChildFile("configs-api" + String(PLUGIN_API_VER));
-        
-        EditorViewport* ev = AccessClass::getEditorViewport();
-        File recoveryFile = configsDir.getChildFile("recoveryConfig.xml");
-        ev->saveState(recoveryFile);
+        CoreServices::saveRecoveryConfig();
     }
     
 }
@@ -1538,12 +1532,9 @@ void ProcessorGraph::connectProcessors(GenericProcessor* source, GenericProcesso
         addConnection(Connection(cs, cd));
     }
 
-    //3. If dest is a record node, register the processor and 
-    //ensure the RecordNode block size matches the buffer size of Audio Settings
+    //3. Ensure the RecordNode block size matches the buffer size of Audio Settings
     if (dest->isRecordNode())
     {
-        ((RecordNode*)dest)->registerProcessor(source);
-
         AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
         AudioDeviceManager::AudioDeviceSetup ads;
         adm.getAudioDeviceSetup(ads);

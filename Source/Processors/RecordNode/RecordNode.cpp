@@ -35,7 +35,7 @@ RecordNode::RecordNode()
 	numSamples(0),
 	samplesWritten(0),
 	experimentNumber(0),
-	recordingNumber(0),
+	recordingNumber(-1),
 	isRecording(false),
 	hasRecorded(false),
 	settingsNeeded(false),
@@ -58,9 +58,9 @@ RecordNode::RecordNode()
 	isSyncReady = true;
 
 	/* New record nodes default to the record engine currently selected in the Control Panel */
-	setEngine(CoreServices::getDefaultRecordEngineIdx() - 1);
+	setEngine(CoreServices::getDefaultRecordEngineId());
 
-	dataDirectory = CoreServices::getDefaultRecordingDirectory();
+	dataDirectory = CoreServices::getRecordingParentDirectory();
 
 	recordThread = new RecordThread(this, recordEngine);
 
@@ -72,9 +72,6 @@ RecordNode::RecordNode()
 	
 }
 
-RecordNode::~RecordNode()
-{
-}
 
 String RecordNode::handleConfigMessage(String msg)
 {
@@ -114,10 +111,11 @@ void RecordNode::updateBlockSize(int newBlockSize)
 		dataQueue = std::make_unique<DataQueue>(newBlockSize, DATA_BUFFER_NBLOCKS);
 }
 
-void RecordNode::setEngine(int index)
+String RecordNode::getEngineId()
 {
-	availableEngines = getAvailableRecordEngines();
-	recordEngine = availableEngines[index]->instantiateEngine();
+
+	return recordEngine->getEngineId();
+
 }
 
 void RecordNode::setEngine(String id)
@@ -129,6 +127,12 @@ void RecordNode::setEngine(String id)
 		if (engine->getID().compare(id) == 0)
 			recordEngine = engine->instantiateEngine();
 	}
+
+	if (getEditor() != nullptr)
+	{
+		RecordNodeEditor* ed = (RecordNodeEditor*)getEditor();
+		ed->setEngine(id);
+	}
 }
 
 std::vector<RecordEngineManager*> RecordNode::getAvailableRecordEngines()
@@ -138,7 +142,7 @@ std::vector<RecordEngineManager*> RecordNode::getAvailableRecordEngines()
 
 String RecordNode::generateDirectoryName()
 {
-	return AccessClass::getControlPanel()->generateFilenameFromFields(false, true);
+	return AccessClass::getControlPanel()->getRecordingDirectoryName();
 }
 
 // called by FifoMonitor
@@ -157,8 +161,32 @@ void RecordNode::setDataDirectory(File directory)
 // called by RecordNode::startRecording
 void RecordNode::createNewDirectory()
 {
-	rootFolder = File(dataDirectory.getFullPathName() + File::getSeparatorString() + generateDirectoryName() + File::getSeparatorString() + getName() + " " + String(getNodeId()));
+	rootFolder = File(dataDirectory.getFullPathName()
+		+ File::getSeparatorString()
+		+ generateDirectoryName());
+
+	File recordingDirectory = rootFolder;
+	int index = 0;
+
+	while (recordingDirectory.exists())
+	{
+		index += 1;
+		recordingDirectory = File(rootFolder.getFullPathName() + " (" + String(index) + ")");
+	}
+
+	rootFolder = File(recordingDirectory.getFullPathName()
+			   + File::getSeparatorString() 
+			   + getName() 
+			   + " " + String(getNodeId()));
+
 	newDirectoryNeeded = false;
+
+	recordingNumber = -1;
+	experimentNumber = 1;
+	settingsNeeded = true;
+
+	recordEngine->directoryChanged();
+
 }
 
 // called by RecordEngine
@@ -234,34 +262,11 @@ const String &RecordNode::getLastSettingsXml() const
 	return lastSettingsText;
 }
 
-/* Use this function to change parameters while recording...*/
-// Called by:
-// - EngineConfigComponent (3, 0.0f) -- used to disable record thread (deprecated?)
-void RecordNode::setParameter(int parameterIndex, float newValue)
-{
-	//editor->updateParameterButtons(parameterIndex);
-
-	//if (currentChannel >= 0)
-	//{
-	//	Parameter* p = parameters[parameterIndex];
-	//	p->setValue(newValue, currentChannel);
-	//}
-
-}
-
 // Called when deleting FifoMonitor
 void RecordNode::updateChannelStates(uint16 streamId, std::vector<bool> channelStates)
 {
 	this->dataChannelStates[streamId] = channelStates;
 }
-
-
-// called by GenericProcessor, RecordNodeEditor, SourceProcessorInfo,
-// TimestampSourceSelectionComponent
-//int RecordNode::getNumSubProcessors() const
-//{
-//	return numSubprocessors;
-//}
 
 // called by RecordNodeEditor (when loading), SyncControlButton
 void RecordNode::setPrimaryDataStream(uint16 streamId)
@@ -279,9 +284,7 @@ void RecordNode::setSyncBit(uint16 streamId, int bit)
 // called by SyncControlButton
 int RecordNode::getSyncBit(uint16 streamId)
 {
-		//return syncChannelMap[srcIndex][subProcIdx];
-		//return synchronizer->getSyncChannel(srcIndex, subProcIdx);
-		return 0; //FIXME
+	return synchronizer->getSyncBit(streamId);
 }
 
 // called by SyncControlButton
@@ -295,12 +298,14 @@ void RecordNode::updateSettings()
 {
 
 	activeStreamIds.clear();
+	synchronizer->prepareForUpdate();
+	dataChannelStates.clear();
 
 	int count = 0;
 
 	for (auto stream : dataStreams)
 	{
-		LOGD("Found stream: (", stream->getStreamId(), ") ", stream->getName());
+		LOGD("Record Node found stream: (", stream->getStreamId(), ") ", stream->getName());
 		activeStreamIds.push_back(stream->getStreamId());
 
 		//Check for new streams coming into record node
@@ -341,10 +346,17 @@ void RecordNode::updateSettings()
 
 	}
 
-	//Refresh editor as needed
-	if (static_cast<RecordNodeEditor*> (getEditor())->subprocessorsVisible)
+	if (recordEngine->getEngineId().equalsIgnoreCase("OPENEPHYS") && getNumInputs() > 300)
 	{
-		static_cast<RecordNodeEditor*> (getEditor())->showSubprocessorFifos(false);
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
+			"WARNING", "Open Ephys format does not support > 300 channels. Resetting to Binary format.");
+		setEngine("BINARY");
+	}
+
+	//Refresh editor as needed
+	if (static_cast<RecordNodeEditor*> (getEditor())->monitorsVisible)
+	{
+		static_cast<RecordNodeEditor*> (getEditor())->showFifoMonitors(false);
 		static_cast<RecordNodeEditor*> (getEditor())->buttonClicked(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
 	}
 
@@ -356,18 +368,7 @@ bool RecordNode::startAcquisition()
 
     eventChannels.add(new EventChannel(*messageChannel));
     eventChannels.getLast()->addProcessor(processorInfo.get());
-    eventChannels.getLast()->setDataStream(dataStreams.getLast(), true);
-
-	bool openEphysFormatSelected = static_cast<RecordNodeEditor*> (getEditor())->getSelectedEngineIdx() == 1;
-
-	if (openEphysFormatSelected && getNumInputs() > 300)
-	{
-		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
-			"WARNING!", "Open Ephys format does not support > 300 channels. Resetting to Binary format");
-		static_cast<RecordNodeEditor*> (getEditor())->engineSelectCombo->setSelectedItemIndex(0);
-		setEngine(0);
-		return false;
-	}
+    eventChannels.getLast()->setDataStream(getDataStream(synchronizer->primaryStreamId), false);
 
 	if (hasRecorded)
 	{
@@ -387,7 +388,10 @@ bool RecordNode::startAcquisition()
 
 bool RecordNode::stopAcquisition()
 {
+
+	// Remove message channel
 	eventChannels.removeLast();
+
 	return true;
 }
 
@@ -445,11 +449,12 @@ void RecordNode::startRecording()
 
 	recordEngine->registerRecordNode(this);
 	recordEngine->resetChannels();
-	std::cout << "channelMap size: " << channelMap.size() << std::endl;
-	std::cout << "chanProcessorMap size: " << chanProcessorMap.size() << std::endl;
-	std::cout << "chanOrderinProc size: " << chanOrderinProc.size() << std::endl;
-	std::cout << "procInfo size: " << procInfo.size() << std::endl;
 	recordEngine->setChannelMapping(channelMap, chanProcessorMap, chanOrderinProc, procInfo);
+	LOGD("channelMap size: ", channelMap.size());
+	LOGD("chanProcessorMap size: ", chanProcessorMap.size());
+	LOGD("chanOrderinProc size: ", chanOrderinProc.size());
+	LOGD("procInfo size: ", procInfo.size());
+	
 	recordThread->setChannelMap(channelMap);
 	recordThread->setFTSChannelMap(ftsChannelMap);
 
@@ -466,47 +471,27 @@ void RecordNode::startRecording()
 	/* Set write properties */
 	setFirstBlock = false;
 
-	//Only start recording thread if at least one continous OR event channel is enabled
-	if (true) //(channelMap.size() || recordEvents)
+	recordingNumber++; // increment recording number within this directory
+
+	if (!rootFolder.exists())
 	{
-
-		/* Got signal from plugin-GUI to start recording */
-		if (newDirectoryNeeded)
-		{
-			createNewDirectory();
-			recordingNumber = 0;
-			experimentNumber = 1;
-			settingsNeeded = true;
-			recordEngine->directoryChanged();
-		}
-		else
-		{
-			recordingNumber++; // increment recording number within this directory
-		}
-
-		if (!rootFolder.exists())
-		{
-			rootFolder.createDirectory();
-		}
-
-		useSynchronizer = static_cast<RecordNodeEditor*> (getEditor())->getSelectedEngineIdx() == 0;
-
-		recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
-
-		recordThread->startThread();
-		isRecording = true;
-
-		if (settingsNeeded)
-		{
-			String settingsFileName = rootFolder.getFullPathName() + File::getSeparatorString() + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String()) + ".xml";
-			AccessClass::getEditorViewport()->saveState(File(settingsFileName), lastSettingsText);
-			settingsNeeded = false;
-		}
+		rootFolder.createDirectory();
 	}
-	else
-		isRecording = false;
 
-	getEditor()->setBackgroundColor(Colour(255, 0, 0)); // ensure that it's red
+	useSynchronizer = recordEngine->getEngineId().equalsIgnoreCase("BINARY");
+
+	recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
+	recordThread->startThread();
+	isRecording = true;
+
+	if (settingsNeeded)
+	{
+		String settingsFileName = rootFolder.getFullPathName() + File::getSeparatorString() + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String()) + ".xml";
+		AccessClass::getEditorViewport()->saveState(File(settingsFileName), lastSettingsText);
+		settingsNeeded = false;
+	}
+
+	//getEditor()->setBackgroundColor(Colour(255, 0, 0)); // ensure that it's red
 
 }
 
@@ -606,6 +591,7 @@ void RecordNode::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& p
 
 void RecordNode::handleTimestampSyncTexts(const EventPacket& packet)
 {
+	std::cout << "Record Node " << getNodeId() << " writing sync timestamp " << std::endl;
 	handleEvent(nullptr, packet, 0);
 }
 	
@@ -631,7 +617,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 				MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
 				HeapBlock<char> data;
 
-				size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getGlobalTimestamp(), true);
+				size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getSoftwareTimestamp(), true);
 
 				handleTimestampSyncTexts(EventPacket(data, dataSize));
 
@@ -665,6 +651,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 			}
 
 			bool shouldWrite = validBlocks[ch];
+
 			if (!shouldWrite && numSamples > 0)
 			{
 				shouldWrite = true;
@@ -686,6 +673,8 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 						if (streamId == synchronizer->primaryStreamId)
 							lastPrimaryStreamTimestamp = timestamp;
 
+						currentStreamId = streamId;
+
 					}
 					else
 					{
@@ -693,10 +682,12 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 						samplesWritten+=numSamples;
 
 						lastPrimaryStreamTimestamp = timestamp;
+						
+						currentStreamId = streamId;
+						
 						continue;
 					}
 
-					currentStreamId = streamId;
 				}
 
 				dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
@@ -734,13 +725,6 @@ bool RecordNode::isFirstChannelInRecordedSubprocessor(int ch)
 	return std::find(startRecChannels.begin(), startRecChannels.end(), ch) != startRecChannels.end();
 }
 
-// called by ProcessorGraph::connectProcessors
-void RecordNode::registerProcessor(const GenericProcessor* sourceNode)
-{
-	//settings.numInputs += sourceNode->getNumOutputs();
-	//setPlayConfigDetails(getNumInputs(), getNumOutputs(), 44100.0, 128);
-	recordEngine->registerProcessor(sourceNode);
-}
 
 // called in RecordNode::handleSpike
 void RecordNode::writeSpike(const Spike *spike, const SpikeChannel *spikeElectrode)
