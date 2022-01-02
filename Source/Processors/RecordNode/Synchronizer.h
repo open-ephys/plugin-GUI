@@ -119,6 +119,7 @@ private:
     bool firstMasterSync;
 
     std::map<int,Stream*> streams;
+    OwnedArray<Stream> dataStreamObjects;
 
     OwnedArray<FloatTimestampBuffer> ftsBuffer;
 

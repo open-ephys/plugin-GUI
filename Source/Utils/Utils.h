@@ -23,7 +23,7 @@
 
 /* Log Debug -- gets printed to the log file */
 #define LOGD(...) \
-    OELogger::instance().LOGFile("[open-ephys][debug] ", __VA_ARGS__);
+    OELogger::instance().LOGConsole("[open-ephys][debug] ", __VA_ARGS__);
 
 /* Log Deep Debug -- gets printed to log file (e.g. enable after a crash to get more details) */
 #define LOGDD(...) \

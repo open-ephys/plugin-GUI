@@ -64,7 +64,7 @@ using json = nlohmann::json;
  *          - default directory name prepend + append text
  *          - default directory name string
  *          - available Record Nodes
- *          - directory and format for each Record Node
+ *          - directory, format, experiment #, and recording #, for each Record Node
  * 
  * - PUT /api/recording :
  *          used to set the default recording options
@@ -82,6 +82,7 @@ using json = nlohmann::json;
  * - GET /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name>
  * - PUT /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name>
  * - PUT /api/processors/<processor_id>/config
+ * - PUT /api/window
  *
  * All endpoints are JSON endpoints. The PUT endpoint expects two parameters: "channel" (an integer), and "value",
  * which should have a type matching the type of the parameter.
@@ -132,10 +133,7 @@ public:
             }
             else if (desired_mode == "IDLE") {
                 const MessageManagerLock mmLock;
-                if (!CoreServices::getRecordingStatus())
-                    CoreServices::setAcquisitionStatus(false);
-                else
-                    CoreServices::setRecordingStatus(false);
+                CoreServices::setAcquisitionStatus(false);
             }
 
             json ret;
@@ -282,6 +280,34 @@ public:
             }
 
             graph_->broadcastMessage(String(message_str));
+
+            json ret;
+            status_to_json(graph_, &ret);
+            res.set_content(ret.dump(), "application/json");
+            });
+
+        svr_->Put("/api/load", [this](const httplib::Request& req, httplib::Response& res) {
+            
+            std::string message_str;
+            LOGD("Received PUT request");
+
+            try {
+                LOGD("Trying to decode");
+                json request_json;
+                request_json = json::parse(req.body);
+                LOGD("Parsed");
+                message_str = request_json["path"];
+                LOGD("Message string: ", message_str);
+            }
+            catch (json::exception& e) {
+                LOGD("Hit exception");
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
+
+            const MessageManagerLock mml;
+            CoreServices::loadSignalChain(message_str);
 
             json ret;
             status_to_json(graph_, &ret);
@@ -580,7 +606,7 @@ public:
                        res.set_content(ret.dump(), "application/json");
                    });
 
-        svr_->Put("/api/window/config", [this](const httplib::Request& req, httplib::Response& res) {
+        svr_->Put("/api/window", [this](const httplib::Request& req, httplib::Response& res) {
             std::string message_str;
             LOGD( "Received PUT WINDOW request" );
 
@@ -589,7 +615,7 @@ public:
                 json request_json;
                 request_json = json::parse(req.body);
                 LOGD( "Parsed" );
-                message_str = request_json["text"];
+                message_str = request_json["command"];
                 LOGD( "Message string: ", message_str );
             }
             catch (json::exception& e) {
@@ -599,8 +625,19 @@ public:
                 return;
             }
 
-            const MessageManagerLock mml;
-            JUCEApplication::getInstance()->systemRequestedQuit();
+            if (String(message_str).equalsIgnoreCase("quit"))
+            {
+                json ret;
+                res.set_content(ret.dump(), "application/json");
+                res.status = 400;
+
+                const MessageManagerLock mml;
+                JUCEApplication::getInstance()->systemRequestedQuit();
+            }
+            else {
+                LOGD("Unrecognized command");
+            }
+            
 
             });
                    

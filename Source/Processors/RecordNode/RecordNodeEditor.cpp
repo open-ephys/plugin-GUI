@@ -141,18 +141,18 @@ void RecordNodeEditor::saveCustomParametersToXml(XmlElement* xml)
 
 		if (recordNode->dataChannelStates[streamId].size() > 0)
 		{
-			XmlElement* stream = xmlNode->createNewChildElement("DATASTREAM");
+			XmlElement* stream = xmlNode->createNewChildElement("STREAM");
 
 			stream->setAttribute("stream_id", streamId);
 			stream->setAttribute("isPrimary", 
 				recordNode->synchronizer->primaryStreamId == streamId);
 			stream->setAttribute("sync_bit", recordNode->syncChannelMap[streamId]);
 
-			XmlElement* recStateNode = stream->createNewChildElement("RECORDSTATE");
+			XmlElement* recStateNode = stream->createNewChildElement("STATE");
 
 			for (int ch = 0; ch < recordNode->dataChannelStates[streamId].size(); ch++)
 			{
-				recStateNode->setAttribute(String("CH")+String(ch), recordNode->dataChannelStates[streamId][ch]);
+				recStateNode->setAttribute("CH" + String(ch+1), recordNode->dataChannelStates[streamId][ch]);
 			}
 
 		}
@@ -179,14 +179,15 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::sendNotification);
 			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::sendNotification);
 
-			//std::cout << "Loading RecordNode settings" << std::endl;
+			Array<const DataStream*> availableStreams = recordNode->getDataStreams();
+			int streamIndex = 0;
 
 			forEachXmlChildElement(*xmlNode, subNode)
 			{
-				if (subNode->hasTagName("DATASTREAM"))
+				if (subNode->hasTagName("STREAM") && streamIndex < availableStreams.size())
 				{
 
-					int streamId = subNode->getIntAttribute("stream_id");
+					uint16 streamId = availableStreams[streamIndex]->getStreamId();
 
 					if (recordNode->dataChannelStates[streamId].size())
 					{
@@ -198,15 +199,16 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 
 						recordNode->setSyncBit(streamId, subNode->getIntAttribute("sync_bit"));
 
-						XmlElement* recordStates = subNode->getChildByName("RECORDSTATE");
+						XmlElement* recordStates = subNode->getChildByName("STATE");
 
 						for (int ch = 0; ch < recordNode->dataChannelStates[streamId].size(); ch++)
 						{
-							//std::cout << "Setting channel " << ch << " : " << srcID << " : " << subIdx << " to " << recordStates->getIntAttribute("CH" + String(ch)) << std::endl;
-							recordNode->dataChannelStates[streamId][ch] = recordStates->getIntAttribute("CH" + String(ch));
+							recordNode->dataChannelStates[streamId][ch] = recordStates->getBoolAttribute("CH" + String(ch+1), true);
 						}
 
 					}
+
+					streamIndex++;
 
 				}
 			}

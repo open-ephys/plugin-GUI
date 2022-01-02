@@ -299,14 +299,13 @@ void RecordNode::updateSettings()
 
 	activeStreamIds.clear();
 	synchronizer->prepareForUpdate();
-	dataChannelStates.clear();
 
 	int count = 0;
 
 	for (auto stream : dataStreams)
 	{
 		LOGD("Record Node found stream: (", stream->getStreamId(), ") ", stream->getName());
-		activeStreamIds.push_back(stream->getStreamId());
+		activeStreamIds.add(stream->getStreamId());
 
 		//Check for new streams coming into record node
 		if (dataChannelStates[stream->getStreamId()].empty())
@@ -344,6 +343,13 @@ void RecordNode::updateSettings()
 
 		}
 
+	}
+
+	for (auto it = dataChannelStates.begin(); it != dataChannelStates.end(); ) {
+		if (!activeStreamIds.contains(it->first))
+			it = dataChannelStates.erase(it);
+		else
+			++it;
 	}
 
 	if (recordEngine->getEngineId().equalsIgnoreCase("OPENEPHYS") && getNumInputs() > 300)

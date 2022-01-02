@@ -597,11 +597,17 @@ void FileReaderEditor::setFile (String file, bool shouldUpdateSignalChain)
             file = defaultFile.getFullPathName();
         }
     }
+    else {
+        
+        if (!File(file).existsAsFile())
+            return;
 
-    LOGD("Setting file to ", file);
+        lastFilePath = File(file).getParentDirectory();
+    }
 
     File fileToRead (file);
-    lastFilePath = fileToRead.getParentDirectory();
+
+    LOGD("Setting file to ", file);
 
     if (fileReader->setFile (fileToRead.getFullPathName()))
     {
