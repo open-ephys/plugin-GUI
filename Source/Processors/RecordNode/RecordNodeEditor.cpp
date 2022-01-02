@@ -562,7 +562,14 @@ void SyncControlButton::mouseUp(const MouseEvent &event)
 	{
 
 		const Array<EventChannel*> eventChannels = node->getDataStream(streamId)->getEventChannels();
-		int nEvents = eventChannels[0]->getMaxTTLBits();
+
+		int nEvents;
+
+		if (eventChannels.size() > 0)
+			nEvents = eventChannels[0]->getMaxTTLBits();
+		else
+			nEvents = 1;
+
 		int syncBit = node->getSyncBit(streamId);
 		
 		SyncChannelSelector* channelSelector = new SyncChannelSelector (nEvents, syncBit, node->isPrimaryDataStream(streamId));
