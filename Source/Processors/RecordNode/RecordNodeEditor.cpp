@@ -130,8 +130,9 @@ void RecordNodeEditor::saveCustomParametersToXml(XmlElement* xml)
 
     XmlElement* xmlNode = xml->createNewChildElement ("SETTINGS");
     xmlNode->setAttribute ("path", dataPathLabel->getText());
-	//TODO: This should be the actual engine name instead of index in case engines added/removed between launches
-    xmlNode->setAttribute ("engine", engineSelectCombo->getSelectedId());
+    
+	std::vector<RecordEngineManager*> engines = CoreServices::getAvailableRecordEngines();
+	xmlNode->setAttribute("engine", engines[engineSelectCombo->getSelectedId()-1]->getID());
 	xmlNode->setAttribute ("recordEvents", eventRecord->getToggleState());
 	xmlNode->setAttribute ("recordSpikes", spikeRecord->getToggleState());
 
@@ -175,7 +176,7 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 			if (!File(savedPath).exists())
 				savedPath = CoreServices::getRecordingParentDirectory().getFullPathName();
 		    dataPathLabel->setText(savedPath, juce::NotificationType::sendNotification);
-			engineSelectCombo->setSelectedId(xmlNode->getStringAttribute("engine").getIntValue());
+			recordNode->setEngine(xmlNode->getStringAttribute("engine", "BINARY"));
 			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::sendNotification);
 			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::sendNotification);
 
