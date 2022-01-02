@@ -64,7 +64,7 @@ void LfpDisplayNode::initialize(bool signalChainIsLoading)
 void LfpDisplayNode::updateSettings()
 {
 
-    LOGG("Setting num inputs on LfpDisplayNode to ", getNumInputs());
+    LOGD("Setting num inputs on LfpDisplayNode to ", getNumInputs());
 
     int64 start = Time::getHighResolutionTicks();
 

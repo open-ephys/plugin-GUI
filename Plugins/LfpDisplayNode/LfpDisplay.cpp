@@ -283,7 +283,7 @@ void LfpDisplay::resized()
 {
     int totalHeight = 0;
 
-    LOGG(" !! LFP DISPLAY RESIZED TO: ", getWidth(), " pixels.");
+    LOGD(" !! LFP DISPLAY RESIZED TO: ", getWidth(), " pixels.");
 
     if (getWidth() > 0 && getHeight() > 0)
         lfpChannelBitmap = Image(Image::ARGB, getWidth() - canvasSplit->leftmargin, getHeight(), false);
@@ -299,7 +299,7 @@ void LfpDisplay::resized()
 
     if (getWidth() == 0)
     {
-        LOGG("   ::: Not visible, returning.");
+        LOGD("   ::: Not visible, returning.");
         return;
     }
 
@@ -348,12 +348,12 @@ void LfpDisplay::resized()
 
     canvasSplit->fullredraw = true;
     
-    LOGG("    RESIZED IN: ", MS_FROM_START, " milliseconds");
+    LOGD("    RESIZED IN: ", MS_FROM_START, " milliseconds");
     start = Time::getHighResolutionTicks();
 
     refresh();
 
-    LOGG("    REFRESHED IN: ", MS_FROM_START, " milliseconds");
+    LOGD("    REFRESHED IN: ", MS_FROM_START, " milliseconds");
     
     //std::cout << "Total height: " << totalHeight << std::endl;
 

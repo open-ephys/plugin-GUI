@@ -1569,7 +1569,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             if (canvasSplit->displayBuffer != nullptr)
                 canvasSplit->displayBuffer->addDisplay(canvasSplit->splitID);
 
-            LOGG("    Added displays in ", MS_FROM_START, " milliseconds");
+            LOGD("    Added displays in ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
             // RANGE
@@ -1587,14 +1587,14 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             lfpDisplay->setRange(ranges[2].getFloatValue() * rangeGain[2], ContinuousChannel::Type::ADC);
 
             
-            LOGG("    Set range in ", MS_FROM_START, " milliseconds");
+            LOGD("    Set range in ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
             // TIMEBASE
             timebaseSelection->setText(xmlNode->getStringAttribute("Timebase"), dontSendNotification);
             canvasSplit->setTimebase(xmlNode->getStringAttribute("Timebase").getFloatValue());
 
-            LOGG("    Set timebase in ", MS_FROM_START, " milliseconds");
+            LOGD("    Set timebase in ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
             // SPREAD
@@ -1632,38 +1632,38 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
                 canvasSplit->drawSaturationWarning = true;
             }
 
-            LOGG("    Additional settings in ", MS_FROM_START, " milliseconds");
+            LOGD("    Additional settings in ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
             // TOGGLE BUTTONS
 
             setChannelsReversed(xmlNode->getBoolAttribute("reverseOrder", false));
 
-            LOGG("    --> setChannelsReversed: ", MS_FROM_START, " milliseconds");
+            LOGD("    --> setChannelsReversed: ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
             setSortByDepth(xmlNode->getBoolAttribute("sortByDepth", false));
 
-            LOGG("    --> setSortByDepth: ", MS_FROM_START, " milliseconds");
+            LOGD("    --> setSortByDepth: ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
             setShowChannelNumbers(xmlNode->getBoolAttribute("showChannelNum", false));
 
-            LOGG("    --> setShowChannelNumbers: ", MS_FROM_START, " milliseconds");
+            LOGD("    --> setShowChannelNumbers: ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
             setInputInverted(xmlNode->getBoolAttribute("isInverted", false));
             
-            LOGG("    --> setInputInverted: ", MS_FROM_START, " milliseconds");
+            LOGD("    --> setInputInverted: ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
             setAveraging(xmlNode->getBoolAttribute("trialAvg", false));
-            LOGG("    --> setAveraging: ", MS_FROM_START, " milliseconds");
+            LOGD("    --> setAveraging: ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
             setMedianOffset(xmlNode->getBoolAttribute("subtractOffset", false));
 
-            LOGG("    --> setMedianOffset: ", MS_FROM_START, " milliseconds");
+            LOGD("    --> setMedianOffset: ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
             // CHANNEL SKIP
@@ -1676,7 +1676,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             canvasSplit->setTriggerChannel(triggerSourceSelection->getSelectedId() - 2);
             processor->setParameter(triggerSourceSelection->getSelectedId() - 2, float(canvasSplit->splitID));
             
-            LOGG("    Set trigger source in ", MS_FROM_START, " milliseconds");
+            LOGD("    Set trigger source in ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
            // drawMethodButton->setToggleState(xmlNode->getBoolAttribute("drawMethod", true), sendNotification);
@@ -1684,7 +1684,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             lfpDisplay->setScrollPosition(xmlNode->getIntAttribute("ScrollX"),
                                           xmlNode->getIntAttribute("ScrollY"));
 
-            LOGG("    Set scroll position in ", MS_FROM_START, " milliseconds");
+            LOGD("    Set scroll position in ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
             int eventButtonState = xmlNode->getIntAttribute("EventButtonState");
@@ -1712,7 +1712,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
             }
 
-            LOGG("    Set channel display state in ", MS_FROM_START, " milliseconds");
+            LOGD("    Set channel display state in ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
             lfpDisplay->setSingleChannelView(xmlNode->getIntAttribute("singleChannelView", -1));
@@ -1722,7 +1722,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
             lfpDisplay->restoreViewPosition();
 
-            LOGG("    Restored view in ", MS_FROM_START, " milliseconds");
+            LOGD("    Restored view in ", MS_FROM_START, " milliseconds");
         }
 
         
