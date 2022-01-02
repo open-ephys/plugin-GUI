@@ -1566,11 +1566,6 @@ void ProcessorGraph::connectAudioMonitorToAudioNode(GenericProcessor* source)
         addConnection(Connection(cs, cd));
     }
 
-    // connect event channel (disable for now)
-    //cs.channelIndex = midiChannelIndex;
-   // cd.channelIndex = midiChannelIndex;
-    //addConnection(Connection(cs, cd));
-
     getAudioNode()->registerProcessor(source);
 
 }

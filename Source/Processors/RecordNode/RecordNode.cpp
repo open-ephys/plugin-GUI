@@ -306,13 +306,12 @@ void RecordNode::updateSettings()
 	{
 		LOGD("Record Node found stream: (", stream->getStreamId(), ") ", stream->getName());
 		activeStreamIds.add(stream->getStreamId());
+		synchronizer->addDataStream(stream->getStreamId(), stream->getSampleRate());
 
 		//Check for new streams coming into record node
 		if (dataChannelStates[stream->getStreamId()].empty())
 		{
 
-			//Register the new data stream 
-			synchronizer->addDataStream(stream->getStreamId(), stream->getSampleRate());
 			fifoUsage[stream->getStreamId()] = 0.0f;
 
 			for (auto channel : stream->getContinuousChannels())

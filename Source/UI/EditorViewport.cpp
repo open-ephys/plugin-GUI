@@ -1519,7 +1519,7 @@ const String EditorViewport::loadState(File fileToLoad)
     
     if (xml == 0 || ! xml->hasTagName("SETTINGS"))
     {
-        LOGD("File not found.");
+        LOGD("Not a valid configuration file.");
         return "Not a valid file.";
     }
 

@@ -373,6 +373,10 @@ void StreamSelector::buttonClicked(Button* button)
     }
     else if (button == streamSelectorButton.get())
     {
+
+        if (streams.size() < 2)
+            return;
+
         PopupMenu menu;
 
         for (int i = 1; i <= streams.size(); i++)

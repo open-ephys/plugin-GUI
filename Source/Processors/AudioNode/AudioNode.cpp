@@ -34,11 +34,6 @@ AudioNode::AudioNode()
 
 }
 
-
-AudioNode::~AudioNode()
-{
-}
-
 AudioProcessorEditor* AudioNode::createEditor()
 {
 
@@ -63,20 +58,13 @@ void AudioNode::registerProcessor(const GenericProcessor* sourceNode)
 
 void AudioNode::updateBufferSize()
 {
-    //AudioEditor* editor = (AudioEditor*) getEditor();
     audioEditor->updateBufferSizeText();
-
 }
 
 
 void AudioNode::addInputChannel(GenericProcessor* sourceNode, int chan)
 {
     nextAvailableChannel++;
-    //auto sourceChannel = sourceNode->getAudioChannel(chan);
-    //auto sourceChannelCopy = new ContinuousChannel(*sourceChannel);
-    
-    //continuousChannels.set(chan, sourceChannelCopy);
-
 }
 
 void AudioNode::updatePlaybackBuffer()
@@ -96,15 +84,9 @@ void AudioNode::setParameter(int parameterIndex, float newValue)
     else if (parameterIndex == 2)
     {
         // noiseGateLevel level
-
-        expander.setThreshold(newValue); // in microVolts
+        expander.setThreshold(newValue); // in microVolts?
 
     }
-}
-
-bool AudioNode::startAcquisition()
-{
-	return true;
 }
 
 void AudioNode::process(AudioBuffer<float>& buffer)
@@ -123,19 +105,6 @@ void AudioNode::process(AudioBuffer<float>& buffer)
             
             for (int i = 0; i < nInputs; i++) // cycle through them all
             {
-
-                /*if (i == 0)
-                {
-                    std::cout << "np.array([";
-                    for (int j = 0; j < valuesNeeded; j++)
-                    {
-                        std::cout << *buffer.getReadPointer(i, j) << ", ";
-                    }
-                    
-                    std::cout << "])";
-                    std::cout << std::endl;
-                    std::cout << "------------- " << std::endl;
-                }*/
                 
                 // Data are floats in units of microvolts, so dividing by bitVolts and 0x7fff (max value for 16b signed)
                 // rescales to between -1 and +1. Audio output starts So, maximum gain applied to maximum data would be 10.
@@ -154,8 +123,9 @@ void AudioNode::process(AudioBuffer<float>& buffer)
                 buffer.applyGain(i, 0, valuesNeeded, gain);
 
                 // Simple implementation of a "noise gate" on audio output
-                //expander.process(buffer.getWritePointer(i), // expand the left/right channel
-                //    buffer.getNumSamples());
+                expander.process(buffer.getWritePointer(i), // expand the left/right channel
+                                 buffer.getNumSamples());
+            
             } // end cycling through channels
 
         }

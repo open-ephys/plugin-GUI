@@ -48,11 +48,6 @@ MuteButton::MuteButton()
 }
 
 
-MuteButton::~MuteButton()
-{
-}
-
-
 AudioWindowButton::AudioWindowButton()
     : Button ("AudioWindowButton")
 {
@@ -60,11 +55,6 @@ AudioWindowButton::AudioWindowButton()
 
     textString = ":AUDIO";
     setTooltip ("Change the buffer size");
-}
-
-
-AudioWindowButton::~AudioWindowButton()
-{
 }
 
 
@@ -159,13 +149,6 @@ void AudioEditor::resized()
     volumeSlider->setBounds         (margin + 30, sliderY, sliderWidth, sliderHeight);
     noiseGateSlider->setBounds      (volumeSlider->getRight() + margin + gateLabelWidth, sliderY, sliderWidth, sliderHeight);
     audioWindowButton->setBounds    (width - audioWindowButtonWidth + 2, 5, audioWindowButtonWidth, height);
-}
-
-
-bool AudioEditor::keyPressed (const KeyPress& key)
-{
-    //LOGDD(name, " received ", key.getKeyCode());
-    return false;
 }
 
 
@@ -280,7 +263,6 @@ void AudioEditor::loadStateFromXml (XmlElement* xml)
         if (xmlNode->hasTagName ("AUDIOEDITOR"))
         {
             muteButton->setToggleState  (xmlNode->getBoolAttribute ("isMuted", false), dontSendNotification);
-
             volumeSlider->setValue    (xmlNode->getDoubleAttribute ("volume",    0.0f), NotificationType::sendNotification);
             noiseGateSlider->setValue (xmlNode->getDoubleAttribute ("noiseGate", 0.0f), NotificationType::sendNotification);
         }
@@ -321,19 +303,10 @@ AudioConfigurationWindow::AudioConfigurationWindow (AudioDeviceManager& adm, Aud
 }
 
 
-AudioConfigurationWindow::~AudioConfigurationWindow()
-{
-}
-
-
 void AudioConfigurationWindow::closeButtonPressed()
 {
-    File configsDir = CoreServices::getSavedStateDirectory();
-	if(!configsDir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
-		configsDir = configsDir.getChildFile("configs-api" + String(PLUGIN_API_VER));
-        
-    File recoveryFile = configsDir.getChildFile("recoveryConfig.xml");
-    AccessClass::getEditorViewport()->saveState(recoveryFile);
+    
+    CoreServices::saveRecoveryConfig();
 
     controlButton->setToggleState (false, dontSendNotification);
     setVisible (false);
