@@ -174,7 +174,7 @@ MainWindow::~MainWindow()
 	if (http_server_thread) {
         disableHttpServer();
     }
-
+    
 	setMenuBar(0);
 
 #if JUCE_MAC

@@ -246,7 +246,7 @@ void ChannelMappingEditor::mouseDown(const MouseEvent& e)
 
             const int result = menu.showMenu(PopupMenu::Options()); // returns 0 if nothing is selected
             
-            //delete menu;
+            PopupMenu::dismissAllActiveMenus();
 
             if (result > 0)
             {
@@ -261,6 +261,11 @@ void ChannelMappingEditor::mouseDown(const MouseEvent& e)
 
         
     }
+}
+
+void ChannelMappingEditor::menuCallback(int result)
+{
+    
 }
 
 
