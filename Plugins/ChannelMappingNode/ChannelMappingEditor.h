@@ -46,7 +46,7 @@ public:
     ChannelMappingEditor(GenericProcessor* parentNode);
 
     /** Destructor*/
-    virtual ~ChannelMappingEditor() {}
+    virtual ~ChannelMappingEditor();
 
     // Called when an electrode button is clicked
     void buttonClicked(Button* button) override;
@@ -101,6 +101,8 @@ private:
     int draggingChannel;
     int lastHoverButton;
     bool isConfigured;
+    
+    PopupMenu menu;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChannelMappingEditor);
 

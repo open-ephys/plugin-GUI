@@ -55,6 +55,11 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode)
 
 }
 
+ChannelMappingEditor::~ChannelMappingEditor()
+{
+
+}
+
 void ChannelMappingEditor::updateSettings()
 {
     refreshElectrodeButtons();
@@ -218,8 +223,8 @@ void ChannelMappingEditor::mouseDown(const MouseEvent& e)
         if (electrodeButtons.contains((ElectrodeButton*) e.originalComponent))
         {
             ElectrodeButton* button = (ElectrodeButton*) e.originalComponent;
-
-            PopupMenu menu;
+            
+            menu.clear();
 
             int buttonIndex = electrodeButtons.indexOf(button);
 
@@ -244,30 +249,21 @@ void ChannelMappingEditor::mouseDown(const MouseEvent& e)
                 displayString,  // message
                 true);          // isSelectable
 
-            const int result = menu.showMenu(PopupMenu::Options()); // returns 0 if nothing is selected
+            const int result = menu.show(); // returns 0 if nothing is selected
             
             PopupMenu::dismissAllActiveMenus();
-
+            
             if (result > 0)
             {
-                std::cout << "Selected." << std::endl;
                 processor->setChannelEnabled(getCurrentStream(), buttonIndex, !isActive);
                 CoreServices::updateSignalChain(this);
             }
-            else {
-                std::cout << "Not Selected." << std::endl;
-            }
+            
         }
 
         
     }
 }
-
-void ChannelMappingEditor::menuCallback(int result)
-{
-    
-}
-
 
 void ChannelMappingEditor::mouseDrag(const MouseEvent& e)
 {
