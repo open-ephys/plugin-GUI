@@ -597,11 +597,17 @@ void FileReaderEditor::setFile (String file, bool shouldUpdateSignalChain)
             file = defaultFile.getFullPathName();
         }
     }
+    else {
+        
+        if (!File(file).existsAsFile())
+            return;
 
-    LOGD("Setting file to ", file);
+        lastFilePath = File(file).getParentDirectory();
+    }
 
     File fileToRead (file);
-    lastFilePath = fileToRead.getParentDirectory();
+
+    LOGD("Setting file to ", file);
 
     if (fileReader->setFile (fileToRead.getFullPathName()))
     {
@@ -942,7 +948,21 @@ void FileReaderEditor::saveCustomParametersToXml (XmlElement* xml)
     xml->setAttribute ("Type", "FileReader");
 
     XmlElement* childNode = xml->createNewChildElement ("FILENAME");
-    childNode->setAttribute ("path", fileReader->getFile());
+
+    String file = fileReader->getFile();
+
+    File executable = File::getSpecialLocation(File::currentApplicationFile);
+#ifdef __APPLE__
+    File defaultFile = executable.getChildFile("Contents/Resources/resources").getChildFile("structure.oebin");
+#else
+    File defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
+#endif
+
+    if (file.equalsIgnoreCase(defaultFile.getFullPathName()))
+        childNode->setAttribute("path", "default");
+    else
+        childNode->setAttribute("path", fileReader->getFile());
+
     childNode->setAttribute ("recording", recordSelector->getSelectedId());
 
     childNode = xml->createNewChildElement ("TIME_LIMITS");

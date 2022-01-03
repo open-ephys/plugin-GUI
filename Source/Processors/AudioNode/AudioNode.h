@@ -35,28 +35,6 @@
 
 class AudioEditor;
 
-/**
-
-  The default processor for sending output to the audio monitor.
-
-  The ProcessorGraph has two default nodes: the AudioNode and the RecordNode.
-  Every channel of every processor (that's not a sink or a utility) is automatically
-  connected to both of these nodes. The AudioNode is used to filter out channels to be
-  sent to the audio output device, which can be selected by the user through the AudioEditor
-  (located in the ControlPanel).
-
-  Since the AudioNode exists no matter what, it doesn't appear in the ProcessorList.
-  Instead, it's created by the ProcessorGraph at startup.
-
-  Each processor has an "Audio" tab within its channel-selector drawer that determines
-  which channels will be monitored. At the moment's there's no centralized way to
-  control the channels going to the audio monitor; it all happens in a distributed
-  way through the individual processors.
-
-  @see GenericProcessor, AudioEditor
-
-*/
-
 class Expander
 {
 public:
@@ -78,13 +56,36 @@ private:
 
 };
 
+/**
+
+  The default processor for sending output to the audio monitor.
+
+  The ProcessorGraph has two default nodes: the AudioNode and the RecordNode.
+  Every channel of every processor (that's not a sink or a utility) is automatically
+  connected to both of these nodes. The AudioNode is used to filter out channels to be
+  sent to the audio output device, which can be selected by the user through the AudioEditor
+  (located in the ControlPanel).
+
+  Since the AudioNode exists no matter what, it doesn't appear in the ProcessorList.
+  Instead, it's created by the ProcessorGraph at startup.
+
+  Each processor has an "Audio" tab within its channel-selector drawer that determines
+  which channels will be monitored. At the moment's there's no centralized way to
+  control the channels going to the audio monitor; it all happens in a distributed
+  way through the individual processors.
+
+  @see GenericProcessor, AudioEditor
+
+*/
 class AudioNode : public GenericProcessor
 {
 public:
 
+    /** Constructor */
     AudioNode();
-    ~AudioNode();
 
+    /** Destructor */
+    ~AudioNode() { }
 
     /** Handle incoming data and decide which channels to monitor
     */
@@ -100,27 +101,20 @@ public:
     /** Resets the connections prior to a new round of data acquisition. */
     void resetConnections() override;
 
-    /** Resets the connections prior to a new round of data acquisition. */
-    //void enableCurrentChannel(bool) override;
-
     /** Establishes a connection between a channel of a GenericProcessor and the AudioNode. */
     void addInputChannel(GenericProcessor* source, int chan);
 
 	/** Updates the audio buffer size*/
 	void updatePlaybackBuffer();
 
-    /** A pointer to the AudioNode's editor. */
-    std::unique_ptr<AudioEditor> audioEditor;
-
+    /** Called when the audio output buffer size is changed*/
     void updateBufferSize();
-
-	bool startAcquisition() override;
-
-	//Called by ProcessorGraph
-	//void updateRecordChannelIndexes();
 
     // expand # of inputs for each connected processor
     void registerProcessor(const GenericProcessor* sourceNode);
+
+    /** A pointer to the AudioNode's editor. */
+    std::unique_ptr<AudioEditor> audioEditor;
 
 private:
 

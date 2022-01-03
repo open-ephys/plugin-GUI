@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	: GenericEditor(parentNode),
-	numSubprocessors(0), subprocessorsVisible(false)
+	monitorsVisible(false), numDataStreams(0)
 {
 
 	recordNode = parentNode;
@@ -39,20 +39,21 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	fifoDrawerButton->addListener(this);
 	addAndMakeVisible(fifoDrawerButton);
 
-	masterLabel = new Label("masterLabel", "Avail:");
-	masterLabel->setBounds(7, 21, 40, 20);
-	masterLabel->setFont(Font("Small Text", 8.0f, Font::plain));
+	diskSpaceLabel = new Label("diskSpaceLabel", "Avail:");
+	diskSpaceLabel->setBounds(7, 21, 40, 20);
+	diskSpaceLabel->setFont(Font("Small Text", 8.0f, Font::plain));
 
-	masterMonitor = new FifoMonitor(recordNode, 0, "Available Disk Space");
-	masterMonitor->setBounds(18, 33, 15, 92);
-	addAndMakeVisible(masterMonitor);
+	diskSpaceMonitor = new FifoMonitor(recordNode, 0, "Available Disk Space");
+	diskSpaceMonitor->setBounds(18, 33, 15, 92);
+	addAndMakeVisible(diskSpaceMonitor);
 
-	masterRecord = new RecordToggleButton(recordNode, getNameAndId() + " Master Record Button");
-	masterRecord->setBounds(18, 110, 15, 15);
-	masterRecord->addListener(this);
+	recordToggleButton = new RecordToggleButton(recordNode, getNameAndId() + " Recording Toggle Button");
+	recordToggleButton->setBounds(18, 110, 15, 15);
+	recordToggleButton->addListener(this);
+	//addAndMakeVisible(recordToggleButton); // functionality not implemented yet
 
-	dataPathLabel = new Label(CoreServices::getDefaultRecordingDirectory().getFullPathName());
-	dataPathLabel->setText(CoreServices::getDefaultRecordingDirectory().getFullPathName(), juce::NotificationType::dontSendNotification);
+	dataPathLabel = new Label(CoreServices::getRecordingParentDirectory().getFullPathName());
+	dataPathLabel->setText(CoreServices::getRecordingParentDirectory().getFullPathName(), juce::NotificationType::dontSendNotification);
 	dataPathLabel->setTooltip(dataPathLabel->getText());
 	dataPathLabel->setBounds(42,35,72,20);
 	dataPathLabel->setColour(Label::backgroundColourId, Colours::grey);
@@ -70,11 +71,18 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	engineSelectCombo->setBounds(42, 66, 93, 20);
 
 	std::vector<RecordEngineManager*> engines = recordNode->getAvailableRecordEngines();
+
+	int defaultEngine = 0;
+
 	for (int i = 0; i < engines.size(); i++)
 	{
 		engineSelectCombo->addItem(engines[i]->getName(), i + 1);
+		
+		if (CoreServices::getDefaultRecordEngineId().equalsIgnoreCase(engines[i]->getID()))
+			defaultEngine = i + 1;
+
 	}
-	engineSelectCombo->setSelectedId(CoreServices::getDefaultRecordEngineIdx());
+	engineSelectCombo->setSelectedId(defaultEngine);
 	engineSelectCombo->addListener(this);
 	addAndMakeVisible(engineSelectCombo);
 
@@ -122,8 +130,9 @@ void RecordNodeEditor::saveCustomParametersToXml(XmlElement* xml)
 
     XmlElement* xmlNode = xml->createNewChildElement ("SETTINGS");
     xmlNode->setAttribute ("path", dataPathLabel->getText());
-	//TODO: This should be the actual engine name instead of index in case engines added/removed between launches
-    xmlNode->setAttribute ("engine", engineSelectCombo->getSelectedId());
+    
+	std::vector<RecordEngineManager*> engines = CoreServices::getAvailableRecordEngines();
+	xmlNode->setAttribute("engine", engines[engineSelectCombo->getSelectedId()-1]->getID());
 	xmlNode->setAttribute ("recordEvents", eventRecord->getToggleState());
 	xmlNode->setAttribute ("recordSpikes", spikeRecord->getToggleState());
 
@@ -133,18 +142,18 @@ void RecordNodeEditor::saveCustomParametersToXml(XmlElement* xml)
 
 		if (recordNode->dataChannelStates[streamId].size() > 0)
 		{
-			XmlElement* stream = xmlNode->createNewChildElement("DATASTREAM");
+			XmlElement* stream = xmlNode->createNewChildElement("STREAM");
 
 			stream->setAttribute("stream_id", streamId);
 			stream->setAttribute("isPrimary", 
 				recordNode->synchronizer->primaryStreamId == streamId);
 			stream->setAttribute("sync_bit", recordNode->syncChannelMap[streamId]);
 
-			XmlElement* recStateNode = stream->createNewChildElement("RECORDSTATE");
+			XmlElement* recStateNode = stream->createNewChildElement("STATE");
 
 			for (int ch = 0; ch < recordNode->dataChannelStates[streamId].size(); ch++)
 			{
-				recStateNode->setAttribute(String("CH")+String(ch), recordNode->dataChannelStates[streamId][ch]);
+				recStateNode->setAttribute("CH" + String(ch+1), recordNode->dataChannelStates[streamId][ch]);
 			}
 
 		}
@@ -165,20 +174,21 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 			//Get saved record path
 			String savedPath = xmlNode->getStringAttribute("path");
 			if (!File(savedPath).exists())
-				savedPath = CoreServices::getDefaultRecordingDirectory().getFullPathName();
+				savedPath = CoreServices::getRecordingParentDirectory().getFullPathName();
 		    dataPathLabel->setText(savedPath, juce::NotificationType::sendNotification);
-			engineSelectCombo->setSelectedId(xmlNode->getStringAttribute("engine").getIntValue());
+			recordNode->setEngine(xmlNode->getStringAttribute("engine", "BINARY"));
 			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::sendNotification);
 			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::sendNotification);
 
-			//std::cout << "Loading RecordNode settings" << std::endl;
+			Array<const DataStream*> availableStreams = recordNode->getDataStreams();
+			int streamIndex = 0;
 
 			forEachXmlChildElement(*xmlNode, subNode)
 			{
-				if (subNode->hasTagName("DATASTREAM"))
+				if (subNode->hasTagName("STREAM") && streamIndex < availableStreams.size())
 				{
 
-					int streamId = subNode->getIntAttribute("stream_id");
+					uint16 streamId = availableStreams[streamIndex]->getStreamId();
 
 					if (recordNode->dataChannelStates[streamId].size())
 					{
@@ -190,15 +200,16 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 
 						recordNode->setSyncBit(streamId, subNode->getIntAttribute("sync_bit"));
 
-						XmlElement* recordStates = subNode->getChildByName("RECORDSTATE");
+						XmlElement* recordStates = subNode->getChildByName("STATE");
 
 						for (int ch = 0; ch < recordNode->dataChannelStates[streamId].size(); ch++)
 						{
-							//std::cout << "Setting channel " << ch << " : " << srcID << " : " << subIdx << " to " << recordStates->getIntAttribute("CH" + String(ch)) << std::endl;
-							recordNode->dataChannelStates[streamId][ch] = recordStates->getIntAttribute("CH" + String(ch));
+							recordNode->dataChannelStates[streamId][ch] = recordStates->getBoolAttribute("CH" + String(ch+1), true);
 						}
 
 					}
+
+					streamIndex++;
 
 				}
 			}
@@ -206,11 +217,6 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 		}
 	} 
 
-}
-
-int RecordNodeEditor::getSelectedEngineIdx()
-{
-	return engineSelectCombo->getSelectedId()-1;
 }
 
 void RecordNodeEditor::timerCallback()
@@ -239,32 +245,56 @@ void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 
 	if (!recordNode->recordThread->isThreadRunning())
 	{
-		uint8 selectedEngineIndex = box->getSelectedId();
+		int selectedEngineIndex = box->getSelectedId() - 1;
+
+		std::vector<RecordEngineManager*> engines = CoreServices::getAvailableRecordEngines();
 
 		//Prevent using OpenEphys format if > 300 channels coming into Record Node
-		if (recordNode->getNumInputs() > 300 && selectedEngineIndex == 2)
+		if (engines[selectedEngineIndex]->getID().equalsIgnoreCase("OPENEPHYS") &&
+			recordNode->getNumInputs() > 300)
 		{
 			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
-				"WARNING!", "Open Ephys format does not support > 300 channels. Resetting to Binary format");
+				"WARNING", "Open Ephys format does not support > 300 channels. Resetting to Binary format.");
 			box->setSelectedItemIndex(0);
-			recordNode->setEngine(0);
+			recordNode->setEngine("BINARY");
 			return;
 		}
-		recordNode->setEngine(selectedEngineIndex-1);
+
+		recordNode->setEngine(engines[selectedEngineIndex]->getID());
+
+		CoreServices::saveRecoveryConfig();
+		CoreServices::createNewRecordingDirectory();
 	}
 
 }
 
-void RecordNodeEditor::updateSubprocessorFifos()
+void RecordNodeEditor::setEngine(String id)
 {
-	if (recordNode->getNumDataStreams() != subProcMonitors.size())
+
+	int selectedIndex = 0;
+
+	for (auto engine : CoreServices::getAvailableRecordEngines())
+	{
+		selectedIndex++;
+
+		if (engine->getID().compare(id) == 0)
+			engineSelectCombo->setSelectedId(selectedIndex, dontSendNotification);
+	}
+}
+
+void RecordNodeEditor::updateFifoMonitors()
+{
+	if (recordNode->getNumDataStreams() != streamMonitors.size())
 	{
 
-		subProcLabels.clear();
-		subProcMonitors.clear();
-		subProcRecords.clear();
+		streamLabels.clear();
+		streamMonitors.clear();
+		streamRecords.clear();
 
 		int streamCount = 0;
+
+		if (recordNode->getNumDataStreams() == 0)
+			return;
 
 		for (auto const& [streamId, channelStates] : recordNode->dataChannelStates)
 		{
@@ -276,17 +306,17 @@ void RecordNodeEditor::updateSubprocessorFifos()
 			//addAndMakeVisible(subProcLabels.getLast());
 			//subProcLabels.getLast()->setVisible(false);
 
-			subProcMonitors.add(new FifoMonitor(recordNode, streamId, recordNode->getDataStream(streamId)->getName()));
-			subProcMonitors.getLast()->setBounds(18 + streamCount * 20, 32, 15, 73);
-			addAndMakeVisible(subProcMonitors.getLast());
-			subProcMonitors.getLast()->setVisible(false);
+			streamMonitors.add(new FifoMonitor(recordNode, streamId, recordNode->getDataStream(streamId)->getName()));
+			streamMonitors.getLast()->setBounds(18 + streamCount * 20, 32, 15, 73);
+			addAndMakeVisible(streamMonitors.getLast());
+			streamMonitors.getLast()->setVisible(false);
 
 			LOGD("Adding sync control button for stream id: ", streamId);
-			subProcRecords.add(new SyncControlButton(recordNode, "SP" + String(streamCount), streamId));
-			subProcRecords.getLast()->setBounds(18 + streamCount * 20, 110, 15, 15);
-			subProcRecords.getLast()->addListener(this);
-			addAndMakeVisible(subProcRecords.getLast());
-			subProcRecords.getLast()->setVisible(false);
+			streamRecords.add(new SyncControlButton(recordNode, "SP" + String(streamCount), streamId));
+			streamRecords.getLast()->setBounds(18 + streamCount * 20, 110, 15, 15);
+			streamRecords.getLast()->addListener(this);
+			addAndMakeVisible(streamRecords.getLast());
+			streamRecords.getLast()->setVisible(false);
 
 			streamCount++;
 
@@ -297,7 +327,7 @@ void RecordNodeEditor::updateSubprocessorFifos()
 void RecordNodeEditor::buttonClicked(Button *button)
 {
 
-	if (button == masterRecord) 
+	if (button == recordToggleButton) 
 	{
 		//TODO: Clicking on the master record monitor should do something useful in the future...
 	}
@@ -311,14 +341,12 @@ void RecordNodeEditor::buttonClicked(Button *button)
 	}
 	else if (button == fifoDrawerButton)
 	{
-		updateSubprocessorFifos();
+		updateFifoMonitors();
 
-		if (button->getToggleState())
-			showSubprocessorFifos(true);
-		else
-			showSubprocessorFifos(false);
+		showFifoMonitors(button->getToggleState());
+
 	} 
-	else if (subProcRecords.contains((SyncControlButton*)button))
+	else if (streamRecords.contains((SyncControlButton*)button))
 	{
 		//Should be handled by SyncControlButton class
 		/*
@@ -365,21 +393,21 @@ void RecordNodeEditor::collapsedStateChanged()
 
 	if (getCollapsedState())
 	{
-		for (auto spl : subProcLabels)
-			spl->setVisible(false);
-		for (auto spm : subProcMonitors)
-			spm->setVisible(false);
-		for (auto spr : subProcRecords)
-			spr->setVisible(false);
+		for (auto streamLabel : streamLabels)
+			streamLabel->setVisible(false);
+		for (auto streamMonitor : streamMonitors)
+			streamMonitor->setVisible(false);
+		for (auto streamRecord : streamRecords)
+			streamRecord->setVisible(false);
 	} 
 	else
 	{
-		for (auto spl : subProcLabels)
-			spl->setVisible(subprocessorsVisible);
-		for (auto spm : subProcMonitors)
-			spm->setVisible(subprocessorsVisible);
-		for (auto spr : subProcRecords)
-			spr->setVisible(subprocessorsVisible);
+		for (auto spl : streamLabels)
+			spl->setVisible(monitorsVisible);
+		for (auto spm : streamMonitors)
+			spm->setVisible(monitorsVisible);
+		for (auto spr : streamRecords)
+			spr->setVisible(monitorsVisible);
 	}
 	
 	
@@ -390,32 +418,34 @@ void RecordNodeEditor::setDataDirectory(String dir)
 	dataPathLabel->setText(dir, sendNotificationSync);
 }
 
-void RecordNodeEditor::showSubprocessorFifos(bool show)
+void RecordNodeEditor::showFifoMonitors(bool show)
 {
 
-	subprocessorsVisible = show;
+	monitorsVisible = show;
+
+	int offset;
 
 	if (show)
-		numSubprocessors = recordNode->getNumDataStreams();
+		numDataStreams = recordNode->getNumDataStreams();
 
-	int dX = 20 * (numSubprocessors + 1);
+	int dX = 20 * (numDataStreams + 1);
 	dX = show ? dX : -dX;
 
 	fifoDrawerButton->setBounds(
 		fifoDrawerButton->getX() + dX, fifoDrawerButton->getY(),
 		fifoDrawerButton->getWidth(), fifoDrawerButton->getHeight());
 
-	masterLabel->setBounds(
-		masterLabel->getX() + dX, masterLabel->getY(),
-		masterLabel->getWidth(), masterLabel->getHeight());
+	diskSpaceLabel->setBounds(
+		diskSpaceLabel->getX() + dX, diskSpaceLabel->getY(),
+		diskSpaceLabel->getWidth(), diskSpaceLabel->getHeight());
 
-	masterMonitor->setBounds(
-		masterMonitor->getX() + dX, masterMonitor->getY(),
-		masterMonitor->getWidth(), masterMonitor->getHeight());
+	diskSpaceMonitor->setBounds(
+		diskSpaceMonitor->getX() + dX, diskSpaceMonitor->getY(),
+		diskSpaceMonitor->getWidth(), diskSpaceMonitor->getHeight());
 
-	masterRecord->setBounds(
-		masterRecord->getX() + dX, masterRecord->getY(),
-		masterRecord->getWidth(), masterRecord->getHeight());
+	recordToggleButton->setBounds(
+		recordToggleButton->getX() + dX, recordToggleButton->getY(),
+		recordToggleButton->getWidth(), recordToggleButton->getHeight());
 
 	dataPathLabel->setBounds(
 		dataPathLabel->getX() + dX, dataPathLabel->getY(),
@@ -449,11 +479,11 @@ void RecordNodeEditor::showSubprocessorFifos(bool show)
 		streamSelector->getX() + dX, streamSelector->getY(),
 		streamSelector->getWidth(), streamSelector->getHeight());
 
-	for (auto spl : subProcLabels)
+	for (auto spl : streamLabels)
 		spl->setVisible(show);
-	for (auto spm : subProcMonitors)
+	for (auto spm : streamMonitors)
 		spm->setVisible(show);
-	for (auto spr : subProcRecords)
+	for (auto spr : streamRecords)
 		spr->setVisible(show);
 
 	desiredWidth += dX;
@@ -505,7 +535,7 @@ void SyncControlButton::componentBeingDeleted(Component &component)
 	/*Capture button channel states and send back to record node. */
 
 	auto* syncChannelSelector = (SyncChannelSelector*)component.getChildComponent(0);
-	if (syncChannelSelector->isMaster)
+	if (syncChannelSelector->isPrimary)
 	{
 		LOGD("Set primary: {", streamId, "}");
 		node->setPrimaryDataStream(streamId);
@@ -532,7 +562,14 @@ void SyncControlButton::mouseUp(const MouseEvent &event)
 	{
 
 		const Array<EventChannel*> eventChannels = node->getDataStream(streamId)->getEventChannels();
-		int nEvents = eventChannels[0]->getMaxTTLBits();
+
+		int nEvents;
+
+		if (eventChannels.size() > 0)
+			nEvents = eventChannels[0]->getMaxTTLBits();
+		else
+			nEvents = 1;
+
 		int syncBit = node->getSyncBit(streamId);
 		
 		SyncChannelSelector* channelSelector = new SyncChannelSelector (nEvents, syncBit, node->isPrimaryDataStream(streamId));

@@ -114,44 +114,61 @@ class RecordNodeEditor :
 {
 public:
 
+	/** Constructor */
 	RecordNodeEditor(RecordNode* parentNode);
+
+	/** Destructor*/
 	virtual ~RecordNodeEditor();
 
+	/** Hides FIFO monitors when the editor is collapsed*/
 	void collapsedStateChanged() override;
 
-	void updateSubprocessorFifos();
-	void showSubprocessorFifos(bool);
+	/** Propagates new settings to FIFO Monitors */
+	void updateFifoMonitors();
 
-	int getSelectedEngineIdx();
-    
-	bool subprocessorsVisible;
+	/** Shows/hides FIFO Monitors*/
+	void showFifoMonitors(bool);
 
+	/** Updates the local directory for this Record Node*/
+	void setDataDirectory(String dir);
+
+	/** Sets the Record Engine for this Record Node*/
+	void setEngine(String id);
+
+	/** Updates availble disk space*/
 	void timerCallback() override;
+
+	/** Used to change active Record Engine */
 	void comboBoxChanged(ComboBox*); 
+
+	/** Respond to changes in data directory */
 	void labelTextChanged(Label*);
 
+	/** Respond to button clicks*/
+	void buttonClicked(Button* button);
+
+	/** Save Record Node parameters*/
 	void saveCustomParametersToXml(XmlElement* xml) override;
+
+	/** Load Record Node parameters*/
 	void loadCustomParametersFromXml(XmlElement* xml) override;
-    
-    void buttonClicked(Button* button);
-    ScopedPointer<FifoDrawerButton> fifoDrawerButton;
+
+	ScopedPointer<FifoDrawerButton> fifoDrawerButton;
 
 	ScopedPointer<ComboBox> engineSelectCombo;
 
-	void setDataDirectory(String dir);
-
+	bool monitorsVisible;
+	int numDataStreams;
+    
 private:
-
 	RecordNode* recordNode;
 
-	int numSubprocessors;
-
-	OwnedArray<Label> subProcLabels;
-	OwnedArray<FifoMonitor> subProcMonitors;
-	OwnedArray<SyncControlButton> subProcRecords;
-	ScopedPointer<Label> masterLabel;
-	ScopedPointer<FifoMonitor> masterMonitor;
-	ScopedPointer<RecordToggleButton> masterRecord;
+	OwnedArray<Label> streamLabels;
+	OwnedArray<FifoMonitor> streamMonitors;
+	OwnedArray<SyncControlButton> streamRecords;
+	ScopedPointer<Label> diskSpaceLabel;
+	ScopedPointer<FifoMonitor> diskSpaceMonitor;
+	ScopedPointer<RecordToggleButton> recordToggleButton;
 	ScopedPointer<Label> engineSelectLabel;
 	ScopedPointer<Label> dataPathLabel;
 	ScopedPointer<Button> dataPathButton;

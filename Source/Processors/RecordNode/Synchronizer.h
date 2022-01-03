@@ -86,6 +86,7 @@ public:
     
     void reset();
 
+    void prepareForUpdate();
     void addDataStream(uint16 streamId, float expectedSampleRate);
     void setPrimaryDataStream(uint16 streamId);
 
@@ -102,6 +103,7 @@ public:
     RecordNode* node;
 
     int primaryStreamId = -1;
+    int lastPrimaryStreamId;
 
     bool isAvailable() { return primaryStreamId > 0; };
 
@@ -117,6 +119,7 @@ private:
     bool firstMasterSync;
 
     std::map<int,Stream*> streams;
+    OwnedArray<Stream> dataStreamObjects;
 
     OwnedArray<FloatTimestampBuffer> ftsBuffer;
 

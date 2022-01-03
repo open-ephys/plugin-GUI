@@ -43,6 +43,25 @@ namespace CoreServices
 		getProcessorGraph()->updateSettings(source->getProcessor());
 	}
 
+	void saveRecoveryConfig()
+	{
+		File configsDir = getSavedStateDirectory();
+		if (!configsDir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
+			configsDir = configsDir.getChildFile("configs-api" + String(PLUGIN_API_VER));
+
+		EditorViewport* ev = getEditorViewport();
+		File recoveryFile = configsDir.getChildFile("recoveryConfig.xml");
+		ev->saveState(recoveryFile);
+	}
+
+	void loadSignalChain(String path)
+	{
+		if (File(path).existsAsFile())
+		{
+			getEditorViewport()->loadState(File(path));
+		}
+	}
+
 	bool getAcquisitionStatus()
 	{
 		return getControlPanel()->getAcquisitionState();
@@ -56,22 +75,24 @@ namespace CoreServices
 
 	bool getRecordingStatus()
 	{
-		return getControlPanel()->recordButton->getToggleState();
+		return getControlPanel()->getRecordingState();
 	}
 
 	void setRecordingStatus(bool enable)
 	{
 		const MessageManagerLock mml;
-		getControlPanel()->setRecordState(enable);
+		getControlPanel()->setRecordingState(enable);
 	}
 
 	void sendStatusMessage(const String& text)
 	{
+		LOGD("CoreServices::sendStatusMessage: ", text);
 		getBroadcaster()->sendActionMessage(text);
 	}
 
 	void sendStatusMessage(const char* text)
 	{
+		LOGD("CoreServices::sendStatusMessage: ", String(text));
 		getBroadcaster()->sendActionMessage(text);
 	}
 
@@ -105,33 +126,57 @@ namespace CoreServices
 		return 1000.0f;
 	}
 
-	void setDefaultRecordingDirectory(String dir)
+	void setRecordingParentDirectory(String dir)
 	{
-		getControlPanel()->setRecordingDirectory(dir);
+		if (File(dir).exists())
+		{
+			getControlPanel()->setRecordingParentDirectory(dir);
+		}
+		else {
+			sendStatusMessage(dir + " not found.");
+		}
 	}
 
-	File getDefaultRecordingDirectory()
+	File getRecordingParentDirectory()
 	{
-		return getControlPanel()->getRecordingDirectory();
+		return getControlPanel()->getRecordingParentDirectory();
+	}
+
+	void setRecordingDirectoryBasename(String dir)
+	{
+		getControlPanel()->setRecordingDirectoryBasename(dir);
+	}
+
+	String getRecordingDirectoryName()
+	{
+		return getControlPanel()->getRecordingDirectoryName();
 	}
 
 	void createNewRecordingDirectory()
 	{
-		getControlPanel()->labelTextChanged(NULL);
+		getControlPanel()->createNewRecordingDirectory();
 	}
 
-	/*
 	void setRecordingDirectoryPrependText(String text)
 	{
-		getControlPanel()->setPrependText(text);
+		getControlPanel()->setRecordingDirectoryPrependText(text);
 	}
 
 	void setRecordingDirectoryAppendText(String text)
 	{
-		getControlPanel()->setAppendText(text);
+		getControlPanel()->setRecordingDirectoryAppendText(text);
 	}
-	*/
 
+	String getRecordingDirectoryPrependText()
+	{
+		return getControlPanel()->getRecordingDirectoryPrependText();
+	}
+
+	String getRecordingDirectoryAppendText()
+	{
+		return getControlPanel()->getRecordingDirectoryAppendText();
+	}
+	
 	std::vector<RecordEngineManager*> getAvailableRecordEngines()
 	{
 		return getControlPanel()->getAvailableRecordEngines();
@@ -147,9 +192,17 @@ namespace CoreServices
 		return getControlPanel()->setSelectedRecordEngineId(id);
 	}
 
-	int getDefaultRecordEngineIdx()
+	Array<int> getAvailableRecordNodeIds()
 	{
-		return getControlPanel()->recordSelector->getSelectedId();
+
+		Array<int> nodeIds;
+
+		for (auto node : getProcessorGraph()->getRecordNodes())
+		{
+			nodeIds.add(node->getNodeId());
+		}
+
+		return nodeIds;
 	}
 
 	namespace RecordNode
@@ -192,12 +245,12 @@ namespace CoreServices
 			return freeSpace;
 		}
 
-		void createNewRecordingDirectory(int nodeId)
+		String getRecordEngineId(int nodeId)
 		{
 			for (auto* node : getProcessorGraph()->getRecordNodes())
 			{
 				if (node->getNodeId() == nodeId)
-					node->createNewDirectory();
+					return node->getEngineId();
 			}
 		}
 
@@ -237,6 +290,18 @@ namespace CoreServices
 			return experimentNumber;
 		}
 
+
+		void createNewRecordingDirectory(int nodeId)
+		{
+			for (auto* node : getProcessorGraph()->getRecordNodes())
+			{
+				if (node->getNodeId() == nodeId)
+					node->createNewDirectory();
+			}
+		}
+
+		/* NOT YET IMPLEMENTED -- these functions are currently global only
+
 		void setRecordingStatus(int nodeId, bool status)
 		{
 			for (auto* node : getProcessorGraph()->getRecordNodes())
@@ -269,7 +334,7 @@ namespace CoreServices
 			}
 
 			return status;
-		}
+		}*/
 
 	};
 

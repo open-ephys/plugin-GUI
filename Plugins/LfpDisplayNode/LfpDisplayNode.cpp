@@ -64,7 +64,7 @@ void LfpDisplayNode::initialize(bool signalChainIsLoading)
 void LfpDisplayNode::updateSettings()
 {
 
-    LOGG("Setting num inputs on LfpDisplayNode to ", getNumInputs());
+    LOGD("Setting num inputs on LfpDisplayNode to ", getNumInputs());
 
     int64 start = Time::getHighResolutionTicks();
 
@@ -184,7 +184,22 @@ bool LfpDisplayNode::stopAcquisition()
 
 void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 {
-    triggerChannels.set(int(newValue), parameterIndex);
+    if (parameterIndex < 99)
+    {
+        triggerChannels.set(int(newValue), parameterIndex);
+    }
+    else {
+
+
+        ContinuousChannel* chan = continuousChannels[int(newValue)];
+
+        String msg = "AUDIO SELECT ";
+        msg += String(chan->getStreamId()) + " ";
+        msg += String(chan->getLocalIndex() + 1) + " ";
+
+        broadcastMessage(msg);
+
+    }
 }
 
 

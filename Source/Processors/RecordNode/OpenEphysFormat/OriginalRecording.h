@@ -40,11 +40,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class OriginalRecording : public RecordEngine
 {
 public:
+
+	/** Constructor */
 	OriginalRecording();
+
+	/** Destructor */
 	~OriginalRecording();
 
+	/** Returns the unique identifier of this RecordEngine*/
+	String getEngineId() const override;
+
 	void setParameter(EngineParameter& parameter) override;
-	String getEngineID() const override;
+	
 	void openFiles(File rootFolder, int experimentNumber, int recordingNumber) override;
 	void closeFiles() override;
 	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;

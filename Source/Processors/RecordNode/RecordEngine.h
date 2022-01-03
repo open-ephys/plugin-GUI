@@ -58,43 +58,57 @@ class RecordEngineManager;
 class PLUGIN_API RecordEngine
 {
 public:
+
+	/** Constructor */
 	RecordEngine();
-	virtual ~RecordEngine();
-	virtual String getEngineID() const = 0;
 
-	/** All the public methods (except registerManager) are called by RecordNode or RecordingThread:
-	When acquisition starts (in the specified order):
-	1-resetChannels
-	2-registerProcessor, addChannel, registerSpikeSource, addSpikeElectrode
-	3-configureEngine (which calls setParameter)
-	3-startAcquisition
-	When recording starts (in the specified order):
-	1-directoryChanged (if needed)
-	2-(setChannelMapping)
-	3-(updateTimestamps*)
-	4-openFiles*
-	During recording: (RecordThread loop)
-	1-(updateTimestamps*) (can be called in a per-channel basis when the circular buffer wraps)
-	2-startChannelBlock*
-	3-writeData* (per channel. Can be called more than once to account for the circular buffer wrap)
-	4-endChannelBlock*
-	4-writeEvent* (if needed)
-	5-writeSpike* (if needed)
-	When recording stops:
-	closeFiles*
+	/** Destructor */
+	virtual ~RecordEngine() { }
 
-	Methods marked with a * are called via the RecordThread thread.
-	Methods marked with parenthesis are not overloaded methods
-	*/
+	/** Returns the unique identifier of the Record Engine */
+	virtual String getEngineId() const = 0;
 
-	/** Called for registering parameters */
-	virtual void setParameter(EngineParameter& parameter);
+	/** Sets the pointer to the RecordEngineManager (called by ControlPanel) */
+	void registerManager(RecordEngineManager* engineManager);
+
+
+	/** ----- CALLED AT START OF ACQUISITION ---- */
+
+	/** Sets RecordEngine parameters (if available) at the start of acquisition*/
+	void configureEngine();
+
+	/** Called by configureEngine() */
+	virtual void setParameter(EngineParameter& parameter) { }
+
+	/** Called just before acquisition starts (does nothing by default) */
+	virtual void startAcquisition();
+
+
+	/** ----- CALLED AT START OF RECORDING ---- */
+	
+	/** Sets the pointer to Record Node for this engine*/
+	void registerRecordNode(RecordNode* node);
+
+	/** Called when a new recording starts, to clean all channel data before registering the processors */
+	virtual void resetChannels() { }
+
+	/** Called prior to opening files, to set the map between recorded channels and actual channel numbers */
+	void setChannelMapping(const Array<int>& channels, 
+						   const Array<int>& chanProcessor, 
+						   const Array<int>& chanOrder, 
+						   OwnedArray<RecordProcessorInfo>& processors);
+
+	/** Called if the directory has changed since the last recording */
+	virtual void directoryChanged();
 
 	/** Called when recording starts to open all needed files */
 	virtual void openFiles(File rootFolder, int experimentNumber, int recordingNumber) = 0;
 
-	/** Called when recording stops to close all files and do all the necessary cleanups */
-	virtual void closeFiles() = 0;
+
+	/** ----- CALLED DURING RECORDING ---- */
+
+	/** Called at the start of every write block */
+	void updateTimestamps(const Array<int64>& timestamps, int channel = -1);
 
 	/** Called by the record thread before it starts writing the channels to disk */
 	virtual void startChannelBlock(bool lastBlock);
@@ -114,40 +128,26 @@ public:
 	/** Handle the timestamp sync text messages*/
 	virtual void writeTimestampSyncText(uint64 streamId, int64 timestamp, float sourceSampleRate, String text) = 0;
 
-	/** Called when acquisition starts once for each processor that might record continuous data */
-	virtual void registerProcessor(const GenericProcessor* processor);
-
 	/** Write a spike to disk */
 	virtual void writeSpike(int electrodeIndex, const Spike* spike) = 0;
 
-	/** Called when a new acquisition starts, to clean all channel data before registering the processors */
-	virtual void resetChannels();
 
-	/** Called at the start of every write block */
-	void updateTimestamps(const Array<int64>& timestamps, int channel = -1);
+	/** ----- CALLED WHEN RECORDING STOPS ---- */
 
-	/** Called prior to opening files, to set the map between recorded channels and actual channel numbers */
-	void setChannelMapping (const Array<int>& channels, const Array<int>& chanProcessor, const Array<int>& chanOrder, OwnedArray<RecordProcessorInfo>& processors);
+	/** Called when recording stops to close all files and do all the necessary cleanups */
+	virtual void closeFiles() = 0;
 
-	void registerRecordNode(RecordNode* node);
-	/** Called after all channels and spike groups have been registered, just before acquisition starts */
-	virtual void startAcquisition();
-
-	/** Called when the recording directory changes during an acquisition */
-	virtual void directoryChanged();
-
-	void registerManager(RecordEngineManager* engineManager);
-	void configureEngine();
-
-	//Method needed by the factory methods in the manager
-	//static RecordEngineManager* getEngineManager();
-
-	/** Gets the number of processors being recorded
-	*/
-	int getNumRecordedProcessors() const;
-
+	
+	
 
 protected:
+
+	/** Gets the number of processors being recorded */
+	int getNumRecordedProcessors() const;
+
+	/** Gets the processor info structure for a recorded processor */
+	const RecordProcessorInfo& getProcessorInfo(int processor) const;
+
 	/** Functions to access RecordNode arrays and utilities */
 	RecordNode* recordNode;
 
@@ -181,10 +181,6 @@ protected:
 	/** Gets the number of recorded spike channels
 	(right now all channels are recorded) */
 	int getNumRecordedSpikeChannels() const;
-
-	/** Gets the processor info structure for a recorded processor
-	*/
-	const RecordProcessorInfo& getProcessorInfo (int processor) const;
 
 	/** Gets the recorded processor index for a recorded channel index
 	*/

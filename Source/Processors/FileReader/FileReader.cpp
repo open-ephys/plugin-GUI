@@ -117,6 +117,9 @@ AudioProcessorEditor* FileReader::createEditor()
 
 void FileReader::initialize(bool signalChainIsLoading)
 {
+
+    //std::cout << "INITIALIZING FILE READER" << std::endl;
+
     if (signalChainIsLoading)
         return;
 
@@ -134,6 +137,7 @@ void FileReader::initialize(bool signalChainIsLoading)
     {
         FileReaderEditor* ed = (FileReaderEditor*)editor.get();
         ed->setFile(defaultFile.getFullPathName(), false);
+        //std::cout << "SETTING DEFAULT FILE." << std::endl;
         update();
     }
 }
@@ -378,7 +382,7 @@ void FileReader::updateSettings()
 
     if (gotNewFile)
     {
-        
+
         //std::cout << "GOT NEW FILE" << std::endl;
 
         dataStreams.clear();
@@ -393,11 +397,10 @@ void FileReader::updateSettings()
             getDefaultSampleRate()
 
         };
-        
+
         dataStreams.add(new DataStream(streamSettings));
         dataStreams.getLast()->addProcessor(processorInfo.get());
 
-        
         for (int i = 0; i < currentNumChannels; i++)
         {
             ContinuousChannel::Settings channelSettings
@@ -409,14 +412,14 @@ void FileReader::updateSettings()
                 0.195f, // BITVOLTS VALUE
                 dataStreams.getLast()
             };
-            
+
             continuousChannels.add(new ContinuousChannel(channelSettings));
             continuousChannels.getLast()->addProcessor(processorInfo.get());
         }
 
-        EventChannel *events;
+        EventChannel* events;
 
-        EventChannel::Settings eventSettings {
+        EventChannel::Settings eventSettings{
             EventChannel::Type::TTL,
             "All TTL events",
             "All TTL events loaded for the current input data source",
@@ -430,11 +433,13 @@ void FileReader::updateSettings()
         events->setIdentifier(id);
         events->addProcessor(processorInfo.get());
         eventChannels.add(events);
-        
 
         gotNewFile = false;
 
-    };
+    }
+    else {
+        //std::cout << " NO NEW FILE " << std::endl;
+    }
 
     isEnabled = true;
 

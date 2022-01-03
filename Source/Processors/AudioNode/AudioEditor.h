@@ -42,8 +42,12 @@ class MaterialSliderLookAndFeel;
 class MuteButton : public ImageButton
 {
 public:
+
+    /** Constructor */
     MuteButton();
-    ~MuteButton();
+
+    /** Destructor */
+    ~MuteButton() { }
 };
 
 
@@ -56,13 +60,18 @@ public:
 class AudioWindowButton : public Button
 {
 public:
-    AudioWindowButton();
-    ~AudioWindowButton();
 
+    /** Constructor */
+    AudioWindowButton();
+
+    /** Destructor */
+    ~AudioWindowButton() { }
+
+    /** Renders the button */
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 
-    void setText (const String& newText);
-
+    /** Sets the latency string*/
+    void setText(const String& newText);
 
 private:
     String textString;
@@ -78,14 +87,22 @@ private:
 class AudioConfigurationWindow : public DocumentWindow
 {
 public:
-    AudioConfigurationWindow (AudioDeviceManager& adm, AudioWindowButton* b);
-    ~AudioConfigurationWindow();
 
+    /** Constructor */
+    AudioConfigurationWindow (AudioDeviceManager& adm, AudioWindowButton* b);
+
+    /** Destructor */
+    ~AudioConfigurationWindow() { }
+
+    /** Draws the background*/
     void paint (Graphics& g)    override;
+
+    /** Doesn't do anything currently*/
     void resized()              override;
 
-
 private:
+
+    /** Saves settings to the recovery config and hides the window*/
     void closeButtonPressed();
 
     AudioWindowButton* controlButton;
@@ -103,27 +120,43 @@ class AudioEditor : public AudioProcessorEditor
                   , public ComponentListener
 {
 public:
+
+    /** Constructor */
     AudioEditor (AudioNode* owner);
+
+    /** Destructor (removes slider LookAndFeel)*/
     ~AudioEditor();
 
+    /** Draws the "gate" label */
     void paint (Graphics& g)                override;
-    void resized()                          override;
-    bool keyPressed (const KeyPress& key)   override;
 
+    /** Sets sub-component locations*/
+    void resized()                          override;
+
+    /** Changes the latency label*/
     void updateBufferSizeText();
 
+    /** Called after acquisition is stopped */
     void enable();
+
+    /** Called after acquisition begins*/
     void disable();
 
+    /** Saves settings*/
     void saveStateToXml     (XmlElement* xml);
+
+    /** Loads settings*/
     void loadStateFromXml   (XmlElement* xml);
 
-
 private:
+
+    /** Responds to button presses*/
     void buttonClicked (Button* buttonThatWasClicked) override;
 
+    /** Responds to volume + gate sliders*/
     void sliderValueChanged (Slider* slider) override;
 
+    /** Responds to configuration window closing*/
     void componentVisibilityChanged(Component& component) override;
 
     float lastValue;

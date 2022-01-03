@@ -381,7 +381,7 @@ bool LoadPluginSettings::perform()
         LOGDD("Loading parameters");
         processor->loadFromXml();
         
-        AccessClass::getProcessorGraph()->updateViews(processor);
+        CoreServices::updateSignalChain(processor->getEditor());
         
         return true;
     } else {

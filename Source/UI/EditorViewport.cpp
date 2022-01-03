@@ -1513,13 +1513,13 @@ const String EditorViewport::loadState(File fileToLoad)
     currentFile = fileToLoad;
 
     LOGC("Loading configuration from ", fileToLoad.getFullPathName());
-
+   
     XmlDocument doc(currentFile);
     std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
     
     if (xml == 0 || ! xml->hasTagName("SETTINGS"))
     {
-        LOGD("File not found.");
+        LOGD("Not a valid configuration file.");
         return "Not a valid file.";
     }
 
@@ -1527,6 +1527,8 @@ const String EditorViewport::loadState(File fileToLoad)
     
     LoadSignalChain* action = new LoadSignalChain(this, xml);
     undoManager.perform(action);
+
+    CoreServices::sendStatusMessage("Loaded " + fileToLoad.getFileName());
     
     return "Loaded signal chain.";
     

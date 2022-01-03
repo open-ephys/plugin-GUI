@@ -61,11 +61,19 @@ public:
     /** Responds to changes in the state buttons*/
     void buttonClicked(Button*);
 
+    /** Increment file index (for auto prepend/append text) */
+    void incrementDirectoryIndex();
+
+    /** Returns the next value for this field*/
+    String getNextValue(bool usePlaceholderText);
+
     Type type;
     State state;
     String value;
+    String savedValue;
 
     int index;
+    bool newDirectoryNeeded;
 
     std::unique_ptr<Label> typeLabel;
     std::unique_ptr<Button> stateButton;
@@ -96,13 +104,13 @@ public:
     /** Destructor */
     ~FilenameConfigWindow() {}
 
-    Array<std::shared_ptr<FilenameFieldComponent>> fields;
-
     /** Save settings. */
     void saveStateToXml(XmlElement*);
 
     /** Load settings. */
     void loadStateFromXml(XmlElement*);
+
+    Array<std::shared_ptr<FilenameFieldComponent>> fields;
 
 };
 

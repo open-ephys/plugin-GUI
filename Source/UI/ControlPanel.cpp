@@ -397,7 +397,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
         FilenameFieldComponent::Type::APPEND, FilenameFieldComponent::State::NONE,""));
 
     filenameText = std::make_unique<FilenameEditorButton>();
-    generateFilenameFromFields(true, true);
+    generateFilenameFromFields(true);
     filenameText->addListener(this);
     addAndMakeVisible(filenameText.get());
 
@@ -418,7 +418,7 @@ ControlPanel::~ControlPanel()
 
 }
 
-void ControlPanel::setRecordState(bool t)
+void ControlPanel::setRecordingState(bool t)
 {
 
     recordButton->setToggleState(t, sendNotification);
@@ -431,19 +431,19 @@ bool ControlPanel::getRecordingState()
 
 }
 
-void ControlPanel::setRecordingDirectory(String path)
+void ControlPanel::setRecordingParentDirectory(String path)
 {
     File newFile(path);
     filenameComponent->setCurrentFile(newFile, true, sendNotificationSync);
 
-    for (auto* node : graph->getRecordNodes())
-    {
-        node->newDirectoryNeeded = true;
-    }
-    masterClock->resetRecordTime();
+    //for (auto* node : graph->getRecordNodes())
+    //{
+    //    node->newDirectoryNeeded = true;
+    //}
+    //masterClock->resetRecordTime();
 }
 
-File ControlPanel::getRecordingDirectory()
+File ControlPanel::getRecordingParentDirectory()
 {
     return filenameComponent->getCurrentFile();
 }
@@ -515,19 +515,8 @@ void ControlPanel::stopAcquisition()
     recordOptionsButton->setEnabled(true);
 }
 
-void ControlPanel::updateChildComponents()
-{
-    /*
-    filenameComponent->addListener(AccessClass::getProcessorGraph()->getRecordNode());
-    AccessClass::getProcessorGraph()->getRecordNode()->filenameComponentChanged(filenameComponent);
-    */
-	updateRecordEngineList();
-
-}
-
 void ControlPanel::updateRecordEngineList()
 {
-
 
 	int selectedEngine = recordSelector->getSelectedId();
 	recordSelector->clear(dontSendNotification);
@@ -813,6 +802,25 @@ void ControlPanel::startRecording()
     
     recordButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
 
+    if (!newDirectoryButton->getEnabledState()) // new directory is required
+    {
+
+        for (auto& field : filenameFields)
+        {
+            field->incrementDirectoryIndex();
+        }
+
+        recordingDirectoryName = generateFilenameFromFields(false); // generate new name without placeholders
+
+        for (int recordNodeId : CoreServices::getAvailableRecordNodeIds())
+        {
+            CoreServices::RecordNode::createNewRecordingDirectory(recordNodeId);
+        }
+
+        //std::cout << "Recording directory name: " << recordingDirectoryName << std::endl;
+    }
+        
+
     graph->setRecordState(true);
 
     repaint();
@@ -837,11 +845,13 @@ void ControlPanel::componentBeingDeleted(Component &component)
 {
 	/*Update filename fields as configured in the popup box upon exit. */
 	filenameConfigWindow = std::make_unique<FilenameConfigWindow>(filenameFields);
-    filenameText->setButtonText(generateFilenameFromFields(true, true));
+    filenameText->setButtonText(generateFilenameFromFields(true));
 
     //TODO: Assumes any change in filename settings should start a new directory next recording
     if (newDirectoryButton->getEnabledState())
         buttonClicked(newDirectoryButton.get());
+
+    CoreServices::saveRecoveryConfig();
 
 	component.removeComponentListener(this);
 }
@@ -849,7 +859,7 @@ void ControlPanel::componentBeingDeleted(Component &component)
 void ControlPanel::buttonClicked(Button* button)
 {
 
-    if (button == filenameText.get())
+    if (button == filenameText.get() && !getRecordingState())
     {
 
         CallOutBox& myBox
@@ -867,16 +877,18 @@ void ControlPanel::buttonClicked(Button* button)
         && newDirectoryButton->getEnabledState())
     {
 
-        for (auto* node : AccessClass::getProcessorGraph()->getRecordNodes())
-        {   
-            node->newDirectoryNeeded = true;
-        }
         newDirectoryButton->setEnabledState(false);
         masterClock->resetRecordTime();
 
         filenameText->setColour(Label::textColourId, Colours::grey);
 
-        generateFilenameFromFields(true, true);
+        //for (auto* node : AccessClass::getProcessorGraph()->getRecordNodes())
+        //{   
+        //    node->newDirectoryNeeded = true;
+        //}
+        
+
+        //generateFilenameFromFields(true, true);
 
         return;
     }
@@ -1037,11 +1049,6 @@ void ControlPanel::toggleState()
     AccessClass::getUIComponent()->childComponentChanged();
 }
 
-void ControlPanel::setFilenameText(String t)
-{
-    filenameText->setButtonText(t);
-}
-
 void ControlPanel::saveStateToXml(XmlElement* xml)
 {
 
@@ -1067,7 +1074,7 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
 			if (!recordPath.isEmpty())
 			{
                 if (!File(recordPath).exists())
-                    recordPath = CoreServices::getDefaultRecordingDirectory().getFullPathName();
+                    recordPath = CoreServices::getRecordingParentDirectory().getFullPathName();
 				filenameComponent->setCurrentFile(File(recordPath), true, sendNotificationAsync);
 			}
 
@@ -1100,7 +1107,7 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
     audioEditor->loadStateFromXml(xml);
 
     filenameConfigWindow->loadStateFromXml(xml);
-    generateFilenameFromFields(true, true);
+    generateFilenameFromFields(true);
 
 }
 
@@ -1128,31 +1135,117 @@ static void forceFilenameEditor (int result, ControlPanel* panel)
     return;
 }
 
-String ControlPanel::generateFilenameFromFields(bool usePlaceholderText, bool updateControlPanel)
+String ControlPanel::getRecordingDirectoryName()
+{
+    return recordingDirectoryName;
+}
+
+void ControlPanel::createNewRecordingDirectory()
+{
+    buttonClicked(newDirectoryButton.get());
+}
+
+String ControlPanel::getRecordingDirectoryPrependText()
+{
+    for (auto& field : filenameFields) //loops in order through prepend, main, append 
+    {
+        if (field->type == FilenameFieldComponent::Type::PREPEND)
+        {
+            return field->value;
+        }
+    }
+}
+
+void ControlPanel::setRecordingDirectoryPrependText(String text)
+{
+    for (auto& field : filenameFields) //loops in order through prepend, main, append 
+    {
+        if (field->type == FilenameFieldComponent::Type::PREPEND)
+        {
+            if (field->value != text)
+            {
+                field->value = text;
+                createNewRecordingDirectory();
+            }
+        }
+    }
+}
+
+String ControlPanel::getRecordingDirectoryAppendText()
+{
+    for (auto& field : filenameFields) //loops in order through prepend, main, append 
+    {
+        if (field->type == FilenameFieldComponent::Type::APPEND)
+        {
+            return field->value;
+        }
+    }
+}
+
+void ControlPanel::setRecordingDirectoryAppendText(String text)
+{
+    for (auto& field : filenameFields) //loops in order through prepend, main, append 
+    {
+        if (field->type == FilenameFieldComponent::Type::APPEND)
+        {
+            if (field->value != text)
+            {
+                field->value = text;
+                createNewRecordingDirectory();
+            }
+        }
+    }
+}
+
+void ControlPanel::setRecordingDirectoryBasename(String text)
+{
+    for (auto& field : filenameFields) //loops in order through prepend, main, append 
+    {
+        if (field->type == FilenameFieldComponent::Type::MAIN)
+        {
+            if (field->value != text)
+            {
+                field->value = text;
+                createNewRecordingDirectory();
+            }
+        }
+    }
+}
+
+String ControlPanel::generateFilenameFromFields(bool usePlaceholderText)
 {
 
-    bool checkForExistingFilename = false;
+    //bool checkForExistingFilename = false;
 
     String filename = "";
 
     for (auto& field : filenameFields) //loops in order through prepend, main, append 
     {
 
-        if (field->state == FilenameFieldComponent::State::NONE)
+        filename += field->getNextValue(usePlaceholderText);
+
+    }
+
+    filenameText->setButtonText(filename);
+
+    return filename;
+
+
+        /*if (field->state == FilenameFieldComponent::State::NONE)
 
             continue; //don't add to the filename
 
         else if (field->state == FilenameFieldComponent::State::CUSTOM)
         {
             filename += field->value; //Add filename field exactly as entered in popup window
-            checkForExistingFilename = true; 
+            //checkForExistingFilename = true; 
         }
         else //FilenameFieldComponent::State::AUTO
         {
 
             if (usePlaceholderText)
             {
-                filename += field->value;
+                filename += field->get
                 continue;
             }
 
@@ -1181,10 +1274,10 @@ String ControlPanel::generateFilenameFromFields(bool usePlaceholderText, bool up
 
         }
 
-    }
+    }*/
 
     // Disallow overwrite of an existing data directory
-    if (!usePlaceholderText && checkForExistingFilename && getRecordingDirectory().getChildFile(filename).exists())
+    /*if (!usePlaceholderText && checkForExistingFilename && getRecordingParentDirectory().getChildFile(filename).exists())
     {
 
         AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
@@ -1215,27 +1308,25 @@ String ControlPanel::generateFilenameFromFields(bool usePlaceholderText, bool up
             ModalCallbackFunction::create (forceFilenameEditor, this));
 
         return filename;
-    }
+    }*/
 
-    if (updateControlPanel)
-        filenameText->setButtonText(filename);
-
-    return filename;
+    //if (updateControlPanel)
+    
 }
 
 String ControlPanel::generateDatetimeFromFormat(String format)
 {
 
     //TODO: Parse format and generate the proper date string
-    //For now use default format: "MM-DD-YYYY_HH-MM-SS"
+    //For now use default format: "YYYY-MM-DD_HH-MM-SS"
 
     //Generate current datetime in default format
     Time calendar = Time::getCurrentTime();
 
     Array<int> t;
+    t.add(calendar.getYear());
     t.add(calendar.getMonth() + 1); // January = 0 
     t.add(calendar.getDayOfMonth());
-    t.add(calendar.getYear());
     t.add(calendar.getHours());
     t.add(calendar.getMinutes());
     t.add(calendar.getSeconds());
@@ -1265,7 +1356,8 @@ String ControlPanel::generatePrepend(String format)
     if (filenameFields[1]->state == FilenameFieldComponent::State::CUSTOM)
     {
         int maxIdx = 0;
-        for (DirectoryEntry entry : RangedDirectoryIterator (getRecordingDirectory(), false, "*", 1))
+
+        for (DirectoryEntry entry : RangedDirectoryIterator (getRecordingDirectoryName(), false, "*", 1))
         {
             if (entry.getFile().getFileName().contains(filenameFields[1]->value) > 0)
             {
@@ -1304,7 +1396,7 @@ String ControlPanel::generateAppend(String format)
     if (filenameFields[1]->state == FilenameFieldComponent::State::CUSTOM)
     {
         int maxIdx = 0;
-        for (DirectoryEntry entry : RangedDirectoryIterator (getRecordingDirectory(), false, "*", 1))
+        for (DirectoryEntry entry : RangedDirectoryIterator (getRecordingDirectoryName(), false, "*", 1))
         {
             if (entry.getFile().getFileName().indexOfWholeWordIgnoreCase(filenameFields[1]->value) == 0)
             {

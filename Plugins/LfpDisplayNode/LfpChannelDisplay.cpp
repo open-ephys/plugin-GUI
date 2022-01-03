@@ -410,6 +410,7 @@ PopupMenu LfpChannelDisplay::getOptions()
 
     PopupMenu menu;
     menu.addItem(1, "Invert signal", true, inputInverted);
+    menu.addItem(2, "Monitor", true);
 
     return menu;
 }
@@ -420,6 +421,8 @@ void LfpChannelDisplay::changeParameter(int id)
     {
         case 1:
             setInputInverted(!inputInverted);
+        case 2:
+            canvasSplit->monitorChannel(chan);
         default:
             break;
     }

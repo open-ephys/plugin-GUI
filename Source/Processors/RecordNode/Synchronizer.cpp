@@ -196,8 +196,6 @@ Synchronizer::Synchronizer(RecordNode* parentNode)
 
 Synchronizer::~Synchronizer()
 {
-	for (auto [id, stream] : streams)
-		delete stream;
 }
 
 void Synchronizer::reset()
@@ -212,6 +210,12 @@ void Synchronizer::reset()
 
 }
 
+void Synchronizer::prepareForUpdate()
+{
+	lastPrimaryStreamId = primaryStreamId;
+	primaryStreamId = -1;
+}
+
 /*
 Adds a new data stream to the synchronizer
 If this is the first stream, set it as the primary stream
@@ -222,7 +226,11 @@ void Synchronizer::addDataStream(uint16 streamId, float expectedSampleRate)
 	if (primaryStreamId < 0)
 		primaryStreamId = streamId;
 
-	streams[streamId] = (new Stream(expectedSampleRate));
+	if (streamId == lastPrimaryStreamId)
+		primaryStreamId = lastPrimaryStreamId;
+
+	dataStreamObjects.add(new Stream(expectedSampleRate));
+	streams[streamId] = dataStreamObjects.getLast();
 	setSyncBit(streamId, 0);
 }
 

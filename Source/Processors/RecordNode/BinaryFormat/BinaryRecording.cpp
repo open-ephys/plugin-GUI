@@ -19,9 +19,9 @@ BinaryRecording::BinaryRecording()
 
 BinaryRecording::~BinaryRecording() {}
 
-String BinaryRecording::getEngineID() const
+String BinaryRecording::getEngineId() const
 {
-	return "RAWBINARY";
+	return "BINARY";
 }
 
 String BinaryRecording::getProcessorString(const InfoObject* channelInfo)
@@ -713,13 +713,13 @@ void BinaryRecording::writeTimestampSyncText(uint64 streamId, int64 timestamp, f
     bool inHere = true;
 	if (!m_syncTextFile)
 		return;
-	m_syncTextFile->writeText(text + "\n", false, false, nullptr);
+	m_syncTextFile->writeText(text + ": " + String(timestamp) + "\n", false, false, nullptr);
     m_syncTextFile->flush();
 }
 
 RecordEngineManager* BinaryRecording::getEngineManager()
 {
-    RecordEngineManager* man = new RecordEngineManager("RAWBINARY", "Binary",
+    RecordEngineManager* man = new RecordEngineManager("BINARY", "Binary",
                                                        &(engineFactory<BinaryRecording>));
     EngineParameter* param;
     param = new EngineParameter(EngineParameter::BOOL, 0, "Record TTL full words", true);
