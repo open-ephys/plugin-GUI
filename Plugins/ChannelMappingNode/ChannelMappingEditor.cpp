@@ -217,7 +217,7 @@ void ChannelMappingEditor::loadPrbFile(File& file)
 void ChannelMappingEditor::mouseDown(const MouseEvent& e)
 {
 
-    if (e.mods.isRightButtonDown())
+    if (e.mods.isRightButtonDown() && !acquisitionIsActive)
     {
 
         if (electrodeButtons.contains((ElectrodeButton*) e.originalComponent))
