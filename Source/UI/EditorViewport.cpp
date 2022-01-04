@@ -1443,7 +1443,7 @@ const String EditorViewport::loadPluginState(File fileToLoad, GenericEditor* sel
         
         if (xml == 0 || ! xml->hasTagName("PROCESSOR"))
         {
-            LOGD("File not found.");
+            LOGC("Not a valid file.");
             return "Not a valid file.";
         } else {
             
@@ -1519,7 +1519,7 @@ const String EditorViewport::loadState(File fileToLoad)
     
     if (xml == 0 || ! xml->hasTagName("SETTINGS"))
     {
-        LOGD("Not a valid configuration file.");
+        LOGC("Not a valid configuration file.");
         return "Not a valid file.";
     }
 
