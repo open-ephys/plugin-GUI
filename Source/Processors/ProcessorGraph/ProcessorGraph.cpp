@@ -211,12 +211,16 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
         GenericEditor* editor = (GenericEditor*)addedProc->createEditor();
 
         if (!signalChainIsLoading)
+        {
             addedProc->initialize(false);
+        }
+            
 
         editor->refreshColors();
         
 		if (addedProc->isSource()) // if we are adding a source processor
         {
+
             
             if (sourceNode != nullptr)
             {

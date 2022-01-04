@@ -978,7 +978,7 @@ void FileReaderEditor::loadCustomParametersFromXml (XmlElement* xml)
         if (element->hasTagName ("FILENAME"))
         {
             String filepath = element->getStringAttribute ("path");
-            setFile (filepath);
+            setFile (filepath, false);
 
             int recording = element->getIntAttribute ("recording");
             recordSelector->setSelectedId (recording,sendNotificationSync);

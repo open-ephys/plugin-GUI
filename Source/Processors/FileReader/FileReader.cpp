@@ -98,6 +98,8 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
 
     devices.add(new DeviceInfo(settings));
 
+    isEnabled = false;
+
 }
 
 
@@ -118,13 +120,15 @@ AudioProcessorEditor* FileReader::createEditor()
 void FileReader::initialize(bool signalChainIsLoading)
 {
 
-    //std::cout << "INITIALIZING FILE READER" << std::endl;
+    LOGD("INITIALIZING FILE READER");
 
     if (signalChainIsLoading)
         return;
 
     if (isEnabled)
         return;
+
+    LOGD("SETTING FILE");
 
     File executable = File::getSpecialLocation(File::currentApplicationFile);
 #ifdef __APPLE__
@@ -137,8 +141,6 @@ void FileReader::initialize(bool signalChainIsLoading)
     {
         FileReaderEditor* ed = (FileReaderEditor*)editor.get();
         ed->setFile(defaultFile.getFullPathName(), false);
-        //std::cout << "SETTING DEFAULT FILE." << std::endl;
-        update();
     }
 }
 
@@ -270,14 +272,16 @@ bool FileReader::setFile (String fullpath)
 		{
 			Plugin::FileSourceInfo sourceInfo = AccessClass::getPluginManager()->getFileSourceInfo(index);
 			input = sourceInfo.creator();
+            LOGD("Found input.");
 		}
 		else
 		{
 			input = createBuiltInFileSource(index - numPluginFileSources);
+            LOGD("Found input.");
 		}
 		if (!input)
 		{
-			std::cerr << "Error creating file source for extension " << ext << std::endl;
+			LOGE("Error creating file source for extension ", ext);
 			return false;
 		}
 
@@ -374,8 +378,11 @@ String FileReader::getFile() const
 void FileReader::updateSettings()
 {
 
+    LOGD("File Reader updating custom settings.");
+
     if (!input)
     {
+        LOGD("No input, returning.");
         isEnabled = false;
         return;
     }
@@ -383,7 +390,7 @@ void FileReader::updateSettings()
     if (gotNewFile)
     {
 
-        //std::cout << "GOT NEW FILE" << std::endl;
+        LOGD("File Reader got new file.");
 
         dataStreams.clear();
         continuousChannels.clear();
@@ -397,6 +404,8 @@ void FileReader::updateSettings()
             getDefaultSampleRate()
 
         };
+
+        LOGD("File Reader adding data stream.");
 
         dataStreams.add(new DataStream(streamSettings));
         dataStreams.getLast()->addProcessor(processorInfo.get());
@@ -438,7 +447,7 @@ void FileReader::updateSettings()
 
     }
     else {
-        //std::cout << " NO NEW FILE " << std::endl;
+        LOGD("File Reader has no new file...not updating.");
     }
 
     isEnabled = true;

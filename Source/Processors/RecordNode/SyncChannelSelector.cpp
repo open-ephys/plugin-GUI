@@ -102,7 +102,7 @@ SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx, bool isPri
     
     if (!isPrimary)
     {
-        setPrimaryStreamButton = new SetButton("Set as timestamp source");
+        setPrimaryStreamButton = new SetButton("Set as main clock");
         setPrimaryStreamButton->setBounds(0, height, 0.5*width, width / nColumns);
         setPrimaryStreamButton->addListener(this);
         addChildAndSetID(setPrimaryStreamButton,"SETPRIMARY");

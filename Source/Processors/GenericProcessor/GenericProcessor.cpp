@@ -609,7 +609,7 @@ int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int conti
 	for (auto eventChannel : stream->getEventChannels())
 	{
 
-		if (true)
+		if (false)
 		{
 			std::cout << "Copying event channel: " << std::endl;
 			std::cout << "  Source Node ID: " << eventChannel->getSourceNodeId() << std::endl;
@@ -686,6 +686,15 @@ void GenericProcessor::update()
                 for (auto stream : splitter->getStreamsForDestNode(this))
                 {
                     continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
+
+                    if (splitter->getDestNode(0) == this)
+                    {
+                        dataStreams.getLast()->setName(stream->getName() + "-A");
+                    }
+                    else {
+                        dataStreams.getLast()->setName(stream->getName() + "-B");
+                    }
+                    
                 }
             } else if (sourceNode->isMerger())
             {
