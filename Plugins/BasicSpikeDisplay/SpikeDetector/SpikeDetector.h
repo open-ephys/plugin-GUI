@@ -40,6 +40,13 @@ public:
 
 };
 
+enum ThresholderType {
+    ABS = 0,
+    STD,
+    DYN
+};
+
+
 /** 
     Thresholder based on signal absolute value.
 
@@ -111,6 +118,7 @@ private:
 
     Array<float> thresholds;
     Array<float> stdLevels;
+    Array<float> stds;
     OwnedArray<Array<float>> sampleBuffer;
     Array<int> bufferIndex;
 
@@ -157,6 +165,7 @@ private:
 
     Array<float> thresholds;
     Array<float> sigmaLevels;
+    Array<float> medians;
     OwnedArray< std::vector<float>> sampleBuffer;
     Array<int> bufferIndex;
 

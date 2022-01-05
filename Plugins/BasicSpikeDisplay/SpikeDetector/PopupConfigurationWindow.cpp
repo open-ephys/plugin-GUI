@@ -26,6 +26,7 @@
 #include "SpikeDetectorEditor.h"
 #include <stdio.h>
 
+#include <math.h>
 
 void EditableTextCustomComponent::mouseDown(const MouseEvent& event)
 {
@@ -46,30 +47,287 @@ void EditableTextCustomComponent::labelTextChanged(Label* label)
     name->setNextValue(label->getText());
 }
 
+PopupThresholdComponent::PopupThresholdComponent(SpikeDetectorTableModel* table_,
+                                                 ThresholdSelectorCustomComponent* owner_,
+                                                 int row_,
+                                                 int numChannels,
+                                                 ThresholderType type,
+                                                 Array<FloatParameter*> abs_thresholds_,
+                                                 Array<FloatParameter*> std_thresholds_,
+                                                 Array<FloatParameter*> dyn_thresholds_,
+                                                 bool lockThresholds) :
+    table(table_),
+    owner(owner_),
+    row(row_),
+    thresholdType(type),
+    abs_thresholds(abs_thresholds_),
+    dyn_thresholds(dyn_thresholds_),
+    std_thresholds(std_thresholds_)
+
+{
+    
+    const int sliderWidth = 18;
+
+    label = std::make_unique<Label>("Label", "Type:");
+    label->setBounds(5,5,55,15);
+    label->setEditable(false);
+    label->setColour(Label::textColourId, Colours::grey);
+    addAndMakeVisible(label.get());
+    
+    absButton = std::make_unique<UtilityButton>("ABS", Font("Fira Code", "Regular", 10));
+    absButton->setBounds(7,25,40,25);
+    absButton->setToggleState(type == ThresholderType::ABS, dontSendNotification);
+    absButton->addListener(this);
+    addAndMakeVisible(absButton.get());
+    
+    stdButton = std::make_unique<UtilityButton>("STD", Font("Fira Code", "Regular", 10));
+    stdButton->setBounds(7,55,40,25);
+    stdButton->setToggleState(type == ThresholderType::STD, dontSendNotification);
+    stdButton->addListener(this);
+    addAndMakeVisible(stdButton.get());
+    
+    dynButton = std::make_unique<UtilityButton>("DYN", Font("Fira Code", "Regular", 10));
+    dynButton->setBounds(7,85,40,25);
+    dynButton->setToggleState(type == ThresholderType::DYN, dontSendNotification);
+    dynButton->addListener(this);
+    addAndMakeVisible(dynButton.get());
+    
+    createSliders();
+    
+    lockButton = std::make_unique<UtilityButton>("LOCK", Font("Fira Code", "Regular", 10));
+    lockButton->setBounds(68+sliderWidth*numChannels,50,42,20);
+    lockButton->setClickingTogglesState(true);
+    
+    if (numChannels > 1)
+    {
+        lockButton->setToggleState(lockThresholds, dontSendNotification);
+        addAndMakeVisible(lockButton.get());
+        
+        setSize(lockButton->getRight() + 5,117);
+    } else {
+        
+        lockButton->setToggleState(false, dontSendNotification);
+        setSize(95,117);
+    }
+    
+}
+
+void PopupThresholdComponent::createSliders()
+{
+    
+    const int sliderWidth = 18;
+    
+    sliders.clear();
+    
+    for (int i = 0; i < abs_thresholds.size(); i++)
+    {
+        
+        Slider* slider = new Slider("SLIDER" + String(i+1));
+        slider->setSliderStyle(Slider::LinearBarVertical);
+        slider->setTextBoxStyle(Slider::NoTextBox, false, sliderWidth, 10);
+        slider->setColour(Slider::textBoxTextColourId, Colours::white);
+        slider->setColour(Slider::backgroundColourId, Colours::darkgrey);
+        slider->setColour(Slider::trackColourId, Colours::blue);
+        
+        switch (thresholdType)
+        {
+            case ABS:
+                slider->setRange(25, 200, 1);
+                slider->setValue(-abs_thresholds[i]->getFloatValue(), dontSendNotification);
+                break;
+                
+            case STD:
+                slider->setRange(2, 10, 0.1);
+                slider->setValue(std_thresholds[i]->getFloatValue(), dontSendNotification);
+                break;
+                
+            case DYN:
+                slider->setRange(2, 10, 0.1);
+                slider->setValue(dyn_thresholds[i]->getFloatValue(), dontSendNotification);
+                break;
+        }
+        slider->addListener(this);
+        slider->setSize(sliderWidth, 100);
+        
+        if (thresholdType == ABS)
+        {
+            slider->setCentrePosition(0, 0);
+            slider->setTransform(AffineTransform::rotation(M_PI)
+                                    .translated(60 + (sliderWidth)*i + sliderWidth/2 - i, 60));
+        } else {
+            slider->setTopLeftPosition(60 + sliderWidth*i - i, 10);
+        }
+        
+        sliders.add(slider);
+        addAndMakeVisible(slider);
+    }
+}
+
+PopupThresholdComponent::~PopupThresholdComponent()
+{
+    
+}
+
+void PopupThresholdComponent::sliderValueChanged(Slider* slider)
+{
+    if (lockButton->getToggleState())
+    {
+        for (auto sl : sliders)
+        {
+            sl->setValue(slider->getValue(), dontSendNotification);
+        }
+    }
+    
+    table->broadcastThresholdToSelectedRows(row,                 // original row
+                                            thresholdType,       // threshold type
+                                            sliders.indexOf(slider), // channel index
+                                            lockButton->getToggleState(), // isLocked
+                                            slider->getValue());         // value
+    
+    owner->repaint();
+}
+
+void PopupThresholdComponent::buttonClicked(Button* button)
+{
+    absButton->setToggleState(button == absButton.get(), dontSendNotification);
+    stdButton->setToggleState(button == stdButton.get(), dontSendNotification);
+    dynButton->setToggleState(button == dynButton.get(), dontSendNotification);
+    
+    if (button == absButton.get())
+    {
+        thresholdType = ABS;
+    } else if (button == stdButton.get())
+    {
+        thresholdType = STD;
+    } else if (button == dynButton.get())
+    {
+        thresholdType = DYN;
+    }
+    
+    table->broadcastThresholdTypeToSelectedRows(row,                 // original row
+                                                thresholdType);       // threshold type
+
+    createSliders();
+    
+    owner->repaint();
+}
+
+ThresholdSelectorCustomComponent::ThresholdSelectorCustomComponent(SpikeChannel* channel_, bool acquisitionIsActive_)
+    : channel(channel_),
+      numChannels(channel_->getNumChannels()),
+      acquisitionIsActive(acquisitionIsActive_)
+{
+    thresholder_type = (CategoricalParameter*) channel->getParameter("thrshlder_type");
+    
+    for (int ch = 0; ch < channel->getNumChannels(); ch++)
+    {
+        abs_thresholds.add((FloatParameter*) channel->getParameter("abs_threshold" + String(ch+1)));
+        std_thresholds.add((FloatParameter*) channel->getParameter("std_threshold" + String(ch+1)));
+        dyn_thresholds.add((FloatParameter*) channel->getParameter("dyn_threshold" + String(ch+1)));
+    }
+}
+
+ThresholdSelectorCustomComponent::~ThresholdSelectorCustomComponent()
+{
+    
+}
+
 void ThresholdSelectorCustomComponent::mouseDown(const MouseEvent& event)
 {
-    //owner->selectRowsBasedOnModifierKeys(row, event.mods, false);
-    Label::mouseDown(event);
+
+    auto* popupComponent = new PopupThresholdComponent(table,
+                                                       this,
+                                                       row,
+                                                       numChannels,
+                                                       ThresholderType(thresholder_type->getSelectedIndex()),
+                                                       abs_thresholds,
+                                                       std_thresholds,
+                                                       dyn_thresholds,
+                                                       true );
+
+    CallOutBox& myBox
+        = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(popupComponent),
+            getScreenBounds(),
+            nullptr);
+    
+    myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+    
+}
+
+void ThresholdSelectorCustomComponent::setSpikeChannel(SpikeChannel* ch)
+{
+    channel = ch;
 }
 
 void ThresholdSelectorCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
 {
     row = newRow;
     columnId = newColumn;
-    setText(threshold->getValueAsString(), dontSendNotification);
 }
 
-void ThresholdSelectorCustomComponent::labelTextChanged(Label* label)
+void ThresholdSelectorCustomComponent::paint(Graphics& g)
 {
-    table->broadcastThresholdToSelectedRows(row, label->getText().getFloatValue());
+    
+    if (channel == nullptr)
+        return;
+    
+    thresholdString = "";
+    
+    switch (thresholder_type->getSelectedIndex())
+    {
+        case 0:
+            thresholdString += "ABS: ";
+            break;
+        case 1:
+            thresholdString += "STD: ";
+            break;
+        case 2:
+            thresholdString += "DYN: ";
+            break;
+    }
+    
+    for (int i = 0; i < numChannels; i++)
+    {
+        switch (thresholder_type->getSelectedIndex())
+        {
+            case 0:
+                thresholdString += String(abs_thresholds[i]->getFloatValue(),0);
+                break;
+            case 1:
+                thresholdString += String(std_thresholds[i]->getFloatValue(),1);
+                break;
+            case 2:
+                thresholdString += String(dyn_thresholds[i]->getFloatValue(),1);
+                break;
+        }
+        
+        thresholdString += ",";
+    }
+    
+    thresholdString = thresholdString.substring(0, thresholdString.length()-1);
+    
+    g.setColour(Colours::white);
+    g.setFont(12);
+    g.drawText(thresholdString, 0, 0, getWidth(), getHeight(), Justification::centredLeft);
 }
 
-void ThresholdSelectorCustomComponent::setThreshold(float value)
-{
-    threshold->setNextValue(value);
-    //setText(String(value), dontSendNotification);
 
-    //repaint();
+void ThresholdSelectorCustomComponent::setThreshold(ThresholderType type, int channelNum, float value)
+{
+    switch (type)
+    {
+        case ABS:
+            abs_thresholds[channelNum]->setNextValue(value);
+            break;
+        case STD:
+            std_thresholds[channelNum]->setNextValue(value);
+            break;
+        case DYN:
+            dyn_thresholds[channelNum]->setNextValue(value);
+            break;
+    }
+
+    repaint();
 }
 
 
@@ -112,7 +370,7 @@ void WaveformSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
     if (acquisitionIsActive)
         return;
 
-    if (waveformtype->getValueAsString().equalsIgnoreCase("FULL"))
+    /*if (waveformtype->getValueAsString().equalsIgnoreCase("FULL"))
     {
         table->broadcastWaveformTypeToSelectedRows(row, 1);
     }
@@ -121,7 +379,7 @@ void WaveformSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
         table->broadcastWaveformTypeToSelectedRows(row, 0);
     }
     
-    repaint();
+    repaint();*/
 }
 
 void WaveformSelectorCustomComponent::setWaveformValue(int value)
@@ -169,7 +427,7 @@ void SpikeDetectorTableModel::cellClicked(int rowNumber, int columnId, const Mou
 
     if (columnId == SpikeDetectorTableModel::Columns::DELETE && !acquisitionIsActive)
     {
-        //std::cout << "Delete " << selectedRows.size() << " electrodes?" << std::endl;
+        std::cout << "Delete " << selectedRows.size() << " electrodes?" << std::endl;
         
         Array<SpikeChannel*> channelsToDelete;
         Array<SpikeChannel*> channelsToKeep;
@@ -182,9 +440,12 @@ void SpikeDetectorTableModel::cellClicked(int rowNumber, int columnId, const Mou
                 channelsToKeep.add(spikeChannels[i]);
         }
         
+        update(channelsToKeep);
+        
         owner->update(channelsToKeep);
         
         editor->removeSpikeChannels(channelsToDelete);
+        
     }
 
     //if (event.mods.isRightButtonDown())
@@ -217,26 +478,93 @@ void SpikeDetectorTableModel::broadcastWaveformTypeToSelectedRows(int rowThatWas
 }
 
 
-void SpikeDetectorTableModel::broadcastThresholdToSelectedRows(int rowThatWasClicked, float value)
+void SpikeDetectorTableModel::broadcastThresholdTypeToSelectedRows(int rowThatWasClicked, ThresholderType type)
 {
     SparseSet<int> selectedRows = table->getSelectedRows();
 
     for (int i = 0; i < spikeChannels.size(); i++)
     {
+       if (selectedRows.contains(i) || i == rowThatWasClicked)
+       {
+           switch (type)
+           {
+               case ABS:
+                   spikeChannels[i]->getParameter("thrshlder_type")->setNextValue(0);
+                   break;
+               case STD:
+                   spikeChannels[i]->getParameter("thrshlder_type")->setNextValue(1);
+                   break;
+               case DYN:
+                   spikeChannels[i]->getParameter("thrshlder_type")->setNextValue(2);
+                   break;
+           }
+           
+           table->getCellComponent(SpikeDetectorTableModel::Columns::THRESHOLD, i)->repaint();
+           
+       }
+    }
+
+    table->updateContent();
+}
+
+void SpikeDetectorTableModel::broadcastThresholdToSelectedRows(int rowThatWasClicked,
+    ThresholderType type,
+    int channelIndex,
+    bool isLocked,
+    float value)
+{
+    SparseSet<int> selectedRows = table->getSelectedRows();
+    
+    std::cout << "Broadcasting value." << std::endl;
+    
+    float actualValue;
+
+    for (int i = 0; i < spikeChannels.size(); i++)
+    {
         if (selectedRows.contains(i) || i == rowThatWasClicked)
         {
+            
+            std::cout << "Row = " << i << std::endl;
+            
+            String parameterString;
 
-            Component* c = refreshComponentForCell(i, SpikeDetectorTableModel::THRESHOLD, selectedRows.contains(i), nullptr);
+            switch (type)
+            {
+                case ABS:
+                    parameterString = "abs_threshold";
+                    actualValue = -value;
+                    break;
+                case STD:
+                    parameterString = "std_threshold";
+                    actualValue = value;
+                    break;
+                case DYN:
+                    parameterString = "dyn_threshold";
+                    actualValue = value;
+                    break;
+            }
+            
+            std::cout << "Type = " << parameterString << std::endl;
+            
+            if (isLocked)
+            {
+                std::cout << "Not locked." << std::endl;
+                
+                for (int ch = 0; ch < spikeChannels[i]->getNumChannels(); ch++)
+                {
+                    std::cout << "Setting value for channel " << ch << ": " << actualValue << std::endl;
+                    spikeChannels[i]->getParameter(parameterString + String(ch+1))->setNextValue(actualValue);
+                }
+            } else {
+                
+                std::cout << "Setting value for channel " << channelIndex << ": " << actualValue << std::endl;
+                
+                if (spikeChannels[i]->getNumChannels() > channelIndex)
+                    spikeChannels[i]->getParameter(parameterString + String(channelIndex+1))->setNextValue(actualValue);
+            }
+            
+            table->getCellComponent(SpikeDetectorTableModel::Columns::THRESHOLD, i)->repaint();
 
-            jassert(c != nullptr);
-
-            ThresholdSelectorCustomComponent* thresholdSelector = (ThresholdSelectorCustomComponent*)c;
-
-            jassert(thresholdSelector != nullptr);
-
-            thresholdComponents.add(thresholdSelector);
-
-            thresholdSelector->setThreshold(value);
         }
     }
 
@@ -305,11 +633,10 @@ Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber,
         if (thresholdSelector == nullptr)
         {
             thresholdSelector = new ThresholdSelectorCustomComponent(
-                (FloatParameter*) spikeChannels[rowNumber]->getParameter("threshold"),
+                spikeChannels[rowNumber],
                 acquisitionIsActive);
         }
 
-        thresholdSelector->setParameter((FloatParameter*) spikeChannels[rowNumber]->getParameter("threshold"));
         thresholdSelector->setRowAndColumn(rowNumber, columnId);
         thresholdSelector->setTableModel(this);
         
@@ -329,11 +656,36 @@ int SpikeDetectorTableModel::getNumRows()
 void SpikeDetectorTableModel::update(Array<SpikeChannel*> spikeChannels_)
 {
     spikeChannels = spikeChannels_;
+    
+    for (int i = 0; i < getNumRows(); i++)
+    {
+           
+       Component* c = table->getCellComponent(SpikeDetectorTableModel::Columns::THRESHOLD, i);
+
+       if (c == nullptr)
+           continue;
+
+       ThresholdSelectorCustomComponent* th = (ThresholdSelectorCustomComponent*) c;
+
+        std::cout << "Checking thresholder component for row " << i << std::endl;
+       
+       if (!spikeChannels.contains(th->channel))
+       {
+           std::cout << "No longer needed, deleting spikeChannel" << std::endl;
+           th->setSpikeChannel(nullptr);
+       } else {
+           std::cout << "Still needed" << std::endl;
+       }
+        
+        th->repaint();
+           
+    }
 
     waveformComponents.clear();
     thresholdComponents.clear();
     
     table->updateContent();
+
 }
 
 
@@ -427,8 +779,8 @@ PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_,
     electrodeTable->getHeader().addColumn("Name", SpikeDetectorTableModel::Columns::NAME, 140, 140, 140, TableHeaderComponent::notResizableOrSortable);
     electrodeTable->getHeader().addColumn("Type", SpikeDetectorTableModel::Columns::TYPE, 40, 40, 40, TableHeaderComponent::notResizableOrSortable);
     electrodeTable->getHeader().addColumn("Channels", SpikeDetectorTableModel::Columns::CHANNELS, 100, 100, 100, TableHeaderComponent::notResizableOrSortable);
-    electrodeTable->getHeader().addColumn("Thresholds", SpikeDetectorTableModel::Columns::THRESHOLD, 100, 100, 100, TableHeaderComponent::notResizableOrSortable);
-    electrodeTable->getHeader().addColumn("Waveform", SpikeDetectorTableModel::Columns::WAVEFORM, 50, 50, 50, TableHeaderComponent::notResizableOrSortable);
+    electrodeTable->getHeader().addColumn("Thresholds", SpikeDetectorTableModel::Columns::THRESHOLD, 120, 120, 120, TableHeaderComponent::notResizableOrSortable);
+    electrodeTable->getHeader().addColumn("Waveform", SpikeDetectorTableModel::Columns::WAVEFORM, 60, 60, 60, TableHeaderComponent::notResizableOrSortable);
     electrodeTable->getHeader().addColumn(" ", SpikeDetectorTableModel::Columns::DELETE, 30, 30, 30, TableHeaderComponent::notResizableOrSortable);
 
     electrodeTable->getHeader().setColour(TableHeaderComponent::ColourIds::backgroundColourId, Colour(240, 240, 240));
@@ -440,9 +792,7 @@ PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_,
     electrodeTable->setMultipleSelectionEnabled(true);
 
     addChildComponent(electrodeTable.get());
-
-
-
+    
     update(spikeChannels);
 }
 

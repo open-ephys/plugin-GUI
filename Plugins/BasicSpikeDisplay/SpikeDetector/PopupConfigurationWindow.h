@@ -130,45 +130,95 @@ private:
     bool acquisitionIsActive;
 };
 
+class ThresholdSelectorCustomComponent;
+
+class PopupThresholdComponent : public Component,
+    public Slider::Listener,
+    public Button::Listener
+{
+public:
+    PopupThresholdComponent(SpikeDetectorTableModel* table,
+                            ThresholdSelectorCustomComponent* owner,
+                            int row,
+                            int numChannels,
+                            ThresholderType type,
+                            Array<FloatParameter*> abs_thresholds,
+                            Array<FloatParameter*> dyn_thresholds,
+                            Array<FloatParameter*> std_thresholds,
+                            bool isLocked);
+    ~PopupThresholdComponent();
+    
+    void createSliders();
+    
+    void sliderValueChanged(Slider* slider);
+    void buttonClicked(Button* button);
+    
+private:
+    std::unique_ptr<UtilityButton> lockButton;
+    std::unique_ptr<UtilityButton> absButton;
+    std::unique_ptr<UtilityButton> stdButton;
+    std::unique_ptr<UtilityButton> dynButton;
+    std::unique_ptr<Label> label;
+    OwnedArray<Slider> sliders;
+    
+    Array<FloatParameter*> abs_thresholds;
+    Array<FloatParameter*> dyn_thresholds;
+    Array<FloatParameter*> std_thresholds;
+    
+    ThresholderType thresholdType;
+    SpikeDetectorTableModel* table;
+    ThresholdSelectorCustomComponent* owner;
+    
+    const int sliderWidth = 18;
+    int row;
+};
+
 /**
 *   Table component used to edit the thresholds
 *   used by a Spike Channel
 */
-class ThresholdSelectorCustomComponent : public juce::Label,
-    public Label::Listener
+class ThresholdSelectorCustomComponent : public Component
 {
 public:
-    ThresholdSelectorCustomComponent(FloatParameter* threshold_, bool acquisitionIsActive_)
-        : threshold(threshold_),
-          acquisitionIsActive(acquisitionIsActive_)
-    {
-        setEditable(false, true, false);
-        addListener(this);
-        setColour(Label::textColourId, Colours::white);
-        setColour(Label::textWhenEditingColourId, Colours::yellow);
-        setColour(TextEditor::highlightedTextColourId, Colours::yellow);
-    }
+    ThresholdSelectorCustomComponent(SpikeChannel* channel_, bool acquisitionIsActive_);
+    ~ThresholdSelectorCustomComponent();
+    
+    void setSpikeChannel(SpikeChannel* channel);
 
     void mouseDown(const juce::MouseEvent& event) override;
     
-    void labelTextChanged(Label* label) override;
+    void paint(Graphics& g) override;
 
     void setRowAndColumn(const int newRow, const int newColumn);
 
-    void setThreshold(float value);
+    void setThreshold(ThresholderType type, int channelNum, float value);
     
-    void setParameter(FloatParameter* threshold_) { threshold = threshold_; }
-
     void setTableModel(SpikeDetectorTableModel* table_) { table = table_; };
 
     int row;
+    
+    SpikeChannel* channel;
 
 private:
+
     SpikeDetectorTableModel* table;
-    FloatParameter* threshold;
+    
+
     int columnId;
     juce::Colour textColour;
     bool acquisitionIsActive;
+    
+    int numChannels;
+    
+    Array<FloatParameter*> dyn_thresholds;
+    Array<FloatParameter*> abs_thresholds;
+    Array<FloatParameter*> std_thresholds;
+    
+    CategoricalParameter* thresholder_type;
+    
+    String thresholdString;
+    
+
 };
 
 /**
@@ -240,7 +290,8 @@ public:
     void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
 
     void broadcastWaveformTypeToSelectedRows(int rowThatWasClicked, int value);
-    void broadcastThresholdToSelectedRows(int rowThatWasClicked, float value);
+    void broadcastThresholdToSelectedRows(int rowThatWasClicked, ThresholderType type, int channelIndex, bool isLocked, float value);
+    void broadcastThresholdTypeToSelectedRows(int rowThatWasClicked, ThresholderType type);
 
     void paintCell(Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
 

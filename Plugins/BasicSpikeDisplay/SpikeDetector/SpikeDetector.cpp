@@ -73,6 +73,7 @@ StdDevThresholder::StdDevThresholder(int numChannels) : Thresholder()
     for (int i = 0; i < numChannels; i++)
     {
         stdLevels.set(i, 4.0f);
+        stds.set(i, 50.0/4.0f);
         thresholds.set(i, -50.0f);
         sampleBuffer.add(new Array<float>());
         bufferIndex.add(-1);
@@ -82,7 +83,13 @@ StdDevThresholder::StdDevThresholder(int numChannels) : Thresholder()
 void StdDevThresholder::setThreshold(int channel, float threshold)
 {
     if (channel >= 0 && channel < stdLevels.size())
+    {
+        std::cout << "Setting threshold for ch " << channel << " to " << threshold << std::endl;
         stdLevels.set(channel, threshold);
+        thresholds.set(channel, - stds[channel] * stdLevels[channel]);
+        std::cout << "Actual threshold: " << thresholds[channel] << std::endl;
+    }
+        
 }
 
 float StdDevThresholder::getThreshold(int channel)
@@ -104,13 +111,8 @@ bool StdDevThresholder::checkSample(int channel, float sample)
         // update buffer
         int nextIndex = (bufferIndex[channel] + 1) % bufferSize;
 
-        //std::cout << "Setting sample to " << sample << std::endl;
-        //Array<float>* buffer = sampleBuffer[channel];
-        
         sampleBuffer[channel]->set(nextIndex, sample);
-
-        //std::cout << sampleBuffer[channel][nextIndex] << std::endl;
-
+        
         bufferIndex.set(channel, nextIndex);
 
         // compute threshold
@@ -133,20 +135,16 @@ void StdDevThresholder::computeStd(int channel)
 
     mean /= bufferSize;
 
-   // std::cout << "Mean: " << mean << std::endl;
-
     float std = 0;
 
     for (int i = 0; i < bufferSize; i++)
         std += pow(sampleBuffer[channel]->getUnchecked(i) - mean, 2);
 
     std = pow(std / bufferSize, 0.5);
+    
+    stds.set(channel, std);
 
-    //std::cout << "Std: " << std << std::endl;
-  
     float threshold =  - std * stdLevels[channel];
-
-    //std::cout << "Threshold ch " << channel << " : " << threshold << std::endl;
 
     thresholds.set(channel, threshold);
 }
@@ -157,6 +155,7 @@ DynamicThresholder::DynamicThresholder(int numChannels) : Thresholder()
     for (int i = 0; i < numChannels; i++)
     {
         sigmaLevels.set(i, 4.0f);
+        medians.set(i, 50.0 / 4.0f);
         thresholds.set(i, -50.0f);
         sampleBuffer.add(new std::vector<float>(bufferSize));
         bufferIndex.add(-1);
@@ -165,9 +164,12 @@ DynamicThresholder::DynamicThresholder(int numChannels) : Thresholder()
 
 void DynamicThresholder::setThreshold(int channel, float threshold)
 {
-    //std::cout << "Setting threshold to " << threshold << std::endl;
     if (channel >= 0 && channel < sigmaLevels.size())
+    {
         sigmaLevels.set(channel, threshold);
+        thresholds.set(channel, -medians[channel] * sigmaLevels[channel]);
+    }
+        
 }
 
 float DynamicThresholder::getThreshold(int channel)
@@ -189,12 +191,7 @@ bool DynamicThresholder::checkSample(int channel, float sample)
         // update buffer
         int nextIndex = (bufferIndex[channel] + 1) % bufferSize;
 
-        //std::cout << "Setting sample to " << sample << std::endl;
-        //Array<float>* buffer = sampleBuffer[channel];
-
         sampleBuffer.getUnchecked(channel)->at(nextIndex) = abs(sample) / scalar;
-
-        //std::cout << sampleBuffer.getUnchecked(channel)->at(nextIndex) << std::endl;
 
         bufferIndex.set(channel, nextIndex);
 
@@ -217,11 +214,9 @@ void DynamicThresholder::computeSigma(int channel)
     
     float median = sampleBuffer.getUnchecked(channel)->at(bufferSize / 2);
 
-    //std::cout << "Median: " << median << std::endl;
-
+    medians.set(channel, median);
+    
     float threshold = - ( median * sigmaLevels[channel]);
-
-   // std::cout << "Threshold ch " << channel << " : " << threshold << std::endl;
 
     thresholds.set(channel, threshold);
 }
@@ -283,14 +278,63 @@ void SpikeDetector::parameterValueChanged(Parameter* p)
 
         CoreServices::updateSignalChain(getEditor());
     }
-    else if (p->getName().equalsIgnoreCase("threshold"))
+    else if (p->getName().contains("threshold"))
     {
         
         FloatParameter* param = (FloatParameter*) p;
         SpikeChannel* spikeChannel = p->getSpikeChannel();
+        
+        int channelIndex = p->getName().getTrailingIntValue() - 1;
 
-        for (int i = 0; i < spikeChannel->getNumChannels(); i++)
-            spikeChannel->thresholder->setThreshold(i, param->getFloatValue());
+        spikeChannel->thresholder->setThreshold(channelIndex, param->getFloatValue());
+    }
+    else if (p->getName().equalsIgnoreCase("thrshlder_type"))
+    {
+        
+        CategoricalParameter* param = (CategoricalParameter*) p;
+        SpikeChannel* spikeChannel = p->getSpikeChannel();
+        
+        if (param->getSelectedString().equalsIgnoreCase("ABS"))
+        {
+            spikeChannel->thresholder.reset();
+            spikeChannel->thresholder =
+                std::make_unique<AbsValueThresholder>(
+                spikeChannel->getNumChannels());
+            
+            for (int ch = 0; ch < spikeChannel->getNumChannels(); ch++)
+            {
+                spikeChannel->thresholder->setThreshold(
+                    ch,
+                    (float) spikeChannel->getParameter("abs_threshold" + String(ch+1))->getValue());
+            }
+        } else if (param->getSelectedString().equalsIgnoreCase("STD"))
+        {
+            spikeChannel->thresholder.reset();
+            spikeChannel->thresholder =
+                std::make_unique<StdDevThresholder>(
+                spikeChannel->getNumChannels());
+            
+            for (int ch = 0; ch < spikeChannel->getNumChannels(); ch++)
+            {
+                spikeChannel->thresholder->setThreshold(
+                    ch,
+                    (float) spikeChannel->getParameter("std_threshold" + String(ch+1))->getValue());
+            }
+        } else if (param->getSelectedString().equalsIgnoreCase("STD"))
+        {
+            spikeChannel->thresholder.reset();
+            spikeChannel->thresholder =
+                std::make_unique<DynamicThresholder>(
+                spikeChannel->getNumChannels());
+            
+            for (int ch = 0; ch < spikeChannel->getNumChannels(); ch++)
+            {
+                spikeChannel->thresholder->setThreshold(
+                    ch,
+                    (float) spikeChannel->getParameter("dyn_threshold" + String(ch+1))->getValue());
+            }
+        }
+        
     }
         
 }
@@ -410,7 +454,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
         spikeChannel->setDataStream(getDataStream(currentStream), false);
     
     spikeChannel->thresholder =
-        std::make_unique<DynamicThresholder>(
+        std::make_unique<AbsValueThresholder>(
             SpikeChannel::getNumChannels(type));
     
     spikeChannel->addParameter(new StringParameter(this,
@@ -426,15 +470,32 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
                             {"FULL","PEAK"},
                             0));
     
-    spikeChannel->addParameter(new FloatParameter(this,
-        Parameter::SPIKE_CHANNEL_SCOPE,
-        "threshold",
-        "The threshold used for spike detection",
-        4.0f, 1.0f, 10.0f, 0.01f));
-                      //-50.0f,
-                      //-500.0f,
-                      //-20.0f,
-                      //1.0f));
+    spikeChannel->addParameter(new CategoricalParameter(this,
+                              Parameter::SPIKE_CHANNEL_SCOPE,
+                              "thrshlder_type",
+                              "The type of thresholder to use",
+                              {"ABS", "STD", "DYN"},0));
+    
+    for (int ch = 0; ch < SpikeChannel::getNumChannels(type); ch++)
+    {
+        spikeChannel->addParameter(new FloatParameter(this,
+            Parameter::SPIKE_CHANNEL_SCOPE,
+            "abs_threshold" + String(ch+1),
+            "Threshold for one channel when the absolute value thresholder is active",
+            -50.0f, -500.0f, -20.0f, 1.0f));
+        
+        spikeChannel->addParameter(new FloatParameter(this,
+           Parameter::SPIKE_CHANNEL_SCOPE,
+           "std_threshold" + String(ch+1),
+           "Threshold for one channel when the std thresholder is active",
+           4.0f, 1.0f, 10.0f, 0.01f));
+        
+        spikeChannel->addParameter(new FloatParameter(this,
+          Parameter::SPIKE_CHANNEL_SCOPE,
+          "dyn_threshold" + String(ch+1),
+          "Threshold for one channel when the dynamic thresholder is active",
+          4.0f, 1.0f, 10.0f, 0.01f));
+    }
     
     spikeChannel->addParameter(new SelectedChannelsParameter(this,
                      Parameter::SPIKE_CHANNEL_SCOPE,
@@ -687,7 +748,15 @@ void SpikeDetector::saveCustomParametersToXml (XmlElement* xml)
 
             // parameters
             spikeChannel->getParameter("local_channels")->toXml(spikeParamsXml);
-            spikeChannel->getParameter("threshold")->toXml(spikeParamsXml);
+            spikeChannel->getParameter("thrshlder_type")->toXml(spikeParamsXml);
+            
+            for (int ch = 0; ch < (int)spikeChannel->getNumChannels(); ch++)
+            {
+                spikeChannel->getParameter("abs_threshold" + String(ch+1))->toXml(spikeParamsXml);
+                spikeChannel->getParameter("std_threshold" + String(ch+1))->toXml(spikeParamsXml);
+                spikeChannel->getParameter("dyn_threshold" + String(ch+1))->toXml(spikeParamsXml);
+            }
+            
             spikeChannel->getParameter("waveform_type")->toXml(spikeParamsXml);
         }
     }
@@ -732,15 +801,19 @@ void SpikeDetector::loadCustomParametersFromXml(XmlElement* xml)
 
                     SelectedChannelsParameter* param = (SelectedChannelsParameter*)spikeChannel->getParameter("local_channels");
                     param->getSpikeChannel()->localChannelIndexes = param->getArrayValue();
-
-                    spikeChannel->getParameter("threshold")->fromXml(spikeParamsXml);
+                    
+                    spikeChannel->getParameter("thrshlder_type")->fromXml(spikeParamsXml);
+                    
+                    for (int ch = 0; ch < SpikeChannel::getNumChannels(type); ch++)
+                    {
+                        spikeChannel->getParameter("abs_threshold" + String(ch+1))->fromXml(spikeParamsXml);
+                        spikeChannel->getParameter("std_threshold" + String(ch+1))->fromXml(spikeParamsXml);
+                        spikeChannel->getParameter("dyn_threshold" + String(ch+1))->fromXml(spikeParamsXml);
+                    }
+                    
                     spikeChannel->getParameter("waveform_type")->fromXml(spikeParamsXml);
                 }
-                
             }
-
-            
-
         }
     }
 }

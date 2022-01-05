@@ -304,7 +304,7 @@ void FloatParameter::setNextValue(var newValue_)
 {
     if (newValue_.isDouble())
     {
-        int value = (float) newValue_;
+        float value = (float) newValue_;
 
         if (value < minValue)
             newValue = minValue;

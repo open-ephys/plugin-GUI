@@ -101,8 +101,6 @@ private:
     int draggingChannel;
     int lastHoverButton;
     bool isConfigured;
-    
-    PopupMenu menu;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChannelMappingEditor);
 

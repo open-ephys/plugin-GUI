@@ -224,7 +224,7 @@ void ChannelMappingEditor::mouseDown(const MouseEvent& e)
         {
             ElectrodeButton* button = (ElectrodeButton*) e.originalComponent;
             
-            menu.clear();
+            PopupMenu menu;
 
             int buttonIndex = electrodeButtons.indexOf(button);
 
