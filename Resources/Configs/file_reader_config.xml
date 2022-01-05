@@ -38,10 +38,7 @@
               Type="RecordNode">
         <SETTINGS path="" engine="BINARY" recordEvents="1"
                   recordSpikes="1">
-          <STREAM stream_id="10004" isPrimary="1" sync_bit="0">
-            <STATE CH1="1" CH2="1" CH3="1" CH4="1" CH5="1" CH6="1" CH7="1" CH8="1"
-                   CH9="1" CH10="1" CH11="1" CH12="1" CH13="1" CH14="1" CH15="1"
-                   CH16="1"/>
+          <STREAM recording_state="ALL" isPrimary="1" sync_bit="0">
           </STREAM>
         </SETTINGS>
       </EDITOR>
@@ -145,10 +142,7 @@
               Type="RecordNode">
         <SETTINGS path="" engine="BINARY" recordEvents="0"
                   recordSpikes="1">
-          <STREAM stream_id="10004" isPrimary="1" sync_bit="0">
-            <STATE CH1="0" CH2="0" CH3="0" CH4="0" CH5="0" CH6="0" CH7="0" CH8="0"
-                   CH9="0" CH10="0" CH11="0" CH12="0" CH13="0" CH14="0" CH15="0"
-                   CH16="0"/>
+          <STREAM recording_state="NONE" isPrimary="1" sync_bit="0">
           </STREAM>
         </SETTINGS>
       </EDITOR>

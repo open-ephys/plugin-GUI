@@ -686,6 +686,15 @@ void GenericProcessor::update()
                 for (auto stream : splitter->getStreamsForDestNode(this))
                 {
                     continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
+
+                    if (splitter->getDestNode(0) == this)
+                    {
+                        dataStreams.getLast()->setName(stream->getName() + "-A");
+                    }
+                    else {
+                        dataStreams.getLast()->setName(stream->getName() + "-B");
+                    }
+                    
                 }
             } else if (sourceNode->isMerger())
             {

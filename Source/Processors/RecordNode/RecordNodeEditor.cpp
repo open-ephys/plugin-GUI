@@ -144,23 +144,37 @@ void RecordNodeEditor::saveCustomParametersToXml(XmlElement* xml)
 		{
 			XmlElement* stream = xmlNode->createNewChildElement("STREAM");
 
-			stream->setAttribute("stream_id", streamId);
 			stream->setAttribute("isPrimary", 
 				recordNode->synchronizer->primaryStreamId == streamId);
-			stream->setAttribute("sync_bit", recordNode->syncChannelMap[streamId]);
+			stream->setAttribute("sync_line", recordNode->syncChannelMap[streamId]);
 
-			XmlElement* recStateNode = stream->createNewChildElement("STATE");
+			String stateString;
+			bool allOn = true;
+			bool allOff = true;
 
 			for (int ch = 0; ch < recordNode->dataChannelStates[streamId].size(); ch++)
 			{
-				recStateNode->setAttribute("CH" + String(ch+1), recordNode->dataChannelStates[streamId][ch]);
+				bool state = recordNode->dataChannelStates[streamId][ch];
+
+				if (!state)
+					allOn = false;
+
+				if (state)
+					allOff = false;
+
+				stateString += state ? "1" : "0";
 			}
 
+			if (allOn)
+				stateString = "ALL";
+
+			if (allOff)
+				stateString = "NONE";
+
+			stream->setAttribute("recording_state", stateString);
+
 		}
-
-
 	}
-	
 }
 
 void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
@@ -193,18 +207,38 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 					if (recordNode->dataChannelStates[streamId].size())
 					{
 
-						if (subNode->getBoolAttribute("isPrimary"))
+						if (subNode->getBoolAttribute("isPrimary", false))
 						{
 							recordNode->setPrimaryDataStream(streamId);
 						}
 
-						recordNode->setSyncBit(streamId, subNode->getIntAttribute("sync_bit"));
+						recordNode->setSyncBit(streamId, subNode->getIntAttribute("sync_line", 0));
 
-						XmlElement* recordStates = subNode->getChildByName("STATE");
+						String recordState = subNode->getStringAttribute("recording_state", "ALL");
 
 						for (int ch = 0; ch < recordNode->dataChannelStates[streamId].size(); ch++)
 						{
-							recordNode->dataChannelStates[streamId][ch] = recordStates->getBoolAttribute("CH" + String(ch+1), true);
+							bool channelState;
+
+							if (recordState.equalsIgnoreCase("ALL"))
+							{
+								channelState = true;
+							}
+							else if (recordState.equalsIgnoreCase("NONE"))
+							{
+								channelState = false;
+							}
+							else {
+								if (recordState.length() > ch)
+								{
+									channelState = recordState.substring(ch, ch + 1) == "1" ? true : false;
+								}
+								else {
+									channelState = true;
+								}
+							}
+							
+							recordNode->dataChannelStates[streamId][ch] = channelState;
 						}
 
 					}
@@ -578,6 +612,7 @@ void SyncControlButton::mouseUp(const MouseEvent &event)
 			= CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
 
 		myBox.addComponentListener(this);
+		myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
 
 		return;
 

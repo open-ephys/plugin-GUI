@@ -4,7 +4,7 @@
   <INFO>
     <VERSION>0.6.0</VERSION>
     <PLUGIN_API_VERSION>8</PLUGIN_API_VERSION>
-    <DATE>1 Jan 2022 22:03:36</DATE>
+    <DATE>4 Jan 2022 12:55:57</DATE>
     <OS>Windows 10</OS>
     <MACHINE name="W10LTPC11LLXH" cpu_model="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz"
              cpu_num_cores="8"/>
@@ -25,10 +25,9 @@
               activeStream="0" Type="Visualizer" SampleRate="17" SampleRateString="30.0 kS/s"
               LowCut="1.0" HighCut="7500.0" AUXsOn="0" ADCsOn="0" AudioOutputL="-1"
               AudioOutputR="-1" NoiseSlicer="0" TTLFastSettle="1" DAC_TTL="0"
-              DAC_HPF="1" DSPOffset="1" DSPCutoffFreq="-6.277438562204192e66"
-              save_impedance_measurements="0" auto_measure_impedances="0" LEDs="1"
-              ClockDivideRatio="1" Channel_Naming_Scheme="1">
-        <TAB Active="0"/>
+              DAC_HPF="1" DSPOffset="1" DSPCutoffFreq="0.0" save_impedance_measurements="0"
+              auto_measure_impedances="0" LEDs="1" ClockDivideRatio="1" Channel_Naming_Scheme="1">
+        <TAB Active="1"/>
         <WINDOW Active="0"/>
         <ADCRANGE Channel="0" Range="0"/>
         <ADCRANGE Channel="1" Range="0"/>
@@ -53,33 +52,25 @@
               Type="RecordNode">
         <SETTINGS path="C:\Users\joshs\Documents\Open Ephys" engine="BINARY" recordEvents="1"
                   recordSpikes="1">
-          <STREAM stream_id="10002" isPrimary="1" sync_bit="0">
-            <STATE CH1="1" CH2="1" CH3="1" CH4="1" CH5="1" CH6="1" CH7="1" CH8="1"
-                   CH9="1" CH10="1" CH11="1" CH12="1" CH13="1" CH14="1" CH15="1"
-                   CH16="1" CH17="1" CH18="1" CH19="1" CH20="1" CH21="1" CH22="1"
-                   CH23="1" CH24="1" CH25="1" CH26="1" CH27="1" CH28="1" CH29="1"
-                   CH30="1" CH31="1" CH32="1" CH33="1" CH34="1" CH35="1" CH36="1"
-                   CH37="1" CH38="1" CH39="1" CH40="1" CH41="1" CH42="1" CH43="1"
-                   CH44="1" CH45="1" CH46="1" CH47="1" CH48="1" CH49="1" CH50="1"
-                   CH51="1" CH52="1" CH53="1" CH54="1" CH55="1" CH56="1" CH57="1"
-                   CH58="1" CH59="1" CH60="1" CH61="1" CH62="1" CH63="1" CH64="1"
-                   CH65="1" CH66="1" CH67="1" CH68="1" CH69="1" CH70="1" CH71="1"
-                   CH72="1" CH73="1" CH74="1" CH75="1" CH76="1" CH77="1" CH78="1"
-                   CH79="1" CH80="1" CH81="1" CH82="1" CH83="1" CH84="1" CH85="1"
-                   CH86="1" CH87="1" CH88="1" CH89="1" CH90="1" CH91="1" CH92="1"
-                   CH93="1" CH94="1" CH95="1" CH96="1" CH97="1" CH98="1" CH99="1"
-                   CH100="1" CH101="1" CH102="1" CH103="1" CH104="1" CH105="1" CH106="1"
-                   CH107="1" CH108="1" CH109="1" CH110="1" CH111="1" CH112="1" CH113="1"
-                   CH114="1" CH115="1" CH116="1" CH117="1" CH118="1" CH119="1" CH120="1"
-                   CH121="1" CH122="1" CH123="1" CH124="1" CH125="1" CH126="1" CH127="1"
-                   CH128="1"/>
-          </STREAM>
+          <STREAM isPrimary="1" sync_line="0" recording_state="ALL"/>
         </SETTINGS>
       </EDITOR>
     </PROCESSOR>
+    <PROCESSOR name="Audio Monitor" insertionPoint="1" pluginName="Audio Monitor"
+               type="0" index="4" libraryName="" libraryVersion="" processorType="6"
+               nodeId="102">
+      <GLOBAL_PARAMETERS audio_output="1" mute_audio="0"/>
+      <STREAM name="Device Data" description="description" sample_rate="30000.0"
+              channel_count="128">
+        <PARAMETERS enable_stream="1" Channels=""/>
+      </STREAM>
+      <CUSTOM_PARAMETERS/>
+      <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Audio Monitor"
+              activeStream="0"/>
+    </PROCESSOR>
     <PROCESSOR name="LFP Viewer" insertionPoint="1" pluginName="LFP Viewer"
                type="1" index="6" libraryName="LFP viewer" libraryVersion="0.1.0"
-               processorType="3" nodeId="102">
+               processorType="3" nodeId="103">
       <GLOBAL_PARAMETERS/>
       <STREAM name="Device Data" description="description" sample_rate="30000.0"
               channel_count="128">
@@ -91,19 +82,19 @@
         <TAB Active="1"/>
         <WINDOW Active="0"/>
         <VALUES SelectedLayout="1"/>
-        <LFPDISPLAY0 SubprocessorID="10002" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+        <LFPDISPLAY0 SubprocessorID="10003" Range="250,2000,10.0" Timebase="2.0" Spread="40"
                      colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
                      satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
                      showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
                      trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
                      ScrollX="0" ScrollY="0"/>
-        <LFPDISPLAY1 SubprocessorID="10002" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+        <LFPDISPLAY1 SubprocessorID="10003" Range="250,2000,10.0" Timebase="2.0" Spread="40"
                      colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
                      satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
                      showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
                      trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
                      ScrollX="0" ScrollY="0"/>
-        <LFPDISPLAY2 SubprocessorID="10002" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+        <LFPDISPLAY2 SubprocessorID="10003" Range="250,2000,10.0" Timebase="2.0" Spread="40"
                      colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
                      satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
                      showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
@@ -116,7 +107,7 @@
     </PROCESSOR>
     <PROCESSOR name="Bandpass Filter" insertionPoint="1" pluginName="Bandpass Filter"
                type="1" index="5" libraryName="Bandpass Filter" libraryVersion="0.1.0"
-               processorType="1" nodeId="103">
+               processorType="1" nodeId="104">
       <GLOBAL_PARAMETERS/>
       <STREAM name="Device Data" description="description" sample_rate="30000.0"
               channel_count="128">
@@ -128,26 +119,26 @@
     </PROCESSOR>
     <PROCESSOR name="Spike Detector" insertionPoint="1" pluginName="Spike Detector"
                type="1" index="1" libraryName="Basic Spike Display" libraryVersion="0.1.0"
-               processorType="1" nodeId="104">
+               processorType="1" nodeId="105">
       <GLOBAL_PARAMETERS/>
       <STREAM name="Device Data" description="description" sample_rate="30000.0"
               channel_count="128">
         <PARAMETERS enable_stream="1"/>
       </STREAM>
       <CUSTOM_PARAMETERS>
-        <SPIKE_CHANNEL name="Tetrode 1" description="Tetrode from Spike Detector 104"
+        <SPIKE_CHANNEL name="Tetrode 1" description="Tetrode from Spike Detector 105"
                        num_channels="4" sample_rate="30000.0" stream_name="Device Data"
                        stream_source="100" local_channels="1,2,3,4" threshold="4.0"
                        waveform_type="0"/>
-        <SPIKE_CHANNEL name="Tetrode 2" description="Tetrode from Spike Detector 104"
+        <SPIKE_CHANNEL name="Tetrode 2" description="Tetrode from Spike Detector 105"
                        num_channels="4" sample_rate="30000.0" stream_name="Device Data"
                        stream_source="100" local_channels="5,6,7,8" threshold="4.0"
                        waveform_type="0"/>
-        <SPIKE_CHANNEL name="Tetrode 3" description="Tetrode from Spike Detector 104"
+        <SPIKE_CHANNEL name="Tetrode 3" description="Tetrode from Spike Detector 105"
                        num_channels="4" sample_rate="30000.0" stream_name="Device Data"
                        stream_source="100" local_channels="9,10,11,12" threshold="4.0"
                        waveform_type="0"/>
-        <SPIKE_CHANNEL name="Tetrode 4" description="Tetrode from Spike Detector 104"
+        <SPIKE_CHANNEL name="Tetrode 4" description="Tetrode from Spike Detector 105"
                        num_channels="4" sample_rate="30000.0" stream_name="Device Data"
                        stream_source="100" local_channels="13,14,15,16" threshold="4.0"
                        waveform_type="0"/>
@@ -166,43 +157,11 @@
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"
               Type="RecordNode">
-        <SETTINGS path="" engine="BINARY" recordEvents="1"
+        <SETTINGS path="C:\Users\joshs\Documents\Open Ephys" engine="BINARY" recordEvents="0"
                   recordSpikes="1">
-          <STREAM stream_id="10002" isPrimary="1" sync_bit="0">
-            <STATE CH1="0" CH2="0" CH3="0" CH4="0" CH5="0" CH6="0" CH7="0" CH8="0"
-                   CH9="0" CH10="0" CH11="0" CH12="0" CH13="0" CH14="0" CH15="0"
-                   CH16="0" CH17="0" CH18="0" CH19="0" CH20="0" CH21="0" CH22="0"
-                   CH23="0" CH24="0" CH25="0" CH26="0" CH27="0" CH28="0" CH29="0"
-                   CH30="0" CH31="0" CH32="0" CH33="0" CH34="0" CH35="0" CH36="0"
-                   CH37="0" CH38="0" CH39="0" CH40="0" CH41="0" CH42="0" CH43="0"
-                   CH44="0" CH45="0" CH46="0" CH47="0" CH48="0" CH49="0" CH50="0"
-                   CH51="0" CH52="0" CH53="0" CH54="0" CH55="0" CH56="0" CH57="0"
-                   CH58="0" CH59="0" CH60="0" CH61="0" CH62="0" CH63="0" CH64="0"
-                   CH65="0" CH66="0" CH67="0" CH68="0" CH69="0" CH70="0" CH71="0"
-                   CH72="0" CH73="0" CH74="0" CH75="0" CH76="0" CH77="0" CH78="0"
-                   CH79="0" CH80="0" CH81="0" CH82="0" CH83="0" CH84="0" CH85="0"
-                   CH86="0" CH87="0" CH88="0" CH89="0" CH90="0" CH91="0" CH92="0"
-                   CH93="0" CH94="0" CH95="0" CH96="0" CH97="0" CH98="0" CH99="0"
-                   CH100="0" CH101="0" CH102="0" CH103="0" CH104="0" CH105="0" CH106="0"
-                   CH107="0" CH108="0" CH109="0" CH110="0" CH111="0" CH112="0" CH113="0"
-                   CH114="0" CH115="0" CH116="0" CH117="0" CH118="0" CH119="0" CH120="0"
-                   CH121="0" CH122="0" CH123="0" CH124="0" CH125="0" CH126="0" CH127="0"
-                   CH128="0"/>
-          </STREAM>
+          <STREAM isPrimary="1" sync_line="0" recording_state="NONE"/>
         </SETTINGS>
       </EDITOR>
-    </PROCESSOR>
-    <PROCESSOR name="Audio Monitor" insertionPoint="1" pluginName="Audio Monitor"
-               type="0" index="4" libraryName="" libraryVersion="" processorType="6"
-               nodeId="105">
-      <GLOBAL_PARAMETERS audio_output="1" mute_audio="0"/>
-      <STREAM name="Device Data" description="description" sample_rate="30000.0"
-              channel_count="128">
-        <PARAMETERS enable_stream="1" Channels=""/>
-      </STREAM>
-      <CUSTOM_PARAMETERS/>
-      <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Audio Monitor"
-              activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="Spike Viewer" insertionPoint="1" pluginName="Spike Viewer"
                type="1" index="2" libraryName="Basic Spike Display" libraryVersion="0.1.0"
@@ -253,11 +212,11 @@
                  audioDeviceInChans="0" audioDeviceOutChans="11"/>
   </AUDIO>
   <GLOBAL_TIMESTAMP selected_index="-1" selected_sub_index="0"/>
-  <CONTROLPANEL isOpen="1" recordPath="" recordEngine="BINARY"/>
+  <CONTROLPANEL isOpen="1" recordPath="C:\Users\joshs\Documents\Open Ephys" recordEngine="BINARY"/>
   <AUDIOEDITOR isMuted="0" volume="50.0" noiseGate="10.0"/>
   <FILENAMECONFIG>
     <PREPEND state="0" value=""/>
-    <MAIN state="1" value="YYYY-MM-DD_HH-MM-SS"/>
+    <MAIN state="1" value="2022-01-04_12-55-39"/>
     <APPEND state="0" value=""/>
   </FILENAMECONFIG>
   <PROCESSORLIST>
