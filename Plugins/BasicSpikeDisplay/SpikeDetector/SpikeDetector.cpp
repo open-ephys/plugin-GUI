@@ -84,10 +84,10 @@ void StdDevThresholder::setThreshold(int channel, float threshold)
 {
     if (channel >= 0 && channel < stdLevels.size())
     {
-        std::cout << "Setting threshold for ch " << channel << " to " << threshold << std::endl;
+        //std::cout << "Setting threshold for ch " << channel << " to " << threshold << std::endl;
         stdLevels.set(channel, threshold);
         thresholds.set(channel, - stds[channel] * stdLevels[channel]);
-        std::cout << "Actual threshold: " << thresholds[channel] << std::endl;
+        //std::cout << "Actual threshold: " << thresholds[channel] << std::endl;
     }
         
 }

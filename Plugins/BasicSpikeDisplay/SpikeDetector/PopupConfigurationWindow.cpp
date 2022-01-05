@@ -427,7 +427,7 @@ void SpikeDetectorTableModel::cellClicked(int rowNumber, int columnId, const Mou
 
     if (columnId == SpikeDetectorTableModel::Columns::DELETE && !acquisitionIsActive)
     {
-        std::cout << "Delete " << selectedRows.size() << " electrodes?" << std::endl;
+        //std::cout << "Delete " << selectedRows.size() << " electrodes?" << std::endl;
         
         Array<SpikeChannel*> channelsToDelete;
         Array<SpikeChannel*> channelsToKeep;
@@ -515,7 +515,7 @@ void SpikeDetectorTableModel::broadcastThresholdToSelectedRows(int rowThatWasCli
 {
     SparseSet<int> selectedRows = table->getSelectedRows();
     
-    std::cout << "Broadcasting value." << std::endl;
+    //std::cout << "Broadcasting value." << std::endl;
     
     float actualValue;
 
@@ -524,7 +524,7 @@ void SpikeDetectorTableModel::broadcastThresholdToSelectedRows(int rowThatWasCli
         if (selectedRows.contains(i) || i == rowThatWasClicked)
         {
             
-            std::cout << "Row = " << i << std::endl;
+            //std::cout << "Row = " << i << std::endl;
             
             String parameterString;
 
@@ -544,20 +544,20 @@ void SpikeDetectorTableModel::broadcastThresholdToSelectedRows(int rowThatWasCli
                     break;
             }
             
-            std::cout << "Type = " << parameterString << std::endl;
+            //std::cout << "Type = " << parameterString << std::endl;
             
             if (isLocked)
             {
-                std::cout << "Not locked." << std::endl;
+                //std::cout << "Not locked." << std::endl;
                 
                 for (int ch = 0; ch < spikeChannels[i]->getNumChannels(); ch++)
                 {
-                    std::cout << "Setting value for channel " << ch << ": " << actualValue << std::endl;
+                    //std::cout << "Setting value for channel " << ch << ": " << actualValue << std::endl;
                     spikeChannels[i]->getParameter(parameterString + String(ch+1))->setNextValue(actualValue);
                 }
             } else {
                 
-                std::cout << "Setting value for channel " << channelIndex << ": " << actualValue << std::endl;
+                //std::cout << "Setting value for channel " << channelIndex << ": " << actualValue << std::endl;
                 
                 if (spikeChannels[i]->getNumChannels() > channelIndex)
                     spikeChannels[i]->getParameter(parameterString + String(channelIndex+1))->setNextValue(actualValue);
@@ -667,14 +667,14 @@ void SpikeDetectorTableModel::update(Array<SpikeChannel*> spikeChannels_)
 
        ThresholdSelectorCustomComponent* th = (ThresholdSelectorCustomComponent*) c;
 
-        std::cout << "Checking thresholder component for row " << i << std::endl;
+        //std::cout << "Checking thresholder component for row " << i << std::endl;
        
        if (!spikeChannels.contains(th->channel))
        {
-           std::cout << "No longer needed, deleting spikeChannel" << std::endl;
+           //std::cout << "No longer needed, deleting spikeChannel" << std::endl;
            th->setSpikeChannel(nullptr);
        } else {
-           std::cout << "Still needed" << std::endl;
+           //std::cout << "Still needed" << std::endl;
        }
         
         th->repaint();
