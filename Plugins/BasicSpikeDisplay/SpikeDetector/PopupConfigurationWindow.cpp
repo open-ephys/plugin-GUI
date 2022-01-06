@@ -78,20 +78,23 @@ PopupThresholdComponent::PopupThresholdComponent(SpikeDetectorTableModel* table_
     label->setColour(Label::textColourId, Colours::grey);
     addAndMakeVisible(label.get());
     
-    absButton = std::make_unique<UtilityButton>("ABS", Font("Fira Code", "Regular", 10));
+    absButton = std::make_unique<UtilityButton>("uV", Font("Fira Code", "Regular", 10));
     absButton->setBounds(7,25,40,25);
+    absButton->setTooltip("Detection threshold = microvolt value");
     absButton->setToggleState(type == ThresholderType::ABS, dontSendNotification);
     absButton->addListener(this);
     addAndMakeVisible(absButton.get());
     
     stdButton = std::make_unique<UtilityButton>("STD", Font("Fira Code", "Regular", 10));
     stdButton->setBounds(7,55,40,25);
+    stdButton->setTooltip("Detection threshold = multiple of the channel's standard deviation");
     stdButton->setToggleState(type == ThresholderType::STD, dontSendNotification);
     stdButton->addListener(this);
     addAndMakeVisible(stdButton.get());
     
-    dynButton = std::make_unique<UtilityButton>("DYN", Font("Fira Code", "Regular", 10));
+    dynButton = std::make_unique<UtilityButton>("MED", Font("Fira Code", "Regular", 10));
     dynButton->setBounds(7,85,40,25);
+    dynButton->setTooltip("Detection threshold = multiple of the median of the channel's absolute value");
     dynButton->setToggleState(type == ThresholderType::DYN, dontSendNotification);
     dynButton->addListener(this);
     addAndMakeVisible(dynButton.get());
@@ -280,13 +283,13 @@ void ThresholdSelectorCustomComponent::paint(Graphics& g)
     switch (thresholder_type->getSelectedIndex())
     {
         case 0:
-            thresholdString += "ABS: ";
+            thresholdString += "µV: ";
             break;
         case 1:
             thresholdString += "STD: ";
             break;
         case 2:
-            thresholdString += "DYN: ";
+            thresholdString += "MED: ";
             break;
     }
     
