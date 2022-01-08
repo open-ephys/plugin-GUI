@@ -607,10 +607,15 @@ void CustomLookAndFeel::drawMenuBarBackground (Graphics& g, int width, int heigh
     {
         g.setColour(Colours::lightgrey);
         String ver = "v" + String(ProjectInfo::versionString);
-        g.setFont(getPopupMenuFont());
-        int verStrWidth = getPopupMenuFont().getStringWidth(ver);
+        g.setFont(getCommonMenuFont());
+        int verStrWidth = getCommonMenuFont().getStringWidth(ver);
         g.drawText(ver, width - verStrWidth - 10, 0, verStrWidth, height, Justification::centred);
     }
+}
+
+Font CustomLookAndFeel::getMenuBarFont (MenuBarComponent& menuBar, int /*itemIndex*/, const String& /*itemText*/)
+{
+    return Font(getCommonMenuFont().getTypefaceName(), "SemiBold", menuBar.getHeight() * 0.7f);
 }
 
 //==================================================================
@@ -696,7 +701,7 @@ void CustomLookAndFeel::drawButtonText (Graphics& g,
 
 Font CustomLookAndFeel::getTextButtonFont (TextButton&, int buttonHeight)
 {
-    return Font(getCommonMenuFont().getTypefaceName(), buttonHeight * 0.65f, Font::plain);
+    return Font(getCommonMenuFont().getTypefaceName(), "Regular", buttonHeight * 0.65f);
 }
 
 // ============ Common Font for Menus ================

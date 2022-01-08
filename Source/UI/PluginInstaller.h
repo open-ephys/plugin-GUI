@@ -138,6 +138,8 @@ private:
 
     void run() override;
 
+    DropShadower infoCompDropShadower { DropShadow(Colours::black.withAlpha(0.5f), 6, {2,2}) };
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginInfoComponent);
 
 };
@@ -194,6 +196,8 @@ private:
     bool loadPluginInfo(const String& pluginName);
 
     void listBoxItemClicked (int row, const MouseEvent &) override;
+
+    DropShadower listBoxDropShadower { DropShadow(Colours::black.withAlpha(0.5f), 6, {2,2}) };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginListBoxComponent);
 

@@ -89,12 +89,12 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow, bool loadComponents)
 		int w = parent->getWidth();
 		int h = parent->getHeight();
 
-		setBounds(x + (0.5*w) - 444, y + 0.5*h - 240, 888, 480);
+		setBounds(x + (0.5*w) - 450, y + 0.5*h - 240, 900, 480);
 		setUsingNativeTitleBar(true);
 		setContentOwned(new PluginInstallerComponent(), false);
 		setVisible(true);
 		setResizable(true, false); // useBottomCornerRisizer -- doesn't work very well
-		setResizeLimits(888, 480, 8192, 5120);
+		setResizeLimits(910, 480, 8192, 5120);
 	}
 
 	createXmlFile();
@@ -287,7 +287,7 @@ void PluginInstaller::installPluginAndDependency(const String& plugin, String ve
 PluginInstallerComponent::PluginInstallerComponent() : ThreadWithProgressWindow("Plugin Installer", false, false),
 													   checkForUpdates(false)
 {
-	font = Font("FiraSans", 18, Font::plain);
+	font = Font("Fira Sans", "Regular", 18.0f);
 	setSize(getWidth() - 10, getHeight() - 10);
 
 	addAndMakeVisible(pluginListAndInfo);
@@ -374,7 +374,7 @@ void PluginInstallerComponent::paint(Graphics& g)
 	g.fillAll (Colours::darkgrey);
 	g.setColour(Colour::fromRGB(110, 110, 110));
 	g.fillRect(190, 5, 3, 38);
-	g.fillRect(400, 5, 3, 38);
+	g.fillRect(410, 5, 3, 38);
 }
 
 void PluginInstallerComponent::resized()
@@ -382,17 +382,17 @@ void PluginInstallerComponent::resized()
 	sortingLabel.setBounds(20, 10, 70, 30);
 	sortByMenu.setBounds(90, 10, 90, 30);
 
-	viewLabel.setBounds(200, 10, 50, 30);
-	allButton.setBounds(250, 10, 50, 30);
-	installedButton.setBounds(300, 10, 90, 30);
+	viewLabel.setBounds(200, 10, 45, 30);
+	allButton.setBounds(245, 11, 55, 28);
+	installedButton.setBounds(300, 11, 105, 28);
 
-	typeLabel.setBounds(410, 10, 45, 30);
-	sourceType.setBounds(455, 10, 80, 30);
-	filterType.setBounds(535, 10, 70, 30);
-	sinkType.setBounds(605, 10, 60, 30);
-	otherType.setBounds(665, 10, 70, 30);
+	typeLabel.setBounds(415, 11, 45, 28);
+	sourceType.setBounds(460, 11, 80, 28);
+	filterType.setBounds(540, 11, 80, 28);
+	sinkType.setBounds(620, 11, 70, 28);
+	otherType.setBounds(690, 11, 75, 28);
 
-	updatesButton.setBounds(getWidth() - 135, 10, 115, 30);
+	updatesButton.setBounds(getWidth() - 125, 11, 105, 28);
 
 	pluginListAndInfo.setBounds(10, 40, getWidth() - 10, getHeight() - 40);
 }
@@ -580,7 +580,7 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 
 PluginListBoxComponent::PluginListBoxComponent() : Thread("Plugin List"), maxTextWidth(0)
 {
-	listFont = Font("FiraSans Bold", 22, Font::plain);
+	listFont = Font("Fira Code", "SemiBold", 22.0f);
 
 	// Set progress window text and background colors
 	//auto window = this->getAlertWindow();
@@ -595,6 +595,8 @@ PluginListBoxComponent::PluginListBoxComponent() : Thread("Plugin List"), maxTex
 	pluginList.setColour(ListBox::backgroundColourId , Colour::fromRGB(50, 50, 50));
 	pluginList.setRowHeight(35);
 	pluginList.setMouseMoveSelectsRows(true);
+
+	listBoxDropShadower.setOwner(&pluginList);
 
 	addAndMakeVisible(pluginInfoPanel);
 }
@@ -843,8 +845,10 @@ void PluginListBoxComponent::returnKeyPressed (int lastRowSelected)
 
 PluginInfoComponent::PluginInfoComponent() : ThreadWithProgressWindow("Plugin Installer", false, false)
 {
-	infoFont = Font("FiraSans", 20, Font::plain);
-	infoFontBold = Font("FiraSans Bold", 20, Font::plain);
+	infoCompDropShadower.setOwner(this);
+	
+	infoFont = Font("Fira Code", "Regular", 20.0f);
+	infoFontBold = Font("Fira Code", "SemiBold", 20.0f);
 	
 	addChildComponent(pluginNameLabel);
 	pluginNameLabel.setFont(infoFontBold);
@@ -892,7 +896,7 @@ PluginInfoComponent::PluginInfoComponent() : ThreadWithProgressWindow("Plugin In
 	addChildComponent(descriptionText);
 	descriptionText.setFont(infoFont);
 	descriptionText.setColour(Label::textColourId, Colours::white);
-	descriptionText.setJustificationType(Justification::top);
+	descriptionText.setJustificationType(Justification::topLeft);
 	descriptionText.setMinimumHorizontalScale(1.0f);
 
 	addChildComponent(dependencyLabel);
@@ -932,23 +936,23 @@ void PluginInfoComponent::paint(Graphics& g)
 
 void PluginInfoComponent::resized()
 {
-	pluginNameLabel.setBounds(10, 30, 60, 30);
-	pluginNameText.setBounds(125, 30, getWidth() - 10, 30);
+	pluginNameLabel.setBounds(10, 30, 140, 30);
+	pluginNameText.setBounds(145, 30, getWidth() - 10, 30);
 
-	developersLabel.setBounds(10, 60, 100, 30);
-	developersText.setBounds(125, 60, getWidth() - 130, 30);
+	developersLabel.setBounds(10, 60, 140, 30);
+	developersText.setBounds(145, 60, getWidth() - 130, 30);
 
-	versionLabel.setBounds(10, 90, 80, 30);
-	versionMenu.setBounds(130, 90, 110, 30);
+	versionLabel.setBounds(10, 90, 140, 30);
+	versionMenu.setBounds(150, 90, 110, 26);
 
-	lastUpdatedLabel.setBounds(10, 120, 120, 30);
-	lastUpdatedText.setBounds(125, 120, getWidth() - 10, 30);
+	lastUpdatedLabel.setBounds(10, 120, 140, 30);
+	lastUpdatedText.setBounds(145, 120, getWidth() - 10, 30);
 
-	descriptionLabel.setBounds(10, 150, 110, 30);
-	descriptionText.setBounds(125, 155, getWidth() - 130, 75);
+	descriptionLabel.setBounds(10, 150, 140, 30);
+	descriptionText.setBounds(145, 155, getWidth() - 150, 75);
 
-	dependencyLabel.setBounds(10, 160 + descriptionText.getHeight(), 120, 30);
-	dependencyText.setBounds(125, dependencyLabel.getY(), getWidth() - 10, 30);
+	dependencyLabel.setBounds(10, 160 + descriptionText.getHeight(), 140, 30);
+	dependencyText.setBounds(145, dependencyLabel.getY(), getWidth() - 10, 30);
 
 	downloadButton.setBounds(getWidth() - (getWidth() * 0.25) - 20, getHeight() - 60, getWidth() * 0.25, 30);
 	uninstallButton.setBounds(getWidth() - (2 * (getWidth() * 0.25)) - 30, getHeight() - 60, getWidth() * 0.25, 30);
