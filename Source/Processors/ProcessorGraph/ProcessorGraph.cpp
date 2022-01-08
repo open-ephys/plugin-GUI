@@ -186,7 +186,7 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
 		processor = createProcessorFromDescription(description);
 	}
 	catch (std::exception& e) {
-		NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "Open Ephys", e.what());
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Open Ephys", e.what());
 	}
 
 	if (processor != nullptr)
@@ -348,7 +348,7 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                     
                     if (rootNodes.size() == 8)
                     {
-                        NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "Signal chain error",
+                        AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Signal chain error",
                                                               "Maximum of 8 signal chains.");
                         return false;
                     } else {
@@ -363,7 +363,7 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                     
                     if (rootNodes.size() == 8)
                     {
-                        NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "Signal chain error",
+                        AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Signal chain error",
                                                               "Maximum of 8 signal chains.");
                         return false;
                     } else {
@@ -378,7 +378,7 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                 
                 if (rootNodes.size() == 8)
                 {
-                    NativeMessageBox::showMessageBoxAsync(AlertWindow::WarningIcon, "Signal chain error",
+                    AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Signal chain error",
                                                           "Maximum of 8 signal chains.");
                     return false;
                     

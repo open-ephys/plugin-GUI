@@ -1583,7 +1583,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
         responseString += "), and is not compatible with the version you're currently running. \n\n";
         responseString += "In order to replicate the signal chain you'll have to re-build it from scratch.";
 
-        NativeMessageBox::showMessageBox(AlertWindow::WarningIcon, "Incompatible configuration file", responseString);
+        AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Incompatible configuration file", responseString);
         
         return "Failed To Open " + currentFile.getFileName();
     }
@@ -1606,7 +1606,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 
         responseString += ".\n This file may not load properly. Continue?";
 
-        bool response = NativeMessageBox::showOkCancelBox(AlertWindow::NoIcon,
+        bool response = AlertWindow::showOkCancelBox(AlertWindow::NoIcon,
             "Configuration file version mismatch", responseString);
 
         if (!response)
