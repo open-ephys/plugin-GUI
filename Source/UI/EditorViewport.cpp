@@ -288,6 +288,20 @@ void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bo
     }
 }
 
+void EditorViewport::removeEditor(GenericEditor* editor)
+{
+    int matchingIndex = -1;
+
+    for (int i = 0; i < editorArray.size(); i++)
+    {
+        if (editorArray[i] == editor)
+            matchingIndex = i;
+    }
+
+    if (matchingIndex > -1)
+        editorArray.remove(matchingIndex);
+}
+
 void EditorViewport::updateVisibleEditors(Array<GenericEditor*> visibleEditors,
                                           int numberOfTabs,
                                           int selectedTab)
@@ -297,6 +311,7 @@ void EditorViewport::updateVisibleEditors(Array<GenericEditor*> visibleEditors,
     {
         for (auto editor : editorArray)
         {
+            LOGD("Updating ", editor->getNameAndId());
             editor->setVisible(false);
         }
     }

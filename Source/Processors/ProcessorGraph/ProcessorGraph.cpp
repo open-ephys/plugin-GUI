@@ -548,7 +548,7 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
     GenericProcessor* rootProcessor = processor;
     
     if (processor != nullptr)
-        LOGDD("Processor to view: ", processor->getName());
+        LOGD("Processor to view: ", processor->getName());
     
     for (int i = 0; i < 99; i++)
     {
@@ -563,7 +563,7 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
         
         if (rootProcessor != nullptr)
         {
-            LOGDD("  Source: ", rootProcessor->getName());
+            LOGD("  Source: ", rootProcessor->getName());
         }
 
         if (processor != nullptr)
@@ -588,7 +588,7 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
         
         editorArray.add(processor->getEditor());
         
-        LOGDD(" Adding ", processor->getName(), " to editor array.");
+        LOGD(" Adding ", processor->getEditor()->getNameAndId(), " to editor array.");
         
         if (processor->getDestNode() != nullptr)
         {
@@ -1745,6 +1745,8 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 	}
 
     checkForNewRootNodes(processor, false, false);
+
+    AccessClass::getEditorViewport()->removeEditor(processor->editor.get());
 
     //// need this to prevent editors from remaining after starting acquisition
     std::unique_ptr<GenericEditor> editor;

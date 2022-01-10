@@ -173,6 +173,9 @@ public:
                               int numberOfTabs = 1,
                               int selectedTab = 0);
 
+    /** Removes an editor from the editor array after it's processor has been deleted*/
+    void removeEditor(GenericEditor* editor);
+
     File currentFile;
     
     // Flag to check whether config is being loaded currently

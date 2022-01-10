@@ -75,7 +75,6 @@ bool AddProcessor::perform()
     
     if (settings != nullptr && processor != nullptr)
     {
-        nodeId = processor->getNodeId();
         processor->parametersAsXml = settings;
         processor->loadFromXml();
     }
@@ -84,14 +83,17 @@ bool AddProcessor::perform()
         processor->initialize(false);
     
     if (processor != nullptr)
+    {
+        nodeId = processor->getNodeId();
         return true;
+    }
     else
         return false;
 }
 
 bool AddProcessor::undo()
 {
-    LOGDD("Undoing ADD for processor ", nodeId);
+    LOGD("Undoing ADD for processor ", nodeId);
 
     Array<GenericProcessor*> processorToDelete;
     
@@ -154,14 +156,16 @@ bool PasteProcessors::perform()
 
 bool PasteProcessors::undo()
 {
-    
+    Array<GenericProcessor*> processorsToDelete;
+
     for (auto nodeId : nodeIds)
     {
-        Array<GenericProcessor*> processorToDelete;
         GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
-        processorToDelete.add(processor);
-        AccessClass::getProcessorGraph()->deleteNodes(processorToDelete);
+        processorsToDelete.add(processor);
+   
     }
+
+    AccessClass::getProcessorGraph()->deleteNodes(processorsToDelete);
 
     nodeIds.clear();
 
