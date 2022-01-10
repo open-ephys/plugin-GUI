@@ -605,22 +605,22 @@ void EditorViewport::paste()
 
         if (foundSelected)
         {
-            Array<GenericProcessor*> newProcessors;
-            
-            for (int i = 0; i < copyBuffer.size(); i++)
-            {
-                newProcessors.add(createProcessorAtInsertionPoint(copyBuffer.getUnchecked(i),
-                                                    insertionPoint++, true));
-            }
-            
-            for (auto p : newProcessors)
-                p->loadFromXml();
-            
-            AccessClass::getProcessorGraph()->updateSettings(newProcessors[0]);
+           
+            Array<XmlElement*> processorInfo;
 
-            // initialize in background thread if necessary
-            for (auto p : newProcessors)
-                p->initialize(false);
+            for (auto xml : copyBuffer)
+            {
+                processorInfo.add(xml);
+            }
+
+            undoManager.beginNewTransaction();
+
+            PasteProcessors* action =
+                new PasteProcessors(
+                    processorInfo, insertionPoint,
+                    this);
+
+            undoManager.perform(action);
 
         } else {
             CoreServices::sendStatusMessage("Select an insertion point to paste.");

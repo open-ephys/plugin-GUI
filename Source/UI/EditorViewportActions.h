@@ -75,6 +75,46 @@ private:
 
 
 /**
+    Adds a processor to the signal chain,
+    based on the description.
+
+    Undo: remove the processor from the
+    signal chain.
+*/
+class PasteProcessors : public UndoableAction
+{
+
+public:
+
+    /** Constructor*/
+    PasteProcessors(Array<XmlElement*> copyBuffer,
+        int insertionPoint,
+        EditorViewport* editorViewport);
+
+    /** Destructor */
+    ~PasteProcessors();
+
+    /** Perform the action*/
+    bool perform();
+
+    /** Undo the action*/
+    bool undo();
+
+    
+private:
+
+    Array<XmlElement*> copyBuffer;
+
+    Array<int> nodeIds;
+
+    int insertionPoint;
+
+    EditorViewport* editorViewport;
+
+};
+
+
+/**
     Deletes a processor to the signal chain,
     based on a pointer to the GenericProcessor object
 

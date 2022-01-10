@@ -101,13 +101,74 @@ bool AddProcessor::undo()
     if (settings != nullptr)
         delete settings;
     
-    settings = editorViewport->createNodeXml(processor, false);
-    
-    AccessClass::getProcessorGraph()->deleteNodes(processorToDelete);
-    
+    if (processor != nullptr)
+    {
+        settings = editorViewport->createNodeXml(processor, false);
+
+        AccessClass::getProcessorGraph()->deleteNodes(processorToDelete);
+    }
+       
     return true;
 }
    
+
+PasteProcessors::PasteProcessors(Array<XmlElement*> copyBuffer_,
+    int insertionPoint_,
+    EditorViewport* editorViewport_) :
+    editorViewport(editorViewport_),
+    insertionPoint(insertionPoint_),
+    copyBuffer(copyBuffer_)
+{
+
+}
+
+PasteProcessors::~PasteProcessors()
+{
+
+}
+
+bool PasteProcessors::perform()
+{
+    Array<GenericProcessor*> newProcessors;
+    
+    for (int i = 0; i < copyBuffer.size(); i++)
+    {
+        newProcessors.add(editorViewport->createProcessorAtInsertionPoint(copyBuffer.getUnchecked(i),
+            insertionPoint++, true));
+    }
+
+    for (auto p : newProcessors)
+    {
+        p->loadFromXml();
+        nodeIds.add(p->getNodeId());
+    }
+        
+    AccessClass::getProcessorGraph()->updateSettings(newProcessors[0]);
+
+    // initialize in background thread if necessary
+    for (auto p : newProcessors)
+        p->initialize(false);
+
+    return true;
+}
+
+bool PasteProcessors::undo()
+{
+    
+    for (auto nodeId : nodeIds)
+    {
+        Array<GenericProcessor*> processorToDelete;
+        GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
+        processorToDelete.add(processor);
+        AccessClass::getProcessorGraph()->deleteNodes(processorToDelete);
+    }
+
+    nodeIds.clear();
+
+    return true;
+}
+
+
 DeleteProcessor::DeleteProcessor(GenericProcessor* processor_, EditorViewport* editorViewport_)
 {
     
