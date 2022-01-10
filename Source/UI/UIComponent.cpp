@@ -616,7 +616,7 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			break;
 
 		case showHelp:
-			result.setInfo("Show help...", "Launch the GUI's documentation website in a browser.", "General", 0);
+			result.setInfo("Online documentation...", "Launch the GUI's documentation website in a browser.", "General", 0);
 			result.setActive(true);
 			break;
 
