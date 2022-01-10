@@ -118,13 +118,15 @@ public:
     
     Font getComboBoxFont (ComboBox& box) override;
 
-    // ========= custom popup menu methods: ===========================
+    // ========= custom popup menu & menu bar methods: ===========================
 
     void drawPopupMenuBackground (Graphics&, int width, int height);
         
     Font getPopupMenuFont() override;
 
     void drawMenuBarBackground (Graphics&, int width, int height, bool isMouseOverBar, MenuBarComponent&) override;
+
+    Font getMenuBarFont (MenuBarComponent&, int itemIndex, const String& itemText) override;
 
     // ========= custom button methods: ===========================
 

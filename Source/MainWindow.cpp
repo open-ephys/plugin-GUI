@@ -119,10 +119,11 @@ MainWindow::MainWindow(const File& fileToLoad)
 			else
 			{
 				LOGD("Detected difference between recoveryConfig and lastConfig; displaying alert window...");
-				bool loadRecovery = NativeMessageBox::showOkCancelBox(AlertWindow::WarningIcon, "Reloading Settings",
+				bool loadRecovery = AlertWindow::showOkCancelBox(AlertWindow::WarningIcon, "Reloading Settings",
 																"It looks like the GUI crashed during your last run, " 
 																"causing the configured settings to not save properly. "
-																"Do you want to load the recovery config instead?");
+																"Do you want to load the recovery config instead?",
+																"Yes", "No");
 				
 				if (loadRecovery)
 				{
@@ -230,7 +231,7 @@ void MainWindow::handleCrash(void* input)
 
 	String recoveryFileLocation = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml").getFullPathName();
 
-	NativeMessageBox::showMessageBox(AlertWindow::NoIcon,
+	AlertWindow::showMessageBox(AlertWindow::NoIcon,
 		"Open Ephys has stopped working",
 		"To help fix the problem, please email the following files to support@open-ephys.org: \n\n"
 		+ recoveryFileLocation

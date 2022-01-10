@@ -58,7 +58,7 @@ static inline File getSharedDirectory() {
     return std::move(dir);
 }
 
-static juce::String osType;
+static String osType;
 StringArray updatablePlugins;
 
 PluginInstaller::PluginInstaller(MainWindow* mainWindow, bool loadComponents)
@@ -89,12 +89,12 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow, bool loadComponents)
 		int w = parent->getWidth();
 		int h = parent->getHeight();
 
-		setBounds(x + (0.5*w) - 444, y + 0.5*h - 240, 888, 480);
+		setBounds(x + (0.5*w) - 450, y + 0.5*h - 240, 900, 480);
 		setUsingNativeTitleBar(true);
 		setContentOwned(new PluginInstallerComponent(), false);
 		setVisible(true);
 		setResizable(true, false); // useBottomCornerRisizer -- doesn't work very well
-		setResizeLimits(888, 480, 8192, 5120);
+		setResizeLimits(910, 480, 8192, 5120);
 	}
 
 	createXmlFile();
@@ -131,7 +131,7 @@ void PluginInstaller::createXmlFile()
 
 		baseTag->addChildElement(plugins.release());
 
-		if (! baseTag->writeToFile(file, juce::String()))
+		if (! baseTag->writeToFile(file, String()))
 			LOGE("Error! Couldn't write to installedPlugins.xml");
 	}
 	else
@@ -167,8 +167,8 @@ void PluginInstaller::installPluginAndDependency(const String& plugin, String ve
 	PluginInfoComponent tempInfoComponent;
 
 	/** Get list of plugins uploaded to bintray */
-	juce::String baseUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
-	juce::String response = URL(baseUrl).readEntireTextStream();
+	String baseUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
+	String response = URL(baseUrl).readEntireTextStream();
 
 	if(response.isEmpty())
 		LOGD("Unable to fetch plugins! Please check your internet connection and try again.")
@@ -176,7 +176,7 @@ void PluginInstaller::installPluginAndDependency(const String& plugin, String ve
 	var gatewayData;
 	Result result = JSON::parse(response, gatewayData);
 	
-	juce::String url = gatewayData.getProperty("download_url", var()).toString();
+	String url = gatewayData.getProperty("download_url", var()).toString();
 	tempInfoComponent.setDownloadURL(url);
 
 	var pluginData = gatewayData.getProperty("plugins", var());
@@ -231,7 +231,7 @@ void PluginInstaller::installPluginAndDependency(const String& plugin, String ve
 
 	requiredPluginInfo.dependencies.clear();
 	auto dependencies = pluginData[pIndex].getProperty("dependencies", "NULL").getArray();
-	for (juce::String dependency : *dependencies)
+	for (String dependency : *dependencies)
 	{
 		if(!dependency.equalsIgnoreCase("None"))
 		{
@@ -287,7 +287,7 @@ void PluginInstaller::installPluginAndDependency(const String& plugin, String ve
 PluginInstallerComponent::PluginInstallerComponent() : ThreadWithProgressWindow("Plugin Installer", false, false),
 													   checkForUpdates(false)
 {
-	font = Font("FiraSans", 18, Font::plain);
+	font = Font("Fira Sans", "Regular", 18.0f);
 	setSize(getWidth() - 10, getHeight() - 10);
 
 	addAndMakeVisible(pluginListAndInfo);
@@ -374,7 +374,7 @@ void PluginInstallerComponent::paint(Graphics& g)
 	g.fillAll (Colours::darkgrey);
 	g.setColour(Colour::fromRGB(110, 110, 110));
 	g.fillRect(190, 5, 3, 38);
-	g.fillRect(400, 5, 3, 38);
+	g.fillRect(410, 5, 3, 38);
 }
 
 void PluginInstallerComponent::resized()
@@ -382,17 +382,17 @@ void PluginInstallerComponent::resized()
 	sortingLabel.setBounds(20, 10, 70, 30);
 	sortByMenu.setBounds(90, 10, 90, 30);
 
-	viewLabel.setBounds(200, 10, 50, 30);
-	allButton.setBounds(250, 10, 50, 30);
-	installedButton.setBounds(300, 10, 90, 30);
+	viewLabel.setBounds(200, 10, 45, 30);
+	allButton.setBounds(245, 11, 55, 28);
+	installedButton.setBounds(300, 11, 105, 28);
 
-	typeLabel.setBounds(410, 10, 45, 30);
-	sourceType.setBounds(455, 10, 80, 30);
-	filterType.setBounds(535, 10, 70, 30);
-	sinkType.setBounds(605, 10, 60, 30);
-	otherType.setBounds(665, 10, 70, 30);
+	typeLabel.setBounds(415, 11, 45, 28);
+	sourceType.setBounds(460, 11, 80, 28);
+	filterType.setBounds(540, 11, 80, 28);
+	sinkType.setBounds(620, 11, 70, 28);
+	otherType.setBounds(690, 11, 75, 28);
 
-	updatesButton.setBounds(getWidth() - 135, 10, 115, 30);
+	updatesButton.setBounds(getWidth() - 125, 11, 105, 28);
 
 	pluginListAndInfo.setBounds(10, 40, getWidth() - 10, getHeight() - 40);
 }
@@ -435,14 +435,14 @@ void PluginInstallerComponent::run()
 		installedPlugins.clear();
 		auto child = xml->getFirstChildElement();
 
-		juce::String baseUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
+		String baseUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
 		var gatewayData;
 		if (checkForUpdates)
 		{
 			setStatusMessage("Fetching plugin updates...");
 			updatablePlugins.clear();
 
-			juce::String response = URL(baseUrl).readEntireTextStream();
+			String response = URL(baseUrl).readEntireTextStream();
 
 			if(response.isEmpty())
 			{
@@ -450,19 +450,19 @@ void PluginInstallerComponent::run()
 				return;
 			}
 
-			juce::Result result = JSON::parse(response, gatewayData);
+			Result result = JSON::parse(response, gatewayData);
 			gatewayData = gatewayData.getProperty("plugins", var());
 
 		}
 
 		forEachXmlChildElement(*child, e)
 		{
-			juce::String pName = e->getTagName();
+			String pName = e->getTagName();
 			installedPlugins.add(pName);
 
 			if (checkForUpdates)
 			{	
-				juce::String latestVer;
+				String latestVer;
 
 				//Get latest version
 				for (int i = 0; i < gatewayData.size(); i++)
@@ -533,7 +533,7 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 
 			for (int i = 0; i < tempArray.size(); i++)
 			{
-				juce::String label;
+				String label;
 
 				label = pluginListAndInfo.pluginLabels[tempArray[i]];
 				
@@ -580,7 +580,7 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 
 PluginListBoxComponent::PluginListBoxComponent() : Thread("Plugin List"), maxTextWidth(0)
 {
-	listFont = Font("FiraSans Bold", 22, Font::plain);
+	listFont = Font("Fira Code", "SemiBold", 22.0f);
 
 	// Set progress window text and background colors
 	//auto window = this->getAlertWindow();
@@ -595,6 +595,8 @@ PluginListBoxComponent::PluginListBoxComponent() : Thread("Plugin List"), maxTex
 	pluginList.setColour(ListBox::backgroundColourId , Colour::fromRGB(50, 50, 50));
 	pluginList.setRowHeight(35);
 	pluginList.setMouseMoveSelectsRows(true);
+
+	listBoxDropShadower.setOwner(&pluginList);
 
 	addAndMakeVisible(pluginInfoPanel);
 }
@@ -624,7 +626,7 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 
 	g.setFont(listFont);
 
-	juce::String text = displayNames[pluginArray[rowNumber]];
+	String text = displayNames[pluginArray[rowNumber]];
 
 	g.drawText (text, 20, 0, maxTextWidth + 5, height, Justification::centredLeft, true);
 
@@ -634,15 +636,15 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics &g, int w
 		g.setColour(Colours::green);
 		g.fillEllipse(maxTextWidth + 25.0f, 6.0f, 23.0f, height - 12.0f);
 		g.setColour(Colours::white);
-		g.drawArrow(juce::Line(maxTextWidth + 37.0f, height - 11.0f, maxTextWidth + 37.0f, 11.0f ), 3.0f, 9.0f, 9.0f);
+		g.drawArrow(Line(maxTextWidth + 37.0f, height - 11.0f, maxTextWidth + 37.0f, 11.0f ), 3.0f, 9.0f, 9.0f);
 	}
 }
 
 void PluginListBoxComponent::run()
 {
 	/* Get list of plugins uploaded to bintray */
-	juce::String baseUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
-	juce::String response = URL(baseUrl).readEntireTextStream();
+	String baseUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
+	String response = URL(baseUrl).readEntireTextStream();
 
 	if(response.isEmpty())
 		LOGE("Unable to fetch plugins! Please check your internet connection and try again.")
@@ -650,39 +652,58 @@ void PluginListBoxComponent::run()
 	var gatewayData;
 	Result result = JSON::parse(response, gatewayData);
 	
-	juce::String url = gatewayData.getProperty("download_url", var()).toString();
+	String url = gatewayData.getProperty("download_url", var()).toString();
 	pluginInfoPanel.setDownloadURL(url);
 
 	pluginData = gatewayData.getProperty("plugins", var());
 
 	numRows = pluginData.size();
 	
-	juce::String pluginName, label, dispName;
+	String pluginName, label, dispName;
 
 	int pluginTextWidth;
+	StringArray compatibleVersions;
 
 	// Get each plugin's labels and add them to the list
 	for (int i = 0; i < numRows; i++)
 	{
-        
-		pluginName = pluginData[i].getProperty("name", var()).toString();
-		label = pluginData[i].getProperty("type", "NULL").toString();
-		dispName = pluginData[i].getProperty("display_name", "NULL").toString();
+        auto allVersions = pluginData[i].getProperty("versions", "NULL").getArray();
+		compatibleVersions.clear();
 
-		pluginTextWidth = listFont.getStringWidth(dispName);
-		if (pluginTextWidth > maxTextWidth)
-			maxTextWidth = pluginTextWidth;
-		
-		if(!label.equalsIgnoreCase("CommonLib"))
+		for (String version : *allVersions)
 		{
-			pluginArray.add(pluginName);
-			displayNames.set(pluginName, dispName);
-			pluginLabels.set(pluginName, label);
+			String apiVer = version.substring(version.indexOf("I") + 1);
+			
+			if (apiVer.equalsIgnoreCase(String(PLUGIN_API_VER)))
+			{
+				compatibleVersions.add(version);
+				break;
+			}
 		}
-		else
-		{	
-			juce::String ver = pluginData[i].getProperty("latest_version", "NULL").toString();
-			dependencyVersion.set(pluginName, ver);
+		
+		auto platforms = pluginData[i].getProperty("platforms", "none").getArray();
+
+		if(!compatibleVersions.isEmpty() && platforms->contains(osType))
+		{
+			pluginName = pluginData[i].getProperty("name", var()).toString();
+			label = pluginData[i].getProperty("type", "NULL").toString();
+			dispName = pluginData[i].getProperty("display_name", "NULL").toString();
+
+			pluginTextWidth = listFont.getStringWidth(dispName);
+			if (pluginTextWidth > maxTextWidth)
+				maxTextWidth = pluginTextWidth;
+			
+			if(!label.equalsIgnoreCase("CommonLib"))
+			{
+				pluginArray.add(pluginName);
+				displayNames.set(pluginName, dispName);
+				pluginLabels.set(pluginName, label);
+			}
+			else
+			{	
+				String ver = pluginData[i].getProperty("latest_version", "NULL").toString();
+				dependencyVersion.set(pluginName, ver);
+			}
 		}
 
 		//setProgress ((i + 1) / (double) numRows);
@@ -719,27 +740,27 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 	selectedPluginInfo.type = pluginLabels[pluginName];
 	selectedPluginInfo.developers= pluginData[pIndex].getProperty("developers", "NULL");
 	selectedPluginInfo.latestVersion = pluginData[pIndex].getProperty("latest_version", "NULL");
-	juce::String updated = pluginData[pIndex].getProperty("updated", "NULL");
+	String updated = pluginData[pIndex].getProperty("updated", "NULL");
 	selectedPluginInfo.lastUpdated = updated.substring(0, updated.indexOf("T"));
 	selectedPluginInfo.description = pluginData[pIndex].getProperty("desc", "NULL");
 	selectedPluginInfo.docURL = pluginData[pIndex].getProperty("docs", "NULL").toString();
-	selectedPluginInfo.selectedVersion = juce::String();
+	selectedPluginInfo.selectedVersion = String();
 
 	auto allVersions = pluginData[pIndex].getProperty("versions", "NULL").getArray();
 
 	selectedPluginInfo.versions.clear();
 
-	for (juce::String version : *allVersions)
+	for (String version : *allVersions)
 	{
-		juce::String apiVer = version.substring(version.indexOf("I") + 1);
+		String apiVer = version.substring(version.indexOf("I") + 1);
 		
-		if (apiVer.equalsIgnoreCase(juce::String(PLUGIN_API_VER)))
+		if (apiVer.equalsIgnoreCase(String(PLUGIN_API_VER)))
 			selectedPluginInfo.versions.add(version);
 	}
 
 	selectedPluginInfo.dependencies.clear();
 	auto dependencies = pluginData[pIndex].getProperty("dependencies", "NULL").getArray();
-	for (juce::String dependency : *dependencies)
+	for (String dependency : *dependencies)
 	{
 		if(!dependency.equalsIgnoreCase("None"))
 		{
@@ -768,7 +789,7 @@ bool PluginListBoxComponent::loadPluginInfo(const String& pluginName)
 		if (pluginEntry != nullptr)
 			selectedPluginInfo.installedVersion = pluginEntry->getAttributeValue(0);
 		else
-			selectedPluginInfo.installedVersion = juce::String();
+			selectedPluginInfo.installedVersion = String();
 		
 	}
 
@@ -824,8 +845,10 @@ void PluginListBoxComponent::returnKeyPressed (int lastRowSelected)
 
 PluginInfoComponent::PluginInfoComponent() : ThreadWithProgressWindow("Plugin Installer", false, false)
 {
-	infoFont = Font("FiraSans", 20, Font::plain);
-	infoFontBold = Font("FiraSans Bold", 20, Font::plain);
+	infoCompDropShadower.setOwner(this);
+	
+	infoFont = Font("Fira Code", "Regular", 20.0f);
+	infoFontBold = Font("Fira Code", "SemiBold", 20.0f);
 	
 	addChildComponent(pluginNameLabel);
 	pluginNameLabel.setFont(infoFontBold);
@@ -873,7 +896,7 @@ PluginInfoComponent::PluginInfoComponent() : ThreadWithProgressWindow("Plugin In
 	addChildComponent(descriptionText);
 	descriptionText.setFont(infoFont);
 	descriptionText.setColour(Label::textColourId, Colours::white);
-	descriptionText.setJustificationType(Justification::top);
+	descriptionText.setJustificationType(Justification::topLeft);
 	descriptionText.setMinimumHorizontalScale(1.0f);
 
 	addChildComponent(dependencyLabel);
@@ -913,23 +936,23 @@ void PluginInfoComponent::paint(Graphics& g)
 
 void PluginInfoComponent::resized()
 {
-	pluginNameLabel.setBounds(10, 30, 60, 30);
-	pluginNameText.setBounds(125, 30, getWidth() - 10, 30);
+	pluginNameLabel.setBounds(10, 30, 140, 30);
+	pluginNameText.setBounds(145, 30, getWidth() - 10, 30);
 
-	developersLabel.setBounds(10, 60, 100, 30);
-	developersText.setBounds(125, 60, getWidth() - 130, 30);
+	developersLabel.setBounds(10, 60, 140, 30);
+	developersText.setBounds(145, 60, getWidth() - 130, 30);
 
-	versionLabel.setBounds(10, 90, 80, 30);
-	versionMenu.setBounds(130, 90, 110, 30);
+	versionLabel.setBounds(10, 90, 140, 30);
+	versionMenu.setBounds(150, 90, 110, 26);
 
-	lastUpdatedLabel.setBounds(10, 120, 120, 30);
-	lastUpdatedText.setBounds(125, 120, getWidth() - 10, 30);
+	lastUpdatedLabel.setBounds(10, 120, 140, 30);
+	lastUpdatedText.setBounds(145, 120, getWidth() - 10, 30);
 
-	descriptionLabel.setBounds(10, 150, 110, 30);
-	descriptionText.setBounds(125, 155, getWidth() - 130, 75);
+	descriptionLabel.setBounds(10, 150, 140, 30);
+	descriptionText.setBounds(145, 155, getWidth() - 150, 75);
 
-	dependencyLabel.setBounds(10, 160 + descriptionText.getHeight(), 120, 30);
-	dependencyText.setBounds(125, dependencyLabel.getY(), getWidth() - 10, 30);
+	dependencyLabel.setBounds(10, 160 + descriptionText.getHeight(), 140, 30);
+	dependencyText.setBounds(145, dependencyLabel.getY(), getWidth() - 10, 30);
 
 	downloadButton.setBounds(getWidth() - (getWidth() * 0.25) - 20, getHeight() - 60, getWidth() * 0.25, 30);
 	uninstallButton.setBounds(getWidth() - (2 * (getWidth() * 0.25)) - 30, getHeight() - 60, getWidth() * 0.25, 30);
@@ -1153,7 +1176,7 @@ void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p, bool should
 	}
 }
 
-void PluginInfoComponent::updateStatusMessage(const juce::String& str, bool isVisible)
+void PluginInfoComponent::updateStatusMessage(const String& str, bool isVisible)
 {
 	statusLabel.setText(str, dontSendNotification);
 	statusLabel.setVisible(isVisible);
@@ -1205,7 +1228,7 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 	XmlDocument doc(xmlFile);
 	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
 
-	juce::String dllName;
+	String dllName;
 
 	if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
 	{
@@ -1239,15 +1262,15 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 	return true;
 }
 
-int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::String& version, bool isDependency) 
+int PluginInfoComponent::downloadPlugin(const String& plugin, const String& version, bool isDependency) 
 {
 
-	juce::String fileDownloadURL = downloadURL;
+	String fileDownloadURL = downloadURL;
 	fileDownloadURL = fileDownloadURL.replace("<plugin-name>", plugin);
 	fileDownloadURL = fileDownloadURL.replace("<platform>", osType);
 	fileDownloadURL = fileDownloadURL.replace("<version>", version);
 
-	juce::String filename = plugin + "-" + osType + "_" + version + ".zip";
+	String filename = plugin + "-" + osType + "_" + version + ".zip";
 
 	//Unzip plugin and install in plugins directory
 	//curl -L https://dl.bintray.com/$bintrayUser/$repo/$filename
@@ -1258,8 +1281,8 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 	StringPairArray responseHeaders;
 
 	//Create input stream from the plugin's zip file URL
-	std::unique_ptr<InputStream> fileStream = fileUrl.createInputStream(false, nullptr, nullptr, juce::String(), 1000, &responseHeaders, &statusC, 5, juce::String());		
-	juce::String newLocation = responseHeaders.getValue("Location", "NULL");
+	std::unique_ptr<InputStream> fileStream = fileUrl.createInputStream(false, nullptr, nullptr, String(), 1000, &responseHeaders, &statusC, 5, String());		
+	String newLocation = responseHeaders.getValue("Location", "NULL");
 
 	// ZIP URL Location changed, use the new location
 	if(newLocation != "NULL")
@@ -1273,7 +1296,7 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 		return 0;
 
 	//Construct path for downloaded zip file
-	juce::String pluginFilePath = CoreServices::getSavedStateDirectory().getFullPathName();
+	String pluginFilePath = CoreServices::getSavedStateDirectory().getFullPathName();
 	pluginFilePath += File::getSeparatorString();
 	pluginFilePath += filename;
 
@@ -1285,6 +1308,7 @@ int PluginInfoComponent::downloadPlugin(const juce::String& plugin, const juce::
 	std::unique_ptr<FileOutputStream> out = pluginFile.createOutputStream();
 	out->writeFromInputStream(*fileStream, -1);
 	out->flush();
+	out.reset();
 
 	//Uncompress zip file contents
 	ZipFile pluginZip(pluginFile);
