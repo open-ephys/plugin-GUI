@@ -97,7 +97,7 @@ jobs:
       env:
         artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
       run: |
-        gui_ver="v0.6.0-rc1"
+        gui_ver="v0.6.0-rc2"
         zipfile=open-ephys-${gui_ver}-mac-beta.zip
         cd Build/Release
         mkdir open-ephys
