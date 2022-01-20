@@ -69,13 +69,20 @@ void SpikeDetectorEditor::labelTextChanged(Label* label)
 {
     int value = label->getText().getIntValue();
     
-    if (value < 1 || value > 64)
+    if (value < 1)
     {
         label->setText(lastLabelValue, dontSendNotification);
         return;
     }
+
+    if (value > 384)
+    {
+        label->setText("384", dontSendNotification);
+    }
+    else {
+        label->setText(String(value), dontSendNotification);
+    }
         
-    label->setText(String(value), dontSendNotification);
     lastLabelValue = label->getText();
     
     if (value == 1)

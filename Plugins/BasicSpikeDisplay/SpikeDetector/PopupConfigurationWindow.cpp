@@ -506,7 +506,10 @@ void SpikeDetectorTableModel::broadcastThresholdTypeToSelectedRows(int rowThatWa
                    break;
            }
            
-           table->getCellComponent(SpikeDetectorTableModel::Columns::THRESHOLD, i)->repaint();
+           Component* c = table->getCellComponent(SpikeDetectorTableModel::Columns::THRESHOLD, i);
+
+           if (c != nullptr)
+               c->repaint();
            
        }
     }
@@ -570,7 +573,10 @@ void SpikeDetectorTableModel::broadcastThresholdToSelectedRows(int rowThatWasCli
                     spikeChannels[i]->getParameter(parameterString + String(channelIndex+1))->setNextValue(actualValue);
             }
             
-            table->getCellComponent(SpikeDetectorTableModel::Columns::THRESHOLD, i)->repaint();
+            Component* c = table->getCellComponent(SpikeDetectorTableModel::Columns::THRESHOLD, i);
+
+            if (c != nullptr)
+                c->repaint();
 
         }
     }
