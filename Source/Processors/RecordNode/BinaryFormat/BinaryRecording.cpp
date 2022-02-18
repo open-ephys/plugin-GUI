@@ -201,6 +201,10 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         rec->data = std::make_unique<NpyFile>(eventPath + eventName + dataFileName + ".npy", type);
         rec->samples = std::make_unique<NpyFile>(eventPath + eventName + "samples.npy", NpyType(BaseType::INT64, 1));
         rec->timestamps = std::make_unique<NpyFile>(eventPath + eventName + "timestamps.npy", NpyType(BaseType::DOUBLE, 1));
+        if (chan->getType() == EventChannel::TTL && m_saveTTLWords)
+        {
+            rec->extraFile = std::make_unique<NpyFile>(eventPath + eventName + "full_words.npy", NpyType(BaseType::UINT8, chan->getDataSize()));
+        }
 
         DynamicObject::Ptr jsonChannel = new DynamicObject();
         jsonChannel->setProperty("folder_name", eventName.replace(File::getSeparatorString(), "/"));
@@ -284,7 +288,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             rec->samples = std::make_unique<NpyFile>(spikePath + spikeName + "spike_samples.npy", NpyType(BaseType::INT64, 1));
             rec->timestamps = std::make_unique<NpyFile>(spikePath + spikeName + "spike_times.npy", NpyType(BaseType::DOUBLE, 1));
             rec->channels = std::make_unique<NpyFile>(spikePath + spikeName + "spike_electrode_indices.npy", NpyType(BaseType::UINT16, 1));
-            rec->extra = std::make_unique<NpyFile>(spikePath + spikeName + "spike_clusters.npy", NpyType(BaseType::UINT16, 1));
+            rec->extraFile = std::make_unique<NpyFile>(spikePath + spikeName + "spike_clusters.npy", NpyType(BaseType::UINT16, 1));
 
             Array<NpyType> tsTypes;
 
@@ -517,7 +521,7 @@ void BinaryRecording::increaseEventCounts(EventRecording* rec)
     rec->samples->increaseRecordCount();
     rec->timestamps->increaseRecordCount();
     if (rec->channels) rec->channels->increaseRecordCount();
-    if (rec->extra) rec->extra->increaseRecordCount();
+    if (rec->extraFile) rec->extraFile->increaseRecordCount();
 }
 
 void BinaryRecording::writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size)
@@ -641,10 +645,9 @@ void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
         double ts = float(sampleIdx) / info->getSampleRate();
         rec->timestamps->writeData(&ts, sizeof(double));
 
-        /*
 		if (rec->extraFile)
 			rec->extraFile->writeData(ttl->getTTLWordPointer(), info->getDataSize());
-        */
+
 	}
 	else if (ev->getEventType() == EventChannel::TEXT)
 	{
@@ -700,7 +703,7 @@ void BinaryRecording::writeSpike(int electrodeIndex, const Spike* spike)
 	rec->channels->writeData(&spikeChannel, sizeof(uint16));
 
 	uint16 sortedID = spike->getSortedID();
-	rec->extra->writeData(&sortedID, sizeof(uint16));
+	rec->extraFile->writeData(&sortedID, sizeof(uint16));
 
 	//writeEventMetadata(spike, rec->metaDataFile.get());
 

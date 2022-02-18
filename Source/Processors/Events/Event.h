@@ -339,6 +339,9 @@ public:
 
 	/* Get the event bit from an EventPacket object */
 	static uint8 getBit(const EventPacket& packet);
+
+	/* Get TTL word pointer */
+	const void* getTTLWordPointer() const;
 	
 	/* Create a standard TTL event*/
 	static TTLEventPtr createTTLEvent(const EventChannel* channelInfo, 

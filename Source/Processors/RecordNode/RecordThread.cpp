@@ -114,7 +114,8 @@ void RecordThread::run()
 		m_engine->openFiles(m_rootFolder, m_experimentNumber, m_recordingNumber);
 	}
 
-	bool useSynchronizer = m_engine->getEngineId() == "BINARY";
+	bool useSynchronizer = m_engine->getEngineId() == "BINARY" || m_engine->getEngineId() == "NWB2";
+	LOGC("RecordThread detected record engine: ", m_engine->getEngineId());
 
 	//3-Normal loop
 	if (useSynchronizer)
