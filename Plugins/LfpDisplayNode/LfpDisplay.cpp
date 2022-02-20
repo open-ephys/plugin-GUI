@@ -119,8 +119,6 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     savedChannelState.insertMultiple(0, true, 10000); // max 10k channels
 
     numChans = 0;
-
-
 }
 
 LfpDisplay::~LfpDisplay()
@@ -149,6 +147,12 @@ void LfpDisplay::setColorGrouping(int i)
 ChannelColourScheme * LfpDisplay::getColourSchemePtr()
 {
     return colourSchemeList[activeColourScheme];
+}
+
+void LfpDisplay::updateRange(int i)
+{
+    channels[i]->setRange(range[channels[i]->getType()]);
+    channelInfo[i]->setRange(range[channels[i]->getType()]);
 }
 
 void LfpDisplay::setNumChannels(int newChannelCount)
@@ -195,10 +199,10 @@ void LfpDisplay::setNumChannels(int newChannelCount)
                 lfpInfo = channelInfo[i];
             }
             
-			lfpChan->setRange(range[options->getChannelType(i)]);
+			
 			lfpChan->setChannelHeight(canvasSplit->getChannelHeight());
 
-			lfpInfo->setRange(range[options->getChannelType(i)]);
+			
 			lfpInfo->setChannelHeight(canvasSplit->getChannelHeight());
 			lfpInfo->setSubprocessorIdx(canvasSplit->getChannelSubprocessorIdx(i));
 
@@ -208,7 +212,6 @@ void LfpDisplay::setNumChannels(int newChannelCount)
                 lfpInfo->setEnabledState(savedChannelState[i]);
             }
                 
-
 			totalHeight += lfpChan->getChannelHeight();
 
 		}

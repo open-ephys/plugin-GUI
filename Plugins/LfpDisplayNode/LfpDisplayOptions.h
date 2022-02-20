@@ -200,33 +200,6 @@ private:
     int rangeSteps[CHANNEL_TYPES];
 
     bool medianOffsetOnForSpikeRaster;
-
-    // NOT USED:
-    //ScopedPointer<Slider> brightnessSliderA;
-    //ScopedPointer<Slider> brightnessSliderB;
-
-    //ScopedPointer<Label> sliderALabel;
-    //ScopedPointer<Label> sliderBLabel;
-
-    // label and combobox for stream rate to be displayed (only show one or other)
-    //ScopedPointer<Label> streamRateDisplayedLabel;
-    //ScopedPointer<ComboBox> streamRateDisplayedSelection;
-    //StringArray streamRateDisplayedOptions;
-
-    // label and toggle button for the median offset plotting feature
-    //ScopedPointer<Label> medianOffsetPlottingLabel;
-
-        //ScopedPointer<UtilityButton> drawMethodButton;
-
-    // label and toggle button for channel numbering
-    //ScopedPointer<Label> showChannelNumberLabel;
-
-
-    // label and combobox for color scheme options
-    //ScopedPointer<Label> colourSchemeOptionLabel;
-    //ScopedPointer<ComboBox> colourSchemeOptionSelection;
- 
-
 };
     
 }; // namespace

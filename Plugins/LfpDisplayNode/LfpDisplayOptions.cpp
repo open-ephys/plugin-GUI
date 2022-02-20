@@ -416,105 +416,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     overlapSelection->setEditableText(true);
     addAndMakeVisible(overlapSelection);
     
-
-    //channelDisplaySkipLabel = new Label("Channel Display Skip", "Ch. Skip");
-   //channelDisplaySkipLabel->setFont(labelFont);
-   //channelDisplaySkipLabel->setColour(Label::textColourId, labelColour);
-   //addAndMakeVisible(channelDisplaySkipLabel);
-
-   // init spike raster options
-
-   //spikeRasterLabel = new Label("spikeRasterLabel", "Spike Raster Thresh.");
-   //spikeRasterLabel->setFont(labelFont);
-   //spikeRasterLabel->setColour(Label::textColourId, labelColour);
-  // addAndMakeVisible(spikeRasterLabel);
-
-   // init median offset plotting
-  // medianOffsetPlottingLabel = new Label("Median Offset Correction", "Median Offset Correction");
-  // medianOffsetPlottingLabel->setFont(labelFont);
-  // medianOffsetPlottingLabel->setColour(Label::textColourId, labelColour);
-  // addAndMakeVisible(medianOffsetPlottingLabel);
-
-   //init channel name toggle
-   //showChannelNumberLabel = new Label("showcChannelLabel", "Show channel number instead of name");
-  // showChannelNumberLabel->setFont(labelFont);
-   //showChannelNumberLabel->setColour(Label::textColourId, labelColour);
-   //addAndMakeVisible(showChannelNumberLabel);
-    
-    //reverseChannelsDisplayLabel = new Label("Rev. Channels", "Rev. Channels");
-   // reverseChannelsDisplayLabel->setFont(labelFont);
-    //reverseChannelsDisplayLabel->setColour(Label::textColourId, labelColour);
-    //addAndMakeVisible(reverseChannelsDisplayLabel);
-    
-    //button for controlling drawing algorithm - old line-style or new per-pixel style
-    //drawMethodButton = new UtilityButton("DrawMethod", Font("Small Text", 13, Font::plain));
-    //drawMethodButton->setRadius(5.0f);
-    //drawMethodButton->setEnabledState(true);
-    //drawMethodButton->setCorners(true, true, true, true);
-   // drawMethodButton->addListener(this);
-   // drawMethodButton->setClickingTogglesState(true);
-   // drawMethodButton->setToggleState(false, sendNotification);
-   // addAndMakeVisible(drawMethodButton);
-    
-    // two sliders for the two histogram components of the supersampled plotting mode
-    // todo: rename these
-    //brightnessSliderA = new Slider();
-    //brightnessSliderA->setRange (0, 1);
-    //brightnessSliderA->setTextBoxStyle(Slider::NoTextBox, false, 50,30);
-    //brightnessSliderA->addListener(this);
-    //addAndMakeVisible (brightnessSliderA);
-    
-   // brightnessSliderB = new Slider;
-    //brightnessSliderB->setRange (0, 1);
-   // brightnessSliderB->setTextBoxStyle(Slider::NoTextBox, false, 50,30);
-   // brightnessSliderB->addListener(this);
-   // addAndMakeVisible (brightnessSliderB);
-    
-   // sliderALabel = new Label("Brightness","Brightness");
-   // sliderALabel->setFont(Font("Small Text", 13, Font::plain));
-    //sliderALabel->setColour(Label::textColourId,Colour(150,150,150));
-    //addAndMakeVisible(sliderALabel);
-    
-   // sliderBLabel = new Label("Min. brightness","Min. brightness");
-   // sliderBLabel->setFont(Font("Small Text", 13, Font::plain));
-   // sliderBLabel->setColour(Label::textColourId,Colour(150,150,150));
-   // addAndMakeVisible(sliderBLabel);
-    
-    //ScopedPointer<UtilityButton> drawClipWarningButton; // optinally draw (subtle) warning if data is clipped in display
-    /*drawClipWarningButton = new UtilityButton("0", Font("Small Text", 13, Font::plain));
-    drawClipWarningButton->setRadius(5.0f);
-    drawClipWarningButton->setEnabledState(true);
-    drawClipWarningButton->setCorners(true, true, true, true);
-    drawClipWarningButton->addListener(this);
-    drawClipWarningButton->setClickingTogglesState(true);
-    drawClipWarningButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(drawClipWarningButton);
-    
-    //ScopedPointer<UtilityButton> drawSaturateWarningButton; // optionally raise hell if the actual data is saturating
-    drawSaturateWarningButton = new UtilityButton("0", Font("Small Text", 13, Font::plain));
-    drawSaturateWarningButton->setRadius(5.0f);
-    drawSaturateWarningButton->setEnabledState(true);
-    drawSaturateWarningButton->setCorners(true, true, true, true);
-    drawSaturateWarningButton->addListener(this);
-    drawSaturateWarningButton->setClickingTogglesState(true);
-    drawSaturateWarningButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(drawSaturateWarningButton);*/
-    
-    //button for pausing the display - works by skipping buffer updates. This way scrolling etc still works
-
-        // draw the colour scheme options
-// TODO: (kelly) this might be better as a modal window
-//colourSchemeOptionLabel = new Label("colorSchemeOptionLabel", "Color Scheme");
-//colourSchemeOptionLabel->setFont(labelFont);
-//colourSchemeOptionLabel->setColour(Label::textColourId, labelColour);
-//addAndMakeVisible(colourSchemeOptionLabel);
-
-   // if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
-    //    addAndMakeVisible(lfpDisplay->getColourSchemePtr());
-
- //Ranges for neural data
-    
-
+    //Ranges for neural data
     lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::ELECTRODE][selectedVoltageRange[ContinuousChannel::Type::ELECTRODE] - 1].getFloatValue()
         *rangeGain[ContinuousChannel::Type::ELECTRODE]
         , ContinuousChannel::Type::ELECTRODE);
@@ -525,8 +427,6 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
         *rangeGain[ContinuousChannel::Type::AUX]
         , ContinuousChannel::Type::AUX);
 
-    //canvasSplit->options = this;
-    
 }
 
 LfpDisplayOptions::~LfpDisplayOptions()

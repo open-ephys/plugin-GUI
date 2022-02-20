@@ -47,34 +47,53 @@ namespace LfpViewer {
 class LfpDisplay : public Component
 {
 public:
+
+    /** Constructor */
     LfpDisplay(LfpDisplaySplitter*, Viewport*);
+
+    /** Destructor*/
     ~LfpDisplay();
     
-    Image lfpChannelBitmap; // plot as bitmap instead of separately setting pixels
-    // this is done purely for the preformance improvement
+    /** Used to plot the channel data */
+    Image lfpChannelBitmap; 
 
-    void setNumChannels(int numChannels);
-    int getNumChannels();
-
-    int getTotalHeight();
-
+    /** Draws the full channel image */
     void paint(Graphics& g);
 
+    /** Updates the channel image from the screen buffer*/
     void refresh();
 
+    /** Updates the size and location of individual channels*/
     void resized();
 
+    /** Updates the number of displayed channels */
+    void setNumChannels(int numChannels);
+
+    /** Returns the number of display channels*/
+    int getNumChannels();
+
+    /** Returns the overall display height (for scrolling purposes) */
+    int getTotalHeight();
+
+    /** Sets the scroll amount to the previously stored value*/
     void restoreViewPosition();
 
+    /** Reactivates channels after switching away from single channel mode*/
     void reactivateChannels();
 
+    /** Selects channels / switches to single channel mode on double click*/
     void mouseDown(const MouseEvent& event);
+
+    /** Scrolls the display*/
     void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel) ;
 
+    /** Sets the display range for a particular channel type*/
 	void setRange(float range, ContinuousChannel::Type type);
     
-    //Withouth parameters returns selected type
+    /** Returns the display range for the current channel type*/
     int getRange();
+
+    /** Returns the display range for the specified channel type */
 	int getRange(ContinuousChannel::Type type);
 
     void setChannelHeight(int r, bool resetSingle = true);
@@ -176,6 +195,9 @@ public:
     
     /** Reconstructs the list of drawableChannels based on ordering and filterning parameters */
     void rebuildDrawableChannelsList();
+
+    /** Updates the channel range, after the channel type has been set*/
+    void updateRange(int i);
     
     /** Returns a const pointer to the internally managed plotter method class */
     LfpBitmapPlotter * const getPlotterPtr() const;

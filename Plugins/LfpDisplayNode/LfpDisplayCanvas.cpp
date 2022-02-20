@@ -995,7 +995,6 @@ void LfpDisplaySplitter::updateSettings()
 
         displayBufferSize = displayBuffer->getNumSamples();
         nChans = displayBuffer->numChannels;
-        //resizeSamplesPerPixelBuffer(nChans);
         sampleRate = displayBuffer->sampleRate;
 
         options->setEnabled(true);
@@ -1028,11 +1027,13 @@ void LfpDisplaySplitter::updateSettings()
         lfpDisplay->channels[i]->setGroup(displayBuffer->channelMetadata[i].group);
         lfpDisplay->channels[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
         lfpDisplay->channels[i]->updateType(displayBuffer->channelMetadata[i].type);
-
+        
         lfpDisplay->channelInfo[i]->setName(displayBuffer->channelMetadata[i].name);
         lfpDisplay->channelInfo[i]->setGroup(displayBuffer->channelMetadata[i].group);
         lfpDisplay->channelInfo[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
         lfpDisplay->channelInfo[i]->updateType(displayBuffer->channelMetadata[i].type);
+
+        lfpDisplay->updateRange(i);
 
     }
         
@@ -1051,9 +1052,6 @@ void LfpDisplaySplitter::updateSettings()
     lfpDisplay->restoreViewPosition();
 
     lfpDisplay->refresh();
-
-   // std::cout << " done " << std::endl;
-   // std::cout << "   " << std::endl;
 
 }
 
