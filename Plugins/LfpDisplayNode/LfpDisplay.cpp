@@ -154,13 +154,8 @@ ChannelColourScheme * LfpDisplay::getColourSchemePtr()
 void LfpDisplay::setNumChannels(int newChannelCount)
 {
 
-   // std::cout << "setting num channels to " << newChannelCount << std::endl;
-    
     if (numChans > newChannelCount)
     {
-
-       // std::cout << "   removing " << numChans - newChannelCount << " extra channels." << std::endl;
-
         for (int i = newChannelCount; i < numChans; i++)
         {
             removeChildComponent(channels[i]);
@@ -220,8 +215,6 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 	}
 
     numChans = newChannelCount;
-
-   // std::cout << "Done setting channels." << std::endl;
 
 }
 
@@ -290,9 +283,7 @@ void LfpDisplay::resized()
     else
         lfpChannelBitmap = Image(Image::ARGB, 10, 10, false);
 
-    //  std::cout << "Bitmap width: " << lfpChannelBitmap.getWidth() << std::endl;
-
-      //inititalize background
+    // Inititalize background
     Graphics gLfpChannelBitmap(lfpChannelBitmap);
     gLfpChannelBitmap.setColour(getColourSchemePtr()->getBackgroundColour()); //background color
     gLfpChannelBitmap.fillRect(0, 0, lfpChannelBitmap.getWidth(), lfpChannelBitmap.getHeight());
@@ -305,8 +296,6 @@ void LfpDisplay::resized()
 
     int64 start = Time::getHighResolutionTicks();
 
-    //std::cout << "Resizing channels" << std::endl;
-    
     for (int i = 0; i < drawableChannels.size(); i++)
     {
         
@@ -319,12 +308,9 @@ void LfpDisplay::resized()
                         getWidth()- canvasSplit->leftmargin,
                         disp->getChannelHeight()+(disp->getChannelOverlap()*canvasSplit->channelOverlapFactor));
         
-       // disp-> resized();
-        
+
         LfpChannelDisplayInfo* info = drawableChannels[i].channelInfo;
 
-       // std::cout << info->getDepth() << std::endl;
-        
         info->setBounds(2,
                         totalHeight-disp->getChannelHeight() + (disp->getChannelOverlap()*canvasSplit->channelOverlapFactor)/4.0,
                         canvasSplit->leftmargin -2,
@@ -355,8 +341,6 @@ void LfpDisplay::resized()
 
     LOGD("    REFRESHED IN: ", MS_FROM_START, " milliseconds");
     
-    //std::cout << "Total height: " << totalHeight << std::endl;
-
 }
 
 void LfpDisplay::paint(Graphics& g)
@@ -454,7 +438,6 @@ void LfpDisplay::refresh()
                  }
                 
             }
-            //std::cout << i << std::endl;
         }
 
     }
@@ -514,26 +497,11 @@ void LfpDisplay::setChannelHeight(int r, bool resetSingle)
         channelInfo[i]->setChannelHeight(r);
     }
 
-
-    /*if (resetSingle && singleChan != -1)
-    {
-        
-        setSize(getWidth(), getChannelHeight());
-        viewport->setScrollBarsShown(true,false);
-        viewport->setViewPosition(juce::Point<int>(0,singleChan*r));
-        singleChan = -1;
-        for (int n = 0; n < numChans; n++)
-        {
-			channelInfo[n]->setEnabledState(savedChannelState[n]);
-        }
-    }
-    else*/
     if (singleChan == -1) {
 
         int overallHeight = drawableChannels.size() * getChannelHeight();
         
         setSize(getWidth(), overallHeight);
-        //std::cout << "LFP DISPLAY width: " << getWidth() << "; height: " << overallHeight << std::endl;
 
     }
 
@@ -546,8 +514,6 @@ void LfpDisplay::setInputInverted(bool isInverted)
     {
         channels[i]->setInputInverted(isInverted);
     }
-
-    //resized();
 
 }
 
@@ -573,13 +539,10 @@ void LfpDisplay::setDrawMethod(bool isDrawMethod)
 
 int LfpDisplay::getChannelHeight()
 {
-//    return cachedDisplayChannelHeight;
-
     if (drawableChannels.size() > 0)
         return drawableChannels[0].channel->getChannelHeight();
     else
         return 0;
-//    return channels[0]->getChannelHeight();
 }
 
 void LfpDisplay::cacheNewChannelHeight(int r)
@@ -596,59 +559,9 @@ void LfpDisplay::setChannelsReversed(bool state)
 {
 
     channelsReversed = state;
-    
-    if (getSingleChannelState()) return; // don't reverse if single channel
-    
-    // reverse channels that are currently in drawableChannels
-    for (int i = 0, j = drawableChannels.size() - 1, len = drawableChannels.size()/2;
-         i < len;
-         i++, j--)
-    {
-        // remove channel and info components from front and back
-        // moving toward middle
-        removeChildComponent(drawableChannels[i].channel);
-        removeChildComponent(drawableChannels[j].channel);
-        removeChildComponent(drawableChannels[i].channelInfo);
-        removeChildComponent(drawableChannels[j].channelInfo);
-        
-        // swap front and back, moving towards middle
-        drawableChannels.swap(i, j);
-        
-        // also swap coords
-        {
-            const auto channelBoundsA = drawableChannels[i].channel->getBounds();
-            const auto channelInfoBoundsA = drawableChannels[i].channelInfo->getBounds();
-            
-            drawableChannels[i].channel->setBounds(drawableChannels[j].channel->getBounds());
-            drawableChannels[i].channelInfo->setBounds(drawableChannels[j].channelInfo->getBounds());
-            drawableChannels[j].channel->setBounds(channelBoundsA);
-            drawableChannels[j].channelInfo->setBounds(channelInfoBoundsA);
-        }
-    }
-    
-    // remove middle component if odd number of channels
-    if (drawableChannels.size() % 2 != 0)
-    {
-        removeChildComponent(drawableChannels[drawableChannels.size()/2+1].channel);
-        removeChildComponent(drawableChannels[drawableChannels.size()/2+1].channelInfo);
-    }
-    
-    // add the channels and channel info again
-    for (int i = 0, len = drawableChannels.size(); i < len; i++)
-    {
-        
-        if (!drawableChannels[i].channel->getHidden())
-        {
-            addAndMakeVisible(drawableChannels[i].channel);
-            addAndMakeVisible(drawableChannels[i].channelInfo);
-        }
-        
-        // flag this to update the waveforms
-        drawableChannels[i].channel->fullredraw = true;
-    }
-    
-    // necessary to overwrite lfpChannelBitmap's display
-    //refresh();
+
+    rebuildDrawableChannelsList();
+
 }
 
 void LfpDisplay::orderChannelsByDepth(bool state)
@@ -656,85 +569,8 @@ void LfpDisplay::orderChannelsByDepth(bool state)
 
     channelsOrderedByDepth = state;
 
-    if (getSingleChannelState()) return; // don't reverse if single channel
+    rebuildDrawableChannelsList();
 
-    const int numChannels = drawableChannels.size();
-
-    std::vector<float> depths(numChannels);
-
-    bool allSame = true;
-    float last = drawableChannels[0].channelInfo->getDepth();
-
-   // std::cout << "Depths: " << std::endl;
-    if (channelsOrderedByDepth)
-    {
-
-        for (int i = 0; i < drawableChannels.size(); i++)
-        {
-            float d = drawableChannels[i].channelInfo->getDepth();
-
-            if (d != last)
-                allSame = false;
-
-            //std::cout << d << " ";
-
-            depths[i] = d;
-
-            last = d;
-        }
-
-        if (allSame)
-            return;
-            
-    }
-    else {
-        for (int i = 0; i < drawableChannels.size(); i++)
-        {
-            int ch = drawableChannels[i].channel->getChannelNumber();
-            depths[i] = float(ch);
-
-            //std::cout << ch << std::endl;
-        }
-            
-    }
-
-    //std::cout << std::endl;
-    
-    std::vector<int> V(numChannels);
-
-    std::iota(V.begin(), V.end(), 0); //Initializing
-    sort(V.begin(), V.end(), [&](int i, int j) {return depths[i] <= depths[j]; });
-
-    // reverse channels that are currently in drawableChannels
-   //std::cout << "New order: " << std::endl;
-    juce::Array<LfpChannelTrack> orderedDrawableChannels;
-    
-    for (int i = 0; i < drawableChannels.size(); i++)
-    {
-       // std::cout << V[i] << " "; // std::endl;
-        // re-order by depth
-        removeChildComponent(drawableChannels[V[i]].channel);
-        // drawableChannels.move(V[i]-i, drawableChannels.size()); // not working
-        orderedDrawableChannels.add(drawableChannels[V[i]]);
-    }
-
-    //std::cout << std::endl;
-    
-    drawableChannels = orderedDrawableChannels;
-
-    for (int i = 0; i < drawableChannels.size(); i++)
-    {
-        if (!drawableChannels[i].channel->getHidden())
-        {
-            addAndMakeVisible(drawableChannels[i].channel);
-        }
-        drawableChannels[i].channel->fullredraw = true;
-    }
-
-    setColors();
-
-    // necessary to overwrite lfpChannelBitmap's display
-    //resized();
 }
 
 int LfpDisplay::getChannelDisplaySkipAmount()
@@ -794,9 +630,6 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
     //std::cout << "Mouse wheel " <<  e.mods.isCommandDown() << "  " << wheel.deltaY << std::endl;
     //TODO Changing ranges with the wheel is currently broken. With multiple ranges, most
     //of the wheel range code needs updating
-
-    
-    
 
    // std::cout << "Y: " << scrollY << std::endl;
     
@@ -908,8 +741,6 @@ void LfpDisplay::toggleSingleChannel(LfpChannelTrack drawableChannel)
     }
     else
     {
-       // std::cout << "Single channel off" << std::endl;
-
         drawableChannels[0].channelInfo->setSingleChannelState(false);
 
         singleChan = -1;
@@ -934,8 +765,6 @@ void LfpDisplay::rebuildDrawableChannelsList()
 
     if (getSingleChannelState())
     {
-        //std::cout << "Single channel on (" << singleChan << ")" << std::endl;
-
         int newHeight = viewport->getHeight();
 
         int channelIndex = -1;
@@ -997,8 +826,6 @@ void LfpDisplay::rebuildDrawableChannelsList()
 
             }
            
-            //std::cout << "Finished single channel rebuild" << std::endl;
-
             return;
         }
         else {
@@ -1007,18 +834,12 @@ void LfpDisplay::rebuildDrawableChannelsList()
 
             singleChan = -1; // our channel no longer exists
         }
-
-        //std::cout << "Single channel not found." << std::endl;
-
     }
-
-   // std::cout << "Standard channel rebuild" << std::endl;
 
     removeAllChildren(); // start with clean slate
     
-    Array<LfpChannelTrack> channelsToDraw;
-    drawableChannels = Array<LfpDisplay::LfpChannelTrack>();
-    
+    Array<LfpChannelTrack> channelsToDraw; // all visible channels will be added to this array
+
     // iterate over all channels and select drawable ones
     for (int i = 0, drawableChannelNum = 0; i < channels.size(); i++)
     {
@@ -1047,8 +868,57 @@ void LfpDisplay::rebuildDrawableChannelsList()
         }
     }
 
+    if (channelsOrderedByDepth)
+    {
+        LOGD("Sorting channels by depth.");
+
+        const int numChannels = channelsToDraw.size();
+
+        std::vector<float> depths(numChannels);
+
+        bool allSame = true;
+        float last = channelsToDraw[0].channelInfo->getDepth();
+
+        for (int i = 0; i < channelsToDraw.size(); i++)
+        {
+            float depth = channelsToDraw[i].channelInfo->getDepth();
+
+            if (depth != last)
+                allSame = false;
+
+            depths[i] = depth;
+
+            last = depth;
+        }
+
+        if (allSame)
+        {
+            LOGD("No depth info found.");
+        }
+        else {
+            std::vector<int> V(numChannels);
+
+            std::iota(V.begin(), V.end(), 0); //Initializing
+            sort(V.begin(), V.end(), [&](int i, int j) {return depths[i] <= depths[j]; });
+
+            Array<LfpChannelTrack> orderedDrawableChannels;
+
+            for (int i = 0; i < channelsToDraw.size(); i++)
+            {
+                // re-order by depth
+                orderedDrawableChannels.add(channelsToDraw[V[i]]);
+            }
+
+            channelsToDraw = orderedDrawableChannels;
+        }
+    }
+
+    drawableChannels = Array<LfpDisplay::LfpChannelTrack>(); // this is what will determine the actual channel order
+
+
     if (getChannelsReversed())
     {
+        LOGD("Reversing channel order.");
         for (int i = channelsToDraw.size() - 1; i >= 0; --i)
         {
             drawableChannels.add(channelsToDraw[i]);
@@ -1061,14 +931,6 @@ void LfpDisplay::rebuildDrawableChannelsList()
         }
     }
     
-    if (channelsOrderedByDepth)
-    {
-        orderChannelsByDepth(true);
-
-        if (getChannelsReversed())
-            setChannelsReversed(true);
-    }
-        
     // this guards against an exception where the editor sets the drawable samplerate
     // before the lfpDisplay is fully initialized
     if (getHeight() > 0 && getWidth() > 0)
@@ -1078,7 +940,9 @@ void LfpDisplay::rebuildDrawableChannelsList()
     
     setColors();
 
-    //std::cout << "Finished standard channel rebuild" << std::endl;
+    resized();
+
+    LOGD("Finished standard channel rebuild.");
 }
 
 LfpBitmapPlotter * const LfpDisplay::getPlotterPtr() const
@@ -1186,14 +1050,6 @@ void LfpDisplay::setEnabledState(bool state, int chan, bool updateSaved)
 
         if (updateSaved)
             savedChannelState.set(chan, state);
-
-       // if (!state)
-        //    std::cout << "UPDATING CANVAS VALUE FOR CHANNEL " << chan <<  std::endl;
-
-        //canvasSplit->isChannelEnabled.set(chan, state);
-
-       // if (!state)
-        //    std::cout << "CANVAS VALUE: " << canvasSplit->isChannelEnabled[chan] << std::endl;
     }
 }
 
