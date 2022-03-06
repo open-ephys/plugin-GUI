@@ -45,7 +45,7 @@ private:
 		std::unique_ptr<NpyFile> samples;
 		std::unique_ptr<NpyFile> timestamps;
 		std::unique_ptr<NpyFile> channels;
-		std::unique_ptr<NpyFile> extra;
+		std::unique_ptr<NpyFile> extraFile;
 
     };
 

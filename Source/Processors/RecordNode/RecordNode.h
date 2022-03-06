@@ -126,6 +126,8 @@ public:
 
 	void updateChannelStates(uint16 streamId, std::vector<bool> enabled);
 
+	void writeInitialEventStates();
+
 	bool isFirstChannelInRecordedSubprocessor(int channel);
 
 	void process(AudioBuffer<float>& buffer) override;

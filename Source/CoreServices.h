@@ -27,6 +27,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Processors/PluginManager/OpenEphysPlugin.h"
 
+#include "Utils/Utils.h"
+
 class GenericEditor;
 class GenericProcessor;
 class SpikeChannel;

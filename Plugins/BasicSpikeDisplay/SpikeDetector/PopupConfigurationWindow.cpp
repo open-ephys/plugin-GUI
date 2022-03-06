@@ -714,6 +714,9 @@ void SpikeDetectorTableModel::paintRowBackground(Graphics& g, int rowNumber, int
         return;
     }
 
+    if (rowNumber >= spikeChannels.size())
+        return;
+
     if (spikeChannels[rowNumber]->isValid())
     {
         if (rowNumber % 2 == 0)
@@ -740,6 +743,7 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
     }
     else if (columnId == SpikeDetectorTableModel::Columns::TYPE)
     {
+        if (rowNumber >= spikeChannels.size()) return;
         switch (spikeChannels[rowNumber]->getChannelType())
         {
         case SpikeChannel::Type::SINGLE:

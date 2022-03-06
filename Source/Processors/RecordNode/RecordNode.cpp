@@ -483,7 +483,7 @@ void RecordNode::startRecording()
 		rootFolder.createDirectory();
 	}
 
-	useSynchronizer = recordEngine->getEngineId().equalsIgnoreCase("BINARY");
+	useSynchronizer = recordEngine->getEngineId().equalsIgnoreCase("BINARY") || recordEngine->getEngineId().equalsIgnoreCase("NWB2");
 
 	recordThread->setFileComponents(rootFolder, experimentNumber, recordingNumber);
 	recordThread->startThread();
@@ -599,6 +599,32 @@ void RecordNode::handleTimestampSyncTexts(const EventPacket& packet)
 	std::cout << "Record Node " << getNodeId() << " writing sync timestamp " << std::endl;
 	handleEvent(nullptr, packet, 0);
 }
+
+void RecordNode::writeInitialEventStates()
+{
+
+	for (auto& channel : eventChannels) {
+
+		if (channel->getType() == EventChannel::TTL) {
+
+			for (int i = 0; i < channel->getMaxTTLBits(); i++)
+			{
+				TTLEventPtr event = TTLEvent::createTTLEvent(channel, 0, i, false); 
+
+				size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
+
+				HeapBlock<char> buffer(size);
+
+				event->serialize(buffer, size);
+
+				handleEvent(channel, EventPacket(buffer, size), 0);
+			}
+
+		}
+
+	}
+
+}
 	
 void RecordNode::process(AudioBuffer<float>& buffer)
 
@@ -627,6 +653,8 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 				handleTimestampSyncTexts(EventPacket(data, dataSize));
 
 				receivedSoftwareTime = true;
+
+				writeInitialEventStates();
 
 			}
 
