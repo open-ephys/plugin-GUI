@@ -212,26 +212,19 @@ SpikePtr Spike::createSpike(const SpikeChannel* channelInfo,
 	return event;
 }
 
-SpikePtr Spike::deserialize(const EventPacket& packet, const SpikeChannel* channelInfo)
+void Spike::setSortedID(uint16 sortedID)
+{
+	uint8* modifiableBuffer = const_cast<uint8*>(buffer);
+
+	*(reinterpret_cast<uint16*>(modifiableBuffer + 16)) = sortedID;
+}
+
+SpikePtr Spike::deserialize(const uint8* buffer, const SpikeChannel* channelInfo)
 {
 	int nChans = channelInfo->getNumChannels();
-	size_t totalSize = packet.getRawDataSize();
 	size_t dataSize = channelInfo->getDataSize();
-	size_t thresholdSize = nChans*sizeof(float);
+	size_t thresholdSize = nChans * sizeof(float);
 	size_t metaDataSize = channelInfo->getTotalEventMetadataSize();
-
-	if (channelInfo->getChannelType() == SpikeChannel::INVALID)
-	{
-		jassertfalse;
-		return nullptr;
-	}
-
-	if (totalSize != (thresholdSize + dataSize + SPIKE_BASE_SIZE + metaDataSize))
-	{
-		jassertfalse;
-		return nullptr;
-	}
-	const uint8* buffer = packet.getRawData();
 
 	if (static_cast<Event::Type>(*(buffer)) != SPIKE_EVENT)
 	{
@@ -280,10 +273,22 @@ SpikePtr Spike::deserialize(const EventPacket& packet, const SpikeChannel* chann
 		return event.release();
 	else
 	{
-
 		jassertfalse;
 		return nullptr;
 	}
+}
+
+SpikePtr Spike::deserialize(const EventPacket& packet, const SpikeChannel* channelInfo)
+{
+
+	if (channelInfo->getChannelType() == SpikeChannel::INVALID)
+	{
+		jassertfalse;
+		return nullptr;
+	}
+
+	return deserialize(packet.getRawData(), channelInfo);
+
 }
 
 Spike::Buffer::Buffer(const SpikeChannel* channelInfo)
@@ -291,7 +296,9 @@ Spike::Buffer::Buffer(const SpikeChannel* channelInfo)
 	  m_nSamps(channelInfo->getTotalSamples()),
       spikeChannel(channelInfo)
 {
+
 	m_data.malloc(m_nChans*m_nSamps);
+
 }
 
 void  Spike::Buffer::set(const int chan, const int samp, const float value)

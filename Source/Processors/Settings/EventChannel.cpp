@@ -28,7 +28,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 EventChannel::EventChannel(Settings settings) :
 	ChannelInfoObject(InfoObject::Type::EVENT_CHANNEL, settings.stream),
-	m_type(settings.type), m_maxTTLBits(settings.maxTTLBits)
+	m_type(settings.type), 
+	m_maxTTLBits(settings.maxTTLBits),
+	m_TTLWord(0)
 {
 	setName(settings.name);
 	setDescription(settings.description);
@@ -38,10 +40,11 @@ EventChannel::EventChannel(Settings settings) :
 	{
 		// 1 byte for the bit number
 		// 1 byte for the status
+		// 8 bytes for the full word
 		jassert(m_maxTTLBits <= 256);
 
-		m_length = 2; 
-		m_dataSize = 2;
+		m_length = 10; 
+		m_dataSize = 10;
 		m_binaryDataType = UINT8_ARRAY;
 	}
 	else if (m_type == TEXT)
@@ -61,7 +64,7 @@ EventChannel::EventChannel(Settings settings) :
 
 	for (int i = 0; i < m_maxTTLBits; i++)
 	{
-		bitLabels.add("Line " + String(i + 1));
+		lineLabels.add("Line " + String(i + 1));
 	}
 }
 
@@ -96,19 +99,36 @@ int EventChannel::getMaxTTLBits() const
 	return m_maxTTLBits;
 }
 
-void EventChannel::setBitLabel(int bit, String label)
+void EventChannel::setLineLabel(int line, String label)
 {
-	if (bit < m_maxTTLBits)
-		bitLabels.set(bit, label);
+	if (line < m_maxTTLBits)
+		lineLabels.set(line, label);
 }
 
-String EventChannel::getBitLabel(int bit) const
+String EventChannel::getLineLabel(int line) const
 {
-	if (bit < m_maxTTLBits)
-		return bitLabels[bit];
+	if (line < m_maxTTLBits)
+		return lineLabels[line];
 	else
-		return "Bit out of range";
+		return "Line out of range";
 
+}
+
+void EventChannel::setLineState(int line, bool state)
+{
+	if (line < 64)
+	{
+		if (state)
+			m_TTLWord |= 1UL << line;
+		else
+			m_TTLWord &= ~(1UL << line);
+	}
+	
+}
+
+uint64 EventChannel::getTTLWord()
+{
+	return m_TTLWord;
 }
 
 size_t EventChannel::getBinaryDataTypeSize(EventChannel::BinaryDataType type)
@@ -164,31 +184,3 @@ BaseType EventChannel::getEquivalentMetadataType() const
 {
 	return getEquivalentMetadataType(*this);
 }
-
-/*bool EventChannel::checkEqual(const InfoObjectCommon& other, bool similar) const
-{
-	const EventChannel& o = dynamic_cast<const EventChannel&>(other);
-	if (m_type != o.m_type) return false;
-	if (m_numChannels != o.m_numChannels) return false;
-	if (m_length != o.m_length) return false;
-	if (similar && !hasSimilarMetadata(o)) return false;
-	if (!similar && !hasSameMetadata(o)) return false;
-	if (similar && !hasSimilarEventMetadata(o)) return false;
-	if (!similar && !hasSameEventMetadata(o)) return false;
-	return true;
-}*/
-
-/*EventChannel::EventTimestampOrigin EventChannel::getTimestampOrigin() const
-{
-	return m_timestampOrigin;
-}
-
-uint16 EventChannel::getTimestampOriginProcessor() const
-{
-	return m_timestampOriginProcessor;
-}
-
-uint16 EventChannel::getTimestampOriginSubProcessor() const
-{
-	return m_timestampOriginSubProcessor;
-}*/

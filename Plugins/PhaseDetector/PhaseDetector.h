@@ -99,8 +99,8 @@ public:
     void parameterValueChanged(Parameter* param) override;
 
 private:
-    /** Called whenever a new event arrives*/
-    void handleEvent (const EventChannel* channelInfo, const EventPacket& packet, int sampleNum) override;
+    /** Called whenever a new TTL event arrives*/
+    void handleEvent (TTLEventPtr event) override;
 
     StreamSettings<PhaseDetectorSettings> settings;
 

@@ -41,6 +41,7 @@
 #include "../Settings/InfoObject.h"
 
 #include "../Events/Event.h"
+#include "../Events/Spike.h"
 
 #include <time.h>
 #include <stdio.h>
@@ -249,13 +250,10 @@ public:
     virtual bool stopAcquisition();
 
     /** Called from whenever recording has started. */
-    virtual void startRecording();
+    virtual void startRecording() { }
 
     /** Called from whenever recording has stopped. */
-    virtual void stopRecording();
-
-    /** Indicates whether or not a processor is currently enabled (i.e., able to process data). */
-    //virtual bool isEnabled() const;
+    virtual void stopRecording() { }
 
     /** Indicates whether a source node is connected to a processor (used for mergers).*/
     virtual bool stillHasSource() const { return true; }
@@ -543,14 +541,11 @@ protected:
 	Set respondToSpikes to true if the processor should also search for spikes*/
 	virtual int checkForEvents(bool respondToSpikes = false);
 
-	/** Makes it easier for processors to respond to incoming events, such as TTLs. Called if checkForEvents() returns true. */
-	virtual void handleEvent(const EventChannel* eventInfo, const EventPacket& packet, int samplePosition = 0);
+	/** Allows processors to respond to incoming TTL events; called by checkForEvents() */
+	virtual void handleEvent(TTLEventPtr event) { }
 
-	/** Makes it easier for processors to respond to incoming spikes. Called if checkForEvents(true) returns true. */
-	virtual void handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition = 0, const uint8* rawData = nullptr);
-
-	/** Responds to TIMESTAMP_SYNC_TEXT system events, in case a processor needs to listen to them (useful for the record node) */
-	virtual void handleTimestampSyncTexts(const EventPacket& event);
+	/** Allows processors to respond to incoming spikes; called by checkForEvents(true) */
+	virtual void handleSpike(SpikePtr spike) { }
 
 	/** Returns the default number of datachannels outputs for a specific type and a specific subprocessor
 	Called by createDataChannels(). It is not needed to implement if createDataChannels() is overriden */
@@ -589,7 +584,7 @@ protected:
     // --------------------------------------------
 
 	/** Custom method for updating settings, called automatically by update() after creating the info objects.*/
-	virtual void updateSettings();
+	virtual void updateSettings() { }
 
     /** Holds information about continuous channels handled by this processor */
     OwnedArray<ContinuousChannel> continuousChannels;

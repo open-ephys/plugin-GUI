@@ -102,7 +102,7 @@ void RecordNode::handleBroadcastMessage(String msg)
 
 	event->serialize(buffer, size);
 
-	handleEvent(getMessageChannel(), EventPacket(buffer, size), lastPrimaryStreamTimestamp);
+	handleEvent(getMessageChannel(), EventPacket(buffer, size));
 }
 
 void RecordNode::updateBlockSize(int newBlockSize)
@@ -538,28 +538,37 @@ void RecordNode::setRecordSpikes(bool recordSpikes)
 	this->recordSpikes = recordSpikes;
 }
 
-void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& packet, int samplePosition)
+void RecordNode::handleEvent(TTLEventPtr event)
 {
 
-	// Only handles TTL events (TEXT events are handled separately)
-
 	eventMonitor->receivedEvents++;
+
+	if (recordEvents)
+	{
+
+		int64 timestamp = event->getTimestamp();
+
+		synchronizer->addEvent(event->getStreamId(), event->getLine(), timestamp);
+
+		size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
+
+		HeapBlock<char> buffer(size);
+
+		event->serialize(buffer, size);
+
+		eventQueue->addEvent(EventPacket(buffer, size), timestamp);
+
+	}
+
+}
+
+void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& packet)
+{
 
 	if (recordEvents) 
 	{
 
-		//TODO: Test these two should be the same?
-		const int eventTime = samplePosition;
 		int64 timestamp = Event::getTimestamp(packet);
-
-		if (eventInfo != nullptr && eventInfo->getType() == EventChannel::TTL)
-		{
-			TTLEventPtr ttl = TTLEvent::deserialize(packet, eventInfo);
-
-			if (samplePosition >= 0)
-				synchronizer->addEvent(Event::getStreamId(packet), ttl->getBit(), timestamp);
-		
-		}
 
 		if (isRecording)
 		{
@@ -577,27 +586,18 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 }
 
 // only called if recordSpikes is true
-void RecordNode::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition, const uint8* rawData)
+void RecordNode::handleSpike(SpikePtr spike)
 {
 
-	SpikePtr newSpike = Spike::deserialize(packet, spikeInfo);
-
-	if (!newSpike) 
-	{
-		LOGE("Unable to deserialize spike event!");
-		return;
-	}
-
 	if (recordSpikes)
-		writeSpike(newSpike, spikeInfo);
-	
+		writeSpike(spike, spike->getChannelInfo());
 
 }
 
 void RecordNode::handleTimestampSyncTexts(const EventPacket& packet)
 {
 	std::cout << "Record Node " << getNodeId() << " writing sync timestamp " << std::endl;
-	handleEvent(nullptr, packet, 0);
+	handleEvent(nullptr, packet);
 }
 
 void RecordNode::writeInitialEventStates()
@@ -609,7 +609,7 @@ void RecordNode::writeInitialEventStates()
 
 			for (int i = 0; i < channel->getMaxTTLBits(); i++)
 			{
-				TTLEventPtr event = TTLEvent::createTTLEvent(channel, 0, i, false); 
+				TTLEventPtr event = TTLEvent::createTTLEvent(channel, 0, i, false, 0); 
 
 				size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
 
@@ -617,7 +617,7 @@ void RecordNode::writeInitialEventStates()
 
 				event->serialize(buffer, size);
 
-				handleEvent(channel, EventPacket(buffer, size), 0);
+				handleEvent(channel, EventPacket(buffer, size));
 			}
 
 		}

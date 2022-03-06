@@ -203,73 +203,49 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 }
 
 
-void LfpDisplayNode::handleEvent(const EventChannel* eventInfo, const MidiMessage& event, int samplePosition)
+void LfpDisplayNode::handleEvent(TTLEventPtr event)
 {
-    if (Event::getEventType(event) == EventChannel::TTL)
+ 
+    const int eventId = event->getState() ? 1 : 0;
+    const int eventChannel = event->getLine();
+    const uint16 eventStreamId = event->getChannelInfo()->getStreamId();
+    const int eventSourceNodeId = event->getChannelInfo()->getSourceNodeId();
+    const int eventTime = event->getTimestamp() - getSourceTimestamp(eventStreamId);
+
+    if (eventId == 1)
     {
-        TTLEventPtr ttl = TTLEvent::deserialize(event, eventInfo);
-        
-        //int eventNodeId = *(dataptr+1);
-        const int eventId = ttl->getState() ? 1 : 0;
-        const int eventChannel = ttl->getBit();
-        const int eventTime = samplePosition;
+        for (int i = 0; i < 3; i++)
 
-        // find sample rate of event channel
-        uint32 eventSourceNodeId = getEventSourceId(eventInfo);
-        //float eventSampleRate = displayBuffers[eventSourceNodeId]->sampleRate;
-
-        //if (eventSampleRate == 0)
-        //{
-            // shouldn't happen for any real event channel at this point
-       //     return;
-       // }
-        
-        //std::cout << "Received event on channel " << eventChannel << std::endl;
-        //std::cout << "Copying to channel " << channelForEventSource[eventSourceNodeId] << std::endl;
-        
-        //int subProcIndex = inputSubprocessors.indexOf(eventSourceNodeId);
-
-        if (eventId == 1)
         {
-            for (int i = 0; i < 3; i++)
-
+            if (triggerChannels[i] == eventChannel)
             {
-                if (triggerChannels[i] == eventChannel)
-                {
-                    // if an event came in on the trigger channel
-                    //std::cout << "Setting latest current trigger to " << eventTime << std::endl;
-                    latestCurrentTrigger.set(i, eventTime);
+                // if an event came in on the trigger channel
+                //std::cout << "Setting latest current trigger to " << eventTime << std::endl;
+                latestCurrentTrigger.set(i, eventTime);
 
-                }
             }
         }
-
-        if (displayBufferMap.count(eventSourceNodeId))
-        {
-            displayBufferMap[eventSourceNodeId]->addEvent(eventTime, eventChannel, eventId,
-                getNumSourceSamples(eventSourceNodeId)
-            );
-
-           
-        }
-
-        else {
-
-            for (auto displayBuffer : displayBuffers)
-            {
-                displayBuffer->addEvent(eventTime, eventChannel, eventId,
-                    getNumSourceSamples(displayBuffer->id)
-                );
-                
-            }
-
-        }
-
-       /*          std::cout << "Received event from " << eventSourceNodeId
-                           << " on channel " << eventChannel
-                           << " with value " << eventId
-                           << " at timestamp " << event.getTimeStamp() << std::endl;*/
     }
+
+    if (displayBufferMap.count(eventSourceNodeId))
+    {
+        displayBufferMap[eventSourceNodeId]->addEvent(eventTime, eventChannel, eventId,
+            getNumSourceSamples(eventSourceNodeId)
+        );
+    }
+
+    else {
+
+        for (auto displayBuffer : displayBuffers)
+        {
+            displayBuffer->addEvent(eventTime, eventChannel, eventId,
+                getNumSourceSamples(displayBuffer->id)
+            );
+                
+        }
+
+    }
+
 }
 
 

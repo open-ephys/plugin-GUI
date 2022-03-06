@@ -54,7 +54,7 @@ public:
     void setParameter(int, float) override;
 
     /** Called for each incoming spike*/
-	void handleSpike(const SpikeChannel* spikeInfo, const EventPacket& spike, int samplePosition, const uint8* rawData) override;
+	void handleSpike(SpikePtr spike) override;
 
     /** Creates a display for each incoming spike channel*/
     void updateSettings() override;

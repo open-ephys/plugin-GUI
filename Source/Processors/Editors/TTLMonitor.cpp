@@ -94,9 +94,10 @@ int TTLMonitor::updateSettings(Array<EventChannel*> eventChannels)
     return 0;
 }
 
-void TTLMonitor::setState(int bit, bool state)
+void TTLMonitor::setState(int line, bool state)
 {
-    displays[bit]->setState(state);
+    if (line < 10)
+        displays[line]->setState(state);
 }
 
 

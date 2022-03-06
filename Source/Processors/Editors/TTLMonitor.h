@@ -86,8 +86,8 @@ public:
     /** Updates settings based on incoming event channels (not used) */
 	int updateSettings(Array<EventChannel*> eventChannels);
 
-    /** Sets the state of a particular bit*/
-    void setState(int bit, bool state);
+    /** Sets the state of a particular line (1-10 only)*/
+    void setState(int line, bool state);
     
     /** Starts rendering timer*/
     void startAcquisition();

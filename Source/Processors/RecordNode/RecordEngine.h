@@ -123,7 +123,7 @@ public:
 	virtual void endChannelBlock(bool lastBlock);
 
 	/** Write a single event to disk.  */
-	virtual void writeEvent(int eventChannel, const MidiMessage& event) = 0;
+	virtual void writeEvent(int eventChannel, const EventPacket& event) = 0;
 
 	/** Handle the timestamp sync text messages*/
 	virtual void writeTimestampSyncText(uint64 streamId, int64 timestamp, float sourceSampleRate, String text) = 0;

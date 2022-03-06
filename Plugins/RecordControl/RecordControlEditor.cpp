@@ -32,5 +32,5 @@ RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode)
 
     addComboBoxParameterEditor("trigger_type", 10, 30);
     addComboBoxParameterEditor("edge", 10, 70);
-    addComboBoxParameterEditor("trigger_bit", 100, 70);
+    addComboBoxParameterEditor("trigger_line", 100, 70);
 }

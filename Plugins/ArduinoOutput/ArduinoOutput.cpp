@@ -128,40 +128,36 @@ void ArduinoOutput::process (AudioSampleBuffer& buffer)
 }
 
 
-void ArduinoOutput::handleEvent(const EventChannel* eventInfo, const EventPacket& event, int sampleNum)
+void ArduinoOutput::handleEvent(TTLEventPtr event)
 {
-    if (Event::getEventType(event) == EventChannel::TTL)
+
+    const int eventBit = event->getLine() + 1;
+    DataStream* stream = getDataStream(event->getStreamId());
+
+    if (eventBit == int((*stream)["gate_bit"]))
     {
-        TTLEventPtr ttl = TTLEvent::deserialize(event, eventInfo);
+        if (event->getState())
+            gateIsOpen = true;
+        else
+            gateIsOpen = false;
+    }
 
-        const int eventBit = ttl->getBit() + 1;
-        DataStream* stream = getDataStream(ttl->getStreamId());
-
-        if (eventBit == int((*stream)["gate_bit"]))
+    if (gateIsOpen)
+    {
+        if (eventBit == int((*stream)["input_bit"]))
         {
-            if (ttl->getState())
-                gateIsOpen = true;
-            else
-                gateIsOpen = false;
-        }
 
-        if (gateIsOpen)
-        {
-            if (eventBit == int((*stream)["input_bit"]))
+            if (event->getState())
             {
-
-                if (ttl->getState())
-                {
-                    arduino.sendDigital(
-                        getParameter("output_pin")->getValue(),
-                        ARD_LOW);
-                }
-                else
-                {
-                    arduino.sendDigital(
-                        getParameter("output_pin")->getValue(),
-                        ARD_HIGH);
-                }
+                arduino.sendDigital(
+                    getParameter("output_pin")->getValue(),
+                    ARD_LOW);
+            }
+            else
+            {
+                arduino.sendDigital(
+                    getParameter("output_pin")->getValue(),
+                    ARD_HIGH);
             }
         }
     }

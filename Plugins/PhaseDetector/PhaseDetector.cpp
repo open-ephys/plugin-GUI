@@ -46,8 +46,6 @@ TTLEventPtr PhaseDetectorSettings::createEvent(int64 timestamp, bool state)
         outputBit,
         state);
 
-   // std::cout << outputBit << std::endl;
-
     if (state)
     {
         samplesSinceTrigger = 0;
@@ -152,24 +150,20 @@ void PhaseDetector::updateSettings()
 
 
 
-void PhaseDetector::handleEvent (const EventChannel* channelInfo, const MidiMessage& event, int sampleNum)
+void PhaseDetector::handleEvent (TTLEventPtr event)
 {
 
-    if (Event::getEventType(event)  == EventChannel::TTL)
+    uint16 eventStream = event->getStreamId();
+	const int eventBit = event->getLine();
+
+    if (settings[eventStream]->gateBit == eventBit)
     {
-	    TTLEventPtr ttl = TTLEvent::deserialize(event, channelInfo);
-
-        uint16 eventStream = ttl->getStreamId();
-		const int eventBit = ttl->getBit();
-
-        if (settings[eventStream]->gateBit == eventBit)
-        {
-            settings[eventStream]->isActive = true;
-        }
-        else {
-            settings[eventStream]->isActive = false;
-        }
+        settings[eventStream]->isActive = true;
     }
+    else {
+        settings[eventStream]->isActive = false;
+    }
+
 }
 
 

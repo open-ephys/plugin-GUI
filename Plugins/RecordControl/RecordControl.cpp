@@ -40,8 +40,8 @@ RecordControl::RecordControl()
                             0);
 
     addIntParameter(Parameter::STREAM_SCOPE,
-                    "trigger_bit",
-                    "The TTL bit that triggers a change in recording state",
+                    "trigger_line",
+                    "The TTL line that triggers a change in recording state",
                     1,
                     1,
                     16);
@@ -61,34 +61,30 @@ void RecordControl::process (AudioSampleBuffer& buffer)
 }
 
 
-void RecordControl::handleEvent (const EventChannel* eventInfo, const EventPacket& packet, int)
+void RecordControl::handleEvent (TTLEventPtr event)
 {
 
-    if (Event::getEventType(packet) == EventChannel::TTL)
-    {
-        TTLEventPtr ttl = TTLEvent::deserialize (packet, eventInfo);
+    DataStream* stream = getDataStream(event->getStreamId());
 
-        DataStream* stream = getDataStream(ttl->getStreamId());
-
-		if (ttl->getBit() == ( int((*stream)["trigger_bit"]) - 1))
+	if (event->getLine() == ( int((*stream)["trigger_line"]) - 1))
+	{
+		if (int(getParameter("trigger_type")->getValue()) == 0)
 		{
-			if (int(getParameter("trigger_type")->getValue()) == 0)
+			if (event->getState() == bool(getParameter("edge")->getValue()))
 			{
-				if (ttl->getState() == bool(getParameter("edge")->getValue()))
-				{
-					CoreServices::setRecordingStatus(true);
-				}
-				else
-				{
-					CoreServices::setRecordingStatus(false);
-				}
+				CoreServices::setRecordingStatus(true);
 			}
 			else
 			{
-				CoreServices::setRecordingStatus(!CoreServices::getRecordingStatus());
+				CoreServices::setRecordingStatus(false);
 			}
 		}
-    }
+		else
+		{
+			CoreServices::setRecordingStatus(!CoreServices::getRecordingStatus());
+		}
+	}
+   
 }
 
 

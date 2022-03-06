@@ -154,8 +154,16 @@ public:
 		const MetadataValueArray& metaData,
 		uint16 sortedID = 0);
 
+	/** Allows downstream processor to update the sorted ID 
+	   WARNING -- since the original byte buffer has to exist,
+	   this should only be done inside the handleSpike() method!!! */
+	void setSortedID(uint16 sortedID);
+
 	/* Deserialize a Spike object from an event packet*/
 	static SpikePtr deserialize(const EventPacket& packet, const SpikeChannel* channelInfo);
+
+	/* Deserialize a Spike object from a raw byte buffer*/
+	static SpikePtr deserialize(const uint8* buffer, const SpikeChannel* channelInfo);
     
     /* The SpikeChannel object associated with this spike */
     const SpikeChannel* spikeChannel;
@@ -179,6 +187,8 @@ private:
 		uint16 sortedID = 0);
 
 	const Array<float> m_thresholds;
+
+	const uint8* buffer;
 	
 	const uint16 m_sortedID;
 	HeapBlock<float> m_data;

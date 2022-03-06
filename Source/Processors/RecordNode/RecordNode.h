@@ -210,11 +210,14 @@ public:
 
 private:
 
-	/** Forwards events to the EventQueue */
-	void handleEvent(const EventChannel* eventInfo, const EventPacket& packet, int samplePosition) override;
+	/** Handles other types of events (text, sync texts, etc.) */
+	void handleEvent(const EventChannel* channel, const EventPacket& eventPacket);
+
+	/** Forwards TTL events to the EventQueue */
+	void handleEvent(TTLEventPtr event) override;
 
 	/** Writes incoming spikes to disk */
-	void handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition, const uint8* rawData) override;
+	void handleSpike(SpikePtr spike) override;
 
 	/** Handles incoming timestamp sync messages */
 	virtual void handleTimestampSyncTexts(const EventPacket& packet);

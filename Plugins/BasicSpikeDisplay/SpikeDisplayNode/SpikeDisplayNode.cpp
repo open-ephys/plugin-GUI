@@ -175,12 +175,8 @@ void SpikeDisplayNode::process (AudioBuffer<float>& buffer)
 }
 
 
-void SpikeDisplayNode::handleSpike(const SpikeChannel* spikeChannel, const EventPacket& spike, int samplePosition, const uint8* rawData)
+void SpikeDisplayNode::handleSpike(SpikePtr spike)
 {
-	SpikePtr newSpike = Spike::deserialize(spike, spikeChannel);
-
-    //std::cout << "SDN: " << newSpike->getSortedID() << std::endl;
-
-    electrodeMap.at(spikeChannel)->addSpikeToBuffer(newSpike);
+    electrodeMap.at(spike->getChannelInfo())->addSpikeToBuffer(spike);
 }
 

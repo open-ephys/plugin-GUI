@@ -97,11 +97,17 @@ public:
 	/* Get the event type from an EventPacket object */
 	static Type getBaseType(const EventPacket& packet);
 
+	/* Get the event type from a raw byte buffer */
+	static Type getBaseType(const uint8* data);
+
 	/* Get the ID of the processor that generated this event */
 	uint16 getProcessorId() const;
 
 	/* Get the event processor ID from an EventPacket object */
 	static uint16 getProcessorId(const EventPacket& packet);
+
+	/* Get the event processor ID from a raw byte buffer */
+	static uint16 getProcessorId(const uint8* data);
 
 	/* Get the ID of the DataStream associated with this event */
 	uint16 getStreamId() const;
@@ -109,11 +115,17 @@ public:
 	/* Get the event source stream ID from an EventPacket object */
 	static uint16 getStreamId(const EventPacket& packet);
 
+	/* Get the event source stream ID from a raw byte buffer */
+	static uint16 getStreamId(const uint8* data);
+
 	/* Get the index of the event channel that generated this event */
 	uint16 getChannelIndex() const;
 
 	/* Get the event channel index from an EventPacket object */
 	static uint16 getChannelIndex(const EventPacket& packet);
+
+	/* Get the event channel index from a raw byte buffer */
+	static uint16 getChannelIndex(const uint8* data);
 
 	/* Get the timestamp from an event object */
 	juce::int64 getTimestamp() const;
@@ -305,9 +317,12 @@ typedef ScopedPointer<TTLEvent> TTLEventPtr;
 * to transmit data between digital devices.
 * 
 * The GUI uses TTL events to represent any situations
-* in which bits can be flipped on and off to represent
+* in which lines can be flipped on and off to represent
 * state transitions. Each TTL event channel can track
-* the status of up to 256 bits.
+* the status of up to 256 lines.
+* 
+* TTL events can also hold arbitrary information in their 
+* metadata field, which can be used to annotate individual events.
 *
 * TTLEvent class is part of the Open Ephys Plugin API
 *
@@ -328,36 +343,46 @@ public:
 	/* Serialize the event to a buffer */
 	void serialize(void* destinationBuffer, size_t bufferSize) const override;
 
-	/* Gets the bit state true ='1/ON/HIGH' false = '0/OFF/LOW'*/
+	/* Gets the state true ='1/ON/HIGH' false = '0/OFF/LOW'*/
 	bool getState() const;
 
-	/* Gets the bit on which the change occurred.*/
-	uint8 getBit() const;
+	/* Gets the line on which the change occurred.*/
+	uint8 getLine() const;
+
+	/* Gets the TTL word (state across first 64 lines) */
+	uint64 getWord() const;
 
 	/* Get the event state from an EventPacket object */
 	static bool getState(const EventPacket& packet);
 
-	/* Get the event bit from an EventPacket object */
-	static uint8 getBit(const EventPacket& packet);
+	/* Get the event line from an EventPacket object */
+	static uint8 getLine(const EventPacket& packet);
 
-	/* Get TTL word pointer */
-	const void* getTTLWordPointer() const;
-	
-	/* Create a standard TTL event*/
-	static TTLEventPtr createTTLEvent(const EventChannel* channelInfo, 
-		juce::int64 timestamp, 
-		uint8 bit, 
+	/* Create a TTL event with line and state (TTL word is tracked automatically) */
+	static TTLEventPtr createTTLEvent(EventChannel* channelInfo,
+		int64 timestamp,
+		uint8 line,
 		bool state);
+	
+	/* Create a TTL event that specifies the full TTL word*/
+	static TTLEventPtr createTTLEvent(const EventChannel* channelInfo, 
+		int64 timestamp, 
+		uint8 line, 
+		bool state,
+		uint64 word);
 
 	/* Create a TTL event that includes metadata*/
-	static TTLEventPtr createTTLEvent(const EventChannel* channelInfo, 
-		juce::int64 timestamp, 
-		uint8 bit,
+	static TTLEventPtr createTTLEvent(EventChannel* channelInfo, 
+		int64 timestamp, 
+		uint8 line,
 		bool state,
 		const MetadataValueArray& metaData);
 
 	/* Deserialize a TTL event from an EventPacket object */
 	static TTLEventPtr deserialize(const EventPacket& packet, const EventChannel* channelInfo);
+
+	/* Deserialize a TTL event from a raw byte buffer*/
+	static TTLEventPtr deserialize(const uint8* data, const EventChannel* channelInfo);
 
 private:
 	/* Prevent the creation of an empty event*/
@@ -414,6 +439,9 @@ public:
 	/* Deserialize a TextEvent from an EventPacket object*/
 	static TextEventPtr deserialize(const EventPacket& packet, const EventChannel* channelInfo);
 
+	/* Deserialize a TextEvent from a raw byte buffer*/
+	static TextEventPtr deserialize(const uint8* buffer, const EventChannel* channelInfo);
+
 private:
 
 	/* Prevent initialization of an empty event*/
@@ -430,7 +458,11 @@ typedef ScopedPointer<BinaryEvent> BinaryEventPtr;
 /**
 *
 * Used to transmit events with a custom binary payload
-
+* 
+* NOTE: Binary events are not currently supported by GenericProcesor::checkForEvents()
+* To send arbitrary messages through the signal chain, processors should either use
+* broadcast messages or append metadata to TTL events.
+*
 * The BinaryEvent class is part of the Open Ephys Plugin API
 *
 */

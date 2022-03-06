@@ -90,6 +90,7 @@ void RecordThread::run()
 	const SynchronizedTimestampBuffer& ftsBuffer = m_dataQueue->getFTSBufferReference();
 
 	bool closeEarly = true;
+
 	//1-Wait until the first block has arrived, so we can align the timestamps
 	bool isWaiting = false;
 	while (!m_receivedFirstBlock && !threadShouldExit())
@@ -181,7 +182,6 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 	}
 
 	m_dataQueue->stopSynchronizedRead();
-	//EVERY_ENGINE->endChannelBlock(lastBlock);
 	m_engine->endChannelBlock(lastBlock);
 
 	std::vector<EventMessagePtr> events;
@@ -223,7 +223,6 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 
 			m_engine->writeSpike(spikeIndex, &spikes[sp]->getData());
 		}
-		//m_engine->writeSpike(0, &spikes[sp]->getData());
 	}
 }
 
@@ -234,6 +233,7 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 	m_dataQueue->startRead(idx, timestamps, maxSamples);
 	m_engine->updateTimestamps(timestamps);
 	m_engine->startChannelBlock(lastBlock);
+	
 	for (int chan = 0; chan < m_numChannels; ++chan)
 	{
 		if (idx[chan].size1 > 0)
@@ -251,7 +251,6 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 	}
 
 	m_dataQueue->stopRead();
-	//EVERY_ENGINE->endChannelBlock(lastBlock);
 	m_engine->endChannelBlock(lastBlock);
 
 	std::vector<EventMessagePtr> events;
@@ -293,7 +292,6 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples
 
 			m_engine->writeSpike(spikeIndex, &spikes[sp]->getData());
 		}
-		//m_engine->writeSpike(0, &spikes[sp]->getData());
 	}
 
 }
@@ -303,7 +301,6 @@ void RecordThread::forceCloseFiles()
 	if (isThreadRunning() || m_cleanExit)
 		return;
 
-	//EVERY_ENGINE->closeFiles();
 	m_engine->closeFiles();
 	m_cleanExit = true;
 }

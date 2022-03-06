@@ -77,7 +77,7 @@ public:
     bool stopAcquisition()  override;
 
     /** Used for TTL event overlay*/
-    void handleEvent (const EventChannel* eventInfo, const EventPacket& packet, int samplePosition = 0) override;
+    void handleEvent (TTLEventPtr event) override;
 
     /** Returns an array of pointers to the availble displayBuffers*/
     Array<DisplayBuffer*> getDisplayBuffers();

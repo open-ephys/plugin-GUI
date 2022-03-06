@@ -203,7 +203,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         rec->timestamps = std::make_unique<NpyFile>(eventPath + eventName + "timestamps.npy", NpyType(BaseType::DOUBLE, 1));
         if (chan->getType() == EventChannel::TTL && m_saveTTLWords)
         {
-            rec->extraFile = std::make_unique<NpyFile>(eventPath + eventName + "full_words.npy", NpyType(BaseType::UINT8, chan->getDataSize()));
+            rec->extraFile = std::make_unique<NpyFile>(eventPath + eventName + "full_words.npy", NpyType(BaseType::UINT64, 1));
         }
 
         DynamicObject::Ptr jsonChannel = new DynamicObject();
@@ -622,7 +622,7 @@ void BinaryRecording::writeData(int writeChannel, int realChannel, const float* 
 
 }
 
-void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
+void BinaryRecording::writeEvent(int eventIndex, const EventPacket& event)
 {
 
     const EventChannel* info = getEventChannel(eventIndex);
@@ -636,7 +636,7 @@ void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
 
         TTLEvent* ttl = static_cast<TTLEvent*>(ev.get());
 
-        int16 state = (ttl->getBit() + 1) * (ttl->getState() ? 1 : -1);
+        int16 state = (ttl->getLine() + 1) * (ttl->getState() ? 1 : -1);
 		rec->data->writeData(&state, sizeof(int16));
 
         int64 sampleIdx = ev->getTimestamp();
@@ -645,8 +645,12 @@ void BinaryRecording::writeEvent(int eventIndex, const MidiMessage& event)
         double ts = float(sampleIdx) / info->getSampleRate();
         rec->timestamps->writeData(&ts, sizeof(double));
 
-		if (rec->extraFile)
-			rec->extraFile->writeData(ttl->getTTLWordPointer(), info->getDataSize());
+        if (rec->extraFile)
+        {
+            uint64 fullWord = ttl->getWord();
+            rec->extraFile->writeData(&fullWord, sizeof(uint64));
+        }
+			
 
 	}
 	else if (ev->getEventType() == EventChannel::TEXT)

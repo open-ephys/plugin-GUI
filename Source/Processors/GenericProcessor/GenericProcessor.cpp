@@ -1052,10 +1052,7 @@ int GenericProcessor::processEventBuffer()
         
         for (const auto meta : *m_currentMidiBuffer)
         {
-        
-            const auto message = meta.getMessage();
-            
-            const uint8* dataptr = message.getRawData();
+            const uint8* dataptr = meta.data;
             
 			if (static_cast<Event::Type> (*dataptr) == Event::Type::SYSTEM_EVENT 
 				&& static_cast<SystemEvent::Type>(*(dataptr + 1) == SystemEvent::Type::TIMESTAMP_AND_SAMPLES))
@@ -1086,7 +1083,7 @@ int GenericProcessor::processEventBuffer()
             && static_cast<SystemEvent::Type>(*(dataptr + 1) == EventChannel::Type::TEXT))
             {
 
-                TextEventPtr textEvent = TextEvent::deserialize(message, getMessageChannel());
+                TextEventPtr textEvent = TextEvent::deserialize(dataptr, getMessageChannel());
 
                 handleBroadcastMessage(textEvent->getText());
             }
@@ -1110,37 +1107,30 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 
 		for (const auto meta : *originalEventBuffer) {
 
-			const auto message = meta.getMessage();
+			uint16 sourceProcessorId = EventBase::getProcessorId(meta.data);
+			uint16 sourceStreamId = EventBase::getStreamId(meta.data);
+			uint16 sourceChannelIdx = EventBase::getChannelIndex(meta.data);
 
-			uint16 sourceProcessorId = EventBase::getProcessorId(message);
-			uint16 sourceStreamId = EventBase::getStreamId(message);
-			uint16 sourceChannelIdx = EventBase::getChannelIndex(message);
-
-			if (EventBase::getBaseType(message) == Event::Type::PROCESSOR_EVENT)
+			if (EventBase::getBaseType(meta.data) == Event::Type::PROCESSOR_EVENT)
 			{
                 
-                if (static_cast<SystemEvent::Type>(*(message.getRawData() + 1) != EventChannel::Type::TEXT))
+                if (static_cast<SystemEvent::Type>(*(meta.data + 1) != EventChannel::Type::TEXT))
                 {
                     const EventChannel* eventChannel = getEventChannel(sourceProcessorId, sourceStreamId, sourceChannelIdx);
                     
                     if (eventChannel != nullptr)
                     {
-                        handleEvent(eventChannel, message, meta.samplePosition);
+                        handleEvent(TTLEvent::deserialize(meta.data, eventChannel));
                     }
                 }
 
 			}
-			else if (EventBase::getBaseType(message) == Event::Type::SYSTEM_EVENT
-				    && SystemEvent::getSystemEventType(message) == SystemEvent::Type::TIMESTAMP_SYNC_TEXT)
-			{
-				handleTimestampSyncTexts(message);
-			}
-			else if (checkForSpikes && EventBase::getBaseType(message) == Event::Type::SPIKE_EVENT)
+			else if (checkForSpikes && EventBase::getBaseType(meta.data) == Event::Type::SPIKE_EVENT)
 			{
 				const SpikeChannel* spikeChannel = getSpikeChannel(sourceProcessorId, sourceStreamId, sourceChannelIdx);
 
 				if (spikeChannel != nullptr)
-					handleSpike(spikeChannel, message, meta.samplePosition, meta.data);
+					handleSpike(Spike::deserialize(meta.data, spikeChannel));
 			}
 		}
 		// Restore the original buffer pointer and, if some new events have 
@@ -1723,24 +1713,6 @@ void GenericProcessor::setSplitterDestNode(GenericProcessor* dn)  { }
 
 bool GenericProcessor::startAcquisition() { return true; }
 bool GenericProcessor::stopAcquisition() { return true; }
-
-void GenericProcessor::startRecording() {
-
-	m_needsToSendTimestampMessages.clear();
-	for (auto stream : getDataStreams())
-		m_needsToSendTimestampMessages[stream->getStreamId()] = true;
-
- }
-
-void GenericProcessor::stopRecording()  { }
-
-void GenericProcessor::updateSettings() { }
-
-void GenericProcessor::handleEvent(const EventChannel* eventInfo, const EventPacket& packet, int samplePosition) {}
-
-void GenericProcessor::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition, const uint8* rawData) {}
-
-void GenericProcessor::handleTimestampSyncTexts(const EventPacket& packet) {};
 
 GenericProcessor::DefaultEventInfo::DefaultEventInfo(EventChannel::Type t, unsigned int c, unsigned int l, float s)
 	:type(t),

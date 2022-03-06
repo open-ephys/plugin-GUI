@@ -322,7 +322,8 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 							TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[streamIdx], 
                                 timestamp + sample,
                                 c, 
-                                (currentCode >> c) & 0x01);
+                                (currentCode >> c) & 0x01,
+                                currentCode);
 
 							addEvent(event, sample);
 						}

@@ -139,39 +139,17 @@ public:
 	/** Handy method to get an equivalent metadata value type for the main event data*/
 	BaseType getEquivalentMetadataType() const;
 
-	/** Sets the label for a particular bit (for TTL events)*/
-	void setBitLabel(int bit, String label);
+	/** Sets the label for a particular line (for TTL events)*/
+	void setLineLabel(int line, String label);
 
-	/** Sets the label for a particular bit (for TTL events)*/
-	String getBitLabel(int bit) const;
+	/** Sets the label for a particular line (for TTL events)*/
+	String getLineLabel(int line) const;
 
-	/** Returns which kind of origin the timestamps for these events have */
-	//EventTimestampOrigin getTimestampOrigin() const;
+	/** Set the state of a TTL line (used for tracking TTL word states)*/
+	void setLineState(int line, bool state);
 
-	/** Returns, for each value of getTimestampOrigin()
-	-For timestampsFromContinuousSource: the same value as getNodeId()
-	-For timestampsFromGlobalSource: the value global source id, zero if it is software-based
-	-For timestampsDerivedFromChannel: the node ID of the processor which generated the channel this event is based on
-	*/
-	//uint16 getTimestampOriginProcessor() const;
-
-	/** Returns, for each value of getTimestampOrigin()
-	-For timestampsFromContinuousSource: the same value as getSubProcessorIdx()
-	-For timestampsFromGlobalSource: the value global source subprocessor, zero if it is software-based
-	-For timestampsDerivedFromChannel: the subprocessor index of the processor which generated the channel this event is based on
-	*/
-	//uint16 getTimestampOriginSubProcessor() const;
-
-		/**
-	Enumerator indicating where the timestamps for the event are originating, so they can be easily synchronized
-	*/
-	//enum EventTimestampOrigin 
-	//{
-	//	timestampsFromContinuousSource, /* The timestamps from this event originate in a source processor alongside related continuous signals. 
-	//									Typical for  */
-	///	timestampsDerivedFromChannel, /* The timestamps are derived from a channel. Typical for events created by filter nodes */
-	//	timestampsFromGlobalSource /* The timestamps are derived from the global timed. Typical for sources without continuous channels */
-	//};
+	/** Returns the current 64-bit TTL word for this channel */
+	uint64 getTTLWord();
 
 private:
 
@@ -180,8 +158,9 @@ private:
 	size_t m_dataSize;
 	unsigned int m_length;
 	unsigned int m_maxTTLBits;
+	uint64 m_TTLWord;
 
-	Array<String> bitLabels;
+	Array<String> lineLabels;
 
 	JUCE_LEAK_DETECTOR(EventChannel);
 };

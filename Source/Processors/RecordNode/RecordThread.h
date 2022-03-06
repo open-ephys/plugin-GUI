@@ -36,31 +36,56 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class RecordNode;
 
+/**  
+* 
+*	A thread inside the RecordNode that allows continuous data, spikes,
+*   and events to be written outside of the process() method.
+* 
+*/
 class RecordThread : public Thread
 {
 public:
+
+	/** Constructor */
 	RecordThread(RecordNode* parentNode, const ScopedPointer<RecordEngine>& engine);
+
+	/** Destructor */
 	~RecordThread();
+
+	/** Sets the recording directory, experiment number, and recording number*/
 	void setFileComponents(File rootFolder, int experimentNumber, int recordingNumber);
+
+	/** Sets the channel index map */
 	void setChannelMap(const Array<int>& channels);
+
+	/** Sets the float timestamp channel map */
 	void setFTSChannelMap(const Array<int>& channels);
+
+	/** Sets the pointers to the 3 data queues*/
 	void setQueuePointers(DataQueue* data, EventMsgQueue* events, SpikeMsgQueue* spikes);
 
+	/** Runs the thread */
 	void run() override;
 
+	/** Sets whether the first block is being written */
 	void setFirstBlockFlag(bool state);
+
+	/** Force all open files to close */
 	void forceCloseFiles();
 
 	RecordNode *recordNode;
 	int64 samplesWritten;
 
 private:
+
+	/** Writes continuous data from an audio buffer */
 	void writeData(const AudioSampleBuffer& buffer, 
 		int maxSamples, 
 		int maxEvents, 
 		int maxSpikes, 
 		bool lastBlock = false);
 
+	/** Writes continuous data with an array of synchronized timestamps */
 	void writeSynchronizedData(const AudioSampleBuffer& dataBuffer, 
 		const SynchronizedTimestampBuffer& ftsBuffer, 
 		int maxSamples, 
@@ -68,7 +93,6 @@ private:
 		int maxSpikes, 
 		bool lastBlock = false);
 
-	//const OwnedArray<RecordEngine>& m_engineArray;
 	const ScopedPointer<RecordEngine>& m_engine;
 	Array<int> m_channelArray;
 	Array<int> m_ftsChannelArray;

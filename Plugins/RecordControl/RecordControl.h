@@ -35,14 +35,21 @@
 class RecordControl : public GenericProcessor
 {
 public:
+
+    /** Constructor */
     RecordControl();
+
+    /** Destructor */
     ~RecordControl() { }
 
+    /** Create Record Control Editor*/
     AudioProcessorEditor* createEditor() override;
 
-    void process (AudioSampleBuffer& buffer) override;
+    /** Call handleEvent() */
+    void process (AudioBuffer<float>& buffer) override;
 
-    void handleEvent (const EventChannel* eventInfo, const EventPacket& event, int) override;
+    /** Respond to incoming events */
+    void handleEvent (TTLEventPtr event) override;
 
 private:
 

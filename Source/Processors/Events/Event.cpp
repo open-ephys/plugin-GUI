@@ -36,9 +36,12 @@ Event::Type EventBase::getBaseType(const EventPacket& packet)
 {
 	const uint8* data = packet.getRawData();
 
-	return static_cast<Event::Type> (*data); // remove mask, not likely needed
+	return static_cast<Event::Type> (*data);
+}
 
-	//return static_cast<Event::Type> ((*data) &0x7F); // deprecated
+Event::Type EventBase::getBaseType(const uint8* data)
+{
+	return static_cast<Event::Type> (*data);
 }
 
 uint16 EventBase::getProcessorId() const
@@ -50,6 +53,11 @@ uint16 EventBase::getProcessorId(const EventPacket& packet)
 {
 	const uint8* data = packet.getRawData();
 
+	return *reinterpret_cast<const uint16*>(data + 2);
+}
+
+uint16 EventBase::getProcessorId(const uint8* data)
+{
 	return *reinterpret_cast<const uint16*>(data + 2);
 }
 
@@ -65,6 +73,12 @@ uint16 EventBase::getStreamId(const EventPacket& packet)
 	return *reinterpret_cast<const uint16*>(data + 4);
 }
 
+
+uint16 EventBase::getStreamId(const uint8* data)
+{
+	return *reinterpret_cast<const uint16*>(data + 4);
+}
+
 uint16 EventBase::getChannelIndex() const
 {
 	return m_sourceChannelIndex;
@@ -76,6 +90,12 @@ uint16 EventBase::getChannelIndex(const EventPacket& packet)
 
 	return *reinterpret_cast<const uint16*>(data + 6);
 }
+
+uint16 EventBase::getChannelIndex(const uint8* data)
+{
+	return *reinterpret_cast<const uint16*>(data + 6);
+}
+
 
 juce::int64 EventBase::getTimestamp() const
 {
@@ -356,19 +376,19 @@ bool TTLEvent::getState(const EventPacket& packet)
 	return state_byte == 1;
 }
 
-uint8 TTLEvent::getBit() const
+uint8 TTLEvent::getLine() const
 {
 	return m_data[0];
 }
 
-uint8 TTLEvent::getBit(const EventPacket& packet)
+uint8 TTLEvent::getLine(const EventPacket& packet)
 {
 	return *reinterpret_cast<const uint8*>(packet.getRawData() + EVENT_BASE_SIZE);
 }
 
-const void* TTLEvent::getTTLWordPointer() const
+uint64 TTLEvent::getWord() const
 {
-	return m_data.getData();
+	return *(reinterpret_cast<const uint64*>(m_data[2]));
 }
 
 void TTLEvent::serialize(void* dstBuffer, size_t dstSize) const
@@ -383,30 +403,50 @@ void TTLEvent::serialize(void* dstBuffer, size_t dstSize) const
 	serializeMetadata(buffer + eventSize);
 }
 
-TTLEventPtr TTLEvent::createTTLEvent(const EventChannel* channelInfo, 
-	juce::int64 timestamp, 
-	uint8 bit,
+TTLEventPtr TTLEvent::createTTLEvent(EventChannel* channelInfo,
+	juce::int64 timestamp,
+	uint8 line,
 	bool state)
 {
-	uint8 data[2];
+	uint8 data[10];
 
-	data[0] = bit;
+	data[0] = line;
 	data[1] = state;
-	
+
+	channelInfo->setLineState(line, state);
+	*reinterpret_cast<uint64*>(data + 2) = channelInfo->getTTLWord();
+
 	return new TTLEvent(channelInfo, timestamp, data);
 }
 
 TTLEventPtr TTLEvent::createTTLEvent(const EventChannel* channelInfo, 
 	juce::int64 timestamp, 
-	uint8 bit,
+	uint8 line,
+	bool state,
+	uint64 word)
+{
+	uint8 data[10];
+
+	data[0] = line;
+	data[1] = state;
+	*reinterpret_cast<uint64*>(data + 2) = word;
+	
+	return new TTLEvent(channelInfo, timestamp, data);
+}
+
+TTLEventPtr TTLEvent::createTTLEvent(EventChannel* channelInfo, 
+	juce::int64 timestamp, 
+	uint8 line,
 	bool state,
 	const MetadataValueArray& metaData)
 {
 
-	uint8 data[2];
+	uint8 data[10];
 
-	data[0] = bit;
+	data[0] = line;
 	data[1] = state;
+	channelInfo->setLineState(line, state);
+	*reinterpret_cast<uint64*>(data + 2) = channelInfo->getTTLWord();
 
 	TTLEventPtr event = new TTLEvent(channelInfo, timestamp, data);
 	
@@ -415,18 +455,11 @@ TTLEventPtr TTLEvent::createTTLEvent(const EventChannel* channelInfo,
 	return event;
 }
 
-TTLEventPtr TTLEvent::deserialize(const EventPacket& packet, const EventChannel* channelInfo)
+TTLEventPtr TTLEvent::deserialize(const uint8* buffer, const EventChannel* channelInfo)
 {
-	size_t totalSize = packet.getRawDataSize();
+
 	size_t dataSize = channelInfo->getDataSize();
 	size_t metaDataSize = channelInfo->getTotalEventMetadataSize();
-
-	if (totalSize != (dataSize + EVENT_BASE_SIZE + metaDataSize))
-	{
-		jassertfalse;
-		return nullptr;
-	}
-	const uint8* buffer = packet.getRawData();
 
 	if (static_cast<Event::Type>(*(buffer + 0)) != PROCESSOR_EVENT)
 	{
@@ -470,23 +503,28 @@ TTLEventPtr TTLEvent::deserialize(const EventPacket& packet, const EventChannel*
 
 	juce::int64 timestamp = *(reinterpret_cast<const juce::int64*>(buffer + 8));
 
-	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + 16));
-
-	ScopedPointer<TTLEvent> event = new TTLEvent(channelInfo, 
+	ScopedPointer<TTLEvent> event = new TTLEvent(channelInfo,
 		timestamp,
 		(buffer + EVENT_BASE_SIZE));
 
 	bool ret = true;
 	if (metaDataSize > 0)
-		 ret = event->deserializeMetadata(channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
+		ret = event->deserializeMetadata(channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
 
 	if (ret)
 		return event.release();
 	else
 	{
- 		jassertfalse;
+		jassertfalse;
 		return nullptr;
 	}
+}
+
+TTLEventPtr TTLEvent::deserialize(const EventPacket& packet, const EventChannel* channelInfo)
+{
+	
+	return deserialize(packet.getRawData(), channelInfo);
+	
 }
 
 TextEvent::TextEvent(const EventChannel* channelInfo, juce::int64 timestamp, const String& text)
@@ -554,18 +592,10 @@ TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo,
 	return event;
 }
 
-TextEventPtr TextEvent::deserialize(const EventPacket& packet, const EventChannel* channelInfo)
+TextEventPtr TextEvent::deserialize(const uint8* buffer, const EventChannel* channelInfo)
 {
-	size_t totalSize = packet.getRawDataSize();
 	size_t dataSize = channelInfo->getDataSize();
 	size_t metaDataSize = channelInfo->getTotalEventMetadataSize();
-
-	if (totalSize != (dataSize + EVENT_BASE_SIZE + metaDataSize))
-	{
-		jassertfalse;
-		return nullptr;
-	}
-	const uint8* buffer = packet.getRawData();
 
 	if (static_cast<Event::Type> (*(buffer + 0)) != PROCESSOR_EVENT)
 	{
@@ -590,20 +620,6 @@ TextEventPtr TextEvent::deserialize(const EventPacket& packet, const EventChanne
 		return nullptr;
 	}
 
-	//if (*reinterpret_cast<const uint16*>(buffer + 4) != channelInfo->getStreamId())
-	//{
-        //std::cout << "Expected stream ID: " <<channelInfo->getStreamId() << std::endl;
-        // std::cout << "Found stream ID: " <<*reinterpret_cast<const uint16*>(buffer + 4) << std::endl;
-		//jassertfalse;
-		//return nullptr;
-	//}
-    
-	//if (*reinterpret_cast<const uint16*>(buffer + 6) != channelInfo->getLocalIndex())
-	//{
-	//	jassertfalse;
-	//	return nullptr;
-	//}
-
 	juce::int64 timestamp = *(reinterpret_cast<const juce::int64*>(buffer + 8));
 	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + 16));
 	String text = String::fromUTF8(reinterpret_cast<const char*>(buffer + EVENT_BASE_SIZE), dataSize);
@@ -622,6 +638,14 @@ TextEventPtr TextEvent::deserialize(const EventPacket& packet, const EventChanne
 		jassertfalse;
 		return nullptr;
 	}
+
+}
+
+TextEventPtr TextEvent::deserialize(const EventPacket& packet, const EventChannel* channelInfo)
+{
+
+	return deserialize(packet.getRawData(), channelInfo);
+
 }
 
 BinaryEvent::BinaryEvent(const EventChannel* channelInfo, 
