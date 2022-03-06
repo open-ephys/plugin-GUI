@@ -577,7 +577,7 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 }
 
 // only called if recordSpikes is true
-void RecordNode::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition)
+void RecordNode::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition, const uint8* rawData)
 {
 
 	SpikePtr newSpike = Spike::deserialize(packet, spikeInfo);

@@ -104,7 +104,7 @@ public:
     /** Ends animation callbacks*/
     void endAnimation();
 
-    /** Called when the component's tab becomse visible again*/
+    /** Called when the component's tab becomes visible again*/
     void refreshState();
 
     /** Creates spike displays for incoming spike channels*/

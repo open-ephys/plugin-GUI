@@ -59,7 +59,6 @@ void SpikeDisplayEditor::initializeButtons()
     x = xInitial;
     y += h + yPad/2;
 
-
     panDownBtn = new UtilityButton("-", titleFont);
     panDownBtn->setCorners(true, false, true, false);
     panDownBtn->setBounds(x, y, w, h);
@@ -73,7 +72,6 @@ void SpikeDisplayEditor::initializeButtons()
     panUpBtn->setClickingTogglesState(false);
     panUpBtn->addListener(this);
     x+= w+xPad*2;
-
 
     zoomOutBtn = new UtilityButton("-", titleFont);
     zoomOutBtn->setCorners(true, false, true, false);
@@ -165,20 +163,10 @@ Visualizer* SpikeDisplayEditor::createNewCanvas()
 {
 
     SpikeDisplayNode* processor = (SpikeDisplayNode*) getProcessor();
+
     return new SpikeDisplayCanvas(processor);
 
 }
-
-// void SpikeDisplayEditor::updateSettings()
-// {
-// 	// called by base class
-
-// }
-
-// void SpikeDisplayEditor::updateVisualizer()
-// {
-
-// }
 
 void SpikeDisplayEditor::buttonClicked(Button* button)
 {

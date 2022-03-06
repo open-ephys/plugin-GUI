@@ -1140,7 +1140,7 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 				const SpikeChannel* spikeChannel = getSpikeChannel(sourceProcessorId, sourceStreamId, sourceChannelIdx);
 
 				if (spikeChannel != nullptr)
-					handleSpike(spikeChannel, message, meta.samplePosition);
+					handleSpike(spikeChannel, message, meta.samplePosition, meta.data);
 			}
 		}
 		// Restore the original buffer pointer and, if some new events have 
@@ -1738,7 +1738,7 @@ void GenericProcessor::updateSettings() { }
 
 void GenericProcessor::handleEvent(const EventChannel* eventInfo, const EventPacket& packet, int samplePosition) {}
 
-void GenericProcessor::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition) {}
+void GenericProcessor::handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition, const uint8* rawData) {}
 
 void GenericProcessor::handleTimestampSyncTexts(const EventPacket& packet) {};
 

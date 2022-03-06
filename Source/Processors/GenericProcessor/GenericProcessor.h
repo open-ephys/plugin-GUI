@@ -547,7 +547,7 @@ protected:
 	virtual void handleEvent(const EventChannel* eventInfo, const EventPacket& packet, int samplePosition = 0);
 
 	/** Makes it easier for processors to respond to incoming spikes. Called if checkForEvents(true) returns true. */
-	virtual void handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition = 0);
+	virtual void handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition = 0, const uint8* rawData = nullptr);
 
 	/** Responds to TIMESTAMP_SYNC_TEXT system events, in case a processor needs to listen to them (useful for the record node) */
 	virtual void handleTimestampSyncTexts(const EventPacket& event);

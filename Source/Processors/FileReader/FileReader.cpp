@@ -518,6 +518,8 @@ void FileReader::process(AudioBuffer<float>& buffer)
     {
         switchBuffer();
     }
+
+    //std::cout << "Reading " << samplesNeededPerBuffer << " samples. " << std::endl;
     
     for (int i = 0; i < currentNumChannels; ++i)
     {

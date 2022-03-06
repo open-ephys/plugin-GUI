@@ -212,7 +212,7 @@ private:
 	void handleEvent(const EventChannel* eventInfo, const EventPacket& packet, int samplePosition) override;
 
 	/** Writes incoming spikes to disk */
-	void handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition) override;
+	void handleSpike(const SpikeChannel* spikeInfo, const EventPacket& packet, int samplePosition, const uint8* rawData) override;
 
 	/** Handles incoming timestamp sync messages */
 	virtual void handleTimestampSyncTexts(const EventPacket& packet);
