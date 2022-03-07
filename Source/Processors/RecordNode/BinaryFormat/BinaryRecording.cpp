@@ -705,8 +705,8 @@ void BinaryRecording::writeSpike(int electrodeIndex, const Spike* spike)
 
 	rec->channels->writeData(&spikeChannel, sizeof(uint16));
 
-	uint16 sortedID = spike->getSortedID();
-	rec->extraFile->writeData(&sortedID, sizeof(uint16));
+	uint16 sortedId = spike->getSortedId();
+	rec->extraFile->writeData(&sortedId, sizeof(uint16));
 
 	//writeEventMetadata(spike, rec->metaDataFile.get());
 

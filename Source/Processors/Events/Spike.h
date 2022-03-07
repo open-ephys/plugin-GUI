@@ -137,7 +137,7 @@ public:
 	float getThreshold(int chan) const;
 
 	/* Get the sorted ID for this spike*/
-	uint16 getSortedID() const;
+	uint16 getSortedId() const;
 
 	/* Create a Spike object*/
 	static SpikePtr createSpike(const SpikeChannel* channelInfo, 
@@ -157,7 +157,7 @@ public:
 	/** Allows downstream processor to update the sorted ID 
 	   WARNING -- since the original byte buffer has to exist,
 	   this should only be done inside the handleSpike() method!!! */
-	void setSortedID(uint16 sortedID);
+	void setSortedId(uint16 sortedId);
 
 	/* Deserialize a Spike object from an event packet*/
 	static SpikePtr deserialize(const EventPacket& packet, const SpikeChannel* channelInfo);

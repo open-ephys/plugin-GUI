@@ -588,10 +588,9 @@ void WaveAxes::plotSpike(const Spike* s, Graphics& g)
 	int nSamples = sc->getTotalSamples();
 	float dx = getWidth() / float(nSamples);
 
-    //TODO: check for special metadata for this
-	//if (s.sortedId > 0)
-    //   g.setColour(Colour(s.color[0],s.color[1],s.color[2]));
-    //else
+    if (s->getSortedId() > 0)
+        g.setColour(Colours::yellow);
+    else
        g.setColour(Colours::white);
 
     // type corresponds to channel so we need to calculate the starting
@@ -893,7 +892,7 @@ bool ProjectionAxes::updateSpikeData(const Spike* s)
     Colour col;
 
 	//Again, fix this adding proper metadata check
-    if (s->getSortedID() > 0)
+    if (s->getSortedId() > 0)
         col = Colours::yellow;
     else
         col = Colours::white;

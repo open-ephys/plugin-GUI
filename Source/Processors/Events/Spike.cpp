@@ -61,7 +61,7 @@ const float* Spike::getDataPointer() const
 	return m_data.getData();
 }
 
-uint16 Spike::getSortedID() const
+uint16 Spike::getSortedId() const
 {
 	return m_sortedID;
 }
@@ -213,11 +213,11 @@ SpikePtr Spike::createSpike(const SpikeChannel* channelInfo,
 	return event;
 }
 
-void Spike::setSortedID(uint16 sortedID)
+void Spike::setSortedId(uint16 sortedId)
 {
 	uint8* modifiableBuffer = const_cast<uint8*>(buffer);
 
-	*(reinterpret_cast<uint16*>(modifiableBuffer + 16)) = sortedID;
+	*(reinterpret_cast<uint16*>(modifiableBuffer + 16)) = sortedId;
 }
 
 SpikePtr Spike::deserialize(const uint8* buffer, const SpikeChannel* channelInfo)

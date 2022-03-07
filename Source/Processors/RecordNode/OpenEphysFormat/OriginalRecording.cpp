@@ -670,7 +670,7 @@ void OriginalRecording::writeSpike(int electrodeIndex, const Spike* spike)
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 17) = spike->getProcessorId();
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 19) = numChannels;
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 21) = chanSamples;
-	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 23) = spike->getSortedID();
+	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 23) = spike->getSortedId();
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 25) = electrodeIndex; //Legacy value
 	*reinterpret_cast<uint16*>(spikeBuffer.getData() + 27) = 0; //Legacy unused value
 	zeromem(spikeBuffer.getData() + 29, 3 * sizeof(uint8));
