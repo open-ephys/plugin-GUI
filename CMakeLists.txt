@@ -159,8 +159,9 @@ if(MSVC)
 
 elseif(LINUX)
 	if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-
+		target_compile_options(open-ephys PRIVATE -O0) #enable optimization for linux debug
 	elseif (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+		target_compile_options(open-ephys PRIVATE -O3) #enable optimization for linux release
 	else()
 		message(FATAL_ERROR "Invalid build type")
 	endif()
@@ -180,7 +181,6 @@ elseif(LINUX)
 		"-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/shared'")
 
 	target_compile_options(open-ephys PRIVATE -fPIC -rdynamic -fvisibility=hidden -Wno-free-nonheap-object)
-	target_compile_options(open-ephys PRIVATE -O0) #enable optimization for linux debug
 	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/${CMAKE_BUILD_TYPE})
 
 	set(DLLDIR ${RESOURCES_DIRECTORY}/DLLs/Linux)
