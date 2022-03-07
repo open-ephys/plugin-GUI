@@ -388,7 +388,7 @@ uint8 TTLEvent::getLine(const EventPacket& packet)
 
 uint64 TTLEvent::getWord() const
 {
-	return *(reinterpret_cast<const uint64*>(m_data[2]));
+	return *(reinterpret_cast<const uint64*>(m_data + 2));
 }
 
 void TTLEvent::serialize(void* dstBuffer, size_t dstSize) const
@@ -399,6 +399,10 @@ void TTLEvent::serialize(void* dstBuffer, size_t dstSize) const
 	
 	size_t dataSize = m_channelInfo->getDataSize();
 	size_t eventSize = dataSize + EVENT_BASE_SIZE;
+	/*std::cout << "SERIALIZE!" << std::endl;
+	std::cout << eventSize << std::endl;
+	std::cout << dataSize << std::endl;
+	std::cout << getWord() << std::endl;*/
 	memcpy((buffer + EVENT_BASE_SIZE), m_data.getData(), dataSize);
 	serializeMetadata(buffer + eventSize);
 }

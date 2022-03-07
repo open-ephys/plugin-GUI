@@ -650,7 +650,6 @@ void BinaryRecording::writeEvent(int eventIndex, const EventPacket& event)
             uint64 fullWord = ttl->getWord();
             rec->extraFile->writeData(&fullWord, sizeof(uint64));
         }
-			
 
 	}
 	else if (ev->getEventType() == EventChannel::TEXT)

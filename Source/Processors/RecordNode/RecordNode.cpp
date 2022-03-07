@@ -543,17 +543,16 @@ void RecordNode::handleEvent(TTLEventPtr event)
 
 	eventMonitor->receivedEvents++;
 
-	if (recordEvents)
+	int64 timestamp = event->getTimestamp();
+
+	synchronizer->addEvent(event->getStreamId(), event->getLine(), timestamp);
+
+	if (recordEvents && isRecording)
 	{
-
-		int64 timestamp = event->getTimestamp();
-
-		synchronizer->addEvent(event->getStreamId(), event->getLine(), timestamp);
 
 		size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
 
 		HeapBlock<char> buffer(size);
-
 		event->serialize(buffer, size);
 
 		eventQueue->addEvent(EventPacket(buffer, size), timestamp);
@@ -565,21 +564,18 @@ void RecordNode::handleEvent(TTLEventPtr event)
 void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& packet)
 {
 
-	if (recordEvents) 
+	if (recordEvents && isRecording) 
 	{
 
-		int64 timestamp = Event::getTimestamp(packet);
+	    int64 timestamp = Event::getTimestamp(packet);
 
-		if (isRecording)
-		{
-			int eventIndex;
-			if (SystemEvent::getBaseType(packet) == EventBase::Type::SYSTEM_EVENT)
-				eventIndex = -1;
-			else
-				eventIndex = getIndexOfMatchingChannel(eventInfo);
+		int eventIndex;
+		if (SystemEvent::getBaseType(packet) == EventBase::Type::SYSTEM_EVENT)
+			eventIndex = -1;
+		else
+			eventIndex = getIndexOfMatchingChannel(eventInfo);
 			
-			eventQueue->addEvent(packet, timestamp, eventIndex);
-		}
+		eventQueue->addEvent(packet, timestamp, eventIndex);
 
 	}
 

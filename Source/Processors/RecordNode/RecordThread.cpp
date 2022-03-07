@@ -147,7 +147,12 @@ void RecordThread::run()
 
 }
 
-void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, const SynchronizedTimestampBuffer& ftsBuffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock)
+void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, 
+										 const SynchronizedTimestampBuffer& ftsBuffer, 
+										 int maxSamples, 
+										 int maxEvents, 
+									     int maxSpikes, 
+									     bool lastBlock)
 {
 
 	Array<int64> timestamps;
@@ -189,7 +194,9 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 
 	for (int ev = 0; ev < nEvents; ++ev)
 	{
+		
 		const MidiMessage& event = events[ev]->getData();
+		
 		if (SystemEvent::getBaseType(event) == EventBase::Type::SYSTEM_EVENT)
 		{
 			String syncText = SystemEvent::getSyncText(event);
@@ -226,7 +233,11 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, co
 	}
 }
 
-void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, int maxSamples, int maxEvents, int maxSpikes, bool lastBlock)
+void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, 
+							 int maxSamples, 
+							 int maxEvents, 
+							 int maxSpikes, 
+							 bool lastBlock)
 {
 	Array<int64> timestamps;
 	Array<CircularBufferIndexes> idx;
