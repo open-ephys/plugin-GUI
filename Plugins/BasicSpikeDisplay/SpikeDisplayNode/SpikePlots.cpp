@@ -430,6 +430,16 @@ GenericAxes::GenericAxes(SpikePlotType type_) :
 
     font = Font("Default", 12, Font::plain);
 
+    colours.add(Colour(255, 224, 93));
+    colours.add(Colour(255, 178, 99));
+    colours.add(Colour(255, 109, 161));
+    colours.add(Colour(246, 102, 255));
+    colours.add(Colour(175, 98, 255));
+    colours.add(Colour(90, 241, 233));
+    colours.add(Colour(109, 175, 136));
+    colours.add(Colour(255, 224, 93));
+    colours.add(Colour(160, 237, 181));
+
 }
 
 void GenericAxes::setYLims(double ymin, double ymax)
@@ -561,7 +571,6 @@ void WaveAxes::paint(Graphics& g)
 
         if (spikeNum != spikeIndex)
         {
-            g.setColour(Colours::grey);
             plotSpike(spikeBuffer[spikeNum], g);
         }
 
@@ -589,7 +598,7 @@ void WaveAxes::plotSpike(const Spike* s, Graphics& g)
 	float dx = getWidth() / float(nSamples);
 
     if (s->getSortedId() > 0)
-        g.setColour(Colours::yellow);
+        g.setColour(colours[(s->getSortedId() - 1) % 8]);
     else
        g.setColour(Colours::white);
 
@@ -891,9 +900,8 @@ bool ProjectionAxes::updateSpikeData(const Spike* s)
     // add peaks to image
     Colour col;
 
-	//Again, fix this adding proper metadata check
     if (s->getSortedId() > 0)
-        col = Colours::yellow;
+        col = colours[(s->getSortedId() - 1) % 8];
     else
         col = Colours::white;
 

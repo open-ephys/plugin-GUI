@@ -212,6 +212,8 @@ protected:
 
     Font font;
 
+    Array<Colour> colours;
+
     double ad16ToUv(int x, int gain);
 
 };

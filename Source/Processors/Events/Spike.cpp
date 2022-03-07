@@ -189,7 +189,7 @@ SpikePtr Spike::createSpike(const SpikeChannel* channelInfo,
 	Array<float> thresholds, 
 	Spike::Buffer& dataSource,
 	const MetadataValueArray& metaData,
-	uint16 sortedID)
+	uint16 sortedId)
 {
 	if (!channelInfo)
 	{
@@ -202,7 +202,9 @@ SpikePtr Spike::createSpike(const SpikeChannel* channelInfo,
 		jassertfalse;
 		return nullptr;
 	}
-	Spike* event = createBasicSpike(channelInfo, timestamp, thresholds, dataSource, sortedID);
+	
+	Spike* event = createBasicSpike(channelInfo, timestamp, thresholds, dataSource, sortedId);
+	
 	if (!event)
 	{
 		jassertfalse;
@@ -210,6 +212,7 @@ SpikePtr Spike::createSpike(const SpikeChannel* channelInfo,
 	}
 
 	event->m_metaDataValues.addArray(metaData);
+	
 	return event;
 }
 
