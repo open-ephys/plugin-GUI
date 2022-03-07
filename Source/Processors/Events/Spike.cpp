@@ -91,6 +91,7 @@ void Spike::serialize(void* destinationBuffer, size_t bufferSize) const
 	size_t dataSize = spikeChannel->getDataSize();
 	size_t eventSize = dataSize + SPIKE_BASE_SIZE + m_thresholds.size() * sizeof(float);
 	size_t totalSize = eventSize + spikeChannel->getTotalEventMetadataSize();
+
 	if (totalSize < bufferSize)
 	{
 		jassertfalse;
@@ -264,6 +265,7 @@ SpikePtr Spike::deserialize(const uint8* buffer, const SpikeChannel* channelInfo
 	memcpy(data.getData(), (buffer + SPIKE_BASE_SIZE + thresholdSize), dataSize);
 
 	SpikePtr event = new Spike(channelInfo, timestamp, thresholds, data, sortedID);
+	event->buffer = buffer;
 
 	bool ret = true;
 	if (metaDataSize > 0)
