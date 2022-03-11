@@ -56,26 +56,21 @@ public:
     /** Creates the SpikeDisplayCanvas */
     Visualizer* createNewCanvas();
 
+    /** Writes editor state to xml */
+    void saveVisualizerEditorParameters(XmlElement* xml) override;
+
+    /** Writes editor state to xml */
+    void loadVisualizerEditorParameters(XmlElement* xml) override;
+
 private:
 
-    UtilityButton* panUpBtn;
-    UtilityButton* panDownBtn;
-    UtilityButton* zoomInBtn;
-    UtilityButton* zoomOutBtn;
-    UtilityButton* clearBtn;
-    UtilityButton* saveImgBtn;
+    std::unique_ptr<UtilityButton> scaleUpBtn;
+    std::unique_ptr<UtilityButton> scaleDownBtn;
 
-    Label* panLabel;
-    Label* zoomLabel;
+    std::unique_ptr<Label> scaleLabel;
 
-    UtilityButton* allSubChansBtn;
-
-    int nSubChannels;
-    Label* subChanLabel;
-    UtilityButton* subChanBtn[MAX_N_SUB_CHAN];
-    bool subChanSelected[MAX_N_SUB_CHAN];
-
-    void initializeButtons();
+    Array<float> scaleFactors;
+    int selectedScaleFactor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayEditor);
 

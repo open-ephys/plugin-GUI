@@ -62,14 +62,15 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc,
             nProjAx = 6;
             nChannels = 4;
             minWidth = 400;
-            aspectRatio = 0.5f;
+            aspectRatio = 0.33f;
             break;
         default: // unsupported number of axes provided
-            //std::cout << "SpikePlot as UNKNOWN, defaulting to SINGLE_PLOT" << std::endl;
+            plotType = SINGLE_PLOT;
             nWaveAx = 1;
             nProjAx = 0;
-            plotType = SINGLE_PLOT;
             nChannels = 1;
+            minWidth = 200;
+            aspectRatio = 1.0f;
     }
 
     initAxes();
@@ -86,6 +87,7 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc,
     }
 
     monitorButton = std::make_unique<UtilityButton>("MON", Font("Small Text", 8, Font::plain));
+    monitorButton->setTooltip("Monitor this electrode (requires an Audio Monitor in the signal chain)");
     monitorButton->addListener(this);
     addAndMakeVisible(monitorButton.get());
 
@@ -242,11 +244,18 @@ void SpikePlot::resized()
     monitorButton->setBounds(getWidth() - 40, 3, 35, 15);
 }
 
+void SpikePlot::resetAudioMonitorState()
+{
+    monitorButton->setToggleState(false, dontSendNotification);
+}
+
 void SpikePlot::buttonClicked(Button* button)
 {
 
     if (button == monitorButton.get())
     {
+        canvas->resetAudioMonitorState();
+        button->setToggleState(true, dontSendNotification);
         canvas->processor->setParameter(10, electrodeNumber);
 
         return;

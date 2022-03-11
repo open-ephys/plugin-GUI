@@ -116,6 +116,12 @@ public:
     /** Respond to clear / lock thresholds / invert spikes buttons*/
     void buttonClicked(Button* button);
 
+    /** Clears audio monitor selection for all sub-plots*/
+    void resetAudioMonitorState();
+
+    /** Sets the scaling facotr for the sub-plots*/
+    void setPlotScaleFactor(float scale);
+
     /** Saves display parameters */
     void saveCustomParametersToXml(XmlElement* xml);
 

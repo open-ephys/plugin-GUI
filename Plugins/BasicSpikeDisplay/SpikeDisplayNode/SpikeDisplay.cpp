@@ -85,7 +85,6 @@ void SpikeDisplay::paint(Graphics& g)
 
 void SpikeDisplay::resized()
 {
-    // this is kind of a mess -- is there any way to optimize it?
 
     if (spikePlots.size() > 0)
     {
@@ -106,7 +105,6 @@ void SpikeDisplay::resized()
         float width = 0;
         float height = 0;
 
-
         float maxHeight = 0;
 
         for (int i = 0; i < spikePlots.size(); i++)
@@ -115,7 +113,7 @@ void SpikeDisplay::resized()
             if (spikePlots[i]->nChannels == 1)
             {
                 index = ++singlePlotIndex;
-                numColumns = (int) jmax(w / spikePlots[i]->minWidth, 1.0f);
+                numColumns = (int) jmax(w / spikePlots[i]->minWidth / scaleFactor, 1.0f);
                 width = jmin((float) w / (float) numColumns, (float) getWidth());
                 height = width * spikePlots[i]->aspectRatio;
 
@@ -123,7 +121,7 @@ void SpikeDisplay::resized()
             else if (spikePlots[i]->nChannels == 2)
             {
                 index = ++stereotrodePlotIndex;
-                numColumns = (int) jmax(w / spikePlots[i]->minWidth, 1.0f);
+                numColumns = (int) jmax(w / spikePlots[i]->minWidth / scaleFactor, 1.0f);
                 width = jmin((float) w / (float) numColumns, (float) getWidth());
                 height = width * spikePlots[i]->aspectRatio;
 
@@ -131,7 +129,7 @@ void SpikeDisplay::resized()
             else if (spikePlots[i]->nChannels == 4)
             {
                 index = ++tetrodePlotIndex;
-                numColumns = (int) jmax(w / spikePlots[i]->minWidth, 1.0f);
+                numColumns = (int) jmax(w / spikePlots[i]->minWidth / scaleFactor, 1.0f);
                 width = jmin((float) w / (float) numColumns, (float) getWidth());
                 height = width * spikePlots[i]->aspectRatio;
             }
@@ -155,7 +153,6 @@ void SpikeDisplay::resized()
 
         }
 
-
         for (int i = 0; i < spikePlots.size(); i++)
         {
 
@@ -175,7 +172,6 @@ void SpikeDisplay::resized()
                 spikePlots[i]->setBounds(x, y+stereotrodeStart+tetrodeStart, w2, h2);
                 maxHeight = jmax(maxHeight, (float) y+stereotrodeStart+tetrodeStart+h2);
             }
-
 
         }
 
@@ -213,7 +209,20 @@ void SpikeDisplay::invertSpikes(bool shouldInvert_)
 
 }
 
+void SpikeDisplay::resetAudioMonitorState()
+{
+    for (int i = 0; i < spikePlots.size(); i++)
+    {
+        spikePlots[i]->resetAudioMonitorState();
+    }
+}
 
+void SpikeDisplay::setPlotScaleFactor(float scale)
+{
+    scaleFactor = scale;
+
+    resized();
+}
 
 void SpikeDisplay::registerThresholdCoordinator(SpikeThresholdCoordinator* stc)
 {

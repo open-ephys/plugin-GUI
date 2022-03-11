@@ -121,6 +121,9 @@ public:
     void registerThresholdCoordinator(SpikeThresholdCoordinator* stc);
     void setAllThresholds(float displayThreshold, float range);
 
+    /** Clears audio monitor active state */
+    void resetAudioMonitorState();
+
     SpikeDisplayCanvas* canvas;
 
     void addSpikeToBuffer(const Spike* spike);

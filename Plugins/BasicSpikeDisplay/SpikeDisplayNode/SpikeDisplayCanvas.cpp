@@ -143,6 +143,7 @@ void SpikeDisplayCanvas::update()
 }
 
 
+
 void SpikeDisplayCanvas::refreshState()
 {
     // called when the component's tab becomes visible again
@@ -189,6 +190,17 @@ void SpikeDisplayCanvas::buttonClicked(Button* button)
     {
         spikeDisplay->invertSpikes(button->getToggleState());
     }
+}
+
+void SpikeDisplayCanvas::resetAudioMonitorState()
+{
+    spikeDisplay->resetAudioMonitorState();
+}
+
+
+void SpikeDisplayCanvas::setPlotScaleFactor(float scale)
+{
+    spikeDisplay->setPlotScaleFactor(scale);
 }
 
 void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)

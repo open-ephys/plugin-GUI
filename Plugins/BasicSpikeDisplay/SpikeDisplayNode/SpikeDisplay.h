@@ -98,6 +98,12 @@ public:
     /** Allows the threshold coordinator to change thresholds synchronously*/
     void registerThresholdCoordinator(SpikeThresholdCoordinator* stc);
 
+    /** Clears audio monitor selection for all sub-plots */
+    void resetAudioMonitorState();
+
+    /** Sets the size scaling for the sub-plots */
+    void setPlotScaleFactor(float scale);
+
 private:
 
     int totalHeight;
@@ -108,6 +114,8 @@ private:
     OwnedArray<SpikePlot> spikePlots;
 
     bool shouldInvert;
+
+    float scaleFactor = 1.0f;
 
     SpikeThresholdCoordinator* thresholdCoordinator;
 
