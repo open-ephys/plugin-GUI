@@ -31,8 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <atomic>
 
 #define BLOCK_MAX_WRITE_SAMPLES 4096
-#define BLOCK_MAX_WRITE_EVENTS 32
-#define BLOCK_MAX_WRITE_SPIKES 32
+#define BLOCK_MAX_WRITE_EVENTS 512
+#define BLOCK_MAX_WRITE_SPIKES 512
 
 class RecordNode;
 
