@@ -159,15 +159,9 @@ public:
     /** Sets the parameters of a given processor via XML save files*/
     void setParametersByXML(GenericProcessor*, XmlElement*);
 
-    /** Checks whether or not the signal chain scroll buttons need to be activated. */
-    //void checkScrollButtons(int topTab);
-
     /** Returns a boolean indicating whether or not the signal chain is empty. */
     bool isSignalChainEmpty();
 
-    /** The index of the left-most editor (used for scrolling purposes). */
-    //int leftmostEditor;
-    
     /** Updates visible editors (called after Processor Graph modifications)*/
     void updateVisibleEditors(Array<GenericEditor*> visibleEditors,
                               int numberOfTabs = 1,
@@ -176,27 +170,36 @@ public:
     /** Removes an editor from the editor array after it's processor has been deleted*/
     void removeEditor(GenericEditor* editor);
 
-    File currentFile;
-    
-    // Flag to check whether config is being loaded currently
-    bool loadingConfig;
-    
-    void paint(Graphics& g);
-    
-    int getDesiredWidth();
-    
+    /** Adds a processor to the signal chain, based on a Plugin description */
     GenericProcessor* addProcessor(Plugin::Description desc, int insertionPt);
-    
+
+    /** Deletes all processors that are currently selected */
     void deleteSelectedProcessors();
-    
+
+    /** Adds the parameters for the selected editors to the copy buffer */
+    void copySelectedEditors();
+
+    /** Creates a new processor based on XML settings */
     GenericProcessor* createProcessorAtInsertionPoint(XmlElement* processor, int insertionPt, bool ignoreNodeId);
-    
+
+    /** Returns a plugin description from XML settings */
     Plugin::Description getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId);
-    
+
+    /** Changes the I/O path of a spliter or merger*/
     void switchIO(GenericProcessor* processor, int path);
 
-    void copySelectedEditors();
+    File currentFile;
     
+    /** Flag to check whether config is being loaded */
+    bool loadingConfig;
+    
+    /** Draws the EditorViewport background */
+    void paint(Graphics& g);
+    
+    /** Returns the width of the viewport (for scrolling purposes) */
+    int getDesiredWidth();
+    
+    /** */
     void copy(Array<XmlElement*>);
     
     void paste();
@@ -217,7 +220,6 @@ private:
 
     String message;
     bool somethingIsBeingDraggedOver;
-    //bool shiftDown;
 
     GenericEditor* lastEditor;
     GenericEditor* lastEditorClicked;
@@ -259,7 +261,11 @@ private:
 class SignalChainTabButton : public Button
 {
 public:
+
+    /** Constructor */
     SignalChainTabButton(int index);
+
+    /** Destructor */
     ~SignalChainTabButton() {}
 
     int offset;

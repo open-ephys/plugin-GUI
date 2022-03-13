@@ -465,14 +465,6 @@ public:
 
     void updateDisplayName(String name);
 
-	//juce::int64 getLastProcessedsoftwareTime() const;
-
-	//static uint32 getProcessorFullId(uint16 processorId, uint16 streamIdx);
-
-	//static uint16 getNodeIdFromFullId(uint32 fullId);
-
-	//static uint16 getStreamFromFullId(uint32 fullid);
-
 	class PLUGIN_API DefaultEventInfo
 	{
 	public:
@@ -542,14 +534,10 @@ protected:
 	virtual int checkForEvents(bool respondToSpikes = false);
 
 	/** Allows processors to respond to incoming TTL events; called by checkForEvents() */
-	virtual void handleEvent(TTLEventPtr event) { }
+	virtual void handleTTLEvent(TTLEventPtr event) { }
 
 	/** Allows processors to respond to incoming spikes; called by checkForEvents(true) */
 	virtual void handleSpike(SpikePtr spike) { }
-
-	/** Returns the default number of datachannels outputs for a specific type and a specific subprocessor
-	Called by createDataChannels(). It is not needed to implement if createDataChannels() is overriden */
-	//virtual int getDefaultNumDataOutputs(ContinuousChannel::Type type, int subProcessorIdx = 0) const;
 
 	/** Returns info about the default events a specific subprocessor generates.
 	Called by createEventChannels(). It is not needed to implement if createEventChannels() is overriden */
@@ -560,24 +548,37 @@ protected:
     //     ADDING SPIKES AND EVENTS
     // --------------------------------------------
 
-    /** Create a simple TTL event channel with 8 bits - must be called during updateSettings() */
-    void addTTLChannel(String name);
-
-    /** Must be called during the process() method */
-    void flipTTLBit(int sampleIndex, int bit);
-
-    /** Must be called during the process() method */
-    bool getTTLBit(int bit);
-
-    /** Add an Event to the processing buffer */
-	void addEvent(const Event* event, int sampleNum);
+    /** Add an event (usually a TTLEventPtr) to the processing buffer */
+    void addEvent(const Event* event, int sampleNum);
 
     /** Sends a TEXT event to all other processors, via the MessageCenter, while acquisition is active.
-    If recording is active, this message will be recorded*/
+        If recording is active, this message will be recorded */
     void broadcastMessage(String msg);
 
     /** Add a Spike event to the outgoing buffer */
-	void addSpike(const Spike* event, int sampleNum);
+    void addSpike(const Spike* event);
+
+    /// OPTIONAL HELPER FUNCTIONS ///
+
+    /** Create a simple TTL event channel with 8 lines on the first incoming data stream
+        -- Must be called during updateSettings() --
+    */
+    void addTTLChannel(String name);
+
+    /** Flip the state of one of the TTL lines 
+        -- Must be called during the process() method --
+     */
+    void flipTTLState(int sampleIndex, int lineIndex);
+
+    /** Set the state of one of the TTL lines
+        -- Must be called during the process() method --
+     */
+    void setTTLState(int sampleIndex, int lineIndex, bool state);
+
+    /** Get the state of one of the TTL lines
+        -- Must be called during the process() method --
+     */
+    bool getTTLState(int lineIndex);
 
     // --------------------------------------------
     //     UPDATING SETTINGS
@@ -715,7 +716,7 @@ private:
     Parameter* currentParameter;
 
     EventChannel* ttlEventChannel;
-    Array<bool> ttlBitStates;
+    Array<bool> ttlLineStates;
 
     bool wasConnected;
 
@@ -724,13 +725,21 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericProcessor);
 };
 
+/** 
+    Measures the time elapsed between the start of each processing 
+    cycle and the end of a GenericProcessor's work.
+*/
 class LatencyMeter
 {
 public:
+
+    /** Constructor */
     LatencyMeter(GenericProcessor* processor);
 
+    /** Sets the latest latency values for each data stream */
     void setLatestLatency(std::map<uint16, juce::int64>& processStartTimes);
 
+    /** Updates the available data streams */
     void update(Array<const DataStream*>);
 
 private:

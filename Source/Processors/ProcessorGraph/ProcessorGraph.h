@@ -35,8 +35,6 @@ class RecordNode;
 class AudioNode;
 class MessageCenter;
 class SignalChainTabButton;
-class TimestampSourceSelectionWindow;
-
 
 struct ChannelKey {
     int inputNodeId;
@@ -183,30 +181,26 @@ public:
     /* Makes a particular branch of the signal chain visible, without updating any settings */
     void viewSignalChain(int index);
 
-	void setTimestampSource(int sourceIndex, int streamId);
-
-	void getTimestampSources(Array<const GenericProcessor*>& validSources, int& selectedSource, int& selectedSubIdx) const;
-
-	void getTimestampSources(int& selectedSource, int& selectedSubIdx) const;
-
+    /** Returns software time, independent of any processor timestamps */
     int64 getGlobalTimestamp() const;
 
+    /** Gets sample rate of software clock (1000 Hz) */
     float getGlobalSampleRate() const;
 
+    /** Gets the definition of the global timestamp source */
     String getGlobalTimestampSource() const;
 
-    void setTimestampWindow(TimestampSourceSelectionWindow* window);
-
-	//uint32 getGlobalTimestampSourceFullId() const;
-
+    /** Returns the stream ID for a particular node/channel combination */
     static int getStreamIdForChannel(Node& node, int channel);
 
+    /** Re-implementation of JUCE AudioProcessorGraph method that allows faster signal chain rendering */
     static bool isBufferNeededLater(int inputNodeId, int inputIndex, int outputNodeId, int outputIndex, bool* isValid);
 
+    /** Updates the map containing about connections between processors (for isBufferNeededLater) */
     static void updateBufferMap(int inputNodeId, int inputIndex, int outputNodeId, int outputIndex, bool isNeededLater);
     
+    /** Stores information about connections between processors */
     static std::map< ChannelKey, bool> bufferLookupMap;
-
 
 private:
 
@@ -224,19 +218,12 @@ private:
 
     /* Connect a processor to the MessageCenter*/
     void connectProcessorToMessageCenter(GenericProcessor* source);
-
-	int64 m_startSoftTimestamp{ 0 };
-	const GenericProcessor* m_timestampSource{ nullptr };
-	int m_timestampSourceStreamId;
-	Array<const GenericProcessor*> m_validTimestampSources;
-	WeakReference<TimestampSourceSelectionWindow> m_timestampWindow;
     
     Array<GenericProcessor*> rootNodes;
 
     int currentNodeId;
 
     bool isLoadingSignalChain;
-
 
 };
 

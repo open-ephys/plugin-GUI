@@ -538,7 +538,7 @@ void RecordNode::setRecordSpikes(bool recordSpikes)
 	this->recordSpikes = recordSpikes;
 }
 
-void RecordNode::handleEvent(TTLEventPtr event)
+void RecordNode::handleTTLEvent(TTLEventPtr event)
 {
 
 	eventMonitor->receivedEvents++;

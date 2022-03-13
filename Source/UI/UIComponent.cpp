@@ -118,9 +118,6 @@
 UIComponent::~UIComponent()
 {
 	dataViewport->destroyTab(0); // get rid of tab for InfoLabel
-	
-	if (timestampWindow)
-		delete timestampWindow;
 
 	if (pluginInstaller)
 	{
@@ -500,7 +497,6 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		toggleFileInfo,
 		showHelp,
 		resizeWindow,
-		openTimestampSelectionWindow,
 		openPluginInstaller,
 		openDefaultConfigWindow
 	};
@@ -599,10 +595,6 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			result.setInfo("File Info", "Show/hide File Info.", "General", 0);
 			result.addDefaultKeypress('F', ModifierKeys::shiftModifier);
 			result.setTicked(controlPanel->isOpen());
-			break;
-
-		case openTimestampSelectionWindow:
-			result.setInfo("Timestamp Source", "Show timestamp source selection window.", "General", 0);
 			break;
 
 		case openPluginInstaller:
@@ -816,15 +808,6 @@ bool UIComponent::perform(const InvocationInfo& info)
 
 		case resizeWindow:
 			mainWindow->centreWithSize(1200, 800);
-			break;
-
-		case openTimestampSelectionWindow:
-			if (timestampWindow == nullptr)
-			{
-				timestampWindow = new TimestampSourceSelectionWindow();
-			}
-			timestampWindow->setVisible(true);
-			timestampWindow->toFront(true);
 			break;
 
 		case openPluginInstaller:

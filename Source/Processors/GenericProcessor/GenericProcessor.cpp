@@ -1099,8 +1099,8 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 
 	if (m_currentMidiBuffer->getNumEvents() > 0)
 	{
-		//Since adding events to the buffer inside this loop could be dangerous, create a temporary event buffer
-		//so any call to addEvent will operate on it;
+		/** Since adding events to the buffer inside this loop could be dangerous, create a temporary event buffer
+		    so any call to addEvent will operate on it; */
 		MidiBuffer temporaryEventBuffer;
 		MidiBuffer* originalEventBuffer = m_currentMidiBuffer;
 		m_currentMidiBuffer = &temporaryEventBuffer;
@@ -1120,7 +1120,7 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
                     
                     if (eventChannel != nullptr)
                     {
-                        handleEvent(TTLEvent::deserialize(meta.data, eventChannel));
+                        handleTTLEvent(TTLEvent::deserialize(meta.data, eventChannel));
                     }
                 }
 
@@ -1129,8 +1129,11 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 			{
 				const SpikeChannel* spikeChannel = getSpikeChannel(sourceProcessorId, sourceStreamId, sourceChannelIdx);
 
-				if (spikeChannel != nullptr)
-					handleSpike(Spike::deserialize(meta.data, spikeChannel));
+                if (spikeChannel != nullptr)
+                {
+                    handleSpike(Spike::deserialize(meta.data, spikeChannel));
+                }
+					
 			}
 		}
 		// Restore the original buffer pointer and, if some new events have 
@@ -1191,10 +1194,10 @@ void GenericProcessor::addTTLChannel(String name)
 		eventChannels.add(new EventChannel(settings));
 		ttlEventChannel = eventChannels.getLast();
 
-		ttlBitStates.clear();
+        ttlLineStates.clear();
 
 		for (int i = 0; i < 8; i++)
-			ttlBitStates.add(false);
+            ttlLineStates.add(false);
 	}
 	else {
 		jassert(false); // cannot add a second default TTL channel
@@ -1202,27 +1205,41 @@ void GenericProcessor::addTTLChannel(String name)
 }
 
 
-void GenericProcessor::flipTTLBit(int sampleIndex, int bit)
+void GenericProcessor::flipTTLState(int sampleIndex, int lineIndex)
 {
-	if (bit < 0 || bit >= 8)
+	if (lineIndex < 0 || lineIndex >= 8)
 		return;
 
-	bool currentState = ttlBitStates[bit];
-	ttlBitStates.set(bit, !currentState);
+	bool currentState = ttlLineStates[lineIndex];
+    ttlLineStates.set(lineIndex, !currentState);
 
 	int64 timestamp = timestamps[ttlEventChannel->getStreamId()] + sampleIndex;
 
-	TTLEventPtr eventPtr = TTLEvent::createTTLEvent(ttlEventChannel, timestamp, bit, !currentState);
+	TTLEventPtr eventPtr = TTLEvent::createTTLEvent(ttlEventChannel, timestamp, lineIndex, !currentState);
 
 	addEvent(eventPtr, sampleIndex);
 }
 
-bool GenericProcessor::getTTLBit(int bit)
+void GenericProcessor::setTTLState(int sampleIndex, int lineIndex, bool state)
 {
-	if (bit < 0 || bit >= 8)
+    if (lineIndex < 0 || lineIndex >= 8)
+        return;
+
+    ttlLineStates.set(lineIndex, state);
+
+    int64 timestamp = timestamps[ttlEventChannel->getStreamId()] + sampleIndex;
+
+    TTLEventPtr eventPtr = TTLEvent::createTTLEvent(ttlEventChannel, timestamp, lineIndex, state);
+
+    addEvent(eventPtr, sampleIndex);
+}
+
+bool GenericProcessor::getTTLState(int lineIndex)
+{
+	if (lineIndex < 0 || lineIndex >= 8)
 		return false;
 
-	return ttlBitStates[bit];
+	return ttlLineStates[lineIndex];
 }
 
 void GenericProcessor::broadcastMessage(String msg)
@@ -1230,18 +1247,18 @@ void GenericProcessor::broadcastMessage(String msg)
 	AccessClass::getMessageCenter()->broadcastMessage(msg);
 }
 
-void GenericProcessor::addSpike(const Spike* spike, int sampleNum)
+void GenericProcessor::addSpike(const Spike* spike)
 {
-	size_t size = spike->spikeChannel->getDataSize()
+	size_t size = SPIKE_BASE_SIZE
+        + spike->spikeChannel->getDataSize()
 		+ spike->spikeChannel->getTotalEventMetadataSize()
-		+ SPIKE_BASE_SIZE 
-		+ spike->spikeChannel->getNumChannels()*sizeof(float);
+		+ spike->spikeChannel->getNumChannels() * sizeof(float);
 
 	HeapBlock<char> buffer(size);
 
 	spike->serialize(buffer, size);
 
-	m_currentMidiBuffer->addEvent(buffer, size, sampleNum >= 0 ? sampleNum : 0);
+	m_currentMidiBuffer->addEvent(buffer, size, 0);
 }
 
 

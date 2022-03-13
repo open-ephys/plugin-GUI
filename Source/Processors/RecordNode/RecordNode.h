@@ -214,7 +214,7 @@ private:
 	void handleEvent(const EventChannel* channel, const EventPacket& eventPacket);
 
 	/** Forwards TTL events to the EventQueue */
-	void handleEvent(TTLEventPtr event) override;
+	void handleTTLEvent(TTLEventPtr event) override;
 
 	/** Writes incoming spikes to disk */
 	void handleSpike(SpikePtr spike) override;

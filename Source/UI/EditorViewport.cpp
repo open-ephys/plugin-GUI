@@ -1398,16 +1398,8 @@ std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
     xml->addChildElement(editorViewportSettings);
     
     XmlElement* audioSettings = new XmlElement("AUDIO");
-
     AccessClass::getAudioComponent()->saveStateToXml(audioSettings);
     xml->addChildElement(audioSettings);
-
-	XmlElement* timestampSettings = new XmlElement("GLOBAL_TIMESTAMP");
-	int tsID, tsSubID;
-	AccessClass::getProcessorGraph()->getTimestampSources(tsID, tsSubID);
-	timestampSettings->setAttribute("selected_index", tsID);
-	timestampSettings->setAttribute("selected_sub_index", tsSubID);
-	xml->addChildElement(timestampSettings);
 
     //Resets Save Order for processors, allowing them to be saved again without omitting themselves from the order.
     int allProcessorSize = allProcessors.size();
@@ -1707,12 +1699,6 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
         {
             signalChainTabComponent->setScrollOffset(element->getIntAttribute("scroll", 0));
         }
-		else if (element->hasTagName("GLOBAL_TIMESTAMP"))
-		{
-			int tsID = element->getIntAttribute("selected_index", -1);
-			int tsSubID = element->getIntAttribute("selected_sub_index");
-			AccessClass::getProcessorGraph()->setTimestampSource(tsID, tsSubID);
-		}
 
     }
 

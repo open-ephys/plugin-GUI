@@ -25,7 +25,7 @@
 #define __UICOMPONENT_H_D97C73CF__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "TimestampSourceSelection.h"
+
 #include "PluginInstaller.h"
 #include "MessageCenterButton.h"
 #include "DefaultConfig.h"
@@ -43,7 +43,6 @@ class InfoLabel;
 class DataViewport;
 class EditorViewport;
 class SignalChainTabComponent;
-class TimestampSourceSelectionWindow;
 class DefaultConfigWindow;
 
 /**
@@ -167,8 +166,6 @@ private:
     ScopedPointer<GraphViewer> graphViewer;
 	ScopedPointer<PluginManager> pluginManager;
 
-	WeakReference<TimestampSourceSelectionWindow> timestampWindow;
-
     WeakReference<PluginInstaller> pluginInstaller;
 
     WeakReference<DefaultConfigWindow> defaultConfigWindow;
@@ -210,7 +207,6 @@ private:
         resizeWindow            = 0x2012,
         reloadOnStartup         = 0x2013,
         saveSignalChainAs       = 0x2014,
-		openTimestampSelectionWindow = 0x2015,
         openPluginInstaller     = 0x2016,
         openDefaultConfigWindow = 0x2017,
         loadPluginSettings      = 0x3001,
