@@ -92,13 +92,13 @@ void InteractivePlot::getRangeLimit(XYRange& limit_)
 	limit_.ymax = limit.ymax;
 }
 
-void InteractivePlot::setMode(DrawComponentMode mode)
+void InteractivePlot::setMode(InteractivePlotMode mode)
 {
-	if (mode == DrawComponentMode::ZOOM)
+	if (mode == InteractivePlotMode::ZOOM)
 	{
 		zoomButton->setToggleState(true, sendNotification);
 	} 
-	else if (mode == DrawComponentMode::PAN)
+	else if (mode == InteractivePlotMode::PAN)
 	{
 		panButton->setToggleState(true, sendNotification);
 	}
@@ -575,7 +575,7 @@ DrawComponent::DrawComponent(InteractivePlot *plt_) :
 }
 
 
-void DrawComponent::setMode(DrawComponentMode m)
+void DrawComponent::setMode(InteractivePlotMode m)
 {
 	mode = m;
 };

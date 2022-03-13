@@ -72,9 +72,9 @@ public:
 	float width;
 };
 
-enum DrawComponentMode {ZOOM = 1, PAN = 2};
+enum PLUGIN_API InteractivePlotMode { ZOOM = 1, PAN = 2 };
 
-struct XYRange
+struct PLUGIN_API XYRange
 {
 	float xmin, xmax, ymin, ymax;
 };
@@ -104,7 +104,7 @@ public:
 	void clear();
 
 	/** Sets zoom / pan */
-	void setMode(DrawComponentMode m);
+	void setMode(InteractivePlotMode m);
 
 	/** Sets the current displayed range */
 	void setRange(XYRange range);
@@ -152,7 +152,7 @@ private:
 	
 	int mouseDragX, mouseDragY, mouseDownX, mouseDownY, mousePrevX, mousePrevY;
 
-	DrawComponentMode mode, savedMode;
+	InteractivePlotMode mode, savedMode;
 	bool panning,zooming, autoRescale;
 
 	std::vector<float> xtick, ytick;
@@ -327,11 +327,11 @@ public:
 	/** Sets wether the bounds of each line are visible*/
 	void showBounds(bool state);
 
-	/** Set border color */
+	/** Set the border color */
 	void setBorderColor(Colour c);
 
 	/** Sets ZOOM or PAN mode */
-	void setMode(DrawComponentMode mode);
+	void setMode(InteractivePlotMode mode);
 
 	/** Sets range of both axes*/
 	void setRange(XYRange& range);
