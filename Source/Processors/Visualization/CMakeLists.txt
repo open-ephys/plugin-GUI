@@ -4,8 +4,8 @@
 add_sources(open-ephys 
 	DataWindow.cpp
 	DataWindow.h
-	MatlabLikePlot.cpp
-	MatlabLikePlot.h
+	InteractivePlot.cpp
+	InteractivePlot.h
 	Visualizer.cpp
 	Visualizer.h
 )
