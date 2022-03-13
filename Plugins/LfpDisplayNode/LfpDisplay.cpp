@@ -199,12 +199,8 @@ void LfpDisplay::setNumChannels(int newChannelCount)
                 lfpInfo = channelInfo[i];
             }
             
-			
 			lfpChan->setChannelHeight(canvasSplit->getChannelHeight());
-
-			
 			lfpInfo->setChannelHeight(canvasSplit->getChannelHeight());
-			lfpInfo->setSubprocessorIdx(canvasSplit->getChannelSubprocessorIdx(i));
 
             if (!getSingleChannelState())
             {

@@ -24,263 +24,253 @@
 #include "DisplayBuffer.h"
 
 namespace LfpViewer {
-    //==============================================================================
-    /**
 
-
-
-    */
 #define BUFFER_LENGTH_S 1.0f
 
-    DisplayBuffer::DisplayBuffer(int id_, String name_, float sampleRate_) : 
-        id(id_), name(name_), sampleRate(sampleRate_), isNeeded(true)
+DisplayBuffer::DisplayBuffer(int id_, String name_, float sampleRate_) : 
+    id(id_), name(name_), sampleRate(sampleRate_), isNeeded(true)
+{
+    previousSize = 0;
+    numChannels = 0;
+
+    const int heapSize = 5000;
+    arrayOfOnes = new float[heapSize];
+    for (int n = 0; n < heapSize; ++n)
     {
-        previousSize = 0;
-        numChannels = 0;
-
-        const int heapSize = 5000;
-        arrayOfOnes = new float[heapSize];
-        for (int n = 0; n < heapSize; ++n)
-        {
-            arrayOfOnes[n] = 1;
-        }
-
-        ttlState = 0;
+        arrayOfOnes[n] = 1;
     }
 
-    DisplayBuffer::~DisplayBuffer()
-    {
-        delete[] arrayOfOnes;
-    }
+    ttlState = 0;
+}
 
-    void DisplayBuffer::prepareToUpdate()
-    {
-        previousSize = numChannels;
-        channelMetadata.clear();
-        channelMap.clear();
-        numChannels = 0;
+DisplayBuffer::~DisplayBuffer()
+{
+    delete[] arrayOfOnes;
+}
 
-        isNeeded = false;
-    }
+void DisplayBuffer::prepareToUpdate()
+{
+    previousSize = numChannels;
+    channelMetadata.clear();
+    channelMap.clear();
+    numChannels = 0;
 
-    void DisplayBuffer::addChannel(
-        String name, 
-        int channelNum, 
-        ContinuousChannel::Type type, 
-        int group, 
-        float ypos, 
-        String structure)
-    {
-        ChannelMetadata metadata = ChannelMetadata();
-        metadata.name = name;
-        metadata.type = type;
-        metadata.group = group;
-        metadata.ypos = ypos;
-        metadata.structure = structure;
-        metadata.type = type;
+    isNeeded = false;
+}
 
-        //std::cout << "LFP Viewer depth for channel " << channelNum << ": " << ypos << std::endl;
+void DisplayBuffer::addChannel(
+    String name, 
+    int channelNum, 
+    ContinuousChannel::Type type, 
+    int group, 
+    float ypos, 
+    String structure)
+{
+    ChannelMetadata metadata = ChannelMetadata();
+    metadata.name = name;
+    metadata.type = type;
+    metadata.group = group;
+    metadata.ypos = ypos;
+    metadata.structure = structure;
+    metadata.type = type;
 
-        channelMetadata.add(metadata);
-        channelMap[channelNum] = numChannels;
-        numChannels++;
+    channelMetadata.add(metadata);
+    channelMap[channelNum] = numChannels;
+    numChannels++;
 
-        isNeeded = true;
+    isNeeded = true;
 
-       // std::cout << "Adding channel " << name << " with index " << numChannels << "; ";
-    }
+    // std::cout << "Adding channel " << name << " with index " << numChannels << "; ";
+}
 
-    void DisplayBuffer::update()
-    {
+void DisplayBuffer::update()
+{
             
-        if (numChannels != previousSize)
-            setSize(numChannels + 1, int(sampleRate * BUFFER_LENGTH_S));
+    if (numChannels != previousSize)
+        setSize(numChannels + 1, int(sampleRate * BUFFER_LENGTH_S));
 
-        clear();
+    clear();
 
-        displayBufferIndices.clear();
+    displayBufferIndices.clear();
 
-        for (int i = 0; i <= numChannels; i++)
-            displayBufferIndices.set(i, 0);
-    }
+    for (int i = 0; i <= numChannels; i++)
+        displayBufferIndices.set(i, 0);
+}
 
-    void DisplayBuffer::resetIndices()
-    {
-        for (int i = 0; i <= numChannels; i++)
-            displayBufferIndices.set(i, 0);
-    }
+void DisplayBuffer::resetIndices()
+{
+    for (int i = 0; i <= numChannels; i++)
+        displayBufferIndices.set(i, 0);
+}
 
-    void DisplayBuffer::addDisplay(int splitID)
-    {
-        if (!displays.contains(splitID))
-             displays.add(splitID);
+void DisplayBuffer::addDisplay(int splitID)
+{
 
-        //std::cout << "Subprocessor " << id << " has " << displays.size() << " displays." << std::endl;
-    }
+    if (!displays.contains(splitID))
+            displays.add(splitID);
 
-    void DisplayBuffer::removeDisplay(int splitID)
-    {
-        if (displays.contains(splitID))
-            displays.remove(displays.indexOf(splitID));
+}
 
-       // std::cout << "Subprocessor " << id << " has " << displays.size() << " displays." << std::endl;
+void DisplayBuffer::removeDisplay(int splitID)
+{
+        
+    if (displays.contains(splitID))
+        displays.remove(displays.indexOf(splitID));
 
-    }
+}
 
-    void DisplayBuffer::initializeEventChannel(int nSamples)
-    {
-        if (displays.size() == 0)
-            return;
+void DisplayBuffer::initializeEventChannel(int nSamples)
+{
+    if (displays.size() == 0)
+        return;
 
-        const int samplesLeft = getNumSamples() - displayBufferIndices[numChannels];
+    const int samplesLeft = getNumSamples() - displayBufferIndices[numChannels];
 
-        if (nSamples < samplesLeft)
-        {
-
-            copyFrom(numChannels,                   // destChannel
-                displayBufferIndices[numChannels],  // destStartSample
-                arrayOfOnes,                        // source
-                nSamples,                           // numSamples
-                float(ttlState));                   // gain
-        }
-        else
-        {
-            int extraSamples = nSamples - samplesLeft;
-
-            copyFrom(numChannels,                   // destChannel
-                displayBufferIndices[numChannels],  // destStartSample
-                arrayOfOnes,                        // source
-                samplesLeft,                        // numSamples
-                float(ttlState));                   // gain
-
-            copyFrom(numChannels,                   // destChannel
-                0,                                  // destStartSample
-                arrayOfOnes,                        // source
-                extraSamples,                       // numSamples
-                float(ttlState));                   // gain
-        }
-    }
-
-    void DisplayBuffer::finalizeEventChannel(int nSamples)
+    if (nSamples < samplesLeft)
     {
 
-        if (displays.size() == 0)
-            return;
+        copyFrom(numChannels,                   // destChannel
+            displayBufferIndices[numChannels],  // destStartSample
+            arrayOfOnes,                        // source
+            nSamples,                           // numSamples
+            float(ttlState));                   // gain
+    }
+    else
+    {
+        int extraSamples = nSamples - samplesLeft;
 
-        const int index = displayBufferIndices[numChannels];
-        const int samplesLeft = getNumSamples() - index;
+        copyFrom(numChannels,                   // destChannel
+            displayBufferIndices[numChannels],  // destStartSample
+            arrayOfOnes,                        // source
+            samplesLeft,                        // numSamples
+            float(ttlState));                   // gain
+
+        copyFrom(numChannels,                   // destChannel
+            0,                                  // destStartSample
+            arrayOfOnes,                        // source
+            extraSamples,                       // numSamples
+            float(ttlState));                   // gain
+    }
+}
+
+void DisplayBuffer::finalizeEventChannel(int nSamples)
+{
+
+    if (displays.size() == 0)
+        return;
+
+    const int index = displayBufferIndices[numChannels];
+    const int samplesLeft = getNumSamples() - index;
    
-        int newIdx = 0;
+    int newIdx = 0;
 
-        if (nSamples < samplesLeft)
-        {
-            newIdx = displayBufferIndices[numChannels] + nSamples;
-        }
-        else
-        {
-            newIdx = nSamples - samplesLeft;
-        }
+    if (nSamples < samplesLeft)
+    {
+        newIdx = displayBufferIndices[numChannels] + nSamples;
+    }
+    else
+    {
+        newIdx = nSamples - samplesLeft;
+    }
         
-        displayBufferIndices.set(numChannels, newIdx);
+    displayBufferIndices.set(numChannels, newIdx);
+}
+
+void DisplayBuffer::addEvent(int eventTime, int eventChannel, int eventId, int numSourceSamples)
+{
+
+    if (displays.size() == 0)
+        return;
+
+    const int index = (displayBufferIndices[numChannels] + eventTime) % getNumSamples();
+    const int samplesLeft = getNumSamples() - index;
+    const int nSamples = numSourceSamples - eventTime;
+
+    if (eventId == 1)
+    {
+        ttlState |= (1LL << eventChannel);
+    }
+    else {
+        ttlState &= ~(1LL << eventChannel);
     }
 
-    void DisplayBuffer::addEvent(int eventTime, int eventChannel, int eventId, int numSourceSamples)
+    if (nSamples < samplesLeft)
     {
-
-        if (displays.size() == 0)
-            return;
-
-        const int index = (displayBufferIndices[numChannels] + eventTime) % getNumSamples();
-        const int samplesLeft = getNumSamples() - index;
-        const int nSamples = numSourceSamples - eventTime;
-
-        if (eventId == 1)
-        {
-            ttlState |= (1LL << eventChannel);
-        }
-        else {
-            ttlState &= ~(1LL << eventChannel);
-        }
-
-       // std::cout << "Display buffer received event on " << eventChannel << " at " << eventTime << " with " << numSourceSamples << std::endl;
-
-        if (nSamples < samplesLeft)
-        {
-            copyFrom(numChannels,                     // destChannel
-                index,                                // destStartSample
-                arrayOfOnes,                          // source
-                nSamples,                             // numSamples
-                float(ttlState));                     // gain
-        }
-        else
-        {
-            int extraSamples = nSamples - samplesLeft;
-
-            copyFrom(numChannels,                     // destChannel
-                index,                                // destStartSample
-                arrayOfOnes,                          // source
-                samplesLeft,                          // numSamples
-                float(ttlState));                     // gain
-
-            copyFrom(numChannels,                     // destChannel
-                0,                                    // destStartSample
-                arrayOfOnes,                          // source
-                extraSamples,                         // numSamples
-                float(ttlState));                     // gain
-        }
+        copyFrom(numChannels,                     // destChannel
+            index,                                // destStartSample
+            arrayOfOnes,                          // source
+            nSamples,                             // numSamples
+            float(ttlState));                     // gain
     }
-
-    void DisplayBuffer::addData(AudioSampleBuffer& buffer, int chan, int nSamples)
+    else
     {
-        if (displays.size() == 0)
-            return;
+        int extraSamples = nSamples - samplesLeft;
 
-        int previousIndex = displayBufferIndices[channelMap[chan]];
-        int channelIndex = channelMap[chan];
+        copyFrom(numChannels,                     // destChannel
+            index,                                // destStartSample
+            arrayOfOnes,                          // source
+            samplesLeft,                          // numSamples
+            float(ttlState));                     // gain
 
-        const int samplesLeft = getNumSamples() - displayBufferIndices[channelMap[chan]];
+        copyFrom(numChannels,                     // destChannel
+            0,                                    // destStartSample
+            arrayOfOnes,                          // source
+            extraSamples,                         // numSamples
+            float(ttlState));                     // gain
+    }
+}
 
-        int newIndex;
+void DisplayBuffer::addData(AudioBuffer<float>& buffer, int chan, int nSamples)
+{
+    if (displays.size() == 0)
+        return;
+
+    int previousIndex = displayBufferIndices[channelMap[chan]];
+    int channelIndex = channelMap[chan];
+
+    const int samplesLeft = getNumSamples() - displayBufferIndices[channelMap[chan]];
+
+    int newIndex;
         
-        if (nSamples < samplesLeft)
-        {
-            copyFrom(channelMap[chan],                   // destChannel
-                displayBufferIndices[channelMap[chan]],  // destStartSample
-                buffer,                                  // source
-                chan,                                    // source channel
-                0,                                       // source start sample
-                nSamples);                               // numSamples
+    if (nSamples < samplesLeft)
+    {
+        copyFrom(channelMap[chan],                   // destChannel
+            displayBufferIndices[channelMap[chan]],  // destStartSample
+            buffer,                                  // source
+            chan,                                    // source channel
+            0,                                       // source start sample
+            nSamples);                               // numSamples
 
-            int lastIndex = displayBufferIndices[channelMap[chan]];
+        int lastIndex = displayBufferIndices[channelMap[chan]];
 
-            newIndex = lastIndex + nSamples;
+        newIndex = lastIndex + nSamples;
             
-        }
-        else
-        {
-            const int extraSamples = nSamples - samplesLeft;
-
-            copyFrom(channelMap[chan],                   // destChannel
-                displayBufferIndices[channelMap[chan]],  // destStartSample
-                buffer,                                  // source
-                chan,                                    // source channel
-                0,                                       // source start sample
-                samplesLeft);                            // numSamples
-
-            copyFrom(channelMap[chan],                   // destChannel
-                0,                                       // destStartSample
-                buffer,                                  // source
-                chan,                                    // source channel
-                samplesLeft,                             // source start sample
-                extraSamples);                           // numSamples
-
-            newIndex = extraSamples;
-        }
-
-        ScopedLock displayLock(displayMutex);
-
-        displayBufferIndices.set(channelMap[chan], newIndex);
-
     }
+    else
+    {
+        const int extraSamples = nSamples - samplesLeft;
+
+        copyFrom(channelMap[chan],                   // destChannel
+            displayBufferIndices[channelMap[chan]],  // destStartSample
+            buffer,                                  // source
+            chan,                                    // source channel
+            0,                                       // source start sample
+            samplesLeft);                            // numSamples
+
+        copyFrom(channelMap[chan],                   // destChannel
+            0,                                       // destStartSample
+            buffer,                                  // source
+            chan,                                    // source channel
+            samplesLeft,                             // source start sample
+            extraSamples);                           // numSamples
+
+        newIndex = extraSamples;
+    }
+
+    ScopedLock displayLock(displayMutex);
+
+    displayBufferIndices.set(channelMap[chan], newIndex);
+
+}
 
 };

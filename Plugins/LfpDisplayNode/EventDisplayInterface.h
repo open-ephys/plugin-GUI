@@ -30,23 +30,33 @@
 
 #include "LfpDisplayClasses.h"
 #include "LfpDisplayNode.h"
+
 namespace LfpViewer {
-#pragma  mark - EventDisplayInterface -
-//==============================================================================
+
 /**
     Interface class for Event Display channels.
+
+    Holds a for toggling one channel's event display on and off.
+
  */
 class EventDisplayInterface : public Component,
     public Button::Listener
 {
 public:
+
+    /** Constructor */
     EventDisplayInterface(LfpDisplay*, LfpDisplaySplitter*, int chNum);
+
+    /** Destrutor */
     ~EventDisplayInterface();
 
+    /** Renders the background */
     void paint(Graphics& g);
 
+    /** Responds to button presses */
     void buttonClicked(Button* button);
 
+    /** Checks whether events should be displayed for this channel*/
     void checkEnabledState();
 
     bool isEnabled;

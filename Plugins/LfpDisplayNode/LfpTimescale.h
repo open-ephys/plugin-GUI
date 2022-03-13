@@ -30,9 +30,9 @@
 
 #include "LfpDisplayClasses.h"
 #include "LfpDisplayNode.h"
+
 namespace LfpViewer {
-#pragma  mark - LfpTimeScale -
-//==============================================================================
+
 /**
  
     Displays the timescale of the LfpDisplaySplitter in the viewport.

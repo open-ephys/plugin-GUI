@@ -31,8 +31,7 @@
 #include "LfpDisplayClasses.h"
 #include "LfpDisplayNode.h"
 namespace LfpViewer {
-#pragma  mark - LfpBitmapPlotterInfo -
-//==============================================================================
+
 /**
     Information struct for plotting method encapsulation classes.
  */

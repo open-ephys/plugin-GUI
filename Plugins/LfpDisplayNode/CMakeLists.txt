@@ -4,8 +4,9 @@ cmake_minimum_required(VERSION 3.5.0)
 #include common rules
 include(../PluginRules.cmake)
 
-#add sources, not including OpenEphysLib.cpp
+#add sources
 add_sources(${PLUGIN_NAME}
+	OpenEphysLib.cpp
 	LfpDisplayNode.cpp
 	LfpDisplayNode.h
 	LfpDisplayEditor.cpp
@@ -22,6 +23,7 @@ add_sources(${PLUGIN_NAME}
 	LfpChannelDisplayInfo.h
 	LfpDisplay.cpp
 	LfpDisplay.h
+	LfpDisplayClasses.h
 	LfpDisplayCanvas.cpp
 	LfpDisplayCanvas.h
 	LfpDisplayOptions.cpp

@@ -2,7 +2,8 @@
 #ifndef LFPDISPLAYCLASSES_H
 #define LFPDISPLAYCLASSES_H
 
-namespace LfpViewer {
+namespace LfpViewer 
+{
     constexpr int MAX_N_CHAN = 16;
     constexpr int MAX_N_SAMP_PER_PIXEL = 100;
     constexpr int CHANNEL_TYPES = 3;
@@ -12,9 +13,9 @@ namespace LfpViewer {
     class LfpDisplayCanvas;
     class LfpDisplaySplitter;
     class ShowHideOptionsButton;
-    class LfpDisplayOptions;
     class LfpTimescale;
     class LfpDisplay;
+    class LfpDisplayOptions;
     class LfpChannelDisplay;
     class LfpChannelDisplayInfo;
     class EventDisplayInterface;

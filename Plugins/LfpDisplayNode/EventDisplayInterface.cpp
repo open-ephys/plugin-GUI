@@ -30,9 +30,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace LfpViewer;
 
-#pragma  mark - EventDisplayInterface -
-// Event display Options --------------------------------------------------------------------
-
 EventDisplayInterface::EventDisplayInterface(LfpDisplay* display_, LfpDisplaySplitter* split, int chNum):
     isEnabled(true), display(display_), canvasSplit(split)
 {
@@ -58,13 +55,16 @@ EventDisplayInterface::~EventDisplayInterface()
 
 void EventDisplayInterface::checkEnabledState()
 {
+    
     isEnabled = display->getEventDisplayState(channelNumber);
 
 }
 
 void EventDisplayInterface::buttonClicked(Button* button)
 {
+    
     checkEnabledState();
+    
     if (isEnabled)
     {
         display->setEventDisplayState(channelNumber, false);
@@ -87,8 +87,6 @@ void EventDisplayInterface::paint(Graphics& g)
     {
         g.setColour(display->channelColours[channelNumber * 2]);
         g.fillRoundedRectangle(2,2,getWidth()-2,getHeight()-2,6.0f);
-
-       // std::cout << "Painting event display " << channelNumber << " width: " << getWidth() << " height: " << getHeight() << std::endl;
     }
 
 }

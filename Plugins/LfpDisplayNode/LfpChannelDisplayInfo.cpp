@@ -44,14 +44,10 @@ using namespace LfpViewer;
 // -------------------------------
 
 LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplaySplitter* canvas_, LfpDisplay* display_, LfpDisplayOptions* options_, int ch)
-    : LfpChannelDisplay(canvas_, display_, options_, ch)
+    : LfpChannelDisplay(canvas_, display_, options_, ch),
+      x(-1.0f), y(-1.0f), isSingleChannel(false)
 {
 
-    chan = ch;
-    x = -1.0f;
-    y = -1.0f;
-
-//    enableButton = new UtilityButton(String(ch+1), Font("Small Text", 13, Font::plain));
     enableButton = new UtilityButton("", Font("Small Text", 13, Font::plain));
     enableButton->setRadius(5.0f);
 
@@ -61,8 +57,6 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplaySplitter* canvas_, LfpDis
     enableButton->setClickingTogglesState(true);
     enableButton->setToggleState(true, dontSendNotification);
     
-    isSingleChannel = false;
-
     addAndMakeVisible(enableButton);
 
 }
@@ -80,17 +74,6 @@ void LfpChannelDisplayInfo::buttonClicked(Button* button)
     bool state = button->getToggleState();
 
     display->setEnabledState(state, chan, true);
-
-    //UtilityButton* b = (UtilityButton*) button;
-
-    // if (state)
-    // {
-    //  b->setLabel("ON");
-    // } else {
-    //  b->setLabel("OFF");
-    // }
-
-    //std::cout << "Turn channel " << chan << " to " << button->getToggleState() << std::endl;
 
 }
 
@@ -140,7 +123,6 @@ void LfpChannelDisplayInfo::mouseDrag(const MouseEvent &e)
             int hdiff=0;
             int dragDeltaY = -0.1 * (e.getScreenPosition().getY() - e.getMouseDownScreenY()); // invert so drag up -> scale up
             
-//             std::cout << dragDeltaY << std::endl;
             if (dragDeltaY > 0)
             {
                 hdiff = 2 * dragDeltaY;
@@ -172,8 +154,7 @@ void LfpChannelDisplayInfo::mouseDrag(const MouseEvent &e)
                 return;
             }
             
-            // set channel heights for all channel
-//            display->setChannelHeight(newHeight);
+            // set channel heights for all channels
             for (int i = 0; i < display->getNumChannels(); ++i)
             {
                 display->channels[i]->setChannelHeight(newHeight);
@@ -234,7 +215,7 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
         g.setFont(Font("Small Text", 13, Font::plain));
         g.drawText(typeStr,5,center+10,41,10,Justification::centred,false);
     }
-    // g.setFont(channelHeightFloat*0.3);
+
     g.setFont(Font("Small Text", 11, Font::plain));
 
     if (isSingleChannel)
@@ -247,20 +228,17 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
         {
             g.drawText("uV:", 5, center+140,41,10,Justification::centred,false);
         }
-        //g.drawText("Y:", 5, center+200,41,10,Justification::centred,false);
 
         g.setColour(Colours::grey);
         g.drawText(String(canvasSplit->getStd(chan)), 5, center+110,41,10,Justification::centred,false);
         g.drawText(String(canvasSplit->getMean(chan)), 5, center+60,41,10,Justification::centred,false);
+        
         if (x > 0)
         {
-            //g.drawText(String(x), 5, center+150,41,10,Justification::centred,false);
             g.drawText(String(y), 5, center+160,41,10,Justification::centred,false);
         }
         
     }
-
-    //  g.drawText(name, 10, center-channelHeight/2, 200, channelHeight, Justification::left, false);
 
 }
 
@@ -272,8 +250,6 @@ void LfpChannelDisplayInfo::updateXY(float x_, float y_)
 
 void LfpChannelDisplayInfo::resized()
 {
-
-   // std::cout << "Resizing info" << std::endl;
 
     int center = getHeight()/2 - (isSingleChannel?(75):(0));
     setEnabledButtonVisibility(getHeight() >= 16);

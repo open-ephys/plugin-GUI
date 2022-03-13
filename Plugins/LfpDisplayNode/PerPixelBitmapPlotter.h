@@ -31,9 +31,9 @@
 #include "LfpDisplayClasses.h"
 #include "LfpDisplayNode.h"
 #include "LfpBitmapPlotter.h"
+
 namespace LfpViewer {
-#pragma  mark - PerPixelBitmapPlotter -
-//==============================================================================
+
 /**
     Abstraction of the per-pixel plotting method.
  */

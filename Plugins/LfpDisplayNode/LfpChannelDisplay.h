@@ -30,41 +30,68 @@
 
 #include "LfpDisplayClasses.h"
 #include "LfpDisplayNode.h"
+
 namespace LfpViewer {
-#pragma  mark - LfpChannelDisplay -
-//==============================================================================
+
 /**
     Displays the information pertaining to a single data channel.
  */
 class LfpChannelDisplay : public Component
 {
 public:
+
+    /** Constructor */
     LfpChannelDisplay(LfpDisplaySplitter*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
+
+    /** Destructor */
     ~LfpChannelDisplay();
 
+    /** Sets component boundaries */
     void resized();
     
+    /** Renders the LfpChannelDisplay*/
     void paint(Graphics& g);
     
-    void pxPaint(); // like paint, but just populate lfpChannelBitmap
-                    // needs to avoid a paint(Graphics& g) mechanism here becauswe we need to clear the screen in the lfpDisplay repaint(),
-                    // because otherwise we cant deal with the channel overlap (need to clear a vertical section first, _then_ all channels are dawn, so cant do it per channel)
+    /** Similar to paint(), but just populates the lfpChannelBitmap
+    
+        needs to avoid a paint(Graphics& g) mechanism here becauswe we need to clear the screen in the lfpDisplay repaint(),
+        because otherwise we cant deal with the channel overlap (need to clear a vertical section first, _then_ all channels are
+        drawn, so cant do it per channel)
+
+    */
+    void pxPaint();
                 
+    /** Selects this channel*/
     void select();
+
+    /** Deselects this channel */
     void deselect();
 
+    /** Returns true if this channel is selected */
     bool getSelected();
 
+    /** Sets the channel name */
     void setName(String);
+
+    /** Sets the channel group */
     void setGroup(int);
+
+    /** Sets the channel depth*/
     void setDepth(float);
 
+    /** Sets the color for this channel's trace */
     void setColour(Colour c);
 
+    /** Sets the height for this channel */
     void setChannelHeight(int);
+
+    /** Returns the height for this channel*/
     int getChannelHeight();
 
+    /** Sets the amount of pixel overlap with adjacent channels */
     void setChannelOverlap(int);
+
+    /** Returns the amount of pixel overlap with adjacent channels*/
     int getChannelOverlap();
     
     /** Return the assigned channel number */
@@ -81,22 +108,32 @@ public:
         channels being drawn to the canvas */
     void setDrawableChannelNumber(int channelId);
 
+    /** Sets the voltage range for this channel */
     void setRange(float range);
-    int getRange();
 
+    /** Returns the voltage range index for this channel*/
+    float getRange();
+
+    /** Sets whether this channel display should be inverted */
     void setInputInverted(bool);
+
+    /** Sets whether this channel display can be inverted */
     void setCanBeInverted(bool);
 
+    /** Switches between pixel-wise and histogram drawing methods */
     void setDrawMethod(bool);
 
+    /** Returns the available options for this channel */
     PopupMenu getOptions();
+
+    /** Changes a parameter based on ID*/
     void changeParameter(const int id);
 
+    /** Sets whether this channel is enabled */
     void setEnabledState(bool);
-    bool getEnabledState()
-    {
-        return isEnabled;
-    }
+
+    /** Returns the enabled state for this channel*/
+    bool getEnabledState() { return isEnabled; }
     
     /** Set the isHidden flag, indicates whether this channel display
         should render to screen or not */
@@ -108,6 +145,7 @@ public:
         return isHidden;
     }
 
+    /** Reut*/
     ContinuousChannel::Type getType();
     virtual void updateType(ContinuousChannel::Type);
 

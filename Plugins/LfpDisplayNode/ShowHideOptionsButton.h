@@ -28,11 +28,11 @@
 #include <vector>
 #include <array>
 
-#include "LfpDisplayClasses.h"
-#include "LfpDisplayNode.h"
+
 namespace LfpViewer {
-#pragma  mark - ShowHideOptionsButton -
-//==============================================================================
+
+class LfpDisplayOptions;
+
 /**
  
  Toggles view options drawer for LfpDisplaySplitter.

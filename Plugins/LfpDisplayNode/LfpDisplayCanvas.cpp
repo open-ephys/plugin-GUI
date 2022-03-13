@@ -22,26 +22,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "LfpDisplayCanvas.h"
+
 #include "LfpDisplayNode.h"
+#include "DisplayBuffer.h"
 #include "ShowHideOptionsButton.h"
-#include "LfpDisplayOptions.h"
-#include "LfpTimescale.h"
-#include "LfpDisplay.h"
 #include "LfpChannelDisplayInfo.h"
-#include "LfpViewport.h"
 #include "ColourSchemes/ChannelColourScheme.h"
 
 #include <math.h>
 
 #define MS_FROM_START Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start) * 1000
 
-
 using namespace LfpViewer;
 
-#pragma  mark - LfpDisplayCanvas -
-
 #define MAX_N_SAMP 3000 // used for screen buffer; this could be resized dynamically depending on the display width
-
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl, bool isLoading_) :
                   processor(processor_), selectedLayout(sl), isLoading(isLoading_)
@@ -231,33 +225,25 @@ void LfpDisplayCanvas::resized()
 void LfpDisplayCanvas::beginAnimation()
 {
 
-    if (true)
+    for (auto split : displaySplits)
     {
-        //syncDisplays();
-
-        for (auto split : displaySplits)
-        {
-            split->beginAnimation();
-        }
-
-        //startCallbacks();
-    }    
+        split->beginAnimation();
+    }  
 }
 
 void LfpDisplayCanvas::endAnimation()
 {
-    if (true)
+
+    for (auto split : displaySplits)
     {
-        for (auto split : displaySplits)
-        {
-            split->endAnimation();
-        }
-        //stopCallbacks();
+        split->endAnimation();
     }
+
 }
 
 void LfpDisplayCanvas::syncDisplays()
 {
+
     for (auto split : displaySplits)
     {
         split->syncDisplay();
@@ -267,7 +253,6 @@ void LfpDisplayCanvas::syncDisplays()
 
 void LfpDisplayCanvas::update()
 {
-    // update settings
 
     for (auto split : displaySplits)
     {
@@ -276,20 +261,12 @@ void LfpDisplayCanvas::update()
 
 }
 
-//void LfpDisplayCanvas::setParameter(int param, float val)
-//{
-    // not used for anything, since LfpDisplayCanvas is not a processor
-//
 void LfpDisplayCanvas::refreshState()
 {
-    // called when the component's tab becomes visible again
 
-    if (true)
+    for (auto split : displaySplits)
     {
-        for (auto split : displaySplits)
-        {
-            split->refreshSplitterState();
-        }
+        split->refreshSplitterState();
     }
 
 }
@@ -363,7 +340,6 @@ void LfpDisplayCanvas::mouseMove(const MouseEvent& e)
             (relativeX < getWidth() * doubleVerticalSplitRatio + borderSize))
         {
             setMouseCursor(MouseCursor::LeftRightResizeCursor);
-            //std::cout << "over center border" << std::endl;
         }
         else {
             setMouseCursor(MouseCursor::NormalCursor);
@@ -391,7 +367,7 @@ void LfpDisplayCanvas::mouseMove(const MouseEvent& e)
     }  else if (selectedLayout == TWO_HORZ)
     {
         int relativeY = event.position.getY();
-        //
+
         if ((relativeY > getHeight() * doubleHorizontalSplitRatio - borderSize) &&
             (relativeY < getHeight() * doubleHorizontalSplitRatio + borderSize))
         {
@@ -434,8 +410,6 @@ void LfpDisplayCanvas::mouseDrag(const MouseEvent& e)
     {
         int relativeX = event.getMouseDownX();
 
-        //std::cout << relativeX << std::endl;
-
         if ((relativeX > getWidth() * doubleVerticalSplitRatio - borderSize) &&
             (relativeX < getWidth() * doubleVerticalSplitRatio + borderSize))
         {
@@ -451,16 +425,11 @@ void LfpDisplayCanvas::mouseDrag(const MouseEvent& e)
                 doubleVerticalSplitRatio = 0.15;
             else if (doubleVerticalSplitRatio > 0.85)
                 doubleVerticalSplitRatio = 0.85;
-
-            // std::cout << doubleVerticalSplitRatio << std::endl;
-
         }
 
     } else if (selectedLayout == THREE_VERT)
     {
         int relativeX = event.getMouseDownX();
-
-        //std::cout << relativeX << std::endl;
 
         if ((relativeX > getWidth() * tripleVerticalSplitRatio[0] - borderSize) &&
             (relativeX < getWidth() * tripleVerticalSplitRatio[0] + borderSize))
@@ -481,9 +450,6 @@ void LfpDisplayCanvas::mouseDrag(const MouseEvent& e)
                 tripleVerticalSplitRatio.set(0, 0.15);
             else if (tripleVerticalSplitRatio[0] > tripleVerticalSplitRatio[1] - 0.15)
                 tripleVerticalSplitRatio.set(0, tripleVerticalSplitRatio[1] - 0.15);
-
-           // std::cout << doubleVerticalSplitRatio << std::endl;
-
         }
 
         else if (borderToDrag == 1)
@@ -496,14 +462,12 @@ void LfpDisplayCanvas::mouseDrag(const MouseEvent& e)
             else if (tripleVerticalSplitRatio[1] > 0.85)
                 tripleVerticalSplitRatio.set(1, 0.85);
 
-            // std::cout << doubleVerticalSplitRatio << std::endl;
-
         }
 
     } else if (selectedLayout == TWO_HORZ)
     {
         int relativeY = event.getMouseDownY();
-        //
+
         if ((relativeY > getHeight() * doubleHorizontalSplitRatio - borderSize) &&
             (relativeY < getHeight() * doubleHorizontalSplitRatio + borderSize))
 
@@ -520,16 +484,12 @@ void LfpDisplayCanvas::mouseDrag(const MouseEvent& e)
                 doubleHorizontalSplitRatio = 0.15;
             else if (doubleHorizontalSplitRatio > 0.85)
                 doubleHorizontalSplitRatio = 0.85;
-
-          //  std::cout << doubleHorizontalSplitRatio << std::endl;
         }
         
     }
     else if (selectedLayout == THREE_HORZ)
     {
         int relativeY = event.getMouseDownY();
-
-        //std::cout << relativeX << std::endl;
 
         if ((relativeY > getHeight() * tripleHorizontalSplitRatio[0] - borderSize) &&
             (relativeY < getHeight() * tripleHorizontalSplitRatio[0] + borderSize))
@@ -552,8 +512,6 @@ void LfpDisplayCanvas::mouseDrag(const MouseEvent& e)
             else if (tripleHorizontalSplitRatio[0] > tripleHorizontalSplitRatio[1] - 0.15)
                 tripleHorizontalSplitRatio.set(0, tripleHorizontalSplitRatio[1] - 0.15);
 
-            // std::cout << doubleVerticalSplitRatio << std::endl;
-
         }
 
         else if (borderToDrag == 1)
@@ -565,8 +523,6 @@ void LfpDisplayCanvas::mouseDrag(const MouseEvent& e)
                 tripleHorizontalSplitRatio.set(1, tripleHorizontalSplitRatio[0] + 0.15);
             else if (tripleHorizontalSplitRatio[1] > 0.85)
                 tripleHorizontalSplitRatio.set(1, 0.85);
-
-            // std::cout << doubleVerticalSplitRatio << std::endl;
 
         }
 
@@ -582,8 +538,6 @@ void LfpDisplayCanvas::mouseUp(const MouseEvent& e)
 
         resized();
         borderToDrag = -1;
-
-        
     }
 }
 
@@ -605,50 +559,6 @@ int LfpDisplayCanvas::getTotalSplits()
     return displaySplits.size();
 }
 
-void LfpDisplayCanvas::paint(Graphics& g)
-{
-    
-    //std::cout << "Painting" << std::endl;
-    //g.setColour(Colour(0,0,0)); // for high-precision per-pixel density display, make background black for better visibility
-
-}
-
-void LfpDisplayCanvas::refresh()
-{
-    /*if (true)
-    { 
-        for (auto split : displaySplits)
-        {
-            if (split->isVisible())
-                 split->refresh();
-        }
-    }*/
-}
-
-void LfpDisplayCanvas::redrawAll()
-{
-    for (auto split : displaySplits)
-    {
-        if (split->isVisible())
-        {
-           // split->fullredraw = true;
-           // split->syncDisplayBuffer();
-        }
-            
-    }
-}
-
-void LfpDisplayCanvas::comboBoxChanged(ComboBox* cb)
-{
-    if(cb == displaySelection)
-    {
-        int id = displaySelection->getSelectedId();
-
-       // options = optionsList[id-1];
-        //this->repaint();
-        //options->repaint();
-    }
-}
 
 bool LfpDisplayCanvas::keyPressed(const KeyPress& key)
 {
@@ -749,8 +659,6 @@ void LfpDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
     LOGD("    Resized in ", MS_FROM_START, " milliseconds");
 }
 
-
-/*****************************************************/
 LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
                                        LfpDisplayCanvas* canvas_,
                                        DisplayBuffer* db,
@@ -766,8 +674,8 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
     timescale = std::make_unique < LfpTimescale>(this, lfpDisplay.get());
     options = std::make_unique<LfpDisplayOptions>(canvas, this, timescale.get(), lfpDisplay.get(), node);
 
-    subprocessorSelection = new ComboBox("Subprocessor selection");
-    subprocessorSelection->addListener(this);
+    streamSelection = new ComboBox("Subprocessor selection");
+    streamSelection->addListener(this);
 
     lfpDisplay->options = options.get();
 
@@ -778,15 +686,11 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
     scrollBarThickness = viewport->getScrollBarThickness();
 
-    //isChannelEnabled.insertMultiple(0, true, 10000); // max 10k channels
-
     addAndMakeVisible(viewport.get());
     addAndMakeVisible(timescale.get());
-    addAndMakeVisible(subprocessorSelection);
+    addAndMakeVisible(streamSelection);
 
     nChans = 0;
-
-    //resizeSamplesPerPixelBuffer(nChans);
 
     drawSaturationWarning = false;
     drawClipWarning = false;
@@ -798,26 +702,8 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
 }
 
-LfpDisplaySplitter::~LfpDisplaySplitter()
-{
-    //samplesPerPixel.clear();
-}
-
-
-/*void LfpDisplaySplitter::resizeSamplesPerPixelBuffer(int numCh)
-{
-    // 3D array: dimensions channels x samples x samples per pixel
-    samplesPerPixel.clear();
-    samplesPerPixel.resize(numCh);
-
-    sampleCountPerPixel.clear();
-    sampleCountPerPixel.insertMultiple(0, 0, MAX_N_SAMP);
-}*/
-
 void LfpDisplaySplitter::resized()
 {
-
-    //std::cout << "Split display " << splitID << " width: " << getWidth() << std::endl;
 
     const int timescaleHeight = 30;
 
@@ -856,12 +742,11 @@ void LfpDisplaySplitter::resized()
         lfpDisplay->setBounds(0, 0, getWidth(), getHeight());
     }
 
-    subprocessorSelection->setBounds(4, 4, 140, 22);
+    streamSelection->setBounds(4, 4, 140, 22);
 }
 
 void LfpDisplaySplitter::resizeToChannels(bool respectViewportPosition)
 {
-    //std::cout << "Resize to channels!!!" << std::endl;
 
     lfpDisplay->setBounds(0, 0, 
         getWidth()-scrollBarThickness, 
@@ -953,13 +838,13 @@ void LfpDisplaySplitter::updateSettings()
     if (availableBuffers.size() == 0)
         displayBuffer = nullptr;
 
-    subprocessorSelection->clear(dontSendNotification);
+    streamSelection->clear(dontSendNotification);
 
     bool foundMatchingBuffer = false;
 
     for (auto buffer : availableBuffers)
     {
-        subprocessorSelection->addItem(buffer->name, buffer->id);
+        streamSelection->addItem(buffer->name, buffer->id);
 
         if (displayBuffer != nullptr)
         {
@@ -990,7 +875,7 @@ void LfpDisplaySplitter::updateSettings()
 
         displayBuffer->addDisplay(splitID);
         
-        subprocessorSelection->setSelectedId(displayBuffer->id, dontSendNotification);
+        streamSelection->setSelectedId(displayBuffer->id, dontSendNotification);
         subprocessorId = displayBuffer->id;
 
         displayBufferSize = displayBuffer->getNumSamples();
@@ -1001,8 +886,6 @@ void LfpDisplaySplitter::updateSettings()
         channelOverlapFactor = options->selectedOverlapValue.getFloatValue();
     }
 
-    //std::cout << "Sample rate for display " << splitID << ": " << sampleRate << std::endl;
-    
     if (eventDisplayBuffer == nullptr) // not yet initialized
     {
         eventDisplayBuffer = new AudioSampleBuffer(1, getWidth());
@@ -1016,8 +899,6 @@ void LfpDisplaySplitter::updateSettings()
             refreshScreenBuffer();
         }
     }
-
-    //std::cout << "DISPLAY SPLIT " << splitID << " UPDATING SETTINGS." << std::endl;
 
     lfpDisplay->setNumChannels(nChans);
 
@@ -1088,18 +969,8 @@ void LfpDisplaySplitter::resetTrials()
 
 void LfpDisplaySplitter::refreshSplitterState()
 {
-    // called when the component's tab becomes visible again
 
-    if (true)
-    {
-
-        //for (int i = 0; i <= displayBufferIndex.size(); i++) // include event channel
-        //{
-        //    displayBufferIndex.set(i, displayBuffer->displayBufferIndices[i]);
-       // }
-
-        syncDisplay();
-    }
+    syncDisplay();
 
 }
 
@@ -1124,7 +995,6 @@ void LfpDisplaySplitter::refreshScreenBuffer()
 
 void LfpDisplaySplitter::syncDisplay()
 {
-   // std::cout << "Synchronizing display " << splitID << std::endl;
 
     for (int channel = 0; channel <= nChans; channel++)
     {
@@ -1139,7 +1009,6 @@ void LfpDisplaySplitter::syncDisplay()
 
 void LfpDisplaySplitter::syncDisplayBuffer()
 {
-    // std::cout << "Synchronizing display " << splitID << std::endl;
 
     if (displayBuffer == nullptr)
         return;
@@ -1168,9 +1037,6 @@ void LfpDisplaySplitter::updateScreenBuffer()
         if (triggerTime > 0)
         {
             processor->acknowledgeTrigger(splitID);
-
-            //if (lastScreenBufferIndex[0] == screenBufferIndex[0] && screenBufferIndex[0] != 0) // display is stuck
-            //    syncDisplay();
         }
                 
         for (int channel = 0; channel <= nChans; channel++) // pull one extra channel for event display
@@ -1280,8 +1146,6 @@ void LfpDisplaySplitter::updateScreenBuffer()
                     screenBufferIndex.set(channel, sbi); // don't update
                     return;
                 }
-
-                
 
             }
 
@@ -1422,10 +1286,6 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             // update event channel
                             if (channel == nChans)
                             {
-                               // if (eventState != sample_max)
-                                //    std::cout << "Event state changed to " << sample_max << " at dbi " << dbi << " & sbi " << sbi << std::endl;
-
-                               // eventState = sample_max;
                                 eventDisplayBuffer->setSample(0, sbi, sample_max);
                             }
                             else {
@@ -1442,9 +1302,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                                 screenBufferMean->addSample(channel, sbi, sample_mean);
                                 screenBufferMin->addSample(channel, sbi, sample_min);
                                 screenBufferMax->addSample(channel, sbi, sample_max);
-                            }
-
-                           
+                            }                  
                         }
                         
                         if (triggerChannel >= 0 && trialAveraging == true && channel != nChans)
@@ -1568,19 +1426,10 @@ int LfpDisplaySplitter::getNumChannelsVisible()
     return lfpDisplay->drawableChannels.size();
 }
 
-int LfpDisplaySplitter::getChannelSubprocessorIdx(int channel)
+uint16 LfpDisplaySplitter::getChannelStreamId(int channel)
 {
     return processor->getContinuousChannel(channel)->getStreamId();
 }
-
-/*std::array<float, MAX_N_SAMP_PER_PIXEL> LfpDisplaySplitter::getSamplesPerPixel(int chan, int px)
-{
-    return samplesPerPixel[chan][px];
-}
-const int LfpDisplaySplitter::getSampleCountPerPixel(int px)
-{
-    return sampleCountPerPixel[px];
-}*/
 
 float LfpDisplaySplitter::getMean(int chan)
 {
@@ -1622,23 +1471,13 @@ bool LfpDisplaySplitter::getInputInvertedState()
     return options->getInputInvertedState(); 
 }
 
-bool LfpDisplaySplitter::getDisplaySpikeRasterizerState()
-{
-    return options->getDisplaySpikeRasterizerState();
-}
-
-bool LfpDisplaySplitter::getDrawMethodState()
-{
-    
-    return options->getDrawMethodState(); 
-}
 
 void LfpDisplaySplitter::setDrawableSampleRate(float samplerate)
 {
     displayedSampleRate = samplerate;
 }
 
-void LfpDisplaySplitter::setDrawableSubprocessor(uint16 sp)
+void LfpDisplaySplitter::setDrawableStream(uint16 sp)
 {
    
     subprocessorId = sp;
@@ -1649,6 +1488,7 @@ void LfpDisplaySplitter::setDrawableSubprocessor(uint16 sp)
 
 void LfpDisplaySplitter::redraw()
 {
+
     if (!isLoading)
     {
         fullredraw = true;
@@ -1699,29 +1539,24 @@ void LfpDisplaySplitter::paint(Graphics& g)
 void LfpDisplaySplitter::visibleAreaChanged()
 {
 
-    canvas->redrawAll();
-
     fullredraw = true;
 
     refresh();
+
 }
 
 void LfpDisplaySplitter::refresh()
 {
-    if (true)
-    { 
+    updateScreenBuffer();
 
-       updateScreenBuffer();
-
-       lfpDisplay->refresh(); // redraws only the new part of the screen buffer, unless fullredraw is set to true
-    }
+    lfpDisplay->refresh(); // redraws only the new part of the screen buffer, unless fullredraw is set to true
 }
 
 void LfpDisplaySplitter::comboBoxChanged(juce::ComboBox *comboBox)
 {
-    if (comboBox == subprocessorSelection)
+    if (comboBox == streamSelection)
     {
-        setDrawableSubprocessor(comboBox->getSelectedId());
+        setDrawableStream(comboBox->getSelectedId());
 
         select();
     }

@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "LfpDisplayOptions.h"
+
 #include "LfpDisplayNode.h"
 #include "LfpDisplayCanvas.h"
 #include "ShowHideOptionsButton.h"
@@ -40,11 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define MS_FROM_START Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start) * 1000
 
-
 using namespace LfpViewer;
-
-#pragma  mark - LfpDisplayOptions -
-// -------------------------------------------------------------
 
 LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitter* canvasSplit_, 
                                      LfpTimescale* timescale_, LfpDisplay* lfpDisplay_, 
@@ -429,10 +426,6 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
 
 }
 
-LfpDisplayOptions::~LfpDisplayOptions()
-{
-
-}
 
 void LfpDisplayOptions::resized()
 {
@@ -536,21 +529,6 @@ void LfpDisplayOptions::resized()
 
 
     showHideOptionsButton->setBounds (getWidth() - 28, getHeight() - 28, 20, 20);
-
-   // colourSchemeOptionLabel->setBounds(medianOffsetPlottingButton->getX(),
-    //                                   getHeight()-190,
-     //                                  100,
-    //                                   22);
-    
-    
-    // set the size of the active colour scheme's options, if it has configurable options
-   /* if (lfpDisplay->getColourSchemePtr()->hasConfigurableElements())
-    {
-        lfpDisplay->getColourSchemePtr()->setBounds(colourSchemeOptionLabel->getX(),
-                                                    colourSchemeOptionLabel->getBottom(),
-                                                    200,
-                                                    110);
-    }*/
 }
 
 void LfpDisplayOptions::paint(Graphics& g)
@@ -581,9 +559,9 @@ void LfpDisplayOptions::paint(Graphics& g)
     }
 
     g.setFont(Font("Fira Sans", 16, Font::plain));
+
     g.drawText("Timebase (s)", timebaseSelection->getX(), timebaseSelection->getY()-22, 300, 20, Justification::left, false);
     g.drawText("Chan height (px)", spreadSelection->getX(), spreadSelection->getY() - 22, 300, 20, Justification::left, false);
-    //g.drawText("Overlap", overlapSelection->getX(), overlapSelection->getY() - 22, 300, 20, Justification::left, false);
     g.drawText("Range (" + rangeUnits[selectedChannelType] + ")", rangeSelection->getX(), rangeSelection->getY() - 22, 300, 20, Justification::left, false);
 
     g.drawText("Overlay", 380, getHeight() - 43, 100, 20, Justification::right, false);
@@ -713,11 +691,6 @@ int LfpDisplayOptions::getChannelHeight()
     return (int)spreadSelection->getText().getIntValue();
 }
 
-bool LfpDisplayOptions::getDrawMethodState()
-{
-    
-    return true; // drawMethodButton->getToggleState();
-}
 
 bool LfpDisplayOptions::getInputInvertedState()
 {
@@ -729,18 +702,6 @@ bool LfpDisplayOptions::getChannelNameState()
     return showChannelNumberButton->getToggleState();
 }
 
-bool LfpDisplayOptions::getDisplaySpikeRasterizerState()
-{
-//    return spikeRasterButton->getToggleState();
-    return false;
-}
-
-void LfpDisplayOptions::setDisplaySpikeRasterizerState(bool isEnabled)
-{
-//    spikeRasterButton->setToggleState(isEnabled, dontSendNotification);
-    
-//    if (isEnabled) medianOffsetPlottingButton->setToggleState(true, sendNotification);
-}
 
 void LfpDisplayOptions::setRangeSelection(float range, bool canvasMustUpdate)
 {
@@ -933,25 +894,6 @@ void LfpDisplayOptions::buttonClicked(Button* b)
         canvasSplit->resetTrials();
     }
 
-    /*if (b == drawMethodButton)
-    {
-        lfpDisplay->setDrawMethod(b->getToggleState()); // this should be done the same way as drawClipWarning - or the other way around.
-        
-        return;
-    }
-    if (b == drawClipWarningButton)
-    {
-        canvasSplit->drawClipWarning = b->getToggleState();
-        canvasSplit->redraw();
-        return;
-    }
-    if (b == drawSaturateWarningButton)
-    {
-        canvasSplit->drawSaturationWarning = b->getToggleState();
-        canvasSplit->redraw();
-        return;
-    }*/
-    
     if (b == pauseButton)
     {
         lfpDisplay->isPaused = b->getToggleState();
@@ -1224,7 +1166,6 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         selectedSpreadValue = cb->getText();
 
         if (!lfpDisplay->getSingleChannelState()) canvasSplit->redraw();
-        //std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
     else if (cb == saturationWarningSelection)
     {
@@ -1239,8 +1180,6 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         }
 
         canvasSplit->redraw();
-
-        //std::cout << "Setting saturation warning to to " << selectedSaturationValueFloat << std::endl;
     }
     else if (cb == clipWarningSelection)
     {
@@ -1255,7 +1194,6 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 
         canvasSplit->redraw();
 
-    //std::cout << "Setting saturation warning to to " << selectedSaturationValueFloat << std::endl;
     }
     else if (cb == overlapSelection)
     {
@@ -1298,7 +1236,6 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         selectedSpreadValue = cb->getText();
         lfpDisplay->setChannelHeight( lfpDisplay->getChannelHeight());
         canvasSplit->redraw();
-        //std::cout << "Setting spread to " << spreads[cb->getSelectedId()-1].getFloatValue() << std::endl;
     }
     else if (cb == colorGroupingSelection)
     {
@@ -1315,22 +1252,6 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 
     
 }
-
-void LfpDisplayOptions::sliderValueChanged(Slider* sl)
-{
-    /*if (sl == brightnessSliderA)
-        canvasSplit->histogramParameterA = sl->getValue();
-
-    if (sl == brightnessSliderB)
-        canvasSplit->histogramParameterB = sl->getValue();
-
-    canvasSplit->fullredraw=true;
-    //repaint();
-    canvasSplit->refresh();*/
-
-}
-
-void LfpDisplayOptions::sliderEvent(Slider* sl) {}
 
 ContinuousChannel::Type LfpDisplayOptions::getChannelType(int n)
 {
@@ -1386,7 +1307,7 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
 
     XmlElement* xmlNode = xml->createNewChildElement("LFPDISPLAY" + String(canvasSplit->splitID));
 
-    xmlNode->setAttribute("SubprocessorID",canvasSplit->subprocessorSelection->getSelectedId());
+    xmlNode->setAttribute("SubprocessorID", canvasSplit->streamSelection->getSelectedId());
 
     xmlNode->setAttribute("Range",selectedVoltageRangeValues[0]+","+selectedVoltageRangeValues[1]+
         ","+selectedVoltageRangeValues[2]);

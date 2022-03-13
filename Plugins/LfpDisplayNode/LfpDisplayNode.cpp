@@ -203,7 +203,7 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 }
 
 
-void LfpDisplayNode::handleEvent(TTLEventPtr event)
+void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
 {
  
     const int eventId = event->getState() ? 1 : 0;

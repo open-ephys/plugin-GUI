@@ -31,9 +31,9 @@
 #include "LfpDisplayClasses.h"
 #include "LfpDisplayNode.h"
 #include "LfpChannelDisplay.h"
+
 namespace LfpViewer {
-#pragma  mark - LfpChannelDisplayInfo -
-//==============================================================================
+
 /**
     Displays meta data pertaining to an associated channel, such as channel number.
  
@@ -45,29 +45,36 @@ class LfpChannelDisplayInfo : public LfpChannelDisplay,
 {
     friend class LfpDisplay;
 public:
+
+    /** Constructor */
     LfpChannelDisplayInfo(LfpDisplaySplitter*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
 
+    /** Draws this info for one channel */
     void paint(Graphics& g);
 
+    /** Responds to button clicks (toggles channel on and off)*/
     void buttonClicked(Button* button);
 
+    /** Sets component layout */
     void resized();
 
+    /** Sets whether this channel is enabled */
     void setEnabledState(bool);
+
+    /** Updates the channel type (DATA, ADC, AUX) */
     void updateType(ContinuousChannel::Type) override;
 
+    /** Updates the position of this component*/
     void updateXY(float, float);
 
+    /** Sets whether this channel is in single-channel mode */
     void setSingleChannelState(bool);
     
     /** Returns the sample rate associated with this channel */
     int getChannelSampleRate();
+
     /** Sets the sample rate associated with this channel */
     void setChannelSampleRate(int samplerate);
-    
-    int getSubprocessorIdx() { return subProcessorIdx; }
-    
-    void setSubprocessorIdx(int subProcessorIdx_) { subProcessorIdx = subProcessorIdx_; }
     
     /** Updates the parent LfpDisplay that the track vertical zoom should update */
     virtual void mouseDrag(const MouseEvent &event) override;
@@ -88,12 +95,15 @@ private:
     bool channelTypeStringIsVisible;
     bool channelNumberHidden;
     
+    /** Get/set whether enabled button is visible*/
     void setEnabledButtonVisibility(bool shouldBeVisible);
     bool getEnabledButtonVisibility();
 
+    /** Get/set whether channel type string is visible*/
     void setChannelTypeStringVisibility(bool shouldBeVisible);
     bool getChannelTypeStringVisibility();
     
+    /** Get/set whether channel number is hidden */
     void setChannelNumberIsHidden(bool shouldBeHidden);
     bool isChannelNumberHidden();
 };

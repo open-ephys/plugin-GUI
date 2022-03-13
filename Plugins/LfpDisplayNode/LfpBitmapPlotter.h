@@ -30,18 +30,20 @@
 
 #include "LfpDisplayClasses.h"
 #include "LfpDisplayNode.h"
+
 namespace LfpViewer {
-#pragma  mark - LfpBitmapPlotter -
-//==============================================================================
+
 /**
     Interface class for different plotting methods.
  */
 class LfpBitmapPlotter
 {
 public:
-    LfpBitmapPlotter(LfpDisplay * lfpDisplay)
-        : display(lfpDisplay)
-    {}
+
+    /** Constructor */
+    LfpBitmapPlotter(LfpDisplay * lfpDisplay) : display(lfpDisplay) { }
+
+    /** Destructor */
     virtual ~LfpBitmapPlotter() {}
     
     /** Plots one subsample of data from a single channel to the bitmap provided */

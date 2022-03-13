@@ -30,9 +30,9 @@
 
 #include "LfpDisplayClasses.h"
 #include "LfpDisplayNode.h"
+
 namespace LfpViewer {
-#pragma  mark - LfpViewport -
-//==============================================================================
+
 /**
     Encapsulates the logic for the LfpDisplaySplitter's viewable area and user inter-
     action (scrolling) when drawn in the environment.

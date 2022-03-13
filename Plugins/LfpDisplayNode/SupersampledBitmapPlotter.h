@@ -31,16 +31,20 @@
 #include "LfpDisplayClasses.h"
 #include "LfpDisplayNode.h"
 #include "LfpBitmapPlotter.h"
+
 namespace LfpViewer {
-#pragma  mark - SupersampledBitmapPlotter -
-//==============================================================================
+
 /**
  Abstraction of the supersampled line-based plotting method.
  */
 class SupersampledBitmapPlotter : public LfpBitmapPlotter
 {
 public:
+
+    /** Constructor */
     SupersampledBitmapPlotter(LfpDisplay * lfpDisplay);
+
+    /** Destructor */
     virtual ~SupersampledBitmapPlotter() {}
     
     /** Plots one subsample of data from a single channel to the bitmap provided */

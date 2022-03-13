@@ -62,13 +62,20 @@ namespace LfpViewer {
                         float ypos = 0, 
                         String structure = "None");
 
+        /** Initializes the event channel at the start of each buffer */
         void initializeEventChannel(int nSamples);
+
+        /** Cleans up the event channel at the end of each buffer*/
         void finalizeEventChannel(int nSamples);
 
+        /** Sets buffer indices to zero */
         void resetIndices();
 
+        /** Adds an event for a particular time and channel (line) */
         void addEvent(int eventTime, int eventChannel, int eventId, int numSourceSamples);
-        void addData(AudioSampleBuffer& buffer, int chan, int nSamples);
+
+        /** Adds continuous data*/
+        void addData(AudioBuffer<float>& buffer, int chan, int nSamples);
 
         CriticalSection* getMutex() { return &displayMutex; }
 

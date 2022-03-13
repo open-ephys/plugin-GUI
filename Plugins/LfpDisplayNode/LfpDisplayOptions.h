@@ -29,72 +29,105 @@
 #include <array>
 
 #include "LfpDisplayClasses.h"
-#include "LfpDisplayNode.h"
+
+#include "EventDisplayInterface.h"
+#include "ShowHideOptionsButton.h"
+
 namespace LfpViewer {
-#pragma  mark - LfpDisplayOptions -
-//==============================================================================
+
 /**
  
     Holds the LfpDisplay UI controls
  
  */
-class LfpDisplayOptions : public Component,
-    public Slider::Listener,
+class LfpDisplayOptions : 
+    public Component,
     public ComboBox::Listener,
     public Button::Listener
 {
 public:
+
+    /** Construtor */
     LfpDisplayOptions(LfpDisplayCanvas*,
                       LfpDisplaySplitter*, 
                       LfpTimescale*, 
                       LfpDisplay*, 
                       LfpDisplayNode*);
-    ~LfpDisplayOptions();
 
+    /** Destructor */
+    ~LfpDisplayOptions() { }
+
+    /** Paint background*/
     void paint(Graphics& g);
+
+    /** Set sub-component locations*/
     void resized();
 
-    void setRangeSelection(float range, bool canvasMustUpdate = false); // set range selection combo box to correct value if it has been changed by scolling etc.
-    void setSpreadSelection(int spread, bool canvasMustUpdate = false, bool deferDisplayRefresh = false); // set spread selection combo box to correct value if it has been changed by scolling etc.
-
+    /** Respond to combo box selection */
     void comboBoxChanged(ComboBox* cb);
+
+    /** Respond to button clicks */
     void buttonClicked(Button* button);
+
+    /** Set range selection combo box to correct value if it has been changed by scolling etc. */
+    void setRangeSelection(float range, bool canvasMustUpdate = false); 
     
+    /** Set spread selection combo box to correct value if it has been changed by scolling etc. */
+    void setSpreadSelection(int spread, bool canvasMustUpdate = false, bool deferDisplayRefresh = false); 
+
     /** Changes the timebase value used by LfpTimescale and LfpDisplayCanvas. */
     void setTimebaseAndSelectionText(float timebase);
-    
-    /** Handles slider events for all editors. */
-    void sliderValueChanged(Slider* sl);
-    
-    /** Called by sliderValueChanged(). Deals with clicks on custom sliders. Subclasses
-     of GenericEditor should modify this method only.*/
-    void sliderEvent(Slider* sl);
 
+    /** Returns the selected channel height*/
     int getChannelHeight();
-    bool getDrawMethodState();
+
+    /** Returns true if channel polarity is inverted */
     bool getInputInvertedState();
+
+    /** Returns true if channel names should be shown*/
 	bool getChannelNameState();
-    
-    /** Return a bool describing whether the spike raster functionality is enabled */
-    bool getDisplaySpikeRasterizerState();
-    
-    /** Sets the state of the spike raster functionality on/off */
-    void setDisplaySpikeRasterizerState(bool isEnabled);
 
-    //void setRangeSelection(float range, bool canvasMustUpdate);
-    void setSpreadSelection();
-
+    /** Toggles pause button (e.g. if space bar is pressed) */
     void togglePauseButton(bool sendUpdate = true);
 
+    /** Saves all options to XML */
     void saveParameters(XmlElement* xml);
+
+    /** Loads options from XML */
     void loadParameters(XmlElement* xml);
 
-	ContinuousChannel::Type getChannelType(int n);
+    /** Returns the channel type of a given channel index */
+	ContinuousChannel::Type getChannelType(int index);
+
+    /** Returns the selected channel type for the range editor */
     ContinuousChannel::Type getSelectedType();
+
+    /** Returns the name for a given channel type (DATA, AUX, ADC) */
     String getTypeName(ContinuousChannel::Type type);
+
+    /** Returns the range step size for a given channel type (DATA, AUX, ADC) */
 	int getRangeStep(ContinuousChannel::Type type);
 
+    /** Set the selected channel type (DATA, AUX, ADC) */
 	void setSelectedType(ContinuousChannel::Type type, bool toggleButton = true);
+
+    /** Sets whether channel order should be reversed */
+    void setChannelsReversed(bool);
+
+    /** Sets whether channels should be sorted by depth*/
+    void setSortByDepth(bool);
+
+    /** Sets whether signal polarity should be inverted */
+    void setInputInverted(bool);
+
+    /** Sets whether the median of each channel should be subtracted */
+    void setMedianOffset(bool);
+
+    /** Sets whether to use averaging in triggered display*/
+    void setAveraging(bool);
+    
+    /** Sets whether channel numbers should be shown instead of names */
+    void setShowChannelNumbers(bool);
 
     int selectedSpread;
     String selectedSpreadValue;
@@ -122,16 +155,7 @@ public:
         ThirtyTwo
     } enum_selectedChannelDisplaySkipValue = None;
     
-    int selectedSaturation; // for saturation warning
-    String selectedSaturationValue;
-    float selectedSaturationValueFloat; // TODO: this is way ugly - we should refactor all these parameters soon and get them into a nicer format- probably when we do the general plugin parameter overhaul.
-
-    void setChannelsReversed(bool);
-    void setInputInverted(bool);
-    void setMedianOffset(bool);
-    void setAveraging(bool);
-    void setSortByDepth(bool);
-    void setShowChannelNumbers(bool);
+    float selectedSaturationValueFloat; 
 
 private:
 

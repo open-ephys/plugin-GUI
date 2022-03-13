@@ -22,30 +22,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ShowHideOptionsButton.h"
-#include "LfpDisplayNode.h"
-#include "LfpDisplayCanvas.h"
+
 #include "LfpDisplayOptions.h"
-#include "LfpTimescale.h"
-#include "LfpDisplay.h"
-#include "LfpChannelDisplay.h"
-#include "LfpChannelDisplayInfo.h"
-#include "EventDisplayInterface.h"
-#include "LfpViewport.h"
-#include "LfpBitmapPlotter.h"
-#include "PerPixelBitmapPlotter.h"
-#include "SupersampledBitmapPlotter.h"
 
 #include <math.h>
 
 using namespace LfpViewer;
 
-#pragma  mark - ShowHideOptionsButton -
-// =============================================================
-
 ShowHideOptionsButton::ShowHideOptionsButton(LfpDisplayOptions* options) : Button("Button")
 {
     setClickingTogglesState(true);
 }
+
 ShowHideOptionsButton::~ShowHideOptionsButton()
 {
 

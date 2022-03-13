@@ -41,9 +41,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace LfpViewer;
 
-#pragma  mark - LfpChannelDisplay -
-// ------------------------------------------------------------------
-
 LfpChannelDisplay::LfpChannelDisplay(LfpDisplaySplitter* c, LfpDisplay* d, LfpDisplayOptions* o, int channelNumber)
     : canvasSplit(c)
     , display(d)
@@ -149,27 +146,16 @@ void LfpChannelDisplay::pxPaint()
     
     bool saturateWarningHi =false; // similar, but for saturating the amplifier, not just the display - make this warning very visible
     bool saturateWarningLo =false;
-    
-    // pre compute some colors for later so we dont do it once per pixel.
-    Colour lineColourBright = lineColour.withMultipliedBrightness(2.0f);
-    //Colour lineColourDark = lineColour.withMultipliedSaturation(0.5f).withMultipliedBrightness(0.3f);
-    Colour lineColourDark = lineColour.withMultipliedSaturation(0.5f*canvasSplit->histogramParameterB).withMultipliedBrightness(canvasSplit->histogramParameterB);
-    
+     
     int stepSize = 1;
     int from = 0; // for vertical line drawing in the LFP data
     int to = 0;
     
     int ifrom = canvasSplit->lastScreenBufferIndex[0]; // base everything on the first channel
-    
-    //if (ifrom < 0)
-   //     ifrom = 0;
-    
+
     int ito = canvasSplit->screenBufferIndex[0];
 
-    //if (ito < 0)
-    //    ito = getWidth();
-
-     if (ito < ifrom)
+    if (ito < ifrom)
         ito = getWidth() + ito;
     
     if (fullredraw)
@@ -183,9 +169,6 @@ void LfpChannelDisplay::pxPaint()
     
     LfpBitmapPlotterInfo plotterInfo; // hold and pass plotting info for each plotting method class
     
-    //if (getChannelNumber() == 0)
-    //    std::cout << "ifrom: " << ifrom << ", ito: " << ito << std::endl;
-
     for (int index = ifrom; index < ito; index++)
     {
 
@@ -237,10 +220,8 @@ void LfpChannelDisplay::pxPaint()
                 }
             }
         }
- 
-        //std::cout << "e " << canvas->getYCoord(canvas->getNumChannels()-1, i) << std::endl;
-            
-        // set max-min range for plotting, used in all methods
+
+        // set max-min range for plotting
         double a = (canvasSplit->getYCoordMax(chan, i)/range*channelHeightFloat);
         double b = (canvasSplit->getYCoordMin(chan, i)/range*channelHeightFloat);
             
@@ -256,8 +237,7 @@ void LfpChannelDisplay::pxPaint()
         double b_raw = canvasSplit->getYCoordMin(chan, i);
         double from_raw=0; double to_raw=0;
             
-        //double m = (canvas->getYCoordMean(chan, i)/range*channelHeightFloat)+getHeight()/2;
-        if (a<b)
+        if (a < b)
         {
             from = (a); to = (b);
             from_raw = (a_raw); to_raw = (b_raw);
@@ -288,49 +268,19 @@ void LfpChannelDisplay::pxPaint()
         bool spikeFlag = display->getSpikeRasterPlotting()
             && (from_raw - canvasSplit->getYCoordMean(chan, i) < display->getSpikeRasterThreshold()
                     || to_raw - canvasSplit->getYCoordMean(chan, i) < display->getSpikeRasterThreshold());
-
-        // && !(saturateWarningHi || saturateWarningLo)
-            
+  
         from = from + getHeight()/2;       // so the plot is centered in the channeldisplay
         to = to + getHeight()/2;
             
         int samplerange = to - from;
             
-        if (drawMethod) // switched between 'supersampled' drawing and simple pixel wise drawing
-        { // histogram based supersampling method
-            plotterInfo.channelID = chan;
-            plotterInfo.samp = i;
-            plotterInfo.y = getY();
-            plotterInfo.from = from;
-            plotterInfo.height = getHeight();
-            plotterInfo.lineColourBright = lineColourBright;
-            plotterInfo.lineColourDark = lineColourDark;
-            plotterInfo.range = range;
-            plotterInfo.channelHeightFloat = channelHeightFloat;
-            // plotterInfo.sampleCountPerPixel = canvasSplit->getSampleCountPerPixel(i);
-            //plotterInfo.samplesPerPixel = canvasSplit->getSamplesPerPixel(chan, i);
-            plotterInfo.histogramParameterA = canvasSplit->histogramParameterA;
-            plotterInfo.samplerange = samplerange;
+        plotterInfo.channelID = chan;
+        plotterInfo.y = getY();
+        plotterInfo.from = from;
+        plotterInfo.to = to;
+        plotterInfo.samp = i;
+        plotterInfo.lineColour = lineColour;
                 
-            // TODO: (kelly) complete transition toward plotter class encapsulation
-//                display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo);
-                
-        }
-        else //drawmethod
-        { // simple per-pixel min-max drawing, has no anti-aliasing, but runs faster
-                
-            plotterInfo.channelID = chan;
-            plotterInfo.y = getY();
-            plotterInfo.from = from;
-            plotterInfo.to = to;
-            plotterInfo.samp = i;
-            plotterInfo.lineColour = lineColour;
-                
-            // TODO: (kelly) complete transition toward plotter class encapsulation
-//                display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo); // plotterInfo is prepared above
-                
-        }
-            
         // Do the actual plotting for the selected plotting method
         if (!display->getSpikeRasterPlotting())
             display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo);
@@ -433,10 +383,9 @@ void LfpChannelDisplay::setRange(float r)
     
     range = r;
 
-    //std::cout << "Range: " << r << std::endl;
 }
 
-int LfpChannelDisplay::getRange()
+float LfpChannelDisplay::getRange()
 {
     return range;
 }
