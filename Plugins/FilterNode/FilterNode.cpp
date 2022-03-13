@@ -158,16 +158,14 @@ void FilterNode::updateSettings()
 
 void FilterNode::parameterValueChanged(Parameter* param)
 {
+    
     uint16 currentStream = param->getStreamId();
-
-    //std::cout << "---> Value changed for " << param->getName() << " : " << (int) param->getValue() << std::endl;
 
     if (param->getName().equalsIgnoreCase("low_cut"))
     {
 
         if ((*getDataStream(currentStream))["low_cut"] >= (*getDataStream(currentStream))["high_cut"])
         {
-            //std::cout << "Invalid low cut" << std::endl;
             getDataStream(currentStream)->getParameter("low_cut")->restorePreviousValue();
             return;
         }
@@ -183,7 +181,6 @@ void FilterNode::parameterValueChanged(Parameter* param)
 
         if ((*getDataStream(currentStream))["high_cut"] <= (*getDataStream(currentStream))["low_cut"])
         {
-            //std::cout << "Invalid high cut" << std::endl;
             getDataStream(currentStream)->getParameter("high_cut")->restorePreviousValue();
             return;
         }
@@ -196,7 +193,7 @@ void FilterNode::parameterValueChanged(Parameter* param)
 }
 
 
-void FilterNode::process (AudioSampleBuffer& buffer)
+void FilterNode::process (AudioBuffer<float>& buffer)
 {
 
     for (auto stream : getDataStreams())

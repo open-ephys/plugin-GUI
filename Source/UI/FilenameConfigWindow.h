@@ -26,6 +26,11 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h" 
 
+/** 
+
+    Used to specify the name of the recording directory
+
+*/
 class FilenameFieldComponent : 
     public Component,
     public Label::Listener,

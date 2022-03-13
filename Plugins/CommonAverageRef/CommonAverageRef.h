@@ -62,18 +62,7 @@ public:
     /** The class destructor, used to deallocate memory. */
     ~CommonAverageRef();
 
-    /** Defines the functionality of the processor.
-
-        The process method is called every time a new data buffer is available.
-
-        Processors can either use this method to add new data, manipulate existing
-        data, or send data to an external target (such as a display or other hardware).
-
-        Continuous signals arrive in the "buffer" variable, event data (such as TTLs
-        and spikes) is contained in the "events" variable, and "nSamples" holds the
-        number of continous samples in the current buffer (which may differ from the
-        size of the buffer).
-    */
+    /** Called every time a new data buffer is available. */
     void process (AudioBuffer<float>& buffer) override;
 
     /** Called when upstream settings are changed.*/

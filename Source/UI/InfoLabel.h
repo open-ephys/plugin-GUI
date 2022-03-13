@@ -87,8 +87,10 @@ private:
     /** Sets the license text*/
     void setLicenseText();
 
+    /** Checks for mouse hovering over links */
     void mouseMove(const MouseEvent& mouse);
 
+    /** Opens links in a browser window */
     void mouseUp(const MouseEvent& mouse);
 
     std::unique_ptr<TextEditor> textEditor;

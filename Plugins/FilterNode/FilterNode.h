@@ -75,19 +75,8 @@ public:
     /** Creates the FilterEditor. */
     AudioProcessorEditor* createEditor() override;
 
-    /** Defines the functionality of the processor.
-
-        The process method is called every time a new data buffer is available.
-
-        Processors can either use this method to add new data, manipulate existing
-        data, or send data to an external target (such as a display or other hardware).
-
-        Continuous signals arrive in the "buffer" variable, event data (such as TTLs
-        and spikes) is contained in the "events" variable, and "nSamples" holds the
-        number of continous samples in the current buffer (which may differ from the
-        size of the buffer).
-    */
-    void process(AudioSampleBuffer& buffer) override;
+    /** Filters incoming channels according to current parameters */
+    void process(AudioBuffer<float>& buffer) override;
 
     /** Called whenever a parameter's value is changed (called by GenericProcessor::setParameter())*/
     void parameterValueChanged(Parameter* param) override;

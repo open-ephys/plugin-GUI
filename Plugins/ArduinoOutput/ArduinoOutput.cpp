@@ -122,7 +122,7 @@ bool ArduinoOutput::stopAcquisition()
 }
 
 
-void ArduinoOutput::process (AudioSampleBuffer& buffer)
+void ArduinoOutput::process (AudioBuffer<float>& buffer)
 {
     checkForEvents ();
 }

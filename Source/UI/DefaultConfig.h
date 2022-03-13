@@ -61,6 +61,7 @@ public:
     /** Destroys the DefaultConfigWindow. */
     ~DefaultConfigWindow();
 
+    /** Shows the DefaultConfigWindow */
     void launchWindow();
 
 private:

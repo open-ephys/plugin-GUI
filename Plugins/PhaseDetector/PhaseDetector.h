@@ -73,7 +73,11 @@ public:
 };
 
 /**
-    Uses peaks to estimate the phase of a continuous signal.
+    Uses peaks, troughs, and zero crossings to estimate 
+    the phase of a continuous signal.
+
+    See Siegle & Wilson (2014) for an example application
+    https://elifesciences.org/articles/03061
 
     @see GenericProcessor, PhaseDetectorEditor
 */
