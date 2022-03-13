@@ -51,7 +51,7 @@ public:
     void process (AudioBuffer<float>& buffer) override;
 
     /** Convenient interface for responding to incoming events. */
-    void handleEvent (TTLEventPtr event) override;
+    void handleTTLEvent (TTLEventPtr event) override;
 
     /** Called when settings need to be updated. */
     void updateSettings() override;

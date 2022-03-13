@@ -49,7 +49,7 @@ public:
     void process (AudioBuffer<float>& buffer) override;
 
     /** Respond to incoming events */
-    void handleEvent (TTLEventPtr event) override;
+    void handleTTLEvent (TTLEventPtr event) override;
 
 private:
 

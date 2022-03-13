@@ -653,7 +653,7 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
                             spikeCount++;
 
                             // add spike to the outgoing EventBuffer
-                            addSpike(newSpike, peakIndex);
+                            addSpike(newSpike);
 
                             // advance the sample index
                             sampleIndex = peakIndex + spikeChannel->getPostPeakSamples();

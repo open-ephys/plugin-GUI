@@ -104,7 +104,7 @@ public:
 
 private:
     /** Called whenever a new TTL event arrives*/
-    void handleEvent (TTLEventPtr event) override;
+    void handleTTLEvent (TTLEventPtr event) override;
 
     StreamSettings<PhaseDetectorSettings> settings;
 

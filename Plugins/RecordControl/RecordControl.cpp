@@ -61,7 +61,7 @@ void RecordControl::process (AudioSampleBuffer& buffer)
 }
 
 
-void RecordControl::handleEvent (TTLEventPtr event)
+void RecordControl::handleTTLEvent (TTLEventPtr event)
 {
 
     DataStream* stream = getDataStream(event->getStreamId());

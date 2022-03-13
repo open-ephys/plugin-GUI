@@ -128,7 +128,7 @@ void ArduinoOutput::process (AudioBuffer<float>& buffer)
 }
 
 
-void ArduinoOutput::handleEvent(TTLEventPtr event)
+void ArduinoOutput::handleTTLEvent(TTLEventPtr event)
 {
 
     const int eventBit = event->getLine() + 1;

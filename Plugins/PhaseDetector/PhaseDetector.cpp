@@ -150,7 +150,7 @@ void PhaseDetector::updateSettings()
 
 
 
-void PhaseDetector::handleEvent (TTLEventPtr event)
+void PhaseDetector::handleTTLEvent (TTLEventPtr event)
 {
 
     uint16 eventStream = event->getStreamId();
