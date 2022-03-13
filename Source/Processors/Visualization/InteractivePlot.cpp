@@ -24,9 +24,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "InteractivePlot.h"
 
 InteractivePlot::InteractivePlot() :
-	title(""),
+	titleString(""),
 	borderColor(Colours::white),
-	controlButtonsVisible(false)
+	controlButtonsVisible(false),
+	gridIsVisible(false)
 {
 	xAxis = new XAxis();
 	addAndMakeVisible(xAxis);
@@ -72,23 +73,23 @@ InteractivePlot::InteractivePlot() :
 	setRange(range);
 }
 
-void InteractivePlot::setRangeLimit(float xmin_limit_, float xmax_limit_ ,float ymin_limit_ , float ymax_limit_)
+void InteractivePlot::setRangeLimit(XYRange& limit_)
 {
 
-	limit.xmin = xmin_limit_;
-	limit.xmax = xmax_limit_;
-	limit.ymin = ymin_limit_;
-	limit.ymax = ymax_limit_;
+	limit.xmin = limit_.xmin;
+	limit.xmax = limit_.xmax;
+	limit.ymin = limit_.ymin;
+	limit.ymax = limit_.ymax;
 
 }
 
 
-void InteractivePlot::getRangeLimit(float &xmin_limit_, float &xmax_limit_ ,float &ymin_limit_ , float &ymax_limit_)
+void InteractivePlot::getRangeLimit(XYRange& limit_)
 {
-	xmin_limit_ = limit.xmin;
-	xmax_limit_ = limit.xmax;
-	ymin_limit_ = limit.ymin;
-	ymax_limit_ = limit.ymax;
+	limit_.xmin = limit.xmin;
+	limit_.xmax = limit.xmax;
+	limit_.ymin = limit.ymin;
+	limit_.ymax = limit.ymax;
 }
 
 void InteractivePlot::setMode(DrawComponentMode mode)
@@ -108,6 +109,11 @@ void InteractivePlot::showBounds(bool state)
 	drawComponent->setBoundsShown(state);
 }
 
+void InteractivePlot::showGrid(bool state)
+{
+	drawComponent->showGrid(state);
+}
+
 void InteractivePlot::showXAxis(bool state)
 {
 	drawComponent->setXAxisShown(state);
@@ -124,7 +130,7 @@ void InteractivePlot::showControls(bool state)
 	resized();
 }
 
-void InteractivePlot::setAutoRescale(bool state)
+void InteractivePlot::autoRescale(bool state)
 {
 	drawComponent->setAutoRescale(state);
 }
@@ -223,7 +229,6 @@ void InteractivePlot::setBorderColor(juce::Colour col)
 {
 
 	borderColor = col;
-	repaint();
 	
 }
 
@@ -258,10 +263,21 @@ void InteractivePlot::setRange(XYRange& newRange)
 
 }
 
-void InteractivePlot::setTitle(String t)
+void InteractivePlot::title(String t)
 {
-	title = t;
+	titleString = t;
+}
+
+void InteractivePlot::setUnits(String xUnits, String yUnits)
+{
+	// to be implemented
+}
+
+void InteractivePlot::show()
+{
 	repaint();
+
+	drawComponent->repaint();
 }
 
 void InteractivePlot::paint(Graphics &g)
@@ -270,7 +286,7 @@ void InteractivePlot::paint(Graphics &g)
 	g.drawRect(0,0,getWidth(),getHeight(),2);
 	g.setColour(juce::Colours::white);
 	g.setFont(font);
-	g.drawText(title, 30,0,getWidth()-30,25,juce::Justification::centred,true);
+	g.drawText(titleString, 30,0,getWidth()-30,25,juce::Justification::centred,true);
 }
 
 void InteractivePlot::clear()
@@ -569,6 +585,11 @@ void DrawComponent::setBoundsShown(bool state)
 	showBounds = state;
 }
 
+void DrawComponent::showGrid(bool state)
+{
+	// toggle grid on and off
+}
+
 void DrawComponent::drawTicks(Graphics &g)
 {
 	int tickHeight = 6;
@@ -766,10 +787,11 @@ void DrawComponent::mouseDrag(const juce::MouseEvent& event)
 		float dx = -float(event.x-mousePrevX) / w*range0;
 		float dy = float(event.y-mousePrevY) / h*range1;
 
-		float xmin_limit, xmax_limit, ymin_limit, ymax_limit;
-		plt->getRangeLimit(xmin_limit, xmax_limit, ymin_limit, ymax_limit);
+		XYRange limit;
 		
-		if (range.xmin + dx >= xmin_limit && range.xmax + dx <= xmax_limit)
+		plt->getRangeLimit(limit);
+		
+		if (range.xmin + dx >= limit.xmin && range.xmax + dx <= limit.xmax)
 		{
 			range.xmin += dx;
 			range.xmax += dx;

@@ -21,8 +21,8 @@
 
 */
 
-#ifndef __MATLAB_LIKE_PLOT_H
-#define __MATLAB_LIKE_PLOT_H
+#ifndef __INTERACTIVE_PLOT_H
+#define __INTERACTIVE_PLOT_H
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "Visualizer.h"
@@ -129,6 +129,9 @@ public:
 	
 	/** Sets whether bounds are visible */
 	void setBoundsShown(bool state);
+
+	/** Sets whether grid is visible*/
+	void showGrid(bool state);
 
 	/** Gets the current range values */
 	void getRange(XYRange& range);
@@ -297,11 +300,17 @@ public:
 	/** Clears all lines from the plot */
 	void clear();
 
+	/** Draws the plot */
+	void show();
+
 	/** Adds a title to the plot */
-	void setTitle(String t);
+	void title(String t);
+
+	/** Sets the units of the plot */
+	void setUnits(String xUnits, String yUnits);
 
 	/** Sets auto rescale state */
-	void setAutoRescale(bool state);
+	void autoRescale(bool state);
 
 	/** Sets whether control buttons are visible */
 	void showControls(bool state);
@@ -315,11 +324,14 @@ public:
 	/** Sets whether grid is visible */
 	void showGrid(bool state);
 
-	/** Sets wether the bounds are visible*/
+	/** Sets wether the bounds of each line are visible*/
 	void showBounds(bool state);
 
 	/** Set border color */
 	void setBorderColor(Colour c);
+
+	/** Sets ZOOM or PAN mode */
+	void setMode(DrawComponentMode mode);
 
 	/** Sets range of both axes*/
 	void setRange(XYRange& range);
@@ -327,35 +339,29 @@ public:
 	/** Copies the current range values*/
 	void getRange(XYRange& range);
 
+	/** Sets the limit on the min/max range */
+	void setRangeLimit(XYRange& range);
+
+	/** Copies the limit on the min/max range */
+	void getRangeLimit(XYRange& range);
+
 	/** Renders the plot */
 	void paint(Graphics &g);
 	
 	/** Called when size of plot is changed */
 	void resized();
 
-
-	void setActivateButtonVisiblilty(bool vis,int id);
-	void setMode(DrawComponentMode mode);
-	void setRangeLimit(float xmin_limit, float xmax_limit, float ymin_limit, float ymax_limit);
-	void getRangeLimit(float &xmin_limit_, float &xmax_limit_ ,float &ymin_limit_ , float &ymax_limit_);
-	void setFiringRateMode(bool state);
 private:
 
 	/** Respond to button clicks */
 	void buttonClicked(Button* btn);
 
-	void determineTickLocations(float xmin, float xmax,float ymin,float ymax,std::vector<float> &xtick, std::vector<float> &ytick);
-
 	Font font;
-
-	std::vector<float> roundlin(float minv, float maxv, int numticks);
-	
-	String title;
-	double lowestValue, highestValue;
-	bool controlButtonsVisible;
 	juce::Colour borderColor;
-	int maxImageHeight;
-	int64 triggeredTS;
+
+	String titleString;
+	double lowestValue, highestValue;
+	bool controlButtonsVisible, gridIsVisible;
 	
 	ScopedPointer<UtilityButton> zoomButton,
 		panButton,
@@ -373,4 +379,4 @@ private:
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(InteractivePlot);
 };
 
-#endif
+#endif // __INTERACTIVE_PLOT_H
