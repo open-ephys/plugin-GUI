@@ -1653,8 +1653,9 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
                         LOGC(pName, " plugin not found in Processor List! Looking for it on Artifactory...");
 
                         String libName = processor->getStringAttribute("libraryName");
-                        String libVer = processor->getStringAttribute("libraryVersion")
-                                        + "-API" + String(PLUGIN_API_VER);
+                        String libVer = processor->getStringAttribute("libraryVersion");
+                        libVer = libVer.isEmpty() ? "" : libVer + "-API" + String(PLUGIN_API_VER);
+                        
                         CoreServices::PluginInstaller::installPlugin(libName, libVer);
                     }
                     

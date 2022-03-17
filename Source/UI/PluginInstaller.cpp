@@ -263,7 +263,7 @@ void PluginInstaller::installPluginAndDependency(const String& plugin, String ve
 		{
 			LOGC(plugin, " version ", version, " not found! Installing the latest version");
 			requiredPluginInfo.versions.sort(false);
-			version = requiredPluginInfo.versions[requiredPluginInfo.versions.size()];
+			version = requiredPluginInfo.versions[requiredPluginInfo.versions.size() - 1];
 		}
 		else
 		{
