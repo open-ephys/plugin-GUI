@@ -11,7 +11,7 @@
   </INFO>
   <SIGNALCHAIN>
     <PROCESSOR name="Acquisition Board" insertionPoint="0" pluginName="Acquisition Board"
-               type="4" index="0" libraryName="Rhythm Plugins" libraryVersion="0.1.0"
+               type="4" index="0" libraryName="Rhythm Plugins" libraryVersion=""
                processorType="2" nodeId="100">
       <GLOBAL_PARAMETERS/>
       <STREAM name="Device Data" description="description" sample_rate="30000.0"

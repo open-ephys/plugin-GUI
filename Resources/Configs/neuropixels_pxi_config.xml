@@ -11,7 +11,7 @@
   </INFO>
   <SIGNALCHAIN>
     <PROCESSOR name="Neuropix-PXI" insertionPoint="0" pluginName="Neuropix-PXI"
-               type="4" index="0" libraryName="Neuropix-PXI" libraryVersion="0.3.4"
+               type="4" index="0" libraryName="Neuropix-PXI" libraryVersion=""
                processorType="2" nodeId="100">
       <GLOBAL_PARAMETERS/>
       <STREAM name="ProbeA-AP" description="description" sample_rate="30000.0"
