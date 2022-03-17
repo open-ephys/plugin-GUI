@@ -179,7 +179,7 @@ void DisplayBuffer::finalizeEventChannel(int nSamples)
 void DisplayBuffer::addEvent(int eventTime, int eventChannel, int eventId, int numSourceSamples)
 {
 
-    if (displays.size() == 0)
+    if (displays.size() == 0 || eventTime > numSourceSamples)
         return;
 
     const int index = (displayBufferIndices[numChannels] + eventTime) % getNumSamples();
