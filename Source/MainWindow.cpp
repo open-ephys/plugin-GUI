@@ -331,7 +331,7 @@ void MainWindow::loadWindowBounds()
 				// bool fs = e->getBoolAttribute("fullscreen");
 
 				// without the correction, you get drift over time
-#ifdef WIN32
+#ifdef _WIN32
 				setTopLeftPosition(x,y); //Windows doesn't need correction
 #else
 				setTopLeftPosition(x,y-27);

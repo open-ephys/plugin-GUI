@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SpikeDetector/SpikeDetector.h"
 #include "SpikeDisplayNode/SpikeDisplayNode.h"
 #include <string>
-#ifdef WIN32
+#ifdef _WIN32
 #include <Windows.h>
 #define EXPORT __declspec(dllexport)
 #else
@@ -66,7 +66,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	return 0;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 BOOL WINAPI DllMain(IN HINSTANCE hDllHandle,
 	IN DWORD     nReason,
 	IN LPVOID    Reserved)

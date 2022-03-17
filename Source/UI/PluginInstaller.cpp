@@ -30,7 +30,7 @@
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "ProcessorList.h"
 #include "ControlPanel.h"
-#ifdef WIN32
+#ifdef _WIN32
 #include <Windows.h>
 #endif
 

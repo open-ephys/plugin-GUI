@@ -30,7 +30,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "OpenEphysPlugin.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #elif defined(__APPLE__)
@@ -41,7 +41,7 @@ namespace CF {
 
 struct LoadedLibInfo : public Plugin::LibraryInfo
 {
-#ifdef WIN32
+#ifdef _WIN32
 	HINSTANCE handle;
 #elif defined(__APPLE__)
     CF::CFBundleRef handle;
