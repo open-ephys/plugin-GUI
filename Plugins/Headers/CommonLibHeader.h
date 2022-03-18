@@ -29,7 +29,7 @@ graphic representations must be coded using standard Juce methods.
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
-#ifdef WIN32
+#ifdef _WIN32
     #ifdef OEPLUGIN
         #define COMMON_LIB __declspec(dllimport)
 #else

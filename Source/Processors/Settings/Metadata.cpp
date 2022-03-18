@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //Helper method to check type
 template <typename T>
-bool checkMetadataType(MetadataDescriptor::MetadataTypes baseType)
+bool checkMetadataType(MetadataDescriptor::MetadataType baseType)
 {
 	switch (baseType)
 	{
@@ -48,7 +48,7 @@ bool checkMetadataType(MetadataDescriptor::MetadataTypes baseType)
 
 //MetadataDescriptor
 
-MetadataDescriptor::MetadataDescriptor(MetadataDescriptor::MetadataTypes t, unsigned int length, String n, String d, String id)
+MetadataDescriptor::MetadataDescriptor(MetadataDescriptor::MetadataType t, unsigned int length, String n, String d, String id)
 	: m_name(n), m_identifier(id), m_description(d), m_type(t), m_length(length)
 {}
 
@@ -70,7 +70,7 @@ MetadataDescriptor& MetadataDescriptor::operator=(const MetadataDescriptor& othe
 	return *this;
 }
 
-MetadataDescriptor::MetadataTypes MetadataDescriptor::getType() const { return m_type; }
+MetadataDescriptor::MetadataType MetadataDescriptor::getType() const { return m_type; }
 unsigned int MetadataDescriptor::getLength() const { return m_length; }
 size_t MetadataDescriptor::getDataSize() const 
 { 
@@ -104,7 +104,7 @@ bool MetadataDescriptor::operator==(const MetadataDescriptor& other) const
 	return isEqual(other);
 }
 
-size_t MetadataDescriptor::getTypeSize(MetadataDescriptor::MetadataTypes type)
+size_t MetadataDescriptor::getTypeSize(MetadataDescriptor::MetadataType type)
 {
 	switch (type)
 	{
@@ -126,14 +126,14 @@ size_t MetadataDescriptor::getTypeSize(MetadataDescriptor::MetadataTypes type)
 //MetadataValue
 
 //This would be so much easier if VS2012 supported delegating constructors...
-MetadataValue::MetadataValue(MetadataDescriptor::MetadataTypes t, unsigned int length, const void* d)
+MetadataValue::MetadataValue(MetadataDescriptor::MetadataType t, unsigned int length, const void* d)
 	: m_type(t), m_length(length), m_size(getSize(t, length))
 {	
 	allocSpace();
 	setValue(d);
 }
 
-MetadataValue::MetadataValue(MetadataDescriptor::MetadataTypes t, unsigned int length) 
+MetadataValue::MetadataValue(MetadataDescriptor::MetadataType t, unsigned int length)
 	: m_type(t), m_length(length), m_size(getSize(t, length))
 {
 	allocSpace();
@@ -162,7 +162,7 @@ bool MetadataValue::isOfType(const MetadataDescriptor* m) const
 	return isOfType(*m);
 }
 
-MetadataDescriptor::MetadataTypes MetadataValue::getDataType() const
+MetadataDescriptor::MetadataType MetadataValue::getDataType() const
 {
 	return m_type;
 }
@@ -182,7 +182,7 @@ void MetadataValue::allocSpace()
 	m_data.calloc(m_size);
 }
 
-size_t MetadataValue::getSize(MetadataDescriptor::MetadataTypes type, unsigned int length)
+size_t MetadataValue::getSize(MetadataDescriptor::MetadataType type, unsigned int length)
 {
 	if (type == MetadataDescriptor::CHAR)
 		return length*MetadataDescriptor::getTypeSize(type) + 1; //account for the null-rerminator
@@ -346,7 +346,7 @@ const int MetadataObject::getMetadataCount() const
 	return m_metadataDescriptorArray.size();
 }
 
-int MetadataObject::findMetadata(MetadataDescriptor::MetadataTypes type, unsigned int length, String identifier) const
+int MetadataObject::findMetadata(MetadataDescriptor::MetadataType type, unsigned int length, String identifier) const
 {
 	int nMetadata = m_metadataDescriptorArray.size();
 	for (int i = 0; i < nMetadata; i++)
@@ -439,7 +439,7 @@ int MetadataEventObject::getEventMetadataCount() const
 	return m_eventMetadataDescriptorArray.size();
 }
 
-int MetadataEventObject::findEventMetadata(MetadataDescriptor::MetadataTypes type, unsigned int length, String descriptor) const
+int MetadataEventObject::findEventMetadata(MetadataDescriptor::MetadataType type, unsigned int length, String descriptor) const
 {
 	int nMetadata = m_eventMetadataDescriptorArray.size();
 	for (int i = 0; i < nMetadata; i++)
@@ -465,11 +465,13 @@ bool MetadataEventObject::checkMetadataCoincidence(const MetadataEventObject& ot
 {
 	int nMetadata = m_eventMetadataDescriptorArray.size();
 	if (nMetadata != other.m_eventMetadataDescriptorArray.size()) return false;
-	for (int i = 0; i < nMetadata; i++)
+	
+    for (int i = 0; i < nMetadata; i++)
 	{
 		MetadataDescriptorPtr md = m_eventMetadataDescriptorArray[i];
 		MetadataDescriptorPtr mdo = other.m_eventMetadataDescriptorArray[i];
-		if (similar)
+		
+        if (similar)
 		{
 			if (!md->isSimilar(*mdo)) return false;
 		}

@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <stdio.h>
-#if !defined(WIN32) && !defined(__APPLE__)
+#if !defined(_WIN32) && !defined(__APPLE__)
 #include <dlfcn.h>
 #include <execinfo.h>
 #endif
@@ -37,7 +37,7 @@
 
 static inline void closeHandle(decltype(LoadedLibInfo::handle) handle) {
     if (handle) {
-#ifdef WIN32
+#ifdef _WIN32
         FreeLibrary(handle);
 #elif defined(__APPLE__)
         CFRelease(handle);
@@ -50,7 +50,7 @@ static inline void closeHandle(decltype(LoadedLibInfo::handle) handle) {
 
 static void errorMsg(const char *file, int line, const char *msg) {
     
-#ifdef WIN32
+#ifdef _WIN32
     DWORD ret = GetLastError();
     if (ret) {
         fprintf(stderr, ": DLL Error 0x%x", ret);
@@ -172,7 +172,7 @@ void PluginManager::loadAllPlugins()
 void PluginManager::loadPlugins(const File &pluginPath) {
     Array<File> foundDLLs;
     
-#ifdef WIN32
+#ifdef _WIN32
     String pluginExt("*.dll");
 #elif defined(__APPLE__)
     String pluginExt("*.bundle");
@@ -220,7 +220,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 	*/
 	const char* processorLocCString = static_cast<const char*>(pluginLoc.toUTF8());
 
-#ifdef WIN32
+#ifdef _WIN32
 	HINSTANCE handle;
 	handle = LoadLibrary(processorLocCString);
 #elif defined(__APPLE__)
@@ -252,7 +252,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 	}
 
 	LibraryInfoFunction infoFunction = 0;
-#ifdef WIN32
+#ifdef _WIN32
 	infoFunction = (LibraryInfoFunction)GetProcAddress(handle, "getLibInfo");
 #elif defined(__APPLE__)
     infoFunction = (LibraryInfoFunction)CFBundleGetFunctionPointerForName(handle, CFSTR("getLibInfo"));
@@ -279,7 +279,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 	}
 
 	PluginInfoFunction piFunction = 0;
-#ifdef WIN32
+#ifdef _WIN32
 	piFunction = (PluginInfoFunction)GetProcAddress(handle, "getPluginInfo");
 #elif defined(__APPLE__)
     piFunction = (PluginInfoFunction)CFBundleGetFunctionPointerForName(handle, CFSTR("getPluginInfo"));
@@ -550,7 +550,7 @@ void PluginManager::Manager::unloadPlugin(PluginManager::Plugin *processor) {
 		ERROR_MSG("PluginManager::unloadPlugin: Invalid processor");
 		return;
 	}
-#ifdef WIN32
+#ifdef _WIN32
 	HINSTANCE handle;
 #elif defined(__APPLE__)
     CFBundleRef handle;
@@ -584,7 +584,7 @@ void PluginManager::Manager::removeListPlugin(PluginManager::Plugin *processor) 
 }
 
 void PluginManager::Manager::removeAllPlugins() {
-#ifdef WIN32
+#ifdef _WIN32
 	HINSTANCE handle;
 #elif defined(__APPLE__)
     CFBundleRef handle;

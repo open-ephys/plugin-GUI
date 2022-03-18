@@ -252,8 +252,7 @@ namespace ProcessorManager
                     {
                         int libIndex = pm->getLibraryIndexFromPlugin(Plugin::PROCESSOR, i);
                         
-                        if (description.libName.equalsIgnoreCase(pm->getLibraryName(libIndex))
-                            && description.libVersion == pm->getLibraryVersion(libIndex))
+                        if (description.libName.equalsIgnoreCase(pm->getLibraryName(libIndex)))
                         {
                             proc = info.creator();
                             proc->setPluginData(Plugin::PROCESSOR, i);
@@ -271,8 +270,7 @@ namespace ProcessorManager
                     if (description.name.equalsIgnoreCase(info.name))
                     {
                         int libIndex = pm->getLibraryIndexFromPlugin(Plugin::DATA_THREAD, i);
-                        if (description.libName.equalsIgnoreCase(pm->getLibraryName(libIndex))
-                            && description.libVersion == pm->getLibraryVersion(libIndex))
+                        if (description.libName.equalsIgnoreCase(pm->getLibraryName(libIndex)))
                         {
                             proc = new SourceNode(info.name, info.creator);
                             proc->setPluginData(Plugin::DATA_THREAD, i);

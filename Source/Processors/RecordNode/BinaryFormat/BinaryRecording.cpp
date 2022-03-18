@@ -418,7 +418,7 @@ void BinaryRecording::createChannelMetadata(const MetadataObject* channel, Dynam
 		const MetadataDescriptor* md = channel->getMetadataDescriptor(i);
 		const MetadataValue* mv = channel->getMetadataValue(i);
 		DynamicObject::Ptr jsonValues = new DynamicObject();
-		MetadataDescriptor::MetadataTypes type = md->getType();
+		MetadataDescriptor::MetadataType type = md->getType();
 		unsigned int length = md->getLength();
 		jsonValues->setProperty("name", md->getName());
 		jsonValues->setProperty("description", md->getDescription());
@@ -426,7 +426,8 @@ void BinaryRecording::createChannelMetadata(const MetadataObject* channel, Dynam
 		jsonValues->setProperty("type", jsonTypeValue(type));
 		jsonValues->setProperty("length", (int)length);
 		var val;
-		if (type == MetadataDescriptor::CHAR)
+		
+        if (type == MetadataDescriptor::CHAR)
 		{
 			String tmp;
 			mv->getValue(tmp);
