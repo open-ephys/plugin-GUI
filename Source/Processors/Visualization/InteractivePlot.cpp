@@ -377,7 +377,7 @@ void Axis::setColour(Colour c)
 void XAxis::paint(Graphics &g)
 {
 
-	g.setFont(font);
+	/*g.setFont(font);
 
 	int w = getWidth();
 	int h = getHeight();
@@ -399,14 +399,14 @@ void XAxis::paint(Graphics &g)
 				   tickLabelHeight,
 				   juce::Justification::centred,
 				   true);
-	}
+	}*/
 
 }
 
 void YAxis::paint(Graphics& g)
 {
 
-	g.setFont(font);
+	/*g.setFont(font);
 
 	int w = getWidth();
 	int h = getHeight();
@@ -426,7 +426,7 @@ void YAxis::paint(Graphics& g)
 		else
 			g.drawText(ticksLabels[k], 0, h - ytickloc - tickLabelHeight / 2, w - 3, tickLabelHeight, Justification::right, false);
 
-	}
+	}*/
 }
 
 
@@ -636,7 +636,7 @@ void DrawComponent::clear()
 
 void DrawComponent::paint(Graphics &g)
 {
-	g.fillAll(juce::Colours::black);
+	g.fillAll(juce::Colours::darkkhaki);
 
 	int w = getWidth();
 	int h = getHeight();
