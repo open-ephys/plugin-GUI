@@ -101,7 +101,11 @@ public:
         const String& description_,
         var defaultValue_,
         bool deactivateDuringAcquisition_ = false)
-      : processor(processor_),
+        : processor(processor_),
+        dataStream(nullptr),
+        spikeChannel(nullptr),
+        eventChannel(nullptr),
+        continuousChannel(nullptr),
         m_parameterType(type_),
         m_parameterScope(scope_),
         m_name(name_),

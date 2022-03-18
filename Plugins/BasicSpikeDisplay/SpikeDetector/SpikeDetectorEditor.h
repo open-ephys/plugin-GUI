@@ -43,8 +43,7 @@ class PopupConfigurationWindow;
 */
 
 class SpikeDetectorEditor : public GenericEditor,
-                            public Button::Listener,
-                            public Label::Listener
+                            public Button::Listener
 {
 public:
     
@@ -56,34 +55,25 @@ public:
 
     /** Called when configure button is clicked */
     void buttonClicked(Button* button) override;
-    
-    /** Called when label text is changed*/
-    void labelTextChanged(Label* label) override;
-
-    /** Called when settings are updated*/
-    void updateSettings() override;
 
     /** Adds spike channels with a given type */
-    void addSpikeChannels(SpikeChannel::Type type, int count);
+    void addSpikeChannels(PopupConfigurationWindow* window, SpikeChannel::Type type, int count, Array<int> startChannels = Array<int>());
 
-    /** Removes a spike channel based on a pointer to a SpikeChannel object*/
-    void removeSpikeChannels(Array<SpikeChannel*> spikeChannelsToRemove);
+    /** Removes spike channels based on an array of pointers to SpikeChannel objects*/
+    void removeSpikeChannels(PopupConfigurationWindow* window, Array<SpikeChannel*> spikeChannelsToRemove);
 
     /** Called when stream is updated */
     void selectedStreamHasChanged() override;
+
+    /** Called by PopupConfigurationWindow*/
+    int getNumChannelsForCurrentStream();
     
 private:
 
     std::unique_ptr<UtilityButton> configureButton;
-    
-    std::unique_ptr<Label> spikeChannelCountLabel;
-    std::unique_ptr<ComboBox> spikeChannelTypeSelector;
-    std::unique_ptr<UtilityButton> plusButton;
 
     PopupConfigurationWindow* currentConfigWindow;
-    
-    String lastLabelValue;
-    
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDetectorEditor);
 
 };

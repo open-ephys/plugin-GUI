@@ -249,9 +249,10 @@ void SpikeDetector::parameterValueChanged(Parameter* p)
 {
     if (p->getName().equalsIgnoreCase("name"))
     {
-        //std::cout << "Value changed." << std::endl;
         p->getSpikeChannel()->setName(p->getValueAsString());
+
         CoreServices::updateSignalChain(getEditor());
+        
     }
     
     else if (p->getName().equalsIgnoreCase("local_channels"))
@@ -352,28 +353,57 @@ void SpikeDetector::updateSettings()
 
 }
 
+String SpikeDetector::ensureUniqueName(String name, uint16 currentStream)
+{
+
+    std::cout << "Candidate name: " << name << std::endl;
+
+    bool matchingName = true;
+
+    int append = 0;
+
+    String nameToCheck = name;
+
+    while (matchingName)
+    {
+        if (append > 0)
+            nameToCheck = name + " (" + String(append) + ")";
+
+        matchingName = false;
+
+        for (auto spikeChannel : getSpikeChannelsForStream(currentStream))
+        {
+            if (spikeChannel->getName().equalsIgnoreCase(nameToCheck))
+            {
+                matchingName = true;
+                append += 1;
+                break;
+            }
+        }
+    }
+
+    std::cout << "New name: " << nameToCheck;
+
+    return nameToCheck;
+}
+
 
 SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type, 
                                      uint16 currentStream,
-                                     String name) //,
-                                     //Array<int> localChannels,
-                                    // int waveform_type,
-                                    // float threshold)
+                                     int startChannel,
+                                     String name)
 {
     
     Array<var> selectedChannels;
     Array<int> localChannels;
 
-    //std::cout << "ADDING SPIKE CHANNEL WITH TYPE " << (int)type << std::endl;
-    //bool useDefaultChannels = localChannels.size() > 0 ? false : true;
+    //std::cout << "START CHANNEL: " << startChannel << std::endl;
 
-    //std::cout << "SpikeDetector adding spike channel." << std::endl;
-    
-    //std::cout << "Local channels: ";
+    if (startChannel > -1)
+        settings[currentStream]->nextAvailableChannel = startChannel;
     
     for (int i = 0; i < SpikeChannel::getNumChannels(type); i++)
     {
-        //std::cout << settings[currentStream]->nextAvailableChannel << " ";
 
         if (currentStream > 0)
         {
@@ -385,6 +415,11 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
         }
         
         selectedChannels.add(localChannels[i]);
+    }
+
+    for (int i = 0; i < selectedChannels.size(); i++)
+    {
+        std::cout << int(selectedChannels[i]) << std::endl;
     }
     
     if (name.equalsIgnoreCase(""))
@@ -427,6 +462,8 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
             break;
         }
     }
+
+    name = ensureUniqueName(name, currentStream);
 
     SpikeChannel::Settings spikeChannelSettings
     {
@@ -513,7 +550,6 @@ void SpikeDetector::removeSpikeChannel (SpikeChannel* spikeChannel)
 {
  
     spikeChannels.removeObject(spikeChannel);
-    
     
 }
 
@@ -795,7 +831,7 @@ void SpikeDetector::loadCustomParametersFromXml(XmlElement* xml)
                 {
                     //std::cout << "STREAM ID: " << streamId << std::endl;
 
-                    SpikeChannel* spikeChannel = addSpikeChannel(type, streamId, name);
+                    SpikeChannel* spikeChannel = addSpikeChannel(type, streamId, -1, name);
 
                     spikeChannel->getParameter("local_channels")->fromXml(spikeParamsXml);
 

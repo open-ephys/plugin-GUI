@@ -353,7 +353,7 @@ String SpikeChannel::getDefaultChannelPrefix(SpikeChannel::Type channelType)
 	switch (channelType)
 	{
 	case SpikeChannel::Type::SINGLE:
-		return "Single Electrode ";
+		return "Electrode ";
 	case SpikeChannel::Type::STEREOTRODE:
 		return "Stereotrode ";
 	case SpikeChannel::Type::TETRODE:
