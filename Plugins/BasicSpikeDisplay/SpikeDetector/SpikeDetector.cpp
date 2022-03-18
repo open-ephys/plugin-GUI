@@ -356,7 +356,7 @@ void SpikeDetector::updateSettings()
 String SpikeDetector::ensureUniqueName(String name, uint16 currentStream)
 {
 
-    std::cout << "Candidate name: " << name << std::endl;
+   // std::cout << "Candidate name: " << name << std::endl;
 
     bool matchingName = true;
 
@@ -382,7 +382,7 @@ String SpikeDetector::ensureUniqueName(String name, uint16 currentStream)
         }
     }
 
-    std::cout << "New name: " << nameToCheck;
+   // std::cout << "New name: " << nameToCheck;
 
     return nameToCheck;
 }
@@ -396,8 +396,6 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
     
     Array<var> selectedChannels;
     Array<int> localChannels;
-
-    //std::cout << "START CHANNEL: " << startChannel << std::endl;
 
     if (startChannel > -1)
         settings[currentStream]->nextAvailableChannel = startChannel;
@@ -415,11 +413,6 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
         }
         
         selectedChannels.add(localChannels[i]);
-    }
-
-    for (int i = 0; i < selectedChannels.size(); i++)
-    {
-        std::cout << int(selectedChannels[i]) << std::endl;
     }
     
     if (name.equalsIgnoreCase(""))
