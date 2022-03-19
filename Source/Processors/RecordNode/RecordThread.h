@@ -31,8 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <atomic>
 
 #define BLOCK_MAX_WRITE_SAMPLES 4096
-#define BLOCK_MAX_WRITE_EVENTS 512
-#define BLOCK_MAX_WRITE_SPIKES 512
+#define BLOCK_MAX_WRITE_EVENTS 50000
+#define BLOCK_MAX_WRITE_SPIKES 50000
 
 class RecordNode;
 
@@ -103,6 +103,9 @@ private:
 
 	std::atomic<bool> m_receivedFirstBlock;
 	std::atomic<bool> m_cleanExit;
+
+	int spikesReceived;
+	int spikesWritten;
 
 	File m_rootFolder;
 	int m_experimentNumber;

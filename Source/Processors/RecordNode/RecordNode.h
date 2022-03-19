@@ -18,8 +18,8 @@
 
 #define WRITE_BLOCK_LENGTH		1024
 #define DATA_BUFFER_NBLOCKS		300
-#define EVENT_BUFFER_NEVENTS	50000
-#define SPIKE_BUFFER_NSPIKES	50000
+#define EVENT_BUFFER_NEVENTS	200000
+#define SPIKE_BUFFER_NSPIKES	200000
 
 #define NIDAQ_BIT_VOLTS			0.001221f
 #define NPX_BIT_VOLTS			0.195f
@@ -44,8 +44,20 @@ public:
 	/* Print information about incoming events.*/
 	void displayStatus();
 
+	/** Reset counts */
+	void reset();
+
 	/* Counts the total number of events received. */
 	int receivedEvents;
+
+	/* Counts the total number of spikes received */
+	int receivedSpikes;
+
+	/* Counts the total of number of events sent to the recording buffer */
+	int bufferedEvents;
+
+	/* Counts the total of number of events sent to the recording buffer */
+	int bufferedSpikes;
 
 };
 

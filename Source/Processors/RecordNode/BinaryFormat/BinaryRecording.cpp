@@ -667,6 +667,8 @@ void BinaryRecording::writeEvent(int eventIndex, const EventPacket& event)
 		rec->data->writeData(ev->getRawDataPointer(), info->getDataSize());
 	}
 
+    // NOT IMPLEMENTED 
+
 	//writeEventMetadata(ev.get(), rec->metaDataFile.get());
 	increaseEventCounts(rec);
 	
@@ -676,14 +678,12 @@ void BinaryRecording::writeSpike(int electrodeIndex, const Spike* spike)
 {
 
 	const SpikeChannel* channel = getSpikeChannel(electrodeIndex);
-    LOGDD("Got spike channel");
+
 	EventRecording* rec = m_spikeFiles[m_spikeFileIndexes[electrodeIndex]];
-    LOGDD("Got event recording");
+
 	uint16 spikeChannel = m_spikeChannelIndexes[electrodeIndex];
-    LOGDD("Got real spike channel");
 
 	int totalSamples = channel->getTotalSamples() * channel->getNumChannels();
-    LOGDD("Got total number of samples: ", totalSamples);
 
 	if (totalSamples > m_bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on file close and reset.
 	{
@@ -709,6 +709,7 @@ void BinaryRecording::writeSpike(int electrodeIndex, const Spike* spike)
 	uint16 sortedId = spike->getSortedId();
 	rec->extraFile->writeData(&sortedId, sizeof(uint16));
 
+    // NOT IMPLEMENTED
 	//writeEventMetadata(spike, rec->metaDataFile.get());
 
 	increaseEventCounts(rec);

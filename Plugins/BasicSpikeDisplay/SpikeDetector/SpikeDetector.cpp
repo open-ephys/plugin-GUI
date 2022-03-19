@@ -576,7 +576,7 @@ bool SpikeDetector::stopAcquisition()
         spikeChannel->reset();
     }
 
-    //std::cout << "Detected " << spikeCount << " spikes in " << totalCallbacks << " callbacks." << std::endl;
+    //LOGC("SpikeDetector detected ", spikeCount, " spikes in ", totalCallbacks, " callbacks.");
 
     return true;
 }

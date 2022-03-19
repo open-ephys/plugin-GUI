@@ -17,13 +17,28 @@ using namespace std::chrono;
 #define RECEIVED_SOFTWARE_TIME (event.getVelocity() == 136)
 
 EventMonitor::EventMonitor()
-	: receivedEvents(0) {}
+	: receivedEvents(0),
+	  receivedSpikes(0),
+      bufferedEvents(0),
+      bufferedSpikes(0)
+{
+}
 
 EventMonitor::~EventMonitor() {}
 
+void EventMonitor::reset()
+{
+	receivedEvents = 0;
+	receivedSpikes = 0;
+	bufferedEvents = 0;
+	bufferedSpikes = 0;
+}
+
 void EventMonitor::displayStatus()
 {
-	LOGD("Record Node received ", receivedEvents, " total events");
+	LOGD("Record Node received ", receivedEvents, " total EVENTS and sent ", bufferedEvents, " to the RecordThread");
+
+	LOGD("Record Node received ", receivedSpikes, " total SPIKES and sent ", bufferedSpikes, " to the RecordThread");
 }
 
 RecordNode::RecordNode() 
@@ -386,7 +401,9 @@ bool RecordNode::startAcquisition()
 	recordEngine->configureEngine();
 	recordEngine->startAcquisition();
 
-    synchronizer->reset();
+	synchronizer->reset();
+	eventMonitor->reset();
+
     return true;
 
 }
@@ -396,6 +413,8 @@ bool RecordNode::stopAcquisition()
 
 	// Remove message channel
 	eventChannels.removeLast();
+
+	eventMonitor->displayStatus();
 
 	return true;
 }
@@ -509,15 +528,7 @@ void RecordNode::stopRecording()
 	if (recordThread->isThreadRunning())
 	{
 		recordThread->signalThreadShouldExit();
-		recordThread->waitForThreadToExit(2000);
 	}
-
-	eventMonitor->displayStatus();
-
-	if (CoreServices::getRecordingStatus())
-		getEditor()->setBackgroundColor(Colour(128, 41, 41)); // turn it brown if it's not recording while recording is active
-	else
-		getEditor()->setBackgroundColor(Colour(255, 0, 0));
 
 	receivedSoftwareTime = false;
 
@@ -557,6 +568,8 @@ void RecordNode::handleTTLEvent(TTLEventPtr event)
 
 		eventQueue->addEvent(EventPacket(buffer, size), timestamp);
 
+		eventMonitor->bufferedEvents++;
+
 	}
 
 }
@@ -585,14 +598,20 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 void RecordNode::handleSpike(SpikePtr spike)
 {
 
+	eventMonitor->receivedSpikes++;
+
 	if (recordSpikes)
+	{
 		writeSpike(spike, spike->getChannelInfo());
+		eventMonitor->bufferedSpikes++;
+	}
+		
 
 }
 
 void RecordNode::handleTimestampSyncTexts(const EventPacket& packet)
 {
-	std::cout << "Record Node " << getNodeId() << " writing sync timestamp " << std::endl;
+	//std::cout << "Record Node " << getNodeId() << " writing sync timestamp " << std::endl;
 	handleEvent(nullptr, packet);
 }
 

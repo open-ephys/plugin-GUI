@@ -89,6 +89,9 @@ void RecordThread::run()
 	const AudioSampleBuffer& dataBuffer = m_dataQueue->getAudioBufferReference();
 	const SynchronizedTimestampBuffer& ftsBuffer = m_dataQueue->getFTSBufferReference();
 
+	spikesReceived = 0;
+	spikesWritten = 0;
+
 	bool closeEarly = true;
 
 	//1-Wait until the first block has arrived, so we can align the timestamps
@@ -116,7 +119,6 @@ void RecordThread::run()
 	}
 
 	bool useSynchronizer = m_engine->getEngineId() == "BINARY" || m_engine->getEngineId() == "NWB2";
-	LOGC("RecordThread detected record engine: ", m_engine->getEngineId());
 
 	//3-Normal loop
 	if (useSynchronizer)
@@ -133,17 +135,26 @@ void RecordThread::run()
 	//LOGD(__FUNCTION__, " Exiting record thread");
 	//4-Before closing the thread, try to write the remaining samples
 
-	LOGD("Binary Recording closing all files");
+	LOGD("Closing all files");
+	
 	if (!closeEarly)
 	{
-		writeData(dataBuffer, -1, -1, -1, true);
-		//LOGD(__FUNCTION__, " Closing files");
+		// flush the buffers 
+
+		if (!useSynchronizer)
+		{
+			writeData(dataBuffer, BLOCK_MAX_WRITE_SAMPLES, BLOCK_MAX_WRITE_EVENTS, BLOCK_MAX_WRITE_SPIKES, true);
+		}
+		else {
+			writeSynchronizedData(dataBuffer, ftsBuffer, BLOCK_MAX_WRITE_SAMPLES, BLOCK_MAX_WRITE_EVENTS, BLOCK_MAX_WRITE_SPIKES, true);
+		}
 		//5-Close files
-		//EVERY_ENGINE->closeFiles();
 		m_engine->closeFiles();
 	}
 	m_cleanExit = true;
 	m_receivedFirstBlock = false;
+
+	//LOGC("RecordThread received ", spikesReceived, " spikes and wrote ", spikesWritten, ".");
 
 }
 
@@ -217,16 +228,20 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer,
 	}
 
 	std::vector<SpikeMessagePtr> spikes;
-	int nSpikes = m_spikeQueue->getEvents(spikes, maxSpikes);
+	int nSpikes = m_spikeQueue->getEvents(spikes, BLOCK_MAX_WRITE_SPIKES);
 
 	for (int sp = 0; sp < nSpikes; ++sp)
 	{
+
+		spikesReceived++;
+
 		if (spikes[sp] != nullptr)
 		{
 
 			const Spike& spike = spikes[sp]->getData();
 			const SpikeChannel* chan = spike.getChannelInfo();
 			int spikeIndex = recordNode->getIndexOfMatchingChannel(chan);
+			spikesWritten++;
 
 			m_engine->writeSpike(spikeIndex, &spikes[sp]->getData());
 		}
@@ -290,16 +305,20 @@ void RecordThread::writeData(const AudioSampleBuffer& dataBuffer,
 	}
 
 	std::vector<SpikeMessagePtr> spikes;
-	int nSpikes = m_spikeQueue->getEvents(spikes, maxSpikes);
+	int nSpikes = m_spikeQueue->getEvents(spikes, BLOCK_MAX_WRITE_SPIKES);
 
 	for (int sp = 0; sp < nSpikes; ++sp)
 	{
+
+		spikesReceived++;
+
 		if (spikes[sp] != nullptr)
 		{
-
+			
 			const Spike& spike = spikes[sp]->getData();
 			const SpikeChannel* chan = spike.getChannelInfo();
 			int spikeIndex = recordNode->getIndexOfMatchingChannel(chan);
+			spikesWritten++;
 
 			m_engine->writeSpike(spikeIndex, &spikes[sp]->getData());
 		}
