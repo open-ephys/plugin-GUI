@@ -336,7 +336,7 @@ int EditorViewport::getDesiredWidth()
     
     for (auto editor : editorArray)
     {
-        desiredWidth += editor->desiredWidth + BORDER_SIZE;
+        desiredWidth += editor->getTotalWidth() + BORDER_SIZE;
     }
     
     return desiredWidth;
@@ -354,8 +354,10 @@ void EditorViewport::refreshEditors()
 
     for (int n = 0; n < editorArray.size(); n++)
     {
+        
         GenericEditor* editor = editorArray[n];
-        int componentWidth = editor->desiredWidth;
+
+        int componentWidth = editor->getTotalWidth();
 
         if (n == 0 && !editor->getProcessor()->isSource())
         {
