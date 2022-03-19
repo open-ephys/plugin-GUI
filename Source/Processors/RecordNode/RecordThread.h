@@ -78,15 +78,8 @@ public:
 
 private:
 
-	/** Writes continuous data from an audio buffer */
-	void writeData(const AudioSampleBuffer& buffer, 
-		int maxSamples, 
-		int maxEvents, 
-		int maxSpikes, 
-		bool lastBlock = false);
-
 	/** Writes continuous data with an array of synchronized timestamps */
-	void writeSynchronizedData(const AudioSampleBuffer& dataBuffer, 
+	void writeData(const AudioSampleBuffer& dataBuffer, 
 		const SynchronizedTimestampBuffer& ftsBuffer, 
 		int maxSamples, 
 		int maxEvents, 

@@ -43,10 +43,6 @@ void RecordEngine::registerManager(RecordEngineManager* recordManager)
 	manager = recordManager;
 }
 
-void RecordEngine::startChannelBlock(bool lastBlock) {}
-
-void RecordEngine::endChannelBlock(bool lastBlock) {}
-
 const ContinuousChannel* RecordEngine::getContinuousChannel(int index) const
 {
 	return recordNode->continuousChannels[index];
@@ -137,11 +133,6 @@ const String& RecordEngine::getLatestSettingsXml() const
 {
 	return recordNode->getLastSettingsXml();
 }
-
-void RecordEngine::startAcquisition() {}
-
-void RecordEngine::directoryChanged() {}
-
 
 
 void RecordEngine::configureEngine()

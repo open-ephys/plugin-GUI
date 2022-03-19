@@ -65,82 +65,71 @@ public:
 	/** Destructor */
 	virtual ~RecordEngine() { }
 
+	// ------------------------------------------------------------
+	//                  PURE VIRTUAL METHODS 
+	//     (must be implemented by all Record Engines)
+	// ------------------------------------------------------------
+
 	/** Returns the unique identifier of the Record Engine */
 	virtual String getEngineId() const = 0;
-
-	/** Sets the pointer to the RecordEngineManager (called by ControlPanel) */
-	void registerManager(RecordEngineManager* engineManager);
-
-
-	/** ----- CALLED AT START OF ACQUISITION ---- */
-
-	/** Sets RecordEngine parameters (if available) at the start of acquisition*/
-	void configureEngine();
-
-	/** Called by configureEngine() */
-	virtual void setParameter(EngineParameter& parameter) { }
-
-	/** Called just before acquisition starts (does nothing by default) */
-	virtual void startAcquisition();
-
-
-	/** ----- CALLED AT START OF RECORDING ---- */
-	
-	/** Sets the pointer to Record Node for this engine*/
-	void registerRecordNode(RecordNode* node);
-
-	/** Called when a new recording starts, to clean all channel data before registering the processors */
-	virtual void resetChannels() { }
-
-	/** Called prior to opening files, to set the map between recorded channels and actual channel numbers */
-	void setChannelMapping(const Array<int>& channels, 
-						   const Array<int>& chanProcessor, 
-						   const Array<int>& chanOrder, 
-						   OwnedArray<RecordProcessorInfo>& processors);
-
-	/** Called if the directory has changed since the last recording */
-	virtual void directoryChanged();
 
 	/** Called when recording starts to open all needed files */
 	virtual void openFiles(File rootFolder, int experimentNumber, int recordingNumber) = 0;
 
-
-	/** ----- CALLED DURING RECORDING ---- */
-
-	/** Called at the start of every write block */
-	void updateTimestamps(const Array<int64>& timestamps, int channel = -1);
-
-	/** Called by the record thread before it starts writing the channels to disk */
-	virtual void startChannelBlock(bool lastBlock);
-
-	/** Write continuous data for a channel. The raw buffer pointer is passed for speed, care must be taken to only read the specified number of bytes. */
-	virtual void writeData(int writeChannel, int realChannel, const float* buffer, int size) = 0;
+	/** Called when recording stops to close all files and do all the necessary cleanup */
+	virtual void closeFiles() = 0;
 
 	/** Write continuous data for a channel with synchronized float timestamps */
-	virtual void writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size) = 0;
+	virtual void writeContinuousData(int writeChannel, 
+									 int realChannel, 
+									 const float* dataBuffer, 
+									 const double* ftsBuffer, 
+									 int size) = 0;
 
-	/** Called by the record thread after it has written a channel block */
-	virtual void endChannelBlock(bool lastBlock);
-
-	/** Write a single event to disk.  */
+	/** Write a single event to disk (TTL or TEXT) */
 	virtual void writeEvent(int eventChannel, const EventPacket& event) = 0;
-
-	/** Handle the timestamp sync text messages*/
-	virtual void writeTimestampSyncText(uint64 streamId, int64 timestamp, float sourceSampleRate, String text) = 0;
 
 	/** Write a spike to disk */
 	virtual void writeSpike(int electrodeIndex, const Spike* spike) = 0;
 
+	/** Handle the timestamp sync text messages*/
+	virtual void writeTimestampSyncText(uint64 streamId, int64 timestamp, float sourceSampleRate, String text) = 0;
 
-	/** ----- CALLED WHEN RECORDING STOPS ---- */
+	// ------------------------------------------------------------
+	//                   VIRTUAL METHODS 
+	//       (can optionally be overriden by sub-classes)
+	// ------------------------------------------------------------
 
-	/** Called when recording stops to close all files and do all the necessary cleanups */
-	virtual void closeFiles() = 0;
+	/** Called by configureEngine() */
+	virtual void setParameter(EngineParameter& parameter) { }
 
-	
-	
+	// ------------------------------------------------------------
+	//                    OTHER METHODS
+	// ------------------------------------------------------------
+
+	/** Sets the pointer to Record Node for this engine*/
+	void registerRecordNode(RecordNode* node);
+
+	/** Sets the pointer to the RecordEngineManager (called by ControlPanel) */
+	void registerManager(RecordEngineManager* engineManager);
+
+	/** Sets RecordEngine parameters (if available) at the start of acquisition*/
+	void configureEngine();
+
+	/** Called prior to opening files, to set the map between recorded channels and actual channel numbers */
+	void setChannelMapping(const Array<int>& channels,
+		const Array<int>& chanProcessor,
+		const Array<int>& chanOrder,
+		OwnedArray<RecordProcessorInfo>& processors);
+
+	/** Called at the start of every write block */
+	void updateTimestamps(const Array<int64>& timestamps, int channel = -1);
 
 protected:
+
+	// ------------------------------------------------------------
+	//    HELPFUL METHODS FOR GETTING INFO ABOUT INCOMING DATA
+	// ------------------------------------------------------------
 
 	/** Gets the number of processors being recorded */
 	int getNumRecordedProcessors() const;
@@ -156,8 +145,6 @@ protected:
 
 	/** Gets the specified event channel from the channel array stored in RecordNode */
 	const EventChannel* getEventChannel(int index) const;
-
-	const EventChannel* getEventChannelFromStreamId(int streamId) const;
 
 	/** Gets the specified channel group info structure from the array stored in RecordNode */
 	const SpikeChannel* getSpikeChannel(int index) const;

@@ -50,15 +50,25 @@ public:
 	/** Returns the unique identifier of this RecordEngine*/
 	String getEngineId() const override;
 
+	/** Sets an engine parameter */
 	void setParameter(EngineParameter& parameter) override;
 	
-	void openFiles(File rootFolder, int experimentNumber, int recordingNumber) override;
-	void closeFiles() override;
-	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
-	void writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size) override;
-	void writeEvent(int eventIndex, const EventPacket& packet) override;
-	void resetChannels() override;
+	/** Opens files at the start of recording */
+	void openFiles(File rootFolder, int experimentNumber, int recordingNumber);
+	
+	/** Closes files at the end of recording*/
+	void closeFiles();
+
+	/** Writes a block of continuous data */
+	void writeContinuousData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size);
+	
+	/** Writes an event to disk */
+	void writeEvent(int eventIndex, const EventPacket& packet);
+
+	/** Writes a spike to disk*/
 	void writeSpike(int electrodeIndex, const Spike* spike) override;
+
+	/** Writes timestamp sync texts */
 	void writeTimestampSyncText(uint64 streamId, int64 timestamp, float sourceSampleRate, String text) override;
 
 	static RecordEngineManager* getEngineManager();

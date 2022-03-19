@@ -200,8 +200,6 @@ void RecordNode::createNewDirectory()
 	experimentNumber = 1;
 	settingsNeeded = true;
 
-	recordEngine->directoryChanged();
-
 }
 
 // called by RecordEngine
@@ -399,8 +397,6 @@ bool RecordNode::startAcquisition()
 
 	recordingNumber = -1;
 	recordEngine->configureEngine();
-	recordEngine->startAcquisition();
-
 	synchronizer->reset();
 	eventMonitor->reset();
 
@@ -472,7 +468,6 @@ void RecordNode::startRecording()
 	validBlocks.insertMultiple(0, false, getNumInputs());
 
 	recordEngine->registerRecordNode(this);
-	recordEngine->resetChannels();
 	recordEngine->setChannelMapping(channelMap, chanProcessorMap, chanOrderinProc, procInfo);
 	LOGD("channelMap size: ", channelMap.size());
 	LOGD("chanProcessorMap size: ", chanProcessorMap.size());

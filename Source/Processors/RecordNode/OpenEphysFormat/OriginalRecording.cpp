@@ -68,8 +68,10 @@ String OriginalRecording::getEngineId() const
 	return "OPENEPHYS";
 }
 
-void OriginalRecording::resetChannels()
+
+void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int recordingNumber)
 {
+
 	fileArray.clear();
 	spikeFileArray.clear();
 	blockIndex.clear();
@@ -77,10 +79,7 @@ void OriginalRecording::resetChannels()
 	samplesSinceLastTimestamp.clear();
 	originalChannelIndexes.clear();
 	procIndex = 0;
-}
 
-void OriginalRecording::openFiles(File rootFolder, int experimentNumber, int recordingNumber)
-{
 	this->recordingNumber = recordingNumber;
 	this->experimentNumber = experimentNumber;
 
@@ -457,9 +456,7 @@ void OriginalRecording::writeTTLEvent(int eventIndex, const EventPacket& packet)
 	diskWriteLock.exit();
 }
 
-void OriginalRecording::writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size) {};
-
-void OriginalRecording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
+void OriginalRecording::writeContinuousData(int writeChannel, int realChannel, const float* buffer, const double* ftsBuffer, int size)
 {
 	int samplesWritten = 0;
 
