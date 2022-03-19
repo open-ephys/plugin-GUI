@@ -85,14 +85,11 @@ void LayoutButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 
 
 LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode)
-    : VisualizerEditor(parentNode),
+    : VisualizerEditor(parentNode, "LFP", 195),
        hasNoInputs(true),
        signalChainIsLoading(true)
 {
     lfpProcessor = (LfpDisplayNode*) parentNode;
-    tabText = "LFP";
-
-    desiredWidth = 195;
 
 	defaultSubprocessor = 0;
 

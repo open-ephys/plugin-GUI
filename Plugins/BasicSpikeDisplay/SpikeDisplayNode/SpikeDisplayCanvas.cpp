@@ -110,15 +110,6 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
     update();
 }
 
-void SpikeDisplayCanvas::beginAnimation()
-{
-    startCallbacks();
-}
-
-void SpikeDisplayCanvas::endAnimation()
-{
-    stopCallbacks();
-}
 
 void SpikeDisplayCanvas::update()
 {

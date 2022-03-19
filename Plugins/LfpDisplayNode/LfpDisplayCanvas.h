@@ -61,10 +61,10 @@ public:
     ~LfpDisplayCanvas();
 
     /** Start rendering */
-    void beginAnimation();
+    void beginAnimation() override;
     
     /** Stop rendering */
-    void endAnimation();
+    void endAnimation() override;
 
     /** Called when the tab becomes visible again*/
     void refreshState();
