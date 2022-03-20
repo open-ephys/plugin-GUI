@@ -76,7 +76,7 @@ public:
     /** Seek to a specific sample number within the active recording */
     virtual void seekTo(int64 sample) = 0;
 
-    /** Read in nSamples of int16 data into a temporary buffer */
+    /** Read in nSamples of int16 data into a temporary buffer; return the number of samples actually read */
     virtual int readData(int16* buffer, int nSamples) = 0;
 
     /** Convert nSamples of data from int16 to float */

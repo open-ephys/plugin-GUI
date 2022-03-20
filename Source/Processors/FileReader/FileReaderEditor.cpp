@@ -419,11 +419,13 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     , recTotalTime              (0)
     , m_isFileDragAndDropActive (false)
     , scrubInterfaceVisible (false)
+    , scrubInterfaceAvailable(false)
     , scrubInterfaceWidth(420)
 {
 
     scrubDrawerButton = new ScrubDrawerButton(getNameAndId() + " Scrub Drawer Button");
 	scrubDrawerButton->setBounds(4, 40, 10, 78);
+    scrubDrawerButton->setToggleState(false, false);
 	scrubDrawerButton->addListener(this);
 	addChildComponent(scrubDrawerButton);
 
@@ -621,7 +623,11 @@ void FileReaderEditor::setFile (String file, bool shouldUpdateSignalChain)
             showScrubInterface(false);
 
         if (fileReader->getCurrentNumTotalSamples() / fileReader->getCurrentSampleRate() > 30.0f)
+        {
             scrubDrawerButton->setVisible(true);
+            scrubInterfaceAvailable = true;
+        }
+            
     }
     else
     {
@@ -711,8 +717,29 @@ void FileReaderEditor::updatePlaybackTimes()
 
 void FileReaderEditor::collapsedStateChanged()
 {
-    //showScrubInterface(scrubInterfaceVisible);
-    //scrubDrawerButton->setVisible(fileReader->getCurrentNumTotalSamples() / fileReader->getCurrentSampleRate() > 30.0f);
+    if (!getCollapsedState()) // uncollapsed
+    {
+
+        fullTimeline->setVisible(scrubInterfaceVisible);
+        zoomTimeline->setVisible(scrubInterfaceVisible);
+        playbackButton->setVisible(scrubInterfaceVisible);
+        zoomStartTimeLabel->setVisible(scrubInterfaceVisible);
+        zoomMiddleTimeLabel->setVisible(scrubInterfaceVisible);
+        zoomEndTimeLabel->setVisible(scrubInterfaceVisible);
+        fullStartTimeLabel->setVisible(scrubInterfaceVisible);
+        fullEndTimeLabel->setVisible(scrubInterfaceVisible);
+
+        scrubDrawerButton->setVisible(scrubInterfaceAvailable);
+    }
+   // else {
+
+       // if (scrubInterfaceVisible)
+       //     showScrubInterface(false);
+
+        //if (scrubInterfaceAvailable)
+       //     scrubDrawerButton->setVisible(false);
+    //}
+    
 }
 
 void FileReaderEditor::showScrubInterface(bool show)
@@ -926,7 +953,6 @@ void FileReaderEditor::clearEditor()
 
     CoreServices::updateSignalChain(this);
 
-    //setEnabledState (false);
 }
 
 

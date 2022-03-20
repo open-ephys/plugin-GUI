@@ -208,6 +208,7 @@ private:
     bool m_isFileDragAndDropActive;
     bool scrubInterfaceVisible;
     int scrubInterfaceWidth;
+    bool scrubInterfaceAvailable;
 
     File lastFilePath;
 

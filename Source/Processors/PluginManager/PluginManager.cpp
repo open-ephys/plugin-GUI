@@ -313,6 +313,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 		{
 		case Plugin::PROCESSOR:
 		{
+			LOGD("Adding processor plugin");
 			LoadedPluginInfo<Plugin::ProcessorInfo> info;
 			info.creator = pInfo.processor.creator;
 			info.name = pInfo.processor.name;
@@ -325,6 +326,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 		}
 		case Plugin::RECORD_ENGINE:
 		{
+			LOGD("Adding record engine plugin");
 			LoadedPluginInfo<Plugin::RecordEngineInfo> info;
 			info.creator = pInfo.recordEngine.creator;
 			info.name = pInfo.recordEngine.name;
@@ -336,6 +338,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 		}
 		case Plugin::DATA_THREAD:
 		{
+			LOGD("Adding data thread plugin");
 			LoadedPluginInfo<Plugin::DataThreadInfo> info;
 			info.creator = pInfo.dataThread.creator;
 			info.name = pInfo.dataThread.name;
@@ -347,6 +350,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 		}
 		case Plugin::FILE_SOURCE:
 		{
+			LOGD("Adding file source plugin");
 			LoadedPluginInfo<Plugin::FileSourceInfo> info;
 			info.creator = pInfo.fileSource.creator;
 			info.name = pInfo.fileSource.name;
