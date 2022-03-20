@@ -158,23 +158,19 @@ protected:
 	/** Gets the actual channel number from a recorded channel index */
 	int getRealChannel(int channel) const;
 
-	/** Gets the number of recorded channels */
+	/** Gets the number of recorded continuous channels */
 	int getNumRecordedContinuousChannels() const;
 
-	/** Gets the number of recorded event channels
-	(right now all channels are recorded) */
+	/** Gets the number of recorded event channels */
 	int getNumRecordedEventChannels() const;
 
-	/** Gets the number of recorded spike channels
-	(right now all channels are recorded) */
+	/** Gets the number of recorded spike channels */
 	int getNumRecordedSpikeChannels() const;
 
-	/** Gets the recorded processor index for a recorded channel index
-	*/
+	/** Gets the recorded processor index for a recorded channel index */
 	int getProcessorFromChannel(int channel) const;
 
-	/** Gets the recorded channel index inside a specific processor for a written channel
-	*/
+	/** Gets the recorded channel index inside a specific processor for a written channel */
 	int getChannelNumInProc(int channel) const;
 
 	/** Gets the last created settings.xml in text form. Should be called at file opening to get the latest version.
