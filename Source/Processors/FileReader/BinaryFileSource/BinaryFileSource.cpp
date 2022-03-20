@@ -25,13 +25,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace BinarySource;
 
-BinaryFileSource::BinaryFileSource() : m_samplePos(0), hasEventData(false), loopCount(0)
-{}
+BinaryFileSource::BinaryFileSource() 
+	: m_samplePos(0), 
+	  hasEventData(false), 
+	  loopCount(0)
+{
 
-BinaryFileSource::~BinaryFileSource()
-{}
+}
 
-bool BinaryFileSource::Open(File file)
+bool BinaryFileSource::open(File file)
 {
 	m_jsonData = JSON::parse(file);
 	if (m_jsonData.isVoid())
@@ -213,7 +215,9 @@ void BinaryFileSource::processEventData(EventInfo &eventInfo, int64 start, int64
 
 	for (auto info : eventInfoArray)
 	{
+		
 		int i = 0;
+		
 		while (i < info.timestamps.size())
 		{
 			if (info.timestamps[i] >= start && info.timestamps[i] <= stop)
@@ -229,10 +233,16 @@ void BinaryFileSource::processEventData(EventInfo &eventInfo, int64 start, int64
 
 }
 
-void BinaryFileSource::updateActiveRecord()
+void BinaryFileSource::updateActiveRecord(int index)
 {
-	m_dataFile = new MemoryMappedFile(m_dataFileArray[activeRecord.get()], MemoryMappedFile::readOnly);
+	m_dataFile = new MemoryMappedFile(m_dataFileArray[index], MemoryMappedFile::readOnly);
 	m_samplePos = 0;
+	numActiveChannels = getActiveNumChannels();
+
+	bitVolts.clear();
+
+	for (int i = 0; i < numActiveChannels; i++)
+		bitVolts.add(getChannelInfo(index, i).bitVolts);
 }
 
 void BinaryFileSource::seekTo(int64 sample)
@@ -264,16 +274,9 @@ int BinaryFileSource::readData(int16* buffer, int nSamples)
 
 void BinaryFileSource::processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples)
 {
-	int n = getActiveNumChannels();
-	float bitVolts = getChannelInfo(channel).bitVolts;
 
 	for (int i = 0; i < numSamples; i++)
 	{
-		*(outBuffer + i) = *(inBuffer + (n*i) + channel) * bitVolts;
+		*(outBuffer + i) = *(inBuffer + (numActiveChannels * i) + channel) * bitVolts[i];
 	}
-}
-
-bool BinaryFileSource::isReady()
-{
-	return true;
 }

@@ -292,7 +292,7 @@ bool FileReader::setFile (String fullpath)
         return false;
     }
 
-    if (! input->OpenFile (file))
+    if (! input->openFile (file))
     {
         input = nullptr;
         CoreServices::sendStatusMessage ("Invalid file");
@@ -336,7 +336,7 @@ void FileReader::setActiveRecording (int index)
 
     for (int i = 0; i < currentNumChannels; ++i)
     {
-        channelInfo.add (input->getChannelInfo (i));
+        channelInfo.add (input->getChannelInfo (index, i));
     }
 
     static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumTotalSamples));

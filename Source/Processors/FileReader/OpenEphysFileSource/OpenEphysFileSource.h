@@ -29,7 +29,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace OpenEphysSource
 {
+	/**
 
+	Reads data from a directory that conforms to the standards
+	of the Open Ephys Data Format
+
+	The files are indexed by a "structure.oebin" file, which
+	is what is loaded into the File Reader.
+
+	*/
 	class OpenEphysFileSource : public FileSource
 	{
 	public:
@@ -43,13 +51,12 @@ namespace OpenEphysSource
 		void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples) override;
 		void processEventData(EventInfo &info, int64 startTimestamp, int64 stopTimestamp) override;
 
-		bool isReady() override;
+		bool open(File file) override;
+		void fillRecordInfo() override;
+		void updateActiveRecord(int index) override;
 
 	private:
-		bool Open(File file) override;
-		void fillRecordInfo() override;
-		void updateActiveRecord() override;
-
+		
 		void loadEventData();
 
 		void readSamples(int16* buffer, int64 samplesToRead);
@@ -89,6 +96,9 @@ namespace OpenEphysSource
 
 		int64 blockIdx;
 		int64 samplesLeftInBlock;
+
+		int numActiveChannels;
+		Array<float> bitVolts;
 
 		const unsigned int EVENT_HEADER_SIZE_IN_BYTES = 1024;
 		const unsigned int BYTES_PER_EVENT = 16;
