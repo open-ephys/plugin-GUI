@@ -31,7 +31,7 @@ DataWindow::DataWindow(Button* cButton, String name)
     , controlButton(cButton)
 
 {
-    centreWithSize(800,500);
+    centreWithSize(1020,780);
     setUsingNativeTitleBar(true);
     setResizable(true,false);
 }
