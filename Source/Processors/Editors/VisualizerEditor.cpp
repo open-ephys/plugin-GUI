@@ -128,8 +128,8 @@ void VisualizerEditor::resized()
 {
     GenericEditor::resized();
 
-    windowSelector->setBounds   (desiredWidth - 40, 7, 14, 10);
-    tabSelector->setBounds      (desiredWidth - 20, 7, 15, 10);
+    windowSelector->setBounds   (getTotalWidth() - 40, 7, 14, 10);
+    tabSelector->setBounds      (getTotalWidth() - 20, 7, 15, 10);
 }
 
 

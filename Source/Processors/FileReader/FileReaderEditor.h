@@ -141,6 +141,8 @@ public:
 
     void buttonClicked (Button* button) override;
 
+    void collapsedStateChanged();
+
     void saveCustomParametersToXml (XmlElement*) override;
     void loadCustomParametersFromXml (XmlElement*) override;
 

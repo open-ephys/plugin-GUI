@@ -89,6 +89,10 @@ void FullTimeline::paint(Graphics& g) {
     //Draw 30-second interval
     g.setColour(Colour(0,0,0));
     g.setOpacity(0.8f);
+
+    if (intervalStartPosition < 0)
+        return;
+
     g.fillRoundedRectangle(intervalStartPosition, 0, 2, this->getHeight(), 2);
     g.fillRoundedRectangle(intervalStartPosition + intervalWidth, 0, 2, this->getHeight(), 2);
 	
@@ -503,8 +507,6 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
 
     desiredWidth = 200;
 
-    //buttonEvent(scrubDrawerButton);
-
 }
 
 FileReaderEditor::~FileReaderEditor()
@@ -677,14 +679,7 @@ void FileReaderEditor::buttonClicked (Button* button)
 
             if (chooseFileReaderFile.browseForFileToOpen())
             {
-                // Use the selected file
                 setFile (chooseFileReaderFile.getResult().getFullPathName());
-
-                // lastFilePath = fileToRead.getParentDirectory();
-
-                // thread->setFile(fileToRead.getFullPathName());
-
-                // fileNameLabel->setText(fileToRead.getFileName(),false);
             }
         }
     }
@@ -712,6 +707,12 @@ void FileReaderEditor::updatePlaybackTimes()
     int64 stopTimestamp = startTimestamp + zoomTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
     fileReader->setPlaybackStop(stopTimestamp);
 
+}
+
+void FileReaderEditor::collapsedStateChanged()
+{
+    //showScrubInterface(scrubInterfaceVisible);
+    //scrubDrawerButton->setVisible(fileReader->getCurrentNumTotalSamples() / fileReader->getCurrentSampleRate() > 30.0f);
 }
 
 void FileReaderEditor::showScrubInterface(bool show)
