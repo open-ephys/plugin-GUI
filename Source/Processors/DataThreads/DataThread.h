@@ -94,10 +94,11 @@ public:
     /** Create the DataThread custom editor, if any*/
     virtual std::unique_ptr<GenericEditor> createEditor(SourceNode* sn);
 
-    // ** Allows the DataThread plugin to respond to messages sent by other processors */
-    virtual void handleMessage(String msg) { }
+    /** Allows the DataThread plugin to respond to broadcast messages sent by other processors 
+          during acquisition */
+    virtual void handleBroadcastMessage(String msg) { }
 
-    // ** Allows the DataThread plugin to handle a config message while acquisition is not active. */
+    // ** Allows the DataThread plugin to handle a config message while acquisition is NOT active. */
     virtual String handleConfigMessage(String msg) { return ""; }
 
     /** Allows the DataThread to set its default state, depending on whether the signal chain is loading */

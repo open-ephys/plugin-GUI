@@ -273,7 +273,7 @@ String SourceNode::handleConfigMessage(String msg)
 
 void SourceNode::handleBroadcastMessage(String msg)
 {
-    dataThread->handleMessage(msg);
+    dataThread->handleBroadcastMessage(msg);
 }
 
 
