@@ -649,49 +649,48 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 
 		uint64 currentStreamId = -1;
 
+		if (!receivedSoftwareTime)
+		{
+			MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
+			HeapBlock<char> data;
+
+			size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getSoftwareTimestamp(), true);
+
+			handleTimestampSyncTexts(EventPacket(data, dataSize));
+
+			receivedSoftwareTime = true;
+
+			writeInitialEventStates();
+
+			for (auto stream : getDataStreams())
+			{
+
+				const uint16 streamId = stream->getStreamId();
+
+				numSamples = getNumSourceSamples(streamId);
+				timestamp = getSourceTimestamp(streamId);
+
+				MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
+				HeapBlock<char> data;
+
+				GenericProcessor* src = AccessClass::getProcessorGraph()->getProcessorWithNodeId(getDataStream(streamId)->getSourceNodeId());
+
+				size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, src, streamId, timestamp, false);
+
+				handleTimestampSyncTexts(EventPacket(data, dataSize));
+			}
+		}
+
 		//For each channel that is to be recorded 
 		for (int ch = 0; ch < channelMap.size(); ch++)
 		{
 
-			if (!receivedSoftwareTime)
-			{
-				MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
-				HeapBlock<char> data;
-
-				size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getSoftwareTimestamp(), true);
-
-				handleTimestampSyncTexts(EventPacket(data, dataSize));
-
-				receivedSoftwareTime = true;
-
-				writeInitialEventStates();
-
-			}
-
 			ContinuousChannel* chan = continuousChannels[channelMap[ch]];
 
-			uint64 streamId = ((ChannelInfoObject*)chan)->getStreamId();
+			const uint16 streamId = ((ChannelInfoObject*)chan)->getStreamId();
 
-			//Check if the source stream has changed
-			if (streamId != currentStreamId)
-			{
-				numSamples = getNumSamples(channelMap[ch]);
-				timestamp = getTimestamp(channelMap[ch]);
-
-				if (!setFirstBlock)
-				{
-
-					MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
-					HeapBlock<char> data;
-
-					GenericProcessor* src = AccessClass::getProcessorGraph()->getProcessorWithNodeId(getDataStream(streamId)->getSourceNodeId());
-
-					size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, src, streamId, timestamp, false);
-
-					handleTimestampSyncTexts(EventPacket(data, dataSize));
-
-				}
-			}
+			numSamples = getNumSourceSamples(streamId);
+			timestamp = getSourceTimestamp(streamId);
 
 			bool shouldWrite = validBlocks[ch];
 
@@ -711,6 +710,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 					{
 						double first = synchronizer->convertTimestamp(streamId, timestamp);
 						double second = synchronizer->convertTimestamp(streamId, timestamp + 1);
+						
 						fifoUsage[streamId] = dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
 
 						if (streamId == synchronizer->primaryStreamId)
@@ -722,7 +722,8 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 					else
 					{
 						fifoUsage[streamId] = dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
-						samplesWritten+=numSamples;
+						
+						samplesWritten += numSamples;
 
 						lastPrimaryStreamTimestamp = timestamp;
 						
@@ -734,7 +735,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 				}
 
 				dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
-				samplesWritten+=numSamples;
+				samplesWritten += numSamples;
 
 			}
 
@@ -743,6 +744,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 		if (!setFirstBlock)
 		{
 			bool shouldSetFlag = true;
+			
 			for (int chan = 0; chan < channelMap.size(); ++chan)
 			{
 				if (!validBlocks[chan])

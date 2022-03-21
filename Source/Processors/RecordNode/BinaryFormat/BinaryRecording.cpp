@@ -669,7 +669,7 @@ void BinaryRecording::writeTimestampSyncText(uint64 streamId, int64 timestamp, f
     bool inHere = true;
 	if (!m_syncTextFile)
 		return;
-	m_syncTextFile->writeText(text + ": " + String(timestamp) + "\n", false, false, nullptr);
+	m_syncTextFile->writeText(text + ": " + String(timestamp) + "\r\n", false, false, nullptr);
     m_syncTextFile->flush();
 }
 
