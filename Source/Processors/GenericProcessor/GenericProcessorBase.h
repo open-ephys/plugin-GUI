@@ -116,13 +116,13 @@ public:
     double getTailLengthSeconds() const override;
 
     /** JUCE method. Not used.*/
-    bool isInputChannelStereoPair (int index) const;
+    bool isInputChannelStereoPair (int index) const override;
 
     /** JUCE method. Not used.*/
-    bool isOutputChannelStereoPair (int index) const;
+    bool isOutputChannelStereoPair (int index) const override;
 
     /** JUCE method. Not used.*/
-    bool silenceInProducesSilenceOut() const;
+    bool silenceInProducesSilenceOut() const override;
 
 private:
 

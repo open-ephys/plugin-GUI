@@ -243,7 +243,7 @@ public:
         bool deactivateDuringAcquisition = false);
 
     /** Stages a value, to be changed by the processor*/
-    virtual void setNextValue(var newValue);
+    virtual void setNextValue(var newValue) override;
 
     /** Gets the value as a boolean*/
     bool getBoolValue();
@@ -278,7 +278,7 @@ public:
         bool deactivateDuringAcquisition = false);
 
     /** Stages a value, to be changed by the processor*/
-    virtual void setNextValue(var newValue);
+    virtual void setNextValue(var newValue) override;
 
     /** Gets the index as an integer*/
     int getSelectedIndex();

@@ -669,7 +669,7 @@ private:
 
     /** Automatically extracts the number of samples in the buffer, then
     calls the process(), where custom actions take place.*/
-    void processBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages);
+    void processBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages) override;
 
     /** Extracts sample counts and timestamps from the MidiBuffer. */
     int processEventBuffer();

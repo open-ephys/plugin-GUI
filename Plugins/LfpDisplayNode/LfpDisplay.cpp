@@ -64,8 +64,8 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     , displaySkipAmt(0)
     , m_SpikeRasterPlottingFlag(false)
 {
-    perPixelPlotter = new PerPixelBitmapPlotter(this);
-    supersampledPlotter = new SupersampledBitmapPlotter(this);
+    perPixelPlotter = std::make_unique<PerPixelBitmapPlotter>(this);
+    supersampledPlotter = std::make_unique<SupersampledBitmapPlotter>(this);
     
     colourSchemeList.add(new DefaultColourScheme(this, canvasSplit));
     colourSchemeList.add(new MonochromeGrayColourScheme(this, canvasSplit));
@@ -75,7 +75,7 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     colourSchemeList.add(new OELogoColourScheme(this, canvasSplit));
     colourSchemeList.add(new TropicalColourScheme(this, canvasSplit));
     
-    plotter = perPixelPlotter;
+    plotter = perPixelPlotter.get();
     m_MedianOffsetPlottingFlag = false;
     
     activeColourScheme = 0;
@@ -525,11 +525,11 @@ void LfpDisplay::setDrawMethod(bool isDrawMethod)
     
     if (isDrawMethod)
     {
-        plotter = supersampledPlotter;
+        plotter = supersampledPlotter.get();
     }
     else
     {
-        plotter = perPixelPlotter;
+        plotter = perPixelPlotter.get();
     }
     
     resized();

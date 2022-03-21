@@ -278,7 +278,7 @@ void VisualizerEditor::loadCustomParametersFromXml (XmlElement* xml)
 
     bool canvasHidden = false;
 
-    forEachXmlChildElement (*xml, xmlNode)
+    for (auto* xmlNode : xml->getChildIterator())
     {
         if (xmlNode->hasTagName (EDITOR_TAG_TAB))
         {

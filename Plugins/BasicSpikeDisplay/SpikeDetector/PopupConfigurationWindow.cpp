@@ -817,7 +817,9 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
     }
     else if (columnId == SpikeDetectorTableModel::Columns::TYPE)
     {
+        
         if (rowNumber >= spikeChannels.size()) return;
+        
         switch (spikeChannels[rowNumber]->getChannelType())
         {
         case SpikeChannel::Type::SINGLE:
@@ -837,6 +839,8 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
             g.fillRoundedRectangle(6, 6, width - 12, height - 12, 4);
             g.setColour(Colours::white);
             g.drawText("TT", 4, 4, width - 8, height - 8, Justification::centred);
+            break;
+        case SpikeChannel::Type::INVALID:
             break;
         }
 

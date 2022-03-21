@@ -564,11 +564,11 @@ void ProcessorList::saveStateToXml(XmlElement* xml)
 
 void ProcessorList::loadStateFromXml(XmlElement* xml)
 {
-	forEachXmlChildElement(*xml, xmlNode)
+	for (auto* xmlNode : xml->getChildIterator())
 	{
 		if (xmlNode->hasTagName("PROCESSORLIST"))
 		{
-			forEachXmlChildElement(*xmlNode, colorNode)
+			for (auto* colorNode : xmlNode->getChildIterator())
 			{
 				setColour(colorNode->getIntAttribute("ID"),
 						Colour(

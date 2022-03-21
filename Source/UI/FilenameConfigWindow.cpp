@@ -260,12 +260,12 @@ void FilenameConfigWindow::saveStateToXml(XmlElement* xml)
 void FilenameConfigWindow::loadStateFromXml(XmlElement* xml)
 {
 
-    forEachXmlChildElement (*xml, xmlNode)
+    for (auto* xmlNode : xml->getChildIterator())
     {
         if (xmlNode->hasTagName ("FILENAMECONFIG"))
         {
 
-            forEachXmlChildElement (*xmlNode, fieldNode)
+            for (auto* fieldNode : xmlNode->getChildIterator())
             {
                 FilenameFieldComponent::Type type;
 

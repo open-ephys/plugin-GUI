@@ -188,37 +188,4 @@ protected:
 
 };
 
-
 #endif
-
-
-/*
-/** Updates the source continuous channels for this spike channel */
-//void setSourceChannels(Array<const ContinuousChannel*>);
-
-/* Get the channel threshold type (FIXED, STD, DYNAMIC, etc.) */
-//ThresholdType getThresholdType() const;
-
-/* Set the channel threshold type (SINGLE, STEREOTRODE, TETRODE) */
-//void setThresholdType(ThresholdType);
-
-/* Get the channel threshold value */
-//float getThreshold(int channelIndex) const;
-
-/* Set the channel threshold value */
-//void setThreshold(int channelIndex, float threshold);
-
-/** Returns true if this channel sends spike objects containing the full waveform */
-//bool sendsFullWaveform() const;
-
-/* Sets whether the channel sends spike objects containing the full waveform, or just the peak */
-//void shouldSendFullWaveform(bool);
-
-/** Returns true if a sub-channel is enabled for detecting spikes*/
-//bool getSourceChannelState(int channelIndex) const;
-
-/* Sets whether a sub-channel is enabled for detecting spikes */
-//void setSourceChannelState(int channelIndex, bool state);
-
-/** Sets the number of samples, pre and post peak */
-//void setNumSamples(unsigned int preSamples, unsigned int postSamples); 

@@ -48,7 +48,7 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplaySplitter* canvas_, LfpDis
       x(-1.0f), y(-1.0f), isSingleChannel(false)
 {
 
-    enableButton = new UtilityButton("", Font("Small Text", 13, Font::plain));
+    enableButton = std::make_unique<UtilityButton>("", Font("Small Text", 13, Font::plain));
     enableButton->setRadius(5.0f);
 
     enableButton->setEnabledState(true);
@@ -57,7 +57,7 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo(LfpDisplaySplitter* canvas_, LfpDis
     enableButton->setClickingTogglesState(true);
     enableButton->setToggleState(true, dontSendNotification);
     
-    addAndMakeVisible(enableButton);
+    addAndMakeVisible(enableButton.get());
 
 }
 
@@ -266,15 +266,8 @@ void LfpChannelDisplayInfo::resized()
 
 void LfpChannelDisplayInfo::setEnabledButtonVisibility(bool shouldBeVisible)
 {
-    if (shouldBeVisible)
-    {
-        addAndMakeVisible(enableButton);
-    }
-    else if (enableButton->isVisible())
-    {
-        removeChildComponent(enableButton);
-        enableButton->setVisible(false);
-    }
+    
+    enableButton->setVisible(shouldBeVisible);
     
 }
 

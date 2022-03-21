@@ -38,7 +38,9 @@ using namespace LfpViewer;
 #define MAX_N_SAMP 3000 // used for screen buffer; this could be resized dynamically depending on the display width
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl, bool isLoading_) :
-                  processor(processor_), selectedLayout(sl), isLoading(isLoading_)
+    processor(processor_),
+    selectedLayout(sl),
+    isLoading(isLoading_)
 {
     
     LOGD("Creating LfpDisplayCanvas");
@@ -626,7 +628,7 @@ void LfpDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 
     start = Time::getHighResolutionTicks();
 
-    forEachXmlChildElement(*xml, xmlNode)
+    for (auto* xmlNode : xml->getChildIterator())
 	{
 		if (xmlNode->hasTagName("CANVAS"))
 		{
@@ -674,7 +676,7 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
     timescale = std::make_unique < LfpTimescale>(this, lfpDisplay.get());
     options = std::make_unique<LfpDisplayOptions>(canvas, this, timescale.get(), lfpDisplay.get(), node);
 
-    streamSelection = new ComboBox("Subprocessor selection");
+    streamSelection = std::make_unique<ComboBox>("Subprocessor selection");
     streamSelection->addListener(this);
 
     lfpDisplay->options = options.get();
@@ -688,7 +690,7 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
     addAndMakeVisible(viewport.get());
     addAndMakeVisible(timescale.get());
-    addAndMakeVisible(streamSelection);
+    addAndMakeVisible(streamSelection.get());
 
     nChans = 0;
 
@@ -888,10 +890,10 @@ void LfpDisplaySplitter::updateSettings()
 
     if (eventDisplayBuffer == nullptr) // not yet initialized
     {
-        eventDisplayBuffer = new AudioSampleBuffer(1, getWidth());
-        screenBufferMin = new AudioSampleBuffer(nChans, getWidth());
-        screenBufferMean = new AudioSampleBuffer(nChans, getWidth());
-        screenBufferMax = new AudioSampleBuffer(nChans, getWidth());
+        eventDisplayBuffer = std::make_unique<AudioBuffer<float>>(1, getWidth());
+        screenBufferMin = std::make_unique<AudioBuffer<float>>(nChans, getWidth());
+        screenBufferMean = std::make_unique<AudioBuffer<float>>(nChans, getWidth());
+        screenBufferMax = std::make_unique<AudioBuffer<float>>(nChans, getWidth());
     }
     else {
         if (nChans != lfpDisplay->getNumChannels()) // new channel count
@@ -1554,7 +1556,7 @@ void LfpDisplaySplitter::refresh()
 
 void LfpDisplaySplitter::comboBoxChanged(juce::ComboBox *comboBox)
 {
-    if (comboBox == streamSelection)
+    if (comboBox == streamSelection.get())
     {
         setDrawableStream(comboBox->getSelectedId());
 

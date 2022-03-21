@@ -59,7 +59,7 @@ public:
     void mouseDown(const juce::MouseEvent& event) override;
     
     /** Called when the label is updated */
-    void labelTextChanged(Label* label);
+    void labelTextChanged(Label* label) override;
 
     /** Sets row and column */
     void setRowAndColumn(const int newRow, const int newColumn);

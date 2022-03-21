@@ -76,12 +76,12 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     selectedTimebase = 8;
     selectedTimebaseValue = timebases[selectedTimebase - 1];
 
-    timebaseSelection = new ComboBox("Timebase");
+    timebaseSelection = std::make_unique<ComboBox>("Timebase");
     timebaseSelection->addItemList(timebases, 1);
     timebaseSelection->setSelectedId(selectedTimebase, sendNotification);
     timebaseSelection->setEditableText(true);
     timebaseSelection->addListener(this);
-    addAndMakeVisible(timebaseSelection);
+    addAndMakeVisible(timebaseSelection.get());
 
     // Channel height
     spreads.add("6");
@@ -98,12 +98,12 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     selectedSpread = 5;
     selectedSpreadValue = spreads[selectedSpread - 1];
 
-    spreadSelection = new ComboBox("Spread");
+    spreadSelection = std::make_unique<ComboBox>("Spread");
     spreadSelection->addItemList(spreads, 1);
     spreadSelection->setSelectedId(selectedSpread, sendNotification);
     spreadSelection->addListener(this);
     spreadSelection->setEditableText(true);
-    addAndMakeVisible(spreadSelection);
+    addAndMakeVisible(spreadSelection.get());
 
     // Voltage range
     voltageRanges[ContinuousChannel::Type::ELECTRODE].add("25");
@@ -190,12 +190,12 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     selectedVoltageRangeValues[ContinuousChannel::Type::AUX] = voltageRanges[ContinuousChannel::Type::AUX][selectedVoltageRange[ContinuousChannel::Type::AUX] - 1];
     selectedVoltageRangeValues[ContinuousChannel::Type::ADC] = voltageRanges[ContinuousChannel::Type::ADC][selectedVoltageRange[ContinuousChannel::Type::ADC] - 1];
 
-    rangeSelection = new ComboBox("Voltage range");
+    rangeSelection = std::make_unique<ComboBox>("Voltage range");
     rangeSelection->addItemList(voltageRanges[ContinuousChannel::Type::ELECTRODE], 1);
     rangeSelection->setSelectedId(selectedVoltageRange[ContinuousChannel::Type::ELECTRODE], sendNotification);
     rangeSelection->setEditableText(true);
     rangeSelection->addListener(this);
-    addAndMakeVisible(rangeSelection);
+    addAndMakeVisible(rangeSelection.get());
 
     // Event overlay
     for (int i = 0; i < 8; i++)
@@ -208,23 +208,23 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     }
 
     // Pause button
-    pauseButton = new UtilityButton("Pause", Font("Default", "Plain", 15));
+    pauseButton = std::make_unique<UtilityButton>("Pause", Font("Default", "Plain", 15));
     pauseButton->setRadius(5.0f);
     pauseButton->setEnabledState(true);
     pauseButton->setCorners(true, true, true, true);
     pauseButton->addListener(this);
     pauseButton->setClickingTogglesState(true);
     pauseButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(pauseButton);
+    addAndMakeVisible(pauseButton.get());
 
     // Color scheme
     StringArray colourSchemeNames = lfpDisplay->getColourSchemeNameArray();
-    colourSchemeOptionSelection = new ComboBox("colorSchemeOptionSelection");
+    colourSchemeOptionSelection = std::make_unique<ComboBox>("colorSchemeOptionSelection");
     colourSchemeOptionSelection->addItemList(colourSchemeNames, 1);
     colourSchemeOptionSelection->setEditableText(false);
     colourSchemeOptionSelection->addListener(this);
     colourSchemeOptionSelection->setSelectedId(1, dontSendNotification);
-    addAndMakeVisible(colourSchemeOptionSelection);
+    addAndMakeVisible(colourSchemeOptionSelection.get());
 
     // Color grouping
     colorGroupings.add("1");
@@ -233,11 +233,11 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     colorGroupings.add("8");
     colorGroupings.add("16");
 
-    colorGroupingSelection = new ComboBox("Color Grouping");
+    colorGroupingSelection = std::make_unique<ComboBox>("Color Grouping");
     colorGroupingSelection->addItemList(colorGroupings, 1);
     colorGroupingSelection->setSelectedId(1, sendNotification);
     colorGroupingSelection->addListener(this);
-    addAndMakeVisible(colorGroupingSelection);
+    addAndMakeVisible(colorGroupingSelection.get());
 
     // THRESHOLDS SECTION
     sectionTitles.add("THRESHOLDS");
@@ -247,23 +247,23 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     selectedSpikeRasterThreshold = 1;
     selectedSpikeRasterThresholdValue = spikeRasterSelectionOptions[selectedSpikeRasterThreshold - 1];
 
-    spikeRasterSelection = new ComboBox("spikeRasterSelection");
+    spikeRasterSelection = std::make_unique<ComboBox>("spikeRasterSelection");
     spikeRasterSelection->addItemList(spikeRasterSelectionOptions, 1);
     spikeRasterSelection->setSelectedId(selectedSpikeRasterThreshold, dontSendNotification);
     spikeRasterSelection->setEditableText(true);
     spikeRasterSelection->addListener(this);
-    addAndMakeVisible(spikeRasterSelection);
+    addAndMakeVisible(spikeRasterSelection.get());
 
     // Clip warning
     clipThresholds.add("OFF");
     clipThresholds.add("ON");
 
-    clipWarningSelection = new ComboBox("Clip Warning");
+    clipWarningSelection = std::make_unique<ComboBox>("Clip Warning");
     clipWarningSelection->addItemList(clipThresholds, 1);
     clipWarningSelection->setSelectedId(1, dontSendNotification);
     clipWarningSelection->addListener(this);
     clipWarningSelection->setEditableText(false);
-    addAndMakeVisible(clipWarningSelection);
+    addAndMakeVisible(clipWarningSelection.get());
 
     // Saturation warning
     saturationThresholds.add("OFF");
@@ -273,36 +273,36 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     saturationThresholds.add("5000");
     saturationThresholds.add("6389");
 
-    saturationWarningSelection = new ComboBox("Saturation Warning");
+    saturationWarningSelection = std::make_unique<ComboBox>("Saturation Warning");
     saturationWarningSelection->addItemList(saturationThresholds, 1);
     saturationWarningSelection->setSelectedId(1, dontSendNotification);
     saturationWarningSelection->addListener(this);
     saturationWarningSelection->setEditableText(false);
-    addAndMakeVisible(saturationWarningSelection);
+    addAndMakeVisible(saturationWarningSelection.get());
 
 
     // CHANNELS SECTION
     sectionTitles.add("CHANNELS");
 
     // Reverse order
-    reverseChannelsDisplayButton = new UtilityButton("OFF", labelFont);
+    reverseChannelsDisplayButton = std::make_unique<UtilityButton>("OFF", labelFont);
     reverseChannelsDisplayButton->setRadius(5.0f);
     reverseChannelsDisplayButton->setEnabledState(true);
     reverseChannelsDisplayButton->setCorners(true, true, true, true);
     reverseChannelsDisplayButton->addListener(this);
     reverseChannelsDisplayButton->setClickingTogglesState(true);
     reverseChannelsDisplayButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(reverseChannelsDisplayButton);
+    addAndMakeVisible(reverseChannelsDisplayButton.get());
 
     // Sort by depth
-    sortByDepthButton = new UtilityButton("OFF", labelFont);
+    sortByDepthButton = std::make_unique<UtilityButton>("OFF", labelFont);
     sortByDepthButton->setRadius(5.0f);
     sortByDepthButton->setEnabledState(true);
     sortByDepthButton->setCorners(true, true, true, true);
     sortByDepthButton->addListener(this);
     sortByDepthButton->setClickingTogglesState(true);
     sortByDepthButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(sortByDepthButton);
+    addAndMakeVisible(sortByDepthButton.get());
 
     // Channel skip
     channelDisplaySkipOptions.add("None");
@@ -315,45 +315,45 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     selectedChannelDisplaySkip = 1;
     selectedChannelDisplaySkipValue = channelDisplaySkipOptions[selectedChannelDisplaySkip - 1];
     
-    channelDisplaySkipSelection = new ComboBox("Channel Skip");
+    channelDisplaySkipSelection = std::make_unique<ComboBox>("Channel Skip");
     channelDisplaySkipSelection->addItemList(channelDisplaySkipOptions, 1);
     channelDisplaySkipSelection->setSelectedId(selectedChannelDisplaySkip, sendNotification);
     channelDisplaySkipSelection->setEditableText(false);
     channelDisplaySkipSelection->addListener(this);
-    addAndMakeVisible(channelDisplaySkipSelection);
+    addAndMakeVisible(channelDisplaySkipSelection.get());
 
     // Show channel number button
-    showChannelNumberButton = new UtilityButton("OFF", labelFont);
+    showChannelNumberButton = std::make_unique<UtilityButton>("OFF", labelFont);
     showChannelNumberButton->setRadius(5.0f);
     showChannelNumberButton->setEnabledState(true);
     showChannelNumberButton->setCorners(true, true, true, true);
     showChannelNumberButton->addListener(this);
     showChannelNumberButton->setClickingTogglesState(true);
     showChannelNumberButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(showChannelNumberButton);
+    addAndMakeVisible(showChannelNumberButton.get());
 
     // SIGNAL PROCESSING SECTION
     sectionTitles.add("SIGNALS");
 
     // invert signal
-    invertInputButton = new UtilityButton("OFF", labelFont);
+    invertInputButton = std::make_unique<UtilityButton>("OFF", labelFont);
     invertInputButton->setRadius(5.0f);
     invertInputButton->setEnabledState(true);
     invertInputButton->setCorners(true, true, true, true);
     invertInputButton->addListener(this);
     invertInputButton->setClickingTogglesState(true);
     invertInputButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(invertInputButton);
+    addAndMakeVisible(invertInputButton.get());
 
     // subtract offset
-    medianOffsetPlottingButton = new UtilityButton("OFF", labelFont);
+    medianOffsetPlottingButton = std::make_unique<UtilityButton>("OFF", labelFont);
     medianOffsetPlottingButton->setRadius(5.0f);
     medianOffsetPlottingButton->setEnabledState(true);
     medianOffsetPlottingButton->setCorners(true, true, true, true);
     medianOffsetPlottingButton->addListener(this);
     medianOffsetPlottingButton->setClickingTogglesState(true);
     medianOffsetPlottingButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(medianOffsetPlottingButton);
+    addAndMakeVisible(medianOffsetPlottingButton.get());
 
     // TRIGGERED DISPLAY
     sectionTitles.add("TRIGGERED DISPLAY");
@@ -364,36 +364,36 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
         triggerSources.add(String(k));
     }
 
-    triggerSourceSelection = new ComboBox("Trigger Source");
+    triggerSourceSelection = std::make_unique<ComboBox>("Trigger Source");
     triggerSourceSelection->addItemList(triggerSources, 1);
     triggerSourceSelection->setSelectedId(1, sendNotification);
     triggerSourceSelection->addListener(this);
-    addAndMakeVisible(triggerSourceSelection);
+    addAndMakeVisible(triggerSourceSelection.get());
 
     // average signal
-    averageSignalButton = new UtilityButton("OFF", labelFont);
+    averageSignalButton = std::make_unique<UtilityButton>("OFF", labelFont);
     averageSignalButton->setRadius(5.0f);
     averageSignalButton->setEnabledState(true);
     averageSignalButton->setCorners(true, true, true, true);
     averageSignalButton->addListener(this);
     averageSignalButton->setClickingTogglesState(true);
     averageSignalButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(averageSignalButton);
+    addAndMakeVisible(averageSignalButton.get());
 
     // reset triggered display
-    resetButton = new UtilityButton("RESET", labelFont);
+    resetButton = std::make_unique<UtilityButton>("RESET", labelFont);
     resetButton->setRadius(5.0f);
     resetButton->setEnabledState(true);
     resetButton->setCorners(true, true, true, true);
     resetButton->addListener(this);
     resetButton->setClickingTogglesState(false);
     resetButton->setToggleState(false, sendNotification);
-    addChildComponent(resetButton);
+    addChildComponent(resetButton.get());
 
     // init show/hide options button
-    showHideOptionsButton = new ShowHideOptionsButton(this);
+    showHideOptionsButton = std::make_unique<ShowHideOptionsButton>(this);
     showHideOptionsButton->addListener(this);
-    addAndMakeVisible(showHideOptionsButton);
+    addAndMakeVisible(showHideOptionsButton.get());
 
     // do we still need this?
     overlaps.add("0.5");
@@ -406,12 +406,12 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     selectedOverlap = 4;
     selectedOverlapValue = overlaps[selectedOverlap-1];
 
-    overlapSelection = new ComboBox("Overlap");
+    overlapSelection = std::make_unique<ComboBox>("Overlap");
     overlapSelection->addItemList(overlaps, 1);
     overlapSelection->setSelectedId(selectedOverlap,sendNotification);
     overlapSelection->addListener(this);
     overlapSelection->setEditableText(true);
-    addAndMakeVisible(overlapSelection);
+    addAndMakeVisible(overlapSelection.get());
     
     //Ranges for neural data
     lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::ELECTRODE][selectedVoltageRange[ContinuousChannel::Type::ELECTRODE] - 1].getFloatValue()
@@ -861,51 +861,51 @@ void LfpDisplayOptions::setShowChannelNumbers(bool state)
 
 void LfpDisplayOptions::buttonClicked(Button* b)
 {
-    if (b == invertInputButton)
+    if (b == invertInputButton.get())
     {
         setInputInverted(b->getToggleState());
         return;
     }
-    if (b == reverseChannelsDisplayButton)
+    if (b == reverseChannelsDisplayButton.get())
     {
         setChannelsReversed(b->getToggleState());
         return;
     }
-    if (b == medianOffsetPlottingButton)
+    if (b == medianOffsetPlottingButton.get())
     {
         setMedianOffset(b->getToggleState());
         return;
     } 
     
-    if (b == averageSignalButton)
+    if (b == averageSignalButton.get())
     {
         setAveraging(b->getToggleState());
         return;
     }
 
-    if (b == sortByDepthButton)
+    if (b == sortByDepthButton.get())
     {
         setSortByDepth(b->getToggleState());
         return;
     }
 
-    if (b == resetButton)
+    if (b == resetButton.get())
     {
         canvasSplit->resetTrials();
     }
 
-    if (b == pauseButton)
+    if (b == pauseButton.get())
     {
         lfpDisplay->isPaused = b->getToggleState();
         return;
     }
 
-    if (b == showHideOptionsButton)
+    if (b == showHideOptionsButton.get())
     {
         canvas->toggleOptionsDrawer(b->getToggleState());
     }
 
-    if (b == showChannelNumberButton)
+    if (b == showChannelNumberButton.get())
     {
         setShowChannelNumbers(b->getToggleState());
         return;
@@ -971,12 +971,12 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 {
     if (canvasSplit->getNumChannels() == 0) return;
     
-    if (cb == channelDisplaySkipSelection)
+    if (cb == channelDisplaySkipSelection.get())
     {
         const int skipAmt = pow(2, cb->getSelectedId() - 1);
         lfpDisplay->setChannelDisplaySkipAmount(skipAmt);
     }
-    else if (cb == spikeRasterSelection)
+    else if (cb == spikeRasterSelection.get())
     {
         // if custom value
         if (cb->getSelectedId() == 0)
@@ -1045,14 +1045,14 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
             lfpDisplay->setSpikeRasterPlotting(true);
         }
     }
-    else if (cb == colourSchemeOptionSelection)
+    else if (cb == colourSchemeOptionSelection.get())
     {
         lfpDisplay->setActiveColourSchemeIdx(cb->getSelectedId()-1);
 
         lfpDisplay->setColors();
         canvasSplit->redraw();
     }
-    else if (cb == timebaseSelection)
+    else if (cb == timebaseSelection.get())
     {
         if (cb->getSelectedId())
         {
@@ -1065,7 +1065,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 
         timescale->setTimebase(canvasSplit->timebase);
     }
-    else if (cb == rangeSelection)
+    else if (cb == rangeSelection.get())
     {
         if (cb->getSelectedId())
         {
@@ -1108,7 +1108,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         selectedVoltageRangeValues[selectedChannelType] = cb->getText();
         canvasSplit->redraw();
     }
-    else if (cb == spreadSelection)
+    else if (cb == spreadSelection.get())
     {
         
         if (cb->getSelectedId())
@@ -1167,7 +1167,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 
         if (!lfpDisplay->getSingleChannelState()) canvasSplit->redraw();
     }
-    else if (cb == saturationWarningSelection)
+    else if (cb == saturationWarningSelection.get())
     {
         if (cb->getSelectedId() > 1)
         {
@@ -1181,7 +1181,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 
         canvasSplit->redraw();
     }
-    else if (cb == clipWarningSelection)
+    else if (cb == clipWarningSelection.get())
     {
         if (cb->getSelectedId() == 1)
         {
@@ -1195,7 +1195,7 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         canvasSplit->redraw();
 
     }
-    else if (cb == overlapSelection)
+    else if (cb == overlapSelection.get())
     {
         if (cb->getSelectedId())
         {
@@ -1237,13 +1237,13 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
         lfpDisplay->setChannelHeight( lfpDisplay->getChannelHeight());
         canvasSplit->redraw();
     }
-    else if (cb == colorGroupingSelection)
+    else if (cb == colorGroupingSelection.get())
     {
         // set color grouping here
         lfpDisplay->setColorGrouping(colorGroupings[cb->getSelectedId()-1].getIntValue());// so that channel colors get re-assigned
         canvasSplit->redraw();
     }
-    else if (cb == triggerSourceSelection)
+    else if (cb == triggerSourceSelection.get())
     {
         canvasSplit->setTriggerChannel(cb->getSelectedId() - 2);
         processor->setParameter(cb->getSelectedId()-2, float(canvasSplit->splitID));
@@ -1370,7 +1370,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
     canvasSplit->isLoading = true;
 
-    forEachXmlChildElement(*xml, xmlNode)
+    for (auto* xmlNode : xml->getChildIterator())
     {
 
         if (xmlNode->hasTagName("LFPDISPLAY" + String(canvasSplit->splitID)))

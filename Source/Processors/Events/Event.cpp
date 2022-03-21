@@ -300,7 +300,7 @@ EventPtr Event::deserialize(const EventPacket& packet, const EventChannel* event
 		return TTLEvent::deserialize(packet, eventChannel).release();
 	else if (type == EventChannel::TEXT)
 		return TextEvent::deserialize(packet, eventChannel).release();
-	else if (type >= EventChannel::INT8_ARRAY && type <= EventChannel::DOUBLE_ARRAY)
+	else if (type >= int(EventChannel::INT8_ARRAY) && type <= int(EventChannel::DOUBLE_ARRAY))
 		return BinaryEvent::deserialize(packet, eventChannel).release();
 	else return nullptr;
 }

@@ -180,7 +180,7 @@ void RecordNodeEditor::saveCustomParametersToXml(XmlElement* xml)
 void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 {
 
-	forEachXmlChildElement(*xml, xmlNode)
+	for (auto* xmlNode : xml->getChildIterator())
 	{
 		if (xmlNode->hasTagName("SETTINGS"))
 		{
@@ -197,7 +197,7 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 			Array<const DataStream*> availableStreams = recordNode->getDataStreams();
 			int streamIndex = 0;
 
-			forEachXmlChildElement(*xmlNode, subNode)
+			for (auto* subNode : xmlNode->getChildIterator())
 			{
 				if (subNode->hasTagName("STREAM") && streamIndex < availableStreams.size())
 				{

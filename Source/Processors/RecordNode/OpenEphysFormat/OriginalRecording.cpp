@@ -759,7 +759,7 @@ void OriginalRecording::writeXml()
 		rec->addChildElement(proc);
 	}
 	xml->addChildElement(rec);
-	xml->writeToFile(file, String());
+	xml->writeTo(file);
 }
 
 void OriginalRecording::setParameter(EngineParameter& parameter)
