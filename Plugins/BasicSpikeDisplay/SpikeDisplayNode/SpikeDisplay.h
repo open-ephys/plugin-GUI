@@ -27,7 +27,7 @@
 
 #include <VisualizerWindowHeaders.h>
 
-#include "SpikePlots.h";
+#include "SpikePlots.h"
 
 class SpikeDisplayCanvas;
 class SpikeThresholdCoordinator;

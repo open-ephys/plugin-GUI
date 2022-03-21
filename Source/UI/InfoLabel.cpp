@@ -456,7 +456,7 @@ void InfoLabel::setLicenseText()
     textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
     textEditor->insertTextAtCaret(
             "\"This License\" refers to version 3 of the GNU General "
-            "Public License.\n\n");
+            "Public License.\n\n"
 
             "\"Copyright\" also means copyright - like laws that apply to "
             "other kinds of works, such as semiconductor masks.\n\n"
@@ -495,7 +495,7 @@ void InfoLabel::setLicenseText()
             "that licensees may convey the work under this License, and how to "
             "view a copy of this License. If the interface presents a list of "
             "user commands or options, such as a menu, a prominent item in the "
-            "list meets this criterion.\n\n";
+            "list meets this criterion.\n\n");
 
         textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
         textEditor->insertTextAtCaret("1. Source Code.\n\n");

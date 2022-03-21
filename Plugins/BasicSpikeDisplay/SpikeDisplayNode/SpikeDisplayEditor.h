@@ -51,10 +51,10 @@ public:
     ~SpikeDisplayEditor() { }
 
     /** Sends messages from control buttons to canvas (currently disabled) */
-    void buttonClicked(Button* button);
+    void buttonClicked(Button* button) override;
 
     /** Creates the SpikeDisplayCanvas */
-    Visualizer* createNewCanvas();
+    Visualizer* createNewCanvas() override;
 
     /** Writes editor state to xml */
     void saveVisualizerEditorParameters(XmlElement* xml) override;

@@ -54,9 +54,9 @@ public:
 private:
 
 	/** Mouse-related callbacks*/
-	void mouseDown(const MouseEvent& event);
-	void mouseDrag(const MouseEvent& event);
-	void mouseUp(const MouseEvent& event);
+	void mouseDown(const MouseEvent& event) override;
+	void mouseDrag(const MouseEvent& event) override;
+	void mouseUp(const MouseEvent& event) override;
 
 	int id;
 	PopupChannelSelector* parent;

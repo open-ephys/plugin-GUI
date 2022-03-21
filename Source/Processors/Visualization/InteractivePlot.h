@@ -363,18 +363,18 @@ private:
 	double lowestValue, highestValue;
 	bool controlButtonsVisible, gridIsVisible;
 	
-	ScopedPointer<UtilityButton> zoomButton,
+	std::unique_ptr<UtilityButton> zoomButton,
 		panButton,
 		autoRescaleButton,
 		boundsButton;
 	
-	ScopedPointer<XAxis> xAxis;
-	ScopedPointer<YAxis> yAxis;
+	std::unique_ptr<XAxis> xAxis;
+	std::unique_ptr<YAxis> yAxis;
 
 	XYRange range;
 	XYRange limit;
 
-	ScopedPointer<DrawComponent> drawComponent;
+	std::unique_ptr<DrawComponent> drawComponent;
 	
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(InteractivePlot);
 };

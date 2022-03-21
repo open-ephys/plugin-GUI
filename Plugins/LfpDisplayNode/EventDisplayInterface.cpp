@@ -36,13 +36,13 @@ EventDisplayInterface::EventDisplayInterface(LfpDisplay* display_, LfpDisplaySpl
 
     channelNumber = chNum;
 
-    chButton = new UtilityButton(String(channelNumber+1), Font("Small Text", 13, Font::plain));
+    chButton = std::make_unique<UtilityButton>(String(channelNumber+1), Font("Small Text", 13, Font::plain));
     chButton->setRadius(5.0f);
     chButton->setBounds(4,4,14,14);
     chButton->setEnabledState(true);
     chButton->setCorners(true, false, true, false);
     chButton->addListener(this);
-    addAndMakeVisible(chButton);
+    addAndMakeVisible(chButton.get());
 
     checkEnabledState();
 

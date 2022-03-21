@@ -68,7 +68,7 @@ private:
     LfpDisplay* display;
     LfpDisplaySplitter* canvasSplit;
 
-    ScopedPointer<UtilityButton> chButton;
+    std::unique_ptr<UtilityButton> chButton;
 
 };
     

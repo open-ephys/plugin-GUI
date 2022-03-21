@@ -103,7 +103,7 @@ public:
     virtual void loadVisualizerEditorParameters(XmlElement* xml) { }
 
     /** Called when the Visualizer window is closed */
-    virtual void windowClosed() { }
+    virtual void windowClosed() override { }
 
     /** Calls Visualizer's beginAnimation() method */
     virtual void enable();

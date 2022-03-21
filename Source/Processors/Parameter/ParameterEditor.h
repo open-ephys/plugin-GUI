@@ -91,13 +91,13 @@ public:
     virtual ~TextBoxParameterEditor() { }
 
     /** Called when the text box contents are changed*/
-    void labelTextChanged(Label* label);
+    void labelTextChanged(Label* label) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
     /** Sets sub-component locations */
-    virtual void resized();
+    virtual void resized() override;
 
 private:
     std::unique_ptr<Label> parameterNameLabel;
@@ -125,13 +125,13 @@ public:
     virtual ~CheckBoxParameterEditor() { }
 
     /** Responds to checkbox clicks */
-    void buttonClicked(Button* label);
+    void buttonClicked(Button* label) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
     /** Sets sub-component locations */
-    virtual void resized();
+    virtual void resized() override;
 
 private:
     std::unique_ptr<Label> parameterNameLabel;
@@ -157,13 +157,13 @@ public:
     virtual ~ComboBoxParameterEditor() { }
 
     /** Responds to checkbox clicks */
-    void comboBoxChanged(ComboBox* comboBox);
+    void comboBoxChanged(ComboBox* comboBox) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
     /** Sets sub-component locations */
-    virtual void resized();
+    virtual void resized() override;
 
 private:
     std::unique_ptr<Label> parameterNameLabel;
@@ -274,16 +274,16 @@ public:
     virtual ~SelectedChannelsParameterEditor() { }
 
     /** Displays the PopupChannelSelector*/
-    void buttonClicked(Button* label);
+    void buttonClicked(Button* label) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
     /** Responds to changes in the PopupChannelSelector*/
-    void channelStateChanged(Array<int> selectedChannels);
+    void channelStateChanged(Array<int> selectedChannels) override;
 
     /** Sets sub-component locations */
-    virtual void resized();
+    virtual void resized() override;
 
 private:
     std::unique_ptr<UtilityButton> button;
@@ -309,16 +309,16 @@ public:
     virtual ~MaskChannelsParameterEditor() { }
 
     /** Displays the PopupChannelSelector*/
-    void buttonClicked(Button* label);
+    void buttonClicked(Button* label) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
     /** Responds to changes in the PopupChannelSelector*/
-    void channelStateChanged(Array<int> selectedChannels);
+    void channelStateChanged(Array<int> selectedChannels) override;
 
     /** Sets sub-component locations */
-    virtual void resized();
+    virtual void resized() override;
 
 private:
     std::unique_ptr<UtilityButton> button;

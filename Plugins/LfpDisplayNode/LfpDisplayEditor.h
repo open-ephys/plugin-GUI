@@ -94,7 +94,7 @@ private:
         
     LfpDisplayNode* lfpProcessor;
 
-    ScopedPointer<UtilityButton> syncButton;
+    std::unique_ptr<UtilityButton> syncButton;
     
     bool hasNoInputs;
 

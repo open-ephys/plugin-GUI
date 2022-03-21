@@ -131,7 +131,7 @@ void PluginInstaller::createXmlFile()
 
 		baseTag->addChildElement(plugins.release());
 
-		if (! baseTag->writeToFile(file, String()))
+		if (! baseTag->writeTo(file))
 			LOGE("Error! Couldn't write to installedPlugins.xml");
 	}
 	else
@@ -139,7 +139,7 @@ void PluginInstaller::createXmlFile()
 		auto child = xml->getFirstChildElement();
 		Array<XmlElement*> elementsToRemove;
 
-		forEachXmlChildElement(*child, e)
+		for (auto* e : child->getChildIterator())
 		{
 			File pluginPath = getPluginsDirectory().getChildFile(e->getAttributeValue(1));
 			if (!pluginPath.exists())
@@ -455,7 +455,7 @@ void PluginInstallerComponent::run()
 
 		}
 
-		forEachXmlChildElement(*child, e)
+		for (auto* e : child->getChildIterator())
 		{
 			String pName = e->getTagName();
 			installedPlugins.add(pName);
@@ -1352,7 +1352,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 			/** Check for whether the plugin is installed and if it has the same version
 			 * 	as the one being downloaded
 			 **/
-			forEachXmlChildElement(*child, e)
+			for (auto* e : child->getChildIterator())
 			{
 				if (e->hasTagName(pluginEntry->getTagName()))
 				{

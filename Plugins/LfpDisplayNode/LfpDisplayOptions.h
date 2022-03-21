@@ -169,39 +169,39 @@ private:
     Colour labelColour;
 
     // Main options
-    ScopedPointer<ComboBox> timebaseSelection;
-    ScopedPointer<ComboBox> spreadSelection;
-    ScopedPointer<ComboBox> rangeSelection;
+    std::unique_ptr<ComboBox> timebaseSelection;
+    std::unique_ptr<ComboBox> spreadSelection;
+    std::unique_ptr<ComboBox> rangeSelection;
     OwnedArray<UtilityButton> typeButtons;
     
-    ScopedPointer<ComboBox> overlapSelection; // what do we do with this?
+    std::unique_ptr<ComboBox> overlapSelection; // what do we do with this?
     
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
-    ScopedPointer<UtilityButton> pauseButton;
-    ScopedPointer<ComboBox> colourSchemeOptionSelection;
-    ScopedPointer<ComboBox> colorGroupingSelection;
+    std::unique_ptr<UtilityButton> pauseButton;
+    std::unique_ptr<ComboBox> colourSchemeOptionSelection;
+    std::unique_ptr<ComboBox> colorGroupingSelection;
     
-    ScopedPointer<ShowHideOptionsButton> showHideOptionsButton;
+    std::unique_ptr<ShowHideOptionsButton> showHideOptionsButton;
 
     // THRESHOLDS SECTION
-    ScopedPointer<ComboBox> spikeRasterSelection;
-    ScopedPointer<ComboBox> saturationWarningSelection; // optionally raise hell if the actual data is saturating
-    ScopedPointer<ComboBox> clipWarningSelection; // optinally draw (subtle) warning if data is clipped in display
+    std::unique_ptr<ComboBox> spikeRasterSelection;
+    std::unique_ptr<ComboBox> saturationWarningSelection; // optionally raise hell if the actual data is saturating
+    std::unique_ptr<ComboBox> clipWarningSelection; // optinally draw (subtle) warning if data is clipped in display
     
     // CHANNELS SECTION
-    ScopedPointer<UtilityButton> reverseChannelsDisplayButton;
-    ScopedPointer<UtilityButton> sortByDepthButton;
-    ScopedPointer<ComboBox> channelDisplaySkipSelection;
-    ScopedPointer<UtilityButton> showChannelNumberButton;
+    std::unique_ptr<UtilityButton> reverseChannelsDisplayButton;
+    std::unique_ptr<UtilityButton> sortByDepthButton;
+    std::unique_ptr<ComboBox> channelDisplaySkipSelection;
+    std::unique_ptr<UtilityButton> showChannelNumberButton;
 
     // SIGNAL PROCESSING SECTION
-    ScopedPointer<UtilityButton> medianOffsetPlottingButton;
-    ScopedPointer<UtilityButton> invertInputButton;
+    std::unique_ptr<UtilityButton> medianOffsetPlottingButton;
+    std::unique_ptr<UtilityButton> invertInputButton;
 
     // TRIGGERED DISPLAY SECTION
-    ScopedPointer<ComboBox> triggerSourceSelection;
-    ScopedPointer<UtilityButton> averageSignalButton;
-    ScopedPointer<UtilityButton> resetButton;
+    std::unique_ptr<ComboBox> triggerSourceSelection;
+    std::unique_ptr<UtilityButton> averageSignalButton;
+    std::unique_ptr<UtilityButton> resetButton;
      
     StringArray voltageRanges[CHANNEL_TYPES];
     StringArray timebases;

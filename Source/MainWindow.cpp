@@ -317,7 +317,7 @@ void MainWindow::loadWindowBounds()
 		shouldReloadOnStartup = xml->getBoolAttribute("shouldReloadOnStartup", false);
 		shouldEnableHttpServer = xml->getBoolAttribute("shouldEnableHttpServer", false);
 
-		forEachXmlChildElement(*xml, e)
+		for (auto* e : xml->getChildIterator())
 		{
 
 			if (e->hasTagName("BOUNDS"))
@@ -344,7 +344,7 @@ void MainWindow::loadWindowBounds()
 
 				StringArray filenames;
 
-				forEachXmlChildElement(*e, directory)
+				for (auto* directory : e->getChildIterator())
 				{
 
 					if (directory->hasTagName("DIRECTORY"))

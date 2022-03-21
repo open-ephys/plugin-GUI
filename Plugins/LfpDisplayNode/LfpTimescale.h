@@ -49,10 +49,10 @@ public:
     ~LfpTimescale() { }
 
     /** Renders timescale*/
-    void paint(Graphics& g);
+    void paint(Graphics& g) override;
     
     /** Updates time markers to fit display width*/
-    void resized();
+    void resized() override;
     
     /** Handles the drag to zoom feature on the timescale. The display must
         be paused to zoom */
