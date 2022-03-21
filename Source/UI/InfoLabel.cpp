@@ -203,11 +203,11 @@ void InfoLabel::setAboutText()
 
     String infoString = 
         "The Open Ephys GUI is free, collaboratively "
-        "developed, open - source software for scientific research. It includes " 
+        "developed, open-source software for scientific research. It includes " 
         "many features designed to make extracellular electrophysiology data "
         "easier to acquire; however, it is not guaranteed to work as "
         "advertised. Before you use it for your own experiments, you should "
-        "test any capabilities you plan to use.The use of a plugin - based "
+        "test any capabilities you plan to use. The use of a plugin-based "
         "architecture provides the flexibility to customize your signal "
         "chain, but it also makes it difficult to test every possible "
         "combination of processors in advance. Whenever you download or "

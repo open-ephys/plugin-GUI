@@ -166,7 +166,7 @@ void PluginInstaller::installPluginAndDependency(const String& plugin, String ve
 {
 	PluginInfoComponent tempInfoComponent;
 
-	/** Get list of plugins uploaded to bintray */
+	/** Get list of plugins uploaded to Artifactory */
 	String baseUrl = "https://open-ephys-plugin-gateway.herokuapp.com/";
 	String response = URL(baseUrl).readEntireTextStream();
 
