@@ -252,7 +252,6 @@ void BinaryFileSource::seekTo(int64 sample)
 
 int BinaryFileSource::readData(int16* buffer, int nSamples)
 {
-	int nChans = getActiveNumChannels();
 	int64 samplesToRead;
 
 	if (m_samplePos + nSamples > getActiveNumSamples())
@@ -264,10 +263,10 @@ int BinaryFileSource::readData(int16* buffer, int nSamples)
 		samplesToRead = nSamples;
 	}
 
-	int16* data = static_cast<int16*>(m_dataFile->getData()) + (m_samplePos * nChans);
+	int16* data = static_cast<int16*>(m_dataFile->getData()) + (m_samplePos * numActiveChannels);
 
 	//FIXME: Can crash here (heap overflow?), secondary either to wrong index or scrubbing too fast? Not sure yet. 
-	memcpy(buffer, data, samplesToRead*nChans*sizeof(int16));
+	memcpy(buffer, data, samplesToRead * numActiveChannels * sizeof(int16));
     m_samplePos += samplesToRead;
 	return samplesToRead;
 }
@@ -277,6 +276,6 @@ void BinaryFileSource::processChannelData(int16* inBuffer, float* outBuffer, int
 
 	for (int i = 0; i < numSamples; i++)
 	{
-		*(outBuffer + i) = *(inBuffer + (numActiveChannels * i) + channel) * bitVolts[i];
+		*(outBuffer + i) = *(inBuffer + (numActiveChannels * i) + channel) * bitVolts[channel];
 	}
 }
