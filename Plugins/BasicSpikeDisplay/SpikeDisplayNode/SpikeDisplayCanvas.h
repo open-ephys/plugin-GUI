@@ -98,12 +98,6 @@ public:
     /** Called instead of "repaint" to avoid redrawing underlying components.*/
     void refresh();
 
-    /** Starts animation callbacks*/
-    void beginAnimation();
-
-    /** Ends animation callbacks*/
-    void endAnimation();
-
     /** Called when the component's tab becomes visible again*/
     void refreshState();
 

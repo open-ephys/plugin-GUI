@@ -482,27 +482,22 @@ void BinaryRecording::createChannelMetadata(const MetadataObject* channel, Dynam
 
 void BinaryRecording::closeFiles()
 {
-	resetChannels();
-}
-
-void BinaryRecording::resetChannels()
-{
-	m_DataFiles.clear();
-	m_channelIndexes.clear();
-	m_fileIndexes.clear();
-	m_dataTimestampFiles.clear();
+    m_DataFiles.clear();
+    m_channelIndexes.clear();
+    m_fileIndexes.clear();
+    m_dataTimestampFiles.clear();
     m_dataFloatTimestampFiles.clear();
-	m_eventFiles.clear();
-	m_spikeChannelIndexes.clear();
-	m_spikeFileIndexes.clear();
-	m_spikeFiles.clear();
-	//m_syncTextFile = nullptr;
+    m_eventFiles.clear();
+    m_spikeChannelIndexes.clear();
+    m_spikeFileIndexes.clear();
+    m_spikeFiles.clear();
+    //m_syncTextFile = nullptr;
 
-	m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
-	m_intBuffer.malloc(MAX_BUFFER_SIZE);
-	m_tsBuffer.malloc(MAX_BUFFER_SIZE);
-	m_bufferSize = MAX_BUFFER_SIZE;
-	m_startTS.clear();
+    m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
+    m_intBuffer.malloc(MAX_BUFFER_SIZE);
+    m_tsBuffer.malloc(MAX_BUFFER_SIZE);
+    m_bufferSize = MAX_BUFFER_SIZE;
+    m_startTS.clear();
 }
 
 void BinaryRecording::writeEventMetadata(const MetadataEvent* event, NpyFile* file)
@@ -525,7 +520,7 @@ void BinaryRecording::increaseEventCounts(EventRecording* rec)
     if (rec->extraFile) rec->extraFile->increaseRecordCount();
 }
 
-void BinaryRecording::writeSynchronizedData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size)
+void BinaryRecording::writeContinuousData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size)
 {
 
     if (!size)  
@@ -576,53 +571,6 @@ void BinaryRecording::writeSynchronizedData(int writeChannel, int realChannel, c
 	}
 }
 
-void BinaryRecording::writeData(int writeChannel, int realChannel, const float* buffer, int size)
-{
-
-    if (!size)
-        return;
-
-    /* If our internal buffer is too small to hold the data... */
-	if (size > m_bufferSize) //shouldn't happen, but if does, this prevents crash...
-	{
-		std::cerr << "[RN] Write buffer overrun, resizing from: " << m_bufferSize << " to: " << size << std::endl;
-		m_scaledBuffer.malloc(size);
-		m_intBuffer.malloc(size);
-		m_tsBuffer.malloc(size);
-		m_bufferSize = size;
-	}
-
-    /* Convert signal from float to int w/ bitVolts scaling */
-	double multFactor = 1 / (float(0x7fff) * getContinuousChannel(realChannel)->getBitVolts());
-	FloatVectorOperations::copyWithMultiply(m_scaledBuffer.getData(), buffer, multFactor, size);
-	AudioDataConverters::convertFloatToInt16LE(m_scaledBuffer.getData(), m_intBuffer.getData(), size);
-
-    /* Get the file index that belongs to the current recording channel */
-	int fileIndex = m_fileIndexes[writeChannel];
-
-    /* Write the data to that file */
-	m_DataFiles[fileIndex]->writeChannel(
-		getTimestamp(writeChannel) - m_startTS[writeChannel],
-		m_channelIndexes[writeChannel],
-		m_intBuffer.getData(), size);
-
-    /* If is first channel in subprocessor */
-	if (m_channelIndexes[writeChannel] == 0)
-    {
-
-		int64 baseTS = getTimestamp(writeChannel);
-		for (int i = 0; i < size; i++)
-            /* Generate int timestamp */ 
-            m_tsBuffer[i] = baseTS + i;
-
-        /* Write int timestamps to disc */
-		m_dataTimestampFiles[fileIndex]->writeData(m_tsBuffer, size*sizeof(int64));
-		m_dataTimestampFiles[fileIndex]->increaseRecordCount(size);
-        
-	}
-
-}
-
 void BinaryRecording::writeEvent(int eventIndex, const EventPacket& event)
 {
 
@@ -667,7 +615,9 @@ void BinaryRecording::writeEvent(int eventIndex, const EventPacket& event)
 		rec->data->writeData(ev->getRawDataPointer(), info->getDataSize());
 	}
 
+    // NOT IMPLEMENTED 
 	//writeEventMetadata(ev.get(), rec->metaDataFile.get());
+
 	increaseEventCounts(rec);
 	
 }
@@ -676,14 +626,12 @@ void BinaryRecording::writeSpike(int electrodeIndex, const Spike* spike)
 {
 
 	const SpikeChannel* channel = getSpikeChannel(electrodeIndex);
-    LOGDD("Got spike channel");
+
 	EventRecording* rec = m_spikeFiles[m_spikeFileIndexes[electrodeIndex]];
-    LOGDD("Got event recording");
+
 	uint16 spikeChannel = m_spikeChannelIndexes[electrodeIndex];
-    LOGDD("Got real spike channel");
 
 	int totalSamples = channel->getTotalSamples() * channel->getNumChannels();
-    LOGDD("Got total number of samples: ", totalSamples);
 
 	if (totalSamples > m_bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on file close and reset.
 	{
@@ -709,6 +657,7 @@ void BinaryRecording::writeSpike(int electrodeIndex, const Spike* spike)
 	uint16 sortedId = spike->getSortedId();
 	rec->extraFile->writeData(&sortedId, sizeof(uint16));
 
+    // NOT IMPLEMENTED
 	//writeEventMetadata(spike, rec->metaDataFile.get());
 
 	increaseEventCounts(rec);
@@ -720,7 +669,7 @@ void BinaryRecording::writeTimestampSyncText(uint64 streamId, int64 timestamp, f
     bool inHere = true;
 	if (!m_syncTextFile)
 		return;
-	m_syncTextFile->writeText(text + ": " + String(timestamp) + "\n", false, false, nullptr);
+	m_syncTextFile->writeText(text + ": " + String(timestamp) + "\r\n", false, false, nullptr);
     m_syncTextFile->flush();
 }
 

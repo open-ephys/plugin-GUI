@@ -292,7 +292,7 @@ void ChannelMappingNode::loadCustomParametersFromXml(XmlElement* xml)
     int streamIndex = 0;
     Array<const DataStream*> availableStreams = getDataStreams();
 
-    forEachXmlChildElement(*xml, streamParams)
+    for (auto* streamParams : xml->getChildIterator())
     {
         if (streamParams->hasTagName("STREAM"))
         {

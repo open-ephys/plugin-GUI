@@ -269,6 +269,9 @@ public:
     /** Updates the mean latency for a particular data stream (called by LatencyMeter class)*/
     void setMeanLatencyMs(uint16 streamId, float latencyMs);
 
+    /** Returns the total width of the editor in it's current state. */
+    virtual int getTotalWidth();
+
 protected:
     /** A pointer to the button that opens the drawer for the ChannelSelector. */
     std::unique_ptr<DrawerButton> drawerButton;

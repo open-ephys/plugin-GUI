@@ -21,7 +21,7 @@
 
 */
 #ifndef __OELOGOCOLOURSCHEME_H__
-#define __OELOGCOLOURSCHEME_H__
+#define __OELOGOCOLOURSCHEME_H__
 
 #include <VisualizerWindowHeaders.h>
 

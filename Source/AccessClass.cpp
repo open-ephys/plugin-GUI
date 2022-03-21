@@ -42,7 +42,7 @@ MessageCenterEditor* mc = nullptr;
 AudioComponent* ac = nullptr;
 GraphViewer* gv = nullptr;
 PluginManager* pm = nullptr;
-ScopedPointer<ActionBroadcaster> bc;
+std::unique_ptr<ActionBroadcaster> bc;
 }
 
 void setUIComponent(UIComponent* ui_)
@@ -59,7 +59,7 @@ void setUIComponent(UIComponent* ui_)
     ac = ui->getAudioComponent();
     gv = ui->getGraphViewer();
 	pm = ui->getPluginManager();
-    bc = new ActionBroadcaster();
+    bc = std::make_unique<ActionBroadcaster>();
     bc->addActionListener(mc);
 }
 

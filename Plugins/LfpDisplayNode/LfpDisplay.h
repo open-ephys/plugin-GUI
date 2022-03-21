@@ -269,11 +269,9 @@ private:
     
     LfpBitmapPlotter * plotter;
     
-    ScopedPointer<PerPixelBitmapPlotter> perPixelPlotter;
-    ScopedPointer<SupersampledBitmapPlotter> supersampledPlotter;
+    std::unique_ptr<PerPixelBitmapPlotter> perPixelPlotter;
+    std::unique_ptr<SupersampledBitmapPlotter> supersampledPlotter;
 
-    // TODO: (kelly) add reference to a color scheme
-//    LfpChannelColourScheme * colourScheme;
     uint8 activeColourScheme;
     OwnedArray<ChannelColourScheme> colourSchemeList;
 };

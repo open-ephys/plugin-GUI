@@ -153,8 +153,8 @@ BaseType EventChannel::getEquivalentMetadataType(const EventChannel& ev)
 {
 	switch (ev.getBinaryDataType())
 	{
-	case EventChannel::TEXT:
-		return MetadataDescriptor::CHAR;
+	//case EventChannel::TEXT:
+	//	return MetadataDescriptor::CHAR;
 	case EventChannel::INT8_ARRAY:
 		return MetadataDescriptor::INT8;
 	case EventChannel::UINT8_ARRAY:

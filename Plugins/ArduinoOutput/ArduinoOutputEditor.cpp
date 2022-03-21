@@ -34,7 +34,7 @@ ArduinoOutputEditor::ArduinoOutputEditor(GenericProcessor* parentNode)
 
     vector <ofSerialDeviceInfo> devices = serial.getDeviceList();
 
-    deviceSelector = new ComboBox();
+    deviceSelector = std::make_unique<ComboBox>();
     deviceSelector->setBounds(10, 40, 100, 20);
     deviceSelector->addListener(this);
     deviceSelector->addItem("Device",1);
@@ -45,7 +45,7 @@ ArduinoOutputEditor::ArduinoOutputEditor(GenericProcessor* parentNode)
     }
 
     deviceSelector->setSelectedId(1, dontSendNotification);
-    addAndMakeVisible(deviceSelector);
+    addAndMakeVisible(deviceSelector.get());
 
     addComboBoxParameterEditor("output_pin", 10, 70);
     addComboBoxParameterEditor("input_bit", 140, 35);
@@ -55,7 +55,7 @@ ArduinoOutputEditor::ArduinoOutputEditor(GenericProcessor* parentNode)
 
 void ArduinoOutputEditor::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 {
-    if (comboBoxThatHasChanged == deviceSelector)
+    if (comboBoxThatHasChanged == deviceSelector.get())
     {
         ArduinoOutput* processor = (ArduinoOutput*) getProcessor();
         processor->setDevice(deviceSelector->getText());

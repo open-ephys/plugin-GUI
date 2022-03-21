@@ -101,7 +101,11 @@ public:
         const String& description_,
         var defaultValue_,
         bool deactivateDuringAcquisition_ = false)
-      : processor(processor_),
+        : processor(processor_),
+        dataStream(nullptr),
+        spikeChannel(nullptr),
+        eventChannel(nullptr),
+        continuousChannel(nullptr),
         m_parameterType(type_),
         m_parameterScope(scope_),
         m_name(name_),
@@ -239,7 +243,7 @@ public:
         bool deactivateDuringAcquisition = false);
 
     /** Stages a value, to be changed by the processor*/
-    virtual void setNextValue(var newValue);
+    virtual void setNextValue(var newValue) override;
 
     /** Gets the value as a boolean*/
     bool getBoolValue();
@@ -274,7 +278,7 @@ public:
         bool deactivateDuringAcquisition = false);
 
     /** Stages a value, to be changed by the processor*/
-    virtual void setNextValue(var newValue);
+    virtual void setNextValue(var newValue) override;
 
     /** Gets the index as an integer*/
     int getSelectedIndex();

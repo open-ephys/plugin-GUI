@@ -42,7 +42,7 @@
 GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(owner),
     desiredWidth(150),
     acquisitionIsActive(false),
-    drawerWidth(170),
+    drawerWidth(25),
     drawerOpen(false), 
     isSelected(false), 
     isEnabled(true), 
@@ -204,19 +204,41 @@ void GenericEditor::refreshColors()
 
 }
 
+int GenericEditor::getTotalWidth()
+{
+    if (isCollapsed)
+        return 25;
+
+    if (drawerButton->getToggleState())
+        return desiredWidth + streamSelector->getDesiredWidth() + 14;
+
+    return desiredWidth + 14;
+
+}
+
 
 void GenericEditor::resized()
 {
     if (! isCollapsed)
     {
-        if (drawerButton != 0)
-            drawerButton->setBounds (getWidth() - 14, 40, 10, getHeight() - 60);
 
-        if (streamSelector != 0 && drawerOpen)
+        if (streamSelector != 0)
         {
-            streamSelector->setBounds(desiredWidth - drawerWidth, 25, streamSelector->getDesiredWidth(), getHeight() - 35);
-
+            if (drawerOpen)
+            {
+                streamSelector->setBounds(desiredWidth, 25, 
+                                          streamSelector->getDesiredWidth(), 
+                                          getHeight() - 35);
+                streamSelector->setVisible(true);
+            }
+            else {
+                streamSelector->setVisible(false);
+            }
+            
         }
+
+        if (drawerButton != 0)
+            drawerButton->setBounds(getTotalWidth() - 14, 40, 10, getHeight() - 60);
             
     }
 }
@@ -338,11 +360,9 @@ void GenericEditor::paint(Graphics& g)
     else
         g.setColour (Colours::lightgrey);
 
-    // draw colored background
     if (! isCollapsed)
     {
         g.fillRect (1, 1, getWidth() - (2 + offset), getHeight() - 2);
-        // draw gray workspace
         g.setGradientFill (backgroundGradient);
         g.fillRect (1, 22, getWidth() - 2, getHeight() - 29);
     }
@@ -366,11 +386,7 @@ void GenericEditor::paint(Graphics& g)
     // draw title
     if (!isCollapsed)
     {
-        // if (!getProcessor()->isMerger() && !getProcessor()->isSplitter())
-        //      g.drawText(name+" ("+String(nodeId)+")", 6, 5, 500, 15, Justification::left, false);
-        // else
         g.drawText (displayName.toUpperCase(), 10, 5, 500, 15, Justification::left, false);
-
     }
     else
     {
@@ -381,8 +397,6 @@ void GenericEditor::paint(Graphics& g)
 
     if (isSelected)
     {
-        //g.setColour(Colours::yellow);
-        //g.drawRect(0,0,getWidth(),getHeight(),1.0);
         g.setColour(Colours::yellow.withAlpha(0.5f));
 
     }
@@ -404,26 +418,9 @@ void GenericEditor::ButtonResponder::buttonClicked(Button* button)
 
 bool GenericEditor::checkDrawerButton(Button* button)
 {
-    if (button == drawerButton.get())
+    if (button == drawerButton.get())   
     {
-        if (drawerButton->getToggleState())
-        {
-
-            if (streamSelector != nullptr)
-            {
-                drawerWidth = streamSelector->getDesiredWidth() + 20;
-            }
-
-            desiredWidth += drawerWidth;
-            drawerOpen = true;
-
-
-        }
-        else
-        {
-            desiredWidth -= drawerWidth;
-            drawerOpen = false;
-        }
+        drawerOpen = drawerButton->getToggleState();
 
         AccessClass::getEditorViewport()->refreshEditors();
 
@@ -531,18 +528,6 @@ void GenericEditor::setCollapsedState(bool state)
 
         if (!state && isCollapsed)
         {
-            // open it up
-
-            if (!drawerOpen)
-            {
-                desiredWidth = originalWidth;
-            }
-            else
-            {
-                desiredWidth = originalWidth + drawerWidth;
-                drawerButton->setToggleState(true, false);
-            }
-
             isCollapsed = false;
             
             for (int i = 0; i < getNumChildComponents(); i++)
@@ -554,8 +539,6 @@ void GenericEditor::setCollapsedState(bool state)
         }
         else if (state && !isCollapsed)
         {
-            originalWidth = desiredWidth;
-            desiredWidth = 25;
             isCollapsed = true;
             
             for (int i = 0; i < getNumChildComponents(); i++)
@@ -564,8 +547,6 @@ void GenericEditor::setCollapsedState(bool state)
                 c->setVisible(false);
             }
         }
-
-        
 
         collapsedStateChanged();
 
@@ -590,25 +571,10 @@ void GenericEditor::saveToXml(XmlElement* xml)
 void GenericEditor::loadFromXml(XmlElement* xml)
 {
 
-    bool isCollapsed = xml->getBoolAttribute("isCollapsed", false);
+    setCollapsedState(xml->getBoolAttribute("isCollapsed", false));
 
-    if (isCollapsed)
-        setCollapsedState(true);
-
-    if (!drawerOpen)
-    {
-        drawerOpen = xml->getBoolAttribute("isDrawerOpen", false);
-
-        if (drawerOpen && !isCollapsed)
-        {
-            if (streamSelector != nullptr)
-                drawerWidth = streamSelector->getDesiredWidth() + 20;
-
-            desiredWidth += drawerWidth;
-            drawerButton->setToggleState(true, false);
-        }
-            
-    }
+    drawerOpen = xml->getBoolAttribute("isDrawerOpen", false);
+    drawerButton->setToggleState(drawerOpen, dontSendNotification);
 
     displayName = xml->getStringAttribute("displayName", name);
     getProcessor()->updateDisplayName(displayName);
@@ -914,10 +880,6 @@ TriangleButton::~TriangleButton()
 void TriangleButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
 
-    //  g.fillAll(Colours::orange);
-    // g.setColour(Colours::black);
-    // g.drawRect(0,0,getWidth(),getHeight(),1.0);
-
     if (isMouseOver)
     {
         g.setColour(Colours::grey);
@@ -1218,24 +1180,6 @@ void ColorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
         int fac = 3;
         g.fillAll(Colour::fromRGB(backgroundColor.getRed() / fac, backgroundColor.getGreen() / fac, backgroundColor.getBlue() / fac));
     }
-
-
-    /*
-    if (getToggleState())
-    {
-    if (isMouseOver)
-    g.setGradientFill(selectedOverGrad);
-    else
-    g.setGradientFill(selectedGrad);
-    }
-    else
-    {
-    if (isMouseOver)
-    g.setGradientFill(neutralOverGrad);
-    else
-    g.setGradientFill(neutralGrad);
-    }
-    */
 
     if (isMouseOver)
     {

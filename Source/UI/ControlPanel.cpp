@@ -1066,7 +1066,7 @@ void ControlPanel::saveStateToXml(XmlElement* xml)
 void ControlPanel::loadStateFromXml(XmlElement* xml)
 {
 
-    forEachXmlChildElement(*xml, xmlNode)
+    for (auto* xmlNode : xml->getChildIterator())
     {
         if (xmlNode->hasTagName("CONTROLPANEL"))
         {
@@ -1095,7 +1095,7 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
         {
             for (int i = 0; i < recordEngines.size(); i++)
             {
-                forEachXmlChildElementWithTagName(*xmlNode, xmlEngine, "ENGINE")
+                for (auto* xmlEngine : xmlNode->getChildWithTagNameIterator("ENGINE"))
                 {
                     if (xmlEngine->getStringAttribute("id") == recordEngines[i]->getID())
                         recordEngines[i]->loadParametersFromXml(xmlEngine);

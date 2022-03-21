@@ -19,7 +19,8 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-	*/
+*/
+
 #include "GenericProcessor.h"
 
 #include "../../AccessClass.h"
@@ -1557,7 +1558,7 @@ void GenericProcessor::loadFromXml()
 		int streamIndex = 0;
 		Array<const DataStream*> availableStreams = getDataStreams();
 
-		forEachXmlChildElement(*parametersAsXml, xmlNode)
+		for (auto* xmlNode : parametersAsXml->getChildIterator())
 		{
             if (xmlNode->hasTagName("GLOBAL_PARAMETERS"))
             {
@@ -1569,7 +1570,7 @@ void GenericProcessor::loadFromXml()
 			{
 				if (availableStreams.size() > streamIndex)
 				{
-                    forEachXmlChildElement(*xmlNode, streamParams)
+                    for (auto* streamParams : xmlNode->getChildIterator())
                     {
                         if (streamParams->hasTagName("PARAMETERS"))
                         {
@@ -1607,22 +1608,16 @@ void GenericProcessor::loadFromXml()
 
         LOGG("    Loaded stream parameters in ", MS_FROM_START, " milliseconds");
 
-        forEachXmlChildElement(*parametersAsXml, xmlNode)
+        for (auto* xmlNode : parametersAsXml->getChildWithTagNameIterator("CUSTOM_PARAMETERS"))
         {
-            if (xmlNode->hasTagName("CUSTOM_PARAMETERS"))
-            {
-                loadCustomParametersFromXml(xmlNode);
-            }
+            loadCustomParametersFromXml(xmlNode);
         }
 
         LOGG("    Loaded custom parameters in ", MS_FROM_START, " milliseconds");
 
-        forEachXmlChildElement(*parametersAsXml, xmlNode)
+        for (auto* xmlNode : parametersAsXml->getChildWithTagNameIterator("EDITOR"))
         {
-            if (xmlNode->hasTagName("EDITOR"))
-            {
-                getEditor()->loadFromXml(xmlNode);
-            }
+            getEditor()->loadFromXml(xmlNode);
         }
 
         LOGG("    Loaded editor parameters in ", MS_FROM_START, " milliseconds");

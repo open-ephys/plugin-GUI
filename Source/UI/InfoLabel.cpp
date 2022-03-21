@@ -203,11 +203,11 @@ void InfoLabel::setAboutText()
 
     String infoString = 
         "The Open Ephys GUI is free, collaboratively "
-        "developed, open - source software for scientific research. It includes " 
+        "developed, open-source software for scientific research. It includes " 
         "many features designed to make extracellular electrophysiology data "
         "easier to acquire; however, it is not guaranteed to work as "
         "advertised. Before you use it for your own experiments, you should "
-        "test any capabilities you plan to use.The use of a plugin - based "
+        "test any capabilities you plan to use. The use of a plugin-based "
         "architecture provides the flexibility to customize your signal "
         "chain, but it also makes it difficult to test every possible "
         "combination of processors in advance. Whenever you download or "
@@ -456,7 +456,7 @@ void InfoLabel::setLicenseText()
     textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
     textEditor->insertTextAtCaret(
             "\"This License\" refers to version 3 of the GNU General "
-            "Public License.\n\n");
+            "Public License.\n\n"
 
             "\"Copyright\" also means copyright - like laws that apply to "
             "other kinds of works, such as semiconductor masks.\n\n"
@@ -495,7 +495,7 @@ void InfoLabel::setLicenseText()
             "that licensees may convey the work under this License, and how to "
             "view a copy of this License. If the interface presents a list of "
             "user commands or options, such as a menu, a prominent item in the "
-            "list meets this criterion.\n\n";
+            "list meets this criterion.\n\n");
 
         textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
         textEditor->insertTextAtCaret("1. Source Code.\n\n");

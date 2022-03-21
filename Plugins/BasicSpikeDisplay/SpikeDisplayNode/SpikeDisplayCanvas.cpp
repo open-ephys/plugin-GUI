@@ -110,15 +110,6 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
     update();
 }
 
-void SpikeDisplayCanvas::beginAnimation()
-{
-    startCallbacks();
-}
-
-void SpikeDisplayCanvas::endAnimation()
-{
-    stopCallbacks();
-}
 
 void SpikeDisplayCanvas::update()
 {
@@ -227,7 +218,7 @@ void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
 
 void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 {
-    forEachXmlChildElement(*xml, xmlNode)
+    for (auto* xmlNode : xml->getChildIterator())
     {
         if (xmlNode->hasTagName("SPIKEDISPLAY"))
         {
@@ -237,7 +228,7 @@ void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 
             int plotIndex = -1;
 
-            forEachXmlChildElement(*xmlNode, plotNode)
+            for (auto* plotNode : xmlNode->getChildIterator())
             {
                 if (plotNode->hasTagName("PLOT"))
                 {
@@ -248,7 +239,7 @@ void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 
                     int channelIndex = -1;
 
-                    forEachXmlChildElement(*plotNode, channelNode)
+                    for (auto* channelNode : plotNode->getChildIterator())
                     {
 
                         if (channelNode->hasTagName("AXIS"))

@@ -333,7 +333,7 @@ DataStreamButton::DataStreamButton(Colour colour_, const DataStream* stream_, Da
     , info(info_)
 {
     setClickingTogglesState(true);
-    setToggleState(false, false);
+    setToggleState(false, dontSendNotification);
 
     pathOpen.addTriangle(7.0f, 5.0f, 10.5f, 12.0f, 14.0f, 5.0f);
     pathOpen.applyTransform(AffineTransform::scale(1.2f));

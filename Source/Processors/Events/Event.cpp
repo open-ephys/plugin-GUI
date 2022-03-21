@@ -300,7 +300,7 @@ EventPtr Event::deserialize(const EventPacket& packet, const EventChannel* event
 		return TTLEvent::deserialize(packet, eventChannel).release();
 	else if (type == EventChannel::TEXT)
 		return TextEvent::deserialize(packet, eventChannel).release();
-	else if (type >= EventChannel::INT8_ARRAY && type <= EventChannel::DOUBLE_ARRAY)
+	else if (type >= int(EventChannel::INT8_ARRAY) && type <= int(EventChannel::DOUBLE_ARRAY))
 		return BinaryEvent::deserialize(packet, eventChannel).release();
 	else return nullptr;
 }
@@ -760,14 +760,15 @@ BinaryEventPtr BinaryEvent::deserialize(const EventPacket& packet, const EventCh
 		return nullptr;
 	}
 	const uint8* buffer = packet.getRawData();
-	//TODO: remove the mask when the probe system is implemented
+
 	if (static_cast<Event::Type>(*(buffer + 0)&0x7F) != PROCESSOR_EVENT)
 	{
 		jassertfalse;
 		return nullptr;
 	}
 
-	if (channelInfo->getType() < EventChannel::BINARY_BASE_VALUE || channelInfo->getType() >= EventChannel::INVALID)
+	if (   int(channelInfo->getType()) < int(EventChannel::BINARY_BASE_VALUE)
+        || channelInfo->getType() >= EventChannel::INVALID   )
 	{
 		jassertfalse;
 		return nullptr;

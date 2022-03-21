@@ -87,7 +87,7 @@ private:
     bool leftSliderIsSelected;
 };
 
-class ZoomTimeline : public Component, MouseListener
+class ZoomTimeline : public Component
 {
 public:
     ZoomTimeline(FileReader*);
@@ -140,6 +140,8 @@ public:
     void paintOverChildren (Graphics& g) override;
 
     void buttonClicked (Button* button) override;
+
+    void collapsedStateChanged();
 
     void saveCustomParametersToXml (XmlElement*) override;
     void loadCustomParametersFromXml (XmlElement*) override;
@@ -206,6 +208,7 @@ private:
     bool m_isFileDragAndDropActive;
     bool scrubInterfaceVisible;
     int scrubInterfaceWidth;
+    bool scrubInterfaceAvailable;
 
     File lastFilePath;
 

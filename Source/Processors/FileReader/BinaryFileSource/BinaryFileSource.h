@@ -27,31 +27,56 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../FileSource.h"
 #include "../../../Utils/Utils.h"
 
+/** 
+	
+	Reads data from a directory that conforms to the standards
+	of the Open Ephys "Binary Format."
+
+	The files are indexed by a "structure.oebin" file, which 
+	is what is loaded into the File Reader.
+
+*/
 namespace BinarySource
 {
 	class BinaryFileSource : public FileSource
 	{
 	public:
+
+		/** Constructor */
 		BinaryFileSource();
-		~BinaryFileSource();
 
-		int readData(int16* buffer, int nSamples) override;
+		/** Destructor */
+		~BinaryFileSource() { }
 
+		/** Attempt to open file and return true if successful */
+		bool open(File file) override;
+
+		/** Sets the index of the active recording*/
+		void updateActiveRecord(int index) override;
+
+		/** Fills in metadata about the available channels */
+		void fillRecordInfo() override;
+
+		/** Seek to a specific sample number within the active recording*/
 		void seekTo(int64 sample) override;
 
-		void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples) override;
-		void processEventData(EventInfo &info, int64 startTimestamp, int64 stopTimestamp) override;
+		/** Read in nSamples of continuous data into a buffer */
+		int readData(int16* buffer, int nSamples) override;
 
-		bool isReady() override;
+		/** Convert nSamples of data from int16 to float */
+		void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples) override;
+
+		/** Add info about events occurring within a sample range */
+		void processEventData(EventInfo &info, int64 startTimestamp, int64 stopTimestamp) override;
 
 		int64 loopCount;
 
 	private:
-		bool Open(File file) override;
-		void fillRecordInfo() override;
-		void updateActiveRecord() override;
+		
+		int numActiveChannels;
+		Array<float> bitVolts;
 
-		ScopedPointer<MemoryMappedFile> m_dataFile;
+		std::unique_ptr<MemoryMappedFile> m_dataFile;
 		var m_jsonData;
 		Array<File> m_dataFileArray;
 

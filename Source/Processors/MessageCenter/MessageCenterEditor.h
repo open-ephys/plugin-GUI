@@ -69,7 +69,6 @@ public:
 
     void broadcastMessage(String msg);
 
-
     String getOutgoingMessage();
 
     MessageCenter* messageCenter;

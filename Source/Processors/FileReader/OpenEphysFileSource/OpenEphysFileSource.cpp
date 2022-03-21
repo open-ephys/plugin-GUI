@@ -33,7 +33,7 @@ OpenEphysFileSource::OpenEphysFileSource() : m_samplePos(0)
 OpenEphysFileSource::~OpenEphysFileSource()
 {}
 
-bool OpenEphysFileSource::Open(File file)
+bool OpenEphysFileSource::open(File file)
 {
 
     XmlDocument doc(file);
@@ -47,7 +47,7 @@ bool OpenEphysFileSource::Open(File file)
 
 	m_rootPath = file.getParentDirectory();
 
-    forEachXmlChildElement(*xml, element)
+    for (auto* element: xml->getChildIterator())
     {
         if (element->hasTagName("RECORDING"))
         {
@@ -58,12 +58,12 @@ bool OpenEphysFileSource::Open(File file)
             int sampleRate = element->getIntAttribute("samplerate");
 
 
-            forEachXmlChildElement(*element, processor)
+            for (auto* processor: element->getChildIterator())
             {
 				//Currently the ID of the Record Node and not used
                 //int id = processor->getIntAttribute("id"); 
 
-                forEachXmlChildElement(*processor, channel)
+                for (auto* channel: processor->getChildIterator())
                 {
 
                     ChannelInfo info;
@@ -87,6 +87,7 @@ bool OpenEphysFileSource::Open(File file)
 						procInfo.startPos = info.startPos;
 						recording.processors[processorID] = procInfo;
 					}
+
 					recording.processors[processorID].channels.push_back(info);
 
                 }
@@ -215,7 +216,7 @@ void OpenEphysFileSource::loadEventData()
 	
 }
 
-void OpenEphysFileSource::updateActiveRecord()
+void OpenEphysFileSource::updateActiveRecord(int index)
 {
 
 	dataFiles.clear();
@@ -234,7 +235,13 @@ void OpenEphysFileSource::updateActiveRecord()
 
 	blockIdx = 0;
 	samplesLeftInBlock = 0;
-	
+
+	numActiveChannels = getActiveNumChannels();
+
+	bitVolts.clear();
+
+	for (int i = 0; i < numActiveChannels; i++)
+		bitVolts.add(getChannelInfo(index, i).bitVolts);
 }
 
 void OpenEphysFileSource::seekTo(int64 sample)
@@ -245,7 +252,6 @@ void OpenEphysFileSource::seekTo(int64 sample)
 int OpenEphysFileSource::readData(int16* buffer, int nSamples)
 {
 
-	int nChans = getActiveNumChannels();
 	int64 samplesToRead;
 
 	if (m_samplePos + nSamples > getActiveNumSamples())
@@ -269,15 +275,13 @@ int OpenEphysFileSource::readData(int16* buffer, int nSamples)
 
 void OpenEphysFileSource::processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples)
 {
-	int n = getActiveNumChannels();
-	float bitVolts = getChannelInfo(channel).bitVolts;
 
 	for (int i = 0; i < numSamples; i++)
 	{
 		//TODO: Make sure this works on all platforms (tested on Linux only)
-		int16 hibyte = (*(inBuffer + (n*i) + channel) & 0x00ff) << 8;
-		int16 lobyte = (*(inBuffer + (n*i) + channel) & 0xff00) >> 8;
-		*(outBuffer + i) = ( lobyte | hibyte ) * bitVolts;
+		int16 hibyte = (*(inBuffer + (numActiveChannels * i) + channel) & 0x00ff) << 8;
+		int16 lobyte = (*(inBuffer + (numActiveChannels * i) + channel) & 0xff00) >> 8;
+		*(outBuffer + i) = ( lobyte | hibyte ) * bitVolts[channel];
 	}
 }
 
@@ -311,10 +315,6 @@ void OpenEphysFileSource::processEventData(EventInfo &eventInfo, int64 start, in
 
 };
 
-bool OpenEphysFileSource::isReady()
-{
-	return true;
-}
 
 void OpenEphysFileSource::readSamples(int16* buffer, int64 samplesToRead)
 {

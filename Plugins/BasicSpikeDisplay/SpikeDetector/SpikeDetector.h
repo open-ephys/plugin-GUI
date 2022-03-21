@@ -219,12 +219,16 @@ public:
     /** Loads spike channels from the settings file */
     void loadCustomParametersFromXml(XmlElement* xml)           override;
 
+    /** Ensures that selected channel names are unique across all channels in a stream */
+    String ensureUniqueName(String name, uint16 streamId);
+
 
     // CREATE AND DELETE ELECTRODES
     // =====================================================================
     /** Adds a spike channel of a given type */
-    SpikeChannel* addSpikeChannel (SpikeChannel::Type type, 
+    SpikeChannel* addSpikeChannel(SpikeChannel::Type type,
                           uint16 currentStream,
+                          int startChannel = -1,
                           String name = "");
 
     /** Removes a spike channel, based on a SpikeChannel pointer. */

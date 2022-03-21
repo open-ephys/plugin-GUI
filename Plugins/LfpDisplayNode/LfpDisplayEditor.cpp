@@ -85,14 +85,11 @@ void LayoutButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 
 
 LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode)
-    : VisualizerEditor(parentNode),
+    : VisualizerEditor(parentNode, "LFP", 195),
        hasNoInputs(true),
        signalChainIsLoading(true)
 {
     lfpProcessor = (LfpDisplayNode*) parentNode;
-    tabText = "LFP";
-
-    desiredWidth = 195;
 
 	defaultSubprocessor = 0;
 
@@ -130,9 +127,9 @@ LfpDisplayEditor::LfpDisplayEditor(GenericProcessor* parentNode)
     threeHoriDisplay->addListener(this);
     addAndMakeVisible(threeHoriDisplay.get());
 
-    syncButton = new UtilityButton("SYNC DISPLAYS", Font("Default", 13.0f, Font::plain)),
+    syncButton = std::make_unique<UtilityButton>("SYNC DISPLAYS", Font("Default", 13.0f, Font::plain));
     syncButton->addListener(this);
-    addAndMakeVisible(syncButton);
+    addAndMakeVisible(syncButton.get());
 }
 
 
@@ -159,7 +156,7 @@ void LfpDisplayEditor::buttonClicked(Button* button)
         selectedLayout = SplitLayouts::TWO_HORZ;
     else if (button == threeHoriDisplay.get())
         selectedLayout = SplitLayouts::THREE_HORZ;
-    else if (button == syncButton)
+    else if (button == syncButton.get())
     {
         if (canvas != nullptr)
         {
@@ -214,7 +211,7 @@ void LfpDisplayEditor::saveVisualizerEditorParameters(XmlElement* xml)
 void LfpDisplayEditor::loadVisualizerEditorParameters(XmlElement* xml)
 {
 
-	forEachXmlChildElement(*xml, xmlNode)
+	for (auto* xmlNode : xml->getChildIterator())
 	{
 		if (xmlNode->hasTagName("VALUES"))
 		{

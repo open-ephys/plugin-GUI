@@ -143,10 +143,10 @@ void SyncChannelSelector::buttonClicked(Button* button)
     {
         for (int i = 0; i < buttons.size(); i++)
         {
-            buttons[i]->setToggleState(false, false);
+            buttons[i]->setToggleState(false, dontSendNotification);
             repaint();
         }
-        button->setToggleState(true, false);
+        button->setToggleState(true, dontSendNotification);
 
     }
     

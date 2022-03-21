@@ -89,6 +89,10 @@ void FullTimeline::paint(Graphics& g) {
     //Draw 30-second interval
     g.setColour(Colour(0,0,0));
     g.setOpacity(0.8f);
+
+    if (intervalStartPosition < 0)
+        return;
+
     g.fillRoundedRectangle(intervalStartPosition, 0, 2, this->getHeight(), 2);
     g.fillRoundedRectangle(intervalStartPosition + intervalWidth, 0, 2, this->getHeight(), 2);
 	
@@ -415,11 +419,13 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     , recTotalTime              (0)
     , m_isFileDragAndDropActive (false)
     , scrubInterfaceVisible (false)
+    , scrubInterfaceAvailable(false)
     , scrubInterfaceWidth(420)
 {
 
     scrubDrawerButton = new ScrubDrawerButton(getNameAndId() + " Scrub Drawer Button");
 	scrubDrawerButton->setBounds(4, 40, 10, 78);
+    scrubDrawerButton->setToggleState(false, dontSendNotification);
 	scrubDrawerButton->addListener(this);
 	addChildComponent(scrubDrawerButton);
 
@@ -502,8 +508,6 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     channelColours.add(Colour(125, 99, 32));
 
     desiredWidth = 200;
-
-    //buttonEvent(scrubDrawerButton);
 
 }
 
@@ -619,7 +623,11 @@ void FileReaderEditor::setFile (String file, bool shouldUpdateSignalChain)
             showScrubInterface(false);
 
         if (fileReader->getCurrentNumTotalSamples() / fileReader->getCurrentSampleRate() > 30.0f)
+        {
             scrubDrawerButton->setVisible(true);
+            scrubInterfaceAvailable = true;
+        }
+            
     }
     else
     {
@@ -677,14 +685,7 @@ void FileReaderEditor::buttonClicked (Button* button)
 
             if (chooseFileReaderFile.browseForFileToOpen())
             {
-                // Use the selected file
                 setFile (chooseFileReaderFile.getResult().getFullPathName());
-
-                // lastFilePath = fileToRead.getParentDirectory();
-
-                // thread->setFile(fileToRead.getFullPathName());
-
-                // fileNameLabel->setText(fileToRead.getFileName(),false);
             }
         }
     }
@@ -712,6 +713,33 @@ void FileReaderEditor::updatePlaybackTimes()
     int64 stopTimestamp = startTimestamp + zoomTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
     fileReader->setPlaybackStop(stopTimestamp);
 
+}
+
+void FileReaderEditor::collapsedStateChanged()
+{
+    if (!getCollapsedState()) // uncollapsed
+    {
+
+        fullTimeline->setVisible(scrubInterfaceVisible);
+        zoomTimeline->setVisible(scrubInterfaceVisible);
+        playbackButton->setVisible(scrubInterfaceVisible);
+        zoomStartTimeLabel->setVisible(scrubInterfaceVisible);
+        zoomMiddleTimeLabel->setVisible(scrubInterfaceVisible);
+        zoomEndTimeLabel->setVisible(scrubInterfaceVisible);
+        fullStartTimeLabel->setVisible(scrubInterfaceVisible);
+        fullEndTimeLabel->setVisible(scrubInterfaceVisible);
+
+        scrubDrawerButton->setVisible(scrubInterfaceAvailable);
+    }
+   // else {
+
+       // if (scrubInterfaceVisible)
+       //     showScrubInterface(false);
+
+        //if (scrubInterfaceAvailable)
+       //     scrubDrawerButton->setVisible(false);
+    //}
+    
 }
 
 void FileReaderEditor::showScrubInterface(bool show)
@@ -925,7 +953,6 @@ void FileReaderEditor::clearEditor()
 
     CoreServices::updateSignalChain(this);
 
-    //setEnabledState (false);
 }
 
 
@@ -973,7 +1000,7 @@ void FileReaderEditor::saveCustomParametersToXml (XmlElement* xml)
 
 void FileReaderEditor::loadCustomParametersFromXml (XmlElement* xml)
 {
-    forEachXmlChildElement (*xml, element)
+    for (auto* element : xml->getChildIterator())
     {
         if (element->hasTagName ("FILENAME"))
         {

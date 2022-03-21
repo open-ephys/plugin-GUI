@@ -29,14 +29,14 @@ InteractivePlot::InteractivePlot() :
 	controlButtonsVisible(false),
 	gridIsVisible(false)
 {
-	xAxis = new XAxis();
-	addAndMakeVisible(xAxis);
+	xAxis = std::make_unique<XAxis>();
+	addAndMakeVisible(xAxis.get());
 
-	yAxis = new YAxis();
-	addAndMakeVisible(yAxis);
+	yAxis = std::make_unique<YAxis>();
+	addAndMakeVisible(yAxis.get());
 
-	drawComponent = new DrawComponent(this);
-	addAndMakeVisible(drawComponent);
+	drawComponent = std::make_unique<DrawComponent>(this);
+	addAndMakeVisible(drawComponent.get());
 
 	font = Font("Default", 15, Font::plain);
     
@@ -50,25 +50,25 @@ InteractivePlot::InteractivePlot() :
 	limit.ymin = -1e10;
 	limit.ymax = 1e10;
 	 
-	zoomButton = new UtilityButton("Zoom",Font("Default", 15, Font::plain));
+	zoomButton = std::make_unique<UtilityButton>("Zoom",Font("Default", 15, Font::plain));
 	zoomButton->setToggleState(true, dontSendNotification);
 	zoomButton ->addListener(this);
-	addAndMakeVisible(zoomButton );
+	addAndMakeVisible(zoomButton.get());
 
-	panButton = new UtilityButton("Pan",Font("Default", 15, Font::plain));
+	panButton = std::make_unique<UtilityButton>("Pan",Font("Default", 15, Font::plain));
 	panButton->setToggleState(false, dontSendNotification);
 	panButton ->addListener(this);
-	addAndMakeVisible(panButton );
+	addAndMakeVisible(panButton.get());
 
-	autoRescaleButton = new UtilityButton("Auto Rescale",Font("Default", 15, Font::plain));
+	autoRescaleButton = std::make_unique<UtilityButton>("Auto Rescale",Font("Default", 15, Font::plain));
 	autoRescaleButton->setToggleState(true, sendNotification);
 	autoRescaleButton ->addListener(this);
-	addAndMakeVisible(autoRescaleButton );
+	addAndMakeVisible(autoRescaleButton.get());
 
-	boundsButton= new UtilityButton("Show Bounds",Font("Default", 15, Font::plain));
+	boundsButton= std::make_unique<UtilityButton>("Show Bounds",Font("Default", 15, Font::plain));
 	boundsButton->setToggleState(false, sendNotification);
 	boundsButton ->addListener(this);
-	addAndMakeVisible(boundsButton);
+	addAndMakeVisible(boundsButton.get());
 
 	setRange(range);
 }
@@ -139,24 +139,24 @@ void InteractivePlot::buttonClicked(Button *btn)
 {
 	bool prevState = btn->getToggleState();
 	
-	if (btn == zoomButton)
+	if (btn == zoomButton.get())
 	{
 		zoomButton->setToggleState(!prevState, dontSendNotification);
 		panButton->setToggleState(false, dontSendNotification);
 		drawComponent->setMode(ZOOM);
 
-	} else if  (btn == autoRescaleButton)
+	} else if  (btn == autoRescaleButton.get())
 	{
 		btn->setToggleState(!prevState, dontSendNotification);
 		drawComponent->setAutoRescale(!prevState);
 
-	} else if (btn == panButton)
+	} else if (btn == panButton.get())
 	{
 		btn->setToggleState(!prevState, dontSendNotification);
 		drawComponent->setMode(PAN);
 		zoomButton->setToggleState(false, dontSendNotification);
 
-	}  else if (btn == boundsButton)
+	}  else if (btn == boundsButton.get())
 	{
 		btn->setToggleState(!prevState, dontSendNotification);
 		drawComponent->setBoundsShown(!prevState);
@@ -377,7 +377,7 @@ void Axis::setColour(Colour c)
 void XAxis::paint(Graphics &g)
 {
 
-	g.setFont(font);
+	/*g.setFont(font);
 
 	int w = getWidth();
 	int h = getHeight();
@@ -399,14 +399,14 @@ void XAxis::paint(Graphics &g)
 				   tickLabelHeight,
 				   juce::Justification::centred,
 				   true);
-	}
+	}*/
 
 }
 
 void YAxis::paint(Graphics& g)
 {
 
-	g.setFont(font);
+	/*g.setFont(font);
 
 	int w = getWidth();
 	int h = getHeight();
@@ -426,7 +426,7 @@ void YAxis::paint(Graphics& g)
 		else
 			g.drawText(ticksLabels[k], 0, h - ytickloc - tickLabelHeight / 2, w - 3, tickLabelHeight, Justification::right, false);
 
-	}
+	}*/
 }
 
 
@@ -636,7 +636,7 @@ void DrawComponent::clear()
 
 void DrawComponent::paint(Graphics &g)
 {
-	g.fillAll(juce::Colours::black);
+	g.fillAll(juce::Colours::darkkhaki);
 
 	int w = getWidth();
 	int h = getHeight();

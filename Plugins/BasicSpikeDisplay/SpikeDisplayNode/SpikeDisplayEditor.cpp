@@ -29,10 +29,9 @@
 #include <string>
 
 SpikeDisplayEditor::SpikeDisplayEditor(GenericProcessor* parentNode)
-    : VisualizerEditor(parentNode, 200)
+    : VisualizerEditor(parentNode, "Spikes", 200)
 
 {
-    tabText = "Spikes";
 
     scaleLabel = std::make_unique<Label>("Display size: ", "Display size:");
     scaleLabel->setBounds(50, 40, 100, 25);

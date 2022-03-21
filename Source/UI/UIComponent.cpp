@@ -846,25 +846,22 @@ void UIComponent::saveStateToXml(XmlElement* xml)
 
 void UIComponent::loadStateFromXml(XmlElement* xml)
 {
-	forEachXmlChildElement(*xml, xmlNode)
+	for (auto* xmlNode : xml->getChildWithTagNameIterator("UICOMPONENT"))
 	{
-		if (xmlNode->hasTagName("UICOMPONENT"))
-		{
 
-			bool isProcessorListOpen = xmlNode->getBoolAttribute("isProcessorListOpen");
-			bool isEditorViewportOpen = xmlNode->getBoolAttribute("isEditorViewportOpen");
+        bool isProcessorListOpen = xmlNode->getBoolAttribute("isProcessorListOpen");
+        bool isEditorViewportOpen = xmlNode->getBoolAttribute("isEditorViewportOpen");
 
-			if (!isProcessorListOpen)
-			{
-				processorList->toggleState();
-			}
+        if (!isProcessorListOpen)
+        {
+            processorList->toggleState();
+        }
 
-			if (!isEditorViewportOpen)
-			{
-				editorViewportButton->toggleState();
-			}
+        if (!isEditorViewportOpen)
+        {
+            editorViewportButton->toggleState();
+        }
 
-		}
 	}
 }
 

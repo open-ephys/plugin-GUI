@@ -61,25 +61,25 @@ public:
     ~LfpDisplayCanvas();
 
     /** Start rendering */
-    void beginAnimation();
+    void beginAnimation() override;
     
     /** Stop rendering */
-    void endAnimation();
+    void endAnimation() override;
 
     /** Called when the tab becomes visible again*/
-    void refreshState();
+    void refreshState() override;
 
     /* Called when settings need to be updated*/
-    void update();
+    void update() override;
 
     /** Not used -- only refresh split displays while animating */
-    void refresh() { }
+    void refresh() override { }
 
     /** Re-sets all displays to the left edge of the screen */
     void syncDisplays();
 
     /* Called when the component changes size*/
-    void resized();
+    void resized() override;
 
     /** Sets one of 5 different split layout options*/
     void setLayout(SplitLayouts);
@@ -106,10 +106,10 @@ public:
     void loadCustomParametersFromXml(XmlElement* xml) override;
 
     /** Responds to space bar presses */
-    bool keyPressed(const KeyPress& key);
+    bool keyPressed(const KeyPress& key) override;
 
     /** Responds to space bar presses in sub-components */
-    bool keyPressed(const KeyPress& key, Component* orig);
+    bool keyPressed(const KeyPress& key, Component* orig) override;
 
     /** Mouse listeners */
     void mouseMove(const MouseEvent&) override;
@@ -130,8 +130,8 @@ private:
 
     OwnedArray<LfpDisplaySplitter> displaySplits;
 
-    ScopedPointer<ComboBox> displaySelection;
-    ScopedPointer<Label> displayLabel;
+    std::unique_ptr<ComboBox> displaySelection;
+    std::unique_ptr<Label> displayLabel;
 
     SplitLayouts selectedLayout;
 
@@ -307,7 +307,7 @@ public:
 
 	ContinuousChannel::Type selectedChannelType;
 
-    ScopedPointer<ComboBox> streamSelection;
+    std::unique_ptr<ComboBox> streamSelection;
 
     std::unique_ptr<LfpViewport> viewport;
     std::unique_ptr<LfpTimescale> timescale;
@@ -349,12 +349,12 @@ private:
 
     int eventState;
     
-    ScopedPointer<AudioSampleBuffer> eventDisplayBuffer; // buffer for event data
+    std::unique_ptr<AudioBuffer<float>> eventDisplayBuffer; // buffer for event data
 
     /** Define buffers for min, mean, and max for better plotting of spikes */
-    ScopedPointer<AudioSampleBuffer> screenBufferMin; // like screenBuffer but holds minimum values per pixel
-    ScopedPointer<AudioSampleBuffer> screenBufferMean; // like screenBuffer but holds mean values per pixel
-    ScopedPointer<AudioSampleBuffer> screenBufferMax; // like screenBuffer but holds max values per pixel
+    std::unique_ptr<AudioBuffer<float>> screenBufferMin; // like screenBuffer but holds minimum values per pixel
+    std::unique_ptr<AudioBuffer<float>> screenBufferMean; // like screenBuffer but holds mean values per pixel
+    std::unique_ptr<AudioBuffer<float>> screenBufferMax; // like screenBuffer but holds max values per pixel
 
     void refreshScreenBuffer();
     void updateScreenBuffer();

@@ -17,13 +17,28 @@ using namespace std::chrono;
 #define RECEIVED_SOFTWARE_TIME (event.getVelocity() == 136)
 
 EventMonitor::EventMonitor()
-	: receivedEvents(0) {}
+	: receivedEvents(0),
+	  receivedSpikes(0),
+      bufferedEvents(0),
+      bufferedSpikes(0)
+{
+}
 
 EventMonitor::~EventMonitor() {}
 
+void EventMonitor::reset()
+{
+	receivedEvents = 0;
+	receivedSpikes = 0;
+	bufferedEvents = 0;
+	bufferedSpikes = 0;
+}
+
 void EventMonitor::displayStatus()
 {
-	LOGD("Record Node received ", receivedEvents, " total events");
+	LOGD("Record Node received ", receivedEvents, " total EVENTS and sent ", bufferedEvents, " to the RecordThread");
+
+	LOGD("Record Node received ", receivedSpikes, " total SPIKES and sent ", bufferedSpikes, " to the RecordThread");
 }
 
 RecordNode::RecordNode() 
@@ -184,8 +199,6 @@ void RecordNode::createNewDirectory()
 	recordingNumber = -1;
 	experimentNumber = 1;
 	settingsNeeded = true;
-
-	recordEngine->directoryChanged();
 
 }
 
@@ -384,9 +397,9 @@ bool RecordNode::startAcquisition()
 
 	recordingNumber = -1;
 	recordEngine->configureEngine();
-	recordEngine->startAcquisition();
+	synchronizer->reset();
+	eventMonitor->reset();
 
-    synchronizer->reset();
     return true;
 
 }
@@ -396,6 +409,8 @@ bool RecordNode::stopAcquisition()
 
 	// Remove message channel
 	eventChannels.removeLast();
+
+	eventMonitor->displayStatus();
 
 	return true;
 }
@@ -453,7 +468,6 @@ void RecordNode::startRecording()
 	validBlocks.insertMultiple(0, false, getNumInputs());
 
 	recordEngine->registerRecordNode(this);
-	recordEngine->resetChannels();
 	recordEngine->setChannelMapping(channelMap, chanProcessorMap, chanOrderinProc, procInfo);
 	LOGD("channelMap size: ", channelMap.size());
 	LOGD("chanProcessorMap size: ", chanProcessorMap.size());
@@ -509,15 +523,7 @@ void RecordNode::stopRecording()
 	if (recordThread->isThreadRunning())
 	{
 		recordThread->signalThreadShouldExit();
-		recordThread->waitForThreadToExit(2000);
 	}
-
-	eventMonitor->displayStatus();
-
-	if (CoreServices::getRecordingStatus())
-		getEditor()->setBackgroundColor(Colour(128, 41, 41)); // turn it brown if it's not recording while recording is active
-	else
-		getEditor()->setBackgroundColor(Colour(255, 0, 0));
 
 	receivedSoftwareTime = false;
 
@@ -557,6 +563,8 @@ void RecordNode::handleTTLEvent(TTLEventPtr event)
 
 		eventQueue->addEvent(EventPacket(buffer, size), timestamp);
 
+		eventMonitor->bufferedEvents++;
+
 	}
 
 }
@@ -585,14 +593,20 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 void RecordNode::handleSpike(SpikePtr spike)
 {
 
+	eventMonitor->receivedSpikes++;
+
 	if (recordSpikes)
+	{
 		writeSpike(spike, spike->getChannelInfo());
+		eventMonitor->bufferedSpikes++;
+	}
+		
 
 }
 
 void RecordNode::handleTimestampSyncTexts(const EventPacket& packet)
 {
-	std::cout << "Record Node " << getNodeId() << " writing sync timestamp " << std::endl;
+	//std::cout << "Record Node " << getNodeId() << " writing sync timestamp " << std::endl;
 	handleEvent(nullptr, packet);
 }
 
@@ -635,49 +649,48 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 
 		uint64 currentStreamId = -1;
 
+		if (!receivedSoftwareTime)
+		{
+			MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
+			HeapBlock<char> data;
+
+			size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getSoftwareTimestamp(), true);
+
+			handleTimestampSyncTexts(EventPacket(data, dataSize));
+
+			receivedSoftwareTime = true;
+
+			writeInitialEventStates();
+
+			for (auto stream : getDataStreams())
+			{
+
+				const uint16 streamId = stream->getStreamId();
+
+				numSamples = getNumSourceSamples(streamId);
+				timestamp = getSourceTimestamp(streamId);
+
+				MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
+				HeapBlock<char> data;
+
+				GenericProcessor* src = AccessClass::getProcessorGraph()->getProcessorWithNodeId(getDataStream(streamId)->getSourceNodeId());
+
+				size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, src, streamId, timestamp, false);
+
+				handleTimestampSyncTexts(EventPacket(data, dataSize));
+			}
+		}
+
 		//For each channel that is to be recorded 
 		for (int ch = 0; ch < channelMap.size(); ch++)
 		{
 
-			if (!receivedSoftwareTime)
-			{
-				MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
-				HeapBlock<char> data;
-
-				size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getSoftwareTimestamp(), true);
-
-				handleTimestampSyncTexts(EventPacket(data, dataSize));
-
-				receivedSoftwareTime = true;
-
-				writeInitialEventStates();
-
-			}
-
 			ContinuousChannel* chan = continuousChannels[channelMap[ch]];
 
-			uint64 streamId = ((ChannelInfoObject*)chan)->getStreamId();
+			const uint16 streamId = ((ChannelInfoObject*)chan)->getStreamId();
 
-			//Check if the source stream has changed
-			if (streamId != currentStreamId)
-			{
-				numSamples = getNumSamples(channelMap[ch]);
-				timestamp = getTimestamp(channelMap[ch]);
-
-				if (!setFirstBlock)
-				{
-
-					MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
-					HeapBlock<char> data;
-
-					GenericProcessor* src = AccessClass::getProcessorGraph()->getProcessorWithNodeId(getDataStream(streamId)->getSourceNodeId());
-
-					size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, src, streamId, timestamp, false);
-
-					handleTimestampSyncTexts(EventPacket(data, dataSize));
-
-				}
-			}
+			numSamples = getNumSourceSamples(streamId);
+			timestamp = getSourceTimestamp(streamId);
 
 			bool shouldWrite = validBlocks[ch];
 
@@ -697,6 +710,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 					{
 						double first = synchronizer->convertTimestamp(streamId, timestamp);
 						double second = synchronizer->convertTimestamp(streamId, timestamp + 1);
+						
 						fifoUsage[streamId] = dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
 
 						if (streamId == synchronizer->primaryStreamId)
@@ -708,7 +722,8 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 					else
 					{
 						fifoUsage[streamId] = dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
-						samplesWritten+=numSamples;
+						
+						samplesWritten += numSamples;
 
 						lastPrimaryStreamTimestamp = timestamp;
 						
@@ -720,7 +735,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 				}
 
 				dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
-				samplesWritten+=numSamples;
+				samplesWritten += numSamples;
 
 			}
 
@@ -729,6 +744,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 		if (!setFirstBlock)
 		{
 			bool shouldSetFlag = true;
+			
 			for (int chan = 0; chan < channelMap.size(); ++chan)
 			{
 				if (!validBlocks[chan])

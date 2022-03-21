@@ -300,11 +300,11 @@ void Merger::restoreConnections()
     
     if (parametersAsXml != nullptr)
     {
-        forEachXmlChildElement(*parametersAsXml, mainNode)
+        for (auto* mainNode : parametersAsXml->getChildIterator())
         {
             if (mainNode->hasTagName("CUSTOM_PARAMETERS"))
             {
-                forEachXmlChildElement(*mainNode, mergerSettings)
+                for (auto* mergerSettings : mainNode->getChildIterator())
                 {
                    int nodeIdA = mergerSettings->getIntAttribute("NodeA");
                    int nodeIdB = mergerSettings->getIntAttribute("NodeB");

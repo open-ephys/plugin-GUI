@@ -56,18 +56,23 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
     , gotNewFile                (true)
     , loopPlayback              (true)
 {
-    //setEnabledState (false);
 
 	//Load plugin file sources
     const int numFileSources = AccessClass::getPluginManager()->getNumFileSources();
+
+    LOGD("Found ", numFileSources, " File Source plugins.");
+
     for (int i = 0; i < numFileSources; ++i)
     {
         Plugin::FileSourceInfo info = AccessClass::getPluginManager()->getFileSourceInfo (i);
+
+        LOGD("Plugin ", i + 1, ": ", info.name, " (", info.extensions, ")");
 
         StringArray extensions;
         extensions.addTokens (info.extensions, ";", "\"");
 
         const int numExtensions = extensions.size();
+        
         for (int j = 0; j < numExtensions; ++j)
         {
             supportedExtensions.set (extensions[j].toLowerCase(), i + 1);
@@ -292,7 +297,7 @@ bool FileReader::setFile (String fullpath)
         return false;
     }
 
-    if (! input->OpenFile (file))
+    if (! input->openFile (file))
     {
         input = nullptr;
         CoreServices::sendStatusMessage ("Invalid file");
@@ -304,7 +309,7 @@ bool FileReader::setFile (String fullpath)
     if (isEmptyFile)
     {
         input = nullptr;
-        CoreServices::sendStatusMessage ("Empty file. Inoring open operation");
+        CoreServices::sendStatusMessage ("Empty file. Ignoring open operation");
 
         return false;
     }
@@ -336,7 +341,7 @@ void FileReader::setActiveRecording (int index)
 
     for (int i = 0; i < currentNumChannels; ++i)
     {
-        channelInfo.add (input->getChannelInfo (i));
+        channelInfo.add (input->getChannelInfo (index, i));
     }
 
     static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumTotalSamples));

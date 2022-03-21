@@ -103,17 +103,10 @@ RecordedChannelInfo FileSource::getChannelInfo (int recordIndex, int channel) co
 }
 
 
-RecordedChannelInfo FileSource::getChannelInfo (int channel) const
-{
-    return getChannelInfo (activeRecord.get(), channel);
-}
-
-
 void FileSource::setActiveRecord (int index)
 {
-//    activeRecord = index;
     activeRecord.set(index);
-    updateActiveRecord();
+    updateActiveRecord(index);
 }
 
 
@@ -129,9 +122,9 @@ String FileSource::getFileName() const
 }
 
 
-bool FileSource::OpenFile (File file)
+bool FileSource::openFile (File file)
 {
-    if (Open (file))
+    if (open (file))
     {
         fileOpened = true;
         fillRecordInfo();

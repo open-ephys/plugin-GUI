@@ -167,7 +167,9 @@ public:
 
            #if defined (MAC_OS_X_VERSION_10_13) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_13)
             if ([window respondsToSelector: @selector (setTabbingMode:)])
-                [window setTabbingMode: NSWindowTabbingModeDisallowed];
+                if (@available(macOS 10.12, *)) {
+                    [window setTabbingMode: NSWindowTabbingModeDisallowed];
+                }
            #endif
 
             [notificationCenter  addObserver: view
@@ -1663,7 +1665,11 @@ private:
     {
         const auto minSize = NSMakeSize (static_cast<float> (c.getMinimumWidth()),
                                          0.0f);
-        [window setMinFullScreenContentSize: minSize];
+        if (@available(macOS 10.11, *)) {
+            [window setMinFullScreenContentSize: minSize];
+        } else {
+            // Fallback on earlier versions
+        }
     }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NSViewComponentPeer)
@@ -1826,7 +1832,11 @@ private:
         if (NSFoundationVersionNumber > (double) NSFoundationVersionNumber10_11_Max)
         {
             CALayer* layer = ((NSView*) self).layer;
-            layer.contentsFormat = kCAContentsFormatRGBA8Uint;
+            if (@available(macOS 10.12, *)) {
+                layer.contentsFormat = kCAContentsFormatRGBA8Uint;
+            } else {
+                // Fallback on earlier versions
+            }
         }
        #endif
 

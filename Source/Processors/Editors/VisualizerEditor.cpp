@@ -81,16 +81,16 @@ bool SelectorButton::isOpenTabButton() const
 }
 
 
-VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, int width)
+VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, String tabText, int desiredWidth_)
     : GenericEditor (parentNode)
     , dataWindow    (nullptr)
     , canvas        (nullptr)
-    , tabText       ("Tab")
+    , tabText       (tabText)
     , isPlaying     (false)
     , tabIndex      (-1)
     , dataWindowButtonListener(this)
 {
-    desiredWidth = width;
+    desiredWidth = desiredWidth_;
 
     initializeSelectors();
 }
@@ -128,8 +128,8 @@ void VisualizerEditor::resized()
 {
     GenericEditor::resized();
 
-    windowSelector->setBounds   (desiredWidth - 40, 7, 14, 10);
-    tabSelector->setBounds      (desiredWidth - 20, 7, 15, 10);
+    windowSelector->setBounds   (getTotalWidth() - 40, 7, 14, 10);
+    tabSelector->setBounds      (getTotalWidth() - 20, 7, 15, 10);
 }
 
 
@@ -159,11 +159,6 @@ void VisualizerEditor::updateVisualizer()
 }
 
 
-void VisualizerEditor::windowClosed()
-{
-}
-
-
 void VisualizerEditor::editorWasClicked()
 {
     if (tabIndex > -1)
@@ -181,11 +176,13 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
     if (editor->canvas == nullptr)
     {
         editor->canvas.reset(editor->createNewCanvas());
-        //TODO: Temporary hack to prevent canvas-less interface from crashing GUI on button clicks...
+        
+        // Prevents canvas-less interface from crashing GUI on button clicks...
         if (editor->canvas == nullptr)
         {
             return;
         }
+
         editor->canvas->update();
 
         if (editor->isPlaying)
@@ -197,8 +194,6 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
         if (editor->tabSelector->getToggleState() && editor->windowSelector->getToggleState())
         {
             editor->tabSelector->setToggleState (false, dontSendNotification);
-            // AccessClass::getDataViewport()->destroyTab(tabIndex);
-            // tabIndex = -1;
             editor->removeTab (editor->tabIndex);
         }
 
@@ -218,7 +213,6 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
             {
                 editor->dataWindow->setContentNonOwned (editor->canvas.get(), false);
                 editor->canvas->setBounds (0, 0, editor->canvas->getParentWidth(), editor->canvas->getParentHeight());
-                //  canvas->refreshState();
             }
             else
             {
@@ -237,7 +231,6 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
                 editor->dataWindow->setVisible (false);
             }
 
-            // tabIndex = AccessClass::getDataViewport()->addTabToDataViewport(tabText, canvas, this);
             editor->addTab (editor->tabText, editor->canvas.get());
         }
         else if (!editor->tabSelector->getToggleState() && editor->tabIndex > -1)
@@ -285,7 +278,7 @@ void VisualizerEditor::loadCustomParametersFromXml (XmlElement* xml)
 
     bool canvasHidden = false;
 
-    forEachXmlChildElement (*xml, xmlNode)
+    for (auto* xmlNode : xml->getChildIterator())
     {
         if (xmlNode->hasTagName (EDITOR_TAG_TAB))
         {

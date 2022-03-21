@@ -89,6 +89,9 @@ void RecordThread::run()
 	const AudioSampleBuffer& dataBuffer = m_dataQueue->getAudioBufferReference();
 	const SynchronizedTimestampBuffer& ftsBuffer = m_dataQueue->getFTSBufferReference();
 
+	spikesReceived = 0;
+	spikesWritten = 0;
+
 	bool closeEarly = true;
 
 	//1-Wait until the first block has arrived, so we can align the timestamps
@@ -114,40 +117,32 @@ void RecordThread::run()
 
 		m_engine->openFiles(m_rootFolder, m_experimentNumber, m_recordingNumber);
 	}
-
-	bool useSynchronizer = m_engine->getEngineId() == "BINARY" || m_engine->getEngineId() == "NWB2";
-	LOGC("RecordThread detected record engine: ", m_engine->getEngineId());
-
 	//3-Normal loop
-	if (useSynchronizer)
-	{
-		while (!threadShouldExit())
-			writeSynchronizedData(dataBuffer, ftsBuffer, BLOCK_MAX_WRITE_SAMPLES, BLOCK_MAX_WRITE_EVENTS, BLOCK_MAX_WRITE_SPIKES);
-	}
-	else
-	{
-		while (!threadShouldExit())
-			writeData(dataBuffer, BLOCK_MAX_WRITE_SAMPLES, BLOCK_MAX_WRITE_EVENTS, BLOCK_MAX_WRITE_SPIKES);
-	}
+	while (!threadShouldExit())
+		writeData(dataBuffer, ftsBuffer, BLOCK_MAX_WRITE_SAMPLES, BLOCK_MAX_WRITE_EVENTS, BLOCK_MAX_WRITE_SPIKES);
+
 	
 	//LOGD(__FUNCTION__, " Exiting record thread");
 	//4-Before closing the thread, try to write the remaining samples
 
-	LOGD("Binary Recording closing all files");
+	LOGD("Closing all files");
+	
 	if (!closeEarly)
 	{
-		writeData(dataBuffer, -1, -1, -1, true);
-		//LOGD(__FUNCTION__, " Closing files");
+		// flush the buffers 
+		writeData(dataBuffer, ftsBuffer, BLOCK_MAX_WRITE_SAMPLES, BLOCK_MAX_WRITE_EVENTS, BLOCK_MAX_WRITE_SPIKES, true);
+
 		//5-Close files
-		//EVERY_ENGINE->closeFiles();
 		m_engine->closeFiles();
 	}
 	m_cleanExit = true;
 	m_receivedFirstBlock = false;
 
+	//LOGC("RecordThread received ", spikesReceived, " spikes and wrote ", spikesWritten, ".");
+
 }
 
-void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer, 
+void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, 
 										 const SynchronizedTimestampBuffer& ftsBuffer, 
 										 int maxSamples, 
 										 int maxEvents, 
@@ -160,7 +155,6 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer,
 	Array<CircularBufferIndexes> ftsBufferIdxs;
 	m_dataQueue->startSynchronizedRead(dataBufferIdxs, ftsBufferIdxs, timestamps, maxSamples);
 	m_engine->updateTimestamps(timestamps);
-	m_engine->startChannelBlock(lastBlock);
 
 	/* Copy data to record engine */
 	for (int chan = 0; chan < m_numChannels; ++chan)
@@ -168,7 +162,7 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer,
 
 		if (dataBufferIdxs[chan].size1 > 0)
 		{
-			m_engine->writeSynchronizedData(chan, chan, 
+			m_engine->writeContinuousData(chan, chan, 
 				dataBuffer.getReadPointer(chan, dataBufferIdxs[chan].index1),
 				ftsBuffer.getReadPointer(m_ftsChannelArray[chan], dataBufferIdxs[chan].index1), dataBufferIdxs[chan].size1);
 
@@ -178,7 +172,7 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer,
 			{
 				timestamps.set(chan, timestamps[chan] + dataBufferIdxs[chan].size1);
 				m_engine->updateTimestamps(timestamps, chan);
-				m_engine->writeSynchronizedData(chan, chan,
+				m_engine->writeContinuousData(chan, chan,
 					dataBuffer.getReadPointer(chan, dataBufferIdxs[chan].index2),
 					ftsBuffer.getReadPointer(m_ftsChannelArray[chan], ftsBufferIdxs[m_ftsChannelArray[chan]].index2), dataBufferIdxs[chan].size2);
 				samplesWritten += dataBufferIdxs[chan].size2;
@@ -187,7 +181,6 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer,
 	}
 
 	m_dataQueue->stopSynchronizedRead();
-	m_engine->endChannelBlock(lastBlock);
 
 	std::vector<EventMessagePtr> events;
 	int nEvents = m_eventQueue->getEvents(events, maxEvents);
@@ -217,95 +210,26 @@ void RecordThread::writeSynchronizedData(const AudioSampleBuffer& dataBuffer,
 	}
 
 	std::vector<SpikeMessagePtr> spikes;
-	int nSpikes = m_spikeQueue->getEvents(spikes, maxSpikes);
+	int nSpikes = m_spikeQueue->getEvents(spikes, BLOCK_MAX_WRITE_SPIKES);
 
 	for (int sp = 0; sp < nSpikes; ++sp)
 	{
+
+		spikesReceived++;
+
 		if (spikes[sp] != nullptr)
 		{
 
 			const Spike& spike = spikes[sp]->getData();
 			const SpikeChannel* chan = spike.getChannelInfo();
 			int spikeIndex = recordNode->getIndexOfMatchingChannel(chan);
+			spikesWritten++;
 
 			m_engine->writeSpike(spikeIndex, &spikes[sp]->getData());
 		}
 	}
 }
 
-void RecordThread::writeData(const AudioSampleBuffer& dataBuffer, 
-							 int maxSamples, 
-							 int maxEvents, 
-							 int maxSpikes, 
-							 bool lastBlock)
-{
-	Array<int64> timestamps;
-	Array<CircularBufferIndexes> idx;
-	m_dataQueue->startRead(idx, timestamps, maxSamples);
-	m_engine->updateTimestamps(timestamps);
-	m_engine->startChannelBlock(lastBlock);
-	
-	for (int chan = 0; chan < m_numChannels; ++chan)
-	{
-		if (idx[chan].size1 > 0)
-		{
-			m_engine->writeData(chan, chan, dataBuffer.getReadPointer(chan, idx[chan].index1), idx[chan].size1);
-			samplesWritten+=idx[chan].size1;
-			if (idx[chan].size2 > 0)
-			{
-				timestamps.set(chan, timestamps[chan] + idx[chan].size1);
-				m_engine->updateTimestamps(timestamps, chan);
-				m_engine->writeData(chan, chan, dataBuffer.getReadPointer(chan, idx[chan].index2), idx[chan].size2);
-				samplesWritten += idx[chan].size2;
-			}
-		}
-	}
-
-	m_dataQueue->stopRead();
-	m_engine->endChannelBlock(lastBlock);
-
-	std::vector<EventMessagePtr> events;
-	int nEvents = m_eventQueue->getEvents(events, maxEvents);
-
-	for (int ev = 0; ev < nEvents; ++ev)
-	{
-		const MidiMessage& event = events[ev]->getData();
-		if (SystemEvent::getBaseType(event) == EventBase::Type::SYSTEM_EVENT)
-		{
-			String syncText = SystemEvent::getSyncText(event);
-			std::cout << "Writing sync text: " << syncText << std::endl;
-			m_engine->writeTimestampSyncText(SystemEvent::getStreamId(event), SystemEvent::getTimestamp(event), 0.0f, SystemEvent::getSyncText(event));
-		}
-		else
-		{
-			int processorId = EventBase::getProcessorId(event);
-			int streamId = EventBase::getStreamId(event);
-			int channelIdx = EventBase::getChannelIndex(event);
-
-			const EventChannel* chan = recordNode->getEventChannel(processorId, streamId, channelIdx);
-			int eventIndex = recordNode->getIndexOfMatchingChannel(chan);
-
-			m_engine->writeEvent(eventIndex, event);
-		}
-	}
-
-	std::vector<SpikeMessagePtr> spikes;
-	int nSpikes = m_spikeQueue->getEvents(spikes, maxSpikes);
-
-	for (int sp = 0; sp < nSpikes; ++sp)
-	{
-		if (spikes[sp] != nullptr)
-		{
-
-			const Spike& spike = spikes[sp]->getData();
-			const SpikeChannel* chan = spike.getChannelInfo();
-			int spikeIndex = recordNode->getIndexOfMatchingChannel(chan);
-
-			m_engine->writeSpike(spikeIndex, &spikes[sp]->getData());
-		}
-	}
-
-}
 
 void RecordThread::forceCloseFiles()
 {

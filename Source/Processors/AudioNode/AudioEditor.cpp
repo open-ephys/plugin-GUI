@@ -186,15 +186,19 @@ void AudioEditor::buttonClicked (Button* button)
 {
     if (button == muteButton)
     {
+        
+        AudioNode* audioNode = (AudioNode*) getAudioProcessor();
+        
         if (muteButton->getToggleState())
         {
             lastValue = volumeSlider->getValue();
-            getAudioProcessor()->setParameter (1,0.0f);
+            
+            audioNode->setParameter (1, 0.0f);
             LOGD("Mute on.");
         }
         else
         {
-            getAudioProcessor()->setParameter (1,lastValue);
+            audioNode->setParameter (1,lastValue);
             LOGD("Mute off.");
         }
     }
@@ -223,10 +227,13 @@ void AudioEditor::buttonClicked (Button* button)
 
 void AudioEditor::sliderValueChanged (Slider* slider)
 {
+    
+    AudioNode* audioNode = (AudioNode*) getAudioProcessor();
+    
     if (slider == volumeSlider)
-        getAudioProcessor()->setParameter (1, slider->getValue());
+        audioNode->setParameter (1, slider->getValue());
     else if (slider == noiseGateSlider)
-        getAudioProcessor()->setParameter (2, slider->getValue());
+        audioNode->setParameter (2, slider->getValue());
 }
 
 void AudioEditor::componentVisibilityChanged(Component& component)
@@ -258,7 +265,7 @@ void AudioEditor::saveStateToXml (XmlElement* xml)
 
 void AudioEditor::loadStateFromXml (XmlElement* xml)
 {
-    forEachXmlChildElement (*xml, xmlNode)
+    for (auto* xmlNode : xml->getChildIterator())
     {
         if (xmlNode->hasTagName ("AUDIOEDITOR"))
         {

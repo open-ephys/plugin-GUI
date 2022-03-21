@@ -50,13 +50,13 @@ public:
     LfpChannelDisplayInfo(LfpDisplaySplitter*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
 
     /** Draws this info for one channel */
-    void paint(Graphics& g);
+    void paint(Graphics& g) override;
 
     /** Responds to button clicks (toggles channel on and off)*/
-    void buttonClicked(Button* button);
+    void buttonClicked(Button* button) override;
 
     /** Sets component layout */
-    void resized();
+    void resized() override;
 
     /** Sets whether this channel is enabled */
     void setEnabledState(bool);
@@ -90,7 +90,7 @@ private:
     int samplerate;
     int subProcessorIdx;
     
-    ScopedPointer<UtilityButton> enableButton;
+    std::unique_ptr<UtilityButton> enableButton;
     
     bool channelTypeStringIsVisible;
     bool channelNumberHidden;

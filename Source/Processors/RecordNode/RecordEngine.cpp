@@ -23,8 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RecordNode.h"
 #include "RecordEngine.h"
-//#include "../ProcessorGraph/ProcessorGraph.h"
-//#include "../../AccessClass.h"
 
 #include "EngineConfigWindow.h"
 #include "OpenEphysFormat/OriginalRecording.h"
@@ -44,10 +42,6 @@ void RecordEngine::registerManager(RecordEngineManager* recordManager)
 {
 	manager = recordManager;
 }
-
-void RecordEngine::startChannelBlock(bool lastBlock) {}
-
-void RecordEngine::endChannelBlock(bool lastBlock) {}
 
 const ContinuousChannel* RecordEngine::getContinuousChannel(int index) const
 {
@@ -139,11 +133,6 @@ const String& RecordEngine::getLatestSettingsXml() const
 {
 	return recordNode->getLastSettingsXml();
 }
-
-void RecordEngine::startAcquisition() {}
-
-void RecordEngine::directoryChanged() {}
-
 
 
 void RecordEngine::configureEngine()
@@ -366,7 +355,7 @@ void RecordEngineManager::loadParametersFromXml(XmlElement* xml)
 {
 	for (int i = 0; i < parameters.size(); ++i)
 	{
-		forEachXmlChildElementWithTagName(*xml, xmlNode, "PARAMETER")
+		for (auto* xmlNode : xml->getChildWithTagNameIterator("PARAMETER"))
 		{
 			if (xmlNode->getIntAttribute("id") == parameters[i]->id)
 			{
