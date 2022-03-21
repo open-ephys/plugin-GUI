@@ -55,6 +55,7 @@ EngineParameterComponent::EngineParameterComponent(EngineParameter& param)
         Label* lab = new Label();
         lab->setFont(Font("Silkscreen", "Regular", 10));
 		name = param.name;
+        
         switch (param.type)
         {
             case EngineParameter::BOOL:
@@ -72,6 +73,11 @@ EngineParameterComponent::EngineParameterComponent(EngineParameter& param)
             case EngineParameter::STR:
                 lab->setText(String(param.strParam.value),dontSendNotification);
                 lab->setBounds(120,0,150,20);
+                break;
+            case EngineParameter::MULTI:
+                lab->setText(String(param.multiParam.value),dontSendNotification);
+                lab->setBounds(120,0,150,20);
+                break;
         }
         lab->setEditable(true);
         lab->setColour(Label::ColourIds::backgroundColourId,Colours::lightgrey);

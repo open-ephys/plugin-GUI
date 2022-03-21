@@ -87,7 +87,7 @@ private:
     bool leftSliderIsSelected;
 };
 
-class ZoomTimeline : public Component, MouseListener
+class ZoomTimeline : public Component
 {
 public:
     ZoomTimeline(FileReader*);

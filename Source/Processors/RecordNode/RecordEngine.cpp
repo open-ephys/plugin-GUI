@@ -355,7 +355,7 @@ void RecordEngineManager::loadParametersFromXml(XmlElement* xml)
 {
 	for (int i = 0; i < parameters.size(); ++i)
 	{
-		forEachXmlChildElementWithTagName(*xml, xmlNode, "PARAMETER")
+		for (auto* xmlNode : xml->getChildWithTagNameIterator("PARAMETER"))
 		{
 			if (xmlNode->getIntAttribute("id") == parameters[i]->id)
 			{

@@ -76,7 +76,7 @@ namespace BinarySource
 		int numActiveChannels;
 		Array<float> bitVolts;
 
-		ScopedPointer<MemoryMappedFile> m_dataFile;
+		std::unique_ptr<MemoryMappedFile> m_dataFile;
 		var m_jsonData;
 		Array<File> m_dataFileArray;
 

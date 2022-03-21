@@ -109,7 +109,11 @@ public:
             if (! isSave)
             {
                 auto* openPanel = static_cast<NSOpenPanel*> (panel);
-                [openPanel setAccessoryViewDisclosed: YES];
+                if (@available(macOS 10.11, *)) {
+                    [openPanel setAccessoryViewDisclosed: YES];
+                } else {
+                    // Fallback on earlier versions
+                }
             }
         }
 

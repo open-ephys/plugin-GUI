@@ -243,8 +243,7 @@ bool SourceNode::startAcquisition()
 
 bool SourceNode::stopAcquisition()
 {
-    LOGD("Source node received disable signal");
-
+    
     if (dataThread != nullptr)
         dataThread->stopAcquisition();
 
@@ -335,45 +334,4 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 			eventStates.set(streamIdx, lastCode);
 		}
 	}
-}
-
-
-void SourceNode::saveCustomParametersToXml (XmlElement* parentElement)
-{
-    XmlElement* channelXml = parentElement->createNewChildElement ("CHANNEL_INFO");
-
-    //if (dataThread->usesCustomNames())
-    //{
-       // Array<ChannelCustomInfo> channelInfo;
-        //dataThread->getChannelInfo (channelInfo);
-    //for (int i = 0; i < continuousChannels.size(); ++i)
-    //{
-    //    XmlElement* chan = channelXml->createNewChildElement ("CHANNEL");
-    //    chan->setAttribute ("name",     channelInfo[i]->getName());
-    //    chan->setAttribute ("number",   i);
-    //    chan->setAttribute ("gain",     channelInfo[i].gain);
-    //}
-   // }
-}
-
-
-void SourceNode::loadCustomParametersFromXml(XmlElement* xml)
-{
-
-    // use parametersAsXml to restore state
-    forEachXmlChildElement (*xml, xmlNode)
-    {
-        if (xmlNode->hasTagName ("CHANNEL_INFO"))
-        {
-            forEachXmlChildElementWithTagName (*xmlNode, chan, "CHANNEL")
-            {
-                const int number = chan->getIntAttribute ("number");
-                const float gain = chan->getDoubleAttribute ("gain");
-                String name = chan->getStringAttribute ("name");
-
-               // dataThread->modifyChannelGain (number, gain);
-               // dataThread->modifyChannelName (number, name);
-            }
-        }
-    }
 }

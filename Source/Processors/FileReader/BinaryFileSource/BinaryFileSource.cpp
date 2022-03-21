@@ -235,7 +235,8 @@ void BinaryFileSource::processEventData(EventInfo &eventInfo, int64 start, int64
 
 void BinaryFileSource::updateActiveRecord(int index)
 {
-	m_dataFile = new MemoryMappedFile(m_dataFileArray[index], MemoryMappedFile::readOnly);
+    m_dataFile.reset();
+	m_dataFile = std::make_unique<MemoryMappedFile>(m_dataFileArray[index], MemoryMappedFile::readOnly);
 	m_samplePos = 0;
 	numActiveChannels = getActiveNumChannels();
 

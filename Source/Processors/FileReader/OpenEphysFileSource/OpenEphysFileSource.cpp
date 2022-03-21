@@ -47,7 +47,7 @@ bool OpenEphysFileSource::open(File file)
 
 	m_rootPath = file.getParentDirectory();
 
-    forEachXmlChildElement(*xml, element)
+    for (auto* element: xml->getChildIterator())
     {
         if (element->hasTagName("RECORDING"))
         {
@@ -58,12 +58,12 @@ bool OpenEphysFileSource::open(File file)
             int sampleRate = element->getIntAttribute("samplerate");
 
 
-            forEachXmlChildElement(*element, processor)
+            for (auto* processor: element->getChildIterator())
             {
 				//Currently the ID of the Record Node and not used
                 //int id = processor->getIntAttribute("id"); 
 
-                forEachXmlChildElement(*processor, channel)
+                for (auto* channel: processor->getChildIterator())
                 {
 
                     ChannelInfo info;

@@ -574,7 +574,7 @@ void GenericEditor::loadFromXml(XmlElement* xml)
     setCollapsedState(xml->getBoolAttribute("isCollapsed", false));
 
     drawerOpen = xml->getBoolAttribute("isDrawerOpen", false);
-    drawerButton->setToggleState(drawerOpen, false);
+    drawerButton->setToggleState(drawerOpen, dontSendNotification);
 
     displayName = xml->getStringAttribute("displayName", name);
     getProcessor()->updateDisplayName(displayName);

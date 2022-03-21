@@ -425,7 +425,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
 
     scrubDrawerButton = new ScrubDrawerButton(getNameAndId() + " Scrub Drawer Button");
 	scrubDrawerButton->setBounds(4, 40, 10, 78);
-    scrubDrawerButton->setToggleState(false, false);
+    scrubDrawerButton->setToggleState(false, dontSendNotification);
 	scrubDrawerButton->addListener(this);
 	addChildComponent(scrubDrawerButton);
 
@@ -1000,7 +1000,7 @@ void FileReaderEditor::saveCustomParametersToXml (XmlElement* xml)
 
 void FileReaderEditor::loadCustomParametersFromXml (XmlElement* xml)
 {
-    forEachXmlChildElement (*xml, element)
+    for (auto* element : xml->getChildIterator())
     {
         if (element->hasTagName ("FILENAME"))
         {
