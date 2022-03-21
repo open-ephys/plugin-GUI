@@ -252,7 +252,6 @@ void OpenEphysFileSource::seekTo(int64 sample)
 int OpenEphysFileSource::readData(int16* buffer, int nSamples)
 {
 
-	int nChans = getActiveNumChannels();
 	int64 samplesToRead;
 
 	if (m_samplePos + nSamples > getActiveNumSamples())
@@ -282,7 +281,7 @@ void OpenEphysFileSource::processChannelData(int16* inBuffer, float* outBuffer, 
 		//TODO: Make sure this works on all platforms (tested on Linux only)
 		int16 hibyte = (*(inBuffer + (numActiveChannels * i) + channel) & 0x00ff) << 8;
 		int16 lobyte = (*(inBuffer + (numActiveChannels * i) + channel) & 0xff00) >> 8;
-		*(outBuffer + i) = ( lobyte | hibyte ) * bitVolts[i];
+		*(outBuffer + i) = ( lobyte | hibyte ) * bitVolts[channel];
 	}
 }
 
