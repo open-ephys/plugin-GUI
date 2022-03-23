@@ -209,22 +209,21 @@ void BinaryFileSource::fillRecordInfo()
 void BinaryFileSource::processEventData(EventInfo &eventInfo, int64 start, int64 stop)
 {
 
-	if (stop < start) //we've reached the end of the data file
-	{
-	}
+	int local_start = start % getActiveNumSamples();;
+	int local_stop = stop % getActiveNumSamples();
+	int loop_count = start / getActiveNumSamples();
 
 	for (auto info : eventInfoArray)
 	{
-		
 		int i = 0;
 		
 		while (i < info.timestamps.size())
 		{
-			if (info.timestamps[i] >= start && info.timestamps[i] <= stop)
+			if (info.timestamps[i] >= local_start && info.timestamps[i] <= local_stop)
 			{
 				eventInfo.channels.push_back(info.channels[i] - 1);
 				eventInfo.channelStates.push_back((info.channelStates[i]));
-				eventInfo.timestamps.push_back(info.timestamps[i]);
+				eventInfo.timestamps.push_back(info.timestamps[i] + loop_count*getActiveNumSamples());
 			}
 			i++;
 		}
