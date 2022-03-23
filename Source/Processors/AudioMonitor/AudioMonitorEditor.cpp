@@ -122,17 +122,17 @@ void AudioOutputSelector::buttonClicked(Button* buttonThatWasClicked)
     if (buttonName.startsWith("left"))
     {
         param->setNextValue(0);
-        LOGD("AudioOutputSelectorLeft channel only");
+        LOGD("Left channel only");
     }
     else if (buttonName.startsWith("both"))
     {
-        param->setNextValue(2);
+        param->setNextValue(1);
         LOGD("Both channels");
     }
 
     else if (buttonName.startsWith("right"))
     {
-        param->setNextValue(1);
+        param->setNextValue(2);
         LOGD("Right channel only");
     }
 }
@@ -145,16 +145,22 @@ void AudioOutputSelector::updateView()
         if (int(param->getValue()) == 0)
         {
             leftButton->setToggleState(true, dontSendNotification);
+            rightButton->setToggleState(false, dontSendNotification);
+            bothButton->setToggleState(false, dontSendNotification);
             outputChannelButtonManager->setSelectedButtonIndex(0);
         }
         else if (int(param->getValue()) == 1)
         {
-            rightButton->setToggleState(true, dontSendNotification);
-            outputChannelButtonManager->setSelectedButtonIndex(2);
+            bothButton->setToggleState(true, dontSendNotification);
+            leftButton->setToggleState(false, dontSendNotification);
+            rightButton->setToggleState(false, dontSendNotification);
+            outputChannelButtonManager->setSelectedButtonIndex(1);
         }
         else {
-            bothButton->setToggleState(true, dontSendNotification);
-            outputChannelButtonManager->setSelectedButtonIndex(1);
+            rightButton->setToggleState(true, dontSendNotification);
+            leftButton->setToggleState(false, dontSendNotification);
+            bothButton->setToggleState(false, dontSendNotification);
+            outputChannelButtonManager->setSelectedButtonIndex(2);
         }
     }
        
