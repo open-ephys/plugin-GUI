@@ -227,10 +227,10 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
         }
     }
 
-    if (displayBufferMap.count(eventSourceNodeId))
+    if (displayBufferMap.count(eventStreamId))
     {
-        displayBufferMap[eventSourceNodeId]->addEvent(eventTime, eventChannel, eventId,
-            getNumSourceSamples(eventSourceNodeId)
+        displayBufferMap[eventStreamId]->addEvent(eventTime, eventChannel, eventId,
+            getNumSourceSamples(eventStreamId)
         );
     }
 
