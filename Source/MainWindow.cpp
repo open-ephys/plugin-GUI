@@ -84,7 +84,7 @@ MainWindow::MainWindow(const File& fileToLoad)
 
 	addKeyListener(commandManager.getKeyMappings());
 
-	LOGD("Loading window bounds...");
+	LOGD("Loading window bounds.");
 	loadWindowBounds();
 	setUsingNativeTitleBar(true);
 	Component::addToDesktop(getDesktopWindowStyleFlags());  // prevents the maximize
@@ -243,9 +243,7 @@ void MainWindow::handleCrash(void* input)
 
 void MainWindow::saveWindowBounds()
 {
-	LOGDD("");
-	LOGDD("Saving window bounds.");
-	LOGDD("");
+	LOGD("Saving window bounds.");
 
 	File file = configsDir.getChildFile("windowState.xml");
 
@@ -289,11 +287,7 @@ void MainWindow::saveWindowBounds()
 
 void MainWindow::loadWindowBounds()
 {
-
-	std::cout << std::endl;
-	LOGDD("Loading window bounds.");
-	std::cout << std::endl;
-
+    
 	File file = configsDir.getChildFile("windowState.xml");
 
 	if(!file.exists())

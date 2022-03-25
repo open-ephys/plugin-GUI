@@ -1016,7 +1016,7 @@ void SpikeChannelGenerator::paint(Graphics& g)
     g.setColour(Colours::darkgrey);
     g.fillRoundedRectangle(0, 0, getWidth(), getHeight(), 4.0f);
     g.setColour(Colours::lightgrey);
-    g.drawText("ADD ELECTRODES: ", 17, 6, 120, 20, Justification::left, false);
+    g.drawText("ADD ELECTRODES: ", 17, 6, 120, 19, Justification::left, false);
 }
 
 PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_, 

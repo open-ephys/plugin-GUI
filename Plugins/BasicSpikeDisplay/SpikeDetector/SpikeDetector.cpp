@@ -622,7 +622,7 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
     for (auto spikeChannel : spikeChannels)
     {
 
-        if (spikeChannel->isLocal())
+        if (spikeChannel->isLocal() && spikeChannel->isValid())
         {
 
             const uint16 streamId = spikeChannel->getStreamId();
