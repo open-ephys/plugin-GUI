@@ -31,14 +31,16 @@ ScrubDrawerButton::ScrubDrawerButton(const String &name) : DrawerButton(name) {}
 
 ScrubDrawerButton::~ScrubDrawerButton() {}
 
-FullTimeline::FullTimeline(FileReader* fr) {
+FullTimeline::FullTimeline(FileReader* fr) 
+{
 
     fileReader = fr;
 }
 
 FullTimeline::~FullTimeline() {}
 
-void FullTimeline::paint(Graphics& g) {
+void FullTimeline::paint(Graphics& g) 
+{
 
     int tickHeight = 4;
     int borderThickness = 1;
@@ -61,7 +63,7 @@ void FullTimeline::paint(Graphics& g) {
 	g.setColour(Colours::white);
 	g.fillRect(borderThickness, borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
 
-    //Draw colored bars for each event
+    /* Draw a colored vertical bar for each event */
     Array<EventInfo> eventInfo = fileReader->getActiveEventInfo();
     int64 totalSamples = fileReader->getCurrentNumTotalSamples();
 
@@ -86,7 +88,7 @@ void FullTimeline::paint(Graphics& g) {
 
     }
 
-    //Draw 30-second interval
+    /* Draw the 30-second interval */
     g.setColour(Colour(0,0,0));
     g.setOpacity(0.8f);
 
@@ -110,14 +112,16 @@ void FullTimeline::setIntervalPosition(int min, int max)
     intervalWidth = 30.0f / totalTimeInSeconds * float(getWidth());
 }
 
-void FullTimeline::mouseDown(const MouseEvent& event) {
+void FullTimeline::mouseDown(const MouseEvent& event) 
+{
 
     if (event.x >= intervalStartPosition && event.x <= intervalStartPosition + intervalWidth) {
         intervalIsSelected = true;
     }
 }
 
-void FullTimeline::mouseDrag(const MouseEvent & event) {
+void FullTimeline::mouseDrag(const MouseEvent & event) 
+{
 
     if (intervalIsSelected) {
         if (event.x >= intervalWidth / 2 && event.x < getWidth() - intervalWidth / 2)
@@ -130,9 +134,9 @@ void FullTimeline::mouseDrag(const MouseEvent & event) {
     
 }
 
-void FullTimeline::mouseUp(const MouseEvent& event) {
+void FullTimeline::mouseUp(const MouseEvent& event) 
+{
 
-    //TODO: Check if another key is being pressed instead of using mouse button for dragging
     intervalIsSelected = false;
 
     static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
@@ -157,13 +161,13 @@ int FullTimeline::getStartInterval()
     return intervalStartPosition;
 }
 
-int FullTimeline::getIntervalWidth() {
-
+int FullTimeline::getIntervalWidth() 
+{
     return intervalWidth;
-
 }
 
-ZoomTimeline::ZoomTimeline(FileReader* fr) {
+ZoomTimeline::ZoomTimeline(FileReader* fr) 
+{
     fileReader = fr; 
     sliderWidth = 8;
     widthInSeconds = 30;
@@ -171,12 +175,11 @@ ZoomTimeline::ZoomTimeline(FileReader* fr) {
 
 ZoomTimeline::~ZoomTimeline() {}
 
-void ZoomTimeline::updatePlaybackRegion(int min, int max) {
-
-    //Default zoom slider region to first 10s
+void ZoomTimeline::updatePlaybackRegion(int min, int max) 
+{
+    /* Default zoom slider region to first 10s */
     leftSliderPosition = 0;
     rightSliderPosition = ( getWidth() - sliderWidth )  / 3.0f;
-
 }
 
 int ZoomTimeline::getStartInterval()
@@ -191,8 +194,8 @@ int ZoomTimeline::getIntervalDurationInSeconds()
 
 }
 
-void ZoomTimeline::paint(Graphics& g) {
-
+void ZoomTimeline::paint(Graphics& g) 
+{
     int tickHeight = 4;
     int borderThickness = 1;
 
@@ -214,7 +217,7 @@ void ZoomTimeline::paint(Graphics& g) {
 	g.setColour(Colours::white);
 	g.fillRect(borderThickness, tickHeight + borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
 
-    //Draw colored bars for each event
+    /* Draw a colored vertical bar for each event */
     Array<EventInfo> eventInfo = fileReader->getActiveEventInfo();
     int64 totalSamples = fileReader->getCurrentNumTotalSamples();
 
@@ -274,8 +277,8 @@ void ZoomTimeline::paint(Graphics& g) {
 
 }
 
-void ZoomTimeline::mouseDown(const MouseEvent& event) {
-
+void ZoomTimeline::mouseDown(const MouseEvent& event)
+{
     if (event.x > leftSliderPosition && event.x < leftSliderPosition + sliderWidth) {
         leftSliderIsSelected = true;
     } else if (event.x > rightSliderPosition && event.x < rightSliderPosition + sliderWidth) {
@@ -285,7 +288,8 @@ void ZoomTimeline::mouseDown(const MouseEvent& event) {
     }
 }
 
-void ZoomTimeline::mouseDrag(const MouseEvent & event) {
+void ZoomTimeline::mouseDrag(const MouseEvent & event) 
+{
 
     float regionWidth = rightSliderPosition - leftSliderPosition;
 
@@ -326,9 +330,9 @@ void ZoomTimeline::mouseDrag(const MouseEvent & event) {
     
 }
 
-void ZoomTimeline::mouseUp(const MouseEvent& event) {
+void ZoomTimeline::mouseUp(const MouseEvent& event) 
+{
 
-    //TODO: Check if another key is being pressed instead of using mouse button for dragging
     leftSliderIsSelected = false;
     rightSliderIsSelected = false;
 
@@ -349,12 +353,10 @@ void ZoomTimeline::mouseUp(const MouseEvent& event) {
     
 }
 
-PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback"), Timer() {
-
+PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback"), Timer() 
+{
     fileReader = fr;
-
     isActive = true;
-
 }
 
 PlaybackButton::~PlaybackButton() {}
@@ -366,7 +368,8 @@ void PlaybackButton::timerCallback()
     stopTimer();
 }
 
-void PlaybackButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown) {
+void PlaybackButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown) 
+{
 
     g.setColour(Colour(0,0,0));
     g.fillRoundedRectangle(0,0,getWidth(),getHeight(),0.2*getWidth());
@@ -383,7 +386,7 @@ void PlaybackButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDow
 
     if (fileReader->playbackIsActive())
     {
-        //Draw pause button
+        /* Draw pause button */
         int padding = 0.3*width;
         g.setColour(Colour(255,255,255)); 
         g.fillRect(padding, padding, 0.2*width, height - 2*padding);
@@ -391,7 +394,7 @@ void PlaybackButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDow
 
     } else {
         
-        //Draw play button
+        /* Draw playbutton */
         int padding = 0.3*height;
         g.setColour(Colour(255,255,255)); 
         Path triangle; 
@@ -489,7 +492,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     timeLimits->setBounds (20, 105, 175, 20);
     addAndMakeVisible (timeLimits);
 
-    //hand-built palette (used for event channels)
+    /* Event channel colors */
     channelColours.add(Colour(224, 185, 36));
     channelColours.add(Colour(214, 210, 182));
     channelColours.add(Colour(243, 119, 33));
@@ -528,7 +531,6 @@ int FileReaderEditor::getZoomTimelineStartPosition()
 void FileReaderEditor::updateZoomTimeLabels()
 {
 
-    //Get interval position values 
     int startPos = fullTimeline->getStartInterval();
 
     float frac = float(startPos) / float(fullTimeline->getWidth());
@@ -617,7 +619,7 @@ void FileReaderEditor::setFile (String file, bool shouldUpdateSignalChain)
     {
         fileNameLabel->setText (fileToRead.getFileName(), dontSendNotification);
 
-        //Only enable scrubber interface for data files 30 seconds or longer
+        /* Only show scrubber interface if recording > 30s */
         scrubDrawerButton->setVisible(false);
         if ( scrubInterfaceVisible )
             showScrubInterface(false);
@@ -642,7 +644,7 @@ void FileReaderEditor::setFile (String file, bool shouldUpdateSignalChain)
 
 void FileReaderEditor::paintOverChildren (Graphics& g)
 {
-    // Draw a frame around component if files are drag&dropping now
+    /* Draws a frame if a file is currently being dragged over the editor */
     if (m_isFileDragAndDropActive)
     {
         g.setColour (Colours::aqua);
@@ -659,7 +661,6 @@ void FileReaderEditor::paintOverChildren (Graphics& g)
     }
 
 }
-
 
 void FileReaderEditor::buttonClicked (Button* button)
 {
@@ -717,7 +718,7 @@ void FileReaderEditor::updatePlaybackTimes()
 
 void FileReaderEditor::collapsedStateChanged()
 {
-    if (!getCollapsedState()) // uncollapsed
+    if (!getCollapsedState())
     {
 
         fullTimeline->setVisible(scrubInterfaceVisible);
@@ -731,14 +732,6 @@ void FileReaderEditor::collapsedStateChanged()
 
         scrubDrawerButton->setVisible(scrubInterfaceAvailable);
     }
-   // else {
-
-       // if (scrubInterfaceVisible)
-       //     showScrubInterface(false);
-
-        //if (scrubInterfaceAvailable)
-       //     scrubDrawerButton->setVisible(false);
-    //}
     
 }
 
@@ -751,7 +744,7 @@ void FileReaderEditor::showScrubInterface(bool show)
     dX = show ? dX : -dX;
     desiredWidth += dX;
 
-    //Move all static components to the right
+    /* Move all editor components to the right */
     scrubDrawerButton->setBounds(
         scrubDrawerButton->getX() + dX, scrubDrawerButton->getY(),
         scrubDrawerButton->getWidth(), scrubDrawerButton->getHeight()
@@ -782,7 +775,7 @@ void FileReaderEditor::showScrubInterface(bool show)
         timeLimits->getWidth(), timeLimits->getHeight()
     );
 
-    //Set scrubber interface components 
+    /* Show all scrubber interface components */
     fullTimeline->setVisible(show);
     zoomTimeline->setVisible(show);
     playbackButton->setVisible(show);
@@ -797,7 +790,6 @@ void FileReaderEditor::showScrubInterface(bool show)
 
 }
 
-
 bool FileReaderEditor::setPlaybackStartTime (unsigned int ms)
 {
     if (ms > timeLimits->getTimeMilliseconds (1))
@@ -806,7 +798,6 @@ bool FileReaderEditor::setPlaybackStartTime (unsigned int ms)
     fileReader->setParameter (1, ms);
     return true;
 }
-
 
 bool FileReaderEditor::setPlaybackStopTime (unsigned int ms)
 {
@@ -817,7 +808,6 @@ bool FileReaderEditor::setPlaybackStopTime (unsigned int ms)
     fileReader->setParameter (2, ms);
     return true;
 }
-
 
 void FileReaderEditor::setTotalTime (unsigned int ms)
 {
@@ -837,7 +827,7 @@ void FileReaderEditor::updateScrubInterface(bool reset)
 
     if (reset) {
 
-        //Reset interface to show first 30 seconds of recording 
+        /* Reset scrubbing interface to show first 30 seconds of recording */
         int ms = timeLimits->getTimeMilliseconds(1);
 
         int msFrac      = 0;
@@ -876,10 +866,10 @@ void FileReaderEditor::updateScrubInterface(bool reset)
 
         if (recTotalTime / 1000.0f > 30) {
 
+            /* Draws a 30 second interval on full timeline */
             zoomMiddleTimeLabel->setText("00:15", juce::sendNotificationAsync);
             zoomEndTimeLabel->setText("00:30", juce::sendNotificationAsync);
 
-            //Draw 30 second interval on full timeline
             fullTimeline->setIntervalPosition(0, 30);
 
         }
@@ -910,20 +900,17 @@ void FileReaderEditor::timerCallback()
     setCurrentTime(fileReader->samplesToMilliseconds(fileReader->getCurrentSample()));
 }
 
-
 void FileReaderEditor::setCurrentTime (unsigned int ms)
 {
     const MessageManagerLock mmLock;
     currentTime->setTimeMilliseconds (0, ms);
 }
 
-
 void FileReaderEditor::comboBoxChanged (ComboBox* combo)
 {
     fileReader->setParameter (0, combo->getSelectedId() - 1);
     CoreServices::updateSignalChain (this);
 }
-
 
 void FileReaderEditor::populateRecordings (FileSource* source)
 {
@@ -933,13 +920,11 @@ void FileReaderEditor::populateRecordings (FileSource* source)
 
     for (int i = 0; i < numRecords; ++i)
     {
-        //sendActionMessage("Got file " + source->getRecordName(i));
         recordSelector->addItem (source->getRecordName (i), i + 1);
     }
 
     recordSelector->setSelectedId (1, dontSendNotification);
 }
-
 
 void FileReaderEditor::clearEditor()
 {
@@ -955,20 +940,17 @@ void FileReaderEditor::clearEditor()
 
 }
 
-
 void FileReaderEditor::startAcquisition()
 {
     recordSelector->setEnabled (false);
     timeLimits->setEnable (false);
 }
 
-
 void FileReaderEditor::stopAcquisition()
 {
     recordSelector->setEnabled (true);
     timeLimits->setEnable (true);
 }
-
 
 void FileReaderEditor::saveCustomParametersToXml (XmlElement* xml)
 {
@@ -997,7 +979,6 @@ void FileReaderEditor::saveCustomParametersToXml (XmlElement* xml)
     childNode->setAttribute ("stop_time",   (double)timeLimits->getTimeMilliseconds (1));
 }
 
-
 void FileReaderEditor::loadCustomParametersFromXml (XmlElement* xml)
 {
     for (auto* element : xml->getChildIterator())
@@ -1025,7 +1006,6 @@ void FileReaderEditor::loadCustomParametersFromXml (XmlElement* xml)
     }
 }
 
-
 bool FileReaderEditor::isInterestedInFileDrag (const StringArray& files)
 {
     if (! acquisitionIsActive)
@@ -1039,7 +1019,6 @@ bool FileReaderEditor::isInterestedInFileDrag (const StringArray& files)
     return false;
 }
 
-
 void FileReaderEditor::fileDragExit (const StringArray& files)
 {
     m_isFileDragAndDropActive = false;
@@ -1047,14 +1026,12 @@ void FileReaderEditor::fileDragExit (const StringArray& files)
     repaint();
 }
 
-
 void FileReaderEditor::fileDragEnter (const StringArray& files, int x, int y)
 {
     m_isFileDragAndDropActive = true;
 
     repaint();
 }
-
 
 void FileReaderEditor::filesDropped (const StringArray& files, int x, int y)
 {
@@ -1064,9 +1041,6 @@ void FileReaderEditor::filesDropped (const StringArray& files, int x, int y)
     repaint();
 }
 
-
-// DualTimeComponent
-// ================================================================================
 DualTimeComponent::DualTimeComponent (FileReaderEditor* e, bool editable)
     : editor      (e)
     , isEditable  (editable)
@@ -1104,11 +1078,9 @@ DualTimeComponent::DualTimeComponent (FileReaderEditor* e, bool editable)
     setTimeMilliseconds (1, 0);
 }
 
-
 DualTimeComponent::~DualTimeComponent()
 {
 }
-
 
 void DualTimeComponent::paint (Graphics& g)
 {
@@ -1121,7 +1093,6 @@ void DualTimeComponent::paint (Graphics& g)
     g.setColour (Colours::darkgrey);
     g.drawText (sep, 78, 0, 5, 20, Justification::centred, false);
 }
-
 
 void DualTimeComponent::setTimeMilliseconds (unsigned int index, unsigned int time)
 {
@@ -1158,12 +1129,10 @@ void DualTimeComponent::setTimeMilliseconds (unsigned int index, unsigned int ti
     }
 }
 
-
 void DualTimeComponent::handleAsyncUpdate()
 {
     timeLabel[0]->setText (labelText[0], dontSendNotification);
 }
-
 
 unsigned int DualTimeComponent::getTimeMilliseconds (unsigned int index) const
 {
@@ -1173,13 +1142,11 @@ unsigned int DualTimeComponent::getTimeMilliseconds (unsigned int index) const
     return msTime[index];
 }
 
-
 void DualTimeComponent::setEnable (bool enable)
 {
     timeLabel[0]->setEnabled (enable);
     timeLabel[1]->setEnabled (enable);
 }
-
 
 void DualTimeComponent::labelTextChanged (Label* label)
 {

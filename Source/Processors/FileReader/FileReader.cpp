@@ -47,7 +47,6 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
     , startSample               (0)
     , stopSample                (0)
     , loopCount                 (0)
-    , counter                   (0)
     , bufferCacheWindow         (0)
     , m_shouldFillBackBuffer    (false)
 	, m_bufferSize              (1024)
@@ -57,7 +56,7 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
     , loopPlayback              (true)
 {
 
-	//Load plugin file sources
+	/* Load any plugin file sources */
     const int numFileSources = AccessClass::getPluginManager()->getNumFileSources();
 
     LOGD("Found ", numFileSources, " File Source plugins.");
@@ -79,7 +78,7 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
         }
     }
 
-	//Load Built-in file Sources
+	/* Load built-in file sources */
 	const int numBuiltInFileSources = getNumBuiltInFileSources();
 	for (int i = 0; i < numBuiltInFileSources; ++i)
 	{
@@ -93,6 +92,7 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
 		}
 	}
 
+    /* Create a File Reader device */
     DeviceInfo::Settings settings {
         "File Reader",
         "description",
@@ -100,7 +100,6 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
         "00000x003",
         "Open Ephys"
     };
-
     devices.add(new DeviceInfo(settings));
 
     isEnabled = false;
@@ -175,17 +174,10 @@ int64 FileReader::getCurrentNumTotalSamples()
     return currentNumTotalSamples;
 }
 
-int64 FileReader::getCurrentNumScrubbedSamples()
-{
-    return currentNumScrubbedSamples;
-}
-
-
 float FileReader::getCurrentSampleRate() const
 {
     return input->getActiveSampleRate();
 }
-
 
 float FileReader::getDefaultSampleRate() const
 {
@@ -195,42 +187,43 @@ float FileReader::getDefaultSampleRate() const
         return 44100.0;
 }
 
-
 bool FileReader::startAcquisition()
 {
 
     if (!isEnabled)
         return false;
 
+    /* Set the timestamp to start of playback and reset loop counter */
 	timestamp = startSample;
     loopCount = 0;
 
+    /* Setup internal buffer based on audio device settings */
 	AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
 	AudioDeviceManager::AudioDeviceSetup ads;
 	adm.getAudioDeviceSetup(ads);
 	m_sysSampleRate = ads.sampleRate;
 	m_bufferSize = ads.bufferSize;
 	if (m_bufferSize == 0) m_bufferSize = 1024;
-
 	m_samplesPerBuffer.set(m_bufferSize * (getDefaultSampleRate() / m_sysSampleRate));
 
 	bufferA.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
 	bufferB.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
 
-    // reset stream to beginning
+    /* Reset stream to start of playback */
     input->seekTo (startSample);
     currentSample = startSample;
-    readAndFillBufferCache(bufferA); // pre-fill the front buffer with a blocking read
 
-	// set the backbuffer so that on the next call to process() we start with bufferA and buffer
-	// cache window id = 0
+    /* Pre-fills the front buffer with a blocking read */
+    readAndFillBufferCache(bufferA);
+
 	readBuffer = &bufferB;
 	bufferCacheWindow = 0;
 	m_shouldFillBackBuffer.set(false);
 
     static_cast<FileReaderEditor*> (getEditor())->startTimer(100);
 
-	startThread(); // start async file reader thread
+    /* Start asynchronous file reading thread */
+	startThread(); 
 
 	return true;
 }
@@ -247,18 +240,8 @@ bool FileReader::isFileSupported (const String& fileName) const
     const File file (fileName);
     String ext = file.getFileExtension().toLowerCase().substring (1);
 
-    return isFileExtensionSupported (ext);
+    return supportedExtensions[ext] - 1 >= 0;
 }
-
-
-bool FileReader::isFileExtensionSupported (const String& ext) const
-{
-    const int index = supportedExtensions[ext] - 1;
-    const bool isExtensionSupported = index >= 0;
-
-    return isExtensionSupported;
-}
-
 
 bool FileReader::setFile (String fullpath)
 {
@@ -321,7 +304,6 @@ bool FileReader::setFile (String fullpath)
 
     return true;
 }
-
 
 void FileReader::setActiveRecording (int index)
 {
@@ -540,7 +522,6 @@ void FileReader::process(AudioBuffer<float>& buffer)
     int64 start = timestamp;
 
 	timestamp += samplesNeededPerBuffer;
-    count += samplesNeededPerBuffer;
 
     int64 stop = timestamp;
 

@@ -147,7 +147,7 @@ void BinaryFileSource::fillRecordInfo()
 
 		var eventData = m_jsonData["events"];
 		
-		//create identifiers to speed up stuff
+		/* Create identifiers for efficiency */
 		Identifier idFolder("folder_name");
 		Identifier idChannelName("channel_name");
 		Identifier idDescription("description");

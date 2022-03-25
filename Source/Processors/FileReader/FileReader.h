@@ -64,56 +64,87 @@ public:
     /** Creates the editor */
     AudioProcessorEditor* createEditor() override;
 
-    bool generatesTimestamps()    const  override { return true; }
+    /** Flags that this processor does generate timestamps */
+    bool generatesTimestamps() const override { return true; }
 
-    float getDefaultSampleRate()        const override;
+    /** Get the default data sample rate */
+    float getDefaultSampleRate() const override;
 
+    /* Updates the FileReader settings*/
     void updateSettings() override;
 
+    /* Called at start of acquisition */
 	bool startAcquisition() override;
+
+    /* Called at end of acquisition */
 	bool stopAcquisition() override;
 
+    /* Load default example data */
     void initialize(bool signalChainIsLoading) override;
 
-    String getFile() const;
+    /* Set the current file */
     bool setFile (String fullpath);
 
-    bool isFileSupported          (const String& filename) const;
-    bool isFileExtensionSupported (const String& ext) const;
+    /* Get the active file's name */
+    String getFile() const;
 
+    /* Returns true if input file format is supported */
+    bool isFileSupported (const String& filename) const;
+
+    /* Returns a list of file formats supported by the GUI */
 	StringArray getSupportedExtensions() const;
 
-    // FileScrubber methods
+    /** Returns the total number of samples per channel */
     int64 getCurrentNumTotalSamples();
-    int64 getCurrentNumScrubbedSamples();
+
+    /** Returns a list of EventInfo for the current stream */
+    Array<EventInfo> getActiveEventInfo();
+
+    /** Returns the data sample rate of the current stream */
     float getCurrentSampleRate() const;
+
+    /** Returns the current sample (timestamp) */
     int64 getCurrentSample();
 
+    /** Sets the timestamp at which to start playback */
     void setPlaybackStart(int64 timestamp);
+
+    /** Returns the timestamp at which to start playback */
     int getPlaybackStart();
 
+    /** Sets the timestamp at which to stop playback */
     void setPlaybackStop(int64 timestamp);
-    int getPlaybackStop();
 
-    Array<EventInfo> getActiveEventInfo();
+    /** Returns the timestamp at which to stop playback */
+    int getPlaybackStop();
 
     /** Toggles playback on/off */
     void togglePlayback();
+
+    /** Returns true if playback is currently active */
     bool playbackIsActive();
 
+    /** Flag whether to loop or stop at the end of playback */
     bool loopPlayback;
 
-    unsigned int samplesToMilliseconds (int64 samples)  const;
-    int64 millisecondsToSamples (unsigned int ms)       const;
+    /** Converts samples to milliseconds using current stream's sample rate */
+    unsigned int samplesToMilliseconds (int64 samples) const;
+
+    /** Converts milliseconds to samples using current stream's sample rate */
+    int64 millisecondsToSamples (unsigned int ms) const;
 
 private:
-    Array<const EventChannel*> moduleEventChannels;
+
+    /** Currently only support one event channel per stream */
     ScopedPointer<EventChannel> eventChannel;
-    unsigned int count = 0;
+
+    /** Generates any events found within the current continuous buffer interval */
     void addEventsInRange(int64 start, int64 stop);
 
+    /** Flag if a new file has been loaded */
     bool gotNewFile;
     
+    /** Sets the current stream to read data from */
     void setActiveRecording (int index);
 
     int64 timestamp;
@@ -128,15 +159,12 @@ private:
     int64 bufferCacheWindow; // the current buffer window to read from readBuffer
     Array<RecordedChannelInfo> channelInfo;
     int64 loopCount;
-
     bool playbackActive;
-
-    // for testing purposes only
-    int counter;
 
     ScopedPointer<FileSource> input;
 
-    HeapBlock<int16> * readBuffer;      // Ptr to the current "front" buffer
+    /* Pointer to current front buffer */
+    HeapBlock<int16> * readBuffer;      
     HeapBlock<int16> bufferA;
     HeapBlock<int16> bufferB;
 
@@ -148,8 +176,7 @@ private:
 	unsigned int m_bufferSize;
 	float m_sysSampleRate;
     
-    /** Swaps the backbuffer to the front and flags the background reader
-        thread to update the new backbuffer */
+    /** Swaps the backbuffer to the front and flags the background readerthread to update the new backbuffer */
     void switchBuffer();
     
     HeapBlock<int16>* getFrontBuffer();
@@ -158,19 +185,17 @@ private:
     /** Executes the background thread task */
     void run() override;
     
-    /** Reads a chunk of the file that fills an entire buffer cache.
-     
-        This method will read into the buffer that passed in by the param 
-     */
+    /** Reads a chunk of the file that fills an entire buffer cache. */
     void readAndFillBufferCache(HeapBlock<int16> &cacheBuffer);
 
-	//Methods for built-in file sources
+	/** Returns the number of included file sources */
 	int getNumBuiltInFileSources() const;
 
+    /** Returns the extension for a given file source */
 	String getBuiltInFileSourceExtensions(int index) const;
 
+    /** Returns a new FileSource object for a given file source */
 	FileSource* createBuiltInFileSource(int index) const;
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReader);
 };
