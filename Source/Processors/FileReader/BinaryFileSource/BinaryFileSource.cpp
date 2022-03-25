@@ -168,16 +168,13 @@ void BinaryFileSource::fillRecordInfo()
 			String folderName = events[idFolder];
 			folderName = folderName.trimCharactersAtEnd("/");
 
-			File channelFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("channels.npy");
-			std::unique_ptr<MemoryMappedFile> channelFileMap(new MemoryMappedFile(channelFile, MemoryMappedFile::readOnly)); 
-
-			File channelStatesFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("channel_states.npy");
+			File channelStatesFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("states.npy");
 			std::unique_ptr<MemoryMappedFile> channelStatesFileMap(new MemoryMappedFile(channelStatesFile, MemoryMappedFile::readOnly)); 
 
-			File timestampsFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("timestamps.npy");
-			std::unique_ptr<MemoryMappedFile> timestampsFileMap(new MemoryMappedFile(timestampsFile, MemoryMappedFile::readOnly)); 
+			File timestampsFile = m_rootPath.getChildFile("events").getChildFile(folderName).getChildFile("samples.npy");
+			std::unique_ptr<MemoryMappedFile> timestampsFileMap(new MemoryMappedFile(timestampsFile, MemoryMappedFile::readOnly));
 
-			int channelFileSize = channelFile.getSize(); 
+			int channelFileSize = channelStatesFile.getSize();
 
 			if (!channelFileSize) continue;
 
@@ -187,14 +184,15 @@ void BinaryFileSource::fillRecordInfo()
 
 			for (int i = 0; i < nEvents; i++)
 			{
-				int16* data = static_cast<int16*>(channelFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + i*sizeof(int16) / 2;
-				eventInfo.channels.push_back(*data);
+				int16* data = static_cast<int16*>(channelStatesFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + i*sizeof(int16) / 2;
+				eventInfo.channels.push_back(abs(*data));
 
-				data = static_cast<int16*>(channelStatesFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + i*sizeof(int16) / 2;
-				eventInfo.channelStates.push_back(*data);
+				eventInfo.channelStates.push_back(*data > 0);
+
+				LOGC("Got channel: ", *data, " got state: ", *data > 0);
 
 				int64* tsData = static_cast<int64*>(timestampsFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + i*sizeof(int64) / 8;
-				eventInfo.timestamps.push_back(*tsData - infoArray[0].startTimestamp); 
+				eventInfo.timestamps.push_back(*tsData - infoArray[0].startTimestamp); //FIXME: Offset should be dynamic
 
 			}
 

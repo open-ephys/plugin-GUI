@@ -26,9 +26,11 @@ String BinaryRecording::getEngineId() const
 
 String BinaryRecording::getProcessorString(const InfoObject* channelInfo)
 {
-    String fName = channelInfo->getSourceNodeName().replaceCharacter(' ', '_') + "-";
+    /* Format: Neuropixels-PXI-100.ProbeA-LFP */
+    /* Convert spaces or @ symbols in source node name to underscore */
+    String fName = channelInfo->getSourceNodeName().replaceCharacters(" @", "__") + "-";
     fName += String(((ChannelInfoObject*)channelInfo)->getSourceNodeId());
-    fName += "_" + String(((ChannelInfoObject*)channelInfo)->getStreamName());
+    fName += "." + String(((ChannelInfoObject*)channelInfo)->getStreamName());
 	fName += File::getSeparatorString();
 	return fName;
 }
