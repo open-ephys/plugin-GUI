@@ -449,7 +449,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                     
                     //std::cout << "Ratio: " << ratio[globalIndex] << std::endl;
 
-                    if (int(getParameter("audio_output")->getValue()) == 0 || int(getParameter("audio_output")->getValue()) == 2)
+                    if (int(getParameter("audio_output")->getValue()) == 0 || int(getParameter("audio_output")->getValue()) == 1)
                         targetChannel = totalBufferChannels - 2;
                     else
                         targetChannel = totalBufferChannels - 1;
@@ -517,7 +517,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                     
                 } // end cycling through channels
 
-                if (int(getParameter("audio_output")->getValue()) == 2)
+                if (int(getParameter("audio_output")->getValue()) == 1)
                 {
                     // copy the signal into the right channel
                     buffer.addFrom(totalBufferChannels - 1,    // destChannel

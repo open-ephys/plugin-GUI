@@ -84,6 +84,7 @@ void LinearButtonGroupManager::paintOverChildren (Graphics& g)
 void LinearButtonGroupManager::setSelectedButtonIndex(int index)
 {
     m_selectedButtonIdx = index;
+    m_currentButtonLineX = m_buttons[index]->getBounds().getX();
     
     repaint();
 }
