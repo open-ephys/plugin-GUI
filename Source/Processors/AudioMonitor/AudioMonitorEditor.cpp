@@ -222,7 +222,8 @@ void AudioMonitorEditor::selectedStreamHasChanged()
 
     for (auto spikeChannel : spikeChannels)
     {
-        spikeChannelSelector->addItem(spikeChannel->getName(), id++);
+        if (spikeChannel->isValid())
+            spikeChannelSelector->addItem(spikeChannel->getName(), id++);
     }
 }
 
