@@ -94,6 +94,18 @@ MainWindow::MainWindow(const File& fileToLoad)
 	// Constraining the window's size doesn't seem to work:
 	setResizeLimits(500, 500, 10000, 10000);
 
+	// Set main window icon to display
+	#ifdef __APPLE__
+    	File iconDir = File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/Resources");
+	#else
+		File iconDir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
+	#endif
+	
+	Image windowIcon = ImageFileFormat::loadFrom(iconDir.getChildFile("icon-small.png"));
+	if (auto peer = getPeer())
+    	peer->setIcon(windowIcon);
+	
+	// Load a specific state of the GUI (custom, default, last-saved, or recovery config)
     if (!fileToLoad.getFullPathName().isEmpty())
     {
         ui->getEditorViewport()->loadState(fileToLoad);

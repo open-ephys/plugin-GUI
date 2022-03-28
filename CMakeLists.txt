@@ -112,6 +112,10 @@ if (MSVC OR LINUX)
 				COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIRECTORY}/FileReader/resources $<TARGET_FILE_DIR:open-ephys>/resources
 				)
 
+	#copy GUI icon to output directory
+	add_custom_command(TARGET open-ephys POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy ${RESOURCES_DIRECTORY}/Icons/icon-small.png $<TARGET_FILE_DIR:open-ephys>/
+			)
 elseif(APPLE)
 	set(BIN_PLUGIN_DIR $<TARGET_FILE_DIR:open-ephys>/../PlugIns)
 	set(BIN_SHARED_DIR $<TARGET_FILE_DIR:open-ephys>/../Resources/shared)
@@ -137,6 +141,11 @@ elseif(APPLE)
 	add_custom_command(TARGET open-ephys POST_BUILD
 				COMMAND ${CMAKE_COMMAND} -E copy_directory ${RESOURCES_DIRECTORY}/FileReader/resources $<TARGET_FILE_DIR:open-ephys>/../Resources/resources
 				)
+	
+	#copy GUI icon to output directory
+	add_custom_command(TARGET open-ephys POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy ${RESOURCES_DIRECTORY}/Icons/icon-small.png $<TARGET_FILE_DIR:open-ephys>/../
+			)
 endif()
 
 if(MSVC)
