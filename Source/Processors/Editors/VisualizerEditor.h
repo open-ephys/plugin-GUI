@@ -198,6 +198,11 @@ protected:
     */
     int addTab (String textOfTab, Visualizer* contentComponent);
 
+    /**
+        @brief      Checks and creates a canvas if one doesn't exist. Also, updates the canvas 
+    */
+    void checkForCanvas();
+
     bool isPlaying; /**< Acquisition status flag */
 
     // So that we can override buttonClick. That's not possible if these are private.

@@ -1398,6 +1398,8 @@ std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
     XmlElement* editorViewportSettings = new XmlElement("EDITORVIEWPORT");
     editorViewportSettings->setAttribute("scroll", signalChainTabComponent->getScrollOffset());
     xml->addChildElement(editorViewportSettings);
+
+    AccessClass::getDataViewport()->saveStateToXml(xml.get()); // save the data viewport settings
     
     XmlElement* audioSettings = new XmlElement("AUDIO");
     AccessClass::getAudioComponent()->saveStateToXml(audioSettings);
@@ -1706,6 +1708,8 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
     }
 
     AccessClass::getProcessorGraph()->restoreParameters();  // loads the processor graph settings
+
+    AccessClass::getDataViewport()->loadStateFromXml(xml);
 
     String error = "Opened ";
     error += currentFile.getFileName();

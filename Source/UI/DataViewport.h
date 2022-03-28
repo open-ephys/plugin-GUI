@@ -56,13 +56,22 @@ public:
     ~DataViewport() { }
 
     /** Adds a new visualizer within a tab and returns the tab index.*/
-    int addTabToDataViewport(String tabName, Component* componentToAdd, GenericEditor* editor);
+    int addTabToDataViewport(String tabName, Component* componentToAdd);
+
+    /** [ONLY USED WHEN LOADING A CONFIG] Adds a new visualizer within a tab at the speicifed tab index.*/
+    void addTabAtIndex(int index, String tabName, Component* componentToAdd);
 
     /** Removes a tab with a specified index.*/
     void destroyTab(int);
 
     /** Selects a tab with a specified index.*/
     void selectTab(int);
+
+    /** Save settings.*/
+    void saveStateToXml(XmlElement* xml);
+
+    /** Load settings.*/
+    void loadStateFromXml(XmlElement* xml);
 
     /** Informs the component within the current tab that it's now active.*/
     void currentTabChanged(int newIndex, const String& newTabName);
@@ -75,8 +84,9 @@ private:
     /** Maps original tab indices to their location within the DataViewport. */
     Array<int> tabArray;
 
-    /** Maps processor editors to their respective tabs within the DataViewport. */
-    Array<GenericEditor*> editorArray;
+    /** Maps processors to their respective tabs within the DataViewport. */
+    std::map<int, String> tabNameMap;
+    std::map<int, Component*> tabComponentMap;
 
     void paint(Graphics& g);
     int tabDepth;

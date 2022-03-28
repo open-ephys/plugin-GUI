@@ -31,7 +31,8 @@ DataViewport::DataViewport() :
 {
 
     tabArray.clear();
-    editorArray.clear();
+    tabNameMap.clear();
+    tabComponentMap.clear();
 
     setTabBarDepth(tabDepth);
     setIndent(8); // gap to leave around the edge
@@ -44,8 +45,7 @@ DataViewport::DataViewport() :
 }
 
 int DataViewport::addTabToDataViewport(String name,
-                                       Component* component,
-                                       GenericEditor* editor)
+                                       Component* component)
 {
 
     if (tabArray.size() == 0)
@@ -63,8 +63,6 @@ int DataViewport::addTabToDataViewport(String name,
 
     tabArray.add(tabIndex);
 
-    editorArray.add(editor);
-
     LOGDD("Data Viewport adding tab with index ", tabIndex);
 
     setCurrentTabIndex(tabArray.size()-1);
@@ -72,6 +70,13 @@ int DataViewport::addTabToDataViewport(String name,
     return tabIndex;
 
 }
+
+void DataViewport::addTabAtIndex(int tabIndex, String tabName, Component* tabComponent)
+{
+    tabNameMap.emplace(tabIndex, tabName);
+    tabComponentMap.emplace(tabIndex, tabComponent);
+}
+
 
 void DataViewport::selectTab(int index)
 {
@@ -88,7 +93,7 @@ void DataViewport::destroyTab(int index)
     int newIndex = tabArray.indexOf(index);
 
     tabArray.remove(newIndex);
-    editorArray.remove(newIndex); // do this after the editor has been refreshed
+    tabIndex--;
     
     removeTab(newIndex);
 
@@ -96,6 +101,36 @@ void DataViewport::destroyTab(int index)
         setVisible(false);
 
     setCurrentTabIndex(tabArray.size()-1);
+
+}
+
+void DataViewport::saveStateToXml(XmlElement* xml)
+{
+    XmlElement* dataViewportState = xml->createNewChildElement("DATAVIEWPORT");
+    dataViewportState->setAttribute("selectedTab", tabArray[getCurrentTabIndex()]);
+}
+
+void DataViewport::loadStateFromXml(XmlElement* xml)
+{
+    for (const auto& tab : tabNameMap) 
+    {
+        // LOGC("********* ADDING ", tab.second, " to index ", tab.first, " ", tabComponentMap[tab.first]->getName());
+        addTabToDataViewport(tab.second, tabComponentMap[tab.first]);
+    }
+
+    for (auto* xmlNode : xml->getChildIterator())
+    {
+        if (xmlNode->hasTagName("DATAVIEWPORT"))
+        {
+			int index = xmlNode->getIntAttribute("selectedTab", -1);
+			if (index != -1)
+                selectTab(index);
+        }
+
+    }
+
+    tabNameMap.clear();
+    tabComponentMap.clear();
 
 }
 
