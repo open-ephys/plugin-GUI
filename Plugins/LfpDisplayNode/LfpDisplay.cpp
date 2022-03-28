@@ -365,6 +365,11 @@ void LfpDisplay::refresh()
     int fillfrom = canvasSplit->lastScreenBufferIndex[0];
     int fillto = (canvasSplit->screenBufferIndex[0]);
     
+    for (int i = 0; i < numChans; i++)
+    {
+        channels[i]->screenBufferIndex = fillto;
+    }
+    
     ///if (fillfrom<0){fillfrom=0;};
     //if (fillto>lfpChannelBitmap.getWidth()){fillto=lfpChannelBitmap.getWidth();};
     
@@ -414,8 +419,6 @@ void LfpDisplay::refresh()
             }
             else
             {
-                
-
                  channels[i]->pxPaint(); // draws to lfpChannelBitmap
                 
                  // it's not clear why, but apparently because the pxPaint() is in a child component of LfpDisplay, 
@@ -427,13 +430,12 @@ void LfpDisplay::refresh()
                  // we redraw from 0 to +2 (px) relative to the real redraw window, the +1 draws the vertical update line
                  if (fillfrom < fillto)
                  {
-                     channels[i]->repaint(fillfrom, 0, (fillto - fillfrom) + 1, channels[i]->getHeight());
+                     channels[i]->repaint(fillfrom, 0, (fillto - fillfrom) + 2, channels[i]->getHeight());
                  }
-                    
                  else
                  {
-                     channels[i]->repaint(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom + 1, channels[i]->getHeight());
-                     channels[i]->repaint(0, 0, fillto + 1, channels[i]->getHeight());
+                     channels[i]->repaint(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom + 2, channels[i]->getHeight());
+                     channels[i]->repaint(0, 0, fillto + 2, channels[i]->getHeight());
                  }
                 
             }

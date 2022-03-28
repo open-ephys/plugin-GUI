@@ -119,6 +119,7 @@ AudioEditor::AudioEditor (AudioNode* owner)
     noiseGateSlider->setLookAndFeel (materialSliderLookAndFeel);
     noiseGateSlider->addListener (this);
     addAndMakeVisible (noiseGateSlider);
+
 }
 
 

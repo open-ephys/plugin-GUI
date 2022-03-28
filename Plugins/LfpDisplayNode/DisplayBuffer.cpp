@@ -229,7 +229,7 @@ void DisplayBuffer::addData(AudioBuffer<float>& buffer, int chan, int nSamples)
     int channelIndex = channelMap[chan];
 
     const int samplesLeft = getNumSamples() - displayBufferIndices[channelMap[chan]];
-
+    
     int newIndex;
         
     if (nSamples < samplesLeft)
@@ -266,8 +266,6 @@ void DisplayBuffer::addData(AudioBuffer<float>& buffer, int chan, int nSamples)
 
         newIndex = extraSamples;
     }
-
-    ScopedLock displayLock(displayMutex);
 
     displayBufferIndices.set(channelMap[chan], newIndex);
 

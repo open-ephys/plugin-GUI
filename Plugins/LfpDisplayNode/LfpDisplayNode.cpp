@@ -280,7 +280,7 @@ void LfpDisplayNode::finalizeEventChannels()
 
 }
 
-void LfpDisplayNode::process (AudioSampleBuffer& buffer)
+void LfpDisplayNode::process (AudioBuffer<float>& buffer)
 {
 
     initializeEventChannels();

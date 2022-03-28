@@ -59,7 +59,7 @@ public:
     AudioProcessorEditor* createEditor() override;
 
     /** Pushes incoming data into a drawing buffer*/
-    void process (AudioSampleBuffer& buffer) override;
+    void process (AudioBuffer<float>& buffer) override;
 
     /** Used to set display trigger channels*/
     void setParameter (int parameterIndex, float newValue) override;

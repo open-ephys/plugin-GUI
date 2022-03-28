@@ -1626,7 +1626,6 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
     
     MouseCursor::showWaitCursor();
 
-    AccessClass::getControlPanel()->loadStateFromXml(xml);  // load the control panel settings
     AccessClass::getProcessorList()->loadStateFromXml(xml); // load the processor list settings
     AccessClass::getUIComponent()->loadStateFromXml(xml);   // load the UI settings
 
@@ -1697,6 +1696,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
         else if (element->hasTagName("AUDIO"))
         {
             AccessClass::getAudioComponent()->loadStateFromXml(element);
+            AccessClass::getControlPanel()->loadStateFromXml(xml);  // load the control panel settings after the audio settings
         }
         else if (element->hasTagName("EDITORVIEWPORT"))
         {

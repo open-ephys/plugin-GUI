@@ -57,6 +57,7 @@ LfpChannelDisplay::LfpChannelDisplay(LfpDisplaySplitter* c, LfpDisplay* d, LfpDi
     , canBeInverted(true)
     , drawMethod(false)
     , isHidden(false)
+    , screenBufferIndex(0)
 {
 
     name = String(channelNumber+1); // default is to make the channelNumber the name
@@ -122,12 +123,12 @@ void LfpChannelDisplay::pxPaint()
     
     int center = getHeight()/2;
     
+    int ifrom = canvasSplit->lastScreenBufferIndex[0]; // base everything on the first channel
+    int ito = screenBufferIndex;
+    
     // max and min of channel in absolute px coords for event displays etc - actual data might be drawn outside of this range
     int jfrom_wholechannel= (int) (getY()+center-channelHeight/2)+1 +0 ;
     int jto_wholechannel= (int) (getY()+center+channelHeight/2) -0;
-    
-    //int jfrom_wholechannel_almost= (int) (getY()+center-channelHeight/3)+1 +0 ; // a bit less tall, for saturation warnings
-    //int jto_wholechannel_almost= (int) (getY()+center+channelHeight/3) -0;
     
     // max and min of channel, this is the range where actual data is drawn
     int jfrom_wholechannel_clip= (int) (getY()+center-(channelHeight)*canvasSplit->channelOverlapFactor) + 1;
@@ -137,9 +138,9 @@ void LfpChannelDisplay::pxPaint()
     if (jto_wholechannel >= display->lfpChannelBitmap.getHeight()) {jto_wholechannel=display->lfpChannelBitmap.getHeight()-1;};
     
     // draw most recent drawn sample position
-    if (canvasSplit->screenBufferIndex[0] < display->lfpChannelBitmap.getWidth())
-        for (int k=jfrom_wholechannel; k<=jto_wholechannel; k+=2) // draw line
-            bdLfpChannelBitmap.setPixelColour(canvasSplit->screenBufferIndex[0],k, Colours::yellow);
+    if (ito < display->lfpChannelBitmap.getWidth())
+        for (int k = jfrom_wholechannel; k <= jto_wholechannel; k += 2) // draw line
+            bdLfpChannelBitmap.setPixelColour(ito + 1, k, Colours::yellow);
     
     bool clipWarningHi =false; // keep track if something clipped in the display, so we can draw warnings after the data pixels are done
     bool clipWarningLo =false;
@@ -151,10 +152,6 @@ void LfpChannelDisplay::pxPaint()
     int from = 0; // for vertical line drawing in the LFP data
     int to = 0;
     
-    int ifrom = canvasSplit->lastScreenBufferIndex[0]; // base everything on the first channel
-
-    int ito = canvasSplit->screenBufferIndex[0];
-
     if (ito < ifrom)
         ito = getWidth() + ito;
     
