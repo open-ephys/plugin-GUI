@@ -246,6 +246,14 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
 
     }
 
+    for (int i = 0; i < 3; i++)
+    {
+        if(splitDisplays[i]->displayBuffer->id == eventStreamId)
+        {
+            splitDisplays[i]->options->setTTLWord(String(event->getWord()));
+        }
+    }
+
 }
 
 

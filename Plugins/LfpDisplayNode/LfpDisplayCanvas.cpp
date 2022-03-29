@@ -803,7 +803,7 @@ void LfpDisplaySplitter::timerCallback()
 
 void LfpDisplaySplitter::monitorChannel(int chan)
 {
-    int globalIndex = processor->getDataStream(subprocessorId)->getContinuousChannels()[chan]->getGlobalIndex();
+    int globalIndex = processor->getDataStream(selectedStreamId)->getContinuousChannels()[chan]->getGlobalIndex();
 
     processor->setParameter(99, globalIndex);
 }
@@ -878,7 +878,7 @@ void LfpDisplaySplitter::updateSettings()
         displayBuffer->addDisplay(splitID);
         
         streamSelection->setSelectedId(displayBuffer->id, dontSendNotification);
-        subprocessorId = displayBuffer->id;
+        selectedStreamId = displayBuffer->id;
 
         displayBufferSize = displayBuffer->getNumSamples();
         nChans = displayBuffer->numChannels;
@@ -1482,7 +1482,7 @@ void LfpDisplaySplitter::setDrawableSampleRate(float samplerate)
 void LfpDisplaySplitter::setDrawableStream(uint16 sp)
 {
    
-    subprocessorId = sp;
+    selectedStreamId = sp;
     displayBuffer = processor->displayBufferMap[sp];
 
     updateSettings();
