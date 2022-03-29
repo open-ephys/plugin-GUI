@@ -250,7 +250,8 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
     {
         if(splitDisplays[i]->displayBuffer->id == eventStreamId)
         {
-            splitDisplays[i]->options->setTTLWord(String(event->getWord()));
+            if (event->getWord() != 0)
+                splitDisplays[i]->options->setTTLWord(String(event->getWord()));
         }
     }
 

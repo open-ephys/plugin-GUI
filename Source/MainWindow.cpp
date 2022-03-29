@@ -99,11 +99,10 @@ MainWindow::MainWindow(const File& fileToLoad)
     	File iconDir = File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/Resources");
 	#else
 		File iconDir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
+        Image windowIcon = ImageFileFormat::loadFrom(iconDir.getChildFile("icon-small.png"));
+        if (auto peer = getPeer())
+            peer->setIcon(windowIcon);
 	#endif
-	
-	Image windowIcon = ImageFileFormat::loadFrom(iconDir.getChildFile("icon-small.png"));
-	if (auto peer = getPeer())
-    	peer->setIcon(windowIcon);
 	
 	// Load a specific state of the GUI (custom, default, last-saved, or recovery config)
     if (!fileToLoad.getFullPathName().isEmpty())

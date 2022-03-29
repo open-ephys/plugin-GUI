@@ -43,7 +43,8 @@ namespace LfpViewer {
 class LfpDisplayOptions : 
     public Component,
     public ComboBox::Listener,
-    public Button::Listener
+    public Button::Listener,
+    public Timer
 {
 public:
 
@@ -158,7 +159,9 @@ public:
         ThirtyTwo
     } enum_selectedChannelDisplaySkipValue = None;
     
-    float selectedSaturationValueFloat; 
+    float selectedSaturationValueFloat;
+    
+    void timerCallback();
 
 private:
 
@@ -170,6 +173,8 @@ private:
     
     Font labelFont;
     Colour labelColour;
+    
+    String ttlWordString;
 
     // Main options
     std::unique_ptr<ComboBox> timebaseSelection;
@@ -180,7 +185,7 @@ private:
     std::unique_ptr<ComboBox> overlapSelection; // what do we do with this?
     
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
-    std::unique_ptr<Label> ttlWord;
+    std::unique_ptr<Label> ttlWordLabel;
     std::unique_ptr<UtilityButton> pauseButton;
     std::unique_ptr<ComboBox> colourSchemeOptionSelection;
     std::unique_ptr<ComboBox> colorGroupingSelection;

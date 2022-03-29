@@ -142,11 +142,11 @@ void LfpChannelDisplay::pxPaint()
         for (int k = jfrom_wholechannel; k <= jto_wholechannel; k += 2) // draw line
             bdLfpChannelBitmap.setPixelColour(ito + 1, k, Colours::yellow);
     
-    bool clipWarningHi =false; // keep track if something clipped in the display, so we can draw warnings after the data pixels are done
-    bool clipWarningLo =false;
+    bool clipWarningHi = false; // keep track if something clipped in the display, so we can draw warnings after the data pixels are done
+    bool clipWarningLo = false;
     
-    bool saturateWarningHi =false; // similar, but for saturating the amplifier, not just the display - make this warning very visible
-    bool saturateWarningLo =false;
+    bool saturateWarningHi = false; // similar, but for saturating the amplifier, not just the display - make this warning very visible
+    bool saturateWarningLo = false;
      
     int stepSize = 1;
     int from = 0; // for vertical line drawing in the LFP data
@@ -341,10 +341,6 @@ void LfpChannelDisplay::pxPaint()
             saturateWarningLo=false;
 
         } // if i < getWidth()
-
-        //i++;
-
-        //i %= getWidth() - canvasSplit->leftmargin;
         
     } // while i
 
