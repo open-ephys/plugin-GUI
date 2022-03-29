@@ -430,7 +430,7 @@ void LfpDisplay::refresh()
                  // we redraw from 0 to +2 (px) relative to the real redraw window, the +1 draws the vertical update line
                  if (fillfrom < fillto)
                  {
-                     channels[i]->repaint(fillfrom, 0, (fillto - fillfrom) + 2, channels[i]->getHeight());
+                     channels[i]->repaint(fillfrom, 0, fillto - fillfrom + 2, channels[i]->getHeight());
                  }
                  else
                  {

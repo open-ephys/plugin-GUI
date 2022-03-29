@@ -1063,7 +1063,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
             // this number is crucial -- converting from samples to values (in px) for the screen buffer:
             float ratio = sampleRate * timebase / float(maxSamples); // samples / pixel
 
-            float pixelsToFill = floor(float(newSamples) / ratio); // M pixels to update
+            float pixelsToFill = float(newSamples) / ratio; // M pixels to update
 
             int sbi = screenBufferIndex[channel];
 

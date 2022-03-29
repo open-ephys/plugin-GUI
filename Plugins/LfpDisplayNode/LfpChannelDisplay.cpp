@@ -138,7 +138,7 @@ void LfpChannelDisplay::pxPaint()
     if (jto_wholechannel >= display->lfpChannelBitmap.getHeight()) {jto_wholechannel=display->lfpChannelBitmap.getHeight()-1;};
     
     // draw most recent drawn sample position
-    if (ito < display->lfpChannelBitmap.getWidth())
+    if (ito < display->lfpChannelBitmap.getWidth() - 1)
         for (int k = jfrom_wholechannel; k <= jto_wholechannel; k += 2) // draw line
             bdLfpChannelBitmap.setPixelColour(ito + 1, k, Colours::yellow);
     
