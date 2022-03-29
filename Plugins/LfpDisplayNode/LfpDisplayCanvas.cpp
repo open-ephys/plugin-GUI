@@ -619,15 +619,6 @@ void LfpDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 
     int64 start = Time::getHighResolutionTicks();
 
-    for (int i = 0; i < 3; i++)
-    {
-        displaySplits[i]->options->loadParameters(xml);
-    }
-
-    LOGD("    Loaded split display parameters in ", MS_FROM_START, " milliseconds");
-
-    start = Time::getHighResolutionTicks();
-
     for (auto* xmlNode : xml->getChildIterator())
 	{
 		if (xmlNode->hasTagName("CANVAS"))
@@ -652,6 +643,15 @@ void LfpDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 
 		}
 	}
+
+    start = Time::getHighResolutionTicks();
+
+    for (int i = 0; i < 3; i++)
+    {
+        displaySplits[i]->options->loadParameters(xml);
+    }
+
+    LOGD("    Loaded split display parameters in ", MS_FROM_START, " milliseconds");
 
     start = Time::getHighResolutionTicks();
 
@@ -803,7 +803,7 @@ void LfpDisplaySplitter::timerCallback()
 
 void LfpDisplaySplitter::monitorChannel(int chan)
 {
-    int globalIndex = processor->getDataStream(subprocessorId)->getContinuousChannels()[chan]->getGlobalIndex();
+    int globalIndex = processor->getDataStream(selectedStreamId)->getContinuousChannels()[chan]->getGlobalIndex();
 
     processor->setParameter(99, globalIndex);
 }
@@ -878,7 +878,7 @@ void LfpDisplaySplitter::updateSettings()
         displayBuffer->addDisplay(splitID);
         
         streamSelection->setSelectedId(displayBuffer->id, dontSendNotification);
-        subprocessorId = displayBuffer->id;
+        selectedStreamId = displayBuffer->id;
 
         displayBufferSize = displayBuffer->getNumSamples();
         nChans = displayBuffer->numChannels;
@@ -1478,7 +1478,7 @@ void LfpDisplaySplitter::setDrawableSampleRate(float samplerate)
 void LfpDisplaySplitter::setDrawableStream(uint16 sp)
 {
    
-    subprocessorId = sp;
+    selectedStreamId = sp;
     displayBuffer = processor->displayBufferMap[sp];
 
     updateSettings();

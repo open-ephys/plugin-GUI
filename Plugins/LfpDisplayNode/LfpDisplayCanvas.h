@@ -342,7 +342,7 @@ private:
     int triggerChannel;
     bool reachedEnd;
 
-	uint16 subprocessorId;
+	uint16 selectedStreamId;
 	float displayedSampleRate;
 
     int samplesPerBufferPass;

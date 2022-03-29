@@ -207,6 +207,11 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
         lfpDisplay->setEventDisplayState(i, true);
     }
 
+    // TTL Word
+    ttlWord = std::make_unique<Label>("TTL word");
+    ttlWord->setColour(Label::backgroundColourId, Colours::white);
+    addAndMakeVisible(ttlWord.get());
+
     // Pause button
     pauseButton = std::make_unique<UtilityButton>("Pause", Font("Default", "Plain", 15));
     pauseButton->setRadius(5.0f);
@@ -444,14 +449,16 @@ void LfpDisplayOptions::resized()
 
     for (int i = 0; i < 8; i++)
     {
-        eventDisplayInterfaces[i]->setBounds(typeButtons[0]->getRight() + 120 + (floor(i / 2) * 20),
+        eventDisplayInterfaces[i]->setBounds(typeButtons[0]->getRight() + 90 + (floor(i / 2) * 20),
                                                             getHeight() - 45 + (i % 2) * 20, 20, 20); // arrange event channel buttons in two rows
         eventDisplayInterfaces[i]->repaint();
     }
 
-    pauseButton->setBounds(650, getHeight() - 40, 70, 30);
+    ttlWord->setBounds(565, getHeight() - 30, 90, height);
+
+    pauseButton->setBounds(680, getHeight() - 40, 70, 30);
     
-    colourSchemeOptionSelection->setBounds(pauseButton->getRight() + 40,
+    colourSchemeOptionSelection->setBounds(pauseButton->getRight() + 30,
         getHeight() - 30,
         180,
         height);
@@ -564,8 +571,10 @@ void LfpDisplayOptions::paint(Graphics& g)
     g.drawText("Chan height (px)", spreadSelection->getX(), spreadSelection->getY() - 22, 300, 20, Justification::left, false);
     g.drawText("Range (" + rangeUnits[selectedChannelType] + ")", rangeSelection->getX(), rangeSelection->getY() - 22, 300, 20, Justification::left, false);
 
-    g.drawText("Overlay", 380, getHeight() - 43, 100, 20, Justification::right, false);
-    g.drawText("Events:", 380, getHeight() - 25, 100, 20, Justification::right, false);
+    g.drawText("Overlay", 350, getHeight() - 43, 100, 20, Justification::right, false);
+    g.drawText("Events:", 350, getHeight() - 25, 100, 20, Justification::right, false);
+
+    g.drawText("TTL word:", ttlWord->getX(), ttlWord->getY() -22, 70, 20, Justification::left, false);
 
     g.drawText("Color scheme", colourSchemeOptionSelection->getX(), colourSchemeOptionSelection->getY() - 22, 300, 20, Justification::left, false);
     g.drawText("Color grouping", colorGroupingSelection->getX(), colorGroupingSelection->getY() - 22, 300, 20, Justification::left, false);
@@ -857,6 +866,13 @@ void LfpDisplayOptions::setShowChannelNumbers(bool state)
     else {
         showChannelNumberButton->setLabel("OFF");
     }
+}
+
+void LfpDisplayOptions::setTTLWord(String word)
+{
+    const MessageManagerLock mml;
+
+    ttlWord->setText(word, dontSendNotification);
 }
 
 void LfpDisplayOptions::buttonClicked(Button* b)
@@ -1534,6 +1550,10 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             }
 
             LOGD("    Set channel display state in ", MS_FROM_START, " milliseconds");
+            
+            if(canvas->optionsDrawerIsOpen)
+                showHideOptionsButton->setToggleState(true, dontSendNotification);
+
             start = Time::getHighResolutionTicks();
 
             lfpDisplay->setSingleChannelView(xmlNode->getIntAttribute("singleChannelView", -1));

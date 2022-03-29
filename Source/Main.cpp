@@ -105,9 +105,22 @@ public:
 
     void systemRequestedQuit()
     {
-        mainWindow->shutDownGUI();
+        bool shouldQuit = true;
 
-        quit();
+        if(CoreServices::getAcquisitionStatus())
+        {
+            shouldQuit = AlertWindow::showOkCancelBox(AlertWindow::WarningIcon, 
+                                "Quit Open Ephys GUI",
+                                "Are you sure you want to quit the GUI?", 
+                                "Yes", 
+                                "No");
+        }
+
+        if(shouldQuit)
+        {
+            mainWindow->shutDownGUI();
+            quit();
+        }
     }
 
     const String getApplicationName()

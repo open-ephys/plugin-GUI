@@ -129,6 +129,9 @@ public:
     /** Sets whether channel numbers should be shown instead of names */
     void setShowChannelNumbers(bool);
 
+    /** Sets the latest ttl word value */
+    void setTTLWord(String word);
+
     int selectedSpread;
     String selectedSpreadValue;
 
@@ -177,6 +180,7 @@ private:
     std::unique_ptr<ComboBox> overlapSelection; // what do we do with this?
     
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
+    std::unique_ptr<Label> ttlWord;
     std::unique_ptr<UtilityButton> pauseButton;
     std::unique_ptr<ComboBox> colourSchemeOptionSelection;
     std::unique_ptr<ComboBox> colorGroupingSelection;
