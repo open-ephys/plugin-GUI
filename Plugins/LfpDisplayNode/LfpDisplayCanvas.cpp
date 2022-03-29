@@ -619,15 +619,6 @@ void LfpDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 
     int64 start = Time::getHighResolutionTicks();
 
-    for (int i = 0; i < 3; i++)
-    {
-        displaySplits[i]->options->loadParameters(xml);
-    }
-
-    LOGD("    Loaded split display parameters in ", MS_FROM_START, " milliseconds");
-
-    start = Time::getHighResolutionTicks();
-
     for (auto* xmlNode : xml->getChildIterator())
 	{
 		if (xmlNode->hasTagName("CANVAS"))
@@ -652,6 +643,15 @@ void LfpDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 
 		}
 	}
+
+    start = Time::getHighResolutionTicks();
+
+    for (int i = 0; i < 3; i++)
+    {
+        displaySplits[i]->options->loadParameters(xml);
+    }
+
+    LOGD("    Loaded split display parameters in ", MS_FROM_START, " milliseconds");
 
     start = Time::getHighResolutionTicks();
 

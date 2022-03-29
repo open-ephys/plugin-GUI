@@ -1550,6 +1550,10 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             }
 
             LOGD("    Set channel display state in ", MS_FROM_START, " milliseconds");
+            
+            if(canvas->optionsDrawerIsOpen)
+                showHideOptionsButton->setToggleState(true, dontSendNotification);
+
             start = Time::getHighResolutionTicks();
 
             lfpDisplay->setSingleChannelView(xmlNode->getIntAttribute("singleChannelView", -1));
