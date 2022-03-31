@@ -765,8 +765,6 @@ void ProcessorGraph::restoreParameters()
 
     isLoadingSignalChain = false;
 
-    //updateViews(rootNodes[0]);
-
     for (auto p : getListOfProcessors())
     {
         p->initialize(true);
@@ -1011,13 +1009,13 @@ void ProcessorGraph::updateConnections()
 
        while (destNode->isMerger())
        {
-            LOGD("  Found Merger: ", destNode->getNodeId());
+            LOGG("  Found Merger: ", destNode->getNodeId());
 
             Merger* merger = (Merger*) destNode;
 
             int path = merger->getSourceNode(0) == lastProcessor ? 0 : 1;
 
-            LOGD("Adding Merger order: ", path);
+            LOGG("Adding Merger order: ", path);
             conn.mergerOrder.insert(conn.mergerOrder.begin(), path);
 
             lastProcessor = destNode;
@@ -1029,11 +1027,11 @@ void ProcessorGraph::updateConnections()
             if (destNode->isSplitter())
             {
                 splitters.add((Splitter*) destNode);
-                LOGD("  Adding Splitter: ", destNode->getNodeId());
+                LOGG("  Adding Splitter: ", destNode->getNodeId());
             } else if (!destNode->isMerger())
             {
                 nodesToConnect.add(destNode);
-                LOGD("  Adding node to connect: ", destNode->getNodeId());
+                LOGG("  Adding node to connect: ", destNode->getNodeId());
             }
 
        }
@@ -1044,7 +1042,7 @@ void ProcessorGraph::updateConnections()
        if (destNode->isSplitter())
        {
             splitters.add((Splitter*) destNode);
-            LOGD("  Adding Splitter: ", destNode->getNodeId());
+            LOGG("  Adding Splitter: ", destNode->getNodeId());
        }
 
        while (splitters.size() > 0)
@@ -1058,12 +1056,12 @@ void ProcessorGraph::updateConnections()
                 {
                     if (thisSplitter->getDestNode(path)->isSplitter())
                     {
-                        LOGD("  Adding Splitter: ", destNode->getNodeId());
+                        LOGG("  Adding Splitter: ", destNode->getNodeId());
                         splitters.add((Splitter*) thisSplitter->getDestNode(path));
                     } else {
                         if (thisSplitter->getDestNode(path) != nullptr)
                         {
-                            LOGD("  Adding node to connect: ", thisSplitter->getDestNode(path)->getNodeId());
+                            LOGG("  Adding node to connect: ", thisSplitter->getDestNode(path)->getNodeId());
                             nodesToConnect.add(thisSplitter->getDestNode(path));
                         }
                     }
@@ -1087,18 +1085,6 @@ void ProcessorGraph::updateConnections()
 
             for (const ConnectionInfo& conn : destSources.second)
             {
-            
-                if (conn.mergerOrder.size() > 0)
-                {
-                    std::cout << "Merger order: ";
-                    
-                    for (auto i : conn.mergerOrder)
-                    {
-                    std::cout << i << " ";
-                    }
-                    std::cout << std::endl;
-                }
-            
                 connectProcessors(conn.source, dest, conn.connectContinuous, conn.connectEvents);
             }
         }
