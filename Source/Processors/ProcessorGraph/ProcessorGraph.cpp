@@ -1007,6 +1007,8 @@ void ProcessorGraph::updateConnections()
        Array<Splitter*> splitters;
        GenericProcessor* lastProcessor = processor;
 
+       // if the next node is a Merger, we actually need to
+       // connect to the next non-Merger node
        while (destNode->isMerger())
        {
             LOGG("  Found Merger: ", destNode->getNodeId());
@@ -1015,7 +1017,7 @@ void ProcessorGraph::updateConnections()
 
             int path = merger->getSourceNode(0) == lastProcessor ? 0 : 1;
 
-            LOGG("Adding Merger order: ", path);
+            LOGG("   --> Adding Merger order: ", path);
             conn.mergerOrder.insert(conn.mergerOrder.begin(), path);
 
             lastProcessor = destNode;
@@ -1036,15 +1038,18 @@ void ProcessorGraph::updateConnections()
 
        }
 
+       // if there's nothing after the Merger, skip
        if (destNode == nullptr)
             continue;
 
+       // if the next node is a Splitter, we need to connect to both paths
        if (destNode->isSplitter())
        {
             splitters.add((Splitter*) destNode);
             LOGG("  Adding Splitter: ", destNode->getNodeId());
        }
 
+       // keep connecting until we've found all possible paths
        while (splitters.size() > 0)
        {
             Splitter* thisSplitter = splitters.getLast();
@@ -1069,15 +1074,17 @@ void ProcessorGraph::updateConnections()
             }
        }
 
+       // if it's not a Splitter or Merger, simply connect
        if (nodesToConnect.size() == 0)
             nodesToConnect.add(destNode);
 
+       // Add all the connections we found
        for (auto node : nodesToConnect)
        {
             sourceMap[node].add(conn);
        }
 
-        // actually connect sources to each dest processor,
+        // Finally, actually connect sources to each dest processor,
         // in correct order by merger topography
         for (const auto& destSources : sourceMap)
         {
