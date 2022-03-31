@@ -219,10 +219,12 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
         {
             if (triggerChannels[i] == eventChannel)
             {
-                // if an event came in on the trigger channel
-                //std::cout << "Setting latest current trigger to " << eventTime << std::endl;
-                latestCurrentTrigger.set(i, eventTime);
-
+                if (splitDisplays[i]->selectedStreamId == eventStreamId)
+                {
+                    // if an event came in on the trigger channel
+                    //std::cout << "Setting latest current trigger to " << eventTime << std::endl;
+                    latestCurrentTrigger.set(i, eventTime);
+                }
             }
         }
     }

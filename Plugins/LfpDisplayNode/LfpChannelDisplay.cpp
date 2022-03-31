@@ -114,7 +114,7 @@ void LfpChannelDisplay::setHidden(bool isHidden_)
 
 void LfpChannelDisplay::pxPaint()
 {
-    if (!isEnabled || isHidden)
+    if (!isEnabled || isHidden || getWidth() == 0)
     {
         return; // return early if THIS display is not enabled
     }

@@ -322,6 +322,8 @@ public:
 
     /** Send a message to audio monitor one channel */
     void monitorChannel(int channel);
+    
+    uint16 selectedStreamId;
 
 private:
 
@@ -342,7 +344,7 @@ private:
     int triggerChannel;
     bool reachedEnd;
 
-	uint16 selectedStreamId;
+	
 	float displayedSampleRate;
 
     int samplesPerBufferPass;
