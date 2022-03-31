@@ -1397,6 +1397,14 @@ std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
 
     XmlElement* editorViewportSettings = new XmlElement("EDITORVIEWPORT");
     editorViewportSettings->setAttribute("scroll", signalChainTabComponent->getScrollOffset());
+    
+    for (auto editor : editorArray)
+    {
+        XmlElement* visibleEditorXml = new XmlElement(editor->getName().replaceCharacters(" ","_").toUpperCase());
+        visibleEditorXml->setAttribute("ID", editor->getProcessor()->getNodeId());
+        editorViewportSettings->addChildElement(visibleEditorXml);
+    }
+    
     xml->addChildElement(editorViewportSettings);
 
     AccessClass::getDataViewport()->saveStateToXml(xml.get()); // save the data viewport settings
@@ -1552,6 +1560,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 
     bool sameVersion = false;
     bool compatibleVersion = false;
+    int scrollOffset;
 
     String versionString;
 
@@ -1702,7 +1711,18 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
         }
         else if (element->hasTagName("EDITORVIEWPORT"))
         {
-            signalChainTabComponent->setScrollOffset(element->getIntAttribute("scroll", 0));
+
+            editorArray.clear();
+            for (auto* visibleEditor : element->getChildIterator())
+            {
+                int nodeId = visibleEditor->getIntAttribute("ID");
+                editorArray.add(AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId)->getEditor());
+            }
+            
+            refreshEditors();
+            
+            scrollOffset = element->getIntAttribute("scroll", 0);
+            
         }
 
     }
@@ -1717,6 +1737,8 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
     loadingConfig = false;
 
     MouseCursor::hideWaitCursor();
+    
+    signalChainTabComponent->setScrollOffset(scrollOffset);
     
     return error;
 }

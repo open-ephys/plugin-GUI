@@ -765,7 +765,7 @@ void ProcessorGraph::restoreParameters()
 
     isLoadingSignalChain = false;
 
-    updateViews(rootNodes[0]);
+    //updateViews(rootNodes[0]);
 
     for (auto p : getListOfProcessors())
     {
@@ -981,6 +981,12 @@ void ProcessorGraph::updateConnections()
     {
 
         LOGD("Processor: ", processor->getName(), " ", processor->getNodeId());
+            
+        if (processor->isMerger())
+            continue;
+            
+        if (processor->isSplitter())
+            continue;
 
        if (processor->isSource())
            connectProcessorToMessageCenter(processor);
@@ -1011,6 +1017,7 @@ void ProcessorGraph::updateConnections()
 
             int path = merger->getSourceNode(0) == lastProcessor ? 0 : 1;
 
+            LOGD("Adding Merger order: ", path);
             conn.mergerOrder.insert(conn.mergerOrder.begin(), path);
 
             lastProcessor = destNode;
@@ -1080,6 +1087,18 @@ void ProcessorGraph::updateConnections()
 
             for (const ConnectionInfo& conn : destSources.second)
             {
+            
+                if (conn.mergerOrder.size() > 0)
+                {
+                    std::cout << "Merger order: ";
+                    
+                    for (auto i : conn.mergerOrder)
+                    {
+                    std::cout << i << " ";
+                    }
+                    std::cout << std::endl;
+                }
+            
                 connectProcessors(conn.source, dest, conn.connectContinuous, conn.connectEvents);
             }
         }
