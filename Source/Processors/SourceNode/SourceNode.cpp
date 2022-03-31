@@ -78,7 +78,7 @@ DataThread* SourceNode::getThread() const
 	return dataThread;
 }
 
-//This is going to be quite slow, since is reallocating everything, but it's the 
+//This is going to be quite slow, since is reallocating everything, but it's the
 //safest way to handle a possible varying number of subprocessors
 void SourceNode::resizeBuffers()
 {
@@ -121,7 +121,7 @@ void SourceNode::updateSettings()
             &dataStreams,
             &devices,
             &configurationObjects);
-		
+
         resizeBuffers();
 
         //std::cout << " Source node num continuous channels: " << continuousChannels.size() << std::endl;
@@ -243,7 +243,7 @@ bool SourceNode::startAcquisition()
 
 bool SourceNode::stopAcquisition()
 {
-    
+
     if (dataThread != nullptr)
         dataThread->stopAcquisition();
 
@@ -255,7 +255,7 @@ bool SourceNode::stopAcquisition()
 
 void SourceNode::connectionLost()
 {
-    
+
     CoreServices::setAcquisitionStatus(false);
 
     CoreServices::sendStatusMessage("Data acquisition stopped by "+ getName());
@@ -288,12 +288,12 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 	for (int streamIdx = 0; streamIdx < inputBuffers.size(); streamIdx++)
 	{
 		int channelsToCopy = getNumOutputsForStream(streamIdx);
-		
+
 		int nSamples = inputBuffers[streamIdx]->readAllFromBuffer(buffer,
-            &timestamp, 
+            &timestamp,
             static_cast<uint64*>(eventCodeBuffers[streamIdx]->getData()),
-            buffer.getNumSamples(), 
-            copiedChannels, 
+            buffer.getNumSamples(),
+            copiedChannels,
             channelsToCopy);
 
 		copiedChannels += channelsToCopy;
@@ -318,16 +318,16 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 					{
 						if (((currentCode >> c) & 0x01) != ((lastCode >> c) & 0x01))
 						{
-							TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[streamIdx], 
+							TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[streamIdx],
                                 timestamp + sample,
-                                c, 
+                                c,
                                 (currentCode >> c) & 0x01,
                                 currentCode);
 
 							addEvent(event, sample);
 						}
 					}
-                    
+
                     lastCode = currentCode;
 				}
 			}
