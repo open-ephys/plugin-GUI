@@ -94,6 +94,12 @@ public:
     
     /** Display the path that leads to a particular processor*/
     void setPathToProcessor(GenericProcessor* processor);
+    
+    /** Saves Splitter parameters to XML file*/
+    void saveCustomParametersToXml(XmlElement* parentElement) override;
+
+    /** Loads Splitter parameters from XML file*/
+    void loadCustomParametersFromXml(XmlElement* xml) override;
 
 private:
 

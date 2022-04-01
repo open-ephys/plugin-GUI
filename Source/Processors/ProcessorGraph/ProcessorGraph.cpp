@@ -940,14 +940,6 @@ void ProcessorGraph::updateConnections()
 
     clearConnections(); // clear processor graph
 
-    Array<GenericProcessor*> splitters;
-    Array<GenericProcessor*> splitters2;
-    Array<int> splitterStates;
-
-    // keep track of which splitter is currently being explored, in case there's another
-    // splitter between the one being explored and its source.
-    GenericProcessor* activeSplitter = nullptr;
-
     // stores the pointer to a source leading into a particular dest node
     // along with a boolean vector indicating the position of this source
     // relative to other sources entering the dest via mergers
@@ -978,7 +970,7 @@ void ProcessorGraph::updateConnections()
     for (auto processor : getListOfProcessors())
     {
 
-        LOGD("Processor: ", processor->getName(), " ", processor->getNodeId());
+        LOGG("Processor: ", processor->getName(), " ", processor->getNodeId());
             
         if (processor->isMerger())
             continue;

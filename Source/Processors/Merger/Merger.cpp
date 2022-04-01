@@ -292,7 +292,8 @@ void Merger::saveCustomParametersToXml(XmlElement* parentElement)
 
 void Merger::loadCustomParametersFromXml(XmlElement* xml)
 {
-    
+    MergerEditor* me = (MergerEditor*) getEditor();
+    me->switchSource(xml->getIntAttribute("activePath", 0));
 }
 
 void Merger::restoreConnections()

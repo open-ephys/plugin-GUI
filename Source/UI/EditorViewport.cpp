@@ -1341,24 +1341,25 @@ std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
         {
             if (processor->saveOrder < 0)
             {
+                
+                // create a new XML element
+                signalChain->addChildElement(createNodeXml(processor,  isStartOfSignalChain));
+                processor->saveOrder = saveOrder;
+                allProcessors.addIfNotAlreadyThere(processor);
+                saveOrder++;
+                
                 if (processor->isSplitter())
                 {
                     // add to list of splitters to come back to
                     splitPoints.add(processor);
 
                     //keep track of all splitters and their inital states
-                    allSplitters.add(processor); 
+                    allSplitters.add(processor);
                     Splitter* sp = (Splitter*)processor;
                     splitterStates.add(sp->getPath());
                     
                     processor->switchIO(0);
                 }
-
-                // create a new XML element
-                signalChain->addChildElement(createNodeXml(processor,  isStartOfSignalChain));
-                processor->saveOrder = saveOrder;
-                allProcessors.addIfNotAlreadyThere(processor);
-                saveOrder++;
 
             }
 
