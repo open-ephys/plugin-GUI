@@ -44,7 +44,7 @@ void DelayMonitor::setEnabled(bool state)
     if (isEnabled)
         colour = Colours::black;
     else
-        colour = Colours::grey;
+        colour = Colours::darkgrey;
     
     repaint();
 }
