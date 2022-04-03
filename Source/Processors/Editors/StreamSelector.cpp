@@ -96,9 +96,11 @@ void StreamInfoView::setEnabled(bool state)
 
     enableButton->setToggleState(state, dontSendNotification);
     enableButton->repaint();
-    
+
     if (delayMonitor != nullptr)
         delayMonitor->setEnabled(state);
+
+    repaint();
 }
 
 void StreamInfoView::startAcquisition()
@@ -190,7 +192,7 @@ void StreamInfoView::paint(Graphics& g)
 
 StreamSelector::StreamSelector(GenericEditor* ed_) :
     editor(ed_),
-    streamInfoViewWidth(120),
+    streamInfoViewWidth(130),
     streamInfoViewHeight(80),
     scrollOffset(0),
     viewedStreamIndex(0)
@@ -312,8 +314,6 @@ void StreamSelector::resized()
 {
     viewport->setBounds(5, 20, getWidth() - 10, getHeight() - 20);
 
-    streamInfoViewWidth = getWidth() - 10;
-
     viewedComponent->setBounds(0, 0, streams.size() * streamInfoViewWidth, getHeight() - 20);
     
     leftScrollButton->setBounds(2, 2, 18, 18);
@@ -331,7 +331,8 @@ void StreamSelector::resized()
     if (streams.size() > 0)
         streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
 
-    viewport->setViewPosition(scrollOffset.getCurrentValue(), 0);
+    std::cout << "(Resized) Setting view position: " << viewedStreamIndex * streamInfoViewWidth << std::endl;
+    viewport->setViewPosition(viewedStreamIndex * streamInfoViewWidth, 0);
 }
 
 void StreamSelector::buttonClicked(Button* button)
@@ -411,10 +412,17 @@ int StreamSelector::getViewedIndex()
 
 void StreamSelector::setViewedIndex(int i)
 {
+
     if (i >= 0 && i < streams.size())
     {
         viewedStreamIndex = i;
-        editor->updateSelectedStream(streams[viewedStreamIndex]->streamId);
+        streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
+        streamSelectorButton->repaint();
+
+        std::cout << "(setViewedIndex) Setting view position: " << viewedStreamIndex * streamInfoViewWidth << std::endl;
+        viewport->setViewPosition(viewedStreamIndex * streamInfoViewWidth, 0);
+        
+        //editor->updateSelectedStream(streams[viewedStreamIndex]->streamId);
     }
         
 }
@@ -492,6 +500,7 @@ uint16 StreamSelector::finishedUpdate()
     
     if (viewedStreamIndex > -1)
     {
+        std::cout << "(finishedUpdate) Setting view position: " << viewedStreamIndex * streamInfoViewWidth << std::endl;
         viewport->setViewPosition(viewedStreamIndex * streamInfoViewWidth, 0);
         
         streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
@@ -523,6 +532,7 @@ void StreamSelector::timerCallback()
 
     float newOffset = scrollOffset.getNextValue();
 
+    std::cout << "(timerCallback) Setting view position: " << newOffset << std::endl;
     viewport->setViewPosition(newOffset, 0);
 }
 

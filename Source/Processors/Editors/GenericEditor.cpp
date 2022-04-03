@@ -1114,10 +1114,10 @@ void GenericEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled, b
 
     if (!isLoading)
         CoreServices::updateSignalChain(this);
-   // else
-   // {
-   //     streamSelector->getStreamInfoView(getProcessor()->getDataStream(streamId))->setEnabled(isEnabled);
-   // }
+    else
+    {
+        streamSelector->getStreamInfoView(getProcessor()->getDataStream(streamId))->setEnabled(isEnabled);
+    }
 
 }
 

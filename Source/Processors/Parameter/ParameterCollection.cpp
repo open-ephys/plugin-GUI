@@ -23,6 +23,10 @@
 #include "ParameterCollection.h"
 #include "../Settings/InfoObject.h"
 #include "../Settings/DataStream.h"
+#include "../Settings/ContinuousChannel.h"
+#include "../Settings/SpikeChannel.h"
+#include "../Settings/EventChannel.h"
+#include "../Settings/DeviceInfo.h"
 
 #include "Parameter.h"
 
@@ -30,10 +34,60 @@ ParameterCollection::ParameterCollection(InfoObject* object)
 {
     for (auto parameter : object->getParameters())
         addParameter(parameter);
+
+    owner.name = object->getName();
+    
+    if (object->getType() == InfoObject::DATASTREAM_INFO)
+    {
+        DataStream* s = (DataStream*)object;
+        owner.channel_count = s->getChannelCount();
+        owner.sample_rate = s->getSampleRate();
+        owner.streamId = s->getStreamId();
+        owner.name = s->getName();
+        owner.sourceNodeId = s->getSourceNodeId();
+
+        if (s->hasDevice())
+            owner.deviceName = s->device->getName();
+    } 
+    else if (object->getType() == InfoObject::CONTINUOUS_CHANNEL)
+    {
+        ContinuousChannel* s = (ContinuousChannel*)object;
+        owner.sample_rate = s->getSampleRate();
+        owner.streamId = s->getStreamId();
+        owner.name = s->getName();
+        owner.sourceNodeId = s->getSourceNodeId();
+    } 
+    else if (object->getType() == InfoObject::SPIKE_CHANNEL)
+    {
+        SpikeChannel* s = (SpikeChannel*)object;
+        owner.sample_rate = s->getSampleRate();
+        owner.streamId = s->getStreamId();
+        owner.name = s->getName();
+        owner.sourceNodeId = s->getSourceNodeId();
+    }
+    else if (object->getType() == InfoObject::EVENT_CHANNEL)
+    {
+        EventChannel* s = (EventChannel*)object;
+        owner.sample_rate = s->getSampleRate();
+        owner.streamId = s->getStreamId();
+        owner.name = s->getName();
+        owner.sourceNodeId = s->getSourceNodeId();
+    }
+
 }
 
 ParameterCollection::~ParameterCollection()
 {
+}
+
+
+void ParameterCollection::copyParameterValuesTo(InfoObject* obj)
+{
+    for (auto parameter : parameters)
+    {
+        if (obj->hasParameter(parameter->getName()))
+            obj->getParameter(parameter->getName())->setNextValue(parameter->getValue());
+    }
 }
 
 void ParameterCollection::copyParametersTo(InfoObject* obj)
@@ -165,6 +219,43 @@ void ParameterCollection::copyParametersFrom(InfoObject* obj)
             clearParameterOwner(p);
         }
             
+    }
+
+    if (obj->getType() == InfoObject::DATASTREAM_INFO)
+    {
+        DataStream* s = (DataStream*)obj;
+        owner.channel_count = s->getChannelCount();
+        owner.sample_rate = s->getSampleRate();
+        owner.name = s->getName();
+        owner.streamId = s->getStreamId();
+        owner.sourceNodeId = s->getSourceNodeId();
+
+        if (s->hasDevice())
+            owner.deviceName = s->device->getName();
+    }
+    else if (obj->getType() == InfoObject::CONTINUOUS_CHANNEL)
+    {
+        ContinuousChannel* s = (ContinuousChannel*)obj;
+        owner.sample_rate = s->getSampleRate();
+        owner.streamId = s->getStreamId();
+        owner.name = s->getName();
+        owner.sourceNodeId = s->getSourceNodeId();
+    }
+    else if (obj->getType() == InfoObject::SPIKE_CHANNEL)
+    {
+        SpikeChannel* s = (SpikeChannel*)obj;
+        owner.sample_rate = s->getSampleRate();
+        owner.streamId = s->getStreamId();
+        owner.name = s->getName();
+        owner.sourceNodeId = s->getSourceNodeId();
+    }
+    else if (obj->getType() == InfoObject::EVENT_CHANNEL)
+    {
+        EventChannel* s = (EventChannel*)obj;
+        owner.sample_rate = s->getSampleRate();
+        owner.streamId = s->getStreamId();
+        owner.name = s->getName();
+        owner.sourceNodeId = s->getSourceNodeId();
     }
 }
 

@@ -552,6 +552,167 @@ void GenericProcessor::setStreamEnabled(uint16 streamId, bool isEnabled)
     getDataStream(streamId)->getParameter("enable_stream")->setNextValue(isEnabled);
 }
 
+int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
+{
+
+    std::cout << "Finding best matching saved parameters for " << stream->getName() << " (" << stream->getNodeId() << ")" << std::endl;
+    
+    for (int i = 0; i < savedDataStreamParameters.size(); i++)
+    {
+        ParameterCollection* params = savedDataStreamParameters[i];
+
+        // matching ID --> perfect match
+        if (params->owner.streamId == stream->getStreamId())
+        {
+            std::cout << "Found matching ID." << std::endl;
+            return i;
+        }
+
+    }
+
+
+    for (int i = 0; i < savedDataStreamParameters.size(); i++)
+    {
+        ParameterCollection* params = savedDataStreamParameters[i];
+
+        std::cout << params->owner.name << std::endl;
+
+        // matching name --> this is a good sign
+        if (params->owner.name.equalsIgnoreCase(stream->getName()))
+        {
+            std::cout << "Found matching name." << std::endl;
+
+            bool betterMatch = false;
+
+            for (auto otherStream : dataStreams)
+            {
+                if (otherStream != stream && params->owner.streamId == otherStream->getStreamId())
+                {
+                    betterMatch = true;
+                    std::cout << "...but found another stream with matching ID" << std::endl;
+                }
+            }
+
+            if (!betterMatch)
+            {
+                std::cout << "And it's the best match." << std::endl;
+                return i;
+            }
+            else
+                continue;
+        }
+            
+    }
+
+    for (int i = 0; i < savedDataStreamParameters.size(); i++)
+    {
+        ParameterCollection* params = savedDataStreamParameters[i];
+
+        std::cout << params->owner.name << std::endl;
+
+        if (!stream->hasDevice())
+            continue;
+
+        // matching name --> this is a good sign
+        if (params->owner.deviceName.equalsIgnoreCase(stream->device->getName()))
+        {
+            std::cout << "Found matching device." << std::endl;
+
+            bool betterMatch = false;
+
+            for (auto otherStream : dataStreams)
+            {
+                if (otherStream != stream && params->owner.name.equalsIgnoreCase(otherStream->getName()))
+                {
+                    betterMatch = true;
+                    std::cout << "...but found another stream with matching name" << std::endl;
+                }
+            }
+
+            if (!betterMatch)
+            {
+                std::cout << "And it's the best match." << std::endl;
+                return i;
+            }
+            else
+                continue;
+        }
+
+    }
+
+    int candidate = -1;
+
+    for (int i = 0; i < savedDataStreamParameters.size(); i++)
+    {
+        ParameterCollection* params = savedDataStreamParameters[i];
+
+
+        // matching channels and sample rate --> this is pretty good
+        if (params->owner.sample_rate == stream->getSampleRate() &&
+            params->owner.channel_count == stream->getChannelCount())
+        {
+
+            std::cout << "Found matching sample rate + channel count." << std::endl;
+
+            bool betterMatch = false;
+            
+            for (auto otherStream : dataStreams)
+            {
+                if (otherStream != stream && otherStream->getName().equalsIgnoreCase(params->owner.name))
+                {
+                    betterMatch = true;
+                    std::cout << "...but found another stream with matching name" << std::endl;
+                }
+            }
+
+            if (!betterMatch)
+            {
+                std::cout << "And it's the best match." << std::endl;
+                return i;
+            }
+            else
+                continue;
+        }
+            
+    }
+
+    for (int i = 0; i < savedDataStreamParameters.size(); i++)
+    {
+        ParameterCollection* params = savedDataStreamParameters[i];
+
+        // only sample rate match --> still use it
+        if (params->owner.sample_rate == stream->getSampleRate())
+        {
+
+            std::cout << "Found matching sample rate." << std::endl;
+
+            bool betterMatch = false;
+
+            for (auto otherStream : dataStreams)
+            {
+                if (otherStream != stream && params->owner.sample_rate == otherStream->getSampleRate() &&
+                                             params->owner.channel_count == otherStream->getChannelCount())
+                {
+                    betterMatch = true;
+                    std::cout << "...but found another stream with matching sample rate and channel count" << std::endl;
+                }
+            }
+
+            if (!betterMatch)
+            {
+                std::cout << "And it's the best match." << std::endl;
+                return i;
+            }
+            else
+                continue;
+        }
+    }
+
+    // no match found
+
+    return -1;
+}
+
 int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int continuousChannelGlobalIndex)
 {
 
@@ -575,16 +736,6 @@ int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int conti
 	dataStreams.getLast()->clearChannels();
 	dataStreams.getLast()->addProcessor(processorInfo.get());
     
-    if (savedDataStreamParameters.size() > 0)
-    {
-
-        savedDataStreamParameters[0]->copyParametersTo(dataStreams.getLast());
-        
-        savedDataStreamParameters.remove(0);
-     
-    }
-        
-	
 	for (auto continuousChannel : stream->getContinuousChannels())
 	{
 
@@ -659,7 +810,7 @@ void GenericProcessor::updateDisplayName(String name)
 void GenericProcessor::update()
 {
 
-    LOGG("Updating settings for ", getName(), " (", getNodeId(), ")");
+    LOGD("Updating settings for ", getName(), " (", getNodeId(), ")");
 
     int64 start = Time::getHighResolutionTicks();
 
@@ -727,8 +878,11 @@ void GenericProcessor::update()
         else
         {
             // connect first processor in signal chain to message center
-            messageChannel.reset();
-            messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
+           // messageChannel.reset();
+            const EventChannel* originalChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
+            EventChannel* newChannel = new EventChannel(*originalChannel);
+            messageChannel.reset(newChannel);
+           // messageChannel = std::make_unique<EventChannel>(originalChannel);
             messageChannel->addProcessor(processorInfo.get());
             messageChannel->setDataStream(AccessClass::getMessageCenter()->messageCenter->getMessageStream());
 
@@ -744,12 +898,27 @@ void GenericProcessor::update()
 
 	updateChannelIndexMaps();
 
-    LOGG("    Copied upstream settings in ", MS_FROM_START, " milliseconds");
+    LOGD("    Copied upstream settings in ", MS_FROM_START, " milliseconds");
 
     /// UPDATE PARAMETERS FOR STREAMS
 	for (auto stream : dataStreams)
 	{
-		LOGD( "Stream ", stream->getStreamId(), " num channels: ", stream->getChannelCount());
+		LOGD( "Stream ", stream->getStreamId(), " - ", stream->getName(), " num channels: ", stream->getChannelCount());
+        LOGD("Number of saved params: ", savedDataStreamParameters.size());
+
+        if (savedDataStreamParameters.size() > 0)
+        {
+
+            int index = findMatchingStreamParameters(stream);
+
+            if (index > -1)
+            {
+                savedDataStreamParameters[index]->copyParametersTo(stream);
+
+                savedDataStreamParameters.remove(index);
+            }
+
+        }
         
         if (stream->numParameters() == 0)
         {
@@ -1555,56 +1724,116 @@ void GenericProcessor::loadFromXml()
 
         int64 start = Time::getHighResolutionTicks();
 
-		int streamIndex = 0;
-		Array<const DataStream*> availableStreams = getDataStreams();
-
-		for (auto* xmlNode : parametersAsXml->getChildIterator())
-		{
+        for (auto* xmlNode : parametersAsXml->getChildIterator())
+        {
             if (xmlNode->hasTagName("GLOBAL_PARAMETERS"))
             {
                 for (int i = 0; i < xmlNode->getNumAttributes(); i++)
                     getParameter(xmlNode->getAttributeName(i))->fromXml(xmlNode);
             }
-            
-			if (xmlNode->hasTagName("STREAM"))
-			{
-				if (availableStreams.size() > streamIndex)
-				{
-                    for (auto* streamParams : xmlNode->getChildIterator())
+
+            if (xmlNode->hasTagName("STREAM") && dataStreams.size() > 0)
+            {
+
+                ParameterCollection* parameterCollection = new ParameterCollection();
+
+                parameterCollection->owner.channel_count = xmlNode->getIntAttribute("channel_count");
+                parameterCollection->owner.name = xmlNode->getStringAttribute("name");
+                parameterCollection->owner.sample_rate = xmlNode->getDoubleAttribute("sample_rate");
+
+                for (auto* streamParams : xmlNode->getChildIterator())
+                {
+                    if (streamParams->hasTagName("PARAMETERS"))
                     {
-                        if (streamParams->hasTagName("PARAMETERS"))
+                        for (int i = 0; i < streamParams->getNumAttributes(); i++)
                         {
-                            for (int i = 0; i < streamParams->getNumAttributes(); i++)
+
+                            Parameter* parameter;
+
+                            if (dataStreams[0]->hasParameter(streamParams->getAttributeName(i)))
                             {
+                                parameter = dataStreams[0]->getParameter(streamParams->getAttributeName(i));
+                                parameter->fromXml(streamParams);
 
-                                Parameter* p;
-
-                                if (availableStreams[streamIndex]->hasParameter(streamParams->getAttributeName(i)))
+                                if (parameter->getType() == Parameter::INT_PARAM)
                                 {
-                                    p = availableStreams[streamIndex]->getParameter(streamParams->getAttributeName(i));
+                                    IntParameter* p = (IntParameter*)parameter;
+                                    parameterCollection->addParameter(new IntParameter(*p));
                                 }
-                                else 
+                                else if (parameter->getType() == Parameter::BOOLEAN_PARAM)
                                 {
-                                    continue;
+                                    BooleanParameter* p = (BooleanParameter*)parameter;
+                                    parameterCollection->addParameter(new BooleanParameter(*p));
                                 }
-                                
-                                if (p != nullptr)
+                                else if (parameter->getType() == Parameter::STRING_PARAM)
                                 {
-                                    p->fromXml(streamParams);
-                                    
-                                    if (p->getName() == "enable_stream")
-                                        getEditor()->streamEnabledStateChanged(availableStreams[streamIndex]->getStreamId(),
-                                                                               (bool) p->getValue(),
-                                                                               true);
+                                    StringParameter* p = (StringParameter*)parameter;
+                                    parameterCollection->addParameter(new StringParameter(*p));
                                 }
-                                    
+                                else if (parameter->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+                                {
+                                    SelectedChannelsParameter* p = (SelectedChannelsParameter*)parameter;
+                                    parameterCollection->addParameter(new SelectedChannelsParameter(*p));
+                                }
+                                else if (parameter->getType() == Parameter::MASK_CHANNELS_PARAM)
+                                {
+                                    MaskChannelsParameter* p = (MaskChannelsParameter*)parameter;
+                                    parameterCollection->addParameter(new MaskChannelsParameter(*p));
+                                }
+                                else if (parameter->getType() == Parameter::CATEGORICAL_PARAM)
+                                {
+                                    CategoricalParameter* p = (CategoricalParameter*)parameter;
+                                    parameterCollection->addParameter(new CategoricalParameter(*p));
+                                }
+                                else if (parameter->getType() == Parameter::FLOAT_PARAM)
+                                {
+                                    FloatParameter* p = (FloatParameter*)parameter;
+                                    parameterCollection->addParameter(new FloatParameter(*p));
+                                }
+                            }
+                            else
+                            {
+                                continue;
                             }
                         }
                     }
-				}
-				streamIndex++;
-			}
-		}
+                }
+
+                savedDataStreamParameters.add(parameterCollection);
+            }
+        }
+
+        for (auto stream : dataStreams)
+        {
+            if (savedDataStreamParameters.size() > 0)
+            {
+
+                int index = findMatchingStreamParameters(stream);
+
+                if (index > -1)
+                {
+                    savedDataStreamParameters[index]->copyParameterValuesTo(stream);
+
+                    for (auto param : savedDataStreamParameters[index]->getParameters())
+                    {
+                        if (param->getName() == "enable_stream")
+                        {
+                            getEditor()->streamEnabledStateChanged(stream->getStreamId(),
+                                (bool)param->getValue(),
+                                true);
+
+                            std::cout << "ENABLE STREAM: " << (bool)param->getValue() << std::endl;
+                        }
+                            
+                    }
+
+                    savedDataStreamParameters.remove(index);
+                }
+
+            }
+        }
+
+        savedDataStreamParameters.clear();
 
         LOGG("    Loaded stream parameters in ", MS_FROM_START, " milliseconds");
 

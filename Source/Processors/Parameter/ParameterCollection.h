@@ -54,6 +54,9 @@ public:
     
     /** Returns pointers to all parameters in the collection */
     Array<Parameter*> getParameters();
+
+    /** Copies parameter values to an InfoObject with existing Parameters */
+    void copyParameterValuesTo(InfoObject* object);
     
     /** Copies parameters to an InfoObject */
     void copyParametersTo(InfoObject* object);
@@ -81,6 +84,17 @@ public:
     
     /** Removes all parameters from the collection*/
     void clear();
+
+    struct Owner {
+        String name = "None";
+        uint16 streamId = 0;
+        int sourceNodeId = 0;
+        float sample_rate = 0.0f;
+        int channel_count = 0;
+        String deviceName = "None";
+    };
+
+    Owner owner;
     
 private:
     

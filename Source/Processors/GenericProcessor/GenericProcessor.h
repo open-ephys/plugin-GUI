@@ -604,6 +604,9 @@ protected:
 
     /** Copies DataStream settings from a source processor*/
     int copyDataStreamSettings(const DataStream*, int continuousChannelGlobalIndex);
+
+    /** Finds the parameters that most likely belong to this stream */
+    int findMatchingStreamParameters(DataStream* stream);
     
     /** Sets whether or not a given stream is enabled*/
     void setStreamEnabled(uint16 streamId, bool isEnabled);
