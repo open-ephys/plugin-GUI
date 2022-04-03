@@ -4,7 +4,6 @@
 #include "../../UI/ControlPanel.h"
 #include "../../Processors/MessageCenter/MessageCenterEditor.h"
 #include "BinaryFormat/BinaryRecording.h"
-#include "OpenEphysFormat/OriginalRecording.h"
 #include "../../Audio/AudioComponent.h"
 #include "../../AccessClass.h"
 
@@ -364,12 +363,21 @@ void RecordNode::updateSettings()
 			++it;
 	}
 
+#ifdef WIN32
 	if (recordEngine->getEngineId().equalsIgnoreCase("OPENEPHYS") && getNumInputs() > 300)
 	{
-		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
-			"WARNING", "Open Ephys format does not support > 300 channels. Resetting to Binary format.");
-		setEngine("BINARY");
+
+		int new_max = _setmaxstdio(getNumInputs());
+
+		if (new_max != getNumInputs())
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
+				"WARNING", "Open Ephys format does not support > 300 channels. Resetting to Binary format.");
+			setEngine("BINARY");
+		}
+		
 	}
+#endif
 
 	//Refresh editor as needed
 	if (static_cast<RecordNodeEditor*> (getEditor())->monitorsVisible)
@@ -681,6 +689,8 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 			}
 		}
 
+		bool fifoAlmostFull = false;
+
 		//For each channel that is to be recorded 
 		for (int ch = 0; ch < channelMap.size(); ch++)
 		{
@@ -713,6 +723,9 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 						
 						fifoUsage[streamId] = dataQueue->writeSynchronizedTimestampChannel(first, second - first, ftsChannelMap[ch], numSamples);
 
+						if (fifoUsage[streamId] > 0.9)
+							fifoAlmostFull = true;
+
 						if (streamId == synchronizer->primaryStreamId)
 							lastPrimaryStreamTimestamp = timestamp;
 
@@ -722,6 +735,9 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 					else
 					{
 						fifoUsage[streamId] = dataQueue->writeChannel(buffer, channelMap[ch], ch, numSamples, timestamp);
+
+						if (fifoUsage[streamId] > 0.9)
+							fifoAlmostFull = true;
 						
 						samplesWritten += numSamples;
 
@@ -739,6 +755,19 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 
 			}
 
+		}
+
+		if (fifoAlmostFull)
+		{
+
+			AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::WarningIcon,
+				"Record Buffer Warning",
+				"The recording buffer has reached capacity. Stopping recording to prevent data corruption. \n\n"
+				"To address the issue, you can try reducing the number of simultaneously recorded channels or "
+				"using multiple Record Nodes to distribute data writing across more than one drive.",
+				"OK");
+
+			CoreServices::setRecordingStatus(false);
 		}
 
 		if (!setFirstBlock)

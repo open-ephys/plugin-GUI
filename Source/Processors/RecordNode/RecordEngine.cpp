@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RecordEngine.h"
 
 #include "EngineConfigWindow.h"
-#include "OpenEphysFormat/OriginalRecording.h"
 #include "BinaryFormat/BinaryRecording.h"
 
 RecordEngine::RecordEngine()
@@ -231,7 +230,7 @@ void RecordEngineManager::addParameter(EngineParameter* param)
 
 int RecordEngineManager::getNumOfBuiltInEngines()
 {
-	return 2;
+	return 1;
 }
 
 RecordEngineManager* RecordEngineManager::createBuiltInEngineManager(int index)
@@ -240,8 +239,6 @@ RecordEngineManager* RecordEngineManager::createBuiltInEngineManager(int index)
 	{
 	case 0:
 		return BinaryRecording::getEngineManager();
-	case 1: 
-		return OriginalRecording::getEngineManager();
 
 	default:
 		return nullptr;
@@ -255,17 +252,13 @@ RecordEngine* RecordEngineManager::instantiateEngine()
 		LOGDD("Got creator");
 		return creator();
 	}
+	
 	//Built-in engines
-
 	LOGD("Got:", id);
 
 	if (id == "BINARY")
 	{
 		return new BinaryRecording();
-	}
-	else if (id == "OPENEPHYS")
-	{
-		return new OriginalRecording();
 	}
 
 	return nullptr;

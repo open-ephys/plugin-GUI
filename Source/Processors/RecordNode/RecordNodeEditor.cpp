@@ -135,6 +135,7 @@ void RecordNodeEditor::saveCustomParametersToXml(XmlElement* xml)
 	xmlNode->setAttribute("engine", engines[engineSelectCombo->getSelectedId()-1]->getID());
 	xmlNode->setAttribute ("recordEvents", eventRecord->getToggleState());
 	xmlNode->setAttribute ("recordSpikes", spikeRecord->getToggleState());
+	xmlNode->setAttribute("fifoMonitorsVisible", fifoDrawerButton->getToggleState());
 
 	//Save channel states:
 	for (auto streamId : extract_keys(recordNode->dataChannelStates))
@@ -193,6 +194,9 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 			recordNode->setEngine(xmlNode->getStringAttribute("engine", "BINARY"));
 			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::sendNotification);
 			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::sendNotification);
+			
+			if (xml->getBoolAttribute("fifoMonitorsVisible", false))
+				showFifoMonitors(true);
 
 			Array<const DataStream*> availableStreams = recordNode->getDataStreams();
 			int streamIndex = 0;
@@ -283,16 +287,23 @@ void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 
 		std::vector<RecordEngineManager*> engines = CoreServices::getAvailableRecordEngines();
 
-		//Prevent using OpenEphys format if > 300 channels coming into Record Node
+#ifdef WIN32
 		if (engines[selectedEngineIndex]->getID().equalsIgnoreCase("OPENEPHYS") &&
 			recordNode->getNumInputs() > 300)
 		{
-			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
-				"WARNING", "Open Ephys format does not support > 300 channels. Resetting to Binary format.");
-			box->setSelectedItemIndex(0);
-			recordNode->setEngine("BINARY");
+
+			int new_max = _setmaxstdio(recordNode->getNumInputs());
+
+			if (new_max != recordNode->getNumInputs())
+			{
+				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
+					"WARNING", "Open Ephys format does not support > 300 channels. Resetting to Binary format.");
+				box->setSelectedItemIndex(0);
+				recordNode->setEngine("BINARY");
+			}
 			return;
 		}
+#endif
 
 		recordNode->setEngine(engines[selectedEngineIndex]->getID());
 
@@ -332,13 +343,6 @@ void RecordNodeEditor::updateFifoMonitors()
 
 		for (auto const& [streamId, channelStates] : recordNode->dataChannelStates)
 		{
-
-			//String name = String(streamCount + 1);
-			//subProcLabels.add(new Label(name, name));
-			//subProcLabels.getLast()->setBounds(13 + streamCount * 20, 24, 40, 20);
-			//subProcLabels.getLast()->setFont(Font("Small Text", 7.0f, Font::plain));
-			//addAndMakeVisible(subProcLabels.getLast());
-			//subProcLabels.getLast()->setVisible(false);
 
 			streamMonitors.add(new FifoMonitor(recordNode, streamId, recordNode->getDataStream(streamId)->getName()));
 			streamMonitors.getLast()->setBounds(18 + streamCount * 20, 32, 15, 73);
