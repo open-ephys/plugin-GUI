@@ -1642,7 +1642,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
     AccessClass::getUIComponent()->loadStateFromXml(xml);   // load the UI settings
 
     AccessClass::getProcessorGraph()->clearSignalChain();
-    
+
     loadingConfig = true; //Indicate config is being loaded into the GUI
     String description;// = " ";
     int loadOrder = 0;
@@ -1674,6 +1674,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
                     
                     int insertionPt = processor->getIntAttribute("insertionPoint");
                     
+                    LOGD("Creating processor: ", pName);
                     p = createProcessorAtInsertionPoint(processor, insertionPt, false);
                     p->loadOrder = loadOrder++;
                     
