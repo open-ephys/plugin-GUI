@@ -428,6 +428,9 @@ public:
     /** Queries the RecordEnginerManager for available engines when the GUI launches*/
     void updateRecordEngineList();
 
+    /** Selects a new record engine */
+    void setSelectedRecordEngine(int index);
+
     /** Returns a list of available engines*/
     std::vector<RecordEngineManager*> getAvailableRecordEngines();
 

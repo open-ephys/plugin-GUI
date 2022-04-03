@@ -435,12 +435,6 @@ void ControlPanel::setRecordingParentDirectory(String path)
 {
     File newFile(path);
     filenameComponent->setCurrentFile(newFile, true, sendNotificationSync);
-
-    //for (auto* node : graph->getRecordNodes())
-    //{
-    //    node->newDirectoryNeeded = true;
-    //}
-    //masterClock->resetRecordTime();
 }
 
 File ControlPanel::getRecordingParentDirectory()
@@ -466,7 +460,7 @@ void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
             recordEngines[recordSelector->getSelectedId() - 1]->toggleConfigWindow();
 
         graph->updateConnections();
-        graph->startAcquisition();
+        
 
         playButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
 
@@ -476,8 +470,6 @@ void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
             playButton->setToggleState(true, dontSendNotification);
         }
 
-        audio->beginCallbacks(); // starts acquisition callbacks
-
         masterClock->start(); // starts the clock
         audioEditor->disable();
 
@@ -486,6 +478,10 @@ void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
 
         recordSelector->setEnabled(false); // why is this outside the "if" statement?
         recordOptionsButton->setEnabled(false);
+
+        audio->beginCallbacks(); // starts acquisition callbacks
+
+        graph->startAcquisition(); // start data flow
 
     }
 }
@@ -542,10 +538,18 @@ void ControlPanel::updateRecordEngineList()
 		recordEngines.add(info.creator());
 	}
 
-	if (selectedEngine < 1)
-		recordSelector->setSelectedId(1, sendNotification);
-	else
-		recordSelector->setSelectedId(selectedEngine, sendNotification);
+    if (selectedEngine < 1)
+    {
+        setSelectedRecordEngine(0);
+        recordSelector->setSelectedId(1, dontSendNotification);
+    }
+		
+    else
+    {
+        setSelectedRecordEngine(selectedEngine - 1);
+        recordSelector->setSelectedId(selectedEngine, dontSendNotification);
+    }
+		
     
 }
 
@@ -948,31 +952,32 @@ void ControlPanel::buttonClicked(Button* button)
 void ControlPanel::comboBoxChanged(ComboBox* combo)
 {
 
-    if (lastEngineIndex >= 0)
-    {
-        if (recordEngines[lastEngineIndex]->isWindowOpen())
-            recordEngines[lastEngineIndex]->toggleConfigWindow();
-    }
-    ScopedPointer<RecordEngine> re;
-
+   
     if (combo->getSelectedId() > 0)
     {
-        LOGD("Instantiating Record Engine ", combo->getText());
-        re = recordEngines[combo->getSelectedId()-1]->instantiateEngine();
+        setSelectedRecordEngine(combo->getSelectedId() - 1);
     }
     else
     {
-        LOGE("Record Engine ComboBox: Bad ID");
+        setSelectedRecordEngine(0);
         combo->setSelectedId(1,dontSendNotification);
-        re = recordEngines[0]->instantiateEngine();
     }
-    re->registerManager(recordEngines[combo->getSelectedId()-1]);
+    
+}
+
+void ControlPanel::setSelectedRecordEngine(int index)
+{
+
+    ScopedPointer<RecordEngine> re;
+
+    re = recordEngines[index]->instantiateEngine();
+    re->registerManager(recordEngines[index]);
 
     newDirectoryButton->setEnabledState(false);
     masterClock->resetRecordTime();
 
     filenameText->setColour(Label::textColourId, Colours::grey);
-    lastEngineIndex=combo->getSelectedId()-1;
+    lastEngineIndex = index;
 }
 
 void ControlPanel::disableCallbacks()
@@ -1055,7 +1060,7 @@ void ControlPanel::saveStateToXml(XmlElement* xml)
     XmlElement* controlPanelState = xml->createNewChildElement("CONTROLPANEL");
     controlPanelState->setAttribute("isOpen",open);
 	controlPanelState->setAttribute("recordPath", filenameComponent->getCurrentFile().getFullPathName());
-    controlPanelState->setAttribute("recordEngine",recordEngines[recordSelector->getSelectedId()-1]->getID());
+    controlPanelState->setAttribute("recordEngine", recordEngines[recordSelector->getSelectedId()-1]->getID());
 
     audioEditor->saveStateToXml(xml);
 
