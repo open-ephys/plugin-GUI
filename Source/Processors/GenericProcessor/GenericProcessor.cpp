@@ -415,7 +415,7 @@ int GenericProcessor::getNextChannel(bool increment)
 {
 	int chan = nextAvailableChannel;
 
-	LOGDD("Next channel: ", chan, ", num inputs: ", getNumInputs());
+	//LOGDD("Next channel: ", chan, ", num inputs: ", getNumInputs());
 
 	if (increment)
 		nextAvailableChannel++;
@@ -555,7 +555,7 @@ void GenericProcessor::setStreamEnabled(uint16 streamId, bool isEnabled)
 int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
 {
 
-    std::cout << "Finding best matching saved parameters for " << stream->getName() << " (" << stream->getNodeId() << ")" << std::endl;
+    //std::cout << "Finding best matching saved parameters for " << stream->getName() << " (" << stream->getNodeId() << ")" << std::endl;
     
     for (int i = 0; i < savedDataStreamParameters.size(); i++)
     {
@@ -564,7 +564,7 @@ int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
         // matching ID --> perfect match
         if (params->owner.streamId == stream->getStreamId())
         {
-            std::cout << "Found matching ID." << std::endl;
+            //std::cout << "Found matching ID." << std::endl;
             return i;
         }
 
@@ -575,12 +575,12 @@ int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
     {
         ParameterCollection* params = savedDataStreamParameters[i];
 
-        std::cout << params->owner.name << std::endl;
+        //std::cout << params->owner.name << std::endl;
 
         // matching name --> this is a good sign
         if (params->owner.name.equalsIgnoreCase(stream->getName()))
         {
-            std::cout << "Found matching name." << std::endl;
+            //std::cout << "Found matching name." << std::endl;
 
             bool betterMatch = false;
 
@@ -589,13 +589,13 @@ int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
                 if (otherStream != stream && params->owner.streamId == otherStream->getStreamId())
                 {
                     betterMatch = true;
-                    std::cout << "...but found another stream with matching ID" << std::endl;
+                    //std::cout << "...but found another stream with matching ID" << std::endl;
                 }
             }
 
             if (!betterMatch)
             {
-                std::cout << "And it's the best match." << std::endl;
+                //std::cout << "And it's the best match." << std::endl;
                 return i;
             }
             else
@@ -608,7 +608,7 @@ int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
     {
         ParameterCollection* params = savedDataStreamParameters[i];
 
-        std::cout << params->owner.name << std::endl;
+        //std::cout << params->owner.name << std::endl;
 
         if (!stream->hasDevice())
             continue;
@@ -616,7 +616,7 @@ int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
         // matching name --> this is a good sign
         if (params->owner.deviceName.equalsIgnoreCase(stream->device->getName()))
         {
-            std::cout << "Found matching device." << std::endl;
+           // std::cout << "Found matching device." << std::endl;
 
             bool betterMatch = false;
 
@@ -625,13 +625,13 @@ int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
                 if (otherStream != stream && params->owner.name.equalsIgnoreCase(otherStream->getName()))
                 {
                     betterMatch = true;
-                    std::cout << "...but found another stream with matching name" << std::endl;
+                   // std::cout << "...but found another stream with matching name" << std::endl;
                 }
             }
 
             if (!betterMatch)
             {
-                std::cout << "And it's the best match." << std::endl;
+                //std::cout << "And it's the best match." << std::endl;
                 return i;
             }
             else
@@ -652,7 +652,7 @@ int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
             params->owner.channel_count == stream->getChannelCount())
         {
 
-            std::cout << "Found matching sample rate + channel count." << std::endl;
+           // std::cout << "Found matching sample rate + channel count." << std::endl;
 
             bool betterMatch = false;
             
@@ -661,13 +661,13 @@ int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
                 if (otherStream != stream && otherStream->getName().equalsIgnoreCase(params->owner.name))
                 {
                     betterMatch = true;
-                    std::cout << "...but found another stream with matching name" << std::endl;
+                    //std::cout << "...but found another stream with matching name" << std::endl;
                 }
             }
 
             if (!betterMatch)
             {
-                std::cout << "And it's the best match." << std::endl;
+                //std::cout << "And it's the best match." << std::endl;
                 return i;
             }
             else
@@ -684,7 +684,7 @@ int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
         if (params->owner.sample_rate == stream->getSampleRate())
         {
 
-            std::cout << "Found matching sample rate." << std::endl;
+            //std::cout << "Found matching sample rate." << std::endl;
 
             bool betterMatch = false;
 
@@ -694,13 +694,13 @@ int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
                                              params->owner.channel_count == otherStream->getChannelCount())
                 {
                     betterMatch = true;
-                    std::cout << "...but found another stream with matching sample rate and channel count" << std::endl;
+                    //std::cout << "...but found another stream with matching sample rate and channel count" << std::endl;
                 }
             }
 
             if (!betterMatch)
             {
-                std::cout << "And it's the best match." << std::endl;
+                //std::cout << "And it's the best match." << std::endl;
                 return i;
             }
             else
@@ -903,8 +903,8 @@ void GenericProcessor::update()
     /// UPDATE PARAMETERS FOR STREAMS
 	for (auto stream : dataStreams)
 	{
-		LOGD( "Stream ", stream->getStreamId(), " - ", stream->getName(), " num channels: ", stream->getChannelCount());
-        LOGD("Number of saved params: ", savedDataStreamParameters.size());
+		//LOGD( "Stream ", stream->getStreamId(), " - ", stream->getName(), " num channels: ", stream->getChannelCount());
+        //LOGD("Number of saved params: ", savedDataStreamParameters.size());
 
         if (savedDataStreamParameters.size() > 0)
         {
@@ -1822,7 +1822,7 @@ void GenericProcessor::loadFromXml()
                                 (bool)param->getValue(),
                                 true);
 
-                            std::cout << "ENABLE STREAM: " << (bool)param->getValue() << std::endl;
+                            //std::cout << "ENABLE STREAM: " << (bool)param->getValue() << std::endl;
                         }
                             
                     }

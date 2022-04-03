@@ -94,8 +94,11 @@ void StreamInfoView::setEnabled(bool state)
 {
     isEnabled = state;
 
-    enableButton->setToggleState(state, dontSendNotification);
-    enableButton->repaint();
+    if (enableButton != nullptr)
+    {
+        enableButton->setToggleState(state, dontSendNotification);
+        enableButton->repaint();
+    }
 
     if (delayMonitor != nullptr)
         delayMonitor->setEnabled(state);
@@ -306,7 +309,7 @@ void StreamSelector::stopAcquisition()
 
 void StreamSelector::setStreamEnabledState(uint16 streamId, bool isEnabled)
 {
-    LOGD("Setting state for stream ", streamId, ":  ", isEnabled);
+    //LOGD("Setting state for stream ", streamId, ":  ", isEnabled);
     streamStates[streamId] = isEnabled;
 }
 
@@ -331,7 +334,6 @@ void StreamSelector::resized()
     if (streams.size() > 0)
         streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
 
-    std::cout << "(Resized) Setting view position: " << viewedStreamIndex * streamInfoViewWidth << std::endl;
     viewport->setViewPosition(viewedStreamIndex * streamInfoViewWidth, 0);
 }
 
@@ -419,7 +421,6 @@ void StreamSelector::setViewedIndex(int i)
         streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
         streamSelectorButton->repaint();
 
-        std::cout << "(setViewedIndex) Setting view position: " << viewedStreamIndex * streamInfoViewWidth << std::endl;
         viewport->setViewPosition(viewedStreamIndex * streamInfoViewWidth, 0);
         
         //editor->updateSelectedStream(streams[viewedStreamIndex]->streamId);
@@ -500,7 +501,6 @@ uint16 StreamSelector::finishedUpdate()
     
     if (viewedStreamIndex > -1)
     {
-        std::cout << "(finishedUpdate) Setting view position: " << viewedStreamIndex * streamInfoViewWidth << std::endl;
         viewport->setViewPosition(viewedStreamIndex * streamInfoViewWidth, 0);
         
         streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
@@ -532,7 +532,6 @@ void StreamSelector::timerCallback()
 
     float newOffset = scrollOffset.getNextValue();
 
-    std::cout << "(timerCallback) Setting view position: " << newOffset << std::endl;
     viewport->setViewPosition(newOffset, 0);
 }
 

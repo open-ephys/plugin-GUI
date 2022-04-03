@@ -643,11 +643,9 @@ void ProcessorGraph::deleteNodes(Array<GenericProcessor*> processorsToDelete)
 void ProcessorGraph::clearSignalChain()
 {
 
-    Array<GenericProcessor*> processors = getListOfProcessors();
-
-    for (int i = 0; i < processors.size(); i++)
+    for (auto processor : getListOfProcessors())
     {
-        removeProcessor(processors[i]);
+        removeProcessor(processor);
     }
 
     rootNodes.clear();

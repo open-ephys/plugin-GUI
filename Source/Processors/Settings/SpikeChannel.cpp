@@ -135,6 +135,7 @@ DataStream* SpikeChannel::findSimilarStream(OwnedArray<DataStream>& streams)
 {
     for (auto stream : streams)
     {
+        // matching ID -- looks great
         if (stream->getStreamId() == lastStreamId)
             return stream;
     }
