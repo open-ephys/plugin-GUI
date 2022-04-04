@@ -229,9 +229,13 @@ void Synchronizer::addDataStream(uint16 streamId, float expectedSampleRate)
 	if (streamId == lastPrimaryStreamId)
 		primaryStreamId = lastPrimaryStreamId;
 
-	dataStreamObjects.add(new Stream(expectedSampleRate));
-	streams[streamId] = dataStreamObjects.getLast();
-	setSyncBit(streamId, 0);
+	if (streams.count(streamId) == 0)
+	{
+		dataStreamObjects.add(new Stream(expectedSampleRate));
+		streams[streamId] = dataStreamObjects.getLast();
+		setSyncBit(streamId, 0);
+	}
+	
 }
 
 void Synchronizer::setPrimaryDataStream(uint16 streamId)
@@ -248,7 +252,6 @@ void Synchronizer::setSyncBit(uint16 streamId, int ttlChannel)
 
 int Synchronizer::getSyncBit(uint16 streamId)
 {
-	//LOGD("Get sync channel: {", sourceID, ",", subProcIdx, "}->", subprocessors[sourceID][subProcIdx]->syncChannel);
 	return streams[streamId]->syncChannel;
 }
 

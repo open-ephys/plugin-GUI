@@ -97,10 +97,10 @@ String RecordNode::handleConfigMessage(String msg)
 
     if (tokens.size() != 2) return "Invalid msg";
 
-    if (tokens[0] == "engine")
-        static_cast<RecordNodeEditor*> (getEditor())->engineSelectCombo->setSelectedItemIndex(std::stoi(tokens[1].toStdString()), sendNotification);
-    else
-        std::cout << "Invalid key" << std::endl;
+	if (tokens[0] == "engine")
+		static_cast<RecordNodeEditor*> (getEditor())->engineSelectCombo->setSelectedItemIndex(std::stoi(tokens[1].toStdString()), sendNotification);
+	else
+		LOGD("Record Node: invalid engine key");
 
     return "Record Node received config: " + msg;
 }
@@ -290,12 +290,14 @@ void RecordNode::setPrimaryDataStream(uint16 streamId)
 // called by RecordNodeEditor (when loading), SyncControlButton
 void RecordNode::setSyncBit(uint16 streamId, int bit)
 {
+	//std::cout << "Setting sync bit for " << streamId << " to " << bit << std::endl;
 	synchronizer->setSyncBit(streamId, bit);
 }
 
 // called by SyncControlButton
 int RecordNode::getSyncBit(uint16 streamId)
 {
+	//std::cout << "Getting sync bit for " << streamId << ": " << synchronizer->getSyncBit(streamId) << std::endl;
 	return synchronizer->getSyncBit(streamId);
 }
 
@@ -366,13 +368,15 @@ void RecordNode::updateSettings()
 #ifdef WIN32
 	if (recordEngine->getEngineId().equalsIgnoreCase("OPENEPHYS") && getNumInputs() > 300)
 	{
+		int new_max = 0;
 
-		int new_max = _setmaxstdio(getNumInputs());
+		if (getNumInputs() < 8192) // actual upper bound of 8192
+			new_max = _setmaxstdio(getNumInputs());
 
 		if (new_max != getNumInputs())
 		{
 			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
-				"WARNING", "Open Ephys format does not support > 300 channels. Resetting to Binary format.");
+				"WARNING", "Open Ephys format does not support this many simultaneously recorded channels. Resetting to Binary format.");
 			setEngine("BINARY");
 		}
 		

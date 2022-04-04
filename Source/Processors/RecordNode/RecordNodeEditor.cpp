@@ -147,7 +147,9 @@ void RecordNodeEditor::saveCustomParametersToXml(XmlElement* xml)
 
 			stream->setAttribute("isPrimary", 
 				recordNode->synchronizer->primaryStreamId == streamId);
-			stream->setAttribute("sync_line", recordNode->syncChannelMap[streamId]);
+			stream->setAttribute("sync_line", recordNode->getSyncBit(streamId));
+			stream->setAttribute("name", recordNode->getDataStream(streamId)->getName());
+			stream->setAttribute("source_node_id", recordNode->getDataStream(streamId)->getSourceNodeId());
 
 			String stateString;
 			bool allOn = true;
@@ -292,12 +294,15 @@ void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 			recordNode->getNumInputs() > 300)
 		{
 
-			int new_max = _setmaxstdio(recordNode->getNumInputs());
+			int new_max = 0;
+
+			if (recordNode->getNumInputs() < 8192) // actual upper bound of 8192
+				new_max = _setmaxstdio(recordNode->getNumInputs());
 
 			if (new_max != recordNode->getNumInputs())
 			{
 				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
-					"WARNING", "Open Ephys format does not support > 300 channels. Resetting to Binary format.");
+					"WARNING", "Open Ephys format does not support this many simultaneously recorded channels. Resetting to Binary format.");
 				box->setSelectedItemIndex(0);
 				recordNode->setEngine("BINARY");
 			}
