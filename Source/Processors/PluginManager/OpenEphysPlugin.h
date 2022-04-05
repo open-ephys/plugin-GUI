@@ -29,7 +29,7 @@
 #include "PluginIDs.h"
 
 
-#ifdef WIN32
+#ifdef _WIN32
     #ifdef OEPLUGIN
         #define PLUGIN_API __declspec(dllimport)
 #else

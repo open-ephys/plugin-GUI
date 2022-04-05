@@ -876,14 +876,6 @@ void ProcessorGraph::updateConnections()
 
     clearConnections(); // clear processor graph
 
-    Array<GenericProcessor*> splitters;
-    Array<GenericProcessor*> splitters2;
-    Array<int> splitterStates;
-
-    // keep track of which splitter is currently being explored, in case there's another
-    // splitter between the one being explored and its source.
-    GenericProcessor* activeSplitter = nullptr;
-
     // stores the pointer to a source leading into a particular dest node
     // along with a boolean vector indicating the position of this source
     // relative to other sources entering the dest via mergers
@@ -911,151 +903,124 @@ void ProcessorGraph::updateConnections()
     // each destination node gets a set of sources, sorted by their order as dictated by mergers
     std::unordered_map<GenericProcessor*, SortedSet<ConnectionInfo>> sourceMap;
 
-    for (int n = 0; n < rootNodes.size(); n++) // cycle through the tabs
+    for (auto processor : getListOfProcessors())
     {
-        LOGDD("Signal chain: ", n);
-        std::cout << std::endl;
 
-        //GenericEditor* sourceEditor = (GenericEditor*) tabs[n]->getEditor();
-        GenericProcessor* source = rootNodes[n];
+        LOGDD("Processor: ", processor->getName(), " ", processor->getNodeId());
+            
+        if (processor->isMerger())
+            continue;
+            
+        if (processor->isSplitter())
+            continue;
 
-        while (source != nullptr)// && destEditor->isEnabled())
+       if (processor->isSource())
+           connectProcessorToMessageCenter(processor);
+
+       ConnectionInfo conn;
+       conn.source = processor;
+       conn.connectContinuous = true;
+       conn.connectEvents = true;
+
+       Array<GenericProcessor*> nodesToConnect;
+
+       GenericProcessor* destNode = processor->getDestNode();
+
+       if (destNode == nullptr)
+            continue;
+
+       Array<Splitter*> splitters;
+       GenericProcessor* lastProcessor = processor;
+
+       // if the next node is a Merger, we actually need to
+       // connect to the next non-Merger node
+       while (destNode->isMerger())
+       {
+            LOGDD("  Found Merger: ", destNode->getNodeId());
+
+            Merger* merger = (Merger*) destNode;
+
+            int path = merger->getSourceNode(0) == lastProcessor ? 0 : 1;
+
+            LOGDD("   --> Adding Merger order: ", path);
+            conn.mergerOrder.insert(conn.mergerOrder.begin(), path);
+
+            lastProcessor = destNode;
+            destNode = destNode->getDestNode();
+
+            if (destNode == nullptr)
+                break;
+
+            if (destNode->isSplitter())
+            {
+                splitters.add((Splitter*) destNode);
+                LOGDD("  Adding Splitter: ", destNode->getNodeId());
+            } else if (!destNode->isMerger())
+            {
+                nodesToConnect.add(destNode);
+                LOGDD("  Adding node to connect: ", destNode->getNodeId());
+            }
+
+       }
+
+       // if there's nothing after the Merger, skip
+       if (destNode == nullptr)
+            continue;
+
+       // if the next node is a Splitter, we need to connect to both paths
+       if (destNode->isSplitter())
+       {
+            splitters.add((Splitter*) destNode);
+            LOGDD("  Adding Splitter: ", destNode->getNodeId());
+       }
+
+       // keep connecting until we've found all possible paths
+       while (splitters.size() > 0)
+       {
+            Splitter* thisSplitter = splitters.getLast();
+            splitters.removeLast();
+
+            for (int path = 0; path < 2; path++)
+            {
+                if (thisSplitter->getDestNode(path) != nullptr)
+                {
+                    if (thisSplitter->getDestNode(path)->isSplitter())
+                    {
+                        LOGDD("  Adding Splitter: ", destNode->getNodeId());
+                        splitters.add((Splitter*) thisSplitter->getDestNode(path));
+                    } else {
+                        if (thisSplitter->getDestNode(path) != nullptr)
+                        {
+                            LOGDD("  Adding node to connect: ", thisSplitter->getDestNode(path)->getNodeId());
+                            nodesToConnect.add(thisSplitter->getDestNode(path));
+                        }
+                    }
+                }
+            }
+       }
+
+       // if it's not a Splitter or Merger, simply connect
+       if (nodesToConnect.size() == 0)
+            nodesToConnect.add(destNode);
+
+       // Add all the connections we found
+       for (auto node : nodesToConnect)
+       {
+            sourceMap[node].add(conn);
+       }
+
+        // Finally, actually connect sources to each dest processor,
+        // in correct order by merger topography
+        for (const auto& destSources : sourceMap)
         {
-            LOGDD("Source node: ", source->getName(), ".");
-            GenericProcessor* dest = (GenericProcessor*) source->getDestNode();
+            GenericProcessor* dest = destSources.first;
 
-            if (source->isReady())
+            for (const ConnectionInfo& conn : destSources.second)
             {
-                //TODO: This is will be removed when probe based audio node added. 
-                connectProcessorToAudioNode(source);
-
-                if (source->isRecordNode())
-                    connectProcessorToMessageCenter(source);
-
-                // find the next dest that's not a merger or splitter
-                GenericProcessor* prev = source;
-
-                ConnectionInfo conn;
-                conn.source = source;
-                conn.connectContinuous = true;
-                conn.connectEvents = true;
-
-                while (dest != nullptr && (dest->isMerger() || dest->isSplitter()))
-                {
-                    if (dest->isSplitter() && dest != activeSplitter && !splitters.contains(dest))
-                    {
-                        // add to stack of splitters to explore
-                        splitters.add(dest);
-                        
-                        Splitter* splitter = (Splitter*) dest;
-                        splitterStates.add(splitter->getPath());
-            
-                        dest->switchIO(0); // go down first path
-                    }
-                    else if (dest->isMerger())
-                    {
-                        auto merger = static_cast<Merger*>(dest);
-
-                        // keep the input aligned with the current path
-                        int path = merger->switchToSourceNode(prev);
-                        jassert(path != -1); // merger not connected to prev?
-                        
-                        conn.mergerOrder.insert(conn.mergerOrder.begin(), path);
-                        conn.connectContinuous &= merger->sendContinuousForSource(prev);
-                        conn.connectEvents &= merger->sendEventsForSource(prev);
-                    }
-
-                    prev = dest;
-                    dest = dest->getDestNode();
-                }
-
-                if (dest != nullptr)
-                {
-                    if (dest->isReady())
-                    {
-                        sourceMap[dest].add(conn);
-                    }
-                }
-                else
-                {
-                    LOGDD("     No dest node.");
-                }
+                connectProcessors(conn.source, dest, conn.connectContinuous, conn.connectEvents);
             }
-
-           // std::cout << std::endl;
-
-            source->wasConnected = true;
-
-            if (dest != nullptr && dest->wasConnected)
-            {
-                // don't bother retraversing downstream of a dest that has already been connected
-                // (but if it leads to a splitter that is still in the stack, it may still be
-                // used as a source for the unexplored branch.)
-
-                LOGDD(dest->getName(), " ", dest->getNodeId(), " has already been connected.");
-                dest = nullptr;
-            }
-
-            source = dest; // switch source and dest
-
-            if (source == nullptr)
-            {
-                if (splitters.size() > 0)
-                {
-                    activeSplitter = splitters.getLast();
-                    splitters2.insert(0, activeSplitter);
-            
-                    splitters.removeLast();
-                    activeSplitter->switchIO(1);
-
-                    source = activeSplitter;
-                    GenericProcessor* newSource;
-            
-                    while (source->isSplitter() || source->isMerger())
-                    {
-                        newSource = source->getSourceNode();
-                        newSource->setPathToProcessor(source);
-                        source = newSource;
-                    }
-            
-                    //activeSplitter->switchIO(splitterStates.getLast());
-                    //splitterStates.removeLast();
-                }
-                else
-                {
-                    activeSplitter = nullptr;
-                }
-            }
-
-        } // end while source != 0
-    } // end "tabs" for loop
-        
-    for (int i = 0; i < splitters2.size(); i++)
-    {
-        splitters2[i]->switchIO(splitterStates[i]);
-    }
-
-    // actually connect sources to each dest processor,
-    // in correct order by merger topography
-    for (const auto& destSources : sourceMap)
-    {
-        GenericProcessor* dest = destSources.first;
-
-        for (const ConnectionInfo& conn : destSources.second)
-        {
-            connectProcessors(conn.source, dest, conn.connectContinuous, conn.connectEvents);
         }
-    }
-
-    //OwnedArray<EventChannel> extraChannels;
-    getMessageCenter()->addSpecialProcessorChannels();
-	
-	getAudioNode()->updatePlaybackBuffer();
-
-    /*
-    for (auto& recordNode : getRecordNodes())
-        recordNode->addSpecialProcessorChannels(extraChannels);
-    */
+   }
 
 } // end method
 
