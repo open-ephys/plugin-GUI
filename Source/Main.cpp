@@ -107,13 +107,26 @@ public:
     {
         bool shouldQuit = true;
 
-        if(CoreServices::getAcquisitionStatus())
+        if (CoreServices::getAcquisitionStatus())
         {
-            shouldQuit = AlertWindow::showOkCancelBox(AlertWindow::WarningIcon, 
-                                "Quit Open Ephys GUI",
-                                "Are you sure you want to quit the GUI?", 
-                                "Yes", 
-                                "No");
+            
+            String message;
+            
+            if (CoreServices::getRecordingStatus())
+            {
+                AlertWindow::showMessageBox(AlertWindow::WarningIcon,
+                                            "Cannot quit while recording is active.",
+                                            "Please stop recording before closing the GUI.",
+                                            "OK");
+                shouldQuit = false;
+            } else {
+                shouldQuit = AlertWindow::showOkCancelBox(AlertWindow::WarningIcon,
+                    "Are you sure you want to quit?",
+                    "The GUI is still acquiring data.",
+                    "Yes",
+                    "No");
+            }
+
         }
 
         if(shouldQuit)
