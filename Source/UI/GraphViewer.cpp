@@ -137,8 +137,22 @@ void GraphViewer::updateNodes(Array<GenericProcessor*> rootProcessors)
                 Splitter* splitter = splitters.getFirst();
                 processor = splitter->getDestNode(1); // then come back to chain 1
                 GraphNode* gn = getNodeForEditor(splitter->getEditor());
+                
                 level = gn->getLevel();
-                rootNum = gn->getHorzShift() + 1;
+                
+                //check if 2 splitters are connected to 1 splitter
+                if(splitter->getDestNode(0) && 
+                   splitter->getDestNode(0)->isSplitter() &&
+                   processor &&
+                   processor->isSplitter())
+                {
+                    rootNum = gn->getHorzShift() + 2;
+                }
+                else
+                {
+                    rootNum = gn->getHorzShift() + 1;
+                }
+
                 splitters.remove(0);
             }
         }
@@ -598,6 +612,44 @@ void GraphNode::updateBoundaries()
 
         yshift += shift1;
 
+    }
+
+    // Adjust vertical shift if there are consecutive splitters.
+    if(processor->sourceNode != nullptr && processor->sourceNode->isSplitter())
+    {
+        Splitter* parenSplitter = (Splitter*)processor->sourceNode;
+        if(parenSplitter->sourceNode != nullptr && parenSplitter->sourceNode->isSplitter())
+        {
+            GraphNode* node = gv->getNodeForEditor(parenSplitter->getSourceNode()->getEditor());
+            for(auto ed : node->getConnectedEditors())
+            {
+                if(ed != nullptr && !ed->isSplitter())
+                {
+                    auto nodeEditor = ed;
+                    while(nodeEditor)
+                    {
+                        GraphNode* subNode = gv->getNodeForEditor(nodeEditor);
+                        if(subNode)
+                        {
+                            yshift = BORDER_SIZE + subNode->getBottom();
+                            nodeEditor = subNode->getDest();
+                        }
+                        else
+                        {
+                            nodeEditor = nullptr;
+                        }
+                    }
+
+                    for(auto sibling : getSource()->getConnectedEditors())
+                    {
+                        GraphNode* siblingNode = gv->getNodeForEditor(sibling);
+                        if(siblingNode && siblingNode != this)
+                            gv->getNodeForEditor(sibling)->verticalShift(yshift - siblingNode->getY());
+                    }
+                }
+            }
+            
+        }
     }
 
 
