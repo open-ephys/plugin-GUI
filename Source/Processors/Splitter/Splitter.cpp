@@ -67,8 +67,6 @@ void Splitter::updateSettings()
                 streamsForPathB.add(stream);
         }
     }
-    
-    LOGD("ACTIVE PATH: ", activePath);
 }
 
 bool Splitter::checkStream(const DataStream* stream, Splitter::Output output)
@@ -90,8 +88,6 @@ void Splitter::setPathToProcessor(GenericProcessor* p)
     {
         switchIO(1);
     }
-    
-    LOGD("ACTIVE PATH: ", activePath);
 }
 
 void Splitter::setSplitterDestNode(GenericProcessor* dn)
@@ -109,8 +105,6 @@ void Splitter::setSplitterDestNode(GenericProcessor* dn)
         LOGDD("Setting destination node B.");
 
     }
-    
-    LOGD("ACTIVE PATH: ", activePath);
 }
 
 void Splitter::switchIO(int destNum)
@@ -130,8 +124,6 @@ void Splitter::switchIO(int destNum)
         destNode = destNodeB;
         LOGDD("   Dest node: ", getDestNode(1));
     }
-    
-    LOGD("ACTIVE PATH: ", activePath);
 }
 
 void Splitter::switchIO()
@@ -150,8 +142,6 @@ void Splitter::switchIO()
         destNode = destNodeA;
     }
     
-    LOGD("ACTIVE PATH: ", activePath);
-
 }
 
 int Splitter::getPath()

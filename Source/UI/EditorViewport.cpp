@@ -1713,8 +1713,13 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
         }
         else if (element->hasTagName("EDITORVIEWPORT"))
         {
-
+            
+            for (auto editor : editorArray)
+            {
+                editor->setVisible(false);
+            }
             editorArray.clear();
+            
             for (auto* visibleEditor : element->getChildIterator())
             {
                 int nodeId = visibleEditor->getIntAttribute("ID");
