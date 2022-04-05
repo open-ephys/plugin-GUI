@@ -554,7 +554,7 @@ void FPGAcanvas::resized()
     //int screenHeight = getHeight();
 
     int scrollBarThickness = channelsViewport->getScrollBarThickness();
-    int numChannels = 35; // max channels per stream? (32+3)*2
+    int numChannels = 67; // max channels per stream? (32+3)*2
 
     channelsViewport->setBounds(0,0,getWidth(),getHeight());
     channelList->setBounds(0,0,getWidth()-scrollBarThickness, 200+22*numChannels);
