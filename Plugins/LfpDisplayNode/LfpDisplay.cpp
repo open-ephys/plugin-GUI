@@ -943,7 +943,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
 
     resized();
 
-    LOGD("Finished standard channel rebuild.");
+    //LOGD("Finished standard channel rebuild.");
 }
 
 LfpBitmapPlotter * const LfpDisplay::getPlotterPtr() const
