@@ -58,21 +58,14 @@ private:
 
 /**
 
-  The default processor for sending output to the audio monitor.
+  Sends output to the computer's audio device.
 
-  The ProcessorGraph has two default nodes: the AudioNode and the RecordNode.
-  Every channel of every processor (that's not a sink or a utility) is automatically
-  connected to both of these nodes. The AudioNode is used to filter out channels to be
-  sent to the audio output device, which can be selected by the user through the AudioEditor
-  (located in the ControlPanel).
-
-  Since the AudioNode exists no matter what, it doesn't appear in the ProcessorList.
-  Instead, it's created by the ProcessorGraph at startup.
-
-  Each processor has an "Audio" tab within its channel-selector drawer that determines
-  which channels will be monitored. At the moment's there's no centralized way to
-  control the channels going to the audio monitor; it all happens in a distributed
-  way through the individual processors.
+  Every Audio Monitor copies it data into two channels (L and R)
+    which are sent to the Audio Node. The Audio Node limits
+    the maximum values between -1000 and 1000 (to prevent
+    saturation), applies gain and expansion, and streams
+    the data to the audio device selected in the audio settings
+    interface.
 
   @see GenericProcessor, AudioEditor
 

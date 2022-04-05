@@ -645,7 +645,12 @@ void ProcessorGraph::clearSignalChain()
 
     for (auto processor : getListOfProcessors())
     {
-        removeProcessor(processor);
+        NodeID nodeId = NodeID(processor->getNodeId());
+        std::unique_ptr<GenericEditor> editor;
+        editor.swap(processor->editor);
+        editor.reset();
+        Node::Ptr node = removeNode(nodeId);
+        node.reset();
     }
 
     rootNodes.clear();
