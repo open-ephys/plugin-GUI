@@ -276,6 +276,9 @@ const String &RecordNode::getLastSettingsXml() const
 // Called when deleting FifoMonitor
 void RecordNode::updateChannelStates(uint16 streamId, std::vector<bool> channelStates)
 {
+	//std::cout << "Updating channel states." << std::endl;
+	//for (int i = 0; i < channelStates.size(); i++)
+	//	std::cout << channelStates[i] << std::endl;
 	recordContinuousChannels[streamId] = channelStates;
 }
 
@@ -360,6 +363,8 @@ void RecordNode::updateSettings()
 		}
 
 	}
+
+	synchronizer->finishedUpdate();
 
 
 	// get rid of unused IDs

@@ -198,7 +198,8 @@ Synchronizer::Synchronizer(RecordNode* parentNode)
 	  firstMainSyncEvent(false),
 	  mainStreamId(0),
 	  previousMainStreamId(0),
-	  node(parentNode)
+	  node(parentNode),
+	  streamCount(0)
 {
 }
 
@@ -209,8 +210,19 @@ void Synchronizer::reset()
     firstMainSyncEvent = true;
 	eventCount = 0;
 
-    for (auto [id, stream] : streams)
-		stream->reset();
+	if (streamCount == 1)
+	{
+		streams[mainStreamId]->actualSampleRate = streams[mainStreamId]->expectedSampleRate;
+		streams[mainStreamId]->isSynchronized = true;
+		streams[mainStreamId]->startSampleMainTime = 0.0;
+		streams[mainStreamId]->startSample = 0;
+		LOGD("Only one stream, setting as synchronized.");
+	} else {
+		for (auto [id, stream] : streams)
+			stream->reset();
+	}
+
+
 
 }
 
@@ -218,9 +230,15 @@ void Synchronizer::prepareForUpdate()
 {
 	previousMainStreamId = mainStreamId;
 	mainStreamId = 0;
+	streamCount = 0;
 
 	for (auto [id, stream] : streams)
 		stream->isActive = false;
+}
+
+void Synchronizer::finishedUpdate()
+{
+
 }
 
 
@@ -246,6 +264,8 @@ void Synchronizer::addDataStream(uint16 streamId, float expectedSampleRate)
 		streams[streamId]->isActive = true;
 	}
 
+	streamCount++;
+
 }
 
 void Synchronizer::setMainDataStream(uint16 streamId)
@@ -267,6 +287,9 @@ int Synchronizer::getSyncLine(uint16 streamId)
 
 void Synchronizer::addEvent(uint16 streamId, int ttlLine, int64 sampleNumber)
 {
+
+	if (streamCount == 1)
+		return;
 
 	if (streams[streamId]->syncLine == ttlLine)
 	{

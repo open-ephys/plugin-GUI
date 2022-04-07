@@ -147,12 +147,15 @@ public:
     /** Resets all values when acquisition is re-started */
     void reset();
 
-    /** Sets main stream ID to 0*/
+    /** Sets main stream ID to 0 and stream count to 0*/
     void prepareForUpdate();
 
     /** Adds a new data stream with an expected sample rate
      *  If the stream already exists, */
     void addDataStream(uint16 streamId, float expectedSampleRate);
+
+    /** Checks if there is only one stream */
+    void finishedUpdate();
 
     /** Sets the ID of the main data stream */
     void setMainDataStream(uint16 streamId);
@@ -176,6 +179,9 @@ public:
 
     uint16 mainStreamId = 0;
     uint16 previousMainStreamId = 0;
+
+        /** Total number of streams*/
+    int streamCount;
 
     bool isAvailable() { return mainStreamId > 0; };
 

@@ -244,6 +244,8 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 								}
 							}
 
+							//std::cout << "Setting channel " << ch << " state to " << channelState << std::endl;
+
 							recordNode->recordContinuousChannels[streamId][ch] = channelState;
 						}
 
