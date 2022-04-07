@@ -314,6 +314,7 @@ void RecordNode::updateSettings()
 	for (auto stream : dataStreams)
 	{
 		const uint16 streamId = stream->getStreamId();
+		activeStreamIds.add(streamId);
 
 		LOGD("Record Node found stream: (", streamId, ") ", stream->getName());
 		//activeStreamIds.add(stream->getStreamId());

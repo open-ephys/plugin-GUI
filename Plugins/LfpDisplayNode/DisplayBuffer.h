@@ -58,6 +58,7 @@ namespace LfpViewer {
         void addChannel(String name, 
                         int channelNum, 
                         ContinuousChannel::Type channelType, 
+                        bool isRecorded,
                         int group = 0, 
                         float ypos = 0, 
                         String structure = "None");
@@ -85,6 +86,7 @@ namespace LfpViewer {
             float ypos = 0;
             String structure = "None";
             ContinuousChannel::Type type;
+            bool isRecorded = false;
         };
 
         Array<ChannelMetadata> channelMetadata;

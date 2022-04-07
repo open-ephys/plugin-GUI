@@ -83,6 +83,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             jsonChan->setProperty("source_processor_index", channelInfo->getSourceNodeId());
             //jsonChan->setProperty("recorded_processor_index", channelInfo->getCurrentNodeChannelIdx());
             createChannelMetadata(channelInfo, jsonChan);
+           
             for (int i = lastId; i < nInfoArrays; i++)
             {
 
@@ -90,6 +91,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
                 {
                     unsigned int count = indexedChannelCount[i];
                     m_channelIndexes.set(recordedChan, count);
+                    //std::cout << m_channelIndexes[recordedChan] << std::endl;
                     m_fileIndexes.set(recordedChan, i);
                     indexedChannelCount.set(i, count + 1);
                     jsonChannels.getReference(i).append(var(jsonChan));
@@ -106,8 +108,8 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
                 ScopedPointer<NpyFile> tFile = new NpyFile(contPath + datPath + "timestamps.npy", NpyType(BaseType::INT64,1));
                 m_dataTimestampFiles.add(tFile.release());
 
-                ScopedPointer<NpyFile> ftsFile = new NpyFile(contPath + datPath + "synchronized_timestamps.npy", NpyType(BaseType::DOUBLE,1));
-                m_dataFloatTimestampFiles.add(ftsFile.release());
+                ScopedPointer<NpyFile> syncTimestampFile = new NpyFile(contPath + datPath + "synchronized_timestamps.npy", NpyType(BaseType::DOUBLE,1));
+                m_dataSyncTimestampFiles.add(syncTimestampFile.release());
 
                 m_fileIndexes.set(recordedChan, nInfoArrays);
                 m_channelIndexes.set(recordedChan, 0);
@@ -488,7 +490,7 @@ void BinaryRecording::closeFiles()
     m_channelIndexes.clear();
     m_fileIndexes.clear();
     m_dataTimestampFiles.clear();
-    m_dataFloatTimestampFiles.clear();
+    m_dataSyncTimestampFiles.clear();
     m_eventFiles.clear();
     m_spikeChannelIndexes.clear();
     m_spikeFileIndexes.clear();
@@ -522,7 +524,11 @@ void BinaryRecording::increaseEventCounts(EventRecording* rec)
     if (rec->extraFile) rec->extraFile->increaseRecordCount();
 }
 
-void BinaryRecording::writeContinuousData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size)
+void BinaryRecording::writeContinuousData(int writeChannel, 
+    int realChannel, 
+    const float* dataBuffer, 
+    const double* timestampBuffer, 
+    int size)
 {
 
     if (!size)  
@@ -565,10 +571,11 @@ void BinaryRecording::writeContinuousData(int writeChannel, int realChannel, con
 		m_dataTimestampFiles[fileIndex]->writeData(m_tsBuffer, size*sizeof(int64));
 		m_dataTimestampFiles[fileIndex]->increaseRecordCount(size);
 
-        //LOGD("BinaryRecording::writeSynchronizedData: ", *ftsBuffer);
+        //LOGD("BinaryRecording::writeSynchronizedData: ", *timestampBuffer);
+        //std::cout << timestampBuffer
 
-        m_dataFloatTimestampFiles[fileIndex]->writeData(ftsBuffer, size*sizeof(double));
-        m_dataFloatTimestampFiles[fileIndex]->increaseRecordCount(size);
+        m_dataSyncTimestampFiles[fileIndex]->writeData(timestampBuffer, size*sizeof(double));
+        m_dataSyncTimestampFiles[fileIndex]->increaseRecordCount(size);
         
 	}
 }

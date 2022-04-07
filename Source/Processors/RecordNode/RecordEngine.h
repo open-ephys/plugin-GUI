@@ -83,7 +83,7 @@ public:
 	virtual void writeContinuousData(int writeChannel,
 					 int realChannel,
 					 const float* dataBuffer,
-					 const double* ftsBuffer,
+					 const double* timestampBuffer,
 					 int size) = 0;
 
 	/** Write a single event to disk (TTL or TEXT) */

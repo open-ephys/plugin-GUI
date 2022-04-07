@@ -154,21 +154,18 @@ float DataQueue::writeSynchronizedTimestamps(double start, double step, int dest
 	}
 
 	//LOGD("DataQueue::writeSynchronizedTimestampChannel: ", start);
+	//std::cout << destChannel << " " << nSamples << " " << start << " " << start + (double)(size1 * step) + double(size2 * step) << std::endl;
 
 	for (int i = 0; i < size1; i++)
 	{
-		//LOGD("setSample: ", start + (float)i*step);
 		m_FTSBuffer.setSample(destChannel, index1+i, start+(double)i*step);
-		//LOGD("Set sample ", index1+i, " to ", start);
-		//m_FTSBuffer.setSample(destChannel, index1+i, start + (float)i*step);
 	}
 
 	if (size2 > 0)
 	{
 		for (int i = 0; i < size2; i++)
 		{
-			//m_FTSBuffer.setSample(destChannel, index2+i, start + (float)i*step);
-			m_FTSBuffer.setSample(destChannel, index2 + i, start+(double)size1*step + double(i*step));
+			m_FTSBuffer.setSample(destChannel, index2 + i, start+(double)(size1*step) + double(i*step));
 		}
 	}
 
@@ -231,7 +228,9 @@ const SynchronizedTimestampBuffer& DataQueue::getTimestampBufferReference() cons
 	return m_FTSBuffer;
 }
 
-bool DataQueue::startRead(Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int64>& timestamps, int nMax)
+bool DataQueue::startRead(Array<CircularBufferIndexes>& dataIndexes, 
+		Array<CircularBufferIndexes>& ftsIndexes, 
+		Array<int64>& timestamps, int nMax)
 {
 
 	//This should never happen, but it never hurts to be on the safe side.
@@ -256,6 +255,9 @@ bool DataQueue::startRead(Array<CircularBufferIndexes>& dataIndexes, Array<Circu
 		int blockMod = idx.index1 % m_blockSize;
 		int blockDiff = (blockMod == 0) ? 0 : (m_blockSize - blockMod);
 
+		//if (chan == 0)
+		//	LOGD("idx1: ", idx.index1, " | s1: ", idx.size1, " | idx2: ", idx.index2, " | s2: ", idx.size2);
+
 		//If the next timestamp block is within the data we're reading, include the translated timestamp in the output
 		int64 ts;
 		if (blockDiff < (idx.size1 + idx.size2))
@@ -279,10 +281,13 @@ bool DataQueue::startRead(Array<CircularBufferIndexes>& dataIndexes, Array<Circu
 		int samplesToRead = ((readyToRead > nMax) && (nMax > 0)) ? nMax : readyToRead;
 
 		m_FTSFifos[chan]->prepareToRead(samplesToRead, idx.index1, idx.size1, idx.index2, idx.size2);
-		//LOGD("idx1: ", idx.index1, " | s1: ", idx.size1, " | idx2: ", idx.index2, " | s2: ", idx.size2);
+		//if (chan == 0)
+		//	LOGD("idx1: ", idx.index1, " | s1: ", idx.size1, " | idx2: ", idx.index2, " | s2: ", idx.size2);
 		ftsIndexes.add(idx);
 		m_readFTSSamples.set(chan, idx.size1 + idx.size2);
 	}
+
+	//std::cout << "  " << std::endl;
 
 	return true;
 }

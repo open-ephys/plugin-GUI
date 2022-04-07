@@ -46,6 +46,8 @@ LfpChannelDisplay::LfpChannelDisplay(LfpDisplaySplitter* c, LfpDisplay* d, LfpDi
     , display(d)
     , options(o)
     , isSelected(false)
+    , isRecorded(false)
+    , recordingIsActive(false)
     , chan(channelNumber)
     , name("")
     , drawableChan(channelNumber)
@@ -491,6 +493,11 @@ void LfpChannelDisplay::setDepth(float depth_)
     depth = depth_;
 }
 
+
+void LfpChannelDisplay::setRecorded(bool recorded_)
+{
+    isRecorded = recorded_;
+}
 
 ContinuousChannel::Type LfpChannelDisplay::getType()
 {

@@ -188,13 +188,30 @@ void LfpChannelDisplayInfo::mouseUp(const MouseEvent &e)
     }
 }
 
+
+void LfpChannelDisplayInfo::recordingStarted()
+{
+    recordingIsActive = true;
+    repaint();
+}
+
+void LfpChannelDisplayInfo::recordingStopped()
+{
+    recordingIsActive = false;
+    repaint();
+}
+
 void LfpChannelDisplayInfo::paint(Graphics& g)
 {
     int center = getHeight()/2 - (isSingleChannel?(75):(0));
 	const bool showChannelNumbers = options->getChannelNameState();
 
     // Draw the channel numbers
-    g.setColour(Colours::grey);
+    if (isRecorded && recordingIsActive)
+        g.setColour(Colours::red);
+    else
+        g.setColour(Colours::grey);
+
     const String channelString = (isChannelNumberHidden() ? ("--") :
 		showChannelNumbers ? String(getChannelNumber() + 1) : getName());
     bool isCentered = !getEnabledButtonVisibility();

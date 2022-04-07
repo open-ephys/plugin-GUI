@@ -130,7 +130,7 @@ void Stream::setMainTime(float time)
 
 void Stream::addEvent(int64 sampleNumber)
 {
-	LOGD("[+] Adding event for stream ", streamId, " (", sampleNumber, ")");
+	//LOGD("[+] Adding event for stream ", streamId, " (", sampleNumber, ")");
 	if (!receivedEventInWindow)
 	{
 		tempSampleNum = sampleNumber;
@@ -162,7 +162,7 @@ void Stream::closeSyncWindow()
 			{
 				actualSampleRate = tempSampleRate;
 				isSynchronized = true;
-				LOGD("Stream ", streamId, " new sample rate: ", actualSampleRate);
+				//LOGD("Stream ", streamId, " new sample rate: ", actualSampleRate);
 			}
 			else {
 				// check whether the sample rate has changed
@@ -170,21 +170,21 @@ void Stream::closeSyncWindow()
 				{
 					actualSampleRate = tempSampleRate;
 					isSynchronized = true;
-					LOGD("Stream ", streamId, " UPDATED sample rate: ", actualSampleRate);
+					//LOGD("Stream ", streamId, " UPDATED sample rate: ", actualSampleRate);
 
 				}
 				else { // reset the clock
 					startSample = tempSampleNum;
 					startSampleMainTime = tempMainTime;
 					isSynchronized = false;
-					LOGD("Stream ", streamId, " NO LONGER SYNCHRONIZED.");
+					//LOGD("Stream ", streamId, " NO LONGER SYNCHRONIZED.");
 
 				}
 			}
 		}
 	}
 
-	LOGD("[x] Stream ", streamId, " closed sync window.");
+	//LOGD("[x] Stream ", streamId, " closed sync window.");
 
 	receivedEventInWindow = false;
 	receivedMainTimeInWindow = false;
@@ -302,15 +302,15 @@ void Synchronizer::addEvent(uint16 streamId, int ttlLine, int64 sampleNumber)
 			}
 
 
-			//if (eventCount % 10 == 0)
-			LOGD("[M] Main time: ", mainTimeSec);
+			///if (eventCount % 10 == 0)
+			//LOGD("[M] Main time: ", mainTimeSec);
 			//
 
 			eventCount++;
 		}
 
-		LOGD("[T] Estimated time: ", convertTimestamp(streamId, sampleNumber));
-		LOGD("[S] Is synchronized: ", streams[streamId]->isSynchronized);
+		//LOGD("[T] Estimated time: ", convertTimestamp(streamId, sampleNumber));
+		//LOGD("[S] Is synchronized: ", streams[streamId]->isSynchronized);
 
 	}
 }
@@ -325,7 +325,7 @@ double Synchronizer::convertTimestamp(uint16 streamId, int64 sampleNumber)
 			streams[streamId]->startSampleMainTime;
 	}
 	else {
-		return (double) sampleNumber / streams[streamId]->expectedSampleRate;
+		return (double) -1.0f;
 	}
 }
 
@@ -366,5 +366,5 @@ void Synchronizer::hiResTimerCallback()
 	for (auto [id, stream] : streams)
 		stream->closeSyncWindow();
 
-	LOGD(" ");
+	//LOGD(" ");
 }

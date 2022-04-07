@@ -181,6 +181,12 @@ public:
     /** Called when the signal chain is updated */
     void updateSettings();
 
+    /** Called when recording started*/
+    void recordingStarted();
+
+    /** Called when recording started*/
+    void recordingStopped();
+
     /** Changes component bounds */
     void resized();
 

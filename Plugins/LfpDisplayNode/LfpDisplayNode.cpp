@@ -92,12 +92,13 @@ void LfpDisplayNode::updateSettings()
         }
 
         displayBufferMap[streamId]->addChannel(channel->getName(), // name
-                                               ch, // index
-                                               channel->getChannelType(), // type
-                                               0, // group
-                                               channel->position.y // ypos
-                                                );
-    }
+            ch, // index
+            channel->getChannelType(), // type
+            channel->isRecorded,
+            0, // group
+            channel->position.y // ypos
+            );
+}
 
     Array<DisplayBuffer*> toDelete;
 
@@ -205,6 +206,21 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
     }
 }
 
+void LfpDisplayNode::startRecording()
+{
+    for (auto display : splitDisplays)
+    {
+        display->recordingStarted();
+    }
+}
+
+void LfpDisplayNode::stopRecording()
+{
+    for (auto display : splitDisplays)
+    {
+        display->recordingStopped();
+    }
+}
 
 void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
 {
@@ -215,7 +231,7 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
     const int eventSourceNodeId = event->getChannelInfo()->getSourceNodeId();
     const int eventTime = event->getTimestamp() - getSourceTimestamp(eventStreamId);
 
-    LOGD("LFP Viewer received: ", eventSourceNodeId, " ", eventId, " ", event->getTimestamp());
+    //LOGD("LFP Viewer received: ", eventSourceNodeId, " ", eventId, " ", event->getTimestamp());
 
     if (eventId == 1)
     {

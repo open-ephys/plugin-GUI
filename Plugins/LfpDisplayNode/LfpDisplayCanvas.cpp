@@ -827,6 +827,26 @@ void LfpDisplaySplitter::deselect()
     repaint();
 }
 
+void LfpDisplaySplitter::recordingStarted()
+{
+    for (int i = 0; i < lfpDisplay->getNumChannels(); i++) // update channel metadata
+    {
+       
+        lfpDisplay->channelInfo[i]->recordingStarted();
+
+    }
+}
+
+void LfpDisplaySplitter::recordingStopped()
+{
+    for (int i = 0; i < lfpDisplay->getNumChannels(); i++) // update channel metadata
+    {
+
+        lfpDisplay->channelInfo[i]->recordingStopped();
+
+    }
+}
+
 void LfpDisplaySplitter::updateSettings()
 {
 
@@ -909,11 +929,13 @@ void LfpDisplaySplitter::updateSettings()
         lfpDisplay->channels[i]->setName(displayBuffer->channelMetadata[i].name);
         lfpDisplay->channels[i]->setGroup(displayBuffer->channelMetadata[i].group);
         lfpDisplay->channels[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
+        lfpDisplay->channels[i]->setRecorded(displayBuffer->channelMetadata[i].isRecorded);
         lfpDisplay->channels[i]->updateType(displayBuffer->channelMetadata[i].type);
         
         lfpDisplay->channelInfo[i]->setName(displayBuffer->channelMetadata[i].name);
         lfpDisplay->channelInfo[i]->setGroup(displayBuffer->channelMetadata[i].group);
         lfpDisplay->channelInfo[i]->setDepth(displayBuffer->channelMetadata[i].ypos);
+        lfpDisplay->channelInfo[i]->setRecorded(displayBuffer->channelMetadata[i].isRecorded);
         lfpDisplay->channelInfo[i]->updateType(displayBuffer->channelMetadata[i].type);
 
         lfpDisplay->updateRange(i);

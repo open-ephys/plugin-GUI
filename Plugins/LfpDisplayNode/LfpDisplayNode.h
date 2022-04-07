@@ -76,6 +76,12 @@ public:
     /** Stops display animations*/
     bool stopAcquisition()  override;
 
+    /** Highlights recorded channels */
+    void startRecording()   override;
+
+    /** Un-highlights recorded channels*/
+    void stopRecording()  override;
+
     /** Used for TTL event overlay*/
     void handleTTLEvent (TTLEventPtr event) override;
 

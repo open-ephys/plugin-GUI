@@ -30,7 +30,11 @@ public:
 	void closeFiles();
 
 	/** Writes a block of continuous data */
-	void writeContinuousData(int writeChannel, int realChannel, const float* dataBuffer, const double* ftsBuffer, int size);
+	void writeContinuousData(int writeChannel, 
+		int realChannel, 
+		const float* dataBuffer, 
+		const double* timestampBuffer, 
+		int size);
 
 	/** Writes an event to disk */
 	void writeEvent(int eventIndex, const EventPacket& packet);
@@ -71,10 +75,10 @@ private:
 	HeapBlock<int16> m_intBuffer;
 	HeapBlock<int64> m_tsBuffer;
 	int m_bufferSize;
-	int m_ftsBufferSize;
+	int m_syncTimestampBufferSize;
 
 	OwnedArray<SequentialBlockFile> m_DataFiles;
-	OwnedArray<SequentialBlockFile> m_FTSDataFiles;
+	OwnedArray<SequentialBlockFile> m_SyncTimestampDataFiles;
 	Array<unsigned int> m_channelIndexes;
 	Array<unsigned int> m_fileIndexes;
 	OwnedArray<EventRecording> m_eventFiles;
@@ -84,7 +88,7 @@ private:
 	static String getProcessorString(const InfoObject* channelInfo);
 	
 	OwnedArray<NpyFile> m_dataTimestampFiles;
-	OwnedArray<NpyFile> m_dataFloatTimestampFiles;
+	OwnedArray<NpyFile> m_dataSyncTimestampFiles;
 	std::unique_ptr<FileOutputStream> m_syncTextFile;
 
 	Array<unsigned int> m_spikeFileIndexes;

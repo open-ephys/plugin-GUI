@@ -79,6 +79,9 @@ public:
     /** Sets the channel depth*/
     void setDepth(float);
 
+    /** Sets whether or not the channel is recorded by an upstream Record Node*/
+    void setRecorded(bool);
+
     /** Sets the color for this channel's trace */
     void setColour(Colour c);
 
@@ -173,6 +176,7 @@ protected:
     String name;
     int group;
     float depth;
+    bool isRecorded;
 
     Font channelFont;
 
@@ -188,6 +192,7 @@ protected:
     bool inputInverted;
     bool canBeInverted;
     bool drawMethod;
+    bool recordingIsActive;
 
     ContinuousChannel::Type type;
     String typeStr;

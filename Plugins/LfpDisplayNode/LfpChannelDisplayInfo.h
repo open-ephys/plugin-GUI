@@ -58,6 +58,12 @@ public:
     /** Sets component layout */
     void resized() override;
 
+    /** Changes the color of the display to show recorded channels*/
+    void recordingStarted();
+
+    /** Reverts the color changes from start of recording */
+    void recordingStopped();
+
     /** Sets whether this channel is enabled */
     void setEnabledState(bool);
 
