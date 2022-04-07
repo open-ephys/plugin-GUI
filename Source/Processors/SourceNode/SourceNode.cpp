@@ -231,6 +231,7 @@ bool SourceNode::startAcquisition()
     if (isSourcePresent())
     {
         stopTimer();
+
         dataThread->startAcquisition();
         return true;
     }
@@ -247,7 +248,15 @@ bool SourceNode::stopAcquisition()
     if (dataThread != nullptr)
         dataThread->stopAcquisition();
 
+    eventStates.clear();
+
+    for (int i = 0; i < dataStreams.size(); i++)
+    {
+        eventStates.add(0);
+    }
+
     startTimer (sourceCheckInterval); // timer to check for connected source
+
 
     return true;
 }

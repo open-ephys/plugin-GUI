@@ -40,7 +40,7 @@ LfpDisplayNode::LfpDisplayNode()
         latestTrigger.add(-1);
         latestCurrentTrigger.add(-1);
     }
-    
+
 }
 
 
@@ -94,13 +94,13 @@ void LfpDisplayNode::updateSettings()
         displayBufferMap[streamId]->addChannel(channel->getName(), // name
                                                ch, // index
                                                channel->getChannelType(), // type
-                                               0, // group 
+                                               0, // group
                                                channel->position.y // ypos
                                                 );
     }
 
     Array<DisplayBuffer*> toDelete;
-    
+
     for (auto displayBuffer : displayBuffers)
     {
 
@@ -119,7 +119,7 @@ void LfpDisplayNode::updateSettings()
                 ed->removeBufferForDisplay(splitID);
             }
         }
-        
+
     }
 
     for (auto displayBuffer : toDelete)
@@ -177,6 +177,9 @@ bool LfpDisplayNode::stopAcquisition()
     LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
     editor->disable();
 
+    for (auto buffer : displayBuffers)
+        buffer->ttlState = 0;
+
     return true;
 
 }
@@ -205,12 +208,14 @@ void LfpDisplayNode::setParameter (int parameterIndex, float newValue)
 
 void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
 {
- 
+
     const int eventId = event->getState() ? 1 : 0;
     const int eventChannel = event->getLine();
     const uint16 eventStreamId = event->getChannelInfo()->getStreamId();
     const int eventSourceNodeId = event->getChannelInfo()->getSourceNodeId();
     const int eventTime = event->getTimestamp() - getSourceTimestamp(eventStreamId);
+
+    LOGD("LFP Viewer received: ", eventSourceNodeId, " ", eventId, " ", event->getTimestamp());
 
     if (eventId == 1)
     {
@@ -243,7 +248,7 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
             displayBuffer->addEvent(eventTime, eventChannel, eventId,
                 getNumSourceSamples(displayBuffer->id)
             );
-                
+
         }
 
     }

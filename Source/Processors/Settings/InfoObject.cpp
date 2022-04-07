@@ -204,13 +204,13 @@ bool InfoObject::isLocal() const
 
 void InfoObject::copyParameters(InfoObject* object)
 {
-    
+
     if (object->getType() != getType())
     {
         std::cout << "Cannot copy parameters between different types of InfoObjects" << std::endl;
         return;
     }
-    
+
     for (auto parameter : object->getParameters())
     {
         if (parameter->getType() == Parameter::INT_PARAM)
@@ -232,7 +232,7 @@ void InfoObject::copyParameters(InfoObject* object)
         {
             SelectedChannelsParameter* p = (SelectedChannelsParameter*) parameter;
             addParameter(new SelectedChannelsParameter(*p));
-            
+
         }
         else if (parameter->getType() == Parameter::CATEGORICAL_PARAM)
         {
@@ -245,13 +245,13 @@ void InfoObject::copyParameters(InfoObject* object)
             addParameter(new FloatParameter(*p));
         }
     }
-    
+
 }
 
 void InfoObject::addParameter(Parameter* p)
 {
      parameters.addParameter(p);
-    
+
     if (getType() == InfoObject::DATASTREAM_INFO)
         p->setDataStream((DataStream*) this);
     else if (getType() == InfoObject::SPIKE_CHANNEL)
@@ -263,7 +263,7 @@ void InfoObject::addParameter(Parameter* p)
 }
 
 ChannelInfoObject::ChannelInfoObject(InfoObject::Type type, DataStream* dataStream)
-	: InfoObject(type)
+	: InfoObject(type), isRecorded(false)
 {
     setDataStream(dataStream); // sets local index
 }
@@ -274,7 +274,7 @@ ChannelInfoObject::~ChannelInfoObject()
 }
 
 ChannelInfoObject::ChannelInfoObject(const ChannelInfoObject& other)
- : InfoObject(other)
+ : InfoObject(other), isRecorded(other.isRecorded)
 {
 }
 
@@ -305,7 +305,7 @@ String ChannelInfoObject::getStreamName() const
 void ChannelInfoObject::setDataStream(DataStream* ds, bool addToStream)
 {
     stream = ds;
-    
+
     if (stream != nullptr && addToStream)
         stream->addChannel(this);
 }

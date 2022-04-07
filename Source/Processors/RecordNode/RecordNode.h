@@ -81,7 +81,7 @@ public:
       - Sets a bunch of internal variables
      */
 	RecordNode();
-    
+
     /** Destructor */
 	~RecordNode() { }
 
@@ -130,25 +130,40 @@ public:
 	/* Returns the "recording" count (number of times that recording was stopped and re-started)*/
 	int getRecordingNumber() const;
 
-	void setPrimaryDataStream(uint16 streamId);
-	bool isPrimaryDataStream(uint16 streamId);
+	/** Sets the main data stream to use for synchronization */
+	void setMainDataStream(uint16 streamId);
 
-	void setSyncBit(uint16 streamId, int bit);
-	int getSyncBit(uint16 streamId);
+	/** Returns true if a stream ID matches the one to use for sychronization*/
+	bool isMainDataStream(uint16 streamId);
 
+	/** Sets the TTL line to use for synchronization*/
+	void setSyncLine(uint16 streamId, int line);
+
+	/** Returns the TTL line to use for synchronization*/
+	int getSyncLine(uint16 streamId);
+
+	/** Updates the channels to record for a given stream */
 	void updateChannelStates(uint16 streamId, std::vector<bool> enabled);
 
+	/** Writes the initial state for all event channels*/
 	void writeInitialEventStates();
 
-	bool isFirstChannelInRecordedSubprocessor(int channel);
-
+	/** Copies incoming data to the record buffer, if recording is active*/
 	void process(AudioBuffer<float>& buffer) override;
 
+	/** Returns a vector of available record engines*/
 	std::vector<RecordEngineManager*> getAvailableRecordEngines();
 
+	/** Gets the engine ID for this record node*/
 	String getEngineId();
+
+	/** Sets the engine ID for this record node */
 	void setEngine(String engineId);
+
+	/** Turns event recording on or off*/
 	void setRecordEvents(bool);
+
+	/** Turns spike recording on or off*/
 	void setRecordSpikes(bool);
 
 	/** Sets the parent directory for this Record Node (can be different from default directory) */
@@ -163,27 +178,29 @@ public:
 	/** Get the last settings.xml in string form. Since the string will be large, returns a const ref.*/
 	const String &getLastSettingsXml() const;
 
-    /** Called by handleEvent() */
-    void writeSpike(const Spike *spike, const SpikeChannel *spikeElectrode);
+  /** Called by handleEvent() */
+  void writeSpike(const Spike *spike, const SpikeChannel *spikeElectrode);
 
-    /** Called by the ControlPanel to determine the amount of space
-        left in the current dataDirectory.
-    */
-    float getFreeSpace() const;
+  /** Called by the ControlPanel to determine the amount of space
+      left in the current dataDirectory.
+  */
+  float getFreeSpace() const;
 
 	/** Called by CoreServices to determine the amount of space
 		in kilobytes in the current dataDirectory.
 	*/
 	float getFreeSpaceKilobytes() const;
 
-    /** Adds a Record Engine to use */
-    void registerRecordEngine(RecordEngine *engine);
+  /** Adds a Record Engine to use */
+  void registerRecordEngine(RecordEngine *engine);
 
-    /** Clears the list of active Record Engines*/
-    void clearRecordEngines();
+  /** Clears the list of active Record Engines*/
+  void clearRecordEngines();
 
+  /** Variables to track whether or not particular channels are recorded*/
 	bool recordEvents;
 	bool recordSpikes;
+	std::map<uint16, std::vector<bool>> recordContinuousChannels;
 
 	bool newDirectoryNeeded;
 
@@ -199,18 +216,18 @@ public:
 	int numDataStreams;
 
 	Array<uint16> activeStreamIds;
-	std::map<int, std::vector<bool>> dataChannelStates;
-	std::map<int, int> dataChannelOrder;
 
-	std::map<int, int> syncChannelMap;
-	std::map<int, int> syncOrderMap;
+	//std::map<uint16, int> dataChannelOrder;
 
-	std::map<int, float> fifoUsage;
+	//std::map<int, int> syncChannelMap;
+	//std::map<int, int> syncOrderMap;
+
+	std::map<uint16, float> fifoUsage;
 
 	ScopedPointer<EventMonitor> eventMonitor;
 
 	Array<int> channelMap; //Map from record channel index to source channel index
-	Array<int> ftsChannelMap; // Map from recorded channel index to recorded source processor idx
+	Array<int> timestampChannelMap; // Map from recorded channel index to recorded source processor idx
 	std::vector<std::vector<int>> subProcessorMap;
 	std::vector<int> startRecChannels;
 
@@ -237,11 +254,7 @@ private:
 	/**RecordEngines loaded**/
 	OwnedArray<RecordEngine> engineArray;
 
-	int64 lastPrimaryStreamTimestamp;
-
-	bool useSynchronizer; 
-
-	bool receivedSoftwareTime;
+	int64 lastMainStreamTimestamp;
 
 	int lastDataChannelArraySize;
 
@@ -272,7 +285,7 @@ private:
 
 	//Profiling data structures
 	float scaleFactor;
-	HeapBlock<float> scaledBuffer;  
+	HeapBlock<float> scaledBuffer;
 	HeapBlock<int16> intBuffer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);

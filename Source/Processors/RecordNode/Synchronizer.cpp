@@ -83,15 +83,16 @@ int FloatTimestampBuffer::readAllFromBuffer(AudioSampleBuffer& data, uint64* tim
 	abstractFifo.finishedRead(numItems);
 
 	return numItems;
-	
+
 }
 
-Stream::Stream(float expectedSampleRate_)
+Stream::Stream(uint16 streamId_, float expectedSampleRate_)
+	: streamId(streamId_),
+	  expectedSampleRate(expectedSampleRate_),
+	  actualSampleRate(-1.0f),
+	  sampleRateTolerance(0.01f),
+	  isActive(true)
 {
-	expectedSampleRate = expectedSampleRate_;
-	actualSampleRate = -1.0f;
-
-	sampleRateTolerance = 0.01;
 
 	reset();
 }
@@ -99,34 +100,37 @@ Stream::Stream(float expectedSampleRate_)
 void Stream::reset()
 {
 
-	startSamplePrimaryTime = -1.0f;
-	lastSamplePrimaryTime = -1.0f;
+	startSampleMainTime = -1.0f;
+	lastSampleMainTime = -1.0f;
 
 	actualSampleRate = -1.0f;
 	startSample = -1;
 	lastSample = -1;
 
 	receivedEventInWindow = false;
-	receivedPrimaryTimeInWindow = false;
+	receivedMainTimeInWindow = false;
 	isSynchronized = false;
 
 }
 
-void Stream::setPrimaryTime(float masterTimeSec_)
+void Stream::setMainTime(float time)
 {
-	if (!receivedPrimaryTimeInWindow)
+	if (!receivedMainTimeInWindow)
 	{
-		tempPrimaryTime = masterTimeSec_;
-		receivedPrimaryTimeInWindow = true;
+		tempMainTime = time;
+		receivedMainTimeInWindow = true;
+		//LOGD("Stream ", streamId, " received main time: ", time);
+
 	}
 	else { // multiple events, something could be wrong
-		receivedPrimaryTimeInWindow = false;
+		receivedMainTimeInWindow = false;
 	}
 
 }
 
-void Stream::addEvent(int sampleNumber)
+void Stream::addEvent(int64 sampleNumber)
 {
+	LOGD("[+] Adding event for stream ", streamId, " (", sampleNumber, ")");
 	if (!receivedEventInWindow)
 	{
 		tempSampleNum = sampleNumber;
@@ -140,25 +144,25 @@ void Stream::addEvent(int sampleNumber)
 
 void Stream::closeSyncWindow()
 {
-	if (receivedEventInWindow && receivedPrimaryTimeInWindow)
+	if (receivedEventInWindow && receivedMainTimeInWindow)
 	{
 		if (startSample < 0)
 		{
 			startSample = tempSampleNum;
-			startSamplePrimaryTime = tempPrimaryTime;
+			startSampleMainTime = tempMainTime;
 		}
 		else {
 
 			lastSample = tempSampleNum;
-			lastSamplePrimaryTime = tempPrimaryTime;
+			lastSampleMainTime = tempMainTime;
 
-			double tempSampleRate = (lastSample - startSample) / (lastSamplePrimaryTime - startSamplePrimaryTime);
+			double tempSampleRate = (lastSample - startSample) / (lastSampleMainTime - startSampleMainTime);
 
 			if (actualSampleRate < 0.0f)
 			{
 				actualSampleRate = tempSampleRate;
 				isSynchronized = true;
-				//LOGD("New sample rate: ", actualSampleRate);
+				LOGD("Stream ", streamId, " new sample rate: ", actualSampleRate);
 			}
 			else {
 				// check whether the sample rate has changed
@@ -166,45 +170,45 @@ void Stream::closeSyncWindow()
 				{
 					actualSampleRate = tempSampleRate;
 					isSynchronized = true;
-					//LOGD("Updated sample rate: ", actualSampleRate);
+					LOGD("Stream ", streamId, " UPDATED sample rate: ", actualSampleRate);
+
 				}
 				else { // reset the clock
 					startSample = tempSampleNum;
-					startSamplePrimaryTime = tempPrimaryTime;
+					startSampleMainTime = tempMainTime;
 					isSynchronized = false;
+					LOGD("Stream ", streamId, " NO LONGER SYNCHRONIZED.");
+
 				}
 			}
 		}
 	}
 
-	LOGDD("Subprocessor closed sync window.");
+	LOGD("[x] Stream ", streamId, " closed sync window.");
 
 	receivedEventInWindow = false;
-	receivedPrimaryTimeInWindow = false;
+	receivedMainTimeInWindow = false;
 }
 
 // =======================================================
 
 Synchronizer::Synchronizer(RecordNode* parentNode)
-{
-	syncWindowLengthMs = 50;
-	syncWindowIsOpen = false;
-	firstMasterSync = true;
-	primaryStreamId = -1;
-	node = parentNode;
-}
-
-Synchronizer::~Synchronizer()
+	: syncWindowLengthMs(50),
+	  syncWindowIsOpen(false),
+	  firstMainSyncEvent(false),
+	  mainStreamId(0),
+	  previousMainStreamId(0),
+	  node(parentNode)
 {
 }
 
 void Synchronizer::reset()
 {
-	
+
     syncWindowIsOpen = false;
-    firstMasterSync = true;
+    firstMainSyncEvent = true;
 	eventCount = 0;
-    
+
     for (auto [id, stream] : streams)
 		stream->reset();
 
@@ -212,55 +216,63 @@ void Synchronizer::reset()
 
 void Synchronizer::prepareForUpdate()
 {
-	lastPrimaryStreamId = primaryStreamId;
-	primaryStreamId = -1;
+	previousMainStreamId = mainStreamId;
+	mainStreamId = 0;
+
+	for (auto [id, stream] : streams)
+		stream->isActive = false;
 }
 
-/*
-Adds a new data stream to the synchronizer
-If this is the first stream, set it as the primary stream
-Default the sync bit for this stream to the first ttlChannel in the stream 
-*/
+
 void Synchronizer::addDataStream(uint16 streamId, float expectedSampleRate)
 {
-	if (primaryStreamId < 0)
-		primaryStreamId = streamId;
+	// if this is the first stream, make it the main one
+	if (mainStreamId == 0)
+		mainStreamId = streamId;
 
-	if (streamId == lastPrimaryStreamId)
-		primaryStreamId = lastPrimaryStreamId;
+	// if there's a stored value, and it appears again,
+	// re-instantiate this as the main stream
+	if (streamId == previousMainStreamId)
+		mainStreamId = previousMainStreamId;
 
+	// if there's no Stream object yet, create a new one
 	if (streams.count(streamId) == 0)
 	{
-		dataStreamObjects.add(new Stream(expectedSampleRate));
+		dataStreamObjects.add(new Stream(streamId, expectedSampleRate));
 		streams[streamId] = dataStreamObjects.getLast();
-		setSyncBit(streamId, 0);
+		setSyncLine(streamId, 0);
+	} else {
+		// otherwise, indicate that the stream is currently active
+		streams[streamId]->isActive = true;
 	}
-	
+
 }
 
-void Synchronizer::setPrimaryDataStream(uint16 streamId)
+void Synchronizer::setMainDataStream(uint16 streamId)
 {
-	primaryStreamId = streamId;
+	mainStreamId = streamId;
 	reset();
 }
 
-void Synchronizer::setSyncBit(uint16 streamId, int ttlChannel)
+void Synchronizer::setSyncLine(uint16 streamId, int ttlLine)
 {
-	streams[streamId]->syncChannel = ttlChannel;
+	streams[streamId]->syncLine = ttlLine;
 	reset();
 }
 
-int Synchronizer::getSyncBit(uint16 streamId)
+int Synchronizer::getSyncLine(uint16 streamId)
 {
-	return streams[streamId]->syncChannel;
+	return streams[streamId]->syncLine;
 }
 
-void Synchronizer::addEvent(uint64 streamId, int ttlChannel, int sampleNumber)
+void Synchronizer::addEvent(uint16 streamId, int ttlLine, int64 sampleNumber)
 {
 
-	if (streams[streamId]->syncChannel == ttlChannel)
+	if (streams[streamId]->syncLine == ttlLine)
 	{
-		
+
+		//LOGD("Synchronizer received sync event for stream ", streamId);
+
 		if (!syncWindowIsOpen)
 		{
 			openSyncWindow();
@@ -268,47 +280,52 @@ void Synchronizer::addEvent(uint64 streamId, int ttlChannel, int sampleNumber)
 
 		streams[streamId]->addEvent(sampleNumber);
 
-		if (streamId == primaryStreamId)
+		if (streamId == mainStreamId)
 		{
 
-			//LOGD("Got event on master!");
+			float mainTimeSec;
 
-			float masterTimeSec;
-
-			if (!firstMasterSync)
+			if (!firstMainSyncEvent)
 			{
-				masterTimeSec = (sampleNumber - streams[streamId]->startSample) / streams[streamId]->expectedSampleRate;
+				mainTimeSec = (sampleNumber - streams[streamId]->startSample) / streams[streamId]->expectedSampleRate;
 			}
 			else
 			{
-				masterTimeSec = 0.0f;
-				firstMasterSync = false;
+				mainTimeSec = 0.0f;
+				firstMainSyncEvent = false;
 			}
 
 			for (auto [id, stream] : streams)
-				stream->setPrimaryTime(masterTimeSec);
+			{
+				if (stream->isActive)
+					stream->setMainTime(mainTimeSec);
+			}
 
-			/*
-			if (eventCount % 10 == 0)
-				LOGD("Master time: ", masterTimeSec);
-			*/
-		
+
+			//if (eventCount % 10 == 0)
+			LOGD("[M] Main time: ", mainTimeSec);
+			//
+
 			eventCount++;
 		}
+
+		LOGD("[T] Estimated time: ", convertTimestamp(streamId, sampleNumber));
+		LOGD("[S] Is synchronized: ", streams[streamId]->isSynchronized);
+
 	}
 }
 
-double Synchronizer::convertTimestamp(uint64 streamId, int sampleNumber)
+double Synchronizer::convertTimestamp(uint16 streamId, int64 sampleNumber)
 {
 
 	if (streams[streamId]->isSynchronized)
 	{
 		return (double)(sampleNumber - streams[streamId]->startSample) /
 			streams[streamId]->actualSampleRate +
-			streams[streamId]->startSamplePrimaryTime;
+			streams[streamId]->startSampleMainTime;
 	}
 	else {
-		return (double)-1.0;
+		return (double) sampleNumber / streams[streamId]->expectedSampleRate;
 	}
 }
 
@@ -319,12 +336,12 @@ void Synchronizer::openSyncWindow()
 	syncWindowIsOpen = true;
 }
 
-bool Synchronizer::isStreamSynced(uint64 streamId)
+bool Synchronizer::isStreamSynced(uint16 streamId)
 {
 	return streams[streamId]->isSynchronized;
 }
 
-SyncStatus Synchronizer::getStatus(uint64 streamId)
+SyncStatus Synchronizer::getStatus(uint16 streamId)
 {
 
 	//Deal with synchronization of spikes and events later...
@@ -348,4 +365,6 @@ void Synchronizer::hiResTimerCallback()
 
 	for (auto [id, stream] : streams)
 		stream->closeSyncWindow();
+
+	LOGD(" ");
 }

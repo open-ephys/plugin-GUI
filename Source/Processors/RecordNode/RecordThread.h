@@ -36,11 +36,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class RecordNode;
 
-/**  
-* 
+/**
+*
 *	A thread inside the RecordNode that allows continuous data, spikes,
 *   and events to be written outside of the process() method.
-* 
+*
 */
 class RecordThread : public Thread
 {
@@ -55,11 +55,11 @@ public:
 	/** Sets the recording directory, experiment number, and recording number*/
 	void setFileComponents(File rootFolder, int experimentNumber, int recordingNumber);
 
-	/** Sets the channel index map */
+	/** Sets the indices of recorded channels */
 	void setChannelMap(const Array<int>& channels);
 
 	/** Sets the float timestamp channel map */
-	void setFTSChannelMap(const Array<int>& channels);
+	void setTimestampChannelMap(const Array<int>& channels);
 
 	/** Sets the pointers to the 3 data queues*/
 	void setQueuePointers(DataQueue* data, EventMsgQueue* events, SpikeMsgQueue* spikes);
@@ -79,16 +79,16 @@ public:
 private:
 
 	/** Writes continuous data with an array of synchronized timestamps */
-	void writeData(const AudioSampleBuffer& dataBuffer, 
-		const SynchronizedTimestampBuffer& ftsBuffer, 
-		int maxSamples, 
-		int maxEvents, 
-		int maxSpikes, 
+	void writeData(const AudioBuffer<float>& dataBuffer,
+		const SynchronizedTimestampBuffer& timestampBuffer,
+		int maxSamples,
+		int maxEvents,
+		int maxSpikes,
 		bool lastBlock = false);
 
 	const ScopedPointer<RecordEngine>& m_engine;
 	Array<int> m_channelArray;
-	Array<int> m_ftsChannelArray;
+	Array<int> m_timestampBufferChannelArray;
 
 	DataQueue* m_dataQueue;
 	EventMsgQueue* m_eventQueue;
@@ -104,7 +104,7 @@ private:
 	int m_experimentNumber;
 	int m_recordingNumber;
 	int m_numChannels;
-	
+
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordThread);
 };
 

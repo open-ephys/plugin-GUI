@@ -40,23 +40,23 @@ int DataQueue::getBlockSize()
 	return m_blockSize;
 }
 
-void DataQueue::setFTSChannels(int nChans)
+void DataQueue::setTimestampStreamCount(int nStreams)
 {
 	if (m_readInProgress)
 		return;
 
 	m_FTSFifos.clear();
 	m_readFTSSamples.clear();
-	m_numFTSChans = nChans;
+	m_numFTSChans = nStreams;
 
-	for (int i = 0; i < nChans; ++i)
+	for (int i = 0; i < nStreams; ++i)
 	{
 		m_FTSFifos.add(new AbstractFifo(m_maxSize));
 	}
-	m_FTSBuffer.setSize(nChans, m_maxSize);
+	m_FTSBuffer.setSize(nStreams, m_maxSize);
 }
 
-void DataQueue::setChannels(int nChans)
+void DataQueue::setChannelCount(int nChans)
 {
 	if (m_readInProgress)
 		return;
@@ -139,7 +139,7 @@ void DataQueue::fillTimestamps(int channel, int index, int size, int64 timestamp
 	}
 }
 
-float DataQueue::writeSynchronizedTimestampChannel(double start, double step, int destChannel, int64 nSamples)
+float DataQueue::writeSynchronizedTimestamps(double start, double step, int destChannel, int64 nSamples)
 {
 
 	int index1, size1, index2, size2;
@@ -179,7 +179,7 @@ float DataQueue::writeSynchronizedTimestampChannel(double start, double step, in
 }
 
 
-float DataQueue::writeChannel(const AudioSampleBuffer& buffer, int srcChannel, int destChannel, int nSamples, int64 timestamp)
+float DataQueue::writeChannel(const AudioBuffer<float>& buffer, int srcChannel, int destChannel, int nSamples, int64 timestamp)
 {
 	int index1, size1, index2, size2;
 	m_fifos[destChannel]->prepareToWrite(nSamples, index1, size1, index2, size2);
@@ -221,17 +221,17 @@ allowing the record subsytem to access the internal buffer is way faster, altoug
 done with special care and manually finish the read process.
 */
 
-const AudioSampleBuffer& DataQueue::getAudioBufferReference() const
+const AudioBuffer<float>& DataQueue::getContinuousDataBufferReference() const
 {
 	return m_buffer;
 }
 
-const SynchronizedTimestampBuffer& DataQueue::getFTSBufferReference() const
+const SynchronizedTimestampBuffer& DataQueue::getTimestampBufferReference() const
 {
 	return m_FTSBuffer;
 }
 
-bool DataQueue::startSynchronizedRead(Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int64>& timestamps, int nMax)
+bool DataQueue::startRead(Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int64>& timestamps, int nMax)
 {
 
 	//This should never happen, but it never hurts to be on the safe side.
@@ -263,7 +263,7 @@ bool DataQueue::startSynchronizedRead(Array<CircularBufferIndexes>& dataIndexes,
 			int blockIdx = ((idx.index1 + blockDiff) / m_blockSize) % m_numBlocks;
 			ts = m_timestamps[chan]->getUnchecked(blockIdx) - blockDiff;
 		}
-		//If not, copy the last sent again 
+		//If not, copy the last sent again
 		else
 		{
 			ts = m_lastReadTimestamps[chan];
@@ -287,51 +287,7 @@ bool DataQueue::startSynchronizedRead(Array<CircularBufferIndexes>& dataIndexes,
 	return true;
 }
 
-bool DataQueue::startRead(Array<CircularBufferIndexes>& indexes, Array<int64>& timestamps, int nMax)
-{
-	//This should never happen, but it never hurts to be on the safe side.
-	if (m_readInProgress)
-		return false;
-
-	m_readInProgress = true;
-	indexes.clear(); //Just in case it's not empty already
-	timestamps.clear();
-
-	for (int chan = 0; chan < m_numChans; ++chan)
-	{
-		CircularBufferIndexes idx;
-		int readyToRead = m_fifos[chan]->getNumReady();
-		int samplesToRead = ((readyToRead > nMax) && (nMax > 0)) ? nMax : readyToRead;
-
-		m_fifos[chan]->prepareToRead(samplesToRead, idx.index1, idx.size1, idx.index2, idx.size2);
-		indexes.add(idx);
-		m_readSamples.set(chan, idx.size1 + idx.size2);
-
-		int blockMod = idx.index1 % m_blockSize;
-		int blockDiff = (blockMod == 0) ? 0 : (m_blockSize - blockMod);
-
-		//If the next timestamp block is within the data we're reading, include the translated timestamp in the output
-		if (blockDiff < (idx.size1 + idx.size2))
-		{
-			int blockIdx = ((idx.index1 + blockDiff) / m_blockSize) % m_numBlocks;
-			int64 ts = m_timestamps[chan]->getUnchecked(blockIdx) - blockDiff;
-			timestamps.add(ts);
-			//update to the end of the block
-			m_lastReadTimestamps.set(chan, ts + idx.size1 + idx.size2);
-		}
-		//If not, copy the last sent again 
-		else
-		{
-			int64 ts = m_lastReadTimestamps[chan];
-			timestamps.add(ts);
-			m_lastReadTimestamps.set(chan, ts + idx.size1 + idx.size2);
-		}
-	}
-
-	return true;
-}
-
-void DataQueue::stopSynchronizedRead()
+void DataQueue::stopRead()
 {
 	if (!m_readInProgress)
 		return;
@@ -346,20 +302,6 @@ void DataQueue::stopSynchronizedRead()
 	{
 		m_FTSFifos[i]->finishedRead(m_readFTSSamples[i]);
 		m_readFTSSamples.set(i, 0);
-	}
-
-	m_readInProgress = false;
-}
-
-void DataQueue::stopRead()
-{
-	if (!m_readInProgress)
-		return;
-
-	for (int i = 0; i < m_numChans; ++i)
-	{
-		m_fifos[i]->finishedRead(m_readSamples[i]);
-		m_readSamples.set(i, 0);
 	}
 
 	m_readInProgress = false;

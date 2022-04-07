@@ -66,7 +66,7 @@ public:
 	virtual ~RecordEngine() { }
 
 	// ------------------------------------------------------------
-	//                  PURE VIRTUAL METHODS 
+	//                  PURE VIRTUAL METHODS
 	//     (must be implemented by all Record Engines)
 	// ------------------------------------------------------------
 
@@ -80,11 +80,11 @@ public:
 	virtual void closeFiles() = 0;
 
 	/** Write continuous data for a channel with synchronized float timestamps */
-	virtual void writeContinuousData(int writeChannel, 
-									 int realChannel, 
-									 const float* dataBuffer, 
-									 const double* ftsBuffer, 
-									 int size) = 0;
+	virtual void writeContinuousData(int writeChannel,
+					 int realChannel,
+					 const float* dataBuffer,
+					 const double* ftsBuffer,
+					 int size) = 0;
 
 	/** Write a single event to disk (TTL or TEXT) */
 	virtual void writeEvent(int eventChannel, const EventPacket& event) = 0;
@@ -96,7 +96,7 @@ public:
 	virtual void writeTimestampSyncText(uint64 streamId, int64 timestamp, float sourceSampleRate, String text) = 0;
 
 	// ------------------------------------------------------------
-	//                   VIRTUAL METHODS 
+	//                   VIRTUAL METHODS
 	//       (can optionally be overriden by sub-classes)
 	// ------------------------------------------------------------
 

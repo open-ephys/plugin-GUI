@@ -1,4 +1,4 @@
-/* 
+/*
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
@@ -37,30 +37,60 @@ struct CircularBufferIndexes
 	int size2;
 };
 
+/**
+ *
+ * Buffers data from the Record Node prior to disk writing
+ *
+ * */
 class DataQueue
 {
 public:
+
+	/** Constructor */
 	DataQueue(int blockSize, int nBlocks);
+
+	/** Destructor */
 	~DataQueue();
-	void setChannels(int nChans);
-	void setFTSChannels(int nChans);
+
+	/// -----------  NOT THREAD SAFE  -------------- //
+	/** Sets the number of continuous channel buffers needed */
+	void setChannelCount(int nChans);
+
+	/** Sets the number of timestamp buffers needed */
+	void setTimestampStreamCount(int nStreams);
+
+	/** Changes the number of blocks in the queue */
 	void resize(int nBlocks);
+
+	/** Returns an array of timestamps for a given block*/
 	void getTimestampsForBlock(int idx, Array<int64>& timestamps) const;
 
-	//Only the methods after this comment are considered thread-safe.
-	//Caution must be had to avoid calling more than one of the methods above simulatenously
-	float writeChannel(const AudioSampleBuffer& buffer, int srcChannel, int destChannel, int nSamples, int64 timestamp);
-	float writeSynchronizedTimestampChannel(double start, double step, int destChannel, int64 nSamples);
-	bool startRead(Array<CircularBufferIndexes>& indexes, Array<int64>& timestamps, int nMax);
-	bool startSynchronizedRead(Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int64>& timestamps, int nMax);
-	const AudioSampleBuffer& getAudioBufferReference() const;
-	const SynchronizedTimestampBuffer& getFTSBufferReference() const;
-	void stopRead();
-	void stopSynchronizedRead();
+	/// -----------  THREAD SAFE  -------------- //
 
+	/** Writes an array of data for one channel */
+	float writeChannel(const AudioBuffer<float>& buffer, int srcChannel, int destChannel, int nSamples, int64 timestamp);
+
+	/** Writes an array of timestamps for one stream */
+	float writeSynchronizedTimestamps(double start, double step, int destChannel, int64 nSamples);
+
+	/** Start reading data for one channel */
+	bool startRead(Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int64>& timestamps, int nMax);
+
+	/** Called when data read is finished */
+	void stopRead();
+
+	/** Returns a reference to the continuous data buffer */
+	const AudioBuffer<float>& getContinuousDataBufferReference() const;
+
+	/** Returns a reference to the timestamp buffer */
+	const SynchronizedTimestampBuffer& getTimestampBufferReference() const;
+
+	/** Returns the current block size*/
 	int getBlockSize();
 
 private:
+
+	/** Fills the timestamp buffer for a given channel */
 	void fillTimestamps(int channel, int index, int size, int64 timestamp);
 
 	int lastIdx;

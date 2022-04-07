@@ -77,7 +77,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	for (int i = 0; i < engines.size(); i++)
 	{
 		engineSelectCombo->addItem(engines[i]->getName(), i + 1);
-		
+
 		if (CoreServices::getDefaultRecordEngineId().equalsIgnoreCase(engines[i]->getID()))
 			defaultEngine = i + 1;
 
@@ -107,7 +107,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	spikeRecord->addListener(this);
 	spikeRecord->setToggleState(1, sendNotification); //enable spike recording by default
 	addAndMakeVisible(spikeRecord);
-	
+
 	/*
 	writeSpeedLabel = new Label("writeSpeedLabel", "WRITE SPEED");
 	writeSpeedLabel->setBounds(40, 102, 76, 20);
@@ -124,13 +124,13 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 RecordNodeEditor::~RecordNodeEditor() {}
 
 void RecordNodeEditor::saveCustomParametersToXml(XmlElement* xml)
-{  
-	
+{
+
 	xml->setAttribute ("Type", "RecordNode");
 
     XmlElement* xmlNode = xml->createNewChildElement ("SETTINGS");
     xmlNode->setAttribute ("path", dataPathLabel->getText());
-    
+
 	std::vector<RecordEngineManager*> engines = CoreServices::getAvailableRecordEngines();
 	xmlNode->setAttribute("engine", engines[engineSelectCombo->getSelectedId()-1]->getID());
 	xmlNode->setAttribute ("recordEvents", eventRecord->getToggleState());
@@ -138,16 +138,16 @@ void RecordNodeEditor::saveCustomParametersToXml(XmlElement* xml)
 	xmlNode->setAttribute("fifoMonitorsVisible", fifoDrawerButton->getToggleState());
 
 	//Save channel states:
-	for (auto streamId : extract_keys(recordNode->dataChannelStates))
+	for (auto streamId : extract_keys(recordNode->recordContinuousChannels))
 	{
 
-		if (recordNode->dataChannelStates[streamId].size() > 0)
+		if (recordNode->recordContinuousChannels[streamId].size() > 0)
 		{
 			XmlElement* stream = xmlNode->createNewChildElement("STREAM");
 
-			stream->setAttribute("isPrimary", 
-				recordNode->synchronizer->primaryStreamId == streamId);
-			stream->setAttribute("sync_line", recordNode->getSyncBit(streamId));
+			stream->setAttribute("isMainStream",
+				recordNode->synchronizer->mainStreamId == streamId);
+			stream->setAttribute("sync_line", recordNode->getSyncLine(streamId));
 			stream->setAttribute("name", recordNode->getDataStream(streamId)->getName());
 			stream->setAttribute("source_node_id", recordNode->getDataStream(streamId)->getSourceNodeId());
 
@@ -155,9 +155,9 @@ void RecordNodeEditor::saveCustomParametersToXml(XmlElement* xml)
 			bool allOn = true;
 			bool allOff = true;
 
-			for (int ch = 0; ch < recordNode->dataChannelStates[streamId].size(); ch++)
+			for (int ch = 0; ch < recordNode->recordContinuousChannels[streamId].size(); ch++)
 			{
-				bool state = recordNode->dataChannelStates[streamId][ch];
+				bool state = recordNode->recordContinuousChannels[streamId][ch];
 
 				if (!state)
 					allOn = false;
@@ -187,7 +187,7 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 	{
 		if (xmlNode->hasTagName("SETTINGS"))
 		{
-			
+
 			//Get saved record path
 			String savedPath = xmlNode->getStringAttribute("path");
 			if (!File(savedPath).exists())
@@ -196,7 +196,7 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 			recordNode->setEngine(xmlNode->getStringAttribute("engine", "BINARY"));
 			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::sendNotification);
 			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::sendNotification);
-			
+
 			if (xml->getBoolAttribute("fifoMonitorsVisible", false))
 				showFifoMonitors(true);
 
@@ -210,19 +210,19 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 
 					uint16 streamId = availableStreams[streamIndex]->getStreamId();
 
-					if (recordNode->dataChannelStates[streamId].size())
+					if (recordNode->recordContinuousChannels[streamId].size())
 					{
 
-						if (subNode->getBoolAttribute("isPrimary", false))
+						if (subNode->getBoolAttribute("isMainStream", false))
 						{
-							recordNode->setPrimaryDataStream(streamId);
+							recordNode->setMainDataStream(streamId);
 						}
 
-						recordNode->setSyncBit(streamId, subNode->getIntAttribute("sync_line", 0));
+						recordNode->setSyncLine(streamId, subNode->getIntAttribute("sync_line", 0));
 
 						String recordState = subNode->getStringAttribute("recording_state", "ALL");
 
-						for (int ch = 0; ch < recordNode->dataChannelStates[streamId].size(); ch++)
+						for (int ch = 0; ch < recordNode->recordContinuousChannels[streamId].size(); ch++)
 						{
 							bool channelState;
 
@@ -243,8 +243,8 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 									channelState = true;
 								}
 							}
-							
-							recordNode->dataChannelStates[streamId][ch] = channelState;
+
+							recordNode->recordContinuousChannels[streamId][ch] = channelState;
 						}
 
 					}
@@ -255,7 +255,7 @@ void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
 			}
 
 		}
-	} 
+	}
 
 }
 
@@ -334,9 +334,12 @@ void RecordNodeEditor::setEngine(String id)
 
 void RecordNodeEditor::updateFifoMonitors()
 {
+	LOGD("Update FIFO monitors.");
+
 	if (recordNode->getNumDataStreams() != streamMonitors.size())
 	{
 
+		LOGD("Update FIFO monitors 2.");
 		streamLabels.clear();
 		streamMonitors.clear();
 		streamRecords.clear();
@@ -346,9 +349,12 @@ void RecordNodeEditor::updateFifoMonitors()
 		if (recordNode->getNumDataStreams() == 0)
 			return;
 
-		for (auto const& [streamId, channelStates] : recordNode->dataChannelStates)
+		LOGD("Update FIFO monitors 3.");
+
+		for (auto const& [streamId, channelStates] : recordNode->recordContinuousChannels)
 		{
 
+			LOGD("Update FIFO monitors 4.");
 			streamMonitors.add(new FifoMonitor(recordNode, streamId, recordNode->getDataStream(streamId)->getName()));
 			streamMonitors.getLast()->setBounds(18 + streamCount * 20, 32, 15, 73);
 			addAndMakeVisible(streamMonitors.getLast());
@@ -364,13 +370,13 @@ void RecordNodeEditor::updateFifoMonitors()
 			streamCount++;
 
 		}
-	} 
+	}
 }
 
 void RecordNodeEditor::buttonClicked(Button *button)
 {
 
-	if (button == recordToggleButton) 
+	if (button == recordToggleButton)
 	{
 		//TODO: Clicking on the master record monitor should do something useful in the future...
 	}
@@ -388,7 +394,7 @@ void RecordNodeEditor::buttonClicked(Button *button)
 
 		showFifoMonitors(button->getToggleState());
 
-	} 
+	}
 	else if (streamRecords.contains((SyncControlButton*)button))
 	{
 		//Should be handled by SyncControlButton class
@@ -442,7 +448,7 @@ void RecordNodeEditor::collapsedStateChanged()
 			streamMonitor->setVisible(false);
 		for (auto streamRecord : streamRecords)
 			streamRecord->setVisible(false);
-	} 
+	}
 	else
 	{
 		for (auto spl : streamLabels)
@@ -452,8 +458,8 @@ void RecordNodeEditor::collapsedStateChanged()
 		for (auto spr : streamRecords)
 			spr->setVisible(monitorsVisible);
 	}
-	
-	
+
+
 }
 
 void RecordNodeEditor::setDataDirectory(String dir)
@@ -555,14 +561,14 @@ void FifoDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonD
 	g.drawVerticalLine(7, 0.0f, getHeight());
 }
 
-SyncControlButton::SyncControlButton(RecordNode* _node, const String& name, uint64 streamId) 
+SyncControlButton::SyncControlButton(RecordNode* _node, const String& name, uint64 streamId)
 	: Button(name),
 	  streamId(streamId),
 	  node(_node)
 {
 
-	isPrimary = node->isPrimaryDataStream(streamId);
-	LOGD("Stream: ", streamId, " isPrimary: ", isPrimary);
+	isPrimary = node->isMainDataStream(streamId);
+	LOGD("Stream: ", streamId, " is main stream: ", isPrimary);
     startTimer(100);
 }
 
@@ -580,8 +586,8 @@ void SyncControlButton::componentBeingDeleted(Component &component)
 	auto* syncChannelSelector = (SyncChannelSelector*)component.getChildComponent(0);
 	if (syncChannelSelector->isPrimary)
 	{
-		LOGD("Set primary: {", streamId, "}");
-		node->setPrimaryDataStream(streamId);
+		LOGD("Set main stream: {", streamId, "}");
+		node->setMainDataStream(streamId);
 		isPrimary = true;
 	}
 
@@ -589,7 +595,7 @@ void SyncControlButton::componentBeingDeleted(Component &component)
 	{
 		if (syncChannelSelector->buttons[i]->getToggleState())
 		{
-			node->setSyncBit(streamId, i);
+			node->setSyncLine(streamId, i);
 			break;
 		}
 
@@ -613,9 +619,9 @@ void SyncControlButton::mouseUp(const MouseEvent &event)
 		else
 			nEvents = 1;
 
-		int syncBit = node->getSyncBit(streamId);
-		
-		SyncChannelSelector* channelSelector = new SyncChannelSelector (nEvents, syncBit, node->isPrimaryDataStream(streamId));
+		int syncLine = node->getSyncLine(streamId);
+
+		SyncChannelSelector* channelSelector = new SyncChannelSelector (nEvents, syncLine, node->isMainDataStream(streamId));
 
 		CallOutBox& myBox
 			= CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
@@ -640,10 +646,10 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
 	{
 
 		switch(node->synchronizer->getStatus(streamId)) {
-                
+
             case SyncStatus::OFF :
             {
-  
+
                 if (isMouseOver)
                 {
                     //LIGHT GREY
@@ -685,15 +691,15 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
                     g.setColour(Colour(20, 255, 20));
                 }
                 break;
-            
+
             }
         }
 
 	}
-    
+
     g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
 
-	if (node->isPrimaryDataStream(streamId))
+	if (node->isMainDataStream(streamId))
 	{
 		g.setColour(Colour(255,255,255));
 		g.setFont(Font(10));
@@ -717,7 +723,7 @@ void RecordToggleButton::timerCallback()
 
 void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
-    
+
     g.setColour(Colour(0,0,0));
     g.fillRoundedRectangle(0,0,getWidth(),getHeight(),0.2*getWidth());
 
@@ -725,7 +731,7 @@ void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButto
 		g.setColour(Colour(110,110,110));
 	else
 		g.setColour(Colour(255,0,0));
-    
+
     g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
 
 	/*Draw static black circle in center on top */
@@ -734,8 +740,8 @@ void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButto
 
 }
 
-FifoMonitor::FifoMonitor(RecordNode* node, uint16 streamId_, String streamName_) : 
-	recordNode(node), 
+FifoMonitor::FifoMonitor(RecordNode* node, uint16 streamId_, String streamName_) :
+	recordNode(node),
 	streamId(streamId_),
 	streamName(streamName_),
 	fillPercentage(0.0)
@@ -758,12 +764,12 @@ void FifoMonitor::mouseDown(const MouseEvent &event)
 
 	LOGA("Show Record Node channel selector for stream ", streamName);
 
-	channelStates = recordNode->dataChannelStates[streamId];
-	
+	channelStates = recordNode->recordContinuousChannels[streamId];
+
 	bool editable = !recordNode->recordThread->isThreadRunning();
     auto* channelSelector = new PopupChannelSelector(this, channelStates);
 	channelSelector->setChannelButtonColour(Colours::red);
- 
+
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
 
@@ -825,13 +831,13 @@ void FifoMonitor::paint(Graphics &g)
 	g.setColour(Colours::lightslategrey);
 	g.fillRoundedRectangle(2, 2, this->getWidth() - 4, this->getHeight() - 4, 2);
 
-	if (fillPercentage < 0.7)	
+	if (fillPercentage < 0.7)
 		g.setColour(Colours::yellow);
 	else if (fillPercentage < 0.9)
 		g.setColour(Colours::orange);
 	else
 		g.setColour(Colours::red);
-	
+
 	float barHeight = (this->getHeight() - 4) * fillPercentage;
 	g.fillRoundedRectangle(2, this->getHeight() - 2 - barHeight, this->getWidth() - 4, barHeight, 2);
 }

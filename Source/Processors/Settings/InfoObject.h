@@ -57,9 +57,9 @@ private:
 };
 
 /** Base class for the GUI's info objects
-* 
+*
 * Stores a name, description, identifier, and a unique 128-bit ID
-* 
+*
 */
 class PLUGIN_API NamedObject
 {
@@ -105,32 +105,32 @@ private:
 
 };
 
-/** 
+/**
 * Holds information about some element of the GUI's signal chain.
 *
 * Inherits from:
 *  - NamedObject (stores a name, description, identifier, and unique ID)
 *  - MetadataObject (allows this object to be tagged with arbitrary metadata fields)
 *  - HistoryObject (stores a string of all the processors this object has passed through)
-* 
+*
 * InfoObjects are used to represent continuous channels, event channels,
-* spike channels, processors, data streams, devices, and other information 
+* spike channels, processors, data streams, devices, and other information
 * about plugins.
-* 
+*
 */
 class PLUGIN_API InfoObject :
-	public NamedObject, 
-	public MetadataObject, 
+	public NamedObject,
+	public MetadataObject,
 	public HistoryObject
 {
 
 public:
 	/** Destructor */
     virtual ~InfoObject();
-    
+
     /** Custom copy constructor -- set isLocal to false and don't copy parameters*/
     InfoObject(const InfoObject& other);
-    
+
 	/** InfoObject::Type*/
 	enum Type
 	{
@@ -173,28 +173,28 @@ public:
 		float z = 0;
 		String description = "unknown";
 	};
-    
+
     /*Bracket operator returns the value of a parameter*/
     var operator [](String name) const {return parameters[name]->getValue();}
-    
+
     /** Adds a parameter to this object**/
     void addParameter(Parameter* p);
-    
+
     /** Returns a pointer to a parameter with a given name**/
     Parameter* getParameter(String name) const { return parameters[name]; }
 
 	/** Returns true if an object has a parameter with a given name**/
 	bool hasParameter(String name) const { return parameters.contains(name); }
-    
+
     /** Returns a pointer to a parameter with a given name**/
     Array<Parameter*> getParameters() { return parameters.getParameters(); }
-    
+
     /** Copies parameters from another InfoObject and clears the original ParameterCollection*/
     void copyParameters(InfoObject* object);
-    
+
     /** Returns the number of parameters for this object*/
     int numParameters() const { return parameters.size(); }
-    
+
 	/** Returns the type of the InfoObject*/
 	const Type getType() const;
 
@@ -224,10 +224,10 @@ public:
 
 	/** Returns the name of the processor that created this InfoObject.*/
 	String getSourceNodeName() const;
-	
+
 	/** Indicates that this InfoObject is passing through a new processor.*/
 	void addProcessor(ProcessorInfoObject*);
-    
+
     /** Returns true if this object was created locally, or copied from an upstream processor.*/
     bool isLocal() const;
 
@@ -235,7 +235,7 @@ public:
 
 	Group group;
 	Position position;
-    
+
     ParameterCollection parameters;
 
 
@@ -246,7 +246,7 @@ protected:
 private:
 
 	const Type m_type;
-	
+
 	int m_local_index;
 	int m_global_index;
 
@@ -255,12 +255,18 @@ private:
 
 	int m_sourceNodeId;
 	String m_sourceNodeName;
-    
+
     bool m_isEnabled;
-    
+
     bool m_isLocal;
 };
 
+/**
+ *  Holds information about a data channel (Continuous, Event, or Spike)
+ *
+ *  Every ChannelInfoObject must be associated with only one DataStream
+ *
+ * */
 class PLUGIN_API ChannelInfoObject :
 	public InfoObject
 {
@@ -271,14 +277,24 @@ public :
 
 	/** Destructor */
 	virtual ~ChannelInfoObject();
-    
+
+    /** Copy constructor */
     ChannelInfoObject(const ChannelInfoObject& other);
 
+    /** Returns the sample rate for this channel's stream*/
 	float getSampleRate() const;
+
+	/** Returns the ID for this channel's stream */
 	uint16 getStreamId() const;
+
+	/** Returns the name of this channel's stream */
 	String getStreamName() const;
-    
+
+    /** Set's this channel's DataStream and adds it to the stream by default*/
     virtual void setDataStream(DataStream* ds, bool addToStream = true);
+
+    /** true when this channel passes through a Record Node and is set to be recorded */
+    bool isRecorded;
 
 protected:
 	DataStream* stream;
