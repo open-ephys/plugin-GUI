@@ -183,15 +183,15 @@ void RecordThread::writeData(const AudioBuffer<float>& dataBuffer,
 					<< " "
 					<< *r << std::endl;
 
-				std::cout << chan << " " << m_timestampBufferChannelArray[chan] << 
+				std::cout << chan << " " << m_timestampBufferChannelArray[chan] <<
 					" " << timestampBufferIdxs[m_timestampBufferChannelArray[chan]].index1 <<
 					" " << timestampBufferIdxs[m_timestampBufferChannelArray[chan]].size1 <<
 					" " << timestampBufferIdxs[m_timestampBufferChannelArray[chan]].index2 <<
-					" " << timestampBufferIdxs[m_timestampBufferChannelArray[chan]].size2 
-					<< " " 
+					" " << timestampBufferIdxs[m_timestampBufferChannelArray[chan]].size2
+					<< " "
 					<< *r << std::endl;
 			}*/
-				
+
 
 			samplesWritten += dataBufferIdxs[chan].size1;
 
@@ -206,7 +206,7 @@ void RecordThread::writeData(const AudioBuffer<float>& dataBuffer,
 					m_channelArray[chan],	// real channel (index within processor)
 					dataBuffer.getReadPointer(chan, dataBufferIdxs[chan].index2), // pointer to float
 					timestampBuffer.getReadPointer(m_timestampBufferChannelArray[chan],
-						timestampBufferIdxs[m_timestampBufferChannelArray[chan]].index2), // pointer to float
+						dataBufferIdxs[chan].index2), // pointer to float
 					dataBufferIdxs[chan].size2); // integer
 
 				samplesWritten += dataBufferIdxs[chan].size2;
