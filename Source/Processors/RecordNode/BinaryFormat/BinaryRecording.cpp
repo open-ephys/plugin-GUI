@@ -14,7 +14,7 @@ BinaryRecording::BinaryRecording()
     m_bufferSize = MAX_BUFFER_SIZE;
 	m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
 	m_intBuffer.malloc(MAX_BUFFER_SIZE);
-	m_tsBuffer.malloc(MAX_BUFFER_SIZE);		
+	m_tsBuffer.malloc(MAX_BUFFER_SIZE);
 }
 
 BinaryRecording::~BinaryRecording() {}
@@ -83,7 +83,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             jsonChan->setProperty("source_processor_index", channelInfo->getSourceNodeId());
             //jsonChan->setProperty("recorded_processor_index", channelInfo->getCurrentNodeChannelIdx());
             createChannelMetadata(channelInfo, jsonChan);
-           
+
             for (int i = lastId; i < nInfoArrays; i++)
             {
 
@@ -143,7 +143,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             m_DataFiles.add(bFile.release());
         else
             m_DataFiles.add(nullptr);
-        DynamicObject::Ptr jsonFile = jsonContinuousfiles.getReference(i).getDynamicObject(); 
+        DynamicObject::Ptr jsonFile = jsonContinuousfiles.getReference(i).getDynamicObject();
         jsonFile->setProperty("num_channels", numChannels);
         jsonFile->setProperty("channels", jsonChannels.getReference(i));
     }
@@ -203,8 +203,8 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         ScopedPointer<EventRecording> rec = new EventRecording();
 
         rec->data = std::make_unique<NpyFile>(eventPath + eventName + dataFileName + ".npy", type);
-        rec->samples = std::make_unique<NpyFile>(eventPath + eventName + "samples.npy", NpyType(BaseType::INT64, 1));
-        rec->timestamps = std::make_unique<NpyFile>(eventPath + eventName + "timestamps.npy", NpyType(BaseType::DOUBLE, 1));
+        rec->samples = std::make_unique<NpyFile>(eventPath + eventName + "timestamps.npy", NpyType(BaseType::INT64, 1));
+        rec->timestamps = std::make_unique<NpyFile>(eventPath + eventName + "synchronized_timestamps.npy", NpyType(BaseType::DOUBLE, 1));
         if (chan->getType() == EventChannel::TTL && m_saveTTLWords)
         {
             rec->extraFile = std::make_unique<NpyFile>(eventPath + eventName + "full_words.npy", NpyType(BaseType::UINT64, 1));
@@ -430,7 +430,7 @@ void BinaryRecording::createChannelMetadata(const MetadataObject* channel, Dynam
 		jsonValues->setProperty("type", jsonTypeValue(type));
 		jsonValues->setProperty("length", (int)length);
 		var val;
-		
+
         if (type == MetadataDescriptor::CHAR)
 		{
 			String tmp;
@@ -524,14 +524,14 @@ void BinaryRecording::increaseEventCounts(EventRecording* rec)
     if (rec->extraFile) rec->extraFile->increaseRecordCount();
 }
 
-void BinaryRecording::writeContinuousData(int writeChannel, 
-    int realChannel, 
-    const float* dataBuffer, 
-    const double* timestampBuffer, 
+void BinaryRecording::writeContinuousData(int writeChannel,
+    int realChannel,
+    const float* dataBuffer,
+    const double* timestampBuffer,
     int size)
 {
 
-    if (!size)  
+    if (!size)
         return;
 
     /* If our internal buffer is too small to hold the data... */
@@ -564,8 +564,8 @@ void BinaryRecording::writeContinuousData(int writeChannel,
 
 		int64 baseTS = getTimestamp(writeChannel);
 		for (int i = 0; i < size; i++)
-            /* Generate int timestamp */ 
-            m_tsBuffer[i] = baseTS + i;     
+            /* Generate int timestamp */
+            m_tsBuffer[i] = baseTS + i;
 
         /* Write int timestamps to disc */
 		m_dataTimestampFiles[fileIndex]->writeData(m_tsBuffer, size*sizeof(int64));
@@ -576,7 +576,7 @@ void BinaryRecording::writeContinuousData(int writeChannel,
 
         m_dataSyncTimestampFiles[fileIndex]->writeData(timestampBuffer, size*sizeof(double));
         m_dataSyncTimestampFiles[fileIndex]->increaseRecordCount(size);
-        
+
 	}
 }
 
@@ -624,11 +624,11 @@ void BinaryRecording::writeEvent(int eventIndex, const EventPacket& event)
 		rec->data->writeData(ev->getRawDataPointer(), info->getDataSize());
 	}
 
-    // NOT IMPLEMENTED 
+    // NOT IMPLEMENTED
 	//writeEventMetadata(ev.get(), rec->metaDataFile.get());
 
 	increaseEventCounts(rec);
-	
+
 }
 
 void BinaryRecording::writeSpike(int electrodeIndex, const Spike* spike)
@@ -670,7 +670,7 @@ void BinaryRecording::writeSpike(int electrodeIndex, const Spike* spike)
 	//writeEventMetadata(spike, rec->metaDataFile.get());
 
 	increaseEventCounts(rec);
-	
+
 }
 
 void BinaryRecording::writeTimestampSyncText(uint64 streamId, int64 timestamp, float sourceSampleRate, String text)
