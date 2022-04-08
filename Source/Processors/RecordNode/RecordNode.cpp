@@ -280,6 +280,18 @@ void RecordNode::updateChannelStates(uint16 streamId, std::vector<bool> channelS
 	//for (int i = 0; i < channelStates.size(); i++)
 	//	std::cout << channelStates[i] << std::endl;
 	recordContinuousChannels[streamId] = channelStates;
+	for (auto stream : dataStreams)
+	{
+		if (stream->getStreamId() == streamId)
+		{
+			int ch = 0;
+			for (auto channel : stream->getContinuousChannels())
+			{
+				channel->isRecorded = channelStates[ch++];
+			}
+			break;
+		}
+	}
 }
 
 // called by RecordNodeEditor (when loading), SyncControlButton
@@ -460,7 +472,6 @@ void RecordNode::startRecording()
 	{
 
 		RecordProcessorInfo* pi = new RecordProcessorInfo();
-		ContinuousChannel* firstChannel = stream->getContinuousChannels()[0];
 		pi->processorId = stream->getSourceNodeId();
 
 		if (stream->getSourceNodeId() != lastSourceNodeId)
@@ -475,14 +486,15 @@ void RecordNode::startRecording()
 			{
 				LOGD("Channel map: ", channelIndexInRecordNode);
 				LOGD("timestampChannelMap: ", streamIndex);
+
 				channelMap.add(channelIndexInRecordNode);
 				timestampChannelMap.add(streamIndex);
 				pi->recordedChannels.add(channelMap.size() - 1);
 				chanProcessorMap.add(stream->getSourceNodeId());
 				chanOrderinProc.add(channelIndexInSourceProcessor);
-				channelIndexInRecordNode++;
 			}
 
+			channelIndexInRecordNode++;
 			channelIndexInSourceProcessor++;
 		}
 
@@ -730,15 +742,17 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 			for (auto channel : stream->getContinuousChannels())
 			{
 
-				channelIndex++;
-
 				if (channel->isRecorded)
 				{
+
+					channelIndex++;
+
 					dataQueue->writeChannel(buffer,
 											channelMap[channelIndex],
 											channelIndex,
 											numSamples,
 											timestamp);
+
 				}
 			}
 
