@@ -788,6 +788,7 @@ void FifoMonitor::channelStateChanged(Array<int> selectedChannels)
 	}
 
 	recordNode->updateChannelStates(streamId, channelStates);
+
 }
 
 

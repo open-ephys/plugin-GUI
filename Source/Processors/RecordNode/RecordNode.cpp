@@ -292,6 +292,8 @@ void RecordNode::updateChannelStates(uint16 streamId, std::vector<bool> channelS
 			break;
 		}
 	}
+    
+    CoreServices::updateSignalChain(getEditor());
 }
 
 // called by RecordNodeEditor (when loading), SyncControlButton
