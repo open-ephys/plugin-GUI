@@ -775,6 +775,24 @@ void ProcessorGraph::restoreParameters()
 
 }
 
+bool ProcessorGraph::allRecordNodesAreSynchronized()
+{
+    Array<GenericProcessor*> processors = getListOfProcessors();
+
+    for (auto p : processors)
+    {
+        if (p->isRecordNode())
+        {
+            RecordNode* r = (RecordNode*) p;
+            
+            if (!r->isSynchronized())
+                return false;
+        }
+    }
+    
+    return true;
+}
+
 bool ProcessorGraph::hasRecordNode()
 {
 

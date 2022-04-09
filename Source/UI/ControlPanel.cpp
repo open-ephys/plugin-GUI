@@ -333,7 +333,7 @@ void ControlPanelButton::setState(bool b)
 }
 
 ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
-    : graph(graph_), audio(audio_), initialize(true), open(false), lastEngineIndex(-1)
+    : graph(graph_), audio(audio_), initialize(true), open(false), lastEngineIndex(-1), forceRecording(false)
 {
 
     font = Font("Miso", "Regular", 13);
@@ -418,9 +418,11 @@ ControlPanel::~ControlPanel()
 
 }
 
-void ControlPanel::setRecordingState(bool t)
+void ControlPanel::setRecordingState(bool t, bool force)
 {
 
+    forceRecording = force;
+    
     recordButton->setToggleState(t, sendNotification);
 
 }
@@ -922,6 +924,25 @@ void ControlPanel::buttonClicked(Button* button)
                 CoreServices::sendStatusMessage("Insert at least one Record Node to start recording.");
                 recordButton->setToggleState(false, dontSendNotification);
                 return;
+            } else {
+                if (!graph->allRecordNodesAreSynchronized() && !forceRecording)
+                {
+                    int response = AlertWindow::showOkCancelBox(AlertWindow::WarningIcon,
+                                                 "Data streams not synchronized",
+                                                 "One or more data streams are not yet synchronized within "
+                                                 "a Record Node. Are you sure want to start recording?",
+                                                 "Yes", "No");
+                    
+                    if (!response)
+                    {
+                        CoreServices::sendStatusMessage("Recording was cancelled.");
+                        recordButton->setToggleState(false, dontSendNotification);
+                        return;
+                    }
+                    
+                    forceRecording = false;
+                    
+                }
             }
             
             if (playButton->getToggleState())

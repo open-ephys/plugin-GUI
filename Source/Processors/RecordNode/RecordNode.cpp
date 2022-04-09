@@ -77,7 +77,7 @@ RecordNode::RecordNode()
 
 	dataDirectory = CoreServices::getRecordingParentDirectory();
 
-	recordThread = new RecordThread(this, recordEngine);
+	recordThread = std::make_unique<RecordThread>(this, recordEngine.get());
 
 	lastMainStreamTimestamp = 0;
 
@@ -140,7 +140,13 @@ void RecordNode::setEngine(String id)
 	for (auto engine : availableEngines)
 	{
 		if (engine->getID().compare(id) == 0)
-			recordEngine = engine->instantiateEngine();
+        {
+            recordEngine.release();
+            recordEngine.reset(engine->instantiateEngine());
+            
+            if (recordThread != nullptr)
+                recordThread->setEngine(recordEngine.get());
+        }
 	}
 
 	if (getEditor() != nullptr)
@@ -417,6 +423,24 @@ void RecordNode::updateSettings()
 		static_cast<RecordNodeEditor*> (getEditor())->buttonClicked(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
 	}
 
+}
+
+bool RecordNode::isSynchronized()
+{
+    
+    if (dataStreams.size() == 1) // no need to sync only one DataStream
+        return true;
+    
+    for (auto stream : dataStreams)
+    {
+
+        SyncStatus status = synchronizer->getStatus(stream->getStreamId());
+        
+        if (status != SYNCED)
+            return false;
+    }
+    
+    return true;
 }
 
 // called by GenericProcessor::enableProcessor

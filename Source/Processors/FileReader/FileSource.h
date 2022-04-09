@@ -26,7 +26,7 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
-
+#include "../../Utils/Utils.h"
 
 struct RecordedChannelInfo
 {

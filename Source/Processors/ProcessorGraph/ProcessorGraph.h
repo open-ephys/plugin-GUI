@@ -201,6 +201,9 @@ public:
     
     /** Stores information about connections between processors */
     static std::map< ChannelKey, bool> bufferLookupMap;
+    
+    /** Returns true if all record nodes are synchronized */
+    bool allRecordNodesAreSynchronized();
 
 private:
 

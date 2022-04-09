@@ -47,7 +47,7 @@ class RecordThread : public Thread
 public:
 
 	/** Constructor */
-	RecordThread(RecordNode* parentNode, const ScopedPointer<RecordEngine>& engine);
+	RecordThread(RecordNode* parentNode, RecordEngine* engine);
 
 	/** Destructor */
 	~RecordThread();
@@ -72,6 +72,9 @@ public:
 
 	/** Force all open files to close */
 	void forceCloseFiles();
+    
+    /** Updates the Record Engine for this thread*/
+    void setEngine(RecordEngine* engine);
 
 	RecordNode *recordNode;
 	int64 samplesWritten;
@@ -86,7 +89,7 @@ private:
 		int maxSpikes,
 		bool lastBlock = false);
 
-	const ScopedPointer<RecordEngine>& m_engine;
+	RecordEngine* m_engine;
 	Array<int> m_channelArray;
 	Array<int> m_timestampBufferChannelArray;
 

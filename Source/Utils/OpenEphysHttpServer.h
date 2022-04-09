@@ -740,6 +740,8 @@ private:
         (*ret)["experiment_number"] = CoreServices::RecordNode::getExperimentNumber(nodeId);
 
         (*ret)["recording_number"] = CoreServices::RecordNode::getRecordingNumber(nodeId);
+        
+        (*ret)["is_synchronized"] = CoreServices::RecordNode::isSynchronized(nodeId);
     }
 
     inline static void status_to_json(const ProcessorGraph* graph, json* ret) 

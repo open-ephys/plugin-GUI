@@ -81,7 +81,7 @@ namespace CoreServices
 	void setRecordingStatus(bool enable)
 	{
 		const MessageManagerLock mml;
-		getControlPanel()->setRecordingState(enable);
+		getControlPanel()->setRecordingState(enable, true); // starts recording regardless of sync status
 	}
 
 	void sendStatusMessage(const String& text)
@@ -192,6 +192,17 @@ namespace CoreServices
 		return getControlPanel()->setSelectedRecordEngineId(id);
 	}
 
+    bool allRecordNodesAreSynchronized()
+    {
+        for (auto node : getProcessorGraph()->getRecordNodes())
+        {
+            if (!node->isSynchronized())
+                return false;
+        }
+        
+        return true;
+    }
+
 	Array<int> getAvailableRecordNodeIds()
 	{
 
@@ -299,6 +310,14 @@ namespace CoreServices
 					node->createNewDirectory();
 			}
 		}
+    
+        bool isSynchronized(int nodeId)
+        {
+            for (auto* node : getProcessorGraph()->getRecordNodes())
+            {
+                return node->isSynchronized();
+            }
+        }
 
 		/* NOT YET IMPLEMENTED -- these functions are currently global only
 

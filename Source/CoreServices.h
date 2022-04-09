@@ -142,6 +142,9 @@ PLUGIN_API bool setDefaultRecordEngine(String id);
 /** Returns an array of IDs for Record Nodes currently in the signal chain*/
 PLUGIN_API Array<int> getAvailableRecordNodeIds();
 
+/** Returns an array of IDs for Record Nodes currently in the signal chain*/
+PLUGIN_API bool allRecordNodesAreSynchronized();
+
 namespace RecordNode
 {
 /** Sets the recording directory for a specific Record Node, based on its numeric ID.
@@ -173,6 +176,9 @@ PLUGIN_API int getExperimentNumber(int nodeId);
 
 /** Instructs a specific Record Node to creates new directory the next time recording is started.*/
 PLUGIN_API void createNewRecordingDirectory(int nodeId);
+
+/** Checks whether incoming data streams are synchronized .*/
+PLUGIN_API bool isSynchronized(int nodeId);
 
 // FUNCTIONS BELOW ARE NOT YET IMPLEMENTED: 
 

@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#define EVERY_ENGINE for(int eng = 0; eng < m_engineArray.size(); eng++) m_engineArray[eng]
 #define EVERY_ENGINE m_engine;
 
-RecordThread::RecordThread(RecordNode* parentNode, const ScopedPointer<RecordEngine>& engine) :
+RecordThread::RecordThread(RecordNode* parentNode, RecordEngine* engine) :
 	Thread("Record Thread"),
 	m_engine(engine),
 	recordNode(parentNode),
@@ -40,6 +40,12 @@ RecordThread::RecordThread(RecordNode* parentNode, const ScopedPointer<RecordEng
 RecordThread::~RecordThread()
 {
 }
+
+void RecordThread::setEngine(RecordEngine* engine)
+{
+    m_engine = engine;
+}
+
 
 void RecordThread::setFileComponents(File rootFolder, int experimentNumber, int recordingNumber)
 {

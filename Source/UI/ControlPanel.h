@@ -359,7 +359,7 @@ public:
     void labelTextChanged(Label*);
 
     /** Used to manually turn recording on and off.*/
-    void setRecordingState(bool isRecording);
+    void setRecordingState(bool isRecording, bool force=false);
 
     /** Returns true if recording is active, false otherwise. */
     bool getRecordingState();
@@ -462,6 +462,8 @@ private:
 
     /** Generates the next recording directory based on field settings **/
     String generateFilenameFromFields(bool usePlaceholderText);
+    
+    bool forceRecording;
 
 
     std::unique_ptr<PlayButton> playButton;

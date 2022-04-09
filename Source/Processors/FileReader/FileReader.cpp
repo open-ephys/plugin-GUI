@@ -29,7 +29,6 @@
 #include "../../Audio/AudioComponent.h"
 #include "../PluginManager/PluginManager.h"
 #include "BinaryFileSource/BinaryFileSource.h"
-#include "OpenEphysFileSource/OpenEphysFileSource.h"
 
 #include "../Settings/DeviceInfo.h"
 #include "../Settings/DataStream.h"
@@ -676,7 +675,7 @@ StringArray FileReader::getSupportedExtensions() const
 
 int FileReader::getNumBuiltInFileSources() const
 {
-	return 2;
+	return 1;
 }
 
 String FileReader::getBuiltInFileSourceExtensions(int index) const
@@ -685,8 +684,6 @@ String FileReader::getBuiltInFileSourceExtensions(int index) const
 	{
 	case 0: //Binary
 		return "oebin";
-    case 1: //OpenEphys 
-        return "openephys";
 	default:
 		return "";
 	}
@@ -698,8 +695,6 @@ FileSource* FileReader::createBuiltInFileSource(int index) const
 	{
 	case 0:
 		return new BinarySource::BinaryFileSource();
-    case 1:
-        return new OpenEphysSource::OpenEphysFileSource();
 	default:
 		return nullptr;
 	}

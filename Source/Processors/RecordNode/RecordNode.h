@@ -196,6 +196,9 @@ public:
 
   /** Clears the list of active Record Engines*/
   void clearRecordEngines();
+    
+    /** Returns true if all streams within this Record Node are synchronized*/
+    bool isSynchronized();
 
   /** Variables to track whether or not particular channels are recorded*/
 	bool recordEvents;
@@ -204,8 +207,8 @@ public:
 
 	bool newDirectoryNeeded;
 
-	ScopedPointer<RecordThread> recordThread;
-	ScopedPointer<RecordEngine> recordEngine;
+    std::unique_ptr<RecordThread> recordThread;
+	std::unique_ptr<RecordEngine> recordEngine;
 	std::vector<RecordEngineManager*> availableEngines;
 
 	ScopedPointer<Synchronizer> synchronizer;
