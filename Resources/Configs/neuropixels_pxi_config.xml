@@ -305,7 +305,7 @@
                  audioDeviceInChans="0" audioDeviceOutChans="11"/>
   </AUDIO>
   <GLOBAL_TIMESTAMP selected_index="0" selected_sub_index="0"/>
-  <CONTROLPANEL isOpen="1" recordPath="" recordEngine="BINARY"/>
+  <CONTROLPANEL isOpen="1" recordPath="default" recordEngine="BINARY"/>
   <AUDIOEDITOR isMuted="0" volume="50.0" noiseGate="10.0"/>
   <FILENAMECONFIG>
     <PREPEND state="0" value=""/>

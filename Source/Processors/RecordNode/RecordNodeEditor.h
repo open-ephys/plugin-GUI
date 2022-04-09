@@ -109,8 +109,7 @@ class RecordNodeEditor :
 	public GenericEditor, 
 		   ComboBox::Listener, 
 	       Label::Listener,
-		   Button::Listener,
-		   Timer
+		   Button::Listener
 {
 public:
 
@@ -118,7 +117,7 @@ public:
 	RecordNodeEditor(RecordNode* parentNode);
 
 	/** Destructor*/
-	virtual ~RecordNodeEditor();
+    virtual ~RecordNodeEditor() { }
 
 	/** Hides FIFO monitors when the editor is collapsed*/
 	void collapsedStateChanged() override;
@@ -134,9 +133,9 @@ public:
 
 	/** Sets the Record Engine for this Record Node*/
 	void setEngine(String id);
-
-	/** Updates availble disk space*/
-	void timerCallback() override;
+    
+    /** Updates settings based on Record Node state*/
+    void updateSettings() override;
 
 	/** Used to change active Record Engine */
 	void comboBoxChanged(ComboBox*); 
@@ -146,12 +145,12 @@ public:
 
 	/** Respond to button clicks*/
 	void buttonClicked(Button* button);
-
-	/** Save Record Node parameters*/
-	void saveCustomParametersToXml(XmlElement* xml) override;
-
-	/** Load Record Node parameters*/
-	void loadCustomParametersFromXml(XmlElement* xml) override;
+    
+    /** Disables parameter changes */
+    void startRecording() override;
+    
+    /** Enables parameter changes */
+    void stopRecording() override;
 
 	ScopedPointer<FifoDrawerButton> fifoDrawerButton;
 

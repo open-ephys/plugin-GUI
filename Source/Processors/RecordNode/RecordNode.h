@@ -186,10 +186,10 @@ public:
   */
   float getFreeSpace() const;
 
-	/** Called by CoreServices to determine the amount of space
+   /** Called by CoreServices to determine the amount of space
 		in kilobytes in the current dataDirectory.
 	*/
-	float getFreeSpaceKilobytes() const;
+  float getFreeSpaceKilobytes() const;
 
   /** Adds a Record Engine to use */
   void registerRecordEngine(RecordEngine *engine);
@@ -235,10 +235,16 @@ public:
 
 	const int getEventChannelIndex(EventChannel*);
 	const int getSpikeChannelIndex(SpikeChannel*);
+    
+    /** Save parameters*/
+    void saveCustomParametersToXml(XmlElement* xml);
+    
+    /** Load parameters*/
+    void loadCustomParametersFromXml(XmlElement* xml);
 
 
 private:
-
+    
 	/** Handles other types of events (text, sync texts, etc.) */
 	void handleEvent(const EventChannel* channel, const EventPacket& eventPacket);
 

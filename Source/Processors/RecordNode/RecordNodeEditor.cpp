@@ -55,6 +55,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	dataPathLabel = new Label(CoreServices::getRecordingParentDirectory().getFullPathName());
 	dataPathLabel->setText(CoreServices::getRecordingParentDirectory().getFullPathName(), juce::NotificationType::dontSendNotification);
 	dataPathLabel->setTooltip(dataPathLabel->getText());
+    dataPathLabel->setMinimumHorizontalScale(0.7f);
 	dataPathLabel->setBounds(42,35,72,20);
 	dataPathLabel->setColour(Label::backgroundColourId, Colours::grey);
 	dataPathLabel->setColour(Label::backgroundWhenEditingColourId, Colours::white);
@@ -117,170 +118,25 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 
 	desiredWidth = 150;
 
-	startTimer(500);
-
 }
 
-RecordNodeEditor::~RecordNodeEditor() {}
-
-void RecordNodeEditor::saveCustomParametersToXml(XmlElement* xml)
+void RecordNodeEditor::startRecording()
 {
 
-	xml->setAttribute ("Type", "RecordNode");
-
-    XmlElement* xmlNode = xml->createNewChildElement ("SETTINGS");
-    xmlNode->setAttribute ("path", dataPathLabel->getText());
-
-	std::vector<RecordEngineManager*> engines = CoreServices::getAvailableRecordEngines();
-	xmlNode->setAttribute("engine", engines[engineSelectCombo->getSelectedId()-1]->getID());
-	xmlNode->setAttribute ("recordEvents", eventRecord->getToggleState());
-	xmlNode->setAttribute ("recordSpikes", spikeRecord->getToggleState());
-	xmlNode->setAttribute("fifoMonitorsVisible", fifoDrawerButton->getToggleState());
-
-	//Save channel states:
-	for (auto streamId : extract_keys(recordNode->recordContinuousChannels))
-	{
-
-		if (recordNode->recordContinuousChannels[streamId].size() > 0)
-		{
-			XmlElement* stream = xmlNode->createNewChildElement("STREAM");
-
-			stream->setAttribute("isMainStream",
-				recordNode->synchronizer->mainStreamId == streamId);
-			stream->setAttribute("sync_line", recordNode->getSyncLine(streamId));
-			stream->setAttribute("name", recordNode->getDataStream(streamId)->getName());
-			stream->setAttribute("source_node_id", recordNode->getDataStream(streamId)->getSourceNodeId());
-
-			String stateString;
-			bool allOn = true;
-			bool allOff = true;
-
-			for (int ch = 0; ch < recordNode->recordContinuousChannels[streamId].size(); ch++)
-			{
-				bool state = recordNode->recordContinuousChannels[streamId][ch];
-
-				if (!state)
-					allOn = false;
-
-				if (state)
-					allOff = false;
-
-				stateString += state ? "1" : "0";
-			}
-
-			if (allOn)
-				stateString = "ALL";
-
-			if (allOff)
-				stateString = "NONE";
-
-			stream->setAttribute("recording_state", stateString);
-
-		}
-	}
+    dataPathButton->setEnabled(false);
+    engineSelectCombo->setEnabled(false);
+    eventRecord->setEnabled(false);
+    spikeRecord->setEnabled(false);
 }
-
-void RecordNodeEditor::loadCustomParametersFromXml(XmlElement* xml)
+    
+void RecordNodeEditor::stopRecording()
 {
-
-	for (auto* xmlNode : xml->getChildIterator())
-	{
-		if (xmlNode->hasTagName("SETTINGS"))
-		{
-
-			//Get saved record path
-			String savedPath = xmlNode->getStringAttribute("path");
-			if (!File(savedPath).exists())
-				savedPath = CoreServices::getRecordingParentDirectory().getFullPathName();
-		    dataPathLabel->setText(savedPath, juce::NotificationType::sendNotification);
-			recordNode->setEngine(xmlNode->getStringAttribute("engine", "BINARY"));
-			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::sendNotification);
-			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::sendNotification);
-
-			if (xml->getBoolAttribute("fifoMonitorsVisible", false))
-				showFifoMonitors(true);
-
-			Array<const DataStream*> availableStreams = recordNode->getDataStreams();
-			int streamIndex = 0;
-
-			for (auto* subNode : xmlNode->getChildIterator())
-			{
-				if (subNode->hasTagName("STREAM") && streamIndex < availableStreams.size())
-				{
-
-					uint16 streamId = availableStreams[streamIndex]->getStreamId();
-
-					if (recordNode->recordContinuousChannels[streamId].size())
-					{
-
-						if (subNode->getBoolAttribute("isMainStream", false))
-						{
-							recordNode->setMainDataStream(streamId);
-						}
-
-						recordNode->setSyncLine(streamId, subNode->getIntAttribute("sync_line", 0));
-
-						String recordState = subNode->getStringAttribute("recording_state", "ALL");
-
-						for (int ch = 0; ch < recordNode->recordContinuousChannels[streamId].size(); ch++)
-						{
-							bool channelState;
-
-							if (recordState.equalsIgnoreCase("ALL"))
-							{
-								channelState = true;
-							}
-							else if (recordState.equalsIgnoreCase("NONE"))
-							{
-								channelState = false;
-							}
-							else {
-								if (recordState.length() > ch)
-								{
-									channelState = recordState.substring(ch, ch + 1) == "1" ? true : false;
-								}
-								else {
-									channelState = true;
-								}
-							}
-
-							//std::cout << "Setting channel " << ch << " state to " << channelState << std::endl;
-
-							recordNode->recordContinuousChannels[streamId][ch] = channelState;
-						}
-
-					}
-
-					streamIndex++;
-
-				}
-			}
-
-		}
-	}
-
+    dataPathButton->setEnabled(true);
+    engineSelectCombo->setEnabled(true);
+    eventRecord->setEnabled(true);
+    spikeRecord->setEnabled(true);
 }
 
-void RecordNodeEditor::timerCallback()
-{
-
-	/* Disable buttons while recording */
-	if (dataPathButton->isEnabled() && recordNode->recordThread->isThreadRunning())
-	{
-		dataPathButton->setEnabled(false);
-		engineSelectCombo->setEnabled(false);
-		eventRecord->setEnabled(false);
-		spikeRecord->setEnabled(false);
-	}
-	else if (!dataPathButton->isEnabled() && !recordNode->recordThread->isThreadRunning())
-	{
-		dataPathButton->setEnabled(true);
-		engineSelectCombo->setEnabled(true);
-		eventRecord->setEnabled(true);
-		spikeRecord->setEnabled(true);
-	}
-
-}
 
 void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 {
@@ -373,6 +229,15 @@ void RecordNodeEditor::updateFifoMonitors()
 
 		}
 	}
+}
+
+void RecordNodeEditor::updateSettings()
+{
+    eventRecord->setToggleState(recordNode->recordEvents, dontSendNotification);
+    spikeRecord->setToggleState(recordNode->recordSpikes, dontSendNotification);
+    
+    dataPathLabel->setText(recordNode->getDataDirectory().getFullPathName(), dontSendNotification);
+
 }
 
 void RecordNodeEditor::buttonClicked(Button *button)

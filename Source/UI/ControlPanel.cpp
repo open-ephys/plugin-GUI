@@ -1076,7 +1076,7 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
         if (xmlNode->hasTagName("CONTROLPANEL"))
         {
 			String recordPath = xmlNode->getStringAttribute("recordPath", String());
-			if (!recordPath.isEmpty())
+			if (!recordPath.isEmpty() && !recordPath.equalsIgnoreCase("default"))
 			{
                 if (!File(recordPath).exists())
                     recordPath = CoreServices::getRecordingParentDirectory().getFullPathName();

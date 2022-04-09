@@ -99,12 +99,6 @@ public:
     /** Used to set desired width of editor. */
     void setDesiredWidth (int width);
 
-    /** Called at the start of a recording **/
-    void startRecording();
-
-    /** Called at the end of a recording **/
-    void stopRecording();
-
     /** Called just prior to the start of acquisition, to allow the editor to prepare.*/
     void editorStartAcquisition();
 
@@ -116,6 +110,12 @@ public:
 
 	/** Called after the end of acquisition, to allow custom commands .*/
 	virtual void stopAcquisition() { }
+    
+    /** Called at the start of a recording, to allow any components to be disabled  **/
+    virtual void startRecording() { }
+
+    /** Called at the end of a recording, to allow any components to be enabled **/
+    virtual void stopRecording() { }
 
     /** Returns the name of the editor.*/
     String getName();

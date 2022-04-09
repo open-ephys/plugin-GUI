@@ -1670,6 +1670,9 @@ void GenericProcessor::saveToXml(XmlElement* xml)
         streamXml->setAttribute("description", stream->getDescription());
         streamXml->setAttribute("sample_rate", stream->getSampleRate());
         streamXml->setAttribute("channel_count", stream->getChannelCount());
+        
+        if (stream->hasDevice())
+            streamXml->setAttribute("device_name", stream->device->getName());
 
         XmlElement* streamParamsXml = streamXml->createNewChildElement("PARAMETERS");
         
@@ -1740,6 +1743,9 @@ void GenericProcessor::loadFromXml()
                 parameterCollection->owner.channel_count = xmlNode->getIntAttribute("channel_count");
                 parameterCollection->owner.name = xmlNode->getStringAttribute("name");
                 parameterCollection->owner.sample_rate = xmlNode->getDoubleAttribute("sample_rate");
+                
+                if (xmlNode->hasAttribute("device_name"))
+                    parameterCollection->owner.deviceName = xmlNode->getStringAttribute("device_name");
 
                 for (auto* streamParams : xmlNode->getChildIterator())
                 {

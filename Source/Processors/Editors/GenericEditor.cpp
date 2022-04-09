@@ -296,14 +296,6 @@ void GenericEditor::setDesiredWidth (int width)
     repaint();
 }
 
-void GenericEditor::startRecording()
-{
-}
-
-void GenericEditor::stopRecording()
-{
-}
-
 void GenericEditor::editorStartAcquisition()
 {
     
