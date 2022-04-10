@@ -147,7 +147,7 @@ private:
     /** Sets the current stream to read data from */
     void setActiveRecording (int index);
 
-    int64 timestamp;
+    int64 totalSamplesAcquired;
 
     float currentSampleRate;
     int currentNumChannels;

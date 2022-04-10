@@ -540,8 +540,9 @@ void GenericProcessor::clearSettings()
     dataStreams.clearQuick(false);
     dataStreams.addArray(dataStreamsToKeep);
 
-	timestamps.clear();
-	numSamples.clear();
+	startTimestampsForBlock.clear();
+    startSamplesForBlock.clear();
+	numSamplesInBlock.clear();
 	processStartTimes.clear();
 
 }
@@ -1125,77 +1126,43 @@ void GenericProcessor::getDefaultEventInfo(Array<DefaultEventInfo>& events, int 
 }
 
 
-/** Used to get the number of samples in a given buffer, for a given channel. */
-uint32 GenericProcessor::getNumSamples(int channelNum) const
+uint32 GenericProcessor::getNumSamplesInBlock(uint16 streamId) const
 {
-	if (channelNum >= 0
-		&& channelNum < continuousChannels.size())
-	{
-		uint16 streamId = continuousChannels[channelNum]->getStreamId();
+    
+	return numSamplesInBlock.at(streamId);
+}
 
-		try
-		{
-			return numSamples.at(streamId);;
-		}
-		catch (...)
-		{
-			return 0;
-		}
-	}
+int64 GenericProcessor::getFirstSampleNumberForBlock(uint16 streamId) const
+{
+	return startSamplesForBlock.at(streamId);
+}
 
-	return 0;
+double GenericProcessor::getFirstTimestampForBlock(uint16 streamId) const
+{
+    return startTimestampsForBlock.at(streamId);
 }
 
 
-/** Used to get the timestamp for a given buffer, for a given source node. */
-juce::uint64 GenericProcessor::getTimestamp(int channelNum) const
+void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
+                                              double timestamp,
+                                              uint32 nSamples,
+                                              uint16 streamId)
 {
-
-	if (channelNum >= 0
-		&& channelNum < continuousChannels.size())
-	{
-		uint16 streamId = continuousChannels[channelNum]->getStreamId();
-
-		try
-		{
-			return timestamps.at(streamId);;
-		}
-		catch (...)
-		{
-			return 0;
-		}
-	}
-
-	return 0;
-}
-
-uint32 GenericProcessor::getNumSourceSamples(uint16 streamId) const
-{
-	return numSamples.at(streamId);
-}
-
-juce::uint64 GenericProcessor::getSourceTimestamp(uint16 streamId) const
-{
-	return timestamps.at(streamId);
-}
-
-
-void GenericProcessor::setTimestampAndSamples(juce::uint64 timestamp, uint32 nSamples, uint16 streamId)
-{
-
+    
 	HeapBlock<char> data;
 	size_t dataSize = SystemEvent::fillTimestampAndSamplesData(data, 
 		this, 
-		streamId, 
-		timestamp, 
+		streamId,
+        sampleNumber,
+        timestamp,
 		nSamples,
 		m_initialProcessTime);
 
 	m_currentMidiBuffer->addEvent(data, dataSize, 0);
 
 	//since the processor generating the timestamp won't get the event, add it to the map
-	timestamps[streamId] = timestamp;
-	numSamples[streamId] = nSamples;
+    startTimestampsForBlock[streamId] = timestamp;
+    startSamplesForBlock[streamId] = sampleNumber;
 	processStartTimes[streamId] = m_initialProcessTime;
 
 }
@@ -1231,12 +1198,14 @@ int GenericProcessor::processEventBuffer()
 				uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
 				uint32 sourceChannelIndex = *reinterpret_cast<const uint16*>(dataptr + 6);
                 
-				juce::int64 timestamp = *reinterpret_cast<const juce::int64*>(dataptr + 8);
-				uint32 nSamples = *reinterpret_cast<const uint32*>(dataptr + 16);
-				juce::int64 initialTicks = *reinterpret_cast<const juce::int64*>(dataptr + 20);
+				int64 startSample = *reinterpret_cast<const int64*>(dataptr + 8);
+                double startTimestamp = *reinterpret_cast<const double*>(dataptr + 16);
+				uint32 nSamples = *reinterpret_cast<const uint32*>(dataptr + 24);
+				int64 initialTicks = *reinterpret_cast<const int64*>(dataptr + 28);
 				
-				numSamples[sourceStreamId] = nSamples;
-				timestamps[sourceStreamId] = timestamp;
+                startSamplesForBlock[sourceStreamId] = startSample;
+                startTimestampsForBlock[sourceStreamId] = startTimestamp;
+                numSamplesInBlock[sourceStreamId] = nSamples;
 				processStartTimes[sourceStreamId] = initialTicks;
 					
 			}
@@ -1244,8 +1213,8 @@ int GenericProcessor::processEventBuffer()
                      && static_cast<SystemEvent::Type>(*(dataptr + 1) == EventChannel::Type::TTL))
             {
                 uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
-                uint8 eventBit = *reinterpret_cast<const uint8*>(dataptr + 16);
-                bool eventState = *reinterpret_cast<const bool*>(dataptr + 17);
+                uint8 eventBit = *reinterpret_cast<const uint8*>(dataptr + 24);
+                bool eventState = *reinterpret_cast<const bool*>(dataptr + 25);
                 
                 getEditor()->setTTLState(sourceStreamId, eventBit, eventState);
                 
@@ -1383,9 +1352,9 @@ void GenericProcessor::flipTTLState(int sampleIndex, int lineIndex)
 	bool currentState = ttlLineStates[lineIndex];
     ttlLineStates.set(lineIndex, !currentState);
 
-	int64 timestamp = timestamps[ttlEventChannel->getStreamId()] + sampleIndex;
+	int64 startSample = startSamplesForBlock[ttlEventChannel->getStreamId()] + sampleIndex;
 
-	TTLEventPtr eventPtr = TTLEvent::createTTLEvent(ttlEventChannel, timestamp, lineIndex, !currentState);
+	TTLEventPtr eventPtr = TTLEvent::createTTLEvent(ttlEventChannel, startSample, lineIndex, !currentState);
 
 	addEvent(eventPtr, sampleIndex);
 }
@@ -1397,9 +1366,9 @@ void GenericProcessor::setTTLState(int sampleIndex, int lineIndex, bool state)
 
     ttlLineStates.set(lineIndex, state);
 
-    int64 timestamp = timestamps[ttlEventChannel->getStreamId()] + sampleIndex;
+    int64 startSample = startSamplesForBlock[ttlEventChannel->getStreamId()] + sampleIndex;
 
-    TTLEventPtr eventPtr = TTLEvent::createTTLEvent(ttlEventChannel, timestamp, lineIndex, state);
+    TTLEventPtr eventPtr = TTLEvent::createTTLEvent(ttlEventChannel, startSample, lineIndex, state);
 
     addEvent(eventPtr, sampleIndex);
 }
@@ -1434,7 +1403,7 @@ void GenericProcessor::addSpike(const Spike* spike)
 
 void GenericProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& eventBuffer)
 {
-
+    
 	if (isSource())
 		m_initialProcessTime = Time::getHighResolutionTicks();
 

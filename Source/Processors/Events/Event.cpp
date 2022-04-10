@@ -97,24 +97,51 @@ uint16 EventBase::getChannelIndex(const uint8* data)
 }
 
 
-juce::int64 EventBase::getTimestamp() const
+int64 EventBase::getSampleNumber() const
+{
+    return m_sampleNumber;
+}
+
+int64 EventBase::getSampleNumber(const EventPacket& packet)
+{
+    const uint8* data = packet.getRawData();
+
+    return *reinterpret_cast<const int64*>(data + 8);
+}
+
+void EventBase::setTimestampInSeconds(double timestamp)
+{
+    m_timestamp = timestamp;
+}
+
+void EventBase::setTimestampInSeconds(const EventPacket& packet, double timestamp)
+{
+    uint8* modifiableBuffer = const_cast<uint8*>(packet.getRawData());
+
+    *(reinterpret_cast<double*>(modifiableBuffer + 16)) = timestamp;
+    
+}
+
+double EventBase::getTimestampInSeconds() const
 {
 	return m_timestamp;
 }
 
-juce::int64 EventBase::getTimestamp(const EventPacket& packet)
+double EventBase::getTimestampInSeconds(const EventPacket& packet)
 {
 	const uint8* data = packet.getRawData();
 
-	return *reinterpret_cast<const juce::int64*>(data + 8);
+	return *reinterpret_cast<const double*>(data + 16);
 }
 
 EventBase::EventBase(Event::Type type, 
-	juce::int64 timestamp, 
+	int64 sampleNumber,
+    double timestamp,
 	uint16 processorId, 
 	uint16 streamId, 
 	uint16 channelIndex) : 
-	m_baseType(type), 
+	m_baseType(type),
+    m_sampleNumber(sampleNumber),
 	m_timestamp(timestamp), 
 	m_sourceProcessorId(processorId), 
 	m_sourceStreamId(streamId), 
@@ -174,11 +201,12 @@ SystemEvent::Type SystemEvent::getSystemEventType(const MidiMessage& msg)
 size_t SystemEvent::fillTimestampAndSamplesData(HeapBlock<char>& data, 
 	const GenericProcessor* proc, 
 	uint16 streamId, 
-	juce::int64 timestamp, 
-	uint32 nSamples,
-	juce::int64 processStartTime)
+	int64 startSampleForBlock,
+    double startTimestampForBlock,
+	uint32 nSamplesInBlock,
+	int64 processStartTime)
 {
-	const int eventSize = 28;
+	const int eventSize = EVENT_BASE_SIZE + 4 + 8;
 	data.malloc(eventSize);
 	data[0] = SYSTEM_EVENT;													 // 1 byte
 	data[1] = TIMESTAMP_AND_SAMPLES;										 // 1 byte
@@ -186,16 +214,19 @@ size_t SystemEvent::fillTimestampAndSamplesData(HeapBlock<char>& data,
 	*reinterpret_cast<uint16*>(data.getData() + 4) = streamId;				 // 2 bytes
 	data[6] = 0;															 // 1 byte 
 	data[7] = 0;															 // 1 byte
-	*reinterpret_cast<juce::int64*>(data.getData() + 8) = timestamp;		 // 8 bytes
-	*reinterpret_cast<uint32*>(data.getData() + 16) = nSamples;				 // 8 bytes
-	*reinterpret_cast<juce::int64*>(data.getData() + 20) = processStartTime; // 8 bytes
+	*reinterpret_cast<int64*>(data.getData() + 8) = startSampleForBlock;     // 8 bytes
+    *reinterpret_cast<double*>(data.getData() + 16) = startTimestampForBlock;// 8 bytes
+	*reinterpret_cast<uint32*>(data.getData() + EVENT_BASE_SIZE) = nSamplesInBlock;		 // 8 bytes
+	*reinterpret_cast<int64*>(data.getData() + EVENT_BASE_SIZE + 4) = processStartTime; // 8 bytes
 	return eventSize;
 }
 
-size_t SystemEvent::fillTimestampSyncTextData(HeapBlock<char>& data, 
+size_t SystemEvent::fillTimestampSyncTextData(
+    HeapBlock<char>& data, 
 	const GenericProcessor* proc, 
 	uint16 streamId, 
-	juce::int64 timestamp, 
+	int64 startSample,
+    double startTimestamp,
 	bool softwareTime)
 {
 	String eventString;
@@ -211,19 +242,20 @@ size_t SystemEvent::fillTimestampSyncTextData(HeapBlock<char>& data,
 			+ String(proc->getNodeId())
 			+ ") - "
 			+ String(proc->getDataStream(streamId)->getName())
-			+" @ "
+			+ " @ "
 			+ String(proc->getSampleRate(streamId))
 			+ " Hz";
 	}
 	size_t textSize = eventString.getNumBytesAsUTF8();
-	size_t dataSize = 17 + textSize;
+	size_t dataSize = EVENT_BASE_SIZE + 1 + textSize;
 	data.allocate(dataSize, true);
 	data[0] = SYSTEM_EVENT;
 	data[1] = TIMESTAMP_SYNC_TEXT;
 	*reinterpret_cast<uint16*>(data.getData() + 2) = proc->getNodeId();
 	*reinterpret_cast<uint16*>(data.getData() + 4) = streamId;
-	*reinterpret_cast<juce::int64*>(data.getData() + 8) = timestamp;
-	memcpy(data.getData() + 16, eventString.toUTF8(), textSize);
+	*reinterpret_cast<int64*>(data.getData() + 8) = startSample;
+    *reinterpret_cast<double*>(data.getData() + 16) = startTimestamp;
+	memcpy(data.getData() + EVENT_BASE_SIZE, eventString.toUTF8(), textSize);
 	return dataSize;
 }
 
@@ -232,7 +264,7 @@ uint32 SystemEvent::getNumSamples(const EventPacket& packet)
 	if (getBaseType(packet) != SYSTEM_EVENT && getSystemEventType(packet) != TIMESTAMP_AND_SAMPLES)
 		return 0;
 
-	return *reinterpret_cast<const uint32*>(packet.getRawData() + 16);
+	return *reinterpret_cast<const uint32*>(packet.getRawData() + EVENT_BASE_SIZE);
 }
 
 int64 SystemEvent::getHiResTicks(const EventPacket& packet)
@@ -240,7 +272,7 @@ int64 SystemEvent::getHiResTicks(const EventPacket& packet)
 	if (getBaseType(packet) != SYSTEM_EVENT && getSystemEventType(packet) != TIMESTAMP_AND_SAMPLES)
 		return 0;
 
-	return *reinterpret_cast<const int64*>(packet.getRawData() + 20);
+	return *reinterpret_cast<const int64*>(packet.getRawData() + EVENT_BASE_SIZE + 4);
 }
 
 String SystemEvent::getSyncText(const EventPacket& packet)
@@ -250,7 +282,7 @@ String SystemEvent::getSyncText(const EventPacket& packet)
 
 	const char* data = reinterpret_cast<const char*>(packet.getRawData());
 
-	return String::fromUTF8(data + 16, packet.getRawDataSize() - 17);
+	return String::fromUTF8(data + EVENT_BASE_SIZE, packet.getRawDataSize() - (EVENT_BASE_SIZE + 1));
 }
 
 Event::Event(const Event& other)
@@ -280,9 +312,10 @@ EventChannel::Type Event::getEventType(const EventPacket& packet)
 	return static_cast<EventChannel::Type>(*(data + 1));
 }
 
-Event::Event(const EventChannel* channelInfo, juce::int64 timestamp)
+Event::Event(const EventChannel* channelInfo, int64 sampleNumber, double timestamp)
 	: EventBase(PROCESSOR_EVENT, 
-		timestamp, 
+		sampleNumber,
+        timestamp,
 		channelInfo->getSourceNodeId(), 
 		channelInfo->getStreamId(), 
 		channelInfo->getLocalIndex()),
@@ -322,7 +355,8 @@ bool Event::serializeHeader(EventChannel::Type type, char* buffer, size_t dstSiz
 	*(reinterpret_cast<uint16*>(buffer + 2)) = m_channelInfo->getSourceNodeId();
 	*(reinterpret_cast<uint16*>(buffer + 4)) = m_channelInfo->getStreamId();
 	*(reinterpret_cast<uint16*>(buffer + 6)) = m_channelInfo->getLocalIndex();
-	*(reinterpret_cast<juce::int64*>(buffer + 8)) = m_timestamp;
+	*(reinterpret_cast<juce::int64*>(buffer + 8)) = m_sampleNumber;
+    *(reinterpret_cast<double*>(buffer + 16)) = m_timestamp;
 	return true;
 }
 
@@ -352,8 +386,11 @@ TTLEvent::TTLEvent(const TTLEvent& other)
 {
 }
 
-TTLEvent::TTLEvent(const EventChannel* channelInfo, juce::int64 timestamp, const void* eventData)
-	: Event(channelInfo, timestamp)
+TTLEvent::TTLEvent(const EventChannel* channelInfo,
+                   int64 sampleNumber,
+                   const void* eventData,
+                   double timestamp)
+	: Event(channelInfo, sampleNumber, timestamp)
 {
 	size_t size = m_channelInfo->getDataSize();
 	m_data.malloc(size);
@@ -399,16 +436,12 @@ void TTLEvent::serialize(void* dstBuffer, size_t dstSize) const
 	
 	size_t dataSize = m_channelInfo->getDataSize();
 	size_t eventSize = dataSize + EVENT_BASE_SIZE;
-	/*std::cout << "SERIALIZE!" << std::endl;
-	std::cout << eventSize << std::endl;
-	std::cout << dataSize << std::endl;
-	std::cout << getWord() << std::endl;*/
 	memcpy((buffer + EVENT_BASE_SIZE), m_data.getData(), dataSize);
 	serializeMetadata(buffer + eventSize);
 }
 
 TTLEventPtr TTLEvent::createTTLEvent(EventChannel* channelInfo,
-	juce::int64 timestamp,
+	int64 sampleNumber,
 	uint8 line,
 	bool state)
 {
@@ -420,14 +453,14 @@ TTLEventPtr TTLEvent::createTTLEvent(EventChannel* channelInfo,
 	channelInfo->setLineState(line, state);
 	*reinterpret_cast<uint64*>(data + 2) = channelInfo->getTTLWord();
 
-	return new TTLEvent(channelInfo, timestamp, data);
+	return new TTLEvent(channelInfo, sampleNumber, data);
 }
 
 TTLEventPtr TTLEvent::createTTLEvent(const EventChannel* channelInfo, 
-	juce::int64 timestamp, 
-	uint8 line,
-	bool state,
-	uint64 word)
+                                     int64 sampleNumber,
+                                     uint8 line,
+                                     bool state,
+                                     uint64 word)
 {
 	uint8 data[10];
 
@@ -435,14 +468,14 @@ TTLEventPtr TTLEvent::createTTLEvent(const EventChannel* channelInfo,
 	data[1] = state;
 	*reinterpret_cast<uint64*>(data + 2) = word;
 	
-	return new TTLEvent(channelInfo, timestamp, data);
+	return new TTLEvent(channelInfo, sampleNumber, data);
 }
 
 TTLEventPtr TTLEvent::createTTLEvent(EventChannel* channelInfo, 
-	juce::int64 timestamp, 
-	uint8 line,
-	bool state,
-	const MetadataValueArray& metaData)
+                                     int64 sampleNumber,
+                                     uint8 line,
+                                     bool state,
+                                     const MetadataValueArray& metaData)
 {
 
 	uint8 data[10];
@@ -452,7 +485,7 @@ TTLEventPtr TTLEvent::createTTLEvent(EventChannel* channelInfo,
 	channelInfo->setLineState(line, state);
 	*reinterpret_cast<uint64*>(data + 2) = channelInfo->getTTLWord();
 
-	TTLEventPtr event = new TTLEvent(channelInfo, timestamp, data);
+	TTLEventPtr event = new TTLEvent(channelInfo, sampleNumber, data);
 	
 	event->m_metaDataValues.addArray(metaData);
 
@@ -505,11 +538,14 @@ TTLEventPtr TTLEvent::deserialize(const uint8* buffer, const EventChannel* chann
 		return nullptr;
 	}
 
-	juce::int64 timestamp = *(reinterpret_cast<const juce::int64*>(buffer + 8));
+	int64 sampleNumber = *(reinterpret_cast<const int64*>(buffer + 8));
+    
+    double timestamp = *(reinterpret_cast<const double*>(buffer + 16));
 
 	ScopedPointer<TTLEvent> event = new TTLEvent(channelInfo,
-		timestamp,
-		(buffer + EVENT_BASE_SIZE));
+                                                 sampleNumber,
+                                                 (buffer + EVENT_BASE_SIZE),
+                                                 timestamp);
 
 	bool ret = true;
 	if (metaDataSize > 0)
@@ -531,8 +567,8 @@ TTLEventPtr TTLEvent::deserialize(const EventPacket& packet, const EventChannel*
 	
 }
 
-TextEvent::TextEvent(const EventChannel* channelInfo, juce::int64 timestamp, const String& text)
-	: Event(channelInfo, timestamp)
+TextEvent::TextEvent(const EventChannel* channelInfo, int64 sampleNumber, const String& text, double timestamp)
+	: Event(channelInfo, sampleNumber, timestamp)
 {
 	m_data.calloc(channelInfo->getDataSize());
 	text.copyToUTF8(m_data.getData(), channelInfo->getDataSize());
@@ -566,7 +602,7 @@ void TextEvent::serialize(void* destinationBuffer, size_t bufferSize) const
 }
 
 TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo, 
-	juce::int64 timestamp, 
+	int64 sampleNumber,
 	const String& text)
 {
 
@@ -576,11 +612,11 @@ TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo,
 		return nullptr;
 	}
 
-	return new TextEvent(channelInfo, timestamp, text);
+	return new TextEvent(channelInfo, sampleNumber, text);
 }
 
 TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo, 
-	juce::int64 timestamp, 
+	int64 sampleNumber,
 	const String& text, 
 	const MetadataValueArray& metaData)
 {
@@ -590,7 +626,7 @@ TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo,
 		return nullptr;
 	}
 
-	TextEvent* event = new TextEvent(channelInfo, timestamp, text);
+	TextEvent* event = new TextEvent(channelInfo, sampleNumber, text);
 	
 	event->m_metaDataValues.addArray(metaData);
 	return event;
@@ -624,11 +660,12 @@ TextEventPtr TextEvent::deserialize(const uint8* buffer, const EventChannel* cha
 		return nullptr;
 	}
 
-	juce::int64 timestamp = *(reinterpret_cast<const juce::int64*>(buffer + 8));
-	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + 16));
+	int64 sampleNumber = *(reinterpret_cast<const int64*>(buffer + 8));
+    double timestamp = *(reinterpret_cast<const double*>(buffer + 16));
+	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + EVENT_BASE_SIZE));
 	String text = String::fromUTF8(reinterpret_cast<const char*>(buffer + EVENT_BASE_SIZE), dataSize);
 
-	ScopedPointer<TextEvent> event = new TextEvent(channelInfo, timestamp, text);
+	ScopedPointer<TextEvent> event = new TextEvent(channelInfo, sampleNumber, text, timestamp);
 
 	bool ret = true;
 
@@ -653,10 +690,11 @@ TextEventPtr TextEvent::deserialize(const EventPacket& packet, const EventChanne
 }
 
 BinaryEvent::BinaryEvent(const EventChannel* channelInfo, 
-	juce::int64 timestamp, 
-	const void* data,
-	EventChannel::BinaryDataType type)
-	: Event(channelInfo, timestamp),
+                         int64 sampleNumber,
+                         const void* data,
+                         EventChannel::BinaryDataType type,
+                         double timestamp)
+	: Event(channelInfo, sampleNumber, timestamp),
 	m_type(type)
 {
 	size_t size = m_channelInfo->getDataSize();
@@ -713,7 +751,7 @@ void BinaryEvent::serialize(void* dstBuffer, size_t dstSize) const
 
 template<typename T>
 BinaryEventPtr BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, 
-	juce::int64 timestamp, 
+	int64 sampleNumber,
 	const T* data, 
 	int dataSize)
 {
@@ -725,12 +763,12 @@ BinaryEventPtr BinaryEvent::createBinaryEvent(const EventChannel* channelInfo,
 		return nullptr;
 	}
 
-	return new BinaryEvent(channelInfo, timestamp, data, type);
+	return new BinaryEvent(channelInfo, sampleNumber, data, type);
 }
 
 template<typename T>
 BinaryEventPtr BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, 
-	juce::int64 timestamp, 
+	int64 sampleNumber,
 	const T* data, 
 	int dataSize, 
 	const MetadataValueArray& metaData)
@@ -743,7 +781,7 @@ BinaryEventPtr BinaryEvent::createBinaryEvent(const EventChannel* channelInfo,
 		return nullptr;
 	}
 
-	BinaryEvent* event = new BinaryEvent(channelInfo, timestamp, data, type);
+	BinaryEvent* event = new BinaryEvent(channelInfo, sampleNumber, data, type);
 	event->m_metaDataValues.addArray(metaData);
 	return event;
 }
@@ -797,12 +835,14 @@ BinaryEventPtr BinaryEvent::deserialize(const EventPacket& packet, const EventCh
 		jassertfalse;
 		return nullptr;
 	}
-	juce::int64 timestamp = *(reinterpret_cast<const juce::int64*>(buffer + 8));
+	int64 sampleNumber = *(reinterpret_cast<const int64*>(buffer + 8));
+    double timestamp = *(reinterpret_cast<const double*>(buffer + 16));
 
 	ScopedPointer<BinaryEvent> event = new BinaryEvent(channelInfo, 
-		timestamp, 
-		(buffer + EVENT_BASE_SIZE), 
-		channelInfo->getBinaryDataType());
+                                                       sampleNumber,
+                                                       (buffer + EVENT_BASE_SIZE),
+                                                       channelInfo->getBinaryDataType(),
+                                                       timestamp);
 
 	bool ret = true;
 	if (metaDataSize > 0)

@@ -367,7 +367,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                     
                     double remainingSamples = double(numSamplesExpected[globalIndex]) - samplesToCopyFromOverflowBuffer;
 
-                    double samplesAvailable = double(getNumSourceSamples(selectedStream));
+                    double samplesAvailable = double(getNumSamplesInBlock(selectedStream));
                     
                     //std::cout << "Remaining samples: " << remainingSamples << std::endl;
                     //std::cout << "Samples available: " << samplesAvailable << std::endl;

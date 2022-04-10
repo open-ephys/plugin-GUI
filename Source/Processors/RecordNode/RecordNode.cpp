@@ -45,10 +45,7 @@ void EventMonitor::displayStatus()
 RecordNode::RecordNode()
 	: GenericProcessor("Record Node"),
 	newDirectoryNeeded(true),
-	timestamp(0),
 	setFirstBlock(false),
-	numChannels(0),
-	numSamples(0),
 	samplesWritten(0),
 	experimentNumber(0),
 	recordingNumber(-1),
@@ -78,10 +75,6 @@ RecordNode::RecordNode()
 	dataDirectory = CoreServices::getRecordingParentDirectory();
 
 	recordThread = std::make_unique<RecordThread>(this, recordEngine.get());
-
-	lastMainStreamTimestamp = 0;
-
-	lastDataChannelArraySize = 0;
 
 	eventMonitor = new EventMonitor();
 
@@ -121,15 +114,28 @@ String RecordNode::handleConfigMessage(String msg)
 void RecordNode::handleBroadcastMessage(String msg)
 {
 
-	TextEventPtr event = TextEvent::createTextEvent(getMessageChannel(), lastMainStreamTimestamp, msg);
+    if (recordEvents && isRecording)
+    {
 
-	size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
+        int64 messageSampleNumber = getFirstSampleNumberForBlock(synchronizer->mainStreamId);
+        
+        TextEventPtr event = TextEvent::createTextEvent(getMessageChannel(), messageSampleNumber, msg);
+        
+        double ts = synchronizer->convertTimestamp(synchronizer->mainStreamId, messageSampleNumber);
+        
+        event->setTimestampInSeconds(ts);
 
-	HeapBlock<char> buffer(size);
+        size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
 
-	event->serialize(buffer, size);
+        HeapBlock<char> buffer(size);
 
-	handleEvent(getMessageChannel(), EventPacket(buffer, size));
+        event->serialize(buffer, size);
+        
+        eventQueue->addEvent(EventPacket(buffer, size), messageSampleNumber, -1);
+
+    }
+    
+    
 }
 
 void RecordNode::updateBlockSize(int newBlockSize)
@@ -628,9 +634,9 @@ void RecordNode::handleTTLEvent(TTLEventPtr event)
 
 	eventMonitor->receivedEvents++;
 
-	int64 timestamp = event->getTimestamp();
+	int64 sampleNumber = event->getSampleNumber();
 
-	synchronizer->addEvent(event->getStreamId(), event->getLine(), timestamp);
+	synchronizer->addEvent(event->getStreamId(), event->getLine(), sampleNumber);
 
 	if (recordEvents && isRecording)
 	{
@@ -638,9 +644,10 @@ void RecordNode::handleTTLEvent(TTLEventPtr event)
 		size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
 
 		HeapBlock<char> buffer(size);
+        event->setTimestampInSeconds(synchronizer->convertTimestamp(event->getStreamId(), sampleNumber));
 		event->serialize(buffer, size);
 
-		eventQueue->addEvent(EventPacket(buffer, size), timestamp);
+		eventQueue->addEvent(EventPacket(buffer, size), sampleNumber);
 
 		eventMonitor->bufferedEvents++;
 
@@ -654,15 +661,13 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 	if (recordEvents && isRecording)
 	{
 
-	    int64 timestamp = Event::getTimestamp(packet);
+	    int64 sampleNumber = Event::getSampleNumber(packet);
 
-		int eventIndex;
-		if (SystemEvent::getBaseType(packet) == EventBase::Type::SYSTEM_EVENT)
-			eventIndex = -1;
-		else
-			eventIndex = getIndexOfMatchingChannel(eventInfo);
+		int eventIndex = getIndexOfMatchingChannel(eventInfo);
+        
+        Event::setTimestampInSeconds(packet, synchronizer->convertTimestamp(eventInfo->getStreamId(), sampleNumber));
 
-		eventQueue->addEvent(packet, timestamp, eventIndex);
+		eventQueue->addEvent(packet, sampleNumber, eventIndex);
 
 	}
 
@@ -676,6 +681,8 @@ void RecordNode::handleSpike(SpikePtr spike)
 
 	if (recordSpikes)
 	{
+        spike->setTimestampInSeconds(synchronizer->convertTimestamp(spike->getStreamId(),
+                                                                    spike->getSampleNumber()));
 		writeSpike(spike, spike->getChannelInfo());
 		eventMonitor->bufferedSpikes++;
 	}
@@ -685,8 +692,9 @@ void RecordNode::handleSpike(SpikePtr spike)
 
 void RecordNode::handleTimestampSyncTexts(const EventPacket& packet)
 {
-	//std::cout << "Record Node " << getNodeId() << " writing sync timestamp " << std::endl;
-	handleEvent(nullptr, packet);
+    int64 sampleNumber = Event::getSampleNumber(packet);
+
+    eventQueue->addEvent(packet, sampleNumber, -1);
 }
 
 void RecordNode::writeInitialEventStates()
@@ -726,15 +734,29 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 	if (isRecording)
 	{
 
+        
 		if (!setFirstBlock)
 		{
+            std::cout << "Set first block" << std::endl;
+            
 			MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
 			HeapBlock<char> data;
+            std::cout << "Got midi buffer" << std::endl;
 
-			size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, this, 0, CoreServices::getSoftwareTimestamp(), true);
+			size_t dataSize =
+                SystemEvent::fillTimestampSyncTextData(
+                     data,
+                     this,
+                     0,
+                     CoreServices::getSoftwareTimestamp(),
+                     -1.0,
+                     true);
+            
+            std::cout << "Got software timestamp" << std::endl;
 
 			handleTimestampSyncTexts(EventPacket(data, dataSize));
 
+            std::cout << "Write initial events" << std::endl;
 			writeInitialEventStates();
 
 			for (auto stream : getDataStreams())
@@ -742,16 +764,17 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 
 				const uint16 streamId = stream->getStreamId();
 
-				numSamples = getNumSourceSamples(streamId);
-				timestamp = getSourceTimestamp(streamId);
+                std::cout << "Getting first sample for " << streamId << std::endl;
+				int64 firstSampleNumberInBlock = getFirstSampleNumberForBlock(streamId);
 
 				MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
 				HeapBlock<char> data;
 
 				GenericProcessor* src = AccessClass::getProcessorGraph()->getProcessorWithNodeId(getDataStream(streamId)->getSourceNodeId());
 
-				size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, src, streamId, timestamp, false);
+				size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, src, streamId, firstSampleNumberInBlock, -1.0, false);
 
+                std::cout << "Sync texts for " << streamId << std::endl;
 				handleTimestampSyncTexts(EventPacket(data, dataSize));
 			}
 		}
@@ -768,14 +791,15 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 
 			const uint16 streamId = stream->getStreamId();
 
-			numSamples = getNumSourceSamples(streamId);
-			timestamp = getSourceTimestamp(streamId);
+            uint32 numSamples = getNumSamplesInBlock(streamId);
+            
+            int64 firstSampleNumberInBlock = getFirstSampleNumberForBlock(streamId);
 
 			if (numSamples == 0)
 				continue;
 
-			double first = synchronizer->convertTimestamp(streamId, timestamp);
-			double second = synchronizer->convertTimestamp(streamId, timestamp + 1);
+			double first = synchronizer->convertTimestamp(streamId, firstSampleNumberInBlock);
+			double second = synchronizer->convertTimestamp(streamId, firstSampleNumberInBlock + 1);
 
 			fifoUsage[streamId] = dataQueue->writeSynchronizedTimestamps(
 					first,
@@ -795,7 +819,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 											channelMap[channelIndex],
 											channelIndex,
 											numSamples,
-											timestamp);
+                                            firstSampleNumberInBlock);
 
 				}
 			}
@@ -834,17 +858,11 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 void RecordNode::writeSpike(const Spike *spike, const SpikeChannel *spikeElectrode)
 {
 
-	if (true)
-	{
-		int processorId = spike->getProcessorId();
-		int streamId = spike->getStreamId();
-		int idx = spike->getChannelIndex();
+    int electrodeIndex = getIndexOfMatchingChannel(spikeElectrode);
+    
+    if (electrodeIndex >= 0)
+        spikeQueue->addEvent(*spike, spike->getSampleNumber(), electrodeIndex);
 
-		int electrodeIndex = getIndexOfMatchingChannel(spikeElectrode);
-
-		if (electrodeIndex >= 0)
-			spikeQueue->addEvent(*spike, spike->getTimestamp(), electrodeIndex);
-	}
 }
 
 // FileNameComponent listener

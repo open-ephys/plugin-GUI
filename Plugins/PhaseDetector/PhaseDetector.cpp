@@ -178,13 +178,17 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
         if ((*stream)["enable_stream"])
         {
             PhaseDetectorSettings* module = settings[stream->getStreamId()];
+            
+            const uint16 streamId = stream->getStreamId();
+            const int64 firstSampleInBlock = getFirstSampleNumberForBlock(streamId);
+            const uint32 numSamplesInBlock = getNumSamplesInBlock(streamId);
 
             // check to see if it's active and has a channel
             if (module->isActive && module->outputBit >= 0
                 && module->triggerChannel >= 0
                 && module->triggerChannel < buffer.getNumChannels())
             {
-                for (int i = 0; i < getNumSourceSamples(stream->getStreamId()); ++i)
+                for (int i = 0; i < numSamplesInBlock; ++i)
                 {
                     const float sample = *buffer.getReadPointer(module->triggerChannel, i);
 
@@ -195,8 +199,8 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
                         if (module->detectorType == PEAK)
                         {
                             TTLEventPtr ptr = module->createEvent(
-                                getTimestamp(module->triggerChannel) + i,
-                                true);
+                                                                  firstSampleInBlock + i,
+                                                                  true);
 
                             addEvent(ptr, i);
 
@@ -213,8 +217,8 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
                         {
 
                             TTLEventPtr ptr = module->createEvent(
-                                getTimestamp(module->triggerChannel) + i,
-                                true);
+                                                                  firstSampleInBlock + i,
+                                                                  true);
 
                             addEvent(ptr, i);
 
@@ -231,8 +235,8 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
                         {
 
                             TTLEventPtr ptr = module->createEvent(
-                                getTimestamp(module->triggerChannel) + i,
-                                true);
+                                                                  firstSampleInBlock + i,
+                                                                  true);
 
                             addEvent(ptr, i);
 
@@ -248,8 +252,8 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
                         if (module->detectorType == RISING_ZERO)
                         {
                             TTLEventPtr ptr = module->createEvent(
-                                getTimestamp(module->triggerChannel) + i,
-                                true);
+                                                                  firstSampleInBlock + i,
+                                                                  true);
 
                             addEvent(ptr, i);
 
@@ -266,8 +270,8 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
                         if (module->samplesSinceTrigger > 2000)
                         {
                             TTLEventPtr ptr = module->createEvent(
-                                getTimestamp(module->triggerChannel) + i,
-                                false);
+                                                                  firstSampleInBlock + i,
+                                                                  false);
 
                             addEvent(ptr, i);
 
@@ -282,7 +286,7 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
                     if (module->outputBitChanged)
                     {
                         TTLEventPtr ptr = module->clearOutputBit(
-                            getTimestamp(module->triggerChannel) + i);
+                                                                 firstSampleInBlock + i);
 
                         addEvent(ptr, i);
 

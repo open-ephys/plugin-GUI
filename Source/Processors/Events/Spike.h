@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Event.h"
 #include "../Settings/SpikeChannel.h"
 
-#define SPIKE_BASE_SIZE 18
+#define SPIKE_BASE_SIZE 26
 
 class GenericProcessor;
 class Spike;
@@ -56,7 +56,8 @@ typedef ScopedPointer<Spike> SpikePtr;
  * 2 Bytes: Source processor ID
  * 2 Bytes: Source stream ID
  * 2 Bytes: Source electrode index
- * 8 Bytes: Timestamp
+ * 8 Bytes: Sample number of peak
+ * 8 Bytes: Timestamp (in seconds) of peak
  * 2 Bytes: Sorted ID (defaults to 0)
  * 4 x N Bytes: Thresholds
  * 4 x N x M Bytes: Data
@@ -141,23 +142,30 @@ public:
 
 	/* Create a Spike object*/
 	static SpikePtr createSpike(const SpikeChannel* channelInfo, 
-		juce::int64 timestamp, 
+		int64 sampleNumber,
 		Array<float> thresholds, 
 		Spike::Buffer& buffer, 
-		uint16 sortedID = 0);
+		uint16 sortedID = 0,
+        double timestamp = -1.0);
 
 	/* Create a Spike object with metadata*/
 	static SpikePtr createSpike(const SpikeChannel* channelInfo, 
-		juce::int64 timestamp, 
+		int64 sampleNumber,
 		Array<float> thresholds, 
 		Spike::Buffer& buffer,
 		const MetadataValueArray& metaData,
-		uint16 sortedID = 0);
+		uint16 sortedID = 0,
+        double timestamp = -1.0);
 
 	/** Allows downstream processor to update the sorted ID 
 	   WARNING -- since the original byte buffer has to exist,
 	   this should only be done inside the handleSpike() method!!! */
 	void setSortedId(uint16 sortedId);
+    
+    /** Allows downstream processor to update the timestamp for this spike
+       WARNING -- since the original byte buffer has to exist,
+       this should only be done inside the handleSpike() method!!! */
+    void setTimestampInSeconds(double timestamp);
 
 	/* Deserialize a Spike object from an event packet*/
 	static SpikePtr deserialize(const EventPacket& packet, const SpikeChannel* channelInfo);
@@ -174,17 +182,19 @@ private:
 	
 	/* Constructor*/
 	Spike(const SpikeChannel* channelInfo, 
-		juce::int64 timestamp, 
+		int64 sampleNumber,
 		Array<float> thresholds, 
 		HeapBlock<float>& data, 
-		uint16 sortedID = 0);
+		uint16 sortedID = 0,
+        double timestamp = -1.0);
 
 	/* Create a basic Spike object*/
 	static Spike* createBasicSpike(const SpikeChannel* channelInfo, 
-		juce::int64 timestamp, 
+		int64 sampleNumber,
 		Array<float> threshold, 
 		Spike::Buffer& buffer, 
-		uint16 sortedID = 0);
+		uint16 sortedID = 0,
+        double timestamp = -1.0);
 
 	const Array<float> m_thresholds;
 

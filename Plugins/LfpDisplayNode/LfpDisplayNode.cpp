@@ -229,7 +229,7 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
     const int eventChannel = event->getLine();
     const uint16 eventStreamId = event->getChannelInfo()->getStreamId();
     const int eventSourceNodeId = event->getChannelInfo()->getSourceNodeId();
-    const int eventTime = event->getTimestamp() - getSourceTimestamp(eventStreamId);
+    const int eventTime = event->getSampleNumber() - getFirstSampleNumberForBlock(eventStreamId);
 
     //LOGD("LFP Viewer received: ", eventSourceNodeId, " ", eventId, " ", event->getTimestamp());
 
@@ -253,7 +253,7 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
     if (displayBufferMap.count(eventStreamId))
     {
         displayBufferMap[eventStreamId]->addEvent(eventTime, eventChannel, eventId,
-            getNumSourceSamples(eventStreamId)
+                                                  getNumSamplesInBlock(eventStreamId)
         );
     }
 
@@ -262,7 +262,7 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
         for (auto displayBuffer : displayBuffers)
         {
             displayBuffer->addEvent(eventTime, eventChannel, eventId,
-                getNumSourceSamples(displayBuffer->id)
+                                    getNumSamplesInBlock(displayBuffer->id)
             );
 
         }
@@ -287,7 +287,7 @@ void LfpDisplayNode::initializeEventChannels()
 
     for (auto displayBuffer : displayBuffers)
     {
-        int numSamples = getNumSourceSamples(displayBuffer->id);
+        int numSamples = getNumSamplesInBlock(displayBuffer->id);
         displayBuffer->initializeEventChannel(numSamples);
     }
 }
@@ -306,7 +306,7 @@ void LfpDisplayNode::finalizeEventChannels()
 
     for (auto displayBuffer : displayBuffers)
     {
-        int numSamples = getNumSourceSamples(displayBuffer->id);
+        int numSamples = getNumSamplesInBlock(displayBuffer->id);
         displayBuffer->finalizeEventChannel(numSamples);
     }
 
@@ -321,11 +321,11 @@ void LfpDisplayNode::process (AudioBuffer<float>& buffer)
 
     for (int chan = 0; chan < buffer.getNumChannels(); ++chan)
     {
-        uint16 subProcId = getChannelSourceId(continuousChannels[chan]);
+        const uint16 streamId = continuousChannels[chan]->getStreamId();
 
-        const int nSamples = getNumSamples(chan);
+        const uint32 nSamples = getNumSamplesInBlock(streamId);
 
-        displayBufferMap[subProcId]->addData(buffer, chan, nSamples);
+        displayBufferMap[streamId]->addData(buffer, chan, nSamples);
     }
 }
 

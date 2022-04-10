@@ -116,7 +116,8 @@ private:
     ScopedPointer<DataThread> dataThread;
     Array<DataBuffer*> inputBuffers;
 
-    uint64 timestamp = 0;
+    int64 sampleNumber = 0;
+    double timestamp = -1.0;
 
     OwnedArray<MemoryBlock> eventCodeBuffers;
 	Array<uint64> eventStates;

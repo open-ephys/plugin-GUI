@@ -48,7 +48,8 @@ public:
     /** Add an array of floats to the buffer.
 
         @param data The data.
-        @param timestamps Array of timestamps. Same length as numItems.
+        @param sampleNumbers  Array of sample numbers (integers). Same length as numItems.
+        @param timestamps  Array of timestamps (in seconds) (double). Same length as numItems.
         @param eventCodes Array of event codes. Same length as numItems.
         @param numItems Total number of samples per channel.
         @param chunkSize Number of consecutive samples per channel per chunk.
@@ -57,13 +58,24 @@ public:
         @return The number of items actually written. May be less than numItems if
         the buffer doesn't have space.
     */
-    int addToBuffer (float* data, int64* timestamps, uint64* eventCodes, int numItems, int chunkSize=1);
+    int addToBuffer (float* data,
+                     int64* sampleNumbers,
+                     double* timestamps,
+                     uint64* eventCodes,
+                     int numItems,
+                     int chunkSize=1);
 
     /** Returns the number of samples currently available in the buffer.*/
     int getNumSamples() const;
 
     /** Copies as many samples as possible from the DataBuffer to an AudioBuffer.*/
-    int readAllFromBuffer (AudioBuffer<float>& data, uint64* ts, uint64* eventCodes, int maxSize, int dstStartChannel = 0, int numChannels = -1);
+    int readAllFromBuffer (AudioBuffer<float>& data,
+                           int64* sampleNumbers,
+                           double* timestamps,
+                           uint64* eventCodes,
+                           int maxSize,
+                           int dstStartChannel = 0,
+                           int numChannels = -1);
 
     /** Resizes the data buffer */
     void resize (int chans, int size);
@@ -73,10 +85,12 @@ private:
     AbstractFifo abstractFifo;
     AudioBuffer<float> buffer;
 
-    HeapBlock<int64> timestampBuffer;
+    HeapBlock<int64> sampleNumberBuffer;
+    HeapBlock<double> timestampBuffer;
     HeapBlock<uint64> eventCodeBuffer;
 
-	int64 lastTimestamp;
+	int64 lastSampleNumber;
+    double lastTimestamp;
 
     int numChans;
 

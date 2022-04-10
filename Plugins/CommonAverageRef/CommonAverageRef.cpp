@@ -81,7 +81,7 @@ void CommonAverageRef::process (AudioBuffer<float>& buffer)
         {
             CARSettings* settings_ = settings[stream->getStreamId()];
 
-            const int numSamples = getNumSourceSamples(stream->getStreamId());
+            const int numSamples = getNumSamplesInBlock(stream->getStreamId());
             const int numReferenceChannels = (*stream)["Reference"].getArray()->size();
             const int numAffectedChannels = (*stream)["Affected"].getArray()->size();
 

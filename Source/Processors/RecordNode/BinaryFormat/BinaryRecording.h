@@ -59,10 +59,9 @@ private:
 
 		std::unique_ptr<NpyFile> data;
 		std::unique_ptr<NpyFile> samples;
-		std::unique_ptr<NpyFile> timestamps;
 		std::unique_ptr<NpyFile> channels;
-		std::unique_ptr<NpyFile> extraFile;
-
+        std::unique_ptr<NpyFile> extraFile;
+        std::unique_ptr<NpyFile> timestamps;
     };
 
     std::unique_ptr<NpyFile> createEventMetadataFile(const MetadataEventObject* channel, String fileName, DynamicObject* jsonObject);
@@ -78,10 +77,10 @@ private:
 	int m_bufferSize;
 	int m_syncTimestampBufferSize;
 
-	OwnedArray<SequentialBlockFile> m_DataFiles;
-	OwnedArray<SequentialBlockFile> m_SyncTimestampDataFiles;
 	Array<unsigned int> m_channelIndexes;
 	Array<unsigned int> m_fileIndexes;
+    
+    OwnedArray<SequentialBlockFile> m_continuousFiles;
 	OwnedArray<EventRecording> m_eventFiles;
 	OwnedArray<EventRecording> m_spikeFiles;
 

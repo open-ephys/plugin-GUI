@@ -223,11 +223,6 @@ public:
 
 	Array<uint16> activeStreamIds;
 
-	//std::map<uint16, int> dataChannelOrder;
-
-	//std::map<int, int> syncChannelMap;
-	//std::map<int, int> syncOrderMap;
-
 	std::map<uint16, float> fifoUsage;
 
 	ScopedPointer<EventMonitor> eventMonitor;
@@ -267,10 +262,6 @@ private:
 	/**RecordEngines loaded**/
 	OwnedArray<RecordEngine> engineArray;
 
-	int64 lastMainStreamTimestamp;
-
-	int lastDataChannelArraySize;
-
     bool isProcessing;
 	bool isRecording;
 	bool hasRecorded;
@@ -282,10 +273,6 @@ private:
 
 	int experimentNumber;
 	int recordingNumber;
-
-	int64 timestamp;
-	int numSamples;
-	int numChannels;
 
 	std::unique_ptr<DataQueue> dataQueue;
 	std::unique_ptr<EventMsgQueue> eventQueue;

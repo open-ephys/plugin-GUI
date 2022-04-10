@@ -496,23 +496,20 @@ protected:
     //     SAMPLES + TIMESTAMPS
     // --------------------------------------------
 
-    /** Used to get the number of samples in a given buffer, for a given channel. */
-    uint32 getNumSamples(int channelNumber) const;
+    /** Used to get the number of samples available in a current block, for a given stream */
+    uint32 getNumSamplesInBlock(uint16 streamId) const;
 
-    /** Used to get the timestamp for a given buffer, for a given channel. */
-    juce::uint64 getTimestamp(int channelNumber) const;
-
-    /** Used to get the number of samples a specific source generates.
-    Look by full source ID.
-    @see GenericProcessor::getProcessorFullId(uint16,uint16) */
-    uint32 getNumSourceSamples(uint16 streamId) const;
-
-    /** Used to get the current timestamp of a specific source.
-    Look by source ID and subprocessor index */
-    juce::uint64 getSourceTimestamp(uint16 streamId) const;
+    /** Used to get the current sample number for a given stream */
+    int64 getFirstSampleNumberForBlock(uint16 streamId) const;
+    
+    /** Used to get the current timestamp for a given stream.*/
+    double getFirstTimestampForBlock(uint16 streamId) const;
 
 	/** Used to set the timestamp for a given buffer, for a given DataStream. */
-	void setTimestampAndSamples(juce::uint64 timestamp, uint32 nSamples, uint16 streamId);
+	void setTimestampAndSamples(int64 startSampleForBlock,
+                                double startTimestampForBlock,
+                                uint32 nSamples,
+                                uint16 streamId);
     
     // --------------------------------------------
     //     CHANNEL INDEXING
@@ -653,13 +650,16 @@ private:
     void clearSettings();
 
     /** Map between stream IDs and buffer sample counts. */
-	std::map<uint16, uint32> numSamples;
+	std::map<uint16, uint32> numSamplesInBlock;
 
     /** Map between stream IDs and buffer timestamps. */
-	std::map<uint16, juce::int64> timestamps;
+	std::map<uint16, double> startTimestampsForBlock;
+    
+    /** Map between stream IDs and buffer timestamps. */
+    std::map<uint16, int64> startSamplesForBlock;
 
     /** Map between stream IDs and start time of process callbacks. */
-    std::map<uint16, juce::int64> processStartTimes;
+    std::map<uint16, int64> processStartTimes;
 
     /** First software timestamp of process() callback. */
 	juce::int64 m_initialProcessTime;

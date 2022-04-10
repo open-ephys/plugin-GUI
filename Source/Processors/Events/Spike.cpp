@@ -25,13 +25,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../GenericProcessor/GenericProcessor.h"
 
 Spike::Spike(const SpikeChannel* spikeChannel_,
-	juce::int64 timestamp,
+	int64 sampleNumber,
 	Array<float> thresholds, 
 	HeapBlock<float>& data, 
-	uint16 sortedID)
+	uint16 sortedID,
+    double timestamp)
 
 	: EventBase(SPIKE_EVENT, 
-		timestamp, 
+		sampleNumber,
+        timestamp,
 		spikeChannel_->getSourceNodeId(),
 		spikeChannel_->getStreamId(),
 		spikeChannel_->getLocalIndex()),
@@ -105,8 +107,9 @@ void Spike::serialize(void* destinationBuffer, size_t bufferSize) const
 	*(reinterpret_cast<uint16*>(buffer + 2)) = spikeChannel->getSourceNodeId();
 	*(reinterpret_cast<uint16*>(buffer + 4)) = spikeChannel->getStreamId();
 	*(reinterpret_cast<uint16*>(buffer + 6)) = spikeChannel->getLocalIndex();
-	*(reinterpret_cast<juce::int64*>(buffer + 8)) = m_timestamp;
-	*(reinterpret_cast<uint16*>(buffer + 16)) = m_sortedID;
+	*(reinterpret_cast<juce::int64*>(buffer + 8)) = m_sampleNumber;
+	*(reinterpret_cast<double*>(buffer + 16)) = m_timestamp;
+    *(reinterpret_cast<uint16*>(buffer + 24)) = m_sortedID;
 
 	int memIdx = SPIKE_BASE_SIZE;
 
@@ -122,10 +125,11 @@ void Spike::serialize(void* destinationBuffer, size_t bufferSize) const
 }
 
 Spike* Spike::createBasicSpike(const SpikeChannel* channelInfo, 
-	juce::int64 timestamp, 
+	int64 sampleNumber,
 	Array<float> thresholds, 
 	Buffer& dataSource, 
-	uint16 sortedID)
+	uint16 sortedID,
+    double timestamp)
 {
 	if (!dataSource.m_ready)
 	{
@@ -157,15 +161,16 @@ Spike* Spike::createBasicSpike(const SpikeChannel* channelInfo,
 	
 	dataSource.m_ready = false;
 
-	return new Spike(channelInfo, timestamp, thresholds, dataSource.m_data, sortedID);
+	return new Spike(channelInfo, sampleNumber, thresholds, dataSource.m_data, sortedID, timestamp);
 
 }
 
 SpikePtr Spike::createSpike(const SpikeChannel* channelInfo, 
-	juce::int64 timestamp, 
+	int64 sampleNumber,
 	Array<float> thresholds, 
 	Spike::Buffer& dataSource, 
-	uint16 sortedID)
+	uint16 sortedID,
+    double timestamp)
 {
 	if (!channelInfo)
 	{
@@ -180,16 +185,17 @@ SpikePtr Spike::createSpike(const SpikeChannel* channelInfo,
 		return nullptr;
 	}
 
-	return createBasicSpike(channelInfo, timestamp, thresholds, dataSource, sortedID);	
+	return createBasicSpike(channelInfo, sampleNumber, thresholds, dataSource, sortedID, timestamp);
 	
 }
 
 SpikePtr Spike::createSpike(const SpikeChannel* channelInfo, 
-	juce::int64 timestamp, 
+	int64 sampleNumber,
 	Array<float> thresholds, 
 	Spike::Buffer& dataSource,
 	const MetadataValueArray& metaData,
-	uint16 sortedId)
+	uint16 sortedId,
+    double timestamp)
 {
 	if (!channelInfo)
 	{
@@ -203,7 +209,7 @@ SpikePtr Spike::createSpike(const SpikeChannel* channelInfo,
 		return nullptr;
 	}
 	
-	Spike* event = createBasicSpike(channelInfo, timestamp, thresholds, dataSource, sortedId);
+	Spike* event = createBasicSpike(channelInfo, sampleNumber, thresholds, dataSource, sortedId, timestamp);
 	
 	if (!event)
 	{
@@ -220,7 +226,12 @@ void Spike::setSortedId(uint16 sortedId)
 {
 	uint8* modifiableBuffer = const_cast<uint8*>(buffer);
 
-	*(reinterpret_cast<uint16*>(modifiableBuffer + 16)) = sortedId;
+	*(reinterpret_cast<uint16*>(modifiableBuffer + 24)) = sortedId;
+}
+
+void Spike::setTimestampInSeconds(double timestamp)
+{
+    EventBase::setTimestampInSeconds(timestamp);
 }
 
 SpikePtr Spike::deserialize(const uint8* buffer, const SpikeChannel* channelInfo)
@@ -259,15 +270,16 @@ SpikePtr Spike::deserialize(const uint8* buffer, const SpikeChannel* channelInfo
 		return nullptr;
 	}
 
-	juce::int64 timestamp = *(reinterpret_cast<const juce::int64*>(buffer + 8));
-	uint16 sortedID = *(reinterpret_cast<const uint16*>(buffer + 16));
+	int64 sampleNumber = *(reinterpret_cast<const int64*>(buffer + 8));
+    double timestamp = *(reinterpret_cast<const double*>(buffer + 16));
+	uint16 sortedID = *(reinterpret_cast<const uint16*>(buffer + 24));
 	Array<float> thresholds;
 	thresholds.addArray(reinterpret_cast<const float*>(buffer + SPIKE_BASE_SIZE), nChans);
 	HeapBlock<float> data;
 	data.malloc(dataSize, sizeof(char));
 	memcpy(data.getData(), (buffer + SPIKE_BASE_SIZE + thresholdSize), dataSize);
 
-	SpikePtr event = new Spike(channelInfo, timestamp, thresholds, data, sortedID);
+	SpikePtr event = new Spike(channelInfo, sampleNumber, thresholds, data, sortedID, timestamp);
 	event->buffer = buffer;
 
 	bool ret = true;

@@ -614,7 +614,7 @@ void SpikeDetector::addWaveformToSpikeBuffer (Spike::Buffer& s,
 }
 
 
-void SpikeDetector::process (AudioSampleBuffer& buffer)
+void SpikeDetector::process (AudioBuffer<float>& buffer)
 {
     totalCallbacks++;
 
@@ -627,7 +627,7 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
 
             const uint16 streamId = spikeChannel->getStreamId();
 
-            const int nSamples = getNumSourceSamples(streamId);
+            const int nSamples = getNumSamplesInBlock(streamId);
 
             int sampleIndex = spikeChannel->currentSampleIndex - 1;
 
@@ -673,13 +673,13 @@ void SpikeDetector::process (AudioSampleBuffer& buffer)
                                 buffer);
 
                             // get the spike timestamp (aligned to the peak index)
-                            int64 timestamp = getSourceTimestamp(streamId) + peakIndex;
+                            int64 sampleNumber = getFirstSampleNumberForBlock(streamId) + peakIndex;
 
                             // create a spike object
                             SpikePtr newSpike = Spike::createSpike(spikeChannel,
-                                timestamp,
-                                spikeChannel->thresholder->getThresholds(),
-                                spikeBuffer);
+                                                                   sampleNumber,
+                                                                   spikeChannel->thresholder->getThresholds(),
+                                                                   spikeBuffer);
 
                             spikeCount++;
 

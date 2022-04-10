@@ -202,6 +202,9 @@ void FilterNode::process (AudioBuffer<float>& buffer)
         if ((*stream)["enable_stream"])
         {
             BandpassFilterSettings* streamSettings = settings[stream->getStreamId()];
+            
+            const uint16 streamId = stream->getStreamId();
+            const uint32 numSamples = getNumSamplesInBlock(streamId);
 
             for (auto localChannelIndex : *((*stream)["Channels"].getArray()))
             {
@@ -209,7 +212,7 @@ void FilterNode::process (AudioBuffer<float>& buffer)
 
                 float* ptr = buffer.getWritePointer(globalChannelIndex);
 
-                streamSettings->filters[localChannelIndex]->process(getNumSamples(globalChannelIndex), &ptr);
+                streamSettings->filters[localChannelIndex]->process(numSamples, &ptr);
 
             }
         }

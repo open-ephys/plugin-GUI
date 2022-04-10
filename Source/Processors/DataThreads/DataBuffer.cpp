@@ -28,10 +28,12 @@ DataBuffer::DataBuffer (int chans, int size)
     , buffer        (chans, size)
     , numChans      (chans)
 {
+    sampleNumberBuffer.malloc (size);
     timestampBuffer.malloc (size);
     eventCodeBuffer.malloc (size);
 
-	lastTimestamp = 0;
+	lastSampleNumber = 0;
+    lastTimestamp = -1.0;
 }
 
 
@@ -39,7 +41,9 @@ void DataBuffer::clear()
 {
     buffer.clear();
     abstractFifo.reset();
-	lastTimestamp = 0;
+    
+    lastSampleNumber = 0;
+    lastTimestamp = -1.0;
 }
 
 
@@ -47,15 +51,22 @@ void DataBuffer::resize (int chans, int size)
 {
     buffer.setSize (chans, size);
 
+    sampleNumberBuffer.malloc (size);
     timestampBuffer.malloc (size);
     eventCodeBuffer.malloc (size);
 
-	lastTimestamp = 0;
+    lastSampleNumber = 0;
+    lastTimestamp = -1.0;
 
     numChans = chans;
 }
 
-int DataBuffer::addToBuffer (float* data, int64* timestamps, uint64* eventCodes, int numItems, int chunkSize)
+int DataBuffer::addToBuffer (float* data,
+                             int64* sampleNumbers,
+                             double* timestamps,
+                             uint64* eventCodes,
+                             int numItems,
+                             int chunkSize)
 {
     int startIndex1, blockSize1, startIndex2, blockSize2;
 
@@ -68,7 +79,11 @@ int DataBuffer::addToBuffer (float* data, int64* timestamps, uint64* eventCodes,
     int blkIdx;
 
 	if (numItems > 0)
-		lastTimestamp = timestamps[numItems-1]; 
+    {
+        lastSampleNumber = sampleNumbers[numItems-1];
+        lastTimestamp = timestamps[numItems-1];
+    }
+        
 
     for (int i = 0; bs[i] != 0; ++i)
     {                                // for each of the dest blocks we can write to...
@@ -86,6 +101,7 @@ int DataBuffer::addToBuffer (float* data, int64* timestamps, uint64* eventCodes,
 
             for (int k = 0; k < cSize; ++k)
             {
+                sampleNumberBuffer[si[i] + blkIdx + k] = sampleNumbers[idx + k];
                 timestampBuffer[si[i] + blkIdx + k] = timestamps[idx + k];
                 eventCodeBuffer[si[i] + blkIdx + k] = eventCodes[idx + k];
             }
@@ -93,8 +109,6 @@ int DataBuffer::addToBuffer (float* data, int64* timestamps, uint64* eventCodes,
             blkIdx  += cSize;
         }
     }
-
-	
 
     // finish write
     abstractFifo.finishedWrite (idx);
@@ -106,17 +120,17 @@ int DataBuffer::addToBuffer (float* data, int64* timestamps, uint64* eventCodes,
 int DataBuffer::getNumSamples() const { return abstractFifo.getNumReady(); }
 
 
-int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data, uint64* timestamp, uint64* eventCodes, int maxSize, int dstStartChannel, int numChannels)
+int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
+                                   int64* blockSampleNumber,
+                                   double* blockTimestamp,
+                                   uint64* eventCodes,
+                                   int maxSize,
+                                   int dstStartChannel,
+                                   int numChannels)
 {
     // check to see if the maximum size is smaller than the total number of available ints
-
-    // Better version (1/27/14)?
     int numReady = abstractFifo.getNumReady();
     int numItems = (maxSize < numReady) ? maxSize : numReady;
-
-    // Original version:
-    //int numItems = (maxSize < abstractFifo.getNumReady()) ?
-    //               maxSize : abstractFifo.getNumReady();
 
     int startIndex1, blockSize1, startIndex2, blockSize2;
     abstractFifo.prepareToRead (numItems, startIndex1, blockSize1, startIndex2, blockSize2);
@@ -135,12 +149,14 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data, uint64* timestamp, 
                            blockSize1);     // numSamples
         }
 
-        memcpy (timestamp, timestampBuffer + startIndex1, 8);
+        memcpy (blockSampleNumber, sampleNumberBuffer + startIndex1, 8);
+        memcpy (blockTimestamp, timestampBuffer + startIndex1, 8);
         memcpy (eventCodes, eventCodeBuffer + startIndex1, blockSize1 * 8);
     }
     else
     {
-		memcpy(timestamp, &lastTimestamp, 8);
+		memcpy(blockSampleNumber, &lastSampleNumber, 8);
+        memcpy(blockTimestamp, &lastTimestamp, 8);
     }
 
     if (blockSize2 > 0)

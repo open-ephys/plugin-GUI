@@ -37,7 +37,7 @@
 
 FileReader::FileReader() : GenericProcessor ("File Reader")
     , Thread ("filereader_Async_Reader")
-    , timestamp                 (0) 
+    , totalSamplesAcquired      (0)
     , currentSampleRate         (0)
     , currentNumChannels        (0)
     , currentSample             (0)
@@ -193,7 +193,7 @@ bool FileReader::startAcquisition()
         return false;
 
     /* Set the timestamp to start of playback and reset loop counter */
-	timestamp = startSample;
+    totalSamplesAcquired = startSample;
     loopCount = 0;
 
     /* Setup internal buffer based on audio device settings */
@@ -338,17 +338,17 @@ int64 FileReader::getCurrentSample()
     return currentSample;
 }
 
-void FileReader::setPlaybackStart(int64 timestamp)
+void FileReader::setPlaybackStart(int64 startSample)
 {
     //LOGD("Settings start sample: ", timestamp);
-    startSample = timestamp;
-    this->timestamp = timestamp;
+    this->startSample = startSample;
+    this->totalSamplesAcquired = startSample;
 }
 
-void FileReader::setPlaybackStop(int64 timestamp)
+void FileReader::setPlaybackStop(int64 stopSample)
 {
     //LOGD("Settings stop sample: ", timestamp);
-    stopSample = timestamp;
+    this->stopSample = stopSample;
     currentNumScrubbedSamples = stopSample - startSample;
 }
 
@@ -485,9 +485,9 @@ void FileReader::process(AudioBuffer<float>& buffer)
 
     int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
 
-    if (!loopPlayback && timestamp + samplesNeededPerBuffer > stopSample)
+    if (!loopPlayback && totalSamplesAcquired + samplesNeededPerBuffer > stopSample)
     {
-        samplesNeededPerBuffer = stopSample - timestamp;
+        samplesNeededPerBuffer = stopSample - totalSamplesAcquired;
         playbackActive = false;
     }
     else if (!playbackActive)
@@ -516,13 +516,13 @@ void FileReader::process(AudioBuffer<float>& buffer)
                                 samplesNeededPerBuffer);
     }
 
-    setTimestampAndSamples(timestamp, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this
+    setTimestampAndSamples(totalSamplesAcquired, -1.0, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this
 
-    int64 start = timestamp;
+    int64 start = totalSamplesAcquired;
 
-	timestamp += samplesNeededPerBuffer;
+    totalSamplesAcquired += samplesNeededPerBuffer;
 
-    int64 stop = timestamp;
+    int64 stop = totalSamplesAcquired;
 
     addEventsInRange(start, stop);
 

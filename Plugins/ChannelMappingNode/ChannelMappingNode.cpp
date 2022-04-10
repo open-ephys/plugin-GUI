@@ -204,73 +204,7 @@ Array<bool> ChannelMappingNode::getChannelEnabledState(uint16 streamId)
 
 void ChannelMappingNode::process (AudioBuffer<float>& buffer)
 {
-
-    /*for (auto stream : getDataStreams())
-    {
-        uint16 streamId = stream->getStreamId();
-
-        for (int ch = 0; ch < stream->getChannelCount(); ch++)
-        {
-            if (settings[streamId]->referenceIndex[ch] > -1)
-            {
-                int referenceChannelLocalIndex = settings[streamId]->referenceChannels[settings[streamId]->referenceIndex[ch]];
-                
-                if (referenceChannelLocalIndex > -1)
-                {
-                    int referenceChannelGlobalIndex = stream->getContinuousChannels()[referenceChannelLocalIndex]->getGlobalIndex();
-                    int channelGlobalIndex = stream->getContinuousChannels()[ch]->getGlobalIndex();
-
-                    buffer.addFrom(channelGlobalIndex, // destChannel
-                        0,                             // destStartSample
-                        buffer,                        // source
-                        referenceChannelGlobalIndex,   // sourceChannel
-                        0,                             // sourceStartSample
-                        getNumSourceSamples(streamId), // numSamples
-                        -1.0f);                        // gain to apply to source (negative for reference)
-                }
-            }
-        }
-    }*/
-
-    /*int j = 0;
-    int i = 0;
-    int realChan;
-
-    // use copy constructor to set the data to refer to
-    AudioBuffer<float> channelBuffer = buffer;
-
-    while (j < getNumOutputs())
-    {
-        realChan = channelArray[i];
-        if ((realChan < channelBuffer.getNumChannels())
-            && (enabledChannelArray[realChan]))
-        {
-            // copy it back into the buffer according to the channel mapping
-            buffer.copyFrom (j,                                       // destChannel
-                             0,                                       // destStartSample
-                             channelBuffer.getReadPointer (realChan), // source
-                             getNumSamples (j),                       // numSamples
-                             1.0f); // gain to apply to source (positive for original signal)
-
-            // now do the referencing
-            if ((referenceArray[realChan] > -1)
-                && (referenceChannels[referenceArray[realChan]] > -1)
-                && (referenceChannels[referenceArray[realChan]] < channelBuffer.getNumChannels()))
-            {
-                buffer.addFrom (j,                                                                // destChannel
-                                0,                                                                // destStartSample
-                                channelBuffer,                                                    // source
-                                channelArray[referenceChannels[referenceArray[realChan]]], // sourceChannel
-                                0,                                                                // sourceStartSample
-                                getNumSamples (j),                                                // numSamples
-                                -1.0f); // gain to apply to source (negative for reference)
-            }
-
-            ++j;
-        }
-
-        ++i;
-    }*/
+    // nothing needed here, since the mapping takes place at the connection level
 }
 
 

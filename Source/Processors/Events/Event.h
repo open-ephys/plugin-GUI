@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <JuceHeader.h>
 #include "../Settings/EventChannel.h"
 
-#define EVENT_BASE_SIZE 16
+#define EVENT_BASE_SIZE 24
 
 typedef MidiMessage EventPacket;
 
@@ -57,7 +57,8 @@ typedef ScopedPointer<EventBase> EventBasePtr;
 * 2 Bytes: 16-bit Source processor ID
 * 2 Bytes: 16-bit Source stream ID
 * 2 Bytes: 16-bit Source channel index
-* 8 Bytes: 64-bit Timestamp
+* 8 Bytes: 64-bit Sample number
+* 8 Bytes: double Timestamp (in seconds)
 * Variable: Optional data payload
 * 
 * The EventBase class is part of the Open Ephys Plugin API
@@ -127,11 +128,23 @@ public:
 	/* Get the event channel index from a raw byte buffer */
 	static uint16 getChannelIndex(const uint8* data);
 
-	/* Get the timestamp from an event object */
-	juce::int64 getTimestamp() const;
+	/* Get the sample number from an event object */
+	int64 getSampleNumber() const;
 
-	/* Get the event timestamp from an EventPacket object */
-	static juce::int64 getTimestamp(const EventPacket& packet);
+	/* Get the sample number from an EventPacket object */
+	static int64 getSampleNumber(const EventPacket& packet);
+    
+    /** Sets the timestamp in seconds*/
+    void setTimestampInSeconds(double timestamp);
+    
+    /** Sets the timestamp in seconds for an EventPacket object*/
+    static void setTimestampInSeconds(const EventPacket& packet, double timestamp);
+    
+    /* Get the timestamp (in seconds) an event object */
+    double getTimestampInSeconds() const;
+
+    /* Get the timestamp (in seconds) from an EventPacket object */
+    static double getTimestampInSeconds(const EventPacket& packet);
 
 	/* Create an event object from an EventPacket object */
 	static EventBasePtr deserialize(const EventPacket& packet, const GenericProcessor* processor);
@@ -139,7 +152,8 @@ public:
 protected:
 	/* Constructor */
 	EventBase(Type type, 
-			  juce::int64 timestamp, 
+			  int64 sampleNumber,
+              double timestamp,
 			  uint16 processorId, 
 			  uint16 streamId, 
 		      uint16 channelId);
@@ -151,7 +165,8 @@ protected:
 	static bool compareMetadata(const MetadataEventObject* channelInfo, const MetadataValueArray& metaData);
 
 	const Type m_baseType;
-	const juce::int64 m_timestamp;
+	const int64 m_sampleNumber;
+    double m_timestamp;
 	const uint16 m_sourceProcessorId;
 	const uint16 m_sourceStreamId;
 	const uint16 m_sourceChannelIndex;
@@ -177,7 +192,8 @@ protected:
 * 2 Bytes: Source processor ID
 * 2 Bytes: Source stream ID
 * 2 Bytes: Zeros (to maintain alignment with other events)
-* 8 Bytes: Timestamp
+* 8 Bytes: Start sample for block (int64)
+* 8 Bytes: Start timestamp for block (double)
 * 4 Bytes: Buffer sample number
 *  OR
 * Variable: Timestamp sync text string
@@ -200,7 +216,7 @@ public:
 		// Timestamp and sample count information for each incoming data buffer
 		TIMESTAMP_AND_SAMPLES = 0,
 
-		// Indicates an upstream parameter was changed (not used)
+		// Indicates an upstream parameter was changed
 		PARAMETER_CHANGE = 2,
 
 		// Special text event sent by Source Processors at the start of recording
@@ -212,15 +228,17 @@ public:
 	static size_t fillTimestampAndSamplesData(HeapBlock<char>& data, 
 		const GenericProcessor* proc, 
 		uint16 streamId, 
-		juce::int64 timestamp, 
-		uint32 nSamples,
-		juce::int64 processStartTime);
+		int64 startSampleForBlock,
+        double timestamp,
+		uint32 nSamplesInBlock,
+		int64 processStartTime);
 		
 	/* Create a TIMESTAMP_SYNC_TEXT event */
 	static size_t fillTimestampSyncTextData(HeapBlock<char>& data, 
 		const GenericProcessor* proc, 
 		uint16 streamId,
-		juce::int64 timestamp, 
+		int64 startSample,
+        double startTimestamp,
 		bool softwareTime = false);
 	
 	/* Get the SystemEvent type from an EventPacket object */
@@ -285,7 +303,7 @@ public:
 protected:
 
 	/* Constructor */
-	Event(const EventChannel* channelInfo, juce::int64 timestamp);
+	Event(const EventChannel* channelInfo, int64 sampleNumber, double timestamp=-1.0);
 
 	/* Prevent the creation of an empty Event object */
 	Event() = delete;
@@ -360,20 +378,20 @@ public:
 
 	/* Create a TTL event with line and state (TTL word is tracked automatically) */
 	static TTLEventPtr createTTLEvent(EventChannel* channelInfo,
-		int64 timestamp,
+		int64 sampleNumber,
 		uint8 line,
 		bool state);
 	
 	/* Create a TTL event that specifies the full TTL word*/
 	static TTLEventPtr createTTLEvent(const EventChannel* channelInfo, 
-		int64 timestamp, 
+		int64 sampleNumber,
 		uint8 line, 
 		bool state,
 		uint64 word);
 
 	/* Create a TTL event that includes metadata*/
 	static TTLEventPtr createTTLEvent(EventChannel* channelInfo, 
-		int64 timestamp, 
+		int64 sampleNumber,
 		uint8 line,
 		bool state,
 		const MetadataValueArray& metaData);
@@ -389,7 +407,7 @@ private:
 	TTLEvent() = delete;
 
 	/* Constructor */
-	TTLEvent(const EventChannel* channelInfo, juce::int64 timestamp, const void* eventData);
+	TTLEvent(const EventChannel* channelInfo, int64 sampleNumber, const void* eventData, double timestamp = -1.0);
 
 	JUCE_LEAK_DETECTOR(TTLEvent);
 };
@@ -427,12 +445,12 @@ public:
 
 	/* Create a TextEvent*/
 	static TextEventPtr createTextEvent(const EventChannel* channelInfo, 
-		juce::int64 timestamp, 
+		int64 sampleNumber,
 		const String& text);
 
 	/* Create a TextEvent with metadata*/
 	static TextEventPtr createTextEvent(const EventChannel* channelInfo, 
-		juce::int64 timestamp, 
+		int64 sampleNumber,
 		const String& text, 
 		const MetadataValueArray& metaData);
 
@@ -448,7 +466,7 @@ private:
 	TextEvent() = delete;
 
 	/* Constructor */
-	TextEvent(const EventChannel* channelInfo, juce::int64 timestamp, const String& text);
+	TextEvent(const EventChannel* channelInfo, int64 sampleNumber, const String& text, double timestamp =0.0);
 
 	JUCE_LEAK_DETECTOR(TextEvent);
 };
@@ -492,17 +510,17 @@ public:
 	/* Create a BinaryEvent */
 	template<typename T>
 	static BinaryEventPtr createBinaryEvent(const EventChannel* channelInfo, 
-		juce::int64 timestamp, 
-		const T* data, 
-		int dataSize);
+                                            int64 sampleNumber,
+                                            const T* data,
+                                            int dataSize);
 
 	/* Create a BinaryEvent with Metadata */
 	template<typename T>
 	static BinaryEventPtr createBinaryEvent(const EventChannel* channelInfo, 
-		juce::int64 timestamp, 
-		const T* data, 
-		int dataSize, 
-		const MetadataValueArray& metaData);
+                                            int64 sampleNumber,
+                                            const T* data,
+                                            int dataSize,
+                                            const MetadataValueArray& metaData);
 
 	/* Deserialize a BinaryEvent from an EventPacket object */
 	static BinaryEventPtr deserialize(const EventPacket& packet, const EventChannel* channelInfo);
@@ -514,9 +532,10 @@ private:
 
 	/* Constructor */
 	BinaryEvent(const EventChannel* channelInfo, 
-		juce::int64 timestamp, 
+		int64 sampleNumber,
 		const void* data, 
-		EventChannel::BinaryDataType type);
+		EventChannel::BinaryDataType type,
+        double timestamp = -1.0);
 	
 	template<typename T>
 	static EventChannel::BinaryDataType getType();
