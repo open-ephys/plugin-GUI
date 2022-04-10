@@ -117,10 +117,7 @@ public:
 	void configureEngine();
 
 	/** Called prior to opening files, to set the map between recorded channels and actual channel numbers */
-	void setChannelMapping(const Array<int>& channels,
-		const Array<int>& chanProcessor,
-		const Array<int>& chanOrder,
-		OwnedArray<RecordProcessorInfo>& processors);
+	void setChannelMap(const Array<int>& globalChannels, const Array<int>& localChannels);
 
 	/** Called at the start of every write block */
 	void updateTimestamps(const Array<int64>& timestamps, int channel = -1);
@@ -131,48 +128,45 @@ protected:
 	//    HELPFUL METHODS FOR GETTING INFO ABOUT INCOMING DATA
 	// ------------------------------------------------------------
 
-	/** Gets the number of processors being recorded */
-	int getNumRecordedProcessors() const;
-
-	/** Gets the processor info structure for a recorded processor */
-	const RecordProcessorInfo& getProcessorInfo(int processor) const;
-
 	/** Functions to access RecordNode arrays and utilities */
 	RecordNode* recordNode;
+    
+    /** Gets the number of recorded data streams */
+    int getNumRecordedDataStreams() const;
 
+    /** Gets the number of recorded continuous channels */
+    int getNumRecordedContinuousChannels() const;
+
+    /** Gets the number of recorded event channels */
+    int getNumRecordedEventChannels() const;
+
+    /** Gets the number of recorded spike channels */
+    int getNumRecordedSpikeChannels() const;
+    
+    /** Gets the specified DataStream pointer from the array stored in RecordNode*/
+    const DataStream* getDataStream(int index) const;
+    
 	/** Gets the specified channel from the channel array stored in RecordNode */
 	const ContinuousChannel* getContinuousChannel(int index) const;
 
 	/** Gets the specified event channel from the channel array stored in RecordNode */
 	const EventChannel* getEventChannel(int index) const;
 
-	/** Gets the specified channel group info structure from the array stored in RecordNode */
+	/** Gets the specified spike channel from the array stored in RecordNode */
 	const SpikeChannel* getSpikeChannel(int index) const;
-
+    
 	/** Generate a Matlab-compatible datestring */
 	String generateDateString() const;
 
 	/** Gets the current block's first timestamp for a given recorded channel */
 	int64 getTimestamp(int channel) const;
 
-	/** Gets the actual channel number from a recorded channel index */
-	int getRealChannel(int channel) const;
-
-	/** Gets the number of recorded continuous channels */
-	int getNumRecordedContinuousChannels() const;
-
-	/** Gets the number of recorded event channels */
-	int getNumRecordedEventChannels() const;
-
-	/** Gets the number of recorded spike channels */
-	int getNumRecordedSpikeChannels() const;
-
-	/** Gets the recorded processor index for a recorded channel index */
-	int getProcessorFromChannel(int channel) const;
-
-	/** Gets the recorded channel index inside a specific processor for a written channel */
-	int getChannelNumInProc(int channel) const;
-
+	/** Gets the a channel's global index from a recorded channel index */
+	int getGlobalIndex(int channel) const;
+    
+    /** Gets the a channel's global index from a recorded channel index */
+    int getLocalIndex(int channel) const;
+    
 	/** Gets the last created settings.xml in text form. Should be called at file opening to get the latest version.
 	Since the string will be large, returns a const reference. It should never be const_casted.
 	*/
@@ -181,12 +175,10 @@ protected:
 private:
 
 	Array<int64> timestamps;
-	Array<int> channelMap;
-	Array<int> chanProcessorMap;
-	Array<int> chanOrderMap;
-
+	Array<int> globalChannelMap;
+    Array<int> localChannelMap;
+    
 	RecordEngineManager* manager;
-	OwnedArray<RecordProcessorInfo> recordProcessors;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordEngine);
 };

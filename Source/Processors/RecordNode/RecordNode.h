@@ -83,7 +83,7 @@ public:
 	RecordNode();
 
     /** Destructor */
-	~RecordNode() { }
+    ~RecordNode();
 
 	/** Allow configuration via OpenEphysHttpServer */
 	String handleConfigMessage(String msg) override;
@@ -199,6 +199,9 @@ public:
     
     /** Returns true if all streams within this Record Node are synchronized*/
     bool isSynchronized();
+    
+    /** Returns the number of data streams with recorded continuous channels*/
+    int getTotalRecordedStreams();
 
   /** Variables to track whether or not particular channels are recorded*/
 	bool recordEvents;
@@ -208,7 +211,7 @@ public:
 	bool newDirectoryNeeded;
 
     std::unique_ptr<RecordThread> recordThread;
-	std::unique_ptr<RecordEngine> recordEngine;
+	std::shared_ptr<RecordEngine> recordEngine;
 	std::vector<RecordEngineManager*> availableEngines;
 
 	ScopedPointer<Synchronizer> synchronizer;
@@ -230,11 +233,12 @@ public:
 	ScopedPointer<EventMonitor> eventMonitor;
 
 	Array<int> channelMap; //Map from record channel index to source channel index
+    Array<int> localChannelMap; // Map from record channel index to recorded index within stream
 	Array<int> timestampChannelMap; // Map from recorded channel index to recorded source processor idx
-	std::vector<std::vector<int>> subProcessorMap;
-	std::vector<int> startRecChannels;
 
 	bool isSyncReady;
+    
+    OwnedArray<RecordEngine> previousEngines;
 
 	const int getEventChannelIndex(EventChannel*);
 	const int getSpikeChannelIndex(SpikeChannel*);

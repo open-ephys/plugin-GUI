@@ -87,6 +87,18 @@ RecordNode::RecordNode()
 
 }
 
+RecordNode::~RecordNode()
+{
+    //previousEngines.add(recordEngine.get());
+    //recordEngine.release();//
+    
+    //for (auto engine : previousEngines)
+    //{
+     //   delete engine;
+     //   engine = nullptr;
+    //}/
+}
+
 
 String RecordNode::handleConfigMessage(String msg)
 {
@@ -141,11 +153,23 @@ void RecordNode::setEngine(String id)
 	{
 		if (engine->getID().compare(id) == 0)
         {
-            recordEngine.release();
-            recordEngine.reset(engine->instantiateEngine());
+            //recordEngine.release();
+            if (recordEngine.get() != nullptr)
+            {
+                if (recordEngine->getEngineId() != id)
+                {
+                    //previousEngines.add(recordEngine.get());
+                    
+                    //recordEngine.release();
+                    recordEngine.reset(engine->instantiateEngine());
+                    
+                    if (recordThread != nullptr)
+                        recordThread->setEngine(recordEngine.get());
+                }
+            } else {
+                recordEngine.reset(engine->instantiateEngine());
+            }
             
-            if (recordThread != nullptr)
-                recordThread->setEngine(recordEngine.get());
         }
 	}
 
@@ -354,8 +378,8 @@ void RecordNode::updateSettings()
 			{
 				recordContinuousChannels[streamId].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
 				channel->isRecorded = CONTINUOUS_CHANNELS_ON_BY_DEFAULT;
-				LOGD("Channel ", channel->getName(), ": ", channel->isRecorded);
-				LOGD(recordContinuousChannels[streamId].size())
+				//LOGD("Channel ", channel->getName(), ": ", channel->isRecorded);
+				//LOGD(recordContinuousChannels[streamId].size())
 				//dataChannelOrder[count] = channel->getLocalIndex();
 				//count++;
 			}
@@ -375,7 +399,7 @@ void RecordNode::updateSettings()
 					channel->isRecorded = CONTINUOUS_CHANNELS_ON_BY_DEFAULT;
 				}
 
-				LOGD("Channel ", channel->getName(), ": ", channel->isRecorded);
+				//LOGD("Channel ", channel->getName(), ": ", channel->isRecorded);
 
 				localIndex++;
 				//dataChannelOrder[count] = channel->getLocalIndex();
@@ -489,9 +513,11 @@ void RecordNode::startRecording()
 	int lastSourceNodeId = -1;
 
 	int channelIndexInRecordNode = 0;
-	int channelIndexInSourceProcessor = 0;
+    int channelIndexInStream = 0;
 
 	channelMap.clear();
+    localChannelMap.clear();
+
 	timestampChannelMap.clear();
 
 	int streamIndex = 0;
@@ -504,7 +530,7 @@ void RecordNode::startRecording()
 
 		if (stream->getSourceNodeId() != lastSourceNodeId)
 		{
-			channelIndexInSourceProcessor = 0;
+            channelIndexInStream = 0;
 			lastSourceNodeId = stream->getSourceNodeId();
 		}
 
@@ -512,18 +538,12 @@ void RecordNode::startRecording()
 		{
 			if (channel->isRecorded)
 			{
-				LOGD("Channel map: ", channelIndexInRecordNode);
-				LOGD("timestampChannelMap: ", streamIndex);
-
 				channelMap.add(channelIndexInRecordNode);
+                localChannelMap.add(channelIndexInStream++);
 				timestampChannelMap.add(streamIndex);
-				pi->recordedChannels.add(channelMap.size() - 1);
-				chanProcessorMap.add(stream->getSourceNodeId());
-				chanOrderinProc.add(channelIndexInSourceProcessor);
 			}
 
 			channelIndexInRecordNode++;
-			channelIndexInSourceProcessor++;
 		}
 
 		procInfo.add(pi);
@@ -537,12 +557,8 @@ void RecordNode::startRecording()
 	validBlocks.insertMultiple(0, false, getNumInputs());
 
 	recordEngine->registerRecordNode(this);
-	recordEngine->setChannelMapping(channelMap, chanProcessorMap, chanOrderinProc, procInfo);
-	LOGD("channelMap size: ", channelMap.size());
-	LOGD("chanProcessorMap size: ", chanProcessorMap.size());
-	LOGD("chanOrderinProc size: ", chanOrderinProc.size());
-	LOGD("procInfo size: ", procInfo.size());
-
+	recordEngine->setChannelMap(channelMap, localChannelMap);
+    
 	recordThread->setChannelMap(channelMap);
 	recordThread->setTimestampChannelMap(timestampChannelMap);
 
@@ -848,6 +864,25 @@ float RecordNode::getFreeSpace() const
 float RecordNode::getFreeSpaceKilobytes() const
 {
 	return dataDirectory.getBytesFreeOnVolume() / 1024.0f;
+}
+
+int RecordNode::getTotalRecordedStreams()
+{
+    int numStreams = 0;
+    
+    for (auto stream : dataStreams)
+    {
+        for (auto ch : stream->getContinuousChannels())
+        {
+            if (ch->isRecorded)
+            {
+                numStreams++;
+                break;
+            }
+        }
+    }
+    
+    return numStreams;
 }
 
 // not called?

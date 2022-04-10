@@ -22,6 +22,9 @@ public:
 
 	/** Returns the unique identifier of this RecordEngine */
 	String getEngineId() const override;
+    
+    /** Launches the manager for this Record Engine, and instantiates any parameters */
+    static RecordEngineManager* getEngineManager();
 
 	/** Opens files at the start of recording */
 	void openFiles(File rootFolder, int experimentNumber, int recordingNumber);
@@ -47,8 +50,6 @@ public:
 
 	/** Sets an engine parameter (in this case TTL word writing bool) */
 	void setParameter(EngineParameter& parameter);
-
-	static RecordEngineManager* getEngineManager();
 
 private:
 
@@ -95,6 +96,7 @@ private:
     Array<uint16> m_spikeChannelIndexes;
 
 	int m_recordingNum;
+    int m_experimentNum;
 	Array<int64> m_startTS;
 
 	const int samplesPerBlock{ 4096 };

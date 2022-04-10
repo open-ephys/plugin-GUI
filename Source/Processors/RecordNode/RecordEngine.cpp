@@ -42,6 +42,11 @@ void RecordEngine::registerManager(RecordEngineManager* recordManager)
 	manager = recordManager;
 }
 
+const DataStream* RecordEngine::getDataStream(int index) const
+{
+    return recordNode->dataStreams[index];
+}
+
 const ContinuousChannel* RecordEngine::getContinuousChannel(int index) const
 {
 	return recordNode->continuousChannels[index];
@@ -75,12 +80,17 @@ void RecordEngine::updateTimestamps(const Array<int64>& ts, int channel)
 		timestamps.set(channel, ts[channel]);
 }
 
-void RecordEngine::setChannelMapping(const Array<int>& chans, const Array<int>& chanProc, const Array<int>& chanOrder, OwnedArray<RecordProcessorInfo>& processors)
+void RecordEngine::setChannelMap(const Array<int>& globalChans,
+                                 const Array<int>& localChans)
 {
-	channelMap = chans;
-	chanProcessorMap = chanProc;
-	chanOrderMap = chanOrder;
-	recordProcessors.swapWith(processors);
+    globalChannelMap.clear();
+    localChannelMap.clear();
+    
+    for (auto chan : globalChans)
+        globalChannelMap.add(chan);
+    
+    for (auto chan : localChans)
+        localChannelMap.add(chan);
 }
 
 int64 RecordEngine::getTimestamp(int channel) const
@@ -88,19 +98,25 @@ int64 RecordEngine::getTimestamp(int channel) const
 	return timestamps[channel];
 }
 
-int RecordEngine::getRealChannel(int channel) const
+int RecordEngine::getGlobalIndex(int channel) const
 {
-	return channelMap[channel];
+	return globalChannelMap[channel];
 }
+
+int RecordEngine::getLocalIndex(int channel) const
+{
+    return localChannelMap[channel];
+}
+
+int RecordEngine::getNumRecordedDataStreams() const
+{
+    return recordNode->getTotalRecordedStreams();
+}
+
 
 int RecordEngine::getNumRecordedContinuousChannels() const
 {
-	return channelMap.size();
-}
-
-int RecordEngine::getNumRecordedProcessors() const
-{
-	return recordProcessors.size();
+	return globalChannelMap.size();
 }
 
 int RecordEngine::getNumRecordedEventChannels() const
@@ -111,21 +127,6 @@ int RecordEngine::getNumRecordedEventChannels() const
 int RecordEngine::getNumRecordedSpikeChannels() const
 {
 	return recordNode->getTotalSpikeChannels();
-}
-
-const RecordProcessorInfo& RecordEngine::getProcessorInfo(int processor) const
-{
-	return *recordProcessors[processor];
-}
-
-int RecordEngine::getProcessorFromChannel(int channel) const
-{
-	return chanProcessorMap[channel];
-}
-
-int RecordEngine::getChannelNumInProc(int channel) const
-{
-	return chanOrderMap[channel];
 }
 
 const String& RecordEngine::getLatestSettingsXml() const
