@@ -105,8 +105,8 @@ private:
     /** A pointer to the application's ProcessorGraph (owned by the MainWindow). */
     std::unique_ptr<ProcessorGraph> processorGraph;
 
-    /** A weak reference to devfault config window. */
-    WeakReference<DefaultConfigWindow> defaultConfigWindow;
+    /** A weak reference to default config window. */
+    std::unique_ptr<DefaultConfigWindow> defaultConfigWindow;
 
     /** A pointer to the application's HttpServer (owned by the MainWindow). */
     std::unique_ptr<OpenEphysHttpServer> http_server_thread;

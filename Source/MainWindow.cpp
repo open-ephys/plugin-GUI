@@ -112,7 +112,7 @@ MainWindow::MainWindow(const File& fileToLoad)
 	else if(openDefaultConfigWindow)
 	{
 		if(defaultConfigWindow == nullptr)
-			defaultConfigWindow = new DefaultConfigWindow(this);
+			defaultConfigWindow = std::make_unique<DefaultConfigWindow>(this);
 	}
 	else if (shouldReloadOnStartup)
 	{

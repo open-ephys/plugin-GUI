@@ -125,9 +125,6 @@ UIComponent::~UIComponent()
 		delete pluginInstaller;
 	}
 
-	if(defaultConfigWindow)
-		delete defaultConfigWindow;
-
 	AccessClass::shutdownBroadcaster();
 }
 
@@ -823,7 +820,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 
 		case openDefaultConfigWindow:
 			{
-				defaultConfigWindow = new DefaultConfigWindow(this->mainWindow);
+				defaultConfigWindow = std::make_unique<DefaultConfigWindow>(this->mainWindow);
 				break;
 			}
 
