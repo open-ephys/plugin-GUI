@@ -142,7 +142,7 @@ PLUGIN_API bool setDefaultRecordEngine(String id);
 /** Returns an array of IDs for Record Nodes currently in the signal chain*/
 PLUGIN_API Array<int> getAvailableRecordNodeIds();
 
-/** Returns an array of IDs for Record Nodes currently in the signal chain*/
+/** Returns true if all record nodes in the signal chain are synchronized */
 PLUGIN_API bool allRecordNodesAreSynchronized();
 
 namespace RecordNode
