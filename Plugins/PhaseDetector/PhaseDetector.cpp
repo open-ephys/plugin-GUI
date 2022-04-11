@@ -32,19 +32,19 @@ PhaseDetectorSettings::PhaseDetectorSettings() :
     detectorType(PEAK),
     currentPhase(NO_PHASE),
     triggerChannel(0),
-    outputBit(0),
-    gateBit(0)
+    outputLine(0),
+    gateLine(0)
 {
 
 }
 
-TTLEventPtr PhaseDetectorSettings::createEvent(int64 timestamp, bool state)
+TTLEventPtr PhaseDetectorSettings::createEvent(int64 sample_number, bool state)
 {
 
     TTLEventPtr event = TTLEvent::createTTLEvent(eventChannel,
-        timestamp,
-        outputBit,
-        state);
+                                                 sample_number,
+                                                 outputLine,
+                                                 state);
 
     if (state)
     {
@@ -59,15 +59,15 @@ TTLEventPtr PhaseDetectorSettings::createEvent(int64 timestamp, bool state)
 }
 
 
-TTLEventPtr PhaseDetectorSettings::clearOutputBit(int64 timestamp)
+TTLEventPtr PhaseDetectorSettings::clearOutputLine(int64 sample_number)
 {
 
     TTLEventPtr event = TTLEvent::createTTLEvent(eventChannel,
-        timestamp,
-        lastOutputBit,
-        false);
+                                                 sample_number,
+                                                 lastOutputLine,
+                                                 false);
 
-    outputBitChanged = false;
+    outputLineChanged = false;
 
     return event;
 }
@@ -76,8 +76,8 @@ PhaseDetector::PhaseDetector() : GenericProcessor ("Phase Detector")
 {
 
     addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "Channel", "The continuous channel to analyze", 1);
-    addIntParameter(Parameter::STREAM_SCOPE, "output_bit", "The output TTL bit", 1, 1, 16);
-    addIntParameter(Parameter::STREAM_SCOPE,"gate_bit", "The input TTL bit for gating the signal", 1, 1, 16);
+    addIntParameter(Parameter::STREAM_SCOPE, "TTL_out", "The output TTL line", 1, 1, 16);
+    addIntParameter(Parameter::STREAM_SCOPE,"gate_line", "The input TTL line for gating the signal (0 = off)", 0, 0, 16);
     addCategoricalParameter(Parameter::STREAM_SCOPE,
         "phase",
         "The phase for triggering the output",
@@ -108,15 +108,15 @@ void PhaseDetector::parameterValueChanged(Parameter* param)
         int globalIndex = getDataStream(param->getStreamId())->getContinuousChannels()[localIndex]->getGlobalIndex();
         settings[param->getStreamId()]->triggerChannel = globalIndex;
     } 
-    else if (param->getName().equalsIgnoreCase("output_bit"))
+    else if (param->getName().equalsIgnoreCase("TTL_out"))
     {
-        settings[param->getStreamId()]->lastOutputBit = settings[param->getStreamId()]->outputBit;
-        settings[param->getStreamId()]->outputBit = (int)param->getValue() - 1;
-        settings[param->getStreamId()]->outputBitChanged = true;
+        settings[param->getStreamId()]->lastOutputLine = settings[param->getStreamId()]->outputLine;
+        settings[param->getStreamId()]->outputLine = (int)param->getValue() - 1;
+        settings[param->getStreamId()]->outputLineChanged = true;
     }
-    else if (param->getName().equalsIgnoreCase("gate_bit"))
+    else if (param->getName().equalsIgnoreCase("gate_line"))
     {
-        settings[param->getStreamId()]->gateBit = (int)param->getValue() - 1;
+        settings[param->getStreamId()]->gateLine = (int)param->getValue() - 1;
     }
 
 }
@@ -130,8 +130,8 @@ void PhaseDetector::updateSettings()
         // update "settings" objects
         parameterValueChanged(stream->getParameter("phase"));
         parameterValueChanged(stream->getParameter("Channel"));
-        parameterValueChanged(stream->getParameter("output_bit"));
-        parameterValueChanged(stream->getParameter("gate_bit"));
+        parameterValueChanged(stream->getParameter("TTL_out"));
+        parameterValueChanged(stream->getParameter("gate_line"));
 
         EventChannel::Settings s{
             EventChannel::Type::TTL,
@@ -153,15 +153,14 @@ void PhaseDetector::updateSettings()
 void PhaseDetector::handleTTLEvent (TTLEventPtr event)
 {
 
-    uint16 eventStream = event->getStreamId();
-	const int eventBit = event->getLine();
-
-    if (settings[eventStream]->gateBit == eventBit)
+    const uint16 eventStream = event->getStreamId();
+	
+    if (settings[eventStream]->gateLine > -1)
     {
-        settings[eventStream]->isActive = true;
-    }
-    else {
-        settings[eventStream]->isActive = false;
+     
+        if (settings[eventStream]->gateLine == event->getLine())
+            settings[eventStream]->isActive = event->getState();
+        
     }
 
 }
@@ -184,7 +183,7 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
             const uint32 numSamplesInBlock = getNumSamplesInBlock(streamId);
 
             // check to see if it's active and has a channel
-            if (module->isActive && module->outputBit >= 0
+            if (module->isActive && module->outputLine >= 0
                 && module->triggerChannel >= 0
                 && module->triggerChannel < buffer.getNumChannels())
             {
@@ -283,9 +282,9 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
                         }
                     }
 
-                    if (module->outputBitChanged)
+                    if (module->outputLineChanged)
                     {
-                        TTLEventPtr ptr = module->clearOutputBit(
+                        TTLEventPtr ptr = module->clearOutputLine(
                                                                  firstSampleInBlock + i);
 
                         addEvent(ptr, i);

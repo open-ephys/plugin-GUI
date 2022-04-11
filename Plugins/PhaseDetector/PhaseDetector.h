@@ -47,10 +47,10 @@ public:
     ~PhaseDetectorSettings() { }
 
     /** Creates an event for a particular stream*/
-    TTLEventPtr createEvent(int64 timestamp, bool state);
+    TTLEventPtr createEvent(int64 sample_number, bool state);
     
     /** Clears the output bit*/
-    TTLEventPtr clearOutputBit(int64 timestamp);
+    TTLEventPtr clearOutputLine(int64 sample_number);
 
     int samplesSinceTrigger;
 
@@ -59,15 +59,15 @@ public:
     bool isActive;
     bool wasTriggered;
     
-    bool outputBitChanged;
-    int lastOutputBit;
+    bool outputLineChanged;
+    int lastOutputLine;
 
     PhaseType currentPhase;
     DetectorType detectorType;
 
     int triggerChannel;
-    int outputBit;
-    int gateBit;
+    int outputLine;
+    int gateLine;
 
     EventChannel* eventChannel;
 };

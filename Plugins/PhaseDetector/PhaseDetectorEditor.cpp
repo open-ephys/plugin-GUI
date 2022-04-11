@@ -36,8 +36,8 @@ PhaseDetectorEditor::PhaseDetectorEditor(GenericProcessor* parentNode)
     desiredWidth = 220;
 
     addSelectedChannelsParameterEditor("Channel", 120, 105);
-    addComboBoxParameterEditor("output_bit", 15, 30);
-    addComboBoxParameterEditor("gate_bit", 15, 80);
+    addComboBoxParameterEditor("TTL_out", 15, 30);
+    addComboBoxParameterEditor("gate_line", 15, 80);
 
     Parameter* param = getProcessor()->getParameter("phase");
     addCustomParameterEditor(new DetectorInterface(param), 110, 25);
@@ -79,7 +79,7 @@ DetectorInterface::DetectorInterface(Parameter* param) : ParameterEditor(param)
         addAndMakeVisible(phaseButton);
     }
 
-    setBounds(0, 0, 120, 65);
+    setBounds(0, 0, 100, 65);
 }
 
 void DetectorInterface::buttonClicked(Button* b)
