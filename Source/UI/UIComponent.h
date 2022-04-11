@@ -168,7 +168,7 @@ private:
 
     WeakReference<PluginInstaller> pluginInstaller;
 
-    WeakReference<DefaultConfigWindow> defaultConfigWindow;
+    std::unique_ptr<DefaultConfigWindow> defaultConfigWindow;
 
     Viewport processorListViewport;
 

@@ -166,7 +166,7 @@ DefaultConfigComponent::DefaultConfigComponent()
 #endif
 
 	goButton = std::make_unique<TextButton>("Default Config Selector - Load Button");
-	goButton->setButtonText("Load...");
+	goButton->setButtonText("Load");
 	goButton->setColour(TextButton::buttonColourId, Colours::lightgreen);
 	goButton->addListener(this);
 	addAndMakeVisible(goButton.get());

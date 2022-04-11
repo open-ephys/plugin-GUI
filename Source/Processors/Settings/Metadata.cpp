@@ -617,7 +617,7 @@ template PLUGIN_API void MetadataValue::getValue<float>(Array<float>&) const;
 template PLUGIN_API void MetadataValue::getValue<double>(Array<double>&) const;
 
 /// Compiler warning: Explicit instantiation of `getValue<void>` that occurs after an explicit specialization has no effect
-//template PLUGIN_API void MetadataValue::getValue<void>(void*) const;
+template PLUGIN_API void MetadataValue::getValue<void>(void*) const;
 
 //Helper function to compare identifier strings
 bool compareIdentifierStrings(const String& identifier, const String& compareWith)
