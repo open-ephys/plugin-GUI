@@ -58,6 +58,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     
     int streamIndex = -1;
     int streamChannelCount = 0;
+    uint16 lastStreamId = 0;
 
     for (int ch = 0; ch < getNumRecordedContinuousChannels(); ch++)
     {
@@ -67,9 +68,12 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         
         const ContinuousChannel* channelInfo = getContinuousChannel(globalIndex); // channel info object
         
-        if (localIndex == 0)
+        const uint16 streamId = channelInfo->getStreamId();
+        
+        if (lastStreamId != streamId)
         {
             firstChannels.add(channelInfo);
+            lastStreamId = streamId;
             streamIndex++;
             
             if (streamIndex > 0)
@@ -83,7 +87,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         }
     
         m_fileIndexes.set(ch, streamIndex);
-        m_channelIndexes.set(ch, localIndex);
+        m_channelIndexes.set(ch, streamChannelCount++);
 
         DynamicObject::Ptr singleChannelJSON = new DynamicObject();
 
@@ -96,8 +100,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         createChannelMetadata(channelInfo, singleChannelJSON);
         
         m_startTS.add(getTimestamp(ch));
-        streamChannelCount++;
-        
+
         singleStreamJSON.add(var(singleChannelJSON));
         
     }
