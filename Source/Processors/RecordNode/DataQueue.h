@@ -62,19 +62,19 @@ public:
 	/** Changes the number of blocks in the queue */
 	void resize(int nBlocks);
 
-	/** Returns an array of timestamps for a given block*/
-	void getTimestampsForBlock(int idx, Array<int64>& timestamps) const;
+	/** Returns an array of sample numbers for a given block*/
+	void getSampleNumbersForBlock(int idx, Array<int64>& sampleNumbers) const;
 
 	/// -----------  THREAD SAFE  -------------- //
 
 	/** Writes an array of data for one channel */
-	float writeChannel(const AudioBuffer<float>& buffer, int srcChannel, int destChannel, int nSamples, int64 timestamp);
+	float writeChannel(const AudioBuffer<float>& buffer, int srcChannel, int destChannel, int nSamples, int64 sampleNumbers);
 
 	/** Writes an array of timestamps for one stream */
 	float writeSynchronizedTimestamps(double start, double step, int destChannel, int64 nSamples);
 
 	/** Start reading data for one channel */
-	bool startRead(Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int64>& timestamps, int nMax);
+	bool startRead(Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int64>& sampleNumbers, int nMax);
 
 	/** Called when data read is finished */
 	void stopRead();
@@ -90,8 +90,8 @@ public:
 
 private:
 
-	/** Fills the timestamp buffer for a given channel */
-	void fillTimestamps(int channel, int index, int size, int64 timestamp);
+	/** Fills the sample number buffer for a given channel */
+	void fillSampleNumbers(int channel, int index, int size, int64 sampleNumbers);
 
 	int lastIdx;
 
@@ -103,8 +103,8 @@ private:
 
 	Array<int> m_readSamples;
 	Array<int> m_readFTSSamples;
-	OwnedArray<Array<int64>> m_timestamps;
-	Array<int64> m_lastReadTimestamps;
+	OwnedArray<Array<int64>> m_sampleNumbers;
+	Array<int64> m_lastReadSampleNumbers;
 
 	int m_numChans;
 	int m_numFTSChans;

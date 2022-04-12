@@ -64,16 +64,16 @@ void DataQueue::setChannelCount(int nChans)
 	m_fifos.clear();
 	m_readSamples.clear();
 	m_numChans = nChans;
-	m_timestamps.clear();
-	m_lastReadTimestamps.clear();
+	m_sampleNumbers.clear();
+	m_lastReadSampleNumbers.clear();
 
 	for (int i = 0; i < nChans; ++i)
 	{
 		m_fifos.add(new AbstractFifo(m_maxSize));
 		m_readSamples.add(0);
-		m_timestamps.add(new Array<int64>());
-		m_timestamps.getLast()->resize(m_numBlocks);
-		m_lastReadTimestamps.add(0);
+		m_sampleNumbers.add(new Array<int64>());
+		m_sampleNumbers.getLast()->resize(m_numBlocks);
+		m_lastReadSampleNumbers.add(0);
 	}
 	m_buffer.setSize(nChans, m_maxSize);
 
@@ -93,8 +93,8 @@ void DataQueue::resize(int nBlocks)
 		m_fifos[i]->setTotalSize(size);
 		m_fifos[i]->reset();
 		m_readSamples.set(i, 0);
-		m_timestamps[i]->resize(nBlocks);
-		m_lastReadTimestamps.set(i, 0);
+		m_sampleNumbers[i]->resize(nBlocks);
+		m_lastReadSampleNumbers.set(i, 0);
 	}
 
 	for (int i = 0; i < m_numFTSChans; ++i)
@@ -107,22 +107,22 @@ void DataQueue::resize(int nBlocks)
 	m_FTSBuffer.setSize(m_numFTSChans, size);
 }
 
-void DataQueue::fillTimestamps(int channel, int index, int size, int64 timestamp)
+void DataQueue::fillSampleNumbers(int channel, int index, int size, int64 sampleNumber)
 {
 	//Search for the next block start.
 	int blockMod = index % m_blockSize;
 	int blockIdx = index / m_blockSize;
-	int64 startTimestamp;
+	int64 startSampleNumber;
 	int blockStartPos;
 
 	if (blockMod == 0) //block starts here
 	{
-		startTimestamp = timestamp;
+		startSampleNumber = sampleNumber;
 		blockStartPos = index;
 	}
 	else //we're in the middle of a block, correct to jump to the start of the next-
 	{
-		startTimestamp = timestamp + (m_blockSize - blockMod);
+		startSampleNumber = sampleNumber + (m_blockSize - blockMod);
 		blockStartPos = index + (m_blockSize - blockMod);
 		blockIdx++;
 	}
@@ -132,8 +132,8 @@ void DataQueue::fillTimestamps(int channel, int index, int size, int64 timestamp
 	{
 		if ((blockStartPos + i) < (index + size))
 		{
-			int64 ts = startTimestamp + (i*m_blockSize);
-			m_timestamps[channel]->set(blockIdx, ts);
+			int64 ts = startSampleNumber + (i*m_blockSize);
+			m_sampleNumbers[channel]->set(blockIdx, ts);
 		}
 
 	}
@@ -176,7 +176,8 @@ float DataQueue::writeSynchronizedTimestamps(double start, double step, int dest
 }
 
 
-float DataQueue::writeChannel(const AudioBuffer<float>& buffer, int srcChannel, int destChannel, int nSamples, int64 timestamp)
+float DataQueue::writeChannel(const AudioBuffer<float>& buffer, 
+	int srcChannel, int destChannel, int nSamples, int64 sampleNumber)
 {
 	int index1, size1, index2, size2;
 	m_fifos[destChannel]->prepareToWrite(nSamples, index1, size1, index2, size2);
@@ -193,7 +194,7 @@ float DataQueue::writeChannel(const AudioBuffer<float>& buffer, int srcChannel, 
 		0,
 		size1);
 
-	fillTimestamps(destChannel, index1, size1, timestamp);
+	fillSampleNumbers(destChannel, index1, size1, sampleNumber);
 
 	if (size2 > 0)
 	{
@@ -204,7 +205,7 @@ float DataQueue::writeChannel(const AudioBuffer<float>& buffer, int srcChannel, 
 			size1,
 			size2);
 
-		fillTimestamps(destChannel, index2, size2, timestamp + size1);
+		fillSampleNumbers(destChannel, index2, size2, sampleNumber + size1);
 	}
 	m_fifos[destChannel]->finishedWrite(size1 + size2);
 
@@ -230,7 +231,7 @@ const SynchronizedTimestampBuffer& DataQueue::getTimestampBufferReference() cons
 
 bool DataQueue::startRead(Array<CircularBufferIndexes>& dataIndexes, 
 		Array<CircularBufferIndexes>& ftsIndexes, 
-		Array<int64>& timestamps, int nMax)
+		Array<int64>& sampleNumbers, int nMax)
 {
 
 	//This should never happen, but it never hurts to be on the safe side.
@@ -240,7 +241,7 @@ bool DataQueue::startRead(Array<CircularBufferIndexes>& dataIndexes,
 	m_readInProgress = true;
 	dataIndexes.clear();
 	ftsIndexes.clear();
-	timestamps.clear();
+	sampleNumbers.clear();
 
 	for (int chan = 0; chan < m_numChans; ++chan)
 	{
@@ -258,20 +259,20 @@ bool DataQueue::startRead(Array<CircularBufferIndexes>& dataIndexes,
 		//if (chan == 0)
 		//	LOGD("idx1: ", idx.index1, " | s1: ", idx.size1, " | idx2: ", idx.index2, " | s2: ", idx.size2);
 
-		//If the next timestamp block is within the data we're reading, include the translated timestamp in the output
-		int64 ts;
+		//If the next sample number block is within the data we're reading, include the translated sample number in the output
+		int64 sampleNum;
 		if (blockDiff < (idx.size1 + idx.size2))
 		{
 			int blockIdx = ((idx.index1 + blockDiff) / m_blockSize) % m_numBlocks;
-			ts = m_timestamps[chan]->getUnchecked(blockIdx) - blockDiff;
+			sampleNum = m_sampleNumbers[chan]->getUnchecked(blockIdx) - blockDiff;
 		}
 		//If not, copy the last sent again
 		else
 		{
-			ts = m_lastReadTimestamps[chan];
+			sampleNum = m_lastReadSampleNumbers[chan];
 		}
-		timestamps.add(ts);
-		m_lastReadTimestamps.set(chan, ts + idx.size1 + idx.size2);
+		sampleNumbers.add(sampleNum);
+		m_lastReadSampleNumbers.set(chan, sampleNum + idx.size1 + idx.size2);
 	}
 
 	for (int chan = 0; chan < m_numFTSChans; ++chan)
@@ -312,11 +313,11 @@ void DataQueue::stopRead()
 	m_readInProgress = false;
 }
 
-void DataQueue::getTimestampsForBlock(int idx, Array<int64>& timestamps) const
+void DataQueue::getSampleNumbersForBlock(int idx, Array<int64>& sampleNumbers) const
 {
-	timestamps.clear();
+	sampleNumbers.clear();
 	for (int chan = 0; chan < m_numChans; ++chan)
 	{
-		timestamps.add((*m_timestamps[chan])[idx]);
+		sampleNumbers.add((*m_sampleNumbers[chan])[idx]);
 	}
 }

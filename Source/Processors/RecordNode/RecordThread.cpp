@@ -116,10 +116,10 @@ void RecordThread::run()
 	{
 		m_cleanExit = false;
 		closeEarly = false;
-		Array<int64> timestamps;
-		m_dataQueue->getTimestampsForBlock(0, timestamps);
+		Array<int64> sampleNumbers;
+		m_dataQueue->getSampleNumbersForBlock(0, sampleNumbers);
 
-		m_engine->updateTimestamps(timestamps);
+		m_engine->updateLatestSampleNumbers(sampleNumbers);
 
 		m_engine->openFiles(m_rootFolder, m_experimentNumber, m_recordingNumber);
 	}
@@ -156,11 +156,11 @@ void RecordThread::writeData(const AudioBuffer<float>& dataBuffer,
 									     bool lastBlock)
 {
 
-	Array<int64> timestamps;
+	Array<int64> sampleNumbers;
 	Array<CircularBufferIndexes> dataBufferIdxs;
 	Array<CircularBufferIndexes> timestampBufferIdxs;
-	m_dataQueue->startRead(dataBufferIdxs, timestampBufferIdxs, timestamps, maxSamples);
-	m_engine->updateTimestamps(timestamps);
+	m_dataQueue->startRead(dataBufferIdxs, timestampBufferIdxs, sampleNumbers, maxSamples);
+	m_engine->updateLatestSampleNumbers(sampleNumbers);
 
 	/* Copy data to record engine */
 	for (int chan = 0; chan < m_numChannels; ++chan)
@@ -203,9 +203,9 @@ void RecordThread::writeData(const AudioBuffer<float>& dataBuffer,
 
 			if (dataBufferIdxs[chan].size2 > 0)
 			{
-				timestamps.set(chan, timestamps[chan] + dataBufferIdxs[chan].size1);
+				sampleNumbers.set(chan, sampleNumbers[chan] + dataBufferIdxs[chan].size1);
 
-				m_engine->updateTimestamps(timestamps, chan);
+				m_engine->updateLatestSampleNumbers(sampleNumbers, chan);
 
 				m_engine->writeContinuousData(
 					chan, 					// write channel (index among all recorded channels)

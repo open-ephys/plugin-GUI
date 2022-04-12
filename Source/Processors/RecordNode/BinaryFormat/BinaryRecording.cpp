@@ -95,7 +95,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         singleChannelJSON->setProperty("units", channelInfo->getUnits());
         createChannelMetadata(channelInfo, singleChannelJSON);
         
-        m_startTS.add(getTimestamp(ch));
+        m_startTS.add(getLatestSampleNumber(ch));
         streamChannelCount++;
         
         singleStreamJSON.add(var(singleChannelJSON));
@@ -518,7 +518,7 @@ void BinaryRecording::writeContinuousData(int writeChannel,
 
     /* Write the data to that file */
 	m_continuousFiles[fileIndex]->writeChannel(
-		getTimestamp(writeChannel) - m_startTS[writeChannel],
+		getLatestSampleNumber(writeChannel) - m_startTS[writeChannel],
 		m_channelIndexes[writeChannel],
 		m_intBuffer.getData(), size);
 
@@ -526,7 +526,7 @@ void BinaryRecording::writeContinuousData(int writeChannel,
 	if (m_channelIndexes[writeChannel] == 0)
     {
 
-		int64 baseTS = getTimestamp(writeChannel);
+		int64 baseTS = getLatestSampleNumber(writeChannel);
 		for (int i = 0; i < size; i++)
             /* Generate int timestamp */
             m_tsBuffer[i] = baseTS + i;
