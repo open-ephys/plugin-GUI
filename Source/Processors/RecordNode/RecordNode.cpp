@@ -47,8 +47,8 @@ RecordNode::RecordNode()
 	newDirectoryNeeded(true),
 	setFirstBlock(false),
 	samplesWritten(0),
-	experimentNumber(0),
-	recordingNumber(-1),
+	experimentNumber(1), // 1-based indexing
+	recordingNumber(0), // 0-based indexing
 	isRecording(false),
 	hasRecorded(false),
 	settingsNeeded(false),
@@ -209,9 +209,11 @@ void RecordNode::setDataDirectory(File directory)
 	newDirectoryNeeded = true;
 }
 
-// called by RecordNode::startRecording
 void RecordNode::createNewDirectory()
 {
+
+	LOGD("CREATE NEW DIRECTORY");
+
 	rootFolder = File(dataDirectory.getFullPathName()
 		+ File::getSeparatorString()
 		+ generateDirectoryName());
@@ -232,8 +234,9 @@ void RecordNode::createNewDirectory()
 
 	newDirectoryNeeded = false;
 
-	recordingNumber = -1;
+	recordingNumber = 0;
 	experimentNumber = 1;
+	LOGD("RecordNode::createNewDirectory(): experimentNumber = 1");
 	settingsNeeded = true;
 
 }
@@ -287,7 +290,7 @@ String RecordNode::generateDateString() const
 // called by CoreServices
 int RecordNode::getExperimentNumber() const
 {
-	LOGD("Current experiment = ", experimentNumber);
+	LOGD("getExperimentNumber(): Current experiment = ", experimentNumber);
 	return experimentNumber;
 }
 
@@ -488,7 +491,7 @@ bool RecordNode::startAcquisition()
 		settingsNeeded = true;
 	}
 
-	recordingNumber = -1;
+	recordingNumber = 0;
 	recordEngine->configureEngine();
 	synchronizer->reset();
 	eventMonitor->reset();
@@ -511,7 +514,6 @@ bool RecordNode::stopAcquisition()
 // called by GenericProcessor::setRecording() and CoreServices::setRecordingStatus()
 void RecordNode::startRecording()
 {
-
 	Array<int> chanProcessorMap;
 	Array<int> chanOrderinProc;
 	OwnedArray<RecordProcessorInfo> procInfo;
@@ -577,12 +579,9 @@ void RecordNode::startRecording()
 	recordThread->setQueuePointers(dataQueue.get(), eventQueue.get(), spikeQueue.get());
 	recordThread->setFirstBlockFlag(false);
 
-	hasRecorded = true;
-
 	/* Set write properties */
 	setFirstBlock = false;
 
-	recordingNumber++; // increment recording number within this directory
 
 	if (!rootFolder.exists())
 	{
@@ -606,6 +605,8 @@ void RecordNode::stopRecording()
 {
 
 	isRecording = false;
+	hasRecorded = true;
+	recordingNumber++; // increment recording number within this directory; should be zero for first recording
 
 	if (recordThread->isThreadRunning())
 	{
