@@ -43,7 +43,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 
 	String basepath = rootFolder.getFullPathName() + rootFolder.getSeparatorString() + "experiment" + String(experimentNumber)
         + File::getSeparatorString() + "recording" + String(recordingNumber + 1) + File::getSeparatorString();
-    
+
     String contPath = basepath + "continuous" + File::getSeparatorString();
 
     m_channelIndexes.insertMultiple(0, 0, getNumRecordedContinuousChannels());
@@ -52,38 +52,41 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     Array<var> continuousChannelJSON;
     Array<var> singleStreamJSON;
     Array<var> multiStreamJSON;
-    
+
     Array<const ContinuousChannel*> firstChannels;
     Array<int> channelCounts;
-    
+
     int streamIndex = -1;
-    int streamChannelCount = 0;
+    uint16 lastStreamId = 0;
+    int indexWithinStream = 0;
 
     for (int ch = 0; ch < getNumRecordedContinuousChannels(); ch++)
     {
 
         int globalIndex = getGlobalIndex(ch); // the global channel index
         int localIndex = getLocalIndex(ch); // the local channel index (within a stream)
-        
+
         const ContinuousChannel* channelInfo = getContinuousChannel(globalIndex); // channel info object
-        
-        if (localIndex == 0)
+
+        int streamId = channelInfo->getStreamId();
+
+        if (streamId != lastStreamId)
         {
             firstChannels.add(channelInfo);
             streamIndex++;
-            
+
             if (streamIndex > 0)
             {
                 multiStreamJSON.add(var(singleStreamJSON));
-                channelCounts.add(streamChannelCount);
+                channelCounts.add(indexWithinStream);
             }
-                
-            streamChannelCount = 0;
+
+            indexWithinStream = 0;
             singleStreamJSON.clear();
         }
-    
+
         m_fileIndexes.set(ch, streamIndex);
-        m_channelIndexes.set(ch, localIndex);
+        m_channelIndexes.set(ch, indexWithinStream++);
 
         DynamicObject::Ptr singleChannelJSON = new DynamicObject();
 
@@ -94,23 +97,24 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         singleChannelJSON->setProperty("bit_volts", channelInfo->getBitVolts());
         singleChannelJSON->setProperty("units", channelInfo->getUnits());
         createChannelMetadata(channelInfo, singleChannelJSON);
-        
+
         m_startTS.add(getLatestSampleNumber(ch));
-        streamChannelCount++;
-        
+
         singleStreamJSON.add(var(singleChannelJSON));
-        
+
+        lastStreamId = streamId;
+
     }
-    
+
     multiStreamJSON.add(var(singleStreamJSON));
-    channelCounts.add(streamChannelCount);
-    
+    channelCounts.add(indexWithinStream);
+
     streamIndex = -1;
-    
+
     for (auto ch : firstChannels)
     {
         streamIndex++;
-        
+
         String datPath = getProcessorString(ch);
         String filename = contPath + datPath + "continuous.dat";
 
@@ -120,7 +124,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 
         ScopedPointer<NpyFile> syncTimestampFile = new NpyFile(contPath + datPath + "timestamps.npy", NpyType(BaseType::DOUBLE,1));
         m_dataSyncTimestampFiles.add(syncTimestampFile.release());
-        
+
         DynamicObject::Ptr fileJSON = new DynamicObject();
         fileJSON->setProperty("folder_name", datPath.replace(File::getSeparatorString(), "/")); //to make it more system agnostic, replace separator with only one slash
         fileJSON->setProperty("sample_rate", ch->getSampleRate());
@@ -130,16 +134,16 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         fileJSON->setProperty("recorded_processor", ch->getNodeName());
         fileJSON->setProperty("recorded_processor_id", ch->getNodeId());
         fileJSON->setProperty("num_channels", channelCounts[streamIndex]);
-        
+
         ScopedPointer<SequentialBlockFile> bFile = new SequentialBlockFile(channelCounts[streamIndex], samplesPerBlock);
-        
+
         if (bFile->openFile(filename))
             m_continuousFiles.add(bFile.release());
         else
             m_continuousFiles.add(nullptr);
-        
+
         fileJSON->setProperty("channels", multiStreamJSON.getReference(streamIndex));
-        
+
         continuousChannelJSON.add(var(fileJSON));
     }
 
@@ -221,14 +225,14 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     Array<var> spikeChannelJSON;
     Array<var> jsonSpikeChannels;
     std::map<uint32, int> groupMap;
-    
+
     for (int spikeChannelIndex = 0; spikeChannelIndex < nSpikeChannels; spikeChannelIndex++)
     {
-        
+
         const SpikeChannel* ch = getSpikeChannel(spikeChannelIndex);
-        
+
         DynamicObject::Ptr electrodeJSON = new DynamicObject();
-        
+
         unsigned int numSpikeChannels = ch->getNumChannels();
         electrodeJSON->setProperty("name", ch->getName());
         electrodeJSON->setProperty("description", ch->getDescription());
@@ -239,25 +243,25 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         electrodeJSON->setProperty("num_channels", (int)ch->getNumChannels());
         electrodeJSON->setProperty("pre_peak_samples", (int)ch->getPrePeakSamples());
         electrodeJSON->setProperty("post_peak_samples", (int)ch->getPostPeakSamples());
-        
+
         Array<var> channelJSON;
-        
+
         for (int i = 0; i < numSpikeChannels; i++)
         {
             DynamicObject::Ptr subChannelInfo = new DynamicObject();
-            
+
             const ContinuousChannel* subCh = ch->getSourceChannels()[i];
-            
+
             subChannelInfo->setProperty("name", subCh->getName());
             subChannelInfo->setProperty("local_index", subCh->getLocalIndex());
             subChannelInfo->setProperty("bit_volts", subCh->getBitVolts());
             channelJSON.add(var(subChannelInfo));
         }
-        
+
         createChannelMetadata(ch, electrodeJSON);
-        
+
         int fileIndex = m_spikeFiles.size();
-        
+
         m_spikeFileIndexes.set(spikeChannelIndex, fileIndex);
         m_spikeChannelIndexes.set(spikeChannelIndex, spikeChannelIndex);
 
@@ -276,12 +280,12 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 
         electrodeJSON->setProperty("folder", directoryName.replace(File::getSeparatorString(),"/"));
         electrodeJSON->setProperty("source_channels", channelJSON);
-        
+
         //rec->metaDataFile = createEventMetadataFile(ch, spikePath + spikeName + "metadata.npy", jsonFile);
         m_spikeFiles.add(rec.release());
         spikeChannelJSON.add(var(electrodeJSON));
     }
-    
+
     File syncFile = File(basepath + "sync_messages.txt");
     Result res = syncFile.create();
     if (res.failed())
@@ -294,12 +298,12 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     }
 
     DynamicObject::Ptr settingsJSON = new DynamicObject();
-    
+
     settingsJSON->setProperty("GUI version", CoreServices::getGUIVersion());
     settingsJSON->setProperty("continuous", continuousChannelJSON);
     settingsJSON->setProperty("events", eventChannelJSON);
     settingsJSON->setProperty("spikes", spikeChannelJSON);
-    
+
     FileOutputStream settingsFileStream(File(basepath + "structure.oebin"));
 
     settingsJSON->writeAsJSON(settingsFileStream, 2, false, 3);
@@ -446,19 +450,19 @@ void BinaryRecording::createChannelMetadata(const MetadataObject* channel, Dynam
 
 void BinaryRecording::closeFiles()
 {
-    
+
     m_continuousFiles.clear();
     m_eventFiles.clear();
     m_spikeFiles.clear();
-    
+
     m_channelIndexes.clear();
     m_fileIndexes.clear();
     m_dataTimestampFiles.clear();
     m_dataSyncTimestampFiles.clear();
-    
+
     m_spikeChannelIndexes.clear();
     m_spikeFileIndexes.clear();
-    
+
     //m_syncTextFile = nullptr;
 
     m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
@@ -551,7 +555,7 @@ void BinaryRecording::writeEvent(int eventIndex, const EventPacket& event)
 
 	EventPtr ev = Event::deserialize(event, info);
 	EventRecording* rec = m_eventFiles[eventIndex];
-	
+
     if (!rec) return;
 
 	if (ev->getEventType() == EventChannel::TTL)
@@ -622,7 +626,7 @@ void BinaryRecording::writeSpike(int electrodeIndex, const Spike* spike)
 
 	int64 sampleIdx = spike->getSampleNumber();
 	rec->samples->writeData(&sampleIdx, sizeof(int64));
-    
+
     double ts = spike->getTimestampInSeconds();
     rec->timestamps->writeData(&ts, sizeof(double));
 
