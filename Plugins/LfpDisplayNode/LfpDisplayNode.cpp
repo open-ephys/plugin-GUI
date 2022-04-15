@@ -269,12 +269,12 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
 
     }
 
-    for (int i = 0; i < 3; i++)
+    for (auto display : splitDisplays)
     {
-        if(splitDisplays[i]->displayBuffer->id == eventStreamId)
+        if(display->selectedStreamId == eventStreamId)
         {
             if (event->getWord() != 0)
-                splitDisplays[i]->options->setTTLWord(String(event->getWord()));
+                display->options->setTTLWord(String(event->getWord()));
         }
     }
 
