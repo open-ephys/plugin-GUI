@@ -601,16 +601,16 @@ void GraphNode::updateBoundaries()
         }
             
 
-        //if (merger->sourceNodeB != nullptr)
-       // {
-        //    GraphNode* node = gv->getNodeForEditor(merger->sourceNodeB->getEditor());
-        //    if (node != nullptr)
-        //        shift2 = node->getBottom();
-        //}
+        if (merger->sourceNodeB != nullptr)
+        {
+            GraphNode* node = gv->getNodeForEditor(merger->sourceNodeB->getEditor());
+            if (node != nullptr)
+                shift2 = node->getBottom();
+        }
 
-        //shift3 = shift1 > shift2 ? shift1 : shift2;
+        shift3 = jmax(shift1, shift2);
 
-        yshift += shift1;
+        yshift += shift3;
 
     }
 
