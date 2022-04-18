@@ -105,8 +105,8 @@ Array<GenericProcessor*> MergerEditor::getSelectableProcessors()
     {
         for (auto& processorToCheck : availableProcessors)
         {
-            if (!processorToCheck->isMerger() &&
-                !processorToCheck->isSplitter() &&
+            if (!processorToCheck->isSplitter() &&
+                processorToCheck != getProcessor() &&
                 processorToCheck->getDestNode() == 0)
             {
                 
