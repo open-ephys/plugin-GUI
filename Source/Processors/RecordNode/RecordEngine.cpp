@@ -72,12 +72,12 @@ String RecordEngine::generateDateString() const
 	return recordNode->generateDateString();
 }
 
-void RecordEngine::updateTimestamps(const Array<int64>& ts, int channel)
+void RecordEngine::updateLatestSampleNumbers(const Array<int64>& num, int channel)
 {
 	if (channel < 0)
-		timestamps = ts;
+		sampleNumbers = num;
 	else
-		timestamps.set(channel, ts[channel]);
+		sampleNumbers.set(channel, num[channel]);
 }
 
 void RecordEngine::setChannelMap(const Array<int>& globalChans,
@@ -93,9 +93,9 @@ void RecordEngine::setChannelMap(const Array<int>& globalChans,
         localChannelMap.add(chan);
 }
 
-int64 RecordEngine::getTimestamp(int channel) const
+int64 RecordEngine::getLatestSampleNumber(int channel) const
 {
-	return timestamps[channel];
+	return sampleNumbers[channel];
 }
 
 int RecordEngine::getGlobalIndex(int channel) const

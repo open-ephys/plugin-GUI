@@ -332,7 +332,7 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 						if (((currentCode >> c) & 0x01) != ((lastCode >> c) & 0x01))
 						{
 							TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[streamIdx],
-                                timestamp + sample,
+                                sampleNumber + sample,
                                 c,
                                 (currentCode >> c) & 0x01,
                                 currentCode);

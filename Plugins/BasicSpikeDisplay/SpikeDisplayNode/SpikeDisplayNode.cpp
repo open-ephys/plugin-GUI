@@ -177,6 +177,7 @@ void SpikeDisplayNode::process (AudioBuffer<float>& buffer)
 
 void SpikeDisplayNode::handleSpike(SpikePtr spike)
 {
-    electrodeMap.at(spike->getChannelInfo())->addSpikeToBuffer(spike);
+    if(electrodeMap.count(spike->getChannelInfo()) > 0)
+        electrodeMap.at(spike->getChannelInfo())->addSpikeToBuffer(spike);
 }
 
