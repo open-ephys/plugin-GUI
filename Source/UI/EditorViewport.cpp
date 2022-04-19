@@ -98,8 +98,8 @@ void EditorViewport::paint(Graphics& g)
             insertionX += BORDER_SIZE*(n-1);
 
         g.setColour(Colours::yellow);
-        g.drawLine(insertionX, (float) BORDER_SIZE,
-                   insertionX, (float) getHeight()-(float) BORDER_SIZE*3, 3.0f);
+        g.drawLine(insertionX, (float) BORDER_SIZE + 5,
+                   insertionX, (float) getHeight()-(float) BORDER_SIZE*3 - 5, 3.0f);
 
     }
     
@@ -903,7 +903,7 @@ void EditorViewport::mouseDrag(const MouseEvent& e)
         {
             insertionPoint = editorArray.size();
         }
-
+        
         refreshEditors();
         repaint();
     }
@@ -915,53 +915,60 @@ void EditorViewport::mouseUp(const MouseEvent& e)
     
     if (componentWantsToMove)
     {
-
+        
         somethingIsBeingDraggedOver = false;
         componentWantsToMove = false;
-        
+
         if (!getScreenBounds().contains(e.getScreenPosition()))
         {
-            undoManager.beginNewTransaction();
+            //undoManager.beginNewTransaction();
             
-             DeleteProcessor* action =
-                    new DeleteProcessor(
-                        editorArray[indexOfMovingComponent]->getProcessor(),
-                        this);
+             //DeleteProcessor* action =
+             //       new DeleteProcessor(
+             //           editorArray[indexOfMovingComponent]->getProcessor(),
+              //          this);
              
-             undoManager.perform(action);
+             //undoManager.perform(action);
             
-            return;
+            repaint();
+            
+            refreshEditors();
         }
-
-        if (indexOfMovingComponent != insertionPoint)
+        else
         {
-            
-            GenericProcessor* newSource;
-            GenericProcessor* newDest;
-            
-            if (insertionPoint == editorArray.size())
+            if (indexOfMovingComponent != insertionPoint
+             && indexOfMovingComponent != insertionPoint - 1)
             {
-                newDest = nullptr;
-                newSource = editorArray.getLast()->getProcessor();
-            } else if (insertionPoint == 0)
-            {
-                newDest = editorArray.getFirst()->getProcessor();
-                newSource = nullptr;
+                
+                GenericProcessor* newSource;
+                GenericProcessor* newDest;
+                
+                if (insertionPoint == editorArray.size())
+                {
+                    newDest = nullptr;
+                    newSource = editorArray.getLast()->getProcessor();
+                } else if (insertionPoint == 0)
+                {
+                    newDest = editorArray.getFirst()->getProcessor();
+                    newSource = nullptr;
+                } else {
+                    newSource = editorArray[insertionPoint-1]->getProcessor();
+                    newDest = editorArray[insertionPoint]->getProcessor();
+                }
+                
+                undoManager.beginNewTransaction();
+               
+                MoveProcessor* action = new MoveProcessor(
+                                                          editorArray           [indexOfMovingComponent]->getProcessor(),
+                                                          newSource,
+                                                          newDest,
+                                                          insertionPoint > indexOfMovingComponent);
+                
+                undoManager.perform(action);
+                                                          
             } else {
-                newSource = editorArray[insertionPoint-1]->getProcessor();
-                newDest = editorArray[insertionPoint]->getProcessor();
+                repaint();
             }
-            
-            undoManager.beginNewTransaction();
-           
-            MoveProcessor* action = new MoveProcessor(
-                                                      editorArray           [indexOfMovingComponent]->getProcessor(),
-                                                      newSource,
-                                                      newDest,
-                                                      insertionPoint > indexOfMovingComponent);
-            
-            undoManager.perform(action);
-                                                      
         }
     }
 

@@ -582,7 +582,12 @@ void GraphNode::updateBoundaries()
 
     if (processor->sourceNode != nullptr && !processor->isMerger())
     {
-        yshift += gv->getNodeForEditor(processor->sourceNode->getEditor())->getBottom();
+        GraphNode* node = gv->getNodeForEditor(processor->sourceNode->getEditor());
+        
+        if (node != nullptr)
+            yshift += node->getBottom();
+        else
+            std::cout << "NULLPTR" << std::endl;
     }
 
     if (processor->isMerger())
