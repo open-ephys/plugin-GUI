@@ -740,6 +740,10 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     m.addItem(5, "Load settings...", true);
                 else
                     m.addItem(5, "Load settings...", false);
+                
+                m.addSeparator();
+                
+                m.addItem(6, "Save image...", true);
 
 
                 const int result = m.show();
@@ -800,6 +804,25 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     {
                         CoreServices::sendStatusMessage("No file selected.");
                     }
+                } else if (result == 6)
+                {
+                    
+                    File picturesDirectory = File::getSpecialLocation(File::SpecialLocationType::userPicturesDirectory);
+                    
+                    File outputFile = picturesDirectory.getChildFile(editorArray[i]->getNameAndId() + ".png");
+                    
+                    Rectangle<int> bounds = Rectangle<int>(3, 3, editorArray[i]->getWidth()-6, editorArray[i]->getHeight()-6);
+                    
+                    Image componentImage = editorArray[i]->createComponentSnapshot(
+                                                                                   bounds,
+                                            true, 1.5f);
+                    
+                    FileOutputStream stream (outputFile);
+                    PNGImageFormat pngWriter;
+                    pngWriter.writeImageToStream(componentImage, stream);
+                    
+                    CoreServices::sendStatusMessage("Saved image to " + outputFile.getFullPathName());
+                    
                 }
             }
 
