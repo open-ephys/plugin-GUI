@@ -114,8 +114,7 @@ void SourceNode::requestSignalChainUpdate()
 void SourceNode::updateSettings()
 {
 	if (dataThread)
-	{
-		dataThread->updateSettings(&continuousChannels,
+	{		dataThread->updateSettings(&continuousChannels,
             &eventChannels, // must return 1 for every stream
             &spikeChannels,
             &dataStreams,
