@@ -450,11 +450,13 @@ void RecordNode::updateSettings()
 #endif
 
 	//Refresh editor as needed
+    /*
 	if (static_cast<RecordNodeEditor*> (getEditor())->monitorsVisible)
 	{
 		static_cast<RecordNodeEditor*> (getEditor())->showFifoMonitors(false);
 		static_cast<RecordNodeEditor*> (getEditor())->buttonClicked(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
 	}
+     */
 
 }
 
@@ -930,7 +932,7 @@ void RecordNode::saveCustomParametersToXml(XmlElement* xml)
     xml->setAttribute("engine", recordEngine->getEngineId());
     xml->setAttribute ("recordEvents", recordEvents);
     xml->setAttribute ("recordSpikes", recordSpikes);
-    xml->setAttribute("fifoMonitorsVisible", recordNodeEditor->fifoDrawerButton->getToggleState());
+    //xml->setAttribute("fifoMonitorsVisible", recordNodeEditor->fifoDrawerButton->getToggleState());
 
     //Save channel states:
     for (auto stream : getDataStreams())

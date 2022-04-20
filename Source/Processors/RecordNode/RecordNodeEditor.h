@@ -106,7 +106,7 @@ private:
 };
 
 class RecordNodeEditor : 
-	public GenericEditor, 
+	public GenericEditor, public Timer,
 		   ComboBox::Listener, 
 	       Label::Listener,
 		   Button::Listener
@@ -121,6 +121,9 @@ public:
 
 	/** Hides FIFO monitors when the editor is collapsed*/
 	void collapsedStateChanged() override;
+
+    /** Used to automatically show FIFO monitors */
+    void timerCallback();
 
 	/** Propagates new settings to FIFO Monitors */
 	void updateFifoMonitors();
