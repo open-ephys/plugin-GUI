@@ -14,7 +14,7 @@ BinaryRecording::BinaryRecording()
     m_bufferSize = MAX_BUFFER_SIZE;
 	m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
 	m_intBuffer.malloc(MAX_BUFFER_SIZE);
-	m_tsBuffer.malloc(MAX_BUFFER_SIZE);
+    m_sampleNumberBuffer.malloc(MAX_BUFFER_SIZE);
 }
 
 BinaryRecording::~BinaryRecording() {}
@@ -98,7 +98,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         singleChannelJSON->setProperty("units", channelInfo->getUnits());
         createChannelMetadata(channelInfo, singleChannelJSON);
 
-        m_startTS.add(getLatestSampleNumber(ch));
+        m_startSampleNum.add(getLatestSampleNumber(ch));
 
         singleStreamJSON.add(var(singleChannelJSON));
 
@@ -467,9 +467,9 @@ void BinaryRecording::closeFiles()
 
     m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
     m_intBuffer.malloc(MAX_BUFFER_SIZE);
-    m_tsBuffer.malloc(MAX_BUFFER_SIZE);
+    m_sampleNumberBuffer.malloc(MAX_BUFFER_SIZE);
     m_bufferSize = MAX_BUFFER_SIZE;
-    m_startTS.clear();
+    m_startSampleNum.clear();
 }
 
 void BinaryRecording::writeEventMetadata(const MetadataEvent* event, NpyFile* file)
@@ -508,7 +508,7 @@ void BinaryRecording::writeContinuousData(int writeChannel,
 		std::cerr << "[RN] Write buffer overrun, resizing from: " << m_bufferSize << " to: " << size << std::endl;
 		m_scaledBuffer.malloc(size);
 		m_intBuffer.malloc(size);
-		m_tsBuffer.malloc(size);
+        m_sampleNumberBuffer.malloc(size);
 		m_bufferSize = size;
 	}
 
@@ -520,23 +520,28 @@ void BinaryRecording::writeContinuousData(int writeChannel,
     /* Get the file index that belongs to the current recording channel */
 	int fileIndex = m_fileIndexes[writeChannel];
 
+    //if (m_channelIndexes[writeChannel] == 0 && fileIndex == 1)
+    //    std::cout << fileIndex << " : " << getLatestSampleNumber(writeChannel) << " : " << m_startSampleNum[writeChannel] << std::endl;
+
     /* Write the data to that file */
 	m_continuousFiles[fileIndex]->writeChannel(
-		getLatestSampleNumber(writeChannel) - m_startTS[writeChannel],
+		getLatestSampleNumber(writeChannel) - m_startSampleNum[writeChannel],
 		m_channelIndexes[writeChannel],
-		m_intBuffer.getData(), size);
+		m_intBuffer.getData(), 
+        size);
 
     /* If is first channel in subprocessor */
 	if (m_channelIndexes[writeChannel] == 0)
     {
 
-		int64 baseTS = getLatestSampleNumber(writeChannel);
+		int64 baseSampleNumber = getLatestSampleNumber(writeChannel);
+
 		for (int i = 0; i < size; i++)
-            /* Generate int timestamp */
-            m_tsBuffer[i] = baseTS + i;
+            /* Generate int sample number */
+            m_sampleNumberBuffer[i] = baseSampleNumber + i;
 
         /* Write int timestamps to disc */
-		m_dataTimestampFiles[fileIndex]->writeData(m_tsBuffer, size*sizeof(int64));
+		m_dataTimestampFiles[fileIndex]->writeData(m_sampleNumberBuffer, size*sizeof(int64));
 		m_dataTimestampFiles[fileIndex]->increaseRecordCount(size);
 
         //LOGD("BinaryRecording::writeSynchronizedData: ", *timestampBuffer);

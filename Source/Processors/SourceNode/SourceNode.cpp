@@ -308,6 +308,9 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 
 		copiedChannels += channelsToCopy;
 
+        //if (getFirstSampleNumberForBlock(dataStreams[streamIdx]->getStreamId()) > sampleNumber)
+        //    std::cout << "SET ERROR: " << getNodeId() << " " << dataStreams[streamIdx]->getStreamId() << std::endl;
+
 		setTimestampAndSamples(sampleNumber,
                                timestamp,
                                nSamples,

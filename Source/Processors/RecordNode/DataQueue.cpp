@@ -115,6 +115,9 @@ void DataQueue::fillSampleNumbers(int channel, int index, int size, int64 sample
 	int64 startSampleNumber;
 	int blockStartPos;
 
+	//if (channel == 385)
+	//	std::cout << "DataQueue::fillSampleNumbers() " << sampleNumber << std::endl;
+
 	if (blockMod == 0) //block starts here
 	{
 		startSampleNumber = sampleNumber;
@@ -128,15 +131,21 @@ void DataQueue::fillSampleNumbers(int channel, int index, int size, int64 sample
 	}
 
 	//check that the block is in range
+
+	int64 latestSampleNumber;
+
 	for (int i = 0; i < size; i += m_blockSize)
 	{
 		if ((blockStartPos + i) < (index + size))
 		{
-			int64 ts = startSampleNumber + (i*m_blockSize);
-			m_sampleNumbers[channel]->set(blockIdx, ts);
+			latestSampleNumber = startSampleNumber + (i * m_blockSize);
+			m_sampleNumbers[channel]->set(blockIdx, latestSampleNumber);
 		}
 
 	}
+
+	//if (channel == 385)
+	//	std::cout << "DataQueue::latestSampleNumber: " << latestSampleNumber << std::endl;
 }
 
 float DataQueue::writeSynchronizedTimestamps(double start, double step, int destChannel, int64 nSamples)
@@ -193,6 +202,9 @@ float DataQueue::writeChannel(const AudioBuffer<float>& buffer,
 		srcChannel,
 		0,
 		size1);
+
+	//if (srcChannel == 385)
+	//	std::cout << "DataQueue::writeChannel() : " << sampleNumber << std::endl;
 
 	fillSampleNumbers(destChannel, index1, size1, sampleNumber);
 
@@ -261,16 +273,24 @@ bool DataQueue::startRead(Array<CircularBufferIndexes>& dataIndexes,
 
 		//If the next sample number block is within the data we're reading, include the translated sample number in the output
 		int64 sampleNum;
+		
 		if (blockDiff < (idx.size1 + idx.size2))
 		{
 			int blockIdx = ((idx.index1 + blockDiff) / m_blockSize) % m_numBlocks;
 			sampleNum = m_sampleNumbers[chan]->getUnchecked(blockIdx) - blockDiff;
+			//if (chan == 385)
+			//	std::cout << "DataQueue::startRead() ------ " << sampleNum << std::endl;
 		}
 		//If not, copy the last sent again
 		else
 		{
 			sampleNum = m_lastReadSampleNumbers[chan];
+			//if (chan == 385)
+			//	std::cout << "DataQueue::startRead() " << sampleNum << std::endl;
 		}
+
+		
+
 		sampleNumbers.add(sampleNum);
 		m_lastReadSampleNumbers.set(chan, sampleNum + idx.size1 + idx.size2);
 	}

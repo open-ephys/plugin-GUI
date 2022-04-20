@@ -78,6 +78,7 @@ void RecordEngine::updateLatestSampleNumbers(const Array<int64>& num, int channe
 		sampleNumbers = num;
 	else
 		sampleNumbers.set(channel, num[channel]);
+
 }
 
 void RecordEngine::setChannelMap(const Array<int>& globalChans,

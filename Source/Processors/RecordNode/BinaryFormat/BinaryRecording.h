@@ -73,7 +73,7 @@ private:
 
 	HeapBlock<float> m_scaledBuffer;
 	HeapBlock<int16> m_intBuffer;
-	HeapBlock<int64> m_tsBuffer;
+	HeapBlock<int64> m_sampleNumberBuffer;
 	int m_bufferSize;
 	int m_syncTimestampBufferSize;
 
@@ -96,7 +96,7 @@ private:
 
 	int m_recordingNum;
     int m_experimentNum;
-	Array<int64> m_startTS;
+	Array<int64> m_startSampleNum;
 
 	const int samplesPerBlock{ 4096 };
 

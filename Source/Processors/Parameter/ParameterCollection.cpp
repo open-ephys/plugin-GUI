@@ -230,8 +230,8 @@ void ParameterCollection::copyParametersFrom(InfoObject* obj)
         owner.streamId = s->getStreamId();
         owner.sourceNodeId = s->getSourceNodeId();
 
-        if (s->hasDevice())
-            owner.deviceName = s->device->getName();
+        //if (s->hasDevice())
+        //    owner.deviceName = s->device->getName();
     }
     else if (obj->getType() == InfoObject::CONTINUOUS_CHANNEL)
     {

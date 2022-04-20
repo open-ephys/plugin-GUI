@@ -32,8 +32,8 @@ RecordThread::RecordThread(RecordNode* parentNode, RecordEngine* engine) :
 	m_engine(engine),
 	recordNode(parentNode),
 	m_receivedFirstBlock(false),
-	m_cleanExit(true),
-	samplesWritten(0)
+	m_cleanExit(true)
+	//samplesWritten(0)
 {
 }
 
@@ -199,7 +199,7 @@ void RecordThread::writeData(const AudioBuffer<float>& dataBuffer,
 			}*/
 
 
-			samplesWritten += dataBufferIdxs[chan].size1;
+			//samplesWritten += dataBufferIdxs[chan].size1;
 
 			if (dataBufferIdxs[chan].size2 > 0)
 			{
@@ -215,7 +215,7 @@ void RecordThread::writeData(const AudioBuffer<float>& dataBuffer,
 						dataBufferIdxs[chan].index2), // pointer to float
 					dataBufferIdxs[chan].size2); // integer
 
-				samplesWritten += dataBufferIdxs[chan].size2;
+				//samplesWritten += dataBufferIdxs[chan].size2;
 			}
 		}
 	}

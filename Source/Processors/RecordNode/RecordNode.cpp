@@ -785,7 +785,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 		int streamIndex = -1;
 		int channelIndex = -1;
 
-		for (auto stream : getDataStreams())
+		for (auto stream : dataStreams)
 		{
 
 			streamIndex++;
@@ -793,21 +793,22 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 			const uint16 streamId = stream->getStreamId();
 
             uint32 numSamples = getNumSamplesInBlock(streamId);
-            
-            int64 firstSampleNumberInBlock = getFirstSampleNumberForBlock(streamId);
 
-			if (numSamples == 0)
-				continue;
+			int64 sampleNumber = getFirstSampleNumberForBlock(streamId);
 
-			double first = synchronizer->convertTimestamp(streamId, firstSampleNumberInBlock);
-			double second = synchronizer->convertTimestamp(streamId, firstSampleNumberInBlock + 1);
+			if (numSamples > 0)
+			{
+				double first = synchronizer->convertTimestamp(streamId, sampleNumber);
+				double second = synchronizer->convertTimestamp(streamId, sampleNumber + 1);
 
-			fifoUsage[streamId] = dataQueue->writeSynchronizedTimestamps(
+				fifoUsage[streamId] = dataQueue->writeSynchronizedTimestamps(
 					first,
 					second - first,
 					streamIndex,
 					numSamples);
 
+			}
+			
 			for (auto channel : stream->getContinuousChannels())
 			{
 
@@ -816,11 +817,15 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 
 					channelIndex++;
 
-					dataQueue->writeChannel(buffer,
-											channelMap[channelIndex],
-											channelIndex,
-											numSamples,
-                                            firstSampleNumberInBlock);
+					if (numSamples > 0)
+					{
+						dataQueue->writeChannel(buffer,
+							channelMap[channelIndex],
+							channelIndex,
+							numSamples,
+							sampleNumber);
+					}
+					
 
 				}
 			}

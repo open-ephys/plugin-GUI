@@ -92,9 +92,9 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 	}
 	if (bIndex < 0)
 	{
-		LOGE("Memory block unloaded ahead of time for chan", channel, " start ", startPos, " ns ", nSamples);
-		for (int i = 0; i < m_nChannels; i++)
-			LOGE("CH: ", i, " last block ", m_currentBlock[i]); 
+		//LOGE("Memory block unloaded ahead of time for chan", channel, " start ", startPos, " ns ", nSamples);
+		//for (int i = 0; i < m_nChannels; i++)
+		//	LOGE("CH: ", i, " last block ", m_currentBlock[i]); 
 		return false;
 	}
 	int writtenSamples = 0;

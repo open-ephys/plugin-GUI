@@ -77,7 +77,7 @@ public:
     void setEngine(RecordEngine* engine);
 
 	RecordNode *recordNode;
-	int64 samplesWritten;
+	//int64 samplesWritten;
 
 private:
 

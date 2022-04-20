@@ -77,14 +77,7 @@ int DataBuffer::addToBuffer (float* data,
     int cSize = 0;
     int idx = 0;
     int blkIdx;
-
-	if (numItems > 0)
-    {
-        lastSampleNumber = sampleNumbers[numItems-1];
-        lastTimestamp = timestamps[numItems-1];
-    }
         
-
     for (int i = 0; bs[i] != 0; ++i)
     {                                // for each of the dest blocks we can write to...
         blkIdx = 0;
@@ -155,6 +148,7 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
     }
     else
     {
+       // std::cout << "NO SAMPLES" << std::endl;
 		memcpy(blockSampleNumber, &lastSampleNumber, 8);
         memcpy(blockTimestamp, &lastTimestamp, 8);
     }
@@ -171,6 +165,17 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
                            blockSize2);     // numSamples
         }
         memcpy (eventCodes + blockSize1, eventCodeBuffer + startIndex2, blockSize2 * 8);
+    }
+
+   // std::cout << "START SAMPLE FOR READ: " << *blockSampleNumber << std::endl;
+    
+    if (numItems > 0)
+    {
+
+        lastSampleNumber = *blockSampleNumber;
+        lastTimestamp = *blockTimestamp;
+
+       // std::cout << "Updating last sample number: " << lastSampleNumber << std::endl;
     }
 
     abstractFifo.finishedRead (numItems);

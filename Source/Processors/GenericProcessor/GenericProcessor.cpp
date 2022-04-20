@@ -1158,6 +1158,8 @@ void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
 		nSamples,
 		m_initialProcessTime);
 
+    
+
 	m_currentMidiBuffer->addEvent(data, dataSize, 0);
 
 	//since the processor generating the timestamp won't get the event, add it to the map
@@ -1202,6 +1204,9 @@ int GenericProcessor::processEventBuffer()
                 double startTimestamp = *reinterpret_cast<const double*>(dataptr + 16);
 				uint32 nSamples = *reinterpret_cast<const uint32*>(dataptr + 24);
 				int64 initialTicks = *reinterpret_cast<const int64*>(dataptr + 28);
+
+               // if (startSamplesForBlock[sourceStreamId] > startSample)
+                //    std::cout << "GET: " << getNodeId() << " " << sourceStreamId << " " << startSamplesForBlock[sourceStreamId] << " " << startSample << std::endl;
 				
                 startSamplesForBlock[sourceStreamId] = startSample;
                 startTimestampsForBlock[sourceStreamId] = startTimestamp;
