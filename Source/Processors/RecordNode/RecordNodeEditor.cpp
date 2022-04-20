@@ -118,16 +118,6 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 
 	desiredWidth = 150;
 
-    startTimer(1000);
-
-}
-
-void RecordNodeEditor::timerCallback()
-{
-    stopTimer();
-    updateFifoMonitors();
-    showFifoMonitors(true);
-    fifoDrawerButton->setEnabled(false);
 }
 
 void RecordNodeEditor::startRecording()
@@ -433,9 +423,9 @@ void FifoDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonD
 	if (isMouseOver)
 		g.setColour(Colour(210, 210, 210));
 
-	//g.drawVerticalLine(3, 0.0f, getHeight());
+	g.drawVerticalLine(3, 0.0f, getHeight());
 	g.drawVerticalLine(5, 0.0f, getHeight());
-	//g.drawVerticalLine(7, 0.0f, getHeight());
+	g.drawVerticalLine(7, 0.0f, getHeight());
 }
 
 SyncControlButton::SyncControlButton(RecordNode* _node, const String& name, uint64 streamId)
