@@ -291,10 +291,12 @@ void Synchronizer::addEvent(uint16 streamId, int ttlLine, int64 sampleNumber)
 	if (streamCount == 1)
 		return;
 
+	//LOGC("Synchronizer received sync event for stream ", streamId);
+
 	if (streams[streamId]->syncLine == ttlLine)
 	{
 
-		//LOGD("Synchronizer received sync event for stream ", streamId);
+		//LOGC("Correct line!");
 
 		if (!syncWindowIsOpen)
 		{
@@ -324,16 +326,14 @@ void Synchronizer::addEvent(uint16 streamId, int ttlLine, int64 sampleNumber)
 					stream->setMainTime(mainTimeSec);
 			}
 
-
-			///if (eventCount % 10 == 0)
-			//LOGD("[M] Main time: ", mainTimeSec);
-			//
+			//LOGC("[M] Main time: ", mainTimeSec);
 
 			eventCount++;
 		}
 
-		//LOGD("[T] Estimated time: ", convertTimestamp(streamId, sampleNumber));
-		//LOGD("[S] Is synchronized: ", streams[streamId]->isSynchronized);
+		//LOGC("[T] Estimated time: ", convertTimestamp(streamId, sampleNumber));
+		//LOGC("[S] Is synchronized: ", streams[streamId]->isSynchronized);
+		//LOGC(" ");
 
 	}
 }

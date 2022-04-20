@@ -82,14 +82,6 @@ RecordNode::RecordNode()
 
 RecordNode::~RecordNode()
 {
-    //previousEngines.add(recordEngine.get());
-    //recordEngine.release();//
-    
-    //for (auto engine : previousEngines)
-    //{
-     //   delete engine;
-     //   engine = nullptr;
-    //}/
 }
 
 
@@ -159,14 +151,10 @@ void RecordNode::setEngine(String id)
 	{
 		if (engine->getID().compare(id) == 0)
         {
-            //recordEngine.release();
             if (recordEngine.get() != nullptr)
             {
                 if (recordEngine->getEngineId() != id)
                 {
-                    //previousEngines.add(recordEngine.get());
-                    
-                    //recordEngine.release();
                     recordEngine.reset(engine->instantiateEngine());
                     
                     if (recordThread != nullptr)
