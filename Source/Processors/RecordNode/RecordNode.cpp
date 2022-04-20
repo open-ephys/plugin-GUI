@@ -698,32 +698,6 @@ void RecordNode::handleTimestampSyncTexts(const EventPacket& packet)
     eventQueue->addEvent(packet, sampleNumber, -1);
 }
 
-void RecordNode::writeInitialEventStates()
-{
-
-	for (auto& channel : eventChannels) {
-
-		if (channel->getType() == EventChannel::TTL) {
-
-			for (int i = 0; i < channel->getMaxTTLBits(); i++)
-			{
-				TTLEventPtr event = TTLEvent::createTTLEvent(channel, 0, i, false, 0);
-
-				size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
-
-				HeapBlock<char> buffer(size);
-
-				event->serialize(buffer, size);
-
-				handleEvent(channel, EventPacket(buffer, size));
-			}
-
-		}
-
-	}
-
-}
-
 void RecordNode::process(AudioBuffer<float>& buffer)
 
 {
@@ -738,11 +712,9 @@ void RecordNode::process(AudioBuffer<float>& buffer)
         
 		if (!setFirstBlock)
 		{
-            //std::cout << "Set first block" << std::endl;
-            
+
 			MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
 			HeapBlock<char> data;
-            //std::cout << "Got midi buffer" << std::endl;
 
 			size_t dataSize =
                 SystemEvent::fillTimestampSyncTextData(
@@ -753,19 +725,13 @@ void RecordNode::process(AudioBuffer<float>& buffer)
                      -1.0,
                      true);
             
-            //std::cout << "Got software timestamp" << std::endl;
-
 			handleTimestampSyncTexts(EventPacket(data, dataSize));
-
-            //std::cout << "Write initial events" << std::endl;
-			writeInitialEventStates();
 
 			for (auto stream : getDataStreams())
 			{
 
 				const uint16 streamId = stream->getStreamId();
 
-                //std::cout << "Getting first sample for " << streamId << std::endl;
 				int64 firstSampleNumberInBlock = getFirstSampleNumberForBlock(streamId);
 
 				MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer(this);
@@ -775,7 +741,6 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 
 				size_t dataSize = SystemEvent::fillTimestampSyncTextData(data, src, streamId, firstSampleNumberInBlock, -1.0, false);
 
-                //std::cout << "Sync texts for " << streamId << std::endl;
 				handleTimestampSyncTexts(EventPacket(data, dataSize));
 			}
 		}

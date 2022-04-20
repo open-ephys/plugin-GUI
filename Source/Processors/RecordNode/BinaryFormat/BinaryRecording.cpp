@@ -203,11 +203,18 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         jsonChannel->setProperty("folder_name", eventName.replace(File::getSeparatorString(), "/"));
         jsonChannel->setProperty("channel_name", chan->getName());
         jsonChannel->setProperty("description", chan->getDescription());
+        
         jsonChannel->setProperty("identifier", chan->getIdentifier());
         jsonChannel->setProperty("sample_rate", chan->getSampleRate());
         jsonChannel->setProperty("type", jsonTypeValue(type.getType()));
         jsonChannel->setProperty("source_processor", chan->getSourceNodeName());
         jsonChannel->setProperty("stream_name", chan->getStreamName());
+
+        if (chan->getType() == EventChannel::TTL)
+        {
+            jsonChannel->setProperty("initial_state", int(chan->getTTLWord()));
+        }
+        
         createChannelMetadata(chan, jsonChannel);
 
         //rec->metaDataFile = createEventMetadataFile(chan, eventPath + eventName + "metadata.npy", jsonChannel);

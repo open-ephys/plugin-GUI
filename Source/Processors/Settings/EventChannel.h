@@ -149,7 +149,7 @@ public:
 	void setLineState(int line, bool state);
 
 	/** Returns the current 64-bit TTL word for this channel */
-	uint64 getTTLWord();
+	uint64 getTTLWord() const;
 
 private:
 

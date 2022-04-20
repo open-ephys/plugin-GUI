@@ -145,9 +145,6 @@ public:
 	/** Updates the channels to record for a given stream */
 	void updateChannelStates(uint16 streamId, std::vector<bool> enabled);
 
-	/** Writes the initial state for all event channels*/
-	void writeInitialEventStates();
-
 	/** Copies incoming data to the record buffer, if recording is active*/
 	void process(AudioBuffer<float>& buffer) override;
 

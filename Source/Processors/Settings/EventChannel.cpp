@@ -126,7 +126,7 @@ void EventChannel::setLineState(int line, bool state)
 	
 }
 
-uint64 EventChannel::getTTLWord()
+uint64 EventChannel::getTTLWord() const
 {
 	return m_TTLWord;
 }
