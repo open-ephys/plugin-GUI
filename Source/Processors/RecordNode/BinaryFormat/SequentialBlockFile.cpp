@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2013 Open Ephys
+Copyright (C) 2022 Open Ephys
 
 ------------------------------------------------------------------
 
@@ -105,15 +105,12 @@ bool SequentialBlockFile::writeChannel(uint64 startPos, int channel, int16* data
 
 	while (writtenSamples < nSamples)
 	{
-		int16* blockPtr = m_memBlocks[bIndex]->getData();
+		
+        int16* blockPtr = m_memBlocks[bIndex]->getData();
 		int samplesToWrite = jmin((nSamples - writtenSamples), (m_samplesPerBlock - startIdx));
-		for (int i = 0; i < samplesToWrite; i++)
+		
+        for (int i = 0; i < samplesToWrite; i++)
 		{
-			//if (writtenSamples == 0 && *(data + dataIdx) == 0)
-			//{
-			// LOGDD("Found a zero.");
-			//  break;
-			//}
 
 			*(blockPtr + startMemPos + channel + i*m_nChannels) = *(data + dataIdx);
 			dataIdx++;

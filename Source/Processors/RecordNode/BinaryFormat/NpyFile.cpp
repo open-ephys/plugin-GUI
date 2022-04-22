@@ -2,7 +2,7 @@
 ------------------------------------------------------------------
 
 This file is part of the Open Ephys GUI
-Copyright (C) 2017 Open Ephys
+Copyright (C) 2022 Open Ephys
 
 ------------------------------------------------------------------
 
@@ -48,6 +48,7 @@ NpyFile::NpyFile(String path, const Array<NpyType>& typeList)
 
     if (!openFile(path))
         return;
+    
     writeHeader(typeList);
 }
 
@@ -74,30 +75,14 @@ bool NpyFile::openFile(String path)
         Result res = file.create();
         LOGD("Re-creating file: ", path);
     }
-    
-    //file.deleteFile(); // overwrite, never append a new .npy file to end of an existing one
-    // output stream buffer size defaults to 32768 bytes, but is irrelevant because
-    // each updateHeader() call triggers a m_file->flush() to disk:
-    m_file = file.createOutputStream();
 
-    /*
-    if (m_file == nullptr)
-    {
-        LOGD("FAILED to open file @", path);
-    }
-    else
-    {
-        String pad = "";
-        for (int i = 0; i < 162 - path.length(); i++)
-            pad += " ";
-        LOGD("Successfully opened file @", path, pad, m_file);
-    }
-    */
+    m_file = file.createOutputStream();
     
     if (!m_file)
         return false;
 
     m_okOpen = true;
+    
     return true;
 }
 
