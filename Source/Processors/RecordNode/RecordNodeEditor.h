@@ -106,7 +106,7 @@ private:
 };
 
 class RecordNodeEditor : 
-	public GenericEditor, 
+	public GenericEditor, public Timer,
 		   ComboBox::Listener, 
 	       Label::Listener,
 		   Button::Listener
@@ -127,6 +127,9 @@ public:
 
 	/** Shows/hides FIFO Monitors*/
 	void showFifoMonitors(bool);
+
+	/** Automatically opens the drawer to reveal FIFO Monitors */
+	void timerCallback();
 
 	/** Updates the local directory for this Record Node*/
 	void setDataDirectory(String dir);
