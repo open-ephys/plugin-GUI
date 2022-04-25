@@ -78,17 +78,18 @@ void LfpDisplayNode::updateSettings()
         const ContinuousChannel* channel = continuousChannels[ch];
 
         uint16 streamId = channel->getStreamId();
+        String name = channel->getStreamName();
 
         if (displayBufferMap.count(streamId) == 0)
         {
-            String name = channel->getStreamName();
-
+            
             displayBuffers.add(new DisplayBuffer(streamId, name, channel->getSampleRate()));
             displayBufferMap[streamId] = displayBuffers.getLast();
 
         }
         else {
             displayBufferMap[streamId]->sampleRate = channel->getSampleRate();
+            displayBufferMap[streamId]->name = name;
         }
 
         displayBufferMap[streamId]->addChannel(channel->getName(), // name
