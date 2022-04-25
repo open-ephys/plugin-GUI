@@ -556,7 +556,7 @@ void GenericProcessor::setStreamEnabled(uint16 streamId, bool isEnabled)
 int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
 {
 
-    //std::cout << "Finding best matching saved parameters for " << stream->getName() << " (" << stream->getNodeId() << ")" << std::endl;
+   // std::cout << "Finding best matching saved parameters for " << stream->getName() << " (" << stream->getNodeId() << ")" << std::endl;
     
     for (int i = 0; i < savedDataStreamParameters.size(); i++)
     {
@@ -565,7 +565,7 @@ int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
         // matching ID --> perfect match
         if (params->owner.streamId == stream->getStreamId())
         {
-            //std::cout << "Found matching ID." << std::endl;
+           // std::cout << "Found matching ID: " << params->owner.streamId << std::endl;
             return i;
         }
 
@@ -590,7 +590,7 @@ int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
                 if (otherStream != stream && params->owner.streamId == otherStream->getStreamId())
                 {
                     betterMatch = true;
-                    //std::cout << "...but found another stream with matching ID" << std::endl;
+                   // std::cout << "...but found another stream with matching ID" << std::endl;
                 }
             }
 
@@ -904,8 +904,8 @@ void GenericProcessor::update()
     /// UPDATE PARAMETERS FOR STREAMS
 	for (auto stream : dataStreams)
 	{
-		//LOGD( "Stream ", stream->getStreamId(), " - ", stream->getName(), " num channels: ", stream->getChannelCount());
-        //LOGD("Number of saved params: ", savedDataStreamParameters.size());
+		//LOGC( "Stream ", stream->getStreamId(), " - ", stream->getName(), " num channels: ", stream->getChannelCount());
+        //LOGC("Number of saved params: ", savedDataStreamParameters.size());
 
         if (savedDataStreamParameters.size() > 0)
         {
@@ -969,9 +969,10 @@ void GenericProcessor::update()
                     else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
                     {
                         MaskChannelsParameter* p = (MaskChannelsParameter*)param;
-                        p->setChannelCount(stream->getChannelCount());
-                        p->setDataStream(stream);
-                        stream->addParameter(new MaskChannelsParameter(*p));
+                        MaskChannelsParameter* p2 = new MaskChannelsParameter(*p);
+                        p2->setChannelCount(stream->getChannelCount());
+                        p2->setDataStream(stream);
+                        stream->addParameter(p2);
                     }
                 }
             }

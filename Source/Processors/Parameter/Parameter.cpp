@@ -571,12 +571,17 @@ void MaskChannelsParameter::setChannelCount(int count)
     if (channelCount < count)
     {
         for (int i = channelCount; i < count; i++)
+        {
             value->add(i);
-        
-    } else if (channelCount > count)
+        }
+    }
+    else if (channelCount > count)
     {
         for (int i = count; i < channelCount; i++)
+        {
             value->remove(value->indexOf(var(i)));
+        }
+            
     }
     
     channelCount = count;
