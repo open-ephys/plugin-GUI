@@ -118,6 +118,15 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 
 	desiredWidth = 150;
 
+	startTimer(1000);
+
+}
+
+void RecordNodeEditor::timerCallback()
+{
+	fifoDrawerButton->triggerClick();
+	stopTimer();
+	//fifoDrawerButton->setEnabled(false);
 }
 
 void RecordNodeEditor::startRecording()
@@ -192,43 +201,39 @@ void RecordNodeEditor::setEngine(String id)
 
 void RecordNodeEditor::updateFifoMonitors()
 {
-	LOGD("Update FIFO monitors.");
 
-	if (recordNode->getNumDataStreams() != streamMonitors.size())
+	LOGD("Update FIFO monitors 2.");
+	streamLabels.clear();
+	streamMonitors.clear();
+	streamRecords.clear();
+
+	int streamCount = 0;
+
+	if (recordNode->getNumDataStreams() == 0)
+		return;
+
+	LOGD("Update FIFO monitors 3.");
+
+	for (auto const& [streamId, channelStates] : recordNode->recordContinuousChannels)
 	{
 
-		LOGD("Update FIFO monitors 2.");
-		streamLabels.clear();
-		streamMonitors.clear();
-		streamRecords.clear();
+		LOGD("Update FIFO monitors 4.");
+		streamMonitors.add(new FifoMonitor(recordNode, streamId, recordNode->getDataStream(streamId)->getName()));
+		streamMonitors.getLast()->setBounds(18 + streamCount * 20, 32, 15, 73);
+		addAndMakeVisible(streamMonitors.getLast());
+		streamMonitors.getLast()->setVisible(false);
 
-		int streamCount = 0;
+		LOGD("Adding sync control button for stream id: ", streamId);
+		streamRecords.add(new SyncControlButton(recordNode, "SP" + String(streamCount), streamId));
+		streamRecords.getLast()->setBounds(18 + streamCount * 20, 110, 15, 15);
+		streamRecords.getLast()->addListener(this);
+		addAndMakeVisible(streamRecords.getLast());
+		streamRecords.getLast()->setVisible(false);
 
-		if (recordNode->getNumDataStreams() == 0)
-			return;
+		streamCount++;
 
-		LOGD("Update FIFO monitors 3.");
-
-		for (auto const& [streamId, channelStates] : recordNode->recordContinuousChannels)
-		{
-
-			LOGD("Update FIFO monitors 4.");
-			streamMonitors.add(new FifoMonitor(recordNode, streamId, recordNode->getDataStream(streamId)->getName()));
-			streamMonitors.getLast()->setBounds(18 + streamCount * 20, 32, 15, 73);
-			addAndMakeVisible(streamMonitors.getLast());
-			streamMonitors.getLast()->setVisible(false);
-
-			LOGD("Adding sync control button for stream id: ", streamId);
-			streamRecords.add(new SyncControlButton(recordNode, "SP" + String(streamCount), streamId));
-			streamRecords.getLast()->setBounds(18 + streamCount * 20, 110, 15, 15);
-			streamRecords.getLast()->addListener(this);
-			addAndMakeVisible(streamRecords.getLast());
-			streamRecords.getLast()->setVisible(false);
-
-			streamCount++;
-
-		}
 	}
+
 }
 
 void RecordNodeEditor::updateSettings()
@@ -423,9 +428,9 @@ void FifoDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonD
 	if (isMouseOver)
 		g.setColour(Colour(210, 210, 210));
 
-	g.drawVerticalLine(3, 0.0f, getHeight());
+	//g.drawVerticalLine(3, 0.0f, getHeight());
 	g.drawVerticalLine(5, 0.0f, getHeight());
-	g.drawVerticalLine(7, 0.0f, getHeight());
+	//g.drawVerticalLine(7, 0.0f, getHeight());
 }
 
 SyncControlButton::SyncControlButton(RecordNode* _node, const String& name, uint64 streamId)
