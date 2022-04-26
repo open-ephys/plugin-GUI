@@ -81,7 +81,7 @@ jobs:
       env:
         artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
       run: |
-        gui_ver="v0.6.0-rc2"
+        gui_ver="v0.6.0-rc3"
         cd Build
         cp -r Release open-ephys
         cp ../LICENSE open-ephys

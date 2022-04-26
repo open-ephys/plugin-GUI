@@ -13,7 +13,6 @@ on:
     - 'HelperFunctions.cmake'
 
 jobs:
-
   build-windows:
 
     runs-on: ${{ matrix.os }}
@@ -32,67 +31,67 @@ jobs:
     - name: build
       run: |
         msbuild Build/ALL_BUILD.vcxproj -p:Configuration=Release -p:Platform=x64
-#    - name: test
-#      run: cd build && ctest
-#    - name: deploy_test
-#      if: github.ref == 'refs/heads/testing'
-#      env:
-#        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
-#      run: |
-#        cd Build
-#        cp -r Release open-ephys
-#        cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
-#        cp -r ../Resources/DataFiles open-ephys
-#        cp ../LICENSE open-ephys
-#        gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
-#        zipfile=open-ephys-${gui_ver}-windows-beta.zip
-#        powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
-#        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-#        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Test/windows/$zipfile"
-#        cd ../Resources/Installers/Windows
-#        iscc "windows_installer_script.iss"
-#        installer=Install-Open-Ephys-GUI-${gui_ver}-beta.exe
-#        mv Open-Ephys_Installer.exe $installer
-#        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Test-Installer/windows/$installer"
-#      shell: bash
-#    - name: deploy_release
-#      if: github.ref == 'refs/heads/master'
-#      env:
-#        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
-#      run: |
-#        cd Build
-#        cp -r Release open-ephys
-#        cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
-#        cp -r ../Resources/DataFiles open-ephys
-#        cp ../LICENSE open-ephys
-#        gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
-#        zipfile=open-ephys-${gui_ver}-windows.zip
-#        powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
-#        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-#        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Release/windows/$zipfile"
-#        cd ../Resources/Installers/Windows
-#        iscc "windows_installer_script.iss"
-#        installer=Install-Open-Ephys-GUI-${gui_ver}.exe
-#        mv Open-Ephys_Installer.exe $installer
-#        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Release-Installer/windows/$installer"
-#      shell: bash
-#    - name: deploy_dev
-#      if: github.ref == 'refs/heads/development-juce6'
-#      env:
-#        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
-#      run: |
-#        cd Build
-#        cp -r Release open-ephys
-#        cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
-#        cp ../LICENSE open-ephys
-#        gui_ver="v0.6.0-rc2"
-#        zipfile=open-ephys-${gui_ver}-windows-beta.zip
-#        powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
-#        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-#        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Test/windows/$zipfile"
-#        cd ../Resources/Installers/Windows
-#        iscc "windows_installer_script.iss"
-#        installer=Install-Open-Ephys-GUI-${gui_ver}-beta.exe
-#        mv Open-Ephys_Installer.exe $installer
-#        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Test-Installer/windows/$installer"
-#      shell: bash
+#   - name: test
+#     run: cd build && ctest
+    - name: deploy_test
+      if: github.ref == 'refs/heads/testing'
+      env:
+        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+      run: |
+        cd Build
+        cp -r Release open-ephys
+        cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
+        cp -r ../Resources/DataFiles open-ephys
+        cp ../LICENSE open-ephys
+        gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
+        zipfile=open-ephys-${gui_ver}-windows-beta.zip
+        powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
+        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
+        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Test/windows/$zipfile"
+        cd ../Resources/Installers/Windows
+        iscc "windows_installer_script.iss"
+        installer=Install-Open-Ephys-GUI-${gui_ver}-beta.exe
+        mv Open-Ephys_Installer.exe $installer
+        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Test-Installer/windows/$installer"
+      shell: bash
+    - name: deploy_release
+      if: github.ref == 'refs/heads/master'
+      env:
+        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+      run: |
+        cd Build
+        cp -r Release open-ephys
+        cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
+        cp -r ../Resources/DataFiles open-ephys
+        cp ../LICENSE open-ephys
+        gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
+        zipfile=open-ephys-${gui_ver}-windows.zip
+        powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
+        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
+        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Release/windows/$zipfile"
+        cd ../Resources/Installers/Windows
+        iscc "windows_installer_script.iss"
+        installer=Install-Open-Ephys-GUI-${gui_ver}.exe
+        mv Open-Ephys_Installer.exe $installer
+        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Release-Installer/windows/$installer"
+      shell: bash
+    - name: deploy_dev
+      if: github.ref == 'refs/heads/development-juce6'
+      env:
+        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+      run: |
+        cd Build
+        cp -r Release open-ephys
+        cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
+        cp ../LICENSE open-ephys
+        gui_ver="v0.6.0-rc3"
+        zipfile=open-ephys-${gui_ver}-windows-beta.zip
+        powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
+        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
+        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Test/windows/$zipfile"
+        cd ../Resources/Installers/Windows
+        iscc "windows_installer_script.iss"
+        installer=Install-Open-Ephys-GUI-${gui_ver}-beta.exe
+        mv Open-Ephys_Installer.exe $installer
+        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Test-Installer/windows/$installer"
+      shell: bash
