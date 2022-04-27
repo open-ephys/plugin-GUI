@@ -627,6 +627,19 @@ void EditorViewport::paste()
 
             for (auto xml : copyBuffer)
             {
+                for (auto* element : xml->getChildWithTagNameIterator("EDITOR"))
+                {
+                    for (auto* subelement : element->getChildWithTagNameIterator("WINDOW"))
+                    {
+                        subelement->setAttribute("Active", 0);
+                        subelement->setAttribute("Index", -1);
+                    }
+                    
+                    for (auto* subelement : element->getChildWithTagNameIterator("TAB"))
+                    {
+                        subelement->setAttribute("Active", 0);
+                    }
+                }
                 processorInfo.add(xml);
             }
 
