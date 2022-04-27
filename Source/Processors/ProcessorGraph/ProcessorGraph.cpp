@@ -477,6 +477,8 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
         //updateViews(processor);
         return;
     }
+
+    getMessageCenter()->addSpecialProcessorChannels();
         
     GenericProcessor* processorToUpdate = processor;
     
@@ -1020,7 +1022,7 @@ void ProcessorGraph::updateConnections()
                 connectProcessors(conn.source, dest, conn.connectContinuous, conn.connectEvents);
             }
         }
-   }
+    }
 
 } // end method
 
