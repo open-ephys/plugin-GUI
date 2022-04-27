@@ -270,14 +270,8 @@ void ChannelMappingEditor::mouseDrag(const MouseEvent& e)
 
     if (reorderActive)
     {
-        //std::cout << "Active " << std::endl;
-
         if (!isDragging) 
         {
-            //std::cout << "Not dragging " << std::endl;
-
-            std::cout << e.originalComponent->getName() << std::endl;
-
             if (electrodeButtons.contains((ElectrodeButton*) e.originalComponent))
             {
                 ElectrodeButton* button = (ElectrodeButton*)e.originalComponent;
@@ -285,8 +279,6 @@ void ChannelMappingEditor::mouseDrag(const MouseEvent& e)
 
                 String desc = "EditorDrag/MAP/";
                 desc += button->getChannelNum();
-
-                std::cout << desc << std::endl;
 
                 const String dragDescription = desc;
 
