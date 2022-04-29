@@ -81,21 +81,21 @@ jobs:
       env:
         artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
       run: |
-        gui_ver="v0.6.0-rc3"
+        gui_ver="v0.6.0-dev"
         cd Build
         cp -r Release open-ephys
         cp ../LICENSE open-ephys
-        zipfile=open-ephys-${gui_ver}-linux-beta.zip
+        zipfile=open-ephys-${gui_ver}-linux.zip
         zip -r $zipfile open-ephys
         user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Test/linux/$zipfile"
+        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Dev/linux/$zipfile"
         cd ../Resources/Installers/Linux/Open-Ephys_Installer
         mkdir -p usr/local/bin/open-ephys-gui
         cp -r ../../../../Build/Release/* usr/local/bin/open-ephys-gui
         cp ../../../Scripts/40-open-ephys.rules usr/local/bin/open-ephys-gui
         cd ..
         dpkg-deb --build Open-Ephys_Installer
-        installer=open-ephys-gui-${gui_ver}-beta.deb
+        installer=open-ephys-gui-${gui_ver}.deb
         mv -v Open-Ephys_Installer.deb $installer
-        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Test-Installer/linux/$installer"
+        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Dev-Installer/linux/$installer"
       shell: bash
