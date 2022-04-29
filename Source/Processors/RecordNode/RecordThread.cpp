@@ -100,18 +100,7 @@ void RecordThread::run()
 
 	bool closeEarly = true;
 
-	//1-Wait until the first block has arrived, so we can align the timestamps
-	bool isWaiting = false;
-	while (!m_receivedFirstBlock && !threadShouldExit())
-	{
-		if (!isWaiting)
-		{
-			isWaiting = true;
-		}
-		wait(1);
-	}
-
-	//2-Open Files
+	//1-Open Files
 	if (!threadShouldExit())
 	{
 		m_cleanExit = false;
@@ -123,6 +112,18 @@ void RecordThread::run()
 
 		m_engine->openFiles(m_rootFolder, m_experimentNumber, m_recordingNumber);
 	}
+
+	//2-Wait until the first block has arrived, so we can align the timestamps
+	bool isWaiting = false;
+	while (!m_receivedFirstBlock && !threadShouldExit())
+	{
+		if (!isWaiting)
+		{
+			isWaiting = true;
+		}
+		wait(1);
+	}
+
 	//3-Normal loop
 	while (!threadShouldExit())
 		writeData(dataBuffer, ftsBuffer, BLOCK_MAX_WRITE_SAMPLES, BLOCK_MAX_WRITE_EVENTS, BLOCK_MAX_WRITE_SPIKES);

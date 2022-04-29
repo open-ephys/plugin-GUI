@@ -72,7 +72,7 @@ void DataQueue::setChannelCount(int nChans)
 		m_fifos.add(new AbstractFifo(m_maxSize));
 		m_readSamples.add(0);
 		m_sampleNumbers.add(new Array<int64>());
-		m_sampleNumbers.getLast()->resize(m_numBlocks);
+		m_sampleNumbers.getLast()->insertMultiple(0, 0, m_numBlocks);
 		m_lastReadSampleNumbers.add(0);
 	}
 	m_buffer.setSize(nChans, m_maxSize);

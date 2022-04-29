@@ -472,18 +472,6 @@ bool RecordNode::startAcquisition()
     eventChannels.getLast()->addProcessor(processorInfo.get());
     eventChannels.getLast()->setDataStream(getDataStream(synchronizer->mainStreamId), false);
 
-	if (hasRecorded)
-	{
-		hasRecorded = false;
-		experimentNumber++;
-		settingsNeeded = true;
-	}
-
-	recordingNumber = 0;
-	recordEngine->configureEngine();
-	synchronizer->reset();
-	eventMonitor->reset();
-
     return true;
 
 }
@@ -495,6 +483,18 @@ bool RecordNode::stopAcquisition()
 	eventChannels.removeLast();
 
 	eventMonitor->displayStatus();
+
+	if (hasRecorded)
+	{
+		hasRecorded = false;
+		experimentNumber++;
+		settingsNeeded = true;
+	}
+
+	recordingNumber = 0;
+	recordEngine->configureEngine();
+	synchronizer->reset();
+	eventMonitor->reset();
 
 	return true;
 }
