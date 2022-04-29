@@ -33,6 +33,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../../Utils/Utils.h"
 
+
+
 /**
  *
  * Represents an incoming data stream
@@ -203,6 +205,30 @@ private:
     OwnedArray<Stream> dataStreamObjects;
 
     void openSyncWindow();
+};
+
+/**
+ 
+    Abstract base class for Record Node and Event Translator
+ 
+ */
+class SynchronizingProcessor
+{
+public:
+    /** Sets the main data stream to use for synchronization */
+    void setMainDataStream(uint16 streamId);
+
+    /** Returns true if a stream ID matches the one to use for sychronization*/
+    bool isMainDataStream(uint16 streamId);
+
+    /** Sets the TTL line to use for synchronization*/
+    void setSyncLine(uint16 streamId, int line);
+
+    /** Returns the TTL line to use for synchronization*/
+    int getSyncLine(uint16 streamId);
+    
+    /** The synchronizer for this processor */
+    Synchronizer synchronizer;
 };
 
 #endif //SYNCHRONIZER_H_INCLUDED

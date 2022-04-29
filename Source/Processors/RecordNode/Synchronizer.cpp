@@ -181,9 +181,13 @@ void Synchronizer::finishedUpdate()
 
 void Synchronizer::addDataStream(uint16 streamId, float expectedSampleRate)
 {
+    
+    std::cout << "Synchronizer adding " << streamId << std::endl;
 	// if this is the first stream, make it the main one
 	if (mainStreamId == 0)
 		mainStreamId = streamId;
+    
+    std::cout << "Main stream ID: " << mainStreamId << std::endl;
 
 	// if there's a stored value, and it appears again,
 	// re-instantiate this as the main stream
@@ -193,6 +197,7 @@ void Synchronizer::addDataStream(uint16 streamId, float expectedSampleRate)
 	// if there's no Stream object yet, create a new one
 	if (streams.count(streamId) == 0)
 	{
+        std::cout << "Creating new Stream object" << std::endl;
 		dataStreamObjects.add(new Stream(streamId, expectedSampleRate));
 		streams[streamId] = dataStreamObjects.getLast();
 		setSyncLine(streamId, 0);
@@ -341,4 +346,30 @@ void Synchronizer::hiResTimerCallback()
 		stream->closeSyncWindow();
 
 	//LOGD(" ");
+}
+
+
+// called by RecordNodeEditor (when loading), SyncControlButton
+void SynchronizingProcessor::setMainDataStream(uint16 streamId)
+{
+    LOGD("Setting ", streamId, " as the main stream");
+    synchronizer.setMainDataStream(streamId);
+}
+
+// called by RecordNodeEditor (when loading), SyncControlButton
+void SynchronizingProcessor::setSyncLine(uint16 streamId, int line)
+{
+    synchronizer.setSyncLine(streamId, line);
+}
+
+// called by SyncControlButton
+int SynchronizingProcessor::getSyncLine(uint16 streamId)
+{
+    return synchronizer.getSyncLine(streamId);
+}
+
+// called by SyncControlButton
+bool SynchronizingProcessor::isMainDataStream(uint16 streamId)
+{
+    return (streamId == synchronizer.mainStreamId);
 }

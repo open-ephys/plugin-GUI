@@ -44,8 +44,6 @@ public:
     /** Creates an event for a particular stream*/
     TTLEventPtr createEvent(int64 sample_number, int line, bool state);
 
-    int syncLine;
-
     EventChannel* eventChannel;
 };
 
@@ -55,7 +53,8 @@ public:
   @see GenericProcessor
 */
 class EventTranslator :
-    public GenericProcessor
+    public GenericProcessor,
+    public SynchronizingProcessor
 {
 public:
 
@@ -64,9 +63,6 @@ public:
 
     /** Destructor */
     ~EventTranslator();
-    
-    /** Responds to parameter value changes */
-    void parameterValueChanged(Parameter* param);
 
     /** Add latest samples to the signal chain buffer */
     void process (AudioBuffer<float>& buffer) override;
@@ -77,8 +73,6 @@ public:
     /** Updates the EventTranslator settings*/
     void updateSettings() override;
 
-    
-
 private:
     
     /** Called whenever a new TTL event arrives*/
@@ -88,8 +82,6 @@ private:
 
     StreamSettings<EventTranslatorSettings> settings;
     
-    uint16 mainStream;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EventTranslator);
 };
 

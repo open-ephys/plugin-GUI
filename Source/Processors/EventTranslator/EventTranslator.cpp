@@ -24,8 +24,7 @@
 #include "EventTranslator.h"
 #include "EventTranslatorEditor.h"
 
-EventTranslatorSettings::EventTranslatorSettings() :
-    syncLine(0)
+EventTranslatorSettings::EventTranslatorSettings()
 {
 
 }
@@ -59,14 +58,6 @@ AudioProcessorEditor* EventTranslator::createEditor()
     return editor.get();
 }
 
-void EventTranslator::parameterValueChanged(Parameter* param)
-{
-    //if (param->getName().equalsIgnoreCase("sync_line"))
-    //{
-    //    settings[param->getStreamId()]->syncLine = (int)param->getValue() - 1;
-    //}
-
-}
 
 void EventTranslator::updateSettings()
 {
@@ -74,19 +65,11 @@ void EventTranslator::updateSettings()
     settings.update(getDataStreams());
 
     synchronizer.prepareForUpdate();
-    
-    mainStream = 0;
-    
+
     for (auto stream : getDataStreams())
     {
         
         const uint16 streamId = stream->getStreamId();
-        
-        if (mainStream == 0)
-            mainStream = streamId;
-        
-        // update "settings" objects
-        //parameterValueChanged(stream->getParameter("sync_line"));
         
         synchronizer.addDataStream(streamId, stream->getSampleRate());
 
@@ -109,7 +92,6 @@ void EventTranslator::updateSettings()
 }
 
 
-
 void EventTranslator::process (AudioBuffer<float>& buffer)
 {
     checkForEvents();
@@ -122,15 +104,14 @@ void EventTranslator::handleTTLEvent(TTLEventPtr event)
     const int ttlLine = event->getLine();
     const int64 sampleNumber = event->getSampleNumber();
     
-    if (settings[eventStream]->syncLine == ttlLine)
+    if (synchronizer.getSyncLine(eventStream) == ttlLine)
     {
-    
         synchronizer.addEvent(eventStream, ttlLine, sampleNumber);
 
         return;
     }
     
-    if (eventStream == mainStream && synchronizer.isStreamSynced(eventStream))
+    if (eventStream == synchronizer.mainStreamId && synchronizer.isStreamSynced(eventStream))
     {
         
         //std::cout << "TRANSLATE!" << std::endl;

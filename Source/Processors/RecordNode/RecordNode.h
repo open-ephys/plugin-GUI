@@ -68,7 +68,10 @@ public:
 
 	@see: RecordThread, RecordEngine
 */
-class RecordNode : public GenericProcessor, public FilenameComponentListener
+class RecordNode :
+    public GenericProcessor,
+    public SynchronizingProcessor,
+    public FilenameComponentListener
 {
 
 public:
@@ -129,18 +132,6 @@ public:
 
 	/* Returns the "recording" count (number of times that recording was stopped and re-started)*/
 	int getRecordingNumber() const;
-
-	/** Sets the main data stream to use for synchronization */
-	void setMainDataStream(uint16 streamId);
-
-	/** Returns true if a stream ID matches the one to use for sychronization*/
-	bool isMainDataStream(uint16 streamId);
-
-	/** Sets the TTL line to use for synchronization*/
-	void setSyncLine(uint16 streamId, int line);
-
-	/** Returns the TTL line to use for synchronization*/
-	int getSyncLine(uint16 streamId);
 
 	/** Updates the channels to record for a given stream */
 	void updateChannelStates(uint16 streamId, std::vector<bool> enabled);
@@ -210,8 +201,6 @@ public:
     std::unique_ptr<RecordThread> recordThread;
 	std::shared_ptr<RecordEngine> recordEngine;
 	std::vector<RecordEngineManager*> availableEngines;
-
-	ScopedPointer<Synchronizer> synchronizer;
 
 	int64 samplesWritten;
 	String lastSettingsText;

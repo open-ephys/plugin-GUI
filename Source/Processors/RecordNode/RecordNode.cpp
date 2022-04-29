@@ -64,8 +64,6 @@ RecordNode::RecordNode()
 	eventQueue = std::make_unique<EventMsgQueue>(EVENT_BUFFER_NEVENTS);
 	spikeQueue = std::make_unique<SpikeMsgQueue>(SPIKE_BUFFER_NSPIKES);
 
-	synchronizer = new Synchronizer();
-
 	isSyncReady = true;
 
 	/* New record nodes default to the record engine currently selected in the Control Panel */
@@ -108,11 +106,11 @@ void RecordNode::handleBroadcastMessage(String msg)
     if (recordEvents && isRecording)
     {
 
-        int64 messageSampleNumber = getFirstSampleNumberForBlock(synchronizer->mainStreamId);
+        int64 messageSampleNumber = getFirstSampleNumberForBlock(synchronizer.mainStreamId);
         
         TextEventPtr event = TextEvent::createTextEvent(getMessageChannel(), messageSampleNumber, msg);
         
-        double ts = synchronizer->convertSampleNumberToTimestamp(synchronizer->mainStreamId, messageSampleNumber);
+        double ts = synchronizer.convertSampleNumberToTimestamp(synchronizer.mainStreamId, messageSampleNumber);
         
         event->setTimestampInSeconds(ts);
 
@@ -324,37 +322,13 @@ void RecordNode::updateChannelStates(uint16 streamId, std::vector<bool> channelS
     CoreServices::updateSignalChain(getEditor());
 }
 
-// called by RecordNodeEditor (when loading), SyncControlButton
-void RecordNode::setMainDataStream(uint16 streamId)
-{
-	LOGD("Setting ", streamId, " as the main stream");
-	synchronizer->setMainDataStream(streamId);
-}
-
-// called by RecordNodeEditor (when loading), SyncControlButton
-void RecordNode::setSyncLine(uint16 streamId, int line)
-{
-	synchronizer->setSyncLine(streamId, line);
-}
-
-// called by SyncControlButton
-int RecordNode::getSyncLine(uint16 streamId)
-{
-	return synchronizer->getSyncLine(streamId);
-}
-
-// called by SyncControlButton
-bool RecordNode::isMainDataStream(uint16 streamId)
-{
-	return (streamId == synchronizer->mainStreamId);
-}
 
 // called by GenericProcessor::update()
 void RecordNode::updateSettings()
 {
 
 	activeStreamIds.clear();
-	synchronizer->prepareForUpdate();
+	synchronizer.prepareForUpdate();
 
 	for (auto stream : dataStreams)
 	{
@@ -363,7 +337,7 @@ void RecordNode::updateSettings()
 
 		LOGD("Record Node found stream: (", streamId, ") ", stream->getName());
 		//activeStreamIds.add(stream->getStreamId());
-		synchronizer->addDataStream(streamId,
+		synchronizer.addDataStream(streamId,
 									stream->getSampleRate());
 
 		fifoUsage[streamId] = 0.0f;
@@ -406,7 +380,7 @@ void RecordNode::updateSettings()
 
 	}
 
-	synchronizer->finishedUpdate();
+	synchronizer.finishedUpdate();
 
 
 	// get rid of unused IDs
@@ -454,7 +428,7 @@ bool RecordNode::isSynchronized()
     for (auto stream : dataStreams)
     {
 
-        SyncStatus status = synchronizer->getStatus(stream->getStreamId());
+        SyncStatus status = synchronizer.getStatus(stream->getStreamId());
         
         if (status != SYNCED)
             return false;
@@ -469,7 +443,7 @@ bool RecordNode::startAcquisition()
 
     eventChannels.add(new EventChannel(*messageChannel));
     eventChannels.getLast()->addProcessor(processorInfo.get());
-    eventChannels.getLast()->setDataStream(getDataStream(synchronizer->mainStreamId), false);
+    eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamId), false);
 
     return true;
 
@@ -492,7 +466,7 @@ bool RecordNode::stopAcquisition()
 
 	recordingNumber = 0;
 	recordEngine->configureEngine();
-	synchronizer->reset();
+	synchronizer.reset();
 	eventMonitor->reset();
 
 	return true;
@@ -624,7 +598,7 @@ void RecordNode::handleTTLEvent(TTLEventPtr event)
 
 	int64 sampleNumber = event->getSampleNumber();
 
-	synchronizer->addEvent(event->getStreamId(), event->getLine(), sampleNumber);
+	synchronizer.addEvent(event->getStreamId(), event->getLine(), sampleNumber);
 
 	if (recordEvents && isRecording)
 	{
@@ -632,7 +606,7 @@ void RecordNode::handleTTLEvent(TTLEventPtr event)
 		size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
 
 		HeapBlock<char> buffer(size);
-        event->setTimestampInSeconds(synchronizer->convertSampleNumberToTimestamp(event->getStreamId(), sampleNumber));
+        event->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(event->getStreamId(), sampleNumber));
 		event->serialize(buffer, size);
 
 		eventQueue->addEvent(EventPacket(buffer, size), sampleNumber);
@@ -653,7 +627,7 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 
 		int eventIndex = getIndexOfMatchingChannel(eventInfo);
         
-        Event::setTimestampInSeconds(packet, synchronizer->convertSampleNumberToTimestamp(eventInfo->getStreamId(), sampleNumber));
+        Event::setTimestampInSeconds(packet, synchronizer.convertSampleNumberToTimestamp(eventInfo->getStreamId(), sampleNumber));
 
 		eventQueue->addEvent(packet, sampleNumber, eventIndex);
 
@@ -669,7 +643,7 @@ void RecordNode::handleSpike(SpikePtr spike)
 
 	if (recordSpikes)
 	{
-        spike->setTimestampInSeconds(synchronizer->convertSampleNumberToTimestamp(spike->getStreamId(),
+        spike->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(spike->getStreamId(),
                                                                     spike->getSampleNumber()));
 		writeSpike(spike, spike->getChannelInfo());
 		eventMonitor->bufferedSpikes++;
@@ -750,8 +724,8 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 
 			if (numSamples > 0)
 			{
-				double first = synchronizer->convertSampleNumberToTimestamp(streamId, sampleNumber);
-				double second = synchronizer->convertSampleNumberToTimestamp(streamId, sampleNumber + 1);
+				double first = synchronizer.convertSampleNumberToTimestamp(streamId, sampleNumber);
+				double second = synchronizer.convertSampleNumberToTimestamp(streamId, sampleNumber + 1);
 
 				fifoUsage[streamId] = dataQueue->writeSynchronizedTimestamps(
 					first,
@@ -894,7 +868,7 @@ void RecordNode::saveCustomParametersToXml(XmlElement* xml)
         {
             XmlElement* streamXml = xml->createNewChildElement("STREAM");
 
-            streamXml->setAttribute("isMainStream", synchronizer->mainStreamId == streamId);
+            streamXml->setAttribute("isMainStream", synchronizer.mainStreamId == streamId);
             streamXml->setAttribute("sync_line", getSyncLine(streamId));
             streamXml->setAttribute("name", stream->getName());
             streamXml->setAttribute("source_node_id", stream->getSourceNodeId());

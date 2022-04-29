@@ -25,37 +25,61 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define __RECORDNODEEDITOR_H__
 
 #include "../Editors/PopupChannelSelector.h"
-#include "SyncChannelSelector.h"
 #include "../../Utils/Utils.h"
+
+#include "SyncControlButton.h"
 
 class RecordThread;
 class RecordNode;
 
+/**
+    
+    Vertical button that opens/closes the FIFO drawer
+ 
+ */
 class FifoDrawerButton : public DrawerButton
 {
 public:
+    
+    /** Constructor */
 	FifoDrawerButton(const String& name);
+    
+    /** Destructor */
 	~FifoDrawerButton();
 private:
+    
+    /** Renders the button*/
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
+/**
+    
+    Component that displays the FIFO filling state for each stream
+ 
+ */
 class FifoMonitor : public Component, 
 					public SettableTooltipClient,
 					public Timer, 
 				    public PopupChannelSelector::Listener
 {
 public:
+    
+    /** Constructor */
 	FifoMonitor(RecordNode* recordNode, uint16 streamId, String streamName);
 
+    /** Sets fill amount */
 	void setFillPercentage(float percentage);
 
+    /** Updates the display */
 	void timerCallback();
 
+    /** Called when the selected channels are changed */
 	void channelStateChanged(Array<int> selectedChannels);
 
+    /** Listens for mouse clicks and opens the popup channel selection */
 	void mouseDown(const MouseEvent &event);
 
+    /** Called when channel selection popup is closed */
 	void componentBeingDeleted(Component &component);
 
 	std::vector<bool> channelStates;
@@ -73,43 +97,42 @@ private :
 	
 };
 
-class SyncControlButton : public Button, public Timer, public ComponentListener
+/**
+    
+    Toggles event or spike recording on and off
+ 
+ */
+class RecordToggleButton :
+    public Button,
+    public Timer
 {
 public:
-	SyncControlButton(RecordNode* node, const String& name, uint64 streamId);
-	~SyncControlButton();
-
-	int streamId;
-	bool isPrimary;
-
-	void mouseUp(const MouseEvent &event) override;
-
-private:
-	RecordNode* node;
-    void timerCallback();
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
-	
-	void componentBeingDeleted(Component &component);
-
-};
-
-class RecordToggleButton : public Button, public Timer
-{
-public: 
+    
+    /** Constructor */
 	RecordToggleButton(RecordNode* node, const String& name);
+    
+    /** Destructor */
 	~RecordToggleButton();
 
 private:
 	RecordNode* node;
+    
+    /** Repaints the button */
     void timerCallback();
+    
+    /** Renders the button*/
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
+/**
+    Custom editor for the RecordNode
+ */
 class RecordNodeEditor : 
-	public GenericEditor, public Timer,
-		   ComboBox::Listener, 
-	       Label::Listener,
-		   Button::Listener
+	public GenericEditor,
+    public Timer,
+    public ComboBox::Listener,
+    public Label::Listener,
+    public Button::Listener
 {
 public:
 

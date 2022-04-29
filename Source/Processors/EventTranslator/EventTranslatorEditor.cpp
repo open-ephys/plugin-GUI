@@ -22,7 +22,6 @@
 */
 
 #include "EventTranslatorEditor.h"
-
 #include "EventTranslator.h"
 
 #include <stdio.h>
@@ -38,4 +37,32 @@ EventTranslatorEditor::EventTranslatorEditor (GenericProcessor* parentNode)
 
 EventTranslatorEditor::~EventTranslatorEditor()
 {
+}
+
+
+void EventTranslatorEditor::updateSettings()
+{
+    /*std::cout << "EventTranslatorEditor::updateSettings()" << std::endl;
+    buttons.clear();
+    
+    EventTranslator* proc = (EventTranslator*) getProcessor();
+    
+    int streamCount = 0;
+    
+    for (auto stream : proc->getDataStreams())
+    {
+        
+        std::cout << "Stream: " << stream->getName() << std::endl;
+        
+        buttons.add(new SyncControlButton(proc,
+                                          stream->getName(),
+                                          stream->getStreamId()));
+        
+        buttons.getLast()->setBounds(18 + streamCount * 20, 80, 15, 15);
+        addAndMakeVisible(buttons.getLast());
+
+        streamCount++;
+    }*/
+    
+    
 }
