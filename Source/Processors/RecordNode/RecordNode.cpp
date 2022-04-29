@@ -7,7 +7,6 @@
 #include "../../Audio/AudioComponent.h"
 #include "../../AccessClass.h"
 
-
 #include "../Events/Spike.h"
 #include "../Settings/DataStream.h"
 #include "../Settings/DeviceInfo.h"
@@ -65,7 +64,7 @@ RecordNode::RecordNode()
 	eventQueue = std::make_unique<EventMsgQueue>(EVENT_BUFFER_NEVENTS);
 	spikeQueue = std::make_unique<SpikeMsgQueue>(SPIKE_BUFFER_NSPIKES);
 
-	synchronizer = new Synchronizer(this);
+	synchronizer = new Synchronizer();
 
 	isSyncReady = true;
 
@@ -113,7 +112,7 @@ void RecordNode::handleBroadcastMessage(String msg)
         
         TextEventPtr event = TextEvent::createTextEvent(getMessageChannel(), messageSampleNumber, msg);
         
-        double ts = synchronizer->convertTimestamp(synchronizer->mainStreamId, messageSampleNumber);
+        double ts = synchronizer->convertSampleNumberToTimestamp(synchronizer->mainStreamId, messageSampleNumber);
         
         event->setTimestampInSeconds(ts);
 
@@ -633,7 +632,7 @@ void RecordNode::handleTTLEvent(TTLEventPtr event)
 		size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
 
 		HeapBlock<char> buffer(size);
-        event->setTimestampInSeconds(synchronizer->convertTimestamp(event->getStreamId(), sampleNumber));
+        event->setTimestampInSeconds(synchronizer->convertSampleNumberToTimestamp(event->getStreamId(), sampleNumber));
 		event->serialize(buffer, size);
 
 		eventQueue->addEvent(EventPacket(buffer, size), sampleNumber);
@@ -654,7 +653,7 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 
 		int eventIndex = getIndexOfMatchingChannel(eventInfo);
         
-        Event::setTimestampInSeconds(packet, synchronizer->convertTimestamp(eventInfo->getStreamId(), sampleNumber));
+        Event::setTimestampInSeconds(packet, synchronizer->convertSampleNumberToTimestamp(eventInfo->getStreamId(), sampleNumber));
 
 		eventQueue->addEvent(packet, sampleNumber, eventIndex);
 
@@ -670,7 +669,7 @@ void RecordNode::handleSpike(SpikePtr spike)
 
 	if (recordSpikes)
 	{
-        spike->setTimestampInSeconds(synchronizer->convertTimestamp(spike->getStreamId(),
+        spike->setTimestampInSeconds(synchronizer->convertSampleNumberToTimestamp(spike->getStreamId(),
                                                                     spike->getSampleNumber()));
 		writeSpike(spike, spike->getChannelInfo());
 		eventMonitor->bufferedSpikes++;
@@ -751,8 +750,8 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 
 			if (numSamples > 0)
 			{
-				double first = synchronizer->convertTimestamp(streamId, sampleNumber);
-				double second = synchronizer->convertTimestamp(streamId, sampleNumber + 1);
+				double first = synchronizer->convertSampleNumberToTimestamp(streamId, sampleNumber);
+				double second = synchronizer->convertSampleNumberToTimestamp(streamId, sampleNumber + 1);
 
 				fifoUsage[streamId] = dataQueue->writeSynchronizedTimestamps(
 					first,

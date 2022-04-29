@@ -33,11 +33,12 @@
 #include "../Splitter/Splitter.h"
 #include "../AudioMonitor/AudioMonitor.h"
 #include "../RecordNode/RecordNode.h"
+#include "../EventTranslator/EventTranslator.h"
 
 #include "../PlaceholderProcessor/PlaceholderProcessor.h"
 
 /** Total number of built-in processors **/
-#define BUILT_IN_PROCESSOR_COUNT 5
+#define BUILT_IN_PROCESSOR_COUNT 6
 
 namespace ProcessorManager
 {
@@ -82,6 +83,10 @@ namespace ProcessorManager
 			description.name = "Audio Monitor";
 			description.processorType = Plugin::Processor::UTILITY;
 			break;
+        case 5:
+            description.name = "Event Translator";
+            description.processorType = Plugin::Processor::UTILITY;
+            break;
 		default:
 			description.name = String();
 			description.processorType = Plugin::Processor::INVALID;
@@ -121,6 +126,10 @@ namespace ProcessorManager
 			proc = new AudioMonitor();
             proc->setProcessorType(Plugin::Processor::AUDIO_MONITOR);
 			break;
+        case 5:
+            proc = new EventTranslator();
+            proc->setProcessorType(Plugin::Processor::UTILITY);
+            break;
 		default:
 			return nullptr;
 		}

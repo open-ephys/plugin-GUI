@@ -1,90 +1,27 @@
+/*
+------------------------------------------------------------------
+
+This file is part of the Open Ephys GUI
+Copyright (C) 2022 Open Ephys
+
+------------------------------------------------------------------
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 #include "Synchronizer.h"
-
-FloatTimestampBuffer::FloatTimestampBuffer(int size)
-	: abstractFifo(size)
-	, buffer (1, size)
-{
-
-	lastTimestamp = 0;
-
-}
-
-FloatTimestampBuffer::~FloatTimestampBuffer() {};
-
-void FloatTimestampBuffer::clear()
-{
-	buffer.clear();
-	abstractFifo.reset();
-	lastTimestamp = 0;
-}
-
-void FloatTimestampBuffer::resize(int size)
-{
-	buffer.setSize(1,size);
-	lastTimestamp = 0;
-}
-
-int FloatTimestampBuffer::addToBuffer(float* data, int64* timestamps, int numItems, int chunkSize)
-{
-
-	int startIndex1, blockSize1, startIndex2, blockSize2;
-
-	abstractFifo.prepareToWrite(numItems, startIndex1, blockSize1, startIndex2, blockSize2);
-
-	int bs[3] = { blockSize1, blockSize2, 0 };
-	int si[2] = { startIndex1, startIndex2 };
-	int cSize = 0;
-	int idx = 0;
-	int blkIdx;
-
-	if (numItems > 0)
-		lastTimestamp = timestamps[numItems-1];
-
-	for (int i = 0; bs[i] != 0; ++i)
-	{
-		blkIdx = 0;
-		for (int j = 0; j < bs[i]; j+= chunkSize)
-		{
-			cSize = chunkSize <= bs[i] - j ? chunkSize : bs[i] - j;
-			buffer.copyFrom(0,
-							si[i] + j,
-							data + idx,
-							cSize);
-		}
-		idx += cSize;
-		blkIdx += cSize;
-	}
-
-	abstractFifo.finishedWrite(idx);
-
-	return idx;
-
-}
-
-int FloatTimestampBuffer::getNumSamples() const { return abstractFifo.getNumReady(); }
-
-int FloatTimestampBuffer::readAllFromBuffer(AudioSampleBuffer& data, uint64* timestamp, int maxSize, int dstStartChannel, int numChannels)
-{
-
-	int numReady = abstractFifo.getNumReady();
-	int numItems = (maxSize < numReady) ? maxSize : numReady;
-
-	int startIndex1, blockSize1, startIndex2, blockSize2;
-	abstractFifo.prepareToRead(numItems, startIndex1, blockSize1, startIndex2, blockSize2);
-
-	int channelsToCopy = 1; //TODO: Check this...
-
-	if (blockSize1 > 0)
-		data.copyFrom(dstStartChannel, 0, buffer, 0, startIndex1, blockSize1);
-
-	if (blockSize2 > 0)
-		data.copyFrom(dstStartChannel, blockSize1, buffer, 0, startIndex2, blockSize2);
-
-	abstractFifo.finishedRead(numItems);
-
-	return numItems;
-
-}
 
 Stream::Stream(uint16 streamId_, float expectedSampleRate_)
 	: streamId(streamId_),
@@ -131,7 +68,8 @@ void Stream::setMainTime(float time)
 void Stream::addEvent(int64 sampleNumber)
 {
 	//LOGD("[+] Adding event for stream ", streamId, " (", sampleNumber, ")");
-	if (!receivedEventInWindow)
+	
+    if (!receivedEventInWindow)
 	{
 		tempSampleNum = sampleNumber;
 		receivedEventInWindow = true;
@@ -192,13 +130,12 @@ void Stream::closeSyncWindow()
 
 // =======================================================
 
-Synchronizer::Synchronizer(RecordNode* parentNode)
+Synchronizer::Synchronizer()
 	: syncWindowLengthMs(50),
 	  syncWindowIsOpen(false),
 	  firstMainSyncEvent(false),
 	  mainStreamId(0),
 	  previousMainStreamId(0),
-	  node(parentNode),
 	  streamCount(0)
 {
 }
@@ -331,14 +268,14 @@ void Synchronizer::addEvent(uint16 streamId, int ttlLine, int64 sampleNumber)
 			eventCount++;
 		}
 
-		//LOGC("[T] Estimated time: ", convertTimestamp(streamId, sampleNumber));
+		//LOGC("[T] Estimated time: ", convertSampleNumberToTimestamp(streamId, sampleNumber));
 		//LOGC("[S] Is synchronized: ", streams[streamId]->isSynchronized);
 		//LOGC(" ");
 
 	}
 }
 
-double Synchronizer::convertTimestamp(uint16 streamId, int64 sampleNumber)
+double Synchronizer::convertSampleNumberToTimestamp(uint16 streamId, int64 sampleNumber)
 {
 
 	if (streams[streamId]->isSynchronized)
@@ -350,6 +287,20 @@ double Synchronizer::convertTimestamp(uint16 streamId, int64 sampleNumber)
 	else {
 		return (double) -1.0f;
 	}
+}
+
+int64 Synchronizer::convertTimestampToSampleNumber(uint16 streamId, double timestamp)
+{
+
+    if (streams[streamId]->isSynchronized)
+    {
+        double t = (timestamp - streams[streamId]->startSampleMainTime) * streams[streamId]->actualSampleRate           + streams[streamId]->startSample;
+        
+        return (int64) t;
+    }
+    else {
+        return -1;
+    }
 }
 
 void Synchronizer::openSyncWindow()

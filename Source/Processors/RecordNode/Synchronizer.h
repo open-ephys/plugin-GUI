@@ -1,3 +1,29 @@
+/*
+------------------------------------------------------------------
+
+This file is part of the Open Ephys GUI
+Copyright (C) 2022 Open Ephys
+
+------------------------------------------------------------------
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
+#ifndef SYNCHRONIZER_H_INCLUDED
+#define SYNCHRONIZER_H_INCLUDED
+
 #include <chrono>
 #include <math.h>
 #include <algorithm>
@@ -6,30 +32,6 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../../Utils/Utils.h"
-
-class FloatTimestampBuffer
-{
-public:
-    FloatTimestampBuffer(int size);
-    ~FloatTimestampBuffer();
-
-    void clear();
-
-    int addToBuffer(float* data, int64* timestamps, int numItems, int chunkSize=1);
-    int getNumSamples() const;
-    int readAllFromBuffer(AudioSampleBuffer& data, uint64* timestamp, int maxSize, int dstStartChannel, int numChannels);
-    void resize(int size);
-
-private:
-
-
-    int64 lastTimestamp;
-    AbstractFifo abstractFifo;
-    AudioSampleBuffer buffer;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FloatTimestampBuffer);
-
-};
 
 /**
  *
@@ -136,13 +138,16 @@ class Synchronizer : public HighResolutionTimer
 public:
 
     /** Constructor*/
-    Synchronizer(RecordNode* parent);
+    Synchronizer();
 
     /** Destructor */
     ~Synchronizer() { }
 
-    /** Converts an integer (index) timestamp to a float (synchronized) timestamp */
-    double convertTimestamp(uint16 streamId, int64 sampleNumber);
+    /** Converts an int64 sample number to a double timestamp */
+    double convertSampleNumberToTimestamp(uint16 streamId, int64 sampleNumber);
+    
+    /** Converts a double timestamp to an int64 sample number */
+    int64 convertTimestampToSampleNumber(uint16 streamId, double timestamp);
 
     /** Resets all values when acquisition is re-started */
     void reset();
@@ -175,8 +180,6 @@ public:
     /** Checks an event for a stream ID / line combination */
     void addEvent(uint16 streamId, int ttlLine, int64 sampleNumber);
 
-    RecordNode* node;
-
     uint16 mainStreamId = 0;
     uint16 previousMainStreamId = 0;
 
@@ -199,7 +202,7 @@ private:
     std::map<uint16, Stream*> streams;
     OwnedArray<Stream> dataStreamObjects;
 
-    OwnedArray<FloatTimestampBuffer> ftsBuffer;
-
     void openSyncWindow();
 };
+
+#endif //SYNCHRONIZER_H_INCLUDED
