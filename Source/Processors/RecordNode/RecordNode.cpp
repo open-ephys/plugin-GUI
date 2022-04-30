@@ -319,7 +319,7 @@ void RecordNode::updateChannelStates(uint16 streamId, std::vector<bool> channelS
 		}
 	}
     
-    CoreServices::updateSignalChain(getEditor());
+    //CoreServices::updateSignalChain(getEditor());
 }
 
 

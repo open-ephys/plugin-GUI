@@ -269,21 +269,6 @@ void RecordNodeEditor::buttonClicked(Button *button)
 		showFifoMonitors(button->getToggleState());
 
 	}
-	else if (streamRecords.contains((SyncControlButton*)button))
-	{
-		//Should be handled by SyncControlButton class
-		/*
-		int subProcIdx = subProcRecords.indexOf((SyncControlButton *)button);
-		FifoMonitor* fifo = subProcMonitors[subProcIdx];
-		bool enabled = button->getToggleState();
-		fifo->channelStates.clear();
-		int srcIndex = ((SyncControlButton*)button)->srcIndex;
-		int subIndex = ((SyncControlButton*)button)->subProcIdx;
-		for (int i = 0; i < recordNode->m[srcIndex][subIndex].size(); i++)
-			fifo->channelStates.push_back(enabled);
-		recordNode->updateChannelStates(((SyncControlButton*)button)->srcIndex, ((SyncControlButton*)button)->subProcIdx, fifo->channelStates);
-		*/
-	}
 	else if (button == dataPathButton)
 	{
 		LOGD("Change data write directory!");
@@ -471,7 +456,8 @@ FifoMonitor::FifoMonitor(RecordNode* node, uint16 streamId_, String streamName_)
 	recordNode(node),
 	streamId(streamId_),
 	streamName(streamName_),
-	fillPercentage(0.0)
+	fillPercentage(0.0),
+    stateChangeSinceLastUpdate(false)
 {
 
 	startTimer(500);
@@ -499,6 +485,22 @@ void FifoMonitor::mouseDown(const MouseEvent &event)
 
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
+    
+    myBox.addComponentListener(this);
+
+}
+
+void FifoMonitor::componentBeingDeleted(Component &component)
+{
+    // called when popup window closes
+    
+    LOGD("Record Node channel selector closed");
+    
+    if (stateChangeSinceLastUpdate)
+    {
+        CoreServices::updateSignalChain(recordNode->getEditor());
+        stateChangeSinceLastUpdate = false;
+    }
 
 }
 
@@ -513,6 +515,8 @@ void FifoMonitor::channelStateChanged(Array<int> selectedChannels)
 	}
 
 	recordNode->updateChannelStates(streamId, channelStates);
+    
+    stateChangeSinceLastUpdate = true;
 
 }
 

@@ -60,7 +60,8 @@ private:
 class FifoMonitor : public Component, 
 					public SettableTooltipClient,
 					public Timer, 
-				    public PopupChannelSelector::Listener
+				    public PopupChannelSelector::Listener,
+                    public ComponentListener
 {
 public:
     
@@ -94,6 +95,8 @@ private :
 	uint16 streamId;
 	String streamName;
 	Random random;
+    
+    bool stateChangeSinceLastUpdate;
 	
 };
 
