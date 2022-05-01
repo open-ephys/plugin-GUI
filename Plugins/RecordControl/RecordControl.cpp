@@ -68,20 +68,23 @@ void RecordControl::handleTTLEvent (TTLEventPtr event)
 
 	if (event->getLine() == ( int((*stream)["trigger_line"]) - 1))
 	{
-		if (int(getParameter("trigger_type")->getValue()) == 0)
+		if (int(getParameter("trigger_type")->getValue()) == 0) // edge set
 		{
 			if (event->getState() == bool(getParameter("edge")->getValue()))
 			{
-				CoreServices::setRecordingStatus(true);
+				CoreServices::setRecordingStatus(false);
 			}
 			else
 			{
-				CoreServices::setRecordingStatus(false);
+				CoreServices::setRecordingStatus(true);
 			}
 		}
-		else
+		else // edge toggle
 		{
-			CoreServices::setRecordingStatus(!CoreServices::getRecordingStatus());
+            if (event->getState() != bool(getParameter("edge")->getValue()))
+            {
+                CoreServices::setRecordingStatus(!CoreServices::getRecordingStatus());
+            }
 		}
 	}
    
