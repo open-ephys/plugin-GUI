@@ -23,7 +23,11 @@
 
 #include "ElectrodeButtons.h"
 
-ElectrodeButton::ElectrodeButton(int chan_) : Button("Electrode"), chan(chan_)
+ElectrodeButton::ElectrodeButton(int chan_, Colour defaultColour_) :
+    Button("Electrode"),
+    chan(chan_),
+    defaultColour(defaultColour_)
+    
 {
 	setClickingTogglesState(true);
 	setToggleState(true, dontSendNotification);
@@ -40,7 +44,7 @@ int ElectrodeButton::getChannelNum()
 void ElectrodeButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (getToggleState() == true)
-        g.setColour(Colours::orange);
+        g.setColour(defaultColour);
     else
         g.setColour(Colours::darkgrey);
 

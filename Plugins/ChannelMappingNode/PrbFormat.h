@@ -71,7 +71,6 @@ public:
 
         if (channelGroup.equalsWithSameType(returnVal))
         {
-            std::cout << "Not a valid .prb file." << std::endl;
             return;
         }
 
@@ -80,8 +79,6 @@ public:
 
         var enabled = channelGroup[Identifier("enabled")];
         Array<var>* enbl = enabled.getArray();
-
-        std::cout << "We found this many: " << map->size() << std::endl;
 
         for (int i = 0; i < map->size(); i++)
         {

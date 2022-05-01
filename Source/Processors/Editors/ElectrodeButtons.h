@@ -39,7 +39,7 @@ class PLUGIN_API ElectrodeButton : public Button
 {
 public:
     /** Constructor*/
-	ElectrodeButton(int chan_);
+	ElectrodeButton(int chan_, Colour defaultColour = Colours::orange);
 
     /** Destructor*/
 	~ElectrodeButton();
@@ -56,6 +56,8 @@ private:
 
     /** Holds the button's channel number (should be 1-based indexing)*/
     int chan;
+    
+    Colour defaultColour;
 };
 
 /**

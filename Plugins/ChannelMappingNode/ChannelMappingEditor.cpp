@@ -33,7 +33,7 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode)
       isDragging(false)
 
 {
-    desiredWidth = 350;
+    desiredWidth = 335;
     
     electrodeButtonViewport = std::make_unique<Viewport>();
 
@@ -45,12 +45,12 @@ ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode)
 
     loadButton = std::make_unique<LoadButton>(getNameAndId() + " Load Prb File");
     loadButton->addListener(this);
-    loadButton->setBounds(325,5,15,15);
+    loadButton->setBounds(325,4,15,15);
     addAndMakeVisible(loadButton.get());
 
     saveButton = std::make_unique<SaveButton>(getNameAndId() + " Save Prb File");
     saveButton->addListener(this);
-    saveButton->setBounds(305,5,15,15);
+    saveButton->setBounds(305,4,15,15);
     addAndMakeVisible(saveButton.get());
 
 }
@@ -92,10 +92,16 @@ void ChannelMappingEditor::refreshElectrodeButtons()
     int column = 0;
     int totalWidth = 0;
     int totalHeight = 0;
+    
+    const int totalButtons = buttonOrder.size();
 
-    for (int i = 0; i < buttonOrder.size(); i++)
+    for (int i = 0; i < totalButtons; i++)
     {
-        ElectrodeButton* button = new ElectrodeButton(buttonOrder[i]+1);
+        
+        float hue = float(buttonOrder[i] % 16) / 16.0f * 0.2f + 0.05f;
+        
+        Colour buttonColour = Colour(hue, 0.90f, 0.90f, 1.0f);
+        ElectrodeButton* button = new ElectrodeButton(buttonOrder[i]+1, buttonColour);
         button->setRadioGroupId(0);
         button->setClickingTogglesState(false);
         button->setToggleState(true, dontSendNotification);

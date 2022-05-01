@@ -184,14 +184,14 @@ String ChannelMappingNode::loadStreamSettings(uint16 streamId, File& file)
 {
     settings[streamId]->fromJson(file);
     
-    return ("Loaded stream settings.");
+    return ("Loaded Channel Map settings from " + file.getFileName());
 }
 
 String ChannelMappingNode::writeStreamSettings(uint16 streamId, File& file)
 {
     settings[streamId]->toJson(file);
     
-    return ("Wrote stream settings.");
+    return ("Wrote Channel Map settings to " + file.getFileName());
 }
 
 
