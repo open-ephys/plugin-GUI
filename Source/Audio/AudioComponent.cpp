@@ -96,6 +96,7 @@ AudioComponent::AudioComponent() : isPlaying(false)
     setup.sampleRate = 44100.0;
 
     String msg = deviceManager.setAudioDeviceSetup(setup, false);
+    std::cout << msg << std::endl;
 
     String devType = deviceManager.getCurrentAudioDeviceType();
     LOGC("Audio device type: ", devType);
@@ -111,10 +112,6 @@ AudioComponent::AudioComponent() : isPlaying(false)
     std::cout << std::endl;
 
     graphPlayer = std::make_unique<AudioProcessorPlayer>();
-
-    stopDevice(); // reduces the amount of background processing when
-                  // device is not in use
-
 
 }
 
@@ -161,10 +158,35 @@ bool AudioComponent::callbacksAreActive()
     return isPlaying;
 }
 
-void AudioComponent::restartDevice()
+bool AudioComponent::checkForDevice()
 {
-    deviceManager.restartLastAudioDevice();
+    return true;
+    
+    //if (deviceManager.getCurrentAudioDevice() != nullptr)
+    //{
+     //   return true;
+    //} else {
+     //  return false;
+   //}
+   
+}
 
+bool AudioComponent::restartDevice()
+{
+    
+    deviceManager.restartLastAudioDevice();
+    
+    //if (deviceManager.getCurrentAudioDevice() != nullptr)
+    //{
+        
+    //    return true;
+    //} else {
+    //   LOGD("Could not find audio device.");
+    //    return false;
+   // }
+    
+    return true;
+   
 }
 
 void AudioComponent::stopDevice()
@@ -173,31 +195,34 @@ void AudioComponent::stopDevice()
     deviceManager.closeAudioDevice();
 }
 
-void AudioComponent::beginCallbacks()
+bool AudioComponent::beginCallbacks()
 {
 
     if (!isPlaying)
     {
 
-        restartDevice();
-
-        int64 ms = Time::getCurrentTime().toMilliseconds();
-
-        while (Time::getCurrentTime().toMilliseconds() - ms < 100)
+        if (restartDevice())
         {
-            // pause to let device initialize
+            int64 ms = Time::getCurrentTime().toMilliseconds();
 
+            while (Time::getCurrentTime().toMilliseconds() - ms < 100)
+            {
+                // pause to let device initialize
+
+            }
+
+            LOGC("Adding audio callback.");
+            deviceManager.addAudioCallback(graphPlayer.get());
+            isPlaying = true;
+            return true;
         }
-
-        LOGC("Adding audio callback.");
-        deviceManager.addAudioCallback(graphPlayer.get());
-        isPlaying = true;
     }
     else
     {
         LOGE("beginCallbacks was called while acquisition was active.");
     }
 
+    return false;
 }
 
 void AudioComponent::endCallbacks()
@@ -205,9 +230,6 @@ void AudioComponent::endCallbacks()
     LOGC("Removing audio callback.");
     deviceManager.removeAudioCallback(graphPlayer.get());
     isPlaying = false;
-
-    LOGC("Stopping device.");
-    stopDevice();
 }
 
 void AudioComponent::saveStateToXml(XmlElement* parent)
@@ -279,5 +301,5 @@ void AudioComponent::loadStateFromXml(XmlElement* parent)
         LOGE("Buffer size out of range.");
     }
 
-    deviceManager.setAudioDeviceSetup(setup, true);
+    std::cout << deviceManager.setAudioDeviceSetup(setup, true) << std::endl;
 }

@@ -456,6 +456,21 @@ void ControlPanel::setAcquisitionState(bool state)
 
 void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
 {
+    
+    if (!audio->checkForDevice())
+    {
+        String titleMessage = String("No audio device found");
+        String contentMessage = String("An active audio device is required to process data. ") + 
+                                String("Try restarting the GUI to regain control of the system audio.");
+        AlertWindow::showMessageBox(AlertWindow::InfoIcon,
+                                    titleMessage,
+                                    contentMessage);
+        
+        playButton->setToggleState(false, dontSendNotification);
+        
+        return;
+    }
+    
     if (graph->isReady()) // check that all processors are enabled
     {
         if (recordEngines[recordSelector->getSelectedId() - 1]->isWindowOpen())
@@ -463,28 +478,27 @@ void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
 
         graph->updateConnections();
         
-
-        playButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
-
-        if (recordingShouldAlsoStart)
+        if (audio->beginCallbacks()) // starts acquisition callbacks
         {
-            startRecording();
-            playButton->setToggleState(true, dontSendNotification);
+            if (recordingShouldAlsoStart)
+            {
+                startRecording();
+                playButton->setToggleState(true, dontSendNotification);
+            }
+
+            playButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
+            
+            masterClock->start(); // starts the clock
+            audioEditor->disable();
+
+            stopTimer();
+            startTimer(250); // refresh every 250 ms
+
+            recordSelector->setEnabled(false); // why is this outside the "if" statement?
+            recordOptionsButton->setEnabled(false);
+            
+            graph->startAcquisition(); // start data flow
         }
-
-        masterClock->start(); // starts the clock
-        audioEditor->disable();
-
-        stopTimer();
-        startTimer(250); // refresh every 250 ms
-
-        recordSelector->setEnabled(false); // why is this outside the "if" statement?
-        recordOptionsButton->setEnabled(false);
-
-        audio->beginCallbacks(); // starts acquisition callbacks
-
-        graph->startAcquisition(); // start data flow
-
     }
 }
 
@@ -888,14 +902,6 @@ void ControlPanel::buttonClicked(Button* button)
 
         filenameText->setColour(Label::textColourId, Colours::grey);
 
-        //for (auto* node : AccessClass::getProcessorGraph()->getRecordNodes())
-        //{   
-        //    node->newDirectoryNeeded = true;
-        //}
-        
-
-        //generateFilenameFromFields(true, true);
-
         return;
     }
 
@@ -903,7 +909,6 @@ void ControlPanel::buttonClicked(Button* button)
     {
         if (playButton->getToggleState())
         {
-
             startAcquisition();
         }
         else
