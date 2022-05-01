@@ -29,7 +29,7 @@
 #include <string>
 
 SpikeDisplayEditor::SpikeDisplayEditor(GenericProcessor* parentNode)
-    : VisualizerEditor(parentNode, "Spikes", 200)
+    : VisualizerEditor(parentNode, "Spikes", 180)
 
 {
 

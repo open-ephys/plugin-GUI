@@ -87,7 +87,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
 
     scrollBarThickness = viewport->getScrollBarThickness();
 
-    clearButton = std::make_unique <UtilityButton>("Clear plots", Font("Small Text", 13, Font::plain));
+    clearButton = std::make_unique <UtilityButton>("Clear Plots", Font("Small Text", 13, Font::plain));
     clearButton->setRadius(3.0f);
     clearButton->addListener(this);
     addAndMakeVisible(clearButton.get());

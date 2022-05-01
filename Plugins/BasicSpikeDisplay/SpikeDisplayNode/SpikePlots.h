@@ -282,6 +282,8 @@ private:
     Colour waveColour;
     Colour thresholdColour;
     Colour gridColour;
+    
+    int channel;
 
     bool drawGrid;
 

@@ -521,7 +521,7 @@ double GenericAxes::ad16ToUv(int x, int gain)
 }
 
 
-WaveAxes::WaveAxes(int channel) : GenericAxes(WAVE_AXES),
+WaveAxes::WaveAxes(int channel_) : GenericAxes(WAVE_AXES),
     drawGrid(true),
     displayThresholdLevel(0.0f),
     detectorThresholdLevel(0.0f),
@@ -532,7 +532,8 @@ WaveAxes::WaveAxes(int channel) : GenericAxes(WAVE_AXES),
     isOverThresholdSlider(false),
     isDraggingThresholdSlider(false),
     thresholdCoordinator(nullptr),
-    spikesInverted(false)
+    spikesInverted(false),
+    channel(channel_)
 
 {
     addMouseListener(this, true);
@@ -549,9 +550,6 @@ WaveAxes::WaveAxes(int channel) : GenericAxes(WAVE_AXES),
 
 void WaveAxes::setRange(float r)
 {
-
-    //std::cout << "Setting range to " << r << std::endl;
-
     range = r;
 
     repaint();
@@ -613,19 +611,19 @@ void WaveAxes::plotSpike(const Spike* s, Graphics& g)
 
     // type corresponds to channel so we need to calculate the starting
     // sample based upon which channel is getting plotted
-    int sampIdx = nSamples*type; //spikeBuffer[0].nSamples * type;
+    int sampIdx = nSamples * channel; 
     
     int dataSize =s->getChannelInfo()->getDataSize();
     
     // prevent crashes when acquisition is not active,
     // or immediately after acquisition starts
-    if (   (dataSize < 1)
-        || (dataSize > 640)
-        || (sampIdx + nSamples > dataSize)
-        || (nSamples < 0))
-    {
-        return;
-    }
+    //if (   (dataSize < 1)
+    //    || (dataSize > 640)
+    //    || (sampIdx + nSamples > dataSize)
+    //    || (nSamples < 0))
+    //{
+    //    return;
+    //}
         
     int dSamples = 1;
 
@@ -649,7 +647,8 @@ void WaveAxes::plotSpike(const Spike* s, Graphics& g)
 			s2 = h / 2 - data[sampIdx + 1] / range * h;
 
 		}
-		g.drawLine(x,
+		
+        g.drawLine(x,
 			s1,
 			x + dx,
 			s2);
