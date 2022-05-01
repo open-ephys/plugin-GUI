@@ -176,6 +176,8 @@ void AudioMonitor::parameterValueChanged(Parameter* param)
 
         if (activeChannels->size() == 0)
             LOGA("No channels selected.");
+        
+        LOGD("Num selected channels: ", activeChannels->size());
 
         for (int i = 0; i < activeChannels->size(); i++)
         {
@@ -190,13 +192,13 @@ void AudioMonitor::parameterValueChanged(Parameter* param)
         }
         
         // clear monitored channels on all other streams
-        for (auto stream : dataStreams)
-        {
-            if (stream->getStreamId() != selectedStream)
-            {
-                stream->getParameter("Channels")->currentValue = Array<var>();
-            }
-        }
+        //for (auto stream : dataStreams)
+        //{
+        //    if (stream->getStreamId() != selectedStream)
+        //    {
+         //       stream->getParameter("Channels")->currentValue = Array<var>();
+        //    }
+        //}
     }
 }
 

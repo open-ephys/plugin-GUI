@@ -141,8 +141,13 @@ void LfpChannelDisplay::pxPaint()
     
     // draw most recent drawn sample position
     if (ito < display->lfpChannelBitmap.getWidth() - 1)
+    {
         for (int k = jfrom_wholechannel; k <= jto_wholechannel; k += 2) // draw line
+        {
             bdLfpChannelBitmap.setPixelColour(ito + 1, k, Colours::yellow);
+        }
+            
+    }
     
     bool clipWarningHi = false; // keep track if something clipped in the display, so we can draw warnings after the data pixels are done
     bool clipWarningLo = false;
@@ -168,7 +173,7 @@ void LfpChannelDisplay::pxPaint()
     
     LfpBitmapPlotterInfo plotterInfo; // hold and pass plotting info for each plotting method class
     
-    for (int index = ifrom; index < ito; index++)
+    for (int index = ifrom; index <= ito; index++)
     {
 
         int i = index;
@@ -200,26 +205,30 @@ void LfpChannelDisplay::pxPaint()
                 }
             }
         }
-            
+        
         // draw event markers
-        int rawEventState = canvasSplit->getEventState(i); // get event state
+        const int rawEventState = canvasSplit->getEventState(i); // get event state
             
         for (int ev_ch = 0; ev_ch < 8; ev_ch++) // for all event channels
         {
             if (display->getEventDisplayState(ev_ch))  // check if plotting for this channel is enabled
             {
-                if (rawEventState & (1 << ev_ch))    // events are  representet by a bit code, so we have to extract the individual bits with a mask
+                if (rawEventState & (1 << ev_ch))    // events are  represented by a bit code, so we have to extract the individual bits with a mask
                 {
                     //                        std::cout << "Drawing event." << std::endl;
-                    Colour currentcolor = display->channelColours[ev_ch * 2];
+                    const Colour currentcolor = display->channelColours[ev_ch * 2];
 
                     for (int k = jfrom_wholechannel; k <= jto_wholechannel; k++) // draw line
-                        bdLfpChannelBitmap.setPixelColour(i, k, bdLfpChannelBitmap.getPixelColour(i, k).interpolatedWith(currentcolor, 0.3f));
-
+                    {
+                        bdLfpChannelBitmap.setPixelColour(i,
+                                              k,
+                                              bdLfpChannelBitmap.getPixelColour(i, k).interpolatedWith(currentcolor, 0.3f));
+                    }
+                        
                 }
             }
         }
-
+            
         // set max-min range for plotting
         double a = (canvasSplit->getYCoordMax(chan, i)/range*channelHeightFloat);
         double b = (canvasSplit->getYCoordMin(chan, i)/range*channelHeightFloat);
@@ -234,7 +243,7 @@ void LfpChannelDisplay::pxPaint()
             
         double a_raw = canvasSplit->getYCoordMax(chan, i);
         double b_raw = canvasSplit->getYCoordMin(chan, i);
-        double from_raw=0; double to_raw=0;
+        double from_raw = 0; double to_raw = 0;
             
         if (a < b)
         {
@@ -316,8 +325,8 @@ void LfpChannelDisplay::pxPaint()
             
         if (spikeFlag) // draw spikes
         {
-            for (int k=jfrom_wholechannel; k<=jto_wholechannel; k++){ // draw line
-                if(k>0 && k<display->lfpChannelBitmap.getHeight()){
+            for (int k = jfrom_wholechannel; k <= jto_wholechannel; k++){ // draw line
+                if (k > 0 && k < display->lfpChannelBitmap.getHeight()){
                     bdLfpChannelBitmap.setPixelColour(i,k,lineColour);
                 }
             };
@@ -344,8 +353,34 @@ void LfpChannelDisplay::pxPaint()
 
         } // if i < getWidth()
         
-    } // while i
+    } //  for (int index = ifrom; index < ito; index++)
 
+}
+
+void LfpChannelDisplay::drawEventOverlay(int x, int yfrom, int yto, Image::BitmapData* image)
+{
+    // draw event markers
+    const int rawEventState = canvasSplit->getEventState(x); // get event state
+        
+    for (int ev_ch = 0; ev_ch < 8; ev_ch++) // for all event channels
+    {
+        if (display->getEventDisplayState(ev_ch))  // check if plotting for this channel is enabled
+        {
+            if (rawEventState & (1 << ev_ch))    // events are  represented by a bit code, so we have to extract the individual bits with a mask
+            {
+                //                        std::cout << "Drawing event." << std::endl;
+                const Colour currentcolor = display->channelColours[ev_ch * 2];
+
+                for (int k = yfrom; k <= yto; k++) // draw line
+                {
+                    image->setPixelColour(x,
+                                          k,
+                                          image->getPixelColour(x, k).interpolatedWith(currentcolor, 0.3f));
+                }
+                    
+            }
+        }
+    }
 }
 
 void LfpChannelDisplay::paint(Graphics& g) {}

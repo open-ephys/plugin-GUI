@@ -27,7 +27,7 @@ CommonAverageRefEditor::CommonAverageRefEditor (GenericProcessor* parentProcesso
     : GenericEditor (parentProcessor)
 {
     
-    setDesiredWidth (215);
+    setDesiredWidth (205);
 
     addSelectedChannelsParameterEditor("Affected", 20, 45);
     addSelectedChannelsParameterEditor("Reference", 20, 85);

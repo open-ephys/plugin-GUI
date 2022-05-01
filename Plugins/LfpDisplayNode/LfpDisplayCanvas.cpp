@@ -1196,8 +1196,6 @@ void LfpDisplaySplitter::updateScreenBuffer()
                     if (!lfpDisplay->isPaused)
                     {
 
-                        
-
                         if (channel == nChans)
                         {
                             eventDisplayBuffer->clear(0, sbi, 1);
@@ -1216,7 +1214,6 @@ void LfpDisplaySplitter::updateScreenBuffer()
                             }
                         }
                             
-
                         if (ratio < 1.0) // less than one sample per pixel
                         {
 
