@@ -69,8 +69,8 @@ FilterNode::FilterNode()
     : GenericProcessor  ("Bandpass Filter")
 {
 
-    addIntParameter(Parameter::STREAM_SCOPE, "high_cut", "Filter high cut", 6000, 1, 15000, false);
-    addIntParameter(Parameter::STREAM_SCOPE, "low_cut", "Filter low cut", 300, 1, 15000, false);
+    addFloatParameter(Parameter::STREAM_SCOPE, "high_cut", "Filter high cut", 6000, 0.1, 15000, false);
+    addFloatParameter(Parameter::STREAM_SCOPE, "low_cut", "Filter low cut", 300, 0.1, 15000, false);
     addMaskChannelsParameter(Parameter::STREAM_SCOPE, "Channels", "Channels to filter for this stream");
 
 }
