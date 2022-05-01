@@ -355,6 +355,7 @@ SelectedChannelsParameter::SelectedChannelsParameter(GenericProcessor* processor
     maxSelectableChannels(maxSelectableChannels_),
     channelCount(0)
 {
+    std::cout << "Creating new selected channels parameter at " << this << std::endl;
 }
 
 void SelectedChannelsParameter::setNextValue(var newValue_)
@@ -364,6 +365,8 @@ void SelectedChannelsParameter::setNextValue(var newValue_)
     {
         newValue = newValue_;
     }
+    
+    std::cout << "Updating selected channels parameter value " << this << std::endl;
     
     processor->parameterChangeRequest(this);
 }
@@ -410,6 +413,8 @@ void SelectedChannelsParameter::fromXml(XmlElement* xml)
 {
     if (xml->hasAttribute(getName()))
         currentValue = parseSelectedString(xml->getStringAttribute(getName(), ""));
+    
+    std::cout << "Loading selected channels parameter at " << this << std::endl;
 }
 
 
@@ -446,6 +451,8 @@ Array<var> SelectedChannelsParameter::parseSelectedString(const String& input)
 void SelectedChannelsParameter::setChannelCount(int count)
 {
     channelCount = count;
+    
+    std::cout << "Setting selected channels channels count to " << count << " at " << this << std::endl;
 }
 
 MaskChannelsParameter::MaskChannelsParameter(GenericProcessor* processor_,
@@ -570,10 +577,10 @@ void MaskChannelsParameter::setChannelCount(int count)
     
     if (channelCount < count)
     {
-        for (int i = channelCount; i < count; i++)
-        {
-            value->add(i);
-        }
+         for (int i = 0; i < count; i++)
+         {
+             value->add(i);
+         }
     }
     else if (channelCount > count)
     {
