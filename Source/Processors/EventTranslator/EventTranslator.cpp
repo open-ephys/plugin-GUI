@@ -99,11 +99,15 @@ void EventTranslator::updateSettings()
 bool EventTranslator::startAcquisition()
 {
     synchronizer.startAcquisition();
+    
+    return true;
 }
 
 bool EventTranslator::stopAcquisition()
 {
     synchronizer.stopAcquisition();
+    
+    return true;
 }
 
 void EventTranslator::process (AudioBuffer<float>& buffer)
