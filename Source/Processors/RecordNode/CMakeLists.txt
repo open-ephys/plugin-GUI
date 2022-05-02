@@ -18,6 +18,8 @@ add_sources(open-ephys
 	RecordThread.h
 	SyncChannelSelector.cpp
 	SyncChannelSelector.h
+	SyncControlButton.cpp
+	SyncControlButton.h
 	Synchronizer.cpp
 	Synchronizer.h
 )
