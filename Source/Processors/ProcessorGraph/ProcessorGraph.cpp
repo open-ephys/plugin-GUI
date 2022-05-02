@@ -916,28 +916,31 @@ void ProcessorGraph::updateConnections()
         if (processor->isSplitter())
             continue;
 
-       if (processor->isSource())
-           connectProcessorToMessageCenter(processor);
+        if(processor->isReady())
+            connectProcessorToAudioNode(processor);
 
-       ConnectionInfo conn;
-       conn.source = processor;
-       conn.connectContinuous = true;
-       conn.connectEvents = true;
+        if (processor->isRecordNode())
+            connectProcessorToMessageCenter(processor);
 
-       Array<GenericProcessor*> nodesToConnect;
+        ConnectionInfo conn;
+        conn.source = processor;
+        conn.connectContinuous = true;
+        conn.connectEvents = true;
 
-       GenericProcessor* destNode = processor->getDestNode();
+        Array<GenericProcessor*> nodesToConnect;
 
-       if (destNode == nullptr)
+        GenericProcessor* destNode = processor->getDestNode();
+
+        if (destNode == nullptr)
             continue;
 
-       Array<Splitter*> splitters;
-       GenericProcessor* lastProcessor = processor;
+        Array<Splitter*> splitters;
+        GenericProcessor* lastProcessor = processor;
 
-       // if the next node is a Merger, we actually need to
-       // connect to the next non-Merger node
-       while (destNode->isMerger())
-       {
+        // if the next node is a Merger, we actually need to
+        // connect to the next non-Merger node
+        while (destNode->isMerger())
+        {
             LOGDD("  Found Merger: ", destNode->getNodeId());
 
             Merger* merger = (Merger*) destNode;
@@ -963,22 +966,22 @@ void ProcessorGraph::updateConnections()
                 LOGDD("  Adding node to connect: ", destNode->getNodeId());
             }
 
-       }
+        }
 
-       // if there's nothing after the Merger, skip
-       if (destNode == nullptr)
+        // if there's nothing after the Merger, skip
+        if (destNode == nullptr)
             continue;
 
-       // if the next node is a Splitter, we need to connect to both paths
-       if (destNode->isSplitter())
-       {
+        // if the next node is a Splitter, we need to connect to both paths
+        if (destNode->isSplitter())
+        {
             splitters.add((Splitter*) destNode);
             LOGDD("  Adding Splitter: ", destNode->getNodeId());
-       }
+        }
 
-       // keep connecting until we've found all possible paths
-       while (splitters.size() > 0)
-       {
+        // keep connecting until we've found all possible paths
+        while (splitters.size() > 0)
+        {
             Splitter* thisSplitter = splitters.getLast();
             splitters.removeLast();
 
@@ -999,17 +1002,17 @@ void ProcessorGraph::updateConnections()
                     }
                 }
             }
-       }
+        }
 
-       // if it's not a Splitter or Merger, simply connect
-       if (nodesToConnect.size() == 0)
+        // if it's not a Splitter or Merger, simply connect
+        if (nodesToConnect.size() == 0)
             nodesToConnect.add(destNode);
 
-       // Add all the connections we found
-       for (auto node : nodesToConnect)
-       {
+        // Add all the connections we found
+        for (auto node : nodesToConnect)
+        {
             sourceMap[node].add(conn);
-       }
+        }
 
         // Finally, actually connect sources to each dest processor,
         // in correct order by merger topography
@@ -1023,6 +1026,8 @@ void ProcessorGraph::updateConnections()
             }
         }
     }
+
+    getAudioNode()->updatePlaybackBuffer();
 
 } // end method
 
