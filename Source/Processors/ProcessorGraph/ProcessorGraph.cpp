@@ -1013,17 +1013,17 @@ void ProcessorGraph::updateConnections()
         {
             sourceMap[node].add(conn);
         }
+    }
+    
+    // Finally, actually connect sources to each dest processor,
+    // in correct order by merger topography
+    for (const auto& destSources : sourceMap)
+    {
+        GenericProcessor* dest = destSources.first;
 
-        // Finally, actually connect sources to each dest processor,
-        // in correct order by merger topography
-        for (const auto& destSources : sourceMap)
+        for (const ConnectionInfo& conn : destSources.second)
         {
-            GenericProcessor* dest = destSources.first;
-
-            for (const ConnectionInfo& conn : destSources.second)
-            {
-                connectProcessors(conn.source, dest, conn.connectContinuous, conn.connectEvents);
-            }
+            connectProcessors(conn.source, dest, conn.connectContinuous, conn.connectEvents);
         }
     }
 
