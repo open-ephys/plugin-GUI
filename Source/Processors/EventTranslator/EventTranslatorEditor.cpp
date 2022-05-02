@@ -31,7 +31,7 @@ EventTranslatorEditor::EventTranslatorEditor (GenericProcessor* parentNode)
     : GenericEditor (parentNode)
 {
 
-    desiredWidth = 200;
+    desiredWidth = 150;
 
 }
 
@@ -42,7 +42,6 @@ EventTranslatorEditor::~EventTranslatorEditor()
 
 void EventTranslatorEditor::updateSettings()
 {
-    /*std::cout << "EventTranslatorEditor::updateSettings()" << std::endl;
     buttons.clear();
     
     EventTranslator* proc = (EventTranslator*) getProcessor();
@@ -52,17 +51,34 @@ void EventTranslatorEditor::updateSettings()
     for (auto stream : proc->getDataStreams())
     {
         
-        std::cout << "Stream: " << stream->getName() << std::endl;
+        const uint16 streamId = stream->getStreamId();
+        
+        int column = streamCount % 5;
+        int row = streamCount / 5;
+        
+        const Array<EventChannel*> eventChannels = proc->getDataStream(streamId)->getEventChannels();
+
+        int numLines;
+
+        if (eventChannels.size() > 0)
+            numLines = eventChannels[0]->getMaxTTLBits();
+        else
+            numLines = 1;
+        
+        String name = stream->getSourceNodeName() + " (" +
+                      String(stream->getSourceNodeId()) + ") - " +
+                      stream->getName();
         
         buttons.add(new SyncControlButton(proc,
-                                          stream->getName(),
-                                          stream->getStreamId()));
+                                          name,
+                                          streamId,
+                                          numLines));
         
-        buttons.getLast()->setBounds(18 + streamCount * 20, 80, 15, 15);
+        buttons.getLast()->setBounds(18 + column * 25, 30 + row * 25, 18, 18);
         addAndMakeVisible(buttons.getLast());
 
         streamCount++;
-    }*/
+    }
     
     
 }

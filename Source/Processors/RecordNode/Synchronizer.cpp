@@ -136,7 +136,8 @@ Synchronizer::Synchronizer()
 	  firstMainSyncEvent(false),
 	  mainStreamId(0),
 	  previousMainStreamId(0),
-	  streamCount(0)
+	  streamCount(0),
+      acquisitionIsActive(false)
 {
 }
 
@@ -219,12 +220,26 @@ void Synchronizer::setMainDataStream(uint16 streamId)
 void Synchronizer::setSyncLine(uint16 streamId, int ttlLine)
 {
 	streams[streamId]->syncLine = ttlLine;
-	reset();
+	
+    if (streamId == mainStreamId)
+        reset();
+    else
+        streams[streamId]->reset();
 }
 
 int Synchronizer::getSyncLine(uint16 streamId)
 {
 	return streams[streamId]->syncLine;
+}
+
+void Synchronizer::startAcquisition()
+{
+    acquisitionIsActive = true;
+}
+
+void Synchronizer::stopAcquisition()
+{
+    acquisitionIsActive = false;
 }
 
 void Synchronizer::addEvent(uint16 streamId, int ttlLine, int64 sampleNumber)
@@ -323,16 +338,13 @@ bool Synchronizer::isStreamSynced(uint16 streamId)
 SyncStatus Synchronizer::getStatus(uint16 streamId)
 {
 
-	//Deal with synchronization of spikes and events later...
-	if (streamId < 0)
+	if (streamId <= 0 || !acquisitionIsActive)
 		return SyncStatus::OFF;
 
 	if (isStreamSynced(streamId))
 		return SyncStatus::SYNCED;
-	else if (true)
-		return SyncStatus::SYNCING;
 	else
-		return SyncStatus::OFF;
+		return SyncStatus::SYNCING;
 
 }
 

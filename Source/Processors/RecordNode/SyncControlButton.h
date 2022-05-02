@@ -45,7 +45,8 @@ public:
     /** Constructor */
     SyncControlButton(SynchronizingProcessor* node,
                       const String& name,
-                      uint16 streamId);
+                      uint16 streamId,
+                      int ttlLineCount = 8);
     
     /** Destructor */
     ~SyncControlButton();
@@ -55,7 +56,7 @@ public:
     
     int streamId;
     bool isPrimary;
-
+    int ttlLineCount;
 
 private:
     

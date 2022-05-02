@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Event.h"
 #include "../Settings/SpikeChannel.h"
+#include "../Settings/ContinuousChannel.h"
 
 #define SPIKE_BASE_SIZE 26
 

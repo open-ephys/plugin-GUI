@@ -29,7 +29,10 @@ EventTranslatorSettings::EventTranslatorSettings()
 
 }
 
-TTLEventPtr EventTranslatorSettings::createEvent(int64 sample_number, int line, bool state)
+TTLEventPtr EventTranslatorSettings::createEvent(int64 sample_number,
+                                                 double timestamp,
+                                                 int line,
+                                                 bool state)
 {
 
     TTLEventPtr event = TTLEvent::createTTLEvent(eventChannel,
@@ -37,6 +40,8 @@ TTLEventPtr EventTranslatorSettings::createEvent(int64 sample_number, int line, 
                                                  line,
                                                  state);
 
+    event->setTimestampInSeconds(timestamp);
+    
     return event;
 }
 
@@ -91,6 +96,15 @@ void EventTranslator::updateSettings()
     
 }
 
+bool EventTranslator::startAcquisition()
+{
+    synchronizer.startAcquisition();
+}
+
+bool EventTranslator::stopAcquisition()
+{
+    synchronizer.stopAcquisition();
+}
 
 void EventTranslator::process (AudioBuffer<float>& buffer)
 {
@@ -143,12 +157,84 @@ void EventTranslator::handleTTLEvent(TTLEventPtr event)
                     newSampleNumber = getFirstSampleNumberForBlock(streamId);
                 
                 TTLEventPtr translatedEvent =
-                    settings[streamId]->createEvent(newSampleNumber, ttlLine, state);
+                    settings[streamId]->createEvent(newSampleNumber, timestamp, ttlLine, state);
                 
                 addEvent(translatedEvent, 0);
             }
             
             
+        }
+    }
+}
+
+
+void EventTranslator::saveCustomParametersToXml(XmlElement* xml)
+{
+
+    for (auto stream : getDataStreams())
+    {
+
+        const uint16 streamId = stream->getStreamId();
+
+        XmlElement* streamXml = xml->createNewChildElement("STREAM");
+
+        streamXml->setAttribute("isMainStream", synchronizer.mainStreamId == streamId);
+        streamXml->setAttribute("sync_line", getSyncLine(streamId));
+        streamXml->setAttribute("name", stream->getName());
+        streamXml->setAttribute("source_node_id", stream->getSourceNodeId());
+        streamXml->setAttribute("sample_rate", stream->getSampleRate());
+        streamXml->setAttribute("channel_count", stream->getChannelCount());
+    }
+}
+
+
+void EventTranslator::loadCustomParametersFromXml(XmlElement* xml)
+{
+    
+    for (auto* subNode : xml->getChildIterator())
+    {
+        if (subNode->hasTagName("STREAM"))
+        {
+
+            ParameterCollection* parameterCollection = new ParameterCollection();
+
+            parameterCollection->owner.channel_count = subNode->getIntAttribute("channel_count");
+            parameterCollection->owner.name = subNode->getStringAttribute("name");
+            parameterCollection->owner.sample_rate = subNode->getDoubleAttribute("sample_rate");
+            parameterCollection->owner.channel_count = subNode->getIntAttribute("channel_count");
+            parameterCollection->owner.sourceNodeId = subNode->getIntAttribute("source_node_id");
+            
+            savedDataStreamParameters.add(parameterCollection);
+        }
+    }
+    
+    for (auto stream : dataStreams)
+    {
+        int matchingIndex = findMatchingStreamParameters(stream);
+        const uint16 streamId = stream->getStreamId();
+        
+        if (matchingIndex > -1)
+        {
+            int savedStreamIndex = -1;
+            
+            for (auto* subNode : xml->getChildIterator())
+            {
+                if (subNode->hasTagName("STREAM"))
+                {
+                    savedStreamIndex++;
+                    
+                    if (savedStreamIndex == matchingIndex)
+                    {
+                        if (subNode->getBoolAttribute("isMainStream", false))
+                        {
+                            setMainDataStream(streamId);
+                        }
+                        
+                        setSyncLine(streamId, subNode->getIntAttribute("sync_line", 0));
+                        
+                    }
+                }
+            }
         }
     }
 }

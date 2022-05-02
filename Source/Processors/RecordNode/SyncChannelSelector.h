@@ -93,6 +93,8 @@ public:
 	int nChannels;
 	int selectedId;
 	bool isPrimary;
+    
+    bool detectedChange;
 
 	int buttonSize;
 	int nRows;

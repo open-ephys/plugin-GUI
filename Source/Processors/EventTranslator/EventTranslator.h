@@ -42,7 +42,7 @@ public:
     ~EventTranslatorSettings() { }
 
     /** Creates an event for a particular stream*/
-    TTLEventPtr createEvent(int64 sample_number, int line, bool state);
+    TTLEventPtr createEvent(int64 sample_number, double timestamp, int line, bool state);
 
     EventChannel* eventChannel;
 };
@@ -72,14 +72,24 @@ public:
     
     /** Updates the EventTranslator settings*/
     void updateSettings() override;
+    
+    /** Informs synchronizer about acquisition start */
+    bool startAcquisition() override;
+    
+    /** Informs synchronizer about acquisition start */
+    bool stopAcquisition() override;
+    
+    /** Save sync channel parameters*/
+    void saveCustomParametersToXml(XmlElement* xml);
+    
+    /** Load sync channel parameters*/
+    void loadCustomParametersFromXml(XmlElement* xml);
 
 private:
     
     /** Called whenever a new TTL event arrives*/
     void handleTTLEvent (TTLEventPtr event) override;
     
-    Synchronizer synchronizer;
-
     StreamSettings<EventTranslatorSettings> settings;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EventTranslator);

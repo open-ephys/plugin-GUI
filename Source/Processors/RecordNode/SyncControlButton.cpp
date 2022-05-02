@@ -29,17 +29,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../../CoreServices.h"
 
-SyncControlButton::SyncControlButton(SynchronizingProcessor* _node,
+SyncControlButton::SyncControlButton(SynchronizingProcessor* node_,
                                      const String& name,
-                                     uint16 streamId)
+                                     uint16 streamId,
+                                     int ttlLineCount_)
     : Button(name),
       streamId(streamId),
-      node(_node)
+      node(node_),
+      ttlLineCount(ttlLineCount_)
 {
 
     isPrimary = node->isMainDataStream(streamId);
-    LOGD("Stream: ", streamId, " is main stream: ", isPrimary);
-    startTimer(100);
+    LOGD("SyncControlButton::Constructor; Stream: ", streamId, " is main stream: ", isPrimary);
+    startTimer(250);
+    
+    setTooltip(name);
+    
 }
 
 SyncControlButton::~SyncControlButton() {}
@@ -54,6 +59,9 @@ void SyncControlButton::componentBeingDeleted(Component &component)
     /*Capture button channel states and send back to record node. */
 
     auto* syncChannelSelector = (SyncChannelSelector*) component.getChildComponent(0);
+    
+    if (!syncChannelSelector->detectedChange)
+        return;
     
     if (syncChannelSelector->isPrimary)
     {
@@ -80,21 +88,10 @@ void SyncControlButton::mouseUp(const MouseEvent &event)
 
     if (!CoreServices::getRecordingStatus() && event.mods.isLeftButtonDown())
     {
-
-        //const Array<EventChannel*> eventChannels = node->getDataStream(streamId)->getEventChannels();
-
-        int nEvents;
-
-        //if (eventChannels.size() > 0)
-        //    nEvents = eventChannels[0]->getMaxTTLBits();
-        //else
-        //    nEvents = 1;
         
-        nEvents = 8;
-
         int syncLine = node->getSyncLine(streamId);
 
-        SyncChannelSelector* channelSelector = new SyncChannelSelector (nEvents, syncLine, node->isMainDataStream(streamId));
+        SyncChannelSelector* channelSelector = new SyncChannelSelector (ttlLineCount, syncLine, node->isMainDataStream(streamId));
 
         CallOutBox& myBox
             = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
@@ -109,68 +106,60 @@ void SyncControlButton::mouseUp(const MouseEvent &event)
 
 void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
-    g.setColour(Colour(0,0,0));
-    g.fillRoundedRectangle(0,0,getWidth(),getHeight(),0.2*getWidth());
 
-    g.setColour(Colour(110,110,110));
-    g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
-
-    if (streamId > 0 && CoreServices::getAcquisitionStatus())
-    {
-
-        switch(node->synchronizer.getStatus(streamId)) {
-
-            case SyncStatus::OFF :
+    g.setColour(Colours::grey);
+    g.fillRoundedRectangle(0,0,getWidth(),getHeight(),4);
+    
+    switch(node->synchronizer.getStatus(streamId)) {
+        
+        case SyncStatus::OFF :
+        {
+            if (isMouseOver)
             {
-
-                if (isMouseOver)
-                {
-                    //LIGHT GREY
-                    g.setColour(Colour(210, 210, 210));
-                }
-                else
-                {
-                    //DARK GREY
-                    g.setColour(Colour(110, 110, 110));
-                }
-                break;
+                //LIGHT GREY
+                g.setColour(Colour(150, 150, 150));
             }
-            case SyncStatus::SYNCING :
+            else
             {
-
-                if (isMouseOver)
-                {
-                    //LIGHT ORANGE
-                   g.setColour(Colour(255,216,177));
-                }
-                else
-                {
-                    //DARK ORAN
-                   g.setColour(Colour(255,165,0));
-                }
-                break;
+                //DARK GREY
+                g.setColour(Colour(110, 110, 110));
             }
-            case SyncStatus::SYNCED :
-            {
-
-                if (isMouseOver)
-                {
-                    //LIGHT GREEN
-                    g.setColour(Colour(0, 255, 0));
-                }
-                else
-                {
-                    //DARK GREEN
-                    g.setColour(Colour(20, 255, 20));
-                }
-                break;
-
-            }
+            break;
         }
+        case SyncStatus::SYNCING :
+        {
 
+            if (isMouseOver)
+            {
+                //LIGHT ORANGE
+               g.setColour(Colour(255,216,177));
+            }
+            else
+            {
+                //DARK ORAN
+               g.setColour(Colour(255,165,0));
+            }
+            break;
+        }
+        case SyncStatus::SYNCED :
+        {
+
+            if (isMouseOver)
+            {
+                //LIGHT GREEN
+                g.setColour(Colour(25, 255, 25));
+            }
+            else
+            {
+                //DARK GREEN
+                g.setColour(Colour(25, 220, 25));
+            }
+            break;
+
+        }
     }
-
-    g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
+    
+    g.fillRoundedRectangle(2, 2, getWidth()-4, getHeight()-4, 2);
 
     if (node->isMainDataStream(streamId))
     {
@@ -178,6 +167,6 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
         g.setFont(Font(10));
         g.drawText("M", 0, 0, getWidth(), getHeight(), juce::Justification::centred);
     }
-
+    
 }
 

@@ -441,6 +441,8 @@ bool RecordNode::isSynchronized()
 bool RecordNode::startAcquisition()
 {
 
+    synchronizer.startAcquisition();
+    
     eventChannels.add(new EventChannel(*messageChannel));
     eventChannels.getLast()->addProcessor(processorInfo.get());
     eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamId), false);
@@ -451,6 +453,7 @@ bool RecordNode::startAcquisition()
 
 bool RecordNode::stopAcquisition()
 {
+    synchronizer.stopAcquisition();
 
 	// Remove message channel
 	eventChannels.removeLast();
@@ -925,10 +928,8 @@ void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
     
     recordEvents = xml->getBoolAttribute("recordEvents", true);
     recordSpikes = xml->getBoolAttribute("recordSpikes", true);
-    
-    //if (xml->getBoolAttribute("fifoMonitorsVisible", false))
-    //    recordNodeEditor->showFifoMonitors(true);
 
+    
     Array<int> matchingIndexes;
     savedDataStreamParameters.clear();
 

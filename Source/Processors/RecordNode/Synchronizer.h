@@ -181,6 +181,12 @@ public:
 
     /** Checks an event for a stream ID / line combination */
     void addEvent(uint16 streamId, int ttlLine, int64 sampleNumber);
+    
+    /** Signals start of acquisition */
+    void startAcquisition();
+    
+    /** Signals start of acquisition */
+    void stopAcquisition();
 
     uint16 mainStreamId = 0;
     uint16 previousMainStreamId = 0;
@@ -196,6 +202,7 @@ private:
 
     float syncWindowLengthMs;
     bool syncWindowIsOpen;
+    bool acquisitionIsActive;
 
     void hiResTimerCallback();
 

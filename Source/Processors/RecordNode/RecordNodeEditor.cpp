@@ -120,7 +120,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 
 	desiredWidth = 150;
 
-	startTimer(1000);
+    fifoDrawerButton->triggerClick();
 
 }
 
@@ -165,7 +165,7 @@ void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 
 			int new_max = 0;
 
-			if (recordNode->getNumInputs() < 8192) // actual upper bound of 8192
+			if (recordNode->getNumInputs() < 8000) // actual upper bound of 8192, but leave overhead for spike channels, event channels, etc.
 				new_max = _setmaxstdio(recordNode->getNumInputs());
 
 			if (new_max != recordNode->getNumInputs())
@@ -226,11 +226,21 @@ void RecordNodeEditor::updateFifoMonitors()
 		streamMonitors.getLast()->setVisible(false);
 
 		LOGD("Adding sync control button for stream id: ", streamId);
-		streamRecords.add(new SyncControlButton(recordNode, "SP" + String(streamCount), streamId));
+        
+        const Array<EventChannel*> eventChannels = recordNode->getDataStream(streamId)->getEventChannels();
+
+        int nEvents;
+
+        if (eventChannels.size() > 0)
+            nEvents = eventChannels[0]->getMaxTTLBits();
+        else
+            nEvents = 1;
+        
+		streamRecords.add(new SyncControlButton(recordNode,
+                                                recordNode->getDataStream(streamId)->getName(),
+                                                streamId, nEvents));
 		streamRecords.getLast()->setBounds(18 + streamCount * 20, 110, 15, 15);
-		streamRecords.getLast()->addListener(this);
 		addAndMakeVisible(streamRecords.getLast());
-		streamRecords.getLast()->setVisible(false);
 
 		streamCount++;
 

@@ -97,7 +97,8 @@ SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx, bool isPri
     : Component(), 
     nChannels(nChans),
     selectedId(selectedIdx),
-    isPrimary(isPrimary_)
+    isPrimary(isPrimary_),
+    detectedChange(false)
 {
 
     width = 368; //can use any multiples of 16 here for dynamic resizing
@@ -172,5 +173,7 @@ void SyncChannelSelector::buttonClicked(Button* button)
         button->setToggleState(true, dontSendNotification);
 
     }
+    
+    detectedChange = true;
     
 }
