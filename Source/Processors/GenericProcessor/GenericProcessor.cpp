@@ -1828,13 +1828,11 @@ void GenericProcessor::loadFromXml()
 
                     for (auto param : savedDataStreamParameters[index]->getParameters())
                     {
-                        if (param->getName() == "enable_stream")
+                        if (param->getName() == "enable_stream" && isFilter())
                         {
                             getEditor()->streamEnabledStateChanged(stream->getStreamId(),
                                 (bool)param->getValue(),
                                 true);
-
-                            //std::cout << "ENABLE STREAM: " << (bool)param->getValue() << std::endl;
                         }
                             
                     }

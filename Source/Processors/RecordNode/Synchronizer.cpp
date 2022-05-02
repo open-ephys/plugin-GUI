@@ -160,8 +160,6 @@ void Synchronizer::reset()
 			stream->reset();
 	}
 
-
-
 }
 
 void Synchronizer::prepareForUpdate()
@@ -183,12 +181,12 @@ void Synchronizer::finishedUpdate()
 void Synchronizer::addDataStream(uint16 streamId, float expectedSampleRate)
 {
     
-    std::cout << "Synchronizer adding " << streamId << std::endl;
+    //std::cout << "Synchronizer adding " << streamId << std::endl;
 	// if this is the first stream, make it the main one
 	if (mainStreamId == 0)
 		mainStreamId = streamId;
     
-    std::cout << "Main stream ID: " << mainStreamId << std::endl;
+    //std::cout << "Main stream ID: " << mainStreamId << std::endl;
 
 	// if there's a stored value, and it appears again,
 	// re-instantiate this as the main stream
@@ -198,7 +196,7 @@ void Synchronizer::addDataStream(uint16 streamId, float expectedSampleRate)
 	// if there's no Stream object yet, create a new one
 	if (streams.count(streamId) == 0)
 	{
-        std::cout << "Creating new Stream object" << std::endl;
+        //std::cout << "Creating new Stream object" << std::endl;
 		dataStreamObjects.add(new Stream(streamId, expectedSampleRate));
 		streams[streamId] = dataStreamObjects.getLast();
 		setSyncLine(streamId, 0);
@@ -235,6 +233,8 @@ int Synchronizer::getSyncLine(uint16 streamId)
 void Synchronizer::startAcquisition()
 {
     acquisitionIsActive = true;
+    
+    reset();
 }
 
 void Synchronizer::stopAcquisition()
