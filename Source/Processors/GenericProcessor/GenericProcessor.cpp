@@ -905,8 +905,8 @@ void GenericProcessor::update()
     /// UPDATE PARAMETERS FOR STREAMS
 	for (auto stream : dataStreams)
 	{
-		LOGC( "Stream ", stream->getStreamId(), " - ", stream->getName(), " num channels: ", stream->getChannelCount(), " num parameters: ", stream->numParameters());
-        LOGC("Number of saved params: ", savedDataStreamParameters.size());
+		LOGD( "Stream ", stream->getStreamId(), " - ", stream->getName(), " num channels: ", stream->getChannelCount(), " num parameters: ", stream->numParameters());
+        LOGD("Number of saved params: ", savedDataStreamParameters.size());
 
         if (stream->numParameters() == 0)
         {
