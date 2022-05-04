@@ -46,7 +46,7 @@ public:
 
 	/** Returns the unique identifier of this RecordEngine */
 	String getEngineId() const override;
-    
+
     /** Launches the manager for this Record Engine, and instantiates any parameters */
     static RecordEngineManager* getEngineManager();
 
@@ -57,10 +57,10 @@ public:
 	void closeFiles();
 
 	/** Writes a block of continuous data */
-	void writeContinuousData(int writeChannel, 
-		int realChannel, 
-		const float* dataBuffer, 
-		const double* timestampBuffer, 
+	void writeContinuousData(int writeChannel,
+		int realChannel,
+		const float* dataBuffer,
+		const double* timestampBuffer,
 		int size);
 
 	/** Writes an event to disk */
@@ -70,7 +70,7 @@ public:
 	void writeSpike(int electrodeIndex, const Spike* spike);
 
 	/** Writes timestamp sync texts */
-	void writeTimestampSyncText(uint64 streamId, int64 timestamp, float sampleRate, String text);
+	void writeTimestampSyncText(uint64 streamId, int64 sampleNumber, float sampleRate, String text);
 
 	/** Sets an engine parameter (in this case TTL word writing bool) */
 	void setParameter(EngineParameter& parameter);
@@ -103,14 +103,16 @@ private:
 
 	Array<unsigned int> m_channelIndexes;
 	Array<unsigned int> m_fileIndexes;
-    
+
     OwnedArray<SequentialBlockFile> m_continuousFiles;
 	OwnedArray<EventRecording> m_eventFiles;
 	OwnedArray<EventRecording> m_spikeFiles;
 
+	bool wroteFirstBlock;
+
 	static String jsonTypeValue(BaseType type);
 	static String getProcessorString(const InfoObject* channelInfo);
-	
+
 	OwnedArray<NpyFile> m_dataTimestampFiles;
 	OwnedArray<NpyFile> m_dataSyncTimestampFiles;
 	std::unique_ptr<FileOutputStream> m_syncTextFile;

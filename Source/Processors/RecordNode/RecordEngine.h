@@ -134,7 +134,7 @@ protected:
 
 	/** Functions to access RecordNode arrays and utilities */
 	RecordNode* recordNode;
-    
+
     /** Gets the number of recorded data streams */
     int getNumRecordedDataStreams() const;
 
@@ -146,10 +146,10 @@ protected:
 
     /** Gets the number of recorded spike channels */
     int getNumRecordedSpikeChannels() const;
-    
+
     /** Gets the specified DataStream pointer from the array stored in RecordNode*/
     const DataStream* getDataStream(int index) const;
-    
+
 	/** Gets the specified channel from the channel array stored in RecordNode */
 	const ContinuousChannel* getContinuousChannel(int index) const;
 
@@ -158,7 +158,7 @@ protected:
 
 	/** Gets the specified spike channel from the array stored in RecordNode */
 	const SpikeChannel* getSpikeChannel(int index) const;
-    
+
 	/** Generate a Matlab-compatible datestring */
 	String generateDateString() const;
 
@@ -167,10 +167,10 @@ protected:
 
 	/** Gets the a channel's global index from a recorded channel index */
 	int getGlobalIndex(int channel) const;
-    
+
     /** Gets the a channel's global index from a recorded channel index */
     int getLocalIndex(int channel) const;
-    
+
 	/** Gets the last created settings.xml in text form. Should be called at file opening to get the latest version.
 	Since the string will be large, returns a const reference. It should never be const_casted.
 	*/
@@ -181,7 +181,7 @@ private:
 	Array<int64> sampleNumbers;
 	Array<int> globalChannelMap;
     Array<int> localChannelMap;
-    
+
 	RecordEngineManager* manager;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordEngine);

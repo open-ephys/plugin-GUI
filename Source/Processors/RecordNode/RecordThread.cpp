@@ -101,17 +101,11 @@ void RecordThread::run()
 	bool closeEarly = true;
 
 	//1-Open Files
-	if (!threadShouldExit())
-	{
-		m_cleanExit = false;
-		closeEarly = false;
-		Array<int64> sampleNumbers;
-		m_dataQueue->getSampleNumbersForBlock(0, sampleNumbers);
+	m_cleanExit = false;
+	closeEarly = false;
+	Array<int64> sampleNumbers;
 
-		m_engine->updateLatestSampleNumbers(sampleNumbers);
-
-		m_engine->openFiles(m_rootFolder, m_experimentNumber, m_recordingNumber);
-	}
+	m_engine->openFiles(m_rootFolder, m_experimentNumber, m_recordingNumber);
 
 	//2-Wait until the first block has arrived, so we can align the timestamps
 	bool isWaiting = false;
@@ -123,6 +117,9 @@ void RecordThread::run()
 		}
 		wait(1);
 	}
+
+	m_dataQueue->getSampleNumbersForBlock(0, sampleNumbers);
+	m_engine->updateLatestSampleNumbers(sampleNumbers);
 
 	//3-Normal loop
 	while (!threadShouldExit())
