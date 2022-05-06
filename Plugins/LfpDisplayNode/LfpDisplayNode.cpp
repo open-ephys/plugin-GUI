@@ -258,18 +258,6 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
         );
     }
 
-    else {
-
-        for (auto displayBuffer : displayBuffers)
-        {
-            displayBuffer->addEvent(eventTime, eventChannel, eventId,
-                                    getNumSamplesInBlock(displayBuffer->id)
-            );
-
-        }
-
-    }
-
     for (auto display : splitDisplays)
     {
         if(display->selectedStreamId == eventStreamId)

@@ -107,11 +107,11 @@ void RecordNode::handleBroadcastMessage(String msg)
     {
 
         int64 messageSampleNumber = getFirstSampleNumberForBlock(synchronizer.mainStreamId);
-        
+
         TextEventPtr event = TextEvent::createTextEvent(getMessageChannel(), messageSampleNumber, msg);
-        
+
         double ts = synchronizer.convertSampleNumberToTimestamp(synchronizer.mainStreamId, messageSampleNumber);
-        
+
         event->setTimestampInSeconds(ts);
 
         size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
@@ -119,12 +119,12 @@ void RecordNode::handleBroadcastMessage(String msg)
         HeapBlock<char> buffer(size);
 
         event->serialize(buffer, size);
-        
+
         eventQueue->addEvent(EventPacket(buffer, size), messageSampleNumber, -1);
 
     }
-    
-    
+
+
 }
 
 void RecordNode::updateBlockSize(int newBlockSize)
@@ -153,14 +153,14 @@ void RecordNode::setEngine(String id)
                 if (recordEngine->getEngineId() != id)
                 {
                     recordEngine.reset(engine->instantiateEngine());
-                    
+
                     if (recordThread != nullptr)
                         recordThread->setEngine(recordEngine.get());
                 }
             } else {
                 recordEngine.reset(engine->instantiateEngine());
             }
-            
+
         }
 	}
 
@@ -318,7 +318,7 @@ void RecordNode::updateChannelStates(uint16 streamId, std::vector<bool> channelS
 			break;
 		}
 	}
-    
+
     //CoreServices::updateSignalChain(getEditor());
 }
 
@@ -421,19 +421,19 @@ void RecordNode::updateSettings()
 
 bool RecordNode::isSynchronized()
 {
-    
+
     if (dataStreams.size() == 1) // no need to sync only one DataStream
         return true;
-    
+
     for (auto stream : dataStreams)
     {
 
         SyncStatus status = synchronizer.getStatus(stream->getStreamId());
-        
+
         if (status != SYNCED)
             return false;
     }
-    
+
     return true;
 }
 
@@ -442,7 +442,7 @@ bool RecordNode::startAcquisition()
 {
 
     synchronizer.startAcquisition();
-    
+
     eventChannels.add(new EventChannel(*messageChannel));
     eventChannels.getLast()->addProcessor(processorInfo.get());
     eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamId), false);
@@ -530,7 +530,7 @@ void RecordNode::startRecording()
 
 	recordEngine->registerRecordNode(this);
 	recordEngine->setChannelMap(channelMap, localChannelMap);
-    
+
 	recordThread->setChannelMap(channelMap);
 	recordThread->setTimestampChannelMap(timestampChannelMap);
 
@@ -629,7 +629,7 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 	    int64 sampleNumber = Event::getSampleNumber(packet);
 
 		int eventIndex = getIndexOfMatchingChannel(eventInfo);
-        
+
         Event::setTimestampInSeconds(packet, synchronizer.convertSampleNumberToTimestamp(eventInfo->getStreamId(), sampleNumber));
 
 		eventQueue->addEvent(packet, sampleNumber, eventIndex);
@@ -673,7 +673,6 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 	if (isRecording)
 	{
 
-        
 		if (!setFirstBlock)
 		{
 
@@ -688,7 +687,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
                      CoreServices::getSoftwareTimestamp(),
                      -1.0,
                      true);
-            
+
 			handleTimestampSyncTexts(EventPacket(data, dataSize));
 
 			for (auto stream : getDataStreams())
@@ -737,7 +736,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 					numSamples);
 
 			}
-			
+
 			for (auto channel : stream->getContinuousChannels())
 			{
 
@@ -754,7 +753,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 							numSamples,
 							sampleNumber);
 					}
-					
+
 
 				}
 			}
@@ -794,7 +793,7 @@ void RecordNode::writeSpike(const Spike *spike, const SpikeChannel *spikeElectro
 {
 
     int electrodeIndex = getIndexOfMatchingChannel(spikeElectrode);
-    
+
     if (electrodeIndex >= 0)
         spikeQueue->addEvent(*spike, spike->getSampleNumber(), electrodeIndex);
 
@@ -822,7 +821,7 @@ float RecordNode::getFreeSpaceKilobytes() const
 int RecordNode::getTotalRecordedStreams()
 {
     int numStreams = 0;
-    
+
     for (auto stream : dataStreams)
     {
         for (auto ch : stream->getContinuousChannels())
@@ -834,7 +833,7 @@ int RecordNode::getTotalRecordedStreams()
             }
         }
     }
-    
+
     return numStreams;
 }
 
@@ -852,7 +851,7 @@ void RecordNode::clearRecordEngines()
 
 void RecordNode::saveCustomParametersToXml(XmlElement* xml)
 {
-    
+
     RecordNodeEditor* recordNodeEditor = (RecordNodeEditor*) getEditor();
 
     xml->setAttribute ("path", dataDirectory.getFullPathName());
@@ -866,7 +865,7 @@ void RecordNode::saveCustomParametersToXml(XmlElement* xml)
     {
 
         const uint16 streamId = stream->getStreamId();
-        
+
         if (recordContinuousChannels[streamId].size() > 0)
         {
             XmlElement* streamXml = xml->createNewChildElement("STREAM");
@@ -877,10 +876,10 @@ void RecordNode::saveCustomParametersToXml(XmlElement* xml)
             streamXml->setAttribute("source_node_id", stream->getSourceNodeId());
             streamXml->setAttribute("sample_rate", stream->getSampleRate());
             streamXml->setAttribute("channel_count", stream->getChannelCount());
-            
+
             if (stream->hasDevice())
                 streamXml->setAttribute("device_name", stream->device->getName());
-            
+
             String stateString;
             bool allOn = true;
             bool allOff = true;
@@ -913,23 +912,23 @@ void RecordNode::saveCustomParametersToXml(XmlElement* xml)
 
 void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
 {
-    
+
     RecordNodeEditor* recordNodeEditor = (RecordNodeEditor*) getEditor();
 
     //Get saved record path
     String savedPath = xml->getStringAttribute("path");
-    
+
     if (!File(savedPath).exists())
         savedPath = CoreServices::getRecordingParentDirectory().getFullPathName();
 
     setDataDirectory(File(savedPath));
-    
+
     setEngine(xml->getStringAttribute("engine", "BINARY"));
-    
+
     recordEvents = xml->getBoolAttribute("recordEvents", true);
     recordSpikes = xml->getBoolAttribute("recordSpikes", true);
 
-    
+
     Array<int> matchingIndexes;
     savedDataStreamParameters.clear();
 
@@ -945,38 +944,38 @@ void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
             parameterCollection->owner.sample_rate = subNode->getDoubleAttribute("sample_rate");
             parameterCollection->owner.channel_count = subNode->getIntAttribute("channel_count");
             parameterCollection->owner.sourceNodeId = subNode->getIntAttribute("source_node_id");
-            
+
             if (subNode->hasAttribute("device_name"))
                 parameterCollection->owner.deviceName = subNode->getStringAttribute("device_name");
-            
+
             savedDataStreamParameters.add(parameterCollection);
         }
     }
-    
+
     for (auto stream : dataStreams)
     {
         int matchingIndex = findMatchingStreamParameters(stream);
         const uint16 streamId = stream->getStreamId();
-        
+
         if (matchingIndex > -1)
         {
             int savedStreamIndex = -1;
-            
+
             for (auto* subNode : xml->getChildIterator())
             {
                 if (subNode->hasTagName("STREAM"))
                 {
                     savedStreamIndex++;
-                    
+
                     if (savedStreamIndex == matchingIndex)
                     {
                         if (subNode->getBoolAttribute("isMainStream", false))
                         {
                             setMainDataStream(streamId);
                         }
-                        
+
                         setSyncLine(streamId, subNode->getIntAttribute("sync_line", 0));
-                        
+
                         String recordState = subNode->getStringAttribute("recording_state", "ALL");
 
                         for (int ch = 0; ch < recordContinuousChannels[streamId].size(); ch++)
@@ -1004,11 +1003,11 @@ void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
                             recordContinuousChannels[streamId][ch] = channelState;
                         }
                     }
-                    
+
                 }
             }
 
-            
+
         }
     }
 

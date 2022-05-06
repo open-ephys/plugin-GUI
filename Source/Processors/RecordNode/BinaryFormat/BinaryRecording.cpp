@@ -121,8 +121,6 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         singleChannelJSON->setProperty("units", channelInfo->getUnits());
         createChannelMetadata(channelInfo, singleChannelJSON);
 
-        m_startSampleNum.add(getLatestSampleNumber(ch));
-
         singleStreamJSON.add(var(singleChannelJSON));
 
         lastStreamId = streamId;
@@ -226,7 +224,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         jsonChannel->setProperty("folder_name", eventName.replace(File::getSeparatorString(), "/"));
         jsonChannel->setProperty("channel_name", chan->getName());
         jsonChannel->setProperty("description", chan->getDescription());
-        
+
         jsonChannel->setProperty("identifier", chan->getIdentifier());
         jsonChannel->setProperty("sample_rate", chan->getSampleRate());
         jsonChannel->setProperty("type", jsonTypeValue(type.getType()));
@@ -237,7 +235,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         {
             jsonChannel->setProperty("initial_state", int(chan->getTTLWord()));
         }
-        
+
         createChannelMetadata(chan, jsonChannel);
 
         //rec->metaDataFile = createEventMetadataFile(chan, eventPath + eventName + "metadata.npy", jsonChannel);
@@ -337,6 +335,8 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
     FileOutputStream settingsFileStream(File(basepath + "structure.oebin"));
 
     settingsJSON->writeAsJSON(settingsFileStream, 2, false, 3);
+
+    wroteFirstBlock = false;
 
 }
 
@@ -532,6 +532,14 @@ void BinaryRecording::writeContinuousData(int writeChannel,
     if (!size)
         return;
 
+    if (!wroteFirstBlock)
+    {
+        for (int ch = 0; ch < getNumRecordedContinuousChannels(); ch++)
+            m_startSampleNum.add(getLatestSampleNumber(ch));
+
+        wroteFirstBlock = true;
+    }
+
     /* If our internal buffer is too small to hold the data... */
 	if (size > m_bufferSize) //shouldn't happen, but if does, this prevents crash...
 	{
@@ -557,7 +565,7 @@ void BinaryRecording::writeContinuousData(int writeChannel,
 	m_continuousFiles[fileIndex]->writeChannel(
 		getLatestSampleNumber(writeChannel) - m_startSampleNum[writeChannel],
 		m_channelIndexes[writeChannel],
-		m_intBuffer.getData(), 
+		m_intBuffer.getData(),
         size);
 
     /* If is first channel in subprocessor */
@@ -677,13 +685,15 @@ void BinaryRecording::writeSpike(int electrodeIndex, const Spike* spike)
 
 }
 
-void BinaryRecording::writeTimestampSyncText(uint64 streamId, int64 timestamp, float sourceSampleRate, String text)
+void BinaryRecording::writeTimestampSyncText(uint64 streamId, int64 sampleNumber, float sourceSampleRate, String text)
 {
-    bool inHere = true;
 	if (!m_syncTextFile)
 		return;
-	m_syncTextFile->writeText(text + ": " + String(timestamp) + "\r\n", false, false, nullptr);
+	m_syncTextFile->writeText(text + ": " + String(sampleNumber) + "\r\n", false, false, nullptr);
     m_syncTextFile->flush();
+
+
+
 }
 
 RecordEngineManager* BinaryRecording::getEngineManager()

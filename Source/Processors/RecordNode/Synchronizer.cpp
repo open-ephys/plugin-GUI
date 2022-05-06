@@ -82,6 +82,9 @@ void Stream::addEvent(int64 sampleNumber)
 
 void Stream::closeSyncWindow()
 {
+
+	//LOGC("Stream ", streamId, " Closing Sync Window...receivedEvent: ", receivedEventInWindow, ", receivedMainTime: ", receivedMainTimeInWindow);
+
 	if (receivedEventInWindow && receivedMainTimeInWindow)
 	{
 		if (startSample < 0)
@@ -100,7 +103,7 @@ void Stream::closeSyncWindow()
 			{
 				actualSampleRate = tempSampleRate;
 				isSynchronized = true;
-				//LOGD("Stream ", streamId, " new sample rate: ", actualSampleRate);
+				//LOGC("Stream ", streamId, " new sample rate: ", actualSampleRate);
 			}
 			else {
 				// check whether the sample rate has changed
@@ -108,14 +111,16 @@ void Stream::closeSyncWindow()
 				{
 					actualSampleRate = tempSampleRate;
 					isSynchronized = true;
-					//LOGD("Stream ", streamId, " UPDATED sample rate: ", actualSampleRate);
+					//LOGC("Stream ", streamId, " UPDATED sample rate: ", actualSampleRate);
 
 				}
-				else { // reset the clock
+				else 
+				{   // reset the clock
+					actualSampleRate = -1.0f;
 					startSample = tempSampleNum;
 					startSampleMainTime = tempMainTime;
 					isSynchronized = false;
-					//LOGD("Stream ", streamId, " NO LONGER SYNCHRONIZED.");
+					//LOGC("Stream ", streamId, " NO LONGER SYNCHRONIZED.");
 
 				}
 			}
@@ -245,10 +250,10 @@ void Synchronizer::stopAcquisition()
 void Synchronizer::addEvent(uint16 streamId, int ttlLine, int64 sampleNumber)
 {
 
-	if (streamCount == 1)
+	if (streamCount == 1 || sampleNumber < 1000)
 		return;
 
-	//LOGC("Synchronizer received sync event for stream ", streamId);
+	//LOGC("Synchronizer received sync event for stream ", streamId, ", sampleNumber: ", sampleNumber);
 
 	if (streams[streamId]->syncLine == ttlLine)
 	{
@@ -364,7 +369,7 @@ void Synchronizer::hiResTimerCallback()
 // called by RecordNodeEditor (when loading), SyncControlButton
 void SynchronizingProcessor::setMainDataStream(uint16 streamId)
 {
-    LOGD("Setting ", streamId, " as the main stream");
+    //LOGD("Setting ", streamId, " as the main stream");
     synchronizer.setMainDataStream(streamId);
 }
 
