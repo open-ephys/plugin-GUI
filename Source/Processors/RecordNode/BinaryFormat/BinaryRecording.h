@@ -108,8 +108,6 @@ private:
 	OwnedArray<EventRecording> m_eventFiles;
 	OwnedArray<EventRecording> m_spikeFiles;
 
-	bool wroteFirstBlock;
-
 	static String jsonTypeValue(BaseType type);
 	static String getProcessorString(const InfoObject* channelInfo);
 
@@ -122,7 +120,7 @@ private:
 
 	int m_recordingNum;
     int m_experimentNum;
-	Array<int64> m_startSampleNum;
+    Array<int64> m_samplesWritten;
 
 	const int samplesPerBlock{ 4096 };
 

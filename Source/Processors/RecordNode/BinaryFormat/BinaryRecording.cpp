@@ -71,6 +71,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 
     m_channelIndexes.insertMultiple(0, 0, getNumRecordedContinuousChannels());
     m_fileIndexes.insertMultiple(0, 0, getNumRecordedContinuousChannels());
+    m_samplesWritten.insertMultiple(0, 0, getNumRecordedContinuousChannels());
 
     Array<var> continuousChannelJSON;
     Array<var> singleStreamJSON;
@@ -336,8 +337,6 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
 
     settingsJSON->writeAsJSON(settingsFileStream, 2, false, 3);
 
-    wroteFirstBlock = false;
-
 }
 
 std::unique_ptr<NpyFile> BinaryRecording::createEventMetadataFile(const MetadataEventObject* channel, String filename, DynamicObject* jsonFile)
@@ -487,19 +486,19 @@ void BinaryRecording::closeFiles()
 
     m_channelIndexes.clear();
     m_fileIndexes.clear();
+    m_samplesWritten.clear();
+    
     m_dataTimestampFiles.clear();
     m_dataSyncTimestampFiles.clear();
 
     m_spikeChannelIndexes.clear();
     m_spikeFileIndexes.clear();
 
-    //m_syncTextFile = nullptr;
-
     m_scaledBuffer.malloc(MAX_BUFFER_SIZE);
     m_intBuffer.malloc(MAX_BUFFER_SIZE);
     m_sampleNumberBuffer.malloc(MAX_BUFFER_SIZE);
     m_bufferSize = MAX_BUFFER_SIZE;
-    m_startSampleNum.clear();
+
 }
 
 void BinaryRecording::writeEventMetadata(const MetadataEvent* event, NpyFile* file)
@@ -532,14 +531,6 @@ void BinaryRecording::writeContinuousData(int writeChannel,
     if (!size)
         return;
 
-    if (!wroteFirstBlock)
-    {
-        for (int ch = 0; ch < getNumRecordedContinuousChannels(); ch++)
-            m_startSampleNum.add(getLatestSampleNumber(ch));
-
-        wroteFirstBlock = true;
-    }
-
     /* If our internal buffer is too small to hold the data... */
 	if (size > m_bufferSize) //shouldn't happen, but if does, this prevents crash...
 	{
@@ -558,15 +549,14 @@ void BinaryRecording::writeContinuousData(int writeChannel,
     /* Get the file index that belongs to the current recording channel */
 	int fileIndex = m_fileIndexes[writeChannel];
 
-    //if (m_channelIndexes[writeChannel] == 0 && fileIndex == 1)
-    //    std::cout << fileIndex << " : " << getLatestSampleNumber(writeChannel) << " : " << m_startSampleNum[writeChannel] << std::endl;
-
     /* Write the data to that file */
 	m_continuousFiles[fileIndex]->writeChannel(
-		getLatestSampleNumber(writeChannel) - m_startSampleNum[writeChannel],
+		m_samplesWritten[writeChannel],
 		m_channelIndexes[writeChannel],
 		m_intBuffer.getData(),
         size);
+    
+    m_samplesWritten.set(writeChannel, m_samplesWritten[writeChannel] + size);
 
     /* If is first channel in subprocessor */
 	if (m_channelIndexes[writeChannel] == 0)
