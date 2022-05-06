@@ -30,4 +30,4 @@ Should be included in the source files which declare a processor class.
 #include "../../Source/Processors/GenericProcessor/GenericProcessor.h"
 #include "../../Source/Processors/Events/Event.h"
 #include "../../Source/Processors/Events/Spike.h"
-
+#include "DspLib.h"
