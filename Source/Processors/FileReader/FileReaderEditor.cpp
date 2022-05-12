@@ -64,12 +64,10 @@ void FullTimeline::paint(Graphics& g)
 	g.fillRect(borderThickness, borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
 
     /* Draw a colored vertical bar for each event */
-    Array<EventInfo> eventInfo = fileReader->getActiveEventInfo();
     int64 totalSamples = fileReader->getCurrentNumTotalSamples();
 
-    for (auto info : eventInfo)
+    for (auto info : fileReader->getActiveEventInfo())
     {
-
         for (int i = 0; i < info.timestamps.size(); i++) {
         
             int64 ts = info.timestamps[i];

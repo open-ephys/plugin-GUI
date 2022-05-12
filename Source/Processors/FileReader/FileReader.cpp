@@ -534,7 +534,6 @@ void FileReader::process(AudioBuffer<float>& buffer)
 void FileReader::addEventsInRange(int64 start, int64 stop)
 {
 
-    //Finds all events in the source file that occur between startTimestamp and stopTimestamp
     EventInfo events;
     input->processEventData(events, start, stop);
 
@@ -543,9 +542,7 @@ void FileReader::addEventsInRange(int64 start, int64 stop)
         juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount*(stopSample - startSample) - start;
         uint8 ttlBit = events.channels[i];
         bool state = events.channelStates[i] > 0;
-        //FIXME: Needs to create event on the correct channel, not just index 0
         TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[0], events.timestamps[i], ttlBit, state);
-        //TTLEventPtr event = TTLEvent::createTTLEvent(eventChannelArray[0], absoluteCurrentTimestamp, &ttlData, sizeof(uint8), uint16(events.channels[i]));
         addEvent(event, absoluteCurrentTimestamp); 
     }
 
