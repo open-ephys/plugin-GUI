@@ -134,6 +134,9 @@ public:
 	/** Returns the library index based on a plugin type/index combination */
 	int getLibraryIndexFromPlugin(Plugin::Type type, int index);
 
+	/** Finds and removes the plugin with the specified library name from the Plugin Manager */
+	bool removePlugin(String libName);
+
 private:
 	Array<LoadedLibInfo> libArray;
 	Array<LoadedPluginInfo<Plugin::ProcessorInfo>> processorPlugins;
