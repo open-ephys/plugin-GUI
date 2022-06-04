@@ -659,16 +659,16 @@ void Rhd2000EvalBoard::selectAuxCommandLength(AuxCmdSlot auxCommandSlot, int loo
 
     switch (auxCommandSlot) {
     case AuxCmd1:
-        dev->SetWireInValue(WireInAuxCmdLoop1, loopIndex);
-        dev->SetWireInValue(WireInAuxCmdLength1, endIndex);
+        dev->SetWireInValue(WireInAuxCmdLoop, loopIndex, 0x000003ff);
+        dev->SetWireInValue(WireInAuxCmdLength, endIndex,0x000003ff);
         break;
     case AuxCmd2:
-        dev->SetWireInValue(WireInAuxCmdLoop2, loopIndex);
-        dev->SetWireInValue(WireInAuxCmdLength2, endIndex);
+        dev->SetWireInValue(WireInAuxCmdLoop, loopIndex << 10, 0x000003ff << 10);
+        dev->SetWireInValue(WireInAuxCmdLength, endIndex << 10 , 0x000003ff < 10);
         break;
     case AuxCmd3:
-        dev->SetWireInValue(WireInAuxCmdLoop3, loopIndex);
-        dev->SetWireInValue(WireInAuxCmdLength3, endIndex);
+        dev->SetWireInValue(WireInAuxCmdLoop, loopIndex << 20, 0x000003ff << 20);
+        dev->SetWireInValue(WireInAuxCmdLength, endIndex << 20, 0x000003ff < 20);
         break;
     }
     dev->UpdateWireIns();
@@ -1028,7 +1028,13 @@ void Rhd2000EvalBoard::setDacManual(int value)
         return;
     }
 
-    dev->SetWireInValue(WireInDacManual, value);
+    dev->SetWireInValue(WireInDacManual, value << 15, 0xffff0000); // bits 16-31 are for DAC on this wire
+    dev->UpdateWireIns();
+}
+
+void Rhd2000EvalBoard::manualTrigger(int trigger, int triggerOn) 
+{
+    dev->SetWireInValue(WireInDacManual, (triggerOn ? 1: 0) << trigger, 1 << trigger);
     dev->UpdateWireIns();
 }
 
@@ -1688,4 +1694,61 @@ void Rhd2000EvalBoard::printFIFOmetrics()
 {
     dev->UpdateWireOuts();
     std::cout << "In FIFO: " << dev->GetWireOutValue(0x28) << " DDR: " << dev->GetWireOutValue(0x2a) << " Out FIFO: " << dev->GetWireOutValue(0x29) << std::endl;
+}
+
+void Rhd2000EvalBoard::programStimReg(int stream, int channel, int reg, int value) 
+{
+    dev->SetWireInValue(WireInStimRegAddr, (stream << 8) + (channel << 4) + reg);
+    dev->SetWireInValue(WireInStimRegWord, value);
+    dev->UpdateWireIns();
+
+    dev->ActivateTriggerIn(TrigInRamAddrReset, 1);
+}
+
+void Rhd2000EvalBoard::updateDigitalOutput(DigitalOutput digital)
+{
+    int stream = 16;
+
+    double timestep_us = 1.0e6 / getSampleRate();
+
+    int value = (digital.triggerEnabled ? (1 << 7) : 0) + 
+                (digital.triggerOnLow ? (1 << 6) : 0) + 
+                (digital.edgeTriggered ? (1 << 5) : 0) + digital.triggerSource;
+    
+    //Trigger Parameters
+    programStimReg(stream, digital.channel,0,value);
+
+    // Number of Pulses
+    value = (digital.negStimFirst ? (1 << 10) : 0) + (digital.shapeInt << 8) + (digital.numPulses - 1);
+    programStimReg(stream, digital.channel, 1, value);
+
+    int postTriggerDelay = std::round(digital.postTriggerDelay / timestep_us + 0.5);
+    int firstPhaseDuration = std::round(digital.firstPhaseDuration / timestep_us + 0.5);
+    int refractoryPeriod = std::round(digital.refractoryPeriod / timestep_us + 0.5);
+    int pulseTrainPeriod = std::round(digital.pulseTrainPeriod / timestep_us + 0.5);
+
+    int eventStartStim = postTriggerDelay;
+    int eventEndStim = eventStartStim + firstPhaseDuration;
+    int eventEnd = eventEndStim + refractoryPeriod;
+
+    int eventRepeatStim = 0;
+
+    if (digital.pulseOrTrain == 1)
+    {
+        eventRepeatStim = eventStartStim + pulseTrainPeriod;
+    } else {
+        eventRepeatStim = 4294967295;
+    }
+
+    //EventStartStim (post Trigger Delay) #These times are in units of clock ticks
+    programStimReg(stream, digital.channel, 4, eventStartStim);
+
+    //eventEndStim (post Trigger Delay + Phase duration)
+    programStimReg(stream, digital.channel, 7, eventEndStim);
+
+    //eventRepeatStim
+    programStimReg(stream, digital.channel, 8, eventRepeatStim);
+
+    //event End
+    programStimReg(stream, digital.channel, 13, eventEnd);
 }
