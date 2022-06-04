@@ -47,6 +47,27 @@ namespace OpalKellyLegacy
 }
 class Rhd2000DataBlockUsb3;
 
+struct DigitalOutput {
+    int channel;
+    int pulseOrTrain; // 0 = single Pulse, 1 = pulse train
+
+    bool triggerEnabled;
+    bool triggerOnLow; // 0 = High trigger, 1 = low trigger
+    bool edgeTriggered; // 0 = edge, 1 = level triggered
+    int triggerSource; // 0 - 15 corresponds to digital 1-16. 16 -23 are analog inputs, and 24 through 31 is keypress (or code)
+
+    int shapeInt; // 0 = Biphasic, 1 = Biphasic with delay, 2 = Triphasic, 3 = monophasic
+    bool negStimFirst; // 0 = negative first, 1 = positive first
+    int numPulses;
+
+    int postTriggerDelay; // After Trigger, before pulse
+    int firstPhaseDuration;
+    int refractoryPeriod;
+    int pulseTrainPeriod;
+
+    bool repeatBurst;
+};
+
 class Rhd2000EvalBoardUsb3
 {
 
@@ -167,6 +188,11 @@ public:
 
 	bool getStreamEnabled(int stream) const;
 
+    // Stimulation
+    void manualTrigger(int trigger, int triggerOn);
+    void programStimReg(int stream, int channel, int reg, int value);
+    void updateDigitalOutput(DigitalOutput digital);
+
 private:
     OpalKellyLegacy::okCFrontPanel *dev;
     AmplifierSampleRate sampleRate;
@@ -198,9 +224,15 @@ private:
         WireInAuxCmdLoop = 0x0c,
         WireInLedDisplay = 0x0d,
         WireInDacReref = 0x0e,
+
+        WireInStimCmdMode = 0x0f,
+        WireInStimRegAddr = 0x10,
+        WireInStimRegWord = 0x11,
+        WireInManualTriggers = 0x12,
+        WireInTtlOut = 0x13,
         // Note: room for extra WireIns here
         WireInDataStreamEn = 0x14,
-        WireInTtlOut = 0x15,
+        //WireInTtlOut = 0x15,
         WireInDacSource1 = 0x16,
         WireInDacSource2 = 0x17,
         WireInDacSource3 = 0x18,
@@ -215,6 +247,7 @@ private:
         TrigInConfig = 0x40,
         TrigInSpiStart = 0x41,
         TrigInDacConfig = 0x42,
+        TrigInRamAddrReset = 0x43,
 
         WireOutNumWords = 0x20,
         WireOutSerialDigitalIn = 0x21,
