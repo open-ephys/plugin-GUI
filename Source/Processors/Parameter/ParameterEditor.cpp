@@ -86,7 +86,7 @@ void TextBoxParameterEditor::updateView()
 void TextBoxParameterEditor::resized()
 {
     parameterNameLabel->setBounds(0, 0, finalWidth, 20);
-    valueTextBox->setBounds(0, 22, getWidth(), 18);
+    valueTextBox->setBounds(0, 20, getWidth(), 18);
 }
 
 
@@ -192,7 +192,19 @@ void ComboBoxParameterEditor::comboBoxChanged(ComboBox* comboBox)
 
 void ComboBoxParameterEditor::updateView()
 {
+    if (param->getType() == Parameter::CATEGORICAL_PARAM)
+    {
+        CategoricalParameter* p = (CategoricalParameter*)param;
 
+        const StringArray& categories = p->getCategories();
+        valueComboBox->clear(dontSendNotification);
+
+        for (int i = 0; i < categories.size(); i++)
+        {
+            valueComboBox->addItem(categories[i], i + offset);
+        }
+    }
+    
     if (param == nullptr)
     {
         for (int i = 0; i < valueComboBox->getNumItems(); i++)
@@ -227,7 +239,7 @@ void ComboBoxParameterEditor::resized()
 {
 
     parameterNameLabel->setBounds(0, 0, 80, 20);
-    valueComboBox->setBounds(0, 22, 80, 18);
+    valueComboBox->setBounds(0, 20, 80, 18);
 }
 
 CustomSlider::CustomSlider() : isEnabled(true)
