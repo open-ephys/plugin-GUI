@@ -189,6 +189,16 @@ public:
                 }
 
                 try {
+                    std::string base_text = request_json["base_text"];
+                    LOGD("Found 'base_text': ", base_text);
+                    const MessageManagerLock mml;
+                    CoreServices::setRecordingDirectoryBasename(String(base_text));
+                }
+                catch (json::exception& e) {
+                    LOGD("'base_text' not specified'");
+                }
+
+                try {
                     std::string append_text = request_json["append_text"];
                     LOGD("Found 'append_text': ", append_text);
                     const MessageManagerLock mml;

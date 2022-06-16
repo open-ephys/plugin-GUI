@@ -1195,7 +1195,18 @@ void ControlPanel::setRecordingDirectoryPrependText(String text)
         {
             if (field->value != text)
             {
-                field->value = text;
+                if (!text.length())
+                    field->state = FilenameFieldComponent::State::NONE;
+                else if (text == "auto")
+                    field->state = FilenameFieldComponent::State::AUTO;
+                else
+                {
+                    String errString = FilenameFieldComponent::validate(text);
+                    if (errString.length())
+                        return; //TODO: Notify user of error via HTTPServer
+                    field->state = FilenameFieldComponent::State::CUSTOM;
+                    field->value = text;
+                }
                 createNewRecordingDirectory();
             }
         }
@@ -1221,7 +1232,18 @@ void ControlPanel::setRecordingDirectoryAppendText(String text)
         {
             if (field->value != text)
             {
-                field->value = text;
+                if (!text.length())
+                    field->state = FilenameFieldComponent::State::NONE;
+                else if (text == "auto")
+                    field->state = FilenameFieldComponent::State::AUTO;
+                else
+                {
+                    String errString = FilenameFieldComponent::validate(text);
+                    if (errString.length())
+                        return; //TODO: Notify user of error via HTTPServer
+                    field->state = FilenameFieldComponent::State::CUSTOM;
+                    field->value = text;
+                }
                 createNewRecordingDirectory();
             }
         }
@@ -1236,7 +1258,16 @@ void ControlPanel::setRecordingDirectoryBasename(String text)
         {
             if (field->value != text)
             {
-                field->value = text;
+                if ( text == "auto" )
+                    field->state = FilenameFieldComponent::State::AUTO;
+                else if ( text.length() > 0 )
+                {
+                    String errString = FilenameFieldComponent::validate(text);
+                    if (errString.length())
+                        return; //TODO: Notify user of error via HTTPServer
+                    field->state = FilenameFieldComponent::State::CUSTOM;
+                    field->value = text;
+                }
                 createNewRecordingDirectory();
             }
         }
