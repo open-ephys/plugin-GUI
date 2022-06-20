@@ -119,7 +119,7 @@ PLUGIN_API void createNewRecordingDirectory();
 /** Set the text to be prepended to the name of newly created recording directories. */
 PLUGIN_API String getRecordingDirectoryPrependText();
 
-/** Set the text to be appended to the name of newly reated recording directories. */
+/** Set the text to be appended to the name of newly created recording directories. */
 PLUGIN_API String getRecordingDirectoryAppendText();
 
 /** Set the text to be prepended to the name of newly created recording directories. */
@@ -142,7 +142,7 @@ PLUGIN_API bool setDefaultRecordEngine(String id);
 /** Returns an array of IDs for Record Nodes currently in the signal chain*/
 PLUGIN_API Array<int> getAvailableRecordNodeIds();
 
-/** Returns an array of IDs for Record Nodes currently in the signal chain*/
+/** Returns true if all record nodes are in a "synchronized" state*/
 PLUGIN_API bool allRecordNodesAreSynchronized();
 
 namespace RecordNode

@@ -366,8 +366,6 @@ void SelectedChannelsParameter::setNextValue(var newValue_)
         newValue = newValue_;
     }
     
-   // std::cout << "Updating selected channels parameter value " << this << std::endl;
-    
     processor->parameterChangeRequest(this);
 }
 
