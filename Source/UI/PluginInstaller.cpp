@@ -969,7 +969,12 @@ void PluginInfoComponent::buttonClicked(Button* button)
 	}
 	else if(button == &uninstallButton)
 	{
-		uninstallPlugin(pInfo.pluginName);
+		if(!uninstallPlugin(pInfo.pluginName))
+		{
+			LOGE("Failed to uninstall ", pInfo.displayName);
+		}
+		else
+			LOGC(pInfo.displayName, " uninstalled successfully!");
 	}
 	else if (button == &documentationButton)
 	{
@@ -1212,6 +1217,9 @@ void PluginInfoComponent::makeInfoVisible(bool isEnabled)
 
 bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 {
+	LOGC("Uninstalling plugin: ", pInfo.displayName);
+
+	// Check whether the plugin is loaded in a signal chain
 	if(AccessClass::getProcessorGraph()->processorWithSameNameExists(pInfo.displayName))
 	{
 		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
@@ -1229,6 +1237,7 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 	std::unique_ptr<XmlElement> xml (doc.getDocumentElement());
 
 	String dllName;
+	XmlElement* pluginElement;
 
 	if (xml == 0 || ! xml->hasTagName("PluginInstaller"))
 	{
@@ -1237,23 +1246,50 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 	}
 	else
 	{	
-		auto pluginElement = xml->getFirstChildElement()->getChildByName(plugin);
+		// Fetch plugin DLL name
+		pluginElement = xml->getFirstChildElement()->getChildByName(plugin);
 		dllName = pluginElement->getAttributeValue(1);
-		xml->getFirstChildElement()->removeChildElement(pluginElement, true);
-
-		if (! xml->writeTo(xmlFile))
-		{
-			LOGD("Error! Couldn't write to installedPlugins.xml");
-			return false;
-		}
 	}
+
+	// Remove plugin from PluginManager
+	if(!AccessClass::getPluginManager()->removePlugin(pInfo.displayName))
+		return false;
 
 	//delete plugin file
 	File pluginFile = getPluginsDirectory().getChildFile(dllName);
-	pluginFile.deleteFile();
+	if(!pluginFile.deleteFile())
+	{
+		LOGD("Unable to delete ", pluginFile.getFullPathName(), " ...Trying again!");
+
+#ifdef _WIN32
+		const char* processorLocCString = static_cast<const char*>(pluginFile.getFullPathName().toUTF8());
+		HMODULE md = GetModuleHandleA(processorLocCString);
+
+		if(FreeLibrary(md))
+			LOGD("Unloaded ", dllName);
+
+		if(!pluginFile.deleteFile())
+		{
+			return false;
+		}
+#else
+		return false;
+#endif
+	}
+
+	// Remove plugin XML entry
+	xml->getFirstChildElement()->removeChildElement(pluginElement, true);
+	if (! xml->writeTo(xmlFile))
+	{
+		LOGD("Error! Couldn't write to installedPlugins.xml");
+		return false;
+	}
 
 	AccessClass::getProcessorList()->fillItemList();
 	AccessClass::getProcessorList()->repaint();
+
+	if(pInfo.type == "Record Engine")
+		AccessClass::getControlPanel()->updateRecordEngineList();
 
 	uninstallButton.setVisible(false);
 	downloadButton.setEnabled(true);

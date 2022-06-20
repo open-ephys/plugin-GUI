@@ -31,6 +31,8 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "FileSource.h"
 
+#include "../../Utils/Utils.h"
+
 
 #define BUFFER_WINDOW_CACHE_SIZE 10
 

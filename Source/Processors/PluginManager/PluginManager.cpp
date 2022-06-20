@@ -535,6 +535,111 @@ bool PluginManager::findPlugin(String name, String libName, const Array<LoadedPl
 	return false;
 }
 
+bool PluginManager::removePlugin(String libName)
+{
+	int indexToRemove = -1;
+	for (int i = 0; i < libArray.size(); i++)
+	{
+		String pName = String(libArray[i].name);
+		if (pName.compareIgnoreCase(libName) == 0)
+		{
+			indexToRemove = i;
+			break;
+		}
+	}
+
+	if(indexToRemove == -1)
+		return false;
+
+	LoadedLibInfo lib = libArray[indexToRemove];
+
+	PluginInfoFunction piFunction = 0;
+#ifdef _WIN32
+	piFunction = (PluginInfoFunction)GetProcAddress(lib.handle, "getPluginInfo");
+#elif defined(__APPLE__)
+    piFunction = (PluginInfoFunction)CFBundleGetFunctionPointerForName(lib.handle, CFSTR("getPluginInfo"));
+#else
+    dlerror();
+	piFunction = (PluginInfoFunction)(dlsym(lib.handle, "getPluginInfo"));
+#endif
+
+	if (!piFunction)
+	{
+        ERROR_MSG("Failed to load function 'getPluginInfo'");
+		closeHandle(lib.handle);
+		return -1;
+	}
+
+	Plugin::PluginInfo pInfo;
+	for (int i = 0; i < lib.numPlugins; i++)
+	{
+		if (piFunction(i, &pInfo)) //if somehow there are fewer plugins than stated, stop removing
+			break;
+		switch (pInfo.type)
+		{
+			case Plugin::PROCESSOR:
+			{
+				LOGD("Removing processor plugin");
+				for(int j = 0; j < processorPlugins.size(); j++)
+				{
+					if(processorPlugins[j].name == pInfo.processor.name)
+					{
+						processorPlugins.remove(j);
+						break;
+					}
+				}
+				break;
+			}
+			case Plugin::RECORD_ENGINE:
+			{
+				LOGD("Removing record engine plugin");
+				for(int j = 0; j < recordEnginePlugins.size(); j++)
+				{
+					if(recordEnginePlugins[j].name == pInfo.recordEngine.name)
+					{
+						recordEnginePlugins.remove(j);
+						break;
+					}
+				}
+				break;
+			}
+			case Plugin::DATA_THREAD:
+			{
+				LOGD("Adding data thread plugin");
+				for(int j = 0; j < dataThreadPlugins.size(); j++)
+				{
+					if(dataThreadPlugins[j].name == pInfo.dataThread.name)
+					{
+						dataThreadPlugins.remove(j);
+						break;
+					}
+				}
+				break;
+			}
+			case Plugin::FILE_SOURCE:
+			{
+				LOGD("Adding file source plugin");
+				for(int j = 0; j < fileSourcePlugins.size(); j++)
+				{
+					if(fileSourcePlugins[j].name == pInfo.fileSource.name)
+					{
+						fileSourcePlugins.remove(j);
+						break;
+					}
+				}
+				break;
+			}
+			default:
+			{
+				LOGE("Inavlid plugin");
+				break;
+			}
+		}
+	}
+
+	libArray.remove(indexToRemove);
+	return true;
+}
 
 #if 0
 PluginManager::Plugin::Plugin() {

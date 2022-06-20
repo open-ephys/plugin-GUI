@@ -453,6 +453,7 @@ bool RecordNode::startAcquisition()
 
 bool RecordNode::stopAcquisition()
 {
+
     synchronizer.stopAcquisition();
 
 	// Remove message channel
@@ -471,6 +472,9 @@ bool RecordNode::stopAcquisition()
 	recordEngine->configureEngine();
 	synchronizer.reset();
 	eventMonitor->reset();
+
+	eventQueue->reset();
+	spikeQueue->reset();
 
 	return true;
 }
@@ -536,9 +540,6 @@ void RecordNode::startRecording()
 
 	dataQueue->setChannelCount(numRecordedChannels);
 	dataQueue->setTimestampStreamCount(dataStreams.size());
-
-	eventQueue->reset();
-	spikeQueue->reset();
 
 	recordThread->setQueuePointers(dataQueue.get(), eventQueue.get(), spikeQueue.get());
 	recordThread->setFirstBlockFlag(false);

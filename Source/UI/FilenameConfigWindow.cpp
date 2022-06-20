@@ -75,33 +75,39 @@ FilenameFieldComponent::FilenameFieldComponent(int type_, int state_, String val
 
 }
 
+/* Returns an empty string if the candidate is valid, else returns the error as a string */
+String FilenameFieldComponent::validate(String candidate)
+{
+
+    String errorStr = "";
+
+    if (candidate.length() == 0)
+        errorStr = "File name must have at least 1 character.";
+
+    if (candidate.contains(File::getSeparatorString()))
+        errorStr = "File name cannot contain slashes.";
+
+    if (candidate.contains("."))
+        errorStr = "File name cannot contain periods.";
+
+    return errorStr;
+
+}
+
 void FilenameFieldComponent::labelTextChanged(Label* label)
 {
     String candidateValue = label->getText();
 
-    if (candidateValue.length() == 0)
+    String errorStr = validate(candidateValue);
+
+    if (errorStr.length())
     {
         label->setText(value, dontSendNotification);
-        AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Invalid file name", "File name must have at least 1 character.");
+        AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Invalid file name...", errorStr);
         return;
     }
-
-    if (candidateValue.contains(File::getSeparatorString()))
-    {
-        label->setText(value, dontSendNotification);
-        AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Invalid file name", "File name cannot contain slashes.");
-        return;
-    }
-
-    if (candidateValue.contains("."))
-    {
-        label->setText(value, dontSendNotification);
-        AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Invalid file name", "File name cannot contain periods.");
-        return;
-    }
-
     value = candidateValue;
-    
+
 }
 
 void FilenameFieldComponent::incrementDirectoryIndex()

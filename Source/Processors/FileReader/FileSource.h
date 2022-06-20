@@ -140,12 +140,16 @@ public:
     /** Returns the full name of the file */
     String getFileName() const;
 
+    /** Get the event information for the current stream */
+    const EventInfo& getEventInfo();
 
-    Array<EventInfo> getEventInfo();
-
+    /** Keep track of how many times the recording has looped */
     int64 loopCount;
 
 protected:
+
+    /** Holds the name of the current stream */
+    String currentStream;
 
     /** Holds information about continuous channels in a recording */
     struct RecordInfo
@@ -159,7 +163,7 @@ protected:
     Array<RecordInfo> infoArray;
 
     /** Holds information about event channels in a recording */
-    Array<EventInfo> eventInfoArray;
+    std::map<String, EventInfo> eventInfoMap;
 
     bool fileOpened;
     int numRecords;
