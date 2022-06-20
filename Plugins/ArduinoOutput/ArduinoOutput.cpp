@@ -175,26 +175,3 @@ void ArduinoOutput::loadCustomParametersFromXml(XmlElement* xml)
     ed->updateDevice(xml->getStringAttribute("device", ""));
 
 }
-
-
-CustomPlugin::CustomPlugin()
-    : GenericProcessor("Custom Plugin")
-{
-    addIntParameter(Parameter::GLOBAL_SCOPE,
-                    "sorted_id",
-                    "The unit ID for triggering output",
-                    1, 1, 16);
-}
-
-void CustomPlugin::process(AudioBuffer<float> buffer)
-{
-    checkForEvents(true);
-}
-
-void CustomPlugin::handleSpike(SpikePtr spike)
-{
-    if (spike->getSortedId() == getParameter("sorted_id").getValue())
-    {
-        setTTLState(spike->getSampleNumber(), 0, true);
-    }
-}
