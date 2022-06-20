@@ -74,7 +74,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
     newSpike(false)
 {
 
-    refreshRate = 15; // Hz
+    refreshRate = 10; // Hz
 
     viewport = std::make_unique<Viewport>();
     spikeDisplay = std::make_unique<SpikeDisplay>(this, viewport.get());
