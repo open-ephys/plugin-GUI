@@ -186,7 +186,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         switch (chan->getType())
         {
         case EventChannel::TEXT:
-            LOGDD("Got text channel");
+            LOGC("Got text channel");
             eventName = "MessageCenter" + File::getSeparatorString();
             type = NpyType(BaseType::CHAR, chan->getLength());
             dataFileName = "text";
