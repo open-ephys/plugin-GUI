@@ -717,7 +717,7 @@ private:
         
         (*ret)["parent_directory"] = CoreServices::getRecordingParentDirectory().getFullPathName().toStdString();
 
-        (*ret)["current_directory_name"] = CoreServices::getRecordingDirectoryName().toStdString();
+        (*ret)["base_text"] = CoreServices::getRecordingDirectoryName().toStdString();
 
         (*ret)["prepend_text"] = CoreServices::getRecordingDirectoryPrependText().toStdString();
 
