@@ -199,7 +199,7 @@ public:
 	bool newDirectoryNeeded;
 
     std::unique_ptr<RecordThread> recordThread;
-	std::shared_ptr<RecordEngine> recordEngine;
+	std::unique_ptr<RecordEngine> recordEngine;
 	std::vector<RecordEngineManager*> availableEngines;
 
 	int64 samplesWritten;

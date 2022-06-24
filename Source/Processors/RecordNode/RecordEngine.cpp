@@ -32,6 +32,11 @@ RecordEngine::RecordEngine()
 {
 }
 
+RecordEngine::~RecordEngine()
+{
+    //std::cout << "Calling RecordEngine destructor" << std::endl;
+}
+
 void RecordEngine::registerRecordNode(RecordNode* node)
 {
 	recordNode = node;

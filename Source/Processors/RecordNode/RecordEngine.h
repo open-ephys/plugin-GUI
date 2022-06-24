@@ -67,7 +67,7 @@ public:
 	RecordEngine();
 
 	/** Destructor */
-	virtual ~RecordEngine() { }
+    virtual ~RecordEngine();
 
 	// ------------------------------------------------------------
 	//                  PURE VIRTUAL METHODS
