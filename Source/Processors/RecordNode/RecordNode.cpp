@@ -443,10 +443,13 @@ bool RecordNode::startAcquisition()
 
     synchronizer.startAcquisition();
 
-    eventChannels.add(new EventChannel(*messageChannel));
-    eventChannels.getLast()->addProcessor(processorInfo.get());
-    eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamId), false);
-
+    if (eventChannels.getLast()->getSourceNodeName() != "Message Center")
+    {
+        eventChannels.add(new EventChannel(*messageChannel));
+        eventChannels.getLast()->addProcessor(processorInfo.get());
+        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamId), false);
+    }
+    
     return true;
 
 }
@@ -457,7 +460,10 @@ bool RecordNode::stopAcquisition()
     synchronizer.stopAcquisition();
 
 	// Remove message channel
-	eventChannels.removeLast();
+    if (eventChannels.getLast()->getSourceNodeName() == "Message Center")
+    {
+        eventChannels.removeLast();
+    }
 
 	eventMonitor->displayStatus();
 
@@ -485,6 +491,14 @@ void RecordNode::startRecording()
 	Array<int> chanProcessorMap;
 	Array<int> chanOrderinProc;
 	OwnedArray<RecordProcessorInfo> procInfo;
+    
+    // in case recording starts before acquisition:
+    if (eventChannels.getLast()->getSourceNodeName() != "Message Center")
+    {
+        eventChannels.add(new EventChannel(*messageChannel));
+        eventChannels.getLast()->addProcessor(processorInfo.get());
+        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamId), false);
+    }
 
 	int lastSourceNodeId = -1;
 
