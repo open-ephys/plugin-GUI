@@ -66,8 +66,13 @@ public:
 	/** Constructor */
 	RecordEngine();
 
+#ifdef WIN32
 	/** Destructor */
-    virtual ~RecordEngine();
+    virtual ~RecordEngine() { }
+#else
+	/** Destructor */
+	virtual ~RecordEngine();
+#endif
 
 	// ------------------------------------------------------------
 	//                  PURE VIRTUAL METHODS

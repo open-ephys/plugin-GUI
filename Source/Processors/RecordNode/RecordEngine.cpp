@@ -32,10 +32,12 @@ RecordEngine::RecordEngine()
 {
 }
 
+#ifndef WIN32
 RecordEngine::~RecordEngine()
 {
     //std::cout << "Calling RecordEngine destructor" << std::endl;
 }
+#endif
 
 void RecordEngine::registerRecordNode(RecordNode* node)
 {
