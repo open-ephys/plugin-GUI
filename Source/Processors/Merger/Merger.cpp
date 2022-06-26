@@ -229,6 +229,14 @@ void Merger::updateSettings()
 
     if (sourceNodeA != nullptr)
     {
+        if (sourceNodeA->isMerger())
+        {
+            isEnabled = false;
+            messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
+            messageChannel->addProcessor(processorInfo.get());
+            return;
+        }
+
         LOGD("   Merger source A found.");
         continuousChannelGlobalIndex = addSettingsFromSourceNode(sourceNodeA, continuousChannelGlobalIndex);
         isEnabled &= sourceNodeA->isEnabled;
@@ -246,6 +254,18 @@ void Merger::updateSettings()
 
     if (sourceNodeB != nullptr)
     {
+        if (sourceNodeB->isMerger())
+        {
+            isEnabled = false;
+
+            if (messageChannel == nullptr)
+            {
+                messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
+                messageChannel->addProcessor(processorInfo.get());
+            }
+            return;
+        }
+
         LOGD("   Merger source B found.");
         continuousChannelGlobalIndex = addSettingsFromSourceNode(sourceNodeB, continuousChannelGlobalIndex);
         isEnabled &= sourceNodeB->isEnabled;
