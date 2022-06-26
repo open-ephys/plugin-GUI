@@ -541,6 +541,8 @@ void GenericProcessor::clearSettings()
     dataStreams.clearQuick(false);
     dataStreams.addArray(dataStreamsToKeep);
 
+    ttlEventChannel = nullptr;
+
 	startTimestampsForBlock.clear();
     startSamplesForBlock.clear();
 	numSamplesInBlock.clear();
@@ -1231,7 +1233,7 @@ int GenericProcessor::processEventBuffer()
 					
 			}
             else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT
-                     && static_cast<SystemEvent::Type>(*(dataptr + 1) == EventChannel::Type::TTL))
+                     && static_cast<EventChannel::Type>(*(dataptr + 1) == EventChannel::Type::TTL))
             {
                 uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
                 uint8 eventBit = *reinterpret_cast<const uint8*>(dataptr + 24);
@@ -1240,7 +1242,7 @@ int GenericProcessor::processEventBuffer()
                 getEditor()->setTTLState(sourceStreamId, eventBit, eventState);
                 
             } else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT
-            && static_cast<SystemEvent::Type>(*(dataptr + 1) == EventChannel::Type::TEXT))
+            && static_cast<EventChannel::Type>(*(dataptr + 1) == EventChannel::Type::TEXT))
             {
 
                 TextEventPtr textEvent = TextEvent::deserialize(dataptr, getMessageChannel());
@@ -1274,7 +1276,7 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 			if (EventBase::getBaseType(meta.data) == Event::Type::PROCESSOR_EVENT)
 			{
                 
-                if (static_cast<SystemEvent::Type>(*(meta.data + 1) != EventChannel::Type::TEXT))
+                if (static_cast<EventChannel::Type>(*(meta.data + 1) != EventChannel::Type::TEXT))
                 {
                     const EventChannel* eventChannel = getEventChannel(sourceProcessorId, sourceStreamId, sourceChannelIdx);
                     
@@ -1338,11 +1340,14 @@ void GenericProcessor::addEvent(const Event* event, int sampleNum)
 
 void GenericProcessor::addTTLChannel(String name)
 {
-	if (dataStreams.size() == 0)
-		return;
+    if (dataStreams.size() == 0)
+    {
+        return;
+    }
 
-	if (ttlEventChannel != nullptr)
+	if (ttlEventChannel == nullptr)
 	{
+
 		EventChannel::Settings settings{
 			EventChannel::Type::TTL,
 			name,
@@ -1358,10 +1363,11 @@ void GenericProcessor::addTTLChannel(String name)
 
 		for (int i = 0; i < 8; i++)
             ttlLineStates.add(false);
-	}
-	else {
-		jassert(false); // cannot add a second default TTL channel
-	}
+    }
+    else {
+        jassert(false); // this shouldn't be called twice in updateSettings()
+    }
+
 }
 
 
