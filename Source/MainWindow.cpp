@@ -33,10 +33,18 @@ MainWindow::MainWindow(const File& fileToLoad)
 		Colour(Colours::black),
 		DocumentWindow::allButtons)
 {
-    
-    File activityLog = File::getCurrentWorkingDirectory().getChildFile("activity.log");
+    configsDir = CoreServices::getSavedStateDirectory();
+	if(!configsDir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
+		configsDir = configsDir.getChildFile("configs-api" + String(PLUGIN_API_VER));
+	
+	if(!configsDir.isDirectory())
+		configsDir.createDirectory();
+
+    File activityLog = configsDir.getChildFile("activity.log");
     if (activityLog.exists())
         activityLog.deleteFile();
+	
+	OELogger::instance().createLogFile(activityLog.getFullPathName().toStdString());
 
 	std::cout << "Session Start Time: " << Time::getCurrentTime().toString(true, true, true, true) << std::endl;
 	std::cout << std::endl;
@@ -52,13 +60,6 @@ MainWindow::MainWindow(const File& fileToLoad)
 	shouldReloadOnStartup = true;
 	shouldEnableHttpServer = true;
 	openDefaultConfigWindow = false;
-
-	configsDir = CoreServices::getSavedStateDirectory();
-	if(!configsDir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
-		configsDir = configsDir.getChildFile("configs-api" + String(PLUGIN_API_VER));
-	
-	if(!configsDir.isDirectory())
-		configsDir.createDirectory();
 
 	// Create ProcessorGraph and AudioComponent, and connect them.
 	// Callbacks will be set by the play button in the control panel
@@ -229,9 +230,13 @@ void MainWindow::handleCrash(void* input)
     LOGD("\n", backtrace);
     std::flush(std::cout);
     
-    File activityLog = File::getCurrentWorkingDirectory().getChildFile("activity.log");
+	File crashLogDir = CoreServices::getSavedStateDirectory();
+	if(!crashLogDir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
+		crashLogDir = crashLogDir.getChildFile("configs-api" + String(PLUGIN_API_VER));
+
+    File activityLog = crashLogDir.getChildFile("activity.log");
 	String dt = AccessClass::getControlPanel()->generateDatetimeFromFormat("MM-DD-YYYY_HH_MM_SS");
-	File crashLog = File::getCurrentWorkingDirectory().getChildFile("activity_" + dt + ".log");
+	File crashLog = crashLogDir.getChildFile("activity_" + dt + ".log");
     
     if (activityLog.exists())
     {
@@ -240,7 +245,7 @@ void MainWindow::handleCrash(void* input)
         activityLog.deleteFile();
     }
 
-	String recoveryFileLocation = CoreServices::getSavedStateDirectory().getChildFile("recoveryConfig.xml").getFullPathName();
+	String recoveryFileLocation = crashLogDir.getChildFile("recoveryConfig.xml").getFullPathName();
 
 	AlertWindow::showMessageBox(AlertWindow::NoIcon,
 		"Open Ephys has stopped working",

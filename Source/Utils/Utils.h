@@ -55,13 +55,7 @@ std::ofstream logFile;
 
 protected:
 
-	OELogger() {
-		// Each time the GUI is launched, a new error log is generated.
-		// In case of a crash, the most recent file is appended with a datestring
-		logFile.open("activity.log", std::ios::out | std::ios::app);
-		time_t now = time(0);
-		logFile << "[open-ephys] Session start time: " << ctime(&now);
-	}
+	OELogger() { }
 public:
 	static OELogger& instance()
 	{
@@ -99,6 +93,15 @@ public:
 	{
 		(logFile << ... << args);
 		logFile << std::endl;
+	}
+
+	void createLogFile(std::string const& filePath)
+	{
+		// Each time the GUI is launched, a new error log is generated.
+		// In case of a crash, the most recent file is appended with a datestring
+		logFile.open(filePath, std::ios::out | std::ios::app);
+		time_t now = time(0);
+		logFile << "[open-ephys] Session start time: " << ctime(&now);
 	}
 
 private:
