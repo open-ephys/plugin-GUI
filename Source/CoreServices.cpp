@@ -142,9 +142,14 @@ namespace CoreServices
 		return getControlPanel()->getRecordingParentDirectory();
 	}
 
-	void setRecordingDirectoryBasename(String dir)
+	void setRecordingDirectoryBaseText(String text)
 	{
-		getControlPanel()->setRecordingDirectoryBasename(dir);
+		getControlPanel()->setRecordingDirectoryBaseText(text);
+	}
+
+	String getRecordingDirectoryBaseText()
+	{
+		return getControlPanel()->getRecordingDirectoryBaseText();
 	}
 
 	String getRecordingDirectoryName()

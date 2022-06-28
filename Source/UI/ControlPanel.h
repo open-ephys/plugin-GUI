@@ -388,9 +388,12 @@ public:
     /** Returns the current parent recording diretory*/
     File getRecordingParentDirectory();
 
+    /** Gets the base name of the recording directory */
+    String getRecordingDirectoryBaseText();
+
     /** Sets the base name of the recording directory (overrides the auto-generated text,
         but not prepend or append text)*/
-    void setRecordingDirectoryBasename(String text);
+    void setRecordingDirectoryBaseText(String text);
 
     /** Gets the name of the current recording directory (including prepend and append text)
     
