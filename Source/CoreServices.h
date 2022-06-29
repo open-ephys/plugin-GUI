@@ -106,8 +106,11 @@ PLUGIN_API void setRecordingParentDirectory(String dir);
 /** Returns the default recording directory.*/
 PLUGIN_API File getRecordingParentDirectory();
 
+/** Gets the basename for the recording directory (does not affect prepend/append text) */
+PLUGIN_API String getRecordingDirectoryBaseText();
+
 /** Sets new basename for the recording directory (does not affect prepend/append text) */
-PLUGIN_API void setRecordingDirectoryBasename(String dir);
+PLUGIN_API void setRecordingDirectoryBaseText(String text);
 
 /** Returns the full name of the current recording directory (empty string if none has started) */
 PLUGIN_API String getRecordingDirectoryName();

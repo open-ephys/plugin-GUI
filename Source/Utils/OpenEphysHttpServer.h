@@ -192,7 +192,7 @@ public:
                     std::string base_text = request_json["base_text"];
                     LOGD("Found 'base_text': ", base_text);
                     const MessageManagerLock mml;
-                    CoreServices::setRecordingDirectoryBasename(String(base_text));
+                    CoreServices::setRecordingDirectoryBaseText(String(base_text));
                 }
                 catch (json::exception& e) {
                     LOGD("'base_text' not specified'");
@@ -717,7 +717,7 @@ private:
         
         (*ret)["parent_directory"] = CoreServices::getRecordingParentDirectory().getFullPathName().toStdString();
 
-        (*ret)["current_directory_name"] = CoreServices::getRecordingDirectoryName().toStdString();
+        (*ret)["base_text"] = CoreServices::getRecordingDirectoryBaseText().toStdString();
 
         (*ret)["prepend_text"] = CoreServices::getRecordingDirectoryPrependText().toStdString();
 

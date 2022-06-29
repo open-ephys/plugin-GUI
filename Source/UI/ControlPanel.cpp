@@ -1250,7 +1250,18 @@ void ControlPanel::setRecordingDirectoryAppendText(String text)
     }
 }
 
-void ControlPanel::setRecordingDirectoryBasename(String text)
+String ControlPanel::getRecordingDirectoryBaseText()
+{
+    for (auto& field : filenameFields) //loops in order through prepend, main, append 
+    {
+        if (field->type == FilenameFieldComponent::Type::MAIN)
+        {
+            return field->value;
+        }
+    }
+}
+
+void ControlPanel::setRecordingDirectoryBaseText(String text)
 {
     for (auto& field : filenameFields) //loops in order through prepend, main, append 
     {
