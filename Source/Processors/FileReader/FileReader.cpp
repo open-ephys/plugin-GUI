@@ -320,6 +320,8 @@ void FileReader::setActiveRecording (int index)
     bufferCacheWindow = 0;
     loopCount = 0;
 
+    channelInfo.clear();
+
     for (int i = 0; i < currentNumChannels; ++i)
     {
         channelInfo.add (input->getChannelInfo (index, i));
@@ -401,10 +403,10 @@ void FileReader::updateSettings()
             ContinuousChannel::Settings channelSettings
             {
                 ContinuousChannel::Type::ELECTRODE,
-                "CH" + String(i + 1),
+                channelInfo[i].name,
                 "description",
                 "filereader.stream",
-                0.195f, // BITVOLTS VALUE
+                channelInfo[i].bitVolts, // BITVOLTS VALUE
                 dataStreams.getLast()
             };
 
