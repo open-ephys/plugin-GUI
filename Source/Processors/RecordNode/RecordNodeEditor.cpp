@@ -164,11 +164,16 @@ void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 		{
 
 			int new_max = 0;
+			int calculated_max = recordNode->getNumInputs()
+								 + recordNode->getTotalEventChannels()
+								 + recordNode->getTotalSpikeChannels()
+								 + recordNode->getNumDataStreams() // 1 timestamp file per stream
+								 + 5; // 1 each for STDIN + STDOUT + STDERROR, 1 for message channel & 1 for structure.openephys file 
 
-			if (recordNode->getNumInputs() < 8000) // actual upper bound of 8192, but leave overhead for spike channels, event channels, etc.
-				new_max = _setmaxstdio(recordNode->getNumInputs());
+			if (calculated_max < 8192)
+				new_max = _setmaxstdio(calculated_max);
 
-			if (new_max != recordNode->getNumInputs())
+			if (new_max != calculated_max)
 			{
 				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
 					"WARNING", "Open Ephys format does not support this many simultaneously recorded channels. Resetting to Binary format.");
