@@ -391,7 +391,7 @@ void RecordNode::updateSettings()
 			++it;
 	}
 
-#ifdef WIN32
+#ifdef _WIN32
 	// check Open Ephys format on windows
 	if (recordEngine->getEngineId().equalsIgnoreCase("OPENEPHYS") && getNumInputs() > 300)
 	{

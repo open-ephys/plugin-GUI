@@ -158,7 +158,7 @@ void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 
 		std::vector<RecordEngineManager*> engines = CoreServices::getAvailableRecordEngines();
 
-#ifdef WIN32
+#ifdef _WIN32
 		if (engines[selectedEngineIndex]->getID().equalsIgnoreCase("OPENEPHYS") &&
 			recordNode->getNumInputs() > 300)
 		{
@@ -174,8 +174,9 @@ void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 					"WARNING", "Open Ephys format does not support this many simultaneously recorded channels. Resetting to Binary format.");
 				box->setSelectedItemIndex(0);
 				recordNode->setEngine("BINARY");
+
+				return;
 			}
-			return;
 		}
 #endif
 
