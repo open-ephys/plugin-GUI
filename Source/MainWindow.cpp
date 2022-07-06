@@ -131,18 +131,18 @@ MainWindow::MainWindow(const File& fileToLoad)
 			else
 			{
 				LOGD("Detected difference between recoveryConfig and lastConfig; displaying alert window...");
-				bool loadRecovery = AlertWindow::showOkCancelBox(AlertWindow::WarningIcon, "Reloading Settings",
+				int loadRecovery = AlertWindow::showYesNoCancelBox(AlertWindow::WarningIcon, "Reloading Settings",
 																"It looks like the GUI crashed during your last run, " 
 																"causing the configured settings to not save properly. "
-																"Do you want to load the recovery config instead?",
-																"Yes", "No");
+																"Which configuration do you want to load?",
+																"Recovery Config", "Last Config", "Empty Signal Chain");
 				
-				if (loadRecovery)
+				if (loadRecovery == 1)
 				{
 					LOGA("User chose OK, loading recoveryConfig...");
 					ui->getEditorViewport()->loadState(recoveryConfig);
 				}
-				else
+				else if(loadRecovery == 2)
 				{
 					LOGA("User chose cancel, loading lastConfig...");
 					ui->getEditorViewport()->loadState(lastConfig);
