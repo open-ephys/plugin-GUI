@@ -192,12 +192,6 @@ elseif(LINUX)
 	target_compile_options(open-ephys PRIVATE -fPIC -rdynamic -fvisibility=hidden -Wno-free-nonheap-object)
 	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/${CMAKE_BUILD_TYPE})
 
-	set(DLLDIR ${RESOURCES_DIRECTORY}/DLLs/Linux)
-	file(GLOB _dllfiles "${DLLDIR}/*.so")
-	add_custom_command(TARGET open-ephys POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy ${_dllfiles} ${BIN_SHARED_DIR}
-		)
-
 elseif(APPLE)
 	set_target_properties(open-ephys PROPERTIES
 		MACOSX_BUNDLE_NAME open-ephys
@@ -224,8 +218,6 @@ elseif(APPLE)
 		"-framework QuartzCore"
 		"-framework WebKit"
 	)
-
-	set(DLLDIR ${RESOURCES_DIRECTORY}/DLLs/Mac)
 
 	set_target_properties(open-ephys PROPERTIES
 		XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ""
