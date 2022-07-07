@@ -1435,8 +1435,6 @@ void ProcessorGraph::stopAcquisition()
 void ProcessorGraph::setRecordState(bool isRecording)
 {
 
-    std::cout << "ProcessorGraph::setRecordState()" << std::endl;
-
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);

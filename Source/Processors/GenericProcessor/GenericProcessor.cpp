@@ -893,7 +893,7 @@ void GenericProcessor::update()
             if (!isSource())
                 isEnabled = false;
 
-            LOGC(getNodeId(), " connected to Message Center");
+            LOGD(getNodeId(), " connected to Message Center");
         }
     } else {
         

@@ -186,13 +186,13 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         switch (chan->getType())
         {
         case EventChannel::TEXT:
-            LOGC("Got text channel");
+            LOGD("Got text channel");
             eventName = "MessageCenter" + File::getSeparatorString();
             type = NpyType(BaseType::CHAR, chan->getLength());
             dataFileName = "text";
             break;
         case EventChannel::TTL:
-            LOGC("Got TTL channel");
+            LOGD("Got TTL channel");
             eventName = getProcessorString(chan);
             if (ttlMap.count(eventName))
                 ttlMap[eventName]++;
@@ -203,7 +203,7 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
             dataFileName = "states";
             break;
         default:
-            LOGC("Got BINARY group");
+            LOGD("Got BINARY group");
             eventName = getProcessorString(chan);
             eventName += "BINARY_group";
             type = NpyType(chan->getEquivalentMetadataType(), chan->getLength());
