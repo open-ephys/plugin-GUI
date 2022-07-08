@@ -4,9 +4,9 @@
   <INFO>
     <VERSION>0.6.0</VERSION>
     <PLUGIN_API_VERSION>8</PLUGIN_API_VERSION>
-    <DATE>1 Jan 2022 21:49:13</DATE>
-    <OS>Windows 10</OS>
-    <MACHINE name="W10LTPC11LLXH" cpu_model="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz"
+    <DATE>unknown</DATE>
+    <OS>Windows, Linux, or macOS</OS>
+    <MACHINE name="computer" cpu_model="any"
              cpu_num_cores="8"/>
   </INFO>
   <SIGNALCHAIN>
@@ -33,15 +33,12 @@
               sample_rate="40000.0" channel_count="16">
         <PARAMETERS enable_stream="1"/>
       </STREAM>
-      <CUSTOM_PARAMETERS/>
-      <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"
-              Type="RecordNode">
-        <SETTINGS path="" engine="BINARY" recordEvents="1"
-                  recordSpikes="1">
-          <STREAM recording_state="ALL" isPrimary="1" sync_bit="0">
-          </STREAM>
-        </SETTINGS>
-      </EDITOR>
+      <CUSTOM_PARAMETERS path="default" engine="BINARY"
+                         recordEvents="1" recordSpikes="1" fifoMonitorsVisible="1">
+        <STREAM isMainStream="1" sync_line="0" name="example_data" source_node_id="100"
+                sample_rate="40000.0" channel_count="16" recording_state="ALL"/>
+      </CUSTOM_PARAMETERS>
+      <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="LFP Viewer" insertionPoint="1" pluginName="LFP Viewer"
                type="1" index="6" libraryName="LFP viewer" libraryVersion="0.1.0"
@@ -54,22 +51,22 @@
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="LFP Viewer" activeStream="0"
               Type="LfpDisplayEditor">
-        <TAB Active="1"/>
+        <TAB Active="1" Index="3"/>
         <WINDOW Active="0"/>
         <VALUES SelectedLayout="1"/>
-        <LFPDISPLAY0 SubprocessorID="10004" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+        <LFPDISPLAY0 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
                      colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
                      satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
                      showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
                      trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="1111111111111111"
                      ScrollX="0" ScrollY="0"/>
-        <LFPDISPLAY1 SubprocessorID="10004" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+        <LFPDISPLAY1 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
                      colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
                      satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
                      showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
                      trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="1111111111111111"
                      ScrollX="0" ScrollY="0"/>
-        <LFPDISPLAY2 SubprocessorID="10004" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+        <LFPDISPLAY2 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
                      colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
                      satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
                      showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
@@ -86,7 +83,7 @@
       <GLOBAL_PARAMETERS/>
       <STREAM name="example_data" description="A description of the File Reader Stream"
               sample_rate="40000.0" channel_count="16">
-        <PARAMETERS enable_stream="1" high_cut="6000" low_cut="300" Channels=""/>
+        <PARAMETERS enable_stream="1" high_cut="6000.0" low_cut="300.0" Channels=""/>
       </STREAM>
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Bandpass Filter"
@@ -103,28 +100,48 @@
       <CUSTOM_PARAMETERS>
         <SPIKE_CHANNEL name="Stereotrode 1" description="Stereotrode from Spike Detector 104"
                        num_channels="2" sample_rate="40000.0" stream_name="example_data"
-                       stream_source="100" local_channels="1,2" threshold="4.0" waveform_type="0"/>
+                       stream_source="100" local_channels="1,2" thrshlder_type="0" abs_threshold1="-50.0"
+                       std_threshold1="4.0" dyn_threshold1="4.0" abs_threshold2="-50.0"
+                       std_threshold2="4.0" dyn_threshold2="4.0" waveform_type="0"/>
         <SPIKE_CHANNEL name="Stereotrode 2" description="Stereotrode from Spike Detector 104"
                        num_channels="2" sample_rate="40000.0" stream_name="example_data"
-                       stream_source="100" local_channels="3,4" threshold="4.0" waveform_type="0"/>
+                       stream_source="100" local_channels="3,4" thrshlder_type="0" abs_threshold1="-50.0"
+                       std_threshold1="4.0" dyn_threshold1="4.0" abs_threshold2="-50.0"
+                       std_threshold2="4.0" dyn_threshold2="4.0" waveform_type="0"/>
         <SPIKE_CHANNEL name="Stereotrode 3" description="Stereotrode from Spike Detector 104"
                        num_channels="2" sample_rate="40000.0" stream_name="example_data"
-                       stream_source="100" local_channels="5,6" threshold="4.0" waveform_type="0"/>
+                       stream_source="100" local_channels="5,6" thrshlder_type="0" abs_threshold1="-50.0"
+                       std_threshold1="4.0" dyn_threshold1="4.0" abs_threshold2="-50.0"
+                       std_threshold2="4.0" dyn_threshold2="4.0" waveform_type="0"/>
         <SPIKE_CHANNEL name="Stereotrode 4" description="Stereotrode from Spike Detector 104"
                        num_channels="2" sample_rate="40000.0" stream_name="example_data"
-                       stream_source="100" local_channels="7,8" threshold="4.0" waveform_type="0"/>
+                       stream_source="100" local_channels="7,8" thrshlder_type="0" abs_threshold1="-50.0"
+                       std_threshold1="4.0" dyn_threshold1="4.0" abs_threshold2="-50.0"
+                       std_threshold2="4.0" dyn_threshold2="4.0" waveform_type="0"/>
         <SPIKE_CHANNEL name="Stereotrode 5" description="Stereotrode from Spike Detector 104"
                        num_channels="2" sample_rate="40000.0" stream_name="example_data"
-                       stream_source="100" local_channels="9,10" threshold="4.0" waveform_type="0"/>
+                       stream_source="100" local_channels="9,10" thrshlder_type="0"
+                       abs_threshold1="-50.0" std_threshold1="4.0" dyn_threshold1="4.0"
+                       abs_threshold2="-50.0" std_threshold2="4.0" dyn_threshold2="4.0"
+                       waveform_type="0"/>
         <SPIKE_CHANNEL name="Stereotrode 6" description="Stereotrode from Spike Detector 104"
                        num_channels="2" sample_rate="40000.0" stream_name="example_data"
-                       stream_source="100" local_channels="11,12" threshold="4.0" waveform_type="0"/>
+                       stream_source="100" local_channels="11,12" thrshlder_type="0"
+                       abs_threshold1="-50.0" std_threshold1="4.0" dyn_threshold1="4.0"
+                       abs_threshold2="-50.0" std_threshold2="4.0" dyn_threshold2="4.0"
+                       waveform_type="0"/>
         <SPIKE_CHANNEL name="Stereotrode 7" description="Stereotrode from Spike Detector 104"
                        num_channels="2" sample_rate="40000.0" stream_name="example_data"
-                       stream_source="100" local_channels="13,14" threshold="4.0" waveform_type="0"/>
+                       stream_source="100" local_channels="13,14" thrshlder_type="0"
+                       abs_threshold1="-50.0" std_threshold1="4.0" dyn_threshold1="4.0"
+                       abs_threshold2="-50.0" std_threshold2="4.0" dyn_threshold2="4.0"
+                       waveform_type="0"/>
         <SPIKE_CHANNEL name="Stereotrode 8" description="Stereotrode from Spike Detector 104"
                        num_channels="2" sample_rate="40000.0" stream_name="example_data"
-                       stream_source="100" local_channels="15,16" threshold="4.0" waveform_type="0"/>
+                       stream_source="100" local_channels="15,16" thrshlder_type="0"
+                       abs_threshold1="-50.0" std_threshold1="4.0" dyn_threshold1="4.0"
+                       abs_threshold2="-50.0" std_threshold2="4.0" dyn_threshold2="4.0"
+                       waveform_type="0"/>
       </CUSTOM_PARAMETERS>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Spike Detector"
               activeStream="0"/>
@@ -137,15 +154,12 @@
               sample_rate="40000.0" channel_count="16">
         <PARAMETERS enable_stream="1"/>
       </STREAM>
-      <CUSTOM_PARAMETERS/>
-      <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"
-              Type="RecordNode">
-        <SETTINGS path="" engine="BINARY" recordEvents="0"
-                  recordSpikes="1">
-          <STREAM recording_state="NONE" isPrimary="1" sync_bit="0">
-          </STREAM>
-        </SETTINGS>
-      </EDITOR>
+      <CUSTOM_PARAMETERS path="default" engine="BINARY"
+                         recordEvents="1" recordSpikes="1" fifoMonitorsVisible="1">
+        <STREAM isMainStream="1" sync_line="0" name="example_data" source_node_id="100"
+                sample_rate="40000.0" channel_count="16" recording_state="ALL"/>
+      </CUSTOM_PARAMETERS>
+      <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="Audio Monitor" insertionPoint="1" pluginName="Audio Monitor"
                type="0" index="4" libraryName="" libraryVersion="" processorType="6"
@@ -169,8 +183,8 @@
       </STREAM>
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Spike Viewer" activeStream="0"
-              Type="Visualizer">
-        <TAB Active="1"/>
+              Type="Visualizer" scale_factor_index="5">
+        <TAB Active="1" Index="4"/>
         <WINDOW Active="0"/>
         <SPIKEDISPLAY LockThresholds="0" InvertSpikes="0">
           <PLOT>
@@ -209,18 +223,27 @@
       </EDITOR>
     </PROCESSOR>
   </SIGNALCHAIN>
-  <EDITORVIEWPORT scroll="0"/>
-  <AUDIO sampleRate="48000.0" bufferSize="1024" deviceType="Windows Audio">
-    <DEVICESETUP deviceType="Windows Audio" audioOutputDeviceName="Speaker/HP (Realtek High Definition Audio)"
-                 audioInputDeviceName="" audioDeviceRate="48000.0" audioDeviceBufferSize="1024"
-                 audioDeviceInChans="0" audioDeviceOutChans="11"/>
+  <EDITORVIEWPORT scroll="0">
+    <FILE_READER ID="100"/>
+    <RECORD_NODE ID="101"/>
+    <LFP_VIEWER ID="102"/>
+    <BANDPASS_FILTER ID="103"/>
+    <SPIKE_DETECTOR ID="104"/>
+    <RECORD_NODE ID="105"/>
+    <AUDIO_MONITOR ID="106"/>
+    <SPIKE_VIEWER ID="107"/>
+  </EDITORVIEWPORT>
+  <DATAVIEWPORT selectedTab="4"/>
+  <AUDIO sampleRate="44100.0" bufferSize="1024" deviceType="Windows Audio">
+    <DEVICESETUP deviceType="Windows Audio" audioOutputDeviceName="Remote Audio"
+                 audioInputDeviceName="" audioDeviceRate="48000.0" audioDeviceBufferSize="1024"/>
   </AUDIO>
-  <GLOBAL_TIMESTAMP selected_index="-1" selected_sub_index="0"/>
-  <CONTROLPANEL isOpen="1" recordPath="default" recordEngine="BINARY"/>
+  <CONTROLPANEL isOpen="1" recordPath="default"
+                recordEngine="BINARY"/>
   <AUDIOEDITOR isMuted="0" volume="50.0" noiseGate="10.0"/>
   <FILENAMECONFIG>
     <PREPEND state="0" value=""/>
-    <MAIN state="1" value="2022-01-01_21-47-13"/>
+    <MAIN state="1" value="YYYY-MM-DD_HH-MM-SS"/>
     <APPEND state="0" value=""/>
   </FILENAMECONFIG>
   <PROCESSORLIST>
