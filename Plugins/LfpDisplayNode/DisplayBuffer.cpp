@@ -181,18 +181,11 @@ void DisplayBuffer::finalizeEventChannel(int nSamples)
 void DisplayBuffer::addEvent(int eventTime, int eventChannel, int eventId, int numSourceSamples)
 {
 
-    if (eventChannel == 1)
-        std::cout << "Display buffer " << name << " received " << eventChannel << " " << eventId << std::endl;
-
     if (displays.size() == 0)
         return;
 
     if (eventTime > numSourceSamples)
         eventTime = numSourceSamples;
-
-    if (eventChannel == 1)
-        std::cout << "  --> Adding to buffer" << std::endl;
-
 
     const int index = (displayBufferIndices[numChannels] + eventTime) % getNumSamples();
     const int samplesLeft = getNumSamples() - index;
