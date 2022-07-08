@@ -42,7 +42,6 @@ jobs:
         cd Build/Release
         mkdir open-ephys
         mv open-ephys.app/ open-ephys
-        cp -r ../../Resources/DataFiles open-ephys/
         cp ../../LICENSE open-ephys
         zip -r $zipfile open-ephys
         user_info="X-JFrog-Art-Api:$artifactoryApiKey"
@@ -63,7 +62,7 @@ jobs:
         mv -v Open-Ephys-Installer.dmg $installer
         curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Test-Installer/mac/$installer"
     - name: deploy_release
-      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/main'
       env:
         artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
       run: |
@@ -72,7 +71,6 @@ jobs:
         cd Build/Release
         mkdir open-ephys
         mv open-ephys.app/ open-ephys
-        cp -r ../../Resources/DataFiles open-ephys/
         cp ../../LICENSE open-ephys
         zip -r $zipfile open-ephys
         user_info="X-JFrog-Art-Api:$artifactoryApiKey"
@@ -92,32 +90,3 @@ jobs:
         installer=Open_Ephys_GUI_${gui_ver}.dmg
         mv -v Open-Ephys-Installer.dmg $installer
         curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Release-Installer/mac/$installer"
-    - name: deploy_dev
-      if: github.ref == 'refs/heads/development-juce6'
-      env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
-      run: |
-        gui_ver="v0.6.0-dev"
-        zipfile=open-ephys-${gui_ver}-mac.zip
-        cd Build/Release
-        mkdir open-ephys
-        mv open-ephys.app/ open-ephys
-        cp ../../LICENSE open-ephys
-        zip -r $zipfile open-ephys
-        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Dev/mac/$zipfile"
-        brew install create-dmg && create-dmg \
-          --volname "Open-Ephys Installer" \
-          --volicon "open-ephys/open-ephys.app/Contents/Resources/Icon.icns" \
-          --background "open-ephys/open-ephys.app/Contents/Resources/dmg_background.png" \
-          --window-pos 300 0 \
-          --window-size 688 416 \
-          --icon-size 128 \
-          --icon "open-ephys.app" 200 190 \
-          --hide-extension "Open-Ephys.app" \
-          --app-drop-link 500 188 \
-          "Open-Ephys-Installer.dmg" \
-          "open-ephys/"
-        installer=Open_Ephys_GUI_${gui_ver}.dmg
-        mv -v Open-Ephys-Installer.dmg $installer
-        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Dev-Installer/mac/$installer"
