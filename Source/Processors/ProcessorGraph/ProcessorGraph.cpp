@@ -31,6 +31,7 @@
 
 #include "../AudioNode/AudioNode.h"
 #include "../RecordNode/RecordNode.h"
+#include "../FileReader/FileReader.h"
 #include "../MessageCenter/MessageCenter.h"
 #include "../MessageCenter/MessageCenterEditor.h"
 #include "../Merger/Merger.h"
@@ -1359,11 +1360,42 @@ bool ProcessorGraph::isReady()
 
     LOGD("Checking that all processors are enabled...");
 
+    int NWBCounter = 0;
+
     for (int i = 0; i < getNumNodes(); i++)
     {
 
         Node* node = getNode(i);
 
+        String name = node->getProcessor()->getName();
+
+        // 1. Check that NWB resources are only used by a single processor.
+        if (name == "File Reader")
+        {
+            FileReader* fr = static_cast<FileReader*>(node->getProcessor());
+
+            if (File(fr->getFile()).getFileExtension() == ".nwb")
+                NWBCounter += 1;
+        }
+        else if (name == "Record Node")
+        {
+            RecordNode* rn = static_cast<RecordNode*>(node->getProcessor());
+
+            if (rn->getEngineId() == "NWB2")
+                NWBCounter += 1;
+        }
+
+        if (NWBCounter > 1)
+        {
+            AccessClass::getUIComponent()->disableCallbacks();
+
+            AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
+                "WARNING", "Open Ephys currently does not support multiple processors using NWB format. Please modify the signal chain accordingly to proceed with acquisition.");
+
+            return false;
+        }
+
+        // 2. Check that all processors are enabled and ready for acquisition.
         if (node->nodeID != NodeID(OUTPUT_NODE_ID))
         {
             GenericProcessor* p = (GenericProcessor*)node->getProcessor();
