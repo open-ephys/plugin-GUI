@@ -1,6 +1,6 @@
 # Open Ephys GUI
 
-![GUI screenshot](https://static1.squarespace.com/static/53039db8e4b0649958e13c7b/t/53bc11f0e4b0e16f33110ad8/1404834318628/?format=1000w)
+![GUI screenshot](https://images.squarespace-cdn.com/content/v1/53039db8e4b0649958e13c7b/818e42b0-f350-46dd-b413-142b8b11b881/gui-screenshot.png?format=1000w)
 
 The Open Ephys GUI is designed to provide a fast and flexible interface for acquiring and visualizing data from extracellular electrodes. Compatible data acquisition hardware includes:
 
@@ -9,14 +9,14 @@ The Open Ephys GUI is designed to provide a fast and flexible interface for acqu
 - [Intan Recording Controller](http://intantech.com/recording_controller.html) (supports up to 1024 channels)
 - [Neuropixels Probes](http://www.open-ephys.org/neuropixels/) (Windows only, supports up to 6144 channels)
 
-The GUI is based around a _true plugin architecture_, meaning the data processing modules are compiled separately from the main application. This greatly simplifies the process of adding functionality, since new modules can be created without the need to re-compile the entire application.
+The GUI is based around a _plugin architecture_, meaning the data processing modules are compiled separately from the main application. This greatly simplifies the process of adding functionality, since new modules can be shared without the need to re-compile the entire application.
 
 Our primary user base is scientists performing electrophysiology experiments with tetrodes or silicon probes, but the GUI can also be adapted for use with other types of sensors.
 
 [![docs](https://img.shields.io/badge/docs-open--ephys.github.io-blue.svg)](https://open-ephys.github.io/gui-docs/)
 [![latest release](https://img.shields.io/github/release/open-ephys/plugin-gui.svg)](https://github.com/open-ephys/plugin-GUI/releases)
 ![Linux](https://github.com/open-ephys/plugin-GUI/workflows/Linux/badge.svg)
-![OSX](https://github.com/open-ephys/plugin-GUI/workflows/macOS/badge.svg)
+![macOS](https://github.com/open-ephys/plugin-GUI/workflows/macOS/badge.svg)
 ![Windows](https://github.com/open-ephys/plugin-GUI/workflows/Windows/badge.svg)
 ![language](https://img.shields.io/badge/language-c++-blue.svg)
 [![license](https://img.shields.io/badge/license-GPL3-blue.svg)](LICENSE)
@@ -33,7 +33,7 @@ Our primary user base is scientists performing electrophysiology experiments wit
 
 The easiest way to get started is to download the installer for your platform of choice:
 
-- [Windows](https://openephysgui.jfrog.io/artifactory/Release-Installer/windows/Install-Open-Ephys-GUI-v0.6.0.exe) (Neuropixels plugins available via File -> Plugin Installer)
+- [Windows](https://openephysgui.jfrog.io/artifactory/Release-Installer/windows/Install-Open-Ephys-GUI-v0.6.0.exe)
 - [Ubuntu/Debian](https://openephysgui.jfrog.io/artifactory/Release-Installer/linux/open-ephys-gui-v0.6.0.deb)
 - [macOS](https://openephysgui.jfrog.io/artifactory/Release-Installer/mac/Open_Ephys_GUI_v0.6.0.dmg)
 
@@ -45,7 +45,7 @@ To compile the GUI from source, follow the platform-specific instructions in the
 
 ## Funding
 
-The Open Ephys GUI was created by scientists in order to make their experiments more adaptable, affordable, and enjoyable. Therefore, much of the development has been indirectly funded by the universities and research institutes where these scientists work, especially MIT, Brown University, and the Allen Institute for Brain Science.
+The Open Ephys GUI was created by scientists in order to make their experiments more adaptable, affordable, and enjoyable. Therefore, much of the development has been indirectly funded by the universities and research institutes where these scientists work, especially MIT, Brown University, and the Allen Institute.
 
 Since 2014, the support efforts of [Aarón Cuevas López](https://github.com/aacuevas) have been funded by revenue from the [Open Ephys store](https://open-ephys.org/store), via a contract with Universidad Miguel Hernández in Valencia.
 

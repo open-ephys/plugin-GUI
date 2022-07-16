@@ -28,22 +28,22 @@ We are keeping track of our current development plans using [GitHub projects](ht
 
 ## Updating the documentation
 
-The GUI's documentation is hosted on the [Open Ephys Wiki](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/491527/Open+Ephys+GUI). In order to edit the wiki, first you'll need to request an account by emailing info@open-ephys.org. After that, you can make changes to any of the pages by clicking the "edit" button (pencil icon) in the upper right.
+The GUI's documentation is hosted on the [GitHub](https://github.com/open-ephys/gui-docs). If you'd like to edit the documentation, just fork this repository and submit a pull request to the `main` branch. You can also [open an issue](https://github.com/open-ephys/gui-docs/issues) in the documentation repository to recommend a fix.
 
 ## Building a new plugin
 
-The recommended way to add new features to the GUI is by building a new plugin. Instructions on creating plugins can be found [here](https://open-ephys.atlassian.net/wiki/spaces/OEW/pages/46596122/Plugin+build+files). Plugin developers can publish links to their work in [this list](https://open-ephys.atlassian.net/wiki/display/OEW/Third-party+plugin+repositories) to make them available to the general public. Soon, we'll make it possible to share plugins via an installer embedded inside the GUI itself.
+The recommended way to add new features to the GUI is by building a new plugin. Before you start developing a new plugin, you should read through the [Developer Guide](https://open-ephys.github.io/gui-docs/Developer-Guide/index.html) as well as the [plugin development tutorial](https://open-ephys.github.io/gui-docs/Tutorials/How-To-Make-Your-Own-Plugin.html).
 
-Before you create a new plugin, you'll need to have some familiarity with C++, as well as makefiles (Linux), Xcode (macOS), or Visual Studio (Windows) for building applications.
+Each year, we select a number of plugins to make available to the community via the GUI's Plugin Installer. If you've built a plugin that you like to release to a wider audience, please get in touch with via info@open-ephys.org!
 
 ## Updating the main repository
 
-If you'd like to make changes to the code found in this repository, please [open an issue](https://github.com/open-ephys/plugin-GUI/issues) that describes what you're working on. Then, edit the code in your [fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) of the plugin-GUI repository. Once your changes are ready, please submit a pull request to the `development` branch.
+If you'd like to make changes to the code found in this repository, please [open an issue](https://github.com/open-ephys/plugin-GUI/issues) that describes what you're working on. Then, edit the code in your [fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) of the `plugin-GUI` repository. Once your changes are ready, please submit a pull request to the `development` branch, where we stage all changes before each new release.
 
 We adhere to the following development cycle:
 * New code is merged into the `development` branch
 * 2-3 weeks prior to a new release, the `development` branch is merged into `testing`, to allow users to test out any features that have been added
-* Once testing is complete, the `testing` branch is merged into `master`, and the pre-compiled binaries are updated
+* Once testing is complete, the `testing` branch is merged into `main`, and the pre-compiled binaries are updated
 
 We do not have a predefined release schedule. You can expect releases that include new features to be made every 2-3 months; if there are any critical bug fixes, those will be included in a patch release.
 
