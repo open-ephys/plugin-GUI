@@ -143,7 +143,7 @@ void FileReader::initialize(bool signalChainIsLoading)
     if (defaultFile.exists())
     {
         FileReaderEditor* ed = (FileReaderEditor*)editor.get();
-        ed->setFile(defaultFile.getFullPathName(), false);
+        ed->setFile("default", false);
     }
 }
 
