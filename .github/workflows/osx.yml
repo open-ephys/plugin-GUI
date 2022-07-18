@@ -42,7 +42,6 @@ jobs:
         cd Build/Release
         mkdir open-ephys
         mv open-ephys.app/ open-ephys
-        cp ../../LICENSE open-ephys
         zip -r $zipfile open-ephys
         user_info="X-JFrog-Art-Api:$artifactoryApiKey"
         curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Test/mac/$zipfile"
@@ -71,7 +70,6 @@ jobs:
         cd Build/Release
         mkdir open-ephys
         mv open-ephys.app/ open-ephys
-        cp ../../LICENSE open-ephys
         zip -r $zipfile open-ephys
         user_info="X-JFrog-Art-Api:$artifactoryApiKey"
         curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Release/mac/$zipfile"
