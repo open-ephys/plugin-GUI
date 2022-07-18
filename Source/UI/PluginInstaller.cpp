@@ -1257,7 +1257,7 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 
 	//delete plugin file
 	File pluginFile = getPluginsDirectory().getChildFile(dllName);
-	if(!pluginFile.deleteFile())
+	if(!pluginFile.deleteRecursively())
 	{
 		LOGD("Unable to delete ", pluginFile.getFullPathName(), " ...Trying again!");
 
