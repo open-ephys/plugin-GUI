@@ -51,11 +51,27 @@ static inline void closeHandle(decltype(LoadedLibInfo::handle) handle) {
 static void errorMsg(const char *file, int line, const char *msg) {
     
 #ifdef _WIN32
-    DWORD ret = GetLastError();
-    if (ret) {
-        fprintf(stderr, ": DLL Error 0x%x", ret);
-		LOGE(msg, stderr, ": DLL Error 0x%x", ret);
+    // DWORD ret = GetLastError();
+
+    LPVOID lpMsgBuf;
+    DWORD dw = GetLastError(); 
+
+    if (dw) {
+
+        FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        dw,
+        0,
+        (LPTSTR) &lpMsgBuf,
+        0, NULL );
+
+        LOGE(msg, " Error code ", dw, ": ", (LPTSTR)lpMsgBuf);
     }
+    LocalFree(lpMsgBuf);
+
 #elif defined(__APPLE__)
     // Any additional error messages are logged directly by the system
     // and are not available to the application
@@ -194,7 +210,7 @@ void PluginManager::loadPlugins(const File &pluginPath) {
 		
 		if (res < 0)
 		{
-			LOGE("  DLL Load FAILED");
+			LOGE(foundDLLs[i].getFileName(), " Load FAILED");
 		}
 		else
 		{
@@ -246,7 +262,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 #endif
 
 	if (!handle) {
-		ERROR_MSG("Failed to load plugin DLL");
+		ERROR_MSG("Failed to load plugin DLL.");
 		closeHandle(handle);
 		return -1;
 	}
@@ -263,7 +279,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 
 	if (!infoFunction)
 	{
-		ERROR_MSG("Failed to load function 'getLibInfo'");
+		ERROR_MSG("Failed to load function 'getLibInfo'.");
 		closeHandle(handle);
 		return -1;
 	}
@@ -273,7 +289,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 
 	if (libInfo.apiVersion != PLUGIN_API_VER)
 	{
-		std::cerr << pluginLoc << " invalid version" << std::endl;
+		ERROR_MSG("Invalid Plugin API version");
 		closeHandle(handle);
 		return -1;
 	}
@@ -290,7 +306,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 
 	if (!piFunction)
 	{
-        ERROR_MSG("Failed to load function 'getPluginInfo'");
+        ERROR_MSG("Failed to load function 'getPluginInfo'.");
 		closeHandle(handle);
 		return -1;
 	}
