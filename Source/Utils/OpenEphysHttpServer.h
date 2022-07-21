@@ -472,8 +472,15 @@ public:
                 return;
             }
 
-            String return_msg = graph_->sendConfigMessage(processor, String(message_str));
-
+            String return_msg;
+            
+            if (!CoreServices::getAcquisitionStatus())
+            {
+                return_msg = graph_->sendConfigMessage(processor, String(message_str));
+            } else {
+                return_msg = "Cannot send config message while acquisition is active.";
+            }
+             
             json ret;
             ret["info"] = return_msg.toStdString();
             res.set_content(ret.dump(), "application/json");
