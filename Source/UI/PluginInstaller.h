@@ -133,7 +133,8 @@ private:
         XML_WRITE_ERR,
         LOAD_ERR,
         PLUGIN_IN_USE,
-        RECNODE_IN_USE
+        RECNODE_IN_USE,
+        HTTP_ERR
     };
 
     void run() override;

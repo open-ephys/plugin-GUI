@@ -1108,6 +1108,14 @@ void PluginInfoComponent::run()
 
 		LOGE("Error.. Plugin already in use. Please remove it from the signal chain and try again.");
 	}
+	else if(dlReturnCode == HTTP_ERR)
+	{
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+										"[Plugin Installer] " + pInfo.displayName, 
+										"HTTP request failed!!\nPlease check your internet connection...");
+		
+		LOGE("HTTP request failed!! Please check your internet connection...");
+	}
 
 }
  
@@ -1308,24 +1316,16 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 
 	String filename = plugin + "-" + osType + "_" + version + ".zip";
 
-	//Unzip plugin and install in plugins directory
-	//curl -L https://dl.bintray.com/$bintrayUser/$repo/$filename
-
 	URL fileUrl(fileDownloadURL);
 
-	int statusC;
-	StringPairArray responseHeaders;
-
 	//Create input stream from the plugin's zip file URL
-	std::unique_ptr<InputStream> fileStream = fileUrl.createInputStream(false, nullptr, nullptr, String(), 1000, &responseHeaders, &statusC, 5, String());		
-	String newLocation = responseHeaders.getValue("Location", "NULL");
+	std::unique_ptr<InputStream> fileStream = fileUrl.createInputStream(URL::InputStreamOptions (URL::ParameterHandling::inAddress)
+                                                   .withConnectionTimeoutMs (1000)
+                                                   .withNumRedirectsToFollow (5));		
 
-	// ZIP URL Location changed, use the new location
-	if(newLocation != "NULL")
-	{
-		fileUrl = newLocation;
-		fileStream = fileUrl.createInputStream(false);
-	}
+	// Could not retrieve data
+	if(!fileStream)
+		return 9;
 
 	// ZIP file empty, return.
 	if(fileStream->getTotalLength() == 0)
