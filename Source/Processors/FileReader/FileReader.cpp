@@ -192,33 +192,6 @@ bool FileReader::startAcquisition()
     if (!isEnabled)
         return false;
 
-    /* Set the timestamp to start of playback and reset loop counter */
-    totalSamplesAcquired = startSample;
-    loopCount = 0;
-
-    /* Setup internal buffer based on audio device settings */
-	AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
-	AudioDeviceManager::AudioDeviceSetup ads;
-	adm.getAudioDeviceSetup(ads);
-	m_sysSampleRate = ads.sampleRate;
-	m_bufferSize = ads.bufferSize;
-	if (m_bufferSize == 0) m_bufferSize = 1024;
-	m_samplesPerBuffer.set(m_bufferSize * (getDefaultSampleRate() / m_sysSampleRate));
-
-	bufferA.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
-	bufferB.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
-
-    /* Reset stream to start of playback */
-    input->seekTo (startSample);
-    currentSample = startSample;
-
-    /* Pre-fills the front buffer with a blocking read */
-    readAndFillBufferCache(bufferA);
-
-	readBuffer = &bufferB;
-	bufferCacheWindow = 0;
-	m_shouldFillBackBuffer.set(false);
-
     static_cast<FileReaderEditor*> (getEditor())->startTimer(100);
 
     /* Start asynchronous file reading thread */
@@ -324,7 +297,7 @@ void FileReader::setActiveRecording (int index)
 
     for (int i = 0; i < currentNumChannels; ++i)
     {
-        channelInfo.add (input->getChannelInfo (index, i));
+           channelInfo.add (input->getChannelInfo (index, i));
     }
 
     static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumTotalSamples));
@@ -439,6 +412,33 @@ void FileReader::updateSettings()
     }
 
     isEnabled = true;
+
+    /* Set the timestamp to start of playback and reset loop counter */
+    totalSamplesAcquired = startSample;
+    loopCount = 0;
+
+    /* Setup internal buffer based on audio device settings */
+    AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
+    AudioDeviceManager::AudioDeviceSetup ads;
+    adm.getAudioDeviceSetup(ads);
+    m_sysSampleRate = ads.sampleRate;
+    m_bufferSize = ads.bufferSize;
+    if (m_bufferSize == 0) m_bufferSize = 1024;
+    m_samplesPerBuffer.set(m_bufferSize * (getDefaultSampleRate() / m_sysSampleRate));
+
+    bufferA.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
+    bufferB.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
+
+    /* Reset stream to start of playback */
+    input->seekTo(startSample);
+    currentSample = startSample;
+
+    /* Pre-fills the front buffer with a blocking read */
+    readAndFillBufferCache(bufferA);
+
+    readBuffer = &bufferB;
+    bufferCacheWindow = 0;
+    m_shouldFillBackBuffer.set(false);
 
 }
 

@@ -29,6 +29,7 @@ FileSource::FileSource()
     , numRecords    (0)
     , activeRecord  (-1)
     , filename      ("")
+    , loopCount     (0)
 {
 }
 
