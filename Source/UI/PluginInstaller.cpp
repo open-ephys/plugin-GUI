@@ -990,12 +990,12 @@ void PluginInfoComponent::setDownloadURL(const String& url)
 
 void PluginInfoComponent::run()
 {
-	LOGD("\nDownloading Plugin: ", pInfo.pluginName, "...  ");
 
 	// If a plugin has depencies outside its zip, download them
 	for (int i = 0; i < pInfo.dependencies.size(); i++)
 	{
 		setStatusMessage("Downloading dependency: " + pInfo.dependencies[i]);
+		LOGD("Downloading dependency: ", pInfo.dependencies[i], "...  ");
 
 		int retCode = downloadPlugin(pInfo.dependencies[i], pInfo.dependencyVersions[i], true);
 
@@ -1009,9 +1009,30 @@ void PluginInfoComponent::run()
 			LOGE("Download Failed!!");
 			return;
 		}
+		else if (retCode == ZIP_NOTFOUND)
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+											"[Plugin Installer] " + pInfo.dependencies[i], 
+											"Could not find the ZIP file for " + pInfo.dependencies[i] 
+											+ ". Please contact the developers.");
+
+			LOGE("Download Failed!!");
+			return;
+		}
+		else if(retCode == HTTP_ERR)
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+											"[Plugin Installer] " + pInfo.dependencies[i], 
+											"HTTP request failed!!\nPlease check your internet connection...");
+			
+			LOGE("HTTP request failed!! Please check your internet connection...");
+			return;
+		}
+		
 	}
 	
 	setStatusMessage("Downloading " + pInfo.displayName + " ...");
+	LOGD("Downloading Plugin: ", pInfo.pluginName, "...  ");
 
 	// download the plugin
 	int dlReturnCode = downloadPlugin(pInfo.pluginName, pInfo.selectedVersion, false);
@@ -1296,7 +1317,7 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 	AccessClass::getProcessorList()->fillItemList();
 	AccessClass::getProcessorList()->repaint();
 
-	if(pInfo.type == "Record Engine")
+	if(pInfo.type == "RecordEngine")
 		AccessClass::getControlPanel()->updateRecordEngineList();
 
 	uninstallButton.setVisible(false);
@@ -1320,7 +1341,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 
 	//Create input stream from the plugin's zip file URL
 	std::unique_ptr<InputStream> fileStream = fileUrl.createInputStream(URL::InputStreamOptions (URL::ParameterHandling::inAddress)
-                                                   .withConnectionTimeoutMs (1000)
+                                                   .withConnectionTimeoutMs (0)
                                                    .withNumRedirectsToFollow (5));		
 
 	// Could not retrieve data
@@ -1505,7 +1526,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 		AccessClass::getProcessorList()->fillItemList();
 		AccessClass::getProcessorList()->repaint();
 
-		if(pInfo.type == "Record Engine")
+		if(pInfo.type == "RecordEngine")
 			AccessClass::getControlPanel()->updateRecordEngineList();
 		
 	}
