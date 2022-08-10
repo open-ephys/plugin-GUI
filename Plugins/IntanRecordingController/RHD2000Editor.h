@@ -26,6 +26,9 @@
 
 #include <VisualizerEditorHeaders.h>
 
+// Number of ports displayed in the GUI.
+#define INTAN_EDITOR_PORT_SLOTS 8
+
 namespace IntanRecordingController
 {
 

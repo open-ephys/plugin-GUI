@@ -590,7 +590,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 	impedanceData->valid = false;
 
     // add headstage-specific controls (currently just an enable/disable button)
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < INTAN_EDITOR_PORT_SLOTS; i++)
     {
         HeadstageOptionsInterface* hsOptions = new HeadstageOptionsInterface(board, this, i);
         headstageOptionsInterfaces.add(hsOptions);
@@ -834,7 +834,7 @@ void RHD2000Editor::buttonEvent(Button* button)
     {
         board->scanPorts();
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < INTAN_EDITOR_PORT_SLOTS; i++)
         {
             headstageOptionsInterfaces[i]->checkEnabledState();
         }
