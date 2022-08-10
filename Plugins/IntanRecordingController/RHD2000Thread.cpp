@@ -99,7 +99,14 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     desiredLowerBandwidth(1.0f),
     boardSampleRate(30000.0f),
     savedSampleRateIndex(Rhd2000EvalBoardUsb3::SampleRate30000Hz),
-    cableLengthPortA(0.914f), cableLengthPortB(0.914f), cableLengthPortC(0.914f), cableLengthPortD(0.914f), // default is 3 feet (0.914 m),
+    cableLengthPortA(DEFAULT_CABLE_LENGTH_METERS),
+    cableLengthPortB(DEFAULT_CABLE_LENGTH_METERS),
+    cableLengthPortC(DEFAULT_CABLE_LENGTH_METERS),
+    cableLengthPortD(DEFAULT_CABLE_LENGTH_METERS),
+    cableLengthPortE(DEFAULT_CABLE_LENGTH_METERS),
+    cableLengthPortF(DEFAULT_CABLE_LENGTH_METERS),
+    cableLengthPortG(DEFAULT_CABLE_LENGTH_METERS),
+    cableLengthPortH(DEFAULT_CABLE_LENGTH_METERS),
     audioOutputL(-1), audioOutputR(-1) ,numberingScheme(1),
 	newScan(true)
 {
@@ -408,10 +415,10 @@ void RHD2000Thread::initializeBoard()
 	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortB, cableLengthPortB);
 	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortC, cableLengthPortC);
 	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortD, cableLengthPortD);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortE, cableLengthPortA);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortF, cableLengthPortB);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortG, cableLengthPortC);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortH, cableLengthPortD);
+	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortE, cableLengthPortE);
+	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortF, cableLengthPortF);
+	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortG, cableLengthPortG);
+	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortH, cableLengthPortH);
 
     // Select RAM Bank 0 for AuxCmd3 initially, so the ADC is calibrated.
 	evalBoard->selectAuxCommandBank(Rhd2000EvalBoardUsb3::PortA, Rhd2000EvalBoardUsb3::AuxCmd3, 0);

@@ -38,6 +38,9 @@
 
 #define MAX_NUM_CHANNELS MAX_NUM_DATA_STREAMS*35
 
+// default is 3 feet (0.914 m)
+#define DEFAULT_CABLE_LENGTH_METERS 0.914f
+
 namespace IntanRecordingController
 {
 
