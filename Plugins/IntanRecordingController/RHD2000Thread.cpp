@@ -98,7 +98,7 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     desiredUpperBandwidth(7500.0f),
     desiredLowerBandwidth(1.0f),
     boardSampleRate(30000.0f),
-    savedSampleRateIndex(16),
+    savedSampleRateIndex(Rhd2000EvalBoardUsb3::SampleRate30000Hz),
     cableLengthPortA(0.914f), cableLengthPortB(0.914f), cableLengthPortC(0.914f), cableLengthPortD(0.914f), // default is 3 feet (0.914 m),
     audioOutputL(-1), audioOutputR(-1) ,numberingScheme(1),
 	newScan(true)
