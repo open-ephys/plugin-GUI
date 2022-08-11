@@ -92,7 +92,7 @@ namespace IntanRecordingController
 		bool isHeadstageEnabled(int hsNum) const;
 		int getChannelsInHeadstage(int hsNum) const;
 
-		void setSampleRate(int index, bool temporary = false);
+		void setSampleRate(int index, bool wantRescan = true);
 
 		double setUpperBandwidth(double upper); // set desired BW, returns actual BW
 		double setLowerBandwidth(double lower);
@@ -107,7 +107,8 @@ namespace IntanRecordingController
 		void setTTLoutputMode(bool state);
 		void setDAChpf(float cutoff, bool enabled);
 
-		void scanPorts();
+		void scanPorts(bool wantForcedRate = true);
+		void setHeadstageDelayAdjust(int hsnum, int adjustval);
 		void enableAdcs(bool);
 
 		bool isReady() override;
@@ -201,6 +202,9 @@ namespace IntanRecordingController
 
 		int deviceId(Rhd2000DataBlockUsb3* dataBlock, int stream, int& register59Value);
 
+		Array<int> cableLengthAdjustments;
+
+		// FIXME - No longer used for anything.
 		double cableLengthPortA, cableLengthPortB, cableLengthPortC, cableLengthPortD;
 		double cableLengthPortE, cableLengthPortF, cableLengthPortG, cableLengthPortH;
 

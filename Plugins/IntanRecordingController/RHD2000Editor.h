@@ -234,6 +234,9 @@ namespace IntanRecordingController
 
 		void checkEnabledState();
 
+		int getCableDelayAdjustment();
+		void setCableDelayAdjustment(int newdelay);
+
 	private:
 
 		int hsNumber1, hsNumber2;
@@ -247,6 +250,7 @@ namespace IntanRecordingController
 
 		ScopedPointer<UtilityButton> hsButton1;
 		ScopedPointer<UtilityButton> hsButton2;
+		ScopedPointer<UtilityButton> delayButton;
 
 	};
 
