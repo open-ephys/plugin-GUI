@@ -58,6 +58,13 @@ using namespace IntanRecordingController;
 #define S_DEBUG(x) {}
 #endif
 
+//#define DELAY_DEBUG
+#ifdef DELAY_DEBUG
+#define DEL_DEBUG(x) do { x } while(false);
+#else
+#define DEL_DEBUG(x) {}
+#endif
+
 // Allocates memory for a 3-D array of doubles.
 void allocateDoubleArray3D(std::vector<std::vector<std::vector<double> > >& array3D,
                            int xSize, int ySize, int zSize)
@@ -98,8 +105,15 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
     desiredUpperBandwidth(7500.0f),
     desiredLowerBandwidth(1.0f),
     boardSampleRate(30000.0f),
-    savedSampleRateIndex(16),
-    cableLengthPortA(0.914f), cableLengthPortB(0.914f), cableLengthPortC(0.914f), cableLengthPortD(0.914f), // default is 3 feet (0.914 m),
+    savedSampleRateIndex(Rhd2000EvalBoardUsb3::SampleRate30000Hz),
+    cableLengthPortA(DEFAULT_CABLE_LENGTH_METERS),
+    cableLengthPortB(DEFAULT_CABLE_LENGTH_METERS),
+    cableLengthPortC(DEFAULT_CABLE_LENGTH_METERS),
+    cableLengthPortD(DEFAULT_CABLE_LENGTH_METERS),
+    cableLengthPortE(DEFAULT_CABLE_LENGTH_METERS),
+    cableLengthPortF(DEFAULT_CABLE_LENGTH_METERS),
+    cableLengthPortG(DEFAULT_CABLE_LENGTH_METERS),
+    cableLengthPortH(DEFAULT_CABLE_LENGTH_METERS),
     audioOutputL(-1), audioOutputR(-1) ,numberingScheme(1),
 	newScan(true)
 {
@@ -109,6 +123,9 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
 
     for (int i=0; i < MAX_NUM_HEADSTAGES; i++)
         headstagesArray.add(new RHDHeadstage(i));
+
+    cableLengthAdjustments.clear();
+    cableLengthAdjustments.insertMultiple(0, 0, MAX_NUM_HEADSTAGES);
 
     evalBoard = new Rhd2000EvalBoardUsb3;
     sourceBuffers.add(new DataBuffer(2, 10000)); // start with 2 channels and automatically resize
@@ -408,10 +425,10 @@ void RHD2000Thread::initializeBoard()
 	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortB, cableLengthPortB);
 	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortC, cableLengthPortC);
 	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortD, cableLengthPortD);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortE, cableLengthPortA);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortF, cableLengthPortB);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortG, cableLengthPortC);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortH, cableLengthPortD);
+	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortE, cableLengthPortE);
+	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortF, cableLengthPortF);
+	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortG, cableLengthPortG);
+	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortH, cableLengthPortH);
 
     // Select RAM Bank 0 for AuxCmd3 initially, so the ADC is calibrated.
 	evalBoard->selectAuxCommandBank(Rhd2000EvalBoardUsb3::PortA, Rhd2000EvalBoardUsb3::AuxCmd3, 0);
@@ -470,8 +487,10 @@ void RHD2000Thread::initializeBoard()
 
 }
 
-void RHD2000Thread::scanPorts()
+void RHD2000Thread::scanPorts(bool wantForcedRate)
 {
+	int savedSampleRateCopy;
+
 	if (!deviceFound) //Safety to avoid crashes if board not present
 	{
 		return;
@@ -509,7 +528,17 @@ void RHD2000Thread::scanPorts()
 	chipId.insertMultiple(0, -1, MAX_NUM_HEADSTAGES);
 	Array<int> tmpChipId(chipId);
 
-	setSampleRate(Rhd2000EvalBoardUsb3::SampleRate30000Hz, true); // set to 30 kHz temporarily
+	savedSampleRateCopy = savedSampleRateIndex;
+	// Set either 30 ksps or the nominal configured rate.
+	// Don't re-scan (avoid recursion loop).
+	if (wantForcedRate)
+	{
+		setSampleRate(Rhd2000EvalBoardUsb3::SampleRate30000Hz, false);
+	}
+	else
+	{
+		setSampleRate(savedSampleRateIndex, false);
+	}
 
 	// Enable all data streams, and set sources to cover one or two chips
 	// on Ports A-D.
@@ -566,6 +595,13 @@ void RHD2000Thread::scanPorts()
 
 	for (delay = 0; delay < 16; delay++)//(delay = 0; delay < 16; ++delay)
 	{
+		DEL_DEBUG(
+		if (delay < 10)
+			std::cout << "Delay  " << delay << ":   ";
+		else
+			std::cout << "Delay " << delay << ":   ";
+		)
+
 		evalBoard->setCableDelay(Rhd2000EvalBoardUsb3::PortA, delay);
 		evalBoard->setCableDelay(Rhd2000EvalBoardUsb3::PortB, delay);
 		evalBoard->setCableDelay(Rhd2000EvalBoardUsb3::PortC, delay);
@@ -613,8 +649,15 @@ void RHD2000Thread::scanPorts()
 					indexSecondGoodDelay.set(hs, delay);
 					tmpChipId.set(hs, id);
 				}
+				DEL_DEBUG(std::cout << 'Y';)
+			}
+			else
+			{
+				DEL_DEBUG(std::cout << '-';)
 			}
 		}
+
+		DEL_DEBUG(std::cout << std::endl;)
 	}
 	PRINT_ARRAYS;
 	S_DEBUG(
@@ -689,13 +732,23 @@ void RHD2000Thread::scanPorts()
     {
         if (sumGoodDelays[hs] == 1 || sumGoodDelays[hs] == 2)
         {
-            optimumDelay.set(hs,indexFirstGoodDelay[hs]);
+            optimumDelay.set(hs,indexFirstGoodDelay[hs] + cableLengthAdjustments[hs]);
         }
         else if (sumGoodDelays[hs] > 2)
         {
-            optimumDelay.set(hs,indexSecondGoodDelay[hs]);
+            optimumDelay.set(hs,indexSecondGoodDelay[hs] + cableLengthAdjustments[hs]);
         }
+
+//        DEL_DEBUG(std::cout << "hs " << hs << " delay:  " << optimumDelay[hs] << std::endl;)
     }
+
+    DEL_DEBUG(
+    for (hs = 0; (hs+1) < MAX_NUM_HEADSTAGES; hs += 2)
+    {
+        std::cout << "Port " << ( (char) ('A' + (hs>>1)) ) << " delay:   "
+            << max(optimumDelay[hs],optimumDelay[hs+1]) << std::endl;
+    }
+    )
 
     evalBoard->setCableDelay(Rhd2000EvalBoardUsb3::PortA,
                              max(optimumDelay[0],optimumDelay[1]));
@@ -714,6 +767,7 @@ void RHD2000Thread::scanPorts()
 	evalBoard->setCableDelay(Rhd2000EvalBoardUsb3::PortH,
 							max(optimumDelay[14], optimumDelay[15]));
 
+    // NOTE - These human-readable cable lengths are no longer used for anything.
     cableLengthPortA =
         evalBoard->estimateCableLengthMeters(max(optimumDelay[0],optimumDelay[1]));
     cableLengthPortB =
@@ -731,9 +785,19 @@ void RHD2000Thread::scanPorts()
 	cableLengthPortH =
 		evalBoard->estimateCableLengthMeters(max(optimumDelay[14], optimumDelay[15]));
 
-    setSampleRate(savedSampleRateIndex); // restore saved sample rate
+    // Make sure we're at the original sampling rate.
+    // Don't re-scan (avoid recursion loop).
+    setSampleRate(savedSampleRateCopy, false);
+
+    // setSampleRate() calls this, so we don't need it here.
     //updateRegisters();
+
     newScan = true;
+}
+
+void RHD2000Thread::setHeadstageDelayAdjust(int hsnum, int adjustval)
+{
+  cableLengthAdjustments.set(hsnum, adjustval);
 }
 
 int RHD2000Thread::deviceId(Rhd2000DataBlockUsb3* dataBlock, int stream, int& register59Value)
@@ -1214,13 +1278,11 @@ void RHD2000Thread::enableAdcs(bool t)
 }
 
 
-void RHD2000Thread::setSampleRate(int sampleRateIndex, bool isTemporary)
+void RHD2000Thread::setSampleRate(int sampleRateIndex, bool wantRescan)
 {
 	impedanceThread->stopThreadSafely();
-    if (!isTemporary)
-    {
-        savedSampleRateIndex = sampleRateIndex;
-    }
+
+    savedSampleRateIndex = sampleRateIndex;
 
     int numUsbBlocksToRead = 0; // placeholder - make this change the number of blocks that are read in RHD2000Thread::updateBuffer()
 
@@ -1327,17 +1389,13 @@ void RHD2000Thread::setSampleRate(int sampleRateIndex, bool isTemporary)
 
     // Now that we have set our sampling rate, we can set the MISO sampling delay
     // which is dependent on the sample rate.
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortA, cableLengthPortA);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortB, cableLengthPortB);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortC, cableLengthPortC);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortD, cableLengthPortD);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortE, cableLengthPortE);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortF, cableLengthPortF);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortG, cableLengthPortG);
-	evalBoard->setCableLengthMeters(Rhd2000EvalBoardUsb3::PortH, cableLengthPortH);
+    // Do this by re-probing at the sampling rate we just set.
+    if (wantRescan)
+    {
+        scanPorts(false);
+    }
 
     updateRegisters();
-
 }
 
 void RHD2000Thread::updateRegisters()

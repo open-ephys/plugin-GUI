@@ -572,7 +572,8 @@ void FPGAcanvas::updateImpedance(Array<int> streams, Array<int> channels, Array<
 
 /***********************************************************************/
 
-#define HS_WIDTH 70
+#define HS_WIDTH 90
+#define HS_PANEL_WIDTH (2*HS_WIDTH)
 
 RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
                              RHD2000Thread* board_,
@@ -581,7 +582,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     : VisualizerEditor(parentNode, useDefaultParameterEditors), board(board_)
 {
     canvas = nullptr;
-	desiredWidth = 340 + HS_WIDTH;
+	desiredWidth = 270 + HS_PANEL_WIDTH;
     tabText = "FPGA";
     measureWhenRecording = false;
     saveImpedances = false;
@@ -590,23 +591,23 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 	impedanceData->valid = false;
 
     // add headstage-specific controls (currently just an enable/disable button)
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < INTAN_EDITOR_PORT_SLOTS; i++)
     {
         HeadstageOptionsInterface* hsOptions = new HeadstageOptionsInterface(board, this, i);
         headstageOptionsInterfaces.add(hsOptions);
         addAndMakeVisible(hsOptions);
-		hsOptions->setBounds(3 + (i / 4)*HS_WIDTH, 28 + (i % 4) * 20, 70, 18);
+		hsOptions->setBounds(3 + (i / 4)*HS_WIDTH, 28 + (i % 4) * 20, 90, 18);
     }
 
     // add sample rate selection
     sampleRateInterface = new SampleRateInterface(board, this);
     addAndMakeVisible(sampleRateInterface);
-	sampleRateInterface->setBounds(80 + HS_WIDTH, 25, 110, 50);
+	sampleRateInterface->setBounds(10 + HS_PANEL_WIDTH, 25, 110, 50);
 
     // add Bandwidth selection
     bandwidthInterface = new BandwidthInterface(board, this);
     addAndMakeVisible(bandwidthInterface);
-	bandwidthInterface->setBounds(80 + HS_WIDTH, 58, 80, 50);
+	bandwidthInterface->setBounds(10 + HS_PANEL_WIDTH, 58, 80, 50);
 
     // add DSP selection
   //  dspInterface = new DSPInterface(board, this);
@@ -626,7 +627,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
         ElectrodeButton* button = new ElectrodeButton(-1);
         electrodeButtons.add(button);
 
-		button->setBounds(200 + i * 25 + HS_WIDTH, 40, 25, 15);
+		button->setBounds(130 + i * 25 + HS_PANEL_WIDTH, 40, 25, 15);
         button->setChannelNum(-1);
         button->setToggleState(false, dontSendNotification);
         button->setRadioGroupId(999);
@@ -645,7 +646,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     }
 
     audioLabel = new Label("audio label", "Audio out");
-	audioLabel->setBounds(190 + HS_WIDTH, 25, 75, 15);
+	audioLabel->setBounds(120 + HS_PANEL_WIDTH, 25, 75, 15);
     audioLabel->setFont(Font("Small Text", 10, Font::plain));
     audioLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(audioLabel);
@@ -653,11 +654,11 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     // add HW audio parameter selection
     audioInterface = new AudioInterface(board, this);
     addAndMakeVisible(audioInterface);
-	audioInterface->setBounds(179 + HS_WIDTH, 58, 70, 50);
+	audioInterface->setBounds(109 + HS_PANEL_WIDTH, 58, 70, 50);
 
     adcButton = new UtilityButton("ADC 1-8", Font("Small Text", 13, Font::plain));
     adcButton->setRadius(3.0f);
-	adcButton->setBounds(179 + HS_WIDTH, 108, 70, 18);
+	adcButton->setBounds(109 + HS_PANEL_WIDTH, 108, 70, 18);
     adcButton->addListener(this);
     adcButton->setClickingTogglesState(true);
     adcButton->setTooltip("Enable/disable ADC channels");
@@ -666,7 +667,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     // add DSP Offset Button
     dspoffsetButton = new UtilityButton("DSP", Font("Very Small Text", 13, Font::plain));
     dspoffsetButton->setRadius(3.0f); // sets the radius of the button's corners
-	dspoffsetButton->setBounds(80 + HS_WIDTH, 108, 30, 18); // sets the x position, y position, width, and height of the button
+	dspoffsetButton->setBounds(10 + HS_PANEL_WIDTH, 108, 30, 18); // sets the x position, y position, width, and height of the button
     dspoffsetButton->addListener(this);
     dspoffsetButton->setClickingTogglesState(true); // makes the button toggle its state when clicked
     dspoffsetButton->setTooltip("Enable/disable DSP offset removal");
@@ -676,17 +677,17 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
     // add DSP Frequency Selection field
     dspInterface = new DSPInterface(board, this);
     addAndMakeVisible(dspInterface);
-	dspInterface->setBounds(110 + HS_WIDTH, 108, 60, 50);
+	dspInterface->setBounds(40 + HS_PANEL_WIDTH, 108, 60, 50);
 
     ttlSettleLabel = new Label("TTL Settle","TTL Settle");
     ttlSettleLabel->setFont(Font("Small Text", 11, Font::plain));
-	ttlSettleLabel->setBounds(255 + HS_WIDTH, 80, 70, 20);
+	ttlSettleLabel->setBounds(185 + HS_PANEL_WIDTH, 80, 70, 20);
     ttlSettleLabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(ttlSettleLabel);
 
 
     ttlSettleCombo = new ComboBox("FastSettleComboBox");
-	ttlSettleCombo->setBounds(260 + HS_WIDTH, 100, 60, 18);
+	ttlSettleCombo->setBounds(190 + HS_PANEL_WIDTH, 100, 60, 18);
     ttlSettleCombo->addListener(this);
     ttlSettleCombo->addItem("-",1);
     for (int k=0; k<8; k++)
@@ -698,7 +699,7 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 
     dacTTLButton = new UtilityButton("DAC TTL", Font("Small Text", 13, Font::plain));
     dacTTLButton->setRadius(3.0f);
-	dacTTLButton->setBounds(260 + HS_WIDTH, 25, 65, 18);
+	dacTTLButton->setBounds(190 + HS_PANEL_WIDTH, 25, 65, 18);
     dacTTLButton->addListener(this);
     dacTTLButton->setClickingTogglesState(true);
     dacTTLButton->setTooltip("Enable/disable DAC Threshold TTL Output");
@@ -706,12 +707,12 @@ RHD2000Editor::RHD2000Editor(GenericProcessor* parentNode,
 
     dacHPFlabel = new Label("DAC HPF","DAC HPF");
     dacHPFlabel->setFont(Font("Small Text", 11, Font::plain));
-	dacHPFlabel->setBounds(260 + HS_WIDTH, 42, 65, 20);
+	dacHPFlabel->setBounds(190 + HS_PANEL_WIDTH, 42, 65, 20);
     dacHPFlabel->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(dacHPFlabel);
 
     dacHPFcombo = new ComboBox("dacHPFCombo");
-	dacHPFcombo->setBounds(260 + HS_WIDTH, 60, 60, 18);
+	dacHPFcombo->setBounds(190 + HS_PANEL_WIDTH, 60, 60, 18);
     dacHPFcombo->addListener(this);
     dacHPFcombo->addItem("OFF",1);
     int HPFvalues[10] = {50,100,200,300,400,500,600,700,800,900};
@@ -832,9 +833,10 @@ void RHD2000Editor::buttonEvent(Button* button)
 {
     if (button == rescanButton && !acquisitionIsActive)
     {
-        board->scanPorts();
+        // Do not force 30 ksps; scan at the rate that's configured.
+        board->scanPorts(false);
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < INTAN_EDITOR_PORT_SLOTS; i++)
         {
             headstageOptionsInterfaces[i]->checkEnabledState();
         }
@@ -1260,6 +1262,14 @@ HeadstageOptionsInterface::HeadstageOptionsInterface(RHD2000Thread* board_,
     hsButton2->addListener(this);
     addAndMakeVisible(hsButton2);
 
+    delayButton = new UtilityButton("0", Font("Small Text", 13, Font::plain));
+    delayButton->setRadius(3.0f);
+    delayButton->setBounds(63,1,20,17);
+    delayButton->setClickingTogglesState(true);
+    delayButton->setToggleState(false, sendNotification);
+    delayButton->addListener(this);
+    addAndMakeVisible(delayButton);
+
     checkEnabledState();
 }
 
@@ -1299,8 +1309,30 @@ void HeadstageOptionsInterface::checkEnabledState()
         hsButton2->setEnabledState(false);
     }
 
-    repaint();
+    delayButton->setEnabledState(isEnabled);
 
+    repaint();
+}
+
+int HeadstageOptionsInterface::getCableDelayAdjustment()
+{
+    bool result;
+
+    result = 0;
+
+    // NOTE - Interface stays the same if we switch this to a spinner.
+    // Delay is 0 if the button isn't toggled and +1 if it is.
+    if (delayButton->getToggleState())
+        result = 1;
+
+    return result;
+}
+
+void HeadstageOptionsInterface::setCableDelayAdjustment(int newdelay)
+{
+    // NOTE - Interface stays the same if we switch this to a spinner.
+    // Button is pressed if delay is greater than 0 and up otherwise.
+    delayButton->setToggleState((newdelay > 0), sendNotification);
 }
 
 void HeadstageOptionsInterface::buttonClicked(Button* button)
@@ -1337,6 +1369,23 @@ void HeadstageOptionsInterface::buttonClicked(Button* button)
             board->setNumChannels(hsNumber2, channelsOnHs2);
             //board->updateChannels();
             editor->updateSettings();
+        }
+        else if (button == delayButton)
+        {
+            if (delayButton->getToggleState())
+            {
+                delayButton->setLabel("+1");
+                board->setHeadstageDelayAdjust(hsNumber1, 1);
+                board->setHeadstageDelayAdjust(hsNumber2, 1);
+                board->scanPorts(false);
+            }
+            else
+            {
+                delayButton->setLabel("0");
+                board->setHeadstageDelayAdjust(hsNumber1, 0);
+                board->setHeadstageDelayAdjust(hsNumber2, 0);
+                board->scanPorts(false);
+            }
         }
 
 		CoreServices::updateSignalChain(editor);

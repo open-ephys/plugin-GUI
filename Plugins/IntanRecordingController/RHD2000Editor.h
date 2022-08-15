@@ -26,6 +26,9 @@
 
 #include <VisualizerEditorHeaders.h>
 
+// Number of ports displayed in the GUI.
+#define INTAN_EDITOR_PORT_SLOTS 8
+
 namespace IntanRecordingController
 {
 
@@ -231,6 +234,9 @@ namespace IntanRecordingController
 
 		void checkEnabledState();
 
+		int getCableDelayAdjustment();
+		void setCableDelayAdjustment(int newdelay);
+
 	private:
 
 		int hsNumber1, hsNumber2;
@@ -244,6 +250,7 @@ namespace IntanRecordingController
 
 		ScopedPointer<UtilityButton> hsButton1;
 		ScopedPointer<UtilityButton> hsButton2;
+		ScopedPointer<UtilityButton> delayButton;
 
 	};
 
