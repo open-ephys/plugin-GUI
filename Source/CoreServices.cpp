@@ -318,10 +318,12 @@ namespace CoreServices
     
         bool isSynchronized(int nodeId)
         {
-            for (auto* node : getProcessorGraph()->getRecordNodes())
-            {
-                return node->isSynchronized();
-            }
+			for (auto* node : getProcessorGraph()->getRecordNodes())
+			{
+				if (node->getNodeId() == nodeId)
+					return node->isSynchronized();
+			}
+			return false;
         }
 
 		/* NOT YET IMPLEMENTED -- these functions are currently global only
