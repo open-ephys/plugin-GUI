@@ -449,7 +449,8 @@ private:
 /**
 *   Popup window used to edit Spike Channel settings
 */
-class PopupConfigurationWindow : public Component
+class PopupConfigurationWindow : public Component,
+    public ScrollBar::Listener
 {
 
 public:
@@ -463,7 +464,7 @@ public:
     ~PopupConfigurationWindow() { }
 
     /** Updates the window with a new set of Spike Channels*/
-    void update(Array<SpikeChannel*> spikeChannels);\
+    void update(Array<SpikeChannel*> spikeChannels);
 
     /** Custom table header component (not currently used)*/
     //std::unique_ptr<TableHeaderComponent> tableHeader;
@@ -473,11 +474,20 @@ public:
 
     /** Custom list box for Spike Channel settings*/
     std::unique_ptr<TableListBox> electrodeTable;
+    
+    /** Listens for viewport scrolling */
+    void scrollBarMoved(ScrollBar* scrollBar, double newRangeStart);
 
 private:
     SpikeDetectorEditor* editor;
 
     std::unique_ptr<SpikeChannelGenerator> spikeChannelGenerator;
+    
+    std::unique_ptr<Viewport> viewport;
+
+    int scrollDistance = 0;
+    
+    bool updating = false;
 };
 
 

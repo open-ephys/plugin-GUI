@@ -198,7 +198,6 @@ void PopupThresholdComponent::sliderValueChanged(Slider* slider)
                                             lockButton->getToggleState(), // isLocked
                                             slider->getValue());         // value
     
-    owner->repaint();
 }
 
 void PopupThresholdComponent::buttonClicked(Button* button)
@@ -222,8 +221,7 @@ void PopupThresholdComponent::buttonClicked(Button* button)
                                                 thresholdType);       // threshold type
 
     createSliders();
-    
-    owner->repaint();
+
 }
 
 ThresholdSelectorCustomComponent::ThresholdSelectorCustomComponent(SpikeChannel* channel_, bool acquisitionIsActive_)
@@ -303,7 +301,7 @@ void ThresholdSelectorCustomComponent::paint(Graphics& g)
     
     if (channel == nullptr)
         return;
-    
+
     thresholdString = "";
     
     switch (thresholder_type->getSelectedIndex())
@@ -578,6 +576,8 @@ void SpikeDetectorTableModel::broadcastThresholdTypeToSelectedRows(int rowThatWa
     }
 
     table->updateContent();
+    
+    table->repaint();
 }
 
 void SpikeDetectorTableModel::broadcastThresholdToSelectedRows(int rowThatWasClicked,
@@ -588,7 +588,7 @@ void SpikeDetectorTableModel::broadcastThresholdToSelectedRows(int rowThatWasCli
 {
     SparseSet<int> selectedRows = table->getSelectedRows();
     
-    //std::cout << "Broadcasting value." << std::endl;
+    //std::cout << "Broadcasting value for " << rowThatWasClicked << ", " << channelIndex << std::endl;
     
     float actualValue;
 
@@ -639,12 +639,18 @@ void SpikeDetectorTableModel::broadcastThresholdToSelectedRows(int rowThatWasCli
             Component* c = table->getCellComponent(SpikeDetectorTableModel::Columns::THRESHOLD, i);
 
             if (c != nullptr)
+            {
+                //std::cout << "Repainting" << std::endl;
                 c->repaint();
+            }
+                
 
         }
     }
 
     table->updateContent();
+    
+    table->repaint();
 }
 
 Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber, 
@@ -949,7 +955,7 @@ void SpikeChannelGenerator::buttonClicked(Button* button)
         int numSpikeChannelsToAdd = spikeChannelCountLabel->getText().getIntValue();
         SpikeChannel::Type channelType = (SpikeChannel::Type) spikeChannelTypeSelector->getSelectedId();
 
-        std::cout << "Button clicked! Sending " << startChannels.size() << " start channels " << std::endl;
+        //std::cout << "Button clicked! Sending " << startChannels.size() << " start channels " << std::endl;
 
         if (startChannels.size() == 0)
              editor->addSpikeChannels(window, channelType, numSpikeChannelsToAdd);
@@ -1008,7 +1014,7 @@ void SpikeChannelGenerator::channelStateChanged(Array<int> selectedChannels)
 {
     startChannels = selectedChannels;
 
-    std::cout << "Size of start channels: " << startChannels.size() << std::endl;
+    //std::cout << "Size of start channels: " << startChannels.size() << std::endl;
 }
 
 void SpikeChannelGenerator::paint(Graphics& g)
@@ -1054,11 +1060,26 @@ PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_,
     electrodeTable->setHeaderHeight(30);
     electrodeTable->setRowHeight(30);
     electrodeTable->setMultipleSelectionEnabled(true);
-
-    addChildComponent(electrodeTable.get());
     
+    viewport = std::make_unique<Viewport>();
+
+    viewport->setViewedComponent(electrodeTable.get(), false);
+    viewport->setScrollBarsShown(true, false);
+    viewport->getVerticalScrollBar().addListener(this);
+    
+    addAndMakeVisible(viewport.get());
     update(spikeChannels);
 
+    
+}
+
+void PopupConfigurationWindow::scrollBarMoved(ScrollBar* scrollBar, double newRangeStart)
+{
+
+    if (!updating)
+    {
+        scrollDistance = viewport->getViewPositionY();
+    }
     
 }
 
@@ -1069,31 +1090,36 @@ void PopupConfigurationWindow::update(Array<SpikeChannel*> spikeChannels)
     if (spikeChannels.size() > 0)
     {
 
+        updating = true;
+        
         tableModel->update(spikeChannels);
 
         int maxRows = 16;
 
-        int numRows = spikeChannels.size() <= maxRows ? spikeChannels.size() : maxRows;
+        int numRowsVisible = spikeChannels.size() <= maxRows ? spikeChannels.size() : maxRows;
 
         int scrollBarWidth = 0;
 
-        electrodeTable->getHorizontalScrollBar().setVisible(false);
-
         if (spikeChannels.size() > maxRows)
         {
-            electrodeTable->getVerticalScrollBar().setVisible(true);
+            viewport->getVerticalScrollBar().setVisible(true);
             scrollBarWidth += 20;
         }
         else {
-            electrodeTable->getVerticalScrollBar().setVisible(false);
+            viewport->getVerticalScrollBar().setVisible(false);
         }
-            
-        setSize(530 + scrollBarWidth, (numRows + 1) * 30 + 10 + 40);
-        electrodeTable->setBounds(5, 5, 520 + scrollBarWidth, (numRows + 1) * 30);
+          
+        setSize(530 + scrollBarWidth, (numRowsVisible + 1) * 30 + 10 + 40);
+        viewport->setBounds(5, 5, 520 + scrollBarWidth, (numRowsVisible + 1) * 30);
+        electrodeTable->setBounds(0, 0, 520 + scrollBarWidth, (spikeChannels.size() + 1) * 30);
+        
+        viewport->setViewPosition(0, scrollDistance);
         
         electrodeTable->setVisible(true);
 
-        spikeChannelGenerator->setBounds(60, electrodeTable->getBottom() + 8, 420, 30);
+        spikeChannelGenerator->setBounds(60, viewport->getBottom() + 8, 420, 30);
+        
+        updating = false;
 
     }
     else {
