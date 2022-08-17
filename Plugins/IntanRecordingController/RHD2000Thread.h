@@ -38,6 +38,14 @@
 
 #define MAX_NUM_CHANNELS MAX_NUM_DATA_STREAMS*35
 
+// The Rhythm interface supports up to 16 TTLs, and the I/O Expander
+// provides that many.
+#define MAX_TTL_INPUTS 16
+#define MAX_TTL_OUTPUTS 16
+
+#define NUM_ADC_CHANS 8
+#define NUM_DAC_CHANS 8
+
 // default is 3 feet (0.914 m)
 #define DEFAULT_CABLE_LENGTH_METERS 0.914f
 
