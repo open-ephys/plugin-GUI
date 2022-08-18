@@ -357,9 +357,17 @@ void FileReader::updateSettings()
         continuousChannels.clear();
         eventChannels.clear();
 
+        String streamName = input->getRecordName(input->getActiveRecord());
+
+         /* Only use the original stream name (FileReader-100.example_data -> example_data) */
+        StringArray tokens;
+        tokens.addTokens (input->getRecordName(input->getActiveRecord()), ".");
+        if ( tokens.size() )
+            streamName = tokens[tokens.size()-1];
+
         DataStream::Settings streamSettings{
 
-            input->getRecordName(input->getActiveRecord()),
+            streamName,
             "A description of the File Reader Stream",
             "identifier",
             getDefaultSampleRate()
