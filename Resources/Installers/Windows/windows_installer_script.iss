@@ -1,7 +1,7 @@
 [Setup]
 AppName=Open Ephys
-AppVersion=0.6.0
-AppVerName=Open Ephys 0.6.0
+AppVersion=0.6.1
+AppVerName=Open Ephys 0.6.1
 AppPublisher=open-ephys.org
 AppPublisherURL=https://open-ephys.org/gui
 DefaultDirName={autopf}\Open Ephys
