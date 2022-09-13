@@ -1,5 +1,6 @@
 #Open Ephys GUI main build file
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.15)
+cmake_policy(SET CMP0091 NEW)
 
 set(GUI_VERSION 0.6.1)
 
@@ -80,7 +81,7 @@ add_executable(open-ephys
 
 
 target_include_directories(open-ephys PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules)
-target_compile_features(open-ephys PUBLIC cxx_auto_type cxx_generalized_initializers)
+target_compile_features(open-ephys PUBLIC cxx_auto_type cxx_generalized_initializers cxx_std_17)
 
 file(GLOB _bitfiles "${RESOURCES_DIRECTORY}/Bitfiles/*.bit")
 file(GLOB _xmlfiles "${RESOURCES_DIRECTORY}/Configs/*.xml")
@@ -151,6 +152,7 @@ if(MSVC)
 	set_property(TARGET open-ephys APPEND PROPERTY COMPILE_DEFINITIONS "JUCE_API=__declspec(dllexport)")
 	target_compile_options(open-ephys PRIVATE /sdl- /nologo /MP /W0 /bigobj)
 	target_link_libraries(open-ephys setupapi.lib opengl32.lib glu32.lib)
+	set_property(TARGET open-ephys APPEND PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 	set_property(TARGET open-ephys APPEND PROPERTY VS_DEBUGGER_COMMAND "Debug\\open-ephys.exe")
 	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS_DEBUG " /NODEFAULTLIB:\"libcmt.lib\" /NODEFAULTLIB:\"msvcrt.lib\"")
 	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS " /SUBSYSTEM:WINDOWS")
