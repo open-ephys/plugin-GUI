@@ -513,15 +513,13 @@ bool EditorViewport::keyPressed(const KeyPress& key)
                 {
                     lastEditorClicked->switchIO(0);
                     AccessClass::getProcessorGraph()->updateViews(lastEditorClicked->getProcessor());
+                    this->grabKeyboardFocus();
                 }
             }
             else
             {
-                if(editorArray.getFirst())
-                {
-                    lastEditorClicked = editorArray.getFirst();
-                    lastEditorClicked->select();
-                }
+                lastEditorClicked = editorArray.getFirst();
+                lastEditorClicked->select();
             }
         
             return true;
@@ -534,15 +532,13 @@ bool EditorViewport::keyPressed(const KeyPress& key)
                 {
                     lastEditorClicked->switchIO(1);
                     AccessClass::getProcessorGraph()->updateViews(lastEditorClicked->getProcessor());
+                    this->grabKeyboardFocus();
                 }
             }
             else
             {
-                if(editorArray.getFirst())
-                {
-                    lastEditorClicked = editorArray.getFirst();
-                    lastEditorClicked->select();
-                }
+                lastEditorClicked = editorArray.getFirst();
+                lastEditorClicked->select();
             }
             return true;
         }
