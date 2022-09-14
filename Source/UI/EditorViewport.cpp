@@ -507,20 +507,42 @@ bool EditorViewport::keyPressed(const KeyPress& key)
         else if (key.getKeyCode() == key.upKey)
         {
 
-            if (lastEditorClicked->isMerger() || lastEditorClicked->isSplitter())
+            if(lastEditorClicked)
             {
-                lastEditorClicked->switchIO(0);
-                AccessClass::getProcessorGraph()->updateViews(lastEditorClicked->getProcessor());
+                if (lastEditorClicked->isMerger() || lastEditorClicked->isSplitter())
+                {
+                    lastEditorClicked->switchIO(0);
+                    AccessClass::getProcessorGraph()->updateViews(lastEditorClicked->getProcessor());
+                }
+            }
+            else
+            {
+                if(editorArray.getFirst())
+                {
+                    lastEditorClicked = editorArray.getFirst();
+                    lastEditorClicked->select();
+                }
             }
         
             return true;
         }
         else if (key.getKeyCode() == key.downKey)
         {
-            if (lastEditorClicked->isMerger() || lastEditorClicked->isSplitter())
+            if(lastEditorClicked)
             {
-                lastEditorClicked->switchIO(1);
-                AccessClass::getProcessorGraph()->updateViews(lastEditorClicked->getProcessor());
+                if (lastEditorClicked->isMerger() || lastEditorClicked->isSplitter())
+                {
+                    lastEditorClicked->switchIO(1);
+                    AccessClass::getProcessorGraph()->updateViews(lastEditorClicked->getProcessor());
+                }
+            }
+            else
+            {
+                if(editorArray.getFirst())
+                {
+                    lastEditorClicked = editorArray.getFirst();
+                    lastEditorClicked->select();
+                }
             }
             return true;
         }
