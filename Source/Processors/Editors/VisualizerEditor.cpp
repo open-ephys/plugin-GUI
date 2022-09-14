@@ -166,6 +166,9 @@ void VisualizerEditor::editorWasClicked()
         LOGD("Setting tab index to ", tabIndex);
         AccessClass::getDataViewport()->selectTab (tabIndex);
     }
+
+    if (dataWindow && windowSelector->getToggleState())
+        dataWindow->toFront(true);
 }
 
 
