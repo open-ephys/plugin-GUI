@@ -33,11 +33,11 @@ Our primary user base is scientists performing electrophysiology experiments wit
 
 The easiest way to get started is to download the installer for your platform of choice:
 
-- [Windows](https://openephysgui.jfrog.io/artifactory/Release-Installer/windows/Install-Open-Ephys-GUI-v0.6.1.exe)
-- [Ubuntu/Debian](https://openephysgui.jfrog.io/artifactory/Release-Installer/linux/open-ephys-gui-v0.6.1.deb)
-- [macOS](https://openephysgui.jfrog.io/artifactory/Release-Installer/mac/Open_Ephys_GUI_v0.6.1.dmg)
+- [Windows](https://openephysgui.jfrog.io/artifactory/Release-Installer/windows/Install-Open-Ephys-GUI-v0.6.2.exe)
+- [Ubuntu/Debian](https://openephysgui.jfrog.io/artifactory/Release-Installer/linux/open-ephys-gui-v0.6.2.deb)
+- [macOS](https://openephysgui.jfrog.io/artifactory/Release-Installer/mac/Open_Ephys_GUI_v0.6.2.dmg)
 
-It’s also possible to obtain the binaries as a .zip file for [Windows](https://openephysgui.jfrog.io/artifactory/Release/windows/open-ephys-v0.6.1-windows.zip), [Linux](https://openephysgui.jfrog.io/artifactory/Release/linux/open-ephys-v0.6.1-linux.zip), or [Mac](https://openephysgui.jfrog.io/artifactory/Release/mac/open-ephys-v0.6.1-mac.zip).
+It’s also possible to obtain the binaries as a .zip file for [Windows](https://openephysgui.jfrog.io/artifactory/Release/windows/open-ephys-v0.6.2-windows.zip), [Linux](https://openephysgui.jfrog.io/artifactory/Release/linux/open-ephys-v0.6.2-linux.zip), or [Mac](https://openephysgui.jfrog.io/artifactory/Release/mac/open-ephys-v0.6.2-mac.zip).
 
 Detailed installation instructions can be found [here](https://open-ephys.github.io/gui-docs/User-Manual/Installing-the-GUI.html).
 
