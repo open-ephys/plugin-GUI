@@ -104,9 +104,18 @@ void PhaseDetector::parameterValueChanged(Parameter* param)
     } 
     else if (param->getName().equalsIgnoreCase("Channel"))
     {
-        int localIndex = (int)param->getValue();
-        int globalIndex = getDataStream(param->getStreamId())->getContinuousChannels()[localIndex]->getGlobalIndex();
-        settings[param->getStreamId()]->triggerChannel = globalIndex;
+        Array<var>* array = param->getValue().getArray();
+        
+        if (array->size() > 0)
+        {
+            int localIndex = int(array->getFirst());
+            int globalIndex = getDataStream(param->getStreamId())->getContinuousChannels()[localIndex]->getGlobalIndex();
+            settings[param->getStreamId()]->triggerChannel = globalIndex;
+        }
+        else
+        {
+            settings[param->getStreamId()]->triggerChannel = -1;
+        }
     } 
     else if (param->getName().equalsIgnoreCase("TTL_out"))
     {
