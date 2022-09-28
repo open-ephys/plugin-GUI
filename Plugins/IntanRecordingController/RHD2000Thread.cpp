@@ -165,11 +165,11 @@ RHD2000Thread::RHD2000Thread(SourceNode* sn) : DataThread(sn),
 
         // probably better to do this with a thread, but a timer works for now:
         // startTimer(10); // initialize the board in the background
-        dacStream = new int[8];
-        dacChannels = new int[8];
-        dacThresholds = new float[8];
-        dacChannelsToUpdate = new bool[8];
-        for (int k = 0; k < 8; k++)
+        dacStream = new int[NUM_DAC_CHANS];
+        dacChannels = new int[NUM_DAC_CHANS];
+        dacThresholds = new float[NUM_DAC_CHANS];
+        dacChannelsToUpdate = new bool[NUM_DAC_CHANS];
+        for (int k = 0; k < NUM_DAC_CHANS; k++)
         {
             dacChannelsToUpdate[k] = true;
             dacStream[k] = 0;
@@ -265,7 +265,7 @@ Array<int> RHD2000Thread::getDACchannels() const
 {
     Array<int> dacChannelsArray;
     //dacChannelsArray.addArray(dacChannels,8);
-    for (int k = 0; k < 8; ++k)
+    for (int k = 0; k < NUM_DAC_CHANS; ++k)
     {
         dacChannelsArray.add (dacChannels[k]);
     }
@@ -859,7 +859,7 @@ int RHD2000Thread::getHeadstageChannels (int hsNum) const
 void RHD2000Thread::getEventChannelNames (StringArray& Names) const
 {
     Names.clear();
-    for (int k = 0; k < 8; ++k)
+    for (int k = 0; k < MAX_TTL_INPUTS; ++k)
     {
         Names.add ("TTL" + String (k + 1));
     }
@@ -974,7 +974,7 @@ void RHD2000Thread::setDefaultChannelNames()
     //ADC channels
     if (acquireAdcChannels)
     {
-        for (int k = 0; k < 8; k++)
+        for (int k = 0; k < NUM_ADC_CHANS; k++)
         {
             int chn = channelNumber - 1;
             if (newScan || !channelInfo[chn].modified)
@@ -1683,7 +1683,7 @@ bool RHD2000Thread::updateBuffer()
 		index += 2 * (numStreams % 4);
 		if (acquireAdcChannels)
 		{
-			for (int adcChan = 0; adcChan < 8; ++adcChan)
+			for (int adcChan = 0; adcChan < NUM_ADC_CHANS; ++adcChan)
 			{
 
 				channel++;
