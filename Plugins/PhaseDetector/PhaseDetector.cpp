@@ -301,6 +301,14 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
                     }
                 }
             }
+
+            // If event is on when 'None' is selected in channel selector, turn off event
+            if (module->wasTriggered && module->triggerChannel < 0)
+            {
+                TTLEventPtr ptr = module->createEvent(firstSampleInBlock, false);
+
+                addEvent(ptr, 0);
+            }
         }
 
         
