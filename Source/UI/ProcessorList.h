@@ -90,6 +90,8 @@ public:
     /** Get list of processors **/
     Array<String> getItemList();
 
+    Plugin::Description getItemDescriptionfromList(const String& processorName);
+
     /** Set component bounds */
     void resized();
     
