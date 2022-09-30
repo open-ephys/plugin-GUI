@@ -75,10 +75,29 @@ RecordNode::RecordNode()
 
 	eventMonitor = new EventMonitor();
 
+	checkDiskSpace();
+
 }
 
 RecordNode::~RecordNode()
 {
+}
+
+void RecordNode::checkDiskSpace()
+{
+	int diskSpaceWarningThreshold = 5; //GB
+
+	File dataDir(dataDirectory);
+	int64 freeSpace = dataDir.getBytesFreeOnVolume();
+
+	float avaialableBytes = freeSpace / pow(2, 30); //1 GB == 2^30 bytes
+
+	if (avaialableBytes < diskSpaceWarningThreshold)
+	{
+		String msg = "Less than " + String(diskSpaceWarningThreshold) + " GB of disk space available in " + String(dataDirectory.getFullPathName());
+		msg += ". Recording may fail. Please free up space or change the recording directory.";
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "WARNING", msg);
+	}
 }
 
 
@@ -192,6 +211,8 @@ void RecordNode::setDataDirectory(File directory)
 {
 	dataDirectory = directory;
 	newDirectoryNeeded = true;
+
+	checkDiskSpace();
 }
 
 void RecordNode::createNewDirectory()
