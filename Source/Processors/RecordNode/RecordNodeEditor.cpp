@@ -473,9 +473,12 @@ FifoMonitor::FifoMonitor(RecordNode* node, uint16 streamId_, String streamName_)
 	streamId(streamId_),
 	streamName(streamName_),
 	fillPercentage(0.0),
-    stateChangeSinceLastUpdate(false)
+    stateChangeSinceLastUpdate(false),
+	dataRate(0.0),
+	lastUpdateTime(0.0),
+	lastFreeSpace(0.0),
+	recordingTimeLeftInSeconds(0)
 {
-
 	startTimer(500);
 	setTooltip(streamName);
 }
@@ -552,9 +555,41 @@ void FifoMonitor::timerCallback()
 		if (ratio > 0)
 			setFillPercentage(1.0f - ratio);
 
-		//std::cout << "Setting fill percentage for " << streamId << " to " << 1 - ratio << std::endl;
+		if (!recordingTimeLeftInSeconds)
+			setTooltip(String(bytesFree / pow(2, 30)) + " GB available");
 
-		setTooltip(String(bytesFree / pow(2, 30)) + " GB available");
+		float currentTime = Time::getMillisecondCounterHiRes();
+
+		// Update data rate and recording time left every 30 seconds
+		if (recordNode->getRecordingStatus() && currentTime - lastUpdateTime > 30000) {
+
+			if (lastUpdateTime == 0.0) {
+				lastUpdateTime = Time::getMillisecondCounterHiRes();
+				lastFreeSpace = bytesFree;
+			}
+			else
+			{
+				dataRate = (lastFreeSpace - bytesFree) / (currentTime - lastUpdateTime); //bytes/ms
+				lastUpdateTime = currentTime;
+				lastFreeSpace = bytesFree;
+
+				recordingTimeLeftInSeconds = (int) (bytesFree / dataRate / 1000.0f);
+
+				LOGD("Data rate: ", dataRate, " bytes/ms");
+
+				// Stop recording and show warning when less than 5 minutes of disk space left
+				if (dataRate > 0 && recordingTimeLeftInSeconds < 60*5) {
+					CoreServices::setRecordingStatus(false);
+					String msg = "Recording stopped. Less than 60 seconds of disk space remaining.";
+					AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "WARNING", msg);
+				}
+
+				String msg = String(bytesFree / pow(2, 30)) + " GB available\n";
+				msg += String(recordingTimeLeftInSeconds / 60) + " minutes remaining\n";
+				msg += "Data rate: " + String(dataRate * 1000 / pow(2, 20), 2) + " MB/s";
+				setTooltip(msg);
+			}
+		}
 	}
 	else /* Subprocessor monitor */
 	{

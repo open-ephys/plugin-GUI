@@ -90,9 +90,9 @@ void RecordNode::checkDiskSpace()
 	File dataDir(dataDirectory);
 	int64 freeSpace = dataDir.getBytesFreeOnVolume();
 
-	float avaialableBytes = freeSpace / pow(2, 30); //1 GB == 2^30 bytes
+	float availableBytes = freeSpace / pow(2, 30); //1 GB == 2^30 bytes
 
-	if (avaialableBytes < diskSpaceWarningThreshold)
+	if (availableBytes < diskSpaceWarningThreshold && !isRecording)
 	{
 		String msg = "Less than " + String(diskSpaceWarningThreshold) + " GB of disk space available in " + String(dataDirectory.getFullPathName());
 		msg += ". Recording may fail. Please free up space or change the recording directory.";

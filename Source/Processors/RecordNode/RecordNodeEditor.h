@@ -97,6 +97,11 @@ private :
 	Random random;
     
     bool stateChangeSinceLastUpdate;
+
+	float dataRate;
+	float lastFreeSpace;
+	float lastUpdateTime;
+	int recordingTimeLeftInSeconds;
 	
 };
 
