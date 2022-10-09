@@ -506,7 +506,7 @@ public:
                 return;
             }
             
-            std::string procId;
+            int procId;
             if (!request_json.contains("id")) {
                 LOGD( "No 'id' element found." );
                 res.set_content("Request must contain processor id.", "text/plain");
@@ -518,7 +518,7 @@ public:
                 LOGD( "Found a processor id." );
             }
 
-            auto processor = find_processor(procId);
+            auto processor = find_processor(String(procId).toStdString());
             if (processor == nullptr) {
                 LOGD( "Could not find processor" );
                 res.status = 404;
@@ -533,9 +533,11 @@ public:
                 String processorName = processor->getDisplayName();
 
                 processorNodes.add(processor);
+
+                const MessageManagerLock mml;
                 graph_->deleteNodes(processorNodes);
 
-                return_msg = processorName + " [" +  procId + "] deleted successfully";
+                return_msg = processorName + " [" +  String(procId) + "] deleted successfully";
             } else {
                 return_msg = "Cannot delete processors while acquisition is active.";
             }
@@ -572,10 +574,11 @@ public:
             }
             else {
                 procName = request_json["name"];
-                LOGD( "Found a processor name." );
+                LOGD( "Found processor name: ", procName);
             }
 
-            std::string sourceNodeId, destNodeId;
+            int sourceNodeId = 0;
+            int destNodeId = 0;
             if (!request_json.contains("source_id") && !request_json.contains("dest_id")) {
                 LOGD( "No 'source_id' or 'dest_id' element found." );
                 res.set_content("Request must contain source or destination processor node id.", "text/plain");
@@ -615,24 +618,31 @@ public:
             {
                 auto description = AccessClass::getProcessorList()->getItemDescriptionfromList(procName);
 
-                GenericProcessor *sourceProcessor, *destProcessor;
-                if(sourceNodeId.empty())
+                GenericProcessor* sourceProcessor = nullptr;
+                GenericProcessor* destProcessor = nullptr;
+                
+                if(sourceNodeId == 0)
                 {
-                    destProcessor = graph_->getProcessorWithNodeId(std::stoi(destNodeId));
-                    sourceProcessor = destProcessor->getSourceNode();
-                    sourceNodeId = std::to_string(sourceProcessor->getNodeId());
+                    destProcessor = graph_->getProcessorWithNodeId(destNodeId);
                 }
                 else
                 {
-                    sourceProcessor = graph_->getProcessorWithNodeId(std::stoi(sourceNodeId));
-                    destProcessor = sourceProcessor->getDestNode();
+                    sourceProcessor = graph_->getProcessorWithNodeId(sourceNodeId);
+                }
+
+                if (sourceProcessor == nullptr && destProcessor == nullptr)
+                {
+                    return_msg = "Neither source node ID nor dest node ID could be found.";
+                }
+                else {
+                    const MessageManagerLock mml;
+                    graph_->createProcessor(description,
+                        sourceProcessor,
+                        destProcessor);
+
+                    return_msg = procName + " added successfully";
                 }
                 
-                graph_->createProcessor(description,
-                                        sourceProcessor,
-                                        destProcessor);
-
-                return_msg = procName + " added after node " + sourceNodeId + " successfully";
             } else {
                 return_msg = "Cannot add processors while acquisition is active.";
             }
