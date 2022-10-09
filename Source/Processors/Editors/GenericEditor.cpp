@@ -47,6 +47,7 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
     isSelected(false), 
     isEnabled(true), 
     isCollapsed(false), 
+    selectedStream(0),
     tNum(-1),
     drawerButtonListener(this)
 {
