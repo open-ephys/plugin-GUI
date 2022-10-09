@@ -57,6 +57,18 @@ public:
     /** Reads settings from JSON (.prb format)*/
     void fromJson(File file);
 
+    /** Sets the stream info */
+    void setStream(const DataStream* stream);
+
+    /** Reset to defaults */
+    void reset();
+
+    int sourceNodeId = -1;
+    String streamName = "";
+    int numChannels = 0;
+    float sampleRate = 0.0f;
+    uint16 streamId = 0;
+
 };
 
 /**
@@ -92,6 +104,9 @@ public:
     /** Sets the channel order*/
     void setChannelOrder(uint16 streamId, Array<int> order);
 
+    /** Resets to default settings*/
+    void resetStream(uint16 streamId);
+
     /** Gets the channel order */
     Array<int> getChannelOrder(uint16 streamId);
 
@@ -112,8 +127,14 @@ public:
 
 private:
 
+    /** Find previously saved settings from similar streams */
+    ChannelMapSettings* findMatchingStreamSettings(ChannelMapSettings* s);
+
     /** Holds settings for individual streams*/
     StreamSettings<ChannelMapSettings> settings;
+
+    /** Previous stream IDs*/
+    Array<uint16> previousStreamIds;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelMappingNode);
 };
