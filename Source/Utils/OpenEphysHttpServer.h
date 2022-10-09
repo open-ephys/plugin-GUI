@@ -621,13 +621,19 @@ public:
                 GenericProcessor* sourceProcessor = nullptr;
                 GenericProcessor* destProcessor = nullptr;
                 
-                if(sourceNodeId == 0)
+                if (sourceNodeId == 0)
                 {
                     destProcessor = graph_->getProcessorWithNodeId(destNodeId);
+                    
+                    if (destProcessor != nullptr)
+                        sourceProcessor = destProcessor->getSourceNode();
                 }
                 else
                 {
                     sourceProcessor = graph_->getProcessorWithNodeId(sourceNodeId);
+                    
+                    if (sourceProcessor != nullptr)
+                        destProcessor = sourceProcessor->getDestNode();
                 }
 
                 if (sourceProcessor == nullptr && destProcessor == nullptr)
