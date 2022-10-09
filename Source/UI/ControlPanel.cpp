@@ -864,7 +864,7 @@ void ControlPanel::stopRecording()
 void ControlPanel::componentBeingDeleted(Component &component)
 {
 	/*Update filename fields as configured in the popup box upon exit. */
-	filenameConfigWindow = std::make_unique<FilenameConfigWindow>(filenameFields);
+    filenameConfigWindow = std::make_unique<FilenameConfigWindow>(filenameFields);
     filenameText->setButtonText(generateFilenameFromFields(true));
 
     //TODO: Assumes any change in filename settings should start a new directory next recording
@@ -881,6 +881,9 @@ void ControlPanel::buttonClicked(Button* button)
 
     if (button == filenameText.get() && !getRecordingState())
     {
+
+        filenameConfigWindow.reset();
+        filenameConfigWindow = std::make_unique<FilenameConfigWindow>(filenameFields);
 
         CallOutBox& myBox
             = CallOutBox::launchAsynchronously(std::move(filenameConfigWindow), 
@@ -1195,7 +1198,10 @@ void ControlPanel::setRecordingDirectoryPrependText(String text)
         {
             if (field->value != text)
             {
-                if (!text.length())
+
+                field->newDirectoryNeeded = true;
+
+                if (text.length() == 0)
                     field->state = FilenameFieldComponent::State::NONE;
                 else if (text == "auto")
                     field->state = FilenameFieldComponent::State::AUTO;
@@ -1208,6 +1214,8 @@ void ControlPanel::setRecordingDirectoryPrependText(String text)
                     field->value = text;
                 }
                 createNewRecordingDirectory();
+
+                generateFilenameFromFields(true);
             }
         }
     }
@@ -1232,7 +1240,10 @@ void ControlPanel::setRecordingDirectoryAppendText(String text)
         {
             if (field->value != text)
             {
-                if (!text.length())
+
+                field->newDirectoryNeeded = true;
+
+                if (text.length() == 0)
                     field->state = FilenameFieldComponent::State::NONE;
                 else if (text == "auto")
                     field->state = FilenameFieldComponent::State::AUTO;
@@ -1245,6 +1256,8 @@ void ControlPanel::setRecordingDirectoryAppendText(String text)
                     field->value = text;
                 }
                 createNewRecordingDirectory();
+
+                generateFilenameFromFields(true);
             }
         }
     }
@@ -1269,8 +1282,14 @@ void ControlPanel::setRecordingDirectoryBaseText(String text)
         {
             if (field->value != text)
             {
-                if ( text == "auto" )
+
+                field->newDirectoryNeeded = true;
+
+                if (text == "auto")
+                {
                     field->state = FilenameFieldComponent::State::AUTO;
+                }
+                    
                 else if ( text.length() > 0 )
                 {
                     String errString = FilenameFieldComponent::validate(text);
@@ -1279,7 +1298,10 @@ void ControlPanel::setRecordingDirectoryBaseText(String text)
                     field->state = FilenameFieldComponent::State::CUSTOM;
                     field->value = text;
                 }
+
                 createNewRecordingDirectory();
+
+                generateFilenameFromFields(true);
             }
         }
     }
