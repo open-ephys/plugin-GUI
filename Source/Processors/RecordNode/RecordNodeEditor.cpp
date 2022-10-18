@@ -580,7 +580,7 @@ void FifoMonitor::timerCallback()
 				// Stop recording and show warning when less than 5 minutes of disk space left
 				if (dataRate > 0 && recordingTimeLeftInSeconds < 60*5) {
 					CoreServices::setRecordingStatus(false);
-					String msg = "Recording stopped. Less than 60 seconds of disk space remaining.";
+					String msg = "Recording stopped. Less than 5 minutes of disk space remaining.";
 					AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "WARNING", msg);
 				}
 
