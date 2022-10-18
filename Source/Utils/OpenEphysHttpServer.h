@@ -218,6 +218,17 @@ public:
                     LOGD("'default_record_engine' not specified'");
                 }
 
+                try {
+                    std::string start_new_directory = request_json["start_new_directory"];
+                    LOGD("Found 'start_new_directory': ", start_new_directory);
+                    const MessageManagerLock mml;
+                    if (start_new_directory == "true")
+                        CoreServices::createNewRecordingDirectory();
+                }
+                catch (json::exception& e) {
+                    LOGD("'start_new_directory' not specified'");
+                }
+
                 json ret;
                 recording_info_to_json(graph_, &ret);
                 res.set_content(ret.dump(), "application/json");
