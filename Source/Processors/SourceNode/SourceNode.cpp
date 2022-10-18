@@ -150,8 +150,7 @@ float SourceNode::getSampleRate(int streamId) const
             if (stream->getStreamId() == streamId)
                 return stream->getSampleRate();
     }
-    else
-        return 44100.0;
+    return 44100.0;
 }
 
 

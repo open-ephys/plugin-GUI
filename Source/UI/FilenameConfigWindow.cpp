@@ -217,14 +217,7 @@ String FilenameFieldComponent::getNextValue(bool usePlaceholderText)
             }
         }
     }
-    else {
-        
-        //std::cout << "New directory NOT needed." << std::endl;
-        //std::cout << "Returning: " << value << std::endl;
-
-        return value;
-    }
-
+    return value;
     
 }
 

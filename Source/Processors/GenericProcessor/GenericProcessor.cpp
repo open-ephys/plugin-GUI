@@ -1923,6 +1923,8 @@ Plugin::Processor::Type GenericProcessor::typeFromString(String typeName)
         return Plugin::Processor::SINK;
     else if (typeName.equalsIgnoreCase("Utility"))
         return Plugin::Processor::UTILITY;
+    else
+        return Plugin::Processor::INVALID;
 }
 
 int GenericProcessor::getNumInputs() const  

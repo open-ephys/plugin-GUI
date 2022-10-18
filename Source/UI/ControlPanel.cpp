@@ -1188,6 +1188,7 @@ String ControlPanel::getRecordingDirectoryPrependText()
             return field->value;
         }
     }
+    return "";
 }
 
 void ControlPanel::setRecordingDirectoryPrependText(String text)
@@ -1230,6 +1231,7 @@ String ControlPanel::getRecordingDirectoryAppendText()
             return field->value;
         }
     }
+    return "";
 }
 
 void ControlPanel::setRecordingDirectoryAppendText(String text)
@@ -1272,6 +1274,7 @@ String ControlPanel::getRecordingDirectoryBaseText()
             return field->value;
         }
     }
+    return "";
 }
 
 void ControlPanel::setRecordingDirectoryBaseText(String text)
