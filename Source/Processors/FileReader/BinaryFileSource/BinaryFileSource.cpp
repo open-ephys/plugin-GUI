@@ -71,6 +71,25 @@ bool BinaryFileSource::open(File file)
 void BinaryFileSource::fillRecordInfo()
 {
 
+	Identifier idGUIVersion("GUI version");
+	String guiVersion = m_jsonData[idGUIVersion];
+
+	String sampleNumbersFilename;
+	String channelStatesFilename;
+
+	int minorVersion = guiVersion.substring(2,3).getIntValue();
+
+	if (minorVersion < 6) {
+		sampleNumbersFilename = "timestamps.npy";
+		channelStatesFilename = "channel_states.npy";
+	}
+	else
+	{
+		sampleNumbersFilename = "sample_numbers.npy";
+		channelStatesFilename = "states.npy";
+	}
+
+
 	const int maxSensibleFileSize = 2 * 1024 * 1024; 
 
 	var continuousData = m_jsonData["continuous"];
@@ -110,7 +129,7 @@ void BinaryFileSource::fillRecordInfo()
 		info.sampleRate = record[idSampleRate];
 		info.numSamples = numSamples;
 		
-		File tsFile = m_rootPath.getChildFile("continuous").getChildFile(streamName).getChildFile("sample_numbers.npy");
+		File tsFile = m_rootPath.getChildFile("continuous").getChildFile(streamName).getChildFile(sampleNumbersFilename);
 		if (tsFile.exists())
 		{
 			std::unique_ptr<FileInputStream> tsDataStream = tsFile.createInputStream();
@@ -169,7 +188,7 @@ void BinaryFileSource::fillRecordInfo()
 			String streamName = events[idFolder];
 			streamName = streamName.trimCharactersAtEnd("/");
 
-			File sampleNumbersFile = m_rootPath.getChildFile("events").getChildFile(streamName).getChildFile("sample_numbers.npy");
+			File sampleNumbersFile = m_rootPath.getChildFile("events").getChildFile(streamName).getChildFile(sampleNumbersFilename);
 			std::unique_ptr<MemoryMappedFile> sampleNumbersMap(new MemoryMappedFile(sampleNumbersFile, MemoryMappedFile::readOnly));
 
 			if (sampleNumbersFile.getSize() == EVENT_HEADER_SIZE_IN_BYTES)
@@ -177,13 +196,14 @@ void BinaryFileSource::fillRecordInfo()
 
 			int nEvents = (sampleNumbersFile.getSize() - EVENT_HEADER_SIZE_IN_BYTES) / 8;
 
-			if (streamName.endsWith("TTL"))
+			if (streamName.contains("TTL"))
 			{
 
-				File channelStatesFile = m_rootPath.getChildFile("events").getChildFile(streamName).getChildFile("states.npy");
+				File channelStatesFile = m_rootPath.getChildFile("events").getChildFile(streamName).getChildFile(channelStatesFilename);
 				std::unique_ptr<MemoryMappedFile> channelStatesFileMap(new MemoryMappedFile(channelStatesFile, MemoryMappedFile::readOnly));
 
-				streamName = streamName.trimCharactersAtEnd("/TTL");
+
+				streamName = streamName.substring(0,streamName.lastIndexOf("/TTL"));
 
 				EventInfo eventInfo;
 
