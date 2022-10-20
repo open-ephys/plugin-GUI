@@ -33,6 +33,7 @@
 
 #include "../MainWindow.h"
 #include "../AccessClass.h"
+#include "../UI/ProcessorList.h"
 
 #include "Utils.h"
 
@@ -82,6 +83,8 @@ using json = nlohmann::json;
  * - GET /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name>
  * - PUT /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name>
  * - PUT /api/processors/<processor_id>/config
+ * - PUT /api/processors/add
+ * - PUT /api/processors/delete
  * - PUT /api/window
  *
  * All endpoints are JSON endpoints. The PUT endpoint expects two parameters: "channel" (an integer), and "value",
@@ -490,6 +493,175 @@ public:
                 return_msg = graph_->sendConfigMessage(processor, String(message_str));
             } else {
                 return_msg = "Cannot send config message while acquisition is active.";
+            }
+             
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json");
+            });
+
+        svr_->Put("/api/processors/delete", [this](const httplib::Request& req, httplib::Response& res) {
+
+            LOGD( "Received PUT request" );
+            
+            json request_json;
+            try {
+                LOGD( "Trying to decode" );
+                request_json = json::parse(req.body);
+                LOGD( "Parsed" );
+            }
+            catch (json::exception& e) {
+                LOGD( "Hit exception" );
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
+            
+            int procId;
+            if (!request_json.contains("id")) {
+                LOGD( "No 'id' element found." );
+                res.set_content("Request must contain processor id.", "text/plain");
+                res.status = 400;
+                return;
+            }
+            else {
+                procId = request_json["id"];
+                LOGD( "Found a processor id." );
+            }
+
+            auto processor = find_processor(String(procId).toStdString());
+            if (processor == nullptr) {
+                LOGD( "Could not find processor" );
+                res.status = 404;
+                return;
+            }
+
+            String return_msg;
+            
+            if (!CoreServices::getAcquisitionStatus())
+            {   
+                Array<GenericProcessor*> processorNodes;
+                String processorName = processor->getDisplayName();
+
+                processorNodes.add(processor);
+
+                const MessageManagerLock mml;
+                graph_->deleteNodes(processorNodes);
+
+                return_msg = processorName + " [" +  String(procId) + "] deleted successfully";
+            } else {
+                return_msg = "Cannot delete processors while acquisition is active.";
+            }
+             
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json");
+            });
+
+        
+        svr_->Put("/api/processors/add", [this](const httplib::Request& req, httplib::Response& res) {
+
+            LOGD( "Received PUT request" );
+            
+            json request_json;
+            try {
+                LOGD( "Trying to decode" );
+                request_json = json::parse(req.body);
+                LOGD( "Parsed" );
+            }
+            catch (json::exception& e) {
+                LOGD( "Hit exception" );
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
+            
+            std::string procName;
+            if (!request_json.contains("name")) {
+                LOGD( "No 'name' element found." );
+                res.set_content("Request must contain processor name.", "text/plain");
+                res.status = 400;
+                return;
+            }
+            else {
+                procName = request_json["name"];
+                LOGD( "Found processor name: ", procName);
+            }
+
+            int sourceNodeId = 0;
+            int destNodeId = 0;
+            if (!request_json.contains("source_id") && !request_json.contains("dest_id")) {
+                LOGD( "No 'source_id' or 'dest_id' element found." );
+                res.set_content("Request must contain source or destination processor node id.", "text/plain");
+                res.status = 400;
+                return;
+            }
+            else {
+                if(request_json.contains("source_id"))
+                    sourceNodeId = request_json["source_id"];
+                else
+                    destNodeId = request_json["dest_id"];
+
+                LOGD( "Found a source/dest node id." );
+            }
+
+            
+            auto listOfProc = AccessClass::getProcessorList()->getItemList();
+            bool foundProcessor = false;
+            for(auto p : listOfProc)
+            {
+                if(p.equalsIgnoreCase(String(procName)))
+                {
+                    foundProcessor = true;
+                    break;
+                }
+            }
+
+            if (!foundProcessor) {
+                LOGD( "Could not find processor in the Processor List" );
+                res.status = 404;
+                return;
+            }
+
+            String return_msg;
+            
+            if (!CoreServices::getAcquisitionStatus())
+            {
+                auto description = AccessClass::getProcessorList()->getItemDescriptionfromList(procName);
+
+                GenericProcessor* sourceProcessor = nullptr;
+                GenericProcessor* destProcessor = nullptr;
+                
+                if (sourceNodeId == 0)
+                {
+                    destProcessor = graph_->getProcessorWithNodeId(destNodeId);
+                    
+                    if (destProcessor != nullptr)
+                        sourceProcessor = destProcessor->getSourceNode();
+                }
+                else
+                {
+                    sourceProcessor = graph_->getProcessorWithNodeId(sourceNodeId);
+                    
+                    if (sourceProcessor != nullptr)
+                        destProcessor = sourceProcessor->getDestNode();
+                }
+
+                if (sourceProcessor == nullptr && destProcessor == nullptr)
+                {
+                    return_msg = "Neither source node ID nor dest node ID could be found.";
+                }
+                else {
+                    const MessageManagerLock mml;
+                    graph_->createProcessor(description,
+                        sourceProcessor,
+                        destProcessor);
+
+                    return_msg = procName + " added successfully";
+                }
+                
+            } else {
+                return_msg = "Cannot add processors while acquisition is active.";
             }
              
             json ret;
