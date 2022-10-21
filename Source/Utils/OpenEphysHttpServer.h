@@ -515,6 +515,13 @@ public:
             res.set_content(ret.dump(), "application/json");
             });
 
+        svr_->Get("/api/processors/clear", [this](const httplib::Request&, httplib::Response& res) {
+            graph_->clearSignalChain();
+            json ret;
+            status_to_json(graph_, &ret);
+            res.set_content(ret.dump(), "application/json");
+            });
+
         svr_->Put("/api/processors/delete", [this](const httplib::Request& req, httplib::Response& res) {
 
             LOGD( "Received PUT request" );
