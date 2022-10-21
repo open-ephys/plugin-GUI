@@ -1208,7 +1208,7 @@ void ControlPanel::setRecordingDirectoryPrependText(String text)
                     field->state = FilenameFieldComponent::State::AUTO;
                 else
                 {
-                    String errString = FilenameFieldComponent::validate(text);
+                    String errString = field->validate(text);
                     if (errString.length())
                         return; //TODO: Notify user of error via HTTPServer
                     field->state = FilenameFieldComponent::State::CUSTOM;
@@ -1251,7 +1251,7 @@ void ControlPanel::setRecordingDirectoryAppendText(String text)
                     field->state = FilenameFieldComponent::State::AUTO;
                 else
                 {
-                    String errString = FilenameFieldComponent::validate(text);
+                    String errString = field->validate(text);
                     if (errString.length())
                         return; //TODO: Notify user of error via HTTPServer
                     field->state = FilenameFieldComponent::State::CUSTOM;
@@ -1295,7 +1295,7 @@ void ControlPanel::setRecordingDirectoryBaseText(String text)
                     
                 else if ( text.length() > 0 )
                 {
-                    String errString = FilenameFieldComponent::validate(text);
+                    String errString = field->validate(text);
                     if (errString.length())
                         return; //TODO: Notify user of error via HTTPServer
                     field->state = FilenameFieldComponent::State::CUSTOM;

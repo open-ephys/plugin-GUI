@@ -80,7 +80,7 @@ String FilenameFieldComponent::validate(String candidate)
 
     String errorStr = "";
 
-    if (candidate.length() == 0)
+    if (candidate.length() == 0 && state != State::NONE)
         errorStr = "File name must have at least 1 character.";
 
     if (candidate.contains(File::getSeparatorString()))
