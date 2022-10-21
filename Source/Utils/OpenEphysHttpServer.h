@@ -605,20 +605,13 @@ public:
 
             int sourceNodeId = 0;
             int destNodeId = 0;
-            if (!request_json.contains("source_id") && !request_json.contains("dest_id")) {
-                LOGD( "No 'source_id' or 'dest_id' element found." );
-                res.set_content("Request must contain source or destination processor node id.", "text/plain");
-                res.status = 400;
-                return;
-            }
-            else {
-                if(request_json.contains("source_id"))
-                    sourceNodeId = request_json["source_id"];
-                else
-                    destNodeId = request_json["dest_id"];
 
-                LOGD( "Found a source/dest node id." );
-            }
+            if(request_json.contains("source_id"))
+                sourceNodeId = request_json["source_id"];
+            else if (request_json.contains("dest_id"))
+                destNodeId = request_json["dest_id"];
+
+            LOGD( "Found a source/dest node id." );
 
             
             auto listOfProc = AccessClass::getProcessorList()->getItemList();
@@ -662,18 +655,12 @@ public:
                         destProcessor = sourceProcessor->getDestNode();
                 }
 
-                if (sourceProcessor == nullptr && destProcessor == nullptr)
-                {
-                    return_msg = "Neither source node ID nor dest node ID could be found.";
-                }
-                else {
-                    const MessageManagerLock mml;
-                    graph_->createProcessor(description,
-                        sourceProcessor,
-                        destProcessor);
+                const MessageManagerLock mml;
+                graph_->createProcessor(description,
+                    sourceProcessor,
+                    destProcessor);
 
-                    return_msg = procName + " added successfully";
-                }
+                return_msg = procName + " added successfully";
                 
             } else {
                 return_msg = "Cannot add processors while acquisition is active.";
