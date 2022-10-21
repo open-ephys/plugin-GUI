@@ -337,6 +337,21 @@ public:
             status_to_json(graph_, &ret);
             res.set_content(ret.dump(), "application/json");
             });
+
+        svr_->Get("/api/processors/list", [this](const httplib::Request&, httplib::Response& res) {
+            auto listOfProc = AccessClass::getProcessorList()->getItemList();
+
+            std::vector<json> processors_json;
+            for(const auto& p : listOfProc) {
+                json processor_json;
+                processor_json["name"] = p.toStdString();
+                processors_json.push_back(processor_json);
+            }
+            json ret;
+            ret["processors"] = processors_json;
+
+            res.set_content(ret.dump(), "application/json");
+            });
         
         svr_->Get("/api/processors", [this](const httplib::Request&, httplib::Response& res) {
             Array<GenericProcessor*> processors = graph_->getListOfProcessors();
