@@ -955,7 +955,7 @@ void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
     //Get saved record path
     String savedPath = xml->getStringAttribute("path");
 
-    if (!File(savedPath).exists())
+	if (savedPath == "default" || !File(savedPath).exists())
         savedPath = CoreServices::getRecordingParentDirectory().getFullPathName();
 
     setDataDirectory(File(savedPath));
