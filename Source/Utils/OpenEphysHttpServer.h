@@ -516,6 +516,9 @@ public:
             });
 
         svr_->Get("/api/processors/clear", [this](const httplib::Request&, httplib::Response& res) {
+
+            const MessageManagerLock mml;
+
             graph_->clearSignalChain();
             json ret;
             status_to_json(graph_, &ret);
