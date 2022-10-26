@@ -247,6 +247,7 @@ void RecordNodeEditor::updateFifoMonitors()
                                                 streamId, nEvents));
 		streamRecords.getLast()->setBounds(18 + streamCount * 20, 110, 15, 15);
 		addAndMakeVisible(streamRecords.getLast());
+		streamRecords.getLast()->setVisible(false);
 
 		streamCount++;
 
@@ -403,14 +404,18 @@ void RecordNodeEditor::showFifoMonitors(bool show)
 		streamSelector->getX() + dX, streamSelector->getY(),
 		streamSelector->getWidth(), streamSelector->getHeight());
 
+
+	desiredWidth += dX;
+
+	if (getCollapsedState())
+		return;
+
 	for (auto spl : streamLabels)
 		spl->setVisible(show);
 	for (auto spm : streamMonitors)
 		spm->setVisible(show);
 	for (auto spr : streamRecords)
 		spr->setVisible(show);
-
-	desiredWidth += dX;
 
 	CoreServices::highlightEditor(this);
 	deselect();
