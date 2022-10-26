@@ -485,7 +485,6 @@ FifoMonitor::FifoMonitor(RecordNode* node, uint16 streamId_, String streamName_)
 	recordingTimeLeftInSeconds(0)
 {
 	startTimer(500);
-	setTooltip(streamName);
 }
 
 /* RECORD CHANNEL SELECTOR LISTENER */
@@ -548,8 +547,6 @@ void FifoMonitor::channelStateChanged(Array<int> selectedChannels)
 void FifoMonitor::timerCallback()
 {
 
-	//std::cout << "Timer callback for stream " << streamId << std::endl;
-
 	if (streamId == 0) /* Disk space monitor */
 	{
 		float bytesFree = (float) recordNode->getDataDirectory().getBytesFreeOnVolume();
@@ -596,11 +593,10 @@ void FifoMonitor::timerCallback()
 			}
 		}
 	}
-	else /* Subprocessor monitor */
+	else /* Stream monitor */
 	{
+		setTooltip(String(recordNode->getDataStream(streamId)->getSourceNodeId())+": "+streamName);
 		setFillPercentage(recordNode->fifoUsage[streamId]);
-
-		//std::cout << "Setting fill percentage for " << streamId << " to " << recordNode->fifoUsage[streamId] << std::endl;
 	}
 
 }
