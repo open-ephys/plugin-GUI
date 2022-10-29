@@ -869,7 +869,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
         }
     }
 
-    if (channelsOrderedByDepth)
+    if (channelsOrderedByDepth && channelsToDraw.size() > 0)
     {
         LOGD("Sorting channels by depth.");
 
