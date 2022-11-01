@@ -595,7 +595,7 @@ void FifoMonitor::timerCallback()
 	}
 	else /* Stream monitor */
 	{
-		setTooltip(String(recordNode->getDataStream(streamId)->getSourceNodeId())+": "+streamName);
+		setTooltip(String(recordNode->getDataStream(streamId)->getSourceNodeId())+" | "+streamName);
 		setFillPercentage(recordNode->fifoUsage[streamId]);
 	}
 
