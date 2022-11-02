@@ -81,7 +81,7 @@ public:
 	void mouseDown(const MouseEvent &event);
 
     /** Called when channel selection popup is closed */
-	void componentBeingDeleted(Component &component);
+	//void componentBeingDeleted(Component &component);
 
 	std::vector<bool> channelStates;
 

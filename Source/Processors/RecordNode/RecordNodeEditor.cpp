@@ -509,10 +509,10 @@ void FifoMonitor::mouseDown(const MouseEvent &event)
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
     
-    myBox.addComponentListener(this);
+    //myBox.addComponentListener(this);
 
 }
-
+/* No longer called -- all updates happen before the callout box is closed
 void FifoMonitor::componentBeingDeleted(Component &component)
 {
     // called when popup window closes
@@ -526,6 +526,7 @@ void FifoMonitor::componentBeingDeleted(Component &component)
     }
 
 }
+*/
 
 void FifoMonitor::channelStateChanged(Array<int> selectedChannels)
 {
