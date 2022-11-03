@@ -641,6 +641,10 @@ void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
     // should only loop if reached end of file and resuming from start
     while (samplesRead < samplesNeeded)
     {
+        
+        if (samplesRead < 0)
+            return;
+
         int samplesToRead = samplesNeeded - samplesRead;
         
         // if reached end of file stream
