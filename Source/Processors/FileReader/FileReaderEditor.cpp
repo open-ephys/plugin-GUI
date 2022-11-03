@@ -324,6 +324,14 @@ void ZoomTimeline::mouseDrag(const MouseEvent & event)
 
     lastDragXPosition = event.x;
 
+
+    // Prevent slider going out of timeline bounds
+    if (leftSliderPosition < 0)
+        leftSliderPosition = 0;
+
+    if (rightSliderPosition > getWidth() - sliderWidth)
+        rightSliderPosition = getWidth() - sliderWidth;
+
     repaint();
     
 }
@@ -333,6 +341,7 @@ void ZoomTimeline::mouseUp(const MouseEvent& event)
 
     leftSliderIsSelected = false;
     rightSliderIsSelected = false;
+    playbackRegionIsSelected = false;
 
     static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
 
