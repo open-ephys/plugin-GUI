@@ -782,7 +782,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
         if (channelIndex > -1)
         {
 
-            if (drawableChannels.size() != 1) // if we haven't already gone through this ordeal
+            if (drawableChannels.size() != 1 || numChans == 1) // if we haven't already gone through this ordeal
             {
                 LfpChannelTrack lfpChannelTrack{ channels[channelIndex], channelInfo[channelIndex] };
 
