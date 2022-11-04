@@ -517,11 +517,19 @@ public:
 
         svr_->Get("/api/processors/clear", [this](const httplib::Request&, httplib::Response& res) {
 
-            const MessageManagerLock mml;
+            String return_msg;
 
-            graph_->clearSignalChain();
+            if (!CoreServices::getAcquisitionStatus())
+            {
+                const MessageManagerLock mml;
+                graph_->clearSignalChain();
+                return_msg = "Signal chain cleared successfully.";
+            } else {
+                return_msg = "Cannot clear signal chain while acquisition is active!";
+            }
+
             json ret;
-            status_to_json(graph_, &ret);
+            ret["info"] = return_msg.toStdString();
             res.set_content(ret.dump(), "application/json");
             });
 
