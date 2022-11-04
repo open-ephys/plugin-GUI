@@ -214,38 +214,77 @@ void BinaryFileSource::fillRecordInfo()
 					eventInfo.channelStates.push_back(*data > 0);
 					int64* snData = static_cast<int64*>(sampleNumbersMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + j * sizeof(int64) / 8;
 					eventInfo.timestamps.push_back(*snData - startSampleNumbers[streamName]);
+					eventInfo.text.push_back("");
 				}
 				eventInfoMap[streamName] = eventInfo;
+			}
+			else if (streamName.equalsIgnoreCase("MessageCenter"))
+			{
 
-			} 
+				File textFile = m_rootPath.getChildFile("events").getChildFile(streamName).getChildFile("text.npy");
 
+				juce::FileInputStream inputStream(textFile);
+				inputStream.skipNextBytes(10); // \x93NUMPY \x01 \x00
+				String line = inputStream.readNextLine();
+
+				uint64 itemSize = std::stoi(line.fromFirstOccurrenceOf("'|S", 0, 0).upToFirstOccurrenceOf("'", 0, 0).toStdString());
+
+				EventInfo eventInfo;
+				int k_word;
+
+				juce::MemoryBlock buffer(itemSize);
+				auto *data = static_cast<char *>(buffer.getData());
+
+				for (int j = 0; j < nEvents; j++)
+				{
+
+					for (int k = 0; k < itemSize; k++)
+					{
+						data[k] = inputStream.readByte();
+						if ((data[k] == 0) || (k == itemSize - 1))
+							k_word = k;
+					} 
+
+					String outString = juce::String::fromUTF8(data, (int)k_word);
+					eventInfo.channels.push_back(0);
+					eventInfo.channelStates.push_back(0);
+					int64 *snData = static_cast<int64 *>(sampleNumbersMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + j * sizeof(int64) / 8;
+					eventInfo.timestamps.push_back(*snData - startSampleNumbers[streamName]);
+					eventInfo.text.push_back(outString);
+				}
+				eventInfoMap[streamName] = eventInfo;
+			}
 		}
 	}
-
 }
 
 void BinaryFileSource::processEventData(EventInfo &eventInfo, int64 start, int64 stop)
 {
 
-	int local_start = start % getActiveNumSamples();;
+	int local_start = start % getActiveNumSamples();
 	int local_stop = stop % getActiveNumSamples();
 	int loop_count = start / getActiveNumSamples();
 
-	EventInfo info = eventInfoMap[currentStream];
+	std::vector<String> includeStreams = {currentStream, "MessageCenter"};
 
-	int i = 0;
-		
-	while (i < info.timestamps.size())
+	for (int s = 0; s < includeStreams.size(); s++)
 	{
-		if (info.timestamps[i] >= local_start && info.timestamps[i] <= local_stop)
-		{
-			eventInfo.channels.push_back(info.channels[i] - 1);
-			eventInfo.channelStates.push_back((info.channelStates[i]));
-			eventInfo.timestamps.push_back(info.timestamps[i] + loop_count*getActiveNumSamples());
-		}
-		i++;
-	}
+		EventInfo info = eventInfoMap[includeStreams[s]];
 
+		int i = 0;
+			
+		while (i < info.timestamps.size())
+		{
+			if (info.timestamps[i] >= local_start && info.timestamps[i] <= local_stop)
+			{
+				eventInfo.channels.push_back(info.channels[i] - 1);
+				eventInfo.channelStates.push_back((info.channelStates[i]));
+				eventInfo.timestamps.push_back(info.timestamps[i] + loop_count * getActiveNumSamples());
+				eventInfo.text.push_back(info.text[i]);
+			}
+			i++;
+		}
+	}
 }
 
 void BinaryFileSource::updateActiveRecord(int index)

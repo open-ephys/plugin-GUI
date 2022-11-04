@@ -549,13 +549,20 @@ void FileReader::addEventsInRange(int64 start, int64 stop)
 
     for (int i = 0; i < events.channels.size(); i++) 
     { 
-        juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount*(stopSample - startSample) - start;
-        uint8 ttlBit = events.channels[i];
-        bool state = events.channelStates[i] > 0;
-        TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[0], events.timestamps[i], ttlBit, state);
-        addEvent(event, absoluteCurrentTimestamp); 
+        juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount * (stopSample - startSample) - start;
+        String msg = events.text[i];
+        if (!msg.isEmpty())
+        {
+            broadcastMessage(msg);
+        }
+        else
+        {
+            uint8 ttlBit = events.channels[i];
+            bool state = events.channelStates[i] > 0;
+            TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[0], events.timestamps[i], ttlBit, state);
+            addEvent(event, absoluteCurrentTimestamp); 
+        }
     }
-
 }
 
 void FileReader::setParameter (int parameterIndex, float newValue)

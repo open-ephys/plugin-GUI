@@ -39,6 +39,7 @@ struct EventInfo
     std::vector<int16> channels;
     std::vector<int16> channelStates;
     std::vector<int64> timestamps;
+    std::vector<String> text;
 };
 
 /** 
