@@ -35,9 +35,15 @@ FullTimeline::FullTimeline(FileReader* fr)
 {
 
     fileReader = fr;
+
+    startTimer(200);
 }
 
 FullTimeline::~FullTimeline() {}
+
+void FullTimeline::timerCallback() {
+    repaint();
+}
 
 void FullTimeline::paint(Graphics& g) 
 {
@@ -95,6 +101,12 @@ void FullTimeline::paint(Graphics& g)
 
     g.fillRoundedRectangle(intervalStartPosition, 0, 2, this->getHeight(), 2);
     g.fillRoundedRectangle(intervalStartPosition + intervalWidth, 0, 2, this->getHeight(), 2);
+
+    /* Draw the current playback position */
+    float timelinePos = (float)fileReader->getCurrentSample() / fileReader->getCurrentNumTotalSamples() * getWidth();
+
+    g.setOpacity(1.0f);
+    g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight(), 0.2);
 	
 }
 

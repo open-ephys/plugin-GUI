@@ -58,7 +58,7 @@ private:
     void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
 };
 
-class FullTimeline : public Component
+class FullTimeline : public Component, public Timer
 {
 public:
     FullTimeline(FileReader*);
@@ -73,6 +73,8 @@ private:
 
     FileReader* fileReader;
 
+    void timerCallback();
+
     int intervalStartPosition;
     int intervalWidth;
     bool intervalIsSelected;
@@ -83,6 +85,7 @@ private:
     void mouseUp(const MouseEvent& event);
 
     bool leftSliderIsSelected;
+
 };
 
 class ZoomTimeline : public Component
