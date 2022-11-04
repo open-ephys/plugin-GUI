@@ -191,7 +191,7 @@ void InteractivePlot::getRange(XYRange& range_)
 void InteractivePlot::setRange(XYRange& newRange)
 {
 
-	LOGD("Requested range: ", newRange.xmin, " ", newRange.xmax, " ", newRange.ymin, " ", newRange.ymax);
+	//LOGD("Requested range: ", newRange.xmin, " ", newRange.xmax, " ", newRange.ymin, " ", newRange.ymax);
 	drawComponent->setRange(newRange);
 }
 
@@ -374,8 +374,13 @@ void XAxis::paint(Graphics &g)
 
 		g.drawLine(xtickloc, 3, xtickloc, 13, 2.0);
 		
+		xtickloc -= ticklabelWidth / 2;
+
+		if (k == 0)
+			xtickloc += 5;
+
 		g.drawText(tickLabels[k], 
-				   xtickloc - ticklabelWidth / 2, 
+				xtickloc,
 				   10,
 				   ticklabelWidth,
 				   tickLabelHeight,
