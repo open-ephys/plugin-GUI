@@ -88,7 +88,7 @@ private:
 
 };
 
-class ZoomTimeline : public Component
+class ZoomTimeline : public Component, public Timer
 {
 public:
     ZoomTimeline(FileReader*);
@@ -116,6 +116,8 @@ private:
     bool leftSliderIsSelected;
     bool rightSliderIsSelected;
     bool playbackRegionIsSelected;
+
+    void timerCallback();
 
 };
 

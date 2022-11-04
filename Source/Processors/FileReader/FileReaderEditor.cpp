@@ -181,9 +181,16 @@ ZoomTimeline::ZoomTimeline(FileReader* fr)
     fileReader = fr; 
     sliderWidth = 8;
     widthInSeconds = 30;
+
+    startTimer(200);
 }
 
 ZoomTimeline::~ZoomTimeline() {}
+
+void ZoomTimeline::timerCallback()
+{
+    repaint();
+}
 
 void ZoomTimeline::updatePlaybackRegion(int min, int max) 
 {
@@ -284,6 +291,14 @@ void ZoomTimeline::paint(Graphics& g)
         this->getHeight() + tickHeight,
         juce::Justification::centred);
 
+    /* Draw the current playback position */
+    float timelinePos = (float)(fileReader->getCurrentSample() - startTimestamp) / (stopTimestamp - startTimestamp) * getWidth();
+
+    if (timelinePos < getWidth())
+    {
+        g.setOpacity(1.0f);
+        g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight(), 0.2);
+    }
 
 }
 
