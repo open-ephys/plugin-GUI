@@ -36,7 +36,7 @@ FullTimeline::FullTimeline(FileReader* fr)
 
     fileReader = fr;
 
-    startTimer(200);
+    startTimer(50);
 }
 
 FullTimeline::~FullTimeline() {}
@@ -151,16 +151,8 @@ void FullTimeline::mouseUp(const MouseEvent& event)
 
     static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
 
-    fileReader->loopPlayback = false;
-    
-    if ( fileReader->playbackIsActive() )
+    if (CoreServices::getAcquisitionStatus())
     {
-        fileReader->stopAcquisition();
-        fileReader->startAcquisition();
-    }
-    else
-    {
-        static_cast<FileReaderEditor*>(fileReader->getEditor())->playbackButton->triggerClick();
         fileReader->startAcquisition();
     }
     
@@ -182,7 +174,7 @@ ZoomTimeline::ZoomTimeline(FileReader* fr)
     sliderWidth = 8;
     widthInSeconds = 30;
 
-    startTimer(200);
+    startTimer(50);
 }
 
 ZoomTimeline::~ZoomTimeline() {}
@@ -294,7 +286,7 @@ void ZoomTimeline::paint(Graphics& g)
     /* Draw the current playback position */
     float timelinePos = (float)(fileReader->getCurrentSample() - startTimestamp) / (stopTimestamp - startTimestamp) * getWidth();
 
-    if (timelinePos < getWidth())
+    if (timelinePos < rightSliderPosition + sliderWidth || (timelinePos < rightSliderPosition + sliderWidth && !fileReader->loopPlayback))
     {
         g.setOpacity(1.0f);
         g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight(), 0.2);
@@ -370,24 +362,16 @@ void ZoomTimeline::mouseUp(const MouseEvent& event)
     rightSliderIsSelected = false;
     playbackRegionIsSelected = false;
 
-    static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
+    //fileReader->loopPlayback = false;
 
-    fileReader->loopPlayback = false;
+    static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
     
-    if ( fileReader->playbackIsActive() )
-    {
-        fileReader->stopAcquisition();
+    if (CoreServices::getAcquisitionStatus())
         fileReader->startAcquisition();
-    }
-    else
-    {
-        static_cast<FileReaderEditor*>(fileReader->getEditor())->playbackButton->triggerClick();
-        fileReader->startAcquisition();
-    }
     
 }
 
-PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback"), Timer() 
+PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback")
 {
     fileReader = fr;
     isActive = true;
@@ -395,11 +379,23 @@ PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback"), Timer()
 
 PlaybackButton::~PlaybackButton() {}
 
-void PlaybackButton::timerCallback()
+void PlaybackButton::setState(bool isActive)
 {
-    isActive = false;
-    repaint();
-    stopTimer();
+
+    this->isActive = isActive;
+
+    if (isActive && !fileReader->playbackIsActive())
+    {
+        static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
+        fileReader->startAcquisition();
+    }
+    else if (!isActive)
+        fileReader->stopAcquisition();
+}
+
+bool PlaybackButton::getState()
+{
+    return isActive;
 }
 
 void PlaybackButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown) 
@@ -418,7 +414,7 @@ void PlaybackButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDow
     int width = getWidth(); 
     int height = getHeight(); 
 
-    if (fileReader->playbackIsActive())
+    if (isActive)
     {
         /* Draw pause button */
         int padding = 0.3*width;
@@ -498,6 +494,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
 
     int buttonSize = 24;
     playbackButton = new PlaybackButton(fileReader);
+    playbackButton->setState(true);
     playbackButton->setBounds(scrubInterfaceWidth / 2 - buttonSize / 2, 103, buttonSize, buttonSize);
     playbackButton->addListener(this);
     addChildComponent(playbackButton);
@@ -731,9 +728,10 @@ void FileReaderEditor::buttonClicked (Button* button)
 
     } else if (button == playbackButton) {
 
-        fileReader->togglePlayback();
-        if (fileReader->playbackIsActive())
-            playbackButton->startTimer(zoomTimeline->getIntervalDurationInSeconds()*1000 + 100);
+        playbackButton->setState(!playbackButton->getState());
+
+        if (playbackButton->getState())
+            acquisitionIsActive = true;
 
     }
 

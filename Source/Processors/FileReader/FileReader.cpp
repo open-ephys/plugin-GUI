@@ -315,14 +315,17 @@ int64 FileReader::getCurrentSample()
 
 void FileReader::setPlaybackStart(int64 startSample)
 {
-    //LOGD("Settings start sample: ", timestamp);
+    LOGD("Settings start sample: ", startSample);
     this->startSample = startSample;
     this->totalSamplesAcquired = startSample;
+
+    input->seekTo(startSample);
+    currentSample = startSample;
 }
 
 void FileReader::setPlaybackStop(int64 stopSample)
 {
-    //LOGD("Settings stop sample: ", timestamp);
+    LOGD("Settings stop sample: ", stopSample);
     this->stopSample = stopSample;
     currentNumScrubbedSamples = stopSample - startSample;
 }
