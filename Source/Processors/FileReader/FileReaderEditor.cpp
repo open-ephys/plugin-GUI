@@ -384,12 +384,9 @@ void PlaybackButton::setState(bool isActive)
 
     this->isActive = isActive;
 
-    if (isActive && !fileReader->playbackIsActive())
-    {
+    if (!isActive) // Pressed play
         static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
-        fileReader->startAcquisition();
-    }
-    else if (!isActive)
+    else if (!isActive && fileReader->playbackIsActive())
         fileReader->stopAcquisition();
 }
 
@@ -729,9 +726,7 @@ void FileReaderEditor::buttonClicked (Button* button)
     } else if (button == playbackButton) {
 
         playbackButton->setState(!playbackButton->getState());
-
-        if (playbackButton->getState())
-            acquisitionIsActive = true;
+        fileReader->togglePlayback();
 
     }
 
