@@ -150,11 +150,6 @@ void FullTimeline::mouseUp(const MouseEvent& event)
     intervalIsSelected = false;
 
     static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
-
-    if (CoreServices::getAcquisitionStatus())
-    {
-        fileReader->startAcquisition();
-    }
     
 }
 
@@ -188,7 +183,7 @@ void ZoomTimeline::updatePlaybackRegion(int min, int max)
 {
     /* Default zoom slider region to first 10s */
     leftSliderPosition = 0;
-    rightSliderPosition = ( getWidth() - sliderWidth )  / 3.0f;
+    rightSliderPosition = ( getWidth() - sliderWidth )  / 10.0f;
 }
 
 int ZoomTimeline::getStartInterval()
@@ -285,12 +280,13 @@ void ZoomTimeline::paint(Graphics& g)
 
     /* Draw the current playback position */
     float timelinePos = (float)(fileReader->getCurrentSample() - startTimestamp) / (stopTimestamp - startTimestamp) * getWidth();
-
-    if (timelinePos < rightSliderPosition + sliderWidth || (timelinePos < rightSliderPosition + sliderWidth && !fileReader->loopPlayback))
+    //LOGD("Timeline pos: ", timelinePos, " current sample: ", fileReader->getCurrentSample(), " start timestamp: ", startTimestamp, " stop timestamp: ", stopTimestamp);
+    if (fileReader->playbackIsActive() || (!fileReader->playbackIsActive() && timelinePos < rightSliderPosition + sliderWidth))
     {
         g.setOpacity(1.0f);
         g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight(), 0.2);
     }
+
 
 }
 
@@ -362,12 +358,12 @@ void ZoomTimeline::mouseUp(const MouseEvent& event)
     rightSliderIsSelected = false;
     playbackRegionIsSelected = false;
 
-    //fileReader->loopPlayback = false;
+    if (fileReader->playbackIsActive())
+    {
+        fileReader->switchBuffer();
+    }
 
-    static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
-    
-    if (CoreServices::getAcquisitionStatus())
-        fileReader->startAcquisition();
+    static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes(); 
     
 }
 
@@ -726,6 +722,7 @@ void FileReaderEditor::buttonClicked (Button* button)
     } else if (button == playbackButton) {
 
         playbackButton->setState(!playbackButton->getState());
+        updatePlaybackTimes();
         fileReader->togglePlayback();
 
     }
@@ -734,12 +731,22 @@ void FileReaderEditor::buttonClicked (Button* button)
 
 void FileReaderEditor::updatePlaybackTimes()
 {
+
+    //fileReader->switchBuffer();
+
     int64 startTimestamp = float(getFullTimelineStartPosition()) / fullTimeline->getWidth() * fileReader->getCurrentNumTotalSamples();
     startTimestamp += float(getZoomTimelineStartPosition()) / zoomTimeline->getWidth() * fileReader->getCurrentSampleRate() * 30.0f;
     fileReader->setPlaybackStart(startTimestamp);
 
-    int64 stopTimestamp = startTimestamp + zoomTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
-    fileReader->setPlaybackStop(stopTimestamp);
+    if (playbackButton->getState())
+    {
+        fileReader->setPlaybackStop(fileReader->getCurrentNumTotalSamples());
+    }
+    else
+    {
+        int64 stopTimestamp = startTimestamp + zoomTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
+        fileReader->setPlaybackStop(stopTimestamp);
+    }
 
 }
 
