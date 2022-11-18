@@ -1229,7 +1229,10 @@ void LfpDisplaySplitter::updateScreenBuffer()
                                 int lastIndex = dbi - 1;
                                 
                                 if (lastIndex < 0)
+                                {
                                     lastIndex = displayBufferSize;
+                                    continue;
+                                }
 
                                 float val0 = displayBuffer->getSample(channel, lastIndex);
                                 float val1 = displayBuffer->getSample(channel, dbi);
