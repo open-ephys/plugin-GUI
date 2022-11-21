@@ -484,6 +484,8 @@ void BinaryRecording::closeFiles()
     m_eventFiles.clear();
     m_spikeFiles.clear();
 
+    m_syncTextFile.reset(nullptr);
+
     m_channelIndexes.clear();
     m_fileIndexes.clear();
     m_samplesWritten.clear();
