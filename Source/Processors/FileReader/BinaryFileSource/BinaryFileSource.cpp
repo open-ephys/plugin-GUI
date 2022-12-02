@@ -275,7 +275,7 @@ void BinaryFileSource::processEventData(EventInfo &eventInfo, int64 start, int64
 			
 		while (i < info.timestamps.size())
 		{
-			if (info.timestamps[i] >= local_start && info.timestamps[i] <= local_stop)
+			if (info.timestamps[i] >= local_start && info.timestamps[i] < local_stop)
 			{
 				eventInfo.channels.push_back(info.channels[i] - 1);
 				eventInfo.channelStates.push_back((info.channelStates[i]));

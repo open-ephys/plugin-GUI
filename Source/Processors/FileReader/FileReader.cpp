@@ -549,10 +549,12 @@ void FileReader::addEventsInRange(int64 start, int64 stop)
 
     for (int i = 0; i < events.channels.size(); i++) 
     { 
-        juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount * (stopSample - startSample) - start;
+
+        juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount * (stopSample - startSample);
         String msg = events.text[i];
         if (!msg.isEmpty())
         {
+            LOGD("Broadcasting message: ", msg, " at timestamp: ", absoluteCurrentTimestamp, " channel: ", events.channels[i]);
             broadcastMessage(msg);
         }
         else
