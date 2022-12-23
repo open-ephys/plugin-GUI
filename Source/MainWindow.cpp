@@ -293,6 +293,11 @@ void MainWindow::saveWindowBounds()
 
 	xml->addChildElement(recentDirectories);
 
+	XmlElement* signalChainLocked = new XmlElement("SIGNALCHAIN");
+	signalChainLocked->setAttribute("locked", ui->getEditorViewport()->isSignalChainLocked());
+
+	xml->addChildElement(signalChainLocked);
+
 	String error;
 
 	if (! xml->writeTo(file))
@@ -366,6 +371,11 @@ void MainWindow::loadWindowBounds()
 				UIComponent* ui = (UIComponent*) getContentComponent();
 				ui->setRecentlyUsedFilenames(filenames);
 
+			}
+			else if (e->hasTagName("SIGNALCHAIN"))
+			{
+				UIComponent* ui = (UIComponent*)getContentComponent();
+				ui->getEditorViewport()->lockSignalChain(e->getBoolAttribute("locked", false));
 			}
 
 		}
