@@ -465,6 +465,8 @@ public:
     std::unique_ptr<FilenameEditorButton> filenameText;
     std::unique_ptr<FilenameConfigWindow> filenameConfigWindow;
 
+    std::unique_ptr<Clock> clock;
+
 private:
 
     /** Informs the Control Panel that recording has begun.*/
@@ -486,7 +488,6 @@ private:
 
     std::unique_ptr<PlayButton> playButton;
 
-    std::unique_ptr<Clock> clock;
     std::unique_ptr<CPUMeter> cpuMeter;
     std::unique_ptr<DiskSpaceMeter> diskMeter;
     std::unique_ptr<FilenameComponent> filenameComponent;

@@ -316,6 +316,7 @@ void Clock::mouseDown(const MouseEvent& e)
 		PopupMenu m;
         
         m.addItem(1, "Clock mode", false);
+        m.addSeparator();
 		m.addItem(2, "Default", true, mode == DEFAULT);
 		m.addItem(3, "HH:MM:SS", true, mode == HHMMSS);
 

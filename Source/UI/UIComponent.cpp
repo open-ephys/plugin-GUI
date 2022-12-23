@@ -410,9 +410,6 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
         menu.addSeparator();
 		menu.addCommandItem(commandManager, saveSignalChain);
 		menu.addCommandItem(commandManager, saveSignalChainAs);
-		//menu.addSeparator();
-       // menu.addCommandItem(commandManager, loadPluginSettings);
-        //menu.addCommandItem(commandManager, savePluginSettings);
         menu.addSeparator();
 		menu.addCommandItem(commandManager, reloadOnStartup);
 		menu.addSeparator();
@@ -444,9 +441,15 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 	else if (menuIndex == 2)
 	{
 
+		PopupMenu clockMenu;
+		clockMenu.addCommandItem(commandManager, setClockModeDefault);
+		clockMenu.addCommandItem(commandManager, setClockModeHHMMSS);
+
 		menu.addCommandItem(commandManager, toggleProcessorList);
 		menu.addCommandItem(commandManager, toggleSignalChain);
 		menu.addCommandItem(commandManager, toggleFileInfo);
+		menu.addSeparator();
+		menu.addSubMenu("Clock mode", clockMenu);
 		menu.addSeparator();
 		menu.addCommandItem(commandManager, resizeWindow);
 
@@ -492,6 +495,8 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		toggleSignalChain,
 		toggleHttpServer,
 		toggleFileInfo,
+		setClockModeDefault,
+		setClockModeHHMMSS,
 		showHelp,
 		resizeWindow,
 		openPluginInstaller,
@@ -592,6 +597,16 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			result.setInfo("File Info", "Show/hide File Info.", "General", 0);
 			result.addDefaultKeypress('F', ModifierKeys::shiftModifier);
 			result.setTicked(controlPanel->isOpen());
+			break;
+
+		case setClockModeDefault:
+			result.setInfo("Default", "Set clock mode to default.", "General", 0);
+			result.setTicked(controlPanel->clock->getMode() == Clock::DEFAULT);
+			break;
+
+		case setClockModeHHMMSS:
+			result.setInfo("HH:MM:SS", "Set clock mode to HH:MM:SS.", "General", 0);
+			result.setTicked(controlPanel->clock->getMode() == Clock::HHMMSS);
 			break;
 
 		case openPluginInstaller:
@@ -805,6 +820,14 @@ bool UIComponent::perform(const InvocationInfo& info)
 
 		case resizeWindow:
 			mainWindow->centreWithSize(1200, 800);
+			break;
+
+		case setClockModeDefault:
+			controlPanel->clock->setMode(Clock::DEFAULT);
+			break;
+
+		case setClockModeHHMMSS:
+			controlPanel->clock->setMode(Clock::HHMMSS);
 			break;
 
 		case openPluginInstaller:
