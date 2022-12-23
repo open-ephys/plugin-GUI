@@ -162,6 +162,12 @@ public:
     /** Returns a boolean indicating whether or not the signal chain is empty. */
     bool isSignalChainEmpty();
 
+    /** Returns a boolean indicating whether or not the signal chain is locked */
+    bool isSignalChainLocked() { return signalChainIsLocked; }
+
+    /** Determines whether the signal chain can be edited */
+    void lockSignalChain(bool shouldLock);
+
     /** Updates visible editors (called after Processor Graph modifications)*/
     void updateVisibleEditors(Array<GenericEditor*> visibleEditors,
                               int numberOfTabs = 1,
@@ -241,6 +247,8 @@ private:
     OwnedArray<XmlElement> copyBuffer;
     
     Label editorNamingLabel;
+
+    bool signalChainIsLocked = false;
 
     OwnedArray<AddProcessor> orphanedActions;
 

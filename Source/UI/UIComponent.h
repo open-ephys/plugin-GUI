@@ -213,6 +213,7 @@ private:
         openDefaultConfigWindow = 0x2017,
         loadPluginSettings      = 0x3001,
         savePluginSettings      = 0x3002,
+        lockSignalChain         = 0x5001
         
     };
 

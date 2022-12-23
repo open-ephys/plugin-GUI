@@ -252,7 +252,7 @@ GenericProcessor* EditorViewport::addProcessor(Plugin::Description description, 
 void EditorViewport::clearSignalChain()
 {
 
-    if (!CoreServices::getAcquisitionStatus())
+    if (!CoreServices::getAcquisitionStatus() && !signalChainIsLocked)
     {
         LOGD("Clearing signal chain.");
         
@@ -264,6 +264,11 @@ void EditorViewport::clearSignalChain()
     {
         CoreServices::sendStatusMessage("Cannot clear signal chain while acquisition is active.");
     }
+}
+
+void EditorViewport::lockSignalChain(bool shouldLock)
+{
+    signalChainIsLocked = shouldLock;
 }
 
 void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bool updateSettings)
@@ -756,18 +761,18 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                 else
                     m.addItem(3, "Collapse", true);
 
-                if (!CoreServices::getAcquisitionStatus())
+                if (!CoreServices::getAcquisitionStatus() && !signalChainIsLocked)
                     m.addItem(2, "Delete", true);
                 else
                     m.addItem(2, "Delete", false);
 
-                m.addItem(1, "Rename", true);
+                m.addItem(1, "Rename", !signalChainIsLocked);
                 
                 m.addSeparator();
 
                 m.addItem(4, "Save settings...", true);
                 
-                if (!CoreServices::getAcquisitionStatus())
+                if (!CoreServices::getAcquisitionStatus() && !signalChainIsLocked)
                     m.addItem(5, "Load settings...", true);
                 else
                     m.addItem(5, "Load settings...", false);
@@ -912,54 +917,56 @@ void EditorViewport::mouseDown(const MouseEvent& e)
 void EditorViewport::mouseDrag(const MouseEvent& e)
 {
 
-
-    if (editorArray.contains((GenericEditor*) e.originalComponent)
-        && e.y < 15
-        && !CoreServices::getAcquisitionStatus()
-        && editorArray.size() > 1
-        && e.getDistanceFromDragStart() > 10
-        )
+    if (!signalChainIsLocked)
     {
-
-        componentWantsToMove = true;
-        indexOfMovingComponent = editorArray.indexOf((GenericEditor*) e.originalComponent);
-
-    }
-
-    if (componentWantsToMove)
-    {
-
-        somethingIsBeingDraggedOver = true;
-
-        bool foundInsertionPoint = false;
-
-        int lastCenterPoint = 0;
-        int leftEdge;
-        int centerPoint;
-
-        const MouseEvent event = e.getEventRelativeTo(this);
-
-        for (int n = 0; n < editorArray.size(); n++)
+        if (editorArray.contains((GenericEditor*)e.originalComponent)
+            && e.y < 15
+            && !CoreServices::getAcquisitionStatus()
+            && editorArray.size() > 1
+            && e.getDistanceFromDragStart() > 10
+            )
         {
-            leftEdge = editorArray[n]->getX();
-            centerPoint = leftEdge + (editorArray[n]->getWidth())/2;
 
-            if (event.x < centerPoint && event.x > lastCenterPoint)
+            componentWantsToMove = true;
+            indexOfMovingComponent = editorArray.indexOf((GenericEditor*)e.originalComponent);
+
+        }
+
+        if (componentWantsToMove)
+        {
+
+            somethingIsBeingDraggedOver = true;
+
+            bool foundInsertionPoint = false;
+
+            int lastCenterPoint = 0;
+            int leftEdge;
+            int centerPoint;
+
+            const MouseEvent event = e.getEventRelativeTo(this);
+
+            for (int n = 0; n < editorArray.size(); n++)
             {
-                insertionPoint = n;
-                foundInsertionPoint = true;
+                leftEdge = editorArray[n]->getX();
+                centerPoint = leftEdge + (editorArray[n]->getWidth()) / 2;
+
+                if (event.x < centerPoint && event.x > lastCenterPoint)
+                {
+                    insertionPoint = n;
+                    foundInsertionPoint = true;
+                }
+
+                lastCenterPoint = centerPoint;
             }
 
-            lastCenterPoint = centerPoint;
-        }
+            if (!foundInsertionPoint && indexOfMovingComponent != editorArray.size() - 1)
+            {
+                insertionPoint = editorArray.size();
+            }
 
-        if (!foundInsertionPoint && indexOfMovingComponent != editorArray.size()-1)
-        {
-            insertionPoint = editorArray.size();
+            refreshEditors();
+            repaint();
         }
-        
-        refreshEditors();
-        repaint();
     }
 
 }
@@ -1813,6 +1820,10 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 
 void EditorViewport::deleteSelectedProcessors()
 {
+
+    if (signalChainIsLocked)
+        return;
+    
     undoManager.beginNewTransaction();
 
     Array<GenericEditor*> editors = Array(editorArray);

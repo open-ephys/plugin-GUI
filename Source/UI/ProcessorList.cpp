@@ -316,6 +316,7 @@ int ProcessorList::getTotalHeight()
 
 void ProcessorList::toggleState()
 {
+
 	ProcessorListItem* fli = getListItemForYPos(0);
 	fli->reverseOpenState();
 	AccessClass::getUIComponent()->childComponentChanged();
