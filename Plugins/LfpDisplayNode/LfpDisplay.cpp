@@ -43,6 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ColourSchemes/MonochromeGreenColourScheme.h"
 #include "ColourSchemes/OELogoColourScheme.h"
 #include "ColourSchemes/TropicalColourScheme.h"
+#include "ColourSchemes/LightBackgroundColourScheme.h"
 
 #define MS_FROM_START Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start) * 1000
 
@@ -74,6 +75,7 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     colourSchemeList.add(new MonochromeGreenColourScheme(this, canvasSplit));
     colourSchemeList.add(new OELogoColourScheme(this, canvasSplit));
     colourSchemeList.add(new TropicalColourScheme(this, canvasSplit));
+    colourSchemeList.add(new LightBackgroundColourScheme(this, canvasSplit));
     
     plotter = perPixelPlotter.get();
     m_MedianOffsetPlottingFlag = false;

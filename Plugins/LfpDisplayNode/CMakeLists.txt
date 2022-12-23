@@ -54,6 +54,8 @@ add_sources(${PLUGIN_NAME}
 	ColourSchemes/OELogoColourScheme.h
 	ColourSchemes/TropicalColourScheme.cpp
 	ColourSchemes/TropicalColourScheme.h
+	ColourSchemes/LightBackgroundColourScheme.cpp
+	ColourSchemes/LightBackgroundColourScheme.h
 	)
 	
 #optional: create IDE groups
