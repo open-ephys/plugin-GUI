@@ -115,8 +115,8 @@ void LfpChannelDisplayInfo::mouseDrag(const MouseEvent &e)
                 zoomInfo.zoomPivotRatioX = (getX() + e.getMouseDownX())/(float)display->getWidth();
                 zoomInfo.zoomPivotViewportOffset = getPosition() + e.getMouseDownPosition() - canvasSplit->viewport->getViewPosition();
                 
-                zoomInfo.unpauseOnScrollEnd = !display->isPaused;
-                if (!display->isPaused) display->options->togglePauseButton(true);
+                zoomInfo.unpauseOnScrollEnd = !display->isPaused();
+                if (!display->isPaused()) display->options->togglePauseButton(true);
             }
             
             int h = display->trackZoomInfo.componentStartHeight;
@@ -182,8 +182,7 @@ void LfpChannelDisplayInfo::mouseUp(const MouseEvent &e)
         display->trackZoomInfo.isScrollingY = false;
         if (display->trackZoomInfo.unpauseOnScrollEnd)
         {
-            display->isPaused = false;
-            display->options->togglePauseButton(false);
+            display->pause(false);
         }
     }
 }

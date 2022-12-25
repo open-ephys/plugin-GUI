@@ -68,14 +68,14 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     perPixelPlotter = std::make_unique<PerPixelBitmapPlotter>(this);
     supersampledPlotter = std::make_unique<SupersampledBitmapPlotter>(this);
     
-    colourSchemeList.add(new DefaultColourScheme(this, canvasSplit));
-    colourSchemeList.add(new MonochromeGrayColourScheme(this, canvasSplit));
-    colourSchemeList.add(new MonochromeYellowColourScheme(this, canvasSplit));
-    colourSchemeList.add(new MonochromePurpleColourScheme(this, canvasSplit));
-    colourSchemeList.add(new MonochromeGreenColourScheme(this, canvasSplit));
-    colourSchemeList.add(new OELogoColourScheme(this, canvasSplit));
-    colourSchemeList.add(new TropicalColourScheme(this, canvasSplit));
-    colourSchemeList.add(new LightBackgroundColourScheme(this, canvasSplit));
+    colourSchemeList.add(new DefaultColourScheme());
+    colourSchemeList.add(new MonochromeGrayColourScheme());
+    colourSchemeList.add(new MonochromeYellowColourScheme());
+    colourSchemeList.add(new MonochromePurpleColourScheme());
+    colourSchemeList.add(new MonochromeGreenColourScheme());
+    colourSchemeList.add(new OELogoColourScheme());
+    colourSchemeList.add(new TropicalColourScheme());
+    colourSchemeList.add(new LightBackgroundColourScheme());
     
     plotter = perPixelPlotter.get();
     m_MedianOffsetPlottingFlag = false;
@@ -115,8 +115,6 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     {
         eventDisplayEnabled[i] = true;
     }
-
-    isPaused = false;
 
     savedChannelState.insertMultiple(0, true, 10000); // max 10k channels
 
@@ -966,6 +964,18 @@ int LfpDisplay::getSingleChannelShown()
 void LfpDisplay::setSingleChannelView(int chan)
 {
     singleChan = chan;
+}
+
+void LfpDisplay::pause(bool shouldPause)
+{
+    displayIsPaused = shouldPause;
+
+	options->setPausedState(shouldPause);
+}
+
+bool LfpDisplay::isPaused()
+{
+    return displayIsPaused;
 }
 
 void LfpDisplay::mouseDown(const MouseEvent& event)

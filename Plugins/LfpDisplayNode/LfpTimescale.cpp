@@ -22,18 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "LfpTimescale.h"
-#include "LfpDisplayNode.h"
+
 #include "LfpDisplayCanvas.h"
-#include "ShowHideOptionsButton.h"
-#include "LfpDisplayOptions.h"
 #include "LfpDisplay.h"
-#include "LfpChannelDisplay.h"
-#include "LfpChannelDisplayInfo.h"
-#include "EventDisplayInterface.h"
-#include "LfpViewport.h"
-#include "LfpBitmapPlotter.h"
-#include "PerPixelBitmapPlotter.h"
-#include "SupersampledBitmapPlotter.h"
 
 #include <math.h>
 
@@ -71,33 +62,38 @@ void LfpTimescale::paint(Graphics& g)
     for (int i = startIndex; i < labels.size(); i++)
     {
 
-        float lineHeight;
+        float xLoc = getWidth() * fractionWidth[i] + timeOffset;
 
-        g.drawLine(getWidth() * fractionWidth[i],
-            0,
-            getWidth() * fractionWidth[i],
-            getHeight(),
-            2.0f);
+        if (xLoc > 0)
+        {
+            float lineHeight;
 
-        g.drawText(labels[i] + " " + timeScaleUnitLabel,
-                   getWidth()*fractionWidth[i]+10,
-                   0,
-                   100,
-                   getHeight(),
-                   Justification::left, false);
-        
+            g.drawLine(xLoc,
+                0,
+                xLoc,
+                getHeight(),
+                2.0f);
+
+            g.drawText(labels[i] + " " + timeScaleUnitLabel,
+                xLoc + 10,
+                0,
+                100,
+                getHeight(),
+                Justification::left, false);
+        }
+       
     }
 
 }
 
 void LfpTimescale::mouseUp(const MouseEvent &e)
 {
-    if (e.mods.isLeftButtonDown())
-    {
-        lfpDisplay->trackZoomInfo.isScrollingX = false;
-    }
+    //if (e.mods.isLeftButtonDown())
+    //{
+    //    lfpDisplay->trackZoomInfo.isScrollingX = false;
+    //}
 
-    canvasSplit->select();
+    
     
 }
 
@@ -106,9 +102,41 @@ void LfpTimescale::resized()
     setTimebase(timebase);
 }
 
+void LfpTimescale::mouseDown(const juce::MouseEvent& e)
+{
+
+    canvasSplit->select();
+    
+    // TODO: only allow pausing while acquisition is active 
+    if (e.getNumberOfClicks() == 2)
+    {
+        lfpDisplay->pause(false);
+        timeOffset = 0;
+    }
+    else
+    {
+        lfpDisplay->pause(true);
+    }
+		
+
+    currentTimeOffset = timeOffset;
+
+    repaint();
+
+}
+
 void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
 {
-    if (e.mods.isLeftButtonDown()) // double check that we initiate only for left click and hold
+    int dragDeltaX = (e.getScreenPosition().getX() - e.getMouseDownScreenX()); // invert so drag up -> scale up
+
+    timeOffset = currentTimeOffset + dragDeltaX;
+
+    if (timeOffset < 0)
+        timeOffset = 0;
+
+    repaint();
+    
+    /*if (e.mods.isLeftButtonDown()) // double check that we initiate only for left click and hold
     {
         if (e.mods.isCommandDown())  // CTRL + drag -> change channel spacing
         {
@@ -124,10 +152,7 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
             int dragDeltaX = (e.getScreenPosition().getX() - e.getMouseDownScreenX()); // invert so drag up -> scale up
 
 //            std::cout << dragDeltaX << std::endl;
-            if (dragDeltaX > 0)
-            {
-                dTimescale = 0.01 * dragDeltaX;
-            }
+            
             else
             {
                 // TODO: (kelly) change this to scale appropriately for -dragDeltaX
@@ -159,7 +184,7 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
                 setTimebase(canvasSplit->timebase);
             }
         }
-    }
+    }*/
 }
 
 void LfpTimescale::setTimebase(float timebase_, float offset_)
@@ -192,7 +217,7 @@ void LfpTimescale::setTimebase(float timebase_, float offset_)
     else
         stepSize = 2.0;
 
-    float time = 0;
+    float time = -10.0f;
     int index = 0;
 
     while ((time + offset) < timebase)

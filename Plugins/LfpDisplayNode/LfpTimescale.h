@@ -29,7 +29,6 @@
 #include <array>
 
 #include "LfpDisplayClasses.h"
-#include "LfpDisplayNode.h"
 
 namespace LfpViewer {
 
@@ -54,10 +53,10 @@ public:
     /** Updates time markers to fit display width*/
     void resized() override;
     
-    /** Handles the drag to zoom feature on the timescale. The display must
-        be paused to zoom */
+    /** Handles scrolling back in time */
     void mouseDrag(const MouseEvent &e) override;
     void mouseUp(const MouseEvent &e) override;
+    void mouseDown(const MouseEvent& e) override;
 
     /** Changes the time interval*/
     void setTimebase(float t, float offset = 0.0f);
@@ -71,6 +70,9 @@ private:
     float offset;
     float labelIncrement;
     float numIncrements;
+
+    float timeOffset = 0;
+    float currentTimeOffset;
 
     Font font;
 

@@ -133,6 +133,9 @@ public:
     /** Sets the latest ttl word value */
     void setTTLWord(String word);
 
+    /** Sets the state of the pause button and can enable / disable some options */
+    void setPausedState(bool isPaused);
+
     int selectedSpread;
     String selectedSpreadValue;
 

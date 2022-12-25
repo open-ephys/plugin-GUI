@@ -718,6 +718,13 @@ bool LfpDisplayOptions::getChannelNameState()
     return showChannelNumberButton->getToggleState();
 }
 
+void LfpDisplayOptions::setPausedState(bool isPaused)
+{
+
+    pauseButton->setToggleState(isPaused, dontSendNotification);
+    
+	timebaseSelection->setEnabled(!isPaused);
+}
 
 void LfpDisplayOptions::setRangeSelection(float range, bool canvasMustUpdate)
 {
@@ -917,7 +924,7 @@ void LfpDisplayOptions::buttonClicked(Button* b)
 
     if (b == pauseButton.get())
     {
-        lfpDisplay->isPaused = b->getToggleState();
+        lfpDisplay->pause(b->getToggleState());
         return;
     }
 

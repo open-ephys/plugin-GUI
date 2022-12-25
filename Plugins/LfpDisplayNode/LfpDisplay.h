@@ -167,6 +167,12 @@ public:
 
     /** Sets the view to a single channel */
     void setSingleChannelView(int channel);
+
+    /** Sets paused state of the display */
+	void pause(bool shouldPause);
+
+    /** Returns true if the display is paused */
+    bool isPaused();
     
     /** Convenience struct for holding a channel and its info in drawableChannels */
     struct LfpChannelTrack
@@ -212,7 +218,7 @@ public:
     
 
     bool eventDisplayEnabled[8];
-    bool isPaused; // simple pause function, skips screen buffer updates
+    bool displayIsPaused = false; // simple pause function, skips screen buffer updates
 
     LfpDisplayOptions* options;
     

@@ -1193,7 +1193,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
                 for (i = 0; i < pixelsToFill; i++)
                 {
-                    if (!lfpDisplay->isPaused)
+                    if (!lfpDisplay->isPaused())
                     {
 
                         if (channel == nChans)
