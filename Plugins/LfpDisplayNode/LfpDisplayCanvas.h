@@ -311,6 +311,8 @@ public:
 
     float timebase;
 
+    int screenBufferWidth;
+
 	ContinuousChannel::Type selectedChannelType;
 
     std::unique_ptr<ComboBox> streamSelection;

@@ -666,7 +666,7 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
                                        DisplayBuffer* db,
                                        int id) :
                     timebase(1.0f), displayGain(1.0f),   timeOffset(0.0f), triggerChannel(-1), trialAveraging(false),
-                    splitID(id), processor(node), displayBuffer(db), canvas(canvas_), reachedEnd(false)
+                    splitID(id), processor(node), displayBuffer(db), canvas(canvas_), reachedEnd(false), screenBufferWidth(0)
 {
 
     isSelected = false;
@@ -1003,11 +1003,14 @@ void LfpDisplaySplitter::refreshScreenBuffer()
 {
     if (true)
     {
+        int extraWidth = 2;
 
-        eventDisplayBuffer->setSize(1, getWidth());
-        screenBufferMin->setSize(nChans, getWidth());
-        screenBufferMean->setSize(nChans, getWidth());
-        screenBufferMax->setSize(nChans, getWidth());
+        screenBufferWidth = getWidth() * extraWidth;
+        
+        eventDisplayBuffer->setSize(1, screenBufferWidth);
+        screenBufferMin->setSize(nChans, screenBufferWidth);
+        screenBufferMean->setSize(nChans, screenBufferWidth);
+        screenBufferMax->setSize(nChans, screenBufferWidth);
 
         eventDisplayBuffer->clear();
         screenBufferMin->clear();
@@ -1051,12 +1054,12 @@ void LfpDisplaySplitter::updateScreenBuffer()
     if (isVisible() && displayBuffer != nullptr && !isUpdating)
     {
 
-        int maxSamples = lfpDisplay->getWidth() - leftmargin; // leftmargin accounts for the fact that the display doesn't start
-                                                              // at the leftmost pixel
-
         int triggerTime = triggerChannel >=0 
                           ? processor->getLatestTriggerTime(splitID)
                           : -1;
+        
+        int maxSamples = screenBufferWidth;
+        int displayWidth = lfpDisplay->lfpChannelBitmap.getWidth();
 
         if (triggerTime > 0)
         {
@@ -1083,7 +1086,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
 
             // this number is crucial -- converting from samples to values (in px) for the screen buffer:
-            float ratio = sampleRate * timebase / float(maxSamples); // samples / pixel
+            float ratio = sampleRate * timebase / float(displayWidth); // samples / pixel
 
             float pixelsToFill = float(newSamples) / ratio; // M pixels to update
 

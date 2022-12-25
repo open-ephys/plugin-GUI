@@ -64,6 +64,8 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     , channelsOrderedByDepth(false)
     , displaySkipAmt(0)
     , m_SpikeRasterPlottingFlag(false)
+    , lastBitmapIndex(0)
+    , lastFillFrom(-1)
 {
     perPixelPlotter = std::make_unique<PerPixelBitmapPlotter>(this);
     supersampledPlotter = std::make_unique<SupersampledBitmapPlotter>(this);
@@ -362,12 +364,76 @@ void LfpDisplay::refresh()
     }
 
     // X-bounds of this update
-    int fillfrom = canvasSplit->lastScreenBufferIndex[0];
-    int fillto = (canvasSplit->screenBufferIndex[0]);
+    int fillfrom = canvasSplit->lastScreenBufferIndex[0]; //% lfpChannelBitmap.getWidth();
+    int fillto = canvasSplit->screenBufferIndex[0]; //% lfpChannelBitmap.getWidth();
+
+    if (displayIsPaused && canRefresh)
+    {
+        if (timeOffsetChanged)
+        {
+            fillfrom = canvasSplit->lastScreenBufferIndex[0] - pausePoint - int(timeOffset);
+
+            if (fillfrom < 0)
+				fillfrom = lfpChannelBitmap.getWidth() - fillfrom;
+            fillto = canvasSplit->lastScreenBufferIndex[0];
+            lastBitmapIndex = 0;
+            timeOffsetChanged = false;
+            canRefresh = false;
+
+			int blankSamples = pausePoint + int(timeOffset);
+            Graphics gLfpChannelBitmap(lfpChannelBitmap);
+            gLfpChannelBitmap.fillRect(blankSamples, 0, lfpChannelBitmap.getWidth(), lfpChannelBitmap.getHeight()); // just clear one section
+        }
+        else {
+            return;
+        }
+    }
+    
+
+    //if (lastFillFrom == fillfrom && !canvasSplit->fullredraw)
+   //     return;
+
+    int totalPixelsToFill = 0;
+
+	if (fillto > fillfrom)
+	{
+        totalPixelsToFill = fillto - fillfrom;
+	}
+	else if (fillto < fillfrom)
+	{
+        totalPixelsToFill = canvasSplit->screenBufferWidth - fillfrom + fillto;
+	}
+
+    int fillfrom_local, fillto_local;
+    
+    if (canvasSplit->fullredraw)
+    {
+        if (fillfrom == fillto)
+        {
+            fillfrom = 0;
+			fillto = lfpChannelBitmap.getWidth();
+        }
+        fillfrom_local = 0;
+        fillto_local = lfpChannelBitmap.getWidth();
+    }
+    else {
+        fillfrom_local = lastBitmapIndex;
+        fillto_local = (lastBitmapIndex + totalPixelsToFill) % lfpChannelBitmap.getWidth();
+    }
+
+    if (fillto != 0)
+    {
+        std::cout << fillfrom << " : " << fillto << " -:- " <<
+            fillfrom_local << " : " << fillto_local << " :: " << totalPixelsToFill <<  std::endl;
+    }
+        
     
     for (int i = 0; i < numChans; i++)
     {
-        channels[i]->screenBufferIndex = fillto;
+        channels[i]->ifrom = fillfrom; // canvasSplit->lastScreenBufferIndex[0];
+        channels[i]->ito = fillto; // canvasSplit->screenBufferIndex[0];
+		channels[i]->ifrom_local = fillfrom_local;
+        channels[i]->ito_local = fillto_local;
     }
     
     ///if (fillfrom<0){fillfrom=0;};
@@ -388,14 +454,14 @@ void LfpDisplay::refresh()
     }
     else {
 
-        if (fillfrom < fillto)
+        if (fillfrom_local < fillto_local)
         {
-            gLfpChannelBitmap.fillRect(fillfrom, 0, (fillto - fillfrom) + 2, lfpChannelBitmap.getHeight()); // just clear one section
+            gLfpChannelBitmap.fillRect(fillfrom_local, 0, (fillto_local - fillfrom_local) + 2, lfpChannelBitmap.getHeight()); // just clear one section
         }
-        else if (fillfrom > fillto) {
+        else if (fillfrom_local > fillto_local) {
 
-            gLfpChannelBitmap.fillRect(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom + 2, lfpChannelBitmap.getHeight()); // first segment
-            gLfpChannelBitmap.fillRect(0, 0, fillto + 2, lfpChannelBitmap.getHeight()); // second segment
+            gLfpChannelBitmap.fillRect(fillfrom_local, 0, lfpChannelBitmap.getWidth() - fillfrom_local + 2, lfpChannelBitmap.getHeight()); // first segment
+            gLfpChannelBitmap.fillRect(0, 0, fillto_local + 2, lfpChannelBitmap.getHeight()); // second segment
         }
         else {
             return; // no change, do nothing
@@ -414,6 +480,7 @@ void LfpDisplay::refresh()
             if (canvasSplit->fullredraw)
             {
                 channels[i]->fullredraw = true;
+
                 channels[i]->pxPaint();
                 channelInfo[i]->repaint();
             }
@@ -430,12 +497,12 @@ void LfpDisplay::refresh()
                  // we redraw from 0 to +2 (px) relative to the real redraw window, the +1 draws the vertical update line
                  if (fillfrom < fillto)
                  {
-                     channels[i]->repaint(fillfrom, 0, fillto - fillfrom + 2, channels[i]->getHeight());
+                     channels[i]->repaint(fillfrom_local, 0, fillto_local - fillfrom_local + 2, channels[i]->getHeight());
                  }
                  else
                  {
-                     channels[i]->repaint(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom + 2, channels[i]->getHeight());
-                     channels[i]->repaint(0, 0, fillto + 2, channels[i]->getHeight());
+                     channels[i]->repaint(fillfrom_local, 0, lfpChannelBitmap.getWidth() - fillfrom_local + 2, channels[i]->getHeight());
+                     channels[i]->repaint(0, 0, fillto_local + 2, channels[i]->getHeight());
                  }
                 
             }
@@ -443,7 +510,7 @@ void LfpDisplay::refresh()
 
     }
 
-    if (fillfrom == 0 && singleChan != -1)
+    if (fillfrom_local == 0 && singleChan != -1)
     {
         channelInfo[singleChan]->repaint();
     }
@@ -454,6 +521,11 @@ void LfpDisplay::refresh()
     }
     
     canvasSplit->fullredraw = false;
+
+	lastBitmapIndex += totalPixelsToFill;
+    lastBitmapIndex %= lfpChannelBitmap.getWidth();
+
+    lastFillFrom = fillfrom;
 
 }
 
@@ -971,6 +1043,32 @@ void LfpDisplay::pause(bool shouldPause)
     displayIsPaused = shouldPause;
 
 	options->setPausedState(shouldPause);
+
+    if (!shouldPause)
+    {
+        timeOffset = 0.0f;
+        stopTimer();
+    }
+    else {
+        pausePoint = lastBitmapIndex;
+        startTimer(100);
+    }
+        
+}
+
+void LfpDisplay::timerCallback()
+{
+    canRefresh = true;
+}
+
+void LfpDisplay::setTimeOffset(float offset)
+{
+    timeOffset = offset;
+    timeOffsetChanged = true;
+    
+    LOGD("Time offset: ", offset);
+
+    refresh();
 }
 
 bool LfpDisplay::isPaused()

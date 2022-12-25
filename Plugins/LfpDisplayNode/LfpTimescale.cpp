@@ -134,6 +134,8 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
     if (timeOffset < 0)
         timeOffset = 0;
 
+    lfpDisplay->setTimeOffset(timeOffset);
+
     repaint();
     
     /*if (e.mods.isLeftButtonDown()) // double check that we initiate only for left click and hold

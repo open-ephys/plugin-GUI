@@ -157,7 +157,7 @@ public:
     float getDepth() { return depth; }
     int getGroup() { return group; }
     
-    int screenBufferIndex;
+    int ifrom, ito, ito_local, ifrom_local;
 
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 

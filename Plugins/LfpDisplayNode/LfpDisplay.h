@@ -44,7 +44,7 @@ namespace LfpViewer {
     bitmap is drawn by the LfpViewport using Viewport::setViewedComponent.
  
  */
-class LfpDisplay : public Component
+class LfpDisplay : public Component, public Timer
 {
 public:
 
@@ -173,6 +173,9 @@ public:
 
     /** Returns true if the display is paused */
     bool isPaused();
+
+    /** Sets the time offset for the display */
+    void setTimeOffset(float offset);
     
     /** Convenience struct for holding a channel and its info in drawableChannels */
     struct LfpChannelTrack
@@ -215,7 +218,7 @@ public:
     OwnedArray<LfpChannelDisplay> channels;             // all channels
     OwnedArray<LfpChannelDisplayInfo> channelInfo;      // all channelInfos
     
-    
+    void timerCallback() override;
 
     bool eventDisplayEnabled[8];
     bool displayIsPaused = false; // simple pause function, skips screen buffer updates
@@ -248,7 +251,14 @@ private:
     
     int singleChan;
 	
+    int lastBitmapIndex;
+    int pausePoint;
+    int lastFillFrom;
+    bool canRefresh;
 
+    float timeOffset = 0.0f;
+    bool timeOffsetChanged;
+    
     int numChans;
     int displaySkipAmt;
     int cachedDisplayChannelHeight;     // holds a channel height if reset during single channel focus
