@@ -28,45 +28,44 @@
 #include <vector>
 #include <array>
 
-#include "../LfpDisplayClasses.h"
-#include "../LfpDisplayNode.h"
 namespace LfpViewer {
 #pragma  mark - LfpChannelColourScheme -
-/**
+
+ /**
  Interface for a color scheme object
  */
-class ChannelColourScheme : public Component
+class ChannelColourScheme 
 {
 public:
-    ChannelColourScheme(int numColourChannels_, LfpDisplay* display, LfpDisplaySplitter* split)
-    : lfpDisplay(display)
-    , canvasSplit(split)
-    , numColourChannels(numColourChannels_)
+
+    /** Constructor */
+    ChannelColourScheme(String name_, int numColourChannels_)
+    : numColourChannels(numColourChannels_), name(name_)
     { }
     
+    /** Destructor */
     virtual ~ChannelColourScheme() {}
     
-    void paint(Graphics &g) override {}
-    void resized() override {}
-    
+    /** Returns the color for a given channel index */
     virtual const Colour getColourForIndex(int index) const = 0;
+
+    /** Returns the background color*/
+    virtual const Colour getBackgroundColour() const = 0;
+
+    /** Returns the name of the colour scheme */
+    String getName() { return name; }
     
-    /** Returns true if a color scheme has configurable UI elements that
-        must be drawn to the options drawer. Subclasses should override this
-        if they have drawable elements in the options drawer. */
-    virtual bool hasConfigurableElements() { return false; }
-    
+    /** Sets the number of consecutive grouped colors */
     void setColourGrouping(int grouping);
+
+    /** Returns the numbers of consecutive grouped colors*/
     int getColourGrouping();
 
-    virtual const Colour getBackgroundColour() const = 0;
-    
 protected:
-    LfpDisplay * lfpDisplay;
-    LfpDisplaySplitter * canvasSplit;
     
     int numColourChannels;
     static int colourGrouping;
+    String name;
 
 };
     

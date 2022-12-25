@@ -38,20 +38,8 @@ Array<Colour> LightBackgroundColourScheme::colourList = []() -> Array<Colour> {
     return colours;
 }();
 
-LightBackgroundColourScheme::LightBackgroundColourScheme(LfpDisplay* display, LfpDisplaySplitter* canvas)
-    : LfpViewer::ChannelColourScheme(LightBackgroundColourScheme::colourList.size(), display, canvas)
+LightBackgroundColourScheme::LightBackgroundColourScheme() : ChannelColourScheme("Light Background", 1)
 {
-    setName("Light Background");
-}
-
-void LightBackgroundColourScheme::paint(Graphics& g)
-{
-
-}
-
-void LightBackgroundColourScheme::resized()
-{
-
 }
 
 const Colour LightBackgroundColourScheme::getBackgroundColour() const

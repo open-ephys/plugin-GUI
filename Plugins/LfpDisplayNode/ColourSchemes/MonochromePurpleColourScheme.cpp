@@ -53,21 +53,12 @@ Array<Colour> MonochromePurpleColourScheme::colourList = []() -> Array<Colour> {
 }();
 
 
-MonochromePurpleColourScheme::MonochromePurpleColourScheme(LfpDisplay* display, LfpDisplaySplitter* canvas)
-    : LfpViewer::ChannelColourScheme(MonochromePurpleColourScheme::colourList.size(), display, canvas)
-{
-    setName("Monochrome Purple");
-}
-
-void MonochromePurpleColourScheme::paint(Graphics& g)
+MonochromePurpleColourScheme::MonochromePurpleColourScheme()
+    : LfpViewer::ChannelColourScheme("Monochrome Purple", MonochromePurpleColourScheme::colourList.size())
 {
 
 }
 
-void MonochromePurpleColourScheme::resized()
-{
-
-}
 
 const Colour MonochromePurpleColourScheme::getBackgroundColour() const
 {

@@ -53,21 +53,11 @@ Array<Colour> MonochromeYellowColourScheme::colourList = []() -> Array<Colour> {
 }();
 
 
-MonochromeYellowColourScheme::MonochromeYellowColourScheme(LfpDisplay* display, LfpDisplaySplitter* canvas)
-    : LfpViewer::ChannelColourScheme(MonochromeYellowColourScheme::colourList.size(), display, canvas)
+MonochromeYellowColourScheme::MonochromeYellowColourScheme()
+    : LfpViewer::ChannelColourScheme("Monochrome Yellow", MonochromeYellowColourScheme::colourList.size())
 {
-    setName("Monochrome Yellow");
 }
 
-void MonochromeYellowColourScheme::paint(Graphics& g)
-{
-
-}
-
-void MonochromeYellowColourScheme::resized()
-{
-
-}
 
 const Colour MonochromeYellowColourScheme::getBackgroundColour() const
 {

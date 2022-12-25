@@ -25,11 +25,6 @@
 
 #include <VisualizerWindowHeaders.h>
 
-#include <vector>
-#include <array>
-
-#include "../LfpDisplayClasses.h"
-#include "../LfpDisplayNode.h"
 #include "ChannelColourScheme.h"
 
 namespace LfpViewer {
@@ -37,11 +32,8 @@ namespace LfpViewer {
     class TropicalColourScheme : public ChannelColourScheme
     {
     public:
-        TropicalColourScheme(LfpDisplay*, LfpDisplaySplitter*);
+        TropicalColourScheme();
         virtual ~TropicalColourScheme() {}
-
-        void paint(Graphics& g) override;
-        void resized() override;
 
         virtual const Colour getColourForIndex(int index) const override;
         virtual const Colour getBackgroundColour() const override;

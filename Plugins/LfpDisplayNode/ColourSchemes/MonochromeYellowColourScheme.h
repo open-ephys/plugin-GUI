@@ -28,8 +28,6 @@
 #include <vector>
 #include <array>
 
-#include "../LfpDisplayClasses.h"
-#include "../LfpDisplayNode.h"
 #include "ChannelColourScheme.h"
 
 namespace LfpViewer {
@@ -37,11 +35,8 @@ namespace LfpViewer {
     class MonochromeYellowColourScheme : public ChannelColourScheme
     {
     public:
-        MonochromeYellowColourScheme(LfpDisplay*, LfpDisplaySplitter*);
+        MonochromeYellowColourScheme();
         virtual ~MonochromeYellowColourScheme() {}
-
-        void paint(Graphics& g) override;
-        void resized() override;
 
         virtual const Colour getColourForIndex(int index) const override;
         virtual const Colour getBackgroundColour() const override;

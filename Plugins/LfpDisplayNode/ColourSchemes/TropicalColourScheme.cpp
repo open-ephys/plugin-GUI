@@ -45,21 +45,12 @@ Array<Colour> TropicalColourScheme::colourList = []() -> Array<Colour> {
     return colours;
 }();
 
-TropicalColourScheme::TropicalColourScheme(LfpDisplay* display, LfpDisplaySplitter* canvas)
-    : LfpViewer::ChannelColourScheme(TropicalColourScheme::colourList.size(), display, canvas)
-{
-    setName("Tropical");
-}
-
-void TropicalColourScheme::paint(Graphics& g)
+TropicalColourScheme::TropicalColourScheme()
+    : LfpViewer::ChannelColourScheme("Tropical", TropicalColourScheme::colourList.size())
 {
 
 }
 
-void TropicalColourScheme::resized()
-{
-
-}
 
 const Colour TropicalColourScheme::getBackgroundColour() const
 {
