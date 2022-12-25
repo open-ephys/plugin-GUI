@@ -61,6 +61,10 @@ bool BinaryFileSource::open(File file)
 	if (!(event.isVoid() || event.size() <= 0))
 	{
 		hasEventData = true;
+		LOGD("File has event data.");
+	}
+	else {
+		LOGD("No event data found.");
 	}
 
 	m_rootPath = file.getParentDirectory();
@@ -164,7 +168,7 @@ void BinaryFileSource::fillRecordInfo()
 
 	if (hasEventData)
 	{
-
+		LOGD("Loading events");
 		var eventData = m_jsonData["events"];
 		
 		/* Create identifiers for efficiency */
@@ -185,6 +189,8 @@ void BinaryFileSource::fillRecordInfo()
 
 			var events = eventData[i];
 
+			LOGD("Event processor ", i);
+
 			String streamName = events[idFolder];
 			streamName = streamName.trimCharactersAtEnd("/");
 
@@ -192,16 +198,20 @@ void BinaryFileSource::fillRecordInfo()
 			std::unique_ptr<MemoryMappedFile> sampleNumbersMap(new MemoryMappedFile(sampleNumbersFile, MemoryMappedFile::readOnly));
 
 			if (sampleNumbersFile.getSize() == EVENT_HEADER_SIZE_IN_BYTES)
+			{
 				continue;
+			}
+				
 
 			int nEvents = (sampleNumbersFile.getSize() - EVENT_HEADER_SIZE_IN_BYTES) / 8;
 
 			if (streamName.contains("TTL"))
 			{
 
+				LOGD("TTL found");
+
 				File channelStatesFile = m_rootPath.getChildFile("events").getChildFile(streamName).getChildFile(channelStatesFilename);
 				std::unique_ptr<MemoryMappedFile> channelStatesFileMap(new MemoryMappedFile(channelStatesFile, MemoryMappedFile::readOnly));
-
 
 				streamName = streamName.substring(0,streamName.lastIndexOf("/TTL"));
 
@@ -209,11 +219,13 @@ void BinaryFileSource::fillRecordInfo()
 
 				for (int j = 0; j < nEvents; j++)
 				{
+					
 					int16* data = static_cast<int16*>(channelStatesFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + j * sizeof(int16) / 2;
 					eventInfo.channels.push_back(abs(*data));
 					eventInfo.channelStates.push_back(*data > 0);
 					int64* snData = static_cast<int64*>(sampleNumbersMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + j * sizeof(int64) / 8;
 					eventInfo.timestamps.push_back(*snData - startSampleNumbers[streamName]);
+					//std::cout << "Sample number: " << *snData - startSampleNumbers[streamName] << std::endl;
 				}
 				eventInfoMap[streamName] = eventInfo;
 
