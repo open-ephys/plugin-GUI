@@ -60,6 +60,15 @@ public:
 
     */
     void pxPaint();
+
+    /** Populates the lfpChannelBitmap while scrolling back in time
+
+        needs to avoid a paint(Graphics& g) mechanism here becauswe we need to clear the screen in the lfpDisplay repaint(),
+        because otherwise we cant deal with the channel overlap (need to clear a vertical section first, _then_ all channels are
+        drawn, so cant do it per channel)
+
+    */
+    void pxPaintHistory(int playhead, int rightEdge, int maxScreenBufferIndex);
                 
     /** Selects this channel*/
     void select();

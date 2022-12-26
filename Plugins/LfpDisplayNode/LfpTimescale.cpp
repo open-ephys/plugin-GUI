@@ -36,7 +36,7 @@ using namespace LfpViewer;
 LfpTimescale::LfpTimescale(LfpDisplaySplitter* c, LfpDisplay* lfpDisplay)
     : canvasSplit(c)
     , lfpDisplay(lfpDisplay)
-    , offset(0.0f)
+    , offset(0.0f), isPaused(false)
 {
 
     font = Font("Default", 16, Font::plain);
@@ -46,9 +46,14 @@ LfpTimescale::LfpTimescale(LfpDisplaySplitter* c, LfpDisplay* lfpDisplay)
 void LfpTimescale::paint(Graphics& g)
 {
 
+    std::cout << "Repainting timescale with offset of " << timeOffset << std::endl;
+
     g.setFont(font);
 
-    g.setColour(Colour(100,100,100));
+    if (isPaused)
+        g.setColour(Colour(200,200,200));
+    else
+        g.setColour(Colour(100, 100, 100));
 
     const String timeScaleUnitLabel = (timebase >= 2) ? ("s") : ("ms");
 
@@ -62,7 +67,7 @@ void LfpTimescale::paint(Graphics& g)
     for (int i = startIndex; i < labels.size(); i++)
     {
 
-        float xLoc = getWidth() * fractionWidth[i] + timeOffset;
+        float xLoc = getWidth() * fractionWidth[i] + float(timeOffset);
 
         if (xLoc > 0)
         {
@@ -112,32 +117,47 @@ void LfpTimescale::mouseDown(const juce::MouseEvent& e)
     {
         lfpDisplay->pause(false);
         timeOffset = 0;
+        isPaused = false;
+        stopTimer();
     }
     else
     {
         lfpDisplay->pause(true);
+        isPaused = true;
+        startTimer(50);
     }
 		
-
     currentTimeOffset = timeOffset;
 
     repaint();
 
 }
 
+void LfpTimescale::timerCallback()
+{
+	if (isPaused && timeOffsetChanged)
+	{
+        lfpDisplay->setTimeOffset(timeOffset);
+
+        repaint();
+
+        timeOffsetChanged = false;
+	}
+}
+
 void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
 {
     int dragDeltaX = (e.getScreenPosition().getX() - e.getMouseDownScreenX()); // invert so drag up -> scale up
 
-    timeOffset = currentTimeOffset + dragDeltaX;
+    timeOffset = currentTimeOffset + int(dragDeltaX);
 
     if (timeOffset < 0)
         timeOffset = 0;
 
-    lfpDisplay->setTimeOffset(timeOffset);
+    if (currentTimeOffset != timeOffset)
+        timeOffsetChanged = true;
 
-    repaint();
-    
+
     /*if (e.mods.isLeftButtonDown()) // double check that we initiate only for left click and hold
     {
         if (e.mods.isCommandDown())  // CTRL + drag -> change channel spacing

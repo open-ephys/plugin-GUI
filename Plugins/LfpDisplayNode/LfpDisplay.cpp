@@ -37,13 +37,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SupersampledBitmapPlotter.h"
 
 #include "ColourSchemes/DefaultColourScheme.h"
-#include "ColourSchemes/MonochromeGrayColourScheme.h"
-#include "ColourSchemes/MonochromeYellowColourScheme.h"
-#include "ColourSchemes/MonochromePurpleColourScheme.h"
-#include "ColourSchemes/MonochromeGreenColourScheme.h"
-#include "ColourSchemes/OELogoColourScheme.h"
-#include "ColourSchemes/TropicalColourScheme.h"
-#include "ColourSchemes/LightBackgroundColourScheme.h"
+//#include "ColourSchemes/MonochromeGrayColourScheme.h"
+//#include "ColourSchemes/MonochromeYellowColourScheme.h"
+//#include "ColourSchemes/MonochromePurpleColourScheme.h"
+//#include "ColourSchemes/MonochromeGreenColourScheme.h"
+//#include "ColourSchemes/OELogoColourScheme.h"
+//#include "ColourSchemes/TropicalColourScheme.h"
+//#include "ColourSchemes/LightBackgroundColourScheme.h"
 
 #define MS_FROM_START Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start) * 1000
 
@@ -71,13 +71,13 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     supersampledPlotter = std::make_unique<SupersampledBitmapPlotter>(this);
     
     colourSchemeList.add(new DefaultColourScheme());
-    colourSchemeList.add(new MonochromeGrayColourScheme());
-    colourSchemeList.add(new MonochromeYellowColourScheme());
-    colourSchemeList.add(new MonochromePurpleColourScheme());
-    colourSchemeList.add(new MonochromeGreenColourScheme());
-    colourSchemeList.add(new OELogoColourScheme());
-    colourSchemeList.add(new TropicalColourScheme());
-    colourSchemeList.add(new LightBackgroundColourScheme());
+    //colourSchemeList.add(new MonochromeGrayColourScheme());
+    //colourSchemeList.add(new MonochromeYellowColourScheme());
+    //colourSchemeList.add(new MonochromePurpleColourScheme());
+    //colourSchemeList.add(new MonochromeGreenColourScheme());
+    //colourSchemeList.add(new OELogoColourScheme());
+    //colourSchemeList.add(new TropicalColourScheme());
+    //colourSchemeList.add(new LightBackgroundColourScheme());
     
     plotter = perPixelPlotter.get();
     m_MedianOffsetPlottingFlag = false;
@@ -277,17 +277,12 @@ void LfpDisplay::resized()
 {
     int totalHeight = 0;
 
-    //LOGD(" !! LFP DISPLAY RESIZED TO: ", getWidth(), " pixels.");
+    LOGD(" !! LFP DISPLAY RESIZED TO: ", getWidth(), " pixels.");
 
     if (getWidth() > 0 && getHeight() > 0)
-        lfpChannelBitmap = Image(Image::ARGB, getWidth() - canvasSplit->leftmargin, getHeight(), false);
+        lfpChannelBitmap = Image(Image::ARGB, getWidth() - canvasSplit->leftmargin, getHeight(), true);
     else
-        lfpChannelBitmap = Image(Image::ARGB, 10, 10, false);
-
-    // Inititalize background
-    Graphics gLfpChannelBitmap(lfpChannelBitmap);
-    gLfpChannelBitmap.setColour(getColourSchemePtr()->getBackgroundColour()); //background color
-    gLfpChannelBitmap.fillRect(0, 0, lfpChannelBitmap.getWidth(), lfpChannelBitmap.getHeight());
+        lfpChannelBitmap = Image(Image::ARGB, 10, 10, true);
 
     if (getWidth() == 0)
     {
@@ -363,26 +358,44 @@ void LfpDisplay::refresh()
         resized();
     }
 
+    int totalXPixels = lfpChannelBitmap.getWidth();
+    int totalYPixels = lfpChannelBitmap.getHeight();
+
     // X-bounds of this update
     int fillfrom = canvasSplit->lastScreenBufferIndex[0]; //% lfpChannelBitmap.getWidth();
     int fillto = canvasSplit->screenBufferIndex[0]; //% lfpChannelBitmap.getWidth();
 
-    if (displayIsPaused && canRefresh)
+    if (displayIsPaused)
     {
-        if (timeOffsetChanged)
+        if (timeOffsetChanged && canRefresh)
         {
-            fillfrom = canvasSplit->lastScreenBufferIndex[0] - pausePoint - int(timeOffset);
 
-            if (fillfrom < 0)
-				fillfrom = lfpChannelBitmap.getWidth() - fillfrom;
-            fillto = canvasSplit->lastScreenBufferIndex[0];
-            lastBitmapIndex = 0;
+            std::cout << "Time offset: " << timeOffset << std::endl;
+            
+            int playhead = pausePoint + int(timeOffset);
+            int rightEdge = totalXPixels;
+            int maxScreenBufferIndex = canvasSplit->screenBufferIndex[0];
+
             timeOffsetChanged = false;
             canRefresh = false;
 
-			int blankSamples = pausePoint + int(timeOffset);
-            Graphics gLfpChannelBitmap(lfpChannelBitmap);
-            gLfpChannelBitmap.fillRect(blankSamples, 0, lfpChannelBitmap.getWidth(), lfpChannelBitmap.getHeight()); // just clear one section
+			std::cout << "playhead: " << playhead << ", right edge: " << rightEdge << ", maxScreenBufferIndex: " << maxScreenBufferIndex << std::endl;
+
+            lfpChannelBitmap.clear(Rectangle<int>(0, 0, totalXPixels, totalYPixels));
+
+            for (int i = 0; i < numChans; i++)
+            {
+                channels[i]->pxPaintHistory(playhead, rightEdge, maxScreenBufferIndex);
+                channelInfo[i]->repaint();
+            }
+
+            repaint();
+
+            return;
+
+			//int blankSamples = pausePoint + int(timeOffset);
+            //Graphics gLfpChannelBitmap(lfpChannelBitmap);
+            //gLfpChannelBitmap.fillRect(blankSamples, 0, lfpChannelBitmap.getWidth(), lfpChannelBitmap.getHeight()); // just clear one section
         }
         else {
             return;
@@ -411,20 +424,20 @@ void LfpDisplay::refresh()
         if (fillfrom == fillto)
         {
             fillfrom = 0;
-			fillto = lfpChannelBitmap.getWidth();
+			fillto = totalXPixels;
         }
         fillfrom_local = 0;
-        fillto_local = lfpChannelBitmap.getWidth();
+        fillto_local = totalXPixels;
     }
     else {
         fillfrom_local = lastBitmapIndex;
-        fillto_local = (lastBitmapIndex + totalPixelsToFill) % lfpChannelBitmap.getWidth();
+        fillto_local = (lastBitmapIndex + totalPixelsToFill) % totalXPixels;
     }
 
     if (fillto != 0)
     {
-        std::cout << fillfrom << " : " << fillto << " -:- " <<
-            fillfrom_local << " : " << fillto_local << " :: " << totalPixelsToFill <<  std::endl;
+        std::cout << fillfrom << " : " << fillto << " ::: " <<
+            fillfrom_local << " : " << fillto_local << " :: " << totalPixelsToFill << " ::: " << totalXPixels << std::endl;
     }
         
     
@@ -436,32 +449,42 @@ void LfpDisplay::refresh()
         channels[i]->ito_local = fillto_local;
     }
     
-    ///if (fillfrom<0){fillfrom=0;};
-    //if (fillto>lfpChannelBitmap.getWidth()){fillto=lfpChannelBitmap.getWidth();};
-    
     int topBorder = viewport->getViewPositionY();
     int bottomBorder = viewport->getViewHeight() + topBorder;
 
     // clear appropriate section of the bitmap --
     // we need to do this before each channel draws its new section of data into lfpChannelBitmap
     Graphics gLfpChannelBitmap(lfpChannelBitmap);
-    gLfpChannelBitmap.setColour(getColourSchemePtr()->getBackgroundColour()); //background color
+    //gLfpChannelBitmap.setColour(Colours::black.withAlpha(0.1f)); //background color
 
     if (canvasSplit->fullredraw)
     {
-        gLfpChannelBitmap.fillRect(0, 0, lfpChannelBitmap.getWidth(), lfpChannelBitmap.getHeight());
+        lfpChannelBitmap.clear(Rectangle<int>(0, 0, totalXPixels, totalYPixels));
+        std::cout << "Clearing from " << 0 << " to " << totalXPixels << " (" << totalYPixels << " ypix)" << std::endl;
         
     }
     else {
 
         if (fillfrom_local < fillto_local)
         {
-            gLfpChannelBitmap.fillRect(fillfrom_local, 0, (fillto_local - fillfrom_local) + 2, lfpChannelBitmap.getHeight()); // just clear one section
+            int x1 = fillfrom_local;
+            int x2 = (fillto_local - fillfrom_local) + 2;
+            lfpChannelBitmap.clear(Rectangle<int>(x1, 0, x2, totalYPixels));
+            //gLfpChannelBitmap.fillRect(x1, 0,x2, totalYPixels); // just clear one section
+            std::cout << "Clearing from " << x1 << " to " << x1 + x2 << " (" << totalYPixels << "ypix)" << std::endl;
         }
         else if (fillfrom_local > fillto_local) {
 
-            gLfpChannelBitmap.fillRect(fillfrom_local, 0, lfpChannelBitmap.getWidth() - fillfrom_local + 2, lfpChannelBitmap.getHeight()); // first segment
-            gLfpChannelBitmap.fillRect(0, 0, fillto_local + 2, lfpChannelBitmap.getHeight()); // second segment
+            int x1 = fillfrom_local;
+            int x2 = totalXPixels - fillfrom_local;
+            int x3 = 0;
+            int x4 = fillto_local + 2;
+            std::cout << "Clearing from " << x1 << " to " << x1 + x2 << " (" << totalYPixels << "ypix)" << std::endl;
+            lfpChannelBitmap.clear(Rectangle<int>(x1, 0, x2, totalYPixels));
+            std::cout << "Clearing from " << x3 << " to " << x3 + x4 << " (" << totalYPixels << "ypix)" << std::endl;
+            lfpChannelBitmap.clear(Rectangle<int>(x3, 0, x4, totalYPixels));
+            
+            
         }
         else {
             return; // no change, do nothing
@@ -495,13 +518,13 @@ void LfpDisplay::refresh()
                  // message passing in juce. In any case, this seemingly redundant repaint here seems to fix the issue.
                 
                  // we redraw from 0 to +2 (px) relative to the real redraw window, the +1 draws the vertical update line
-                 if (fillfrom < fillto)
+                 if (fillfrom_local < fillto_local)
                  {
                      channels[i]->repaint(fillfrom_local, 0, fillto_local - fillfrom_local + 2, channels[i]->getHeight());
                  }
                  else
                  {
-                     channels[i]->repaint(fillfrom_local, 0, lfpChannelBitmap.getWidth() - fillfrom_local + 2, channels[i]->getHeight());
+                     channels[i]->repaint(fillfrom_local, 0, totalXPixels - fillfrom_local + 2, channels[i]->getHeight());
                      channels[i]->repaint(0, 0, fillto_local + 2, channels[i]->getHeight());
                  }
                 
@@ -1044,14 +1067,16 @@ void LfpDisplay::pause(bool shouldPause)
 
 	options->setPausedState(shouldPause);
 
+    canvasSplit->pause(shouldPause);
+
     if (!shouldPause)
     {
         timeOffset = 0.0f;
-        stopTimer();
+        //stopTimer();
     }
     else {
         pausePoint = lastBitmapIndex;
-        startTimer(100);
+        //startTimer(100);
     }
         
 }
@@ -1063,12 +1088,25 @@ void LfpDisplay::timerCallback()
 
 void LfpDisplay::setTimeOffset(float offset)
 {
+
+    
+
+    
     timeOffset = offset;
     timeOffsetChanged = true;
-    
-    LOGD("Time offset: ", offset);
+    canRefresh = true;
 
     refresh();
+    
+    //if (offset != timeOffset)
+    //{
+        
+        
+   // }
+    
+    //LOGD("Time offset: ", offset);
+
+    
 }
 
 bool LfpDisplay::isPaused()
@@ -1099,7 +1137,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
         int cpos = (drawableChannels[n].channel->getY() + (drawableChannels[n].channel->getHeight()/2));
         dist = int(abs(y - cpos));
 
-       // std::cout << "Mouse down at " << y << " pos is "<< cpos << " n: " << n << "  dist " << dist << std::endl;
+        std::cout << "Mouse down at " << y << " pos is "<< cpos << " n: " << n << "  dist " << dist << std::endl;
 
         if (dist < mindist)
         {

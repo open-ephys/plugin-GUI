@@ -37,7 +37,7 @@ namespace LfpViewer {
     Displays the timescale of the LfpDisplaySplitter in the viewport.
  
  */
-class LfpTimescale : public Component
+class LfpTimescale : public Component, public Timer
 {
 public:
 
@@ -61,6 +61,9 @@ public:
     /** Changes the time interval*/
     void setTimebase(float t, float offset = 0.0f);
 
+    /** Timer callback */
+    void timerCallback() override;
+
 private:
 
     LfpDisplaySplitter* canvasSplit;
@@ -71,8 +74,11 @@ private:
     float labelIncrement;
     float numIncrements;
 
-    float timeOffset = 0;
-    float currentTimeOffset;
+    int timeOffset = 0;
+    int currentTimeOffset;
+    bool timeOffsetChanged = false;
+
+    bool isPaused;
 
     Font font;
 

@@ -281,6 +281,9 @@ public:
     /** Sets the timebase for this display (in s) */
     void setTimebase(float timebase);
 
+    /** Stops/starts updating the screen buffer */
+    void pause(bool shouldPause);
+
     Array<int> screenBufferIndex;
     Array<int> lastScreenBufferIndex;
     Array<float> leftOverSamples;

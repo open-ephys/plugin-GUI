@@ -750,6 +750,8 @@ void LfpDisplaySplitter::resized()
 void LfpDisplaySplitter::resizeToChannels(bool respectViewportPosition)
 {
 
+    std::cout << "RESIZE TO CHANNELS " << std::endl;
+
     lfpDisplay->setBounds(0, 0, 
         getWidth()-scrollBarThickness, 
         lfpDisplay->getChannelHeight()*lfpDisplay->drawableChannels.size());
@@ -786,7 +788,7 @@ void LfpDisplaySplitter::beginAnimation()
 
     }    
 
-    startTimer(20);
+    startTimer(200);
 
     reachedEnd = true;
 }
@@ -1049,6 +1051,17 @@ void LfpDisplaySplitter::syncDisplayBuffer()
     samplesPerBufferPass = 0;
 }
 
+void LfpDisplaySplitter::pause(bool shouldPause)
+{
+    if (shouldPause)
+    {
+        isUpdating = true;
+    }
+    else {
+        isUpdating = false;
+    }
+}
+
 void LfpDisplaySplitter::updateScreenBuffer()
 {
     if (isVisible() && displayBuffer != nullptr && !isUpdating)
@@ -1174,19 +1187,19 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
            // HELPFUL FOR DEBUGGING: 
 
-            /*if (channel == 0)
+            if (channel == 0)
                 std::cout << "Split "
-                << splitID << " : "
-                << channel << " : "
-                << sbi << " : "
-                << newDisplayBufferIndex << " : "
-                << dbi << " : "
-                << newSamples << " : "
-                << pixelsToFill << " : "
-                << ratio << " : "
-                << subSampleOffset << " : "
+                << splitID << " ch: "
+                << channel << " sbi: "
+                << sbi << " dbi_new: "
+                << newDisplayBufferIndex << " dbi: "
+                << dbi << " nSamp: "
+                << newSamples << " pix: "
+                << pixelsToFill << " ratio: "
+                << ratio << " sso: "
+                << subSampleOffset << " max: "
                 << maxSamples
-                << std::endl;*/
+                << std::endl;
 
             int sampleNumber = 0;
 
@@ -1524,8 +1537,15 @@ void LfpDisplaySplitter::redraw()
 void LfpDisplaySplitter::paint(Graphics& g)
 {
     
-    g.setColour(lfpDisplay->getColourSchemePtr()->getBackgroundColour()); //background color
+    // g.setColour(lfpDisplay->getColourSchemePtr()->getBackgroundColour()); //background color
+    g.setColour(Colours::black);
     g.fillRect(0, 0, getWidth(), getHeight());
+
+    g.setColour(Colours::orange);
+    for (int i = leftmargin; i < getWidth() - scrollBarThickness; i += 100)
+    {
+        g.drawLine(i, 0, i, getHeight(), 1.0f);
+    }
 
     Colour borderColour;
     ColourGradient timelineColour;
@@ -1562,9 +1582,9 @@ void LfpDisplaySplitter::paint(Graphics& g)
 void LfpDisplaySplitter::visibleAreaChanged()
 {
 
-    fullredraw = true;
+    //fullredraw = true;
 
-    refresh();
+    //refresh();
 
 }
 
