@@ -176,10 +176,10 @@ void LfpChannelDisplay::pxPaint()
         fullredraw = false;
     }
 
-    if (chan == 0)
-	{
-		std::cout << "Channel 0 drawing from " << ifrom_local << " to " << ito_local << std::endl;
-	}
+    //if (chan == 0)
+	//{
+	//	std::cout << "Channel 0 drawing from " << ifrom_local << " to " << ito_local << std::endl;
+	//}
     
     bool drawWithOffsetCorrection = display->getMedianOffsetPlotting();
     
@@ -196,9 +196,8 @@ void LfpChannelDisplay::pxPaint()
             
         if (m > 0 && m < display->lfpChannelBitmap.getHeight())
         {
-            if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->getColourSchemePtr()->getBackgroundColour() ) { // make sure we're not drawing over an existing plot from another channel
-                bdLfpChannelBitmap.setPixelColour(i,m,Colour(50,50,50));
-            }
+            bdLfpChannelBitmap.setPixelColour(i,m,Colour(50,50,50));
+            
         }
             
         //draw range markers
@@ -211,7 +210,7 @@ void LfpChannelDisplay::pxPaint()
             {
                 if (m > 0 && m < display->lfpChannelBitmap.getHeight())
                 {
-                    if ( bdLfpChannelBitmap.getPixelColour(i,m) == display->getColourSchemePtr()->getBackgroundColour()) // make sure we're not drawing over an existing plot from another channel
+                    //if ( bdLfpChannelBitmap.getPixelColour(i,m).isTransparent()) // make sure we're not drawing over an existing plot from another channel
                         bdLfpChannelBitmap.setPixelColour(i, m, Colour(80,80,80));
                 }
             }
@@ -410,10 +409,10 @@ void LfpChannelDisplay::pxPaintHistory(int playhead, int rightEdge, int maxScree
     int to = 0;
     int endIndex;
 
-    if (chan == 0)
-    {
-        std::cout << "Channel 0 drawing history" << std::endl;
-    }
+    //if (chan == 0)
+    //{
+   //     std::cout << "Channel 0 drawing history" << std::endl;
+   // }
 
     bool drawWithOffsetCorrection = display->getMedianOffsetPlotting();
 
@@ -462,9 +461,9 @@ void LfpChannelDisplay::pxPaintHistory(int playhead, int rightEdge, int maxScree
 
         if (m > 0 && m < display->lfpChannelBitmap.getHeight())
         {
-            if (bdLfpChannelBitmap.getPixelColour(i, m) == display->getColourSchemePtr()->getBackgroundColour()) { // make sure we're not drawing over an existing plot from another channel
+            //if (bdLfpChannelBitmap.getPixelColour(i, m).isTransparent()) { // make sure we're not drawing over an existing plot from another channel
                 bdLfpChannelBitmap.setPixelColour(i, m, Colour(50, 50, 50));
-            }
+           // }
         }
 
         //draw range markers
@@ -477,8 +476,7 @@ void LfpChannelDisplay::pxPaintHistory(int playhead, int rightEdge, int maxScree
             {
                 if (m > 0 && m < display->lfpChannelBitmap.getHeight())
                 {
-                    if (bdLfpChannelBitmap.getPixelColour(i, m) == display->getColourSchemePtr()->getBackgroundColour()) // make sure we're not drawing over an existing plot from another channel
-                        bdLfpChannelBitmap.setPixelColour(i, m, Colour(80, 80, 80));
+                    bdLfpChannelBitmap.setPixelColour(i, m, Colour(80, 80, 80));
                 }
             }
         }

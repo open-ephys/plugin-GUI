@@ -316,8 +316,6 @@ void LfpDisplay::resized()
         
     }
 
-    canvasSplit->fullredraw = true; //issue full redraw
-    
     if (!getSingleChannelState())
     {
         viewport->setViewPosition(scrollX, scrollY);
@@ -333,6 +331,14 @@ void LfpDisplay::resized()
     //LOGD("    RESIZED IN: ", MS_FROM_START, " milliseconds");
     start = Time::getHighResolutionTicks();
 
+    if (displayIsPaused)
+    {
+        timeOffsetChanged = true;
+        canRefresh = true;
+    }
+        
+    
+
     refresh();
 
     //LOGD("    REFRESHED IN: ", MS_FROM_START, " milliseconds");
@@ -344,6 +350,14 @@ void LfpDisplay::paint(Graphics& g)
     
     g.drawImageAt(lfpChannelBitmap, canvasSplit->leftmargin, 0);
     
+}
+
+void LfpDisplay::sync()
+{
+    if (!displayIsPaused)
+    {
+        lastBitmapIndex = 0;
+    }
 }
 
 void LfpDisplay::refresh()
@@ -370,7 +384,7 @@ void LfpDisplay::refresh()
         if (timeOffsetChanged && canRefresh)
         {
 
-            std::cout << "Time offset: " << timeOffset << std::endl;
+            //std::cout << "Time offset: " << timeOffset << std::endl;
             
             int playhead = pausePoint + int(timeOffset);
             int rightEdge = totalXPixels;
@@ -379,7 +393,7 @@ void LfpDisplay::refresh()
             timeOffsetChanged = false;
             canRefresh = false;
 
-			std::cout << "playhead: " << playhead << ", right edge: " << rightEdge << ", maxScreenBufferIndex: " << maxScreenBufferIndex << std::endl;
+			//std::cout << "playhead: " << playhead << ", right edge: " << rightEdge << ", maxScreenBufferIndex: " << maxScreenBufferIndex << std::endl;
 
             lfpChannelBitmap.clear(Rectangle<int>(0, 0, totalXPixels, totalYPixels));
 
@@ -434,11 +448,11 @@ void LfpDisplay::refresh()
         fillto_local = (lastBitmapIndex + totalPixelsToFill) % totalXPixels;
     }
 
-    if (fillto != 0)
+    /*if (fillto != 0)
     {
         std::cout << fillfrom << " : " << fillto << " ::: " <<
             fillfrom_local << " : " << fillto_local << " :: " << totalPixelsToFill << " ::: " << totalXPixels << std::endl;
-    }
+    }*/
         
     
     for (int i = 0; i < numChans; i++)
@@ -459,8 +473,31 @@ void LfpDisplay::refresh()
 
     if (canvasSplit->fullredraw)
     {
+        int playhead = lastBitmapIndex;
+        int rightEdge = totalXPixels;
+        int maxScreenBufferIndex = canvasSplit->screenBufferIndex[0];
+
+        std::cout << "playhead: " << playhead << ", right edge: " << rightEdge << ", maxScreenBufferIndex: " << maxScreenBufferIndex << std::endl;
+
         lfpChannelBitmap.clear(Rectangle<int>(0, 0, totalXPixels, totalYPixels));
-        std::cout << "Clearing from " << 0 << " to " << totalXPixels << " (" << totalYPixels << " ypix)" << std::endl;
+
+        for (int i = 0; i < numChans; i++)
+        {
+            int componentTop = channels[i]->getY();
+            int componentBottom = channels[i]->getHeight() + componentTop;
+            
+            if ((topBorder <= componentBottom && bottomBorder >= componentTop)) // only draw things that are visible
+            {
+                channels[i]->pxPaintHistory(playhead, rightEdge, maxScreenBufferIndex);
+                channelInfo[i]->repaint();
+            }
+        }
+
+        canvasSplit->fullredraw = false;
+
+        repaint(0, topBorder, getWidth(), bottomBorder - topBorder);
+
+        return;
         
     }
     else {
@@ -471,7 +508,7 @@ void LfpDisplay::refresh()
             int x2 = (fillto_local - fillfrom_local) + 2;
             lfpChannelBitmap.clear(Rectangle<int>(x1, 0, x2, totalYPixels));
             //gLfpChannelBitmap.fillRect(x1, 0,x2, totalYPixels); // just clear one section
-            std::cout << "Clearing from " << x1 << " to " << x1 + x2 << " (" << totalYPixels << "ypix)" << std::endl;
+            //std::cout << "Clearing from " << x1 << " to " << x1 + x2 << " (" << totalYPixels << "ypix)" << std::endl;
         }
         else if (fillfrom_local > fillto_local) {
 
@@ -479,9 +516,9 @@ void LfpDisplay::refresh()
             int x2 = totalXPixels - fillfrom_local;
             int x3 = 0;
             int x4 = fillto_local + 2;
-            std::cout << "Clearing from " << x1 << " to " << x1 + x2 << " (" << totalYPixels << "ypix)" << std::endl;
+            //std::cout << "Clearing from " << x1 << " to " << x1 + x2 << " (" << totalYPixels << "ypix)" << std::endl;
             lfpChannelBitmap.clear(Rectangle<int>(x1, 0, x2, totalYPixels));
-            std::cout << "Clearing from " << x3 << " to " << x3 + x4 << " (" << totalYPixels << "ypix)" << std::endl;
+            //std::cout << "Clearing from " << x3 << " to " << x3 + x4 << " (" << totalYPixels << "ypix)" << std::endl;
             lfpChannelBitmap.clear(Rectangle<int>(x3, 0, x4, totalYPixels));
             
             
@@ -538,13 +575,8 @@ void LfpDisplay::refresh()
         channelInfo[singleChan]->repaint();
     }
     
-    if (canvasSplit->fullredraw)
-    {
-        repaint(0, topBorder, getWidth(), bottomBorder - topBorder);
-    }
     
-    canvasSplit->fullredraw = false;
-
+    
 	lastBitmapIndex += totalPixelsToFill;
     lastBitmapIndex %= lfpChannelBitmap.getWidth();
 
@@ -1072,11 +1104,13 @@ void LfpDisplay::pause(bool shouldPause)
     if (!shouldPause)
     {
         timeOffset = 0.0f;
-        //stopTimer();
+        sync();
+        //canvasSplit->fullredraw = true;
+        //refresh();
     }
     else {
         pausePoint = lastBitmapIndex;
-        //startTimer(100);
+        
     }
         
 }
@@ -1137,7 +1171,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
         int cpos = (drawableChannels[n].channel->getY() + (drawableChannels[n].channel->getHeight()/2));
         dist = int(abs(y - cpos));
 
-        std::cout << "Mouse down at " << y << " pos is "<< cpos << " n: " << n << "  dist " << dist << std::endl;
+        //std::cout << "Mouse down at " << y << " pos is "<< cpos << " n: " << n << "  dist " << dist << std::endl;
 
         if (dist < mindist)
         {

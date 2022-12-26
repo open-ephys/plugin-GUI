@@ -46,7 +46,7 @@ LfpTimescale::LfpTimescale(LfpDisplaySplitter* c, LfpDisplay* lfpDisplay)
 void LfpTimescale::paint(Graphics& g)
 {
 
-    std::cout << "Repainting timescale with offset of " << timeOffset << std::endl;
+    //std::cout << "Repainting timescale with offset of " << timeOffset << std::endl;
 
     g.setFont(font);
 
@@ -102,6 +102,26 @@ void LfpTimescale::mouseUp(const MouseEvent &e)
     
 }
 
+void LfpTimescale::setPausedState(bool isPaused_)
+{
+    if (!isPaused_)
+    {
+        lfpDisplay->pause(false);
+        timeOffset = 0;
+        isPaused = false;
+        stopTimer();
+    }
+    else {
+        lfpDisplay->pause(true);
+        isPaused = true;
+        startTimer(50);
+    }
+
+    currentTimeOffset = timeOffset;
+
+    repaint();
+}
+
 void LfpTimescale::resized()
 {
     setTimebase(timebase);
@@ -115,21 +135,14 @@ void LfpTimescale::mouseDown(const juce::MouseEvent& e)
     // TODO: only allow pausing while acquisition is active 
     if (e.getNumberOfClicks() == 2)
     {
-        lfpDisplay->pause(false);
-        timeOffset = 0;
-        isPaused = false;
-        stopTimer();
+        setPausedState(false);
     }
     else
     {
-        lfpDisplay->pause(true);
-        isPaused = true;
-        startTimer(50);
+        setPausedState(true);
     }
 		
-    currentTimeOffset = timeOffset;
-
-    repaint();
+    
 
 }
 
@@ -153,6 +166,9 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
 
     if (timeOffset < 0)
         timeOffset = 0;
+
+    if (timeOffset > getWidth() * 3)
+        timeOffset = getWidth() * 3;
 
     if (currentTimeOffset != timeOffset)
         timeOffsetChanged = true;
@@ -239,7 +255,7 @@ void LfpTimescale::setTimebase(float timebase_, float offset_)
     else
         stepSize = 2.0;
 
-    float time = -10.0f;
+    float time = -timebase * 4;
     int index = 0;
 
     while ((time + offset) < timebase)

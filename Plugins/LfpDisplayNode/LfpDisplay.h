@@ -176,6 +176,9 @@ public:
 
     /** Sets the time offset for the display */
     void setTimeOffset(float offset);
+
+    /** Sets playhead back to left edge*/
+    void sync();
     
     /** Convenience struct for holding a channel and its info in drawableChannels */
     struct LfpChannelTrack

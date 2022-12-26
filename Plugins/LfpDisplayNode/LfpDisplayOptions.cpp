@@ -724,6 +724,8 @@ void LfpDisplayOptions::setPausedState(bool isPaused)
     pauseButton->setToggleState(isPaused, dontSendNotification);
     
 	timebaseSelection->setEnabled(!isPaused);
+
+    
 }
 
 void LfpDisplayOptions::setRangeSelection(float range, bool canvasMustUpdate)
@@ -925,6 +927,7 @@ void LfpDisplayOptions::buttonClicked(Button* b)
     if (b == pauseButton.get())
     {
         lfpDisplay->pause(b->getToggleState());
+        timescale->setPausedState(b->getToggleState());
         return;
     }
 

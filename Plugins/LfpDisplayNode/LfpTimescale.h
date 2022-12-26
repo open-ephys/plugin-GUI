@@ -61,7 +61,10 @@ public:
     /** Changes the time interval*/
     void setTimebase(float t, float offset = 0.0f);
 
-    /** Timer callback */
+    /** Set paused state (called by options interface */
+    void setPausedState(bool isPaused);
+
+    /** Timer callback -- used to throttle scrolling */
     void timerCallback() override;
 
 private:

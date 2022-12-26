@@ -788,7 +788,7 @@ void LfpDisplaySplitter::beginAnimation()
 
     }    
 
-    startTimer(200);
+    startTimer(50);
 
     reachedEnd = true;
 }
@@ -1005,7 +1005,7 @@ void LfpDisplaySplitter::refreshScreenBuffer()
 {
     if (true)
     {
-        int extraWidth = 2;
+        int extraWidth = 4;
 
         screenBufferWidth = getWidth() * extraWidth;
         
@@ -1025,14 +1025,16 @@ void LfpDisplaySplitter::refreshScreenBuffer()
 void LfpDisplaySplitter::syncDisplay()
 {
 
-    for (int channel = 0; channel <= nChans; channel++)
-    {
-        screenBufferIndex.set(channel, 0);
-        lastScreenBufferIndex.set(channel, 0);
+    //for (int channel = 0; channel <= nChans; channel++)
+    //{
+    //    screenBufferIndex.set(channel, 0);
+    //    lastScreenBufferIndex.set(channel, 0);
 
-    }
+    //}
 
-    syncDisplayBuffer();
+    lfpDisplay->sync();
+
+    //syncDisplayBuffer();
 
 }
 
@@ -1187,7 +1189,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
            // HELPFUL FOR DEBUGGING: 
 
-            if (channel == 0)
+            /*if (channel == 0)
                 std::cout << "Split "
                 << splitID << " ch: "
                 << channel << " sbi: "
@@ -1199,7 +1201,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                 << ratio << " sso: "
                 << subSampleOffset << " max: "
                 << maxSamples
-                << std::endl;
+                << std::endl;*/
 
             int sampleNumber = 0;
 
@@ -1541,7 +1543,7 @@ void LfpDisplaySplitter::paint(Graphics& g)
     g.setColour(Colours::black);
     g.fillRect(0, 0, getWidth(), getHeight());
 
-    g.setColour(Colours::orange);
+    g.setColour(Colours::darkgrey);
     for (int i = leftmargin; i < getWidth() - scrollBarThickness; i += 100)
     {
         g.drawLine(i, 0, i, getHeight(), 1.0f);
