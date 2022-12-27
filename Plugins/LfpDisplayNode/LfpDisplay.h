@@ -258,6 +258,7 @@ private:
     int pausePoint;
     int lastFillFrom;
     bool canRefresh;
+    bool colorSchemeChanged = false;
 
     float timeOffset = 0.0f;
     bool timeOffsetChanged;

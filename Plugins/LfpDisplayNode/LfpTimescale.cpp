@@ -51,7 +51,13 @@ void LfpTimescale::paint(Graphics& g)
     g.setFont(font);
 
     if (isPaused)
-        g.setColour(Colour(200,200,200));
+    {
+        if (canvasSplit->getSelectedState())
+            g.setColour(Colour(25, 25, 25));
+        else
+            g.setColour(Colour(200, 200, 200));
+            
+    }
     else
         g.setColour(Colour(100, 100, 100));
 
@@ -63,6 +69,8 @@ void LfpTimescale::paint(Graphics& g)
         startIndex = 0;
     else
         startIndex = 1;
+
+    const int timescaleHeight = 30;
 
     for (int i = startIndex; i < labels.size(); i++)
     {
@@ -76,14 +84,14 @@ void LfpTimescale::paint(Graphics& g)
             g.drawLine(xLoc,
                 0,
                 xLoc,
-                getHeight(),
+                timescaleHeight,
                 2.0f);
 
             g.drawText(labels[i] + " " + timeScaleUnitLabel,
                 xLoc + 10,
                 0,
                 100,
-                getHeight(),
+                timescaleHeight,
                 Justification::left, false);
         }
        

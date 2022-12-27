@@ -38,12 +38,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ColourSchemes/DefaultColourScheme.h"
 #include "ColourSchemes/MonochromeGrayColourScheme.h"
-//#include "ColourSchemes/MonochromeYellowColourScheme.h"
-//#include "ColourSchemes/MonochromePurpleColourScheme.h"
-//#include "ColourSchemes/MonochromeGreenColourScheme.h"
-//#include "ColourSchemes/OELogoColourScheme.h"
-//#include "ColourSchemes/TropicalColourScheme.h"
-//#include "ColourSchemes/LightBackgroundColourScheme.h"
+#include "ColourSchemes/MonochromeYellowColourScheme.h"
+#include "ColourSchemes/MonochromePurpleColourScheme.h"
+#include "ColourSchemes/MonochromeGreenColourScheme.h"
+#include "ColourSchemes/OELogoColourScheme.h"
+#include "ColourSchemes/TropicalColourScheme.h"
+#include "ColourSchemes/LightBackgroundColourScheme.h"
 
 #define MS_FROM_START Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start) * 1000
 
@@ -72,12 +72,12 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     
     colourSchemeList.add(new DefaultColourScheme());
     colourSchemeList.add(new MonochromeGrayColourScheme());
-    //colourSchemeList.add(new MonochromeYellowColourScheme());
-    //colourSchemeList.add(new MonochromePurpleColourScheme());
-    //colourSchemeList.add(new MonochromeGreenColourScheme());
-    //colourSchemeList.add(new OELogoColourScheme());
-    //colourSchemeList.add(new TropicalColourScheme());
-    //colourSchemeList.add(new LightBackgroundColourScheme());
+    colourSchemeList.add(new MonochromeYellowColourScheme());
+    colourSchemeList.add(new MonochromePurpleColourScheme());
+    colourSchemeList.add(new MonochromeGreenColourScheme());
+    colourSchemeList.add(new OELogoColourScheme());
+    colourSchemeList.add(new TropicalColourScheme());
+    colourSchemeList.add(new LightBackgroundColourScheme());
     
     plotter = perPixelPlotter.get();
     m_MedianOffsetPlottingFlag = false;
@@ -234,13 +234,26 @@ void LfpDisplay::setColors()
         drawableChannels[0].channel->setColour(getColourSchemePtr()->getColourForIndex(singleChan));
         drawableChannels[0].channelInfo->setColour(getColourSchemePtr()->getColourForIndex(singleChan));
     }
-    
+
+    if (displayIsPaused)
+    {
+        timeOffsetChanged = true;
+        canRefresh = true;
+
+    }
+    else {
+        canvasSplit->fullredraw = true;
+        colorSchemeChanged = true;
+
+        refresh();
+    }
 
 }
 
 void LfpDisplay::setActiveColourSchemeIdx(int index)
 {
     activeColourScheme = index;
+
 }
 
 int LfpDisplay::getActiveColourSchemeIdx()
@@ -336,8 +349,6 @@ void LfpDisplay::resized()
         timeOffsetChanged = true;
         canRefresh = true;
     }
-        
-    
 
     refresh();
 
@@ -374,6 +385,8 @@ void LfpDisplay::refresh()
 
     int totalXPixels = lfpChannelBitmap.getWidth();
     int totalYPixels = lfpChannelBitmap.getHeight();
+
+   // std::cout << "refresh display " << std::endl;
 
     // X-bounds of this update
     int fillfrom = canvasSplit->lastScreenBufferIndex[0]; //% lfpChannelBitmap.getWidth();
@@ -431,45 +444,10 @@ void LfpDisplay::refresh()
         totalPixelsToFill = canvasSplit->screenBufferWidth - fillfrom + fillto;
 	}
 
-    int fillfrom_local, fillto_local;
-    
-    if (canvasSplit->fullredraw)
-    {
-        if (fillfrom == fillto)
-        {
-            fillfrom = 0;
-			fillto = totalXPixels;
-        }
-        fillfrom_local = 0;
-        fillto_local = totalXPixels;
-    }
-    else {
-        fillfrom_local = lastBitmapIndex;
-        fillto_local = (lastBitmapIndex + totalPixelsToFill) % totalXPixels;
-    }
-
-    /*if (fillto != 0)
-    {
-        std::cout << fillfrom << " : " << fillto << " ::: " <<
-            fillfrom_local << " : " << fillto_local << " :: " << totalPixelsToFill << " ::: " << totalXPixels << std::endl;
-    }*/
-        
-    
-    for (int i = 0; i < numChans; i++)
-    {
-        channels[i]->ifrom = fillfrom; // canvasSplit->lastScreenBufferIndex[0];
-        channels[i]->ito = fillto; // canvasSplit->screenBufferIndex[0];
-		channels[i]->ifrom_local = fillfrom_local;
-        channels[i]->ito_local = fillto_local;
-    }
-    
     int topBorder = viewport->getViewPositionY();
     int bottomBorder = viewport->getViewHeight() + topBorder;
 
-    // clear appropriate section of the bitmap --
-    // we need to do this before each channel draws its new section of data into lfpChannelBitmap
-    Graphics gLfpChannelBitmap(lfpChannelBitmap);
-    //gLfpChannelBitmap.setColour(Colours::black.withAlpha(0.1f)); //background color
+    int fillfrom_local, fillto_local;
 
     if (canvasSplit->fullredraw)
     {
@@ -477,7 +455,7 @@ void LfpDisplay::refresh()
         int rightEdge = totalXPixels;
         int maxScreenBufferIndex = canvasSplit->screenBufferIndex[0];
 
-        //std::cout << "playhead: " << playhead << ", right edge: " << rightEdge << ", maxScreenBufferIndex: " << maxScreenBufferIndex << std::endl;
+        std::cout << "playhead: " << playhead << ", right edge: " << rightEdge << ", maxScreenBufferIndex: " << maxScreenBufferIndex << std::endl;
 
         lfpChannelBitmap.clear(Rectangle<int>(0, 0, totalXPixels, totalYPixels));
 
@@ -497,17 +475,42 @@ void LfpDisplay::refresh()
 
         repaint(0, topBorder, getWidth(), bottomBorder - topBorder);
 
+       /* if (colorSchemeChanged)
+        {
+            colorSchemeChanged = false;
+            lastBitmapIndex += totalPixelsToFill;
+            lastBitmapIndex %= totalXPixels;
+        }*/
+
         return;
         
     }
     else {
+
+        
+        fillfrom_local = lastBitmapIndex;
+        fillto_local = (lastBitmapIndex + totalPixelsToFill) % totalXPixels;
+
+        /*if (fillto != 0)
+        {
+            std::cout << fillfrom << " : " << fillto << " ::: " <<
+                fillfrom_local << " : " << fillto_local << " :: " << totalPixelsToFill << " ::: " << totalXPixels << std::endl;
+        }*/
+
+
+        for (int i = 0; i < numChans; i++)
+        {
+            channels[i]->ifrom = fillfrom; // canvasSplit->lastScreenBufferIndex[0];
+            channels[i]->ito = fillto; // canvasSplit->screenBufferIndex[0];
+            channels[i]->ifrom_local = fillfrom_local;
+            channels[i]->ito_local = fillto_local;
+        }
 
         if (fillfrom_local < fillto_local)
         {
             int x1 = fillfrom_local;
             int x2 = (fillto_local - fillfrom_local) + 2;
             lfpChannelBitmap.clear(Rectangle<int>(x1, 0, x2, totalYPixels));
-            //gLfpChannelBitmap.fillRect(x1, 0,x2, totalYPixels); // just clear one section
             //std::cout << "Clearing from " << x1 << " to " << x1 + x2 << " (" << totalYPixels << "ypix)" << std::endl;
         }
         else if (fillfrom_local > fillto_local) {
@@ -597,6 +600,15 @@ void LfpDisplay::setRange(float r, ContinuousChannel::Type type)
                 channels[i]->setRange(range[type]);
         }
         canvasSplit->fullredraw = true; //issue full redraw
+
+        if (displayIsPaused)
+        {
+            timeOffsetChanged = true;
+            canRefresh = true;
+
+            refresh();
+        }
+        
     }
 }
 

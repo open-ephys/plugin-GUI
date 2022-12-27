@@ -448,8 +448,8 @@ void LfpChannelDisplay::pxPaintHistory(int playhead, int rightEdge, int maxScree
         if (index < 0)
             index = canvasSplit->screenBufferWidth + index;
 
-        if (index < 0) // past edge of screenbuffer
-            continue;
+        //if (index < 0) // past edge of screenbuffer
+        //    continue;
 
 
         //if (ii == 0)

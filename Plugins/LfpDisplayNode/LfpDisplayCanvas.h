@@ -336,6 +336,8 @@ public:
     
     uint16 selectedStreamId;
 
+    void refreshScreenBuffer();
+
 private:
 
     bool isSelected;
@@ -369,7 +371,7 @@ private:
     std::unique_ptr<AudioBuffer<float>> screenBufferMean; // like screenBuffer but holds mean values per pixel
     std::unique_ptr<AudioBuffer<float>> screenBufferMax; // like screenBuffer but holds max values per pixel
 
-    void refreshScreenBuffer();
+    
     void updateScreenBuffer();
 
     Array<int> displayBufferIndex;
