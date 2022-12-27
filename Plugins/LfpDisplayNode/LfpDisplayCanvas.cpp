@@ -1539,15 +1539,14 @@ void LfpDisplaySplitter::redraw()
 void LfpDisplaySplitter::paint(Graphics& g)
 {
     
-    // g.setColour(lfpDisplay->getColourSchemePtr()->getBackgroundColour()); //background color
-    g.setColour(Colours::black);
+    g.setColour(lfpDisplay->getColourSchemePtr()->getBackgroundColour()); //background color
     g.fillRect(0, 0, getWidth(), getHeight());
 
-    g.setColour(Colours::darkgrey);
-    for (int i = leftmargin; i < getWidth() - scrollBarThickness; i += 100)
-    {
-        g.drawLine(i, 0, i, getHeight(), 1.0f);
-    }
+    //g.setColour(Colours::darkgrey);
+    //for (int i = leftmargin; i < getWidth() - scrollBarThickness; i += 100)
+    //{
+    //    g.drawLine(i, 0, i, getHeight(), 1.0f);
+    //}
 
     Colour borderColour;
     ColourGradient timelineColour;
@@ -1584,9 +1583,11 @@ void LfpDisplaySplitter::paint(Graphics& g)
 void LfpDisplaySplitter::visibleAreaChanged()
 {
 
-    //fullredraw = true;
+    fullredraw = true;
 
     //refresh();
+
+    lfpDisplay->refresh();
 
 }
 

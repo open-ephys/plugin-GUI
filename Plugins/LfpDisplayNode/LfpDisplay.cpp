@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SupersampledBitmapPlotter.h"
 
 #include "ColourSchemes/DefaultColourScheme.h"
-//#include "ColourSchemes/MonochromeGrayColourScheme.h"
+#include "ColourSchemes/MonochromeGrayColourScheme.h"
 //#include "ColourSchemes/MonochromeYellowColourScheme.h"
 //#include "ColourSchemes/MonochromePurpleColourScheme.h"
 //#include "ColourSchemes/MonochromeGreenColourScheme.h"
@@ -71,7 +71,7 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     supersampledPlotter = std::make_unique<SupersampledBitmapPlotter>(this);
     
     colourSchemeList.add(new DefaultColourScheme());
-    //colourSchemeList.add(new MonochromeGrayColourScheme());
+    colourSchemeList.add(new MonochromeGrayColourScheme());
     //colourSchemeList.add(new MonochromeYellowColourScheme());
     //colourSchemeList.add(new MonochromePurpleColourScheme());
     //colourSchemeList.add(new MonochromeGreenColourScheme());
@@ -477,7 +477,7 @@ void LfpDisplay::refresh()
         int rightEdge = totalXPixels;
         int maxScreenBufferIndex = canvasSplit->screenBufferIndex[0];
 
-        std::cout << "playhead: " << playhead << ", right edge: " << rightEdge << ", maxScreenBufferIndex: " << maxScreenBufferIndex << std::endl;
+        //std::cout << "playhead: " << playhead << ", right edge: " << rightEdge << ", maxScreenBufferIndex: " << maxScreenBufferIndex << std::endl;
 
         lfpChannelBitmap.clear(Rectangle<int>(0, 0, totalXPixels, totalYPixels));
 
@@ -1105,7 +1105,7 @@ void LfpDisplay::pause(bool shouldPause)
     {
         timeOffset = 0.0f;
         sync();
-        //canvasSplit->fullredraw = true;
+        canvasSplit->fullredraw = true;
         //refresh();
     }
     else {
