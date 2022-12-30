@@ -386,11 +386,11 @@ void LfpDisplay::refresh()
     int totalXPixels = lfpChannelBitmap.getWidth();
     int totalYPixels = lfpChannelBitmap.getHeight();
 
-   // std::cout << "refresh display " << std::endl;
+    //std::cout << "refresh display " << std::endl;
 
     // X-bounds of this update
-    int fillfrom = canvasSplit->lastScreenBufferIndex[0]; //% lfpChannelBitmap.getWidth();
-    int fillto = canvasSplit->screenBufferIndex[0]; //% lfpChannelBitmap.getWidth();
+    int fillfrom = canvasSplit->lastScreenBufferIndex[0]; 
+    int fillto = canvasSplit->screenBufferIndex[0]; 
 
     if (displayIsPaused)
     {
@@ -420,9 +420,6 @@ void LfpDisplay::refresh()
 
             return;
 
-			//int blankSamples = pausePoint + int(timeOffset);
-            //Graphics gLfpChannelBitmap(lfpChannelBitmap);
-            //gLfpChannelBitmap.fillRect(blankSamples, 0, lfpChannelBitmap.getWidth(), lfpChannelBitmap.getHeight()); // just clear one section
         }
         else {
             return;
@@ -455,7 +452,7 @@ void LfpDisplay::refresh()
         int rightEdge = totalXPixels;
         int maxScreenBufferIndex = canvasSplit->screenBufferIndex[0];
 
-        std::cout << "playhead: " << playhead << ", right edge: " << rightEdge << ", maxScreenBufferIndex: " << maxScreenBufferIndex << std::endl;
+        //std::cout << "playhead: " << playhead << ", right edge: " << rightEdge << ", maxScreenBufferIndex: " << maxScreenBufferIndex << std::endl;
 
         lfpChannelBitmap.clear(Rectangle<int>(0, 0, totalXPixels, totalYPixels));
 

@@ -250,11 +250,12 @@ public:
 
     Array<bool> savedChannelState;
 
+    int lastBitmapIndex;
+
 private:
     
     int singleChan;
-	
-    int lastBitmapIndex;
+	 
     int pausePoint;
     int lastFillFrom;
     bool canRefresh;

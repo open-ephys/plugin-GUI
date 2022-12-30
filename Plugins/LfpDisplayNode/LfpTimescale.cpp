@@ -168,6 +168,10 @@ void LfpTimescale::timerCallback()
 
 void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
 {
+    
+    if (canvasSplit->isInTriggeredMode())
+        return;
+    
     int dragDeltaX = (e.getScreenPosition().getX() - e.getMouseDownScreenX()); // invert so drag up -> scale up
 
     timeOffset = currentTimeOffset + int(dragDeltaX);

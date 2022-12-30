@@ -272,6 +272,9 @@ public:
     /** Sets the channel to use for display triggering */
     void setTriggerChannel(int);
 
+    /** Returns true if the display is in triggered mode */
+    bool isInTriggeredMode() { return triggerChannel > -1; }
+
     /** Set whether triggered display should use online averaging */
     void setAveraging(bool);
 
