@@ -232,6 +232,8 @@ void BinaryFileSource::fillRecordInfo()
 			else if (streamName.equalsIgnoreCase("MessageCenter"))
 			{
 
+				LOGD("Message found");
+
 				File textFile = m_rootPath.getChildFile("events").getChildFile(streamName).getChildFile("text.npy");
 
 				juce::FileInputStream inputStream(textFile);
@@ -260,7 +262,9 @@ void BinaryFileSource::fillRecordInfo()
 					eventInfo.channels.push_back(0);
 					eventInfo.channelStates.push_back(0);
 					int64 *snData = static_cast<int64 *>(sampleNumbersMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + j * sizeof(int64) / 8;
-					eventInfo.timestamps.push_back(*snData - startSampleNumbers[streamName]);
+					// Use the first stream's start sample number for the MessageCenter
+					int64 startSampleNumber = startSampleNumbers.begin()->second;
+					eventInfo.timestamps.push_back(*snData - startSampleNumber);
 					eventInfo.text.push_back(outString);
 				}
 				eventInfoMap[streamName] = eventInfo;
