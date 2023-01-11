@@ -1400,7 +1400,7 @@ bool ProcessorGraph::isReady()
         {
             GenericProcessor* p = (GenericProcessor*)node->getProcessor();
 
-            if (!p->isEnabled)
+            if (!p->isEnabled || !p->isReady())
             {
                 LOGD(" ", p->getName(), " is not ready to start acquisition.");
                 AccessClass::getUIComponent()->disableCallbacks();

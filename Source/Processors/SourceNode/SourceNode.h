@@ -94,6 +94,9 @@ public:
 
     /** Passes initialize command to the DataThread*/
     void initialize(bool signalChainIsLoading) override;
+    
+    /** Indicates if a node's DataThread is ready for acquisition */
+    bool isReady() override;
 
 private:
 
