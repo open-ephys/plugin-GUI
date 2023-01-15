@@ -479,12 +479,10 @@ public:
 		String identifier;
 	};
 
-    /** Determines whether the processor's editor appears colored or grayed out*/
+    /** Determines whether the processor is ready to start acquisition
+        If set to false, the editor will be greyed out
+    */
     bool isEnabled;
-    
-    /** Determines if a processor is ready for acquisition*/
-    virtual bool isReady() {return true;};
-        
     
     /** Pointer to the processor's editor. */
     std::unique_ptr<GenericEditor> editor;

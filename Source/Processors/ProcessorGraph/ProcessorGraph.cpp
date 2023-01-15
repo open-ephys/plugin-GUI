@@ -32,6 +32,7 @@
 #include "../AudioNode/AudioNode.h"
 #include "../RecordNode/RecordNode.h"
 #include "../FileReader/FileReader.h"
+#include "../SourceNode/SourceNode.h"
 #include "../MessageCenter/MessageCenter.h"
 #include "../MessageCenter/MessageCenterEditor.h"
 #include "../Merger/Merger.h"
@@ -1400,11 +1401,22 @@ bool ProcessorGraph::isReady()
         {
             GenericProcessor* p = (GenericProcessor*)node->getProcessor();
 
-            if (!p->isEnabled || !p->isReady())
+            if (!p->isEnabled)
             {
                 LOGD(" ", p->getName(), " is not ready to start acquisition.");
                 AccessClass::getUIComponent()->disableCallbacks();
                 return false;
+            }
+
+            if (p->isSource())
+            {
+                SourceNode* s = (SourceNode*)p;
+                if (!s->isReady())
+                {
+                    LOGD(" ", p->getName(), " is not ready to start acquisition.");
+                    AccessClass::getUIComponent()->disableCallbacks();
+                    return false;
+                }
             }
         }
     }
