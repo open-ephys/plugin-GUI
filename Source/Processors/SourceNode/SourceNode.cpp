@@ -223,9 +223,6 @@ bool SourceNode::isSourcePresent() const
     return dataThread && dataThread->foundInputSource();
 }
 
-bool SourceNode::isReady(){
-    return dataThread->isReady();
-}
 
 bool SourceNode::startAcquisition()
 {

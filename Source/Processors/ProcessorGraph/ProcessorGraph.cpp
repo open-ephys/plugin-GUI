@@ -1408,16 +1408,17 @@ bool ProcessorGraph::isReady()
                 return false;
             }
 
-            if (p->isSource())
-            {
-                SourceNode* s = (SourceNode*)p;
-                if (!s->isReady())
-                {
-                    LOGD(" ", p->getName(), " is not ready to start acquisition.");
-                    AccessClass::getUIComponent()->disableCallbacks();
-                    return false;
-                }
-            }
+            // THIS MAY BE POSSIBLE IN A FUTURE UPDATE TO THE PLUGIN API
+            //if (p->isSource())
+            //{
+            //    SourceNode* s = (SourceNode*)p;
+            //    if (!s->isReady())
+            //    {
+            //        LOGD(" ", p->getName(), " is not ready to start acquisition.");
+            //        AccessClass::getUIComponent()->disableCallbacks();
+            //        return false;
+            //    }
+            //}
         }
     }
 
