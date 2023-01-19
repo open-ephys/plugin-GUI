@@ -37,7 +37,8 @@ namespace LfpViewer {
     Displays the timescale of the LfpDisplaySplitter in the viewport.
  
  */
-class LfpTimescale : public Component, public Timer
+class LfpTimescale : public Component,
+                     public Timer
 {
 public:
 
@@ -57,6 +58,8 @@ public:
     void mouseDrag(const MouseEvent &e) override;
     void mouseUp(const MouseEvent &e) override;
     void mouseDown(const MouseEvent& e) override;
+    void mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& w) override;
+    bool keyPressed(const KeyPress &key) override;
 
     /** Changes the time interval*/
     void setTimebase(float t, float offset = 0.0f);
@@ -88,6 +91,9 @@ private:
     StringArray labels;
     Array<bool> isMajor;
     Array<float> fractionWidth;
+
+    /** Updates timer offeset according to delta value */
+    bool scrollTimescale(int delta);
 
 };
 

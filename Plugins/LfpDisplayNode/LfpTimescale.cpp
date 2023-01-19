@@ -40,6 +40,8 @@ LfpTimescale::LfpTimescale(LfpDisplaySplitter* c, LfpDisplay* lfpDisplay)
 {
 
     font = Font("Default", 16, Font::plain);
+
+    setWantsKeyboardFocus(true);
 }
 
 
@@ -106,7 +108,8 @@ void LfpTimescale::mouseUp(const MouseEvent &e)
     //    lfpDisplay->trackZoomInfo.isScrollingX = false;
     //}
 
-    
+    // Update curent time offset after dragging is over
+    currentTimeOffset = timeOffset;
     
 }
 
@@ -116,6 +119,7 @@ void LfpTimescale::setPausedState(bool isPaused_)
     {
         lfpDisplay->pause(false);
         timeOffset = 0;
+        currentTimeOffset = timeOffset;
         isPaused = false;
         stopTimer();
     }
@@ -124,8 +128,6 @@ void LfpTimescale::setPausedState(bool isPaused_)
         isPaused = true;
         startTimer(50);
     }
-
-    currentTimeOffset = timeOffset;
 
     repaint();
 }
@@ -140,17 +142,10 @@ void LfpTimescale::mouseDown(const juce::MouseEvent& e)
 
     canvasSplit->select();
     
-    // TODO: only allow pausing while acquisition is active 
-    if (e.getNumberOfClicks() == 2)
+    if (e.getNumberOfClicks() == 2 && CoreServices::getAcquisitionStatus())
     {
-        setPausedState(false);
+        setPausedState(!isPaused);
     }
-    else
-    {
-        setPausedState(true);
-    }
-		
-    
 
 }
 
@@ -169,21 +164,9 @@ void LfpTimescale::timerCallback()
 void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
 {
     
-    if (canvasSplit->isInTriggeredMode())
-        return;
-    
     int dragDeltaX = (e.getScreenPosition().getX() - e.getMouseDownScreenX()); // invert so drag up -> scale up
 
-    timeOffset = currentTimeOffset + int(dragDeltaX);
-
-    if (timeOffset < 0)
-        timeOffset = 0;
-
-    if (timeOffset > getWidth() * 3)
-        timeOffset = getWidth() * 3;
-
-    if (currentTimeOffset != timeOffset)
-        timeOffsetChanged = true;
+    scrollTimescale(dragDeltaX);
 
 
     /*if (e.mods.isLeftButtonDown()) // double check that we initiate only for left click and hold
@@ -235,6 +218,67 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
             }
         }
     }*/
+}
+
+
+void LfpTimescale::mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& w)
+{
+    
+    int scrollDeltaX = (w.deltaY * 100); // amplify mouse wheel move delta value
+
+    if(scrollTimescale(scrollDeltaX))
+        currentTimeOffset = timeOffset;
+}
+
+bool LfpTimescale::keyPressed(const KeyPress &key)
+{
+    if (canvasSplit->isInTriggeredMode() || !isPaused)
+        return false;
+    
+    int keyDeltaX = 25; // constant delta value
+
+    if (key == KeyPress(KeyPress::leftKey, ModifierKeys::ctrlModifier, 0))
+    {
+
+        if(scrollTimescale(keyDeltaX))
+        {
+            currentTimeOffset = timeOffset;
+            return true;
+        }
+    }
+    else if (key == KeyPress(KeyPress::rightKey, ModifierKeys::ctrlModifier, 0))
+    {
+
+        if(scrollTimescale(-keyDeltaX))
+        {
+            currentTimeOffset = timeOffset;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool LfpTimescale::scrollTimescale(int deltaX)
+{
+    if (canvasSplit->isInTriggeredMode() || !isPaused || !hasKeyboardFocus(false))
+        return false;
+
+    timeOffset = currentTimeOffset + deltaX;
+
+    if (timeOffset < 0)
+        timeOffset = 0;
+
+    if (timeOffset > getWidth() * 3)
+        timeOffset = getWidth() * 3;
+
+    if (currentTimeOffset != timeOffset)
+    {
+        timeOffsetChanged = true;
+        return true;
+    }
+
+    return false;
 }
 
 void LfpTimescale::setTimebase(float timebase_, float offset_)
