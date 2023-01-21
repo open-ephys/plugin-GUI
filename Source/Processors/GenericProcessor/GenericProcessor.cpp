@@ -115,7 +115,6 @@ Parameter* GenericProcessor::getParameter(const String& name)
 
 Parameter* GenericProcessor::getParameter(uint16 streamId, const String& name)
 {
-
     // no checking, so it's fast; but take care to provide a valid stream / name
     return streamParameterMap[streamId][name];
 

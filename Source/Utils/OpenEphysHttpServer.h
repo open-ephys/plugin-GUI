@@ -501,14 +501,7 @@ public:
                 return;
             }
 
-            String return_msg;
-            
-            if (!CoreServices::getAcquisitionStatus())
-            {
-                return_msg = graph_->sendConfigMessage(processor, String(message_str));
-            } else {
-                return_msg = "Cannot send config message while acquisition is active.";
-            }
+            String return_msg = graph_->sendConfigMessage(processor, String(message_str));
              
             json ret;
             ret["info"] = return_msg.toStdString();
