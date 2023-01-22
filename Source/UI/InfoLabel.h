@@ -27,6 +27,8 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
+#include "../Processors/Visualization/Visualizer.h"
+
 /**
 
   Makes it possible to switch between different tabs
@@ -56,7 +58,7 @@ private:
 
 */
 
-class InfoLabel : public Component,
+class InfoLabel : public Visualizer,
     public Button::Listener
 
 {
@@ -69,6 +71,11 @@ public:
 
     /** Fills the background and draws a logo.*/
     void paint(Graphics& g);
+
+    /** Visualizer virtual functions */
+    void refresh() { }
+    void update() { }
+    void refreshState() { }
 
     /** Resizes text field*/
     void resized();

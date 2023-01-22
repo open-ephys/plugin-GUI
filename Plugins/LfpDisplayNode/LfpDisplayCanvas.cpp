@@ -295,11 +295,6 @@ void LfpDisplayCanvas::update()
 void LfpDisplayCanvas::refreshState()
 {
 
-    for (auto split : displaySplits)
-    {
-        split->refreshSplitterState();
-    }
-
 }
 
 void LfpDisplayCanvas::select(LfpDisplaySplitter* splitter)

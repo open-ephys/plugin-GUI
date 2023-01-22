@@ -26,6 +26,7 @@
 
 #include "../AccessClass.h"
 #include "../Processors/Editors/GenericEditor.h"
+#include "../Processors/Visualization/Visualizer.h"
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
@@ -108,7 +109,7 @@ public:
     
     /** Paint component */
     void paint (Graphics& g)    override;
-    
+
     /** Behavior on start of mouse hover */
     void mouseEnter (const MouseEvent& event) override;
     
@@ -198,7 +199,7 @@ private:
     Allows the GraphViewer to be scrolled
 
  */
-class GraphViewport : public Component
+class GraphViewport : public Visualizer
 {
 public:
     /** Constructor */
@@ -209,6 +210,11 @@ public:
 
     /** Draws the Open Ephys Logo*/
     void paint(Graphics& g) override;
+
+    /** Visualizer virtual functions */
+    void refresh() { }
+    void update() { }
+    void refreshState() { }
 
     /** Sets viewport bounds*/
     void resized() override;

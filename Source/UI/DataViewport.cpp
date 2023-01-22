@@ -55,8 +55,6 @@ int DataViewport::addTabToDataViewport(String name,
 
     addTab(name, Colours::lightgrey, component, false, tabIndex);
 
-    getTabbedButtonBar().setCurrentTabIndex(tabIndex);
-
     getTabbedButtonBar().setTabBackgroundColour(tabIndex, Colours::darkgrey);
 
     setOutline(0);
@@ -94,7 +92,7 @@ void DataViewport::destroyTab(int index)
 
     tabArray.remove(newIndex);
     tabIndex--;
-    
+
     removeTab(newIndex);
 
     if (tabArray.size() == 0)
@@ -141,11 +139,17 @@ void DataViewport::disableConnectionToEditorViewport()
 
 void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
 {
-    LOGDD("Data Viewport current tab changed; newIndex = ", newIndex);
+    LOGD("Data Viewport current tab changed; newIndex = ", newIndex);
 
     if (!shutdown)
     {
-        getTopLevelComponent()->repaint();
+
+        if (getTabContentComponent(newIndex) != nullptr)
+        {
+            LOGD("Refreshing state for ", newTabName);
+            Visualizer* v = (Visualizer*)getTabContentComponent(newIndex);
+            v->refreshState();
+        }
     }
 }
 
