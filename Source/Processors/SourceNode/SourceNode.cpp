@@ -138,6 +138,11 @@ void SourceNode::updateSettings()
         for (int i = 0; i < dataStreams.size(); i++)
             dataStreams[i]->addProcessor(processorInfo.get());
 
+        
+        isEnabled = dataThread->foundInputSource();
+
+        LOGD(getName(), " isEnabled = ", isEnabled, " (updateSettings)");
+
 	}
 }
 
@@ -187,18 +192,22 @@ bool SourceNode::tryEnablingEditor()
 {
     if (! isSourcePresent())
     {
-        LOGDD("No input source found.");
+        //LOGD("No input source found.");
         return false;
     }
-    else if (isEnabled)
+
+    //LOGD("isEnabled = ", isEnabled, " (tryEnablingEditor)");
+    
+    if (isEnabled)
     {
         // If we're already enabled (e.g. if we're being called again
         // due to timerCallback()), then there's no need to go through
         // the editor again.
+        //LOGD("We're already enabled; returning.");
         return true;
     }
 
-    LOGD("Input source found.");
+    LOGD(getName(), " -- input source found!");
 
     CoreServices::updateSignalChain(getEditor());
 
@@ -229,7 +238,7 @@ bool SourceNode::startAcquisition()
 
     if (isSourcePresent())
     {
-        stopTimer();
+        stopTimer(); // stop checking for source connection
 
         dataThread->startAcquisition();
         return true;
