@@ -56,6 +56,7 @@ int DataViewport::addTabToDataViewport(String name,
     addTab(name, Colours::lightgrey, component, false, tabIndex);
 
     getTabbedButtonBar().setTabBackgroundColour(tabIndex, Colours::darkgrey);
+    getTabbedButtonBar().setCurrentTabIndex(tabIndex);
 
     setOutline(0);
 
