@@ -1034,7 +1034,7 @@ void LfpDisplaySplitter::refreshScreenBuffer()
 
     screenBufferWidth = getWidth() * extraWidth;
 
-    if (screenBufferMean->getNumSamples() < screenBufferWidth) // screenbuffer is too small
+    if (screenBufferMean->getNumSamples() < screenBufferWidth || screenBufferMean->getNumChannels() != nChans) // screenbuffer is too small
     {
         eventDisplayBuffer->setSize(1, screenBufferWidth);
         screenBufferMin->setSize(nChans, screenBufferWidth);
