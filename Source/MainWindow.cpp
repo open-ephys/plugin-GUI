@@ -398,6 +398,12 @@ bool MainWindow::compareConfigFiles(File file1, File file2)
 		return true;
 	}
 
+	if (lcXml == 0 || !lcXml->hasTagName("SETTINGS"))
+	{
+		LOGD("Last config is invalid. Loading recoveryConfig.xml");
+		return false;
+	}
+
 	auto lcSig = lcXml->getChildByName("SIGNALCHAIN");
 	auto rcSig = rcXml->getChildByName("SIGNALCHAIN");
 

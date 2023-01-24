@@ -1469,7 +1469,7 @@ std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
     
     for (auto editor : editorArray)
     {
-        XmlElement* visibleEditorXml = new XmlElement(editor->getName().replaceCharacters(" ","_").toUpperCase());
+        XmlElement* visibleEditorXml = new XmlElement(editor->getName().replaceCharacters(" ()","___").toUpperCase());
         visibleEditorXml->setAttribute("ID", editor->getProcessor()->getNodeId());
         editorViewportSettings->addChildElement(visibleEditorXml);
     }
