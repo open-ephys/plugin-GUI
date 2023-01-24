@@ -439,7 +439,9 @@ void LfpDisplay::refresh()
 	else if (fillto < fillfrom)
 	{
         totalPixelsToFill = canvasSplit->screenBufferWidth - fillfrom + fillto;
-	}
+    }
+
+	//std::cout << fillfrom << " : " << fillto << " ::: " << "totalPixelsToFill: " << totalPixelsToFill << std::endl;
 
     int topBorder = viewport->getViewPositionY();
     int bottomBorder = viewport->getViewHeight() + topBorder;

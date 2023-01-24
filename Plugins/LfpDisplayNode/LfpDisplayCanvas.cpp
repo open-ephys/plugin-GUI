@@ -1144,13 +1144,16 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
             if (newSamples == 0)
             {
-                // std::cout << "No new samples." << std::endl;
+                //std::cout << "No new samples." << std::endl;
+                lastScreenBufferIndex.set(channel, screenBufferIndex[channel]);
                 return;
             }
 
             if (newSamples < 0)
                 newSamples += displayBufferSize;
 
+            //if (channel == 0)
+            //    std::cout << newSamples << " new samples." << std::endl;
 
             // this number is crucial -- converting from samples to values (in px) for the screen buffer:
             float ratio = sampleRate * timebase / float(displayWidth); // samples / pixel
@@ -1161,6 +1164,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
             // hold the last screen buffer index for comparison
             lastScreenBufferIndex.set(channel, sbi);
+            //std::cout << "Setting channel " << channel << " lastScreenBufferIndex to " << lastScreenBufferIndex[channel] << std::endl;
 
             float subSampleOffset = leftOverSamples[channel];
             
@@ -1463,7 +1467,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                 else
                     leftOverSamples.set(channel, subSampleOffset - 1.0f);
 
-               // std::cout << "Setting channel " << channel << " sbi to " << sbi << std::endl;
+                //std::cout << "Setting channel " << channel << " sbi to " << sbi << std::endl;
                 screenBufferIndex.set(channel, sbi);
                 displayBufferIndex.set(channel, newDisplayBufferIndex); // need to store this locally
 
