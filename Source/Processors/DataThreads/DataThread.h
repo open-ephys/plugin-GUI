@@ -113,9 +113,6 @@ public:
 
     /** Returns the address of the DataBuffer that the input source will fill.*/
     DataBuffer* getBufferAddress(int streamIdx) const;
-    
-    /** Returns true if the dataThread configuration is valid and the thread is ready for acquisition*/
-    virtual bool isReady(){return true;};
 
 protected:
 
