@@ -126,7 +126,7 @@ void LfpTimescale::setPausedState(bool isPaused_)
     else {
         lfpDisplay->pause(true);
         isPaused = true;
-        startTimer(50);
+        startTimer(200);
     }
 
     repaint();
@@ -168,56 +168,6 @@ void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
 
     scrollTimescale(dragDeltaX);
 
-
-    /*if (e.mods.isLeftButtonDown()) // double check that we initiate only for left click and hold
-    {
-        if (e.mods.isCommandDown())  // CTRL + drag -> change channel spacing
-        {
-            // init state in our track zooming info struct
-            if (!lfpDisplay->trackZoomInfo.isScrollingX)
-            {
-                lfpDisplay->trackZoomInfo.isScrollingX = true;
-                lfpDisplay->trackZoomInfo.timescaleStartScale = timebase;
-            }
-
-            float timescale = lfpDisplay->trackZoomInfo.timescaleStartScale;
-            float dTimescale=0;
-            int dragDeltaX = (e.getScreenPosition().getX() - e.getMouseDownScreenX()); // invert so drag up -> scale up
-
-//            std::cout << dragDeltaX << std::endl;
-            
-            else
-            {
-                // TODO: (kelly) change this to scale appropriately for -dragDeltaX
-                if (timescale > 0.25)
-                    dTimescale = 0.01 * dragDeltaX;
-            }
-            
-            if (timescale >= 1) // accelerate scrolling for large ranges
-                dTimescale *= 4;
-            
-            if (timescale >= 5)
-                dTimescale *= 4;
-            
-            if (timescale >= 10)
-                dTimescale *= 4;
-            
-            // round dTimescale to the nearest 0.005 sec
-            dTimescale = ((dTimescale + (0.005/2)) / 0.005) * 0.005;
-            
-            float newTimescale = timescale+dTimescale;
-            
-            if (newTimescale < 0.25) newTimescale = 0.250;
-            if (newTimescale > 20) newTimescale = 20;
-            
-            // don't bother updating if the new timebase is the same as the old (if clipped, for example)
-            if (timescale != newTimescale)
-            {
-                lfpDisplay->options->setTimebaseAndSelectionText(newTimescale);
-                setTimebase(canvasSplit->timebase);
-            }
-        }
-    }*/
 }
 
 
