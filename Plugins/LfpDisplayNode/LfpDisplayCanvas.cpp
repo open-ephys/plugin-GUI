@@ -972,6 +972,7 @@ void LfpDisplaySplitter::updateSettings()
     isLoading = false;
         
     syncDisplay();
+    syncDisplayBuffer();
 
     isUpdating = false;
 
@@ -1146,7 +1147,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
             {
                 //std::cout << "No new samples." << std::endl;
                 lastScreenBufferIndex.set(channel, screenBufferIndex[channel]);
-                return;
+                continue;
             }
 
             if (newSamples < 0)
