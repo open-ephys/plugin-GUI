@@ -27,12 +27,8 @@
 
 DataViewport::DataViewport() :
     TabbedComponent(TabbedButtonBar::TabsAtRight),
-    tabDepth(32), tabIndex(0), shutdown(false)
+    tabDepth(32), tabIndex(1), shutdown(false)
 {
-
-    tabArray.clear();
-    tabNameMap.clear();
-    tabComponentMap.clear();
 
     setTabBarDepth(tabDepth);
     setIndent(8); // gap to leave around the edge
@@ -51,7 +47,7 @@ int DataViewport::addTabToDataViewport(String name,
     if (tabArray.size() == 0)
         setVisible(true);
 
-    tabIndex++;
+    
 
     addTab(name, Colours::lightgrey, component, false, tabIndex);
 
@@ -62,18 +58,28 @@ int DataViewport::addTabToDataViewport(String name,
 
     tabArray.add(tabIndex);
 
-    LOGDD("Data Viewport adding tab with index ", tabIndex);
+    //std::cout << "Tab Array: ";
+   // for (int i = 0; i < tabArray.size(); i++)
+   //     std::cout << tabArray[i] << " ";
+   // std::cout << std::endl;
+
+    LOGD("Data Viewport adding tab with index ", tabIndex);
 
     setCurrentTabIndex(tabArray.size()-1);
 
-    return tabIndex;
+    tabIndex++;
+
+    return tabIndex - 1;
 
 }
 
-void DataViewport::addTabAtIndex(int tabIndex, String tabName, Component* tabComponent)
+void DataViewport::addTabAtIndex(int tabIndex_, String tabName, Component* tabComponent)
 {
-    tabNameMap.emplace(tabIndex, tabName);
-    tabComponentMap.emplace(tabIndex, tabComponent);
+
+    savedTabIndices.add(tabIndex_);
+    savedTabComponents.add(tabComponent);
+    savedTabNames.add(tabName);
+
 }
 
 
@@ -92,7 +98,7 @@ void DataViewport::destroyTab(int index)
     int newIndex = tabArray.indexOf(index);
 
     tabArray.remove(newIndex);
-    tabIndex--;
+    //tabIndex--;
 
     removeTab(newIndex);
 
@@ -100,6 +106,14 @@ void DataViewport::destroyTab(int index)
         setVisible(false);
 
     setCurrentTabIndex(tabArray.size()-1);
+
+    //std::cout << "Tab Array: ";
+   // for (int i = 0; i < tabArray.size(); i++)
+    //    std::cout << tabArray[i] << " ";
+    //std::cout << std::endl;
+    
+    if (tabArray.size() == 2) // just graph and info tab left
+        tabIndex = 3;
 
 }
 
@@ -111,10 +125,16 @@ void DataViewport::saveStateToXml(XmlElement* xml)
 
 void DataViewport::loadStateFromXml(XmlElement* xml)
 {
-    for (const auto& tab : tabNameMap) 
+
+    std::vector<int> tabOrder(savedTabIndices.size());
+    std::iota(tabOrder.begin(), tabOrder.end(), 0); //Initializing
+    sort(tabOrder.begin(), tabOrder.end(), [&](int i, int j)
+        {return savedTabIndices[i] < savedTabIndices[j]; });
+
+    for (int i = 0; i < tabOrder.size(); i++)
     {
-        // LOGC("********* ADDING ", tab.second, " to index ", tab.first, " ", tabComponentMap[tab.first]->getName());
-        addTabToDataViewport(tab.second, tabComponentMap[tab.first]);
+        tabIndex = savedTabIndices[tabOrder[i]];
+        addTabToDataViewport(savedTabNames[tabOrder[i]], savedTabComponents[tabOrder[i]]);
     }
 
     for (auto* xmlNode : xml->getChildIterator())
@@ -122,14 +142,15 @@ void DataViewport::loadStateFromXml(XmlElement* xml)
         if (xmlNode->hasTagName("DATAVIEWPORT"))
         {
 			int index = xmlNode->getIntAttribute("selectedTab", -1);
-			if (index != -1)
+            if (index != -1)
                 selectTab(index);
         }
 
     }
 
-    tabNameMap.clear();
-    tabComponentMap.clear();
+    savedTabIndices.clear();
+    savedTabComponents.clear();
+    savedTabNames.clear();
 
 }
 
