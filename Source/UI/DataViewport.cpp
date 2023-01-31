@@ -63,7 +63,7 @@ int DataViewport::addTabToDataViewport(String name,
    //     std::cout << tabArray[i] << " ";
    // std::cout << std::endl;
 
-    LOGD("Data Viewport adding tab with index ", tabIndex);
+    //LOGD("Data Viewport adding tab with index ", tabIndex);
 
     setCurrentTabIndex(tabArray.size()-1);
 
@@ -161,7 +161,7 @@ void DataViewport::disableConnectionToEditorViewport()
 
 void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
 {
-    LOGD("Data Viewport current tab changed; newIndex = ", newIndex);
+    //LOGD("Data Viewport current tab changed; newIndex = ", newIndex);
 
     if (!shutdown)
     {

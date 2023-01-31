@@ -84,7 +84,7 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl, 
 
     resized();
 
-    LOGD("    Finished in ", MS_FROM_START, " milliseconds");
+    //LOGD("    Finished in ", MS_FROM_START, " milliseconds");
     
 }
 
@@ -663,7 +663,7 @@ void LfpDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 
             toggleOptionsDrawer(xmlNode->getBoolAttribute("showAllOptions", false));
 
-            LOGD("    Loaded canvas split settings in ", MS_FROM_START, " milliseconds");
+            //LOGD("    Loaded canvas split settings in ", MS_FROM_START, " milliseconds");
 
 		}
 	}
@@ -675,14 +675,14 @@ void LfpDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
         displaySplits[i]->options->loadParameters(xml);
     }
 
-    LOGD("    Loaded split display parameters in ", MS_FROM_START, " milliseconds");
+    //LOGD("    Loaded split display parameters in ", MS_FROM_START, " milliseconds");
 
     start = Time::getHighResolutionTicks();
 
     isLoading = false;
     resized();
 
-    LOGD("    Resized in ", MS_FROM_START, " milliseconds");
+    //LOGD("    Resized in ", MS_FROM_START, " milliseconds");
 }
 
 LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,

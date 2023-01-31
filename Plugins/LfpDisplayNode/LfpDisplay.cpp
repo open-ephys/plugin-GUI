@@ -290,7 +290,7 @@ void LfpDisplay::resized()
 {
     int totalHeight = 0;
 
-    LOGD(" !! LFP DISPLAY RESIZED TO: ", getWidth(), " pixels.");
+    //LOGD(" !! LFP DISPLAY RESIZED TO: ", getWidth(), " pixels.");
 
     if (getWidth() > 0 && getHeight() > 0)
         lfpChannelBitmap = Image(Image::ARGB, getWidth() - canvasSplit->leftmargin, getHeight(), true);
