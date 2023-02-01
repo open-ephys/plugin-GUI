@@ -29,6 +29,13 @@
 #include "serial/ofArduino.h"
 
 
+/* Magic constants for parameter indices. */
+#define ARDOUT_PARAM_DIGOUT 0
+#define ARDOUT_PARAM_INBANKIDX 1
+#define ARDOUT_PARAM_INBIT 2
+#define ARDOUT_PARAM_GATEBANKIDX 3
+#define ARDOUT_PARAM_GATEBIT 4
+
 
 /**
     *UNDER CONSTRUCTION*
@@ -64,15 +71,11 @@ public:
     /** Creates the ArduinoOutputEditor. */
     AudioProcessorEditor* createEditor() override;
 
-    void setOutputChannel (int);
-    void setInputChannel  (int);
-    void setGateChannel   (int);
-
     void setDevice (String deviceString);
 
-    int outputChannel;
-    int inputChannel;
-    int gateChannel;
+    int ardDigOutput;
+    int inputBankIdx, inputBit;
+    int gateBankIdx, gateBit;
 
 
 private:

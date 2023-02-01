@@ -27,11 +27,17 @@
 #include <stdio.h>
 
 
+// Debug switch.
+#define ARDDEBUG_WANT_EVENT_TATTLE 0
+
+
 ArduinoOutput::ArduinoOutput()
     : GenericProcessor      ("Arduino Output")
-    , outputChannel         (13)
-    , inputChannel          (-1)
-    , gateChannel           (-1)
+    , ardDigOutput          (13)
+    , inputBankIdx          (-1)
+    , inputBit              (-1)
+    , gateBankIdx           (-1)
+    , gateBit               (-1)
     , state                 (true)
     , acquisitionIsActive   (false)
     , deviceSelected        (false)
@@ -81,7 +87,7 @@ void ArduinoOutput::setDevice (String devName)
         if (arduino.isInitialized())
         {
             std::cout << "Arduino is initialized." << std::endl;
-            arduino.sendDigitalPinMode (outputChannel, ARD_OUTPUT);
+            arduino.sendDigitalPinMode (ardDigOutput, ARD_OUTPUT);
             CoreServices::sendStatusMessage (("Arduino initialized at" + devName));
             deviceSelected = true;
         }
@@ -102,36 +108,47 @@ void ArduinoOutput::handleEvent (const EventChannel* eventInfo, const MidiMessag
 {
     if (Event::getEventType(event) == EventChannel::TTL)
     {
-		TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, eventInfo);
+        TTLEventPtr ttl = TTLEvent::deserializeFromMessage(event, eventInfo);
 
-        //int eventNodeId = *(dataptr+1);
-        const int eventId         = ttl->getState() ? 1: 0;
-        const int eventChannel    = ttl->getChannel();
+        const int eventId       = ttl->getState() ? 1: 0;
+        const int eventBankIdx  = getEventChannelIndex(ttl);
+        const int eventBit      = ttl->getChannel();
 
-        // std::cout << "Received event from " << eventNodeId
-        //           << " on channel " << eventChannel
-        //           << " with value " << eventId << std::endl;
+#if ARDDEBUG_WANT_EVENT_TATTLE
+        std::cout << "[Ard]  Received event on bank " << eventBankIdx
+            << " bit " << eventBit << " with value: " << eventId << std::endl;
+#endif
 
-        if (eventChannel == gateChannel)
+        if ( (eventBankIdx == gateBankIdx) && (eventBit == gateBit) )
         {
             if (eventId == 1)
                 state = true;
             else
                 state = false;
+
+#if ARDDEBUG_WANT_EVENT_TATTLE
+            std::cout << "[Ard]  Set gate state to: " << eventId << std::endl;
+#endif
         }
 
         if (state)
         {
-            if (inputChannel == -1 || eventChannel == inputChannel)
+            if ( (inputBankIdx == -1) || (inputBit == -1)
+                || ((eventBankIdx == inputBankIdx) && (eventBit == inputBit)) )
             {
                 if (eventId == 0)
                 {
-                    arduino.sendDigital (outputChannel, ARD_LOW);
+                    arduino.sendDigital (ardDigOutput, ARD_LOW);
                 }
                 else
                 {
-                    arduino.sendDigital (outputChannel, ARD_HIGH);
+                    arduino.sendDigital (ardDigOutput, ARD_HIGH);
                 }
+
+#if ARDDEBUG_WANT_EVENT_TATTLE
+                std::cout << "[Ard]  Set DIO " << ardDigOutput << " to: "
+                    << eventId << std::endl;
+#endif
             }
         }
     }
@@ -141,43 +158,33 @@ void ArduinoOutput::handleEvent (const EventChannel* eventInfo, const MidiMessag
 void ArduinoOutput::setParameter (int parameterIndex, float newValue)
 {
     // make sure current output channel is off:
-    arduino.sendDigital(outputChannel, ARD_LOW);
+    arduino.sendDigital(ardDigOutput, ARD_LOW);
 
-    if (parameterIndex == 0)
-    {
-        outputChannel = (int) newValue;
-    }
-    else if (parameterIndex == 1)
-    {
-        inputChannel = (int) newValue;
-    }
-    else if (parameterIndex == 2)
-    {
-        gateChannel = (int) newValue;
+    bool needGateUpdate = false;
 
-        if (gateChannel == -1)
+    switch (parameterIndex)
+    {
+        case ARDOUT_PARAM_DIGOUT: ardDigOutput = (int) newValue; break;
+        case ARDOUT_PARAM_INBANKIDX: inputBankIdx = (int) newValue; break;
+        case ARDOUT_PARAM_INBIT: inputBit = (int) newValue; break;
+        case ARDOUT_PARAM_GATEBANKIDX:
+            gateBankIdx = (int) newValue;
+            needGateUpdate = true;
+            break;
+        case ARDOUT_PARAM_GATEBIT:
+            gateBit = (int) newValue;
+            needGateUpdate = true;
+            break;
+        default: break;
+    };
+
+    if (needGateUpdate)
+    {
+        if ( (gateBankIdx == -1) || (gateBit == -1) )
             state = true;
         else
             state = false;
     }
-}
-
-
-void ArduinoOutput::setOutputChannel (int chan)
-{
-    setParameter (0, chan);
-}
-
-
-void ArduinoOutput::setInputChannel (int chan)
-{
-    setParameter (1, chan - 1);
-}
-
-
-void ArduinoOutput::setGateChannel (int chan)
-{
-    setParameter (2, chan - 1);
 }
 
 
@@ -191,7 +198,7 @@ bool ArduinoOutput::enable()
 
 bool ArduinoOutput::disable()
 {
-    arduino.sendDigital (outputChannel, ARD_LOW);
+    arduino.sendDigital (ardDigOutput, ARD_LOW);
     acquisitionIsActive = false;
 
     return true;
