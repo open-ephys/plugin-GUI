@@ -23,6 +23,7 @@
 
 #include "ArduinoOutputEditor.h"
 #include <stdio.h>
+#include <string>
 
 
 ArduinoOutputEditor::ArduinoOutputEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true)
