@@ -99,6 +99,11 @@ public:
 
     /** Acknowledges receipt of a trigger for a given split display*/
     void acknowledgeTrigger(int splitId);
+    
+    /** Handles a configuration message sent to this processor, while acquisition is not active*/
+    String handleConfigMessage(String msg) override;
+    
+    void handleBroadcastMessage(String msg) override;
 
 
     bool getHeadlessMode() const {

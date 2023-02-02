@@ -982,20 +982,19 @@ void LfpDisplay::rebuildDrawableChannelsList()
     removeAllChildren(); // start with clean slate
     
     Array<LfpChannelTrack> channelsToDraw; // all visible channels will be added to this array
-    std::vector<int> filteredChannels;
-    for(int i = 0 ; i < 64; i++) {
-        filteredChannels.push_back(i + 32 + (64 * (i/16)));
-    }
-    int filteredChannelsSize = filteredChannels.size();
+    
+    int filteredChannelsSize = canvasSplit -> displayBuffer -> hasFilter ? canvasSplit -> displayBuffer -> filteredChannels.size() : 0;
+    const StringArray& filteredChannels = canvasSplit -> displayBuffer -> filteredChannels;
     // iterate over all channels and select drawable ones
     for (int i = 0, drawableChannelNum = 0, filterChannelIndex = 0; i < channels.size(); i++)
     {
-        
 		//std::cout << "Checking for hidden channels" << std::endl;
-        if(filteredChannelsSize == 0 || (filterChannelIndex < filteredChannelsSize && i == filteredChannels[filterChannelIndex])) {
+        String channelName = canvasSplit->displayBuffer->channelMetadata[i].name;
+        if(filteredChannelsSize == 0 || (filterChannelIndex < filteredChannelsSize && channelName == filteredChannels[filterChannelIndex])) {
             if (displaySkipAmt == 0 || ((filteredChannelsSize ? filterChannelIndex : i) % displaySkipAmt == 0)) // no skips, add all channels
             {
-                filterChannelIndex++;
+                //std::cout << canvasSplit->displayBuffer->channelMetadata[i].name << std::endl;
+
                 channels[i]->setHidden(false);
                 channelInfo[i]->setHidden(false);
                 
@@ -1010,6 +1009,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
                 addAndMakeVisible(channels[i]);
                 addAndMakeVisible(channelInfo[i]);
             }
+            filterChannelIndex++;
         }
         else // skip some channels
         {

@@ -331,3 +331,20 @@ void LfpDisplayNode::acknowledgeTrigger(int id)
 {
     latestTrigger.set(id, -1);
 }
+
+String LfpDisplayNode::handleConfigMessage(String msg) {
+    std::cout << "in lfp config: " << msg <<std::endl;
+}
+
+void LfpDisplayNode::handleBroadcastMessage(String msg) {
+    std::cout<< msg<< std::endl;
+    StringArray parts = StringArray::fromTokens(msg, ";", "");
+    if(parts.size() < 3 || (parts[0] != "LFPViewer" && parts[1] != "FILTER")) {
+        return;
+    }
+    int streamID = parts[2].getIntValue();
+    parts.removeRange(0, 3);
+    displayBufferMap[streamID] -> setFilteredChannels(parts);
+
+}
+
