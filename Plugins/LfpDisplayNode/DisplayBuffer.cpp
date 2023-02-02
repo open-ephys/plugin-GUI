@@ -28,7 +28,7 @@ namespace LfpViewer {
 #define BUFFER_LENGTH_S 1.0f
 
 DisplayBuffer::DisplayBuffer(int id_, String name_, float sampleRate_) : 
-    id(id_), name(name_), sampleRate(sampleRate_), isNeeded(true)
+    id(id_), name(name_), sampleRate(sampleRate_), isNeeded(true), hasFilter(false)
 {
     previousSize = 0;
     numChannels = 0;
@@ -41,6 +41,7 @@ DisplayBuffer::DisplayBuffer(int id_, String name_, float sampleRate_) :
     }
 
     ttlState = 0;
+    filteredChannels = StringArray();
 }
 
 DisplayBuffer::~DisplayBuffer()
