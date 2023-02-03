@@ -250,7 +250,6 @@ void InfoObject::copyParameters(InfoObject* object)
 
 void InfoObject::addParameter(Parameter* p)
 {
-     parameters.addParameter(p);
 
     if (getType() == InfoObject::DATASTREAM_INFO)
         p->setDataStream((DataStream*) this);
@@ -260,6 +259,8 @@ void InfoObject::addParameter(Parameter* p)
         p->setContinuousChannel((ContinuousChannel*) this);
     else if (getType() == InfoObject::EVENT_CHANNEL)
         p->setEventChannel((EventChannel*) this);
+
+    parameters.addParameter(p);
 }
 
 ChannelInfoObject::ChannelInfoObject(InfoObject::Type type, DataStream* dataStream)

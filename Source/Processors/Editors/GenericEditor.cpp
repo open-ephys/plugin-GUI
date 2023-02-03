@@ -1061,7 +1061,7 @@ Array<GenericEditor*> GenericEditor::getConnectedEditors()
 void GenericEditor::updateSelectedStream(uint16 streamId) 
 {
 
-    LOGDD(getNameAndId(), " updating selected stream to ", streamId);
+    LOGD(getNameAndId(), " updating selected stream to ", streamId);
 
     selectedStream = streamId;
 
@@ -1075,17 +1075,28 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
         
         if (param == nullptr)
             continue;
+
+        //LOGD("Parameter: ", param->getName());
         
         if (param->getScope() == Parameter::GLOBAL_SCOPE)
         {
+            //LOGD("Global scope");
             ed->setParameter(getProcessor()->getParameter(ed->getParameterName()));
         }
         else if (param->getScope() == Parameter::STREAM_SCOPE)
         {
             if (streamAvailable)
-                ed->setParameter(getProcessor()->getDataStream(streamId)->getParameter(param->getName()));
+            {
+               //LOGD("Stream scope");
+                Parameter* p2 = getProcessor()->getDataStream(streamId)->getParameter(param->getName());
+                ed->setParameter(p2);
+            }
             else
+            {
+                //LOGD("Stream not available");
                 ed->setParameter(nullptr);
+            }
+                
         }
         
         ed->updateView();

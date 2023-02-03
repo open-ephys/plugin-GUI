@@ -960,6 +960,8 @@ void GenericProcessor::update()
                         
                         p2->setChannelCount(stream->getChannelCount());
                         p2->setDataStream(stream);
+                        //LOGD("GenericProcessor::update() Adding SelectedChannelsParameter to stream ", stream->getStreamId(), " with ", stream->getChannelCount(), " channels");
+
                         stream->addParameter(p2);
                     }
                     else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
@@ -987,10 +989,13 @@ void GenericProcessor::update()
                     {
                         SelectedChannelsParameter* p = (SelectedChannelsParameter*) stream->getParameter(param->getName());
                         p->setChannelCount(stream->getChannelCount());
+                        //LOGD("GenericProcessor::update() Setting SelectedChannelsParameter channel count for ", stream->getStreamId(), " to ", stream->getChannelCount(), " channels");
+
                     } else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
                     {
                         MaskChannelsParameter* p = (MaskChannelsParameter*) stream->getParameter(param->getName());
                         p->setChannelCount(stream->getChannelCount());
+
                     }
                }
             }
@@ -1005,6 +1010,8 @@ void GenericProcessor::update()
 
             if (index > -1)
             {
+                //LOGD("GenericProcessor::update() Copying savedDataStreamParameters for ", stream->getStreamId());
+
                 //std::cout << "COPYING STREAM PARAMETERS TO" << std::endl;
                 savedDataStreamParameters[index]->copyParametersTo(stream);
                 savedDataStreamParameters.remove(index);

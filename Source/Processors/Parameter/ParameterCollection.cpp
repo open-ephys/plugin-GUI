@@ -92,6 +92,14 @@ void ParameterCollection::copyParameterValuesTo(InfoObject* obj)
 
 void ParameterCollection::copyParametersTo(InfoObject* obj)
 {
+    int channelCount = -1;
+    
+    if (obj->getType() == InfoObject::DATASTREAM_INFO)
+    {
+        DataStream* s = (DataStream*)obj;
+		channelCount = s->getChannelCount();
+    }
+    
     obj->parameters.clear();
     
     for (auto parameter : parameters)
@@ -117,6 +125,10 @@ void ParameterCollection::copyParametersTo(InfoObject* obj)
         else if (parameter->getType() == Parameter::SELECTED_CHANNELS_PARAM)
         {
             SelectedChannelsParameter* p = (SelectedChannelsParameter*) parameter;
+            
+            if (channelCount != -1)
+                p->setChannelCount(channelCount);
+
             obj->addParameter(new SelectedChannelsParameter(*p));
             setParameterOwner(p, obj);
             
@@ -124,6 +136,10 @@ void ParameterCollection::copyParametersTo(InfoObject* obj)
         else if (parameter->getType() == Parameter::MASK_CHANNELS_PARAM)
         {
             MaskChannelsParameter* p = (MaskChannelsParameter*) parameter;
+
+            if (channelCount != -1)
+                p->setChannelCount(channelCount);
+            
             obj->addParameter(new MaskChannelsParameter(*p));
             setParameterOwner(p, obj);
             
@@ -261,10 +277,17 @@ void ParameterCollection::copyParametersFrom(InfoObject* obj)
 
 void ParameterCollection::addParameter(Parameter* p)
 {
+
+    if (parameterMap.find(p->getName()) != parameterMap.end()) {
+        for (int i = 0; i < parameters.size(); i++) {
+			if (parameters[i]->getName() == p->getName()) {
+				parameters.remove(i);
+				break;
+			}
+        }   
+    }
+    
     parameters.add(p);
-    
-    //std::cout << "Adding parameter to " << p->getStreamId() << ": " << p->getName() << std::endl;
-    
     parameterMap[p->getName()] = p;
 }
 
