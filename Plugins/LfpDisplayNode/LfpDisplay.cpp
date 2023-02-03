@@ -222,6 +222,9 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 void LfpDisplay::setColors()
 {
 
+    if (drawableChannels.size() == 0)
+        return;
+
     if (!getSingleChannelState())
     {
         for (int i = 0; i < drawableChannels.size(); i++)
