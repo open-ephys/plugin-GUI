@@ -879,6 +879,16 @@ PluginInfoComponent::PluginInfoComponent() : ThreadWithProgressWindow("Plugin In
 	versionMenu.setTextWhenNoChoicesAvailable("- N/A -");
 	versionMenu.addListener(this);
 
+	addChildComponent(installedVerLabel);
+	installedVerLabel.setFont(infoFontBold);
+	installedVerLabel.setColour(Label::textColourId, Colours::white);
+	installedVerLabel.setText("Installed: ", dontSendNotification);
+
+	addChildComponent(installedVerText);
+	installedVerText.setFont(infoFont);
+	installedVerText.setColour(Label::textColourId, Colours::white);
+	installedVerText.setMinimumHorizontalScale(1.0f);
+
 	addChildComponent(lastUpdatedLabel);
 	lastUpdatedLabel.setFont(infoFontBold);
 	lastUpdatedLabel.setColour(Label::textColourId, Colours::white);
@@ -945,13 +955,16 @@ void PluginInfoComponent::resized()
 	versionLabel.setBounds(10, 90, 140, 30);
 	versionMenu.setBounds(150, 90, 110, 26);
 
-	lastUpdatedLabel.setBounds(10, 120, 140, 30);
-	lastUpdatedText.setBounds(145, 120, getWidth() - 10, 30);
+	installedVerLabel.setBounds(10, versionLabel.getBottom(), 140, 30);
+	installedVerText.setBounds(145, versionLabel.getBottom(), 110, 30);
+	
+	lastUpdatedLabel.setBounds(10, installedVerLabel.getBottom(), 140, 30);
+	lastUpdatedText.setBounds(145, installedVerLabel.getBottom(), getWidth() - 10, 30);
 
-	descriptionLabel.setBounds(10, 150, 140, 30);
-	descriptionText.setBounds(145, 155, getWidth() - 150, 75);
+	descriptionLabel.setBounds(10, lastUpdatedLabel.getBottom(), 140, 30);
+	descriptionText.setBounds(145, lastUpdatedLabel.getBottom() + 5, getWidth() - 150, 75);
 
-	dependencyLabel.setBounds(10, 160 + descriptionText.getHeight(), 140, 30);
+	dependencyLabel.setBounds(10, descriptionText.getBottom() + 5, 140, 30);
 	dependencyText.setBounds(145, dependencyLabel.getY(), getWidth() - 10, 30);
 
 	downloadButton.setBounds(getWidth() - (getWidth() * 0.25) - 20, getHeight() - 60, getWidth() * 0.25, 30);
@@ -1193,6 +1206,11 @@ void PluginInfoComponent::setPluginInfo(const SelectedPluginInfo& p, bool should
 
 		versionMenu.clear(dontSendNotification);
 
+		if(pInfo.installedVersion.isEmpty())
+			installedVerText.setText("No", dontSendNotification);
+		else
+			installedVerText.setText(pInfo.installedVersion, dontSendNotification);
+
 		if (pInfo.versions.isEmpty())
 		{
 			downloadButton.setEnabled(false);
@@ -1226,6 +1244,9 @@ void PluginInfoComponent::makeInfoVisible(bool isEnabled)
 
 	versionLabel.setVisible(isEnabled);
 	versionMenu.setVisible(isEnabled);
+
+	installedVerLabel.setVisible(isEnabled);
+	installedVerText.setVisible(isEnabled);
 
 	lastUpdatedLabel.setVisible(isEnabled);
 	lastUpdatedText.setVisible(isEnabled);
