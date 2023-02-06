@@ -351,6 +351,8 @@ public:
     uint16 selectedStreamId;
 
     void refreshScreenBuffer();
+    
+    bool shouldRebuildChannelList = false;
 
 private:
 
