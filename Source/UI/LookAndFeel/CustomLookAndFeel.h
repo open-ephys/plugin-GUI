@@ -161,6 +161,11 @@ public:
 
     void drawDocumentWindowTitleBar (DocumentWindow&, Graphics&, int, int, int, int, const Image*, bool) override;
 
+    // ========= custom Alert Window methods: ===========================
+    Font getAlertWindowTitleFont() override;
+    Font getAlertWindowMessageFont() override;
+    Font getAlertWindowFont() override;
+
 private:
 
     Typeface::Ptr
