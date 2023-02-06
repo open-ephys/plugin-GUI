@@ -481,6 +481,16 @@ void PluginInstallerComponent::run()
 
 		checkForUpdates = false;
 	}
+
+	if(updatablePlugins.size() > 0)
+	{
+		const String updatemsg = "Some of your plugins have updates available! "
+								 "Please update them to get the latest features and bug-fixes.";
+
+		AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::InfoIcon,
+										 "Updates Available",
+										 updatemsg, "OK", this);
+	}
 }
 
 void PluginInstallerComponent::buttonClicked(Button* button)
