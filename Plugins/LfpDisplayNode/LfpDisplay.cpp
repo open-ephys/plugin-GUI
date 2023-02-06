@@ -50,7 +50,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <math.h>
 #include <numeric>
-#include <vector>
 
 using namespace LfpViewer;
 
@@ -982,21 +981,19 @@ void LfpDisplay::rebuildDrawableChannelsList()
     removeAllChildren(); // start with clean slate
     
     Array<LfpChannelTrack> channelsToDraw; // all visible channels will be added to this array
-    int filteredChannelsSize = 0;
     StringArray filteredChannels;
     if(canvasSplit -> displayBuffer) {
-        filteredChannelsSize = canvasSplit -> displayBuffer -> hasFilter ? canvasSplit -> displayBuffer -> filteredChannels.size() : 0;
         filteredChannels = canvasSplit -> displayBuffer -> filteredChannels;
     }
     // iterate over all channels and select drawable ones
     for (int i = 0, drawableChannelNum = 0, filterChannelIndex = 0; i < channels.size(); i++)
     {
 		//std::cout << "Checking for hidden channels" << std::endl;
-        String channelName = filteredChannelsSize ? canvasSplit->displayBuffer->channelMetadata[i].name: "";
-        if(filteredChannelsSize == 0 || (filterChannelIndex < filteredChannelsSize && channelName == filteredChannels[filterChannelIndex])) {
-            if (displaySkipAmt == 0 || ((filteredChannelsSize ? filterChannelIndex : i) % displaySkipAmt == 0)) // no skips, add all channels
+        String channelName = filteredChannels.size() ? canvasSplit->displayBuffer->channelMetadata[i].name: "";
+        //check if no filter list is used or if the current channel has the same name as the current filtered channel in the list
+        if(filteredChannels.size() == 0 || (filterChannelIndex < filteredChannels.size() && channelName == filteredChannels[filterChannelIndex])) {
+            if (displaySkipAmt == 0 || ((filteredChannels.size() ? filterChannelIndex : i) % displaySkipAmt == 0)) // no skips, add all channels
             {
-                //std::cout << canvasSplit->displayBuffer->channelMetadata[i].name << std::endl;
 
                 channels[i]->setHidden(false);
                 channelInfo[i]->setHidden(false);
