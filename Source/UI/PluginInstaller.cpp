@@ -539,9 +539,9 @@ void PluginInstallerComponent::buttonClicked(Button* button)
 				
 				int containsType = 0;
 
-				bool isSource = label.equalsIgnoreCase("source");
-				bool isFilter = label.equalsIgnoreCase("filter");
-				bool isSink = label.equalsIgnoreCase("sink");
+				bool isSource = label.containsWholeWordIgnoreCase("source");
+				bool isFilter = label.containsWholeWordIgnoreCase("filter");
+				bool isSink = label.containsWholeWordIgnoreCase("sink");
 				bool isOther = isSource ? false : (isFilter ? false : (isSink ? false : true));
 
 				if(sourceState && isSource)
