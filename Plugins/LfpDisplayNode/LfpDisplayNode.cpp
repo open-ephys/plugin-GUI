@@ -332,14 +332,8 @@ void LfpDisplayNode::acknowledgeTrigger(int id)
     latestTrigger.set(id, -1);
 }
 
-String LfpDisplayNode::handleConfigMessage(String msg) {
-    std::cout << "in lfp config: " << msg <<std::endl;
-}
-
 void LfpDisplayNode::handleBroadcastMessage(String msg) {
     DynamicObject::Ptr jsonMessage = JSON::parse(msg).getDynamicObject();
-    std::cout<< msg<< std::endl;
-    StringArray parts = StringArray::fromTokens(msg, ";", "");
     String pluginName= jsonMessage -> getProperty("plugin");
     if(pluginName != "LFPViewer") {
         return;
@@ -350,17 +344,22 @@ void LfpDisplayNode::handleBroadcastMessage(String msg) {
         if(payload.get() == nullptr)
             return;
         int streamID = payload -> getProperty("streamID");
-        var indexes = payload -> getProperty("indexes");
-        if(streamID < 0 || indexes.size() == 0 ){
+        int start = payload -> getProperty("start");
+        int rows = payload -> getProperty("rows");
+        int cols = payload -> getProperty("cols");
+        int colsPerRow = payload -> getProperty("colsPerRow");
+        if(streamID < 0 || start < 0 || rows < 0 || cols < 0 || colsPerRow < 0){
             return;
         }
         StringArray channelNames;
-        for(int i = 0; i < indexes.size(); i++) {
-            channelNames.add("CH"+String(indexes[i]));
+        for(int row = 0; row < rows; row++) {
+            for(int col = 0; col < cols; col++) {
+                channelNames.add("CH"+String(start + col + row*colsPerRow));
+            }
         }
         displayBufferMap[streamID] -> setFilteredChannels(channelNames);
         for(auto split : splitDisplays) {
-            split -> shouldRebuildChannelList = true;
+            split -> shouldRebuildChannelList = split->displayBuffer->id == streamID;
         }
         
     }
