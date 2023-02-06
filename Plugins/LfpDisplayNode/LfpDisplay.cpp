@@ -381,10 +381,6 @@ void LfpDisplay::refresh()
     if (numChans == 0)
         return;
 
-    if(canvasSplit -> shouldRebuildChannelList) {
-        canvasSplit -> shouldRebuildChannelList = false;
-        rebuildDrawableChannelsList();
-    }
     // Ensure the lfpChannelBitmap has been initialized
     if (lfpChannelBitmap.isNull() || lfpChannelBitmap.getWidth() < getWidth() - canvasSplit->leftmargin)
     {

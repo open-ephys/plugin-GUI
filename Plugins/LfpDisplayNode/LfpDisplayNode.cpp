@@ -337,17 +337,34 @@ String LfpDisplayNode::handleConfigMessage(String msg) {
 }
 
 void LfpDisplayNode::handleBroadcastMessage(String msg) {
+    DynamicObject::Ptr jsonMessage = JSON::parse(msg).getDynamicObject();
     std::cout<< msg<< std::endl;
     StringArray parts = StringArray::fromTokens(msg, ";", "");
-    if(parts.size() < 3 || (parts[0] != "LFPViewer" && parts[1] != "FILTER")) {
+    String pluginName= jsonMessage -> getProperty("plugin");
+    if(pluginName != "LFPViewer") {
         return;
     }
-    int streamID = parts[2].getIntValue();
-    parts.removeRange(0, 3);
-    displayBufferMap[streamID] -> setFilteredChannels(parts);
-    for(auto split : splitDisplays) {
-        split -> shouldRebuildChannelList = true;
+    String command = jsonMessage -> getProperty("command");
+    DynamicObject::Ptr payload = jsonMessage -> getProperty("payload").getDynamicObject();
+    if(command == "filter") {
+        if(payload.get() == nullptr)
+            return;
+        int streamID = payload -> getProperty("streamID");
+        var indexes = payload -> getProperty("indexes");
+        if(streamID < 0 || indexes.size() == 0 ){
+            return;
+        }
+        StringArray channelNames;
+        for(int i = 0; i < indexes.size(); i++) {
+            channelNames.add("CH"+String(indexes[i]));
+        }
+        displayBufferMap[streamID] -> setFilteredChannels(channelNames);
+        for(auto split : splitDisplays) {
+            split -> shouldRebuildChannelList = true;
+        }
+        
     }
+    
 
 }
 

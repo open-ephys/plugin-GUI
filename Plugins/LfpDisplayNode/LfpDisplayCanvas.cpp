@@ -1707,8 +1707,13 @@ void LfpDisplaySplitter::visibleAreaChanged()
 void LfpDisplaySplitter::refresh()
 {
     updateScreenBuffer();
-
-    lfpDisplay->refresh(); // redraws only the new part of the screen buffer, unless fullredraw is set to true
+    if(shouldRebuildChannelList) {
+        shouldRebuildChannelList = false;
+        lfpDisplay->rebuildDrawableChannelsList(); // calls resized()/refresh() after rebuilding list
+    }
+    else {
+        lfpDisplay->refresh(); // redraws only the new part of the screen buffer, unless fullredraw is set to true
+    }
 }
 
 void LfpDisplaySplitter::comboBoxChanged(juce::ComboBox *comboBox)
