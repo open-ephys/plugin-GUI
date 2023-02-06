@@ -431,13 +431,6 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::AUX][selectedVoltageRange[ContinuousChannel::Type::AUX] - 1].getFloatValue()
         *rangeGain[ContinuousChannel::Type::AUX]
         , ContinuousChannel::Type::AUX);
-    
-    refreshButton = new UtilityButton("Refresh", Font("Default", "Plain", 15));
-    refreshButton->setRadius(5.0f);
-    refreshButton->setEnabledState(true);
-    refreshButton->setCorners(true, true, true, true);
-    refreshButton->addListener(this);
-    addAndMakeVisible(refreshButton.get());
 
 }
 
@@ -472,10 +465,7 @@ void LfpDisplayOptions::resized()
 
     pauseButton->setBounds(680, getHeight() - 40, 70, 30);
     
-    refreshButton->setBounds(765, getHeight() - 40, 70, 30);
-
-    
-    colourSchemeOptionSelection->setBounds(refreshButton->getRight() + 30,
+    colourSchemeOptionSelection->setBounds(pauseButton->getRight() + 30,
         getHeight() - 30,
         180,
         height);
@@ -938,12 +928,6 @@ void LfpDisplayOptions::buttonClicked(Button* b)
     {
         lfpDisplay->pause(b->getToggleState());
         timescale->setPausedState(b->getToggleState());
-        return;
-    }
-    
-    if (b == refreshButton.get())
-    {
-        lfpDisplay->rebuildDrawableChannelsList();
         return;
     }
 

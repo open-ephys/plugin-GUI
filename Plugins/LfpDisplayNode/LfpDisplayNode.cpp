@@ -341,6 +341,9 @@ void LfpDisplayNode::handleBroadcastMessage(String msg) {
     int streamID = parts[2].getIntValue();
     parts.removeRange(0, 3);
     displayBufferMap[streamID] -> setFilteredChannels(parts);
+    for(auto split : splitDisplays) {
+        split -> shouldRebuildChannelList = true;
+    }
 
 }
 

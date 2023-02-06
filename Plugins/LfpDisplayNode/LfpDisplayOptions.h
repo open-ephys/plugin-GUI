@@ -185,8 +185,6 @@ private:
     std::unique_ptr<ComboBox> rangeSelection;
     OwnedArray<UtilityButton> typeButtons;
     
-    ScopedPointer<UtilityButton> refreshButton;
-    
     std::unique_ptr<ComboBox> overlapSelection; // what do we do with this?
     
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
