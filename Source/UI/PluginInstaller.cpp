@@ -1526,18 +1526,19 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 	std::filesystem::path tempSharedPath = tempDir.getChildFile("shared").getFullPathName().toStdString();
 	std::filesystem::path destSharedPath = getSharedDirectory().getFullPathName().toStdString();
 
-
-	const auto copyOptions = std::filesystem::copy_options::overwrite_existing
-                           | std::filesystem::copy_options::recursive
-                           | std::filesystem::copy_options::copy_symlinks
-                           ;
-
-
-	try {
-        std::filesystem::copy(tempSharedPath, destSharedPath, copyOptions);
-    } catch(std::filesystem::filesystem_error& e) {
-        LOGE("Could not copy shared files: \"", e.what(), "\"");
-    }
+	// Copy only if shared files exist
+	if(std::filesystem::exists(tempSharedPath))
+	{
+		const auto copyOptions = std::filesystem::copy_options::overwrite_existing
+								| std::filesystem::copy_options::recursive
+								| std::filesystem::copy_options::copy_symlinks
+								;
+		try {
+			std::filesystem::copy(tempSharedPath, destSharedPath, copyOptions);
+		} catch(std::filesystem::filesystem_error& e) {
+			LOGE("Could not copy shared files: \"", e.what(), "\"");
+		}
+	}
 
 	tempDir.deleteRecursively();
 	pluginFile.deleteFile(); // delete zip after uncompressing
