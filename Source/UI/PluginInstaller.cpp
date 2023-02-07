@@ -1070,6 +1070,7 @@ void PluginInfoComponent::run()
 		LOGD("Download Successfull!!");
 
 		pInfo.installedVersion = pInfo.selectedVersion;
+		installedVerText.setText(pInfo.installedVersion, dontSendNotification);
 		downloadButton.setEnabled(false);
 		downloadButton.setButtonText("Installed");
 		uninstallButton.setVisible(true);
@@ -1355,6 +1356,7 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 	uninstallButton.setVisible(false);
 	downloadButton.setEnabled(true);
 	downloadButton.setButtonText("Install");
+	installedVerText.setText("No", dontSendNotification);
 
 	return true;
 }
