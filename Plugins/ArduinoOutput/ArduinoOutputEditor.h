@@ -53,6 +53,11 @@ public:
 
     void comboBoxChanged(ComboBox* comboBoxThatHasChanged);
 
+    void updateSettings() override;
+
+    void saveCustomParameters(XmlElement *xml) override;
+    void loadCustomParameters(XmlElement *xml) override;
+
     ArduinoOutput* arduino;
 
     ofSerial serial;
@@ -64,6 +69,16 @@ private:
     ScopedPointer<ComboBox> outputChannelSelector;
     ScopedPointer<ComboBox> gateChannelSelector;
     ScopedPointer<ComboBox> deviceSelector;
+
+    String cachedInputChannel;
+    String cachedOutputChannel;
+    String cachedGateChannel;
+    String cachedDevice;
+
+    Array<int> ttlBankIdxLUT;
+    Array<int> ttlBitLUT;
+
+    void RestoreSelectionsFromCache();
 
     void timerCallback();
 
