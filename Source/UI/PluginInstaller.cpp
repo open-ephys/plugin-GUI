@@ -23,6 +23,7 @@
 
 #include "PluginInstaller.h"
 #include <stdio.h>
+#include <filesystem>
 
 #include "../CoreServices.h"
 #include "../AccessClass.h"
@@ -1517,24 +1518,24 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 		}
 	}
 
-	// copy shared files
-	Array<File> sFiles = tempDir.getChildFile("shared").findChildFiles(File::findFilesAndDirectories, false);
+	/* Copy shared files 
+	*  Uses C++17's filesystem::copy functionality to allow copying symlinks
+	*/
+	std::filesystem::path tempSharedPath = tempDir.getChildFile("shared").getFullPathName().toStdString();
+	std::filesystem::path destSharedPath = getSharedDirectory().getFullPathName().toStdString();
 
-	for(int i = 0; i < sFiles.size() ; i++)
-	{	
-		if(sFiles[i].isDirectory())
-			sFiles[i].copyDirectoryTo(getSharedDirectory().getChildFile(sFiles[i].getFileName()));
-		else
-			sFiles[i].copyFileTo(getSharedDirectory().getChildFile(sFiles[i].getFileName()));
-	}
 
-	// copy any extra files
-	Array<File> extraFiles = tempDir.findChildFiles(File::findFiles, false);
+	const auto copyOptions = std::filesystem::copy_options::overwrite_existing
+                           | std::filesystem::copy_options::recursive
+                           | std::filesystem::copy_options::copy_symlinks
+                           ;
 
-	for(int j = 0; j < extraFiles.size() ; j++)
-	{	
-		extraFiles[j].copyFileTo(CoreServices::getSavedStateDirectory().getChildFile(extraFiles[j].getFileName()));
-	}
+
+	try {
+        std::filesystem::copy(tempSharedPath, destSharedPath, copyOptions);
+    } catch(std::filesystem::filesystem_error& e) {
+        LOGE("Could not copy shared files: \"", e.what(), "\"");
+    }
 
 	tempDir.deleteRecursively();
 	pluginFile.deleteFile(); // delete zip after uncompressing

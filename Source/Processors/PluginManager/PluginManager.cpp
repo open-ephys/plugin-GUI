@@ -565,7 +565,7 @@ bool PluginManager::removePlugin(String libName)
 	}
 
 	if(indexToRemove == -1)
-		return false;
+		return true;
 
 	LoadedLibInfo lib = libArray[indexToRemove];
 
