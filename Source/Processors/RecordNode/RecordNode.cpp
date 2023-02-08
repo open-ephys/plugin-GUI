@@ -51,9 +51,9 @@ RecordNode::RecordNode()
 	AudioDeviceManager::AudioDeviceSetup ads;
 	adm.getAudioDeviceSetup(ads);
 	int bufferSize = ads.bufferSize;
+	int blockCount = getBlockCountFromSize(bufferSize);
 
-	//dataQueue = new DataQueue(WRITE_BLOCK_LENGTH, DATA_BUFFER_NBLOCKS);
-	dataQueue = new DataQueue(bufferSize, DATA_BUFFER_NBLOCKS);
+	dataQueue = new DataQueue(bufferSize, blockCount);
 	eventQueue = new EventMsgQueue(EVENT_BUFFER_NEVENTS);
 	spikeQueue = new SpikeMsgQueue(SPIKE_BUFFER_NSPIKES);
 
@@ -80,8 +80,25 @@ RecordNode::~RecordNode()
 
 void RecordNode::updateBlockSize(int newBlockSize)
 {
-	dataQueue = new DataQueue(newBlockSize, DATA_BUFFER_NBLOCKS);
-	LOGD("Updated Record Node buffer size to: ", newBlockSize);
+	int newBlockCount = getBlockCountFromSize(newBlockSize);
+	dataQueue = new DataQueue(newBlockSize, newBlockCount);
+	LOGD("Updated Record Node buffer block size to: ", newBlockSize);
+}
+
+int RecordNode::getBlockCountFromSize(int blockSize)
+{
+	int newCount = DATA_BUFFER_MIN_SAMPLES;
+
+	// This rounds down, so increase the count by one.
+	newCount /= blockSize;
+	newCount++;
+
+	if (newCount < DATA_BUFFER_MIN_BLOCKS)
+		newCount = DATA_BUFFER_MIN_BLOCKS;
+
+	LOGD("Updated Record Node buffer block count to: ", newCount);
+
+	return newCount;
 }
 
 void RecordNode::connectToMessageCenter()

@@ -18,8 +18,9 @@
 
 //#include "taskflow/taskflow.hpp"
 
-#define WRITE_BLOCK_LENGTH		1024
-#define DATA_BUFFER_NBLOCKS		300
+// Formerly 300 blocks, typical block length 1024 samples.
+#define DATA_BUFFER_MIN_SAMPLES		1000000
+#define DATA_BUFFER_MIN_BLOCKS		100
 #define EVENT_BUFFER_NEVENTS	50000
 #define SPIKE_BUFFER_NSPIKES	50000
 
@@ -62,6 +63,7 @@ public:
 
 	/** Update DataQueue block size when Audio Settings buffer size changes */
 	void updateBlockSize(int newBlockSize);
+	int getBlockCountFromSize(int blockSize);
 
     /** If messageCenter event channel is not present in EventChannelArray, add it*/
 	void connectToMessageCenter();
