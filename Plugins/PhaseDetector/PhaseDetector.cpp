@@ -212,7 +212,7 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
 
                             addEvent(ptr, i);
 
-                            //LOGD("PEAK");
+                            //LOGD("[phase detector] PEAK found!");
                         }
 
                         module->currentPhase = FALLING_POS;
