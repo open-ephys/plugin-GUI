@@ -60,7 +60,8 @@ namespace LfpViewer {
                         ContinuousChannel::Type channelType, 
                         bool isRecorded,
                         int group = 0, 
-                        float ypos = 0, 
+                        float ypos = 0,
+                        String description = "",
                         String structure = "None");
 
         /** Initializes the event channel at the start of each buffer */
@@ -87,11 +88,12 @@ namespace LfpViewer {
             String structure = "None";
             ContinuousChannel::Type type;
             bool isRecorded = false;
+            String description = "";
         };
 
         Array<ChannelMetadata> channelMetadata;
         
-        void setFilteredChannels(StringArray channels) {filteredChannels = channels;}
+        void setFilteredChannels(Array<int> channels) {filteredChannels = channels;}
 
         String name;
         int id;
@@ -126,7 +128,7 @@ namespace LfpViewer {
 
         Array<int> displays;
         
-        StringArray filteredChannels;
+        Array<int> filteredChannels;
 
     };
 };
