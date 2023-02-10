@@ -25,7 +25,7 @@ jobs:
         cd Resources/Scripts
         sudo ./install_linux_dependencies.sh
         cd ../../Build && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
-        make all
+        make -j4
 #    - name: test
 #      run: cd build && ctest
     - name: deploy_dev
