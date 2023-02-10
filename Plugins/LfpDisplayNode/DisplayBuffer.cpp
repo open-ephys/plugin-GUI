@@ -41,7 +41,6 @@ DisplayBuffer::DisplayBuffer(int id_, String name_, float sampleRate_) :
     }
 
     ttlState = 0;
-    filteredChannels = StringArray();
 }
 
 DisplayBuffer::~DisplayBuffer()
@@ -65,7 +64,8 @@ void DisplayBuffer::addChannel(
     ContinuousChannel::Type type, 
     bool isRecorded,
     int group, 
-    float ypos, 
+    float ypos,
+    String description,
     String structure)
 {
     ChannelMetadata metadata = ChannelMetadata();
@@ -76,6 +76,7 @@ void DisplayBuffer::addChannel(
     metadata.structure = structure;
     metadata.type = type;
     metadata.isRecorded = isRecorded;
+    metadata.description = description;
 
     channelMetadata.add(metadata);
     channelMap[channelNum] = numChannels;

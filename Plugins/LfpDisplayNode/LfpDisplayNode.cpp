@@ -91,13 +91,14 @@ void LfpDisplayNode::updateSettings()
             displayBufferMap[streamId]->sampleRate = channel->getSampleRate();
             displayBufferMap[streamId]->name = name;
         }
-
+//
         displayBufferMap[streamId]->addChannel(channel->getName(), // name
             ch, // index
             channel->getChannelType(), // type
             channel->isRecorded,
             0, // group
-            channel->position.y // ypos
+            channel->position.y, // ypos
+            channel-> getDescription()
             );
 }
 
@@ -347,10 +348,10 @@ void LfpDisplayNode::handleBroadcastMessage(String msg) {
         if(streamID < 0 || start < 0 || rows < 0 || cols < 0 || colsPerRow < 0){
             return;
         }
-        StringArray channelNames;
+        Array<int> channelNames;
         for(int row = 0; row < rows; row++) {
             for(int col = 0; col < cols; col++) {
-                channelNames.add("CH"+String(start + col + row*colsPerRow));
+                channelNames.add(start + col + row*colsPerRow);
             }
         }
         displayBufferMap[streamID] -> setFilteredChannels(channelNames);
