@@ -28,7 +28,7 @@ private:
 
 	//Compile-time params
 	const int streamBufferSize{ 0 };
-	const int blockArrayInitSize{ 128 };
+	const int blockArrayInitSize{ 8 };
 
 };
 #endif // !SEQUENTIALBLOCKFILE_H

@@ -75,7 +75,7 @@ private:
 	int m_recordingNum;
 	Array<int64> m_startTS;
 
-	const int samplesPerBlock{ 4096 };
+	const int samplesPerBlock{ 1024 * 1024 };
 
 
 };
