@@ -334,7 +334,12 @@ void LfpDisplayNode::acknowledgeTrigger(int id)
 }
 
 void LfpDisplayNode::handleBroadcastMessage(String msg) {
-    DynamicObject::Ptr jsonMessage = JSON::parse(msg).getDynamicObject();
+    var parsedMessage = JSON::parse(msg);
+    if(!parsedMessage.isObject())
+        return;
+    DynamicObject::Ptr jsonMessage = parsedMessage.getDynamicObject();
+    if(jsonMessage == nullptr)
+        return;
     String pluginName= jsonMessage -> getProperty("plugin");
     if(pluginName != "LFPViewer") {
         return;
