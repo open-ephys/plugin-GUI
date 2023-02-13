@@ -127,6 +127,15 @@ void SpikeDisplayCanvas::update()
         SpikePlot* sp = spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i,
                                                    processor->getNameForElectrode(i));
         processor->addSpikePlotForElectrode(sp, i);
+
+        if (shouldApplySavedParams)
+        {
+            for (int j = 0; j < processor->getNumberOfChannelsForElectrode(i); j++)
+            {
+                spikeDisplay->setThresholdForWaveAxis(i,j,thresholds[i][j]);
+                spikeDisplay->setRangeForWaveAxis(i,j,ranges[i][j]);
+            }
+        }
     }
 
     spikeDisplay->resized();
@@ -218,6 +227,10 @@ void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
 
 void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 {
+
+    thresholds.clear();
+    ranges.clear();
+
     for (auto* xmlNode : xml->getChildIterator())
     {
         if (xmlNode->hasTagName("SPIKEDISPLAY"))
@@ -241,28 +254,17 @@ void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 
                     for (auto* channelNode : plotNode->getChildIterator())
                     {
-
                         if (channelNode->hasTagName("AXIS"))
                         {
                             channelIndex++;
-
-                            //std::cout << "CHANNEL NUMBER " << channelIndex << std::endl;
-
-                            spikeDisplay->setThresholdForWaveAxis(plotIndex,
-                                                                  channelIndex,
-                                                                  channelNode->getDoubleAttribute("thresh"));
-
-                            spikeDisplay->setRangeForWaveAxis(plotIndex,
-                                                              channelIndex,
-                                                              channelNode->getDoubleAttribute("range"));
-
+                            thresholds[plotIndex][channelIndex] = channelNode->getDoubleAttribute("thresh");
+                            ranges[plotIndex][channelIndex] = channelNode->getDoubleAttribute("range");
                         }
                     }
-
-
                 }
             }
-
         }
     }
+
+    shouldApplySavedParams = true;
 }

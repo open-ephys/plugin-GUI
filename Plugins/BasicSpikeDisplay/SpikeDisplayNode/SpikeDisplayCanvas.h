@@ -139,6 +139,10 @@ private:
     std::unique_ptr<UtilityButton> lockThresholdsButton;
     std::unique_ptr<UtilityButton> invertSpikesButton;
 
+    std::map<int, std::map<int, double>> ranges;
+    std::map<int, std::map<int, double>> thresholds;
+    bool shouldApplySavedParams = false;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayCanvas);
 
 };
