@@ -93,8 +93,6 @@ namespace LfpViewer {
 
         Array<ChannelMetadata> channelMetadata;
         
-        void setFilteredChannels(Array<int> channels) {filteredChannels = channels;}
-
         String name;
         int id;
 
@@ -127,8 +125,6 @@ namespace LfpViewer {
         void removeDisplay(int splitID);
 
         Array<int> displays;
-        
-        Array<int> filteredChannels;
 
     };
 };
