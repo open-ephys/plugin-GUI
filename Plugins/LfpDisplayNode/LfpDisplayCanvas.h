@@ -353,6 +353,9 @@ public:
     void refreshScreenBuffer();
     
     bool shouldRebuildChannelList = false;
+    
+    void setFilteredChannels(Array<int> channels){filteredChannels = channels;}
+    Array<int> getFilteredChannels(){return filteredChannels;}
 
 private:
 
@@ -394,6 +397,8 @@ private:
     int displayBufferSize;
 
     int scrollBarThickness;
+    
+    Array<int> filteredChannels = Array<int>();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplaySplitter);
 

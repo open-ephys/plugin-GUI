@@ -983,7 +983,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
     Array<LfpChannelTrack> channelsToDraw; // all visible channels will be added to this array
     Array<int> filteredChannels;
     if(canvasSplit -> displayBuffer) {
-        filteredChannels = canvasSplit -> displayBuffer -> filteredChannels;
+        filteredChannels = canvasSplit -> getFilteredChannels();
     }
     // iterate over all channels and select drawable ones
     for (int i = 0, drawableChannelNum = 0, filterChannelIndex = 0; i < channels.size(); i++)
