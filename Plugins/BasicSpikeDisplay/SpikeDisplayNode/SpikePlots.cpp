@@ -84,6 +84,9 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc,
 
         rangeButtons.add(rangeButton);
         setDisplayThresholdForChannel(i, 0);
+
+        if (!canvas->hasCachedDisplaySettings(electrodeNumber, i))
+            canvas->cacheDisplaySettings(electrodeNumber, i, 0, 250.0, false);
     }
 
     monitorButton = std::make_unique<UtilityButton>("MON", Font("Small Text", 8, Font::plain));
@@ -286,6 +289,13 @@ void SpikePlot::buttonClicked(Button* button)
 
     setLimitsOnAxes();
 
+    LOGD("Updating electrode: ", electrodeNumber, " range: ", ranges[index], " index: ", index);
+
+    double threshold = getDisplayThresholdForChannel(index);
+    bool monitorState = monitorButton->getToggleState();
+
+    canvas->cacheDisplaySettings(electrodeNumber, index, threshold, ranges[index], monitorState);
+
 }
 
 void SpikePlot::setLimitsOnAxes()
@@ -368,6 +378,16 @@ void SpikePlot::setRangeForChannel(int i, float range)
     //std::cout << "Setting range to " << range << std::endl;
     waveAxes[i]->setRange(range);
     rangeButtons[i]->setLabel(String(int(range)));
+}
+
+bool SpikePlot::getMonitorState()
+{
+    return monitorButton->getToggleState();
+}
+
+void SpikePlot::setMonitorState(bool state)
+{
+    monitorButton->setToggleState(state, sendNotification);
 }
 
 void SpikePlot::setDetectorThresholdForChannel(int i, float t)

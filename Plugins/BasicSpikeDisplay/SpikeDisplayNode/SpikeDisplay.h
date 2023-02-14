@@ -95,6 +95,12 @@ public:
     /** Sets the range for a given plot*/
     void setRangeForWaveAxis(int plotNum, int axisNum, float range);
 
+    /** Returns the monitor state for a given plot*/
+    bool getMonitorStateForPlot(int plotNum);
+
+    /** Sets the monitor state for a given plot*/
+    void setMonitorStateForPlot(int plotNum, bool monitorState);
+
     /** Allows the threshold coordinator to change thresholds synchronously*/
     void registerThresholdCoordinator(SpikeThresholdCoordinator* stc);
 

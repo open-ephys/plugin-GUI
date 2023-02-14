@@ -114,8 +114,17 @@ public:
     void setDisplayThresholdForChannel(int axisNum, float threshold);
     void setDetectorThresholdForChannel(int, float);
 
+    /** Returns the range for a given channel*/
     float getRangeForChannel(int);
+
+    /** Sets the range for a given channel*/
     void setRangeForChannel(int axisNum, float range);
+
+    /**Returns the monitor state for this electrode */
+    bool getMonitorState();
+
+    /** Sets the monitor state for this electrode */
+    void setMonitorState(bool);
 
     //For locking the tresholds
     void registerThresholdCoordinator(SpikeThresholdCoordinator* stc);

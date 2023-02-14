@@ -59,6 +59,8 @@ void SpikeDisplay::clear()
 SpikePlot* SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum, String name_)
 {
 
+    LOGD("Adding spike plot for electrode: ", electrodeNum, " named: ", name_, " with ", numChannels, " channels");
+
     SpikePlot* spikePlot = new SpikePlot(canvas, electrodeNum, 1000 + numChannels, name_);
     spikePlots.add(spikePlot);
     addAndMakeVisible(spikePlot);
@@ -265,4 +267,16 @@ void SpikeDisplay::setRangeForWaveAxis(int plotNum, int axisNum, float range)
 {
     if (spikePlots.size() > plotNum)
         return spikePlots[plotNum]->setRangeForChannel(axisNum, range);
+}
+
+bool SpikeDisplay::getMonitorStateForPlot(int plotNum)
+{
+    if (spikePlots.size() > plotNum)
+        return spikePlots[plotNum]->getMonitorState();
+}
+
+void SpikeDisplay::setMonitorStateForPlot(int plotNum, bool state)
+{
+    if (spikePlots.size() > plotNum)
+        return spikePlots[plotNum]->setMonitorState(state);
 }

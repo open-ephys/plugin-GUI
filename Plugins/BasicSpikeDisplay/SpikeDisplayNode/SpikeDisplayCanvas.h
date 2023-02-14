@@ -125,6 +125,12 @@ public:
     /** Pointer to the underlying SpikeDisplayNode*/
     SpikeDisplayNode* processor;
 
+    void cacheDisplaySettings(int electrodeIndex, int channelIndex, double threshold, double range, bool isMonitored);
+
+    bool hasCachedDisplaySettings(int electrodeIndex, int channelIndex);
+
+    void invalidateDisplaySettings(int electrodeIndex);
+
 private:
 
     std::unique_ptr<SpikeDisplay> spikeDisplay;
@@ -141,7 +147,7 @@ private:
 
     std::map<int, std::map<int, double>> ranges;
     std::map<int, std::map<int, double>> thresholds;
-    bool shouldApplySavedParams = false;
+    std::map<int, bool> monitors;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayCanvas);
 

@@ -110,6 +110,25 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
     update();
 }
 
+void SpikeDisplayCanvas::cacheDisplaySettings(int electrode, int channel, double threshold, double range, bool isMonitored)
+{
+    thresholds[electrode][channel] = threshold;
+    ranges[electrode][channel] = range;
+    monitors[electrode] = isMonitored;
+}
+
+bool SpikeDisplayCanvas::hasCachedDisplaySettings(int electrode, int channel)
+{
+    return thresholds[electrode].count(channel) > 0;
+}
+
+void SpikeDisplayCanvas::invalidateDisplaySettings(int electrodeIndex)
+{
+    thresholds.erase(electrodeIndex);
+    ranges.erase(electrodeIndex);
+    monitors.erase(electrodeIndex);
+}
+
 
 void SpikeDisplayCanvas::update()
 {
@@ -128,21 +147,26 @@ void SpikeDisplayCanvas::update()
                                                    processor->getNameForElectrode(i));
         processor->addSpikePlotForElectrode(sp, i);
 
-        if (shouldApplySavedParams)
+        if (monitors.size())
         {
+
+            spikeDisplay->setMonitorStateForPlot(i, monitors[i]);
+
             for (int j = 0; j < processor->getNumberOfChannelsForElectrode(i); j++)
             {
+
+                LOGD("Updating spike plot: ", i, " channel: ", j, " threshold: ", thresholds[i][j], " range: ", ranges[i][j])
                 spikeDisplay->setThresholdForWaveAxis(i,j,thresholds[i][j]);
                 spikeDisplay->setRangeForWaveAxis(i,j,ranges[i][j]);
+                spikeDisplay->setMonitorStateForPlot(i,monitors[i]);
             }
+
         }
     }
 
     spikeDisplay->resized();
     
 }
-
-
 
 void SpikeDisplayCanvas::refreshState()
 {
@@ -215,11 +239,14 @@ void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
     {
         XmlElement* plotNode = xmlNode->createNewChildElement("PLOT");
 
+        plotNode->setAttribute("isMonitored", spikeDisplay->getMonitorStateForPlot(i));
+
         for (int j = 0; j < spikeDisplay->getNumChannelsForPlot(i); j++)
         {
             XmlElement* axisNode = plotNode->createNewChildElement("AXIS");
             axisNode->setAttribute("thresh",spikeDisplay->getThresholdForWaveAxis(i,j));
             axisNode->setAttribute("range",spikeDisplay->getRangeForWaveAxis(i,j));
+
         }
     }
 
@@ -248,6 +275,8 @@ void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 
                     plotIndex++;
 
+                    monitors[plotIndex] = plotNode->getBoolAttribute("isMonitored");
+
                     //std::cout << "PLOT NUMBER " << plotIndex << std::endl;
 
                     int channelIndex = -1;
@@ -266,5 +295,4 @@ void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
         }
     }
 
-    shouldApplySavedParams = true;
 }

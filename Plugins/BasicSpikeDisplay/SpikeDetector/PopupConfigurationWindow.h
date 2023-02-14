@@ -105,7 +105,7 @@ public:
         for (int i = 0; i < newChannels.size(); i++)
         {
             newArray.add(newChannels[i]);
-            std::cout << "Channel " << newChannels[i] << " selected" << std::endl;
+            LOGD("Channel ", newChannels[i], " selected");
         }
         
         String s = "[";
