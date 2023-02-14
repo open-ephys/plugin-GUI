@@ -90,6 +90,10 @@ public:
 	/** Called for registering parameters */
 	virtual void setParameter(EngineParameter& parameter);
 
+	/** Called for indirectly changing parameters. */
+	/** This tells the manager to change its copy of the parameter, which gets propagated back here via setParameter(). */
+	void setManagerParameter(EngineParameter& parameter);
+
 	/** Called when recording starts to open all needed files */
 	virtual void openFiles(File rootFolder, int experimentNumber, int recordingNumber) = 0;
 

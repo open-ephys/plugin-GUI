@@ -19,7 +19,7 @@
 //#include "taskflow/taskflow.hpp"
 
 // Formerly 300 blocks, typical block length 1024 samples.
-#define DATA_BUFFER_MIN_SAMPLES		1000000
+#define DATA_BUFFER_MIN_SAMPLES		300000
 #define DATA_BUFFER_MIN_BLOCKS		100
 #define EVENT_BUFFER_NEVENTS	50000
 #define SPIKE_BUFFER_NSPIKES	50000
@@ -46,6 +46,14 @@ class RecordNode : public GenericProcessor, public FilenameComponentListener
 {
 
 public:
+
+    enum MemBufferScale
+    {
+        // These need to be combobox-compatible (nonzero).
+        BUFSIZE_SMALL = 1,
+        BUFSIZE_MEDIUM = 2,
+        BUFSIZE_LARGE = 3
+    };
 
     /** Constructor
       - Creates: DataQueue, EventQueue, SpikeQueue, Synchronizer,
@@ -112,6 +120,7 @@ public:
 	std::vector<RecordEngineManager*> getAvailableRecordEngines();
 
 	void setEngine(int selectedEngineIndex);
+	void setMemBufScale(MemBufferScale newScale);
 	void setRecordEvents(bool);
 	void setRecordSpikes(bool);
 	void setDataDirectory(File);
@@ -186,6 +195,7 @@ public:
 
 	bool recordEvents;
 	bool recordSpikes;
+	MemBufferScale dataBufferScale;
 
 	ScopedPointer<EventMonitor> eventMonitor;
 
