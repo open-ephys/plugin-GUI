@@ -18,8 +18,9 @@
 
 //#include "taskflow/taskflow.hpp"
 
-#define WRITE_BLOCK_LENGTH		1024
-#define DATA_BUFFER_NBLOCKS		300
+// Formerly 300 blocks, typical block length 1024 samples.
+#define DATA_BUFFER_MIN_SAMPLES		300000
+#define DATA_BUFFER_MIN_BLOCKS		100
 #define EVENT_BUFFER_NEVENTS	50000
 #define SPIKE_BUFFER_NSPIKES	50000
 
@@ -46,6 +47,14 @@ class RecordNode : public GenericProcessor, public FilenameComponentListener
 
 public:
 
+    enum MemBufferScale
+    {
+        // These need to be combobox-compatible (nonzero).
+        BUFSIZE_SMALL = 1,
+        BUFSIZE_MEDIUM = 2,
+        BUFSIZE_LARGE = 3
+    };
+
     /** Constructor
       - Creates: DataQueue, EventQueue, SpikeQueue, Synchronizer,
         RecordThread, EventMonitor
@@ -62,6 +71,7 @@ public:
 
 	/** Update DataQueue block size when Audio Settings buffer size changes */
 	void updateBlockSize(int newBlockSize);
+	int getBlockCountFromSize(int blockSize);
 
     /** If messageCenter event channel is not present in EventChannelArray, add it*/
 	void connectToMessageCenter();
@@ -110,6 +120,7 @@ public:
 	std::vector<RecordEngineManager*> getAvailableRecordEngines();
 
 	void setEngine(int selectedEngineIndex);
+	void setMemBufScale(MemBufferScale newScale);
 	void setRecordEvents(bool);
 	void setRecordSpikes(bool);
 	void setDataDirectory(File);
@@ -184,6 +195,7 @@ public:
 
 	bool recordEvents;
 	bool recordSpikes;
+	MemBufferScale dataBufferScale;
 
 	ScopedPointer<EventMonitor> eventMonitor;
 

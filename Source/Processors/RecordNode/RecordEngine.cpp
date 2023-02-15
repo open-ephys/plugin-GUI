@@ -39,6 +39,27 @@ RecordEngine::~RecordEngine() {}
 
 void RecordEngine::setParameter(EngineParameter& parameter) {}
 
+void RecordEngine::setManagerParameter(EngineParameter& parameter)
+{
+	if (manager != nullptr)
+	{
+		for (int i = 0; i < manager->getNumParameters(); ++i)
+			if ( (manager->getParameter(i).id == parameter.id) && (manager->getParameter(i).type == parameter.type) )
+			{
+				// This is a nontrivial structure so it doesn't automatically have an assignment operator.
+				switch (parameter.type)
+				{
+				case EngineParameter::STR: manager->getParameter(i).strParam.value = parameter.strParam.value; break;
+				case EngineParameter::INT: manager->getParameter(i).intParam.value = parameter.intParam.value; break;
+				case EngineParameter::FLOAT: manager->getParameter(i).floatParam.value = parameter.floatParam.value; break;
+				case EngineParameter::BOOL: manager->getParameter(i).boolParam.value = parameter.boolParam.value; break;
+				case EngineParameter::MULTI: manager->getParameter(i).multiParam.value = parameter.multiParam.value; break;
+				default: break;
+				}
+			}
+	}
+}
+
 void RecordEngine::resetChannels() {}
 
 void RecordEngine::registerRecordNode(RecordNode* node)

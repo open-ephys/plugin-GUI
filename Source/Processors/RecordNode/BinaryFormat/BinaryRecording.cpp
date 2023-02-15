@@ -4,6 +4,8 @@
 
 #define MAX_BUFFER_SIZE 40960
 
+#define MIN_SAMPLES_PER_BLOCK 65536
+
 BinaryRecording::BinaryRecording()
 {
     m_bufferSize = MAX_BUFFER_SIZE;
@@ -26,6 +28,21 @@ String BinaryRecording::getProcessorString(const InfoObjectCommon* channelInfo)
     fName += "." + String(channelInfo->getSubProcessorIdx());
 	fName += File::separatorString;
 	return fName;
+}
+
+int BinaryRecording::getSamplesPerBlock()
+{
+	int blockSamps = MIN_SAMPLES_PER_BLOCK;
+
+	switch (m_blockSizeBoost)
+	{
+	case BINBLOCK_SMALL: break;
+	case BINBLOCK_MEDIUM: blockSamps *= 4; break;
+	case BINBLOCK_LARGE: blockSamps *= 16; break;
+	default: break;
+	}
+
+	return blockSamps;
 }
 
 void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recordingNumber)
@@ -120,6 +137,8 @@ void BinaryRecording::openFiles(File rootFolder, int experimentNumber, int recor
         }
         lastId = indexedDataChannels.size();
     }
+
+    int samplesPerBlock = getSamplesPerBlock();
 
     int nFiles = continuousFileNames.size();
     for (int i = 0; i < nFiles; i++)
@@ -687,13 +706,22 @@ RecordEngineManager* BinaryRecording::getEngineManager()
 {
     RecordEngineManager* man = new RecordEngineManager("RAWBINARY", "Binary",
                                                        &(engineFactory<BinaryRecording>));
-    EngineParameter* param;
-    param = new EngineParameter(EngineParameter::BOOL, 0, "Record TTL full words", true);
-    man->addParameter(param);
+
+    // Parameters are put into an OwnedArray, so allocate them here but don't worry about de-allocating them.
+
+    EngineParameter* paramttl;
+    paramttl = new EngineParameter(EngineParameter::BOOL, BINPARAM_TTLFULLWORDS, "Record TTL full words", true);
+    man->addParameter(paramttl);
+
+    EngineParameter* paramblock;
+    paramblock = new EngineParameter(EngineParameter::INT, BINPARAM_BLOCKSIZE, "Hint for SequentialBlockFile block size", BINBLOCK_SMALL, BINBLOCK_SMALL, BINBLOCK_LARGE);
+    man->addParameter(paramblock);
+
     return man;
 }
 
 void BinaryRecording::setParameter(EngineParameter& parameter)
 {
-	boolParameter(0, m_saveTTLWords);
+	boolParameter(BINPARAM_TTLFULLWORDS, m_saveTTLWords);
+	intParameter(BINPARAM_BLOCKSIZE, m_blockSizeBoost);
 }

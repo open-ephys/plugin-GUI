@@ -63,7 +63,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	dataPathLabel = new Label(CoreServices::getRecordingDirectory().getFullPathName());
 	dataPathLabel->setText(CoreServices::getRecordingDirectory().getFullPathName(), juce::NotificationType::dontSendNotification);
 	dataPathLabel->setTooltip(dataPathLabel->getText());
-	dataPathLabel->setBounds(42,35,72,20);
+	dataPathLabel->setBounds(42,35,132,20);
 	dataPathLabel->setColour(Label::backgroundColourId, Colours::grey);
 	dataPathLabel->setColour(Label::backgroundWhenEditingColourId, Colours::white);
 	dataPathLabel->setJustificationType(Justification::centredLeft);
@@ -71,7 +71,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	addAndMakeVisible(dataPathLabel);
 
 	dataPathButton = new UtilityButton("...", Font(12));
-	dataPathButton->setBounds(117, 35, 18, 20);
+	dataPathButton->setBounds(177, 35, 18, 20);
 	dataPathButton->addListener(this);
 	addAndMakeVisible(dataPathButton);
 
@@ -116,7 +116,28 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode, bool useDefaultParame
 	addAndMakeVisible(writeSpeedLabel);
 	*/
 
-	desiredWidth = 150;
+	bufferSizeLabelA = new Label("bufferSizeA", "Write");
+	bufferSizeLabelA->setBounds(145, 66, 50, 16);
+	bufferSizeLabelA->setFont(Font("Small Text", 12.0f, Font::plain));
+	addAndMakeVisible(bufferSizeLabelA);
+
+	bufferSizeLabelB = new Label("bufferSizeB", "Buffer");
+	bufferSizeLabelB->setBounds(145, 83, 50, 16);
+	bufferSizeLabelB->setFont(Font("Small Text", 12.0f, Font::plain));
+	addAndMakeVisible(bufferSizeLabelB);
+
+	bufferSizeCombo = new ComboBox("bufferSizeCombo");
+	bufferSizeCombo->setBounds(150, 104, 45, 20);
+
+        bufferSizeCombo->addItem("SM", RecordNode::BUFSIZE_SMALL);
+        bufferSizeCombo->addItem("MED", RecordNode::BUFSIZE_MEDIUM);
+        bufferSizeCombo->addItem("LG", RecordNode::BUFSIZE_LARGE);
+
+	bufferSizeCombo->setSelectedId(RecordNode::BUFSIZE_SMALL);
+	bufferSizeCombo->addListener(this);
+	addAndMakeVisible(bufferSizeCombo);
+
+	desiredWidth = 210;
 
 	startTimer(500);
 
@@ -135,6 +156,7 @@ void RecordNodeEditor::saveCustomParameters(XmlElement* xml)
     xmlNode->setAttribute ("engine", engineSelectCombo->getSelectedId());
 	xmlNode->setAttribute ("recordEvents", eventRecord->getToggleState());
 	xmlNode->setAttribute ("recordSpikes", spikeRecord->getToggleState());
+	xmlNode->setAttribute("writeBufSize", bufferSizeCombo->getSelectedId());
 
 	//Save channel states:
 	for (auto srcID : extract_keys(recordNode->dataChannelStates))
@@ -180,6 +202,7 @@ void RecordNodeEditor::loadCustomParameters(XmlElement* xml)
 			engineSelectCombo->setSelectedId(xmlNode->getStringAttribute("engine").getIntValue());
 			eventRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordEvents").getIntValue()), juce::NotificationType::sendNotification);
 			spikeRecord->setToggleState((bool)(xmlNode->getStringAttribute("recordSpikes").getIntValue()), juce::NotificationType::sendNotification);
+			bufferSizeCombo->setSelectedId(xmlNode->getStringAttribute("writeBufSize").getIntValue(), juce::NotificationType::sendNotification);
 
 			//std::cout << "Loading RecordNode settings" << std::endl;
 
@@ -233,6 +256,7 @@ void RecordNodeEditor::timerCallback()
 		engineSelectCombo->setEnabled(false);
 		eventRecord->setEnabled(false);
 		spikeRecord->setEnabled(false);
+		bufferSizeCombo->setEnabled(false);
 	}
 	else if (!dataPathButton->isEnabled() && !recordNode->recordThread->isThreadRunning())
 	{
@@ -240,6 +264,7 @@ void RecordNodeEditor::timerCallback()
 		engineSelectCombo->setEnabled(true);
 		eventRecord->setEnabled(true);
 		spikeRecord->setEnabled(true);
+		bufferSizeCombo->setEnabled(true);
 	}
 
 }
@@ -249,18 +274,23 @@ void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 
 	if (!recordNode->recordThread->isThreadRunning())
 	{
-		uint8 selectedEngineIndex = box->getSelectedId();
-
-		//Prevent using OpenEphys format if > 300 channels coming into Record Node
-		if (recordNode->getNumInputs() > 300 && selectedEngineIndex == 2)
+		if (box == engineSelectCombo)
 		{
-			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
-				"WARNING!", "Open Ephys format does not support > 300 channels. Resetting to Binary format");
-			box->setSelectedItemIndex(0);
-			recordNode->setEngine(0);
-			return;
+			uint8 selectedEngineIndex = box->getSelectedId();
+
+			//Prevent using OpenEphys format if > 300 channels coming into Record Node
+			if (recordNode->getNumInputs() > 300 && selectedEngineIndex == 2)
+			{
+				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
+					"WARNING!", "Open Ephys format does not support > 300 channels. Resetting to Binary format");
+				box->setSelectedItemIndex(0);
+				recordNode->setEngine(0);
+				return;
+			}
+			recordNode->setEngine(selectedEngineIndex-1);
 		}
-		recordNode->setEngine(selectedEngineIndex-1);
+		else if (box == bufferSizeCombo)
+			recordNode->setMemBufScale( (RecordNode::MemBufferScale) (box->getSelectedId()) );
 	}
 
 }
@@ -463,6 +493,18 @@ void RecordNodeEditor::showSubprocessorFifos(bool show)
 	spikeRecord->setBounds(
 		spikeRecord->getX() + dX, spikeRecord->getY(),
 		spikeRecord->getWidth(), spikeRecord->getHeight());
+
+	bufferSizeLabelA->setBounds(
+		bufferSizeLabelA->getX() + dX, bufferSizeLabelA->getY(),
+		bufferSizeLabelA->getWidth(), bufferSizeLabelA->getHeight());
+
+	bufferSizeLabelB->setBounds(
+		bufferSizeLabelB->getX() + dX, bufferSizeLabelB->getY(),
+		bufferSizeLabelB->getWidth(), bufferSizeLabelB->getHeight());
+
+	bufferSizeCombo->setBounds(
+		bufferSizeCombo->getX() + dX, bufferSizeCombo->getY(),
+		bufferSizeCombo->getWidth(), bufferSizeCombo->getHeight());
 
 	for (auto spl : subProcLabels)
 		spl->setVisible(show);

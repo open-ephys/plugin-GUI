@@ -12,12 +12,26 @@
 class BinaryRecording : public RecordEngine
 {
 public:
+	enum BinaryRecordingParams
+	{
+		BINPARAM_TTLFULLWORDS = 0,
+		BINPARAM_BLOCKSIZE = 1
+	};
+
+	enum BinaryRecordingBlockScale
+	{
+		BINBLOCK_SMALL = 0,
+		BINBLOCK_MEDIUM = 1,
+		BINBLOCK_LARGE = 2
+	};
+
 	BinaryRecording();
 	~BinaryRecording();
 
 	String getEngineID() const override;
 
 	void openFiles(File rootFolder, int experimentNumber, int recordingNumber) override;
+	int getSamplesPerBlock(void);
 	void closeFiles() override;
 	void resetChannels() override;
 	void writeData(int writeChannel, int realChannel, const float* buffer, int size) override;
@@ -48,6 +62,7 @@ private:
     void increaseEventCounts(EventRecording* rec);
 
     bool m_saveTTLWords{ true };
+    int m_blockSizeBoost{ BINBLOCK_SMALL };
 
 	HeapBlock<float> m_scaledBuffer;
 	HeapBlock<int16> m_intBuffer;
@@ -74,9 +89,6 @@ private:
 
 	int m_recordingNum;
 	Array<int64> m_startTS;
-
-	const int samplesPerBlock{ 4096 };
-
 
 };
 #endif

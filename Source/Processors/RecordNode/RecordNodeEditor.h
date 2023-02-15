@@ -128,6 +128,7 @@ public:
     ScopedPointer<FifoDrawerButton> fifoDrawerButton;
 
 	ScopedPointer<ComboBox> engineSelectCombo;
+	ScopedPointer<ComboBox> bufferSizeCombo;
 
 	void setDataDirectory(String dir);
 
@@ -150,6 +151,7 @@ private:
 	ScopedPointer<RecordToggleButton> eventRecord;
 	ScopedPointer<Label> recordSpikesLabel;
 	ScopedPointer<RecordToggleButton> spikeRecord;
+	ScopedPointer<Label> bufferSizeLabelA, bufferSizeLabelB;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNodeEditor);
 

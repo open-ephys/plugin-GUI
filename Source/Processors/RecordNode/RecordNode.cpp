@@ -42,7 +42,8 @@ RecordNode::RecordNode()
 	settingsNeeded(false),
 	receivedSoftwareTime(false),
     numSubprocessors(0),
-	isConnectedToMessageCenter(false)
+	isConnectedToMessageCenter(false),
+	dataBufferScale(RecordNode::BUFSIZE_SMALL)
 {
 	setProcessorType(PROCESSOR_TYPE_RECORD_NODE);
 
@@ -51,9 +52,9 @@ RecordNode::RecordNode()
 	AudioDeviceManager::AudioDeviceSetup ads;
 	adm.getAudioDeviceSetup(ads);
 	int bufferSize = ads.bufferSize;
+	int blockCount = getBlockCountFromSize(bufferSize);
 
-	//dataQueue = new DataQueue(WRITE_BLOCK_LENGTH, DATA_BUFFER_NBLOCKS);
-	dataQueue = new DataQueue(bufferSize, DATA_BUFFER_NBLOCKS);
+	dataQueue = new DataQueue(bufferSize, blockCount);
 	eventQueue = new EventMsgQueue(EVENT_BUFFER_NEVENTS);
 	spikeQueue = new SpikeMsgQueue(SPIKE_BUFFER_NSPIKES);
 
@@ -80,8 +81,33 @@ RecordNode::~RecordNode()
 
 void RecordNode::updateBlockSize(int newBlockSize)
 {
-	dataQueue = new DataQueue(newBlockSize, DATA_BUFFER_NBLOCKS);
-	LOGD("Updated Record Node buffer size to: ", newBlockSize);
+	int newBlockCount = getBlockCountFromSize(newBlockSize);
+	dataQueue = new DataQueue(newBlockSize, newBlockCount);
+	LOGD("Updated Record Node buffer block size to: ", newBlockSize);
+}
+
+int RecordNode::getBlockCountFromSize(int blockSize)
+{
+	int newCount = DATA_BUFFER_MIN_SAMPLES;
+
+	switch (dataBufferScale)
+	{
+	case BUFSIZE_SMALL: break;
+	case BUFSIZE_MEDIUM: newCount *= 2; break;
+	case BUFSIZE_LARGE: newCount *= 4; break;
+	default: break;
+	}
+
+	// This rounds down, so increase the count by one.
+	newCount /= blockSize;
+	newCount++;
+
+	if (newCount < DATA_BUFFER_MIN_BLOCKS)
+		newCount = DATA_BUFFER_MIN_BLOCKS;
+
+	LOGD("Updated Record Node buffer block count to: ", newCount);
+
+	return newCount;
 }
 
 void RecordNode::connectToMessageCenter()
@@ -722,6 +748,33 @@ void RecordNode::stopRecording()
 
 	eventMonitor->displayStatus();
 
+}
+
+void RecordNode::setMemBufScale(MemBufferScale newScale)
+{
+	this->dataBufferScale = newScale;
+
+	// If we have a recording engine sensitive to scale, notify it too.
+	if (recordEngine != nullptr)
+	{
+		// Check individual engines here.
+		if (recordEngine->getEngineID() =="RAWBINARY")
+		{
+			int translatedScale = BinaryRecording::BINBLOCK_SMALL;
+			switch (newScale)
+			{
+			case BUFSIZE_SMALL: translatedScale = BinaryRecording::BINBLOCK_SMALL; break;
+			case BUFSIZE_MEDIUM: translatedScale = BinaryRecording::BINBLOCK_MEDIUM; break;
+			case BUFSIZE_LARGE: translatedScale = BinaryRecording::BINBLOCK_LARGE; break;
+			default: break;
+			}
+
+			EngineParameter scratchparam(EngineParameter::INT, BinaryRecording::BINPARAM_BLOCKSIZE, "Copy of binary format block size", translatedScale, BinaryRecording::BINBLOCK_SMALL, BinaryRecording::BINBLOCK_LARGE);
+			recordEngine->setParameter(scratchparam);
+			// If we have a manager, we need to tell it what settings to use as well, since it'll reset the engine's settings.
+			recordEngine->setManagerParameter(scratchparam);
+		}
+	}
 }
 
 void RecordNode::setRecordEvents(bool recordEvents)
