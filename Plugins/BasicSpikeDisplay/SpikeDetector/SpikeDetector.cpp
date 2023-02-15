@@ -818,7 +818,7 @@ void SpikeDetector::loadCustomParametersFromXml(XmlElement* xml)
 
             SpikeChannel::Type type = SpikeChannel::typeFromNumChannels(spikeParamsXml->getIntAttribute("num_channels", 1));
 
-            if (!alreadyLoaded(name, type, stream_source))
+            if (!alreadyLoaded(name, type, stream_source, stream_name))
             {
                 uint16 streamId = findSimilarStream(stream_source, stream_name, sample_rate, true);
 
@@ -849,7 +849,7 @@ void SpikeDetector::loadCustomParametersFromXml(XmlElement* xml)
     }
 }
 
-bool SpikeDetector::alreadyLoaded(String name, SpikeChannel::Type type, int stream_source)
+bool SpikeDetector::alreadyLoaded(String name, SpikeChannel::Type type, int stream_source, String stream_name)
 {
     //std::cout << "Next channel: " << name << ", " << (int) type << ", " << stream_source << std::endl;
 
@@ -862,7 +862,9 @@ bool SpikeDetector::alreadyLoaded(String name, SpikeChannel::Type type, int stre
             
             //std::cout << "LOCAL" << std::endl;
 
-            if (ch->getName() == name && ch->getChannelType() == type && getDataStream(ch->getStreamId())->getSourceNodeId() == stream_source)
+            if (ch->getName() == name && ch->getChannelType() == type
+                && getDataStream(ch->getStreamId())->getSourceNodeId() == stream_source
+                && getDataStream(ch->getStreamId())->getName() == stream_name)
             {
                 //std::cout << "found match." << std::endl;
                 return true;

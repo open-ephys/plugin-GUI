@@ -364,7 +364,6 @@ float SpikePlot::getDisplayThresholdForChannel(int i)
 
 void SpikePlot::setDisplayThresholdForChannel(int i, float thresh)
 {
-    //std::cout << "Setting threshold to " << thresh << std::endl;
     waveAxes[i]->setDisplayThreshold(thresh);
 }
 
