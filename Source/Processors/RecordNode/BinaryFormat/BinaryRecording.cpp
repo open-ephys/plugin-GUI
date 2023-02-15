@@ -41,8 +41,6 @@ int BinaryRecording::getSamplesPerBlock()
 	case BINBLOCK_LARGE: blockSamps *= 16; break;
 	default: break;
 	}
-// FIXME - Diagnostics.
-std::cerr << "[BinaryRecording]  getSamplesPerBlock() returns: " << blockSamps << "\n";
 
 	return blockSamps;
 }
