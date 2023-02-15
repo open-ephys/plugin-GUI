@@ -194,7 +194,7 @@ class GenericAxes : public Component
 public:
 
     /** Constructor */
-    GenericAxes(SpikePlotType type);
+    GenericAxes(SpikeDisplayCanvas* canvas, SpikePlotType type);
 
     /** Destructor */
     virtual ~GenericAxes() { }
@@ -213,6 +213,8 @@ public:
 
     /** Helper function for creating units labels*/
     void makeLabel(int val, int gain, bool convert, char* s);
+
+    SpikeDisplayCanvas* canvas;
 
 protected:
     double xlims[2];
@@ -242,7 +244,7 @@ class WaveAxes : public GenericAxes
 public:
 
     /** Constructor*/
-    WaveAxes(int channel);
+    WaveAxes(SpikeDisplayCanvas* canvas, int electrodeIndex, int channel);
 
     /** Destructor*/
     ~WaveAxes() {}
@@ -292,6 +294,7 @@ private:
     Colour thresholdColour;
     Colour gridColour;
     
+    int electrodeIndex;
     int channel;
 
     bool drawGrid;
@@ -336,7 +339,7 @@ class ProjectionAxes : public GenericAxes
 public:
 
     /** Constructor */
-    ProjectionAxes(Projection proj);
+    ProjectionAxes(SpikeDisplayCanvas* canvas, Projection proj);
 
     /** Destructor*/
     ~ProjectionAxes() { }

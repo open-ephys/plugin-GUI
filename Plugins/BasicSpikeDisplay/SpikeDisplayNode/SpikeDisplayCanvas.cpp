@@ -117,6 +117,11 @@ void SpikeDisplayCanvas::cacheDisplaySettings(int electrode, int channel, double
     monitors[electrode] = isMonitored;
 }
 
+void SpikeDisplayCanvas::cacheDisplayThreshold(int electrode, int channel, double threshold)
+{
+    thresholds[electrode][channel] = threshold;
+}
+
 bool SpikeDisplayCanvas::hasCachedDisplaySettings(int electrode, int channel)
 {
     return thresholds[electrode].count(channel) > 0;

@@ -127,6 +127,8 @@ public:
 
     void cacheDisplaySettings(int electrodeIndex, int channelIndex, double threshold, double range, bool isMonitored);
 
+    void cacheDisplayThreshold(int electrodeIndex, int channelIndex, double threshold);
+
     bool hasCachedDisplaySettings(int electrodeIndex, int channelIndex);
 
     void invalidateDisplaySettings(int electrodeIndex);
