@@ -239,8 +239,6 @@ private:
     juce::Colour textColour;
     bool acquisitionIsActive;
     
-    int numChannels;
-    
     Array<FloatParameter*> dyn_thresholds;
     Array<FloatParameter*> abs_thresholds;
     Array<FloatParameter*> std_thresholds;

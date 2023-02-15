@@ -226,7 +226,6 @@ void PopupThresholdComponent::buttonClicked(Button* button)
 
 ThresholdSelectorCustomComponent::ThresholdSelectorCustomComponent(SpikeChannel* channel_, bool acquisitionIsActive_)
     : channel(channel_),
-      numChannels(channel_->getNumChannels()),
       acquisitionIsActive(acquisitionIsActive_)
 {
     thresholder_type = (CategoricalParameter*) channel->getParameter("thrshlder_type");
@@ -253,7 +252,7 @@ void ThresholdSelectorCustomComponent::mouseDown(const MouseEvent& event)
     auto* popupComponent = new PopupThresholdComponent(table,
                                                        this,
                                                        row,
-                                                       numChannels,
+                                                       channel->getNumChannels(),
                                                        ThresholderType(thresholder_type->getSelectedIndex()),
                                                        abs_thresholds,
                                                        std_thresholds,
@@ -288,6 +287,7 @@ void ThresholdSelectorCustomComponent::setSpikeChannel(SpikeChannel* ch)
         std_thresholds.add((FloatParameter*)channel->getParameter("std_threshold" + String(ch + 1)));
         dyn_thresholds.add((FloatParameter*)channel->getParameter("dyn_threshold" + String(ch + 1)));
     }
+
 }
 
 void ThresholdSelectorCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
@@ -317,7 +317,7 @@ void ThresholdSelectorCustomComponent::paint(Graphics& g)
             break;
     }
     
-    for (int i = 0; i < numChannels; i++)
+    for (int i = 0; i < channel->getNumChannels(); i++)
     {
         switch (thresholder_type->getSelectedIndex())
         {
@@ -762,7 +762,7 @@ void SpikeDetectorTableModel::update(Array<SpikeChannel*> spikeChannels_)
     waveformComponents.clear();
     thresholdComponents.clear();
     
-     for (int i = 0; i < getNumRows(); i++)
+    for (int i = 0; i < getNumRows(); i++)
     {
            
        Component* c = table->getCellComponent(SpikeDetectorTableModel::Columns::THRESHOLD, i);
