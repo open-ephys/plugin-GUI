@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -58,11 +58,9 @@ namespace SocketHelpers
 
         if (! socketsStarted)
         {
-            socketsStarted = true;
-
             WSADATA wsaData;
             const WORD wVersionRequested = MAKEWORD (1, 1);
-            WSAStartup (wVersionRequested, &wsaData);
+            socketsStarted = WSAStartup (wVersionRequested, &wsaData) == 0;
         }
        #endif
     }
@@ -93,15 +91,16 @@ namespace SocketHelpers
                                : setOption (handle, IPPROTO_TCP, TCP_NODELAY, (int) 1));
     }
 
-    static void closeSocket (std::atomic<int>& handle, CriticalSection& readLock,
-                             bool isListener, int portNumber, std::atomic<bool>& connected) noexcept
+    static void closeSocket (std::atomic<int>& handle,
+                             [[maybe_unused]] CriticalSection& readLock,
+                             [[maybe_unused]] bool isListener,
+                             [[maybe_unused]] int portNumber,
+                             std::atomic<bool>& connected) noexcept
     {
         const auto h = (SocketHandle) handle.load();
         handle = -1;
 
        #if JUCE_WINDOWS
-        ignoreUnused (portNumber, isListener, readLock);
-
         if (h != invalidSocket || connected)
             closesocket (h);
 
@@ -132,7 +131,7 @@ namespace SocketHelpers
                 // a chance to process before close is called. On Mac OS X shutdown
                 // does not unblock a select call, so using a lock here will dead-lock
                 // both threads.
-               #if JUCE_LINUX || JUCE_ANDROID
+               #if JUCE_LINUX || JUCE_BSD || JUCE_ANDROID
                 CriticalSection::ScopedLockType lock (readLock);
                 ::close (h);
                #else
@@ -773,14 +772,12 @@ bool DatagramSocket::setMulticastLoopbackEnabled (bool enable)
     return SocketHelpers::setOption<bool> ((SocketHandle) handle.load(), IPPROTO_IP, IP_MULTICAST_LOOP, enable);
 }
 
-bool DatagramSocket::setEnablePortReuse (bool enabled)
+bool DatagramSocket::setEnablePortReuse ([[maybe_unused]] bool enabled)
 {
-   #if JUCE_ANDROID
-    ignoreUnused (enabled);
-   #else
+   #if ! JUCE_ANDROID
     if (handle >= 0)
         return SocketHelpers::setOption ((SocketHandle) handle.load(),
-                                        #if JUCE_WINDOWS || JUCE_LINUX
+                                        #if JUCE_WINDOWS || JUCE_LINUX || JUCE_BSD
                                          SO_REUSEADDR,  // port re-use is implied by addr re-use on these platforms
                                         #else
                                          SO_REUSEPORT,

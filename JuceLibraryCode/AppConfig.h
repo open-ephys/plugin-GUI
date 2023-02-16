@@ -20,6 +20,27 @@
 
 // [END_USER_CODE_SECTION]
 
+/*
+  ==============================================================================
+
+   In accordance with the terms of the JUCE 7 End-Use License Agreement, the
+   JUCE Code in SECTION A cannot be removed, changed or otherwise rendered
+   ineffective unless you have a JUCE Indie or Pro license, or are using JUCE
+   under the GPL v3 license.
+
+   End User License Agreement: www.juce.com/juce-7-licence
+
+  ==============================================================================
+*/
+
+// BEGIN SECTION A
+
+#ifndef JUCE_DISPLAY_SPLASH_SCREEN
+ #define JUCE_DISPLAY_SPLASH_SCREEN 0
+#endif
+
+// END SECTION A
+
 //==============================================================================
 #define JUCE_MODULE_AVAILABLE_juce_audio_basics          1
 #define JUCE_MODULE_AVAILABLE_juce_audio_devices         1
@@ -34,7 +55,8 @@
 #define JUCE_MODULE_AVAILABLE_juce_gui_basics            1
 #define JUCE_MODULE_AVAILABLE_juce_gui_extra             1
 #define JUCE_MODULE_AVAILABLE_juce_opengl                1
-#define JUCE_MODULE_AVAILABLE_juce_video                 0
+#define JUCE_MODULE_AVAILABLE_juce_osc                   1
+#define JUCE_MODULE_AVAILABLE_juce_video                 1
 
 #define JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED 1
 
@@ -125,6 +147,14 @@
 
 #ifndef    JUCE_PLUGINHOST_LADSPA
  //#define JUCE_PLUGINHOST_LADSPA 0
+#endif
+
+#ifndef    JUCE_PLUGINHOST_LV2
+ //#define JUCE_PLUGINHOST_LV2 0
+#endif
+
+#ifndef    JUCE_PLUGINHOST_ARA
+ //#define JUCE_PLUGINHOST_ARA 0
 #endif
 
 #ifndef    JUCE_CUSTOM_VST3_SDK

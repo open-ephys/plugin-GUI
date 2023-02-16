@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -201,29 +201,28 @@ void ColourGradient::createLookupTable (PixelARGB* const lookupTable, const int 
     jassert (numEntries > 0);
     jassert (colours.getReference(0).position == 0.0); // The first colour specified has to go at position 0
 
-    auto pix1 = colours.getReference (0).colour.getPixelARGB();
     int index = 0;
 
-    for (int j = 1; j < colours.size(); ++j)
+    for (int j = 0; j < colours.size() - 1; ++j)
     {
-        auto& p = colours.getReference (j);
-        auto numToDo = roundToInt (p.position * (numEntries - 1)) - index;
-        auto pix2 = p.colour.getPixelARGB();
+        const auto& o = colours.getReference (j + 0);
+        const auto& p = colours.getReference (j + 1);
+        const auto numToDo = roundToInt (p.position * (numEntries - 1)) - index;
+        const auto pix1 = o.colour.getNonPremultipliedPixelARGB();
+        const auto pix2 = p.colour.getNonPremultipliedPixelARGB();
 
-        for (int i = 0; i < numToDo; ++i)
+        for (auto i = 0; i < numToDo; ++i)
         {
-            jassert (index >= 0 && index < numEntries);
+            auto blended = pix1;
+            blended.tween (pix2, (uint32) ((i << 8) / numToDo));
+            blended.premultiply();
 
-            lookupTable[index] = pix1;
-            lookupTable[index].tween (pix2, (uint32) ((i << 8) / numToDo));
-            ++index;
+            jassert (0 <= index && index < numEntries);
+            lookupTable[index++] = blended;
         }
-
-        pix1 = pix2;
     }
 
-    while (index < numEntries)
-        lookupTable [index++] = pix1;
+    std::fill (lookupTable + index, lookupTable + numEntries, colours.getLast().colour.getPixelARGB());
 }
 
 int ColourGradient::createLookupTable (const AffineTransform& transform, HeapBlock<PixelARGB>& lookupTable) const

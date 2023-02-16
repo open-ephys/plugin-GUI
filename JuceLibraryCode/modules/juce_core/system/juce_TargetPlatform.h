@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -70,7 +70,6 @@
   #define CF_EXCLUDE_CSTD_HEADERS 1
   #include <TargetConditionals.h> // (needed to find out what platform we're using)
   #include <AvailabilityMacros.h>
-  #include "../native/juce_mac_ClangBugWorkaround.h"
 
   #if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
     #define     JUCE_IPHONE 1
@@ -110,7 +109,11 @@
   /** If defined, this indicates that the processor is little-endian. */
   #define JUCE_LITTLE_ENDIAN 1
 
-  #define JUCE_INTEL 1
+  #if defined (_M_ARM) || defined (_M_ARM64) || defined (__arm__) || defined (__aarch64__)
+    #define JUCE_ARM 1
+  #else
+    #define JUCE_INTEL 1
+  #endif
 #endif
 
 //==============================================================================
@@ -145,16 +148,16 @@
   #endif
 
   #if JUCE_MAC
-    #if ! defined (MAC_OS_X_VERSION_10_11)
-      #error "The 10.11 SDK (Xcode 7.3.1+) is required to build JUCE apps. You can create apps that run on macOS 10.7+ by changing the deployment target."
-    #elif MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_7
-      #error "Building for OSX 10.6 is no longer supported!"
+    #if ! defined (MAC_OS_X_VERSION_10_14)
+      #error "The 10.14 SDK (Xcode 10.1+) is required to build JUCE apps. You can create apps that run on macOS 10.9+ by changing the deployment target."
+    #elif MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_9
+      #error "Building for OSX 10.8 and earlier is no longer supported!"
     #endif
   #endif
 #endif
 
 //==============================================================================
-#if JUCE_LINUX || JUCE_ANDROID
+#if JUCE_LINUX || JUCE_ANDROID || JUCE_BSD
 
   #ifdef _DEBUG
     #define JUCE_DEBUG 1

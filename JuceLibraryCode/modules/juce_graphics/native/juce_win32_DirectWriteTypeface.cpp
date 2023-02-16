@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -35,7 +35,7 @@ namespace
 
         uint32 index = 0;
         BOOL exists = false;
-        auto hr = names->FindLocaleName (L"en-us", &index, &exists);
+        [[maybe_unused]] auto hr = names->FindLocaleName (L"en-us", &index, &exists);
 
         if (! exists)
             index = 0;
@@ -54,7 +54,7 @@ namespace
         jassert (family != nullptr);
         ComSmartPtr<IDWriteLocalizedStrings> familyNames;
         auto hr = family->GetFamilyNames (familyNames.resetAndGetPointerAddress());
-        jassert (SUCCEEDED (hr)); ignoreUnused (hr);
+        jassertquiet (SUCCEEDED (hr));
         return getLocalisedName (familyNames);
     }
 
@@ -63,7 +63,7 @@ namespace
         jassert (font != nullptr);
         ComSmartPtr<IDWriteLocalizedStrings> faceNames;
         auto hr = font->GetFaceNames (faceNames.resetAndGetPointerAddress());
-        jassert (SUCCEEDED (hr)); ignoreUnused (hr);
+        jassertquiet (SUCCEEDED (hr));
         return getLocalisedName (faceNames);
     }
 
@@ -75,6 +75,8 @@ class Direct2DFactories
 public:
     Direct2DFactories()
     {
+        JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wlanguage-extension-token")
+
         if (direct2dDll.open ("d2d1.dll"))
         {
             JUCE_LOAD_WINAPI_FUNCTION (direct2dDll, D2D1CreateFactory, d2d1CreateFactory,
@@ -116,6 +118,8 @@ public:
                 d2dFactory->CreateDCRenderTarget (&d2dRTProp, directWriteRenderTarget.resetAndGetPointerAddress());
             }
         }
+
+        JUCE_END_IGNORE_WARNINGS_GCC_LIKE
     }
 
     ~Direct2DFactories()
@@ -147,7 +151,7 @@ public:
         jassert (fontCollection != nullptr);
 
         uint32 fontIndex = 0;
-        auto hr = fontCollection->FindFamilyName (font.getTypefaceName().toWideCharPointer(), &fontIndex, &fontFound);
+        [[maybe_unused]] auto hr = fontCollection->FindFamilyName (font.getTypefaceName().toWideCharPointer(), &fontIndex, &fontFound);
 
         if (! fontFound)
             fontIndex = 0;
@@ -163,7 +167,7 @@ public:
 
             for (int i = (int) dwFontFamily->GetFontCount(); --i >= 0;)
             {
-                hr = dwFontFamily->GetFont (i, dwFont.resetAndGetPointerAddress());
+                hr = dwFontFamily->GetFont ((UINT32) i, dwFont.resetAndGetPointerAddress());
 
                 if (i == 0)
                     break;
@@ -191,15 +195,15 @@ public:
             ascent = std::abs ((float) dwFontMetrics.ascent);
             auto totalSize = ascent + std::abs ((float) dwFontMetrics.descent);
             ascent /= totalSize;
-            unitsToHeightScaleFactor = designUnitsPerEm / totalSize;
+            unitsToHeightScaleFactor = (float) designUnitsPerEm / totalSize;
 
-            auto tempDC = GetDC (0);
-            auto dpi = (GetDeviceCaps (tempDC, LOGPIXELSX) + GetDeviceCaps (tempDC, LOGPIXELSY)) / 2.0f;
-            heightToPointsFactor = (dpi / GetDeviceCaps (tempDC, LOGPIXELSY)) * unitsToHeightScaleFactor;
-            ReleaseDC (0, tempDC);
+            auto tempDC = GetDC (nullptr);
+            auto dpi = (float) (GetDeviceCaps (tempDC, LOGPIXELSX) + GetDeviceCaps (tempDC, LOGPIXELSY)) / 2.0f;
+            heightToPointsFactor = (dpi / (float) GetDeviceCaps (tempDC, LOGPIXELSY)) * unitsToHeightScaleFactor;
+            ReleaseDC (nullptr, tempDC);
 
-            auto pathAscent  = (1024.0f * dwFontMetrics.ascent)  / designUnitsPerEm;
-            auto pathDescent = (1024.0f * dwFontMetrics.descent) / designUnitsPerEm;
+            auto pathAscent  = (1024.0f * dwFontMetrics.ascent)  / (float) designUnitsPerEm;
+            auto pathDescent = (1024.0f * dwFontMetrics.descent) / (float) designUnitsPerEm;
             auto pathScale   = 1.0f / (std::abs (pathAscent) + std::abs (pathDescent));
             pathTransform = AffineTransform::scale (pathScale);
         }
@@ -226,7 +230,7 @@ public:
         float x = 0;
 
         for (size_t i = 0; i < len; ++i)
-            x += (float) dwGlyphMetrics[i].advanceWidth / designUnitsPerEm;
+            x += (float) dwGlyphMetrics[i].advanceWidth / (float) designUnitsPerEm;
 
         return x * unitsToHeightScaleFactor;
     }
@@ -247,7 +251,7 @@ public:
 
         for (size_t i = 0; i < len; ++i)
         {
-            x += (float) dwGlyphMetrics[i].advanceWidth / designUnitsPerEm;
+            x += (float) dwGlyphMetrics[i].advanceWidth / (float) designUnitsPerEm;
             xOffsets.add (x * unitsToHeightScaleFactor);
             resultGlyphs.add (glyphIndices[i]);
         }
@@ -283,7 +287,7 @@ private:
 
     struct PathGeometrySink  : public ComBaseClassHelper<IDWriteGeometrySink>
     {
-        PathGeometrySink() : ComBaseClassHelper<IDWriteGeometrySink> (0) {}
+        PathGeometrySink() : ComBaseClassHelper (0) {}
 
         void STDMETHODCALLTYPE AddBeziers (const D2D1_BEZIER_SEGMENT* beziers, UINT beziersCount) noexcept override
         {

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -130,7 +130,7 @@ namespace juce
 //==============================================================================
 namespace DSoundLogging
 {
-    String getErrorMessage (HRESULT hr)
+    static String getErrorMessage (HRESULT hr)
     {
         const char* result = nullptr;
 
@@ -194,7 +194,9 @@ namespace
         static type##functionName ds##functionName = nullptr;
 
     #define DSOUND_FUNCTION_LOAD(functionName) \
-        ds##functionName = (type##functionName) GetProcAddress (h, #functionName);  \
+        JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wcast-function-type") \
+        ds##functionName = (type##functionName) GetProcAddress (h, #functionName); \
+        JUCE_END_IGNORE_WARNINGS_GCC_LIKE \
         jassert (ds##functionName != nullptr);
 
     typedef BOOL (CALLBACK *LPDSENUMCALLBACKW) (LPGUID, LPCWSTR, LPCWSTR, LPVOID);
@@ -209,12 +211,17 @@ namespace
     {
         if (dsDirectSoundCreate == nullptr)
         {
-            HMODULE h = LoadLibraryA ("dsound.dll");
+            if (auto* h = LoadLibraryA ("dsound.dll"))
+            {
+                DSOUND_FUNCTION_LOAD (DirectSoundCreate)
+                DSOUND_FUNCTION_LOAD (DirectSoundCaptureCreate)
+                DSOUND_FUNCTION_LOAD (DirectSoundEnumerateW)
+                DSOUND_FUNCTION_LOAD (DirectSoundCaptureEnumerateW)
 
-            DSOUND_FUNCTION_LOAD (DirectSoundCreate)
-            DSOUND_FUNCTION_LOAD (DirectSoundCaptureCreate)
-            DSOUND_FUNCTION_LOAD (DirectSoundEnumerateW)
-            DSOUND_FUNCTION_LOAD (DirectSoundCaptureEnumerateW)
+                return;
+            }
+
+            jassertfalse;
         }
     }
 
@@ -244,8 +251,8 @@ public:
         if (pOutputBuffer != nullptr)
         {
             JUCE_DS_LOG ("closing output: " + name);
-            HRESULT hr = pOutputBuffer->Stop();
-            JUCE_DS_LOG_ERROR (hr); ignoreUnused (hr);
+            [[maybe_unused]] HRESULT hr = pOutputBuffer->Stop();
+            JUCE_DS_LOG_ERROR (hr);
 
             pOutputBuffer->Release();
             pOutputBuffer = nullptr;
@@ -295,10 +302,10 @@ public:
                 primaryDesc.dwSize = sizeof (DSBUFFERDESC);
                 primaryDesc.dwFlags = 1 /* DSBCAPS_PRIMARYBUFFER */;
                 primaryDesc.dwBufferBytes = 0;
-                primaryDesc.lpwfxFormat = 0;
+                primaryDesc.lpwfxFormat = nullptr;
 
                 JUCE_DS_LOG ("co-op level set");
-                hr = pDirectSound->CreateSoundBuffer (&primaryDesc, &pPrimaryBuffer, 0);
+                hr = pDirectSound->CreateSoundBuffer (&primaryDesc, &pPrimaryBuffer, nullptr);
                 JUCE_DS_LOG_ERROR (hr);
 
                 if (SUCCEEDED (hr))
@@ -324,7 +331,7 @@ public:
                         secondaryDesc.dwBufferBytes = (DWORD) totalBytesPerBuffer;
                         secondaryDesc.lpwfxFormat = &wfFormat;
 
-                        hr = pDirectSound->CreateSoundBuffer (&secondaryDesc, &pOutputBuffer, 0);
+                        hr = pDirectSound->CreateSoundBuffer (&secondaryDesc, &pOutputBuffer, nullptr);
                         JUCE_DS_LOG_ERROR (hr);
 
                         if (SUCCEEDED (hr))
@@ -335,14 +342,14 @@ public:
                             unsigned char* pDSBuffData;
 
                             hr = pOutputBuffer->Lock (0, (DWORD) totalBytesPerBuffer,
-                                                      (LPVOID*) &pDSBuffData, &dwDataLen, 0, 0, 0);
+                                                      (LPVOID*) &pDSBuffData, &dwDataLen, nullptr, nullptr, 0);
                             JUCE_DS_LOG_ERROR (hr);
 
                             if (SUCCEEDED (hr))
                             {
                                 zeromem (pDSBuffData, dwDataLen);
 
-                                hr = pOutputBuffer->Unlock (pDSBuffData, dwDataLen, 0, 0);
+                                hr = pOutputBuffer->Unlock (pDSBuffData, dwDataLen, nullptr, 0);
 
                                 if (SUCCEEDED (hr))
                                 {
@@ -379,7 +386,7 @@ public:
 
     bool service()
     {
-        if (pOutputBuffer == 0)
+        if (pOutputBuffer == nullptr)
             return true;
 
         DWORD playCursor, writeCursor;
@@ -481,7 +488,7 @@ public:
                     jassertfalse;
                 }
 
-                writeOffset = (writeOffset + dwSize1 + dwSize2) % totalBytesPerBuffer;
+                writeOffset = (writeOffset + dwSize1 + dwSize2) % (DWORD) totalBytesPerBuffer;
 
                 pOutputBuffer->Unlock (buf1, dwSize1, buf2, dwSize2);
             }
@@ -548,8 +555,8 @@ public:
         if (pInputBuffer != nullptr)
         {
             JUCE_DS_LOG ("closing input: " + name);
-            HRESULT hr = pInputBuffer->Stop();
-            JUCE_DS_LOG_ERROR (hr); ignoreUnused (hr);
+            [[maybe_unused]] HRESULT hr = pInputBuffer->Stop();
+            JUCE_DS_LOG_ERROR (hr);
 
             pInputBuffer->Release();
             pInputBuffer = nullptr;
@@ -605,7 +612,7 @@ public:
             captureDesc.lpwfxFormat = &wfFormat;
 
             JUCE_DS_LOG ("object created");
-            hr = pDirectSoundCapture->CreateCaptureBuffer (&captureDesc, &pInputBuffer, 0);
+            hr = pDirectSoundCapture->CreateCaptureBuffer (&captureDesc, &pInputBuffer, nullptr);
 
             if (SUCCEEDED (hr))
             {
@@ -634,7 +641,7 @@ public:
 
     bool service()
     {
-        if (pInputBuffer == 0)
+        if (pInputBuffer == nullptr)
             return true;
 
         DWORD capturePos, readPos;
@@ -692,7 +699,7 @@ public:
                     jassertfalse;
                 }
 
-                readOffset = (readOffset + dwsize1 + dwsize2) % totalBytesPerBuffer;
+                readOffset = (readOffset + dwsize1 + dwsize2) % (DWORD) totalBytesPerBuffer;
 
                 pInputBuffer->Unlock (buf1, dwsize1, buf2, dwsize2);
             }
@@ -757,7 +764,7 @@ public:
         }
     }
 
-    ~DSoundAudioIODevice()
+    ~DSoundAudioIODevice() override
     {
         close();
     }
@@ -932,8 +939,8 @@ public:
                 break;
         }
 
-        const int latencyMs = (int) (bufferSizeSamples * 1000.0 / sampleRate);
-        const int maxTimeMS = jmax (5, 3 * latencyMs);
+        const auto latencyMs = (uint32) (bufferSizeSamples * 1000.0 / sampleRate);
+        const auto maxTimeMS = jmax ((uint32) 5, 3 * latencyMs);
 
         while (! threadShouldExit())
         {
@@ -1009,9 +1016,12 @@ public:
 
             if (isStarted)
             {
-                callback->audioDeviceIOCallback (inputBuffers.getArrayOfReadPointers(), inputBuffers.getNumChannels(),
-                                                 outputBuffers.getArrayOfWritePointers(), outputBuffers.getNumChannels(),
-                                                 bufferSizeSamples);
+                callback->audioDeviceIOCallbackWithContext (inputBuffers.getArrayOfReadPointers(),
+                                                            inputBuffers.getNumChannels(),
+                                                            outputBuffers.getArrayOfWritePointers(),
+                                                            outputBuffers.getNumChannels(),
+                                                            bufferSizeSamples,
+                                                            {});
             }
             else
             {
@@ -1025,8 +1035,14 @@ public:
 };
 
 //==============================================================================
-struct DSoundDeviceList
+class DSoundDeviceList
 {
+    auto tie() const
+    {
+        return std::tie (outputDeviceNames, inputDeviceNames, outputGuids, inputGuids);
+    }
+
+public:
     StringArray outputDeviceNames, inputDeviceNames;
     Array<GUID> outputGuids, inputGuids;
 
@@ -1037,20 +1053,15 @@ struct DSoundDeviceList
         outputGuids.clear();
         inputGuids.clear();
 
-        if (dsDirectSoundEnumerateW != 0)
+        if (dsDirectSoundEnumerateW != nullptr)
         {
             dsDirectSoundEnumerateW (outputEnumProcW, this);
             dsDirectSoundCaptureEnumerateW (inputEnumProcW, this);
         }
     }
 
-    bool operator!= (const DSoundDeviceList& other) const noexcept
-    {
-        return outputDeviceNames != other.outputDeviceNames
-            || inputDeviceNames != other.inputDeviceNames
-            || outputGuids != other.outputGuids
-            || inputGuids != other.inputGuids;
-    }
+    bool operator== (const DSoundDeviceList& other) const noexcept { return tie() == other.tie(); }
+    bool operator!= (const DSoundDeviceList& other) const noexcept { return tie() != other.tie(); }
 
 private:
     static BOOL enumProc (LPGUID lpGUID, String desc, StringArray& names, Array<GUID>& guids)
@@ -1186,7 +1197,7 @@ String DSoundAudioIODevice::openDevice (const BigInteger& inputChannels,
         for (int i = 0; i < inChans.size(); ++i)
             inChans.getUnchecked(i)->synchronisePosition();
 
-        startThread (9);
+        startThread (Priority::highest);
         sleep (10);
 
         notify();
@@ -1203,13 +1214,11 @@ String DSoundAudioIODevice::openDevice (const BigInteger& inputChannels,
 }
 
 //==============================================================================
-class DSoundAudioIODeviceType  : public AudioIODeviceType,
-                                 private DeviceChangeDetector
+class DSoundAudioIODeviceType  : public AudioIODeviceType
 {
 public:
     DSoundAudioIODeviceType()
-        : AudioIODeviceType ("DirectSound"),
-          DeviceChangeDetector (L"DirectSound")
+        : AudioIODeviceType ("DirectSound")
     {
         initialiseDSoundFunctions();
     }
@@ -1264,19 +1273,17 @@ public:
     }
 
 private:
+    DeviceChangeDetector detector { L"DirectSound", [this] { systemDeviceChanged(); } };
     DSoundDeviceList deviceList;
     bool hasScanned = false;
 
-    void systemDeviceChanged() override
+    void systemDeviceChanged()
     {
         DSoundDeviceList newList;
         newList.scan();
 
-        if (newList != deviceList)
-        {
-            deviceList = newList;
+        if (std::exchange (deviceList, newList) != newList)
             callDeviceChangeListeners();
-        }
     }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DSoundAudioIODeviceType)

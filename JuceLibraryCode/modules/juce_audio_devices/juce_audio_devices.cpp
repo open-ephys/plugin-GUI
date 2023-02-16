@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -45,38 +45,17 @@
 
 #include "juce_audio_devices.h"
 
-#include "native/juce_MidiDataConcatenator.h"
-
-#include "midi_io/ump/juce_UMPProtocols.h"
-#include "midi_io/ump/juce_UMPUtils.h"
-#include "midi_io/ump/juce_UMPacket.h"
-#include "midi_io/ump/juce_UMPSysEx7.h"
-#include "midi_io/ump/juce_UMPView.h"
-#include "midi_io/ump/juce_UMPIterator.h"
-#include "midi_io/ump/juce_UMPackets.h"
-#include "midi_io/ump/juce_UMPFactory.h"
-#include "midi_io/ump/juce_UMPConversion.h"
-#include "midi_io/ump/juce_UMPMidi1ToBytestreamTranslator.h"
-#include "midi_io/ump/juce_UMPMidi1ToMidi2DefaultTranslator.h"
-#include "midi_io/ump/juce_UMPConverters.h"
-#include "midi_io/ump/juce_UMPDispatcher.h"
-#include "midi_io/ump/juce_UMPReceiver.h"
-#include "midi_io/ump/juce_UMPBytestreamInputHandler.h"
-#include "midi_io/ump/juce_UMPU32InputHandler.h"
-
-#include "midi_io/ump/juce_UMPUtils.cpp"
-#include "midi_io/ump/juce_UMPView.cpp"
-#include "midi_io/ump/juce_UMPSysEx7.cpp"
-#include "midi_io/ump/juce_UMPMidi1ToMidi2DefaultTranslator.cpp"
-
-#include "midi_io/ump/juce_UMPTests.cpp"
-
-namespace juce
-{
-namespace ump = universal_midi_packets;
-}
+#include "audio_io/juce_SampleRateHelpers.cpp"
+#include "midi_io/juce_MidiDevices.cpp"
 
 //==============================================================================
+#if JUCE_MAC || JUCE_IOS
+ #include <juce_audio_basics/midi/juce_MidiDataConcatenator.h>
+ #include <juce_audio_basics/midi/ump/juce_UMP.h>
+ #include "midi_io/ump/juce_UMPBytestreamInputHandler.h"
+ #include "midi_io/ump/juce_UMPU32InputHandler.h"
+#endif
+
 #if JUCE_MAC
  #define Point CarbonDummyPointName
  #define Component CarbonDummyCompName
@@ -135,6 +114,7 @@ namespace ump = universal_midi_packets;
   JUCE_END_IGNORE_WARNINGS_MSVC
  #endif
 
+ #include <juce_audio_basics/midi/juce_MidiDataConcatenator.h>
  #include "native/juce_win32_Midi.cpp"
 
  #if JUCE_ASIO
@@ -162,7 +142,7 @@ namespace ump = universal_midi_packets;
  #endif
 
 //==============================================================================
-#elif JUCE_LINUX
+#elif JUCE_LINUX || JUCE_BSD
  #if JUCE_ALSA
   /* Got an include error here? If so, you've either not got ALSA installed, or you've
      not got your paths set up correctly to find its header files.
@@ -172,7 +152,9 @@ namespace ump = universal_midi_packets;
      If you don't have the ALSA library and don't want to build JUCE with audio support,
      just set the JUCE_ALSA flag to 0.
   */
+  JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wzero-length-array")
   #include <alsa/asoundlib.h>
+  JUCE_END_IGNORE_WARNINGS_GCC_LIKE
   #include "native/juce_linux_ALSA.cpp"
  #endif
 
@@ -189,26 +171,36 @@ namespace ump = universal_midi_packets;
   #include "native/juce_linux_JackAudio.cpp"
  #endif
 
- #if JUCE_BELA
+ #if (JUCE_LINUX && JUCE_BELA)
   /* Got an include error here? If so, you've either not got the bela headers
      installed, or you've not got your paths set up correctly to find its header
      files.
   */
   #include <Bela.h>
   #include <Midi.h>
+  #include <juce_audio_basics/midi/juce_MidiDataConcatenator.h>
   #include "native/juce_linux_Bela.cpp"
  #endif
 
  #undef SIZEOF
 
  #if ! JUCE_BELA
+  #include <juce_audio_basics/midi/juce_MidiDataConcatenator.h>
   #include "native/juce_linux_Midi.cpp"
  #endif
 
 //==============================================================================
 #elif JUCE_ANDROID
 
- #include "native/juce_android_Audio.cpp"
+namespace juce
+{
+    using RealtimeThreadFactory = pthread_t (*) (void* (*) (void*), void*);
+    RealtimeThreadFactory getAndroidRealtimeThreadFactory();
+} // namespace juce
+
+#include "native/juce_android_Audio.cpp"
+
+ #include <juce_audio_basics/midi/juce_MidiDataConcatenator.h>
  #include "native/juce_android_Midi.cpp"
 
  #if JUCE_USE_ANDROID_OPENSLES || JUCE_USE_ANDROID_OBOE
@@ -236,6 +228,12 @@ namespace ump = universal_midi_packets;
 
    #include "native/juce_android_Oboe.cpp"
   #endif
+ #else
+// No audio library, so no way to create realtime threads.
+  namespace juce
+  {
+      RealtimeThreadFactory getAndroidRealtimeThreadFactory() { return nullptr; }
+  }
  #endif
 
 #endif
@@ -255,6 +253,5 @@ namespace juce
 #include "audio_io/juce_AudioIODevice.cpp"
 #include "audio_io/juce_AudioIODeviceType.cpp"
 #include "midi_io/juce_MidiMessageCollector.cpp"
-#include "midi_io/juce_MidiDevices.cpp"
 #include "sources/juce_AudioSourcePlayer.cpp"
 #include "sources/juce_AudioTransportSource.cpp"

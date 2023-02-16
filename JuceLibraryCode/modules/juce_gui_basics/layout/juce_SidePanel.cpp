@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -108,9 +108,6 @@ void SidePanel::showOrHide (bool show)
 
         if (isShowing && ! isVisible())
             setVisible (true);
-
-        if (onPanelShowHide != nullptr)
-            onPanelShowHide (isShowing);
     }
 }
 
@@ -162,7 +159,8 @@ void SidePanel::paint (Graphics& g)
                                                                                 : shadowArea.getTopLeft()).toFloat(), false));
     g.fillRect (shadowArea);
 
-    g.excludeClipRegion (shadowArea);
+    g.reduceClipRegion (getLocalBounds().withTrimmedRight (shadowArea.getWidth())
+                                        .withX (isOnLeft ? 0 : shadowArea.getWidth()));
     g.fillAll (bgColour);
 }
 
@@ -245,18 +243,22 @@ void SidePanel::lookAndFeelChanged()
     titleLabel.setJustificationType (lf.getSidePanelTitleJustification (*this));
 }
 
-void SidePanel::componentMovedOrResized (Component& component, bool wasMoved, bool wasResized)
+void SidePanel::componentMovedOrResized (Component& component, [[maybe_unused]] bool wasMoved, bool wasResized)
 {
-    ignoreUnused (wasMoved);
-
     if (wasResized && (&component == parent))
         setBounds (calculateBoundsInParent (component));
 }
 
 void SidePanel::changeListenerCallback (ChangeBroadcaster*)
 {
-    if (isVisible() && ! isShowing && ! Desktop::getInstance().getAnimator().isAnimating (this))
-        setVisible (false);
+    if (! Desktop::getInstance().getAnimator().isAnimating (this))
+    {
+        if (onPanelShowHide != nullptr)
+            onPanelShowHide (isShowing);
+
+        if (isVisible() && ! isShowing)
+            setVisible (false);
+    }
 }
 
 Rectangle<int> SidePanel::calculateBoundsInParent (Component& parentComp) const
@@ -289,6 +291,12 @@ bool SidePanel::isMouseEventInThisOrChildren (Component* eventComponent)
             return true;
 
     return false;
+}
+
+//==============================================================================
+std::unique_ptr<AccessibilityHandler> SidePanel::createAccessibilityHandler()
+{
+    return std::make_unique<AccessibilityHandler> (*this, AccessibilityRole::group);
 }
 
 } // namespace juce

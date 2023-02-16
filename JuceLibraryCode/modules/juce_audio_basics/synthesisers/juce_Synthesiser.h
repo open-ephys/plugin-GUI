@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -627,17 +627,11 @@ private:
     bool subBlockSubdivisionIsStrict = false;
     bool shouldStealNotes = true;
     BigInteger sustainPedalsDown;
+    mutable CriticalSection stealLock;
+    mutable Array<SynthesiserVoice*> usableVoicesToStealArray;
 
     template <typename floatType>
     void processNextBlock (AudioBuffer<floatType>&, const MidiBuffer&, int startSample, int numSamples);
-
-   #if JUCE_CATCH_DEPRECATED_CODE_MISUSE
-    // Note the new parameters for these methods.
-    virtual int findFreeVoice (const bool) const { return 0; }
-    virtual int noteOff (int, int, int) { return 0; }
-    virtual int findFreeVoice (SynthesiserSound*, const bool) { return 0; }
-    virtual int findVoiceToSteal (SynthesiserSound*) const { return 0; }
-   #endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Synthesiser)
 };

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -69,7 +69,7 @@ public:
         {
             COPYDATASTRUCT data;
             data.dwData = broadcastMessageMagicNumber;
-            data.cbData = ((size_t) localCopy.length() + 1) * sizeof (CharPointer_UTF32::CharType);
+            data.cbData = (DWORD) (((size_t) localCopy.length() + 1) * sizeof (CharPointer_UTF32::CharType));
             data.lpData = (void*) localCopy.toUTF32().getAddress();
 
             DWORD_PTR result;
@@ -260,7 +260,7 @@ JUCE_IMPLEMENT_SINGLETON (InternalMessageQueue)
 const TCHAR InternalMessageQueue::messageWindowName[] = _T("JUCEWindow");
 
 //==============================================================================
-bool MessageManager::dispatchNextMessageOnSystemQueue (bool returnIfNoPendingMessages)
+bool dispatchNextMessageOnSystemQueue (bool returnIfNoPendingMessages)
 {
     if (auto* queue = InternalMessageQueue::getInstanceWithoutCreating())
         return queue->dispatchNextMessage (returnIfNoPendingMessages);
@@ -288,7 +288,7 @@ void MessageManager::broadcastMessage (const String& value)
 //==============================================================================
 void MessageManager::doPlatformSpecificInitialisation()
 {
-    OleInitialize (nullptr);
+    [[maybe_unused]] const auto result = OleInitialize (nullptr);
     InternalMessageQueue::getInstance();
 }
 
@@ -299,25 +299,24 @@ void MessageManager::doPlatformSpecificShutdown()
 }
 
 //==============================================================================
-struct MountedVolumeListChangeDetector::Pimpl   : private DeviceChangeDetector
+struct MountedVolumeListChangeDetector::Pimpl
 {
-    Pimpl (MountedVolumeListChangeDetector& d) : DeviceChangeDetector (L"MountedVolumeList"), owner (d)
+    explicit Pimpl (MountedVolumeListChangeDetector& d)
+        : owner (d)
     {
         File::findFileSystemRoots (lastVolumeList);
     }
 
-    void systemDeviceChanged() override
+    void systemDeviceChanged()
     {
         Array<File> newList;
         File::findFileSystemRoots (newList);
 
-        if (lastVolumeList != newList)
-        {
-            lastVolumeList = newList;
+        if (std::exchange (lastVolumeList, newList) != newList)
             owner.mountedVolumeListChanged();
-        }
     }
 
+    DeviceChangeDetector detector { L"MountedVolumeList", [this] { systemDeviceChanged(); } };
     MountedVolumeListChangeDetector& owner;
     Array<File> lastVolumeList;
 };

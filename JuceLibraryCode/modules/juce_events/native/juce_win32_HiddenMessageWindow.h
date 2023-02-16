@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -91,15 +91,12 @@ private:
 class DeviceChangeDetector  : private Timer
 {
 public:
-    DeviceChangeDetector (const wchar_t* const name)
-        : messageWindow (name, (WNDPROC) deviceChangeEventCallback)
+    DeviceChangeDetector (const wchar_t* const name, std::function<void()> onChangeIn)
+        : messageWindow (name, (WNDPROC) deviceChangeEventCallback),
+          onChange (std::move (onChangeIn))
     {
         SetWindowLongPtr (messageWindow.getHWND(), GWLP_USERDATA, (LONG_PTR) this);
     }
-
-    virtual ~DeviceChangeDetector() {}
-
-    virtual void systemDeviceChanged() = 0;
 
     void triggerAsyncDeviceChangeCallback()
     {
@@ -110,6 +107,7 @@ public:
 
 private:
     HiddenMessageWindow messageWindow;
+    std::function<void()> onChange;
 
     static LRESULT CALLBACK deviceChangeEventCallback (HWND h, const UINT message,
                                                        const WPARAM wParam, const LPARAM lParam)
@@ -129,7 +127,7 @@ private:
     void timerCallback() override
     {
         stopTimer();
-        systemDeviceChanged();
+        NullCheckedInvocation::invoke (onChange);
     }
 };
 

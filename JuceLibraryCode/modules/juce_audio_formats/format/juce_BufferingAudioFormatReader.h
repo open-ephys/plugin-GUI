@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -57,37 +57,39 @@ public:
 
     /** Sets a number of milliseconds that the reader can block for in its readSamples()
         method before giving up and returning silence.
-        A value of less that 0 means "wait forever".
-        The default timeout is 0.
+
+        A value of less that 0 means "wait forever". The default timeout is 0.
     */
     void setReadTimeout (int timeoutMilliseconds) noexcept;
 
-    bool readSamples (int** destSamples, int numDestChannels, int startOffsetInDestBuffer,
+    //==============================================================================
+    bool readSamples (int* const* destSamples, int numDestChannels, int startOffsetInDestBuffer,
                       int64 startSampleInFile, int numSamples) override;
 
 private:
-    std::unique_ptr<AudioFormatReader> source;
-    TimeSliceThread& thread;
-    std::atomic<int64> nextReadPosition { 0 };
-    const int numBlocks;
-    int timeoutMs = 0;
-
-    enum { samplesPerBlock = 32768 };
-
     struct BufferedBlock
     {
         BufferedBlock (AudioFormatReader& reader, int64 pos, int numSamples);
 
         Range<int64> range;
         AudioBuffer<float> buffer;
+        bool allSamplesRead = false;
     };
+
+    int useTimeSlice() override;
+    BufferedBlock* getBlockContaining (int64 pos) const noexcept;
+    bool readNextBufferChunk();
+
+    static constexpr int samplesPerBlock = 32768;
+
+    std::unique_ptr<AudioFormatReader> source;
+    TimeSliceThread& thread;
+    std::atomic<int64> nextReadPosition { 0 };
+    const int numBlocks;
+    int timeoutMs = 0;
 
     CriticalSection lock;
     OwnedArray<BufferedBlock> blocks;
-
-    BufferedBlock* getBlockContaining (int64 pos) const noexcept;
-    int useTimeSlice() override;
-    bool readNextBufferChunk();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BufferingAudioReader)
 };

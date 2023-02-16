@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -41,7 +41,7 @@
 #include <locale>
 #include <thread>
 
-#if ! JUCE_ANDROID
+#if ! (JUCE_ANDROID || JUCE_BSD)
  #include <sys/timeb.h>
  #include <cwctype>
 #endif
@@ -64,7 +64,7 @@
  #endif
 
 #else
- #if JUCE_LINUX || JUCE_ANDROID
+ #if JUCE_LINUX || JUCE_BSD || JUCE_ANDROID
   #include <sys/types.h>
   #include <sys/socket.h>
   #include <sys/errno.h>
@@ -82,7 +82,7 @@
   #include <sys/stat.h>
  #endif
 
- #if JUCE_LINUX
+ #if JUCE_LINUX || JUCE_BSD
   #include <stdio.h>
   #include <langinfo.h>
   #include <ifaddrs.h>
@@ -120,14 +120,9 @@
 #undef check
 
 //==============================================================================
-#ifndef    JUCE_STANDALONE_APPLICATION
- JUCE_COMPILER_WARNING ("Please re-save your project with the latest Projucer version to avoid this warning")
- #define   JUCE_STANDALONE_APPLICATION 0
-#endif
-
-//==============================================================================
 #include "containers/juce_AbstractFifo.cpp"
 #include "containers/juce_ArrayBase.cpp"
+#include "containers/juce_ListenerList.cpp"
 #include "containers/juce_NamedValueSet.cpp"
 #include "containers/juce_OwnedArray.cpp"
 #include "containers/juce_PropertySet.cpp"
@@ -191,6 +186,7 @@
 #include "zip/juce_ZipFile.cpp"
 #include "files/juce_FileFilter.cpp"
 #include "files/juce_WildcardFileFilter.cpp"
+#include "native/juce_native_ThreadPriorities.h"
 
 //==============================================================================
 #if ! JUCE_WINDOWS
@@ -206,6 +202,7 @@
  #include "native/juce_mac_Files.mm"
  #include "native/juce_mac_Network.mm"
  #include "native/juce_mac_Strings.mm"
+ #include "native/juce_intel_SharedCode.h"
  #include "native/juce_mac_SystemStats.mm"
  #include "native/juce_mac_Threads.mm"
 
@@ -218,12 +215,15 @@
  #include "native/juce_win32_Threads.cpp"
 
 //==============================================================================
-#elif JUCE_LINUX
+#elif JUCE_LINUX || JUCE_BSD
  #include "native/juce_linux_CommonFile.cpp"
  #include "native/juce_linux_Files.cpp"
  #include "native/juce_linux_Network.cpp"
  #if JUCE_USE_CURL
   #include "native/juce_curl_Network.cpp"
+ #endif
+ #if JUCE_BSD
+  #include "native/juce_intel_SharedCode.h"
  #endif
  #include "native/juce_linux_SystemStats.cpp"
  #include "native/juce_linux_Threads.cpp"
@@ -244,6 +244,9 @@
 
 #endif
 
+#include "files/juce_common_MimeTypes.h"
+#include "files/juce_common_MimeTypes.cpp"
+#include "native/juce_android_AndroidDocument.cpp"
 #include "threads/juce_HighResolutionTimer.cpp"
 #include "threads/juce_WaitableEvent.cpp"
 #include "network/juce_URL.cpp"
@@ -257,6 +260,8 @@
 //==============================================================================
 #if JUCE_UNIT_TESTS
  #include "containers/juce_HashMap_test.cpp"
+
+ #include "containers/juce_Optional_test.cpp"
 #endif
 
 //==============================================================================

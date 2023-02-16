@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -84,9 +84,10 @@ inline void writeUnaligned (void* dstPtr, Type value) noexcept
     to a region that has suitable alignment for `Type`, e.g. regions returned from
     malloc/calloc that should be suitable for any non-over-aligned type.
 */
-template <typename Type, typename std::enable_if<std::is_pointer<Type>::value, int>::type = 0>
+template <typename Type>
 inline Type unalignedPointerCast (void* ptr) noexcept
 {
+    static_assert (std::is_pointer_v<Type>);
     return reinterpret_cast<Type> (ptr);
 }
 
@@ -97,9 +98,10 @@ inline Type unalignedPointerCast (void* ptr) noexcept
     to a region that has suitable alignment for `Type`, e.g. regions returned from
     malloc/calloc that should be suitable for any non-over-aligned type.
 */
-template <typename Type, typename std::enable_if<std::is_pointer<Type>::value, int>::type = 0>
+template <typename Type>
 inline Type unalignedPointerCast (const void* ptr) noexcept
 {
+    static_assert (std::is_pointer_v<Type>);
     return reinterpret_cast<Type> (ptr);
 }
 
@@ -183,18 +185,18 @@ inline const Type* addBytesToPointer (const Type* basePointer, IntegerType bytes
  #define juce_UseDebuggingNewOperator
 #endif
 
- /** Converts an owning raw pointer into a unique_ptr, deriving the
-     type of the unique_ptr automatically.
+/** Converts an owning raw pointer into a unique_ptr, deriving the
+    type of the unique_ptr automatically.
 
-     This should only be used with pointers to single objects.
-     Do NOT pass a pointer to an array to this function, as the
-     destructor of the unique_ptr will incorrectly call `delete`
-     instead of `delete[]` on the pointer.
- */
- template <typename T>
- std::unique_ptr<T> rawToUniquePtr (T* ptr)
- {
-     return std::unique_ptr<T> (ptr);
- }
+    This should only be used with pointers to single objects.
+    Do NOT pass a pointer to an array to this function, as the
+    destructor of the unique_ptr will incorrectly call `delete`
+    instead of `delete[]` on the pointer.
+*/
+template <typename T>
+std::unique_ptr<T> rawToUniquePtr (T* ptr)
+{
+    return std::unique_ptr<T> (ptr);
+}
 
 } // namespace juce

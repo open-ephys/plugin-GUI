@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -23,21 +23,41 @@
 namespace juce
 {
 
+template <typename Setup>
+static auto getSetupInfo (Setup& s, bool isInput)
+{
+    struct SetupInfo
+    {
+        // double brackets so that we get the expression type, i.e. a (possibly const) reference
+        decltype ((s.inputDeviceName)) name;
+        decltype ((s.inputChannels)) channels;
+        decltype ((s.useDefaultInputChannels)) useDefault;
+    };
+
+    return isInput ? SetupInfo { s.inputDeviceName,  s.inputChannels,  s.useDefaultInputChannels }
+                   : SetupInfo { s.outputDeviceName, s.outputChannels, s.useDefaultOutputChannels };
+}
+
+static auto tie (const AudioDeviceManager::AudioDeviceSetup& s)
+{
+    return std::tie (s.outputDeviceName,
+                     s.inputDeviceName,
+                     s.sampleRate,
+                     s.bufferSize,
+                     s.inputChannels,
+                     s.useDefaultInputChannels,
+                     s.outputChannels,
+                     s.useDefaultOutputChannels);
+}
+
 bool AudioDeviceManager::AudioDeviceSetup::operator== (const AudioDeviceManager::AudioDeviceSetup& other) const
 {
-    return outputDeviceName == other.outputDeviceName
-            && inputDeviceName == other.inputDeviceName
-            && sampleRate == other.sampleRate
-            && bufferSize == other.bufferSize
-            && inputChannels == other.inputChannels
-            && useDefaultInputChannels == other.useDefaultInputChannels
-            && outputChannels == other.outputChannels
-            && useDefaultOutputChannels == other.useDefaultOutputChannels;
+    return tie (*this) == tie (other);
 }
 
 bool AudioDeviceManager::AudioDeviceSetup::operator!= (const AudioDeviceManager::AudioDeviceSetup& other) const
 {
-    return ! operator== (other);
+    return tie (*this) != tie (other);
 }
 
 //==============================================================================
@@ -49,9 +69,14 @@ public:
     CallbackHandler (AudioDeviceManager& adm) noexcept  : owner (adm) {}
 
 private:
-    void audioDeviceIOCallback (const float** ins, int numIns, float** outs, int numOuts, int numSamples) override
+    void audioDeviceIOCallbackWithContext (const float* const* ins,
+                                           int numIns,
+                                           float* const* outs,
+                                           int numOuts,
+                                           int numSamples,
+                                           const AudioIODeviceCallbackContext& context) override
     {
-        owner.audioDeviceIOCallbackInt (ins, numIns, outs, numOuts, numSamples);
+        owner.audioDeviceIOCallbackInt (ins, numIns, outs, numOuts, numSamples, context);
     }
 
     void audioDeviceAboutToStart (AudioIODevice* device) override
@@ -109,15 +134,48 @@ void AudioDeviceManager::createDeviceTypesIfNeeded()
 
         types.clear (false);
 
-        if (auto* first = availableDeviceTypes.getFirst())
-            currentDeviceType = first->getTypeName();
+        for (auto* type : availableDeviceTypes)
+            type->scanForDevices();
+
+        pickCurrentDeviceTypeWithDevices();
     }
+}
+
+void AudioDeviceManager::pickCurrentDeviceTypeWithDevices()
+{
+    const auto deviceTypeHasDevices = [] (const AudioIODeviceType* ptr)
+    {
+        return ! ptr->getDeviceNames (true) .isEmpty()
+            || ! ptr->getDeviceNames (false).isEmpty();
+    };
+
+    if (auto* type = findType (currentDeviceType))
+        if (deviceTypeHasDevices (type))
+            return;
+
+    const auto iter = std::find_if (availableDeviceTypes.begin(),
+                                    availableDeviceTypes.end(),
+                                    deviceTypeHasDevices);
+
+    if (iter != availableDeviceTypes.end())
+        currentDeviceType = (*iter)->getTypeName();
 }
 
 const OwnedArray<AudioIODeviceType>& AudioDeviceManager::getAvailableDeviceTypes()
 {
     scanDevicesIfNeeded();
     return availableDeviceTypes;
+}
+
+void AudioDeviceManager::updateCurrentSetup()
+{
+    if (currentAudioDevice != nullptr)
+    {
+        currentSetup.sampleRate     = currentAudioDevice->getCurrentSampleRate();
+        currentSetup.bufferSize     = currentAudioDevice->getCurrentBufferSizeSamples();
+        currentSetup.inputChannels  = currentAudioDevice->getActiveInputChannels();
+        currentSetup.outputChannels = currentAudioDevice->getActiveOutputChannels();
+    }
 }
 
 void AudioDeviceManager::audioDeviceListChanged()
@@ -156,15 +214,15 @@ void AudioDeviceManager::audioDeviceListChanged()
                 initialiseDefault (preferredDeviceName, &currentSetup);
         }
 
-        if (currentAudioDevice != nullptr)
-        {
-            currentSetup.sampleRate     = currentAudioDevice->getCurrentSampleRate();
-            currentSetup.bufferSize     = currentAudioDevice->getCurrentBufferSizeSamples();
-            currentSetup.inputChannels  = currentAudioDevice->getActiveInputChannels();
-            currentSetup.outputChannels = currentAudioDevice->getActiveOutputChannels();
-        }
+        updateCurrentSetup();
     }
 
+    sendChangeMessage();
+}
+
+void AudioDeviceManager::midiDeviceListChanged()
+{
+    openLastRequestedMidiDevices (midiDeviceInfosFromXml, defaultMidiOutputDeviceInfo);
     sendChangeMessage();
 }
 
@@ -239,6 +297,7 @@ String AudioDeviceManager::initialise (const int numInputChannelsNeeded,
                                        const AudioDeviceSetup* preferredSetupOptions)
 {
     scanDevicesIfNeeded();
+    pickCurrentDeviceTypeWithDevices();
 
     numInputChansNeeded = numInputChannelsNeeded;
     numOutputChansNeeded = numOutputChannelsNeeded;
@@ -262,26 +321,67 @@ String AudioDeviceManager::initialiseDefault (const String& preferredDefaultDevi
     }
     else if (preferredDefaultDeviceName.isNotEmpty())
     {
-        for (auto* type : availableDeviceTypes)
+        const auto nameMatches = [&preferredDefaultDeviceName] (const String& name)
         {
-            for (auto& out : type->getDeviceNames (false))
+            return name.matchesWildcard (preferredDefaultDeviceName, true);
+        };
+
+        struct WildcardMatch
+        {
+            String value;
+            bool successful;
+        };
+
+        const auto getWildcardMatch = [&nameMatches] (const StringArray& names)
+        {
+            const auto iter = std::find_if (names.begin(), names.end(), nameMatches);
+            return WildcardMatch { iter != names.end() ? *iter : String(), iter != names.end() };
+        };
+
+        struct WildcardMatches
+        {
+            WildcardMatch input, output;
+        };
+
+        const auto getMatchesForType = [&getWildcardMatch] (const AudioIODeviceType* type)
+        {
+            return WildcardMatches { getWildcardMatch (type->getDeviceNames (true)),
+                                     getWildcardMatch (type->getDeviceNames (false)) };
+        };
+
+        struct SearchResult
+        {
+            String type, input, output;
+        };
+
+        const auto result = [&]
+        {
+            // First, look for a device type with an input and output which matches the preferred name
+            for (auto* type : availableDeviceTypes)
             {
-                if (out.matchesWildcard (preferredDefaultDeviceName, true))
-                {
-                    setup.outputDeviceName = out;
-                    break;
-                }
+                const auto matches = getMatchesForType (type);
+
+                if (matches.input.successful && matches.output.successful)
+                    return SearchResult { type->getTypeName(), matches.input.value, matches.output.value };
             }
 
-            for (auto& in : type->getDeviceNames (true))
+            // No device type has matching ins and outs, so fall back to a device where either the
+            // input or output match
+            for (auto* type : availableDeviceTypes)
             {
-                if (in.matchesWildcard (preferredDefaultDeviceName, true))
-                {
-                    setup.inputDeviceName = in;
-                    break;
-                }
+                const auto matches = getMatchesForType (type);
+
+                if (matches.input.successful || matches.output.successful)
+                    return SearchResult { type->getTypeName(), matches.input.value, matches.output.value };
             }
-        }
+
+            // No devices match the query, so just use the default devices from the current type
+            return SearchResult { currentDeviceType, {}, {} };
+        }();
+
+        currentDeviceType = result.type;
+        setup.inputDeviceName = result.input;
+        setup.outputDeviceName = result.output;
     }
 
     insertDefaultDeviceNames (setup);
@@ -336,65 +436,62 @@ String AudioDeviceManager::initialiseFromXML (const XmlElement& xml,
     if (error.isNotEmpty() && selectDefaultDeviceOnFailure)
         error = initialise (numInputChansNeeded, numOutputChansNeeded, nullptr, false, preferredDefaultDeviceName);
 
-    midiDeviceInfosFromXml.clear();
     enabledMidiInputs.clear();
 
-    for (auto* c : xml.getChildWithTagNameIterator ("MIDIINPUT"))
-        midiDeviceInfosFromXml.add ({ c->getStringAttribute ("name"), c->getStringAttribute ("identifier") });
-
-    auto isIdentifierAvailable = [] (const Array<MidiDeviceInfo>& available, const String& identifier)
+    const auto midiInputs = [&]
     {
-        for (auto& device : available)
-            if (device.identifier == identifier)
-                return true;
+        Array<MidiDeviceInfo> result;
 
-        return false;
-    };
+        for (auto* c : xml.getChildWithTagNameIterator ("MIDIINPUT"))
+            result.add ({ c->getStringAttribute ("name"), c->getStringAttribute ("identifier") });
 
-    auto getUpdatedIdentifierForName = [&] (const Array<MidiDeviceInfo>& available, const String& name) -> String
-    {
-        for (auto& device : available)
-            if (device.name == name)
-                return device.identifier;
+        return result;
+    }();
 
-        return {};
-    };
+    const MidiDeviceInfo defaultOutputDeviceInfo (xml.getStringAttribute ("defaultMidiOutput"),
+                                                  xml.getStringAttribute ("defaultMidiOutputDevice"));
 
-    auto inputs = MidiInput::getAvailableDevices();
-
-    for (auto& info : midiDeviceInfosFromXml)
-    {
-        if (isIdentifierAvailable (inputs, info.identifier))
-        {
-            setMidiInputDeviceEnabled (info.identifier, true);
-        }
-        else
-        {
-            auto identifier = getUpdatedIdentifierForName (inputs, info.name);
-
-            if (identifier.isNotEmpty())
-                setMidiInputDeviceEnabled (identifier, true);
-        }
-    }
-
-    MidiDeviceInfo defaultOutputDeviceInfo (xml.getStringAttribute ("defaultMidiOutput"),
-                                            xml.getStringAttribute ("defaultMidiOutputDevice"));
-
-    auto outputs = MidiOutput::getAvailableDevices();
-
-    if (isIdentifierAvailable (outputs, defaultOutputDeviceInfo.identifier))
-    {
-        setDefaultMidiOutputDevice (defaultOutputDeviceInfo.identifier);
-    }
-    else
-    {
-        auto identifier = getUpdatedIdentifierForName (outputs, defaultOutputDeviceInfo.name);
-
-        if (identifier.isNotEmpty())
-            setDefaultMidiOutputDevice (identifier);
-    }
+    openLastRequestedMidiDevices (midiInputs, defaultOutputDeviceInfo);
 
     return error;
+}
+
+void AudioDeviceManager::openLastRequestedMidiDevices (const Array<MidiDeviceInfo>& desiredInputs, const MidiDeviceInfo& defaultOutput)
+{
+    const auto openDeviceIfAvailable = [&] (const Array<MidiDeviceInfo>& devices,
+                                            const MidiDeviceInfo& deviceToOpen,
+                                            auto&& doOpen)
+    {
+        const auto iterWithMatchingIdentifier = std::find_if (devices.begin(), devices.end(), [&] (const auto& x)
+        {
+            return x.identifier == deviceToOpen.identifier;
+        });
+
+        if (iterWithMatchingIdentifier != devices.end())
+        {
+            doOpen (deviceToOpen.identifier);
+            return;
+        }
+
+        const auto iterWithMatchingName = std::find_if (devices.begin(), devices.end(), [&] (const auto& x)
+        {
+            return x.name == deviceToOpen.name;
+        });
+
+        if (iterWithMatchingName != devices.end())
+            doOpen (iterWithMatchingName->identifier);
+    };
+
+    midiDeviceInfosFromXml = desiredInputs;
+
+    const auto inputs = MidiInput::getAvailableDevices();
+
+    for (const auto& info : midiDeviceInfosFromXml)
+        openDeviceIfAvailable (inputs, info, [&] (const auto identifier) { setMidiInputDeviceEnabled (identifier, true); });
+
+    const auto outputs = MidiOutput::getAvailableDevices();
+
+    openDeviceIfAvailable (outputs, defaultOutput, [&] (const auto identifier) { setDefaultMidiOutputDevice (identifier); });
 }
 
 String AudioDeviceManager::initialiseWithDefaultDevices (int numInputChannelsNeeded,
@@ -408,13 +505,91 @@ String AudioDeviceManager::initialiseWithDefaultDevices (int numInputChannelsNee
 
 void AudioDeviceManager::insertDefaultDeviceNames (AudioDeviceSetup& setup) const
 {
+    enum class Direction { out, in };
+
     if (auto* type = getCurrentDeviceTypeObject())
     {
-        if (numOutputChansNeeded > 0 && setup.outputDeviceName.isEmpty())
-            setup.outputDeviceName = type->getDeviceNames (false) [type->getDefaultDeviceIndex (false)];
+        // We avoid selecting a device pair that doesn't share a matching sample rate, if possible.
+        // If not, other parts of the AudioDeviceManager and AudioIODevice classes should generate
+        // an appropriate error message when opening or starting these devices.
+        const auto getDevicesToTestForMatchingSampleRate = [&setup, type, this] (Direction dir)
+        {
+            const auto isInput = dir == Direction::in;
+            const auto info = getSetupInfo (setup, isInput);
 
-        if (numInputChansNeeded > 0 && setup.inputDeviceName.isEmpty())
-            setup.inputDeviceName = type->getDeviceNames (true) [type->getDefaultDeviceIndex (true)];
+            if (! info.name.isEmpty())
+                return StringArray { info.name };
+
+            const auto numChannelsNeeded = isInput ? numInputChansNeeded : numOutputChansNeeded;
+            auto deviceNames = numChannelsNeeded > 0 ? type->getDeviceNames (isInput) : StringArray {};
+            deviceNames.move (type->getDefaultDeviceIndex (isInput), 0);
+
+            return deviceNames;
+        };
+
+        std::map<std::pair<Direction, String>, Array<double>> sampleRatesCache;
+
+        const auto getSupportedSampleRates = [&sampleRatesCache, type] (Direction dir, const String& deviceName)
+        {
+            const auto key = std::make_pair (dir, deviceName);
+
+            auto& entry = [&]() -> auto&
+            {
+                auto it = sampleRatesCache.find (key);
+
+                if (it != sampleRatesCache.end())
+                    return it->second;
+
+                auto& elem = sampleRatesCache[key];
+                auto tempDevice = rawToUniquePtr (type->createDevice ((dir == Direction::in) ? "" : deviceName,
+                                                                      (dir == Direction::in) ? deviceName : ""));
+                if (tempDevice != nullptr)
+                    elem = tempDevice->getAvailableSampleRates();
+
+                return elem;
+            }();
+
+            return entry;
+        };
+
+        const auto validate = [&getSupportedSampleRates] (const String& outputDeviceName, const String& inputDeviceName)
+        {
+            jassert (! outputDeviceName.isEmpty() && ! inputDeviceName.isEmpty());
+
+            const auto outputSampleRates = getSupportedSampleRates (Direction::out, outputDeviceName);
+            const auto inputSampleRates  = getSupportedSampleRates (Direction::in,  inputDeviceName);
+
+            return std::any_of (inputSampleRates.begin(),
+                                inputSampleRates.end(),
+                                [&] (auto inputSampleRate) { return outputSampleRates.contains (inputSampleRate); });
+        };
+
+        auto outputsToTest = getDevicesToTestForMatchingSampleRate (Direction::out);
+        auto inputsToTest  = getDevicesToTestForMatchingSampleRate (Direction::in);
+
+        // We set default device names, so in case no in-out pair passes the validation, we still
+        // produce the same result as before
+        if (setup.outputDeviceName.isEmpty() && ! outputsToTest.isEmpty())
+            setup.outputDeviceName = outputsToTest[0];
+
+        if (setup.inputDeviceName.isEmpty() && ! inputsToTest.isEmpty())
+            setup.inputDeviceName = inputsToTest[0];
+
+        // We check all possible in-out pairs until the first validation pass. If no pair passes we
+        // leave the setup unchanged.
+        for (const auto& out : outputsToTest)
+        {
+            for (const auto& in : inputsToTest)
+            {
+                if (validate (out, in))
+                {
+                    setup.outputDeviceName = out;
+                    setup.inputDeviceName  = in;
+
+                    return;
+                }
+            }
+        }
     }
 }
 
@@ -560,20 +735,24 @@ String AudioDeviceManager::setAudioDeviceSetup (const AudioDeviceSetup& newSetup
 
     String error;
 
-    if (currentSetup.inputDeviceName  != newSetup.inputDeviceName
-     || currentSetup.outputDeviceName != newSetup.outputDeviceName
-     || currentAudioDevice == nullptr)
+    const auto needsNewDevice = currentSetup.inputDeviceName  != newSetup.inputDeviceName
+                             || currentSetup.outputDeviceName != newSetup.outputDeviceName
+                             || currentAudioDevice == nullptr;
+
+    if (needsNewDevice)
     {
         deleteCurrentDevice();
         scanDevicesIfNeeded();
 
         auto* type = getCurrentDeviceTypeObject();
 
-        if (newSetup.outputDeviceName.isNotEmpty() && ! deviceListContains (type, false, newSetup.outputDeviceName))
-            return "No such device: " + newSetup.outputDeviceName;
+        for (const auto isInput : { false, true })
+        {
+            const auto name = getSetupInfo (newSetup, isInput).name;
 
-        if (newSetup.inputDeviceName.isNotEmpty() && ! deviceListContains (type, true, newSetup.inputDeviceName))
-            return "No such device: " + newSetup.inputDeviceName;
+            if (name.isNotEmpty() && ! deviceListContains (type, isInput, name))
+                return "No such device: " + name;
+        }
 
         currentAudioDevice.reset (type->createDevice (newSetup.outputDeviceName, newSetup.inputDeviceName));
 
@@ -620,10 +799,12 @@ String AudioDeviceManager::setAudioDeviceSetup (const AudioDeviceSetup& newSetup
 
         currentAudioDevice->start (callbackHandler.get());
 
-        currentSetup.sampleRate     = currentAudioDevice->getCurrentSampleRate();
-        currentSetup.bufferSize     = currentAudioDevice->getCurrentBufferSizeSamples();
-        currentSetup.inputChannels  = currentAudioDevice->getActiveInputChannels();
-        currentSetup.outputChannels = currentAudioDevice->getActiveOutputChannels();
+        error = currentAudioDevice->getLastError();
+    }
+
+    if (error.isEmpty())
+    {
+        updateCurrentSetup();
 
         for (int i = 0; i < availableDeviceTypes.size(); ++i)
             if (availableDeviceTypes.getUnchecked (i)->getTypeName() == currentDeviceType)
@@ -793,50 +974,51 @@ void AudioDeviceManager::removeAudioCallback (AudioIODeviceCallback* callbackToR
         bool needsDeinitialising = currentAudioDevice != nullptr;
 
         {
-            //std::cout << "Requesting audio callback lock" << std::endl;
             const ScopedLock sl (audioCallbackLock);
 
             needsDeinitialising = needsDeinitialising && callbacks.contains (callbackToRemove);
-            //std::cout << "Removing matching value" << std::endl;
             callbacks.removeFirstMatchingValue (callbackToRemove);
         }
 
         if (needsDeinitialising)
-        {
-            //std::cout << "Sending device stop message" << std::endl;
             callbackToRemove->audioDeviceStopped();
-        }
-            
     }
 }
 
-void AudioDeviceManager::audioDeviceIOCallbackInt (const float** inputChannelData,
+void AudioDeviceManager::audioDeviceIOCallbackInt (const float* const* inputChannelData,
                                                    int numInputChannels,
-                                                   float** outputChannelData,
+                                                   float* const* outputChannelData,
                                                    int numOutputChannels,
-                                                   int numSamples)
+                                                   int numSamples,
+                                                   const AudioIODeviceCallbackContext& context)
 {
     const ScopedLock sl (audioCallbackLock);
 
     inputLevelGetter->updateLevel (inputChannelData, numInputChannels, numSamples);
-    outputLevelGetter->updateLevel (const_cast<const float**> (outputChannelData), numOutputChannels, numSamples);
 
     if (callbacks.size() > 0)
     {
-
-        AudioProcessLoadMeasurer::ScopedTimer timer (loadMeasurer);
+        AudioProcessLoadMeasurer::ScopedTimer timer (loadMeasurer, numSamples);
 
         tempBuffer.setSize (jmax (1, numOutputChannels), jmax (1, numSamples), false, false, true);
 
-        callbacks.getUnchecked(0)->audioDeviceIOCallback (inputChannelData, numInputChannels,
-                                                          outputChannelData, numOutputChannels, numSamples);
+        callbacks.getUnchecked(0)->audioDeviceIOCallbackWithContext (inputChannelData,
+                                                                     numInputChannels,
+                                                                     outputChannelData,
+                                                                     numOutputChannels,
+                                                                     numSamples,
+                                                                     context);
 
-        auto** tempChans = tempBuffer.getArrayOfWritePointers();
+        auto* const* tempChans = tempBuffer.getArrayOfWritePointers();
 
         for (int i = callbacks.size(); --i > 0;)
         {
-            callbacks.getUnchecked(i)->audioDeviceIOCallback (inputChannelData, numInputChannels,
-                                                              tempChans, numOutputChannels, numSamples);
+            callbacks.getUnchecked(i)->audioDeviceIOCallbackWithContext (inputChannelData,
+                                                                         numInputChannels,
+                                                                         tempChans,
+                                                                         numOutputChannels,
+                                                                         numSamples,
+                                                                         context);
 
             for (int chan = 0; chan < numOutputChannels; ++chan)
             {
@@ -859,20 +1041,25 @@ void AudioDeviceManager::audioDeviceIOCallbackInt (const float** inputChannelDat
         auto* src = testSound->getReadPointer (0, testSoundPosition);
 
         for (int i = 0; i < numOutputChannels; ++i)
-            for (int j = 0; j < numSamps; ++j)
-                outputChannelData [i][j] += src[j];
+            if (auto* dst = outputChannelData [i])
+                for (int j = 0; j < numSamps; ++j)
+                    dst[j] += src[j];
 
         testSoundPosition += numSamps;
 
         if (testSoundPosition >= testSound->getNumSamples())
             testSound.reset();
     }
+
+    outputLevelGetter->updateLevel (outputChannelData, numOutputChannels, numSamples);
 }
 
 void AudioDeviceManager::audioDeviceAboutToStartInt (AudioIODevice* const device)
 {
     loadMeasurer.reset (device->getCurrentSampleRate(),
                         device->getCurrentBufferSizeSamples());
+
+    updateCurrentSetup();
 
     {
         const ScopedLock sl (audioCallbackLock);
@@ -985,6 +1172,7 @@ void AudioDeviceManager::setDefaultMidiOutputDevice (const String& identifier)
 {
     if (defaultMidiOutputDeviceInfo.identifier != identifier)
     {
+        std::unique_ptr<MidiOutput> oldMidiPort;
         Array<AudioIODeviceCallback*> oldCallbacks;
 
         {
@@ -996,7 +1184,7 @@ void AudioDeviceManager::setDefaultMidiOutputDevice (const String& identifier)
             for (int i = oldCallbacks.size(); --i >= 0;)
                 oldCallbacks.getUnchecked (i)->audioDeviceStopped();
 
-        defaultMidiOutput.reset();
+        std::swap (oldMidiPort, defaultMidiOutput);
 
         if (identifier.isNotEmpty())
             defaultMidiOutput = MidiOutput::openDevice (identifier);
@@ -1016,7 +1204,7 @@ void AudioDeviceManager::setDefaultMidiOutputDevice (const String& identifier)
         }
 
         updateXml();
-        sendChangeMessage();
+        sendSynchronousChangeMessage();
     }
 }
 
@@ -1181,5 +1369,572 @@ void AudioDeviceManager::setDefaultMidiOutput (const String& name)
         }
     }
 }
+
+//==============================================================================
+//==============================================================================
+#if JUCE_UNIT_TESTS
+
+class AudioDeviceManagerTests : public UnitTest
+{
+public:
+    AudioDeviceManagerTests() : UnitTest ("AudioDeviceManager", UnitTestCategories::audio) {}
+
+    void runTest() override
+    {
+        beginTest ("When the AudioDeviceSetup has non-empty device names, initialise uses the requested devices");
+        {
+            AudioDeviceManager manager;
+            initialiseManager (manager);
+
+            expectEquals (manager.getAvailableDeviceTypes().size(), 2);
+
+            AudioDeviceManager::AudioDeviceSetup setup;
+            setup.outputDeviceName = "z";
+            setup.inputDeviceName = "c";
+
+            expect (manager.initialise (2, 2, nullptr, true, String{}, &setup).isEmpty());
+
+            const auto& newSetup = manager.getAudioDeviceSetup();
+
+            expectEquals (newSetup.outputDeviceName, setup.outputDeviceName);
+            expectEquals (newSetup.inputDeviceName, setup.inputDeviceName);
+
+            expectEquals (newSetup.outputChannels.countNumberOfSetBits(), 2);
+            expectEquals (newSetup.inputChannels.countNumberOfSetBits(), 2);
+        }
+
+        beginTest ("When the AudioDeviceSetup has empty device names, initialise picks suitable default devices");
+        {
+            AudioDeviceManager manager;
+            initialiseManager (manager);
+
+            AudioDeviceManager::AudioDeviceSetup setup;
+
+            expect (manager.initialise (2, 2, nullptr, true, String{}, &setup).isEmpty());
+
+            const auto& newSetup = manager.getAudioDeviceSetup();
+
+            expectEquals (newSetup.outputDeviceName, String ("x"));
+            expectEquals (newSetup.inputDeviceName, String ("a"));
+
+            expectEquals (newSetup.outputChannels.countNumberOfSetBits(), 2);
+            expectEquals (newSetup.inputChannels.countNumberOfSetBits(), 2);
+        }
+
+        beginTest ("When the preferred device name matches an input and an output on the same type, that type is used");
+        {
+            AudioDeviceManager manager;
+            initialiseManagerWithDifferentDeviceNames (manager);
+
+            expect (manager.initialise (2, 2, nullptr, true, "bar *").isEmpty());
+
+            expectEquals (manager.getCurrentAudioDeviceType(), String ("bar"));
+
+            const auto& newSetup = manager.getAudioDeviceSetup();
+
+            expectEquals (newSetup.outputDeviceName, String ("bar out a"));
+            expectEquals (newSetup.inputDeviceName, String ("bar in a"));
+
+            expectEquals (newSetup.outputChannels.countNumberOfSetBits(), 2);
+            expectEquals (newSetup.inputChannels.countNumberOfSetBits(), 2);
+
+            expect (manager.getCurrentAudioDevice() != nullptr);
+        }
+
+        beginTest ("When the preferred device name matches either an input and an output, but not both, that type is used");
+        {
+            AudioDeviceManager manager;
+            initialiseManagerWithDifferentDeviceNames (manager);
+
+            expect (manager.initialise (2, 2, nullptr, true, "bar out b").isEmpty());
+
+            expectEquals (manager.getCurrentAudioDeviceType(), String ("bar"));
+
+            const auto& newSetup = manager.getAudioDeviceSetup();
+
+            expectEquals (newSetup.outputDeviceName, String ("bar out b"));
+            expectEquals (newSetup.inputDeviceName, String ("bar in a"));
+
+            expectEquals (newSetup.outputChannels.countNumberOfSetBits(), 2);
+            expectEquals (newSetup.inputChannels.countNumberOfSetBits(), 2);
+
+            expect (manager.getCurrentAudioDevice() != nullptr);
+        }
+
+        beginTest ("When the preferred device name does not match any inputs or outputs, defaults are used");
+        {
+            AudioDeviceManager manager;
+            initialiseManagerWithDifferentDeviceNames (manager);
+
+            expect (manager.initialise (2, 2, nullptr, true, "unmatchable").isEmpty());
+
+            expectEquals (manager.getCurrentAudioDeviceType(), String ("foo"));
+
+            const auto& newSetup = manager.getAudioDeviceSetup();
+
+            expectEquals (newSetup.outputDeviceName, String ("foo out a"));
+            expectEquals (newSetup.inputDeviceName, String ("foo in a"));
+
+            expectEquals (newSetup.outputChannels.countNumberOfSetBits(), 2);
+            expectEquals (newSetup.inputChannels.countNumberOfSetBits(), 2);
+
+            expect (manager.getCurrentAudioDevice() != nullptr);
+        }
+
+        beginTest ("When first device type has no devices, a device type with devices is used instead");
+        {
+            AudioDeviceManager manager;
+            initialiseManagerWithEmptyDeviceType (manager);
+
+            AudioDeviceManager::AudioDeviceSetup setup;
+
+            expect (manager.initialise (2, 2, nullptr, true, {}, &setup).isEmpty());
+
+            const auto& newSetup = manager.getAudioDeviceSetup();
+
+            expectEquals (newSetup.outputDeviceName, String ("x"));
+            expectEquals (newSetup.inputDeviceName, String ("a"));
+
+            expectEquals (newSetup.outputChannels.countNumberOfSetBits(), 2);
+            expectEquals (newSetup.inputChannels.countNumberOfSetBits(), 2);
+        }
+
+        beginTest ("If a device type has been explicitly set to a type with devices, "
+                   "initialisation should respect this choice");
+        {
+            AudioDeviceManager manager;
+            initialiseManagerWithEmptyDeviceType (manager);
+            manager.setCurrentAudioDeviceType (mockBName, true);
+
+            AudioDeviceManager::AudioDeviceSetup setup;
+            expect (manager.initialise (2, 2, nullptr, true, {}, &setup).isEmpty());
+
+            expectEquals (manager.getCurrentAudioDeviceType(), mockBName);
+        }
+
+        beginTest ("If a device type has been explicitly set to a type without devices, "
+                   "initialisation should pick a type with devices instead");
+        {
+            AudioDeviceManager manager;
+            initialiseManagerWithEmptyDeviceType (manager);
+            manager.setCurrentAudioDeviceType (emptyName, true);
+
+            AudioDeviceManager::AudioDeviceSetup setup;
+            expect (manager.initialise (2, 2, nullptr, true, {}, &setup).isEmpty());
+
+            expectEquals (manager.getCurrentAudioDeviceType(), mockAName);
+        }
+
+        beginTest ("Carry out a long sequence of configuration changes");
+        {
+            AudioDeviceManager manager;
+            initialiseManagerWithEmptyDeviceType    (manager);
+            initialiseWithDefaultDevices            (manager);
+            disableInputChannelsButLeaveDeviceOpen  (manager);
+            selectANewInputDevice                   (manager);
+            disableInputDevice                      (manager);
+            reenableInputDeviceWithNoChannels       (manager);
+            enableInputChannels                     (manager);
+            disableInputChannelsButLeaveDeviceOpen  (manager);
+            switchDeviceType                        (manager);
+            enableInputChannels                     (manager);
+            closeDeviceByRequestingEmptyNames       (manager);
+        }
+
+        beginTest ("AudioDeviceManager updates its current settings before notifying callbacks when device restarts itself");
+        {
+            AudioDeviceManager manager;
+            auto deviceType = std::make_unique<MockDeviceType> ("foo",
+                                                                StringArray { "foo in a", "foo in b" },
+                                                                StringArray { "foo out a", "foo out b" });
+            auto* ptr = deviceType.get();
+            manager.addAudioDeviceType (std::move (deviceType));
+
+            AudioDeviceManager::AudioDeviceSetup setup;
+            setup.sampleRate = 48000.0;
+            setup.bufferSize = 256;
+            setup.inputDeviceName = "foo in a";
+            setup.outputDeviceName = "foo out a";
+            setup.useDefaultInputChannels = true;
+            setup.useDefaultOutputChannels = true;
+            manager.setAudioDeviceSetup (setup, true);
+
+            const auto currentSetup = manager.getAudioDeviceSetup();
+            expectEquals (currentSetup.sampleRate, setup.sampleRate);
+            expectEquals (currentSetup.bufferSize, setup.bufferSize);
+
+            MockCallback callback;
+            manager.addAudioCallback (&callback);
+
+            constexpr auto newSr = 10000.0;
+            constexpr auto newBs = 1024;
+            auto numCalls = 0;
+
+            // Compilers disagree about whether newSr and newBs need to be captured
+            callback.aboutToStart = [&]
+            {
+                ++numCalls;
+                const auto current = manager.getAudioDeviceSetup();
+                expectEquals (current.sampleRate, newSr);
+                expectEquals (current.bufferSize, newBs);
+            };
+
+            ptr->restartDevices (newSr, newBs);
+            expectEquals (numCalls, 1);
+        }
+    }
+
+private:
+    void initialiseWithDefaultDevices (AudioDeviceManager& manager)
+    {
+        manager.initialiseWithDefaultDevices (2, 2);
+        const auto& setup = manager.getAudioDeviceSetup();
+
+        expectEquals (setup.inputChannels.countNumberOfSetBits(), 2);
+        expectEquals (setup.outputChannels.countNumberOfSetBits(), 2);
+
+        expect (setup.useDefaultInputChannels);
+        expect (setup.useDefaultOutputChannels);
+
+        expect (manager.getCurrentAudioDevice() != nullptr);
+    }
+
+    void disableInputChannelsButLeaveDeviceOpen (AudioDeviceManager& manager)
+    {
+        auto setup = manager.getAudioDeviceSetup();
+        setup.inputChannels.clear();
+        setup.useDefaultInputChannels = false;
+
+        expect (manager.setAudioDeviceSetup (setup, true).isEmpty());
+
+        const auto newSetup = manager.getAudioDeviceSetup();
+        expectEquals (newSetup.inputChannels.countNumberOfSetBits(), 0);
+        expectEquals (newSetup.outputChannels.countNumberOfSetBits(), 2);
+
+        expect (! newSetup.useDefaultInputChannels);
+        expect (newSetup.useDefaultOutputChannels);
+
+        expectEquals (newSetup.inputDeviceName, setup.inputDeviceName);
+        expectEquals (newSetup.outputDeviceName, setup.outputDeviceName);
+
+        expect (manager.getCurrentAudioDevice() != nullptr);
+    }
+
+    void selectANewInputDevice (AudioDeviceManager& manager)
+    {
+        auto setup = manager.getAudioDeviceSetup();
+        setup.inputDeviceName = "b";
+
+        expect (manager.setAudioDeviceSetup (setup, true).isEmpty());
+
+        const auto newSetup = manager.getAudioDeviceSetup();
+        expectEquals (newSetup.inputChannels.countNumberOfSetBits(), 0);
+        expectEquals (newSetup.outputChannels.countNumberOfSetBits(), 2);
+
+        expect (! newSetup.useDefaultInputChannels);
+        expect (newSetup.useDefaultOutputChannels);
+
+        expectEquals (newSetup.inputDeviceName, setup.inputDeviceName);
+        expectEquals (newSetup.outputDeviceName, setup.outputDeviceName);
+
+        expect (manager.getCurrentAudioDevice() != nullptr);
+    }
+
+    void disableInputDevice (AudioDeviceManager& manager)
+    {
+        auto setup = manager.getAudioDeviceSetup();
+        setup.inputDeviceName = "";
+
+        expect (manager.setAudioDeviceSetup (setup, true).isEmpty());
+
+        const auto newSetup = manager.getAudioDeviceSetup();
+        expectEquals (newSetup.inputChannels.countNumberOfSetBits(), 0);
+        expectEquals (newSetup.outputChannels.countNumberOfSetBits(), 2);
+
+        expect (! newSetup.useDefaultInputChannels);
+        expect (newSetup.useDefaultOutputChannels);
+
+        expectEquals (newSetup.inputDeviceName, setup.inputDeviceName);
+        expectEquals (newSetup.outputDeviceName, setup.outputDeviceName);
+
+        expect (manager.getCurrentAudioDevice() != nullptr);
+    }
+
+    void reenableInputDeviceWithNoChannels (AudioDeviceManager& manager)
+    {
+        auto setup = manager.getAudioDeviceSetup();
+        setup.inputDeviceName = "a";
+
+        expect (manager.setAudioDeviceSetup (setup, true).isEmpty());
+
+        const auto newSetup = manager.getAudioDeviceSetup();
+        expectEquals (newSetup.inputChannels.countNumberOfSetBits(), 0);
+        expectEquals (newSetup.outputChannels.countNumberOfSetBits(), 2);
+
+        expect (! newSetup.useDefaultInputChannels);
+        expect (newSetup.useDefaultOutputChannels);
+
+        expectEquals (newSetup.inputDeviceName, setup.inputDeviceName);
+        expectEquals (newSetup.outputDeviceName, setup.outputDeviceName);
+
+        expect (manager.getCurrentAudioDevice() != nullptr);
+    }
+
+    void enableInputChannels (AudioDeviceManager& manager)
+    {
+        auto setup = manager.getAudioDeviceSetup();
+        setup.inputDeviceName = manager.getCurrentDeviceTypeObject()->getDeviceNames (true)[0];
+        setup.inputChannels = 3;
+        setup.useDefaultInputChannels = false;
+
+        expect (manager.setAudioDeviceSetup (setup, true).isEmpty());
+
+        const auto newSetup = manager.getAudioDeviceSetup();
+        expectEquals (newSetup.inputChannels.countNumberOfSetBits(), 2);
+        expectEquals (newSetup.outputChannels.countNumberOfSetBits(), 2);
+
+        expect (! newSetup.useDefaultInputChannels);
+        expect (newSetup.useDefaultOutputChannels);
+
+        expectEquals (newSetup.inputDeviceName, setup.inputDeviceName);
+        expectEquals (newSetup.outputDeviceName, setup.outputDeviceName);
+
+        expect (manager.getCurrentAudioDevice() != nullptr);
+    }
+
+    void switchDeviceType (AudioDeviceManager& manager)
+    {
+        const auto oldSetup = manager.getAudioDeviceSetup();
+
+        expectEquals (manager.getCurrentAudioDeviceType(), String (mockAName));
+
+        manager.setCurrentAudioDeviceType (mockBName, true);
+
+        expectEquals (manager.getCurrentAudioDeviceType(), String (mockBName));
+
+        const auto newSetup = manager.getAudioDeviceSetup();
+
+        expect (newSetup.outputDeviceName.isNotEmpty());
+        // We had no channels enabled, which means we don't need to open a new input device
+        expect (newSetup.inputDeviceName.isEmpty());
+
+        expectEquals (newSetup.inputChannels.countNumberOfSetBits(), 0);
+        expectEquals (newSetup.outputChannels.countNumberOfSetBits(), 2);
+
+        expect (manager.getCurrentAudioDevice() != nullptr);
+    }
+
+    void closeDeviceByRequestingEmptyNames (AudioDeviceManager& manager)
+    {
+        auto setup = manager.getAudioDeviceSetup();
+        setup.inputDeviceName = "";
+        setup.outputDeviceName = "";
+
+        expect (manager.setAudioDeviceSetup (setup, true).isEmpty());
+
+        const auto newSetup = manager.getAudioDeviceSetup();
+        expectEquals (newSetup.inputChannels.countNumberOfSetBits(), 2);
+        expectEquals (newSetup.outputChannels.countNumberOfSetBits(), 2);
+
+        expect (newSetup.inputDeviceName.isEmpty());
+        expect (newSetup.outputDeviceName.isEmpty());
+
+        expect (manager.getCurrentAudioDevice() == nullptr);
+    }
+
+    const String mockAName = "mockA";
+    const String mockBName = "mockB";
+    const String emptyName = "empty";
+
+    struct Restartable
+    {
+        virtual ~Restartable() = default;
+        virtual void restart (double newSr, int newBs) = 0;
+    };
+
+    class MockDevice : public AudioIODevice,
+                       private Restartable
+    {
+    public:
+        MockDevice (ListenerList<Restartable>& l, String typeNameIn, String outNameIn, String inNameIn)
+            : AudioIODevice ("mock", typeNameIn), listeners (l), outName (outNameIn), inName (inNameIn)
+        {
+            listeners.add (this);
+        }
+
+        ~MockDevice() override
+        {
+            listeners.remove (this);
+        }
+
+        StringArray getOutputChannelNames() override { return { "o1", "o2", "o3" }; }
+        StringArray getInputChannelNames()  override { return { "i1", "i2", "i3" }; }
+
+        Array<double> getAvailableSampleRates() override { return { 44100.0, 48000.0 }; }
+        Array<int> getAvailableBufferSizes() override { return { 128, 256 }; }
+        int getDefaultBufferSize() override { return 128; }
+
+        String open (const BigInteger& inputs, const BigInteger& outputs, double sr, int bs) override
+        {
+            inChannels = inputs;
+            outChannels = outputs;
+            sampleRate = sr;
+            blockSize = bs;
+            on = true;
+            return {};
+        }
+
+        void close() override { on = false; }
+        bool isOpen() override { return on; }
+
+        void start (AudioIODeviceCallback* c) override
+        {
+            callback = c;
+            callback->audioDeviceAboutToStart (this);
+            playing = true;
+        }
+
+        void stop() override
+        {
+            playing = false;
+            callback->audioDeviceStopped();
+        }
+
+        bool isPlaying() override { return playing; }
+
+        String getLastError() override { return {}; }
+        int getCurrentBufferSizeSamples() override { return blockSize; }
+        double getCurrentSampleRate() override { return sampleRate; }
+        int getCurrentBitDepth() override { return 16; }
+
+        BigInteger getActiveOutputChannels() const override { return outChannels; }
+        BigInteger getActiveInputChannels()  const override { return inChannels; }
+
+        int getOutputLatencyInSamples() override { return 0; }
+        int getInputLatencyInSamples() override { return 0; }
+
+    private:
+        void restart (double newSr, int newBs) override
+        {
+            stop();
+            close();
+            open (inChannels, outChannels, newSr, newBs);
+            start (callback);
+        }
+
+        ListenerList<Restartable>& listeners;
+        AudioIODeviceCallback* callback = nullptr;
+        String outName, inName;
+        BigInteger outChannels, inChannels;
+        double sampleRate = 0.0;
+        int blockSize = 0;
+        bool on = false, playing = false;
+    };
+
+    class MockDeviceType : public AudioIODeviceType
+    {
+    public:
+        explicit MockDeviceType (String kind)
+            : MockDeviceType (std::move (kind), { "a", "b", "c" }, { "x", "y", "z" }) {}
+
+        MockDeviceType (String kind, StringArray inputNames, StringArray outputNames)
+            : AudioIODeviceType (std::move (kind)),
+              inNames (std::move (inputNames)),
+              outNames (std::move (outputNames)) {}
+
+        ~MockDeviceType() override
+        {
+            // A Device outlived its DeviceType!
+            jassert (listeners.isEmpty());
+        }
+
+        void scanForDevices() override {}
+
+        StringArray getDeviceNames (bool isInput) const override
+        {
+            return getNames (isInput);
+        }
+
+        int getDefaultDeviceIndex (bool) const override { return 0; }
+
+        int getIndexOfDevice (AudioIODevice* device, bool isInput) const override
+        {
+            return getNames (isInput).indexOf (device->getName());
+        }
+
+        bool hasSeparateInputsAndOutputs() const override { return true; }
+
+        AudioIODevice* createDevice (const String& outputName, const String& inputName) override
+        {
+            if (inNames.contains (inputName) || outNames.contains (outputName))
+                return new MockDevice (listeners, getTypeName(), outputName, inputName);
+
+            return nullptr;
+        }
+
+        // Call this to emulate the device restarting itself with new settings.
+        // This might happen e.g. when a user changes the ASIO settings.
+        void restartDevices (double newSr, int newBs)
+        {
+            listeners.call ([&] (auto& l) { return l.restart (newSr, newBs); });
+        }
+
+    private:
+        const StringArray& getNames (bool isInput) const { return isInput ? inNames : outNames; }
+
+        const StringArray inNames, outNames;
+        ListenerList<Restartable> listeners;
+    };
+
+    class MockCallback : public AudioIODeviceCallback
+    {
+    public:
+        std::function<void()> callback;
+        std::function<void()> aboutToStart;
+        std::function<void()> stopped;
+        std::function<void()> error;
+
+        void audioDeviceIOCallbackWithContext (const float* const*,
+                                               int,
+                                               float* const*,
+                                               int,
+                                               int,
+                                               const AudioIODeviceCallbackContext&) override
+        {
+            NullCheckedInvocation::invoke (callback);
+        }
+
+        void audioDeviceAboutToStart (AudioIODevice*) override { NullCheckedInvocation::invoke (aboutToStart); }
+        void audioDeviceStopped()                     override { NullCheckedInvocation::invoke (stopped); }
+        void audioDeviceError (const String&)         override { NullCheckedInvocation::invoke (error); }
+    };
+
+    void initialiseManager (AudioDeviceManager& manager)
+    {
+        manager.addAudioDeviceType (std::make_unique<MockDeviceType> (mockAName));
+        manager.addAudioDeviceType (std::make_unique<MockDeviceType> (mockBName));
+    }
+
+    void initialiseManagerWithEmptyDeviceType (AudioDeviceManager& manager)
+    {
+        manager.addAudioDeviceType (std::make_unique<MockDeviceType> (emptyName, StringArray{}, StringArray{}));
+        initialiseManager (manager);
+    }
+
+    void initialiseManagerWithDifferentDeviceNames (AudioDeviceManager& manager)
+    {
+        manager.addAudioDeviceType (std::make_unique<MockDeviceType> ("foo",
+                                                                      StringArray { "foo in a", "foo in b" },
+                                                                      StringArray { "foo out a", "foo out b" }));
+
+        manager.addAudioDeviceType (std::make_unique<MockDeviceType> ("bar",
+                                                                      StringArray { "bar in a", "bar in b" },
+                                                                      StringArray { "bar out a", "bar out b" }));
+    }
+};
+
+static AudioDeviceManagerTests audioDeviceManagerTests;
+
+#endif
 
 } // namespace juce

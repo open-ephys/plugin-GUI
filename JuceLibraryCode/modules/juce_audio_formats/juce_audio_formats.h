@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -35,11 +35,12 @@
 
   ID:                 juce_audio_formats
   vendor:             juce
-  version:            6.0.8
+  version:            7.0.5
   name:               JUCE audio file format codecs
   description:        Classes for reading and writing various audio file formats.
   website:            http://www.juce.com/juce
   license:            GPL/Commercial
+  minimumCppStandard: 17
 
   dependencies:       juce_audio_basics
   OSXFrameworks:      CoreAudio CoreMIDI QuartzCore AudioToolbox
@@ -104,7 +105,7 @@
  #define JUCE_USE_WINDOWS_MEDIA_FORMAT 1
 #endif
 
-#if ! JUCE_WINDOWS
+#if ! JUCE_WINDOWS || JUCE_MINGW
  #undef JUCE_USE_WINDOWS_MEDIA_FORMAT
  #define JUCE_USE_WINDOWS_MEDIA_FORMAT 0
 #endif
@@ -127,3 +128,9 @@
 #include "codecs/juce_WavAudioFormat.h"
 #include "codecs/juce_WindowsMediaAudioFormat.h"
 #include "sampler/juce_Sampler.h"
+
+#if JucePlugin_Enable_ARA
+ #include <juce_audio_processors/juce_audio_processors.h>
+
+ #include "format/juce_ARAAudioReaders.h"
+#endif

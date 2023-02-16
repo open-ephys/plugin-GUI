@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -726,10 +726,11 @@ void Path::addBubble (Rectangle<float> bodyArea,
 void Path::addPath (const Path& other)
 {
     const auto* d = other.data.begin();
+    const auto size = other.data.size();
 
-    for (int i = 0; i < other.data.size();)
+    for (int i = 0; i < size;)
     {
-        auto type = d[i++];
+        const auto type = d[i++];
 
         if (isMarker (type, moveMarker))
         {
@@ -767,10 +768,11 @@ void Path::addPath (const Path& other,
                     const AffineTransform& transformToApply)
 {
     const auto* d = other.data.begin();
+    const auto size = other.data.size();
 
-    for (int i = 0; i < other.data.size();)
+    for (int i = 0; i < size;)
     {
-        auto type = d[i++];
+        const auto type = d[i++];
 
         if (isMarker (type, closeSubPathMarker))
         {
@@ -970,7 +972,7 @@ bool Path::contains (Point<float> point, float tolerance) const
     return contains (point.x, point.y, tolerance);
 }
 
-bool Path::intersectsLine (Line<float> line, float tolerance)
+bool Path::intersectsLine (Line<float> line, float tolerance) const
 {
     PathFlatteningIterator i (*this, AffineTransform(), tolerance);
     Point<float> intersection;

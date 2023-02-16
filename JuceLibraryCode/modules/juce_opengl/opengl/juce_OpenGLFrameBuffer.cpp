@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -39,7 +39,7 @@ public:
         // context. You'll need to create this object in one of the OpenGLContext's callbacks.
         jassert (OpenGLHelpers::isContextActive());
 
-       #if JUCE_WINDOWS || JUCE_LINUX
+       #if JUCE_WINDOWS || JUCE_LINUX || JUCE_BSD
         if (context.extensions.glGenFramebuffers == nullptr)
             return;
        #endif
@@ -69,11 +69,11 @@ public:
             jassert (context.extensions.glIsRenderbuffer (depthOrStencilBuffer));
 
             context.extensions.glRenderbufferStorage (GL_RENDERBUFFER,
-                                      (wantsDepthBuffer && wantsStencilBuffer) ? GL_DEPTH24_STENCIL8
+                                      (wantsDepthBuffer && wantsStencilBuffer) ? (GLenum) GL_DEPTH24_STENCIL8
                                                                               #if JUCE_OPENGL_ES
-                                                                               : GL_DEPTH_COMPONENT16,
+                                                                               : (GLenum) GL_DEPTH_COMPONENT16,
                                                                               #else
-                                                                               : GL_DEPTH_COMPONENT,
+                                                                               : (GLenum) GL_DEPTH_COMPONENT,
                                                                               #endif
                                       width, height);
 
@@ -286,7 +286,7 @@ GLuint OpenGLFrameBuffer::getFrameBufferID() const noexcept
 
 GLuint OpenGLFrameBuffer::getCurrentFrameBufferTarget() noexcept
 {
-    GLint fb;
+    GLint fb = {};
     glGetIntegerv (GL_FRAMEBUFFER_BINDING, &fb);
     return (GLuint) fb;
 }

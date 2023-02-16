@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -58,12 +58,12 @@ void AudioProcessorEditor::initialise()
 {
     /*
       ==========================================================================
-       In accordance with the terms of the JUCE 6 End-Use License Agreement, the
+       In accordance with the terms of the JUCE 7 End-Use License Agreement, the
        JUCE Code in SECTION A cannot be removed, changed or otherwise rendered
        ineffective unless you have a JUCE Indie or Pro license, or are using
        JUCE under the GPL v3 license.
 
-       End User License Agreement: www.juce.com/juce-6-licence
+       End User License Agreement: www.juce.com/juce-7-licence
       ==========================================================================
     */
 
@@ -73,7 +73,7 @@ void AudioProcessorEditor::initialise()
 
     // END SECTION A
 
-    setConstrainer (&defaultConstrainer);
+    attachConstrainer (&defaultConstrainer);
     resizeListener.reset (new AudioProcessorEditorListener (*this));
     addComponentListener (resizeListener.get());
 }
@@ -124,8 +124,7 @@ void AudioProcessorEditor::setConstrainer (ComponentBoundsConstrainer* newConstr
 {
     if (constrainer != newConstrainer)
     {
-        constrainer = newConstrainer;
-        updatePeer();
+        attachConstrainer (newConstrainer);
 
         if (constrainer != nullptr)
             resizableByHost = (newConstrainer->getMinimumWidth() != newConstrainer->getMaximumWidth()
@@ -133,6 +132,15 @@ void AudioProcessorEditor::setConstrainer (ComponentBoundsConstrainer* newConstr
 
         if (resizableCorner != nullptr)
             attachResizableCornerComponent();
+    }
+}
+
+void AudioProcessorEditor::attachConstrainer (ComponentBoundsConstrainer* newConstrainer)
+{
+    if (constrainer != newConstrainer)
+    {
+        constrainer = newConstrainer;
+        updatePeer();
     }
 }
 
@@ -208,13 +216,11 @@ void AudioProcessorEditor::setScaleFactor (float newScale)
 typedef ComponentPeer* (*createUnityPeerFunctionType) (Component&);
 createUnityPeerFunctionType juce_createUnityPeerFn = nullptr;
 
-ComponentPeer* AudioProcessorEditor::createNewPeer (int styleFlags, void* nativeWindow)
+ComponentPeer* AudioProcessorEditor::createNewPeer ([[maybe_unused]] int styleFlags,
+                                                    [[maybe_unused]] void* nativeWindow)
 {
     if (juce_createUnityPeerFn != nullptr)
-    {
-        ignoreUnused (styleFlags, nativeWindow);
         return juce_createUnityPeerFn (*this);
-    }
 
     return Component::createNewPeer (styleFlags, nativeWindow);
 }

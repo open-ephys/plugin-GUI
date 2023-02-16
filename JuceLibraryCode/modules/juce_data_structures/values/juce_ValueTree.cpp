@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -46,7 +46,7 @@ public:
 
     SharedObject& operator= (const SharedObject&) = delete;
 
-    ~SharedObject()
+    ~SharedObject() override
     {
         jassert (parent == nullptr); // this should never happen unless something isn't obeying the ref-counting!
 
@@ -579,8 +579,6 @@ ValueTree::ValueTree() noexcept
 {
 }
 
-JUCE_DECLARE_DEPRECATED_STATIC (const ValueTree ValueTree::invalid;)
-
 ValueTree::ValueTree (const Identifier& type)  : object (new ValueTree::SharedObject (type))
 {
     jassert (type.toString().isNotEmpty()); // All objects must be given a sensible type name!
@@ -671,6 +669,9 @@ void ValueTree::copyPropertiesFrom (const ValueTree& source, UndoManager* undoMa
 {
     jassert (object != nullptr || source.object == nullptr); // Trying to add properties to a null ValueTree will fail!
 
+    if (source == *this)
+        return;
+
     if (source.object == nullptr)
         removeAllProperties (undoManager);
     else if (object != nullptr)
@@ -680,6 +681,9 @@ void ValueTree::copyPropertiesFrom (const ValueTree& source, UndoManager* undoMa
 void ValueTree::copyPropertiesAndChildrenFrom (const ValueTree& source, UndoManager* undoManager)
 {
     jassert (object != nullptr || source.object == nullptr); // Trying to copy to a null ValueTree will fail!
+
+    if (source == *this)
+        return;
 
     copyPropertiesFrom (source, undoManager);
     removeAllChildren (undoManager);
@@ -869,7 +873,7 @@ ValueTree::Iterator::Iterator (const ValueTree& v, bool isEnd)
 
 ValueTree::Iterator& ValueTree::Iterator::operator++()
 {
-    internal = static_cast<SharedObject**> (internal) + 1;
+    ++internal;
     return *this;
 }
 
@@ -878,7 +882,7 @@ bool ValueTree::Iterator::operator!= (const Iterator& other) const  { return int
 
 ValueTree ValueTree::Iterator::operator*() const
 {
-    return ValueTree (SharedObject::Ptr (*static_cast<SharedObject**> (internal)));
+    return ValueTree (SharedObject::Ptr (*internal));
 }
 
 ValueTree::Iterator ValueTree::begin() const noexcept   { return Iterator (*this, false); }
@@ -949,19 +953,16 @@ void ValueTree::moveChild (int currentIndex, int newIndex, UndoManager* undoMana
 //==============================================================================
 void ValueTree::createListOfChildren (OwnedArray<ValueTree>& list) const
 {
-    jassert (object != nullptr);
-
-    for (auto* o : object->children)
-    {
-        jassert (o != nullptr);
-        list.add (new ValueTree (*o));
-    }
+    if (object != nullptr)
+        for (auto* o : object->children)
+            if (o != nullptr)
+                list.add (new ValueTree (*o));
 }
 
 void ValueTree::reorderChildren (const OwnedArray<ValueTree>& newOrder, UndoManager* undoManager)
 {
-    jassert (object != nullptr);
-    object->reorderChildren (newOrder, undoManager);
+    if (object != nullptr)
+        object->reorderChildren (newOrder, undoManager);
 }
 
 //==============================================================================
@@ -1100,6 +1101,18 @@ void ValueTree::Listener::valueTreeChildOrderChanged (ValueTree&, int, int)     
 void ValueTree::Listener::valueTreeParentChanged     (ValueTree&)                    {}
 void ValueTree::Listener::valueTreeRedirected        (ValueTree&)                    {}
 
+//==============================================================================
+#if JUCE_ALLOW_STATIC_NULL_VARIABLES
+
+JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
+JUCE_BEGIN_IGNORE_WARNINGS_MSVC (4996)
+
+const ValueTree ValueTree::invalid;
+
+JUCE_END_IGNORE_WARNINGS_GCC_LIKE
+JUCE_END_IGNORE_WARNINGS_MSVC
+
+#endif
 
 //==============================================================================
 //==============================================================================

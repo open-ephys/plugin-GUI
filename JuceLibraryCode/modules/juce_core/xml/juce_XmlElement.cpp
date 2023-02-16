@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -402,11 +402,6 @@ void XmlElement::writeTo (OutputStream& output, const TextFormat& options) const
 
     if (options.newLineChars != nullptr)
         output << options.newLineChars;
-}
-
-bool XmlElement::writeTo(const File& destinationFile) const
-{
-    return writeTo(destinationFile, {});
 }
 
 bool XmlElement::writeTo (const File& destinationFile, const TextFormat& options) const

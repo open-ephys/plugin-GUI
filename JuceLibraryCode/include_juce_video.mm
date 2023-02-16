@@ -5,5 +5,5 @@
 
 */
 
-//#include "AppConfig.h"
-//#include <juce_video/juce_video.mm>
+#include "AppConfig.h"
+#include <juce_video/juce_video.mm>

@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -51,6 +51,11 @@ public:
 
     /** Returns the address of a named GL extension function */
     static void* getExtensionFunction (const char* functionName);
+
+    /** Returns a version string such as "#version 150" suitable for prefixing a GLSL
+        shader on this platform.
+    */
+    static String getGLSLVersionString();
 
     /** Makes some simple textual changes to a shader program to try to convert old GLSL
         keywords to their v3 equivalents.

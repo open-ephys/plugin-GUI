@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -25,15 +25,6 @@
 
 namespace juce
 {
-
-static int getAllowedTextureSize (int x)
-{
-   #if JUCE_OPENGL_ALLOW_NON_POWER_OF_TWO_TEXTURES
-    return x;
-   #else
-    return nextPowerOfTwo (x);
-   #endif
-}
 
 OpenGLTexture::OpenGLTexture()
     : textureID (0), width (0), height (0), ownerContext (nullptr)
@@ -65,7 +56,7 @@ void OpenGLTexture::create (const int w, const int h, const void* pixels, GLenum
         glBindTexture (GL_TEXTURE_2D, textureID);
         glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-        auto glMagFilter = (ownerContext->texMagFilter == OpenGLContext::linear ? GL_LINEAR : GL_NEAREST);
+        auto glMagFilter = (GLint) (ownerContext->texMagFilter == OpenGLContext::linear ? GL_LINEAR : GL_NEAREST);
         glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glMagFilter);
         glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -79,6 +70,13 @@ void OpenGLTexture::create (const int w, const int h, const void* pixels, GLenum
 
     glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
     JUCE_CHECK_OPENGL_ERROR
+
+    const auto textureNpotSupported = ownerContext->isTextureNpotSupported();
+
+    const auto getAllowedTextureSize = [&] (int n)
+    {
+        return textureNpotSupported ? n : nextPowerOfTwo (n);
+    };
 
     width  = getAllowedTextureSize (w);
     height = getAllowedTextureSize (h);

@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -35,15 +35,19 @@
 
   ID:                 juce_gui_basics
   vendor:             juce
-  version:            6.0.8
+  version:            7.0.5
   name:               JUCE GUI core classes
   description:        Basic user-interface components and related classes.
   website:            http://www.juce.com/juce
   license:            GPL/Commercial
+  minimumCppStandard: 17
 
   dependencies:       juce_graphics juce_data_structures
-  OSXFrameworks:      Cocoa Carbon QuartzCore
-  iOSFrameworks:      UIKit CoreServices
+  OSXFrameworks:      Cocoa QuartzCore
+  WeakOSXFrameworks:  Metal MetalKit
+  iOSFrameworks:      CoreServices UIKit
+  WeakiOSFrameworks:  Metal MetalKit
+  mingwLibs:          dxgi
 
  END_JUCE_MODULE_DECLARATION
 
@@ -155,9 +159,17 @@ namespace juce
     class ApplicationCommandManagerListener;
     class DrawableButton;
     class Displays;
+    class AccessibilityHandler;
+    class KeyboardFocusTraverser;
+    class PointerState;
 
     class FlexBox;
     class Grid;
+    class FocusOutline;
+
+   #if JUCE_MAC || JUCE_WINDOWS || JUCE_LINUX || JUCE_BSD
+    Image createSnapshotOfNativeWindow (void* nativeWindowHandle);
+   #endif
 }
 
 #include "mouse/juce_MouseCursor.h"
@@ -167,7 +179,8 @@ namespace juce
 #include "mouse/juce_MouseEvent.h"
 #include "keyboard/juce_KeyPress.h"
 #include "keyboard/juce_KeyListener.h"
-#include "keyboard/juce_KeyboardFocusTraverser.h"
+#include "components/juce_ComponentTraverser.h"
+#include "components/juce_FocusTraverser.h"
 #include "components/juce_ModalComponentManager.h"
 #include "components/juce_ComponentListener.h"
 #include "components/juce_CachedComponentImage.h"
@@ -185,6 +198,7 @@ namespace juce
 #include "mouse/juce_TextDragAndDropTarget.h"
 #include "mouse/juce_TooltipClient.h"
 #include "keyboard/juce_CaretComponent.h"
+#include "keyboard/juce_KeyboardFocusTraverser.h"
 #include "keyboard/juce_SystemClipboard.h"
 #include "keyboard/juce_TextEditorKeyMapper.h"
 #include "keyboard/juce_TextInputTarget.h"
@@ -250,9 +264,11 @@ namespace juce
 #include "menus/juce_BurgerMenuComponent.h"
 #include "buttons/juce_ToolbarButton.h"
 #include "misc/juce_DropShadower.h"
+#include "misc/juce_FocusOutline.h"
 #include "misc/juce_JUCESplashScreen.h"
 #include "widgets/juce_TreeView.h"
 #include "windows/juce_TopLevelWindow.h"
+#include "windows/juce_MessageBoxOptions.h"
 #include "windows/juce_AlertWindow.h"
 #include "windows/juce_CallOutBox.h"
 #include "windows/juce_ComponentPeer.h"
@@ -262,6 +278,7 @@ namespace juce
 #include "windows/juce_NativeMessageBox.h"
 #include "windows/juce_ThreadWithProgressWindow.h"
 #include "windows/juce_TooltipWindow.h"
+#include "windows/juce_VBlankAttachement.h"
 #include "layout/juce_MultiDocumentPanel.h"
 #include "layout/juce_SidePanel.h"
 #include "filebrowser/juce_FileBrowserListener.h"
@@ -293,11 +310,22 @@ namespace juce
 #include "lookandfeel/juce_LookAndFeel_V3.h"
 #include "lookandfeel/juce_LookAndFeel_V4.h"
 #include "mouse/juce_LassoComponent.h"
+#include "accessibility/interfaces/juce_AccessibilityCellInterface.h"
+#include "accessibility/interfaces/juce_AccessibilityTableInterface.h"
+#include "accessibility/interfaces/juce_AccessibilityTextInterface.h"
+#include "accessibility/interfaces/juce_AccessibilityValueInterface.h"
+#include "accessibility/enums/juce_AccessibilityActions.h"
+#include "accessibility/enums/juce_AccessibilityEvent.h"
+#include "accessibility/enums/juce_AccessibilityRole.h"
+#include "accessibility/juce_AccessibilityState.h"
+#include "accessibility/juce_AccessibilityHandler.h"
 
-#if JUCE_LINUX
+#if JUCE_LINUX || JUCE_BSD
  #if JUCE_GUI_BASICS_INCLUDE_XHEADERS
   // If you're missing these headers, you need to install the libx11-dev package
+  JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wvariadic-macros")
   #include <X11/Xlib.h>
+  JUCE_END_IGNORE_WARNINGS_GCC_LIKE
   #include <X11/Xatom.h>
   #include <X11/Xresource.h>
   #include <X11/Xutil.h>
@@ -351,3 +379,4 @@ namespace juce
 
 #include "layout/juce_GridItem.h"
 #include "layout/juce_Grid.h"
+#include "native/juce_ScopedDPIAwarenessDisabler.h"

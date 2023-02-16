@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -32,7 +32,7 @@ namespace juce
     active, so that when the app is shutdown and the static destructors are called,
     it can check whether there are any left-over instances that may have been leaked.
 
-    To use it, use the JUCE_LEAK_DETECTOR macr  o as a simple way to put one in your
+    To use it, use the JUCE_LEAK_DETECTOR macro as a simple way to put one in your
     class declaration. Have a look through the juce codebase for examples, it's used
     in most of the classes.
 

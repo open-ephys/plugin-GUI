@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -38,8 +38,7 @@ namespace juce
     @tags{Audio}
 */
 class JUCE_API  AudioDeviceSelectorComponent  : public Component,
-                                                private ChangeListener,
-                                                private Timer
+                                                private ChangeListener
 {
 public:
     //==============================================================================
@@ -89,8 +88,6 @@ public:
     //==============================================================================
     /** @internal */
     void resized() override;
-    /** @internal */
-    void timerCallback() override;
 
 private:
     //==============================================================================
@@ -104,7 +101,7 @@ private:
     std::unique_ptr<Label> deviceTypeDropDownLabel;
     std::unique_ptr<Component> audioDeviceSettingsComp;
     String audioDeviceSettingsCompType;
-    int itemHeight;
+    int itemHeight = 0;
     const int minOutputChannels, maxOutputChannels, minInputChannels, maxInputChannels;
     const bool showChannelsAsStereoPairs;
     const bool hideAdvancedOptionsWithButton;

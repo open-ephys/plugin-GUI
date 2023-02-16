@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -211,6 +211,11 @@ public:
     */
     void setSingleStepSize (double newSingleStepSize) noexcept;
 
+    /** Returns the current step size.
+        @see setSingleStepSize
+    */
+    double getSingleStepSize() const noexcept                       { return singleStepSize; }
+
     /** Moves the scrollbar by a number of single-steps.
 
         This will move the bar by a multiple of its single-step interval (as
@@ -409,6 +414,8 @@ public:
     void parentHierarchyChanged() override;
     /** @internal */
     void setVisible (bool) override;
+    /** @internal */
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override;
 
 private:
     //==============================================================================

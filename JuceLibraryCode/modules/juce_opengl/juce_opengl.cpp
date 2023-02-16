@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -41,6 +41,32 @@
 
 #include "juce_opengl.h"
 
+#define JUCE_STATIC_LINK_GL_VERSION_1_0 1
+#define JUCE_STATIC_LINK_GL_VERSION_1_1 1
+
+#if JUCE_MAC
+ #define JUCE_STATIC_LINK_GL_VERSION_1_2 1
+ #define JUCE_STATIC_LINK_GL_VERSION_1_3 1
+ #define JUCE_STATIC_LINK_GL_VERSION_1_4 1
+ #define JUCE_STATIC_LINK_GL_VERSION_1_5 1
+ #define JUCE_STATIC_LINK_GL_VERSION_2_0 1
+ #define JUCE_STATIC_LINK_GL_VERSION_2_1 1
+ #define JUCE_STATIC_LINK_GL_VERSION_3_0 1
+ #define JUCE_STATIC_LINK_GL_VERSION_3_1 1
+ #define JUCE_STATIC_LINK_GL_VERSION_3_2 1
+#endif
+
+#define JUCE_STATIC_LINK_GL_ES_VERSION_2_0 1
+#if !JUCE_ANDROID || JUCE_ANDROID_GL_ES_VERSION_3_0
+#define JUCE_STATIC_LINK_GL_ES_VERSION_3_0 1
+#endif
+
+#if JUCE_OPENGL_ES
+ #include "opengl/juce_gles2.cpp"
+#else
+ #include "opengl/juce_gl.cpp"
+#endif
+
 //==============================================================================
 #if JUCE_IOS
  #import <QuartzCore/QuartzCore.h>
@@ -54,7 +80,7 @@
  #endif
 
 //==============================================================================
-#elif JUCE_LINUX
+#elif JUCE_LINUX || JUCE_BSD
  /* Got an include error here?
 
     If you want to install OpenGL support, the packages to get are "mesa-common-dev"
@@ -69,63 +95,27 @@
 
 //==============================================================================
 #elif JUCE_ANDROID
- #ifndef GL_GLEXT_PROTOTYPES
-  #define GL_GLEXT_PROTOTYPES 1
- #endif
-
- #if JUCE_ANDROID_GL_ES_VERSION_3_0
-  #include <GLES3/gl3.h>
-
-  // workaround for a bug in SDK 18 and 19
-  // see: https://stackoverflow.com/questions/31003863/gles-3-0-including-gl2ext-h
-  #define __gl2_h_
-  #include <GLES2/gl2ext.h>
- #else
-  #include <GLES2/gl2.h>
- #endif
+ #include <android/native_window.h>
+ #include <android/native_window_jni.h>
+ #include <EGL/egl.h>
 #endif
 
 //==============================================================================
 namespace juce
 {
 
+using namespace ::juce::gl;
+
 void OpenGLExtensionFunctions::initialise()
 {
-   #if JUCE_WINDOWS || JUCE_LINUX
-    #define JUCE_INIT_GL_FUNCTION(name, returnType, params, callparams) \
-        name = (type_ ## name) OpenGLHelpers::getExtensionFunction (#name);
-
-    JUCE_GL_BASE_FUNCTIONS (JUCE_INIT_GL_FUNCTION)
-    #undef JUCE_INIT_GL_FUNCTION
-
-    #define JUCE_INIT_GL_FUNCTION(name, returnType, params, callparams) \
-        name = (type_ ## name) OpenGLHelpers::getExtensionFunction (#name); \
-        if (name == nullptr) \
-            name = (type_ ## name) OpenGLHelpers::getExtensionFunction (JUCE_STRINGIFY (name ## EXT));
-
-    JUCE_GL_EXTENSION_FUNCTIONS (JUCE_INIT_GL_FUNCTION)
-    #if JUCE_OPENGL3
-     JUCE_GL_VERTEXBUFFER_FUNCTIONS (JUCE_INIT_GL_FUNCTION)
-    #endif
-
-    #undef JUCE_INIT_GL_FUNCTION
-   #endif
+    gl::loadFunctions();
 }
 
-#if JUCE_OPENGL_ES
- #define JUCE_DECLARE_GL_FUNCTION(name, returnType, params, callparams) \
-    returnType OpenGLExtensionFunctions::name params noexcept { return ::name callparams; }
-
- JUCE_GL_BASE_FUNCTIONS (JUCE_DECLARE_GL_FUNCTION)
- JUCE_GL_EXTENSION_FUNCTIONS (JUCE_DECLARE_GL_FUNCTION)
-#if JUCE_OPENGL3
- JUCE_GL_VERTEXBUFFER_FUNCTIONS (JUCE_DECLARE_GL_FUNCTION)
-#endif
-
- #undef JUCE_DECLARE_GL_FUNCTION
-#endif
-
-#undef JUCE_GL_EXTENSION_FUNCTIONS
+#define X(name) decltype (::juce::gl::name)& OpenGLExtensionFunctions::name = ::juce::gl::name;
+JUCE_GL_BASE_FUNCTIONS
+JUCE_GL_EXTENSION_FUNCTIONS
+JUCE_GL_VERTEXBUFFER_FUNCTIONS
+#undef X
 
 #if JUCE_DEBUG && ! defined (JUCE_CHECK_OPENGL_ERROR)
 static const char* getGLErrorMessage (const GLenum e) noexcept
@@ -173,24 +163,22 @@ static bool checkPeerIsValid (OpenGLContext* context)
     {
         if (auto* comp = context->getTargetComponent())
         {
-            if (auto* peer = comp->getPeer())
+            if (auto* peer [[maybe_unused]] = comp->getPeer())
             {
                #if JUCE_MAC || JUCE_IOS
                 if (auto* nsView = (JUCE_IOS_MAC_VIEW*) peer->getNativeHandle())
                 {
-                    if (auto nsWindow = [nsView window])
+                    if ([[maybe_unused]] auto nsWindow = [nsView window])
                     {
                        #if JUCE_MAC
                         return ([nsWindow isVisible]
                                   && (! [nsWindow hidesOnDeactivate] || [NSApp isActive]));
                        #else
-                        ignoreUnused (nsWindow);
                         return true;
                        #endif
                     }
                 }
                #else
-                ignoreUnused (peer);
                 return true;
                #endif
             }
@@ -225,7 +213,9 @@ static void checkGLError (const char* file, const int line)
 
 static void clearGLError() noexcept
 {
+   #if JUCE_DEBUG
     while (glGetError() != GL_NO_ERROR) {}
+   #endif
 }
 
 struct OpenGLTargetSaver
@@ -250,6 +240,22 @@ private:
     OpenGLTargetSaver& operator= (const OpenGLTargetSaver&);
 };
 
+static bool contextRequiresTexture2DEnableDisable()
+{
+   #if JUCE_OPENGL_ES
+    return false;
+   #else
+    clearGLError();
+    GLint mask = 0;
+    glGetIntegerv (GL_CONTEXT_PROFILE_MASK, &mask);
+
+    if (glGetError() == GL_INVALID_ENUM)
+        return true;
+
+    return (mask & (GLint) GL_CONTEXT_CORE_PROFILE_BIT) == 0;
+   #endif
+}
+
 } // namespace juce
 
 //==============================================================================
@@ -271,9 +277,21 @@ private:
  #endif
 
 #elif JUCE_WINDOWS
+ #include "opengl/juce_wgl.h"
  #include "native/juce_OpenGL_win32.h"
 
-#elif JUCE_LINUX
+#define JUCE_IMPL_WGL_EXTENSION_FUNCTION(name) \
+    decltype (juce::OpenGLContext::NativeContext::name) juce::OpenGLContext::NativeContext::name = nullptr;
+
+JUCE_IMPL_WGL_EXTENSION_FUNCTION (wglChoosePixelFormatARB)
+JUCE_IMPL_WGL_EXTENSION_FUNCTION (wglSwapIntervalEXT)
+JUCE_IMPL_WGL_EXTENSION_FUNCTION (wglGetSwapIntervalEXT)
+JUCE_IMPL_WGL_EXTENSION_FUNCTION (wglCreateContextAttribsARB)
+
+#undef JUCE_IMPL_WGL_EXTENSION_FUNCTION
+
+#elif JUCE_LINUX || JUCE_BSD
+ #include <juce_gui_basics/native/x11/juce_linux_ScopedWindowAssociation.h>
  #include "native/juce_OpenGL_linux_X11.h"
 
 #elif JUCE_ANDROID

@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -23,10 +23,7 @@
   ==============================================================================
 */
 
-#if (defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_10_0)
- JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
- #define JUCE_DEPRECATION_IGNORED 1
-#endif
+JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
 
 struct CameraDevice::Pimpl
 {
@@ -59,9 +56,7 @@ struct CameraDevice::Pimpl
          {
              // Access to video is required for camera to work,
              // black images will be produced otherwise!
-             jassert (granted);
-
-             ignoreUnused (granted);
+             jassertquiet (granted);
          }];
 
         [AVCaptureDevice requestAccessForMediaType: AVMediaTypeAudio
@@ -69,9 +64,7 @@ struct CameraDevice::Pimpl
          {
              // Access to audio is required for camera to work,
              // silence will be produced otherwise!
-             jassert (granted);
-
-             ignoreUnused (granted);
+             jassertquiet (granted);
          }];
 
         captureSession.startSessionForDeviceWithId (cameraId);
@@ -145,18 +138,17 @@ struct CameraDevice::Pimpl
 private:
     static NSArray<AVCaptureDevice*>* getDevices()
     {
-       #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-        if (iosVersion.major >= 10)
+        if (@available (iOS 10.0, *))
         {
             std::unique_ptr<NSMutableArray<AVCaptureDeviceType>, NSObjectDeleter> deviceTypes ([[NSMutableArray alloc] initWithCapacity: 2]);
 
             [deviceTypes.get() addObject: AVCaptureDeviceTypeBuiltInWideAngleCamera];
             [deviceTypes.get() addObject: AVCaptureDeviceTypeBuiltInTelephotoCamera];
 
-            if ((iosVersion.major == 10 && iosVersion.minor >= 2) || iosVersion.major >= 11)
+            if (@available (iOS 10.2, *))
                 [deviceTypes.get() addObject: AVCaptureDeviceTypeBuiltInDualCamera];
 
-            if ((iosVersion.major == 11 && iosVersion.minor >= 1) || iosVersion.major >= 12)
+            if (@available (iOS 11.1, *))
                 [deviceTypes.get() addObject: AVCaptureDeviceTypeBuiltInTrueDepthCamera];
 
             auto discoverySession = [AVCaptureDeviceDiscoverySession discoverySessionWithDeviceTypes: deviceTypes.get()
@@ -165,7 +157,6 @@ private:
 
             return [discoverySession devices];
         }
-       #endif
 
         return [AVCaptureDevice devicesWithMediaType: AVMediaTypeVideo];
     }
@@ -211,22 +202,18 @@ private:
         JUCE_CAMERA_LOG ("Supports custom exposure: " + String ((int)[device isExposureModeSupported: AVCaptureExposureModeCustom]));
         JUCE_CAMERA_LOG ("Supports point of interest exposure: " + String ((int)device.exposurePointOfInterestSupported));
 
-       #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-        if (iosVersion.major >= 10)
+        if (@available (iOS 10.0, *))
         {
             JUCE_CAMERA_LOG ("Device type: " + nsStringToJuce (device.deviceType));
             JUCE_CAMERA_LOG ("Locking focus with custom lens position supported: " + String ((int)device.lockingFocusWithCustomLensPositionSupported));
         }
-       #endif
 
-       #if defined (__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_11_0
-        if (iosVersion.major >= 11)
+        if (@available (iOS 11.0, *))
         {
             JUCE_CAMERA_LOG ("Min available video zoom factor: " + String (device.minAvailableVideoZoomFactor));
             JUCE_CAMERA_LOG ("Max available video zoom factor: " + String (device.maxAvailableVideoZoomFactor));
             JUCE_CAMERA_LOG ("Dual camera switch over video zoom factor: " + String (device.dualCameraSwitchOverVideoZoomFactor));
         }
-       #endif
 
         JUCE_CAMERA_LOG ("Capture formats start-------------------");
         for (AVCaptureDeviceFormat* format in device.formats)
@@ -242,19 +229,22 @@ private:
     {
         JUCE_CAMERA_LOG ("Media type: " + nsStringToJuce (format.mediaType));
 
-        String colourSpaces;
-
-        for (NSNumber* number in format.supportedColorSpaces)
+        if (@available (iOS 10.0, *))
         {
-            switch ([number intValue])
-            {
-                case AVCaptureColorSpace_sRGB:   colourSpaces << "sRGB ";  break;
-                case AVCaptureColorSpace_P3_D65: colourSpaces << "P3_D65 "; break;
-                default: break;
-            }
-        }
+            String colourSpaces;
 
-        JUCE_CAMERA_LOG ("Supported colour spaces: " + colourSpaces);
+            for (NSNumber* number in format.supportedColorSpaces)
+            {
+                switch ([number intValue])
+                {
+                    case AVCaptureColorSpace_sRGB:   colourSpaces << "sRGB ";  break;
+                    case AVCaptureColorSpace_P3_D65: colourSpaces << "P3_D65 "; break;
+                    default: break;
+                }
+            }
+
+            JUCE_CAMERA_LOG ("Supported colour spaces: " + colourSpaces);
+        }
 
         JUCE_CAMERA_LOG ("Video field of view: " + String (format.videoFieldOfView));
         JUCE_CAMERA_LOG ("Video max zoom factor: " + String (format.videoMaxZoomFactor));
@@ -288,13 +278,11 @@ private:
         JUCE_CAMERA_LOG ("Cinematic video stabilization supported: " + String ((int) [format isVideoStabilizationModeSupported: AVCaptureVideoStabilizationModeCinematic]));
         JUCE_CAMERA_LOG ("Auto video stabilization supported: " + String ((int) [format isVideoStabilizationModeSupported: AVCaptureVideoStabilizationModeAuto]));
 
-       #if defined (__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_11_0
-        if (iosVersion.major >= 11)
+        if (@available (iOS 11.0, *))
         {
             JUCE_CAMERA_LOG ("Min zoom factor for depth data delivery: " + String (format.videoMinZoomFactorForDepthDataDelivery));
             JUCE_CAMERA_LOG ("Max zoom factor for depth data delivery: " + String (format.videoMaxZoomFactorForDepthDataDelivery));
         }
-       #endif
     }
 
     static String getHighResStillImgDimensionsString (CMVideoDimensions d)
@@ -304,11 +292,8 @@ private:
 
     static String cmTimeToString (CMTime time)
     {
-        CFStringRef timeDesc = CMTimeCopyDescription (nullptr, time);
-        String result = String::fromCFString (timeDesc);
-
-        CFRelease (timeDesc);
-        return result;
+        CFUniquePtr<CFStringRef> timeDesc (CMTimeCopyDescription (nullptr, time));
+        return String::fromCFString (timeDesc.get());
     }
 
     static String frameRateRangeToString (AVFrameRateRange* range)
@@ -350,7 +335,7 @@ private:
                                                        object: captureSession.get()];
 
             [[NSNotificationCenter defaultCenter] addObserver: delegate.get()
-                                                     selector: @selector (sessionRuntimeError:)
+                                                     selector: @selector (runtimeError:)
                                                          name: AVCaptureSessionRuntimeErrorNotification
                                                        object: captureSession.get()];
 
@@ -410,9 +395,7 @@ private:
 
                                 if (error.isNotEmpty())
                                 {
-                                    WeakReference<CaptureSession> weakRef (this);
-
-                                    MessageManager::callAsync ([weakRef, error]() mutable
+                                    MessageManager::callAsync ([weakRef = WeakReference<CaptureSession> { this }, error]() mutable
                                     {
                                         if (weakRef != nullptr)
                                             weakRef->owner.cameraOpenCallback ({}, error);
@@ -426,9 +409,7 @@ private:
 
                                 if (error.isNotEmpty())
                                 {
-                                    WeakReference<CaptureSession> weakRef (this);
-
-                                    MessageManager::callAsync ([weakRef, error]() mutable
+                                    MessageManager::callAsync ([weakRef = WeakReference<CaptureSession> { this }, error]() mutable
                                     {
                                         if (weakRef != nullptr)
                                             weakRef->owner.cameraOpenCallback ({}, error);
@@ -525,11 +506,11 @@ private:
             SessionDelegateClass()  : ObjCClass<NSObject> ("SessionDelegateClass_")
             {
                 JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wundeclared-selector")
-                addMethod (@selector (sessionDidStartRunning:),   started,           "v@:@");
-                addMethod (@selector (sessionDidStopRunning:),    stopped,           "v@:@");
-                addMethod (@selector (sessionRuntimeError:),      runtimeError,      "v@:@");
-                addMethod (@selector (sessionWasInterrupted:),    interrupted,       "v@:@");
-                addMethod (@selector (sessionInterruptionEnded:), interruptionEnded, "v@:@");
+                addMethod (@selector (sessionDidStartRunning:),   started);
+                addMethod (@selector (sessionDidStopRunning:),    stopped);
+                addMethod (@selector (runtimeError:),             runtimeError);
+                addMethod (@selector (sessionWasInterrupted:),    interrupted);
+                addMethod (@selector (sessionInterruptionEnded:), interruptionEnded);
                 JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 
                 addIvar<CaptureSession*> ("owner");
@@ -543,11 +524,9 @@ private:
 
         private:
             //==============================================================================
-            static void started (id self, SEL, NSNotification* notification)
+            static void started (id self, SEL, [[maybe_unused]] NSNotification* notification)
             {
                 JUCE_CAMERA_LOG (nsStringToJuce ([notification description]));
-
-                ignoreUnused (notification);
 
                 dispatch_async (dispatch_get_main_queue(),
                                 ^{
@@ -555,11 +534,9 @@ private:
                                 });
             }
 
-            static void stopped (id, SEL, NSNotification* notification)
+            static void stopped (id, SEL, [[maybe_unused]] NSNotification* notification)
             {
                 JUCE_CAMERA_LOG (nsStringToJuce ([notification description]));
-
-                ignoreUnused (notification);
             }
 
             static void runtimeError (id self, SEL, NSNotification* notification)
@@ -574,18 +551,14 @@ private:
                                 });
             }
 
-            static void interrupted (id, SEL, NSNotification* notification)
+            static void interrupted (id, SEL, [[maybe_unused]] NSNotification* notification)
             {
                 JUCE_CAMERA_LOG (nsStringToJuce ([notification description]));
-
-                ignoreUnused (notification);
             }
 
-            static void interruptionEnded (id, SEL, NSNotification* notification)
+            static void interruptionEnded (id, SEL, [[maybe_unused]] NSNotification* notification)
             {
                 JUCE_CAMERA_LOG (nsStringToJuce ([notification description]));
-
-                ignoreUnused (notification);
             }
         };
 
@@ -598,7 +571,7 @@ private:
                   captureOutput (createCaptureOutput()),
                   photoOutputDelegate (nullptr)
             {
-                if (Pimpl::getIOSVersion().major >= 10)
+                if (@available (iOS 10.0, *))
                 {
                     static PhotoOutputDelegateClass cls;
                     photoOutputDelegate.reset ([cls.createInstance() init]);
@@ -623,19 +596,20 @@ private:
 
                 if (auto* connection = findVideoConnection (captureOutput))
                 {
-                   #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-                    if (Pimpl::getIOSVersion().major >= 10 && [captureOutput isKindOfClass: [AVCapturePhotoOutput class]])
+                    if (@available (iOS 10.0, *))
                     {
-                        auto* photoOutput = (AVCapturePhotoOutput*) captureOutput;
-                        auto outputConnection = [photoOutput connectionWithMediaType: AVMediaTypeVideo];
-                        outputConnection.videoOrientation = orientationToUse;
+                        if ([captureOutput isKindOfClass: [AVCapturePhotoOutput class]])
+                        {
+                            auto* photoOutput = (AVCapturePhotoOutput*) captureOutput;
+                            auto outputConnection = [photoOutput connectionWithMediaType: AVMediaTypeVideo];
+                            outputConnection.videoOrientation = orientationToUse;
 
-                        [photoOutput capturePhotoWithSettings: [AVCapturePhotoSettings photoSettings]
-                                                     delegate: id<AVCapturePhotoCaptureDelegate> (photoOutputDelegate.get())];
+                            [photoOutput capturePhotoWithSettings: [AVCapturePhotoSettings photoSettings]
+                                                         delegate: id<AVCapturePhotoCaptureDelegate> (photoOutputDelegate.get())];
 
-                        return;
+                            return;
+                        }
                     }
-                   #endif
 
                     auto* stillImageOutput = (AVCaptureStillImageOutput*) captureOutput;
                     auto outputConnection = [stillImageOutput connectionWithMediaType: AVMediaTypeVideo];
@@ -672,76 +646,73 @@ private:
         private:
             static AVCaptureOutput* createCaptureOutput()
             {
-               #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-                if (Pimpl::getIOSVersion().major >= 10)
+                if (@available (iOS 10.0, *))
                     return [AVCapturePhotoOutput new];
-               #endif
 
                 return [AVCaptureStillImageOutput new];
             }
 
             static void printImageOutputDebugInfo (AVCaptureOutput* captureOutput)
             {
-               #if defined (__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-                if (Pimpl::getIOSVersion().major >= 10 && [captureOutput isKindOfClass: [AVCapturePhotoOutput class]])
+                if (@available (iOS 10.0, *))
                 {
-                    auto* photoOutput = (AVCapturePhotoOutput*) captureOutput;
-
-                    String typesString;
-
-                    for (AVVideoCodecType type in photoOutput.availablePhotoCodecTypes)
-                        typesString << nsStringToJuce (type) << " ";
-
-                    JUCE_CAMERA_LOG ("Available image codec types: " + typesString);
-
-                    JUCE_CAMERA_LOG ("Still image stabilization supported: " + String ((int) photoOutput.stillImageStabilizationSupported));
-                    JUCE_CAMERA_LOG ("Dual camera fusion supported: " + String ((int) photoOutput.dualCameraFusionSupported));
-                    JUCE_CAMERA_LOG ("Supports flash: "      + String ((int) [photoOutput.supportedFlashModes containsObject: @(AVCaptureFlashModeOn)]));
-                    JUCE_CAMERA_LOG ("Supports auto flash: " + String ((int) [photoOutput.supportedFlashModes containsObject: @(AVCaptureFlashModeAuto)]));
-                    JUCE_CAMERA_LOG ("Max bracketed photo count: " + String (photoOutput.maxBracketedCapturePhotoCount));
-                    JUCE_CAMERA_LOG ("Lens stabilization during bracketed capture supported: " + String ((int) photoOutput.lensStabilizationDuringBracketedCaptureSupported));
-                    JUCE_CAMERA_LOG ("Live photo capture supported: " + String ((int) photoOutput.livePhotoCaptureSupported));
-
-
-                   #if defined (__IPHONE_11_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_11_0
-                    if (Pimpl::getIOSVersion().major >= 11)
+                    if ([captureOutput isKindOfClass: [AVCapturePhotoOutput class]])
                     {
-                        typesString.clear();
+                        auto* photoOutput = (AVCapturePhotoOutput*) captureOutput;
 
-                        for (AVFileType type in photoOutput.availablePhotoFileTypes)
+                        String typesString;
+
+                        for (id type in photoOutput.availablePhotoCodecTypes)
                             typesString << nsStringToJuce (type) << " ";
 
-                        JUCE_CAMERA_LOG ("Available photo file types: " + typesString);
+                        JUCE_CAMERA_LOG ("Available image codec types: " + typesString);
 
-                        typesString.clear();
+                        JUCE_CAMERA_LOG ("Still image stabilization supported: " + String ((int) photoOutput.stillImageStabilizationSupported));
+                        JUCE_CAMERA_LOG ("Dual camera fusion supported: " + String ((int) photoOutput.dualCameraFusionSupported));
+                        JUCE_CAMERA_LOG ("Supports flash: "      + String ((int) [photoOutput.supportedFlashModes containsObject: @(AVCaptureFlashModeOn)]));
+                        JUCE_CAMERA_LOG ("Supports auto flash: " + String ((int) [photoOutput.supportedFlashModes containsObject: @(AVCaptureFlashModeAuto)]));
+                        JUCE_CAMERA_LOG ("Max bracketed photo count: " + String (photoOutput.maxBracketedCapturePhotoCount));
+                        JUCE_CAMERA_LOG ("Lens stabilization during bracketed capture supported: " + String ((int) photoOutput.lensStabilizationDuringBracketedCaptureSupported));
+                        JUCE_CAMERA_LOG ("Live photo capture supported: " + String ((int) photoOutput.livePhotoCaptureSupported));
 
-                        for (AVFileType type in photoOutput.availableRawPhotoFileTypes)
-                            typesString << nsStringToJuce (type) << " ";
 
-                        JUCE_CAMERA_LOG ("Available RAW photo file types: " + typesString);
+                        if (@available (iOS 11.0, *))
+                        {
+                            typesString.clear();
 
-                        typesString.clear();
+                            for (AVFileType type in photoOutput.availablePhotoFileTypes)
+                                typesString << nsStringToJuce (type) << " ";
 
-                        for (AVFileType type in photoOutput.availableLivePhotoVideoCodecTypes)
-                            typesString << nsStringToJuce (type) << " ";
+                            JUCE_CAMERA_LOG ("Available photo file types: " + typesString);
 
-                        JUCE_CAMERA_LOG ("Available live photo video codec types: " + typesString);
+                            typesString.clear();
 
-                        JUCE_CAMERA_LOG ("Dual camera dual photo delivery supported: " + String ((int) photoOutput.dualCameraDualPhotoDeliverySupported));
-                        JUCE_CAMERA_LOG ("Camera calibration data delivery supported: " + String ((int) photoOutput.cameraCalibrationDataDeliverySupported));
-                        JUCE_CAMERA_LOG ("Depth data delivery supported: " + String ((int) photoOutput.depthDataDeliverySupported));
+                            for (AVFileType type in photoOutput.availableRawPhotoFileTypes)
+                                typesString << nsStringToJuce (type) << " ";
+
+                            JUCE_CAMERA_LOG ("Available RAW photo file types: " + typesString);
+
+                            typesString.clear();
+
+                            for (AVFileType type in photoOutput.availableLivePhotoVideoCodecTypes)
+                                typesString << nsStringToJuce (type) << " ";
+
+                            JUCE_CAMERA_LOG ("Available live photo video codec types: " + typesString);
+
+                            JUCE_CAMERA_LOG ("Dual camera dual photo delivery supported: " + String ((int) photoOutput.dualCameraDualPhotoDeliverySupported));
+                            JUCE_CAMERA_LOG ("Camera calibration data delivery supported: " + String ((int) photoOutput.cameraCalibrationDataDeliverySupported));
+                            JUCE_CAMERA_LOG ("Depth data delivery supported: " + String ((int) photoOutput.depthDataDeliverySupported));
+                        }
+
+                        return;
                     }
-                   #endif
-
-                    return;
                 }
-               #endif
 
                 auto* stillImageOutput = (AVCaptureStillImageOutput*) captureOutput;
 
                 String typesString;
 
-                for (AVVideoCodecType type in stillImageOutput.availableImageDataCodecTypes)
+                for (id type in stillImageOutput.availableImageDataCodecTypes)
                     typesString << nsStringToJuce (type) << " ";
 
                 JUCE_CAMERA_LOG ("Available image codec types: " + typesString);
@@ -763,20 +734,24 @@ private:
             }
 
             //==============================================================================
-            class PhotoOutputDelegateClass : public ObjCClass<NSObject>
+            class API_AVAILABLE (ios (10.0)) PhotoOutputDelegateClass : public ObjCClass<NSObject>
             {
             public:
                 PhotoOutputDelegateClass() : ObjCClass<NSObject> ("PhotoOutputDelegateClass_")
                 {
-                    addMethod (@selector (captureOutput:willBeginCaptureForResolvedSettings:),       willBeginCaptureForSettings, "v@:@@");
-                    addMethod (@selector (captureOutput:willCapturePhotoForResolvedSettings:),       willCaptureForSettings,      "v@:@@");
-                    addMethod (@selector (captureOutput:didCapturePhotoForResolvedSettings:),        didCaptureForSettings,       "v@:@@");
-                    addMethod (@selector (captureOutput:didFinishCaptureForResolvedSettings:error:), didFinishCaptureForSettings, "v@:@@@");
+                    addMethod (@selector (captureOutput:willBeginCaptureForResolvedSettings:),       willBeginCaptureForSettings);
+                    addMethod (@selector (captureOutput:willCapturePhotoForResolvedSettings:),       willCaptureForSettings);
+                    addMethod (@selector (captureOutput:didCapturePhotoForResolvedSettings:),        didCaptureForSettings);
+                    addMethod (@selector (captureOutput:didFinishCaptureForResolvedSettings:error:), didFinishCaptureForSettings);
 
-                    if (Pimpl::getIOSVersion().major >= 11)
-                        addMethod (@selector (captureOutput:didFinishProcessingPhoto:error:), didFinishProcessingPhoto, "v@:@@@");
+                    if (@available (iOS 11.0, *))
+                    {
+                        addMethod (@selector (captureOutput:didFinishProcessingPhoto:error:), didFinishProcessingPhoto);
+                    }
                     else
-                        addMethod (@selector (captureOutput:didFinishProcessingPhotoSampleBuffer:previewPhotoSampleBuffer:resolvedSettings:bracketSettings:error:), didFinishProcessingPhotoSampleBuffer, "v@:@@@@@@");
+                    {
+                        addMethod (@selector (captureOutput:didFinishProcessingPhotoSampleBuffer:previewPhotoSampleBuffer:resolvedSettings:bracketSettings:error:), didFinishProcessingPhotoSampleBuffer);
+                    }
 
                     addIvar<StillPictureTaker*> ("owner");
 
@@ -805,18 +780,17 @@ private:
 
                 static void didFinishCaptureForSettings (id, SEL, AVCapturePhotoOutput*, AVCaptureResolvedPhotoSettings*, NSError* error)
                 {
-                    String errorString = error != nil ? nsStringToJuce (error.localizedDescription) : String();
-                    ignoreUnused (errorString);
+                    [[maybe_unused]] String errorString = error != nil ? nsStringToJuce (error.localizedDescription) : String();
 
                     JUCE_CAMERA_LOG ("didFinishCaptureForSettings(), error = " + errorString);
                 }
 
+                API_AVAILABLE (ios (11.0))
                 static void didFinishProcessingPhoto (id self, SEL, AVCapturePhotoOutput*, AVCapturePhoto* capturePhoto, NSError* error)
                 {
                     getOwner (self).takingPicture = false;
 
-                    String errorString = error != nil ? nsStringToJuce (error.localizedDescription) : String();
-                    ignoreUnused (errorString);
+                    [[maybe_unused]] String errorString = error != nil ? nsStringToJuce (error.localizedDescription) : String();
 
                     JUCE_CAMERA_LOG ("didFinishProcessingPhoto(), error = " + errorString);
 
@@ -920,8 +894,7 @@ private:
                 {
                     getOwner (self).takingPicture = false;
 
-                    String errorString = error != nil ? nsStringToJuce (error.localizedDescription) : String();
-                    ignoreUnused (errorString);
+                    [[maybe_unused]] String errorString = error != nil ? nsStringToJuce (error.localizedDescription) : String();
 
                     JUCE_CAMERA_LOG ("didFinishProcessingPhotoSampleBuffer(), error = " + errorString);
 
@@ -1012,7 +985,7 @@ private:
 
             void startRecording (const File& file, AVCaptureVideoOrientation orientationToUse)
             {
-                if (Pimpl::getIOSVersion().major >= 10)
+                if (@available (iOS 10.0, *))
                     printVideoOutputDebugInfo (movieFileOutput);
 
                 auto url = [NSURL fileURLWithPath: juceStringToNS (file.getFullPathName())
@@ -1035,14 +1008,12 @@ private:
             }
 
         private:
-            static void printVideoOutputDebugInfo (AVCaptureMovieFileOutput* output)
+            static void printVideoOutputDebugInfo ([[maybe_unused]] AVCaptureMovieFileOutput* output)
             {
-                ignoreUnused (output);
-
                 JUCE_CAMERA_LOG ("Available video codec types:");
 
                #if JUCE_CAMERA_LOG_ENABLED
-                for (AVVideoCodecType type in output.availableVideoCodecTypes)
+                for (id type in output.availableVideoCodecTypes)
                     JUCE_CAMERA_LOG (nsStringToJuce (type));
                #endif
 
@@ -1059,8 +1030,8 @@ private:
             {
                 FileOutputRecordingDelegateClass()  : ObjCClass<NSObject<AVCaptureFileOutputRecordingDelegate>> ("FileOutputRecordingDelegateClass_")
                 {
-                    addMethod (@selector (captureOutput:didStartRecordingToOutputFileAtURL:fromConnections:),        started, "v@:@@@");
-                    addMethod (@selector (captureOutput:didFinishRecordingToOutputFileAtURL:fromConnections:error:), stopped, "v@:@@@@");
+                    addMethod (@selector (captureOutput:didStartRecordingToOutputFileAtURL:fromConnections:),        started);
+                    addMethod (@selector (captureOutput:didFinishRecordingToOutputFileAtURL:fromConnections:error:), stopped);
 
                     addIvar<VideoRecorder*> ("owner");
 
@@ -1229,32 +1200,12 @@ private:
 
     bool notifiedOfCameraOpening = false;
 
-    //==============================================================================
-    struct IOSVersion
-    {
-        int major;
-        int minor;
-    };
-
-    static IOSVersion getIOSVersion()
-    {
-        auto processInfo = [NSProcessInfo processInfo];
-
-        if (! [processInfo respondsToSelector: @selector (operatingSystemVersion)])
-            return {7, 0};   // Below 8.0 in fact, but only care that it's below 8
-
-        return { (int)[processInfo operatingSystemVersion].majorVersion,
-                 (int)[processInfo operatingSystemVersion].minorVersion };
-    }
-
-    static IOSVersion iosVersion;
-
     friend struct CameraDevice::ViewerComponent;
 
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE (Pimpl)
 };
 
-CameraDevice::Pimpl::IOSVersion CameraDevice::Pimpl::iosVersion = CameraDevice::Pimpl::getIOSVersion();
 int CameraDevice::Pimpl::CaptureSession::numCaptureSessions = 0;
 
 //==============================================================================
@@ -1265,7 +1216,7 @@ struct CameraDevice::ViewerComponent  : public UIViewComponent
     {
         JuceCameraDeviceViewerClass()  : ObjCClass<UIView> ("JuceCameraDeviceViewerClass_")
         {
-            addMethod (@selector (layoutSubviews), layoutSubviews, "v@:");
+            addMethod (@selector (layoutSubviews), layoutSubviews);
 
             registerClass();
         }
@@ -1313,7 +1264,7 @@ struct CameraDevice::ViewerComponent  : public UIViewComponent
     {
         static JuceCameraDeviceViewerClass cls;
 
-        // Initial size that can be overriden later.
+        // Initial size that can be overridden later.
         setSize (640, 480);
 
         auto view = [cls.createInstance() init];
@@ -1339,6 +1290,4 @@ String CameraDevice::getFileExtension()
     return ".mov";
 }
 
-#if JUCE_DEPRECATION_IGNORED
- JUCE_END_IGNORE_WARNINGS_GCC_LIKE
-#endif
+JUCE_END_IGNORE_WARNINGS_GCC_LIKE

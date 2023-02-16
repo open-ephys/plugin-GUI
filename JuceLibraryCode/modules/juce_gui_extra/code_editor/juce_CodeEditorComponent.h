@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -92,8 +92,8 @@ public:
     /** Returns the current caret position. */
     CodeDocument::Position getCaretPos() const                  { return caretPos; }
 
-    /** Returns the position of the caret, relative to the editor's origin. */
-    Rectangle<int> getCaretRectangle() override;
+    /** Returns the total number of codepoints in the string. */
+    int getTotalNumChars() const override                       { return document.getNumCharacters(); }
 
     /** Moves the caret.
         If selecting is true, the section of the document between the current
@@ -110,7 +110,7 @@ public:
     /** Finds the character at a given on-screen position.
         The coordinates are relative to this component's top-left origin.
     */
-    CodeDocument::Position getPositionAt (int x, int y);
+    CodeDocument::Position getPositionAt (int x, int y) const;
 
     /** Returns the start of the selection as a position. */
     CodeDocument::Position getSelectionStart() const            { return selectionStart; }
@@ -120,6 +120,26 @@ public:
 
     /** Enables or disables the line-number display in the gutter. */
     void setLineNumbersShown (bool shouldBeShown);
+
+    /** Returns the number of characters from the beginning of the document to the caret. */
+    int getCaretPosition() const override       { return getCaretPos().getPosition(); }
+
+    /** @see getPositionAt */
+    int getCharIndexForPoint (Point<int> point) const override;
+
+    /** Returns the bounds of the caret at a particular location in the text. */
+    Rectangle<int> getCaretRectangleForCharIndex (int index) const override
+    {
+        return getCharacterBounds ({ document, index });
+    }
+
+    /** Returns the bounding box for a range of text in the editor. As the range may span
+        multiple lines, this method returns a RectangleList.
+
+        The bounds are relative to the component's top-left and may extend beyond the bounds
+        of the component if the text is long and word wrapping is disabled.
+    */
+    RectangleList<int> getTextBounds (Range<int> textRange) const override;
 
     //==============================================================================
     bool moveCaretLeft (bool moveInWholeWordSteps, bool selecting);
@@ -380,6 +400,8 @@ public:
     bool perform (const InvocationInfo&) override;
     /** @internal */
     void lookAndFeelChanged() override;
+    /** @internal */
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override;
 
 private:
     //==============================================================================
@@ -403,6 +425,8 @@ private:
 
     class GutterComponent;
     std::unique_ptr<GutterComponent> gutter;
+
+    class CodeEditorAccessibilityHandler;
 
     enum DragType
     {
@@ -442,6 +466,7 @@ private:
     void indentSelectedLines (int spacesToAdd);
     bool skipBackwardsToPreviousTab();
     bool performCommand (CommandID);
+    void setSelection (CodeDocument::Position, CodeDocument::Position);
 
     int indexToColumn (int line, int index) const noexcept;
     int columnToIndex (int line, int column) const noexcept;

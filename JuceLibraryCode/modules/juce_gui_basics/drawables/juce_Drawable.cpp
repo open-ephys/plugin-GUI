@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -30,6 +30,7 @@ Drawable::Drawable()
 {
     setInterceptsMouseClicks (false, false);
     setPaintingIsUnclipped (true);
+    setAccessible (false);
 }
 
 Drawable::Drawable (const Drawable& other)
@@ -37,6 +38,7 @@ Drawable::Drawable (const Drawable& other)
 {
     setInterceptsMouseClicks (false, false);
     setPaintingIsUnclipped (true);
+    setAccessible (false);
 
     setComponentID (other.getComponentID());
     setTransform (other.getTransform());
@@ -138,6 +140,7 @@ void Drawable::setBoundsToEnclose (Rectangle<float> area)
     auto newBounds = area.getSmallestIntegerContainer() + parentOrigin;
     originRelativeToComponent = parentOrigin - newBounds.getPosition();
     setBounds (newBounds);
+    updateTransform();
 }
 
 //==============================================================================
@@ -150,6 +153,23 @@ bool Drawable::replaceColour (Colour original, Colour replacement)
             changed = d->replaceColour (original, replacement) || changed;
 
     return changed;
+}
+
+void Drawable::setDrawableTransform (const AffineTransform& transform)
+{
+    drawableTransform = transform;
+    updateTransform();
+}
+
+void Drawable::updateTransform()
+{
+    if (drawableTransform.isIdentity())
+        return;
+
+    const auto transformationOrigin = originRelativeToComponent + getPosition();
+    setTransform (AffineTransform::translation (transformationOrigin * (-1))
+                      .followedBy (drawableTransform)
+                      .followedBy (AffineTransform::translation (transformationOrigin)));
 }
 
 //==============================================================================
@@ -167,23 +187,15 @@ void Drawable::setTransformToFit (const Rectangle<float>& area, RectanglePlaceme
 //==============================================================================
 std::unique_ptr<Drawable> Drawable::createFromImageData (const void* data, const size_t numBytes)
 {
-    std::unique_ptr<Drawable> result;
-
     auto image = ImageFileFormat::loadFrom (data, numBytes);
 
     if (image.isValid())
-    {
-        auto* di = new DrawableImage();
-        di->setImage (image);
-        result.reset (di);
-    }
-    else
-    {
-        if (auto svg = parseXMLIfTagMatches (String::createStringFromData (data, (int) numBytes), "svg"))
-            result = Drawable::createFromSVG (*svg);
-    }
+        return std::make_unique<DrawableImage> (image);
 
-    return result;
+    if (auto svg = parseXMLIfTagMatches (String::createStringFromData (data, (int) numBytes), "svg"))
+        return Drawable::createFromSVG (*svg);
+
+    return {};
 }
 
 std::unique_ptr<Drawable> Drawable::createFromImageDataStream (InputStream& dataSource)

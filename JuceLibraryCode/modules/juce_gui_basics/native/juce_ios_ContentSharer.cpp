@@ -2,15 +2,15 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
-   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-6-licence
+   End User License Agreement: www.juce.com/juce-7-licence
    Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
@@ -104,12 +104,9 @@ private:
 
         controller.get().excludedActivityTypes = nil;
 
-        controller.get().completionWithItemsHandler = ^ (UIActivityType type, BOOL completed,
-                                                         NSArray* returnedItems, NSError* error)
+        controller.get().completionWithItemsHandler = ^([[maybe_unused]] UIActivityType type, BOOL completed,
+                                                        [[maybe_unused]] NSArray* returnedItems, NSError* error)
         {
-            ignoreUnused (type);
-            ignoreUnused (returnedItems);
-
             succeeded = completed;
 
             if (error != nil)
@@ -172,7 +169,7 @@ private:
     {
         PopoverDelegateClass()  : ObjCClass<NSObject<UIPopoverPresentationControllerDelegate>> ("PopoverDelegateClass_")
         {
-            addMethod (@selector (popoverPresentationController:willRepositionPopoverToRect:inView:), willRepositionPopover, "v@:@@@");
+            addMethod (@selector (popoverPresentationController:willRepositionPopoverToRect:inView:), willRepositionPopover);
 
             registerClass();
         }
@@ -191,8 +188,8 @@ private:
 
     ContentSharer& owner;
     UIViewComponentPeer* peer = nullptr;
-    std::unique_ptr<UIActivityViewController, NSObjectDeleter> controller;
-    std::unique_ptr<NSObject<UIPopoverPresentationControllerDelegate>, NSObjectDeleter> popoverDelegate;
+    NSUniquePtr<UIActivityViewController> controller;
+    NSUniquePtr<NSObject<UIPopoverPresentationControllerDelegate>> popoverDelegate;
 
     bool succeeded = false;
     String errorDescription;

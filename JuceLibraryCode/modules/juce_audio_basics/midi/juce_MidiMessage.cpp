@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2020 - Raw Material Software Limited
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -103,30 +103,22 @@ int MidiMessage::readVariableLengthVal (const uint8* data, int& numBytesUsed) no
 
 int MidiMessage::getMessageLengthFromFirstByte (const uint8 firstByte) noexcept
 {
-    // <Open-Ephys>
-    // Modified by Open-Ephys.
-    // It no longer checks to see that the message length is less than
-    // or equal to three bytes.
-    // =======================================================================
-    return firstByte;
-    // =======================================================================
-    
-    // // this method only works for valid starting bytes of a short midi message
-    // jassert (firstByte >= 0x80 && firstByte != 0xf0 && firstByte != 0xf7);
+    // this method only works for valid starting bytes of a short midi message
+    jassert (firstByte >= 0x80 && firstByte != 0xf0 && firstByte != 0xf7);
 
-    // static const char messageLengths[] =
-    // {
-    //     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-    //     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-    //     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-    //     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-    //     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-    //     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-    //     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-    //     1, 2, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-    // };
+    static const char messageLengths[] =
+    {
+        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+        1, 2, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    };
 
-    // return messageLengths[firstByte & 0x7f];
+    return messageLengths[firstByte & 0x7f];
 }
 
 //==============================================================================
@@ -142,11 +134,7 @@ MidiMessage::MidiMessage (const void* const d, const int dataSize, const double 
 {
     jassert (dataSize > 0);
     // this checks that the length matches the data..
-    // <Open-Ephys>
-    // Modified by Open-Ephys.
-    // =======================================================================
-    // jassert (dataSize > 3 || *(uint8*)d >= 0xf0 || getMessageLengthFromFirstByte (*(uint8*)d) == size);
-    // =======================================================================
+    jassert (dataSize > 3 || *(uint8*)d >= 0xf0 || getMessageLengthFromFirstByte (*(uint8*)d) == size);
 
     memcpy (allocateSpace (dataSize), d, (size_t) dataSize);
 }
@@ -299,11 +287,14 @@ MidiMessage& MidiMessage::operator= (const MidiMessage& other)
     {
         if (other.isHeapAllocated())
         {
-            if (isHeapAllocated())
-                packedData.allocatedData = static_cast<uint8*> (std::realloc (packedData.allocatedData, (size_t) other.size));
-            else
-                packedData.allocatedData = static_cast<uint8*> (std::malloc ((size_t) other.size));
+            auto* newStorage = static_cast<uint8*> (isHeapAllocated()
+              ? std::realloc (packedData.allocatedData, (size_t) other.size)
+              : std::malloc ((size_t) other.size));
 
+            if (newStorage == nullptr)
+                throw std::bad_alloc{}; // The midi message has not been adjusted at this point
+
+            packedData.allocatedData = newStorage;
             memcpy (packedData.allocatedData, other.packedData.allocatedData, (size_t) other.size);
         }
         else
@@ -445,13 +436,7 @@ int MidiMessage::getNoteNumber() const noexcept
 
 void MidiMessage::setNoteNumber (const int newNoteNumber) noexcept
 {
-    // <Open-Ephys>
-    // Modified by Open-Ephys.
-    // It was commented out, to allow the second byte of a MidiMessage
-    // to be set to zero (for saving purposes)
-    // =======================================================================
-    // if (isNoteOnOrOff() || isAftertouch())
-    // =======================================================================
+    if (isNoteOnOrOff() || isAftertouch())
         getData()[1] = (uint8) (newNoteNumber & 127);
 }
 
