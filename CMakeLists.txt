@@ -13,7 +13,7 @@ endforeach()
 string(REPLACE "." "," GUI_VERSION_COMMA ${GUI_VERSION})
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version" FORCE)
-set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "Build architecture for Mac OS X" FORCE)
+set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "Build architecture for Mac OS X" FORCE)
 set(CMAKE_OSX_SYSROOT "")
 if ((NOT ${CMAKE_CURRENT_BINARY_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR}/Build ) AND (NOT OE_DONT_CHECK_BUILD_PATH))
 message(FATAL_ERROR "Please run cmake inside the Build folder to build the binaries in the predefined paths.\nSet the OE_DONT_CHECK_BUILD_PATH cmake variable to TRUE to disable this error")
@@ -206,12 +206,19 @@ elseif(APPLE)
 	target_link_libraries(open-ephys
 		"-framework Accelerate"
 		"-framework AudioToolbox"
+		"-framework AVKit"
+		"-framework AVFoundation"
 		"-framework Carbon"
 		"-framework Cocoa"
 		"-framework CoreAudio"
+		"-framework CoreAudioKit"
+		"-framework CoreMedia"
 		"-framework CoreMIDI"
 		"-framework DiscRecording"
+		"-framework Foundation"
 		"-framework IOKit"
+		"-framework Metal"
+		"-framework MetalKit"
 		"-framework OpenGL"
 		"-framework QTKit"
 		"-framework QuartzCore"
