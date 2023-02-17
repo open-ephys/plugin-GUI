@@ -30,13 +30,14 @@
 SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, 
                      int elecNum, 
                      int p, 
-                     String name_) :
+                     String name_,
+                     std::string identifier_) :
     canvas(sdc), 
     electrodeNumber(elecNum),
     plotType(p),
     limitsChanged(true), 
-    name(name_)
-
+    name(name_),
+    identifier(identifier_)
 {
 
     font = Font("Default", 15, Font::plain);
@@ -84,9 +85,6 @@ SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc,
 
         rangeButtons.add(rangeButton);
         setDisplayThresholdForChannel(i, 0);
-
-        if (!canvas->hasCachedDisplaySettings(electrodeNumber, i))
-            canvas->cacheDisplaySettings(electrodeNumber, i, 0, 250.0, false);
     }
 
     monitorButton = std::make_unique<UtilityButton>("MON", Font("Small Text", 8, Font::plain));
@@ -104,6 +102,11 @@ SpikePlot::~SpikePlot()
     {
         thresholdCoordinator->deregisterSpikePlot(this);
     }
+}
+
+void SpikePlot::setId(std::string id)
+{
+    identifier = id;
 }
 
 void SpikePlot::paint(Graphics& g)
@@ -179,7 +182,7 @@ void SpikePlot::initAxes()
 
     for (int i = 0; i < nWaveAx; i++)
     {
-        WaveAxes* wAx = new WaveAxes(canvas, electrodeNumber, WAVE1 + i);
+        WaveAxes* wAx = new WaveAxes(canvas, electrodeNumber, WAVE1 + i, identifier);
         waveAxes.add(wAx);
         addAndMakeVisible(wAx);
         ranges.add(250.0f); // default range is 250 microvolts
@@ -289,12 +292,7 @@ void SpikePlot::buttonClicked(Button* button)
 
     setLimitsOnAxes();
 
-    LOGD("Updating electrode: ", electrodeNumber, " range: ", ranges[index], " index: ", index);
-
-    double threshold = getDisplayThresholdForChannel(index);
-    bool monitorState = monitorButton->getToggleState();
-
-    canvas->cacheDisplaySettings(electrodeNumber, index, threshold, ranges[index], monitorState);
+    canvas->cache->setMonitor(identifier, monitorButton->getToggleState());
 
 }
 
@@ -542,7 +540,7 @@ double GenericAxes::ad16ToUv(int x, int gain)
 }
 
 
-WaveAxes::WaveAxes(SpikeDisplayCanvas* canvas, int electrodeIndex, int channel_) : GenericAxes(canvas, WAVE_AXES),
+WaveAxes::WaveAxes(SpikeDisplayCanvas* canvas, int electrodeIndex, int channel_, std::string identifier_) : GenericAxes(canvas, WAVE_AXES),
     electrodeIndex(electrodeIndex),
     drawGrid(true),
     displayThresholdLevel(0.0f),
@@ -555,8 +553,8 @@ WaveAxes::WaveAxes(SpikeDisplayCanvas* canvas, int electrodeIndex, int channel_)
     isDraggingThresholdSlider(false),
     thresholdCoordinator(nullptr),
     spikesInverted(false),
-    channel(channel_)
-
+    channel(channel_),
+    identifier(identifier_)
 {
     addMouseListener(this, true);
 
@@ -852,9 +850,8 @@ void WaveAxes::mouseDrag(const MouseEvent& event)
             thresholdCoordinator->thresholdChanged(displayThresholdLevel,range);
         }
 
-        LOGA("Updated threshold for electrode: ", electrodeIndex, "channel: ", channel, " to " + String(displayThresholdLevel));
-
-        canvas->cacheDisplayThreshold(electrodeIndex, channel, displayThresholdLevel);
+        canvas->cache->setThreshold(identifier, channel, displayThresholdLevel);
+        canvas->cache->setRange(identifier, channel, range);
 
         repaint();
     }

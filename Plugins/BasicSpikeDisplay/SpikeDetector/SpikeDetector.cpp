@@ -384,6 +384,8 @@ String SpikeDetector::ensureUniqueName(String name, uint16 currentStream)
 
    // std::cout << "New name: " << nameToCheck;
 
+    nameToCheck.replaceCharacter('|','_');
+
     return nameToCheck;
 }
 
@@ -536,6 +538,15 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
                      selectedChannels,
                      spikeChannel->getNumChannels()));
 
+    //Whenever a new spike channel is created, we need to update the unique ID
+    //TODO: This should be automatically done in the SpikeChannel constructor next time we change the API
+    const Array<const ContinuousChannel*>& sourceChannels = spikeChannel->getSourceChannels();
+    std::string cacheKey = std::to_string(sourceChannels[0]->getSourceNodeId());
+    cacheKey += "|" + spikeChannel->getStreamName().toStdString();
+    cacheKey += "|" + name.toStdString();
+
+    spikeChannel->setIdentifier(cacheKey);
+
     return spikeChannel;
 
 }
@@ -543,11 +554,33 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
 
 void SpikeDetector::removeSpikeChannel (SpikeChannel* spikeChannel)
 {
+
+    LOGD("Removing spike channel: ", spikeChannel->getName(), " from stream ", spikeChannel->getStreamId());
  
     spikeChannels.removeObject(spikeChannel);
+
+    //Reset electrode and channel counters if no more spike channels after this delete
+    if (!spikeChannels.size())
+    {
+
+        nextAvailableChannel = 0;
+        singleElectrodeCount = 0;
+        stereotrodeCount = 0;
+        tetrodeCount = 0;
+
+        for (auto& stream : getDataStreams())
+        {
+            settings[stream->getStreamId()]->singleElectrodeCount = 0;
+            settings[stream->getStreamId()]->stereotrodeCount = 0;
+            settings[stream->getStreamId()]->tetrodeCount = 0;
+
+            settings[stream->getStreamId()]->nextAvailableChannel = 0;
+        }
+
+        //TODO: Can make this smarter by resetting by electrode type
+    }
     
 }
-
 
 Array<SpikeChannel*> SpikeDetector::getSpikeChannelsForStream(uint16 streamId)
 {

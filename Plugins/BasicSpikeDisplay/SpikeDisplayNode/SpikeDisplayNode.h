@@ -29,7 +29,6 @@
 class DataViewport;
 class SpikePlot;
 
-
 /**
   Looks for incoming Spike events and draws them to the SpikeDisplayCanvas.
 

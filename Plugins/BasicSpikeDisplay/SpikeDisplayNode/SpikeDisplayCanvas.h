@@ -34,6 +34,62 @@
 class SpikePlot;
 class SpikeDisplayNode;
 
+class SpikeDisplayCache
+{
+public:
+    SpikeDisplayCache () {}
+    virtual ~SpikeDisplayCache() {}
+
+    void setMonitor(std::string key, bool isMonitored) {
+        monitors[key] = isMonitored;
+    };
+
+    bool isMonitored(std::string key) {
+        return monitors[key];
+    };
+
+    void setRange(std::string key, int channelIdx, double range) {
+        ranges[key][channelIdx] = range;
+    };
+
+    double getRange(std::string key, int channelIdx) {
+        return ranges[key][channelIdx];
+    };
+
+    void setThreshold(std::string key,int channelIdx, double thresh) {
+        thresholds[key][channelIdx] = thresh;
+    };
+
+    double getThreshold(std::string key, int channelIdx) {
+        return thresholds[key][channelIdx];
+    };
+
+    bool hasCachedDisplaySettings(std::string cacheKey)
+    {
+        /*
+        LOGDD("SpikeDisplayCache keys:");
+        std::vector<std::string> keys = extract_keys(ranges);
+        std::vector<std::map<int,double>> vals = extract_values(ranges);
+        for (int i = 0; i < keys.size(); i++)
+        {
+            std::vector<int> channels = extract_keys(vals[i]);
+            std::vector<double> ranges = extract_values(vals[i]);
+            for (int j = 0; j < channels.size(); j++)
+                LOGDD("Key: ", keys[i], " Channel: ", channels[j], " Range: ", ranges[j]);
+        }
+        */
+        return thresholds.count(cacheKey) > 0;
+    };
+
+private:
+
+    std::map<std::string, std::map<int, double>> ranges;
+    std::map<std::string, std::map<int, double>> thresholds;
+    std::map<std::string, bool> monitors;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayCache);
+};
+
 /**
     Allows spike plot thresholds to be adjusted synchronously
 */
@@ -125,13 +181,18 @@ public:
     /** Pointer to the underlying SpikeDisplayNode*/
     SpikeDisplayNode* processor;
 
-    void cacheDisplaySettings(int electrodeIndex, int channelIndex, double threshold, double range, bool isMonitored);
+    void cacheDisplayThreshold(std::string cacheKey, int channelIndex, double threshold);
 
-    void cacheDisplayThreshold(int electrodeIndex, int channelIndex, double threshold);
+    void cacheDisplayRange(std::string cacheKey, int channelIndex, double range);
 
-    bool hasCachedDisplaySettings(int electrodeIndex, int channelIndex);
+    void cacheMonitorState(std::string cacheKey, bool monitorState);
 
-    void invalidateDisplaySettings(int electrodeIndex);
+    bool hasCachedDisplaySettings(std::string cacheKey);
+
+    void invalidateDisplaySettings(std::string cacheKey);
+
+    /** Manages connections from SpikeChannels to SpikePlots */
+    std::unique_ptr<SpikeDisplayCache> cache;
 
 private:
 
@@ -146,10 +207,6 @@ private:
     std::unique_ptr<SpikeThresholdCoordinator> thresholdCoordinator;
     std::unique_ptr<UtilityButton> lockThresholdsButton;
     std::unique_ptr<UtilityButton> invertSpikesButton;
-
-    std::map<int, std::map<int, double>> ranges;
-    std::map<int, std::map<int, double>> thresholds;
-    std::map<int, bool> monitors;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpikeDisplayCanvas);
 
