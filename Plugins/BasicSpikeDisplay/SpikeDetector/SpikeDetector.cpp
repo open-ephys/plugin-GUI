@@ -384,6 +384,8 @@ String SpikeDetector::ensureUniqueName(String name, uint16 currentStream)
 
    // std::cout << "New name: " << nameToCheck;
 
+    nameToCheck.replaceCharacter('|','_');
+
     return nameToCheck;
 }
 
@@ -553,9 +555,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
 void SpikeDetector::removeSpikeChannel (SpikeChannel* spikeChannel)
 {
 
-    LOGC("Total spike channels: ", spikeChannels.size());
-    LOGC("Removing spike channel: ", spikeChannel->getName(), " from stream ", spikeChannel->getStreamId());
-    //LOGC("Current stream has ", settings[spikeChannel->getStreamId()]->spikeChannels.size(), " spike channels");
+    LOGD("Removing spike channel: ", spikeChannel->getName(), " from stream ", spikeChannel->getStreamId());
  
     spikeChannels.removeObject(spikeChannel);
 
