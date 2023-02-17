@@ -72,6 +72,7 @@ add_executable(open-ephys
 	${JUCE_DIRECTORY}/include_juce_gui_basics.${JUCE_FILES_EXTENSION}
 	${JUCE_DIRECTORY}/include_juce_gui_extra.${JUCE_FILES_EXTENSION}
 	${JUCE_DIRECTORY}/include_juce_opengl.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_osc.cpp
 	${JUCE_DIRECTORY}/include_juce_video.${JUCE_FILES_EXTENSION}
 	)
  if(MSVC)
