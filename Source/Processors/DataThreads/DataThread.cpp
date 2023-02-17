@@ -30,7 +30,7 @@ DataThread::DataThread (SourceNode* s_)
     : Thread     ("Data Thread"),
       sn(s_)
 {
-    setPriority (10);
+    setPriority (Thread::Priority::highest);
 }
 
 
