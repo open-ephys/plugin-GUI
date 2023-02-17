@@ -126,7 +126,13 @@ bool MidiBuffer::addEvent (const MidiMessage& m, int sampleNumber)
 
 bool MidiBuffer::addEvent (const void* newData, int maxBytes, int sampleNumber)
 {
-    auto numBytes = MidiBufferHelpers::findActualEventLength (static_cast<const uint8*> (newData), maxBytes);
+    // <Open-Ephys>
+    // Modified by Open-Ephys.
+    // =======================================================================
+    // auto numBytes = MidiBufferHelpers::findActualEventLength (static_cast<const uint8*> (newData), maxBytes);
+    const int numBytes = maxBytes;
+    // =======================================================================
+    
 
     if (numBytes <= 0)
         return true;

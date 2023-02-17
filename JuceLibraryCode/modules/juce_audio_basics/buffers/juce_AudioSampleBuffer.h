@@ -1292,4 +1292,6 @@ private:
 */
 using AudioSampleBuffer = AudioBuffer<float>;
 
+using SynchronizedTimestampBuffer = AudioBuffer<double>;
+
 } // namespace juce

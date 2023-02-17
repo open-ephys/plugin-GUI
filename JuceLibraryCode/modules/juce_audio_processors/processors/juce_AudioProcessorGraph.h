@@ -74,8 +74,11 @@ public:
         This is used as a channel index value if you want to refer to the midi input
         or output instead of an audio channel.
     */
-    enum { midiChannelIndex = 0x1000 };
-
+    // <Open-Ephys>
+    // Modified by Open-Ephys.
+    // enum { midiChannelIndex = 0x1000 };
+    enum { midiChannelIndex = 0x8000 };
+    
     //==============================================================================
     /**
         Represents an input or output channel of a node in an AudioProcessorGraph.
