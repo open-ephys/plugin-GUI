@@ -552,11 +552,35 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
 
 void SpikeDetector::removeSpikeChannel (SpikeChannel* spikeChannel)
 {
+
+    LOGC("Total spike channels: ", spikeChannels.size());
+    LOGC("Removing spike channel: ", spikeChannel->getName(), " from stream ", spikeChannel->getStreamId());
+    //LOGC("Current stream has ", settings[spikeChannel->getStreamId()]->spikeChannels.size(), " spike channels");
  
     spikeChannels.removeObject(spikeChannel);
+
+    //Reset electrode and channel counters if no more spike channels after this delete
+    if (!spikeChannels.size())
+    {
+
+        nextAvailableChannel = 0;
+        singleElectrodeCount = 0;
+        stereotrodeCount = 0;
+        tetrodeCount = 0;
+
+        for (auto& stream : getDataStreams())
+        {
+            settings[stream->getStreamId()]->singleElectrodeCount = 0;
+            settings[stream->getStreamId()]->stereotrodeCount = 0;
+            settings[stream->getStreamId()]->tetrodeCount = 0;
+
+            settings[stream->getStreamId()]->nextAvailableChannel = 0;
+        }
+
+        //TODO: Can make this smarter by resetting by electrode type
+    }
     
 }
-
 
 Array<SpikeChannel*> SpikeDetector::getSpikeChannelsForStream(uint16 streamId)
 {
