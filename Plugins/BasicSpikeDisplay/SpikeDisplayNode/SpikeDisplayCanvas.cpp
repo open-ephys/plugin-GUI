@@ -108,32 +108,9 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
     addAndMakeVisible(viewport.get());
 
     update();
-}
 
-void SpikeDisplayCanvas::cacheDisplaySettings(int electrode, int channel, double threshold, double range, bool isMonitored)
-{
-    thresholds[electrode][channel] = threshold;
-    ranges[electrode][channel] = range;
-    monitors[electrode] = isMonitored;
+    cache = std::make_unique<SpikeDisplayCache>();
 }
-
-void SpikeDisplayCanvas::cacheDisplayThreshold(int electrode, int channel, double threshold)
-{
-    thresholds[electrode][channel] = threshold;
-}
-
-bool SpikeDisplayCanvas::hasCachedDisplaySettings(int electrode, int channel)
-{
-    return thresholds[electrode].count(channel) > 0;
-}
-
-void SpikeDisplayCanvas::invalidateDisplaySettings(int electrodeIndex)
-{
-    thresholds.erase(electrodeIndex);
-    ranges.erase(electrodeIndex);
-    monitors.erase(electrodeIndex);
-}
-
 
 void SpikeDisplayCanvas::update()
 {
@@ -149,27 +126,29 @@ void SpikeDisplayCanvas::update()
     for (int i = 0; i < nPlots; i++)
     {
         SpikePlot* sp = spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i,
-                                                   processor->getNameForElectrode(i));
+                                                   processor->getNameForElectrode(i), processor->getSpikeChannel(i)->getIdentifier().toStdString());
+
         processor->addSpikePlotForElectrode(sp, i);
 
-        if (monitors.size())
+        std::string cacheKey = processor->getSpikeChannel(i)->getIdentifier().toStdString();
+
+        if (cache && cache->hasCachedDisplaySettings(cacheKey))
         {
 
-            spikeDisplay->setMonitorStateForPlot(i, monitors[i]);
+            spikeDisplay->setMonitorStateForPlot(i, cache->isMonitored(cacheKey));
 
             for (int j = 0; j < processor->getNumberOfChannelsForElectrode(i); j++)
             {
-
-                LOGD("Updating spike plot: ", i, " channel: ", j, " threshold: ", thresholds[i][j], " range: ", ranges[i][j])
-                spikeDisplay->setThresholdForWaveAxis(i,j,thresholds[i][j]);
-                spikeDisplay->setRangeForWaveAxis(i,j,ranges[i][j]);
-                spikeDisplay->setMonitorStateForPlot(i,monitors[i]);
+                spikeDisplay->setThresholdForWaveAxis(i,j,cache->getThreshold(cacheKey,j));
+                spikeDisplay->setRangeForWaveAxis(i,j,cache->getRange(cacheKey, j));
             }
 
         }
+
     }
 
     spikeDisplay->resized();
+    spikeDisplay->refresh();
     
 }
 
@@ -240,10 +219,18 @@ void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
     xmlNode->setAttribute("LockThresholds", lockThresholdsButton->getToggleState());
     xmlNode->setAttribute("InvertSpikes", invertSpikesButton->getToggleState());
 
-    for (int i = 0; i < spikeDisplay->getNumPlots(); i++)
+    int spikePlotIdx = -1;
+
+    for (int i = 0; i < processor->getTotalSpikeChannels(); i++)
     {
+        if (!processor->getSpikeChannel(i)->isValid())
+            continue;
+
+        spikePlotIdx++;
+
         XmlElement* plotNode = xmlNode->createNewChildElement("PLOT");
 
+        plotNode->setAttribute("name", processor->getSpikeChannel(i)->getIdentifier());
         plotNode->setAttribute("isMonitored", spikeDisplay->getMonitorStateForPlot(i));
 
         for (int j = 0; j < spikeDisplay->getNumChannelsForPlot(i); j++)
@@ -251,22 +238,29 @@ void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
             XmlElement* axisNode = plotNode->createNewChildElement("AXIS");
             axisNode->setAttribute("thresh",spikeDisplay->getThresholdForWaveAxis(i,j));
             axisNode->setAttribute("range",spikeDisplay->getRangeForWaveAxis(i,j));
-
         }
     }
+
+    xmlNode->setAttribute("NumPlots", spikePlotIdx+1);
 
 }
 
 void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 {
 
-    thresholds.clear();
-    ranges.clear();
 
     for (auto* xmlNode : xml->getChildIterator())
     {
         if (xmlNode->hasTagName("SPIKEDISPLAY"))
         {
+
+            if (xmlNode->getIntAttribute("NumPlots", 0) != processor->getTotalSpikeChannels())
+            {
+                //SpikeDisplayNode has not loaded all spike channels from all incoming branches yet.
+                //Wait until the processor has loaded all channels before loading the saved settings.
+                return;
+            }
+
             spikeDisplay->invertSpikes(xmlNode->getBoolAttribute("InvertSpikes"));
             invertSpikesButton->setToggleState(xmlNode->getBoolAttribute("InvertSpikes"), dontSendNotification);
             lockThresholdsButton->setToggleState(xmlNode->getBoolAttribute("LockThresholds"), sendNotification);
@@ -277,12 +271,11 @@ void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
             {
                 if (plotNode->hasTagName("PLOT"))
                 {
-
                     plotIndex++;
 
-                    monitors[plotIndex] = plotNode->getBoolAttribute("isMonitored");
+                    std::string cacheKey = processor->getSpikeChannel(plotIndex)->getIdentifier().toStdString();
 
-                    //std::cout << "PLOT NUMBER " << plotIndex << std::endl;
+                    cache->setMonitor(cacheKey, plotNode->getBoolAttribute("isMonitored"));
 
                     int channelIndex = -1;
 
@@ -291,8 +284,8 @@ void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
                         if (channelNode->hasTagName("AXIS"))
                         {
                             channelIndex++;
-                            thresholds[plotIndex][channelIndex] = channelNode->getDoubleAttribute("thresh");
-                            ranges[plotIndex][channelIndex] = channelNode->getDoubleAttribute("range");
+                            cache->setThreshold(cacheKey, channelIndex, channelNode->getDoubleAttribute("thresh"));
+                            cache->setRange(cacheKey, channelIndex, channelNode->getDoubleAttribute("range"));
                         }
                     }
                 }

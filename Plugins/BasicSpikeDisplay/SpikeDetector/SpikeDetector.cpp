@@ -536,6 +536,15 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
                      selectedChannels,
                      spikeChannel->getNumChannels()));
 
+    //Whenever a new spike channel is created, we need to update the unique ID
+    //TODO: This should be automatically done in the SpikeChannel constructor next time we change the API
+    const Array<const ContinuousChannel*>& sourceChannels = spikeChannel->getSourceChannels();
+    std::string cacheKey = std::to_string(sourceChannels[0]->getSourceNodeId());
+    cacheKey += "|" + spikeChannel->getStreamName().toStdString();
+    cacheKey += "|" + name.toStdString();
+
+    spikeChannel->setIdentifier(cacheKey);
+
     return spikeChannel;
 
 }

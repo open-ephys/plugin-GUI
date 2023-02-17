@@ -75,10 +75,14 @@ public:
     SpikePlot(SpikeDisplayCanvas*, 
               int elecNum, 
               int plotType, 
-              String name_);
+              String name_,
+              std::string identifier_);
 
     /** Destructor */
     virtual ~SpikePlot();
+
+    /** Set unique spike plot identifier */
+    void setId(std::string id);
 
     /** Draws outline and electrode name*/
     void paint(Graphics& g);
@@ -146,6 +150,8 @@ public:
     float aspectRatio;
 
 private:
+
+    std::string identifier;
 
     int plotType;
     int nWaveAx;
@@ -244,7 +250,7 @@ class WaveAxes : public GenericAxes
 public:
 
     /** Constructor*/
-    WaveAxes(SpikeDisplayCanvas* canvas, int electrodeIndex, int channel);
+    WaveAxes(SpikeDisplayCanvas* canvas, int electrodeIndex, int channel, std::string identifier);
 
     /** Destructor*/
     ~WaveAxes() {}
@@ -289,6 +295,8 @@ public:
     }
 
 private:
+
+    std::string identifier;
 
     Colour waveColour;
     Colour thresholdColour;
