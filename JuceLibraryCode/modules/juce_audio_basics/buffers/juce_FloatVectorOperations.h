@@ -51,7 +51,7 @@ class ScopedNoDenormals;
     @tags{Audio}
 */
 template <typename FloatType, typename CountType>
-struct FloatVectorOperationsBase
+struct __attribute__((visibility("default"))) FloatVectorOperationsBase
 {
     /** Clears a vector of floating point numbers. */
     static void JUCE_CALLTYPE clear (FloatType* dest, CountType numValues) noexcept;

@@ -189,7 +189,7 @@ elseif(LINUX)
 	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS
 		"-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/shared'")
 
-	target_compile_options(open-ephys PRIVATE -fPIC -rdynamic -fvisibility=hidden -Wno-free-nonheap-object)
+	target_compile_options(open-ephys PRIVATE -fPIC -rdynamic -fvisibility=hidden)
 	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/${CMAKE_BUILD_TYPE})
 
 elseif(APPLE)
