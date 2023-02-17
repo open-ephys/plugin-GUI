@@ -46,7 +46,7 @@
 #endif
 
 #include <windows.h>
-#define GLEW_STATIC
+// #define GLEW_STATIC
 #define __WINDOWS_DS__
 #define __WINDOWS_MM__
 #if (_MSC_VER)       // microsoft visual studio
@@ -62,11 +62,6 @@
 #endif
 
 #define TARGET_LITTLE_ENDIAN			// intel cpu
-
-// some gl.h files, like dev-c++, are old - this is pretty universal
-#ifndef GL_BGR_EXT
-#define GL_BGR_EXT 0x80E0
-#endif
 
 // #define WIN32_HIGH_RES_TIMING
 
