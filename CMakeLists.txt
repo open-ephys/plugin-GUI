@@ -223,6 +223,7 @@ elseif(APPLE)
 		"-framework OpenGL"
 		"-framework QTKit"
 		"-framework QuartzCore"
+		"-framework Security"
 		"-framework WebKit"
 	)
 
