@@ -181,16 +181,6 @@ public:
     /** Pointer to the underlying SpikeDisplayNode*/
     SpikeDisplayNode* processor;
 
-    void cacheDisplayThreshold(std::string cacheKey, int channelIndex, double threshold);
-
-    void cacheDisplayRange(std::string cacheKey, int channelIndex, double range);
-
-    void cacheMonitorState(std::string cacheKey, bool monitorState);
-
-    bool hasCachedDisplaySettings(std::string cacheKey);
-
-    void invalidateDisplaySettings(std::string cacheKey);
-
     /** Manages connections from SpikeChannels to SpikePlots */
     std::unique_ptr<SpikeDisplayCache> cache;
 
