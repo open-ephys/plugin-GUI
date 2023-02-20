@@ -48,7 +48,7 @@ class SourceNode;
 class RecordEngineManager;
 class FileSource;
 
-#define PLUGIN_API_VER 8
+#define PLUGIN_API_VER 9
 
 typedef GenericProcessor*(*ProcessorCreator)();
 typedef DataThread*(*DataThreadCreator)(SourceNode*);
