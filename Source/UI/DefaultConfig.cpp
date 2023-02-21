@@ -45,7 +45,6 @@ DefaultConfigWindow::~DefaultConfigWindow()
 		configWindow->exitModalState (0);
 	}
 	
-	masterReference.clear();
 }
 
 void DefaultConfigWindow::launchWindow()
@@ -231,15 +230,17 @@ void DefaultConfigComponent::buttonClicked(Button* button)
 #else
         File configFile = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile(filePath);
 #endif
-        
-		DialogWindow* dw = this->findParentComponentOfClass<DialogWindow>();
-		dw->setVisible(false);
+		
+		// Hide the config window
+		if(DialogWindow* dw = this->findParentComponentOfClass<DialogWindow>())
+			dw->setVisible(false);
 		
 		// Load the config file
 		AccessClass::getUIComponent()->getEditorViewport()->loadState(configFile);
 
 		// Close config window after loading the config file
-    	dw->exitModalState (0);
+		if(DialogWindow* dw = this->findParentComponentOfClass<DialogWindow>())
+			dw->exitModalState (0);
 
 	}
 	else if(button->getRadioGroupId() == 101)

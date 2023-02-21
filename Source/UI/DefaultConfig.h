@@ -68,12 +68,9 @@ private:
     /* Pointer to the main window so we can keep in bounds */
     DocumentWindow* parent;
 
-    DialogWindow* configWindow;
+    WeakReference<Component> configWindow;
 
     DefaultConfigComponent* configComponent;
-
-    WeakReference<DefaultConfigWindow>::Master masterReference;
-    friend class WeakReference<DefaultConfigWindow>;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DefaultConfigWindow);
 
