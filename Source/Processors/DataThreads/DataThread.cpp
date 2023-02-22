@@ -30,7 +30,7 @@ DataThread::DataThread (SourceNode* s_)
     : Thread     ("Data Thread"),
       sn(s_)
 {
-    setPriority (Thread::Priority::highest);
+
 }
 
 
@@ -41,6 +41,8 @@ DataThread::~DataThread()
 
 void DataThread::run()
 {
+    setPriority (Thread::Priority::highest);
+    
     while (! threadShouldExit())
     {
         if (! updateBuffer())
