@@ -401,7 +401,17 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
 
     if (startChannel > -1)
         settings[currentStream]->nextAvailableChannel = startChannel;
-    
+
+    if (currentStream > 0)
+    {
+        int numAvailableInputChannels = getDataStream(currentStream)->getChannelCount();
+        if (settings[currentStream]->nextAvailableChannel >= numAvailableInputChannels - 1)
+        {
+            settings[currentStream]->nextAvailableChannel = numAvailableInputChannels - SpikeChannel::getNumChannels(type);
+            nextAvailableChannel = settings[currentStream]->nextAvailableChannel;
+        }
+    }
+
     for (int i = 0; i < SpikeChannel::getNumChannels(type); i++)
     {
 
