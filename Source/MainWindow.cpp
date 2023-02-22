@@ -161,6 +161,8 @@ MainWindow::MainWindow(const File& fileToLoad)
 		disableHttpServer();
 	}
 
+	Process::setPriority(Process::HighPriority);
+
 }
 
 MainWindow::~MainWindow()
