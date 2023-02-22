@@ -852,7 +852,7 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
             //  passes the event up to the viewport so the screen scrolls
             if (viewport != nullptr && e.eventComponent == this) // passes only if it's not a listening event
             {
-                viewport->mouseWheelMove(e.getEventRelativeTo(canvasSplit), wheel);
+                viewport->mouseWheelMove(e.getEventRelativeTo(viewport), wheel);
 
                 //canvasSplit->syncDisplayBuffer();
             }

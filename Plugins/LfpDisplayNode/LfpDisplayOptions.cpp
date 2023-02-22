@@ -553,7 +553,7 @@ void LfpDisplayOptions::paint(Graphics& g)
     g.fillAll(Colours::black);
     g.setFont(Font("Default", 20, Font::plain));
 
-    g.setColour(Colour(100,100,100));
+    g.setColour(Colour(150,150,150));
 
     if (getHeight() > 150)
     {

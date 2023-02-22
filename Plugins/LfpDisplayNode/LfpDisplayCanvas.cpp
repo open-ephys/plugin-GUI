@@ -560,8 +560,6 @@ void LfpDisplayCanvas::mouseUp(const MouseEvent& e)
 {
     if (borderToDrag >= 0)
     {
-        std::cout << "Mouse up" << std::endl;
-
         resized();
         borderToDrag = -1;
     }
