@@ -1,0 +1,6 @@
+# 1. TwoSum
+
+Use a map to store the number we've already visited as a key and its index as the value.
+If the target minus the current number is an existing key, return the current index and the existing key's value
+
+This runs in O(n) since we only need to pass through the list once.

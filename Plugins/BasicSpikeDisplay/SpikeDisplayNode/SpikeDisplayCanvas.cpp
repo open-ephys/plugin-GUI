@@ -228,9 +228,15 @@ void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
 
         spikePlotIdx++;
 
+        const SpikeChannel* spikeChannel = processor->getSpikeChannel(i);
+
+        const uint16 streamId = spikeChannel->getStreamId();
+
         XmlElement* plotNode = xmlNode->createNewChildElement("PLOT");
 
-        plotNode->setAttribute("name", processor->getSpikeChannel(i)->getIdentifier());
+        plotNode->setAttribute("name", spikeChannel->getName());
+        plotNode->setAttribute("stream_name", processor->getDataStream(streamId)->getName());
+        plotNode->setAttribute("stream_source", processor->getDataStream(streamId)->getSourceNodeId());
         plotNode->setAttribute("isMonitored", spikeDisplay->getMonitorStateForPlot(i));
 
         for (int j = 0; j < spikeDisplay->getNumChannelsForPlot(i); j++)
@@ -273,7 +279,11 @@ void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
                 {
                     plotIndex++;
 
-                    std::string cacheKey = processor->getSpikeChannel(plotIndex)->getIdentifier().toStdString();
+                    std::string source = plotNode->getStringAttribute("stream_source").toStdString();
+                    std::string stream_name = plotNode->getStringAttribute("stream_name").toStdString();
+                    std::string name = plotNode->getStringAttribute("name").toStdString();
+
+                    std::string cacheKey = source + "|" + stream_name + "|" + name;
 
                     cache->setMonitor(cacheKey, plotNode->getBoolAttribute("isMonitored"));
 

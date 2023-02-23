@@ -293,6 +293,7 @@ void SpikePlot::buttonClicked(Button* button)
     setLimitsOnAxes();
 
     canvas->cache->setMonitor(identifier, monitorButton->getToggleState());
+    canvas->cache->setRange(identifier, index, ranges[index]);
 
 }
 
@@ -374,6 +375,7 @@ float SpikePlot::getRangeForChannel(int i)
 void SpikePlot::setRangeForChannel(int i, float range)
 {
     //std::cout << "Setting range to " << range << std::endl;
+    ranges.set(i, range);
     waveAxes[i]->setRange(range);
     rangeButtons[i]->setLabel(String(int(range)));
 }
