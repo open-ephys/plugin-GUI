@@ -81,6 +81,19 @@ public:
         return thresholds.count(cacheKey) > 0;
     };
 
+    std::string findSimilarKey(std::string key)
+    {
+        std::vector<std::string> keys = extract_keys(ranges);
+        for (int i = 0; i < keys.size(); i++)
+        {
+            std::string partToMatch = key.substr(3, key.length() - 3);
+            std::string possibleMatch = keys[i].substr(3, keys[i].length() - 3);
+            if (partToMatch.compare(possibleMatch) == 0)
+                return keys[i];
+        }
+        return "";
+    }
+
 private:
 
     std::map<std::string, std::map<int, double>> ranges;
@@ -177,6 +190,9 @@ public:
 
     /** Loads display parameters */
     void loadCustomParametersFromXml(XmlElement* xml);
+
+    /** Apply cached settings */
+    void applyCachedDisplaySettings(int plotIdx, std::string cacheKey);
 
     /** Pointer to the underlying SpikeDisplayNode*/
     SpikeDisplayNode* processor;

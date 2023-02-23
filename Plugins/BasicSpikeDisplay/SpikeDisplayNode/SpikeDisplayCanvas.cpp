@@ -112,6 +112,17 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
     cache = std::make_unique<SpikeDisplayCache>();
 }
 
+void SpikeDisplayCanvas::applyCachedDisplaySettings(int plotIdx, std::string key)
+{
+    spikeDisplay->setMonitorStateForPlot(plotIdx, cache->isMonitored(key));
+
+    for (int j = 0; j < processor->getNumberOfChannelsForElectrode(plotIdx); j++)
+    {
+        spikeDisplay->setThresholdForWaveAxis(plotIdx,j,cache->getThreshold(key,j));
+        spikeDisplay->setRangeForWaveAxis(plotIdx,j,cache->getRange(key, j));
+    }
+}
+
 void SpikeDisplayCanvas::update()
 {
 
@@ -132,17 +143,16 @@ void SpikeDisplayCanvas::update()
 
         std::string cacheKey = processor->getSpikeChannel(i)->getIdentifier().toStdString();
 
-        if (cache && cache->hasCachedDisplaySettings(cacheKey))
+        if (cache)
         {
-
-            spikeDisplay->setMonitorStateForPlot(i, cache->isMonitored(cacheKey));
-
-            for (int j = 0; j < processor->getNumberOfChannelsForElectrode(i); j++)
+            if (cache->hasCachedDisplaySettings(cacheKey))
             {
-                spikeDisplay->setThresholdForWaveAxis(i,j,cache->getThreshold(cacheKey,j));
-                spikeDisplay->setRangeForWaveAxis(i,j,cache->getRange(cacheKey, j));
+                applyCachedDisplaySettings(i, cacheKey);
             }
-
+            else if (cache->findSimilarKey(cacheKey).size() > 0)
+            {
+                applyCachedDisplaySettings(i, cache->findSimilarKey(cacheKey));
+            }
         }
 
     }
