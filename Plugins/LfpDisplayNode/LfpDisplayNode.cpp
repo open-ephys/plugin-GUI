@@ -180,6 +180,11 @@ bool LfpDisplayNode::stopAcquisition()
     LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
     editor->disable();
 
+    for(auto split : splitDisplays) {
+        Array<int> emptyArray = Array<int>();
+        split -> setFilteredChannels(emptyArray);
+    }
+    
     for (auto buffer : displayBuffers)
         buffer->ttlState = 0;
 
