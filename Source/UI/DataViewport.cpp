@@ -47,7 +47,8 @@ int DataViewport::addTabToDataViewport(String name,
     if (tabArray.size() == 0)
         setVisible(true);
 
-    
+    if (tabArray.contains(tabIndex))
+        return tabIndex;
 
     addTab(name, Colours::lightgrey, component, false, tabIndex);
 
@@ -59,11 +60,11 @@ int DataViewport::addTabToDataViewport(String name,
     tabArray.add(tabIndex);
 
     //std::cout << "Tab Array: ";
-   // for (int i = 0; i < tabArray.size(); i++)
-   //     std::cout << tabArray[i] << " ";
-   // std::cout << std::endl;
+    //for (int i = 0; i < tabArray.size(); i++)
+    //    std::cout << tabArray[i] << " ";
+    //std::cout << std::endl;
 
-    //LOGD("Data Viewport adding tab with index ", tabIndex);
+    LOGD("Data Viewport adding tab with index ", tabIndex);
 
     setCurrentTabIndex(tabArray.size()-1);
 
@@ -108,7 +109,7 @@ void DataViewport::destroyTab(int index)
     setCurrentTabIndex(tabArray.size()-1);
 
     //std::cout << "Tab Array: ";
-   // for (int i = 0; i < tabArray.size(); i++)
+    //for (int i = 0; i < tabArray.size(); i++)
     //    std::cout << tabArray[i] << " ";
     //std::cout << std::endl;
     
