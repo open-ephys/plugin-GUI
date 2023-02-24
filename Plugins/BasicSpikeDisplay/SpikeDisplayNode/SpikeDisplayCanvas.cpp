@@ -145,13 +145,22 @@ void SpikeDisplayCanvas::update()
 
         if (cache)
         {
+            //TODO: Should be able to call spikeChannel->getStreamIndex() here...
+            int streamIdx = 0;
+            for (auto& stream : processor->getDataStreams())
+            {
+                if (stream->getStreamId() == processor->getSpikeChannel(i)->getStreamId())
+                    break;
+                streamIdx++;
+            }
+
             if (cache->hasCachedDisplaySettings(cacheKey))
             {
                 applyCachedDisplaySettings(i, cacheKey);
             }
-            else if (cache->findSimilarKey(cacheKey).size() > 0)
+            else if (cache->findSimilarKey(cacheKey, streamIdx).size() > 0)
             {
-                applyCachedDisplaySettings(i, cache->findSimilarKey(cacheKey));
+                applyCachedDisplaySettings(i, cache->findSimilarKey(cacheKey, streamIdx));
             }
         }
 

@@ -81,16 +81,41 @@ public:
         return thresholds.count(cacheKey) > 0;
     };
 
-    std::string findSimilarKey(std::string key)
+    std::string findSimilarKey(std::string key, int streamIndex)
     {
         std::vector<std::string> keys = extract_keys(ranges);
+
+        unsigned sourcePos = 0;
+        unsigned streamPos = key.find_first_of("|");
+        unsigned namePos = key.find_last_of("|");
+
+        // First check for a source ID change (match only stream + electrode name)
         for (int i = 0; i < keys.size(); i++)
         {
-            std::string partToMatch = key.substr(3, key.length() - 3);
-            std::string possibleMatch = keys[i].substr(3, keys[i].length() - 3);
+            std::string partToMatch = key.substr(streamPos, key.length() - streamPos);
+            std::string possibleMatch = keys[i].substr(streamPos, keys[i].length() - streamPos);
             if (partToMatch.compare(possibleMatch) == 0)
                 return keys[i];
         }
+
+        // Next check for a stream name change (match only node + electrode name)
+        std::vector<std::string> matches;
+        for (int i = 0; i < keys.size(); i++)
+        {
+            int namePos2 = keys[i].find_last_of("|");
+            std::string partToMatch = key.substr(sourcePos, streamPos - sourcePos) + key.substr(namePos, key.length() - namePos);
+            std::string possibleMatch = keys[i].substr(sourcePos, streamPos - sourcePos) + keys[i].substr(namePos2, keys[i].length() - namePos2);
+            if (partToMatch.compare(possibleMatch) == 0)
+                matches.push_back(keys[i]);
+        }
+
+        // Check if multiple matches, if so, default to stream index
+        if (matches.size() == 1)
+            return matches[0];
+        else if (matches.size() > streamIndex)
+            return matches[streamIndex];
+
+        // No match found
         return "";
     }
 
