@@ -40,6 +40,7 @@
 #include "../../UI/UIComponent.h"
 #include "../../UI/EditorViewport.h"
 #include "../../UI/GraphViewer.h"
+#include "../../UI/ProcessorList.h"
 
 #include "../ProcessorManager/ProcessorManager.h"
 #include "../../Audio/AudioComponent.h"
@@ -47,7 +48,8 @@
 
 std::map< ChannelKey, bool> ProcessorGraph::bufferLookupMap;
 
-ProcessorGraph::ProcessorGraph() :
+ProcessorGraph::ProcessorGraph(bool isConsoleApp_) :
+    isConsoleApp(isConsoleApp_),
     currentNodeId(100),
     isLoadingSignalChain(false)
 {
@@ -537,8 +539,8 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
 
 void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphViewer)
 {
-
-    if (updateGraphViewer)
+    
+    if (updateGraphViewer && !isConsoleApp)
         AccessClass::getGraphViewer()->updateNodes(rootNodes);
 
     int tabIndex;
@@ -548,7 +550,7 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
         processor = rootNodes.getFirst();
     }
 
-    Array<GenericEditor*> editorArray;
+    processorArray.clear();
     GenericProcessor* rootProcessor = processor;
 
     if (processor != nullptr)
@@ -590,9 +592,9 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
         if (processor == nullptr)
             break;
 
-        editorArray.add(processor->getEditor());
+        processorArray.add(processor);
 
-        LOGD(" Adding ", processor->getEditor()->getNameAndId(), " to editor array.");
+        LOGD(" Adding ", processor->getName(), " to editor array.");
 
         if (processor->getDestNode() != nullptr)
         {
@@ -610,10 +612,20 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
         processor = processor->getDestNode();
 
     }
-
-    AccessClass::getEditorViewport()->updateVisibleEditors(editorArray,
-                                                           rootNodes.size(),
-                                                           rootNodes.indexOf(rootProcessor));
+    
+    if (!isConsoleApp)
+    {
+        Array<GenericEditor*> editorArray;
+        
+        for (auto p : processorArray)
+        {
+            editorArray.add(p->getEditor());
+        }
+        
+        AccessClass::getEditorViewport()->updateVisibleEditors(editorArray,
+                                                               rootNodes.size(),
+                                                               rootNodes.indexOf(rootProcessor));
+    }
 
 }
 
@@ -1565,3 +1577,401 @@ String ProcessorGraph::getGlobalTimestampSource() const
     return "Milliseconds since midnight Jan 1st 1970 UTC.";
 }
 
+void ProcessorGraph::saveToXml(XmlElement* xml)
+{
+    Array<GenericProcessor*> splitPoints;
+    Array<GenericProcessor*> allSplitters;
+    Array<int> splitterStates;
+    /** Used to reset saveOrder at end, to allow saving the same processor multiple times*/
+    Array<GenericProcessor*> allProcessors;
+    
+    int saveOrder = 0;
+    
+    XmlElement* info = xml->createNewChildElement("INFO");
+
+    XmlElement* version = info->createNewChildElement("VERSION");
+    version->addTextElement(JUCEApplication::getInstance()->getApplicationVersion());
+
+    XmlElement* pluginAPIVersion = info->createNewChildElement("PLUGIN_API_VERSION");
+    pluginAPIVersion->addTextElement(String(PLUGIN_API_VER));
+
+    Time currentTime = Time::getCurrentTime();
+
+    info->createNewChildElement("DATE")->addTextElement(currentTime.toString(true, true, true, true));
+    info->createNewChildElement("OS")->addTextElement(SystemStats::getOperatingSystemName());
+    
+    XmlElement* machine = info->createNewChildElement("MACHINE");
+    machine->setAttribute("name", SystemStats::getComputerName());
+    machine->setAttribute("cpu_model", SystemStats::getCpuModel());
+    machine->setAttribute("cpu_num_cores", SystemStats::getNumCpus());
+    
+    Array<GenericProcessor*> rootNodes = getRootNodes();
+    
+    for (int i = 0; i < rootNodes.size(); i++)
+    {
+        XmlElement* signalChain = new XmlElement("SIGNALCHAIN");
+        
+        bool isStartOfSignalChain = true;
+        
+        GenericProcessor* processor = rootNodes[i];
+
+        while (processor != nullptr)
+        {
+            if (processor->saveOrder < 0)
+            {
+                
+                // create a new XML element
+                signalChain->addChildElement(createNodeXml(processor,  isStartOfSignalChain));
+                processor->saveOrder = saveOrder;
+                allProcessors.addIfNotAlreadyThere(processor);
+                saveOrder++;
+                
+                if (processor->isSplitter())
+                {
+                    // add to list of splitters to come back to
+                    splitPoints.add(processor);
+
+                    //keep track of all splitters and their inital states
+                    allSplitters.add(processor);
+                    Splitter* sp = (Splitter*)processor;
+                    splitterStates.add(sp->getPath());
+                    
+                    processor->switchIO(0);
+                }
+
+            }
+
+            // continue until the end of the chain
+            LOGDD("  Moving forward along signal chain.");
+            processor = processor->getDestNode();
+            isStartOfSignalChain = false;
+
+            if (processor == nullptr)
+            {
+                if (splitPoints.size() > 0)
+                {
+                    LOGDD("  Going back to first unswitched splitter.");
+
+                    processor = splitPoints.getFirst();
+                    splitPoints.remove(0);
+
+                    processor->switchIO(1);
+                    
+                    XmlElement* e = new XmlElement("SWITCH");
+
+                    e->setAttribute("number", processor->saveOrder);
+                    
+                    signalChain->addChildElement(e);
+                }
+                else
+                {
+                    LOGDD("  End of chain.");
+                }
+            }
+            
+        }
+
+        xml->addChildElement(signalChain);
+    }
+    
+    // Loop through all splitters and reset their states to original values
+    for (int i = 0; i < allSplitters.size(); i++) {
+        allSplitters[i]->switchIO(splitterStates[i]);
+    }
+
+    if (!isConsoleApp)
+    {
+        AccessClass::getEditorViewport()->saveEditorViewportSettingsToXml(xml);
+        
+        AccessClass::getDataViewport()->saveStateToXml(xml); // save the data viewport settings
+        
+        AccessClass::getControlPanel()->saveStateToXml(xml); // save the control panel settings
+        AccessClass::getProcessorList()->saveStateToXml(xml);
+        AccessClass::getUIComponent()->saveStateToXml(xml);  // save the UI settings
+        
+    }
+
+    XmlElement* audioSettings = new XmlElement("AUDIO");
+    AccessClass::getAudioComponent()->saveStateToXml(audioSettings);
+    xml->addChildElement(audioSettings);
+
+    //Resets Save Order for processors, allowing them to be saved again without omitting themselves from the order.
+    int allProcessorSize = allProcessors.size();
+    for (int i = 0; i < allProcessorSize; i++)
+    {
+        allProcessors.operator[](i)->saveOrder = -1;
+    }
+
+}
+
+XmlElement* ProcessorGraph::createNodeXml(GenericProcessor* processor, bool isStartOfSignalChain)
+{
+
+    XmlElement* xml = new XmlElement("PROCESSOR");
+
+    if (!isConsoleApp)
+        xml->setAttribute("name", processor->getEditor()->getName());
+
+    if (isStartOfSignalChain)
+        xml->setAttribute("insertionPoint", 0);
+    else
+        xml->setAttribute("insertionPoint", 1);
+    xml->setAttribute("pluginName", processor->getName());
+    xml->setAttribute("type", (int)(processor->getPluginType()));
+    xml->setAttribute("index", processor->getIndex());
+    xml->setAttribute("libraryName", processor->getLibName());
+    xml->setAttribute("libraryVersion", processor->getLibVersion());
+    xml->setAttribute("processorType", (int) processor->getProcessorType());
+
+    /**Saves individual processor parameters to XML */
+    processor->saveToXml(xml);
+
+    return xml;
+
+}
+
+
+void ProcessorGraph::loadFromXml(XmlElement* xml)
+{
+    Array<GenericProcessor*> splitPoints;
+
+    bool sameVersion = false;
+    bool compatibleVersion = false;
+
+    String versionString;
+
+    for (auto* element : xml->getChildIterator())
+    {
+        if (element->hasTagName("INFO"))
+        {
+            for (auto* element2 : element->getChildIterator())
+            {
+                if (element2->hasTagName("VERSION"))
+                {
+                    versionString = element2->getAllSubText();
+                    
+                    if (versionString.equalsIgnoreCase(JUCEApplication::getInstance()->getApplicationVersion()))
+                    {
+                        sameVersion = true;
+                        compatibleVersion = true;
+                        break;
+                    }
+                    
+                    StringArray tokens;
+                    tokens.addTokens(versionString, ".", "");
+                    
+                    LOGD("Version string: ", versionString);
+
+                    if (tokens.size() > 1)
+                    {
+                        if (tokens[0].getIntValue() >= 0 && tokens[1].getIntValue() > 5)
+                            compatibleVersion = true;
+                    }
+                }
+            }
+        }
+    }
+    
+    /*if (!compatibleVersion)
+    {
+        String responseString = "Your configuration file was saved by an older version of the GUI (";
+        responseString += versionString;
+        responseString += "), and is not compatible with the version you're currently running. \n\n";
+        responseString += "In order to replicate the signal chain you'll have to re-build it from scratch.";
+
+        AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Incompatible configuration file", responseString);
+        
+        return "Failed To Open " + currentFile.getFileName();
+    }
+    
+    if (!sameVersion)
+    {
+        String responseString = "Your configuration file was saved from a different version of the GUI than the one you're using. \n";
+        responseString += "The current software is version ";
+        responseString += JUCEApplication::getInstance()->getApplicationVersion();
+        responseString += ", but the file you selected ";
+        if (versionString.length() > 0)
+        {
+            responseString += "was saved by version ";
+            responseString += versionString;
+        }
+        else
+        {
+            responseString += "does not have a version number";
+        }
+
+        responseString += ".\n This file may not load properly. Continue?";
+
+        bool response = AlertWindow::showOkCancelBox(AlertWindow::NoIcon,
+            "Configuration file version mismatch", responseString);
+
+        if (!response)
+        {
+            return "Failed To Open " + currentFile.getFileName();
+        }
+    }*/
+    
+    if (!isConsoleApp)
+    {
+        MouseCursor::showWaitCursor();
+
+        AccessClass::getProcessorList()->loadStateFromXml(xml); // load the processor list settings
+        AccessClass::getUIComponent()->loadStateFromXml(xml);   // load the UI settings
+    }
+    
+    clearSignalChain();
+
+    isLoadingSignalChain = true; //Indicate config is being loaded into the GUI
+    String description;// = " ";
+    int loadOrder = 0;
+
+    GenericProcessor* p;
+
+    for (auto* element : xml->getChildIterator())
+    {
+        if (element->hasTagName("SIGNALCHAIN"))
+        {
+            for (auto* processor : element->getChildIterator())
+            {
+                if (processor->hasTagName("PROCESSOR"))
+                {
+
+                    auto loadedPlugins = AccessClass::getProcessorList()->getItemList();
+                    String pName = processor->getStringAttribute("pluginName");
+
+                    if(!loadedPlugins.contains(pName))
+                    {
+                        LOGC(pName, " plugin not found in Processor List! Looking for it on Artifactory...");
+
+                        String libName = processor->getStringAttribute("libraryName");
+                        String libVer = processor->getStringAttribute("libraryVersion");
+                        libVer = libVer.isEmpty() ? "" : libVer + "-API" + String(PLUGIN_API_VER);
+                        
+                        CoreServices::PluginInstaller::installPlugin(libName, libVer);
+                    }
+                    
+                    int insertionPt = processor->getIntAttribute("insertionPoint");
+                    
+                    LOGD("Creating processor: ", pName);
+                    p = createProcessorAtInsertionPoint(processor, insertionPt, false);
+                    p->loadOrder = loadOrder++;
+                    
+                    if (p->isSplitter())
+                    {
+                        splitPoints.add(p);
+                    }
+                }
+                else if (processor->hasTagName("SWITCH"))
+                {
+                    int processorNum = processor->getIntAttribute("number");
+
+                    LOGDD("SWITCHING number ", processorNum);
+
+                    for (int n = 0; n < splitPoints.size(); n++)
+                    {
+                        LOGDD("Trying split point ", n,  ", load order: ", splitPoints[n]->loadOrder);
+
+                        if (splitPoints[n]->loadOrder == processorNum)
+                        {
+                            LOGDD("Switching splitter destination.");
+                            SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
+                            editor->switchDest(1);
+                            AccessClass::getProcessorGraph()->updateViews(splitPoints[n]);
+                            
+                            splitPoints.remove(n);
+                        }
+                    }
+                }
+            }
+        }
+        else if (element->hasTagName("AUDIO"))
+        {
+            AccessClass::getAudioComponent()->loadStateFromXml(element);
+            AccessClass::getControlPanel()->loadStateFromXml(xml);  // load the control panel settings after the audio settings
+        }
+        else if (element->hasTagName("EDITORVIEWPORT"))
+        {
+            
+            if (!isConsoleApp)
+                AccessClass::getEditorViewport()->loadEditorViewportSettingsFromXml(element);
+            
+        }
+
+    }
+
+    restoreParameters();  // loads the processor graph settings
+
+    if (!isConsoleApp)
+    {
+        AccessClass::getDataViewport()->loadStateFromXml(xml);
+        MouseCursor::hideWaitCursor();
+    }
+        
+    isLoadingSignalChain = false;
+
+}
+
+Plugin::Description ProcessorGraph::getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId)
+{
+    Plugin::Description description;
+    
+    description.fromProcessorList = false;
+    description.name = settings->getStringAttribute("pluginName");
+    description.type = (Plugin::Type) settings->getIntAttribute("type");
+    description.processorType = (Plugin::Processor::Type) settings->getIntAttribute("processorType");
+    description.index = settings->getIntAttribute("index");
+    description.libName = settings->getStringAttribute("libraryName");
+    description.libVersion = settings->getStringAttribute("libraryVersion");
+    
+    if (!ignoreNodeId)
+        description.nodeId = settings->getIntAttribute("nodeId");
+    else
+        description.nodeId = -1;
+    
+    return description;
+}
+
+
+GenericProcessor* ProcessorGraph::createProcessorAtInsertionPoint(XmlElement* parametersAsXml,
+                                                                  int insertionPt,
+                                                                  bool ignoreNodeId)
+{
+    if (isLoadingSignalChain)
+    {
+        if (insertionPt == 1)
+        {
+            insertionPoint = processorArray.size();
+        }
+        else
+        {
+            insertionPoint = 0;
+        }
+
+    } else {
+        insertionPoint = insertionPt;
+    }
+    
+    Plugin::Description description = getDescriptionFromXml(parametersAsXml, ignoreNodeId);
+    
+    GenericProcessor* source = nullptr;
+    GenericProcessor* dest = nullptr;
+    
+    if (insertionPoint > 0)
+    {
+        source = processorArray[insertionPoint-1];
+    }
+    
+    if (processorArray.size() > insertionPoint)
+    {
+        dest = processorArray[insertionPoint];
+    }
+    
+    GenericProcessor* processor = createProcessor(description,
+                                                      source,
+                                                      dest,
+                                                      isLoadingSignalChain);
+    
+    processor->parametersAsXml = parametersAsXml;
+    
+    return processor;
+}
