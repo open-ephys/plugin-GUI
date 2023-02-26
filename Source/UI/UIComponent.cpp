@@ -105,14 +105,6 @@
 
 	processorGraph->updateBufferSize(); // needs to happen after processorGraph gets the right pointers
 
-#if JUCE_MAC
-	MenuBarModel::setMacMainMenu(this);
-	mainWindow->setMenuBar(0);
-#else
-	mainWindow->setMenuBar(this);
-	mainWindow->getMenuBarComponent()->setName("MainMenu");
-#endif
-
 }
 
 UIComponent::~UIComponent()

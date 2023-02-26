@@ -28,11 +28,21 @@
 #include <stdio.h>
 
 
-MainWindow::MainWindow(const File& fileToLoad)
-: DocumentWindow(JUCEApplication::getInstance()->getApplicationName(),
-		Colour(Colours::black),
-		DocumentWindow::allButtons)
+MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
+    isConsoleApp(isConsoleApp_)
 {
+    
+    if (!isConsoleApp)
+    {
+        documentWindow = std::make_unique<DocumentWindow>(
+                JUCEApplication::getInstance()->getApplicationName(),
+                Colour(Colours::black),
+                DocumentWindow::allButtons);
+        
+        documentWindow->setResizable(true,      // isResizable
+                                     false);   // useBottomCornerRisizer -- doesn't work very well
+    }
+    
     configsDir = CoreServices::getSavedStateDirectory();
 	if(!configsDir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
 		configsDir = configsDir.getChildFile("configs-api" + String(PLUGIN_API_VER));
@@ -54,9 +64,6 @@ MainWindow::MainWindow(const File& fileToLoad)
 	LOGC("CPU: ", SystemStats::getCpuModel(), " (", SystemStats::getNumCpus(), " core)");
 	std::cout << std::endl;
 
-	setResizable(true,      // isResizable
-			false);   // useBottomCornerRisizer -- doesn't work very well
-
 	shouldReloadOnStartup = true;
 	shouldEnableHttpServer = true;
 	openDefaultConfigWindow = false;
@@ -73,42 +80,53 @@ MainWindow::MainWindow(const File& fileToLoad)
 	LOGD("Connecting audio component to processor graph...");
 	audioComponent->connectToProcessorGraph(processorGraph.get());
 
-	LOGD("Creating UI component...");
-	setContentOwned(new UIComponent(this, processorGraph.get(), audioComponent.get()), true);
+    if (!isConsoleApp)
+    {
+        LOGD("Creating UI component...");
+        documentWindow->setContentOwned(new UIComponent(this, processorGraph.get(), audioComponent.get()), true);
 
-	UIComponent* ui = (UIComponent*) getContentComponent();
+        UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
+        
+    #if JUCE_MAC
+        MenuBarModel::setMacMainMenu(ui);
+        documentWindow->setMenuBar(0);
+    #else
+        documentWindow->setMenuBar(this);
+        documentWindow->getMenuBarComponent()->setName("MainMenu");
+    #endif
 
-	commandManager.registerAllCommandsForTarget(ui);
-	commandManager.registerAllCommandsForTarget(JUCEApplication::getInstance());
+        commandManager.registerAllCommandsForTarget(ui);
+        commandManager.registerAllCommandsForTarget(JUCEApplication::getInstance());
 
-	ui->setApplicationCommandManagerToWatch(&commandManager);
+        ui->setApplicationCommandManagerToWatch(&commandManager);
 
-	addKeyListener(commandManager.getKeyMappings());
+        documentWindow->addKeyListener(commandManager.getKeyMappings());
 
-	LOGD("Loading window bounds.");
-	loadWindowBounds();
-	setUsingNativeTitleBar(true);
-	Component::addToDesktop(getDesktopWindowStyleFlags());  // prevents the maximize
-														    // button from randomly disappearing
-	setVisible(true);
+        LOGD("Loading window bounds.");
+        loadWindowBounds();
+        documentWindow->setUsingNativeTitleBar(true);
+        documentWindow->addToDesktop(documentWindow->getDesktopWindowStyleFlags());  // prevents the maximize
+                                                                                // button from randomly disappearing
+        documentWindow->setVisible(true);
 
-	// Constraining the window's size doesn't seem to work:
-	setResizeLimits(500, 500, 10000, 10000);
+        // Constraining the window's size doesn't seem to work:
+        documentWindow->setResizeLimits(500, 500, 10000, 10000);
+        
+        // Set main window icon to display
+        #ifdef __APPLE__
+            File iconDir = File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/Resources");
+        #else
+            File iconDir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
+            Image windowIcon = ImageFileFormat::loadFrom(iconDir.getChildFile("icon-small.png"));
+            if (auto peer = documentWindow->getPeer())
+                peer->setIcon(windowIcon);
+        #endif
+    }
 
-	// Set main window icon to display
-	#ifdef __APPLE__
-    	File iconDir = File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/Resources");
-	#else
-		File iconDir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
-        Image windowIcon = ImageFileFormat::loadFrom(iconDir.getChildFile("icon-small.png"));
-        if (auto peer = getPeer())
-            peer->setIcon(windowIcon);
-	#endif
-	
 	// Load a specific state of the GUI (custom, default, last-saved, or recovery config)
     if (!fileToLoad.getFullPathName().isEmpty())
     {
-        ui->getEditorViewport()->loadState(fileToLoad);
+        //ui->getEditorViewport()->loadState(fileToLoad);
     }
 	else if(openDefaultConfigWindow)
 	{
@@ -126,7 +144,7 @@ MainWindow::MainWindow(const File& fileToLoad)
 
 			if(compareConfigFiles(lastConfig, recoveryConfig))
 			{
-				ui->getEditorViewport()->loadState(lastConfig);
+				//ui->getEditorViewport()->loadState(lastConfig);
 			}
 			else
 			{
@@ -140,12 +158,12 @@ MainWindow::MainWindow(const File& fileToLoad)
 				if (loadRecovery == 1)
 				{
 					LOGA("User chose OK, loading recoveryConfig...");
-					ui->getEditorViewport()->loadState(recoveryConfig);
+					//ui->getEditorViewport()->loadState(recoveryConfig);
 				}
 				else if(loadRecovery == 2)
 				{
 					LOGA("User chose cancel, loading lastConfig...");
-					ui->getEditorViewport()->loadState(lastConfig);
+					//ui->getEditorViewport()->loadState(lastConfig);
 				}
 					
 			}
@@ -172,27 +190,29 @@ MainWindow::~MainWindow()
 		processorGraph->stopAcquisition();
 	}
     
-	saveWindowBounds();
-
 	audioComponent->disconnectProcessorGraph();
-	UIComponent* ui = (UIComponent*) getContentComponent();
-	ui->disableDataViewport();
-	
-	File lastConfig = configsDir.getChildFile("lastConfig.xml");
-	File recoveryConfig = configsDir.getChildFile("recoveryConfig.xml");
-	ui->getEditorViewport()->saveState(lastConfig);
-	ui->getEditorViewport()->saveState(recoveryConfig);
+    
+    if (!isConsoleApp)
+    {
+        saveWindowBounds();
+        UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
+        ui->disableDataViewport();
+        
+        File lastConfig = configsDir.getChildFile("lastConfig.xml");
+        File recoveryConfig = configsDir.getChildFile("recoveryConfig.xml");
+        ui->getEditorViewport()->saveState(lastConfig);
+        ui->getEditorViewport()->saveState(recoveryConfig);
+        
+        documentWindow->setMenuBar(0);
 
-	//TODO: Possibly send some message inidicating everything has been saved successfully
+    #if JUCE_MAC
+        MenuBarModel::setMacMainMenu(0);
+    #endif
+    }
+
 	if (http_server_thread) {
         disableHttpServer();
     }
-    
-	setMenuBar(0);
-
-#if JUCE_MAC
-	MenuBarModel::setMacMainMenu(0);
-#endif
 
 }
 
@@ -270,17 +290,17 @@ void MainWindow::saveWindowBounds()
 	xml->setAttribute("shouldEnableHttpServer", shouldEnableHttpServer);
 
 	XmlElement* bounds = new XmlElement("BOUNDS");
-	bounds->setAttribute("x",getScreenX());
-	bounds->setAttribute("y",getScreenY());
-	bounds->setAttribute("w",getContentComponent()->getWidth());
-	bounds->setAttribute("h",getContentComponent()->getHeight());
-	bounds->setAttribute("fullscreen", isFullScreen());
+	bounds->setAttribute("x",documentWindow->getScreenX());
+	bounds->setAttribute("y",documentWindow->getScreenY());
+	bounds->setAttribute("w",documentWindow->getContentComponent()->getWidth());
+	bounds->setAttribute("h",documentWindow->getContentComponent()->getHeight());
+	bounds->setAttribute("fullscreen", documentWindow->isFullScreen());
 
 	xml->addChildElement(bounds);
 
 	XmlElement* recentDirectories = new XmlElement("RECENTDIRECTORYNAMES");
 
-	UIComponent* ui = (UIComponent*) getContentComponent();
+	UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
 
 	StringArray dirs = ui->getRecentlyUsedFilenames();
 
@@ -321,7 +341,7 @@ void MainWindow::loadWindowBounds()
 	{
 
 		LOGDD("File not found.");
-		centreWithSize(1200, 800);
+        documentWindow->centreWithSize(1200, 800);
 
 	}
 	else
@@ -347,11 +367,11 @@ void MainWindow::loadWindowBounds()
 
 				// without the correction, you get drift over time
 #ifdef _WIN32
-				setTopLeftPosition(x,y); //Windows doesn't need correction
+                documentWindow->setTopLeftPosition(x,y); //Windows doesn't need correction
 #else
-				setTopLeftPosition(x,y-27);
+                documentWindow->setTopLeftPosition(x,y-27);
 #endif
-				getContentComponent()->setBounds(0,0,w-10,h-33);
+                documentWindow->getContentComponent()->setBounds(0,0,w-10,h-33);
 				//setFullScreen(fs);
 			}
 			else if (e->hasTagName("RECENTDIRECTORYNAMES"))
@@ -368,19 +388,25 @@ void MainWindow::loadWindowBounds()
 					}
 				}
 
-				UIComponent* ui = (UIComponent*) getContentComponent();
+				UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
 				ui->setRecentlyUsedFilenames(filenames);
 
 			}
 			else if (e->hasTagName("SIGNALCHAIN"))
 			{
-				UIComponent* ui = (UIComponent*)getContentComponent();
+				UIComponent* ui = (UIComponent*)documentWindow->getContentComponent();
 				ui->getEditorViewport()->lockSignalChain(e->getBoolAttribute("locked", false));
 			}
 
 		}
 
 	}
+}
+
+
+void MainWindow::centreWithSize(int x, int y)
+{
+    documentWindow->centreWithSize(x, y);
 }
 
 
