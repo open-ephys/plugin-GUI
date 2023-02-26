@@ -43,13 +43,13 @@ class OpenEphysHttpServer;
 
 */
 
-class MainWindow   : public DocumentWindow
+class MainWindow
 {
 public:
 
     /** Initializes the MainWindow, creates the AudioComponent, ProcessorGraph,
         and UIComponent, and sets the window boundaries. */
-    MainWindow(const File& fileToLoad = File());
+    MainWindow(const File& fileToLoad = File(), bool isConsoleApp = false);
 
     /** Destroys the AudioComponent, ProcessorGraph, and UIComponent, and saves the window boundaries. */
     ~MainWindow();
@@ -81,6 +81,9 @@ public:
 
     /** Stop thread which listens to remote commands to control the GUI */
     void disableHttpServer();
+    
+    /** Sets the size of the Main Window */
+    void centreWithSize(int, int);
 
 private:
 
@@ -99,6 +102,9 @@ private:
     /** API respective configs directory */
     File configsDir;
 
+    /** A pointer to the DocumentWindow (only instantiated if running in GUI mode). */
+    std::unique_ptr<DocumentWindow> documentWindow;
+    
     /** A pointer to the application's AudioComponent (owned by the MainWindow). */
     std::unique_ptr<AudioComponent> audioComponent;
 
@@ -110,6 +116,9 @@ private:
 
     /** A pointer to the application's HttpServer (owned by the MainWindow). */
     std::unique_ptr<OpenEphysHttpServer> http_server_thread;
+    
+    /** Set to true if the application is running in console mode */
+    bool isConsoleApp;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 
