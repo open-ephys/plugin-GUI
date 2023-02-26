@@ -72,7 +72,7 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 	// Callbacks will be set by the play button in the control panel
 
 	LOGD("Creating processor graph...");
-	processorGraph = std::make_unique<ProcessorGraph>();
+	processorGraph = std::make_unique<ProcessorGraph>(isConsoleApp);
 	
 	LOGD("Creating audio component...");
 	audioComponent = std::make_unique<AudioComponent>();
@@ -126,11 +126,11 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 	// Load a specific state of the GUI (custom, default, last-saved, or recovery config)
     if (!fileToLoad.getFullPathName().isEmpty())
     {
-        //ui->getEditorViewport()->loadState(fileToLoad);
+        loadProcessorGraph(fileToLoad);
     }
-	else if(openDefaultConfigWindow)
+	else if (openDefaultConfigWindow)
 	{
-		if(defaultConfigWindow == nullptr)
+		if (defaultConfigWindow == nullptr)
 			defaultConfigWindow = std::make_unique<DefaultConfigWindow>(this);
 	}
 	else if (shouldReloadOnStartup)
@@ -138,32 +138,38 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 		File lastConfig = configsDir.getChildFile("lastConfig.xml");
 		File recoveryConfig = configsDir.getChildFile("recoveryConfig.xml");
 
-		if(lastConfig.existsAsFile())
+		if (lastConfig.existsAsFile())
 		{
 			LOGD("Comparing configurations...");
 
-			if(compareConfigFiles(lastConfig, recoveryConfig))
+			if (compareConfigFiles(lastConfig, recoveryConfig))
 			{
-				//ui->getEditorViewport()->loadState(lastConfig);
+                loadProcessorGraph(lastConfig);
 			}
 			else
 			{
-				LOGD("Detected difference between recoveryConfig and lastConfig; displaying alert window...");
-				int loadRecovery = AlertWindow::showYesNoCancelBox(AlertWindow::WarningIcon, "Reloading Settings",
-																"It looks like the GUI crashed during your last run, " 
-																"causing the configured settings to not save properly. "
-																"Which configuration do you want to load?",
-																"Recovery Config", "Last Config", "Empty Signal Chain");
+                
+                int loadRecovery = 1;
+                
+                if (!isConsoleApp)
+                {
+                    LOGD("Detected difference between recoveryConfig and lastConfig; displaying alert window...");
+                    loadRecovery = AlertWindow::showYesNoCancelBox(AlertWindow::WarningIcon, "Reloading Settings",
+                                                                    "It looks like the GUI crashed during your last run, "
+                                                                    "causing the configured settings to not save properly. "
+                                                                    "Which configuration do you want to load?",
+                                                                    "Recovery Config", "Last Config", "Empty Signal Chain");
+                }
 				
 				if (loadRecovery == 1)
 				{
 					LOGA("User chose OK, loading recoveryConfig...");
-					//ui->getEditorViewport()->loadState(recoveryConfig);
+                    loadProcessorGraph(recoveryConfig);
 				}
 				else if(loadRecovery == 2)
 				{
 					LOGA("User chose cancel, loading lastConfig...");
-					//ui->getEditorViewport()->loadState(lastConfig);
+                    loadProcessorGraph(lastConfig);
 				}
 					
 			}
@@ -198,17 +204,17 @@ MainWindow::~MainWindow()
         UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
         ui->disableDataViewport();
         
-        File lastConfig = configsDir.getChildFile("lastConfig.xml");
-        File recoveryConfig = configsDir.getChildFile("recoveryConfig.xml");
-        ui->getEditorViewport()->saveState(lastConfig);
-        ui->getEditorViewport()->saveState(recoveryConfig);
-        
         documentWindow->setMenuBar(0);
 
     #if JUCE_MAC
         MenuBarModel::setMacMainMenu(0);
     #endif
     }
+    
+    File lastConfig = configsDir.getChildFile("lastConfig.xml");
+    File recoveryConfig = configsDir.getChildFile("recoveryConfig.xml");
+    saveProcessorGraph(lastConfig);
+    saveProcessorGraph(recoveryConfig);
 
 	if (http_server_thread) {
         disableHttpServer();
@@ -277,6 +283,38 @@ void MainWindow::handleCrash(void* input)
     
 }
 
+void MainWindow::saveProcessorGraph(const File& file)
+{
+    std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
+    
+    processorGraph->saveToXml(xml.get());
+    
+    String message;
+
+    if (! xml->writeTo(file))
+        message = "Couldn't write to file ";
+    else
+        message = "Saved configuration as ";
+
+    message += file.getFileName();
+    
+    LOGC(message);
+}
+
+void MainWindow::loadProcessorGraph(const File& file)
+{
+    XmlDocument doc(file);
+    std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
+    
+    if (xml == 0 || ! xml->hasTagName("SETTINGS"))
+    {
+        LOGC("Not a valid configuration file.");
+        return;
+    }
+    
+    processorGraph->loadFromXml(xml.get());
+}
+
 void MainWindow::saveWindowBounds()
 {
 	LOGD("Saving window bounds.");
@@ -331,7 +369,7 @@ void MainWindow::loadWindowBounds()
     
 	File file = configsDir.getChildFile("windowState.xml");
 
-	if(!file.exists())
+	if (!file.exists())
 		openDefaultConfigWindow = true;
 
 	XmlDocument doc(file);

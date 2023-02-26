@@ -77,7 +77,7 @@ public:
     };
 
     /* Constructor*/
-    ProcessorGraph();
+    ProcessorGraph(bool isConsoleApp);
 
     /* Destructor */
     ~ProcessorGraph();
@@ -204,6 +204,24 @@ public:
     
     /** Returns true if all record nodes are synchronized */
     bool allRecordNodesAreSynchronized();
+    
+    /** Saves processor graph to XML */
+    void saveToXml(XmlElement* xml);
+    
+    /** Converts information about a given processor to XML. */
+    XmlElement* createNodeXml(GenericProcessor*, bool isStartOfSignalChain);
+    
+    /** Converts XML parameters into a new GenericProcessor object */
+    GenericProcessor* createProcessorAtInsertionPoint(XmlElement* parametersAsXml,
+                                                int insertionPt,
+                                                      bool ignoreNodeId);
+
+    /** Loads processor graph to XML */
+    void loadFromXml(XmlElement* xml);
+    
+    /** Returns a plugin description from XML settings */
+    Plugin::Description getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId);
+
 
 private:
 
@@ -223,10 +241,16 @@ private:
     void connectProcessorToMessageCenter(GenericProcessor* source);
     
     Array<GenericProcessor*> rootNodes;
+    
+    Array<GenericProcessor*> processorArray;
 
     int currentNodeId;
 
     bool isLoadingSignalChain;
+    
+    bool isConsoleApp;
+    
+    int insertionPoint;
 
 };
 
