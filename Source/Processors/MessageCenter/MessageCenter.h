@@ -44,7 +44,8 @@ class MessageCenterEditor;
 
 */
 
-class MessageCenter : public GenericProcessor
+class MessageCenter : public GenericProcessor,
+    public ActionListener
 
 {
 public:
@@ -73,17 +74,21 @@ public:
     /** Returns a pointer to the Message Center DataStream*/
     DataStream* getMessageStream();
 
-    /** Informs the editor that acquisition has started*/
-    bool startAcquisition() override;
-
-    /** Informs the editor that acquisition has ended*/
-    bool stopAcquisition() override;
-
     /** Creates the Message Center event channel*/
 	void addSpecialProcessorChannels();
+    
+    /** Called when a new message is received. */
+    void actionListenerCallback(const String& message);
+    
+    /** Sends a broadcast message to all processors */
+    void broadcastMessage(String msg);
+
+    
 private:
 
     bool newEventAvailable;
+    
+    String messageToBroadcast;
 
     ScopedPointer<EventChannel> eventChannel;
 

@@ -34,7 +34,6 @@
 #include "../FileReader/FileReader.h"
 #include "../SourceNode/SourceNode.h"
 #include "../MessageCenter/MessageCenter.h"
-#include "../MessageCenter/MessageCenterEditor.h"
 #include "../Merger/Merger.h"
 #include "../Splitter/Splitter.h"
 #include "../../UI/UIComponent.h"
@@ -60,6 +59,15 @@ ProcessorGraph::ProcessorGraph(bool isConsoleApp_) :
                          2, // number of outputs
                          44100.0, // sampleRate
                          1024);    // blockSize
+    
+    pluginManager = std::make_unique<PluginManager>();
+    LOGD("Created plugin manager");
+    
+    createDefaultNodes();
+    
+    AccessClass::setProcessorGraph(this);
+    
+    pluginManager->loadAllPlugins();
 
 }
 
@@ -189,6 +197,7 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
 
 	try {
 		processor = createProcessorFromDescription(description);
+        processor->setHeadlessMode(isConsoleApp);
 	}
 	catch (std::exception& e) {
 		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Open Ephys", e.what());
@@ -213,19 +222,20 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
 
         addedProc = (GenericProcessor*)n->getProcessor();
 
-        GenericEditor* editor = (GenericEditor*)addedProc->createEditor();
+        if (!isConsoleApp)
+        {
+            GenericEditor* editor = (GenericEditor*)addedProc->createEditor();
+            editor->refreshColors();
+        }
+        
 
         if (!signalChainIsLoading)
         {
             addedProc->initialize(false);
         }
 
-
-        editor->refreshColors();
-
 		if (addedProc->isSource()) // if we are adding a source processor
         {
-
 
             if (sourceNode != nullptr)
             {
@@ -670,7 +680,8 @@ void ProcessorGraph::clearSignalChain()
     rootNodes.clear();
     currentNodeId = 100;
 
-    AccessClass::getGraphViewer()->removeAllNodes();
+    if (!isConsoleApp)
+        AccessClass::getGraphViewer()->removeAllNodes();
 
     updateViews(nullptr);
 }
@@ -1416,7 +1427,7 @@ bool ProcessorGraph::isReady()
             if (!p->isEnabled)
             {
                 LOGD(" ", p->getName(), " is not ready to start acquisition.");
-                AccessClass::getUIComponent()->disableCallbacks();
+                AccessClass::getControlPanel()->disableCallbacks();
                 return false;
             }
 
@@ -1665,14 +1676,13 @@ void ProcessorGraph::saveToXml(XmlElement* xml)
     for (int i = 0; i < allSplitters.size(); i++) {
         allSplitters[i]->switchIO(splitterStates[i]);
     }
+    
+    AccessClass::getControlPanel()->saveStateToXml(xml); // save the control panel settings
 
     if (!isConsoleApp)
     {
         AccessClass::getEditorViewport()->saveEditorViewportSettingsToXml(xml);
-        
         AccessClass::getDataViewport()->saveStateToXml(xml); // save the data viewport settings
-        
-        AccessClass::getControlPanel()->saveStateToXml(xml); // save the control panel settings
         AccessClass::getProcessorList()->saveStateToXml(xml);
         AccessClass::getUIComponent()->saveStateToXml(xml);  // save the UI settings
         
@@ -1822,19 +1832,23 @@ void ProcessorGraph::loadFromXml(XmlElement* xml)
             {
                 if (processor->hasTagName("PROCESSOR"))
                 {
-
-                    auto loadedPlugins = AccessClass::getProcessorList()->getItemList();
+                    
                     String pName = processor->getStringAttribute("pluginName");
-
-                    if(!loadedPlugins.contains(pName))
+                    
+                    if (!isConsoleApp)
                     {
-                        LOGC(pName, " plugin not found in Processor List! Looking for it on Artifactory...");
+                        auto loadedPlugins = AccessClass::getProcessorList()->getItemList();
 
-                        String libName = processor->getStringAttribute("libraryName");
-                        String libVer = processor->getStringAttribute("libraryVersion");
-                        libVer = libVer.isEmpty() ? "" : libVer + "-API" + String(PLUGIN_API_VER);
-                        
-                        CoreServices::PluginInstaller::installPlugin(libName, libVer);
+                        if(!loadedPlugins.contains(pName))
+                        {
+                            LOGC(pName, " plugin not found in Processor List! Looking for it on Artifactory...");
+
+                            String libName = processor->getStringAttribute("libraryName");
+                            String libVer = processor->getStringAttribute("libraryVersion");
+                            libVer = libVer.isEmpty() ? "" : libVer + "-API" + String(PLUGIN_API_VER);
+                            
+                            CoreServices::PluginInstaller::installPlugin(libName, libVer);
+                        }
                     }
                     
                     int insertionPt = processor->getIntAttribute("insertionPoint");

@@ -337,7 +337,7 @@ class ControlPanel : public Component,
 {
 public:
     /** Constructor */
-    ControlPanel(ProcessorGraph* graph, AudioComponent* audio);
+    ControlPanel(ProcessorGraph* graph, AudioComponent* audio, bool isConsoleApp);
 
     /** Destructor */
     ~ControlPanel();
@@ -515,6 +515,7 @@ private:
     void comboBoxChanged(ComboBox* combo);
 
     bool initialize;
+    bool isConsoleApp;
 
     void timerCallback();
 

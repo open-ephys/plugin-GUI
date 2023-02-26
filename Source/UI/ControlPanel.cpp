@@ -382,51 +382,18 @@ void ControlPanelButton::setState(bool b)
     repaint();
 }
 
-ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
-    : graph(graph_), audio(audio_), initialize(true), open(false), lastEngineIndex(-1), forceRecording(false)
+ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_, bool isConsoleApp_)
+    : graph(graph_), audio(audio_), isConsoleApp(isConsoleApp_), initialize(true), open(false), lastEngineIndex(-1), forceRecording(false)
 {
-
-    font = Font("Miso", "Regular", 13);
-
-    audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
-    addAndMakeVisible(audioEditor);
-
-    playButton = std::make_unique<PlayButton>();
-    playButton->addListener(this);
-    addAndMakeVisible(playButton.get());
+    
+    AccessClass::setControlPanel(this);
 
     recordButton = std::make_unique<RecordButton>();
     recordButton->addListener(this);
-    addAndMakeVisible(recordButton.get());
-
-    clock = std::make_unique<Clock>();
-    addAndMakeVisible(clock.get());
-
-    cpuMeter = std::make_unique<CPUMeter>();
-    addAndMakeVisible(cpuMeter.get());
-
-    diskMeter = std::make_unique<DiskSpaceMeter>();
-    addAndMakeVisible(diskMeter.get());
-
-    cpb = std::make_unique<ControlPanelButton>(this);
-    addAndMakeVisible(cpb.get());
-
-    recordSelector = std::make_unique<ComboBox>("Control Panel Record Engine Selector");
-    recordSelector->addListener(this);
-    addChildComponent(recordSelector.get());
-
-    recordOptionsButton = std::make_unique<UtilityButton>("R", Font("Silkscreen", "Regular", 15));
-    recordOptionsButton->setEnabledState(true);
-    recordOptionsButton->addListener(this);
-    recordOptionsButton->setTooltip("Configure options for selected record engine");
-    addChildComponent(recordOptionsButton.get());
-
-    newDirectoryButton = std::make_unique<UtilityButton>("+", Font("Silkscreen", "Regular", 15));
-    newDirectoryButton->setEnabledState(false);
-    newDirectoryButton->addListener(this);
-    newDirectoryButton->setTooltip("Start a new data directory");
-    addChildComponent(newDirectoryButton.get());
-
+    
+    playButton = std::make_unique<PlayButton>();
+    playButton->addListener(this);
+    
     const File dataDirectory = CoreServices::getDefaultUserSaveDirectory();
 
     filenameComponent = std::make_unique<FilenameComponent>("folder selector",
@@ -449,17 +416,52 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     filenameText = std::make_unique<FilenameEditorButton>();
     generateFilenameFromFields(true);
     filenameText->addListener(this);
-    addAndMakeVisible(filenameText.get());
+    
+    recordSelector = std::make_unique<ComboBox>("Control Panel Record Engine Selector");
+    recordSelector->addListener(this);
+    addChildComponent(recordSelector.get());
 
+    recordOptionsButton = std::make_unique<UtilityButton>("R", Font("Silkscreen", "Regular", 15));
+    recordOptionsButton->setEnabledState(true);
+    recordOptionsButton->addListener(this);
+    recordOptionsButton->setTooltip("Configure options for selected record engine");
+    addChildComponent(recordOptionsButton.get());
+    
+    newDirectoryButton = std::make_unique<UtilityButton>("+", Font("Silkscreen", "Regular", 15));
+    newDirectoryButton->setEnabledState(false);
+    newDirectoryButton->addListener(this);
+    newDirectoryButton->setTooltip("Start a new data directory");
+    addChildComponent(newDirectoryButton.get());
+    
+    clock = std::make_unique<Clock>();
+    cpuMeter = std::make_unique<CPUMeter>();
+    diskMeter = std::make_unique<DiskSpaceMeter>();
+    cpb = std::make_unique<ControlPanelButton>(this);
     filenameConfigWindow = std::make_unique<FilenameConfigWindow>(filenameFields);
+    
+    if (!isConsoleApp)
+    {
+        font = Font("Miso", "Regular", 13);
 
-    refreshMeters();
+        audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
+        addAndMakeVisible(audioEditor);
+ 
+        addAndMakeVisible(playButton.get());
+        addAndMakeVisible(recordButton.get());
+        addAndMakeVisible(clock.get());
+        addAndMakeVisible(cpuMeter.get());
+        addAndMakeVisible(diskMeter.get());
+        addAndMakeVisible(cpb.get());
+        addAndMakeVisible(filenameText.get());
 
-    startTimer(60000); // update disk space every minute
+        refreshMeters();
 
-    setWantsKeyboardFocus(true);
+        startTimer(60000); // update disk space every minute
 
-    backgroundColour = Colour(58,58,58);
+        setWantsKeyboardFocus(true);
+
+        backgroundColour = Colour(58,58,58);
+    }
 
 }
 
@@ -536,17 +538,21 @@ void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
                 playButton->setToggleState(true, dontSendNotification);
             }
 
-            playButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
-            
-            clock->start(); // starts the clock
-            audioEditor->disable();
+            if (!isConsoleApp)
+            {
+                playButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
+                
+                audioEditor->disable();
+                
+                clock->start(); // starts the clock
 
-            stopTimer();
-            startTimer(250); // refresh every 250 ms
+                stopTimer();
+                startTimer(250); // refresh every 250 ms
 
-            recordSelector->setEnabled(false); // why is this outside the "if" statement?
-            recordOptionsButton->setEnabled(false);
-            
+                recordSelector->setEnabled(false); // why is this outside the "if" statement?
+                recordOptionsButton->setEnabled(false);
+            }
+
             graph->startAcquisition(); // start data flow
         }
     }
@@ -562,19 +568,23 @@ void ControlPanel::stopAcquisition()
     graph->stopAcquisition();
 
     audio->endCallbacks();
+
+    if (!isConsoleApp)
+    {
+        playButton->getNormalImage()->replaceColour(Colours::yellow, defaultButtonColour);
+        
+        refreshMeters();
+
+        clock->stop();
+        audioEditor->enable();
+
+        stopTimer();
+        startTimer(60000); // back to refresh every minute
+        
+        recordSelector->setEnabled(true);
+        recordOptionsButton->setEnabled(true);
+    }
     
-    playButton->getNormalImage()->replaceColour(Colours::yellow, defaultButtonColour);
-
-    refreshMeters();
-
-    clock->stop();
-    audioEditor->enable();
-
-    stopTimer();
-    startTimer(60000); // back to refresh every minute
-    
-    recordSelector->setEnabled(true);
-    recordOptionsButton->setEnabled(true);
 }
 
 void ControlPanel::updateRecordEngineList()
@@ -847,7 +857,8 @@ void ControlPanel::openState(bool os)
 
     cpb->setState(os);
 
-    AccessClass::getUIComponent()->childComponentChanged();
+    if (!isConsoleApp)
+        AccessClass::getUIComponent()->childComponentChanged();
 }
 
 void ControlPanel::labelTextChanged(Label* label)
@@ -1142,7 +1153,8 @@ void ControlPanel::saveStateToXml(XmlElement* xml)
     controlPanelState->setAttribute("recordEngine", recordEngines[recordSelector->getSelectedId()-1]->getID());
     controlPanelState->setAttribute("clockMode", (int) clock->getMode());
 
-    audioEditor->saveStateToXml(xml);
+    if (!isConsoleApp)
+        audioEditor->saveStateToXml(xml);
 
     filenameConfigWindow->saveStateToXml(xml);
 
@@ -1191,7 +1203,8 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
         }
     }
 
-    audioEditor->loadStateFromXml(xml);
+    if (!isConsoleApp)
+        audioEditor->loadStateFromXml(xml);
 
     filenameConfigWindow->loadStateFromXml(xml);
     generateFilenameFromFields(true);

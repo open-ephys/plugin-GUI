@@ -26,8 +26,7 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
-
-#include "../../AccessClass.h"
+#include "../PluginManager/PluginManager.h"
 
 class GenericProcessor;
 class GenericEditor;
@@ -221,6 +220,9 @@ public:
     
     /** Returns a plugin description from XML settings */
     Plugin::Description getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId);
+    
+    /** Returns a pointer to the Plugin Manager object */
+    PluginManager* getPluginManager() { return pluginManager.get(); }
 
 
 private:
@@ -243,6 +245,8 @@ private:
     Array<GenericProcessor*> rootNodes;
     
     Array<GenericProcessor*> processorArray;
+    
+    std::unique_ptr<PluginManager> pluginManager;
 
     int currentNodeId;
 

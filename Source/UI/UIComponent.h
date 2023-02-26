@@ -28,17 +28,16 @@
 
 #include "PluginInstaller.h"
 #include "MessageCenterButton.h"
+#include "../Processors/MessageCenter/MessageCenterEditor.h"
 #include "DefaultConfig.h"
 
 class MainWindow;
 class ProcessorList;
 class ControlPanel;
 class EditorViewportButton;
-class PluginManager;
 class ProcessorGraph;
 class AudioComponent;
 class GraphViewer;
-class MessageCenterEditor;
 class InfoLabel;
 class DataViewport;
 class EditorViewport;
@@ -71,7 +70,10 @@ class UIComponent : public Component,
 public:
 
     /** Constructor */
-    UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio);
+    UIComponent(MainWindow* mainWindow_,
+                ProcessorGraph* pgraph,
+                AudioComponent* audio,
+                ControlPanel* controlPanel);
 
     /** Destructor */
     ~UIComponent();
@@ -94,17 +96,13 @@ public:
     /** Returns a pointer to the ControlPanel. */
 	ControlPanel* getControlPanel();
 
-    /** Returns a pointer to the MessageCenterEditor. */
-	MessageCenterEditor* getMessageCenter();
-
     /** Returns a pointer to the UIComponent. */
 	UIComponent* getUIComponent();
 
     /** Returns a pointer to the AudioComponent. */
 	AudioComponent* getAudioComponent();
 
-	PluginManager* getPluginManager();
-    
+    /** Returns a pointer ot the Plugin Installer (UI) */
     PluginInstaller* getPluginInstaller();
     
     /** Called by the MessageCenterButton */
@@ -155,17 +153,16 @@ public:
 private:
 
     ScopedPointer<DataViewport> dataViewport;
-    EditorViewport* editorViewport;
     ScopedPointer<SignalChainTabComponent> signalChainTabComponent;
     ScopedPointer<EditorViewportButton> editorViewportButton;
-    MessageCenterButton messageCenterButton;
     ScopedPointer<ProcessorList> processorList;
-    ScopedPointer<ControlPanel> controlPanel;
-    MessageCenterEditor* messageCenterEditor; // owned by ProcessorGraph
     ScopedPointer<InfoLabel> infoLabel;
     ScopedPointer<GraphViewer> graphViewer;
-	ScopedPointer<PluginManager> pluginManager;
-
+    
+    EditorViewport* editorViewport;
+    
+    MessageCenterButton messageCenterButton;
+    
     WeakReference<PluginInstaller> pluginInstaller;
 
     std::unique_ptr<DefaultConfigWindow> defaultConfigWindow;
@@ -184,7 +181,13 @@ private:
 
     /** Pointer to the GUI's AudioComponent. Owned by the MainWindow. */
     AudioComponent* audio;
+    
+    /** Pointer to the GUI's ControlPanel. Owned by the MainWindow. */
+    ControlPanel* controlPanel;
 
+    /** Pointer to the GUI's MessageCenterEditor. Owned by the MessageCenter. */
+    MessageCenterEditor* messageCenterEditor;
+    
     /** Resizes all of components inside the UIComponent to fit the new boundaries
     of the MainWindow, or to account for opening/closing events.*/
     void resized();
