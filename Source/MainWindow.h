@@ -26,9 +26,11 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "UI/UIComponent.h"
+#include "UI/ControlPanel.h"
 #include "Audio/AudioComponent.h"
 #include "Processors/ProcessorGraph/ProcessorGraph.h"
 #include "UI/DefaultConfig.h"
+#include "UI/ControlPanel.h"
 #include "Utils/OpenEphysHttpServer.h"
 
 class OpenEphysHttpServer;
@@ -116,7 +118,10 @@ private:
 
     /** A pointer to the application's ProcessorGraph (owned by the MainWindow). */
     std::unique_ptr<ProcessorGraph> processorGraph;
-
+    
+    /** A pointer to the application's ControlPanel (owned by the MainWindow). */
+    std::unique_ptr<ControlPanel> controlPanel;
+    
     /** A weak reference to default config window. */
     std::unique_ptr<DefaultConfigWindow> defaultConfigWindow;
 

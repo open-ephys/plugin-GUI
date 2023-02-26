@@ -35,7 +35,7 @@ class EditorViewport;
 class ProcessorList;
 class DataViewport;
 class ProcessorGraph;
-class MessageCenterEditor;
+class MessageCenter;
 class ControlPanel;
 class AudioComponent;
 class GraphViewer;
@@ -53,6 +53,18 @@ namespace AccessClass
 	*/
 void setUIComponent(UIComponent*);
 
+/** Sets the object's ProcessorGraph
+    */
+void setProcessorGraph(ProcessorGraph*);
+
+/** Sets the object's AudioComponent
+    */
+void setAudioComponent(AudioComponent*);
+
+/** Sets the object's ControlPanel
+    */
+void setControlPanel(ControlPanel*);
+
 /** Returns a pointer to the application's EditorViewport. */
 EditorViewport* getEditorViewport();
 
@@ -69,7 +81,7 @@ ProcessorGraph* getProcessorGraph();
 ControlPanel* getControlPanel();
 
 /** Returns a pointer to the application's MessageCenter. */
-MessageCenterEditor* getMessageCenter();
+MessageCenter* getMessageCenter();
 
 /** Returns a pointer to the application's UIComponent. */
 UIComponent* getUIComponent();
@@ -83,6 +95,7 @@ GraphViewer* getGraphViewer();
 /** Returns a pointer to the application's PluginManager. */
 PluginManager* getPluginManager();
 
+/** Retursn a pointer to the */
 ActionBroadcaster* getBroadcaster();
 
 void TESTABLE setMessageCenter(MessageCenter * mc_);

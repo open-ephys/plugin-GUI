@@ -26,7 +26,6 @@
 
 MessageCenterEditor::MessageCenterEditor(MessageCenter* owner) :
     AudioProcessorEditor(owner),
-    acquisitionIsActive(false),
     messageCenter(owner),
     incomingBackground(Colours::black.withAlpha(0.0f)),
     outgoingBackground(Colours::black.withAlpha(0.0f)),
@@ -139,20 +138,26 @@ bool MessageCenterEditor::keyPressed(const KeyPress& key)
     return false;
 }
 
+void MessageCenterEditor::addMessage(const String& message)
+{
+    if (firstMessageReceived)
+        incomingMessageLog->addMessage(new MessageLabel("message",
+                                                    incomingMessageDisplayArea->getText()));
+    else
+        firstMessageReceived = true;
+
+    incomingMessageDisplayArea->setText(message, sendNotification);
+
+    incomingBackground = Colour(206, 172, 202);
+    startTimer(75);
+    resized();
+}
+
 String MessageCenterEditor::getOutgoingMessage()
 {
     return outgoingMessage;
 }
 
-void MessageCenterEditor::startAcquisition()
-{
-    acquisitionIsActive = true;
-}
-
-void MessageCenterEditor::stopAcquisition()
-{
-    acquisitionIsActive = false;
-}
 
 void MessageCenterEditor::expand()
 {
@@ -184,36 +189,6 @@ void MessageCenterEditor::collapse()
         startTimer(40);
     }
     
-}
-
-
-void MessageCenterEditor::messageReceived(bool isRecording)
-{
-    /*if (!isRecording)
-    {
-        String msg = "Cannot save messages when recording is not active.";
-        
-        if (firstMessageReceived)
-            incomingMessageLog->addMessage(new MessageLabel("message", incomingMessageDisplayArea->getText()));
-        else
-            firstMessageReceived = true;
-
-        incomingMessageDisplayArea->setText(msg, sendNotification);
-        
-        incomingBackground = Colour(218, 112, 74);
-        
-        resized();
-        
-    }
-    else*/
-    {
-        //outgoingMessageLog->addMessage(new MessageLabel("message", outgoingMessage));
-       // outgoingBackground = Colour(244, 208, 80);
-       // 
-       // resized();
-    }
-//
-   // startTimer(75);
 }
 
 void MessageCenterEditor::paint(Graphics& g)
@@ -336,29 +311,6 @@ void MessageCenterEditor::resized()
     outgoingMessageViewport->setViewPositionProportionately(0, 1);
 }
 
-void MessageCenterEditor::actionListenerCallback(const String& message)
-{
-    
-    if (firstMessageReceived)
-        incomingMessageLog->addMessage(new MessageLabel("message",
-                                                    incomingMessageDisplayArea->getText()));
-    else
-        firstMessageReceived = true;
-
-    incomingMessageDisplayArea->setText(message, sendNotification);
-
-    incomingBackground = Colour(206, 172, 202);
-    startTimer(75);
-    resized();
-
-}
-
-void MessageCenterEditor::broadcastMessage(String msg)
-{
-    outgoingMessage = msg;
-    
-    messageCenter->setParameter(1, 1);
-}
 
 // #################################################################
 

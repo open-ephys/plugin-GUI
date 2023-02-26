@@ -40,8 +40,7 @@ class MessageLog;
 
 class MessageCenterEditor : public AudioProcessorEditor,
     public Button::Listener,
-    public Timer,
-    public ActionListener
+    public Timer
 
 {
 public:
@@ -55,37 +54,38 @@ public:
     /** Renders the editor */
     void paint(Graphics& g);
 
+    /** Handles keypress events */
     bool keyPressed(const KeyPress& key);
 
+    /** Called when UI changes size */
     void resized();
     
+    /** Expands the editor */
     void expand();
+    
+    /** Collapses the editor */
     void collapse();
 
-    void startAcquisition();
-    void stopAcquisition();
+    /** Adds a message to the editor */
+    void addMessage(const String& message);
 
-    void messageReceived(bool state);
-
-    void broadcastMessage(String msg);
-
+    /** Gets the outgoing message text */
     String getOutgoingMessage();
 
     MessageCenter* messageCenter;
 
 private:
 
-    void buttonClicked(Button* button);
-    void timerCallback();
-    bool acquisitionIsActive;
+    /** Button callback */
+    void buttonClicked(Button* button) override;
+    
+    /** Timer callback*/
+    void timerCallback() override;
 
     bool isEnabled;
     bool isExpanded;
 
     String outgoingMessage;
-
-    /** Called when a new message is received. */
-    void actionListenerCallback(const String& message);
 
     /** A JUCE label used to display message text. */
     ScopedPointer<MessageLabel> incomingMessageDisplayArea;
@@ -118,38 +118,62 @@ private:
 
 };
 
+/**
+    Holds a list of incoming or outgoing messages
+ */
 class MessageLog : public Component
 {
 public:
+    
+    /** Constructor */
     MessageLog(Viewport * vp);
     
+    /** Adds a new message to the log*/
     void addMessage(MessageLabel* message);
 
+    /** Gets desired height (based on number of messages) */
     int getDesiredHeight();
     
+    /** Called when log changes size */
     void resized();
     
+    /** Copies the contents of the log to the clipboard */
     void copyText();
     
 private:
+    
+    /** Array of message labels */
     OwnedArray<MessageLabel> messages;
+    
+    /** Allows scrolling through message history */
     Viewport* viewport;
+    
+    /** Holds total height of messages */
     int messageHeight;
     
+    /** Returns a string for each message number */
     String getMessageNumberAsString();
 };
 
-
+/**
+    Displays information about a particular message
+ */
 class MessageLabel : public Label
 {
 public:
+    
+    /** Constructor */
     MessageLabel(const String& componentName=String(), const String& labelText=String());
     
+    /** Returns tooltip */
     String getTooltip();
     
+    /** Add text at the beginning of a string */
     void prependText(String text);
     
 private:
+    
+    /** Holds info about the time the message was sent or received */
     String timestring;
 
 };

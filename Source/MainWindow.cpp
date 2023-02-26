@@ -41,6 +41,8 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
         
         documentWindow->setResizable(true,      // isResizable
                                      false);   // useBottomCornerRisizer -- doesn't work very well
+    } else {
+        LOGC("Running in headless mode.");
     }
     
     configsDir = CoreServices::getSavedStateDirectory();
@@ -78,11 +80,14 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 	
 	LOGD("Connecting audio component to processor graph...");
 	audioComponent->connectToProcessorGraph(processorGraph.get());
+    
+    LOGD("Creating control panel...");
+    controlPanel = std::make_unique<ControlPanel>(processorGraph.get(), audioComponent.get(), isConsoleApp);
 
     if (!isConsoleApp)
     {
         LOGD("Creating UI component...");
-        documentWindow->setContentOwned(new UIComponent(this, processorGraph.get(), audioComponent.get()), true);
+        documentWindow->setContentOwned(new UIComponent(this, processorGraph.get(), audioComponent.get(), controlPanel.get()), true);
 
         UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
         
@@ -121,6 +126,10 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
                 peer->setIcon(windowIcon);
         #endif
     }
+    
+    controlPanel->updateRecordEngineList();
+
+    processorGraph->updateBufferSize(); // needs to happen after processorGraph gets the right pointers
 
 	// Load a specific state of the GUI (custom, default, last-saved, or recovery config)
     if (!fileToLoad.getFullPathName().isEmpty())
@@ -196,6 +205,8 @@ MainWindow::~MainWindow()
 	}
     
 	audioComponent->disconnectProcessorGraph();
+    
+    AccessClass::shutdownBroadcaster();
     
     if (!isConsoleApp)
     {

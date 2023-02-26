@@ -93,7 +93,7 @@ class PLUGIN_API GenericProcessor   : public GenericProcessorBase
 
 public:
     /** Constructor (sets the processor's name). */
-    GenericProcessor (const String& name);
+    GenericProcessor (const String& name, bool headlessMode = false);
 
     /** Destructor. */
     virtual ~GenericProcessor();
@@ -490,6 +490,9 @@ public:
     
     /** Sets whether processor will have behaviour like Source, Sink, Splitter, Utility or Merge */
     void setProcessorType (Plugin::Processor::Type processorType);
+    
+    /** Sets whether the processor is operating in headless mode */
+    void setHeadlessMode(bool mode) { headlessMode = mode; }
 
 protected:
 
@@ -645,6 +648,9 @@ protected:
     /** Holds a pointer to the event channel for sending messages**/
     std::unique_ptr<EventChannel> messageChannel;
     
+    /** Set to true if GUI is running in headless mode*/
+    bool headlessMode;
+    
 private:
 
     /** Clears the settings arrays.*/
@@ -723,6 +729,7 @@ private:
     Array<bool> ttlLineStates;
 
     bool wasConnected;
+
 
     std::unique_ptr<LatencyMeter> latencyMeter;
 
