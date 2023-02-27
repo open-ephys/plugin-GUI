@@ -22,6 +22,8 @@
 
 
 #include "Parameter.h"
+#include "../../AccessClass.h"
+#include "../../UI/EditorViewport.h"
 #include "../GenericProcessor/GenericProcessor.h"
 
 String Parameter::getParameterTypeString() const
@@ -62,6 +64,30 @@ uint16 Parameter::getStreamId()
         
 }
 
+
+Parameter::ChangeValue::ChangeValue(GenericProcessor* processor_, Parameter* parameter_, var newValue_)
+    : processor(processor_), parameter(parameter_), newValue(newValue_), originalValue(parameter_->currentValue)
+{
+
+}
+
+bool Parameter::ChangeValue::perform()
+{
+    parameter->newValue = newValue;
+    processor->parameterChangeRequest(parameter);
+    
+    return true;
+}
+
+bool Parameter::ChangeValue::undo()
+{
+    parameter->newValue = originalValue;
+    
+    processor->parameterChangeRequest(parameter);
+    
+    return true;
+}
+
 BooleanParameter::BooleanParameter(GenericProcessor* processor,
     ParameterScope scope,
     const String& name,
@@ -86,7 +112,10 @@ void BooleanParameter::setNextValue(var newValue_)
         newValue = newValue_;
     }
 
-    processor->parameterChangeRequest(this);
+    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+    
+    AccessClass::getEditorViewport()->undoManager.beginNewTransaction();
+    AccessClass::getEditorViewport()->undoManager.perform(action);
 }
 
 bool BooleanParameter::getBoolValue()
@@ -137,7 +166,10 @@ void CategoricalParameter::setNextValue(var newValue_)
 {
     newValue = (int) newValue_;
     
-    processor->parameterChangeRequest(this);
+    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+    
+    AccessClass::getEditorViewport()->undoManager.beginNewTransaction();
+    AccessClass::getEditorViewport()->undoManager.perform(action);
 }
 
 int CategoricalParameter::getSelectedIndex()
@@ -209,7 +241,10 @@ void IntParameter::setNextValue(var newValue_)
     else
         newValue = value;
 
-    processor->parameterChangeRequest(this);
+    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+    
+    AccessClass::getEditorViewport()->undoManager.beginNewTransaction();
+    AccessClass::getEditorViewport()->undoManager.perform(action);
 }
 
 int IntParameter::getIntValue()
@@ -253,7 +288,10 @@ void StringParameter::setNextValue(var newValue_)
 {
     newValue = newValue_.toString();
 
-    processor->parameterChangeRequest(this);
+    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+    
+    AccessClass::getEditorViewport()->undoManager.beginNewTransaction();
+    AccessClass::getEditorViewport()->undoManager.perform(action);
 }
 
 String StringParameter::getStringValue()
@@ -314,9 +352,14 @@ void FloatParameter::setNextValue(var newValue_)
             newValue = value;
 
     }
-
-    processor->parameterChangeRequest(this);
+    
+    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+    
+    AccessClass::getEditorViewport()->undoManager.beginNewTransaction();
+    AccessClass::getEditorViewport()->undoManager.perform(action);
+    
 }
+
 
 float FloatParameter::getFloatValue()
 {
@@ -366,7 +409,10 @@ void SelectedChannelsParameter::setNextValue(var newValue_)
         newValue = newValue_;
     }
     
-    processor->parameterChangeRequest(this);
+    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+    
+    AccessClass::getEditorViewport()->undoManager.beginNewTransaction();
+    AccessClass::getEditorViewport()->undoManager.perform(action);
 }
 
 std::vector<bool> SelectedChannelsParameter::getChannelStates()
@@ -481,7 +527,10 @@ void MaskChannelsParameter::setNextValue(var newValue_)
     
     newValue = values;
 
-    processor->parameterChangeRequest(this);
+    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+    
+    AccessClass::getEditorViewport()->undoManager.beginNewTransaction();
+    AccessClass::getEditorViewport()->undoManager.perform(action);
 }
 
 std::vector<bool> MaskChannelsParameter::getChannelStates()

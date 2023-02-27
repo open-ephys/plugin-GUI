@@ -200,6 +200,29 @@ public:
     /** Returns a pointer to the processor this parameter is associated with**/
     GenericProcessor* getProcessor() {return processor; }
     
+    /** Makes it possible to undo value changes */
+    class ChangeValue : public UndoableAction
+    {
+    public:
+        /** Constructor */
+        ChangeValue(GenericProcessor*, Parameter*, var newValue);
+        
+        /** Destructor */
+        ~ChangeValue() { }
+        
+        /** Perform the action */
+        bool perform();
+        
+        /** Undo the action*/
+        bool undo();
+        
+    private:
+        Parameter* parameter;
+        GenericProcessor* processor;
+        var originalValue;
+        var newValue;
+    };
+    
 protected:
 
     GenericProcessor* processor;
