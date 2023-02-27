@@ -229,7 +229,7 @@ void GenericProcessor::addCategoricalParameter(
     Parameter::ParameterScope scope,
     const String& name,
 	const String& description,
-	StringArray categories,
+	Array<String> categories,
 	int defaultIndex,
 	bool deactivateDuringAcquisition)
 {

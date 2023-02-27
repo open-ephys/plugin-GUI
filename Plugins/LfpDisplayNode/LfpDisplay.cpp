@@ -773,7 +773,7 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
     //TODO Changing ranges with the wheel is currently broken. With multiple ranges, most
     //of the wheel range code needs updating
 
-   // std::cout << "Y: " << scrollY << std::endl;
+     //std::cout << "Y: " << scrollY << std::endl;
     
     if (e.mods.isCommandDown() && singleChan == -1)  // CTRL + scroll wheel -> change channel spacing
     {

@@ -157,7 +157,7 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param) : ParameterEd
 
         offset = 1;
 
-        const StringArray& categories = p->getCategories();
+        const Array<String>& categories = p->getCategories();
 
         for (int i = 0; i < categories.size(); i++)
         {

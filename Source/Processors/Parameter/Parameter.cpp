@@ -118,7 +118,7 @@ CategoricalParameter::CategoricalParameter(GenericProcessor* processor,
     ParameterScope scope,
     const String& name,
     const String& description,
-    StringArray categories_,
+    Array<String> categories_,
     int defaultIndex,
     bool deactivateDuringAcquisition)
     : Parameter(processor,
@@ -155,13 +155,13 @@ String CategoricalParameter::getValueAsString()
     return getSelectedString();
 }
 
-const StringArray& CategoricalParameter::getCategories()
+const Array<String>& CategoricalParameter::getCategories()
 {
     return categories;
 }
 
 
-void CategoricalParameter::setCategories(StringArray categories_)
+void CategoricalParameter::setCategories(Array<String> categories_)
 {
     categories = categories_;
 }

@@ -616,7 +616,6 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
         for (auto p : processorArray)
         {
             editorArray.add(p->getEditor());
-            p->getEditor()->refreshColors();
         }
         
         AccessClass::getEditorViewport()->updateVisibleEditors(editorArray,

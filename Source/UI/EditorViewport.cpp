@@ -328,6 +328,7 @@ void EditorViewport::updateVisibleEditors(Array<GenericEditor*> visibleEditors,
         editorArray.add(editor);
         addChildComponent(editor);
         editor->setVisible(true);
+        editor->refreshColors();
     }
         
     refreshEditors();
