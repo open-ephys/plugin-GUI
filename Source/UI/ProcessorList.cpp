@@ -31,18 +31,7 @@
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 
 #include "../Utils/Utils.h"
-
-
-enum colorIds
-{
-	PROCESSOR_COLOR = 801,
-	FILTER_COLOR = 802,
-	SINK_COLOR = 803,
-	SOURCE_COLOR = 804,
-	UTILITY_COLOR = 805,
-	RECORD_COLOR = 806,
-	AUDIO_COLOR = 807
-};
+#include "LookAndFeel/CustomLookAndFeel.h"
 
 ProcessorList::ProcessorList(Viewport* v) :
     viewport(v),
@@ -58,14 +47,6 @@ ProcessorList::ProcessorList(Viewport* v) :
 
 	listFontLight = Font("CP Mono", "Light", 25);
 	listFontPlain = Font("CP Mono", "Plain", 20);
-
-	setColour(PROCESSOR_COLOR, Colour(59, 59, 59));
-	setColour(FILTER_COLOR, Colour(0, 174, 239));
-	setColour(SINK_COLOR, Colour(0, 166, 81));
-	setColour(SOURCE_COLOR, Colour(241, 90, 41));
-	setColour(UTILITY_COLOR, Colour(147, 149, 152));
-	setColour(RECORD_COLOR, Colour(255, 0, 0));
-	setColour(AUDIO_COLOR, Colour(0,0,0));
 
 	ProcessorListItem* sources = new ProcessorListItem("Sources");
 	ProcessorListItem* filters = new ProcessorListItem("Filters");
@@ -158,7 +139,7 @@ void ProcessorList::drawItems(Graphics& g)
 void ProcessorList::drawItem(Graphics& g, ProcessorListItem* item)
 {
 
-	Colour c = findColour(item->colorId);
+	Colour c = getLookAndFeel().findColour(item->colorId);
 
 	g.setColour(c);
     
@@ -355,23 +336,23 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 
 				if (listItem->getName().equalsIgnoreCase("Sources"))
 				{
-					currentColor = SOURCE_COLOR;
+					currentColor = ProcessorColor::IDs::SOURCE_COLOR;
 				}
 				else if (listItem->getName().equalsIgnoreCase("Filters"))
 				{
-					currentColor = FILTER_COLOR;
+					currentColor = ProcessorColor::IDs::FILTER_COLOR;
 				}
 				else if (listItem->getName().equalsIgnoreCase("Utilities"))
 				{
-					currentColor = UTILITY_COLOR;
+					currentColor = ProcessorColor::IDs::UTILITY_COLOR;
 				}
 				else if (listItem->getName().equalsIgnoreCase("Sinks"))
 				{
-					currentColor = SINK_COLOR;
+					currentColor = ProcessorColor::IDs::SINK_COLOR;
 				}
 				else if (listItem->getName().equalsIgnoreCase("Recording"))
 				{
-					currentColor = RECORD_COLOR;
+					currentColor = ProcessorColor::IDs::RECORD_COLOR;
 				}
 				else
 				{
@@ -385,7 +366,7 @@ void ProcessorList::mouseDown(const MouseEvent& e)
 
 				auto* colourSelector = new ColourSelector(options);
 				colourSelector->setName("background");
-				colourSelector->setCurrentColour(findColour(currentColor));
+				colourSelector->setCurrentColour(getLookAndFeel().findColour(currentColor));
 				colourSelector->addChangeListener(this);
 				colourSelector->addChangeListener(AccessClass::getProcessorGraph());
 				colourSelector->setColour(ColourSelector::backgroundColourId, Colours::lightgrey);
@@ -427,7 +408,7 @@ void ProcessorList::changeListenerCallback(ChangeBroadcaster* source)
 {
 	ColourSelector* cs = dynamic_cast <ColourSelector*>(source);
 
-	setColour(currentColor, cs->getCurrentColour());
+	getLookAndFeel().setColour(currentColor, cs->getCurrentColour());
 
 	repaint();
 
@@ -488,7 +469,7 @@ void ProcessorList::mouseDrag(const MouseEvent& e)
 						LOGA("Processor List - ", listItem->getName(), " drag start.");
 
 						Graphics g(dragImage);
-						g.setColour(findColour(listItem->colorId));
+						g.setColour(getLookAndFeel().findColour(listItem->colorId));
 						g.fillAll();
 						g.setColour(Colours::white);
 						g.setFont(14);
@@ -528,32 +509,32 @@ void ProcessorList::saveStateToXml(XmlElement* xml)
 		switch (i)
 		{
 			case 0:
-				id = PROCESSOR_COLOR;
+				id = ProcessorColor::IDs::PROCESSOR_COLOR;
 				break;
 			case 1:
-				id = SOURCE_COLOR;
+				id = ProcessorColor::IDs::SOURCE_COLOR;
 				break;
 			case 2:
-				id = FILTER_COLOR;
+				id = ProcessorColor::IDs::FILTER_COLOR;
 				break;
 			case 3:
-				id = SINK_COLOR;
+				id = ProcessorColor::IDs::SINK_COLOR;
 				break;
 			case 4:
-				id = UTILITY_COLOR;
+				id = ProcessorColor::IDs::UTILITY_COLOR;
 				break;
 			case 5: 
-				id = RECORD_COLOR;
+				id = ProcessorColor::IDs::RECORD_COLOR;
 				break;
 			case 6:
-				id = AUDIO_COLOR;
+				id = ProcessorColor::IDs::AUDIO_COLOR;
 				break;
 			default:
 				// do nothing
 				;
 		}
 
-		Colour c = findColour(id);
+		Colour c = getLookAndFeel().findColour(id);
 
 		colorState->setAttribute("ID", (int) id);
 		colorState->setAttribute("R", (int) c.getRed());
@@ -571,11 +552,16 @@ void ProcessorList::loadStateFromXml(XmlElement* xml)
 		{
 			for (auto* colorNode : xmlNode->getChildIterator())
 			{
-				setColour(colorNode->getIntAttribute("ID"),
+                
+                int ID = colorNode->getIntAttribute("ID");
+                
+				getLookAndFeel().setColour(ID,
 						Colour(
 							colorNode->getIntAttribute("R"),
 							colorNode->getIntAttribute("G"),
 							colorNode->getIntAttribute("B")));
+                
+                LOGD("Setting color ID ", ID, " to ", getLookAndFeel().findColour(ID).toString());
 			}
 		}
 	}
@@ -589,13 +575,13 @@ Array<Colour> ProcessorList::getColours()
 {
 	Array<Colour> c;
 
-	c.add(findColour(PROCESSOR_COLOR));
-	c.add(findColour(SOURCE_COLOR));
-	c.add(findColour(FILTER_COLOR));
-	c.add(findColour(SINK_COLOR));
-	c.add(findColour(UTILITY_COLOR));
-	c.add(findColour(RECORD_COLOR));
-	c.add(findColour(AUDIO_COLOR));
+	c.add(getLookAndFeel().findColour(ProcessorColor::IDs::PROCESSOR_COLOR));
+	c.add(getLookAndFeel().findColour(ProcessorColor::IDs::SOURCE_COLOR));
+	c.add(getLookAndFeel().findColour(ProcessorColor::IDs::FILTER_COLOR));
+	c.add(getLookAndFeel().findColour(ProcessorColor::IDs::SINK_COLOR));
+	c.add(getLookAndFeel().findColour(ProcessorColor::IDs::UTILITY_COLOR));
+	c.add(getLookAndFeel().findColour(ProcessorColor::IDs::RECORD_COLOR));
+	c.add(getLookAndFeel().findColour(ProcessorColor::IDs::AUDIO_COLOR));
 	return c;
 }
 
@@ -606,25 +592,25 @@ void ProcessorList::setColours(Array<Colour> c)
 		switch (i)
 		{
 			case 0:
-				setColour(PROCESSOR_COLOR, c[i]);
+				getLookAndFeel().setColour(ProcessorColor::IDs::PROCESSOR_COLOR, c[i]);
 				break;
 			case 1:
-				setColour(SOURCE_COLOR, c[i]);
+                getLookAndFeel().setColour(ProcessorColor::IDs::SOURCE_COLOR, c[i]);
 				break;
 			case 2:
-				setColour(FILTER_COLOR, c[i]);
+                getLookAndFeel().setColour(ProcessorColor::IDs::FILTER_COLOR, c[i]);
 				break;
 			case 3:
-				setColour(SINK_COLOR, c[i]);
+                getLookAndFeel().setColour(ProcessorColor::IDs::SINK_COLOR, c[i]);
 				break;
 			case 4:
-				setColour(UTILITY_COLOR, c[i]);
+                getLookAndFeel().setColour(ProcessorColor::IDs::UTILITY_COLOR, c[i]);
 				break;
 			case 5: 
-				setColour(RECORD_COLOR, c[i]);
+                getLookAndFeel().setColour(ProcessorColor::IDs::RECORD_COLOR, c[i]);
 				break;
 			case 6: 
-				setColour(AUDIO_COLOR, c[i]);
+                getLookAndFeel().setColour(ProcessorColor::IDs::AUDIO_COLOR, c[i]);
 			default:
 				;// do nothing
 		}
@@ -827,30 +813,30 @@ void ProcessorListItem::setParentName(const String& name)
 
 	if (parentName.equalsIgnoreCase("Processors"))
 	{
-		colorId = PROCESSOR_COLOR;
+		colorId = ProcessorColor::IDs::PROCESSOR_COLOR;
 	}
 	else if (parentName.equalsIgnoreCase("Filters"))
 	{
-		colorId = FILTER_COLOR;
+		colorId = ProcessorColor::IDs::FILTER_COLOR;
 	}
 	else if (parentName.equalsIgnoreCase("Sinks"))
 	{
-		colorId = SINK_COLOR;
+		colorId = ProcessorColor::IDs::SINK_COLOR;
 	}
 	else if (parentName.equalsIgnoreCase("Sources"))
 	{
-		colorId = SOURCE_COLOR;
+		colorId = ProcessorColor::IDs::SOURCE_COLOR;
 	}
 	else if (parentName.equalsIgnoreCase("Recording"))
 	{
-		colorId = RECORD_COLOR;
+		colorId = ProcessorColor::IDs::RECORD_COLOR;
 	}
 	else if (parentName.equalsIgnoreCase("Audio"))
 	{
-		colorId = AUDIO_COLOR;
+		colorId = ProcessorColor::IDs::AUDIO_COLOR;
 	}
 	else
 	{
-		colorId = UTILITY_COLOR;
+		colorId = ProcessorColor::IDs::UTILITY_COLOR;
 	}
 }

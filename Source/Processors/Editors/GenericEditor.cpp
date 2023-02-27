@@ -34,6 +34,8 @@
 #include "../../UI/GraphViewer.h"
 #include "../Settings/InfoObject.h"
 
+#include "../../UI/LookAndFeel/CustomLookAndFeel.h"
+
 #include <math.h>
 
 #ifndef M_PI
@@ -178,28 +180,20 @@ void GenericEditor::addCustomParameterEditor(ParameterEditor* ed, int xPos_, int
 void GenericEditor::refreshColors()
 {
 
-    LOGDD(getNameAndId(), " refreshing colors.");
-
-    enum
-    {
-        PROCESSOR_COLOR = 801,
-        FILTER_COLOR = 802,
-        SINK_COLOR = 803,
-        SOURCE_COLOR = 804,
-        UTILITY_COLOR = 805,
-        RECORD_COLOR = 806
-    };
+    LOGD(getNameAndId(), " refreshing colors.");
 
     if (getProcessor()->isSource())
-        backgroundColor = AccessClass::getProcessorList()->findColour(SOURCE_COLOR);
+        backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::SOURCE_COLOR);
     else if (getProcessor()->isSink())
-        backgroundColor = AccessClass::getProcessorList()->findColour(SINK_COLOR);
+        backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::SINK_COLOR);
     else if (getProcessor()->isSplitter() || getProcessor()->isMerger() || getProcessor()->isAudioMonitor() || getProcessor()->isUtility())
-        backgroundColor = AccessClass::getProcessorList()->findColour(UTILITY_COLOR);
+        backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::UTILITY_COLOR);
     else if (getProcessor()->isRecordNode())
-        backgroundColor = AccessClass::getProcessorList()->findColour(RECORD_COLOR);
+        backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::RECORD_COLOR);
     else
-        backgroundColor = AccessClass::getProcessorList()->findColour(FILTER_COLOR);
+        backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::FILTER_COLOR);
+    
+    LOGD("background color is ", backgroundColor.toString());
 
     repaint();
 

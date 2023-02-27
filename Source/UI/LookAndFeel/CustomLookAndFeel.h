@@ -26,6 +26,19 @@
 
 #include <JuceHeader.h>
 
+namespace ProcessorColor {
+    enum IDs
+    {
+        PROCESSOR_COLOR = 801,
+        FILTER_COLOR = 802,
+        SINK_COLOR = 803,
+        SOURCE_COLOR = 804,
+        UTILITY_COLOR = 805,
+        RECORD_COLOR = 806,
+        AUDIO_COLOR = 807
+    };
+}
+
 /**
 
    Used to modify the appearance of the application.

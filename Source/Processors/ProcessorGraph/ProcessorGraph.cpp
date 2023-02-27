@@ -224,7 +224,7 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
 
         if (!isConsoleApp)
         {
-            GenericEditor* editor = (GenericEditor*)addedProc->createEditor();
+            GenericEditor* editor = (GenericEditor*) addedProc->createEditor();
             editor->refreshColors();
         }
         
@@ -1901,6 +1901,8 @@ void ProcessorGraph::loadFromXml(XmlElement* xml)
     }
 
     restoreParameters();  // loads the processor graph settings
+    
+    refreshColors(); // refresh editor colors
 
     if (!isConsoleApp)
     {

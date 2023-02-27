@@ -30,6 +30,7 @@ CustomLookAndFeel::CustomLookAndFeel() :
     // deleted too soon (there's a singleton typefacecache that holds references
     // to them whenever they're used).
 
+
     silkscreenStream(BinaryData::silkscreenserialized,
         BinaryData::silkscreenserializedSize,
         false),
@@ -86,26 +87,21 @@ CustomLookAndFeel::CustomLookAndFeel() :
 
     silkscreen = new CustomTypeface(silkscreenStream);
     
-    enum
-    {
-        PROCESSOR_COLOR = 0x801,
-        FILTER_COLOR = 0x802,
-        SINK_COLOR = 0x803,
-        SOURCE_COLOR = 0x804,
-        UTILITY_COLOR = 0x805,
-    };
-
-    setColour(PROCESSOR_COLOR, Colour(59, 59, 59));
-    setColour(FILTER_COLOR, Colour(255, 89, 0));
-    setColour(SINK_COLOR, Colour(255, 149, 0));
-    setColour(SOURCE_COLOR, Colour(255, 0, 0));
-    setColour(UTILITY_COLOR, Colour(90, 80, 80));
+    setColour(ProcessorColor::IDs::PROCESSOR_COLOR, Colour(59, 59, 59));
+    setColour(ProcessorColor::IDs::FILTER_COLOR, Colour(0, 174, 239));
+    setColour(ProcessorColor::IDs::SINK_COLOR, Colour(0, 166, 81));
+    setColour(ProcessorColor::IDs::SOURCE_COLOR, Colour(241, 90, 41));
+    setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(147, 149, 152));
+    setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(255, 0, 0));
+    setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(0,0,0));
 
     setColour(PopupMenu::backgroundColourId, Colours::darkgrey);
     setColour(PopupMenu::textColourId, Colours::white);
     setColour(PopupMenu::highlightedBackgroundColourId, Colours::grey);
     setColour(PopupMenu::highlightedTextColourId, Colours::yellow);
-
+    
+    setColour(Label::backgroundColourId, Colours::orangered);
+    
 }
 
 CustomLookAndFeel::~CustomLookAndFeel() {}

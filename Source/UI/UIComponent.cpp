@@ -36,10 +36,17 @@
 #include "../Audio/AudioComponent.h"
 #include "../MainWindow.h"
 
-	UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_, ControlPanel* controlPanel_)
-: mainWindow(mainWindow_), processorGraph(pgraph), audio(audio_), controlPanel(controlPanel_), messageCenterIsCollapsed(true)
-
+UIComponent::UIComponent(MainWindow* mainWindow_,
+                         ProcessorGraph* processorGraph_,
+                         AudioComponent* audioComponent_,
+                         ControlPanel* controlPanel_)
+: mainWindow(mainWindow_),
+  processorGraph(processorGraph_),
+  audio(audioComponent_),
+  controlPanel(controlPanel_)
 {
+    
+    setLookAndFeel(&customLookAndFeel);
     
 	messageCenterEditor = (MessageCenterEditor*) processorGraph->getMessageCenter()->createEditor();
 	LOGD("Created message center editor.");
@@ -100,6 +107,8 @@ UIComponent::~UIComponent()
 		pluginInstaller->setVisible(false);
 		delete pluginInstaller;
 	}
+    
+    setLookAndFeel(nullptr);
 }
 
 /** Returns a pointer to the EditorViewport. */

@@ -30,6 +30,7 @@
 #include "MessageCenterButton.h"
 #include "../Processors/MessageCenter/MessageCenterEditor.h"
 #include "DefaultConfig.h"
+#include "LookAndFeel/CustomLookAndFeel.h"
 
 class MainWindow;
 class ProcessorList;
@@ -222,7 +223,9 @@ private:
 
     File currentConfigFile;
     
-    bool messageCenterIsCollapsed;
+    bool messageCenterIsCollapsed = true;
+    
+    CustomLookAndFeel customLookAndFeel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponent);
 
