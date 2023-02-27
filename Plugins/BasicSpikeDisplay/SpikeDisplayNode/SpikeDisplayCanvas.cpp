@@ -156,10 +156,12 @@ void SpikeDisplayCanvas::update()
 
             if (cache->hasCachedDisplaySettings(cacheKey))
             {
+                LOGD("SpikeDisplayCanvas::update: found exact key for ", cacheKey);
                 applyCachedDisplaySettings(i, cacheKey);
             }
             else if (cache->findSimilarKey(cacheKey, streamIdx).size() > 0)
             {
+                LOGD("SpikeDisplayCanvas::update: found similar key for ", cacheKey);
                 applyCachedDisplaySettings(i, cache->findSimilarKey(cacheKey, streamIdx));
             }
         }
@@ -253,9 +255,11 @@ void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
 
         XmlElement* plotNode = xmlNode->createNewChildElement("PLOT");
 
-        plotNode->setAttribute("name", spikeChannel->getName());
-        plotNode->setAttribute("stream_name", processor->getDataStream(streamId)->getName());
         plotNode->setAttribute("stream_source", processor->getDataStream(streamId)->getSourceNodeId());
+        plotNode->setAttribute("stream_name", processor->getDataStream(streamId)->getName());
+        plotNode->setAttribute("source_node", spikeChannel->getSourceNodeId());
+        plotNode->setAttribute("name", spikeChannel->getName());
+
         plotNode->setAttribute("isMonitored", spikeDisplay->getMonitorStateForPlot(i));
 
         for (int j = 0; j < spikeDisplay->getNumChannelsForPlot(i); j++)
@@ -272,7 +276,6 @@ void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
 
 void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 {
-
 
     for (auto* xmlNode : xml->getChildIterator())
     {
@@ -298,11 +301,12 @@ void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
                 {
                     plotIndex++;
 
-                    std::string source = plotNode->getStringAttribute("stream_source").toStdString();
+                    std::string stream_source = plotNode->getStringAttribute("stream_source").toStdString();
                     std::string stream_name = plotNode->getStringAttribute("stream_name").toStdString();
+                    std::string source = plotNode->getStringAttribute("source_node").toStdString();
                     std::string name = plotNode->getStringAttribute("name").toStdString();
 
-                    std::string cacheKey = source + "|" + stream_name + "|" + name;
+                    std::string cacheKey = stream_source + "|" + stream_name + "|" + source + "|" + name;
 
                     cache->setMonitor(cacheKey, plotNode->getBoolAttribute("isMonitored"));
 
