@@ -86,21 +86,13 @@ CustomLookAndFeel::CustomLookAndFeel() :
 {
 
     silkscreen = new CustomTypeface(silkscreenStream);
-    
-    setColour(ProcessorColor::IDs::PROCESSOR_COLOR, Colour(59, 59, 59));
-    setColour(ProcessorColor::IDs::FILTER_COLOR, Colour(0, 174, 239));
-    setColour(ProcessorColor::IDs::SINK_COLOR, Colour(0, 166, 81));
-    setColour(ProcessorColor::IDs::SOURCE_COLOR, Colour(241, 90, 41));
-    setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(147, 149, 152));
-    setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(255, 0, 0));
-    setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(0,0,0));
 
     setColour(PopupMenu::backgroundColourId, Colours::darkgrey);
     setColour(PopupMenu::textColourId, Colours::white);
     setColour(PopupMenu::highlightedBackgroundColourId, Colours::grey);
     setColour(PopupMenu::highlightedTextColourId, Colours::yellow);
     
-    setColour(Label::backgroundColourId, Colours::whitesmoke);
+    setTheme(THEME1);
     
 }
 
@@ -108,6 +100,7 @@ CustomLookAndFeel::~CustomLookAndFeel() {}
 
 void CustomLookAndFeel::setTheme(ColorTheme theme)
 {
+    
     if (theme == THEME1)
     {
         setColour(ProcessorColor::IDs::PROCESSOR_COLOR, Colour(59, 59, 59));
@@ -117,6 +110,12 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(147, 149, 152));
         setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(255, 0, 0));
         setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(0,0,0));
+        
+        setColour(Label::backgroundColourId, Colours::whitesmoke);
+        
+        setColour(TextButton::buttonColourId, Colours::darkgrey);
+        
+        setColour(ThemeColors::controlPanelBackground, Colours::darkgrey);
     }
     else if (theme == THEME2)
     {
@@ -127,6 +126,12 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(21, 21, 21));
         setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(21, 21, 21));
         setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(21, 21, 21));
+        
+        setColour(Label::backgroundColourId, Colours::lightcoral);
+        
+        setColour(TextButton::buttonColourId, Colours::lightsteelblue);
+        
+        setColour(ThemeColors::controlPanelBackground, Colours::lightskyblue);
     }
 }
 
@@ -346,7 +351,7 @@ void CustomLookAndFeel::drawScrollbar(Graphics& g,
 
     }
 
-    g.setColour(Colours::darkgrey);
+    g.setColour(Colours::lightgrey);
     g.fillPath(thumbPath);
 
 }

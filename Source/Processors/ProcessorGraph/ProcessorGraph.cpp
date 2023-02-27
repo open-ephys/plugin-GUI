@@ -225,7 +225,6 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
         if (!isConsoleApp)
         {
             GenericEditor* editor = (GenericEditor*) addedProc->createEditor();
-            editor->refreshColors();
         }
         
 
@@ -617,6 +616,7 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
         for (auto p : processorArray)
         {
             editorArray.add(p->getEditor());
+            p->getEditor()->refreshColors();
         }
         
         AccessClass::getEditorViewport()->updateVisibleEditors(editorArray,

@@ -39,6 +39,13 @@ namespace ProcessorColor {
     };
 }
 
+namespace ThemeColors {
+    enum Colors
+    {
+        controlPanelBackground
+    };
+}
+
 enum ColorTheme
 {
     THEME1,

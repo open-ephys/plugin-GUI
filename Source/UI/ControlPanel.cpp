@@ -30,6 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../Processors/PluginManager/PluginManager.h"
 #include "FilenameConfigWindow.h"
 
+#include "LookAndFeel/CustomLookAndFeel.h"
+
 
 const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
 //const int SIZE_AUDIO_EDITOR_MIN_WIDTH = 250;
@@ -698,7 +700,7 @@ void ControlPanel::createPaths()
 
 void ControlPanel::paint(Graphics& g)
 {
-    g.setColour (backgroundColour);
+    g.setColour (findColour(ThemeColors::controlPanelBackground));
     g.fillRect (0, 0, getWidth(), getHeight());
 
     if (open)
