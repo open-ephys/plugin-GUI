@@ -78,6 +78,7 @@ GenericProcessor::GenericProcessor(const String& name, bool headlessMode_)
 GenericProcessor::~GenericProcessor()
 {
     availableParameters.clear(true);
+    parametersAsXml = nullptr;
 }
 
 

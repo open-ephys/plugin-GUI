@@ -29,6 +29,8 @@
 
 #include "../Processors/Settings/DataStream.h"
 
+#include "../UI/LookAndFeel/CustomLookAndFeel.h"
+
 const int NODE_WIDTH = 165;
 const int NODE_HEIGHT = 50;
 const int BORDER_SIZE = 20;
@@ -49,10 +51,9 @@ GraphViewport::GraphViewport(GraphViewer* gv)
 
 void GraphViewport::paint(Graphics& g)
 {
-    g.fillAll(Colour(20, 20, 20));
+    g.fillAll(findColour(ThemeColors::graphViewerBackgroundColorId));
     g.setOpacity(0.6f);
     g.drawImageAt(bw_logo, getWidth() - 175, getHeight() - 115);
-    
 
     g.setOpacity(1.0f);
     g.setColour(Colours::grey);

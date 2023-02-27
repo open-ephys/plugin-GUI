@@ -43,6 +43,7 @@ namespace ThemeColors {
     enum Colors
     {
         controlPanelBackgroundColorId,
+        graphViewerBackgroundColorId,
         editorGradientColorId1,
         editorGradientColorId2,
         editorGradientColorId3
