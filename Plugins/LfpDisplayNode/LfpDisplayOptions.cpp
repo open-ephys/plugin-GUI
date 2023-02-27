@@ -78,7 +78,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     selectedTimebaseValue = timebases[selectedTimebase - 1];
 
     timebaseSelection = std::make_unique<ComboBox>("Timebase");
-    timebaseSelection->addItemList(timebases, 1);
+    for (int i = 0; i < timebases.size(); i++)
+        timebaseSelection->addItem(timebases[i], i + 1);
     timebaseSelection->setSelectedId(selectedTimebase, sendNotification);
     timebaseSelection->setEditableText(true);
     timebaseSelection->addListener(this);
@@ -100,7 +101,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     selectedSpreadValue = spreads[selectedSpread - 1];
 
     spreadSelection = std::make_unique<ComboBox>("Spread");
-    spreadSelection->addItemList(spreads, 1);
+    for (int i = 0; i < spreads.size(); i++)
+        spreadSelection->addItem(spreads[i], i + 1);
     spreadSelection->setSelectedId(selectedSpread, sendNotification);
     spreadSelection->addListener(this);
     spreadSelection->setEditableText(true);
@@ -192,7 +194,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     selectedVoltageRangeValues[ContinuousChannel::Type::ADC] = voltageRanges[ContinuousChannel::Type::ADC][selectedVoltageRange[ContinuousChannel::Type::ADC] - 1];
 
     rangeSelection = std::make_unique<ComboBox>("Voltage range");
-    rangeSelection->addItemList(voltageRanges[ContinuousChannel::Type::ELECTRODE], 1);
+    for (int i = 0; i < voltageRanges[ContinuousChannel::Type::ELECTRODE].size(); i++)
+        rangeSelection->addItem(voltageRanges[ContinuousChannel::Type::ELECTRODE][i], i + 1);
     rangeSelection->setSelectedId(selectedVoltageRange[ContinuousChannel::Type::ELECTRODE], sendNotification);
     rangeSelection->setEditableText(true);
     rangeSelection->addListener(this);
@@ -226,9 +229,10 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     addAndMakeVisible(pauseButton.get());
 
     // Color scheme
-    StringArray colourSchemeNames = lfpDisplay->getColourSchemeNameArray();
+    Array<String> colourSchemeNames = lfpDisplay->getColourSchemeNameArray();
     colourSchemeOptionSelection = std::make_unique<ComboBox>("colorSchemeOptionSelection");
-    colourSchemeOptionSelection->addItemList(colourSchemeNames, 1);
+    for (int i = 0; i < colourSchemeNames.size(); i++)
+        colourSchemeOptionSelection->addItem(colourSchemeNames[i], i + 1);
     colourSchemeOptionSelection->setEditableText(false);
     colourSchemeOptionSelection->addListener(this);
     colourSchemeOptionSelection->setSelectedId(1, dontSendNotification);
@@ -242,7 +246,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     colorGroupings.add("16");
 
     colorGroupingSelection = std::make_unique<ComboBox>("Color Grouping");
-    colorGroupingSelection->addItemList(colorGroupings, 1);
+    for (int i = 0; i < colorGroupings.size(); i++)
+        colorGroupingSelection->addItem(colorGroupings[i], i + 1);
     colorGroupingSelection->setSelectedId(1, sendNotification);
     colorGroupingSelection->addListener(this);
     addAndMakeVisible(colorGroupingSelection.get());
@@ -256,7 +261,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     selectedSpikeRasterThresholdValue = spikeRasterSelectionOptions[selectedSpikeRasterThreshold - 1];
 
     spikeRasterSelection = std::make_unique<ComboBox>("spikeRasterSelection");
-    spikeRasterSelection->addItemList(spikeRasterSelectionOptions, 1);
+    for (int i = 0; i < spikeRasterSelectionOptions.size(); i++)
+        spikeRasterSelection->addItem(spikeRasterSelectionOptions[i], i + 1);
     spikeRasterSelection->setSelectedId(selectedSpikeRasterThreshold, dontSendNotification);
     spikeRasterSelection->setEditableText(true);
     spikeRasterSelection->addListener(this);
@@ -267,7 +273,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     clipThresholds.add("ON");
 
     clipWarningSelection = std::make_unique<ComboBox>("Clip Warning");
-    clipWarningSelection->addItemList(clipThresholds, 1);
+    for (int i = 0; i < clipThresholds.size(); i++)
+        clipWarningSelection->addItem(clipThresholds[i], i + 1);
     clipWarningSelection->setSelectedId(1, dontSendNotification);
     clipWarningSelection->addListener(this);
     clipWarningSelection->setEditableText(false);
@@ -282,7 +289,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     saturationThresholds.add("6389");
 
     saturationWarningSelection = std::make_unique<ComboBox>("Saturation Warning");
-    saturationWarningSelection->addItemList(saturationThresholds, 1);
+    for (int i = 0; i < saturationThresholds.size(); i++)
+        saturationWarningSelection->addItem(saturationThresholds[i], i + 1);
     saturationWarningSelection->setSelectedId(1, dontSendNotification);
     saturationWarningSelection->addListener(this);
     saturationWarningSelection->setEditableText(false);
@@ -324,7 +332,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     selectedChannelDisplaySkipValue = channelDisplaySkipOptions[selectedChannelDisplaySkip - 1];
     
     channelDisplaySkipSelection = std::make_unique<ComboBox>("Channel Skip");
-    channelDisplaySkipSelection->addItemList(channelDisplaySkipOptions, 1);
+    for (int i = 0; i < channelDisplaySkipOptions.size(); i++)
+        channelDisplaySkipSelection->addItem(channelDisplaySkipOptions[i], i + 1);
     channelDisplaySkipSelection->setSelectedId(selectedChannelDisplaySkip, sendNotification);
     channelDisplaySkipSelection->setEditableText(false);
     channelDisplaySkipSelection->addListener(this);
@@ -367,13 +376,14 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     sectionTitles.add("TRIGGERED DISPLAY");
     // trigger channel selection
     triggerSources.add("None");
-    for (int k = 1; k <= 8; k++)
+    for (int k = 1; k <= 16; k++)
     {
         triggerSources.add(String(k));
     }
 
     triggerSourceSelection = std::make_unique<ComboBox>("Trigger Source");
-    triggerSourceSelection->addItemList(triggerSources, 1);
+    for (int i = 0; i < triggerSources.size(); i++)
+        triggerSourceSelection->addItem(triggerSources[i], i + 1);
     triggerSourceSelection->setSelectedId(1, sendNotification);
     triggerSourceSelection->addListener(this);
     addAndMakeVisible(triggerSourceSelection.get());
@@ -415,7 +425,8 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     selectedOverlapValue = overlaps[selectedOverlap-1];
 
     overlapSelection = std::make_unique<ComboBox>("Overlap");
-    overlapSelection->addItemList(overlaps, 1);
+    for (int i = 0; i < overlaps.size(); i++)
+        overlapSelection->addItem(overlaps[i], i + 1);
     overlapSelection->setSelectedId(selectedOverlap,sendNotification);
     overlapSelection->addListener(this);
     overlapSelection->setEditableText(true);
@@ -1309,7 +1320,9 @@ void LfpDisplayOptions::setSelectedType(ContinuousChannel::Type type, bool toggl
         return; //Nothing to do here
     selectedChannelType = type;
     rangeSelection->clear(dontSendNotification);
-    rangeSelection->addItemList(voltageRanges[type],1);
+    
+    for (int i = 0; i < voltageRanges[type].size(); i++)
+        rangeSelection->addItem(voltageRanges[type][i], i+1);
 
     int id = selectedVoltageRange[type];
     if (id)
@@ -1425,8 +1438,19 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             start = Time::getHighResolutionTicks();
 
             // RANGE
-            StringArray ranges;
-            ranges.addTokens(xmlNode->getStringAttribute("Range"),",",String());
+            Array<String> ranges;
+            String rangeString = xmlNode->getStringAttribute("Range");
+            int lastComma = 0;
+            int nextComma = rangeString.indexOf(",");
+            
+            while (nextComma != -1)
+            {
+                ranges.add(rangeString.substring(lastComma, nextComma));
+                lastComma = nextComma + 1;
+                nextComma = rangeString.indexOf(lastComma, ",");
+                std::cout << ranges.getLast() << std::endl;
+            }
+            
             selectedVoltageRangeValues[0] = ranges[0];
             selectedVoltageRangeValues[1] = ranges[1];
             selectedVoltageRangeValues[2] = ranges[2];

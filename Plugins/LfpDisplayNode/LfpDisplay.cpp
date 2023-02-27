@@ -269,9 +269,9 @@ int LfpDisplay::getNumColourSchemes()
     return colourSchemeList.size();
 }
 
-StringArray LfpDisplay::getColourSchemeNameArray()
+Array<String> LfpDisplay::getColourSchemeNameArray()
 {
-    StringArray nameList;
+    Array<String> nameList;
     for (auto scheme : colourSchemeList)
         nameList.add(scheme->getName());
     
