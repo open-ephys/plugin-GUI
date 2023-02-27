@@ -182,15 +182,6 @@ Clock::Clock() : isRunning(false),
 
 void Clock::paint(Graphics& g)
 {
-    if (isRecording)
-    {
-        g.fillAll(Colour(255,0,0));
-    }
-    else
-    {
-        g.fillAll(Colour(58,58,58));
-    }
-
     drawTime(g);
 }
 
@@ -461,8 +452,6 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_, bool 
         startTimer(60000); // update disk space every minute
 
         setWantsKeyboardFocus(true);
-
-        backgroundColour = Colour(58,58,58);
     }
 
 }
@@ -700,7 +689,11 @@ void ControlPanel::createPaths()
 
 void ControlPanel::paint(Graphics& g)
 {
-    g.setColour (findColour(ThemeColors::controlPanelBackground));
+    if (!recordButton->getToggleState())
+        g.setColour (findColour(ThemeColors::controlPanelBackgroundColorId));
+    else
+        g.setColour(Colour(255,0,0));
+    
     g.fillRect (0, 0, getWidth(), getHeight());
 
     if (open)
@@ -879,7 +872,6 @@ void ControlPanel::startRecording()
 {
 
     clock->startRecording(); // turn on recording
-    backgroundColour = Colour(255,0,0);
 
     filenameText->setColour(Label::textColourId, Colours::black);
     
@@ -915,8 +907,7 @@ void ControlPanel::stopRecording()
 
     clock->stopRecording();
     newDirectoryButton->setEnabledState(true);
-    backgroundColour = Colour (51, 51, 51);
-    
+
     recordButton->getNormalImage()->replaceColour(Colours::yellow, defaultButtonColour);
 
     recordButton->setToggleState(false, dontSendNotification);

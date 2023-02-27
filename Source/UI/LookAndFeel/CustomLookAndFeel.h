@@ -42,7 +42,10 @@ namespace ProcessorColor {
 namespace ThemeColors {
     enum Colors
     {
-        controlPanelBackground
+        controlPanelBackgroundColorId,
+        editorGradientColorId1,
+        editorGradientColorId2,
+        editorGradientColorId3
     };
 }
 

@@ -73,9 +73,7 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
         addAndMakeVisible(streamSelector.get());
     }
 
-    backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f,
-        Colour(185, 185, 185), 0.0f, 120.0f, false);
-    backgroundGradient.addColour(0.2f, Colour(155, 155, 155));
+    getBackgroundGradient();
 
     backgroundColor = Colour(10, 10, 10);
 }
@@ -194,6 +192,8 @@ void GenericEditor::refreshColors()
         backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::FILTER_COLOR);
     
     LOGD("background color is ", backgroundColor.toString());
+    
+    getBackgroundGradient();
 
     repaint();
 
@@ -1020,6 +1020,10 @@ void GenericEditor::setBackgroundColor(Colour c)
 
 ColourGradient GenericEditor::getBackgroundGradient()
 {
+    backgroundGradient = ColourGradient(findColour(ThemeColors::editorGradientColorId1), 0.0f, 0.0f,
+                                        findColour(ThemeColors::editorGradientColorId2), 0.0f, 120.0f, false);
+    backgroundGradient.addColour(0.2f, findColour(ThemeColors::editorGradientColorId3));
+    
     return backgroundGradient;
 }
 

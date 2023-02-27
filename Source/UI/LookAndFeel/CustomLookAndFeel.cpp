@@ -111,11 +111,17 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(255, 0, 0));
         setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(0,0,0));
         
-        setColour(Label::backgroundColourId, Colours::whitesmoke);
+        setColour(Label::backgroundColourId, Colours::whitesmoke.withAlpha(0.0f));
+        setColour(ScrollBar::thumbColourId, Colours::darkgrey);
+        setColour(ComboBox::backgroundColourId, Colours::lightgrey);
         
         setColour(TextButton::buttonColourId, Colours::darkgrey);
         
-        setColour(ThemeColors::controlPanelBackground, Colours::darkgrey);
+        setColour(ThemeColors::controlPanelBackgroundColorId, Colour(51,51,51));
+        
+        setColour(ThemeColors::editorGradientColorId1, Colour(190,190,190));
+        setColour(ThemeColors::editorGradientColorId2, Colour(185,185,185));
+        setColour(ThemeColors::editorGradientColorId3, Colour(155,155,155));
     }
     else if (theme == THEME2)
     {
@@ -127,11 +133,17 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(21, 21, 21));
         setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(21, 21, 21));
         
-        setColour(Label::backgroundColourId, Colours::lightcoral);
+        setColour(Label::backgroundColourId, Colours::whitesmoke);
+        setColour(ScrollBar::thumbColourId, Colours::whitesmoke.withAlpha(0.25f));
+        setColour(ComboBox::backgroundColourId, Colours::lightseagreen);
         
         setColour(TextButton::buttonColourId, Colours::lightsteelblue);
         
-        setColour(ThemeColors::controlPanelBackground, Colours::lightskyblue);
+        setColour(ThemeColors::controlPanelBackgroundColorId, Colours::lightskyblue);
+        
+        setColour(ThemeColors::editorGradientColorId1, Colour(25,25,25));
+        setColour(ThemeColors::editorGradientColorId2, Colour(40,40,40));
+        setColour(ThemeColors::editorGradientColorId3, Colour(90,155,155));
     }
 }
 
@@ -351,7 +363,7 @@ void CustomLookAndFeel::drawScrollbar(Graphics& g,
 
     }
 
-    g.setColour(Colours::lightgrey);
+    g.setColour(findColour(ScrollBar::thumbColourId));
     g.fillPath(thumbPath);
 
 }
@@ -565,7 +577,7 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
     auto cornerSize = box.findParentComponentOfClass<ChoicePropertyComponent>() != nullptr ? 0.0f : 3.0f;
     Rectangle<int> boxBounds (0, 0, width, height);
 
-    g.setColour (Colours::darkcyan);
+    g.setColour (findColour(ComboBox::backgroundColourId));
     g.fillRoundedRectangle (boxBounds.toFloat(), cornerSize);
 
     if (box.isPopupActive() || box.hasKeyboardFocus(false))

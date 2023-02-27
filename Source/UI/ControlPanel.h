@@ -535,8 +535,6 @@ private:
 
     String recordingDirectoryName;
 
-    Colour backgroundColour;
-
     OwnedArray<RecordEngineManager> recordEngines;
     std::unique_ptr<UtilityButton> recordOptionsButton;
     int lastEngineIndex;
