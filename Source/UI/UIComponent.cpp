@@ -374,8 +374,21 @@ void UIComponent::childComponentChanged()
 	resized();
 }
 
+void UIComponent::setTheme(ColorTheme t)
+{
+    customLookAndFeel.setTheme(t);
+    
+    theme = t;
+    
+    repaint();
+    
+    getProcessorGraph()->refreshColors();
+}
 
-
+ColorTheme UIComponent::getTheme()
+{
+    return theme;
+}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -436,12 +449,18 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 		PopupMenu clockMenu;
 		clockMenu.addCommandItem(commandManager, setClockModeDefault);
 		clockMenu.addCommandItem(commandManager, setClockModeHHMMSS);
+        
+        PopupMenu themeMenu;
+        themeMenu.addCommandItem(commandManager, setColorTheme1);
+        themeMenu.addCommandItem(commandManager, setColorTheme2);
 
 		menu.addCommandItem(commandManager, toggleProcessorList);
 		menu.addCommandItem(commandManager, toggleSignalChain);
 		menu.addCommandItem(commandManager, toggleFileInfo);
 		menu.addSeparator();
 		menu.addSubMenu("Clock mode", clockMenu);
+        menu.addSeparator();
+        menu.addSubMenu("Theme", themeMenu);
 		menu.addSeparator();
 		menu.addCommandItem(commandManager, resizeWindow);
 
@@ -493,7 +512,9 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		showHelp,
 		resizeWindow,
 		openPluginInstaller,
-		openDefaultConfigWindow
+		openDefaultConfigWindow,
+        setColorTheme1,
+        setColorTheme2
 	};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -608,6 +629,16 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			result.setInfo("HH:MM:SS", "Set clock mode to HH:MM:SS.", "General", 0);
 			result.setTicked(controlPanel->clock->getMode() == Clock::HHMMSS);
 			break;
+            
+        case setColorTheme1:
+            result.setInfo("Theme 1", "Set color theme 1.", "General", 0);
+            result.setTicked(getTheme() == ColorTheme::THEME1);
+            break;
+
+        case setColorTheme2:
+            result.setInfo("Theme 2", "Set color theme 2.", "General", 0);
+            result.setTicked(getTheme() == ColorTheme::THEME2);
+            break;
 
 		case openPluginInstaller:
 			result.setInfo("Plugin Installer", "Launch the plugin installer.", "General", 0);
@@ -849,6 +880,14 @@ bool UIComponent::perform(const InvocationInfo& info)
 		case setClockModeHHMMSS:
 			controlPanel->clock->setMode(Clock::HHMMSS);
 			break;
+            
+        case setColorTheme1:
+            setTheme(ColorTheme::THEME1);
+            break;
+
+        case setColorTheme2:
+            setTheme(ColorTheme::THEME2);
+            break;
 
 		case openPluginInstaller:
 			{
@@ -882,6 +921,7 @@ void UIComponent::saveStateToXml(XmlElement* xml)
 	XmlElement* uiComponentState = xml->createNewChildElement("UICOMPONENT");
 	uiComponentState->setAttribute("isProcessorListOpen",processorList->isOpen());
 	uiComponentState->setAttribute("isEditorViewportOpen",editorViewportButton->isOpen());
+    uiComponentState->setAttribute("colorTheme", (int) getTheme());
 }
 
 void UIComponent::loadStateFromXml(XmlElement* xml)
@@ -901,6 +941,8 @@ void UIComponent::loadStateFromXml(XmlElement* xml)
         {
             editorViewportButton->toggleState();
         }
+        
+        setTheme((ColorTheme) xmlNode->getIntAttribute("colorTheme", ColorTheme::THEME1));
 
 	}
 }

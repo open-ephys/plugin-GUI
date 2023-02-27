@@ -346,9 +346,9 @@ void DataStreamInfo::paint(Graphics& g)
 }
 
 
-DataStreamButton::DataStreamButton(Colour colour_, const DataStream* stream_, DataStreamInfo* info_)
+DataStreamButton::DataStreamButton(GenericEditor* editor_, const DataStream* stream_, DataStreamInfo* info_)
     : Button(stream_->getName())
-    , colour(colour_.withAlpha(0.5f))
+    , editor(editor_)
     , stream(stream_)
     , info(info_)
 {
@@ -378,7 +378,7 @@ void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
     g.setColour(Colours::lightgrey);
     g.fillRect(1, 0, 24, getHeight() - 1);
 
-    g.setColour(colour);
+    g.setColour(editor->getBackgroundColor().withAlpha(0.5f));
     g.fillRect(25, 0, getWidth() - 26, getHeight() - 1);
 
     g.setColour(Colour(30, 30, 30));
@@ -415,7 +415,7 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
             DataStreamInfo* info = new DataStreamInfo(stream);
             dataStreamPanel.addPanel(-1, info, true);
 
-            DataStreamButton* button = new DataStreamButton(editor->getBackgroundColor(), stream, info);
+            DataStreamButton* button = new DataStreamButton(editor, stream, info);
             button->addListener(this);
             dataStreamPanel.setCustomPanelHeader(info, button, true);
             dataStreamPanel.setMaximumPanelSize(info, 60);

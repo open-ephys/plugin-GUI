@@ -146,6 +146,10 @@ public:
 
     /** Load settings. */
     void loadStateFromXml(XmlElement*);
+    
+    ColorTheme getTheme();
+    
+    void setTheme(ColorTheme);
 
     StringArray getRecentlyUsedFilenames();
 
@@ -217,13 +221,17 @@ private:
         openDefaultConfigWindow = 0x2017,
         loadPluginSettings      = 0x3001,
         savePluginSettings      = 0x3002,
-        lockSignalChain         = 0x5001
+        lockSignalChain         = 0x5001,
+        setColorTheme1          = 0x6111,
+        setColorTheme2          = 0x6112
         
     };
 
     File currentConfigFile;
     
     bool messageCenterIsCollapsed = true;
+    
+    ColorTheme theme = THEME1;
     
     CustomLookAndFeel customLookAndFeel;
 

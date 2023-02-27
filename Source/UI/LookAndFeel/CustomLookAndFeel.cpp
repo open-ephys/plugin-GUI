@@ -100,11 +100,35 @@ CustomLookAndFeel::CustomLookAndFeel() :
     setColour(PopupMenu::highlightedBackgroundColourId, Colours::grey);
     setColour(PopupMenu::highlightedTextColourId, Colours::yellow);
     
-    setColour(Label::backgroundColourId, Colours::orangered);
+    setColour(Label::backgroundColourId, Colours::whitesmoke);
     
 }
 
 CustomLookAndFeel::~CustomLookAndFeel() {}
+
+void CustomLookAndFeel::setTheme(ColorTheme theme)
+{
+    if (theme == THEME1)
+    {
+        setColour(ProcessorColor::IDs::PROCESSOR_COLOR, Colour(59, 59, 59));
+        setColour(ProcessorColor::IDs::FILTER_COLOR, Colour(0, 174, 239));
+        setColour(ProcessorColor::IDs::SINK_COLOR, Colour(0, 166, 81));
+        setColour(ProcessorColor::IDs::SOURCE_COLOR, Colour(241, 90, 41));
+        setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(147, 149, 152));
+        setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(255, 0, 0));
+        setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(0,0,0));
+    }
+    else if (theme == THEME2)
+    {
+        setColour(ProcessorColor::IDs::PROCESSOR_COLOR, Colour(21, 21, 21));
+        setColour(ProcessorColor::IDs::FILTER_COLOR, Colour(21, 21, 21));
+        setColour(ProcessorColor::IDs::SINK_COLOR, Colour(21, 21, 21));
+        setColour(ProcessorColor::IDs::SOURCE_COLOR, Colour(21, 21, 21));
+        setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(21, 21, 21));
+        setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(21, 21, 21));
+        setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(21, 21, 21));
+    }
+}
 
 //==============================================================================
 // FONT/TYPEFACE METHODS :
@@ -536,7 +560,7 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
     auto cornerSize = box.findParentComponentOfClass<ChoicePropertyComponent>() != nullptr ? 0.0f : 3.0f;
     Rectangle<int> boxBounds (0, 0, width, height);
 
-    g.setColour (Colours::lightgrey);
+    g.setColour (Colours::darkcyan);
     g.fillRoundedRectangle (boxBounds.toFloat(), cornerSize);
 
     if (box.isPopupActive() || box.hasKeyboardFocus(false))

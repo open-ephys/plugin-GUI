@@ -1812,8 +1812,9 @@ void ProcessorGraph::loadFromXml(XmlElement* xml)
     {
         MouseCursor::showWaitCursor();
 
-        AccessClass::getProcessorList()->loadStateFromXml(xml); // load the processor list settings
-        AccessClass::getUIComponent()->loadStateFromXml(xml);   // load the UI settings
+        AccessClass::getUIComponent()->loadStateFromXml(xml);   // load the UI settings first
+        AccessClass::getProcessorList()->loadStateFromXml(xml); // load the processor list settings (may override theme colors)
+        
     }
     
     clearSignalChain();

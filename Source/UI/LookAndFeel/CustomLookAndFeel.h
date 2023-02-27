@@ -39,6 +39,12 @@ namespace ProcessorColor {
     };
 }
 
+enum ColorTheme
+{
+    THEME1,
+    THEME2
+};
+
 /**
 
    Used to modify the appearance of the application.
@@ -59,6 +65,9 @@ public:
 
     /** Destructor */
     ~CustomLookAndFeel();
+    
+    /** Set color theme*/
+    void setTheme(ColorTheme theme);
 
     // ======== custom typeface getter: =============================
     Typeface::Ptr getTypefaceForFont(const Font& font);
