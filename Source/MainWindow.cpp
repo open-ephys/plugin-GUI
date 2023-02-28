@@ -28,16 +28,21 @@
 #include <stdio.h>
 
 
+MainDocumentWindow::MainDocumentWindow()
+    : DocumentWindow(JUCEApplication::getInstance()->getApplicationName(),
+                     Colour(Colours::black),
+                     DocumentWindow::allButtons)
+{
+    
+}
+
 MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
     isConsoleApp(isConsoleApp_)
 {
     
     if (!isConsoleApp)
     {
-        documentWindow = std::make_unique<DocumentWindow>(
-                JUCEApplication::getInstance()->getApplicationName(),
-                Colour(Colours::black),
-                DocumentWindow::allButtons);
+        documentWindow = std::make_unique<MainDocumentWindow>();
         
         documentWindow->setResizable(true,      // isResizable
                                      false);   // useBottomCornerRisizer -- doesn't work very well
@@ -241,7 +246,7 @@ void MainWindow::disableHttpServer() {
     http_server_thread->stop();
 }
 
-void MainWindow::closeButtonPressed()
+void MainDocumentWindow::closeButtonPressed()
 {
 
 	JUCEApplication::getInstance()->systemRequestedQuit();

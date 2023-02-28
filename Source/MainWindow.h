@@ -36,6 +36,24 @@
 class OpenEphysHttpServer;
 
 /**
+    Custom DocumentWindow class
+ */
+class MainDocumentWindow : public DocumentWindow
+{
+public:
+    
+    /** Constructor */
+    MainDocumentWindow();
+    
+    /** Destructor */
+    virtual ~MainDocumentWindow() { }
+    
+    /** Called when the user hits the close button of the MainWindow. This destroys
+        the MainWindow and closes the application. */
+    void closeButtonPressed();
+};
+
+/**
   The main window for the GUI application.
 
   This object creates and destroys the AudioComponent, the ProcessorGraph,
@@ -55,10 +73,6 @@ public:
 
     /** Destroys the AudioComponent, ProcessorGraph, and UIComponent, and saves the window boundaries. */
     ~MainWindow();
-
-    /** Called when the user hits the close button of the MainWindow. This destroys
-        the MainWindow and closes the application. */
-    void closeButtonPressed();
 
     /** A JUCE class that allows the MainWindow to respond to keyboard and menubar
         commands. */
@@ -111,7 +125,7 @@ private:
     File configsDir;
 
     /** A pointer to the DocumentWindow (only instantiated if running in GUI mode). */
-    std::unique_ptr<DocumentWindow> documentWindow;
+    std::unique_ptr<MainDocumentWindow> documentWindow;
     
     /** A pointer to the application's AudioComponent (owned by the MainWindow). */
     std::unique_ptr<AudioComponent> audioComponent;
