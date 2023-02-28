@@ -382,6 +382,8 @@ void UIComponent::setTheme(ColorTheme t)
     
     repaint();
     
+    controlPanel->updateColors();
+    
     getProcessorGraph()->refreshColors();
 }
 

@@ -43,6 +43,8 @@ namespace ThemeColors {
     enum Colors
     {
         controlPanelBackgroundColorId,
+        controlPanelButtonColorId,
+        controlPanelButtonOnColorId,
         graphViewerBackgroundColorId,
         editorGradientColorId1,
         editorGradientColorId2,
@@ -102,7 +104,13 @@ public:
                        int thumbSize,
                        bool isMouseOver,
                        bool isMouseDown);
+    
+    // ======== custom tooltip methods: ============================
+    Rectangle<int> getTooltipBounds(const String &tipText, Point<int> screenPos, Rectangle<int> parentArea) override;
+    
+    void drawTooltip(Graphics &, const String &text, int width, int height) override;
 
+    TextLayout layoutTooltipText(const String& text, Colour colour);
 
     // ======== custom slider methods: =============================
 

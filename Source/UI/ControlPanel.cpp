@@ -36,9 +36,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
 //const int SIZE_AUDIO_EDITOR_MIN_WIDTH = 250;
 
-#define defaultButtonColour Colour(180,180,180)
-
-
 FilenameEditorButton::FilenameEditorButton()
     : TextButton("Filename Editor")
 {
@@ -46,58 +43,79 @@ FilenameEditorButton::FilenameEditorButton()
 }
 
 PlayButton::PlayButton()
-    : DrawableButton("Play Button", DrawableButton::ImageFitted)
+    : DrawableButton("Play Button", DrawableButton::ImageRaw)
 {
 
-    DrawablePath normal, over, down;
-
-    Path p;
-    p.addTriangle(0.0f, 0.0f, 0.0f, 20.0f, 18.0f, 10.0f);
-    normal.setPath(p);
-    normal.setFill(defaultButtonColour);
-    normal.setStrokeThickness(0.0f);
-
-    over.setPath(p);
-    over.setFill(Colours::black);
-    over.setStrokeThickness(2.0f);
-    over.setStrokeFill(Colours::black);
-
-    down.setPath(p);
-    down.setFill(Colours::pink);
-    down.setStrokeFill(Colours::pink);
-    down.setStrokeThickness(5.0f);
-
-    setImages(&normal, &over, &over);
+    
     setColour(DrawableButton::backgroundColourId, Colours::darkgrey.withAlpha(0.0f));
     setColour(DrawableButton::backgroundOnColourId, Colours::darkgrey.withAlpha(0.0f));
     setClickingTogglesState(true);
     setTooltip("Start/stop acquisition");
+    
+    updateImages();
 }
 
-RecordButton::RecordButton()
-    : DrawableButton("Record Button", DrawableButton::ImageFitted)
+void PlayButton::updateImages()
 {
-
     DrawablePath normal, over, down;
 
     Path p;
-    p.addEllipse(0.0,0.0,20.0,20.0);
+    p.addTriangle(0.0f, 0.0f, 0.0f, 20.0f, 18.0f, 10.0f);
+    p.applyTransform(AffineTransform::scale(0.8f));
+    p.applyTransform(AffineTransform::translation(2,2));
     normal.setPath(p);
-    normal.setFill(defaultButtonColour);
+    normal.setFill(findColour(ThemeColors::controlPanelButtonColorId));
     normal.setStrokeThickness(0.0f);
 
     over.setPath(p);
-    over.setFill(Colours::black);
-    over.setStrokeFill(Colours::black);
-    over.setStrokeThickness(5.0f);
+    over.setFill(findColour(ThemeColors::controlPanelButtonColorId));
+    over.setStrokeThickness(2.0f);
+    over.setStrokeFill(findColour(ThemeColors::controlPanelButtonColorId));
+    
+    down.setPath(p);
+    down.setFill(Colours::white);
+    down.setStrokeThickness(2.0f);
+    down.setStrokeFill(Colours::white);
 
-    setImages(&normal, &over, &over);
+    setImages(&normal, &over, &down);
+}
+
+RecordButton::RecordButton()
+    : DrawableButton("Record Button", DrawableButton::ImageRaw)
+{
+
     setColour(DrawableButton::backgroundColourId, Colours::darkgrey.withAlpha(0.0f));
     setColour(DrawableButton::backgroundOnColourId, Colours::darkgrey.withAlpha(0.0f));
     setClickingTogglesState(true);
     setTooltip("Start/stop writing to disk");
+    
+    updateImages();
 }
 
+void RecordButton::updateImages()
+{
+    DrawablePath normal, over, down;
+
+    Path p;
+    p.addEllipse(0.0,0.0,20.0,20.0);
+    p.applyTransform(AffineTransform::scale(0.8f));
+    p.applyTransform(AffineTransform::translation(2,2));
+    normal.setPath(p);
+    normal.setFill(findColour(ThemeColors::controlPanelButtonColorId));
+    normal.setStrokeThickness(0.0f);
+
+    over.setPath(p);
+    over.setFill(findColour(ThemeColors::controlPanelButtonColorId));
+    over.setStrokeThickness(2.0f);
+    over.setStrokeFill(findColour(ThemeColors::controlPanelButtonColorId));
+    
+    down.setPath(p);
+    down.setFill(Colours::white);
+    down.setStrokeThickness(2.0f);
+    down.setStrokeFill(Colours::white);
+
+    setImages(&normal, &over, &down);
+}
 
 CPUMeter::CPUMeter() : Label("CPU Meter","0.0"), cpu(0.0f)
 {
@@ -307,6 +325,7 @@ void Clock::mouseDown(const MouseEvent& e)
 	if (e.mods.isRightButtonDown())
 	{
 		PopupMenu m;
+        m.setLookAndFeel(&getLookAndFeel());
         
         m.addItem(1, "Clock mode", false);
         m.addSeparator();
@@ -344,7 +363,7 @@ ControlPanelButton::ControlPanelButton(ControlPanel* cp_)
 void ControlPanelButton::paint(Graphics& g)
 {
     
-    g.setColour(defaultButtonColour);
+    g.setColour(findColour(ThemeColors::controlPanelButtonColorId));
 
     PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);
 
@@ -531,8 +550,10 @@ void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
 
             if (!isConsoleApp)
             {
-                playButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
-                
+                playButton->getNormalImage()->replaceColour(findColour(ThemeColors::controlPanelButtonColorId), findColour(ThemeColors::controlPanelButtonOnColorId));
+                playButton->getOverImage()->replaceColour(findColour(ThemeColors::controlPanelButtonColorId),
+                                                          findColour(ThemeColors::controlPanelButtonOnColorId));
+  
                 audioEditor->disable();
                 
                 clock->start(); // starts the clock
@@ -562,7 +583,8 @@ void ControlPanel::stopAcquisition()
 
     if (!isConsoleApp)
     {
-        playButton->getNormalImage()->replaceColour(Colours::yellow, defaultButtonColour);
+        playButton->getNormalImage()->replaceColour(findColour(ThemeColors::controlPanelButtonOnColorId), findColour(ThemeColors::controlPanelButtonColorId));
+        playButton->getOverImage()->replaceColour(findColour(ThemeColors::controlPanelButtonOnColorId), findColour(ThemeColors::controlPanelButtonColorId));
         
         refreshMeters();
 
@@ -875,7 +897,8 @@ void ControlPanel::startRecording()
 
     filenameText->setColour(Label::textColourId, Colours::black);
     
-    recordButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
+    recordButton->getNormalImage()->replaceColour(findColour(ThemeColors::controlPanelButtonColorId), findColour(ThemeColors::controlPanelButtonOnColorId));
+    recordButton->getOverImage()->replaceColour(findColour(ThemeColors::controlPanelButtonColorId), findColour(ThemeColors::controlPanelButtonOnColorId));
 
     if (!newDirectoryButton->getEnabledState()) // new directory is required
     {
@@ -908,7 +931,8 @@ void ControlPanel::stopRecording()
     clock->stopRecording();
     newDirectoryButton->setEnabledState(true);
 
-    recordButton->getNormalImage()->replaceColour(Colours::yellow, defaultButtonColour);
+    recordButton->getNormalImage()->replaceColour(findColour(ThemeColors::controlPanelButtonOnColorId), findColour(ThemeColors::controlPanelButtonColorId));
+    recordButton->getOverImage()->replaceColour(findColour(ThemeColors::controlPanelButtonOnColorId), findColour(ThemeColors::controlPanelButtonColorId));
 
     recordButton->setToggleState(false, dontSendNotification);
 
@@ -930,6 +954,12 @@ void ControlPanel::componentBeingDeleted(Component &component)
 	component.removeComponentListener(this);
 }
 
+void ControlPanel::updateColors()
+{
+    playButton->updateImages();
+    recordButton->updateImages();
+}
+
 void ControlPanel::buttonClicked(Button* button)
 {
 
@@ -938,6 +968,7 @@ void ControlPanel::buttonClicked(Button* button)
 
         filenameConfigWindow.reset();
         filenameConfigWindow = std::make_unique<FilenameConfigWindow>(filenameFields);
+        filenameConfigWindow->setLookAndFeel(&getLookAndFeel());
 
         CallOutBox& myBox
             = CallOutBox::launchAsynchronously(std::move(filenameConfigWindow), 

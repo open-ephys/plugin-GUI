@@ -755,7 +755,7 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     return;
 
                 PopupMenu m;
-                
+                m.setLookAndFeel(&getLookAndFeel());
                 
                 if (editorArray[i]->getCollapsedState())
                     m.addItem(3, "Uncollapse", true);
@@ -783,7 +783,7 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                 m.addItem(6, "Save image...", true);
 
 
-                const int result = m.show();
+                const int result = m.showMenu(PopupMenu::Options{}.withStandardItemHeight(20));
 
                 if (result == 1)
                 {
