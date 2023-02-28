@@ -1040,6 +1040,17 @@ void GenericEditor::updateView()
     }
 }
 
+ParameterEditor* GenericEditor::getParameterEditor(const String& parameterName)
+{
+    for (auto e : parameterEditors)
+    {
+        if (e->getParameterName().equalsIgnoreCase(parameterName))
+            return e;
+    }
+    
+    return nullptr;
+}
+
 void GenericEditor::updateCustomView() {}
 
 void GenericEditor::updateVisualizer() {}

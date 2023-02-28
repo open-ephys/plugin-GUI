@@ -95,9 +95,24 @@ public:
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
-
-    /** Sets sub-component locations */
-    virtual void resized() override;
+    
+    /** Returns a pointer to the parameter name label, for customization */
+    Label* getParameterNameLabel() { return parameterNameLabel.get(); }
+    
+    /** Returns a pointer to the value label, for customization */
+    Label* getValueLabel() { return valueTextBox.get(); }
+    
+    /** Used to specify layout */
+    enum Layout {
+        nameOnTop,
+        nameOnBottom,
+        nameOnLeft,
+        nameOnRight,
+        nameHidden
+    };
+    
+    /** Sets the layout for this editor */
+    void setLayout(Layout layout);
 
 private:
     std::unique_ptr<Label> parameterNameLabel;
