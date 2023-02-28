@@ -215,6 +215,7 @@ void AudioEditor::buttonClicked (Button* button)
             }
 
             AccessClass::getAudioComponent()->restartDevice();
+            audioConfigurationWindow->setLookAndFeel(&getLookAndFeel());
             audioConfigurationWindow->setVisible (true);
         }
         else
@@ -296,7 +297,7 @@ AudioConfigurationWindow::AudioConfigurationWindow (AudioDeviceManager& adm, Aud
     AudioDeviceSelectorComponent* adsc = new AudioDeviceSelectorComponent
         (adm,
          0, // minAudioInputChannels
-         2, // maxAudioInputChannels
+         0, // maxAudioInputChannels
          0, // minAudioOutputChannels
          2, // maxAudioOutputChannels
          false, // showMidiInputOptions
@@ -305,6 +306,7 @@ AudioConfigurationWindow::AudioConfigurationWindow (AudioDeviceManager& adm, Aud
          false); // hideAdvancedOptionsWithButton
 
     adsc->setBounds (0, 0, 450, 440);
+    adsc->setItemHeight(20);
 
     setContentOwned (adsc, true);
     setVisible (false);
@@ -328,5 +330,5 @@ void AudioConfigurationWindow::resized()
 
 void AudioConfigurationWindow::paint (Graphics& g)
 {
-    g.fillAll (Colours::darkgrey);
+    g.fillAll (findColour(ThemeColors::controlPanelBackgroundColorId));
 }

@@ -107,6 +107,7 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(0,0,0));
         
         setColour(Label::backgroundColourId, Colours::whitesmoke.withAlpha(0.0f));
+        setColour(TextEditor::highlightColourId, Colours::whitesmoke);
         setColour(ScrollBar::thumbColourId, Colours::darkgrey);
         
         setColour(ComboBox::backgroundColourId, Colours::lightgrey);
@@ -144,6 +145,7 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(21, 21, 21));
         
         setColour(Label::backgroundColourId, Colours::whitesmoke);
+        setColour(TextEditor::highlightColourId, Colours::salmon.withAlpha(0.2f));
         setColour(ScrollBar::thumbColourId, Colours::whitesmoke.withAlpha(0.25f));
         
         setColour(ComboBox::backgroundColourId, Colours::lightseagreen);

@@ -501,7 +501,7 @@ private:
     std::unique_ptr<DiskSpaceMeter> diskMeter;
     std::unique_ptr<FilenameComponent> filenameComponent;
     std::unique_ptr<UtilityButton> newDirectoryButton;
-    std::unique_ptr<ControlPanelButton> cpb;
+    std::unique_ptr<ControlPanelButton> controlPanelButton;
     std::unique_ptr<RecordButton> recordButton;
     std::unique_ptr<ComboBox> recordSelector;
 

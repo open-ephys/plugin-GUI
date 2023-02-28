@@ -332,7 +332,7 @@ void Clock::mouseDown(const MouseEvent& e)
 		m.addItem(2, "Default", true, mode == DEFAULT);
 		m.addItem(3, "HH:MM:SS", true, mode == HHMMSS);
 
-		int result = m.show();
+        int result = m.showMenu(PopupMenu::Options{}.withStandardItemHeight(20));
 
 		if (result == 2)
 		{
@@ -349,13 +349,10 @@ ControlPanelButton::ControlPanelButton(ControlPanel* cp_)
     : cp(cp_),
       open(false)
 {
-    openPath.addTriangle(10.f, 14.398f,
-                         4.f, 4.f,
-                         16.f, 4.f);
-    
-    closedPath = Path(openPath);
-    openPath.applyTransform(AffineTransform::translation(4,4));
-    closedPath.applyTransform(AffineTransform::rotation(MathConstants<float>::pi/2, 10.f, 10.f));
+    openPath.addTriangle(2.2f, 3.0f, 7.8f, 3.0f,  5.0f, 8.5f );
+    openPath.applyTransform(AffineTransform::scale(2.2f, 2.2f));
+    closedPath.addTriangle(1.5f, 5.0f, 7.0f, 2.2f, 7.0f, 7.8f);
+    closedPath.applyTransform(AffineTransform::scale(2.2f, 2.2f));
 
     setTooltip("Show/hide recording options");
 }
@@ -363,14 +360,19 @@ ControlPanelButton::ControlPanelButton(ControlPanel* cp_)
 void ControlPanelButton::paint(Graphics& g)
 {
     
-    g.setColour(findColour(ThemeColors::controlPanelButtonColorId));
-
-    PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);
-
     if (open)
-        g.strokePath(openPath, pst);
+        g.setColour(findColour(ThemeColors::controlPanelButtonColorId).withAlpha(0.5f));
     else
-        g.strokePath(closedPath, pst);
+        g.setColour(findColour(ThemeColors::controlPanelButtonColorId).withAlpha(0.2f));
+    
+    g.fillEllipse(0, 0, getWidth(), getHeight());
+
+    g.setColour(findColour(ThemeColors::controlPanelBackgroundColorId));
+    
+    if (open)
+        g.fillPath(openPath);
+    else
+        g.fillPath(closedPath);
 }
 
 
@@ -448,7 +450,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_, bool 
     clock = std::make_unique<Clock>();
     cpuMeter = std::make_unique<CPUMeter>();
     diskMeter = std::make_unique<DiskSpaceMeter>();
-    cpb = std::make_unique<ControlPanelButton>(this);
+    controlPanelButton = std::make_unique<ControlPanelButton>(this);
     filenameConfigWindow = std::make_unique<FilenameConfigWindow>(filenameFields);
     
     if (!isConsoleApp)
@@ -463,7 +465,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_, bool 
         addAndMakeVisible(clock.get());
         addAndMakeVisible(cpuMeter.get());
         addAndMakeVisible(diskMeter.get());
-        addAndMakeVisible(cpb.get());
+        addAndMakeVisible(controlPanelButton.get());
         addAndMakeVisible(filenameText.get());
 
         refreshMeters();
@@ -830,9 +832,9 @@ void ControlPanel::resized()
 
 
     if (open)
-        cpb->setBounds (w - 28, getHeight() - 5 - h * 2 + 10, h - 10, h - 10);
+        controlPanelButton->setBounds (w - 28, getHeight() - 5 - h * 2 + 10, h - 10, h - 10);
     else
-        cpb->setBounds (w - 28, getHeight() - 5 - h + 10, h - 10, h - 10);
+        controlPanelButton->setBounds (w - 28, getHeight() - 5 - h + 10, h - 10, h - 10);
 
     createPaths();
 
@@ -872,7 +874,7 @@ void ControlPanel::openState(bool os)
 {
     open = os;
 
-    cpb->setState(os);
+    controlPanelButton->setState(os);
 
     if (!isConsoleApp)
         AccessClass::getUIComponent()->childComponentChanged();
@@ -1164,7 +1166,7 @@ void ControlPanel::toggleState()
 {
     open = !open;
 
-    cpb->toggleState();
+    controlPanelButton->toggleState();
     AccessClass::getUIComponent()->childComponentChanged();
 }
 
