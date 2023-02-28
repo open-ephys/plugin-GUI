@@ -22,7 +22,7 @@
  */
 
 #include "UIComponent.h"
-#include "../Processors/PluginManager/PluginManager.h"
+
 #include <stdio.h>
 
 #include "InfoLabel.h"
@@ -31,23 +31,25 @@
 #include "EditorViewport.h"
 #include "MessageCenterButton.h"
 #include "DataViewport.h"
-#include "../Processors/MessageCenter/MessageCenterEditor.h"
 #include "GraphViewer.h"
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../Audio/AudioComponent.h"
 #include "../MainWindow.h"
 
-	UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_)
-: mainWindow(mainWindow_), processorGraph(pgraph), audio(audio_), messageCenterIsCollapsed(true)
-
+UIComponent::UIComponent(MainWindow* mainWindow_,
+                         ProcessorGraph* processorGraph_,
+                         AudioComponent* audioComponent_,
+                         ControlPanel* controlPanel_)
+: mainWindow(mainWindow_),
+  processorGraph(processorGraph_),
+  audio(audioComponent_),
+  controlPanel(controlPanel_)
 {
-
-	processorGraph->createDefaultNodes();
-
+    
+    setLookAndFeel(&customLookAndFeel);
+    
 	messageCenterEditor = (MessageCenterEditor*) processorGraph->getMessageCenter()->createEditor();
-	addActionListener(messageCenterEditor);
-	
-	LOGD("Created message center.");
+	LOGD("Created message center editor.");
 
 	infoLabel = new InfoLabel();
 	LOGD("Created info label.");
@@ -66,14 +68,12 @@
     addAndMakeVisible(signalChainTabComponent);
     
 	editorViewport = new EditorViewport(signalChainTabComponent);
-	//addAndMakeVisible(editorViewport);
-    
+
 	LOGD("Created editor viewport.");
 
 	editorViewportButton = new EditorViewportButton(this);
 	addAndMakeVisible(editorViewportButton);
 
-	controlPanel = new ControlPanel(processorGraph, audio);
 	addAndMakeVisible(controlPanel);
     
 	LOGD("Created control panel.");
@@ -91,28 +91,11 @@
 	processorList->setBounds(0,0,195,processorList->getTotalHeight());
 	LOGD("Created filter list.");
 
-	pluginManager = new PluginManager();
-	LOGD("Created plugin manager");
-
 	setBounds(0,0,500,400);
 
 	AccessClass::setUIComponent(this);
 
-	getPluginManager()->loadAllPlugins();
-
 	getProcessorList()->fillItemList();
-	controlPanel->updateRecordEngineList();
-
-	processorGraph->updateBufferSize(); // needs to happen after processorGraph gets the right pointers
-
-#if JUCE_MAC
-	MenuBarModel::setMacMainMenu(this);
-	mainWindow->setMenuBar(0);
-#else
-	mainWindow->setMenuBar(this);
-	mainWindow->getMenuBarComponent()->setName("MainMenu");
-#endif
-
 }
 
 UIComponent::~UIComponent()
@@ -124,8 +107,8 @@ UIComponent::~UIComponent()
 		pluginInstaller->setVisible(false);
 		delete pluginInstaller;
 	}
-
-	AccessClass::shutdownBroadcaster();
+    
+    setLookAndFeel(nullptr);
 }
 
 /** Returns a pointer to the EditorViewport. */
@@ -165,11 +148,6 @@ ControlPanel* UIComponent::getControlPanel()
 	return controlPanel;
 }
 
-/** Returns a pointer to the MessageCenterEditor. */
-MessageCenterEditor* UIComponent::getMessageCenter()
-{
-	return messageCenterEditor;
-}
 
 /** Returns a pointer to the UIComponent. */
 UIComponent* UIComponent::getUIComponent()
@@ -181,11 +159,6 @@ UIComponent* UIComponent::getUIComponent()
 AudioComponent* UIComponent::getAudioComponent()
 {
 	return audio;
-}
-
-PluginManager* UIComponent::getPluginManager()
-{
-	return pluginManager;
 }
 
 PluginInstaller* UIComponent::getPluginInstaller()
@@ -401,8 +374,23 @@ void UIComponent::childComponentChanged()
 	resized();
 }
 
+void UIComponent::setTheme(ColorTheme t)
+{
+    customLookAndFeel.setTheme(t);
+    
+    theme = t;
+    
+    repaint();
+    
+    controlPanel->updateColors();
+    
+    getProcessorGraph()->refreshColors();
+}
 
-
+ColorTheme UIComponent::getTheme()
+{
+    return theme;
+}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -463,12 +451,18 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 		PopupMenu clockMenu;
 		clockMenu.addCommandItem(commandManager, setClockModeDefault);
 		clockMenu.addCommandItem(commandManager, setClockModeHHMMSS);
+        
+        PopupMenu themeMenu;
+        themeMenu.addCommandItem(commandManager, setColorTheme1);
+        themeMenu.addCommandItem(commandManager, setColorTheme2);
 
 		menu.addCommandItem(commandManager, toggleProcessorList);
 		menu.addCommandItem(commandManager, toggleSignalChain);
 		menu.addCommandItem(commandManager, toggleFileInfo);
 		menu.addSeparator();
 		menu.addSubMenu("Clock mode", clockMenu);
+        menu.addSeparator();
+        menu.addSubMenu("Theme", themeMenu);
 		menu.addSeparator();
 		menu.addCommandItem(commandManager, resizeWindow);
 
@@ -520,7 +514,9 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		showHelp,
 		resizeWindow,
 		openPluginInstaller,
-		openDefaultConfigWindow
+		openDefaultConfigWindow,
+        setColorTheme1,
+        setColorTheme2
 	};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -635,6 +631,16 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			result.setInfo("HH:MM:SS", "Set clock mode to HH:MM:SS.", "General", 0);
 			result.setTicked(controlPanel->clock->getMode() == Clock::HHMMSS);
 			break;
+            
+        case setColorTheme1:
+            result.setInfo("Theme 1", "Set color theme 1.", "General", 0);
+            result.setTicked(getTheme() == ColorTheme::THEME1);
+            break;
+
+        case setColorTheme2:
+            result.setInfo("Theme 2", "Set color theme 2.", "General", 0);
+            result.setTicked(getTheme() == ColorTheme::THEME2);
+            break;
 
 		case openPluginInstaller:
 			result.setInfo("Plugin Installer", "Launch the plugin installer.", "General", 0);
@@ -876,6 +882,14 @@ bool UIComponent::perform(const InvocationInfo& info)
 		case setClockModeHHMMSS:
 			controlPanel->clock->setMode(Clock::HHMMSS);
 			break;
+            
+        case setColorTheme1:
+            setTheme(ColorTheme::THEME1);
+            break;
+
+        case setColorTheme2:
+            setTheme(ColorTheme::THEME2);
+            break;
 
 		case openPluginInstaller:
 			{
@@ -909,6 +923,7 @@ void UIComponent::saveStateToXml(XmlElement* xml)
 	XmlElement* uiComponentState = xml->createNewChildElement("UICOMPONENT");
 	uiComponentState->setAttribute("isProcessorListOpen",processorList->isOpen());
 	uiComponentState->setAttribute("isEditorViewportOpen",editorViewportButton->isOpen());
+    uiComponentState->setAttribute("colorTheme", (int) getTheme());
 }
 
 void UIComponent::loadStateFromXml(XmlElement* xml)
@@ -928,16 +943,18 @@ void UIComponent::loadStateFromXml(XmlElement* xml)
         {
             editorViewportButton->toggleState();
         }
+        
+        setTheme((ColorTheme) xmlNode->getIntAttribute("colorTheme", ColorTheme::THEME1));
 
 	}
 }
 
-StringArray UIComponent::getRecentlyUsedFilenames()
+Array<String> UIComponent::getRecentlyUsedFilenames()
 {
 	return controlPanel->getRecentlyUsedFilenames();
 }
 
-void UIComponent::setRecentlyUsedFilenames(const StringArray& filenames)
+void UIComponent::setRecentlyUsedFilenames(const Array<String>& filenames)
 {
 	controlPanel->setRecentlyUsedFilenames(filenames);
 }

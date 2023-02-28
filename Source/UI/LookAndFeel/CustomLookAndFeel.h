@@ -26,6 +26,38 @@
 
 #include <JuceHeader.h>
 
+namespace ProcessorColor {
+    enum IDs
+    {
+        PROCESSOR_COLOR = 801,
+        FILTER_COLOR = 802,
+        SINK_COLOR = 803,
+        SOURCE_COLOR = 804,
+        UTILITY_COLOR = 805,
+        RECORD_COLOR = 806,
+        AUDIO_COLOR = 807
+    };
+}
+
+namespace ThemeColors {
+    enum Colors
+    {
+        controlPanelBackgroundColorId,
+        controlPanelButtonColorId,
+        controlPanelButtonOnColorId,
+        graphViewerBackgroundColorId,
+        editorGradientColorId1,
+        editorGradientColorId2,
+        editorGradientColorId3
+    };
+}
+
+enum ColorTheme
+{
+    THEME1,
+    THEME2
+};
+
 /**
 
    Used to modify the appearance of the application.
@@ -46,6 +78,9 @@ public:
 
     /** Destructor */
     ~CustomLookAndFeel();
+    
+    /** Set color theme*/
+    void setTheme(ColorTheme theme);
 
     // ======== custom typeface getter: =============================
     Typeface::Ptr getTypefaceForFont(const Font& font);
@@ -69,7 +104,13 @@ public:
                        int thumbSize,
                        bool isMouseOver,
                        bool isMouseDown);
+    
+    // ======== custom tooltip methods: ============================
+    Rectangle<int> getTooltipBounds(const String &tipText, Point<int> screenPos, Rectangle<int> parentArea) override;
+    
+    void drawTooltip(Graphics &, const String &text, int width, int height) override;
 
+    TextLayout layoutTooltipText(const String& text, Colour colour);
 
     // ======== custom slider methods: =============================
 

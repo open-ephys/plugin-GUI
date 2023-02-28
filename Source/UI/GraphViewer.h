@@ -70,7 +70,7 @@ class DataStreamButton : public Button
 public:
 
     /** Constructor */
-    DataStreamButton(Colour colour, const DataStream* stream, DataStreamInfo* info);
+    DataStreamButton(GenericEditor* editor, const DataStream* stream, DataStreamInfo* info);
 
     /** Destructor */
     ~DataStreamButton();
@@ -86,7 +86,7 @@ private:
     DataStreamInfo* info;
     Path pathOpen;
     Path pathClosed;
-    Colour colour;
+    GenericEditor* editor;
 
 };
 

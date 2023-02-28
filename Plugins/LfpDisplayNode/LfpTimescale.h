@@ -88,7 +88,7 @@ private:
 
     Font font;
 
-    StringArray labels;
+    Array<String> labels;
     Array<bool> isMajor;
     Array<float> fractionWidth;
 

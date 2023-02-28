@@ -328,6 +328,7 @@ void EditorViewport::updateVisibleEditors(Array<GenericEditor*> visibleEditors,
         editorArray.add(editor);
         addChildComponent(editor);
         editor->setVisible(true);
+        editor->refreshColors();
     }
         
     refreshEditors();
@@ -577,7 +578,7 @@ void EditorViewport::copySelectedEditors()
         for (auto editor : editorArray)
         {
             if (editor->getSelectionState())
-                copyInfo.add( createNodeXml(editor->getProcessor(), false) );
+                copyInfo.add( AccessClass::getProcessorGraph()->createNodeXml(editor->getProcessor(), false) );
         }
 
         if (copyInfo.size() > 0)
@@ -754,7 +755,7 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     return;
 
                 PopupMenu m;
-                
+                m.setLookAndFeel(&getLookAndFeel());
                 
                 if (editorArray[i]->getCollapsedState())
                     m.addItem(3, "Uncollapse", true);
@@ -782,7 +783,7 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                 m.addItem(6, "Save image...", true);
 
 
-                const int result = m.show();
+                const int result = m.showMenu(PopupMenu::Options{}.withStandardItemHeight(20));
 
                 if (result == 1)
                 {
@@ -1300,43 +1301,6 @@ void SignalChainTabComponent::buttonClicked(Button* button)
 
 // LOADING AND SAVING
 
-XmlElement* EditorViewport::createNodeXml(GenericProcessor* processor, bool isStartOfSignalChain)
-{
-
-    XmlElement* xml = new XmlElement("PROCESSOR");
-
-    xml->setAttribute("name", processor->getEditor()->getName());
-
-    if (isStartOfSignalChain)
-        xml->setAttribute("insertionPoint", 0);
-    else
-        xml->setAttribute("insertionPoint", 1);
-	xml->setAttribute("pluginName", processor->getName());
-	xml->setAttribute("type", (int)(processor->getPluginType()));
-	xml->setAttribute("index", processor->getIndex());
-	xml->setAttribute("libraryName", processor->getLibName());
-    xml->setAttribute("libraryVersion", processor->getLibVersion());
-    xml->setAttribute("processorType", (int) processor->getProcessorType());
-
-    /**Saves individual processor parameters to XML */
-    processor->saveToXml(xml);
-
-    return xml;
-
-}
-
-
-XmlElement* EditorViewport::switchNodeXml(GenericProcessor* processor)
-{
-
-    XmlElement* e = new XmlElement("SWITCH");
-
-    e->setAttribute("number", processor->saveOrder);
-
-    return e;
-
-}
-
 const String EditorViewport::saveState(File fileToUse, String& xmlText)
 {
 	return saveState(fileToUse, &xmlText);
@@ -1349,7 +1313,9 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
 
     currentFile = fileToUse;
     
-    std::unique_ptr<XmlElement> xml = createSettingsXml();
+    std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
+    
+    AccessClass::getProcessorGraph()->saveToXml(xml.get());
 
     if (! xml->writeTo(currentFile))
         error = "Couldn't write to file ";
@@ -1363,107 +1329,9 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
     return error;
     
 }
-    
-std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
+
+void EditorViewport::saveEditorViewportSettingsToXml(XmlElement* xml)
 {
-    
-    Array<GenericProcessor*> splitPoints;
-    Array<GenericProcessor*> allSplitters;
-    Array<int> splitterStates;
-    /** Used to reset saveOrder at end, to allow saving the same processor multiple times*/
-    Array<GenericProcessor*> allProcessors;
-
-    int saveOrder = 0;
-    
-    std::unique_ptr<XmlElement> xml = std::unique_ptr<XmlElement>(new XmlElement("SETTINGS"));
-
-    XmlElement* info = xml->createNewChildElement("INFO");
-
-    XmlElement* version = info->createNewChildElement("VERSION");
-    version->addTextElement(JUCEApplication::getInstance()->getApplicationVersion());
-
-	XmlElement* pluginAPIVersion = info->createNewChildElement("PLUGIN_API_VERSION");
-	pluginAPIVersion->addTextElement(String(PLUGIN_API_VER));
-
-    Time currentTime = Time::getCurrentTime();
-
-    info->createNewChildElement("DATE")->addTextElement(currentTime.toString(true, true, true, true));
-    info->createNewChildElement("OS")->addTextElement(SystemStats::getOperatingSystemName());
-    
-    XmlElement* machine = info->createNewChildElement("MACHINE");
-    machine->setAttribute("name", SystemStats::getComputerName());
-    machine->setAttribute("cpu_model", SystemStats::getCpuModel());
-    machine->setAttribute("cpu_num_cores", SystemStats::getNumCpus());
-
-    Array<GenericProcessor*> rootNodes = AccessClass::getProcessorGraph()->getRootNodes();
-    
-    for (int i = 0; i < rootNodes.size(); i++)
-    {
-        XmlElement* signalChain = new XmlElement("SIGNALCHAIN");
-        
-        bool isStartOfSignalChain = true;
-        
-        GenericProcessor* processor = rootNodes[i];
-
-        while (processor != nullptr)
-        {
-            if (processor->saveOrder < 0)
-            {
-                
-                // create a new XML element
-                signalChain->addChildElement(createNodeXml(processor,  isStartOfSignalChain));
-                processor->saveOrder = saveOrder;
-                allProcessors.addIfNotAlreadyThere(processor);
-                saveOrder++;
-                
-                if (processor->isSplitter())
-                {
-                    // add to list of splitters to come back to
-                    splitPoints.add(processor);
-
-                    //keep track of all splitters and their inital states
-                    allSplitters.add(processor);
-                    Splitter* sp = (Splitter*)processor;
-                    splitterStates.add(sp->getPath());
-                    
-                    processor->switchIO(0);
-                }
-
-            }
-
-            // continue until the end of the chain
-            LOGDD("  Moving forward along signal chain.");
-            processor = processor->getDestNode();
-            isStartOfSignalChain = false;
-
-            if (processor == nullptr)
-            {
-                if (splitPoints.size() > 0)
-                {
-                    LOGDD("  Going back to first unswitched splitter.");
-
-                    processor = splitPoints.getFirst();
-                    splitPoints.remove(0);
-
-                    processor->switchIO(1);
-                    signalChain->addChildElement(switchNodeXml(processor));
-                }
-                else
-                {
-                    LOGDD("  End of chain.");
-                }
-            }
-            
-        }
-
-        xml->addChildElement(signalChain);
-    }
-
-    // Loop through all splitters and reset their states to original values
-    for (int i = 0; i < allSplitters.size(); i++) {
-        allSplitters[i]->switchIO(splitterStates[i]);
-    }
-
     XmlElement* editorViewportSettings = new XmlElement("EDITORVIEWPORT");
     editorViewportSettings->setAttribute("scroll", signalChainTabComponent->getScrollOffset());
     
@@ -1475,27 +1343,29 @@ std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
     }
     
     xml->addChildElement(editorViewportSettings);
-
-    AccessClass::getDataViewport()->saveStateToXml(xml.get()); // save the data viewport settings
-    
-    XmlElement* audioSettings = new XmlElement("AUDIO");
-    AccessClass::getAudioComponent()->saveStateToXml(audioSettings);
-    xml->addChildElement(audioSettings);
-
-    //Resets Save Order for processors, allowing them to be saved again without omitting themselves from the order.
-    int allProcessorSize = allProcessors.size();
-    for (int i = 0; i < allProcessorSize; i++)
-    {
-        allProcessors.operator[](i)->saveOrder = -1;
-    }
-
-    AccessClass::getControlPanel()->saveStateToXml(xml.get()); // save the control panel settings
-    AccessClass::getProcessorList()->saveStateToXml(xml.get());
-    AccessClass::getUIComponent()->saveStateToXml(xml.get());  // save the UI settings
-
-    return xml;
-    
 }
+
+void EditorViewport::loadEditorViewportSettingsFromXml(XmlElement* element)
+{
+    for (auto editor : editorArray)
+    {
+        editor->setVisible(false);
+    }
+    editorArray.clear();
+    
+    for (auto* visibleEditor : element->getChildIterator())
+    {
+        int nodeId = visibleEditor->getIntAttribute("ID");
+        editorArray.add(AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId)->getEditor());
+    }
+    
+    refreshEditors();
+    
+    int scrollOffset = element->getIntAttribute("scroll", 0);
+    
+    signalChainTabComponent->setScrollOffset(scrollOffset);
+}
+
 
 const String EditorViewport::loadPluginState(File fileToLoad, GenericEditor* selectedEditor)
 {
@@ -1577,7 +1447,7 @@ const String EditorViewport::savePluginState(File fileToSave, GenericEditor* sel
         
         String error;
         
-        XmlElement* settings = createNodeXml(selectedEditor->getProcessor(), false);
+        XmlElement* settings = AccessClass::getProcessorGraph()->createNodeXml(selectedEditor->getProcessor(), false);
         
         if (! settings->writeTo(fileToSave))
             error = "Couldn't write to file ";
@@ -1591,9 +1461,23 @@ const String EditorViewport::savePluginState(File fileToSave, GenericEditor* sel
         return error;
         
     }
-    
-    
+
 }
+
+std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
+{
+    std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
+    
+    AccessClass::getProcessorGraph()->saveToXml(xml.get());
+    
+    return xml;
+}
+
+XmlElement* EditorViewport::createNodeXml(GenericProcessor* processor, bool isStartOfSignalChain)
+{
+    AccessClass::getProcessorGraph()->createNodeXml(processor, isStartOfSignalChain);
+}
+
 
 const String EditorViewport::loadState(File fileToLoad)
 {
@@ -1624,198 +1508,9 @@ const String EditorViewport::loadState(File fileToLoad)
 
 const String EditorViewport::loadStateFromXml(XmlElement* xml)
 {
-
-    Array<GenericProcessor*> splitPoints;
-
-    bool sameVersion = false;
-    bool compatibleVersion = false;
-    int scrollOffset;
-
-    String versionString;
-
-    for (auto* element : xml->getChildIterator())
-    {
-        if (element->hasTagName("INFO"))
-        {
-            for (auto* element2 : element->getChildIterator())
-            {
-                if (element2->hasTagName("VERSION"))
-                {
-                    versionString = element2->getAllSubText();
-					
-                    if (versionString.equalsIgnoreCase(JUCEApplication::getInstance()->getApplicationVersion()))
-                    {
-                        sameVersion = true;
-                        compatibleVersion = true;
-                        break;
-                    }
-                    
-                    StringArray tokens;
-                    tokens.addTokens(versionString, ".", "");
-                    
-                    LOGD("Version string: ", versionString);
-
-                    if (tokens.size() > 1)
-                    {
-                        if (tokens[0].getIntValue() >= 0 && tokens[1].getIntValue() > 5)
-                            compatibleVersion = true;
-                    }
-                }
-            }
-        }
-    }
     
-    if (!compatibleVersion)
-    {
-        String responseString = "Your configuration file was saved by an older version of the GUI (";
-        responseString += versionString;
-        responseString += "), and is not compatible with the version you're currently running. \n\n";
-        responseString += "In order to replicate the signal chain you'll have to re-build it from scratch.";
-
-        AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Incompatible configuration file", responseString);
-        
-        return "Failed To Open " + currentFile.getFileName();
-    }
+    AccessClass::getProcessorGraph()->loadFromXml(xml);
     
-    if (!sameVersion)
-    {
-        String responseString = "Your configuration file was saved from a different version of the GUI than the one you're using. \n";
-        responseString += "The current software is version ";
-        responseString += JUCEApplication::getInstance()->getApplicationVersion();
-        responseString += ", but the file you selected ";
-        if (versionString.length() > 0)
-        {
-            responseString += "was saved by version ";
-            responseString += versionString;
-        }
-        else
-        {
-            responseString += "does not have a version number";
-        }
-
-        responseString += ".\n This file may not load properly. Continue?";
-
-        bool response = AlertWindow::showOkCancelBox(AlertWindow::NoIcon,
-            "Configuration file version mismatch", responseString);
-
-        if (!response)
-        {
-            return "Failed To Open " + currentFile.getFileName();
-        }
-    }
-    
-    MouseCursor::showWaitCursor();
-
-    AccessClass::getProcessorList()->loadStateFromXml(xml); // load the processor list settings
-    AccessClass::getUIComponent()->loadStateFromXml(xml);   // load the UI settings
-
-    AccessClass::getProcessorGraph()->clearSignalChain();
-
-    loadingConfig = true; //Indicate config is being loaded into the GUI
-    String description;// = " ";
-    int loadOrder = 0;
-
-    GenericProcessor* p;
-
-    for (auto* element : xml->getChildIterator())
-    {
-        if (element->hasTagName("SIGNALCHAIN"))
-        {
-            for (auto* processor : element->getChildIterator())
-            {
-                if (processor->hasTagName("PROCESSOR"))
-                {
-
-                    auto loadedPlugins = AccessClass::getProcessorList()->getItemList();
-                    String pName = processor->getStringAttribute("pluginName");
-
-                    if(!loadedPlugins.contains(pName))
-                    {
-                        LOGC(pName, " plugin not found in Processor List! Looking for it on Artifactory...");
-
-                        String libName = processor->getStringAttribute("libraryName");
-                        String libVer = processor->getStringAttribute("libraryVersion");
-                        libVer = libVer.isEmpty() ? "" : libVer + "-API" + String(PLUGIN_API_VER);
-                        
-                        CoreServices::PluginInstaller::installPlugin(libName, libVer);
-                    }
-                    
-                    int insertionPt = processor->getIntAttribute("insertionPoint");
-                    
-                    LOGD("Creating processor: ", pName);
-                    p = createProcessorAtInsertionPoint(processor, insertionPt, false);
-                    p->loadOrder = loadOrder++;
-                    
-                    if (p->isSplitter())
-                    {
-                        splitPoints.add(p);
-                    }
-                }
-                else if (processor->hasTagName("SWITCH"))
-                {
-                    int processorNum = processor->getIntAttribute("number");
-
-                    LOGDD("SWITCHING number ", processorNum);
-
-                    for (int n = 0; n < splitPoints.size(); n++)
-                    {
-                        LOGDD("Trying split point ", n,  ", load order: ", splitPoints[n]->loadOrder);
-
-                        if (splitPoints[n]->loadOrder == processorNum)
-                        {
-                            LOGDD("Switching splitter destination.");
-                            SplitterEditor* editor = (SplitterEditor*) splitPoints[n]->getEditor();
-                            editor->switchDest(1);
-                            AccessClass::getProcessorGraph()->updateViews(splitPoints[n]);
-                            
-                            splitPoints.remove(n);
-                        }
-                    }
-                }
-            }
-        }
-        else if (element->hasTagName("AUDIO"))
-        {
-            AccessClass::getAudioComponent()->loadStateFromXml(element);
-            AccessClass::getControlPanel()->loadStateFromXml(xml);  // load the control panel settings after the audio settings
-        }
-        else if (element->hasTagName("EDITORVIEWPORT"))
-        {
-            
-            for (auto editor : editorArray)
-            {
-                editor->setVisible(false);
-            }
-            editorArray.clear();
-            
-            for (auto* visibleEditor : element->getChildIterator())
-            {
-                int nodeId = visibleEditor->getIntAttribute("ID");
-                editorArray.add(AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId)->getEditor());
-            }
-            
-            refreshEditors();
-            
-            scrollOffset = element->getIntAttribute("scroll", 0);
-            
-        }
-
-    }
-
-    AccessClass::getProcessorGraph()->restoreParameters();  // loads the processor graph settings
-
-    AccessClass::getDataViewport()->loadStateFromXml(xml);
-
-    String error = "Opened ";
-    error += currentFile.getFileName();
-
-    loadingConfig = false;
-
-    MouseCursor::hideWaitCursor();
-    
-    signalChainTabComponent->setScrollOffset(scrollOffset);
-    
-    return error;
 }
 
 void EditorViewport::deleteSelectedProcessors()
@@ -1842,48 +1537,17 @@ void EditorViewport::deleteSelectedProcessors()
 
 Plugin::Description EditorViewport::getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId)
 {
-    Plugin::Description description;
     
-    description.fromProcessorList = false;
-    description.name = settings->getStringAttribute("pluginName");
-    description.type = (Plugin::Type) settings->getIntAttribute("type");
-    description.processorType = (Plugin::Processor::Type) settings->getIntAttribute("processorType");
-    description.index = settings->getIntAttribute("index");
-    description.libName = settings->getStringAttribute("libraryName");
-    description.libVersion = settings->getStringAttribute("libraryVersion");
-    
-    if (!ignoreNodeId)
-        description.nodeId = settings->getIntAttribute("nodeId");
-    else
-        description.nodeId = -1;
-    
-    return description;
+    return AccessClass::getProcessorGraph()->getDescriptionFromXml(settings, ignoreNodeId);
+
 }
 
 GenericProcessor* EditorViewport::createProcessorAtInsertionPoint(XmlElement* parametersAsXml,
                                                                   int insertionPt,
                                                                   bool ignoreNodeId)
 {
-    if (loadingConfig)
-    {
-        if (insertionPt == 1)
-        {
-            insertionPoint = editorArray.size();
-        }
-        else
-        {
-            insertionPoint = 0;
-        }
-
-    } else {
-        insertionPoint = insertionPt;
-    }
     
-    Plugin::Description description = getDescriptionFromXml(parametersAsXml, ignoreNodeId);
+    return AccessClass::getProcessorGraph()->createProcessorAtInsertionPoint(parametersAsXml, insertionPt, ignoreNodeId);
     
-    GenericProcessor* p = addProcessor(description, insertionPoint);
-    p->parametersAsXml = parametersAsXml;
-    
-    return p;
 }
 

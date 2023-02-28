@@ -77,6 +77,9 @@ public:
     
     /** Destructor*/
     ~PlayButton() { }
+    
+    /** Re-makes images with new colors */
+    void updateImages();
 };
 
 /**
@@ -103,6 +106,9 @@ public:
     
     /** Destructor*/
     ~RecordButton() { }
+    
+    /** Re-makes images with new colors */
+    void updateImages();
 };
 
 /**
@@ -337,7 +343,7 @@ class ControlPanel : public Component,
 {
 public:
     /** Constructor */
-    ControlPanel(ProcessorGraph* graph, AudioComponent* audio);
+    ControlPanel(ProcessorGraph* graph, AudioComponent* audio, bool isConsoleApp);
 
     /** Destructor */
     ~ControlPanel();
@@ -439,10 +445,10 @@ public:
     void loadStateFromXml(XmlElement*);
 
     /** Returns a list of recently used directories for saving data. */
-    StringArray getRecentlyUsedFilenames();
+    Array<String> getRecentlyUsedFilenames();
 
     /** Sets the list of recently used directories for saving data. */
-    void setRecentlyUsedFilenames (const StringArray& filenames);
+    void setRecentlyUsedFilenames (const Array<String>& filenames);
 
     /** Queries the RecordEnginerManager for available engines when the GUI launches*/
     void updateRecordEngineList();
@@ -461,6 +467,9 @@ public:
 
     /** Generates the current datetime based on the input formatting string */
     String generateDatetimeFromFormat(String format);
+    
+    /** Updates button colors when color theme changes */
+    void updateColors();
 
     std::unique_ptr<FilenameEditorButton> filenameText;
     std::unique_ptr<FilenameConfigWindow> filenameConfigWindow;
@@ -492,7 +501,7 @@ private:
     std::unique_ptr<DiskSpaceMeter> diskMeter;
     std::unique_ptr<FilenameComponent> filenameComponent;
     std::unique_ptr<UtilityButton> newDirectoryButton;
-    std::unique_ptr<ControlPanelButton> cpb;
+    std::unique_ptr<ControlPanelButton> controlPanelButton;
     std::unique_ptr<RecordButton> recordButton;
     std::unique_ptr<ComboBox> recordSelector;
 
@@ -515,6 +524,7 @@ private:
     void comboBoxChanged(ComboBox* combo);
 
     bool initialize;
+    bool isConsoleApp;
 
     void timerCallback();
 
@@ -533,8 +543,6 @@ private:
     void createPaths();
 
     String recordingDirectoryName;
-
-    Colour backgroundColour;
 
     OwnedArray<RecordEngineManager> recordEngines;
     std::unique_ptr<UtilityButton> recordOptionsButton;

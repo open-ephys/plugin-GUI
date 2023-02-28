@@ -34,6 +34,8 @@
 #include "../../UI/GraphViewer.h"
 #include "../Settings/InfoObject.h"
 
+#include "../../UI/LookAndFeel/CustomLookAndFeel.h"
+
 #include <math.h>
 
 #ifndef M_PI
@@ -71,9 +73,7 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
         addAndMakeVisible(streamSelector.get());
     }
 
-    backgroundGradient = ColourGradient(Colour(190, 190, 190), 0.0f, 0.0f,
-        Colour(185, 185, 185), 0.0f, 120.0f, false);
-    backgroundGradient.addColour(0.2f, Colour(155, 155, 155));
+    getBackgroundGradient();
 
     backgroundColor = Colour(10, 10, 10);
 }
@@ -178,28 +178,22 @@ void GenericEditor::addCustomParameterEditor(ParameterEditor* ed, int xPos_, int
 void GenericEditor::refreshColors()
 {
 
-    LOGDD(getNameAndId(), " refreshing colors.");
-
-    enum
-    {
-        PROCESSOR_COLOR = 801,
-        FILTER_COLOR = 802,
-        SINK_COLOR = 803,
-        SOURCE_COLOR = 804,
-        UTILITY_COLOR = 805,
-        RECORD_COLOR = 806
-    };
+    LOGD(getNameAndId(), " refreshing colors.");
 
     if (getProcessor()->isSource())
-        backgroundColor = AccessClass::getProcessorList()->findColour(SOURCE_COLOR);
+        backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::SOURCE_COLOR);
     else if (getProcessor()->isSink())
-        backgroundColor = AccessClass::getProcessorList()->findColour(SINK_COLOR);
+        backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::SINK_COLOR);
     else if (getProcessor()->isSplitter() || getProcessor()->isMerger() || getProcessor()->isAudioMonitor() || getProcessor()->isUtility())
-        backgroundColor = AccessClass::getProcessorList()->findColour(UTILITY_COLOR);
+        backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::UTILITY_COLOR);
     else if (getProcessor()->isRecordNode())
-        backgroundColor = AccessClass::getProcessorList()->findColour(RECORD_COLOR);
+        backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::RECORD_COLOR);
     else
-        backgroundColor = AccessClass::getProcessorList()->findColour(FILTER_COLOR);
+        backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::FILTER_COLOR);
+    
+    LOGD("background color is ", backgroundColor.toString());
+    
+    getBackgroundGradient();
 
     repaint();
 
@@ -1026,6 +1020,10 @@ void GenericEditor::setBackgroundColor(Colour c)
 
 ColourGradient GenericEditor::getBackgroundGradient()
 {
+    backgroundGradient = ColourGradient(findColour(ThemeColors::editorGradientColorId1), 0.0f, 0.0f,
+                                        findColour(ThemeColors::editorGradientColorId2), 0.0f, 120.0f, false);
+    backgroundGradient.addColour(0.2f, findColour(ThemeColors::editorGradientColorId3));
+    
     return backgroundGradient;
 }
 
@@ -1040,6 +1038,17 @@ void GenericEditor::updateView()
     {
         ed->updateView();
     }
+}
+
+ParameterEditor* GenericEditor::getParameterEditor(const String& parameterName)
+{
+    for (auto e : parameterEditors)
+    {
+        if (e->getParameterName().equalsIgnoreCase(parameterName))
+            return e;
+    }
+    
+    return nullptr;
 }
 
 void GenericEditor::updateCustomView() {}

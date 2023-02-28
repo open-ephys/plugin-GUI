@@ -47,8 +47,9 @@
 
 const String GenericProcessor::m_unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");
 
-GenericProcessor::GenericProcessor(const String& name)
+GenericProcessor::GenericProcessor(const String& name, bool headlessMode_)
 	: GenericProcessorBase(name)
+    , headlessMode(headlessMode_)
 	, sourceNode(nullptr)
 	, destNode(nullptr)
 	, isEnabled(true)
@@ -77,6 +78,7 @@ GenericProcessor::GenericProcessor(const String& name)
 GenericProcessor::~GenericProcessor()
 {
     availableParameters.clear(true);
+    parametersAsXml = nullptr;
 }
 
 
@@ -92,7 +94,7 @@ void GenericProcessor::setNodeId(int id)
 {
 	nodeId = id;
 
-	if (editor != 0)
+	if (editor != nullptr)
 	{
 		editor->updateName();
 	}
@@ -228,7 +230,7 @@ void GenericProcessor::addCategoricalParameter(
     Parameter::ParameterScope scope,
     const String& name,
 	const String& description,
-	StringArray categories,
+	Array<String> categories,
 	int defaultIndex,
 	bool deactivateDuringAcquisition)
 {
@@ -396,7 +398,8 @@ void GenericProcessor::parameterChangeRequest(Parameter* param)
 
 	setParameter(-1, 0.0f);
 
-	getEditor()->updateView();
+    if (!headlessMode)
+        getEditor()->updateView();
 }
 
 void GenericProcessor::setParameter(int parameterIndex, float newValue)
@@ -832,7 +835,7 @@ void GenericProcessor::update()
             messageChannel.reset();
             messageChannel = std::make_unique<EventChannel>(*sourceNode->getMessageChannel());
             messageChannel->addProcessor(processorInfo.get());
-            messageChannel->setDataStream(AccessClass::getMessageCenter()->messageCenter->getMessageStream());
+            messageChannel->setDataStream(AccessClass::getMessageCenter()->getMessageStream());
 
             if (sourceNode->isSplitter())
             {
@@ -882,12 +885,12 @@ void GenericProcessor::update()
         {
             // connect first processor in signal chain to message center
            // messageChannel.reset();
-            const EventChannel* originalChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
+            const EventChannel* originalChannel = AccessClass::getMessageCenter()->getMessageChannel();
             EventChannel* newChannel = new EventChannel(*originalChannel);
             messageChannel.reset(newChannel);
            // messageChannel = std::make_unique<EventChannel>(originalChannel);
             messageChannel->addProcessor(processorInfo.get());
-            messageChannel->setDataStream(AccessClass::getMessageCenter()->messageCenter->getMessageStream());
+            messageChannel->setDataStream(AccessClass::getMessageCenter()->getMessageStream());
 
             if (!isSource())
                 isEnabled = false;
@@ -1074,7 +1077,8 @@ void GenericProcessor::update()
 		44100.0,         // sampleRate (always 44100 Hz, default audio card rate)
 		128);            // blockSize
 
-	editor->update(isEnabled); // allow the editor to update its settings
+    if (editor != nullptr)
+        editor->update(isEnabled); // allow the editor to update its settings
 
     LOGG("    TOTAL TIME: ", MS_FROM_START, " milliseconds");
 }
@@ -1446,7 +1450,8 @@ void GenericProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& even
 
 	process(buffer);
     
-	latencyMeter->setLatestLatency(processStartTimes);
+    if (!headlessMode)
+        latencyMeter->setLatestLatency(processStartTimes);
 }
 
 Array<const EventChannel*> GenericProcessor::getEventChannels()
@@ -1711,7 +1716,8 @@ void GenericProcessor::saveToXml(XmlElement* xml)
 
 	saveCustomParametersToXml(xml->createNewChildElement("CUSTOM_PARAMETERS"));
 
-	getEditor()->saveToXml(xml->createNewChildElement("EDITOR"));
+    if (!headlessMode)
+        getEditor()->saveToXml(xml->createNewChildElement("EDITOR"));
 }
 
 
@@ -1872,10 +1878,12 @@ void GenericProcessor::loadFromXml()
 
         for (auto* xmlNode : parametersAsXml->getChildWithTagNameIterator("EDITOR"))
         {
-            getEditor()->loadFromXml(xmlNode);
+            if (editor != nullptr)
+                getEditor()->loadFromXml(xmlNode);
+            
+            LOGG("    Loaded editor parameters in ", MS_FROM_START, " milliseconds");
         }
 
-        LOGG("    Loaded editor parameters in ", MS_FROM_START, " milliseconds");
 	}
 
 	m_paramsWereLoaded = true;

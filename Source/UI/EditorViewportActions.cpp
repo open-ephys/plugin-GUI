@@ -181,7 +181,7 @@ DeleteProcessor::DeleteProcessor(GenericProcessor* processor_, EditorViewport* e
     
     nodeId = processor->getNodeId();
     
-    settings = editorViewport->createNodeXml(processor, false);
+    settings.reset(editorViewport->createNodeXml(processor, false));
     
     if (processor->getSourceNode() != nullptr)
         sourceNodeId = processor->getSourceNode()->getNodeId();
@@ -196,7 +196,7 @@ DeleteProcessor::DeleteProcessor(GenericProcessor* processor_, EditorViewport* e
 
 DeleteProcessor::~DeleteProcessor()
 {
-    delete settings;
+
 }
    
 bool DeleteProcessor::perform()
@@ -218,7 +218,7 @@ bool DeleteProcessor::undo()
 {
     LOGDD("Undoing DELETE for processor ", nodeId);
 
-    Plugin::Description description = editorViewport->getDescriptionFromXml(settings, false);
+    Plugin::Description description = editorViewport->getDescriptionFromXml(settings.get(), false);
 
     GenericProcessor* sourceProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(sourceNodeId);
     
@@ -228,7 +228,7 @@ bool DeleteProcessor::undo()
                                                       sourceProcessor,
                                                       destProcessor,
                                                       false);
-    processor->parametersAsXml = settings;
+    processor->parametersAsXml = settings.get();
     processor->loadFromXml();
     
     AccessClass::getProcessorGraph()->updateSettings(processor);

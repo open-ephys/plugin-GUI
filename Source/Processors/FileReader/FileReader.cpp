@@ -141,7 +141,11 @@ void FileReader::initialize(bool signalChainIsLoading)
     if (defaultFile.exists())
     {
         FileReaderEditor* ed = (FileReaderEditor*)editor.get();
-        ed->setFile("default", false);
+        
+        if (ed != nullptr)
+            ed->setFile("default", false);
+        else
+            setFile(defaultFile.getFullPathName());
     }
 }
 
@@ -179,7 +183,8 @@ bool FileReader::startAcquisition()
     if (!isEnabled)
         return false;
 
-    static_cast<FileReaderEditor*> (getEditor())->startTimer(100);
+    if (!headlessMode)
+        static_cast<FileReaderEditor*> (getEditor())->startTimer(100);
 
     /* Start asynchronous file reading thread */
 	startThread(); 
@@ -191,7 +196,10 @@ bool FileReader::stopAcquisition()
 {
 
 	stopThread(500);
-    static_cast<FileReaderEditor*> (getEditor())->stopTimer();
+    
+    if (!isEnabled)
+        static_cast<FileReaderEditor*> (getEditor())->stopTimer();
+    
 	return true;
 }
 
@@ -205,8 +213,25 @@ bool FileReader::isFileSupported (const String& fileName) const
 
 bool FileReader::setFile (String fullpath)
 {
-    File file (fullpath);
-
+    
+    if (fullpath.equalsIgnoreCase("default"))
+    {
+        File executable = File::getSpecialLocation(File::currentApplicationFile);
+        
+#ifdef __APPLE__
+        File defaultFile = executable.getChildFile("Contents/Resources/resources").getChildFile("structure.oebin");
+#else
+        File defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
+#endif
+        
+        if (defaultFile.exists())
+        {
+            fullpath = defaultFile.getFullPathName();
+        }
+    }
+    
+    File file(fullpath);
+    
     String ext = file.getFileExtension().toLowerCase().substring (1);
     const int index = supportedExtensions[ext] - 1;
     const bool isExtensionSupported = index >= 0;
@@ -257,7 +282,9 @@ bool FileReader::setFile (String fullpath)
         return false;
     }
 
-    static_cast<FileReaderEditor*> (getEditor())->populateRecordings (input);
+    if (!headlessMode)
+        static_cast<FileReaderEditor*> (getEditor())->populateRecordings (input);
+    
     setActiveRecording (0);
     
     gotNewFile = true;
@@ -288,8 +315,10 @@ void FileReader::setActiveRecording (int index)
            channelInfo.add (input->getChannelInfo (index, i));
     }
 
-    static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumTotalSamples));
-	input->seekTo(startSample);
+    if (!headlessMode)
+        static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumTotalSamples));
+	
+    input->seekTo(startSample);
     
     gotNewFile = true;
 
@@ -726,4 +755,49 @@ FileSource* FileReader::createBuiltInFileSource(int index) const
 	default:
 		return nullptr;
 	}
+}
+
+
+void FileReader::saveCustomParametersToXml (XmlElement* xml)
+{
+
+    XmlElement* childNode = xml->createNewChildElement ("FILENAME");
+
+    String file = getFile();
+
+    File executable = File::getSpecialLocation(File::currentApplicationFile);
+#ifdef __APPLE__
+    File defaultFile = executable.getChildFile("Contents/Resources/resources").getChildFile("structure.oebin");
+#else
+    File defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
+#endif
+
+    if (file.equalsIgnoreCase(defaultFile.getFullPathName()))
+        childNode->setAttribute("path", "default");
+    else
+        childNode->setAttribute("path", getFile());
+
+    childNode->setAttribute ("recording", input->getActiveRecord());
+}
+
+void FileReader::loadCustomParametersFromXml (XmlElement* xml)
+{
+    for (auto* element : xml->getChildIterator())
+    {
+        if (element->hasTagName ("FILENAME"))
+        {
+            String filepath = element->getStringAttribute ("path");
+            
+            if (!headlessMode)
+            {
+                FileReaderEditor* ed = (FileReaderEditor*) getEditor();
+                ed->setFile (filepath, false);
+            } else {
+                setFile(filepath);
+            }
+
+            //int recording = element->getIntAttribute ("recording");
+            //recordSelector->setSelectedId (recording, sendNotificationSync);
+        }
+    }
 }

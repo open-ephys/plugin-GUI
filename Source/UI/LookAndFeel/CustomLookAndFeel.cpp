@@ -30,6 +30,7 @@ CustomLookAndFeel::CustomLookAndFeel() :
     // deleted too soon (there's a singleton typefacecache that holds references
     // to them whenever they're used).
 
+
     silkscreenStream(BinaryData::silkscreenserialized,
         BinaryData::silkscreenserializedSize,
         false),
@@ -85,30 +86,93 @@ CustomLookAndFeel::CustomLookAndFeel() :
 {
 
     silkscreen = new CustomTypeface(silkscreenStream);
+
+    setTheme(THEME1);
     
-    enum
-    {
-        PROCESSOR_COLOR = 0x801,
-        FILTER_COLOR = 0x802,
-        SINK_COLOR = 0x803,
-        SOURCE_COLOR = 0x804,
-        UTILITY_COLOR = 0x805,
-    };
-
-    setColour(PROCESSOR_COLOR, Colour(59, 59, 59));
-    setColour(FILTER_COLOR, Colour(255, 89, 0));
-    setColour(SINK_COLOR, Colour(255, 149, 0));
-    setColour(SOURCE_COLOR, Colour(255, 0, 0));
-    setColour(UTILITY_COLOR, Colour(90, 80, 80));
-
-    setColour(PopupMenu::backgroundColourId, Colours::darkgrey);
-    setColour(PopupMenu::textColourId, Colours::white);
-    setColour(PopupMenu::highlightedBackgroundColourId, Colours::grey);
-    setColour(PopupMenu::highlightedTextColourId, Colours::yellow);
-
 }
 
 CustomLookAndFeel::~CustomLookAndFeel() {}
+
+void CustomLookAndFeel::setTheme(ColorTheme theme)
+{
+    
+    if (theme == THEME1)
+    {
+        setColour(ProcessorColor::IDs::PROCESSOR_COLOR, Colour(59, 59, 59));
+        setColour(ProcessorColor::IDs::FILTER_COLOR, Colour(0, 174, 239));
+        setColour(ProcessorColor::IDs::SINK_COLOR, Colour(0, 166, 81));
+        setColour(ProcessorColor::IDs::SOURCE_COLOR, Colour(241, 90, 41));
+        setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(147, 149, 152));
+        setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(255, 0, 0));
+        setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(0,0,0));
+        
+        setColour(Label::backgroundColourId, Colours::whitesmoke.withAlpha(0.0f));
+        setColour(TextEditor::highlightColourId, Colours::whitesmoke);
+        setColour(ScrollBar::thumbColourId, Colours::darkgrey);
+        
+        setColour(ComboBox::backgroundColourId, Colours::lightgrey);
+        setColour(ComboBox::focusedOutlineColourId, Colours::darkred);
+        setColour(ComboBox::arrowColourId, Colour(10,10,10));
+        
+        setColour(TextButton::buttonColourId, Colours::darkgrey);
+        
+        setColour(ThemeColors::controlPanelBackgroundColorId, Colour(51,51,51));
+        setColour(ThemeColors::controlPanelButtonColorId, Colour(180,180,180));
+        setColour(ThemeColors::controlPanelButtonOnColorId, Colours::yellow);
+        setColour(ThemeColors::graphViewerBackgroundColorId, Colour(20,20,20));
+        
+        setColour(ThemeColors::editorGradientColorId1, Colour(190,190,190));
+        setColour(ThemeColors::editorGradientColorId2, Colour(185,185,185));
+        setColour(ThemeColors::editorGradientColorId3, Colour(155,155,155));
+        
+        setColour(PopupMenu::backgroundColourId, Colours::darkgrey);
+        setColour(PopupMenu::textColourId, Colours::white);
+        setColour(PopupMenu::highlightedBackgroundColourId, Colours::grey);
+        setColour(PopupMenu::highlightedTextColourId, Colours::yellow);
+        
+        setColour(TooltipWindow::backgroundColourId, Colours::white);
+        setColour(TooltipWindow::outlineColourId, Colours::black);
+        setColour(TooltipWindow::textColourId, Colours::black);
+    }
+    else if (theme == THEME2)
+    {
+        setColour(ProcessorColor::IDs::PROCESSOR_COLOR, Colour(21, 21, 21));
+        setColour(ProcessorColor::IDs::FILTER_COLOR, Colour(21, 21, 21));
+        setColour(ProcessorColor::IDs::SINK_COLOR, Colour(21, 21, 21));
+        setColour(ProcessorColor::IDs::SOURCE_COLOR, Colour(21, 21, 21));
+        setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(21, 21, 21));
+        setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(21, 21, 21));
+        setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(21, 21, 21));
+        
+        setColour(Label::backgroundColourId, Colours::whitesmoke);
+        setColour(TextEditor::highlightColourId, Colours::salmon.withAlpha(0.2f));
+        setColour(ScrollBar::thumbColourId, Colours::whitesmoke.withAlpha(0.25f));
+        
+        setColour(ComboBox::backgroundColourId, Colours::lightseagreen);
+        setColour(ComboBox::focusedOutlineColourId, Colours::yellow);
+        setColour(ComboBox::arrowColourId, Colours::darkcyan);
+        
+        setColour(TextButton::buttonColourId, Colours::lightsteelblue);
+        
+        setColour(ThemeColors::controlPanelBackgroundColorId, Colours::lightskyblue);
+        setColour(ThemeColors::controlPanelButtonColorId, Colour(50,50,50));
+        setColour(ThemeColors::controlPanelButtonOnColorId, Colours::springgreen);
+        setColour(ThemeColors::graphViewerBackgroundColorId, Colour(35,35,35));
+        
+        setColour(ThemeColors::editorGradientColorId1, Colour(25,25,25));
+        setColour(ThemeColors::editorGradientColorId2, Colour(40,40,40));
+        setColour(ThemeColors::editorGradientColorId3, Colour(90,155,155));
+        
+        setColour(PopupMenu::backgroundColourId, Colours::white);
+        setColour(PopupMenu::textColourId, Colours::grey);
+        setColour(PopupMenu::highlightedBackgroundColourId, Colours::darkgrey);
+        setColour(PopupMenu::highlightedTextColourId, Colours::lightskyblue);
+        
+        setColour(TooltipWindow::backgroundColourId, Colours::white);
+        setColour(TooltipWindow::outlineColourId, Colours::black);
+        setColour(TooltipWindow::textColourId, Colours::turquoise);
+    }
+}
 
 //==============================================================================
 // FONT/TYPEFACE METHODS :
@@ -326,9 +390,53 @@ void CustomLookAndFeel::drawScrollbar(Graphics& g,
 
     }
 
-    g.setColour(Colours::darkgrey);
+    g.setColour(findColour(ScrollBar::thumbColourId));
     g.fillPath(thumbPath);
 
+}
+
+//==================================================================
+// TOOLTIP METHODS :
+//==================================================================
+
+TextLayout CustomLookAndFeel::layoutTooltipText (const String& text, Colour colour)
+{
+    const float tooltipFontSize = 13.0f;
+    const int maxToolTipWidth = 400;
+
+    AttributedString s;
+    s.setJustification (Justification::centredTop);
+    s.append (text, Font (tooltipFontSize, Font::bold), colour);
+
+    TextLayout tl;
+    tl.createLayoutWithBalancedLineLengths (s, (float) maxToolTipWidth);
+    return tl;
+}
+
+Rectangle<int> CustomLookAndFeel::getTooltipBounds(const String &tipText, Point<int> screenPos, Rectangle<int> parentArea)
+{
+    const TextLayout tl (layoutTooltipText (tipText, Colours::black));
+
+        auto w = (int) (tl.getWidth() + 14.0f);
+        auto h = (int) (tl.getHeight() + 4.0f);
+
+        return Rectangle<int> (screenPos.x > parentArea.getCentreX() ? screenPos.x - (w + 5) : screenPos.x + 10,
+                               screenPos.y > parentArea.getCentreY() ? screenPos.y - (h + 3)  : screenPos.y + 3,
+                               w, h)
+                 .constrainedWithin (parentArea);
+}
+
+void CustomLookAndFeel::drawTooltip(Graphics &g, const String &text, int width, int height)
+{
+    g.fillAll (findColour (TooltipWindow::backgroundColourId));
+
+   #if ! JUCE_MAC // The mac windows already have a non-optional 1 pix outline, so don't double it here..
+    g.setColour (findColour (TooltipWindow::outlineColourId));
+    g.drawRect (0, 0, width, height, 1);
+   #endif
+
+    layoutTooltipText (text, findColour (TooltipWindow::textColourId))
+        .draw (g, Rectangle<float> ((float) width, (float) height));
 }
 
 //==================================================================
@@ -540,13 +648,13 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
     auto cornerSize = box.findParentComponentOfClass<ChoicePropertyComponent>() != nullptr ? 0.0f : 3.0f;
     Rectangle<int> boxBounds (0, 0, width, height);
 
-    g.setColour (Colours::lightgrey);
-    g.fillRoundedRectangle (boxBounds.toFloat(), cornerSize);
+    g.setColour (findColour(ComboBox::backgroundColourId));
+    g.fillRect (boxBounds.toFloat());
 
     if (box.isPopupActive() || box.hasKeyboardFocus(false))
     {
-        g.setColour(Colours::darkgrey);
-        g.drawRoundedRectangle(boxBounds.toFloat().reduced(0.5f, 0.5f), cornerSize, 1.5f);
+        g.setColour(findColour(ComboBox::focusedOutlineColourId));
+        g.drawRect(boxBounds.toFloat().reduced(0.5f, 0.5f), 1.5f);
     }
 
     const float outlineThickness = box.isEnabled() ? (isButtonDown ? 1.2f : 0.5f) : 0.3f;

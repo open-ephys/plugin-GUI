@@ -38,9 +38,14 @@
 class MaterialSliderLookAndFeel : public LookAndFeel_V2
 {
 public:
+    
+    /** Constructor */
     MaterialSliderLookAndFeel();
+    
+    /** Destructor */
     ~MaterialSliderLookAndFeel();
 
+    /** Draw the slider */
     void drawLinearSlider (Graphics& g,
                            int x, int y,
                            int width, int height,
@@ -48,7 +53,7 @@ public:
                            const Slider::SliderStyle style,
                            Slider& slider) override;
 
-
+    /** Draws the linear slider thumb icon */
     void drawLinearSliderThumb (Graphics& g,
                                 int x, int y,
                                 int width, int height,
@@ -56,7 +61,7 @@ public:
                                 const Slider::SliderStyle style,
                                 Slider& slider) override;
 
-
+    /** Draws the linear slider background */
     void drawLinearSliderBackground  (Graphics& g,
                                       int x, int y,
                                       int width, int height,
@@ -66,6 +71,7 @@ public:
 
 
 private:
+    /** Draws the slider thumb icon */
     void drawRoundThumb (Graphics& g,
                          const float x, const float y,
                          const float diameter,

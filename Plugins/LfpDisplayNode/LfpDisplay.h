@@ -128,7 +128,7 @@ public:
     int getActiveColourSchemeIdx();
     
     int getNumColourSchemes();
-    StringArray getColourSchemeNameArray();
+    Array<String> getColourSchemeNameArray();
 
     bool setEventDisplayState(int ch, bool state);
     bool getEventDisplayState(int ch);

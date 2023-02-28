@@ -55,6 +55,8 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param) : ParameterEdit
     finalWidth = std::max(labelWidth, 80);
 
     setBounds(0, 0, finalWidth, 42);
+    parameterNameLabel->setBounds(0, 0, getWidth(), 20);
+    valueTextBox->setBounds(0, 20, getWidth(), 18);
 }
 
 void TextBoxParameterEditor::labelTextChanged(Label* label)
@@ -83,12 +85,50 @@ void TextBoxParameterEditor::updateView()
 
 }
 
-void TextBoxParameterEditor::resized()
+void TextBoxParameterEditor::setLayout(Layout layout)
 {
-    parameterNameLabel->setBounds(0, 0, finalWidth, 20);
-    valueTextBox->setBounds(0, 20, getWidth(), 18);
-}
+    
+    Rectangle<int> bounds = getBounds();
+    int x = bounds.getX();
+    int y = bounds.getY();
 
+    switch (layout)
+    {
+        case nameOnTop:
+            setBounds(x, y, finalWidth, 42);
+            parameterNameLabel->setBounds(0, 0, finalWidth, 20);
+            parameterNameLabel->setJustificationType(Justification::centredLeft);
+            parameterNameLabel->setVisible(true);
+            valueTextBox->setBounds(0, 20, finalWidth, 18);
+            break;
+        case nameOnBottom:
+            setBounds(x, y, finalWidth, 42);
+            parameterNameLabel->setBounds(0, 20, finalWidth, 20);
+            parameterNameLabel->setJustificationType(Justification::centredLeft);
+            parameterNameLabel->setVisible(true);
+            valueTextBox->setBounds(0, 0, finalWidth, 18);
+            break;
+        case nameOnLeft:
+            setBounds(x, y, finalWidth * 2, 42);
+            parameterNameLabel->setBounds(0, 0, finalWidth, 20);
+            parameterNameLabel->setJustificationType(Justification::centredRight);
+            parameterNameLabel->setVisible(true);
+            valueTextBox->setBounds(finalWidth + 5, 0, finalWidth - 5, 18);
+            break;
+        case nameOnRight:
+            setBounds(x, y, finalWidth * 2, 42);
+            parameterNameLabel->setBounds(finalWidth, 0, finalWidth, 20);
+            parameterNameLabel->setJustificationType(Justification::centredLeft);
+            parameterNameLabel->setVisible(true);
+            valueTextBox->setBounds(0, 0, finalWidth - 5, 18);
+            break;
+        case nameHidden:
+            setBounds(x, y, finalWidth, 42);
+            parameterNameLabel->setVisible(false);
+            valueTextBox->setBounds(0, 0, finalWidth, 18);
+            break;
+    }
+}
 
 CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param) : ParameterEditor(param)
 {
@@ -157,7 +197,7 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param) : ParameterEd
 
         offset = 1;
 
-        const StringArray& categories = p->getCategories();
+        const Array<String>& categories = p->getCategories();
 
         for (int i = 0; i < categories.size(); i++)
         {

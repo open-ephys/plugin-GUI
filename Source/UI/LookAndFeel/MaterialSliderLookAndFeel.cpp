@@ -24,7 +24,7 @@
 #include "MaterialSliderLookAndFeel.h"
 
 
-static const Colour COLOUR_BORDER (Colour (0x0)); // may be usefull for future
+static const Colour COLOUR_BORDER (Colour (0x0)); // may be useful in the future
 
 // If we want to drop shadow for slider later we can just change this parameter
 static const bool DROP_SHADOW = false;

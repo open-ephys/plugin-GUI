@@ -215,24 +215,24 @@ private:
     std::unique_ptr<UtilityButton> averageSignalButton;
     std::unique_ptr<UtilityButton> resetButton;
      
-    StringArray voltageRanges[CHANNEL_TYPES];
-    StringArray timebases;
-    StringArray spreads; // option for vertical spacing between channels
-    StringArray colorGroupings; // option for coloring every N channels the same
-    StringArray triggerSources; // option for trigger source event channel
-    StringArray overlaps; //
-    StringArray saturationThresholds; //default values for when different amplifiers saturate
-    StringArray clipThresholds;
-    StringArray spikeRasterSelectionOptions;
-    StringArray channelDisplaySkipOptions;
-    StringArray sectionTitles;
+    Array<String> voltageRanges[CHANNEL_TYPES];
+    Array<String> timebases;
+    Array<String> spreads; // option for vertical spacing between channels
+    Array<String> colorGroupings; // option for coloring every N channels the same
+    Array<String> triggerSources; // option for trigger source event channel
+    Array<String> overlaps; //
+    Array<String> saturationThresholds; //default values for when different amplifiers saturate
+    Array<String> clipThresholds;
+    Array<String> spikeRasterSelectionOptions;
+    Array<String> channelDisplaySkipOptions;
+    Array<String> sectionTitles;
     
 	ContinuousChannel::Type selectedChannelType;
     int selectedVoltageRange[CHANNEL_TYPES];
     String selectedVoltageRangeValues[CHANNEL_TYPES];
     float rangeGain[CHANNEL_TYPES];
-    StringArray rangeUnits;
-    StringArray typeNames;
+    Array<String> rangeUnits;
+    Array<String> typeNames;
     int rangeSteps[CHANNEL_TYPES];
 
     bool medianOffsetOnForSpikeRaster;

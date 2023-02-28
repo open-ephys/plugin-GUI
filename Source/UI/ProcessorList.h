@@ -28,6 +28,7 @@
 #include "../AccessClass.h"
 #include "../Processors/PluginManager/OpenEphysPlugin.h"
 
+
 class ProcessorListItem;
 class UIComponent;
 

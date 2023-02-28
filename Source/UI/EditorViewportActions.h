@@ -145,7 +145,7 @@ private:
     int destNodeId;
     int nodeId;
     
-    XmlElement* settings;
+    std::unique_ptr<XmlElement> settings;
     
     EditorViewport* editorViewport;
 

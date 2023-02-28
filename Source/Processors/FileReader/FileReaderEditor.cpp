@@ -988,27 +988,7 @@ void FileReaderEditor::stopAcquisition()
 
 void FileReaderEditor::saveCustomParametersToXml (XmlElement* xml)
 {
-    xml->setAttribute ("Type", "FileReader");
-
-    XmlElement* childNode = xml->createNewChildElement ("FILENAME");
-
-    String file = fileReader->getFile();
-
-    File executable = File::getSpecialLocation(File::currentApplicationFile);
-#ifdef __APPLE__
-    File defaultFile = executable.getChildFile("Contents/Resources/resources").getChildFile("structure.oebin");
-#else
-    File defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
-#endif
-
-    if (file.equalsIgnoreCase(defaultFile.getFullPathName()))
-        childNode->setAttribute("path", "default");
-    else
-        childNode->setAttribute("path", fileReader->getFile());
-
-    childNode->setAttribute ("recording", recordSelector->getSelectedId());
-
-    childNode = xml->createNewChildElement ("TIME_LIMITS");
+    XmlElement* childNode = xml->createNewChildElement ("TIME_LIMITS");
     childNode->setAttribute ("start_time",  (double)timeLimits->getTimeMilliseconds (0));
     childNode->setAttribute ("stop_time",   (double)timeLimits->getTimeMilliseconds (1));
 }
@@ -1017,15 +997,7 @@ void FileReaderEditor::loadCustomParametersFromXml (XmlElement* xml)
 {
     for (auto* element : xml->getChildIterator())
     {
-        if (element->hasTagName ("FILENAME"))
-        {
-            String filepath = element->getStringAttribute ("path");
-            setFile (filepath, false);
-
-            int recording = element->getIntAttribute ("recording");
-            recordSelector->setSelectedId (recording,sendNotificationSync);
-        }
-        else if (element->hasTagName ("TIME_LIMITS"))
+        if (element->hasTagName ("TIME_LIMITS"))
         {
             unsigned int time = 0;
 

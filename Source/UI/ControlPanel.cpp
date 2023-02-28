@@ -30,12 +30,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../Processors/PluginManager/PluginManager.h"
 #include "FilenameConfigWindow.h"
 
+#include "LookAndFeel/CustomLookAndFeel.h"
+
 
 const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
 //const int SIZE_AUDIO_EDITOR_MIN_WIDTH = 250;
-
-#define defaultButtonColour Colour(180,180,180)
-
 
 FilenameEditorButton::FilenameEditorButton()
     : TextButton("Filename Editor")
@@ -44,58 +43,79 @@ FilenameEditorButton::FilenameEditorButton()
 }
 
 PlayButton::PlayButton()
-    : DrawableButton("Play Button", DrawableButton::ImageFitted)
+    : DrawableButton("Play Button", DrawableButton::ImageRaw)
 {
 
-    DrawablePath normal, over, down;
-
-    Path p;
-    p.addTriangle(0.0f, 0.0f, 0.0f, 20.0f, 18.0f, 10.0f);
-    normal.setPath(p);
-    normal.setFill(defaultButtonColour);
-    normal.setStrokeThickness(0.0f);
-
-    over.setPath(p);
-    over.setFill(Colours::black);
-    over.setStrokeThickness(2.0f);
-    over.setStrokeFill(Colours::black);
-
-    down.setPath(p);
-    down.setFill(Colours::pink);
-    down.setStrokeFill(Colours::pink);
-    down.setStrokeThickness(5.0f);
-
-    setImages(&normal, &over, &over);
+    
     setColour(DrawableButton::backgroundColourId, Colours::darkgrey.withAlpha(0.0f));
     setColour(DrawableButton::backgroundOnColourId, Colours::darkgrey.withAlpha(0.0f));
     setClickingTogglesState(true);
     setTooltip("Start/stop acquisition");
+    
+    updateImages();
 }
 
-RecordButton::RecordButton()
-    : DrawableButton("Record Button", DrawableButton::ImageFitted)
+void PlayButton::updateImages()
 {
-
     DrawablePath normal, over, down;
 
     Path p;
-    p.addEllipse(0.0,0.0,20.0,20.0);
+    p.addTriangle(0.0f, 0.0f, 0.0f, 20.0f, 18.0f, 10.0f);
+    p.applyTransform(AffineTransform::scale(0.8f));
+    p.applyTransform(AffineTransform::translation(2,2));
     normal.setPath(p);
-    normal.setFill(defaultButtonColour);
+    normal.setFill(findColour(ThemeColors::controlPanelButtonColorId));
     normal.setStrokeThickness(0.0f);
 
     over.setPath(p);
-    over.setFill(Colours::black);
-    over.setStrokeFill(Colours::black);
-    over.setStrokeThickness(5.0f);
+    over.setFill(findColour(ThemeColors::controlPanelButtonColorId));
+    over.setStrokeThickness(2.0f);
+    over.setStrokeFill(findColour(ThemeColors::controlPanelButtonColorId));
+    
+    down.setPath(p);
+    down.setFill(Colours::white);
+    down.setStrokeThickness(2.0f);
+    down.setStrokeFill(Colours::white);
 
-    setImages(&normal, &over, &over);
+    setImages(&normal, &over, &down);
+}
+
+RecordButton::RecordButton()
+    : DrawableButton("Record Button", DrawableButton::ImageRaw)
+{
+
     setColour(DrawableButton::backgroundColourId, Colours::darkgrey.withAlpha(0.0f));
     setColour(DrawableButton::backgroundOnColourId, Colours::darkgrey.withAlpha(0.0f));
     setClickingTogglesState(true);
     setTooltip("Start/stop writing to disk");
+    
+    updateImages();
 }
 
+void RecordButton::updateImages()
+{
+    DrawablePath normal, over, down;
+
+    Path p;
+    p.addEllipse(0.0,0.0,20.0,20.0);
+    p.applyTransform(AffineTransform::scale(0.8f));
+    p.applyTransform(AffineTransform::translation(2,2));
+    normal.setPath(p);
+    normal.setFill(findColour(ThemeColors::controlPanelButtonColorId));
+    normal.setStrokeThickness(0.0f);
+
+    over.setPath(p);
+    over.setFill(findColour(ThemeColors::controlPanelButtonColorId));
+    over.setStrokeThickness(2.0f);
+    over.setStrokeFill(findColour(ThemeColors::controlPanelButtonColorId));
+    
+    down.setPath(p);
+    down.setFill(Colours::white);
+    down.setStrokeThickness(2.0f);
+    down.setStrokeFill(Colours::white);
+
+    setImages(&normal, &over, &down);
+}
 
 CPUMeter::CPUMeter() : Label("CPU Meter","0.0"), cpu(0.0f)
 {
@@ -180,15 +200,6 @@ Clock::Clock() : isRunning(false),
 
 void Clock::paint(Graphics& g)
 {
-    if (isRecording)
-    {
-        g.fillAll(Colour(255,0,0));
-    }
-    else
-    {
-        g.fillAll(Colour(58,58,58));
-    }
-
     drawTime(g);
 }
 
@@ -314,13 +325,14 @@ void Clock::mouseDown(const MouseEvent& e)
 	if (e.mods.isRightButtonDown())
 	{
 		PopupMenu m;
+        m.setLookAndFeel(&getLookAndFeel());
         
         m.addItem(1, "Clock mode", false);
         m.addSeparator();
 		m.addItem(2, "Default", true, mode == DEFAULT);
 		m.addItem(3, "HH:MM:SS", true, mode == HHMMSS);
 
-		int result = m.show();
+        int result = m.showMenu(PopupMenu::Options{}.withStandardItemHeight(20));
 
 		if (result == 2)
 		{
@@ -337,13 +349,10 @@ ControlPanelButton::ControlPanelButton(ControlPanel* cp_)
     : cp(cp_),
       open(false)
 {
-    openPath.addTriangle(10.f, 14.398f,
-                         4.f, 4.f,
-                         16.f, 4.f);
-    
-    closedPath = Path(openPath);
-    openPath.applyTransform(AffineTransform::translation(4,4));
-    closedPath.applyTransform(AffineTransform::rotation(MathConstants<float>::pi/2, 10.f, 10.f));
+    openPath.addTriangle(2.2f, 3.0f, 7.8f, 3.0f,  5.0f, 8.5f );
+    openPath.applyTransform(AffineTransform::scale(2.2f, 2.2f));
+    closedPath.addTriangle(1.5f, 5.0f, 7.0f, 2.2f, 7.0f, 7.8f);
+    closedPath.applyTransform(AffineTransform::scale(2.2f, 2.2f));
 
     setTooltip("Show/hide recording options");
 }
@@ -351,14 +360,19 @@ ControlPanelButton::ControlPanelButton(ControlPanel* cp_)
 void ControlPanelButton::paint(Graphics& g)
 {
     
-    g.setColour(defaultButtonColour);
-
-    PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);
-
     if (open)
-        g.strokePath(openPath, pst);
+        g.setColour(findColour(ThemeColors::controlPanelButtonColorId).withAlpha(0.5f));
     else
-        g.strokePath(closedPath, pst);
+        g.setColour(findColour(ThemeColors::controlPanelButtonColorId).withAlpha(0.2f));
+    
+    g.fillEllipse(0, 0, getWidth(), getHeight());
+
+    g.setColour(findColour(ThemeColors::controlPanelBackgroundColorId));
+    
+    if (open)
+        g.fillPath(openPath);
+    else
+        g.fillPath(closedPath);
 }
 
 
@@ -382,51 +396,18 @@ void ControlPanelButton::setState(bool b)
     repaint();
 }
 
-ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
-    : graph(graph_), audio(audio_), initialize(true), open(false), lastEngineIndex(-1), forceRecording(false)
+ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_, bool isConsoleApp_)
+    : graph(graph_), audio(audio_), isConsoleApp(isConsoleApp_), initialize(true), open(false), lastEngineIndex(-1), forceRecording(false)
 {
-
-    font = Font("Miso", "Regular", 13);
-
-    audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
-    addAndMakeVisible(audioEditor);
-
-    playButton = std::make_unique<PlayButton>();
-    playButton->addListener(this);
-    addAndMakeVisible(playButton.get());
+    
+    AccessClass::setControlPanel(this);
 
     recordButton = std::make_unique<RecordButton>();
     recordButton->addListener(this);
-    addAndMakeVisible(recordButton.get());
-
-    clock = std::make_unique<Clock>();
-    addAndMakeVisible(clock.get());
-
-    cpuMeter = std::make_unique<CPUMeter>();
-    addAndMakeVisible(cpuMeter.get());
-
-    diskMeter = std::make_unique<DiskSpaceMeter>();
-    addAndMakeVisible(diskMeter.get());
-
-    cpb = std::make_unique<ControlPanelButton>(this);
-    addAndMakeVisible(cpb.get());
-
-    recordSelector = std::make_unique<ComboBox>("Control Panel Record Engine Selector");
-    recordSelector->addListener(this);
-    addChildComponent(recordSelector.get());
-
-    recordOptionsButton = std::make_unique<UtilityButton>("R", Font("Silkscreen", "Regular", 15));
-    recordOptionsButton->setEnabledState(true);
-    recordOptionsButton->addListener(this);
-    recordOptionsButton->setTooltip("Configure options for selected record engine");
-    addChildComponent(recordOptionsButton.get());
-
-    newDirectoryButton = std::make_unique<UtilityButton>("+", Font("Silkscreen", "Regular", 15));
-    newDirectoryButton->setEnabledState(false);
-    newDirectoryButton->addListener(this);
-    newDirectoryButton->setTooltip("Start a new data directory");
-    addChildComponent(newDirectoryButton.get());
-
+    
+    playButton = std::make_unique<PlayButton>();
+    playButton->addListener(this);
+    
     const File dataDirectory = CoreServices::getDefaultUserSaveDirectory();
 
     filenameComponent = std::make_unique<FilenameComponent>("folder selector",
@@ -449,17 +430,50 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_)
     filenameText = std::make_unique<FilenameEditorButton>();
     generateFilenameFromFields(true);
     filenameText->addListener(this);
-    addAndMakeVisible(filenameText.get());
+    
+    recordSelector = std::make_unique<ComboBox>("Control Panel Record Engine Selector");
+    recordSelector->addListener(this);
+    addChildComponent(recordSelector.get());
 
+    recordOptionsButton = std::make_unique<UtilityButton>("R", Font("Silkscreen", "Regular", 15));
+    recordOptionsButton->setEnabledState(true);
+    recordOptionsButton->addListener(this);
+    recordOptionsButton->setTooltip("Configure options for selected record engine");
+    addChildComponent(recordOptionsButton.get());
+    
+    newDirectoryButton = std::make_unique<UtilityButton>("+", Font("Silkscreen", "Regular", 15));
+    newDirectoryButton->setEnabledState(false);
+    newDirectoryButton->addListener(this);
+    newDirectoryButton->setTooltip("Start a new data directory");
+    addChildComponent(newDirectoryButton.get());
+    
+    clock = std::make_unique<Clock>();
+    cpuMeter = std::make_unique<CPUMeter>();
+    diskMeter = std::make_unique<DiskSpaceMeter>();
+    controlPanelButton = std::make_unique<ControlPanelButton>(this);
     filenameConfigWindow = std::make_unique<FilenameConfigWindow>(filenameFields);
+    
+    if (!isConsoleApp)
+    {
+        font = Font("Miso", "Regular", 13);
 
-    refreshMeters();
+        audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
+        addAndMakeVisible(audioEditor);
+ 
+        addAndMakeVisible(playButton.get());
+        addAndMakeVisible(recordButton.get());
+        addAndMakeVisible(clock.get());
+        addAndMakeVisible(cpuMeter.get());
+        addAndMakeVisible(diskMeter.get());
+        addAndMakeVisible(controlPanelButton.get());
+        addAndMakeVisible(filenameText.get());
 
-    startTimer(60000); // update disk space every minute
+        refreshMeters();
 
-    setWantsKeyboardFocus(true);
+        startTimer(60000); // update disk space every minute
 
-    backgroundColour = Colour(58,58,58);
+        setWantsKeyboardFocus(true);
+    }
 
 }
 
@@ -536,17 +550,23 @@ void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
                 playButton->setToggleState(true, dontSendNotification);
             }
 
-            playButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
-            
-            clock->start(); // starts the clock
-            audioEditor->disable();
+            if (!isConsoleApp)
+            {
+                playButton->getNormalImage()->replaceColour(findColour(ThemeColors::controlPanelButtonColorId), findColour(ThemeColors::controlPanelButtonOnColorId));
+                playButton->getOverImage()->replaceColour(findColour(ThemeColors::controlPanelButtonColorId),
+                                                          findColour(ThemeColors::controlPanelButtonOnColorId));
+  
+                audioEditor->disable();
+                
+                clock->start(); // starts the clock
 
-            stopTimer();
-            startTimer(250); // refresh every 250 ms
+                stopTimer();
+                startTimer(250); // refresh every 250 ms
 
-            recordSelector->setEnabled(false); // why is this outside the "if" statement?
-            recordOptionsButton->setEnabled(false);
-            
+                recordSelector->setEnabled(false); // why is this outside the "if" statement?
+                recordOptionsButton->setEnabled(false);
+            }
+
             graph->startAcquisition(); // start data flow
         }
     }
@@ -562,19 +582,24 @@ void ControlPanel::stopAcquisition()
     graph->stopAcquisition();
 
     audio->endCallbacks();
+
+    if (!isConsoleApp)
+    {
+        playButton->getNormalImage()->replaceColour(findColour(ThemeColors::controlPanelButtonOnColorId), findColour(ThemeColors::controlPanelButtonColorId));
+        playButton->getOverImage()->replaceColour(findColour(ThemeColors::controlPanelButtonOnColorId), findColour(ThemeColors::controlPanelButtonColorId));
+        
+        refreshMeters();
+
+        clock->stop();
+        audioEditor->enable();
+
+        stopTimer();
+        startTimer(60000); // back to refresh every minute
+        
+        recordSelector->setEnabled(true);
+        recordOptionsButton->setEnabled(true);
+    }
     
-    playButton->getNormalImage()->replaceColour(Colours::yellow, defaultButtonColour);
-
-    refreshMeters();
-
-    clock->stop();
-    audioEditor->enable();
-
-    stopTimer();
-    startTimer(60000); // back to refresh every minute
-    
-    recordSelector->setEnabled(true);
-    recordOptionsButton->setEnabled(true);
 }
 
 void ControlPanel::updateRecordEngineList()
@@ -688,7 +713,11 @@ void ControlPanel::createPaths()
 
 void ControlPanel::paint(Graphics& g)
 {
-    g.setColour (backgroundColour);
+    if (!recordButton->getToggleState())
+        g.setColour (findColour(ThemeColors::controlPanelBackgroundColorId));
+    else
+        g.setColour(Colour(255,0,0));
+    
     g.fillRect (0, 0, getWidth(), getHeight());
 
     if (open)
@@ -803,9 +832,9 @@ void ControlPanel::resized()
 
 
     if (open)
-        cpb->setBounds (w - 28, getHeight() - 5 - h * 2 + 10, h - 10, h - 10);
+        controlPanelButton->setBounds (w - 28, getHeight() - 5 - h * 2 + 10, h - 10, h - 10);
     else
-        cpb->setBounds (w - 28, getHeight() - 5 - h + 10, h - 10, h - 10);
+        controlPanelButton->setBounds (w - 28, getHeight() - 5 - h + 10, h - 10, h - 10);
 
     createPaths();
 
@@ -845,9 +874,10 @@ void ControlPanel::openState(bool os)
 {
     open = os;
 
-    cpb->setState(os);
+    controlPanelButton->setState(os);
 
-    AccessClass::getUIComponent()->childComponentChanged();
+    if (!isConsoleApp)
+        AccessClass::getUIComponent()->childComponentChanged();
 }
 
 void ControlPanel::labelTextChanged(Label* label)
@@ -866,11 +896,11 @@ void ControlPanel::startRecording()
 {
 
     clock->startRecording(); // turn on recording
-    backgroundColour = Colour(255,0,0);
 
     filenameText->setColour(Label::textColourId, Colours::black);
     
-    recordButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
+    recordButton->getNormalImage()->replaceColour(findColour(ThemeColors::controlPanelButtonColorId), findColour(ThemeColors::controlPanelButtonOnColorId));
+    recordButton->getOverImage()->replaceColour(findColour(ThemeColors::controlPanelButtonColorId), findColour(ThemeColors::controlPanelButtonOnColorId));
 
     if (!newDirectoryButton->getEnabledState()) // new directory is required
     {
@@ -902,9 +932,9 @@ void ControlPanel::stopRecording()
 
     clock->stopRecording();
     newDirectoryButton->setEnabledState(true);
-    backgroundColour = Colour (51, 51, 51);
-    
-    recordButton->getNormalImage()->replaceColour(Colours::yellow, defaultButtonColour);
+
+    recordButton->getNormalImage()->replaceColour(findColour(ThemeColors::controlPanelButtonOnColorId), findColour(ThemeColors::controlPanelButtonColorId));
+    recordButton->getOverImage()->replaceColour(findColour(ThemeColors::controlPanelButtonOnColorId), findColour(ThemeColors::controlPanelButtonColorId));
 
     recordButton->setToggleState(false, dontSendNotification);
 
@@ -926,6 +956,12 @@ void ControlPanel::componentBeingDeleted(Component &component)
 	component.removeComponentListener(this);
 }
 
+void ControlPanel::updateColors()
+{
+    playButton->updateImages();
+    recordButton->updateImages();
+}
+
 void ControlPanel::buttonClicked(Button* button)
 {
 
@@ -934,6 +970,7 @@ void ControlPanel::buttonClicked(Button* button)
 
         filenameConfigWindow.reset();
         filenameConfigWindow = std::make_unique<FilenameConfigWindow>(filenameFields);
+        filenameConfigWindow->setLookAndFeel(&getLookAndFeel());
 
         CallOutBox& myBox
             = CallOutBox::launchAsynchronously(std::move(filenameConfigWindow), 
@@ -1129,7 +1166,7 @@ void ControlPanel::toggleState()
 {
     open = !open;
 
-    cpb->toggleState();
+    controlPanelButton->toggleState();
     AccessClass::getUIComponent()->childComponentChanged();
 }
 
@@ -1142,7 +1179,8 @@ void ControlPanel::saveStateToXml(XmlElement* xml)
     controlPanelState->setAttribute("recordEngine", recordEngines[recordSelector->getSelectedId()-1]->getID());
     controlPanelState->setAttribute("clockMode", (int) clock->getMode());
 
-    audioEditor->saveStateToXml(xml);
+    if (!isConsoleApp)
+        audioEditor->saveStateToXml(xml);
 
     filenameConfigWindow->saveStateToXml(xml);
 
@@ -1191,7 +1229,8 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
         }
     }
 
-    audioEditor->loadStateFromXml(xml);
+    if (!isConsoleApp)
+        audioEditor->loadStateFromXml(xml);
 
     filenameConfigWindow->loadStateFromXml(xml);
     generateFilenameFromFields(true);
@@ -1199,15 +1238,15 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
 }
 
 
-StringArray ControlPanel::getRecentlyUsedFilenames()
+Array<String> ControlPanel::getRecentlyUsedFilenames()
 {
-    return filenameComponent->getRecentlyUsedFilenames();
+    return filenameComponent->getRecentlyUsedFilenames().strings;
 }
 
 
-void ControlPanel::setRecentlyUsedFilenames(const StringArray& filenames)
+void ControlPanel::setRecentlyUsedFilenames(const Array<String>& filenames)
 {
-    filenameComponent->setRecentlyUsedFilenames(filenames);
+    filenameComponent->setRecentlyUsedFilenames(StringArray(filenames));
 }
 
 static void forceFilenameEditor (int result, ControlPanel* panel)

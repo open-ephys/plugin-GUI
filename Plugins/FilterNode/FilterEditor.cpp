@@ -31,5 +31,13 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode) : GenericEditor(parentN
     addTextBoxParameterEditor("low_cut", 10, 22);
     addTextBoxParameterEditor("high_cut", 10, 62);
     addMaskChannelsParameterEditor("Channels", 10, 108);
+    
+    TextBoxParameterEditor* e = (TextBoxParameterEditor*) getParameterEditor("low_cut");
+    e->getParameterNameLabel()->setColour(Label::textColourId, Colours::white);
+    e->getParameterNameLabel()->setFont(Font("Miso", "Regular", 13));
+    e->getParameterNameLabel()->setText("Alt text", dontSendNotification);
+    e->getValueLabel()->setFont(Font("Miso", "Regular", 13));
 
+    TextBoxParameterEditor* e2 = (TextBoxParameterEditor*) getParameterEditor("high_cut");
+    e2->setLayout(TextBoxParameterEditor::Layout::nameOnBottom);
 }

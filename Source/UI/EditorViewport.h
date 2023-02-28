@@ -135,6 +135,9 @@ public:
 	/** Save the current configuration as an XML file. Reference wrapper*/
 	const String saveState(File filename, String& xmlText);
     
+    /** Saves the viewport-specific settings (e.g. processor order) */
+    void saveEditorViewportSettingsToXml(XmlElement* xml);
+    
     /** Save the current configuration as an XML file. Reference wrapper*/
     std::unique_ptr<XmlElement> createSettingsXml();
 
@@ -144,6 +147,9 @@ public:
     /** Load a saved configuration from an XML object*/
     const String loadStateFromXml(XmlElement* xml);
     
+    /** Loads the viewport-specific settings (e.g. processor order) */
+    void loadEditorViewportSettingsFromXml(XmlElement* xml);
+    
     /** Load a saved plugin configuration from an XML file. */
     const String loadPluginState(File filename, GenericEditor* selectedEditor = nullptr);
     
@@ -152,9 +158,6 @@ public:
 
     /** Converts information about a given editor to XML. */
     XmlElement* createNodeXml(GenericProcessor*, bool isStartOfSignalChain);
-
-    /** Converts information about a splitter or merge to XML. */
-    XmlElement* switchNodeXml(GenericProcessor*);
 
     /** Sets the parameters of a given processor via XML save files*/
     void setParametersByXML(GenericProcessor*, XmlElement*);

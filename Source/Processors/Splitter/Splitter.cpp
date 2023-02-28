@@ -53,7 +53,7 @@ void Splitter::updateSettings()
     streamsForPathA.clear();
     streamsForPathB.clear();
 
-    if (sourceNode != nullptr)
+    if (sourceNode != nullptr && !headlessMode)
     {
         // figure out which streams to send
         SplitterEditor* editor = (SplitterEditor*)getEditor();
@@ -185,7 +185,12 @@ void Splitter::saveCustomParametersToXml(XmlElement* parentElement)
 
 void Splitter::loadCustomParametersFromXml(XmlElement* xml)
 {
-    SplitterEditor* se = (SplitterEditor*) getEditor();
+ 
+    if (!headlessMode)
+    {
+        SplitterEditor* se = (SplitterEditor*) getEditor();
+        
+        se->switchDest(xml->getIntAttribute("activePath", 0));
+    }
     
-    se->switchDest(xml->getIntAttribute("activePath", 0));
 }

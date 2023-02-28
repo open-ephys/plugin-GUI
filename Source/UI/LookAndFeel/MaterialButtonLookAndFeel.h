@@ -38,13 +38,16 @@
 class PLUGIN_API MaterialButtonLookAndFeel : public LookAndFeel_V2
 {
 public:
+    /** Constructor */
     MaterialButtonLookAndFeel();
 
+    /** Draws the button background*/
     void drawButtonBackground (Graphics& g,
                                Button& button,
                                const Colour& backgroundColour,
                                bool isMouseOverButton, bool isButtonDown) override;
 
+    /** Draws the button text */
     void drawButtonText (Graphics& g,
                          TextButton& button,
                          bool isMouseOverButton, bool isButtonDown) override;

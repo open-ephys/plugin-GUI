@@ -171,6 +171,7 @@ public:
     /** Used by GraphViewer */
     bool isMerger();
 
+    /** Used by GraphViewer */
     bool isUtility();
     
     /** Used by VisualizerEditor to bring the editor's tab to the foreground.*/
@@ -208,6 +209,9 @@ public:
 
     /** Allows an editor to update the settings of its visualizer (such as channel count and sample rate).*/
     virtual void updateVisualizer();
+    
+    /** Returns the parameter editor for a given parameter name*/
+    ParameterEditor* getParameterEditor(const String& parameterName);
 
     /** An array of pointers to ParameterEditors created based on the Parameters of an editor's underlying processor. */
     OwnedArray<ParameterEditor> parameterEditors;

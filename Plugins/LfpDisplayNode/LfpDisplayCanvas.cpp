@@ -648,16 +648,15 @@ void LfpDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 			doubleHorizontalSplitRatio = xmlNode->getStringAttribute("doubleHorizontalSplitRatio").getFloatValue();
             doubleVerticalSplitRatio = xmlNode->getStringAttribute("doubleVerticalSplitRatio").getFloatValue ();
 
-            juce::StringArray values;
+            String splitString = xmlNode->getStringAttribute("tripleHorizontalSplitRatio");
+            int splitPoint = splitString.indexOf(",");
+            tripleHorizontalSplitRatio.set(0, splitString.substring(0,splitPoint).getFloatValue());
+            tripleHorizontalSplitRatio.set(1, splitString.substring(splitPoint+1).getFloatValue());
 
-            values.addTokens(xmlNode->getStringAttribute("tripleHorizontalSplitRatio"), ",", String());
-            tripleHorizontalSplitRatio.set(0, values[0].getFloatValue());
-            tripleHorizontalSplitRatio.set(1, values[1].getFloatValue());
-            values.clear();
-
-            values.addTokens(xmlNode->getStringAttribute("tripleVerticalSplitRatio"), ",", String());
-            tripleVerticalSplitRatio.set(0, values[0].getFloatValue());
-            tripleVerticalSplitRatio.set(1, values[1].getFloatValue());
+            splitString = xmlNode->getStringAttribute("tripleVerticalSplitRatio");
+            splitPoint = splitString.indexOf(",");
+            tripleVerticalSplitRatio.set(0, splitString.substring(0,splitPoint).getFloatValue());
+            tripleVerticalSplitRatio.set(1, splitString.substring(splitPoint+1).getFloatValue());
 
             toggleOptionsDrawer(xmlNode->getBoolAttribute("showAllOptions", false));
 

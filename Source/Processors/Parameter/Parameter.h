@@ -200,6 +200,29 @@ public:
     /** Returns a pointer to the processor this parameter is associated with**/
     GenericProcessor* getProcessor() {return processor; }
     
+    /** Makes it possible to undo value changes */
+    class ChangeValue : public UndoableAction
+    {
+    public:
+        /** Constructor */
+        ChangeValue(GenericProcessor*, Parameter*, var newValue);
+        
+        /** Destructor */
+        ~ChangeValue() { }
+        
+        /** Perform the action */
+        bool perform();
+        
+        /** Undo the action*/
+        bool undo();
+        
+    private:
+        Parameter* parameter;
+        GenericProcessor* processor;
+        var originalValue;
+        var newValue;
+    };
+    
 protected:
 
     GenericProcessor* processor;
@@ -273,7 +296,7 @@ public:
         ParameterScope scope,
         const String& name,
         const String& description,
-        StringArray categories,
+        Array<String> categories,
         int defaultIndex,
         bool deactivateDuringAcquisition = false);
 
@@ -290,10 +313,10 @@ public:
     virtual String getValueAsString() override;
 
     /** Updates the categories*/
-    void setCategories(StringArray categories);
+    void setCategories(Array<String> categories);
 
     /** Updates the categories*/
-    const StringArray& getCategories();
+    const Array<String>& getCategories();
 
     /** Saves the parameter to an XML Element*/
     virtual void toXml(XmlElement*) override;
@@ -303,7 +326,7 @@ public:
 
 private:
 
-    StringArray categories;
+    Array<String> categories;
 
 };
 

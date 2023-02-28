@@ -26,12 +26,32 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "UI/UIComponent.h"
+#include "UI/ControlPanel.h"
 #include "Audio/AudioComponent.h"
 #include "Processors/ProcessorGraph/ProcessorGraph.h"
 #include "UI/DefaultConfig.h"
+#include "UI/ControlPanel.h"
 #include "Utils/OpenEphysHttpServer.h"
 
 class OpenEphysHttpServer;
+
+/**
+    Custom DocumentWindow class
+ */
+class MainDocumentWindow : public DocumentWindow
+{
+public:
+    
+    /** Constructor */
+    MainDocumentWindow();
+    
+    /** Destructor */
+    virtual ~MainDocumentWindow() { }
+    
+    /** Called when the user hits the close button of the MainWindow. This destroys
+        the MainWindow and closes the application. */
+    void closeButtonPressed();
+};
 
 /**
   The main window for the GUI application.
@@ -43,20 +63,16 @@ class OpenEphysHttpServer;
 
 */
 
-class MainWindow   : public DocumentWindow
+class MainWindow
 {
 public:
 
     /** Initializes the MainWindow, creates the AudioComponent, ProcessorGraph,
         and UIComponent, and sets the window boundaries. */
-    MainWindow(const File& fileToLoad = File());
+    MainWindow(const File& fileToLoad = File(), bool isConsoleApp = false);
 
     /** Destroys the AudioComponent, ProcessorGraph, and UIComponent, and saves the window boundaries. */
     ~MainWindow();
-
-    /** Called when the user hits the close button of the MainWindow. This destroys
-        the MainWindow and closes the application. */
-    void closeButtonPressed();
 
     /** A JUCE class that allows the MainWindow to respond to keyboard and menubar
         commands. */
@@ -81,8 +97,17 @@ public:
 
     /** Stop thread which listens to remote commands to control the GUI */
     void disableHttpServer();
+    
+    /** Sets the size of the Main Window */
+    void centreWithSize(int, int);
 
 private:
+    
+    /** Saves the processor graph to a file*/
+    void saveProcessorGraph(const File& file);
+
+    /** Loads  the processor graph from a file*/
+    void loadProcessorGraph(const File& file);
 
     /** Saves the MainWindow's boundaries into the file "windowState.xml", located in the directory
         from which the GUI is run. */
@@ -99,17 +124,26 @@ private:
     /** API respective configs directory */
     File configsDir;
 
+    /** A pointer to the DocumentWindow (only instantiated if running in GUI mode). */
+    std::unique_ptr<MainDocumentWindow> documentWindow;
+    
     /** A pointer to the application's AudioComponent (owned by the MainWindow). */
     std::unique_ptr<AudioComponent> audioComponent;
 
     /** A pointer to the application's ProcessorGraph (owned by the MainWindow). */
     std::unique_ptr<ProcessorGraph> processorGraph;
-
+    
+    /** A pointer to the application's ControlPanel (owned by the MainWindow). */
+    std::unique_ptr<ControlPanel> controlPanel;
+    
     /** A weak reference to default config window. */
     std::unique_ptr<DefaultConfigWindow> defaultConfigWindow;
 
     /** A pointer to the application's HttpServer (owned by the MainWindow). */
     std::unique_ptr<OpenEphysHttpServer> http_server_thread;
+    
+    /** Set to true if the application is running in console mode */
+    bool isConsoleApp;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 
