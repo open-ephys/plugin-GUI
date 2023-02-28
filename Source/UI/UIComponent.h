@@ -147,13 +147,17 @@ public:
     /** Load settings. */
     void loadStateFromXml(XmlElement*);
     
+    /** Get current color theme*/
     ColorTheme getTheme();
     
+    /** Set current color theme*/
     void setTheme(ColorTheme);
 
-    StringArray getRecentlyUsedFilenames();
+    /** Get list of recently used recording directories*/
+    Array<String> getRecentlyUsedFilenames();
 
-    void setRecentlyUsedFilenames(const StringArray& filenames);
+    /** Set list of recently used recording directories */
+    void setRecentlyUsedFilenames(const Array<String>& filenames);
 	
 private:
 

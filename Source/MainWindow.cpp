@@ -426,7 +426,7 @@ void MainWindow::loadWindowBounds()
 			else if (e->hasTagName("RECENTDIRECTORYNAMES"))
 			{
 
-				StringArray filenames;
+				Array<String> filenames;
 
 				for (auto* directory : e->getChildIterator())
 				{

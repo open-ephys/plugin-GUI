@@ -949,12 +949,12 @@ void UIComponent::loadStateFromXml(XmlElement* xml)
 	}
 }
 
-StringArray UIComponent::getRecentlyUsedFilenames()
+Array<String> UIComponent::getRecentlyUsedFilenames()
 {
 	return controlPanel->getRecentlyUsedFilenames();
 }
 
-void UIComponent::setRecentlyUsedFilenames(const StringArray& filenames)
+void UIComponent::setRecentlyUsedFilenames(const Array<String>& filenames)
 {
 	controlPanel->setRecentlyUsedFilenames(filenames);
 }

@@ -445,10 +445,10 @@ public:
     void loadStateFromXml(XmlElement*);
 
     /** Returns a list of recently used directories for saving data. */
-    StringArray getRecentlyUsedFilenames();
+    Array<String> getRecentlyUsedFilenames();
 
     /** Sets the list of recently used directories for saving data. */
-    void setRecentlyUsedFilenames (const StringArray& filenames);
+    void setRecentlyUsedFilenames (const Array<String>& filenames);
 
     /** Queries the RecordEnginerManager for available engines when the GUI launches*/
     void updateRecordEngineList();

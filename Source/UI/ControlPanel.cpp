@@ -1238,15 +1238,15 @@ void ControlPanel::loadStateFromXml(XmlElement* xml)
 }
 
 
-StringArray ControlPanel::getRecentlyUsedFilenames()
+Array<String> ControlPanel::getRecentlyUsedFilenames()
 {
-    return filenameComponent->getRecentlyUsedFilenames();
+    return filenameComponent->getRecentlyUsedFilenames().strings;
 }
 
 
-void ControlPanel::setRecentlyUsedFilenames(const StringArray& filenames)
+void ControlPanel::setRecentlyUsedFilenames(const Array<String>& filenames)
 {
-    filenameComponent->setRecentlyUsedFilenames(filenames);
+    filenameComponent->setRecentlyUsedFilenames(StringArray(filenames));
 }
 
 static void forceFilenameEditor (int result, ControlPanel* panel)
