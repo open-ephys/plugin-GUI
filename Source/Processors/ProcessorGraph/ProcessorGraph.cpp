@@ -163,13 +163,16 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
 
     if (moveDownstream) // processor is further down the signal chain, its original dest may have changed
     {
-        LOGD("MOVE: Updating settings for ", originalDest->getNodeId());
-        updateSettings(originalDest);
+        //LOGD("MOVE: Updating settings for ", originalDest->getNodeId());
+        if (originalDest != nullptr)
+            updateSettings(originalDest);
+        else
+            updateSettings(processor);
     }
         
     else // processor is upstream of its original dest, so we can just update that
     {
-        LOGD("MOVE: Updating settings for ", processor->getNodeId());
+        //LOGD("MOVE: Updating settings for ", processor->getNodeId());
         updateSettings(processor);
     }
         
