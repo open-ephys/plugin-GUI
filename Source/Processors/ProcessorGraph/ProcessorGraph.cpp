@@ -117,6 +117,7 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
     LOGD("New source: ", newSource->getName());
     if (newDest != nullptr)
     LOGD("New dest: ", newDest->getName());
+    LOGD("Move downstream: ", moveDownstream);
 
     processor->setSourceNode(nullptr);
     processor->setDestNode(nullptr);
@@ -154,6 +155,7 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
             newDest->setSourceNode(processor);
         } else {
             processor->setDestNode(nullptr);
+            updateSettings(newDest);
         }
     }
 
