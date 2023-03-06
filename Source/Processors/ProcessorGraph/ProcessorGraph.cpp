@@ -450,7 +450,7 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
 
                     } else {
 
-                        Merger* merger = (Merger*) processor->getDestNode();
+                        Merger* merger = (Merger*)p;
 
                         GenericProcessor* sourceA = merger->getSourceNode(0);
                         GenericProcessor* sourceB = merger->getSourceNode(1);
