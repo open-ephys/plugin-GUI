@@ -160,9 +160,17 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
     checkForNewRootNodes(processor, false, true);
 
     if (moveDownstream) // processor is further down the signal chain, its original dest may have changed
+    {
+        LOGD("MOVE: Updating settings for ", originalDest->getNodeId());
         updateSettings(originalDest);
+    }
+        
     else // processor is upstream of its original dest, so we can just update that
+    {
+        LOGD("MOVE: Updating settings for ", processor->getNodeId());
         updateSettings(processor);
+    }
+        
 }
 
 GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& description,
