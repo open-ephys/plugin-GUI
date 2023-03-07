@@ -126,7 +126,7 @@ void LfpTimescale::setPausedState(bool isPaused_)
     else {
         lfpDisplay->pause(true);
         isPaused = true;
-        startTimer(200);
+        startTimer(100);
     }
 
     repaint();
