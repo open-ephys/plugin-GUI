@@ -81,16 +81,27 @@ public:
         FLOAT_PARAM,
         INT_PARAM,
         SELECTED_CHANNELS_PARAM,
-        MASK_CHANNELS_PARAM
+        SELECTED_SPIKE_CHANNEL_PARAM,
+        SELECTED_EVENT_CHANNEL_PARAM,
+        SELECTED_PROCESSOR_PARAM,
+        SELECTED_STREAM_PARAM,
+        MASK_CHANNELS_PARAM,
+        NAME_PARAM,
+        COLOUR_PARAM,
+        NOTIFICATION_PARAM
     };
     
     enum ParameterScope
     {
-        GLOBAL_SCOPE = 1,
+        GLOBAL_SCOPE = 1, // doesn't require a processor
+        DEVICE_SCOPE, // doesn't require a processor
+        PROCESSOR_SCOPE,
+        VISUALIZER_SCOPE,
         STREAM_SCOPE,
         EVENT_CHANNEL_SCOPE,
         CONTINUOUS_CHANNEL_SCOPE,
-        SPIKE_CHANNEL_SCOPE
+        SPIKE_CHANNEL_SCOPE,
+        INFO_OBJECT_SCOPE
     };
 
     /** Parameter constructor.*/
