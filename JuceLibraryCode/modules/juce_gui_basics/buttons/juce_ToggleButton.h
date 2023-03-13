@@ -77,6 +77,7 @@ public:
     };
 
     /** @internal */
+    
     std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override;
 
 protected:

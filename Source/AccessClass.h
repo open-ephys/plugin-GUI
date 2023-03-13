@@ -24,7 +24,11 @@
 #ifndef __ACCESSCLASS_H_CE1DC2DE__
 #define __ACCESSCLASS_H_CE1DC2DE__
 
+
+
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "TestableExport.h"
+
 
 class UIComponent;
 class EditorViewport;
@@ -94,6 +98,8 @@ PluginManager* getPluginManager();
 /** Retursn a pointer to the */
 ActionBroadcaster* getBroadcaster();
 
+void TESTABLE setMessageCenter(MessageCenter * mc_);
+
 void shutdownBroadcaster();
 
 //Methods to access some private members of GenericProcessors.
@@ -101,11 +107,12 @@ void shutdownBroadcaster();
 //used by various internal parts of the core GUI which need access
 //to those members, while keeping them inaccessible by normal plugins
 
-class ExternalProcessorAccessor
+class TESTABLE ExternalProcessorAccessor
 {
 
 public:
 	static MidiBuffer* getMidiBuffer(GenericProcessor* proc);
+    static void injectNumSamples(GenericProcessor* proc, uint16_t dataStream, uint32_t numSamples);
 };
 
 };
