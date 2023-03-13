@@ -31,6 +31,9 @@ include(HelperFunctions.cmake)
 set(BASE_BUILD_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Build)
 set(JUCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/JuceLibraryCode)
 set(RESOURCES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Resources)
+set(PLUGINS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Plugins)
+set(SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Source)
+set(TEST_HELPERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/TestHelpers)
 
 configure_file(${JUCE_DIRECTORY}/JuceHeader.h.in ${JUCE_DIRECTORY}/JuceHeader.h)
 configure_file(${RESOURCES_DIRECTORY}/Build-files/resources.rc.in ${RESOURCES_DIRECTORY}/Build-files/resources.rc)
@@ -53,34 +56,57 @@ else()
 endif()
 
 
+set(JUCE_SOURCE
+    ${JUCE_DIRECTORY}/AppConfig.h
+    ${JUCE_DIRECTORY}/JuceHeader.h
+    ${JUCE_DIRECTORY}/BinaryData.h
+    ${JUCE_DIRECTORY}/BinaryData.cpp
+    ${JUCE_DIRECTORY}/include_juce_audio_basics.${JUCE_FILES_EXTENSION}
+    ${JUCE_DIRECTORY}/include_juce_audio_devices.${JUCE_FILES_EXTENSION}
+    ${JUCE_DIRECTORY}/include_juce_audio_formats.${JUCE_FILES_EXTENSION}
+    ${JUCE_DIRECTORY}/include_juce_audio_processors.${JUCE_FILES_EXTENSION}
+    ${JUCE_DIRECTORY}/include_juce_audio_utils.${JUCE_FILES_EXTENSION}
+    ${JUCE_DIRECTORY}/include_juce_core.${JUCE_FILES_EXTENSION}
+    ${JUCE_DIRECTORY}/include_juce_cryptography.${JUCE_FILES_EXTENSION}
+    ${JUCE_DIRECTORY}/include_juce_data_structures.${JUCE_FILES_EXTENSION}
+    ${JUCE_DIRECTORY}/include_juce_events.${JUCE_FILES_EXTENSION}
+    ${JUCE_DIRECTORY}/include_juce_graphics.${JUCE_FILES_EXTENSION}
+    ${JUCE_DIRECTORY}/include_juce_gui_basics.${JUCE_FILES_EXTENSION}
+    ${JUCE_DIRECTORY}/include_juce_gui_extra.${JUCE_FILES_EXTENSION}
+    ${JUCE_DIRECTORY}/include_juce_opengl.${JUCE_FILES_EXTENSION}
+    ${JUCE_DIRECTORY}/include_juce_video.${JUCE_FILES_EXTENSION}
+)
+
 #create executable and add JUCE components
-add_executable(open-ephys
-	${JUCE_DIRECTORY}/AppConfig.h
-	${JUCE_DIRECTORY}/JuceHeader.h
-	${JUCE_DIRECTORY}/BinaryData.h
-	${JUCE_DIRECTORY}/BinaryData.cpp
-	${JUCE_DIRECTORY}/include_juce_audio_basics.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/include_juce_audio_devices.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/include_juce_audio_formats.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/include_juce_audio_processors.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/include_juce_audio_utils.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/include_juce_core.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/include_juce_cryptography.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/include_juce_data_structures.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/include_juce_events.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/include_juce_graphics.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/include_juce_gui_basics.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/include_juce_gui_extra.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/include_juce_opengl.${JUCE_FILES_EXTENSION}
-	${JUCE_DIRECTORY}/include_juce_video.${JUCE_FILES_EXTENSION}
-	)
+add_executable(open-ephys ${JUCE_SOURCE})
  if(MSVC)
 	target_sources(open-ephys PRIVATE ${RESOURCES_DIRECTORY}/Build-files/resources.rc)
  endif()
 
 
+
 target_include_directories(open-ephys PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules)
 target_compile_features(open-ephys PUBLIC cxx_auto_type cxx_generalized_initializers cxx_std_17)
+
+if(BUILD_TESTS)
+	add_definitions(-DBUILD_TESTS)
+	add_library(gui_testable_source SHARED ${JUCE_SOURCE})
+	set_property(TARGET gui_testable_source APPEND PROPERTY COMPILE_DEFINITIONS "JUCE_API=__declspec(dllexport)")
+	if(MSVC)
+		target_compile_options(gui_testable_source PRIVATE /sdl- /nologo /MP /W0 /bigobj)
+	endif()
+	target_include_directories(gui_testable_source PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules)
+	target_compile_features(gui_testable_source PUBLIC cxx_auto_type cxx_generalized_initializers cxx_std_17)
+
+	set(BIN_TESTS_DIR ${CMAKE_BINARY_DIR}/TestBin)
+
+	set_target_properties( gui_testable_source PROPERTIES RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR}/TestBin/common )
+	set_target_properties( gui_testable_source PROPERTIES LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR}/TestBin/common )
+
+	add_custom_command(TARGET gui_testable_source POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_TESTS_DIR}"
+		)
+endif()
 
 file(GLOB _bitfiles "${RESOURCES_DIRECTORY}/Bitfiles/*.bit")
 file(GLOB _xmlfiles "${RESOURCES_DIRECTORY}/Configs/*.xml")
@@ -217,7 +243,30 @@ elseif(APPLE)
 		"-framework QuartzCore"
 		"-framework WebKit"
 	)
-
+if(BUILD_TESTS)
+    target_link_libraries(gui_testable_source
+        "-framework Accelerate"
+        "-framework AudioToolbox"
+        "-framework AVKit"
+        "-framework AVFoundation"
+        "-framework Carbon"
+        "-framework Cocoa"
+        "-framework CoreAudio"
+        "-framework CoreAudioKit"
+        "-framework CoreMedia"
+        "-framework CoreMIDI"
+        "-framework DiscRecording"
+        "-framework Foundation"
+        "-framework IOKit"
+        "-framework Metal"
+        "-framework MetalKit"
+        "-framework OpenGL"
+        "-framework QTKit"
+        "-framework QuartzCore"
+        "-framework Security"
+        "-framework WebKit"
+    )
+endif()
 	set_target_properties(open-ephys PROPERTIES
 		XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ""
 		XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED NO
@@ -234,6 +283,7 @@ elseif(APPLE)
 		)
 		set_source_files_properties(${MAC_RESOURCE_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 		target_sources(open-ephys PRIVATE ${MAC_RESOURCE_FILES})
+
 
 else()
 	message( FATAL_ERROR "Unsupported OS")
@@ -252,5 +302,19 @@ foreach( src_file IN ITEMS ${SRC_FILES})
 	source_group("${group_name}" FILES "${src_file}")
 endforeach()
 
+#remove Main.cpp from open_ephys sources and add to API library
+list(REMOVE_ITEM SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/Source/Main.cpp)
+
+
+if(BUILD_TESTS)
+target_sources(gui_testable_source PRIVATE ${SRC_FILES})
+endif()
+
 #Add plugin build files
 add_subdirectory(Plugins)
+
+
+if(BUILD_TESTS)
+add_subdirectory(TestHelpers)
+add_subdirectory(Tests)
+endif()

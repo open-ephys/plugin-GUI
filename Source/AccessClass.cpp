@@ -138,4 +138,15 @@ MidiBuffer* ExternalProcessorAccessor::getMidiBuffer(GenericProcessor* proc)
 	return proc->m_currentMidiBuffer;
 }
 
+
+void ExternalProcessorAccessor::injectNumSamples(GenericProcessor *proc, uint16_t dataStream, uint32_t numSamples) {
+    proc->numSamplesInBlock[dataStream] = numSamples;
+}
+
+//**Set the MessageCenter for testing only**//
+void setMessageCenter(MessageCenter * mc_){
+    if(pg != nullptr) return;
+    mc = mc_;
+}
+
 }

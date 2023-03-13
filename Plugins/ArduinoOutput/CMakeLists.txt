@@ -16,5 +16,9 @@ add_sources(${PLUGIN_NAME}
 if(MSVC)
 	target_link_libraries(${PLUGIN_NAME} Winmm.lib)
 endif()
+
+if(BUILD_TESTS)
+    add_subdirectory(Tests)
+endif()
 #optional: create IDE groups
 plugin_create_filters()

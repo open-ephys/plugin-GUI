@@ -1049,6 +1049,7 @@ void GenericProcessor::update()
               if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
               {
                    
+                   
                  SelectedChannelsParameter* p = (SelectedChannelsParameter*) spikeChannel->getParameter(param->getName());
                      
                  p->setChannelCount(channelCount);

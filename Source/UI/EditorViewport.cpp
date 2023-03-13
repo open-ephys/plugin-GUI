@@ -847,7 +847,7 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     
                     File outputFile = picturesDirectory.getChildFile(editorArray[i]->getNameAndId() + ".png");
                     
-                    Rectangle<int> bounds = Rectangle<int>(3, 3, editorArray[i]->getWidth()-6, editorArray[i]->getHeight()-6);
+                    juce::Rectangle<int> bounds = juce::Rectangle<int>(3, 3, editorArray[i]->getWidth()-6, editorArray[i]->getHeight()-6);
                     
                     Image componentImage = editorArray[i]->createComponentSnapshot(
                                                                                    bounds,

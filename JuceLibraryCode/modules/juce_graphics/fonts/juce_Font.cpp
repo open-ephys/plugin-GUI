@@ -35,8 +35,8 @@ namespace FontValues
 
     const float defaultFontHeight = 14.0f;
     float minimumHorizontalScale = 0.7f;
-    String fallbackFont;
-    String fallbackFontStyle;
+    String fallbackFont = String("");
+    String fallbackFontStyle = String("");
 }
 
 using GetTypefaceForFont = Typeface::Ptr (*)(const Font&);

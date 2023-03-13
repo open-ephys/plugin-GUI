@@ -55,7 +55,7 @@ void DefaultConfigWindow::launchWindow()
 	configComponent = new DefaultConfigComponent();
 	options.content.setOwned (configComponent);
 
-	Rectangle<int> area (0, 0, 450, 300);
+	juce::Rectangle<int> area (0, 0, 450, 300);
 	options.content->setSize (area.getWidth(), area.getHeight());
 
 	options.componentToCentreAround 	  = parent;
