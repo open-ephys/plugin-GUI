@@ -1595,6 +1595,16 @@ const String EditorViewport::savePluginState(File fileToSave, GenericEditor* sel
     
 }
 
+<<<<<<< HEAD
+=======
+XmlElement* EditorViewport::createNodeXml(GenericProcessor* processor, bool isStartOfSignalChain)
+{
+    XmlElement* node = AccessClass::getProcessorGraph()->createNodeXml(processor, isStartOfSignalChain);
+    return node;
+}
+
+
+>>>>>>> 19b9871cf (Add testing infrastructure to GUI)
 const String EditorViewport::loadState(File fileToLoad)
 {
     

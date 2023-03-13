@@ -81,7 +81,6 @@ if(BUILD_TESTS)
 	get_target_property(PLUGIN_BASES gui_testable_source SOURCES)
 	source_group("Plugin Base Classes" FILES ${PLUGIN_BASES})
 endif()
-
 #output folders
 if(BUILD_TESTS)
  	set_property(TARGET ${PLUGIN_NAME}_tests PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
