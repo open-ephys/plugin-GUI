@@ -24,7 +24,7 @@
 #ifndef __MESSAGECENTER_H_2695FC38__
 #define __MESSAGECENTER_H_2695FC38__
 
-
+#include "../../TestableExport.h"
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
 
@@ -44,7 +44,7 @@ class MessageCenterEditor;
 
 */
 
-class MessageCenter : public GenericProcessor,
+class TESTABLE MessageCenter : public GenericProcessor,
     public ActionListener
 
 {

@@ -36,7 +36,7 @@ Image JUCE_API getIconFromApplication (const String&, const int);
 
 AudioProcessor::WrapperType PluginHostType::jucePlugInClientCurrentWrapperType = AudioProcessor::wrapperType_Undefined;
 std::function<bool (AudioProcessor&)> PluginHostType::jucePlugInIsRunningInAudioSuiteFn = nullptr;
-String PluginHostType::hostIdReportedByWrapper;
+String PluginHostType::hostIdReportedByWrapper = String("");
 
 bool PluginHostType::isInterAppAudioConnected() const
 {

@@ -1,16 +1,39 @@
 #common options for default plug-ins
 unset(PROJECT_FOLDER)
 unset(PLUGIN_NAME)
+set(INSTALL_GTEST OFF)
 get_filename_component(PROJECT_FOLDER ${CMAKE_CURRENT_SOURCE_DIR} ABSOLUTE)
 get_filename_component(PLUGIN_NAME ${PROJECT_FOLDER} NAME)
 
 if (APPLE)
-	add_library(${PLUGIN_NAME} MODULE OpenEphysLib.cpp)
+	if(BUILD_TESTS)
+		add_library(${PLUGIN_NAME} SHARED OpenEphysLib.cpp)
+	else()
+		add_library(${PLUGIN_NAME} MODULE OpenEphysLib.cpp)
+	endif()
 else()
 	add_library(${PLUGIN_NAME} SHARED OpenEphysLib.cpp)
 endif()
 
-add_dependencies(${PLUGIN_NAME} open-ephys)
+if(BUILD_TESTS)
+	include(FetchContent)
+	FetchContent_Declare(
+			googletest
+			GIT_REPOSITORY    https://github.com/google/googletest.git
+			GIT_TAG           release-1.12.1
+	)
+
+	FetchContent_MakeAvailable(googletest)
+	enable_testing()
+
+	add_executable(
+			${PLUGIN_NAME}_tests
+	)
+	target_compile_features(${PLUGIN_NAME}_tests PRIVATE cxx_std_17)
+else()
+	add_dependencies(${PLUGIN_NAME} open-ephys)
+endif()
+
 target_include_directories(${PLUGIN_NAME} PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules ${PLUGIN_HEADER_PATH})
 target_compile_features(${PLUGIN_NAME} PUBLIC cxx_auto_type cxx_generalized_initializers)
 
@@ -45,6 +68,15 @@ elseif(APPLE)
 		)
 endif()
 
+if(BUILD_TESTS)
+	add_dependencies(${PLUGIN_NAME}_tests ${PLUGIN_NAME} gui_testable_source test_helpers)
+	target_link_libraries(${PLUGIN_NAME}_tests PRIVATE ${PLUGIN_NAME} gtest_main test_helpers PUBLIC gui_testable_source)
+	target_include_directories(${PLUGIN_NAME}_tests PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules ${PLUGIN_HEADER_PATH} ${TEST_HELPERS_DIRECTORY}/include)
+	add_test(NAME ${PLUGIN_NAME}_tests  COMMAND ${PLUGIN_NAME}_tests)
+
+	get_target_property(PLUGIN_BASES gui_testable_source SOURCES)
+	source_group("Plugin Base Classes" FILES ${PLUGIN_BASES})
+endif()
 #output folders
 set_property(TARGET ${PLUGIN_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
 set_property(TARGET ${PLUGIN_NAME} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
@@ -55,7 +87,7 @@ function(plugin_create_filters)
 get_target_property(PLUGIN_SRC_FILES ${PLUGIN_NAME} SOURCES)
 
 foreach( plugin_src_file IN ITEMS ${PLUGIN_SRC_FILES})
-	if (NOT ${plugin_src_file} STREQUAL "OpenEphysLib.cpp")
+	if (NOT ${plugin_src_file} STREQUAL "OpenEphysLib.cpp" )
 		get_filename_component(plugin_src_path "${plugin_src_file}" PATH)
 		file(RELATIVE_PATH plugin_src_path_rel "${CMAKE_CURRENT_SOURCE_DIR}" "${plugin_src_path}")
 		string(REPLACE "/" "\\" plugin_group_name "${plugin_src_path_rel}")
