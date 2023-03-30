@@ -36,6 +36,7 @@
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../Audio/AudioComponent.h"
 #include "../MainWindow.h"
+#include "../AutoUpdater.h"
 
 	UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_)
 : mainWindow(mainWindow_), processorGraph(pgraph), audio(audio_), messageCenterIsCollapsed(true)
@@ -476,6 +477,7 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 	else if (menuIndex == 3)
 	{
 		menu.addCommandItem(commandManager, showHelp);
+		menu.addCommandItem(commandManager, checkForUpdates);
 	}
 
 	return menu;
@@ -518,6 +520,7 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		setClockModeDefault,
 		setClockModeHHMMSS,
 		showHelp,
+		checkForUpdates,
 		resizeWindow,
 		openPluginInstaller,
 		openDefaultConfigWindow
@@ -648,6 +651,11 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 
 		case showHelp:
 			result.setInfo("Online documentation...", "Launch the GUI's documentation website in a browser.", "General", 0);
+			result.setActive(true);
+			break;
+
+		case checkForUpdates:
+			result.setInfo("Check for updates", "Checks if a newer version of the GUI is available", "General", 0);
 			result.setActive(true);
 			break;
 
@@ -850,6 +858,12 @@ bool UIComponent::perform(const InvocationInfo& info)
 			{
 				URL url = URL("https://open-ephys.github.io/gui-docs/");
 				url.launchInDefaultBrowser();
+				break;
+			}
+		
+		case checkForUpdates:
+			{
+				LatestVersionCheckerAndUpdater::getInstance()->checkForNewVersion (false);
 				break;
 			}
 
