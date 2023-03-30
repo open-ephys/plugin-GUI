@@ -26,7 +26,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class DownloadAndInstallThread;
+class DownloadThread;
 
 class LatestVersionCheckerAndUpdater   : public DeletedAtShutdown,
                                          private Thread
@@ -52,11 +52,11 @@ private:
     void run() override;
     void askUserAboutNewVersion (const String&, const String&, const Asset& asset);
     void askUserForLocationToDownload (const Asset& asset);
-    void downloadAndInstall (const Asset& asset, const File& targetFolder);
+    void downloadAndInstall (const Asset& asset, const File& targetFile);
 
     //==============================================================================
     bool backgroundCheck = false;
 
-    std::unique_ptr<DownloadAndInstallThread> installer;
+    std::unique_ptr<DownloadThread> downloader;
     std::unique_ptr<Component> dialogWindow;
 };

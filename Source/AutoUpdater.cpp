@@ -24,6 +24,10 @@
 
 #include "AutoUpdater.h"
 #include "CoreServices.h"
+#ifdef _WIN32
+#include <windows.h>
+#include <shellapi.h>
+#endif
 
 //==============================================================================
 LatestVersionCheckerAndUpdater::LatestVersionCheckerAndUpdater()
@@ -141,16 +145,16 @@ void LatestVersionCheckerAndUpdater::run()
        #endif
     }();
 
-#if JUCE_WINDOWS 
     String requiredFilename ("open-ephys-" + versionString + "-" + osString + ".zip");
+
+#if JUCE_WINDOWS
     File exeDir = File::getSpecialLocation(File::SpecialLocationType::currentExecutableFile).getParentDirectory();
     if(exeDir.findChildFiles(File::findFiles, false, "unins*").size() > 0)
     {
         requiredFilename = "Install-Open-Ephys-GUI-" + versionString + ".exe";
     }
-#elif
-    String requiredFilename ("open-ephys-" + versionString + "-" + osString + ".zip");
 #endif
+
     for (auto& asset : parsedAssets)
     {
         if (asset.name == requiredFilename)
@@ -288,7 +292,7 @@ private:
     TextButton chooseButton { "Download" }, cancelButton { "Cancel" };
     ToggleButton dontAskAgainButton { "Don't ask again" };
     std::unique_ptr<Drawable> juceIcon;
-    Rectangle<int> juceIconBounds { 10, 10, 64, 64 };
+    juce::Rectangle<int> juceIconBounds { 10, 10, 64, 64 };
 
     DialogWindow* parentWindow = nullptr;
 };
@@ -305,7 +309,9 @@ void LatestVersionCheckerAndUpdater::askUserForLocationToDownload (const Asset& 
         if (targetFolder == File{})
             return;
 
-        downloadAndInstall (asset, targetFolder);
+        File targetFile = targetFolder.getChildFile(asset.name).getNonexistentSibling();
+
+        downloadAndInstall (asset, targetFile);
     }
 }
 
@@ -329,14 +335,14 @@ void LatestVersionCheckerAndUpdater::askUserAboutNewVersion (const String& newVe
 }
 
 //==============================================================================
-class DownloadAndInstallThread   : private ThreadWithProgressWindow
+class DownloadThread   : private ThreadWithProgressWindow
 {
 public:
-    DownloadAndInstallThread  (const LatestVersionCheckerAndUpdater::Asset& a,
-                               const File& t,
-                               std::function<void()>&& cb)
+    DownloadThread  (const LatestVersionCheckerAndUpdater::Asset& a,
+                     const File& t,
+                     std::function<void()>&& cb)
         : ThreadWithProgressWindow ("Downloading New Version", true, true),
-          asset (a), targetFolder (t), completionCallback (std::move (cb))
+          asset (a), targetFile (t), completionCallback (std::move (cb))
     {
         launchThread (3);
     }
@@ -346,24 +352,17 @@ private:
     {
         setProgress (0.0);
 
-        File targetFile = targetFolder.getChildFile(asset.name).getNonexistentSibling();
         auto result = download (targetFile);
-
-        // if (result.wasOk() && ! threadShouldExit())
-        //     result = install (zipData);
 
         if (result.failed())
         {
-            MessageManager::callAsync ([result] { AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                                                                    "Downloading Failed",
-                                                                                    result.getErrorMessage()); });
+            AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+                                                "Downloading Failed",
+                                                result.getErrorMessage());
         }
         else
         {
-            AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                                "Download finished!",
-                                                "New binaries can be found at: " + 
-                                                targetFile.getFullPathName());
+            setProgress (-1.0);
             MessageManager::callAsync (completionCallback);
         }
     }
@@ -406,7 +405,10 @@ private:
 
                 setProgress((double)total / (double)asset.size);
 
-                setStatusMessage ("Downloading... " + File::descriptionOfSizeInBytes (total));
+                setStatusMessage ("Downloading... " 
+                                  + File::descriptionOfSizeInBytes (total)
+                                  + " / " 
+                                  + File::descriptionOfSizeInBytes (asset.size));
             }
 
             out->flush();
@@ -416,132 +418,68 @@ private:
         return Result::fail ("Failed to download from: " + asset.url);
     }
 
-    Result install (const File& dest)
-    {
-        setStatusMessage ("Installing...");
-
-        ZipFile zip (dest);
-
-    //     if (zip.getNumEntries() == 0)
-    //         return Result::fail ("The downloaded file was not a valid JUCE file!");
-
-    //     struct ScopedDownloadFolder
-    //     {
-    //         explicit ScopedDownloadFolder (const File& installTargetFolder)
-    //         {
-    //             folder = installTargetFolder.getSiblingFile (installTargetFolder.getFileNameWithoutExtension() + "_download").getNonexistentSibling();
-    //             jassert (folder.createDirectory());
-    //         }
-
-    //         ~ScopedDownloadFolder()   { folder.deleteRecursively(); }
-
-    //         File folder;
-    //     };
-
-    //     ScopedDownloadFolder unzipTarget (targetFolder);
-
-    //     if (! unzipTarget.folder.isDirectory())
-    //         return Result::fail ("Couldn't create a temporary folder to unzip the new version!");
-
-    //     auto r = zip.uncompressTo (unzipTarget.folder);
-
-    //     if (r.failed())
-    //         return r;
-
-    //     if (threadShouldExit())
-    //         return Result::fail ("Cancelled");
-
-    //    #if JUCE_LINUX || JUCE_BSD || JUCE_MAC
-    //     r = setFilePermissions (unzipTarget.folder, zip);
-
-    //     if (r.failed())
-    //         return r;
-
-    //     if (threadShouldExit())
-    //         return Result::fail ("Cancelled");
-    //    #endif
-
-    //     if (targetFolder.exists())
-    //     {
-    //         auto oldFolder = targetFolder.getSiblingFile (targetFolder.getFileNameWithoutExtension() + "_old").getNonexistentSibling();
-
-    //         if (! targetFolder.moveFileTo (oldFolder))
-    //             return Result::fail ("Could not remove the existing folder!\n\n"
-    //                                  "This may happen if you are trying to download into a directory that requires administrator privileges to modify.\n"
-    //                                  "Please select a folder that is writable by the current user.");
-    //     }
-
-    //     if (! unzipTarget.folder.getChildFile ("JUCE").moveFileTo (targetFolder))
-    //         return Result::fail ("Could not overwrite the existing folder!\n\n"
-    //                              "This may happen if you are trying to download into a directory that requires administrator privileges to modify.\n"
-    //                              "Please select a folder that is writable by the current user.");
-
-    //     return Result::ok();
-    }
-
-    Result setFilePermissions (const File& root, const ZipFile& zip)
-    {
-        // constexpr uint32 executableFlag = (1 << 22);
-
-        // for (int i = 0; i < zip.getNumEntries(); ++i)
-        // {
-        //     auto* entry = zip.getEntry (i);
-
-        //     if ((entry->externalFileAttributes & executableFlag) != 0 && entry->filename.getLastCharacter() != '/')
-        //     {
-        //         auto exeFile = root.getChildFile (entry->filename);
-
-        //         if (! exeFile.exists())
-        //             return Result::fail ("Failed to find executable file when setting permissions " + exeFile.getFileName());
-
-        //         if (! exeFile.setExecutePermission (true))
-        //             return Result::fail ("Failed to set executable file permission for " + exeFile.getFileName());
-        //     }
-        // }
-
-        // return Result::ok();
-    }
-
     const LatestVersionCheckerAndUpdater::Asset asset;
-    File targetFolder;
+    File targetFile;
     std::function<void()> completionCallback;
 };
 
-static void restartProcess (const File& targetFolder)
+static void runInstaller (const File& targetFile)
 {
-   #if JUCE_MAC || JUCE_LINUX || JUCE_BSD
-    #if JUCE_MAC
-     auto newProcess = targetFolder.getChildFile ("Projucer.app").getChildFile ("Contents").getChildFile ("MacOS").getChildFile ("Projucer");
-    #elif JUCE_LINUX || JUCE_BSD
-     auto newProcess = targetFolder.getChildFile ("Projucer");
-    #endif
-
-    StringArray command ("/bin/sh", "-c", "while killall -0 Projucer; do sleep 5; done; " + newProcess.getFullPathName().quoted());
-   #elif JUCE_WINDOWS
-    auto newProcess = targetFolder.getChildFile ("Projucer.exe");
-
-    auto command = "cmd.exe /c\"@echo off & for /l %a in (0) do ( tasklist | find \"Projucer\" >nul & ( if errorlevel 1 ( "
-                    + targetFolder.getChildFile ("Projucer.exe").getFullPathName().quoted() + " & exit /b ) else ( timeout /t 10 >nul ) ) )\"";
-   #endif
-
-    if (newProcess.existsAsFile())
+    bool runInstaller = AlertWindow::showOkCancelBox(AlertWindow::WarningIcon,
+                                    "Quit Open Ephys GUI?",
+                                    "To run the installer, the current instance of GUI needs to be closed."
+                                    "\nAre you sure you want to continue?",
+                                    "Yes", "No");
+    
+    if(runInstaller)
     {
-        ChildProcess restartProcess;
-        restartProcess.start (command, 0);
+    #if JUCE_WINDOWS
+        if (targetFile.existsAsFile())
+        {
+            auto returnCode = ShellExecute(NULL, (LPCSTR)"runas", targetFile.getFullPathName().toRawUTF8(), NULL, NULL, SW_SHOW);
 
-        JUCEApplication::getInstance()->systemRequestedQuit();
+            if((int)returnCode > 31)
+                JUCEApplication::getInstance()->systemRequestedQuit();
+            else
+                LOGE("Failed to run the installer: ", GetLastError());
+        }
+    #endif
     }
 }
 
-void LatestVersionCheckerAndUpdater::downloadAndInstall (const Asset& asset, const File& targetFolder)
+void LatestVersionCheckerAndUpdater::downloadAndInstall (const Asset& asset, const File& targetFile)
 {
-    installer.reset (new DownloadAndInstallThread (asset, targetFolder,
-                                                   [this, targetFolder]
-                                                   {
-                                                       installer.reset();
+#if JUCE_WINDOWS
+    File exeDir = File::getSpecialLocation(
+    File::SpecialLocationType::currentExecutableFile).getParentDirectory();
+
+    if(exeDir.findChildFiles(File::findFiles, false, "unins*").size() > 0)
+    {
+        downloader.reset (new DownloadThread (asset, targetFile,
+                                                [this, targetFile]
+                                                {
+                                                    downloader.reset();
+                                                    runInstaller(targetFile);
+
+                                                }));
+    }
+    else
+#endif
+    {
+        AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
+                                            "Download successful!",
+                                            "Please extract the zip file located at: \n" + 
+                                            targetFile.getFullPathName().quoted() +
+                                            "\nto your desired location and then run the updated version from there. "
+                                            "You can also overwrite the current installation after quitting the current instance.");
+
+        downloader.reset (new DownloadThread (asset, targetFile,
+                                                [this]
+                                                {
+                                                    downloader.reset();
                                 
-                                                    //    restartProcess (targetFolder);
-                                                   }));
+                                                }));
+    }
 }
 
 //==============================================================================
