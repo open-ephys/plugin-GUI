@@ -863,7 +863,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 		
 		case checkForUpdates:
 			{
-				LatestVersionCheckerAndUpdater::getInstance()->checkForNewVersion (false);
+				LatestVersionCheckerAndUpdater::getInstance()->checkForNewVersion (false, mainWindow);
 				break;
 			}
 

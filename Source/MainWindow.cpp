@@ -25,6 +25,7 @@
 #include "Utils/OpenEphysHttpServer.h"
 #include "UI/UIComponent.h"
 #include "UI/EditorViewport.h"
+#include "AutoUpdater.h"
 #include <stdio.h>
 
 
@@ -59,6 +60,7 @@ MainWindow::MainWindow(const File& fileToLoad)
 	shouldReloadOnStartup = true;
 	shouldEnableHttpServer = true;
 	openDefaultConfigWindow = false;
+	automaticVersionChecking = true;
 
 	// Create ProcessorGraph and AudioComponent, and connect them.
 	// Callbacks will be set by the play button in the control panel
@@ -159,6 +161,9 @@ MainWindow::MainWindow(const File& fileToLoad)
 	else {
 		disableHttpServer();
 	}
+
+	if(automaticVersionChecking)
+		LatestVersionCheckerAndUpdater::getInstance()->checkForNewVersion (true, this);
 
 }
 
@@ -267,6 +272,7 @@ void MainWindow::saveWindowBounds()
 	xml->setAttribute("version", JUCEApplication::getInstance()->getApplicationVersion());
 	xml->setAttribute("shouldReloadOnStartup", shouldReloadOnStartup);
 	xml->setAttribute("shouldEnableHttpServer", shouldEnableHttpServer);
+	xml->setAttribute("automaticVersionChecking", automaticVersionChecking);
 
 	XmlElement* bounds = new XmlElement("BOUNDS");
 	bounds->setAttribute("x",getScreenX());
@@ -330,6 +336,7 @@ void MainWindow::loadWindowBounds()
 
 		shouldReloadOnStartup = xml->getBoolAttribute("shouldReloadOnStartup", false);
 		shouldEnableHttpServer = xml->getBoolAttribute("shouldEnableHttpServer", false);
+		automaticVersionChecking = xml->getBoolAttribute("automaticVersionChecking", true);
 
 		for (auto* e : xml->getChildIterator())
 		{
