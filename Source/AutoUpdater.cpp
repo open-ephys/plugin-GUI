@@ -466,17 +466,20 @@ void LatestVersionCheckerAndUpdater::downloadAndInstall (const Asset& asset, con
     else
 #endif
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
-                                            "Download successful!",
-                                            "Please extract the zip file located at: \n" + 
-                                            targetFile.getFullPathName().quoted() +
-                                            "\nto your desired location and then run the updated version from there. "
-                                            "You can also overwrite the current installation after quitting the current instance.");
+        String msgBoxString = "Please extract the zip file located at: \n" + 
+                               targetFile.getFullPathName().quoted() +
+                               "\nto your desired location and then run the updated version from there. "
+                               "You can also overwrite the current installation after quitting the current instance.";
 
         downloader.reset (new DownloadThread (asset, targetFile,
-                                                [this]
+                                                [this, msgBoxString]
                                                 {
                                                     downloader.reset();
+
+                                                    AlertWindow::showMessageBoxAsync
+                                                        (AlertWindow::InfoIcon,
+                                                         "Download successful!",
+                                                         msgBoxString);
                                 
                                                 }));
     }
