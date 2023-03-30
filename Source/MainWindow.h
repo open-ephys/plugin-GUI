@@ -84,7 +84,11 @@ public:
     /** Determines whether the ProcessorGraph http server is enabled. */
     bool shouldEnableHttpServer;
 
+    /** Determines whether the default config selection window needs to open on startup. */
     bool openDefaultConfigWindow;
+
+    /** Determines whether the Auto Updater needs to run on startup. */
+    bool automaticVersionChecking;
 
     /** Ends the process() callbacks and disables all processors.*/
 	void shutDownGUI();

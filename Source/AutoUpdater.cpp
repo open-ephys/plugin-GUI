@@ -24,6 +24,7 @@
 
 #include "AutoUpdater.h"
 #include "CoreServices.h"
+#include "MainWindow.h"
 #ifdef _WIN32
 #include <windows.h>
 #include <shellapi.h>
@@ -32,6 +33,7 @@
 //==============================================================================
 LatestVersionCheckerAndUpdater::LatestVersionCheckerAndUpdater()
     : Thread ("VersionChecker")
+    , mainWindow(nullptr)
 {
 }
 
@@ -41,11 +43,12 @@ LatestVersionCheckerAndUpdater::~LatestVersionCheckerAndUpdater()
     clearSingletonInstance();
 }
 
-void LatestVersionCheckerAndUpdater::checkForNewVersion (bool background)
+void LatestVersionCheckerAndUpdater::checkForNewVersion (bool background, MainWindow* mw)
 {
     if (! isThreadRunning())
     {
         backgroundCheck = background;
+        mainWindow = mw;
         startThread (3);
     }
 }
@@ -179,7 +182,7 @@ void LatestVersionCheckerAndUpdater::run()
 class UpdateDialog  : public Component
 {
 public:
-    UpdateDialog (const String& newVersion, const String& releaseNotes)
+    UpdateDialog (const String& newVersion, const String& releaseNotes, bool automaticVerCheck)
     {
         titleLabel.setText ("Open Ephys GUI version " + newVersion, dontSendNotification);
         titleLabel.setFont (Font("Fira Sans", "SemiBold", 18.0f));
@@ -203,11 +206,13 @@ public:
         addAndMakeVisible (cancelButton);
         cancelButton.onClick = [this]
         {
-            // ProjucerApplication::getApp().setAutomaticVersionCheckingEnabled (! dontAskAgainButton.getToggleState());
-            exitModalStateWithResult (-1);
+            if(dontAskAgainButton.getToggleState())
+                exitModalStateWithResult (-1);
+            else
+                exitModalStateWithResult(0);
         };
 
-        dontAskAgainButton.setToggleState (false, dontSendNotification);
+        dontAskAgainButton.setToggleState (!automaticVerCheck, dontSendNotification);
         addAndMakeVisible (dontAskAgainButton);
 
 #if JUCE_MAC
@@ -251,14 +256,15 @@ public:
     }
 
     static std::unique_ptr<DialogWindow> launchDialog (const String& newVersionString,
-                                                       const String& releaseNotes)
+                                                       const String& releaseNotes,
+                                                       bool automaticVerCheck)
     {
         DialogWindow::LaunchOptions options;
 
         options.dialogTitle = "Download Open Ephys GUI version " + newVersionString + "?";
         options.resizable = false;
 
-        auto* content = new UpdateDialog (newVersionString, releaseNotes);
+        auto* content = new UpdateDialog (newVersionString, releaseNotes, automaticVerCheck);
         options.content.set (content, true);
 
         std::unique_ptr<DialogWindow> dialog (options.create());
@@ -319,7 +325,9 @@ void LatestVersionCheckerAndUpdater::askUserAboutNewVersion (const String& newVe
                                                              const String& releaseNotes,
                                                              const Asset& asset)
 {
-    dialogWindow = UpdateDialog::launchDialog (newVersionString, releaseNotes);
+    dialogWindow = UpdateDialog::launchDialog (newVersionString,
+                                               releaseNotes,
+                                               mainWindow->automaticVersionChecking);
 
     if (auto* mm = ModalComponentManager::getInstance())
     {
@@ -328,6 +336,10 @@ void LatestVersionCheckerAndUpdater::askUserAboutNewVersion (const String& newVe
                                                            {
                                                                if (result == 1)
                                                                     askUserForLocationToDownload (asset);
+                                                                else if(result == -1)
+                                                                    mainWindow->automaticVersionChecking = false;
+                                                                else if(result == 0)
+                                                                    mainWindow->automaticVersionChecking = true;
 
                                                                 dialogWindow.reset();
                                                             }));

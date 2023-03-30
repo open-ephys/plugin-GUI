@@ -26,6 +26,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+class MainWindow;
 class DownloadThread;
 
 class LatestVersionCheckerAndUpdater   : public DeletedAtShutdown,
@@ -42,7 +43,7 @@ public:
         const int size;
     };
 
-    void checkForNewVersion (bool isBackgroundCheck);
+    void checkForNewVersion (bool isBackgroundCheck, MainWindow* mw);
 
     //==============================================================================
     JUCE_DECLARE_SINGLETON_SINGLETHREADED_MINIMAL (LatestVersionCheckerAndUpdater)
@@ -56,6 +57,7 @@ private:
 
     //==============================================================================
     bool backgroundCheck = false;
+    MainWindow* mainWindow;
 
     std::unique_ptr<DownloadThread> downloader;
     std::unique_ptr<Component> dialogWindow;
