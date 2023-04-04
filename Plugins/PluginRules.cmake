@@ -42,8 +42,12 @@ target_compile_features(${PLUGIN_NAME} PRIVATE cxx_std_17)
 
 #Libraries and compiler options
 if(MSVC)
-	target_link_libraries(${PLUGIN_NAME} $<TARGET_FILE_DIR:open-ephys>/open-ephys.lib)
-	target_compile_options(${PLUGIN_NAME} PRIVATE /sdl- /W0)
+	if(BUILD_TESTS)
+ 		target_link_libraries(${PLUGIN_NAME} gui_testable_source)
+ 	else()
+ 		target_link_libraries(${PLUGIN_NAME} $<TARGET_FILE_DIR:open-ephys>/open-ephys.lib)
+ 	endif()	
+ 	target_compile_options(${PLUGIN_NAME} PRIVATE /sdl- /W0)
 elseif(LINUX)
 	target_link_libraries(${PLUGIN_NAME} GL X11 Xext Xinerama asound dl freetype pthread rt)
 	set_property(TARGET ${PLUGIN_NAME} APPEND_STRING PROPERTY LINK_FLAGS
@@ -77,9 +81,20 @@ if(BUILD_TESTS)
 	get_target_property(PLUGIN_BASES gui_testable_source SOURCES)
 	source_group("Plugin Base Classes" FILES ${PLUGIN_BASES})
 endif()
+
 #output folders
-set_property(TARGET ${PLUGIN_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
-set_property(TARGET ${PLUGIN_NAME} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
+if(BUILD_TESTS)
+ 	set_property(TARGET ${PLUGIN_NAME}_tests PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
+ 	set_property(TARGET ${PLUGIN_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
+ 	set_property(TARGET ${PLUGIN_NAME} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
+
+ 	add_custom_command(TARGET ${PLUGIN_NAME}_tests POST_BUILD
+ 				COMMAND ${CMAKE_COMMAND} -E copy_directory ${BIN_TESTS_DIR}/common ${BIN_TESTS_DIR}/${PLUGIN_NAME})
+ else()
+ 	set_property(TARGET ${PLUGIN_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
+ 	set_property(TARGET ${PLUGIN_NAME} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
+ endif()
+
 
 
 #This function is to be called to organize filters in VisualStudio and XCode in plugins with subfilders
