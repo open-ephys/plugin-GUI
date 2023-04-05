@@ -217,7 +217,19 @@ elseif(LINUX)
 
 	target_compile_options(open-ephys PRIVATE -fPIC -rdynamic -fvisibility=hidden)
 	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/${CMAKE_BUILD_TYPE})
+    if(BUILD_TESTS)
+            target_include_directories(gui_testable_source PRIVATE
+                /usr/include
+                /usr/include/freetype2
+                ${CURL_INCLUDE_DIRS}
+                ${WEBKIT2GTK_INCLUDE_DIRS}
+            )
+            target_link_libraries(gui_testable_source GL X11 Xext Xinerama asound dl freetype pthread rt ${CURL_LIBRARIES} ${WEBKIT2GTK_LIBRARIES})
+            set_property(TARGET gui_testable_source APPEND_STRING PROPERTY LINK_FLAGS
+                "-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/shared'")
 
+            target_compile_options(gui_testable_source PRIVATE -fPIC -rdynamic -fvisibility=hidden)
+    endif()
 elseif(APPLE)
 	set_target_properties(open-ephys PROPERTIES
 		MACOSX_BUNDLE_NAME open-ephys
