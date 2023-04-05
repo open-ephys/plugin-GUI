@@ -848,7 +848,7 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     
                     File outputFile = picturesDirectory.getChildFile(editorArray[i]->getNameAndId() + ".png");
                     
-                    Rectangle<int> bounds = Rectangle<int>(3, 3, editorArray[i]->getWidth()-6, editorArray[i]->getHeight()-6);
+                    juce::Rectangle<int> bounds = juce::Rectangle<int>(3, 3, editorArray[i]->getWidth()-6, editorArray[i]->getHeight()-6);
                     
                     Image componentImage = editorArray[i]->createComponentSnapshot(
                                                                                    bounds,
@@ -1475,7 +1475,8 @@ std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
 
 XmlElement* EditorViewport::createNodeXml(GenericProcessor* processor, bool isStartOfSignalChain)
 {
-    AccessClass::getProcessorGraph()->createNodeXml(processor, isStartOfSignalChain);
+    XmlElement* node = AccessClass::getProcessorGraph()->createNodeXml(processor, isStartOfSignalChain);
+    return node;
 }
 
 
@@ -1510,7 +1511,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 {
     
     AccessClass::getProcessorGraph()->loadFromXml(xml);
-    
+    return String();
 }
 
 void EditorViewport::deleteSelectedProcessors()

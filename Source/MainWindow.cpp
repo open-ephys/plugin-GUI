@@ -101,7 +101,7 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
         MenuBarModel::setMacMainMenu(ui);
         documentWindow->setMenuBar(0);
     #else
-        documentWindow->setMenuBar(this);
+        documentWindow->setMenuBar(ui);
         documentWindow->getMenuBarComponent()->setName("MainMenu");
     #endif
 
