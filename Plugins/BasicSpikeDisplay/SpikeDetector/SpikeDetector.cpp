@@ -384,6 +384,8 @@ String SpikeDetector::ensureUniqueName(String name, uint16 currentStream)
 
    // std::cout << "New name: " << nameToCheck;
 
+    nameToCheck.replaceCharacter('|','_');
+
     return nameToCheck;
 }
 
@@ -399,7 +401,17 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
 
     if (startChannel > -1)
         settings[currentStream]->nextAvailableChannel = startChannel;
-    
+
+    if (currentStream > 0)
+    {
+        int numAvailableInputChannels = getDataStream(currentStream)->getChannelCount();
+        if (settings[currentStream]->nextAvailableChannel >= numAvailableInputChannels - 1)
+        {
+            settings[currentStream]->nextAvailableChannel = numAvailableInputChannels - SpikeChannel::getNumChannels(type);
+            nextAvailableChannel = settings[currentStream]->nextAvailableChannel;
+        }
+    }
+
     for (int i = 0; i < SpikeChannel::getNumChannels(type); i++)
     {
 
@@ -536,6 +548,19 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
                      selectedChannels,
                      spikeChannel->getNumChannels()));
 
+    //Whenever a new spike channel is created, we need to update the unique ID
+    //TODO: This should be automatically done in the SpikeChannel constructor next time we change the API
+    // <SOURCE_NODE_ID> | <STREAM_NAME> | <SPIKE_DETECTOR_NODE_ID> | <CHANNEL/ELECTRODE NAME>
+    std::string stream_source = std::to_string(getDataStream(currentStream)->getSourceNodeId());
+    std::string stream_name = getDataStream(currentStream)->getName().toStdString();
+    std::string spike_source = std::to_string(spikeChannel->getSourceNodeId());
+    std::string channel_name = spikeChannel->getName().toStdString();
+
+    std::string cacheKey = stream_source + "|" + stream_name + "|"  + spike_source + "|" + channel_name;
+
+    spikeChannel->setIdentifier(cacheKey);
+    LOGD("Added SpikeChannel w/ identifier: ", cacheKey);
+
     return spikeChannel;
 
 }
@@ -543,11 +568,33 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
 
 void SpikeDetector::removeSpikeChannel (SpikeChannel* spikeChannel)
 {
+
+    LOGD("Removing spike channel: ", spikeChannel->getName(), " from stream ", spikeChannel->getStreamId());
  
     spikeChannels.removeObject(spikeChannel);
+
+    //Reset electrode and channel counters if no more spike channels after this delete
+    if (!spikeChannels.size())
+    {
+
+        nextAvailableChannel = 0;
+        singleElectrodeCount = 0;
+        stereotrodeCount = 0;
+        tetrodeCount = 0;
+
+        for (auto& stream : getDataStreams())
+        {
+            settings[stream->getStreamId()]->singleElectrodeCount = 0;
+            settings[stream->getStreamId()]->stereotrodeCount = 0;
+            settings[stream->getStreamId()]->tetrodeCount = 0;
+
+            settings[stream->getStreamId()]->nextAvailableChannel = 0;
+        }
+
+        //TODO: Can make this smarter by resetting by electrode type
+    }
     
 }
-
 
 Array<SpikeChannel*> SpikeDetector::getSpikeChannelsForStream(uint16 streamId)
 {
@@ -818,7 +865,7 @@ void SpikeDetector::loadCustomParametersFromXml(XmlElement* xml)
 
             SpikeChannel::Type type = SpikeChannel::typeFromNumChannels(spikeParamsXml->getIntAttribute("num_channels", 1));
 
-            if (!alreadyLoaded(name, type, stream_source))
+            if (!alreadyLoaded(name, type, stream_source, stream_name))
             {
                 uint16 streamId = findSimilarStream(stream_source, stream_name, sample_rate, true);
 
@@ -849,7 +896,7 @@ void SpikeDetector::loadCustomParametersFromXml(XmlElement* xml)
     }
 }
 
-bool SpikeDetector::alreadyLoaded(String name, SpikeChannel::Type type, int stream_source)
+bool SpikeDetector::alreadyLoaded(String name, SpikeChannel::Type type, int stream_source, String stream_name)
 {
     //std::cout << "Next channel: " << name << ", " << (int) type << ", " << stream_source << std::endl;
 
@@ -862,7 +909,9 @@ bool SpikeDetector::alreadyLoaded(String name, SpikeChannel::Type type, int stre
             
             //std::cout << "LOCAL" << std::endl;
 
-            if (ch->getName() == name && ch->getChannelType() == type && getDataStream(ch->getStreamId())->getSourceNodeId() == stream_source)
+            if (ch->getName() == name && ch->getChannelType() == type
+                && getDataStream(ch->getStreamId())->getSourceNodeId() == stream_source
+                && getDataStream(ch->getStreamId())->getName() == stream_name)
             {
                 //std::cout << "found match." << std::endl;
                 return true;

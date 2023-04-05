@@ -34,6 +34,100 @@
 class SpikePlot;
 class SpikeDisplayNode;
 
+class SpikeDisplayCache
+{
+public:
+    SpikeDisplayCache () {}
+    virtual ~SpikeDisplayCache() {}
+
+    void setMonitor(std::string key, bool isMonitored) {
+        monitors[key] = isMonitored;
+    };
+
+    bool isMonitored(std::string key) {
+        return monitors[key];
+    };
+
+    void setRange(std::string key, int channelIdx, double range) {
+        ranges[key][channelIdx] = range;
+    };
+
+    double getRange(std::string key, int channelIdx) {
+        return ranges[key][channelIdx];
+    };
+
+    void setThreshold(std::string key,int channelIdx, double thresh) {
+        thresholds[key][channelIdx] = thresh;
+    };
+
+    double getThreshold(std::string key, int channelIdx) {
+        return thresholds[key][channelIdx];
+    };
+
+    bool hasCachedDisplaySettings(std::string cacheKey)
+    {
+        /*
+        LOGDD("SpikeDisplayCache keys:");
+        std::vector<std::string> keys = extract_keys(ranges);
+        std::vector<std::map<int,double>> vals = extract_values(ranges);
+        for (int i = 0; i < keys.size(); i++)
+        {
+            std::vector<int> channels = extract_keys(vals[i]);
+            std::vector<double> ranges = extract_values(vals[i]);
+            for (int j = 0; j < channels.size(); j++)
+                LOGDD("Key: ", keys[i], " Channel: ", channels[j], " Range: ", ranges[j]);
+        }
+        */
+        return thresholds.count(cacheKey) > 0;
+    };
+
+    std::string findSimilarKey(std::string key, int streamIndex)
+    {
+        std::vector<std::string> keys = extract_keys(ranges);
+
+        unsigned sourcePos = 0;
+        unsigned streamPos = key.find_first_of("|");
+        unsigned namePos = key.find_last_of("|");
+
+        // First check for a source ID change (match only stream + electrode name)
+        for (int i = 0; i < keys.size(); i++)
+        {
+            std::string partToMatch = key.substr(streamPos, key.length() - streamPos);
+            std::string possibleMatch = keys[i].substr(streamPos, keys[i].length() - streamPos);
+            if (partToMatch.compare(possibleMatch) == 0)
+                return keys[i];
+        }
+
+        // Next check for a stream name change (match only node + electrode name)
+        std::vector<std::string> matches;
+        for (int i = 0; i < keys.size(); i++)
+        {
+            int namePos2 = keys[i].find_last_of("|");
+            std::string partToMatch = key.substr(sourcePos, streamPos - sourcePos) + key.substr(namePos, key.length() - namePos);
+            std::string possibleMatch = keys[i].substr(sourcePos, streamPos - sourcePos) + keys[i].substr(namePos2, keys[i].length() - namePos2);
+            if (partToMatch.compare(possibleMatch) == 0)
+                matches.push_back(keys[i]);
+        }
+
+        // Check if multiple matches, if so, default to stream index
+        if (matches.size() == 1)
+            return matches[0];
+        else if (matches.size() > streamIndex)
+            return matches[streamIndex];
+
+        // No match found
+        return "";
+    }
+
+private:
+
+    std::map<std::string, std::map<int, double>> ranges;
+    std::map<std::string, std::map<int, double>> thresholds;
+    std::map<std::string, bool> monitors;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayCache);
+};
+
 /**
     Allows spike plot thresholds to be adjusted synchronously
 */
@@ -122,8 +216,14 @@ public:
     /** Loads display parameters */
     void loadCustomParametersFromXml(XmlElement* xml);
 
+    /** Apply cached settings */
+    void applyCachedDisplaySettings(int plotIdx, std::string cacheKey);
+
     /** Pointer to the underlying SpikeDisplayNode*/
     SpikeDisplayNode* processor;
+
+    /** Manages connections from SpikeChannels to SpikePlots */
+    std::unique_ptr<SpikeDisplayCache> cache;
 
 private:
 

@@ -75,10 +75,14 @@ public:
     SpikePlot(SpikeDisplayCanvas*, 
               int elecNum, 
               int plotType, 
-              String name_);
+              String name_,
+              std::string identifier_);
 
     /** Destructor */
     virtual ~SpikePlot();
+
+    /** Set unique spike plot identifier */
+    void setId(std::string id);
 
     /** Draws outline and electrode name*/
     void paint(Graphics& g);
@@ -114,8 +118,17 @@ public:
     void setDisplayThresholdForChannel(int axisNum, float threshold);
     void setDetectorThresholdForChannel(int, float);
 
+    /** Returns the range for a given channel*/
     float getRangeForChannel(int);
+
+    /** Sets the range for a given channel*/
     void setRangeForChannel(int axisNum, float range);
+
+    /**Returns the monitor state for this electrode */
+    bool getMonitorState();
+
+    /** Sets the monitor state for this electrode */
+    void setMonitorState(bool);
 
     //For locking the tresholds
     void registerThresholdCoordinator(SpikeThresholdCoordinator* stc);
@@ -137,6 +150,8 @@ public:
     float aspectRatio;
 
 private:
+
+    std::string identifier;
 
     int plotType;
     int nWaveAx;
@@ -185,7 +200,7 @@ class GenericAxes : public Component
 public:
 
     /** Constructor */
-    GenericAxes(SpikePlotType type);
+    GenericAxes(SpikeDisplayCanvas* canvas, SpikePlotType type);
 
     /** Destructor */
     virtual ~GenericAxes() { }
@@ -204,6 +219,8 @@ public:
 
     /** Helper function for creating units labels*/
     void makeLabel(int val, int gain, bool convert, char* s);
+
+    SpikeDisplayCanvas* canvas;
 
 protected:
     double xlims[2];
@@ -233,7 +250,7 @@ class WaveAxes : public GenericAxes
 public:
 
     /** Constructor*/
-    WaveAxes(int channel);
+    WaveAxes(SpikeDisplayCanvas* canvas, int electrodeIndex, int channel, std::string identifier);
 
     /** Destructor*/
     ~WaveAxes() {}
@@ -279,10 +296,13 @@ public:
 
 private:
 
+    std::string identifier;
+
     Colour waveColour;
     Colour thresholdColour;
     Colour gridColour;
     
+    int electrodeIndex;
     int channel;
 
     bool drawGrid;
@@ -327,7 +347,7 @@ class ProjectionAxes : public GenericAxes
 public:
 
     /** Constructor */
-    ProjectionAxes(Projection proj);
+    ProjectionAxes(SpikeDisplayCanvas* canvas, Projection proj);
 
     /** Destructor*/
     ~ProjectionAxes() { }

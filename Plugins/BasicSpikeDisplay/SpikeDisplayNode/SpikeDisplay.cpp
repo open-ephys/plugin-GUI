@@ -56,10 +56,12 @@ void SpikeDisplay::clear()
 
 }
 
-SpikePlot* SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum, String name_)
+SpikePlot* SpikeDisplay::addSpikePlot(int numChannels, int electrodeNum, String name_, std::string identifier_)
 {
 
-    SpikePlot* spikePlot = new SpikePlot(canvas, electrodeNum, 1000 + numChannels, name_);
+    LOGD("Adding spike plot for electrode: ", electrodeNum, " named: ", name_, " with ", numChannels, " channels");
+
+    SpikePlot* spikePlot = new SpikePlot(canvas, electrodeNum, 1000 + numChannels, name_, identifier_);
     spikePlots.add(spikePlot);
     addAndMakeVisible(spikePlot);
     spikePlot->invertSpikes(shouldInvert);
@@ -258,11 +260,23 @@ float SpikeDisplay::getRangeForWaveAxis(int plotNum, int axisNum)
 void SpikeDisplay::setThresholdForWaveAxis(int plotNum, int axisNum, float range)
 {
     if (spikePlots.size() > plotNum)
-        return spikePlots[plotNum]->setDisplayThresholdForChannel(axisNum, range);
+        spikePlots[plotNum]->setDisplayThresholdForChannel(axisNum, range);
 }
 
 void SpikeDisplay::setRangeForWaveAxis(int plotNum, int axisNum, float range)
 {
     if (spikePlots.size() > plotNum)
-        return spikePlots[plotNum]->setRangeForChannel(axisNum, range);
+        spikePlots[plotNum]->setRangeForChannel(axisNum, range);
+}
+
+bool SpikeDisplay::getMonitorStateForPlot(int plotNum)
+{
+    if (spikePlots.size() > plotNum)
+        return spikePlots[plotNum]->getMonitorState();
+}
+
+void SpikeDisplay::setMonitorStateForPlot(int plotNum, bool state)
+{
+    if (spikePlots.size() > plotNum)
+        spikePlots[plotNum]->setMonitorState(state);
 }

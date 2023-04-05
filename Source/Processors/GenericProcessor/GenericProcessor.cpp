@@ -1734,7 +1734,11 @@ void GenericProcessor::loadFromXml()
             if (xmlNode->hasTagName("GLOBAL_PARAMETERS"))
             {
                 for (int i = 0; i < xmlNode->getNumAttributes(); i++)
-                    getParameter(xmlNode->getAttributeName(i))->fromXml(xmlNode);
+                {
+                    auto param = getParameter(xmlNode->getAttributeName(i));
+                    param->fromXml(xmlNode);
+                    parameterValueChanged(param);
+                }
             }
 
             if (xmlNode->hasTagName("STREAM") && dataStreams.size() > 0)

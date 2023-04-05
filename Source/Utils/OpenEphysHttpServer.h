@@ -34,6 +34,7 @@
 #include "../MainWindow.h"
 #include "../AccessClass.h"
 #include "../UI/ProcessorList.h"
+#include "../UI/EditorViewport.h"
 
 #include "Utils.h"
 
@@ -851,6 +852,32 @@ public:
                 LOGD("Unrecognized command");
             }
             
+
+            });
+
+        svr_->Get("/api/undo", [this](const httplib::Request& req, httplib::Response& res) {
+            std::string message_str;
+            LOGD( "Received undo request" );
+
+            json ret;
+            res.set_content(ret.dump(), "application/json");
+            res.status = 400;
+
+            const MessageManagerLock mml;
+            AccessClass::getEditorViewport()->undo();
+
+            });
+
+        svr_->Get("/api/redo", [this](const httplib::Request& req, httplib::Response& res) {
+            std::string message_str;
+            LOGD( "Received redo request" );
+
+            json ret;
+            res.set_content(ret.dump(), "application/json");
+            res.status = 400;
+
+            const MessageManagerLock mml;
+            AccessClass::getEditorViewport()->redo();
 
             });
                    

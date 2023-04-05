@@ -11,41 +11,41 @@
 
 /* Log Action -- taken by user */
 #define LOGA(...) \
-    OELogger::instance().LOGFile("[open-ephys][action] ", __VA_ARGS__);
+    OELogger::GetInstance().LOGFile("[open-ephys][action] ", __VA_ARGS__);
 
 /* Log Buffer -- related logs i.e. inside process() method */
 #define LOGB(...) \
-    OELogger::instance().LOGFile("[open-ephys][buffer] ", __VA_ARGS__);
+    OELogger::GetInstance().LOGFile("[open-ephys][buffer] ", __VA_ARGS__);
 
 /* Log Console -- gets printed to the GUI Debug Console */
 #define LOGC(...) \
-    OELogger::instance().LOGConsole("[open-ephys] ", __VA_ARGS__);
+    OELogger::GetInstance().LOGConsole("[open-ephys] ", __VA_ARGS__);
 
 /* Log Debug -- gets printed to the console in debug mode, to file otherwise */
 #ifdef DEBUG
 
 #define LOGD(...) \
-    OELogger::instance().LOGConsole("[open-ephys][debug] ", __VA_ARGS__);
+    OELogger::GetInstance().LOGConsole("[open-ephys][debug] ", __VA_ARGS__);
 #else
 /* Log Debug -- gets printed to the log file */
 #define LOGD(...) \
-    OELogger::instance().LOGFile("[open-ephys][debug] ", __VA_ARGS__);
+    OELogger::GetInstance().LOGFile("[open-ephys][debug] ", __VA_ARGS__);
 #endif
 
 /* Log Deep Debug -- gets printed to log file (e.g. enable after a crash to get more details) */
 #define LOGDD(...) \
-    OELogger::instance().LOGFile("[open-ephys][ddebug] ", __VA_ARGS__);
+    OELogger::GetInstance().LOGFile("[open-ephys][ddebug] ", __VA_ARGS__);
 
 /* Log Error -- gets printed to console with flare */
 #define LOGE(...) \
-    OELogger::instance().LOGError("[open-ephys] ***ERROR*** ", __VA_ARGS__);
+    OELogger::GetInstance().LOGError("[open-ephys] ***ERROR*** ", __VA_ARGS__);
 
 /* Log File -- gets printed directly to main output file */
 #define LOGF(...) LOGD(...)
 
 /* Log Graph -- gets logs related to processor graph generation/modification events */
 #define LOGG(...) \
-    OELogger::instance().LOGFile("[open-ephys][graph] ", __VA_ARGS__);
+    OELogger::GetInstance().LOGFile("[open-ephys][graph] ", __VA_ARGS__);
 
 /* Thread-safe logger */
 class OELogger
@@ -57,10 +57,10 @@ protected:
 
 	OELogger() { }
 public:
-	static OELogger& instance()
+	static OELogger& GetInstance(const std::string& log_file = "activity.log")
 	{
-		static OELogger lg;
-		return lg;
+		static OELogger instance(log_file);
+		return instance;
 	}
 
 	OELogger(OELogger const&) = delete;
@@ -100,12 +100,18 @@ public:
 		// Each time the GUI is launched, a new error log is generated.
 		// In case of a crash, the most recent file is appended with a datestring
 		logFile.open(filePath, std::ios::out | std::ios::app);
-		time_t now = time(0);
-		logFile << "[open-ephys] Session start time: " << ctime(&now);
 	}
 
 private:
+	OELogger(const std::string& log_file) : log_file(log_file)
+	{
+		if (!logFileExists)
+			createLogFile(log_file);
+		logFileExists = true;
+	}
 	std::mutex mt;
+	std::string log_file;
+	bool logFileExists = false;
 };
 
 

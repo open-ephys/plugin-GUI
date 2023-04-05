@@ -98,7 +98,7 @@ public:
 	/** Returns an array with info about the channels from which the spikes originate */
 	const Array<const ContinuousChannel*>& getSourceChannels() const;
     
-    /** Returns an array with info about the channels from which the spikes originate */
+	/** Sets the source channels from which the spikes originate */
     void setSourceChannels(Array<const ContinuousChannel*>& sourceChannels);
 
 	/** Gets the number of pre peak samples */

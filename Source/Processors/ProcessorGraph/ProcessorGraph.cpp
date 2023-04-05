@@ -117,6 +117,7 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
     LOGD("New source: ", newSource->getName());
     if (newDest != nullptr)
     LOGD("New dest: ", newDest->getName());
+    LOGD("Move downstream: ", moveDownstream);
 
     processor->setSourceNode(nullptr);
     processor->setDestNode(nullptr);
@@ -154,15 +155,27 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
             newDest->setSourceNode(processor);
         } else {
             processor->setDestNode(nullptr);
+            updateSettings(newDest);
         }
     }
 
     checkForNewRootNodes(processor, false, true);
 
     if (moveDownstream) // processor is further down the signal chain, its original dest may have changed
-        updateSettings(originalDest);
+    {
+        //LOGD("MOVE: Updating settings for ", originalDest->getNodeId());
+        if (originalDest != nullptr)
+            updateSettings(originalDest);
+        else
+            updateSettings(processor);
+    }
+        
     else // processor is upstream of its original dest, so we can just update that
+    {
+        //LOGD("MOVE: Updating settings for ", processor->getNodeId());
         updateSettings(processor);
+    }
+        
 }
 
 GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& description,
@@ -437,7 +450,7 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
 
                     } else {
 
-                        Merger* merger = (Merger*) processor->getDestNode();
+                        Merger* merger = (Merger*)p;
 
                         GenericProcessor* sourceA = merger->getSourceNode(0);
                         GenericProcessor* sourceB = merger->getSourceNode(1);

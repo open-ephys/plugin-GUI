@@ -47,7 +47,8 @@ int DataViewport::addTabToDataViewport(String name,
     if (tabArray.size() == 0)
         setVisible(true);
 
-    
+    //if (tabArray.contains(tabIndex))
+    //    return tabIndex;
 
     addTab(name, Colours::lightgrey, component, false, tabIndex);
 
@@ -59,11 +60,11 @@ int DataViewport::addTabToDataViewport(String name,
     tabArray.add(tabIndex);
 
     //std::cout << "Tab Array: ";
-   // for (int i = 0; i < tabArray.size(); i++)
-   //     std::cout << tabArray[i] << " ";
-   // std::cout << std::endl;
+    //for (int i = 0; i < tabArray.size(); i++)
+    //    std::cout << tabArray[i] << " ";
+    //std::cout << std::endl;
 
-    //LOGD("Data Viewport adding tab with index ", tabIndex);
+    LOGD("Data Viewport adding tab with index ", tabIndex);
 
     setCurrentTabIndex(tabArray.size()-1);
 
@@ -76,10 +77,13 @@ int DataViewport::addTabToDataViewport(String name,
 void DataViewport::addTabAtIndex(int tabIndex_, String tabName, Component* tabComponent)
 {
 
-    savedTabIndices.add(tabIndex_);
-    savedTabComponents.add(tabComponent);
-    savedTabNames.add(tabName);
-
+	if (!savedTabIndices.contains(tabIndex_))
+	{
+        savedTabIndices.add(tabIndex_);
+        savedTabComponents.add(tabComponent);
+        savedTabNames.add(tabName);
+	}
+    
 }
 
 
@@ -108,7 +112,7 @@ void DataViewport::destroyTab(int index)
     setCurrentTabIndex(tabArray.size()-1);
 
     //std::cout << "Tab Array: ";
-   // for (int i = 0; i < tabArray.size(); i++)
+    //for (int i = 0; i < tabArray.size(); i++)
     //    std::cout << tabArray[i] << " ";
     //std::cout << std::endl;
     
@@ -126,6 +130,8 @@ void DataViewport::saveStateToXml(XmlElement* xml)
 void DataViewport::loadStateFromXml(XmlElement* xml)
 {
 
+    //LOGD("DataViewport::loadStateFromXml()");
+    
     std::vector<int> tabOrder(savedTabIndices.size());
     std::iota(tabOrder.begin(), tabOrder.end(), 0); //Initializing
     sort(tabOrder.begin(), tabOrder.end(), [&](int i, int j)

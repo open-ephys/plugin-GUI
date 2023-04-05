@@ -291,7 +291,7 @@ MoveProcessor::~MoveProcessor()
    
 bool MoveProcessor::perform()
 {
-    LOGDD("Peforming MOVE for processor ", nodeId);
+    LOGD("Peforming MOVE for processor ", nodeId);
     
     GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
     
@@ -310,7 +310,7 @@ bool MoveProcessor::perform()
 bool MoveProcessor::undo()
 {
 
-    LOGDD("Undoing MOVE for processor ", nodeId);
+    LOGD("Undoing MOVE for processor ", nodeId);
 
     GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
     
@@ -321,7 +321,7 @@ bool MoveProcessor::undo()
     AccessClass::getProcessorGraph()->moveProcessor(processor,
                                                     sourceProcessor,
                                                     destProcessor,
-                                                    moveDownstream);
+                                                    !moveDownstream);
     
     if (processor->isSource() && originalDestNodeDestNodeId > -1)
     {
@@ -330,7 +330,7 @@ bool MoveProcessor::undo()
         AccessClass::getProcessorGraph()->moveProcessor(originalDest,
                                                         destProcessor,
                                                         originalDest->getDestNode(),
-                                                        moveDownstream);
+                                                        !moveDownstream);
     }
     
     return true;
