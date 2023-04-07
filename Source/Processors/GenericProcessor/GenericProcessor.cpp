@@ -462,13 +462,39 @@ void GenericProcessor::clearSettings()
 {
 
     LOGDD("Clearing settings for ", getName());
+
+    Array<DataStream*> dataStreamsToKeep;
+
+    // NB: continuous, spike, and event channels retain a reference to their parent DataStream object,
+    // and so we need to ensure that if we're deleting any DataStream objects, that we also delete any
+    // channels that reference those datastreams. Presumingly, the DataStream and channel objects will
+    // likely be constructed properly in subsequent execution of updateSettings().
+    Array<const DataStream*> dataStreamsDeleted;
+    for (auto obj : dataStreams)
+    {
+
+        if (!obj->isLocal())
+        {
+            savedDataStreamParameters.add(new ParameterCollection());
+            savedDataStreamParameters.getLast()->copyParametersFrom(obj);
+            dataStreamsDeleted.add(obj);
+            delete obj;
+        }
+        else {
+
+            dataStreamsToKeep.add(obj);
+        }
+
+    }
+
+    dataStreams.clearQuick(false);
+    dataStreams.addArray(dataStreamsToKeep);
     
     Array<ContinuousChannel*> continuousChannelsToKeep;
     
     for (auto obj : continuousChannels)
     {
-        //std::cout << obj->getName() << std::endl;
-        if (!obj->isLocal())
+        if (!obj->isLocal() || dataStreamsDeleted.indexOf(obj->getStreamPointer()) != -1)
             delete obj;
         else
             continuousChannelsToKeep.add(obj);
@@ -482,10 +508,12 @@ void GenericProcessor::clearSettings()
     for (auto obj : eventChannels)
     {
 
-        if (!obj->isLocal())
+        if (!obj->isLocal() || dataStreamsDeleted.indexOf(obj->getStreamPointer()) != -1) {
             delete obj;
-        else
+        }
+        else {
             eventChannelsToKeep.add(obj);
+        }
     }
     
     eventChannels.clearQuick(false);
@@ -495,7 +523,7 @@ void GenericProcessor::clearSettings()
     
     for (auto obj : spikeChannels)
     {
-        if (!obj->isLocal())
+        if (!obj->isLocal() || dataStreamsDeleted.indexOf(obj->getStreamPointer()) != -1)
             delete obj;
         else
             spikeChannelsToKeep.add(obj);            
@@ -516,29 +544,6 @@ void GenericProcessor::clearSettings()
     
     configurationObjects.clearQuick(false);
     configurationObjects.addArray(configurationObjectsToKeep);
-
-    Array<DataStream*> dataStreamsToKeep;
-
-    
-    for (auto obj : dataStreams)
-    {
-
-        if (!obj->isLocal())
-        {
-            savedDataStreamParameters.add(new ParameterCollection());
-            
-            //std::cout << "SAVING STREAM PARAMETERS" << std::endl;
-            savedDataStreamParameters.getLast()->copyParametersFrom(obj);
-            
-            delete obj;
-        } else {
-            dataStreamsToKeep.add(obj);
-        }
-            
-    }
-    
-    dataStreams.clearQuick(false);
-    dataStreams.addArray(dataStreamsToKeep);
 
     ttlEventChannel = nullptr;
 
@@ -899,7 +904,7 @@ void GenericProcessor::update()
         updateSettings(); // only for Merger
     }
 
-	updateChannelIndexMaps();
+    updateChannelIndexMaps();
 
     LOGD("    Copied upstream settings in ", MS_FROM_START, " milliseconds");
 
@@ -1322,8 +1327,8 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 void GenericProcessor::addEvent(const Event* event, int sampleNum)
 {
 	size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
-	
-	HeapBlock<char> buffer(size);
+
+    HeapBlock<char> buffer(size);
 
 	event->serialize(buffer, size);
 
