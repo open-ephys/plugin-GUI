@@ -47,6 +47,7 @@ void BandpassFilterSettings::createFilters(int numChannels, float sampleRate_, d
 
 void BandpassFilterSettings::updateFilters(double lowCut, double highCut)
 {
+    //LOGD("Setting low cut to ", lowCut, " and hi cut to ", highCut);
     for (int n = 0; n < filters.size(); n++)
     {
         setFilterParameters(lowCut, highCut, n);
@@ -159,7 +160,9 @@ void FilterNode::updateSettings()
 void FilterNode::parameterValueChanged(Parameter* param)
 {
     
+    //LOGD("Changing parameter: ", param->getName());
     uint16 currentStream = param->getStreamId();
+    //LOGD("Stream name: ", getDataStream(currentStream)->getName());
 
     if (param->getName().equalsIgnoreCase("low_cut"))
     {
@@ -196,11 +199,14 @@ void FilterNode::parameterValueChanged(Parameter* param)
 void FilterNode::process (AudioBuffer<float>& buffer)
 {
 
+    //LOGD("FilterNode::process()");
+    
     for (auto stream : getDataStreams())
     {
-
+        //LOGD("STREAM: ", stream->getName());
         if ((*stream)["enable_stream"])
         {
+            //LOGD("ENABLED");
             BandpassFilterSettings* streamSettings = settings[stream->getStreamId()];
             
             const uint16 streamId = stream->getStreamId();
@@ -215,7 +221,9 @@ void FilterNode::process (AudioBuffer<float>& buffer)
                 streamSettings->filters[localChannelIndex]->process(numSamples, &ptr);
 
             }
-        }
+        } //else {
+            //LOGD("NOT ENABLED");
+        //}
     }
 }
 

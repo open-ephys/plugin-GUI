@@ -10,7 +10,7 @@
 
 class RecordControlTests : public ProcessorTest {
 protected:
-    RecordControlTests() : ProcessorTest(1, 150) {
+    RecordControlTests() : ProcessorTest() {
     }
 
     ~RecordControlTests() override {

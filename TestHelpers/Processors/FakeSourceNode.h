@@ -4,18 +4,30 @@
 #include <ProcessorHeaders.h>
 #include <NonAPIHeaders.h>
 
-class TESTABLE FakeSourceNode : public GenericProcessor {
+/**
+ 
+    Creates a source node for testing downstream processors
+ 
+ */
+class TESTABLE FakeSourceNode : public GenericProcessor
+{
 public:
-    FakeSourceNode(int channels = 1, float sampleRate = 20000.0f);
     
+    /** Constructor */
+    FakeSourceNode();
+    
+    /** Adds the message channel */
     void addMessageChannel();
-    void addTestDataStreams();
     
-    void process(AudioBuffer<float>& continuousBuffer) override;
+    /** Clears stream settings */
+    void clearStreams();
     
-private:
-    int channels;
-    float sampleRate;
+    /** Adds a stream for testing  */
+    void addTestDataStream(int numChannels, float sampleRate);
+    
+    /** Empty implementation of process method (only pure virtual method) */
+    void process(AudioBuffer<float>& continuousBuffer) override { }
+    
 };
 
 

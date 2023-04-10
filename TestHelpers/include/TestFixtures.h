@@ -5,8 +5,8 @@
 
 class ProcessorTest : public ::testing::Test {
 protected:
-    ProcessorTest(int channels, int sampleRate) {
-        sn = std::make_unique<FakeSourceNode>(channels, sampleRate);
+    ProcessorTest() {
+        sn = std::make_unique<FakeSourceNode>();
         ac = std::make_unique<StubAccessClass>();
     }
 
@@ -16,14 +16,25 @@ protected:
     void SetUp() override {
 
         ac->addMessageCenter();
-        sn->addTestDataStreams();
+    }
+
+    void TearDown() override
+    {
+
+    }
+    
+    void clearInputStreams()
+    {
+        sn->clearStreams();
         sn->update();
-
     }
-
-    void TearDown() override {
-
+    
+    void addInputStream(int numChannels, float sampleRate)
+    {
+        sn->addTestDataStream(numChannels, sampleRate);
+        sn->update();
     }
+    
     std::unique_ptr<FakeSourceNode> sn;
     std::unique_ptr<StubAccessClass> ac;
 

@@ -1,15 +1,30 @@
 #include "FakeSourceNode.h"
 
-FakeSourceNode::FakeSourceNode(int channels, float sampleRate) : GenericProcessor("Fake Source Node"), channels(channels), sampleRate(sampleRate){}
+FakeSourceNode::FakeSourceNode() : GenericProcessor("Fake Source Node")
+{
+    
+}
 
 void FakeSourceNode::addMessageChannel() {
     
 }
 
-void FakeSourceNode::addTestDataStreams() {
+void FakeSourceNode::clearStreams()
+{
+    dataStreams.clear();
+    continuousChannels.clear();
+    eventChannels.clear();
+}
+
+void FakeSourceNode::addTestDataStream(int numChannels, float sampleRate) {
+    
+    int streamIndex = dataStreams.size();
+    
+    LOGD("Adding stream at index ", streamIndex);
+    
     DataStream::Settings settings
     {
-        "FakeSourceNode",
+        "FakeSourceNodeStream" + String(streamIndex+1),
         "description",
         "identifier",
         sampleRate
@@ -17,24 +32,34 @@ void FakeSourceNode::addTestDataStreams() {
     
     dataStreams.add(new DataStream(settings));
     
-    for (int index= 0; index < channels; index++)
+    for (int channelIndex = 0; channelIndex < numChannels; channelIndex++)
     {
         
         ContinuousChannel::Settings settings{
             ContinuousChannel::Type::ELECTRODE,
-            "CH" + String(index),
-            String(index),
+            "CH" + String(channelIndex + 1),
+            String(channelIndex + 1),
             "identifier",
             
-            1.0,
+            1.0, // bitVolts
             
-            dataStreams.getFirst()
+            dataStreams.getLast()
         };
         
         continuousChannels.add(new ContinuousChannel(settings));
     }
+    
+    {
+        EventChannel::Settings settings{
+            EventChannel::Type::TTL,
+            "EventChannel",
+            "description",
+            "identifier",
+            
+            dataStreams.getLast()
+        };
+        
+        eventChannels.add(new EventChannel(settings));
+    }
 
 }
-
-void FakeSourceNode::process(AudioBuffer<float>& continuousBuffer) {}
-

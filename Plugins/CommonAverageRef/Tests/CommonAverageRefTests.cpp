@@ -10,7 +10,7 @@
 
 class CommonAverageRefTests : public ProcessorTest {
 protected:
-    CommonAverageRefTests() : ProcessorTest(1, 150) {
+    CommonAverageRefTests() : ProcessorTest() {
     }
 
     ~CommonAverageRefTests() override {

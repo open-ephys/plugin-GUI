@@ -10,7 +10,7 @@
 
 class PhaseDetectorTests : public ProcessorTest {
 protected:
-    PhaseDetectorTests() : ProcessorTest(1, 150) {
+    PhaseDetectorTests() : ProcessorTest() {
     }
 
     ~PhaseDetectorTests() override {

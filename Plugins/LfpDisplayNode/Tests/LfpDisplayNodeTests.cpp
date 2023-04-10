@@ -10,7 +10,7 @@
 
 class LfpDisplayNodeTests : public ProcessorTest {
 protected:
-    LfpDisplayNodeTests() : ProcessorTest(1, 150) {
+    LfpDisplayNodeTests() : ProcessorTest() {
     }
 
     ~LfpDisplayNodeTests() override {

@@ -10,7 +10,7 @@
 
 class ArduinoOutputTests : public ProcessorTest {
 protected:
-    ArduinoOutputTests() : ProcessorTest(1, 150) {
+    ArduinoOutputTests() : ProcessorTest() {
     }
 
     ~ArduinoOutputTests() override {

@@ -10,7 +10,7 @@
 
 class ChannelMappingNodeTests : public ProcessorTest {
 protected:
-    ChannelMappingNodeTests() : ProcessorTest(1, 150) {
+    ChannelMappingNodeTests() : ProcessorTest() {
     }
 
     ~ChannelMappingNodeTests() override {

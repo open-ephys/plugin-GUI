@@ -10,7 +10,7 @@
 
 class SpikeDetectorNodeTests : public ProcessorTest {
 protected:
-    SpikeDetectorNodeTests() : ProcessorTest(1, 150) {
+    SpikeDetectorNodeTests() : ProcessorTest() {
     }
 
     ~SpikeDetectorNodeTests() override {
