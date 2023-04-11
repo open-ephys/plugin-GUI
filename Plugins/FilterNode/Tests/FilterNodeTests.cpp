@@ -14,7 +14,10 @@
 #include <ModelProcessors.h>
 #include <ModelApplication.h>
 #include <TestFixtures.h>
-#include <cmath>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 
 /**
  
