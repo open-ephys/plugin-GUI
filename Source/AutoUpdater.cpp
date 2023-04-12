@@ -156,6 +156,19 @@ void LatestVersionCheckerAndUpdater::run()
     {
         requiredFilename = "Install-Open-Ephys-GUI-" + versionString + ".exe";
     }
+#elif JUCE_LINUX 
+    File exeDir = File::getSpecialLocation(File::SpecialLocationType::currentExecutableFile).getParentDirectory();
+    if(exeDir.getFullPathName().contains("/usr/local/bin"))
+    {
+        requiredFilename = "open-ephys-gui-" + versionString + ".deb";
+    }
+#elif JUCE_MAC
+    File exeDir = File::getSpecialLocation(File::SpecialLocationType::currentApplicationFile).getParentDirectory();
+    File globalAppDir = File::getSpecialLocation(File::SpecialLocationType::globalApplicationsDirectory);
+    if(exeDir.getFullPathName().contains(globalAppDir.getFullPathName()))
+    {
+        requiredFilename = "Open_Ephys_GUI_" + versionString + ".dmg";
+    }
 #endif
 
     for (auto& asset : parsedAssets)
@@ -200,8 +213,8 @@ public:
         releaseNotesEditor.setText (releaseNotes);
         addAndMakeVisible (releaseNotesEditor);
 
-        addAndMakeVisible (chooseButton);
-        chooseButton.onClick = [this] { exitModalStateWithResult (1); };
+        addAndMakeVisible (downloadButton);
+        downloadButton.onClick = [this] { exitModalStateWithResult (1); };
 
         addAndMakeVisible (cancelButton);
         cancelButton.onClick = [this]
@@ -239,7 +252,7 @@ public:
 
         auto buttonBounds = b.removeFromBottom (60);
         buttonBounds.removeFromBottom (25);
-        chooseButton.setBounds (buttonBounds.removeFromLeft (buttonBounds.getWidth() / 2).reduced (20, 0));
+        downloadButton.setBounds (buttonBounds.removeFromLeft (buttonBounds.getWidth() / 2).reduced (20, 0));
         cancelButton.setBounds (buttonBounds.reduced (20, 0));
         dontAskAgainButton.setBounds (cancelButton.getBounds().withY (cancelButton.getBottom() + 5).withHeight (20));
 
@@ -295,7 +308,7 @@ private:
 
     Label titleLabel, contentLabel, releaseNotesLabel;
     TextEditor releaseNotesEditor;
-    TextButton chooseButton { "Download" }, cancelButton { "Cancel" };
+    TextButton downloadButton { "Download" }, cancelButton { "Cancel" };
     ToggleButton dontAskAgainButton { "Don't ask again" };
     std::unique_ptr<Drawable> juceIcon;
     juce::Rectangle<int> juceIconBounds { 10, 10, 64, 64 };
@@ -478,11 +491,25 @@ void LatestVersionCheckerAndUpdater::downloadAndInstall (const Asset& asset, con
     else
 #endif
     {
-        String msgBoxString = "Please extract the zip file located at: \n" + 
-                               targetFile.getFullPathName().quoted() +
-                               "\nto your desired location and then run the updated version from there. "
-                               "You can also overwrite the current installation after quitting the current instance.";
+        String msgBoxString = String();
 
+        if(targetFile.getFileExtension().equalsIgnoreCase(".zip"))
+        {
+            msgBoxString = "Please extract the zip file located at: \n" + 
+                            targetFile.getFullPathName().quoted() +
+                            "\nto your desired location and then run the updated version from there. "
+                            "You can also overwrite the current installation after quitting the current instance.";
+
+        }
+        else
+        {
+            msgBoxString = "Please launch the installer file located at: \n" + 
+                            targetFile.getFullPathName().quoted() +
+                            "\nafter closing the GUI, "
+                            "and follow the steps to finish updating the GUI.";
+        }
+        
+        
         downloader.reset (new DownloadThread (asset, targetFile,
                                                 [this, msgBoxString]
                                                 {
