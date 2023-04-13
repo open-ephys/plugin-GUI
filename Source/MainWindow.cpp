@@ -162,9 +162,10 @@ MainWindow::MainWindow(const File& fileToLoad)
 		disableHttpServer();
 	}
 
+#ifdef NDEBUG
 	if(automaticVersionChecking)
 		LatestVersionCheckerAndUpdater::getInstance()->checkForNewVersion (true, this);
-
+#endif
 }
 
 MainWindow::~MainWindow()

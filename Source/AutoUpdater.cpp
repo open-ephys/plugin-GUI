@@ -503,10 +503,9 @@ void LatestVersionCheckerAndUpdater::downloadAndInstall (const Asset& asset, con
         }
         else
         {
-            msgBoxString = "Please launch the installer file located at: \n" + 
+            msgBoxString = "Please quit the GUI first, then launch the installer file located at: \n" + 
                             targetFile.getFullPathName().quoted() +
-                            "\nafter closing the GUI, "
-                            "and follow the steps to finish updating the GUI.";
+                            "\nand follow the steps to finish updating the GUI.";
         }
         
         
