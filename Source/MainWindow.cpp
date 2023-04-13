@@ -201,10 +201,13 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 		disableHttpServer();
 	}
 
+#ifdef NDEBUG
 	if(automaticVersionChecking)
 		LatestVersionCheckerAndUpdater::getInstance()->checkForNewVersion (true, this);
+#endif
 
 	Process::setPriority(Process::HighPriority);
+
 }
 
 MainWindow::~MainWindow()
