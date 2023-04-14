@@ -53,40 +53,6 @@ protected:
     /** Buffer for the input signal */
     std::unique_ptr<AudioBuffer<float>> signal;
     
-    /** Generates a sine wave at a specified frequency */
-    void buildSineWave(float frequency, float amplitude, int numSamples)
-    {
-        
-        int totalChannels = uut->getTotalNumInputChannels();
-        
-        signal = std::make_unique<AudioBuffer<float>>(totalChannels, numSamples);
-        
-        int channelOffset = 0;
-        
-        for (auto stream : uut->getDataStreams())
-        {
-            const float sampleRate = stream->getSampleRate();
-            const int numChannels = stream->getChannelCount();
-            LOGD("Sample rate: ", sampleRate, ", Num Channels: ", numChannels);
-
-            const float angularFreq = 2.0 * M_PI * frequency;
-            
-            for (int ch = 0; ch < numChannels; ch++)
-            {
-                for (int i = 0; i < numSamples; i++)
-                {
-                    const float t = i / sampleRate;
-                    const float value = std::sin(angularFreq * t);
-                    signal -> setSample(ch + channelOffset, i, amplitude * value);
-                }
-            }
-            
-            channelOffset += numChannels;
-        }
-        
-        
-    }
-    
     /** Sets the filter high cut*/
     void setHighCut(float value)
     {
@@ -147,20 +113,32 @@ TEST_F(FilterNodeTests, ContructorTest) {
 TEST_F(FilterNodeTests, CutoffTest) {
     
     clearInputStreams();
+    const float sampleRate = 30000;
     LOGD("Adding first input stream");
-    addInputStream(10, 30000);
+    addInputStream(10, sampleRate);
     LOGD("Adding second input stream");
-    addInputStream(10, 30000);
+    addInputStream(10, sampleRate);
     uut->update();
     
     const int bufferSize = 25;
-    buildSineWave(150, 1.0, bufferSize); // fill one data buffer
-
+    int totalChans = uut->getTotalNumInputChannels();
+    signal = std::make_unique<AudioBuffer<float>>(totalChans, bufferSize);
+    Array<float> sineWave = generateSineWave(150, 1.0, bufferSize, sampleRate);
+    
     setLowCut(1);
     setHighCut(10);
     
+    int channelOffset = 0;
     for (auto stream: uut->getDataStreams())
     {
+        // Add sine wave data to each channel in each buffer
+        const int numChans = stream->getChannelCount();
+        for(int i = 0; i < numChans; i++)
+        {
+            signal->addFrom(i + numChans, 0, sineWave.data(), bufferSize, 1.0f);
+        }
+        channelOffset += numChans;
+
         AccessClass::ExternalProcessorAccessor::injectNumSamples(uut.get(),
                     stream->getStreamId(),
                     bufferSize);
