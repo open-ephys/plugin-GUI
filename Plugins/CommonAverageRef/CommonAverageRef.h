@@ -53,7 +53,7 @@ public:
     neuron recordings from microelectrode arrays. J. Neurophys, 2009 for a detailed
     discussion
 */
-class CommonAverageRef : public GenericProcessor
+class TESTABLE CommonAverageRef : public GenericProcessor
 {
 public:
     /** The class constructor, used to initialize any members. */
