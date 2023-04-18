@@ -77,7 +77,9 @@ void ArduinoOutput::setDevice (String devName)
 
     Time timer;
 
-    arduino.connect (devName.toStdString());
+    /* Avoid connecting to the same device twice */
+    if (devName != deviceString)
+        arduino.connect (devName.toStdString());
 
     LOGC("Connected");
 
@@ -101,13 +103,12 @@ void ArduinoOutput::setDevice (String devName)
         LOGC("Updating...");
         arduino.update();
 
-        std::cout << "firmata v" << arduino.getMajorFirmwareVersion()
-                    << "." << arduino.getMinorFirmwareVersion() << std::endl;
+        LOGC("firmata v", arduino.getMajorFirmwareVersion(), ".", arduino.getMinorFirmwareVersion());
     }
 
     if (arduino.isInitialized())
     {
-        std::cout << "Arduino is initialized." << std::endl;
+        LOGC("Arduino is initialized.");
         arduino.sendDigitalPinMode ((int) getParameter("output_pin")->getValue(), ARD_OUTPUT);
         CoreServices::sendStatusMessage (("Arduino initialized at " + devName));
         deviceSelected = true;
@@ -115,7 +116,7 @@ void ArduinoOutput::setDevice (String devName)
     }
     else
     {
-        std::cout << "Arduino is NOT initialized." << std::endl;
+        LOGC("Arduino is NOT initialized.");
         CoreServices::sendStatusMessage (("Arduino could not be initialized at " + devName));
     }
 }
