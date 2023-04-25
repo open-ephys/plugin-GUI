@@ -981,27 +981,38 @@ void LfpDisplay::rebuildDrawableChannelsList()
     removeAllChildren(); // start with clean slate
     
     Array<LfpChannelTrack> channelsToDraw; // all visible channels will be added to this array
-
+    Array<int> filteredChannels;
+    if(canvasSplit -> displayBuffer) {
+        filteredChannels = canvasSplit -> getFilteredChannels();
+    }
     // iterate over all channels and select drawable ones
-    for (int i = 0, drawableChannelNum = 0; i < channels.size(); i++)
+    for (int i = 0, drawableChannelNum = 0, filterChannelIndex = 0; i < channels.size(); i++)
     {
-        
 		//std::cout << "Checking for hidden channels" << std::endl;
-        if (displaySkipAmt == 0 || (i % displaySkipAmt == 0)) // no skips, add all channels
-        {
-            channels[i]->setHidden(false);
-            channelInfo[i]->setHidden(false);
-            
-            channelInfo[i]->setDrawableChannelNumber(drawableChannelNum++);
-            channelInfo[i]->resized(); // to update the conditional drawing of enableButton and channel num
-            
-            channelsToDraw.add(LfpDisplay::LfpChannelTrack{
-                channels[i],
-                channelInfo[i]
-            });
+        int channelNumber = filteredChannels.size() ? canvasSplit->displayBuffer->channelMetadata[i].description.getIntValue(): -1;
+        //the filter list can have channels that aren't selected for acqusition; this skips those filtered channels
+        while(filterChannelIndex < filteredChannels.size() && channelNumber > filteredChannels[filterChannelIndex]){
+            filterChannelIndex++;
+        }
+        if(filteredChannels.size() == 0 || (filterChannelIndex < filteredChannels.size() && channelNumber == filteredChannels[filterChannelIndex])) {
+            if (displaySkipAmt == 0 || ((filteredChannels.size() ? filterChannelIndex : i) % displaySkipAmt == 0)) // no skips, add all channels
+            {
 
-            addAndMakeVisible(channels[i]);
-            addAndMakeVisible(channelInfo[i]);
+                channels[i]->setHidden(false);
+                channelInfo[i]->setHidden(false);
+                
+                channelInfo[i]->setDrawableChannelNumber(drawableChannelNum++);
+                channelInfo[i]->resized(); // to update the conditional drawing of enableButton and channel num
+                
+                channelsToDraw.add(LfpDisplay::LfpChannelTrack{
+                    channels[i],
+                    channelInfo[i]
+                });
+                
+                addAndMakeVisible(channels[i]);
+                addAndMakeVisible(channelInfo[i]);
+            }
+            filterChannelIndex++;
         }
         else // skip some channels
         {
