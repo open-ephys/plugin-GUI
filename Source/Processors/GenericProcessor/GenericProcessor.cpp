@@ -24,6 +24,7 @@
 #include "GenericProcessor.h"
 
 #include "../../AccessClass.h"
+#include "../../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../../Utils/Utils.h"
 #include "../Editors/GenericEditor.h"
 
@@ -1427,6 +1428,11 @@ void GenericProcessor::broadcastMessage(String msg)
 {
 	AccessClass::getMessageCenter()->broadcastMessage(msg);
 }
+
+void GenericProcessor::sendConfigMessage(GenericProcessor* destination, String message) {
+    AccessClass::getProcessorGraph()->sendConfigMessage(destination, message);
+}
+
 
 void GenericProcessor::addSpike(const Spike* spike)
 {

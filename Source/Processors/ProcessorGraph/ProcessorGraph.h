@@ -26,7 +26,7 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
-#include "../PluginManager/PluginManager.h"
+//#include "../PluginManager/PluginManager.h"
 
 class GenericProcessor;
 class GenericEditor;
@@ -34,7 +34,7 @@ class RecordNode;
 class AudioNode;
 class MessageCenter;
 class SignalChainTabButton;
-
+class PluginManager;
 struct ChannelKey {
     int inputNodeId;
     int inputIndex;
@@ -222,7 +222,7 @@ public:
     Plugin::Description getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId);
     
     /** Returns a pointer to the Plugin Manager object */
-    PluginManager* getPluginManager() { return pluginManager.get(); }
+    PluginManager* getPluginManager();
 
 
 private:

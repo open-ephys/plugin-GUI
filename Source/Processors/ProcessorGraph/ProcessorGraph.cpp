@@ -42,6 +42,7 @@
 #include "../../UI/ProcessorList.h"
 
 #include "../ProcessorManager/ProcessorManager.h"
+#include "../PluginManager/PluginManager.h"
 #include "../../Audio/AudioComponent.h"
 #include "../../AccessClass.h"
 
@@ -1944,6 +1945,8 @@ Plugin::Description ProcessorGraph::getDescriptionFromXml(XmlElement* settings, 
     
     return description;
 }
+
+PluginManager* ProcessorGraph::getPluginManager() { return pluginManager.get(); }
 
 
 GenericProcessor* ProcessorGraph::createProcessorAtInsertionPoint(XmlElement* parametersAsXml,

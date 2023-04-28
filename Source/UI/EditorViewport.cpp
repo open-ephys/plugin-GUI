@@ -1480,13 +1480,6 @@ std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
     return xml;
 }
 
-XmlElement* EditorViewport::createNodeXml(GenericProcessor* processor, bool isStartOfSignalChain)
-{
-    AccessClass::getProcessorGraph()->createNodeXml(processor, isStartOfSignalChain);
-}
-
-
->>>>>>> 783c64a82 (Save/load signal chain via ProcessorGraph)
 const String EditorViewport::loadState(File fileToLoad)
 {
     
