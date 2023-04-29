@@ -57,4 +57,5 @@ bool BroadcastParser::checkForCommand(String expectedPlugin, String expectedComm
         return false;
     }
     payload = jsonMessage -> getProperty("payload");
+    return true;
 }

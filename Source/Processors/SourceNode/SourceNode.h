@@ -61,6 +61,9 @@ public:
 
     /* Broadcasts a message from the DataThread to all other processors*/
     void broadcastDataThreadMessage(String msg);
+    
+    /* Broadcasts a message from the DataThread to all other processors*/
+    void sendDataThreadConfigMessage(GenericProcessor* destProcessor, String msg);
 
     /* Gets the sample rate for a particular subprocessor*/
     float getSampleRate(int subProcessorIdx = 0) const override;

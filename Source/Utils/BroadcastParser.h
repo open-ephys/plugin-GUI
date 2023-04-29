@@ -20,10 +20,12 @@ public:
     
 
     static bool checkForCommand(String expectedPlugin, String expectedCommand, String msg, var& payload);
+    
+    static bool getIntField(DynamicObject::Ptr payload, String name, int& value, int lowerBound = INT_MAX, int upperBound = INT_MIN);
 
 
 private:
-    static bool getIntField(DynamicObject::Ptr payload, String name, int& value, int lowerBound, int upperBound);
+  
 
     
     
