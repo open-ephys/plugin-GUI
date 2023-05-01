@@ -1511,6 +1511,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 {
     
     AccessClass::getProcessorGraph()->loadFromXml(xml);
+    return "";
     
 }
 

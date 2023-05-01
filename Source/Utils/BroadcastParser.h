@@ -11,9 +11,10 @@
 #include <stdio.h>
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "../Processors/PluginManager/OpenEphysPlugin.h"
 
 
-class BroadcastParser {
+class PLUGIN_API BroadcastParser {
 public:
 
     static String build(String destPlugin, String command, std::map<String, var> payload);

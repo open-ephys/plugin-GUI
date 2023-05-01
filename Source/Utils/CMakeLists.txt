@@ -5,6 +5,8 @@ add_sources(open-ephys
 	OpenEphysHttpServer.h
 	ListSliceParser.h
 	ListSliceParser.cpp
+	BroadcastParser.h
+	BroadcastParser.cpp
 	Utils.h
 )
 
