@@ -24,6 +24,8 @@ public:
     
     static bool getIntField(DynamicObject::Ptr payload, String name, int& value, int lowerBound = INT_MAX, int upperBound = INT_MIN);
 
+    static GenericProcessor* getDestinationNode(GenericProcessor* root, int nodeId);
+
 
 private:
   

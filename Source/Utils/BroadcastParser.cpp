@@ -6,6 +6,7 @@
 //
 
 #include "BroadcastParser.h"
+#include "../Processors/GenericProcessor/GenericProcessor.h"
 
 String BroadcastParser::build(String destPlugin, String command, std::map<String, var> payload) {
     DynamicObject::Ptr jsonObj = new DynamicObject();
@@ -58,4 +59,15 @@ bool BroadcastParser::checkForCommand(String expectedPlugin, String expectedComm
     }
     payload = jsonMessage -> getProperty("payload");
     return true;
+}
+
+GenericProcessor* BroadcastParser::getDestinationNode(GenericProcessor * root, int nodeId) {
+    while (root) {
+        if (root->getNodeId() == nodeId) {
+            return root;
+        }
+        root = root->getDestNode();
+
+    }
+    return nullptr;
 }
