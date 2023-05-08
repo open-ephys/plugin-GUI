@@ -44,7 +44,7 @@ class MessageCenterEditor;
 
 */
 
-class MessageCenter : public GenericProcessor,
+class TESTABLE MessageCenter : public GenericProcessor,
     public ActionListener
 
 {
