@@ -18,7 +18,6 @@
 class FilterNodeTests : public ProcessorTest {
 protected:
     FilterNodeTests() : ProcessorTest(1, 150) {
-        uut = std::make_unique<FilterNode>(true);
     }
 
     ~FilterNodeTests() override {
@@ -26,13 +25,11 @@ protected:
 
     void SetUp() override {
         ProcessorTest::SetUp();
-        uut->setSourceNode(sn.get());
-        uut->update();
+        uut = std::make_unique<FilterNode>(true);
     }
 
     void TearDown() override {
         ProcessorTest::TearDown();
-
     }
     
     std::unique_ptr<FilterNode> uut;

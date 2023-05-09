@@ -100,6 +100,10 @@ ActionBroadcaster* getBroadcaster();
 
 void TESTABLE setMessageCenter(MessageCenter * mc_);
 
+
+/** Clears all of the global state in AccessClass. Only for use in testing. */
+void TESTABLE clearAccessClassStateForTesting();
+
 void shutdownBroadcaster();
 
 //Methods to access some private members of GenericProcessors.

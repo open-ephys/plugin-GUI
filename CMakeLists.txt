@@ -14,7 +14,12 @@ string(REPLACE "." "," GUI_VERSION_COMMA ${GUI_VERSION})
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version" FORCE)
 set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "Build architecture for Mac OS X" FORCE)
-set(CMAKE_OSX_SYSROOT "")
+
+# Switching this flag to OFF (i.e. NOT blanking CMAKE_OSX_ROOT) is required for some Mac users to find stdlib files
+set(ERASE_CMAKE_OSX_SYSROOT ON CACHE BOOL "Whether to set the CMAKE_OSX_SYSROOT to blank")
+if (ERASE_CMAKE_OSX_SYSROOT)
+	set(CMAKE_OSX_SYSROOT "")
+endif()
 if ((NOT ${CMAKE_CURRENT_BINARY_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR}/Build ) AND (NOT OE_DONT_CHECK_BUILD_PATH))
 message(FATAL_ERROR "Please run cmake inside the Build folder to build the binaries in the predefined paths.\nSet the OE_DONT_CHECK_BUILD_PATH cmake variable to TRUE to disable this error")
 endif()

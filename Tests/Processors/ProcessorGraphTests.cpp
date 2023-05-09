@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "../../Source/Processors/ProcessorGraph/ProcessorGraph.h"
+#include <Processors/ProcessorGraph/ProcessorGraph.h>
 
 class ProcessorGraphTest : public ::testing::Test {
 protected:

@@ -4,18 +4,20 @@
 #include <ProcessorHeaders.h>
 #include <NonAPIHeaders.h>
 
+/** Collection of optional, settable parameters for configuring the FakeSourceNode for testing. */
+struct FakeSourceNodeParams {
+    int channels = 1;
+    float sampleRate = 20000.0f;
+    float bitVolts = 1.0f;
+};
+
 class TESTABLE FakeSourceNode : public GenericProcessor {
 public:
-    FakeSourceNode(int channels = 1, float sampleRate = 20000.0f);
-    
-    void addMessageChannel();
-    void addTestDataStreams();
-    
+    explicit FakeSourceNode(const FakeSourceNodeParams &params);
+    void updateSettings() override;
     void process(AudioBuffer<float>& continuousBuffer) override;
-    
 private:
-    int channels;
-    float sampleRate;
+    FakeSourceNodeParams params_;
 };
 
 

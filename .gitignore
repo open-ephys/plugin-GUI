@@ -175,3 +175,6 @@ installed_libs
 #13. VSCode related
 .vscode/
 build/
+
+#14. IDE stuff
+.idea

@@ -1,23 +1,23 @@
 #include "FakeSourceNode.h"
 
-FakeSourceNode::FakeSourceNode(int channels, float sampleRate) : GenericProcessor("Fake Source Node"), channels(channels), sampleRate(sampleRate){}
-
-void FakeSourceNode::addMessageChannel() {
-    
+FakeSourceNode::FakeSourceNode(const FakeSourceNodeParams &params)
+    : GenericProcessor("Fake Source Node", true),
+      params_(params) {
+    setProcessorType(Plugin::Processor::Type::SOURCE);
 }
 
-void FakeSourceNode::addTestDataStreams() {
+void FakeSourceNode::updateSettings() {
     DataStream::Settings settings
     {
         "FakeSourceNode",
         "description",
         "identifier",
-        sampleRate
+        params_.sampleRate
     };
     
     dataStreams.add(new DataStream(settings));
     
-    for (int index= 0; index < channels; index++)
+    for (int index= 0; index < params_.channels; index++)
     {
         
         ContinuousChannel::Settings settings{
@@ -25,9 +25,7 @@ void FakeSourceNode::addTestDataStreams() {
             "CH" + String(index),
             String(index),
             "identifier",
-            
-            1.0,
-            
+            params_.bitVolts,
             dataStreams.getFirst()
         };
         
