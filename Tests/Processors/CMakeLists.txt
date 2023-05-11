@@ -6,4 +6,5 @@ target_include_directories(${COMPONENT_NAME}_tests PRIVATE "${SOURCE_DIRECTORY}/
 
 add_sources(${COMPONENT_NAME}_tests
     DataBufferTests.cpp
+    RecordNodeTests.cpp
 )

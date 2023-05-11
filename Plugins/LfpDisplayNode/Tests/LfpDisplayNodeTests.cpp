@@ -28,3 +28,12 @@ protected:
 };
 
 
+TEST_F(LfpDisplayNodeTests, VisualIntegrityTest) {
+    GTEST_SKIP();
+}
+
+TEST_F(LfpDisplayNodeTests, DataIntegrityTest) {
+    GTEST_SKIP();
+}
+
+

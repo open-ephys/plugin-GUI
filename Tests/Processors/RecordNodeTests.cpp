@@ -2,18 +2,16 @@
 
 #include "gtest/gtest.h"
 
-#include "../ChannelMappingNode.h"
-#include <ProcessorHeaders.h>
 #include <ModelProcessors.h>
 #include <ModelApplication.h>
 #include <TestFixtures.h>
 
-class ChannelMappingNodeTests : public ProcessorTest {
+class RecordNodeTests : public ProcessorTest {
 protected:
-    ChannelMappingNodeTests() : ProcessorTest(1, 150) {
+    RecordNodeTests() : ProcessorTest(1, 150) {
     }
 
-    ~ChannelMappingNodeTests() override {
+    ~RecordNodeTests() override {
     }
 
     void SetUp() override {
@@ -27,12 +25,10 @@ protected:
 
 };
 
-TEST_F(ChannelMappingNodeTests, ConfigFileTest) {
+TEST_F(RecordNodeTests, ParameterTest) {
     GTEST_SKIP();
 }
 
-TEST_F(ChannelMappingNodeTests, DataIntegrityTest) {
+TEST_F(RecordNodeTests, DataIntegrityTest) {
     GTEST_SKIP();
 }
-
-

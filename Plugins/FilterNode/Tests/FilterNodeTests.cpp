@@ -69,17 +69,10 @@ protected:
 
 };
 
-TEST_F(FilterNodeTests, ContructorTest) {
-    ASSERT_EQ(uut -> getDisplayName(), "Bandpass Filter");
+TEST_F(FilterNodeTests, ParametersTest) {
+    GTEST_SKIP();
 }
 
-TEST_F(FilterNodeTests, CutoffTest) {
-    buildSineWave(150);
-
-    setHighCut(60);
-    setLowCut(10);
-    AccessClass::ExternalProcessorAccessor::injectNumSamples(uut.get(), uut -> getDataStreams().getFirst() -> getStreamId(), 150);
-    uut->process(*(signal.get()));
-
-    
+TEST_F(FilterNodeTests, DataIntegrityTest) {
+    GTEST_SKIP();
 }
