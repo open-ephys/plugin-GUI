@@ -34,6 +34,7 @@
 #include "../AccessClass.h"
 #include "../Processors/Editors/GenericEditor.h" // for UtilityButton
 #include "FilenameConfigWindow.h"
+#include "../TestableExport.h"
 #include <queue>
 
 /** 
@@ -327,7 +328,7 @@ class UtilityButton;
 
 */
 
-class ControlPanel : public Component,
+class TESTABLE ControlPanel : public Component,
     public Button::Listener,
     public Timer,
     public Label::Listener,

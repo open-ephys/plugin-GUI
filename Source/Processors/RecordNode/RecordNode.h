@@ -15,6 +15,7 @@
 #include "DataQueue.h"
 #include "Synchronizer.h"
 #include "../../Utils/Utils.h"
+#include "../../TestableExport.h"
 
 #define WRITE_BLOCK_LENGTH		1024
 #define DATA_BUFFER_NBLOCKS		300
@@ -68,7 +69,7 @@ public:
 
 	@see: RecordThread, RecordEngine
 */
-class RecordNode :
+class TESTABLE RecordNode :
     public GenericProcessor,
     public SynchronizingProcessor,
     public FilenameComponentListener

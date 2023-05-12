@@ -30,7 +30,7 @@ protected:
         std::filesystem::create_directory(parent_recording_dir);
 
         // Set this before creating the record node
-        tester->setRecordingParentDirectory(parent_recording_dir.native());
+        tester->setRecordingParentDirectory(parent_recording_dir.string());
         processor = tester->Create<RecordNode>();
     }
 
