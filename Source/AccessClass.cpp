@@ -153,6 +153,19 @@ ActionBroadcaster* getBroadcaster()
     return bc.get();
 }
 
+void clearAccessClassStateForTesting() {
+    ui = nullptr;
+    ev = nullptr;
+    pl = nullptr;
+    dv = nullptr;
+    pg = nullptr;
+    cp = nullptr;
+    mc = nullptr;
+    ac = nullptr;
+    gv = nullptr;
+    pm = nullptr;
+    bc.reset();
+}
 
 MidiBuffer* ExternalProcessorAccessor::getMidiBuffer(GenericProcessor* proc)
 {

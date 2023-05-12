@@ -9,7 +9,5 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 			"$<$<PLATFORM_ID:Windows>:JUCE_API=__declspec(dllimport)>"
 			)
 
-
 add_subdirectory(Processors)
 add_subdirectory(UI)
-

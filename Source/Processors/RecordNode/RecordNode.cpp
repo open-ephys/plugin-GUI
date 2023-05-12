@@ -468,7 +468,7 @@ bool RecordNode::startAcquisition()
 
     synchronizer.startAcquisition();
 
-    if (eventChannels.getLast()->getSourceNodeName() != "Message Center")
+    if (eventChannels.size() == 0 || eventChannels.getLast()->getSourceNodeName() != "Message Center")
     {
         eventChannels.add(new EventChannel(*messageChannel));
         eventChannels.getLast()->addProcessor(processorInfo.get());
@@ -484,8 +484,16 @@ bool RecordNode::stopAcquisition()
 
     synchronizer.stopAcquisition();
 
+    if (hasRecorded) {
+        // stopRecording() signals the thread to exit, but we should wait here until the thread actually gracefully
+        // exits before we reset some of its needed data (e.g. eventQueue, spikeQueue, etc.)
+        if (recordThread) {
+            recordThread->waitForThreadToExit(1000);
+        }
+    }
+
 	// Remove message channel
-    if (eventChannels.getLast()->getSourceNodeName() == "Message Center")
+    if (eventChannels.size() > 0 && eventChannels.getLast()->getSourceNodeName() == "Message Center")
     {
         eventChannels.removeLast();
     }
@@ -518,7 +526,7 @@ void RecordNode::startRecording()
 	OwnedArray<RecordProcessorInfo> procInfo;
     
     // in case recording starts before acquisition:
-    if (eventChannels.getLast()->getSourceNodeName() != "Message Center")
+    if (eventChannels.size() == 0 || eventChannels.getLast()->getSourceNodeName() != "Message Center")
     {
         eventChannels.add(new EventChannel(*messageChannel));
         eventChannels.getLast()->addProcessor(processorInfo.get());

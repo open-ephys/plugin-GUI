@@ -541,7 +541,7 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
 
     updateViews(processorToUpdate, true);
 
-    if(!signalChainIsLoading)
+    if(!signalChainIsLoading && !isConsoleApp)
     {
         CoreServices::saveRecoveryConfig();
     }
