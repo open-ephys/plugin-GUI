@@ -44,7 +44,7 @@ namespace LfpViewer
   @see GenericProcessor, LfpDisplayEditor, LfpDisplayCanvas
 
 */
-class LfpDisplayNode :  public GenericProcessor
+class TESTABLE LfpDisplayNode :  public GenericProcessor
 
 {
 public:

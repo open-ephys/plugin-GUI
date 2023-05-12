@@ -24,7 +24,7 @@ protected:
         ProcessorTest::TearDown();
 
     }
-
+    LfpViewer::LfpDisplayNode uut;
 };
 
 

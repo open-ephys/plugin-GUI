@@ -11,3 +11,5 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 
 
 add_subdirectory(Processors)
+add_subdirectory(UI)
+

@@ -25,6 +25,7 @@ protected:
 
     }
 
+    ChannelMappingNode uut;
 };
 
 TEST_F(ChannelMappingNodeTests, ConfigFileTest) {

@@ -27,7 +27,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 //#include "../PluginManager/PluginManager.h"
-
+#include "../../TestableExport.h"
 class GenericProcessor;
 class GenericEditor;
 class RecordNode;
@@ -62,7 +62,7 @@ struct ChannelKey {
        AudioNode, Configuration, MessageCenter
 */
 
-class ProcessorGraph    : public AudioProcessorGraph
+class TESTABLE ProcessorGraph    : public AudioProcessorGraph
                         , public ChangeListener
 {
 public:
