@@ -208,17 +208,45 @@ void DefaultConfigComponent::resized()
 
 void DefaultConfigComponent::buttonClicked(Button* button)
 {
-	if(button == goButton.get())
+	if (button == goButton.get())
 	{
 		// Get selected config file name with full path
 		String filePath;
 
-		if(acqBoardButton->getToggleState())
-			filePath = "configs" + File::getSeparatorString() + "acq_board_config.xml";
-		else if(fileReaderButton->getToggleState())
+		if (acqBoardButton->getToggleState())
+		{
+			int response = AlertWindow::showYesNoCancelBox(AlertWindow::QuestionIcon, "Select acquisition board type",
+				"What type of FPGA does your acquisition board have? \n\n"
+				"If it was delivered by Open Ephys Production Site after "
+				"November 2022, it has a custom FPGA designed by Open Ephys. \n\n"
+				"Older acquisition boards likely use an Opal Kelly FPGA.",
+				"Open Ephys FPGA", "Opal Kelly FPGA", "Cancel");
+
+			if (response == 1) // OE FPGA
+			{
+				LOGA("Selected Open Ephys FPGA");
+				filePath = "configs" + File::getSeparatorString() + "oe_acq_board_config.xml";
+			}
+			else if (response == 2)
+			{
+				LOGA("Selected Opal Kelly FPGA");
+				filePath = "configs" + File::getSeparatorString() + "acq_board_config.xml";
+			}
+			else {
+				return;
+			}
+			
+		}
+		else if (fileReaderButton->getToggleState())
+		{
 			filePath = "configs" + File::getSeparatorString() + "file_reader_config.xml";
+		}
+			
 		else
+		{
 			filePath = "configs" + File::getSeparatorString() + "neuropixels_pxi_config.xml";
+		}
+			
 
 #ifdef __APPLE__
 		File configFile = File::getSpecialLocation(File::currentApplicationFile)
@@ -240,7 +268,7 @@ void DefaultConfigComponent::buttonClicked(Button* button)
 			dw->exitModalState (0);
 
 	}
-	else if(button->getRadioGroupId() == 101)
+	else if (button->getRadioGroupId() == 101)
 	{
 		this->repaint();
 	}
