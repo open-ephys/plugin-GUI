@@ -54,9 +54,9 @@ public:
         typename T,
         class... Args,
         typename std::enable_if<std::is_base_of<GenericProcessor, T>::value>::type * = nullptr>
-    T *Create(Args &&...args) {
+    T *Create(Plugin::Processor::Type processorType, Args &&...args) {
         T *ptr = new T(std::forward<Args>(args)...);
-        ptr->setProcessorType(Plugin::Processor::RECORD_NODE);
+        ptr->setProcessorType(processorType);
         ptr->setHeadlessMode(true);
 
         int node_id = next_processor_id_++;

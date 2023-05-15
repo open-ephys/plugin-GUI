@@ -10,7 +10,10 @@ target_include_directories(test_helpers
         ${JUCE_DIRECTORY}
         ${JUCE_DIRECTORY}/modules
         ${PLUGINS_DIRECTORY}/Headers
-        ${CMAKE_CURRENT_SOURCE_DIR}/include)
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        PUBLIC
+        ${SOURCE_DIRECTORY}
+        )
 target_link_libraries(test_helpers PRIVATE gui_testable_source)
 
 set_property(TARGET test_helpers PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/common)
