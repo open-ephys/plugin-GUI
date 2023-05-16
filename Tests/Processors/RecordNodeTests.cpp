@@ -55,34 +55,17 @@ protected:
     }
 
     void WriteBlock(AudioBuffer<float> &buffer) {
-        auto audio_processor = (AudioProcessor *)processor;
-        auto data_streams = processor->getDataStreams();
-        ASSERT_EQ(data_streams.size(), 1);
-        auto streamId = data_streams[0]->getStreamId();
-        HeapBlock<char> data;
-        size_t dataSize = SystemEvent::fillTimestampAndSamplesData(
-            data,
-            processor,
-            streamId,
-            current_sample_index,
-            // NOTE: this timestamp is actually ignored in the current implementation?
-            0,
-            buffer.getNumSamples(),
-            0);
-        MidiBuffer eventBuffer;
-        eventBuffer.addEvent(data, dataSize, 0);
-
-        auto original_buffer = buffer;
-        audio_processor->processBlock(buffer, eventBuffer);
+        auto output_buffer = tester->ProcessBlock(processor, buffer);
         // Assert the buffer hasn't changed after process()
-        ASSERT_EQ(buffer.getNumSamples(), original_buffer.getNumSamples());
-        ASSERT_EQ(buffer.getNumChannels(), original_buffer.getNumChannels());
-        for (int chidx = 0; chidx < buffer.getNumChannels(); chidx++) {
-            for (int sample_idx = 0; sample_idx < buffer.getNumSamples(); ++sample_idx) {
-                ASSERT_EQ(buffer.getSample(chidx, sample_idx), original_buffer.getSample(chidx, sample_idx));
+        ASSERT_EQ(output_buffer.getNumSamples(), buffer.getNumSamples());
+        ASSERT_EQ(output_buffer.getNumChannels(), buffer.getNumChannels());
+        for (int chidx = 0; chidx < output_buffer.getNumChannels(); chidx++) {
+            for (int sample_idx = 0; sample_idx < output_buffer.getNumSamples(); ++sample_idx) {
+                ASSERT_EQ(
+                    output_buffer.getSample(chidx, sample_idx),
+                    buffer.getSample(chidx, sample_idx));
             }
         }
-        current_sample_index += buffer.getNumSamples();
     }
 
     bool ContinuousPathFor(const std::string& basename, std::filesystem::path* path) {
@@ -198,7 +181,6 @@ protected:
     float bitVolts_ = 1.0;
     std::unique_ptr<ProcessorTester> tester;
     std::filesystem::path parent_recording_dir;
-    int64_t current_sample_index = 0;
     float sample_rate_ = 1.0;
 };
 

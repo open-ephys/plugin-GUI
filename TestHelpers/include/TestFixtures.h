@@ -96,6 +96,33 @@ public:
         CoreServices::setRecordingParentDirectory(String(parent_directory));
     }
 
+    AudioBuffer<float> ProcessBlock(GenericProcessor *processor, const AudioBuffer<float> &buffer) {
+        auto audio_processor = (AudioProcessor *)processor;
+        auto data_streams = processor->getDataStreams();
+
+        MidiBuffer eventBuffer;
+        for (const auto* datastream : data_streams) {
+            HeapBlock<char> data;
+            auto streamId = datastream->getStreamId();
+            size_t dataSize = SystemEvent::fillTimestampAndSamplesData(
+                data,
+                processor,
+                streamId,
+                current_sample_index,
+                // NOTE: this timestamp is actually ignored in the current implementation?
+                0,
+                buffer.getNumSamples(),
+                0);
+            eventBuffer.addEvent(data, dataSize, 0);
+        }
+
+        // Copies the input buffer so that remains unmodified
+        AudioBuffer<float> output_buffer = buffer;
+        audio_processor->processBlock(output_buffer, eventBuffer);
+        current_sample_index += buffer.getNumSamples();
+        return output_buffer;
+    }
+
 private:
     int source_node_id; // should dynamically retrieve the processor if needed, since it apparently gets re-allocated
 
@@ -104,6 +131,7 @@ private:
     std::unique_ptr<ControlPanel> control_panel;
 
     int next_processor_id_ = 1;
+    int current_sample_index = 0;
 };
 
 class ProcessorTest : public ::testing::Test {
