@@ -92,6 +92,20 @@ public:
         control_panel->stopAcquisition();
     }
 
+    const DataStream *GetProcessorDataStream(uint16 node_id, uint16 stream_id) {
+        auto streams = processor_graph->getProcessorWithNodeId(node_id)->getDataStreams();
+        for (auto stream : streams) {
+            if (stream->getStreamId() == stream_id) {
+                return stream;
+            }
+        }
+        return nullptr;
+    }
+
+    const DataStream *GetSourceNodeDataStream(uint16 stream_id) {
+        return GetProcessorDataStream(source_node_id, stream_id);
+    }
+
     static void setRecordingParentDirectory(const std::string& parent_directory) {
         CoreServices::setRecordingParentDirectory(String(parent_directory));
     }
