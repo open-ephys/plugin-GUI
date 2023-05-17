@@ -39,6 +39,17 @@ void FakeSourceNode::updateSettings() {
 
         continuousChannels.add(new ContinuousChannel(settings));
     }
+
+    EventChannel::Settings settings{
+        EventChannel::Type::TTL,
+        "TTL",
+        "TTL",
+        "identifier.ttl.events",
+        dataStreams.getFirst(),
+    };
+    eventChannels.add(new EventChannel(settings));
+    eventChannels.getFirst()->setIdentifier("sourceevent");
+    eventChannels.getFirst()->addProcessor(processorInfo.get());
 }
 
 void FakeSourceNode::process(AudioBuffer<float>& continuousBuffer) {}

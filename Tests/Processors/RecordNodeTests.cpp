@@ -54,8 +54,8 @@ protected:
         return input_buffer;
     }
 
-    void WriteBlock(AudioBuffer<float> &buffer) {
-        auto output_buffer = tester->ProcessBlock(processor, buffer);
+    void WriteBlock(AudioBuffer<float> &buffer, TTLEvent* maybe_ttl_event = nullptr) {
+        auto output_buffer = tester->ProcessBlock(processor, buffer, maybe_ttl_event);
         // Assert the buffer hasn't changed after process()
         ASSERT_EQ(output_buffer.getNumSamples(), buffer.getNumSamples());
         ASSERT_EQ(output_buffer.getNumChannels(), buffer.getNumChannels());
@@ -68,17 +68,27 @@ protected:
         }
     }
 
-    bool ContinuousPathFor(const std::string& basename, std::filesystem::path* path) {
+    bool SubRecordingPathFor(
+        const std::string& subrecording_dirname,
+        const std::string& basename,
+        std::filesystem::path* path) {
         // Do verifications:
         auto recording_dir = std::filesystem::directory_iterator(parent_recording_dir)->path();
         std::stringstream ss;
         ss << "Record Node " << processor->getNodeId();
-        auto recording_dir2 = recording_dir / ss.str() / "experiment1" / "recording1" / "continuous";
+        auto recording_dir2 = recording_dir / ss.str() / "experiment1" / "recording1" / subrecording_dirname;
         if (!std::filesystem::exists(recording_dir2)) {
             return false;
         }
 
-        auto recording_dir3 = std::filesystem::directory_iterator(recording_dir2)->path();
+        std::filesystem::path recording_dir3;
+        for (const auto &subdir : std::filesystem::directory_iterator(recording_dir2)) {
+            auto subdir_basename = subdir.path().filename().string();
+            if (subdir_basename.find("FakeSourceNode") != std::string::npos) {
+                recording_dir3 = subdir.path();
+            }
+        }
+
         if (!std::filesystem::exists(recording_dir3)) {
             return false;
         }
@@ -89,6 +99,25 @@ protected:
         }
         *path = ret;
         return true;
+    }
+
+    bool ContinuousPathFor(const std::string& basename, std::filesystem::path* path) {
+        return SubRecordingPathFor("continuous", basename, path);
+    }
+
+    bool EventsPathFor(const std::string& basename, std::filesystem::path* path) {
+        std::filesystem::path partial_path;
+        auto success = SubRecordingPathFor("events", "TTL", &partial_path);
+        if (!success) {
+            return false;
+        }
+        auto ret = partial_path / basename;
+        if (std::filesystem::exists(ret)) {
+            *path = ret;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     void MaybeLoadContinuousDatFile(std::vector<int16_t> *output, bool *success) {
@@ -121,15 +150,8 @@ protected:
         ASSERT_TRUE(success);
     }
 
-    void LoadNpyFileBinary(const std::string& basename, std::vector<char> *output, bool *success) {
-        // Do verifications:
-        std::filesystem::path npy_file_path;
-        *success = ContinuousPathFor(basename, &npy_file_path);
-        if (!*success) {
-            return;
-        }
-
-        std::ifstream data_ifstream(npy_file_path.string(), std::ios::binary | std::ios::in);
+    std::vector<char> LoadNpyFileBinaryFullpath(const std::string& fullpath) {
+        std::ifstream data_ifstream(fullpath, std::ios::binary | std::ios::in);
 
         data_ifstream.seekg(0, std::ios::end);
         std::streampos fileSize = data_ifstream.tellg();
@@ -137,9 +159,20 @@ protected:
 
         std::vector<char> persisted_data(fileSize);
         data_ifstream.read(persisted_data.data(), fileSize);
-        *success = true;
-        *output = persisted_data;
+        return persisted_data;
     }
+
+    void LoadNpyFileBinary(const std::string &basename, std::vector<char> *output, bool *success) {
+        // Do verifications:
+        std::filesystem::path npy_file_path;
+        *success = ContinuousPathFor(basename, &npy_file_path);
+        if (!*success) {
+            return;
+        }
+        *success = true;
+        *output = LoadNpyFileBinaryFullpath(npy_file_path.string());
+    }
+
 
     void CompareBinaryFilesHex(const std::string& filename, const std::vector<char> bin_data, const std::string& expected_bin_data_hex) {
         std::vector<char> expected_bin_data;
@@ -383,9 +416,108 @@ TEST_F(RecordNodeTests, Test_PersistsSampleNumbersAndTimestamps) {
 }
 
 TEST_F(RecordNodeTests, Test_PersistsStructureOeBin) {
-    GTEST_SKIP();
+    tester->startAcquisition(true);
+
+    int num_samples = 5;
+    for (int i = 0; i < 3; i++) {
+        auto input_buffer = CreateBuffer(1000.0, 20.0, num_channels, num_samples);
+        WriteBlock(input_buffer);
+    }
+    tester->stopAcquisition();
+
+    // Do verifications:
+    auto recording_dir = std::filesystem::directory_iterator(parent_recording_dir)->path();
+    std::stringstream ss;
+    ss << "Record Node " << processor->getNodeId();
+    auto recording_dir2 = recording_dir / ss.str() / "experiment1" / "recording1";
+    ASSERT_TRUE(std::filesystem::exists(recording_dir2));
+
+    auto structure_oebin_fn = recording_dir2 / "structure.oebin";
+    ASSERT_TRUE(std::filesystem::exists(structure_oebin_fn));
+
+    auto f = juce::File(structure_oebin_fn.string());
+//    FileInputStream input(f);
+//    std::cout << input.readEntireStreamAsString() << std::endl;
+    auto json_parsed = JSON::parse(f);
+    ASSERT_TRUE(json_parsed.hasProperty("GUI version"));
+    ASSERT_TRUE(json_parsed["GUI version"].toString().length() > 0);
+
+    ASSERT_TRUE(json_parsed.hasProperty("continuous"));
+    const auto& json_continuous_list = json_parsed["continuous"];
+    ASSERT_TRUE(json_continuous_list.isArray());
+    // 1 per stream, so just 1
+    ASSERT_EQ(json_continuous_list.getArray()->size(), 1);
+
+    auto json_continuous = (*json_continuous_list.getArray())[0];
+
+    // Spot check some fields
+    ASSERT_TRUE(json_continuous.hasProperty("folder_name"));
+    ASSERT_TRUE(json_continuous["folder_name"].toString().contains("Record_Node"));
+    ASSERT_TRUE(json_continuous.hasProperty("sample_rate"));
+    ASSERT_FLOAT_EQ((float) json_continuous["sample_rate"], sample_rate_);
+
+    ASSERT_TRUE(json_continuous.hasProperty("sample_rate"));
+    ASSERT_FLOAT_EQ((float) json_continuous["sample_rate"], sample_rate_);
+
+    ASSERT_TRUE(json_continuous.hasProperty("num_channels"));
+    ASSERT_FLOAT_EQ((int) json_continuous["num_channels"], num_channels);
+
+    ASSERT_TRUE(json_continuous.hasProperty("channels"));
+    ASSERT_TRUE(json_continuous["channels"].isArray());
+    ASSERT_EQ(json_continuous["channels"].getArray()->size(), num_channels);
+
+    auto json_continuous_channel = (*json_continuous["channels"].getArray())[0];
+    ASSERT_TRUE(json_continuous_channel.hasProperty("bit_volts"));
+    ASSERT_FLOAT_EQ((float) json_continuous_channel["bit_volts"], bitVolts_);
+
+    ASSERT_TRUE(json_continuous_channel.hasProperty("channel_name"));
+    ASSERT_EQ(json_continuous_channel["channel_name"].toString(), juce::String("CH0"));
 }
 
 TEST_F(RecordNodeTests, Test_PersistsEvents) {
-    GTEST_SKIP();
+    processor->setRecordEvents(true);
+    processor->updateSettings();
+
+    tester->startAcquisition(true);
+    int num_samples = 5;
+
+    auto stream_id = processor->getDataStreams()[0]->getStreamId();
+    auto event_channels = tester->GetSourceNodeDataStream(stream_id)->getEventChannels();
+    ASSERT_GE(event_channels.size(), 1);
+    TTLEventPtr event_ptr = TTLEvent::createTTLEvent(
+        event_channels[0],
+        1,
+        2,
+        true);
+    auto input_buffer = CreateBuffer(1000.0, 20.0, num_channels, num_samples);
+    WriteBlock(input_buffer, event_ptr.get());
+    tester->stopAcquisition();
+
+    std::filesystem::path sample_numbers_path;
+    ASSERT_TRUE(EventsPathFor("sample_numbers.npy", &sample_numbers_path));
+    auto sample_numbers_bin = LoadNpyFileBinaryFullpath(sample_numbers_path);
+
+    /**
+     * Same logic as above:
+     *      import numpy as np, io, binascii; b = io.BytesIO(); np.save(b, np.array([1], dtype=np.int64)); b.seek(0); print(binascii.hexlify(b.read()))
+     */
+    std::string expected_sample_numbers_hex =
+        "934e554d5059010076007b276465736372273a20273c6938272c2027666f727472616e5f6f72646572273a2046616c73652c2027736861"
+        "7065273a2028312c292c207d20202020202020202020202020202020202020202020202020202020202020202020202020202020202020"
+        "20202020202020202020202020202020200a0100000000000000";
+    CompareBinaryFilesHex("sample_numbers.npy", sample_numbers_bin, expected_sample_numbers_hex);
+
+    std::filesystem::path full_words_path;
+    ASSERT_TRUE(EventsPathFor("full_words.npy", &full_words_path));
+    auto full_words_bin = LoadNpyFileBinaryFullpath(full_words_path);
+
+    /**
+     * Same logic as above:
+     *      import numpy as np, io, binascii; b = io.BytesIO(); np.save(b, np.array([4], dtype=np.uint64)); b.seek(0); print(binascii.hexlify(b.read()))
+     */
+    std::string expected_full_words_hex =
+        "934e554d5059010076007b276465736372273a20273c7538272c2027666f727472616e5f6f72646572273a2046616c73652c2027736861"
+        "7065273a2028312c292c207d20202020202020202020202020202020202020202020202020202020202020202020202020202020202020"
+        "20202020202020202020202020202020200a0400000000000000";
+    CompareBinaryFilesHex("full_words.npy", full_words_bin, expected_full_words_hex);
 }

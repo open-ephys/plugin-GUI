@@ -1254,9 +1254,11 @@ int GenericProcessor::processEventBuffer()
                 uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
                 uint8 eventBit = *reinterpret_cast<const uint8*>(dataptr + 24);
                 bool eventState = *reinterpret_cast<const bool*>(dataptr + 25);
-                
-                getEditor()->setTTLState(sourceStreamId, eventBit, eventState);
-                
+
+                if (!headlessMode) {
+                    getEditor()->setTTLState(sourceStreamId, eventBit, eventState);
+                }
+
             } else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT
             && static_cast<EventChannel::Type>(*(dataptr + 1) == EventChannel::Type::TEXT))
             {

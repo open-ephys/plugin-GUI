@@ -110,7 +110,10 @@ public:
         CoreServices::setRecordingParentDirectory(String(parent_directory));
     }
 
-    AudioBuffer<float> ProcessBlock(GenericProcessor *processor, const AudioBuffer<float> &buffer) {
+    AudioBuffer<float> ProcessBlock(
+        GenericProcessor *processor,
+        const AudioBuffer<float> &buffer,
+        TTLEvent* maybe_ttl_event = nullptr) {
         auto audio_processor = (AudioProcessor *)processor;
         auto data_streams = processor->getDataStreams();
 
@@ -128,6 +131,14 @@ public:
                 buffer.getNumSamples(),
                 0);
             eventBuffer.addEvent(data, dataSize, 0);
+
+            if (maybe_ttl_event != nullptr) {
+                size_t ttl_size = maybe_ttl_event->getChannelInfo()->getDataSize() +
+                    maybe_ttl_event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
+                HeapBlock<char> ttl_buffer(ttl_size);
+                maybe_ttl_event->serialize(ttl_buffer, ttl_size);
+                eventBuffer.addEvent(ttl_buffer, ttl_size, 0);
+            }
         }
 
         // Copies the input buffer so that remains unmodified
