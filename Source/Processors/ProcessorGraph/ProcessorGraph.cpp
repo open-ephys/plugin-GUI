@@ -1901,11 +1901,10 @@ void ProcessorGraph::loadFromXml(XmlElement* xml)
     }
 
     restoreParameters();  // loads the processor graph settings
-    
-    refreshColors(); // refresh editor colors
 
     if (!isConsoleApp)
     {
+        refreshColors(); // refresh editor colors
         AccessClass::getDataViewport()->loadStateFromXml(xml);
         MouseCursor::hideWaitCursor();
     }

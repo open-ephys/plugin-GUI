@@ -1341,9 +1341,10 @@ void GenericProcessor::addEvent(const Event* event, int sampleNum)
             
             const uint8* dataptr = reinterpret_cast<const uint8*>(event->getRawDataPointer());
             
-            getEditor()->setTTLState(event->getStreamId(),
-                                     *(dataptr),
-                                     *(dataptr+1));
+            if (!headlessMode)
+                getEditor()->setTTLState(event->getStreamId(),
+                                         *(dataptr),
+                                         *(dataptr+1));
         }
     }
     
