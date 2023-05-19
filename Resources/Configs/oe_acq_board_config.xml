@@ -11,7 +11,7 @@
   </INFO>
   <SIGNALCHAIN>
     <PROCESSOR name="OE FPGA Acquisition Board" insertionPoint="0" pluginName="OE FPGA Acquisition Board"
-               type="4" index="0" libraryName="OE FPGA Acquisition Board" libraryVersion="0.1.5"
+               type="4" index="0" libraryName="OE FPGA Acquisition Board" libraryVersion=""
                processorType="2" nodeId="100">
       <GLOBAL_PARAMETERS/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
