@@ -62,6 +62,9 @@ ProcessorGraph::ProcessorGraph(bool isConsoleApp_) :
     
     pluginManager = std::make_unique<PluginManager>();
     LOGD("Created plugin manager");
+
+    undoManager = std::make_unique<UndoManager>();
+    LOGD("Created undo manager");
     
     createDefaultNodes();
     

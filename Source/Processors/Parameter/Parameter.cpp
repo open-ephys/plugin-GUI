@@ -114,8 +114,8 @@ void BooleanParameter::setNextValue(var newValue_)
 
     ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
     
-    AccessClass::getEditorViewport()->undoManager.beginNewTransaction();
-    AccessClass::getEditorViewport()->undoManager.perform(action);
+    AccessClass::getUndoManager()->beginNewTransaction();
+    AccessClass::getUndoManager()->perform(action);
 }
 
 bool BooleanParameter::getBoolValue()
@@ -168,8 +168,8 @@ void CategoricalParameter::setNextValue(var newValue_)
     
     ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
     
-    AccessClass::getEditorViewport()->undoManager.beginNewTransaction();
-    AccessClass::getEditorViewport()->undoManager.perform(action);
+    AccessClass::getUndoManager()->beginNewTransaction();
+    AccessClass::getUndoManager()->perform(action);   
 }
 
 int CategoricalParameter::getSelectedIndex()
@@ -243,8 +243,8 @@ void IntParameter::setNextValue(var newValue_)
 
     ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
     
-    AccessClass::getEditorViewport()->undoManager.beginNewTransaction();
-    AccessClass::getEditorViewport()->undoManager.perform(action);
+    AccessClass::getUndoManager()->beginNewTransaction();
+    AccessClass::getUndoManager()->perform(action);
 }
 
 int IntParameter::getIntValue()
@@ -290,8 +290,8 @@ void StringParameter::setNextValue(var newValue_)
 
     ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
     
-    AccessClass::getEditorViewport()->undoManager.beginNewTransaction();
-    AccessClass::getEditorViewport()->undoManager.perform(action);
+    AccessClass::getUndoManager()->beginNewTransaction();
+    AccessClass::getUndoManager()->perform(action);
 }
 
 String StringParameter::getStringValue()
@@ -355,8 +355,8 @@ void FloatParameter::setNextValue(var newValue_)
     
     ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
     
-    AccessClass::getEditorViewport()->undoManager.beginNewTransaction();
-    AccessClass::getEditorViewport()->undoManager.perform(action);
+    AccessClass::getUndoManager()->beginNewTransaction();
+    AccessClass::getUndoManager()->perform(action);
     
 }
 
@@ -411,8 +411,8 @@ void SelectedChannelsParameter::setNextValue(var newValue_)
     
     ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
     
-    AccessClass::getEditorViewport()->undoManager.beginNewTransaction();
-    AccessClass::getEditorViewport()->undoManager.perform(action);
+    AccessClass::getUndoManager()->beginNewTransaction();
+    AccessClass::getUndoManager()->perform(action);
 }
 
 std::vector<bool> SelectedChannelsParameter::getChannelStates()
@@ -529,8 +529,8 @@ void MaskChannelsParameter::setNextValue(var newValue_)
 
     ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
     
-    AccessClass::getEditorViewport()->undoManager.beginNewTransaction();
-    AccessClass::getEditorViewport()->undoManager.perform(action);
+    AccessClass::getUndoManager()->beginNewTransaction();
+    AccessClass::getUndoManager()->perform(action);
 }
 
 std::vector<bool> MaskChannelsParameter::getChannelStates()

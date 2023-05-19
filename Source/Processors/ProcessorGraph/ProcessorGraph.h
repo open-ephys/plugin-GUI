@@ -224,6 +224,7 @@ public:
     /** Returns a pointer to the Plugin Manager object */
     PluginManager* getPluginManager() { return pluginManager.get(); }
 
+    UndoManager* getUndoManager() noexcept { return undoManager.get(); }
 
 private:
 
@@ -247,6 +248,8 @@ private:
     Array<GenericProcessor*> processorArray;
     
     std::unique_ptr<PluginManager> pluginManager;
+
+    std::unique_ptr<UndoManager> undoManager;
 
     int currentNodeId;
 

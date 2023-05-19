@@ -48,21 +48,17 @@ namespace AccessClass
 {
 
 
-/** Sets the object's UIComponent and copies all the necessary pointers
-	from the UIComponent.
-	*/
+/** Sets the object's UIComponent and copies all the necessary pointers 
+ * from the UIComponent. */
 void setUIComponent(UIComponent*);
 
-/** Sets the object's ProcessorGraph
-    */
+/** Sets the object's ProcessorGraph */
 void setProcessorGraph(ProcessorGraph*);
 
-/** Sets the object's AudioComponent
-    */
+/** Sets the object's AudioComponent */
 void setAudioComponent(AudioComponent*);
 
-/** Sets the object's ControlPanel
-    */
+/** Sets the object's ControlPanel */
 void setControlPanel(ControlPanel*);
 
 /** Returns a pointer to the application's EditorViewport. */
@@ -95,7 +91,10 @@ GraphViewer* getGraphViewer();
 /** Returns a pointer to the application's PluginManager. */
 PluginManager* getPluginManager();
 
-/** Retursn a pointer to the */
+/** Returns a pointer to the application's UndoManager */
+UndoManager* getUndoManager();
+
+/** Returns a pointer to the application's ActionBroadcaster */
 ActionBroadcaster* getBroadcaster();
 
 void TESTABLE setMessageCenter(MessageCenter * mc_);

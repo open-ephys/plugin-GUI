@@ -153,6 +153,11 @@ ActionBroadcaster* getBroadcaster()
     return bc.get();
 }
 
+UndoManager* getUndoManager()
+{
+    return pg->getUndoManager();
+}
+
 
 MidiBuffer* ExternalProcessorAccessor::getMidiBuffer(GenericProcessor* proc)
 {
