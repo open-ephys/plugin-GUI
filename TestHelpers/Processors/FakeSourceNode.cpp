@@ -7,19 +7,27 @@ FakeSourceNode::FakeSourceNode(const FakeSourceNodeParams &params)
 }
 
 void FakeSourceNode::updateSettings() {
-    DataStream::Settings settings
-    {
-        "FakeSourceNode",
-        "description",
-        "identifier",
-        params_.sampleRate
-    };
-    
-    dataStreams.add(new DataStream(settings));
-    
-    for (int index= 0; index < params_.channels; index++)
-    {
-        
+    // Don't recreate datastreams, or the IDs / pointer locations keep changing.
+    if (cached_datastreams_.size() == 0) {
+        DataStream::Settings settings
+            {
+                "FakeSourceNode",
+                "description",
+                "identifier",
+                params_.sampleRate
+            };
+
+        cached_datastreams_.add(new DataStream(settings));
+    }
+
+    continuousChannels.clear();
+    dataStreams.clear();
+    for (const auto &item : cached_datastreams_) {
+        // Copy it over
+        dataStreams.add(new DataStream(*item));
+    }
+
+    for (int index = 0; index < params_.channels; index++) {
         ContinuousChannel::Settings settings{
             ContinuousChannel::Type::ELECTRODE,
             "CH" + String(index),
@@ -28,10 +36,20 @@ void FakeSourceNode::updateSettings() {
             params_.bitVolts,
             dataStreams.getFirst()
         };
-        
+
         continuousChannels.add(new ContinuousChannel(settings));
     }
 
+    EventChannel::Settings settings{
+        EventChannel::Type::TTL,
+        "TTL",
+        "TTL",
+        "identifier.ttl.events",
+        dataStreams.getFirst(),
+    };
+    eventChannels.add(new EventChannel(settings));
+    eventChannels.getFirst()->setIdentifier("sourceevent");
+    eventChannels.getFirst()->addProcessor(processorInfo.get());
 }
 
 void FakeSourceNode::process(AudioBuffer<float>& continuousBuffer) {}

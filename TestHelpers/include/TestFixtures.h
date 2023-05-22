@@ -92,8 +92,60 @@ public:
         control_panel->stopAcquisition();
     }
 
+    const DataStream *GetProcessorDataStream(uint16 node_id, uint16 stream_id) {
+        auto streams = processor_graph->getProcessorWithNodeId(node_id)->getDataStreams();
+        for (auto stream : streams) {
+            if (stream->getStreamId() == stream_id) {
+                return stream;
+            }
+        }
+        return nullptr;
+    }
+
+    const DataStream *GetSourceNodeDataStream(uint16 stream_id) {
+        return GetProcessorDataStream(source_node_id, stream_id);
+    }
+
     static void setRecordingParentDirectory(const std::string& parent_directory) {
         CoreServices::setRecordingParentDirectory(String(parent_directory));
+    }
+
+    AudioBuffer<float> ProcessBlock(
+        GenericProcessor *processor,
+        const AudioBuffer<float> &buffer,
+        TTLEvent* maybe_ttl_event = nullptr) {
+        auto audio_processor = (AudioProcessor *)processor;
+        auto data_streams = processor->getDataStreams();
+
+        MidiBuffer eventBuffer;
+        for (const auto* datastream : data_streams) {
+            HeapBlock<char> data;
+            auto streamId = datastream->getStreamId();
+            size_t dataSize = SystemEvent::fillTimestampAndSamplesData(
+                data,
+                processor,
+                streamId,
+                current_sample_index,
+                // NOTE: this timestamp is actually ignored in the current implementation?
+                0,
+                buffer.getNumSamples(),
+                0);
+            eventBuffer.addEvent(data, dataSize, 0);
+
+            if (maybe_ttl_event != nullptr) {
+                size_t ttl_size = maybe_ttl_event->getChannelInfo()->getDataSize() +
+                    maybe_ttl_event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
+                HeapBlock<char> ttl_buffer(ttl_size);
+                maybe_ttl_event->serialize(ttl_buffer, ttl_size);
+                eventBuffer.addEvent(ttl_buffer, ttl_size, 0);
+            }
+        }
+
+        // Copies the input buffer so that remains unmodified
+        AudioBuffer<float> output_buffer = buffer;
+        audio_processor->processBlock(output_buffer, eventBuffer);
+        current_sample_index += buffer.getNumSamples();
+        return output_buffer;
     }
 
 private:
@@ -104,6 +156,7 @@ private:
     std::unique_ptr<ControlPanel> control_panel;
 
     int next_processor_id_ = 1;
+    int current_sample_index = 0;
 };
 
 class ProcessorTest : public ::testing::Test {

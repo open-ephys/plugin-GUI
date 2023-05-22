@@ -18,6 +18,7 @@ public:
     void process(AudioBuffer<float>& continuousBuffer) override;
 private:
     FakeSourceNodeParams params_;
+    OwnedArray<DataStream> cached_datastreams_;
 };
 
 
