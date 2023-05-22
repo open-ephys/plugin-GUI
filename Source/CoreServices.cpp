@@ -51,7 +51,8 @@ namespace CoreServices
 
 		EditorViewport* ev = getEditorViewport();
 		File recoveryFile = configsDir.getChildFile("recoveryConfig.xml");
-		ev->saveState(recoveryFile);
+		//TOFIX: Recovery config will not get saved in headless mode
+		if (ev != nullptr) ev->saveState(recoveryFile);
 	}
 
 	void loadSignalChain(String path)

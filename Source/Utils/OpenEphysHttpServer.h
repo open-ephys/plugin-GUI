@@ -26,6 +26,7 @@
 
 #include "../Processors/Parameter/Parameter.h"
 #include "../Processors/GenericProcessor/GenericProcessor.h"
+#include "../Processors/ProcessorManager/ProcessorManager.h"
 
 #include <sstream>
 #include "httplib.h"
@@ -339,7 +340,8 @@ public:
             });
 
         svr_->Get("/api/processors/list", [this](const httplib::Request&, httplib::Response& res) {
-            auto listOfProc = AccessClass::getProcessorList()->getItemList();
+
+            auto listOfProc = ProcessorManager::getAvailableProcessors();
 
             std::vector<json> processors_json;
             for(const auto& p : listOfProc) {
@@ -625,7 +627,7 @@ public:
             LOGD( "Found a source/dest node id." );
 
             
-            auto listOfProc = AccessClass::getProcessorList()->getItemList();
+            auto listOfProc = ProcessorManager::getAvailableProcessors();
             bool foundProcessor = false;
             for(auto p : listOfProc)
             {
@@ -646,7 +648,7 @@ public:
             
             if (!CoreServices::getAcquisitionStatus())
             {
-                auto description = AccessClass::getProcessorList()->getItemDescriptionfromList(procName);
+                auto description = ProcessorManager::getPluginDescription(procName);
 
                 GenericProcessor* sourceProcessor = nullptr;
                 GenericProcessor* destProcessor = nullptr;

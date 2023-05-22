@@ -1360,12 +1360,15 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 
     checkForNewRootNodes(processor, false, false);
 
-    AccessClass::getEditorViewport()->removeEditor(processor->editor.get());
+    if (AccessClass::getEditorViewport() != nullptr) //headless mode
+    {
+        AccessClass::getEditorViewport()->removeEditor(processor->editor.get());
 
-    //// need this to prevent editors from remaining after starting acquisition
-    std::unique_ptr<GenericEditor> editor;
-    editor.swap(processor->editor);
-    editor.reset();
+        //// need this to prevent editors from remaining after starting acquisition
+        std::unique_ptr<GenericEditor> editor;
+        editor.swap(processor->editor);
+        editor.reset();
+    }
 
     Node::Ptr node = removeNode(nodeId);
     node.reset();

@@ -195,6 +195,42 @@ namespace ProcessorManager
         return description;
 	}
 
+    Plugin::Description getPluginDescription(String name)
+    {
+        Plugin::Description description;
+
+        for (int i = 0; i < getNumProcessorsForPluginType(Plugin::BUILT_IN); i++)
+        {
+            description = getPluginDescription(Plugin::BUILT_IN, i);
+            if (description.name.equalsIgnoreCase(name))
+            {
+                return description;
+            }
+        }
+
+        for (int i = 0; i < getNumProcessorsForPluginType(Plugin::PROCESSOR); i++)
+        {
+            description = getPluginDescription(Plugin::PROCESSOR, i);
+            if (description.name.equalsIgnoreCase(name))
+            {
+                return description;
+            }
+        }
+
+        for (int i = 0; i < getNumProcessorsForPluginType(Plugin::DATA_THREAD); i++)
+        {
+            description = getPluginDescription(Plugin::DATA_THREAD, i);
+            if (description.name.equalsIgnoreCase(name))
+            {
+                return description;
+            }
+        }
+
+        description.name = String();
+        description.type = Plugin::INVALID;
+        return description;
+    }
+
 	std::unique_ptr<GenericProcessor> createProcessor(Plugin::Description description)
 	{
         
@@ -298,5 +334,31 @@ namespace ProcessorManager
         return std::unique_ptr<GenericProcessor>(proc);
 
 	} // createProcessor(Plugin::Description description)
+
+    Array<String> getAvailableProcessors()
+    {
+        Array<String> availableProcessors;
+
+        for (int i = 0; i < getNumProcessorsForPluginType(Plugin::BUILT_IN); i++)
+        {
+            Plugin::Description description = getPluginDescription(Plugin::BUILT_IN, i);
+            availableProcessors.add(description.name);
+        }
+
+        for (int i = 0; i < getNumProcessorsForPluginType(Plugin::PROCESSOR); i++)
+        {
+            Plugin::Description description = getPluginDescription(Plugin::PROCESSOR, i);
+            availableProcessors.add(description.name);
+        }
+
+        for (int i = 0; i < getNumProcessorsForPluginType(Plugin::DATA_THREAD); i++)
+        {
+            Plugin::Description description = getPluginDescription(Plugin::DATA_THREAD, i);
+            availableProcessors.add(description.name);
+        }
+
+        return availableProcessors;
+    }
+
 }; // namespace
 

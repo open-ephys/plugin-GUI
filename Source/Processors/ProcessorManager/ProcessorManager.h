@@ -43,8 +43,15 @@ namespace ProcessorManager
     /** Returns info about a plugin at a particular index*/
     Plugin::Description getPluginDescription(Plugin::Type type, int index);
 
+	/** Returns info about a plugin with a particular name*/
+	Plugin::Description getPluginDescription(String name);
+
     /** Creates a new processor from its description*/
     std::unique_ptr<GenericProcessor> createProcessor(Plugin::Description description);
+
+	/** Returns an array of strings of available processor */
+	Array<String> getAvailableProcessors();
+
 };
 
 
