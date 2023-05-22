@@ -5,6 +5,9 @@
 //  Created by Allen Munk on 3/15/23.
 //
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include <stdio.h>
 
 #include "gtest/gtest.h"
@@ -14,7 +17,6 @@
 #include <ModelProcessors.h>
 #include <ModelApplication.h>
 #include <TestFixtures.h>
-#include <cmath>
 
 class FilterNodeTests :  public ::testing::Test {
 protected:

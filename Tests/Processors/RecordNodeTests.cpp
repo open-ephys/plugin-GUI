@@ -495,7 +495,7 @@ TEST_F(RecordNodeTests, Test_PersistsEvents) {
 
     std::filesystem::path sample_numbers_path;
     ASSERT_TRUE(EventsPathFor("sample_numbers.npy", &sample_numbers_path));
-    auto sample_numbers_bin = LoadNpyFileBinaryFullpath(sample_numbers_path);
+    auto sample_numbers_bin = LoadNpyFileBinaryFullpath(sample_numbers_path.string());
 
     /**
      * Same logic as above:
@@ -509,7 +509,7 @@ TEST_F(RecordNodeTests, Test_PersistsEvents) {
 
     std::filesystem::path full_words_path;
     ASSERT_TRUE(EventsPathFor("full_words.npy", &full_words_path));
-    auto full_words_bin = LoadNpyFileBinaryFullpath(full_words_path);
+    auto full_words_bin = LoadNpyFileBinaryFullpath(full_words_path.string());
 
     /**
      * Same logic as above:
