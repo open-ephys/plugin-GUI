@@ -44,9 +44,9 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl, 
     LOGD("Creating LfpDisplayCanvas");
 
     int64 start = Time::getHighResolutionTicks();
-
-    juce::TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
-    
+    if(!processor->getHeadlessMode()) {
+        juce::TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
+    }
     optionsDrawerIsOpen = false;
 
     Array<DisplayBuffer*> displayBuffers = processor->getDisplayBuffers();
@@ -90,7 +90,9 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl, 
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
 {
-    juce::TopLevelWindow::getTopLevelWindow(0)->removeKeyListener(this);
+    if(!processor->getHeadlessMode()) {
+        juce::TopLevelWindow::getTopLevelWindow(0)->removeKeyListener(this);
+    }
 }
 
 void LfpDisplayCanvas::resized()
@@ -294,7 +296,12 @@ void LfpDisplayCanvas::update()
 
 void LfpDisplayCanvas::refreshState()
 {
-
+#ifdef BUILD_TESTS
+    for (auto split : displaySplits)
+    {
+        split->refresh();
+    }
+#endif
 }
 
 void LfpDisplayCanvas::select(LfpDisplaySplitter* splitter)
@@ -615,6 +622,46 @@ void LfpDisplayCanvas::removeBufferForDisplay(int splitID)
     displaySplits[splitID]->displayBuffer = nullptr;
 }
 
+bool LfpDisplayCanvas::getChannelBitmapBounds(int splitIndex, int& x, int& y, int& width, int& height) {
+    if(splitIndex >= displaySplits.size()) {
+        return false;
+    }
+    x = displaySplits[splitIndex] -> leftmargin;
+    y = displaySplits[splitIndex] -> viewport -> getY();
+    width = displaySplits[splitIndex] -> lfpDisplay->lfpChannelBitmap.getWidth();
+    height = displaySplits[splitIndex] -> lfpDisplay->lfpChannelBitmap.getHeight();
+    return true;
+}
+
+bool LfpDisplayCanvas::getChannelColors(int splitIndex, Array<Colour>& channelColors, Colour& backgroundColor) {
+    if(splitIndex >= displaySplits.size()) {
+        return false;
+    }
+    channelColors = displaySplits[splitIndex] -> lfpDisplay->channelColours;
+    backgroundColor = displaySplits[splitIndex] -> lfpDisplay->getColourSchemePtr() -> getBackgroundColour();
+    return true;
+}
+
+bool LfpDisplayCanvas::setChannelHeight(int splitIndex, int height) {
+    if(splitIndex >= displaySplits.size()) {
+        return false;
+    }
+    displaySplits[splitIndex] -> lfpDisplay->setChannelHeight(height);
+    return true;
+}
+
+bool LfpDisplayCanvas::setChannelRange(int splitIndex, int range, ContinuousChannel::Type type) {
+    if(splitIndex >= displaySplits.size()) {
+        return false;
+    }
+    displaySplits[splitIndex] -> lfpDisplay->setRange(range, type);
+                                                      
+    return true;
+}
+
+
+
+
 void LfpDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
 {
 
@@ -798,9 +845,10 @@ void LfpDisplaySplitter::beginAnimation()
 
     if (displayBuffer != nullptr)
     {
-
-        displayBuffer->resetIndices();
-
+        if(!processor->getHeadlessMode()) {
+            
+            displayBuffer->resetIndices();
+        }
         displayBufferSize = displayBuffer->getNumSamples();
 
         syncDisplay();

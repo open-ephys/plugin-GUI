@@ -105,6 +105,10 @@ public:
     
     /** Handles messages from other processors during acquisition*/
     void handleBroadcastMessage(String msg) override;
+    
+    bool getHeadlessMode() {
+        return headlessMode;
+    }
 
 private:
 
