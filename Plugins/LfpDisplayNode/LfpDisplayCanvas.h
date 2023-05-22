@@ -49,7 +49,7 @@ class DisplayBuffer;
 
 */
     
-class LfpDisplayCanvas : public Visualizer,
+class TESTABLE LfpDisplayCanvas : public Visualizer,
                          public KeyListener
 {
 public:
