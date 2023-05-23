@@ -4,6 +4,7 @@
 #include "gtest/gtest.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <Processors/ProcessorGraph/ProcessorGraph.h>
+#include <Processors/SourceNode/SourceNode.h>
 #include <Audio/AudioComponent.h>
 #include <UI/ControlPanel.h>
 
@@ -33,6 +34,40 @@ public:
 
         // Create the source node, and place it in the graph
         auto sn = (FakeSourceNode *) n->getProcessor();
+        sn->initialize(false);
+        sn->setDestNode(nullptr);
+
+        control_panel->updateRecordEngineList();
+
+        // Refresh everything
+        processor_graph->updateSettings(sn, false);
+    }
+
+    ProcessorTester(DataThreadCreator data_thread_creator) {
+        // Singletons...
+        MessageManager::deleteInstance();
+
+        // initializes the singleton instance
+        MessageManager::getInstance();
+
+        // Reset all state so no interactions between tests.
+        AccessClass::clearAccessClassStateForTesting();
+
+        // All of these sets the global state in AccessClass in their constructors
+        audio_component = std::make_unique<AudioComponent>();
+        processor_graph = std::make_unique<ProcessorGraph>(true);
+        control_panel = std::make_unique<ControlPanel>(processor_graph.get(), audio_component.get(), true);
+
+        auto sn_temp = new SourceNode("RealSourceNode", data_thread_creator);
+        source_node_id = next_processor_id_++;
+        sn_temp->setNodeId(source_node_id);
+        juce::AudioProcessorGraph::Node* n = processor_graph->addNode(
+            std::move(std::unique_ptr<AudioProcessor>(sn_temp)),
+            juce::AudioProcessorGraph::NodeID(source_node_id));
+
+        // Create the source node, and place it in the graph
+        auto sn = (SourceNode *) n->getProcessor();
+        sn->setHeadlessMode(true);
         sn->initialize(false);
         sn->setDestNode(nullptr);
 
@@ -110,6 +145,9 @@ public:
         CoreServices::setRecordingParentDirectory(String(parent_directory));
     }
 
+    GenericProcessor* getSourceNode() {
+        return (GenericProcessor *) processor_graph->getProcessorWithNodeId(source_node_id);
+      
     AudioBuffer<float> ProcessBlock(
         GenericProcessor *processor,
         const AudioBuffer<float> &buffer,
