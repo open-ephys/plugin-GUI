@@ -236,8 +236,8 @@ GenericProcessor* EditorViewport::addProcessor(Plugin::Description description, 
     
     if (!loadingConfig)
     {
-        undoManager.beginNewTransaction();
-        undoManager.perform(action);
+        AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
+        AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
         return action->processor;
     }
     else
@@ -256,9 +256,9 @@ void EditorViewport::clearSignalChain()
     {
         LOGD("Clearing signal chain.");
         
-        undoManager.beginNewTransaction();
+        AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
         ClearSignalChain* action = new ClearSignalChain(this);
-        undoManager.perform(action);
+        AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
     }
     else
     {
@@ -557,11 +557,11 @@ bool EditorViewport::keyPressed(const KeyPress& key)
 void EditorViewport::switchIO(GenericProcessor* processor, int path)
 {
     
-    undoManager.beginNewTransaction();
+    AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
     
     SwitchIO* switchIO = new SwitchIO(processor, path);
     
-    undoManager.perform(switchIO);
+    AccessClass::getProcessorGraph()->getUndoManager()->perform(switchIO);
 }
 
 
@@ -667,14 +667,14 @@ void EditorViewport::paste()
                 processorInfo.add(xml);
             }
 
-            undoManager.beginNewTransaction();
+            AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
 
             PasteProcessors* action =
                 new PasteProcessors(
                     processorInfo, insertionPoint,
                     this);
 
-            undoManager.perform(action);
+            AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
 
         } else {
             CoreServices::sendStatusMessage("Select an insertion point to paste.");
@@ -684,16 +684,6 @@ void EditorViewport::paste()
         
         CoreServices::sendStatusMessage("Cannot paste while acquisition is active.");
     }
-}
-
-void EditorViewport::undo()
-{
-    undoManager.undo();
-}
-
-void EditorViewport::redo()
-{
-    undoManager.redo();
 }
 
 void EditorViewport::selectEditor(GenericEditor* editor)
@@ -983,14 +973,14 @@ void EditorViewport::mouseUp(const MouseEvent& e)
 
         if (!getScreenBounds().contains(e.getScreenPosition()))
         {
-            //undoManager.beginNewTransaction();
+            //AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
             
              //DeleteProcessor* action =
              //       new DeleteProcessor(
              //           editorArray[indexOfMovingComponent]->getProcessor(),
               //          this);
              
-             //undoManager.perform(action);
+             //AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
             
             repaint();
             
@@ -1018,7 +1008,7 @@ void EditorViewport::mouseUp(const MouseEvent& e)
                     newDest = editorArray[insertionPoint]->getProcessor();
                 }
                 
-                undoManager.beginNewTransaction();
+                AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
                
                 MoveProcessor* action = new MoveProcessor(
                                                           editorArray           [indexOfMovingComponent]->getProcessor(),
@@ -1026,7 +1016,7 @@ void EditorViewport::mouseUp(const MouseEvent& e)
                                                           newDest,
                                                           insertionPoint > indexOfMovingComponent);
                 
-                undoManager.perform(action);
+                AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
                                                           
             } else {
                 repaint();
@@ -1405,12 +1395,12 @@ const String EditorViewport::loadPluginState(File fileToLoad, GenericEditor* sel
             return "Not a valid file.";
         } else {
             
-            undoManager.beginNewTransaction();
+            AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
             
             LoadPluginSettings* action = new LoadPluginSettings(this,
                                                              selectedEditor->getProcessor(),
                                                              xml.get());
-            undoManager.perform(action);
+            AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
         }
     }
     
@@ -1496,10 +1486,10 @@ const String EditorViewport::loadState(File fileToLoad)
         return "Not a valid file.";
     }
 
-    undoManager.beginNewTransaction();
+    AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
     
     LoadSignalChain* action = new LoadSignalChain(this, xml);
-    undoManager.perform(action);
+    AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
 
     CoreServices::sendStatusMessage("Loaded " + fileToLoad.getFileName());
     
@@ -1520,7 +1510,7 @@ void EditorViewport::deleteSelectedProcessors()
     if (signalChainIsLocked)
         return;
     
-    undoManager.beginNewTransaction();
+    AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
 
     Array<GenericEditor*> editors = Array(editorArray);
     
@@ -1530,7 +1520,7 @@ void EditorViewport::deleteSelectedProcessors()
         {
             editorArray.remove(editorArray.indexOf(editor));
             DeleteProcessor* action = new DeleteProcessor(editor->getProcessor(), this);
-            undoManager.perform(action);
+            AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
         }
     }
 

@@ -570,13 +570,13 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 		case undo:
 			result.setInfo("Undo", "Undo the last action.", "General", 0);
 			result.addDefaultKeypress('Z', ModifierKeys::commandModifier);
-			result.setActive(!acquisitionStarted && getEditorViewport()->undoManager.canUndo() && !getEditorViewport()->isSignalChainLocked());
+			result.setActive(!acquisitionStarted && AccessClass::getProcessorGraph()->getUndoManager()->canUndo() && !getEditorViewport()->isSignalChainLocked());
 			break;
 
 		case redo:
 			result.setInfo("Redo", "Undo the last action.", "General", 0);
 			result.addDefaultKeypress('Z', ModifierKeys::commandModifier | ModifierKeys::shiftModifier);
-			result.setActive(!acquisitionStarted && getEditorViewport()->undoManager.canRedo() && !getEditorViewport()->isSignalChainLocked());
+			result.setActive(!acquisitionStarted && AccessClass::getProcessorGraph()->getUndoManager()->canRedo() && !getEditorViewport()->isSignalChainLocked());
 			break;
 
 		case copySignalChain:
@@ -804,13 +804,13 @@ bool UIComponent::perform(const InvocationInfo& info)
 
         case undo:
             {
-                getEditorViewport()->undo();
+                AccessClass::getProcessorGraph()->getUndoManager()->undo();
                 break;
             }
             
         case redo:
             {
-                getEditorViewport()->redo();
+                AccessClass::getProcessorGraph()->getUndoManager()->redo();
                 break;
             }
             

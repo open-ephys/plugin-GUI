@@ -213,15 +213,9 @@ public:
     
     void paste();
     
-    void undo();
-    
-    void redo();
-    
     bool editorIsSelected();
     
     bool canPaste();
-    
-    UndoManager undoManager;
     
     Array<GenericEditor*> editorArray;
 
