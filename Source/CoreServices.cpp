@@ -51,17 +51,26 @@ namespace CoreServices
 
 		EditorViewport* ev = getEditorViewport();
 		File recoveryFile = configsDir.getChildFile("recoveryConfig.xml");
-		//TOFIX: Recovery config will not get saved in headless mode
+		//NOTE: Recovery config will not get saved in headless mode
 		if (ev != nullptr) ev->saveState(recoveryFile);
 	}
 
-	void loadSignalChain(String path)
-	{
-		if (File(path).existsAsFile())
-		{
-			getEditorViewport()->loadState(File(path));
-		}
-	}
+    void loadSignalChain(String path)
+    {
+        File fileToLoad(path);
+
+        if (fileToLoad.existsAsFile())
+        {
+            if (getEditorViewport() != nullptr)
+                getEditorViewport()->loadState(File(path));
+            else // headless mode
+            {
+                XmlDocument doc(fileToLoad);
+                std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
+                AccessClass::getProcessorGraph()->loadFromXml(xml.get());
+            }
+        }
+    }
 
 	bool getAcquisitionStatus()
 	{
