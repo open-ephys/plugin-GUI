@@ -146,8 +146,8 @@ public:
     }
 
     GenericProcessor* getSourceNode() {
-        return (GenericProcessor *) processor_graph->getProcessorWithNodeId(source_node_id);
-      
+        return (GenericProcessor*)processor_graph->getProcessorWithNodeId(source_node_id);
+    }
     AudioBuffer<float> ProcessBlock(
         GenericProcessor *processor,
         const AudioBuffer<float> &buffer,
