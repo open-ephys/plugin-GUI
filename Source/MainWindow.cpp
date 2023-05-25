@@ -337,21 +337,17 @@ void MainWindow::loadWindowBounds()
 			if (e->hasTagName("BOUNDS"))
 			{
 
-				int x = e->getIntAttribute("x");
-				int y = e->getIntAttribute("y");
-				int w = e->getIntAttribute("w");
-				int h = e->getIntAttribute("h");
+				String x = String(e->getIntAttribute("x"));
+				String y = String(e->getIntAttribute("y"));
+				String w = String(e->getIntAttribute("w"));
+				String h = String(e->getIntAttribute("h"));
 
-				// bool fs = e->getBoolAttribute("fullscreen");
+				String windowBoundsString;
+				windowBoundsString = x + " " + y + " " + w + " " + h;
 
-				// without the correction, you get drift over time
-#ifdef _WIN32
-				setTopLeftPosition(x,y); //Windows doesn't need correction
-#else
-				setTopLeftPosition(x,y-27);
-#endif
-				getContentComponent()->setBounds(0,0,w-10,h-33);
-				//setFullScreen(fs);
+				LOGD("Loading Window Bounds: ", windowBoundsString);
+				restoreWindowStateFromString(windowBoundsString);
+				
 			}
 			else if (e->hasTagName("RECENTDIRECTORYNAMES"))
 			{
