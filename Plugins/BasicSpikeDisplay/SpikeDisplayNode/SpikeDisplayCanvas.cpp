@@ -254,7 +254,10 @@ void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
         if (xmlNode->hasTagName("SPIKEDISPLAY"))
         {
 
-            if (xmlNode->getIntAttribute("NumPlots", 0) != processor->getTotalSpikeChannels())
+            int numPlots = xmlNode->getIntAttribute("NumPlots", 0);
+            int numSpikeChannels = processor->getTotalSpikeChannels();
+
+            if (!(numPlots && numPlots == numSpikeChannels))
             {
                 //SpikeDisplayNode has not loaded all spike channels from all incoming branches yet.
                 //Wait until the processor has loaded all channels before loading the saved settings.

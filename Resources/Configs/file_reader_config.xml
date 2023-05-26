@@ -18,10 +18,11 @@
               sample_rate="40000.0" channel_count="16">
         <PARAMETERS/>
       </STREAM>
-      <CUSTOM_PARAMETERS/>
+      <CUSTOM_PARAMETERS>
+        <FILENAME path="default" recording="0"/>
+      </CUSTOM_PARAMETERS>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="File Reader" activeStream="0"
               Type="FileReader">
-        <FILENAME path="default" recording="1"/>
         <TIME_LIMITS start_time="0.0" stop_time="4999.0"/>
       </EDITOR>
     </PROCESSOR>
