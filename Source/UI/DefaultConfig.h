@@ -56,7 +56,7 @@ class DefaultConfigWindow
 {
 public:
     /** Initializes the DefaultConfigWindow, and sets the window boundaries. */
-    DefaultConfigWindow(MainWindow* mainWindow);
+    DefaultConfigWindow();
 
     /** Destroys the DefaultConfigWindow. */
     ~DefaultConfigWindow();
@@ -65,8 +65,6 @@ public:
     void launchWindow();
 
 private:
-    /* Pointer to the main window so we can keep in bounds */
-    DocumentWindow* parent;
 
     WeakReference<Component> configWindow;
 

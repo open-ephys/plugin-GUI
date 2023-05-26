@@ -145,7 +145,7 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 	else if (openDefaultConfigWindow)
 	{
 		if (defaultConfigWindow == nullptr)
-			defaultConfigWindow = std::make_unique<DefaultConfigWindow>(this);
+			defaultConfigWindow = std::make_unique<DefaultConfigWindow>();
 	}
 	else if (shouldReloadOnStartup)
 	{

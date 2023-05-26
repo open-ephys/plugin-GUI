@@ -904,7 +904,7 @@ bool UIComponent::perform(const InvocationInfo& info)
 
 		case openDefaultConfigWindow:
 			{
-				defaultConfigWindow = std::make_unique<DefaultConfigWindow>(this->mainWindow);
+				defaultConfigWindow = std::make_unique<DefaultConfigWindow>();
 				break;
 			}
 

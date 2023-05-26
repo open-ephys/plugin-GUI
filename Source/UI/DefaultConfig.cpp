@@ -31,10 +31,8 @@
 
 //-----------------------------------------------------------------------
 
-DefaultConfigWindow::DefaultConfigWindow(MainWindow* mainWindow)
-{
-	parent = (DocumentWindow*)mainWindow;
-	
+DefaultConfigWindow::DefaultConfigWindow()
+{	
 	launchWindow();
 }
 
@@ -57,7 +55,6 @@ void DefaultConfigWindow::launchWindow()
 	juce::Rectangle<int> area (0, 0, 450, 300);
 	options.content->setSize (area.getWidth(), area.getHeight());
 
-	options.componentToCentreAround 	  = parent;
 	options.dialogTitle                   = "Load a Default Configuration";
     options.dialogBackgroundColour        = Colours::darkgrey;
 	options.escapeKeyTriggersCloseButton  = true;
