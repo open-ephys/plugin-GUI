@@ -74,7 +74,6 @@ public:
 
     /** Visualizer virtual functions */
     void refresh() { }
-    void update() { }
     void refreshState() { }
 
     /** Resizes text field*/

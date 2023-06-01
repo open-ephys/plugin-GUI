@@ -26,6 +26,9 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
+#include "../GenericProcessor/GenericProcessor.h"
+#include "../Editors/GenericEditor.h"
+#include "../Parameter/ParameterEditor.h"
 
 /**
 
@@ -45,7 +48,7 @@ class PLUGIN_API Visualizer : public Component,
 public:
 
     /** Constructor */
-	Visualizer() { }
+	Visualizer(GenericProcessor* parentProcessor = nullptr);
 
     /** Destructor */
 	virtual ~Visualizer() { }
@@ -63,10 +66,6 @@ public:
     //       (must be implemented by all Visualizers)
     // ------------------------------------------------------------
 
-    /** Called when the Visualizer is first created, and optionally when
-        the parameters of the underlying processor are changed. */
-    virtual void update() = 0;
-
     /** Renders the Visualizer on each animation callback cycle
         Called instead of Juce's "repaint()" to avoid redrawing underlying components
         if not necessary.*/
@@ -79,6 +78,9 @@ public:
     //                   VIRTUAL METHODS 
     //       (can optionally be overriden by sub-classes)
     // ------------------------------------------------------------
+
+    /** Called by the update() method to allow the visualizer to update its custom settings.*/
+    virtual void updateSettings() { }
 
     /** Called when data acquisition begins. 
         If the Visualizer includes live rendering, it should call
@@ -99,6 +101,10 @@ public:
     // ------------------------------------------------------------
     //                     OTHER METHODS
     // ------------------------------------------------------------
+    
+    /** Called when the Visualizer is first created, and optionally when
+        the parameters of the underlying processor are changed. */
+    void update();
 
     /** Starts animation callbacks at refreshRate Hz. */
 	void startCallbacks();
@@ -109,6 +115,41 @@ public:
     /** Calls refresh(). */
 	void timerCallback();
 
+    /** Returns the parameter editor for a given parameter name*/
+    ParameterEditor* getParameterEditor(const String& parameterName);
+
+    /** An array of pointers to ParameterEditors created based on the Parameters of an editor's underlying processor. */
+    OwnedArray<ParameterEditor> parameterEditors;
+    
+    /** Called when the editor needs to update the view of its parameters.*/
+    void updateView();
+
+protected:
+
+    /** Adds a text box editor for a parameter of a given name. */
+    void addTextBoxParameterEditor (const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
+
+    /** Adds a check box editor for a parameter of a given name. */
+    void addCheckBoxParameterEditor(const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
+
+    /** Adds a slider editor for a parameter of a given name. */
+    void addSliderParameterEditor(const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
+
+    /** Adds a combo box editor for a parameter of a given name. */
+    void addComboBoxParameterEditor(const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
+
+    /** Adds a selected channels editor for a parameter of a given name. */
+    void addSelectedChannelsParameterEditor(const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
+    
+    /** Adds a selected channels editor for a parameter of a given name. */
+    void addMaskChannelsParameterEditor(const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
+
+    /** Adds a custom editor for a parameter of a given name. */
+    void addCustomParameterEditor(ParameterEditor* editor, int xPos, int yPos, Component *parentComponent = nullptr);
+
+private:
+
+    GenericProcessor* processor;
 };
 
 

@@ -36,6 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace LfpViewer;
 
 LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl, bool isLoading_) :
+    Visualizer(processor_),
     processor(processor_),
     selectedLayout(sl),
     isLoading(isLoading_)
@@ -282,7 +283,7 @@ void LfpDisplayCanvas::syncDisplays()
 
 }
 
-void LfpDisplayCanvas::update()
+void LfpDisplayCanvas::updateSettings()
 {
 
     for (auto split : displaySplits)
@@ -630,8 +631,6 @@ void LfpDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
                                                       + "," + String(tripleVerticalSplitRatio[1]));
 
     xmlNode->setAttribute("showAllOptions", optionsDrawerIsOpen);
-
-    LfpDisplayEditor* ed = (LfpDisplayEditor*) processor->getEditor();
 
 }
 

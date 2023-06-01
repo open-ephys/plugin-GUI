@@ -70,6 +70,7 @@ void SpikeThresholdCoordinator::thresholdChanged(float displayThreshold, float r
 
 
 SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
+    Visualizer(processor_),
     processor(processor_), 
     newSpike(false)
 {
@@ -112,7 +113,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
     cache = std::make_unique<SpikeDisplayCache>();
 }
 
-void SpikeDisplayCanvas::update()
+void SpikeDisplayCanvas::updateSettings()
 {
 
     int scrollHeight = viewport->getViewPositionY();

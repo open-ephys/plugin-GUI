@@ -213,7 +213,6 @@ public:
 
     /** Visualizer virtual functions */
     void refresh() { }
-    void update() { }
     void refreshState() { }
 
     /** Sets viewport bounds*/

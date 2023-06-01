@@ -70,7 +70,7 @@ public:
     void refreshState() override;
 
     /* Called when settings need to be updated*/
-    void update() override;
+    void updateSettings() override;
 
     /** Not used -- only refresh split displays while animating */
     void refresh() override { }

@@ -149,22 +149,22 @@ public:
     ~SpikeDisplayCanvas() { }
 
     /** Render black background */
-    void paint(Graphics& g);
+    void paint(Graphics& g) override;
 
     /** Called instead of "repaint" to avoid redrawing underlying components.*/
-    void refresh();
+    void refresh() override;
 
     /** Called when the component's tab becomes visible again*/
-    void refreshState();
+    void refreshState() override;
 
     /** Creates spike displays for incoming spike channels*/
-    void update();
+    void updateSettings() override;
 
     /** Aligns components*/
-    void resized();
+    void resized() override;
 
     /** Respond to clear / lock thresholds / invert spikes buttons*/
-    void buttonClicked(Button* button);
+    void buttonClicked(Button* button) override;
 
     /** Clears audio monitor selection for all sub-plots*/
     void resetAudioMonitorState();
