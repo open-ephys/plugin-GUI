@@ -121,7 +121,7 @@ public:
     /** An array of pointers to ParameterEditors created based on the Parameters of an editor's underlying processor. */
     OwnedArray<ParameterEditor> parameterEditors;
     
-    /** Called when the editor needs to update the view of its parameters.*/
+    /** Called when the Visualizer needs to update the view of its parameters.*/
     void updateView();
 
 protected:

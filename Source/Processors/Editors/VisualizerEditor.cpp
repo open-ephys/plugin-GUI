@@ -158,6 +158,12 @@ void VisualizerEditor::updateVisualizer()
         canvas->update();
 }
 
+void VisualizerEditor::updateVisualizerView()
+{
+    if (canvas != nullptr)
+        canvas->updateView();
+}
+
 
 void VisualizerEditor::editorWasClicked()
 {

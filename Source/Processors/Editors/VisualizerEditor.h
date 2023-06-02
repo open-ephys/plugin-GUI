@@ -124,6 +124,9 @@ public:
     /** Calls the Visualizer's update() method */
     void updateVisualizer() override;
 
+    /** Calls the Visualizer's updateView() method */
+    void updateVisualizerView() override;
+
     /** Saves Visualizer open/closed state to XML */
     void saveCustomParametersToXml (XmlElement* xml) override;
 
