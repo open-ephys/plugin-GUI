@@ -12,8 +12,6 @@ add_sources(open-ephys
 	DefaultConfig.h
 	EditorViewport.cpp
 	EditorViewport.h
-	EditorViewportActions.cpp
-	EditorViewportActions.h
 	EditorViewportButtons.cpp
 	EditorViewportButtons.h
 	FilenameConfigWindow.cpp

@@ -23,17 +23,20 @@
 
 #include <stdio.h>
 
-#include "EditorViewportActions.h"
-#include "../Processors/Merger/Merger.h"
-#include "../Processors/Splitter/Splitter.h"
+#include "../../AccessClass.h"
+
+#include "ProcessorGraphActions.h"
+
+#include "../Merger/Merger.h"
+#include "../Splitter/Splitter.h"
+
 
 AddProcessor::AddProcessor(Plugin::Description description_,
                            GenericProcessor* sourceProcessor,
                            GenericProcessor* destProcessor,
-                           EditorViewport* editorViewport_,
                            bool signalChainIsLoading_) :
     description(description_),
-    editorViewport(editorViewport_),
+    processorGraph(AccessClass::getProcessorGraph()),
     signalChainIsLoading(signalChainIsLoading_)
 {
     settings = nullptr;
@@ -61,14 +64,14 @@ bool AddProcessor::perform()
 {
     LOGDD("Performing ADD for processor ", nodeId);
 
-    GenericProcessor* sourceProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(sourceNodeId);
+    GenericProcessor* sourceProcessor = processorGraph->getProcessorWithNodeId(sourceNodeId);
     
-    GenericProcessor* destProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(destNodeId);
+    GenericProcessor* destProcessor = processorGraph->getProcessorWithNodeId(destNodeId);
     
     if (nodeId > -1)
         description.nodeId = nodeId;
     
-    processor = AccessClass::getProcessorGraph()->createProcessor(description,
+    processor = processorGraph->createProcessor(description,
                                                       sourceProcessor,
                                                       destProcessor,
                                                       signalChainIsLoading);
@@ -97,7 +100,7 @@ bool AddProcessor::undo()
 
     Array<GenericProcessor*> processorToDelete;
     
-    processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
+    processor = processorGraph->getProcessorWithNodeId(nodeId);
     processorToDelete.add(processor);
     
     if (settings != nullptr)
@@ -105,9 +108,9 @@ bool AddProcessor::undo()
     
     if (processor != nullptr)
     {
-        settings = editorViewport->createNodeXml(processor, false);
+        settings = processorGraph->createNodeXml(processor, false);
 
-        AccessClass::getProcessorGraph()->deleteNodes(processorToDelete);
+        processorGraph->deleteNodes(processorToDelete);
     }
        
     return true;
@@ -115,9 +118,8 @@ bool AddProcessor::undo()
    
 
 PasteProcessors::PasteProcessors(Array<XmlElement*> copyBuffer_,
-    int insertionPoint_,
-    EditorViewport* editorViewport_) :
-    editorViewport(editorViewport_),
+    int insertionPoint_) :
+    processorGraph(AccessClass::getProcessorGraph()),
     insertionPoint(insertionPoint_),
     copyBuffer(copyBuffer_)
 {
@@ -135,7 +137,7 @@ bool PasteProcessors::perform()
     
     for (int i = 0; i < copyBuffer.size(); i++)
     {
-        newProcessors.add(editorViewport->createProcessorAtInsertionPoint(copyBuffer.getUnchecked(i),
+        newProcessors.add(processorGraph->createProcessorAtInsertionPoint(copyBuffer.getUnchecked(i),
             insertionPoint++, true));
     }
 
@@ -145,7 +147,7 @@ bool PasteProcessors::perform()
         nodeIds.add(p->getNodeId());
     }
         
-    AccessClass::getProcessorGraph()->updateSettings(newProcessors[0]);
+    processorGraph->updateSettings(newProcessors[0]);
 
     // initialize in background thread if necessary
     for (auto p : newProcessors)
@@ -160,12 +162,12 @@ bool PasteProcessors::undo()
 
     for (auto nodeId : nodeIds)
     {
-        GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
+        GenericProcessor* processor = processorGraph->getProcessorWithNodeId(nodeId);
         processorsToDelete.add(processor);
    
     }
 
-    AccessClass::getProcessorGraph()->deleteNodes(processorsToDelete);
+    processorGraph->deleteNodes(processorsToDelete);
 
     nodeIds.clear();
 
@@ -173,15 +175,14 @@ bool PasteProcessors::undo()
 }
 
 
-DeleteProcessor::DeleteProcessor(GenericProcessor* processor_, EditorViewport* editorViewport_)
+DeleteProcessor::DeleteProcessor(GenericProcessor* processor_) 
+    : processorGraph(AccessClass::getProcessorGraph())
 {
-    
     processor = processor_;
-    editorViewport = editorViewport_;
     
     nodeId = processor->getNodeId();
     
-    settings.reset(editorViewport->createNodeXml(processor, false));
+    settings.reset(processorGraph->createNodeXml(processor, false));
     
     if (processor->getSourceNode() != nullptr)
         sourceNodeId = processor->getSourceNode()->getNodeId();
@@ -205,11 +206,10 @@ bool DeleteProcessor::perform()
 
     Array<GenericProcessor*> processorToDelete;
     
-    processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
+    processor = processorGraph->getProcessorWithNodeId(nodeId);
     processorToDelete.add(processor);
     
-    AccessClass::getProcessorGraph()->deleteNodes(processorToDelete);
-    
+    processorGraph->deleteNodes(processorToDelete);
     
     return true;
 }
@@ -218,20 +218,20 @@ bool DeleteProcessor::undo()
 {
     LOGDD("Undoing DELETE for processor ", nodeId);
 
-    Plugin::Description description = editorViewport->getDescriptionFromXml(settings.get(), false);
+    Plugin::Description description = processorGraph->getDescriptionFromXml(settings.get(), false);
 
-    GenericProcessor* sourceProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(sourceNodeId);
+    GenericProcessor* sourceProcessor = processorGraph->getProcessorWithNodeId(sourceNodeId);
     
-    GenericProcessor* destProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(destNodeId);
+    GenericProcessor* destProcessor = processorGraph->getProcessorWithNodeId(destNodeId);
     
-    processor = AccessClass::getProcessorGraph()->createProcessor(description,
-                                                      sourceProcessor,
-                                                      destProcessor,
-                                                      false);
+    processor = processorGraph->createProcessor(description,
+                                        sourceProcessor,
+                                        destProcessor,
+                                        false);
     processor->parametersAsXml = settings.get();
     processor->loadFromXml();
     
-    AccessClass::getProcessorGraph()->updateSettings(processor);
+    processorGraph->updateSettings(processor);
     
     if (processor != nullptr)
         return true;
@@ -244,6 +244,7 @@ MoveProcessor::MoveProcessor(GenericProcessor* processor,
                              GenericProcessor* sourceNode,
                              GenericProcessor* destNode,
                              bool moveDownstream_)
+                             : processorGraph(AccessClass::getProcessorGraph())
 {
     
     nodeId = processor->getNodeId();
@@ -293,16 +294,16 @@ bool MoveProcessor::perform()
 {
     LOGDD("Peforming MOVE for processor ", nodeId);
     
-    GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
+    GenericProcessor* processor = processorGraph->getProcessorWithNodeId(nodeId);
     
-    GenericProcessor* sourceProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(newSourceNodeId);
+    GenericProcessor* sourceProcessor = processorGraph->getProcessorWithNodeId(newSourceNodeId);
     
-    GenericProcessor* destProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(newDestNodeId);
+    GenericProcessor* destProcessor = processorGraph->getProcessorWithNodeId(newDestNodeId);
     
-    AccessClass::getProcessorGraph()->moveProcessor(processor,
-                                                    sourceProcessor,
-                                                    destProcessor,
-                                                    moveDownstream);
+    processorGraph->moveProcessor(processor,
+                                    sourceProcessor,
+                                    destProcessor,
+                                    moveDownstream);
     
     return true;
 }
@@ -312,36 +313,41 @@ bool MoveProcessor::undo()
 
     LOGDD("Undoing MOVE for processor ", nodeId);
 
-    GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
+    GenericProcessor* processor = processorGraph->getProcessorWithNodeId(nodeId);
     
-    GenericProcessor* sourceProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(originalSourceNodeId);
+    GenericProcessor* sourceProcessor = processorGraph->getProcessorWithNodeId(originalSourceNodeId);
     
-    GenericProcessor* destProcessor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(originalDestNodeId);
+    GenericProcessor* destProcessor = processorGraph->getProcessorWithNodeId(originalDestNodeId);
     
-    AccessClass::getProcessorGraph()->moveProcessor(processor,
-                                                    sourceProcessor,
-                                                    destProcessor,
-                                                    moveDownstream);
+    processorGraph->moveProcessor(processor,
+                                    sourceProcessor,
+                                    destProcessor,
+                                    moveDownstream);
     
     if (processor->isSource() && originalDestNodeDestNodeId > -1)
     {
-        GenericProcessor* originalDest = AccessClass::getProcessorGraph()->getProcessorWithNodeId(originalDestNodeDestNodeId);
+        GenericProcessor* originalDest = processorGraph->getProcessorWithNodeId(originalDestNodeDestNodeId);
         
-        AccessClass::getProcessorGraph()->moveProcessor(originalDest,
-                                                        destProcessor,
-                                                        originalDest->getDestNode(),
-                                                        moveDownstream);
+        processorGraph->moveProcessor(originalDest,
+                                        destProcessor,
+                                        originalDest->getDestNode(),
+                                        moveDownstream);
     }
     
     return true;
 }
    
 
-ClearSignalChain::ClearSignalChain(EditorViewport* editorViewport_)
+ClearSignalChain::ClearSignalChain()
 {
-    editorViewport = editorViewport_;
+
+    processorGraph = AccessClass::getProcessorGraph();
     
-    settings = editorViewport->createSettingsXml();
+    std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
+    
+    processorGraph->saveToXml(xml.get());
+
+    settings = std::move(xml);
 }
     
  
@@ -353,7 +359,7 @@ bool ClearSignalChain::perform()
 {
     LOGDD("Performing clear signal chain.");
 
-    AccessClass::getProcessorGraph()->clearSignalChain();
+    processorGraph->clearSignalChain();
     
     return true;
 }
@@ -362,19 +368,23 @@ bool ClearSignalChain::undo()
 {
     LOGDD("Undoing clear signal chain.");
 
-    editorViewport->loadStateFromXml(settings.get());
+    processorGraph->loadFromXml(settings.get());
     
     return true;
 }
 
 
 
-LoadSignalChain::LoadSignalChain(EditorViewport* editorViewport_, std::unique_ptr<XmlElement>& newSettings_)
+LoadSignalChain::LoadSignalChain(std::unique_ptr<XmlElement>& newSettings_)
+                        : processorGraph(AccessClass::getProcessorGraph())
 {
-    editorViewport = editorViewport_;
     newSettings = std::move(newSettings_);
     
-    oldSettings = editorViewport->createSettingsXml();
+    std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
+    
+    processorGraph->saveToXml(xml.get());
+
+    oldSettings = std::move(xml);
 }
     
  
@@ -388,7 +398,7 @@ bool LoadSignalChain::perform()
 {
     LOGDD("Performing load signal chain.");
 
-    error = editorViewport->loadStateFromXml(newSettings.get());
+    processorGraph->loadFromXml(newSettings.get());
     
     return true;
 }
@@ -397,7 +407,7 @@ bool LoadSignalChain::undo()
 {
     LOGDD("Undoing load signal chain.");
 
-    error = editorViewport->loadStateFromXml(oldSettings.get());
+    processorGraph->loadFromXml(oldSettings.get());
     
     return true;
 }
@@ -407,14 +417,13 @@ const String LoadSignalChain::getError()
     return String(error);
 }
 
-LoadPluginSettings::LoadPluginSettings(EditorViewport* editorViewport_,
-                                       GenericProcessor* processor,
-                                       XmlElement* newSettings_)
+LoadPluginSettings::LoadPluginSettings(GenericProcessor* processor,
+                                       XmlElement* newSettings_) 
+    : processorGraph(AccessClass::getProcessorGraph())  
 {
-    editorViewport = editorViewport_;
     newSettings = newSettings_;
     
-    oldSettings = editorViewport->createNodeXml(processor, false);
+    oldSettings = processorGraph->createNodeXml(processor, false);
     
     processorId = processor->getNodeId();
     
@@ -436,7 +445,7 @@ bool LoadPluginSettings::perform()
     {
         LOGDD("Performing load plugin settings for processor ", processorId);
         LOGDD("Getting processor");
-        GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(processorId);
+        GenericProcessor* processor = processorGraph->getProcessorWithNodeId(processorId);
         
         
         LOGDD("Updating NodeId");
@@ -461,19 +470,23 @@ bool LoadPluginSettings::perform()
 bool LoadPluginSettings::undo()
 {
     LOGDD("Undoing load plugin settings for processor ", processorId);
-    GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(processorId);
+    GenericProcessor* processor = processorGraph->getProcessorWithNodeId(processorId);
     
     processor->parametersAsXml = oldSettings;
     processor->loadFromXml();
     
-    AccessClass::getProcessorGraph()->updateViews(processor);
+    processorGraph->updateViews(processor);
     
     return true;
 }
 
 
-SwitchIO::SwitchIO(GenericProcessor* processor, int path)
+SwitchIO::SwitchIO(GenericProcessor* processor_, int path)
+: processorGraph(AccessClass::getProcessorGraph())
 {
+
+    processor = processor_;
+
     processorId = processor->getNodeId();
     
     originalPath = path;
@@ -489,11 +502,11 @@ bool SwitchIO::perform()
 {
     LOGDD("Performing SwitchIO for processor ", processorId);
 
-    GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(processorId);
+    GenericProcessor* processor = processorGraph->getProcessorWithNodeId(processorId);
     
-    processor->getEditor()->switchIO(originalPath);
+    processor->switchIO(originalPath);
     
-    AccessClass::getProcessorGraph()->updateViews(processor);
+    processorGraph->updateViews(processor);
     
     return true;
 }
@@ -503,11 +516,11 @@ bool SwitchIO::undo()
 
     LOGDD("Undoing SwitchIO for processor ", processorId);
 
-    GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(processorId);
+    GenericProcessor* processor = processorGraph->getProcessorWithNodeId(processorId);
     
-    processor->getEditor()->switchIO(1 - originalPath);
+    processor->switchIO(1 - originalPath);
     
-    AccessClass::getProcessorGraph()->updateViews(processor);
+    processorGraph->updateViews(processor);
     
     return true;
 }
