@@ -341,26 +341,36 @@ void MergerEditor::switchSource()
     pipelineSelectorB->setToggleState(!isBOn, dontSendNotification);
     pipelineSelectorA->setToggleState(!isAOn, dontSendNotification);
 
+    Merger* processor = (Merger*) getProcessor();
+    processor->switchIO();
+
 }
 
-void MergerEditor::switchSource(int source)
+void MergerEditor::switchSource(int source, bool notify)
 {
     if (source == 0)
     {
         pipelineSelectorA->setToggleState(true, dontSendNotification);
         pipelineSelectorB->setToggleState(false, dontSendNotification);
-        Merger* processor = (Merger*) getProcessor();
-        processor->switchIO(0);
-
     }
     else if (source == 1)
     {
         pipelineSelectorB->setToggleState(true, dontSendNotification);
         pipelineSelectorA->setToggleState(false, dontSendNotification);
-        Merger* processor = (Merger*) getProcessor();
-        processor->switchIO(1);
 
     }
+    else
+    {
+        return;
+    }
+
+    if (notify)
+    {
+        Merger* processor = (Merger*) getProcessor();
+        processor->switchIO(source);
+    }
+
+
 }
 
 

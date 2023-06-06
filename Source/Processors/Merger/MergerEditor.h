@@ -62,7 +62,7 @@ public:
     void stopAcquisition();
 
     /** Changes the active pathway to 0 or 1 */
-    void switchSource(int);
+    void switchSource(int, bool notify = true);
     
     /** Swaps the active pathway*/
     void switchSource();
