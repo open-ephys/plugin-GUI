@@ -9,6 +9,7 @@ struct FakeSourceNodeParams {
     int channels = 1;
     float sampleRate = 20000.0f;
     float bitVolts = 1.0f;
+    int streams = 1;
 };
 
 class TESTABLE FakeSourceNode : public GenericProcessor {

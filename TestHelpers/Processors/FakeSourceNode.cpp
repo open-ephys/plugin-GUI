@@ -9,15 +9,17 @@ FakeSourceNode::FakeSourceNode(const FakeSourceNodeParams &params)
 void FakeSourceNode::updateSettings() {
     // Don't recreate datastreams, or the IDs / pointer locations keep changing.
     if (cached_datastreams_.size() == 0) {
-        DataStream::Settings settings
-            {
-                "FakeSourceNode",
-                "description",
-                "identifier",
-                params_.sampleRate
-            };
+        for(int i = 0; i < params_.streams; i++){
+            DataStream::Settings settings
+                {
+                    "FakeSourceNode",
+                    "description",
+                    "identifier",
+                    params_.sampleRate
+                };
 
-        cached_datastreams_.add(new DataStream(settings));
+            cached_datastreams_.add(new DataStream(settings));
+        }
     }
 
     continuousChannels.clear();
@@ -26,18 +28,20 @@ void FakeSourceNode::updateSettings() {
         // Copy it over
         dataStreams.add(new DataStream(*item));
     }
-
-    for (int index = 0; index < params_.channels; index++) {
-        ContinuousChannel::Settings settings{
-            ContinuousChannel::Type::ELECTRODE,
-            "CH" + String(index),
-            String(index),
-            "identifier",
-            params_.bitVolts,
-            dataStreams.getFirst()
-        };
-
-        continuousChannels.add(new ContinuousChannel(settings));
+    for(int i = 0; i < params_.streams; i++){
+        for (int index = 0; index < params_.channels; index++) {
+            ContinuousChannel::Settings settings{
+                ContinuousChannel::Type::ELECTRODE,
+                "CH" + String(index),
+                String(index),
+                "identifier",
+                params_.bitVolts,
+                dataStreams[i]
+                
+            };
+            
+            continuousChannels.add(new ContinuousChannel(settings));
+        }
     }
 
     EventChannel::Settings settings{
