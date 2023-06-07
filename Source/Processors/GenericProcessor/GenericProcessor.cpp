@@ -554,6 +554,7 @@ void GenericProcessor::clearSettings()
     startSamplesForBlock.clear();
 	numSamplesInBlock.clear();
 	processStartTimes.clear();
+    timestampSampleIndexForBlock.clear();
 
 }
 
@@ -1176,11 +1177,17 @@ double GenericProcessor::getFirstTimestampForBlock(uint16 streamId) const
     return startTimestampsForBlock.at(streamId);
 }
 
+int64 GenericProcessor::getTimestampSampleIndexForBlock(uint16 streamId) const
+{
+    return timestampSampleIndexForBlock.at(streamId);
+}
+
 
 void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
                                               double timestamp,
                                               uint32 nSamples,
-                                              uint16 streamId)
+                                              uint16 streamId,
+                                              int64 sampleIndexOfTimestamp)
 {
     
 	HeapBlock<char> data;
@@ -1190,7 +1197,8 @@ void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
         sampleNumber,
         timestamp,
 		nSamples,
-		m_initialProcessTime);
+		m_initialProcessTime,
+        sampleIndexOfTimestamp);
 
     
 
@@ -1200,6 +1208,8 @@ void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
     startTimestampsForBlock[streamId] = timestamp;
     startSamplesForBlock[streamId] = sampleNumber;
 	processStartTimes[streamId] = m_initialProcessTime;
+    timestampSampleIndexForBlock[streamId] = sampleIndexOfTimestamp;
+
 
 }
 
@@ -1238,6 +1248,8 @@ int GenericProcessor::processEventBuffer()
                 double startTimestamp = *reinterpret_cast<const double*>(dataptr + 16);
 				uint32 nSamples = *reinterpret_cast<const uint32*>(dataptr + 24);
 				int64 initialTicks = *reinterpret_cast<const int64*>(dataptr + 28);
+                int64 timestampSampleIndex = *reinterpret_cast<const int64*>(dataptr + 36);
+
 
                // if (startSamplesForBlock[sourceStreamId] > startSample)
                 //    std::cout << "GET: " << getNodeId() << " " << sourceStreamId << " " << startSamplesForBlock[sourceStreamId] << " " << startSample << std::endl;
@@ -1246,6 +1258,8 @@ int GenericProcessor::processEventBuffer()
                 startTimestampsForBlock[sourceStreamId] = startTimestamp;
                 numSamplesInBlock[sourceStreamId] = nSamples;
 				processStartTimes[sourceStreamId] = initialTicks;
+                timestampSampleIndexForBlock[sourceStreamId] = timestampSampleIndex;
+
 					
 			}
             else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT

@@ -231,7 +231,8 @@ public:
 		int64 startSampleForBlock,
         double timestamp,
 		uint32 nSamplesInBlock,
-		int64 processStartTime);
+		int64 processStartTime,
+        int64 sampleIndexOfTimestamp);
 		
 	/* Create a TIMESTAMP_SYNC_TEXT event */
 	static size_t fillTimestampSyncTextData(HeapBlock<char>& data, 

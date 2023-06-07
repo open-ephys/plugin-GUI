@@ -31,6 +31,7 @@ DataBuffer::DataBuffer (int chans, int size)
     sampleNumberBuffer.malloc (size);
     timestampBuffer.malloc (size);
     eventCodeBuffer.malloc (size);
+    timestampSampleBuffer.malloc(size);
 
 	lastSampleNumber = 0;
     lastTimestamp = -1.0;
@@ -54,6 +55,7 @@ void DataBuffer::resize (int chans, int size)
     sampleNumberBuffer.malloc (size);
     timestampBuffer.malloc (size);
     eventCodeBuffer.malloc (size);
+    timestampSampleBuffer.malloc(size);
 
     lastSampleNumber = 0;
     lastTimestamp = -1.0;
@@ -66,6 +68,7 @@ int DataBuffer::addToBuffer (float* data,
                              double* timestamps,
                              uint64* eventCodes,
                              int numItems,
+                             int timestampSampleIndex,
                              int chunkSize)
 {
     int startIndex1, blockSize1, startIndex2, blockSize2;
@@ -97,6 +100,8 @@ int DataBuffer::addToBuffer (float* data,
                 sampleNumberBuffer[si[i] + blkIdx + k] = sampleNumbers[idx + k];
                 timestampBuffer[si[i] + blkIdx + k] = timestamps[idx + k];
                 eventCodeBuffer[si[i] + blkIdx + k] = eventCodes[idx + k];
+                timestampSampleBuffer[si[i] + blkIdx + k] = sampleNumbers[0];
+
             }
             idx     += cSize;
             blkIdx  += cSize;
@@ -118,6 +123,7 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
                                    double* blockTimestamp,
                                    uint64* eventCodes,
                                    int maxSize,
+                                   int64* timestampSampleIndex,
                                    int dstStartChannel,
                                    int numChannels)
 {
@@ -145,6 +151,8 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
         memcpy (blockSampleNumber, sampleNumberBuffer + startIndex1, 8);
         memcpy (blockTimestamp, timestampBuffer + startIndex1, 8);
         memcpy (eventCodes, eventCodeBuffer + startIndex1, blockSize1 * 8);
+        memcpy (timestampSampleIndex, timestampBuffer + startIndex1, 8);
+
     }
     else
     {

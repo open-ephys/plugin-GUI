@@ -121,6 +121,7 @@ private:
 
     int64 sampleNumber = 0;
     double timestamp = -1.0;
+    int64 timestampSampleIndex = 0;
 
     OwnedArray<MemoryBlock> eventCodeBuffers;
 	Array<uint64> eventStates;

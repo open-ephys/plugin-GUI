@@ -549,7 +549,7 @@ void FileReader::process(AudioBuffer<float>& buffer)
                                 samplesNeededPerBuffer);
     }
 
-    setTimestampAndSamples(totalSamplesAcquired, -1.0, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this
+    setTimestampAndSamples(totalSamplesAcquired, Time::currentTimeMillis(), samplesNeededPerBuffer, dataStreams[0]->getStreamId(), totalSamplesAcquired); //TODO: Look at this
 
     int64 start = totalSamplesAcquired;
 

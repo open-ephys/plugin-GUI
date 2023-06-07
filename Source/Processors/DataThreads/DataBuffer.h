@@ -63,6 +63,7 @@ public:
                      double* timestamps,
                      uint64* eventCodes,
                      int numItems,
+                     int timestampSampleIndex = 0,
                      int chunkSize=1);
 
     /** Returns the number of samples currently available in the buffer.*/
@@ -74,6 +75,7 @@ public:
                            double* timestamps,
                            uint64* eventCodes,
                            int maxSize,
+                           int64* timestampSampleIndex,
                            int dstStartChannel = 0,
                            int numChannels = -1);
 
@@ -88,6 +90,8 @@ private:
     HeapBlock<int64> sampleNumberBuffer;
     HeapBlock<double> timestampBuffer;
     HeapBlock<uint64> eventCodeBuffer;
+    HeapBlock<int64> timestampSampleBuffer;
+
 
 	int64 lastSampleNumber;
     double lastTimestamp;

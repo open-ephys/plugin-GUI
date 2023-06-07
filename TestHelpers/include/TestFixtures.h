@@ -167,6 +167,7 @@ public:
                 // NOTE: this timestamp is actually ignored in the current implementation?
                 0,
                 buffer.getNumSamples(),
+                0,
                 0);
             eventBuffer.addEvent(data, dataSize, 0);
 
