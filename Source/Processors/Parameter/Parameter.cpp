@@ -107,15 +107,19 @@ BooleanParameter::BooleanParameter(GenericProcessor* processor,
 
 void BooleanParameter::setNextValue(var newValue_)
 {
+
+    if (newValue == currentValue) return;
+
     if (newValue_.isBool())
     {
         newValue = newValue_;
     }
 
     ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
-    
+
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);
+
 }
 
 bool BooleanParameter::getBoolValue()
@@ -164,6 +168,8 @@ CategoricalParameter::CategoricalParameter(GenericProcessor* processor,
 
 void CategoricalParameter::setNextValue(var newValue_)
 {
+    if (newValue == currentValue) return;
+
     newValue = (int) newValue_;
     
     ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
@@ -232,6 +238,8 @@ IntParameter::IntParameter(GenericProcessor* processor,
 void IntParameter::setNextValue(var newValue_)
 {
 
+    if (newValue == currentValue) return;
+
     int value = (int) newValue_;
 
     if (value < minValue)
@@ -286,6 +294,9 @@ StringParameter::StringParameter(GenericProcessor* processor,
 
 void StringParameter::setNextValue(var newValue_)
 {
+
+    if (newValue == currentValue) return;
+
     newValue = newValue_.toString();
 
     ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
@@ -352,11 +363,16 @@ void FloatParameter::setNextValue(var newValue_)
             newValue = value;
 
     }
+
+    if (currentValue != newValue)
+    {
     
-    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
-    
-    AccessClass::getUndoManager()->beginNewTransaction();
-    AccessClass::getUndoManager()->perform(action);
+        ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+
+        AccessClass::getUndoManager()->beginNewTransaction();
+        AccessClass::getUndoManager()->perform(action);
+
+    }
     
 }
 
@@ -404,15 +420,18 @@ SelectedChannelsParameter::SelectedChannelsParameter(GenericProcessor* processor
 void SelectedChannelsParameter::setNextValue(var newValue_)
 {
 
+    if (newValue_ == currentValue) return;
+
     if (newValue_.getArray()->size() <= maxSelectableChannels)
     {
         newValue = newValue_;
     }
     
     ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
-    
+
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);
+
 }
 
 std::vector<bool> SelectedChannelsParameter::getChannelStates()
@@ -527,10 +546,13 @@ void MaskChannelsParameter::setNextValue(var newValue_)
     
     newValue = values;
 
-    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+    if (newValue == currentValue) return;
     
+    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);
+
 }
 
 std::vector<bool> MaskChannelsParameter::getChannelStates()
