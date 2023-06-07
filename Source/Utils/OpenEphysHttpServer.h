@@ -27,6 +27,7 @@
 #include "../Processors/Parameter/Parameter.h"
 #include "../Processors/GenericProcessor/GenericProcessor.h"
 #include "../Processors/ProcessorManager/ProcessorManager.h"
+#include "../Processors/ProcessorGraph/ProcessorGraphActions.h"
 
 #include <sstream>
 #include "httplib.h"
@@ -574,7 +575,10 @@ public:
                 processorNodes.add(processor);
 
                 const MessageManagerLock mml;
-                graph_->deleteNodes(processorNodes);
+
+                DeleteProcessor* action = new DeleteProcessor(processor);
+                graph_->getUndoManager()->beginNewTransaction();
+                graph_->getUndoManager()->perform(action);
 
                 return_msg = processorName + " [" +  String(procId) + "] deleted successfully";
             } else {
@@ -669,9 +673,10 @@ public:
                 }
 
                 const MessageManagerLock mml;
-                graph_->createProcessor(description,
-                    sourceProcessor,
-                    destProcessor);
+
+                AddProcessor* action = new AddProcessor(description, sourceProcessor, destProcessor, false);
+                graph_->getUndoManager()->beginNewTransaction();
+                graph_->getUndoManager()->perform(action);
 
                 return_msg = procName + " added successfully";
                 
@@ -679,6 +684,43 @@ public:
                 return_msg = "Cannot add processors while acquisition is active.";
             }
              
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json");
+            });
+
+        svr_->Get("/api/undo", [this](const httplib::Request&, httplib::Response& res) {
+
+            String return_msg;
+
+            if (!CoreServices::getAcquisitionStatus())
+            {
+                const MessageManagerLock mml;
+                graph_->getUndoManager()->undo();
+                //TODO: Undo manager should return a message indicating if there was anything to undo
+                return_msg = "Undo operation completed successfully.";
+            } else {
+                return_msg = "Undo operation was NOT successful!";
+            }
+
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json");
+            });
+
+        svr_->Get("/api/redo", [this](const httplib::Request&, httplib::Response& res) {
+
+            String return_msg;
+
+            if (!CoreServices::getAcquisitionStatus())
+            {
+                const MessageManagerLock mml;
+                graph_->getUndoManager()->redo();
+                return_msg = "Redo operation completed successfully.";
+            } else {
+                return_msg = "Redo operation was NOT successful!";
+            }
+
             json ret;
             ret["info"] = return_msg.toStdString();
             res.set_content(ret.dump(), "application/json");

@@ -165,32 +165,38 @@ namespace ProcessorManager
         
 		switch (type)
 		{
-        case Plugin::BUILT_IN:
-        {
-            description = getBuiltInPluginDescription(index);
-            break;
-        }
-        case Plugin::PROCESSOR:
-        {
-            Plugin::ProcessorInfo info = AccessClass::getPluginManager()->getProcessorInfo(index);
-            description.name = info.name;
-            description.processorType = info.type;
-            break;
-        }
-		case Plugin::DATA_THREAD:
-        {
-            Plugin::DataThreadInfo info = AccessClass::getPluginManager()->getDataThreadInfo(index);
-            description.name = info.name;
-            description.processorType = Plugin::Processor::SOURCE;
-            break;
-        }
-		default:
-        {
-            description.name = String();
-            description.type = Plugin::INVALID;
-            break;
-        }
+            case Plugin::BUILT_IN:
+            {
+                description = getBuiltInPluginDescription(index);
+                break;
+            }
+            case Plugin::PROCESSOR:
+            {
+                Plugin::ProcessorInfo info = AccessClass::getPluginManager()->getProcessorInfo(index);
+                description.name = info.name;
+                description.processorType = info.type;
+                break;
+            }
+            case Plugin::DATA_THREAD:
+            {
+                Plugin::DataThreadInfo info = AccessClass::getPluginManager()->getDataThreadInfo(index);
+                description.name = info.name;
+                description.processorType = Plugin::Processor::SOURCE;
+                break;
+            }
+            default:
+            {
+                description.name = String();
+                description.type = Plugin::INVALID;
+                break;
+            }
 		}
+
+        if (description.type != Plugin::INVALID)
+        {
+            description.fromProcessorList = true;
+            description.index = index;
+        }
         
         return description;
 	}
