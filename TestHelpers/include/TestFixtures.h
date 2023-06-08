@@ -168,7 +168,7 @@ public:
                 0,
                 buffer.getNumSamples(),
                 0,
-                0);
+                current_sample_index);
             eventBuffer.addEvent(data, dataSize, 0);
 
             if (maybe_ttl_event != nullptr) {
