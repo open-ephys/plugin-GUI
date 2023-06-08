@@ -87,10 +87,12 @@ void ProcessorGraph::createDefaultNodes()
     // add audio node -- takes all inputs and selects those to be used for audio monitoring
     auto audioNode = new AudioNode();
     audioNode->setNodeId(AUDIO_NODE_ID);
+    LOGD("Created Audio Node");
 
     // add message center
     auto msgCenter = new MessageCenter();
     msgCenter->setNodeId(MESSAGE_CENTER_ID);
+    LOGD("Created Message Center");
 
     addNode(std::unique_ptr< AudioProcessorGraph::AudioGraphIOProcessor>(outputNode), NodeID(OUTPUT_NODE_ID));
     addNode(std::unique_ptr<AudioNode>(audioNode), NodeID(AUDIO_NODE_ID));
