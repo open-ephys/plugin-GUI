@@ -34,7 +34,7 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
     
     if (!isConsoleApp)
     {
-        documentWindow = std::make_unique<DocumentWindow>(
+        documentWindow = std::make_unique<DocumentWindowWrapper>(
                 JUCEApplication::getInstance()->getApplicationName(),
                 Colour(Colours::black),
                 DocumentWindow::allButtons);
@@ -238,13 +238,6 @@ void MainWindow::enableHttpServer() {
 
 void MainWindow::disableHttpServer() {
     http_server_thread->stop();
-}
-
-void MainWindow::closeButtonPressed()
-{
-
-	JUCEApplication::getInstance()->systemRequestedQuit();
-
 }
 
 void MainWindow::shutDownGUI()
