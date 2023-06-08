@@ -204,9 +204,8 @@ void FilterNode::process (AudioBuffer<float>& buffer)
             
             const uint16 streamId = stream->getStreamId();
             const uint32 numSamples = getNumSamplesInBlock(streamId);
-
-            for (auto localChannelIndex : *((*stream)["Channels"].getArray()))
-            {
+            int num_channels = stream->getChannelCount();
+            for (int localChannelIndex = 0; localChannelIndex < num_channels; ++localChannelIndex) {
                 int globalChannelIndex = getGlobalChannelIndex(stream->getStreamId(), (int) localChannelIndex);
 
                 float* ptr = buffer.getWritePointer(globalChannelIndex);
