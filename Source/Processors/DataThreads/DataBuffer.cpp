@@ -68,8 +68,8 @@ int DataBuffer::addToBuffer (float* data,
                              double* timestamps,
                              uint64* eventCodes,
                              int numItems,
-                             int timestampSampleIndex,
-                             int chunkSize)
+                             int chunkSize,
+                             int timestampSampleIndex)
 {
     int startIndex1, blockSize1, startIndex2, blockSize2;
 
@@ -100,7 +100,7 @@ int DataBuffer::addToBuffer (float* data,
                 sampleNumberBuffer[si[i] + blkIdx + k] = sampleNumbers[idx + k];
                 timestampBuffer[si[i] + blkIdx + k] = timestamps[idx + k];
                 eventCodeBuffer[si[i] + blkIdx + k] = eventCodes[idx + k];
-                timestampSampleBuffer[si[i] + blkIdx + k] = sampleNumbers[0];
+                timestampSampleBuffer[si[i] + blkIdx + k] = timestampSampleIndex;
 
             }
             idx     += cSize;
