@@ -54,6 +54,8 @@ public:
         @param numItems Total number of samples per channel.
         @param chunkSize Number of consecutive samples per channel per chunk.
         1 by default. Typically 1 or numItems.
+        @param timstampSampleIndex the sample index associated with timestamps[0]. 0 by default.
+        Should be the absolute sample index from a DataThread
 
         @return The number of items actually written. May be less than numItems if
         the buffer doesn't have space.
@@ -63,8 +65,8 @@ public:
                      double* timestamps,
                      uint64* eventCodes,
                      int numItems,
-                     int timestampSampleIndex = 0,
-                     int chunkSize=1);
+                     int chunkSize=1,
+                     int timestampSampleIndex = 0);
 
     /** Returns the number of samples currently available in the buffer.*/
     int getNumSamples() const;
