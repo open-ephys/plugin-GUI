@@ -21,10 +21,10 @@
 
 */
 
-#ifndef EditorViewportActions_h
-#define EditorViewportActions_h
+#ifndef ProcessorGraphActions_h
+#define ProcessorGraphActions_h
 
-#include "EditorViewport.h"
+#include "ProcessorGraph.h"
 
 /** 
     Adds a processor to the signal chain, 
@@ -42,7 +42,6 @@ public:
     AddProcessor(Plugin::Description description,
                  GenericProcessor* source,
                  GenericProcessor* dest,
-                 EditorViewport*,
                  bool signalChainIsLoading = false);
  
     /** Destructor */
@@ -69,7 +68,7 @@ private:
     
     Plugin::Description description;
 
-    EditorViewport* editorViewport;
+    ProcessorGraph *processorGraph;
 
 };
 
@@ -88,8 +87,7 @@ public:
 
     /** Constructor*/
     PasteProcessors(Array<XmlElement*> copyBuffer,
-        int insertionPoint,
-        EditorViewport* editorViewport);
+        int insertionPoint);
 
     /** Destructor */
     ~PasteProcessors();
@@ -109,7 +107,7 @@ private:
 
     int insertionPoint;
 
-    EditorViewport* editorViewport;
+    ProcessorGraph* processorGraph;
 
 };
 
@@ -126,7 +124,7 @@ class DeleteProcessor : public UndoableAction
 public:
 
     /** Constructor */
-    DeleteProcessor(GenericProcessor* p, EditorViewport*);
+    DeleteProcessor(GenericProcessor* p);
  
     /** Destructor */
     ~DeleteProcessor();
@@ -147,7 +145,7 @@ private:
     
     std::unique_ptr<XmlElement> settings;
     
-    EditorViewport* editorViewport;
+    ProcessorGraph* processorGraph;
 
 };
 
@@ -190,6 +188,8 @@ private:
     int originalDestNodeDestNodeId;
     
     bool moveDownstream;
+
+    ProcessorGraph* processorGraph;
     
 };
 
@@ -206,7 +206,7 @@ class ClearSignalChain : public UndoableAction
 public:
 
     /** Constructor */
-    ClearSignalChain(EditorViewport*);
+    ClearSignalChain();
  
     /** Destructor */
     ~ClearSignalChain();
@@ -221,7 +221,7 @@ private:
     
     std::unique_ptr<XmlElement> settings;
 
-    EditorViewport* editorViewport;
+    ProcessorGraph* processorGraph;
 
 };
 
@@ -235,7 +235,7 @@ class LoadSignalChain : public UndoableAction
     
 public:
     /** Constructor */
-    LoadSignalChain(EditorViewport*, std::unique_ptr<XmlElement>& newSettings);
+    LoadSignalChain(std::unique_ptr<XmlElement>& newSettings);
  
     /** Destructor */
     ~LoadSignalChain();
@@ -255,7 +255,7 @@ private:
     
     String error;
 
-    EditorViewport* editorViewport;
+    ProcessorGraph* processorGraph;
 
 };
 
@@ -269,7 +269,7 @@ class LoadPluginSettings : public UndoableAction
     
 public:
     /** Constructor */
-    LoadPluginSettings(EditorViewport*, GenericProcessor* processor, XmlElement* newSettings);
+    LoadPluginSettings(GenericProcessor* processor, XmlElement* newSettings);
  
     /** Destructor */
     ~LoadPluginSettings();
@@ -289,7 +289,7 @@ private:
     
     String error;
 
-    EditorViewport* editorViewport;
+    ProcessorGraph* processorGraph;
     int processorId;
 
 };
@@ -319,11 +319,13 @@ public:
 
 private:
 
-    EditorViewport* editorViewport;
+    ProcessorGraph* processorGraph;
+    GenericProcessor* processor;
+    
     int processorId;
     
     int originalPath;
 
 };
 
-#endif /* EditorViewportActions_h */
+#endif /* ProcessorGraphActions_h */

@@ -29,7 +29,7 @@
 #include "../Processors/MessageCenter/MessageCenterEditor.h"
 #include "ProcessorList.h"
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
-#include "EditorViewportActions.h"
+#include "../Processors/ProcessorGraph/ProcessorGraphActions.h"
 #include "../Processors/PluginManager/OpenEphysPlugin.h"
 
 const int BORDER_SIZE = 6;
@@ -232,7 +232,7 @@ GenericProcessor* EditorViewport::addProcessor(Plugin::Description description, 
         dest = editorArray[insertionPoint]->getProcessor();
     }
     
-    AddProcessor* action = new AddProcessor(description, source, dest, this, loadingConfig);
+    AddProcessor* action = new AddProcessor(description, source, dest, loadingConfig);
     
     if (!loadingConfig)
     {
@@ -257,7 +257,7 @@ void EditorViewport::clearSignalChain()
         LOGD("Clearing signal chain.");
         
         AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
-        ClearSignalChain* action = new ClearSignalChain(this);
+        ClearSignalChain* action = new ClearSignalChain();
         AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
     }
     else
@@ -669,10 +669,7 @@ void EditorViewport::paste()
 
             AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
 
-            PasteProcessors* action =
-                new PasteProcessors(
-                    processorInfo, insertionPoint,
-                    this);
+            PasteProcessors* action = new PasteProcessors(processorInfo, insertionPoint);
 
             AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
 
@@ -1397,9 +1394,7 @@ const String EditorViewport::loadPluginState(File fileToLoad, GenericEditor* sel
             
             AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
             
-            LoadPluginSettings* action = new LoadPluginSettings(this,
-                                                             selectedEditor->getProcessor(),
-                                                             xml.get());
+            LoadPluginSettings* action = new LoadPluginSettings(selectedEditor->getProcessor(), xml.get());
             AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
         }
     }
@@ -1488,7 +1483,7 @@ const String EditorViewport::loadState(File fileToLoad)
 
     AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
     
-    LoadSignalChain* action = new LoadSignalChain(this, xml);
+    LoadSignalChain* action = new LoadSignalChain(xml);
     AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
 
     CoreServices::sendStatusMessage("Loaded " + fileToLoad.getFileName());
@@ -1519,7 +1514,7 @@ void EditorViewport::deleteSelectedProcessors()
         if (editor->getSelectionState())
         {
             editorArray.remove(editorArray.indexOf(editor));
-            DeleteProcessor* action = new DeleteProcessor(editor->getProcessor(), this);
+            DeleteProcessor* action = new DeleteProcessor(editor->getProcessor());
             AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
         }
     }

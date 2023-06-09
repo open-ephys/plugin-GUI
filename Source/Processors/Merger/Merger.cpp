@@ -69,6 +69,8 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
 void Merger::switchIO(int sourceNum)
 {
 
+    static_cast<MergerEditor*>(getEditor())->switchSource(sourceNum, false);
+
     activePath = sourceNum;
 
     if (sourceNum == 0)

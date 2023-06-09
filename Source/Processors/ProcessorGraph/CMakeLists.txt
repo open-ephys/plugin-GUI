@@ -4,6 +4,8 @@
 add_sources(open-ephys 
 	ProcessorGraph.cpp
 	ProcessorGraph.h
+	ProcessorGraphActions.cpp
+	ProcessorGraphActions.h
 )
 
 #add nested directories

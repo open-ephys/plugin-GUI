@@ -1448,7 +1448,7 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
                 ranges.add(rangeString.substring(lastComma, nextComma));
                 lastComma = nextComma + 1;
                 nextComma = rangeString.indexOf(lastComma, ",");
-                std::cout << ranges.getLast() << std::endl;
+                //std::cout << ranges.getLast() << std::endl;
             }
             
             selectedVoltageRangeValues[0] = ranges[0];
