@@ -155,6 +155,9 @@ public:
 		// A hardware device that generates data
 		DEVICE_INFO,
 
+		// A component used for data visualization
+		VISUALIZER,
+
 		INVALID = 100
 	};
 
@@ -174,8 +177,9 @@ public:
 		String description = "unknown";
 	};
 
-    /*Bracket operator returns the value of a parameter*/
-    var operator [](String name) const {return parameters[name]->getValue();}
+    // --------------------------------------------
+    //     PARAMETERS
+    // --------------------------------------------
 
     /** Adds a parameter to this object**/
     void addParameter(Parameter* p);
@@ -189,11 +193,20 @@ public:
     /** Returns a pointer to a parameter with a given name**/
     Array<Parameter*> getParameters() { return parameters.getParameters(); }
 
+	/*Bracket operator returns the value of a parameter*/
+    var operator [](String name) const {return parameters[name]->getValue();}
+
     /** Copies parameters from another InfoObject and clears the original ParameterCollection*/
     void copyParameters(InfoObject* object);
 
     /** Returns the number of parameters for this object*/
     int numParameters() const { return parameters.size(); }
+
+	/** Initiates parameter value update */
+    virtual void parameterChangeRequest(Parameter*) { }
+
+    /** Called when a parameter value is updated, to allow plugin-specific responses*/
+    virtual void parameterValueChanged(Parameter*) { }
 
 	/** Returns the type of the InfoObject*/
 	const Type getType() const;
@@ -242,6 +255,10 @@ public:
 protected:
 	/** Constructor*/
 	InfoObject(Type type);
+
+	void setSourceNodeId(int nodeId);
+
+	void setSourceNodeName(String nodeName);
 
 private:
 

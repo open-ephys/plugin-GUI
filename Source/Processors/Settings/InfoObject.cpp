@@ -168,9 +168,19 @@ int InfoObject::getNodeId() const
 	return m_nodeId;
 }
 
+void InfoObject::setSourceNodeId(int nodeId)
+{
+    m_sourceNodeId = nodeId;
+}
+
 int InfoObject::getSourceNodeId() const
 {
 	return m_sourceNodeId;
+}
+
+void InfoObject::setSourceNodeName(String nodeName)
+{
+    m_sourceNodeName = nodeName;
 }
 
 String InfoObject::getSourceNodeName() const
@@ -262,6 +272,11 @@ void InfoObject::addParameter(Parameter* p)
 
     parameters.addParameter(p);
 }
+
+
+// --------------------------------------------
+//     CHANNEL INFO OBJECT
+// --------------------------------------------
 
 ChannelInfoObject::ChannelInfoObject(InfoObject::Type type, DataStream* dataStream)
 	: InfoObject(type), isRecorded(false)

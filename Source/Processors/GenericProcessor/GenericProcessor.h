@@ -58,7 +58,7 @@ class GenericProcessorBase;
 class GenericEditor;
 
 class ConfigurationObject;
-class ProcessorInfoObject;
+class InfoObject;
 class DeviceInfo;
 
 class Spike;
@@ -82,6 +82,7 @@ namespace AccessClass
 */
 class PLUGIN_API GenericProcessor   : public GenericProcessorBase
                                     , public PluginClass
+                                    , public InfoObject
 {
 	friend AccessClass::ExternalProcessorAccessor;
     friend class RecordEngine;
@@ -141,6 +142,9 @@ public:
 
     /** Returns the default sample rate, in case a processor has no source (or is itself a source).*/
     virtual float getDefaultSampleRate() const;
+
+    /** Returns the name of processor */
+	const String getName() const;
 
     /** Returns the total number of inputs to a processor.*/
     int getNumInputs() const;
@@ -316,22 +320,12 @@ public:
         int defaultIndex,
         bool deactivateDuringAcquisition = false);
 
-    /** Returns a pointer to a global Parameter*/
+    /** Returns a pointer to a parameter created inside this processor
+        Includes processor, stream, & channel scoped parameters
+    */
     Parameter* getParameter(const String& parameterName);
     
-    /** Returns a pointer to a Parameter object for a given stream (0 = no stream)*/
-    Parameter* getParameter(const uint16 streamId, const String& parameterName);
-
-    /** Returns a pointer to a Parameter object for a given event channel.*/
-    Parameter* getParameter(EventChannel* channelInfo, const String& parameterName);
-    
-    /** Returns a pointer to a Parameter object for a given continuous channel.*/
-    Parameter* getParameter(ContinuousChannel* channelInfo, const String& parameterName);
-    
-    /** Returns a pointer to a Parameter object for a given spike channel.*/
-    Parameter* getParameter(SpikeChannel* channelInfo, const String& parameterName);
-    
-    /** Returns a list of global parameters for this processor*/
+    /** Returns a list of parameters for this processor*/
     Array<Parameter*> getParameters();
     
     /** Returns a list of parameters for a given stream within this processor*/
@@ -347,10 +341,10 @@ public:
     Array<Parameter*> getParameters(SpikeChannel* channelInfo);
 
     /** Initiates parameter value update */
-    void parameterChangeRequest(Parameter*);
+    void parameterChangeRequest(Parameter*) override;
 
     /** Called when a parameter value is updated, to allow plugin-specific responses*/
-    virtual void parameterValueChanged(Parameter*) { }
+    // virtual void parameterValueChanged(Parameter*) { }
 
     // BUFFER ACCESS
 
@@ -629,21 +623,6 @@ protected:
     
     /** An array of parameter collections from deleted dataStreams*/
     OwnedArray<ParameterCollection> savedDataStreamParameters;
-    
-    /** Used to quickly access parameters by name*/
-    std::map<String, Parameter*> globalParameterMap;
-
-    /** Used to quickly access parameters by name*/
-    std::map<uint16, std::map<String, Parameter*>> streamParameterMap;
-    
-    /** Used to quickly access parameters by name*/
-    std::map<EventChannel*, std::map<String, Parameter*>> eventChannelParameterMap;
-    
-    /** Used to quickly access parameters by name*/
-    std::map<ContinuousChannel*, std::map<String, Parameter*>> continuousChannelParameterMap;
-    
-    /** Used to quickly access parameters by name*/
-    std::map<SpikeChannel*, std::map<String, Parameter*>> spikeChannelParameterMap;
 
     /** Holds a pointer to the event channel for sending messages**/
     std::unique_ptr<EventChannel> messageChannel;

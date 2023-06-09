@@ -49,6 +49,7 @@ const String GenericProcessor::m_unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");
 
 GenericProcessor::GenericProcessor(const String& name, bool headlessMode_)
 	: GenericProcessorBase(name)
+    , InfoObject(InfoObject::Type::PROCESSOR_INFO)
     , headlessMode(headlessMode_)
 	, sourceNode(nullptr)
 	, destNode(nullptr)
@@ -100,7 +101,10 @@ void GenericProcessor::setNodeId(int id)
 	}
 }
 
-
+const String GenericProcessor::getName() const 
+{ 
+    return m_name; 
+}
 
 Parameter* GenericProcessor::getParameter(const String& name)
 {
@@ -115,44 +119,12 @@ Parameter* GenericProcessor::getParameter(const String& name)
 	return nullptr;
 }
 
-Parameter* GenericProcessor::getParameter(uint16 streamId, const String& name)
-{
-    // no checking, so it's fast; but take care to provide a valid stream / name
-    return streamParameterMap[streamId][name];
-
-}
-
-Parameter* GenericProcessor::getParameter(EventChannel* eventChannel, const String& name)
-{
-    // no checking, so it's fast; but take care to provide a valid stream / name
-    return eventChannelParameterMap[eventChannel][name];
-
-}
-
-
-Parameter* GenericProcessor::getParameter(ContinuousChannel* continuousChannel, const String& name)
-{
-    // no checking, so it's fast; but take care to provide a valid stream / name
-    return continuousChannelParameterMap[continuousChannel][name];
-
-}
-
-
-Parameter* GenericProcessor::getParameter(SpikeChannel* spikeChannel, const String& name)
-{
-    // no checking, so it's fast; but take care to provide a valid stream / name
-    return spikeChannelParameterMap[spikeChannel][name];
-
-}
-
 Array<Parameter*> GenericProcessor::getParameters()
 {
     Array<Parameter*> params;
-    
-    for (const auto & [key, value] : globalParameterMap)
-    {
-        params.add(value);
-    }
+
+    if(parameters.size() > 0)
+        params = parameters.getParameters();
     
     return params;
 }
@@ -220,10 +192,7 @@ void GenericProcessor::addBooleanParameter(
 	availableParameters.add(p);
 
 	if (scope == Parameter::GLOBAL_SCOPE)
-	{
-		globalParameterMap[p->getName()] = p;
-	}
-
+        InfoObject::addParameter(p);
 }
 
 void GenericProcessor::addCategoricalParameter(
@@ -244,13 +213,10 @@ void GenericProcessor::addCategoricalParameter(
 		defaultIndex, 
 		deactivateDuringAcquisition);
 
-	availableParameters.add(p);
-	
-	if (scope == Parameter::GLOBAL_SCOPE)
-	{
-		globalParameterMap[p->getName()] = p;
-	}
+    availableParameters.add(p);
 
+	if (scope == Parameter::GLOBAL_SCOPE)
+        InfoObject::addParameter(p);
 }
 
 void GenericProcessor::addIntParameter(
@@ -275,10 +241,8 @@ void GenericProcessor::addIntParameter(
 
 	availableParameters.add(p);
 
-	if (scope == Parameter::GLOBAL_SCOPE)
-	{
-		globalParameterMap[p->getName()] = p;
-	}
+    if (scope == Parameter::GLOBAL_SCOPE)
+        InfoObject::addParameter(p);
 
 }
 
@@ -300,9 +264,7 @@ void GenericProcessor::addStringParameter(
     availableParameters.add(p);
 
     if (scope == Parameter::GLOBAL_SCOPE)
-    {
-        globalParameterMap[p->getName()] = p;
-    }
+        InfoObject::addParameter(p);
 }
 
 void GenericProcessor::addFloatParameter(
@@ -327,12 +289,10 @@ void GenericProcessor::addFloatParameter(
 			stepSize,
 			deactivateDuringAcquisition);
 
-	availableParameters.add(p);
+    availableParameters.add(p);
 
 	if (scope == Parameter::GLOBAL_SCOPE)
-	{
-		globalParameterMap[p->getName()] = p;
-	}
+        InfoObject::addParameter(p);
 
 }
 
@@ -352,12 +312,10 @@ void GenericProcessor::addMaskChannelsParameter(
 			description,
 			deactivateDuringAcquisition);
 
-	availableParameters.add(p);
+    availableParameters.add(p);
 
 	if (scope == Parameter::GLOBAL_SCOPE)
-	{
-		globalParameterMap[p->getName()] = p;
-	}
+        InfoObject::addParameter(p);
 }
 
 
@@ -380,13 +338,11 @@ void GenericProcessor::addSelectedChannelsParameter(
             defaultValue,
             maxSelectedChannels,
             deactivateDuringAcquisition);
-
+    
     availableParameters.add(p);
 
     if (scope == Parameter::GLOBAL_SCOPE)
-    {
-        globalParameterMap[p->getName()] = p;
-    }
+        InfoObject::addParameter(p);
 }
 
 
@@ -440,9 +396,15 @@ void GenericProcessor::resetConnections()
 void GenericProcessor::setSourceNode(GenericProcessor* sn)
 {
     if (this->isMerger())
+    {
         setMergerSourceNode(sn);
+    }
     else
+    {
         sourceNode = sn;
+        setSourceNodeId(sourceNode->getNodeId());
+        setSourceNodeName(sourceNode->getName());
+    }
 }
 
 
@@ -810,6 +772,7 @@ int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int conti
 void GenericProcessor::updateDisplayName(String name)
 {
 	m_name = name;
+    InfoObject::setName(name);
 }
 
 

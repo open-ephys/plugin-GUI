@@ -23,9 +23,16 @@
 
 #include "Visualizer.h"
 
-Visualizer::Visualizer(GenericProcessor* parentProcessor) : processor(parentProcessor)
+Visualizer::Visualizer(GenericProcessor* parentProcessor)
+    : InfoObject(InfoObject::Type::VISUALIZER)
+    , processor(parentProcessor)
 {
 
+}
+
+Visualizer::~Visualizer()
+{
+    
 }
 
 void Visualizer::update()
@@ -103,6 +110,158 @@ void Visualizer::timerCallback()
 {
 	refresh();
 }
+
+void Visualizer::addBooleanParameter(const String& name,
+	const String& description,
+	bool defaultValue,
+	bool deactivateDuringAcquisition)
+{
+
+	BooleanParameter* p = new BooleanParameter(
+		nullptr, 
+		Parameter::VISUALIZER_SCOPE,
+		name, 
+		description, 
+		defaultValue, 
+		deactivateDuringAcquisition);
+
+	addParameter(p);
+
+}
+
+void Visualizer::addCategoricalParameter(const String& name,
+	const String& description,
+	Array<String> categories,
+	int defaultIndex,
+	bool deactivateDuringAcquisition)
+{
+
+	CategoricalParameter* p = new CategoricalParameter(
+		nullptr, 
+		Parameter::VISUALIZER_SCOPE,
+		name, 
+		description, 
+		categories, 
+		defaultIndex, 
+		deactivateDuringAcquisition);
+
+	addParameter(p);
+
+}
+
+void Visualizer::addIntParameter(const String& name,
+    const String& description,
+	int defaultValue,
+	int minValue,
+	int maxValue,
+	bool deactivateDuringAcquisition)
+{
+
+	IntParameter* p = 
+		new IntParameter(nullptr, 
+			Parameter::VISUALIZER_SCOPE,
+			name, 
+			description, 
+			defaultValue, 
+			minValue, 
+			maxValue, 
+			deactivateDuringAcquisition);
+
+	addParameter(p);
+
+}
+
+void Visualizer::addStringParameter(const String& name,
+    const String& description,
+    String defaultValue,
+    bool deactivateDuringAcquisition)
+{
+    StringParameter* p =
+        new StringParameter(nullptr,
+            Parameter::VISUALIZER_SCOPE,
+            name,
+            description,
+            defaultValue,
+            deactivateDuringAcquisition);
+
+    addParameter(p);
+
+}
+
+void Visualizer::addFloatParameter(
+    const String& name,
+    const String& description,
+	float defaultValue,
+	float minValue,
+	float maxValue,
+	float stepSize,
+	bool deactivateDuringAcquisition)
+{
+
+	FloatParameter* p =
+		new FloatParameter(nullptr,
+			Parameter::VISUALIZER_SCOPE,
+			name,
+			description,
+			defaultValue,
+			minValue,
+			maxValue,
+			stepSize,
+			deactivateDuringAcquisition);
+
+	addParameter(p);
+
+}
+
+void Visualizer::addMaskChannelsParameter(
+    const String& name,
+    const String& description,
+	bool deactivateDuringAcquisition)
+{
+
+	Array<var> defaultValue;
+
+	MaskChannelsParameter* p =
+		new MaskChannelsParameter(nullptr,
+			Parameter::VISUALIZER_SCOPE,
+			name,
+			description,
+			deactivateDuringAcquisition);
+
+	addParameter(p);
+
+}
+
+
+
+void Visualizer::addSelectedChannelsParameter(
+    const String& name,
+    const String& description,
+    int maxSelectedChannels,
+    bool deactivateDuringAcquisition)
+{
+
+    Array<var> defaultValue;
+
+    SelectedChannelsParameter* p =
+        new SelectedChannelsParameter(nullptr,
+            Parameter::VISUALIZER_SCOPE,
+            name,
+            description,
+            defaultValue,
+            maxSelectedChannels,
+            deactivateDuringAcquisition);
+
+    addParameter(p);
+}
+
+void Visualizer::parameterChangeRequest(Parameter* param)
+{
+	parameterValueChanged(param);
+    updateView();
+}
+
+
 
 void Visualizer::addTextBoxParameterEditor(const String& parameterName,
                                            int xPos_, int yPos_,
