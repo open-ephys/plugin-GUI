@@ -151,7 +151,7 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
         memcpy (blockSampleNumber, sampleNumberBuffer + startIndex1, 8);
         memcpy (blockTimestamp, timestampBuffer + startIndex1, 8);
         memcpy (eventCodes, eventCodeBuffer + startIndex1, blockSize1 * 8);
-        memcpy (timestampSampleIndex, timestampBuffer + startIndex1, 8);
+        memcpy (timestampSampleIndex, timestampSampleBuffer + startIndex1, 8);
 
     }
     else
