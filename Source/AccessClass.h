@@ -94,6 +94,9 @@ PluginManager* getPluginManager();
 /** Returns a pointer to the application's UndoManager */
 UndoManager* getUndoManager();
 
+/** Returns a pointer to the application's ParameterManager */
+// TODO: ParameterManager* getParameterManager();
+
 /** Returns a pointer to the application's ActionBroadcaster */
 ActionBroadcaster* getBroadcaster();
 

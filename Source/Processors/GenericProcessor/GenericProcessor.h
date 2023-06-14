@@ -391,10 +391,10 @@ public:
     // --------------------------------------------
 
     /** Save generic settings to XML (called by all processors).*/
-    void saveToXml (XmlElement* parentElement);
+    void saveToXml (XmlElement* parentElement, bool useKeys = false);
 
     /** Load generic settings from XML (called by all processors). */
-    void loadFromXml();
+    void loadFromXml(bool useKeys = false);
 
 
     // --------------------------------------------

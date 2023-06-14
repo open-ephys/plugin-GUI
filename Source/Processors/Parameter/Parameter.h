@@ -125,14 +125,51 @@ public:
         currentValue(defaultValue_),
         defaultValue(defaultValue_),
         newValue(defaultValue_),
-        m_deactivateDuringAcquisition(deactivateDuringAcquisition_)
+        m_deactivateDuringAcquisition(deactivateDuringAcquisition_),
+        m_identifier(-1)
     {
     }
 
     /** Destructor */
     virtual ~Parameter() { }
 
-    /** Returns the name of the parameter.*/
+    /** Static identifier to keep track of unique parameters */
+    static int64 parameterCounter;
+
+    /** Static map from Parameter identifier to name */
+    static std::map<int64, String> p_name_map;
+
+    /** Returns the name of the Parameter given its identifier  */
+    static String getNameForKey(int64 key) {
+        return p_name_map[key];
+    }
+
+    /** Static map that keeps track of all Parameters */
+    //static std::map<String, Parameter*> parameterMap;
+
+    /** Returns a pointer to the Parameter for a specific key */
+    //static Parameter* getParameter(const String& key);
+
+    /** Returns a globally unique key of the parameter 
+     * NOTE: Currently only used for persisting deleted params
+     * Can also be used in the future to enable global param access
+    */
+    int64 getKey() {
+
+        if (m_identifier < 0)
+            m_identifier = parameterCounter++;
+
+        p_name_map[m_identifier] = m_name;
+
+        return m_identifier;
+    }
+
+    /** Restores the parameter key if its deleted owner is recovered  */
+    void restoreKey(int64 key) {
+        m_identifier = key;
+    }
+
+    /** Returns the common name of the parameter. */
     String getName() const noexcept { return m_name; }
 
     /** Returns a description of the parameter.*/
@@ -192,10 +229,10 @@ public:
     String getParameterTypeString() const;
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*) = 0;
+    virtual void toXml(XmlElement*, bool useKey = false) = 0;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*) = 0;
+    virtual void fromXml(XmlElement*, bool useKey = false) = 0;
     
     /** Returns the value as a string**/
     virtual String getValueAsString() = 0;
@@ -210,7 +247,7 @@ public:
     }
     
     /** Returns a pointer to the InfoObject this parameter is associated with**/
-    InfoObject* getOwner() {return infoObject; }
+    InfoObject* getOwner() { return infoObject; }
 
     /** Sets a pointer to the InfoObject this parameter is associated with**/
     void setOwner(InfoObject* newOwner) { infoObject = newOwner; }
@@ -220,7 +257,7 @@ public:
     {
     public:
         /** Constructor */
-        ChangeValue(InfoObject*, Parameter*, var newValue);
+        ChangeValue(int64 key, var newValue);
         
         /** Destructor */
         ~ChangeValue() { }
@@ -232,8 +269,8 @@ public:
         bool undo();
         
     private:
-        Parameter* parameter;
-        InfoObject* infoObject;
+        int64 key;
+
         var originalValue;
         var newValue;
     };
@@ -253,6 +290,8 @@ protected:
     var defaultValue;
 
 private:
+
+    int64 m_identifier;
 
     ParameterType m_parameterType;
     ParameterScope m_parameterScope;
@@ -290,10 +329,10 @@ public:
     virtual String getValueAsString() override;
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*) override;
+    virtual void toXml(XmlElement*, bool useKey = false) override;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*) override;
+    virtual void fromXml(XmlElement*, bool useKey = false) override;
 
 };
 
@@ -334,10 +373,10 @@ public:
     const Array<String>& getCategories();
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*) override;
+    virtual void toXml(XmlElement*, bool useKey = false) override;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*) override;
+    virtual void fromXml(XmlElement*, bool useKey = false) override;
 
 private:
 
@@ -378,10 +417,10 @@ public:
     int getMaxValue() { return maxValue; }
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*) override;
+    virtual void toXml(XmlElement*, bool useKey = false) override;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*) override;
+    virtual void fromXml(XmlElement*, bool useKey = false) override;
 
 private:
     int maxValue;
@@ -414,10 +453,10 @@ public:
     virtual String getValueAsString() override;
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*) override;
+    virtual void toXml(XmlElement*, bool useKey = false) override;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*) override;
+    virtual void fromXml(XmlElement*, bool useKey = false) override;
 };
 
 /**
@@ -459,10 +498,10 @@ public:
     float getStepSize() { return stepSize; }
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*) override;
+    virtual void toXml(XmlElement*, bool useKey = false) override;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*) override;
+    virtual void fromXml(XmlElement*, bool useKey = false) override;
 
 private:
     float maxValue;
@@ -520,10 +559,10 @@ public:
     void setChannelCount(int count);
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*) override;
+    virtual void toXml(XmlElement*, bool useKey = false) override;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*) override;
+    virtual void fromXml(XmlElement*, bool useKey = false) override;
 
 private:
 
@@ -571,10 +610,10 @@ public:
     void setChannelCount(int count);
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*) override;
+    virtual void toXml(XmlElement*, bool useKey = false) override;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*) override;
+    virtual void fromXml(XmlElement*, bool useKey = false) override;
 
 private:
 

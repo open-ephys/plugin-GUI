@@ -26,6 +26,10 @@
 #include "../../UI/EditorViewport.h"
 #include "../GenericProcessor/GenericProcessor.h"
 
+int64 Parameter::parameterCounter = 0;
+
+std::map<int64, String> Parameter::p_name_map;
+
 String Parameter::getParameterTypeString() const
 {
     if (m_parameterType == Parameter::BOOLEAN_PARAM)
@@ -65,26 +69,36 @@ uint16 Parameter::getStreamId()
 }
 
 
-Parameter::ChangeValue::ChangeValue(InfoObject* infoObject_, Parameter* parameter_, var newValue_)
-    : infoObject(infoObject_), parameter(parameter_), newValue(newValue_), originalValue(parameter_->currentValue)
+Parameter::ChangeValue::ChangeValue(int64 key, var newValue_)
+    : newValue(newValue_)
 {
+    /*
+    Parameter* p = Parameter::getParameter(key);
 
+    originalValue = p->currentValue;
+    */
 }
 
 bool Parameter::ChangeValue::perform()
 {
-    parameter->newValue = newValue;
+    /*
+    Parameter* p = Parameter::getParameter(key);
     
-    infoObject->parameterChangeRequest(parameter);
+    p->newValue = newValue;
+    p->getOwner()->parameterChangeRequest(p);
+    */
     
     return true;
 }
 
 bool Parameter::ChangeValue::undo()
 {
-    parameter->newValue = originalValue;
-    
-    infoObject->parameterChangeRequest(parameter);
+    /*
+    Parameter* p = Parameter::getParameter(key);
+
+    p->newValue = originalValue;
+    p->getOwner()->parameterChangeRequest(p);
+    */
     
     return true;
 }
@@ -116,7 +130,7 @@ void BooleanParameter::setNextValue(var newValue_)
         newValue = newValue_;
     }
 
-    ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
+    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
 
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);
@@ -138,14 +152,14 @@ String BooleanParameter::getValueAsString()
     }
 }
 
-void BooleanParameter::toXml(XmlElement* xml) 
+void BooleanParameter::toXml(XmlElement* xml, bool useKey) 
 {
-    xml->setAttribute(getName(), (bool) currentValue);
+    xml->setAttribute(useKey ? String(getKey()) : getName(), (bool) currentValue);
 }
 
-void BooleanParameter::fromXml(XmlElement* xml)
+void BooleanParameter::fromXml(XmlElement* xml, bool useKey)
 {
-    currentValue = xml->getBoolAttribute(getName(), defaultValue);
+    currentValue = xml->getBoolAttribute(useKey ? String(getKey()) : getName(), defaultValue);
 }
 
 CategoricalParameter::CategoricalParameter(InfoObject* infoObject,
@@ -173,7 +187,7 @@ void CategoricalParameter::setNextValue(var newValue_)
 
     newValue = (int) newValue_;
     
-    ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
+    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
     
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);   
@@ -205,14 +219,14 @@ void CategoricalParameter::setCategories(Array<String> categories_)
     categories = categories_;
 }
 
-void CategoricalParameter::toXml(XmlElement* xml)
+void CategoricalParameter::toXml(XmlElement* xml, bool useKey)
 {
-    xml->setAttribute(getName(), (int)currentValue);
+    xml->setAttribute(useKey ? String(getKey()) : getName(), (int)currentValue);
 }
 
-void CategoricalParameter::fromXml(XmlElement* xml)
+void CategoricalParameter::fromXml(XmlElement* xml, bool useKey)
 {
-    currentValue = xml->getIntAttribute(getName(), defaultValue);
+    currentValue = xml->getIntAttribute(useKey ? String(getKey()) : getName(), defaultValue);
 }
 
 IntParameter::IntParameter(InfoObject* infoObject,
@@ -250,7 +264,7 @@ void IntParameter::setNextValue(var newValue_)
     else
         newValue = value;
 
-    ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
+    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
     
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);
@@ -266,14 +280,14 @@ String IntParameter::getValueAsString()
     return String(getIntValue());
 }
 
-void IntParameter::toXml(XmlElement* xml)
+void IntParameter::toXml(XmlElement* xml, bool useKey)
 {
-    xml->setAttribute(getName(), (int) currentValue);
+    xml->setAttribute(useKey ? String(getKey()) : getName(), (int) currentValue);
 }
 
-void IntParameter::fromXml(XmlElement* xml)
+void IntParameter::fromXml(XmlElement* xml, bool useKey)
 {
-    currentValue = xml->getIntAttribute(getName(), defaultValue);
+    currentValue = xml->getIntAttribute(useKey ? String(getKey()) : getName(), defaultValue);
 }
 
 StringParameter::StringParameter(InfoObject* infoObject,
@@ -300,7 +314,7 @@ void StringParameter::setNextValue(var newValue_)
 
     newValue = newValue_.toString();
 
-    ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
+    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
     
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);
@@ -316,14 +330,14 @@ String StringParameter::getValueAsString()
     return getStringValue();
 }
 
-void StringParameter::toXml(XmlElement* xml)
+void StringParameter::toXml(XmlElement* xml, bool useKey)
 {
-    xml->setAttribute(getName(), currentValue.toString());
+    xml->setAttribute(useKey ? String(getKey()) : getName(), currentValue.toString());
 }
 
-void StringParameter::fromXml(XmlElement* xml)
+void StringParameter::fromXml(XmlElement* xml, bool useKey)
 {
-    currentValue = xml->getStringAttribute(getName(), defaultValue);
+    currentValue = xml->getStringAttribute(useKey ? String(getKey()) : getName(), defaultValue);
 }
 
 
@@ -368,7 +382,7 @@ void FloatParameter::setNextValue(var newValue_)
     if (currentValue != newValue)
     {
     
-        ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
+        ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
 
         AccessClass::getUndoManager()->beginNewTransaction();
         AccessClass::getUndoManager()->perform(action);
@@ -388,14 +402,14 @@ String FloatParameter::getValueAsString()
     return String(getFloatValue());
 }
 
-void FloatParameter::toXml(XmlElement* xml)
+void FloatParameter::toXml(XmlElement* xml, bool useKey)
 {
-    xml->setAttribute(getName(), (float)currentValue);
+    xml->setAttribute(useKey ? String(getKey()) : getName(), (float)currentValue);
 }
 
-void FloatParameter::fromXml(XmlElement* xml)
+void FloatParameter::fromXml(XmlElement* xml, bool useKey)
 {
-    currentValue = xml->getDoubleAttribute(getName(), defaultValue);
+    currentValue = xml->getDoubleAttribute(useKey ? String(getKey()) : getName(), defaultValue);
 }
 
 SelectedChannelsParameter::SelectedChannelsParameter(InfoObject* infoObject_,
@@ -428,7 +442,7 @@ void SelectedChannelsParameter::setNextValue(var newValue_)
         newValue = newValue_;
     }
     
-    ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
+    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
 
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);
@@ -468,15 +482,15 @@ String SelectedChannelsParameter::getValueAsString()
     return selectedChannelsToString();
 }
 
-void SelectedChannelsParameter::toXml(XmlElement* xml)
+void SelectedChannelsParameter::toXml(XmlElement* xml, bool useKey)
 {
-    xml->setAttribute(getName(), selectedChannelsToString());
+    xml->setAttribute(useKey ? String(getKey()) : getName(), selectedChannelsToString());
 }
 
-void SelectedChannelsParameter::fromXml(XmlElement* xml)
+void SelectedChannelsParameter::fromXml(XmlElement* xml, bool useKey)
 {
-    if (xml->hasAttribute(getName()))
-        currentValue = parseSelectedString(xml->getStringAttribute(getName(), ""));
+    if (xml->hasAttribute(useKey ? String(getKey()) : getName()))
+        currentValue = parseSelectedString(xml->getStringAttribute(useKey ? String(getKey()) : getName(), ""));
     
     //std::cout << "Loading selected channels parameter at " << this << std::endl;
 }
@@ -555,7 +569,7 @@ void MaskChannelsParameter::setNextValue(var newValue_)
 
     newValue = values;
     
-    ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
+    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
 
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);
@@ -595,15 +609,15 @@ String MaskChannelsParameter::getValueAsString()
     return maskChannelsToString();
 }
 
-void MaskChannelsParameter::toXml(XmlElement* xml)
+void MaskChannelsParameter::toXml(XmlElement* xml, bool useKey)
 {
-    xml->setAttribute(getName(), maskChannelsToString());
+    xml->setAttribute(useKey ? String(getKey()) : getName(), maskChannelsToString());
 }
 
-void MaskChannelsParameter::fromXml(XmlElement* xml)
+void MaskChannelsParameter::fromXml(XmlElement* xml, bool useKey)
 {
-    if (xml->hasAttribute(getName()))
-        currentValue = parseMaskString(xml->getStringAttribute(getName(), ""));
+    if (xml->hasAttribute(useKey ? String(getKey()) : getName()))
+        currentValue = parseMaskString(xml->getStringAttribute(useKey ? String(getKey()) : getName(), ""));
 }
 
 String MaskChannelsParameter::maskChannelsToString()

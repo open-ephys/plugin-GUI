@@ -30,6 +30,8 @@
 #include "../Merger/Merger.h"
 #include "../Splitter/Splitter.h"
 
+#include "../../Utils/Utils.h"
+
 
 AddProcessor::AddProcessor(Plugin::Description description_,
                            GenericProcessor* sourceProcessor,
@@ -182,7 +184,7 @@ DeleteProcessor::DeleteProcessor(GenericProcessor* processor_)
     
     nodeId = processor->getNodeId();
     
-    settings.reset(processorGraph->createNodeXml(processor, false));
+    settings.reset(processorGraph->createNodeXml(processor, false, true));
     
     if (processor->getSourceNode() != nullptr)
         sourceNodeId = processor->getSourceNode()->getNodeId();
@@ -210,6 +212,9 @@ bool DeleteProcessor::perform()
     processorToDelete.add(processor);
     
     processorGraph->deleteNodes(processorToDelete);
+
+    /* Print settings */
+    LOGD(settings.get()->toString());
     
     return true;
 }
@@ -229,7 +234,9 @@ bool DeleteProcessor::undo()
                                         destProcessor,
                                         false);
     processor->parametersAsXml = settings.get();
-    processor->loadFromXml();
+
+    bool useKeys = true;
+    processor->loadFromXml(useKeys);
     
     processorGraph->updateSettings(processor);
     

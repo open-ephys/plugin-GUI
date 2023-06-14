@@ -1603,7 +1603,7 @@ const EventChannel* GenericProcessor::getEventChannel(int globalIndex) const
 }
 
 
-void GenericProcessor::saveToXml(XmlElement* xml)
+void GenericProcessor::saveToXml(XmlElement* xml, bool useKeys)
 {
 	xml->setAttribute("nodeId", nodeId);
     
@@ -1611,7 +1611,7 @@ void GenericProcessor::saveToXml(XmlElement* xml)
     
     for (auto param : getParameters())
     {
-        param->toXml(paramsXml);
+        param->toXml(paramsXml, useKeys);
     }
 
 	for (auto stream : dataStreams)
@@ -1629,7 +1629,7 @@ void GenericProcessor::saveToXml(XmlElement* xml)
         XmlElement* streamParamsXml = streamXml->createNewChildElement("PARAMETERS");
         
 		for (auto param : stream->getParameters())
-            param->toXml(streamParamsXml);
+            param->toXml(streamParamsXml, useKeys);
         
         /*for (auto eventChannel : stream->getEventChannels())
         {
@@ -1670,7 +1670,7 @@ void GenericProcessor::saveCustomParametersToXml(XmlElement* parentElement)
 {
 }
 
-void GenericProcessor::loadFromXml()
+void GenericProcessor::loadFromXml(bool useKeys)
 {
 
 	if (parametersAsXml != nullptr)
@@ -1713,25 +1713,35 @@ void GenericProcessor::loadFromXml()
 
                             Parameter* parameter;
 
-                            if (dataStreams[0]->hasParameter(streamParams->getAttributeName(i)))
+                            String name = streamParams->getAttributeName(i);
+                            if (useKeys)
+                                name = Parameter::getNameForKey(name.getIntValue());
+
+                            if (dataStreams[0]->hasParameter(name))
                             {
-                                parameter = dataStreams[0]->getParameter(streamParams->getAttributeName(i));
-                                parameter->fromXml(streamParams);
+                                parameter = dataStreams[0]->getParameter(name);
+                                parameter->fromXml(streamParams, useKeys);
 
                                 if (parameter->getType() == Parameter::INT_PARAM)
                                 {
                                     IntParameter* p = (IntParameter*)parameter;
-                                    parameterCollection->addParameter(new IntParameter(*p));
+                                    IntParameter* p2 = new IntParameter(*p);
+                                    if (useKeys) p2->restoreKey(name.getIntValue());
+                                    parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::BOOLEAN_PARAM)
                                 {
                                     BooleanParameter* p = (BooleanParameter*)parameter;
-                                    parameterCollection->addParameter(new BooleanParameter(*p));
+                                    BooleanParameter* p2 = new BooleanParameter(*p);
+                                    if (useKeys) p2->restoreKey(name.getIntValue());
+                                    parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::STRING_PARAM)
                                 {
                                     StringParameter* p = (StringParameter*)parameter;
-                                    parameterCollection->addParameter(new StringParameter(*p));
+                                    StringParameter* p2 = new StringParameter(*p);
+                                    if (useKeys) p2->restoreKey(name.getIntValue());
+                                    parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::SELECTED_CHANNELS_PARAM)
                                 {
@@ -1744,7 +1754,8 @@ void GenericProcessor::loadFromXml()
                                                                                           p->getValue(),
                                                                                           p->getMaxSelectableChannels(),
                                                                                           p->shouldDeactivateDuringAcquisition());
-                                    p2->fromXml(streamParams);
+                                    p2->fromXml(streamParams, useKeys);
+                                    p2->restoreKey(name.getIntValue());
                                     parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::MASK_CHANNELS_PARAM)
@@ -1756,18 +1767,23 @@ void GenericProcessor::loadFromXml()
                                                                                           p->getDescription(),
                                                                                           p->shouldDeactivateDuringAcquisition());
                                     p2->setChannelCount(4096); // max number of channels per stream
-                                    p2->fromXml(streamParams);
+                                    p2->fromXml(streamParams, useKeys);
+                                    p2->restoreKey(name.getIntValue());
                                     parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::CATEGORICAL_PARAM)
                                 {
                                     CategoricalParameter* p = (CategoricalParameter*)parameter;
-                                    parameterCollection->addParameter(new CategoricalParameter(*p));
+                                    CategoricalParameter* p2 = new CategoricalParameter(*p);
+                                    if (useKeys) p2->restoreKey(name.getIntValue());
+                                    parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::FLOAT_PARAM)
                                 {
                                     FloatParameter* p = (FloatParameter*)parameter;
-                                    parameterCollection->addParameter(new FloatParameter(*p));
+                                    FloatParameter* p2 = new FloatParameter(*p);
+                                    if (useKeys) p2->restoreKey(name.getIntValue());
+                                    parameterCollection->addParameter(p2);
                                 }
                             }
                             else
