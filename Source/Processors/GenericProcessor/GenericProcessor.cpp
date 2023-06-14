@@ -179,7 +179,7 @@ void GenericProcessor::addBooleanParameter(
 		defaultValue, 
 		deactivateDuringAcquisition);
 
-	if (scope == Parameter::GLOBAL_SCOPE)
+	if (scope == Parameter::PROCESSOR_SCOPE)
         addParameter(p);
     else if (scope == Parameter::STREAM_SCOPE)
         dataStreamParameters.add(p);
@@ -203,7 +203,7 @@ void GenericProcessor::addCategoricalParameter(
 		defaultIndex, 
 		deactivateDuringAcquisition);
 
-    if (scope == Parameter::GLOBAL_SCOPE)
+    if (scope == Parameter::PROCESSOR_SCOPE)
         addParameter(p);
     else if (scope == Parameter::STREAM_SCOPE)
         dataStreamParameters.add(p);
@@ -229,7 +229,7 @@ void GenericProcessor::addIntParameter(
 			maxValue, 
 			deactivateDuringAcquisition);
 
-	if (scope == Parameter::GLOBAL_SCOPE)
+	if (scope == Parameter::PROCESSOR_SCOPE)
         addParameter(p);
     else if (scope == Parameter::STREAM_SCOPE)
         dataStreamParameters.add(p);
@@ -251,7 +251,7 @@ void GenericProcessor::addStringParameter(
             defaultValue,
             deactivateDuringAcquisition);
 
-    if (scope == Parameter::GLOBAL_SCOPE)
+    if (scope == Parameter::PROCESSOR_SCOPE)
         addParameter(p);
     else if (scope == Parameter::STREAM_SCOPE)
         dataStreamParameters.add(p);
@@ -279,7 +279,7 @@ void GenericProcessor::addFloatParameter(
 			stepSize,
 			deactivateDuringAcquisition);
 
-    if (scope == Parameter::GLOBAL_SCOPE)
+    if (scope == Parameter::PROCESSOR_SCOPE)
         addParameter(p);
     else if (scope == Parameter::STREAM_SCOPE)
         dataStreamParameters.add(p);
@@ -302,7 +302,7 @@ void GenericProcessor::addMaskChannelsParameter(
 			description,
 			deactivateDuringAcquisition);
 
-    if (scope == Parameter::GLOBAL_SCOPE)
+    if (scope == Parameter::PROCESSOR_SCOPE)
         addParameter(p);
     else if (scope == Parameter::STREAM_SCOPE)
         dataStreamParameters.add(p);
@@ -329,7 +329,7 @@ void GenericProcessor::addSelectedChannelsParameter(
             maxSelectedChannels,
             deactivateDuringAcquisition);
     
-    if (scope == Parameter::GLOBAL_SCOPE)
+    if (scope == Parameter::PROCESSOR_SCOPE)
         addParameter(p);
     else if (scope == Parameter::STREAM_SCOPE)
         dataStreamParameters.add(p);

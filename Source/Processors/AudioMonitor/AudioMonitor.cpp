@@ -34,12 +34,12 @@ AudioMonitor::AudioMonitor()
 
     tempBuffer = std::make_unique<AudioSampleBuffer>();
     
-    addBooleanParameter(Parameter::GLOBAL_SCOPE,
+    addBooleanParameter(Parameter::PROCESSOR_SCOPE,
                         String("mute_audio"),
                         "Mute audio for this Audio Monitor",
                         false);
     
-    addCategoricalParameter(Parameter::GLOBAL_SCOPE,
+    addCategoricalParameter(Parameter::PROCESSOR_SCOPE,
                             String("audio_output"),
                             "Select L/R or both",
                             { "LEFT", "BOTH", "RIGHT" },

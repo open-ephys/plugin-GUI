@@ -27,13 +27,13 @@ RecordControl::RecordControl()
     : GenericProcessor  ("Record Control")
 {
 
-    addCategoricalParameter(Parameter::GLOBAL_SCOPE,
+    addCategoricalParameter(Parameter::PROCESSOR_SCOPE,
                             "trigger_type",
                             "Determines whether recording state is set or toggled by an incoming event",
                             { "Edge set", "Edge toggle" },
                             0);
 
-    addCategoricalParameter(Parameter::GLOBAL_SCOPE,
+    addCategoricalParameter(Parameter::PROCESSOR_SCOPE,
                             "edge",
                             "Determines whether recording state is changed by rising or falling events",
                             { "Rising", "Falling" },

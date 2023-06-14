@@ -47,7 +47,7 @@ ArduinoOutputEditor::ArduinoOutputEditor(GenericProcessor* parentNode)
     deviceSelector->setSelectedId(1, dontSendNotification);
     addAndMakeVisible(deviceSelector.get());
 
-    addComboBoxParameterEditor(Parameter::GLOBAL_SCOPE, "output_pin", 15, 70);
+    addComboBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "output_pin", 15, 70);
     addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "input_line", 144, 35);
     addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "gate_line", 144, 80);
 }

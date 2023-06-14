@@ -30,7 +30,7 @@ RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode)
 {
     desiredWidth = 200;
 
-    addComboBoxParameterEditor(Parameter::GLOBAL_SCOPE, "trigger_type", 15, 30);
-    addComboBoxParameterEditor(Parameter::GLOBAL_SCOPE, "edge", 15, 74);
+    addComboBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "trigger_type", 15, 30);
+    addComboBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "edge", 15, 74);
     addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "trigger_line", 110, 74);
 }

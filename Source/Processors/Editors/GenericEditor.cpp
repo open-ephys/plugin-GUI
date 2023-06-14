@@ -115,7 +115,7 @@ void GenericEditor::addTextBoxParameterEditor(Parameter::ParameterScope scope,
 {
     Parameter* param;
 
-    if(scope == Parameter::GLOBAL_SCOPE)
+    if(scope == Parameter::PROCESSOR_SCOPE)
         param = getProcessor()->getParameter(parameterName);
     else
         param = getProcessor()->getStreamParameter(parameterName);
@@ -131,7 +131,7 @@ void GenericEditor::addCheckBoxParameterEditor(Parameter::ParameterScope scope,
 
     Parameter* param;
 
-    if(scope == Parameter::GLOBAL_SCOPE)
+    if(scope == Parameter::PROCESSOR_SCOPE)
         param = getProcessor()->getParameter(parameterName);
     else
         param = getProcessor()->getStreamParameter(parameterName);
@@ -150,7 +150,7 @@ void GenericEditor::addSliderParameterEditor(Parameter::ParameterScope scope,
 
     Parameter* param;
 
-    if(scope == Parameter::GLOBAL_SCOPE)
+    if(scope == Parameter::PROCESSOR_SCOPE)
         param = getProcessor()->getParameter(parameterName);
     else
         param = getProcessor()->getStreamParameter(parameterName);
@@ -167,7 +167,7 @@ void GenericEditor::addComboBoxParameterEditor(Parameter::ParameterScope scope,
 
     Parameter* param;
 
-    if(scope == Parameter::GLOBAL_SCOPE)
+    if(scope == Parameter::PROCESSOR_SCOPE)
         param = getProcessor()->getParameter(parameterName);
     else
         param = getProcessor()->getStreamParameter(parameterName);
@@ -186,7 +186,7 @@ void GenericEditor::addSelectedChannelsParameterEditor(Parameter::ParameterScope
     
     Parameter* param;
 
-    if(scope == Parameter::GLOBAL_SCOPE)
+    if(scope == Parameter::PROCESSOR_SCOPE)
         param = getProcessor()->getParameter(parameterName);
     else
         param = getProcessor()->getStreamParameter(parameterName);
@@ -204,7 +204,7 @@ void GenericEditor::addMaskChannelsParameterEditor(Parameter::ParameterScope sco
     
     Parameter* param;
 
-    if(scope == Parameter::GLOBAL_SCOPE)
+    if(scope == Parameter::PROCESSOR_SCOPE)
         param = getProcessor()->getParameter(parameterName);
     else
         param = getProcessor()->getStreamParameter(parameterName);

@@ -56,7 +56,7 @@ void Visualizer::update()
 
             //LOGD("Parameter: ", param->getName());
             
-            if (param->getScope() == Parameter::GLOBAL_SCOPE)
+            if (param->getScope() == Parameter::PROCESSOR_SCOPE)
             {
                 //LOGD("Global scope");
                 ed->setParameter(processor->getParameter(ed->getParameterName()));

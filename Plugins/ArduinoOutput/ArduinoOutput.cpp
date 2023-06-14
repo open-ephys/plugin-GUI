@@ -32,7 +32,7 @@ ArduinoOutput::ArduinoOutput()
     , gateIsOpen            (true)
     , deviceSelected        (false)
 {
-    addIntParameter(Parameter::GLOBAL_SCOPE, "output_pin", "The Arduino pin to use", 13, 0, 13);
+    addIntParameter(Parameter::PROCESSOR_SCOPE, "output_pin", "The Arduino pin to use", 13, 0, 13);
     addIntParameter(Parameter::STREAM_SCOPE, "input_line", "The TTL line for triggering output", 1, 1, 16);
     addIntParameter(Parameter::STREAM_SCOPE, "gate_line", "The TTL line for gating the output", 0, 0, 16);
 }
