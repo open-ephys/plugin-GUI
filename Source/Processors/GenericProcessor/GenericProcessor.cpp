@@ -874,67 +874,57 @@ void GenericProcessor::update()
             
             for (auto param : dataStreamParameters)
             {
-                if (param->getScope() == Parameter::STREAM_SCOPE)
+                if (param->getType() == Parameter::BOOLEAN_PARAM)
                 {
-                    if (param->getType() == Parameter::BOOLEAN_PARAM)
-                    {
-                        BooleanParameter* p = (BooleanParameter*)param;
-                        p->setDataStream(stream);
-                        stream->addParameter(new BooleanParameter(*p));
-                    }
-                    else if (param->getType() == Parameter::STRING_PARAM)
-                    {
-                        StringParameter* p = (StringParameter*)param;
-                        p->setDataStream(stream);
-                        stream->addParameter(new StringParameter(*p));
-                    }
-                    else if (param->getType() == Parameter::INT_PARAM)
-                    {
-                        IntParameter* p = (IntParameter*)param;
-                        p->setDataStream(stream);
-                        stream->addParameter(new IntParameter(*p));
-                    }
-                    else if (param->getType() == Parameter::FLOAT_PARAM)
-                    {
-                        FloatParameter* p = (FloatParameter*)param;
-                        p->setDataStream(stream);
-                        stream->addParameter(new FloatParameter(*p));
-                    }
-                    else if (param->getType() == Parameter::CATEGORICAL_PARAM)
-                    {
-                        CategoricalParameter* p = (CategoricalParameter*)param;
-                        p->setDataStream(stream);
-                        stream->addParameter(new CategoricalParameter(*p));
-                    }
-                    else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
-                    {
-                        SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
-                        SelectedChannelsParameter* p2 = new SelectedChannelsParameter(this,
-                                                                              p->getScope(),
-                                                                              p->getName(),
-                                                                              p->getDescription(),
-                                                                              p->getValue(),
-                                                                              p->getMaxSelectableChannels(),
-                                                                              p->shouldDeactivateDuringAcquisition());
-                        
-                        p2->setChannelCount(stream->getChannelCount());
-                        p2->setDataStream(stream);
-                        //LOGD("GenericProcessor::update() Adding SelectedChannelsParameter to stream ", stream->getStreamId(), " with ", stream->getChannelCount(), " channels");
+                    BooleanParameter* p = (BooleanParameter*)param;
+                    stream->addParameter(new BooleanParameter(*p));
+                }
+                else if (param->getType() == Parameter::STRING_PARAM)
+                {
+                    StringParameter* p = (StringParameter*)param;
+                    stream->addParameter(new StringParameter(*p));
+                }
+                else if (param->getType() == Parameter::INT_PARAM)
+                {
+                    IntParameter* p = (IntParameter*)param;
+                    stream->addParameter(new IntParameter(*p));
+                }
+                else if (param->getType() == Parameter::FLOAT_PARAM)
+                {
+                    FloatParameter* p = (FloatParameter*)param;
+                    stream->addParameter(new FloatParameter(*p));
+                }
+                else if (param->getType() == Parameter::CATEGORICAL_PARAM)
+                {
+                    CategoricalParameter* p = (CategoricalParameter*)param;
+                    stream->addParameter(new CategoricalParameter(*p));
+                }
+                else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+                {
+                    SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
+                    SelectedChannelsParameter* p2 = new SelectedChannelsParameter(this,
+                                                                            p->getScope(),
+                                                                            p->getName(),
+                                                                            p->getDescription(),
+                                                                            p->getValue(),
+                                                                            p->getMaxSelectableChannels(),
+                                                                            p->shouldDeactivateDuringAcquisition());
+                    
+                    p2->setChannelCount(stream->getChannelCount());
+                    //LOGD("GenericProcessor::update() Adding SelectedChannelsParameter to stream ", stream->getStreamId(), " with ", stream->getChannelCount(), " channels");
 
-                        stream->addParameter(p2);
-                    }
-                    else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
-                    {
-                        MaskChannelsParameter* p = (MaskChannelsParameter*)param;
-                        MaskChannelsParameter* p2 = new MaskChannelsParameter(this,
-                                                                              p->getScope(),
-                                                                              p->getName(),
-                                                                              p->getDescription(),
-                                                                              p->shouldDeactivateDuringAcquisition());
-                        p2->setChannelCount(stream->getChannelCount());
-                        p2->setDataStream(stream);
-                        stream->addParameter(p2);
-                    }
+                    stream->addParameter(p2);
+                }
+                else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
+                {
+                    MaskChannelsParameter* p = (MaskChannelsParameter*)param;
+                    MaskChannelsParameter* p2 = new MaskChannelsParameter(this,
+                                                                            p->getScope(),
+                                                                            p->getName(),
+                                                                            p->getDescription(),
+                                                                            p->shouldDeactivateDuringAcquisition());
+                    p2->setChannelCount(stream->getChannelCount());
+                    stream->addParameter(p2);
                 }
             }
         }
@@ -942,21 +932,18 @@ void GenericProcessor::update()
         {
             for (auto param : dataStreamParameters)
             {
-               if (param->getScope() == Parameter::STREAM_SCOPE)
-               {
-                    if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
-                    {
-                        SelectedChannelsParameter* p = (SelectedChannelsParameter*) stream->getParameter(param->getName());
-                        p->setChannelCount(stream->getChannelCount());
-                        //LOGD("GenericProcessor::update() Setting SelectedChannelsParameter channel count for ", stream->getStreamId(), " to ", stream->getChannelCount(), " channels");
+                if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
+                {
+                    SelectedChannelsParameter* p = (SelectedChannelsParameter*) stream->getParameter(param->getName());
+                    p->setChannelCount(stream->getChannelCount());
+                    //LOGD("GenericProcessor::update() Setting SelectedChannelsParameter channel count for ", stream->getStreamId(), " to ", stream->getChannelCount(), " channels");
 
-                    } else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
-                    {
-                        MaskChannelsParameter* p = (MaskChannelsParameter*) stream->getParameter(param->getName());
-                        p->setChannelCount(stream->getChannelCount());
+                } else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
+                {
+                    MaskChannelsParameter* p = (MaskChannelsParameter*) stream->getParameter(param->getName());
+                    p->setChannelCount(stream->getChannelCount());
 
-                    }
-               }
+                }
             }
         }
         

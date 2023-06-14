@@ -48,25 +48,25 @@ String Parameter::getParameterTypeString() const
 
 uint16 Parameter::getStreamId()
 {
-    if (dataStream != nullptr)
-        return dataStream->getStreamId();
+    if (infoObject->getType() == InfoObject::DATASTREAM_INFO)
+        return ((DataStream*)infoObject)->getStreamId();
     
-    if (spikeChannel != nullptr)
-        return spikeChannel->getStreamId();
+    if (infoObject->getType() == InfoObject::SPIKE_CHANNEL)
+        return ((SpikeChannel*)infoObject)->getStreamId();
     
-    if (continuousChannel != nullptr)
-        return continuousChannel->getStreamId();
+    if (infoObject->getType() == InfoObject::CONTINUOUS_CHANNEL)
+        return ((ContinuousChannel*)infoObject)->getStreamId();
         
-    if (eventChannel != nullptr)
-        return eventChannel->getStreamId();
+    if (infoObject->getType() == InfoObject::DATASTREAM_INFO)
+        return ((EventChannel*)infoObject)->getStreamId();
     
     return 0;
         
 }
 
 
-Parameter::ChangeValue::ChangeValue(GenericProcessor* processor_, Parameter* parameter_, var newValue_)
-    : processor(processor_), parameter(parameter_), newValue(newValue_), originalValue(parameter_->currentValue)
+Parameter::ChangeValue::ChangeValue(InfoObject* infoObject_, Parameter* parameter_, var newValue_)
+    : infoObject(infoObject_), parameter(parameter_), newValue(newValue_), originalValue(parameter_->currentValue)
 {
 
 }
@@ -74,7 +74,8 @@ Parameter::ChangeValue::ChangeValue(GenericProcessor* processor_, Parameter* par
 bool Parameter::ChangeValue::perform()
 {
     parameter->newValue = newValue;
-    processor->parameterChangeRequest(parameter);
+    
+    infoObject->parameterChangeRequest(parameter);
     
     return true;
 }
@@ -83,18 +84,18 @@ bool Parameter::ChangeValue::undo()
 {
     parameter->newValue = originalValue;
     
-    processor->parameterChangeRequest(parameter);
+    infoObject->parameterChangeRequest(parameter);
     
     return true;
 }
 
-BooleanParameter::BooleanParameter(GenericProcessor* processor,
+BooleanParameter::BooleanParameter(InfoObject* infoObject,
     ParameterScope scope,
     const String& name,
     const String& description,
     bool defaultValue,
     bool deactivateDuringAcquisition)
-    : Parameter(processor,
+    : Parameter(infoObject,
                 ParameterType::BOOLEAN_PARAM,
                 scope,
                 name,
@@ -115,7 +116,7 @@ void BooleanParameter::setNextValue(var newValue_)
         newValue = newValue_;
     }
 
-    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+    ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
 
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);
@@ -147,14 +148,14 @@ void BooleanParameter::fromXml(XmlElement* xml)
     currentValue = xml->getBoolAttribute(getName(), defaultValue);
 }
 
-CategoricalParameter::CategoricalParameter(GenericProcessor* processor,
+CategoricalParameter::CategoricalParameter(InfoObject* infoObject,
     ParameterScope scope,
     const String& name,
     const String& description,
     Array<String> categories_,
     int defaultIndex,
     bool deactivateDuringAcquisition)
-    : Parameter(processor,
+    : Parameter(infoObject,
         ParameterType::CATEGORICAL_PARAM,
         scope,
         name,
@@ -172,7 +173,7 @@ void CategoricalParameter::setNextValue(var newValue_)
 
     newValue = (int) newValue_;
     
-    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+    ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
     
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);   
@@ -214,7 +215,7 @@ void CategoricalParameter::fromXml(XmlElement* xml)
     currentValue = xml->getIntAttribute(getName(), defaultValue);
 }
 
-IntParameter::IntParameter(GenericProcessor* processor,
+IntParameter::IntParameter(InfoObject* infoObject,
     ParameterScope scope,
     const String& name,
     const String& description,
@@ -222,7 +223,7 @@ IntParameter::IntParameter(GenericProcessor* processor,
     int minValue_,
     int maxValue_,
     bool deactivateDuringAcquisition)
-    : Parameter(processor,
+    : Parameter(infoObject,
         ParameterType::INT_PARAM,
         scope,
         name,
@@ -249,7 +250,7 @@ void IntParameter::setNextValue(var newValue_)
     else
         newValue = value;
 
-    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+    ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
     
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);
@@ -275,13 +276,13 @@ void IntParameter::fromXml(XmlElement* xml)
     currentValue = xml->getIntAttribute(getName(), defaultValue);
 }
 
-StringParameter::StringParameter(GenericProcessor* processor,
+StringParameter::StringParameter(InfoObject* infoObject,
     ParameterScope scope,
     const String& name,
     const String& description,
     String defaultValue_,
     bool deactivateDuringAcquisition)
-    : Parameter(processor,
+    : Parameter(infoObject,
         ParameterType::INT_PARAM,
         scope,
         name,
@@ -299,7 +300,7 @@ void StringParameter::setNextValue(var newValue_)
 
     newValue = newValue_.toString();
 
-    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+    ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
     
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);
@@ -326,7 +327,7 @@ void StringParameter::fromXml(XmlElement* xml)
 }
 
 
-FloatParameter::FloatParameter(GenericProcessor* processor,
+FloatParameter::FloatParameter(InfoObject* infoObject,
     ParameterScope scope,
     const String& name,
     const String& description,
@@ -335,7 +336,7 @@ FloatParameter::FloatParameter(GenericProcessor* processor,
     float maxValue_,
     float stepSize_,
     bool deactivateDuringAcquisition)
-    : Parameter(processor,
+    : Parameter(infoObject,
         ParameterType::FLOAT_PARAM,
         scope,
         name,
@@ -367,7 +368,7 @@ void FloatParameter::setNextValue(var newValue_)
     if (currentValue != newValue)
     {
     
-        ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+        ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
 
         AccessClass::getUndoManager()->beginNewTransaction();
         AccessClass::getUndoManager()->perform(action);
@@ -397,14 +398,14 @@ void FloatParameter::fromXml(XmlElement* xml)
     currentValue = xml->getDoubleAttribute(getName(), defaultValue);
 }
 
-SelectedChannelsParameter::SelectedChannelsParameter(GenericProcessor* processor_,
+SelectedChannelsParameter::SelectedChannelsParameter(InfoObject* infoObject_,
     ParameterScope scope,
     const String& name,
     const String& description,
     Array<var> defaultValue_,
     int maxSelectableChannels_,
     bool deactivateDuringAcquisition)
-    : Parameter(processor_,
+    : Parameter(infoObject_,
         ParameterType::SELECTED_CHANNELS_PARAM,
         scope,
         name,
@@ -427,7 +428,7 @@ void SelectedChannelsParameter::setNextValue(var newValue_)
         newValue = newValue_;
     }
     
-    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+    ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
 
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);
@@ -518,12 +519,12 @@ void SelectedChannelsParameter::setChannelCount(int count)
    // std::cout << "Setting selected channels channels count to " << count << " at " << this << std::endl;
 }
 
-MaskChannelsParameter::MaskChannelsParameter(GenericProcessor* processor_,
+MaskChannelsParameter::MaskChannelsParameter(InfoObject* infoObject_,
     ParameterScope scope,
     const String& name,
     const String& description,
     bool deactivateDuringAcquisition)
-    : Parameter(processor_,
+    : Parameter(infoObject_,
         ParameterType::MASK_CHANNELS_PARAM,
         scope,
         name,
@@ -548,7 +549,7 @@ void MaskChannelsParameter::setNextValue(var newValue_)
     
     newValue = values;
     
-    ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
+    ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
 
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);

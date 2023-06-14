@@ -249,7 +249,7 @@ void SpikeDetector::parameterValueChanged(Parameter* p)
 {
     if (p->getName().equalsIgnoreCase("name"))
     {
-        p->getSpikeChannel()->setName(p->getValueAsString());
+        p->getOwner()->setName(p->getValueAsString());
 
         CoreServices::updateSignalChain(getEditor());
         
@@ -260,7 +260,7 @@ void SpikeDetector::parameterValueChanged(Parameter* p)
         
         SelectedChannelsParameter* param = (SelectedChannelsParameter*) p;
 
-        p->getSpikeChannel()->localChannelIndexes = param->getArrayValue();
+        ((SpikeChannel*)p->getOwner())->localChannelIndexes = param->getArrayValue();
         
         CoreServices::updateSignalChain(getEditor());
         
@@ -269,7 +269,7 @@ void SpikeDetector::parameterValueChanged(Parameter* p)
     {
         
         CategoricalParameter* param = (CategoricalParameter*) p;
-        SpikeChannel* spikeChannel = p->getSpikeChannel();
+        SpikeChannel* spikeChannel = (SpikeChannel*)p->getOwner();
 
         // switch number of channels!!!
         if (param->getSelectedIndex() == 0)
@@ -283,7 +283,7 @@ void SpikeDetector::parameterValueChanged(Parameter* p)
     {
         
         FloatParameter* param = (FloatParameter*) p;
-        SpikeChannel* spikeChannel = p->getSpikeChannel();
+        SpikeChannel* spikeChannel = (SpikeChannel*)p->getOwner();
         
         int channelIndex = p->getName().getTrailingIntValue() - 1;
 
@@ -293,7 +293,7 @@ void SpikeDetector::parameterValueChanged(Parameter* p)
     {
         
         CategoricalParameter* param = (CategoricalParameter*) p;
-        SpikeChannel* spikeChannel = p->getSpikeChannel();
+        SpikeChannel* spikeChannel = (SpikeChannel*)p->getOwner();
         
         if (param->getSelectedString().equalsIgnoreCase("ABS"))
         {
@@ -874,7 +874,7 @@ void SpikeDetector::loadCustomParametersFromXml(XmlElement* xml)
                     spikeChannel->getParameter("local_channels")->fromXml(spikeParamsXml);
 
                     SelectedChannelsParameter* param = (SelectedChannelsParameter*)spikeChannel->getParameter("local_channels");
-                    param->getSpikeChannel()->localChannelIndexes = param->getArrayValue();
+                    ((SpikeChannel*)param->getOwner())->localChannelIndexes = param->getArrayValue();
                     
                     spikeChannel->getParameter("thrshlder_type")->fromXml(spikeParamsXml);
                     

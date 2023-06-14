@@ -261,15 +261,7 @@ void InfoObject::copyParameters(InfoObject* object)
 void InfoObject::addParameter(Parameter* p)
 {
 
-    if (getType() == InfoObject::DATASTREAM_INFO)
-        p->setDataStream((DataStream*) this);
-    else if (getType() == InfoObject::SPIKE_CHANNEL)
-        p->setSpikeChannel((SpikeChannel*) this);
-    else if (getType() == InfoObject::CONTINUOUS_CHANNEL)
-        p->setContinuousChannel((ContinuousChannel*) this);
-    else if (getType() == InfoObject::EVENT_CHANNEL)
-        p->setEventChannel((EventChannel*) this);
-
+    p->setOwner(this);
     parameters.addParameter(p);
 }
 

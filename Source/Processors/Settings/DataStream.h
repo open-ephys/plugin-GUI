@@ -124,6 +124,8 @@ public:
 	/** Gets all of the spike channels for this stream.*/
 	Array<SpikeChannel*> getSpikeChannels() const;
 
+	void parameterChangeRequest(Parameter*) override;
+
 	DeviceInfo* device;
 
 private:

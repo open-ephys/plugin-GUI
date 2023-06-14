@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ContinuousChannel.h"
 #include "EventChannel.h"
 #include "SpikeChannel.h"
+#include "ProcessorInfo.h"
 
 uint16 DataStream::nextId = 10000;
 
@@ -120,3 +121,8 @@ Array<SpikeChannel*> DataStream::getSpikeChannels() const
 	return spikeChannels;
 }
 
+
+void DataStream::parameterChangeRequest(Parameter* param)
+{
+	
+}

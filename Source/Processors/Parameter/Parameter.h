@@ -38,6 +38,7 @@
     @see GenericProcessor, GenericEditor
 */
 
+class InfoObject;
 class SpikeChannel;
 class ContinuousChannel;
 class EventChannel;
@@ -105,18 +106,18 @@ public:
     };
 
     /** Parameter constructor.*/
-    Parameter(GenericProcessor* processor_,
+    Parameter(InfoObject* infoObject_,
         ParameterType type_,
         ParameterScope scope_,
         const String& name_,
         const String& description_,
         var defaultValue_,
         bool deactivateDuringAcquisition_ = false)
-        : processor(processor_),
-        dataStream(nullptr),
-        spikeChannel(nullptr),
-        eventChannel(nullptr),
-        continuousChannel(nullptr),
+        : infoObject(infoObject_),
+        // dataStream(nullptr),
+        // spikeChannel(nullptr),
+        // eventChannel(nullptr),
+        // continuousChannel(nullptr),
         m_parameterType(type_),
         m_parameterScope(scope_),
         m_name(name_),
@@ -146,26 +147,26 @@ public:
     /** Returns the streamId for this parameter (if available)*/
     uint16 getStreamId();
 
-    /** Sets the streamId for this parameter*/
-    void setDataStream(DataStream* dataStream_) { dataStream = dataStream_;  }
+    // /** Sets the streamId for this parameter*/
+    // void setDataStream(DataStream* dataStream_) { dataStream = dataStream_;  }
     
-    /** Returns the SpikeChannel for this parameter (if available)*/
-    SpikeChannel* getSpikeChannel() { return spikeChannel; }
+    // /** Returns the SpikeChannel for this parameter (if available)*/
+    // SpikeChannel* getSpikeChannel() { return spikeChannel; }
 
-    /** Sets the SpikeChannel for this parameter*/
-    void setSpikeChannel(SpikeChannel* spikeChannel_) { spikeChannel = spikeChannel_;  }
+    // /** Sets the SpikeChannel for this parameter*/
+    // void setSpikeChannel(SpikeChannel* spikeChannel_) { spikeChannel = spikeChannel_;  }
     
-    /** Returns the EventChannel for this parameter (if available)*/
-    EventChannel* getEventChannel() { return eventChannel; }
+    // /** Returns the EventChannel for this parameter (if available)*/
+    // EventChannel* getEventChannel() { return eventChannel; }
 
-    /** Sets the EventChannel for this parameter*/
-    void setEventChannel(EventChannel* eventChannel_) { eventChannel = eventChannel_;  }
+    // /** Sets the EventChannel for this parameter*/
+    // void setEventChannel(EventChannel* eventChannel_) { eventChannel = eventChannel_;  }
     
-    /** Returns the ContinuousChannel for this parameter (if available)*/
-    ContinuousChannel* getContinuousChannel() { return continuousChannel; }
+    // /** Returns the ContinuousChannel for this parameter (if available)*/
+    // ContinuousChannel* getContinuousChannel() { return continuousChannel; }
 
-    /** Sets the ContinuousChannel for this parameter*/
-    void setContinuousChannel(ContinuousChannel* continuousChannel_) { continuousChannel = continuousChannel_;  }
+    // /** Sets the ContinuousChannel for this parameter*/
+    // void setContinuousChannel(ContinuousChannel* continuousChannel_) { continuousChannel = continuousChannel_;  }
 
     /** Determines whether the parameter's editor is accessible after acquisition starts*/
     bool shouldDeactivateDuringAcquisition() {
@@ -208,15 +209,18 @@ public:
         currentValue = previousValue;
     }
     
-    /** Returns a pointer to the processor this parameter is associated with**/
-    GenericProcessor* getProcessor() {return processor; }
+    /** Returns a pointer to the InfoObject this parameter is associated with**/
+    InfoObject* getOwner() {return infoObject; }
+
+    /** Sets a pointer to the InfoObject this parameter is associated with**/
+    void setOwner(InfoObject* newOwner) { infoObject = newOwner; }
     
     /** Makes it possible to undo value changes */
     class ChangeValue : public UndoableAction
     {
     public:
         /** Constructor */
-        ChangeValue(GenericProcessor*, Parameter*, var newValue);
+        ChangeValue(InfoObject*, Parameter*, var newValue);
         
         /** Destructor */
         ~ChangeValue() { }
@@ -229,19 +233,19 @@ public:
         
     private:
         Parameter* parameter;
-        GenericProcessor* processor;
+        InfoObject* infoObject;
         var originalValue;
         var newValue;
     };
     
 protected:
 
-    GenericProcessor* processor;
+    InfoObject* infoObject;
     
-    DataStream* dataStream;
-    SpikeChannel* spikeChannel;
-    EventChannel* eventChannel;
-    ContinuousChannel* continuousChannel;
+    // DataStream* dataStream;
+    // SpikeChannel* spikeChannel;
+    // EventChannel* eventChannel;
+    // ContinuousChannel* continuousChannel;
 
     var newValue;
     var previousValue;
@@ -269,7 +273,7 @@ class PLUGIN_API BooleanParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    BooleanParameter(GenericProcessor* processor,
+    BooleanParameter(InfoObject* infoObject,
         ParameterScope scope,
         const String& name,
         const String& description,
@@ -303,7 +307,7 @@ class PLUGIN_API CategoricalParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    CategoricalParameter(GenericProcessor* processor,
+    CategoricalParameter(InfoObject* infoObject,
         ParameterScope scope,
         const String& name,
         const String& description,
@@ -351,7 +355,7 @@ class PLUGIN_API IntParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    IntParameter(GenericProcessor* processor,
+    IntParameter(InfoObject* infoObject,
         ParameterScope scope,
         const String& name,
         const String& description,
@@ -393,7 +397,7 @@ class PLUGIN_API StringParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    StringParameter(GenericProcessor* processor,
+    StringParameter(InfoObject* infoObject,
         ParameterScope scope,
         const String& name,
         const String& description,
@@ -426,7 +430,7 @@ class PLUGIN_API FloatParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    FloatParameter(GenericProcessor* processor,
+    FloatParameter(InfoObject* infoObject,
         ParameterScope scope,
         const String& name,
         const String& description,
@@ -483,7 +487,7 @@ class PLUGIN_API SelectedChannelsParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    SelectedChannelsParameter(GenericProcessor* processor,
+    SelectedChannelsParameter(InfoObject* infoObject,
         ParameterScope scope,
         const String& name,
         const String& description,
@@ -545,7 +549,7 @@ class PLUGIN_API MaskChannelsParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    MaskChannelsParameter(GenericProcessor* processor,
+    MaskChannelsParameter(InfoObject* infoObject,
         ParameterScope scope,
         const String& name,
         const String& description,

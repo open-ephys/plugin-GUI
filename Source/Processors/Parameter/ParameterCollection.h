@@ -76,12 +76,6 @@ public:
     /** Returns the total number of parameters in this collection*/
     int size() const {return parameters.size(); }
     
-    /** Sets the InfoObject that owns a particular parameter*/
-    void setParameterOwner(Parameter* p, InfoObject* object);
-    
-    /** Clears the owner of a particular parameter*/
-    void clearParameterOwner(Parameter* p);
-    
     /** Removes all parameters from the collection*/
     void clear();
 

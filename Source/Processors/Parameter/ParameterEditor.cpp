@@ -44,7 +44,7 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param) : ParameterEdit
         valueTextBox = std::make_unique<Label>("Parameter value", param->getValue().toString());
 
     valueTextBox->setFont(Font("CP Mono", "Plain", 15));
-    valueTextBox->setName(param->getProcessor()->getName() + " (" + String(param->getProcessor()->getNodeId()) + ") - " + param->getName());
+    valueTextBox->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     valueTextBox->setColour(Label::textColourId, Colours::white);
     valueTextBox->setColour(Label::backgroundColourId, Colours::grey);
     valueTextBox->setEditable(true);
@@ -141,7 +141,7 @@ CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param) : ParameterEd
     addAndMakeVisible(parameterNameLabel.get());
 
     valueCheckBox = std::make_unique<ToggleButton>("Parameter value");
-    valueCheckBox->setName(param->getProcessor()->getName() + " (" + String(param->getProcessor()->getNodeId()) + ") - " + param->getName());
+    valueCheckBox->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     valueCheckBox->setToggleState(bool(param->getValue()), dontSendNotification);
     valueCheckBox->addListener(this);
     valueCheckBox->setTooltip(param->getDescription());
@@ -186,7 +186,7 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param) : ParameterEd
     addAndMakeVisible(parameterNameLabel.get());
 
     valueComboBox = std::make_unique<ComboBox>();
-    valueComboBox->setName(param->getProcessor()->getName() + " (" + String(param->getProcessor()->getNodeId()) + ") - " + param->getName());
+    valueComboBox->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     valueComboBox->addListener(this);
     valueComboBox->setTooltip(param->getDescription());
     addAndMakeVisible(valueComboBox.get());
@@ -431,7 +431,7 @@ SliderParameterEditor::SliderParameterEditor(Parameter* param) : ParameterEditor
     addAndMakeVisible(parameterNameLabel.get());
 
     slider = std::make_unique<CustomSlider>();
-    slider->setName(param->getProcessor()->getName() + " (" + String(param->getProcessor()->getNodeId()) + ") - " + param->getName());
+    slider->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     slider->addListener(this);
     slider->setTooltip(param->getDescription());
     
@@ -502,7 +502,7 @@ SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* para
 {
 
     button = std::make_unique<UtilityButton>(param->getName(), Font("CP Mono", "Plain", 10));
-    button->setName(param->getProcessor()->getName() + " (" + String(param->getProcessor()->getNodeId()) + ") - " + param->getName());
+    button->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     button->addListener(this);
     button->setClickingTogglesState(false);
     button->setTooltip(param->getDescription());
@@ -561,7 +561,7 @@ MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param) : Par
 {
 
     button = std::make_unique<UtilityButton>(param->getName(), Font("CP Mono", "Plain", 10));
-    button->setName(param->getProcessor()->getName() + " (" + String(param->getProcessor()->getNodeId()) + ") - " + param->getName());
+    button->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     button->addListener(this);
     button->setClickingTogglesState(false);
     button->setTooltip("Mask channels to filter within this stream");
