@@ -88,7 +88,7 @@ void EventTranslator::updateSettings()
         };
 
         eventChannels.add(new EventChannel(s));
-        eventChannels.getLast()->addProcessor(processorInfo.get());
+        eventChannels.getLast()->addProcessor(this);
         settings[streamId]->eventChannel = eventChannels.getLast();
     }
     

@@ -471,7 +471,7 @@ bool RecordNode::startAcquisition()
     if (eventChannels.getLast()->getSourceNodeName() != "Message Center")
     {
         eventChannels.add(new EventChannel(*messageChannel));
-        eventChannels.getLast()->addProcessor(processorInfo.get());
+        eventChannels.getLast()->addProcessor(this);
         eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamId), false);
     }
     
@@ -521,7 +521,7 @@ void RecordNode::startRecording()
     if (eventChannels.getLast()->getSourceNodeName() != "Message Center")
     {
         eventChannels.add(new EventChannel(*messageChannel));
-        eventChannels.getLast()->addProcessor(processorInfo.get());
+        eventChannels.getLast()->addProcessor(this);
         eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamId), false);
     }
 

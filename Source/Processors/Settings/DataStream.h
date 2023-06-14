@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "InfoObject.h"
 
-class ProcessorInfoObject;
+class GenericProcessor;
 class DeviceInfo;
 class ContinuousChannel;
 class EventChannel;

@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "InfoObject.h"
 
 #include "DataStream.h"
-#include "ProcessorInfo.h"
+#include "../GenericProcessor/GenericProcessor.h"
 #include "../Parameter/Parameter.h"
 
 HistoryObject::HistoryObject() { }
@@ -194,7 +194,7 @@ String InfoObject::getNodeName() const
 }
 
 
-void InfoObject::addProcessor(ProcessorInfoObject* processor)
+void InfoObject::addProcessor(GenericProcessor* processor)
 {
 
 	if (processorChain.size() == 0)

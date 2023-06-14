@@ -492,7 +492,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
     
     SpikeChannel* spikeChannel = spikeChannels.getLast();
     
-    spikeChannel->addProcessor(processorInfo.get());
+    spikeChannel->addProcessor(this);
 
     if (currentStream > 0)
         spikeChannel->setDataStream(getDataStream(currentStream), false);

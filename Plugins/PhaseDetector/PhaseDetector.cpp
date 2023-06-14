@@ -152,7 +152,7 @@ void PhaseDetector::updateSettings()
         };
 
 		eventChannels.add(new EventChannel(s));
-        eventChannels.getLast()->addProcessor(processorInfo.get());
+        eventChannels.getLast()->addProcessor(this);
         settings[stream->getStreamId()]->eventChannel = eventChannels.getLast();
 	}
 }

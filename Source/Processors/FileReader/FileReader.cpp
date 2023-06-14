@@ -403,7 +403,7 @@ void FileReader::updateSettings()
         LOGD("File Reader adding data stream.");
 
         dataStreams.add(new DataStream(streamSettings));
-        dataStreams.getLast()->addProcessor(processorInfo.get());
+        dataStreams.getLast()->addProcessor(this);
 
         for (int i = 0; i < currentNumChannels; i++)
         {
@@ -418,7 +418,7 @@ void FileReader::updateSettings()
             };
 
             continuousChannels.add(new ContinuousChannel(channelSettings));
-            continuousChannels.getLast()->addProcessor(processorInfo.get());
+            continuousChannels.getLast()->addProcessor(this);
         }
 
         EventChannel* events;
@@ -435,7 +435,7 @@ void FileReader::updateSettings()
         events = new EventChannel(eventSettings);
         String id = "sourceevent";
         events->setIdentifier(id);
-        events->addProcessor(processorInfo.get());
+        events->addProcessor(this);
         eventChannels.add(events);
 
         gotNewFile = false;

@@ -695,7 +695,7 @@ int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int conti
     dataStreams.add(new DataStream(*stream));
     
 	dataStreams.getLast()->clearChannels();
-	dataStreams.getLast()->addProcessor(processorInfo.get());
+	dataStreams.getLast()->addProcessor(this);
     
 	for (auto continuousChannel : stream->getContinuousChannels())
 	{
@@ -713,7 +713,7 @@ int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int conti
         }
 		
 		continuousChannels.add(new ContinuousChannel(*continuousChannel));
-		continuousChannels.getLast()->addProcessor(processorInfo.get());
+		continuousChannels.getLast()->addProcessor(this);
 		continuousChannels.getLast()->setDataStream(dataStreams.getLast(), true);
         continuousChannels.getLast()->setGlobalIndex(continuousChannelGlobalIndex++);
 
@@ -735,7 +735,7 @@ int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int conti
 		}
 
 		eventChannels.add(new EventChannel(*eventChannel));
-		eventChannels.getLast()->addProcessor(processorInfo.get());
+		eventChannels.getLast()->addProcessor(this);
 		eventChannels.getLast()->setDataStream(dataStreams.getLast(), true);
 	}
 
@@ -755,7 +755,7 @@ int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int conti
         }
 
 		spikeChannels.add(new SpikeChannel(*spikeChannel));
-		spikeChannels.getLast()->addProcessor(processorInfo.get());
+		spikeChannels.getLast()->addProcessor(this);
         spikeChannels.getLast()->setDataStream(dataStreams.getLast(), true);
 	}
     
@@ -778,8 +778,8 @@ void GenericProcessor::update()
 
 	clearSettings();
 
-	processorInfo.reset();
-	processorInfo = std::unique_ptr<ProcessorInfoObject>(new ProcessorInfoObject(this));
+	// processorInfo.reset();
+	// processorInfo = std::unique_ptr<ProcessorInfoObject>(new ProcessorInfoObject(this));
    
     if (!isMerger()) // only has one source
     {
@@ -790,7 +790,7 @@ void GenericProcessor::update()
             // copy settings from source node
             messageChannel.reset();
             messageChannel = std::make_unique<EventChannel>(*sourceNode->getMessageChannel());
-            messageChannel->addProcessor(processorInfo.get());
+            messageChannel->addProcessor(this);
             messageChannel->setDataStream(AccessClass::getMessageCenter()->getMessageStream());
 
             if (sourceNode->isSplitter())
@@ -845,7 +845,7 @@ void GenericProcessor::update()
             EventChannel* newChannel = new EventChannel(*originalChannel);
             messageChannel.reset(newChannel);
            // messageChannel = std::make_unique<EventChannel>(originalChannel);
-            messageChannel->addProcessor(processorInfo.get());
+            messageChannel->addProcessor(this);
             messageChannel->setDataStream(AccessClass::getMessageCenter()->getMessageStream());
 
             if (!isSource())

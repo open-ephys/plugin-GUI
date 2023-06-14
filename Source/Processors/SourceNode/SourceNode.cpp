@@ -127,16 +127,16 @@ void SourceNode::updateSettings()
         //std::cout << " Source node num continuous channels: " << continuousChannels.size() << std::endl;
 
         for (int i = 0; i < continuousChannels.size(); i++)
-            continuousChannels[i]->addProcessor(processorInfo.get());
+            continuousChannels[i]->addProcessor(this);
 
         for (int i = 0; i < eventChannels.size(); i++)
-            eventChannels[i]->addProcessor(processorInfo.get());
+            eventChannels[i]->addProcessor(this);
 
         for (int i = 0; i < spikeChannels.size(); i++)
-            spikeChannels[i]->addProcessor(processorInfo.get());
+            spikeChannels[i]->addProcessor(this);
 
         for (int i = 0; i < dataStreams.size(); i++)
-            dataStreams[i]->addProcessor(processorInfo.get());
+            dataStreams[i]->addProcessor(this);
 
         
         isEnabled = dataThread->foundInputSource();

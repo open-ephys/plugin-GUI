@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../Parameter/ParameterCollection.h"
 #include "../Parameter/Parameter.h"
 
-class ProcessorInfoObject;
+class GenericProcessor;
 class ParameterCollection;
 class DataStream;
 
@@ -239,12 +239,12 @@ public:
 	String getSourceNodeName() const;
 
 	/** Indicates that this InfoObject is passing through a new processor.*/
-	void addProcessor(ProcessorInfoObject*);
+	void addProcessor(GenericProcessor*);
 
     /** Returns true if this object was created locally, or copied from an upstream processor.*/
     bool isLocal() const;
 
-	Array<ProcessorInfoObject*> processorChain;
+	Array<GenericProcessor*> processorChain;
 
 	Group group;
 	Position position;

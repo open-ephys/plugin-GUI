@@ -235,7 +235,7 @@ void Merger::updateSettings()
         {
             isEnabled = false;
             messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->getMessageChannel());
-            messageChannel->addProcessor(processorInfo.get());
+            messageChannel->addProcessor(this);
             return;
         }
 
@@ -246,7 +246,7 @@ void Merger::updateSettings()
         if (sourceNodeA->getMessageChannel() != nullptr)
         {
             messageChannel = std::make_unique<EventChannel>(*sourceNodeA->getMessageChannel());
-            messageChannel->addProcessor(processorInfo.get());
+            messageChannel->addProcessor(this);
         }
         
     } else {
@@ -263,7 +263,7 @@ void Merger::updateSettings()
             if (messageChannel == nullptr)
             {
                 messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->getMessageChannel());
-                messageChannel->addProcessor(processorInfo.get());
+                messageChannel->addProcessor(this);
             }
             return;
         }
@@ -275,7 +275,7 @@ void Merger::updateSettings()
         if (messageChannel == nullptr && sourceNodeB->getMessageChannel() != nullptr)
         {
             messageChannel = std::make_unique<EventChannel>(*sourceNodeB->getMessageChannel());
-            messageChannel->addProcessor(processorInfo.get());
+            messageChannel->addProcessor(this);
         }
     } else {
         mergeEventsB = true;
@@ -288,7 +288,7 @@ void Merger::updateSettings()
     if (messageChannel == nullptr)
     {
         messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->getMessageChannel());
-        messageChannel->addProcessor(processorInfo.get());
+        messageChannel->addProcessor(this);
     }
 
     LOGD("Number of merger outputs: ", getNumInputs());

@@ -28,7 +28,6 @@
 #include "../../Utils/Utils.h"
 
 #include "../Events/Event.h"
-#include "../Settings/ProcessorInfo.h"
 
 #define MAX_MSG_LENGTH 512
 //---------------------------------------------------------------------
@@ -50,8 +49,6 @@ MessageCenter::MessageCenter() :
 
 void MessageCenter::addSpecialProcessorChannels() 
 {
-    processorInfo.reset();
-    processorInfo = std::unique_ptr<ProcessorInfoObject>(new ProcessorInfoObject(this));
 
     if (dataStreams.size() == 0)
     {
@@ -64,7 +61,7 @@ void MessageCenter::addSpecialProcessorChannels()
         };
 
         dataStreams.add(new DataStream(settings));
-        dataStreams.getLast()->addProcessor(processorInfo.get());
+        dataStreams.getLast()->addProcessor(this);
 
         EventChannel::Settings eventSettings{
             EventChannel::Type::TEXT,
@@ -76,7 +73,7 @@ void MessageCenter::addSpecialProcessorChannels()
         };
 
         eventChannels.add(new EventChannel(eventSettings));
-        eventChannels.getLast()->addProcessor(processorInfo.get());
+        eventChannels.getLast()->addProcessor(this);
 
         updateChannelIndexMaps();
     }

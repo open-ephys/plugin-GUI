@@ -612,8 +612,8 @@ protected:
     /** Updates the data channel map objects*/
 	void updateChannelIndexMaps();
 
-    /** Holds info about this processor.*/
-    std::unique_ptr<ProcessorInfoObject> processorInfo;
+    // /** Holds info about this processor.*/
+    // std::unique_ptr<ProcessorInfoObject> processorInfo;
 
     /** Holds info about available devices.*/
     OwnedArray<DeviceInfo> devices;
