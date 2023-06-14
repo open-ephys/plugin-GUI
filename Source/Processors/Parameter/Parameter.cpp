@@ -537,16 +537,22 @@ MaskChannelsParameter::MaskChannelsParameter(InfoObject* infoObject_,
 
 void MaskChannelsParameter::setNextValue(var newValue_)
 {
-    if (newValue_ == currentValue) return;
 
     Array<var> values;
     
+    bool isDifferentValue = false;
+
     for (int i = 0; i < channelCount; i++)
     {
         if (newValue_.getArray()->contains(i))
             values.add(i);
+
+        if (!currentValue.getArray()->contains(i))
+            isDifferentValue = true;
     }
     
+    if (!isDifferentValue) return;
+
     newValue = values;
     
     ChangeValue* action = new Parameter::ChangeValue(infoObject, this, newValue);
