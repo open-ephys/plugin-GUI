@@ -78,7 +78,7 @@ GenericProcessor::GenericProcessor(const String& name, bool headlessMode_)
 
 GenericProcessor::~GenericProcessor()
 {
-    availableParameters.clear(true);
+    dataStreamParameters.clear(true);
     parametersAsXml = nullptr;
 }
 
@@ -106,27 +106,17 @@ const String GenericProcessor::getName() const
     return m_name; 
 }
 
-Parameter* GenericProcessor::getParameter(const String& name)
+Parameter* GenericProcessor::getStreamParameter(const String& name)
 {
-	for (auto param : availableParameters)
+	for (auto param : dataStreamParameters)
 	{
 		if (param->getName().equalsIgnoreCase(name))
 			return param;
 	}
 
-    LOGE("Could not find parameter named ", name);
+	LOGE("Could not find parameter named ", name);
 
 	return nullptr;
-}
-
-Array<Parameter*> GenericProcessor::getParameters()
-{
-    Array<Parameter*> params;
-
-    if(parameters.size() > 0)
-        params = parameters.getParameters();
-    
-    return params;
 }
 
 Array<Parameter*> GenericProcessor::getParameters(uint16 streamId)
@@ -189,10 +179,10 @@ void GenericProcessor::addBooleanParameter(
 		defaultValue, 
 		deactivateDuringAcquisition);
 
-	availableParameters.add(p);
-
 	if (scope == Parameter::GLOBAL_SCOPE)
-        InfoObject::addParameter(p);
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
 }
 
 void GenericProcessor::addCategoricalParameter(
@@ -213,10 +203,10 @@ void GenericProcessor::addCategoricalParameter(
 		defaultIndex, 
 		deactivateDuringAcquisition);
 
-    availableParameters.add(p);
-
-	if (scope == Parameter::GLOBAL_SCOPE)
-        InfoObject::addParameter(p);
+    if (scope == Parameter::GLOBAL_SCOPE)
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
 }
 
 void GenericProcessor::addIntParameter(
@@ -239,10 +229,10 @@ void GenericProcessor::addIntParameter(
 			maxValue, 
 			deactivateDuringAcquisition);
 
-	availableParameters.add(p);
-
-    if (scope == Parameter::GLOBAL_SCOPE)
-        InfoObject::addParameter(p);
+	if (scope == Parameter::GLOBAL_SCOPE)
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
 
 }
 
@@ -261,10 +251,10 @@ void GenericProcessor::addStringParameter(
             defaultValue,
             deactivateDuringAcquisition);
 
-    availableParameters.add(p);
-
     if (scope == Parameter::GLOBAL_SCOPE)
-        InfoObject::addParameter(p);
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
 }
 
 void GenericProcessor::addFloatParameter(
@@ -289,10 +279,10 @@ void GenericProcessor::addFloatParameter(
 			stepSize,
 			deactivateDuringAcquisition);
 
-    availableParameters.add(p);
-
-	if (scope == Parameter::GLOBAL_SCOPE)
-        InfoObject::addParameter(p);
+    if (scope == Parameter::GLOBAL_SCOPE)
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
 
 }
 
@@ -312,10 +302,10 @@ void GenericProcessor::addMaskChannelsParameter(
 			description,
 			deactivateDuringAcquisition);
 
-    availableParameters.add(p);
-
-	if (scope == Parameter::GLOBAL_SCOPE)
-        InfoObject::addParameter(p);
+    if (scope == Parameter::GLOBAL_SCOPE)
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
 }
 
 
@@ -339,10 +329,10 @@ void GenericProcessor::addSelectedChannelsParameter(
             maxSelectedChannels,
             deactivateDuringAcquisition);
     
-    availableParameters.add(p);
-
     if (scope == Parameter::GLOBAL_SCOPE)
-        InfoObject::addParameter(p);
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
 }
 
 
@@ -402,8 +392,11 @@ void GenericProcessor::setSourceNode(GenericProcessor* sn)
     else
     {
         sourceNode = sn;
-        setSourceNodeId(sourceNode->getNodeId());
-        setSourceNodeName(sourceNode->getName());
+        if(sourceNode != nullptr)
+        {
+            setSourceNodeId(sourceNode->getNodeId());
+            setSourceNodeName(sourceNode->getName());
+        }
     }
 }
 
@@ -879,7 +872,7 @@ void GenericProcessor::update()
         {
             //std::cout << "No parameters found, adding..." << std::endl;
             
-            for (auto param : availableParameters)
+            for (auto param : dataStreamParameters)
             {
                 if (param->getScope() == Parameter::STREAM_SCOPE)
                 {
@@ -947,7 +940,7 @@ void GenericProcessor::update()
         }
         else
         {
-            for (auto param : availableParameters)
+            for (auto param : dataStreamParameters)
             {
                if (param->getScope() == Parameter::STREAM_SCOPE)
                {

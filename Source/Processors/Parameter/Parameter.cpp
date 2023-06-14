@@ -108,7 +108,7 @@ BooleanParameter::BooleanParameter(GenericProcessor* processor,
 void BooleanParameter::setNextValue(var newValue_)
 {
 
-    if (newValue == currentValue) return;
+    if (newValue_ == currentValue) return;
 
     if (newValue_.isBool())
     {
@@ -168,7 +168,7 @@ CategoricalParameter::CategoricalParameter(GenericProcessor* processor,
 
 void CategoricalParameter::setNextValue(var newValue_)
 {
-    if (newValue == currentValue) return;
+    if (newValue_ == currentValue) return;
 
     newValue = (int) newValue_;
     
@@ -238,7 +238,7 @@ IntParameter::IntParameter(GenericProcessor* processor,
 void IntParameter::setNextValue(var newValue_)
 {
 
-    if (newValue == currentValue) return;
+    if (newValue_ == currentValue) return;
 
     int value = (int) newValue_;
 
@@ -295,7 +295,7 @@ StringParameter::StringParameter(GenericProcessor* processor,
 void StringParameter::setNextValue(var newValue_)
 {
 
-    if (newValue == currentValue) return;
+    if (newValue_ == currentValue) return;
 
     newValue = newValue_.toString();
 
@@ -536,6 +536,8 @@ MaskChannelsParameter::MaskChannelsParameter(GenericProcessor* processor_,
 
 void MaskChannelsParameter::setNextValue(var newValue_)
 {
+    if (newValue_ == currentValue) return;
+
     Array<var> values;
     
     for (int i = 0; i < channelCount; i++)
@@ -545,8 +547,6 @@ void MaskChannelsParameter::setNextValue(var newValue_)
     }
     
     newValue = values;
-
-    if (newValue == currentValue) return;
     
     ChangeValue* action = new Parameter::ChangeValue(processor, this, newValue);
 

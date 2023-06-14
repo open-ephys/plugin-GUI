@@ -290,22 +290,22 @@ protected:
     bool drawerOpen;
 
     /** Adds a text box editor for a parameter of a given name. */
-    void addTextBoxParameterEditor (const String& name, int xPos, int yPos);
+    void addTextBoxParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a check box editor for a parameter of a given name. */
-    void addCheckBoxParameterEditor(const String& name, int xPos, int yPos);
+    void addCheckBoxParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a slider editor for a parameter of a given name. */
-    void addSliderParameterEditor(const String& name, int xPos, int yPos);
+    void addSliderParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a combo box editor for a parameter of a given name. */
-    void addComboBoxParameterEditor(const String& name, int xPos, int yPos);
+    void addComboBoxParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a selected channels editor for a parameter of a given name. */
-    void addSelectedChannelsParameterEditor(const String& name, int xPos, int yPos);
+    void addSelectedChannelsParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
     
     /** Adds a selected channels editor for a parameter of a given name. */
-    void addMaskChannelsParameterEditor(const String& name, int xPos, int yPos);
+    void addMaskChannelsParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a custom editor for a parameter of a given name. */
     void addCustomParameterEditor(ParameterEditor* editor, int xPos, int yPos);

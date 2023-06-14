@@ -108,59 +108,106 @@ int GenericEditor::getChannelDisplayNumber(int chan) const
 	return chan;
 }
 
-void GenericEditor::addTextBoxParameterEditor(const String& parameterName, int xPos_, int yPos_)
+void GenericEditor::addTextBoxParameterEditor(Parameter::ParameterScope scope, 
+    const String& parameterName,
+    int xPos_,
+    int yPos_)
 {
+    Parameter* param;
 
-    Parameter* param = getProcessor()->getParameter(parameterName);
+    if(scope == Parameter::GLOBAL_SCOPE)
+        param = getProcessor()->getParameter(parameterName);
+    else
+        param = getProcessor()->getStreamParameter(parameterName);
 
     addCustomParameterEditor(new TextBoxParameterEditor(param), xPos_, yPos_);
 }
 
-void GenericEditor::addCheckBoxParameterEditor(const String& parameterName, int xPos_, int yPos_)
+void GenericEditor::addCheckBoxParameterEditor(Parameter::ParameterScope scope,
+    const String& parameterName,
+    int xPos_,
+    int yPos_)
 {
 
-    Parameter* param = getProcessor()->getParameter(parameterName);
+    Parameter* param;
+
+    if(scope == Parameter::GLOBAL_SCOPE)
+        param = getProcessor()->getParameter(parameterName);
+    else
+        param = getProcessor()->getStreamParameter(parameterName);
 
     addCustomParameterEditor(new CheckBoxParameterEditor(param), xPos_, yPos_);
 }
 
 
-void GenericEditor::addSliderParameterEditor(const String& parameterName, int xPos_, int yPos_)
+void GenericEditor::addSliderParameterEditor(Parameter::ParameterScope scope,
+    const String& parameterName,
+    int xPos_,
+    int yPos_)
 {
     
     //std::cout << "CREATING EDITOR: " << parameterName << std::endl;
 
-    Parameter* param = getProcessor()->getParameter(parameterName);
+    Parameter* param;
+
+    if(scope == Parameter::GLOBAL_SCOPE)
+        param = getProcessor()->getParameter(parameterName);
+    else
+        param = getProcessor()->getStreamParameter(parameterName);
 
     addCustomParameterEditor(new SliderParameterEditor(param), xPos_, yPos_);
 }
 
 
-void GenericEditor::addComboBoxParameterEditor(const String& parameterName, int xPos_, int yPos_)
+void GenericEditor::addComboBoxParameterEditor(Parameter::ParameterScope scope,
+    const String& parameterName,
+    int xPos_,
+    int yPos_)
 {
 
-    Parameter* param = getProcessor()->getParameter(parameterName);
+    Parameter* param;
+
+    if(scope == Parameter::GLOBAL_SCOPE)
+        param = getProcessor()->getParameter(parameterName);
+    else
+        param = getProcessor()->getStreamParameter(parameterName);
 
     addCustomParameterEditor(new ComboBoxParameterEditor(param), xPos_, yPos_);
 }
 
 
-void GenericEditor::addSelectedChannelsParameterEditor(const String& parameterName, int xPos_, int yPos_)
+void GenericEditor::addSelectedChannelsParameterEditor(Parameter::ParameterScope scope,
+    const String& parameterName,
+    int xPos_,
+    int yPos_)
 {
 
     //std::cout << "CREATING EDITOR: " << parameterName << std::endl;
     
-    Parameter* param = getProcessor()->getParameter(parameterName);
+    Parameter* param;
+
+    if(scope == Parameter::GLOBAL_SCOPE)
+        param = getProcessor()->getParameter(parameterName);
+    else
+        param = getProcessor()->getStreamParameter(parameterName);
 
     addCustomParameterEditor(new SelectedChannelsParameterEditor(param), xPos_, yPos_);
 }
 
-void GenericEditor::addMaskChannelsParameterEditor(const String& parameterName, int xPos_, int yPos_)
+void GenericEditor::addMaskChannelsParameterEditor(Parameter::ParameterScope scope,
+    const String& parameterName,
+    int xPos_,
+    int yPos_)
 {
 
     //std::cout << "CREATING EDITOR: " << parameterName << std::endl;
     
-    Parameter* param = getProcessor()->getParameter(parameterName);
+    Parameter* param;
+
+    if(scope == Parameter::GLOBAL_SCOPE)
+        param = getProcessor()->getParameter(parameterName);
+    else
+        param = getProcessor()->getStreamParameter(parameterName);
 
     addCustomParameterEditor(new MaskChannelsParameterEditor(param), xPos_, yPos_);
 }
@@ -1084,32 +1131,32 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
     {
         const String parameterName = ed->getParameterName();
         
-        Parameter* param = getProcessor()->getParameter(parameterName);
-        
-        if (param == nullptr)
-            continue;
-
-        //LOGD("Parameter: ", param->getName());
-        
-        if (param->getScope() == Parameter::GLOBAL_SCOPE)
+        if (getProcessor()->hasParameter(parameterName))
         {
-            //LOGD("Global scope");
             ed->setParameter(getProcessor()->getParameter(ed->getParameterName()));
         }
-        else if (param->getScope() == Parameter::STREAM_SCOPE)
+        else
         {
             if (streamAvailable)
             {
                //LOGD("Stream scope");
-                Parameter* p2 = getProcessor()->getDataStream(streamId)->getParameter(param->getName());
-                ed->setParameter(p2);
+                auto stream = getProcessor()->getDataStream(streamId);
+                
+                if (stream->hasParameter(parameterName))
+                {
+                    Parameter* streamParam = stream->getParameter(parameterName);
+                    ed->setParameter(streamParam);
+                }
+                else
+                {
+                    continue;
+                }
             }
             else
             {
                 //LOGD("Stream not available");
                 ed->setParameter(nullptr);
             }
-                
         }
         
         ed->updateView();

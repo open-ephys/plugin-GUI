@@ -28,9 +28,9 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode) : GenericEditor(parentN
 {
     desiredWidth = 150;
 
-    addTextBoxParameterEditor("low_cut", 10, 22);
-    addTextBoxParameterEditor("high_cut", 10, 62);
-    addMaskChannelsParameterEditor("Channels", 10, 108);
+    addTextBoxParameterEditor(Parameter::STREAM_SCOPE, "low_cut", 10, 22);
+    addTextBoxParameterEditor(Parameter::STREAM_SCOPE, "high_cut", 10, 62);
+    addMaskChannelsParameterEditor(Parameter::STREAM_SCOPE, "Channels", 10, 108);
     
     TextBoxParameterEditor* e = (TextBoxParameterEditor*) getParameterEditor("low_cut");
     e->getParameterNameLabel()->setColour(Label::textColourId, Colours::white);

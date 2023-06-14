@@ -266,6 +266,10 @@ public:
     //     PARAMETERS
     // --------------------------------------------
 
+    using InfoObject::addParameter;
+    using InfoObject::getParameter;
+    using InfoObject::getParameters;
+
     /** Adds a boolean parameter, which will later be accessed by name*/
     void addBooleanParameter(Parameter::ParameterScope scope,
         const String& name,
@@ -323,10 +327,9 @@ public:
     /** Returns a pointer to a parameter created inside this processor
         Includes processor, stream, & channel scoped parameters
     */
-    Parameter* getParameter(const String& parameterName);
-    
-    /** Returns a list of parameters for this processor*/
-    Array<Parameter*> getParameters();
+
+    /** Returns a pointer to a Parameter object for a given stream (0 = no stream)*/
+    Parameter* getStreamParameter(const String& parameterName);
     
     /** Returns a list of parameters for a given stream within this processor*/
     Array<Parameter*> getParameters(uint16 streamId);
@@ -618,8 +621,9 @@ protected:
     /** When set to false, this disables the sending of sample counts through the event buffer (used by Mergers and Splitters). */
     bool sendSampleCount;
 
-    /** An array of default parameters for this processor.*/
-    OwnedArray<Parameter> availableParameters;
+    /** An array of stream- and schannel-scoped parameters for this processor.*/
+    OwnedArray<Parameter> dataStreamParameters;
+
     
     /** An array of parameter collections from deleted dataStreams*/
     OwnedArray<ParameterCollection> savedDataStreamParameters;

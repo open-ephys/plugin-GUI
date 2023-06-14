@@ -35,11 +35,11 @@ PhaseDetectorEditor::PhaseDetectorEditor(GenericProcessor* parentNode)
 {
     desiredWidth = 220;
 
-    addSelectedChannelsParameterEditor("Channel", 120, 105);
-    addComboBoxParameterEditor("TTL_out", 15, 30);
-    addComboBoxParameterEditor("gate_line", 15, 80);
+    addSelectedChannelsParameterEditor(Parameter::STREAM_SCOPE, "Channel", 120, 105);
+    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "TTL_out", 15, 30);
+    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "gate_line", 15, 80);
 
-    Parameter* param = getProcessor()->getParameter("phase");
+    Parameter* param = getProcessor()->getStreamParameter("phase");
     addCustomParameterEditor(new DetectorInterface(param), 110, 25);
 
 }
