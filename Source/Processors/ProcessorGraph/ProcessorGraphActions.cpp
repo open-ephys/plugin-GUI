@@ -184,7 +184,7 @@ DeleteProcessor::DeleteProcessor(GenericProcessor* processor_)
     
     nodeId = processor->getNodeId();
     
-    settings.reset(processorGraph->createNodeXml(processor, false, true));
+    settings.reset(processorGraph->createNodeXml(processor, false));
     
     if (processor->getSourceNode() != nullptr)
         sourceNodeId = processor->getSourceNode()->getNodeId();
@@ -235,8 +235,7 @@ bool DeleteProcessor::undo()
                                         false);
     processor->parametersAsXml = settings.get();
 
-    bool useKeys = true;
-    processor->loadFromXml(useKeys);
+    processor->loadFromXml();
     
     processorGraph->updateSettings(processor);
     

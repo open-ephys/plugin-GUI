@@ -126,7 +126,7 @@ public:
         defaultValue(defaultValue_),
         newValue(defaultValue_),
         m_deactivateDuringAcquisition(deactivateDuringAcquisition_),
-        m_identifier(-1)
+        m_identifier("UNKNOWN")
     {
     }
 
@@ -145,29 +145,16 @@ public:
     }
 
     /** Static map that keeps track of all Parameters */
-    //static std::map<String, Parameter*> parameterMap;
+    static std::map<std::string, Parameter*> parameterMap;
 
     /** Returns a pointer to the Parameter for a specific key */
-    //static Parameter* getParameter(const String& key);
+    static void registerParameter(Parameter* p) { parameterMap[p->getKey()] = p; };
 
-    /** Returns a globally unique key of the parameter 
-     * NOTE: Currently only used for persisting deleted params
-     * Can also be used in the future to enable global param access
-    */
-    int64 getKey() {
+    /** Set the globally unique key for this parameter */
+    void setKey(std::string key) { m_identifier = key; };
 
-        if (m_identifier < 0)
-            m_identifier = parameterCounter++;
-
-        p_name_map[m_identifier] = m_name;
-
-        return m_identifier;
-    }
-
-    /** Restores the parameter key if its deleted owner is recovered  */
-    void restoreKey(int64 key) {
-        m_identifier = key;
-    }
+    /** Returns a globally unique key of the parameter */
+    std::string getKey() { return m_identifier; }
 
     /** Returns the common name of the parameter. */
     String getName() const noexcept { return m_name; }
@@ -250,14 +237,14 @@ public:
     InfoObject* getOwner() { return infoObject; }
 
     /** Sets a pointer to the InfoObject this parameter is associated with**/
-    void setOwner(InfoObject* newOwner) { infoObject = newOwner; }
+    void setOwner(InfoObject* newOwner);
     
     /** Makes it possible to undo value changes */
     class ChangeValue : public UndoableAction
     {
     public:
         /** Constructor */
-        ChangeValue(int64 key, var newValue);
+        ChangeValue(std::string key, var newValue);
         
         /** Destructor */
         ~ChangeValue() { }
@@ -269,7 +256,7 @@ public:
         bool undo();
         
     private:
-        int64 key;
+        std::string key;
 
         var originalValue;
         var newValue;
@@ -291,7 +278,7 @@ protected:
 
 private:
 
-    int64 m_identifier;
+    std::string m_identifier;
 
     ParameterType m_parameterType;
     ParameterScope m_parameterScope;

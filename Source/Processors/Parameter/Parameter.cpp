@@ -29,6 +29,7 @@
 int64 Parameter::parameterCounter = 0;
 
 std::map<int64, String> Parameter::p_name_map;
+std::map<std::string, Parameter*> Parameter::parameterMap;
 
 String Parameter::getParameterTypeString() const
 {
@@ -68,37 +69,54 @@ uint16 Parameter::getStreamId()
         
 }
 
-
-Parameter::ChangeValue::ChangeValue(int64 key, var newValue_)
-    : newValue(newValue_)
+void Parameter::setOwner(InfoObject* infoObject_)
 {
-    /*
-    Parameter* p = Parameter::getParameter(key);
+    infoObject = infoObject_;
+
+    if (infoObject == nullptr) return;
+
+    String key;
+    if (getScope() == ParameterScope::GLOBAL_SCOPE)
+        key = getName(); // name should already be unique
+    else if (getScope() == ParameterScope::STREAM_SCOPE)
+        key = String(infoObject->getNodeId()) + "_" + infoObject->getName() + "_" + this->getName();
+    else if (getScope() == ParameterScope::PROCESSOR_SCOPE)
+        key = String(infoObject->getNodeId()) + "_" + this->getName();
+    else if (getScope() == ParameterScope::SPIKE_CHANNEL_SCOPE)
+        key = "TODO"; //Currently handled by spike processors
+
+    this->setKey(key.toStdString());
+
+    LOGDD("$ Registered Parameter $: ", key);
+
+    Parameter::registerParameter(this);
+}
+
+
+Parameter::ChangeValue::ChangeValue(std::string key_, var newValue_)
+    : key(key_), newValue(newValue_)
+{
+    Parameter* p = Parameter::parameterMap[key_];
 
     originalValue = p->currentValue;
-    */
 }
 
 bool Parameter::ChangeValue::perform()
 {
-    /*
-    Parameter* p = Parameter::getParameter(key);
+    Parameter* p = Parameter::parameterMap[key];
     
     p->newValue = newValue;
     p->getOwner()->parameterChangeRequest(p);
-    */
     
     return true;
 }
 
 bool Parameter::ChangeValue::undo()
 {
-    /*
-    Parameter* p = Parameter::getParameter(key);
+    Parameter* p = Parameter::parameterMap[key];
 
     p->newValue = originalValue;
     p->getOwner()->parameterChangeRequest(p);
-    */
     
     return true;
 }

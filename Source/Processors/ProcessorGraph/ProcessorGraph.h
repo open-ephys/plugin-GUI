@@ -208,7 +208,7 @@ public:
     void saveToXml(XmlElement* xml);
     
     /** Converts information about a given processor to XML. */
-    XmlElement* createNodeXml(GenericProcessor*, bool isStartOfSignalChain, bool useKeys = false);
+    XmlElement* createNodeXml(GenericProcessor*, bool isStartOfSignalChain);
     
     /** Converts XML parameters into a new GenericProcessor object */
     GenericProcessor* createProcessorAtInsertionPoint(XmlElement* parametersAsXml,

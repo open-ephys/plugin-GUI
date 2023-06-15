@@ -1708,7 +1708,7 @@ void ProcessorGraph::saveToXml(XmlElement* xml)
 
 }
 
-XmlElement* ProcessorGraph::createNodeXml(GenericProcessor* processor, bool isStartOfSignalChain, bool useKeys)
+XmlElement* ProcessorGraph::createNodeXml(GenericProcessor* processor, bool isStartOfSignalChain)
 {
 
     XmlElement* xml = new XmlElement("PROCESSOR");
@@ -1728,7 +1728,7 @@ XmlElement* ProcessorGraph::createNodeXml(GenericProcessor* processor, bool isSt
     xml->setAttribute("processorType", (int) processor->getProcessorType());
 
     /** Saves individual processor parameters to XML */
-    processor->saveToXml(xml, useKeys);
+    processor->saveToXml(xml);
 
     return xml;
 
