@@ -213,8 +213,7 @@ bool DeleteProcessor::perform()
     
     processorGraph->deleteNodes(processorToDelete);
 
-    /* Print settings */
-    LOGD(settings.get()->toString());
+    LOGDD(settings.get()->toString());
     
     return true;
 }

@@ -170,14 +170,14 @@ String BooleanParameter::getValueAsString()
     }
 }
 
-void BooleanParameter::toXml(XmlElement* xml, bool useKey) 
+void BooleanParameter::toXml(XmlElement* xml) 
 {
-    xml->setAttribute(useKey ? String(getKey()) : getName(), (bool) currentValue);
+    xml->setAttribute(getName(), (bool) currentValue);
 }
 
-void BooleanParameter::fromXml(XmlElement* xml, bool useKey)
+void BooleanParameter::fromXml(XmlElement* xml)
 {
-    currentValue = xml->getBoolAttribute(useKey ? String(getKey()) : getName(), defaultValue);
+    currentValue = xml->getBoolAttribute(getName(), defaultValue);
 }
 
 CategoricalParameter::CategoricalParameter(InfoObject* infoObject,
@@ -237,14 +237,14 @@ void CategoricalParameter::setCategories(Array<String> categories_)
     categories = categories_;
 }
 
-void CategoricalParameter::toXml(XmlElement* xml, bool useKey)
+void CategoricalParameter::toXml(XmlElement* xml)
 {
-    xml->setAttribute(useKey ? String(getKey()) : getName(), (int)currentValue);
+    xml->setAttribute(getName(), (int)currentValue);
 }
 
-void CategoricalParameter::fromXml(XmlElement* xml, bool useKey)
+void CategoricalParameter::fromXml(XmlElement* xml)
 {
-    currentValue = xml->getIntAttribute(useKey ? String(getKey()) : getName(), defaultValue);
+    currentValue = xml->getIntAttribute(getName(), defaultValue);
 }
 
 IntParameter::IntParameter(InfoObject* infoObject,
@@ -298,14 +298,14 @@ String IntParameter::getValueAsString()
     return String(getIntValue());
 }
 
-void IntParameter::toXml(XmlElement* xml, bool useKey)
+void IntParameter::toXml(XmlElement* xml)
 {
-    xml->setAttribute(useKey ? String(getKey()) : getName(), (int) currentValue);
+    xml->setAttribute(getName(), (int) currentValue);
 }
 
-void IntParameter::fromXml(XmlElement* xml, bool useKey)
+void IntParameter::fromXml(XmlElement* xml)
 {
-    currentValue = xml->getIntAttribute(useKey ? String(getKey()) : getName(), defaultValue);
+    currentValue = xml->getIntAttribute(getName(), defaultValue);
 }
 
 StringParameter::StringParameter(InfoObject* infoObject,
@@ -348,14 +348,14 @@ String StringParameter::getValueAsString()
     return getStringValue();
 }
 
-void StringParameter::toXml(XmlElement* xml, bool useKey)
+void StringParameter::toXml(XmlElement* xml)
 {
-    xml->setAttribute(useKey ? String(getKey()) : getName(), currentValue.toString());
+    xml->setAttribute(getName(), currentValue.toString());
 }
 
-void StringParameter::fromXml(XmlElement* xml, bool useKey)
+void StringParameter::fromXml(XmlElement* xml)
 {
-    currentValue = xml->getStringAttribute(useKey ? String(getKey()) : getName(), defaultValue);
+    currentValue = xml->getStringAttribute(getName(), defaultValue);
 }
 
 
@@ -420,14 +420,14 @@ String FloatParameter::getValueAsString()
     return String(getFloatValue());
 }
 
-void FloatParameter::toXml(XmlElement* xml, bool useKey)
+void FloatParameter::toXml(XmlElement* xml)
 {
-    xml->setAttribute(useKey ? String(getKey()) : getName(), (float)currentValue);
+    xml->setAttribute(getName(), (float)currentValue);
 }
 
-void FloatParameter::fromXml(XmlElement* xml, bool useKey)
+void FloatParameter::fromXml(XmlElement* xml)
 {
-    currentValue = xml->getDoubleAttribute(useKey ? String(getKey()) : getName(), defaultValue);
+    currentValue = xml->getDoubleAttribute(getName(), defaultValue);
 }
 
 SelectedChannelsParameter::SelectedChannelsParameter(InfoObject* infoObject_,
@@ -500,15 +500,15 @@ String SelectedChannelsParameter::getValueAsString()
     return selectedChannelsToString();
 }
 
-void SelectedChannelsParameter::toXml(XmlElement* xml, bool useKey)
+void SelectedChannelsParameter::toXml(XmlElement* xml)
 {
-    xml->setAttribute(useKey ? String(getKey()) : getName(), selectedChannelsToString());
+    xml->setAttribute(getName(), selectedChannelsToString());
 }
 
-void SelectedChannelsParameter::fromXml(XmlElement* xml, bool useKey)
+void SelectedChannelsParameter::fromXml(XmlElement* xml)
 {
-    if (xml->hasAttribute(useKey ? String(getKey()) : getName()))
-        currentValue = parseSelectedString(xml->getStringAttribute(useKey ? String(getKey()) : getName(), ""));
+    if (xml->hasAttribute(getName()))
+        currentValue = parseSelectedString(xml->getStringAttribute(getName(), ""));
     
     //std::cout << "Loading selected channels parameter at " << this << std::endl;
 }
@@ -627,15 +627,15 @@ String MaskChannelsParameter::getValueAsString()
     return maskChannelsToString();
 }
 
-void MaskChannelsParameter::toXml(XmlElement* xml, bool useKey)
+void MaskChannelsParameter::toXml(XmlElement* xml)
 {
-    xml->setAttribute(useKey ? String(getKey()) : getName(), maskChannelsToString());
+    xml->setAttribute(getName(), maskChannelsToString());
 }
 
-void MaskChannelsParameter::fromXml(XmlElement* xml, bool useKey)
+void MaskChannelsParameter::fromXml(XmlElement* xml)
 {
-    if (xml->hasAttribute(useKey ? String(getKey()) : getName()))
-        currentValue = parseMaskString(xml->getStringAttribute(useKey ? String(getKey()) : getName(), ""));
+    if (xml->hasAttribute(getName()))
+        currentValue = parseMaskString(xml->getStringAttribute(getName(), ""));
 }
 
 String MaskChannelsParameter::maskChannelsToString()

@@ -216,10 +216,10 @@ public:
     String getParameterTypeString() const;
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*, bool useKey = false) = 0;
+    virtual void toXml(XmlElement*) = 0;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*, bool useKey = false) = 0;
+    virtual void fromXml(XmlElement*) = 0;
     
     /** Returns the value as a string**/
     virtual String getValueAsString() = 0;
@@ -316,10 +316,10 @@ public:
     virtual String getValueAsString() override;
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*, bool useKey = false) override;
+    virtual void toXml(XmlElement*) override;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*, bool useKey = false) override;
+    virtual void fromXml(XmlElement*) override;
 
 };
 
@@ -360,10 +360,10 @@ public:
     const Array<String>& getCategories();
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*, bool useKey = false) override;
+    virtual void toXml(XmlElement*) override;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*, bool useKey = false) override;
+    virtual void fromXml(XmlElement*) override;
 
 private:
 
@@ -404,10 +404,10 @@ public:
     int getMaxValue() { return maxValue; }
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*, bool useKey = false) override;
+    virtual void toXml(XmlElement*) override;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*, bool useKey = false) override;
+    virtual void fromXml(XmlElement*) override;
 
 private:
     int maxValue;
@@ -440,10 +440,10 @@ public:
     virtual String getValueAsString() override;
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*, bool useKey = false) override;
+    virtual void toXml(XmlElement*) override;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*, bool useKey = false) override;
+    virtual void fromXml(XmlElement*) override;
 };
 
 /**
@@ -485,10 +485,10 @@ public:
     float getStepSize() { return stepSize; }
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*, bool useKey = false) override;
+    virtual void toXml(XmlElement*) override;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*, bool useKey = false) override;
+    virtual void fromXml(XmlElement*) override;
 
 private:
     float maxValue;
@@ -546,10 +546,10 @@ public:
     void setChannelCount(int count);
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*, bool useKey = false) override;
+    virtual void toXml(XmlElement*) override;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*, bool useKey = false) override;
+    virtual void fromXml(XmlElement*) override;
 
 private:
 
@@ -597,10 +597,10 @@ public:
     void setChannelCount(int count);
 
     /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*, bool useKey = false) override;
+    virtual void toXml(XmlElement*) override;
 
     /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*, bool useKey = false) override;
+    virtual void fromXml(XmlElement*) override;
 
 private:
 
