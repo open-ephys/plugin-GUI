@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DataStream.h"
 #include "../GenericProcessor/GenericProcessor.h"
-#include "../Parameter/Parameter.h"
+
 
 HistoryObject::HistoryObject() { }
 
@@ -193,7 +193,6 @@ String InfoObject::getNodeName() const
 	return m_nodeName;
 }
 
-
 void InfoObject::addProcessor(GenericProcessor* processor)
 {
 
@@ -265,6 +264,92 @@ void InfoObject::addParameter(Parameter* p)
     parameters.addParameter(p);
 }
 
+Array<String> InfoObject::getParameterNames() const
+{
+    return parameters.getParameterNames();
+}
+
+
+Component* InfoObject::createDefaultEditor(int rowHeightPixels)
+{
+    
+    Component* editorComponent = new Component();
+
+    int yPos = 0;
+    const int width = 200;
+
+    for (auto parameterName : getParameterNames())
+    {
+		Parameter* parameter = getParameter(parameterName);
+        
+        switch (parameter->getType())
+        {
+        case Parameter::INT_PARAM:
+        {
+            TextBoxParameterEditor* intParameterEditor = new TextBoxParameterEditor(parameter);
+            intParameterEditor->setBounds(0, yPos, width, rowHeightPixels);
+            editorComponent->addAndMakeVisible(intParameterEditor);
+            editors.add(intParameterEditor);
+            break;
+        }
+        case Parameter::FLOAT_PARAM:
+        {
+            TextBoxParameterEditor* floatParameterEditor = new TextBoxParameterEditor(parameter);
+			std::cout << "Creating float parameter editor for " << parameter->getName() << std::endl;
+            floatParameterEditor->setBounds(0, yPos, width, rowHeightPixels);
+            editorComponent->addAndMakeVisible(floatParameterEditor);
+            editors.add(floatParameterEditor);
+            break;
+        }
+        case Parameter::BOOLEAN_PARAM:
+        {
+            CheckBoxParameterEditor* booleanParameterEditor = new CheckBoxParameterEditor(parameter);
+            booleanParameterEditor->setBounds(0, yPos, width, rowHeightPixels);
+            editorComponent->addAndMakeVisible(booleanParameterEditor);
+            editors.add(booleanParameterEditor);
+            break;
+        }
+        case Parameter::CATEGORICAL_PARAM:
+        {
+            ComboBoxParameterEditor* categoricalParameterEditor = new ComboBoxParameterEditor(parameter);
+            categoricalParameterEditor->setBounds(0, yPos, width, rowHeightPixels);
+            editorComponent->addAndMakeVisible(categoricalParameterEditor);
+            editors.add(categoricalParameterEditor);
+            break;
+        }
+        case Parameter::SELECTED_CHANNELS_PARAM:
+        {
+            SelectedChannelsParameterEditor* selectedChannelsParameterEditor = new SelectedChannelsParameterEditor(parameter);
+            selectedChannelsParameterEditor->setBounds(0, yPos, width, rowHeightPixels);
+            editorComponent->addAndMakeVisible(selectedChannelsParameterEditor);
+            editors.add(selectedChannelsParameterEditor);
+            break;
+        }
+        case Parameter::MASK_CHANNELS_PARAM:
+        {
+            MaskChannelsParameterEditor* maskChannelsParameterEditor = new MaskChannelsParameterEditor(parameter);
+            maskChannelsParameterEditor->setBounds(0, yPos, width, rowHeightPixels);
+            editorComponent->addAndMakeVisible(maskChannelsParameterEditor);
+            editors.add(maskChannelsParameterEditor);
+            break;
+        }
+        default:
+        {
+            yPos -= rowHeightPixels;
+            break;
+        }
+            
+        }
+
+        yPos += rowHeightPixels;
+        
+    }
+
+     editorComponent->setBounds(0, 0, width, yPos);
+
+     return editorComponent;
+    
+}
 
 // --------------------------------------------
 //     CHANNEL INFO OBJECT

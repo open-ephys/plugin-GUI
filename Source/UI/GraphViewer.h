@@ -45,7 +45,7 @@ class DataStreamInfo : public Component
 public:
 
     /** Constructor */
-    DataStreamInfo(const DataStream* stream);
+    DataStreamInfo(DataStream* stream);
 
     /** Destructor */
     ~DataStreamInfo();
@@ -53,9 +53,14 @@ public:
     /** Paint component */
     void paint(Graphics& g);
 
+    int heightInPixels;
+
 private:
 
-    const DataStream* stream;
+    DataStream* stream;
+
+    std::unique_ptr<Component> streamParameterEditor;
+    
 
 };
 
@@ -74,6 +79,9 @@ public:
 
     /** Destructor */
     ~DataStreamButton();
+
+    /** Returns height of the data stream editor */
+	int getDesiredHeight() const;
 
     /** Paint component */
     void paintButton(Graphics& g, bool isHighlighted, bool isDown);

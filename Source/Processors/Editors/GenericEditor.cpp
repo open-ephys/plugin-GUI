@@ -1081,10 +1081,10 @@ void GenericEditor::updateView()
 
     const MessageManagerLock mml;
     
-    for (auto ed : parameterEditors)
-    {
-        ed->updateView();
-    }
+    //for (auto ed : parameterEditors)
+    //{
+    //    ed->updateView();
+    //}
 
     updateVisualizerView();
 }

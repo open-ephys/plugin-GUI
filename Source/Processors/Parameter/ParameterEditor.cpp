@@ -25,17 +25,18 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../Editors/GenericEditor.h"
 
-TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param) : ParameterEditor(param)
+TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPixels) 
+    : ParameterEditor(param)
 {
     jassert(param->getType() == Parameter::FLOAT_PARAM
         || param->getType() == Parameter::INT_PARAM
         || param->getType() == Parameter::STRING_PARAM);
 
     parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
-    Font labelFont = Font("Silkscreen", "Regular", 12);
+    Font labelFont = Font("Silkscreen", "Regular", rowHeightPixels);
     int labelWidth = labelFont.getStringWidth(param->getName());
     parameterNameLabel->setFont(labelFont);
-    parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
+    parameterNameLabel->setColour(Label::textColourId, Colours::black);
     addAndMakeVisible(parameterNameLabel.get());
 
     if(param->getType() == Parameter::FLOAT_PARAM)
@@ -43,10 +44,10 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param) : ParameterEdit
     else
         valueTextBox = std::make_unique<Label>("Parameter value", param->getValue().toString());
 
-    valueTextBox->setFont(Font("CP Mono", "Plain", 15));
+    valueTextBox->setFont(Font("CP Mono", "Plain", rowHeightPixels));
     valueTextBox->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
-    valueTextBox->setColour(Label::textColourId, Colours::white);
-    valueTextBox->setColour(Label::backgroundColourId, Colours::grey);
+    valueTextBox->setColour(Label::textColourId, Colours::black);
+    valueTextBox->setColour(Label::backgroundColourId, Colours::lightgrey);
     valueTextBox->setEditable(true);
     valueTextBox->addListener(this);
     valueTextBox->setTooltip(param->getDescription());
@@ -54,9 +55,9 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param) : ParameterEdit
     
     finalWidth = std::max(labelWidth, 80);
 
-    setBounds(0, 0, finalWidth, 42);
-    parameterNameLabel->setBounds(0, 0, getWidth(), 20);
-    valueTextBox->setBounds(0, 20, getWidth(), 18);
+    setBounds(0, 0, finalWidth, rowHeightPixels);
+    parameterNameLabel->setBounds(50, 0, getWidth() - 50, rowHeightPixels);
+    valueTextBox->setBounds(0, 0, 50, rowHeightPixels);
 }
 
 void TextBoxParameterEditor::labelTextChanged(Label* label)
@@ -130,14 +131,14 @@ void TextBoxParameterEditor::setLayout(Layout layout)
     }
 }
 
-CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param) : ParameterEditor(param)
+CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
 {
 
     jassert(param->getType() == Parameter::BOOLEAN_PARAM);
 
     parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
     parameterNameLabel->setFont(Font("Silkscreen", "Regular", 12));
-    parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
+    parameterNameLabel->setColour(Label::textColourId, Colours::black);
     addAndMakeVisible(parameterNameLabel.get());
 
     valueCheckBox = std::make_unique<ToggleButton>("Parameter value");
@@ -147,7 +148,7 @@ CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param) : ParameterEd
     valueCheckBox->setTooltip(param->getDescription());
     addAndMakeVisible(valueCheckBox.get());
 
-    setBounds(0, 0, 80, 42);
+    setBounds(0, 0, 80, rowHeightPixels);
 
 }
 
@@ -169,12 +170,12 @@ void CheckBoxParameterEditor::updateView()
 void CheckBoxParameterEditor::resized()
 {
 
-    parameterNameLabel->setBounds(0, 0, 80, 20);
-    valueCheckBox->setBounds(0, 22, 60, 18);
+    parameterNameLabel->setBounds(getHeight(), 0, 80 - getHeight(), getHeight());
+    valueCheckBox->setBounds(0, 0, getHeight(), getHeight());
 }
 
 
-ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param) : ParameterEditor(param)
+ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
 {
 
     jassert(param->getType() == Parameter::CATEGORICAL_PARAM
@@ -220,7 +221,7 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param) : ParameterEd
         valueComboBox->setSelectedId(p->getIntValue() + offset, dontSendNotification);
     }
 
-    setBounds(0, 0, 80, 42);
+    setBounds(0, 0, 80, rowHeightPixels);
 }
 
 
@@ -280,8 +281,8 @@ void ComboBoxParameterEditor::updateView()
 void ComboBoxParameterEditor::resized()
 {
 
-    parameterNameLabel->setBounds(0, 0, 80, 20);
-    valueComboBox->setBounds(0, 20, 80, 18);
+    parameterNameLabel->setBounds(50, 0, 50, getHeight());
+    valueComboBox->setBounds(0, 0, 50, getHeight());
 }
 
 CustomSlider::CustomSlider() : isEnabled(true)
@@ -419,7 +420,7 @@ Label* SliderLookAndFeel::createSliderTextBox (Slider& slider)
     return l;
 }
 
-SliderParameterEditor::SliderParameterEditor(Parameter* param) : ParameterEditor(param)
+SliderParameterEditor::SliderParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
 {
 
     jassert(param->getType() == Parameter::FLOAT_PARAM
@@ -498,10 +499,10 @@ void SliderParameterEditor::resized()
 }
 
 
-SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* param) : ParameterEditor(param)
+SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
 {
 
-    button = std::make_unique<UtilityButton>(param->getName(), Font("CP Mono", "Plain", 10));
+    button = std::make_unique<TextButton>(param->getName());
     button->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     button->addListener(this);
     button->setClickingTogglesState(false);
@@ -557,10 +558,10 @@ void SelectedChannelsParameterEditor::resized()
 
 
 
-MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param) : ParameterEditor(param)
+MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
 {
 
-    button = std::make_unique<UtilityButton>(param->getName(), Font("CP Mono", "Plain", 10));
+    button = std::make_unique<TextButton>(param->getName());
     button->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     button->addListener(this);
     button->setClickingTogglesState(false);

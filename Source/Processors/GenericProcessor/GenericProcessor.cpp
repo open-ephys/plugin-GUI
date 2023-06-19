@@ -78,6 +78,8 @@ GenericProcessor::GenericProcessor(const String& name, bool headlessMode_)
 
 GenericProcessor::~GenericProcessor()
 {
+    editor.reset(); // remove parameter editors before parameters
+
     dataStreamParameters.clear(true);
     parametersAsXml = nullptr;
 }

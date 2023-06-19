@@ -55,6 +55,9 @@ public:
     /** Returns pointers to all parameters in the collection */
     Array<Parameter*> getParameters();
 
+    /** Returns names of all parameters in the collection */
+    Array<String> getParameterNames() const;
+
     /** Copies parameter values to an InfoObject with existing Parameters */
     void copyParameterValuesTo(InfoObject* object);
     

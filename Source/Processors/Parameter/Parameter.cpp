@@ -92,6 +92,29 @@ void Parameter::setOwner(InfoObject* infoObject_)
     Parameter::registerParameter(this);
 }
 
+void Parameter::addListener(Parameter::Listener* listener)
+{
+    if (!parameterListeners.contains(listener))
+    {
+        parameterListeners.add(listener);
+    }
+}
+
+void Parameter::removeListener(Parameter::Listener* listener)
+{
+    if (parameterListeners.contains(listener))
+    {
+        parameterListeners.removeAllInstancesOf(listener);
+    }
+}
+
+void Parameter::valueChanged()
+{
+    for (auto listener : parameterListeners)
+    {
+		listener->parameterChanged(this);
+    }
+}
 
 Parameter::ChangeValue::ChangeValue(std::string key_, var newValue_)
     : key(key_), newValue(newValue_)
@@ -108,6 +131,8 @@ bool Parameter::ChangeValue::perform()
     p->newValue = newValue;
     p->getOwner()->parameterChangeRequest(p);
     
+    p->valueChanged();
+    
     return true;
 }
 
@@ -117,6 +142,8 @@ bool Parameter::ChangeValue::undo()
 
     p->newValue = originalValue;
     p->getOwner()->parameterChangeRequest(p);
+
+    p->valueChanged();
     
     return true;
 }

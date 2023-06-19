@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Metadata.h"
 #include "../Parameter/ParameterCollection.h"
 #include "../Parameter/Parameter.h"
+#include "../Parameter/ParameterEditor.h"
 
 class GenericProcessor;
 class ParameterCollection;
@@ -116,7 +117,11 @@ private:
 * InfoObjects are used to represent continuous channels, event channels,
 * spike channels, processors, data streams, devices, and other information
 * about plugins.
-*
+* 
+* Parameters can be attached to InfoObjects to hold information about specific
+* settings. For example, a DataStream might have parameters that store the
+* the values of filter cutoffs.
+* 
 */
 class PLUGIN_API InfoObject :
 	public NamedObject,
@@ -193,6 +198,9 @@ public:
     /** Returns a pointer to a parameter with a given name**/
     Array<Parameter*> getParameters() { return parameters.getParameters(); }
 
+	/** Returns a pointer to a parameter with a given name**/
+	Array<String> getParameterNames() const;
+
 	/*Bracket operator returns the value of a parameter*/
     var operator [](String name) const {return parameters[name]->getValue();}
 
@@ -208,6 +216,14 @@ public:
     /** Called when a parameter value is updated, to allow plugin-specific responses*/
     virtual void parameterValueChanged(Parameter*) { }
 
+	/** Creates a simple editor for modifying this object's parameters */
+	virtual Component* createDefaultEditor(int rowHeightPixels = 12);
+	
+
+	// --------------------------------------------
+	//    OTHER METHODS
+	// --------------------------------------------
+	
 	/** Returns the type of the InfoObject*/
 	const Type getType() const;
 
@@ -244,11 +260,16 @@ public:
     /** Returns true if this object was created locally, or copied from an upstream processor.*/
     bool isLocal() const;
 
+	/** Holds pointers to all processors that may have modified this object */
 	Array<GenericProcessor*> processorChain;
 
+	/** Holds information about the "group" this object belongs to */
 	Group group;
+
+	/** Holds information about the 3D position of the object*/
 	Position position;
 
+	/** Holds the parameters for this object */
     ParameterCollection parameters;
 
 
@@ -256,8 +277,10 @@ protected:
 	/** Constructor*/
 	InfoObject(Type type);
 
+	/** Sets the ID of the processor that initially generated this object's data */
 	void setSourceNodeId(int nodeId);
 
+	/** Sets the name of the processor that initially generated this object's data */
 	void setSourceNodeName(String nodeName);
 
 private:
@@ -274,6 +297,8 @@ private:
 	String m_sourceNodeName;
 
     bool m_isEnabled;
+
+	OwnedArray<ParameterEditor> editors;
 
     bool m_isLocal;
 };

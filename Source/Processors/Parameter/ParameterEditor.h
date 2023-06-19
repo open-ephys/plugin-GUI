@@ -28,22 +28,37 @@
 #include "Parameter.h"
 #include "../Editors/PopupChannelSelector.h"
 
-class UtilityButton;
 
 /** 
     Base class for ParameterEditors
 
     All custom ParameterEditors must inherit from this class.
 */
-class ParameterEditor : public Component
+class ParameterEditor : public Component,
+                        public Parameter::Listener
 {
 public:
 
     /** Constructor */
-    ParameterEditor(Parameter* param_) : param(param_), name(param_->getName()) { }
+    ParameterEditor(Parameter* param_) : param(param_), name(param_->getName()) 
+    {
+        param->addListener(this);
+    }
 
     /** Destructor */
-    virtual ~ParameterEditor() { }
+    virtual ~ParameterEditor() { 
+    
+        param->removeListener(this);
+    
+    }
+
+    /** Implements Parameter::Listener */
+    void parameterChanged(Parameter* param)
+    {
+        const MessageManagerLock mml;
+        
+        updateView();
+    }
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() = 0;
@@ -85,7 +100,7 @@ class PLUGIN_API TextBoxParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    TextBoxParameterEditor(Parameter* param);
+    TextBoxParameterEditor(Parameter* param, int rowHeightPixels = 18);
 
     /** Destructor */
     virtual ~TextBoxParameterEditor() { }
@@ -134,7 +149,7 @@ class PLUGIN_API CheckBoxParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    CheckBoxParameterEditor(Parameter* param);
+    CheckBoxParameterEditor(Parameter* param, int rowHeightPixels = 18);
 
     /** Destructor */
     virtual ~CheckBoxParameterEditor() { }
@@ -166,7 +181,7 @@ class PLUGIN_API ComboBoxParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    ComboBoxParameterEditor(Parameter* param);
+    ComboBoxParameterEditor(Parameter* param, int rowHeightPixels = 18);
 
     /** Destructor */
     virtual ~ComboBoxParameterEditor() { }
@@ -248,7 +263,7 @@ class PLUGIN_API SliderParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    SliderParameterEditor(Parameter* param);
+    SliderParameterEditor(Parameter* param, int rowHeightPixels = 18);
 
     /** Destructor */
     virtual ~SliderParameterEditor() { }
@@ -283,7 +298,7 @@ class PLUGIN_API SelectedChannelsParameterEditor :
 public:
 
     /** Constructor */
-    SelectedChannelsParameterEditor(Parameter* param);
+    SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18);
 
     /** Destructor */
     virtual ~SelectedChannelsParameterEditor() { }
@@ -301,7 +316,7 @@ public:
     virtual void resized() override;
 
 private:
-    std::unique_ptr<UtilityButton> button;
+    std::unique_ptr<TextButton> button;
 };
 
 /**
@@ -318,7 +333,7 @@ class PLUGIN_API MaskChannelsParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    MaskChannelsParameterEditor(Parameter* param);
+    MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18);
 
     /** Destructor */
     virtual ~MaskChannelsParameterEditor() { }
@@ -336,7 +351,7 @@ public:
     virtual void resized() override;
 
 private:
-    std::unique_ptr<UtilityButton> button;
+    std::unique_ptr<TextButton> button;
 };
 
 #endif  // __PARAMETEREDITOR_H_44537DA9__

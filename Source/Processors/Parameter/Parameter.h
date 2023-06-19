@@ -171,6 +171,8 @@ public:
     /** Returns the streamId for this parameter (if available)*/
     uint16 getStreamId();
 
+   
+
     // /** Sets the streamId for this parameter*/
     // void setDataStream(DataStream* dataStream_) { dataStream = dataStream_;  }
     
@@ -238,6 +240,30 @@ public:
 
     /** Sets a pointer to the InfoObject this parameter is associated with**/
     void setOwner(InfoObject* newOwner);
+
+    /** Parameter listener class -- used for Parameter Editors */
+    class Listener
+    {
+	public:
+        
+        /** Constructor */
+        Listener() { }
+        
+		/** Destructor */
+		virtual ~Listener() { }
+
+		/** Called when the parameter value changes */
+		virtual void parameterChanged(Parameter* parameterThatHasChanged) = 0;
+	};
+
+    /** Add Listener for this parameter */
+	void addListener(Listener* listenerToAdd);
+
+    /** Remove Listener for this parameter */
+    void removeListener(Listener* listenerToRemove);
+
+    /** Broadcasts a value change to all listeners */
+    void valueChanged();
     
     /** Makes it possible to undo value changes */
     class ChangeValue : public UndoableAction
@@ -286,6 +312,8 @@ private:
     String m_description;
 
     bool m_deactivateDuringAcquisition;
+
+    Array<Listener*> parameterListeners;
 
 };
 

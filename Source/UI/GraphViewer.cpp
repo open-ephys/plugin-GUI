@@ -28,6 +28,7 @@
 #include "../Utils/Utils.h"
 
 #include "../Processors/Settings/DataStream.h"
+#include "../Processors/Settings/InfoObject.h"
 
 #include "../UI/LookAndFeel/CustomLookAndFeel.h"
 
@@ -310,9 +311,17 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
 /// ------------------------------------------------------
 
 
-DataStreamInfo::DataStreamInfo(const DataStream* stream_)
+DataStreamInfo::DataStreamInfo(DataStream* stream_)
     :  stream(stream_)
 {
+    
+    streamParameterEditor.reset(stream->createDefaultEditor(18));
+
+    streamParameterEditor->setBounds(0, 60, streamParameterEditor->getWidth(), streamParameterEditor->getHeight());
+	addAndMakeVisible(streamParameterEditor.get());
+
+    heightInPixels = streamParameterEditor->getHeight() + 80;
+    
 }
 
 DataStreamInfo::~DataStreamInfo()
@@ -370,6 +379,11 @@ DataStreamButton::~DataStreamButton()
 
 }
 
+int DataStreamButton::getDesiredHeight() const
+{
+    return info->heightInPixels;
+}
+
 void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
 {
 
@@ -413,13 +427,13 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
         for (auto stream : processor->getDataStreams())
         {
 
-            DataStreamInfo* info = new DataStreamInfo(stream);
+            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()));
             dataStreamPanel.addPanel(-1, info, true);
 
             DataStreamButton* button = new DataStreamButton(editor, stream, info);
             button->addListener(this);
             dataStreamPanel.setCustomPanelHeader(info, button, true);
-            dataStreamPanel.setMaximumPanelSize(info, 60);
+            dataStreamPanel.setMaximumPanelSize(info, 200);
 
             dataStreamButtons.add(button);
         }
@@ -503,7 +517,7 @@ void GraphNode::buttonClicked(Button* button)
     DataStreamButton* dsb = (DataStreamButton*)button;
 
     if (button->getToggleState())
-        dataStreamPanel.setPanelSize(dsb->getComponent(), 60, false);
+        dataStreamPanel.setPanelSize(dsb->getComponent(), dsb->getDesiredHeight(), false);
     else
         dataStreamPanel.setPanelSize(dsb->getComponent(), 0, false);
 
@@ -578,7 +592,7 @@ void GraphNode::updateBoundaries()
     for (auto dsb : dataStreamButtons)
     {
         if (dsb->getToggleState())
-            panelHeight += 80;
+            panelHeight += dsb->getDesiredHeight();
         else
             panelHeight += 20;
     }

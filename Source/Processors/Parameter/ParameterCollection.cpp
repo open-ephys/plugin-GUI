@@ -280,6 +280,17 @@ Array<Parameter*> ParameterCollection::getParameters()
 }
 
 
+Array<String> ParameterCollection::getParameterNames() const
+{
+    Array<String> names;
+
+    for (auto param : parameters)
+        names.add(param->getName());
+
+    return names;
+}
+
+
 void ParameterCollection::clear()
 {
     parameters.clear();
