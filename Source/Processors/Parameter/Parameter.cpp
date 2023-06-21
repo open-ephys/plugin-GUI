@@ -598,19 +598,18 @@ void MaskChannelsParameter::setNextValue(var newValue_)
 {
 
     Array<var> values;
-    
-    bool isDifferentValue = false;
 
+    String result = "";
     for (int i = 0; i < channelCount; i++)
     {
         if (newValue_.getArray()->contains(i))
             values.add(i);
-
-        if (!currentValue.getArray()->contains(i))
-            isDifferentValue = true;
+        else
+            result += String(i + 1) + ",";
     }
-    
-    if (!isDifferentValue) return;
+    result = result.substring(0, result.length() - 1);
+
+    if (result == maskChannelsToString()) return;
 
     newValue = values;
     
