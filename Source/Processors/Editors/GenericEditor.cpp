@@ -405,26 +405,21 @@ void GenericEditor::paint(Graphics& g)
         g.fillAll();
     }
 
-    g.setFont (titleFont);
-    g.setFont (16);
-
-    if (isEnabled)
-    {
-        g.setColour(Colours::white);
-    }
-    else
-    {
-        g.setColour(Colours::grey);
-    }
-
     // draw title
     if (!isCollapsed)
     {
-        g.drawText (displayName.toUpperCase(), 10, 5, 500, 15, Justification::left, false);
+        g.setColour(Colours::lightgrey);
+        g.setFont( Font("Mono", "Plain", 12) );
+        g.drawText (String(nodeId), 10, 6, 30, 15, Justification::left, false);
+        g.setColour(isEnabled ? Colours::white : Colours::lightgrey);
+        g.setFont (Font("CP Mono", "Plain", 16));
+        g.drawText (displayName.toUpperCase(), 35, 5, 500, 15, Justification::left, false);
     }
     else
     {
         g.addTransform(AffineTransform::rotation(-M_PI/2.0));
+        g.setColour(isEnabled ? Colours::white : Colours::lightgrey);
+        g.setFont (Font("CP Mono", "Plain", 14));
         g.drawText (displayName.toUpperCase(), - getHeight() + 6, 5, 500, 15, Justification::left, false);
         g.addTransform(AffineTransform::rotation(M_PI/2.0));
     }
