@@ -9,43 +9,7 @@
 #include <string>
 #include <map>
 
-/* Log Action -- taken by user */
-#define LOGA(...) \
-    OELogger::instance().LOGFile("[open-ephys][action] ", __VA_ARGS__);
-
-/* Log Buffer -- related logs i.e. inside process() method */
-#define LOGB(...) \
-    OELogger::instance().LOGFile("[open-ephys][buffer] ", __VA_ARGS__);
-
-/* Log Console -- gets printed to the GUI Debug Console */
-#define LOGC(...) \
-    OELogger::instance().LOGConsole("[open-ephys] ", __VA_ARGS__);
-
-/* Log Debug -- gets printed to the console in debug mode, to file otherwise */
-#ifdef DEBUG
-
-#define LOGD(...) \
-    OELogger::instance().LOGConsole("[open-ephys][debug] ", __VA_ARGS__);
-#else
-/* Log Debug -- gets printed to the log file */
-#define LOGD(...) \
-    OELogger::instance().LOGFile("[open-ephys][debug] ", __VA_ARGS__);
-#endif
-
-/* Log Deep Debug -- gets printed to log file (e.g. enable after a crash to get more details) */
-#define LOGDD(...) \
-    OELogger::instance().LOGFile("[open-ephys][ddebug] ", __VA_ARGS__);
-
-/* Log Error -- gets printed to console with flare */
-#define LOGE(...) \
-    OELogger::instance().LOGError("[open-ephys] ***ERROR*** ", __VA_ARGS__);
-
-/* Log File -- gets printed directly to main output file */
-#define LOGF(...) LOGD(...)
-
-/* Log Graph -- gets logs related to processor graph generation/modification events */
-#define LOGG(...) \
-    OELogger::instance().LOGFile("[open-ephys][graph] ", __VA_ARGS__);
+#include "../Processors/PluginManager/OpenEphysPlugin.h"
 
 /* Thread-safe logger */
 class OELogger
@@ -108,12 +72,46 @@ private:
 	std::mutex mt;
 };
 
+/* Expose the Logger instance to plugins */
+extern "C" PLUGIN_API OELogger& getOELogger();
 
+/* Log Action -- taken by user */
+#define LOGA(...) \
+    getOELogger().LOGFile("[open-ephys][action] ", __VA_ARGS__);
 
+/* Log Buffer -- related logs i.e. inside process() method */
+#define LOGB(...) \
+    getOELogger().LOGFile("[open-ephys][buffer] ", __VA_ARGS__);
 
+/* Log Console -- gets printed to the GUI Debug Console */
+#define LOGC(...) \
+    getOELogger().LOGConsole("[open-ephys] ", __VA_ARGS__);
 
+/* Log Debug -- gets printed to the console in debug mode, to file otherwise */
+#ifdef DEBUG
 
+#define LOGD(...) \
+    getOELogger().LOGConsole("[open-ephys][debug] ", __VA_ARGS__);
+#else
+/* Log Debug -- gets printed to the log file */
+#define LOGD(...) \
+    getOELogger().LOGFile("[open-ephys][debug] ", __VA_ARGS__);
+#endif
 
+/* Log Deep Debug -- gets printed to log file (e.g. enable after a crash to get more details) */
+#define LOGDD(...) \
+    getOELogger().LOGFile("[open-ephys][ddebug] ", __VA_ARGS__);
+
+/* Log Error -- gets printed to console with flare */
+#define LOGE(...) \
+    getOELogger().LOGError("[open-ephys] ***ERROR*** ", __VA_ARGS__);
+
+/* Log File -- gets printed directly to main output file */
+#define LOGF(...) LOGD(...)
+
+/* Log Graph -- gets logs related to processor graph generation/modification events */
+#define LOGG(...) \
+    getOELogger().LOGFile("[open-ephys][graph] ", __VA_ARGS__);
 
 /* Function Timer */
 template <typename Time = std::chrono::microseconds, typename Clock = std::chrono::high_resolution_clock>
