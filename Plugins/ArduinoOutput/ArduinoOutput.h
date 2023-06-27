@@ -47,6 +47,9 @@ public:
     /** Destructor */
     ~ArduinoOutput();
 
+    /** Called whenever a parameter's value is changed */
+    void parameterValueChanged(Parameter* param) override;
+
     /** Searches for events and triggers the Arduino output when appropriate. */
     void process (AudioBuffer<float>& buffer) override;
 
@@ -62,6 +65,9 @@ public:
     /** Creates the ArduinoOutputEditor. */
     AudioProcessorEditor* createEditor() override;
 
+    /** Returns a list of available serial devices */
+    Array<String> getDevices();
+
     /** Tries to connect to an Arduino on a given port*/
     void setDevice (String deviceString);
 
@@ -72,6 +78,10 @@ public:
     void loadCustomParametersFromXml(XmlElement* xml) override;
 
 private:
+
+    /** Opens the serial connection to the Arduino. */
+    ofSerial serial;
+    
     /** An open-frameworks Arduino object. */
     ofArduino arduino;
 

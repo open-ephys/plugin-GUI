@@ -28,10 +28,9 @@ FilterEditor::FilterEditor(GenericProcessor* parentNode) : GenericEditor(parentN
 {
     desiredWidth = 200;
 
-    /* Define editor UI elements */
-    addTextBoxParameterEditor(Parameter::STREAM_SCOPE, "low_cut", 10, 27);
-    addTextBoxParameterEditor(Parameter::STREAM_SCOPE, "high_cut", 10, 52);
-    addMaskChannelsParameterEditor(Parameter::STREAM_SCOPE, "Channels", 10, 77);
-    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "Threads", 10, 102);
+    addTextBoxParameterEditor(Parameter::STREAM_SCOPE, "low_cut", 10, 29);
+    addTextBoxParameterEditor(Parameter::STREAM_SCOPE, "high_cut", 10, 54);
+    addMaskChannelsParameterEditor(Parameter::STREAM_SCOPE, "Channels", 10, 79);
+    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "Threads", 10, 104);
 
 }

@@ -408,17 +408,17 @@ void GenericEditor::paint(Graphics& g)
     // draw title
     if (!isCollapsed)
     {
-        g.setColour(Colours::grey);
+        //TODO: This color should be set by the current theme
+        g.setColour(isEnabled ? Colours::white : Colours::black);
         g.setFont( Font("Mono", "Plain", 12) );
         g.drawText (String(nodeId), 10, 6, 30, 15, Justification::left, false);
-        g.setColour(isEnabled ? Colours::white : Colours::lightgrey);
         g.setFont (Font("CP Mono", "Plain", 16));
         g.drawText (displayName.toUpperCase(), 35, 5, 500, 15, Justification::left, false);
     }
     else
     {
         g.addTransform(AffineTransform::rotation(-M_PI/2.0));
-        g.setColour(isEnabled ? Colours::white : Colours::lightgrey);
+        g.setColour(isEnabled ? Colours::white : Colours::black);
         g.setFont (Font("CP Mono", "Plain", 14));
         g.drawText (displayName.toUpperCase(), - getHeight() + 6, 5, 500, 15, Justification::left, false);
         g.addTransform(AffineTransform::rotation(M_PI/2.0));
