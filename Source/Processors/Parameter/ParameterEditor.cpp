@@ -25,39 +25,38 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../Editors/GenericEditor.h"
 
-TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPixels) 
+TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels)
     : ParameterEditor(param)
 {
     jassert(param->getType() == Parameter::FLOAT_PARAM
         || param->getType() == Parameter::INT_PARAM
         || param->getType() == Parameter::STRING_PARAM);
 
-    parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
-    Font labelFont = Font("Silkscreen", "Regular", rowHeightPixels);
-    int labelWidth = labelFont.getStringWidth(param->getName());
+    parameterNameLabel = std::make_unique<Label>(param->getName(), param->getName().replace("_", " "));
+    Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+    int width = rowWidthPixels;
     parameterNameLabel->setFont(labelFont);
     parameterNameLabel->setColour(Label::textColourId, Colours::black);
     addAndMakeVisible(parameterNameLabel.get());
 
     if(param->getType() == Parameter::FLOAT_PARAM)
-        valueTextBox = std::make_unique<Label>("Parameter value", String(float(param->getValue())));
+        valueTextBox = std::make_unique<Label>("Parameter value", String(float(param->getValue())) + " " + ((FloatParameter*)param)->getUnit());
     else
         valueTextBox = std::make_unique<Label>("Parameter value", param->getValue().toString());
 
-    valueTextBox->setFont(Font("CP Mono", "Plain", rowHeightPixels));
+    valueTextBox->setFont(Font("CP Mono", "Plain", int(0.75*rowHeightPixels)));
     valueTextBox->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     valueTextBox->setColour(Label::textColourId, Colours::black);
     valueTextBox->setColour(Label::backgroundColourId, Colours::lightgrey);
+    valueTextBox->setJustificationType(Justification::centred);
     valueTextBox->setEditable(true);
     valueTextBox->addListener(this);
     valueTextBox->setTooltip(param->getDescription());
     addAndMakeVisible(valueTextBox.get());
-    
-    finalWidth = std::max(labelWidth, 80);
 
-    setBounds(0, 0, finalWidth, rowHeightPixels);
-    parameterNameLabel->setBounds(50, 0, getWidth() - 50, rowHeightPixels);
-    valueTextBox->setBounds(0, 0, 50, rowHeightPixels);
+    setBounds(0, 0, width, rowHeightPixels);
+    parameterNameLabel->setBounds(width / 2, 0, getWidth() - 50, rowHeightPixels);
+    valueTextBox->setBounds(0, 0, width/2, rowHeightPixels);
 }
 
 void TextBoxParameterEditor::labelTextChanged(Label* label)
@@ -131,24 +130,28 @@ void TextBoxParameterEditor::setLayout(Layout layout)
     }
 }
 
-CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
+CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
 
     jassert(param->getType() == Parameter::BOOLEAN_PARAM);
 
-    parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
-    parameterNameLabel->setFont(Font("Silkscreen", "Regular", 12));
+    parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName().replace("_", " "));
+    parameterNameLabel->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
     parameterNameLabel->setColour(Label::textColourId, Colours::black);
     addAndMakeVisible(parameterNameLabel.get());
 
-    valueCheckBox = std::make_unique<ToggleButton>("Parameter value");
+    valueCheckBox = std::make_unique<ToggleButton>("");
     valueCheckBox->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     valueCheckBox->setToggleState(bool(param->getValue()), dontSendNotification);
     valueCheckBox->addListener(this);
     valueCheckBox->setTooltip(param->getDescription());
     addAndMakeVisible(valueCheckBox.get());
 
-    setBounds(0, 0, 80, rowHeightPixels);
+    int width = rowWidthPixels;
+
+    parameterNameLabel->setBounds(width / 2, 0, width / 2, rowHeightPixels);
+    valueCheckBox->setBounds(0, 0, width / 2, getHeight());
+    setBounds(0, 0, width, rowHeightPixels);
 
 }
 
@@ -169,25 +172,25 @@ void CheckBoxParameterEditor::updateView()
 
 void CheckBoxParameterEditor::resized()
 {
-
-    parameterNameLabel->setBounds(getHeight(), 0, 80 - getHeight(), getHeight());
-    valueCheckBox->setBounds(0, 0, getHeight(), getHeight());
+    parameterNameLabel->setBounds(getWidth() / 2 + 10, 0, getWidth() / 2, getHeight());
+    valueCheckBox->setBounds(0, 0, getWidth() / 2 + 10, getHeight());
 }
 
 
-ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
+ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
 
     jassert(param->getType() == Parameter::CATEGORICAL_PARAM
         || param->getType() == Parameter::INT_PARAM);
 
-    parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
-    parameterNameLabel->setFont(Font("Silkscreen", "Regular", 12));
-    parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
+    parameterNameLabel = std::make_unique<Label>(param->getName(), param->getName().replace("_", " "));
+    parameterNameLabel->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
+    parameterNameLabel->setColour(Label::textColourId, Colours::black);
     addAndMakeVisible(parameterNameLabel.get());
 
     valueComboBox = std::make_unique<ComboBox>();
     valueComboBox->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
+    valueComboBox->setJustificationType(Justification::centred);
     valueComboBox->addListener(this);
     valueComboBox->setTooltip(param->getDescription());
     addAndMakeVisible(valueComboBox.get());
@@ -221,7 +224,11 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param, int rowHeight
         valueComboBox->setSelectedId(p->getIntValue() + offset, dontSendNotification);
     }
 
-    setBounds(0, 0, 80, rowHeightPixels);
+    int width = rowWidthPixels;
+
+    setBounds(0, 0, width, rowHeightPixels);
+    parameterNameLabel->setBounds(width / 2, 0, width/2, rowHeightPixels);
+    valueComboBox->setBounds(0, 0, width/2, rowHeightPixels);
 }
 
 
@@ -280,9 +287,8 @@ void ComboBoxParameterEditor::updateView()
 
 void ComboBoxParameterEditor::resized()
 {
-
-    parameterNameLabel->setBounds(50, 0, 50, getHeight());
-    valueComboBox->setBounds(0, 0, 50, getHeight());
+    parameterNameLabel->setBounds(getWidth() / 2 + 10, 0, getWidth() / 2, getHeight());
+    valueComboBox->setBounds(0, 0, getWidth() / 2 + 10, getHeight());
 }
 
 CustomSlider::CustomSlider() : isEnabled(true)
@@ -420,7 +426,7 @@ Label* SliderLookAndFeel::createSliderTextBox (Slider& slider)
     return l;
 }
 
-SliderParameterEditor::SliderParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
+SliderParameterEditor::SliderParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
 
     jassert(param->getType() == Parameter::FLOAT_PARAM
@@ -454,7 +460,7 @@ SliderParameterEditor::SliderParameterEditor(Parameter* param, int rowHeightPixe
         slider->setValue(p->getIntValue(), dontSendNotification);
     }
 
-    setBounds(0, 0, 80, 65);
+    setBounds(0, 0, rowWidthPixels, 65);
 
 }
 
@@ -499,7 +505,7 @@ void SliderParameterEditor::resized()
 }
 
 
-SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
+SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
 
     button = std::make_unique<TextButton>(param->getName());
@@ -509,7 +515,16 @@ SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* para
     button->setTooltip(param->getDescription());
     addAndMakeVisible(button.get());
 
-    setBounds(0, 0, 80, 42);
+    label = std::make_unique<Label>(param->getName(), param->getName().replace("_", " "));
+    Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+    label->setFont(labelFont);
+    label->setColour(Label::textColourId, Colours::black);
+    addAndMakeVisible(label.get());
+
+    label->setBounds(rowWidthPixels / 2, 0, rowWidthPixels / 2, rowHeightPixels);
+    button->setBounds(0, 0, rowWidthPixels/2, rowHeightPixels);
+
+    setBounds(0, 0, rowWidthPixels, rowHeightPixels);
 }
 
 void SelectedChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
@@ -558,17 +573,30 @@ void SelectedChannelsParameterEditor::resized()
 
 
 
-MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
+MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
 
-    button = std::make_unique<TextButton>(param->getName());
+    int numChannels = ((MaskChannelsParameter*)param)->getChannelStates().size();
+
+    button = std::make_unique<TextButton>(String(numChannels) + "/" + String(numChannels));
     button->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     button->addListener(this);
     button->setClickingTogglesState(false);
     button->setTooltip("Mask channels to filter within this stream");
     addAndMakeVisible(button.get());
 
-    setBounds(0, 0, 80, 42);
+    label = std::make_unique<Label>(param->getName(), param->getName().replace("_", " "));
+    Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+    label->setFont(labelFont);
+    label->setColour(Label::textColourId, Colours::black);
+    addAndMakeVisible(label.get());
+
+    int width = rowWidthPixels;
+
+    setBounds(0, 0, width, rowHeightPixels);
+    label->setBounds(width / 2, 0, getWidth() - 50, rowHeightPixels);
+    button->setBounds(0, 0, width/2, rowHeightPixels);
+
 }
 
 void MaskChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
@@ -579,6 +607,9 @@ void MaskChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
         newArray.add(newChannels[i]);
     
     param->setNextValue(newArray);
+    
+    int numChannels = ((MaskChannelsParameter*)param)->getChannelStates().size();
+    button->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
 
 }
 

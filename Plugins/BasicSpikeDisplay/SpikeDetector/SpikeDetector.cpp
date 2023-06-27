@@ -525,19 +525,19 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
         spikeChannel->addParameter(new FloatParameter(this,
             Parameter::SPIKE_CHANNEL_SCOPE,
             "abs_threshold" + String(ch+1),
-            "Threshold for one channel when the absolute value thresholder is active",
+            "Threshold for one channel when the absolute value thresholder is active", "uV", 
             -50.0f, -500.0f, -20.0f, 1.0f));
         
         spikeChannel->addParameter(new FloatParameter(this,
            Parameter::SPIKE_CHANNEL_SCOPE,
            "std_threshold" + String(ch+1),
-           "Threshold for one channel when the std thresholder is active",
+           "Threshold for one channel when the std thresholder is active", "uV",
            4.0f, 1.0f, 10.0f, 0.01f));
         
         spikeChannel->addParameter(new FloatParameter(this,
           Parameter::SPIKE_CHANNEL_SCOPE,
           "dyn_threshold" + String(ch+1),
-          "Threshold for one channel when the dynamic thresholder is active",
+          "Threshold for one channel when the dynamic thresholder is active", "uV",
           4.0f, 1.0f, 10.0f, 0.01f));
     }
     

@@ -488,6 +488,7 @@ public:
         ParameterScope scope,
         const String& name,
         const String& description,
+        const String& unit,
         float defaultValue,
         float minValue = 0.f,
         float maxValue = 100.f,
@@ -499,6 +500,9 @@ public:
 
     /** Gets the value as an integer*/
     float getFloatValue();
+
+    /** Gets the unit as a String*/
+    String getUnit() { return unit; }
     
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
@@ -522,6 +526,8 @@ private:
     float maxValue;
     float minValue;
     float stepSize;
+
+    String unit;
 };
 
 /**

@@ -100,7 +100,7 @@ class PLUGIN_API TextBoxParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    TextBoxParameterEditor(Parameter* param, int rowHeightPixels = 18);
+    TextBoxParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
 
     /** Destructor */
     virtual ~TextBoxParameterEditor() { }
@@ -149,7 +149,7 @@ class PLUGIN_API CheckBoxParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    CheckBoxParameterEditor(Parameter* param, int rowHeightPixels = 18);
+    CheckBoxParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
 
     /** Destructor */
     virtual ~CheckBoxParameterEditor() { }
@@ -181,7 +181,7 @@ class PLUGIN_API ComboBoxParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    ComboBoxParameterEditor(Parameter* param, int rowHeightPixels = 18);
+    ComboBoxParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
 
     /** Destructor */
     virtual ~ComboBoxParameterEditor() { }
@@ -263,7 +263,7 @@ class PLUGIN_API SliderParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    SliderParameterEditor(Parameter* param, int rowHeightPixels = 18);
+    SliderParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
 
     /** Destructor */
     virtual ~SliderParameterEditor() { }
@@ -298,7 +298,7 @@ class PLUGIN_API SelectedChannelsParameterEditor :
 public:
 
     /** Constructor */
-    SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18);
+    SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
 
     /** Destructor */
     virtual ~SelectedChannelsParameterEditor() { }
@@ -317,6 +317,7 @@ public:
 
 private:
     std::unique_ptr<TextButton> button;
+    std::unique_ptr<Label> label;
 };
 
 /**
@@ -333,7 +334,7 @@ class PLUGIN_API MaskChannelsParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18);
+    MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
 
     /** Destructor */
     virtual ~MaskChannelsParameterEditor() { }
@@ -352,6 +353,7 @@ public:
 
 private:
     std::unique_ptr<TextButton> button;
+    std::unique_ptr<Label> label;
 };
 
 #endif  // __PARAMETEREDITOR_H_44537DA9__

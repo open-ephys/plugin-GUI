@@ -297,6 +297,7 @@ public:
     void addFloatParameter(Parameter::ParameterScope scope,
         const String& name,
         const String& description,
+        const String& unit,
         float defaultValue,
         float minValue,
         float maxValue,

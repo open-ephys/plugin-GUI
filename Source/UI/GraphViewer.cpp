@@ -314,9 +314,8 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
 DataStreamInfo::DataStreamInfo(DataStream* stream_)
     :  stream(stream_)
 {
-    
-    streamParameterEditor.reset(stream->createDefaultEditor(18));
-
+    streamParameterEditor.reset(stream->createDefaultEditor(18, 140));
+    LOGD("Got streamParameterEditor width: ", streamParameterEditor->getWidth());
     streamParameterEditor->setBounds(0, 60, streamParameterEditor->getWidth(), streamParameterEditor->getHeight());
 	addAndMakeVisible(streamParameterEditor.get());
 

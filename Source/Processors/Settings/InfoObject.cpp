@@ -270,13 +270,13 @@ Array<String> InfoObject::getParameterNames() const
 }
 
 
-Component* InfoObject::createDefaultEditor(int rowHeightPixels)
+Component* InfoObject::createDefaultEditor(int rowHeightPixels, int rowWidthPixels)
 {
     
     Component* editorComponent = new Component();
 
     int yPos = 0;
-    const int width = 200;
+    int width = rowWidthPixels;
 
     for (auto parameterName : getParameterNames())
     {
@@ -287,7 +287,7 @@ Component* InfoObject::createDefaultEditor(int rowHeightPixels)
         case Parameter::INT_PARAM:
         {
             TextBoxParameterEditor* intParameterEditor = new TextBoxParameterEditor(parameter);
-            intParameterEditor->setBounds(0, yPos, width, rowHeightPixels);
+            intParameterEditor->setBounds(0, yPos, 2*width, rowHeightPixels);
             editorComponent->addAndMakeVisible(intParameterEditor);
             editors.add(intParameterEditor);
             break;

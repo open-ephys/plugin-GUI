@@ -165,6 +165,7 @@ protected:
     /** Adds an float parameter, which will later be accessed by name*/
     void addFloatParameter(const String& name,
         const String& description,
+        const String& unit,
         float defaultValue,
         float minValue,
         float maxValue,

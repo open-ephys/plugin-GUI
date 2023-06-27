@@ -390,6 +390,7 @@ FloatParameter::FloatParameter(InfoObject* infoObject,
     ParameterScope scope,
     const String& name,
     const String& description,
+    const String& unit_,
     float defaultValue_,
     float minValue_,
     float maxValue_,
@@ -404,7 +405,8 @@ FloatParameter::FloatParameter(InfoObject* infoObject,
         deactivateDuringAcquisition),
     maxValue(maxValue_),
     minValue(minValue_),
-    stepSize(stepSize_)
+    stepSize(stepSize_),
+    unit(unit_)
 {
 
 }

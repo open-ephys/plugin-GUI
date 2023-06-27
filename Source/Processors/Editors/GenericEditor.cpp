@@ -408,7 +408,7 @@ void GenericEditor::paint(Graphics& g)
     // draw title
     if (!isCollapsed)
     {
-        g.setColour(Colours::lightgrey);
+        g.setColour(Colours::grey);
         g.setFont( Font("Mono", "Plain", 12) );
         g.drawText (String(nodeId), 10, 6, 30, 15, Justification::left, false);
         g.setColour(isEnabled ? Colours::white : Colours::lightgrey);

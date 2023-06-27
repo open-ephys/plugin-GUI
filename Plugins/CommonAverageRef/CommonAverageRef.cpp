@@ -46,6 +46,7 @@ CommonAverageRef::CommonAverageRef()
     addFloatParameter(Parameter::STREAM_SCOPE,
                       "gain_level",
                       "Multiplier for reference value",
+                      "", //Unitless
                       100.0f,
                       0.0f,
                       100.0f,

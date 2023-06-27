@@ -217,7 +217,7 @@ public:
     virtual void parameterValueChanged(Parameter*) { }
 
 	/** Creates a simple editor for modifying this object's parameters */
-	virtual Component* createDefaultEditor(int rowHeightPixels = 12);
+	virtual Component* createDefaultEditor(int rowHeightPixels = 12, int rowWidthPixels = 120);
 	
 
 	// --------------------------------------------
