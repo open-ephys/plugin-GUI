@@ -28,6 +28,7 @@
 #include "Parameter.h"
 #include "../Editors/PopupChannelSelector.h"
 
+#include "../../UI/LookAndFeel/CustomLookAndFeel.h"
 
 /** 
     Base class for ParameterEditors
@@ -250,7 +251,6 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomSlider)
 };
 
-
 /**
     Allows parameters to be changed via a slider
 
@@ -280,6 +280,76 @@ public:
 private:
     std::unique_ptr<Label> parameterNameLabel;
     std::unique_ptr<CustomSlider> slider;
+    
+};
+
+class PLUGIN_API BoundedValueEditor : public Label
+{
+public:
+
+    /** Constructor (float) */
+    BoundedValueEditor(float min, float max, float step) 
+        : Label("",""), isEnabled(true), minValue(double(min)), maxValue(double(max)), stepSize(double(step)) {
+            setEditable(true, true, false);
+        }
+
+    /** Constructor (int) */
+    BoundedValueEditor(int min, int max, int step) 
+        : Label("",""), isEnabled(true), minValue(double(min)), maxValue(double(max)), stepSize(double(step)) {
+            setEditable(true, true, false);
+        }
+
+    /** Destructor */
+    ~BoundedValueEditor();
+
+    /** Mouse event handlers */
+    void mouseDown (const MouseEvent& event) override;
+    void mouseUp (const MouseEvent& event) override;
+    void mouseDrag(const MouseEvent& event) override;
+    
+private:
+
+    void paint (Graphics& g) override;
+
+    bool isEnabled;
+
+    double minValue;
+    double maxValue;
+    double stepSize;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BoundedValueEditor)
+};
+
+/**
+    Allows bounded parameters to be changed via a custom label editor
+
+    Only valid for IntParameter and FloatParameter
+
+*/
+class PLUGIN_API BoundedValueParameterEditor : public ParameterEditor,
+    public Label::Listener
+{
+public:
+
+    /** Constructor */
+    BoundedValueParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+
+    /** Destructor */
+    virtual ~BoundedValueParameterEditor() { }
+    
+    /** Responds to label value changes */
+    void labelTextChanged(Label* label) override;
+
+    /** Must ensure that editor state matches underlying parameter */
+    virtual void updateView() override;
+
+    /** Sets sub-component locations */
+    virtual void resized() override;
+
+
+private:
+    std::unique_ptr<Label> label;
+    std::unique_ptr<BoundedValueEditor> valueEditor;
     
 };
 

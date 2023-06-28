@@ -155,7 +155,7 @@ void GenericEditor::addSliderParameterEditor(Parameter::ParameterScope scope,
     else
         param = getProcessor()->getStreamParameter(parameterName);
 
-    addCustomParameterEditor(new SliderParameterEditor(param), xPos_, yPos_);
+    addCustomParameterEditor(new BoundedValueParameterEditor(param), xPos_, yPos_);
 }
 
 

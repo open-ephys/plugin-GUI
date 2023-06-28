@@ -70,7 +70,7 @@ GenericProcessor::GenericProcessor(const String& name, bool headlessMode_)
 	latencyMeter = std::make_unique<LatencyMeter>(this);
 
 	addBooleanParameter(Parameter::STREAM_SCOPE,
-        "ENABLE",
+        "enable_stream",
 		"Determines whether or not processing is enabled for a particular stream",
 		true, true);
 }

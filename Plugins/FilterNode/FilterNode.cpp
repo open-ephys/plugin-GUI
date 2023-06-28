@@ -70,8 +70,8 @@ FilterNode::FilterNode(bool headless)
     : GenericProcessor  ("Bandpass Filter", headless)
 {
 
-    addFloatParameter(Parameter::STREAM_SCOPE, "high_cut", "Filter high cut", "Hz", 6000, 0.1, 15000, false);
-    addFloatParameter(Parameter::STREAM_SCOPE, "low_cut", "Filter low cut", "Hz", 300, 0.1, 15000, false);
+    addFloatParameter(Parameter::STREAM_SCOPE, "high_cut", "Filter high cut", "Hz", 5000, 0.1, 6000, false);
+    addFloatParameter(Parameter::STREAM_SCOPE, "low_cut", "Filter low cut", "Hz", 100, 0.1, 600, false);
     addMaskChannelsParameter(Parameter::STREAM_SCOPE, "Channels", "Channels to filter for this stream");
     addCategoricalParameter(Parameter::STREAM_SCOPE, "Threads", "Number of threads to use", { "1", "8", "16", "32"}, 3);
 

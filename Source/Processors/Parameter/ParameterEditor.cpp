@@ -40,7 +40,7 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPi
     addAndMakeVisible(parameterNameLabel.get());
 
     if(param->getType() == Parameter::FLOAT_PARAM)
-        valueTextBox = std::make_unique<Label>("Parameter value", String(float(param->getValue())) + " " + ((FloatParameter*)param)->getUnit());
+        valueTextBox = std::make_unique<Label>("Parameter value", String(float(param->getValue())));
     else
         valueTextBox = std::make_unique<Label>("Parameter value", param->getValue().toString());
 
@@ -482,12 +482,12 @@ void SliderParameterEditor::updateView()
         {
             FloatParameter* p = (FloatParameter*)param;
 
-            slider->setValue(p->getFloatValue(), dontSendNotification);
+            //slider->setValue(p->getFloatValue(), dontSendNotification);
         }
         else {
             IntParameter* p = (IntParameter*)param;
 
-            slider->setValue(p->getIntValue(), dontSendNotification);
+            //slider->setValue(p->getIntValue(), dontSendNotification);
         }
     }
     else {
@@ -502,6 +502,145 @@ void SliderParameterEditor::resized()
 {
     parameterNameLabel->setBounds(0, 0, 80, 15);
     slider->setBounds(0, 15, 50, 50);
+}
+
+void BoundedValueEditor::paint(juce::Graphics& g)
+{
+    // Get the label's value as a percentage
+    float value = getText().getFloatValue();
+
+    // Calculate the width of the colored area based on the value
+    int coloredWidth = static_cast<int>(getWidth() * (value - minValue) / (maxValue - minValue));
+
+    // Fill the colored area
+    g.setColour(getLookAndFeel().findColour(ProcessorColor::IDs::FILTER_COLOR));
+    g.fillRect(1, 1, coloredWidth > 3 ? coloredWidth - 2 : 2, getHeight() - 2);
+
+    // Fill the rest of the background with another color
+    g.setColour(juce::Colours::white);
+    g.fillRect(coloredWidth > 0 ? coloredWidth : 1, 1, getWidth() - coloredWidth > 1 ? getWidth() - coloredWidth - 1 : 1, getHeight() - 2);
+
+    // Draw a rounded border
+    g.setColour(juce::Colours::black);
+    g.drawRoundedRectangle(getLocalBounds().toFloat(), 2, 2);
+
+    // Call the base class method to ensure the text is drawn
+    juce::Label::paint(g);
+}
+
+void BoundedValueEditor::mouseDown (const MouseEvent& event)
+{
+    /* TODO: Select value by dragging like a slider?
+    setMouseCursor (MouseCursor::NoCursor);
+    */
+}
+
+void BoundedValueEditor::mouseDrag(const MouseEvent& event)
+{
+    /* TODO: Select value by dragging like a slider?
+    setMouseCursor (MouseCursor::NoCursor);
+    */
+}
+
+void BoundedValueEditor::mouseUp (const MouseEvent& event)
+{
+    /* TODO: Select value by dragging like a slider?
+    setMouseCursor (MouseCursor::NormalCursor);
+    */
+}
+
+BoundedValueEditor::~BoundedValueEditor()
+{
+}
+
+BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
+{
+    
+    jassert(param->getType() == Parameter::FLOAT_PARAM
+        || param->getType() == Parameter::INT_PARAM);
+
+    label = std::make_unique<Label>(param->getName(), param->getName().replace("_", " ") + " [" + ((FloatParameter*)param)->getUnit() + "]");
+    Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+    label->setFont(labelFont);
+    label->setColour(Label::textColourId, Colours::black);
+    addAndMakeVisible(label.get());
+
+    if (param->getType() == Parameter::FLOAT_PARAM)
+    {
+        FloatParameter* p = (FloatParameter*)param;
+        valueEditor = std::make_unique<BoundedValueEditor>(p->getMinValue(), p->getMaxValue(), p->getStepSize());
+        valueEditor->setText(String(p->getFloatValue()), dontSendNotification);
+    }
+    else {
+        IntParameter* p = (IntParameter*)param;
+        valueEditor = std::make_unique<BoundedValueEditor>(p->getMinValue(), p->getMaxValue(), 1);
+    }
+    valueEditor->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
+    valueEditor->setFont(Font("CP Mono", "Plain", int(0.75*rowHeightPixels)));
+    valueEditor->setJustificationType(Justification::centred);
+    valueEditor->addListener(this);
+    valueEditor->setTooltip(param->getDescription());
+    labelTextChanged(valueEditor.get());
+    addAndMakeVisible(valueEditor.get());
+
+    label->setBounds(rowWidthPixels / 2, 0, rowWidthPixels / 2, rowHeightPixels);
+    valueEditor->setBounds(0, 0, rowWidthPixels/2, rowHeightPixels);
+
+    setBounds(0, 0, rowWidthPixels, rowHeightPixels);
+    
+}
+
+void BoundedValueParameterEditor::labelTextChanged(Label* label)
+{
+    if (param != nullptr)
+    {
+        if (param->getType() == Parameter::FLOAT_PARAM)
+        {
+            FloatParameter* p = (FloatParameter*)param;
+            if (label->getText().getFloatValue() < p->getMinValue())
+                label->setText(String(p->getMinValue()), dontSendNotification);
+            else if (label->getText().getFloatValue() > p->getMaxValue())
+                label->setText(String(p->getMaxValue()), dontSendNotification);
+
+            param->setNextValue(label->getText().getFloatValue());
+        }
+        else 
+        {
+            IntParameter* p = (IntParameter*)param;
+            if (label->getText().getIntValue() < p->getMinValue())
+                label->setText(String(p->getMinValue()), dontSendNotification);
+            else if (label->getText().getIntValue() > p->getMaxValue())
+                label->setText(String(p->getMaxValue()), dontSendNotification);
+
+            param->setNextValue(int(label->getText().getFloatValue()));
+        }
+
+    }
+}
+
+void BoundedValueParameterEditor::updateView()
+{
+    if (param != nullptr)
+    {
+
+        if (param->getType() == Parameter::FLOAT_PARAM)
+        {
+            FloatParameter* p = (FloatParameter*)param;
+            valueEditor->setText(String(p->getFloatValue()), dontSendNotification);
+        }
+        else {
+            IntParameter* p = (IntParameter*)param;
+            valueEditor->setText(String(p->getIntValue()), dontSendNotification);
+        }
+    }
+
+    repaint();
+}
+
+void BoundedValueParameterEditor::resized()
+{
+    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
+    valueEditor->setBounds(0, 0, getWidth()/2, getHeight());
 }
 
 
@@ -519,6 +658,7 @@ SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* para
     Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
     label->setColour(Label::textColourId, Colours::black);
+    label->setJustificationType(Justification::centred);
     addAndMakeVisible(label.get());
 
     label->setBounds(rowWidthPixels / 2, 0, rowWidthPixels / 2, rowHeightPixels);
