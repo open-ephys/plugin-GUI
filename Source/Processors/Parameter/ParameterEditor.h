@@ -48,10 +48,20 @@ public:
 
     /** Destructor */
     virtual ~ParameterEditor() { 
-    
         param->removeListener(this);
-    
     }
+
+    /** Used to specify layout */
+    enum Layout {
+        nameOnTop,
+        nameOnBottom,
+        nameOnLeft,
+        nameOnRight,
+        nameHidden
+    };
+    
+    /** Sets the layout for this editor */
+    void setLayout(Layout layout);
 
     /** Implements Parameter::Listener */
     void parameterChanged(Parameter* param)
@@ -83,10 +93,19 @@ public:
     /** Returns the name of the underlying parameter*/
     const String getParameterName() { return name; }
 
+    /** Returns a pointer to the parameter name label, for customization */
+    Label* getabel() { return label.get(); }
+
+    /** Returns a pointer to the parameter editor element for customization */
+    Component* getEditor() { return editor; }
+
 protected:
     Parameter* param;
     
     String name;
+
+    std::unique_ptr<Label> label;
+    Component* editor;
 };
 
 /** 
@@ -112,29 +131,11 @@ public:
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
     
-    /** Returns a pointer to the parameter name label, for customization */
-    Label* getParameterNameLabel() { return parameterNameLabel.get(); }
-    
     /** Returns a pointer to the value label, for customization */
     Label* getValueLabel() { return valueTextBox.get(); }
-    
-    /** Used to specify layout */
-    enum Layout {
-        nameOnTop,
-        nameOnBottom,
-        nameOnLeft,
-        nameOnRight,
-        nameHidden
-    };
-    
-    /** Sets the layout for this editor */
-    void setLayout(Layout layout);
 
 private:
-    std::unique_ptr<Label> parameterNameLabel;
     std::unique_ptr<Label> valueTextBox;
-
-    int finalWidth;
 };
 
 
@@ -165,7 +166,6 @@ public:
     virtual void resized() override;
 
 private:
-    std::unique_ptr<Label> parameterNameLabel;
     std::unique_ptr<ToggleButton> valueCheckBox;
 };
 
@@ -197,7 +197,6 @@ public:
     virtual void resized() override;
 
 private:
-    std::unique_ptr<Label> parameterNameLabel;
     std::unique_ptr<ComboBox> valueComboBox;
 
     int offset;
@@ -278,9 +277,7 @@ public:
     virtual void resized() override;
 
 private:
-    std::unique_ptr<Label> parameterNameLabel;
     std::unique_ptr<CustomSlider> slider;
-    
 };
 
 class PLUGIN_API BoundedValueEditor : public Label
@@ -300,7 +297,7 @@ public:
         }
 
     /** Destructor */
-    ~BoundedValueEditor();
+    ~BoundedValueEditor() {};
 
     /** Mouse event handlers */
     void mouseDown (const MouseEvent& event) override;
@@ -348,9 +345,7 @@ public:
 
 
 private:
-    std::unique_ptr<Label> label;
     std::unique_ptr<BoundedValueEditor> valueEditor;
-    
 };
 
 /**
@@ -387,7 +382,6 @@ public:
 
 private:
     std::unique_ptr<TextButton> button;
-    std::unique_ptr<Label> label;
 };
 
 /**
@@ -423,7 +417,6 @@ public:
 
 private:
     std::unique_ptr<TextButton> button;
-    std::unique_ptr<Label> label;
 };
 
 #endif  // __PARAMETEREDITOR_H_44537DA9__
