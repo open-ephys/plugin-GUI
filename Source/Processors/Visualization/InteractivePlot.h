@@ -40,7 +40,7 @@
 #define MIN(x,y)((x)<(y))?(x):(y)
 #endif
 
-enum PLUGIN_API InteractivePlotMode { ON = 1, OFF = 2 };
+enum class PLUGIN_API InteractivePlotMode { ON = 1, OFF = 2 };
 
 enum PLUGIN_API PlotType { LINE, SCATTER, BAR, FILLED };
 

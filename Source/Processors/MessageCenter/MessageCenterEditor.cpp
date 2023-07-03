@@ -66,6 +66,8 @@ MessageCenterEditor::MessageCenterEditor(MessageCenter* owner) :
     addAndMakeVisible(sendMessageButton);
 }
 
+MessageCenterEditor::~MessageCenterEditor() { }
+
 
 void MessageCenterEditor::buttonClicked(Button* button)
 {

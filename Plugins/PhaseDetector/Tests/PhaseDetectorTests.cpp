@@ -8,20 +8,18 @@
 #include <ModelApplication.h>
 #include <TestFixtures.h>
 
-class PhaseDetectorTests : public ProcessorTest {
+class PhaseDetectorTests : public ::testing::Test  {
 protected:
-    PhaseDetectorTests() : ProcessorTest() {
+    PhaseDetectorTests() {
     }
 
     ~PhaseDetectorTests() override {
     }
 
     void SetUp() override {
-        ProcessorTest::SetUp();
     }
 
     void TearDown() override {
-        ProcessorTest::TearDown();
 
     }
 

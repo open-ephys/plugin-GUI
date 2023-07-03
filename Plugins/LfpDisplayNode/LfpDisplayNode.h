@@ -44,7 +44,7 @@ namespace LfpViewer
   @see GenericProcessor, LfpDisplayEditor, LfpDisplayCanvas
 
 */
-class LfpDisplayNode :  public GenericProcessor
+class TESTABLE LfpDisplayNode :  public GenericProcessor
 
 {
 public:
@@ -99,6 +99,11 @@ public:
 
     /** Acknowledges receipt of a trigger for a given split display*/
     void acknowledgeTrigger(int splitId);
+
+
+    bool getHeadlessMode() const {
+        return headlessMode;
+    }
 
 private:
 

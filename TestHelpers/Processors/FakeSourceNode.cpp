@@ -1,65 +1,57 @@
 #include "FakeSourceNode.h"
 
-FakeSourceNode::FakeSourceNode() : GenericProcessor("Fake Source Node")
-{
-    
+
+FakeSourceNode::FakeSourceNode(const FakeSourceNodeParams &params)
+    : GenericProcessor("Fake Source Node", true),
+      params_(params) {
+    setProcessorType(Plugin::Processor::Type::SOURCE);
 }
 
-void FakeSourceNode::addMessageChannel() {
-    
-}
+void FakeSourceNode::updateSettings() {
 
-void FakeSourceNode::clearStreams()
-{
-    dataStreams.clear();
+    // Don't recreate datastreams, or the IDs / pointer locations keep changing.
+    if (cached_datastreams_.size() == 0) {
+        DataStream::Settings settings
+            {
+                "FakeSourceNode",
+                "description",
+                "identifier",
+                params_.sampleRate
+            };
+
+        cached_datastreams_.add(new DataStream(settings));
+    }
+
     continuousChannels.clear();
-    eventChannels.clear();
-}
+    dataStreams.clear();
+    for (const auto &item : cached_datastreams_) {
+        // Copy it over
+        dataStreams.add(new DataStream(*item));
+    }
 
-void FakeSourceNode::addTestDataStream(int numChannels, float sampleRate) {
-    
-    int streamIndex = dataStreams.size();
-    
-    LOGD("Adding stream at index ", streamIndex);
-    
-    DataStream::Settings settings
-    {
-        "FakeSourceNodeStream" + String(streamIndex+1),
-        "description",
-        "identifier",
-        sampleRate
-    };
-    
-    dataStreams.add(new DataStream(settings));
-    
-    for (int channelIndex = 0; channelIndex < numChannels; channelIndex++)
-    {
-        
+    for (int index = 0; index < params_.channels; index++) {
         ContinuousChannel::Settings settings{
             ContinuousChannel::Type::ELECTRODE,
-            "CH" + String(channelIndex + 1),
-            String(channelIndex + 1),
+            "CH" + String(index),
+            String(index),
             "identifier",
-            
-            1.0, // bitVolts
-            
-            dataStreams.getLast()
+            params_.bitVolts,
+            dataStreams.getFirst()
         };
-        
+
         continuousChannels.add(new ContinuousChannel(settings));
     }
-    
-    {
-        EventChannel::Settings settings{
-            EventChannel::Type::TTL,
-            "EventChannel",
-            "description",
-            "identifier",
-            
-            dataStreams.getLast()
-        };
-        
-        eventChannels.add(new EventChannel(settings));
-    }
 
+    EventChannel::Settings settings{
+        EventChannel::Type::TTL,
+        "TTL",
+        "TTL",
+        "identifier.ttl.events",
+        dataStreams.getFirst(),
+    };
+    eventChannels.add(new EventChannel(settings));
+    eventChannels.getFirst()->setIdentifier("sourceevent");
+    eventChannels.getFirst()->addProcessor(this);
 }
+
+void FakeSourceNode::process(AudioBuffer<float>& continuousBuffer) {}

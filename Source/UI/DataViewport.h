@@ -26,6 +26,7 @@
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../AccessClass.h"
+#include "../TestableExport.h"
 
 class GenericEditor;
 
@@ -45,7 +46,7 @@ class GenericEditor;
 
 */
 
-class DataViewport : public TabbedComponent
+class TESTABLE DataViewport : public TabbedComponent
 {
 public:
     

@@ -26,15 +26,14 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
-#include "../PluginManager/PluginManager.h"
-
+#include "../../TestableExport.h"
 class GenericProcessor;
 class GenericEditor;
 class RecordNode;
 class AudioNode;
 class MessageCenter;
 class SignalChainTabButton;
-
+class PluginManager;
 struct ChannelKey {
     int inputNodeId;
     int inputIndex;
@@ -62,7 +61,7 @@ struct ChannelKey {
        AudioNode, Configuration, MessageCenter
 */
 
-class ProcessorGraph    : public AudioProcessorGraph
+class TESTABLE ProcessorGraph    : public AudioProcessorGraph
                         , public ChangeListener
 {
 public:
@@ -222,7 +221,7 @@ public:
     Plugin::Description getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId);
     
     /** Returns a pointer to the Plugin Manager object */
-    PluginManager* getPluginManager() { return pluginManager.get(); }
+    PluginManager* getPluginManager();
 
     UndoManager* getUndoManager() noexcept { return undoManager.get(); }
 

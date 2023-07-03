@@ -79,7 +79,7 @@ public:
 
     @see GenericProcessor
 */
-class ChannelMappingNode : public GenericProcessor
+class TESTABLE ChannelMappingNode : public GenericProcessor
 {
 public:
 

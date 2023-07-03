@@ -42,6 +42,7 @@
 #include "../../UI/ProcessorList.h"
 
 #include "../ProcessorManager/ProcessorManager.h"
+#include "../PluginManager/PluginManager.h"
 #include "../../Audio/AudioComponent.h"
 #include "../../AccessClass.h"
 
@@ -531,7 +532,7 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
 
     updateViews(processorToUpdate, true);
 
-    if(!signalChainIsLoading)
+    if(!signalChainIsLoading && !isConsoleApp)
     {
         CoreServices::saveRecoveryConfig();
     }
@@ -1739,82 +1740,6 @@ void ProcessorGraph::loadFromXml(XmlElement* xml)
 {
     Array<GenericProcessor*> splitPoints;
 
-    bool sameVersion = false;
-    bool compatibleVersion = false;
-
-    String versionString;
-
-    for (auto* element : xml->getChildIterator())
-    {
-        if (element->hasTagName("INFO"))
-        {
-            for (auto* element2 : element->getChildIterator())
-            {
-                if (element2->hasTagName("VERSION"))
-                {
-                    versionString = element2->getAllSubText();
-                    
-                    if (versionString.equalsIgnoreCase(JUCEApplication::getInstance()->getApplicationVersion()))
-                    {
-                        sameVersion = true;
-                        compatibleVersion = true;
-                        break;
-                    }
-                    
-                    StringArray tokens;
-                    tokens.addTokens(versionString, ".", "");
-                    
-                    LOGD("Version string: ", versionString);
-
-                    if (tokens.size() > 1)
-                    {
-                        if (tokens[0].getIntValue() >= 0 && tokens[1].getIntValue() > 5)
-                            compatibleVersion = true;
-                    }
-                }
-            }
-        }
-    }
-    
-    /*if (!compatibleVersion)
-    {
-        String responseString = "Your configuration file was saved by an older version of the GUI (";
-        responseString += versionString;
-        responseString += "), and is not compatible with the version you're currently running. \n\n";
-        responseString += "In order to replicate the signal chain you'll have to re-build it from scratch.";
-
-        AlertWindow::showMessageBox(AlertWindow::WarningIcon, "Incompatible configuration file", responseString);
-        
-        return "Failed To Open " + currentFile.getFileName();
-    }
-    
-    if (!sameVersion)
-    {
-        String responseString = "Your configuration file was saved from a different version of the GUI than the one you're using. \n";
-        responseString += "The current software is version ";
-        responseString += JUCEApplication::getInstance()->getApplicationVersion();
-        responseString += ", but the file you selected ";
-        if (versionString.length() > 0)
-        {
-            responseString += "was saved by version ";
-            responseString += versionString;
-        }
-        else
-        {
-            responseString += "does not have a version number";
-        }
-
-        responseString += ".\n This file may not load properly. Continue?";
-
-        bool response = AlertWindow::showOkCancelBox(AlertWindow::NoIcon,
-            "Configuration file version mismatch", responseString);
-
-        if (!response)
-        {
-            return "Failed To Open " + currentFile.getFileName();
-        }
-    }*/
-    
     if (!isConsoleApp)
     {
         MouseCursor::showWaitCursor();
@@ -1940,6 +1865,8 @@ Plugin::Description ProcessorGraph::getDescriptionFromXml(XmlElement* settings, 
     
     return description;
 }
+
+PluginManager* ProcessorGraph::getPluginManager() { return pluginManager.get(); }
 
 
 GenericProcessor* ProcessorGraph::createProcessorAtInsertionPoint(XmlElement* parametersAsXml,

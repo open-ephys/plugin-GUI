@@ -29,6 +29,8 @@
 
 #include "../Processors/Visualization/Visualizer.h"
 
+#include "../TestableExport.h"
+
 /**
 
   Makes it possible to switch between different tabs
@@ -58,7 +60,7 @@ private:
 
 */
 
-class InfoLabel : public Visualizer,
+class TESTABLE InfoLabel : public Visualizer,
     public Button::Listener
 
 {

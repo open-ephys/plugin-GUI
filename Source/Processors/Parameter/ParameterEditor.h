@@ -35,7 +35,7 @@
 
     All custom ParameterEditors must inherit from this class.
 */
-class ParameterEditor : public Component,
+class PLUGIN_API ParameterEditor : public Component,
                         public Parameter::Listener
 {
 public:
