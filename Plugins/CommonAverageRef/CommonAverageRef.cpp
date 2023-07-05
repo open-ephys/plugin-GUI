@@ -44,7 +44,7 @@ CommonAverageRef::CommonAverageRef()
                                  "Channels to use as the reference");
     
     addFloatParameter(Parameter::STREAM_SCOPE,
-                      "gain_level",
+                      "Gain",
                       "Multiplier for reference value",
                       "", //Unitless
                       100.0f,
@@ -111,7 +111,7 @@ void CommonAverageRef::process (AudioBuffer<float>& buffer)
 
             settings_->m_avgBuffer.applyGain(1.0f / float(numReferenceChannels));
 
-            const float gain = -1.0f * float((*stream)["gain_level"]) / 100.f;
+            const float gain = -1.0f * float((*stream)["Gain"]) / 100.f;
 
             for (int i = 0; i < numAffectedChannels; ++i)
             {
