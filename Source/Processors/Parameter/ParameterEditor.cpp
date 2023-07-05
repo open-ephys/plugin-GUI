@@ -195,7 +195,6 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param, int rowHeight
 
     label = std::make_unique<Label>(param->getName(), param->getName().replace("_", " "));
     label->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
-    label->setColour(Label::textColourId, Colours::black);
     addAndMakeVisible(label.get());
 
     valueComboBox = std::make_unique<ComboBox>();
@@ -305,9 +304,6 @@ void ComboBoxParameterEditor::resized()
 
 CustomSlider::CustomSlider() : isEnabled(true)
 {
-    
-    setColour (Slider::textBoxTextColourId, Colours::black);
-    setColour (Slider::textBoxOutlineColourId, Colours::grey);
     setLookAndFeel (&sliderLookAndFeel);
     
     setSliderStyle (Slider::SliderStyle::RotaryVerticalDrag);
@@ -448,7 +444,6 @@ SliderParameterEditor::SliderParameterEditor(Parameter* param, int rowHeightPixe
 
     label = std::make_unique<Label>("Parameter name", param->getName());
     label->setFont(Font("Silkscreen", "Regular", 12));
-    label->setColour(Label::textColourId, Colours::darkgrey);
     addAndMakeVisible(label.get());
 
     slider = std::make_unique<CustomSlider>();
@@ -533,7 +528,7 @@ void BoundedValueEditor::paint(juce::Graphics& g)
     g.fillRect(1, 1, coloredWidth > 3 ? coloredWidth - 2 : 2, getHeight() - 2);
 
     // Fill the rest of the background with another color
-    g.setColour(juce::Colours::white);
+    g.setColour(getLookAndFeel().findColour(TextEditor::backgroundColourId));
     g.fillRect(coloredWidth > 0 ? coloredWidth : 1, 1, getWidth() - coloredWidth > 1 ? getWidth() - coloredWidth - 1 : 1, getHeight() - 2);
 
     // Draw a rounded border
@@ -572,10 +567,13 @@ BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int r
     jassert(param->getType() == Parameter::FLOAT_PARAM
         || param->getType() == Parameter::INT_PARAM);
 
-    label = std::make_unique<Label>(param->getName(), param->getName().replace("_", " ") + " [" + ((FloatParameter*)param)->getUnit() + "]");
+    String unit = "";
+    if (param->getType() == Parameter::FLOAT_PARAM) unit = ((FloatParameter*)param)->getUnit();
+    unit = (unit != "" ? " [" + ((FloatParameter*)param)->getUnit() + "]" : "");
+
+    label = std::make_unique<Label>(param->getName(), param->getName().replace("_", " ") + unit);
     Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
-    label->setColour(Label::textColourId, Colours::black);
     addAndMakeVisible(label.get());
 
     if (param->getType() == Parameter::FLOAT_PARAM)
@@ -662,7 +660,7 @@ void BoundedValueParameterEditor::resized()
 SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
 
-    button = std::make_unique<TextButton>(param->getName());
+    button = std::make_unique<TextButton>(String(-1) + "/" + String(-1));
     button->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     button->addListener(this);
     button->setClickingTogglesState(false);
@@ -672,14 +670,12 @@ SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* para
     label = std::make_unique<Label>(param->getName(), param->getName().replace("_", " "));
     Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
-    label->setColour(Label::textColourId, Colours::black);
-    label->setJustificationType(Justification::centred);
+    label->setJustificationType(Justification::left);
     addAndMakeVisible(label.get());
 
+    setBounds(0, 0, rowWidthPixels, rowHeightPixels);
     label->setBounds(rowWidthPixels / 2, 0, rowWidthPixels / 2, rowHeightPixels);
     button->setBounds(0, 0, rowWidthPixels/2, rowHeightPixels);
-
-    setBounds(0, 0, rowWidthPixels, rowHeightPixels);
 
     editor = (Component*)button.get();
 }
@@ -692,6 +688,8 @@ void SelectedChannelsParameterEditor::channelStateChanged(Array<int> newChannels
         newArray.add(newChannels[i]);
     
     param->setNextValue(newArray);
+
+    updateView();
 
 }
 
@@ -718,14 +716,21 @@ void SelectedChannelsParameterEditor::updateView()
 {
     if (param == nullptr)
         button->setEnabled(false);
-
     else
+    {
         button->setEnabled(true);
+        int numChannels = ((SelectedChannelsParameter*)param)->getChannelStates().size();
+        int selected = 0;
+        for (auto chan : ((SelectedChannelsParameter*)param)->getChannelStates())
+            if (chan) selected++;
+        button->setButtonText(String(selected) + "/" + String(numChannels));
+    }
 }
 
 void SelectedChannelsParameterEditor::resized()
 {
-    button->setBounds(0, 0, 80, 20);
+    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
+    button->setBounds(0, 0, getWidth()/2, getHeight());
 }
 
 
@@ -744,7 +749,7 @@ MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param, int r
     label = std::make_unique<Label>(param->getName(), param->getName().replace("_", " "));
     Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
-    label->setColour(Label::textColourId, Colours::black);
+    label->setJustificationType(Justification::left);
     addAndMakeVisible(label.get());
 
     int width = rowWidthPixels;
@@ -765,8 +770,7 @@ void MaskChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
     
     param->setNextValue(newArray);
     
-    int numChannels = ((MaskChannelsParameter*)param)->getChannelStates().size();
-    button->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
+    updateView();
 
 }
 
@@ -796,10 +800,18 @@ void MaskChannelsParameterEditor::updateView()
         button->setEnabled(false);
 
     else
+    {
         button->setEnabled(true);
+        int numChannels = ((MaskChannelsParameter*)param)->getChannelStates().size();
+        int selected = 0;
+        for (auto chan : ((MaskChannelsParameter*)param)->getChannelStates())
+            if (chan) selected++;
+        button->setButtonText(String(selected) + "/" + String(numChannels));
+    }
 }
 
 void MaskChannelsParameterEditor::resized()
 {
-    button->setBounds(0, 0, 80, 20);
+    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
+    button->setBounds(0, 0, getWidth()/2, getHeight());
 }
