@@ -130,8 +130,34 @@ public:
     {
     }
 
+    /** Custom copy constructor -- set attributes and don't copy parameter listeners*/
+    Parameter(const Parameter& other) :
+        m_parameterType(other.m_parameterType),
+        m_parameterScope(other.m_parameterScope),
+        m_name(other.m_name),
+        m_description(other.m_description),
+        currentValue(other.currentValue),
+        defaultValue(other.defaultValue),
+        previousValue(other.previousValue),
+        m_deactivateDuringAcquisition(other.m_deactivateDuringAcquisition)
+    {
+        setOwner(other.infoObject);
+        parameterListeners.clear();
+    }
+
     /** Destructor */
-    virtual ~Parameter() { }
+    virtual ~Parameter() 
+    { 
+        if (parameterListeners.size() > 0)
+        {
+            for(auto listener : parameterListeners)
+                listener->removeParameter(this);
+
+            parameterListeners.clear();
+        }
+    }
+
+    
 
     /** Static identifier to keep track of unique parameters */
     static int64 parameterCounter;
@@ -207,6 +233,11 @@ public:
         return currentValue;
     }
 
+    /** Returns the parameter default value*/
+    var getDefaultValue() {
+        return currentValue;
+    }
+
     /** Updates parameter value (called by GenericProcessor::setParameter)*/
     void updateValue()
     {
@@ -254,6 +285,8 @@ public:
 
 		/** Called when the parameter value changes */
 		virtual void parameterChanged(Parameter* parameterThatHasChanged) = 0;
+
+        virtual void removeParameter(Parameter* parameterToRemove) = 0;
 	};
 
     /** Add Listener for this parameter */

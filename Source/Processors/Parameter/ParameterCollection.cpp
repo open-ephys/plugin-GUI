@@ -86,7 +86,7 @@ void ParameterCollection::copyParameterValuesTo(InfoObject* obj)
     for (auto parameter : parameters)
     {
         if (obj->hasParameter(parameter->getName()))
-            obj->getParameter(parameter->getName())->setNextValue(parameter->getValue());
+            obj->getParameter(parameter->getName())->currentValue = parameter->getValue();
     }
 }
 
@@ -107,53 +107,49 @@ void ParameterCollection::copyParametersTo(InfoObject* obj)
         if (parameter->getType() == Parameter::INT_PARAM)
         {
             IntParameter* p = (IntParameter*) parameter;
-            p->setOwner(obj);
             obj->addParameter(new IntParameter(*p));
         }
         else if (parameter->getType() == Parameter::BOOLEAN_PARAM)
         {
             BooleanParameter* p = (BooleanParameter*) parameter;
-            p->setOwner(obj);
             obj->addParameter(new BooleanParameter(*p));
         }
         else if (parameter->getType() == Parameter::STRING_PARAM)
         {
             StringParameter* p = (StringParameter*) parameter;
-            p->setOwner(obj);
             obj->addParameter(new StringParameter(*p));
         }
         else if (parameter->getType() == Parameter::SELECTED_CHANNELS_PARAM)
         {
             SelectedChannelsParameter* p = (SelectedChannelsParameter*) parameter;
+            SelectedChannelsParameter* p2 = new SelectedChannelsParameter(*p);
             
             if (channelCount != -1)
-                p->setChannelCount(channelCount);
+                p2->setChannelCount(channelCount);
 
-            p->setOwner(obj);
-            obj->addParameter(new SelectedChannelsParameter(*p));
+            obj->addParameter(p2);
             
         }
         else if (parameter->getType() == Parameter::MASK_CHANNELS_PARAM)
         {
             MaskChannelsParameter* p = (MaskChannelsParameter*) parameter;
 
-            if (channelCount != -1)
-                p->setChannelCount(channelCount);
+            MaskChannelsParameter* p2 = new MaskChannelsParameter(*p);
 
-            p->setOwner(obj);
-            obj->addParameter(new MaskChannelsParameter(*p));
+            if (channelCount != -1)
+                p2->setChannelCount(channelCount);
+
+            obj->addParameter(p2);
             
         }
         else if (parameter->getType() == Parameter::CATEGORICAL_PARAM)
         {
             CategoricalParameter* p = (CategoricalParameter*) parameter;
-            p->setOwner(obj);
             obj->addParameter(new CategoricalParameter(*p));
         }
         else if (parameter->getType() == Parameter::FLOAT_PARAM)
         {
             FloatParameter* p = (FloatParameter*) parameter;
-            p->setOwner(obj);
             obj->addParameter(new FloatParameter(*p));
         }
         
@@ -171,46 +167,53 @@ void ParameterCollection::copyParametersFrom(InfoObject* obj)
         if (parameter->getType() == Parameter::INT_PARAM)
         {
             IntParameter* p = (IntParameter*) parameter;
-            p->setOwner(nullptr);
-            addParameter(new IntParameter(*p));
+            IntParameter* p2 = new IntParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
         }
         else if (parameter->getType() == Parameter::BOOLEAN_PARAM)
         {
             BooleanParameter* p = (BooleanParameter*) parameter;
-            p->setOwner(nullptr);
-            addParameter(new BooleanParameter(*p));
+            BooleanParameter* p2 = new BooleanParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
         }
         else if (parameter->getType() == Parameter::STRING_PARAM)
         {
             StringParameter* p = (StringParameter*) parameter;
-            p->setOwner(nullptr);
-            addParameter(new StringParameter(*p));
+            StringParameter* p2 = new StringParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
         }
         else if (parameter->getType() == Parameter::SELECTED_CHANNELS_PARAM)
         {
             SelectedChannelsParameter* p = (SelectedChannelsParameter*) parameter;
-            p->setOwner(nullptr);
-            addParameter(new SelectedChannelsParameter(*p));
+            SelectedChannelsParameter* p2 = new SelectedChannelsParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
             
         }
         else if (parameter->getType() == Parameter::MASK_CHANNELS_PARAM)
         {
             MaskChannelsParameter* p = (MaskChannelsParameter*) parameter;
-            p->setOwner(nullptr);
-            addParameter(new MaskChannelsParameter(*p));
+            MaskChannelsParameter* p2 = new MaskChannelsParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
             
         }
         else if (parameter->getType() == Parameter::CATEGORICAL_PARAM)
         {
             CategoricalParameter* p = (CategoricalParameter*) parameter;
-            p->setOwner(nullptr);
-            addParameter(new CategoricalParameter(*p));
+            CategoricalParameter* p2 = new CategoricalParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
         }
         else if (parameter->getType() == Parameter::FLOAT_PARAM)
         {
             FloatParameter* p = (FloatParameter*) parameter;
-            p->setOwner(nullptr);
-            addParameter(new FloatParameter(*p));
+            FloatParameter* p2 = new FloatParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
         }
             
     }

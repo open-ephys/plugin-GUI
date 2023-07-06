@@ -477,7 +477,7 @@ void GenericProcessor::clearSettings()
     configurationObjects.clearQuick(false);
     configurationObjects.addArray(configurationObjectsToKeep);
 
-    Array<DataStream*> dataStreamsToKeep;
+    Array<DataStream*> dataStreamsToDelete;
 
     
     for (auto obj : dataStreams)
@@ -490,15 +490,13 @@ void GenericProcessor::clearSettings()
             //std::cout << "SAVING STREAM PARAMETERS" << std::endl;
             savedDataStreamParameters.getLast()->copyParametersFrom(obj);
             
-            delete obj;
-        } else {
-            dataStreamsToKeep.add(obj);
+            dataStreamsToDelete.add(obj);
         }
             
     }
     
-    dataStreams.clearQuick(false);
-    dataStreams.addArray(dataStreamsToKeep);
+    for(auto obj : dataStreamsToDelete)
+        dataStreams.removeObject(obj, true);
 
     ttlEventChannel = nullptr;
 
@@ -518,7 +516,7 @@ void GenericProcessor::setStreamEnabled(uint16 streamId, bool isEnabled)
 int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
 {
 
-   // std::cout << "Finding best matching saved parameters for " << stream->getName() << " (" << stream->getNodeId() << ")" << std::endl;
+    // LOGDD("Finding best matching saved parameters for ", stream->getName(), " (", stream->getNodeId(), ")");
     
     for (int i = 0; i < savedDataStreamParameters.size(); i++)
     {
@@ -904,13 +902,7 @@ void GenericProcessor::update()
                 else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
                 {
                     SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
-                    SelectedChannelsParameter* p2 = new SelectedChannelsParameter(this,
-                                                                            p->getScope(),
-                                                                            p->getName(),
-                                                                            p->getDescription(),
-                                                                            p->getValue(),
-                                                                            p->getMaxSelectableChannels(),
-                                                                            p->shouldDeactivateDuringAcquisition());
+                    SelectedChannelsParameter* p2 = new SelectedChannelsParameter(*p);
                     
                     p2->setChannelCount(stream->getChannelCount());
                     //LOGD("GenericProcessor::update() Adding SelectedChannelsParameter to stream ", stream->getStreamId(), " with ", stream->getChannelCount(), " channels");
@@ -920,11 +912,7 @@ void GenericProcessor::update()
                 else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
                 {
                     MaskChannelsParameter* p = (MaskChannelsParameter*)param;
-                    MaskChannelsParameter* p2 = new MaskChannelsParameter(this,
-                                                                            p->getScope(),
-                                                                            p->getName(),
-                                                                            p->getDescription(),
-                                                                            p->shouldDeactivateDuringAcquisition());
+                    MaskChannelsParameter* p2 = new MaskChannelsParameter(*p);
                     p2->setChannelCount(stream->getChannelCount());
                     stream->addParameter(p2);
                 }
@@ -1720,48 +1708,40 @@ void GenericProcessor::loadFromXml()
                             if (dataStreams[0]->hasParameter(name))
                             {
                                 parameter = dataStreams[0]->getParameter(name);
-                                parameter->fromXml(streamParams);
 
                                 if (parameter->getType() == Parameter::INT_PARAM)
                                 {
                                     IntParameter* p = (IntParameter*)parameter;
                                     IntParameter* p2 = new IntParameter(*p);
+                                    p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::BOOLEAN_PARAM)
                                 {
                                     BooleanParameter* p = (BooleanParameter*)parameter;
                                     BooleanParameter* p2 = new BooleanParameter(*p);
+                                    p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::STRING_PARAM)
                                 {
                                     StringParameter* p = (StringParameter*)parameter;
                                     StringParameter* p2 = new StringParameter(*p);
+                                    p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::SELECTED_CHANNELS_PARAM)
                                 {
                                     SelectedChannelsParameter* p = (SelectedChannelsParameter*)parameter;
                                     
-                                    SelectedChannelsParameter* p2 = new SelectedChannelsParameter(this,
-                                                                                          p->getScope(),
-                                                                                          p->getName(),
-                                                                                          p->getDescription(),
-                                                                                          p->getValue(),
-                                                                                          p->getMaxSelectableChannels(),
-                                                                                          p->shouldDeactivateDuringAcquisition());
+                                    SelectedChannelsParameter* p2 = new SelectedChannelsParameter(*p);
                                     p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::MASK_CHANNELS_PARAM)
                                 {
                                     MaskChannelsParameter* p = (MaskChannelsParameter*)parameter;
-                                    MaskChannelsParameter* p2 = new MaskChannelsParameter(this,
-                                                                                          p->getScope(),
-                                                                                          p->getName(),
-                                                                                          p->getDescription(),
-                                                                                          p->shouldDeactivateDuringAcquisition());
+                                    MaskChannelsParameter* p2 = new MaskChannelsParameter(*p);
                                     p2->setChannelCount(4096); // max number of channels per stream
                                     p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
@@ -1770,12 +1750,14 @@ void GenericProcessor::loadFromXml()
                                 {
                                     CategoricalParameter* p = (CategoricalParameter*)parameter;
                                     CategoricalParameter* p2 = new CategoricalParameter(*p);
+                                    p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::FLOAT_PARAM)
                                 {
                                     FloatParameter* p = (FloatParameter*)parameter;
                                     FloatParameter* p2 = new FloatParameter(*p);
+                                    p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }
                             }

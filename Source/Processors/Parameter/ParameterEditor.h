@@ -42,7 +42,8 @@ public:
     /** Constructor */
     ParameterEditor(Parameter* param_) : param(param_), name(param_->getName()) 
     {
-        param->addListener(this);
+        if (param->getKey().compare("UNKNOWN") != 0)
+            param->addListener(this);
     }
 
     /** Destructor */
@@ -60,12 +61,30 @@ public:
         updateView();
     }
 
+    /** Implements Parameter::Listener */
+    void removeParameter(Parameter* param_)
+    {
+        if(param == param_)
+        {
+            const MessageManagerLock mml;
+
+            param = nullptr;
+            updateView();
+        }
+    }
+
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() = 0;
 
     /** Sets the parameter corresponding to this editor*/
     void setParameter(Parameter* param_)
     {
+        if(param != nullptr)
+            param->removeListener(this);
+
+        if(param_ != nullptr)
+            param_->addListener(this);
+
         param = param_;
         updateView();
     }
