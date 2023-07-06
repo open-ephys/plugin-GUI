@@ -35,7 +35,7 @@
 
     All custom ParameterEditors must inherit from this class.
 */
-class ParameterEditor : public Component,
+class PLUGIN_API ParameterEditor : public Component,
                         public Parameter::Listener
 {
 public:
@@ -94,7 +94,7 @@ public:
     const String getParameterName() { return name; }
 
     /** Returns a pointer to the parameter name label, for customization */
-    Label* getabel() { return label.get(); }
+    Label* getLabel() { return label.get(); }
 
     /** Returns a pointer to the parameter editor element for customization */
     Component* getEditor() { return editor; }
