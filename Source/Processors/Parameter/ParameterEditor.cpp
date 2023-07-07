@@ -144,7 +144,7 @@ CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param, int rowHeight
 
     jassert(param->getType() == Parameter::BOOLEAN_PARAM);
 
-    label = std::make_unique<Label>("Parameter name", param->getName().replace("_", " "));
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
     label->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
     label->setColour(Label::textColourId, Colours::black);
     addAndMakeVisible(label.get());
@@ -193,7 +193,7 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param, int rowHeight
     jassert(param->getType() == Parameter::CATEGORICAL_PARAM
         || param->getType() == Parameter::INT_PARAM);
 
-    label = std::make_unique<Label>(param->getName(), param->getName().replace("_", " "));
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
     label->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
     addAndMakeVisible(label.get());
 
@@ -442,7 +442,7 @@ SliderParameterEditor::SliderParameterEditor(Parameter* param, int rowHeightPixe
     jassert(param->getType() == Parameter::FLOAT_PARAM
         || param->getType() == Parameter::INT_PARAM);
 
-    label = std::make_unique<Label>("Parameter name", param->getName());
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
     label->setFont(Font("Silkscreen", "Regular", 12));
     addAndMakeVisible(label.get());
 
@@ -567,11 +567,13 @@ BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int r
     jassert(param->getType() == Parameter::FLOAT_PARAM
         || param->getType() == Parameter::INT_PARAM);
 
+    /* TODO: Unit should be displayed next to actual value while not editing
     String unit = "";
     if (param->getType() == Parameter::FLOAT_PARAM) unit = ((FloatParameter*)param)->getUnit();
     unit = (unit != "" ? " [" + ((FloatParameter*)param)->getUnit() + "]" : "");
+    */
 
-    label = std::make_unique<Label>(param->getName(), param->getName().replace("_", " ") + unit);
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
     Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
     addAndMakeVisible(label.get());
@@ -667,7 +669,7 @@ SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* para
     button->setTooltip(param->getDescription());
     addAndMakeVisible(button.get());
 
-    label = std::make_unique<Label>(param->getName(), param->getName().replace("_", " "));
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
     Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
     label->setJustificationType(Justification::left);
@@ -746,7 +748,7 @@ MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param, int r
     button->setTooltip("Mask channels to filter within this stream");
     addAndMakeVisible(button.get());
 
-    label = std::make_unique<Label>(param->getName(), param->getName().replace("_", " "));
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
     Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
     label->setJustificationType(Justification::left);
