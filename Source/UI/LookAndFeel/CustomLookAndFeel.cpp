@@ -24,6 +24,8 @@
 #include "CustomLookAndFeel.h"
 #include "../CustomArrowButton.h"
 
+#include "../../Utils/Utils.h"
+
 CustomLookAndFeel::CustomLookAndFeel() :
 
     // heap allocation is necessary here, because otherwise the typefaces are
@@ -114,7 +116,7 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(ComboBox::focusedOutlineColourId, Colours::darkred);
         setColour(ComboBox::arrowColourId, Colour(10,10,10));
         
-        setColour(TextButton::buttonColourId, Colours::darkgrey);
+        setColour(TextButton::buttonColourId, Colours::lightgrey);
         
         setColour(ThemeColors::controlPanelBackgroundColorId, Colour(51,51,51));
         setColour(ThemeColors::controlPanelButtonColorId, Colour(180,180,180));
@@ -647,9 +649,13 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
 {
     auto cornerSize = box.findParentComponentOfClass<ChoicePropertyComponent>() != nullptr ? 0.0f : 3.0f;
     Rectangle<int> boxBounds (0, 0, width, height);
+    auto bounds = boxBounds.toFloat();
 
-    g.setColour (findColour(ComboBox::backgroundColourId));
-    g.fillRect (boxBounds.toFloat());
+    auto baseColour = findColour(ComboBox::backgroundColourId).withMultipliedSaturation (box.hasKeyboardFocus (true) ? 1.3f : 0.9f)
+                                      .withMultipliedAlpha (box.isEnabled() ? 1.0f : 0.35f);
+
+    g.setColour (baseColour);
+    g.fillRoundedRectangle (bounds, cornerSize);
 
     if (box.isPopupActive() || box.hasKeyboardFocus(false))
     {
@@ -669,11 +675,22 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
 
     g.setColour (box.findColour (ComboBox::arrowColourId).withAlpha ((box.isEnabled() ? 0.9f : 0.2f)));
     g.fillPath(path);
+
+    g.setColour(Colours::black);
+    g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.5f);
+
 }
 
 Font CustomLookAndFeel::getComboBoxFont (ComboBox& box)
 {
-    return Font("Fira Sans", "Regular", box.getHeight() * 0.75f);
+    return Font("Fira Sans", "Regular", box.getHeight() * 0.75);
+}
+
+void CustomLookAndFeel::positionComboBoxText (juce::ComboBox& box, juce::Label& label)
+{
+    label.setFont (getComboBoxFont (box));
+    label.setBounds (0, 0, box.getWidth() - 20, box.getHeight());
+    box.setJustificationType (juce::Justification::left);
 }
 
 
@@ -772,11 +789,16 @@ void CustomLookAndFeel::drawButtonBackground (Graphics& g,
         g.fillRoundedRectangle (bounds, cornerSize);
     }
 
+    g.setColour(Colours::black);
+    g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.5f);
+
+    /*
     if (button.hasKeyboardFocus(false))
     {
-        g.setColour(Colours::darkgrey);
+        g.setColour(Colours::white);
         g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.5f);
     }
+    */
 }
 
 
@@ -790,13 +812,12 @@ void CustomLookAndFeel::drawButtonText (Graphics& g,
 
     g.setColour (textColour.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f));
 
-    auto font = getTextButtonFont(button, button.getHeight());
-    g.setFont(font);
+    g.setFont(Font("Fira Sans", "Regular", button.getHeight() * 0.75f));
 
     const int yIndent = jmin (4, button.proportionOfHeight (0.3f));
     const int cornerSize = jmin (button.getHeight(), button.getWidth()) / 2;
 
-    const int fontHeight = roundToInt (font.getHeight() * 0.6f);
+    const int fontHeight = roundToInt (button.getHeight());
     const int leftIndent  = jmin (fontHeight, 2 + cornerSize / 2);
     const int rightIndent = jmin (fontHeight, 2 + cornerSize / 2);
     const int textWidth = button.getWidth() - leftIndent - rightIndent;

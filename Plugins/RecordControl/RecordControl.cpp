@@ -29,18 +29,21 @@ RecordControl::RecordControl()
 
     addCategoricalParameter(Parameter::PROCESSOR_SCOPE,
                             "trigger_type",
+                            "Trigger type",
                             "Determines whether recording state is set or toggled by an incoming event",
                             { "Edge set", "Edge toggle" },
                             0);
 
     addCategoricalParameter(Parameter::PROCESSOR_SCOPE,
                             "edge",
+                            "Edge",
                             "Determines whether recording state is changed by rising or falling events",
                             { "Rising", "Falling" },
                             0);
 
     addIntParameter(Parameter::STREAM_SCOPE,
                     "trigger_line",
+                    "Trigger line",
                     "The TTL line that triggers a change in recording state",
                     1,
                     1,

@@ -273,6 +273,7 @@ public:
     /** Adds a boolean parameter, which will later be accessed by name*/
     void addBooleanParameter(Parameter::ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         bool defaultValue,
         bool deactivateDuringAcquisition = false);
@@ -280,6 +281,7 @@ public:
     /** Adds an integer parameter, which will later be accessed by name*/
     void addIntParameter(Parameter::ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         int defaultValue,
         int minValue,
@@ -289,6 +291,7 @@ public:
     /** Adds a string parameter, which will later be accessed by name*/
     void addStringParameter(Parameter::ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         String defaultValue,
         bool deactivateDuringAcquisition = false);
@@ -296,6 +299,7 @@ public:
     /** Adds an float parameter, which will later be accessed by name*/
     void addFloatParameter(Parameter::ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         const String& unit,
         float defaultValue,
@@ -307,6 +311,7 @@ public:
     /** Adds a selected channels parameter, which will later be accessed by name*/
     void addSelectedChannelsParameter(Parameter::ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         int maxSelectedChannels = std::numeric_limits<int>::max(),
         bool deactivateDuringAcquisition = false);
@@ -314,12 +319,14 @@ public:
     /** Adds a mask channels parameter, which will later be accessed by name*/
     void addMaskChannelsParameter(Parameter::ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         bool deactivateDuringAcquisition = false);
 
     /** Adds a categorical parameter, which will later be accessed by name*/
     void addCategoricalParameter(Parameter::ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         Array<String> categories,
         int defaultIndex,

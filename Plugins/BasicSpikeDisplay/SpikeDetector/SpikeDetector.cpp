@@ -504,12 +504,14 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
     spikeChannel->addParameter(new StringParameter(this,
                             Parameter::SPIKE_CHANNEL_SCOPE,
                             "name",
+                            "Name",
                             "The name of a spike channel",
                             name));
     
     spikeChannel->addParameter(new CategoricalParameter(this,
                             Parameter::SPIKE_CHANNEL_SCOPE,
                             "waveform_type",
+                            "Waveform type",
                             "The type of waveform packaged in each spike object",
                             {"FULL","PEAK"},
                             0));
@@ -517,6 +519,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
     spikeChannel->addParameter(new CategoricalParameter(this,
                               Parameter::SPIKE_CHANNEL_SCOPE,
                               "thrshlder_type",
+                              "Threshold type",
                               "The type of thresholder to use",
                               {"ABS", "STD", "DYN"},0));
     
@@ -525,18 +528,21 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
         spikeChannel->addParameter(new FloatParameter(this,
             Parameter::SPIKE_CHANNEL_SCOPE,
             "abs_threshold" + String(ch+1),
+            "Abs. threshold" + String(ch+1),
             "Threshold for one channel when the absolute value thresholder is active", "uV", 
             -50.0f, -500.0f, -20.0f, 1.0f));
         
         spikeChannel->addParameter(new FloatParameter(this,
            Parameter::SPIKE_CHANNEL_SCOPE,
            "std_threshold" + String(ch+1),
+           "STD thres h" + String(ch+1),
            "Threshold for one channel when the std thresholder is active", "uV",
            4.0f, 1.0f, 10.0f, 0.01f));
         
         spikeChannel->addParameter(new FloatParameter(this,
           Parameter::SPIKE_CHANNEL_SCOPE,
           "dyn_threshold" + String(ch+1),
+          "Dyn. thresh " + String(ch+1),
           "Threshold for one channel when the dynamic thresholder is active", "uV",
           4.0f, 1.0f, 10.0f, 0.01f));
     }
@@ -544,6 +550,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
     spikeChannel->addParameter(new SelectedChannelsParameter(this,
                      Parameter::SPIKE_CHANNEL_SCOPE,
                      "local_channels",
+                     "Local channels",
                      "The local channel indices (within a Data Stream) used for spike detection",
                      selectedChannels,
                      spikeChannel->getNumChannels()));

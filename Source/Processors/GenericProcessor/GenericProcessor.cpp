@@ -71,6 +71,7 @@ GenericProcessor::GenericProcessor(const String& name, bool headlessMode_)
 
 	addBooleanParameter(Parameter::STREAM_SCOPE,
         "enable_stream",
+        "Enable",
 		"Determines whether or not processing is enabled for a particular stream",
 		true, true);
 }
@@ -168,6 +169,7 @@ Array<Parameter*> GenericProcessor::getParameters(SpikeChannel* spikeChannel)
 void GenericProcessor::addBooleanParameter(
     Parameter::ParameterScope scope,
     const String& name,
+    const String& displayName,
 	const String& description,
 	bool defaultValue,
 	bool deactivateDuringAcquisition)
@@ -177,6 +179,7 @@ void GenericProcessor::addBooleanParameter(
 		this, 
 		scope,
 		name, 
+        displayName,
 		description, 
 		defaultValue, 
 		deactivateDuringAcquisition);
@@ -190,6 +193,7 @@ void GenericProcessor::addBooleanParameter(
 void GenericProcessor::addCategoricalParameter(
     Parameter::ParameterScope scope,
     const String& name,
+    const String& displayName,
 	const String& description,
 	Array<String> categories,
 	int defaultIndex,
@@ -200,6 +204,7 @@ void GenericProcessor::addCategoricalParameter(
 		this, 
 		scope,
 		name, 
+        displayName,
 		description, 
 		categories, 
 		defaultIndex, 
@@ -214,6 +219,7 @@ void GenericProcessor::addCategoricalParameter(
 void GenericProcessor::addIntParameter(
     Parameter::ParameterScope scope,
     const String& name,
+    const String& displayName,
     const String& description,
 	int defaultValue,
 	int minValue,
@@ -225,6 +231,7 @@ void GenericProcessor::addIntParameter(
 		new IntParameter(this, 
 			scope,
 			name, 
+            displayName,
 			description, 
 			defaultValue, 
 			minValue, 
@@ -241,6 +248,7 @@ void GenericProcessor::addIntParameter(
 void GenericProcessor::addStringParameter(
     Parameter::ParameterScope scope,
     const String& name,
+    const String& displayName,
     const String& description,
     String defaultValue,
     bool deactivateDuringAcquisition)
@@ -249,6 +257,7 @@ void GenericProcessor::addStringParameter(
         new StringParameter(this,
             scope,
             name,
+            displayName,
             description,
             defaultValue,
             deactivateDuringAcquisition);
@@ -262,6 +271,7 @@ void GenericProcessor::addStringParameter(
 void GenericProcessor::addFloatParameter(
 	Parameter::ParameterScope scope,
     const String& name,
+    const String& displayName,
     const String& description,
     const String& unit,
 	float defaultValue,
@@ -275,6 +285,7 @@ void GenericProcessor::addFloatParameter(
 		new FloatParameter(this,
 			scope,
 			name,
+            displayName,
 			description,
             unit,
 			defaultValue,
@@ -293,6 +304,7 @@ void GenericProcessor::addFloatParameter(
 void GenericProcessor::addMaskChannelsParameter(
 	Parameter::ParameterScope scope,
     const String& name,
+    const String& displayName,
     const String& description,
 	bool deactivateDuringAcquisition)
 {
@@ -303,6 +315,7 @@ void GenericProcessor::addMaskChannelsParameter(
 		new MaskChannelsParameter(this,
 			scope,
 			name,
+            displayName,
 			description,
 			deactivateDuringAcquisition);
 
@@ -317,6 +330,7 @@ void GenericProcessor::addMaskChannelsParameter(
 void GenericProcessor::addSelectedChannelsParameter(
     Parameter::ParameterScope scope,
     const String& name,
+    const String& displayName,
     const String& description,
     int maxSelectedChannels,
     bool deactivateDuringAcquisition)
@@ -328,6 +342,7 @@ void GenericProcessor::addSelectedChannelsParameter(
         new SelectedChannelsParameter(this,
             scope,
             name,
+            displayName,
             description,
             defaultValue,
             maxSelectedChannels,
@@ -909,6 +924,7 @@ void GenericProcessor::update()
                     SelectedChannelsParameter* p2 = new SelectedChannelsParameter(this,
                                                                             p->getScope(),
                                                                             p->getName(),
+                                                                            p->getDisplayName(),
                                                                             p->getDescription(),
                                                                             p->getValue(),
                                                                             p->getMaxSelectableChannels(),
@@ -925,6 +941,7 @@ void GenericProcessor::update()
                     MaskChannelsParameter* p2 = new MaskChannelsParameter(this,
                                                                             p->getScope(),
                                                                             p->getName(),
+                                                                            p->getDisplayName(),
                                                                             p->getDescription(),
                                                                             p->shouldDeactivateDuringAcquisition());
                     p2->setChannelCount(stream->getChannelCount());
@@ -1749,6 +1766,7 @@ void GenericProcessor::loadFromXml()
                                     SelectedChannelsParameter* p2 = new SelectedChannelsParameter(this,
                                                                                           p->getScope(),
                                                                                           p->getName(),
+                                                                                          p->getDisplayName(),
                                                                                           p->getDescription(),
                                                                                           p->getValue(),
                                                                                           p->getMaxSelectableChannels(),
@@ -1762,6 +1780,7 @@ void GenericProcessor::loadFromXml()
                                     MaskChannelsParameter* p2 = new MaskChannelsParameter(this,
                                                                                           p->getScope(),
                                                                                           p->getName(),
+                                                                                          p->getDisplayName(),
                                                                                           p->getDescription(),
                                                                                           p->shouldDeactivateDuringAcquisition());
                                     p2->setChannelCount(4096); // max number of channels per stream

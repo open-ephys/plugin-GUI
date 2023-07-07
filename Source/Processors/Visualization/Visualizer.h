@@ -144,12 +144,14 @@ protected:
 
     /** Adds a boolean parameter, which will later be accessed by name*/
     void addBooleanParameter(const String& name,
+        const String& displayName,
         const String& description,
         bool defaultValue,
         bool deactivateDuringAcquisition = false);
 
     /** Adds an integer parameter, which will later be accessed by name*/
     void addIntParameter(const String& name,
+        const String& displayName,
         const String& description,
         int defaultValue,
         int minValue,
@@ -158,12 +160,14 @@ protected:
     
     /** Adds a string parameter, which will later be accessed by name*/
     void addStringParameter(const String& name,
+        const String& displayName,
         const String& description,
         String defaultValue,
         bool deactivateDuringAcquisition = false);
 
     /** Adds an float parameter, which will later be accessed by name*/
     void addFloatParameter(const String& name,
+        const String& displayName,
         const String& description,
         const String& unit,
         float defaultValue,
@@ -174,17 +178,20 @@ protected:
 
     /** Adds a selected channels parameter, which will later be accessed by name*/
     void addSelectedChannelsParameter(const String& name,
+        const String& displayName,
         const String& description,
         int maxSelectedChannels = std::numeric_limits<int>::max(),
         bool deactivateDuringAcquisition = false);
     
     /** Adds a mask channels parameter, which will later be accessed by name*/
     void addMaskChannelsParameter(const String& name,
+        const String& displayName,
         const String& description,
         bool deactivateDuringAcquisition = false);
 
     /** Adds a categorical parameter, which will later be accessed by name*/
     void addCategoricalParameter(const String& name,
+        const String& displayName,
         const String& description,
         Array<String> categories,
         int defaultIndex,

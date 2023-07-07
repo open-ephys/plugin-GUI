@@ -532,8 +532,8 @@ void BoundedValueEditor::paint(juce::Graphics& g)
     g.fillRect(coloredWidth > 0 ? coloredWidth : 1, 1, getWidth() - coloredWidth > 1 ? getWidth() - coloredWidth - 1 : 1, getHeight() - 2);
 
     // Draw a rounded border
-    g.setColour(juce::Colours::black);
-    g.drawRoundedRectangle(getLocalBounds().toFloat(), 2, 2);
+    g.setColour(Colours::black);
+    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f, 0.5f), 3.0f, 1.5f);
 
     // Call the base class method to ensure the text is drawn
     juce::Label::paint(g);
@@ -587,7 +587,7 @@ BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int r
         valueEditor = std::make_unique<BoundedValueEditor>(p->getMinValue(), p->getMaxValue(), 1);
     }
     valueEditor->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
-    valueEditor->setFont(Font("CP Mono", "Plain", int(0.75*rowHeightPixels)));
+    valueEditor->setFont(Font("Fira Sans", "Regular", int(0.75*rowHeightPixels)));
     valueEditor->setJustificationType(Justification::centred);
     valueEditor->addListener(this);
     valueEditor->setTooltip(param->getDescription());

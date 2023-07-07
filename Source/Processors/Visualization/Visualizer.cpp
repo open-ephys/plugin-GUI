@@ -112,6 +112,7 @@ void Visualizer::timerCallback()
 }
 
 void Visualizer::addBooleanParameter(const String& name,
+    const String& displayName,
 	const String& description,
 	bool defaultValue,
 	bool deactivateDuringAcquisition)
@@ -121,6 +122,7 @@ void Visualizer::addBooleanParameter(const String& name,
 		nullptr, 
 		Parameter::VISUALIZER_SCOPE,
 		name, 
+        displayName,
 		description, 
 		defaultValue, 
 		deactivateDuringAcquisition);
@@ -130,6 +132,7 @@ void Visualizer::addBooleanParameter(const String& name,
 }
 
 void Visualizer::addCategoricalParameter(const String& name,
+    const String& displayName,
 	const String& description,
 	Array<String> categories,
 	int defaultIndex,
@@ -140,6 +143,7 @@ void Visualizer::addCategoricalParameter(const String& name,
 		nullptr, 
 		Parameter::VISUALIZER_SCOPE,
 		name, 
+        displayName,
 		description, 
 		categories, 
 		defaultIndex, 
@@ -150,6 +154,7 @@ void Visualizer::addCategoricalParameter(const String& name,
 }
 
 void Visualizer::addIntParameter(const String& name,
+    const String& displayName,
     const String& description,
 	int defaultValue,
 	int minValue,
@@ -161,6 +166,7 @@ void Visualizer::addIntParameter(const String& name,
 		new IntParameter(nullptr, 
 			Parameter::VISUALIZER_SCOPE,
 			name, 
+            displayName,
 			description, 
 			defaultValue, 
 			minValue, 
@@ -172,6 +178,7 @@ void Visualizer::addIntParameter(const String& name,
 }
 
 void Visualizer::addStringParameter(const String& name,
+    const String& displayName,
     const String& description,
     String defaultValue,
     bool deactivateDuringAcquisition)
@@ -180,6 +187,7 @@ void Visualizer::addStringParameter(const String& name,
         new StringParameter(nullptr,
             Parameter::VISUALIZER_SCOPE,
             name,
+            displayName,
             description,
             defaultValue,
             deactivateDuringAcquisition);
@@ -190,6 +198,7 @@ void Visualizer::addStringParameter(const String& name,
 
 void Visualizer::addFloatParameter(
     const String& name,
+    const String& displayName,
     const String& description,
     const String& unit,
 	float defaultValue,
@@ -203,6 +212,7 @@ void Visualizer::addFloatParameter(
 		new FloatParameter(nullptr,
 			Parameter::VISUALIZER_SCOPE,
 			name,
+            displayName,
 			description,
             unit,
 			defaultValue,
@@ -217,6 +227,7 @@ void Visualizer::addFloatParameter(
 
 void Visualizer::addMaskChannelsParameter(
     const String& name,
+    const String& displayName,
     const String& description,
 	bool deactivateDuringAcquisition)
 {
@@ -227,6 +238,7 @@ void Visualizer::addMaskChannelsParameter(
 		new MaskChannelsParameter(nullptr,
 			Parameter::VISUALIZER_SCOPE,
 			name,
+            displayName,
 			description,
 			deactivateDuringAcquisition);
 
@@ -238,6 +250,7 @@ void Visualizer::addMaskChannelsParameter(
 
 void Visualizer::addSelectedChannelsParameter(
     const String& name,
+    const String& displayName,
     const String& description,
     int maxSelectedChannels,
     bool deactivateDuringAcquisition)
@@ -249,6 +262,7 @@ void Visualizer::addSelectedChannelsParameter(
         new SelectedChannelsParameter(nullptr,
             Parameter::VISUALIZER_SCOPE,
             name,
+            displayName,
             description,
             defaultValue,
             maxSelectedChannels,

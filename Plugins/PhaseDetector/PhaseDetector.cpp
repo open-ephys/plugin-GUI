@@ -75,11 +75,12 @@ TTLEventPtr PhaseDetectorSettings::clearOutputLine(int64 sample_number)
 PhaseDetector::PhaseDetector() : GenericProcessor ("Phase Detector")
 {
 
-    addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "Channel", "The continuous channel to analyze", 1);
-    addIntParameter(Parameter::STREAM_SCOPE, "TTL_out", "The output TTL line", 1, 1, 16);
-    addIntParameter(Parameter::STREAM_SCOPE,"gate_line", "The input TTL line for gating the signal (0 = off)", 0, 0, 16);
+    addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "channel", "Channel", "The continuous channel to analyze", 1);
+    addIntParameter(Parameter::STREAM_SCOPE, "ttl_out", "TTL out", "The output TTL line", 1, 1, 16);
+    addIntParameter(Parameter::STREAM_SCOPE,"gate_line", "Gate line", "The input TTL line for gating the signal (0 = off)", 0, 0, 16);
     addCategoricalParameter(Parameter::STREAM_SCOPE,
         "phase",
+        "Phase",
         "The phase for triggering the output",
         { "PEAK",
          "FALLING ZERO-CROSSING",
@@ -102,7 +103,7 @@ void PhaseDetector::parameterValueChanged(Parameter* param)
     {
         settings[param->getStreamId()]->detectorType = DetectorType((int) param->getValue());
     } 
-    else if (param->getName().equalsIgnoreCase("Channel"))
+    else if (param->getName().equalsIgnoreCase("channel"))
     {
         Array<var>* array = param->getValue().getArray();
         
@@ -113,14 +114,14 @@ void PhaseDetector::parameterValueChanged(Parameter* param)
             settings[param->getStreamId()]->triggerChannel = globalIndex;
 
             //TODO: It would be nice to have param->getEditor() helper
-            ((TextButton*)getEditor()->getParameterEditor("Channel")->getEditor())->setButtonText(String(localIndex + 1));
+            ((TextButton*)getEditor()->getParameterEditor("channel")->getEditor())->setButtonText(String(localIndex + 1));
         }
         else
         {
             settings[param->getStreamId()]->triggerChannel = -1;
         }
     } 
-    else if (param->getName().equalsIgnoreCase("TTL_out"))
+    else if (param->getName().equalsIgnoreCase("ttl_out"))
     {
         settings[param->getStreamId()]->lastOutputLine = settings[param->getStreamId()]->outputLine;
         settings[param->getStreamId()]->outputLine = (int)param->getValue() - 1;
@@ -141,8 +142,8 @@ void PhaseDetector::updateSettings()
 	{
         // update "settings" objects
         parameterValueChanged(stream->getParameter("phase"));
-        parameterValueChanged(stream->getParameter("Channel"));
-        parameterValueChanged(stream->getParameter("TTL_out"));
+        parameterValueChanged(stream->getParameter("channel"));
+        parameterValueChanged(stream->getParameter("ttl_out"));
         parameterValueChanged(stream->getParameter("gate_line"));
 
         EventChannel::Settings s{

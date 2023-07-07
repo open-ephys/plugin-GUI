@@ -70,10 +70,10 @@ FilterNode::FilterNode(bool headless)
     : GenericProcessor  ("Bandpass Filter", headless)
 {
 
-    addFloatParameter(Parameter::STREAM_SCOPE, "high_cut", "Filter high cut", "Hz", 5000, 0.1, 6000, false);
-    addFloatParameter(Parameter::STREAM_SCOPE, "low_cut", "Filter low cut", "Hz", 100, 0.1, 600, false);
-    addMaskChannelsParameter(Parameter::STREAM_SCOPE, "Channels", "Channels to filter for this stream");
-    addCategoricalParameter(Parameter::STREAM_SCOPE, "Threads", "Number of threads to use", { "1", "8", "16", "32"}, 3);
+    addFloatParameter(Parameter::STREAM_SCOPE, "high_cut", "High cut", "Filter high cut", "Hz", 5000, 0.1, 6000, false);
+    addFloatParameter(Parameter::STREAM_SCOPE, "low_cut", "Low cut", "Filter low cut", "Hz", 100, 0.1, 600, false);
+    addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to filter for this stream");
+    addCategoricalParameter(Parameter::STREAM_SCOPE, "threads", "Threads", "Number of threads to use", { "1", "8", "16", "32"}, 3);
 
     LOGD("[FilterNode]", " Created FilterNode");
 
@@ -215,7 +215,7 @@ void FilterNode::process (AudioBuffer<float>& buffer)
             const uint16 streamId = stream->getStreamId();
             const uint32 numSamples = getNumSamplesInBlock(streamId);
 
-            for (auto localChannelIndex : *((*stream)["Channels"].getArray()))
+            for (auto localChannelIndex : *((*stream)["channels"].getArray()))
             {
                 int globalChannelIndex = getGlobalChannelIndex(stream->getStreamId(), (int) localChannelIndex);
 

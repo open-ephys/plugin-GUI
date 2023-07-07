@@ -110,6 +110,7 @@ public:
         ParameterType type_,
         ParameterScope scope_,
         const String& name_,
+        const String& displatyName_,
         const String& description_,
         var defaultValue_,
         bool deactivateDuringAcquisition_ = false)
@@ -121,6 +122,7 @@ public:
         m_parameterType(type_),
         m_parameterScope(scope_),
         m_name(name_),
+        m_displayName(displatyName_),
         m_description(description_),
         currentValue(defaultValue_),
         defaultValue(defaultValue_),
@@ -158,6 +160,9 @@ public:
 
     /** Returns the common name of the parameter. */
     String getName() const noexcept { return m_name; }
+
+    /** Returns the displayed name of the parameter. */
+    String getDisplayName() const noexcept { return m_displayName; }
 
     /** Returns a description of the parameter.*/
     String getDescription() const noexcept { return m_description; }
@@ -309,6 +314,7 @@ private:
     ParameterType m_parameterType;
     ParameterScope m_parameterScope;
     String m_name;
+    String m_displayName;
     String m_description;
 
     bool m_deactivateDuringAcquisition;
@@ -330,6 +336,7 @@ public:
     BooleanParameter(InfoObject* infoObject,
         ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         bool defaultValue,
         bool deactivateDuringAcquisition = false);
@@ -364,6 +371,7 @@ public:
     CategoricalParameter(InfoObject* infoObject,
         ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         Array<String> categories,
         int defaultIndex,
@@ -412,6 +420,7 @@ public:
     IntParameter(InfoObject* infoObject,
         ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         int defaultValue,
         int minValue = 0,
@@ -454,6 +463,7 @@ public:
     StringParameter(InfoObject* infoObject,
         ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         String defaultValue,
         bool deactivateDuringAcquisition = false);
@@ -487,6 +497,7 @@ public:
     FloatParameter(InfoObject* infoObject,
         ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         const String& unit,
         float defaultValue,
@@ -550,6 +561,7 @@ public:
     SelectedChannelsParameter(InfoObject* infoObject,
         ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         Array<var> defaultValue,
         int maxSelectableChannels = std::numeric_limits<int>::max(),
@@ -612,6 +624,7 @@ public:
     MaskChannelsParameter(InfoObject* infoObject,
         ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         bool deactivateDuringAcquisition = false);
 

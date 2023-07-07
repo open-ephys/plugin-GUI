@@ -159,6 +159,8 @@ public:
     
     Font getComboBoxFont (ComboBox& box) override;
 
+    void positionComboBoxText (juce::ComboBox& box, juce::Label& label) override;
+
     // ========= custom popup menu & menu bar methods: ===========================
 
     void drawPopupMenuBackground (Graphics&, int width, int height);
