@@ -549,27 +549,20 @@ void BoundedValueEditor::paint(juce::Graphics& g)
     juce::Label::paint(g);
 }
 
-void BoundedValueEditor::mouseDown (const MouseEvent& event)
-{
-    /* TODO: Select value by dragging like a slider?
-    setMouseCursor (MouseCursor::NoCursor);
-    */
-}
-
 void BoundedValueEditor::mouseDrag(const MouseEvent& event)
 {
-    /* TODO: Select value by dragging like a slider?
-    setMouseCursor (MouseCursor::NoCursor);
-    */
-}
+    // Calculate the new value based on the mouse position
+    double newValue = static_cast<float>(event.position.x) / getWidth() * (maxValue - minValue) + minValue;
 
-void BoundedValueEditor::mouseUp (const MouseEvent& event)
-{
-    /* TODO: Select value by dragging like a slider?
-    setMouseCursor (MouseCursor::NormalCursor);
-    */
-}
+    // Clamp the new value to the range [minValue, maxValue]
+    newValue = jlimit(minValue, maxValue, newValue);
 
+    // Set the label's text to the new value
+    setText(juce::String(newValue), juce::dontSendNotification);
+
+    // Redraw the component
+    repaint();
+}
 
 BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {

@@ -303,8 +303,6 @@ public:
     TextEditor* createEditorComponent() override;
 
     /** Mouse event handlers */
-    void mouseDown (const MouseEvent& event) override;
-    void mouseUp (const MouseEvent& event) override;
     void mouseDrag(const MouseEvent& event) override;
     
 private:
