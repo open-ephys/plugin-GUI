@@ -202,7 +202,7 @@ protected:
     void addTextBoxParameterEditor (const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
 
     /** Adds a check box editor for a parameter of a given name. */
-    void addCheckBoxParameterEditor(const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
+    void addToggleParameterEditor(const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
 
     /** Adds a slider editor for a parameter of a given name. */
     void addSliderParameterEditor(const String& name, int xPos, int yPos, Component *parentComponent = nullptr);

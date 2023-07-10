@@ -291,14 +291,14 @@ void Visualizer::addTextBoxParameterEditor(const String& parameterName,
                              parentComponent);
 }
 
-void Visualizer::addCheckBoxParameterEditor(const String& parameterName,
+void Visualizer::addToggleParameterEditor(const String& parameterName,
                                             int xPos_, int yPos_,
                                             Component *parentComponent)
 {
 
     Parameter* param = processor->getParameter(parameterName);
 
-    addCustomParameterEditor(new CheckBoxParameterEditor(param),
+    addCustomParameterEditor(new ToggleParameterEditor(param),
                              xPos_, yPos_,
                              parentComponent);
 }

@@ -303,7 +303,7 @@ Component* InfoObject::createDefaultEditor(int rowHeightPixels, int rowWidthPixe
         }
         case Parameter::BOOLEAN_PARAM:
         {
-            CheckBoxParameterEditor* booleanParameterEditor = new CheckBoxParameterEditor(parameter);
+            ToggleParameterEditor* booleanParameterEditor = new ToggleParameterEditor(parameter);
             booleanParameterEditor->setBounds(0, yPos, width, rowHeightPixels);
             editorComponent->addAndMakeVisible(booleanParameterEditor);
             editors.add(booleanParameterEditor);

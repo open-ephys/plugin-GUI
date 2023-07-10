@@ -139,22 +139,31 @@ private:
 };
 
 
+class PLUGIN_API CustomToggleButton : public ToggleButton
+{
+public:
+    CustomToggleButton() : ToggleButton("") {}
+    ~CustomToggleButton() { }
+
+    void paintButton (Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+};
+
 /**
     Allows parameters to be changed via a check box.
 
     Only valid for BooleanParameter
 
 */
-class PLUGIN_API CheckBoxParameterEditor : public ParameterEditor,
+class PLUGIN_API ToggleParameterEditor : public ParameterEditor,
     public Button::Listener
 {
 public:
 
     /** Constructor */
-    CheckBoxParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+    ToggleParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
 
     /** Destructor */
-    virtual ~CheckBoxParameterEditor() { }
+    virtual ~ToggleParameterEditor() { }
 
     /** Responds to checkbox clicks */
     void buttonClicked(Button* label) override;
@@ -166,7 +175,7 @@ public:
     virtual void resized() override;
 
 private:
-    std::unique_ptr<ToggleButton> valueCheckBox;
+    std::unique_ptr<CustomToggleButton> toggleButton;
 };
 
 

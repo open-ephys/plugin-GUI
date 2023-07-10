@@ -138,8 +138,42 @@ void TextBoxParameterEditor::updateView()
 
 }
 
+void CustomToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
+{
+    // Set the color based on the button state
+    if (getToggleState())
+    {
+        g.setColour(juce::Colours::orange);
+    }
+    else
+    {
+        g.setColour(juce::Colours::grey);
+    }
 
-CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
+    // Draw a rounded rectangle
+    g.fillRoundedRectangle(getLocalBounds().toFloat(), 3.0f);
+
+    // Set the text color
+    g.setColour(juce::Colours::black);
+
+    // Draw a rounded rectangle border
+    g.drawRoundedRectangle(getLocalBounds().toFloat(), 3.0f, 1.5f);
+
+    // Set the text font
+    g.setFont(Font("Fira Sans", "Regular", int(0.75*getHeight())));
+
+    // Set the text based on the button state
+    if (getToggleState())
+    {
+        g.drawText("ON", getLocalBounds(), juce::Justification::centred);
+    }
+    else
+    {
+        g.drawText("OFF", getLocalBounds(), juce::Justification::centred);
+    }
+}
+
+ToggleParameterEditor::ToggleParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
 
     jassert(param->getType() == Parameter::BOOLEAN_PARAM);
@@ -149,41 +183,41 @@ CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param, int rowHeight
     label->setColour(Label::textColourId, Colours::black);
     addAndMakeVisible(label.get());
 
-    valueCheckBox = std::make_unique<ToggleButton>("");
-    valueCheckBox->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
-    valueCheckBox->setToggleState(bool(param->getValue()), dontSendNotification);
-    valueCheckBox->addListener(this);
-    valueCheckBox->setTooltip(param->getDescription());
-    addAndMakeVisible(valueCheckBox.get());
+    toggleButton = std::make_unique<CustomToggleButton>();
+    toggleButton->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
+    toggleButton->setToggleState(bool(param->getValue()), dontSendNotification);
+    toggleButton->addListener(this);
+    toggleButton->setTooltip(param->getDescription());
+    addAndMakeVisible(toggleButton.get());
 
     int width = rowWidthPixels;
 
     label->setBounds(width / 2, 0, width / 2, rowHeightPixels);
-    valueCheckBox->setBounds(0, 0, width / 2, getHeight());
+    toggleButton->setBounds(0, 0, width / 2, getHeight());
     setBounds(0, 0, width, rowHeightPixels);
 
-    editor = (Component*)valueCheckBox.get();
+    editor = (Component*)toggleButton.get();
 }
 
-void CheckBoxParameterEditor::buttonClicked(Button* button)
+void ToggleParameterEditor::buttonClicked(Button* button)
 {
     if (param != nullptr)
         param->setNextValue(button->getToggleState());
 }
 
-void CheckBoxParameterEditor::updateView()
+void ToggleParameterEditor::updateView()
 {
     if (param != nullptr)
-        valueCheckBox->setToggleState(param->getValue(), dontSendNotification);
+        toggleButton->setToggleState(param->getValue(), dontSendNotification);
     
     
     repaint();
 }
 
-void CheckBoxParameterEditor::resized()
+void ToggleParameterEditor::resized()
 {
     label->setBounds(getWidth() / 2 + 10, 0, getWidth() / 2, getHeight());
-    valueCheckBox->setBounds(0, 0, getWidth() / 2 + 10, getHeight());
+    toggleButton->setBounds(0, 0, getWidth() / 2 + 10, getHeight());
 }
 
 
@@ -514,6 +548,7 @@ void SliderParameterEditor::resized()
     slider->setBounds(0, 15, 50, 50);
 }
 
+
 TextEditor* BoundedValueEditor::createEditorComponent()
 {
     auto* editor = new juce::TextEditor(getComponentID());
@@ -523,7 +558,6 @@ TextEditor* BoundedValueEditor::createEditorComponent()
 
     return editor;
 }
-
 
 void BoundedValueEditor::paint(juce::Graphics& g)
 {
@@ -563,6 +597,7 @@ void BoundedValueEditor::mouseDrag(const MouseEvent& event)
     // Redraw the component
     repaint();
 }
+
 
 BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {

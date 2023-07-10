@@ -123,7 +123,7 @@ void GenericEditor::addTextBoxParameterEditor(Parameter::ParameterScope scope,
     addCustomParameterEditor(new TextBoxParameterEditor(param), xPos_, yPos_);
 }
 
-void GenericEditor::addCheckBoxParameterEditor(Parameter::ParameterScope scope,
+void GenericEditor::addToggleParameterEditor(Parameter::ParameterScope scope,
     const String& parameterName,
     int xPos_,
     int yPos_)
@@ -136,7 +136,7 @@ void GenericEditor::addCheckBoxParameterEditor(Parameter::ParameterScope scope,
     else
         param = getProcessor()->getStreamParameter(parameterName);
 
-    addCustomParameterEditor(new CheckBoxParameterEditor(param), xPos_, yPos_);
+    addCustomParameterEditor(new ToggleParameterEditor(param), xPos_, yPos_);
 }
 
 
