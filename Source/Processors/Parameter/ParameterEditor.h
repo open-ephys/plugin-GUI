@@ -299,6 +299,9 @@ public:
     /** Destructor */
     ~BoundedValueEditor() {};
 
+    /** Customize text location while editing */
+    TextEditor* createEditorComponent() override;
+
     /** Mouse event handlers */
     void mouseDown (const MouseEvent& event) override;
     void mouseUp (const MouseEvent& event) override;

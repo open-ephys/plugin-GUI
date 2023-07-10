@@ -41,7 +41,7 @@ void ParameterEditor::setLayout(Layout layout)
             label->setBounds(0, 0, finalWidth, 20);
             label->setJustificationType(Justification::centredLeft);
             label->setVisible(true);
-            editor->setBounds(0, 18, finalWidth / 2, 18);
+            editor->setBounds(5, 16, finalWidth / 2, 18);
             break;
         case nameOnBottom:
             finalWidth = bounds.getWidth();
@@ -512,6 +512,16 @@ void SliderParameterEditor::resized()
 {
     label->setBounds(0, 0, 80, 15);
     slider->setBounds(0, 15, 50, 50);
+}
+
+TextEditor* BoundedValueEditor::createEditorComponent()
+{
+    auto* editor = new juce::TextEditor(getComponentID());
+
+    editor->setJustification(juce::Justification::centred);
+    editor->setInputRestrictions(0, "0123456789.");
+
+    return editor;
 }
 
 
