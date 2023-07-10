@@ -677,7 +677,7 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
     g.fillPath(path);
 
     g.setColour(Colours::black);
-    g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.5f);
+    g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.0f);
 
 }
 
@@ -790,7 +790,7 @@ void CustomLookAndFeel::drawButtonBackground (Graphics& g,
     }
 
     g.setColour(Colours::black);
-    g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.5f);
+    g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.0f);
 
     /*
     if (button.hasKeyboardFocus(false))

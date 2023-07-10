@@ -157,7 +157,7 @@ void CustomToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsH
     g.setColour(juce::Colours::black);
 
     // Draw a rounded rectangle border
-    g.drawRoundedRectangle(getLocalBounds().toFloat(), 3.0f, 1.5f);
+    g.drawRoundedRectangle(getLocalBounds().toFloat(), 3.0f, 1.0f);
 
     // Set the text font
     g.setFont(Font("Fira Sans", "Regular", int(0.75*getHeight())));
@@ -577,7 +577,7 @@ void BoundedValueEditor::paint(juce::Graphics& g)
 
     // Draw a rounded border
     g.setColour(Colours::black);
-    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f, 0.5f), 3.0f, 1.5f);
+    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f, 0.5f), 3.0f, 1.0f);
 
     // Call the base class method to ensure the text is drawn
     juce::Label::paint(g);
