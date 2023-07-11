@@ -217,7 +217,7 @@ public:
     virtual void parameterValueChanged(Parameter*) { }
 
 	/** Creates a simple editor for modifying this object's parameters */
-	virtual Component* createDefaultEditor(int rowHeightPixels = 12);
+	virtual Array<ParameterEditor*> createDefaultEditor();
 	
 
 	// --------------------------------------------
@@ -297,8 +297,6 @@ private:
 	String m_sourceNodeName;
 
     bool m_isEnabled;
-
-	OwnedArray<ParameterEditor> editors;
 
     bool m_isLocal;
 };

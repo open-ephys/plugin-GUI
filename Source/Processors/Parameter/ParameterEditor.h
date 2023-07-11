@@ -49,7 +49,8 @@ public:
     /** Destructor */
     virtual ~ParameterEditor() { 
     
-        param->removeListener(this);
+        if(param != nullptr)
+            param->removeListener(this);
     
     }
 

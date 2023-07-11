@@ -93,74 +93,116 @@ void GraphViewer::updateBoundaries()
 }
 
 
-void GraphViewer::updateNodes(Array<GenericProcessor*> rootProcessors)
+void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcessor*> rootProcessors)
 {
+    // removeAllNodes();
 
-    removeAllNodes();
-
-    //for (auto node : availableNodes)
-    //    node->stillNeeded = false;
-            
     Array<Splitter*> splitters;
 
-    int rootNum = -1;
+    int level = -1;
+    int horzShift = -1;
 
-    for (auto processor : rootProcessors)
+    while ((processor != nullptr) || (splitters.size() > 0))
     {
-        rootNum++;
-        int level = -1;
-        
-        while ((processor != nullptr) || (splitters.size() > 0))
+        if (processor != nullptr)
         {
-            if (processor != nullptr)
-            {
-                level++;
-                
-                if (!nodeExists(processor))
+
+            GraphNode* srcNode = nullptr;
+
+            // Set processor's level and horizontal shift values from source processor
+
+            // If processor is not a merger and source node exists
+            if (!processor->isMerger() && processor->getSourceNode() != nullptr)
+            {    
+                srcNode = getNodeForEditor(processor->getSourceNode()->getEditor());
+                level = srcNode->getLevel() + 1;
+
+                // If source node is splitter, caluclate horizontal shift accordingly
+                if(processor->getSourceNode()->isSplitter())
                 {
-                    addNode(processor->getEditor(), level, rootNum);
-                }
-                //else {
-                //    GraphNode* node = getNodeForEditor(processor->getEditor());
-                //    node->stillNeeded = true;
-                //    node->setLevel(level);
-                //    node->setHorzShift(rootNum);
-                //}
-                
-                if (processor->isSplitter())
-                {
-                    splitters.add((Splitter*) processor);
-                    processor = splitters.getLast()->getDestNode(0); // travel down chain 0 first
-                } else {
-                    processor = processor->getDestNode();
-                }
-            }
-            else {
-                Splitter* splitter = splitters.getFirst();
-                processor = splitter->getDestNode(1); // then come back to chain 1
-                GraphNode* gn = getNodeForEditor(splitter->getEditor());
-                
-                level = gn->getLevel();
-                
-                //check if 2 splitters are connected to 1 splitter
-                if(splitter->getDestNode(0) && 
-                   splitter->getDestNode(0)->isSplitter() &&
-                   processor &&
-                   processor->isSplitter())
-                {
-                    rootNum = gn->getHorzShift() + 2;
+                    Splitter* splitter = (Splitter*)processor->getSourceNode();
+
+                    //check if 2 splitters are connected to 1 splitter
+                    if (processor->isSplitter()
+                        && processor == splitter->getDestNode(1)
+                        && splitter->getDestNode(0)->isSplitter()
+                        && splitter->getDestNode(0) != nullptr)
+                    {
+                        horzShift = srcNode->getHorzShift() + 2;
+                    }
+                    else
+                    {
+                        if (processor == splitter->getDestNode(0))
+                            horzShift = srcNode->getHorzShift();
+                        else
+                            horzShift = srcNode->getHorzShift() + 1;
+                    }
+
                 }
                 else
                 {
-                    rootNum = gn->getHorzShift() + 1;
+                    horzShift = srcNode->getHorzShift();
                 }
-
-                splitters.remove(0);
             }
+            // Processor is a merger and source node exists
+            else if (processor->isMerger() && processor->getSourceNode() != nullptr)
+            {
+                Merger* merger = (Merger*)processor;
+
+                if (merger->getSourceNode(0) != nullptr)
+                {
+                    srcNode = getNodeForEditor(merger->getSourceNode(0)->getEditor());
+                    horzShift = srcNode->getHorzShift();
+                }
+                else
+                {
+                    srcNode = getNodeForEditor(merger->getSourceNode(1)->getEditor());
+                    horzShift = srcNode->getHorzShift() - 1;
+                }
+                level = srcNode->getLevel() + 1;
+            }
+            // No source node (either orphaned or is a source node itself)
+            else
+            {
+                level = 0;
+                int procIndex = rootProcessors.indexOf(processor);
+                horzShift = (procIndex < 0) ? 0 : procIndex;
+            }
+            
+
+            // Create or update node for processor
+            if (!nodeExists(processor))
+            {
+                addNode(processor->getEditor(), level, horzShift);
+            }
+            else // Node exists, updated necessary info
+            {
+                GraphNode* node = getNodeForEditor(processor->getEditor());
+                node->stillNeeded = true;
+                node->setLevel(level);
+                node->setHorzShift(horzShift);
+                node->updateStreamInfo();
+                node->updateBoundaries();
+            }
+
+            // Travel down the signal chain
+            if (processor->isSplitter())
+            {
+                splitters.add((Splitter*) processor);
+                processor = splitters.getLast()->getDestNode(0); // travel down chain 0 first
+            } else {
+                processor = processor->getDestNode();
+            }
+        }
+        else // processor is nullptr, look for splitters
+        {
+            Splitter* splitter = splitters.getFirst();
+            processor = splitter->getDestNode(1); // then come back to chain 1
+            splitters.remove(0);
         }
     }
 
-    /*Array<GraphNode*> nodesToDelete;
+    Array<GraphNode*> nodesToDelete;
 
     for (auto node : availableNodes)
     {
@@ -171,10 +213,10 @@ void GraphViewer::updateNodes(Array<GenericProcessor*> rootProcessors)
     for (auto node : nodesToDelete)
     {
         availableNodes.removeObject(node, true);
-    }*/
+    }
 
     updateBoundaries();
-    
+    repaint();
     
 }
 
@@ -207,7 +249,11 @@ void GraphViewer::addNode (GenericEditor* editor, int level, int offset)
 
 }
 
-
+void GraphViewer::removeNode(GenericProcessor *p)
+{
+    auto node = getNodeForEditor(p->getEditor());
+    node->stillNeeded = false;
+}
 
 void GraphViewer::removeAllNodes()
 {
@@ -315,12 +361,31 @@ DataStreamInfo::DataStreamInfo(DataStream* stream_)
     :  stream(stream_)
 {
     
-    streamParameterEditor.reset(stream->createDefaultEditor(18));
+    LOGD("CREATING DEFAULT EDITORS FOR : ", stream->getNodeName());
+    streamParameterEditorComponent = std::make_unique<Component>(stream->getName());
 
-    streamParameterEditor->setBounds(0, 60, streamParameterEditor->getWidth(), streamParameterEditor->getHeight());
-	addAndMakeVisible(streamParameterEditor.get());
+    auto editors = stream->createDefaultEditor();
 
-    heightInPixels = streamParameterEditor->getHeight() + 80;
+    int yPos = 0;
+    const int rowWidthPixels = 200;
+    const int rowHeightPixels = 18;
+
+    for (auto editor : editors)
+    {
+        // set parameter editor bounds
+        editor->setBounds(0, yPos, rowWidthPixels, rowHeightPixels);
+        yPos += rowHeightPixels;
+
+        //transfer ownership to DataStreamInfo
+        parameterEditors.add(editor);
+
+        streamParameterEditorComponent->addAndMakeVisible(parameterEditors.getLast());
+    }
+
+    streamParameterEditorComponent->setBounds(0, 60, rowWidthPixels, yPos);
+	addAndMakeVisible(streamParameterEditorComponent.get());
+
+    heightInPixels = streamParameterEditorComponent->getHeight() + 80;
     
 }
 
@@ -421,6 +486,7 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
     horzShift = 0;
     vertShift = 0;
 
+    dataStreamPanel = std::make_unique<ConcertinaPanel> ();
     
     if (!processor->isMerger() && !processor->isSplitter())
     {
@@ -428,17 +494,17 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
         {
 
             DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()));
-            dataStreamPanel.addPanel(-1, info, true);
+            dataStreamPanel->addPanel(-1, info, true);
 
             DataStreamButton* button = new DataStreamButton(editor, stream, info);
             button->addListener(this);
-            dataStreamPanel.setCustomPanelHeader(info, button, true);
-            dataStreamPanel.setMaximumPanelSize(info, 200);
+            dataStreamPanel->setCustomPanelHeader(info, button, true);
+            dataStreamPanel->setMaximumPanelSize(info, 200);
 
             dataStreamButtons.add(button);
         }
 
-        addAndMakeVisible(dataStreamPanel);
+        addAndMakeVisible(dataStreamPanel.get());
     }
    
     setBounds(BORDER_SIZE + getHorzShift() * NODE_WIDTH,
@@ -517,9 +583,9 @@ void GraphNode::buttonClicked(Button* button)
     DataStreamButton* dsb = (DataStreamButton*)button;
 
     if (button->getToggleState())
-        dataStreamPanel.setPanelSize(dsb->getComponent(), dsb->getDesiredHeight(), false);
+        dataStreamPanel->setPanelSize(dsb->getComponent(), dsb->getDesiredHeight(), false);
     else
-        dataStreamPanel.setPanelSize(dsb->getComponent(), 0, false);
+        dataStreamPanel->setPanelSize(dsb->getComponent(), 0, false);
 
     gv->updateBoundaries();
     gv->repaint();
@@ -597,7 +663,7 @@ void GraphNode::updateBoundaries()
             panelHeight += 20;
     }
 
-    dataStreamPanel.setBounds(23, 20, NODE_WIDTH - 23, panelHeight);
+    dataStreamPanel->setBounds(23, 20, NODE_WIDTH - 23, panelHeight);
 
     int yshift = BORDER_SIZE;
 
@@ -679,22 +745,22 @@ void GraphNode::updateBoundaries()
     }
 
 
-    if (previousHeight > 0 && previousHeight != panelHeight)
-    {
-        setBounds(getX(), getY(), getWidth(),
-            panelHeight + 20);
-    }
-    else {
+    // if (previousHeight > 0 && previousHeight != panelHeight)
+    // {
+    //     setBounds(getX(), getY(), getWidth(),
+    //         panelHeight + 20);
+    // }
+    // else {
         setBounds(BORDER_SIZE + getHorzShift() * NODE_WIDTH,
             yshift, //BORDER_SIZE + getLevel() * NODE_HEIGHT + verticalOffset,
             nodeWidth,
             panelHeight + 20);
-    }
+    // }
     
     
     if (previousHeight > 0)
     {
-        if (processor->destNode != nullptr)
+        if (processor->destNode != nullptr && gv->nodeExists(processor->destNode))
         {
             gv->getNodeForEditor(processor->destNode->getEditor())->verticalShift(panelHeight - previousHeight);
         }
@@ -703,6 +769,36 @@ void GraphNode::updateBoundaries()
 
     previousHeight = panelHeight;
 }
+
+
+void GraphNode::updateStreamInfo()
+{
+    if (!processor->isMerger() && !processor->isSplitter())
+    {
+        LOGD("Removing data stream info and buttons for node: ", processor->getName());
+
+        dataStreamPanel.reset(new ConcertinaPanel());
+
+        dataStreamButtons.clear();
+
+        for (auto stream : processor->getDataStreams())
+        {
+            LOGD("Adding data stream info and buttons for stream: ", stream->getName());
+            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()));
+            dataStreamPanel->addPanel(-1, info, true);
+
+            DataStreamButton* button = new DataStreamButton(editor, stream, info);
+            button->addListener(this);
+            dataStreamPanel->setCustomPanelHeader(info, button, true);
+            dataStreamPanel->setMaximumPanelSize(info, 200);
+
+            dataStreamButtons.add(button);
+        }
+
+        addAndMakeVisible(dataStreamPanel.get());
+    }
+}
+
 
 void GraphNode::verticalShift(int pixels)
 {

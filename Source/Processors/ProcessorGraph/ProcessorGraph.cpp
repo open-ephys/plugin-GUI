@@ -500,6 +500,13 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
 
     GenericProcessor* processorToUpdate = processor;
 
+    if (processorToUpdate != nullptr
+        && processorToUpdate->isMerger() 
+        && processorToUpdate->getSourceNode() != nullptr)
+    {
+        processorToUpdate = processorToUpdate->getSourceNode();
+    }
+
     Array<Splitter*> splitters;
 
     while ((processor != nullptr) || (splitters.size() > 0))
@@ -542,7 +549,7 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
 {
     
     if (updateGraphViewer && !isConsoleApp)
-        AccessClass::getGraphViewer()->updateNodes(rootNodes);
+        AccessClass::getGraphViewer()->updateNodes(processor, rootNodes);
 
     int tabIndex;
 
@@ -555,7 +562,17 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
     GenericProcessor* rootProcessor = processor;
 
     if (processor != nullptr)
+    {
         LOGD("Processor to view: ", processor->getName());
+
+        if (processor->isSplitter())
+        {
+            SplitterEditor* spEditor = (SplitterEditor*)processor->getEditor();
+            Splitter*  spProc = (Splitter*)processor;
+
+            spEditor->switchDest(spProc->getPath());
+        }
+    }
 
     for (int i = 0; i < 99; i++)
     {
@@ -639,6 +656,7 @@ void ProcessorGraph::deleteNodes(Array<GenericProcessor*> processorsToDelete)
 {
     GenericProcessor* sourceNode = nullptr;
     GenericProcessor* destNode = nullptr;
+    bool isSplitter = false;
 
     for (auto processor : processorsToDelete)
     {
@@ -656,16 +674,34 @@ void ProcessorGraph::deleteNodes(Array<GenericProcessor*> processorsToDelete)
             destNode->setSourceNode(sourceNode);
         }
 
-        removeProcessor(processor);
+        if (processor->isSplitter())
+        {
+            isSplitter = true;
+            Splitter* splitter = (Splitter*)processor;
+            GenericProcessor* destNodeA = splitter->getDestNode(0);
+            GenericProcessor* destNodeB = splitter->getDestNode(1);
+
+            removeProcessor(processor);
+
+            updateSettings(destNodeA);
+            updateSettings(destNodeB);
+        }
+        else
+        {
+            isSplitter = false;
+            removeProcessor(processor);
+        }
     }
 
-    if (destNode != nullptr)
+    if(!isSplitter)
     {
-        updateSettings(destNode);
-    } else {
-        updateSettings(sourceNode);
+        if (destNode != nullptr)
+        {
+            updateSettings(destNode);
+        } else {
+            updateSettings(sourceNode);
+        }
     }
-
 }
 
 void ProcessorGraph::clearSignalChain()
@@ -1361,6 +1397,8 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
     NodeID nodeId = NodeID(processor->getNodeId());
 
     checkForNewRootNodes(processor, false, false);
+
+    AccessClass::getGraphViewer()->removeNode(processor);
 
     if (AccessClass::getEditorViewport() != nullptr) //headless mode
     {

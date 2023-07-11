@@ -168,6 +168,11 @@ void Merger::lostInput()
         MergerEditor* ed = (MergerEditor*)getEditor();
         ed->switchSource(0);
     }
+    else if (sourceNodeB == nullptr && sourceNodeA != nullptr)
+    {
+        MergerEditor* ed = (MergerEditor*)getEditor();
+        ed->switchSource(0);
+    }
 }
 
 GenericProcessor* Merger::getSourceNode(int path)

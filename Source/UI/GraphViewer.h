@@ -59,8 +59,9 @@ private:
 
     DataStream* stream;
 
-    std::unique_ptr<Component> streamParameterEditor;
+    std::unique_ptr<Component> streamParameterEditorComponent;
     
+    OwnedArray<ParameterEditor> parameterEditors;
 
 };
 
@@ -176,6 +177,9 @@ public:
     /** Adjusts the boundaries of this node, based on its inputs and outputs*/
     void updateBoundaries();
 
+    /**  Checks and updates stream information if necessary */
+    void updateStreamInfo();
+
     /** True if processor still exists */
     bool stillNeeded;
     
@@ -187,8 +191,9 @@ private:
 
     String getInfoString();
 
-    ConcertinaPanel dataStreamPanel;
+    std::unique_ptr<ConcertinaPanel> dataStreamPanel;
     Array<DataStreamButton*> dataStreamButtons;
+    Array<DataStreamInfo*> dataStreamInfos;
     
     bool isMouseOver;
     int horzShift;
@@ -262,10 +267,13 @@ public:
     void updateBoundaries();
     
     /** Adds a graph node for a particular processor */
-    void updateNodes    (Array<GenericProcessor*> rootProcessors);
+    void updateNodes    (GenericProcessor* processor, Array<GenericProcessor*> rootProcessors);
     
     /** Adds a graph node for a particular processor */
     void addNode    (GenericEditor* editor, int level, int offset);
+
+    /** Sets a graph node to be removed during next update */
+    void removeNode (GenericProcessor* processor);
     
     /** Clears the graph */
     void removeAllNodes();
