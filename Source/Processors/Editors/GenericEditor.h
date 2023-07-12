@@ -293,7 +293,7 @@ protected:
     void addTextBoxParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a check box editor for a parameter of a given name. */
-    void addCheckBoxParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+    void addToggleParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a slider editor for a parameter of a given name. */
     void addSliderParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);

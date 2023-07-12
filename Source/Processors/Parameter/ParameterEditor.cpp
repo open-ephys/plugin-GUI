@@ -25,39 +25,91 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../Editors/GenericEditor.h"
 
-TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPixels) 
+void ParameterEditor::setLayout(Layout layout)
+{
+    Rectangle<int> bounds = getBounds();
+    int x = bounds.getX();
+    int y = bounds.getY();
+
+    int finalWidth;
+
+    switch (layout)
+    {
+        case nameOnTop:
+            finalWidth = bounds.getWidth();
+            setBounds(x, y, getWidth(), 42);
+            label->setBounds(0, 0, finalWidth, 20);
+            label->setJustificationType(Justification::centredLeft);
+            label->setVisible(true);
+            editor->setBounds(5, 16, finalWidth / 2, 18);
+            break;
+        case nameOnBottom:
+            finalWidth = bounds.getWidth();
+            setBounds(x, y, finalWidth, 42);
+            label->setBounds(0, 20, finalWidth, 20);
+            label->setJustificationType(Justification::centredLeft);
+            label->setVisible(true);
+            editor->setBounds(0, 0, finalWidth, 18);
+            break;
+        case nameOnLeft:
+            finalWidth = bounds.getWidth();
+            setBounds(x, y, finalWidth * 2, 42);
+            label->setBounds(0, 0, finalWidth, 20);
+            label->setJustificationType(Justification::centredRight);
+            label->setVisible(true);
+            editor->setBounds(finalWidth + 5, 0, finalWidth - 5, 18);
+            break;
+        case nameOnRight:
+            finalWidth = bounds.getWidth();
+            setBounds(x, y, finalWidth * 2, 42);
+            label->setBounds(finalWidth, 0, finalWidth, 20);
+            label->setJustificationType(Justification::centredLeft);
+            label->setVisible(true);
+            editor->setBounds(0, 0, finalWidth - 5, 18);
+            break;
+        case nameHidden:
+            finalWidth = bounds.getWidth() / 2;
+            setBounds(x, y, finalWidth, 42);
+            label->setVisible(false);
+            editor->setBounds(0, 0, finalWidth, 18);
+            break;
+    }
+}
+
+TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels)
     : ParameterEditor(param)
 {
     jassert(param->getType() == Parameter::FLOAT_PARAM
         || param->getType() == Parameter::INT_PARAM
         || param->getType() == Parameter::STRING_PARAM);
 
-    parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
-    Font labelFont = Font("Silkscreen", "Regular", rowHeightPixels);
-    int labelWidth = labelFont.getStringWidth(param->getName());
-    parameterNameLabel->setFont(labelFont);
-    parameterNameLabel->setColour(Label::textColourId, Colours::black);
-    addAndMakeVisible(parameterNameLabel.get());
+    label = std::make_unique<Label>(param->getName(), param->getName().replace("_", " "));
+    Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+    int width = rowWidthPixels;
+    label->setFont(labelFont);
+    label->setColour(Label::textColourId, Colours::black);
+    addAndMakeVisible(label.get());
 
     if(param->getType() == Parameter::FLOAT_PARAM)
         valueTextBox = std::make_unique<Label>("Parameter value", String(float(param->getValue())));
     else
         valueTextBox = std::make_unique<Label>("Parameter value", param->getValue().toString());
 
-    valueTextBox->setFont(Font("CP Mono", "Plain", rowHeightPixels));
+    valueTextBox->setFont(Font("CP Mono", "Plain", int(0.75*rowHeightPixels)));
     valueTextBox->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     valueTextBox->setColour(Label::textColourId, Colours::black);
     valueTextBox->setColour(Label::backgroundColourId, Colours::lightgrey);
+    valueTextBox->setJustificationType(Justification::centred);
     valueTextBox->setEditable(true);
     valueTextBox->addListener(this);
     valueTextBox->setTooltip(param->getDescription());
     addAndMakeVisible(valueTextBox.get());
-    
-    finalWidth = std::max(labelWidth, 80);
 
-    setBounds(0, 0, finalWidth, rowHeightPixels);
-    parameterNameLabel->setBounds(50, 0, getWidth() - 50, rowHeightPixels);
-    valueTextBox->setBounds(0, 0, 50, rowHeightPixels);
+    setBounds(0, 0, width, rowHeightPixels);
+    label->setBounds(width / 2, 0, getWidth() - 50, rowHeightPixels);
+    valueTextBox->setBounds(0, 0, width/2, rowHeightPixels);
+
+    editor = (Component*)valueTextBox.get();
 }
 
 void TextBoxParameterEditor::labelTextChanged(Label* label)
@@ -86,108 +138,102 @@ void TextBoxParameterEditor::updateView()
 
 }
 
-void TextBoxParameterEditor::setLayout(Layout layout)
+void CustomToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
-    
-    Rectangle<int> bounds = getBounds();
-    int x = bounds.getX();
-    int y = bounds.getY();
-
-    switch (layout)
+    // Set the color based on the button state
+    if (getToggleState())
     {
-        case nameOnTop:
-            setBounds(x, y, finalWidth, 42);
-            parameterNameLabel->setBounds(0, 0, finalWidth, 20);
-            parameterNameLabel->setJustificationType(Justification::centredLeft);
-            parameterNameLabel->setVisible(true);
-            valueTextBox->setBounds(0, 20, finalWidth, 18);
-            break;
-        case nameOnBottom:
-            setBounds(x, y, finalWidth, 42);
-            parameterNameLabel->setBounds(0, 20, finalWidth, 20);
-            parameterNameLabel->setJustificationType(Justification::centredLeft);
-            parameterNameLabel->setVisible(true);
-            valueTextBox->setBounds(0, 0, finalWidth, 18);
-            break;
-        case nameOnLeft:
-            setBounds(x, y, finalWidth * 2, 42);
-            parameterNameLabel->setBounds(0, 0, finalWidth, 20);
-            parameterNameLabel->setJustificationType(Justification::centredRight);
-            parameterNameLabel->setVisible(true);
-            valueTextBox->setBounds(finalWidth + 5, 0, finalWidth - 5, 18);
-            break;
-        case nameOnRight:
-            setBounds(x, y, finalWidth * 2, 42);
-            parameterNameLabel->setBounds(finalWidth, 0, finalWidth, 20);
-            parameterNameLabel->setJustificationType(Justification::centredLeft);
-            parameterNameLabel->setVisible(true);
-            valueTextBox->setBounds(0, 0, finalWidth - 5, 18);
-            break;
-        case nameHidden:
-            setBounds(x, y, finalWidth, 42);
-            parameterNameLabel->setVisible(false);
-            valueTextBox->setBounds(0, 0, finalWidth, 18);
-            break;
+        g.setColour(juce::Colours::orange);
+    }
+    else
+    {
+        g.setColour(juce::Colours::grey);
+    }
+
+    // Draw a rounded rectangle
+    g.fillRoundedRectangle(getLocalBounds().toFloat(), 3.0f);
+
+    // Set the text color
+    g.setColour(juce::Colours::black);
+
+    // Draw a rounded rectangle border
+    g.drawRoundedRectangle(getLocalBounds().toFloat(), 3.0f, 1.0f);
+
+    // Set the text font
+    g.setFont(Font("Fira Sans", "Regular", int(0.75*getHeight())));
+
+    // Set the text based on the button state
+    if (getToggleState())
+    {
+        g.drawText("ON", getLocalBounds(), juce::Justification::centred);
+    }
+    else
+    {
+        g.drawText("OFF", getLocalBounds(), juce::Justification::centred);
     }
 }
 
-CheckBoxParameterEditor::CheckBoxParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
+ToggleParameterEditor::ToggleParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
 
     jassert(param->getType() == Parameter::BOOLEAN_PARAM);
 
-    parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
-    parameterNameLabel->setFont(Font("Silkscreen", "Regular", 12));
-    parameterNameLabel->setColour(Label::textColourId, Colours::black);
-    addAndMakeVisible(parameterNameLabel.get());
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
+    label->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
+    label->setColour(Label::textColourId, Colours::black);
+    addAndMakeVisible(label.get());
 
-    valueCheckBox = std::make_unique<ToggleButton>("Parameter value");
-    valueCheckBox->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
-    valueCheckBox->setToggleState(bool(param->getValue()), dontSendNotification);
-    valueCheckBox->addListener(this);
-    valueCheckBox->setTooltip(param->getDescription());
-    addAndMakeVisible(valueCheckBox.get());
+    toggleButton = std::make_unique<CustomToggleButton>();
+    toggleButton->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
+    toggleButton->setToggleState(bool(param->getValue()), dontSendNotification);
+    toggleButton->addListener(this);
+    toggleButton->setTooltip(param->getDescription());
+    addAndMakeVisible(toggleButton.get());
 
-    setBounds(0, 0, 80, rowHeightPixels);
+    int width = rowWidthPixels;
 
+    label->setBounds(width / 2, 0, width / 2, rowHeightPixels);
+    toggleButton->setBounds(0, 0, width / 2, getHeight());
+    setBounds(0, 0, width, rowHeightPixels);
+
+    editor = (Component*)toggleButton.get();
 }
 
-void CheckBoxParameterEditor::buttonClicked(Button* button)
+void ToggleParameterEditor::buttonClicked(Button* button)
 {
     if (param != nullptr)
         param->setNextValue(button->getToggleState());
 }
 
-void CheckBoxParameterEditor::updateView()
+void ToggleParameterEditor::updateView()
 {
     if (param != nullptr)
-        valueCheckBox->setToggleState(param->getValue(), dontSendNotification);
+        toggleButton->setToggleState(param->getValue(), dontSendNotification);
     
     
     repaint();
 }
 
-void CheckBoxParameterEditor::resized()
+void ToggleParameterEditor::resized()
 {
-
-    parameterNameLabel->setBounds(getHeight(), 0, 80 - getHeight(), getHeight());
-    valueCheckBox->setBounds(0, 0, getHeight(), getHeight());
+    label->setBounds(getWidth() / 2 + 10, 0, getWidth() / 2, getHeight());
+    toggleButton->setBounds(0, 0, getWidth() / 2 + 10, getHeight());
 }
 
 
-ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
+ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
 
     jassert(param->getType() == Parameter::CATEGORICAL_PARAM
         || param->getType() == Parameter::INT_PARAM);
 
-    parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
-    parameterNameLabel->setFont(Font("Silkscreen", "Regular", 12));
-    parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
-    addAndMakeVisible(parameterNameLabel.get());
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
+    label->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
+    addAndMakeVisible(label.get());
 
     valueComboBox = std::make_unique<ComboBox>();
     valueComboBox->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
+    valueComboBox->setJustificationType(Justification::centred);
     valueComboBox->addListener(this);
     valueComboBox->setTooltip(param->getDescription());
     addAndMakeVisible(valueComboBox.get());
@@ -221,9 +267,14 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param, int rowHeight
         valueComboBox->setSelectedId(p->getIntValue() + offset, dontSendNotification);
     }
 
-    setBounds(0, 0, 80, rowHeightPixels);
-}
+    int width = rowWidthPixels;
 
+    setBounds(0, 0, width, rowHeightPixels);
+    label->setBounds(width / 2, 0, width/2, rowHeightPixels);
+    valueComboBox->setBounds(0, 0, width/2, rowHeightPixels);
+
+    editor = (Component*)valueComboBox.get();
+}
 
 void ComboBoxParameterEditor::comboBoxChanged(ComboBox* comboBox)
 {
@@ -280,16 +331,13 @@ void ComboBoxParameterEditor::updateView()
 
 void ComboBoxParameterEditor::resized()
 {
-
-    parameterNameLabel->setBounds(50, 0, 50, getHeight());
-    valueComboBox->setBounds(0, 0, 50, getHeight());
+    label->setBounds(getWidth() / 2 + 10, 0, getWidth() / 2, getHeight());
+    valueComboBox->setBounds(0, 0, getWidth() / 2 + 10, getHeight());
 }
+
 
 CustomSlider::CustomSlider() : isEnabled(true)
 {
-    
-    setColour (Slider::textBoxTextColourId, Colours::black);
-    setColour (Slider::textBoxOutlineColourId, Colours::grey);
     setLookAndFeel (&sliderLookAndFeel);
     
     setSliderStyle (Slider::SliderStyle::RotaryVerticalDrag);
@@ -345,6 +393,7 @@ CustomSlider::~CustomSlider()
 {
     setLookAndFeel(nullptr);
 }
+
 
 Slider::SliderLayout SliderLookAndFeel::getSliderLayout (juce::Slider& slider)
 {
@@ -420,16 +469,16 @@ Label* SliderLookAndFeel::createSliderTextBox (Slider& slider)
     return l;
 }
 
-SliderParameterEditor::SliderParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
+
+SliderParameterEditor::SliderParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
 
     jassert(param->getType() == Parameter::FLOAT_PARAM
         || param->getType() == Parameter::INT_PARAM);
 
-    parameterNameLabel = std::make_unique<Label>("Parameter name", param->getName());
-    parameterNameLabel->setFont(Font("Silkscreen", "Regular", 12));
-    parameterNameLabel->setColour(Label::textColourId, Colours::darkgrey);
-    addAndMakeVisible(parameterNameLabel.get());
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
+    label->setFont(Font("Silkscreen", "Regular", 12));
+    addAndMakeVisible(label.get());
 
     slider = std::make_unique<CustomSlider>();
     slider->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
@@ -454,8 +503,9 @@ SliderParameterEditor::SliderParameterEditor(Parameter* param, int rowHeightPixe
         slider->setValue(p->getIntValue(), dontSendNotification);
     }
 
-    setBounds(0, 0, 80, 65);
+    setBounds(0, 0, rowWidthPixels, 65);
 
+    editor = (Component*)slider.get();
 }
 
 void SliderParameterEditor::sliderValueChanged(Slider* slider)
@@ -476,12 +526,12 @@ void SliderParameterEditor::updateView()
         {
             FloatParameter* p = (FloatParameter*)param;
 
-            slider->setValue(p->getFloatValue(), dontSendNotification);
+            //slider->setValue(p->getFloatValue(), dontSendNotification);
         }
         else {
             IntParameter* p = (IntParameter*)param;
 
-            slider->setValue(p->getIntValue(), dontSendNotification);
+            //slider->setValue(p->getIntValue(), dontSendNotification);
         }
     }
     else {
@@ -494,22 +544,182 @@ void SliderParameterEditor::updateView()
 
 void SliderParameterEditor::resized()
 {
-    parameterNameLabel->setBounds(0, 0, 80, 15);
+    label->setBounds(0, 0, 80, 15);
     slider->setBounds(0, 15, 50, 50);
 }
 
 
-SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
+TextEditor* BoundedValueEditor::createEditorComponent()
 {
+    auto* editor = new juce::TextEditor(getComponentID());
 
-    button = std::make_unique<TextButton>(param->getName());
+    editor->setJustification(juce::Justification::centred);
+    editor->setInputRestrictions(0, "0123456789.");
+
+    return editor;
+}
+
+void BoundedValueEditor::paint(juce::Graphics& g)
+{
+    // Get the label's value as a percentage
+    float value = getText().getFloatValue();
+
+    // Calculate the width of the colored area based on the value
+    int coloredWidth = static_cast<int>(getWidth() * (value - minValue) / (maxValue - minValue));
+
+    // Fill the colored area
+    g.setColour(getLookAndFeel().findColour(ProcessorColor::IDs::FILTER_COLOR));
+    g.fillRect(1, 1, coloredWidth > 3 ? coloredWidth - 2 : 2, getHeight() - 2);
+
+    // Fill the rest of the background with another color
+    g.setColour(getLookAndFeel().findColour(TextEditor::backgroundColourId));
+    g.fillRect(coloredWidth > 0 ? coloredWidth : 1, 1, getWidth() - coloredWidth > 1 ? getWidth() - coloredWidth - 1 : 1, getHeight() - 2);
+
+    // Draw a rounded border
+    g.setColour(Colours::black);
+    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f, 0.5f), 3.0f, 1.0f);
+
+    // Call the base class method to ensure the text is drawn
+    juce::Label::paint(g);
+}
+
+void BoundedValueEditor::mouseDrag(const MouseEvent& event)
+{
+    // Calculate the new value based on the mouse position
+    double newValue = static_cast<float>(event.position.x) / getWidth() * (maxValue - minValue) + minValue;
+
+    // Clamp the new value to the range [minValue, maxValue]
+    newValue = jlimit(minValue, maxValue, newValue);
+
+    // Set the label's text to the new value
+    setText(juce::String(newValue), juce::dontSendNotification);
+
+    // Redraw the component
+    repaint();
+}
+
+
+BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
+{
+    
+    jassert(param->getType() == Parameter::FLOAT_PARAM
+        || param->getType() == Parameter::INT_PARAM);
+
+    /* TODO: Unit should be displayed next to actual value while not editing
+    String unit = "";
+    if (param->getType() == Parameter::FLOAT_PARAM) unit = ((FloatParameter*)param)->getUnit();
+    unit = (unit != "" ? " [" + ((FloatParameter*)param)->getUnit() + "]" : "");
+    */
+
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
+    Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+    label->setFont(labelFont);
+    addAndMakeVisible(label.get());
+
+    if (param->getType() == Parameter::FLOAT_PARAM)
+    {
+        FloatParameter* p = (FloatParameter*)param;
+        valueEditor = std::make_unique<BoundedValueEditor>(p->getMinValue(), p->getMaxValue(), p->getStepSize());
+        valueEditor->setText(String(p->getFloatValue()), dontSendNotification);
+    }
+    else {
+        IntParameter* p = (IntParameter*)param;
+        valueEditor = std::make_unique<BoundedValueEditor>(p->getMinValue(), p->getMaxValue(), 1);
+    }
+    valueEditor->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
+    valueEditor->setFont(Font("Fira Sans", "Regular", int(0.75*rowHeightPixels)));
+    valueEditor->setJustificationType(Justification::centred);
+    valueEditor->addListener(this);
+    valueEditor->setTooltip(param->getDescription());
+    labelTextChanged(valueEditor.get());
+    addAndMakeVisible(valueEditor.get());
+
+    label->setBounds(rowWidthPixels / 2, 0, rowWidthPixels / 2, rowHeightPixels);
+    valueEditor->setBounds(0, 0, rowWidthPixels/2, rowHeightPixels);
+
+    setBounds(0, 0, rowWidthPixels, rowHeightPixels);
+
+    editor = (Component*)valueEditor.get();
+    
+}
+
+void BoundedValueParameterEditor::labelTextChanged(Label* label)
+{
+    if (param != nullptr)
+    {
+        if (param->getType() == Parameter::FLOAT_PARAM)
+        {
+            FloatParameter* p = (FloatParameter*)param;
+            if (label->getText().getFloatValue() < p->getMinValue())
+                label->setText(String(p->getMinValue()), dontSendNotification);
+            else if (label->getText().getFloatValue() > p->getMaxValue())
+                label->setText(String(p->getMaxValue()), dontSendNotification);
+
+            param->setNextValue(label->getText().getFloatValue());
+        }
+        else 
+        {
+            IntParameter* p = (IntParameter*)param;
+            if (label->getText().getIntValue() < p->getMinValue())
+                label->setText(String(p->getMinValue()), dontSendNotification);
+            else if (label->getText().getIntValue() > p->getMaxValue())
+                label->setText(String(p->getMaxValue()), dontSendNotification);
+
+            param->setNextValue(int(label->getText().getFloatValue()));
+        }
+
+    }
+}
+
+void BoundedValueParameterEditor::updateView()
+{
+    if (param != nullptr)
+    {
+
+        if (param->getType() == Parameter::FLOAT_PARAM)
+        {
+            FloatParameter* p = (FloatParameter*)param;
+            valueEditor->setText(String(p->getFloatValue()), dontSendNotification);
+        }
+        else {
+            IntParameter* p = (IntParameter*)param;
+            valueEditor->setText(String(p->getIntValue()), dontSendNotification);
+        }
+    }
+
+    repaint();
+}
+
+void BoundedValueParameterEditor::resized()
+{
+    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
+    valueEditor->setBounds(0, 0, getWidth()/2, getHeight());
+}
+
+
+SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
+{
+    int selectedChannels = ((SelectedChannelsParameter*)param)->getArrayValue().size();
+    int numChannels = ((SelectedChannelsParameter*)param)->getChannelStates().size();
+
+    button = std::make_unique<TextButton>(String(selectedChannels) + "/" + String(numChannels));
     button->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     button->addListener(this);
     button->setClickingTogglesState(false);
     button->setTooltip(param->getDescription());
     addAndMakeVisible(button.get());
 
-    setBounds(0, 0, 80, 42);
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
+    Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+    label->setFont(labelFont);
+    label->setJustificationType(Justification::left);
+    addAndMakeVisible(label.get());
+
+    setBounds(0, 0, rowWidthPixels, rowHeightPixels);
+    label->setBounds(rowWidthPixels / 2, 0, rowWidthPixels / 2, rowHeightPixels);
+    button->setBounds(0, 0, rowWidthPixels/2, rowHeightPixels);
+
+    editor = (Component*)button.get();
 }
 
 void SelectedChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
@@ -520,6 +730,8 @@ void SelectedChannelsParameterEditor::channelStateChanged(Array<int> newChannels
         newArray.add(newChannels[i]);
     
     param->setNextValue(newArray);
+
+    updateView();
 
 }
 
@@ -546,29 +758,49 @@ void SelectedChannelsParameterEditor::updateView()
 {
     if (param == nullptr)
         button->setEnabled(false);
-
     else
+    {
         button->setEnabled(true);
+        int numChannels = ((SelectedChannelsParameter*)param)->getChannelStates().size();
+        int selected = 0;
+        for (auto chan : ((SelectedChannelsParameter*)param)->getChannelStates())
+            if (chan) selected++;
+        button->setButtonText(String(selected) + "/" + String(numChannels));
+    }
 }
 
 void SelectedChannelsParameterEditor::resized()
 {
-    button->setBounds(0, 0, 80, 20);
+    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
+    button->setBounds(0, 0, getWidth()/2, getHeight());
 }
 
 
-
-MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels) : ParameterEditor(param)
+MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
 
-    button = std::make_unique<TextButton>(param->getName());
+    int numChannels = ((MaskChannelsParameter*)param)->getChannelStates().size();
+
+    button = std::make_unique<TextButton>(String(numChannels) + "/" + String(numChannels));
     button->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
     button->addListener(this);
     button->setClickingTogglesState(false);
     button->setTooltip("Mask channels to filter within this stream");
     addAndMakeVisible(button.get());
 
-    setBounds(0, 0, 80, 42);
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
+    Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+    label->setFont(labelFont);
+    label->setJustificationType(Justification::left);
+    addAndMakeVisible(label.get());
+
+    int width = rowWidthPixels;
+
+    setBounds(0, 0, width, rowHeightPixels);
+    label->setBounds(width / 2, 0, getWidth() - 50, rowHeightPixels);
+    button->setBounds(0, 0, width/2, rowHeightPixels);
+
+    editor = (Component*)button.get();
 }
 
 void MaskChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
@@ -579,6 +811,8 @@ void MaskChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
         newArray.add(newChannels[i]);
     
     param->setNextValue(newArray);
+    
+    updateView();
 
 }
 
@@ -608,10 +842,18 @@ void MaskChannelsParameterEditor::updateView()
         button->setEnabled(false);
 
     else
+    {
         button->setEnabled(true);
+        int numChannels = ((MaskChannelsParameter*)param)->getChannelStates().size();
+        int selected = 0;
+        for (auto chan : ((MaskChannelsParameter*)param)->getChannelStates())
+            if (chan) selected++;
+        button->setButtonText(String(selected) + "/" + String(numChannels));
+    }
 }
 
 void MaskChannelsParameterEditor::resized()
 {
-    button->setBounds(0, 0, 80, 20);
+    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
+    button->setBounds(0, 0, getWidth()/2, getHeight());
 }

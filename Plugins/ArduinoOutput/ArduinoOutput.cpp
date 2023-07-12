@@ -32,9 +32,10 @@ ArduinoOutput::ArduinoOutput()
     , gateIsOpen            (true)
     , deviceSelected        (false)
 {
-    addIntParameter(Parameter::PROCESSOR_SCOPE, "output_pin", "The Arduino pin to use", 13, 0, 13);
-    addIntParameter(Parameter::STREAM_SCOPE, "input_line", "The TTL line for triggering output", 1, 1, 16);
-    addIntParameter(Parameter::STREAM_SCOPE, "gate_line", "The TTL line for gating the output", 0, 0, 16);
+    addCategoricalParameter(Parameter::PROCESSOR_SCOPE, "device", "Device", "The Arduino device to use", getDevices(), 0);
+    addIntParameter(Parameter::PROCESSOR_SCOPE, "output_pin", "Output pin", "The Arduino pin to use", 13, 0, 13);
+    addIntParameter(Parameter::STREAM_SCOPE, "input_line", "Input line", "The TTL line for triggering output", 1, 1, 16);
+    addIntParameter(Parameter::STREAM_SCOPE, "gate_line", "Gate line", "The TTL line for gating the output", 0, 0, 16);
 }
 
 
@@ -51,6 +52,20 @@ AudioProcessorEditor* ArduinoOutput::createEditor()
     return editor.get();
 }
 
+Array<String> ArduinoOutput::getDevices()
+{
+
+    Array<String> out;
+
+    vector <ofSerialDeviceInfo> devices = serial.getDeviceList();
+
+    for (int i = 0; i < devices.size(); i++)
+    {
+        out.add(devices[i].getDevicePath());
+    }
+
+    return out;
+}
 
 void ArduinoOutput::setDevice (String devName)
 {
@@ -117,6 +132,14 @@ bool ArduinoOutput::stopAcquisition()
     arduino.sendDigital ((int) getParameter("output_pin")->getValue(), ARD_LOW);
 
     return true;
+}
+
+void ArduinoOutput::parameterValueChanged(Parameter* param)
+{
+    if (param->getName().equalsIgnoreCase("device"))
+    {
+        setDevice(getDevices()[param->getValue()]);
+    }
 }
 
 

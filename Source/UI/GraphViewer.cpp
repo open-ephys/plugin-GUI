@@ -361,13 +361,12 @@ DataStreamInfo::DataStreamInfo(DataStream* stream_)
     :  stream(stream_)
 {
     
-    LOGD("CREATING DEFAULT EDITORS FOR : ", stream->getNodeName());
     streamParameterEditorComponent = std::make_unique<Component>(stream->getName());
 
     auto editors = stream->createDefaultEditor();
 
     int yPos = 0;
-    const int rowWidthPixels = 200;
+    const int rowWidthPixels = 140;
     const int rowHeightPixels = 18;
 
     for (auto editor : editors)

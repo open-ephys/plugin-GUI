@@ -48,7 +48,7 @@ TTLEventPtr EventTranslatorSettings::createEvent(int64 sample_number,
 
 EventTranslator::EventTranslator() : GenericProcessor("Event Translator")
 {
-    addIntParameter(Parameter::STREAM_SCOPE,"sync_line", "The TTL sync line for a given stream", 0, 0, 16);
+    addIntParameter(Parameter::STREAM_SCOPE,"sync_line", "Sync line", "The TTL sync line for a given stream", 0, 0, 16);
 }
 
 EventTranslator::~EventTranslator()

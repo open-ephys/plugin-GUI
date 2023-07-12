@@ -295,7 +295,7 @@ Array<ParameterEditor*> InfoObject::createDefaultEditor()
         }
         case Parameter::BOOLEAN_PARAM:
         {
-            CheckBoxParameterEditor* booleanParameterEditor = new CheckBoxParameterEditor(parameter);
+            ToggleParameterEditor* booleanParameterEditor = new ToggleParameterEditor(parameter);
             editors.add(booleanParameterEditor);
             break;
         }

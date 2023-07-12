@@ -26,6 +26,12 @@
 #include "../../AccessClass.h"
 #include "../ProcessorManager/ProcessorManager.h"
 
+#include "../../Utils/Utils.h"
+
+extern "C" PLUGIN_API OELogger& getOELogger() {
+    return OELogger::instance();
+}
+
 PluginClass::PluginClass()
 {
 	libName = String();

@@ -28,13 +28,14 @@
 #include "Parameter.h"
 #include "../Editors/PopupChannelSelector.h"
 
+#include "../../UI/LookAndFeel/CustomLookAndFeel.h"
 
 /** 
     Base class for ParameterEditors
 
     All custom ParameterEditors must inherit from this class.
 */
-class ParameterEditor : public Component,
+class PLUGIN_API ParameterEditor : public Component,
                         public Parameter::Listener
 {
 public:
@@ -53,6 +54,18 @@ public:
             param->removeListener(this);
     
     }
+
+    /** Used to specify layout */
+    enum Layout {
+        nameOnTop,
+        nameOnBottom,
+        nameOnLeft,
+        nameOnRight,
+        nameHidden
+    };
+    
+    /** Sets the layout for this editor */
+    void setLayout(Layout layout);
 
     /** Implements Parameter::Listener */
     void parameterChanged(Parameter* param)
@@ -102,10 +115,19 @@ public:
     /** Returns the name of the underlying parameter*/
     const String getParameterName() { return name; }
 
+    /** Returns a pointer to the parameter name label, for customization */
+    Label* getLabel() { return label.get(); }
+
+    /** Returns a pointer to the parameter editor element for customization */
+    Component* getEditor() { return editor; }
+
 protected:
     Parameter* param;
     
     String name;
+
+    std::unique_ptr<Label> label;
+    Component* editor;
 };
 
 /** 
@@ -120,7 +142,7 @@ class PLUGIN_API TextBoxParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    TextBoxParameterEditor(Parameter* param, int rowHeightPixels = 18);
+    TextBoxParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
 
     /** Destructor */
     virtual ~TextBoxParameterEditor() { }
@@ -131,31 +153,22 @@ public:
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
     
-    /** Returns a pointer to the parameter name label, for customization */
-    Label* getParameterNameLabel() { return parameterNameLabel.get(); }
-    
     /** Returns a pointer to the value label, for customization */
     Label* getValueLabel() { return valueTextBox.get(); }
-    
-    /** Used to specify layout */
-    enum Layout {
-        nameOnTop,
-        nameOnBottom,
-        nameOnLeft,
-        nameOnRight,
-        nameHidden
-    };
-    
-    /** Sets the layout for this editor */
-    void setLayout(Layout layout);
 
 private:
-    std::unique_ptr<Label> parameterNameLabel;
     std::unique_ptr<Label> valueTextBox;
-
-    int finalWidth;
 };
 
+
+class PLUGIN_API CustomToggleButton : public ToggleButton
+{
+public:
+    CustomToggleButton() : ToggleButton("") {}
+    ~CustomToggleButton() { }
+
+    void paintButton (Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+};
 
 /**
     Allows parameters to be changed via a check box.
@@ -163,16 +176,16 @@ private:
     Only valid for BooleanParameter
 
 */
-class PLUGIN_API CheckBoxParameterEditor : public ParameterEditor,
+class PLUGIN_API ToggleParameterEditor : public ParameterEditor,
     public Button::Listener
 {
 public:
 
     /** Constructor */
-    CheckBoxParameterEditor(Parameter* param, int rowHeightPixels = 18);
+    ToggleParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
 
     /** Destructor */
-    virtual ~CheckBoxParameterEditor() { }
+    virtual ~ToggleParameterEditor() { }
 
     /** Responds to checkbox clicks */
     void buttonClicked(Button* label) override;
@@ -184,8 +197,7 @@ public:
     virtual void resized() override;
 
 private:
-    std::unique_ptr<Label> parameterNameLabel;
-    std::unique_ptr<ToggleButton> valueCheckBox;
+    std::unique_ptr<CustomToggleButton> toggleButton;
 };
 
 
@@ -201,7 +213,7 @@ class PLUGIN_API ComboBoxParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    ComboBoxParameterEditor(Parameter* param, int rowHeightPixels = 18);
+    ComboBoxParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
 
     /** Destructor */
     virtual ~ComboBoxParameterEditor() { }
@@ -216,7 +228,6 @@ public:
     virtual void resized() override;
 
 private:
-    std::unique_ptr<Label> parameterNameLabel;
     std::unique_ptr<ComboBox> valueComboBox;
 
     int offset;
@@ -270,7 +281,6 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomSlider)
 };
 
-
 /**
     Allows parameters to be changed via a slider
 
@@ -283,7 +293,7 @@ class PLUGIN_API SliderParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    SliderParameterEditor(Parameter* param, int rowHeightPixels = 18);
+    SliderParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
 
     /** Destructor */
     virtual ~SliderParameterEditor() { }
@@ -298,9 +308,76 @@ public:
     virtual void resized() override;
 
 private:
-    std::unique_ptr<Label> parameterNameLabel;
     std::unique_ptr<CustomSlider> slider;
+};
+
+class PLUGIN_API BoundedValueEditor : public Label
+{
+public:
+
+    /** Constructor (float) */
+    BoundedValueEditor(float min, float max, float step) 
+        : Label("",""), isEnabled(true), minValue(double(min)), maxValue(double(max)), stepSize(double(step)) {
+            setEditable(true, true, false);
+        }
+
+    /** Constructor (int) */
+    BoundedValueEditor(int min, int max, int step) 
+        : Label("",""), isEnabled(true), minValue(double(min)), maxValue(double(max)), stepSize(double(step)) {
+            setEditable(true, true, false);
+        }
+
+    /** Destructor */
+    ~BoundedValueEditor() {};
+
+    /** Customize text location while editing */
+    TextEditor* createEditorComponent() override;
+
+    /** Mouse event handlers */
+    void mouseDrag(const MouseEvent& event) override;
     
+private:
+
+    void paint (Graphics& g) override;
+
+    bool isEnabled;
+
+    double minValue;
+    double maxValue;
+    double stepSize;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BoundedValueEditor)
+};
+
+/**
+    Allows bounded parameters to be changed via a custom label editor
+
+    Only valid for IntParameter and FloatParameter
+
+*/
+class PLUGIN_API BoundedValueParameterEditor : public ParameterEditor,
+    public Label::Listener
+{
+public:
+
+    /** Constructor */
+    BoundedValueParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+
+    /** Destructor */
+    virtual ~BoundedValueParameterEditor() { }
+    
+    /** Responds to label value changes */
+    void labelTextChanged(Label* label) override;
+
+    /** Must ensure that editor state matches underlying parameter */
+    virtual void updateView() override;
+
+    /** Sets sub-component locations */
+    virtual void resized() override;
+
+
+private:
+    std::unique_ptr<BoundedValueEditor> valueEditor;
 };
 
 /**
@@ -318,7 +395,7 @@ class PLUGIN_API SelectedChannelsParameterEditor :
 public:
 
     /** Constructor */
-    SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18);
+    SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
 
     /** Destructor */
     virtual ~SelectedChannelsParameterEditor() { }
@@ -353,7 +430,7 @@ class PLUGIN_API MaskChannelsParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18);
+    MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
 
     /** Destructor */
     virtual ~MaskChannelsParameterEditor() { }

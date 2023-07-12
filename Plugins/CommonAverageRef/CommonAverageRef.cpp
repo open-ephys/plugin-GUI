@@ -36,16 +36,20 @@ CommonAverageRef::CommonAverageRef()
     : GenericProcessor ("Common Avg Ref") 
 {
     addSelectedChannelsParameter(Parameter::STREAM_SCOPE,
+                                 "affected",
                                  "Affected",
                                  "Channels from which the average is subtracted");
     
     addSelectedChannelsParameter(Parameter::STREAM_SCOPE,
+                                 "reference",
                                  "Reference",
                                  "Channels to use as the reference");
     
     addFloatParameter(Parameter::STREAM_SCOPE,
-                      "gain_level",
+                      "gain",
+                      "Gain",
                       "Multiplier for reference value",
+                      "", //Unitless
                       100.0f,
                       0.0f,
                       100.0f,
@@ -82,8 +86,8 @@ void CommonAverageRef::process (AudioBuffer<float>& buffer)
             CARSettings* settings_ = settings[stream->getStreamId()];
 
             const int numSamples = getNumSamplesInBlock(stream->getStreamId());
-            const int numReferenceChannels = (*stream)["Reference"].getArray()->size();
-            const int numAffectedChannels = (*stream)["Affected"].getArray()->size();
+            const int numReferenceChannels = (*stream)["reference"].getArray()->size();
+            const int numAffectedChannels = (*stream)["affected"].getArray()->size();
 
             // There is no need to do any processing if either number of reference or affected channels is zero.
             if (!numReferenceChannels
@@ -96,7 +100,7 @@ void CommonAverageRef::process (AudioBuffer<float>& buffer)
 
             for (int i = 0; i < numReferenceChannels; ++i)
             {
-                int localIndex = (*stream)["Reference"][i];
+                int localIndex = (*stream)["reference"][i];
                 int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
 
                 settings_->m_avgBuffer.addFrom(0,       // destChannel
@@ -110,11 +114,11 @@ void CommonAverageRef::process (AudioBuffer<float>& buffer)
 
             settings_->m_avgBuffer.applyGain(1.0f / float(numReferenceChannels));
 
-            const float gain = -1.0f * float((*stream)["gain_level"]) / 100.f;
+            const float gain = -1.0f * float((*stream)["Gain"]) / 100.f;
 
             for (int i = 0; i < numAffectedChannels; ++i)
             {
-                int localIndex = (*stream)["Affected"][i];
+                int localIndex = (*stream)["affected"][i];
                 int globalIndex = stream->getContinuousChannels()[localIndex]->getGlobalIndex();
 
                 buffer.addFrom(globalIndex,                // destChannel

@@ -29,8 +29,11 @@ CommonAverageRefEditor::CommonAverageRefEditor (GenericProcessor* parentProcesso
     
     setDesiredWidth (205);
 
-    addSelectedChannelsParameterEditor(Parameter::STREAM_SCOPE, "Affected", 20, 45);
-    addSelectedChannelsParameterEditor(Parameter::STREAM_SCOPE, "Reference", 20, 85);
-    addSliderParameterEditor(Parameter::STREAM_SCOPE, "gain_level", 115, 45);
+    addSelectedChannelsParameterEditor(Parameter::STREAM_SCOPE, "Affected", 10, 20 + 15);
+    //getParameterEditor("Affected")->setLayout(ParameterEditor::Layout::nameOnTop);
+    addSelectedChannelsParameterEditor(Parameter::STREAM_SCOPE, "Reference", 10, 55 + 15);
+    //getParameterEditor("Reference")->setLayout(ParameterEditor::Layout::nameOnTop);
+    addSliderParameterEditor(Parameter::STREAM_SCOPE, "Gain", 10, 90 + 15);
+    //getParameterEditor("gain_level")->setLayout(ParameterEditor::Layout::nameOnTop);
     
 }
