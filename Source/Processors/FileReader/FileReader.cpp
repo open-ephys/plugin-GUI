@@ -55,6 +55,11 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
     , loopPlayback              (true)
 {
 
+    addPathParameter(Parameter::PROCESSOR_SCOPE, "input_file", "Selected File", "File to load data from", { "oebin" }, false);
+    addSelectedStreamParameter(Parameter::PROCESSOR_SCOPE, "active_stream", "Active Stream", "Currently active stream");
+    addTimeParameter(Parameter::PROCESSOR_SCOPE, "start_time", "Start Time", "Time to start playback");
+    addTimeParameter(Parameter::PROCESSOR_SCOPE, "end_time", "End Time", "Time to end playback");
+
 	/* Load any plugin file sources */
     const int numFileSources = AccessClass::getPluginManager()->getNumFileSources();
 

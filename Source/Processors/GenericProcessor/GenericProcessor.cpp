@@ -330,8 +330,6 @@ void GenericProcessor::addMaskChannelsParameter(
         dataStreamParameters.add(p);
 }
 
-
-
 void GenericProcessor::addSelectedChannelsParameter(
     Parameter::ParameterScope scope,
     const String& name,
@@ -360,7 +358,77 @@ void GenericProcessor::addSelectedChannelsParameter(
         dataStreamParameters.add(p);
 }
 
+void GenericProcessor::addPathParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    const StringArray& validFileExtensions,
+    bool isDirectory,
+    bool deactivateDuringAcquisition)
+{
 
+    PathParameter* p =
+        new PathParameter(this,
+            scope,
+            name,
+            displayName,
+            description,
+            validFileExtensions,
+            isDirectory,
+            deactivateDuringAcquisition);
+
+    if (scope == Parameter::PROCESSOR_SCOPE)
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
+}
+
+void GenericProcessor::addSelectedStreamParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    bool deactivateDuringAcquisition)
+{
+
+    SelectedStreamParameter* p =
+        new SelectedStreamParameter(this,
+            scope,
+            name,
+            displayName,
+            description,
+            deactivateDuringAcquisition);
+
+    if (scope == Parameter::PROCESSOR_SCOPE)
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
+}
+
+void GenericProcessor::addTimeParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    String defaultValue,
+    bool deactivateDuringAcquisition)
+{
+
+    TimeParameter* p =
+        new TimeParameter(this,
+            scope,
+            name,
+            displayName,
+            description,
+            defaultValue,
+            deactivateDuringAcquisition);
+
+    if (scope == Parameter::PROCESSOR_SCOPE)
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
+}
 
 
 void GenericProcessor::parameterChangeRequest(Parameter* param)

@@ -88,6 +88,8 @@ public:
         SELECTED_PROCESSOR_PARAM,
         SELECTED_STREAM_PARAM,
         MASK_CHANNELS_PARAM,
+        PATH_PARAM,
+        TIME_PARAM,
         NAME_PARAM,
         COLOUR_PARAM,
         NOTIFICATION_PARAM
@@ -692,5 +694,141 @@ private:
     int channelCount;
 };
 
+/**
+*
+    Represents a Parameter that holds a path to a file or directory.
+*/
+
+class PLUGIN_API PathParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    PathParameter(InfoObject* infoObject,
+        ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        const StringArray& validFileExtensions,
+        const bool isDirectory,
+        bool deactivateDuringAcquisition = true);
+
+    /** Sets the current value*/
+    virtual void setNextValue(var newValue) override;
+
+    /** Gets the value as an integer*/
+    virtual String getValueAsString() override { return currentValue.toString(); };
+
+    /** Saves the parameter to an XML Element*/
+    virtual void toXml(XmlElement*) override;
+
+    /** Loads the parameter from an XML Element*/
+    virtual void fromXml(XmlElement*) override;
+
+private:
+
+    StringArray validFileExtensions;
+    bool isDirectory;
+
+};
+
+/**
+*
+    Represents a Parameter that holds a selected stream.
+*/
+
+class PLUGIN_API SelectedStreamParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    SelectedStreamParameter(InfoObject* infoObject,
+        ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        bool deactivateDuringAcquisition = true);
+
+    /** Sets the current value (eg: 101-ProbeA) */
+    virtual void setNextValue(var newValue) override;
+
+    /** Gets the value as a String */
+    virtual String getValueAsString() override { return currentValue.toString(); }
+
+    /** Saves the parameter to an XML Element*/
+    virtual void toXml(XmlElement*) override;
+
+    /** Loads the parameter from an XML Element*/
+    virtual void fromXml(XmlElement*) override;
+};
+
+/**
+*
+    Represents a Parameter that holds a time value.
+*/
+
+class PLUGIN_API TimeParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    TimeParameter(InfoObject* infoObject,
+        ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        String defaultValue,
+        bool deactivateDuringAcquisition = true);
+
+    /** Sets the current value*/
+    virtual void setNextValue(var newValue) override;
+
+    /** Gets the value as a string**/
+    virtual String getValueAsString() override { return currentValue.toString(); }
+
+    /** Saves the parameter to an XML Element*/
+    virtual void toXml(XmlElement*) override;
+
+    /** Loads the parameter from an XML Element*/
+    virtual void fromXml(XmlElement*) override;
+
+    class TimeValue
+    {
+    public:
+        /** Constructor */
+        TimeValue(int hour_, int minute_, int second_, int millisecond_)
+            : hour(hour_),
+            minute(minute_),
+            second(second_),
+            millisecond(millisecond_) {}
+
+        TimeValue(String time) { fromString(time); }
+
+        /** Destructor */
+        ~TimeValue() {}
+
+        String toString() {
+            return String(hour) + ":" + String(minute) + ":" + String(second) + "." + String(millisecond);
+        }
+
+        void fromString(String time) {
+            StringArray tokens;
+            tokens.addTokens(time, ":", "\"");
+            //TODO: check for valid time format
+            hour = tokens[0].getIntValue();
+            minute = tokens[1].getIntValue();
+            second = tokens[2].getIntValue();
+            millisecond = tokens[3].getIntValue();
+        }
+
+    private:
+        int hour;
+        int minute;
+        int second;
+        int millisecond;
+    };
+
+private:
+
+    TimeValue timeValue;
+
+};
 
 #endif  // __PARAMETER_H_62922AE5__

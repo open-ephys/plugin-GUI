@@ -333,6 +333,30 @@ public:
         int defaultIndex,
         bool deactivateDuringAcquisition = false);
 
+    /** Adds a path parameter which holds a path to a folder or file */
+    void addPathParameter(Parameter::ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        const StringArray& validFileExtensions,
+        bool isDirectory,
+        bool deactivateDuringAcquisition = true);
+
+    /** Adds a selected stream parameter which holds the currentlu selected stream */
+    void addSelectedStreamParameter(Parameter::ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        bool deactivateDuringAcquisition = true);
+
+    /** Adds a time parameter with microsecond precision in the form HH:MM:SS.sss */
+    void addTimeParameter(Parameter::ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        String defaultValue = "00:00:00.000",
+        bool deactivateDuringAcquisition = true);
+
     /** Returns a pointer to a parameter created inside this processor
         Includes processor, stream, & channel scoped parameters
     */

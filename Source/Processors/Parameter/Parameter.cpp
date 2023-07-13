@@ -498,7 +498,7 @@ SelectedChannelsParameter::SelectedChannelsParameter(ParameterOwner* owner,
     maxSelectableChannels(maxSelectableChannels_),
     channelCount(0)
 {
-    //std::cout << "Creating new selected channels parameter at " << this << std::endl;
+
 }
 
 void SelectedChannelsParameter::setNextValue(var newValue_)
@@ -618,6 +618,7 @@ MaskChannelsParameter::MaskChannelsParameter(ParameterOwner* owner,
         deactivateDuringAcquisition),
     channelCount(0)
 {
+
 }
 
 void MaskChannelsParameter::setNextValue(var newValue_)
@@ -763,4 +764,157 @@ void MaskChannelsParameter::setChannelCount(int count)
     
     currentValue = values;
     channelCount = count;
+}
+
+PathParameter::PathParameter(InfoObject* infoObject,
+    ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    const StringArray& fileExtensions_,
+    bool isDirectory_,
+    bool deactivateDuringAcquisition)
+    : Parameter(infoObject,
+        ParameterType::PATH_PARAM,
+        scope,
+        name,
+        displayName,
+        description,
+        deactivateDuringAcquisition),
+    validFileExtensions(fileExtensions_),
+    isDirectory(isDirectory_)
+{
+
+}
+
+void PathParameter::setNextValue(var newValue_)
+{
+    if (newValue_ == currentValue) return;
+
+    if (newValue_.isString())
+    {
+        if (!isDirectory && File(newValue_.toString()).existsAsFile())
+        {
+            newValue = newValue_;
+        }
+        else if (isDirectory && File(newValue_.toString()).exists())
+        {
+            newValue = newValue_;
+        }
+
+        ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+
+        AccessClass::getUndoManager()->beginNewTransaction();
+        AccessClass::getUndoManager()->perform(action);
+    }
+    else
+    {
+        LOGE("Invalid file path");
+    }
+
+}
+
+void PathParameter::toXml(XmlElement* xml)
+{
+    xml->setAttribute(getName(), currentValue.toString());
+}
+
+void PathParameter::fromXml(XmlElement* xml)
+{
+    currentValue = xml->getStringAttribute(getName(), defaultValue);
+}
+
+SelectedStreamParameter::SelectedStreamParameter(InfoObject* infoObject,
+    ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    bool deactivateDuringAcquisition)
+    : Parameter(infoObject,
+        ParameterType::SELECTED_STREAM_PARAM,
+        scope,
+        name,
+        displayName,
+        description,
+        "UNKNOWN_STREAM",
+        deactivateDuringAcquisition)
+{
+
+}
+
+
+void SelectedStreamParameter::setNextValue(var newValue_)
+{
+    if (newValue_ == currentValue) return;
+
+    //TODO: Get a list of valid stream names from the processor
+
+    if (newValue_.isString())
+    {
+        ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+
+        AccessClass::getUndoManager()->beginNewTransaction();
+        AccessClass::getUndoManager()->perform(action);
+    }
+    else
+    {
+        LOGE("Invalid stream name");
+    }
+
+}
+
+void SelectedStreamParameter::toXml(XmlElement* xml)
+{
+    xml->setAttribute(getName(), currentValue.toString());
+}
+
+void SelectedStreamParameter::fromXml(XmlElement* xml)
+{
+    currentValue = xml->getStringAttribute(getName(), defaultValue);
+}
+
+TimeParameter::TimeParameter(
+    InfoObject* infoObject,
+    ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    String defaultValue,
+    bool deactivateDuringAcquisition)
+    : Parameter(infoObject,
+        ParameterType::TIME_PARAM,
+        scope,
+        name,
+        displayName,
+        description,
+        defaultValue,
+        deactivateDuringAcquisition),
+    timeValue(defaultValue)
+{
+
+}
+
+void TimeParameter::setNextValue(var newValue_)
+{
+    if (newValue_ == currentValue) return;
+
+    if (newValue_.isDouble())
+    {
+        newValue = newValue_;
+    }
+
+    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+
+    AccessClass::getUndoManager()->beginNewTransaction();
+    AccessClass::getUndoManager()->perform(action);
+}
+
+void TimeParameter::toXml(XmlElement* xml)
+{
+    xml->setAttribute(getName(), currentValue.toString());
+}
+
+void TimeParameter::fromXml(XmlElement* xml)
+{
+    currentValue = xml->getStringAttribute(getName(), defaultValue);
 }
