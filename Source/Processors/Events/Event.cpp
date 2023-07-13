@@ -204,10 +204,9 @@ size_t SystemEvent::fillTimestampAndSamplesData(HeapBlock<char>& data,
 	int64 startSampleForBlock,
     double startTimestampForBlock,
 	uint32 nSamplesInBlock,
-	int64 processStartTime,
-    int64 sampleIndexOfTimestamp)
+	int64 processStartTime)
 {
-	const int eventSize = EVENT_BASE_SIZE + 4 + 8 + 8;
+	const int eventSize = EVENT_BASE_SIZE + 4 + 8;
 	data.malloc(eventSize);
 	data[0] = SYSTEM_EVENT;													 // 1 byte
 	data[1] = TIMESTAMP_AND_SAMPLES;										 // 1 byte
@@ -219,8 +218,26 @@ size_t SystemEvent::fillTimestampAndSamplesData(HeapBlock<char>& data,
     *reinterpret_cast<double*>(data.getData() + 16) = startTimestampForBlock;// 8 bytes
 	*reinterpret_cast<uint32*>(data.getData() + EVENT_BASE_SIZE) = nSamplesInBlock;		 // 8 bytes
 	*reinterpret_cast<int64*>(data.getData() + EVENT_BASE_SIZE + 4) = processStartTime; // 8 bytes
-    *reinterpret_cast<int64*>(data.getData() + EVENT_BASE_SIZE + 12) = sampleIndexOfTimestamp; // 8 byte
 	return eventSize;
+}
+
+size_t SystemEvent::fillReferenceSampleEvent(HeapBlock<char>& data,
+    const GenericProcessor* proc,
+    uint16 streamId,
+    int64 referenceSampleIndex,
+    double referenceSampleTimestamp)
+{
+    const int eventSize = EVENT_BASE_SIZE;
+    data.malloc(eventSize);
+    data[0] = SYSTEM_EVENT;                                                     // 1 byte
+    data[1] = REFERENCE_SAMPLE;                                                 // 1 byte
+    *reinterpret_cast<uint16*>(data.getData() + 2) = proc->getNodeId();         // 2 bytes
+    *reinterpret_cast<uint16*>(data.getData() + 4) = streamId;                 // 2 bytes
+    data[6] = 0;                                                             // 1 byte
+    data[7] = 0;                                                             // 1 byte
+    *reinterpret_cast<int64*>(data.getData() + 8) = referenceSampleIndex;     // 8 bytes
+    *reinterpret_cast<double*>(data.getData() + 16) = referenceSampleTimestamp;// 8 bytes
+    return eventSize;
 }
 
 size_t SystemEvent::fillTimestampSyncTextData(

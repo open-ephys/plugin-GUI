@@ -330,8 +330,11 @@ void SourceNode::process(AudioBuffer<float>& buffer)
 		setTimestampAndSamples(sampleNumber,
                                timestamp,
                                nSamples,
-                               dataStreams[streamIdx]->getStreamId(),
-                               timestampSampleIndex);
+                               dataStreams[streamIdx]->getStreamId());
+        
+        if(timestampSampleIndex.has_value()) {
+            setReferenceSample(dataStreams[streamIdx]->getStreamId(), timestamp, timestampSampleIndex.value());
+        }
 
 		if (eventChannels[streamIdx])
 		{
