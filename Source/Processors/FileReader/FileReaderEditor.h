@@ -42,86 +42,6 @@ class FileSource;
 
 */
 
-class PlaybackButton : public Button
-{
-public:
-    PlaybackButton(FileReader*);
-
-    ~PlaybackButton();
-
-    bool getState();
-    void setState(bool isActive);
-    
-private:
-
-    FileReader* fileReader;
-    bool isActive;
-    void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
-};
-
-class FullTimeline : public Component, public Timer
-{
-public:
-    FullTimeline(FileReader*);
-    ~FullTimeline();
-
-    void setIntervalPosition(int start, int width);
-
-    int getStartInterval();
-    int getIntervalWidth();
-
-private:
-
-    FileReader* fileReader;
-
-    void timerCallback();
-
-    int intervalStartPosition;
-    int intervalWidth;
-    bool intervalIsSelected;
-
-    void paint(Graphics& g);
-    void mouseDown(const MouseEvent& event);
-    void mouseDrag(const MouseEvent& event);
-    void mouseUp(const MouseEvent& event);
-
-    bool leftSliderIsSelected;
-
-};
-
-class ZoomTimeline : public Component, public Timer
-{
-public:
-    ZoomTimeline(FileReader*);
-    ~ZoomTimeline();
-
-    void updatePlaybackRegion(int min, int max);
-    int getStartInterval();
-    int getIntervalDurationInSeconds();
-
-private:
-
-    FileReader* fileReader;
-
-    int sliderWidth;
-    int widthInSeconds;
-    float leftSliderPosition;
-    float rightSliderPosition;
-    float lastDragXPosition;
-
-    void paint(Graphics& g);
-    void mouseDown(const MouseEvent& event);
-    void mouseDrag(const MouseEvent& event);
-    void mouseUp(const MouseEvent& event);
-
-    bool leftSliderIsSelected;
-    bool rightSliderIsSelected;
-    bool playbackRegionIsSelected;
-
-    void timerCallback();
-
-};
-
 class ScrubDrawerButton : public DrawerButton
 {
 public:
@@ -190,20 +110,14 @@ public:
     /** Sets the current recording to playback */
     void setRecording(int index);
 
+    /** Returns a pointer to the ScrubberInterface */
+    ScrubberInterface* getScrubberInterface();
+
     /** Controls whether or not to show the file scrubbing interface */
     void showScrubInterface(bool show);
 
     /** Updates the file scrubbing interface when changes have been made */
     void updateScrubInterface(bool reset);
-
-    /** Updates the time labels based on current slider positions */
-    void updateZoomTimeLabels();
-
-    /** Gets the location of the global start of playback */
-    int getFullTimelineStartPosition();
-
-    /** Gets the location of the local start of playback */
-    int getZoomTimelineStartPosition();
 
     /** Called whenever the scrubbing interface sliders are adjusted */
     void updatePlaybackTimes();
@@ -213,11 +127,6 @@ public:
 
     /** Load File Reader parameters */
     void loadCustomParametersFromXml(XmlElement*) override;
-
-    /** Assigns a unique color to each channel */
-    Array<Colour> channelColours;
-
-    ScopedPointer<PlaybackButton>       playbackButton;
 
 private:
     void clearEditor();
@@ -230,20 +139,13 @@ private:
 
     ScopedPointer<ScrubDrawerButton>    scrubDrawerButton;
 
-    ScopedPointer<Label>                zoomStartTimeLabel;
-    ScopedPointer<Label>                zoomMiddleTimeLabel;
-    ScopedPointer<Label>                zoomEndTimeLabel;
-    ScopedPointer<Label>                fullStartTimeLabel;
-    ScopedPointer<Label>                fullEndTimeLabel;
-    ScopedPointer<FullTimeline>         fullTimeline;
-    ScopedPointer<ZoomTimeline>         zoomTimeline;
+    ScopedPointer<ScrubberInterface>    scrubberInterface;
 
     FileReader* fileReader;
     unsigned int recTotalTime;
 
     bool m_isFileDragAndDropActive;
     bool scrubInterfaceVisible;
-    int scrubInterfaceWidth;
     bool scrubInterfaceAvailable;
 
     File lastFilePath;

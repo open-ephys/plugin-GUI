@@ -165,6 +165,9 @@ public:
     /** Sets the unique integer ID for a processor. */
     void setNodeId (int id);
 
+    /** Registers the parameters for a given processor */
+    virtual void registerParameters() {};
+
     // --------------------------------------------
     //       CREATING THE EDITOR
     // --------------------------------------------
@@ -338,6 +341,7 @@ public:
         const String& name,
         const String& displayName,
         const String& description,
+        const String& defaultValue,
         const StringArray& validFileExtensions,
         bool isDirectory,
         bool deactivateDuringAcquisition = true);
@@ -347,6 +351,8 @@ public:
         const String& name,
         const String& displayName,
         const String& description,
+        Array<String> streamNames,
+        const int defaultIndex,
         bool deactivateDuringAcquisition = true);
 
     /** Adds a time parameter with microsecond precision in the form HH:MM:SS.sss */
@@ -354,7 +360,7 @@ public:
         const String& name,
         const String& displayName,
         const String& description,
-        String defaultValue = "00:00:00.000",
+        const String& defaultValue = "00:00:00",
         bool deactivateDuringAcquisition = true);
 
     /** Returns a pointer to a parameter created inside this processor

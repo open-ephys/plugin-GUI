@@ -55,10 +55,8 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
     , loopPlayback              (true)
 {
 
-    addPathParameter(Parameter::PROCESSOR_SCOPE, "input_file", "Selected File", "File to load data from", { "oebin" }, false);
-    addSelectedStreamParameter(Parameter::PROCESSOR_SCOPE, "active_stream", "Active Stream", "Currently active stream");
-    addTimeParameter(Parameter::PROCESSOR_SCOPE, "start_time", "Start Time", "Time to start playback");
-    addTimeParameter(Parameter::PROCESSOR_SCOPE, "end_time", "End Time", "Time to end playback");
+    /* Add built-in file source (Binary Format) */
+    supportedExtensions.set ("oebin", 1);
 
 	/* Load any plugin file sources */
     const int numFileSources = AccessClass::getPluginManager()->getNumFileSources();
@@ -78,23 +76,9 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
         
         for (int j = 0; j < numExtensions; ++j)
         {
-            supportedExtensions.set (extensions[j].toLowerCase(), i + 1);
+            supportedExtensions.set (extensions[j].toLowerCase(), i + 2);
         }
     }
-
-	/* Load built-in file sources */
-	const int numBuiltInFileSources = getNumBuiltInFileSources();
-	for (int i = 0; i < numBuiltInFileSources; ++i)
-	{
-		StringArray extensions;
-		extensions.addTokens(getBuiltInFileSourceExtensions(i), ";", "\"");
-
-		const int numExtensions = extensions.size();
-		for (int j = 0; j < numExtensions; ++j)
-		{
-			supportedExtensions.set(extensions[j].toLowerCase(), i + numFileSources + 1);
-		}
-	}
 
     /* Create a File Reader device */
     DeviceInfo::Settings settings {
@@ -116,6 +100,36 @@ FileReader::~FileReader()
     notify();
 }
 
+void FileReader::registerParameters()
+{
+    addPathParameter(Parameter::PROCESSOR_SCOPE, "selected_file", "Selected File", "File to load data from", defaultFile.getFullPathName(), getSupportedExtensions(), false);
+    addSelectedStreamParameter(Parameter::PROCESSOR_SCOPE, "active_stream", "Active Stream", "Currently active stream", {}, 0);
+    addTimeParameter(Parameter::PROCESSOR_SCOPE, "start_time", "Start Time", "Time to start playback");
+    addTimeParameter(Parameter::PROCESSOR_SCOPE, "end_time", "End Time", "Time to end playback");
+}
+
+void FileReader::parameterValueChanged(Parameter* p)
+{
+    if (p->getName() == "selected_file")
+    {
+        setFile(p->getValue());
+    }
+    else if (p->getName() == "active_stream")
+    {
+        setActiveStream(p->getValue());
+    }
+    else if (p->getName() == "start_time")
+    {
+        TimeParameter* tp = static_cast<TimeParameter*>(p);
+        startSample = millisecondsToSamples(tp->getTimeValue()->getTimeInMilliseconds());
+    }
+    else if (p->getName() == "end_time")
+    {
+        TimeParameter* tp = static_cast<TimeParameter*>(p);
+        stopSample = millisecondsToSamples(tp->getTimeValue()->getTimeInMilliseconds());
+    }
+}
+
 AudioProcessorEditor* FileReader::createEditor()
 {
     editor = std::make_unique<FileReaderEditor>(this);
@@ -126,94 +140,31 @@ AudioProcessorEditor* FileReader::createEditor()
 void FileReader::initialize(bool signalChainIsLoading)
 {
 
-    LOGD("INITIALIZING FILE READER");
-
     if (signalChainIsLoading)
         return;
 
     if (isEnabled)
         return;
 
-    LOGD("SETTING FILE");
-
     File executable = File::getSpecialLocation(File::currentApplicationFile);
 #ifdef __APPLE__
-    File defaultFile = executable.getChildFile("Contents/Resources/resources").getChildFile("structure.oebin");
+    defaultFile = executable.getChildFile("Contents/Resources/resources").getChildFile("structure.oebin");
 #else
-    File defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
+    defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
 #endif
 
     if (defaultFile.exists())
     {
+        setFile(defaultFile.getFullPathName());
+        /*
         FileReaderEditor* ed = (FileReaderEditor*)editor.get();
-        
+        /* TOFIX
         if (ed != nullptr)
             ed->setFile("default", false);
         else
             setFile(defaultFile.getFullPathName());
+        */
     }
-}
-
-void FileReader::togglePlayback()
-{
-    playbackActive = !playbackActive;
-}
-
-bool FileReader::playbackIsActive()
-{
-    return playbackActive;
-}
-
-int64 FileReader::getCurrentNumTotalSamples()
-{
-    return currentNumTotalSamples;
-}
-
-float FileReader::getCurrentSampleRate() const
-{
-    return input->getActiveSampleRate();
-}
-
-float FileReader::getDefaultSampleRate() const
-{
-    if (input)
-        return currentSampleRate;
-    else
-        return 44100.0;
-}
-
-bool FileReader::startAcquisition()
-{
-
-    if (!isEnabled)
-        return false;
-
-    if (!headlessMode)
-        static_cast<FileReaderEditor*> (getEditor())->startTimer(100);
-
-    /* Start asynchronous file reading thread */
-	startThread(); 
-
-	return true;
-}
-
-bool FileReader::stopAcquisition()
-{
-
-	stopThread(500);
-    
-    if (!isEnabled)
-        static_cast<FileReaderEditor*> (getEditor())->stopTimer();
-    
-	return true;
-}
-
-bool FileReader::isFileSupported (const String& fileName) const
-{
-    const File file (fileName);
-    String ext = file.getFileExtension().toLowerCase().substring (1);
-
-    return supportedExtensions[ext] - 1 >= 0;
 }
 
 bool FileReader::setFile (String fullpath)
@@ -290,17 +241,81 @@ bool FileReader::setFile (String fullpath)
     if (!headlessMode)
         static_cast<FileReaderEditor*> (getEditor())->populateRecordings (input);
     
-    setActiveRecording (0);
+    setActiveStream (0);
     
     gotNewFile = true;
 
     return true;
 }
 
-void FileReader::setActiveRecording (int index)
+void FileReader::togglePlayback()
 {
+    playbackActive = !playbackActive;
+}
+
+bool FileReader::playbackIsActive()
+{
+    return playbackActive;
+}
+
+int64 FileReader::getCurrentNumTotalSamples()
+{
+    return currentNumTotalSamples;
+}
+
+float FileReader::getCurrentSampleRate() const
+{
+    return input->getActiveSampleRate();
+}
+
+float FileReader::getDefaultSampleRate() const
+{
+    if (input)
+        return currentSampleRate;
+    else
+        return 44100.0;
+}
+
+bool FileReader::startAcquisition()
+{
+
+    if (!isEnabled)
+        return false;
+
+    if (!headlessMode)
+        static_cast<FileReaderEditor*> (getEditor())->startTimer(100);
+
+    /* Start asynchronous file reading thread */
+	startThread(); 
+
+	return true;
+}
+
+bool FileReader::stopAcquisition()
+{
+
+	stopThread(500);
+    
+    if (!isEnabled)
+        static_cast<FileReaderEditor*> (getEditor())->stopTimer();
+    
+	return true;
+}
+
+bool FileReader::isFileSupported (const String& fileName) const
+{
+    const File file (fileName);
+    String ext = file.getFileExtension().toLowerCase().substring (1);
+
+    return supportedExtensions[ext] - 1 >= 0;
+}
+
+void FileReader::setActiveStream (int index)
+{
+
     if (!input) { return; }
 
+    //TODO: Change to setActiveStream
     input->setActiveRecord (index);
 
     currentNumChannels       = input->getActiveNumChannels();
@@ -320,8 +335,18 @@ void FileReader::setActiveRecording (int index)
            channelInfo.add (input->getChannelInfo (index, i));
     }
 
+    TimeParameter* endTime = static_cast<TimeParameter*>(getParameter("end_time"));
+
+    if (endTime->getTimeValue()->getTimeInMilliseconds() > samplesToMilliseconds (currentNumTotalSamples));
+    {
+        endTime->getTimeValue()->setTimeFromMilliseconds(samplesToMilliseconds (currentNumTotalSamples));
+        endTime->setNextValue(endTime->getTimeValue()->toString());
+    }
+
+    /*
     if (!headlessMode)
         static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumTotalSamples));
+    */
 	
     input->seekTo(startSample);
     
@@ -603,6 +628,7 @@ void FileReader::addEventsInRange(int64 start, int64 stop)
     }
 }
 
+/*
 void FileReader::setParameter (int parameterIndex, float newValue)
 {
     switch (parameterIndex)
@@ -629,6 +655,7 @@ void FileReader::setParameter (int parameterIndex, float newValue)
             break;
     }
 }
+*/
 
 unsigned int FileReader::samplesToMilliseconds (int64 samples) const
 {
@@ -733,13 +760,6 @@ StringArray FileReader::getSupportedExtensions() const
 	return extensions;
 }
 
-//Built-In
-
-int FileReader::getNumBuiltInFileSources() const
-{
-	return 1;
-}
-
 String FileReader::getBuiltInFileSourceExtensions(int index) const
 {
 	switch (index)
@@ -762,10 +782,15 @@ FileSource* FileReader::createBuiltInFileSource(int index) const
 	}
 }
 
+ScrubberInterface* FileReader::getScrubberInterface()
+{
+    return static_cast<FileReaderEditor*> (getEditor())->getScrubberInterface();
+}
 
 void FileReader::saveCustomParametersToXml (XmlElement* xml)
 {
 
+    /* TOFIX
     XmlElement* childNode = xml->createNewChildElement ("FILENAME");
 
     String file = getFile();
@@ -783,6 +808,8 @@ void FileReader::saveCustomParametersToXml (XmlElement* xml)
         childNode->setAttribute("path", getFile());
 
     childNode->setAttribute ("recording", input->getActiveRecord());
+
+    */
 }
 
 void FileReader::loadCustomParametersFromXml (XmlElement* xml)
@@ -793,13 +820,7 @@ void FileReader::loadCustomParametersFromXml (XmlElement* xml)
         {
             String filepath = element->getStringAttribute ("path");
             
-            if (!headlessMode)
-            {
-                FileReaderEditor* ed = (FileReaderEditor*) getEditor();
-                ed->setFile (filepath, false);
-            } else {
-                setFile(filepath);
-            }
+            setFile(filepath);
 
             //int recording = element->getIntAttribute ("recording");
             //recordSelector->setSelectedId (recording, sendNotificationSync);

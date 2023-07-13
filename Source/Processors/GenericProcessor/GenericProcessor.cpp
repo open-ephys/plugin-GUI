@@ -363,6 +363,7 @@ void GenericProcessor::addPathParameter(
     const String& name,
     const String& displayName,
     const String& description,
+    const String& defaultValue,
     const StringArray& validFileExtensions,
     bool isDirectory,
     bool deactivateDuringAcquisition)
@@ -374,6 +375,7 @@ void GenericProcessor::addPathParameter(
             name,
             displayName,
             description,
+            defaultValue,
             validFileExtensions,
             isDirectory,
             deactivateDuringAcquisition);
@@ -389,6 +391,8 @@ void GenericProcessor::addSelectedStreamParameter(
     const String& name,
     const String& displayName,
     const String& description,
+    Array<String> streamNames,
+    const int defaultIndex,
     bool deactivateDuringAcquisition)
 {
 
@@ -398,6 +402,8 @@ void GenericProcessor::addSelectedStreamParameter(
             name,
             displayName,
             description,
+            streamNames,
+            defaultIndex,
             deactivateDuringAcquisition);
 
     if (scope == Parameter::PROCESSOR_SCOPE)
@@ -411,7 +417,7 @@ void GenericProcessor::addTimeParameter(
     const String& name,
     const String& displayName,
     const String& description,
-    String defaultValue,
+    const String& defaultValue,
     bool deactivateDuringAcquisition)
 {
 

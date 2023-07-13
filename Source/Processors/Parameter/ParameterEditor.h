@@ -27,6 +27,7 @@
 
 #include "Parameter.h"
 #include "../Editors/PopupChannelSelector.h"
+#include "../Editors/PopupTimeEditor.h"
 
 #include "../../UI/LookAndFeel/CustomLookAndFeel.h"
 
@@ -218,7 +219,7 @@ public:
     /** Destructor */
     virtual ~ComboBoxParameterEditor() { }
 
-    /** Responds to checkbox clicks */
+    /** Responds to combo box clicks */
     void comboBoxChanged(ComboBox* comboBox) override;
 
     /** Must ensure that editor state matches underlying parameter */
@@ -416,6 +417,31 @@ private:
     std::unique_ptr<TextButton> button;
 };
 
+class PLUGIN_API SelectedStreamParameterEditor : public ParameterEditor,
+    public ComboBox::Listener
+{
+public:
+
+    /** Constructor */
+    SelectedStreamParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+
+    /** Destructor */
+    virtual ~SelectedStreamParameterEditor() { }
+
+    /** Responds to combo box clicks */
+    void comboBoxChanged(ComboBox* comboBox) override;
+
+    /** Must ensure that editor state matches underlying parameter */
+    virtual void updateView() override;
+
+    /** Sets sub-component locations */
+    virtual void resized() override;
+
+private:
+    std::unique_ptr<ComboBox> valueComboBox;
+
+};
+
 /**
     Creates a special editor for a MaskChannelsParameter
 
@@ -449,6 +475,105 @@ public:
 
 private:
     std::unique_ptr<TextButton> button;
+};
+
+class PLUGIN_API FileBrowserEditor : public ParameterEditor,
+    public Button::Listener
+{
+public:
+
+    /** Constructor */
+    FileBrowserEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+
+    /** Destructor */
+    virtual ~FileBrowserEditor() { }
+
+    /** Displays the PopupChannelSelector*/
+    void buttonClicked(Button* label) override;
+
+    /** Must ensure that editor state matches underlying parameter */
+    virtual void updateView() override;
+
+    /** Sets sub-component locations */
+    virtual void resized() override;
+
+private:
+    std::unique_ptr<TextButton> button;
+};
+
+class PLUGIN_API PathParameterEditor : public ParameterEditor,
+    public Button::Listener
+{
+public:
+
+    /** Constructor */
+    PathParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+
+    /** Destructor */
+    virtual ~PathParameterEditor() { }
+
+    /** Displays the PopupChannelSelector*/
+    void buttonClicked(Button* label) override;
+
+    /** Must ensure that editor state matches underlying parameter */
+    virtual void updateView() override;
+
+    /** Sets sub-component locations */
+    virtual void resized() override;
+
+private:
+    std::unique_ptr<TextButton> button;
+};
+
+class PLUGIN_API TimeEditorPopover : public Component,
+    public Label::Listener
+{
+public:
+
+    /** Constructor */
+    TimeEditorPopover(TimeParameter* p);
+
+    /** Destructor */
+    virtual ~TimeEditorPopover() { }
+
+    /** Displays the PopupChannelSelector*/
+    void labelTextChanged(Label* label) override;
+
+    /** Sets sub-component locations */
+    virtual void resized() override;
+
+    void setTime(String startTime_);
+
+    String getTime();
+
+};
+
+class PLUGIN_API TimeParameterEditor : public ParameterEditor,
+    public Button::Listener, public Timer
+{
+public:
+
+    /** Constructor */
+    TimeParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+
+    /** Destructor */
+    virtual ~TimeParameterEditor() { }
+
+    /** Displays the PopupChannelSelector*/
+    void buttonClicked(Button* label) override;
+
+    /** Must ensure that editor state matches underlying parameter */
+    virtual void updateView() override;
+
+    /** Sets sub-component locations */
+    virtual void resized() override;
+
+private:
+
+    void timerCallback() override;
+
+    std::unique_ptr<TextButton> button;
+    std::unique_ptr<PopupTimeEditor> timeEditor;
 };
 
 #endif  // __PARAMETEREDITOR_H_44537DA9__

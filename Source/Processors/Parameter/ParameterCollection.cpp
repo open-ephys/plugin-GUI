@@ -153,7 +153,21 @@ void ParameterCollection::copyParametersTo(ParameterOwner* pOwner)
             FloatParameter* p = (FloatParameter*) parameter;
             pOwner->addParameter(new FloatParameter(*p));
         }
-        
+        else if (parameter->getType() == Parameter::PATH_PARAM)
+        {
+            PathParameter* p = (PathParameter*) parameter;
+            pOwner->addParameter(new PathParameter(*p));
+        }
+        else if (parameter->getType() == Parameter::SELECTED_STREAM_PARAM)
+        {
+            SelectedStreamParameter* p = (SelectedStreamParameter*) parameter;
+            pOwner->addParameter(new SelectedStreamParameter(*p));
+        }
+        else if (parameter->getType() == Parameter::TIME_PARAM)
+        {
+            TimeParameter* p = (TimeParameter*) parameter;
+            pOwner->addParameter(new TimeParameter(*p));
+        }
  
     }
 }
@@ -213,6 +227,27 @@ void ParameterCollection::copyParametersFrom(ParameterOwner* pOwner)
         {
             FloatParameter* p = (FloatParameter*) parameter;
             FloatParameter* p2 = new FloatParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
+        }
+        else if (parameter->getType() == Parameter::PATH_PARAM)
+        {
+            PathParameter* p = (PathParameter*) parameter;
+            PathParameter* p2 = new PathParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
+        }
+        else if (parameter->getType() == Parameter::SELECTED_STREAM_PARAM)
+        {
+            SelectedStreamParameter* p = (SelectedStreamParameter*) parameter;
+            SelectedStreamParameter* p2 = new SelectedStreamParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
+        }
+        else if (parameter->getType() == Parameter::TIME_PARAM)
+        {
+            TimeParameter* p = (TimeParameter*) parameter;
+            TimeParameter* p2 = new TimeParameter(*p);
             p2->setOwner(nullptr);
             addParameter(p2);
         }

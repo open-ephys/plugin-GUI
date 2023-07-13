@@ -304,8 +304,17 @@ protected:
     /** Adds a selected channels editor for a parameter of a given name. */
     void addSelectedChannelsParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
     
-    /** Adds a selected channels editor for a parameter of a given name. */
+    /** Adds a mask channels editor for a parameter of a given name. */
     void addMaskChannelsParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+
+    /** Adds a path browser editor for a parameter of a given name. */
+    void addPathParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+
+    /** Adds a selected stream editor for a parameter of a given name. */
+    void addSelectedStreamParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+
+    /** Adds a time editor for a paramater of a given name. */
+    void addTimeParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a custom editor for a parameter of a given name. */
     void addCustomParameterEditor(ParameterEditor* editor, int xPos, int yPos);

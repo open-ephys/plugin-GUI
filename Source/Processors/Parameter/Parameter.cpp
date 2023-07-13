@@ -93,11 +93,12 @@ void Parameter::setOwner(ParameterOwner* parameterOwner_)
     else if (getScope() == ParameterScope::SPIKE_CHANNEL_SCOPE)
     {
         key = "TODO"; //Currently handled by spike processors
+        return;
     }
 
     this->setKey(key.toStdString());
 
-    LOGDD("$ Registered Parameter $: ", key);
+    LOGD("$$$ Registered Parameter : ", key);
 
     Parameter::registerParameter(this);
 }
@@ -766,25 +767,27 @@ void MaskChannelsParameter::setChannelCount(int count)
     channelCount = count;
 }
 
-PathParameter::PathParameter(InfoObject* infoObject,
+PathParameter::PathParameter(ParameterOwner* owner,
     ParameterScope scope,
     const String& name,
     const String& displayName,
     const String& description,
+    const String& defaultValue,
     const StringArray& fileExtensions_,
     bool isDirectory_,
     bool deactivateDuringAcquisition)
-    : Parameter(infoObject,
+    : Parameter(owner,
         ParameterType::PATH_PARAM,
         scope,
         name,
         displayName,
         description,
+        defaultValue,
         deactivateDuringAcquisition),
     validFileExtensions(fileExtensions_),
     isDirectory(isDirectory_)
 {
-
+    currentValue = defaultValue;
 }
 
 void PathParameter::setNextValue(var newValue_)
@@ -824,22 +827,24 @@ void PathParameter::fromXml(XmlElement* xml)
     currentValue = xml->getStringAttribute(getName(), defaultValue);
 }
 
-SelectedStreamParameter::SelectedStreamParameter(InfoObject* infoObject,
+SelectedStreamParameter::SelectedStreamParameter(ParameterOwner* owner,
     ParameterScope scope,
     const String& name,
     const String& displayName,
     const String& description,
+    Array<String> streamNames_,
+    int defaultIndex,
     bool deactivateDuringAcquisition)
-    : Parameter(infoObject,
+    : Parameter(owner,
         ParameterType::SELECTED_STREAM_PARAM,
         scope,
         name,
         displayName,
         description,
-        "UNKNOWN_STREAM",
-        deactivateDuringAcquisition)
+        defaultIndex,
+        deactivateDuringAcquisition),
+    streamNames(streamNames_)
 {
-
 }
 
 
@@ -847,20 +852,31 @@ void SelectedStreamParameter::setNextValue(var newValue_)
 {
     if (newValue_ == currentValue) return;
 
-    //TODO: Get a list of valid stream names from the processor
-
-    if (newValue_.isString())
+    if (newValue_.isInt())
     {
+
+        newValue = newValue_;
+
         ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
 
         AccessClass::getUndoManager()->beginNewTransaction();
-        AccessClass::getUndoManager()->perform(action);
+        AccessClass::getUndoManager()->perform(action);        
     }
     else
     {
-        LOGE("Invalid stream name");
+        LOGE("Invalid stream name: ", newValue_.toString());
     }
 
+}
+
+int SelectedStreamParameter::getSelectedIndex()
+{
+    for (int i = 0; i < streamNames.size(); i++)
+    {
+        if (currentValue == streamNames[i])
+            return i;
+    }
+    return -1;
 }
 
 void SelectedStreamParameter::toXml(XmlElement* xml)
@@ -873,15 +889,14 @@ void SelectedStreamParameter::fromXml(XmlElement* xml)
     currentValue = xml->getStringAttribute(getName(), defaultValue);
 }
 
-TimeParameter::TimeParameter(
-    InfoObject* infoObject,
+TimeParameter::TimeParameter(ParameterOwner* owner,
     ParameterScope scope,
     const String& name,
     const String& displayName,
     const String& description,
-    String defaultValue,
+    const String& defaultValue,
     bool deactivateDuringAcquisition)
-    : Parameter(infoObject,
+    : Parameter(owner,
         ParameterType::TIME_PARAM,
         scope,
         name,
@@ -898,15 +913,17 @@ void TimeParameter::setNextValue(var newValue_)
 {
     if (newValue_ == currentValue) return;
 
-    if (newValue_.isDouble())
+    if (newValue_.isString())
     {
         newValue = newValue_;
+
+        getTimeValue()->setTimeValue(newValue.toString());
+
+        ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+
+        AccessClass::getUndoManager()->beginNewTransaction();
+        AccessClass::getUndoManager()->perform(action);
     }
-
-    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
-
-    AccessClass::getUndoManager()->beginNewTransaction();
-    AccessClass::getUndoManager()->perform(action);
 }
 
 void TimeParameter::toXml(XmlElement* xml)

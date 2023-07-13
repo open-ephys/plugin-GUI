@@ -861,3 +861,191 @@ void MaskChannelsParameterEditor::resized()
     label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
     button->setBounds(0, 0, getWidth()/2, getHeight());
 }
+
+
+PathParameterEditor::PathParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
+{
+
+    button = std::make_unique<TextButton>("Browse");
+    button->setName(param->getKey());
+    button->addListener(this);
+    button->setClickingTogglesState(false);
+    button->setTooltip("Select a file...");
+    addAndMakeVisible(button.get());
+
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
+    Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+    label->setFont(labelFont);
+    label->setJustificationType(Justification::left);
+    addAndMakeVisible(label.get());
+
+    int width = rowWidthPixels;
+
+    setBounds(0, 0, width, rowHeightPixels);
+    label->setBounds(width / 2, 0, getWidth() - 50, rowHeightPixels);
+    button->setBounds(0, 0, width/2, rowHeightPixels);
+
+    editor = (Component*)button.get();
+}
+
+void PathParameterEditor::buttonClicked(Button* button_)
+{
+    FileChooser chooser("Select a file to open...",
+        {},
+        "*");
+
+    if (chooser.browseForFileToOpen())
+    {
+        File file = chooser.getResult();
+        LOGD("Parameter address: ", &param);
+        param->setNextValue(file.getFullPathName());
+        button->setTooltip(file.getFullPathName());
+    }
+}
+
+void PathParameterEditor::updateView()
+{
+    if (param == nullptr)
+        button->setEnabled(false);
+    else
+        button->setEnabled(true);
+}
+
+void PathParameterEditor::resized()
+{
+    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
+    button->setBounds(0, 0, getWidth()/2, getHeight());
+}
+
+
+SelectedStreamParameterEditor::SelectedStreamParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
+{
+
+    jassert(param->getType() == Parameter::SELECTED_STREAM_PARAM
+        || param->getType() == Parameter::INT_PARAM);
+
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
+    label->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
+    addAndMakeVisible(label.get());
+
+    valueComboBox = std::make_unique<ComboBox>();
+    valueComboBox->setName(param->getKey());
+    valueComboBox->setJustificationType(Justification::centred);
+    valueComboBox->addListener(this);
+    valueComboBox->setTooltip(param->getDescription());
+    addAndMakeVisible(valueComboBox.get());
+
+    if (param->getType() == Parameter::SELECTED_STREAM_PARAM)
+    {
+        SelectedStreamParameter* p = (SelectedStreamParameter*)param;
+
+        Array<String>& streams = p->getStreamNames();
+
+        for (int i = 0; i < streams.size(); i++)
+            valueComboBox->addItem(streams[i], i + 1);
+
+        valueComboBox->setSelectedId(p->getSelectedIndex() + 1, dontSendNotification);
+
+    }
+    else {
+        IntParameter* p = (IntParameter*)param;
+
+        for (int i = p->getMinValue(); i <= p->getMaxValue(); i++)
+        {
+            valueComboBox->addItem(String(i), i + 1);
+        }
+
+        valueComboBox->setSelectedId(p->getIntValue() + 1, dontSendNotification);
+    }
+
+    int width = rowWidthPixels;
+
+    setBounds(0, 0, width, rowHeightPixels);
+    label->setBounds(width / 2, 0, width / 2, rowHeightPixels);
+    valueComboBox->setBounds(0, 0, width / 2, rowHeightPixels);
+
+    editor = (Component*)valueComboBox.get();
+
+}
+
+void SelectedStreamParameterEditor::comboBoxChanged(ComboBox* comboBox)
+{
+    if (param != nullptr)
+        param->setNextValue(comboBox->getSelectedId() - 1);
+}
+
+void SelectedStreamParameterEditor::updateView()
+{
+    repaint();
+}
+
+void SelectedStreamParameterEditor::resized()
+{
+    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
+    valueComboBox->setBounds(0, 0, getWidth() / 2, getHeight());
+}
+
+
+TimeParameterEditor::TimeParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
+{
+
+    jassert(param->getType() == Parameter::TIME_PARAM);
+
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
+    label->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
+    addAndMakeVisible(label.get());
+
+    button = std::make_unique<TextButton>(param->getValueAsString());
+    button->setName(param->getKey());
+    button->addListener(this);
+    button->setClickingTogglesState(false);
+    button->setTooltip("Set a time...");
+    addAndMakeVisible(button.get());
+
+    int width = rowWidthPixels;
+
+    setBounds(0, 0, width, rowHeightPixels);
+    label->setBounds(width / 2, 0, width / 2, rowHeightPixels);
+    button->setBounds(0, 0, width / 2, rowHeightPixels);
+
+    editor = (Component*)button.get();
+
+    startTimer(200);
+}
+
+void TimeParameterEditor::buttonClicked(Button* button)
+{
+    if (param == nullptr)
+        return;
+
+    TimeParameter* p = (TimeParameter*)param;
+
+    auto* timeEditor = new PopupTimeEditor(p);
+
+    CallOutBox& myBox
+        = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(timeEditor),
+            button->getScreenBounds(),
+            nullptr);
+}
+
+void TimeParameterEditor::updateView()
+{
+    if (param == nullptr)
+        button->setEnabled(false);
+    else
+        button->setEnabled(true);
+}
+
+void TimeParameterEditor::resized()
+{
+    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
+    button->setBounds(0, 0, getWidth() / 2, getHeight());
+}
+
+void TimeParameterEditor::timerCallback()
+{
+    if (param != nullptr)
+        button->setButtonText(((TimeParameter*)param)->getTimeValue()->toString());
+    else
+        button->setButtonText("00:00:00.000");
+}

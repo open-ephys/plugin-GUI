@@ -27,6 +27,8 @@
 #include "../PluginManager/OpenEphysPlugin.h"
 #include "../../TestableExport.h"
 
+#include "../../Utils/Utils.h"
+
 /**
     Class for holding user-definable processor parameters.
 
@@ -579,6 +581,54 @@ private:
 
 /**
 *
+    Represents a Parameter that holds the name of the active stream
+    within a processor that may have more than one stream.
+
+    Defaults to the first available stream by index.
+
+*/
+class PLUGIN_API SelectedStreamParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    SelectedStreamParameter(ParameterOwner* owner,
+        ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        Array<String> streamNames,
+        const int defaultIndex,
+        bool deactivateDuringAcquisition = true);
+
+    /** Sets the current value*/
+    virtual void setNextValue(var newValue) override;
+
+    /** Sets the list of available stream names */
+    void setStreamNames(Array<String> names) { streamNames = names; };
+
+    /** Gets the list of available stream names */
+    Array<String>& getStreamNames() { return streamNames; };
+
+    /** Gets the value as an integer*/
+    int getSelectedIndex();
+
+    /** Gets the value as a string**/
+    virtual String getValueAsString() override { return currentValue.toString(); };
+
+    /** Saves the parameter to an XML Element*/
+    virtual void toXml(XmlElement*) override;
+
+    /** Loads the parameter from an XML Element*/
+    virtual void fromXml(XmlElement*) override;
+
+private:
+
+    Array<String> streamNames;
+    int streamIndex;
+};
+
+/**
+*
     Represents a Parameter that holds the selection
     state of all continuous channels in a given data stream.
 
@@ -703,11 +753,12 @@ class PLUGIN_API PathParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    PathParameter(InfoObject* infoObject,
+    PathParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
         const String& displayName,
         const String& description,
+        const String& defaultValue,
         const StringArray& validFileExtensions,
         const bool isDirectory,
         bool deactivateDuringAcquisition = true);
@@ -733,35 +784,6 @@ private:
 
 /**
 *
-    Represents a Parameter that holds a selected stream.
-*/
-
-class PLUGIN_API SelectedStreamParameter : public Parameter
-{
-public:
-    /** Parameter constructor.*/
-    SelectedStreamParameter(InfoObject* infoObject,
-        ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        bool deactivateDuringAcquisition = true);
-
-    /** Sets the current value (eg: 101-ProbeA) */
-    virtual void setNextValue(var newValue) override;
-
-    /** Gets the value as a String */
-    virtual String getValueAsString() override { return currentValue.toString(); }
-
-    /** Saves the parameter to an XML Element*/
-    virtual void toXml(XmlElement*) override;
-
-    /** Loads the parameter from an XML Element*/
-    virtual void fromXml(XmlElement*) override;
-};
-
-/**
-*
     Represents a Parameter that holds a time value.
 */
 
@@ -769,12 +791,12 @@ class PLUGIN_API TimeParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    TimeParameter(InfoObject* infoObject,
+    TimeParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
         const String& displayName,
         const String& description,
-        String defaultValue,
+        const String& defaultValue,
         bool deactivateDuringAcquisition = true);
 
     /** Sets the current value*/
@@ -793,37 +815,57 @@ public:
     {
     public:
         /** Constructor */
-        TimeValue(int hour_, int minute_, int second_, int millisecond_)
+        TimeValue(int hour_, int minute_, double second_)
             : hour(hour_),
             minute(minute_),
-            second(second_),
-            millisecond(millisecond_) {}
+            second(second_) {}
 
-        TimeValue(String time) { fromString(time); }
+        TimeValue(String time) { setTimeValue(time); }
 
         /** Destructor */
         ~TimeValue() {}
 
         String toString() {
-            return String(hour) + ":" + String(minute) + ":" + String(second) + "." + String(millisecond);
+
+            String hour = this->hour > 9 ? String(this->hour) : "0" + String(this->hour);
+            String minute = this->minute > 9 ? String(this->minute) : "0" + String(this->minute);
+            String second = this->second > 9 ? String(this->second) : "0" + String(this->second);
+
+            return String(hour) + ":" + String(minute) + ":" + String(second);
         }
 
-        void fromString(String time) {
+        void setTimeValue(String time) {
             StringArray tokens;
             tokens.addTokens(time, ":", "\"");
-            //TODO: check for valid time format
+            //TODO: check for valid time format, assumes always valid for now
             hour = tokens[0].getIntValue();
             minute = tokens[1].getIntValue();
-            second = tokens[2].getIntValue();
-            millisecond = tokens[3].getIntValue();
+            second = tokens[2].getDoubleValue();
+        }
+
+        void setHours(int h) { hour = h; }
+        void setMinutes(int m) { minute = m; }
+        void setSeconds(double s) { second = s; }
+
+        int getHours() { return hour; }
+        int getMinutes() { return minute; }
+        double getSeconds() { return second; }
+
+        int getTimeInMilliseconds() { return 1000 * (second + 60.0 * double(minute + 60 * hour)); }
+        void setTimeFromMilliseconds(int ms) {
+            hour = ms / 3600000;
+            minute = (ms - hour * 3600000) / 60000;
+            second = (ms - hour * 3600000.0f - minute * 60000.0f) / 1000.0f;
         }
 
     private:
+
         int hour;
         int minute;
-        int second;
-        int millisecond;
+        double second;
     };
+
+    TimeValue* getTimeValue() { return &timeValue; }
 
 private:
 

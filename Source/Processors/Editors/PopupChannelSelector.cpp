@@ -118,6 +118,7 @@ RangeEditor::RangeEditor(const String& name, const Font& font) :
     setFont(font);
 }
 
+
 PopupChannelSelector::PopupChannelSelector(PopupChannelSelector::Listener* listener_, std::vector<bool> channelStates) 
     : listener(listener_),
     nChannels(channelStates.size()),
@@ -231,7 +232,6 @@ ChannelButton* PopupChannelSelector::getButtonForId(int btnId)
 
     return nullptr;
 }
-
 
 void PopupChannelSelector::mouseMove(const MouseEvent &event)
 {

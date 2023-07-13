@@ -21,412 +21,15 @@
 
 */
 
-#include "FileReaderEditor.h"
-
 #include "FileReader.h"
+#include "FileReaderEditor.h"
+#include "ScrubberInterface.h"
 
 #include <stdio.h>
 
 ScrubDrawerButton::ScrubDrawerButton(const String &name) : DrawerButton(name) {}
 
 ScrubDrawerButton::~ScrubDrawerButton() {}
-
-FullTimeline::FullTimeline(FileReader* fr) 
-{
-
-    fileReader = fr;
-
-    startTimer(50);
-}
-
-FullTimeline::~FullTimeline() {}
-
-void FullTimeline::timerCallback() {
-    repaint();
-}
-
-void FullTimeline::paint(Graphics& g) 
-{
-
-    int tickHeight = 4;
-    int borderThickness = 1;
-
-    g.setColour(Colours::black);
-
-    int numTicks = 5;
-
-    for (int i = 0; i < numTicks; i++) {
-
-        float dX = float(i) / numTicks * 450;
-
-        Path tick;
-        tick.startNewSubPath(dX, this->getHeight() - tickHeight);
-        tick.lineTo(dX, this->getHeight());
-        g.strokePath(tick, PathStrokeType(1.0));
-    }
-
-	g.fillRect(0, 0, this->getWidth(), this->getHeight()-tickHeight);
-	g.setColour(Colours::white);
-	g.fillRect(borderThickness, borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
-
-    /* Draw a colored vertical bar for each event */
-    int64 totalSamples = fileReader->getCurrentNumTotalSamples();
-
-    for (auto info : fileReader->getActiveEventInfo())
-    {
-        for (int i = 0; i < info.timestamps.size(); i++) {
-        
-            int64 ts = info.timestamps[i];
-            int16 state = info.channelStates[i];
-
-            if (state == 1)
-            {
-                float timelinePos = ts / float(totalSamples) * getWidth();
-                g.setColour(static_cast<FileReaderEditor*>(fileReader->getEditor())->channelColours[info.channels[i]]);
-                g.setOpacity(1.0f);
-                g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight() - tickHeight, 0.2);
-
-            }
-
-        }
-
-    }
-
-    /* Draw the 30-second interval */
-    g.setColour(Colour(0,0,0));
-    g.setOpacity(0.8f);
-
-    if (intervalStartPosition < 0)
-        return;
-
-    g.fillRoundedRectangle(intervalStartPosition, 0, 2, this->getHeight(), 2);
-    g.fillRoundedRectangle(intervalStartPosition + intervalWidth, 0, 2, this->getHeight(), 2);
-
-    /* Draw the current playback position */
-    float timelinePos = (float)fileReader->getCurrentSample() / fileReader->getCurrentNumTotalSamples() * getWidth();
-
-    g.setOpacity(1.0f);
-    g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight(), 0.2);
-	
-}
-
-void FullTimeline::setIntervalPosition(int min, int max) 
-{
-
-    int totalSamples = fileReader->getCurrentNumTotalSamples();
-    float sampleRate = fileReader->getCurrentSampleRate();
-
-    float totalTimeInSeconds = float(totalSamples) / sampleRate; 
-
-    intervalStartPosition = min;
-    intervalWidth = 30.0f / totalTimeInSeconds * float(getWidth());
-}
-
-void FullTimeline::mouseDown(const MouseEvent& event) 
-{
-
-    if (event.x >= intervalStartPosition && event.x <= intervalStartPosition + intervalWidth) {
-        intervalIsSelected = true;
-    }
-}
-
-void FullTimeline::mouseDrag(const MouseEvent & event) 
-{
-
-    if (intervalIsSelected) {
-        if (event.x >= intervalWidth / 2 && event.x < getWidth() - intervalWidth / 2)
-            intervalStartPosition = event.x - intervalWidth / 2;
-    }
-
-    repaint();
-    static_cast<FileReaderEditor*>(fileReader->getEditor())->updateZoomTimeLabels();
-    fileReader->getEditor()->repaint();
-    
-}
-
-void FullTimeline::mouseUp(const MouseEvent& event) 
-{
-
-    intervalIsSelected = false;
-
-    static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
-    
-}
-
-int FullTimeline::getStartInterval() 
-{
-    return intervalStartPosition;
-}
-
-int FullTimeline::getIntervalWidth() 
-{
-    return intervalWidth;
-}
-
-ZoomTimeline::ZoomTimeline(FileReader* fr) 
-{
-    fileReader = fr; 
-    sliderWidth = 8;
-    widthInSeconds = 30;
-
-    startTimer(50);
-}
-
-ZoomTimeline::~ZoomTimeline() {}
-
-void ZoomTimeline::timerCallback()
-{
-    repaint();
-}
-
-void ZoomTimeline::updatePlaybackRegion(int min, int max) 
-{
-    /* Default zoom slider region to first 10s */
-    leftSliderPosition = 0;
-    rightSliderPosition = ( getWidth() - sliderWidth )  / 10.0f;
-}
-
-int ZoomTimeline::getStartInterval()
-{
-    return leftSliderPosition;
-}
-
-int ZoomTimeline::getIntervalDurationInSeconds()
-{
-    /* Get fraction of interval width and convert to nearest second */
-    return round ( float( rightSliderPosition + sliderWidth - leftSliderPosition) / getWidth() * widthInSeconds );
-
-}
-
-void ZoomTimeline::paint(Graphics& g) 
-{
-    int tickHeight = 4;
-    int borderThickness = 1;
-
-    g.setColour(Colours::black);
-
-    int numTicks = 7;
-
-    for (int i = 0; i < numTicks; i++) {
-
-        float dX = float(i) / numTicks * 420;
-
-        Path tick;
-        tick.startNewSubPath(dX,0);
-        tick.lineTo(dX, tickHeight);
-        g.strokePath(tick, PathStrokeType(1.0));
-    }
-
-    g.fillRect(0, tickHeight, this->getWidth(), this->getHeight()-tickHeight);
-	g.setColour(Colours::white);
-	g.fillRect(borderThickness, tickHeight + borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
-
-    /* Draw a colored vertical bar for each event */
-    Array<EventInfo> eventInfo = fileReader->getActiveEventInfo();
-    int64 totalSamples = fileReader->getCurrentNumTotalSamples();
-
-    int intervalStartPos = static_cast<FileReaderEditor*>(fileReader->getEditor())->getFullTimelineStartPosition();
-
-    int startTimestamp = int(float(intervalStartPos) / float(getWidth()) * float(totalSamples)); 
-    int stopTimestamp = startTimestamp + 30 * fileReader->getCurrentSampleRate();
-
-    for (auto info : eventInfo) 
-    {
-
-        for (int i = 0; i < info.timestamps.size(); i++) 
-        {
-            
-            int64 ts = info.timestamps[i];
-            int16 state = info.channelStates[i];
-
-            if (ts >= startTimestamp && ts <= stopTimestamp)
-            {
-                float timelinePos = (ts - startTimestamp) / float(stopTimestamp - startTimestamp) * getWidth();
-                g.setColour(static_cast<FileReaderEditor*>(fileReader->getEditor())->channelColours[info.channels[i]]);
-                g.setOpacity(1.0f);
-                g.fillRect(int(timelinePos), tickHeight, 1, this->getHeight() - tickHeight);
-            }
-
-        }
-
-    }
- 
-    g.setColour(Colour(0,0,0));
-    g.fillRoundedRectangle(leftSliderPosition, 0, sliderWidth, this->getHeight(), 2);
-    g.setColour(Colour(110, 110, 110));
-    g.setOpacity(0.8f);
-    g.fillRoundedRectangle(leftSliderPosition+1, 1, sliderWidth-2, this->getHeight()-2, 2);
-
-    g.setColour(Colour(0,0,0));
-    g.fillRoundedRectangle(rightSliderPosition, 0, sliderWidth, this->getHeight(), 2);
-    g.setColour(Colour(110, 110, 110));
-    g.setOpacity(0.8f);
-    g.fillRoundedRectangle(rightSliderPosition+1, 1, sliderWidth-2, this->getHeight()-2, 2);
-
-    g.setColour(Colour(110, 110, 110));
-    g.setOpacity(0.4f);
- 
-    g.fillRoundedRectangle(leftSliderPosition, 4, rightSliderPosition + sliderWidth - leftSliderPosition, this->getHeight(), 2);
-
-    g.setColour(Colour(50, 50, 50));
-    g.setFont(16);
-    g.drawText(
-        juce::String(getIntervalDurationInSeconds()),
-        ((leftSliderPosition + rightSliderPosition + sliderWidth) / 2) - 10,
-        0,
-        20,
-        this->getHeight() + tickHeight,
-        juce::Justification::centred);
-
-    /* Draw the current playback position */
-    float timelinePos = (float)(fileReader->getCurrentSample() - startTimestamp) / (stopTimestamp - startTimestamp) * getWidth();
-    //LOGD("Timeline pos: ", timelinePos, " current sample: ", fileReader->getCurrentSample(), " start timestamp: ", startTimestamp, " stop timestamp: ", stopTimestamp);
-    if (fileReader->playbackIsActive() || (!fileReader->playbackIsActive() && timelinePos < rightSliderPosition + sliderWidth))
-    {
-        g.setOpacity(1.0f);
-        g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight(), 0.2);
-    }
-
-
-}
-
-void ZoomTimeline::mouseDown(const MouseEvent& event)
-{
-    if (event.x > leftSliderPosition && event.x < leftSliderPosition + sliderWidth) {
-        leftSliderIsSelected = true;
-    } else if (event.x > rightSliderPosition && event.x < rightSliderPosition + sliderWidth) {
-        rightSliderIsSelected = true;
-    } else if (event.x > leftSliderPosition && event.x < rightSliderPosition) {
-        playbackRegionIsSelected = true;
-    }
-}
-
-void ZoomTimeline::mouseDrag(const MouseEvent & event) 
-{
-
-    float regionWidth = rightSliderPosition - leftSliderPosition;
-
-    if (leftSliderIsSelected) {
-
-        if (event.x > sliderWidth / 2 && event.x < rightSliderPosition - sliderWidth / 2)
-        {
-
-            leftSliderPosition = event.x - sliderWidth / 2;
-
-            if (rightSliderPosition < getWidth() - sliderWidth)
-
-                rightSliderPosition = leftSliderPosition + regionWidth;
-        }
-
-    } else if (rightSliderIsSelected) {
-
-        if (event.x > leftSliderPosition + 1.5*sliderWidth && event.x < getWidth() - sliderWidth / 2)
-            rightSliderPosition = event.x - sliderWidth / 2;
-
-    } else if (playbackRegionIsSelected) {
-    
-        if (leftSliderPosition >= 0 && rightSliderPosition <= getWidth() - sliderWidth) {
-
-            if (event.x >= regionWidth / 2 + sliderWidth && event.x <= getWidth() - regionWidth / 2) {
-
-                leftSliderPosition = event.x - regionWidth / 2 - sliderWidth;
-                rightSliderPosition = event.x + regionWidth / 2 - sliderWidth;
-
-            }
-            
-        }
-    }
-
-    lastDragXPosition = event.x;
-
-
-    // Prevent slider going out of timeline bounds
-    if (leftSliderPosition < 0)
-        leftSliderPosition = 0;
-
-    if (rightSliderPosition > getWidth() - sliderWidth)
-        rightSliderPosition = getWidth() - sliderWidth;
-
-    repaint();
-    
-}
-
-void ZoomTimeline::mouseUp(const MouseEvent& event) 
-{
-
-    leftSliderIsSelected = false;
-    rightSliderIsSelected = false;
-    playbackRegionIsSelected = false;
-
-    if (fileReader->playbackIsActive())
-    {
-        fileReader->switchBuffer();
-    }
-
-    static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes(); 
-    
-}
-
-PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback")
-{
-    fileReader = fr;
-    isActive = true;
-}
-
-PlaybackButton::~PlaybackButton() {}
-
-void PlaybackButton::setState(bool isActive)
-{
-
-    this->isActive = isActive;
-
-    if (!isActive) // Pressed play
-        static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
-    else if (!isActive && fileReader->playbackIsActive())
-        fileReader->stopAcquisition();
-}
-
-bool PlaybackButton::getState()
-{
-    return isActive;
-}
-
-void PlaybackButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown) 
-{
-
-    g.setColour(Colour(0,0,0));
-    g.fillRoundedRectangle(0,0,getWidth(),getHeight(),0.2*getWidth());
-
-	g.setColour(Colour(110,110,110));
-    g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
-
-    g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
-
-    int x = getScreenX(); 
-    int y = getScreenY(); 
-    int width = getWidth(); 
-    int height = getHeight(); 
-
-    if (isActive)
-    {
-        /* Draw pause button */
-        int padding = 0.3*width;
-        g.setColour(Colour(255,255,255)); 
-        g.fillRect(padding, padding, 0.2*width, height - 2*padding);
-        g.fillRect(width / 2 + 0.075*width, padding, 0.2*width, height - 2*padding);
-
-    } else {
-        
-        /* Draw playbutton */
-        int padding = 0.3*height;
-        g.setColour(Colour(255,255,255)); 
-        Path triangle; 
-        triangle.addTriangle(padding, padding, padding, height - padding, width - padding, height/2); 
-        g.fillPath(triangle);
-
-    }
-	
-}
 
 void ScrubDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
@@ -446,8 +49,10 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     , m_isFileDragAndDropActive (false)
     , scrubInterfaceVisible (false)
     , scrubInterfaceAvailable(false)
-    , scrubInterfaceWidth(420)
 {
+
+    scrubberInterface = new ScrubberInterface(fileReader);
+    scrubberInterface->setBounds(0, 0, 200, 200);
 
     scrubDrawerButton = new ScrubDrawerButton(getNameAndId() + " Scrub Drawer Button");
 	scrubDrawerButton->setBounds(4, 40, 10, 78);
@@ -455,45 +60,21 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
 	scrubDrawerButton->addListener(this);
 	addChildComponent(scrubDrawerButton);
 
-    zoomStartTimeLabel = new Label("ZoomStartTime", "00:00");
-    zoomStartTimeLabel->setBounds(10,30,40,10);
-    addChildComponent(zoomStartTimeLabel);
-
-    zoomMiddleTimeLabel = new Label("ZoomMidTime", "00:00");
-    zoomMiddleTimeLabel->setBounds(0.454*scrubInterfaceWidth,30,40,10);
-    addChildComponent(zoomMiddleTimeLabel);
-
-    zoomEndTimeLabel = new Label("ZoomEndTime", "00:00");
-    zoomEndTimeLabel->setBounds(0.88*scrubInterfaceWidth,30,40,10);
-    addChildComponent(zoomEndTimeLabel);
-
-    fullStartTimeLabel = new Label("FullStartTime", "00:00:00");
-    fullStartTimeLabel->setBounds(0,100,60,10);
-    addChildComponent(fullStartTimeLabel);
-
-    fullEndTimeLabel = new Label("FullEndTime", "00:00:00");
-    fullEndTimeLabel->setBounds(0.855*scrubInterfaceWidth,100,60,10);
-    addChildComponent(fullEndTimeLabel);
-
-    int padding = 30;
-    zoomTimeline = new ZoomTimeline(fileReader);
-    zoomTimeline->setBounds(padding, 46, scrubInterfaceWidth - 2*padding, 20);
-    zoomTimeline->updatePlaybackRegion(fileReader->getPlaybackStart(), fileReader->getPlaybackStop());
-    addChildComponent(zoomTimeline);
-
-    fullTimeline = new FullTimeline(fileReader);
-    fullTimeline->setBounds(padding, 76, scrubInterfaceWidth - 2*padding, 20);
-    addChildComponent(fullTimeline);
-
-    int buttonSize = 24;
-    playbackButton = new PlaybackButton(fileReader);
-    playbackButton->setState(true);
-    playbackButton->setBounds(scrubInterfaceWidth / 2 - buttonSize / 2, 103, buttonSize, buttonSize);
-    playbackButton->addListener(this);
-    addChildComponent(playbackButton);
-
     lastFilePath = CoreServices::getDefaultUserSaveDirectory();
 
+    addPathParameterEditor (Parameter::PROCESSOR_SCOPE, "selected_file", 10, 29);
+    addSelectedStreamParameterEditor (Parameter::PROCESSOR_SCOPE, "active_stream", 10, 54);
+    addTimeParameterEditor (Parameter::PROCESSOR_SCOPE, "start_time", 10, 79);
+    addTimeParameterEditor (Parameter::PROCESSOR_SCOPE, "end_time", 10, 104);
+
+    for (auto& p : {"selected_file", "active_stream", "start_time", "end_time"})
+    {
+        auto* ed = getParameterEditor(p);
+        if (ed != nullptr)
+            ed->setBounds(ed->getX(), ed->getY(), 3*ed->getWidth() / 2, ed->getHeight());
+    }
+
+    /*
     fileButton = new UtilityButton ("F:", Font ("Small Text", 13, Font::plain));
     fileButton->addListener (this);
     fileButton->setBounds (20, 27, 20, 20);
@@ -515,99 +96,14 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     timeLimits = new DualTimeComponent (this,true);
     timeLimits->setBounds (20, 105, 175, 20);
     addAndMakeVisible (timeLimits);
+    */
 
-    /* Event channel colors */
-    channelColours.add(Colour(224, 185, 36));
-    channelColours.add(Colour(214, 210, 182));
-    channelColours.add(Colour(243, 119, 33));
-    channelColours.add(Colour(186, 157, 168));
-    channelColours.add(Colour(237, 37, 36));
-    channelColours.add(Colour(179, 122, 79));
-    channelColours.add(Colour(217, 46, 171));
-    channelColours.add(Colour(217, 139, 196));
-    channelColours.add(Colour(101, 31, 255));
-    channelColours.add(Colour(141, 111, 181));
-    channelColours.add(Colour(48, 117, 255));
-    channelColours.add(Colour(184, 198, 224));
-    channelColours.add(Colour(116, 227, 156));
-    channelColours.add(Colour(150, 158, 155));
-    channelColours.add(Colour(82, 173, 0));
-    channelColours.add(Colour(125, 99, 32));
-
-    desiredWidth = 200;
+    desiredWidth = 240;
 
 }
 
 FileReaderEditor::~FileReaderEditor()
 {
-}
-
-int FileReaderEditor::getFullTimelineStartPosition() 
-{
-    return fullTimeline->getStartInterval();
-}
-
-int FileReaderEditor::getZoomTimelineStartPosition()
-{
-    return zoomTimeline->getStartInterval();
-}
-
-void FileReaderEditor::updateZoomTimeLabels()
-{
-
-    int startPos = fullTimeline->getStartInterval();
-
-    float frac = float(startPos) / float(fullTimeline->getWidth());
-
-    for (int i = 0; i < 3; i++) {
-
-        int ms = frac * timeLimits->getTimeMilliseconds(1) + i*15000;
-
-        int msFrac      = 0;
-        int secFrac     = 0;
-        int minFrac     = 0;
-        int hourFrac    = 0;
-
-        msFrac = ms % 1000;
-        ms /= 1000;
-        secFrac = ms % 60;
-        ms /= 60;
-        minFrac = ms % 60;
-        ms /= 60;
-        hourFrac = ms;
-
-        if (msFrac > 0.5)
-            secFrac += 1;
-        
-        String timeString;
-        
-        if (secFrac == 60)
-        {
-            secFrac = 0;
-            minFrac += 1;
-        }
-
-        if (minFrac == 60) 
-        {
-            minFrac = 0;
-            hourFrac += 1;
-        }
-
-        if (hourFrac > 0)
-            timeString += String(hourFrac).paddedLeft ('0', 2) + ":";
-
-        timeString += String (minFrac).paddedLeft ('0', 2) + ":" + String (secFrac).paddedLeft ('0', 2);
-
-        if (i == 0)
-            zoomStartTimeLabel->setText(timeString, juce::sendNotificationAsync);
-        else if (i == 1)
-            zoomMiddleTimeLabel->setText(timeString, juce::sendNotificationAsync);
-        else
-            zoomEndTimeLabel->setText(timeString, juce::sendNotificationAsync);
-
-
-    }
-
 }
 
 void FileReaderEditor::setFile (String file, bool shouldUpdateSignalChain)
@@ -675,14 +171,7 @@ void FileReaderEditor::paintOverChildren (Graphics& g)
         g.drawRect (getLocalBounds(), 2.f);
     }
 
-    if (scrubInterfaceVisible)
-    {
-        int leftRay = fullTimeline->getStartInterval();
-        int rightRay = leftRay + fullTimeline->getIntervalWidth();
-
-        g.drawLine(zoomTimeline->getX(), zoomTimeline->getY() + zoomTimeline->getHeight(), zoomTimeline->getX() + leftRay, fullTimeline->getY());
-        g.drawLine(zoomTimeline->getX()+zoomTimeline->getWidth(), zoomTimeline->getY() + zoomTimeline->getHeight(), zoomTimeline->getX() + rightRay, fullTimeline->getY());
-    }
+    scrubberInterface->paintOverChildren(g);
 
 }
 
@@ -719,33 +208,6 @@ void FileReaderEditor::buttonClicked (Button* button)
 
         showScrubInterface(!scrubInterfaceVisible);
 
-    } else if (button == playbackButton) {
-
-        playbackButton->setState(!playbackButton->getState());
-        updatePlaybackTimes();
-        fileReader->togglePlayback();
-
-    }
-
-}
-
-void FileReaderEditor::updatePlaybackTimes()
-{
-
-    //fileReader->switchBuffer();
-
-    int64 startTimestamp = float(getFullTimelineStartPosition()) / fullTimeline->getWidth() * fileReader->getCurrentNumTotalSamples();
-    startTimestamp += float(getZoomTimelineStartPosition()) / zoomTimeline->getWidth() * fileReader->getCurrentSampleRate() * 30.0f;
-    fileReader->setPlaybackStart(startTimestamp);
-
-    if (playbackButton->getState())
-    {
-        fileReader->setPlaybackStop(fileReader->getCurrentNumTotalSamples());
-    }
-    else
-    {
-        int64 stopTimestamp = startTimestamp + zoomTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
-        fileReader->setPlaybackStop(stopTimestamp);
     }
 
 }
@@ -754,19 +216,15 @@ void FileReaderEditor::collapsedStateChanged()
 {
     if (!getCollapsedState())
     {
-
-        fullTimeline->setVisible(scrubInterfaceVisible);
-        zoomTimeline->setVisible(scrubInterfaceVisible);
-        playbackButton->setVisible(scrubInterfaceVisible);
-        zoomStartTimeLabel->setVisible(scrubInterfaceVisible);
-        zoomMiddleTimeLabel->setVisible(scrubInterfaceVisible);
-        zoomEndTimeLabel->setVisible(scrubInterfaceVisible);
-        fullStartTimeLabel->setVisible(scrubInterfaceVisible);
-        fullEndTimeLabel->setVisible(scrubInterfaceVisible);
-
+        scrubberInterface->setVisible(scrubInterfaceAvailable);
         scrubDrawerButton->setVisible(scrubInterfaceAvailable);
     }
     
+}
+
+ScrubberInterface* FileReaderEditor::getScrubberInterface()
+{
+    return scrubberInterface;
 }
 
 void FileReaderEditor::showScrubInterface(bool show)
@@ -774,7 +232,7 @@ void FileReaderEditor::showScrubInterface(bool show)
 
     scrubInterfaceVisible = show;
 
-    int dX = scrubInterfaceWidth;
+    int dX = scrubberInterface->getWidth();
     dX = show ? dX : -dX;
     desiredWidth += dX;
 
@@ -810,6 +268,8 @@ void FileReaderEditor::showScrubInterface(bool show)
     );
 
     /* Show all scrubber interface components */
+    // TOFIX: Don't think this is needed anymore...
+    /*
     fullTimeline->setVisible(show);
     zoomTimeline->setVisible(show);
     playbackButton->setVisible(show);
@@ -818,6 +278,7 @@ void FileReaderEditor::showScrubInterface(bool show)
     zoomEndTimeLabel->setVisible(show);
     fullStartTimeLabel->setVisible(show);
     fullEndTimeLabel->setVisible(show);
+    */
 
     CoreServices::highlightEditor(this);
     deselect();
@@ -859,9 +320,13 @@ void FileReaderEditor::setTotalTime (unsigned int ms)
 void FileReaderEditor::updateScrubInterface(bool reset)
 {
 
+    /* TODO: Move this to ScrrubberInterface */
+
+    /*
     if (reset) {
 
-        /* Reset scrubbing interface to show first 30 seconds of recording */
+        // Reset scrubbing interface to show first 30 seconds of recording
+
         int ms = timeLimits->getTimeMilliseconds(1);
 
         int msFrac      = 0;
@@ -900,7 +365,7 @@ void FileReaderEditor::updateScrubInterface(bool reset)
 
         if (recTotalTime / 1000.0f > 30) {
 
-            /* Draws a 30 second interval on full timeline */
+            // Draws a 30 second interval on full timeline
             zoomMiddleTimeLabel->setText("00:15", juce::sendNotificationAsync);
             zoomEndTimeLabel->setText("00:30", juce::sendNotificationAsync);
 
@@ -920,18 +385,19 @@ void FileReaderEditor::updateScrubInterface(bool reset)
     {
         //TODO: Update interval selection interface
     }
-    
+    */
 
 }
 
 void FileReaderEditor::setRecording(int index)
 {
-    recordSelector->setSelectedItemIndex(index, sendNotification);
+    //recordSelector->setSelectedItemIndex(index, sendNotification);
 }
 
 void FileReaderEditor::timerCallback()
 {
-    setCurrentTime(fileReader->samplesToMilliseconds(fileReader->getCurrentSample()));
+    /* TOFIX */
+    //setCurrentTime(fileReader->samplesToMilliseconds(fileReader->getCurrentSample()));
 }
 
 void FileReaderEditor::setCurrentTime (unsigned int ms)
@@ -942,22 +408,20 @@ void FileReaderEditor::setCurrentTime (unsigned int ms)
 
 void FileReaderEditor::comboBoxChanged (ComboBox* combo)
 {
-    fileReader->setParameter (0, combo->getSelectedId() - 1);
+    //fileReader->setParameter (0, combo->getSelectedId() - 1);
     CoreServices::updateSignalChain (this);
 }
 
 void FileReaderEditor::populateRecordings (FileSource* source)
 {
-    recordSelector->clear (dontSendNotification);
 
-    const int numRecords = source->getNumRecords();
+    ComboBox* activeStreamEditor = (ComboBox*)getParameterEditor("active_stream")->getEditor();
 
-    for (int i = 0; i < numRecords; ++i)
-    {
-        recordSelector->addItem (source->getRecordName (i), i + 1);
-    }
+    activeStreamEditor->clear(dontSendNotification);
+    for (int i = 0; i < source->getNumRecords(); ++i)
+        activeStreamEditor->addItem (source->getRecordName (i), i + 1);
 
-    recordSelector->setSelectedId (1, dontSendNotification);
+    activeStreamEditor->setSelectedId (1, dontSendNotification);
 }
 
 void FileReaderEditor::clearEditor()
@@ -976,25 +440,30 @@ void FileReaderEditor::clearEditor()
 
 void FileReaderEditor::startAcquisition()
 {
-    recordSelector->setEnabled (false);
-    timeLimits->setEnable (false);
+    /* TOFIX */
+    //recordSelector->setEnabled (false);
+    //timeLimits->setEnable (false);
 }
 
 void FileReaderEditor::stopAcquisition()
 {
-    recordSelector->setEnabled (true);
-    timeLimits->setEnable (true);
+    /* TOFIX */
+    //recordSelector->setEnabled (true);
+    //timeLimits->setEnable (true);
 }
 
 void FileReaderEditor::saveCustomParametersToXml (XmlElement* xml)
 {
+    /* TOFIX
     XmlElement* childNode = xml->createNewChildElement ("TIME_LIMITS");
     childNode->setAttribute ("start_time",  (double)timeLimits->getTimeMilliseconds (0));
     childNode->setAttribute ("stop_time",   (double)timeLimits->getTimeMilliseconds (1));
+    */
 }
 
 void FileReaderEditor::loadCustomParametersFromXml (XmlElement* xml)
 {
+    /* TOFIX
     for (auto* element : xml->getChildIterator())
     {
         if (element->hasTagName ("TIME_LIMITS"))
@@ -1010,6 +479,7 @@ void FileReaderEditor::loadCustomParametersFromXml (XmlElement* xml)
             timeLimits->setTimeMilliseconds (1, time);
         }
     }
+    */
 }
 
 bool FileReaderEditor::isInterestedInFileDrag (const StringArray& files)

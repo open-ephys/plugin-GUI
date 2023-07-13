@@ -145,8 +145,6 @@ void GenericEditor::addSliderParameterEditor(Parameter::ParameterScope scope,
     int xPos_,
     int yPos_)
 {
-    
-    //std::cout << "CREATING EDITOR: " << parameterName << std::endl;
 
     Parameter* param;
 
@@ -181,8 +179,6 @@ void GenericEditor::addSelectedChannelsParameterEditor(Parameter::ParameterScope
     int xPos_,
     int yPos_)
 {
-
-    //std::cout << "CREATING EDITOR: " << parameterName << std::endl;
     
     Parameter* param;
 
@@ -199,8 +195,6 @@ void GenericEditor::addMaskChannelsParameterEditor(Parameter::ParameterScope sco
     int xPos_,
     int yPos_)
 {
-
-    //std::cout << "CREATING EDITOR: " << parameterName << std::endl;
     
     Parameter* param;
 
@@ -212,6 +206,47 @@ void GenericEditor::addMaskChannelsParameterEditor(Parameter::ParameterScope sco
     addCustomParameterEditor(new MaskChannelsParameterEditor(param), xPos_, yPos_);
 }
 
+void GenericEditor::addPathParameterEditor(Parameter::ParameterScope scope,
+    const String& parameterName,
+    int xPos_,
+    int yPos_)
+{
+
+    Parameter* param;
+
+    if(scope == Parameter::PROCESSOR_SCOPE)
+        param = getProcessor()->getParameter(parameterName);
+    else
+        param = getProcessor()->getStreamParameter(parameterName);
+
+    addCustomParameterEditor(new PathParameterEditor(param), xPos_, yPos_);
+}
+
+void GenericEditor::addSelectedStreamParameterEditor(Parameter::ParameterScope scope,
+    const String& parameterName,
+    int xPos_,
+    int yPos_)
+{
+
+    Parameter* param = getProcessor()->getParameter(parameterName);
+
+    addCustomParameterEditor(new SelectedStreamParameterEditor(param), xPos_, yPos_);
+}
+
+void GenericEditor::addTimeParameterEditor(Parameter::ParameterScope scope,
+    const String& parameterName,
+    int xPos_,
+    int yPos_)
+{
+    Parameter* param;
+
+    if(scope == Parameter::PROCESSOR_SCOPE)
+        param = getProcessor()->getParameter(parameterName);
+    else
+        param = getProcessor()->getStreamParameter(parameterName);
+
+    addCustomParameterEditor(new TimeParameterEditor(param), xPos_, yPos_);
+}
 
 void GenericEditor::addCustomParameterEditor(ParameterEditor* ed, int xPos_, int yPos_)
 {
