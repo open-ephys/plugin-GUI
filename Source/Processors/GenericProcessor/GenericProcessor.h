@@ -29,6 +29,7 @@
 #include "GenericProcessorBase.h"
 
 #include "../Parameter/Parameter.h"
+#include "../Parameter/ParameterOwner.h"
 #include "../../CoreServices.h"
 #include "../PluginManager/PluginClass.h"
 #include "../../Processors/Dsp/LinearSmoothedValueAtomic.h"
@@ -58,7 +59,7 @@ class GenericProcessorBase;
 class GenericEditor;
 
 class ConfigurationObject;
-class InfoObject;
+class ParameterOwner;
 class DeviceInfo;
 
 class Spike;
@@ -82,7 +83,7 @@ namespace AccessClass
 */
 class PLUGIN_API GenericProcessor   : public GenericProcessorBase
                                     , public PluginClass
-                                    , public InfoObject
+                                    , public ParameterOwner
 {
 	friend AccessClass::ExternalProcessorAccessor;
     friend class RecordEngine;
@@ -266,9 +267,9 @@ public:
     //     PARAMETERS
     // --------------------------------------------
 
-    using InfoObject::addParameter;
-    using InfoObject::getParameter;
-    using InfoObject::getParameters;
+    using ParameterOwner::addParameter;
+    using ParameterOwner::getParameter;
+    using ParameterOwner::getParameters;
 
     /** Adds a boolean parameter, which will later be accessed by name*/
     void addBooleanParameter(Parameter::ParameterScope scope,

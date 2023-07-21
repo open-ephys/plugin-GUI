@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 EventChannel::EventChannel(Settings settings) :
 	ChannelInfoObject(InfoObject::Type::EVENT_CHANNEL, settings.stream),
+	ParameterOwner(ParameterOwner::Type::EVENT_CHANNEL),
 	m_type(settings.type), 
 	m_maxTTLBits(settings.maxTTLBits),
 	m_TTLWord(0)

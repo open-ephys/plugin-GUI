@@ -249,7 +249,7 @@ void SpikeDetector::parameterValueChanged(Parameter* p)
 {
     if (p->getName().equalsIgnoreCase("name"))
     {
-        p->getOwner()->setName(p->getValueAsString());
+        ((SpikeChannel*)p->getOwner())->setName(p->getValueAsString());
 
         CoreServices::updateSignalChain(getEditor());
         

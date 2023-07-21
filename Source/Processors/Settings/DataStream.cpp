@@ -32,6 +32,7 @@ uint16 DataStream::nextId = 10000;
 
 DataStream::DataStream(DataStream::Settings settings) 
 	: InfoObject(InfoObject::Type::DATASTREAM_INFO),
+	ParameterOwner(ParameterOwner::Type::DATASTREAM),
 	m_sample_rate(settings.sample_rate),
 	device(nullptr)
 {

@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../PluginManager/OpenEphysPlugin.h"
 
 #include "InfoObject.h"
+#include "../Parameter/ParameterOwner.h"
 
 class GenericProcessor;
 class DeviceInfo;
@@ -67,7 +68,8 @@ class SpikeChannel;
 * 
 */
 class PLUGIN_API DataStream :
-	public InfoObject
+	public InfoObject,
+	public ParameterOwner
 {
 public:
 

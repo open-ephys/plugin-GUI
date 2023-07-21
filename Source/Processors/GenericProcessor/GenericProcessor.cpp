@@ -49,7 +49,7 @@ const String GenericProcessor::m_unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");
 
 GenericProcessor::GenericProcessor(const String& name, bool headlessMode_)
 	: GenericProcessorBase(name)
-    , InfoObject(InfoObject::Type::PROCESSOR_INFO)
+    , ParameterOwner(ParameterOwner::Type::OTHER)
     , headlessMode(headlessMode_)
 	, sourceNode(nullptr)
 	, destNode(nullptr)
@@ -176,7 +176,7 @@ void GenericProcessor::addBooleanParameter(
 {
 
 	BooleanParameter* p = new BooleanParameter(
-		this, 
+        scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
 		scope,
 		name, 
         displayName,
@@ -201,7 +201,7 @@ void GenericProcessor::addCategoricalParameter(
 {
 
 	CategoricalParameter* p = new CategoricalParameter(
-		this, 
+		scope == Parameter::PROCESSOR_SCOPE ? this : nullptr, 
 		scope,
 		name, 
         displayName,
@@ -228,7 +228,8 @@ void GenericProcessor::addIntParameter(
 {
 
 	IntParameter* p = 
-		new IntParameter(this, 
+		new IntParameter(
+            scope == Parameter::PROCESSOR_SCOPE ? this : nullptr, 
 			scope,
 			name, 
             displayName,
@@ -254,7 +255,8 @@ void GenericProcessor::addStringParameter(
     bool deactivateDuringAcquisition)
 {
     StringParameter* p =
-        new StringParameter(this,
+        new StringParameter(
+            scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
             scope,
             name,
             displayName,
@@ -282,7 +284,8 @@ void GenericProcessor::addFloatParameter(
 {
 
 	FloatParameter* p =
-		new FloatParameter(this,
+		new FloatParameter(
+            scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
 			scope,
 			name,
             displayName,
@@ -312,7 +315,8 @@ void GenericProcessor::addMaskChannelsParameter(
 	Array<var> defaultValue;
 
 	MaskChannelsParameter* p =
-		new MaskChannelsParameter(this,
+		new MaskChannelsParameter(
+            scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
 			scope,
 			name,
             displayName,
@@ -339,7 +343,8 @@ void GenericProcessor::addSelectedChannelsParameter(
     Array<var> defaultValue;
 
     SelectedChannelsParameter* p =
-        new SelectedChannelsParameter(this,
+        new SelectedChannelsParameter(
+            scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
             scope,
             name,
             displayName,
@@ -411,11 +416,6 @@ void GenericProcessor::setSourceNode(GenericProcessor* sn)
     else
     {
         sourceNode = sn;
-        if(sourceNode != nullptr)
-        {
-            setSourceNodeId(sourceNode->getNodeId());
-            setSourceNodeName(sourceNode->getName());
-        }
     }
 }
 
@@ -782,7 +782,6 @@ int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int conti
 void GenericProcessor::updateDisplayName(String name)
 {
 	m_name = name;
-    InfoObject::setName(name);
 }
 
 
@@ -920,15 +919,15 @@ void GenericProcessor::update()
                 {
                     SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
                     SelectedChannelsParameter* p2 = new SelectedChannelsParameter(*p);
-                    p2->setChannelCount(stream->getChannelCount());
                     stream->addParameter(p2);
+                    p2->setChannelCount(stream->getChannelCount());
                 }
                 else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
                 {
                     MaskChannelsParameter* p = (MaskChannelsParameter*)param;
                     MaskChannelsParameter* p2 = new MaskChannelsParameter(*p);
-                    p2->setChannelCount(stream->getChannelCount());
                     stream->addParameter(p2);
+                    p2->setChannelCount(stream->getChannelCount());
                 }
             }
         }
@@ -940,12 +939,13 @@ void GenericProcessor::update()
                 {
                     SelectedChannelsParameter* p = (SelectedChannelsParameter*) stream->getParameter(param->getName());
                     p->setChannelCount(stream->getChannelCount());
-                    //LOGD("GenericProcessor::update() Setting SelectedChannelsParameter channel count for ", stream->getStreamId(), " to ", stream->getChannelCount(), " channels");
+                    LOGD("GenericProcessor::update() Setting SelectedChannelsParameter channel count for ", stream->getStreamId(), " to ", stream->getChannelCount(), " channels");
 
                 } else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
                 {
                     MaskChannelsParameter* p = (MaskChannelsParameter*) stream->getParameter(param->getName());
                     p->setChannelCount(stream->getChannelCount());
+                    LOGD("GenericProcessor::update() Setting MaskChannelsParameter channel count for ", stream->getStreamId(), " to ", stream->getChannelCount(), " channels");
 
                 }
             }
@@ -960,9 +960,9 @@ void GenericProcessor::update()
 
             if (index > -1)
             {
-                //LOGD("GenericProcessor::update() Copying savedDataStreamParameters for ", stream->getStreamId());
+                LOGD("GenericProcessor::update() Copying savedDataStreamParameters for ", stream->getStreamId());
 
-                //std::cout << "COPYING STREAM PARAMETERS TO" << std::endl;
+                std::cout << "COPYING STREAM PARAMETERS TO" << std::endl;
                 savedDataStreamParameters[index]->copyParametersTo(stream);
                 savedDataStreamParameters.remove(index);
             }
@@ -1749,6 +1749,7 @@ void GenericProcessor::loadFromXml()
                                     SelectedChannelsParameter* p = (SelectedChannelsParameter*)parameter;
                                     
                                     SelectedChannelsParameter* p2 = new SelectedChannelsParameter(*p);
+                                    p2->setChannelCount(parameterCollection->owner.channel_count);
                                     p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }
@@ -1756,6 +1757,7 @@ void GenericProcessor::loadFromXml()
                                 {
                                     MaskChannelsParameter* p = (MaskChannelsParameter*)parameter;
                                     MaskChannelsParameter* p2 = new MaskChannelsParameter(*p);
+                                    p2->setChannelCount(parameterCollection->owner.channel_count);
                                     p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }

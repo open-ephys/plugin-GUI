@@ -53,37 +53,47 @@ String Parameter::getParameterTypeString() const
 
 uint16 Parameter::getStreamId()
 {
-    if (infoObject->getType() == InfoObject::DATASTREAM_INFO)
-        return ((DataStream*)infoObject)->getStreamId();
+    if (parameterOwner->getType() == ParameterOwner::DATASTREAM)
+        return ((DataStream*)parameterOwner)->getStreamId();
     
-    if (infoObject->getType() == InfoObject::SPIKE_CHANNEL)
-        return ((SpikeChannel*)infoObject)->getStreamId();
+    if (parameterOwner->getType() == ParameterOwner::SPIKE_CHANNEL)
+        return ((SpikeChannel*)parameterOwner)->getStreamId();
     
-    if (infoObject->getType() == InfoObject::CONTINUOUS_CHANNEL)
-        return ((ContinuousChannel*)infoObject)->getStreamId();
+    if (parameterOwner->getType() == ParameterOwner::CONTINUOUS_CHANNEL)
+        return ((ContinuousChannel*)parameterOwner)->getStreamId();
         
-    if (infoObject->getType() == InfoObject::DATASTREAM_INFO)
-        return ((EventChannel*)infoObject)->getStreamId();
+    if (parameterOwner->getType() == ParameterOwner::EVENT_CHANNEL)
+        return ((EventChannel*)parameterOwner)->getStreamId();
     
     return 0;
         
 }
 
-void Parameter::setOwner(InfoObject* infoObject_)
+void Parameter::setOwner(ParameterOwner* parameterOwner_)
 {
-    infoObject = infoObject_;
+    parameterOwner = parameterOwner_;
 
-    if (infoObject == nullptr) return;
+    if (parameterOwner == nullptr) return;
 
     String key;
     if (getScope() == ParameterScope::GLOBAL_SCOPE)
+    {
         key = getName(); // name should already be unique
+    }
     else if (getScope() == ParameterScope::STREAM_SCOPE)
-        key = String(infoObject->getNodeId()) + "_" + infoObject->getName() + "_" + this->getName();
+    {
+        auto stream = (DataStream*)parameterOwner;
+        key = String(stream->getNodeId()) + "_" + stream->getName() + "_" + this->getName();
+    }
     else if (getScope() == ParameterScope::PROCESSOR_SCOPE)
-        key = String(infoObject->getNodeId()) + "_" + this->getName();
+    {
+        auto processor = (GenericProcessor*)parameterOwner;
+        key = String(processor->getNodeId()) + "_" + this->getName();
+    }
     else if (getScope() == ParameterScope::SPIKE_CHANNEL_SCOPE)
+    {
         key = "TODO"; //Currently handled by spike processors
+    }
 
     this->setKey(key.toStdString());
 
@@ -148,14 +158,14 @@ bool Parameter::ChangeValue::undo()
     return true;
 }
 
-BooleanParameter::BooleanParameter(InfoObject* infoObject,
+BooleanParameter::BooleanParameter(ParameterOwner* owner,
     ParameterScope scope,
     const String& name,
     const String& displayName,
     const String& description,
     bool defaultValue,
     bool deactivateDuringAcquisition)
-    : Parameter(infoObject,
+    : Parameter(owner,
                 ParameterType::BOOLEAN_PARAM,
                 scope,
                 name,
@@ -209,7 +219,7 @@ void BooleanParameter::fromXml(XmlElement* xml)
     currentValue = xml->getBoolAttribute(getName(), defaultValue);
 }
 
-CategoricalParameter::CategoricalParameter(InfoObject* infoObject,
+CategoricalParameter::CategoricalParameter(ParameterOwner* owner,
     ParameterScope scope,
     const String& name,
     const String& displayName,
@@ -217,7 +227,7 @@ CategoricalParameter::CategoricalParameter(InfoObject* infoObject,
     Array<String> categories_,
     int defaultIndex,
     bool deactivateDuringAcquisition)
-    : Parameter(infoObject,
+    : Parameter(owner,
         ParameterType::CATEGORICAL_PARAM,
         scope,
         name,
@@ -278,7 +288,7 @@ void CategoricalParameter::fromXml(XmlElement* xml)
     currentValue = xml->getIntAttribute(getName(), defaultValue);
 }
 
-IntParameter::IntParameter(InfoObject* infoObject,
+IntParameter::IntParameter(ParameterOwner* owner,
     ParameterScope scope,
     const String& name,
     const String& displayName,
@@ -287,7 +297,7 @@ IntParameter::IntParameter(InfoObject* infoObject,
     int minValue_,
     int maxValue_,
     bool deactivateDuringAcquisition)
-    : Parameter(infoObject,
+    : Parameter(owner,
         ParameterType::INT_PARAM,
         scope,
         name,
@@ -341,14 +351,14 @@ void IntParameter::fromXml(XmlElement* xml)
     currentValue = xml->getIntAttribute(getName(), defaultValue);
 }
 
-StringParameter::StringParameter(InfoObject* infoObject,
+StringParameter::StringParameter(ParameterOwner* owner,
     ParameterScope scope,
     const String& name,
     const String& displayName,
     const String& description,
     String defaultValue_,
     bool deactivateDuringAcquisition)
-    : Parameter(infoObject,
+    : Parameter(owner,
         ParameterType::INT_PARAM,
         scope,
         name,
@@ -394,7 +404,7 @@ void StringParameter::fromXml(XmlElement* xml)
 }
 
 
-FloatParameter::FloatParameter(InfoObject* infoObject,
+FloatParameter::FloatParameter(ParameterOwner* owner,
     ParameterScope scope,
     const String& name,
     const String& displayName,
@@ -405,7 +415,7 @@ FloatParameter::FloatParameter(InfoObject* infoObject,
     float maxValue_,
     float stepSize_,
     bool deactivateDuringAcquisition)
-    : Parameter(infoObject,
+    : Parameter(owner,
         ParameterType::FLOAT_PARAM,
         scope,
         name,
@@ -469,7 +479,7 @@ void FloatParameter::fromXml(XmlElement* xml)
     currentValue = xml->getDoubleAttribute(getName(), defaultValue);
 }
 
-SelectedChannelsParameter::SelectedChannelsParameter(InfoObject* infoObject_,
+SelectedChannelsParameter::SelectedChannelsParameter(ParameterOwner* owner,
     ParameterScope scope,
     const String& name,
     const String& displayName,
@@ -477,7 +487,7 @@ SelectedChannelsParameter::SelectedChannelsParameter(InfoObject* infoObject_,
     Array<var> defaultValue_,
     int maxSelectableChannels_,
     bool deactivateDuringAcquisition)
-    : Parameter(infoObject_,
+    : Parameter(owner,
         ParameterType::SELECTED_CHANNELS_PARAM,
         scope,
         name,
@@ -589,16 +599,16 @@ void SelectedChannelsParameter::setChannelCount(int count)
 {
     channelCount = count;
     
-   // std::cout << "Setting selected channels channels count to " << count << " at " << this << std::endl;
+   LOGD("************************ Setting selected channels count to ", count, " at ", getName());
 }
 
-MaskChannelsParameter::MaskChannelsParameter(InfoObject* infoObject_,
+MaskChannelsParameter::MaskChannelsParameter(ParameterOwner* owner,
     ParameterScope scope,
     const String& name,
     const String& displayName,
     const String& description,
     bool deactivateDuringAcquisition)
-    : Parameter(infoObject_,
+    : Parameter(owner,
         ParameterType::MASK_CHANNELS_PARAM,
         scope,
         name,
@@ -723,24 +733,34 @@ Array<var> MaskChannelsParameter::parseMaskString(const String& input)
 void MaskChannelsParameter::setChannelCount(int count)
 {
     
-    Array<var>* value = currentValue.getArray();
+    Array<var> values;
     
     if (channelCount < count)
     {
-         for (int i = 0; i < count; i++)
-         {
-             value->add(i);
-         }
+        for (int i = 0; i < channelCount; i++)
+        {
+            if (currentValue.getArray()->contains(i))
+                values.add(i);
+        }
+        for (int i = channelCount; i < count; i++)
+        {
+            values.add(i);
+        }
     }
     else if (channelCount > count)
     {
-        for (int i = count; i < channelCount; i++)
+        for (int i = 0; i < count; i++)
         {
-            value->remove(value->indexOf(var(i)));
+            if (currentValue.getArray()->contains(i))
+                values.add(i);
         }
             
     }
+    else
+    {
+        return;
+    }
     
+    currentValue = values;
     channelCount = count;
-    
 }

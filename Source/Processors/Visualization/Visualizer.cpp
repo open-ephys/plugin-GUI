@@ -24,7 +24,7 @@
 #include "Visualizer.h"
 
 Visualizer::Visualizer(GenericProcessor* parentProcessor)
-    : InfoObject(InfoObject::Type::VISUALIZER)
+    : ParameterOwner(ParameterOwner::Type::OTHER)
     , processor(parentProcessor)
 {
 

@@ -96,7 +96,7 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPi
         valueTextBox = std::make_unique<Label>("Parameter value", param->getValue().toString());
 
     valueTextBox->setFont(Font("CP Mono", "Plain", int(0.75*rowHeightPixels)));
-    valueTextBox->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
+    valueTextBox->setName(param->getKey());
     valueTextBox->setColour(Label::textColourId, Colours::black);
     valueTextBox->setColour(Label::backgroundColourId, Colours::lightgrey);
     valueTextBox->setJustificationType(Justification::centred);
@@ -184,7 +184,7 @@ ToggleParameterEditor::ToggleParameterEditor(Parameter* param, int rowHeightPixe
     addAndMakeVisible(label.get());
 
     toggleButton = std::make_unique<CustomToggleButton>();
-    toggleButton->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
+    toggleButton->setName(param->getKey());
     toggleButton->setToggleState(bool(param->getValue()), dontSendNotification);
     toggleButton->addListener(this);
     toggleButton->setTooltip(param->getDescription());
@@ -232,7 +232,7 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param, int rowHeight
     addAndMakeVisible(label.get());
 
     valueComboBox = std::make_unique<ComboBox>();
-    valueComboBox->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
+    valueComboBox->setName(param->getKey());
     valueComboBox->setJustificationType(Justification::centred);
     valueComboBox->addListener(this);
     valueComboBox->setTooltip(param->getDescription());
@@ -481,7 +481,7 @@ SliderParameterEditor::SliderParameterEditor(Parameter* param, int rowHeightPixe
     addAndMakeVisible(label.get());
 
     slider = std::make_unique<CustomSlider>();
-    slider->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
+    slider->setName(param->getKey());
     slider->addListener(this);
     slider->setTooltip(param->getDescription());
     
@@ -626,7 +626,7 @@ BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int r
         IntParameter* p = (IntParameter*)param;
         valueEditor = std::make_unique<BoundedValueEditor>(p->getMinValue(), p->getMaxValue(), 1);
     }
-    valueEditor->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
+    valueEditor->setName(param->getKey());
     valueEditor->setFont(Font("Fira Sans", "Regular", int(0.75*rowHeightPixels)));
     valueEditor->setJustificationType(Justification::centred);
     valueEditor->addListener(this);
@@ -703,7 +703,7 @@ SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* para
     int numChannels = ((SelectedChannelsParameter*)param)->getChannelStates().size();
 
     button = std::make_unique<TextButton>(String(selectedChannels) + "/" + String(numChannels));
-    button->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
+    button->setName(param->getKey());
     button->addListener(this);
     button->setClickingTogglesState(false);
     button->setTooltip(param->getDescription());
@@ -780,9 +780,13 @@ MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param, int r
 {
 
     int numChannels = ((MaskChannelsParameter*)param)->getChannelStates().size();
+    int selected = 0;
+    for (auto chan : ((MaskChannelsParameter*)param)->getChannelStates())
+        if (chan)
+            selected++;
 
-    button = std::make_unique<TextButton>(String(numChannels) + "/" + String(numChannels));
-    button->setName(param->getOwner()->getName() + " (" + String(param->getOwner()->getNodeId()) + ") - " + param->getName());
+    button = std::make_unique<TextButton>(String(selected) + "/" + String(numChannels));
+    button->setName(param->getKey());
     button->addListener(this);
     button->setClickingTogglesState(false);
     button->setTooltip("Mask channels to filter within this stream");

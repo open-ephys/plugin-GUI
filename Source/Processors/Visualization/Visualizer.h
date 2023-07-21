@@ -30,7 +30,7 @@
 #include "../Editors/GenericEditor.h"
 #include "../Parameter/Parameter.h"
 #include "../Parameter/ParameterEditor.h"
-#include "../Settings/InfoObject.h"
+#include "../Parameter/ParameterOwner.h"
 
 /**
 
@@ -45,7 +45,7 @@
 
 class PLUGIN_API Visualizer : public Component,
                               public Timer,
-                              public InfoObject
+                              public ParameterOwner
 
 {
 public:
@@ -120,12 +120,6 @@ public:
 
     /** Returns the parameter editor for a given parameter name*/
     ParameterEditor* getParameterEditor(const String& parameterName);
-
-    /** Returns a pointer to a global Parameter*/
-    Parameter* getParameter(const String& parameterName);
-
-    /** Returns a list of global parameters for this processor*/
-    Array<Parameter*> getParameters();
 
     /** Initiates parameter value update */
     void parameterChangeRequest(Parameter*);

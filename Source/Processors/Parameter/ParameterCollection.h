@@ -26,7 +26,7 @@
 #include <JuceHeader.h>
 #include "../PluginManager/OpenEphysPlugin.h"
 
-class InfoObject;
+class ParameterOwner;
 
 class Parameter;
 
@@ -44,7 +44,7 @@ public:
     ParameterCollection() { }
     
     /** Initializes parameters from an InfoObject */
-    ParameterCollection(InfoObject* object);
+    ParameterCollection(ParameterOwner* pOwner);
     
     /** Destructor */
     virtual ~ParameterCollection();
@@ -59,13 +59,13 @@ public:
     Array<String> getParameterNames() const;
 
     /** Copies parameter values to an InfoObject with existing Parameters */
-    void copyParameterValuesTo(InfoObject* object);
+    void copyParameterValuesTo(ParameterOwner* pOwner);
     
     /** Copies parameters to an InfoObject */
-    void copyParametersTo(InfoObject* object);
+    void copyParametersTo(ParameterOwner* pOwner);
     
     /** Copies parameters from an InfoObject */
-    void copyParametersFrom(InfoObject* object);
+    void copyParametersFrom(ParameterOwner* pOwner);
     
     /** Overload indexing operator */
     Parameter* operator [](String name) const {return parameterMap.at(name) ;}

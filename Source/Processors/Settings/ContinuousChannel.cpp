@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ContinuousChannel::ContinuousChannel(ContinuousChannel::Settings settings) :
 	ChannelInfoObject(InfoObject::Type::CONTINUOUS_CHANNEL, settings.stream),
+	ParameterOwner(ParameterOwner::Type::CONTINUOUS_CHANNEL),
 	m_type(settings.type)
 {
 	setName(settings.name);

@@ -38,7 +38,7 @@
     @see GenericProcessor, GenericEditor
 */
 
-class InfoObject;
+class ParameterOwner;
 class SpikeChannel;
 class ContinuousChannel;
 class EventChannel;
@@ -106,7 +106,7 @@ public:
     };
 
     /** Parameter constructor.*/
-    Parameter(InfoObject* infoObject_,
+    Parameter(ParameterOwner* owner,
         ParameterType type_,
         ParameterScope scope_,
         const String& name_,
@@ -114,7 +114,7 @@ public:
         const String& description_,
         var defaultValue_,
         bool deactivateDuringAcquisition_ = false)
-        : infoObject(infoObject_),
+        : parameterOwner(owner),
         // dataStream(nullptr),
         // spikeChannel(nullptr),
         // eventChannel(nullptr),
@@ -144,7 +144,6 @@ public:
         previousValue(other.previousValue),
         m_deactivateDuringAcquisition(other.m_deactivateDuringAcquisition)
     {
-        setOwner(other.infoObject);
         parameterListeners.clear();
     }
 
@@ -272,11 +271,11 @@ public:
         currentValue = previousValue;
     }
     
-    /** Returns a pointer to the InfoObject this parameter is associated with**/
-    InfoObject* getOwner() { return infoObject; }
+    /** Returns a pointer to the ParameterOwner this parameter is associated with**/
+    ParameterOwner* getOwner() { return parameterOwner; }
 
-    /** Sets a pointer to the InfoObject this parameter is associated with**/
-    void setOwner(InfoObject* newOwner);
+    /** Sets a pointer to the ParameterOwner this parameter is associated with**/
+    void setOwner(ParameterOwner* newOwner);
 
     /** Parameter listener class -- used for Parameter Editors */
     class Listener
@@ -329,7 +328,7 @@ public:
     
 protected:
 
-    InfoObject* infoObject;
+    ParameterOwner* parameterOwner;
     
     // DataStream* dataStream;
     // SpikeChannel* spikeChannel;
@@ -367,7 +366,7 @@ class PLUGIN_API BooleanParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    BooleanParameter(InfoObject* infoObject,
+    BooleanParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
         const String& displayName,
@@ -402,7 +401,7 @@ class PLUGIN_API CategoricalParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    CategoricalParameter(InfoObject* infoObject,
+    CategoricalParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
         const String& displayName,
@@ -451,7 +450,7 @@ class PLUGIN_API IntParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    IntParameter(InfoObject* infoObject,
+    IntParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
         const String& displayName,
@@ -494,7 +493,7 @@ class PLUGIN_API StringParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    StringParameter(InfoObject* infoObject,
+    StringParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
         const String& displayName,
@@ -528,7 +527,7 @@ class PLUGIN_API FloatParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    FloatParameter(InfoObject* infoObject,
+    FloatParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
         const String& displayName,
@@ -592,7 +591,7 @@ class PLUGIN_API SelectedChannelsParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    SelectedChannelsParameter(InfoObject* infoObject,
+    SelectedChannelsParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
         const String& displayName,
@@ -655,7 +654,7 @@ class PLUGIN_API MaskChannelsParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    MaskChannelsParameter(InfoObject* infoObject,
+    MaskChannelsParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
         const String& displayName,
