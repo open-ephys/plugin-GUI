@@ -53,7 +53,7 @@ AudioProcessorEditor* LfpDisplayNode::createEditor()
 
 void LfpDisplayNode::initialize(bool signalChainIsLoading)
 {
-    if (!signalChainIsLoading)
+    if (!signalChainIsLoading && !headlessMode)
     {
         LfpDisplayEditor* editor = (LfpDisplayEditor*)getEditor();
         editor->initialize(signalChainIsLoading);
@@ -165,8 +165,10 @@ Array<DisplayBuffer*> LfpDisplayNode::getDisplayBuffers()
 bool LfpDisplayNode::startAcquisition()
 {
 
-    LfpDisplayEditor* editor = (LfpDisplayEditor*)getEditor();
-    editor->enable();
+    if (!headlessMode) {
+        LfpDisplayEditor* editor = (LfpDisplayEditor*)getEditor();
+        editor->enable();
+    }
 
     return true;
 
@@ -176,8 +178,10 @@ bool LfpDisplayNode::startAcquisition()
 bool LfpDisplayNode::stopAcquisition()
 {
 
-    LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
-    editor->disable();
+    if(!headlessMode) {
+        LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
+        editor->disable();
+    }
 
     for (auto buffer : displayBuffers)
         buffer->ttlState = 0;

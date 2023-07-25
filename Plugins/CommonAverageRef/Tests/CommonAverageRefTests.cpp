@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <stdio.h>
 
 #include "gtest/gtest.h"
@@ -7,27 +9,24 @@
 #include <ModelProcessors.h>
 #include <ModelApplication.h>
 #include <TestFixtures.h>
-
-class CommonAverageRefTests : public ProcessorTest {
+class CommonAverageRefTests : public ::testing::Test  {
 protected:
-    CommonAverageRefTests() : ProcessorTest() {
-        uut = std::make_unique<CommonAverageRef>();
-    }
-
-    ~CommonAverageRefTests() override {
-    }
-
     void SetUp() override {
-        ProcessorTest::SetUp();
-        uut->setSourceNode(sn.get());
+        num_channels = 2;
+        tester = std::make_unique<ProcessorTester>(TestSourceNodeBuilder
+                                                   (FakeSourceNodeParams{
+            num_channels,
+            sample_rate_,
+            1.0,
+        }));
+        processor = tester->Create<CommonAverageRef>(Plugin::Processor::FILTER);
+        ASSERT_EQ(processor->getNumDataStreams(), 1);
+        stream_id = processor->getDataStreams()[0]->getStreamId();
     }
 
     void TearDown() override {
-        ProcessorTest::TearDown();
 
     }
-
-    std::unique_ptr<CommonAverageRef> uut;
 
      /** Buffer for the input signal */
     std::unique_ptr<AudioBuffer<float>> signal;
@@ -47,7 +46,7 @@ protected:
     /** Checks that all samples in a channel are equal (almost equal) to zero */
      bool checkSamplesZero(int chan)
      {
-         for (auto stream : uut->getDataStreams())
+         for (auto stream : processor->getDataStreams())
          {
              for (int j = 0; j < signal -> getNumSamples(); j++)
              {
@@ -59,26 +58,46 @@ protected:
         
          return true;
      }
+    
+    Array<float> generateSineWave(float frequency, float amplitude, int numSamples, float sampleRate)
+       {
+           
+           Array<float> signal;
+           signal.resize(numSamples);
 
+           LOGD("Sample rate: ", sampleRate, ", Num Samples: ", numSamples);
+
+           const float angularFreq = 2.0 * M_PI * frequency;
+           for (int i = 0; i < numSamples; i++)
+           {
+               const float t = i / sampleRate;
+               const float value = std::sin(angularFreq * t);
+               signal.set(i, amplitude * value);
+           }
+
+           return signal;
+       }
+    
+    CommonAverageRef *processor;
+    int num_channels;
+    uint16 stream_id;
+    std::unique_ptr<ProcessorTester> tester;
+    float sample_rate_ = 30000.0;
 };
 
 TEST_F(CommonAverageRefTests, ContructorTest) {
-    ASSERT_EQ(uut -> getDisplayName(), "Common Avg Ref");
+    ASSERT_EQ(processor -> getDisplayName(), "Common Avg Ref");
 }
 
 TEST_F(CommonAverageRefTests, CommonAverageTest) {
 
-    clearInputStreams();
-
     const float sampleRate = 30000;
     const int bufferSize = 50;
 
-    // create and add an input stream with 2 channels
-    addInputStream(2, sampleRate);
-    uut->update();
+    processor->update();
 
     // Set 1st channel as reference and second as affected in every stream
-    for (auto stream : uut->getDataStreams())
+    for (auto stream : processor->getDataStreams())
     {
         auto referenceChans = (SelectedChannelsParameter *)stream->getParameter("Reference");
         referenceChans->currentValue = Array<var>({0});
@@ -92,7 +111,7 @@ TEST_F(CommonAverageRefTests, CommonAverageTest) {
     
     signal = std::make_unique<AudioBuffer<float>>(2, bufferSize);
     
-    for (auto stream: uut->getDataStreams())
+    for (auto stream: processor->getDataStreams())
     {
         // Add positive sine wave data to first channel in each dataStream
         signal->copyFrom(0, 0, posSine.data(), bufferSize, 0.0f);
@@ -100,12 +119,12 @@ TEST_F(CommonAverageRefTests, CommonAverageTest) {
         // Add negative sine wave data to second channel in each dataStream
         signal->copyFrom(1, 0, negSine.data(), bufferSize, 0.0f);
     
-        AccessClass::ExternalProcessorAccessor::injectNumSamples(uut.get(),
+        AccessClass::ExternalProcessorAccessor::injectNumSamples(processor,
                     stream->getStreamId(),
                     bufferSize);
     }
 
-    uut->process(*(signal.get()));
+    processor->process(*(signal.get()));
 
     // check that signal is common average referenced
     ASSERT_TRUE(checkSamplesZero(1));

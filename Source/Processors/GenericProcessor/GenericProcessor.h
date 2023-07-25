@@ -561,6 +561,10 @@ protected:
     /** Sends a TEXT event to all other processors, via the MessageCenter, while acquisition is active.
         If recording is active, this message will be recorded */
     void broadcastMessage(String msg);
+    
+    /** Sends a message String to another processor node in the ProcessorGraph while acqusition
+        not active */
+    void sendConfigMessage(GenericProcessor* destination, String message);
 
     /** Add a Spike event to the outgoing buffer */
     void addSpike(const Spike* event);
@@ -645,6 +649,7 @@ protected:
     
 private:
 
+    
     /** Clears the settings arrays.*/
     void clearSettings();
 

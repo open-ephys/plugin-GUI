@@ -25,6 +25,7 @@
 #define __CUSTOMLOOKANDFEEL_H_6B021009__
 
 #include <JuceHeader.h>
+#include "../../TestableExport.h"
 
 namespace ProcessorColor {
     enum IDs
@@ -69,7 +70,7 @@ enum ColorTheme
 
 */
 
-class CustomLookAndFeel : public LookAndFeel_V2
+class TESTABLE CustomLookAndFeel : public LookAndFeel_V2
 {
 public:
 

@@ -298,6 +298,11 @@ void SourceNode::broadcastDataThreadMessage(String msg)
     broadcastMessage(msg);
 }
 
+void SourceNode::sendDataThreadConfigMessage(GenericProcessor* destProcessor, String msg) {
+    sendConfigMessage(destProcessor, msg);
+}
+
+
 void SourceNode::process(AudioBuffer<float>& buffer)
 {
 	int copiedChannels = 0;

@@ -24,6 +24,7 @@
 #include "GenericProcessor.h"
 
 #include "../../AccessClass.h"
+#include "../../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../../Utils/Utils.h"
 #include "../Editors/GenericEditor.h"
 
@@ -1196,9 +1197,11 @@ int GenericProcessor::processEventBuffer()
                 uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
                 uint8 eventBit = *reinterpret_cast<const uint8*>(dataptr + 24);
                 bool eventState = *reinterpret_cast<const bool*>(dataptr + 25);
-                
-                getEditor()->setTTLState(sourceStreamId, eventBit, eventState);
-                
+
+                if (!headlessMode) {
+                    getEditor()->setTTLState(sourceStreamId, eventBit, eventState);
+                }
+
             } else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT
             && static_cast<EventChannel::Type>(*(dataptr + 1) == EventChannel::Type::TEXT))
             {
@@ -1371,6 +1374,11 @@ void GenericProcessor::broadcastMessage(String msg)
 {
 	AccessClass::getMessageCenter()->broadcastMessage(msg);
 }
+
+void GenericProcessor::sendConfigMessage(GenericProcessor* destination, String message) {
+    AccessClass::getProcessorGraph()->sendConfigMessage(destination, message);
+}
+
 
 void GenericProcessor::addSpike(const Spike* spike)
 {
@@ -1803,9 +1811,11 @@ void GenericProcessor::loadFromXml()
                     {
                         if (param->getName() == "enable_stream" && isFilter())
                         {
-                            getEditor()->streamEnabledStateChanged(stream->getStreamId(),
-                                (bool)param->getValue(),
-                                true);
+                            if(!headlessMode) {
+                                getEditor()->streamEnabledStateChanged(stream->getStreamId(),
+                                                                       (bool)param->getValue(),
+                                                                       true);
+                            }
                         }
                             
                     }

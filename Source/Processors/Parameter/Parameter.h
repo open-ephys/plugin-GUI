@@ -25,6 +25,7 @@
 
 #include <JuceHeader.h>
 #include "../PluginManager/OpenEphysPlugin.h"
+#include "../../TestableExport.h"
 
 /**
     Class for holding user-definable processor parameters.

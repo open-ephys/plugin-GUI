@@ -75,7 +75,7 @@ endif()
 if(BUILD_TESTS)
 	add_dependencies(${PLUGIN_NAME}_tests ${PLUGIN_NAME} gui_testable_source test_helpers)
 	target_link_libraries(${PLUGIN_NAME}_tests PRIVATE ${PLUGIN_NAME} gtest_main test_helpers PUBLIC gui_testable_source)
-	target_include_directories(${PLUGIN_NAME}_tests PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules ${PLUGIN_HEADER_PATH} ${TEST_HELPERS_DIRECTORY}/include)
+	target_include_directories(${PLUGIN_NAME}_tests PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules ${PLUGIN_HEADER_PATH} ${TEST_HELPERS_DIRECTORY}/include ${GUI_BASE_DIR}/Source)
 	add_test(NAME ${PLUGIN_NAME}_tests  COMMAND ${PLUGIN_NAME}_tests)
 
 	get_target_property(PLUGIN_BASES gui_testable_source SOURCES)

@@ -99,7 +99,7 @@ public:
     StringArray (const wchar_t* const* strings, int numberOfStrings);
 
     /** Destructor. */
-    ~StringArray() = default;
+    ~StringArray();
 
     /** Copies the contents of another string array into this one */
     StringArray& operator= (const StringArray&);
