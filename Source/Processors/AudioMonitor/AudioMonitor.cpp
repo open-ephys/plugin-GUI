@@ -89,7 +89,7 @@ void AudioMonitor::updateSettings()
     for (auto stream : dataStreams)
     {
 
-        Array<var>* activeChannels = stream->getParameter("Channels")->getValue().getArray();
+        Array<var>* activeChannels = stream->getParameter("channels")->getValue().getArray();
         
         if (activeChannels->size() > 0)
         {
@@ -176,7 +176,7 @@ void AudioMonitor::parameterValueChanged(Parameter* param)
     
     LOGD("Audio Monitor: Value changed for ", param->getName(), ": ", (int)param->getValue());
 
-    if (param->getName().equalsIgnoreCase("Channels"))
+    if (param->getName().equalsIgnoreCase("channels"))
     {
         
         selectedStream = param->getStreamId();
@@ -273,7 +273,7 @@ void AudioMonitor::handleBroadcastMessage(String msg)
                             Array<var> ch;
                             ch.add(localChannel);
                             
-                            stream->getParameter("Channels")->setNextValue(ch);
+                            stream->getParameter("channels")->setNextValue(ch);
                         }
                     }
                 }
@@ -306,7 +306,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                 AudioSampleBuffer* overflowBuffer;
                 AudioSampleBuffer* backupBuffer;
 
-                Array<var>* activeChannels = stream->getParameter("Channels")->getValue().getArray();
+                Array<var>* activeChannels = stream->getParameter("channels")->getValue().getArray();
 
                 for (int i = 0; i < activeChannels->size(); i++)
                 {

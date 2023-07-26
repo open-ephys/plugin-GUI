@@ -176,7 +176,7 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode)
 {
     audioMonitor = static_cast<AudioMonitor*>(parentNode);
     
-    addSelectedChannelsParameterEditor(Parameter::STREAM_SCOPE, "Channels", 10, 35);
+    addSelectedChannelsParameterEditor(Parameter::STREAM_SCOPE, "channels", 10, 35);
 
     Parameter* muteParam = parentNode->getParameter("mute_audio");
     addCustomParameterEditor(new MonitorMuteButton(muteParam), 135, 35);
@@ -244,9 +244,9 @@ void AudioMonitorEditor::comboBoxChanged(ComboBox* comboBox)
             inds.add(ch);
         }
 
-        stream->getParameter("Channels")->setNextValue(inds);
+        stream->getParameter("channels")->setNextValue(inds);
     }
     else {
-        stream->getParameter("Channels")->setNextValue(Array<var>());
+        stream->getParameter("channels")->setNextValue(Array<var>());
     }
 }
