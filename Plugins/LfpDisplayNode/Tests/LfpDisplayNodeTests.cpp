@@ -186,8 +186,7 @@ protected:
             current_sample_index,
             0,
             buffer.getNumSamples(),
-            0,
-            current_sample_index);
+            0);
         MidiBuffer eventBuffer;
         eventBuffer.addEvent(data, dataSize, 0);
 

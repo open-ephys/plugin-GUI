@@ -75,6 +75,17 @@ public:
 
         // Refresh everything
         processor_graph->updateSettings(sn, false);
+    
+    }
+
+    ~ProcessorTester() {
+        control_panel = nullptr;
+        processor_graph = nullptr;
+        audio_component = nullptr;
+
+        AccessClass::clearAccessClassStateForTesting();
+        DeletedAtShutdown::deleteAll();
+        MessageManager::deleteInstance();
     }
 
     /**
@@ -167,8 +178,7 @@ public:
                 // NOTE: this timestamp is actually ignored in the current implementation?
                 0,
                 buffer.getNumSamples(),
-                0,
-                current_sample_index);
+                0);
             eventBuffer.addEvent(data, dataSize, 0);
 
             if (maybe_ttl_event != nullptr) {

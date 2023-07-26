@@ -554,7 +554,7 @@ void GenericProcessor::clearSettings()
     startSamplesForBlock.clear();
 	numSamplesInBlock.clear();
 	processStartTimes.clear();
-    timestampSampleIndexForBlock.clear();
+    referenceSamplesForBlock.clear();
 
 }
 
@@ -1177,17 +1177,23 @@ double GenericProcessor::getFirstTimestampForBlock(uint16 streamId) const
     return startTimestampsForBlock.at(streamId);
 }
 
-int64 GenericProcessor::getTimestampSampleIndexForBlock(uint16 streamId) const
-{
-    return timestampSampleIndexForBlock.at(streamId);
+
+std::optional<std::pair<int64, double>> GenericProcessor::getReferenceSampleForBlock(uint16 streamId){
+    try {
+        std::optional<std::pair<int64, double>> sample  = referenceSamplesForBlock.at(streamId);
+        referenceSamplesForBlock.at(streamId) = std::nullopt;
+        return sample;
+    } catch (const std::out_of_range& oor) {
+        return std::nullopt;
+    }
 }
+
 
 
 void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
                                               double timestamp,
                                               uint32 nSamples,
-                                              uint16 streamId,
-                                              int64 sampleIndexOfTimestamp)
+                                              uint16 streamId)
 {
     
 	HeapBlock<char> data;
@@ -1197,19 +1203,32 @@ void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
         sampleNumber,
         timestamp,
 		nSamples,
-		m_initialProcessTime,
-        sampleIndexOfTimestamp);
+		m_initialProcessTime);
 
     
 
 	m_currentMidiBuffer->addEvent(data, dataSize, 0);
 
 	//since the processor generating the timestamp won't get the event, add it to the map
-    startTimestampsForBlock[streamId] = timestamp;
     startSamplesForBlock[streamId] = sampleNumber;
 	processStartTimes[streamId] = m_initialProcessTime;
-    timestampSampleIndexForBlock[streamId] = sampleIndexOfTimestamp;
+    startTimestampsForBlock[streamId] = timestamp;
 
+}
+
+void GenericProcessor::setReferenceSample(uint16 streamId,
+                        double timestamp,
+                        int64 sampleIndex)
+{
+    HeapBlock<char> data;
+    size_t dataSize = SystemEvent::fillReferenceSampleEvent(data,
+        this,
+        streamId,
+        sampleIndex,
+        timestamp);
+    
+    m_currentMidiBuffer->addEvent(data, dataSize, 0);
+    referenceSamplesForBlock[streamId] = std::pair<int64, double>(sampleIndex, timestamp);
 
 }
 
@@ -1248,7 +1267,6 @@ int GenericProcessor::processEventBuffer()
                 double startTimestamp = *reinterpret_cast<const double*>(dataptr + 16);
 				uint32 nSamples = *reinterpret_cast<const uint32*>(dataptr + 24);
 				int64 initialTicks = *reinterpret_cast<const int64*>(dataptr + 28);
-                int64 timestampSampleIndex = *reinterpret_cast<const int64*>(dataptr + 36);
 
 
                // if (startSamplesForBlock[sourceStreamId] > startSample)
@@ -1258,7 +1276,6 @@ int GenericProcessor::processEventBuffer()
                 startTimestampsForBlock[sourceStreamId] = startTimestamp;
                 numSamplesInBlock[sourceStreamId] = nSamples;
 				processStartTimes[sourceStreamId] = initialTicks;
-                timestampSampleIndexForBlock[sourceStreamId] = timestampSampleIndex;
 
 					
 			}
@@ -1280,6 +1297,16 @@ int GenericProcessor::processEventBuffer()
                 TextEventPtr textEvent = TextEvent::deserialize(dataptr, getMessageChannel());
 
                 handleBroadcastMessage(textEvent->getText());
+            } else if (static_cast<Event::Type> (*dataptr) == Event::Type::SYSTEM_EVENT
+                && static_cast<SystemEvent::Type>(*(dataptr + 1) == SystemEvent::Type::REFERENCE_SAMPLE))
+            {
+                uint16 sourceProcessorId = *reinterpret_cast<const uint16*>(dataptr + 2);
+                uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
+                uint32 sourceChannelIndex = *reinterpret_cast<const uint16*>(dataptr + 6);
+                
+                int64 sampleIndex = *reinterpret_cast<const int64*>(dataptr + 8);
+                double sampleTimestamp = *reinterpret_cast<const double*>(dataptr + 16);
+                referenceSamplesForBlock[sourceStreamId] = std::pair<int64, double>(sampleIndex, sampleTimestamp);
             }
 		}
 	}
