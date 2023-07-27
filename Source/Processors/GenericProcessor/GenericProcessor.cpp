@@ -1179,11 +1179,10 @@ double GenericProcessor::getFirstTimestampForBlock(uint16 streamId) const
 
 
 std::optional<std::pair<int64, double>> GenericProcessor::getReferenceSampleForBlock(uint16 streamId){
-    try {
-        std::optional<std::pair<int64, double>> sample  = referenceSamplesForBlock.at(streamId);
-        referenceSamplesForBlock.at(streamId) = std::nullopt;
-        return sample;
-    } catch (const std::out_of_range& oor) {
+    if(referenceSamplesForBlock.find(streamId) != referenceSamplesForBlock.end()) {
+        return referenceSamplesForBlock.at(streamId);
+    }
+    else {
         return std::nullopt;
     }
 }
@@ -1220,6 +1219,16 @@ void GenericProcessor::setReferenceSample(uint16 streamId,
                         double timestamp,
                         int64 sampleIndex)
 {
+    //Check last referenceSample and return if this sample is equal
+    if(referenceSamplesForBlock.find(streamId) != referenceSamplesForBlock.end()) {
+        std::optional<std::pair<int64, double>> lastReferenceSample = referenceSamplesForBlock.at(streamId);
+        if(lastReferenceSample.has_value()) {
+            if(sampleIndex == lastReferenceSample.value().first && timestamp == lastReferenceSample.value().second) {
+                return;
+            }
+        }
+    }
+
     HeapBlock<char> data;
     size_t dataSize = SystemEvent::fillReferenceSampleEvent(data,
         this,
@@ -1228,7 +1237,7 @@ void GenericProcessor::setReferenceSample(uint16 streamId,
         timestamp);
     
     m_currentMidiBuffer->addEvent(data, dataSize, 0);
-    referenceSamplesForBlock[streamId] = std::pair<int64, double>(sampleIndex, timestamp);
+    referenceSamplesForBlock[streamId] = {sampleIndex, timestamp};
 
 }
 
@@ -1251,7 +1260,7 @@ int GenericProcessor::processEventBuffer()
 
 	if (m_currentMidiBuffer->getNumEvents() > 0)
 	{
-        
+        std::map<uint16, std::optional<std::pair<int64, double>>> newReferenceSamples;
         for (const auto meta : *m_currentMidiBuffer)
         {
             const uint8* dataptr = meta.data;
@@ -1306,9 +1315,22 @@ int GenericProcessor::processEventBuffer()
                 
                 int64 sampleIndex = *reinterpret_cast<const int64*>(dataptr + 8);
                 double sampleTimestamp = *reinterpret_cast<const double*>(dataptr + 16);
-                referenceSamplesForBlock[sourceStreamId] = std::pair<int64, double>(sampleIndex, sampleTimestamp);
+                newReferenceSamples[sourceStreamId] = {sampleIndex, sampleTimestamp};
             }
 		}
+        
+        //Add all new reference samples for block, set all others to nullopt
+        for(auto ds : getDataStreams()) {
+            std::optional<std::pair<int64, double>> newReferenceSample;
+            if(newReferenceSamples.find(ds->getStreamId()) != newReferenceSamples.end()) {
+                newReferenceSample = newReferenceSamples.at(ds->getStreamId());
+            }
+            else {
+                newReferenceSample = std::nullopt;
+            }
+            referenceSamplesForBlock[ds->getStreamId()] = newReferenceSample;
+        }
+
 	}
 
 	return numRead;
