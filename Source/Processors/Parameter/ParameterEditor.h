@@ -477,30 +477,6 @@ private:
     std::unique_ptr<TextButton> button;
 };
 
-class PLUGIN_API FileBrowserEditor : public ParameterEditor,
-    public Button::Listener
-{
-public:
-
-    /** Constructor */
-    FileBrowserEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
-
-    /** Destructor */
-    virtual ~FileBrowserEditor() { }
-
-    /** Displays the PopupChannelSelector*/
-    void buttonClicked(Button* label) override;
-
-    /** Must ensure that editor state matches underlying parameter */
-    virtual void updateView() override;
-
-    /** Sets sub-component locations */
-    virtual void resized() override;
-
-private:
-    std::unique_ptr<TextButton> button;
-};
-
 class PLUGIN_API PathParameterEditor : public ParameterEditor,
     public Button::Listener
 {
@@ -523,29 +499,6 @@ public:
 
 private:
     std::unique_ptr<TextButton> button;
-};
-
-class PLUGIN_API TimeEditorPopover : public Component,
-    public Label::Listener
-{
-public:
-
-    /** Constructor */
-    TimeEditorPopover(TimeParameter* p);
-
-    /** Destructor */
-    virtual ~TimeEditorPopover() { }
-
-    /** Displays the PopupChannelSelector*/
-    void labelTextChanged(Label* label) override;
-
-    /** Sets sub-component locations */
-    virtual void resized() override;
-
-    void setTime(String startTime_);
-
-    String getTime();
-
 };
 
 class PLUGIN_API TimeParameterEditor : public ParameterEditor,
