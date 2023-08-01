@@ -1004,6 +1004,21 @@ void GenericProcessor::update()
                     stream->addParameter(p2);
                     p2->setChannelCount(stream->getChannelCount());
                 }
+                else if (param->getType() == Parameter::PATH_PARAM)
+                {
+                    PathParameter* p = (PathParameter*)param;
+                    stream->addParameter(new PathParameter(*p));
+                }
+                else if (param->getType() == Parameter::SELECTED_STREAM_PARAM)
+                {
+                    SelectedStreamParameter* p = (SelectedStreamParameter*)param;
+                    stream->addParameter(new SelectedStreamParameter(*p));
+                }
+                else if (param->getType() == Parameter::TIME_PARAM)
+                {
+                    TimeParameter* p = (TimeParameter*)param;
+                    stream->addParameter(new TimeParameter(*p));
+                }
             }
         }
         else
@@ -1762,7 +1777,7 @@ void GenericProcessor::loadFromXml()
 	if (parametersAsXml != nullptr)
 	{
 
-        LOGG("Loading parameters for ", getName(), " (", getNodeId(), ")");
+        LOGD("Loading parameters for ", getName(), " (", getNodeId(), ")");
 
         int64 start = Time::getHighResolutionTicks();
 
@@ -1856,6 +1871,32 @@ void GenericProcessor::loadFromXml()
                                     FloatParameter* p2 = new FloatParameter(*p);
                                     p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
+                                }
+                                else if (parameter->getType() == Parameter::PATH_PARAM)
+                                {
+                                    LOGD("Loading path parameter: ", name);
+                                    PathParameter* p = (PathParameter*)parameter;
+                                    PathParameter* p2 = new PathParameter(*p);
+                                    p2->fromXml(streamParams);
+                                    parameterCollection->addParameter(p2);
+                                }
+                                else if (parameter->getType() == Parameter::SELECTED_STREAM_PARAM)
+                                {
+                                    SelectedStreamParameter* p = (SelectedStreamParameter*)parameter;
+                                    SelectedStreamParameter* p2 = new SelectedStreamParameter(*p);
+                                    p2->fromXml(streamParams);
+                                    parameterCollection->addParameter(p2);
+                                }
+                                else if (parameter->getType() == Parameter::TIME_PARAM)
+                                {
+                                    TimeParameter* p = (TimeParameter*)parameter;
+                                    TimeParameter* p2 = new TimeParameter(*p);
+                                    p2->fromXml(streamParams);
+                                    parameterCollection->addParameter(p2);
+                                }
+                                else
+                                {
+                                    jassertfalse;
                                 }
                             }
                             else

@@ -1,3 +1,6 @@
+#ifndef __SCRUBBERINTERFACE_H_D6EC8B48__
+#define __SCRUBBERINTERFACE_H_D6EC8B48__
+
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
 
@@ -109,8 +112,6 @@ public:
     void paintOverChildren(Graphics& g) override;
 
     void updatePlaybackTimes();
-
-    void setVisible(bool);
     
     /** Updates the time labels based on current slider positions */
     void updateZoomTimeLabels();
@@ -121,7 +122,12 @@ public:
     /** Gets the location of the local start of playback */
     int getZoomTimelineStartPosition();
 
+    /** Updates component when parameters change via FileReader */
+    void update();
+
 private:
 
     FileReader* fileReader;
 };
+
+#endif  // __SCRUBBERINTERFACE_H_D6EC8B48__

@@ -29,6 +29,8 @@
 #include "../Editors/GenericEditor.h"
 #include "../../Utils/Utils.h"
 
+#include "ScrubberInterface.h"
+
 class FileReader;
 class FileReaderEditor;
 class DualTimeComponent;
@@ -99,7 +101,7 @@ public:
 	void stopAcquisition()  override;
 
     /** Sets the active file */
-    void setFile (String file, bool shouldUpdateSignalChain = true);
+    // void setFile (String file, bool shouldUpdateSignalChain = true);
 
     /** Responds to combo box selections */
     void comboBoxChanged (ComboBox* combo);
@@ -112,6 +114,9 @@ public:
 
     /** Returns a pointer to the ScrubberInterface */
     ScrubberInterface* getScrubberInterface();
+
+    /** Enables/disables the ScrubDrawerButton */
+    void enableScrubDrawer(bool enabled) { scrubDrawerButton->setEnabled(enabled); }
 
     /** Controls whether or not to show the file scrubbing interface */
     void showScrubInterface(bool show);

@@ -52,26 +52,25 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
 {
 
     scrubberInterface = new ScrubberInterface(fileReader);
-    scrubberInterface->setBounds(0, 0, 200, 200);
+    scrubberInterface->setBounds(0, 0, 420, 140);
+    addChildComponent(scrubberInterface);
 
     scrubDrawerButton = new ScrubDrawerButton(getNameAndId() + " Scrub Drawer Button");
 	scrubDrawerButton->setBounds(4, 40, 10, 78);
     scrubDrawerButton->setToggleState(false, dontSendNotification);
 	scrubDrawerButton->addListener(this);
-	addChildComponent(scrubDrawerButton);
+    scrubDrawerButton->setEnabled(false);
+	addAndMakeVisible(scrubDrawerButton);
 
-    lastFilePath = CoreServices::getDefaultUserSaveDirectory();
-
-    addPathParameterEditor (Parameter::PROCESSOR_SCOPE, "selected_file", 10, 29);
-    addSelectedStreamParameterEditor (Parameter::PROCESSOR_SCOPE, "active_stream", 10, 54);
-    addTimeParameterEditor (Parameter::PROCESSOR_SCOPE, "start_time", 10, 79);
-    addTimeParameterEditor (Parameter::PROCESSOR_SCOPE, "end_time", 10, 104);
+    addPathParameterEditor (Parameter::PROCESSOR_SCOPE, "selected_file", 24, 29);
+    addSelectedStreamParameterEditor (Parameter::PROCESSOR_SCOPE, "active_stream", 24, 54);
+    addTimeParameterEditor (Parameter::PROCESSOR_SCOPE, "start_time", 24, 79);
+    addTimeParameterEditor (Parameter::PROCESSOR_SCOPE, "end_time", 24, 104);
 
     for (auto& p : {"selected_file", "active_stream", "start_time", "end_time"})
     {
         auto* ed = getParameterEditor(p);
-        if (ed != nullptr)
-            ed->setBounds(ed->getX(), ed->getY(), 3*ed->getWidth() / 2, ed->getHeight());
+        ed->setBounds(ed->getX(), ed->getY(), 2*ed->getWidth(), ed->getHeight());
     }
 
     /*
@@ -98,7 +97,9 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     addAndMakeVisible (timeLimits);
     */
 
-    desiredWidth = 240;
+    desiredWidth = 280;
+
+    lastFilePath = CoreServices::getDefaultUserSaveDirectory();
 
 }
 
@@ -106,6 +107,7 @@ FileReaderEditor::~FileReaderEditor()
 {
 }
 
+/*
 void FileReaderEditor::setFile (String file, bool shouldUpdateSignalChain)
 {
     if (file.equalsIgnoreCase("default"))
@@ -139,7 +141,6 @@ void FileReaderEditor::setFile (String file, bool shouldUpdateSignalChain)
     {
         fileNameLabel->setText (fileToRead.getFileName(), dontSendNotification);
 
-        /* Only show scrubber interface if recording > 30s */
         scrubDrawerButton->setVisible(false);
         if ( scrubInterfaceVisible )
             showScrubInterface(false);
@@ -155,12 +156,12 @@ void FileReaderEditor::setFile (String file, bool shouldUpdateSignalChain)
     {
         clearEditor();
     }
-
     if (shouldUpdateSignalChain)
         CoreServices::updateSignalChain (this);
 
     repaint();
 }
+*/
 
 void FileReaderEditor::paintOverChildren (Graphics& g)
 {
@@ -177,7 +178,7 @@ void FileReaderEditor::paintOverChildren (Graphics& g)
 
 void FileReaderEditor::buttonClicked (Button* button)
 {
-
+    /*
     if (! acquisitionIsActive)
     {
         if (button == fileButton)
@@ -203,6 +204,7 @@ void FileReaderEditor::buttonClicked (Button* button)
             }
         }
     }
+    */
 
     if (button == scrubDrawerButton) {
 
@@ -214,11 +216,13 @@ void FileReaderEditor::buttonClicked (Button* button)
 
 void FileReaderEditor::collapsedStateChanged()
 {
+    /*
     if (!getCollapsedState())
     {
         scrubberInterface->setVisible(scrubInterfaceAvailable);
         scrubDrawerButton->setVisible(scrubInterfaceAvailable);
     }
+    */
     
 }
 
@@ -230,10 +234,15 @@ ScrubberInterface* FileReaderEditor::getScrubberInterface()
 void FileReaderEditor::showScrubInterface(bool show)
 {
 
-    scrubInterfaceVisible = show;
+    scrubberInterface->setVisible(show);
 
     int dX = scrubberInterface->getWidth();
-    dX = show ? dX : -dX;
+
+    if (scrubInterfaceVisible && !show)
+        dX = -dX;
+    else if (!scrubInterfaceVisible && !show)
+       return;
+
     desiredWidth += dX;
 
     /* Move all editor components to the right */
@@ -242,6 +251,13 @@ void FileReaderEditor::showScrubInterface(bool show)
         scrubDrawerButton->getWidth(), scrubDrawerButton->getHeight()
     );
 
+    for (auto& p : {"selected_file", "active_stream", "start_time", "end_time"})
+    {
+        auto* ed = getParameterEditor(p);
+        ed->setBounds(ed->getX() + dX, ed->getY(), ed->getWidth(), ed->getHeight());
+    }
+
+    /*
     fileButton->setBounds(
         fileButton->getX() + dX, fileButton->getY(),
         fileButton->getWidth(), fileButton->getHeight()
@@ -266,6 +282,7 @@ void FileReaderEditor::showScrubInterface(bool show)
         timeLimits->getX() + dX, timeLimits->getY(),
         timeLimits->getWidth(), timeLimits->getHeight()
     );
+    */
 
     /* Show all scrubber interface components */
     // TOFIX: Don't think this is needed anymore...
@@ -282,6 +299,8 @@ void FileReaderEditor::showScrubInterface(bool show)
 
     CoreServices::highlightEditor(this);
     deselect();
+
+    scrubInterfaceVisible = show;
 
 }
 
@@ -426,6 +445,7 @@ void FileReaderEditor::populateRecordings (FileSource* source)
 
 void FileReaderEditor::clearEditor()
 {
+    /*
     fileNameLabel->setText ("No file selected.", dontSendNotification);
     recordSelector->clear (dontSendNotification);
 
@@ -435,6 +455,7 @@ void FileReaderEditor::clearEditor()
     currentTime->setTimeMilliseconds    (1, 0);
 
     CoreServices::updateSignalChain(this);
+    */
 
 }
 
@@ -511,7 +532,8 @@ void FileReaderEditor::fileDragEnter (const StringArray& files, int x, int y)
 
 void FileReaderEditor::filesDropped (const StringArray& files, int x, int y)
 {
-    setFile (files[0]);
+    //TODO: Use parameter 
+    //setFile (files[0]);
 
     m_isFileDragAndDropActive = false;
     repaint();

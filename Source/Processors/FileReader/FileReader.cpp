@@ -102,7 +102,7 @@ FileReader::~FileReader()
 
 void FileReader::registerParameters()
 {
-    addPathParameter(Parameter::PROCESSOR_SCOPE, "selected_file", "Selected File", "File to load data from", defaultFile.getFullPathName(), getSupportedExtensions(), false);
+    addPathParameter(Parameter::PROCESSOR_SCOPE, "selected_file", "Selected File", "File to load data from", "default", getSupportedExtensions(), false);
     addSelectedStreamParameter(Parameter::PROCESSOR_SCOPE, "active_stream", "Active Stream", "Currently active stream", {}, 0);
     addTimeParameter(Parameter::PROCESSOR_SCOPE, "start_time", "Start Time", "Time to start playback");
     addTimeParameter(Parameter::PROCESSOR_SCOPE, "end_time", "End Time", "Time to end playback");
@@ -117,16 +117,20 @@ void FileReader::parameterValueChanged(Parameter* p)
     else if (p->getName() == "active_stream")
     {
         setActiveStream(p->getValue());
+        static_cast<FileReaderEditor*> (getEditor())->getScrubberInterface()->update();
+        CoreServices::updateSignalChain (this->getEditor());
     }
     else if (p->getName() == "start_time")
     {
         TimeParameter* tp = static_cast<TimeParameter*>(p);
         startSample = millisecondsToSamples(tp->getTimeValue()->getTimeInMilliseconds());
+        static_cast<FileReaderEditor*> (getEditor())->getScrubberInterface()->update();
     }
     else if (p->getName() == "end_time")
     {
         TimeParameter* tp = static_cast<TimeParameter*>(p);
         stopSample = millisecondsToSamples(tp->getTimeValue()->getTimeInMilliseconds());
+        static_cast<FileReaderEditor*> (getEditor())->getScrubberInterface()->update();
     }
 }
 
@@ -238,12 +242,24 @@ bool FileReader::setFile (String fullpath)
         return false;
     }
 
-    if (!headlessMode)
-        static_cast<FileReaderEditor*> (getEditor())->populateRecordings (input);
-    
     setActiveStream (0);
+
+    if (!headlessMode)
+    {
+
+        FileReaderEditor* ed = (FileReaderEditor*)editor.get();
+
+        ed->populateRecordings (input);
+
+        ed->showScrubInterface(false);
+
+        ed->enableScrubDrawer(getCurrentNumTotalSamples() / getCurrentSampleRate() > 30.0f);
+
+    }
     
     gotNewFile = true;
+
+    CoreServices::updateSignalChain (this->getEditor());
 
     return true;
 }
@@ -523,7 +539,9 @@ Array<EventInfo> FileReader::getActiveEventInfo()
 
 String FileReader::handleConfigMessage(String msg)
 {
+    //TODO: Needs update to use new parameters
 
+    /*
     const MessageManagerLock mml;
 
     StringArray tokens;
@@ -541,6 +559,7 @@ String FileReader::handleConfigMessage(String msg)
         static_cast<FileReaderEditor*> (getEditor())->setPlaybackStartTime(std::stoi(tokens[1].toStdString()));
     else
         LOGD("Invalid key");
+    */
 
     return "File Reader received config: " + msg;
 }
