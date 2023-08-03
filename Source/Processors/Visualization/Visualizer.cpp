@@ -25,6 +25,7 @@
 
 Visualizer::Visualizer(GenericProcessor* parentProcessor)
     : ParameterOwner(ParameterOwner::Type::OTHER)
+    , ParameterEditorOwner(this)
     , processor(parentProcessor)
 {
 
@@ -44,37 +45,38 @@ void Visualizer::update()
         
         auto streamId = processor->getEditor()->getCurrentStream();
         bool streamAvailable = streamId > 0 ? true : false;
+        
+        Array<ParameterEditor*> allParamEditors;
 
-        for (auto ed : parameterEditors)
+        allParamEditors.addArray(parameterEditors);
+
+        for(auto editorOwner : parameterEditorOwners)
+            allParamEditors.addArray(editorOwner->getParameterEditors());
+
+        for (auto ed : allParamEditors)
         {
             const String parameterName = ed->getParameterName();
-            
-            Parameter* param = processor->getParameter(parameterName);
-            
-            if (param == nullptr)
-                continue;
 
-            //LOGD("Parameter: ", param->getName());
-            
-            if (param->getScope() == Parameter::PROCESSOR_SCOPE)
+            if (streamAvailable)
             {
-                //LOGD("Global scope");
-                ed->setParameter(processor->getParameter(ed->getParameterName()));
-            }
-            else if (param->getScope() == Parameter::STREAM_SCOPE)
-            {
-                if (streamAvailable)
+            //LOGD("Stream scope");
+                auto stream = processor->getDataStream(streamId);
+                
+                if (stream->hasParameter(parameterName))
                 {
-                //LOGD("Stream scope");
-                    Parameter* p2 = processor->getDataStream(streamId)->getParameter(param->getName());
-                    ed->setParameter(p2);
+                    Parameter* streamParam = stream->getParameter(parameterName);
+                    ed->setParameter(streamParam);
                 }
                 else
                 {
-                    //LOGD("Stream not available");
-                    ed->setParameter(nullptr);
+                    continue;
                 }
-                    
+            }
+            else
+            {
+                //LOGD("Stream not available");
+                if (!processor->hasParameter(parameterName) || !hasParameter(parameterName))
+                    ed->setParameter(nullptr);
             }
             
             ed->updateView();
@@ -273,126 +275,48 @@ void Visualizer::addSelectedChannelsParameter(
 
 void Visualizer::parameterChangeRequest(Parameter* param)
 {
-	parameterValueChanged(param);
-    updateView();
+	param->updateValue();
+    parameterValueChanged(param);
 }
 
-
-
-void Visualizer::addTextBoxParameterEditor(const String& parameterName,
-                                           int xPos_, int yPos_,
-                                           Component *parentComponent)
+void Visualizer::addParameterEditorOwner(ParameterEditorOwner* editorOwner)
 {
-
-    Parameter* param = processor->getParameter(parameterName);
-
-    addCustomParameterEditor(new TextBoxParameterEditor(param),
-                             xPos_, yPos_,
-                             parentComponent);
+    parameterEditorOwners.add(editorOwner);
+    addAndMakeVisible(editorOwner->getComponent());
 }
 
-void Visualizer::addToggleParameterEditor(const String& parameterName,
-                                            int xPos_, int yPos_,
-                                            Component *parentComponent)
-{
-
-    Parameter* param = processor->getParameter(parameterName);
-
-    addCustomParameterEditor(new ToggleParameterEditor(param),
-                             xPos_, yPos_,
-                             parentComponent);
-}
-
-
-void Visualizer::addSliderParameterEditor(const String& parameterName,
-                                          int xPos_, int yPos_,
-                                          Component *parentComponent)
-{
+void Visualizer::saveToXml(XmlElement* xml)
+{    
+    XmlElement* paramsXml = xml->createNewChildElement("VISUALIZER_PARAMETERS");
     
-    Parameter* param = processor->getParameter(parameterName);
-
-    addCustomParameterEditor(new SliderParameterEditor(param),
-                             xPos_, yPos_,
-                             parentComponent);
-}
-
-
-void Visualizer::addComboBoxParameterEditor(const String& parameterName,
-                                            int xPos_, int yPos_,
-                                            Component *parentComponent)
-{
-
-    Parameter* param = processor->getParameter(parameterName);
-
-    addCustomParameterEditor(new ComboBoxParameterEditor(param), 
-                             xPos_, yPos_,
-                             parentComponent);
-}
-
-
-void Visualizer::addSelectedChannelsParameterEditor(const String& parameterName, 
-                                                    int xPos_, int yPos_,
-                                                    Component *parentComponent)
-{
-
-    //std::cout << "CREATING EDITOR: " << parameterName << std::endl;
-    
-    Parameter* param = processor->getParameter(parameterName);
-
-    addCustomParameterEditor(new SelectedChannelsParameterEditor(param), 
-                             xPos_, yPos_,
-                             parentComponent);
-}
-
-void Visualizer::addMaskChannelsParameterEditor(const String& parameterName,
-                                                int xPos_, int yPos_,
-                                                Component *parentComponent)
-{
-
-    //std::cout << "CREATING EDITOR: " << parameterName << std::endl;
-    
-    Parameter* param = processor->getParameter(parameterName);
-
-    addCustomParameterEditor(new MaskChannelsParameterEditor(param), 
-                             xPos_, yPos_,
-                             parentComponent);
-}
-
-
-void Visualizer::addCustomParameterEditor(ParameterEditor* ed,
-                                          int xPos_, int yPos_,
-                                          Component *parentComponent)
-{
-    parameterEditors.add(ed);
-    
-    if (parentComponent != nullptr)
-        parentComponent->addAndMakeVisible(ed);
-    else
-        addAndMakeVisible(ed);
-
-    ed->setBounds(xPos_, yPos_, ed->getWidth(), ed->getHeight());
-}
-
-
-void Visualizer::updateView()
-{
-
-    const MessageManagerLock mml;
-    
-    for (auto ed : parameterEditors)
+    for (auto param : getParameters())
     {
-        ed->updateView();
+        param->toXml(paramsXml);
     }
+
+	saveCustomParametersToXml(xml->createNewChildElement("CUSTOM_PARAMETERS"));
 }
 
-ParameterEditor* Visualizer::getParameterEditor(const String& parameterName)
-{
-    for (auto e : parameterEditors)
+void Visualizer::loadFromXml(XmlElement* xml)
+{    
+    XmlElement* visParams = xml->getChildByName("VISUALIZER_PARAMETERS");
+
+    LOGD("**************** Loading visualizer parameters");
+
+    if (visParams != nullptr)
     {
-        if (e->getParameterName().equalsIgnoreCase(parameterName))
-            return e;
+        for (int i = 0; i < visParams->getNumAttributes(); i++)
+        {
+            auto param = getParameter(visParams->getAttributeName(i));
+
+            if(param != nullptr)
+            {
+                param->fromXml(visParams);
+                param->valueChanged();
+                parameterValueChanged(param);
+            }
+        }
     }
     
-    jassertfalse;
-    return nullptr;
+    loadCustomParametersFromXml(xml);
 }

@@ -158,12 +158,6 @@ void VisualizerEditor::updateVisualizer()
         canvas->update();
 }
 
-void VisualizerEditor::updateVisualizerView()
-{
-    if (canvas != nullptr)
-        canvas->updateView();
-}
-
 
 void VisualizerEditor::editorWasClicked()
 {
@@ -281,7 +275,7 @@ void VisualizerEditor::saveCustomParametersToXml (XmlElement* xml)
 
     if (canvas != nullptr)
     {
-        canvas->saveCustomParametersToXml(xml);
+        canvas->saveToXml(xml);
     }
     else {
         // if canvas was never created, we don't need to save custom parameters
@@ -351,12 +345,12 @@ void VisualizerEditor::loadCustomParametersFromXml (XmlElement* xml)
         //Canvas is created on button callback, so open/close tab to simulate a hidden canvas
         tabSelector->setToggleState(true, sendNotification);
         if (canvas != nullptr)
-            canvas->loadCustomParametersFromXml(xml);
+            canvas->loadFromXml(xml);
         tabSelector->setToggleState(false, sendNotification);
     }
     else if (canvas != nullptr)
     {
-        canvas->loadCustomParametersFromXml(xml);
+        canvas->loadFromXml(xml);
     }
 
 }

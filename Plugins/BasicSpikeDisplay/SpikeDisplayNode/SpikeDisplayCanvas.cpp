@@ -108,7 +108,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
 
     addAndMakeVisible(viewport.get());
 
-    update();
+    updateSettings();
 
     cache = std::make_unique<SpikeDisplayCache>();
 }

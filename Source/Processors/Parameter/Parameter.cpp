@@ -25,6 +25,7 @@
 #include "../../AccessClass.h"
 #include "../../UI/EditorViewport.h"
 #include "../GenericProcessor/GenericProcessor.h"
+#include "../Visualization/Visualizer.h"
 
 int64 Parameter::parameterCounter = 0;
 
@@ -89,6 +90,11 @@ void Parameter::setOwner(ParameterOwner* parameterOwner_)
     {
         auto processor = (GenericProcessor*)parameterOwner;
         key = String(processor->getNodeId()) + "_" + this->getName();
+    }
+    else if (getScope() == ParameterScope::VISUALIZER_SCOPE)
+    {
+        auto visualizer = (Visualizer*)parameterOwner;
+        key = String(visualizer->getProcessor()->getNodeId()) + "_visualizer_" + this->getName();
     }
     else if (getScope() == ParameterScope::SPIKE_CHANNEL_SCOPE)
     {

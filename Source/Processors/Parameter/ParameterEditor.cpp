@@ -83,7 +83,7 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPi
         || param->getType() == Parameter::INT_PARAM
         || param->getType() == Parameter::STRING_PARAM);
 
-    label = std::make_unique<Label>(param->getName(), param->getName().replace("_", " "));
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
     Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
     int width = rowWidthPixels;
     label->setFont(labelFont);

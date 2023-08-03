@@ -31,6 +31,7 @@
 #include "../Parameter/Parameter.h"
 #include "../Parameter/ParameterEditor.h"
 #include "../Parameter/ParameterOwner.h"
+#include "../Parameter/ParameterEditorOwner.h"
 
 /**
 
@@ -45,7 +46,8 @@
 
 class PLUGIN_API Visualizer : public Component,
                               public Timer,
-                              public ParameterOwner
+                              public ParameterOwner,
+                              public ParameterEditorOwner
 
 {
 public:
@@ -82,9 +84,6 @@ public:
     //       (can optionally be overriden by sub-classes)
     // ------------------------------------------------------------
 
-    /** Called by the update() method to allow the visualizer to update its custom settings.*/
-    virtual void updateSettings() { }
-
     /** Called when data acquisition begins. 
         If the Visualizer includes live rendering, it should call
         startCallbacks() within this method. */
@@ -95,10 +94,16 @@ public:
        stopCallbacks() within this method. */
     virtual void endAnimation() { stopCallbacks(); }
 
-    /** Saves visualizer parameters to XMLoejct */
+    /** Save parameter settings to XML (called by all visualizers).*/
+    void saveToXml (XmlElement* xml);
+
+    /** Load parameter settings from XML (called by all visualizers). */
+    void loadFromXml(XmlElement* xml);
+
+    /** Saves custom visualizer parameters to XMLobject */
     virtual void saveCustomParametersToXml(XmlElement* xml) { }
 
-    /** Loads visualizer parameters from XML object */
+    /** Loads custom visualizer parameters from XML object */
     virtual void loadCustomParametersFromXml(XmlElement* xml) { }
 
     // ------------------------------------------------------------
@@ -118,14 +123,12 @@ public:
     /** Calls refresh(). */
 	void timerCallback();
 
-    /** Returns the parameter editor for a given parameter name*/
-    ParameterEditor* getParameterEditor(const String& parameterName);
+    void addParameterEditorOwner(ParameterEditorOwner* paramEditorOwner);
 
     /** Initiates parameter value update */
     void parameterChangeRequest(Parameter*);
 
-    /** Called when the Visualizer needs to update the view of its parameters.*/
-    void updateView();
+    GenericProcessor* getProcessor() { return processor; }
 
     /** An array of pointers to ParameterEditors created based on the Parameters of an editor's underlying processor. */
     OwnedArray<ParameterEditor> parameterEditors;
@@ -191,31 +194,14 @@ protected:
         int defaultIndex,
         bool deactivateDuringAcquisition = false);
 
-
-    /** Adds a text box editor for a parameter of a given name. */
-    void addTextBoxParameterEditor (const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
-
-    /** Adds a check box editor for a parameter of a given name. */
-    void addToggleParameterEditor(const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
-
-    /** Adds a slider editor for a parameter of a given name. */
-    void addSliderParameterEditor(const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
-
-    /** Adds a combo box editor for a parameter of a given name. */
-    void addComboBoxParameterEditor(const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
-
-    /** Adds a selected channels editor for a parameter of a given name. */
-    void addSelectedChannelsParameterEditor(const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
-    
-    /** Adds a selected channels editor for a parameter of a given name. */
-    void addMaskChannelsParameterEditor(const String& name, int xPos, int yPos, Component *parentComponent = nullptr);
-
-    /** Adds a custom editor for a parameter of a given name. */
-    void addCustomParameterEditor(ParameterEditor* editor, int xPos, int yPos, Component *parentComponent = nullptr);
+    /** Called by the update() method to allow the visualizer to update its custom settings.*/
+    virtual void updateSettings() { }
 
 private:
 
     GenericProcessor* processor;
+
+    OwnedArray<ParameterEditorOwner> parameterEditorOwners;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Visualizer);
 };
