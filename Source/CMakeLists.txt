@@ -4,6 +4,8 @@
 add_sources(open-ephys 
 	AccessClass.h
 	AccessClass.cpp
+	AutoUpdater.cpp
+	AutoUpdater.h
 	CoreServices.h
 	CoreServices.cpp
 	MainWindow.h
