@@ -342,7 +342,8 @@ bool LfpDisplayNode::getIntField(DynamicObject::Ptr payload, String name, int& v
     if(!payload->hasProperty(name) || !payload->getProperty(name).isInt())
         return false;
     int tempVal = payload->getProperty(name);
-    if((upperBound != INT_MIN && tempVal > upperBound) || (lowerBound != INT_MAX && tempVal < lowerBound))
+
+    if ((upperBound != INT32_MIN && tempVal > upperBound) || (lowerBound != INT32_MAX && tempVal < lowerBound))
         return false;
     value = tempVal;
     return true;
