@@ -56,7 +56,7 @@ void LatestVersionCheckerAndUpdater::checkForNewVersion (bool background, MainWi
 //==============================================================================
 void LatestVersionCheckerAndUpdater::run()
 {
-    LOGC("Checking for a new version....");
+    LOGC("Checking for a newer version of the GUI...");
     URL latestVersionURL ("https://api.github.com/repos/open-ephys/plugin-GUI/releases/latest");
 
     std::unique_ptr<InputStream> inStream (latestVersionURL.createInputStream (URL::InputStreamOptions (URL::ParameterHandling::inAddress)
@@ -129,8 +129,8 @@ void LatestVersionCheckerAndUpdater::run()
     {
         if (! backgroundCheck)
             AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
-                                              "No New Version Available",
-                                              "Your GUI version is up to date.");
+                                              "No Newer Version Available",
+                                              "You are running the latest available version of the Open Ephys GUI.");
         return;
     }
 
@@ -202,7 +202,7 @@ public:
         titleLabel.setJustificationType (Justification::centred);
         addAndMakeVisible (titleLabel);
 
-        contentLabel.setText ("A new version of Open Ephys GUI is available - would you like to download it?", dontSendNotification);
+        contentLabel.setText ("A newer version of Open Ephys GUI is available - would you like to download it?", dontSendNotification);
         contentLabel.setFont (Font("Fira Sans", "Regular", 16.0f));
         contentLabel.setJustificationType (Justification::topLeft);
         contentLabel.setMinimumHorizontalScale(1.0);

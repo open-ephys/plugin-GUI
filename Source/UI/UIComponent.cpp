@@ -471,6 +471,7 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 	else if (menuIndex == 3)
 	{
 		menu.addCommandItem(commandManager, showHelp);
+		menu.addSeparator();
 		menu.addCommandItem(commandManager, checkForUpdates);
 	}
 
@@ -661,7 +662,7 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			break;
 
 		case checkForUpdates:
-			result.setInfo("Check for updates", "Checks if a newer version of the GUI is available", "General", 0);
+			result.setInfo("Check for updates...", "Checks if a newer version of the GUI is available", "General", 0);
 			result.setActive(true);
 			break;
 
