@@ -113,9 +113,9 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
 
     addMouseListener(this, true);
 
-    for (int i = 0; i < 8; i++)
+    for (int ttlLine = 0; ttlLine < 8; ttlLine++)
     {
-        eventDisplayEnabled[i] = true;
+        eventDisplayEnabled[ttlLine] = true;
     }
 
     savedChannelState.insertMultiple(0, true, 10000); // max 10k channels
@@ -444,7 +444,7 @@ void LfpDisplay::refresh()
         totalPixelsToFill = canvasSplit->screenBufferWidth - fillfrom + fillto;
     }
 
-	//std::cout << fillfrom << " : " << fillto << " ::: " << "totalPixelsToFill: " << totalPixelsToFill << std::endl;
+	std::cout << fillfrom << " : " << fillto << " ::: " << "totalPixelsToFill: " << totalPixelsToFill << std::endl;
 
     int topBorder = viewport->getViewPositionY();
     int bottomBorder = viewport->getViewHeight() + topBorder;
@@ -659,6 +659,19 @@ void LfpDisplay::setInputInverted(bool isInverted)
 
 }
 
+Array<bool> LfpDisplay::getInputInverted()
+{
+
+    Array<bool> invertedState;
+
+    for (int i = 0; i < numChans; i++)
+    {
+		invertedState.add(channels[i]->getInputInverted());
+    }
+
+    return invertedState;
+}
+
 void LfpDisplay::setDrawMethod(bool isDrawMethod)
 {
     for (int i = 0; i < numChans; i++)
@@ -712,6 +725,13 @@ void LfpDisplay::orderChannelsByDepth(bool state)
     channelsOrderedByDepth = state;
 
     rebuildDrawableChannelsList();
+
+}
+
+bool LfpDisplay::shouldOrderChannelsByDepth()
+{
+
+    return channelsOrderedByDepth;
 
 }
 
@@ -1238,15 +1258,15 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 
 }
 
-bool LfpDisplay::setEventDisplayState(int ch, bool state)
+bool LfpDisplay::setEventDisplayState(int ttlLine, bool state)
 {
-    eventDisplayEnabled[ch] = state;
-    return eventDisplayEnabled[ch];
+    eventDisplayEnabled[ttlLine] = state;
+    return eventDisplayEnabled[ttlLine];
 }
 
-bool LfpDisplay::getEventDisplayState(int ch)
+bool LfpDisplay::getEventDisplayState(int ttlLine)
 {
-    return eventDisplayEnabled[ch];
+    return eventDisplayEnabled[ttlLine];
 }
 
 void LfpDisplay::setEnabledState(bool state, int chan, bool updateSaved)
