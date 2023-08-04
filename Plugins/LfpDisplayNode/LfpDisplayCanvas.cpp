@@ -789,10 +789,10 @@ void LfpDisplaySplitter::resized()
         viewport->setBounds(0, timescaleHeight, getWidth(), getHeight() - 32);
     }
 
-    if (screenBufferMean != nullptr)
-    {
+    //if (screenBufferMean != nullptr)
+    //{
         refreshScreenBuffer();
-    }
+    //}
        
     if (nChans > 0)
     {
@@ -1295,7 +1295,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
            // HELPFUL FOR DEBUGGING: 
 
-            if (channel == 0)
+            /*if (channel == 0)
                 std::cout << "Split "
                 << splitID << " ch: "
                 << channel << " sbi: "
@@ -1308,7 +1308,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                 << subSampleOffset << " max: "
                 << maxSamples << " playhead: "
                 << lfpDisplay->lastBitmapIndex
-                << std::endl;
+                << std::endl;*/
 
             int sampleNumber = 0;
 
@@ -1529,7 +1529,7 @@ void LfpDisplaySplitter::setTimebase(float t)
 {
     timebase = t;
 
-    if (timebase <= 0.1)
+    /*if (timebase <= 0.1)
     {
         stopTimer();
         startTimer(1000);
@@ -1537,7 +1537,7 @@ void LfpDisplaySplitter::setTimebase(float t)
     else {
         stopTimer();
         startTimer(50);
-    }
+    }*/
 
     if (trialAveraging)
     {
@@ -1545,6 +1545,8 @@ void LfpDisplaySplitter::setTimebase(float t)
     }
 
     syncDisplay();
+    syncDisplayBuffer();
+    refreshScreenBuffer();
 
     reachedEnd = true;
 }
@@ -1719,7 +1721,7 @@ void LfpDisplaySplitter::refresh()
     
     updateScreenBuffer();
     
-    if(shouldRebuildChannelList) 
+    if (shouldRebuildChannelList) 
     {
         shouldRebuildChannelList = false;
         lfpDisplay->rebuildDrawableChannelsList(); // calls resized()/refresh() after rebuilding list
