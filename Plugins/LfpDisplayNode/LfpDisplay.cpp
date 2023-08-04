@@ -444,7 +444,8 @@ void LfpDisplay::refresh()
         totalPixelsToFill = canvasSplit->screenBufferWidth - fillfrom + fillto;
     }
 
-	std::cout << fillfrom << " : " << fillto << " ::: " << "totalPixelsToFill: " << totalPixelsToFill << std::endl;
+    //if (totalPixelsToFill > 0)
+	//    std::cout << fillfrom << " : " << fillto << " ::: " << "totalPixelsToFill: " << totalPixelsToFill << std::endl;
 
     int topBorder = viewport->getViewPositionY();
     int bottomBorder = viewport->getViewHeight() + topBorder;
@@ -493,11 +494,11 @@ void LfpDisplay::refresh()
         fillfrom_local = lastBitmapIndex;
         fillto_local = (lastBitmapIndex + totalPixelsToFill) % totalXPixels;
 
-        /*if (fillto != 0)
-        {
-            std::cout << fillfrom << " : " << fillto << " ::: " <<
-                fillfrom_local << " : " << fillto_local << " :: " << totalPixelsToFill << " ::: " << totalXPixels << std::endl;
-        }*/
+        //if (fillto != 0)
+        //{
+        //    std::cout << fillfrom << " : " << fillto << " ::: " <<
+        //        fillfrom_local << " : " << fillto_local << " :: " << totalPixelsToFill << " ::: " << totalXPixels << std::endl;
+       // }
 
 
         for (int i = 0; i < numChans; i++)
@@ -591,6 +592,7 @@ void LfpDisplay::refresh()
 
 void LfpDisplay::setRange(float r, ContinuousChannel::Type type)
 {
+
     range[type] = r;
     
     if (channels.size() > 0)
@@ -601,7 +603,6 @@ void LfpDisplay::setRange(float r, ContinuousChannel::Type type)
             if (channels[i]->getType() == type)
                 channels[i]->setRange(range[type]);
         }
-        canvasSplit->fullredraw = true; //issue full redraw
 
         if (displayIsPaused)
         {
@@ -840,8 +841,6 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
         viewport->setViewPosition(oldX,oldY+scrollBy); // set back to previous position plus offset
 
         options->setSpreadSelection(newHeight); // update combobox
-        
-        canvasSplit->fullredraw = true;//issue full redraw - scrolling without modifier doesnt require a full redraw
     }
     else
     {
@@ -864,8 +863,7 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
             }
 
             options->setRangeSelection(h); // update combobox
-            canvasSplit->fullredraw = true; //issue full redraw - scrolling without modifier doesnt require a full redraw
-            
+
         }
         else    // just scroll
         {
@@ -873,11 +871,7 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
             if (viewport != nullptr && e.eventComponent == this) // passes only if it's not a listening event
             {
                 viewport->mouseWheelMove(e.getEventRelativeTo(canvasSplit), wheel);
-
-                //canvasSplit->syncDisplayBuffer();
             }
-                
-
         }
       
     }
@@ -888,8 +882,6 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
         scrollY = viewport->getViewPositionY();
     }
     
-   // refresh(); // doesn't seem to be needed now that channels draw to bitmap
-
 }
 
 void LfpDisplay::toggleSingleChannel(LfpChannelTrack drawableChannel)

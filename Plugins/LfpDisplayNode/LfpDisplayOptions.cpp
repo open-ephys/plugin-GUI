@@ -121,7 +121,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     voltageRanges[ContinuousChannel::Type::ELECTRODE].add("15000");
     selectedVoltageRange[ContinuousChannel::Type::ELECTRODE] = 4;
     rangeGain[ContinuousChannel::Type::ELECTRODE] = 1; //uV
-    rangeSteps[ContinuousChannel::Type::ELECTRODE] = 10;
+    rangeSteps[ContinuousChannel::Type::ELECTRODE] = 20;
     rangeUnits.add(CharPointer_UTF8("\xC2\xB5V"));
     typeNames.add("DATA");
 
