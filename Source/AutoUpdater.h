@@ -29,13 +29,21 @@
 class MainWindow;
 class DownloadThread;
 
+/** 
+	Helper class to check for new versions of the application and download them.
+*/
 class LatestVersionCheckerAndUpdater   : public DeletedAtShutdown,
                                          private Thread
 {
 public:
+
+    /** Constructor */
     LatestVersionCheckerAndUpdater();
+    
+    /** Destructor */
     ~LatestVersionCheckerAndUpdater() override;
 
+    /** Holds information about a file to download */
     struct Asset
     {
         const String name;
@@ -43,14 +51,16 @@ public:
         const int size;
     };
 
+    /** Checks for a newer version of the GUI */
     void checkForNewVersion (bool isBackgroundCheck, MainWindow* mw);
 
-    //==============================================================================
     JUCE_DECLARE_SINGLETON_SINGLETHREADED_MINIMAL (LatestVersionCheckerAndUpdater)
 
 private:
-    //==============================================================================
+    
+    /** Download new version in background thread */
     void run() override;
+
     void askUserAboutNewVersion (const String&, const String&, const Asset& asset);
     void askUserForLocationToDownload (const Asset& asset);
     void downloadAndInstall (const Asset& asset, const File& targetFile);
