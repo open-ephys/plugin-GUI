@@ -560,7 +560,7 @@ void LfpDisplayCanvas::mouseUp(const MouseEvent& e)
 {
     if (borderToDrag >= 0)
     {
-        std::cout << "Mouse up" << std::endl;
+        //std::cout << "Mouse up" << std::endl;
 
         resized();
         borderToDrag = -1;
@@ -967,22 +967,22 @@ void LfpDisplaySplitter::updateSettings()
 
     }
         
-    lfpDisplay->rebuildDrawableChannelsList();
+    lfpDisplay->rebuildDrawableChannelsList(); // calls setColors(), which calls refresh
 
     isLoading = false;
         
-    syncDisplay();
-    syncDisplayBuffer();
+    syncDisplay(); // sets lastBitmapIndex to 0
+    syncDisplayBuffer(); // sets displayBufferIndex to 0
 
     isUpdating = false;
 
-    lfpDisplay->setColors();
+    //lfpDisplay->setColors(); // calls refresh
 
     resized();
 
     lfpDisplay->restoreViewPosition();
 
-    lfpDisplay->refresh();
+    //lfpDisplay->refresh(); // calls refresh
 
 }
 
@@ -1249,7 +1249,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
 
            // HELPFUL FOR DEBUGGING: 
 
-            /*if (channel == 0)
+            if (channel == 0)
                 std::cout << "Split "
                 << splitID << " ch: "
                 << channel << " sbi: "
@@ -1262,7 +1262,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
                 << subSampleOffset << " max: "
                 << maxSamples << " playhead: "
                 << lfpDisplay->lastBitmapIndex
-                << std::endl;*/
+                << std::endl;
 
             int sampleNumber = 0;
 
@@ -1483,6 +1483,16 @@ void LfpDisplaySplitter::setTimebase(float t)
 {
     timebase = t;
 
+    if (timebase <= 0.1)
+    {
+        stopTimer();
+        startTimer(1000);
+    }
+    else {
+        stopTimer();
+        startTimer(50);
+    }
+
     if (trialAveraging)
     {
         numTrials = -1;
@@ -1660,8 +1670,11 @@ void LfpDisplaySplitter::visibleAreaChanged()
 
 void LfpDisplaySplitter::refresh()
 {
+    
     updateScreenBuffer();
-    if(shouldRebuildChannelList) {
+    
+    if(shouldRebuildChannelList) 
+    {
         shouldRebuildChannelList = false;
         lfpDisplay->rebuildDrawableChannelsList(); // calls resized()/refresh() after rebuilding list
     }

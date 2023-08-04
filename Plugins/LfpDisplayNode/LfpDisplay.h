@@ -44,7 +44,8 @@ namespace LfpViewer {
     bitmap is drawn by the LfpViewport using Viewport::setViewedComponent.
  
  */
-class LfpDisplay : public Component, public Timer
+class LfpDisplay : public Component, 
+                   public Timer
 {
 public:
 
@@ -96,15 +97,25 @@ public:
     /** Returns the display range for the specified channel type */
 	int getRange(ContinuousChannel::Type type);
 
+    /** Sets the channel height in pixels */
     void setChannelHeight(int r, bool resetSingle = true);
+
+    /** Returns the channel height in pixels */
     int getChannelHeight();
-    
-    ChannelColourScheme * getColourSchemePtr();
-        
+
     /** Caches a new channel height without updating the channels */
     void cacheNewChannelHeight(int r);
     
+    /** Gets a pointer to the current color scheme */
+    ChannelColourScheme* getColourSchemePtr();
+        
+    /** Sets whether the input should be inverted */
     void setInputInverted(bool);
+
+    /** Returns whether the input should be inverted across all channels */
+    Array<bool> getInputInverted();
+
+    /** Changes between super-sampled and per-pixel plotter */
     void setDrawMethod(bool);
     
     /** Returns a bool indicating if the channels are displayed in reverse order (true) */
@@ -115,6 +126,9 @@ public:
 
     /** Reorders the displayed channels by depth if state == true and normal if false */
     void orderChannelsByDepth(bool state);
+
+    /** Returns true if channels are ordered by depth */
+    bool shouldOrderChannelsByDepth();
     
     /** Returns a factor of 2 by which the displayed channels should skip */
     int getChannelDisplaySkipAmount();
@@ -122,23 +136,40 @@ public:
     /** Set the amount of channels to skip (hide) between each that is displayed */
     void setChannelDisplaySkipAmount(int skipAmt);
 
+    /** Updates colors across channels */
     void setColors();
     
+    /** Sets the index of the selected color scheme */
     void setActiveColourSchemeIdx(int index);
+
+    /** Gets the index of the selected color scheme */
     int getActiveColourSchemeIdx();
     
+    /** Returns the number of available color schemes*/
     int getNumColourSchemes();
+
+    /** Returns the names of the available color schemes*/
     StringArray getColourSchemeNameArray();
 
-    bool setEventDisplayState(int ch, bool state);
-    bool getEventDisplayState(int ch);
+    /** Sets whether events are displayed for a particular ttl line*/
+    bool setEventDisplayState(int ttlLine, bool state);
 
+    /** Returns whether events are displayed for a particular ttl line */
+    bool getEventDisplayState(int ttlLine);
+
+    /** Returns the number of adjacent channels of each color */
     int getColorGrouping();
+
+    /** Sets the number of adjacent channels of each color */
     void setColorGrouping(int i);
 
+    /** Sets whether a particular channel is enabled */
     void setEnabledState(bool state, int chan, bool updateSavedChans = true);
-    bool getEnabledState(int);
+
+    /** Returns whether a particular channel is enabled */
+    bool getEnabledState(int chan);
     
+    /** Sets the scroll offset for this display*/
     void setScrollPosition(int x, int y);
 
     /** Returns true if the median offset is enabled for plotting, else false */
@@ -187,9 +218,8 @@ public:
         LfpChannelDisplayInfo* channelInfo;
     };
 
-    Array<LfpChannelTrack> drawableChannels;        // holds the channels and info that are
-                                                // drawable to the screen
-
+    /** Holds the channels that are being drawn */
+    Array<LfpChannelTrack> drawableChannels;
 
     /** Set the viewport's channel focus behavior.
      
@@ -214,18 +244,25 @@ public:
     /** Returns a const pointer to the internally managed plotter method class */
     LfpBitmapPlotter * const getPlotterPtr() const;
 
+    /** Current background color (based on the selected color scheme)*/
     Colour backgroundColour;
     
+    /** Array of channel colors (based on the selected color scheme*/
     Array<Colour> channelColours;
 
-    OwnedArray<LfpChannelDisplay> channels;             // all channels
-    OwnedArray<LfpChannelDisplayInfo> channelInfo;      // all channelInfos
+    /** All available channels (even ones that are not drawn) */
+    OwnedArray<LfpChannelDisplay> channels;
     
-    void timerCallback() override;
-
+    /** All available display info objects (even ones that are not drawn) */
+    OwnedArray<LfpChannelDisplayInfo> channelInfo;
+    
+    /** Holds state of event display for first 8 ttl lines */
     bool eventDisplayEnabled[8];
-    bool displayIsPaused = false; // simple pause function, skips screen buffer updates
 
+    /** Enables simple pause function by skipping screen buffer updates */
+    bool displayIsPaused = false; 
+
+    /** Pointer to display options*/
     LfpDisplayOptions* options;
     
     /** Convenience struct to store all variables particular to zooming mechanics */
@@ -246,13 +283,19 @@ public:
         bool unpauseOnScrollEnd;
     };
     
-    TrackZoomInfo_Struct trackZoomInfo; // and create an instance here
+    /** Instance of trackZoomInfo struct */
+    TrackZoomInfo_Struct trackZoomInfo; 
 
+    /** Stores whether or not channels are enabled */
     Array<bool> savedChannelState;
 
+    /** x-index of display bitmap updated on previous refresh */
     int lastBitmapIndex;
 
 private:
+
+    /** Used to throttle refresh speed when scrolling backwards */
+    void timerCallback() override;
     
     int singleChan;
 	 
@@ -266,7 +309,10 @@ private:
     
     int numChans;
     int displaySkipAmt;
-    int cachedDisplayChannelHeight;     // holds a channel height if reset during single channel focus
+
+    /** Holds a channel height if reset during single channel focus */
+    int cachedDisplayChannelHeight;
+    
     float drawableSampleRate;
     uint32 drawableSubprocessor;
 
@@ -297,5 +343,5 @@ private:
     OwnedArray<ChannelColourScheme> colourSchemeList;
 };
   
-}; // namespace
+}; // end LfpViewer namespace
 #endif

@@ -775,6 +775,10 @@ void LfpDisplayOptions::togglePauseButton(bool sendUpdate)
 
 void LfpDisplayOptions::setChannelsReversed(bool state)
 {
+
+    if (lfpDisplay->getChannelsReversed() == state) // ignore if we're not changing state
+        return;
+
     lfpDisplay->setChannelsReversed(state);
     canvasSplit->fullredraw = true;
 
@@ -791,6 +795,7 @@ void LfpDisplayOptions::setChannelsReversed(bool state)
 
 void LfpDisplayOptions::setInputInverted(bool state)
 {
+    
     lfpDisplay->setInputInverted(state);
 
     invertInputButton->setToggleState(state, dontSendNotification);
@@ -849,6 +854,9 @@ void LfpDisplayOptions::setAveraging(bool state)
 void LfpDisplayOptions::setSortByDepth(bool state)
 {
 
+    if (lfpDisplay->shouldOrderChannelsByDepth() == state)
+        return;
+         
     if (canvasSplit->displayBuffer != nullptr)
         lfpDisplay->orderChannelsByDepth(state);
 
@@ -1504,7 +1512,10 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             //LOGD("    --> setShowChannelNumbers: ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
-            setInputInverted(xmlNode->getBoolAttribute("isInverted", false));
+            bool shouldInvert = xmlNode->getBoolAttribute("isInverted", false);
+            
+			if (invertInputButton->getToggleState() != shouldInvert)
+                setInputInverted(shouldInvert);
             
             //LOGD("    --> setInputInverted: ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();

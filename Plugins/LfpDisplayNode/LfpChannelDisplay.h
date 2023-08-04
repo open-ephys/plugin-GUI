@@ -129,6 +129,9 @@ public:
     /** Sets whether this channel display should be inverted */
     void setInputInverted(bool);
 
+    /** Returns whether this channel display is inverted */
+    bool getInputInverted();
+
     /** Sets whether this channel display can be inverted */
     void setCanBeInverted(bool);
 
