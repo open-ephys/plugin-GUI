@@ -61,8 +61,6 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     // MAIN OPTIONS
 
     // Timebase
-    timebases.add("0.010");
-    timebases.add("0.025");
     timebases.add("0.050");
     timebases.add("0.100");
     timebases.add("0.250");
@@ -74,7 +72,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     timebases.add("5.0");
     timebases.add("10.0");
     timebases.add("20.0");
-    selectedTimebase = 8;
+    selectedTimebase = 6;
     selectedTimebaseValue = timebases[selectedTimebase - 1];
 
     timebaseSelection = std::make_unique<ComboBox>("Timebase");
