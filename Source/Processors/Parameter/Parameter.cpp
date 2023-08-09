@@ -900,7 +900,7 @@ void SelectedStreamParameter::toXml(XmlElement* xml)
 void SelectedStreamParameter::fromXml(XmlElement* xml)
 {
     int loadValue = xml->getIntAttribute(getName(), defaultValue);
-    currentValue = loadValue < streamNames.size() ? loadValue : defaultValue;
+    currentValue = loadValue < streamNames.size() ? (var)loadValue : defaultValue;
 }
 
 TimeParameter::TimeParameter(ParameterOwner* owner,

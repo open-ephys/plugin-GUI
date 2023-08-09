@@ -266,7 +266,7 @@ void ParameterCollection::copyParametersFrom(ParameterOwner* pOwner)
         //if (s->hasDevice())
         //    owner.deviceName = s->device->getName();
     }
-    else if (pOwner->getType() == InfoObject::CONTINUOUS_CHANNEL)
+    else if (pOwner->getType() == ParameterOwner::CONTINUOUS_CHANNEL)
     {
         ContinuousChannel* s = (ContinuousChannel*)pOwner;
         owner.sample_rate = s->getSampleRate();
@@ -274,7 +274,7 @@ void ParameterCollection::copyParametersFrom(ParameterOwner* pOwner)
         owner.name = s->getName();
         owner.sourceNodeId = s->getSourceNodeId();
     }
-    else if (pOwner->getType() == InfoObject::SPIKE_CHANNEL)
+    else if (pOwner->getType() == ParameterOwner::SPIKE_CHANNEL)
     {
         SpikeChannel* s = (SpikeChannel*)pOwner;
         owner.sample_rate = s->getSampleRate();
@@ -282,7 +282,7 @@ void ParameterCollection::copyParametersFrom(ParameterOwner* pOwner)
         owner.name = s->getName();
         owner.sourceNodeId = s->getSourceNodeId();
     }
-    else if (pOwner->getType() == InfoObject::EVENT_CHANNEL)
+    else if (pOwner->getType() == ParameterOwner::EVENT_CHANNEL)
     {
         EventChannel* s = (EventChannel*)pOwner;
         owner.sample_rate = s->getSampleRate();
