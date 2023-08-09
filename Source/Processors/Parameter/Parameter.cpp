@@ -875,24 +875,32 @@ void SelectedStreamParameter::setNextValue(var newValue_)
 
 }
 
+void SelectedStreamParameter::setStreamNames(Array<String> streamNames_)
+{
+    streamNames = streamNames_;
+
+    if (streamNames.size() > 0 && (int)currentValue >= streamNames.size())
+        currentValue = streamNames.size() - 1;
+    else if (streamNames.size() == 0)
+        currentValue = -1;
+    else if ((int)currentValue == -1)
+        currentValue = 0;
+}
+
 int SelectedStreamParameter::getSelectedIndex()
 {
-    for (int i = 0; i < streamNames.size(); i++)
-    {
-        if (currentValue == streamNames[i])
-            return i;
-    }
-    return -1;
+    return (int)currentValue;
 }
 
 void SelectedStreamParameter::toXml(XmlElement* xml)
 {
-    xml->setAttribute(getName(), currentValue.toString());
+    xml->setAttribute(getName(), (int)currentValue);
 }
 
 void SelectedStreamParameter::fromXml(XmlElement* xml)
 {
-    currentValue = xml->getStringAttribute(getName(), defaultValue);
+    int loadValue = xml->getIntAttribute(getName(), defaultValue);
+    currentValue = loadValue < streamNames.size() ? loadValue : defaultValue;
 }
 
 TimeParameter::TimeParameter(ParameterOwner* owner,

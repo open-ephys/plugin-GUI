@@ -434,13 +434,6 @@ void FileReaderEditor::comboBoxChanged (ComboBox* combo)
 void FileReaderEditor::populateRecordings (FileSource* source)
 {
 
-    ComboBox* activeStreamEditor = (ComboBox*)getParameterEditor("active_stream")->getEditor();
-
-    activeStreamEditor->clear(dontSendNotification);
-    for (int i = 0; i < source->getNumRecords(); ++i)
-        activeStreamEditor->addItem (source->getRecordName (i), i + 1);
-
-    activeStreamEditor->setSelectedId (1, dontSendNotification);
 }
 
 void FileReaderEditor::clearEditor()

@@ -604,7 +604,7 @@ public:
     virtual void setNextValue(var newValue) override;
 
     /** Sets the list of available stream names */
-    void setStreamNames(Array<String> names) { streamNames = names; };
+    void setStreamNames(Array<String> names);
 
     /** Gets the list of available stream names */
     Array<String>& getStreamNames() { return streamNames; };
@@ -613,7 +613,7 @@ public:
     int getSelectedIndex();
 
     /** Gets the value as a string**/
-    virtual String getValueAsString() override { return currentValue.toString(); };
+    virtual String getValueAsString() override { return streamNames[currentValue]; };
 
     /** Saves the parameter to an XML Element*/
     virtual void toXml(XmlElement*) override;

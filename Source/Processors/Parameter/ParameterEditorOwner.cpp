@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ParameterEditorOwner.h"
 
 
-//ParameterEditorOwnerCommon
+//ParameterEditorOwner
 ParameterEditorOwner::ParameterEditorOwner(Component* ownerComponent_)
     : ownerComponent(ownerComponent_)
 {
@@ -39,7 +39,6 @@ ParameterEditorOwner::ParameterEditorOwner(const ParameterEditorOwner& other)
 
 void ParameterEditorOwner::addParameterEditor(ParameterEditor* p, int xPos, int yPos)
 {
-    LOGD("@@@@@@@@ Adding parameter editor: ", p->getParameterName());
     parameterEditors.add(p);
     ownerComponent->addAndMakeVisible(p);
     p->setBounds(xPos, yPos, p->getWidth(), p->getHeight());

@@ -976,7 +976,28 @@ void SelectedStreamParameterEditor::comboBoxChanged(ComboBox* comboBox)
 
 void SelectedStreamParameterEditor::updateView()
 {
-    repaint();
+    if (param == nullptr)
+        valueComboBox->setEnabled(false);
+
+    else
+    {
+        if (param->getType() == Parameter::SELECTED_STREAM_PARAM)
+        {
+            valueComboBox->setEnabled(true);
+            valueComboBox->clear(dontSendNotification);
+
+            SelectedStreamParameter* p = (SelectedStreamParameter*)param;
+            Array<String>& streams = p->getStreamNames();
+
+            for (int i = 0; i < streams.size(); i++)
+            {
+                valueComboBox->addItem(streams[i], i + 1);
+            }
+
+            valueComboBox->setSelectedId(p->getSelectedIndex() + 1, dontSendNotification);
+        }
+    }
+    // repaint();
 }
 
 void SelectedStreamParameterEditor::resized()

@@ -244,12 +244,19 @@ bool FileReader::setFile (String fullpath)
 
     setActiveStream (0);
 
+    Array<String> streamNames;
+    for (int i = 0; i < input->getNumRecords(); ++i)
+        streamNames.add(input->getRecordName(i));
+    
+    SelectedStreamParameter* activeStreamParam = (SelectedStreamParameter*)getParameter("active_stream");
+    activeStreamParam->setStreamNames(streamNames);
+
     if (!headlessMode)
     {
 
         FileReaderEditor* ed = (FileReaderEditor*)editor.get();
 
-        ed->populateRecordings (input);
+        // ed->populateRecordings (input);
 
         ed->showScrubInterface(false);
 

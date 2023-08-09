@@ -953,6 +953,25 @@ void GenericProcessor::update()
 
     LOGD("    Copied upstream settings in ", MS_FROM_START, " milliseconds");
 
+    /// UPDATE PROCESSOR PARAMETERS
+    if (!isSource() && numParameters() > 0)
+    {
+        for (auto param : getParameters())
+        {
+            if (param->getType() == Parameter::SELECTED_STREAM_PARAM)
+            {
+                Array<String> streamNames;
+                for (auto stream : dataStreams)
+                {
+                    streamNames.add(stream->getName());
+                }
+                SelectedStreamParameter* p = (SelectedStreamParameter*)param;
+                p->setStreamNames(streamNames);
+                parameterValueChanged(p);
+            }
+        }
+    }
+
     /// UPDATE PARAMETERS FOR STREAMS
 	for (auto stream : dataStreams)
 	{

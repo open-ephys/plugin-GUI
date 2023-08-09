@@ -29,11 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ParameterEditor.h"
 
 /**
-* Holds parameters and provides ways to access and modify those parameters.
-* ParameterEditorOwner can be inherited by anything that holds information about specific
-* settings. For example, a DataStream might have parameters that store the
-* the values of filter cutoffs.
-* 
+* Holds parameter editors and provides ways to access and update them.
+* ParameterEditorOwner can be inherited by anything that provides an interface
+* for specific settings. For example, a Visualizer compoenent that has a
+* combobox for setting voltage range.
 */
 class PLUGIN_API ParameterEditorOwner
 {
@@ -42,26 +41,26 @@ public:
 	/** Destructor */
     virtual ~ParameterEditorOwner();
 
-    /** Custom copy constructor -- set isLocal to false and don't copy parameters*/
+    /** Custom copy constructor*/
     ParameterEditorOwner(const ParameterEditorOwner& other);
 
     // --------------------------------------------
     //     PARAMETERS
     // --------------------------------------------
 
-    /** Adds a parameter to this object**/
+    /** Adds a parameter editor to this object**/
     void addParameterEditor(ParameterEditor* p, int xPos, int yPos);
 
-    /** Returns a pointer to a parameter with a given name**/
+    /** Returns a pointer to a parameter editor with a given name**/
     ParameterEditor* getParameterEditor(String name) const;
 
-	/** Returns true if an object has a parameter with a given name**/
+	/** Returns true if an object has a parameter editor with a given name**/
 	bool hasParameterEditor(String name) const;
 
-    /** Returns a pointer to a parameter with a given name**/
+    /** Returns array of pointers to all parameter editors **/
     Array<ParameterEditor*> getParameterEditors();
 
-    /** Returns the number of parameters for this object*/
+    /** Returns the number of parameter editors for this object*/
     int numParameterEditors() const { return parameterEditors.size(); }
     
     Component* getComponent() const { return ownerComponent; }

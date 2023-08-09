@@ -301,8 +301,6 @@ void Visualizer::loadFromXml(XmlElement* xml)
 {    
     XmlElement* visParams = xml->getChildByName("VISUALIZER_PARAMETERS");
 
-    LOGD("**************** Loading visualizer parameters");
-
     if (visParams != nullptr)
     {
         for (int i = 0; i < visParams->getNumAttributes(); i++)
