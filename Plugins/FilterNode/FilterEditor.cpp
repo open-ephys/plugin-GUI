@@ -26,11 +26,11 @@
 
 FilterEditor::FilterEditor(GenericProcessor* parentNode) : GenericEditor(parentNode)
 {
-    desiredWidth = 200;
+    desiredWidth = 170;
 
-    addSliderParameterEditor(Parameter::STREAM_SCOPE, "low_cut", 10, 29);
-    addSliderParameterEditor(Parameter::STREAM_SCOPE, "high_cut", 10, 54);
-    addMaskChannelsParameterEditor(Parameter::STREAM_SCOPE, "Channels", 10, 79);
-    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "Threads", 10, 104);
+    addSliderParameterEditor(Parameter::STREAM_SCOPE, "low_cut", 15, 29);
+    addSliderParameterEditor(Parameter::STREAM_SCOPE, "high_cut", 15, 54);
+    addMaskChannelsParameterEditor(Parameter::STREAM_SCOPE, "channels", 15, 79);
+    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "threads", 15, 104);
 
 }

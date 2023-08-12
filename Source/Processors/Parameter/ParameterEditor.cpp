@@ -25,56 +25,54 @@
 #include "../GenericProcessor/GenericProcessor.h"
 #include "../Editors/GenericEditor.h"
 
-void ParameterEditor::setLayout(Layout layout)
+void ParameterEditor::setLayout(Layout newLayout)
 {
-    Rectangle<int> bounds = getBounds();
-    int x = bounds.getX();
-    int y = bounds.getY();
+    layout = newLayout;
+    updateBounds();
+}
 
-    int finalWidth;
+void ParameterEditor::updateBounds()
+{
+    if(label == nullptr || editor == nullptr)
+        return;
+        
+    Rectangle<int> bounds = getBounds();
+    int finalWidth = bounds.getWidth();
+    int finalHeight = bounds.getHeight();
 
     switch (layout)
     {
         case nameOnTop:
-            finalWidth = bounds.getWidth();
-            setBounds(x, y, getWidth(), 42);
-            label->setBounds(0, 0, finalWidth, 20);
+            label->setBounds(0, 0, finalWidth, finalHeight / 2);
             label->setJustificationType(Justification::centredLeft);
             label->setVisible(true);
-            editor->setBounds(5, 16, finalWidth / 2, 18);
+            editor->setBounds(0, finalHeight /2, finalWidth, finalHeight /2);
             break;
         case nameOnBottom:
-            finalWidth = bounds.getWidth();
-            setBounds(x, y, finalWidth, 42);
-            label->setBounds(0, 20, finalWidth, 20);
+            label->setBounds(0, finalHeight / 2, finalWidth, finalHeight / 2);
             label->setJustificationType(Justification::centredLeft);
             label->setVisible(true);
-            editor->setBounds(0, 0, finalWidth, 18);
+            editor->setBounds(0, 0, finalWidth, finalHeight / 2);
             break;
         case nameOnLeft:
-            finalWidth = bounds.getWidth();
-            setBounds(x, y, finalWidth * 2, 42);
-            label->setBounds(0, 0, finalWidth, 20);
+            label->setBounds(0, 0, (finalWidth / 2) - 5, finalHeight);
             label->setJustificationType(Justification::centredRight);
             label->setVisible(true);
-            editor->setBounds(finalWidth + 5, 0, finalWidth - 5, 18);
+            editor->setBounds((finalWidth / 2)+ 5, 0, (finalWidth/ 2) - 5, finalHeight);
             break;
         case nameOnRight:
-            finalWidth = bounds.getWidth();
-            setBounds(x, y, finalWidth * 2, 42);
-            label->setBounds(finalWidth, 0, finalWidth, 20);
+            label->setBounds((finalWidth / 2) + 5 , 0, (finalWidth / 2) - 5, finalHeight);
             label->setJustificationType(Justification::centredLeft);
             label->setVisible(true);
-            editor->setBounds(0, 0, finalWidth - 5, 18);
+            editor->setBounds(0, 0, (finalWidth / 2) - 5, finalHeight);
             break;
         case nameHidden:
-            finalWidth = bounds.getWidth() / 2;
-            setBounds(x, y, finalWidth, 42);
             label->setVisible(false);
-            editor->setBounds(0, 0, finalWidth, 18);
+            editor->setBounds(0, 0, finalWidth, finalHeight);
             break;
     }
 }
+
 
 TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels)
     : ParameterEditor(param)
@@ -137,6 +135,12 @@ void TextBoxParameterEditor::updateView()
     }
 
 }
+
+void TextBoxParameterEditor::resized()
+{
+    updateBounds();
+}
+
 
 void CustomToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
@@ -216,8 +220,7 @@ void ToggleParameterEditor::updateView()
 
 void ToggleParameterEditor::resized()
 {
-    label->setBounds(getWidth() / 2 + 10, 0, getWidth() / 2, getHeight());
-    toggleButton->setBounds(0, 0, getWidth() / 2 + 10, getHeight());
+    updateBounds();
 }
 
 
@@ -331,8 +334,7 @@ void ComboBoxParameterEditor::updateView()
 
 void ComboBoxParameterEditor::resized()
 {
-    label->setBounds(getWidth() / 2 + 10, 0, getWidth() / 2, getHeight());
-    valueComboBox->setBounds(0, 0, getWidth() / 2 + 10, getHeight());
+    updateBounds();
 }
 
 
@@ -544,8 +546,7 @@ void SliderParameterEditor::updateView()
 
 void SliderParameterEditor::resized()
 {
-    label->setBounds(0, 0, 80, 15);
-    slider->setBounds(0, 15, 50, 50);
+    updateBounds();
 }
 
 
@@ -592,10 +593,25 @@ void BoundedValueEditor::mouseDrag(const MouseEvent& event)
     newValue = jlimit(minValue, maxValue, newValue);
 
     // Set the label's text to the new value
-    setText(juce::String(newValue), juce::dontSendNotification);
+    setText(juce::String(newValue, 1), juce::dontSendNotification);
+
+    mouseWasDragged = true;
 
     // Redraw the component
     repaint();
+}
+
+void BoundedValueEditor::mouseUp (const MouseEvent& event)
+{
+    if (mouseWasDragged)
+    {
+        callChangeListeners();
+        mouseWasDragged = false;
+    }
+    else
+    {
+        juce::Label::mouseUp(event);
+    }
 }
 
 
@@ -625,6 +641,7 @@ BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int r
     else {
         IntParameter* p = (IntParameter*)param;
         valueEditor = std::make_unique<BoundedValueEditor>(p->getMinValue(), p->getMaxValue(), 1);
+        valueEditor->setText(String(p->getIntValue()), dontSendNotification);
     }
     valueEditor->setName(param->getKey());
     valueEditor->setFont(Font("Fira Sans", "Regular", int(0.75*rowHeightPixels)));
@@ -692,8 +709,7 @@ void BoundedValueParameterEditor::updateView()
 
 void BoundedValueParameterEditor::resized()
 {
-    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
-    valueEditor->setBounds(0, 0, getWidth()/2, getHeight());
+    updateBounds();
 }
 
 
@@ -771,8 +787,7 @@ void SelectedChannelsParameterEditor::updateView()
 
 void SelectedChannelsParameterEditor::resized()
 {
-    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
-    button->setBounds(0, 0, getWidth()/2, getHeight());
+    updateBounds();
 }
 
 
@@ -858,13 +873,13 @@ void MaskChannelsParameterEditor::updateView()
 
 void MaskChannelsParameterEditor::resized()
 {
-    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
-    button->setBounds(0, 0, getWidth()/2, getHeight());
+    updateBounds();
 }
 
 
 PathParameterEditor::PathParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
+    setBounds(0, 0, rowWidthPixels, rowHeightPixels);
 
     button = std::make_unique<TextButton>("Browse");
     button->setName(param->getKey());
@@ -881,7 +896,6 @@ PathParameterEditor::PathParameterEditor(Parameter* param, int rowHeightPixels, 
 
     int width = rowWidthPixels;
 
-    setBounds(0, 0, width, rowHeightPixels);
     label->setBounds(width / 2, 0, getWidth() - 50, rowHeightPixels);
     button->setBounds(0, 0, width/2, rowHeightPixels);
 
@@ -913,8 +927,7 @@ void PathParameterEditor::updateView()
 
 void PathParameterEditor::resized()
 {
-    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
-    button->setBounds(0, 0, getWidth()/2, getHeight());
+    updateBounds();
 }
 
 
@@ -1002,8 +1015,7 @@ void SelectedStreamParameterEditor::updateView()
 
 void SelectedStreamParameterEditor::resized()
 {
-    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
-    valueComboBox->setBounds(0, 0, getWidth() / 2, getHeight());
+    updateBounds();
 }
 
 
@@ -1059,8 +1071,7 @@ void TimeParameterEditor::updateView()
 
 void TimeParameterEditor::resized()
 {
-    label->setBounds(getWidth() / 2, 0, getWidth() / 2, getHeight());
-    button->setBounds(0, 0, getWidth() / 2, getHeight());
+    updateBounds();
 }
 
 void TimeParameterEditor::timerCallback()

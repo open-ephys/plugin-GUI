@@ -50,6 +50,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     , scrubInterfaceVisible (false)
     , scrubInterfaceAvailable(false)
 {
+    desiredWidth = 280;
 
     scrubberInterface = new ScrubberInterface(fileReader);
     scrubberInterface->setBounds(0, 0, 420, 140);
@@ -70,7 +71,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     for (auto& p : {"selected_file", "active_stream", "start_time", "end_time"})
     {
         auto* ed = getParameterEditor(p);
-        ed->setBounds(ed->getX(), ed->getY(), 2*ed->getWidth(), ed->getHeight());
+        ed->setBounds(ed->getX(), ed->getY(), desiredWidth, ed->getHeight());
     }
 
     /*
@@ -96,8 +97,6 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     timeLimits->setBounds (20, 105, 175, 20);
     addAndMakeVisible (timeLimits);
     */
-
-    desiredWidth = 280;
 
     lastFilePath = CoreServices::getDefaultUserSaveDirectory();
 

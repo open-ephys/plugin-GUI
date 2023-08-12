@@ -46,6 +46,8 @@ public:
     {
         if (param->getKey().compare("UNKNOWN") != 0)
             param->addListener(this);
+        
+        layout = Layout::nameOnRight;
     }
 
     /** Destructor */
@@ -127,8 +129,13 @@ protected:
     
     String name;
 
-    std::unique_ptr<Label> label;
-    Component* editor;
+    std::unique_ptr<Label> label = nullptr;
+    Component* editor = nullptr;
+
+    Layout layout;
+
+    /** Updates label and editor bounds based on layout */
+    void updateBounds();
 };
 
 /** 
@@ -156,6 +163,9 @@ public:
     
     /** Returns a pointer to the value label, for customization */
     Label* getValueLabel() { return valueTextBox.get(); }
+
+    /** Sets sub-component locations */
+    virtual void resized() override;
 
 private:
     std::unique_ptr<Label> valueTextBox;
@@ -336,12 +346,15 @@ public:
 
     /** Mouse event handlers */
     void mouseDrag(const MouseEvent& event) override;
+
+    void mouseUp (const MouseEvent&) override;
     
 private:
 
     void paint (Graphics& g) override;
 
     bool isEnabled;
+    bool mouseWasDragged = false;
 
     double minValue;
     double maxValue;
