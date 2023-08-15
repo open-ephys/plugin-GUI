@@ -436,7 +436,7 @@ void GenericProcessor::addTimeParameter(
         dataStreamParameters.add(p);
 }
 
-void GenericProcessor::addEventNotificationParameter(
+void GenericProcessor::addNotificationParameter(
     Parameter::ParameterScope scope,
     const String& name,
     const String& displayName,
@@ -444,7 +444,7 @@ void GenericProcessor::addEventNotificationParameter(
 	bool deactivateDuringAcquisition)
 {
 
-	EventNotificationParameter* p = new EventNotificationParameter(
+	NotificationParameter* p = new NotificationParameter(
         scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
 		scope,
 		name, 
@@ -1061,8 +1061,8 @@ void GenericProcessor::update()
                 }
                 else if (param->getType() == Parameter::NOTIFICATION_PARAM)
                 {
-                    EventNotificationParameter* p = (EventNotificationParameter*)param;
-                    stream->addParameter(new EventNotificationParameter(*p));
+                    NotificationParameter* p = (NotificationParameter*)param;
+                    stream->addParameter(new NotificationParameter(*p));
                 }
             }
         }

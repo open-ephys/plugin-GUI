@@ -203,7 +203,7 @@ protected:
         bool deactivateDuringAcquisition = true);
     
     /** Adds a boolean parameter, which will later be accessed by name*/
-    void addEventNotificationParameter(const String& name,
+    void addNotificationParameter(const String& name,
         const String& displayName,
         const String& description,
         bool deactivateDuringAcquisition = false);

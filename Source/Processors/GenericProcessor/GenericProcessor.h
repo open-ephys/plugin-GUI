@@ -364,7 +364,7 @@ public:
         bool deactivateDuringAcquisition = true);
 
     /** Adds a path parameter which holds a path to a folder or file */
-    void addEventNotificationParameter(Parameter::ParameterScope scope,
+    void addNotificationParameter(Parameter::ParameterScope scope,
         const String& name,
         const String& displayName,
         const String& description,

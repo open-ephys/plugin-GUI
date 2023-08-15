@@ -308,13 +308,13 @@ void Visualizer::addSelectedStreamParameter(const String& name,
 
 }
 
-void Visualizer::addEventNotificationParameter(const String& name,
+void Visualizer::addNotificationParameter(const String& name,
     const String& displayName,
 	const String& description,
 	bool deactivateDuringAcquisition)
 {
 
-	EventNotificationParameter* p = new EventNotificationParameter(
+	NotificationParameter* p = new NotificationParameter(
 		nullptr, 
 		Parameter::VISUALIZER_SCOPE,
 		name, 

@@ -951,7 +951,7 @@ void TimeParameter::fromXml(XmlElement* xml)
 }
 
 
-EventNotificationParameter::EventNotificationParameter(ParameterOwner* owner,
+NotificationParameter::NotificationParameter(ParameterOwner* owner,
     ParameterScope scope,
     const String& name,
     const String& displayName,
@@ -969,12 +969,12 @@ EventNotificationParameter::EventNotificationParameter(ParameterOwner* owner,
 
 }
 
-void EventNotificationParameter::triggerNotification()
+void NotificationParameter::triggerNotification()
 {
     setNextValue(true);
 }
 
-void EventNotificationParameter::setNextValue(var newValue_)
+void NotificationParameter::setNextValue(var newValue_)
 {
     getOwner()->parameterValueChanged(this);
 }

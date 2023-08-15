@@ -879,11 +879,11 @@ private:
     Represents a Parameter that is only used for change notification.
     E.g. to notify the processor that a certain event has occured.
 */
-class PLUGIN_API EventNotificationParameter : public Parameter
+class PLUGIN_API NotificationParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    EventNotificationParameter(ParameterOwner* owner,
+    NotificationParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
         const String& displayName,
