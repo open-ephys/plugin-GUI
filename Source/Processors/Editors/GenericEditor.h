@@ -209,9 +209,6 @@ public:
 
     /** Allows an editor to update the settings of its visualizer (such as channel count and sample rate).*/
     virtual void updateVisualizer();
-
-    /** Allows an editor to update the view of its visualizer's parameter editors.*/
-    virtual void updateVisualizerView();
     
     /** Returns the parameter editor for a given parameter name*/
     ParameterEditor* getParameterEditor(const String& parameterName);

@@ -363,6 +363,13 @@ public:
         const String& defaultValue = "00:00:00",
         bool deactivateDuringAcquisition = true);
 
+    /** Adds a path parameter which holds a path to a folder or file */
+    void addEventNotificationParameter(Parameter::ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        bool deactivateDuringAcquisition = true);
+
     /** Returns a pointer to a parameter created inside this processor
         Includes processor, stream, & channel scoped parameters
     */

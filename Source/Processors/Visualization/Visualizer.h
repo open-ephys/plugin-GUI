@@ -193,6 +193,20 @@ protected:
         Array<String> categories,
         int defaultIndex,
         bool deactivateDuringAcquisition = false);
+    
+    /** Adds a selected stream parameter which holds the currentlu selected stream */
+    void addSelectedStreamParameter(const String& name,
+        const String& displayName,
+        const String& description,
+        Array<String> streamNames,
+        const int defaultIndex,
+        bool deactivateDuringAcquisition = true);
+    
+    /** Adds a boolean parameter, which will later be accessed by name*/
+    void addEventNotificationParameter(const String& name,
+        const String& displayName,
+        const String& description,
+        bool deactivateDuringAcquisition = false);
 
     /** Called by the update() method to allow the visualizer to update its custom settings.*/
     virtual void updateSettings() { }

@@ -436,6 +436,27 @@ void GenericProcessor::addTimeParameter(
         dataStreamParameters.add(p);
 }
 
+void GenericProcessor::addEventNotificationParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+	const String& description,
+	bool deactivateDuringAcquisition)
+{
+
+	EventNotificationParameter* p = new EventNotificationParameter(
+        scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
+		scope,
+		name, 
+        displayName,
+		description, 
+		deactivateDuringAcquisition);
+
+	if (scope == Parameter::PROCESSOR_SCOPE)
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
+}
 
 void GenericProcessor::parameterChangeRequest(Parameter* param)
 {
@@ -1037,6 +1058,11 @@ void GenericProcessor::update()
                 {
                     TimeParameter* p = (TimeParameter*)param;
                     stream->addParameter(new TimeParameter(*p));
+                }
+                else if (param->getType() == Parameter::NOTIFICATION_PARAM)
+                {
+                    EventNotificationParameter* p = (EventNotificationParameter*)param;
+                    stream->addParameter(new EventNotificationParameter(*p));
                 }
             }
         }

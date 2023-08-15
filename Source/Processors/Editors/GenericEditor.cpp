@@ -1116,7 +1116,6 @@ void GenericEditor::updateView()
     //    ed->updateView();
     //}
 
-    updateVisualizerView();
 }
 
 ParameterEditor* GenericEditor::getParameterEditor(const String& parameterName)
@@ -1133,8 +1132,6 @@ ParameterEditor* GenericEditor::getParameterEditor(const String& parameterName)
 void GenericEditor::updateCustomView() {}
 
 void GenericEditor::updateVisualizer() {}
-
-void GenericEditor::updateVisualizerView() {}
 
 void GenericEditor::saveCustomParametersToXml(XmlElement* xml) { }
 

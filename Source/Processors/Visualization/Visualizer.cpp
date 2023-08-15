@@ -45,6 +45,21 @@ void Visualizer::update()
         
         auto streamId = processor->getEditor()->getCurrentStream();
         bool streamAvailable = streamId > 0 ? true : false;
+
+        for (auto param : getParameters())
+        {
+            if (param->getType() == Parameter::SELECTED_STREAM_PARAM)
+            {
+                Array<String> streamNames;
+                for (auto stream : processor->getDataStreams())
+                {
+                    streamNames.add(stream->getName());
+                }
+                SelectedStreamParameter* p = (SelectedStreamParameter*)param;
+                p->setStreamNames(streamNames);
+                parameterValueChanged(p);
+            }
+        }
         
         Array<ParameterEditor*> allParamEditors;
 
@@ -248,8 +263,6 @@ void Visualizer::addMaskChannelsParameter(
 
 }
 
-
-
 void Visualizer::addSelectedChannelsParameter(
     const String& name,
     const String& displayName,
@@ -273,6 +286,45 @@ void Visualizer::addSelectedChannelsParameter(
     addParameter(p);
 }
 
+void Visualizer::addSelectedStreamParameter(const String& name,
+    const String& displayName,
+    const String& description,
+    Array<String> streamNames,
+    const int defaultIndex,
+    bool deactivateDuringAcquisition)
+{
+
+    SelectedStreamParameter* p = new SelectedStreamParameter(
+        nullptr, 
+        Parameter::VISUALIZER_SCOPE,
+        name, 
+        displayName,
+        description,
+        streamNames, 
+        defaultIndex, 
+        deactivateDuringAcquisition);
+
+    addParameter(p);
+
+}
+
+void Visualizer::addEventNotificationParameter(const String& name,
+    const String& displayName,
+	const String& description,
+	bool deactivateDuringAcquisition)
+{
+
+	EventNotificationParameter* p = new EventNotificationParameter(
+		nullptr, 
+		Parameter::VISUALIZER_SCOPE,
+		name, 
+        displayName,
+		description, 
+		deactivateDuringAcquisition);
+
+	addParameter(p);
+
+}
 void Visualizer::parameterChangeRequest(Parameter* param)
 {
 	param->updateValue();

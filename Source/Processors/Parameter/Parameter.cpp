@@ -949,3 +949,32 @@ void TimeParameter::fromXml(XmlElement* xml)
 {
     currentValue = xml->getStringAttribute(getName(), defaultValue);
 }
+
+
+EventNotificationParameter::EventNotificationParameter(ParameterOwner* owner,
+    ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    bool deactivateDuringAcquisition)
+    : Parameter(owner,
+                ParameterType::NOTIFICATION_PARAM,
+                scope,
+                name,
+                displayName,
+                description,
+                false,
+                deactivateDuringAcquisition)
+{
+
+}
+
+void EventNotificationParameter::triggerNotification()
+{
+    setNextValue(true);
+}
+
+void EventNotificationParameter::setNextValue(var newValue_)
+{
+    getOwner()->parameterValueChanged(this);
+}

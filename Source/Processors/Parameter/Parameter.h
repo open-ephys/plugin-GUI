@@ -873,4 +873,38 @@ private:
 
 };
 
+
+/** 
+* 
+    Represents a Parameter that is only used for change notification.
+    E.g. to notify the processor that a certain event has occured.
+*/
+class PLUGIN_API EventNotificationParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    EventNotificationParameter(ParameterOwner* owner,
+        ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        bool deactivateDuringAcquisition = false);
+    
+    /** Notifies the processor that a certain event has occured by calling parameterValueChanged() */
+    void triggerNotification();
+
+    /** Stages a value, to be changed by the processor*/
+    void setNextValue(var newValue) override ;
+    
+    /** Gets the value as a string**/
+    String getValueAsString() override { return String(); }
+
+    /** Saves the parameter to an XML Element*/
+    void toXml(XmlElement*) override { }
+
+    /** Loads the parameter from an XML Element*/
+    void fromXml(XmlElement*) override { }
+
+};
+
 #endif  // __PARAMETER_H_62922AE5__
