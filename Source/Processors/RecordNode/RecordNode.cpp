@@ -103,18 +103,122 @@ void RecordNode::checkDiskSpace()
 
 String RecordNode::handleConfigMessage(String msg)
 {
+	/*
+	Available messages:
+	- engine=<engine_name> -- changes the record engine
+	- SELECT <stream_index> NONE / ALL / <channels> -- selects which channels to record, e.g.:
+		"SELECT 0 NONE" -- deselect all channels for stream 0
+		"SELECT 1 1 2 3 4 5 6 7 8" -- select channels 1-8 for stream 1
+	
+	*/
+
+	if (CoreServices::getAcquisitionStatus())
+	{
+		return "Cannot configure Record Node while acquisition is active.";
+	}
 
 	const MessageManagerLock mml;
 
     StringArray tokens;
     tokens.addTokens (msg, "=", "\"");
 
-    if (tokens.size() != 2) return "Invalid msg";
+	LOGD(tokens[0]);
 
 	if (tokens[0] == "engine")
-		static_cast<RecordNodeEditor*> (getEditor())->engineSelectCombo->setSelectedItemIndex(std::stoi(tokens[1].toStdString()), sendNotification);
-	else
-		LOGD("Record Node: invalid engine key");
+	{
+		if (tokens.size() == 2)
+		{
+			RecordNodeEditor* ed = static_cast<RecordNodeEditor*> (getEditor());
+			
+			int engineIndex = tokens[1].getIntValue();
+
+			int numEngines = ed->engineSelectCombo->getNumItems();
+
+			if (engineIndex >= 0 && engineIndex < numEngines)
+			{
+				ed->engineSelectCombo->setSelectedItemIndex(engineIndex, sendNotification);
+				return "Record Node: updated record engine to " + ed->engineSelectCombo->getText();
+			}
+			else {
+				return "Record Node: invalid engine index (max = " + String(numEngines - 1) + ")";
+			}
+			
+		}
+		else
+		{
+			return "Record Node: invalid engine key";
+		}
+	}
+
+	tokens.clear();
+	tokens.addTokens(msg, " ", "");
+
+	LOGD(tokens[0]);
+
+	if (tokens[0] == "SELECT")
+	{
+
+		if (tokens.size() >= 3)
+		{
+			
+			int streamIndex = tokens[1].getIntValue();
+			uint16 streamId;
+			std::vector<bool> channelStates;
+			int channelCount;
+
+			if (streamIndex >= 0 && streamIndex < dataStreams.size())
+			{
+				streamId = dataStreams[streamIndex]->getStreamId();
+				channelCount = dataStreams[streamIndex]->getChannelCount();
+			}
+			else {
+				return "Record Node: Invalid stream index; max = " + String(dataStreams.size() - 1);
+			}
+			
+			if (tokens[2] == "NONE")
+			{
+				//select no channels
+				for (int i = 0; i < channelCount; i++)
+				{
+					channelStates.push_back(false);
+				}
+			}
+			else if (tokens[2] == "ALL")
+			{
+				//select all channels
+				for (int i = 0; i < channelCount; i++)
+				{
+					channelStates.push_back(true);
+				}
+			}
+			else
+			{
+				
+				Array<int> channels;
+
+				for (int i = 2; i < tokens.size(); i++)
+				{
+					int ch = tokens[i].getIntValue() - 1;
+					channels.add(ch);
+				}
+
+				//select some channels
+				for (int i = 0; i < channelCount; i++)
+				{
+					if (channels.contains(i))
+						channelStates.push_back(true);
+					else
+						channelStates.push_back(false);
+				}
+			}
+
+			updateChannelStates(streamId, channelStates);
+		}
+		else
+		{
+			LOGD("Record Node: invalid config message");
+		}
+	}
 
     return "Record Node received config: " + msg;
 }

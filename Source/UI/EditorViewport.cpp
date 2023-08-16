@@ -1677,6 +1677,8 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
         return "Failed To Open " + currentFile.getFileName();
     }
     
+    /* commented out in version 0.6.6
+    
     if (!sameVersion)
     {
         String responseString = "Your configuration file was saved from a different version of the GUI than the one you're using. \n";
@@ -1702,7 +1704,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
         {
             return "Failed To Open " + currentFile.getFileName();
         }
-    }
+    }*/
     
     MouseCursor::showWaitCursor();
 
