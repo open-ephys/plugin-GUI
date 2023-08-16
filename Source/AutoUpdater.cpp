@@ -318,9 +318,9 @@ private:
 
 void LatestVersionCheckerAndUpdater::askUserForLocationToDownload (const Asset& asset)
 {
-    FileChooser chooser ("Please select the location into which you would like to install the new version",
+    FileChooser chooser ("Please select the location into which you would like to download the new version",
                          { File::getSpecialLocation(File::userDesktopDirectory) },
-                         "*.exe;*.zip");
+                         "*");
 
     if (chooser.browseForDirectory())
     {
