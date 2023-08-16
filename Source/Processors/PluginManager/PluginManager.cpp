@@ -104,7 +104,7 @@ PluginManager::PluginManager()
 							.getChildFile("Open Ephys")
 							.getChildFile("shared-api" + String(PLUGIN_API_VER));
 
-	if(appDir.contains("plugin-GUI\\Build\\"))
+	if(appDir.contains("plugin-GUI\\Build\\") || appDir.contains("build\\plugin-GUI\\"))
 	{
 		SetDllDirectory(sharedPath.getFullPathName().toUTF8());
 	}

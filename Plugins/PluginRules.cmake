@@ -1,38 +1,26 @@
 #common options for default plug-ins
 unset(PROJECT_FOLDER)
 unset(PLUGIN_NAME)
-set(INSTALL_GTEST OFF)
+unset(SRC_FILES)
 get_filename_component(PROJECT_FOLDER ${CMAKE_CURRENT_SOURCE_DIR} ABSOLUTE)
 get_filename_component(PLUGIN_NAME ${PROJECT_FOLDER} NAME)
 
 if (APPLE)
-	if(BUILD_TESTS)
-		add_library(${PLUGIN_NAME} SHARED OpenEphysLib.cpp)
-	else()
-		add_library(${PLUGIN_NAME} MODULE OpenEphysLib.cpp)
-	endif()
+	add_library(${PLUGIN_NAME} MODULE OpenEphysLib.cpp)
 else()
 	add_library(${PLUGIN_NAME} SHARED OpenEphysLib.cpp)
 endif()
 
+
 if(BUILD_TESTS)
-	include(FetchContent)
-	FetchContent_Declare(
-			googletest
-			GIT_REPOSITORY    https://github.com/google/googletest.git
-			GIT_TAG           release-1.12.1
-	)
-
-	FetchContent_MakeAvailable(googletest)
-	enable_testing()
-
+	add_library(${PLUGIN_NAME}_testable SHARED)
+	
 	add_executable(
 			${PLUGIN_NAME}_tests
 	)
 	target_compile_features(${PLUGIN_NAME}_tests PRIVATE cxx_std_17)
-else()
-	add_dependencies(${PLUGIN_NAME} open-ephys)
 endif()
+add_dependencies(${PLUGIN_NAME} open-ephys)
 
 target_include_directories(${PLUGIN_NAME} PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules ${PLUGIN_HEADER_PATH})
 target_compile_features(${PLUGIN_NAME} PUBLIC cxx_auto_type cxx_generalized_initializers)
@@ -42,11 +30,7 @@ target_compile_features(${PLUGIN_NAME} PRIVATE cxx_std_17)
 
 #Libraries and compiler options
 if(MSVC)
-	if(BUILD_TESTS)
- 		target_link_libraries(${PLUGIN_NAME} gui_testable_source)
- 	else()
- 		target_link_libraries(${PLUGIN_NAME} $<TARGET_FILE_DIR:open-ephys>/open-ephys.lib)
- 	endif()	
+ 	target_link_libraries(${PLUGIN_NAME} $<TARGET_FILE_DIR:open-ephys>/open-ephys.lib)
  	target_compile_options(${PLUGIN_NAME} PRIVATE /sdl- /W0)
 elseif(LINUX)
 	target_link_libraries(${PLUGIN_NAME} GL X11 Xext Xinerama asound dl freetype pthread rt)
@@ -73,9 +57,20 @@ elseif(APPLE)
 endif()
 
 if(BUILD_TESTS)
-	add_dependencies(${PLUGIN_NAME}_tests ${PLUGIN_NAME} gui_testable_source test_helpers)
-	target_link_libraries(${PLUGIN_NAME}_tests PRIVATE ${PLUGIN_NAME} gtest_main test_helpers PUBLIC gui_testable_source)
+	
+	if(MSVC)
+ 		target_compile_options(${PLUGIN_NAME}_testable PRIVATE /sdl- /W0)
+	endif()
+	add_dependencies(${PLUGIN_NAME}_testable ${PLUGIN_NAME} gui_testable_source)	
+	get_target_property(SRC_FILES ${PLUGIN_NAME} SOURCES)
+	target_sources(${PLUGIN_NAME}_testable PRIVATE ${SRC_FILES})
+	target_link_libraries(${PLUGIN_NAME}_testable PRIVATE gui_testable_source)
+	target_include_directories(${PLUGIN_NAME}_testable PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules ${PLUGIN_HEADER_PATH})
+	
+	add_dependencies(${PLUGIN_NAME}_tests ${PLUGIN_NAME}_testable gui_testable_source test_helpers)
+	target_link_libraries(${PLUGIN_NAME}_tests PRIVATE ${PLUGIN_NAME}_testable gtest_main test_helpers PUBLIC gui_testable_source)
 	target_include_directories(${PLUGIN_NAME}_tests PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules ${PLUGIN_HEADER_PATH} ${TEST_HELPERS_DIRECTORY}/include ${GUI_BASE_DIR}/Source)
+	
 	add_test(NAME ${PLUGIN_NAME}_tests  COMMAND ${PLUGIN_NAME}_tests)
 
 	get_target_property(PLUGIN_BASES gui_testable_source SOURCES)
@@ -83,18 +78,18 @@ if(BUILD_TESTS)
 endif()
 #output folders
 if(BUILD_TESTS)
- 	set_property(TARGET ${PLUGIN_NAME}_tests PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
- 	set_property(TARGET ${PLUGIN_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
- 	set_property(TARGET ${PLUGIN_NAME} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
+	#target_compile_options(${PLUGIN_NAME}_testable PUBILC "/MT$<$<CONFIG:Debug>:d>") 
+	set_property(TARGET ${PLUGIN_NAME}_tests PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
+ 	set_property(TARGET ${PLUGIN_NAME}_testable PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
+ 	set_property(TARGET ${PLUGIN_NAME}_testable PROPERTY LIBRARY_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
 
  	add_custom_command(TARGET ${PLUGIN_NAME}_tests POST_BUILD
  				COMMAND ${CMAKE_COMMAND} -E copy_directory ${BIN_TESTS_DIR}/common ${BIN_TESTS_DIR}/${PLUGIN_NAME})
- else()
- 	set_property(TARGET ${PLUGIN_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
- 	set_property(TARGET ${PLUGIN_NAME} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
- endif()
+endif()
 
 
+set_property(TARGET ${PLUGIN_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
+set_property(TARGET ${PLUGIN_NAME} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
 
 #This function is to be called to organize filters in VisualStudio and XCode in plugins with subfilders
 function(plugin_create_filters)

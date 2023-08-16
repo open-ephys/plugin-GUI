@@ -37,6 +37,7 @@ DataBuffer::DataBuffer (int chans, int size)
     lastTimestamp = -1.0;
 }
 
+DataBuffer::~DataBuffer(){}
 
 void DataBuffer::clear()
 {

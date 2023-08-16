@@ -1,19 +1,8 @@
 #common options for default plug-ins
 unset(PROJECT_FOLDER)
 unset(COMPONENT_NAME)
-set(INSTALL_GTEST OFF)
 get_filename_component(PROJECT_FOLDER ${CMAKE_CURRENT_SOURCE_DIR} ABSOLUTE)
 get_filename_component(COMPONENT_NAME ${PROJECT_FOLDER} NAME)
-
-include(FetchContent)
-FetchContent_Declare(
-		googletest
-		GIT_REPOSITORY    https://github.com/google/googletest.git
-		GIT_TAG           release-1.12.1
-)
-
-FetchContent_MakeAvailable(googletest)
-enable_testing()
 
 add_executable(
 		${COMPONENT_NAME}_tests

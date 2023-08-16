@@ -9,7 +9,7 @@
 #define BroadcastParser_h
 
 #include <stdio.h>
-
+#include <climits>
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Processors/PluginManager/OpenEphysPlugin.h"
 

@@ -25,15 +25,8 @@ message(FATAL_ERROR "Please run cmake inside the Build folder to build the binar
 endif()
 
 project(open-ephys-GUI)
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-	set(LINUX 1)
-	if(NOT CMAKE_BUILD_TYPE)
-		set(CMAKE_BUILD_TYPE Debug)
-	endif()
-endif()
 include(HelperFunctions.cmake)
 
-set(BASE_BUILD_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Build)
 set(JUCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/JuceLibraryCode)
 set(RESOURCES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Resources)
 set(PLUGINS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Plugins)
@@ -220,8 +213,20 @@ elseif(LINUX)
 		"-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/shared'")
 
 	target_compile_options(open-ephys PRIVATE -fPIC -rdynamic -fvisibility=hidden -Wno-free-nonheap-object)
-	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/${CMAKE_BUILD_TYPE})
+	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+    if(BUILD_TESTS)
+            target_include_directories(gui_testable_source PRIVATE
+                /usr/include
+                /usr/include/freetype2
+                ${CURL_INCLUDE_DIRS}
+                ${WEBKIT2GTK_INCLUDE_DIRS}
+            )
+            target_link_libraries(gui_testable_source GL X11 Xext Xinerama asound dl freetype pthread rt ${CURL_LIBRARIES} ${WEBKIT2GTK_LIBRARIES})
+            set_property(TARGET gui_testable_source APPEND_STRING PROPERTY LINK_FLAGS
+                "-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/shared'")
 
+            target_compile_options(gui_testable_source PRIVATE -fPIC -rdynamic -fvisibility=hidden)
+    endif()
 elseif(APPLE)
 	set_target_properties(open-ephys PROPERTIES
 		MACOSX_BUNDLE_NAME open-ephys
