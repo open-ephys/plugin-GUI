@@ -14,7 +14,12 @@ protected:
     }
 
     void TearDown() override {
+        viewport = nullptr;
         lock.reset();
+
+        DeletedAtShutdown::deleteAll();
+        MessageManager::deleteInstance();
+
     }
 
     std::unique_ptr<DataViewport> viewport;

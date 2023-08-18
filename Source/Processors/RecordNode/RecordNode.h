@@ -233,6 +233,10 @@ public:
     
     /** Load parameters*/
     void loadCustomParametersFromXml(XmlElement* xml);
+    
+    
+    /*sets record engine to parameter pointer; only for testing*/
+    void overrideRecordEngine(RecordEngineManager* engine);
 
 
 private:

@@ -12,7 +12,7 @@ void FakeSourceNode::updateSettings() {
         for(int i = 0; i < params_.streams; i++){
             DataStream::Settings settings
                 {
-                    "FakeSourceNode",
+                    "FakeSourceNode"+String(i),
                     "description",
                     "identifier",
                     params_.sampleRate
@@ -55,6 +55,13 @@ void FakeSourceNode::updateSettings() {
     eventChannels.getFirst()->setIdentifier("sourceevent");
     eventChannels.getFirst()->addProcessor(processorInfo.get());
 }
+
+void FakeSourceNode::setParams(const FakeSourceNodeParams &params) {
+    params_ = params;
+    cached_datastreams_.clear();
+}
+
+
 
 void FakeSourceNode::process(AudioBuffer<float>& continuousBuffer) {}
 

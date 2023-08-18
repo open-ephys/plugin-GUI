@@ -17,6 +17,7 @@ public:
     explicit FakeSourceNode(const FakeSourceNodeParams &params);
     void updateSettings() override;
     void process(AudioBuffer<float>& continuousBuffer) override;
+    void setParams(const FakeSourceNodeParams &params);
 private:
     FakeSourceNodeParams params_;
     OwnedArray<DataStream> cached_datastreams_;

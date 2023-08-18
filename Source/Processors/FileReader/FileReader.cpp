@@ -220,6 +220,10 @@ bool FileReader::setFile (String fullpath)
         
 #ifdef __APPLE__
         File defaultFile = executable.getChildFile("Contents/Resources/resources").getChildFile("structure.oebin");
+        if(executable.getFileExtension() != ".app") {
+            LOGD("Applicaiton is not a bundle; Cannot set look for FileReader \"default\"");
+            return false;
+        }
 #else
         File defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
 #endif
