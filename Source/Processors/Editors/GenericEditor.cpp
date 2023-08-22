@@ -826,7 +826,7 @@ void UtilityButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown
     g.setFont(font);
 
     g.setColour(fontColor);
-    g.drawText(label,0,0,getWidth(),getHeight(),Justification::centred,true);
+    g.drawFittedText(label,0,0,getWidth(),getHeight(),Justification::centred,2, 1.0f);
 
     //g.drawSingleLineText(getName(), getWidth()/2 - stringWidth/2, 12);
 
