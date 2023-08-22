@@ -104,9 +104,7 @@ public:
         setSize(115, 35);
     }
 
-    ~PopupTimeEditor() {
-        p->setNextValue(((TimeParameter*)p)->getTimeValue()->toString());
-    }
+    virtual ~PopupTimeEditor() {}
 
     void resized() override
     {
@@ -136,6 +134,14 @@ public:
             if (parent->isCurrentlyModal())
             {
                 parent->exitModalState(0);
+                TimeParameter::TimeValue* tv = p->getTimeValue();
+                LOGD("Old time value: ", tv->toString());
+                TimeParameter::TimeValue* newTv = new TimeParameter::TimeValue(
+                    hourEditor.getText().getIntValue(), 
+                    minuteEditor.getText().getIntValue(), 
+                    secondEditor.getText().getDoubleValue()
+                );
+                p->setNextValue(newTv->toString());
                 break;
             }
             parent = parent->getParentComponent();
@@ -146,10 +152,10 @@ private:
 
     void textEditorTextChanged(TextEditor& editor) override
     {
-        if (&editor == &hourEditor)
-            p->getTimeValue()->setHours(editor.getText().getIntValue());
-        else if (&editor == &minuteEditor)
-            p->getTimeValue()->setMinutes(editor.getText().getIntValue());
+        if (&editor == &hourEditor) {}
+            //p->getTimeValue()->setHours(editor.getText().getIntValue());
+        else if (&editor == &minuteEditor) {}
+            //p->getTimeValue()->setMinutes(editor.getText().getIntValue());
         else if (&editor == &secondEditor)
         {
             String text = secondEditor.getText();
@@ -164,7 +170,7 @@ private:
                 editor.setText(String(p->getTimeValue()->getSeconds()));
                 return;
             }
-            p->getTimeValue()->setSeconds(editor.getText().getDoubleValue());
+            //p->getTimeValue()->setSeconds(editor.getText().getDoubleValue());
         }
             
     }

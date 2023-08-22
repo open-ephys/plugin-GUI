@@ -55,9 +55,7 @@ private:
 
 class FileReaderEditor  : public GenericEditor
                         , public FileDragAndDropTarget
-                        , public ComboBox::Listener
                         , public Button::Listener
-                        , public Timer
 {
 public:
 
@@ -82,47 +80,14 @@ public:
     /** Draws a border indicating a file is being dragged above the editor */
     void paintOverChildren(Graphics& g) override;
 
-    /** Sets the desired playback start time */
-    bool setPlaybackStartTime (unsigned int ms);
-
-    /** Sets the desired playback stop time */
-    bool setPlaybackStopTime  (unsigned int ms);
-
-    /** Sets the total time of playback */
-    void setTotalTime   (unsigned int ms);
-
-    /** Sets the current timestamp of playback */
-    void setCurrentTime (unsigned int ms);
-
-    /** Disables changing settings during playback */
-	void startAcquisition() override;
-
-    /** Enables changing settings after playback */
-	void stopAcquisition()  override;
-
-    /** Sets the active file */
-    // void setFile (String file, bool shouldUpdateSignalChain = true);
-
-    /** Responds to combo box selections */
-    void comboBoxChanged (ComboBox* combo);
-
-    /** Populates a combo box with all recordings belonging to the active file source */
-    void populateRecordings (FileSource* source);
-
-    /** Sets the current recording to playback */
-    void setRecording(int index);
-
     /** Returns a pointer to the ScrubberInterface */
     ScrubberInterface* getScrubberInterface();
 
     /** Enables/disables the ScrubDrawerButton */
-    void enableScrubDrawer(bool enabled) { scrubDrawerButton->setEnabled(enabled); }
+    void enableScrubDrawer(bool enabled);
 
     /** Controls whether or not to show the file scrubbing interface */
     void showScrubInterface(bool show);
-
-    /** Updates the file scrubbing interface when changes have been made */
-    void updateScrubInterface(bool reset);
 
     /** Called whenever the scrubbing interface sliders are adjusted */
     void updatePlaybackTimes();
@@ -136,14 +101,7 @@ public:
 private:
     void clearEditor();
 
-    ScopedPointer<UtilityButton>        fileButton;
-    ScopedPointer<Label>                fileNameLabel;
-    ScopedPointer<ComboBox>             recordSelector;
-    ScopedPointer<DualTimeComponent>    currentTime;
-    ScopedPointer<DualTimeComponent>    timeLimits;
-
     ScopedPointer<ScrubDrawerButton>    scrubDrawerButton;
-
     ScopedPointer<ScrubberInterface>    scrubberInterface;
 
     FileReader* fileReader;
@@ -155,41 +113,7 @@ private:
 
     File lastFilePath;
 
-    void timerCallback();
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReaderEditor);
 };
-
-
-class DualTimeComponent : public Component
-                        , public Label::Listener
-                        , public AsyncUpdater
-{
-public:
-    DualTimeComponent (FileReaderEditor* e, bool isEditable);
-    ~DualTimeComponent();
-
-    void paint (Graphics& g) override;
-
-    void labelTextChanged (Label* label) override;
-
-    void handleAsyncUpdate() override;
-
-    void setEnable(bool enable);
-
-    void setTimeMilliseconds (unsigned int index, unsigned int time);
-    unsigned int getTimeMilliseconds (unsigned int index) const;
-
-
-private:
-    ScopedPointer<Label> timeLabel[2];
-    String labelText[2];
-    unsigned int msTime[2];
-
-    FileReaderEditor* editor;
-    bool isEditable;
-};
-
-
 
 #endif  // __FILEREADEREDITOR_H_D6EC8B48__

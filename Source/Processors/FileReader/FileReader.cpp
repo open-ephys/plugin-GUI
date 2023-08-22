@@ -42,7 +42,6 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
     , currentNumChannels        (0)
     , currentSample             (0)
     , currentNumTotalSamples    (0)
-    , currentNumScrubbedSamples (0)
     , startSample               (0)
     , stopSample                (0)
     , loopCount                 (0)
@@ -117,21 +116,28 @@ void FileReader::parameterValueChanged(Parameter* p)
     else if (p->getName() == "active_stream")
     {
         setActiveStream(p->getValue());
-        static_cast<FileReaderEditor*> (getEditor())->getScrubberInterface()->update();
         CoreServices::updateSignalChain (this->getEditor());
+        getScrubberInterface()->updatePlaybackTimes();
     }
     else if (p->getName() == "start_time")
     {
         TimeParameter* tp = static_cast<TimeParameter*>(p);
         startSample = millisecondsToSamples(tp->getTimeValue()->getTimeInMilliseconds());
-        static_cast<FileReaderEditor*> (getEditor())->getScrubberInterface()->update();
     }
     else if (p->getName() == "end_time")
     {
         TimeParameter* tp = static_cast<TimeParameter*>(p);
         stopSample = millisecondsToSamples(tp->getTimeValue()->getTimeInMilliseconds());
-        static_cast<FileReaderEditor*> (getEditor())->getScrubberInterface()->update();
     }
+
+    if ((stopSample - startSample) / currentSampleRate > 30.0f)
+        static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer(true);
+    else
+        static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer(false);
+
+    currentNumTotalSamples = stopSample - startSample;
+
+    getScrubberInterface()->update();
 }
 
 AudioProcessorEditor* FileReader::createEditor()
@@ -158,17 +164,7 @@ void FileReader::initialize(bool signalChainIsLoading)
 #endif
 
     if (defaultFile.exists())
-    {
         setFile(defaultFile.getFullPathName());
-        /*
-        FileReaderEditor* ed = (FileReaderEditor*)editor.get();
-        /* TOFIX
-        if (ed != nullptr)
-            ed->setFile("default", false);
-        else
-            setFile(defaultFile.getFullPathName());
-        */
-    }
 }
 
 bool FileReader::setFile (String fullpath)
@@ -242,6 +238,8 @@ bool FileReader::setFile (String fullpath)
         return false;
     }
 
+    // TOFIX: This sequence of parameter updates will need to be a single UndoableAction
+
     setActiveStream (0);
 
     Array<String> streamNames;
@@ -251,17 +249,20 @@ bool FileReader::setFile (String fullpath)
     SelectedStreamParameter* activeStreamParam = (SelectedStreamParameter*)getParameter("active_stream");
     activeStreamParam->setStreamNames(streamNames);
 
+    TimeParameter* startTime = static_cast<TimeParameter*>(getParameter("start_time"));
+    startTime->getTimeValue()->setTimeFromMilliseconds(samplesToMilliseconds (startSample));
+    startTime->setNextValue(startTime->getTimeValue()->toString());
+
+    TimeParameter* endTime = static_cast<TimeParameter*>(getParameter("end_time"));
+    endTime->getTimeValue()->setTimeFromMilliseconds(samplesToMilliseconds (currentNumTotalSamples));
+    endTime->setNextValue(endTime->getTimeValue()->toString());
+
     if (!headlessMode)
     {
-
         FileReaderEditor* ed = (FileReaderEditor*)editor.get();
 
-        // ed->populateRecordings (input);
-
         ed->showScrubInterface(false);
-
         ed->enableScrubDrawer(getCurrentNumTotalSamples() / getCurrentSampleRate() > 30.0f);
-
     }
     
     gotNewFile = true;
@@ -305,9 +306,6 @@ bool FileReader::startAcquisition()
     if (!isEnabled)
         return false;
 
-    if (!headlessMode)
-        static_cast<FileReaderEditor*> (getEditor())->startTimer(100);
-
     /* Start asynchronous file reading thread */
 	startThread(); 
 
@@ -318,9 +316,6 @@ bool FileReader::stopAcquisition()
 {
 
 	stopThread(500);
-    
-    if (!isEnabled)
-        static_cast<FileReaderEditor*> (getEditor())->stopTimer();
     
 	return true;
 }
@@ -341,35 +336,27 @@ void FileReader::setActiveStream (int index)
     //TODO: Change to setActiveStream
     input->setActiveRecord (index);
 
-    currentNumChannels       = input->getActiveNumChannels();
-    currentNumTotalSamples   = input->getActiveNumSamples();
-    currentSampleRate        = input->getActiveSampleRate();
+    currentNumChannels      = input->getActiveNumChannels();
+    currentNumTotalSamples  = input->getActiveNumSamples();
+    currentSampleRate       = input->getActiveSampleRate();
 
-    currentSample   = 0;
-    startSample     = 0;
-    stopSample      = currentNumTotalSamples;
-    bufferCacheWindow = 0;
-    loopCount = 0;
+    currentSample           = 0;
+    startSample             = 0;
+    stopSample              = currentNumTotalSamples;
+    bufferCacheWindow       = 0;
+    loopCount               = 0;
 
     channelInfo.clear();
-
     for (int i = 0; i < currentNumChannels; ++i)
-    {
            channelInfo.add (input->getChannelInfo (index, i));
-    }
 
     TimeParameter* endTime = static_cast<TimeParameter*>(getParameter("end_time"));
 
-    if (endTime->getTimeValue()->getTimeInMilliseconds() > samplesToMilliseconds (currentNumTotalSamples));
+    if (endTime->getTimeValue()->getTimeInMilliseconds() == 0)
     {
         endTime->getTimeValue()->setTimeFromMilliseconds(samplesToMilliseconds (currentNumTotalSamples));
         endTime->setNextValue(endTime->getTimeValue()->toString());
     }
-
-    /*
-    if (!headlessMode)
-        static_cast<FileReaderEditor*> (getEditor())->setTotalTime (samplesToMilliseconds (currentNumTotalSamples));
-    */
 	
     input->seekTo(startSample);
     
@@ -404,7 +391,6 @@ void FileReader::setPlaybackStart(int64 startSample)
 void FileReader::setPlaybackStop(int64 stopSample)
 {
     this->stopSample = stopSample;
-    currentNumScrubbedSamples = stopSample - startSample;
 }
 
 String FileReader::getFile() const
@@ -526,6 +512,8 @@ void FileReader::updateSettings()
     readBuffer = &bufferB;
     bufferCacheWindow = 0;
     m_shouldFillBackBuffer.set(false);
+
+    LOGD("File Reader finished updating custom settings.");
 
 }
 
@@ -654,35 +642,6 @@ void FileReader::addEventsInRange(int64 start, int64 stop)
     }
 }
 
-/*
-void FileReader::setParameter (int parameterIndex, float newValue)
-{
-    switch (parameterIndex)
-    {
-        //Change selected recording
-        case 0:
-            setActiveRecording (newValue);
-            break;
-
-        //set startTime
-        case 1: 
-            startSample = millisecondsToSamples (newValue);
-            currentSample = startSample;
-
-            static_cast<FileReaderEditor*> (getEditor())->setCurrentTime (samplesToMilliseconds (currentSample));
-            break;
-
-        //set stop time
-        case 2:
-            stopSample = millisecondsToSamples(newValue);
-            currentSample = startSample;
-
-            static_cast<FileReaderEditor*> (getEditor())->setCurrentTime (samplesToMilliseconds (currentSample));
-            break;
-    }
-}
-*/
-
 unsigned int FileReader::samplesToMilliseconds (int64 samples) const
 {
     return (unsigned int) (1000.f * float (samples) / currentSampleRate);
@@ -749,6 +708,7 @@ void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
         // if reached end of file stream
         if ( (currentSample + samplesToRead) > stopSample)
         {
+            LOGD("Stop sample: ", stopSample, " reached end of file");
             samplesToRead = stopSample - currentSample;
             if (samplesToRead > 0)
                 input->readData (cacheBuffer + samplesRead * currentNumChannels, samplesToRead);

@@ -54,7 +54,6 @@ void FullTimeline::paint(Graphics& g)
                 g.setColour(eventChannelColours[info.channels[i]]);
                 g.setOpacity(1.0f);
                 g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight() - tickHeight, 0.2);
-
             }
 
         }
@@ -65,8 +64,8 @@ void FullTimeline::paint(Graphics& g)
     g.setColour(Colour(0,0,0));
     g.setOpacity(0.8f);
 
-    if (intervalStartPosition < 0)
-        return;
+    if (intervalStartPosition < 0) return;
+    if (intervalWidth == 0) setIntervalPosition(0, 30);
 
     g.fillRoundedRectangle(intervalStartPosition, 0, 2, this->getHeight(), 2);
     g.fillRoundedRectangle(intervalStartPosition + intervalWidth, 0, 2, this->getHeight(), 2);
@@ -115,11 +114,8 @@ void FullTimeline::mouseDrag(const MouseEvent & event)
 
 void FullTimeline::mouseUp(const MouseEvent& event) 
 {
-
     intervalIsSelected = false;
-
     fileReader->getScrubberInterface()->updatePlaybackTimes();
-    
 }
 
 int FullTimeline::getStartInterval() 
@@ -208,7 +204,7 @@ void ZoomTimeline::paint(Graphics& g)
             int64 ts = info.timestamps[i];
             int16 state = info.channelStates[i];
 
-            if (ts >= startTimestamp && ts <= stopTimestamp)
+            if (ts >= startTimestamp && ts <= stopTimestamp && state == 1)
             {
                 float timelinePos = (ts - startTimestamp) / float(stopTimestamp - startTimestamp) * getWidth();
                 g.setColour(eventChannelColours[info.channels[i]]);
@@ -403,28 +399,28 @@ ScrubberInterface::ScrubberInterface(FileReader* fileReader_) {
 
     int scrubInterfaceWidth = 420;
 
-    zoomStartTimeLabel = new Label("ZoomStartTime", "00:00");
-    zoomStartTimeLabel->setBounds(10,30,40,10);
+    zoomStartTimeLabel = new Label("ZoomStartTime", "00:00:00.000");
+    zoomStartTimeLabel->setBounds(0,30,100,10);
     addChildComponent(zoomStartTimeLabel);
     addAndMakeVisible(zoomStartTimeLabel);
 
-    zoomMiddleTimeLabel = new Label("ZoomMidTime", "00:00");
-    zoomMiddleTimeLabel->setBounds(0.454*scrubInterfaceWidth,30,40,10);
+    zoomMiddleTimeLabel = new Label("ZoomMidTime", "00:00:15.000");
+    zoomMiddleTimeLabel->setBounds(0.39*scrubInterfaceWidth,30,100,10);
     addChildComponent(zoomMiddleTimeLabel);
     addAndMakeVisible(zoomMiddleTimeLabel);
 
-    zoomEndTimeLabel = new Label("ZoomEndTime", "00:00");
-    zoomEndTimeLabel->setBounds(0.88*scrubInterfaceWidth,30,40,10);
+    zoomEndTimeLabel = new Label("ZoomEndTime", "00:00:30.000");
+    zoomEndTimeLabel->setBounds(0.75*scrubInterfaceWidth,30,100,10);
     addChildComponent(zoomEndTimeLabel);
     addAndMakeVisible(zoomEndTimeLabel);
 
-    fullStartTimeLabel = new Label("FullStartTime", "00:00:00");
-    fullStartTimeLabel->setBounds(0,100,60,10);
+    fullStartTimeLabel = new Label("FullStartTime", "00:00:00.000");
+    fullStartTimeLabel->setBounds(0,100,100,10);
     addChildComponent(fullStartTimeLabel);
     addAndMakeVisible(fullStartTimeLabel);
 
-    fullEndTimeLabel = new Label("FullEndTime", "00:00:00");
-    fullEndTimeLabel->setBounds(0.855*scrubInterfaceWidth,100,60,10);
+    fullEndTimeLabel = new Label("FullEndTime", "00:00:00.000");
+    fullEndTimeLabel->setBounds(0.75*scrubInterfaceWidth,100,100,10);
     addChildComponent(fullEndTimeLabel);
     addAndMakeVisible(fullEndTimeLabel);
 
@@ -474,10 +470,8 @@ void ScrubberInterface::updatePlaybackTimes()
 
 }
 
-void ScrubberInterface::paintOverChildren(Graphics& g) {
-
-    //TOFIX: Currently draws rays infinitely to the right
-    return;
+void ScrubberInterface::paintOverChildren(Graphics& g)
+{
 
     int leftRay = fullTimeline->getStartInterval();
     int rightRay = leftRay + fullTimeline->getIntervalWidth();
@@ -509,120 +503,51 @@ int ScrubberInterface::getZoomTimelineStartPosition()
 void ScrubberInterface::update()
 {
 
-    TimeParameter* tp = static_cast<TimeParameter*>(fileReader->getParameter("end_time"));
-    int ms = tp->getTimeValue()->getTimeInMilliseconds();
+    TimeParameter* start = static_cast<TimeParameter*>(fileReader->getParameter("start_time"));
+    fullStartTimeLabel->setText(start->getTimeValue()->toString(), juce::sendNotificationAsync);
 
-    int msFrac      = 0;
-    int secFrac     = 0;
-    int minFrac     = 0;
-    int hourFrac    = 0;
+    TimeParameter* stop  = static_cast<TimeParameter*>(fileReader->getParameter("end_time"));
+    fullEndTimeLabel->setText(stop->getTimeValue()->toString(), juce::sendNotificationAsync);
 
-    msFrac = ms % 1000;
-    ms /= 1000;
-    secFrac = ms % 60;
-    ms /= 60;
-    minFrac = ms % 60;
-    ms /= 60;
-    hourFrac = ms;
+    int duration = stop->getTimeValue()->getTimeInMilliseconds() - start->getTimeValue()->getTimeInMilliseconds();
 
-    if (msFrac > 0.5)
-        secFrac += 1;
+    FileReaderEditor* e = static_cast<FileReaderEditor*>(fileReader->getEditor());
 
-    if (secFrac == 60)
+    if (duration / 1000.0f < 30) {
+        e->showScrubInterface(false);
+        e->enableScrubDrawer(false);
+    }
+    else 
     {
-        secFrac = 0;
-        minFrac += 1;
+        e->enableScrubDrawer(true);
     }
 
-    if (minFrac == 60) 
-    {
-        minFrac = 0;
-        hourFrac += 1;
-    }
-    
-    String fullTime = String(hourFrac).paddedLeft ('0', 2) + ":" 
-                    + String (minFrac).paddedLeft ('0', 2) + ":" 
-                    + String (secFrac).paddedLeft ('0', 2);
-
-    fullEndTimeLabel->setText(fullTime, juce::sendNotificationAsync);
-
-    ms = tp->getTimeValue()->getTimeInMilliseconds();
-
-    if (ms / 1000.0f > 30) {
-
-        // Draws a 30 second interval on full timeline
-        zoomMiddleTimeLabel->setText("00:15", juce::sendNotificationAsync);
-        zoomEndTimeLabel->setText("00:30", juce::sendNotificationAsync);
-
-        fullTimeline->setIntervalPosition(0, 30);
-
-    }
-    else
-    {
-        String halfZoomTime = String (minFrac).paddedLeft ('0', 2) + ":" + String (secFrac / 2).paddedLeft ('0', 2);
-        zoomMiddleTimeLabel->setText(halfZoomTime, juce::sendNotificationAsync);
-        String fullZoomTime = String (minFrac).paddedLeft ('0', 2) + ":" + String (secFrac).paddedLeft ('0', 2);
-        zoomEndTimeLabel->setText(fullZoomTime, juce::sendNotificationAsync);
-    }
+    e->repaint();
 
 }
 
 void ScrubberInterface::updateZoomTimeLabels()
 {
 
-/*
-    int startPos = fullTimeline->getStartInterval();
+    TimeParameter::TimeValue* start = ((TimeParameter*)fileReader->getParameter("start_time"))->getTimeValue();
+    TimeParameter::TimeValue* stop  = ((TimeParameter*)fileReader->getParameter("end_time"))->getTimeValue();
 
+    TimeParameter::TimeValue* duration = new TimeParameter::TimeValue(stop->getTimeInMilliseconds() - start->getTimeInMilliseconds());
+
+    int startPos = fullTimeline->getStartInterval();
     float frac = float(startPos) / float(fullTimeline->getWidth());
 
     for (int i = 0; i < 3; i++) {
 
-        int ms = frac * fileReader->getTimeMilliseconds(1) + i*15000;
-
-        int msFrac      = 0;
-        int secFrac     = 0;
-        int minFrac     = 0;
-        int hourFrac    = 0;
-
-        msFrac = ms % 1000;
-        ms /= 1000;
-        secFrac = ms % 60;
-        ms /= 60;
-        minFrac = ms % 60;
-        ms /= 60;
-        hourFrac = ms;
-
-        if (msFrac > 0.5)
-            secFrac += 1;
-        
-        String timeString;
-        
-        if (secFrac == 60)
-        {
-            secFrac = 0;
-            minFrac += 1;
-        }
-
-        if (minFrac == 60) 
-        {
-            minFrac = 0;
-            hourFrac += 1;
-        }
-
-        if (hourFrac > 0)
-            timeString += String(hourFrac).paddedLeft ('0', 2) + ":";
-
-        timeString += String (minFrac).paddedLeft ('0', 2) + ":" + String (secFrac).paddedLeft ('0', 2);
+        TimeParameter::TimeValue* time = new TimeParameter::TimeValue(start->getTimeInMilliseconds() + frac * duration->getTimeInMilliseconds() + 15000.0f * i);
 
         if (i == 0)
-            zoomStartTimeLabel->setText(timeString, juce::sendNotificationAsync);
+            zoomStartTimeLabel->setText(time->toString(), juce::sendNotificationAsync);
         else if (i == 1)
-            zoomMiddleTimeLabel->setText(timeString, juce::sendNotificationAsync);
+            zoomMiddleTimeLabel->setText(time->toString(), juce::sendNotificationAsync);
         else
-            zoomEndTimeLabel->setText(timeString, juce::sendNotificationAsync);
-
+            zoomEndTimeLabel->setText(time->toString(), juce::sendNotificationAsync);
 
     }
-    */
 
 }

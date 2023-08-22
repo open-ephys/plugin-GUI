@@ -149,6 +149,24 @@ Array<ParameterEditor*> ParameterOwner::createDefaultEditor()
             editors.add(maskChannelsParameterEditor);
             break;
         }
+        case Parameter::SELECTED_STREAM_PARAM:
+        {
+            SelectedStreamParameterEditor* selectedStreamParameterEditor = new SelectedStreamParameterEditor(parameter);
+            editors.add(selectedStreamParameterEditor);
+            break;
+        }
+        case Parameter::PATH_PARAM:
+        {
+            PathParameterEditor* pathParameterEditor = new PathParameterEditor(parameter);
+            editors.add(pathParameterEditor);
+            break;
+        }
+        case Parameter::TIME_PARAM:
+        {
+            TimeParameterEditor* timeParameterEditor = new TimeParameterEditor(parameter);
+            editors.add(timeParameterEditor);
+            break;
+        }
         default:
         {
             break;

@@ -820,21 +820,18 @@ public:
             minute(minute_),
             second(second_) {}
 
-        TimeValue(String time) { setTimeValue(time); }
+        TimeValue(int ms) { setTimeFromMilliseconds(ms); }
+
+        TimeValue(String time) { setTimeFromString(time); }
 
         /** Destructor */
         ~TimeValue() {}
 
         String toString() {
-
-            String hour = this->hour > 9 ? String(this->hour) : "0" + String(this->hour);
-            String minute = this->minute > 9 ? String(this->minute) : "0" + String(this->minute);
-            String second = this->second > 9 ? String(this->second) : "0" + String(this->second);
-
-            return String(hour) + ":" + String(minute) + ":" + String(second);
+            return String::formatted("%02d:%02d:%06.3f", this->hour, this->minute, this->second);
         }
 
-        void setTimeValue(String time) {
+        void setTimeFromString(String time) {
             StringArray tokens;
             tokens.addTokens(time, ":", "\"");
             //TODO: check for valid time format, assumes always valid for now

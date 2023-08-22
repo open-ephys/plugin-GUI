@@ -925,13 +925,17 @@ TimeParameter::TimeParameter(ParameterOwner* owner,
 
 void TimeParameter::setNextValue(var newValue_)
 {
+
+    LOGD("Setting time parameter to ", newValue_.toString());
+    LOGD("Old value: ", currentValue.toString());
+
     if (newValue_ == currentValue) return;
 
     if (newValue_.isString())
     {
         newValue = newValue_;
 
-        getTimeValue()->setTimeValue(newValue.toString());
+        getTimeValue()->setTimeFromString(newValue.toString());
 
         ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
 

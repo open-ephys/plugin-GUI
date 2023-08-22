@@ -5,9 +5,7 @@
 #include "../Editors/GenericEditor.h"
 
 #include "FileReader.h"
-
-class FileReaderEditor;
-
+#include "FileReaderEditor.h"
 class PlaybackButton : public Button
 {
 public:

@@ -193,7 +193,6 @@ private:
     int currentNumChannels;
     int64 currentSample;
     int64 currentNumTotalSamples;
-    int64 currentNumScrubbedSamples;
     int64 startSample;
     int64 stopSample;
     int64 bufferCacheWindow; // the current buffer window to read from readBuffer
