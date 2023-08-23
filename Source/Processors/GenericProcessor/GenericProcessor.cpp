@@ -1967,8 +1967,10 @@ void GenericProcessor::loadFromXml()
                 {
                     savedDataStreamParameters[index]->copyParameterValuesTo(stream);
 
-                    for (auto param : savedDataStreamParameters[index]->getParameters())
+                    for (auto param : stream->getParameters())
                     {
+                        parameterValueChanged(param);
+                        
                         if (param->getName() == "enable_stream" && isFilter())
                         {
                             if(!headlessMode) {
