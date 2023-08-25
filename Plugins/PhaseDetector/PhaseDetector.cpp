@@ -113,8 +113,6 @@ void PhaseDetector::parameterValueChanged(Parameter* param)
             int globalIndex = getDataStream(param->getStreamId())->getContinuousChannels()[localIndex]->getGlobalIndex();
             settings[param->getStreamId()]->triggerChannel = globalIndex;
 
-            //TODO: It would be nice to have param->getEditor() helper
-            ((TextButton*)getEditor()->getParameterEditor("channel")->getEditor())->setButtonText(String(localIndex + 1));
         }
         else
         {
