@@ -1753,7 +1753,7 @@ void GenericProcessor::saveToXml(XmlElement* xml)
 {
 	xml->setAttribute("nodeId", nodeId);
     
-    XmlElement* paramsXml = xml->createNewChildElement("GLOBAL_PARAMETERS");
+    XmlElement* paramsXml = xml->createNewChildElement("PROCESSOR_PARAMETERS");
     
     for (auto param : getParameters())
     {
@@ -1828,7 +1828,8 @@ void GenericProcessor::loadFromXml()
 
         for (auto* xmlNode : parametersAsXml->getChildIterator())
         {
-            if (xmlNode->hasTagName("GLOBAL_PARAMETERS"))
+            // Check for procesor-scoped parameter attributes
+            if (xmlNode->hasTagName("PROCESSOR_PARAMETERS") || xmlNode->hasTagName("GLOBAL_PARAMETERS"))
             {
                 for (int i = 0; i < xmlNode->getNumAttributes(); i++)
                 {
