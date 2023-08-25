@@ -120,10 +120,6 @@ public:
         var defaultValue_,
         bool deactivateDuringAcquisition_ = false)
         : parameterOwner(owner),
-        // dataStream(nullptr),
-        // spikeChannel(nullptr),
-        // eventChannel(nullptr),
-        // continuousChannel(nullptr),
         m_parameterType(type_),
         m_parameterScope(scope_),
         m_name(name_),
@@ -133,7 +129,8 @@ public:
         defaultValue(defaultValue_),
         newValue(defaultValue_),
         m_deactivateDuringAcquisition(deactivateDuringAcquisition_),
-        m_identifier("UNKNOWN")
+        m_identifier("UNKNOWN"),
+        isEnabledFlag(true)
     {
     }
 
@@ -207,29 +204,6 @@ public:
     /** Returns the streamId for this parameter (if available)*/
     uint16 getStreamId();
 
-   
-
-    // /** Sets the streamId for this parameter*/
-    // void setDataStream(DataStream* dataStream_) { dataStream = dataStream_;  }
-    
-    // /** Returns the SpikeChannel for this parameter (if available)*/
-    // SpikeChannel* getSpikeChannel() { return spikeChannel; }
-
-    // /** Sets the SpikeChannel for this parameter*/
-    // void setSpikeChannel(SpikeChannel* spikeChannel_) { spikeChannel = spikeChannel_;  }
-    
-    // /** Returns the EventChannel for this parameter (if available)*/
-    // EventChannel* getEventChannel() { return eventChannel; }
-
-    // /** Sets the EventChannel for this parameter*/
-    // void setEventChannel(EventChannel* eventChannel_) { eventChannel = eventChannel_;  }
-    
-    // /** Returns the ContinuousChannel for this parameter (if available)*/
-    // ContinuousChannel* getContinuousChannel() { return continuousChannel; }
-
-    // /** Sets the ContinuousChannel for this parameter*/
-    // void setContinuousChannel(ContinuousChannel* continuousChannel_) { continuousChannel = continuousChannel_;  }
-
     /** Determines whether the parameter's editor is accessible after acquisition starts*/
     bool shouldDeactivateDuringAcquisition() {
         return m_deactivateDuringAcquisition;
@@ -245,7 +219,7 @@ public:
 
     /** Returns the parameter default value*/
     var getDefaultValue() {
-        return currentValue;
+        return defaultValue;
     }
 
     /** Updates parameter value (called by GenericProcessor::setParameter)*/
@@ -281,6 +255,12 @@ public:
 
     /** Sets a pointer to the ParameterOwner this parameter is associated with**/
     void setOwner(ParameterOwner* newOwner);
+    
+    /* Enables/disables the parameter */
+    void setEnabled(bool shouldBeEnabled);
+
+    /* Returns true if the parameter is enabled */
+    bool isEnabled() { return isEnabledFlag; }
 
     /** Parameter listener class -- used for Parameter Editors */
     class Listener
@@ -296,7 +276,11 @@ public:
 		/** Called when the parameter value changes */
 		virtual void parameterChanged(Parameter* parameterThatHasChanged) = 0;
 
+        /** Called when the parameter is destroyed */
         virtual void removeParameter(Parameter* parameterToRemove) = 0;
+
+        /** Called when the parameter is enabled/disbaled */
+        virtual void parameterEnabled(bool isEnabled) = 0;
 	};
 
     /** Add Listener for this parameter */
@@ -334,11 +318,6 @@ public:
 protected:
 
     ParameterOwner* parameterOwner;
-    
-    // DataStream* dataStream;
-    // SpikeChannel* spikeChannel;
-    // EventChannel* eventChannel;
-    // ContinuousChannel* continuousChannel;
 
     var newValue;
     var previousValue;
@@ -356,6 +335,7 @@ private:
     String m_description;
 
     bool m_deactivateDuringAcquisition;
+    bool isEnabledFlag;
 
     Array<Listener*> parameterListeners;
 

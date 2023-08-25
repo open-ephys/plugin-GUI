@@ -109,6 +109,16 @@ void Parameter::setOwner(ParameterOwner* parameterOwner_)
     Parameter::registerParameter(this);
 }
 
+void Parameter::setEnabled(bool enabled)
+{
+    isEnabledFlag = enabled;
+
+    for (auto listener : parameterListeners)
+    {
+        listener->parameterEnabled(isEnabledFlag);
+    }
+}
+
 void Parameter::addListener(Parameter::Listener* listener)
 {
     if (!parameterListeners.contains(listener))
@@ -144,6 +154,9 @@ Parameter::ChangeValue::ChangeValue(std::string key_, var newValue_)
 bool Parameter::ChangeValue::perform()
 {
     Parameter* p = Parameter::parameterMap[key];
+
+    if (!p->isEnabled())
+        return false;
     
     p->newValue = newValue;
     p->getOwner()->parameterChangeRequest(p);

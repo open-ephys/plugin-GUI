@@ -103,7 +103,13 @@ public:
             param_->addListener(this);
 
         param = param_;
+        setEnabled(param->isEnabled());
         updateView();
+    }
+
+    void parameterEnabled(bool isParamEnabled) override
+    {
+        setEnabled(isParamEnabled);
     }
 
     /** Returns true if this editor should be disabled during acquisition*/
