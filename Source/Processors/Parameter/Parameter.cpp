@@ -305,7 +305,8 @@ void CategoricalParameter::toXml(XmlElement* xml)
 
 void CategoricalParameter::fromXml(XmlElement* xml)
 {
-    currentValue = xml->getIntAttribute(getName(), defaultValue);
+    int xmlValue = xml->getIntAttribute(getName(), defaultValue);
+    currentValue = xmlValue < categories.size() ? (var)xmlValue : defaultValue;
 }
 
 IntParameter::IntParameter(ParameterOwner* owner,
@@ -368,7 +369,12 @@ void IntParameter::toXml(XmlElement* xml)
 
 void IntParameter::fromXml(XmlElement* xml)
 {
-    currentValue = xml->getIntAttribute(getName(), defaultValue);
+    int xmlValue = xml->getIntAttribute(getName(), defaultValue);
+    
+    if (xmlValue < minValue || xmlValue > maxValue)
+        currentValue = defaultValue;
+    else
+        currentValue = xmlValue;
 }
 
 StringParameter::StringParameter(ParameterOwner* owner,
@@ -496,7 +502,12 @@ void FloatParameter::toXml(XmlElement* xml)
 
 void FloatParameter::fromXml(XmlElement* xml)
 {
-    currentValue = xml->getDoubleAttribute(getName(), defaultValue);
+    float xmlValue = (float)xml->getDoubleAttribute(getName(), defaultValue);
+
+    if (xmlValue < minValue || xmlValue > maxValue)
+        currentValue = defaultValue;
+    else
+        currentValue = xmlValue;
 }
 
 SelectedChannelsParameter::SelectedChannelsParameter(ParameterOwner* owner,
