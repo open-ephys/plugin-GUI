@@ -8,75 +8,74 @@
 #include <Audio/AudioComponent.h>
 #include <UI/ControlPanel.h>
 
+enum class TestSourceNodeType {Fake, Base};
+
+
+ class TestSourceNodeBuilder{
+ public:
+     TestSourceNodeBuilder(FakeSourceNodeParams params) : _fake_source_node_params(params), _source_node_type(TestSourceNodeType::Fake) {}
+     TestSourceNodeBuilder(DataThreadCreator creator) : _data_thread_creator(creator), _source_node_type(TestSourceNodeType::Base) {}
+
+     SourceNode* buildSourceNode(){
+         switch(_source_node_type) {
+             case TestSourceNodeType::Fake : {
+                 return (SourceNode*)(new FakeSourceNode(_fake_source_node_params));
+             }
+             case TestSourceNodeType::Base : {
+                 return new SourceNode("BaseSourceNode", _data_thread_creator);
+             }
+         }
+     }
+
+     TestSourceNodeType getTestSourceNodeType() const {
+         return _source_node_type;
+     }
+
+
+ private:
+     FakeSourceNodeParams _fake_source_node_params;
+     DataThreadCreator _data_thread_creator;
+     TestSourceNodeType _source_node_type;
+ };
+
 class ProcessorTester {
-public:
-    ProcessorTester(FakeSourceNodeParams fake_source_node_params) {
-        // Singletons...
-        MessageManager::deleteInstance();
+ public:
+     ProcessorTester(TestSourceNodeBuilder source_node_builder) {
+         // Singletons...
+         MessageManager::deleteInstance();
 
-        // initializes the singleton instance
-        MessageManager::getInstance();
+         // initializes the singleton instance
+         MessageManager::getInstance();
 
-        // Reset all state so no interactions between tests.
-        AccessClass::clearAccessClassStateForTesting();
+         // Reset all state so no interactions between tests.
+         AccessClass::clearAccessClassStateForTesting();
 
-        // All of these sets the global state in AccessClass in their constructors
-        audio_component = std::make_unique<AudioComponent>();
-        processor_graph = std::make_unique<ProcessorGraph>(true);
-        control_panel = std::make_unique<ControlPanel>(processor_graph.get(), audio_component.get(), true);
 
-        auto sn_temp = new FakeSourceNode(fake_source_node_params);
-        source_node_id = next_processor_id_++;
-        sn_temp->setNodeId(source_node_id);
-        juce::AudioProcessorGraph::Node* n = processor_graph->addNode(
-            std::move(std::unique_ptr<AudioProcessor>(sn_temp)),
-            juce::AudioProcessorGraph::NodeID(source_node_id));
 
-        // Create the source node, and place it in the graph
-        auto sn = (FakeSourceNode *) n->getProcessor();
-        sn->initialize(false);
-        sn->setDestNode(nullptr);
+         // All of these sets the global state in AccessClass in their constructors
+         audio_component = std::make_unique<AudioComponent>();
+         processor_graph = std::make_unique<ProcessorGraph>(true);
+         control_panel = std::make_unique<ControlPanel>(processor_graph.get(), audio_component.get(), true);
 
-        control_panel->updateRecordEngineList();
+         SourceNode* sn_temp = source_node_builder.buildSourceNode();
+         source_node_id = next_processor_id_++;
+         sn_temp->setNodeId(source_node_id);
+         juce::AudioProcessorGraph::Node* n = processor_graph->addNode(
+             std::move(std::unique_ptr<AudioProcessor>(sn_temp)),
+             juce::AudioProcessorGraph::NodeID(source_node_id));
 
-        // Refresh everything
-        processor_graph->updateSettings(sn, false);
-    }
+         // Create the source node, and place it in the graph
+         auto sn = (GenericProcessor*) n->getProcessor();
+         sn->setHeadlessMode(true);
+         sn->initialize(false);
+         sn->setDestNode(nullptr);
 
-    ProcessorTester(DataThreadCreator data_thread_creator) {
-        // Singletons...
-        MessageManager::deleteInstance();
+         control_panel->updateRecordEngineList();
 
-        // initializes the singleton instance
-        MessageManager::getInstance();
+         // Refresh everything
+         processor_graph->updateSettings(sn, false);
 
-        // Reset all state so no interactions between tests.
-        AccessClass::clearAccessClassStateForTesting();
-
-        // All of these sets the global state in AccessClass in their constructors
-        audio_component = std::make_unique<AudioComponent>();
-        processor_graph = std::make_unique<ProcessorGraph>(true);
-        control_panel = std::make_unique<ControlPanel>(processor_graph.get(), audio_component.get(), true);
-
-        auto sn_temp = new SourceNode("RealSourceNode", data_thread_creator);
-        source_node_id = next_processor_id_++;
-        sn_temp->setNodeId(source_node_id);
-        juce::AudioProcessorGraph::Node* n = processor_graph->addNode(
-            std::move(std::unique_ptr<AudioProcessor>(sn_temp)),
-            juce::AudioProcessorGraph::NodeID(source_node_id));
-
-        // Create the source node, and place it in the graph
-        auto sn = (SourceNode *) n->getProcessor();
-        sn->setHeadlessMode(true);
-        sn->initialize(false);
-        sn->setDestNode(nullptr);
-
-        control_panel->updateRecordEngineList();
-
-        // Refresh everything
-        processor_graph->updateSettings(sn, false);
-    
-    }
+     }
 
     ~ProcessorTester() {
         control_panel = nullptr;
@@ -125,10 +124,10 @@ public:
         return (T *) processor_graph->getProcessorWithNodeId(node_id);
     }
 
-    void startAcquisition(bool startRecording) {
+    void startAcquisition(bool startRecording, bool forceRecording = false) {
         if (startRecording) {
             // Do it this way to ensure the GUI elements (which apparently control logic) are set properly
-            control_panel->setRecordingState(true, false);
+            control_panel->setRecordingState(true, forceRecording);
         } else {
             control_panel->startAcquisition(false);
         }
@@ -195,6 +194,10 @@ public:
         audio_processor->processBlock(output_buffer, eventBuffer);
         current_sample_index += buffer.getNumSamples();
         return output_buffer;
+    }
+    
+    void updateSourceNodeSettings() {
+        processor_graph -> updateSettings(getSourceNode());
     }
 
 private:
