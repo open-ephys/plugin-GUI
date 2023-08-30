@@ -65,6 +65,35 @@ private:
 
 };
 
+/* 
+    Holds processor-scoped parameters of a given processor.
+*/
+class ProcessorParameterComponent : public Component
+{
+public:
+
+    /** Constructor */
+    ProcessorParameterComponent(GenericProcessor* processor);
+
+    /** Destructor */
+    ~ProcessorParameterComponent();
+
+    /** Paint component */
+    void paint(Graphics& g);
+
+    int heightInPixels;
+
+private:
+
+    GenericProcessor* processor;
+
+    std::unique_ptr<Component> editorComponent;
+    
+    OwnedArray<ParameterEditor> parameterEditors;
+
+};
+
+
 /**
  Represents a DataStream handled by a given processor.
 
@@ -191,9 +220,15 @@ private:
 
     String getInfoString();
 
-    std::unique_ptr<ConcertinaPanel> dataStreamPanel;
+    std::unique_ptr<ConcertinaPanel> infoPanel;
+
     Array<DataStreamButton*> dataStreamButtons;
     Array<DataStreamInfo*> dataStreamInfos;
+
+    std::unique_ptr<ProcessorParameterComponent> processorParamComponent;
+    std::unique_ptr<Component> processorParamHeader;
+    
+    bool processorInfoVisible;
     
     bool isMouseOver;
     int horzShift;
