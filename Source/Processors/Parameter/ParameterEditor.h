@@ -94,16 +94,18 @@ public:
     virtual void updateView() = 0;
 
     /** Sets the parameter corresponding to this editor*/
-    void setParameter(Parameter* param_)
+    void setParameter(Parameter* newParam)
     {
         if(param != nullptr)
             param->removeListener(this);
 
-        if(param_ != nullptr)
-            param_->addListener(this);
+        if(newParam != nullptr)
+        {
+            newParam->addListener(this);
+            setEnabled(newParam->isEnabled());
+        }
 
-        param = param_;
-        setEnabled(param->isEnabled());
+        param = newParam;
         updateView();
     }
 

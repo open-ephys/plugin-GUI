@@ -144,7 +144,8 @@ public:
         currentValue(other.currentValue),
         defaultValue(other.defaultValue),
         previousValue(other.previousValue),
-        m_deactivateDuringAcquisition(other.m_deactivateDuringAcquisition)
+        m_deactivateDuringAcquisition(other.m_deactivateDuringAcquisition),
+        isEnabledFlag(other.isEnabledFlag)
     {
         parameterListeners.clear();
     }
