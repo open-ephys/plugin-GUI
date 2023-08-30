@@ -211,7 +211,7 @@ public:
     }
 
     /** Sets the parameter value*/
-    virtual void setNextValue(var newValue) = 0;
+    virtual void setNextValue(var newValue, bool undoable = true) = 0;
 
     /** Returns the parameter value*/
     var getValue() {
@@ -299,16 +299,16 @@ public:
     public:
         /** Constructor */
         ChangeValue(std::string key, var newValue);
-        
+
         /** Destructor */
         ~ChangeValue() { }
-        
+
         /** Perform the action */
         bool perform();
-        
+
         /** Undo the action*/
         bool undo();
-        
+
     private:
         std::string key;
 
@@ -361,7 +361,7 @@ public:
         bool deactivateDuringAcquisition = false);
 
     /** Stages a value, to be changed by the processor*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the value as a boolean*/
     bool getBoolValue();
@@ -397,7 +397,7 @@ public:
         bool deactivateDuringAcquisition = false);
 
     /** Stages a value, to be changed by the processor*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the index as an integer*/
     int getSelectedIndex();
@@ -447,7 +447,7 @@ public:
         bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the value as an integer*/
     int getIntValue();
@@ -488,7 +488,7 @@ public:
         bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the value as an integer*/
     String getStringValue();
@@ -526,7 +526,7 @@ public:
         bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the value as an integer*/
     float getFloatValue();
@@ -582,7 +582,7 @@ public:
         bool deactivateDuringAcquisition = true);
 
     /** Sets the current value*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Sets the list of available stream names */
     void setStreamNames(Array<String> names);
@@ -635,7 +635,7 @@ public:
         bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the value as an integer*/
     Array<int> getArrayValue();
@@ -696,7 +696,7 @@ public:
         bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the value as an integer*/
     Array<int> getArrayValue();
@@ -745,7 +745,7 @@ public:
         bool deactivateDuringAcquisition = true);
 
     /** Sets the current value*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the value as an integer*/
     virtual String getValueAsString() override { return currentValue.toString(); };
@@ -781,7 +781,7 @@ public:
         bool deactivateDuringAcquisition = true);
 
     /** Sets the current value*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the value as a string**/
     virtual String getValueAsString() override { return currentValue.toString(); }
@@ -815,7 +815,6 @@ public:
         void setTimeFromString(String time) {
             StringArray tokens;
             tokens.addTokens(time, ":", "\"");
-            //TODO: check for valid time format, assumes always valid for now
             hour = tokens[0].getIntValue();
             minute = tokens[1].getIntValue();
             second = tokens[2].getDoubleValue();
@@ -836,18 +835,49 @@ public:
             second = (ms - hour * 3600000.0f - minute * 60000.0f) / 1000.0f;
         }
 
+        void setMinTimeInMilliseconds(int ms) { minTimeInMilliseconds = ms; }
+        int getMinTimeInMilliseconds() { return minTimeInMilliseconds; }
+
+        void setMaxTimeInMilliseconds(int ms) { maxTimeInMilliseconds = ms; }
+        int getMaxTimeInMilliseconds() { return maxTimeInMilliseconds; }
+
     private:
 
         int hour;
         int minute;
         double second;
+
+        int minTimeInMilliseconds;
+        int maxTimeInMilliseconds;
     };
 
-    TimeValue* getTimeValue() { return &timeValue; }
+    TimeValue* getTimeValue() { return timeValue; }
+
+    class ChangeValue : public UndoableAction
+    {
+    public:
+        /** Constructor */
+        ChangeValue(std::string key, var newValue);
+
+        /** Destructor */
+        ~ChangeValue() { }
+
+        /** Perform the action */
+        bool perform();
+
+        /** Undo the action*/
+        bool undo();
+
+    private:
+        std::string key;
+
+        var originalValue;
+        var newValue;
+    };
 
 private:
 
-    TimeValue timeValue;
+    TimeValue* timeValue;
 
 };
 
@@ -872,7 +902,7 @@ public:
     void triggerNotification();
 
     /** Stages a value, to be changed by the processor*/
-    void setNextValue(var newValue) override ;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
     
     /** Gets the value as a string**/
     String getValueAsString() override { return String(); }

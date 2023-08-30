@@ -104,7 +104,19 @@ public:
         setSize(115, 35);
     }
 
-    virtual ~PopupTimeEditor() {}
+    virtual ~PopupTimeEditor()
+    {
+        TimeParameter::TimeValue* tv = p->getTimeValue();
+        TimeParameter::TimeValue* newTv = new TimeParameter::TimeValue(
+            hourEditor.getText().getIntValue(),
+            minuteEditor.getText().getIntValue(),
+            secondEditor.getText().getDoubleValue()
+        );
+        int t1 = newTv->getTimeInMilliseconds();
+        int t2 = p->getTimeValue()->getMaxTimeInMilliseconds();
+        if (newTv->getTimeInMilliseconds() < p->getTimeValue()->getMaxTimeInMilliseconds())
+            p->setNextValue(newTv->toString(),true);
+    }
 
     void resized() override
     {
@@ -134,14 +146,6 @@ public:
             if (parent->isCurrentlyModal())
             {
                 parent->exitModalState(0);
-                TimeParameter::TimeValue* tv = p->getTimeValue();
-                LOGD("Old time value: ", tv->toString());
-                TimeParameter::TimeValue* newTv = new TimeParameter::TimeValue(
-                    hourEditor.getText().getIntValue(), 
-                    minuteEditor.getText().getIntValue(), 
-                    secondEditor.getText().getDoubleValue()
-                );
-                p->setNextValue(newTv->toString());
                 break;
             }
             parent = parent->getParentComponent();
@@ -152,10 +156,8 @@ private:
 
     void textEditorTextChanged(TextEditor& editor) override
     {
-        if (&editor == &hourEditor) {}
-            //p->getTimeValue()->setHours(editor.getText().getIntValue());
-        else if (&editor == &minuteEditor) {}
-            //p->getTimeValue()->setMinutes(editor.getText().getIntValue());
+        if (&editor == &hourEditor) {} //TODO: Validate
+        else if (&editor == &minuteEditor) {} //TODO: Validate
         else if (&editor == &secondEditor)
         {
             String text = secondEditor.getText();
@@ -168,9 +170,7 @@ private:
                 ((split.size() == 1) && (text.length() > 2)))
             {
                 editor.setText(String(p->getTimeValue()->getSeconds()));
-                return;
             }
-            //p->getTimeValue()->setSeconds(editor.getText().getDoubleValue());
         }
             
     }

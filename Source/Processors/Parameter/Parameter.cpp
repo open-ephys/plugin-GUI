@@ -197,7 +197,7 @@ BooleanParameter::BooleanParameter(ParameterOwner* owner,
 
 }
 
-void BooleanParameter::setNextValue(var newValue_)
+void BooleanParameter::setNextValue(var newValue_, bool undoable)
 {
 
     if (newValue_ == currentValue) return;
@@ -260,7 +260,7 @@ CategoricalParameter::CategoricalParameter(ParameterOwner* owner,
 
 }
 
-void CategoricalParameter::setNextValue(var newValue_)
+void CategoricalParameter::setNextValue(var newValue_, bool undoable)
 {
     if (newValue_ == currentValue) return;
 
@@ -332,7 +332,7 @@ IntParameter::IntParameter(ParameterOwner* owner,
 
 }
 
-void IntParameter::setNextValue(var newValue_)
+void IntParameter::setNextValue(var newValue_, bool undoable)
 {
 
     if (newValue_ == currentValue) return;
@@ -370,7 +370,7 @@ void IntParameter::toXml(XmlElement* xml)
 void IntParameter::fromXml(XmlElement* xml)
 {
     int xmlValue = xml->getIntAttribute(getName(), defaultValue);
-    
+
     if (xmlValue < minValue || xmlValue > maxValue)
         currentValue = defaultValue;
     else
@@ -396,7 +396,7 @@ StringParameter::StringParameter(ParameterOwner* owner,
 
 }
 
-void StringParameter::setNextValue(var newValue_)
+void StringParameter::setNextValue(var newValue_, bool undoable)
 {
 
     if (newValue_ == currentValue) return;
@@ -457,7 +457,7 @@ FloatParameter::FloatParameter(ParameterOwner* owner,
 
 }
 
-void FloatParameter::setNextValue(var newValue_)
+void FloatParameter::setNextValue(var newValue_, bool undoable)
 {
     if (newValue_.isDouble())
     {
@@ -532,7 +532,7 @@ SelectedChannelsParameter::SelectedChannelsParameter(ParameterOwner* owner,
 
 }
 
-void SelectedChannelsParameter::setNextValue(var newValue_)
+void SelectedChannelsParameter::setNextValue(var newValue_, bool undoable)
 {
 
     if (newValue_ == currentValue) return;
@@ -652,7 +652,7 @@ MaskChannelsParameter::MaskChannelsParameter(ParameterOwner* owner,
 
 }
 
-void MaskChannelsParameter::setNextValue(var newValue_)
+void MaskChannelsParameter::setNextValue(var newValue_, bool undoable)
 {
 
     Array<var> values;
@@ -820,7 +820,7 @@ PathParameter::PathParameter(ParameterOwner* owner,
     currentValue = defaultValue;
 }
 
-void PathParameter::setNextValue(var newValue_)
+void PathParameter::setNextValue(var newValue_, bool undoable)
 {
     if (newValue_ == currentValue) return;
 
@@ -878,7 +878,7 @@ SelectedStreamParameter::SelectedStreamParameter(ParameterOwner* owner,
 }
 
 
-void SelectedStreamParameter::setNextValue(var newValue_)
+void SelectedStreamParameter::setNextValue(var newValue_, bool undoable)
 {
     if (newValue_ == currentValue) return;
 
@@ -942,29 +942,36 @@ TimeParameter::TimeParameter(ParameterOwner* owner,
         description,
         defaultValue,
         deactivateDuringAcquisition),
-    timeValue(defaultValue)
+        timeValue(new TimeParameter::TimeValue(defaultValue))
 {
-
+    timeValue->setMinTimeInMilliseconds(0);
 }
 
-void TimeParameter::setNextValue(var newValue_)
+void TimeParameter::setNextValue(var newValue_, bool undoable)
 {
 
-    LOGD("Setting time parameter to ", newValue_.toString());
-    LOGD("Old value: ", currentValue.toString());
-
-    if (newValue_ == currentValue) return;
+    if (newValue_.toString() == currentValue.toString()) return;
 
     if (newValue_.isString())
     {
+
         newValue = newValue_;
 
-        getTimeValue()->setTimeFromString(newValue.toString());
+        if (undoable)
+        {
+            ChangeValue* action = new TimeParameter::ChangeValue(getKey(), newValue);
 
-        ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+            AccessClass::getUndoManager()->beginNewTransaction();
+            AccessClass::getUndoManager()->perform(action);
 
-        AccessClass::getUndoManager()->beginNewTransaction();
-        AccessClass::getUndoManager()->perform(action);
+        }
+        else
+        {
+            currentValue = newValue;
+            timeValue->setTimeFromString(currentValue.toString());
+            valueChanged();
+        }
+
     }
 }
 
@@ -976,8 +983,41 @@ void TimeParameter::toXml(XmlElement* xml)
 void TimeParameter::fromXml(XmlElement* xml)
 {
     currentValue = xml->getStringAttribute(getName(), defaultValue);
+    timeValue->setTimeFromString(currentValue.toString());
 }
 
+TimeParameter::ChangeValue::ChangeValue(std::string key_, var newValue_)
+    : key(key_), newValue(newValue_)
+{
+    Parameter* p = Parameter::parameterMap[key_];
+    originalValue = p->currentValue;
+}
+
+bool TimeParameter::ChangeValue::perform()
+{
+    TimeParameter* p = (TimeParameter*)Parameter::parameterMap[key];
+    p->getTimeValue()->setTimeFromString(newValue.toString());
+
+    p->newValue = newValue;
+    p->getOwner()->parameterChangeRequest(p);
+
+    p->valueChanged();
+
+    return true;
+}
+
+bool TimeParameter::ChangeValue::undo()
+{
+    TimeParameter* p = (TimeParameter*)Parameter::parameterMap[key];
+    p->getTimeValue()->setTimeFromString(originalValue.toString());
+
+    p->newValue = originalValue;
+    p->getOwner()->parameterChangeRequest(p);
+
+    p->valueChanged();
+
+    return true;
+}
 
 NotificationParameter::NotificationParameter(ParameterOwner* owner,
     ParameterScope scope,
@@ -999,10 +1039,10 @@ NotificationParameter::NotificationParameter(ParameterOwner* owner,
 
 void NotificationParameter::triggerNotification()
 {
-    setNextValue(true);
+    setNextValue(true, true);
 }
 
-void NotificationParameter::setNextValue(var newValue_)
+void NotificationParameter::setNextValue(var newValue_, bool undoable)
 {
     getOwner()->parameterValueChanged(this);
 }

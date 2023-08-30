@@ -117,7 +117,6 @@ void FileReader::parameterValueChanged(Parameter* p)
     {
         setActiveStream(p->getValue());
         CoreServices::updateSignalChain (this->getEditor());
-        getScrubberInterface()->updatePlaybackTimes();
     }
     else if (p->getName() == "start_time")
     {
@@ -128,6 +127,15 @@ void FileReader::parameterValueChanged(Parameter* p)
     {
         TimeParameter* tp = static_cast<TimeParameter*>(p);
         stopSample = millisecondsToSamples(tp->getTimeValue()->getTimeInMilliseconds());
+        if (stopSample == startSample)
+        {
+            stopSample = input->getActiveNumSamples();
+            String newTime = TimeParameter::TimeValue(1000 * stopSample / input->getActiveSampleRate()).toString();
+            LOGD("Setting new time: ", newTime);
+            p->setNextValue(newTime, false);
+        }
+        TimeParameter* startTime = static_cast<TimeParameter*>(getParameter("start_time"));
+        startTime->getTimeValue()->setMaxTimeInMilliseconds(samplesToMilliseconds (stopSample - 1));
     }
 
     if ((stopSample - startSample) / currentSampleRate > 30.0f)
@@ -165,6 +173,8 @@ void FileReader::initialize(bool signalChainIsLoading)
 
     if (defaultFile.exists())
         setFile(defaultFile.getFullPathName());
+    else
+        LOGE("Default file not found.");
 }
 
 bool FileReader::setFile (String fullpath)
@@ -250,12 +260,14 @@ bool FileReader::setFile (String fullpath)
     activeStreamParam->setStreamNames(streamNames);
 
     TimeParameter* startTime = static_cast<TimeParameter*>(getParameter("start_time"));
+    startTime->getTimeValue()->setMaxTimeInMilliseconds(samplesToMilliseconds (input->getActiveNumSamples()));
     startTime->getTimeValue()->setTimeFromMilliseconds(samplesToMilliseconds (startSample));
-    startTime->setNextValue(startTime->getTimeValue()->toString());
+    startTime->setNextValue(startTime->getTimeValue()->toString(), false);
 
     TimeParameter* endTime = static_cast<TimeParameter*>(getParameter("end_time"));
+    endTime->getTimeValue()->setMaxTimeInMilliseconds(samplesToMilliseconds (input->getActiveNumSamples()));
     endTime->getTimeValue()->setTimeFromMilliseconds(samplesToMilliseconds (currentNumTotalSamples));
-    endTime->setNextValue(endTime->getTimeValue()->toString());
+    endTime->setNextValue(endTime->getTimeValue()->toString(), false);
 
     if (!headlessMode)
     {
@@ -699,24 +711,15 @@ void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
     // should only loop if reached end of file and resuming from start
     while (samplesRead < samplesNeeded)
     {
-        
-        if (samplesRead < 0)
-            return;
 
         int samplesToRead = samplesNeeded - samplesRead;
         
         // if reached end of file stream
         if ( (currentSample + samplesToRead) > stopSample)
         {
-            LOGD("Stop sample: ", stopSample, " reached end of file");
             samplesToRead = stopSample - currentSample;
             if (samplesToRead > 0)
                 input->readData (cacheBuffer + samplesRead * currentNumChannels, samplesToRead);
-
-            if (startSample != 0)
-            {
-                startSample = 0;
-            }
             
             // reset stream to beginning
             input->seekTo (startSample);
@@ -775,41 +778,17 @@ ScrubberInterface* FileReader::getScrubberInterface()
 
 void FileReader::saveCustomParametersToXml (XmlElement* xml)
 {
-
-    /* TOFIX
-    XmlElement* childNode = xml->createNewChildElement ("FILENAME");
-
-    String file = getFile();
-
-    File executable = File::getSpecialLocation(File::currentApplicationFile);
-#ifdef __APPLE__
-    File defaultFile = executable.getChildFile("Contents/Resources/resources").getChildFile("structure.oebin");
-#else
-    File defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
-#endif
-
-    if (file.equalsIgnoreCase(defaultFile.getFullPathName()))
-        childNode->setAttribute("path", "default");
-    else
-        childNode->setAttribute("path", getFile());
-
-    childNode->setAttribute ("recording", input->getActiveRecord());
-
-    */
+    XmlElement* childNode = xml->createNewChildElement ("SCRUBBERINTERFACE");
+    childNode->setAttribute ("show", getScrubberInterface()->isVisible() ? "true" : "false");
 }
 
 void FileReader::loadCustomParametersFromXml (XmlElement* xml)
 {
     for (auto* element : xml->getChildIterator())
     {
-        if (element->hasTagName ("FILENAME"))
+        if (element->hasTagName ("SCRUBBERINTERFACE"))
         {
-            String filepath = element->getStringAttribute ("path");
-            
-            setFile(filepath);
-
-            //int recording = element->getIntAttribute ("recording");
-            //recordSelector->setSelectedId (recording, sendNotificationSync);
+            static_cast<FileReaderEditor*>(getEditor())->showScrubInterface(element->getBoolAttribute ("show"));
         }
     }
 }
