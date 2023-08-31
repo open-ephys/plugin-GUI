@@ -384,7 +384,7 @@ DataStreamInfo::DataStreamInfo(DataStream* stream_)
     streamParameterEditorComponent->setBounds(0, 60, rowWidthPixels, yPos);
 	addAndMakeVisible(streamParameterEditorComponent.get());
 
-    heightInPixels = streamParameterEditorComponent->getHeight() + 80;
+    heightInPixels = streamParameterEditorComponent->getHeight() + 60;
     
 }
 
@@ -447,7 +447,7 @@ ProcessorParameterComponent::ProcessorParameterComponent(GenericProcessor* p)
     editorComponent->setBounds(0, 0, rowWidthPixels, yPos);
     addAndMakeVisible(editorComponent.get());
 
-    heightInPixels = editorComponent->getHeight() + 20;
+    heightInPixels = editorComponent->getHeight();
     
 }
 
@@ -529,6 +529,7 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
     nodeId = processor->getNodeId();
     horzShift = 0;
     vertShift = 0;
+    processorInfoVisible = false;
     
     infoPanel = std::make_unique<ConcertinaPanel> ();
     
@@ -537,7 +538,6 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
         // Add processor info panel
         processorParamComponent = std::make_unique<ProcessorParameterComponent>(processor);
 
-        processorInfoVisible = false;
         infoPanel->addPanel(-1, processorParamComponent.get(), false);
         infoPanel->setMaximumPanelSize(processorParamComponent.get(), 
                                        processorParamComponent->heightInPixels);
@@ -545,6 +545,7 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
         processorParamHeader = std::make_unique<Component>(processor->getName() + " Header");
         processorParamHeader->setBounds(0, 0, processorParamComponent->getWidth(), 20);
         infoPanel->setCustomPanelHeader(processorParamComponent.get(), processorParamHeader.get(), false);
+        processorParamHeader->removeMouseListener(processorParamHeader->getParentComponent());
 
         // Add data stream info panel and buttons
         for (auto stream : processor->getDataStreams())
@@ -552,12 +553,13 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
 
             DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()));
             infoPanel->addPanel(-1, info, true);
+            infoPanel->setMaximumPanelSize(info, info->heightInPixels);
             dataStreamInfos.add(info);
 
             DataStreamButton* button = new DataStreamButton(editor, stream, info);
             button->addListener(this);
             infoPanel->setCustomPanelHeader(info, button, true);
-            infoPanel->setMaximumPanelSize(info, button->getDesiredHeight());
+            button->removeMouseListener(button->getParentComponent());
             dataStreamButtons.add(button);
         }
 
@@ -629,9 +631,10 @@ void GraphNode::mouseExit (const MouseEvent& m)
 
 
 void GraphNode::mouseDown (const MouseEvent& m)
-{
-    editor->highlight();
-    
+{    
+    if (processor->isMerger() || processor->isSplitter())
+        return;
+
     if (m.getEventRelativeTo(this).y < 20)
     {
         if (processorInfoVisible)
@@ -644,9 +647,7 @@ void GraphNode::mouseDown (const MouseEvent& m)
         {
             processorInfoVisible = true;
             updateBoundaries();
-            infoPanel->setPanelSize(processorParamComponent.get(), 
-                                    processorParamComponent->heightInPixels - 20,
-                                    false);
+            infoPanel->expandPanelFully(processorParamComponent.get(), false);
         }
 
         gv->updateBoundaries();
@@ -662,7 +663,7 @@ void GraphNode::buttonClicked(Button* button)
     DataStreamButton* dsb = (DataStreamButton*)button;
 
     if (button->getToggleState())
-        infoPanel->setPanelSize(dsb->getComponent(), dsb->getDesiredHeight() - 20, false);
+        infoPanel->expandPanelFully(dsb->getComponent(), false);
     else
         infoPanel->setPanelSize(dsb->getComponent(), 0, false);
 
@@ -732,12 +733,15 @@ juce::Point<float> GraphNode::getCenterPoint() const
 void GraphNode::updateBoundaries()
 {
 
-    int panelHeight = processorInfoVisible ? processorParamComponent->heightInPixels: 20;
+    int panelHeight = 20;
+
+    if (!processor->isMerger() && !processor->isSplitter() && processorInfoVisible)
+        panelHeight = processorParamComponent->heightInPixels + 20;
 
     for (auto dsb : dataStreamButtons)
     {
         if (dsb->getToggleState())
-            panelHeight += dsb->getDesiredHeight();
+            panelHeight += dsb->getDesiredHeight() + 20;
         else
             panelHeight += 20;
     }
@@ -868,19 +872,20 @@ void GraphNode::updateStreamInfo()
         processorParamHeader.reset(new Component(processor->getName() + " Header"));
         processorParamHeader->setBounds(0, 0, processorParamComponent->getWidth(), 20);
         infoPanel->setCustomPanelHeader(processorParamComponent.get(), processorParamHeader.get(), false);
+        processorParamHeader->removeMouseListener(processorParamHeader->getParentComponent());
 
         for (auto stream : processor->getDataStreams())
         {
             LOGDD("Adding data stream info and buttons for stream: ", stream->getName());
             DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()));
             infoPanel->addPanel(-1, info, true);
+            infoPanel->setMaximumPanelSize(info, info->heightInPixels);
             dataStreamInfos.add(info);
 
             DataStreamButton* button = new DataStreamButton(editor, stream, info);
             button->addListener(this);
             infoPanel->setCustomPanelHeader(info, button, true);
-            infoPanel->setMaximumPanelSize(info, button->getDesiredHeight());
-
+            button->removeMouseListener(button->getParentComponent());
             dataStreamButtons.add(button);
         }
 
