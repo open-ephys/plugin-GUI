@@ -134,17 +134,17 @@ public:
     /** Returns the current sample (timestamp) */
     int64 getCurrentSample();
 
-    /** Sets the timestamp at which to start playback */
-    void setPlaybackStart(int64 timestamp);
+    /** Sets the sample number to start playback from */
+    void setPlaybackStart(int64 startSampleNumber);
 
-    /** Returns the timestamp at which to start playback */
-    int getPlaybackStart();
+    /** Returns the sample number where playback starts */
+    int64 getPlaybackStart();
 
-    /** Sets the timestamp at which to stop playback */
-    void setPlaybackStop(int64 timestamp);
+    /** Sets the sample number to stop playback */
+    void setPlaybackStop(int64 stopSampleNumber);
 
-    /** Returns the timestamp at which to stop playback */
-    int getPlaybackStop();
+    /** Returns the sample number where playback stops */
+    int64 getPlaybackStop();
 
     /** Toggles playback on/off */
     void togglePlayback();

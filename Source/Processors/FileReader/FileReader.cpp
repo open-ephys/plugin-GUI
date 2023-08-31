@@ -122,6 +122,7 @@ void FileReader::parameterValueChanged(Parameter* p)
     {
         TimeParameter* tp = static_cast<TimeParameter*>(p);
         startSample = millisecondsToSamples(tp->getTimeValue()->getTimeInMilliseconds());
+        LOGD("Start sample: ", startSample);
     }
     else if (p->getName() == "end_time")
     {
@@ -131,11 +132,11 @@ void FileReader::parameterValueChanged(Parameter* p)
         {
             stopSample = input->getActiveNumSamples();
             String newTime = TimeParameter::TimeValue(1000 * stopSample / input->getActiveSampleRate()).toString();
-            LOGD("Setting new time: ", newTime);
             p->setNextValue(newTime, false);
         }
         TimeParameter* startTime = static_cast<TimeParameter*>(getParameter("start_time"));
         startTime->getTimeValue()->setMaxTimeInMilliseconds(samplesToMilliseconds (stopSample - 1));
+        LOGD("Stop sample: ", stopSample);
     }
 
     if ((stopSample - startSample) / currentSampleRate > 30.0f)
@@ -145,6 +146,7 @@ void FileReader::parameterValueChanged(Parameter* p)
 
     currentNumTotalSamples = stopSample - startSample;
 
+    getScrubberInterface()->updatePlaybackTimes();
     getScrubberInterface()->update();
 }
 
@@ -387,16 +389,16 @@ void FileReader::setPlaybackStart(int64 startSample)
     this->startSample = startSample;
     this->totalSamplesAcquired = startSample;
 
+    /* Reset stream to start of playback */
     input->seekTo(startSample);
     currentSample = startSample;
 
-    switchBuffer();
+    /* Pre-fills the front buffer with a blocking read */
+    readAndFillBufferCache(bufferA);
 
-    if (CoreServices::getAcquisitionStatus() && !isThreadRunning())
-    {
-        m_shouldFillBackBuffer.set(true);
-        startThread();
-    }
+    readBuffer = &bufferB;
+    bufferCacheWindow = 0;
+    m_shouldFillBackBuffer.set(false);
     
 }
 
@@ -529,12 +531,12 @@ void FileReader::updateSettings()
 
 }
 
-int FileReader::getPlaybackStart() 
+int64 FileReader::getPlaybackStart()
 {
     return startSample;
 }
 
-int FileReader::getPlaybackStop()
+int64 FileReader::getPlaybackStop()
 {
     return stopSample;
 }

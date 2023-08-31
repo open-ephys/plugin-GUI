@@ -40,6 +40,7 @@ void FullTimeline::paint(Graphics& g)
 
     /* Draw a colored vertical bar for each event */
     int64 totalSamples = fileReader->getCurrentNumTotalSamples();
+    //int64 totalSamples = fileReader->getPlaybackStop() - fileReader->getPlaybackStart();
 
     for (auto info : fileReader->getActiveEventInfo())
     {
@@ -71,7 +72,7 @@ void FullTimeline::paint(Graphics& g)
     g.fillRoundedRectangle(intervalStartPosition + intervalWidth, 0, 2, this->getHeight(), 2);
 
     /* Draw the current playback position */
-    float timelinePos = (float)fileReader->getCurrentSample() / fileReader->getCurrentNumTotalSamples() * getWidth();
+    float timelinePos = (float)fileReader->getCurrentSample() / totalSamples * getWidth();
 
     g.setOpacity(1.0f);
     g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight(), 0.2);
@@ -100,7 +101,6 @@ void FullTimeline::mouseDown(const MouseEvent& event)
 
 void FullTimeline::mouseDrag(const MouseEvent & event) 
 {
-
     if (intervalIsSelected) {
         if (event.x >= intervalWidth / 2 && event.x < getWidth() - intervalWidth / 2)
             intervalStartPosition = event.x - intervalWidth / 2;
@@ -109,12 +109,12 @@ void FullTimeline::mouseDrag(const MouseEvent & event)
     repaint();
     fileReader->getScrubberInterface()->updateZoomTimeLabels();
     fileReader->getEditor()->repaint();
-    
 }
 
 void FullTimeline::mouseUp(const MouseEvent& event) 
 {
     intervalIsSelected = false;
+
     fileReader->getScrubberInterface()->updatePlaybackTimes();
 }
 
@@ -318,18 +318,11 @@ void ZoomTimeline::mouseDrag(const MouseEvent & event)
 
 void ZoomTimeline::mouseUp(const MouseEvent& event) 
 {
-
     leftSliderIsSelected = false;
     rightSliderIsSelected = false;
     playbackRegionIsSelected = false;
 
-    if (fileReader->playbackIsActive())
-    {
-        fileReader->switchBuffer();
-    }
-
     fileReader->getScrubberInterface()->updatePlaybackTimes(); 
-    
 }
 
 PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback")
@@ -452,11 +445,10 @@ ScrubberInterface::~ScrubberInterface() {}
 
 void ScrubberInterface::updatePlaybackTimes()
 {
-    //fileReader->switchBuffer();
 
-    int64 startTimestamp = float(getFullTimelineStartPosition()) / fullTimeline->getWidth() * fileReader->getCurrentNumTotalSamples();
-    startTimestamp += float(getZoomTimelineStartPosition()) / zoomTimeline->getWidth() * fileReader->getCurrentSampleRate() * 30.0f;
-    fileReader->setPlaybackStart(startTimestamp);
+    int64 newStartSample = float(getFullTimelineStartPosition()) / fullTimeline->getWidth() * fileReader->getCurrentNumTotalSamples();
+    newStartSample += float(getZoomTimelineStartPosition()) / zoomTimeline->getWidth() * fileReader->getCurrentSampleRate() * 30.0f;
+    fileReader->setPlaybackStart(newStartSample);
 
     if (playbackButton->getState())
     {
@@ -464,7 +456,7 @@ void ScrubberInterface::updatePlaybackTimes()
     }
     else
     {
-        int64 stopTimestamp = startTimestamp + zoomTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
+        int64 stopTimestamp = newStartSample + zoomTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
         fileReader->setPlaybackStop(stopTimestamp);
     }
 
