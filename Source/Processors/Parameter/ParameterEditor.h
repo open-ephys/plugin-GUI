@@ -335,14 +335,14 @@ class PLUGIN_API BoundedValueEditor : public Label
 public:
 
     /** Constructor (float) */
-    BoundedValueEditor(float min, float max, float step) 
-        : Label("",""), isEnabled(true), minValue(double(min)), maxValue(double(max)), stepSize(double(step)) {
+    BoundedValueEditor(float min, float max, float step, String units_ = "")
+        : Label("",""), isEnabled(true), minValue(double(min)), maxValue(double(max)), stepSize(double(step)), units(units_) {
             setEditable(true, true, false);
         }
 
     /** Constructor (int) */
-    BoundedValueEditor(int min, int max, int step) 
-        : Label("",""), isEnabled(true), minValue(double(min)), maxValue(double(max)), stepSize(double(step)) {
+    BoundedValueEditor(int min, int max, int step, String units_ = "")
+        : Label("",""), isEnabled(true), minValue(double(min)), maxValue(double(max)), stepSize(double(step)), units(units_) {
             setEditable(true, true, false);
         }
 
@@ -367,6 +367,8 @@ private:
     double minValue;
     double maxValue;
     double stepSize;
+
+    String units;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BoundedValueEditor)
 };

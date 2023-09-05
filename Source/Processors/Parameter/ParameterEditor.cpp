@@ -592,8 +592,10 @@ void BoundedValueEditor::mouseDrag(const MouseEvent& event)
     // Clamp the new value to the range [minValue, maxValue]
     newValue = jlimit(minValue, maxValue, newValue);
 
-    // Set the label's text to the new value
-    setText(juce::String(newValue, 1), juce::dontSendNotification);
+    float multiplier = std::pow(10.0f, -std::log10(stepSize));
+    newValue = std::round(newValue * multiplier) / multiplier;
+
+    setText(String(newValue) + " " + units, juce::dontSendNotification);
 
     mouseWasDragged = true;
 
@@ -635,7 +637,7 @@ BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int r
     if (param->getType() == Parameter::FLOAT_PARAM)
     {
         FloatParameter* p = (FloatParameter*)param;
-        valueEditor = std::make_unique<BoundedValueEditor>(p->getMinValue(), p->getMaxValue(), p->getStepSize());
+        valueEditor = std::make_unique<BoundedValueEditor>(p->getMinValue(), p->getMaxValue(), p->getStepSize(), p->getUnit());
         valueEditor->setText(String(p->getFloatValue()), dontSendNotification);
     }
     else {
