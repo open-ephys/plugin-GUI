@@ -167,6 +167,7 @@ void clearAccessClassStateForTesting() {
     bc.reset();
 }
 
+
 MidiBuffer* ExternalProcessorAccessor::getMidiBuffer(GenericProcessor* proc)
 {
 	return proc->m_currentMidiBuffer;

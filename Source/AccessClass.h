@@ -115,6 +115,7 @@ class TESTABLE ExternalProcessorAccessor
 {
 
 public:
+
 	static MidiBuffer* getMidiBuffer(GenericProcessor* proc);
     static void injectNumSamples(GenericProcessor* proc, uint16_t dataStream, uint32_t numSamples);
 };

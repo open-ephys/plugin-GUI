@@ -24,19 +24,11 @@ String BroadcastParser::build(String destPlugin, String command, std::map<String
 }
 
 
-bool BroadcastParser::getIntField(DynamicObject::Ptr payload, String name, int& value, int lowerBound, int upperBound) {
-    if(!payload->hasProperty(name) || !payload->getProperty(name).isInt())
-        return false;
-    int tempVal = payload->getProperty(name);
-    if((upperBound != INT_MIN && tempVal > upperBound) || (lowerBound != INT_MAX && tempVal < lowerBound))
-        return false;
-    value = tempVal;
-    return true;
-}
 
 
 
-bool BroadcastParser::checkForCommand(String expectedPlugin, String expectedCommand, String msg, var& payload) {
+
+bool BroadcastParser::getPayloadForCommand(String expectedPlugin, String expectedCommand, String msg, BroadcastPayload& payload) {
     var parsedMessage = JSON::parse(msg);
     if(!parsedMessage.isObject()) {
         return false;
@@ -57,17 +49,6 @@ bool BroadcastParser::checkForCommand(String expectedPlugin, String expectedComm
     if(tempPayload.getDynamicObject() == nullptr){
         return false;
     }
-    payload = jsonMessage -> getProperty("payload");
+    payload = BroadcastPayload(command,  jsonMessage -> getProperty("payload").getDynamicObject());
     return true;
-}
-
-GenericProcessor* BroadcastParser::getDestinationNode(GenericProcessor * root, int nodeId) {
-    while (root) {
-        if (root->getNodeId() == nodeId) {
-            return root;
-        }
-        root = root->getDestNode();
-
-    }
-    return nullptr;
 }
