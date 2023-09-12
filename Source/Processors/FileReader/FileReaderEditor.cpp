@@ -119,7 +119,9 @@ void FileReaderEditor::enableScrubDrawer(bool enable)
     scrubInterfaceAvailable = enable;
 
     scrubDrawerButton->setEnabled(scrubInterfaceAvailable);
-    if (!scrubInterfaceAvailable) showScrubInterface(false);
+    if (!scrubInterfaceAvailable) {
+        showScrubInterface(false);
+    }
 }
 
 ScrubberInterface* FileReaderEditor::getScrubberInterface()

@@ -9,123 +9,142 @@
 class PlaybackButton : public Button
 {
 public:
-    PlaybackButton(FileReader*);
-
-    ~PlaybackButton();
+    PlaybackButton(FileReader* reader)
+        : juce::Button("PlaybackButton")
+        , fileReader(reader)
+        , isActive(true) {}
+    ~PlaybackButton() {};
 
     bool getState();
     void setState(bool isActive);
-    
+
 private:
-
     FileReader* fileReader;
-
     bool isActive;
-    void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
+
+    void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown) override;
 };
 
-class FullTimeline : public Component, public Timer
+
+class Timeline : public Component, public Timer
 {
 public:
-    FullTimeline(FileReader*);
-    ~FullTimeline();
+    Timeline(FileReader* reader) : fileReader(reader) {}
+    virtual ~Timeline() {}
 
-    void setIntervalPosition(int start, int width);
+    virtual int getStartInterval() = 0;
+    virtual int getIntervalWidth() = 0;
+    virtual int getIntervalDurationInSeconds() = 0;
 
-    int getStartInterval();
-    int getIntervalWidth();
+    virtual void timerCallback() = 0;
 
-private:
-
+protected:
     FileReader* fileReader;
 
-    void timerCallback();
+    void paint(Graphics& g) override = 0;
+    void mouseDown(const MouseEvent& event) override = 0;
+    void mouseDrag(const MouseEvent& event) override = 0;
+    void mouseUp(const MouseEvent& event) override = 0;
+};
 
+
+class FullTimeline : public Timeline
+{
+public:
+    FullTimeline(FileReader* fr)
+        : Timeline(fr)
+    {
+        startTimer(50);
+    }
+    ~FullTimeline() override {};
+
+    int getStartInterval() { return intervalStartPosition; }
+    int getIntervalWidth() { return intervalWidth; }
+    int getIntervalDurationInSeconds();
+    
+    void setIntervalPosition(int pos);
+
+    void timerCallback() override { repaint(); };
+
+private:
     int intervalStartPosition;
     int intervalWidth;
     bool intervalIsSelected;
 
-    void paint(Graphics& g);
-    void mouseDown(const MouseEvent& event);
-    void mouseDrag(const MouseEvent& event);
-    void mouseUp(const MouseEvent& event);
+    void paint(Graphics& g) override;
+    void mouseDown(const MouseEvent& event) override;
+    void mouseDrag(const MouseEvent& event) override;
+    void mouseUp(const MouseEvent& event) override;
 
     bool leftSliderIsSelected;
-
 };
 
-class ZoomTimeline : public Component, public Timer
+class ZoomTimeline : public Timeline
 {
 public:
-    ZoomTimeline(FileReader*);
-    ~ZoomTimeline();
+    ZoomTimeline(FileReader* fr)
+        :   Timeline(fr),
+            sliderWidth(8),
+            widthInSeconds(30),
+            leftSliderPosition(0),
+            rightSliderPosition(110)
+    {
+        startTimer(50);
+    }
+    ~ZoomTimeline() override {};
 
-    void updatePlaybackRegion(int min, int max);
-    int getStartInterval();
+    int getStartInterval() { return leftSliderPosition; }
+    int getIntervalWidth() { return rightSliderPosition - leftSliderPosition; }
     int getIntervalDurationInSeconds();
 
+    void timerCallback() override { repaint(); };
+
 private:
-
-    FileReader* fileReader;
-
     int sliderWidth;
     int widthInSeconds;
     float leftSliderPosition;
     float rightSliderPosition;
     float lastDragXPosition;
 
-    void paint(Graphics& g);
-    void mouseDown(const MouseEvent& event);
-    void mouseDrag(const MouseEvent& event);
-    void mouseUp(const MouseEvent& event);
+    void paint(Graphics& g) override;
+    void mouseDown(const MouseEvent& event) override;
+    void mouseDrag(const MouseEvent& event) override;
+    void mouseUp(const MouseEvent& event) override;
 
     bool leftSliderIsSelected;
     bool rightSliderIsSelected;
     bool playbackRegionIsSelected;
-
-    void timerCallback();
-
 };
+
 
 class ScrubberInterface : public Component, public Button::Listener
 {
 public:
-    ScrubberInterface(FileReader*);
-    ~ScrubberInterface();
+    ScrubberInterface(FileReader* reader);
+    ~ScrubberInterface() override {};
 
-    ScopedPointer<Label>                zoomStartTimeLabel;
-    ScopedPointer<Label>                zoomMiddleTimeLabel;
-    ScopedPointer<Label>                zoomEndTimeLabel;
+    ScopedPointer<Label> zoomStartTimeLabel;
+    ScopedPointer<Label> zoomMiddleTimeLabel;
+    ScopedPointer<Label> zoomEndTimeLabel;
+    ScopedPointer<Label> fullStartTimeLabel;
+    ScopedPointer<Label> fullEndTimeLabel;
 
-    ScopedPointer<Label>                fullStartTimeLabel;
-    ScopedPointer<Label>                fullEndTimeLabel;
+    ScopedPointer<Timeline> fullTimeline;
+    ScopedPointer<Timeline> zoomTimeline;
 
-    ScopedPointer<FullTimeline>         fullTimeline;
-    ScopedPointer<ZoomTimeline>         zoomTimeline;
-
-    ScopedPointer<PlaybackButton>       playbackButton;
+    ScopedPointer<PlaybackButton> playbackButton;
 
     void buttonClicked (Button* button) override;
-
     void paintOverChildren(Graphics& g) override;
-
     void updatePlaybackTimes();
-    
-    /** Updates the time labels based on current slider positions */
     void updateZoomTimeLabels();
-
-    /** Gets the location of the global start of playback */
     int getFullTimelineStartPosition();
-
-    /** Gets the location of the local start of playback */
     int getZoomTimelineStartPosition();
-
-    /** Updates component when parameters change via FileReader */
     void update();
 
 private:
-
     FileReader* fileReader;
 };
+
 
 #endif  // __SCRUBBERINTERFACE_H_D6EC8B48__

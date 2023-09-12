@@ -1,22 +1,9 @@
 #include "ScrubberInterface.h"
 
-FullTimeline::FullTimeline(FileReader* fr) 
-{
-
-    fileReader = fr;
-
-    startTimer(50);
-}
-
-FullTimeline::~FullTimeline() {}
-
-void FullTimeline::timerCallback() {
-    repaint();
-}
-
 void FullTimeline::paint(Graphics& g) 
 {
 
+    /* Draw timeline background */
     int tickHeight = 4;
     int borderThickness = 1;
 
@@ -39,19 +26,26 @@ void FullTimeline::paint(Graphics& g)
 	g.fillRect(borderThickness, borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
 
     /* Draw a colored vertical bar for each event */
-    int64 totalSamples = fileReader->getCurrentNumTotalSamples();
-    //int64 totalSamples = fileReader->getPlaybackStop() - fileReader->getPlaybackStart();
+    TimeParameter::TimeValue* start = ((TimeParameter*)fileReader->getParameter("start_time"))->getTimeValue();
+    TimeParameter::TimeValue* stop  = ((TimeParameter*)fileReader->getParameter("end_time"))->getTimeValue();
+    TimeParameter::TimeValue* duration = new TimeParameter::TimeValue(stop->getTimeInMilliseconds() - start->getTimeInMilliseconds());
+
+    float sampleRate = fileReader->getCurrentSampleRate();
+    int64 totalSamples = duration->getTimeInMilliseconds() / 1000.0f * sampleRate;
+
+    int64 startSample = start->getTimeInMilliseconds() / 1000.0f * sampleRate;
+    int64 stopSample = stop->getTimeInMilliseconds() / 1000.0f * sampleRate;
 
     for (auto info : fileReader->getActiveEventInfo())
     {
         for (int i = 0; i < info.timestamps.size(); i++) {
         
-            int64 ts = info.timestamps[i];
+            int64 sampleNumber = info.timestamps[i]; //TODO: Update EventInfo object name timestamps -> sampleNumbers
             int16 state = info.channelStates[i];
 
-            if (state == 1)
+            if (state && sampleNumber >= startSample && sampleNumber <= stopSample)
             {
-                float timelinePos = ts / float(totalSamples) * getWidth();
+                float timelinePos = (sampleNumber - startSample) / float(totalSamples) * getWidth();
                 g.setColour(eventChannelColours[info.channels[i]]);
                 g.setOpacity(1.0f);
                 g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight() - tickHeight, 0.2);
@@ -66,29 +60,45 @@ void FullTimeline::paint(Graphics& g)
     g.setOpacity(0.8f);
 
     if (intervalStartPosition < 0) return;
-    if (intervalWidth == 0) setIntervalPosition(0, 30);
+    setIntervalPosition(intervalStartPosition);
 
     g.fillRoundedRectangle(intervalStartPosition, 0, 2, this->getHeight(), 2);
     g.fillRoundedRectangle(intervalStartPosition + intervalWidth, 0, 2, this->getHeight(), 2);
 
     /* Draw the current playback position */
-    float timelinePos = (float)fileReader->getCurrentSample() / totalSamples * getWidth();
+    float timelinePos = (float)(fileReader->getCurrentSample() - startSample) / totalSamples * getWidth();
 
     g.setOpacity(1.0f);
     g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight(), 0.2);
+
+    fileReader->getScrubberInterface()->updateZoomTimeLabels();
 	
 }
 
-void FullTimeline::setIntervalPosition(int min, int max) 
+void FullTimeline::setIntervalPosition(int pos) 
 {
 
-    int totalSamples = fileReader->getCurrentNumTotalSamples();
+    //TODO: Check if interval is within bounds
+    intervalStartPosition = pos;
+
+    TimeParameter::TimeValue* start = ((TimeParameter*)fileReader->getParameter("start_time"))->getTimeValue();
+    TimeParameter::TimeValue* stop  = ((TimeParameter*)fileReader->getParameter("end_time"))->getTimeValue();
+    TimeParameter::TimeValue* duration = new TimeParameter::TimeValue(stop->getTimeInMilliseconds() - start->getTimeInMilliseconds());
+
     float sampleRate = fileReader->getCurrentSampleRate();
+    int64 totalSamples = duration->getTimeInMilliseconds() / 1000.0f * sampleRate;
+    float totalTimeInSeconds = float(totalSamples) / sampleRate;
 
-    float totalTimeInSeconds = float(totalSamples) / sampleRate; 
-
-    intervalStartPosition = min;
     intervalWidth = 30.0f / totalTimeInSeconds * float(getWidth());
+}
+
+int FullTimeline::getIntervalDurationInSeconds()
+{
+    TimeParameter::TimeValue* start = ((TimeParameter*)fileReader->getParameter("start_time"))->getTimeValue();
+    TimeParameter::TimeValue* stop  = ((TimeParameter*)fileReader->getParameter("end_time"))->getTimeValue();
+    TimeParameter::TimeValue* duration = new TimeParameter::TimeValue(stop->getTimeInMilliseconds() - start->getTimeInMilliseconds());
+
+    return duration->getTimeInMilliseconds() / 1000.0f;
 }
 
 void FullTimeline::mouseDown(const MouseEvent& event) 
@@ -118,53 +128,15 @@ void FullTimeline::mouseUp(const MouseEvent& event)
     fileReader->getScrubberInterface()->updatePlaybackTimes();
 }
 
-int FullTimeline::getStartInterval() 
-{
-    return intervalStartPosition;
-}
-
-int FullTimeline::getIntervalWidth() 
-{
-    return intervalWidth;
-}
-
-ZoomTimeline::ZoomTimeline(FileReader* fr) 
-{
-    fileReader = fr; 
-    sliderWidth = 8;
-    widthInSeconds = 30;
-
-    startTimer(50);
-}
-
-ZoomTimeline::~ZoomTimeline() {}
-
-void ZoomTimeline::timerCallback()
-{
-    repaint();
-}
-
-void ZoomTimeline::updatePlaybackRegion(int min, int max) 
-{
-    /* Default zoom slider region to first 10s */
-    leftSliderPosition = 0;
-    rightSliderPosition = ( getWidth() - sliderWidth )  / 10.0f;
-}
-
-int ZoomTimeline::getStartInterval()
-{
-    return leftSliderPosition;
-}
-
 int ZoomTimeline::getIntervalDurationInSeconds()
 {
-    /* Get fraction of interval width and convert to nearest second */
+    /* Gets fraction of interval width and converts to nearest second */
     return round ( float( rightSliderPosition + sliderWidth - leftSliderPosition) / getWidth() * widthInSeconds );
-
 }
 
 void ZoomTimeline::paint(Graphics& g) 
 {
+    /* Draw timeline background */
     int tickHeight = 4;
     int borderThickness = 1;
 
@@ -186,27 +158,32 @@ void ZoomTimeline::paint(Graphics& g)
 	g.setColour(Colours::white);
 	g.fillRect(borderThickness, tickHeight + borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
 
-    /* Draw a colored vertical bar for each event */
-    Array<EventInfo> eventInfo = fileReader->getActiveEventInfo();
-    int64 totalSamples = fileReader->getCurrentNumTotalSamples();
+    /* Draw all events within this 30-second interval */
+    TimeParameter::TimeValue* start = ((TimeParameter*)fileReader->getParameter("start_time"))->getTimeValue();
+    TimeParameter::TimeValue* stop  = ((TimeParameter*)fileReader->getParameter("end_time"))->getTimeValue();
+    TimeParameter::TimeValue* duration = new TimeParameter::TimeValue(stop->getTimeInMilliseconds() - start->getTimeInMilliseconds());
+
+    float sampleRate = fileReader->getCurrentSampleRate();
+    int64 totalSamples = duration->getTimeInMilliseconds() / 1000.0f * sampleRate;
+    int64 intervalSamples = 30 * sampleRate;
 
     int intervalStartPos = fileReader->getScrubberInterface()->getFullTimelineStartPosition();
 
-    int startTimestamp = int(float(intervalStartPos) / float(getWidth()) * float(totalSamples)); 
-    int stopTimestamp = startTimestamp + 30 * fileReader->getCurrentSampleRate();
+    int64 offset = float(intervalStartPos) / float(getWidth()) * totalSamples;
 
-    for (auto info : eventInfo) 
+    int64 startSampleNumber = float(start->getTimeInMilliseconds()) / 1000.0f * sampleRate + offset;
+    int64 stopSampleNumber = startSampleNumber + intervalSamples;
+
+    for (auto info : fileReader->getActiveEventInfo()) 
     {
-
         for (int i = 0; i < info.timestamps.size(); i++) 
-        {
-            
-            int64 ts = info.timestamps[i];
+        {            
+            int64 sampleNumber = info.timestamps[i];
             int16 state = info.channelStates[i];
 
-            if (ts >= startTimestamp && ts <= stopTimestamp && state == 1)
+            if (state && sampleNumber >= startSampleNumber && sampleNumber <= stopSampleNumber)
             {
-                float timelinePos = (ts - startTimestamp) / float(stopTimestamp - startTimestamp) * getWidth();
+                float timelinePos = (sampleNumber - startSampleNumber) / float(intervalSamples) * getWidth();
                 g.setColour(eventChannelColours[info.channels[i]]);
                 g.setOpacity(1.0f);
                 g.fillRect(int(timelinePos), tickHeight, 1, this->getHeight() - tickHeight);
@@ -215,7 +192,8 @@ void ZoomTimeline::paint(Graphics& g)
         }
 
     }
- 
+    
+    /* Draw the scrubber interval */
     g.setColour(Colour(0,0,0));
     g.fillRoundedRectangle(leftSliderPosition, 0, sliderWidth, this->getHeight(), 2);
     g.setColour(Colour(110, 110, 110));
@@ -244,7 +222,7 @@ void ZoomTimeline::paint(Graphics& g)
         juce::Justification::centred);
 
     /* Draw the current playback position */
-    float timelinePos = (float)(fileReader->getCurrentSample() - startTimestamp) / (stopTimestamp - startTimestamp) * getWidth();
+    float timelinePos = (float)(fileReader->getCurrentSample() - startSampleNumber) / (stopSampleNumber - startSampleNumber) * getWidth();
     //LOGD("Timeline pos: ", timelinePos, " current sample: ", fileReader->getCurrentSample(), " start timestamp: ", startTimestamp, " stop timestamp: ", stopTimestamp);
     if (fileReader->playbackIsActive() || (!fileReader->playbackIsActive() && timelinePos < rightSliderPosition + sliderWidth))
     {
@@ -324,14 +302,6 @@ void ZoomTimeline::mouseUp(const MouseEvent& event)
 
     fileReader->getScrubberInterface()->updatePlaybackTimes(); 
 }
-
-PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback")
-{
-    fileReader = fr;
-    isActive = true;
-}
-
-PlaybackButton::~PlaybackButton() {}
 
 void PlaybackButton::setState(bool isActive)
 {
@@ -420,7 +390,6 @@ ScrubberInterface::ScrubberInterface(FileReader* fileReader_) {
     int padding = 30;
     zoomTimeline = new ZoomTimeline(fileReader);
     zoomTimeline->setBounds(padding, 46, scrubInterfaceWidth - 2*padding, 20);
-    zoomTimeline->updatePlaybackRegion(fileReader->getPlaybackStart(), fileReader->getPlaybackStop());
     addChildComponent(zoomTimeline);
     addAndMakeVisible(zoomTimeline);
 
@@ -441,15 +410,22 @@ ScrubberInterface::ScrubberInterface(FileReader* fileReader_) {
 
 }
 
-ScrubberInterface::~ScrubberInterface() {}
-
 void ScrubberInterface::updatePlaybackTimes()
 {
 
-    int64 newStartSample = float(getFullTimelineStartPosition()) / fullTimeline->getWidth() * fileReader->getCurrentNumTotalSamples();
+    int64 totalSamples = fullTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
+
+    TimeParameter* start = static_cast<TimeParameter*>(fileReader->getParameter("start_time"));
+
+    int64 newStartSample = start->getTimeValue()->getTimeInMilliseconds() / 1000.0f * fileReader->getCurrentSampleRate();
+    newStartSample += float(getFullTimelineStartPosition()) / fullTimeline->getWidth() * totalSamples;
     newStartSample += float(getZoomTimelineStartPosition()) / zoomTimeline->getWidth() * fileReader->getCurrentSampleRate() * 30.0f;
     fileReader->setPlaybackStart(newStartSample);
 
+    LOGD("Total samples in full timeline: ", totalSamples);
+    LOGD("New start sample: ", newStartSample);
+
+    /* Playback button deprecated
     if (playbackButton->getState())
     {
         fileReader->setPlaybackStop(fileReader->getCurrentNumTotalSamples());
@@ -459,6 +435,7 @@ void ScrubberInterface::updatePlaybackTimes()
         int64 stopTimestamp = newStartSample + zoomTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
         fileReader->setPlaybackStop(stopTimestamp);
     }
+    */
 
 }
 

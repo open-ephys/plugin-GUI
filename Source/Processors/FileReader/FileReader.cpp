@@ -122,13 +122,12 @@ void FileReader::parameterValueChanged(Parameter* p)
     {
         TimeParameter* tp = static_cast<TimeParameter*>(p);
         startSample = millisecondsToSamples(tp->getTimeValue()->getTimeInMilliseconds());
-        LOGD("Start sample: ", startSample);
     }
     else if (p->getName() == "end_time")
     {
         TimeParameter* tp = static_cast<TimeParameter*>(p);
         stopSample = millisecondsToSamples(tp->getTimeValue()->getTimeInMilliseconds());
-        if (stopSample == startSample)
+        if (input != nullptr && stopSample == startSample)
         {
             stopSample = input->getActiveNumSamples();
             String newTime = TimeParameter::TimeValue(1000 * stopSample / input->getActiveSampleRate()).toString();
@@ -136,23 +135,25 @@ void FileReader::parameterValueChanged(Parameter* p)
         }
         TimeParameter* startTime = static_cast<TimeParameter*>(getParameter("start_time"));
         startTime->getTimeValue()->setMaxTimeInMilliseconds(samplesToMilliseconds (stopSample - 1));
-        LOGD("Stop sample: ", stopSample);
     }
 
-    if ((stopSample - startSample) / currentSampleRate > 30.0f)
+    if ((stopSample - startSample) / currentSampleRate >= 30.0f)
         static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer(true);
     else
         static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer(false);
 
     currentNumTotalSamples = stopSample - startSample;
-
-    getScrubberInterface()->updatePlaybackTimes();
-    getScrubberInterface()->update();
+    
+    if (input != nullptr)
+    {
+        getScrubberInterface()->updatePlaybackTimes();
+        getScrubberInterface()->update();
+    }
 }
 
 AudioProcessorEditor* FileReader::createEditor()
 {
-    editor = std::make_unique<FileReaderEditor>(this);
+    editor = std::make_unique<FileReaderEditor>(this);  
 
     return editor.get();
 }
@@ -229,6 +230,7 @@ bool FileReader::setFile (String fullpath)
     }
     else
     {
+        input = nullptr;
         CoreServices::sendStatusMessage ("File type not supported");
         return false;
     }
@@ -275,8 +277,11 @@ bool FileReader::setFile (String fullpath)
     {
         FileReaderEditor* ed = (FileReaderEditor*)editor.get();
 
+        int start = startTime->getTimeValue()->getTimeInMilliseconds();
+        int stop = endTime->getTimeValue()->getTimeInMilliseconds();
+        TimeParameter::TimeValue* duration = new TimeParameter::TimeValue(stop - start);
         ed->showScrubInterface(false);
-        ed->enableScrubDrawer(getCurrentNumTotalSamples() / getCurrentSampleRate() > 30.0f);
+        ed->enableScrubDrawer( duration->getTimeInMilliseconds() / 1000.0f >= 30.0f);
     }
     
     gotNewFile = true;
@@ -369,7 +374,7 @@ void FileReader::setActiveStream (int index)
     if (endTime->getTimeValue()->getTimeInMilliseconds() == 0)
     {
         endTime->getTimeValue()->setTimeFromMilliseconds(samplesToMilliseconds (currentNumTotalSamples));
-        endTime->setNextValue(endTime->getTimeValue()->toString());
+        endTime->setNextValue(endTime->getTimeValue()->toString(), false);
     }
 	
     input->seekTo(startSample);
@@ -737,6 +742,10 @@ void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
         
         samplesRead += samplesToRead;
 
+        LOGD("CURRENT SAMPLE: ", currentSample, " samplesRead: ", samplesRead, " samplesNeeded: ", samplesNeeded);
+
+        if (samplesRead < 0) return;
+
     }
 }
 
@@ -775,7 +784,7 @@ FileSource* FileReader::createBuiltInFileSource(int index) const
 
 ScrubberInterface* FileReader::getScrubberInterface()
 {
-    return static_cast<FileReaderEditor*> (getEditor())->getScrubberInterface();
+    return ((FileReaderEditor*)getEditor())->getScrubberInterface();
 }
 
 void FileReader::saveCustomParametersToXml (XmlElement* xml)
