@@ -157,7 +157,7 @@ void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcesso
                     node->updateBoundaries();
                 }
 
-                int newY = getNodeForEditor(processor->getEditor())->getBottom() + 30;
+                int newY = getNodeForEditor(processor->getEditor())->getBottom() + 35;
                 int nextLevel = getNodeForEditor(processor->getEditor())->getLevel() + 1;
                 if(levelStartY.count(nextLevel) == 0)
                     levelStartY[nextLevel] = newY;
@@ -627,6 +627,8 @@ void GraphNode::mouseExit (const MouseEvent& m)
 
 void GraphNode::mouseDown (const MouseEvent& m)
 {    
+    AccessClass::getEditorViewport()->highlightEditor(editor);
+
     if (processor->isMerger() || processor->isSplitter())
         return;
 
@@ -760,7 +762,7 @@ void GraphNode::updateBoundaries()
     int nodeY = gv->getLevelStartY(getLevel());
     if (nodeY == 0)
         setBounds(BORDER_SIZE + getHorzShift() * (NODE_WIDTH + 50),
-            BORDER_SIZE + getLevel() * (NODE_HEIGHT + 30),
+            BORDER_SIZE + getLevel() * (NODE_HEIGHT + 35),
             nodeWidth,
             panelHeight);
     else

@@ -27,6 +27,7 @@
 #include "../AccessClass.h"
 #include "../Processors/Editors/GenericEditor.h"
 #include "../Processors/Visualization/Visualizer.h"
+#include "EditorViewport.h"
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
