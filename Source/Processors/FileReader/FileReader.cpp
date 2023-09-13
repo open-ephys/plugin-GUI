@@ -202,12 +202,11 @@ bool FileReader::setFile (String fullpath)
     File file(fullpath);
     
     String ext = file.getFileExtension().toLowerCase().substring (1);
-    const int index = supportedExtensions[ext] - 1;
+    const int index = supportedExtensions[ext];
     const bool isExtensionSupported = index >= 0;
 
     if (isExtensionSupported)
     {
-        const int index = supportedExtensions[ext] -1 ;
 		const int numPluginFileSources = AccessClass::getPluginManager()->getNumFileSources();
 
 		if (index < numPluginFileSources)
