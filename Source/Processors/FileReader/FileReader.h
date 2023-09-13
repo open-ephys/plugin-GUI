@@ -111,7 +111,7 @@ public:
     void initialize(bool signalChainIsLoading) override;
 
     /* Set the current file */
-    bool setFile (String fullpath);
+    bool setFile (String fullpath, bool shouldUpdateSignalChain = true);
 
     /* Get the active file's name */
     String getFile() const;
