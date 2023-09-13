@@ -148,6 +148,9 @@ public:
     /** Paint component */
     void paint (Graphics& g)    override;
 
+    /** Paint over children */
+    void paintOverChildren (Graphics& g)    override;
+
     /** Behavior on start of mouse hover */
     void mouseEnter (const MouseEvent& event) override;
     
@@ -165,6 +168,12 @@ public:
     
     /** Returns location of component center point */
     juce::Point<float> getCenterPoint() const;
+
+    /** Returns location of component start point */
+    juce::Point<float> getSrcPoint() const;
+
+    /** Returns location of component end point */
+    juce::Point<float> getDestPoint() const;
     
     /** Returns editor of downstream node */
     GenericEditor* getDest()    const;
@@ -323,13 +332,15 @@ public:
 
     /** Returns a pointer to the top-level component */
     GraphViewport* getGraphViewport() { return graphViewport.get(); }
+
+    int getLevelStartY(int level) const;
     
 private:
     void connectNodes (int, int, Graphics&);
 
-    int rootNum;
-
     OwnedArray<GraphNode> availableNodes;
+
+    std::map<int, int> levelStartY;
 
     std::unique_ptr<GraphViewport> graphViewport;
 
