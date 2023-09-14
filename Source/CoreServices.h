@@ -115,6 +115,7 @@ PLUGIN_API void setRecordingDirectoryBaseText(String text);
 /** Returns the full name of the current recording directory (empty string if none has started) */
 PLUGIN_API String getRecordingDirectoryName();
 
+
 /** Creates new directory the next time recording is started.
 * This will apply to all Record Nodes*/
 PLUGIN_API void createNewRecordingDirectory();
@@ -155,8 +156,11 @@ namespace RecordNode
 * in the signal chain. */
 PLUGIN_API void setRecordingDirectory(String dir, int nodeId, bool applyToAll=false);
 
-/** Returns the recording directory for a specific Record Node */
+/** Returns the [parent] recording directory for a specific Record Node */
 PLUGIN_API File getRecordingDirectory(int nodeId);
+
+/** Returns the root recording directory for a specific Record Node */
+PLUGIN_API File getRecordingRootDirectory(int nodeId);
 
 /** Returns the free space available (in kB) for a Record Node's directory */
 PLUGIN_API float getFreeSpaceAvailable(int nodeId);

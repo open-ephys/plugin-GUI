@@ -194,6 +194,10 @@ void RecordNode::setDataDirectory(File directory)
 	newDirectoryNeeded = true;
 }
 
+File RecordNode::getRootDirectory() const {
+    return rootFolder;
+}
+
 void RecordNode::createNewDirectory()
 {
 
