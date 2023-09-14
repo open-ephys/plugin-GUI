@@ -78,7 +78,6 @@ void FullTimeline::paint(Graphics& g)
 void FullTimeline::setIntervalPosition(int pos) 
 {
 
-    //TODO: Check if interval is within bounds
     intervalStartPosition = pos;
 
     TimeParameter::TimeValue* start = ((TimeParameter*)fileReader->getParameter("start_time"))->getTimeValue();
@@ -90,6 +89,13 @@ void FullTimeline::setIntervalPosition(int pos)
     float totalTimeInSeconds = float(totalSamples) / sampleRate;
 
     intervalWidth = 30.0f / totalTimeInSeconds * float(getWidth());
+
+    // Prevent interval from going out of bounds
+    if (intervalStartPosition + intervalWidth > getWidth())
+    {
+        intervalStartPosition = getWidth() - intervalWidth;
+        fileReader->getScrubberInterface()->updatePlaybackTimes();
+    }
 }
 
 int FullTimeline::getIntervalDurationInSeconds()
@@ -421,9 +427,6 @@ void ScrubberInterface::updatePlaybackTimes()
     newStartSample += float(getFullTimelineStartPosition()) / fullTimeline->getWidth() * totalSamples;
     newStartSample += float(getZoomTimelineStartPosition()) / zoomTimeline->getWidth() * fileReader->getCurrentSampleRate() * 30.0f;
     fileReader->setPlaybackStart(newStartSample);
-
-    LOGD("Total samples in full timeline: ", totalSamples);
-    LOGD("New start sample: ", newStartSample);
 
     /* Playback button deprecated
     if (playbackButton->getState())

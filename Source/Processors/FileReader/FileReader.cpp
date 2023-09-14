@@ -741,7 +741,7 @@ void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
         
         samplesRead += samplesToRead;
 
-        LOGD("CURRENT SAMPLE: ", currentSample, " samplesRead: ", samplesRead, " samplesNeeded: ", samplesNeeded);
+        //LOGD("CURRENT SAMPLE: ", currentSample, " samplesRead: ", samplesRead, " samplesNeeded: ", samplesNeeded);
 
         if (samplesRead < 0) return;
 
