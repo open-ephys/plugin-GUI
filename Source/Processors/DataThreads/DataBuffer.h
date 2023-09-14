@@ -40,7 +40,7 @@ public:
     DataBuffer (int chans, int size);
 
     /** Destructor */
-    ~DataBuffer() { }
+    ~DataBuffer();
 
     /** Clears the buffer.*/
     void clear();

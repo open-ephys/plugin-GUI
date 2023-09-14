@@ -53,15 +53,25 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
 
     sourceNode = sn;
 
-    if (activePath == 0)
+    if (sourceNodeA == nullptr && sourceNodeB == nullptr)
     {
-    LOGD("Setting source node A.");
         sourceNodeA = sn;
+        activePath = 0;
+        MergerEditor* ed = (MergerEditor*)getEditor();
+        ed->switchSource(activePath, false);
     }
     else
     {
-    LOGD("Setting source node B.");
-        sourceNodeB = sn;
+        if (activePath == 0)
+        {
+            LOGD("Setting source node A.");
+            sourceNodeA = sn;
+        }
+        else
+        {
+        LOGD("Setting source node B.");
+            sourceNodeB = sn;
+        }
     }
 
 }

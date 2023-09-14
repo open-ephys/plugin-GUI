@@ -271,7 +271,7 @@ void EditorViewport::lockSignalChain(bool shouldLock)
     signalChainIsLocked = shouldLock;
 }
 
-void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bool updateSettings)
+void EditorViewport::makeEditorVisible(GenericEditor* editor,bool updateSettings)
 {
 
 	if (updateSettings)
@@ -279,16 +279,28 @@ void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bo
     else
         AccessClass::getProcessorGraph()->updateViews(editor->getProcessor());
     
-    if (highlight)
+    for (auto ed : editorArray)
     {
-        for (auto ed : editorArray)
+        if (ed == editor )
         {
-            if (ed == editor )
-            {
-                ed->select();
-            } else {
-                ed->deselect();
-            }
+            ed->select();
+        } else {
+            ed->deselect();
+        }
+    }
+}
+
+void EditorViewport::highlightEditor(GenericEditor* editor)
+{
+    AccessClass::getProcessorGraph()->updateViews(editor->getProcessor());
+    
+    for (auto ed : editorArray)
+    {
+        if (ed == editor )
+        {
+            ed->highlight();
+        } else {
+            ed->deselect();
         }
     }
 }
@@ -680,23 +692,6 @@ void EditorViewport::paste()
     } else {
         
         CoreServices::sendStatusMessage("Cannot paste while acquisition is active.");
-    }
-}
-
-void EditorViewport::selectEditor(GenericEditor* editor)
-{
-    for (int i = 0; i < editorArray.size(); i++)
-    {
-
-        if (editor == editorArray[i]
-            || editor->getParentComponent() == editorArray[i])
-        {
-            editorArray[i]->select();
-        }
-        else
-        {
-            editorArray[i]->deselect();
-        }
     }
 }
 

@@ -175,12 +175,10 @@ void FileReader::initialize(bool signalChainIsLoading)
 #endif
 
     if (defaultFile.exists())
-        setFile(defaultFile.getFullPathName());
-    else
-        LOGE("Default file not found.");
+        setFile(defaultFile.getFullPathName(), false);
 }
 
-bool FileReader::setFile (String fullpath)
+bool FileReader::setFile (String fullpath, bool shouldUpdateSignalChain)
 {
     
     if (fullpath.equalsIgnoreCase("default"))
@@ -283,7 +281,8 @@ bool FileReader::setFile (String fullpath)
     
     gotNewFile = true;
 
-    CoreServices::updateSignalChain (this->getEditor());
+    if(shouldUpdateSignalChain)
+        CoreServices::updateSignalChain (this->getEditor());
 
     return true;
 }
