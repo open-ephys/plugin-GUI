@@ -757,8 +757,11 @@ private:
         (*ret)["experiment_number"] = CoreServices::RecordNode::getExperimentNumber(nodeId);
 
         (*ret)["recording_number"] = CoreServices::RecordNode::getRecordingNumber(nodeId);
-        
+
         (*ret)["is_synchronized"] = CoreServices::RecordNode::isSynchronized(nodeId);
+
+        (*ret)["root_directory"] = CoreServices::RecordNode::getRecordingRootDirectory(nodeId)
+            .getFullPathName().toStdString();
     }
 
     inline static void status_to_json(const ProcessorGraph* graph, json* ret) 
@@ -796,7 +799,7 @@ private:
             parameters_json->push_back(parameter_json);
         }
     }
-    
+
     inline static void stream_to_json(GenericProcessor* processor, const DataStream* stream, json* stream_json)
     {
         (*stream_json)["name"] = stream->getName().toStdString();
