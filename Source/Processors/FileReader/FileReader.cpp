@@ -209,16 +209,14 @@ bool FileReader::setFile (String fullpath)
     {
 		const int numPluginFileSources = AccessClass::getPluginManager()->getNumFileSources();
 
-		if (index < numPluginFileSources)
+		if (index > 1)
 		{
-			Plugin::FileSourceInfo sourceInfo = AccessClass::getPluginManager()->getFileSourceInfo(index);
+			Plugin::FileSourceInfo sourceInfo = AccessClass::getPluginManager()->getFileSourceInfo(index - 2);
 			input = sourceInfo.creator();
-            LOGD("Found input.");
 		}
 		else
 		{
-			input = createBuiltInFileSource(index - numPluginFileSources);
-            LOGD("Found input.");
+			input = createBuiltInFileSource(0);
 		}
 		if (!input)
 		{
