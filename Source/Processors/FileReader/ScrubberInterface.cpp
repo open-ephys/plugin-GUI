@@ -36,6 +36,8 @@ void FullTimeline::paint(Graphics& g)
     int64 startSample = start->getTimeInMilliseconds() / 1000.0f * sampleRate;
     int64 stopSample = stop->getTimeInMilliseconds() / 1000.0f * sampleRate;
 
+    std::map<int, bool> eventMap; //keeps track of events that would get rendered at the same timeline position
+
     for (auto info : fileReader->getActiveEventInfo())
     {
         for (int i = 0; i < info.timestamps.size(); i++) {
@@ -46,6 +48,11 @@ void FullTimeline::paint(Graphics& g)
             if (state && sampleNumber >= startSample && sampleNumber <= stopSample)
             {
                 float timelinePos = (sampleNumber - startSample) / float(totalSamples) * getWidth();
+
+                //if timelinePos is already in eventMap, skip overlaying a new event to avoid bogging down the GUI whle scrubbing
+                if (eventMap.find(timelinePos) != eventMap.end())
+                    continue;
+                eventMap[timelinePos] = true;
                 g.setColour(eventChannelColours[info.channels[i]]);
                 g.setOpacity(1.0f);
                 g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight() - tickHeight, 0.2);
