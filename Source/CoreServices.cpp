@@ -221,7 +221,16 @@ namespace CoreServices
 		return nodeIds;
 	}
 
-	namespace RecordNode
+    GenericProcessor* getProcessorById(uint16_t nodeId){
+        if(getProcessorGraph() == nullptr) {
+            return nullptr;
+        }
+        return getProcessorGraph() -> getProcessorWithNodeId(nodeId);
+
+    }
+
+
+    namespace RecordNode
 	{
 
 		void setRecordingDirectory(String dir, int nodeId, bool applyToAll)

@@ -32,4 +32,6 @@ Should be included in the source files which declare a processor class.
 #include "../../Source/Processors/Events/Spike.h"
 #include "../../Source/TestableExport.h"
 #include "../../Source/Utils/BroadcastParser.h"
+#include "../../Source/Utils/BroadcastPayload.h"
+
 #include "DspLib.h"

@@ -149,6 +149,9 @@ PLUGIN_API Array<int> getAvailableRecordNodeIds();
 /** Returns true if all record nodes are in a "synchronized" state*/
 PLUGIN_API bool allRecordNodesAreSynchronized();
 
+/** Returns a pointer to a processor based off Id, returns nullptr if not found*/
+PLUGIN_API  GenericProcessor* getProcessorById(uint16_t nodeId);
+
 namespace RecordNode
 {
 /** Sets the recording directory for a specific Record Node, based on its numeric ID.

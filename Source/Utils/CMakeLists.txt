@@ -7,6 +7,8 @@ add_sources(open-ephys
 	ListSliceParser.cpp
 	BroadcastParser.h
 	BroadcastParser.cpp
+	BroadcastPayload.h
+	BroadcastPayload.cpp
 	Utils.h
 )
 
