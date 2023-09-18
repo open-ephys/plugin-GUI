@@ -177,7 +177,7 @@ void CustomToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsH
     }
 }
 
-ToggleParameterEditor::ToggleParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
+ToggleParameterEditor:: ToggleParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
 
     jassert(param->getType() == Parameter::BOOLEAN_PARAM);
@@ -197,7 +197,7 @@ ToggleParameterEditor::ToggleParameterEditor(Parameter* param, int rowHeightPixe
     int width = rowWidthPixels;
 
     label->setBounds(width / 2, 0, width / 2, rowHeightPixels);
-    toggleButton->setBounds(0, 0, width / 2, getHeight());
+    toggleButton->setBounds(0, 0, width / 2, rowHeightPixels);
     setBounds(0, 0, width, rowHeightPixels);
 
     editor = (Component*)toggleButton.get();
@@ -887,7 +887,7 @@ PathParameterEditor::PathParameterEditor(Parameter* param, int rowHeightPixels, 
     button->setName(param->getKey());
     button->addListener(this);
     button->setClickingTogglesState(false);
-    button->setTooltip("Select a file...");
+    button->setTooltip(param->getDescription());
     addAndMakeVisible(button.get());
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
