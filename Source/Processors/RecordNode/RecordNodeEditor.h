@@ -34,6 +34,50 @@ class RecordNode;
 
 /**
     
+    Toggles event or spike recording on and off
+ 
+ */
+class RecordToggleButton : public CustomToggleButton
+{
+public:
+    
+    /** Constructor */
+	RecordToggleButton(const String& name);
+    
+    /** Destructor */
+	~RecordToggleButton();
+
+private:
+	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+};
+
+class CustomToggleButtonParameterEditor : public ParameterEditor,
+    public Button::Listener
+{
+public:
+
+    /** Constructor */
+    CustomToggleButtonParameterEditor(Parameter* param);
+
+    /** Destructor*/
+    ~CustomToggleButtonParameterEditor() { }
+
+    /** Respond to mute button clicks*/
+    void buttonClicked(Button* label);
+
+    /** Ensures button state aligns with underlying parameter*/
+    virtual void updateView() override;
+
+    /** Sets component layout*/
+    virtual void resized();
+
+private:
+	std::unique_ptr<Label> label;
+    std::unique_ptr<CustomToggleButton> toggleButton;
+};
+
+/**
+    
     Vertical button that opens/closes the FIFO drawer
  
  */
@@ -103,33 +147,6 @@ private :
 	float lastUpdateTime;
 	int recordingTimeLeftInSeconds;
 	
-};
-
-/**
-    
-    Toggles event or spike recording on and off
- 
- */
-class RecordToggleButton :
-    public Button,
-    public Timer
-{
-public:
-    
-    /** Constructor */
-	RecordToggleButton(RecordNode* node, const String& name);
-    
-    /** Destructor */
-	~RecordToggleButton();
-
-private:
-	RecordNode* node;
-    
-    /** Repaints the button */
-    void timerCallback();
-    
-    /** Renders the button*/
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
 /**

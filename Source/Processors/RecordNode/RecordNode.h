@@ -89,6 +89,12 @@ public:
     /** Destructor */
     ~RecordNode();
 
+	/** Register parameters */
+	void registerParameters() override;
+
+	/** Respond to parameter value changes */
+	void parameterValueChanged(Parameter* p) override;
+
 	/** Allow configuration via OpenEphysHttpServer */
 	String handleConfigMessage(String msg) override;
 

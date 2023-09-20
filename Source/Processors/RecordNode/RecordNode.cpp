@@ -83,6 +83,44 @@ RecordNode::~RecordNode()
 {
 }
 
+void RecordNode::registerParameters()
+{
+    addPathParameter(Parameter::PROCESSOR_SCOPE, "directory", "Directory", "Path to write data to", CoreServices::getDefaultUserSaveDirectory().getFullPathName(), {}, true);
+    addCategoricalParameter(Parameter::PROCESSOR_SCOPE, "engine", "Engine", "Currently active stream", {}, 0, true);
+    addBooleanParameter(Parameter::PROCESSOR_SCOPE, "events", "Record Events", "Toggle saving events coming into this node", true);
+    addBooleanParameter(Parameter::PROCESSOR_SCOPE, "spikes", "Record Spikes", "Toggle saving spikes coming into this node", true);
+
+	Array<String> recordEngines;
+	std::vector<RecordEngineManager*> engines = getAvailableRecordEngines();
+
+	for (int i = 0; i < engines.size(); i++)
+		recordEngines.add(engines[i]->getName());
+
+	CategoricalParameter* engineParam = (CategoricalParameter*)getParameter("engine");
+	engineParam->setCategories(recordEngines);
+}
+
+void RecordNode::parameterValueChanged(Parameter* p)
+{
+	if (p->getName() == "directory")
+	{
+		String newPath = static_cast<PathParameter*>(p)->getValue();
+		setDataDirectory(File(newPath));
+	}
+	else if (p->getName() == "engine")
+	{
+		setEngine(((CategoricalParameter*)p)->getSelectedString());
+	}
+	else if (p->getName() == "events")
+	{
+		setRecordEvents(((BooleanParameter*)p)->getBoolValue());
+	}
+	else if (p->getName() == "spikes")
+	{
+		setRecordSpikes(((BooleanParameter*)p)->getBoolValue());
+	}
+}
+
 void RecordNode::checkDiskSpace()
 {
 	int diskSpaceWarningThreshold = 5; //GB
@@ -99,7 +137,6 @@ void RecordNode::checkDiskSpace()
 		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "WARNING", msg);
 	}
 }
-
 
 String RecordNode::handleConfigMessage(String msg)
 {
@@ -165,7 +202,7 @@ void RecordNode::setEngine(String id)
 
 	for (auto engine : availableEngines)
 	{
-		if (engine->getID().compare(id) == 0)
+		if (engine->getName().equalsIgnoreCase(id))
         {
             if (recordEngine.get() != nullptr)
             {
@@ -183,11 +220,13 @@ void RecordNode::setEngine(String id)
         }
 	}
 
+	/*
 	if (getEditor() != nullptr)
 	{
 		RecordNodeEditor* ed = (RecordNodeEditor*)getEditor();
 		ed->setEngine(id);
 	}
+	*/
 }
 
 std::vector<RecordEngineManager*> RecordNode::getAvailableRecordEngines()
@@ -968,7 +1007,8 @@ void RecordNode::saveCustomParametersToXml(XmlElement* xml)
 void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
 {
     
-    //Get saved record path
+    return; 
+
     String savedPath = xml->getStringAttribute("path");
 
 	if (savedPath == "default" || !File(savedPath).exists())

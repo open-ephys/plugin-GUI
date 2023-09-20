@@ -29,10 +29,75 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../../CoreServices.h"
 
+RecordToggleButton::RecordToggleButton(const String& name) : CustomToggleButton() {}
+
+RecordToggleButton::~RecordToggleButton() {}
+
+void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+{
+
+    g.setColour(Colour(0,0,0));
+    g.fillRoundedRectangle(0,0,getWidth(),getHeight(),0.2*getWidth());
+
+	if (!getToggleState())
+		g.setColour(Colour(110,110,110));
+	else
+		g.setColour(Colour(255,0,0));
+
+    g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
+
+	/*Draw static black circle in center on top */
+	g.setColour(Colour(0,0,0));
+	g.fillEllipse(0.35*getWidth(), 0.35*getHeight(), 0.3*getWidth(), 0.3*getHeight());
+
+}
+
+CustomToggleButtonParameterEditor::CustomToggleButtonParameterEditor(Parameter* param) : ParameterEditor(param)
+{
+
+	label = std::make_unique<Label>("Parameter name", param->getDisplayName());
+    label->setFont(Font("Small Text", 12.0f, Font::plain));
+    label->setColour(Label::textColourId, Colours::black);
+    addAndMakeVisible(label.get());
+
+    toggleButton = std::make_unique<RecordToggleButton>(param->getDisplayName());//param->getDisplayName());
+    toggleButton->setClickingTogglesState (true);
+    toggleButton->setTooltip ("Toggle recording state on/off");
+    toggleButton->addListener(this);
+    toggleButton->setToggleState(true, dontSendNotification);
+	toggleButton->setBounds(50, 0, 15, 15);
+    addAndMakeVisible(toggleButton.get());
+
+    label->setBounds(0, 0, 100, 15);
+	toggleButton->setBounds(95, 0, 15, 15);
+
+	setBounds(0, 0, 150, 20);
+
+	editor = toggleButton.get();
+}
+
+void CustomToggleButtonParameterEditor::buttonClicked(Button*)
+{
+    param->setNextValue(toggleButton->getToggleState());
+}
+
+void CustomToggleButtonParameterEditor::updateView()
+{
+    if (param != nullptr)
+        toggleButton->setToggleState(param->getValue(), dontSendNotification);
+}
+
+void CustomToggleButtonParameterEditor::resized()
+{
+    //toggleButton->setBounds(0, 0, 20, 20);
+}
+
 RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	: GenericEditor(parentNode),
 	monitorsVisible(false), numDataStreams(0)
 {
+
+	desiredWidth = 165;
 
 	recordNode = parentNode;
 
@@ -49,11 +114,20 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	diskSpaceMonitor->setBounds(18, 33, 15, 92);
 	addAndMakeVisible(diskSpaceMonitor);
 
-	recordToggleButton = new RecordToggleButton(recordNode, getNameAndId() + " Recording Toggle Button");
-	recordToggleButton->setBounds(18, 110, 15, 15);
-	recordToggleButton->addListener(this);
-	//addAndMakeVisible(recordToggleButton); // functionality not implemented yet
+	addPathParameterEditor(Parameter::PROCESSOR_SCOPE, "directory", 42, 32);
+	addComboBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "engine", 42, 57);
 
+	for (auto& p : {"directory", "engine"})
+    {
+        auto* ed = getParameterEditor(p);
+		ed->setLayout(ParameterEditor::Layout::nameHidden);
+        ed->setBounds(ed->getX(), ed->getY(), 110, ed->getHeight());
+    }
+
+	addCustomParameterEditor(new CustomToggleButtonParameterEditor(parentNode->getParameter("events")), 40, 85);
+	addCustomParameterEditor(new CustomToggleButtonParameterEditor(parentNode->getParameter("spikes")), 40, 107);
+
+	/*
 	dataPathLabel = new Label(CoreServices::getRecordingParentDirectory().getFullPathName());
 	dataPathLabel->setText(CoreServices::getRecordingParentDirectory().getFullPathName(), juce::NotificationType::dontSendNotification);
 	dataPathLabel->setTooltip(dataPathLabel->getText());
@@ -64,11 +138,13 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	dataPathLabel->setJustificationType(Justification::centredLeft);
 	dataPathLabel->addListener(this);
 	addAndMakeVisible(dataPathLabel);
+	dataPathLabel->setVisible(false);
 
 	dataPathButton = new UtilityButton("...", Font(12));
 	dataPathButton->setBounds(117, 35, 18, 20);
 	dataPathButton->addListener(this);
 	addAndMakeVisible(dataPathButton);
+	dataPathButton->setVisible(false);
 
 	engineSelectCombo = new ComboBox("engineSelectCombo");
 	engineSelectCombo->setBounds(42, 66, 93, 20);
@@ -87,38 +163,37 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	}
 	engineSelectCombo->setSelectedId(defaultEngine);
 	engineSelectCombo->addListener(this);
-	addAndMakeVisible(engineSelectCombo);
+	//addAndMakeVisible(engineSelectCombo);
 
 	recordEventsLabel = new Label("recordEvents", "RECORD EVENTS");
-	recordEventsLabel->setBounds(40, 91, 80, 20);
-	recordEventsLabel->setFont(Font("Small Text", 10.0f, Font::plain));
-	addAndMakeVisible(recordEventsLabel);
+	recordEventsLabel->setBounds(85, 92, 80, 20);
+	//recordEventsLabel->setFont(Font("Small Text", 10.0f, Font::plain));
+	recordEventsLabel->setFont(Font("Arial", "Regular", 10.0f));
+	//addAndMakeVisible(recordEventsLabel);
 
-	eventRecord = new RecordToggleButton(recordNode, getNameAndId() + " Event Recording Toggle Button");
-	eventRecord->setBounds(120, 93, 15, 15);
+	eventRecord = new RecordToggleButton(getNameAndId() + " Event Recording Toggle Button");
+	eventRecord->setBounds(155, 94, 15, 15);
 	eventRecord->addListener(this);
 	eventRecord->setToggleState(1, sendNotification); //enable event recortding by default
-	addAndMakeVisible(eventRecord);
+	//addAndMakeVisible(eventRecord);
 
 	recordSpikesLabel = new Label("recordSpikes", "RECORD SPIKES");
-	recordSpikesLabel->setBounds(40, 108, 76, 20);
-	recordSpikesLabel->setFont(Font("Small Text", 10.0f, Font::plain));
-	addAndMakeVisible(recordSpikesLabel);
+	recordSpikesLabel->setBounds(85, 110, 76, 20);
+	//recordSpikesLabel->setFont(Font("Small Text", 10.0f, Font::plain));
+	recordSpikesLabel->setFont(Font("Arial", "Regular", 10.0f));
+	//addAndMakeVisible(recordSpikesLabel);
 
-	spikeRecord = new RecordToggleButton(recordNode, getNameAndId() + " Spike Recording Toggle Button");
-	spikeRecord->setBounds(120, 110, 15, 15);
+	spikeRecord = new RecordToggleButton(getNameAndId() + " Spike Recording Toggle Button");
+	spikeRecord->setBounds(155, 112, 15, 15);
 	spikeRecord->addListener(this);
 	spikeRecord->setToggleState(1, sendNotification); //enable spike recording by default
-	addAndMakeVisible(spikeRecord);
+	//addAndMakeVisible(spikeRecord);
 
-	/*
 	writeSpeedLabel = new Label("writeSpeedLabel", "WRITE SPEED");
 	writeSpeedLabel->setBounds(40, 102, 76, 20);
 	writeSpeedLabel->setFont(Font("Small Text", 10.0f, Font::plain));
 	addAndMakeVisible(writeSpeedLabel);
 	*/
-
-	desiredWidth = 150;
 
     fifoDrawerButton->triggerClick();
 
@@ -257,10 +332,12 @@ void RecordNodeEditor::updateFifoMonitors()
 
 void RecordNodeEditor::updateSettings()
 {
+    /*
     eventRecord->setToggleState(recordNode->recordEvents, dontSendNotification);
     spikeRecord->setToggleState(recordNode->recordSpikes, dontSendNotification);
     
     dataPathLabel->setText(recordNode->getDataDirectory().getFullPathName(), dontSendNotification);
+     */
 
 }
 
@@ -368,6 +445,13 @@ void RecordNodeEditor::showFifoMonitors(bool show)
 		diskSpaceMonitor->getX() + dX, diskSpaceMonitor->getY(),
 		diskSpaceMonitor->getWidth(), diskSpaceMonitor->getHeight());
 
+	for (auto& p : {"directory", "engine", "events", "spikes"})
+    {
+        auto* ed = getParameterEditor(p);
+        ed->setBounds(ed->getX() + dX, ed->getY(), ed->getWidth(), ed->getHeight());
+    }
+
+    /*
 	recordToggleButton->setBounds(
 		recordToggleButton->getX() + dX, recordToggleButton->getY(),
 		recordToggleButton->getWidth(), recordToggleButton->getHeight());
@@ -399,7 +483,8 @@ void RecordNodeEditor::showFifoMonitors(bool show)
 	spikeRecord->setBounds(
 		spikeRecord->getX() + dX, spikeRecord->getY(),
 		spikeRecord->getWidth(), spikeRecord->getHeight());
-
+     */
+    
 	streamSelector->setBounds(
 		streamSelector->getX() + dX, streamSelector->getY(),
 		streamSelector->getWidth(), streamSelector->getHeight());
@@ -441,37 +526,6 @@ void FifoDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonD
 	//g.drawVerticalLine(7, 0.0f, getHeight());
 }
 
-RecordToggleButton::RecordToggleButton(RecordNode* _node, const String& name) : Button(name) {
-	setClickingTogglesState(true);
-	node = _node;
-    startTimer(200);
-}
-
-RecordToggleButton::~RecordToggleButton() {}
-
-void RecordToggleButton::timerCallback()
-{
-    repaint();
-}
-
-void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
-{
-
-    g.setColour(Colour(0,0,0));
-    g.fillRoundedRectangle(0,0,getWidth(),getHeight(),0.2*getWidth());
-
-	if (!getToggleState())
-		g.setColour(Colour(110,110,110));
-	else
-		g.setColour(Colour(255,0,0));
-
-    g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
-
-	/*Draw static black circle in center on top */
-	g.setColour(Colour(0,0,0));
-	g.fillEllipse(0.35*getWidth(), 0.35*getHeight(), 0.3*getWidth(), 0.3*getHeight());
-
-}
 
 FifoMonitor::FifoMonitor(RecordNode* node, uint16 streamId_, String streamName_) :
 	recordNode(node),
