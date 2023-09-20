@@ -50,7 +50,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     , scrubInterfaceVisible (false)
     , scrubInterfaceAvailable(false)
 {
-    desiredWidth = 190;
+    desiredWidth = 280;
 
     scrubberInterface = new ScrubberInterface(fileReader);
     scrubberInterface->setBounds(0, 0, 420, 140);

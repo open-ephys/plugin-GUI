@@ -814,7 +814,7 @@ PathParameter::PathParameter(ParameterOwner* owner,
         description,
         defaultValue,
         deactivateDuringAcquisition),
-    validFileExtensions(fileExtensions_),
+    filePatternsAllowed(fileExtensions_),
     isDirectory(isDirectory_)
 {
     currentValue = defaultValue;

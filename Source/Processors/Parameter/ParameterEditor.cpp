@@ -70,6 +70,7 @@ void ParameterEditor::updateBounds()
             label->setVisible(false);
             editor->setBounds(0, 0, finalWidth, finalHeight);
             break;
+
     }
 }
 
@@ -230,7 +231,7 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param, int rowHeight
     jassert(param->getType() == Parameter::CATEGORICAL_PARAM
         || param->getType() == Parameter::INT_PARAM);
 
-    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName()); // == "" ? param->getName().replace("_", " ") : param->getDisplayName());
     label->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
     addAndMakeVisible(label.get());
 
@@ -887,10 +888,10 @@ PathParameterEditor::PathParameterEditor(Parameter* param, int rowHeightPixels, 
     button->setName(param->getKey());
     button->addListener(this);
     button->setClickingTogglesState(false);
-    button->setTooltip(param->getDescription());
+    button->setTooltip(param->getValueAsString());
     addAndMakeVisible(button.get());
 
-    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
+    label = std::make_unique<Label>("Parameter name", param->getDisplayName());// == "" ? param->getName().replace("_", " ") : param->getDisplayName());
     Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
     label->setJustificationType(Justification::left);
@@ -906,14 +907,19 @@ PathParameterEditor::PathParameterEditor(Parameter* param, int rowHeightPixels, 
 
 void PathParameterEditor::buttonClicked(Button* button_)
 {
-    FileChooser chooser("Select a file to open...",
-        {},
-        "*");
+
+    String dialogBoxTitle = "Select a ";
+    dialogBoxTitle += ((PathParameter*)param)->getIsDirectory() ? "directory..." : "file...";
+
+    String validFilePatterns = "*." + ((PathParameter*)param)->getValidFilePatterns().joinIntoString(";.");
+
+    FileChooser chooser(dialogBoxTitle,
+        File(), //TODO: Set this to a meaningful default directory, perhaps a config param?
+        validFilePatterns);
 
     if (chooser.browseForFileToOpen())
     {
         File file = chooser.getResult();
-        LOGD("Parameter address: ", &param);
         param->setNextValue(file.getFullPathName());
         button->setTooltip(file.getFullPathName());
     }
@@ -925,6 +931,10 @@ void PathParameterEditor::updateView()
         button->setEnabled(false);
     else
         button->setEnabled(true);
+
+    if (param)
+        button->setButtonText(param->getValueAsString());
+    //button->setButtonText(File(param->getValueAsString()).getFileName());
 }
 
 void PathParameterEditor::resized()

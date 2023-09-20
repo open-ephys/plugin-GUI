@@ -402,7 +402,7 @@ public:
     /** Gets the index as an integer*/
     int getSelectedIndex();
 
-    /** Gets the index as an integer*/
+    /** Gets the category at the current index*/
     String getSelectedString();
     
     /** Gets the value as a string**/
@@ -740,7 +740,7 @@ public:
         const String& displayName,
         const String& description,
         const String& defaultValue,
-        const StringArray& validFileExtensions,
+        const StringArray& filePatternsAllowed,
         const bool isDirectory,
         bool deactivateDuringAcquisition = true);
 
@@ -756,9 +756,15 @@ public:
     /** Loads the parameter from an XML Element*/
     virtual void fromXml(XmlElement*) override;
 
+    /** Returns true if the path should be a directory */
+    bool getIsDirectory() { return isDirectory; }
+
+    /** Returns a list of valid file extensions if applicable */
+    StringArray getValidFilePatterns() { return filePatternsAllowed; }
+
 private:
 
-    StringArray validFileExtensions;
+    StringArray filePatternsAllowed;
     bool isDirectory;
 
 };

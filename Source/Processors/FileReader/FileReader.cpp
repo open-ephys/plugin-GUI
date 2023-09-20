@@ -101,10 +101,10 @@ FileReader::~FileReader()
 
 void FileReader::registerParameters()
 {
-    addPathParameter(Parameter::PROCESSOR_SCOPE, "selected_file", "File", "File to load data from", "default", getSupportedExtensions(), false);
-    addSelectedStreamParameter(Parameter::PROCESSOR_SCOPE, "active_stream", "Stream", "Currently active stream", {}, 0);
-    addTimeParameter(Parameter::PROCESSOR_SCOPE, "start_time", "Start", "Time to start playback");
-    addTimeParameter(Parameter::PROCESSOR_SCOPE, "end_time", "Stop", "Time to end playback");
+    addPathParameter(Parameter::PROCESSOR_SCOPE, "selected_file", "Selected File", "File to load data from", "default", getSupportedExtensions(), false);
+    addSelectedStreamParameter(Parameter::PROCESSOR_SCOPE, "active_stream", "Active Stream", "Currently active stream", {}, 0);
+    addTimeParameter(Parameter::PROCESSOR_SCOPE, "start_time", "Start Time", "Time to start playback");
+    addTimeParameter(Parameter::PROCESSOR_SCOPE, "end_time", "Stop Time", "Time to end playback");
 }
 
 void FileReader::parameterValueChanged(Parameter* p)
