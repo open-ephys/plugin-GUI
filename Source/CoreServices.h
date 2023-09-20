@@ -152,6 +152,9 @@ PLUGIN_API bool allRecordNodesAreSynchronized();
 /** Returns a pointer to a processor based off Id, returns nullptr if not found*/
 PLUGIN_API  GenericProcessor* getProcessorById(uint16_t nodeId);
 
+/** Returns a pointer to a processor based off name, returns nullptr if not found*/
+PLUGIN_API  GenericProcessor* getProcessorByName(String processorName, bool onlySearchSources = false);
+
 namespace RecordNode
 {
 /** Sets the recording directory for a specific Record Node, based on its numeric ID.
