@@ -229,6 +229,31 @@ namespace CoreServices
 
     }
 
+	GenericProcessor* getProcessorByName(String processorName, bool onlySearchSources) {
+		if (getProcessorGraph() == nullptr) {
+			return nullptr;
+		}
+		Array<GenericProcessor*> processors;
+		if (onlySearchSources) {
+			processors = getProcessorGraph()->getRootNodes();
+		}
+		else {
+			processors = getProcessorGraph()->getListOfProcessors();
+		}
+
+		for (const auto& processor : processors) {
+			if (processor->getName() == processorName) {
+				return processor;
+			}
+		}
+
+		return nullptr;
+
+	}
+
+
+	
+
 
     namespace RecordNode
 	{
