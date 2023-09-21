@@ -53,6 +53,7 @@ class FullTimeline : public Timeline
 public:
     FullTimeline(FileReader* fr)
         : Timeline(fr)
+        , intervalStartPosition(0)
     {
         startTimer(50);
     }
