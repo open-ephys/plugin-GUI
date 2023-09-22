@@ -34,18 +34,41 @@ std::map<std::string, Parameter*> Parameter::parameterMap;
 
 String Parameter::getParameterTypeString() const
 {
-    if (m_parameterType == Parameter::BOOLEAN_PARAM)
+
+    if (m_parameterType == BOOLEAN_PARAM)
         return "Boolean";
-    else if (m_parameterType == Parameter::INT_PARAM)
-        return "Integer";
-    else if (m_parameterType == Parameter::CATEGORICAL_PARAM)
+    else if (m_parameterType == CATEGORICAL_PARAM)
         return "Categorical";
-    else if (m_parameterType == Parameter::FLOAT_PARAM)
+    else if (m_parameterType == STRING_PARAM)
+        return "String";
+    else if (m_parameterType == FLOAT_PARAM)
         return "Float";
-    else if (m_parameterType == Parameter::SELECTED_CHANNELS_PARAM)
+    else if (m_parameterType == INT_PARAM)
+        return "Integer";
+    else if (m_parameterType == SELECTED_CHANNELS_PARAM)
         return "Selected Channels";
-    else if (m_parameterType == Parameter::MASK_CHANNELS_PARAM)
+    else if (m_parameterType == SELECTED_SPIKE_CHANNEL_PARAM)
+        return "Selected Spike Channel";
+    else if (m_parameterType == SELECTED_EVENT_CHANNEL_PARAM)
+        return "Selected Event Channel";
+    else if (m_parameterType == SELECTED_PROCESSOR_PARAM)
+        return "Selected Processor";
+    else if (m_parameterType == SELECTED_STREAM_PARAM)
+        return "Selected Stream";
+    else if (m_parameterType == MASK_CHANNELS_PARAM)
         return "Mask Channels";
+    else if (m_parameterType == PATH_PARAM)
+        return "Path";
+    else if (m_parameterType == TIME_PARAM)
+        return "Time";
+    else if (m_parameterType == NAME_PARAM)
+        return "Name";
+    else if (m_parameterType == COLOUR_PARAM)
+        return "Colour";
+    else if (m_parameterType == NOTIFICATION_PARAM)
+        return "Notification";
+    else
+        return "Unknown";
 
     // This should never happen
     jassertfalse;
@@ -630,7 +653,7 @@ void SelectedChannelsParameter::setChannelCount(int count)
 {
     channelCount = count;
     
-   LOGD("************************ Setting selected channels count to ", count, " at ", getName());
+    LOGDD("SelectedChannelsParameter: Setting selected channels count to ", count, " at ", getName());
 }
 
 MaskChannelsParameter::MaskChannelsParameter(ParameterOwner* owner,
