@@ -88,6 +88,9 @@ public:
     // VIRTUAL METHODS
     // ---------------------
 
+    /**Create & register parameters for the DataThread */
+    virtual void registerParameters() {};
+
     /** Called when the chain updates, to add, remove or resize the sourceBuffers' DataBuffers as needed*/
     virtual void resizeBuffers() { }
 
@@ -103,6 +106,9 @@ public:
 
     /** Allows the DataThread to set its default state, depending on whether the signal chain is loading */
     virtual void initialize(bool signalChainIsLoading) { }
+
+    /** Called when a parameter value is updated, to allow plugin-specific responses */
+    virtual void parameterValueChanged(Parameter*) { }
 
     // ---------------------
     // NON-VIRTUAL METHODS

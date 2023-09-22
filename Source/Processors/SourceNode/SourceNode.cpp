@@ -104,6 +104,11 @@ void SourceNode::initialize(bool signalChainIsLoading)
     dataThread->initialize(signalChainIsLoading);
 }
 
+void SourceNode::registerParameters()
+{
+    dataThread->registerParameters();
+}
+
 
 void SourceNode::requestSignalChainUpdate()
 {
@@ -144,6 +149,12 @@ void SourceNode::updateSettings()
         LOGD(getName(), " isEnabled = ", isEnabled, " (updateSettings)");
 
 	}
+}
+
+
+void SourceNode::parameterValueChanged(Parameter* parameter)
+{
+    dataThread->parameterValueChanged(parameter);
 }
 
 

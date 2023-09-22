@@ -820,9 +820,15 @@ void ProcessorGraph::restoreParameters()
         }
     }
 
+    // Create message center event channel (necessary for DataThreads)
+    getMessageCenter()->addSpecialProcessorChannels();
+
     // load source node parameters
     for (auto p : rootNodes)
     {
+        if(p->getPluginType() == Plugin::Type::DATA_THREAD)
+            p->update();
+
         p->loadFromXml();
     }
 

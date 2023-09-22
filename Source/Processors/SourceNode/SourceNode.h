@@ -50,6 +50,9 @@ public:
     /* Create a custom editor. */
     AudioProcessorEditor* createEditor() override;
 
+    /** Registers the parameters for a given processor */
+    void registerParameters() override;
+
     /* Copies samples from the DataThread's DataBuffer into the GUI's processing buffers. */
     void process (AudioBuffer<float>& buffer) override;
 
@@ -98,6 +101,9 @@ public:
 
     /** Passes initialize command to the DataThread*/
     void initialize(bool signalChainIsLoading) override;
+
+    /** Called when a parameter value is updated, to allow plugin-specific responses*/
+    void parameterValueChanged(Parameter*) override;
     
 private:
 

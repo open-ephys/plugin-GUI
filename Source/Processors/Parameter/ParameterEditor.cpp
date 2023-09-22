@@ -115,6 +115,8 @@ void TextBoxParameterEditor::labelTextChanged(Label* label)
 {
     if(param->getType() == Parameter::FLOAT_PARAM)
         param->setNextValue(label->getText().getFloatValue());
+    else if(param->getType() == Parameter::INT_PARAM)
+        param->setNextValue(label->getText().getIntValue());
     else
         param->setNextValue(label->getText());
 }

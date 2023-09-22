@@ -960,7 +960,10 @@ void GenericProcessor::update()
             messageChannel->addProcessor(this);
             messageChannel->setDataStream(AccessClass::getMessageCenter()->getMessageStream());
 
-            if (!isSource())
+            // If Source call updateSettings immediately
+            if (isSource())
+                updateSettings();
+            else
                 isEnabled = false;
 
             LOGD(getNodeId(), " connected to Message Center");
@@ -1140,7 +1143,7 @@ void GenericProcessor::update()
 
     LOGG("    Copied parameters in ", MS_FROM_START, " milliseconds");
 
-    if (!isMerger())
+    if (!isMerger() && !isSource())
         updateSettings(); // allow processors to change custom settings,
                           // including creation of streams / channels and
                           // setting isEnabled variable
