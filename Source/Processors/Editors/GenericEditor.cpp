@@ -1421,3 +1421,38 @@ void ThresholdSlider::setValues(Array<double> v)
 {
 	valueArray = v;
 }
+
+LevelMonitor::LevelMonitor(GenericProcessor *p) : Button("LevelMonitor")
+{
+	processor = p;
+	updateFreq = 60; //10Hz
+	fillPercentage = 0.0;
+	lastUpdateTime = Time::getMillisecondCounterHiRes();
+	stateChangeSinceLastUpdate = false;
+}
+
+LevelMonitor::~LevelMonitor() {}
+
+void LevelMonitor::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+	g.setColour(Colours::grey);
+	g.fillRoundedRectangle(0, 0, this->getWidth(), this->getHeight(), 4);
+	g.setColour(Colours::lightslategrey);
+	g.fillRoundedRectangle(2, 2, this->getWidth() - 4, this->getHeight() - 4, 2);
+
+	if (fillPercentage < 0.7)
+		g.setColour(Colours::yellow);
+	else if (fillPercentage < 0.9)
+		g.setColour(Colours::orange);
+	else
+		g.setColour(Colours::red);
+
+	float barHeight = (this->getHeight() - 4) * fillPercentage;
+	g.fillRoundedRectangle(2, this->getHeight() - 2 - barHeight, this->getWidth() - 4, barHeight, 2);
+}
+
+void LevelMonitor::setFillPercentage(float fill_)
+{
+	fillPercentage = fill_;
+	repaint();
+}

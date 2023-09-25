@@ -523,5 +523,44 @@ private:
     Array<double> valueArray;
 };
 
+/**
+  Used to monitor a variable in real-time as a level bar.
+
+  @see SpikeDetectorEditor
+*/
+class PLUGIN_API LevelMonitor : public Timer,
+	public Button
+{
+public:
+
+	/** Constructor */
+	LevelMonitor(GenericProcessor*);
+
+	/** Detructor */
+	~LevelMonitor();
+
+    /** Set update freq */
+    void setUpdateFreq(int freq) { updateFreq = freq; };
+
+	/** Sets fill amount */
+	void setFillPercentage(float percentage);
+
+	/** Draws the button */
+	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
+	/** Updates the display */
+	virtual void timerCallback() = 0;
+
+protected:
+
+	GenericProcessor* processor;
+
+	int updateFreq;
+
+	float fillPercentage;
+	float lastUpdateTime;
+	bool stateChangeSinceLastUpdate;
+
+};
 
 #endif  // __GENERICEDITOR_H_DD406E71__

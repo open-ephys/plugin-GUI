@@ -343,7 +343,7 @@ public:
 
     /** Destructor */
     virtual ~SliderParameterEditor() { }
-    
+
     /** Responds to slider value changes */
     void sliderValueChanged(Slider* slider) override;
 
@@ -524,7 +524,7 @@ public:
     virtual void resized() override;
 
 private:
-    std::unique_ptr<TextButton> button;
+    std::unique_ptr<Button> button;
 };
 
 class PLUGIN_API PathParameterEditor : public ParameterEditor,

@@ -710,6 +710,9 @@ public:
     /** Sets the total number of available channels in this stream*/
     void setChannelCount(int count);
 
+    /** Returns a list of masked channels as a string */
+    String maskChannelsToString();
+
     /** Saves the parameter to an XML Element*/
     virtual void toXml(XmlElement*) override;
 
@@ -717,8 +720,6 @@ public:
     virtual void fromXml(XmlElement*) override;
 
 private:
-
-    String maskChannelsToString();
 
     Array<var> parseMaskString(const String& input);
 

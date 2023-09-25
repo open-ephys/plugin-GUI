@@ -32,6 +32,72 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class RecordThread;
 class RecordNode;
 
+class StreamMonitor : public LevelMonitor
+{
+public:
+
+	/** Constructor */
+	StreamMonitor(RecordNode* rn, uint64 streamId);
+
+	/** Destructor */
+	~StreamMonitor();
+
+	/** Updates the display */
+	void timerCallback() override;
+
+private:
+	uint64 streamId;
+};
+
+class DiskSpaceMonitor : public LevelMonitor
+{
+public:
+
+	/** Constructor */
+	DiskSpaceMonitor(RecordNode* rn);
+
+	/** Destructor */
+	~DiskSpaceMonitor();
+
+	/** Updates the display */
+	void timerCallback() override;
+
+private:
+	int64 lastFreeSpace;
+	int64 recordingTimeLeftInSeconds;
+	float dataRate;
+};
+
+class RecordChannelsParameterEditor : public ParameterEditor,
+    public Button::Listener,
+	public PopupChannelSelector::Listener
+{
+public:
+
+    /** Constructor */
+    RecordChannelsParameterEditor(RecordNode* rn, Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+
+    /** Destructor */
+    virtual ~RecordChannelsParameterEditor() { }
+
+    /** Displays the PopupChannelSelector*/
+    void buttonClicked(Button* label) override;
+
+    /** Must ensure that editor state matches underlying parameter */
+    virtual void updateView() override;
+
+    /** Responds to changes in the PopupChannelSelector*/
+    void channelStateChanged(Array<int> selectedChannels) override;
+
+    /** Sets sub-component locations */
+    virtual void resized() override;
+
+private:
+    std::unique_ptr<StreamMonitor> monitor;
+
+	RecordNode* recordNode;
+};
+
 /**
     
     Toggles event or spike recording on and off
@@ -51,16 +117,16 @@ private:
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
-class CustomToggleButtonParameterEditor : public ParameterEditor,
+class RecordToggleParameterEditor : public ParameterEditor,
     public Button::Listener
 {
 public:
 
     /** Constructor */
-    CustomToggleButtonParameterEditor(Parameter* param);
+    RecordToggleParameterEditor(Parameter* param);
 
     /** Destructor*/
-    ~CustomToggleButtonParameterEditor() { }
+    ~RecordToggleParameterEditor() { }
 
     /** Respond to mute button clicks*/
     void buttonClicked(Button* label);
@@ -94,59 +160,6 @@ private:
     
     /** Renders the button*/
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
-};
-
-/**
-    
-    Component that displays the FIFO filling state for each stream
- 
- */
-class FifoMonitor : public Component, 
-					public SettableTooltipClient,
-					public Timer, 
-				    public PopupChannelSelector::Listener,
-                    public ComponentListener
-{
-public:
-    
-    /** Constructor */
-	FifoMonitor(RecordNode* recordNode, uint16 streamId, String streamName);
-
-    /** Sets fill amount */
-	void setFillPercentage(float percentage);
-
-    /** Updates the display */
-	void timerCallback();
-
-    /** Called when the selected channels are changed */
-	void channelStateChanged(Array<int> selectedChannels);
-
-    /** Listens for mouse clicks and opens the popup channel selection */
-	void mouseDown(const MouseEvent &event);
-
-    /** Called when channel selection popup is closed */
-	//void componentBeingDeleted(Component &component);
-
-	std::vector<bool> channelStates;
-
-private :
-
-	OwnedArray<ChannelButton> channelButtons;
-	void paint(Graphics &g);
-
-	float fillPercentage;
-	RecordNode *recordNode;
-	uint16 streamId;
-	String streamName;
-	Random random;
-    
-    bool stateChangeSinceLastUpdate;
-
-	float dataRate;
-	float lastFreeSpace;
-	float lastUpdateTime;
-	int recordingTimeLeftInSeconds;
-	
 };
 
 /**
@@ -214,10 +227,10 @@ private:
 	RecordNode* recordNode;
 
 	OwnedArray<Label> streamLabels;
-	OwnedArray<FifoMonitor> streamMonitors;
+	std::vector<ParameterEditor*> streamMonitors;
 	OwnedArray<SyncControlButton> streamRecords;
 	ScopedPointer<Label> diskSpaceLabel;
-	ScopedPointer<FifoMonitor> diskSpaceMonitor;
+	ScopedPointer<DiskSpaceMonitor> diskSpaceMonitor;
 	ScopedPointer<RecordToggleButton> recordToggleButton;
 	ScopedPointer<Label> engineSelectLabel;
 	ScopedPointer<Label> dataPathLabel;

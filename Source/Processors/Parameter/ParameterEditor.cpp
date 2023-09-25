@@ -862,7 +862,11 @@ void MaskChannelsParameterEditor::buttonClicked(Button* button_)
 
     auto* channelSelector = new PopupChannelSelector(this, channelStates);
 
-    channelSelector->setChannelButtonColour(Colour(0, 174, 239));
+    Colour c = Colour(0, 174, 239);
+    if (param->getName().contains("record"))
+        c = Colour(255, 0, 0);
+
+    channelSelector->setChannelButtonColour(c);
 
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),

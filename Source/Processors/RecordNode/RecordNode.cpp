@@ -98,6 +98,9 @@ void RecordNode::registerParameters()
 
 	CategoricalParameter* engineParam = (CategoricalParameter*)getParameter("engine");
 	engineParam->setCategories(recordEngines);
+
+	addMaskChannelsParameter(Parameter::STREAM_SCOPE, "record_channels", "Channels", "Channels to record", true);
+
 }
 
 void RecordNode::parameterValueChanged(Parameter* p)
@@ -109,6 +112,7 @@ void RecordNode::parameterValueChanged(Parameter* p)
 	}
 	else if (p->getName() == "engine")
 	{
+		LOGD("Parameter changed: engine");
 		setEngine(((CategoricalParameter*)p)->getSelectedString());
 	}
 	else if (p->getName() == "events")
@@ -119,6 +123,11 @@ void RecordNode::parameterValueChanged(Parameter* p)
 	{
 		setRecordSpikes(((BooleanParameter*)p)->getBoolValue());
 	}
+	else if (p->getName() == "channels")
+	{
+		LOGD("Parameter changed: channels");
+	}
+
 }
 
 void RecordNode::checkDiskSpace()
