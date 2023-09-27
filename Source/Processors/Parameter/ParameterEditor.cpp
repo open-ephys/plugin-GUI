@@ -75,6 +75,14 @@ void ParameterEditor::updateBounds()
 }
 
 
+/********* CustomTextBox *********/
+TextEditor* CustomTextBox::createEditorComponent()
+{
+    TextEditor* const ed = Label::createEditorComponent();
+    ed->setInputRestrictions(0, allowedChars);
+    return ed;
+}
+
 TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels)
     : ParameterEditor(param)
 {
@@ -90,9 +98,11 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPi
     addAndMakeVisible(label.get());
 
     if(param->getType() == Parameter::FLOAT_PARAM)
-        valueTextBox = std::make_unique<Label>("Parameter value", String(float(param->getValue())));
+        valueTextBox = std::make_unique<CustomTextBox>("Parameter value", String(float(param->getValue())), "0123456789.");
+    else if(param->getType() == Parameter::INT_PARAM)
+        valueTextBox = std::make_unique<CustomTextBox>("Parameter value", String(int(param->getValue())), "0123456789");
     else
-        valueTextBox = std::make_unique<Label>("Parameter value", param->getValue().toString());
+        valueTextBox = std::make_unique<CustomTextBox>("Parameter value", param->getValue().toString(), "");
 
     valueTextBox->setFont(Font("CP Mono", "Plain", int(0.75*rowHeightPixels)));
     valueTextBox->setName(param->getKey());

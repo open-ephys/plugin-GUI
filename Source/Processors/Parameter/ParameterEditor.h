@@ -146,6 +146,33 @@ protected:
     void updateBounds();
 };
 
+
+/** 
+    An editable label that only accepts specific characters
+*/
+class PLUGIN_API CustomTextBox : public Label
+{
+public:
+
+    /** Constructor */
+    CustomTextBox(const String& name, const String& text, const String& allowedCharacters) 
+        : Label(name, text),
+          allowedChars(allowedCharacters)
+    {};
+
+    /** Destructor */
+    ~CustomTextBox() {};
+
+    /** Creates the editor component */
+    TextEditor* createEditorComponent() override;
+
+private:
+    String allowedChars;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomTextBox)
+};
+
+
 /** 
     Allows parameters to be changed via text box.
 
@@ -176,7 +203,7 @@ public:
     virtual void resized() override;
 
 private:
-    std::unique_ptr<Label> valueTextBox;
+    std::unique_ptr<CustomTextBox> valueTextBox;
 };
 
 
