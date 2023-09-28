@@ -96,9 +96,25 @@ void ParameterOwner::addParameter(Parameter* p)
     parameters.addParameter(p);
 }
 
+Parameter* ParameterOwner::getParameter(String name) const
+{
+    if(parameters.contains(name))
+        return parameters[name];
+    else
+        return nullptr;
+}
+
 Array<String> ParameterOwner::getParameterNames() const
 {
     return parameters.getParameterNames();
+}
+
+var ParameterOwner::operator [](String name) const
+{
+    if (parameters.contains(name))
+        return parameters[name]->getValue();
+    else
+        return var::undefined();
 }
 
 

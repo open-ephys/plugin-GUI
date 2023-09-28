@@ -75,7 +75,7 @@ public:
     void addParameter(Parameter* p);
 
     /** Returns a pointer to a parameter with a given name**/
-    Parameter* getParameter(String name) const { return parameters[name]; }
+    Parameter* getParameter(String name) const;
 
 	/** Returns true if an object has a parameter with a given name**/
 	bool hasParameter(String name) const { return parameters.contains(name); }
@@ -87,7 +87,7 @@ public:
 	Array<String> getParameterNames() const;
 
 	/*Bracket operator returns the value of a parameter*/
-    var operator [](String name) const {return parameters[name]->getValue();}
+    var operator [](String name) const;
 
     /** Copies parameters from another ParameterOwner and clears the original ParameterCollection*/
     void copyParameters(ParameterOwner* object);
