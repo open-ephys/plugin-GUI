@@ -10,6 +10,7 @@ struct FakeSourceNodeParams {
     float sampleRate = 20000.0f;
     float bitVolts = 1.0f;
     int streams = 1;
+    uint32_t metadata_size_bytes = 0;
 };
 
 class TESTABLE FakeSourceNode : public GenericProcessor {

@@ -54,6 +54,15 @@ void FakeSourceNode::updateSettings() {
     eventChannels.add(new EventChannel(settings));
     eventChannels.getFirst()->setIdentifier("sourceevent");
     eventChannels.getFirst()->addProcessor(processorInfo.get());
+
+    if (params_.metadata_size_bytes > 0) {
+        eventChannels.getLast()->addEventMetadata(new MetadataDescriptor(
+            MetadataDescriptor::MetadataType::UINT8,
+            params_.metadata_size_bytes,
+            "FakeSourceNodeMetadata",
+            "FakeSourceNodeMetadata",
+            "identifier"));
+    }
 }
 
 void FakeSourceNode::setParams(const FakeSourceNodeParams &params) {
