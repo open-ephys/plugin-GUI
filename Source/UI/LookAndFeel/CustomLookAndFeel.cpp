@@ -107,7 +107,7 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(147, 149, 152));
         setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(255, 0, 0));
         setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(0,0,0));
-        
+        setColour(ProcessorColor::IDs::SYNC_COLOR, Colour(255,165,0));
         setColour(Label::backgroundColourId, Colours::whitesmoke.withAlpha(0.0f));
         setColour(TextEditor::highlightColourId, Colours::whitesmoke);
         setColour(ScrollBar::thumbColourId, Colours::darkgrey);

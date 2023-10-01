@@ -93,6 +93,11 @@ uint16 Parameter::getStreamId()
         
 }
 
+Colour Parameter::getColor() 
+{
+    return parameterOwner->getColor(m_name);
+}
+
 void Parameter::setOwner(ParameterOwner* parameterOwner_)
 {
     parameterOwner = parameterOwner_;

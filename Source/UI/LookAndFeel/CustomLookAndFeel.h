@@ -36,7 +36,8 @@ namespace ProcessorColor {
         SOURCE_COLOR = 804,
         UTILITY_COLOR = 805,
         RECORD_COLOR = 806,
-        AUDIO_COLOR = 807
+        AUDIO_COLOR = 807,
+        SYNC_COLOR = 808
     };
 }
 

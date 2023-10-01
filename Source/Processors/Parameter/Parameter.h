@@ -257,11 +257,14 @@ public:
     /** Sets a pointer to the ParameterOwner this parameter is associated with**/
     void setOwner(ParameterOwner* newOwner);
     
-    /* Enables/disables the parameter */
+    /** Enables/disables the parameter */
     void setEnabled(bool shouldBeEnabled);
 
-    /* Returns true if the parameter is enabled */
+    /** Returns true if the parameter is enabled */
     bool isEnabled() { return isEnabledFlag; }
+
+    /** Returns the color any visualization of this parameter should use */
+    Colour getColor();
 
     /** Parameter listener class -- used for Parameter Editors */
     class Listener

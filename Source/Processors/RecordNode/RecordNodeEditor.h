@@ -98,6 +98,36 @@ private:
 	RecordNode* recordNode;
 };
 
+class SyncChannelsParameterEditor : public ParameterEditor,
+	public Button::Listener,
+	public PopupChannelSelector::Listener
+{
+public:
+
+	/** Constructor */
+	SyncChannelsParameterEditor(RecordNode* rn, Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+
+	/** Destructor */
+	virtual ~SyncChannelsParameterEditor() { }
+
+	/** Displays the PopupChannelSelector*/
+	void buttonClicked(Button* label) override;
+
+	/** Must ensure that editor state matches underlying parameter */
+	virtual void updateView() override;
+
+	/** Responds to changes in the PopupChannelSelector*/
+	void channelStateChanged(Array<int> selectedChannels) override;
+
+	/** Sets sub-component locations */
+	virtual void resized() override;
+
+private:
+	std::unique_ptr<SyncControlButton> syncControlButton;
+
+	RecordNode* recordNode;
+};
+
 /**
     
     Toggles event or spike recording on and off
@@ -228,7 +258,7 @@ private:
 
 	OwnedArray<Label> streamLabels;
 	std::vector<ParameterEditor*> streamMonitors;
-	OwnedArray<SyncControlButton> streamRecords;
+	std::vector<ParameterEditor*> syncMonitors;
 	ScopedPointer<Label> diskSpaceLabel;
 	ScopedPointer<DiskSpaceMonitor> diskSpaceMonitor;
 	ScopedPointer<RecordToggleButton> recordToggleButton;

@@ -48,6 +48,7 @@ public:
             param->addListener(this);
         
         layout = Layout::nameOnRight;
+        color = Colours::black;
     }
 
     /** Destructor */
@@ -132,6 +133,12 @@ public:
     /** Returns a pointer to the parameter editor element for customization */
     Component* getEditor() { return editor; }
 
+    /** Sets the parameter color */
+    void setColor(Colour color_) { color = color_; };
+
+    /** Gets the parameter color */
+    Colour getColor() { return color; };
+
 protected:
     Parameter* param;
     
@@ -140,6 +147,7 @@ protected:
     std::unique_ptr<Label> label = nullptr;
     Component* editor = nullptr;
 
+    Colour color;
     Layout layout;
 
     /** Updates label and editor bounds based on layout */

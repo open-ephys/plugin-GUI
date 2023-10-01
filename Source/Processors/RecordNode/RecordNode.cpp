@@ -92,15 +92,15 @@ void RecordNode::registerParameters()
 
 	Array<String> recordEngines;
 	std::vector<RecordEngineManager*> engines = getAvailableRecordEngines();
-
 	for (int i = 0; i < engines.size(); i++)
 		recordEngines.add(engines[i]->getName());
-
 	CategoricalParameter* engineParam = (CategoricalParameter*)getParameter("engine");
 	engineParam->setCategories(recordEngines);
 
-	addMaskChannelsParameter(Parameter::STREAM_SCOPE, "record_channels", "Channels", "Channels to record", true);
-
+	addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to record from", true);
+	addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "sync_line", "Sync Line", "Event line to use for sync signal", 1, true);
+	addIntParameter(Parameter::PROCESSOR_SCOPE, "main_sync", "Main Sync Stream ID", "Use this stream as main sync", 
+		10000, 10000, 99999,true);
 }
 
 void RecordNode::parameterValueChanged(Parameter* p)
@@ -126,6 +126,18 @@ void RecordNode::parameterValueChanged(Parameter* p)
 	else if (p->getName() == "channels")
 	{
 		LOGD("Parameter changed: channels");
+	}
+	else if (p->getName() == "sync_line")
+	{
+		LOGD("Parameter changed: sync_line");
+	}
+	else if (p->getName() == "main_sync")
+	{
+		LOGD("Parameter changed: main_sync");
+	}
+	else
+	{
+		LOGD("RecordNode: unknown parameter changed");
 	}
 
 }
