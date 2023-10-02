@@ -775,7 +775,7 @@ void SelectedChannelsParameterEditor::buttonClicked(Button* button_)
 
     auto* channelSelector = new PopupChannelSelector(this, p->getChannelStates());
 
-    channelSelector->setChannelButtonColour(getColor());
+    channelSelector->setChannelButtonColour(param->getColor());
     
     channelSelector->setMaximumSelectableChannels(p->getMaxSelectableChannels());
 

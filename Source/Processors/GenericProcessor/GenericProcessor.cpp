@@ -1973,8 +1973,14 @@ void GenericProcessor::loadFromXml()
 
                     for (auto param : stream->getParameters())
                     {
+                        // TODO: This is necessary to prevent crash when undoing DeleteProcessor
+                        // 
+                        if (param->getOwner() == nullptr) continue;
+                        
                         parameterValueChanged(param);
                         
+                        //LOGD("Stream: ", stream->getName());
+                        /*
                         if (param->getName() == "enable_stream" && isFilter())
                         {
                             if(!headlessMode) {
@@ -1983,6 +1989,7 @@ void GenericProcessor::loadFromXml()
                                                                        true);
                             }
                         }
+                         */
                             
                     }
 

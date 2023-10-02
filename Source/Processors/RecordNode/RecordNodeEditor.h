@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../Editors/PopupChannelSelector.h"
 #include "../../Utils/Utils.h"
 
+#include "SyncChannelSelector.h"
 #include "SyncControlButton.h"
 
 class RecordThread;
@@ -100,7 +101,8 @@ private:
 
 class SyncChannelsParameterEditor : public ParameterEditor,
 	public Button::Listener,
-	public PopupChannelSelector::Listener
+	public SyncChannelSelector::Listener,
+	public ComponentListener
 {
 public:
 
@@ -121,6 +123,8 @@ public:
 
 	/** Sets sub-component locations */
 	virtual void resized() override;
+
+	void componentBeingDeleted(Component &component) override;
 
 private:
 	std::unique_ptr<SyncControlButton> syncControlButton;

@@ -52,9 +52,10 @@ void SyncControlButton::timerCallback()
     repaint();
 }
 
+/*
 void SyncControlButton::componentBeingDeleted(Component &component)
 {
-    /*Capture button channel states and send back to record node. */
+    //Capture button channel states and send back to record node.
 
     auto* syncChannelSelector = (SyncChannelSelector*) component.getChildComponent(0);
     
@@ -80,7 +81,9 @@ void SyncControlButton::componentBeingDeleted(Component &component)
 
     repaint();
 }
+*/
 
+/*
 void SyncControlButton::mouseUp(const MouseEvent &event)
 {
 
@@ -101,6 +104,7 @@ void SyncControlButton::mouseUp(const MouseEvent &event)
 
     }
 }
+*/
 
 void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {

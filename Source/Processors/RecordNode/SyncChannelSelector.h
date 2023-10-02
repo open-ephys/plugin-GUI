@@ -73,14 +73,27 @@ private:
 };
 
 
-class SyncChannelSelector : public Component, public Button::Listener
+class SyncChannelSelector : 
+	public Component,
+	public Button::Listener
 {
 public:
+
+	class Listener
+	{
+	public:
+		virtual ~Listener() { }
+		virtual void channelStateChanged(Array<int> selectedChannels) = 0;
+	};
+
 	/** Constructor */
-	SyncChannelSelector(int nChans, int selectedChannelIdx, bool isPrimary);
+	SyncChannelSelector(Listener* listener, std::vector<bool> channelStates);
+	//SyncChannelSelector(int nChans, int selectedChannelIdx, bool isPrimary);
 
 	/** Destructor */
 	~SyncChannelSelector();
+
+	int getSelectedChannel() { return selectedChannelIdx; }
 
 	/** Mouse listener methods*/
 	void mouseDown(const MouseEvent &event);
@@ -105,9 +118,12 @@ public:
 	OwnedArray<SyncChannelButton> buttons;
 
 private:
+	
+	Listener* listener;
 
     ScopedPointer<SetButton> setPrimaryStreamButton;
     
+	int selectedChannelIdx = 0;
 };
 
 #endif // SYNCCHANNEL_SELECTOR_H_INCLUDED

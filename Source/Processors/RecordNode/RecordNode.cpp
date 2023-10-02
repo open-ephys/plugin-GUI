@@ -99,8 +99,9 @@ void RecordNode::registerParameters()
 
 	addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to record from", true);
 	addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "sync_line", "Sync Line", "Event line to use for sync signal", 1, true);
-	addIntParameter(Parameter::PROCESSOR_SCOPE, "main_sync", "Main Sync Stream ID", "Use this stream as main sync", 
-		10000, 10000, 99999,true);
+	
+	//addIntParameter(Parameter::PROCESSOR_SCOPE, "main_sync", "Main Sync Stream ID", "Use this stream as main sync", 10000, 10000, 99999,true);
+	addCategoricalParameter(Parameter::PROCESSOR_SCOPE, "main_sync", "Main Sync Stream ID", "Use this stream as main sync", {}, 0, true);
 }
 
 void RecordNode::parameterValueChanged(Parameter* p)
@@ -133,11 +134,20 @@ void RecordNode::parameterValueChanged(Parameter* p)
 	}
 	else if (p->getName() == "main_sync")
 	{
-		LOGD("Parameter changed: main_sync");
+		Array<String> streamNames = ((SelectedStreamParameter*)p)->getStreamNames();
+		for (auto stream : dataStreams)
+		{
+			String key = String(stream->getSourceNodeId()) + " | " + stream->getName();
+			if (key == streamNames[((CategoricalParameter*)p)->getSelectedIndex()])
+			{
+				synchronizer.setMainDataStream(stream->getStreamId());
+				break;
+			}
+		}
 	}
 	else
 	{
-		LOGD("RecordNode: unknown parameter changed");
+		LOGD("RecordNode: unknown parameter changed: ", p->getName());
 	}
 
 }
@@ -411,8 +421,16 @@ void RecordNode::updateSettings()
 	activeStreamIds.clear();
 	synchronizer.prepareForUpdate();
 
+	Array<String> streamNames;
+
 	for (auto stream : dataStreams)
 	{
+
+		//parameterValueChanged(stream->getParameter("sync_line"));
+
+		streamNames.add(String(stream->getSourceNodeId()) + " | " + stream->getName());
+		((SelectedChannelsParameter*)stream->getParameter("sync_line"))->setChannelCount(8); 
+
 		const uint16 streamId = stream->getStreamId();
 		activeStreamIds.add(streamId);
 
@@ -460,6 +478,10 @@ void RecordNode::updateSettings()
 		}
 
 	}
+
+	/* Update main sync parameter categories */
+	CategoricalParameter* mainSyncParam = (CategoricalParameter*)getParameter("main_sync");
+	mainSyncParam->setCategories(streamNames);
 
 	synchronizer.finishedUpdate();
 

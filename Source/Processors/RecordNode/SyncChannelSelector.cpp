@@ -93,11 +93,10 @@ void SetButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 	g.drawText (String(getName()), 0, 0, getWidth(), getHeight(), Justification::centred);
 }
 
-SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx, bool isPrimary_)
-    : Component(), 
-    nChannels(nChans),
-    selectedId(selectedIdx),
-    isPrimary(isPrimary_),
+//SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx, bool isPrimary_)
+SyncChannelSelector::SyncChannelSelector(SyncChannelSelector::Listener* listener_, std::vector<bool> channelStates)
+    : listener(listener_),
+    nChannels(channelStates.size()),
     detectedChange(false)
 {
 
@@ -114,11 +113,15 @@ SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx, bool isPri
 		{
             if (nColumns*i+j < nChannels)
             {
+                int buttonIdx = nColumns*i+j;
                 buttons.add(new SyncChannelButton(nColumns*i+j+1, this));
                 buttons.getLast()->setBounds(width/nColumns*j, height/nRows*i, buttonSize, buttonSize);
-                buttons.getLast()->setToggleState(selectedIdx == nColumns*i+j, NotificationType::dontSendNotification);
+                buttons.getLast()->setToggleState(channelStates[buttonIdx], NotificationType::dontSendNotification);
                 buttons.getLast()->addListener(this);
-                addChildAndSetID(buttons.getLast(), String(nColumns*i+1));
+                addChildAndSetID(buttons.getLast(), String(buttonIdx));
+
+                if (channelStates[buttonIdx])
+                    selectedChannelIdx = buttonIdx;
             }
 			
 		}
@@ -166,12 +169,11 @@ void SyncChannelSelector::buttonClicked(Button* button)
     else
     {
         for (int i = 0; i < buttons.size(); i++)
-        {
             buttons[i]->setToggleState(false, dontSendNotification);
-            repaint();
-        }
-        button->setToggleState(true, dontSendNotification);
 
+        button->setToggleState(true, dontSendNotification);
+        selectedChannelIdx = std::stoi(button->getComponentID().toStdString());
+        repaint();
     }
     
     detectedChange = true;

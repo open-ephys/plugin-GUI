@@ -37,8 +37,7 @@ class SynchronizingProcessor;
  */
 class SyncControlButton :
     public Button,
-    public Timer,
-    public ComponentListener
+    public Timer
 {
 public:
     
@@ -52,7 +51,7 @@ public:
     ~SyncControlButton();
 
     /** Creates the sync selection interface */
-    void mouseUp(const MouseEvent &event) override;
+    //void mouseUp(const MouseEvent &event) override;
     
     int streamId;
     bool isPrimary;
@@ -67,7 +66,7 @@ private:
     void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
     
     /** Called when popup selection interface is closed */
-    void componentBeingDeleted(Component &component);
+    //void componentBeingDeleted(Component &component);
     
     SynchronizingProcessor* node;
 

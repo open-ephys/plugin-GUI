@@ -163,12 +163,11 @@ void RecordChannelsParameterEditor::buttonClicked(Button* label)
     std::vector<bool> channelStates = p->getChannelStates();
 
     auto* channelSelector = new PopupChannelSelector(this, channelStates);
-
-    channelSelector->setChannelButtonColour(Colour(255, 0, 0));
+	channelSelector->setChannelButtonColour(param->getColor());
 
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
-            monitor->getScreenBounds(),
+            editor->getScreenBounds(),
             nullptr);
 }
 
@@ -178,6 +177,95 @@ void RecordChannelsParameterEditor::updateView()
 }
 
 void RecordChannelsParameterEditor::resized()
+{
+	updateBounds();
+}
+
+SyncChannelsParameterEditor::SyncChannelsParameterEditor(RecordNode* rn, Parameter* param, int rowHeightPixels, int rowWidthPixels) 
+	: ParameterEditor(param)
+{
+
+	recordNode = rn;
+
+	uint64 streamId = ((DataStream*)param->getOwner())->getStreamId();
+	String streamName  = ((DataStream*)param->getOwner())->getName();
+	String sourceNodeId = String(((DataStream*)param->getOwner())->getSourceNodeId());
+
+	int nEvents = 8; //TODO: Better way to determine how many TTL lines are available
+
+	syncControlButton = std::make_unique<SyncControlButton>(recordNode,
+                                                recordNode->getDataStream(streamId)->getName(),
+                                                streamId, 8);
+	syncControlButton->setTooltip("Configure synchronization settings for this stream");
+	syncControlButton->addListener(this);
+	syncControlButton->setBounds(0, 0, 15, 15);
+	addAndMakeVisible(syncControlButton.get());
+
+	setBounds(0, 0, 15, 15);
+
+	editor = syncControlButton.get();
+}
+
+void SyncChannelsParameterEditor::buttonClicked(Button*)
+{
+    if (param == nullptr)
+        return;
+
+    SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
+
+	std::vector<bool> channelStates = p->getChannelStates();
+
+    auto* channelSelector = new SyncChannelSelector(this, channelStates);
+
+    //channelSelector->setChannelButtonColour(Colour(255, 0, 0));
+
+    CallOutBox& myBox
+        = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
+            editor->getScreenBounds(),
+            nullptr);
+
+	myBox.addComponentListener(this);
+	//myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+}
+
+void SyncChannelsParameterEditor::componentBeingDeleted(Component& component)
+{
+	SyncChannelSelector* syncChannelSelector = (SyncChannelSelector*)component.getChildComponent(0);
+
+	int selectedChannel = syncChannelSelector->getSelectedChannel();
+	channelStateChanged(Array<int>(selectedChannel));
+
+	if (syncChannelSelector->isPrimary)
+	{
+		int streamIdx = 0;
+		for (auto& stream : recordNode->getDataStreams())
+		{
+			LOGD("Comparing: ", stream->getStreamId(), " to: ", ((DataStream*)param->getOwner())->getStreamId());
+			if (stream->getStreamId() == ((DataStream*)param->getOwner())->getStreamId())
+				break;
+			streamIdx++;
+		}
+		recordNode->getParameter("main_sync")->setNextValue(streamIdx);
+	}
+}
+
+void SyncChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
+{
+    Array<var> newArray;
+
+    for (int i = 0; i < newChannels.size(); i++)
+        newArray.add(newChannels[i]);
+    
+    param->setNextValue(newArray);
+
+    updateView();
+}
+
+void SyncChannelsParameterEditor::updateView()
+{
+}
+
+void SyncChannelsParameterEditor::resized()
 {
 	updateBounds();
 }
@@ -243,74 +331,6 @@ void RecordToggleParameterEditor::updateView()
 void RecordToggleParameterEditor::resized()
 {
     //toggleButton->setBounds(0, 0, 20, 20);
-}
-
-SyncChannelsParameterEditor::SyncChannelsParameterEditor(RecordNode* rn, Parameter* param, int rowHeightPixels, int rowWidthPixels) 
-	: ParameterEditor(param)
-{
-
-	recordNode = rn;
-
-	uint64 streamId = ((DataStream*)param->getOwner())->getStreamId();
-	String streamName  = ((DataStream*)param->getOwner())->getName();
-	String sourceNodeId = String(((DataStream*)param->getOwner())->getSourceNodeId());
-
-	int nEvents = 8; //TODO: Better way to determine how many TTL lines are available
-
-	syncControlButton = std::make_unique<SyncControlButton>(recordNode,
-                                                recordNode->getDataStream(streamId)->getName(),
-                                                streamId, 8);
-	syncControlButton->setTooltip("Configure synchronization settings for this stream");
-	syncControlButton->addListener(this);
-	syncControlButton->setBounds(0, 0, 15, 15);
-	addAndMakeVisible(syncControlButton.get());
-
-	setBounds(0, 0, 15, 15);
-
-	editor = syncControlButton.get();
-}
-
-void SyncChannelsParameterEditor::buttonClicked(Button*)
-{
-    if (param == nullptr)
-        return;
-
-    SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
-
-    auto* channelSelector = new PopupChannelSelector(this, p->getChannelStates());
-
-    channelSelector->setChannelButtonColour(param->getColor());
-    
-    channelSelector->setMaximumSelectableChannels(p->getMaxSelectableChannels());
-
-    CallOutBox& myBox
-        = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
-            editor->getScreenBounds(),
-            nullptr);
-}
-
-void SyncChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
-{
-    Array<var> newArray;
-
-    for (int i = 0; i < newChannels.size(); i++)
-        newArray.add(newChannels[i]);
-    
-    param->setNextValue(newArray);
-
-    updateView();
-
-}
-
-void SyncChannelsParameterEditor::updateView()
-{
-	//if (param != nullptr)
-	//	toggleButton->setToggleState(param->getValue(), dontSendNotification);
-}
-
-void SyncChannelsParameterEditor::resized()
-{
-	//toggleButton->setBounds(0, 0, 20, 20);
 }
 
 RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
@@ -516,7 +536,7 @@ void RecordNodeEditor::setEngine(String id)
 }
 
 void RecordNodeEditor::updateFifoMonitors()
-{
+{	
 	auto removeExistingMonitors = [this](std::vector<ParameterEditor*>& monitors)
 	{
 		for (auto& monitor : monitors)
@@ -537,8 +557,10 @@ void RecordNodeEditor::updateFifoMonitors()
 	removeExistingMonitors(syncMonitors);
 
 	int streamCount = 0;
-	for (auto const& [streamId, channelStates] : recordNode->recordContinuousChannels)
+	for (auto& stream : recordNode->getDataStreams())
 	{
+		uint64 streamId = stream->getStreamId();
+
 		Parameter* channels = recordNode->getDataStream(streamId)->getParameter("channels");
 		recordNode->getDataStream(streamId)->setColor("channels", getLookAndFeel().findColour(ProcessorColor::IDs::RECORD_COLOR));
 		addCustomParameterEditor(new RecordChannelsParameterEditor(recordNode, channels), 18 + streamCount * 20, 32);
@@ -598,6 +620,9 @@ void RecordNodeEditor::updateFifoMonitors()
 
 	}
 	*/
+	CoreServices::highlightEditor(this);
+	deselect();
+
 
 }
 
@@ -621,7 +646,6 @@ void RecordNodeEditor::collapsedStateChanged()
 
 void RecordNodeEditor::updateSettings()
 {
-	LOGD("Calling RecordNodeEditor::updateSettings()");
 
 	updateFifoMonitors();
     /*
@@ -770,17 +794,11 @@ void RecordNodeEditor::showFifoMonitors(bool show)
 		return;
 
 	/*
-	for (auto const& [streamId, channelStates] : recordNode->recordContinuousChannels)
-	{
-		addCustomParameterEditor(new RecordChannelsParameterEditor(recordNode, recordNode->getParameter("channels")), 18 + streamCount * 20, 32);
-		streamCount++;
-	}
-	*/
-
 	for (auto& monitor : streamMonitors)
 		monitor->setVisible(show);
 	for (auto monitor : syncMonitors)
 		monitor->setVisible(show);
+	*/
 
 	CoreServices::highlightEditor(this);
 	deselect();
