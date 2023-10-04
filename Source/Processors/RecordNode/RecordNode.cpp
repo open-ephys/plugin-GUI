@@ -86,7 +86,7 @@ RecordNode::~RecordNode()
 void RecordNode::registerParameters()
 {
     addPathParameter(Parameter::PROCESSOR_SCOPE, "directory", "Directory", "Path to write data to", CoreServices::getDefaultUserSaveDirectory().getFullPathName(), {}, true);
-    addCategoricalParameter(Parameter::PROCESSOR_SCOPE, "engine", "Engine", "Currently active stream", {}, 0, true);
+    addCategoricalParameter(Parameter::PROCESSOR_SCOPE, "engine", "Engine", "Recording data format", {}, 0, true);
     addBooleanParameter(Parameter::PROCESSOR_SCOPE, "events", "Record Events", "Toggle saving events coming into this node", true);
     addBooleanParameter(Parameter::PROCESSOR_SCOPE, "spikes", "Record Spikes", "Toggle saving spikes coming into this node", true);
 

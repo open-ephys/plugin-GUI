@@ -186,10 +186,10 @@ class FifoDrawerButton : public DrawerButton
 public:
     
     /** Constructor */
-	FifoDrawerButton(const String& name);
+	FifoDrawerButton(const String& name) : DrawerButton(name) { };
     
     /** Destructor */
-	~FifoDrawerButton();
+	~FifoDrawerButton() {};
 private:
     
     /** Renders the button*/

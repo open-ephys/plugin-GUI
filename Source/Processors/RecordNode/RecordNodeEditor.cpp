@@ -50,7 +50,10 @@ DiskSpaceMonitor::DiskSpaceMonitor(RecordNode* rn)
     : LevelMonitor(rn),
       lastFreeSpace(0.0),
       recordingTimeLeftInSeconds(0),
-	  dataRate(0.0) {}
+	  dataRate(0.0)
+{
+	startTimerHz(10);
+}
 
 DiskSpaceMonitor::~DiskSpaceMonitor() {}
 
@@ -619,9 +622,9 @@ void RecordNodeEditor::updateFifoMonitors()
 		streamCount++;
 
 	}
-	*/
 	CoreServices::highlightEditor(this);
 	deselect();
+	*/
 
 
 }
@@ -793,24 +796,14 @@ void RecordNodeEditor::showFifoMonitors(bool show)
 	if (getCollapsedState())
 		return;
 
-	/*
 	for (auto& monitor : streamMonitors)
 		monitor->setVisible(show);
 	for (auto monitor : syncMonitors)
 		monitor->setVisible(show);
-	*/
 
 	CoreServices::highlightEditor(this);
 	deselect();
 
-}
-
-FifoDrawerButton::FifoDrawerButton(const String &name) : DrawerButton(name)
-{
-}
-
-FifoDrawerButton::~FifoDrawerButton()
-{
 }
 
 void FifoDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
