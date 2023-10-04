@@ -919,17 +919,24 @@ PathParameterEditor::PathParameterEditor(Parameter* param, int rowHeightPixels, 
 
 void PathParameterEditor::buttonClicked(Button* button_)
 {
-
     String dialogBoxTitle = "Select a ";
-    dialogBoxTitle += ((PathParameter*)param)->getIsDirectory() ? "directory..." : "file...";
+    bool isDirectory = ((PathParameter*)param)->getIsDirectory();
+    String validFilePatterns;
 
-    String validFilePatterns = "*." + ((PathParameter*)param)->getValidFilePatterns().joinIntoString(";.");
+    if (isDirectory)
+    {
+        dialogBoxTitle += "directory...";
+    }
+    else
+    {
+        dialogBoxTitle += "file...";
+        validFilePatterns = "*." + ((PathParameter*)param)->getValidFilePatterns().joinIntoString(";.");
+    }
 
-    FileChooser chooser(dialogBoxTitle,
-        File(), //TODO: Set this to a meaningful default directory, perhaps a config param?
-        validFilePatterns);
+    FileChooser chooser(dialogBoxTitle, File(), validFilePatterns);
 
-    if (chooser.browseForFileToOpen())
+    bool success = isDirectory ? chooser.browseForDirectory() : chooser.browseForFileToOpen();
+    if (success)
     {
         File file = chooser.getResult();
         param->setNextValue(file.getFullPathName());
