@@ -1172,7 +1172,8 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
                 if (stream->hasParameter(parameterName))
                 {
                     Parameter* streamParam = stream->getParameter(parameterName);
-                    ed->setParameter(streamParam);
+                    if (streamParam->shouldUpdateOnSelectedStreamChanged())
+                        ed->setParameter(streamParam);
                 }
                 else
                 {

@@ -124,6 +124,15 @@ public:
             return false;
     }
 
+    /** Returns true if this editor should update when the selected stream is changed (see RecordNode streamMonitors)*/
+    bool shouldUpdateOnSelectedStreamChange()
+    {
+        if (param != nullptr)
+            return param->shouldUpdateOnSelectedStreamChanged();
+        else
+            return false;
+    }
+
     /** Returns the name of the underlying parameter*/
     const String getParameterName() { return name; }
 

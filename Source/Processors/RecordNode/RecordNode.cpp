@@ -98,7 +98,9 @@ void RecordNode::registerParameters()
 	engineParam->setCategories(recordEngines);
 
 	addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to record from", true);
+	dataStreamParameters.getLast()->disableUpdateOnSelectedStreamChanged();
 	addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "sync_line", "Sync Line", "Event line to use for sync signal", 1, true);
+	dataStreamParameters.getLast()->disableUpdateOnSelectedStreamChanged();
 	
 	//addIntParameter(Parameter::PROCESSOR_SCOPE, "main_sync", "Main Sync Stream ID", "Use this stream as main sync", 10000, 10000, 99999,true);
 	addCategoricalParameter(Parameter::PROCESSOR_SCOPE, "main_sync", "Main Sync Stream ID", "Use this stream as main sync", {}, 0, true);
