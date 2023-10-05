@@ -940,7 +940,7 @@ void PathParameterEditor::buttonClicked(Button* button_)
     {
         File file = chooser.getResult();
         param->setNextValue(file.getFullPathName());
-        button->setTooltip(file.getFullPathName());
+        updateView();
     }
 }
 
@@ -952,8 +952,12 @@ void PathParameterEditor::updateView()
         button->setEnabled(true);
 
     if (param)
+    {
         button->setButtonText(param->getValueAsString());
-    //button->setButtonText(File(param->getValueAsString()).getFileName());
+        //Alternatively:
+        //button->setButtonText(File(param->getValueAsString()).getFileName());
+        button->setTooltip(param->getValueAsString());
+    }
 }
 
 void PathParameterEditor::resized()
