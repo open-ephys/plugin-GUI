@@ -116,7 +116,7 @@ void FileReader::parameterValueChanged(Parameter* p)
     else if (p->getName() == "active_stream")
     {
         setActiveStream(p->getValue());
-        CoreServices::updateSignalChain (this->getEditor());
+        CoreServices::updateSignalChain (this);
     }
     else if (p->getName() == "start_time")
     {
@@ -137,17 +137,20 @@ void FileReader::parameterValueChanged(Parameter* p)
         startTime->getTimeValue()->setMaxTimeInMilliseconds(samplesToMilliseconds (stopSample - 1));
     }
 
-    if ((stopSample - startSample) / currentSampleRate >= 30.0f)
-        static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer(true);
-    else
-        static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer(false);
-
     currentNumTotalSamples = stopSample - startSample;
-    
-    if (input != nullptr)
+
+    if (!headlessMode)
     {
-        getScrubberInterface()->updatePlaybackTimes();
-        getScrubberInterface()->update();
+        if ((stopSample - startSample) / currentSampleRate >= 30.0f)
+            static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer(true);
+        else
+            static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer(false);
+        
+        if (input != nullptr)
+        {
+            getScrubberInterface()->updatePlaybackTimes();
+            getScrubberInterface()->update();
+        }
     }
 }
 
@@ -282,7 +285,7 @@ bool FileReader::setFile (String fullpath, bool shouldUpdateSignalChain)
     gotNewFile = true;
 
     if(shouldUpdateSignalChain)
-        CoreServices::updateSignalChain (this->getEditor());
+        CoreServices::updateSignalChain (this);
 
     return true;
 }
@@ -793,7 +796,7 @@ void FileReader::loadCustomParametersFromXml (XmlElement* xml)
 {
     for (auto* element : xml->getChildIterator())
     {
-        if (element->hasTagName ("SCRUBBERINTERFACE"))
+        if (element->hasTagName ("SCRUBBERINTERFACE") && !headlessMode)
         {
             static_cast<FileReaderEditor*>(getEditor())->showScrubInterface(element->getBoolAttribute ("show"));
         }
