@@ -458,6 +458,14 @@ void ProcessorParameterComponent::paint(Graphics& g)
     g.fillRect(1, 0, getWidth() - 2, getHeight() - 1);
 }
 
+void ProcessorParameterComponent::updateView()
+{
+    for (auto editor : parameterEditors)
+    {
+        editor->updateView();
+    }
+}
+
 
 DataStreamButton::DataStreamButton(GenericEditor* editor_, const DataStream* stream_, DataStreamInfo* info_)
     : Button(stream_->getName())
@@ -783,6 +791,9 @@ void GraphNode::updateStreamInfo()
 
         dataStreamInfos.clear();
         dataStreamButtons.clear();
+
+        processorParamComponent->updateView();
+        processorInfoVisible = false;
 
         infoPanel->addPanel(-1, processorParamComponent.get(), false);
         infoPanel->setMaximumPanelSize(processorParamComponent.get(), 

@@ -82,6 +82,9 @@ public:
     /** Paint component */
     void paint(Graphics& g);
 
+    /** Called when the node needs to update the view of its parameter editors.*/
+    void updateView();
+
     int heightInPixels;
 
 private:
