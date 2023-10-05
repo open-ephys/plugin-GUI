@@ -743,6 +743,14 @@ public:
                     LOGD( "Found parameter: ", parameter->getName() );
                 }
 
+                if(parameter->shouldDeactivateDuringAcquisition()
+                    && CoreServices::getAcquisitionStatus())
+                {
+                    res.set_content("Cannot change this parameter while acquisition is active.", "text/plain");
+                    res.status = 400;
+                    return;
+                }
+
                 json request_json;
                 try {
                     request_json = json::parse(req.body);
@@ -814,6 +822,14 @@ public:
                             return;
                         } else {
                             LOGD( "Found parameter: ", parameter->getName() );
+                        }
+
+                        if(parameter->shouldDeactivateDuringAcquisition()
+                            && CoreServices::getAcquisitionStatus())
+                        {
+                            res.set_content("Cannot change this parameter while acquisition is active.", "text/plain");
+                            res.status = 400;
+                            return;
                         }
 
                        json request_json;
