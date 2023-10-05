@@ -986,9 +986,7 @@ void GenericProcessor::update()
             {
                 Array<String> streamNames;
                 for (auto stream : dataStreams)
-                {
-                    streamNames.add(stream->getName());
-                }
+                    streamNames.add(stream->getKey());
                 SelectedStreamParameter* p = (SelectedStreamParameter*)param;
                 p->setStreamNames(streamNames);
                 parameterValueChanged(p);

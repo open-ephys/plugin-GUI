@@ -138,8 +138,8 @@ void RecordNode::parameterValueChanged(Parameter* p)
 		Array<String> streamNames = ((SelectedStreamParameter*)p)->getStreamNames();
 		for (auto stream : dataStreams)
 		{
-			String key = String(stream->getSourceNodeId()) + " | " + stream->getName();
-			if (key == streamNames[((CategoricalParameter*)p)->getSelectedIndex()])
+			String key = stream->getKey();
+			if (key == streamNames[((SelectedStreamParameter*)p)->getSelectedIndex()])
 			{
 				synchronizer.setMainDataStream(stream->getStreamId());
 				break;

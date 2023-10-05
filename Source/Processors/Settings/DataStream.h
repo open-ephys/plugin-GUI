@@ -114,6 +114,9 @@ public:
 	/** Returns the unique ID for this stream*/
 	uint16 getStreamId() const;
 
+	/** Returns a unique String for this stream */
+	String getKey() const { return String(getSourceNodeId()) + "|" + getName(); }
+
 	/** Returns true if this DataStream has a device associated with it.*/
 	bool hasDevice() const;
 
