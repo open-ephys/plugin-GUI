@@ -42,6 +42,7 @@ namespace CoreServices
 * For example, if a plugin adds a new EventChannel, updateSignalChain() must
 * be called in order for downstream plugins to register this change.
 */
+PLUGIN_API void updateSignalChain(GenericProcessor* source);
 PLUGIN_API void updateSignalChain(GenericEditor* source);
 
 /** Saves the recoveryConfig.xml settings file*/

@@ -38,9 +38,14 @@ using namespace AccessClass;
 
 namespace CoreServices
 {
+	void updateSignalChain(GenericProcessor* source)
+	{
+		getProcessorGraph()->updateSettings(source);
+	}
+	
 	void updateSignalChain(GenericEditor* source)
 	{
-		getProcessorGraph()->updateSettings(source->getProcessor());
+		updateSignalChain(source->getProcessor());
 	}
 
 	void saveRecoveryConfig()
