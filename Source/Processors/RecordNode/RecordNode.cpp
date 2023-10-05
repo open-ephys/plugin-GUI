@@ -156,7 +156,7 @@ void RecordNode::parameterValueChanged(Parameter* p)
 
 void RecordNode::checkDiskSpace()
 {
-	int diskSpaceWarningThreshold = 5; //GB
+	float diskSpaceWarningThreshold = 5; //GB
 
 	File dataDir(dataDirectory);
 	int64 freeSpace = dataDir.getBytesFreeOnVolume();
@@ -165,7 +165,7 @@ void RecordNode::checkDiskSpace()
 
 	if (availableBytes < diskSpaceWarningThreshold && !isRecording)
 	{
-		String msg = "Less than " + String(diskSpaceWarningThreshold) + " GB of disk space available in " + String(dataDirectory.getFullPathName());
+		String msg = "Less than " + String(int(diskSpaceWarningThreshold)) + " GB of disk space available in " + String(dataDirectory.getFullPathName());
 		msg += ". Recording may fail. Please free up space or change the recording directory.";
 		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "WARNING", msg);
 	}

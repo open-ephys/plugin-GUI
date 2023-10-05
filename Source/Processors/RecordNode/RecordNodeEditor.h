@@ -63,9 +63,12 @@ public:
 	/** Updates the display */
 	void timerCallback() override;
 
+	/** Resets timer */
+	void reset();
+
 private:
 	int64 lastFreeSpace;
-	int64 recordingTimeLeftInSeconds;
+	float recordingTimeLeftInSeconds;
 	float dataRate;
 };
 

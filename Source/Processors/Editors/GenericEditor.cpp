@@ -1428,7 +1428,7 @@ LevelMonitor::LevelMonitor(GenericProcessor *p) : Button("LevelMonitor")
 	processor = p;
 	updateFreq = 60; //10Hz
 	fillPercentage = 0.0;
-	lastUpdateTime = Time::getMillisecondCounterHiRes();
+	lastUpdateTime = 0.0;
 	stateChangeSinceLastUpdate = false;
 }
 

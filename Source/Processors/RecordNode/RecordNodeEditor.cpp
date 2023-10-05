@@ -52,19 +52,77 @@ DiskSpaceMonitor::DiskSpaceMonitor(RecordNode* rn)
       recordingTimeLeftInSeconds(0),
 	  dataRate(0.0)
 {
-	startTimerHz(10);
+	startTimerHz(1);
 }
 
 DiskSpaceMonitor::~DiskSpaceMonitor() {}
+
+void DiskSpaceMonitor::reset()
+{
+	lastUpdateTime = Time::getMillisecondCounterHiRes();
+	lastFreeSpace = ((RecordNode*) processor)->getDataDirectory().getBytesFreeOnVolume();
+}
 
 void DiskSpaceMonitor::timerCallback()
 {
 
 	RecordNode* recordNode = (RecordNode*) processor;
 
+	int64 bytesFree = recordNode->getDataDirectory().getBytesFreeOnVolume();
+	int64 volumeSize = recordNode->getDataDirectory().getVolumeTotalSize();
+
+	float ratio = float(bytesFree) / float(volumeSize);
+	if (ratio > 0)
+		setFillPercentage(1.0f - ratio);
+
+	float currentTime = Time::getMillisecondCounterHiRes();
+
+	if (recordNode->getRecordingStatus())
+	{
+		// Update data rate and recording time left every 30 seconds
+		if (currentTime - lastUpdateTime > 5000.0f)
+		{
+			dataRate = (lastFreeSpace - bytesFree) / (currentTime - lastUpdateTime); //bytes/ms
+			lastUpdateTime = currentTime;
+			lastFreeSpace = bytesFree;
+
+			recordingTimeLeftInSeconds = bytesFree / dataRate / 1000.0f;
+
+			// Stop recording and show warning when less than 5 minutes of disk space left
+			if (dataRate > 0.0f && recordingTimeLeftInSeconds < (60.0f * 5.0f))
+			{
+				CoreServices::setRecordingStatus(false);
+				String msg = "Recording stopped. Less than 5 minutes of disk space remaining.";
+				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "WARNING", msg);
+			}
+
+			if (dataRate > 0.0f)
+			{
+				String msg = String(bytesFree / pow(2, 30)) + " GB available\n";
+				msg += String(int(recordingTimeLeftInSeconds / 60.0f)) + " minutes remaining\n";
+				msg += "Data rate: " + String(dataRate * 1000 / pow(2, 20), 2) + " MB/s";
+				setTooltip(msg);
+
+				LOGD("Data rate: ", dataRate, " bytes/ms");
+			}
+		}
+	}
+	else
+	{
+		setTooltip(String(bytesFree / pow(2, 30)) + " GB available");
+	}
+
+	/*
+
 	lastFreeSpace = recordNode->getDataDirectory().getBytesFreeOnVolume();
 	float bytesFree = (float) recordNode->getDataDirectory().getBytesFreeOnVolume();
 	float volumeSize = (float) recordNode->getDataDirectory().getVolumeTotalSize();
+
+	printf("Directory: %s\n", recordNode->getDataDirectory().getFullPathName().toRawUTF8());
+	printf("lastFreeSpace: %d\n", lastFreeSpace);
+	printf("Bytes free: %f\n", bytesFree);
+	printf("Volume size: %f\n", volumeSize);
+
 
 	float ratio = bytesFree / volumeSize;
 
@@ -77,7 +135,7 @@ void DiskSpaceMonitor::timerCallback()
 	float currentTime = Time::getMillisecondCounterHiRes();
 
 	// Update data rate and recording time left every 30 seconds
-	if (recordNode->getRecordingStatus() && currentTime - lastUpdateTime > 30000) {
+	if (recordNode->getRecordingStatus()) {
 
 		if (lastUpdateTime == 0.0) {
 			lastUpdateTime = Time::getMillisecondCounterHiRes();
@@ -85,7 +143,8 @@ void DiskSpaceMonitor::timerCallback()
 		}
 		else
 		{
-			dataRate = (lastFreeSpace - bytesFree) / (currentTime - lastUpdateTime); //bytes/ms
+			dataRate = (float(lastFreeSpace) - bytesFree) / (currentTime - lastUpdateTime); //bytes/ms
+			printf("dataRate = (%d - %f) / (%f - %f)\n", lastFreeSpace, bytesFree, currentTime, lastUpdateTime);
 			lastUpdateTime = currentTime;
 			lastFreeSpace = bytesFree;
 
@@ -105,7 +164,15 @@ void DiskSpaceMonitor::timerCallback()
 			msg += "Data rate: " + String(dataRate * 1000 / pow(2, 20), 2) + " MB/s";
 			setTooltip(msg);
 		}
+
+		LOGD("lastUpdateTime: ", lastUpdateTime);
+		LOGD("lastFreeSpace: ", lastFreeSpace);
+		LOGD("bytesFree: ", bytesFree);
+		LOGD("volumeSize: ", volumeSize);
+		LOGD("Free space: ", bytesFree / pow(2, 30), " GB");
 	}
+
+	*/
 
 	repaint();
 }
@@ -456,6 +523,7 @@ void RecordNodeEditor::timerCallback()
 
 void RecordNodeEditor::startRecording()
 {
+	diskSpaceMonitor->reset();
 	/*
     dataPathButton->setEnabled(false);
     engineSelectCombo->setEnabled(false);
