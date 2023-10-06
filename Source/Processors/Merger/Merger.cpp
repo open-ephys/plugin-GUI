@@ -57,8 +57,12 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
     {
         sourceNodeA = sn;
         activePath = 0;
-        MergerEditor* ed = (MergerEditor*)getEditor();
-        ed->switchSource(activePath, false);
+        
+        if(!headlessMode)
+        {
+            MergerEditor* ed = (MergerEditor*)getEditor();
+            ed->switchSource(activePath, false);
+        }
     }
     else
     {

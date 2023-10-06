@@ -567,7 +567,7 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
     {
         LOGD("Processor to view: ", processor->getName());
 
-        if (processor->isSplitter())
+        if (processor->isSplitter() && !isConsoleApp)
         {
             SplitterEditor* spEditor = (SplitterEditor*)processor->getEditor();
             Splitter*  spProc = (Splitter*)processor;
@@ -1406,10 +1406,10 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 
     checkForNewRootNodes(processor, false, false);
 
-    AccessClass::getGraphViewer()->removeNode(processor);
-
-    if (AccessClass::getEditorViewport() != nullptr) //headless mode
+    if (!isConsoleApp)
     {
+        AccessClass::getGraphViewer()->removeNode(processor);
+
         AccessClass::getEditorViewport()->removeEditor(processor->editor.get());
 
         //// need this to prevent editors from remaining after starting acquisition

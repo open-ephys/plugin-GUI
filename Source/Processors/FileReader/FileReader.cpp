@@ -789,7 +789,11 @@ ScrubberInterface* FileReader::getScrubberInterface()
 void FileReader::saveCustomParametersToXml (XmlElement* xml)
 {
     XmlElement* childNode = xml->createNewChildElement ("SCRUBBERINTERFACE");
-    childNode->setAttribute ("show", getScrubberInterface()->isVisible() ? "true" : "false");
+
+    if(headlessMode)
+        childNode->setAttribute ("show", "false");
+    else
+        childNode->setAttribute ("show", getScrubberInterface()->isVisible() ? "true" : "false");
 }
 
 void FileReader::loadCustomParametersFromXml (XmlElement* xml)
