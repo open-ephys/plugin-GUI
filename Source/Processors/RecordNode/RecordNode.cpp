@@ -442,6 +442,7 @@ void RecordNode::updateSettings()
 
 		fifoUsage[streamId] = 0.0f;
 
+		/*
 		if (recordContinuousChannels[streamId].empty()) // this ID has not been seen yet
 		{
 			for (auto channel : stream->getContinuousChannels())
@@ -477,6 +478,7 @@ void RecordNode::updateSettings()
 			}
 
 		}
+		*/
 
 	}
 
@@ -636,9 +638,9 @@ void RecordNode::startRecording()
 			lastSourceNodeId = stream->getSourceNodeId();
 		}
 
-		for (auto channel : stream->getContinuousChannels())
+		for (auto channelRecordState : ((MaskChannelsParameter*)stream->getParameter("channels"))->getChannelStates())
 		{
-			if (channel->isRecorded)
+			if (channelRecordState)
 			{
 				channelMap.add(channelIndexInRecordNode);
                 localChannelMap.add(channelIndexInStream++);
@@ -868,10 +870,10 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 
 			}
 
-			for (auto channel : stream->getContinuousChannels())
+			for (auto channelRecordState : ((MaskChannelsParameter*)stream->getParameter("channels"))->getChannelStates())
 			{
 
-				if (channel->isRecorded)
+				if (channelRecordState)
 				{
 
 					channelIndex++;
