@@ -742,6 +742,8 @@ void ProcessorGraph::refreshColors()
         GenericEditor* e = (GenericEditor*) p->getEditor();
         e->refreshColors();
     }
+
+    AccessClass::getGraphViewer()->repaint();
 }
 
 /* Set parameters based on XML.
