@@ -292,10 +292,17 @@ void EditorViewport::makeEditorVisible(GenericEditor* editor,bool updateSettings
 
 void EditorViewport::highlightEditor(GenericEditor* editor)
 {
+    // Do not highlight if the editor is already selected
+    if(editor->getSelectionState())
+        return;
+
     AccessClass::getProcessorGraph()->updateViews(editor->getProcessor());
+
+    Array<GenericProcessor*> processors = AccessClass::getProcessorGraph()->getListOfProcessors();
     
-    for (auto ed : editorArray)
+    for (auto proc : processors)
     {
+        auto ed = proc->getEditor();
         if (ed == editor )
         {
             ed->highlight();
