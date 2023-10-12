@@ -32,7 +32,7 @@
 
 #include "../UI/LookAndFeel/CustomLookAndFeel.h"
 
-const int NODE_WIDTH = 165;
+const int NODE_WIDTH = 200;
 const int NODE_HEIGHT = 50;
 const int BORDER_SIZE = 20;
 
@@ -221,9 +221,9 @@ void GraphViewer::addNode (GenericEditor* editor, int level, int offset)
     
     int thisNodeWidth = NODE_WIDTH;
 
-    if (gn->getName().length() > 15)
+    if (gn->getName().length() > 18)
     {
-        thisNodeWidth += (gn->getName().length() - 15) * 10;
+        thisNodeWidth += (gn->getName().length() - 18) * 10;
     }
     
     gn->setLevel(level);
@@ -351,34 +351,52 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
 /// ------------------------------------------------------
 
 
-DataStreamInfo::DataStreamInfo(DataStream* stream_)
+DataStreamInfo::DataStreamInfo(DataStream* stream_, GenericEditor* editor, GraphNode* node_)
     :  stream(stream_)
+    ,  node(node_)
 {
     
     streamParameterEditorComponent = std::make_unique<Component>(stream->getName());
 
-    auto editors = stream->createDefaultEditor();
+    auto pEditors = stream->createDefaultEditor();
 
-    int yPos = 0;
-    const int rowWidthPixels = 140;
-    const int rowHeightPixels = 18;
+    int yPos = pEditors.size() > 0 ? 5 : 0;
+    const int rowWidthPixels = 170;
+    const int rowHeightPixels = 20;
 
-    for (auto editor : editors)
+    for (auto paramEditor : pEditors)
     {
         // set parameter editor bounds
-        editor->setBounds(0, yPos, rowWidthPixels, rowHeightPixels);
-        yPos += rowHeightPixels;
+        paramEditor->setBounds(3, yPos, rowWidthPixels, rowHeightPixels);
+        yPos += rowHeightPixels + 5;
 
         //transfer ownership to DataStreamInfo
-        parameterEditors.add(editor);
+        parameterEditors.add(paramEditor);
 
         streamParameterEditorComponent->addAndMakeVisible(parameterEditors.getLast());
     }
+    
+    editorHeight = yPos;
+    heightInPixels = 60;
 
-    streamParameterEditorComponent->setBounds(0, 60, rowWidthPixels, yPos);
-	addAndMakeVisible(streamParameterEditorComponent.get());
+    if(parameterEditors.size() > 0)
+    {
+        parameterPanel = std::make_unique<ConcertinaPanel>();
+        parameterPanel->addPanel(-1, streamParameterEditorComponent.get(), false);
+        parameterPanel->setMaximumPanelSize(streamParameterEditorComponent.get(),
+                                            editorHeight);
 
-    heightInPixels = streamParameterEditorComponent->getHeight() + 60;
+        parameterButton = new DataStreamButton(this, editor, "Parameters");
+        parameterButton->addListener(this);
+        parameterPanel->setCustomPanelHeader(streamParameterEditorComponent.get(), parameterButton, true);
+        // button->removeMouseListener(button->getParentComponent());
+
+        addAndMakeVisible(parameterPanel.get());
+        parameterPanel->addMouseListener(this, true);
+        parameterPanel->setBounds(0, 60, NODE_WIDTH - 23, 20);
+
+        heightInPixels += 20;
+    }
     
 }
 
@@ -413,6 +431,46 @@ void DataStreamInfo::paint(Graphics& g)
 
 }
 
+void DataStreamInfo::buttonClicked(Button* button)
+{
+    DataStreamButton* dsb = (DataStreamButton*)button;
+
+    if (dsb != parameterButton)
+        return;
+
+    // expand/collapse panel and inform node about new size
+    if (button->getToggleState())
+    {
+        heightInPixels = editorHeight + 80;
+        node->updateBoundaries();
+        parameterPanel->setSize(NODE_WIDTH - 23, editorHeight + 20);
+        parameterPanel->expandPanelFully(streamParameterEditorComponent.get(), false);
+    }
+    else
+    {
+        heightInPixels = 80;
+        node->updateBoundaries();
+        parameterPanel->setSize(NODE_WIDTH - 23, 20);
+        parameterPanel->setPanelSize(streamParameterEditorComponent.get(), 0, false);
+    }
+
+    node->setDataStreamPanelSize(this, heightInPixels);
+    node->updateGraphView();
+}
+
+int DataStreamInfo::getDesiredHeight() const
+{
+    return heightInPixels;
+}
+
+int DataStreamInfo::getMaxHeight() const
+{
+    if (parameterEditors.size() > 0)
+        return editorHeight + 80;
+    else
+        return 60;
+}
+
 
 ProcessorParameterComponent::ProcessorParameterComponent(GenericProcessor* p)
     :  processor(p)
@@ -422,15 +480,15 @@ ProcessorParameterComponent::ProcessorParameterComponent(GenericProcessor* p)
 
     auto editors = processor->createDefaultEditor();
 
-    int yPos = 0;
-    const int rowWidthPixels = 140;
+    int yPos = editors.size() > 0 ? 5 : 0;
+    const int rowWidthPixels = 170;
     const int rowHeightPixels = 20;
 
     for (auto editor : editors)
     {
         // set parameter editor bounds
-        editor->setBounds(0, yPos, rowWidthPixels, rowHeightPixels);
-        yPos += rowHeightPixels;
+        editor->setBounds(3, yPos, rowWidthPixels, rowHeightPixels);
+        yPos += rowHeightPixels + 5;
 
         //transfer ownership to DataStreamInfo
         parameterEditors.add(editor);
@@ -467,10 +525,9 @@ void ProcessorParameterComponent::updateView()
 }
 
 
-DataStreamButton::DataStreamButton(GenericEditor* editor_, const DataStream* stream_, DataStreamInfo* info_)
-    : Button(stream_->getName())
+DataStreamButton::DataStreamButton(DataStreamInfo* info_, GenericEditor* editor_, const String& text)
+    : Button(text)
     , editor(editor_)
-    , stream(stream_)
     , info(info_)
 {
     setClickingTogglesState(true);
@@ -492,7 +549,7 @@ DataStreamButton::~DataStreamButton()
 
 int DataStreamButton::getDesiredHeight() const
 {
-    return info->heightInPixels;
+    return info->getDesiredHeight();
 }
 
 void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
@@ -504,7 +561,11 @@ void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
     g.setColour(Colours::lightgrey);
     g.fillRect(1, 0, 24, getHeight() - 1);
 
-    g.setColour(editor->getBackgroundColor().withAlpha(0.5f));
+    if(getButtonText().equalsIgnoreCase("Parameters"))
+        g.setColour(editor->getBackgroundColor().withSaturation(0.5f).withAlpha(0.7f));
+    else
+        g.setColour(editor->getBackgroundColor().withAlpha(0.5f));
+
     g.fillRect(25, 0, getWidth() - 26, getHeight() - 1);
 
     g.setColour(Colour(30, 30, 30));
@@ -515,7 +576,7 @@ void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
         g.fillPath(pathClosed);
 
     g.setColour(Colours::white);
-    g.drawText(stream->getName(), 30, 0, getWidth()-30, 20, Justification::left);
+    g.drawText(getButtonText(), 30, 0, getWidth()-30, 20, Justification::left);
 
 }
 
@@ -554,12 +615,12 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
         for (auto stream : processor->getDataStreams())
         {
 
-            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()));
+            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()), editor, this);
             infoPanel->addPanel(-1, info, true);
-            infoPanel->setMaximumPanelSize(info, info->heightInPixels);
+            infoPanel->setMaximumPanelSize(info, info->getMaxHeight());
             dataStreamInfos.add(info);
 
-            DataStreamButton* button = new DataStreamButton(editor, stream, info);
+            DataStreamButton* button = new DataStreamButton(info, editor, stream->getName());
             button->addListener(this);
             infoPanel->setCustomPanelHeader(info, button, true);
             button->removeMouseListener(button->getParentComponent());
@@ -655,8 +716,7 @@ void GraphNode::mouseDown (const MouseEvent& m)
             infoPanel->expandPanelFully(processorParamComponent.get(), false);
         }
 
-        gv->updateBoundaries();
-        gv->repaint();
+        updateGraphView();
     }
 }
 
@@ -668,12 +728,11 @@ void GraphNode::buttonClicked(Button* button)
     DataStreamButton* dsb = (DataStreamButton*)button;
 
     if (button->getToggleState())
-        infoPanel->expandPanelFully(dsb->getComponent(), false);
+        infoPanel->setPanelSize(dsb->getComponent(), dsb->getDesiredHeight() , false);
     else
         infoPanel->setPanelSize(dsb->getComponent(), 0, false);
 
-    gv->updateBoundaries();
-    gv->repaint();
+    updateGraphView();
 }
 
 
@@ -769,15 +828,28 @@ void GraphNode::updateBoundaries()
 
     int nodeY = gv->getLevelStartY(getLevel());
     if (nodeY == 0)
-        setBounds(BORDER_SIZE + getHorzShift() * (NODE_WIDTH + 50),
+        setBounds(BORDER_SIZE + getHorzShift() * (NODE_WIDTH + 35),
             BORDER_SIZE + getLevel() * (NODE_HEIGHT + 35),
             nodeWidth,
             panelHeight);
     else
-        setBounds(BORDER_SIZE + getHorzShift() * (NODE_WIDTH + 50),
+        setBounds(BORDER_SIZE + getHorzShift() * (NODE_WIDTH + 35),
             nodeY,
             nodeWidth,
             panelHeight);
+}
+
+
+void GraphNode::updateGraphView()
+{
+    gv->updateBoundaries();
+    gv->repaint();
+}
+
+
+void GraphNode::setDataStreamPanelSize(Component* panelComponent, int height)
+{
+    infoPanel->setPanelSize(panelComponent, height, false);
 }
 
 
@@ -807,12 +879,12 @@ void GraphNode::updateStreamInfo()
         for (auto stream : processor->getDataStreams())
         {
             LOGDD("Adding data stream info and buttons for stream: ", stream->getName());
-            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()));
+            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()), editor, this);
             infoPanel->addPanel(-1, info, true);
-            infoPanel->setMaximumPanelSize(info, info->heightInPixels);
+            infoPanel->setMaximumPanelSize(info, info->getMaxHeight());
             dataStreamInfos.add(info);
 
-            DataStreamButton* button = new DataStreamButton(editor, stream, info);
+            DataStreamButton* button = new DataStreamButton(info, editor, stream->getName());
             button->addListener(this);
             infoPanel->setCustomPanelHeader(info, button, true);
             button->removeMouseListener(button->getParentComponent());
