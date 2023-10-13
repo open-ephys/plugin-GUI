@@ -187,14 +187,16 @@ void ArduinoOutput::handleTTLEvent(TTLEventPtr event)
 
 void ArduinoOutput::saveCustomParametersToXml(XmlElement* parentElement)
 {
-    parentElement->setAttribute("device", deviceString);
+    //parentElement->setAttribute("device", deviceString);
 }
 
 void ArduinoOutput::loadCustomParametersFromXml(XmlElement* xml)
 {
+    /*
     setDevice(xml->getStringAttribute("device", ""));
     ArduinoOutputEditor* ed = (ArduinoOutputEditor*) editor.get();
 
     ed->updateDevice(xml->getStringAttribute("device", ""));
+    */
 
 }
