@@ -931,7 +931,7 @@ void PathParameterEditor::buttonClicked(Button* button_)
     else
     {
         dialogBoxTitle += "file...";
-        validFilePatterns = "*." + ((PathParameter*)param)->getValidFilePatterns().joinIntoString(";.");
+        validFilePatterns = "*." + ((PathParameter*)param)->getValidFilePatterns().joinIntoString(";*.");
     }
 
     FileChooser chooser(dialogBoxTitle, File(), validFilePatterns);
