@@ -39,6 +39,7 @@ void ParameterEditor::updateBounds()
     Rectangle<int> bounds = getBounds();
     int finalWidth = bounds.getWidth();
     int finalHeight = bounds.getHeight();
+    int gap = finalWidth < 180 ? 2 : 5;
 
     switch (layout)
     {
@@ -55,16 +56,16 @@ void ParameterEditor::updateBounds()
             editor->setBounds(0, 0, finalWidth, finalHeight / 2);
             break;
         case nameOnLeft:
-            label->setBounds(0, 0, (finalWidth / 2) - 5, finalHeight);
+            label->setBounds(0, 0, (finalWidth / 2) - gap, finalHeight);
             label->setJustificationType(Justification::centredRight);
             label->setVisible(true);
-            editor->setBounds((finalWidth / 2)+ 5, 0, (finalWidth/ 2) - 5, finalHeight);
+            editor->setBounds((finalWidth / 2) + gap, 0, (finalWidth/ 2) - gap, finalHeight);
             break;
         case nameOnRight:
-            label->setBounds((finalWidth / 2) + 5 , 0, (finalWidth / 2) - 5, finalHeight);
+            label->setBounds((finalWidth / 2) + gap , 0, (finalWidth / 2) - gap, finalHeight);
             label->setJustificationType(Justification::centredLeft);
             label->setVisible(true);
-            editor->setBounds(0, 0, (finalWidth / 2) - 5, finalHeight);
+            editor->setBounds(0, 0, (finalWidth / 2) - gap, finalHeight);
             break;
         case nameHidden:
             label->setVisible(false);

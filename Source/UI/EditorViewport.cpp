@@ -1059,7 +1059,7 @@ SignalChainTabButton::SignalChainTabButton(int index) :
     setRadioGroupId(99);
     setClickingTogglesState(true);
 
-    buttonFont = Font("Small Text", 10, Font::plain);
+    buttonFont = Font("Silkscreen", 10, Font::plain);
     buttonFont.setHeight(14);
 
     offset = 0;
