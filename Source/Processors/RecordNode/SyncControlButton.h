@@ -44,7 +44,7 @@ public:
     /** Constructor */
     SyncControlButton(SynchronizingProcessor* node,
                       const String& name,
-                      uint16 streamId,
+                      String streamKey,
                       int ttlLineCount = 8);
     
     /** Destructor */
@@ -53,7 +53,7 @@ public:
     /** Creates the sync selection interface */
     //void mouseUp(const MouseEvent &event) override;
     
-    int streamId;
+    String streamKey;
     bool isPrimary;
     int ttlLineCount;
 

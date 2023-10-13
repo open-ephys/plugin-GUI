@@ -71,7 +71,7 @@ void EventTranslatorEditor::updateSettings()
         
         buttons.add(new SyncControlButton(proc,
                                           name,
-                                          streamId,
+                                          stream->getKey(),
                                           numLines));
         
         buttons.getLast()->setBounds(18 + column * 25, 30 + row * 25, 18, 18);
