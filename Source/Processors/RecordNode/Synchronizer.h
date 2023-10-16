@@ -45,7 +45,7 @@ class Stream
 public:
 
     /** Constructor */
-    Stream(uint16 streamId, float expectedSampleRate);
+    Stream(String streamKey, float expectedSampleRate);
 
     /** Resets stream parameters before acquisition */
     void reset();
@@ -102,8 +102,8 @@ public:
      * consider the stream desynchronized */
     float sampleRateTolerance;
 
-    /** Holds the ID for this stream */
-    uint16 streamId;
+    /** Holds the unique key for this stream */
+    String streamKey;
 
     /** true if the stream is in active use */
     bool isActive;
@@ -146,10 +146,10 @@ public:
     ~Synchronizer() { }
 
     /** Converts an int64 sample number to a double timestamp */
-    double convertSampleNumberToTimestamp(uint16 streamId, int64 sampleNumber);
+    double convertSampleNumberToTimestamp(String streamKey, int64 sampleNumber);
     
     /** Converts a double timestamp to an int64 sample number */
-    int64 convertTimestampToSampleNumber(uint16 streamId, double timestamp);
+    int64 convertTimestampToSampleNumber(String streamKey, double timestamp);
 
     /** Resets all values when acquisition is re-started */
     void reset();
@@ -159,28 +159,28 @@ public:
 
     /** Adds a new data stream with an expected sample rate
      *  If the stream already exists, */
-    void addDataStream(uint16 streamId, float expectedSampleRate);
+    void addDataStream(String streamKey, float expectedSampleRate);
 
     /** Checks if there is only one stream */
     void finishedUpdate();
 
     /** Sets the ID of the main data stream */
-    void setMainDataStream(uint16 streamId);
+    void setMainDataStream(String streamKey);
 
     /** Sets the TTL line to use for synchronization (0-based indexing)*/
-    void setSyncLine(uint16 streamId, int line);
+    void setSyncLine(String streamKey, int line);
 
     /** Returns the TTL line to use for synchronization (0-based indexing)*/
-    int getSyncLine(uint16 streamId);
+    int getSyncLine(String streamKey);
 
     /** Returns true if a stream is synchronized */
-    bool isStreamSynced(uint16 streamId);
+    bool isStreamSynced(String streamKey);
 
     /** Returns the status (OFF / SYNCING / SYNCED) of a given stream*/
-    SyncStatus getStatus(uint16 streamId);
+    SyncStatus getStatus(String streamKey);
 
     /** Checks an event for a stream ID / line combination */
-    void addEvent(uint16 streamId, int ttlLine, int64 sampleNumber);
+    void addEvent(String streamKey, int ttlLine, int64 sampleNumber);
     
     /** Signals start of acquisition */
     void startAcquisition();
@@ -188,13 +188,14 @@ public:
     /** Signals start of acquisition */
     void stopAcquisition();
 
-    uint16 mainStreamId = 0;
-    uint16 previousMainStreamId = 0;
+    String mainStreamKey = "";
+    String previousMainStreamKey = "";
 
-        /** Total number of streams*/
+    /** Total number of streams*/
     int streamCount;
 
-    bool isAvailable() { return mainStreamId > 0; };
+    // Not used
+    //bool isAvailable() { return mainStreamKey.length() > 0; };
 
 private:
 
@@ -208,7 +209,7 @@ private:
 
     bool firstMainSyncEvent;
 
-    std::map<uint16, Stream*> streams;
+    std::map<String, Stream*> streams;
     OwnedArray<Stream> dataStreamObjects;
 
     void openSyncWindow();
@@ -223,16 +224,16 @@ class SynchronizingProcessor
 {
 public:
     /** Sets the main data stream to use for synchronization */
-    void setMainDataStream(uint16 streamId);
+    void setMainDataStream(String streamKey);
 
     /** Returns true if a stream ID matches the one to use for sychronization*/
-    bool isMainDataStream(uint16 streamId);
+    bool isMainDataStream(String streamKey);
 
     /** Sets the TTL line to use for synchronization*/
-    void setSyncLine(uint16 streamId, int line);
+    void setSyncLine(String streamKey, int line);
 
     /** Returns the TTL line to use for synchronization*/
-    int getSyncLine(uint16 streamId);
+    int getSyncLine(String streamKey);
     
     /** The synchronizer for this processor */
     Synchronizer synchronizer;

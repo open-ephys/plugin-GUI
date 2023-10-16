@@ -257,15 +257,17 @@ SyncChannelsParameterEditor::SyncChannelsParameterEditor(RecordNode* rn, Paramet
 
 	recordNode = rn;
 
-	uint64 streamId = ((DataStream*)param->getOwner())->getStreamId();
-	String streamName  = ((DataStream*)param->getOwner())->getName();
-	String sourceNodeId = String(((DataStream*)param->getOwner())->getSourceNodeId());
+	DataStream* stream = ((DataStream*)param->getOwner());
+
+	uint64 streamId = stream->getStreamId();
+	String streamName  = stream->getName();
+	int sourceNodeId = stream->getSourceNodeId();
 
 	int nEvents = 8; //TODO: Better way to determine how many TTL lines are available
 
 	syncControlButton = std::make_unique<SyncControlButton>(recordNode,
                                                 recordNode->getDataStream(streamId)->getName(),
-                                                streamId, 8);
+                                                stream->getKey(), 8);
 	syncControlButton->setTooltip("Configure synchronization settings for this stream");
 	syncControlButton->addListener(this);
 	syncControlButton->setBounds(0, 0, 15, 15);

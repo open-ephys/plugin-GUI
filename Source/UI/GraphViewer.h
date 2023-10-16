@@ -33,6 +33,8 @@
 
 class DataStream;
 class GraphViewer;
+class GraphNode;
+class DataStreamButton;
 
 
 /**
@@ -41,12 +43,13 @@ class GraphViewer;
  @see GraphViewer, GraphNode
 */
 
-class DataStreamInfo : public Component
+class DataStreamInfo : public Component,
+    public Button::Listener
 {
 public:
 
     /** Constructor */
-    DataStreamInfo(DataStream* stream);
+    DataStreamInfo(DataStream* stream, GenericEditor* editor, GraphNode* node);
 
     /** Destructor */
     ~DataStreamInfo();
@@ -54,15 +57,28 @@ public:
     /** Paint component */
     void paint(Graphics& g);
 
-    int heightInPixels;
+    /** To respond to clicks in the DataStreamPanel*/
+    void buttonClicked(Button* button) override;
+
+    /** Returns height of the data stream editor */
+	int getDesiredHeight() const;
+
+    /** Returns max height of the data stream editor */
+	int getMaxHeight() const;
 
 private:
 
     DataStream* stream;
+    GraphNode* node;
 
+    std::unique_ptr<ConcertinaPanel> parameterPanel;
     std::unique_ptr<Component> streamParameterEditorComponent;
+    DataStreamButton* parameterButton;
     
     OwnedArray<ParameterEditor> parameterEditors;
+
+    int heightInPixels;
+    int editorHeight;
 
 };
 
@@ -109,7 +125,7 @@ class DataStreamButton : public Button
 public:
 
     /** Constructor */
-    DataStreamButton(GenericEditor* editor, const DataStream* stream, DataStreamInfo* info);
+    DataStreamButton(DataStreamInfo* info, GenericEditor* editor, const String& text);
 
     /** Destructor */
     ~DataStreamButton();
@@ -124,7 +140,6 @@ public:
 
 private:
 
-    const DataStream* stream;
     DataStreamInfo* info;
     Path pathOpen;
     Path pathClosed;
@@ -163,11 +178,11 @@ public:
     
     /** Behavior on mouse click */
     void mouseDown  (const MouseEvent& event) override;
-    
+
     /** Indicates whether node has an editor component */
     bool hasEditor (GenericEditor* editor) const;
 
-    /** To respond to clicks in the DataStreamPanel*/
+    /** To respond to DataStreamButton clicks */
     void buttonClicked(Button* button);
     
     /** Returns location of component center point */
@@ -222,6 +237,12 @@ public:
     /**  Checks and updates stream information if necessary */
     void updateStreamInfo();
 
+    /** Updates graph viewer boundaries and repaints it*/
+    void updateGraphView();
+
+    /* Sets DataStreamInfo panel size */
+    void setDataStreamPanelSize(Component* streamPanelComponent, int height);
+
     /** True if processor still exists */
     bool stillNeeded;
     
@@ -240,6 +261,8 @@ private:
 
     std::unique_ptr<ProcessorParameterComponent> processorParamComponent;
     std::unique_ptr<Component> processorParamHeader;
+
+    DropShadower nodeDropShadower { DropShadow(Colours::black.withAlpha(0.8f), 10, {2,10}) };
     
     bool processorInfoVisible;
     

@@ -76,7 +76,7 @@ void EventTranslator::updateSettings()
         
         const uint16 streamId = stream->getStreamId();
         
-        synchronizer.addDataStream(streamId, stream->getSampleRate());
+        synchronizer.addDataStream(stream->getKey(), stream->getSampleRate());
 
         EventChannel::Settings s{
             EventChannel::Type::TTL,
@@ -119,40 +119,42 @@ void EventTranslator::process (AudioBuffer<float>& buffer)
 void EventTranslator::handleTTLEvent(TTLEventPtr event)
 {
     const uint16 eventStream = event->getStreamId();
+    const String eventStreamKey = getDataStream(eventStream)->getKey();
     const int ttlLine = event->getLine();
     const int64 sampleNumber = event->getSampleNumber();
     
-    if (synchronizer.getSyncLine(eventStream) == ttlLine)
+    if (synchronizer.getSyncLine(eventStreamKey) == ttlLine)
     {
-        synchronizer.addEvent(eventStream, ttlLine, sampleNumber);
+        synchronizer.addEvent(eventStreamKey, ttlLine, sampleNumber);
 
         return;
     }
     
-    if (eventStream == synchronizer.mainStreamId && synchronizer.isStreamSynced(eventStream))
+    if (eventStreamKey == synchronizer.mainStreamKey && synchronizer.isStreamSynced(eventStreamKey))
     {
         
         //std::cout << "TRANSLATE!" << std::endl;
         
         const bool state = event->getState();
         
-        double timestamp = synchronizer.convertSampleNumberToTimestamp(eventStream, sampleNumber);
+        double timestamp = synchronizer.convertSampleNumberToTimestamp(eventStreamKey, sampleNumber);
         
         for (auto stream : getDataStreams())
         {
             
             const uint16 streamId = stream->getStreamId();
+            const String streamKey = stream->getKey();
 
-            if (streamId == eventStream)
+            if (streamKey == eventStreamKey)
                 continue; // don't translate events back to the main stream
             
-            if (synchronizer.isStreamSynced(streamId))
+            if (synchronizer.isStreamSynced(streamKey))
             {
 
                 //std::cout << "original sample number: " <<sampleNumber << std::endl;
                 //std::cout << "original timestamp: " <<timestamp << std::endl;
                 
-                int64 newSampleNumber = synchronizer.convertTimestampToSampleNumber(streamId, timestamp);
+                int64 newSampleNumber = synchronizer.convertTimestampToSampleNumber(streamKey, timestamp);
                 
                 //std::cout << "new sample number (" << streamId << "): " << newSampleNumber << std::endl;
                 //std::cout << std::endl;
@@ -179,11 +181,12 @@ void EventTranslator::saveCustomParametersToXml(XmlElement* xml)
     {
 
         const uint16 streamId = stream->getStreamId();
+        const String streamKey = stream->getKey();
 
         XmlElement* streamXml = xml->createNewChildElement("STREAM");
 
-        streamXml->setAttribute("isMainStream", synchronizer.mainStreamId == streamId);
-        streamXml->setAttribute("sync_line", getSyncLine(streamId));
+        streamXml->setAttribute("isMainStream", synchronizer.mainStreamKey == streamKey);
+        streamXml->setAttribute("sync_line", getSyncLine(streamKey));
         streamXml->setAttribute("name", stream->getName());
         streamXml->setAttribute("source_node_id", stream->getSourceNodeId());
         streamXml->setAttribute("sample_rate", stream->getSampleRate());
@@ -216,6 +219,7 @@ void EventTranslator::loadCustomParametersFromXml(XmlElement* xml)
     {
         int matchingIndex = findMatchingStreamParameters(stream);
         const uint16 streamId = stream->getStreamId();
+        String streamKey = stream->getKey();
         
         if (matchingIndex > -1)
         {
@@ -231,10 +235,10 @@ void EventTranslator::loadCustomParametersFromXml(XmlElement* xml)
                     {
                         if (subNode->getBoolAttribute("isMainStream", false))
                         {
-                            setMainDataStream(streamId);
+                            setMainDataStream(streamKey);
                         }
                         
-                        setSyncLine(streamId, subNode->getIntAttribute("sync_line", 0));
+                        setSyncLine(streamKey, subNode->getIntAttribute("sync_line", 0));
                         
                     }
                 }

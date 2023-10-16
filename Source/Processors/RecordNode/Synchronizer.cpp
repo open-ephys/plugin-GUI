@@ -23,8 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Synchronizer.h"
 
-Stream::Stream(uint16 streamId_, float expectedSampleRate_)
-	: streamId(streamId_),
+Stream::Stream(String streamKey_, float expectedSampleRate_)
+	: streamKey(streamKey_),
 	  expectedSampleRate(expectedSampleRate_),
 	  actualSampleRate(-1.0f),
 	  sampleRateTolerance(0.01f),
@@ -139,8 +139,8 @@ Synchronizer::Synchronizer()
 	: syncWindowLengthMs(50),
 	  syncWindowIsOpen(false),
 	  firstMainSyncEvent(false),
-	  mainStreamId(0),
-	  previousMainStreamId(0),
+	  mainStreamKey(""),
+	  previousMainStreamKey(""),
 	  streamCount(0),
       acquisitionIsActive(false)
 {
@@ -155,10 +155,10 @@ void Synchronizer::reset()
 
 	if (streamCount == 1)
 	{
-		streams[mainStreamId]->actualSampleRate = streams[mainStreamId]->expectedSampleRate;
-		streams[mainStreamId]->isSynchronized = true;
-		streams[mainStreamId]->startSampleMainTime = 0.0;
-		streams[mainStreamId]->startSample = 0;
+		streams[mainStreamKey]->actualSampleRate = streams[mainStreamKey]->expectedSampleRate;
+		streams[mainStreamKey]->isSynchronized = true;
+		streams[mainStreamKey]->startSampleMainTime = 0.0;
+		streams[mainStreamKey]->startSample = 0;
 		LOGD("Only one stream, setting as synchronized.");
 	} else {
 		for (auto [id, stream] : streams)
@@ -169,8 +169,8 @@ void Synchronizer::reset()
 
 void Synchronizer::prepareForUpdate()
 {
-	previousMainStreamId = mainStreamId;
-	mainStreamId = 0;
+	previousMainStreamKey = mainStreamKey;
+	mainStreamKey = "";
 	streamCount = 0;
 
 	for (auto [id, stream] : streams)
@@ -183,56 +183,56 @@ void Synchronizer::finishedUpdate()
 }
 
 
-void Synchronizer::addDataStream(uint16 streamId, float expectedSampleRate)
+void Synchronizer::addDataStream(String streamKey, float expectedSampleRate)
 {
     
     //std::cout << "Synchronizer adding " << streamId << std::endl;
 	// if this is the first stream, make it the main one
-	if (mainStreamId == 0)
-		mainStreamId = streamId;
+	if (mainStreamKey == "")
+		mainStreamKey = streamKey;
     
     //std::cout << "Main stream ID: " << mainStreamId << std::endl;
 
 	// if there's a stored value, and it appears again,
 	// re-instantiate this as the main stream
-	if (streamId == previousMainStreamId)
-		mainStreamId = previousMainStreamId;
+	if (mainStreamKey == previousMainStreamKey)
+		mainStreamKey = previousMainStreamKey;
 
 	// if there's no Stream object yet, create a new one
-	if (streams.count(streamId) == 0)
+	if (streams.count(streamKey) == 0)
 	{
         //std::cout << "Creating new Stream object" << std::endl;
-		dataStreamObjects.add(new Stream(streamId, expectedSampleRate));
-		streams[streamId] = dataStreamObjects.getLast();
-		setSyncLine(streamId, 0);
+		dataStreamObjects.add(new Stream(streamKey, expectedSampleRate));
+		streams[streamKey] = dataStreamObjects.getLast();
+		setSyncLine(streamKey, 0);
 	} else {
 		// otherwise, indicate that the stream is currently active
-		streams[streamId]->isActive = true;
+		streams[streamKey]->isActive = true;
 	}
 
 	streamCount++;
 
 }
 
-void Synchronizer::setMainDataStream(uint16 streamId)
+void Synchronizer::setMainDataStream(String streamKey)
 {
-	mainStreamId = streamId;
+	mainStreamKey = streamKey;
 	reset();
 }
 
-void Synchronizer::setSyncLine(uint16 streamId, int ttlLine)
+void Synchronizer::setSyncLine(String streamKey, int ttlLine)
 {
-	streams[streamId]->syncLine = ttlLine;
+	streams[streamKey]->syncLine = ttlLine;
 	
-    if (streamId == mainStreamId)
+    if (streamKey == mainStreamKey)
         reset();
     else
-        streams[streamId]->reset();
+        streams[streamKey]->reset();
 }
 
-int Synchronizer::getSyncLine(uint16 streamId)
+int Synchronizer::getSyncLine(String streamKey)
 {
-	return streams[streamId]->syncLine;
+	return streams[streamKey]->syncLine;
 }
 
 void Synchronizer::startAcquisition()
@@ -247,7 +247,7 @@ void Synchronizer::stopAcquisition()
     acquisitionIsActive = false;
 }
 
-void Synchronizer::addEvent(uint16 streamId, int ttlLine, int64 sampleNumber)
+void Synchronizer::addEvent(String streamKey, int ttlLine, int64 sampleNumber)
 {
 
 	if (streamCount == 1 || sampleNumber < 1000)
@@ -255,7 +255,7 @@ void Synchronizer::addEvent(uint16 streamId, int ttlLine, int64 sampleNumber)
 
 	//LOGC("Synchronizer received sync event for stream ", streamId, ", sampleNumber: ", sampleNumber);
 
-	if (streams[streamId]->syncLine == ttlLine)
+	if (streams[streamKey]->syncLine == ttlLine)
 	{
 
 		//LOGC("Correct line!");
@@ -265,16 +265,16 @@ void Synchronizer::addEvent(uint16 streamId, int ttlLine, int64 sampleNumber)
 			openSyncWindow();
 		}
 
-		streams[streamId]->addEvent(sampleNumber);
+		streams[streamKey]->addEvent(sampleNumber);
 
-		if (streamId == mainStreamId)
+		if (streamKey == mainStreamKey)
 		{
 
 			float mainTimeSec;
 
 			if (!firstMainSyncEvent)
 			{
-				mainTimeSec = (sampleNumber - streams[streamId]->startSample) / streams[streamId]->expectedSampleRate;
+				mainTimeSec = (sampleNumber - streams[streamKey]->startSample) / streams[streamKey]->expectedSampleRate;
 			}
 			else
 			{
@@ -282,7 +282,7 @@ void Synchronizer::addEvent(uint16 streamId, int ttlLine, int64 sampleNumber)
 				firstMainSyncEvent = false;
 			}
 
-			for (auto [id, stream] : streams)
+			for (auto [key, stream] : streams)
 			{
 				if (stream->isActive)
 					stream->setMainTime(mainTimeSec);
@@ -300,26 +300,26 @@ void Synchronizer::addEvent(uint16 streamId, int ttlLine, int64 sampleNumber)
 	}
 }
 
-double Synchronizer::convertSampleNumberToTimestamp(uint16 streamId, int64 sampleNumber)
+double Synchronizer::convertSampleNumberToTimestamp(String streamKey, int64 sampleNumber)
 {
 
-	if (streams[streamId]->isSynchronized)
+	if (streams[streamKey]->isSynchronized)
 	{
-		return (double)(sampleNumber - streams[streamId]->startSample) /
-			streams[streamId]->actualSampleRate +
-			streams[streamId]->startSampleMainTime;
+		return (double)(sampleNumber - streams[streamKey]->startSample) /
+			streams[streamKey]->actualSampleRate +
+			streams[streamKey]->startSampleMainTime;
 	}
 	else {
 		return (double) -1.0f;
 	}
 }
 
-int64 Synchronizer::convertTimestampToSampleNumber(uint16 streamId, double timestamp)
+int64 Synchronizer::convertTimestampToSampleNumber(String streamKey, double timestamp)
 {
 
-    if (streams[streamId]->isSynchronized)
+    if (streams[streamKey]->isSynchronized)
     {
-        double t = (timestamp - streams[streamId]->startSampleMainTime) * streams[streamId]->actualSampleRate           + streams[streamId]->startSample;
+        double t = (timestamp - streams[streamKey]->startSampleMainTime) * streams[streamKey]->actualSampleRate + streams[streamKey]->startSample;
         
         return (int64) t;
     }
@@ -335,18 +335,18 @@ void Synchronizer::openSyncWindow()
 	syncWindowIsOpen = true;
 }
 
-bool Synchronizer::isStreamSynced(uint16 streamId)
+bool Synchronizer::isStreamSynced(String streamKey)
 {
-	return streams[streamId]->isSynchronized;
+	return streams[streamKey]->isSynchronized;
 }
 
-SyncStatus Synchronizer::getStatus(uint16 streamId)
+SyncStatus Synchronizer::getStatus(String streamKey)
 {
 
-	if (streamId <= 0 || !acquisitionIsActive)
+	if (!streamKey.length() || !acquisitionIsActive)
 		return SyncStatus::OFF;
 
-	if (isStreamSynced(streamId))
+	if (isStreamSynced(streamKey))
 		return SyncStatus::SYNCED;
 	else
 		return SyncStatus::SYNCING;
@@ -359,7 +359,7 @@ void Synchronizer::hiResTimerCallback()
 
 	syncWindowIsOpen = false;
 
-	for (auto [id, stream] : streams)
+	for (auto [key, stream] : streams)
 		stream->closeSyncWindow();
 
 	//LOGD(" ");
@@ -367,26 +367,26 @@ void Synchronizer::hiResTimerCallback()
 
 
 // called by RecordNodeEditor (when loading), SyncControlButton
-void SynchronizingProcessor::setMainDataStream(uint16 streamId)
+void SynchronizingProcessor::setMainDataStream(String streamKey)
 {
     //LOGD("Setting ", streamId, " as the main stream");
-    synchronizer.setMainDataStream(streamId);
+    synchronizer.setMainDataStream(streamKey);
 }
 
 // called by RecordNodeEditor (when loading), SyncControlButton
-void SynchronizingProcessor::setSyncLine(uint16 streamId, int line)
+void SynchronizingProcessor::setSyncLine(String streamKey, int line)
 {
-    synchronizer.setSyncLine(streamId, line);
+    synchronizer.setSyncLine(streamKey, line);
 }
 
 // called by SyncControlButton
-int SynchronizingProcessor::getSyncLine(uint16 streamId)
+int SynchronizingProcessor::getSyncLine(String streamKey)
 {
-    return synchronizer.getSyncLine(streamId);
+    return synchronizer.getSyncLine(streamKey);
 }
 
 // called by SyncControlButton
-bool SynchronizingProcessor::isMainDataStream(uint16 streamId)
+bool SynchronizingProcessor::isMainDataStream(String streamKey)
 {
-    return (streamId == synchronizer.mainStreamId);
+    return (streamKey == synchronizer.mainStreamKey);
 }

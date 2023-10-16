@@ -1652,6 +1652,16 @@ DataStream* GenericProcessor::getDataStream(uint16 streamId) const
 	return dataStreamMap.at(streamId);
 }
 
+DataStream* GenericProcessor::getDataStream(String streamKey) const
+{
+    for (auto stream : dataStreams)
+    {
+        if (stream->getKey() == streamKey)
+            return stream;
+    }
+    return nullptr;
+}
+
 uint16 GenericProcessor::findSimilarStream(int sourceNodeId, String name, float sample_rate, bool sourceNodeIdMustMatch)
 {
 

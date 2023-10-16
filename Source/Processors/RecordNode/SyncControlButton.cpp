@@ -29,16 +29,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SyncControlButton::SyncControlButton(SynchronizingProcessor* node_,
                                      const String& name,
-                                     uint16 streamId,
+                                     String streamKey_,
                                      int ttlLineCount_)
     : Button(name),
-      streamId(streamId),
+      streamKey(streamKey_),
       node(node_),
       ttlLineCount(ttlLineCount_)
 {
 
-    isPrimary = node->isMainDataStream(streamId);
-    LOGD("SyncControlButton::Constructor; Stream: ", streamId, " is main stream: ", isPrimary);
+    isPrimary = node->isMainDataStream(streamKey);
+    LOGD("SyncControlButton::Constructor; Stream: ", streamKey, " is main stream: ", isPrimary);
     startTimer(250);
     
     setTooltip(name);
@@ -112,7 +112,7 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
     g.setColour(Colours::grey);
     g.fillRoundedRectangle(0,0,getWidth(),getHeight(),4);
     
-    switch(node->synchronizer.getStatus(streamId)) {
+    switch(node->synchronizer.getStatus(streamKey)) {
         
         case SyncStatus::OFF :
         {
@@ -163,7 +163,7 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
     
     g.fillRoundedRectangle(2, 2, getWidth()-4, getHeight()-4, 2);
 
-    if (node->isMainDataStream(streamId))
+    if (node->isMainDataStream(streamKey))
     {
         g.setColour(Colour(255,255,255));
         g.setFont(Font(10));

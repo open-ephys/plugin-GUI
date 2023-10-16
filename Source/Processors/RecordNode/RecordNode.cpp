@@ -141,7 +141,7 @@ void RecordNode::parameterValueChanged(Parameter* p)
 			String key = stream->getKey();
 			if (key == streamNames[((SelectedStreamParameter*)p)->getSelectedIndex()])
 			{
-				synchronizer.setMainDataStream(stream->getStreamId());
+				synchronizer.setMainDataStream(stream->getKey());
 				break;
 			}
 		}
@@ -194,11 +194,15 @@ void RecordNode::handleBroadcastMessage(String msg)
     if (recordEvents && isRecording)
     {
 
-        int64 messageSampleNumber = getFirstSampleNumberForBlock(synchronizer.mainStreamId);
+		String streamKey = synchronizer.mainStreamKey;
+
+		DataStream* mainStream = getDataStream(streamKey);
+
+        int64 messageSampleNumber = getFirstSampleNumberForBlock(mainStream->getStreamId());
 
         TextEventPtr event = TextEvent::createTextEvent(getMessageChannel(), messageSampleNumber, msg);
 
-        double ts = synchronizer.convertSampleNumberToTimestamp(synchronizer.mainStreamId, messageSampleNumber);
+        double ts = synchronizer.convertSampleNumberToTimestamp(synchronizer.mainStreamKey, messageSampleNumber);
 
         event->setTimestampInSeconds(ts);
 
@@ -437,8 +441,7 @@ void RecordNode::updateSettings()
 
 		LOGD("Record Node found stream: (", streamId, ") ", stream->getName());
 		//activeStreamIds.add(stream->getStreamId());
-		synchronizer.addDataStream(streamId,
-									stream->getSampleRate());
+		synchronizer.addDataStream(stream->getKey(), stream->getSampleRate());
 
 		fifoUsage[streamId] = 0.0f;
 
@@ -534,7 +537,7 @@ bool RecordNode::isSynchronized()
     for (auto stream : dataStreams)
     {
 
-        SyncStatus status = synchronizer.getStatus(stream->getStreamId());
+        SyncStatus status = synchronizer.getStatus(stream->getKey());
 
         if (status != SYNCED)
             return false;
@@ -553,7 +556,7 @@ bool RecordNode::startAcquisition()
     {
         eventChannels.add(new EventChannel(*messageChannel));
         eventChannels.getLast()->addProcessor(this);
-        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamId), false);
+        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamKey), false);
     }
     
     return true;
@@ -611,7 +614,7 @@ void RecordNode::startRecording()
     {
         eventChannels.add(new EventChannel(*messageChannel));
         eventChannels.getLast()->addProcessor(this);
-        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamId), false);
+        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamKey), false);
     }
 
 	int lastSourceNodeId = -1;
@@ -734,7 +737,9 @@ void RecordNode::handleTTLEvent(TTLEventPtr event)
 
 	int64 sampleNumber = event->getSampleNumber();
 
-	synchronizer.addEvent(event->getStreamId(), event->getLine(), sampleNumber);
+	String streamKey = getDataStream(event->getStreamId())->getKey();
+
+	synchronizer.addEvent(streamKey, event->getLine(), sampleNumber);
 
 	if (recordEvents && isRecording)
 	{
@@ -742,7 +747,7 @@ void RecordNode::handleTTLEvent(TTLEventPtr event)
 		size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
 
 		HeapBlock<char> buffer(size);
-        event->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(event->getStreamId(), sampleNumber));
+        event->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(streamKey, sampleNumber));
 		event->serialize(buffer, size);
 
 		eventQueue->addEvent(EventPacket(buffer, size), sampleNumber);
@@ -763,7 +768,9 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 
 		int eventIndex = getIndexOfMatchingChannel(eventInfo);
 
-        Event::setTimestampInSeconds(packet, synchronizer.convertSampleNumberToTimestamp(eventInfo->getStreamId(), sampleNumber));
+		String streamKey = getDataStream(eventInfo->getStreamId())->getKey();
+
+        Event::setTimestampInSeconds(packet, synchronizer.convertSampleNumberToTimestamp(streamKey, sampleNumber));
 
 		eventQueue->addEvent(packet, sampleNumber, eventIndex);
 
@@ -779,7 +786,8 @@ void RecordNode::handleSpike(SpikePtr spike)
 
 	if (recordSpikes)
 	{
-        spike->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(spike->getStreamId(),
+		String streamKey = getDataStream(spike->getStreamId())->getKey();
+        spike->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(streamKey,
                                                                     spike->getSampleNumber()));
 		writeSpike(spike, spike->getChannelInfo());
 		eventMonitor->bufferedSpikes++;
@@ -852,6 +860,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 			streamIndex++;
 
 			const uint16 streamId = stream->getStreamId();
+			const String streamKey = stream->getKey();
 
             uint32 numSamples = getNumSamplesInBlock(streamId);
 
@@ -859,8 +868,8 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 
 			if (numSamples > 0)
 			{
-				double first = synchronizer.convertSampleNumberToTimestamp(streamId, sampleNumber);
-				double second = synchronizer.convertSampleNumberToTimestamp(streamId, sampleNumber + 1);
+				double first = synchronizer.convertSampleNumberToTimestamp(streamKey, sampleNumber);
+				double second = synchronizer.convertSampleNumberToTimestamp(streamKey, sampleNumber + 1);
 
 				fifoUsage[streamId] = dataQueue->writeSynchronizedTimestamps(
 					first,
@@ -985,6 +994,7 @@ void RecordNode::clearRecordEngines()
 void RecordNode::saveCustomParametersToXml(XmlElement* xml)
 {
 
+	/*
     xml->setAttribute ("path", dataDirectory.getFullPathName());
     xml->setAttribute("engine", recordEngine->getEngineId());
     xml->setAttribute ("recordEvents", recordEvents);
@@ -1000,14 +1010,17 @@ void RecordNode::saveCustomParametersToXml(XmlElement* xml)
     for (auto stream : getDataStreams())
     {
 
-        const uint16 streamId = stream->getStreamId();
+        //const uint16 streamId = stream->getStreamId();
+		const String streamKey = stream->getKey();
 
-        if (recordContinuousChannels[streamId].size() > 0)
+		auto selectedChannels = ((MaskChannelsParameter*)stream->getParameter("channels"))->getChannelStates();
+
+        if (selectedChannels.size() > 0)
         {
             XmlElement* streamXml = xml->createNewChildElement("STREAM");
 
-            streamXml->setAttribute("isMainStream", synchronizer.mainStreamId == streamId);
-            streamXml->setAttribute("sync_line", getSyncLine(streamId));
+            streamXml->setAttribute("isMainStream", synchronizer.mainStreamKey == streamKey);
+            streamXml->setAttribute("sync_line", getSyncLine(streamKey));
             streamXml->setAttribute("name", stream->getName());
             streamXml->setAttribute("source_node_id", stream->getSourceNodeId());
             streamXml->setAttribute("sample_rate", stream->getSampleRate());
@@ -1020,9 +1033,9 @@ void RecordNode::saveCustomParametersToXml(XmlElement* xml)
             bool allOn = true;
             bool allOff = true;
 
-            for (int ch = 0; ch < recordContinuousChannels[streamId].size(); ch++)
+            for (int ch = 0; ch < selectedChannels.size(); ch++)
             {
-                bool state = recordContinuousChannels[streamId][ch];
+                bool state = selectedChannels[ch];
 
                 if (!state)
                     allOn = false;
@@ -1043,13 +1056,14 @@ void RecordNode::saveCustomParametersToXml(XmlElement* xml)
 
         }
     }
+	*/
 }
 
 
 void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
 {
     
-    return; 
+	/*
 
     String savedPath = xml->getStringAttribute("path");
 
@@ -1092,7 +1106,8 @@ void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
         if (findMatchingStreamParameters(stream) > -1)
         {
 
-			const uint16 streamId = stream->getStreamId();
+			//const uint16 streamId = stream->getStreamId();
+			const String streamKey = stream->getKey();
 
             for (auto* subNode : xml->getChildIterator())
             {
@@ -1103,10 +1118,10 @@ void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
 
 					if (subNode->getBoolAttribute("isMainStream", false))
 					{
-						setMainDataStream(streamId);
+						setMainDataStream(stream->getKey());
 					}
 
-					setSyncLine(streamId, subNode->getIntAttribute("sync_line", 0));
+					setSyncLine(stream->getKey(), subNode->getIntAttribute("sync_line", 0));
 
 					String recordState = subNode->getStringAttribute("recording_state", "ALL");
 
@@ -1141,5 +1156,6 @@ void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
 
         }
     }
+	*/
 
 }

@@ -32,9 +32,10 @@
 
 #include "../UI/LookAndFeel/CustomLookAndFeel.h"
 
-const int NODE_WIDTH = 165;
+const int NODE_WIDTH = 180;
 const int NODE_HEIGHT = 50;
-const int BORDER_SIZE = 20;
+const int X_BORDER_SIZE = 45;
+const int Y_BORDER_SIZE = 20;
 
 GraphViewport::GraphViewport(GraphViewer* gv)
 {
@@ -221,9 +222,9 @@ void GraphViewer::addNode (GenericEditor* editor, int level, int offset)
     
     int thisNodeWidth = NODE_WIDTH;
 
-    if (gn->getName().length() > 15)
+    if (gn->getName().length() > 18)
     {
-        thisNodeWidth += (gn->getName().length() - 15) * 10;
+        thisNodeWidth += (gn->getName().length() - 18) * 10;
     }
     
     gn->setLevel(level);
@@ -284,12 +285,53 @@ int GraphViewer::getLevelStartY(int level) const
 
 void GraphViewer::paint (Graphics& g)
 {
-    
     // Draw connections
     const int numAvailableNodes = availableNodes.size();
 
     for (int i = 0; i < numAvailableNodes; ++i)
     {
+        if(availableNodes[i]->getSource() == nullptr)
+        {   
+            Path linePath;
+            Point<float> startPoint = availableNodes[i]->getSrcPoint().translated(-15, 0);
+            Point<float> endPoint = availableNodes[i]->getSrcPoint();
+
+            linePath.startNewSubPath(startPoint);
+            linePath.lineTo(endPoint);
+
+            g.setColour(Colour(30, 30, 30));
+            PathStrokeType stroke1(10.0f);
+            g.strokePath(linePath, stroke1);
+
+            g.setColour(Colour(90, 90, 90));
+            PathStrokeType stroke2(7.5f);
+            g.strokePath(linePath, stroke2);
+
+            g.setColour(Colour(150, 150, 150));
+            PathStrokeType stroke3(4.5f);
+            g.strokePath(linePath, stroke3);
+
+            Colour ellipseColour = Colour(30,30,30);
+            ColourGradient ellipseGradient = ColourGradient(Colours::lightgrey,
+                                                startPoint.x - 10.0f, startPoint.y,
+                                                Colours::grey,
+                                                startPoint.x, startPoint.y,
+                                                true);
+
+            g.setColour(ellipseColour);
+            g.drawEllipse(startPoint.x - 20.f, startPoint.y - 10.0f, 20.f, 20.f, 2.f);
+            g.setGradientFill(ellipseGradient);
+            g.fillEllipse (startPoint.x - 19.f, startPoint.y - 9.f, 18.f, 18.f);
+
+            int level = availableNodes[i]->getLevel();
+            static const String letters = "ABCDEFGHI";            
+
+            g.setColour(Colours::black);
+            g.setFont(Font("Silkscreen", "Regular", 14));
+            g.drawText (String::charToString(letters[level]), startPoint.x - 20, startPoint.y - 10, 20, 20, Justification::centred, true);
+
+        }
+
         if (! availableNodes[i]->isSplitter())
         {
             if (availableNodes[i]->getDest() != nullptr)
@@ -329,56 +371,76 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
     float y2 = end.getY();
     
     linePath.startNewSubPath (x1, y1);
-    linePath.cubicTo (x1 + (x2 - x1) * 0.9f, y1,
-                      x1 + (x2 - x1) * 0.1f, y2,
+    
+    linePath.cubicTo (x2, y1,
+                      x1, y2,
                       x2, y2);
     
     
     g.setColour (Colour(30,30,30));
     PathStrokeType stroke3 (3.5f);
     Path arrowPath;
-    stroke3.createStrokeWithArrowheads(arrowPath, linePath, 0.0f, 0.0f, 10.0f, 10.0f);
+    stroke3.createStrokedPath(arrowPath, linePath);
     g.fillPath(arrowPath);
-    // g.strokePath (linePath, stroke3);
     
     g.setColour (Colours::grey);
     PathStrokeType stroke2 (2.0f);
     Path arrowPath2;
-    stroke2.createStrokeWithArrowheads(arrowPath2, linePath, 0.0f, 0.0f, 8.5f, 8.5f);
+    stroke2.createStrokedPath(arrowPath2, linePath);
     g.fillPath(arrowPath2);
+
+    g.drawArrow(Line<float>(x2 - 9.f, y2, x2 + 1.0f, y2), 0.0f, 10.f, 10.f);
 }
 
 /// ------------------------------------------------------
 
 
-DataStreamInfo::DataStreamInfo(DataStream* stream_)
+DataStreamInfo::DataStreamInfo(DataStream* stream_, GenericEditor* editor, GraphNode* node_)
     :  stream(stream_)
+    ,  node(node_)
 {
     
     streamParameterEditorComponent = std::make_unique<Component>(stream->getName());
 
-    auto editors = stream->createDefaultEditor();
+    auto pEditors = stream->createDefaultEditor();
 
-    int yPos = 0;
-    const int rowWidthPixels = 140;
-    const int rowHeightPixels = 18;
+    int yPos = pEditors.size() > 0 ? 5 : 0;
+    const int rowWidthPixels = 170;
+    const int rowHeightPixels = 20;
 
-    for (auto editor : editors)
+    for (auto paramEditor : pEditors)
     {
         // set parameter editor bounds
-        editor->setBounds(0, yPos, rowWidthPixels, rowHeightPixels);
-        yPos += rowHeightPixels;
+        paramEditor->setBounds(5, yPos, rowWidthPixels, rowHeightPixels);
+        yPos += rowHeightPixels + 5;
 
         //transfer ownership to DataStreamInfo
-        parameterEditors.add(editor);
+        parameterEditors.add(paramEditor);
 
         streamParameterEditorComponent->addAndMakeVisible(parameterEditors.getLast());
     }
+    
+    editorHeight = yPos;
+    heightInPixels = 60;
 
-    streamParameterEditorComponent->setBounds(0, 60, rowWidthPixels, yPos);
-	addAndMakeVisible(streamParameterEditorComponent.get());
+    if(parameterEditors.size() > 0)
+    {
+        parameterPanel = std::make_unique<ConcertinaPanel>();
+        parameterPanel->addPanel(-1, streamParameterEditorComponent.get(), false);
+        parameterPanel->setMaximumPanelSize(streamParameterEditorComponent.get(),
+                                            editorHeight);
 
-    heightInPixels = streamParameterEditorComponent->getHeight() + 60;
+        parameterButton = new DataStreamButton(this, editor, "Parameters");
+        parameterButton->addListener(this);
+        parameterPanel->setCustomPanelHeader(streamParameterEditorComponent.get(), parameterButton, true);
+        // button->removeMouseListener(button->getParentComponent());
+
+        addAndMakeVisible(parameterPanel.get());
+        parameterPanel->addMouseListener(this, true);
+        parameterPanel->setBounds(0, 60, NODE_WIDTH, 20);
+
+        heightInPixels += 20;
+    }
     
 }
 
@@ -413,6 +475,46 @@ void DataStreamInfo::paint(Graphics& g)
 
 }
 
+void DataStreamInfo::buttonClicked(Button* button)
+{
+    DataStreamButton* dsb = (DataStreamButton*)button;
+
+    if (dsb != parameterButton)
+        return;
+
+    // expand/collapse panel and inform node about new size
+    if (button->getToggleState())
+    {
+        heightInPixels = editorHeight + 80;
+        node->updateBoundaries();
+        parameterPanel->setSize(NODE_WIDTH, editorHeight + 20);
+        parameterPanel->expandPanelFully(streamParameterEditorComponent.get(), false);
+    }
+    else
+    {
+        heightInPixels = 80;
+        node->updateBoundaries();
+        parameterPanel->setSize(NODE_WIDTH, 20);
+        parameterPanel->setPanelSize(streamParameterEditorComponent.get(), 0, false);
+    }
+
+    node->setDataStreamPanelSize(this, heightInPixels);
+    node->updateGraphView();
+}
+
+int DataStreamInfo::getDesiredHeight() const
+{
+    return heightInPixels;
+}
+
+int DataStreamInfo::getMaxHeight() const
+{
+    if (parameterEditors.size() > 0)
+        return editorHeight + 80;
+    else
+        return 60;
+}
+
 
 ProcessorParameterComponent::ProcessorParameterComponent(GenericProcessor* p)
     :  processor(p)
@@ -422,15 +524,15 @@ ProcessorParameterComponent::ProcessorParameterComponent(GenericProcessor* p)
 
     auto editors = processor->createDefaultEditor();
 
-    int yPos = 0;
-    const int rowWidthPixels = 140;
+    int yPos = editors.size() > 0 ? 5 : 0;
+    const int rowWidthPixels = 170;
     const int rowHeightPixels = 20;
 
     for (auto editor : editors)
     {
         // set parameter editor bounds
-        editor->setBounds(0, yPos, rowWidthPixels, rowHeightPixels);
-        yPos += rowHeightPixels;
+        editor->setBounds(5, yPos, rowWidthPixels, rowHeightPixels);
+        yPos += rowHeightPixels + 5;
 
         //transfer ownership to DataStreamInfo
         parameterEditors.add(editor);
@@ -467,10 +569,9 @@ void ProcessorParameterComponent::updateView()
 }
 
 
-DataStreamButton::DataStreamButton(GenericEditor* editor_, const DataStream* stream_, DataStreamInfo* info_)
-    : Button(stream_->getName())
+DataStreamButton::DataStreamButton(DataStreamInfo* info_, GenericEditor* editor_, const String& text)
+    : Button(text)
     , editor(editor_)
-    , stream(stream_)
     , info(info_)
 {
     setClickingTogglesState(true);
@@ -492,7 +593,7 @@ DataStreamButton::~DataStreamButton()
 
 int DataStreamButton::getDesiredHeight() const
 {
-    return info->heightInPixels;
+    return info->getDesiredHeight();
 }
 
 void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
@@ -504,7 +605,11 @@ void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
     g.setColour(Colours::lightgrey);
     g.fillRect(1, 0, 24, getHeight() - 1);
 
-    g.setColour(editor->getBackgroundColor().withAlpha(0.5f));
+    if(getButtonText().equalsIgnoreCase("Parameters"))
+        g.setColour(editor->getBackgroundColor().withSaturation(0.5f).withAlpha(0.7f));
+    else
+        g.setColour(editor->getBackgroundColor().withAlpha(0.5f));
+
     g.fillRect(25, 0, getWidth() - 26, getHeight() - 1);
 
     g.setColour(Colour(30, 30, 30));
@@ -515,7 +620,7 @@ void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
         g.fillPath(pathClosed);
 
     g.setColour(Colours::white);
-    g.drawText(stream->getName(), 30, 0, getWidth()-30, 20, Justification::left);
+    g.drawText(getButtonText(), 30, 0, getWidth()-30, 20, Justification::left);
 
 }
 
@@ -554,12 +659,12 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
         for (auto stream : processor->getDataStreams())
         {
 
-            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()));
+            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()), editor, this);
             infoPanel->addPanel(-1, info, true);
-            infoPanel->setMaximumPanelSize(info, info->heightInPixels);
+            infoPanel->setMaximumPanelSize(info, info->getMaxHeight());
             dataStreamInfos.add(info);
 
-            DataStreamButton* button = new DataStreamButton(editor, stream, info);
+            DataStreamButton* button = new DataStreamButton(info, editor, stream->getName());
             button->addListener(this);
             infoPanel->setCustomPanelHeader(info, button, true);
             button->removeMouseListener(button->getParentComponent());
@@ -570,14 +675,15 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
         infoPanel->addMouseListener(this, true);
     }
    
-    setBounds(BORDER_SIZE + getHorzShift() * NODE_WIDTH,
-        BORDER_SIZE + getLevel() * NODE_HEIGHT,
+    setBounds(X_BORDER_SIZE + getHorzShift() * NODE_WIDTH,
+        Y_BORDER_SIZE + getLevel() * NODE_HEIGHT,
         nodeWidth,
         40);
 
     previousHeight = 0;
     verticalOffset = 0;
 
+    nodeDropShadower.setOwner(this);
 }
 
 
@@ -618,8 +724,7 @@ void GraphNode::setWidth(int width)
 
 void GraphNode::mouseEnter (const MouseEvent& m)
 {
-    if (m.getPosition().getY() < 20)
-        isMouseOver = true;
+    isMouseOver = true;
     
     repaint();
 }
@@ -655,8 +760,7 @@ void GraphNode::mouseDown (const MouseEvent& m)
             infoPanel->expandPanelFully(processorParamComponent.get(), false);
         }
 
-        gv->updateBoundaries();
-        gv->repaint();
+        updateGraphView();
     }
 }
 
@@ -668,12 +772,11 @@ void GraphNode::buttonClicked(Button* button)
     DataStreamButton* dsb = (DataStreamButton*)button;
 
     if (button->getToggleState())
-        infoPanel->expandPanelFully(dsb->getComponent(), false);
+        infoPanel->setPanelSize(dsb->getComponent(), dsb->getDesiredHeight() , false);
     else
         infoPanel->setPanelSize(dsb->getComponent(), 0, false);
 
-    gv->updateBoundaries();
-    gv->repaint();
+    updateGraphView();
 }
 
 
@@ -765,19 +868,32 @@ void GraphNode::updateBoundaries()
             panelHeight += 20;
     }
 
-    infoPanel->setBounds(23, 0, NODE_WIDTH - 23, panelHeight);
+    infoPanel->setBounds(0, 0, NODE_WIDTH, panelHeight);
 
     int nodeY = gv->getLevelStartY(getLevel());
     if (nodeY == 0)
-        setBounds(BORDER_SIZE + getHorzShift() * (NODE_WIDTH + 50),
-            BORDER_SIZE + getLevel() * (NODE_HEIGHT + 35),
+        setBounds(X_BORDER_SIZE + getHorzShift() * (NODE_WIDTH + X_BORDER_SIZE),
+            Y_BORDER_SIZE + getLevel() * (NODE_HEIGHT + 35),
             nodeWidth,
             panelHeight);
     else
-        setBounds(BORDER_SIZE + getHorzShift() * (NODE_WIDTH + 50),
+        setBounds(X_BORDER_SIZE + getHorzShift() * (NODE_WIDTH + X_BORDER_SIZE),
             nodeY,
             nodeWidth,
             panelHeight);
+}
+
+
+void GraphNode::updateGraphView()
+{
+    gv->updateBoundaries();
+    gv->repaint();
+}
+
+
+void GraphNode::setDataStreamPanelSize(Component* panelComponent, int height)
+{
+    infoPanel->setPanelSize(panelComponent, height, false);
 }
 
 
@@ -807,12 +923,12 @@ void GraphNode::updateStreamInfo()
         for (auto stream : processor->getDataStreams())
         {
             LOGDD("Adding data stream info and buttons for stream: ", stream->getName());
-            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()));
+            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()), editor, this);
             infoPanel->addPanel(-1, info, true);
-            infoPanel->setMaximumPanelSize(info, info->heightInPixels);
+            infoPanel->setMaximumPanelSize(info, info->getMaxHeight());
             dataStreamInfos.add(info);
 
-            DataStreamButton* button = new DataStreamButton(editor, stream, info);
+            DataStreamButton* button = new DataStreamButton(info, editor, stream->getName());
             button->addListener(this);
             infoPanel->setCustomPanelHeader(info, button, true);
             button->removeMouseListener(button->getParentComponent());
@@ -880,75 +996,20 @@ String GraphNode::getInfoString()
 
 
 void GraphNode::paint (Graphics& g)
-{
-    //if (isMouseOver)
-    //{
-    //    g.setColour (Colours::yellow);
-   // } else {
-   //     
-   // }
-
-    Path linePath;
-    float x1 = 8;
-    float y1 = 11;
-    float x2 = 40;
-    float y2 = 11;
-
-    linePath.startNewSubPath(x1, y1);
-    linePath.lineTo(x2, y2);
-
+{   
     g.setColour(Colour(30, 30, 30));
-    PathStrokeType stroke1(10.0f);
-    g.strokePath(linePath, stroke1);
-
-    g.setColour(Colour(90, 90, 90));
-    PathStrokeType stroke2(7.5f);
-    g.strokePath(linePath, stroke2);
-
-    g.setColour(Colour(150, 150, 150));
-    PathStrokeType stroke3(4.5f);
-    g.strokePath(linePath, stroke3);
-    
-    g.setColour(Colour(30, 30, 30));
-    g.fillRect(23, 0, getWidth() - 23, 20);
+    g.fillRect(0, 0, getWidth(), 20);
 
     g.setColour(Colours::lightgrey);
-    g.fillRect(24, 1, 24, 18);
+    g.fillRect(1, 1, 24, 18);
     g.setColour(editor->getBackgroundColor());
-    g.fillRect(48, 1, getWidth() - 49, 18);
-
-    ColourGradient ellipseGradient;
-    Colour ellipseColour;
-    
-    if (isMouseOver)
-    {
-        ellipseColour = Colours::yellow;
-        ellipseGradient = ColourGradient(Colours::yellow,
-                            6,11,
-                            Colours::orange,
-                            12,12,
-                            true);
-        
-    } else {
-        ellipseColour = Colour(30,30,30);
-        ellipseGradient = ColourGradient(Colours::lightgrey,
-                            6,11,
-                            Colours::grey,
-                            12,12,
-                            true);
-    }
-
-    g.setColour(ellipseColour);
-    g.drawEllipse(0.5f,5,12,12,1.5f);
-    g.setGradientFill(ellipseGradient);
-    g.fillEllipse (0.5f, 5.5f, 11, 11);
+    g.fillRect(25, 1, getWidth() - 26, 18);
 
     g.setFont(Font("Fira Code", "SemiBold", 14));
     g.setColour (Colours::black); // : editor->getBackgroundColor());
-    g.drawText (String(nodeId), 24, 0, 23, 20, Justification::centred, true);
+    g.drawText (String(nodeId), 1, 0, 23, 20, Justification::centred, true);
     g.setColour(Colours::white); // : editor->getBackgroundColor());
-    g.drawText(getName(), 52, 0, getWidth() - 52, 20, Justification::left, true);
-
+    g.drawText(getName(), 29, 0, getWidth() - 29, 20, Justification::left, true);
 }
 
 void GraphNode::paintOverChildren(Graphics& g)
@@ -956,6 +1017,6 @@ void GraphNode::paintOverChildren(Graphics& g)
     g.setColour(Colours::yellow);
     if (isMouseOver)
     {
-        g.drawRect(22, 0, getWidth() - 22, getHeight(), 2);
+        g.drawRect(0, 0, getWidth(), getHeight(), 2);
     }
 }
