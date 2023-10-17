@@ -312,7 +312,6 @@ void SyncChannelsParameterEditor::componentBeingDeleted(Component& component)
 		int streamIdx = 0;
 		for (auto& stream : recordNode->getDataStreams())
 		{
-			LOGD("Comparing: ", stream->getStreamId(), " to: ", ((DataStream*)param->getOwner())->getStreamId());
 			if (stream->getStreamId() == ((DataStream*)param->getOwner())->getStreamId())
 				break;
 			streamIdx++;

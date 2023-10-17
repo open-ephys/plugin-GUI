@@ -260,6 +260,8 @@ bool FileReader::setFile (String fullpath, bool shouldUpdateSignalChain)
     
     SelectedStreamParameter* activeStreamParam = (SelectedStreamParameter*)getParameter("active_stream");
     activeStreamParam->setStreamNames(streamNames);
+    activeStreamParam->setNextValue(0, false);
+    parameterValueChanged(activeStreamParam);
 
     TimeParameter* startTime = static_cast<TimeParameter*>(getParameter("start_time"));
     startTime->getTimeValue()->setMaxTimeInMilliseconds(samplesToMilliseconds (input->getActiveNumSamples()));
@@ -283,9 +285,6 @@ bool FileReader::setFile (String fullpath, bool shouldUpdateSignalChain)
     }
     
     gotNewFile = true;
-
-    if(shouldUpdateSignalChain)
-        CoreServices::updateSignalChain (this);
 
     return true;
 }
@@ -378,8 +377,8 @@ void FileReader::setActiveStream (int index)
 	
     input->seekTo(startSample);
     
-    gotNewFile = true;
-
+    updateSettings();
+    CoreServices::updateSignalChain (this);
    
 }
 
@@ -431,7 +430,7 @@ void FileReader::updateSettings()
         return;
     }
 
-    if (gotNewFile)
+    if (true)
     {
 
         LOGD("File Reader got new file.");

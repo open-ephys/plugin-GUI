@@ -659,7 +659,7 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
         for (auto stream : processor->getDataStreams())
         {
 
-            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()), editor, this);
+            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getKey()), editor, this);
             infoPanel->addPanel(-1, info, true);
             infoPanel->setMaximumPanelSize(info, info->getMaxHeight());
             dataStreamInfos.add(info);

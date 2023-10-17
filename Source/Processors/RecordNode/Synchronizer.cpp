@@ -155,6 +155,9 @@ void Synchronizer::reset()
 
 	if (streamCount == 1)
 	{
+		// TOFIX: Return early if main data stream hasn't been added while loading
+		// Ideally shouldn't need this return statement
+		if (streams.count(mainStreamKey) == 0) return;
 		streams[mainStreamKey]->actualSampleRate = streams[mainStreamKey]->expectedSampleRate;
 		streams[mainStreamKey]->isSynchronized = true;
 		streams[mainStreamKey]->startSampleMainTime = 0.0;
@@ -170,7 +173,7 @@ void Synchronizer::reset()
 void Synchronizer::prepareForUpdate()
 {
 	previousMainStreamKey = mainStreamKey;
-	mainStreamKey = "";
+	//mainStreamKey = "";
 	streamCount = 0;
 
 	for (auto [id, stream] : streams)
