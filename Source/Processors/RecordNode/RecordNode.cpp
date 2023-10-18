@@ -85,10 +85,11 @@ RecordNode::~RecordNode()
 
 void RecordNode::registerParameters()
 {
-    addPathParameter(Parameter::PROCESSOR_SCOPE, "directory", "Directory", "Path to write data to", CoreServices::getDefaultUserSaveDirectory().getFullPathName(), {}, true);
-    addCategoricalParameter(Parameter::PROCESSOR_SCOPE, "engine", "Engine", "Recording data format", {}, 0, true);
-    addBooleanParameter(Parameter::PROCESSOR_SCOPE, "events", "Record Events", "Toggle saving events coming into this node", true);
-    addBooleanParameter(Parameter::PROCESSOR_SCOPE, "spikes", "Record Spikes", "Toggle saving spikes coming into this node", true);
+	String defaultRecordDirectory = CoreServices::getRecordingParentDirectory().getFullPathName();
+	addPathParameter(Parameter::PROCESSOR_SCOPE, "directory", "Directory", "Path to write data to", defaultRecordDirectory, {}, true);
+	addCategoricalParameter(Parameter::PROCESSOR_SCOPE, "engine", "Engine", "Recording data format", {}, 0, true);
+	addBooleanParameter(Parameter::PROCESSOR_SCOPE, "events", "Record Events", "Toggle saving events coming into this node", true);
+	addBooleanParameter(Parameter::PROCESSOR_SCOPE, "spikes", "Record Spikes", "Toggle saving spikes coming into this node", true);
 
 	Array<String> recordEngines;
 	std::vector<RecordEngineManager*> engines = getAvailableRecordEngines();
@@ -110,6 +111,8 @@ void RecordNode::parameterValueChanged(Parameter* p)
 	if (p->getName() == "directory")
 	{
 		String newPath = static_cast<PathParameter*>(p)->getValue();
+		if (newPath == "default" || !File(newPath).exists())
+			newPath = CoreServices::getRecordingParentDirectory().getFullPathName();
 		setDataDirectory(File(newPath));
 	}
 	else if (p->getName() == "engine")
