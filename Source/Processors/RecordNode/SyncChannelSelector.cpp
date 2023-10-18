@@ -96,6 +96,7 @@ void SetButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 //SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx, bool isPrimary_)
 SyncChannelSelector::SyncChannelSelector(SyncChannelSelector::Listener* listener_, std::vector<bool> channelStates)
     : listener(listener_),
+    isPrimary(false),
     nChannels(channelStates.size()),
     detectedChange(false)
 {
