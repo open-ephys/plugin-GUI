@@ -557,7 +557,11 @@ SelectedChannelsParameter::SelectedChannelsParameter(ParameterOwner* owner,
     maxSelectableChannels(maxSelectableChannels_),
     channelCount(0)
 {
-
+    //Set default selected to the first maxSelectableChannels channels
+    Array<var> values;
+    for (int i = 0; i < maxSelectableChannels; i++)
+        values.add(i);
+    currentValue = values;
 }
 
 void SelectedChannelsParameter::setNextValue(var newValue_, bool undoable)
