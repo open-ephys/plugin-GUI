@@ -53,29 +53,15 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
 
     sourceNode = sn;
 
-    if (sourceNodeA == nullptr && sourceNodeB == nullptr)
+    if (activePath == 0)
     {
+        LOGD("Setting source node A.");
         sourceNodeA = sn;
-        activePath = 0;
-        
-        if(!headlessMode)
-        {
-            MergerEditor* ed = (MergerEditor*)getEditor();
-            ed->switchSource(activePath, false);
-        }
     }
     else
     {
-        if (activePath == 0)
-        {
-            LOGD("Setting source node A.");
-            sourceNodeA = sn;
-        }
-        else
-        {
         LOGD("Setting source node B.");
-            sourceNodeB = sn;
-        }
+        sourceNodeB = sn;
     }
 
 }
@@ -174,19 +160,19 @@ void Merger::switchIO()
 
 void Merger::lostInput()
 {
-    if (sourceNodeA == nullptr && sourceNodeB != nullptr)
-    {
-        sourceNodeA = sourceNodeB;
-        sourceNodeB = nullptr;
+    // if (sourceNodeA == nullptr && sourceNodeB != nullptr)
+    // {
+    //     // sourceNodeA = sourceNodeB;
+    //     // sourceNodeB = nullptr;
         
-        MergerEditor* ed = (MergerEditor*)getEditor();
-        ed->switchSource(0);
-    }
-    else if (sourceNodeB == nullptr && sourceNodeA != nullptr)
-    {
-        MergerEditor* ed = (MergerEditor*)getEditor();
-        ed->switchSource(0);
-    }
+    //     MergerEditor* ed = (MergerEditor*)getEditor();
+    //     ed->switchSource(1);
+    // }
+    // else if (sourceNodeB == nullptr && sourceNodeA != nullptr)
+    // {
+    //     MergerEditor* ed = (MergerEditor*)getEditor();
+    //     ed->switchSource(0);
+    // }
 }
 
 GenericProcessor* Merger::getSourceNode(int path)
@@ -355,33 +341,32 @@ void Merger::restoreConnections()
             {
                 for (auto* mergerSettings : mainNode->getChildIterator())
                 {
-                   int nodeIdA = mergerSettings->getIntAttribute("NodeA");
-                   int nodeIdB = mergerSettings->getIntAttribute("NodeB");
+                    int nodeIdA = mergerSettings->getIntAttribute("NodeA");
+                    int nodeIdB = mergerSettings->getIntAttribute("NodeB");
 
-                   ProcessorGraph* gr = AccessClass::getProcessorGraph();
-                   Array<GenericProcessor*> p = gr->getListOfProcessors();
+                    ProcessorGraph* gr = AccessClass::getProcessorGraph();
+                    Array<GenericProcessor*> p = gr->getListOfProcessors();
 
-                   for (int k = 0; k < p.size(); k++)
-                   {
-                       if (p[k]->getNodeId() == nodeIdA)
-                       {
-                          LOGD("Setting Merger source A to ", nodeIdA);
-                          switchIO(0);
-                          setMergerSourceNode(p[k]);
-                          p[k]->setDestNode(this);
-                           
-                          if (editor != nullptr)
-                              editor->switchSource(0);
-                       }
-                       else if (p[k]->getNodeId() == nodeIdB)
+                    sourceNode = nullptr;
+                    sourceNodeA = nullptr;
+                    sourceNodeB = nullptr;
+
+
+                    for (int k = 0; k < p.size(); k++)
+                    {
+                        if (p[k]->getNodeId() == nodeIdA)
+                        {
+                            LOGD("Setting Merger source A to ", nodeIdA);
+                            switchIO(0);
+                            setMergerSourceNode(p[k]);
+                            p[k]->setDestNode(this);
+                        }
+                        else if (p[k]->getNodeId() == nodeIdB)
                         {
                             LOGD("Setting Merger source B to ", nodeIdB);
                             switchIO(1);
                             setMergerSourceNode(p[k]);
                             p[k]->setDestNode(this);
-                            
-                            if (editor != nullptr)
-                                editor->switchSource(1);
                         }
                     }
                     

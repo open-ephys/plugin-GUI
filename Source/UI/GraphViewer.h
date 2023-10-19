@@ -194,6 +194,9 @@ public:
     /** Returns location of component end point */
     juce::Point<float> getDestPoint() const;
     
+    /** Returns processor for the node*/
+    GenericProcessor* getProcessor() const { return processor; }
+
     /** Returns editor of downstream node */
     GenericEditor* getDest()    const;
     
@@ -366,6 +369,8 @@ private:
     void connectNodes (int, int, Graphics&);
 
     OwnedArray<GraphNode> availableNodes;
+
+    Array<GenericProcessor*> rootProcessors;
 
     std::map<int, int> levelStartY;
 

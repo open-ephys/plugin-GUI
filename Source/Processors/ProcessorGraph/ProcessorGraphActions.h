@@ -142,6 +142,7 @@ private:
     int sourceNodeId;
     int destNodeId;
     int nodeId;
+    int mergerPath;
     
     std::unique_ptr<XmlElement> settings;
     

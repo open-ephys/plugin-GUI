@@ -195,6 +195,16 @@ DeleteProcessor::DeleteProcessor(GenericProcessor* processor_)
         destNodeId = processor->getDestNode()->getNodeId();
     else
         destNodeId = -1;
+
+    if (destNodeId != -1 && processor->getDestNode()->isMerger())
+    {
+        Merger* merger = (Merger*)processor->getDestNode();
+        mergerPath = merger->getPath();
+    }
+    else
+    {
+        mergerPath = -1;
+    }
 }
 
 DeleteProcessor::~DeleteProcessor()
@@ -227,6 +237,12 @@ bool DeleteProcessor::undo()
     GenericProcessor* sourceProcessor = processorGraph->getProcessorWithNodeId(sourceNodeId);
     
     GenericProcessor* destProcessor = processorGraph->getProcessorWithNodeId(destNodeId);
+
+    if (mergerPath != -1 && destProcessor != nullptr && destProcessor->isMerger())
+    {
+        Merger* merger = (Merger*)destProcessor;
+        merger->switchIO(mergerPath);
+    }
     
     processor = processorGraph->createProcessor(description,
                                         sourceProcessor,

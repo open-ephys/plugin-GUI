@@ -93,7 +93,7 @@ void GraphViewer::updateBoundaries()
 }
 
 
-void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcessor*> rootProcessors)
+void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcessor*> newRoots)
 {
     // Remove nodes that are not needed anymore
     Array<GraphNode*> nodesToDelete;
@@ -109,6 +109,8 @@ void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcesso
         availableNodes.removeObject(node, true);
     }
 
+    rootProcessors = newRoots;
+
     Array<Splitter*> splitters;
 
     int level = -1;
@@ -117,7 +119,7 @@ void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcesso
     for (auto processor : rootProcessors)
     {
         int horzShift = -1;
-        level++;
+        level = jmax(rootProcessors.indexOf(processor), level + 1);
 
         while ((processor != nullptr) || (splitters.size() > 0))
         {
@@ -134,12 +136,24 @@ void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcesso
                         if(nodeA != nullptr)
                         {
                             level = nodeA->getLevel();
-                            horzShift = nodeA->getHorzShift() + 1;
+                            int horzShiftA = nodeA->getHorzShift();
+                            int horzShiftB = 0;
+
+                            if(merger->getSourceNode(1) != nullptr)
+                            {
+                                GraphNode* nodeB = getNodeForEditor(merger->getSourceNode(1)->getEditor());
+                                if(nodeB != nullptr)
+                                    horzShiftB = nodeB->getHorzShift();
+                            }
+                                
+                            horzShift = jmax(horzShiftA, horzShiftB) + 1;
                         }
                     }
-                    else if(merger->getSourceNode(1) != nullptr)
+                    else if(merger->getSourceNode(0) == nullptr && merger->getSourceNode(1) != nullptr)
                     {
-                        level = getNodeForEditor(merger->getSourceNode(1)->getEditor())->getLevel();
+                        GraphNode* mergerNode = getNodeForEditor(merger->getEditor());
+                        if(mergerNode != nullptr)
+                            level = mergerNode->getLevel();
                     }
                 }
 
@@ -323,8 +337,8 @@ void GraphViewer::paint (Graphics& g)
             g.setGradientFill(ellipseGradient);
             g.fillEllipse (startPoint.x - 19.f, startPoint.y - 9.f, 18.f, 18.f);
 
-            int level = availableNodes[i]->getLevel();
-            static const String letters = "ABCDEFGHI";            
+            int level = rootProcessors.indexOf(availableNodes[i]->getProcessor());
+            static const String letters = "ABCDEFGHI";
 
             g.setColour(Colours::black);
             g.setFont(Font("Silkscreen", "Regular", 14));
