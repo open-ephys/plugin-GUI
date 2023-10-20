@@ -250,6 +250,12 @@ bool DeleteProcessor::undo()
                                         false);
     processor->parametersAsXml = settings.get();
 
+    if(processor->isMerger())
+    {
+        Merger* merger = (Merger*)processor;
+        merger->restoreConnections();
+    }
+
     processor->loadFromXml();
     
     processorGraph->updateSettings(processor);

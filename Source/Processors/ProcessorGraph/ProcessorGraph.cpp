@@ -1334,15 +1334,6 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
     {
         if (!processor->isMerger())
         {
-            if (originalSource != nullptr)
-            {
-                LOGD("REMOVING PROCESSOR : ", processor->getName(), ". Orig Dest: ", originalDest->getName(), ". Orig Source: ", originalSource->getName());
-            }
-            else
-            {
-                LOGD("REMOVING PROCESSOR : ", processor->getName(), ". Orig Dest: ", originalDest->getName(), ". Orig Source: NULL");
-            }
-
             originalDest->setSourceNode(originalSource);
         } else
         {
