@@ -71,6 +71,7 @@ void GraphViewport::resized()
 
 GraphViewer::GraphViewer()
 {
+    setBufferedToImage(true);
     setRepaintsOnMouseActivity(false);
     graphViewport = std::make_unique<GraphViewport>(this);
 }
@@ -118,7 +119,7 @@ void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcesso
 
     for (auto processor : rootProcessors)
     {
-        int horzShift = -1;
+        int horzShift = processor->isSource() ? -1 : 0;
         level = jmax(rootProcessors.indexOf(processor), level + 1);
 
         while ((processor != nullptr) || (splitters.size() > 0))
@@ -304,12 +305,49 @@ void GraphViewer::paint (Graphics& g)
 
     for (int i = 0; i < numAvailableNodes; ++i)
     {
-        if(availableNodes[i]->getSource() == nullptr)
+        if(rootProcessors.contains(availableNodes[i]->getProcessor()))
         {   
-            Path linePath;
-            Point<float> startPoint = availableNodes[i]->getSrcPoint().translated(-15, 0);
-            Point<float> endPoint = availableNodes[i]->getSrcPoint();
+            auto nodeProcessor = availableNodes[i]->getProcessor();
+            float endX;
 
+            /* If RootProcessor is not a source node, draw an empty node 
+             * at the beginning of the signal chain */
+            if ( !nodeProcessor->isSource())
+            {
+                // Merger* merger = (Merger*) nodeProcessor;
+                // if(merger->getSourceNode(0) == nullptr && merger->getSourceNode(1) != nullptr)
+                // {
+                endX = X_BORDER_SIZE;
+
+                g.setColour(Colour(150, 150, 150));
+                g.drawRect(endX, availableNodes[i]->getSrcPoint().y - 10, (float)NODE_WIDTH, 20.0f, 2.0f);
+                
+                g.setFont(Font("Fira Code", "SemiBold", 14));
+                g.drawFittedText("No Source", endX, availableNodes[i]->getSrcPoint().y - 10,
+                    (float)NODE_WIDTH, 20.0f, Justification::centred, 1);
+                
+                Path dashedLinePath;
+                dashedLinePath.startNewSubPath(endX + (float)NODE_WIDTH, availableNodes[i]->getSrcPoint().y);
+                dashedLinePath.lineTo(availableNodes[i]->getSrcPoint());
+
+                PathStrokeType stroke3(2.0f);
+                const float dashLengths[2] = { 5.0f, 5.0f };
+                stroke3.createDashedStroke(dashedLinePath, dashedLinePath, dashLengths, 2);
+
+                g.fillPath(dashedLinePath);
+                g.drawArrow(Line<float>(availableNodes[i]->getSrcPoint().translated(- 9.0f, 0.0f), 
+                    availableNodes[i]->getSrcPoint().translated(1.0f, 0.0f)), 0.0f, 10.f, 10.f);
+                // }
+            }
+            else
+            {
+                endX = availableNodes[i]->getSrcPoint().x;
+            }
+
+            Point<float> startPoint = Point<float>(X_BORDER_SIZE - 15, availableNodes[i]->getSrcPoint().y);
+            Point<float> endPoint = Point<float>(endX, availableNodes[i]->getSrcPoint().y);
+
+            Path linePath;
             linePath.startNewSubPath(startPoint);
             linePath.lineTo(endPoint);
 
@@ -337,7 +375,7 @@ void GraphViewer::paint (Graphics& g)
             g.setGradientFill(ellipseGradient);
             g.fillEllipse (startPoint.x - 19.f, startPoint.y - 9.f, 18.f, 18.f);
 
-            int level = rootProcessors.indexOf(availableNodes[i]->getProcessor());
+            int level = rootProcessors.indexOf(nodeProcessor);
             static const String letters = "ABCDEFGHI";
 
             g.setColour(Colours::black);
