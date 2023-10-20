@@ -714,7 +714,6 @@ public:
 
             if (!CoreServices::getAcquisitionStatus())
             {
-                const MessageManagerLock mml;
                 graph_->getUndoManager()->redo();
                 return_msg = "Redo operation completed successfully.";
             } else {
@@ -790,6 +789,8 @@ public:
                     res.status = 400;
                     return;
                 }
+
+                const MessageManagerLock mml;
 
                 parameter->setNextValue(val);
 
