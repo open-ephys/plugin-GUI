@@ -54,6 +54,8 @@ AddProcessor::AddProcessor(Plugin::Description description_,
         destNodeId = destProcessor->getNodeId();
     else
         destNodeId = -1;
+    
+    mergerPath = -1;
 }
 
 AddProcessor::~AddProcessor()
@@ -90,6 +92,13 @@ bool AddProcessor::perform()
     if (processor != nullptr)
     {
         nodeId = processor->getNodeId();
+        
+        if (destProcessor != nullptr && destProcessor->isMerger())
+        {
+            Merger* merger = (Merger*)destProcessor;
+            mergerPath = merger->getSourceNode(0)->getNodeId() == nodeId ? 0 : 1;
+        }
+
         return true;
     }
     else
@@ -98,7 +107,7 @@ bool AddProcessor::perform()
 
 bool AddProcessor::undo()
 {
-    LOGD("Undoing ADD for processor ", nodeId);
+    LOGDD("Undoing ADD for processor ", nodeId);
 
     Array<GenericProcessor*> processorToDelete;
     
@@ -107,6 +116,13 @@ bool AddProcessor::undo()
     
     if (settings != nullptr)
         delete settings;
+    
+    GenericProcessor* destProcessor = processor->getDestNode();
+    if (mergerPath != -1 && destProcessor != nullptr && destProcessor->isMerger())
+    {
+        Merger* merger = (Merger*)destProcessor;
+        merger->switchIO(mergerPath);
+    }
     
     if (processor != nullptr)
     {

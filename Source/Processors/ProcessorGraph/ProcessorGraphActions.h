@@ -65,6 +65,8 @@ private:
     bool signalChainIsLoading;
     
     int nodeId;
+
+    int mergerPath;
     
     Plugin::Description description;
 
