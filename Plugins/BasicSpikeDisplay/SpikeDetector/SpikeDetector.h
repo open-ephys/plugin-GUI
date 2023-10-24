@@ -238,6 +238,10 @@ public:
     /** Get array of local SpikeChannel objects for a given dataStream*/
     Array<SpikeChannel*> getSpikeChannelsForStream(uint16 streamId);
 
+    /** Checks whether a spike channel has been loaded, to prevent double-loading
+    when there is a Merger in the signal chain */
+    bool alreadyLoaded(String name, SpikeChannel::Type type, int stream_source, String stream_name);
+
 private:
 
     // INTERNAL BUFFERS
@@ -255,10 +259,6 @@ private:
     void addWaveformToSpikeBuffer (Spike::Buffer& s,
                                     int sampleIndex,
                                    AudioBuffer<float>& buffer);
-    
-    /** Checks whether a spike channel has been loaded, to prevent double-loading
-        when there is a Merger in the signal chain */
-    bool alreadyLoaded(String name, SpikeChannel::Type type, int stream_source, String stream_name);
 
     StreamSettings<SpikeDetectorSettings> settings;
 

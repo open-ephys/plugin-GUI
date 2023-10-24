@@ -126,8 +126,8 @@ void Parameter::setOwner(ParameterOwner* parameterOwner_)
     }
     else if (getScope() == ParameterScope::SPIKE_CHANNEL_SCOPE)
     {
-        key = "TODO"; //Currently handled by spike processors
-        return;
+        auto channel = (SpikeChannel*)parameterOwner;
+        key = String(channel->getNodeId()) + "_" + channel->getName() + "_" + this->getName();
     }
 
     this->setKey(key.toStdString());

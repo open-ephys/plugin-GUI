@@ -154,7 +154,9 @@ public:
     
     /** Determines whether channel sends the full waveform, or just the peak sample*/
     bool sendFullWaveform;
-    
+
+	/** Gets the eletrode start channel */
+	int getStartChannel() const { return localChannelIndexes[0]; };
 
 	// ====== STATIC METHODS ========= //
 

@@ -208,6 +208,9 @@ PLUGIN_API File getSavedStateDirectory();
 /** Gets the GUI version */
 PLUGIN_API String getGUIVersion();
 
+/** Gets the GUI's undo manager */
+PLUGIN_API UndoManager* getUndoManager();
+
 
 namespace PluginInstaller
 {

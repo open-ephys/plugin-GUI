@@ -25,6 +25,8 @@
 #include "SpikeDetector.h"
 #include "PopupConfigurationWindow.h"
 
+#include "SpikeDetectorActions.h"
+
 #include <stdio.h>
 
 
@@ -80,17 +82,14 @@ void SpikeDetectorEditor::buttonClicked(Button* button)
 
 void SpikeDetectorEditor::addSpikeChannels(PopupConfigurationWindow* window, SpikeChannel::Type type, int count, Array<int> startChannels)
 {
-    SpikeDetector* processor = (SpikeDetector*) getProcessor();
+    SpikeDetector* processor = (SpikeDetector*)getProcessor();
 
-    for (int i = 0; i < count; i++)
-    {
-        int startChannel = -1;
-        
-        if (i < startChannels.size())
-            startChannel = startChannels[i];
+    DataStream* stream = processor->getDataStream(getCurrentStream());
 
-        processor->addSpikeChannel(type, getCurrentStream(), startChannel);
-    }
+    AddSpikeChannels* action = new AddSpikeChannels(processor, stream, type, count, startChannels);
+
+    CoreServices::getUndoManager()->beginNewTransaction();
+    CoreServices::getUndoManager()->perform(action);
 
     CoreServices::updateSignalChain(this);
         
@@ -104,15 +103,18 @@ void SpikeDetectorEditor::removeSpikeChannels(PopupConfigurationWindow* window, 
 {
 
     SpikeDetector* processor = (SpikeDetector*)getProcessor();
-    
-    for (auto spikeChannel : spikeChannelsToRemove)
-        processor->removeSpikeChannel(spikeChannel);
+
+    DataStream* stream = processor->getDataStream(getCurrentStream());
+
+    RemoveSpikeChannels* action = new RemoveSpikeChannels(processor, stream, spikeChannelsToRemove);
+
+    CoreServices::getUndoManager()->beginNewTransaction();
+    CoreServices::getUndoManager()->perform(action);
     
     CoreServices::updateSignalChain(this);
 
     if (window != nullptr)
         window->update(processor->getSpikeChannelsForStream(getCurrentStream()));
-
 
 }
 

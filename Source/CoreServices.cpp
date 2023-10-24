@@ -431,6 +431,11 @@ namespace CoreServices
 		return STR_DEF(JUCE_APP_VERSION);
 	}
 
+	UndoManager* getUndoManager()
+	{
+		return getProcessorGraph()->getUndoManager();
+	}
+
 
 	namespace PluginInstaller
 	{

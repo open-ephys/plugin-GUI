@@ -560,6 +560,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
     const Array<const ContinuousChannel*>& sourceChannels = spikeChannel->getSourceChannels();
     std::string cacheKey = std::to_string(sourceChannels[0]->getSourceNodeId());
     cacheKey += "|" + spikeChannel->getStreamName().toStdString();
+    cacheKey += "|" + String(this->getNodeId()).toStdString();
     cacheKey += "|" + name.toStdString();
 
     spikeChannel->setIdentifier(cacheKey);
@@ -567,7 +568,6 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
     return spikeChannel;
 
 }
-
 
 void SpikeDetector::removeSpikeChannel (SpikeChannel* spikeChannel)
 {
