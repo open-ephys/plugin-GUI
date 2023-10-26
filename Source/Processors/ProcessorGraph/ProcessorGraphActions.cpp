@@ -96,7 +96,7 @@ bool AddProcessor::perform()
         if (destProcessor != nullptr && destProcessor->isMerger())
         {
             Merger* merger = (Merger*)destProcessor;
-            mergerPath = merger->getSourceNode(0)->getNodeId() == nodeId ? 0 : 1;
+            mergerPath = merger->getPath();
         }
 
         return true;

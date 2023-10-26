@@ -423,11 +423,19 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
     float y2 = end.getY();
     
     linePath.startNewSubPath (x1, y1);
-    
-    linePath.cubicTo (x2, y1,
-                      x1, y2,
+
+    if(availableNodes[node1]->getHorzShift() == availableNodes[node2]->getHorzShift())
+    {    
+        linePath.lineTo(end);
+    }
+    else
+    {
+        
+        linePath.lineTo(x2 - X_BORDER_SIZE, y1);
+        linePath.cubicTo (x2, y1,
+                      x2 - X_BORDER_SIZE, y2,
                       x2, y2);
-    
+    }
     
     g.setColour (Colour(30,30,30));
     PathStrokeType stroke3 (3.5f);
