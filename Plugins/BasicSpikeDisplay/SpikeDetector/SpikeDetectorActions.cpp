@@ -156,4 +156,5 @@ bool RemoveSpikeChannels::undo()
             spikeChannel->getParameter("waveform_type")->fromXml(spikeParamsXml);
         }
     }
+    return true;
 }
