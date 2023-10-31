@@ -221,6 +221,11 @@ void SpikeChannel::reset()
     useOverflowBuffer = false;
 }
 
+void SpikeChannel::parameterChangeRequest(Parameter* param)
+{
+	processorChain.getLast()->parameterChangeRequest(param);
+}
+
 /*SpikeChannel::ThresholdType SpikeChannel::getThresholdType() const
 {
 	return thresholdType;

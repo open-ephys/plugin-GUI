@@ -175,6 +175,9 @@ public:
 	/** Generates a default channel name to use*/
 	static String getIdentifierFromType(Type channelType);
 
+	/** Initiates parameter value update */
+	void parameterChangeRequest(Parameter*) override;
+
 protected:
 
 	const Type type;
