@@ -109,14 +109,27 @@ void ProcessorGraph::updateBufferSize()
 void ProcessorGraph::moveProcessor(GenericProcessor* processor,
                                    GenericProcessor* newSource,
                                    GenericProcessor* newDest,
-                                   bool moveDownstream)
+                                   bool moveDownstream,
+                                   bool isNewSourceEmpty)
 {
     GenericProcessor* originalSource = processor->getSourceNode();
     GenericProcessor* originalDest = processor->getDestNode();
 
     if (originalSource != nullptr)
     {
-        originalSource->setDestNode(originalDest);
+        if (originalSource->isEmpty())
+        {
+            if (!isConsoleApp)
+            {
+                AccessClass::getGraphViewer()->removeNode(originalSource);
+                AccessClass::getEditorViewport()->removeEditor(originalSource->getEditor());
+            }
+            rootNodes.remove(rootNodes.indexOf(originalSource));
+            emptyProcessors.removeObject(originalSource);
+            originalSource = nullptr;
+        }
+        else
+            originalSource->setDestNode(originalDest);
     }
 
     if (originalDest != nullptr)
@@ -164,6 +177,19 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
 
     if (newDest != nullptr)
     {
+        if (isNewSourceEmpty
+            && newDest->getSourceNode() != nullptr
+            && newDest->getSourceNode()->isEmpty())
+        {
+            if (!isConsoleApp)
+            {
+                AccessClass::getGraphViewer()->removeNode(newDest->getSourceNode());
+                AccessClass::getEditorViewport()->removeEditor(newDest->getSourceNode()->getEditor());
+            }
+            rootNodes.remove(rootNodes.indexOf(newDest->getSourceNode()));
+            emptyProcessors.removeObject(newDest->getSourceNode());
+        }
+
         if (!newDest->isSource())
         {
             processor->setDestNode(newDest);
@@ -258,6 +284,18 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
                 // if we're adding it upstream of another processor
                 if (!destNode->isSource())
                 {
+                    if(destNode->getSourceNode() != nullptr && destNode->getSourceNode()->isEmpty())
+                    {
+                        if (!isConsoleApp)
+                        {
+                            AccessClass::getGraphViewer()->removeNode(destNode->getSourceNode());
+                            AccessClass::getEditorViewport()->removeEditor(destNode->getSourceNode()->getEditor());
+                        }
+
+                        rootNodes.remove(rootNodes.indexOf(destNode->getSourceNode()));
+                        emptyProcessors.removeObject(destNode->getSourceNode());
+                    }
+                    
                     // if it's not a source, connect them
                     addedProc->setDestNode(destNode);
                     destNode->setSourceNode(addedProc);
@@ -283,6 +321,17 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
             {
                 if (!destNode->isSource())
                 {
+                    if(destNode->getSourceNode() != nullptr && destNode->getSourceNode()->isEmpty())
+                    {
+                        if (!isConsoleApp)
+                        {
+                            AccessClass::getGraphViewer()->removeNode(destNode->getSourceNode());
+                            AccessClass::getEditorViewport()->removeEditor(destNode->getSourceNode()->getEditor());
+                        }
+
+                        rootNodes.remove(rootNodes.indexOf(destNode->getSourceNode()));
+                        emptyProcessors.removeObject(destNode->getSourceNode());
+                    }
                     // if it's not behind a source node, connect them
                     addedProc->setDestNode(destNode);
                     destNode->setSourceNode(addedProc);
@@ -357,7 +406,17 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                                                               "Maximum of 8 signal chains.");
                         return false;
                     } else {
-                        rootNodes.add(processor);
+
+                        if(processor->isSource())
+                            rootNodes.add(processor);
+                        else
+                        {
+                            emptyProcessors.add(createProcessorFromDescription(getEmptyProcessorDescription()));
+                            emptyProcessors.getLast()->setDestNode(processor);
+                            processor->setSourceNode(emptyProcessors.getLast());
+                            emptyProcessors.getLast()->update();
+                            rootNodes.add(emptyProcessors.getLast());
+                        }
                         return true;
                     }
                 }
@@ -388,7 +447,16 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                     return false;
 
                 } else {
-                    rootNodes.add(processor);
+                    if(processor->isSource())
+                        rootNodes.add(processor);
+                    else
+                    {
+                        emptyProcessors.add(createProcessorFromDescription(getEmptyProcessorDescription()));
+                        emptyProcessors.getLast()->setDestNode(processor);
+                        processor->setSourceNode(emptyProcessors.getLast());
+                        emptyProcessors.getLast()->update();
+                        rootNodes.add(emptyProcessors.getLast());
+                    }
                     return true;
                 }
             }
@@ -426,6 +494,15 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                 rootNodes.remove(rootNodes.indexOf(processor));
             }
         }
+        else if (processor->getDestNode() != nullptr
+                 && processor->getDestNode()->getSourceNode() == nullptr)
+        {
+            emptyProcessors.add(createProcessorFromDescription(getEmptyProcessorDescription()));
+            emptyProcessors.getLast()->setDestNode(processor->getDestNode());
+            processor->getDestNode()->setSourceNode(emptyProcessors.getLast());
+            emptyProcessors.getLast()->update();
+            rootNodes.add(emptyProcessors.getLast());
+        }
 
         return true;
 
@@ -445,13 +522,22 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                 {
                     if (!p->isMerger())
                     {
-                        rootNodes.add(p); // add it
+                        if(p->isSource())
+                            rootNodes.add(p); // add it
+                        else
+                        {
+                            emptyProcessors.add(createProcessorFromDescription(getEmptyProcessorDescription()));
+                            emptyProcessors.getLast()->setDestNode(p);
+                            p->setSourceNode(emptyProcessors.getLast());
+                            emptyProcessors.getLast()->update();
+                            rootNodes.add(emptyProcessors.getLast());
+                        }
 
                         LOGDD("  Adding as root.");
 
                     } else {
 
-                        Merger* merger = (Merger*) processor->getDestNode();
+                        Merger* merger = (Merger*) p;
 
                         GenericProcessor* sourceA = merger->getSourceNode(0);
                         GenericProcessor* sourceB = merger->getSourceNode(1);
@@ -663,6 +749,10 @@ void ProcessorGraph::deleteNodes(Array<GenericProcessor*> processorsToDelete)
     {
 
         sourceNode = processor->getSourceNode();
+        
+        if (sourceNode->isEmpty())
+            sourceNode = nullptr;
+
         destNode = processor->getDestNode();
 
         if (sourceNode != nullptr)
@@ -719,6 +809,7 @@ void ProcessorGraph::clearSignalChain()
     }
 
     rootNodes.clear();
+    emptyProcessors.clear();
     currentNodeId = 100;
 
     if (!isConsoleApp)
@@ -1289,6 +1380,12 @@ std::unique_ptr<GenericProcessor> ProcessorGraph::createProcessorFromDescription
 
     processor = std::move(ProcessorManager::createProcessor(description));
 
+    if (processor != nullptr && processor->isEmpty() && !isConsoleApp)
+    {
+        processor->setNodeId(-1);
+        processor->createEditor();
+    }
+
     return processor;
 }
 
@@ -1327,7 +1424,19 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 
     if (originalSource != nullptr)
     {
-        originalSource->setDestNode(originalDest);
+        if (originalSource->isEmpty())
+        {
+            if (!isConsoleApp)
+            {
+                AccessClass::getGraphViewer()->removeNode(originalSource);
+                AccessClass::getEditorViewport()->removeEditor(originalSource->getEditor());
+            }
+            rootNodes.remove(rootNodes.indexOf(originalSource));
+            emptyProcessors.removeObject(originalSource);
+            originalSource = nullptr;
+        }
+        else
+            originalSource->setDestNode(originalDest);
     }
 
     if (originalDest != nullptr)
@@ -1661,6 +1770,9 @@ void ProcessorGraph::saveToXml(XmlElement* xml)
         
         GenericProcessor* processor = rootNodes[i];
 
+        if(rootNodes[i]->isEmpty())
+            processor = rootNodes[i]->getDestNode();
+
         while (processor != nullptr)
         {
             if (processor->saveOrder < 0)
@@ -1903,6 +2015,17 @@ Plugin::Description ProcessorGraph::getDescriptionFromXml(XmlElement* settings, 
         description.nodeId = settings->getIntAttribute("nodeId");
     else
         description.nodeId = -1;
+    
+    return description;
+}
+
+Plugin::Description ProcessorGraph::getEmptyProcessorDescription()
+{
+    Plugin::Description description;
+    
+    description.type = Plugin::Type::BUILT_IN;
+    description.processorType = Plugin::Processor::EMPTY;
+    description.index = -2;
     
     return description;
 }

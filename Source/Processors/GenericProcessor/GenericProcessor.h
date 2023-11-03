@@ -236,6 +236,9 @@ public:
     /** Returns true if a processor is a record node, false otherwise. */
     bool isRecordNode() const;
 
+    /** Returns true if a processor is an Empty processor, false otherwise. */
+    bool isEmpty() const;
+
     /** Returns true if a processor is able to send its output to a given processor.
 
         Ideally, this should always return true, but there may be special cases

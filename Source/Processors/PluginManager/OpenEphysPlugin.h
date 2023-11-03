@@ -113,6 +113,9 @@ namespace Plugin
             
             /** Not a valid processor type*/
             , INVALID = -1
+
+			/** An empty source processor*/
+            , EMPTY = -2
         };
     }
     

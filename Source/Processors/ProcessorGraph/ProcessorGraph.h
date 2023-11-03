@@ -96,7 +96,7 @@ public:
     
     /* Moves a processor to a new location in the signal chain. */
     void moveProcessor(GenericProcessor*, GenericProcessor* newSource = nullptr, GenericProcessor* newDest = nullptr,
-                       bool moveDownstream = true);
+                       bool moveDownstream = true, bool isNewSourceEmpty = false);
 
     /* Remove a processor from the signal chain*/
     void removeProcessor(GenericProcessor* processor);
@@ -219,6 +219,9 @@ public:
     
     /** Returns a plugin description from XML settings */
     Plugin::Description getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId);
+
+    /** Returns an EmptyPrcessor description */
+    Plugin::Description getEmptyProcessorDescription();
     
     /** Returns a pointer to the Plugin Manager object */
     PluginManager* getPluginManager();
@@ -249,6 +252,8 @@ private:
     std::unique_ptr<PluginManager> pluginManager;
 
     std::unique_ptr<UndoManager> undoManager;
+
+    OwnedArray<GenericProcessor> emptyProcessors;
 
     int currentNodeId;
 

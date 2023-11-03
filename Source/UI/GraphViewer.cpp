@@ -119,7 +119,7 @@ void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcesso
 
     for (auto processor : rootProcessors)
     {
-        int horzShift = processor->isSource() ? -1 : 0;
+        int horzShift = -1;
         level = jmax(rootProcessors.indexOf(processor), level + 1);
 
         while ((processor != nullptr) || (splitters.size() > 0))
@@ -157,6 +157,8 @@ void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcesso
                             level = mergerNode->getLevel();
                     }
                 }
+
+                LOGD("************** Node: ", processor->getEditor()->getNameAndId(), ", Level: ", level," **************");
 
                 // Create or update node for processor
                 if (!nodeExists(processor))
@@ -310,42 +312,42 @@ void GraphViewer::paint (Graphics& g)
             auto nodeProcessor = availableNodes[i]->getProcessor();
             float endX;
 
-            /* If RootProcessor is not a source node, draw an empty node 
-             * at the beginning of the signal chain */
-            if ( !nodeProcessor->isSource())
-            {
-                // Merger* merger = (Merger*) nodeProcessor;
-                // if(merger->getSourceNode(0) == nullptr && merger->getSourceNode(1) != nullptr)
-                // {
-                endX = X_BORDER_SIZE;
+            // /* If RootProcessor is not a source node, draw an empty node 
+            //  * at the beginning of the signal chain */
+            // if ( !nodeProcessor->isSource())
+            // {
+            //     // Merger* merger = (Merger*) nodeProcessor;
+            //     // if(merger->getSourceNode(0) == nullptr && merger->getSourceNode(1) != nullptr)
+            //     // {
+            //     endX = X_BORDER_SIZE;
 
-                g.setColour(Colour(150, 150, 150));
-                g.drawRect(endX, availableNodes[i]->getSrcPoint().y - 10, (float)NODE_WIDTH, 20.0f, 2.0f);
+            //     g.setColour(Colour(150, 150, 150));
+            //     g.drawRect(endX, availableNodes[i]->getSrcPoint().y - 10, (float)NODE_WIDTH, 20.0f, 2.0f);
                 
-                g.setFont(Font("Fira Code", "SemiBold", 14));
-                g.drawFittedText("No Source", endX, availableNodes[i]->getSrcPoint().y - 10,
-                    (float)NODE_WIDTH, 20.0f, Justification::centred, 1);
+            //     g.setFont(Font("Fira Code", "SemiBold", 14));
+            //     g.drawFittedText("No Source", endX, availableNodes[i]->getSrcPoint().y - 10,
+            //         (float)NODE_WIDTH, 20.0f, Justification::centred, 1);
                 
-                Path dashedLinePath;
-                dashedLinePath.startNewSubPath(endX + (float)NODE_WIDTH, availableNodes[i]->getSrcPoint().y);
-                dashedLinePath.lineTo(availableNodes[i]->getSrcPoint());
+            //     Path dashedLinePath;
+            //     dashedLinePath.startNewSubPath(endX + (float)NODE_WIDTH, availableNodes[i]->getSrcPoint().y);
+            //     dashedLinePath.lineTo(availableNodes[i]->getSrcPoint());
 
-                PathStrokeType stroke3(2.0f);
-                const float dashLengths[2] = { 5.0f, 5.0f };
-                stroke3.createDashedStroke(dashedLinePath, dashedLinePath, dashLengths, 2);
+            //     PathStrokeType stroke3(2.0f);
+            //     const float dashLengths[2] = { 5.0f, 5.0f };
+            //     stroke3.createDashedStroke(dashedLinePath, dashedLinePath, dashLengths, 2);
 
-                g.fillPath(dashedLinePath);
-                g.drawArrow(Line<float>(availableNodes[i]->getSrcPoint().translated(- 9.0f, 0.0f), 
-                    availableNodes[i]->getSrcPoint().translated(1.0f, 0.0f)), 0.0f, 10.f, 10.f);
-                // }
-            }
-            else
-            {
-                endX = availableNodes[i]->getSrcPoint().x;
-            }
+            //     g.fillPath(dashedLinePath);
+            //     g.drawArrow(Line<float>(availableNodes[i]->getSrcPoint().translated(- 9.0f, 0.0f), 
+            //         availableNodes[i]->getSrcPoint().translated(1.0f, 0.0f)), 0.0f, 10.f, 10.f);
+            //     // }
+            // }
+            // else
+            // {
+            //     endX = availableNodes[i]->getSrcPoint().x;
+            // }
 
             Point<float> startPoint = Point<float>(X_BORDER_SIZE - 15, availableNodes[i]->getSrcPoint().y);
-            Point<float> endPoint = Point<float>(endX, availableNodes[i]->getSrcPoint().y);
+            Point<float> endPoint = availableNodes[i]->getSrcPoint();
 
             Path linePath;
             linePath.startNewSubPath(startPoint);
@@ -701,7 +703,7 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
     
     infoPanel = std::make_unique<ConcertinaPanel> ();
     
-    if (!processor->isMerger() && !processor->isSplitter())
+    if (!processor->isMerger() && !processor->isSplitter() && !processor->isEmpty())
     {
         // Add processor info panel
         processorParamComponent = std::make_unique<ProcessorParameterComponent>(processor);
@@ -917,7 +919,7 @@ void GraphNode::updateBoundaries()
 
     int panelHeight = 20;
 
-    if (!processor->isMerger() && !processor->isSplitter() && processorInfoVisible)
+    if (!processor->isMerger() && !processor->isSplitter() && !processor->isEmpty() && processorInfoVisible)
         panelHeight = processorParamComponent->heightInPixels + 20;
 
     for (auto dsb : dataStreamButtons)
@@ -959,7 +961,7 @@ void GraphNode::setDataStreamPanelSize(Component* panelComponent, int height)
 
 void GraphNode::updateStreamInfo()
 {
-    if (!processor->isMerger() && !processor->isSplitter())
+    if (!processor->isMerger() && !processor->isSplitter() && !processor->isEmpty())
     {
         LOGDD("Removing data stream info and buttons for node: ", processor->getName());
 
@@ -1057,19 +1059,31 @@ String GraphNode::getInfoString()
 
 void GraphNode::paint (Graphics& g)
 {   
-    g.setColour(Colour(30, 30, 30));
-    g.fillRect(0, 0, getWidth(), 20);
-
-    g.setColour(Colours::lightgrey);
-    g.fillRect(1, 1, 24, 18);
-    g.setColour(editor->getBackgroundColor());
-    g.fillRect(25, 1, getWidth() - 26, 18);
-
     g.setFont(Font("Fira Code", "SemiBold", 14));
-    g.setColour (Colours::black); // : editor->getBackgroundColor());
-    g.drawText (String(nodeId), 1, 0, 23, 20, Justification::centred, true);
-    g.setColour(Colours::white); // : editor->getBackgroundColor());
-    g.drawText(getName(), 29, 0, getWidth() - 29, 20, Justification::left, true);
+
+    if(processor->isEmpty())
+    {
+        g.setColour(Colour(150, 150, 150));
+        g.drawRect(0, 0, getWidth(), 20, 2);
+        
+        g.drawFittedText("No Source", 10, 0,
+            getWidth() - 10, 20, Justification::centredLeft, 1);
+    }
+    else
+    {
+        g.setColour(Colour(30, 30, 30));
+        g.fillRect(0, 0, getWidth(), 20);
+
+        g.setColour(Colours::lightgrey);
+        g.fillRect(1, 1, 24, 18);
+        g.setColour(editor->getBackgroundColor());
+        g.fillRect(25, 1, getWidth() - 26, 18);
+
+        g.setColour (Colours::black); // : editor->getBackgroundColor());
+        g.drawText (String(nodeId), 1, 0, 23, 20, Justification::centred, true);
+        g.setColour(Colours::white); // : editor->getBackgroundColor());
+        g.drawText(getName(), 29, 0, getWidth() - 29, 20, Justification::left, true);
+    }
 }
 
 void GraphNode::paintOverChildren(Graphics& g)
