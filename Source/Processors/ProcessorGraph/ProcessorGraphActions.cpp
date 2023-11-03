@@ -294,6 +294,8 @@ MoveProcessor::MoveProcessor(GenericProcessor* processor,
     
     moveDownstream = moveDownstream_;
 
+    isNewSourceEmpty = false;
+
     if (processor->getSourceNode() != nullptr)
         originalSourceNodeId = processor->getSourceNode()->getNodeId();
     else
@@ -316,7 +318,12 @@ MoveProcessor::MoveProcessor(GenericProcessor* processor,
         
     
     if (sourceNode != nullptr)
+    {
+        if(sourceNode->isEmpty())
+            isNewSourceEmpty = true;
+
         newSourceNodeId = sourceNode->getNodeId();
+    }
     else
         newSourceNodeId = -1;
     
@@ -346,7 +353,8 @@ bool MoveProcessor::perform()
     processorGraph->moveProcessor(processor,
                                     sourceProcessor,
                                     destProcessor,
-                                    moveDownstream);
+                                    moveDownstream,
+                                    isNewSourceEmpty);
     
     return true;
 }

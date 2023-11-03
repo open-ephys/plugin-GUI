@@ -236,6 +236,9 @@ private:
     int insertionPoint;
     bool componentWantsToMove;
     int indexOfMovingComponent;
+    
+    // Keeps track of the processor type being dragged
+    Plugin::Processor::Type dragProcType;
 
     SignalChainTabComponent* signalChainTabComponent;
 

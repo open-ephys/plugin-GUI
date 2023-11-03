@@ -895,7 +895,7 @@ void GenericProcessor::update()
    
     if (!isMerger()) // only has one source
     {
-        if (sourceNode != nullptr)
+        if (sourceNode != nullptr && !sourceNode->isEmpty())
         {
             int continuousChannelGlobalIndex = 0;
 
@@ -949,7 +949,7 @@ void GenericProcessor::update()
                 isEnabled = false;
                 
         }
-        else
+        else if (!isEmpty())
         {
             // connect first processor in signal chain to message center
            // messageChannel.reset();
@@ -2055,6 +2055,7 @@ bool GenericProcessor::isMerger()        const  { return getProcessorType() == P
 bool GenericProcessor::isAudioMonitor()  const  { return getProcessorType() == Plugin::Processor::AUDIO_MONITOR; }
 bool GenericProcessor::isUtility()       const  { return getProcessorType() == Plugin::Processor::UTILITY; }
 bool GenericProcessor::isRecordNode()    const  { return getProcessorType() == Plugin::Processor::RECORD_NODE; }
+bool GenericProcessor::isEmpty()         const  { return getProcessorType() == Plugin::Processor::EMPTY; }
 
 Plugin::Processor::Type GenericProcessor::getProcessorType() const
 {
@@ -2069,8 +2070,10 @@ String GenericProcessor::getProcessorTypeString() const
         return "Sink";
     else if (isFilter())
         return "Filter";
-    else
+    else if (isUtility())
         return "Utility";
+    else
+        return "Empty";
 }
 
 Plugin::Processor::Type GenericProcessor::typeFromString(String typeName)
