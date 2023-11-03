@@ -636,11 +636,13 @@ void RecordNodeEditor::updateFifoMonitors()
 		Parameter* channels = recordNode->getDataStream(streamId)->getParameter("channels");
 		recordNode->getDataStream(streamId)->setColor("channels", getLookAndFeel().findColour(ProcessorColor::IDs::RECORD_COLOR));
 		addCustomParameterEditor(new RecordChannelsParameterEditor(recordNode, channels), 18 + streamCount * 20, 32);
+		parameterEditors.getLast()->setVisible(!getCollapsedState());
 		streamMonitors.push_back(parameterEditors.getLast());
 
 		Parameter* sync = recordNode->getDataStream(streamId)->getParameter("sync_line");
 		recordNode->getDataStream(streamId)->setColor("sync_line", getLookAndFeel().findColour(ProcessorColor::IDs::SYNC_COLOR));
 		addCustomParameterEditor(new SyncChannelsParameterEditor(recordNode, sync), 18 + streamCount * 20, 110);
+		parameterEditors.getLast()->setVisible(!getCollapsedState());
 		syncMonitors.push_back(parameterEditors.getLast());
 				
 		streamCount++;

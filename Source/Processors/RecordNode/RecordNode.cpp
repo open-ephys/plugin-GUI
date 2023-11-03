@@ -996,7 +996,11 @@ void RecordNode::clearRecordEngines()
 
 void RecordNode::saveCustomParametersToXml(XmlElement* xml)
 {
-
+	if (!headlessMode)
+    {
+        RecordNodeEditor* recordNodeEditor = (RecordNodeEditor*) getEditor();
+        xml->setAttribute("fifoMonitorsVisible", recordNodeEditor->fifoDrawerButton->getToggleState());
+    }
 	/*
     xml->setAttribute ("path", dataDirectory.getFullPathName());
     xml->setAttribute("engine", recordEngine->getEngineId());
@@ -1065,7 +1069,15 @@ void RecordNode::saveCustomParametersToXml(XmlElement* xml)
 
 void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
 {
-    
+	if (xml->hasAttribute("fifoMonitorsVisible"))
+	{
+		if (!headlessMode)
+		{
+			RecordNodeEditor* recordNodeEditor = (RecordNodeEditor*)getEditor();
+			if (!xml->getBoolAttribute("fifoMonitorsVisible"))
+				recordNodeEditor->fifoDrawerButton->triggerClick();
+		}
+	}
 	/*
 
     String savedPath = xml->getStringAttribute("path");
