@@ -156,5 +156,6 @@ bool RemoveSpikeChannels::undo()
             spikeChannel->getParameter("waveform_type")->fromXml(spikeParamsXml);
         }
     }
+    CoreServices::updateSignalChain(processor->getEditor());
     return true;
 }
