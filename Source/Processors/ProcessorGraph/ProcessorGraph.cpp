@@ -817,32 +817,38 @@ void ProcessorGraph::connectMergerSource(GenericProcessor* merger_, GenericProce
 {
     Merger* merger = (Merger*) merger_;
 
-    GenericProcessor* existingSource = merger->getSourceNode(1 - path);
+    GenericProcessor* anotherSource = merger->getSourceNode(1 - path);
 
-    if (!isConsoleApp)
+    if (sourceNode == merger->getSourceNode(path))
+        return;
+
+    if (merger->getSourceNode(path)->isEmpty())
     {
-        AccessClass::getGraphViewer()->removeNode(merger->getSourceNode(path));
-        AccessClass::getEditorViewport()->removeEditor(merger->getSourceNode(path)->getEditor());
+        if (!isConsoleApp && !isLoadingSignalChain)
+        {
+            AccessClass::getGraphViewer()->removeNode(merger->getSourceNode(path));
+            AccessClass::getEditorViewport()->removeEditor(merger->getSourceNode(path)->getEditor());
+        }
+        rootNodes.remove(rootNodes.indexOf(merger->getSourceNode(path)));
+        emptyProcessors.removeObject(merger->getSourceNode(path));
     }
-    rootNodes.remove(rootNodes.indexOf(merger->getSourceNode(path)));
-    emptyProcessors.removeObject(merger->getSourceNode(path));
 
     // merger->switchIO(path);
     // merger->setMergerSourceNode(sourceNode);
     // sourceNode->setDestNode(merger);
 
-    while (existingSource->getSourceNode() != nullptr)
-        existingSource = existingSource->getSourceNode();
+    while (anotherSource->getSourceNode() != nullptr)
+        anotherSource = anotherSource->getSourceNode();
     
     auto newSourceRoot = sourceNode;
     while (newSourceRoot->getSourceNode() != nullptr)
         newSourceRoot = newSourceRoot->getSourceNode();
 
-    if ((path == 0 && rootNodes.indexOf(newSourceRoot) > rootNodes.indexOf(existingSource))
-        || (path == 1 && rootNodes.indexOf(newSourceRoot) < rootNodes.indexOf(existingSource)))
+    if ((path == 0 && rootNodes.indexOf(newSourceRoot) > rootNodes.indexOf(anotherSource))
+        || (path == 1 && rootNodes.indexOf(newSourceRoot) < rootNodes.indexOf(anotherSource)))
     {
         merger->switchIO(path);
-        merger->setMergerSourceNode(existingSource);
+        merger->setMergerSourceNode(anotherSource);
 
         merger->switchIO(1 - path);
         merger->setMergerSourceNode(sourceNode);
@@ -854,8 +860,6 @@ void ProcessorGraph::connectMergerSource(GenericProcessor* merger_, GenericProce
         merger->setMergerSourceNode(sourceNode);
         sourceNode->setDestNode(merger);
     }
-
-    updateSettings(merger_);
 }
 
 void ProcessorGraph::deleteNodes(Array<GenericProcessor*> processorsToDelete)
@@ -1042,7 +1046,10 @@ void ProcessorGraph::restoreParameters()
     // load source node parameters
     for (auto p : rootNodes)
     {
-        if(p->getPluginType() == Plugin::Type::DATA_THREAD)
+        if (p->isEmpty())
+            continue;
+
+        if (p->getPluginType() == Plugin::Type::DATA_THREAD)
             p->update();
 
         p->loadFromXml();

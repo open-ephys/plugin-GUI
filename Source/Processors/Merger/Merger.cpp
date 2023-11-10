@@ -336,6 +336,8 @@ void Merger::loadCustomParametersFromXml(XmlElement* xml)
 void Merger::restoreConnections()
 {
     
+    LOGDD("Restoring Merger (", getNodeId(), ") connections.");
+
     if (parametersAsXml != nullptr)
     {
         for (auto* mainNode : parametersAsXml->getChildIterator())
@@ -347,24 +349,20 @@ void Merger::restoreConnections()
                     int nodeIdA = mergerSettings->getIntAttribute("NodeA");
                     int nodeIdB = mergerSettings->getIntAttribute("NodeB");
 
-                    ProcessorGraph* gr = AccessClass::getProcessorGraph();
-                    Array<GenericProcessor*> p = gr->getListOfProcessors();
+                    ProcessorGraph* graph = AccessClass::getProcessorGraph();
+                    Array<GenericProcessor*> p = graph->getListOfProcessors();
 
                     for (int k = 0; k < p.size(); k++)
                     {
                         if (p[k]->getNodeId() == nodeIdA)
                         {
-                            LOGD("Setting Merger source A to ", nodeIdA);
-                            switchIO(0);
-                            setMergerSourceNode(p[k]);
-                            p[k]->setDestNode(this);
+                            LOGDD("Setting Merger source A to ", nodeIdA);
+                            graph->connectMergerSource(this, p[k], 0);
                         }
                         else if (p[k]->getNodeId() == nodeIdB)
                         {
-                            LOGD("Setting Merger source B to ", nodeIdB);
-                            switchIO(1);
-                            setMergerSourceNode(p[k]);
-                            p[k]->setDestNode(this);
+                            LOGDD("Setting Merger source B to ", nodeIdB);
+                            graph->connectMergerSource(this, p[k], 1);
                         }
                     }
                     

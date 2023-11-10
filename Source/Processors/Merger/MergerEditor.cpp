@@ -262,11 +262,10 @@ void MergerEditor::mouseDown(const MouseEvent& e)
             if (result >= inputSelectionIndexA
                     && result < inputSelectionIndexA + selectableProcessors.size())
             {
-                // switchSource(0);
-                // merger->setMergerSourceNode(selectableProcessors[result - inputSelectionIndexA]);
-                // selectableProcessors[result-inputSelectionIndexA]->setDestNode(merger);
-
-                AccessClass::getProcessorGraph()->connectMergerSource(getProcessor(), selectableProcessors[result - inputSelectionIndexA], 0);
+                auto graph = AccessClass::getProcessorGraph();
+                graph->connectMergerSource(getProcessor(), selectableProcessors[result - inputSelectionIndexA], 0);
+                graph->updateSettings(getProcessor());
+                
                 return;
             }
         }
@@ -276,11 +275,10 @@ void MergerEditor::mouseDown(const MouseEvent& e)
             if (result >= inputSelectionIndexB
                     && result < inputSelectionIndexB + selectableProcessors.size())
             {
-                // switchSource(1);
-                // merger->setMergerSourceNode(selectableProcessors[result - inputSelectionIndexB]);
-                // selectableProcessors[result-inputSelectionIndexB]->setDestNode(merger);
+                auto graph = AccessClass::getProcessorGraph();
+                graph->connectMergerSource(getProcessor(), selectableProcessors[result - inputSelectionIndexB], 1);
+                graph->updateSettings(getProcessor());
 
-                AccessClass::getProcessorGraph()->connectMergerSource(getProcessor(), selectableProcessors[result - inputSelectionIndexB], 1);
                 return;
             }
         }

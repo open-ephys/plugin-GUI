@@ -252,7 +252,9 @@ void GraphViewer::addNode (GenericEditor* editor, int level, int offset)
 void GraphViewer::removeNode(GenericProcessor *p)
 {
     auto node = getNodeForEditor(p->getEditor());
-    node->stillNeeded = false;
+
+    if(node != nullptr)
+        node->stillNeeded = false;
 }
 
 void GraphViewer::removeAllNodes()
@@ -996,7 +998,7 @@ void GraphNode::updateStreamInfo()
         for (auto stream : processor->getDataStreams())
         {
             LOGDD("Adding data stream info and buttons for stream: ", stream->getName());
-            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getStreamId()), editor, this);
+            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getKey()), editor, this);
             infoPanel->addPanel(-1, info, true);
             infoPanel->setMaximumPanelSize(info, info->getMaxHeight());
             dataStreamInfos.add(info);
