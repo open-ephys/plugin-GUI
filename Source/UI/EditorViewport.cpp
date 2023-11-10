@@ -757,6 +757,9 @@ void EditorViewport::mouseDown(const MouseEvent& e)
         if (e.eventComponent == editorArray[i])
         {
 
+            if (editorArray[i]->getProcessor()->isEmpty())
+                return;
+                
             if (e.getNumberOfClicks() == 2) // double-clicks toggle collapse state
             {
                 if (editorArray[i]->getCollapsedState())
@@ -955,10 +958,19 @@ void EditorViewport::mouseDrag(const MouseEvent& e)
             && e.getDistanceFromDragStart() > 10
             )
         {
-
-            componentWantsToMove = true;
             indexOfMovingComponent = editorArray.indexOf((GenericEditor*)e.originalComponent);
             dragProcType = editorArray[indexOfMovingComponent]->getProcessor()->getProcessorType();
+            if (editorArray[indexOfMovingComponent]->getProcessor()->isEmpty())
+            {
+                editorArray[indexOfMovingComponent]->deselect();
+                indexOfMovingComponent = -1;
+                return;
+            }
+            else
+            {
+                componentWantsToMove = true;
+            }
+
         }
 
         if (componentWantsToMove)

@@ -109,24 +109,34 @@ void ProcessorGraph::updateBufferSize()
 void ProcessorGraph::moveProcessor(GenericProcessor* processor,
                                    GenericProcessor* newSource,
                                    GenericProcessor* newDest,
-                                   bool moveDownstream,
-                                   bool isNewSourceEmpty)
+                                   bool moveDownstream)
 {
     GenericProcessor* originalSource = processor->getSourceNode();
     GenericProcessor* originalDest = processor->getDestNode();
 
+    bool shouldCheckForNewRootNodes = true;
+
     if (originalSource != nullptr)
     {
+        // if processor's original source was an empty processor, remove the empty processor
         if (originalSource->isEmpty())
         {
-            if (!isConsoleApp)
+            if (originalDest == nullptr)
             {
-                AccessClass::getGraphViewer()->removeNode(originalSource);
-                AccessClass::getEditorViewport()->removeEditor(originalSource->getEditor());
+                if (!isConsoleApp)
+                {
+                    AccessClass::getGraphViewer()->removeNode(originalSource);
+                    AccessClass::getEditorViewport()->removeEditor(originalSource->getEditor());
+                }
+                rootNodes.remove(rootNodes.indexOf(originalSource));
+                emptyProcessors.removeObject(originalSource);
+                originalSource = nullptr;
             }
-            rootNodes.remove(rootNodes.indexOf(originalSource));
-            emptyProcessors.removeObject(originalSource);
-            originalSource = nullptr;
+            else
+            {
+                originalSource->setDestNode(originalDest);
+                shouldCheckForNewRootNodes = false;
+            }
         }
         else
             originalSource->setDestNode(originalDest);
@@ -177,17 +187,27 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
 
     if (newDest != nullptr)
     {
-        if (isNewSourceEmpty
-            && newDest->getSourceNode() != nullptr
+        //  if processor is moved downstream of an empty processor, remove the empty processor
+        if (newDest->getSourceNode() != nullptr
             && newDest->getSourceNode()->isEmpty())
         {
-            if (!isConsoleApp)
+            if (processor->isSource())
             {
-                AccessClass::getGraphViewer()->removeNode(newDest->getSourceNode());
-                AccessClass::getEditorViewport()->removeEditor(newDest->getSourceNode()->getEditor());
+                if (!isConsoleApp)
+                {
+                    AccessClass::getGraphViewer()->removeNode(newDest->getSourceNode());
+                    AccessClass::getEditorViewport()->removeEditor(newDest->getSourceNode()->getEditor());
+                }
+                rootNodes.remove(rootNodes.indexOf(newDest->getSourceNode()));
+                emptyProcessors.removeObject(newDest->getSourceNode());
             }
-            rootNodes.remove(rootNodes.indexOf(newDest->getSourceNode()));
-            emptyProcessors.removeObject(newDest->getSourceNode());
+            else
+            {
+                GenericProcessor* emptyProc = newDest->getSourceNode();
+                emptyProc->setDestNode(processor);
+                processor->setSourceNode(emptyProc);
+                shouldCheckForNewRootNodes = false;
+            }
         }
 
         if (!newDest->isSource())
@@ -199,7 +219,8 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
         }
     }
 
-    checkForNewRootNodes(processor, false, true);
+    if (shouldCheckForNewRootNodes)
+        checkForNewRootNodes(processor, false, true);
 
     if (moveDownstream) // processor is further down the signal chain, its original dest may have changed
         updateSettings(originalDest);
@@ -266,6 +287,8 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
             addedProc->initialize(false);
         }
 
+        bool shouldCheckForNewRootNodes = true;
+
 		if (addedProc->isSource()) // if we are adding a source processor
         {
 
@@ -284,6 +307,7 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
                 // if we're adding it upstream of another processor
                 if (!destNode->isSource())
                 {
+                    // If the dest node has an empty source, remove the empty processor
                     if(destNode->getSourceNode() != nullptr && destNode->getSourceNode()->isEmpty())
                     {
                         if (!isConsoleApp)
@@ -292,8 +316,10 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
                             AccessClass::getEditorViewport()->removeEditor(destNode->getSourceNode()->getEditor());
                         }
 
-                        rootNodes.remove(rootNodes.indexOf(destNode->getSourceNode()));
+                        rootNodes.set(rootNodes.indexOf(destNode->getSourceNode()), addedProc);
                         emptyProcessors.removeObject(destNode->getSourceNode());
+
+                        shouldCheckForNewRootNodes = false;
                     }
                     
                     // if it's not a source, connect them
@@ -323,14 +349,11 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
                 {
                     if(destNode->getSourceNode() != nullptr && destNode->getSourceNode()->isEmpty())
                     {
-                        if (!isConsoleApp)
-                        {
-                            AccessClass::getGraphViewer()->removeNode(destNode->getSourceNode());
-                            AccessClass::getEditorViewport()->removeEditor(destNode->getSourceNode()->getEditor());
-                        }
+                        GenericProcessor* emptyProc = destNode->getSourceNode();
+                        emptyProc->setDestNode(addedProc);
+                        addedProc->setSourceNode(emptyProc);
 
-                        rootNodes.remove(rootNodes.indexOf(destNode->getSourceNode()));
-                        emptyProcessors.removeObject(destNode->getSourceNode());
+                        shouldCheckForNewRootNodes = false;
                     }
                     // if it's not behind a source node, connect them
                     addedProc->setDestNode(destNode);
@@ -343,7 +366,7 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
             }
         }
 
-        if (!checkForNewRootNodes(addedProc))
+        if (shouldCheckForNewRootNodes && !checkForNewRootNodes(addedProc))
         {
             removeProcessor(addedProc);
             updateViews(rootNodes.getLast());
@@ -389,16 +412,18 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
             {
                 LOGDD("  Has a dest node.");
 
-                if (rootNodes.indexOf(processor->getDestNode()) > -1)
+                GenericProcessor* destNode = processor->getDestNode();
+
+                if (rootNodes.indexOf(destNode) > -1)
                 {
 
                     LOGDD("  Found dest node in root nodes; swapping.");
 
-                    rootNodes.set(rootNodes.indexOf(processor->getDestNode()), processor);
+                    rootNodes.set(rootNodes.indexOf(destNode), processor);
                     return true;
                 } else {
 
-                    LOGDD("  Didn't find dest node; adding a new root.");
+                    LOGDD("  Didn't find dest node in root nodes; adding a new root.");
 
                     if (rootNodes.size() == 8)
                     {
@@ -407,35 +432,31 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                         return false;
                     } else {
 
-                        if(processor->isSource())
+                        if (processor->isSource())
+                        {
                             rootNodes.add(processor);
+                        }
                         else
                         {
-                            emptyProcessors.add(createProcessorFromDescription(getEmptyProcessorDescription()));
-                            emptyProcessors.getLast()->setDestNode(processor);
-                            processor->setSourceNode(emptyProcessors.getLast());
-                            emptyProcessors.getLast()->update();
-                            rootNodes.add(emptyProcessors.getLast());
+                            createEmptyProcessor(processor);
                         }
+                        
+                        if (processor->isMerger())
+                        {
+                            Merger* merger = (Merger*) processor;
+                            int originalPath = merger->getPath();
+                            if (merger->getSourceNode(1 - originalPath) == nullptr)
+                            {
+                                merger->switchIO(1 - originalPath);
+                                createEmptyProcessor(processor);
+                                merger->switchIO(originalPath);
+                            }
+                        }
+
                         return true;
                     }
                 }
 
-                if (processor->getDestNode()->isMerger())
-                {
-                    LOGDD("  Dest node is merger; adding a new root.");
-
-                    if (rootNodes.size() == 8)
-                    {
-                        AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Signal chain error",
-                                                              "Maximum of 8 signal chains.");
-                        return false;
-                    } else {
-                        rootNodes.add(processor);
-                        return true;
-                    }
-
-                }
             } else {
 
                 LOGDD("  Has no dest node; adding.");
@@ -450,14 +471,40 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                     if(processor->isSource())
                         rootNodes.add(processor);
                     else
+                        createEmptyProcessor(processor);
+
+                    if (processor->isMerger())
                     {
-                        emptyProcessors.add(createProcessorFromDescription(getEmptyProcessorDescription()));
-                        emptyProcessors.getLast()->setDestNode(processor);
-                        processor->setSourceNode(emptyProcessors.getLast());
-                        emptyProcessors.getLast()->update();
-                        rootNodes.add(emptyProcessors.getLast());
+                        Merger* merger = (Merger*) processor;
+                        int originalPath = merger->getPath();
+                        if (merger->getSourceNode(1 - originalPath) == nullptr)
+                        {
+                            merger->switchIO(1 - originalPath);
+                            createEmptyProcessor(processor);
+                            merger->switchIO(originalPath);
+                        }
                     }
+
                     return true;
+                }
+            }
+        }
+        else
+        {
+            if (processor->isMerger())
+            {
+                Merger* merger = (Merger*) processor;
+                if (merger->getSourceNode(1) == nullptr)
+                {
+                    merger->switchIO(1);
+
+                    GenericProcessor* sourceA = merger->getSourceNode(0);
+                    while (sourceA->getSourceNode() != nullptr)
+                        sourceA = sourceA->getSourceNode();
+
+                    createEmptyProcessor(processor, rootNodes.indexOf(sourceA) + 1);
+
+                    merger->switchIO(0);
                 }
             }
         }
@@ -467,41 +514,54 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
 
     if (!processorBeingMoved) // deleting processor
     {
+        if (processor->getSourceNode() != nullptr && processor->getSourceNode()->isEmpty())
+        {
+            if (processor->getDestNode() != nullptr)
+            {
+                GenericProcessor* emptyProc = processor->getSourceNode();
+                emptyProc->setDestNode(processor->getDestNode());
+                processor->getDestNode()->setSourceNode(emptyProc);
+            }
+            else
+            {
+                if (!isConsoleApp)
+                {
+                    AccessClass::getGraphViewer()->removeNode(processor->getSourceNode());
+                    AccessClass::getEditorViewport()->removeEditor(processor->getSourceNode()->getEditor());
+                }
+
+                rootNodes.remove(rootNodes.indexOf(processor->getSourceNode()));
+                emptyProcessors.removeObject(processor->getSourceNode());
+            }
+        }
+
+        if (processor->isMerger())
+        {
+            Merger* merger = (Merger*) processor;
+
+            GenericProcessor* anotherSource  = merger->getSourceNode(1 - merger->getPath());
+
+            if(anotherSource != nullptr && anotherSource->isEmpty())
+            {            
+                if (!isConsoleApp)
+                {
+                    AccessClass::getGraphViewer()->removeNode(anotherSource);
+                    AccessClass::getEditorViewport()->removeEditor(anotherSource->getEditor());
+                }
+
+                rootNodes.remove(rootNodes.indexOf(anotherSource));
+                emptyProcessors.removeObject(anotherSource);
+            }
+        }
+
         if (rootNodes.indexOf(processor) > -1)
         {
             if (processor->getDestNode() != nullptr)
             {
-                if (processor->getDestNode()->isMerger())
-                {
-                    Merger* merger = (Merger*) processor->getDestNode();
-
-                    GenericProcessor* sourceA = merger->getSourceNode(0);
-                    GenericProcessor* sourceB = merger->getSourceNode(1);
-
-                    if (sourceA == nullptr && merger->getPath() == 0) // Source A removed
-                    {
-                        rootNodes.set(rootNodes.indexOf(processor),
-                                      processor->getDestNode());
-                    } else { // Source B removed
-                        rootNodes.remove(rootNodes.indexOf(processor));
-                    }
-
-                } else {
-                    rootNodes.set(rootNodes.indexOf(processor),
-                                  processor->getDestNode());
-                }
+                createEmptyProcessor(processor->getDestNode(), rootNodes.indexOf(processor), true);
             } else {
                 rootNodes.remove(rootNodes.indexOf(processor));
             }
-        }
-        else if (processor->getDestNode() != nullptr
-                 && processor->getDestNode()->getSourceNode() == nullptr)
-        {
-            emptyProcessors.add(createProcessorFromDescription(getEmptyProcessorDescription()));
-            emptyProcessors.getLast()->setDestNode(processor->getDestNode());
-            processor->getDestNode()->setSourceNode(emptyProcessors.getLast());
-            emptyProcessors.getLast()->update();
-            rootNodes.add(emptyProcessors.getLast());
         }
 
         return true;
@@ -525,13 +585,7 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                         if(p->isSource())
                             rootNodes.add(p); // add it
                         else
-                        {
-                            emptyProcessors.add(createProcessorFromDescription(getEmptyProcessorDescription()));
-                            emptyProcessors.getLast()->setDestNode(p);
-                            p->setSourceNode(emptyProcessors.getLast());
-                            emptyProcessors.getLast()->update();
-                            rootNodes.add(emptyProcessors.getLast());
-                        }
+                            createEmptyProcessor(p);
 
                         LOGDD("  Adding as root.");
 
@@ -542,9 +596,30 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
                         GenericProcessor* sourceA = merger->getSourceNode(0);
                         GenericProcessor* sourceB = merger->getSourceNode(1);
 
-                        if (sourceA == nullptr && sourceB == nullptr) // no remaining source nodes
+                        if (sourceA == nullptr) // no remaining source nodes
                         {
-                            rootNodes.add(p); // add it
+                            merger->switchIO(0);
+
+                            if(sourceB == nullptr)
+                                createEmptyProcessor(p);
+                            else
+                            {
+                                while (sourceB->getSourceNode() != nullptr)
+                                    sourceB = sourceA->getSourceNode();
+
+                                createEmptyProcessor(p, rootNodes.indexOf(sourceB));
+                            }
+                        }
+                        if (sourceB == nullptr) // no remaining source nodes
+                        {
+                            merger->switchIO(1);
+
+                            sourceA = merger->getSourceNode(0);
+
+                            while (sourceA->getSourceNode() != nullptr)
+                                sourceA = sourceA->getSourceNode();
+                                
+                            createEmptyProcessor(p, rootNodes.indexOf(sourceA) + 1);
                         }
                     }
 
@@ -586,7 +661,8 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
 
     if (processorToUpdate != nullptr
         && processorToUpdate->isMerger() 
-        && processorToUpdate->getSourceNode() != nullptr)
+        && processorToUpdate->getSourceNode() != nullptr
+        && !processorToUpdate->getSourceNode()->isEmpty())
     {
         processorToUpdate = processorToUpdate->getSourceNode();
     }
@@ -676,6 +752,7 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
 
         if (processor != nullptr)
         {
+            LOGD("  Going upstream!! Processor: ", processor->getName());
             if (processor->isSplitter() && !isConsoleApp)
             {
                 SplitterEditor* sp = (SplitterEditor*)processor->getEditor();
@@ -704,8 +781,8 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
             {
                 if (processor->getDestNode()->getSourceNode() != processor)
                 {
-                    MergerEditor* editor = (MergerEditor*) processor->getDestNode()->getEditor();
-                    editor->switchSource();
+                    Merger* destMerger = (Merger*) processor->getDestNode();
+                    destMerger->switchToSourceNode(processor);
                 }
 
             }
@@ -733,10 +810,52 @@ void ProcessorGraph::updateViews(GenericProcessor* processor, bool updateGraphVi
 
 void ProcessorGraph::viewSignalChain(int index)
 {
-    if (rootNodes[index]->isMerger())
-        rootNodes[index]->switchIO(0);
-
     updateViews(rootNodes[index]);
+}
+
+void ProcessorGraph::connectMergerSource(GenericProcessor* merger_, GenericProcessor* sourceNode, int path)
+{
+    Merger* merger = (Merger*) merger_;
+
+    GenericProcessor* existingSource = merger->getSourceNode(1 - path);
+
+    if (!isConsoleApp)
+    {
+        AccessClass::getGraphViewer()->removeNode(merger->getSourceNode(path));
+        AccessClass::getEditorViewport()->removeEditor(merger->getSourceNode(path)->getEditor());
+    }
+    rootNodes.remove(rootNodes.indexOf(merger->getSourceNode(path)));
+    emptyProcessors.removeObject(merger->getSourceNode(path));
+
+    // merger->switchIO(path);
+    // merger->setMergerSourceNode(sourceNode);
+    // sourceNode->setDestNode(merger);
+
+    while (existingSource->getSourceNode() != nullptr)
+        existingSource = existingSource->getSourceNode();
+    
+    auto newSourceRoot = sourceNode;
+    while (newSourceRoot->getSourceNode() != nullptr)
+        newSourceRoot = newSourceRoot->getSourceNode();
+
+    if ((path == 0 && rootNodes.indexOf(newSourceRoot) > rootNodes.indexOf(existingSource))
+        || (path == 1 && rootNodes.indexOf(newSourceRoot) < rootNodes.indexOf(existingSource)))
+    {
+        merger->switchIO(path);
+        merger->setMergerSourceNode(existingSource);
+
+        merger->switchIO(1 - path);
+        merger->setMergerSourceNode(sourceNode);
+        sourceNode->setDestNode(merger);
+    }
+    else
+    {
+        merger->switchIO(path);
+        merger->setMergerSourceNode(sourceNode);
+        sourceNode->setDestNode(merger);
+    }
+
+    updateSettings(merger_);
 }
 
 void ProcessorGraph::deleteNodes(Array<GenericProcessor*> processorsToDelete)
@@ -749,19 +868,24 @@ void ProcessorGraph::deleteNodes(Array<GenericProcessor*> processorsToDelete)
     {
 
         sourceNode = processor->getSourceNode();
-        
-        if (sourceNode->isEmpty())
-            sourceNode = nullptr;
 
         destNode = processor->getDestNode();
 
         if (sourceNode != nullptr)
         {
-            sourceNode->setDestNode(destNode);
+            if (sourceNode->isEmpty())
+                sourceNode = nullptr;
+            else
+                sourceNode->setDestNode(destNode);
         }
 
         if (destNode != nullptr)
         {
+            if (destNode->isMerger())
+            {
+                Merger* merger = (Merger*) destNode;
+                merger->switchToSourceNode(processor);
+            }
             destNode->setSourceNode(sourceNode);
         }
 
@@ -1063,7 +1187,9 @@ int ProcessorGraph::getStreamIdForChannel(Node& node, int channel)
 GenericProcessor* ProcessorGraph::getProcessorWithNodeId(int nodeId)
 {
 
-    if (nodeId == AUDIO_NODE_ID)
+    if (nodeId == -1)
+        return nullptr;
+    else if (nodeId == AUDIO_NODE_ID)
         return getAudioNode();
     else if (nodeId == MESSAGE_CENTER_ID)
         return getMessageCenter();
@@ -1425,16 +1551,7 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
     if (originalSource != nullptr)
     {
         if (originalSource->isEmpty())
-        {
-            if (!isConsoleApp)
-            {
-                AccessClass::getGraphViewer()->removeNode(originalSource);
-                AccessClass::getEditorViewport()->removeEditor(originalSource->getEditor());
-            }
-            rootNodes.remove(rootNodes.indexOf(originalSource));
-            emptyProcessors.removeObject(originalSource);
             originalSource = nullptr;
-        }
         else
             originalSource->setDestNode(originalDest);
     }
@@ -2019,7 +2136,7 @@ Plugin::Description ProcessorGraph::getDescriptionFromXml(XmlElement* settings, 
     return description;
 }
 
-Plugin::Description ProcessorGraph::getEmptyProcessorDescription()
+void ProcessorGraph::createEmptyProcessor(GenericProcessor* destProcessor, int rootIndex, bool replace)
 {
     Plugin::Description description;
     
@@ -2027,7 +2144,20 @@ Plugin::Description ProcessorGraph::getEmptyProcessorDescription()
     description.processorType = Plugin::Processor::EMPTY;
     description.index = -2;
     
-    return description;
+    emptyProcessors.add(createProcessorFromDescription(description));
+    emptyProcessors.getLast()->setDestNode(destProcessor);
+    destProcessor->setSourceNode(emptyProcessors.getLast());
+    emptyProcessors.getLast()->update();
+
+    if (rootIndex > -1)
+    {
+        if(replace)
+            rootNodes.set(rootIndex, emptyProcessors.getLast());
+        else
+            rootNodes.insert(rootIndex, emptyProcessors.getLast());
+    }
+    else
+        rootNodes.add(emptyProcessors.getLast());
 }
 
 PluginManager* ProcessorGraph::getPluginManager() { return pluginManager.get(); }

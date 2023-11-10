@@ -117,12 +117,12 @@ bool AddProcessor::undo()
     if (settings != nullptr)
         delete settings;
     
-    GenericProcessor* destProcessor = processor->getDestNode();
-    if (mergerPath != -1 && destProcessor != nullptr && destProcessor->isMerger())
-    {
-        Merger* merger = (Merger*)destProcessor;
-        merger->switchIO(mergerPath);
-    }
+    // GenericProcessor* destProcessor = processor->getDestNode();
+    // if (mergerPath != -1 && destProcessor != nullptr && destProcessor->isMerger())
+    // {
+    //     Merger* merger = (Merger*)destProcessor;
+    //     merger->switchIO(mergerPath);
+    // }
     
     if (processor != nullptr)
     {
@@ -294,8 +294,6 @@ MoveProcessor::MoveProcessor(GenericProcessor* processor,
     
     moveDownstream = moveDownstream_;
 
-    isNewSourceEmpty = false;
-
     if (processor->getSourceNode() != nullptr)
         originalSourceNodeId = processor->getSourceNode()->getNodeId();
     else
@@ -318,12 +316,7 @@ MoveProcessor::MoveProcessor(GenericProcessor* processor,
         
     
     if (sourceNode != nullptr)
-    {
-        if(sourceNode->isEmpty())
-            isNewSourceEmpty = true;
-
         newSourceNodeId = sourceNode->getNodeId();
-    }
     else
         newSourceNodeId = -1;
     
@@ -353,8 +346,7 @@ bool MoveProcessor::perform()
     processorGraph->moveProcessor(processor,
                                     sourceProcessor,
                                     destProcessor,
-                                    moveDownstream,
-                                    isNewSourceEmpty);
+                                    moveDownstream);
     
     return true;
 }

@@ -189,8 +189,6 @@ private:
     int newDestNodeId;
     
     int originalDestNodeDestNodeId;
-
-    bool isNewSourceEmpty;
     
     bool moveDownstream;
 

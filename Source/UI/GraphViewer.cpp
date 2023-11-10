@@ -158,8 +158,6 @@ void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcesso
                     }
                 }
 
-                LOGD("************** Node: ", processor->getEditor()->getNameAndId(), ", Level: ", level," **************");
-
                 // Create or update node for processor
                 if (!nodeExists(processor))
                 {
@@ -439,18 +437,31 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
                       x2, y2);
     }
     
-    g.setColour (Colour(30,30,30));
-    PathStrokeType stroke3 (3.5f);
-    Path arrowPath;
-    stroke3.createStrokedPath(arrowPath, linePath);
-    g.fillPath(arrowPath);
-    
-    g.setColour (Colours::grey);
-    PathStrokeType stroke2 (2.0f);
-    Path arrowPath2;
-    stroke2.createStrokedPath(arrowPath2, linePath);
-    g.fillPath(arrowPath2);
+    if (availableNodes[node1]->getProcessor()->isEmpty())
+    {
+        g.setColour(Colour(150, 150, 150));
+        Path dashedLinePath;
+        PathStrokeType stroke3(2.0f);
+        const float dashLengths[2] = { 5.0f, 5.0f };
+        stroke3.createDashedStroke(dashedLinePath, linePath, dashLengths, 2);
 
+        g.fillPath(dashedLinePath);
+    }
+    else
+    {
+        g.setColour (Colour(30,30,30));
+        PathStrokeType stroke3 (3.5f);
+        Path arrowPath;
+        stroke3.createStrokedPath(arrowPath, linePath);
+        g.fillPath(arrowPath);
+        
+        g.setColour (Colours::grey);
+        PathStrokeType stroke2 (2.0f);
+        Path arrowPath2;
+        stroke2.createStrokedPath(arrowPath2, linePath);
+        g.fillPath(arrowPath2);
+    }
+    
     g.drawArrow(Line<float>(x2 - 9.f, y2, x2 + 1.0f, y2), 0.0f, 10.f, 10.f);
 }
 
@@ -804,7 +815,7 @@ void GraphNode::mouseDown (const MouseEvent& m)
 {    
     AccessClass::getEditorViewport()->highlightEditor(editor);
 
-    if (processor->isMerger() || processor->isSplitter())
+    if (processor->isMerger() || processor->isSplitter() || processor->isEmpty())
         return;
 
     if (m.getEventRelativeTo(this).y < 20)

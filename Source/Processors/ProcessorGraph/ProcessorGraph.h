@@ -96,10 +96,12 @@ public:
     
     /* Moves a processor to a new location in the signal chain. */
     void moveProcessor(GenericProcessor*, GenericProcessor* newSource = nullptr, GenericProcessor* newDest = nullptr,
-                       bool moveDownstream = true, bool isNewSourceEmpty = false);
+                       bool moveDownstream = true);
 
     /* Remove a processor from the signal chain*/
     void removeProcessor(GenericProcessor* processor);
+
+    void connectMergerSource(GenericProcessor* merger, GenericProcessor* sourceNode, int mergerPath);
 
     /* Returns pointers to all of the processors in the signal chain*/
     Array<GenericProcessor*> getListOfProcessors();
@@ -220,8 +222,8 @@ public:
     /** Returns a plugin description from XML settings */
     Plugin::Description getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId);
 
-    /** Returns an EmptyPrcessor description */
-    Plugin::Description getEmptyProcessorDescription();
+    /** Creates an EmptyProcessor source for the given destination processor */
+    void createEmptyProcessor(GenericProcessor* destProcessor, int rootIndex = -1, bool replaceRoot = false);
     
     /** Returns a pointer to the Plugin Manager object */
     PluginManager* getPluginManager();

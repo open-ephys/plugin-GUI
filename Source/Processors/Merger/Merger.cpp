@@ -69,7 +69,10 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
 void Merger::switchIO(int sourceNum)
 {
 
-    static_cast<MergerEditor*>(getEditor())->switchSource(sourceNum, false);
+    LOGDD("Merger switching source path to ", sourceNum);
+
+    if (!headlessMode)
+        static_cast<MergerEditor*>(getEditor())->switchSource(sourceNum, false);
 
     activePath = sourceNum;
 
@@ -143,7 +146,7 @@ bool Merger::stillHasSource() const
 void Merger::switchIO()
 {
 
-    LOGDD("Merger switching source.");
+    LOGDD("Merger switching source. New path: ", 1 - activePath);
 
     if (activePath == 0)
     {
@@ -346,11 +349,6 @@ void Merger::restoreConnections()
 
                     ProcessorGraph* gr = AccessClass::getProcessorGraph();
                     Array<GenericProcessor*> p = gr->getListOfProcessors();
-
-                    sourceNode = nullptr;
-                    sourceNodeA = nullptr;
-                    sourceNodeB = nullptr;
-
 
                     for (int k = 0; k < p.size(); k++)
                     {
