@@ -393,7 +393,8 @@ String SpikeDetector::ensureUniqueName(String name, uint16 currentStream)
 SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type, 
                                      uint16 currentStream,
                                      int startChannel,
-                                     String name)
+                                     String name,
+                                     int index)
 {
     
     Array<var> selectedChannels;
@@ -487,10 +488,19 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
         localChannels
 
     };
+
+    SpikeChannel* spikeChannel;
     
-    spikeChannels.add(new SpikeChannel(spikeChannelSettings));
-    
-    SpikeChannel* spikeChannel = spikeChannels.getLast();
+    if (index < 0)
+    {
+        spikeChannels.add(new SpikeChannel(spikeChannelSettings));
+        spikeChannel = spikeChannels.getLast();
+    }
+    else
+    {
+        spikeChannels.insert(index, new SpikeChannel(spikeChannelSettings));
+        spikeChannel = spikeChannels[index];
+    }
     
     spikeChannel->addProcessor(this);
 

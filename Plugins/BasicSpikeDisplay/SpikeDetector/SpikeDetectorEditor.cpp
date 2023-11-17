@@ -99,14 +99,14 @@ void SpikeDetectorEditor::addSpikeChannels(PopupConfigurationWindow* window, Spi
 }
 
 
-void SpikeDetectorEditor::removeSpikeChannels(PopupConfigurationWindow* window, Array<SpikeChannel*> spikeChannelsToRemove)
+void SpikeDetectorEditor::removeSpikeChannels(PopupConfigurationWindow* window, Array<SpikeChannel*> spikeChannelsToRemove, Array<int> indeces)
 {
 
     SpikeDetector* processor = (SpikeDetector*)getProcessor();
 
     DataStream* stream = processor->getDataStream(getCurrentStream());
 
-    RemoveSpikeChannels* action = new RemoveSpikeChannels(processor, stream, spikeChannelsToRemove);
+    RemoveSpikeChannels* action = new RemoveSpikeChannels(processor, stream, spikeChannelsToRemove, indeces);
 
     CoreServices::getUndoManager()->beginNewTransaction();
     CoreServices::getUndoManager()->perform(action);

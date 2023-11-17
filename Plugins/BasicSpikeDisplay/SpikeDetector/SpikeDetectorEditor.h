@@ -60,7 +60,7 @@ public:
     void addSpikeChannels(PopupConfigurationWindow* window, SpikeChannel::Type type, int count, Array<int> startChannels = Array<int>());
 
     /** Removes spike channels based on an array of pointers to SpikeChannel objects*/
-    void removeSpikeChannels(PopupConfigurationWindow* window, Array<SpikeChannel*> spikeChannelsToRemove);
+    void removeSpikeChannels(PopupConfigurationWindow* window, Array<SpikeChannel*> spikeChannelsToRemove, Array<int> indeces);
 
     /** Called when stream is updated */
     void selectedStreamHasChanged() override;

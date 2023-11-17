@@ -502,6 +502,7 @@ void SpikeDetectorTableModel::cellClicked(int rowNumber, int columnId, const Mou
 void SpikeDetectorTableModel::deleteSelectedRows(int rowThatWasClicked)
 {
     SparseSet<int> selectedRows = table->getSelectedRows();
+    Array<int> indeces;
 
     if (!acquisitionIsActive)
     {
@@ -510,10 +511,13 @@ void SpikeDetectorTableModel::deleteSelectedRows(int rowThatWasClicked)
         for (int i = 0; i < spikeChannels.size(); i++)
         {
             if (selectedRows.contains(i) || i == rowThatWasClicked)
+            {
                 channelsToDelete.add(spikeChannels[i]);
+                indeces.add(i);
+            }
         }
 
-        editor->removeSpikeChannels(owner, channelsToDelete);
+        editor->removeSpikeChannels(owner, channelsToDelete, indeces);
 
         table->deselectAllRows();
 

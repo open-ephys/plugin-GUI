@@ -68,9 +68,11 @@ bool AddSpikeChannels::undo()
 
 RemoveSpikeChannels::RemoveSpikeChannels(SpikeDetector* processor_,
                                          DataStream* stream_,
-                                         Array<SpikeChannel*> spikeChannelsToRemove_) :
+                                         Array<SpikeChannel*> spikeChannelsToRemove_,
+                                         Array<int> indeces_) :
     processor(processor_),
     spikeChannelsToRemove(spikeChannelsToRemove_),
+    indeces(indeces_),
     streamId(stream_->getStreamId())
 {
     settings = std::make_unique<XmlElement>("SPIKE_CHANNELS");
@@ -121,6 +123,7 @@ bool RemoveSpikeChannels::perform()
 
 bool RemoveSpikeChannels::undo()
 {
+    int idx = 0;
     for (auto* spikeParamsXml : settings->getChildIterator())
     {
         String name = spikeParamsXml->getStringAttribute("name", "");
@@ -137,7 +140,7 @@ bool RemoveSpikeChannels::undo()
         {
             uint16 streamId = processor->findSimilarStream(stream_source, stream_name, sample_rate, true);
 
-            SpikeChannel* spikeChannel = processor->addSpikeChannel(type, streamId, -1, name);
+            SpikeChannel* spikeChannel = processor->addSpikeChannel(type, streamId, -1, name, indeces[idx]);
 
             spikeChannel->getParameter("local_channels")->fromXml(spikeParamsXml);
 
@@ -155,6 +158,7 @@ bool RemoveSpikeChannels::undo()
 
             spikeChannel->getParameter("waveform_type")->fromXml(spikeParamsXml);
         }
+        idx++;
     }
     CoreServices::updateSignalChain(processor->getEditor());
     return true;

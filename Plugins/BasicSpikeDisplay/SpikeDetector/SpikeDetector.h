@@ -229,7 +229,8 @@ public:
     SpikeChannel* addSpikeChannel(SpikeChannel::Type type,
                           uint16 currentStream,
                           int startChannel = -1,
-                          String name = "");
+                          String name = "",
+                          int index = -1);
 
     /** Removes a spike channel, based on a SpikeChannel pointer. */
     void removeSpikeChannel (SpikeChannel*);

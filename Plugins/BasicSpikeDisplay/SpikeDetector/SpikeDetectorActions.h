@@ -77,7 +77,8 @@ public:
     /** Constructor*/
     RemoveSpikeChannels(SpikeDetector* processor,
                         DataStream* stream,
-                        Array<SpikeChannel*> spikeChannelsToRemove);
+                        Array<SpikeChannel*> spikeChannelsToRemove,
+                        Array<int> indeces);
 
     /** Destructor */
     ~RemoveSpikeChannels();
@@ -96,6 +97,7 @@ private:
     uint16 streamId;
     Array<SpikeChannel*> spikeChannelsToRemove;
     Array<SpikeChannel*> removedSpikeChannels;
+    Array<int> indeces;
 
 };
 
