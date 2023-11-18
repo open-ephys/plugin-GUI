@@ -76,9 +76,12 @@ int DataViewport::addTabToDataViewport(String name,
 void DataViewport::addTabAtIndex(int tabIndex_, String tabName, Component* tabComponent)
 {
 
-    savedTabIndices.add(tabIndex_);
-    savedTabComponents.add(tabComponent);
-    savedTabNames.add(tabName);
+    if (!savedTabIndices.contains(tabIndex_))
+	{
+        savedTabIndices.add(tabIndex_);
+        savedTabComponents.add(tabComponent);
+        savedTabNames.add(tabName);
+	}
 
 }
 
