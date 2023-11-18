@@ -49,7 +49,7 @@ void LatestVersionCheckerAndUpdater::checkForNewVersion (bool background, MainWi
     {
         backgroundCheck = background;
         mainWindow = mw;
-        startThread (3);
+        startThread ();
     }
 }
 
@@ -369,7 +369,7 @@ public:
         : ThreadWithProgressWindow ("Downloading New Version", true, true),
           asset (a), targetFile (t), completionCallback (std::move (cb))
     {
-        launchThread (3);
+        launchThread ();
     }
 
 private:

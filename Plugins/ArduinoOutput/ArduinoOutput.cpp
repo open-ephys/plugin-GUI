@@ -141,6 +141,13 @@ void ArduinoOutput::parameterValueChanged(Parameter* param)
     {
         setDevice(getDevices()[param->getValue()]);
     }
+    else if (param->getName().equalsIgnoreCase("gate_line"))
+    {
+		if (int(param->getValue()) == 0)
+			gateIsOpen = true;
+		else
+			gateIsOpen = false;
+    }
 }
 
 
@@ -149,17 +156,6 @@ void ArduinoOutput::process (AudioBuffer<float>& buffer)
     checkForEvents ();
 }
 
-
-void ArduinoOutput::parameterValueChanged(Parameter* parameter)
-{
-    if (parameter->getName() == "gate_line")
-    {
-		if (int(parameter->getValue()) == 0)
-			gateIsOpen = true;
-		else
-			gateIsOpen = false;
-    }
-}
 
 void ArduinoOutput::handleTTLEvent(TTLEventPtr event)
 {
