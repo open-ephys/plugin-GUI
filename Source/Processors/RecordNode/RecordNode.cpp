@@ -158,7 +158,7 @@ void RecordNode::parameterValueChanged(Parameter* p)
 
 void RecordNode::checkDiskSpace()
 {
-	float diskSpaceWarningThreshold = 5; //GB
+	float diskSpaceWarningThreshold = 95; //GB
 
 	File dataDir(dataDirectory);
 	int64 freeSpace = dataDir.getBytesFreeOnVolume();
@@ -167,9 +167,14 @@ void RecordNode::checkDiskSpace()
 
 	if (availableBytes < diskSpaceWarningThreshold && !isRecording)
 	{
-		String msg = "Less than " + String(int(diskSpaceWarningThreshold)) + " GB of disk space available in " + String(dataDirectory.getFullPathName());
-		msg += ". Recording may fail. Please free up space or change the recording directory.";
-		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "WARNING", msg);
+		if (directoryChangedSinceLastWarning)
+		{
+			String msg = "Less than " + String(int(diskSpaceWarningThreshold)) + " GB of disk space available in " + String(dataDirectory.getFullPathName());
+			msg += ". Recording may fail. Please free up space or change the recording directory.";
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "WARNING", msg);
+
+			directoryChangedSinceLastWarning = false;
+		}
 	}
 }
 
@@ -393,6 +398,8 @@ void RecordNode::setDataDirectory(File directory)
 {
 	dataDirectory = directory;
 	newDirectoryNeeded = true;
+
+	directoryChangedSinceLastWarning = true;
 
 	checkDiskSpace();
 }
