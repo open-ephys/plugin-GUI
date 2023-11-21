@@ -75,7 +75,7 @@ RecordNode::RecordNode()
 
 	eventMonitor = new EventMonitor();
 
-	checkDiskSpace();
+	//checkDiskSpace();
 
 }
 
@@ -104,6 +104,12 @@ void RecordNode::registerParameters()
 	dataStreamParameters.getLast()->disableUpdateOnSelectedStreamChanged();
 	
 	addSelectedStreamParameter(Parameter::PROCESSOR_SCOPE, "main_sync", "Main Sync Stream ID", "Use this stream as main sync", {}, 0, true);
+}
+
+void RecordNode::initialize(bool signalChainIsLoading)
+{
+	if (!signalChainIsLoading)
+		checkDiskSpace();
 }
 
 void RecordNode::parameterValueChanged(Parameter* p)
@@ -167,8 +173,14 @@ void RecordNode::checkDiskSpace()
 
 	if (availableBytes < diskSpaceWarningThreshold && !isRecording)
 	{
-		String msg = "Less than " + String(int(diskSpaceWarningThreshold)) + " GB of disk space available in " + String(dataDirectory.getFullPathName());
-		msg += ". Recording may fail. Please free up space or change the recording directory.";
+		String msg = "Record Node " + String(getNodeId());
+		msg += "\n\n";
+		msg += "Less than " + String(int(diskSpaceWarningThreshold)) + " GB of disk space available in:\n";
+		msg += "\n";
+		msg += "\t" + String(dataDirectory.getFullPathName());
+		msg += "\n\n";
+		msg += "Recording may fail. Please free up space or change the recording directory.";
+
 		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "WARNING", msg);
 	}
 }

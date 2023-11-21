@@ -92,6 +92,9 @@ public:
 	/** Register parameters */
 	void registerParameters() override;
 
+	/** Initialize */
+	void initialize(bool signalChainIsLoading) override;
+
 	/** Respond to parameter value changes */
 	void parameterValueChanged(Parameter* p) override;
 

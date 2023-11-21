@@ -84,10 +84,10 @@ bool AddProcessor::perform()
     {
         processor->parametersAsXml = settings;
         processor->loadFromXml();
-    }
 
-    if (processor != nullptr && !signalChainIsLoading)
-        processor->initialize(false);
+        if (processor != nullptr && !signalChainIsLoading)
+            processor->initialize(false);
+    }
     
     if (processor != nullptr)
     {
@@ -263,7 +263,7 @@ bool DeleteProcessor::undo()
     processor = processorGraph->createProcessor(description,
                                         sourceProcessor,
                                         destProcessor,
-                                        false);
+                                        true);
     processor->parametersAsXml = settings.get();
 
     if(processor->isMerger())
