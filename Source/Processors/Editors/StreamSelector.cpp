@@ -332,7 +332,7 @@ void StreamSelector::resized()
     }
 
     if (streams.size() > 0)
-        streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
+        streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getKey());
 
     viewport->setViewPosition(viewedStreamIndex * streamInfoViewWidth, 0);
 }
@@ -353,7 +353,7 @@ void StreamSelector::buttonClicked(Button* button)
 
             LOGDD("  Target value: ", viewedStreamIndex * streamInfoViewWidth);
 
-            streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
+            streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getKey());
             streamSelectorButton->repaint();
         }
 
@@ -370,7 +370,7 @@ void StreamSelector::buttonClicked(Button* button)
             scrollOffset.setTargetValue(viewedStreamIndex * streamInfoViewWidth);
             startTimer(50);
 
-            streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
+            streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getKey());
             streamSelectorButton->repaint();
         }
     }
@@ -397,7 +397,7 @@ void StreamSelector::buttonClicked(Button* button)
             scrollOffset.setTargetValue(viewedStreamIndex * streamInfoViewWidth);
             startTimer(50);
 
-            streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
+            streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getKey());
             streamSelectorButton->repaint();
         }
     }
@@ -418,7 +418,7 @@ void StreamSelector::setViewedIndex(int i)
     if (i >= 0 && i < streams.size())
     {
         viewedStreamIndex = i;
-        streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
+        streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getKey());
         streamSelectorButton->repaint();
 
         viewport->setViewPosition(viewedStreamIndex * streamInfoViewWidth, 0);
@@ -503,7 +503,7 @@ uint16 StreamSelector::finishedUpdate()
     {
         viewport->setViewPosition(viewedStreamIndex * streamInfoViewWidth, 0);
         
-        streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getName());
+        streamSelectorButton->setName(streams[viewedStreamIndex]->getStream()->getKey());
         streamSelectorButton->repaint();
     }
 
@@ -587,6 +587,7 @@ void StreamNameButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonD
     else
         g.setColour(Colours::darkgrey);
 
+    g.setFont(Font("Fira Sans", "SemiBold", 14.0f));
     g.drawText(getName(), 0, 0, getWidth(), getHeight(), Justification::centred, true);
 }
 
