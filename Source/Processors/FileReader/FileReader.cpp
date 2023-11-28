@@ -265,8 +265,8 @@ bool FileReader::setFile (String fullpath, bool shouldUpdateSignalChain)
 
     TimeParameter* startTime = static_cast<TimeParameter*>(getParameter("start_time"));
     startTime->getTimeValue()->setMaxTimeInMilliseconds(samplesToMilliseconds (input->getActiveNumSamples()));
-    startTime->getTimeValue()->setTimeFromMilliseconds(samplesToMilliseconds (startSample));
-    startTime->setNextValue(startTime->getTimeValue()->toString(), false);
+    //startTime->getTimeValue()->setTimeFromMilliseconds(samplesToMilliseconds (startSample));
+    //startTime->setNextValue(startTime->getTimeValue()->toString(), false);
 
     TimeParameter* endTime = static_cast<TimeParameter*>(getParameter("end_time"));
     endTime->getTimeValue()->setMaxTimeInMilliseconds(samplesToMilliseconds (input->getActiveNumSamples()));
