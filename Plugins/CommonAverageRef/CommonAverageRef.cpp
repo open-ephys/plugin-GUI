@@ -35,12 +35,12 @@ CARSettings::CARSettings()
 CommonAverageRef::CommonAverageRef()
     : GenericProcessor ("Common Avg Ref") 
 {
-    addSelectedChannelsParameter(Parameter::STREAM_SCOPE,
+    addMaskChannelsParameter(Parameter::STREAM_SCOPE,
                                  "affected",
                                  "Affected",
                                  "Channels from which the average is subtracted");
     
-    addSelectedChannelsParameter(Parameter::STREAM_SCOPE,
+    addMaskChannelsParameter(Parameter::STREAM_SCOPE,
                                  "reference",
                                  "Reference",
                                  "Channels to use as the reference");
