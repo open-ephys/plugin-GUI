@@ -597,6 +597,10 @@ void GenericEditor::setCollapsedState(bool state)
             for (int i = 0; i < getNumChildComponents(); i++)
             {
                 Component* c = getChildComponent(i);
+
+                if (c == drawerButton.get() && selectedStream == 0)
+                    continue;
+
                 c->setVisible(true);
             }
 
