@@ -232,8 +232,8 @@ public:
                           String name = "",
                           int index = -1);
 
-    /** Removes a spike channel, based on a SpikeChannel pointer. */
-    void removeSpikeChannel (SpikeChannel*);
+    /** Removes a spike channel, based on a SpikeChannel identifier. */
+    void removeSpikeChannel (String);
     // =====================================================================
 
     /** Get array of local SpikeChannel objects for a given dataStream*/

@@ -68,6 +68,8 @@ void SpikeDetectorEditor::buttonClicked(Button* button)
                                                            spikeChannels,
                                                            acquisitionIsActive);
 
+        currentConfigWindow->update(processor->getSpikeChannelsForStream(getCurrentStream()));
+
         CallOutBox& myBox
             = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(currentConfigWindow), 
                 button->getScreenBounds(),
@@ -80,18 +82,30 @@ void SpikeDetectorEditor::buttonClicked(Button* button)
 
 }
 
+void SpikeDetectorEditor::updateConfigurationWindow()
+{
+    if (currentConfigWindow != nullptr)
+    {
+        SpikeDetector* processor = (SpikeDetector*)getProcessor();
+        currentConfigWindow->update(processor->getSpikeChannelsForStream(getCurrentStream()));
+    }
+}
+
 void SpikeDetectorEditor::addSpikeChannels(PopupConfigurationWindow* window, SpikeChannel::Type type, int count, Array<int> startChannels)
 {
     SpikeDetector* processor = (SpikeDetector*)getProcessor();
+
+    LOGD("** ADDING TO CURRENT STREAM: ", getCurrentStream());
 
     DataStream* stream = processor->getDataStream(getCurrentStream());
 
     AddSpikeChannels* action = new AddSpikeChannels(processor, stream, type, count, startChannels);
 
     CoreServices::getUndoManager()->beginNewTransaction();
-    CoreServices::getUndoManager()->perform(action);
+    CoreServices::getUndoManager()->perform((UndoableAction*)action);
 
-    CoreServices::updateSignalChain(this);
+    // Now called in perform
+    //CoreServices::updateSignalChain(this);
         
     if (window != nullptr)
         window->update(processor->getSpikeChannelsForStream(getCurrentStream()));
@@ -109,9 +123,10 @@ void SpikeDetectorEditor::removeSpikeChannels(PopupConfigurationWindow* window, 
     RemoveSpikeChannels* action = new RemoveSpikeChannels(processor, stream, spikeChannelsToRemove, indeces);
 
     CoreServices::getUndoManager()->beginNewTransaction();
-    CoreServices::getUndoManager()->perform(action);
+    CoreServices::getUndoManager()->perform((UndoableAction*)action);
     
-    CoreServices::updateSignalChain(this);
+    // Now called in perform
+    //CoreServices::updateSignalChain(this);
 
     if (window != nullptr)
         window->update(processor->getSpikeChannelsForStream(getCurrentStream()));

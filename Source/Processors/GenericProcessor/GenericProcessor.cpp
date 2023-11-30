@@ -48,6 +48,8 @@
 
 const String GenericProcessor::m_unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");
 
+std::map<int, std::vector<OpenEphysAction*>> GenericProcessor::undoableActions;
+
 GenericProcessor::GenericProcessor(const String& name, bool headlessMode_)
 	: GenericProcessorBase(name)
     , ParameterOwner(ParameterOwner::Type::OTHER)

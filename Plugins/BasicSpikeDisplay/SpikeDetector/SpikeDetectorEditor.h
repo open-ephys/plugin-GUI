@@ -68,6 +68,9 @@ public:
     /** Called by PopupConfigurationWindow*/
     int getNumChannelsForCurrentStream();
     
+    /** Update configuration window */
+    void updateConfigurationWindow();
+
 private:
 
     std::unique_ptr<UtilityButton> configureButton;

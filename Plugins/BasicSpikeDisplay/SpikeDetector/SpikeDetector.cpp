@@ -396,7 +396,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
                                      String name,
                                      int index)
 {
-    
+
     Array<var> selectedChannels;
     Array<int> localChannels;
 
@@ -579,12 +579,17 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
 
 }
 
-void SpikeDetector::removeSpikeChannel (SpikeChannel* spikeChannel)
+void SpikeDetector::removeSpikeChannel(String spikeChannelKey)
 {
-
-    LOGD("Removing spike channel: ", spikeChannel->getName(), " from stream ", spikeChannel->getStreamId());
- 
-    spikeChannels.removeObject(spikeChannel);
+    for (int i = 0; i < spikeChannels.size(); i++)
+    {
+        if (spikeChannels[i]->getIdentifier() == spikeChannelKey)
+        {
+            LOGD("Removing spike channel: ", spikeChannels[i]->getName(), " from stream ", spikeChannels[i]->getStreamId());
+            spikeChannels.removeObject(spikeChannels[i]);
+            break;
+        }
+    }
 
     //Reset electrode and channel counters if no more spike channels after this delete
     if (!spikeChannels.size())

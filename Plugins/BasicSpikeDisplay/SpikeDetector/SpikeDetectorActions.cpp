@@ -28,10 +28,11 @@
 AddSpikeChannels::AddSpikeChannels(SpikeDetector* processor_,
                                       DataStream* stream_,
                                       SpikeChannel::Type type_,
-                                      int count_, //adds multiple channels atonce
+                                      int count_, //adds multiple channels at once
                                       Array<int> startChannels_) :
-    processor(processor_),
-    streamId(stream_->getStreamId()),
+    OpenEphysAction("AddSpikeChannels"),
+    spikeDetector(processor_),
+    streamKey(stream_->getKey()),
     type(type_),
     count(count_),
     startChannels(startChannels_)
@@ -54,33 +55,68 @@ bool AddSpikeChannels::perform()
         if (i < startChannels.size())
             startChannel = startChannels[i];
 
-        processor->addSpikeChannel(type, streamId, startChannel);
+        //TODO: Should add a convenience function for this
+        uint16 streamId = 0;
+        for (auto stream : spikeDetector->getDataStreams())
+        {
+            if (stream->getKey() == streamKey)
+            {
+                streamId = stream->getStreamId();
+                break;
+            }
+        }
+        if (streamId == 0) return false;
+
+        //TODO: Pass stream name instead of streamId once this is working
+        SpikeChannel* spikeChannel = spikeDetector->addSpikeChannel(type, streamId, startChannel);
+        addedSpikeChannels.add(spikeChannel->getIdentifier());
     }
+    spikeDetector->registerUndoableAction(spikeDetector->getNodeId(), this);
+    CoreServices::updateSignalChain(spikeDetector);
+
     return true;
 }
 
 bool AddSpikeChannels::undo()
 {
+    uint16 streamId = 0;
+    for (auto stream : spikeDetector->getDataStreams())
+    {
+        if (stream->getKey() == streamKey)
+        {
+            streamId = stream->getStreamId();
+            break;
+        }
+    }
+    if (streamId == 0) return false;
     for (int i = 0; i < count; i++)
-        processor->removeSpikeChannel(processor->getSpikeChannelsForStream(streamId).getLast());
+        spikeDetector->removeSpikeChannel(addedSpikeChannels[i]);
+    CoreServices::updateSignalChain(spikeDetector);
     return true;
+}
+
+void AddSpikeChannels::restoreOwner(GenericProcessor* owner)
+{
+    LOGD("RESTORING OWNER FOR: AddSpikeChannels");
+    spikeDetector = (SpikeDetector*)owner;
 }
 
 RemoveSpikeChannels::RemoveSpikeChannels(SpikeDetector* processor_,
                                          DataStream* stream_,
                                          Array<SpikeChannel*> spikeChannelsToRemove_,
                                          Array<int> indeces_) :
-    processor(processor_),
-    spikeChannelsToRemove(spikeChannelsToRemove_),
+    OpenEphysAction("RemoveSpikeChannels"),
+    spikeDetector(processor_),
     indeces(indeces_),
-    streamId(stream_->getStreamId())
+    streamKey(stream_->getKey())
 {
     settings = std::make_unique<XmlElement>("SPIKE_CHANNELS");
 
-    for (auto spikeChannel : spikeChannelsToRemove)
+    for (auto spikeChannel : spikeChannelsToRemove_)
     {
         if (spikeChannel->isLocal())
         {
+            LOGD("REMOVING SPIKE CHANNEL: ", spikeChannel->getName());
 
             XmlElement* spikeParamsXml = settings->createNewChildElement("SPIKE_CHANNEL");
 
@@ -106,6 +142,8 @@ RemoveSpikeChannels::RemoveSpikeChannels(SpikeDetector* processor_,
             }
 
             spikeChannel->getParameter("waveform_type")->toXml(spikeParamsXml);
+
+            spikeChannelsToRemove.add(spikeChannel->getIdentifier());
         }
     }
 }
@@ -114,10 +152,18 @@ RemoveSpikeChannels::~RemoveSpikeChannels()
 {
 }
 
+void RemoveSpikeChannels::restoreOwner(GenericProcessor* processor)
+{
+    spikeDetector = (SpikeDetector*)processor;
+}
+
 bool RemoveSpikeChannels::perform()
 {
     for (auto spikeChannel : spikeChannelsToRemove)
-        processor->removeSpikeChannel(spikeChannel);
+        spikeDetector->removeSpikeChannel(spikeChannel);
+    spikeDetector->registerUndoableAction(spikeDetector->getNodeId(), this);
+    CoreServices::updateSignalChain(spikeDetector);
+
     return true;
 }
 
@@ -128,19 +174,17 @@ bool RemoveSpikeChannels::undo()
     {
         String name = spikeParamsXml->getStringAttribute("name", "");
 
-        //std::cout << "SPIKE CHANNEL NAME: " << name << std::endl;
-
         double sample_rate = spikeParamsXml->getDoubleAttribute("sample_rate", 0.0f);
         String stream_name = spikeParamsXml->getStringAttribute("stream_name", "");
         int stream_source = spikeParamsXml->getIntAttribute("stream_source", 0);
 
         SpikeChannel::Type type = SpikeChannel::typeFromNumChannels(spikeParamsXml->getIntAttribute("num_channels", 1));
 
-        if (!processor->alreadyLoaded(name, type, stream_source, stream_name))
+        if (!spikeDetector->alreadyLoaded(name, type, stream_source, stream_name))
         {
-            uint16 streamId = processor->findSimilarStream(stream_source, stream_name, sample_rate, true);
+            uint16 streamId = spikeDetector->findSimilarStream(stream_source, stream_name, sample_rate, true);
 
-            SpikeChannel* spikeChannel = processor->addSpikeChannel(type, streamId, -1, name, indeces[idx]);
+            SpikeChannel* spikeChannel = spikeDetector->addSpikeChannel(type, streamId, -1, name, indeces[idx]);
 
             spikeChannel->getParameter("local_channels")->fromXml(spikeParamsXml);
 
@@ -160,6 +204,6 @@ bool RemoveSpikeChannels::undo()
         }
         idx++;
     }
-    CoreServices::updateSignalChain(processor->getEditor());
+    CoreServices::updateSignalChain(spikeDetector);
     return true;
 }

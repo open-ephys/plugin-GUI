@@ -1089,6 +1089,21 @@ void ProcessorGraph::restoreParameters()
 
 }
 
+std::vector<OpenEphysAction*> ProcessorGraph::getUndoableActions(int nodeId)
+{
+    return GenericProcessor::getUndoableActions(nodeId);
+}
+
+void ProcessorGraph::updateUndoableActions(int nodeId)
+{
+    for (auto action : getUndoableActions(nodeId))
+    {
+        GenericProcessor* p = getProcessorWithNodeId(nodeId);
+        p->update();
+        action->restoreOwner(p);
+    }
+}
+
 bool ProcessorGraph::allRecordNodesAreSynchronized()
 {
     Array<GenericProcessor*> processors = getListOfProcessors();

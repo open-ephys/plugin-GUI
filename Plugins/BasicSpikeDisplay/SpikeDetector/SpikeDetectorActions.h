@@ -27,6 +27,7 @@
 #include <ProcessorHeaders.h>
 
 #include "SpikeDetector.h"
+#include "SpikeDetectorEditor.h"
 
 /**
     Adds a spike channel to the spike detector,
@@ -35,7 +36,7 @@
     Undo: removes the spike channel from the
     spike detector.
 */
-class AddSpikeChannels : public UndoableAction
+class AddSpikeChannels : public OpenEphysAction
 {
 
 public:
@@ -50,6 +51,8 @@ public:
     /** Destructor */
     ~AddSpikeChannels();
 
+    void restoreOwner(GenericProcessor* processor) override;
+
     /** Perform the action*/
     bool perform();
 
@@ -60,16 +63,18 @@ public:
 
 private:
 
-    SpikeDetector* processor;
-    uint16 streamId;
+    SpikeDetector* spikeDetector;
+    String streamKey;
     SpikeChannel::Type type;
     Array<int> startChannels;
+
+    Array<String> addedSpikeChannels;
 
     int count;
 
 };
 
-class RemoveSpikeChannels : public UndoableAction
+class RemoveSpikeChannels : public OpenEphysAction
 {
 
 public:
@@ -83,6 +88,8 @@ public:
     /** Destructor */
     ~RemoveSpikeChannels();
 
+    void restoreOwner(GenericProcessor* processor) override;
+
     /** Perform the action*/
     bool perform();
 
@@ -93,9 +100,9 @@ public:
 
 private:
 
-    SpikeDetector* processor;
-    uint16 streamId;
-    Array<SpikeChannel*> spikeChannelsToRemove;
+    SpikeDetector* spikeDetector;
+    String streamKey;
+    Array<String> spikeChannelsToRemove;
     Array<SpikeChannel*> removedSpikeChannels;
     Array<int> indeces;
 

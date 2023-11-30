@@ -87,6 +87,7 @@ bool AddProcessor::perform()
 
         if (processor != nullptr && !signalChainIsLoading)
             processor->initialize(false);
+
     }
     
     if (processor != nullptr)
@@ -98,6 +99,8 @@ bool AddProcessor::perform()
             Merger* merger = (Merger*)destProcessor;
             mergerPath = merger->getPath();
         }
+
+        processorGraph->updateUndoableActions(nodeId);
 
         return true;
     }
@@ -263,7 +266,7 @@ bool DeleteProcessor::undo()
     processor = processorGraph->createProcessor(description,
                                         sourceProcessor,
                                         destProcessor,
-                                        true);
+                                        false);
     processor->parametersAsXml = settings.get();
 
     if(processor->isMerger())
@@ -277,7 +280,10 @@ bool DeleteProcessor::undo()
     processorGraph->updateSettings(processor);
     
     if (processor != nullptr)
+    {
+        processorGraph->updateUndoableActions(nodeId);
         return true;
+    }
     else
         return false;
 }
