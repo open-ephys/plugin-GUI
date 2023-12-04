@@ -99,24 +99,14 @@ PluginManager::PluginManager()
 
 	//Shared directory at the same level as executable
 	File sharedPath = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("shared");
-	//Shared directory managed by Plugin Installer at C:/ProgramData
-	File installSharedPath = File::getSpecialLocation(File::commonApplicationDataDirectory)
-							.getChildFile("Open Ephys")
-							.getChildFile("shared-api" + String(PLUGIN_API_VER));
 
-	if(appDir.contains("plugin-GUI\\Build\\") || appDir.contains("build\\plugin-GUI\\"))
-	{
-		SetDllDirectory(sharedPath.getFullPathName().toUTF8());
-	}
-	else
-    {
-		if (!installSharedPath.isDirectory())
-        {
-			LOGD("Copying shared dependencies to ", installSharedPath.getFullPathName());
-            sharedPath.copyDirectoryTo(installSharedPath);
-        }
-        SetDllDirectory(installSharedPath.getFullPathName().toUTF8());
-    }
+	/*
+	* NOTE: the logic supporting finding plugins and other DLLs in directories outside of this
+	* application bundle has been removed. This likely means the "Plugin Installer" won't work properly,
+	* but for the purposes of UG3 this shouldn't matter. This was done since our packaging method copies
+	* all plugins into this shared/ folder, and needs to work in a portable fashion.
+	*/
+	SetDllDirectory(sharedPath.getFullPathName().toUTF8());
 
 #elif __linux__
 	File installSharedPath = File::getSpecialLocation(File::userApplicationDataDirectory)
