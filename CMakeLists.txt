@@ -33,9 +33,6 @@ set(PLUGINS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Plugins)
 set(SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Source)
 set(TEST_HELPERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/TestHelpers)
 
-configure_file(${JUCE_DIRECTORY}/JuceHeader.h.in ${JUCE_DIRECTORY}/JuceHeader.h)
-configure_file(${RESOURCES_DIRECTORY}/Build-files/resources.rc.in ${RESOURCES_DIRECTORY}/Build-files/resources.rc)
-
 #global properties
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 	$<$<PLATFORM_ID:Windows>:_CRT_SECURE_NO_WARNINGS>
