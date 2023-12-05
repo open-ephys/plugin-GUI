@@ -300,6 +300,24 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
                 sourceNode->setDestNode(nullptr);
                 if (destNode != nullptr)
                     destNode->setSourceNode(addedProc);
+                
+                if (rootNodes.size() == 8)
+                {
+                    AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Signal chain error",
+                                                            "Maximum of 8 signal chains.");
+                    removeProcessor(addedProc);
+                    updateViews(rootNodes.getLast());
+                    return nullptr;
+
+                } else {
+
+                    GenericProcessor* rootSource = sourceNode;
+                    while (rootSource->getSourceNode() != nullptr)
+                        rootSource = rootSource->getSourceNode();
+
+                    rootNodes.insert(rootNodes.indexOf(rootSource) + 1, addedProc);
+                    shouldCheckForNewRootNodes = false;
+                }
             }
 
             if (sourceNode == nullptr && destNode != nullptr)

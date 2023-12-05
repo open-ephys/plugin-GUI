@@ -1035,8 +1035,8 @@ void GraphNode::updateStreamInfo()
         {
             if (processor->getDataStream(it->first) == nullptr)
             {
-                it = streamInfoVisible.erase(it);
                 streamParamsVisible.erase(it->first);
+                it = streamInfoVisible.erase(it);
             }
             else
                 ++it;
