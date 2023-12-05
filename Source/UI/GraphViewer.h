@@ -66,6 +66,14 @@ public:
     /** Returns max height of the data stream editor */
 	int getMaxHeight() const;
 
+    /** Returns the stream key */
+    String getStreamKey() const;
+
+    /** Restores panel state*/
+    void restorePanels();
+
+    DataStreamButton* headerButton = nullptr;
+
 private:
 
     DataStream* stream;
@@ -136,7 +144,7 @@ public:
     /** Paint component */
     void paintButton(Graphics& g, bool isHighlighted, bool isDown);
 
-    Component* getComponent() const { return (Component*)info; }
+    DataStreamInfo* getDataStreamInfo() const { return info; }
 
 private:
 
@@ -246,8 +254,20 @@ public:
     /* Sets DataStreamInfo panel size */
     void setDataStreamPanelSize(Component* streamPanelComponent, int height);
 
+    /** Restores panel states */
+    void restorePanels();
+
     /** True if processor still exists */
     bool stillNeeded;
+
+    /** Stores processor parameter panel visibility state */
+    bool processorInfoVisible;
+
+    /** Stores stream info panel visibility state */
+    std::map<String, bool> streamInfoVisible;
+
+    /** Stores stream parameter panel visibility state */
+    std::map<String, bool> streamParamsVisible;
     
 private:
     GenericEditor* editor;
@@ -266,8 +286,6 @@ private:
     std::unique_ptr<Component> processorParamHeader;
 
     DropShadower nodeDropShadower { DropShadow(Colours::black.withAlpha(0.8f), 10, {2,10}) };
-    
-    bool processorInfoVisible;
     
     bool isMouseOver;
     int horzShift;
@@ -364,6 +382,12 @@ public:
     GraphViewport* getGraphViewport() { return graphViewport.get(); }
 
     int getLevelStartY(int level) const;
+
+    /** Save settings. */
+    void saveStateToXml(XmlElement*);
+
+    /** Load settings. */
+    void loadStateFromXml(XmlElement*);
     
 private:
     void connectNodes (int, int, Graphics&);

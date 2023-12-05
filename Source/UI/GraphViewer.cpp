@@ -312,40 +312,6 @@ void GraphViewer::paint (Graphics& g)
             auto nodeProcessor = availableNodes[i]->getProcessor();
             float endX;
 
-            // /* If RootProcessor is not a source node, draw an empty node 
-            //  * at the beginning of the signal chain */
-            // if ( !nodeProcessor->isSource())
-            // {
-            //     // Merger* merger = (Merger*) nodeProcessor;
-            //     // if(merger->getSourceNode(0) == nullptr && merger->getSourceNode(1) != nullptr)
-            //     // {
-            //     endX = X_BORDER_SIZE;
-
-            //     g.setColour(Colour(150, 150, 150));
-            //     g.drawRect(endX, availableNodes[i]->getSrcPoint().y - 10, (float)NODE_WIDTH, 20.0f, 2.0f);
-                
-            //     g.setFont(Font("Fira Code", "SemiBold", 14));
-            //     g.drawFittedText("No Source", endX, availableNodes[i]->getSrcPoint().y - 10,
-            //         (float)NODE_WIDTH, 20.0f, Justification::centred, 1);
-                
-            //     Path dashedLinePath;
-            //     dashedLinePath.startNewSubPath(endX + (float)NODE_WIDTH, availableNodes[i]->getSrcPoint().y);
-            //     dashedLinePath.lineTo(availableNodes[i]->getSrcPoint());
-
-            //     PathStrokeType stroke3(2.0f);
-            //     const float dashLengths[2] = { 5.0f, 5.0f };
-            //     stroke3.createDashedStroke(dashedLinePath, dashedLinePath, dashLengths, 2);
-
-            //     g.fillPath(dashedLinePath);
-            //     g.drawArrow(Line<float>(availableNodes[i]->getSrcPoint().translated(- 9.0f, 0.0f), 
-            //         availableNodes[i]->getSrcPoint().translated(1.0f, 0.0f)), 0.0f, 10.f, 10.f);
-            //     // }
-            // }
-            // else
-            // {
-            //     endX = availableNodes[i]->getSrcPoint().x;
-            // }
-
             Point<float> startPoint = Point<float>(X_BORDER_SIZE - 15, availableNodes[i]->getSrcPoint().y);
             Point<float> endPoint = availableNodes[i]->getSrcPoint();
 
@@ -467,6 +433,61 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
     g.drawArrow(Line<float>(x2 - 9.f, y2, x2 + 1.0f, y2), 0.0f, 10.f, 10.f);
 }
 
+
+void GraphViewer::saveStateToXml (XmlElement* xml)
+{
+    XmlElement* graphNodeStates = new XmlElement("GRAPHVIEWER");
+
+    for (auto node : availableNodes)
+    {
+        XmlElement* nodeXml = new XmlElement ("NODE");
+        nodeXml->setAttribute("id", node->getProcessor()->getNodeId());
+        nodeXml->setAttribute("isProcessorInfoVisible", node->processorInfoVisible);
+        
+        for (auto stream : node->streamInfoVisible)
+        {
+            XmlElement* streamXml = new XmlElement ("STREAM");
+            streamXml->setAttribute("key", stream.first);
+            streamXml->setAttribute("isStreamVisible", stream.second);
+            streamXml->setAttribute("isParamsVisible", node->streamParamsVisible[stream.first]);
+            nodeXml->addChildElement(streamXml);
+        }
+        
+        graphNodeStates->addChildElement (nodeXml);
+    }
+
+    xml->addChildElement(graphNodeStates);
+}
+
+
+void GraphViewer::loadStateFromXml (XmlElement* xml)
+{    
+    for (auto* nodeXml : xml->getChildIterator())
+    {
+        for (auto node : availableNodes)
+        {
+            if (node->getProcessor()->getNodeId() == nodeXml->getIntAttribute("id"))
+            {
+                node->processorInfoVisible = nodeXml->getBoolAttribute("isProcessorInfoVisible");
+                
+                for (auto streamXml : nodeXml->getChildIterator())
+                {
+                    String streamKey = streamXml->getStringAttribute("key");
+                    if (streamKey.isNotEmpty() && node->streamInfoVisible.count(streamKey) > 0)
+                    {
+                        node->streamInfoVisible[streamKey] = streamXml->getBoolAttribute("isStreamVisible");
+                        node->streamParamsVisible[streamKey] = streamXml->getBoolAttribute("isParamsVisible");
+                    }
+                }
+
+                node->restorePanels();
+
+                break;
+            }
+        }
+    }
+}
+
 /// ------------------------------------------------------
 
 
@@ -550,6 +571,11 @@ void DataStreamInfo::paint(Graphics& g)
 
 }
 
+String DataStreamInfo::getStreamKey() const
+{
+    return stream->getKey();
+}
+
 void DataStreamInfo::buttonClicked(Button* button)
 {
     DataStreamButton* dsb = (DataStreamButton*)button;
@@ -557,11 +583,14 @@ void DataStreamInfo::buttonClicked(Button* button)
     if (dsb != parameterButton)
         return;
 
+    bool btnState = button->getToggleState();
+
     // expand/collapse panel and inform node about new size
-    if (button->getToggleState())
+    if (btnState)
     {
         heightInPixels = editorHeight + 80;
         node->updateBoundaries();
+        node->setDataStreamPanelSize(this, heightInPixels);
         parameterPanel->setSize(NODE_WIDTH, editorHeight + 20);
         parameterPanel->expandPanelFully(streamParameterEditorComponent.get(), false);
     }
@@ -569,11 +598,12 @@ void DataStreamInfo::buttonClicked(Button* button)
     {
         heightInPixels = 80;
         node->updateBoundaries();
+        node->setDataStreamPanelSize(this, heightInPixels);
         parameterPanel->setSize(NODE_WIDTH, 20);
         parameterPanel->setPanelSize(streamParameterEditorComponent.get(), 0, false);
     }
 
-    node->setDataStreamPanelSize(this, heightInPixels);
+    node->streamParamsVisible[stream->getKey()] = btnState;
     node->updateGraphView();
 }
 
@@ -588,6 +618,13 @@ int DataStreamInfo::getMaxHeight() const
         return editorHeight + 80;
     else
         return 60;
+}
+
+void DataStreamInfo::restorePanels()
+{
+    headerButton->setToggleState(node->streamInfoVisible[stream->getKey()], dontSendNotification);
+    parameterButton->setToggleState(node->streamParamsVisible[stream->getKey()], dontSendNotification);
+    buttonClicked(parameterButton);
 }
 
 
@@ -658,6 +695,7 @@ DataStreamButton::DataStreamButton(DataStreamInfo* info_, GenericEditor* editor_
     pathClosed.addTriangle(8.0f, 4.0f, 8.0f, 11.0f, 15.0f, 7.5f);
     pathClosed.applyTransform(AffineTransform::scale(1.2f));
     
+    info->headerButton = this;
 }
 
 
@@ -744,6 +782,9 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
             infoPanel->setCustomPanelHeader(info, button, true);
             button->removeMouseListener(button->getParentComponent());
             dataStreamButtons.add(button);
+
+            streamInfoVisible[stream->getKey()] = false;
+            streamParamsVisible[stream->getKey()] = false;
         }
 
         addAndMakeVisible(infoPanel.get());
@@ -846,10 +887,15 @@ void GraphNode::buttonClicked(Button* button)
 
     DataStreamButton* dsb = (DataStreamButton*)button;
 
-    if (button->getToggleState())
-        infoPanel->setPanelSize(dsb->getComponent(), dsb->getDesiredHeight() , false);
+    String streamKey = dsb->getDataStreamInfo()->getStreamKey();
+    bool btnState = button->getToggleState();
+
+    if (btnState)
+        infoPanel->setPanelSize(dsb->getDataStreamInfo(), dsb->getDesiredHeight() , false);
     else
-        infoPanel->setPanelSize(dsb->getComponent(), 0, false);
+        infoPanel->setPanelSize(dsb->getDataStreamInfo(), 0, false);
+    
+    streamInfoVisible[streamKey] = btnState;
 
     updateGraphView();
 }
@@ -983,9 +1029,23 @@ void GraphNode::updateStreamInfo()
         dataStreamInfos.clear();
         dataStreamButtons.clear();
 
-        processorParamComponent->updateView();
-        processorInfoVisible = false;
+        /* iterate through the streamInfoVisible map and remove all 
+        ** entires that dont belong to processors->getDataStreams() */
+        for (auto it = streamInfoVisible.begin(); it != streamInfoVisible.end();)
+        {
+            if (processor->getDataStream(it->first) == nullptr)
+            {
+                it = streamInfoVisible.erase(it);
+                streamParamsVisible.erase(it->first);
+            }
+            else
+                ++it;
+        }
 
+        // update parameter editor views
+        processorParamComponent->updateView();
+
+        // add processor info panel
         infoPanel->addPanel(-1, processorParamComponent.get(), false);
         infoPanel->setMaximumPanelSize(processorParamComponent.get(), 
                                        processorParamComponent->heightInPixels);
@@ -995,6 +1055,7 @@ void GraphNode::updateStreamInfo()
         infoPanel->setCustomPanelHeader(processorParamComponent.get(), processorParamHeader.get(), false);
         processorParamHeader->removeMouseListener(processorParamHeader->getParentComponent());
 
+        // recreate data stream info panels and buttons and add them to infoPanel
         for (auto stream : processor->getDataStreams())
         {
             LOGDD("Adding data stream info and buttons for stream: ", stream->getName());
@@ -1006,12 +1067,41 @@ void GraphNode::updateStreamInfo()
             DataStreamButton* button = new DataStreamButton(info, editor, stream->getName());
             button->addListener(this);
             infoPanel->setCustomPanelHeader(info, button, true);
-            button->removeMouseListener(button->getParentComponent());
+            button->removeMouseListener(button->getParentComponent()); // remove mouse listener from header component
             dataStreamButtons.add(button);
+
+            if (streamInfoVisible.count(stream->getKey()) == 0)
+            {
+                streamInfoVisible[stream->getKey()] = false;
+                streamParamsVisible[stream->getKey()] = false;
+            }
+
         }
 
         addAndMakeVisible(infoPanel.get());
         infoPanel->addMouseListener(this, true);
+
+        restorePanels();
+    }
+}
+
+
+void GraphNode::restorePanels()
+{
+    LOGDD("Restoring panels for graph node: ", editor->getNameAndId());
+
+    if (processorInfoVisible)
+    {
+        updateBoundaries();
+        infoPanel->expandPanelFully(processorParamComponent.get(), false);
+    }
+    
+    for (auto info : dataStreamInfos)
+    {
+        if (streamInfoVisible[info->getStreamKey()])
+        {
+            info->restorePanels();
+        }
     }
 }
 

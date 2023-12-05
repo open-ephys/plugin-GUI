@@ -1966,6 +1966,7 @@ void ProcessorGraph::saveToXml(XmlElement* xml)
     if (!isConsoleApp)
     {
         AccessClass::getEditorViewport()->saveEditorViewportSettingsToXml(xml);
+        AccessClass::getGraphViewer()->saveStateToXml(xml); // save the graph viewer settings
         AccessClass::getDataViewport()->saveStateToXml(xml); // save the data viewport settings
         AccessClass::getProcessorList()->saveStateToXml(xml);
         AccessClass::getUIComponent()->saveStateToXml(xml);  // save the UI settings
@@ -2116,6 +2117,12 @@ void ProcessorGraph::loadFromXml(XmlElement* xml)
     {
         refreshColors(); // refresh editor colors
         AccessClass::getDataViewport()->loadStateFromXml(xml);
+
+        // load the graph viewer settings
+        auto graphViewerXml = xml->getChildByName("GRAPHVIEWER");
+        if (graphViewerXml != nullptr)
+            AccessClass::getGraphViewer()->loadStateFromXml(graphViewerXml);
+
         MouseCursor::hideWaitCursor();
     }
         
