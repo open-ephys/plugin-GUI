@@ -6,6 +6,8 @@ include(../PluginRules.cmake)
 
 #add sources, not including OpenEphysLib.cpp
 add_sources(${PLUGIN_NAME}
+	ChannelMappingNodeActions.cpp
+	ChannelMappingNodeActions.h
 	ChannelMappingNode.cpp
 	ChannelMappingNode.h
 	ChannelMappingEditor.cpp
