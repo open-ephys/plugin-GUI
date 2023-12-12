@@ -448,6 +448,9 @@ bool LoadSignalChain::perform()
     LOGDD("Performing load signal chain.");
 
     processorGraph->loadFromXml(newSettings.get());
+
+    for (auto &p : processorGraph->getListOfProcessors())
+        processorGraph->updateUndoableActions(p->getNodeId());
     
     return true;
 }
