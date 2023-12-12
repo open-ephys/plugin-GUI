@@ -348,51 +348,55 @@ bool LfpDisplayNode::getIntField(DynamicObject::Ptr payload, String name, int& v
     return true;
 }
 
-
 void LfpDisplayNode::handleBroadcastMessage(String msg) {
     var parsedMessage = JSON::parse(msg);
-    if(!parsedMessage.isObject())
-        return;
-    DynamicObject::Ptr jsonMessage = parsedMessage.getDynamicObject();
-    if(jsonMessage == nullptr)
-        return;
-    String pluginName= jsonMessage -> getProperty("plugin");
-    if(pluginName != "LFPViewer") {
+    if (!parsedMessage.isObject()) {
         return;
     }
-    String command = jsonMessage -> getProperty("command");
-    DynamicObject::Ptr payload = jsonMessage -> getProperty("payload").getDynamicObject();
-    if(command == "filter") {
-        if(payload.get() == nullptr){
+    DynamicObject::Ptr jsonMessage = parsedMessage.getDynamicObject();
+    if (jsonMessage == nullptr) {
+        return;
+    }
+    String pluginName = jsonMessage->getProperty("plugin");
+    if (pluginName != "LFPViewer") {
+        return;
+    }
+    String command = jsonMessage->getProperty("command");
+    DynamicObject::Ptr payload = jsonMessage->getProperty("payload").getDynamicObject();
+    if (command == "filter") {
+        if (payload.get() == nullptr) {
             LOGD("Tried to filter in LFPViewer, but could not find a payload");
             return;
         }
-        int split, start, rows, cols, colsPerRow, end;
-        if(!getIntField(payload, "split", split, 0, 2) || !getIntField(payload, "start", start, 0)) {
-            LOGD("Tried to filter in LFPViewer, but a valid split and start weren't provided");
+
+        if (!payload->hasProperty("stream_id")) {
             return;
         }
-        Array<int> channelNames;
-        //If an end is specificed add channels from start to end
-        //Else calculate the rectangular selection based on rows and columns
-        if(getIntField(payload, "end", end, 0)) {
-            for(int index = 0; index < (end - start); index++) {
-                channelNames.add(start + index);
+        auto p = payload->getProperty("stream_id");
+        if (!p.isInt()) {
+            return;
+        }
+        auto filtered_stream_id = p.operator int();
+
+        if (!payload->hasProperty("local_channel_indices")) {
+            return;
+        }
+        auto filtered_local_chidxs_var = payload->getProperty("local_channel_indices");
+        if (!filtered_local_chidxs_var.isArray()) {
+            return;
+        }
+        auto filtered_local_chidxs_v = *filtered_local_chidxs_var.getArray();
+        Array<int> filtered_local_chidxs;
+        for (const auto &chidx : filtered_local_chidxs_v) {
+            filtered_local_chidxs.add((int) chidx);
+        }
+
+        for (auto &display : splitDisplays) {
+            if (display->selectedStreamId == filtered_stream_id) {
+                display->setFilteredChannels(filtered_local_chidxs);
+                display->shouldRebuildChannelList = true;
             }
         }
-        else {
-            if(!getIntField(payload, "rows", rows, 0) || !getIntField(payload, "cols", cols, 0) || !getIntField(payload, "colsPerRow", colsPerRow, 0)) {
-                LOGD("Tried to filter by rectangular selection in LFPViewer, but valid row/column/columnsPerRow counts weren't provided");
-                return;
-            }
-            for(int row = 0; row < rows; row++) {
-                for(int col = 0; col < cols; col++) {
-                    channelNames.add(start + col + row*colsPerRow);
-                }
-            }
-        }
-        splitDisplays[split] -> setFilteredChannels(channelNames);
-        splitDisplays[split] -> shouldRebuildChannelList = true;
     }
 }
 
