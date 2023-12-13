@@ -312,6 +312,13 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
                 } else {
 
                     GenericProcessor* rootSource = sourceNode;
+                    
+                    if (sourceNode->isMerger())
+                    {
+                        Merger* merger = (Merger*) sourceNode;
+                        rootSource = merger->getSourceNode(1);
+                    }
+
                     while (rootSource->getSourceNode() != nullptr)
                         rootSource = rootSource->getSourceNode();
 
@@ -518,7 +525,12 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
 
                     GenericProcessor* sourceA = merger->getSourceNode(0);
                     while (sourceA->getSourceNode() != nullptr)
-                        sourceA = sourceA->getSourceNode();
+                    {
+                        if (sourceA->isMerger())
+                            sourceA = ((Merger*) sourceA)->getSourceNode(1);
+                        else
+                            sourceA = sourceA->getSourceNode();
+                    }
 
                     createEmptyProcessor(processor, rootNodes.indexOf(sourceA) + 1);
 
@@ -683,6 +695,7 @@ void ProcessorGraph::updateSettings(GenericProcessor* processor, bool signalChai
         && !processorToUpdate->getSourceNode()->isEmpty())
     {
         processorToUpdate = processorToUpdate->getSourceNode();
+        processor = processorToUpdate;
     }
 
     Array<Splitter*> splitters;
@@ -940,6 +953,37 @@ void ProcessorGraph::deleteNodes(Array<GenericProcessor*> processorsToDelete)
         }
     }
 }
+
+
+void ProcessorGraph::reconnectProcessors(int sourceNodeId,
+                                                int destNodeid)
+{
+    GenericProcessor* sourceNode = getProcessorWithNodeId(sourceNodeId);
+    GenericProcessor* destNode = getProcessorWithNodeId(destNodeid);
+
+    // if dest node is a merger, switch to path that points to the processor being removed
+    if (sourceNode != nullptr && destNode != nullptr)
+    {
+        if (destNode->getSourceNode() != nullptr
+            && destNode->getSourceNode()->isEmpty())
+        {
+            if (!isConsoleApp)
+            {
+                AccessClass::getGraphViewer()->removeNode(destNode->getSourceNode());
+                AccessClass::getEditorViewport()->removeEditor(destNode->getSourceNode()->getEditor());
+            }
+
+            rootNodes.remove(rootNodes.indexOf(destNode->getSourceNode()));
+            emptyProcessors.removeObject(destNode->getSourceNode());
+        }
+
+        sourceNode->setDestNode(destNode);
+        destNode->setSourceNode(sourceNode);
+
+        updateSettings(destNode);
+    }
+}
+
 
 void ProcessorGraph::clearSignalChain()
 {

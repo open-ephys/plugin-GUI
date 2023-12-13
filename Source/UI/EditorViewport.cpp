@@ -727,7 +727,19 @@ void EditorViewport::paste()
 
             AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
 
-            PasteProcessors* action = new PasteProcessors(processorInfo, insertionPoint);
+            GenericProcessor* source = nullptr;
+            GenericProcessor* dest = nullptr;
+            if (insertionPoint > 0)
+            {
+                source = editorArray[insertionPoint-1]->getProcessor();
+            }
+
+            if (editorArray.size() > insertionPoint)
+            {
+                dest = editorArray[insertionPoint]->getProcessor();
+            }
+
+            PasteProcessors* action = new PasteProcessors(processorInfo, insertionPoint, source, dest);
 
             AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
 

@@ -134,6 +134,9 @@ public:
     /* Creates connections in signal chain*/
     void updateConnections();
 
+    /* Connects two processors if not already connected*/
+    void reconnectProcessors(int srcNodeId, int destNodeId);
+
     /* Calls startAcquisition() for all processors*/
     void startAcquisition();
 
