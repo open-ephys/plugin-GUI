@@ -141,8 +141,12 @@ void MessageCenter::process(AudioBuffer<float>& buffer)
 
         String eventString = messageToBroadcast;
 
-		eventString = eventString.dropLastCharacters(eventString.length() - eventChannels[0]->getLength());
-        
+        if (eventString.length() > eventChannels[0]->getLength()) {
+            LOGC("**WARNING** Truncating broadcast message from length ",
+                 eventString.length(), " to ", eventChannels[0]->getLength());
+            eventString = eventString.dropLastCharacters(eventString.length() - eventChannels[0]->getLength());
+        }
+
         int64 ts = CoreServices::getGlobalTimestamp();
 
 		TextEventPtr event = TextEvent::createTextEvent(eventChannels[0],
