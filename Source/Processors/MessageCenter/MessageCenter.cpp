@@ -30,7 +30,6 @@
 #include "../Events/Event.h"
 #include "../Settings/ProcessorInfo.h"
 
-#define MAX_MSG_LENGTH 512
 //---------------------------------------------------------------------
 
 MessageCenter::MessageCenter() :
@@ -142,7 +141,7 @@ void MessageCenter::process(AudioBuffer<float>& buffer)
 
         String eventString = messageToBroadcast;
 
-		eventString = eventString.dropLastCharacters(eventString.length() - MAX_MSG_LENGTH);
+		eventString = eventString.dropLastCharacters(eventString.length() - eventChannels[0]->getLength());
         
         int64 ts = CoreServices::getGlobalTimestamp();
 

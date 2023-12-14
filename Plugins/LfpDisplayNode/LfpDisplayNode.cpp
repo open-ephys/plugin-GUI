@@ -351,10 +351,12 @@ bool LfpDisplayNode::getIntField(DynamicObject::Ptr payload, String name, int& v
 void LfpDisplayNode::handleBroadcastMessage(String msg) {
     var parsedMessage = JSON::parse(msg);
     if (!parsedMessage.isObject()) {
+        LOGC("Failed to parse JSON message");
         return;
     }
     DynamicObject::Ptr jsonMessage = parsedMessage.getDynamicObject();
     if (jsonMessage == nullptr) {
+        LOGC("Json message did not map to dynamic object");
         return;
     }
     String pluginName = jsonMessage->getProperty("plugin");

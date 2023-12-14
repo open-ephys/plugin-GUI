@@ -24,7 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "EventChannel.h"
 #include "DataStream.h"
 
-#define MAX_MSG_LENGTH 512
+// Almost uint16 max, with some buffer
+#define MAX_MSG_LENGTH 65000
 
 EventChannel::EventChannel(Settings settings) :
 	ChannelInfoObject(InfoObject::Type::EVENT_CHANNEL, settings.stream),
