@@ -161,6 +161,30 @@ private:
 };
 
 /**
+ 
+ Custom button to add a tabbed component
+
+*/
+class AddTabbedComponentButton : public juce::Button
+{
+public:
+    
+    /** Constructor */
+    AddTabbedComponentButton();
+    
+    /** Destructor */
+    ~AddTabbedComponentButton() { }
+    
+    /** Renders the button */
+    void paintButton(Graphics& g, bool isMouseOverButton, bool isButtonDown) override;
+    
+private:
+    
+    Path path;
+    
+};
+
+/**
 
   The DataViewport sits in the center of the MainWindow
   and is always visible. Editors that create data
@@ -173,7 +197,8 @@ private:
 */
 
 class TESTABLE DataViewport : public Component,
-    public DragAndDropContainer
+    public DragAndDropContainer,
+    public Button::Listener
 {
 public:
     
@@ -197,6 +222,9 @@ public:
     
     /** Sets layout of sub-compnents .*/
     void resized();
+    
+    /** Called to add another tabbed component */
+    void buttonClicked(Button* button);
 
     /** Save settings.*/
     void saveStateToXml(XmlElement* xml);
@@ -225,6 +253,9 @@ private:
     
     /** Tabbed sub-components **/
     OwnedArray<DraggableTabComponent> draggableTabComponents;
+    
+    /** Button to add a tab component */
+    std::unique_ptr<AddTabbedComponentButton> addTabbedComponentButton;
 
     int tabIndex;
 

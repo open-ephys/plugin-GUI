@@ -274,6 +274,35 @@ void DraggableTabComponent::paint(Graphics& g)
 
 }
 
+AddTabbedComponentButton::AddTabbedComponentButton()
+: Button("Add Tabbed Component")
+{
+    
+    path.addRoundedRectangle(3, 3, 14, 14, 3.0f);
+    path.addLineSegment(Line<float>(7, 3, 7, 17), 0.0f);
+    path.addLineSegment(Line<float>(12, 8, 12, 12), 0.0f);
+    path.addLineSegment(Line<float>(10, 10, 14, 10), 0.0f);
+    
+}
+
+void AddTabbedComponentButton::paintButton(Graphics& g, bool isMouseOverButton, bool isButtonDown)
+{
+
+
+    if (isMouseOverButton)
+    {
+        g.setColour(Colours::white.withAlpha(0.25f));
+        g.fillRoundedRectangle(0, 0, 20, 20, 5.0f);
+        
+        
+    }
+    
+    g.setColour(Colour(150,150,150));
+    g.strokePath(path, PathStrokeType(1.0f));
+    
+}
+
+
 DataViewport::DataViewport() :
     shutdown(false),
     tabIndex(1)
@@ -283,9 +312,9 @@ DataViewport::DataViewport() :
     addAndMakeVisible(c);
     draggableTabComponents.add(c);
     
-    DraggableTabComponent* d = new DraggableTabComponent();
-    addAndMakeVisible(d);
-    draggableTabComponents.add(d);
+    addTabbedComponentButton = std::make_unique<AddTabbedComponentButton>();
+    addAndMakeVisible(addTabbedComponentButton.get());
+    addTabbedComponentButton->addListener(this);
 
 }
 
@@ -299,7 +328,8 @@ void DataViewport::resized()
         draggableTabComponents[i]->setBounds(width * i, 0, width, getHeight());
     }
     
-    
+    addTabbedComponentButton->setBounds(getWidth() - 26, getHeight() - 26, 20, 20);
+    addTabbedComponentButton->toFront(false);
 }
 
 int DataViewport::addTabToDataViewport(String name,
@@ -375,6 +405,18 @@ void DataViewport::destroyTab(int index)
     if (tabArray.size() == 2) // just graph and info tab left
         tabIndex = 3;
 
+}
+
+void DataViewport::buttonClicked(Button* button)
+{
+    if (button == addTabbedComponentButton.get())
+    {
+        DraggableTabComponent* d = new DraggableTabComponent();
+        addAndMakeVisible(d);
+        draggableTabComponents.add(d);
+        
+        resized();
+    }
 }
 
 Component* DataViewport::getActiveTabContentComponent()
