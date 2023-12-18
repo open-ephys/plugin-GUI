@@ -210,6 +210,23 @@ public:
     Font getAlertWindowTitleFont() override;
     Font getAlertWindowMessageFont() override;
     Font getAlertWindowFont() override;
+    
+    // ======== custom TabButton methods: ================================
+    
+    int getTabButtonSpaceAroundImage() override;
+    int getTabButtonOverlap (int tabDepth) override;
+    int getTabButtonBestWidth (TabBarButton&, int tabDepth) override;
+    Rectangle<int> getTabButtonExtraComponentBounds (const TabBarButton&, Rectangle<int>& textArea, Component& extraComp) override;
+
+    void drawTabButton (TabBarButton&, Graphics&, bool isMouseOver, bool isMouseDown) override;
+    Font getTabButtonFont (TabBarButton&, float height) override;
+    void drawTabButtonText (TabBarButton&, Graphics&, bool isMouseOver, bool isMouseDown) override;
+    void drawTabbedButtonBarBackground (TabbedButtonBar&, Graphics&) override;
+    void drawTabAreaBehindFrontButton (TabbedButtonBar&, Graphics&, int w, int h) override;
+
+    void createTabButtonShape (TabBarButton&, Path&,  bool isMouseOver, bool isMouseDown) override;
+    void fillTabButtonShape (TabBarButton&, Graphics&, const Path&, bool isMouseOver, bool isMouseDown) override;
+    
 
 private:
 

@@ -380,7 +380,7 @@ void VisualizerEditor::removeWindowListener (DataWindow* dataWindowToUse, DataWi
 
 Component* VisualizerEditor::getActiveTabContentComponent() const
 {
-    return AccessClass::getDataViewport()->getCurrentContentComponent();
+    return AccessClass::getDataViewport()->getActiveTabContentComponent();
 }
 
 
@@ -402,9 +402,9 @@ void VisualizerEditor::removeTab (int tindex)
 int VisualizerEditor::addTab (String textOfTab, Visualizer* contentComponent)
 {
     tabText  = textOfTab;
-    tabIndex = AccessClass::getDataViewport()->addTabToDataViewport (textOfTab, contentComponent);
+    tabIndex = AccessClass::getDataViewport()->addTabToDataViewport (textOfTab + " (" + String(nodeId) + ")", contentComponent);
 
-    //std::cout << "Adding tab for " << nodeId << " at " << tabIndex << std::endl;
+    std::cout << "Adding tab for " << nodeId << " at " << tabIndex << std::endl;
 
     return tabIndex;
 }

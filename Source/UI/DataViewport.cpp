@@ -25,19 +25,281 @@
 #include "EditorViewport.h"
 #include "../Processors/Visualization/Visualizer.h"
 
-DataViewport::DataViewport() :
-    TabbedComponent(TabbedButtonBar::TabsAtRight),
-    tabDepth(32), tabIndex(1), shutdown(false)
+
+void CloseTabButton::mouseEnter(const MouseEvent& event)
+{
+    setVisible(true);
+}
+
+void CloseTabButton::mouseExit(const MouseEvent& event)
+{
+    setVisible(false);
+}
+
+void CloseTabButton::paintButton(Graphics& g, bool isMouseOverButton, bool isButtonDown)
 {
 
-    setTabBarDepth(tabDepth);
+    int xoffset = (getWidth() - 14) /2 ;
+    int yoffset = (getHeight() - 14) /2 ;
+    
+    g.setColour(Colours::white.withAlpha(0.25f));
+    
+    if (isMouseOverButton)
+    {
+        g.fillRoundedRectangle(xoffset, yoffset, 14, 14, 4.0f);
+    }
+    
+    g.setColour(Colours::white);
+    
+    Path path;
+    path.addLineSegment(Line<float>(2, 2, 8, 8), 0.0f);
+    path.addLineSegment(Line<float>(2, 8, 8, 2), 0.0f);
+    
+    path.applyTransform(AffineTransform::translation(xoffset + 2, yoffset + 2));
+    
+    g.strokePath(path, PathStrokeType(1.0f));
+}
+
+
+CustomTabButton::CustomTabButton(const String& name, TabbedButtonBar& ownerBar)
+: juce::TabBarButton(name, ownerBar)
+{
+    CloseTabButton* closeButton = new CloseTabButton();
+    closeButton->setBounds(0, 0, 20, 20);
+    closeButton->addListener(this);
+    
+    setExtraComponent(closeButton, TabBarButton::ExtraComponentPlacement::afterText);
+    
+    closeButton->setVisible(false);
+    
+}
+
+
+bool CustomTabButton::isInterestedInDragSource(const DragAndDropTarget::SourceDetails& dragSourceDetails)
+{
+    //LOGD(getName(), " IS INTERESTED");
+    return true;
+}
+
+void CustomTabButton::mouseEnter(const MouseEvent& event)
+{
+    getExtraComponent()->setVisible(true);
+}
+
+void CustomTabButton::mouseExit(const MouseEvent& event)
+{
+    
+    getExtraComponent()->setVisible(false);
+}
+
+void CustomTabButton::mouseDrag(const MouseEvent& event)
+{
+    
+    DragAndDropContainer* const dragContainer
+        = DragAndDropContainer::findParentDragContainerFor(this);
+    
+    Array<var> dragData;
+    dragData.add(getName());
+
+    dragContainer->startDragging(dragData, this);
+    
+}
+
+void CustomTabButton::itemDragEnter(const SourceDetails& dragSourceDetails)
+{
+    isDraggingOver = true;
+    
+    repaint();
+    
+    LOGD("Entering ", getName());
+}
+
+
+void CustomTabButton::itemDragExit(const SourceDetails& dragSourceDetails)
+{
+    isDraggingOver = false;
+    
+    repaint();
+    
+    LOGD("Exiting ", getName());
+}
+
+void CustomTabButton::itemDropped(const SourceDetails& dragSourceDetails)
+{
+    //auto* sourceComponent = dynamic_cast<DraggableTabComponent*>(dragSourceDetails.sourceComponent.get());
+    
+    LOGD("DROPPED ON ", getName());
+    
+    isDraggingOver = false;
+    
+    repaint();
+    
+    /*if (sourceComponent != nullptr && sourceComponent != this) {
+        // Transfer the tab from the source to this component
+        int sourceTabIndex = sourceComponent->getCurrentTabIndex();
+        auto* tabContent = sourceComponent->getTabContentComponent(sourceTabIndex);
+        juce::String tabName = sourceComponent->getTabNames()[sourceTabIndex];
+        juce::Colour tabColour = sourceComponent->getTabBackgroundColour(sourceTabIndex);
+
+        sourceComponent->removeTab(sourceTabIndex);
+        this->addTab(tabName, tabColour, tabContent, true);
+    }*/
+}
+
+void CustomTabButton::paintButton(Graphics& g,
+                                  bool isMouseOver,
+                                  bool isMouseDown)
+{
+    
+    
+    getLookAndFeel().drawTabButton(*this, g, isMouseOver, isMouseDown);
+    
+    if (isDraggingOver)
+    {
+        g.setColour(Colours::white.withAlpha(0.25f));
+        g.fillAll();
+    }
+    
+}
+
+
+void CustomTabButton::buttonClicked(Button* button)
+{
+    LOGD("CLOSE BUTTON PRESSED");
+}
+
+DraggableTabComponent::DraggableTabComponent() :
+    TabbedComponent(TabbedButtonBar::TabsAtRight)
+{
+    setTabBarDepth(28);
+    setOutline(0);
     setIndent(8); // gap to leave around the edge
                   // of the content component
-    setColour(TabbedComponent::outlineColourId,
-              Colours::darkgrey);
-    setColour(TabbedComponent::backgroundColourId,
-              Colours::darkgrey);
 
+}
+
+
+void DraggableTabComponent::moveTab(int fromIndex, int toIndex)
+{
+    // Logic to move the tab from 'fromIndex' to 'toIndex'
+    auto tabName = getTabNames()[fromIndex];
+    auto* component = getTabContentComponent(fromIndex);
+    
+    removeTab(fromIndex);
+    addTab(tabName, getTabBackgroundColour(fromIndex), component, toIndex);
+}
+
+bool DraggableTabComponent::isInterestedInDragSource(const juce::DragAndDropTarget::SourceDetails& dragSourceDetails)
+{
+    //LOGD("PARENT IS INTERESTED");
+    return true;
+}
+
+
+void DraggableTabComponent::itemDragEnter(const SourceDetails& dragSourceDetails)
+{
+    
+    isDraggingOver = true;
+    repaint();
+    
+    LOGD("Entering PARENT");
+}
+
+
+void DraggableTabComponent::itemDragExit(const SourceDetails& dragSourceDetails)
+{
+    
+    isDraggingOver = false;
+    repaint();
+    
+    LOGD("Exiting PARENT");
+}
+
+
+void DraggableTabComponent::itemDropped(const juce::DragAndDropTarget::SourceDetails& dragSourceDetails)
+{
+    auto* sourceComponent = dynamic_cast<DraggableTabComponent*>(dragSourceDetails.sourceComponent.get());
+    
+    
+    isDraggingOver = false;
+    repaint();
+    
+    
+    LOGD("ITEM DROPPED ON PARENT");
+    
+    /*if (sourceComponent != nullptr && sourceComponent != this) {
+        // Transfer the tab from the source to this component
+        int sourceTabIndex = sourceComponent->getCurrentTabIndex();
+        auto* tabContent = sourceComponent->getTabContentComponent(sourceTabIndex);
+        juce::String tabName = sourceComponent->getTabNames()[sourceTabIndex];
+        juce::Colour tabColour = sourceComponent->getTabBackgroundColour(sourceTabIndex);
+
+        sourceComponent->removeTab(sourceTabIndex);
+        this->addTab(tabName, tabColour, tabContent, true);
+    }*/
+}
+
+void DraggableTabComponent::paint(Graphics& g)
+{
+
+
+    const TabbedButtonBar::Orientation o = getOrientation();
+
+    int x = 0;
+    int y = 0;
+    int r = getWidth();
+    int b = getHeight();
+    
+    if (isDraggingOver)
+    {
+        g.setColour(Colour(100,100,100));
+        
+        g.fillAll();
+    }
+
+    if (o == TabbedButtonBar::TabsAtTop)
+        y += 32;
+    else if (o == TabbedButtonBar::TabsAtBottom)
+        b -= 32;
+    else if (o == TabbedButtonBar::TabsAtLeft)
+        x += 32;
+    else if (o == TabbedButtonBar::TabsAtRight)
+        r -= 32;
+
+    g.setColour(Colour(58,58,58));
+    g.fillRoundedRectangle(x,y,r-x,b-y,5.0f);
+    g.fillRect(x,y,r-20,b-y);
+    g.fillRect(x,20,r-x,b-20);
+    
+
+}
+
+DataViewport::DataViewport() :
+    shutdown(false),
+    tabIndex(1)
+{
+
+    DraggableTabComponent* c = new DraggableTabComponent();
+    addAndMakeVisible(c);
+    draggableTabComponents.add(c);
+    
+    DraggableTabComponent* d = new DraggableTabComponent();
+    addAndMakeVisible(d);
+    draggableTabComponents.add(d);
+
+}
+
+void DataViewport::resized()
+{
+    
+    int width = getWidth() / draggableTabComponents.size();
+    
+    for (int i = 0; i < draggableTabComponents.size(); i++)
+    {
+        draggableTabComponents[i]->setBounds(width * i, 0, width, getHeight());
+    }
+    
+    
 }
 
 int DataViewport::addTabToDataViewport(String name,
@@ -47,14 +309,9 @@ int DataViewport::addTabToDataViewport(String name,
     if (tabArray.size() == 0)
         setVisible(true);
 
-    
+    draggableTabComponents.getFirst()->addTab(name, Colours::darkcyan, component, false, tabIndex);
 
-    addTab(name, Colours::lightgrey, component, false, tabIndex);
-
-    getTabbedButtonBar().setTabBackgroundColour(tabIndex, Colours::darkgrey);
-    getTabbedButtonBar().setCurrentTabIndex(tabIndex);
-
-    setOutline(0);
+    draggableTabComponents.getFirst()->getTabbedButtonBar().setCurrentTabIndex(tabIndex);
 
     tabArray.add(tabIndex);
 
@@ -65,7 +322,7 @@ int DataViewport::addTabToDataViewport(String name,
 
     //LOGD("Data Viewport adding tab with index ", tabIndex);
 
-    setCurrentTabIndex(tabArray.size()-1);
+    draggableTabComponents.getFirst()->setCurrentTabIndex(tabArray.size()-1);
 
     tabIndex++;
 
@@ -91,7 +348,7 @@ void DataViewport::selectTab(int index)
 
     int newIndex = tabArray.indexOf(index);
 
-    getTabbedButtonBar().setCurrentTabIndex(newIndex);
+    draggableTabComponents.getFirst()->getTabbedButtonBar().setCurrentTabIndex(newIndex);
 
 }
 
@@ -103,12 +360,12 @@ void DataViewport::destroyTab(int index)
     tabArray.remove(newIndex);
     //tabIndex--;
 
-    removeTab(newIndex);
+    draggableTabComponents.getFirst()->removeTab(newIndex);
 
     if (tabArray.size() == 0)
         setVisible(false);
 
-    setCurrentTabIndex(tabArray.size()-1);
+    draggableTabComponents.getFirst()->setCurrentTabIndex(tabArray.size()-1);
 
     //std::cout << "Tab Array: ";
    // for (int i = 0; i < tabArray.size(); i++)
@@ -120,10 +377,15 @@ void DataViewport::destroyTab(int index)
 
 }
 
+Component* DataViewport::getActiveTabContentComponent()
+{
+    draggableTabComponents.getFirst()->getCurrentContentComponent();
+}
+
 void DataViewport::saveStateToXml(XmlElement* xml)
 {
     XmlElement* dataViewportState = xml->createNewChildElement("DATAVIEWPORT");
-    dataViewportState->setAttribute("selectedTab", tabArray[getCurrentTabIndex()]);
+    dataViewportState->setAttribute("selectedTab", tabArray[draggableTabComponents.getFirst()->getCurrentTabIndex()]);
 }
 
 void DataViewport::loadStateFromXml(XmlElement* xml)
@@ -169,37 +431,13 @@ void DataViewport::currentTabChanged(int newIndex, const String& newTabName)
     if (!shutdown)
     {
 
-        if (getTabContentComponent(newIndex) != nullptr)
+        if (draggableTabComponents.getFirst()->getTabContentComponent(newIndex) != nullptr)
         {
             LOGD("Refreshing state for ", newTabName);
-            Visualizer* v = (Visualizer*)getTabContentComponent(newIndex);
+            Visualizer* v = (Visualizer*)draggableTabComponents.getFirst()->getTabContentComponent(newIndex);
             v->refreshState();
         }
     }
 }
 
-void DataViewport::paint(Graphics& g)
-{
 
-    const TabbedButtonBar::Orientation o = getOrientation();
-
-    int x = 0;
-    int y = 0;
-    int r = getWidth();
-    int b = getHeight();
-
-    if (o == TabbedButtonBar::TabsAtTop)
-        y += tabDepth;
-    else if (o == TabbedButtonBar::TabsAtBottom)
-        b -= tabDepth;
-    else if (o == TabbedButtonBar::TabsAtLeft)
-        x += tabDepth;
-    else if (o == TabbedButtonBar::TabsAtRight)
-        r -= tabDepth;
-
-    g.setColour(Colour(58,58,58));
-    g.fillRoundedRectangle(x,y,r-x,b-y,5.0f);
-    g.fillRect(x,y,r-20,b-y);
-    g.fillRect(x,20,r-x,b-20);
-
-}

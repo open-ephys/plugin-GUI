@@ -31,14 +31,89 @@
 class GenericEditor;
 
 /**
+ 
+ Custom button to remove a tab
+
+*/
+class CloseTabButton : public juce::Button
+{
+public:
+    
+    /** Constructor */
+    CloseTabButton() : Button("Close Tab") { }
+    
+    /** Renders the button */
+    void paintButton(Graphics& g, bool isMouseOverButton, bool isButtonDown) override;
+    
+    /** Called when mouse enters  **/
+    void mouseEnter(const MouseEvent& event) override;
+    
+    /** Called when mouse enters  **/
+    void mouseExit(const MouseEvent& event) override;
+    
+    
+};
+
+/**
+ 
+    Custom tab  button that's draggable, and has a close button
+ 
+ */
+class CustomTabButton : public TabBarButton,
+    public DragAndDropTarget,
+public Button::Listener
+{
+public:
+    
+    /** Constructor */
+    CustomTabButton(const String& name, TabbedButtonBar& ownerBar);
+    
+    /** Determines whether a dragged component will affect this one  */
+    bool isInterestedInDragSource(const DragAndDropTarget::SourceDetails& dragSourceDetails);
+    
+    /** Called when mouse enters  **/
+    void mouseEnter(const MouseEvent& event) override;
+    
+    /** Called when mouse exits  **/
+    void mouseExit(const MouseEvent& event) override;
+    
+    /** Called when mouse drag is active **/
+    void mouseDrag(const MouseEvent& event) override;
+    
+    /** Called when item is dropped **/
+    void itemDragEnter(const SourceDetails& dragSourceDetails) override;
+    
+    /** Called when item is dropped **/
+    void itemDragExit(const SourceDetails& dragSourceDetails) override;
+
+    /** Called when item is dropped **/
+    void itemDropped(const SourceDetails& dragSourceDetails) override;
+    
+
+    /** Override button painting method */
+    void paintButton(juce::Graphics& g, bool isMouseOver, bool isMouseDown) override;
+    
+    /** Called when close button is pressed */
+    void buttonClicked(Button* button);
+    
+    /** Called when tab is dragged */
+    //void mouseDrag(const MouseEvent& event) override;
+    
+    /** Gets the tab length*/
+    //int getBestTabLength(int depth) override;
+    
+private:
+    
+    bool isDraggingOver = false;
+    
+   // std::unique_ptr<CloseTabButton> closeButton;
+
+};
+
+
+/**
 
   Holds tabs containing the application's visualizers.
-
-  The DataViewport sits in the center of the MainWindow
-  and is always visible. Editors that create data
-  visualizations can place them in the
-  DataViewport for easy access on small monitors, or in
-  a separate window for maximum flexibility.
 
   This class is a subclass of juce_TabbedComponent.h
 
@@ -46,7 +121,59 @@ class GenericEditor;
 
 */
 
-class TESTABLE DataViewport : public TabbedComponent
+class DraggableTabComponent :
+    public TabbedComponent,
+    public DragAndDropTarget
+{
+public:
+    
+    /** Constructor */
+    DraggableTabComponent();
+    
+    /** Paint**/
+    void paint(Graphics& g);
+    
+    /** Determines whether a dragged component will affect this one  */
+    bool isInterestedInDragSource(const DragAndDropTarget::SourceDetails& dragSourceDetails);
+    
+    /** Called when item is dropped **/
+    void itemDropped(const DragAndDropTarget::SourceDetails& dragSourceDetails) override;
+    
+    /** Called when item is dropped **/
+    void itemDragEnter(const SourceDetails& dragSourceDetails) override;
+    
+    /** Called when item is dropped **/
+    void itemDragExit(const SourceDetails& dragSourceDetails) override;
+    
+    /** Create buttons*/
+    TabBarButton* createTabButton(const juce::String& name, int index) override {
+            return new CustomTabButton(name, getTabbedButtonBar());
+    }
+    
+private:
+    
+    bool isDraggingOver = false;
+    
+    int draggedTabStartIndex = -1;
+
+    void moveTab(int fromIndex, int toIndex);
+    
+};
+
+/**
+
+  The DataViewport sits in the center of the MainWindow
+  and is always visible. Editors that create data
+  visualizations can place them in the
+  DataViewport for easy access on small monitors, or in
+  a separate window for maximum flexibility.
+
+  @see GenericEditor, InfoLabel, LfpDisplayCanvas
+
+*/
+
+class TESTABLE DataViewport : public Component,
+    public DragAndDropContainer
 {
 public:
     
@@ -67,6 +194,9 @@ public:
 
     /** Selects a tab with a specified index.*/
     void selectTab(int);
+    
+    /** Sets layout of sub-compnents .*/
+    void resized();
 
     /** Save settings.*/
     void saveStateToXml(XmlElement* xml);
@@ -79,6 +209,9 @@ public:
 
     /** Prevents the DataViewport from signaling EditorViewport when changing tabs.*/
     void disableConnectionToEditorViewport();
+    
+    /** Returns the current content component */
+    Component* getActiveTabContentComponent();
 
 private:
 
@@ -89,9 +222,10 @@ private:
     Array<int> savedTabIndices;
     Array<String> savedTabNames;
     Array<Component*> savedTabComponents;
+    
+    /** Tabbed sub-components **/
+    OwnedArray<DraggableTabComponent> draggableTabComponents;
 
-    void paint(Graphics& g);
-    int tabDepth;
     int tabIndex;
 
     bool shutdown;
