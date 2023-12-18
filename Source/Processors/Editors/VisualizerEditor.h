@@ -104,6 +104,12 @@ public:
 
     /** Called when the Visualizer window is closed */
     virtual void windowClosed() override { }
+    
+    /** Called after tab has been closed. */
+    void tabWasClosed();
+
+    /** Adds a new tab to the DataViewport. */
+    void addTab();
 
     /** Calls Visualizer's beginAnimation() method */
     virtual void enable();
@@ -114,6 +120,9 @@ public:
     // ------------------------------------------------------------
     //                     OTHER METHODS
     // ------------------------------------------------------------
+    
+    /** Returns a pointer to the visualizer (used by the DataViewport) */
+    Component* getVisualizerComponent();
 
     /** Sets the location of the window + tab buttons*/
     void resized() override;
@@ -173,46 +182,22 @@ protected:
     */
     Component* getActiveTabContentComponent() const;
 
-    /**
-        @brief      Selects the specified _tab_ in the DataViewport.
+    /** Removes the tab from the DataViewport. */
+    void removeTab();
 
-        @param[in]  tindex  The index which was returned by VisualizerEditor::addTab
-    */
-    void setActiveTabId (int tindex);
-
-    /**
-        @brief      Remove the specified tab from DataViewport.
-
-        @param[in]  tindex  The index which was returned by VisualizerEditor::addTab
-    */
-    void removeTab (int tindex);
-
-    /**
-        @brief      Adds a new tab to the DataViewport.
-
-        @param[in]  textOfTab           The tab text
-        @param      contentComponent    The content Visualizer (Canvas) Component for this tab.
-
-        @return     The identifier token for this tab. You must provide this
-                    identifier to access/remove this tab.
-    */
-    int addTab (String textOfTab, Visualizer* contentComponent);
-
-    /**
-        @brief      Checks and creates a canvas if one doesn't exist. Also, updates the canvas 
-    */
+    /** Checks and creates a canvas if one doesn't exist. Also, updates the canvas */
     void checkForCanvas();
 
-    bool isPlaying; /**< Acquisition status flag */
+    /** True if tab is currently active*/
+    bool isOpenInTab = false;
 
-    // So that we can override buttonClick. That's not possible if these are private.
+    /** So that we can override buttonClick. That's not possible if these are private. */
     std::unique_ptr<SelectorButton> windowSelector;
     std::unique_ptr<SelectorButton> tabSelector;
     
-    int tabIndex;
-
 private:
-
+    
+    /** Custom class for responding to button clicks */
     class ButtonResponder : public Button::Listener
     {
     public:

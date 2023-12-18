@@ -24,7 +24,7 @@
 #include "DataViewport.h"
 #include "EditorViewport.h"
 #include "../Processors/Visualization/Visualizer.h"
-
+#include "../Processors/Editors/VisualizerEditor.h"
 
 void CloseTabButton::mouseEnter(const MouseEvent& event)
 {
@@ -61,8 +61,8 @@ void CloseTabButton::paintButton(Graphics& g, bool isMouseOverButton, bool isBut
 }
 
 
-CustomTabButton::CustomTabButton(const String& name, TabbedButtonBar& ownerBar)
-: juce::TabBarButton(name, ownerBar)
+CustomTabButton::CustomTabButton(const String& name, DraggableTabComponent* parent_, int nodeId_)
+: juce::TabBarButton(name, parent_->getTabbedButtonBar()), nodeId(nodeId_), parent(parent_)
 {
     CloseTabButton* closeButton = new CloseTabButton();
     closeButton->setBounds(0, 0, 20, 20);
@@ -166,6 +166,8 @@ void CustomTabButton::paintButton(Graphics& g,
 void CustomTabButton::buttonClicked(Button* button)
 {
     LOGD("CLOSE BUTTON PRESSED");
+    
+    parent->removeTabForNodeId(nodeId);
 }
 
 DraggableTabComponent::DraggableTabComponent() :
@@ -179,7 +181,7 @@ DraggableTabComponent::DraggableTabComponent() :
 }
 
 
-void DraggableTabComponent::moveTab(int fromIndex, int toIndex)
+/*void DraggableTabComponent::moveTab(int fromIndex, int toIndex)
 {
     // Logic to move the tab from 'fromIndex' to 'toIndex'
     auto tabName = getTabNames()[fromIndex];
@@ -187,7 +189,7 @@ void DraggableTabComponent::moveTab(int fromIndex, int toIndex)
     
     removeTab(fromIndex);
     addTab(tabName, getTabBackgroundColour(fromIndex), component, toIndex);
-}
+}*/
 
 bool DraggableTabComponent::isInterestedInDragSource(const juce::DragAndDropTarget::SourceDetails& dragSourceDetails)
 {
@@ -237,6 +239,58 @@ void DraggableTabComponent::itemDropped(const juce::DragAndDropTarget::SourceDet
         sourceComponent->removeTab(sourceTabIndex);
         this->addTab(tabName, tabColour, tabContent, true);
     }*/
+}
+
+void DraggableTabComponent::addNewTab(String name, Component* component, int nodeId)
+{
+    
+    tabNodeIds.add(nodeId);
+    
+    addTab(name, Colours::darkcyan, component, false, tabNodeIds.size()-1);
+
+    setCurrentTabIndex(tabNodeIds.size()-1);
+
+}
+
+void DraggableTabComponent::removeTabForNodeId(int nodeId)
+{
+    LOGD("REMOVING TAB");
+    
+    int index = tabNodeIds.indexOf(nodeId);
+    
+    LOGD("INDEX: ", index);
+    
+    if (index > -1)
+    {
+        removeTab(index);
+        tabNodeIds.remove(index);
+        setCurrentTabIndex(tabNodeIds.size()-1);
+        
+        if (nodeId > 99)
+        {
+            VisualizerEditor* editor = (VisualizerEditor*) AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId)->getEditor();
+            
+            editor->tabWasClosed();
+        } else {
+            
+            if (nodeId == 0)
+                AccessClass::getUIComponent()->closeInfoTab();
+            else if (nodeId == 1)
+                AccessClass::getUIComponent()->closeGraphViewer();
+        }
+        
+    }
+}
+
+
+void DraggableTabComponent::selectTab(int nodeId)
+{
+    int index = tabNodeIds.indexOf(nodeId);
+    
+    if (index > -1)
+    {
+        setCurrentTabIndex(index);
+    }
 }
 
 void DraggableTabComponent::paint(Graphics& g)
@@ -304,8 +358,7 @@ void AddTabbedComponentButton::paintButton(Graphics& g, bool isMouseOverButton, 
 
 
 DataViewport::DataViewport() :
-    shutdown(false),
-    tabIndex(1)
+    shutdown(false)
 {
 
     DraggableTabComponent* c = new DraggableTabComponent();
@@ -332,18 +385,15 @@ void DataViewport::resized()
     addTabbedComponentButton->toFront(false);
 }
 
-int DataViewport::addTabToDataViewport(String name,
-                                       Component* component)
+void DataViewport::addTab(String name,
+                          Component* component,
+                          int nodeId)
 {
 
-    if (tabArray.size() == 0)
-        setVisible(true);
+    //if (tabArray.size() == 0)
+    //    setVisible(true);
 
-    draggableTabComponents.getFirst()->addTab(name, Colours::darkcyan, component, false, tabIndex);
-
-    draggableTabComponents.getFirst()->getTabbedButtonBar().setCurrentTabIndex(tabIndex);
-
-    tabArray.add(tabIndex);
+    draggableTabComponents[activeTabbedComponent]->addNewTab(name, component, nodeId);
 
     //std::cout << "Tab Array: ";
    // for (int i = 0; i < tabArray.size(); i++)
@@ -352,58 +402,43 @@ int DataViewport::addTabToDataViewport(String name,
 
     //LOGD("Data Viewport adding tab with index ", tabIndex);
 
-    draggableTabComponents.getFirst()->setCurrentTabIndex(tabArray.size()-1);
+    //draggableTabComponents.getFirst()->setCurrentTabIndex(tabArray.size()-1);
 
-    tabIndex++;
+    //tabIndex++;
 
-    return tabIndex - 1;
+    //return tabIndex - 1;
 
 }
 
 void DataViewport::addTabAtIndex(int tabIndex_, String tabName, Component* tabComponent)
 {
 
-    if (!savedTabIndices.contains(tabIndex_))
+    /*if (!savedTabIndices.contains(tabIndex_))
 	{
         savedTabIndices.add(tabIndex_);
         savedTabComponents.add(tabComponent);
         savedTabNames.add(tabName);
-	}
+	}*/
 
 }
 
 
-void DataViewport::selectTab(int index)
+void DataViewport::selectTab(int nodeId)
 {
 
-    int newIndex = tabArray.indexOf(index);
-
-    draggableTabComponents.getFirst()->getTabbedButtonBar().setCurrentTabIndex(newIndex);
+    for (auto draggableTabComponent : draggableTabComponents)
+        draggableTabComponent->selectTab(nodeId);
 
 }
 
-void DataViewport::destroyTab(int index)
+void DataViewport::removeTab(int nodeId)
 {
-
-    int newIndex = tabArray.indexOf(index);
-
-    tabArray.remove(newIndex);
-    //tabIndex--;
-
-    draggableTabComponents.getFirst()->removeTab(newIndex);
-
-    if (tabArray.size() == 0)
-        setVisible(false);
-
-    draggableTabComponents.getFirst()->setCurrentTabIndex(tabArray.size()-1);
-
-    //std::cout << "Tab Array: ";
-   // for (int i = 0; i < tabArray.size(); i++)
-    //    std::cout << tabArray[i] << " ";
-    //std::cout << std::endl;
     
-    if (tabArray.size() == 2) // just graph and info tab left
-        tabIndex = 3;
+    if (!shutdown)
+    {
+        for (auto draggableTabComponent : draggableTabComponents)
+            draggableTabComponent->removeTabForNodeId(nodeId);
+    }
 
 }
 
@@ -426,14 +461,14 @@ Component* DataViewport::getActiveTabContentComponent()
 
 void DataViewport::saveStateToXml(XmlElement* xml)
 {
-    XmlElement* dataViewportState = xml->createNewChildElement("DATAVIEWPORT");
-    dataViewportState->setAttribute("selectedTab", tabArray[draggableTabComponents.getFirst()->getCurrentTabIndex()]);
+    /*XmlElement* dataViewportState = xml->createNewChildElement("DATAVIEWPORT");
+    dataViewportState->setAttribute("selectedTab", tabArray[draggableTabComponents.getFirst()->getCurrentTabIndex()]);*/
 }
 
 void DataViewport::loadStateFromXml(XmlElement* xml)
 {
 
-    std::vector<int> tabOrder(savedTabIndices.size());
+    /*std::vector<int> tabOrder(savedTabIndices.size());
     std::iota(tabOrder.begin(), tabOrder.end(), 0); //Initializing
     sort(tabOrder.begin(), tabOrder.end(), [&](int i, int j)
         {return savedTabIndices[i] < savedTabIndices[j]; });
@@ -457,7 +492,7 @@ void DataViewport::loadStateFromXml(XmlElement* xml)
 
     savedTabIndices.clear();
     savedTabComponents.clear();
-    savedTabNames.clear();
+    savedTabNames.clear();*/
 
 }
 

@@ -158,6 +158,12 @@ public:
 
     /** Set list of recently used recording directories */
     void setRecentlyUsedFilenames(const Array<String>& filenames);
+    
+    /** Notifies the UI component when the graph viewer is closed */
+    void closeGraphViewer() { graphViewerIsOpen = false; }
+    
+    /** Notifies the UI component when the info tab is closed */
+    void closeInfoTab() { infoTabIsOpen = false; }
 	
 private:
 
@@ -167,6 +173,9 @@ private:
     ScopedPointer<ProcessorList> processorList;
     ScopedPointer<InfoLabel> infoLabel;
     ScopedPointer<GraphViewer> graphViewer;
+    
+    bool infoTabIsOpen = true;
+    bool graphViewerIsOpen = true;
     
     EditorViewport* editorViewport;
     
@@ -214,16 +223,18 @@ private:
         toggleProcessorList 	= 0x2008,
         toggleSignalChain	    = 0x2009,
         toggleFileInfo			= 0x2010,
+        toggleInfoTab           = 0x2011,
+        toggleGraphViewer       = 0x2012,
         setClockModeDefault     = 0x2111,
 		setClockModeHHMMSS      = 0x2112,
         toggleHttpServer        = 0x4001,
-        showHelp				= 0x2011,
-        checkForUpdates         = 0x2022,
-        resizeWindow            = 0x2012,
-        reloadOnStartup         = 0x2013,
-        saveSignalChainAs       = 0x2014,
-        openPluginInstaller     = 0x2016,
-        openDefaultConfigWindow = 0x2017,
+        showHelp				= 0x2211,
+        checkForUpdates         = 0x2222,
+        resizeWindow            = 0x2212,
+        reloadOnStartup         = 0x2213,
+        saveSignalChainAs       = 0x2214,
+        openPluginInstaller     = 0x2216,
+        openDefaultConfigWindow = 0x2217,
         loadPluginSettings      = 0x3001,
         savePluginSettings      = 0x3002,
         lockSignalChain         = 0x5001,

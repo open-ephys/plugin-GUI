@@ -60,8 +60,8 @@ UIComponent::UIComponent(MainWindow* mainWindow_,
 
 	dataViewport = new DataViewport();
 	addChildComponent(dataViewport);
-	dataViewport->addTabToDataViewport("Info", infoLabel);
-	dataViewport->addTabToDataViewport("Graph", graphViewer->getGraphViewport());
+	dataViewport->addTab("Info", infoLabel, 0);
+	dataViewport->addTab("Graph", graphViewer->getGraphViewport(), 1);
 
 	LOGD("Created data viewport.");
 
@@ -101,7 +101,7 @@ UIComponent::UIComponent(MainWindow* mainWindow_,
 
 UIComponent::~UIComponent()
 {
-	dataViewport->destroyTab(0); // get rid of tab for InfoLabel
+	//dataViewport->removeTab(0); // get rid of tab for InfoLabel
 
 	if (pluginInstaller)
 	{
@@ -460,6 +460,8 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 		menu.addCommandItem(commandManager, toggleProcessorList);
 		menu.addCommandItem(commandManager, toggleSignalChain);
 		menu.addCommandItem(commandManager, toggleFileInfo);
+        menu.addCommandItem(commandManager, toggleInfoTab);
+        menu.addCommandItem(commandManager, toggleGraphViewer);
 		menu.addSeparator();
 		menu.addSubMenu("Clock mode", clockMenu);
         menu.addSeparator();
@@ -512,6 +514,8 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		toggleSignalChain,
 		toggleHttpServer,
 		toggleFileInfo,
+        toggleInfoTab,
+        toggleGraphViewer,
 		setClockModeDefault,
 		setClockModeHHMMSS,
 		showHelp,
@@ -625,6 +629,18 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			result.addDefaultKeypress('F', ModifierKeys::shiftModifier);
 			result.setTicked(controlPanel->isOpen());
 			break;
+            
+        case toggleInfoTab:
+            result.setInfo("Info Tab", "Show/hide Info Tab.", "General", 0);
+            result.addDefaultKeypress('I', ModifierKeys::shiftModifier);
+            result.setTicked(infoTabIsOpen);
+            break;
+            
+        case toggleGraphViewer:
+            result.setInfo("Graph Viewer", "Show/hide Graph Viewer.", "General", 0);
+            result.addDefaultKeypress('G', ModifierKeys::shiftModifier);
+            result.setTicked(graphViewerIsOpen);
+            break;
 
 		case setClockModeDefault:
 			result.setInfo("Default", "Set clock mode to default.", "General", 0);
@@ -882,6 +898,30 @@ bool UIComponent::perform(const InvocationInfo& info)
 			controlPanel->toggleState();
 			break;
 
+        case toggleInfoTab:
+            if (infoTabIsOpen)
+                dataViewport->removeTab(0);
+            else
+            {
+                dataViewport->addTab("Info", infoLabel, 0);
+                infoTabIsOpen = true;
+            }
+                
+            break;
+            
+        case toggleGraphViewer:
+            if (graphViewerIsOpen)
+                dataViewport->removeTab(1);
+            else
+            {
+                dataViewport->addTab("Graph", graphViewer, 1);
+                graphViewerIsOpen = true;
+                graphViewer->repaint();
+            }
+                
+                
+            break;
+            
 		case toggleSignalChain:
 			editorViewportButton->toggleState();
 			break;

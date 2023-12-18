@@ -29,6 +29,7 @@
 #include "../TestableExport.h"
 
 class GenericEditor;
+class DraggableTabComponent;
 
 /**
  
@@ -66,7 +67,7 @@ public Button::Listener
 public:
     
     /** Constructor */
-    CustomTabButton(const String& name, TabbedButtonBar& ownerBar);
+    CustomTabButton(const String& name, DraggableTabComponent* parent, int nodeId);
     
     /** Determines whether a dragged component will affect this one  */
     bool isInterestedInDragSource(const DragAndDropTarget::SourceDetails& dragSourceDetails);
@@ -89,24 +90,20 @@ public:
     /** Called when item is dropped **/
     void itemDropped(const SourceDetails& dragSourceDetails) override;
     
-
     /** Override button painting method */
     void paintButton(juce::Graphics& g, bool isMouseOver, bool isMouseDown) override;
     
     /** Called when close button is pressed */
     void buttonClicked(Button* button);
-    
-    /** Called when tab is dragged */
-    //void mouseDrag(const MouseEvent& event) override;
-    
-    /** Gets the tab length*/
-    //int getBestTabLength(int depth) override;
+
     
 private:
     
     bool isDraggingOver = false;
     
-   // std::unique_ptr<CloseTabButton> closeButton;
+    DraggableTabComponent* parent;
+    
+    const int nodeId;
 
 };
 
@@ -147,16 +144,25 @@ public:
     
     /** Create buttons*/
     TabBarButton* createTabButton(const juce::String& name, int index) override {
-            return new CustomTabButton(name, getTabbedButtonBar());
+            return new CustomTabButton(name, this, tabNodeIds.getLast());
     }
+    
+    /** Adds a new tab to this component */
+    void addNewTab(String name, Component* component, int nodeId);
+    
+    /** Removes a tab with a specified nodeId */
+    void removeTabForNodeId(int nodeId);
+    
+    /** Selects a tab with a specified nodeId */
+    void selectTab(int nodeId);
     
 private:
     
+    /** Tracks whether dragging is active */
     bool isDraggingOver = false;
     
-    int draggedTabStartIndex = -1;
-
-    void moveTab(int fromIndex, int toIndex);
+    /** Holds node IDs for tab components */
+    Array<int> tabNodeIds;
     
 };
 
@@ -209,17 +215,17 @@ public:
     ~DataViewport() { }
 
     /** Adds a new visualizer within a tab and returns the tab index.*/
-    int addTabToDataViewport(String tabName, Component* componentToAdd);
+    void addTab(String tabName, Component* componentToAdd, int nodeId);
+    
+    /** Removes a tab with a specified nodeId.*/
+    void removeTab(int nodeId);
+    
+    /** Selects a tab with a specified nodeId .*/
+    void selectTab(int nodeId);
 
     /** [ONLY USED WHEN LOADING A CONFIG] Adds a new visualizer within a tab at the speicifed tab index.*/
     void addTabAtIndex(int index, String tabName, Component* componentToAdd);
 
-    /** Removes a tab with a specified index.*/
-    void destroyTab(int);
-
-    /** Selects a tab with a specified index.*/
-    void selectTab(int);
-    
     /** Sets layout of sub-compnents .*/
     void resized();
     
@@ -244,12 +250,12 @@ public:
 private:
 
     /** Maps original tab indices to their location within the DataViewport. */
-    Array<int> tabArray;
+    //Array<int> tabArray;
 
     /** Maps processors to their respective tabs within the DataViewport. */
-    Array<int> savedTabIndices;
-    Array<String> savedTabNames;
-    Array<Component*> savedTabComponents;
+    //Array<int> savedTabIndices;
+    //Array<String> savedTabNames;
+    //Array<Component*> savedTabComponents;
     
     /** Tabbed sub-components **/
     OwnedArray<DraggableTabComponent> draggableTabComponents;
@@ -257,8 +263,12 @@ private:
     /** Button to add a tab component */
     std::unique_ptr<AddTabbedComponentButton> addTabbedComponentButton;
 
-    int tabIndex;
+    //int tabIndex;
+    
+    /** Index of the active tabbed component */
+    int activeTabbedComponent = 0;
 
+    /** True when shutting down */
     bool shutdown;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DataViewport);
