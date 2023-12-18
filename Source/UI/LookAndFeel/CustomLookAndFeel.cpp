@@ -1200,7 +1200,7 @@ void CustomLookAndFeel::createTabButtonShape (TabBarButton& button, Path& p, boo
 
     p.closeSubPath();
 
-    p = p.createPathWithRoundedCorners (0.0f);
+    p = p.createPathWithRoundedCorners (4.0f);
 }
 
 void CustomLookAndFeel::fillTabButtonShape (TabBarButton& button, Graphics& g, const Path& path,

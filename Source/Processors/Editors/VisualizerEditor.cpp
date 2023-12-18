@@ -113,7 +113,7 @@ VisualizerEditor::~VisualizerEditor()
 {
     if (isOpenInTab)
     {
-        AccessClass::getDataViewport()->removeTab (nodeId);
+        AccessClass::getDataViewport()->removeTab (nodeId, false);
     }
     
     if (dataWindow != nullptr)

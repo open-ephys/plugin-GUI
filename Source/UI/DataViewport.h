@@ -30,6 +30,7 @@
 
 class GenericEditor;
 class DraggableTabComponent;
+class DataViewport;
 
 /**
  
@@ -125,7 +126,10 @@ class DraggableTabComponent :
 public:
     
     /** Constructor */
-    DraggableTabComponent();
+    DraggableTabComponent(DataViewport* parent);
+    
+    /** Destructor */
+    ~DraggableTabComponent() { shutdown = true; }
     
     /** Paint**/
     void paint(Graphics& g);
@@ -151,10 +155,25 @@ public:
     void addNewTab(String name, Component* component, int nodeId);
     
     /** Removes a tab with a specified nodeId */
-    void removeTabForNodeId(int nodeId);
+    bool removeTabForNodeId(int nodeId, bool sendNotification);
     
     /** Selects a tab with a specified nodeId */
     void selectTab(int nodeId);
+    
+    /** Moves tabs based on node ID */
+    void moveTabAfter(int nodeIdA, String name, int nodeIdB);
+    
+    /** Returns the number of tabs available */
+    int getNumTabs() { return tabNodeIds.size(); }
+    
+    /** Informs the component within the current tab that it's now active.*/
+    void currentTabChanged(int newIndex, const String& newTabName);
+    
+    /** Gets the content component for a particular nodeId */
+    Component* getContentComponentForNodeId(int nodeId);
+    
+    /** Parent component*/
+    DataViewport* dataViewport;
     
 private:
     
@@ -163,6 +182,10 @@ private:
     
     /** Holds node IDs for tab components */
     Array<int> tabNodeIds;
+    
+    /** True when shutdown is happening */
+    bool shutdown = false;
+
     
 };
 
@@ -218,7 +241,7 @@ public:
     void addTab(String tabName, Component* componentToAdd, int nodeId);
     
     /** Removes a tab with a specified nodeId.*/
-    void removeTab(int nodeId);
+    void removeTab(int nodeId, bool sendNotification = true);
     
     /** Selects a tab with a specified nodeId .*/
     void selectTab(int nodeId);
@@ -238,11 +261,11 @@ public:
     /** Load settings.*/
     void loadStateFromXml(XmlElement* xml);
 
-    /** Informs the component within the current tab that it's now active.*/
-    void currentTabChanged(int newIndex, const String& newTabName);
-
     /** Prevents the DataViewport from signaling EditorViewport when changing tabs.*/
     void disableConnectionToEditorViewport();
+    
+    /** Gets the content component for a particular nodeId */
+    Component* getContentComponentForNodeId(int nodeId);
     
     /** Returns the current content component */
     Component* getActiveTabContentComponent();
