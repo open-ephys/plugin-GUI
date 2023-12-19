@@ -31,6 +31,7 @@
 #include "UI/ControlPanel.h"
 #include "Processors/MessageCenter/MessageCenterEditor.h"
 #include "Processors/Events/Event.h"
+#include "Processors/Merger/Merger.h"
 
 
 using namespace AccessClass;
@@ -234,22 +235,28 @@ namespace CoreServices
 
         std::queue<GenericProcessor *> queued;
         queued.push(node);
+        bool is_original = true;
         while (!queued.empty()) {
             auto cur = queued.front();
             queued.pop();
-            predecessor_node_ids.push_back(cur->getNodeId());
 
-            auto parent_node = cur->getSourceNode();
-            if (parent_node != nullptr) {
-                if (parent_node->isSplitter()) {
-                    Splitter *splitter = (Splitter *) parent_node;
-                    if (splitter->getDestNode(0) != nullptr) {
-                        queued.push(splitter->getDestNode(0));
-                    }
-                    if (splitter->getDestNode(1) != nullptr) {
-                        queued.push(splitter->getDestNode(1));
-                    }
-                } else {
+            // Don't push on the original node itself, nor populate the IDs for a merger/splitter
+            if (!cur->isMerger() && !cur->isSplitter() && !is_original) {
+                predecessor_node_ids.push_back(cur->getNodeId());
+            }
+            is_original = false;
+
+            if (cur->isMerger()) {
+                Merger *merger = (Merger *) cur;
+                if (merger->getSourceNode(0) != nullptr) {
+                    queued.push(merger->getSourceNode(0));
+                }
+                if (merger->getSourceNode(1) != nullptr) {
+                    queued.push(merger->getSourceNode(1));
+                }
+            } else {
+                auto parent_node = cur->getSourceNode();
+                if (parent_node != nullptr) {
                     queued.push(parent_node);
                 }
             }
