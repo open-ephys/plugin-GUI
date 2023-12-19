@@ -229,6 +229,35 @@ namespace CoreServices
 
     }
 
+    std::vector<int> getPredecessorProcessorIds(GenericProcessor *node) {
+        std::vector<int> predecessor_node_ids;
+
+        std::queue<GenericProcessor *> queued;
+        queued.push(node);
+        while (!queued.empty()) {
+            auto cur = queued.front();
+            queued.pop();
+            predecessor_node_ids.push_back(cur->getNodeId());
+
+            auto parent_node = cur->getSourceNode();
+            if (parent_node != nullptr) {
+                if (parent_node->isSplitter()) {
+                    Splitter *splitter = (Splitter *) parent_node;
+                    if (splitter->getDestNode(0) != nullptr) {
+                        queued.push(splitter->getDestNode(0));
+                    }
+                    if (splitter->getDestNode(1) != nullptr) {
+                        queued.push(splitter->getDestNode(1));
+                    }
+                } else {
+                    queued.push(parent_node);
+                }
+            }
+        }
+
+        return predecessor_node_ids;
+    }
+
 	GenericProcessor* getProcessorByName(String processorName, bool onlySearchSources) {
 		if (getProcessorGraph() == nullptr) {
 			return nullptr;
