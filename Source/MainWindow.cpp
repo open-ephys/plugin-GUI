@@ -372,8 +372,10 @@ void MainWindow::loadWindowBounds()
     
 	File file = configsDir.getChildFile("windowState.xml");
 
+        // NOTE: this was crashing on Mac on initial load of OpenEphys. We don't need
+        // the default config window so ignore it here.
 	if (!file.exists())
-		openDefaultConfigWindow = true;
+		openDefaultConfigWindow = false;
 
 	XmlDocument doc(file);
 	std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
