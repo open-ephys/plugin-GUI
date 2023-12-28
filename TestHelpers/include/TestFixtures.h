@@ -113,6 +113,7 @@ class ProcessorTester {
         ptr = (T *) processor_graph->getProcessorWithNodeId(node_id);
         ptr->initialize(false);
         ptr->setDestNode(nullptr);
+        ptr->createEditor();
 
         // Place the newly created node into the graph
         auto source_node = processor_graph->getProcessorWithNodeId(source_node_id);
