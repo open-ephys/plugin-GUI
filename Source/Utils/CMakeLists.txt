@@ -16,8 +16,14 @@ add_sources(open-ephys
 # below macro.
 if (TARGET httplib::httplib)
 	target_link_libraries(open-ephys httplib::httplib)
+	if (TARGET gui_testable_source)
+		target_link_libraries(gui_testable_source httplib::httplib)
+	endif()
 else()
 	target_compile_definitions(open-ephys OPENEPHYS_INCLUDE_HTTPLIB)
+	if (TARGET gui_testable_source)
+		target_compile_definitions(gui_testable_source OPENEPHYS_INCLUDE_HTTPLIB)
+	endif()
 endif()
 
 #add nested directories
