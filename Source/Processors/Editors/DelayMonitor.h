@@ -49,7 +49,7 @@ public:
     DelayMonitor();
 
     /** Destructor */
-	~DelayMonitor() { }
+    ~DelayMonitor();
 
     /** Sets the most recent delay (in ms)*/
     void setDelay(float delayMs);

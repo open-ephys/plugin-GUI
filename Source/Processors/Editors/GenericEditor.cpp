@@ -65,11 +65,11 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
     drawerButton->addListener(&drawerButtonListener);
 
     if (!owner->isSplitter() && !owner->isMerger())
-        addAndMakeVisible(drawerButton.get());
-
-    if (!owner->isSplitter())
     {
-        streamSelector = std::make_unique<StreamSelector>(this);
+
+        addAndMakeVisible(drawerButton.get());
+        
+        streamSelector = std::make_unique<StreamSelectorTable>(this);
         addAndMakeVisible(streamSelector.get());
     }
 
@@ -80,7 +80,9 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
 
 GenericEditor::~GenericEditor()
 {
+    LOGD("GenericEditor::destructor");
     
+    streamSelector.reset();
 }
 
 void GenericEditor::updateName()
@@ -531,15 +533,21 @@ void GenericEditor::update(bool isEnabled_)
         for (auto stream : p->getDataStreams())
         {
 
+            LOGD("Editor ", getNameAndId(), " updating stream ", stream->getName());
+
             streamSelector->add(stream);
+        }
+
+        selectedStream = streamSelector->finishedUpdate();
+
+        for (auto stream : p->getDataStreams())
+        {
             delayMonitors[stream->getStreamId()] = streamSelector->getDelayMonitor(stream);
             ttlMonitors[stream->getStreamId()] = streamSelector->getTTLMonitor(stream);
 
             streamSelector->getTTLMonitor(stream)->updateSettings(stream->getEventChannels());
 
         }
-
-        selectedStream = streamSelector->finishedUpdate();
 
         if (numChannels == 0)
         {
@@ -1212,7 +1220,7 @@ void GenericEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled, b
         CoreServices::updateSignalChain(this);
     else
     {
-        streamSelector->getStreamInfoView(getProcessor()->getDataStream(streamId))->setEnabled(isEnabled);
+       // streamSelector->getStreamInfoView(getProcessor()->getDataStream(streamId))->setEnabled(isEnabled);
     }
 
 }

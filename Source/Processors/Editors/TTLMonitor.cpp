@@ -49,6 +49,7 @@ void TTLBitDisplay::setState(bool state_)
 
 void TTLBitDisplay::paint(Graphics& g)
 {
+
     g.setColour(Colours::black);
     g.fillRect(0, 0, getWidth(), getHeight());
 
@@ -62,7 +63,8 @@ void TTLBitDisplay::paint(Graphics& g)
     changedSinceLastRedraw = false;
 }
 
-TTLMonitor::TTLMonitor()
+TTLMonitor::TTLMonitor(int bitSize_, int maxBits_) :
+    maxBits(maxBits_), bitSize(bitSize_)
 {
     colours.add(Colour(224, 185, 36));
     colours.add(Colour(243, 119, 33));
@@ -75,16 +77,24 @@ TTLMonitor::TTLMonitor()
     
     displays.clear();
 
-    int xloc = 0;
-
-    const int maxBits = 10;
     for (int bit = 0; bit < maxBits; bit++)
     {
         displays.add(new TTLBitDisplay(colours[bit % colours.size()],
                 "Bit " + String(bit+1)));
-        displays.getLast()->setBounds(xloc, 0, 12, 12);
         addAndMakeVisible(displays.getLast());
-        xloc += 11;
+    }
+}
+
+void TTLMonitor::resized()
+{
+    int xloc = 0;
+
+    int yloc = getHeight() / 2 - bitSize / 2;
+
+    for (int bit = 0; bit < maxBits; bit++)
+    {
+        displays[bit]->setBounds(xloc, yloc, bitSize, bitSize);
+        xloc += bitSize - 1;
     }
 }
 
@@ -96,7 +106,7 @@ int TTLMonitor::updateSettings(Array<EventChannel*> eventChannels)
 
 void TTLMonitor::setState(int line, bool state)
 {
-    if (line < 10)
+    if (line < maxBits)
         displays[line]->setState(state);
 }
 

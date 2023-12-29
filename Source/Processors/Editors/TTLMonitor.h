@@ -78,7 +78,7 @@ class PLUGIN_API TTLMonitor : public Component,
 public:
 
     /** Constructor */
-    TTLMonitor();
+    TTLMonitor(int bitSize = 12, int maxBits = 10);
 
     /** Destructor */
 	~TTLMonitor() { }
@@ -86,8 +86,11 @@ public:
     /** Updates settings based on incoming event channels (not used) */
 	int updateSettings(Array<EventChannel*> eventChannels);
 
-    /** Sets the state of a particular line (1-10 only)*/
+    /** Sets the state of a particular line */
     void setState(int line, bool state);
+
+    /** Places the bit squares */
+    void resized();
     
     /** Starts rendering timer*/
     void startAcquisition();
@@ -103,6 +106,9 @@ private:
     Array<Colour> colours; 
 
     OwnedArray<TTLBitDisplay> displays;
+
+    const int maxBits;
+    const int bitSize;
 };
 
 #endif  // __TTLMONITOR_H_BDCEE716__
