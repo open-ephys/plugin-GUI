@@ -35,11 +35,12 @@ DelayMonitor::DelayMonitor() :
 
 DelayMonitor::~DelayMonitor()
 {
-    std::cout << "DELAY MONITOR DELETING" << std::endl;
+    //std::cout << "DELAY MONITOR DELETING" << std::endl;
 }
 
 void DelayMonitor::setDelay(float delayMs)
 {
+	//std::cout << "Delay monitor::setDelay " << delayMs << std::endl;
     delay = delayMs;
 }
 
@@ -72,7 +73,15 @@ void DelayMonitor::timerCallback()
 
 void DelayMonitor::paint(Graphics& g)
 {
+
     g.setColour(colour);
     g.setFont(font);
     g.drawText(String(delay, 2) + " ms", 0, 0, 60, 20, Justification::centredLeft);
+
+}
+
+
+void DelayMonitor::handleCommandMessage(int commandId)
+{
+    repaint();   
 }

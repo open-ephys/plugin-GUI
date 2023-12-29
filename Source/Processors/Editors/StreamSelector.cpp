@@ -58,16 +58,30 @@ StreamInfoView::StreamInfoView(const DataStream* stream_, GenericEditor* editor_
     streamName = stream->getName();
     sourceNodeId = stream->getNodeId();
 
+    delayMonitor = nullptr;
+    ttlMonitor = nullptr;
+
 }
 
 void StreamInfoView::setDelayMonitor(DelayMonitor* monitor)
 {
-	delayMonitor = monitor;
+
+    if (monitor != delayMonitor)
+    {
+        LOGD(streamName, " UPDATING DELAY MONITOR to ", monitor);
+        delayMonitor = monitor;
+    }
+    
 }
 
 void StreamInfoView::setTTLMonitor(TTLMonitor* monitor)
 {
-    ttlMonitor = monitor;
+    if (monitor != ttlMonitor)
+    {
+        LOGD(streamName, " UPDATING TTL MONITOR to ", monitor);
+        ttlMonitor = monitor;
+    }
+    
 }
 
 
@@ -182,6 +196,7 @@ void StreamInfoView::buttonClicked(Button* button)
         editor->streamEnabledStateChanged(getStreamId(), isEnabled);
     }
 }
+
 
 void StreamInfoView::resized()
 {
@@ -579,6 +594,7 @@ Component* StreamTableModel::refreshComponentForCell(int rowNumber,
         if (delayMonitor == nullptr)
         {
             delayMonitor = new DelayMonitor();
+            LOGD("CREATING NEW DELAY MONITOR ", delayMonitor);
         }
 
         streams[rowNumber]->setDelayMonitor(delayMonitor);
@@ -593,6 +609,7 @@ Component* StreamTableModel::refreshComponentForCell(int rowNumber,
         if (ttlMonitor == nullptr)
         {
             ttlMonitor = new TTLMonitor(8, 8);
+            LOGD("CREATING NEW TTL MONITOR ", ttlMonitor);
         }
 
         streams[rowNumber]->setTTLMonitor(ttlMonitor);
@@ -676,27 +693,8 @@ StreamSelectorTable::StreamSelectorTable(GenericEditor* ed_) :
 {
 
     tableModel = std::make_unique<StreamTableModel>(this);
-
-    streamTable = std::make_unique<TableListBox>("Stream Table", tableModel.get());
+    streamTable.reset(createTableView());
     tableModel->table = streamTable.get();
-    streamTable->setHeader(std::make_unique<TableHeaderComponent>());
-
-    streamTable->getHeader().addColumn(" ", StreamTableModel::Columns::SELECTED, 12, 12, 12, TableHeaderComponent::notResizableOrSortable);
-    //streamTable->getHeader().addColumn("ID", StreamTableModel::Columns::PROCESSOR_ID, 30, 30, 30, TableHeaderComponent::notResizableOrSortable);
-    streamTable->getHeader().addColumn("Name", StreamTableModel::Columns::NAME, 94, 94, 94, TableHeaderComponent::notResizableOrSortable);
-    //streamTable->getHeader().addColumn("# CH", StreamTableModel::Columns::NUM_CHANNELS, 20, 20, 20, TableHeaderComponent::notResizableOrSortable);
-    //streamTable->getHeader().addColumn("Hz", StreamTableModel::Columns::SAMPLE_RATE, 40, 40, 40, TableHeaderComponent::notResizableOrSortable);
-    streamTable->getHeader().addColumn("DELAY", StreamTableModel::Columns::DELAY, 50, 50, 50, TableHeaderComponent::notResizableOrSortable);
-    streamTable->getHeader().addColumn("TTL", StreamTableModel::Columns::TTL_LINE_STATES, 60, 60, 60, TableHeaderComponent::notResizableOrSortable);
-    //streamTable->getHeader().addColumn("ENABLE", StreamTableModel::Columns::ENABLED, 15, 15, 15, TableHeaderComponent::notResizableOrSortable);
-    
-    streamTable->getHeader().setColour(TableHeaderComponent::ColourIds::backgroundColourId, Colour(240, 240, 240));
-    streamTable->getHeader().setColour(TableHeaderComponent::ColourIds::highlightColourId, Colour(240, 240, 240));
-    streamTable->getHeader().setColour(TableHeaderComponent::ColourIds::textColourId, Colour(20, 20, 20));
-
-    streamTable->setHeaderHeight(0);
-    streamTable->setRowHeight(20);
-    streamTable->setMultipleSelectionEnabled(false);
 
     addAndMakeVisible(streamTable.get());
     streamTable->setBounds(2, 18, 231, 80);
@@ -716,6 +714,40 @@ StreamSelectorTable::StreamSelectorTable(GenericEditor* ed_) :
 
 }
 
+TableListBox* StreamSelectorTable::createTableView(bool expanded)
+{
+    TableListBox* table = new TableListBox("Stream Table", tableModel.get());
+    
+    table->setHeader(std::make_unique<TableHeaderComponent>());
+
+    table->getHeader().addColumn(" ", StreamTableModel::Columns::SELECTED, 12, 12, 12, TableHeaderComponent::notResizableOrSortable);
+    table->getHeader().addColumn("Name", StreamTableModel::Columns::NAME, 94, 94, 94, TableHeaderComponent::notResizableOrSortable);
+    table->getHeader().addColumn("DELAY", StreamTableModel::Columns::DELAY, 50, 50, 50, TableHeaderComponent::notResizableOrSortable);
+    table->getHeader().addColumn("TTL", StreamTableModel::Columns::TTL_LINE_STATES, 60, 60, 60, TableHeaderComponent::notResizableOrSortable);
+
+    if (expanded)
+    {
+        table->getHeader().addColumn("ID", StreamTableModel::Columns::PROCESSOR_ID, 30, 30, 30, TableHeaderComponent::notResizableOrSortable);
+        table->getHeader().addColumn("# CH", StreamTableModel::Columns::NUM_CHANNELS, 20, 20, 20, TableHeaderComponent::notResizableOrSortable);
+        table->getHeader().addColumn("Hz", StreamTableModel::Columns::SAMPLE_RATE, 40, 40, 40, TableHeaderComponent::notResizableOrSortable);
+        table->getHeader().addColumn("ENABLE", StreamTableModel::Columns::ENABLED, 15, 15, 15, TableHeaderComponent::notResizableOrSortable);
+    }
+
+    table->getHeader().setColour(TableHeaderComponent::ColourIds::backgroundColourId, Colour(240, 240, 240));
+    table->getHeader().setColour(TableHeaderComponent::ColourIds::highlightColourId, Colour(240, 240, 240));
+    table->getHeader().setColour(TableHeaderComponent::ColourIds::textColourId, Colour(20, 20, 20));
+
+    if (expanded)
+        table->setHeaderHeight(20);
+    else
+        table->setHeaderHeight(0);
+
+    table->setRowHeight(20);
+    table->setMultipleSelectionEnabled(false);
+
+    return table;
+}
+
 
 StreamSelectorTable::~StreamSelectorTable()
 {
@@ -726,14 +758,65 @@ void StreamSelectorTable::buttonClicked(Button* button)
 {
     if (button == expanderButton.get())
     {
+        LOGD("EXPANDER BUTTON CLICKED ");
+
+        auto* table = createTableView(true);
+        table->setBounds(0, 0, 356, streams.size() * 20 + 20);
+        table->selectRow(viewedStreamIndex);
+        tableModel->table = table;
+        table->setLookAndFeel(customTableLookAndFeel.get());
+
         CallOutBox& myBox
-            = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(streamTable.get()),
+            = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(table),
                 button->getScreenBounds(),
                 nullptr);
-        myBox.setArrowSize(0);
+
+        //Rectangle screenBounds1 = getScreenBounds();
+       // screenBounds1.setLeft(screenBounds1.getTopLeft().x - 18);
+
+        //if (streams.size() == 1)
+       // {
+       //     screenBounds1.setTop(screenBounds1.getTopLeft().y - 18);
+       // }
+       //// else {
+       //     screenBounds1.setTop(screenBounds1.getTopLeft().y + 2);
+       // }
+
+       
+
+        //Rectangle screenBounds2 = getScreenBounds();
+        //screenBounds2.setLeft(screenBounds1.getTopLeft().x - 20);
+        //screenBounds2.setTop(screenBounds1.getTopLeft().y - 20);
+
+       // myBox.updatePosition(button->getScreenBounds(), screenBounds1);
 
         myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+        myBox.addComponentListener(this);
+
+        editor->updateDelayAndTTLMonitors();
+
     }
+}
+
+
+void StreamSelectorTable::componentBeingDeleted(Component& component)
+{
+    LOGD("POPUP TABLE CLOSED");
+
+    tableModel->table = streamTable.get();
+    streamTable->selectRow(viewedStreamIndex);
+
+    Array<StreamInfoView*> newStreams;
+
+    for (auto stream : streams)
+    {
+        newStreams.add(stream);
+    }
+
+    tableModel->update(newStreams, viewedStreamIndex);
+
+    editor->updateDelayAndTTLMonitors();
+
 }
 
 int StreamSelectorTable::getDesiredWidth() 
@@ -826,18 +909,26 @@ void StreamSelectorTable::timerCallback()
 
     for (auto stream : streams)
     {
-        stream->getTTLMonitor()->repaint();
+        TTLMonitor* ttlMonitor = stream->getTTLMonitor();
+
+        if (ttlMonitor != nullptr)
+            stream->getTTLMonitor()->repaint(); // postCommandMessage(0);
     }
 
     counter++;
 
-    if (counter == 5)
+    if (counter == 10)
     {
         counter = 0;
 
         for (auto stream : streams)
         {
-            stream->getDelayMonitor()->repaint();
+            DelayMonitor* delayMonitor = stream->getDelayMonitor();
+
+            if (delayMonitor != nullptr)
+                delayMonitor->repaint(); // postCommandMessage(0);
+
+            //LOGD(delayMonitor);
         }
     }
 }
@@ -878,7 +969,7 @@ void StreamSelectorTable::paint(Graphics& g)
 
     
     g.setColour(Colours::darkgrey);
-    g.fillRect(0, 20, getWidth()-5, getHeight() - 20);
+    g.fillRect(0, 20, getWidth()-5, getHeight() - 21);
     g.fillRoundedRectangle(0, 0, getWidth() - 5, getHeight() - 40, 5.0f);
     g.setColour(Colours::lightgrey);
     g.setFont(12);
@@ -889,12 +980,11 @@ void StreamSelectorTable::paint(Graphics& g)
 
 const DataStream* StreamSelectorTable::getCurrentStream()
 {
-    /*if (streams.size() > 0)
-        return streams[0]->getStream();
+    if (streams.size() > 0)
+        return streams[viewedStreamIndex]->getStream();
     else
-        return nullptr;*/
+        return nullptr;
 
-    return nullptr;
 }
 
 
@@ -924,12 +1014,30 @@ uint16 StreamSelectorTable::finishedUpdate()
 
     tableModel->update(newStreams, viewedStreamIndex);
 
-    if (viewedStreamIndex > -1)
-        return streams[viewedStreamIndex]->getStream()->getStreamId();
-    else
-        return 0;
+    
 
-    return 0;
+    if (streams.size() == 0)
+    {
+        expanderButton->setEnabled(false);
+        return 0;
+    }
+    else {
+        expanderButton->setEnabled(true);
+
+        if (viewedStreamIndex < streams.size())
+        {
+            streamTable->selectRow(viewedStreamIndex);
+            return streams[viewedStreamIndex]->getStream()->getStreamId();
+        }
+        else
+        {
+            viewedStreamIndex = streams.size() - 1;
+            streamTable->selectRow(viewedStreamIndex);
+            return streams[viewedStreamIndex]->getStream()->getStreamId();
+        }
+
+    }
+
 }
 
 void StreamSelectorTable::remove(StreamInfoView* stream)

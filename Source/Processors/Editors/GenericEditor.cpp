@@ -499,6 +499,18 @@ bool GenericEditor::checkDrawerButton(Button* button)
 
 }
 
+void GenericEditor::updateDelayAndTTLMonitors()
+{
+    for (auto stream : getProcessor()->getDataStreams())
+    {
+        delayMonitors[stream->getStreamId()] = streamSelector->getDelayMonitor(stream);
+        ttlMonitors[stream->getStreamId()] = streamSelector->getTTLMonitor(stream);
+
+        streamSelector->getTTLMonitor(stream)->updateSettings(stream->getEventChannels());
+
+    }
+}
+
 void GenericEditor::update(bool isEnabled_)
 {
     isEnabled = isEnabled_;
@@ -540,14 +552,7 @@ void GenericEditor::update(bool isEnabled_)
 
         selectedStream = streamSelector->finishedUpdate();
 
-        for (auto stream : p->getDataStreams())
-        {
-            delayMonitors[stream->getStreamId()] = streamSelector->getDelayMonitor(stream);
-            ttlMonitors[stream->getStreamId()] = streamSelector->getTTLMonitor(stream);
-
-            streamSelector->getTTLMonitor(stream)->updateSettings(stream->getEventChannels());
-
-        }
+        updateDelayAndTTLMonitors();
 
         if (numChannels == 0)
         {
@@ -573,13 +578,20 @@ void GenericEditor::update(bool isEnabled_)
 void GenericEditor::setTTLState(uint16 streamId, int bit, bool state)
 {
     if (ttlMonitors.find(streamId) != ttlMonitors.end())
-        ttlMonitors[streamId]->setState(bit, state);
+    {
+        if (ttlMonitors[streamId] != nullptr)
+            ttlMonitors[streamId]->setState(bit, state);
+    }
 }
 
 void GenericEditor::setMeanLatencyMs(uint16 streamId, float latencyMs)
 {
     if (delayMonitors.find(streamId) != delayMonitors.end())
-        delayMonitors[streamId]->setDelay(latencyMs);
+    {
+        if (delayMonitors[streamId] != nullptr)
+            delayMonitors[streamId]->setDelay(latencyMs);
+    }
+        
 }
 
 bool GenericEditor::getCollapsedState()

@@ -129,3 +129,9 @@ void TTLMonitor::stopAcquisition()
 {
     stopTimer();
 }
+
+
+void TTLMonitor::handleCommandMessage(int commandId)
+{
+    repaint();
+}

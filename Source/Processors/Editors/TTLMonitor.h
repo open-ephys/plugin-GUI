@@ -101,6 +101,9 @@ public:
     /** Repaints the TTL bits*/
     void timerCallback();
 
+    /** Sends repaint command asynchronously */
+    void handleCommandMessage(int commandId);
+
 private:
 
     Array<Colour> colours; 

@@ -69,12 +69,16 @@ public:
     /** Stops the timer*/
     void stopAcquisition();
 
+    /** Sends repaint command asynchronously */
+    void handleCommandMessage(int commandId);
+
 private:
     
     bool isEnabled;
     Colour colour;
     float delay;
     Font font;
+    bool canRepaint = true;
 };
 
 

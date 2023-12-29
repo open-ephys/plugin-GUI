@@ -318,6 +318,9 @@ class CustomTableLookAndFeel : public LookAndFeel_V4
 {
 public:
     CustomTableLookAndFeel();
+    
+    void drawCallOutBoxBackground(CallOutBox& box, Graphics& g,
+        const Path& path, Image& cachedImage) override { }
 };
 
 /**
@@ -329,7 +332,8 @@ Lives inside the GenericEditor
 */
 class PLUGIN_API StreamSelectorTable : public Component,
     public Button::Listener,
-    public Timer
+    public Timer,
+    public ComponentListener
 {
 public:
 
@@ -396,6 +400,9 @@ public:
     /** Used to enable and disable a given stream*/
     void setStreamEnabledState(uint16 streamId, bool isEnabled);
 
+    /** Called when popup window is deleted */
+    void componentBeingDeleted(Component& component) override;
+
     /** Pointer to editor */
     GenericEditor* editor;
 
@@ -406,6 +413,9 @@ private:
 
     /** Renders delay & TTL monitors */
     void timerCallback();
+
+    /** Creates a new table view */
+    TableListBox* createTableView(bool expanded = false);
 
     std::unique_ptr<StreamTableModel> tableModel;
     std::unique_ptr<TableListBox> streamTable;

@@ -264,6 +264,9 @@ public:
     /** Get the ID of the stream that's currently selected.*/
     uint16 getCurrentStream() { return selectedStream; }
 
+    /** Called when new TTL and Delay monitors are created */
+    void updateDelayAndTTLMonitors();
+
     /** Notifies editor that the selected stream has changed.*/
     virtual void selectedStreamHasChanged();
 
