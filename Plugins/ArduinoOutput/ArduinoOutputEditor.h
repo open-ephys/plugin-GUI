@@ -37,9 +37,7 @@
 
 */
 
-class ArduinoOutputEditor : public GenericEditor,
-                            public ComboBox::Listener//,
-                           // public Timer
+class ArduinoOutputEditor : public GenericEditor
 
 {
 public:
@@ -47,17 +45,9 @@ public:
     ArduinoOutputEditor(GenericProcessor* parentNode);
 
     /** Destructor*/
-    ~ArduinoOutputEditor() { }
-
-    /** Called when selected device is changed.*/
-    void comboBoxChanged(ComboBox* comboBoxThatHasChanged);
-
-    /** Gets the latest device from the processor*/
-    void updateDevice(String deviceName);
+    ~ArduinoOutputEditor() {}
 
 private:
-
-    std::unique_ptr<ComboBox> deviceSelector;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ArduinoOutputEditor);
 
