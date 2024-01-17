@@ -62,11 +62,11 @@
     Enables camera support using the CameraDevice class (Mac, Windows, iOS, Android).
 */
 #ifndef JUCE_USE_CAMERA
- #define JUCE_USE_CAMERA 0
+ #define JUCE_USE_CAMERA 1
 #endif
 
 #ifndef JUCE_CAMERA_LOG_ENABLED
- #define JUCE_CAMERA_LOG_ENABLED 0
+ #define JUCE_CAMERA_LOG_ENABLED 1
 #endif
 
 #if JUCE_CAMERA_LOG_ENABLED
