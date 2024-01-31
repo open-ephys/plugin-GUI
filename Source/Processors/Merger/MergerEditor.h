@@ -81,9 +81,6 @@ public:
 
     /** Remove unused buttons */
     void updateSettings() override;
-    
-    /** Checks whether a stream should be sent through the Merger*/
-    bool checkStream(const DataStream* stream);
 
 
 private:

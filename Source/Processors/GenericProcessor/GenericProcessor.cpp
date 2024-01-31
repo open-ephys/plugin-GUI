@@ -925,16 +925,9 @@ void GenericProcessor::update()
                     }
                     
                 }
-            } else if (sourceNode->isMerger())
+            } 
+            else 
             {
-                Merger* merger = (Merger*) sourceNode;
-
-                for (auto stream : merger->getStreamsForDestNode(this))
-                {
-                    continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
-                }
-            }
-            else {
                 for (auto stream : sourceNode->getStreamsForDestNode(this))
                 {
                     continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);

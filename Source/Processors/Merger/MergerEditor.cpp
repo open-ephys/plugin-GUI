@@ -372,17 +372,6 @@ void MergerEditor::switchSource(int source, bool notify)
 }
 
 
-
-
-bool MergerEditor::checkStream(const DataStream* stream)
-{
-
-    // buttons already exist:
-    return streamSelector->checkStream(stream);
-
-}
-
-
 void MergerEditor::updateSettings()
 {
     /*for (auto button : streamButtons)
