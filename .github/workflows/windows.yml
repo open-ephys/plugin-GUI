@@ -41,7 +41,7 @@ jobs:
         cd Build
         cp -r Release open-ephys
         cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
-        cp -r ../Resources/DLLs/FTD3XXDriver_WHQLCertified_v1.3.0.4_Installer.exe open-ephys
+        cp -r ../Resources/DLLs/FTD3XXDriver_WHQLCertified_1.3.0.8_Installer.exe open-ephys
         cp ../LICENSE open-ephys
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-latest-windows-dev.zip
@@ -62,7 +62,7 @@ jobs:
         cd Build
         cp -r Release open-ephys
         cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
-        cp -r ../Resources/DLLs/FTD3XXDriver_WHQLCertified_v1.3.0.4_Installer.exe open-ephys
+        cp -r ../Resources/DLLs/FTD3XXDriver_WHQLCertified_1.3.0.8_Installer.exe open-ephys
         cp ../LICENSE open-ephys
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-${gui_ver}-windows-beta.zip
@@ -83,7 +83,7 @@ jobs:
         cd Build
         cp -r Release open-ephys
         cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
-        cp -r ../Resources/DLLs/FTD3XXDriver_WHQLCertified_v1.3.0.4_Installer.exe open-ephys
+        cp -r ../Resources/DLLs/FTD3XXDriver_WHQLCertified_1.3.0.8_Installer.exe open-ephys
         cp ../LICENSE open-ephys
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-${gui_ver}-windows.zip
