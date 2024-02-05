@@ -112,17 +112,17 @@ void Parameter::setOwner(ParameterOwner* parameterOwner_)
     else if (getScope() == ParameterScope::STREAM_SCOPE)
     {
         auto stream = (DataStream*)parameterOwner;
-        key = String(stream->getNodeId()) + "_" + stream->getName() + "_" + this->getName();
+        key = stream->getKey() + "|" + String(stream->getNodeId()) + "|" + getName();
     }
     else if (getScope() == ParameterScope::PROCESSOR_SCOPE)
     {
         auto processor = (GenericProcessor*)parameterOwner;
-        key = String(processor->getNodeId()) + "_" + this->getName();
+        key = String(processor->getNodeId()) + "|" + this->getName();
     }
     else if (getScope() == ParameterScope::VISUALIZER_SCOPE)
     {
         auto visualizer = (Visualizer*)parameterOwner;
-        key = String(visualizer->getProcessor()->getNodeId()) + "_visualizer_" + this->getName();
+        key = "v" + String(visualizer->getProcessor()->getNodeId()) + "|" + this->getName();
     }
     else if (getScope() == ParameterScope::SPIKE_CHANNEL_SCOPE)
     {
