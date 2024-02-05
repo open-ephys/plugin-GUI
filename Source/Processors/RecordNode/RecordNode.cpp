@@ -193,7 +193,6 @@ String RecordNode::handleConfigMessage(String msg)
 	- SELECT <stream_index> NONE / ALL / <channels> -- selects which channels to record, e.g.:
 		"SELECT 0 NONE" -- deselect all channels for stream 0
 		"SELECT 1 1 2 3 4 5 6 7 8" -- select channels 1-8 for stream 1
-	
 	*/
 
 	if (CoreServices::getAcquisitionStatus())
@@ -216,12 +215,13 @@ String RecordNode::handleConfigMessage(String msg)
 			
 			int engineIndex = tokens[1].getIntValue();
 
-			int numEngines = ed->engineSelectCombo->getNumItems();
+			int numEngines = ((CategoricalParameter*)getParameter("engine"))->getCategories().size();
 
 			if (engineIndex >= 0 && engineIndex < numEngines)
 			{
-				ed->engineSelectCombo->setSelectedItemIndex(engineIndex, sendNotification);
-				return "Record Node: updated record engine to " + ed->engineSelectCombo->getText();
+				//ed->engineSelectCombo->setSelectedItemIndex(engineIndex, sendNotification);
+				getParameter("engine")->setNextValue(engineIndex);
+				return "Record Node: updated record engine to " + ((CategoricalParameter*)getParameter("engine"))->getCategories()[engineIndex];
 			}
 			else {
 				return "Record Node: invalid engine index (max = " + String(numEngines - 1) + ")";
@@ -247,7 +247,9 @@ String RecordNode::handleConfigMessage(String msg)
 			
 			int streamIndex = tokens[1].getIntValue();
 			uint16 streamId;
-			std::vector<bool> channelStates;
+			//std::vector<bool> channelStates;
+			Array<var> channelStates;
+
 			int channelCount;
 
 			if (streamIndex >= 0 && streamIndex < dataStreams.size())
@@ -262,17 +264,14 @@ String RecordNode::handleConfigMessage(String msg)
 			if (tokens[2] == "NONE")
 			{
 				//select no channels
-				for (int i = 0; i < channelCount; i++)
-				{
-					channelStates.push_back(false);
-				}
+				channelStates.clear();
 			}
 			else if (tokens[2] == "ALL")
 			{
 				//select all channels
 				for (int i = 0; i < channelCount; i++)
 				{
-					channelStates.push_back(true);
+					channelStates.add(i);
 				}
 			}
 			else
@@ -290,13 +289,14 @@ String RecordNode::handleConfigMessage(String msg)
 				for (int i = 0; i < channelCount; i++)
 				{
 					if (channels.contains(i))
-						channelStates.push_back(true);
-					else
-						channelStates.push_back(false);
+						channelStates.add(i);
 				}
 			}
 
-			updateChannelStates(streamId, channelStates);
+			//updateChannelStates(streamId, channelStates);
+			DataStream* stream = getDataStream(streamId);
+			MaskChannelsParameter* maskChannels = (MaskChannelsParameter*)stream->getParameter("channels");
+			maskChannels->setNextValue(channelStates);
 		}
 		else
 		{
