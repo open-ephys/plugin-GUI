@@ -74,6 +74,9 @@ EditorViewport::~EditorViewport()
 void EditorViewport::paint(Graphics& g)
 {
 
+    g.setColour(findColour(ThemeColors::editorViewportBackgroundColorId));
+    g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight()-12, 5.0f);
+
     if (somethingIsBeingDraggedOver)
     {
         g.setColour(Colours::yellow);
@@ -83,7 +86,7 @@ void EditorViewport::paint(Graphics& g)
         g.setColour(Colour(48,48,48));
     }
 
-    g.drawRect(0, 0, getWidth(), getHeight()-15);
+    g.drawRoundedRectangle(1, 1, getWidth() - 2, getHeight()-12, 4.0f, 2.0f);
     
     if (somethingIsBeingDraggedOver)
     {
