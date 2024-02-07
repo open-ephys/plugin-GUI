@@ -424,7 +424,6 @@ void GenericEditor::editorStopAcquisition()
 
 void GenericEditor::paint(Graphics& g)
 {
-    int offset = 0;
 
     if (isEnabled)
         g.setColour (backgroundColor);
@@ -433,13 +432,30 @@ void GenericEditor::paint(Graphics& g)
 
     if (! isCollapsed)
     {
-        g.fillRect (1, 1, getWidth() - (2 + offset), getHeight() - 2);
+        // Paint titlebar
+        Path topRoundedEdge;
+        topRoundedEdge.addRoundedRectangle (1, 1,
+                                              getWidth() - 2, 23, 
+                                              5.0f, 5.0f, 
+                                              true, true, 
+                                              false, false);
+
+        g.fillPath (topRoundedEdge);
+        
+        // Paint body
         g.setGradientFill (backgroundGradient);
-        g.fillRect (1, 22, getWidth() - 2, getHeight() - 29);
+        Path bottomRoundedEdge;
+        bottomRoundedEdge.addRoundedRectangle (1, 23,
+                                              getWidth() - 2, getHeight() - 24, 
+                                              5.0f, 5.0f, 
+                                              false, false, 
+                                              true, true);
+
+        g.fillPath (bottomRoundedEdge);
     }
     else
     {
-        g.fillAll();
+        g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 5.0f);
     }
 
     // draw title
@@ -463,16 +479,11 @@ void GenericEditor::paint(Graphics& g)
 
     if (isSelected)
     {
-        g.setColour(Colours::yellow.withAlpha(0.5f));
+        // draw highlight box
+        g.setColour(Colours::yellow);
+        g.drawRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 5.0f, 2.0f);
 
     }
-    else
-    {
-        g.setColour(Colours::black);
-    }
-
-    // draw highlight box
-    g.drawRect(0,0,getWidth(),getHeight(),2.0);
 
 }
 

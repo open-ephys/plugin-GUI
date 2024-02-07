@@ -44,11 +44,11 @@ void EmptyProcessorEditor::paint(Graphics& g)
     else
         g.setColour(Colour(150, 150, 150));
 
-    g.drawRect(1, 1, getWidth() - 2, getHeight() - 2, 2);
-    g.drawHorizontalLine(22, 1, getWidth() - 2);
+    g.drawRoundedRectangle(2, 2, getWidth() - 4, getHeight() - 4, 5.0f, 2.0f);
+    g.drawHorizontalLine(23, 2, getWidth() - 2);
     
     g.setFont( Font("CP Mono", "Plain", 16.0f) );
-    g.drawFittedText("NO SOURCE", 10, 5, getWidth() - 12, 16, Justification::centredLeft, 1);
+    g.drawFittedText("NO SOURCE", 10, 6, getWidth() - 12, 16, Justification::centredLeft, 1);
 
     g.setColour (Colours::lightgrey);
 
