@@ -285,7 +285,7 @@ private:
     std::unique_ptr<ProcessorParameterComponent> processorParamComponent;
     std::unique_ptr<Component> processorParamHeader;
 
-    DropShadower nodeDropShadower { DropShadow(Colours::black.withAlpha(0.8f), 10, {2,10}) };
+    DropShadower nodeDropShadower { DropShadow(Colours::black.withAlpha(0.85f), 10, {2,10}) };
     
     bool isMouseOver;
     int horzShift;

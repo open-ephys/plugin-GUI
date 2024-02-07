@@ -79,7 +79,7 @@ GraphViewer::GraphViewer()
 void GraphViewer::updateBoundaries()
 {
     int maxHeight = 0;
-    int maxWidth = graphViewport->getWidth() - 30;
+    int maxWidth = 0;
 
     for (auto node : availableNodes)
     {
@@ -90,7 +90,7 @@ void GraphViewer::updateBoundaries()
             maxWidth = node->getRight();
     }
 
-    setBounds(0, 0, maxWidth + 10, maxHeight + 10);
+    setBounds(0, 0, maxWidth + 20, maxHeight + 20);
 }
 
 
@@ -1167,7 +1167,7 @@ void GraphNode::paint (Graphics& g)
     if(processor->isEmpty())
     {
         g.setColour(Colour(150, 150, 150));
-        g.drawRect(0, 0, getWidth(), 20, 2);
+        g.drawRoundedRectangle(1, 1, getWidth() - 2, 18, 5.0f, 2.0f);
         
         g.drawFittedText("No Source", 10, 0,
             getWidth() - 10, 20, Justification::centredLeft, 1);
@@ -1191,9 +1191,25 @@ void GraphNode::paint (Graphics& g)
 
 void GraphNode::paintOverChildren(Graphics& g)
 {
-    g.setColour(Colours::yellow);
+    if (processor->isEmpty())
+        return;
+    
     if (isMouseOver)
     {
-        g.drawRect(0, 0, getWidth(), getHeight(), 2);
+        g.setColour(Colours::yellow);
+        g.drawRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 5.0f, 2.0f);
+    }
+    else
+    {
+        Path fakeRoundedCorners;
+        juce::Rectangle<float> bounds = {0, 0, (float)getWidth(), (float)getHeight()};
+
+        const float cornerSize = 5.0f; //desired corner size
+        fakeRoundedCorners.addRectangle(bounds); //What you start with
+        fakeRoundedCorners.setUsingNonZeroWinding(false); //The secret sauce
+        fakeRoundedCorners.addRoundedRectangle(bounds.reduced(1.0f), cornerSize); //subtract this shape
+
+        g.setColour(findColour(ThemeColors::graphViewerBackgroundColorId));
+        g.fillPath(fakeRoundedCorners);
     }
 }
