@@ -1015,6 +1015,46 @@ void PluginInfoComponent::setDownloadURL(const String& url)
 void PluginInfoComponent::run()
 {
 
+	// Check if plugin already present in signal chain
+	bool pluginInUse = false;
+	if(pInfo.type == "RecordEngine" && AccessClass::getProcessorGraph()->hasRecordNode())
+	{
+		pluginInUse = true;
+	}
+	else
+	{
+		auto processors = AccessClass::getProcessorGraph()->getListOfProcessors();
+		for (auto* p : processors)
+		{
+			if (p->getLibName().equalsIgnoreCase(pInfo.displayName))
+			{
+				pluginInUse = true;
+				break;
+			}
+		}
+	}
+
+	if (pluginInUse)
+	{
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+									"[Plugin Installer] " + pInfo.displayName, 
+									pInfo.displayName + " is already in use. Please remove all instances of it from the signal chain and try again.");
+
+		LOGE("Error.. Plugin already in use. Please remove it from the signal chain and try again.");
+		return;
+	}
+
+	// Remove older version of the plugin if present
+	if(!AccessClass::getPluginManager()->removePlugin(pInfo.displayName))
+	{
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+									"[Plugin Installer] ERROR", 
+									"Unable to current installed version of " + pInfo.displayName + "... Plugin update failed.");
+
+		LOGE("Unable to remove current installed version of " + pInfo.displayName + "... Plugin update failed.");
+		return;
+	}
+	
 	// If a plugin has depencies outside its zip, download them
 	for (int i = 0; i < pInfo.dependencies.size(); i++)
 	{
@@ -1023,7 +1063,11 @@ void PluginInfoComponent::run()
 
 		int retCode = downloadPlugin(pInfo.dependencies[i], pInfo.dependencyVersions[i], true);
 
-		if (retCode == 2)
+		if (retCode == 1)
+		{
+			continue;
+		}
+		else if (retCode == 2)
 		{
 			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
 											"[Plugin Installer] " + pInfo.dependencies[i], 
@@ -1050,6 +1094,16 @@ void PluginInfoComponent::run()
 											"HTTP request failed!!\nPlease check your internet connection...");
 			
 			LOGE("HTTP request failed!! Please check your internet connection...");
+			return;
+		}
+		else
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+											"[Plugin Installer] " + pInfo.dependencies[i], 
+											"An unknown error occured while installing dependencies for " + pInfo.displayName
+											+ ". Please contact the developers.");
+
+			LOGE("Download Failed!!");
 			return;
 		}
 		
@@ -1142,17 +1196,8 @@ void PluginInfoComponent::run()
 		if(pInfo.latestVersion.equalsIgnoreCase(pInfo.latestVersion))
 		{
 			updatablePlugins.removeString(pInfo.pluginName);
-			this->getParentComponent()->resized();
+			this->getParentComponent()->repaint();
 		}
-	}
-	else if (dlReturnCode == PLUGIN_IN_USE || dlReturnCode == RECNODE_IN_USE)
-	{
-		String name = (dlReturnCode == PLUGIN_IN_USE) ? pInfo.displayName : "Record Node";
-		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-										"[Plugin Installer] " + pInfo.displayName, 
-										name + " is already in use. Please remove it from the signal chain and try again.");
-
-		LOGE("Error.. Plugin already in use. Please remove it from the signal chain and try again.");
 	}
 	else if(dlReturnCode == HTTP_ERR)
 	{
@@ -1282,14 +1327,18 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 	LOGC("Uninstalling plugin: ", pInfo.displayName);
 
 	// Check whether the plugin is loaded in a signal chain
-	if(AccessClass::getProcessorGraph()->processorWithSameNameExists(pInfo.displayName))
+	auto processors = AccessClass::getProcessorGraph()->getListOfProcessors();
+	for (auto* p : processors)
 	{
-		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-										"[Plugin Installer] " + pInfo.displayName, 
-										pInfo.displayName + " is already in use. Please remove it from the signal chain and try again.");
-		
-		LOGD("Plugin present in signal chain! Please remove it before uninstalling the plugin.");
-		return false;	
+		if (p->getLibName().equalsIgnoreCase(pInfo.displayName))
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+											"[Plugin Installer] " + pInfo.displayName, 
+											pInfo.displayName + " is already in use. Please remove all instances of it from the signal chain and try again.");
+			
+			LOGD("Plugin present in signal chain! Please remove it before uninstalling the plugin.");
+			return false;
+		}
 	}
 	
 	// Open installedPluings.xml file
@@ -1313,38 +1362,15 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 		dllName = pluginElement->getAttributeValue(1);
 	}
 
-	// Remove plugin from PluginManager
+	// Remove and unload plugin via PluginManager
 	if(!AccessClass::getPluginManager()->removePlugin(pInfo.displayName))
 		return false;
-
-	//delete plugin file
-	File pluginFile = getPluginsDirectory().getChildFile(dllName);
-	if(!pluginFile.deleteRecursively())
-	{
-		LOGD("Unable to delete ", pluginFile.getFullPathName(), " ...Trying again!");
-
-#ifdef _WIN32
-		const char* processorLocCString = static_cast<const char*>(pluginFile.getFullPathName().toUTF8());
-		HMODULE md = GetModuleHandleA(processorLocCString);
-
-		if(FreeLibrary(md))
-			LOGD("Unloaded ", dllName);
-
-		if(!pluginFile.deleteFile())
-		{
-			return false;
-		}
-#else
-		return false;
-#endif
-	}
 
 	// Remove plugin XML entry
 	xml->getFirstChildElement()->removeChildElement(pluginElement, true);
 	if (! xml->writeTo(xmlFile))
 	{
 		LOGD("Error! Couldn't write to installedPlugins.xml");
-		return false;
 	}
 
 	AccessClass::getProcessorList()->fillItemList();
@@ -1357,6 +1383,14 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 	downloadButton.setEnabled(true);
 	downloadButton.setButtonText("Install");
 	installedVerText.setText("No", dontSendNotification);
+
+	//delete plugin file
+	File pluginFile = getPluginsDirectory().getChildFile(dllName);
+	if(!pluginFile.deleteFile())
+	{
+		LOGE("Unable to delete plugin file ", pluginFile.getFullPathName(), " ... Please remove it manually!!");
+		return false;
+	}
 
 	return true;
 }
@@ -1380,7 +1414,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 
 	// Could not retrieve data
 	if(!fileStream)
-		return 9;
+		return 7;
 
 	// ZIP file empty, return.
 	if(fileStream->getTotalLength() == 0)
@@ -1466,18 +1500,6 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 				child->addChildElement(pluginEntry.release());
 
 		}
-
-		// Check if plugin already present in signal chain
-		if(pInfo.type == "RecordEngine" && AccessClass::getProcessorGraph()->hasRecordNode())
-		{
-			pluginFile.deleteFile();
-			return 8;
-		}
-		else if(AccessClass::getProcessorGraph()->processorWithSameNameExists(pInfo.displayName))
-		{
-			pluginFile.deleteFile();
-			return 7;	
-		}
 	}
 
 	// Uncompress plugin zip file in temp directory
@@ -1497,26 +1519,11 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 		File dllFile = getPluginsDirectory().getChildFile(dllName);
 		pluginDllPath = dllFile.getFullPathName();
 
-		if(!copySuccess && dllFile.exists())
+		if(!copySuccess && !dllFile.exists())
 		{
-#ifdef _WIN32
-			const char* processorLocCString = static_cast<const char*>(pluginDllPath.toUTF8());
-			HMODULE md = GetModuleHandleA(processorLocCString);
-
-			if(FreeLibrary(md))
-				LOGD("Unloaded old ", dllName);
-			
-			// try copying again after unloading old DLL
-			copySuccess = tempDir.getChildFile("plugins").getChildFile(dllName)
-							.copyFileTo(getPluginsDirectory().getChildFile(dllName));
-
-			if(!copySuccess)
-			{
-				LOGC("Unable to replace/update exisiting plugin file!");
-				pluginFile.deleteFile();
-				return 2;
-			}
-#endif		
+			LOGE("Unable to copy necessary plugin files!");
+			pluginFile.deleteFile();
+			return 2;
 		}
 	}
 
