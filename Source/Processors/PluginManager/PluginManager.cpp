@@ -36,15 +36,16 @@
 
 
 static inline void closeHandle(decltype(LoadedLibInfo::handle) handle) {
-    if (handle) {
+	if (handle) {
 #ifdef _WIN32
-        FreeLibrary(handle);
+		reeLibrary(handle);
 #elif defined(__APPLE__)
-        CFRelease(handle);
+		CF::CFBundleUnloadExecutable(handle);
+		CF::CFRelease(handle);
 #else
-        dlclose(handle);
+		dlclose(handle);
 #endif
-    }
+	}
 }
 
 
@@ -228,6 +229,26 @@ void PluginManager::loadPlugins(const File &pluginPath) {
  */
 
 int PluginManager::loadPlugin(const String& pluginLoc) {
+
+#ifdef _WIN32
+	HINSTANCE handle;
+	const wchar_t* processorLocLPCWSTR = pluginLoc.toWideCharPointer();
+	handle = LoadLibraryW(processorLocLPCWSTR);
+#elif defined(__APPLE__)
+	CF::CFStringRef processorLocCFString = pluginLoc.toCFString();
+	CF::CFURLRef bundleURL = CF::CFURLCreateWithFileSystemPath(CF::kCFAllocatorDefault, 
+															   processorLocCFString,
+															   CF::kCFURLPOSIXPathStyle,
+															   true);
+															   
+	assert(bundleURL);
+	CF::CFBundleRef handle = CF::CFBundleCreate(CF::kCFAllocatorDefault, bundleURL);
+	CF::CFRelease(bundleURL);
+	CF::CFRelease(processorLocCFString);
+#else
+	// Clear errors
+	dlerror();
+
 	/*
 	Load in the selected processor. This takes the
 	dynamic object (.so) and copies it into RAM
@@ -235,22 +256,6 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 	we have to convert first.
 	*/
 	const char* processorLocCString = static_cast<const char*>(pluginLoc.toUTF8());
-
-#ifdef _WIN32
-	HINSTANCE handle;
-	const wchar_t* processorLocLPCWSTR = pluginLoc.toWideCharPointer();
-	handle = LoadLibraryW(processorLocLPCWSTR);
-#elif defined(__APPLE__)
-    CF::CFURLRef bundleURL = CF::CFURLCreateFromFileSystemRepresentation(CF::kCFAllocatorDefault,
-                                                                 reinterpret_cast<const CF::UInt8 *>(processorLocCString),
-                                                                 strlen(processorLocCString),
-                                                                 true);
-    assert(bundleURL);
-    CF::CFBundleRef handle = CF::CFBundleCreate(CF::kCFAllocatorDefault, bundleURL);
-    CFRelease(bundleURL);
-#else
-	// Clear errors
-	dlerror();
 
 	/*
 	Changing this to resolve all variables immediately upon loading.
@@ -596,7 +601,7 @@ bool PluginManager::removePlugin(String libName)
 		{
 			case Plugin::PROCESSOR:
 			{
-				LOGD("Removing processor plugin");
+				LOGD("Removing processor plugin: ", pInfo.processor.name);
 				for(int j = 0; j < processorPlugins.size(); j++)
 				{
 					if(processorPlugins[j].name == pInfo.processor.name)
@@ -612,7 +617,7 @@ bool PluginManager::removePlugin(String libName)
 			}
 			case Plugin::RECORD_ENGINE:
 			{
-				LOGD("Removing record engine plugin");
+				LOGD("Removing record engine plugin: ", pInfo.recordEngine.name);
 				for(int j = 0; j < recordEnginePlugins.size(); j++)
 				{
 					if(recordEnginePlugins[j].name == pInfo.recordEngine.name)
@@ -628,7 +633,7 @@ bool PluginManager::removePlugin(String libName)
 			}
 			case Plugin::DATA_THREAD:
 			{
-				LOGD("Removing data thread plugin");
+				LOGD("Removing data thread plugin: ", pInfo.dataThread.name);
 				for(int j = 0; j < dataThreadPlugins.size(); j++)
 				{
 					if(dataThreadPlugins[j].name == pInfo.dataThread.name)
@@ -644,7 +649,7 @@ bool PluginManager::removePlugin(String libName)
 			}
 			case Plugin::FILE_SOURCE:
 			{
-				LOGD("Removing file source plugin");
+				LOGD("Removing file source plugin: ", pInfo.fileSource.name);
 				for(int j = 0; j < fileSourcePlugins.size(); j++)
 				{
 					if(fileSourcePlugins[j].name == pInfo.fileSource.name)
@@ -660,7 +665,7 @@ bool PluginManager::removePlugin(String libName)
 			}
 			default:
 			{
-				LOGE("Inavlid plugin");
+				LOGE("Invalid plugin");
 				break;
 			}
 		}
