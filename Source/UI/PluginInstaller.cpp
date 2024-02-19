@@ -35,6 +35,7 @@
 #include <Windows.h>
 #endif
 
+namespace fs = std::filesystem;
 
 //-----------------------------------------------------------------------
 static inline File getPluginsDirectory() {
@@ -996,9 +997,17 @@ void PluginInfoComponent::buttonClicked(Button* button)
 		if(!uninstallPlugin(pInfo.pluginName))
 		{
 			LOGE("Failed to uninstall ", pInfo.displayName);
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+										"[Plugin Installer] " + pInfo.displayName, 
+										"Failed to uninstall " + pInfo.displayName);
 		}
 		else
+		{
 			LOGC(pInfo.displayName, " uninstalled successfully!");
+			AlertWindow::showMessageBoxAsync(AlertWindow::InfoIcon, 
+										"[Plugin Installer] " + pInfo.displayName, 
+										pInfo.displayName + " uninstalled successfully");
+		}
 	}
 	else if (button == &documentationButton)
 	{
@@ -1049,7 +1058,7 @@ void PluginInfoComponent::run()
 	{
 		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
 									"[Plugin Installer] ERROR", 
-									"Unable to current installed version of " + pInfo.displayName + "... Plugin update failed.");
+									"Unable to remove current installed version of " + pInfo.displayName + "... Plugin update failed.");
 
 		LOGE("Unable to remove current installed version of " + pInfo.displayName + "... Plugin update failed.");
 		return;
@@ -1386,7 +1395,7 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 
 	//delete plugin file
 	File pluginFile = getPluginsDirectory().getChildFile(dllName);
-	if(!pluginFile.deleteFile())
+	if(!pluginFile.deleteRecursively())
 	{
 		LOGE("Unable to delete plugin file ", pluginFile.getFullPathName(), " ... Please remove it manually!!");
 		return false;
@@ -1502,47 +1511,77 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 		}
 	}
 
-	// Uncompress plugin zip file in temp directory
-	String pluginDllPath;
-
+	// Create temp directory to uncompress the plugin
 	File tempDir = File::getSpecialLocation(File::tempDirectory).getChildFile("open-ephys");
 	tempDir.createDirectory();
 
-	pluginZip.uncompressTo(tempDir);
+	// Delete any existing files in temp directory
+	if (tempDir.getChildFile("plugins").exists())
+		tempDir.getChildFile("plugins").deleteRecursively();
 
+	if (tempDir.getChildFile("shared").exists())
+		tempDir.getChildFile("shared").deleteRecursively();
+
+	// Uncompress the plugin zip file to temp directory
+	juce::Result res = pluginZip.uncompressTo(tempDir);
+
+	if (res.failed())
+	{
+		LOGE("Failed to uncompress plugin zip file: ", res.getErrorMessage());
+		tempDir.deleteRecursively();
+		pluginFile.deleteFile();
+		return 2;
+	}
+
+	String pluginDllPath;
+
+	// copy plugin DLL from temp directory to actual location
 	if(!isDependency)
 	{
-		// copy plugin DLL from temp directory to actual location
-		bool copySuccess = tempDir.getChildFile("plugins").getChildFile(dllName)
-							.copyFileTo(getPluginsDirectory().getChildFile(dllName));
+		fs::path tempPluginPath = tempDir.getChildFile("plugins").getFullPathName().toStdString();
+		fs::path destPluginPath = getPluginsDirectory().getFullPathName().toStdString();
 
-		File dllFile = getPluginsDirectory().getChildFile(dllName);
-		pluginDllPath = dllFile.getFullPathName();
-
-		if(!copySuccess && !dllFile.exists())
+		// Copy only if plugin file exists
+		if(fs::exists(tempPluginPath))
+		{	
+			const auto copyOptions = fs::copy_options::overwrite_existing
+									| fs::copy_options::recursive;
+			try {
+				fs::copy(tempPluginPath, destPluginPath, copyOptions);
+			} catch(fs::filesystem_error& e) {
+				LOGE("Could not copy plugin files: \"", e.what(), "\"");
+				tempDir.deleteRecursively();
+				pluginFile.deleteFile();
+				return 2;
+			}
+		}
+		else
 		{
-			LOGE("Unable to copy necessary plugin files!");
+			LOGE("Plugin file not found in temp directory!!");
+			tempDir.deleteRecursively();
 			pluginFile.deleteFile();
 			return 2;
 		}
+
+		pluginDllPath = getPluginsDirectory().getChildFile(dllName).getFullPathName();
 	}
 
 	/* Copy shared files 
 	*  Uses C++17's filesystem::copy functionality to allow copying symlinks
 	*/
-	std::filesystem::path tempSharedPath = tempDir.getChildFile("shared").getFullPathName().toStdString();
-	std::filesystem::path destSharedPath = getSharedDirectory().getFullPathName().toStdString();
+	fs::path tempSharedPath = tempDir.getChildFile("shared").getFullPathName().toStdString();
+	fs::path destSharedPath = getSharedDirectory().getFullPathName().toStdString();
 
 	// Copy only if shared files exist
-	if(std::filesystem::exists(tempSharedPath))
+	if(fs::exists(tempSharedPath))
 	{
-		const auto copyOptions = std::filesystem::copy_options::overwrite_existing
-								| std::filesystem::copy_options::recursive
-								| std::filesystem::copy_options::copy_symlinks
+		const auto copyOptions = fs::copy_options::overwrite_existing
+								| fs::copy_options::recursive
+								| fs::copy_options::copy_symlinks
 								;
 		try {
-			std::filesystem::copy(tempSharedPath, destSharedPath, copyOptions);
-		} catch(std::filesystem::filesystem_error& e) {
+			fs::copy(tempSharedPath, destSharedPath, copyOptions);
+		} catch(fs::filesystem_error& e) {
 			LOGE("Could not copy shared files: \"", e.what(), "\"");
 		}
 	}
