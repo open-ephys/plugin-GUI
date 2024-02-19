@@ -812,6 +812,14 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                 
                 m.addItem(6, "Save image...", true);
 
+                Plugin::Type type = editorArray[i]->getProcessor()->getPluginType();
+                if (type != Plugin::Type::BUILT_IN && type != Plugin::Type::INVALID)
+                {
+                    m.addSeparator();
+                    String pluginVer = editorArray[i]->getProcessor()->getLibVersion();
+                    m.addItem(7, "v" + pluginVer, false);
+                }
+
                 const int result = m.show();
 
                 if (result == 1)

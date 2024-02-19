@@ -38,12 +38,14 @@
 static inline void closeHandle(decltype(LoadedLibInfo::handle) handle) {
 	if (handle) {
 #ifdef _WIN32
-		reeLibrary(handle);
+		FreeLibrary(handle);
 #elif defined(__APPLE__)
 		CF::CFBundleUnloadExecutable(handle);
 		CF::CFRelease(handle);
 #else
-		dlclose(handle);
+		if (dlclose(handle) != 0) {
+			LOGE("Failed to close handle");
+		}
 #endif
 	}
 }
@@ -255,7 +257,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 	Dynamic linker requires a C-style string, so we
 	we have to convert first.
 	*/
-	const char* processorLocCString = static_cast<const char*>(pluginLoc.toUTF8());
+	const char* processorLocCString = pluginLoc.toRawUTF8();
 
 	/*
 	Changing this to resolve all variables immediately upon loading.
