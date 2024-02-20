@@ -817,7 +817,7 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                 {
                     m.addSeparator();
                     String pluginVer = editorArray[i]->getProcessor()->getLibVersion();
-                    m.addItem(7, "v" + pluginVer, false);
+                    m.addItem(7, "Plugin v" + pluginVer, false);
                 }
 
                 const int result = m.show();
