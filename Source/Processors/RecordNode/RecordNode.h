@@ -119,7 +119,7 @@ public:
 	String generateDirectoryName();
 
 	/* Creates a new recording directory*/
-	void createNewDirectory();
+	void createNewDirectory(bool resetCounters = false);
 
 	/* Callback for responding to changes in data-directory-related settings*/
 	void filenameComponentChanged(FilenameComponent*);

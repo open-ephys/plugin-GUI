@@ -148,7 +148,6 @@ void RecordNodeEditor::stopRecording()
     spikeRecord->setEnabled(true);
 }
 
-
 void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 {
 
@@ -261,7 +260,7 @@ void RecordNodeEditor::updateSettings()
     spikeRecord->setToggleState(recordNode->recordSpikes, dontSendNotification);
     
     dataPathLabel->setText(recordNode->getDataDirectory().getFullPathName(), dontSendNotification);
-
+	dataPathLabel->setTooltip(dataPathLabel->getText());
 }
 
 void RecordNodeEditor::buttonClicked(Button *button)

@@ -313,7 +313,7 @@ namespace CoreServices
 			for (auto* node : getProcessorGraph()->getRecordNodes())
 			{
 				if (node->getNodeId() == nodeId)
-					node->createNewDirectory();
+					node->createNewDirectory(true);
 			}
 		}
     
