@@ -60,7 +60,7 @@ void ChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown
 	g.setColour(Colour(0,0,0));
     g.fillRoundedRectangle(0.0f, 0.0f, getWidth(), getHeight(), 0.001*getWidth());
 
-    if (isMouseOver)
+    if (isMouseOver && parent->isEditable())
 	{
 		if (getToggleState())
 			g.setColour(parent->buttonColour.brighter());
@@ -130,12 +130,12 @@ PopupChannelSelector::PopupChannelSelector(PopupChannelSelector::Listener* liste
     maxSelectable(-1)
 {
 
-    int width = 368; //can use any multiples of 16 here for dynamic resizing
+    width = 368; //can use any multiples of 16 here for dynamic resizing
 
-    int nColumns = 16;
-    int nRows = nChannels / nColumns + (int)(!(nChannels % nColumns == 0));
-    int buttonSize = width / 16;
-    int height = buttonSize * nRows;
+    nColumns = 16;
+    nRows = nChannels / nColumns + (int)(!(nChannels % nColumns == 0));
+    buttonSize = width / 16;
+    height = buttonSize * nRows;
 
     maxSelectable = (maxSelectable == -1) ? nChannels : maxSelectable;
     maxSelectable = (maxSelectable > nChannels) ? nChannels : maxSelectable;
@@ -206,6 +206,35 @@ PopupChannelSelector::PopupChannelSelector(PopupChannelSelector::Listener* liste
         setSize(width, height);
     
 	setColour(ColourSelector::backgroundColourId, Colours::transparentBlack);
+
+}
+
+void PopupChannelSelector::setEditable(bool editable)
+{
+    this->editable = editable;
+
+    if (editable)
+    {
+        for (auto* btn : selectButtons)
+            btn->setVisible(true);
+
+        if (nChannels > 8)
+            rangeEditor->setVisible(true);
+    }
+    else
+    {
+        for (auto* btn : selectButtons)
+            btn->setVisible(false);
+
+        if (nChannels > 8)
+            rangeEditor->setVisible(false);
+    }
+
+    //Resize window
+    if (editable)
+	    setSize (width, buttonSize * nRows + buttonSize);
+    else
+        setSize(width, height);
 
 }
 

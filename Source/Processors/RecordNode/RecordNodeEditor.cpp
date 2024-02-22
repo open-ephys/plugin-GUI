@@ -504,6 +504,7 @@ void FifoMonitor::mouseDown(const MouseEvent &event)
 	bool editable = !recordNode->recordThread->isThreadRunning();
     auto* channelSelector = new PopupChannelSelector(this, channelStates);
 	channelSelector->setChannelButtonColour(Colours::red);
+	channelSelector->setEditable(!recordNode->getRecordingStatus());
 
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
