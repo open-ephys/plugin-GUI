@@ -1119,7 +1119,7 @@ void PluginInfoComponent::run()
 	}
 	
 	setStatusMessage("Downloading " + pInfo.displayName + " ...");
-	LOGD("Downloading Plugin: ", pInfo.pluginName, "...  ");
+	LOGC("Downloading Plugin: ", pInfo.displayName, " | Version: ", pInfo.selectedVersion);
 
 	// download the plugin
 	int dlReturnCode = downloadPlugin(pInfo.pluginName, pInfo.selectedVersion, false);
@@ -1130,7 +1130,7 @@ void PluginInfoComponent::run()
 										"[Plugin Installer] " + pInfo.displayName, 
 										pInfo.displayName + " Installed Successfully");
 
-		LOGD("Download Successfull!!");
+		LOGC("Download Successfull!!");
 
 		pInfo.installedVersion = pInfo.selectedVersion;
 		installedVerText.setText(pInfo.installedVersion, dontSendNotification);
@@ -1601,14 +1601,14 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 		
 		int loadPlugin = AccessClass::getPluginManager()->loadPlugin(pluginDllPath);
 
-		if (loadPlugin == -1)
-			return 6;
-
 		AccessClass::getProcessorList()->fillItemList();
 		AccessClass::getProcessorList()->repaint();
 
 		if(pInfo.type == "RecordEngine")
 			AccessClass::getControlPanel()->updateRecordEngineList();
+		
+		if (loadPlugin == -1)
+			return 6;
 		
 	}
 
