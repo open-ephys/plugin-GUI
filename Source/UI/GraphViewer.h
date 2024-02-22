@@ -228,6 +228,9 @@ public:
     
     /** Returns horizontal shift (x-position of node in graph display */
     int getHorzShift() const;
+
+    /** Returns collapsed bottom of node in graph display */
+    int getCollapsedBottom() const;
     
     /** Sets the level (y-position) of node in graph display */
     void setLevel (int newLevel);

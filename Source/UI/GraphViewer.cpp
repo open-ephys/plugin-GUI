@@ -173,7 +173,7 @@ void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcesso
                     node->updateBoundaries();
                 }
 
-                int newY = getNodeForEditor(processor->getEditor())->getBottom() + 35;
+                int newY = getNodeForEditor(processor->getEditor())->getCollapsedBottom() + 35;
                 int nextLevel = getNodeForEditor(processor->getEditor())->getLevel() + 1;
                 if(levelStartY.count(nextLevel) == 0)
                     levelStartY[nextLevel] = newY;
@@ -824,6 +824,12 @@ void GraphNode::setLevel (int level)
 int GraphNode::getHorzShift() const
 {
     return horzShift;
+}
+
+
+int GraphNode::getCollapsedBottom() const
+{
+    return getPosition().getY() + 20 + (dataStreamButtons.size() * 20);
 }
 
 
