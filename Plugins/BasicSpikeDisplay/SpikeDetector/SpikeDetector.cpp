@@ -470,6 +470,36 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
                 break;
         }
     }
+    else
+    {
+        //Check type and increment counter
+        switch (type)
+        {
+        case SpikeChannel::SINGLE:
+            if (currentStream > 0)
+            {
+                settings[currentStream]->singleElectrodeCount++;
+                singleElectrodeCount++;
+            }
+            break;
+        case SpikeChannel::STEREOTRODE:
+            if (currentStream > 0)
+            {
+                settings[currentStream]->stereotrodeCount++;
+                stereotrodeCount++;
+            }
+            break;
+        case SpikeChannel::TETRODE:
+            if (currentStream > 0)
+            {
+                settings[currentStream]->tetrodeCount++;
+                tetrodeCount++;
+            }
+            break;
+        case SpikeChannel::INVALID:
+                break;
+        }
+    }
 
     name = ensureUniqueName(name, currentStream);
 
