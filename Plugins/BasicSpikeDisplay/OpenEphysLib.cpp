@@ -39,7 +39,7 @@ extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
 	info->name = "Basic Spike Display";
-	info->libVersion = "0.1.0";
+	info->libVersion = ProjectInfo::versionString;
 	info->numPlugins = NUM_PLUGINS;
 }
 
