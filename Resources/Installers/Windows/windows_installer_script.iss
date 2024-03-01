@@ -23,9 +23,12 @@ Name: desktopicon; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm
 Name: install_usb1; Description: "Install FTDI D3XX driver (Open Ephys FPGA board)"; GroupDescription: "Acquisition Board drivers:";
 Name: install_usb2; Description: "Install Opal Kelly Front Panel USB driver (Opal Kelly FPGA board)"; GroupDescription: "Acquisition Board drivers:"; Flags: unchecked;
 
+[Dirs]
+Name: "{commonappdata}\Open Ephys"; Permissions: users-modify; Flags: uninsneveruninstall;
+
 [Files]
 Source: "..\..\..\Build\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; BeforeInstall: UpdateProgress(0);
-Source: "..\..\..\Build\Release\shared\*"; DestDir: "{commonappdata}\Open Ephys\shared-api8"; Flags: ignoreversion recursesubdirs; BeforeInstall: UpdateProgress(55);
+Source: "..\..\..\Build\Release\shared\*"; DestDir: "{commonappdata}\Open Ephys\shared-api8"; Flags: ignoreversion recursesubdirs uninsneveruninstall; BeforeInstall: UpdateProgress(55);
 Source: "..\..\DLLs\FTD3XXDriver_WHQLCertified_1.3.0.8_Installer.exe"; DestDir: {tmp}; Flags: deleteafterinstall; BeforeInstall: UpdateProgress(80);
 Source: "..\..\DLLs\FrontPanelUSB-DriverOnly-4.5.5.exe"; DestDir: {tmp}; Flags: deleteafterinstall; BeforeInstall: UpdateProgress(90);
 
