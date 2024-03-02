@@ -46,7 +46,8 @@ public:
                     DataStream* stream,
                     SpikeChannel::Type type,
                     int count, //adds multiple channels atonce
-                    Array<int> startChannels);
+                    Array<int> startChannels,
+                    int nextAvailableChannel);
 
     /** Destructor */
     ~AddSpikeChannels();
@@ -67,6 +68,7 @@ private:
     String streamKey;
     SpikeChannel::Type type;
     Array<int> startChannels;
+    int nextAvailableChannel;
 
     Array<String> addedSpikeChannels;
 

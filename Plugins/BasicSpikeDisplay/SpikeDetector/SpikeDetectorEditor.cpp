@@ -22,7 +22,6 @@
 */
 
 #include "SpikeDetectorEditor.h"
-#include "SpikeDetector.h"
 #include "PopupConfigurationWindow.h"
 
 #include "SpikeDetectorActions.h"
@@ -95,17 +94,14 @@ void SpikeDetectorEditor::addSpikeChannels(PopupConfigurationWindow* window, Spi
 {
     SpikeDetector* processor = (SpikeDetector*)getProcessor();
 
-    LOGD("** ADDING TO CURRENT STREAM: ", getCurrentStream());
-
     DataStream* stream = processor->getDataStream(getCurrentStream());
 
-    AddSpikeChannels* action = new AddSpikeChannels(processor, stream, type, count, startChannels);
+    int nextAvailableChannel = processor->getNextAvailableChannelForStream(stream->getStreamId());
+
+    AddSpikeChannels* action = new AddSpikeChannels(processor, stream, type, count, startChannels, nextAvailableChannel);
 
     CoreServices::getUndoManager()->beginNewTransaction();
     CoreServices::getUndoManager()->perform((UndoableAction*)action);
-
-    // Now called in perform
-    //CoreServices::updateSignalChain(this);
         
     if (window != nullptr)
         window->update(processor->getSpikeChannelsForStream(getCurrentStream()));

@@ -29,13 +29,15 @@ AddSpikeChannels::AddSpikeChannels(SpikeDetector* processor_,
                                       DataStream* stream_,
                                       SpikeChannel::Type type_,
                                       int count_, //adds multiple channels at once
-                                      Array<int> startChannels_) :
+                                      Array<int> startChannels_,
+                                      int nextAvailableChannel_) :
     OpenEphysAction("AddSpikeChannels"),
     spikeDetector(processor_),
     streamKey(stream_->getKey()),
     type(type_),
     count(count_),
-    startChannels(startChannels_)
+    startChannels(startChannels_),
+    nextAvailableChannel(nextAvailableChannel_)
 {
     settings = nullptr;
 }
@@ -48,13 +50,14 @@ AddSpikeChannels::~AddSpikeChannels()
 
 bool AddSpikeChannels::perform()
 {
+    if (!startChannels.size())
+    {
+        for (int i = 0; i < count; i++)
+            startChannels.add(nextAvailableChannel+i*SpikeChannel::getNumChannels(type));
+    }
+
     for (int i = 0; i < count; i++)
     {
-        int startChannel = -1;
-
-        if (i < startChannels.size())
-            startChannel = startChannels[i];
-
         //TODO: Should add a convenience function for this
         uint16 streamId = 0;
         for (auto stream : spikeDetector->getDataStreams())
@@ -68,7 +71,7 @@ bool AddSpikeChannels::perform()
         if (streamId == 0) return false;
 
         //TODO: Pass stream name instead of streamId once this is working
-        SpikeChannel* spikeChannel = spikeDetector->addSpikeChannel(type, streamId, startChannel);
+        SpikeChannel* spikeChannel = spikeDetector->addSpikeChannel(type, streamId, startChannels[i]);
         addedSpikeChannels.add(spikeChannel->getIdentifier());
     }
     spikeDetector->registerUndoableAction(spikeDetector->getNodeId(), this);

@@ -27,6 +27,8 @@
 
 #include <EditorHeaders.h>
 
+#include "SpikeDetector.h"
+
 class PopupConfigurationWindow;
 
 /**

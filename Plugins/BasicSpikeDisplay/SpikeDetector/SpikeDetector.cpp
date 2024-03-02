@@ -353,6 +353,14 @@ void SpikeDetector::updateSettings()
 
 }
 
+int SpikeDetector::getNextAvailableChannelForStream(uint16 streamId)
+{
+    if (streamId > 0)
+        return settings[streamId]->nextAvailableChannel;
+    else
+        return nextAvailableChannel;
+}
+
 String SpikeDetector::ensureUniqueName(String name, uint16 currentStream)
 {
 
@@ -422,6 +430,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
             nextAvailableChannel++;
         }
         else {
+            LOGD("ERROR: Should never go here?");
             localChannels.add(nextAvailableChannel++);
         }
         
