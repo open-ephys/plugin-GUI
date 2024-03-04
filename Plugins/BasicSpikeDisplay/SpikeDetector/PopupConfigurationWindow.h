@@ -447,7 +447,7 @@ private:
 /**
 *   Popup window used to edit Spike Channel settings
 */
-class PopupConfigurationWindow : public Component,
+class PopupConfigurationWindow : public PopoverComponent,
     public ScrollBar::Listener
 {
 
@@ -460,6 +460,8 @@ public:
 
     /** Destructor */
     ~PopupConfigurationWindow() { }
+
+    bool keyPressed(const KeyPress &key) override;
 
     /** Updates the window with a new set of Spike Channels*/
     void update(Array<SpikeChannel*> spikeChannels);

@@ -1134,3 +1134,14 @@ void PopupConfigurationWindow::update(Array<SpikeChannel*> spikeChannels)
     }
     
 }
+
+bool PopupConfigurationWindow::keyPressed(const KeyPress& key)
+{
+    if (PopoverComponent::keyPressed(key)) //undo/redo was pressed
+    {
+        SpikeDetector* spikeDetector = (SpikeDetector*)editor->getProcessor();
+        update(spikeDetector->getSpikeChannelsForStream(editor->getCurrentStream()));
+    }
+
+    return true;
+}
