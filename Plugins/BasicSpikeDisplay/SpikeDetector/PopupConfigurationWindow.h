@@ -96,6 +96,12 @@ public:
 
     /** Responds to mouse clicks */
     void mouseDown(const juce::MouseEvent& event) override;
+
+    /** Get selected channels */
+    Array<int> getSelectedChannels() override
+    {
+        return channels->getArrayValue();
+    }
     
     /** Callback for changes in PopupChannelSelector */
     void channelStateChanged(Array<int> newChannels) override
@@ -416,6 +422,9 @@ public:
 
     /** Destructor*/
     ~SpikeChannelGenerator() { }
+
+    /** Get channel states */
+    Array<int> getSelectedChannels() { return startChannels; }
 
     /** Responds to changes in the PopupChannelSelector*/
     void channelStateChanged(Array<int> selectedChannels);

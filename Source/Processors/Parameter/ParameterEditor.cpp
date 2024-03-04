@@ -773,6 +773,11 @@ SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* para
     editor = (Component*)button.get();
 }
 
+Array<int> SelectedChannelsParameterEditor::getSelectedChannels()
+{
+    return ((SelectedChannelsParameter*)param)->getArrayValue();
+}
+
 void SelectedChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
 {
     Array<var> newArray;
@@ -855,6 +860,11 @@ MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param, int r
     button->setBounds(0, 0, width/2, rowHeightPixels);
 
     editor = (Component*)button.get();
+}
+
+Array<int> MaskChannelsParameterEditor::getSelectedChannels()
+{
+    return ((MaskChannelsParameter*)param)->getArrayValue();
 }
 
 void MaskChannelsParameterEditor::channelStateChanged(Array<int> newChannels)

@@ -27,8 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../../Utils/Utils.h"
 #include "../PluginManager/OpenEphysPlugin.h"
-
-#include "../PluginManager/OpenEphysPlugin.h"
+#include "../../UI/PopoverComponent.h"
 
 enum Select { ALL, NONE, RANGE };
 
@@ -117,7 +116,7 @@ public:
 
 */
 class PLUGIN_API PopupChannelSelector :
-	public Component,
+	public PopoverComponent,
 	public Button::Listener,
 	public TextEditor::Listener
 {
@@ -127,6 +126,7 @@ public:
 	{
 	public:
 		virtual ~Listener() { }
+		virtual Array<int> getSelectedChannels() = 0;
 		virtual void channelStateChanged(Array<int> selectedChannels) = 0;
 	};
 
@@ -151,6 +151,9 @@ public:
 	/** Respond to button clicks*/
 	void buttonClicked(Button*);
 
+	/** Respond to key presses */
+	bool keyPressed(const KeyPress &key) override;
+
 	/** Checks whether shift key is down*/
 	void modifierKeysChanged(const ModifierKeys& modifiers);
 
@@ -164,6 +167,8 @@ public:
 	Colour buttonColour;
 
 	OwnedArray<ChannelButton> channelButtons;
+
+	void update(Array<int> selectedChannels);
 
 private:
 	Listener* listener;

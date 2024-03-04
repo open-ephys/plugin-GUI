@@ -223,6 +223,17 @@ PopupChannelSelector::PopupChannelSelector(PopupChannelSelector::Listener* liste
 
 }
 
+void PopupChannelSelector::update(Array<int> selectedChannels)
+{
+    for (auto* btn : channelButtons)
+    {
+        if (selectedChannels.contains(btn->getId()))
+            btn->setToggleState(true, NotificationType::dontSendNotification);
+        else
+            btn->setToggleState(false, NotificationType::dontSendNotification);
+    }
+}
+
 void PopupChannelSelector::setMaximumSelectableChannels(int num)
 {
     maxSelectable = num;
@@ -244,6 +255,17 @@ ChannelButton* PopupChannelSelector::getButtonForId(int btnId)
     }
 
     return nullptr;
+}
+
+bool PopupChannelSelector::keyPressed(const KeyPress& key)
+{
+    if (PopoverComponent::keyPressed(key)) //undo/redo was pressed
+    {
+        LOGD("*** Undo/Redo was pressed");
+        update(listener->getSelectedChannels());
+    }
+
+    return false;
 }
 
 void PopupChannelSelector::mouseMove(const MouseEvent &event)

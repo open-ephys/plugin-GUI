@@ -149,6 +149,20 @@ void RecordChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
     updateView();
 }
 
+Array<int> RecordChannelsParameterEditor::getSelectedChannels()
+{
+	MaskChannelsParameter* p = (MaskChannelsParameter*)param;
+	std::vector<bool> channelStates = p->getChannelStates();
+
+	Array<int> selectedChannels;
+
+	for (int i = 0; i < channelStates.size(); i++)
+		if (channelStates[i])
+			selectedChannels.add(i);
+
+	return selectedChannels;
+}
+
 void RecordChannelsParameterEditor::buttonClicked(Button* label)
 {
     if (param == nullptr)
