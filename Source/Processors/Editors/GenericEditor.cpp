@@ -262,7 +262,7 @@ void GenericEditor::addCustomParameterEditor(ParameterEditor* ed, int xPos_, int
 void GenericEditor::refreshColors()
 {
 
-    LOGD(getNameAndId(), " refreshing colors.");
+    // LOGD(getNameAndId(), " refreshing colors.");
 
     if (getProcessor()->isSource())
         backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::SOURCE_COLOR);
@@ -275,9 +275,38 @@ void GenericEditor::refreshColors()
     else
         backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::FILTER_COLOR);
     
-    LOGD("background color is ", backgroundColor.toString());
+    // LOGD("background color is ", backgroundColor.toString());
     
     getBackgroundGradient();
+
+    // loop though all parameter editors and update their parameter's color
+    for (auto ed : parameterEditors)
+    {
+        const String parameterName = ed->getParameterName();
+        
+        if (getProcessor()->hasParameter(parameterName))
+        {
+            Parameter* procParam = getProcessor()->getParameter(parameterName);
+
+            if (procParam->getType() == Parameter::ParameterType::SELECTED_CHANNELS_PARAM ||
+                procParam->getType() == Parameter::ParameterType::MASK_CHANNELS_PARAM)
+                    getProcessor()->setColor(parameterName, getBackgroundColor());
+        }
+        else if (selectedStream > 0)
+        {
+            auto stream = getProcessor()->getDataStream(selectedStream);
+            
+            if (stream->hasParameter(parameterName))
+            {
+                Parameter* streamParam = stream->getParameter(parameterName);
+
+                if (streamParam->getType() == Parameter::ParameterType::SELECTED_CHANNELS_PARAM ||
+                    streamParam->getType() == Parameter::ParameterType::MASK_CHANNELS_PARAM)
+                    stream->setColor(parameterName, getBackgroundColor());
+            }
+        }
+        
+    }
 
     repaint();
 
