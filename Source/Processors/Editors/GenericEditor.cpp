@@ -290,19 +290,20 @@ void GenericEditor::refreshColors()
 
             if (procParam->getType() == Parameter::ParameterType::SELECTED_CHANNELS_PARAM ||
                 procParam->getType() == Parameter::ParameterType::MASK_CHANNELS_PARAM)
-                    getProcessor()->setColor(parameterName, getBackgroundColor());
+                    getProcessor()->setColor(parameterName, backgroundColor);
         }
         else if (selectedStream > 0)
         {
-            auto stream = getProcessor()->getDataStream(selectedStream);
+            auto currStream = getProcessor()->getDataStream(selectedStream);
             
-            if (stream->hasParameter(parameterName))
+            if (currStream->hasParameter(parameterName))
             {
-                Parameter* streamParam = stream->getParameter(parameterName);
+                Parameter* streamParam = currStream->getParameter(parameterName);
 
                 if (streamParam->getType() == Parameter::ParameterType::SELECTED_CHANNELS_PARAM ||
                     streamParam->getType() == Parameter::ParameterType::MASK_CHANNELS_PARAM)
-                    stream->setColor(parameterName, getBackgroundColor());
+                    for (auto stream : getProcessor()->getDataStreams())
+                        getProcessor()->getDataStream(stream->getStreamId())->setColor(parameterName, backgroundColor);
             }
         }
         
