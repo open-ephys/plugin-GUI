@@ -61,10 +61,12 @@ void Visualizer::update()
             }
         }
         
-        Array<ParameterEditor*> allParamEditors;
+        allParamEditors.clear();
+        
+        // Add the visualizer's parameter editors
+        allParamEditors.addArray(getParameterEditors());
 
-        allParamEditors.addArray(parameterEditors);
-
+        // Add the parameter editors of all the parameter editor owners for this visualizer
         for(auto editorOwner : parameterEditorOwners)
             allParamEditors.addArray(editorOwner->getParameterEditors());
 
@@ -105,10 +107,10 @@ void Visualizer::startCallbacks()
 {
     startTimer(1/float(refreshRate)*1000.0f);
 
-    for (int n = 0; n < parameterEditors.size(); n++)
+    for (auto ed: allParamEditors)
     {
-        if (parameterEditors[n]->shouldDeactivateDuringAcquisition())
-            parameterEditors[n]->setEnabled(false);
+        if (ed->shouldDeactivateDuringAcquisition())
+            ed->setEnabled(false);
     }
 }
 
@@ -116,10 +118,10 @@ void Visualizer::stopCallbacks()
 {
 	stopTimer();
 
-    for (int n = 0; n < parameterEditors.size(); n++)
+    for (auto ed : allParamEditors)
     {
-        if (parameterEditors[n]->shouldDeactivateDuringAcquisition())
-            parameterEditors[n]->setEnabled(true);
+        if (ed->shouldDeactivateDuringAcquisition())
+            ed->setEnabled(true);
     }
 }
 
