@@ -177,7 +177,7 @@ protected:
     void addSelectedChannelsParameter(const String& name,
         const String& displayName,
         const String& description,
-        int maxSelectedChannels = std::numeric_limits<int>::max(),
+        int maxSelectedChannels = 9999,
         bool deactivateDuringAcquisition = false);
     
     /** Adds a mask channels parameter, which will later be accessed by name*/
