@@ -24,7 +24,11 @@ enum class TestSourceNodeType {Fake, Base};
              case TestSourceNodeType::Base : {
                  return new SourceNode("BaseSourceNode", _data_thread_creator);
              }
+             default:
+                 break;
          }
+
+         return nullptr;
      }
 
      TestSourceNodeType getTestSourceNodeType() const {
