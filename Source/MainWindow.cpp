@@ -418,7 +418,7 @@ void MainWindow::loadWindowBounds()
 				windowBoundsString = x + " " + y + " " + w + " " + h;
 
 				LOGD("Loading Window Bounds: ", windowBoundsString);
-				restoreWindowStateFromString(windowBoundsString);
+				documentWindow->restoreWindowStateFromString(windowBoundsString);
 				
 			}
 			else if (e->hasTagName("RECENTDIRECTORYNAMES"))
