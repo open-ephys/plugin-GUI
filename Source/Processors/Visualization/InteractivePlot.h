@@ -205,7 +205,7 @@ public:
 	pan and zoom state
 
 */
-class DrawComponent : public Component
+class PLUGIN_API DrawComponent : public Component
 {
 public:
 

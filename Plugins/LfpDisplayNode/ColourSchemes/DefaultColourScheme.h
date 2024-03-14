@@ -28,8 +28,6 @@
 #include <vector>
 #include <array>
 
-#include "../LfpDisplayClasses.h"
-#include "../LfpDisplayNode.h"
 #include "ChannelColourScheme.h"
 
 namespace LfpViewer {
@@ -37,13 +35,17 @@ namespace LfpViewer {
 class DefaultColourScheme : public ChannelColourScheme
 {
 public:
-    DefaultColourScheme(LfpDisplay*, LfpDisplaySplitter*);
+
+    /** Constructor */
+    DefaultColourScheme();
+
+    /** Destructor */
     virtual ~DefaultColourScheme() {}
-    
-    void paint(Graphics &g) override;
-    void resized() override;
-    
+   
+    /** Returns color at a given channel index */
     virtual const Colour getColourForIndex(int index) const override;
+
+    /** Returns the background color*/
     virtual const Colour getBackgroundColour() const override;
 
 private:

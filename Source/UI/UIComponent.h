@@ -202,8 +202,11 @@ private:
         toggleProcessorList 	= 0x2008,
         toggleSignalChain	    = 0x2009,
         toggleFileInfo			= 0x2010,
+        setClockModeDefault     = 0x2111,
+		setClockModeHHMMSS      = 0x2112,
         toggleHttpServer        = 0x4001,
         showHelp				= 0x2011,
+        checkForUpdates         = 0x2022,
         resizeWindow            = 0x2012,
         reloadOnStartup         = 0x2013,
         saveSignalChainAs       = 0x2014,
@@ -211,6 +214,7 @@ private:
         openDefaultConfigWindow = 0x2017,
         loadPluginSettings      = 0x3001,
         savePluginSettings      = 0x3002,
+        lockSignalChain         = 0x5001
         
     };
 

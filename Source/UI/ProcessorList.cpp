@@ -316,6 +316,7 @@ int ProcessorList::getTotalHeight()
 
 void ProcessorList::toggleState()
 {
+
 	ProcessorListItem* fli = getListItemForYPos(0);
 	fli->reverseOpenState();
 	AccessClass::getUIComponent()->childComponentChanged();
@@ -714,6 +715,36 @@ Array<String> ProcessorList::getItemList()
 	}
 
 	return listOfProcessors;
+}
+
+
+Plugin::Description ProcessorList::getItemDescriptionfromList(const String& name)
+{
+
+	Plugin::Description description;
+    
+	for (int i = 0; i < 5; i++)
+	{
+        int numSubItems = baseItem->getSubItem(i)->getNumSubItems();
+
+		ProcessorListItem* subItem = baseItem->getSubItem(i);
+
+		for(int j = 0; j < numSubItems ; j++)
+		{
+			if(name.equalsIgnoreCase(subItem->getSubItem(j)->getName()))
+			{
+				description.fromProcessorList = true;
+				description.index = subItem->getSubItem(j)->index;
+				description.name = subItem->getSubItem(j)->getName();
+				description.type = subItem->getSubItem(j)->pluginType;
+				description.processorType = subItem->getSubItem(j)->processorType;
+
+				break;
+			}
+		}
+	}
+
+	return description;
 }
 
 // ===================================================================

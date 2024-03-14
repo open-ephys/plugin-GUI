@@ -25,6 +25,7 @@
 #include "Utils/OpenEphysHttpServer.h"
 #include "UI/UIComponent.h"
 #include "UI/EditorViewport.h"
+#include "AutoUpdater.h"
 #include <stdio.h>
 
 
@@ -44,15 +45,14 @@ MainWindow::MainWindow(const File& fileToLoad)
     if (activityLog.exists())
         activityLog.deleteFile();
 	
-	OELogger::instance().createLogFile(activityLog.getFullPathName().toStdString());
+	OELogger::GetInstance(activityLog.getFullPathName().toStdString());
 
-	std::cout << "Session Start Time: " << Time::getCurrentTime().toString(true, true, true, true) << std::endl;
-	std::cout << std::endl;
+	LOGC("Session Start Time: ", Time::getCurrentTime().toString(true, true, true, true));
+
 	LOGC("Open Ephys GUI v", JUCEApplication::getInstance()->getApplicationVersion(), " (Plugin API v", PLUGIN_API_VER, ")");
 	LOGC(SystemStats::getJUCEVersion());
 	LOGC("Operating System: ", SystemStats::getOperatingSystemName());
 	LOGC("CPU: ", SystemStats::getCpuModel(), " (", SystemStats::getNumCpus(), " core)");
-	std::cout << std::endl;
 
 	setResizable(true,      // isResizable
 			false);   // useBottomCornerRisizer -- doesn't work very well
@@ -60,6 +60,7 @@ MainWindow::MainWindow(const File& fileToLoad)
 	shouldReloadOnStartup = true;
 	shouldEnableHttpServer = true;
 	openDefaultConfigWindow = false;
+	automaticVersionChecking = true;
 
 	// Create ProcessorGraph and AudioComponent, and connect them.
 	// Callbacks will be set by the play button in the control panel
@@ -161,6 +162,10 @@ MainWindow::MainWindow(const File& fileToLoad)
 		disableHttpServer();
 	}
 
+#ifdef NDEBUG
+	if(automaticVersionChecking)
+		LatestVersionCheckerAndUpdater::getInstance()->checkForNewVersion (true, this);
+#endif
 }
 
 MainWindow::~MainWindow()
@@ -268,6 +273,7 @@ void MainWindow::saveWindowBounds()
 	xml->setAttribute("version", JUCEApplication::getInstance()->getApplicationVersion());
 	xml->setAttribute("shouldReloadOnStartup", shouldReloadOnStartup);
 	xml->setAttribute("shouldEnableHttpServer", shouldEnableHttpServer);
+	xml->setAttribute("automaticVersionChecking", automaticVersionChecking);
 
 	XmlElement* bounds = new XmlElement("BOUNDS");
 	bounds->setAttribute("x",getScreenX());
@@ -292,6 +298,11 @@ void MainWindow::saveWindowBounds()
 	}
 
 	xml->addChildElement(recentDirectories);
+
+	XmlElement* signalChainLocked = new XmlElement("SIGNALCHAIN");
+	signalChainLocked->setAttribute("locked", ui->getEditorViewport()->isSignalChainLocked());
+
+	xml->addChildElement(signalChainLocked);
 
 	String error;
 
@@ -326,6 +337,7 @@ void MainWindow::loadWindowBounds()
 
 		shouldReloadOnStartup = xml->getBoolAttribute("shouldReloadOnStartup", false);
 		shouldEnableHttpServer = xml->getBoolAttribute("shouldEnableHttpServer", false);
+		automaticVersionChecking = xml->getBoolAttribute("automaticVersionChecking", true);
 
 		for (auto* e : xml->getChildIterator())
 		{
@@ -333,21 +345,17 @@ void MainWindow::loadWindowBounds()
 			if (e->hasTagName("BOUNDS"))
 			{
 
-				int x = e->getIntAttribute("x");
-				int y = e->getIntAttribute("y");
-				int w = e->getIntAttribute("w");
-				int h = e->getIntAttribute("h");
+				String x = String(e->getIntAttribute("x"));
+				String y = String(e->getIntAttribute("y"));
+				String w = String(e->getIntAttribute("w"));
+				String h = String(e->getIntAttribute("h"));
 
-				// bool fs = e->getBoolAttribute("fullscreen");
+				String windowBoundsString;
+				windowBoundsString = x + " " + y + " " + w + " " + h;
 
-				// without the correction, you get drift over time
-#ifdef _WIN32
-				setTopLeftPosition(x,y); //Windows doesn't need correction
-#else
-				setTopLeftPosition(x,y-27);
-#endif
-				getContentComponent()->setBounds(0,0,w-10,h-33);
-				//setFullScreen(fs);
+				LOGD("Loading Window Bounds: ", windowBoundsString);
+				restoreWindowStateFromString(windowBoundsString);
+				
 			}
 			else if (e->hasTagName("RECENTDIRECTORYNAMES"))
 			{
@@ -366,6 +374,11 @@ void MainWindow::loadWindowBounds()
 				UIComponent* ui = (UIComponent*) getContentComponent();
 				ui->setRecentlyUsedFilenames(filenames);
 
+			}
+			else if (e->hasTagName("SIGNALCHAIN"))
+			{
+				UIComponent* ui = (UIComponent*)getContentComponent();
+				ui->getEditorViewport()->lockSignalChain(e->getBoolAttribute("locked", false));
 			}
 
 		}
@@ -386,6 +399,12 @@ bool MainWindow::compareConfigFiles(File file1, File file2)
 	{
 		LOGD("Recovery config is invalid. Loading lastConfig.xml");
 		return true;
+	}
+
+	if (lcXml == 0 || !lcXml->hasTagName("SETTINGS"))
+	{
+		LOGD("Last config is invalid. Loading recoveryConfig.xml");
+		return false;
 	}
 
 	auto lcSig = lcXml->getChildByName("SIGNALCHAIN");

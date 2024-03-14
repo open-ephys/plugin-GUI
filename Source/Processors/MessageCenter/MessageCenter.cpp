@@ -104,6 +104,8 @@ DataStream* MessageCenter::getMessageStream()
 {
     if (dataStreams.size() > 0)
         return dataStreams[0];
+
+    return nullptr;
 }
 
 void MessageCenter::setParameter(int parameterIndex, float newValue)

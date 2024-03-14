@@ -185,10 +185,16 @@ void AudioMonitor::parameterValueChanged(Parameter* param)
             int localIndex =(int) activeChannels->getReference(i);
 
             LOGA("Selected channel ", localIndex);
-            
-            int globalIndex = getDataStream(selectedStream)->getContinuousChannels()[localIndex]->getGlobalIndex();
-                        
-            updateFilter(i, selectedStream);
+
+            auto continuousChannels = getDataStream(selectedStream)->getContinuousChannels();
+
+            if (continuousChannels.size() > localIndex)
+            {
+                int globalIndex = continuousChannels[localIndex]->getGlobalIndex();
+
+                updateFilter(i, selectedStream);
+            }
+
         }
         
         // clear monitored channels on all other streams

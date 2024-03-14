@@ -106,13 +106,25 @@ private:
     String downloadURL;
     Font infoFont, infoFontBold;
 
-    Label pluginNameLabel, pluginNameText;
-    Label developersLabel, developersText;
+    Label pluginNameLabel;
+    Label pluginNameText;
+
+    Label developersLabel;
+    Label developersText;
+
     Label versionLabel;
-    Label lastUpdatedLabel, lastUpdatedText;
+    Label installedVerLabel;
+    Label installedVerText;
+
+    Label lastUpdatedLabel;
+    Label lastUpdatedText;
+
     Label descriptionLabel;
     Label descriptionText;
-    Label dependencyLabel, dependencyText;
+
+    Label dependencyLabel;
+    Label dependencyText;
+    
     Label statusLabel;
 
     TextButton downloadButton;
@@ -132,8 +144,6 @@ private:
         VER_EXISTS_ERR,
         XML_WRITE_ERR,
         LOAD_ERR,
-        PLUGIN_IN_USE,
-        RECNODE_IN_USE,
         HTTP_ERR
     };
 

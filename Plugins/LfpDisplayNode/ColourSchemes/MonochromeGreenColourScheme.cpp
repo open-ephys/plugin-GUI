@@ -22,10 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "MonochromeGreenColourScheme.h"
-#include "../LfpDisplayCanvas.h"
-#include "../LfpDisplay.h"
-
-#include <math.h>
 
 using namespace LfpViewer;
 
@@ -53,20 +49,9 @@ Array<Colour> MonochromeGreenColourScheme::colourList = []() -> Array<Colour> {
 }();
 
 
-MonochromeGreenColourScheme::MonochromeGreenColourScheme(LfpDisplay* display, LfpDisplaySplitter* canvas)
-    : LfpViewer::ChannelColourScheme(MonochromeGreenColourScheme::colourList.size(), display, canvas)
+MonochromeGreenColourScheme::MonochromeGreenColourScheme()
+    : LfpViewer::ChannelColourScheme("Monochrome Green", MonochromeGreenColourScheme::colourList.size())
 {
-    setName("Monochrome Green");
-}
-
-void MonochromeGreenColourScheme::paint(Graphics& g)
-{
-
-}
-
-void MonochromeGreenColourScheme::resized()
-{
-
 }
 
 const Colour MonochromeGreenColourScheme::getBackgroundColour() const

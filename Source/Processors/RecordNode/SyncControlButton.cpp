@@ -86,12 +86,14 @@ void SyncControlButton::componentBeingDeleted(Component &component)
 void SyncControlButton::mouseUp(const MouseEvent &event)
 {
 
-    if (!CoreServices::getRecordingStatus() && event.mods.isLeftButtonDown())
+    if (event.mods.isLeftButtonDown())
     {
         
         int syncLine = node->getSyncLine(streamId);
 
         SyncChannelSelector* channelSelector = new SyncChannelSelector (ttlLineCount, syncLine, node->isMainDataStream(streamId));
+
+        channelSelector->setEditable(!CoreServices::getRecordingStatus());
 
         CallOutBox& myBox
             = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);

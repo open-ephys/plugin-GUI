@@ -100,6 +100,12 @@ public:
     /** Acknowledges receipt of a trigger for a given split display*/
     void acknowledgeTrigger(int splitId);
 
+    /** Reads from int value from payload, returns if the value was found and is within bounds*/
+    bool getIntField(DynamicObject::Ptr payload, String name, int& value, int lowerBound = INT32_MAX, int upperBound = INT32_MIN);
+    
+    /** Handles messages from other processors during acquisition*/
+    void handleBroadcastMessage(String msg) override;
+
 private:
 
     /** Initializes trigger channels within a process block*/

@@ -32,6 +32,33 @@ jobs:
         xcodebuild -project open-ephys-GUI.xcodeproj -scheme ALL_BUILD -configuration Release 
 #    - name: test
 #      run: cd build && ctest
+    - name: deploy_dev
+      if: github.ref == 'refs/heads/development'
+      env:
+        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+      run: |
+        zipfile=open-ephys-latest-mac-dev.zip
+        cd Build/Release
+        mkdir open-ephys
+        mv open-ephys.app/ open-ephys
+        zip -r $zipfile open-ephys
+        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
+        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Dev/mac/$zipfile"
+        brew install create-dmg && create-dmg \
+          --volname "Open-Ephys Installer" \
+          --volicon "open-ephys/open-ephys.app/Contents/Resources/Icon.icns" \
+          --background "open-ephys/open-ephys.app/Contents/Resources/dmg_background.png" \
+          --window-pos 300 0 \
+          --window-size 688 416 \
+          --icon-size 128 \
+          --icon "open-ephys.app" 200 190 \
+          --hide-extension "Open-Ephys.app" \
+          --app-drop-link 500 188 \
+          "Open-Ephys-Installer.dmg" \
+          "open-ephys/"
+        installer=Open_Ephys_GUI_latest-dev.dmg
+        mv -v Open-Ephys-Installer.dmg $installer
+        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Dev-Installer/mac/$installer"
     - name: deploy_test
       if: github.ref == 'refs/heads/testing'
       env:

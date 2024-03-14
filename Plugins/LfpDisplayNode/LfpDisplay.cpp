@@ -43,6 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ColourSchemes/MonochromeGreenColourScheme.h"
 #include "ColourSchemes/OELogoColourScheme.h"
 #include "ColourSchemes/TropicalColourScheme.h"
+#include "ColourSchemes/LightBackgroundColourScheme.h"
 
 #define MS_FROM_START Time::highResolutionTicksToSeconds(Time::getHighResolutionTicks() - start) * 1000
 
@@ -63,17 +64,20 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     , channelsOrderedByDepth(false)
     , displaySkipAmt(0)
     , m_SpikeRasterPlottingFlag(false)
+    , lastBitmapIndex(0)
+    , lastFillFrom(-1)
 {
     perPixelPlotter = std::make_unique<PerPixelBitmapPlotter>(this);
     supersampledPlotter = std::make_unique<SupersampledBitmapPlotter>(this);
     
-    colourSchemeList.add(new DefaultColourScheme(this, canvasSplit));
-    colourSchemeList.add(new MonochromeGrayColourScheme(this, canvasSplit));
-    colourSchemeList.add(new MonochromeYellowColourScheme(this, canvasSplit));
-    colourSchemeList.add(new MonochromePurpleColourScheme(this, canvasSplit));
-    colourSchemeList.add(new MonochromeGreenColourScheme(this, canvasSplit));
-    colourSchemeList.add(new OELogoColourScheme(this, canvasSplit));
-    colourSchemeList.add(new TropicalColourScheme(this, canvasSplit));
+    colourSchemeList.add(new DefaultColourScheme());
+    colourSchemeList.add(new MonochromeGrayColourScheme());
+    colourSchemeList.add(new MonochromeYellowColourScheme());
+    colourSchemeList.add(new MonochromePurpleColourScheme());
+    colourSchemeList.add(new MonochromeGreenColourScheme());
+    colourSchemeList.add(new OELogoColourScheme());
+    colourSchemeList.add(new TropicalColourScheme());
+    colourSchemeList.add(new LightBackgroundColourScheme());
     
     plotter = perPixelPlotter.get();
     m_MedianOffsetPlottingFlag = false;
@@ -109,12 +113,10 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
 
     addMouseListener(this, true);
 
-    for (int i = 0; i < 8; i++)
+    for (int ttlLine = 0; ttlLine < 8; ttlLine++)
     {
-        eventDisplayEnabled[i] = true;
+        eventDisplayEnabled[ttlLine] = true;
     }
-
-    isPaused = false;
 
     savedChannelState.insertMultiple(0, true, 10000); // max 10k channels
 
@@ -220,6 +222,9 @@ void LfpDisplay::setNumChannels(int newChannelCount)
 void LfpDisplay::setColors()
 {
 
+    if (drawableChannels.size() == 0)
+        return;
+
     if (!getSingleChannelState())
     {
         for (int i = 0; i < drawableChannels.size(); i++)
@@ -232,13 +237,26 @@ void LfpDisplay::setColors()
         drawableChannels[0].channel->setColour(getColourSchemePtr()->getColourForIndex(singleChan));
         drawableChannels[0].channelInfo->setColour(getColourSchemePtr()->getColourForIndex(singleChan));
     }
-    
+
+    if (displayIsPaused)
+    {
+        timeOffsetChanged = true;
+        canRefresh = true;
+
+    }
+    else {
+        canvasSplit->fullredraw = true;
+        colorSchemeChanged = true;
+
+        refresh();
+    }
 
 }
 
 void LfpDisplay::setActiveColourSchemeIdx(int index)
 {
     activeColourScheme = index;
+
 }
 
 int LfpDisplay::getActiveColourSchemeIdx()
@@ -278,14 +296,9 @@ void LfpDisplay::resized()
     //LOGD(" !! LFP DISPLAY RESIZED TO: ", getWidth(), " pixels.");
 
     if (getWidth() > 0 && getHeight() > 0)
-        lfpChannelBitmap = Image(Image::ARGB, getWidth() - canvasSplit->leftmargin, getHeight(), false);
+        lfpChannelBitmap = Image(Image::ARGB, getWidth() - canvasSplit->leftmargin, getHeight(), true);
     else
-        lfpChannelBitmap = Image(Image::ARGB, 10, 10, false);
-
-    // Inititalize background
-    Graphics gLfpChannelBitmap(lfpChannelBitmap);
-    gLfpChannelBitmap.setColour(getColourSchemePtr()->getBackgroundColour()); //background color
-    gLfpChannelBitmap.fillRect(0, 0, lfpChannelBitmap.getWidth(), lfpChannelBitmap.getHeight());
+        lfpChannelBitmap = Image(Image::ARGB, 10, 10, true);
 
     if (getWidth() == 0)
     {
@@ -319,8 +332,6 @@ void LfpDisplay::resized()
         
     }
 
-    canvasSplit->fullredraw = true; //issue full redraw
-    
     if (!getSingleChannelState())
     {
         viewport->setViewPosition(scrollX, scrollY);
@@ -336,6 +347,12 @@ void LfpDisplay::resized()
     //LOGD("    RESIZED IN: ", MS_FROM_START, " milliseconds");
     start = Time::getHighResolutionTicks();
 
+    if (displayIsPaused)
+    {
+        timeOffsetChanged = true;
+        canRefresh = true;
+    }
+
     refresh();
 
     //LOGD("    REFRESHED IN: ", MS_FROM_START, " milliseconds");
@@ -347,6 +364,14 @@ void LfpDisplay::paint(Graphics& g)
     
     g.drawImageAt(lfpChannelBitmap, canvasSplit->leftmargin, 0);
     
+}
+
+void LfpDisplay::sync()
+{
+    if (!displayIsPaused)
+    {
+        lastBitmapIndex = 0;
+    }
 }
 
 void LfpDisplay::refresh()
@@ -361,41 +386,148 @@ void LfpDisplay::refresh()
         resized();
     }
 
+    int totalXPixels = lfpChannelBitmap.getWidth();
+    int totalYPixels = lfpChannelBitmap.getHeight();
+
+    //std::cout << "refresh display " << std::endl;
+
     // X-bounds of this update
-    int fillfrom = canvasSplit->lastScreenBufferIndex[0];
-    int fillto = (canvasSplit->screenBufferIndex[0]);
-    
-    for (int i = 0; i < numChans; i++)
+    int fillfrom = canvasSplit->lastScreenBufferIndex[0]; 
+    int fillto = canvasSplit->screenBufferIndex[0]; 
+
+    if (displayIsPaused)
     {
-        channels[i]->screenBufferIndex = fillto;
+        if (timeOffsetChanged && canRefresh)
+        {
+
+            //std::cout << "Time offset: " << timeOffset << std::endl;
+            
+            int playhead = pausePoint + int(timeOffset);
+            int rightEdge = totalXPixels;
+            int maxScreenBufferIndex = canvasSplit->screenBufferIndex[0];
+
+            timeOffsetChanged = false;
+            canRefresh = false;
+
+			//std::cout << "playhead: " << playhead << ", right edge: " << rightEdge << ", maxScreenBufferIndex: " << maxScreenBufferIndex << std::endl;
+
+            lfpChannelBitmap.clear(Rectangle<int>(0, 0, totalXPixels, totalYPixels));
+
+            for (int i = 0; i < numChans; i++)
+            {
+                channels[i]->pxPaintHistory(playhead, rightEdge, maxScreenBufferIndex);
+                channelInfo[i]->repaint();
+            }
+
+            repaint();
+
+            return;
+
+        }
+        else {
+            return;
+        }
     }
     
-    ///if (fillfrom<0){fillfrom=0;};
-    //if (fillto>lfpChannelBitmap.getWidth()){fillto=lfpChannelBitmap.getWidth();};
-    
+
+    //if (lastFillFrom == fillfrom && !canvasSplit->fullredraw)
+   //     return;
+
+    int totalPixelsToFill = 0;
+
+	if (fillto > fillfrom)
+	{
+        totalPixelsToFill = fillto - fillfrom;
+	}
+	else if (fillto < fillfrom)
+	{
+        totalPixelsToFill = canvasSplit->screenBufferWidth - fillfrom + fillto;
+    }
+
+    //if (totalPixelsToFill > 0)
+	//    std::cout << fillfrom << " : " << fillto << " ::: " << "totalPixelsToFill: " << totalPixelsToFill << std::endl;
+
     int topBorder = viewport->getViewPositionY();
     int bottomBorder = viewport->getViewHeight() + topBorder;
 
-    // clear appropriate section of the bitmap --
-    // we need to do this before each channel draws its new section of data into lfpChannelBitmap
-    Graphics gLfpChannelBitmap(lfpChannelBitmap);
-    gLfpChannelBitmap.setColour(getColourSchemePtr()->getBackgroundColour()); //background color
+    int fillfrom_local, fillto_local;
 
     if (canvasSplit->fullredraw)
     {
-        gLfpChannelBitmap.fillRect(0, 0, lfpChannelBitmap.getWidth(), lfpChannelBitmap.getHeight());
+        int playhead = lastBitmapIndex;
+        int rightEdge = totalXPixels;
+        int maxScreenBufferIndex = canvasSplit->screenBufferIndex[0];
+
+        //std::cout << "playhead: " << playhead << ", right edge: " << rightEdge << ", maxScreenBufferIndex: " << maxScreenBufferIndex << std::endl;
+
+        lfpChannelBitmap.clear(Rectangle<int>(0, 0, totalXPixels, totalYPixels));
+
+        for (int i = 0; i < numChans; i++)
+        {
+            int componentTop = channels[i]->getY();
+            int componentBottom = channels[i]->getHeight() + componentTop;
+            
+            if ((topBorder <= componentBottom && bottomBorder >= componentTop)) // only draw things that are visible
+            {
+                channels[i]->pxPaintHistory(playhead, rightEdge, maxScreenBufferIndex);
+                channelInfo[i]->repaint();
+            }
+        }
+
+        canvasSplit->fullredraw = false;
+
+        repaint(0, topBorder, getWidth(), bottomBorder - topBorder);
+
+       /* if (colorSchemeChanged)
+        {
+            colorSchemeChanged = false;
+            lastBitmapIndex += totalPixelsToFill;
+            lastBitmapIndex %= totalXPixels;
+        }*/
+
+        return;
         
     }
     else {
 
-        if (fillfrom < fillto)
-        {
-            gLfpChannelBitmap.fillRect(fillfrom, 0, (fillto - fillfrom) + 2, lfpChannelBitmap.getHeight()); // just clear one section
-        }
-        else if (fillfrom > fillto) {
+        
+        fillfrom_local = lastBitmapIndex;
+        fillto_local = (lastBitmapIndex + totalPixelsToFill) % totalXPixels;
 
-            gLfpChannelBitmap.fillRect(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom + 2, lfpChannelBitmap.getHeight()); // first segment
-            gLfpChannelBitmap.fillRect(0, 0, fillto + 2, lfpChannelBitmap.getHeight()); // second segment
+        //if (fillto != 0)
+        //{
+        //    std::cout << fillfrom << " : " << fillto << " ::: " <<
+        //        fillfrom_local << " : " << fillto_local << " :: " << totalPixelsToFill << " ::: " << totalXPixels << std::endl;
+       // }
+
+
+        for (int i = 0; i < numChans; i++)
+        {
+            channels[i]->ifrom = fillfrom; // canvasSplit->lastScreenBufferIndex[0];
+            channels[i]->ito = fillto; // canvasSplit->screenBufferIndex[0];
+            channels[i]->ifrom_local = fillfrom_local;
+            channels[i]->ito_local = fillto_local;
+        }
+
+        if (fillfrom_local < fillto_local)
+        {
+            int x1 = fillfrom_local;
+            int x2 = (fillto_local - fillfrom_local) + 2;
+            lfpChannelBitmap.clear(Rectangle<int>(x1, 0, x2, totalYPixels));
+            //std::cout << "Clearing from " << x1 << " to " << x1 + x2 << " (" << totalYPixels << "ypix)" << std::endl;
+        }
+        else if (fillfrom_local > fillto_local) {
+
+            int x1 = fillfrom_local;
+            int x2 = totalXPixels - fillfrom_local;
+            int x3 = 0;
+            int x4 = fillto_local + 2;
+            //std::cout << "Clearing from " << x1 << " to " << x1 + x2 << " (" << totalYPixels << "ypix)" << std::endl;
+            lfpChannelBitmap.clear(Rectangle<int>(x1, 0, x2, totalYPixels));
+            //std::cout << "Clearing from " << x3 << " to " << x3 + x4 << " (" << totalYPixels << "ypix)" << std::endl;
+            lfpChannelBitmap.clear(Rectangle<int>(x3, 0, x4, totalYPixels));
+            
+            
         }
         else {
             return; // no change, do nothing
@@ -414,6 +546,7 @@ void LfpDisplay::refresh()
             if (canvasSplit->fullredraw)
             {
                 channels[i]->fullredraw = true;
+
                 channels[i]->pxPaint();
                 channelInfo[i]->repaint();
             }
@@ -428,14 +561,14 @@ void LfpDisplay::refresh()
                  // message passing in juce. In any case, this seemingly redundant repaint here seems to fix the issue.
                 
                  // we redraw from 0 to +2 (px) relative to the real redraw window, the +1 draws the vertical update line
-                 if (fillfrom < fillto)
+                 if (fillfrom_local < fillto_local)
                  {
-                     channels[i]->repaint(fillfrom, 0, fillto - fillfrom + 2, channels[i]->getHeight());
+                     channels[i]->repaint(fillfrom_local, 0, fillto_local - fillfrom_local + 2, channels[i]->getHeight());
                  }
                  else
                  {
-                     channels[i]->repaint(fillfrom, 0, lfpChannelBitmap.getWidth() - fillfrom + 2, channels[i]->getHeight());
-                     channels[i]->repaint(0, 0, fillto + 2, channels[i]->getHeight());
+                     channels[i]->repaint(fillfrom_local, 0, totalXPixels - fillfrom_local + 2, channels[i]->getHeight());
+                     channels[i]->repaint(0, 0, fillto_local + 2, channels[i]->getHeight());
                  }
                 
             }
@@ -443,22 +576,23 @@ void LfpDisplay::refresh()
 
     }
 
-    if (fillfrom == 0 && singleChan != -1)
+    if (fillfrom_local == 0 && singleChan != -1)
     {
         channelInfo[singleChan]->repaint();
     }
     
-    if (canvasSplit->fullredraw)
-    {
-        repaint(0, topBorder, getWidth(), bottomBorder - topBorder);
-    }
     
-    canvasSplit->fullredraw = false;
+    
+	lastBitmapIndex += totalPixelsToFill;
+    lastBitmapIndex %= lfpChannelBitmap.getWidth();
+
+    lastFillFrom = fillfrom;
 
 }
 
 void LfpDisplay::setRange(float r, ContinuousChannel::Type type)
 {
+
     range[type] = r;
     
     if (channels.size() > 0)
@@ -469,7 +603,15 @@ void LfpDisplay::setRange(float r, ContinuousChannel::Type type)
             if (channels[i]->getType() == type)
                 channels[i]->setRange(range[type]);
         }
-        canvasSplit->fullredraw = true; //issue full redraw
+
+        if (displayIsPaused)
+        {
+            timeOffsetChanged = true;
+            canRefresh = true;
+
+            refresh();
+        }
+        
     }
 }
 
@@ -516,6 +658,19 @@ void LfpDisplay::setInputInverted(bool isInverted)
         channels[i]->setInputInverted(isInverted);
     }
 
+}
+
+Array<bool> LfpDisplay::getInputInverted()
+{
+
+    Array<bool> invertedState;
+
+    for (int i = 0; i < numChans; i++)
+    {
+		invertedState.add(channels[i]->getInputInverted());
+    }
+
+    return invertedState;
 }
 
 void LfpDisplay::setDrawMethod(bool isDrawMethod)
@@ -571,6 +726,13 @@ void LfpDisplay::orderChannelsByDepth(bool state)
     channelsOrderedByDepth = state;
 
     rebuildDrawableChannelsList();
+
+}
+
+bool LfpDisplay::shouldOrderChannelsByDepth()
+{
+
+    return channelsOrderedByDepth;
 
 }
 
@@ -679,8 +841,6 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
         viewport->setViewPosition(oldX,oldY+scrollBy); // set back to previous position plus offset
 
         options->setSpreadSelection(newHeight); // update combobox
-        
-        canvasSplit->fullredraw = true;//issue full redraw - scrolling without modifier doesnt require a full redraw
     }
     else
     {
@@ -703,8 +863,7 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
             }
 
             options->setRangeSelection(h); // update combobox
-            canvasSplit->fullredraw = true; //issue full redraw - scrolling without modifier doesnt require a full redraw
-            
+
         }
         else    // just scroll
         {
@@ -712,11 +871,7 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
             if (viewport != nullptr && e.eventComponent == this) // passes only if it's not a listening event
             {
                 viewport->mouseWheelMove(e.getEventRelativeTo(canvasSplit), wheel);
-
-                //canvasSplit->syncDisplayBuffer();
             }
-                
-
         }
       
     }
@@ -727,8 +882,6 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
         scrollY = viewport->getViewPositionY();
     }
     
-   // refresh(); // doesn't seem to be needed now that channels draw to bitmap
-
 }
 
 void LfpDisplay::toggleSingleChannel(LfpChannelTrack drawableChannel)
@@ -782,7 +935,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
         if (channelIndex > -1)
         {
 
-            if (drawableChannels.size() != 1) // if we haven't already gone through this ordeal
+            if (drawableChannels.size() != 1 || numChans == 1) // if we haven't already gone through this ordeal
             {
                 LfpChannelTrack lfpChannelTrack{ channels[channelIndex], channelInfo[channelIndex] };
 
@@ -840,27 +993,38 @@ void LfpDisplay::rebuildDrawableChannelsList()
     removeAllChildren(); // start with clean slate
     
     Array<LfpChannelTrack> channelsToDraw; // all visible channels will be added to this array
-
+    Array<int> filteredChannels;
+    if(canvasSplit -> displayBuffer) {
+        filteredChannels = canvasSplit -> getFilteredChannels();
+    }
     // iterate over all channels and select drawable ones
-    for (int i = 0, drawableChannelNum = 0; i < channels.size(); i++)
+    for (int i = 0, drawableChannelNum = 0, filterChannelIndex = 0; i < channels.size(); i++)
     {
-        
 		//std::cout << "Checking for hidden channels" << std::endl;
-        if (displaySkipAmt == 0 || (i % displaySkipAmt == 0)) // no skips, add all channels
-        {
-            channels[i]->setHidden(false);
-            channelInfo[i]->setHidden(false);
-            
-            channelInfo[i]->setDrawableChannelNumber(drawableChannelNum++);
-            channelInfo[i]->resized(); // to update the conditional drawing of enableButton and channel num
-            
-            channelsToDraw.add(LfpDisplay::LfpChannelTrack{
-                channels[i],
-                channelInfo[i]
-            });
+        int channelNumber = filteredChannels.size() ? canvasSplit->displayBuffer->channelMetadata[i].description.getIntValue(): -1;
+        //the filter list can have channels that aren't selected for acqusition; this skips those filtered channels
+        while(filterChannelIndex < filteredChannels.size() && channelNumber > filteredChannels[filterChannelIndex]){
+            filterChannelIndex++;
+        }
+        if(filteredChannels.size() == 0 || (filterChannelIndex < filteredChannels.size() && channelNumber == filteredChannels[filterChannelIndex])) {
+            if (displaySkipAmt == 0 || ((filteredChannels.size() ? filterChannelIndex : i) % displaySkipAmt == 0)) // no skips, add all channels
+            {
 
-            addAndMakeVisible(channels[i]);
-            addAndMakeVisible(channelInfo[i]);
+                channels[i]->setHidden(false);
+                channelInfo[i]->setHidden(false);
+                
+                channelInfo[i]->setDrawableChannelNumber(drawableChannelNum++);
+                channelInfo[i]->resized(); // to update the conditional drawing of enableButton and channel num
+                
+                channelsToDraw.add(LfpDisplay::LfpChannelTrack{
+                    channels[i],
+                    channelInfo[i]
+                });
+                
+                addAndMakeVisible(channels[i]);
+                addAndMakeVisible(channelInfo[i]);
+            }
+            filterChannelIndex++;
         }
         else // skip some channels
         {
@@ -869,7 +1033,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
         }
     }
 
-    if (channelsOrderedByDepth)
+    if (channelsOrderedByDepth && channelsToDraw.size() > 0)
     {
         LOGD("Sorting channels by depth.");
 
@@ -966,6 +1130,61 @@ void LfpDisplay::setSingleChannelView(int chan)
     singleChan = chan;
 }
 
+void LfpDisplay::pause(bool shouldPause)
+{
+    displayIsPaused = shouldPause;
+
+	options->setPausedState(shouldPause);
+
+    canvasSplit->pause(shouldPause);
+
+    if (!shouldPause)
+    {
+        timeOffset = 0.0f;
+        sync();
+        canvasSplit->fullredraw = true;
+        //refresh();
+    }
+    else {
+        pausePoint = lastBitmapIndex;
+        
+    }
+        
+}
+
+void LfpDisplay::timerCallback()
+{
+    canRefresh = true;
+}
+
+void LfpDisplay::setTimeOffset(float offset)
+{
+
+    
+
+    
+    timeOffset = offset;
+    timeOffsetChanged = true;
+    canRefresh = true;
+
+    refresh();
+    
+    //if (offset != timeOffset)
+    //{
+        
+        
+   // }
+    
+    //LOGD("Time offset: ", offset);
+
+    
+}
+
+bool LfpDisplay::isPaused()
+{
+    return displayIsPaused;
+}
+
 void LfpDisplay::mouseDown(const MouseEvent& event)
 {
     if (drawableChannels.isEmpty())
@@ -989,7 +1208,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
         int cpos = (drawableChannels[n].channel->getY() + (drawableChannels[n].channel->getHeight()/2));
         dist = int(abs(y - cpos));
 
-       // std::cout << "Mouse down at " << y << " pos is "<< cpos << " n: " << n << "  dist " << dist << std::endl;
+        //std::cout << "Mouse down at " << y << " pos is "<< cpos << " n: " << n << "  dist " << dist << std::endl;
 
         if (dist < mindist)
         {
@@ -1031,15 +1250,15 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 
 }
 
-bool LfpDisplay::setEventDisplayState(int ch, bool state)
+bool LfpDisplay::setEventDisplayState(int ttlLine, bool state)
 {
-    eventDisplayEnabled[ch] = state;
-    return eventDisplayEnabled[ch];
+    eventDisplayEnabled[ttlLine] = state;
+    return eventDisplayEnabled[ttlLine];
 }
 
-bool LfpDisplay::getEventDisplayState(int ch)
+bool LfpDisplay::getEventDisplayState(int ttlLine)
 {
-    return eventDisplayEnabled[ch];
+    return eventDisplayEnabled[ttlLine];
 }
 
 void LfpDisplay::setEnabledState(bool state, int chan, bool updateSaved)

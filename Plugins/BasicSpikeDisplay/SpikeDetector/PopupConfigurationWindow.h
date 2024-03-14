@@ -105,7 +105,7 @@ public:
         for (int i = 0; i < newChannels.size(); i++)
         {
             newArray.add(newChannels[i]);
-            std::cout << "Channel " << newChannels[i] << " selected" << std::endl;
+            LOGD("Channel ", newChannels[i], " selected");
         }
         
         String s = "[";
@@ -238,8 +238,6 @@ private:
     int columnId;
     juce::Colour textColour;
     bool acquisitionIsActive;
-    
-    int numChannels;
     
     Array<FloatParameter*> dyn_thresholds;
     Array<FloatParameter*> abs_thresholds;

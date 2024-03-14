@@ -203,6 +203,11 @@ private:
 class Clock : public Component
 {
 public:
+
+    enum Mode {
+        DEFAULT,
+        HHMMSS
+    };
     
     /** Constructor*/
     Clock();
@@ -228,6 +233,15 @@ public:
     /** Renders the clock.*/
     void paint(Graphics& g);
 
+    /** Sets the clock mode*/
+	void setMode(Mode m);
+
+    /** Gets the clock mode*/
+    Mode getMode() { return mode; }
+
+    /** Responds to right clicks*/
+    void mouseDown(const MouseEvent& e);
+
 private:
 
     /** Draws the current time.*/
@@ -242,6 +256,8 @@ private:
     bool isRecording;
 
     Font clockFont;
+
+    Mode mode;
 
 };
 
@@ -449,6 +465,8 @@ public:
     std::unique_ptr<FilenameEditorButton> filenameText;
     std::unique_ptr<FilenameConfigWindow> filenameConfigWindow;
 
+    std::unique_ptr<Clock> clock;
+
 private:
 
     /** Informs the Control Panel that recording has begun.*/
@@ -468,22 +486,17 @@ private:
     
     bool forceRecording;
 
-
     std::unique_ptr<PlayButton> playButton;
 
-    std::unique_ptr<Clock> masterClock;
     std::unique_ptr<CPUMeter> cpuMeter;
     std::unique_ptr<DiskSpaceMeter> diskMeter;
     std::unique_ptr<FilenameComponent> filenameComponent;
     std::unique_ptr<UtilityButton> newDirectoryButton;
     std::unique_ptr<ControlPanelButton> cpb;
-
     std::unique_ptr<RecordButton> recordButton;
     std::unique_ptr<ComboBox> recordSelector;
 
-    //std::unique_ptr<Label> prependText;
     Array<std::shared_ptr<FilenameFieldComponent>> filenameFields;
-    //std::unique_ptr<Label> appendText;
 
     /* Popup window for editing recording filename fields */
     void componentBeingDeleted(Component &component);

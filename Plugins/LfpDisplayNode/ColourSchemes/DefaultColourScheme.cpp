@@ -52,20 +52,10 @@ Array<Colour> DefaultColourScheme::colourList = []() -> Array<Colour> {
     return colours;
 }();
 
-DefaultColourScheme::DefaultColourScheme(LfpDisplay* display, LfpDisplaySplitter* canvas)
-	: LfpViewer::ChannelColourScheme(DefaultColourScheme::colourList.size(), display, canvas)
+DefaultColourScheme::DefaultColourScheme()
+	: ChannelColourScheme("Classic", DefaultColourScheme::colourList.size())
 {
-    setName("Classic");
-}
 
-void DefaultColourScheme::paint(Graphics &g)
-{
-    
-}
-
-void DefaultColourScheme::resized()
-{
-    
 }
 
 const Colour DefaultColourScheme::getBackgroundColour() const

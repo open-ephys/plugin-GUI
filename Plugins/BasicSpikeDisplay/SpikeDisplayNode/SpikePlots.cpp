@@ -30,13 +30,14 @@
 SpikePlot::SpikePlot(SpikeDisplayCanvas* sdc, 
                      int elecNum, 
                      int p, 
-                     String name_) :
+                     String name_,
+                     std::string identifier_) :
     canvas(sdc), 
     electrodeNumber(elecNum),
     plotType(p),
     limitsChanged(true), 
-    name(name_)
-
+    name(name_),
+    identifier(identifier_)
 {
 
     font = Font("Default", 15, Font::plain);
@@ -101,6 +102,11 @@ SpikePlot::~SpikePlot()
     {
         thresholdCoordinator->deregisterSpikePlot(this);
     }
+}
+
+void SpikePlot::setId(std::string id)
+{
+    identifier = id;
 }
 
 void SpikePlot::paint(Graphics& g)
@@ -176,7 +182,7 @@ void SpikePlot::initAxes()
 
     for (int i = 0; i < nWaveAx; i++)
     {
-        WaveAxes* wAx = new WaveAxes(WAVE1 + i);
+        WaveAxes* wAx = new WaveAxes(canvas, electrodeNumber, WAVE1 + i, identifier);
         waveAxes.add(wAx);
         addAndMakeVisible(wAx);
         ranges.add(250.0f); // default range is 250 microvolts
@@ -185,7 +191,7 @@ void SpikePlot::initAxes()
     for (int i = 0; i < nProjAx; i++)
     {
         Projection proj = Projection(int(PROJ1x2) + i);
-        ProjectionAxes* pAx = new ProjectionAxes(proj);
+        ProjectionAxes* pAx = new ProjectionAxes(canvas, proj);
         projectionAxes.add(pAx);
         addAndMakeVisible(pAx);
     }
@@ -286,6 +292,9 @@ void SpikePlot::buttonClicked(Button* button)
 
     setLimitsOnAxes();
 
+    canvas->cache->setMonitor(identifier, monitorButton->getToggleState());
+    canvas->cache->setRange(identifier, index, ranges[index]);
+
 }
 
 void SpikePlot::setLimitsOnAxes()
@@ -354,7 +363,7 @@ float SpikePlot::getDisplayThresholdForChannel(int i)
 
 void SpikePlot::setDisplayThresholdForChannel(int i, float thresh)
 {
-    //std::cout << "Setting threshold to " << thresh << std::endl;
+    LOGD("Setting threshold for channel ", i, " to ", thresh, "");
     waveAxes[i]->setDisplayThreshold(thresh);
 }
 
@@ -366,8 +375,19 @@ float SpikePlot::getRangeForChannel(int i)
 void SpikePlot::setRangeForChannel(int i, float range)
 {
     //std::cout << "Setting range to " << range << std::endl;
+    ranges.set(i, range);
     waveAxes[i]->setRange(range);
     rangeButtons[i]->setLabel(String(int(range)));
+}
+
+bool SpikePlot::getMonitorState()
+{
+    return monitorButton->getToggleState();
+}
+
+void SpikePlot::setMonitorState(bool state)
+{
+    monitorButton->setToggleState(state, sendNotification);
 }
 
 void SpikePlot::setDetectorThresholdForChannel(int i, float t)
@@ -427,9 +447,10 @@ void SpikePlot::invertSpikes(bool shouldInvert)
 }
 
 
-GenericAxes::GenericAxes(SpikePlotType type_) : 
-    gotFirstSpike(false), 
-    type(type_)
+GenericAxes::GenericAxes(SpikeDisplayCanvas* canvas, SpikePlotType type_) : 
+    canvas(canvas),
+    type(type_),
+    gotFirstSpike(false)
 {
     ylims[0] = 0;
     ylims[1] = 1;
@@ -521,7 +542,8 @@ double GenericAxes::ad16ToUv(int x, int gain)
 }
 
 
-WaveAxes::WaveAxes(int channel_) : GenericAxes(WAVE_AXES),
+WaveAxes::WaveAxes(SpikeDisplayCanvas* canvas, int electrodeIndex, int channel_, std::string identifier_) : GenericAxes(canvas, WAVE_AXES),
+    electrodeIndex(electrodeIndex),
     drawGrid(true),
     displayThresholdLevel(0.0f),
     detectorThresholdLevel(0.0f),
@@ -533,8 +555,8 @@ WaveAxes::WaveAxes(int channel_) : GenericAxes(WAVE_AXES),
     isDraggingThresholdSlider(false),
     thresholdCoordinator(nullptr),
     spikesInverted(false),
-    channel(channel_)
-
+    channel(channel_),
+    identifier(identifier_)
 {
     addMouseListener(this, true);
 
@@ -830,6 +852,9 @@ void WaveAxes::mouseDrag(const MouseEvent& event)
             thresholdCoordinator->thresholdChanged(displayThresholdLevel,range);
         }
 
+        canvas->cache->setThreshold(identifier, channel, displayThresholdLevel);
+        canvas->cache->setRange(identifier, channel, range);
+
         repaint();
     }
 }
@@ -862,6 +887,7 @@ void WaveAxes::registerThresholdCoordinator(SpikeThresholdCoordinator* stc)
 
 void WaveAxes::setDisplayThreshold(float threshold)
 {
+
     displayThresholdLevel = threshold;
 
     repaint();
@@ -869,7 +895,7 @@ void WaveAxes::setDisplayThreshold(float threshold)
 
 // --------------------------------------------------
 
-ProjectionAxes::ProjectionAxes(Projection proj_) : GenericAxes(PROJECTION_AXES), imageDim(500),
+ProjectionAxes::ProjectionAxes(SpikeDisplayCanvas* canvas, Projection proj_) : GenericAxes(canvas, PROJECTION_AXES), imageDim(500),
     rangeX(250), rangeY(250), spikesReceivedSinceLastRedraw(0), proj(proj_)
 {
     projectionImage = Image(Image::RGB, imageDim, imageDim, true);

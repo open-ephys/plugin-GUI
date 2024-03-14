@@ -105,13 +105,11 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
 
 }
 
-
 FileReader::~FileReader()
 {
     signalThreadShouldExit();
     notify();
 }
-
 
 AudioProcessorEditor* FileReader::createEditor()
 {
@@ -149,18 +147,7 @@ void FileReader::initialize(bool signalChainIsLoading)
 
 void FileReader::togglePlayback()
 {
-
     playbackActive = !playbackActive;
-
-    if (!playbackActive) 
-    {
-        stopAcquisition();
-    } 
-    else 
-    {
-        startAcquisition();
-    }
-
 }
 
 bool FileReader::playbackIsActive()
@@ -202,6 +189,7 @@ bool FileReader::startAcquisition()
 
 bool FileReader::stopAcquisition()
 {
+
 	stopThread(500);
     static_cast<FileReaderEditor*> (getEditor())->stopTimer();
 	return true;
@@ -315,14 +303,24 @@ int64 FileReader::getCurrentSample()
 
 void FileReader::setPlaybackStart(int64 startSample)
 {
-    //LOGD("Settings start sample: ", timestamp);
     this->startSample = startSample;
     this->totalSamplesAcquired = startSample;
+
+    input->seekTo(startSample);
+    currentSample = startSample;
+
+    switchBuffer();
+
+    if (CoreServices::getAcquisitionStatus() && !isThreadRunning())
+    {
+        m_shouldFillBackBuffer.set(true);
+        startThread();
+    }
+    
 }
 
 void FileReader::setPlaybackStop(int64 stopSample)
 {
-    //LOGD("Settings stop sample: ", timestamp);
     this->stopSample = stopSample;
     currentNumScrubbedSamples = stopSample - startSample;
 }
@@ -334,7 +332,6 @@ String FileReader::getFile() const
     else
         return String();
 }
-
 
 void FileReader::updateSettings()
 {
@@ -465,7 +462,6 @@ Array<EventInfo> FileReader::getActiveEventInfo()
     return input->getEventInfo();
 }
 
-
 String FileReader::handleConfigMessage(String msg)
 {
 
@@ -493,19 +489,17 @@ String FileReader::handleConfigMessage(String msg)
 void FileReader::process(AudioBuffer<float>& buffer)
 {
 
+    bool switchNeeded = false;
+
     int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
 
-    if (!loopPlayback && totalSamplesAcquired + samplesNeededPerBuffer > stopSample)
+    if (!playbackActive && totalSamplesAcquired + samplesNeededPerBuffer > stopSample)
     {
         samplesNeededPerBuffer = stopSample - totalSamplesAcquired;
-        playbackActive = false;
+        switchNeeded = true;
     }
-    else if (!playbackActive)
-    {
-        samplesNeededPerBuffer = 0;
-    }
-    
-    m_samplesPerBuffer.set(samplesNeededPerBuffer);
+    else
+        m_samplesPerBuffer.set(samplesNeededPerBuffer);
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
     
@@ -532,12 +526,20 @@ void FileReader::process(AudioBuffer<float>& buffer)
 
     totalSamplesAcquired += samplesNeededPerBuffer;
 
+    //LOGD("Total samples acquired: ", totalSamplesAcquired);
+
     int64 stop = totalSamplesAcquired;
 
     addEventsInRange(start, stop);
 
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
+
+    if (switchNeeded)
+    {
+        bufferCacheWindow = 0;
+        this->stopThread(100);
+    }
 
 }
 
@@ -549,13 +551,22 @@ void FileReader::addEventsInRange(int64 start, int64 stop)
 
     for (int i = 0; i < events.channels.size(); i++) 
     { 
-        juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount*(stopSample - startSample) - start;
-        uint8 ttlBit = events.channels[i];
-        bool state = events.channelStates[i] > 0;
-        TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[0], events.timestamps[i], ttlBit, state);
-        addEvent(event, absoluteCurrentTimestamp); 
-    }
 
+        juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount * (stopSample - startSample);
+        if (events.text.size() && !events.text[i].isEmpty())
+        {
+            String msg = events.text[i];
+            LOGD("Broadcasting message: ", msg, " at timestamp: ", absoluteCurrentTimestamp, " channel: ", events.channels[i]);
+            broadcastMessage(msg);
+        }
+        else
+        {
+            uint8 ttlBit = events.channels[i];
+            bool state = events.channelStates[i] > 0;
+            TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[0], events.timestamps[i], ttlBit, state);
+            addEvent(event, absoluteCurrentTimestamp); 
+        }
+    }
 }
 
 void FileReader::setParameter (int parameterIndex, float newValue)
@@ -633,6 +644,7 @@ void FileReader::run()
 
 void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
 {
+
     const int samplesNeededPerBuffer = m_samplesPerBuffer.get();
     const int samplesNeeded = samplesNeededPerBuffer * BUFFER_WINDOW_CACHE_SIZE;
     
@@ -641,6 +653,10 @@ void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
     // should only loop if reached end of file and resuming from start
     while (samplesRead < samplesNeeded)
     {
+        
+        if (samplesRead < 0)
+            return;
+
         int samplesToRead = samplesNeeded - samplesRead;
         
         // if reached end of file stream
@@ -649,6 +665,11 @@ void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
             samplesToRead = stopSample - currentSample;
             if (samplesToRead > 0)
                 input->readData (cacheBuffer + samplesRead * currentNumChannels, samplesToRead);
+
+            if (startSample != 0)
+            {
+                startSample = 0;
+            }
             
             // reset stream to beginning
             input->seekTo (startSample);

@@ -148,7 +148,6 @@ void RecordNodeEditor::stopRecording()
     spikeRecord->setEnabled(true);
 }
 
-
 void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 {
 
@@ -247,6 +246,7 @@ void RecordNodeEditor::updateFifoMonitors()
                                                 streamId, nEvents));
 		streamRecords.getLast()->setBounds(18 + streamCount * 20, 110, 15, 15);
 		addAndMakeVisible(streamRecords.getLast());
+		streamRecords.getLast()->setVisible(false);
 
 		streamCount++;
 
@@ -260,7 +260,7 @@ void RecordNodeEditor::updateSettings()
     spikeRecord->setToggleState(recordNode->recordSpikes, dontSendNotification);
     
     dataPathLabel->setText(recordNode->getDataDirectory().getFullPathName(), dontSendNotification);
-
+	dataPathLabel->setTooltip(dataPathLabel->getText());
 }
 
 void RecordNodeEditor::buttonClicked(Button *button)
@@ -403,14 +403,18 @@ void RecordNodeEditor::showFifoMonitors(bool show)
 		streamSelector->getX() + dX, streamSelector->getY(),
 		streamSelector->getWidth(), streamSelector->getHeight());
 
+
+	desiredWidth += dX;
+
+	if (getCollapsedState())
+		return;
+
 	for (auto spl : streamLabels)
 		spl->setVisible(show);
 	for (auto spm : streamMonitors)
 		spm->setVisible(show);
 	for (auto spr : streamRecords)
 		spr->setVisible(show);
-
-	desiredWidth += dX;
 
 	CoreServices::highlightEditor(this);
 	deselect();
@@ -473,11 +477,13 @@ FifoMonitor::FifoMonitor(RecordNode* node, uint16 streamId_, String streamName_)
 	streamId(streamId_),
 	streamName(streamName_),
 	fillPercentage(0.0),
-    stateChangeSinceLastUpdate(false)
+    stateChangeSinceLastUpdate(false),
+	dataRate(0.0),
+	lastUpdateTime(0.0),
+	lastFreeSpace(0.0),
+	recordingTimeLeftInSeconds(0)
 {
-
 	startTimer(500);
-	setTooltip(streamName);
 }
 
 /* RECORD CHANNEL SELECTOR LISTENER */
@@ -498,14 +504,15 @@ void FifoMonitor::mouseDown(const MouseEvent &event)
 	bool editable = !recordNode->recordThread->isThreadRunning();
     auto* channelSelector = new PopupChannelSelector(this, channelStates);
 	channelSelector->setChannelButtonColour(Colours::red);
+	channelSelector->setEditable(!recordNode->getRecordingStatus());
 
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
     
-    myBox.addComponentListener(this);
+    //myBox.addComponentListener(this);
 
 }
-
+/* No longer called -- all updates happen before the callout box is closed
 void FifoMonitor::componentBeingDeleted(Component &component)
 {
     // called when popup window closes
@@ -519,6 +526,7 @@ void FifoMonitor::componentBeingDeleted(Component &component)
     }
 
 }
+*/
 
 void FifoMonitor::channelStateChanged(Array<int> selectedChannels)
 {
@@ -540,8 +548,6 @@ void FifoMonitor::channelStateChanged(Array<int> selectedChannels)
 void FifoMonitor::timerCallback()
 {
 
-	//std::cout << "Timer callback for stream " << streamId << std::endl;
-
 	if (streamId == 0) /* Disk space monitor */
 	{
 		float bytesFree = (float) recordNode->getDataDirectory().getBytesFreeOnVolume();
@@ -552,15 +558,47 @@ void FifoMonitor::timerCallback()
 		if (ratio > 0)
 			setFillPercentage(1.0f - ratio);
 
-		//std::cout << "Setting fill percentage for " << streamId << " to " << 1 - ratio << std::endl;
+		if (!recordingTimeLeftInSeconds)
+			setTooltip(String(bytesFree / pow(2, 30)) + " GB available");
 
-		setTooltip(String(bytesFree / pow(2, 30)) + " GB available");
+		float currentTime = Time::getMillisecondCounterHiRes();
+
+		// Update data rate and recording time left every 30 seconds
+		if (recordNode->getRecordingStatus() && currentTime - lastUpdateTime > 30000) {
+
+			if (lastUpdateTime == 0.0) {
+				lastUpdateTime = Time::getMillisecondCounterHiRes();
+				lastFreeSpace = bytesFree;
+			}
+			else
+			{
+				dataRate = (lastFreeSpace - bytesFree) / (currentTime - lastUpdateTime); //bytes/ms
+				lastUpdateTime = currentTime;
+				lastFreeSpace = bytesFree;
+
+				recordingTimeLeftInSeconds = bytesFree / dataRate / 1000.0f;
+
+				LOGD("Data rate: ", dataRate, " bytes/ms");
+
+				// Stop recording and show warning when less than 5 minutes of disk space left
+				if (dataRate > 0.0f && recordingTimeLeftInSeconds < (60.0f * 5.0f)) 
+				{
+					CoreServices::setRecordingStatus(false);
+					String msg = "Recording stopped. Less than 5 minutes of disk space remaining.";
+					AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "WARNING", msg);
+				}
+
+				String msg = String(bytesFree / pow(2, 30)) + " GB available\n";
+				msg += String(int(recordingTimeLeftInSeconds / 60.0f)) + " minutes remaining\n";
+				msg += "Data rate: " + String(dataRate * 1000 / pow(2, 20), 2) + " MB/s";
+				setTooltip(msg);
+			}
+		}
 	}
-	else /* Subprocessor monitor */
+	else /* Stream monitor */
 	{
+		setTooltip(String(recordNode->getDataStream(streamId)->getSourceNodeId())+" | "+streamName);
 		setFillPercentage(recordNode->fifoUsage[streamId]);
-
-		//std::cout << "Setting fill percentage for " << streamId << " to " << recordNode->fifoUsage[streamId] << std::endl;
 	}
 
 }

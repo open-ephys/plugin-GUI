@@ -26,6 +26,7 @@
 
 #include <list>
 #include <string>
+#include <cstring>
 #include <sys/types.h>
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "OpenEphysPlugin.h"
@@ -54,6 +55,12 @@ template<class T>
 struct LoadedPluginInfo : public T
 {
 	int libIndex;
+
+	// Setter function to modify the libIndex
+	void setLibIndex(int index)
+	{
+		libIndex = index;
+	}
 };
 
 

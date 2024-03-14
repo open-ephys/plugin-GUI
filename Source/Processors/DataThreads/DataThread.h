@@ -94,7 +94,7 @@ public:
     /** Create the DataThread custom editor, if any*/
     virtual std::unique_ptr<GenericEditor> createEditor(SourceNode* sn);
 
-    /** Allows the DataThread plugin to respond to broadcast messages sent by other processors 
+    /** Allows the DataThread plugin to respond to broadcast messages sent by other processors
           during acquisition */
     virtual void handleBroadcastMessage(String msg) { }
 

@@ -282,6 +282,7 @@ namespace CoreServices
 				if (node->getNodeId() == nodeId)
 					return node->getEngineId();
 			}
+			return String("NO_MATCHING_NODE_FOUND");
 		}
 
 		void setRecordEngine(String id, int nodeId, bool applyToAll)
@@ -326,7 +327,7 @@ namespace CoreServices
 			for (auto* node : getProcessorGraph()->getRecordNodes())
 			{
 				if (node->getNodeId() == nodeId)
-					node->createNewDirectory();
+					node->createNewDirectory(true);
 			}
 		}
     

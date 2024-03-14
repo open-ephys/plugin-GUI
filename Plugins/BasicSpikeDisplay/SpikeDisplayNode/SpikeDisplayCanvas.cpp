@@ -108,8 +108,20 @@ SpikeDisplayCanvas::SpikeDisplayCanvas(SpikeDisplayNode* processor_) :
     addAndMakeVisible(viewport.get());
 
     update();
+
+    cache = std::make_unique<SpikeDisplayCache>();
 }
 
+void SpikeDisplayCanvas::applyCachedDisplaySettings(int plotIdx, std::string key)
+{
+    spikeDisplay->setMonitorStateForPlot(plotIdx, cache->isMonitored(key));
+
+    for (int j = 0; j < processor->getNumberOfChannelsForElectrode(plotIdx); j++)
+    {
+        spikeDisplay->setThresholdForWaveAxis(plotIdx,j,cache->getThreshold(key,j));
+        spikeDisplay->setRangeForWaveAxis(plotIdx,j,cache->getRange(key, j));
+    }
+}
 
 void SpikeDisplayCanvas::update()
 {
@@ -125,15 +137,41 @@ void SpikeDisplayCanvas::update()
     for (int i = 0; i < nPlots; i++)
     {
         SpikePlot* sp = spikeDisplay->addSpikePlot(processor->getNumberOfChannelsForElectrode(i), i,
-                                                   processor->getNameForElectrode(i));
+                                                   processor->getNameForElectrode(i), processor->getSpikeChannel(i)->getIdentifier().toStdString());
+
         processor->addSpikePlotForElectrode(sp, i);
+
+        std::string cacheKey = processor->getSpikeChannel(i)->getIdentifier().toStdString();
+
+        if (cache)
+        {
+            //TODO: Should be able to call spikeChannel->getStreamIndex() here...
+            int streamIdx = 0;
+            for (auto& stream : processor->getDataStreams())
+            {
+                if (stream->getStreamId() == processor->getSpikeChannel(i)->getStreamId())
+                    break;
+                streamIdx++;
+            }
+
+            if (cache->hasCachedDisplaySettings(cacheKey))
+            {
+                LOGD("SpikeDisplayCanvas::update: found exact key for ", cacheKey);
+                applyCachedDisplaySettings(i, cacheKey);
+            }
+            else if (cache->findSimilarKey(cacheKey, streamIdx).size() > 0)
+            {
+                LOGD("SpikeDisplayCanvas::update: found similar key for ", cacheKey);
+                applyCachedDisplaySettings(i, cache->findSimilarKey(cacheKey, streamIdx));
+            }
+        }
+
     }
 
     spikeDisplay->resized();
+    spikeDisplay->refresh();
     
 }
-
-
 
 void SpikeDisplayCanvas::refreshState()
 {
@@ -202,9 +240,27 @@ void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
     xmlNode->setAttribute("LockThresholds", lockThresholdsButton->getToggleState());
     xmlNode->setAttribute("InvertSpikes", invertSpikesButton->getToggleState());
 
-    for (int i = 0; i < spikeDisplay->getNumPlots(); i++)
+    int spikePlotIdx = -1;
+
+    for (int i = 0; i < processor->getTotalSpikeChannels(); i++)
     {
+        if (!processor->getSpikeChannel(i)->isValid())
+            continue;
+
+        spikePlotIdx++;
+
+        const SpikeChannel* spikeChannel = processor->getSpikeChannel(i);
+
+        const uint16 streamId = spikeChannel->getStreamId();
+
         XmlElement* plotNode = xmlNode->createNewChildElement("PLOT");
+
+        plotNode->setAttribute("stream_source", processor->getDataStream(streamId)->getSourceNodeId());
+        plotNode->setAttribute("stream_name", processor->getDataStream(streamId)->getName());
+        plotNode->setAttribute("source_node", spikeChannel->getSourceNodeId());
+        plotNode->setAttribute("name", spikeChannel->getName());
+
+        plotNode->setAttribute("isMonitored", spikeDisplay->getMonitorStateForPlot(i));
 
         for (int j = 0; j < spikeDisplay->getNumChannelsForPlot(i); j++)
         {
@@ -214,14 +270,25 @@ void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
         }
     }
 
+    xmlNode->setAttribute("NumPlots", spikePlotIdx+1);
+
 }
 
 void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 {
+
     for (auto* xmlNode : xml->getChildIterator())
     {
         if (xmlNode->hasTagName("SPIKEDISPLAY"))
         {
+
+            if (xmlNode->getIntAttribute("NumPlots", 0) != processor->getTotalSpikeChannels())
+            {
+                //SpikeDisplayNode has not loaded all spike channels from all incoming branches yet.
+                //Wait until the processor has loaded all channels before loading the saved settings.
+                return;
+            }
+
             spikeDisplay->invertSpikes(xmlNode->getBoolAttribute("InvertSpikes"));
             invertSpikesButton->setToggleState(xmlNode->getBoolAttribute("InvertSpikes"), dontSendNotification);
             lockThresholdsButton->setToggleState(xmlNode->getBoolAttribute("LockThresholds"), sendNotification);
@@ -232,37 +299,31 @@ void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
             {
                 if (plotNode->hasTagName("PLOT"))
                 {
-
                     plotIndex++;
 
-                    //std::cout << "PLOT NUMBER " << plotIndex << std::endl;
+                    std::string stream_source = plotNode->getStringAttribute("stream_source").toStdString();
+                    std::string stream_name = plotNode->getStringAttribute("stream_name").toStdString();
+                    std::string source = plotNode->getStringAttribute("source_node").toStdString();
+                    std::string name = plotNode->getStringAttribute("name").toStdString();
+
+                    std::string cacheKey = stream_source + "|" + stream_name + "|" + source + "|" + name;
+
+                    cache->setMonitor(cacheKey, plotNode->getBoolAttribute("isMonitored"));
 
                     int channelIndex = -1;
 
                     for (auto* channelNode : plotNode->getChildIterator())
                     {
-
                         if (channelNode->hasTagName("AXIS"))
                         {
                             channelIndex++;
-
-                            //std::cout << "CHANNEL NUMBER " << channelIndex << std::endl;
-
-                            spikeDisplay->setThresholdForWaveAxis(plotIndex,
-                                                                  channelIndex,
-                                                                  channelNode->getDoubleAttribute("thresh"));
-
-                            spikeDisplay->setRangeForWaveAxis(plotIndex,
-                                                              channelIndex,
-                                                              channelNode->getDoubleAttribute("range"));
-
+                            cache->setThreshold(cacheKey, channelIndex, channelNode->getDoubleAttribute("thresh"));
+                            cache->setRange(cacheKey, channelIndex, channelNode->getDoubleAttribute("range"));
                         }
                     }
-
-
                 }
             }
-
         }
     }
+
 }

@@ -258,7 +258,7 @@ private:
     
     /** Checks whether a spike channel has been loaded, to prevent double-loading
         when there is a Merger in the signal chain */
-    bool alreadyLoaded(String name, SpikeChannel::Type type, int stream_source);
+    bool alreadyLoaded(String name, SpikeChannel::Type type, int stream_source, String stream_name);
 
     StreamSettings<SpikeDetectorSettings> settings;
 

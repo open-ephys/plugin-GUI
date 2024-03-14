@@ -251,6 +251,10 @@ void ChannelMappingEditor::mouseDown(const MouseEvent& e)
 
             displayString += String(button->getChannelNum());
 
+            menu.addItem(2,     // index
+                "Reset stream settings",  // message
+                true);          // isSelectable
+
             menu.addItem(1,     // index
                 displayString,  // message
                 true);          // isSelectable
@@ -259,10 +263,24 @@ void ChannelMappingEditor::mouseDown(const MouseEvent& e)
             
             PopupMenu::dismissAllActiveMenus();
             
-            if (result > 0)
+            if (result == 1)
             {
                 processor->setChannelEnabled(getCurrentStream(), buttonIndex, !isActive);
                 CoreServices::updateSignalChain(this);
+            }
+            else if (result == 2)
+            {
+                bool response = AlertWindow::showOkCancelBox(AlertWindow::NoIcon,
+                    "Reset Channel Map",
+                    "Are you sure you want to reset the channel map for the current stream?",
+                    "OK", "Cancel", 0, 0);
+
+                if (response)
+                {
+                    processor->resetStream(getCurrentStream());
+                    CoreServices::updateSignalChain(this);
+                }
+                
             }
             
         }

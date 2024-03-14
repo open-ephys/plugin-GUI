@@ -94,7 +94,7 @@ public:
 
     /** Passes initialize command to the DataThread*/
     void initialize(bool signalChainIsLoading) override;
-
+    
 private:
 
     /* Periodically checks for a connection to the data source.*/

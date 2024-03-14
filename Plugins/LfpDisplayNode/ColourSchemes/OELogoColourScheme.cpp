@@ -45,21 +45,12 @@ Array<Colour> OELogoColourScheme::colourList = []() -> Array<Colour> {
     return colours;
 }();
 
-OELogoColourScheme::OELogoColourScheme(LfpDisplay* display, LfpDisplaySplitter* canvas)
-    : LfpViewer::ChannelColourScheme(OELogoColourScheme::colourList.size(), display, canvas)
-{
-    setName("Open Ephys Logo");
-}
-
-void OELogoColourScheme::paint(Graphics& g)
+OELogoColourScheme::OELogoColourScheme()
+    : LfpViewer::ChannelColourScheme("Open Ephys Logo", OELogoColourScheme::colourList.size())
 {
 
 }
 
-void OELogoColourScheme::resized()
-{
-
-}
 
 const Colour OELogoColourScheme::getBackgroundColour() const
 {

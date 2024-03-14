@@ -35,9 +35,15 @@ FullTimeline::FullTimeline(FileReader* fr)
 {
 
     fileReader = fr;
+
+    startTimer(50);
 }
 
 FullTimeline::~FullTimeline() {}
+
+void FullTimeline::timerCallback() {
+    repaint();
+}
 
 void FullTimeline::paint(Graphics& g) 
 {
@@ -95,6 +101,12 @@ void FullTimeline::paint(Graphics& g)
 
     g.fillRoundedRectangle(intervalStartPosition, 0, 2, this->getHeight(), 2);
     g.fillRoundedRectangle(intervalStartPosition + intervalWidth, 0, 2, this->getHeight(), 2);
+
+    /* Draw the current playback position */
+    float timelinePos = (float)fileReader->getCurrentSample() / fileReader->getCurrentNumTotalSamples() * getWidth();
+
+    g.setOpacity(1.0f);
+    g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight(), 0.2);
 	
 }
 
@@ -138,19 +150,6 @@ void FullTimeline::mouseUp(const MouseEvent& event)
     intervalIsSelected = false;
 
     static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
-
-    fileReader->loopPlayback = false;
-    
-    if ( fileReader->playbackIsActive() )
-    {
-        fileReader->stopAcquisition();
-        fileReader->startAcquisition();
-    }
-    else
-    {
-        static_cast<FileReaderEditor*>(fileReader->getEditor())->playbackButton->triggerClick();
-        fileReader->startAcquisition();
-    }
     
 }
 
@@ -169,15 +168,22 @@ ZoomTimeline::ZoomTimeline(FileReader* fr)
     fileReader = fr; 
     sliderWidth = 8;
     widthInSeconds = 30;
+
+    startTimer(50);
 }
 
 ZoomTimeline::~ZoomTimeline() {}
+
+void ZoomTimeline::timerCallback()
+{
+    repaint();
+}
 
 void ZoomTimeline::updatePlaybackRegion(int min, int max) 
 {
     /* Default zoom slider region to first 10s */
     leftSliderPosition = 0;
-    rightSliderPosition = ( getWidth() - sliderWidth )  / 3.0f;
+    rightSliderPosition = ( getWidth() - sliderWidth )  / 10.0f;
 }
 
 int ZoomTimeline::getStartInterval()
@@ -272,6 +278,15 @@ void ZoomTimeline::paint(Graphics& g)
         this->getHeight() + tickHeight,
         juce::Justification::centred);
 
+    /* Draw the current playback position */
+    float timelinePos = (float)(fileReader->getCurrentSample() - startTimestamp) / (stopTimestamp - startTimestamp) * getWidth();
+    //LOGD("Timeline pos: ", timelinePos, " current sample: ", fileReader->getCurrentSample(), " start timestamp: ", startTimestamp, " stop timestamp: ", stopTimestamp);
+    if (fileReader->playbackIsActive() || (!fileReader->playbackIsActive() && timelinePos < rightSliderPosition + sliderWidth))
+    {
+        g.setOpacity(1.0f);
+        g.fillRoundedRectangle(timelinePos, 0, 1, this->getHeight(), 0.2);
+    }
+
 
 }
 
@@ -324,6 +339,14 @@ void ZoomTimeline::mouseDrag(const MouseEvent & event)
 
     lastDragXPosition = event.x;
 
+
+    // Prevent slider going out of timeline bounds
+    if (leftSliderPosition < 0)
+        leftSliderPosition = 0;
+
+    if (rightSliderPosition > getWidth() - sliderWidth)
+        rightSliderPosition = getWidth() - sliderWidth;
+
     repaint();
     
 }
@@ -333,25 +356,18 @@ void ZoomTimeline::mouseUp(const MouseEvent& event)
 
     leftSliderIsSelected = false;
     rightSliderIsSelected = false;
+    playbackRegionIsSelected = false;
 
-    static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
+    if (fileReader->playbackIsActive())
+    {
+        fileReader->switchBuffer();
+    }
 
-    fileReader->loopPlayback = false;
-    
-    if ( fileReader->playbackIsActive() )
-    {
-        fileReader->stopAcquisition();
-        fileReader->startAcquisition();
-    }
-    else
-    {
-        static_cast<FileReaderEditor*>(fileReader->getEditor())->playbackButton->triggerClick();
-        fileReader->startAcquisition();
-    }
+    static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes(); 
     
 }
 
-PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback"), Timer() 
+PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback")
 {
     fileReader = fr;
     isActive = true;
@@ -359,11 +375,20 @@ PlaybackButton::PlaybackButton(FileReader* fr) : Button ("Playback"), Timer()
 
 PlaybackButton::~PlaybackButton() {}
 
-void PlaybackButton::timerCallback()
+void PlaybackButton::setState(bool isActive)
 {
-    isActive = false;
-    repaint();
-    stopTimer();
+
+    this->isActive = isActive;
+
+    if (!isActive) // Pressed play
+        static_cast<FileReaderEditor*>(fileReader->getEditor())->updatePlaybackTimes();
+    else if (!isActive && fileReader->playbackIsActive())
+        fileReader->stopAcquisition();
+}
+
+bool PlaybackButton::getState()
+{
+    return isActive;
 }
 
 void PlaybackButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown) 
@@ -382,7 +407,7 @@ void PlaybackButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDow
     int width = getWidth(); 
     int height = getHeight(); 
 
-    if (fileReader->playbackIsActive())
+    if (isActive)
     {
         /* Draw pause button */
         int padding = 0.3*width;
@@ -462,6 +487,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
 
     int buttonSize = 24;
     playbackButton = new PlaybackButton(fileReader);
+    playbackButton->setState(true);
     playbackButton->setBounds(scrubInterfaceWidth / 2 - buttonSize / 2, 103, buttonSize, buttonSize);
     playbackButton->addListener(this);
     addChildComponent(playbackButton);
@@ -695,9 +721,9 @@ void FileReaderEditor::buttonClicked (Button* button)
 
     } else if (button == playbackButton) {
 
+        playbackButton->setState(!playbackButton->getState());
+        updatePlaybackTimes();
         fileReader->togglePlayback();
-        if (fileReader->playbackIsActive())
-            playbackButton->startTimer(zoomTimeline->getIntervalDurationInSeconds()*1000 + 100);
 
     }
 
@@ -705,12 +731,22 @@ void FileReaderEditor::buttonClicked (Button* button)
 
 void FileReaderEditor::updatePlaybackTimes()
 {
+
+    //fileReader->switchBuffer();
+
     int64 startTimestamp = float(getFullTimelineStartPosition()) / fullTimeline->getWidth() * fileReader->getCurrentNumTotalSamples();
     startTimestamp += float(getZoomTimelineStartPosition()) / zoomTimeline->getWidth() * fileReader->getCurrentSampleRate() * 30.0f;
     fileReader->setPlaybackStart(startTimestamp);
 
-    int64 stopTimestamp = startTimestamp + zoomTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
-    fileReader->setPlaybackStop(stopTimestamp);
+    if (playbackButton->getState())
+    {
+        fileReader->setPlaybackStop(fileReader->getCurrentNumTotalSamples());
+    }
+    else
+    {
+        int64 stopTimestamp = startTimestamp + zoomTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
+        fileReader->setPlaybackStop(stopTimestamp);
+    }
 
 }
 

@@ -61,6 +61,10 @@ bool BinaryFileSource::open(File file)
 	if (!(event.isVoid() || event.size() <= 0))
 	{
 		hasEventData = true;
+		LOGD("File has event data.");
+	}
+	else {
+		LOGD("No event data found.");
 	}
 
 	m_rootPath = file.getParentDirectory();
@@ -70,6 +74,25 @@ bool BinaryFileSource::open(File file)
 
 void BinaryFileSource::fillRecordInfo()
 {
+
+	Identifier idGUIVersion("GUI version");
+	String guiVersion = m_jsonData[idGUIVersion];
+
+	String sampleNumbersFilename;
+	String channelStatesFilename;
+
+	int minorVersion = guiVersion.substring(2,3).getIntValue();
+
+	if (minorVersion < 6) {
+		sampleNumbersFilename = "timestamps.npy";
+		channelStatesFilename = "channel_states.npy";
+	}
+	else
+	{
+		sampleNumbersFilename = "sample_numbers.npy";
+		channelStatesFilename = "states.npy";
+	}
+
 
 	const int maxSensibleFileSize = 2 * 1024 * 1024; 
 
@@ -110,7 +133,7 @@ void BinaryFileSource::fillRecordInfo()
 		info.sampleRate = record[idSampleRate];
 		info.numSamples = numSamples;
 		
-		File tsFile = m_rootPath.getChildFile("continuous").getChildFile(streamName).getChildFile("sample_numbers.npy");
+		File tsFile = m_rootPath.getChildFile("continuous").getChildFile(streamName).getChildFile(sampleNumbersFilename);
 		if (tsFile.exists())
 		{
 			std::unique_ptr<FileInputStream> tsDataStream = tsFile.createInputStream();
@@ -145,7 +168,7 @@ void BinaryFileSource::fillRecordInfo()
 
 	if (hasEventData)
 	{
-
+		LOGD("Loading events");
 		var eventData = m_jsonData["events"];
 		
 		/* Create identifiers for efficiency */
@@ -166,66 +189,117 @@ void BinaryFileSource::fillRecordInfo()
 
 			var events = eventData[i];
 
+			LOGD("Event processor ", i);
+
 			String streamName = events[idFolder];
 			streamName = streamName.trimCharactersAtEnd("/");
 
-			File sampleNumbersFile = m_rootPath.getChildFile("events").getChildFile(streamName).getChildFile("sample_numbers.npy");
+			File sampleNumbersFile = m_rootPath.getChildFile("events").getChildFile(streamName).getChildFile(sampleNumbersFilename);
 			std::unique_ptr<MemoryMappedFile> sampleNumbersMap(new MemoryMappedFile(sampleNumbersFile, MemoryMappedFile::readOnly));
 
 			if (sampleNumbersFile.getSize() == EVENT_HEADER_SIZE_IN_BYTES)
+			{
 				continue;
+			}
+				
 
 			int nEvents = (sampleNumbersFile.getSize() - EVENT_HEADER_SIZE_IN_BYTES) / 8;
 
-			if (streamName.endsWith("TTL"))
+			if (streamName.contains("TTL"))
 			{
 
-				File channelStatesFile = m_rootPath.getChildFile("events").getChildFile(streamName).getChildFile("states.npy");
+				LOGD("TTL found");
+
+				File channelStatesFile = m_rootPath.getChildFile("events").getChildFile(streamName).getChildFile(channelStatesFilename);
 				std::unique_ptr<MemoryMappedFile> channelStatesFileMap(new MemoryMappedFile(channelStatesFile, MemoryMappedFile::readOnly));
 
-				streamName = streamName.trimCharactersAtEnd("/TTL");
+				streamName = streamName.substring(0,streamName.lastIndexOf("/TTL"));
 
 				EventInfo eventInfo;
 
 				for (int j = 0; j < nEvents; j++)
 				{
+					
 					int16* data = static_cast<int16*>(channelStatesFileMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 2) + j * sizeof(int16) / 2;
 					eventInfo.channels.push_back(abs(*data));
 					eventInfo.channelStates.push_back(*data > 0);
 					int64* snData = static_cast<int64*>(sampleNumbersMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + j * sizeof(int64) / 8;
 					eventInfo.timestamps.push_back(*snData - startSampleNumbers[streamName]);
+					eventInfo.text.push_back("");
 				}
 				eventInfoMap[streamName] = eventInfo;
+			}
+			else if (streamName.equalsIgnoreCase("MessageCenter"))
+			{
 
-			} 
+				LOGD("Message found");
 
+				File textFile = m_rootPath.getChildFile("events").getChildFile(streamName).getChildFile("text.npy");
+
+				juce::FileInputStream inputStream(textFile);
+				inputStream.skipNextBytes(10); // \x93NUMPY \x01 \x00
+				String line = inputStream.readNextLine();
+
+				uint64 itemSize = std::stoi(line.fromFirstOccurrenceOf("'|S", 0, 0).upToFirstOccurrenceOf("'", 0, 0).toStdString());
+
+				EventInfo eventInfo;
+				int k_word;
+
+				juce::MemoryBlock buffer(itemSize);
+				auto *data = static_cast<char *>(buffer.getData());
+
+				for (int j = 0; j < nEvents; j++)
+				{
+
+					for (int k = 0; k < itemSize; k++)
+					{
+						data[k] = inputStream.readByte();
+						if ((data[k] == 0) || (k == itemSize - 1))
+							k_word = k;
+					} 
+
+					String outString = juce::String::fromUTF8(data, (int)k_word);
+					eventInfo.channels.push_back(0);
+					eventInfo.channelStates.push_back(0);
+					int64 *snData = static_cast<int64 *>(sampleNumbersMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + j * sizeof(int64) / 8;
+					// Use the first stream's start sample number for the MessageCenter
+					int64 startSampleNumber = startSampleNumbers.begin()->second;
+					eventInfo.timestamps.push_back(*snData - startSampleNumber);
+					eventInfo.text.push_back(outString);
+				}
+				eventInfoMap[streamName] = eventInfo;
+			}
 		}
 	}
-
 }
 
 void BinaryFileSource::processEventData(EventInfo &eventInfo, int64 start, int64 stop)
 {
 
-	int local_start = start % getActiveNumSamples();;
+	int local_start = start % getActiveNumSamples();
 	int local_stop = stop % getActiveNumSamples();
 	int loop_count = start / getActiveNumSamples();
 
-	EventInfo info = eventInfoMap[currentStream];
+	std::vector<String> includeStreams = {currentStream, "MessageCenter"};
 
-	int i = 0;
-		
-	while (i < info.timestamps.size())
+	for (int s = 0; s < includeStreams.size(); s++)
 	{
-		if (info.timestamps[i] >= local_start && info.timestamps[i] <= local_stop)
-		{
-			eventInfo.channels.push_back(info.channels[i] - 1);
-			eventInfo.channelStates.push_back((info.channelStates[i]));
-			eventInfo.timestamps.push_back(info.timestamps[i] + loop_count*getActiveNumSamples());
-		}
-		i++;
-	}
+		EventInfo info = eventInfoMap[includeStreams[s]];
 
+		int i = 0;
+			
+		while (i < info.timestamps.size())
+		{
+			if (info.timestamps[i] >= local_start && info.timestamps[i] < local_stop)
+			{
+				eventInfo.channels.push_back(info.channels[i] - 1);
+				eventInfo.channelStates.push_back((info.channelStates[i]));
+				eventInfo.timestamps.push_back(info.timestamps[i] + loop_count * getActiveNumSamples());
+				eventInfo.text.push_back(info.text[i]);
+			}
+			i++;
+		}
+	}
 }
 
 void BinaryFileSource::updateActiveRecord(int index)

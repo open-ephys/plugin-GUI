@@ -938,3 +938,8 @@ void CustomLookAndFeel::drawDocumentWindowTitleBar (DocumentWindow& window, Grap
 
     g.drawText (window.getName(), textX, 0, textW, h, Justification::centredLeft, true);
 }
+
+Font CustomLookAndFeel::getAlertWindowTitleFont()      { return { "Fira Sans", "SemiBold", 20.f }; }
+Font CustomLookAndFeel::getAlertWindowMessageFont()    { return { "Fira Sans", "Regular", 18.f }; }
+Font CustomLookAndFeel::getAlertWindowFont()           { return { "Fira Sans", "Regular", 16.f }; }
+

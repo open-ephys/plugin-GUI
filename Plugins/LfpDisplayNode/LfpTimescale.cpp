@@ -22,18 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "LfpTimescale.h"
-#include "LfpDisplayNode.h"
+
 #include "LfpDisplayCanvas.h"
-#include "ShowHideOptionsButton.h"
-#include "LfpDisplayOptions.h"
 #include "LfpDisplay.h"
-#include "LfpChannelDisplay.h"
-#include "LfpChannelDisplayInfo.h"
-#include "EventDisplayInterface.h"
-#include "LfpViewport.h"
-#include "LfpBitmapPlotter.h"
-#include "PerPixelBitmapPlotter.h"
-#include "SupersampledBitmapPlotter.h"
 
 #include <math.h>
 
@@ -45,19 +36,32 @@ using namespace LfpViewer;
 LfpTimescale::LfpTimescale(LfpDisplaySplitter* c, LfpDisplay* lfpDisplay)
     : canvasSplit(c)
     , lfpDisplay(lfpDisplay)
-    , offset(0.0f)
+    , offset(0.0f), isPaused(false)
 {
 
     font = Font("Default", 16, Font::plain);
+
+    setWantsKeyboardFocus(true);
 }
 
 
 void LfpTimescale::paint(Graphics& g)
 {
 
+    //std::cout << "Repainting timescale with offset of " << timeOffset << std::endl;
+
     g.setFont(font);
 
-    g.setColour(Colour(100,100,100));
+    if (isPaused)
+    {
+        if (canvasSplit->getSelectedState())
+            g.setColour(Colour(25, 25, 25));
+        else
+            g.setColour(Colour(200, 200, 200));
+            
+    }
+    else
+        g.setColour(Colour(100, 100, 100));
 
     const String timeScaleUnitLabel = (timebase >= 2) ? ("s") : ("ms");
 
@@ -68,37 +72,64 @@ void LfpTimescale::paint(Graphics& g)
     else
         startIndex = 1;
 
+    const int timescaleHeight = 30;
+
     for (int i = startIndex; i < labels.size(); i++)
     {
 
-        float lineHeight;
+        float xLoc = getWidth() * fractionWidth[i] + float(timeOffset);
 
-        g.drawLine(getWidth() * fractionWidth[i],
-            0,
-            getWidth() * fractionWidth[i],
-            getHeight(),
-            2.0f);
+        if (xLoc > 0)
+        {
+            float lineHeight;
 
-        g.drawText(labels[i] + " " + timeScaleUnitLabel,
-                   getWidth()*fractionWidth[i]+10,
-                   0,
-                   100,
-                   getHeight(),
-                   Justification::left, false);
-        
+            g.drawLine(xLoc,
+                0,
+                xLoc,
+                timescaleHeight,
+                2.0f);
+
+            g.drawText(labels[i] + " " + timeScaleUnitLabel,
+                xLoc + 10,
+                0,
+                100,
+                timescaleHeight,
+                Justification::left, false);
+        }
+       
     }
 
 }
 
 void LfpTimescale::mouseUp(const MouseEvent &e)
 {
-    if (e.mods.isLeftButtonDown())
+    //if (e.mods.isLeftButtonDown())
+    //{
+    //    lfpDisplay->trackZoomInfo.isScrollingX = false;
+    //}
+
+    // Update curent time offset after dragging is over
+    currentTimeOffset = timeOffset;
+    
+}
+
+void LfpTimescale::setPausedState(bool isPaused_)
+{
+    if (!isPaused_)
     {
-        lfpDisplay->trackZoomInfo.isScrollingX = false;
+        lfpDisplay->pause(false);
+        timeOffset = 0;
+        currentTimeOffset = timeOffset;
+        isPaused = false;
+        stopTimer();
+    }
+    else {
+        lfpDisplay->pause(true);
+        isPaused = true;
+        startTimer(100);
     }
 
-    canvasSplit->select();
-    
+    repaint();
 }
 
 void LfpTimescale::resized()
@@ -106,60 +137,98 @@ void LfpTimescale::resized()
     setTimebase(timebase);
 }
 
+void LfpTimescale::mouseDown(const juce::MouseEvent& e)
+{
+
+    canvasSplit->select();
+    
+    if (e.getNumberOfClicks() == 2 && CoreServices::getAcquisitionStatus())
+    {
+        setPausedState(!isPaused);
+    }
+
+}
+
+void LfpTimescale::timerCallback()
+{
+	if (isPaused && timeOffsetChanged)
+	{
+        lfpDisplay->setTimeOffset(timeOffset);
+
+        repaint();
+
+        timeOffsetChanged = false;
+	}
+}
+
 void LfpTimescale::mouseDrag(const juce::MouseEvent &e)
 {
-    if (e.mods.isLeftButtonDown()) // double check that we initiate only for left click and hold
+    
+    int dragDeltaX = (e.getScreenPosition().getX() - e.getMouseDownScreenX()); // invert so drag up -> scale up
+
+    scrollTimescale(dragDeltaX);
+
+}
+
+
+void LfpTimescale::mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& w)
+{
+    
+    int scrollDeltaX = (w.deltaY * 100); // amplify mouse wheel move delta value
+
+    if(scrollTimescale(scrollDeltaX))
+        currentTimeOffset = timeOffset;
+}
+
+bool LfpTimescale::keyPressed(const KeyPress &key)
+{
+    if (canvasSplit->isInTriggeredMode() || !isPaused)
+        return false;
+    
+    int keyDeltaX = 25; // constant delta value
+
+    if (key == KeyPress(KeyPress::leftKey, ModifierKeys::ctrlModifier, 0))
     {
-        if (e.mods.isCommandDown())  // CTRL + drag -> change channel spacing
+
+        if(scrollTimescale(keyDeltaX))
         {
-            // init state in our track zooming info struct
-            if (!lfpDisplay->trackZoomInfo.isScrollingX)
-            {
-                lfpDisplay->trackZoomInfo.isScrollingX = true;
-                lfpDisplay->trackZoomInfo.timescaleStartScale = timebase;
-            }
-
-            float timescale = lfpDisplay->trackZoomInfo.timescaleStartScale;
-            float dTimescale=0;
-            int dragDeltaX = (e.getScreenPosition().getX() - e.getMouseDownScreenX()); // invert so drag up -> scale up
-
-//            std::cout << dragDeltaX << std::endl;
-            if (dragDeltaX > 0)
-            {
-                dTimescale = 0.01 * dragDeltaX;
-            }
-            else
-            {
-                // TODO: (kelly) change this to scale appropriately for -dragDeltaX
-                if (timescale > 0.25)
-                    dTimescale = 0.01 * dragDeltaX;
-            }
-            
-            if (timescale >= 1) // accelerate scrolling for large ranges
-                dTimescale *= 4;
-            
-            if (timescale >= 5)
-                dTimescale *= 4;
-            
-            if (timescale >= 10)
-                dTimescale *= 4;
-            
-            // round dTimescale to the nearest 0.005 sec
-            dTimescale = ((dTimescale + (0.005/2)) / 0.005) * 0.005;
-            
-            float newTimescale = timescale+dTimescale;
-            
-            if (newTimescale < 0.25) newTimescale = 0.250;
-            if (newTimescale > 20) newTimescale = 20;
-            
-            // don't bother updating if the new timebase is the same as the old (if clipped, for example)
-            if (timescale != newTimescale)
-            {
-                lfpDisplay->options->setTimebaseAndSelectionText(newTimescale);
-                setTimebase(canvasSplit->timebase);
-            }
+            currentTimeOffset = timeOffset;
+            return true;
         }
     }
+    else if (key == KeyPress(KeyPress::rightKey, ModifierKeys::ctrlModifier, 0))
+    {
+
+        if(scrollTimescale(-keyDeltaX))
+        {
+            currentTimeOffset = timeOffset;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool LfpTimescale::scrollTimescale(int deltaX)
+{
+    if (canvasSplit->isInTriggeredMode() || !isPaused || !hasKeyboardFocus(false))
+        return false;
+
+    timeOffset = currentTimeOffset + deltaX;
+
+    if (timeOffset < 0)
+        timeOffset = 0;
+
+    if (timeOffset > getWidth() * 3)
+        timeOffset = getWidth() * 3;
+
+    if (currentTimeOffset != timeOffset)
+    {
+        timeOffsetChanged = true;
+        return true;
+    }
+
+    return false;
 }
 
 void LfpTimescale::setTimebase(float timebase_, float offset_)
@@ -192,7 +261,7 @@ void LfpTimescale::setTimebase(float timebase_, float offset_)
     else
         stepSize = 2.0;
 
-    float time = 0;
+    float time = -timebase * 4;
     int index = 0;
 
     while ((time + offset) < timebase)

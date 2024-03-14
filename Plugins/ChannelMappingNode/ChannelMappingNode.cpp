@@ -59,6 +59,8 @@ void ChannelMapSettings::updateNumChannels(int newChannelCount)
         isEnabled.add(true);
     }
 
+    numChannels = newChannelCount;
+
 }
 
 void ChannelMapSettings::toXml(XmlElement* xml)
@@ -108,6 +110,27 @@ void ChannelMapSettings::fromJson(File filename)
     PrbFormat::read(filename, this);
 }
 
+void ChannelMapSettings::setStream(const DataStream* stream)
+{
+    numChannels = stream->getChannelCount();
+    sampleRate = stream->getSampleRate();
+    streamName = stream->getName();
+    streamId = stream->getStreamId();
+    sourceNodeId = stream->getSourceNodeId();
+}
+
+void ChannelMapSettings::reset()
+{
+    channelOrder.clear();
+    isEnabled.clear();
+
+    for (int i = 0; i < numChannels; i++)
+    {
+        channelOrder.add(i);
+        isEnabled.add(true);
+    }
+}
+
 // =====================================================
 
 ChannelMappingNode::ChannelMappingNode()
@@ -124,6 +147,27 @@ AudioProcessorEditor* ChannelMappingNode::createEditor()
 }
 
 
+ChannelMapSettings* ChannelMappingNode::findMatchingStreamSettings(ChannelMapSettings* s)
+{
+    for (auto streamId : previousStreamIds)
+    {
+        if ((s->sourceNodeId == settings[streamId]->sourceNodeId) &&
+            (s->streamName == settings[streamId]->streamName))
+        {
+            // perfect match
+            return settings[streamId];
+        }
+
+        if ((s->streamName == settings[streamId]->streamName))
+        {
+            // matching name
+            return settings[streamId];
+        }
+    }
+
+    return nullptr;
+}
+
 void ChannelMappingNode::updateSettings()
 {
 
@@ -131,7 +175,26 @@ void ChannelMappingNode::updateSettings()
 
     for (auto stream : getDataStreams())
     {
-        settings[stream->getStreamId()]->updateNumChannels(stream->getChannelCount());
+
+        const uint16 streamId = stream->getStreamId();
+
+        if ( settings[streamId]->sourceNodeId == -1) // no stream applied yet
+        {
+            settings[streamId]->setStream(stream);
+
+            ChannelMapSettings* s = findMatchingStreamSettings(settings[streamId]);
+
+            if (s != nullptr)
+            {
+                settings[streamId]->channelOrder = s->channelOrder;
+                settings[streamId]->isEnabled = s->isEnabled;
+            }
+
+            previousStreamIds.add(streamId);
+
+        }
+        
+        settings[streamId]->updateNumChannels(stream->getChannelCount());
 
         if ((*stream)["enable_stream"])
         {
@@ -140,19 +203,19 @@ void ChannelMappingNode::updateSettings()
             for (int ch = 0; ch < stream->getChannelCount(); ch++)
             {
 
-                int localIndex = settings[stream->getStreamId()]->channelOrder[ch];
+                int localIndex = settings[streamId]->channelOrder[ch];
                 Array<ContinuousChannel*> channelsForStream = stream->getContinuousChannels();
 
                 int globalIndex = channelsForStream[localIndex]->getGlobalIndex();
 
-                if (settings[stream->getStreamId()]->isEnabled[ch])
+                if (settings[streamId]->isEnabled[ch])
                 {
                     newChannelOrder.add(channelsForStream[localIndex]);
                 }
 
             }
 
-            DataStream* currentStream = getDataStream(stream->getStreamId());
+            DataStream* currentStream = getDataStream(streamId);
 
             currentStream->clearContinuousChannels();
 
@@ -164,7 +227,6 @@ void ChannelMappingNode::updateSettings()
 
 }
 
-
 void ChannelMappingNode::setChannelEnabled(uint16 streamId, int channelNum, int isEnabled)
 {
     settings[streamId]->isEnabled.set(channelNum, isEnabled);
@@ -173,6 +235,11 @@ void ChannelMappingNode::setChannelEnabled(uint16 streamId, int channelNum, int 
 void ChannelMappingNode::setChannelOrder(uint16 streamId, Array<int> order)
 {
     settings[streamId]->channelOrder = order;
+}
+
+void ChannelMappingNode::resetStream(uint16 streamId)
+{
+    settings[streamId]->reset();
 }
 
 Array<int> ChannelMappingNode::getChannelOrder(uint16 streamId)

@@ -272,6 +272,9 @@ public:
     /** Sets the channel to use for display triggering */
     void setTriggerChannel(int);
 
+    /** Returns true if the display is in triggered mode */
+    bool isInTriggeredMode() { return triggerChannel > -1; }
+
     /** Set whether triggered display should use online averaging */
     void setAveraging(bool);
 
@@ -280,6 +283,9 @@ public:
 
     /** Sets the timebase for this display (in s) */
     void setTimebase(float timebase);
+
+    /** Stops/starts updating the screen buffer */
+    void pause(bool shouldPause);
 
     Array<int> screenBufferIndex;
     Array<int> lastScreenBufferIndex;
@@ -311,6 +317,8 @@ public:
 
     float timebase;
 
+    int screenBufferWidth;
+
 	ContinuousChannel::Type selectedChannelType;
 
     std::unique_ptr<ComboBox> streamSelection;
@@ -330,6 +338,13 @@ public:
     void monitorChannel(int channel);
     
     uint16 selectedStreamId;
+
+    void refreshScreenBuffer();
+    
+    bool shouldRebuildChannelList = false;
+    
+    void setFilteredChannels(Array<int> channels){filteredChannels = channels;}
+    Array<int> getFilteredChannels(){return filteredChannels;}
 
 private:
 
@@ -364,13 +379,15 @@ private:
     std::unique_ptr<AudioBuffer<float>> screenBufferMean; // like screenBuffer but holds mean values per pixel
     std::unique_ptr<AudioBuffer<float>> screenBufferMax; // like screenBuffer but holds max values per pixel
 
-    void refreshScreenBuffer();
+    
     void updateScreenBuffer();
 
     Array<int> displayBufferIndex;
     int displayBufferSize;
 
     int scrollBarThickness;
+    
+    Array<int> filteredChannels = Array<int>();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplaySplitter);
 

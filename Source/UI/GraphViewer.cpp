@@ -328,14 +328,20 @@ void DataStreamInfo::paint(Graphics& g)
     g.fillRect(1, 0, getWidth() - 2, getHeight() - 1);
     g.fillRect(1, 0, 24, getHeight() - 1);
 
+    int numEventChannels = stream->getEventChannels().size();
+    int numSpikeChannels = stream->getSpikeChannels().size();
+
+    String ttlText = numEventChannels == 1 ? "TTL Channel" : "TTL Channels";
+    String spikeText = numSpikeChannels == 1 ? "Spike Channel" : "Spike Channels";
+
     g.setColour(Colours::black);
     g.drawText("@ " + String(stream->getSampleRate()) + " Hz", 30, 0, getWidth() - 30, 20, Justification::left);
-    g.drawText("TTL Channels", 30, 20, getWidth() - 30, 20, Justification::left);
-    g.drawText("Spike Channels", 30, 40, getWidth() - 30, 20, Justification::left);
+    g.drawText(ttlText, 30, 20, getWidth() - 30, 20, Justification::left);
+    g.drawText(spikeText, 30, 40, getWidth() - 30, 20, Justification::left);
 
     g.drawText(String(stream->getChannelCount()), 0, 0, 25, 20, Justification::centred);
-    g.drawText(String(stream->getEventChannels().size()), 0, 20, 25, 20, Justification::centred);
-    g.drawText(String(stream->getSpikeChannels().size()), 0, 40, 25, 20, Justification::centred);
+    g.drawText(String(numEventChannels), 0, 20, 25, 20, Justification::centred);
+    g.drawText(String(numSpikeChannels), 0, 40, 25, 20, Justification::centred);
 
 }
 

@@ -25,11 +25,6 @@
 
 #include <VisualizerWindowHeaders.h>
 
-#include <vector>
-#include <array>
-
-#include "../LfpDisplayClasses.h"
-#include "../LfpDisplayNode.h"
 #include "ChannelColourScheme.h"
 
 namespace LfpViewer {
@@ -37,11 +32,8 @@ namespace LfpViewer {
     class OELogoColourScheme : public ChannelColourScheme
     {
     public:
-        OELogoColourScheme(LfpDisplay*, LfpDisplaySplitter*);
+        OELogoColourScheme();
         virtual ~OELogoColourScheme() {}
-
-        void paint(Graphics& g) override;
-        void resized() override;
 
         virtual const Colour getColourForIndex(int index) const override;
         virtual const Colour getBackgroundColour() const override;

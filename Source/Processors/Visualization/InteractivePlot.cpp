@@ -46,19 +46,19 @@ InteractivePlot::InteractivePlot() :
 	addAndMakeVisible(drawComponent.get());
 
 	titleLabel = std::make_unique<Label>("Title Label", "Title");
-	titleLabel->setFont(Font("Default", 15, Font::plain));
+	titleLabel->setFont(Font("Fira Code", "Bold", 15.0f));
 	titleLabel->setColour(Label::textColourId, axisColour);
 	titleLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(titleLabel.get());
 
 	xLabel = std::make_unique<Label>("X-Axis Label", "X Label");
-	xLabel->setFont(Font("Default", 15, Font::plain));
+	xLabel->setFont(Font("Fira Code", "Regular", 15.0f));
 	xLabel->setColour(Label::textColourId, axisColour);
 	xLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(xLabel.get());
 
 	yLabel = std::make_unique<Label>("Y-Axis Label", "Y Label");
-	yLabel->setFont(Font("Default", 15, Font::plain));
+	yLabel->setFont(Font("Fira Code", "Regular", 15.0f));
 	yLabel->setColour(Label::textColourId, axisColour);
 	yLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(yLabel.get());
@@ -137,15 +137,15 @@ void InteractivePlot::resized()
 	if (h == 0 || w == 0)
 		return;
 
-	int heightOffset = 20; // (controlButtonsVisible) ? 50 : 20;
-	int axesWidth = 50; // Fixed
+	int heightOffset = 20;
+	int labelWidth = yLabel->getFont().getStringWidth(yLabel->getText());
+	int axesWidth =  labelWidth + 30;
 	int axesHeight = 50;
 	int padding = 10;
 
 	titleLabel->setBounds(axesWidth + padding + 2, 0, w - axesWidth - padding*2, 20);
 	xLabel->setBounds(axesWidth + padding + 2, getHeight() - 20, w - axesWidth - padding*2, 20);
-	yLabel->setBounds(0, 0, 20, getHeight());
-	//yLabel->setTransform(AffineTransform::rotation(-MathConstants<float>::halfPi, 
+	yLabel->setBounds(0, 0, labelWidth, h);
 	
 	if (MIN(w,h) > 250)
 	{
@@ -191,7 +191,7 @@ void InteractivePlot::getRange(XYRange& range_)
 void InteractivePlot::setRange(XYRange& newRange)
 {
 
-	LOGD("Requested range: ", newRange.xmin, " ", newRange.xmax, " ", newRange.ymin, " ", newRange.ymax);
+	//LOGD("Requested range: ", newRange.xmin, " ", newRange.xmax, " ", newRange.ymin, " ", newRange.ymax);
 	drawComponent->setRange(newRange);
 }
 
@@ -374,8 +374,13 @@ void XAxis::paint(Graphics &g)
 
 		g.drawLine(xtickloc, 3, xtickloc, 13, 2.0);
 		
+		xtickloc -= ticklabelWidth / 2;
+
+		if (k == 0)
+			xtickloc += 5;
+
 		g.drawText(tickLabels[k], 
-				   xtickloc - ticklabelWidth / 2, 
+				xtickloc,
 				   10,
 				   ticklabelWidth,
 				   tickLabelHeight,

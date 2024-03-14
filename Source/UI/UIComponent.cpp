@@ -36,6 +36,7 @@
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../Audio/AudioComponent.h"
 #include "../MainWindow.h"
+#include "../AutoUpdater.h"
 
 	UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_)
 : mainWindow(mainWindow_), processorGraph(pgraph), audio(audio_), messageCenterIsCollapsed(true)
@@ -244,18 +245,26 @@ void UIComponent::resized()
 	if (controlPanel != nullptr)
 	{
 
-		int controlPanelWidth = w-210;
+		int controlPanelWidth;
 		int addHeight = 0;
 		int leftBound;
 
-		if (w >= 460)
+		if (!editorViewport->isSignalChainLocked())
 		{
-			leftBound = 202;
+			if (w >= 460)
+			{
+				leftBound = 202;
+				controlPanelWidth = w - 210;
+			}
+			else
+			{
+				leftBound = w - 258;
+				controlPanelWidth = w - leftBound;
+			}
 		}
-		else
-		{
-			leftBound = w-258;
-			controlPanelWidth = w-leftBound;
+		else {
+			leftBound = 6;
+			controlPanelWidth = w - 12;
 		}
 
 		if (controlPanelWidth < 750)
@@ -282,25 +291,36 @@ void UIComponent::resized()
 
 	if (processorList != nullptr)
 	{
-		if (processorList->isOpen())
+		if (editorViewport->isSignalChainLocked())
 		{
-			if (editorViewportButton->isOpen())
-				processorListViewport.setBounds(5,5,195,h-210);
+			processorList->setVisible(false);
+		}
+			
+		else {
+
+			processorList->setVisible(true);
+			
+			if (processorList->isOpen())
+			{
+				if (editorViewportButton->isOpen())
+					processorListViewport.setBounds(5, 5, 195, h - 210);
+				else
+					processorListViewport.setBounds(5, 5, 195, h - 50);
+
+				processorListViewport.setScrollBarsShown(false, false, true, false);
+
+			}
 			else
-				processorListViewport.setBounds(5,5,195,h-50);
+			{
+				processorListViewport.setBounds(5, 5, 195, 34);
+				processorListViewport.setScrollBarsShown(false, false);
+				processorListViewport.setViewPosition(0, 0);
+			}
 
-			processorListViewport.setScrollBarsShown(false,false,true,false);
-
+			if (w < 460)
+				processorListViewport.setBounds(5 - 460 + getWidth(), 5, 195, processorList->getHeight());
 		}
-		else
-		{
-			processorListViewport.setBounds(5,5,195,34);
-			processorListViewport.setScrollBarsShown(false,false);
-			processorListViewport.setViewPosition(0, 0);
-		}
-
-		if (w < 460)
-			processorListViewport.setBounds(5-460+getWidth(),5,195,processorList->getHeight());
+		
 	}
 
 	if (dataViewport != nullptr)
@@ -309,7 +329,7 @@ void UIComponent::resized()
 		left = 6;
 		top = 40;
 
-		if (processorList->isOpen())
+		if (processorList->isOpen() && !editorViewport->isSignalChainLocked())
 			left = processorListViewport.getX()+processorListViewport.getWidth()+2;
 		else
 			left = 6;
@@ -410,9 +430,6 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
         menu.addSeparator();
 		menu.addCommandItem(commandManager, saveSignalChain);
 		menu.addCommandItem(commandManager, saveSignalChainAs);
-		//menu.addSeparator();
-       // menu.addCommandItem(commandManager, loadPluginSettings);
-        //menu.addCommandItem(commandManager, savePluginSettings);
         menu.addSeparator();
 		menu.addCommandItem(commandManager, reloadOnStartup);
 		menu.addSeparator();
@@ -437,16 +454,22 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 		menu.addCommandItem(commandManager, pasteSignalChain);
 		menu.addSeparator();
 		menu.addCommandItem(commandManager, clearSignalChain);
-		//menu.addSeparator();
-		//menu.addCommandItem(commandManager, openTimestampSelectionWindow);
+		menu.addSeparator();
+		menu.addCommandItem(commandManager, lockSignalChain);
 
 	}
 	else if (menuIndex == 2)
 	{
 
+		PopupMenu clockMenu;
+		clockMenu.addCommandItem(commandManager, setClockModeDefault);
+		clockMenu.addCommandItem(commandManager, setClockModeHHMMSS);
+
 		menu.addCommandItem(commandManager, toggleProcessorList);
 		menu.addCommandItem(commandManager, toggleSignalChain);
 		menu.addCommandItem(commandManager, toggleFileInfo);
+		menu.addSeparator();
+		menu.addSubMenu("Clock mode", clockMenu);
 		menu.addSeparator();
 		menu.addCommandItem(commandManager, resizeWindow);
 
@@ -454,6 +477,8 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 	else if (menuIndex == 3)
 	{
 		menu.addCommandItem(commandManager, showHelp);
+		menu.addSeparator();
+		menu.addCommandItem(commandManager, checkForUpdates);
 	}
 
 	return menu;
@@ -488,11 +513,15 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		copySignalChain,
 		pasteSignalChain,
 		clearSignalChain,
+		lockSignalChain,
 		toggleProcessorList,
 		toggleSignalChain,
 		toggleHttpServer,
 		toggleFileInfo,
+		setClockModeDefault,
+		setClockModeHHMMSS,
 		showHelp,
+		checkForUpdates,
 		resizeWindow,
 		openPluginInstaller,
 		openDefaultConfigWindow
@@ -549,36 +578,43 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 		case undo:
 			result.setInfo("Undo", "Undo the last action.", "General", 0);
 			result.addDefaultKeypress('Z', ModifierKeys::commandModifier);
-			result.setActive(!acquisitionStarted && getEditorViewport()->undoManager.canUndo());
+			result.setActive(!acquisitionStarted && getEditorViewport()->undoManager.canUndo() && !getEditorViewport()->isSignalChainLocked());
 			break;
 
 		case redo:
 			result.setInfo("Redo", "Undo the last action.", "General", 0);
 			result.addDefaultKeypress('Z', ModifierKeys::commandModifier | ModifierKeys::shiftModifier);
-			result.setActive(!acquisitionStarted && getEditorViewport()->undoManager.canRedo());
+			result.setActive(!acquisitionStarted && getEditorViewport()->undoManager.canRedo() && !getEditorViewport()->isSignalChainLocked());
 			break;
 
 		case copySignalChain:
 			result.setInfo("Copy", "Copy selected processors.", "General", 0);
 			result.addDefaultKeypress('C', ModifierKeys::commandModifier);
-			result.setActive(!acquisitionStarted && getEditorViewport()->editorIsSelected());
+			result.setActive(!acquisitionStarted && getEditorViewport()->editorIsSelected() && !getEditorViewport()->isSignalChainLocked());
 			break;
 
 		case pasteSignalChain:
 			result.setInfo("Paste", "Paste processors.", "General", 0);
 			result.addDefaultKeypress('V', ModifierKeys::commandModifier);
-			result.setActive(!acquisitionStarted && getEditorViewport()->canPaste());
+			result.setActive(!acquisitionStarted && getEditorViewport()->canPaste() && !getEditorViewport()->isSignalChainLocked());
 			break;
 
 		case clearSignalChain:
 			result.setInfo("Clear signal chain", "Clear the current signal chain.", "General", 0);
 			result.addDefaultKeypress(KeyPress::backspaceKey, ModifierKeys::commandModifier);
-			result.setActive(!getEditorViewport()->isSignalChainEmpty() && !acquisitionStarted);
+			result.setActive(!getEditorViewport()->isSignalChainEmpty() && !acquisitionStarted && !getEditorViewport()->isSignalChainLocked());
+			break;
+
+		case lockSignalChain:
+			result.setInfo("Lock signal chain", "Disable signal chain edits.", "General", 0);
+			result.addDefaultKeypress('L', ModifierKeys::commandModifier);
+			result.setTicked(getEditorViewport()->isSignalChainLocked());
 			break;
 
 		case toggleProcessorList:
 			result.setInfo("Processor List", "Show/hide Processor List.", "General", 0);
 			result.addDefaultKeypress('P', ModifierKeys::shiftModifier);
+			result.setActive(!editorViewport->isSignalChainLocked());
 			result.setTicked(processorList->isOpen());
 			break;
 
@@ -594,6 +630,16 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			result.setTicked(controlPanel->isOpen());
 			break;
 
+		case setClockModeDefault:
+			result.setInfo("Default", "Set clock mode to default.", "General", 0);
+			result.setTicked(controlPanel->clock->getMode() == Clock::DEFAULT);
+			break;
+
+		case setClockModeHHMMSS:
+			result.setInfo("HH:MM:SS", "Set clock mode to HH:MM:SS.", "General", 0);
+			result.setTicked(controlPanel->clock->getMode() == Clock::HHMMSS);
+			break;
+
 		case openPluginInstaller:
 			result.setInfo("Plugin Installer", "Launch the plugin installer.", "General", 0);
 			result.addDefaultKeypress('P', ModifierKeys::commandModifier);
@@ -606,6 +652,11 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 
 		case showHelp:
 			result.setInfo("Online documentation...", "Launch the GUI's documentation website in a browser.", "General", 0);
+			result.setActive(true);
+			break;
+
+		case checkForUpdates:
+			result.setInfo("Check for updates...", "Checks if a newer version of the GUI is available", "General", 0);
 			result.setActive(true);
 			break;
 
@@ -784,10 +835,36 @@ bool UIComponent::perform(const InvocationInfo& info)
 				break;
 			}
 
+		case lockSignalChain:
+		{
+			
+			if (getEditorViewport()->isSignalChainLocked())
+			{
+				getEditorViewport()->lockSignalChain(false);
+				resized();
+				//processorList->unlock();
+				
+			}
+			else {
+				getEditorViewport()->lockSignalChain(true);
+				resized();
+				//processorList->lock();
+			}
+			
+			break;
+		}
+
+
 		case showHelp:
 			{
 				URL url = URL("https://open-ephys.github.io/gui-docs/");
 				url.launchInDefaultBrowser();
+				break;
+			}
+		
+		case checkForUpdates:
+			{
+				LatestVersionCheckerAndUpdater::getInstance()->checkForNewVersion (false, mainWindow);
 				break;
 			}
 
@@ -805,6 +882,14 @@ bool UIComponent::perform(const InvocationInfo& info)
 
 		case resizeWindow:
 			mainWindow->centreWithSize(1200, 800);
+			break;
+
+		case setClockModeDefault:
+			controlPanel->clock->setMode(Clock::DEFAULT);
+			break;
+
+		case setClockModeHHMMSS:
+			controlPanel->clock->setMode(Clock::HHMMSS);
 			break;
 
 		case openPluginInstaller:

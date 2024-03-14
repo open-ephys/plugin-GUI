@@ -29,7 +29,6 @@
 #include <array>
 
 #include "LfpDisplayClasses.h"
-#include "LfpDisplayNode.h"
 
 namespace LfpViewer {
 
@@ -38,7 +37,8 @@ namespace LfpViewer {
     Displays the timescale of the LfpDisplaySplitter in the viewport.
  
  */
-class LfpTimescale : public Component
+class LfpTimescale : public Component,
+                     public Timer
 {
 public:
 
@@ -54,13 +54,21 @@ public:
     /** Updates time markers to fit display width*/
     void resized() override;
     
-    /** Handles the drag to zoom feature on the timescale. The display must
-        be paused to zoom */
+    /** Handles scrolling back in time */
     void mouseDrag(const MouseEvent &e) override;
     void mouseUp(const MouseEvent &e) override;
+    void mouseDown(const MouseEvent& e) override;
+    void mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& w) override;
+    bool keyPressed(const KeyPress &key) override;
 
     /** Changes the time interval*/
     void setTimebase(float t, float offset = 0.0f);
+
+    /** Set paused state (called by options interface */
+    void setPausedState(bool isPaused);
+
+    /** Timer callback -- used to throttle scrolling */
+    void timerCallback() override;
 
 private:
 
@@ -72,11 +80,20 @@ private:
     float labelIncrement;
     float numIncrements;
 
+    int timeOffset = 0;
+    int currentTimeOffset;
+    bool timeOffsetChanged = false;
+
+    bool isPaused;
+
     Font font;
 
     StringArray labels;
     Array<bool> isMajor;
     Array<float> fractionWidth;
+
+    /** Updates timer offeset according to delta value */
+    bool scrollTimescale(int delta);
 
 };
 

@@ -1,7 +1,7 @@
 #Open Ephys GUI main build file
 cmake_minimum_required(VERSION 3.15)
 
-set(GUI_VERSION 0.6.2)
+set(GUI_VERSION 0.6.7)
 
 string(REGEX MATCHALL "[0-9]+" VERSION_LIST ${GUI_VERSION})
 set(GUI_VERSION_HEX "0x")
@@ -12,7 +12,7 @@ foreach(_v ${VERSION_LIST})
 endforeach()
 string(REPLACE "." "," GUI_VERSION_COMMA ${GUI_VERSION})
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version" FORCE)
 set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "Build architecture for Mac OS X" FORCE)
 set(CMAKE_OSX_SYSROOT "")
 if ((NOT ${CMAKE_CURRENT_BINARY_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR}/Build ) AND (NOT OE_DONT_CHECK_BUILD_PATH))

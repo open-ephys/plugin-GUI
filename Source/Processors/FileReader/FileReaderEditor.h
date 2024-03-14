@@ -42,14 +42,15 @@ class FileSource;
 
 */
 
-class PlaybackButton : public Button, public Timer
+class PlaybackButton : public Button
 {
 public:
     PlaybackButton(FileReader*);
 
     ~PlaybackButton();
 
-    void timerCallback() override;
+    bool getState();
+    void setState(bool isActive);
     
 private:
 
@@ -58,7 +59,7 @@ private:
     void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown);
 };
 
-class FullTimeline : public Component
+class FullTimeline : public Component, public Timer
 {
 public:
     FullTimeline(FileReader*);
@@ -73,6 +74,8 @@ private:
 
     FileReader* fileReader;
 
+    void timerCallback();
+
     int intervalStartPosition;
     int intervalWidth;
     bool intervalIsSelected;
@@ -83,9 +86,10 @@ private:
     void mouseUp(const MouseEvent& event);
 
     bool leftSliderIsSelected;
+
 };
 
-class ZoomTimeline : public Component
+class ZoomTimeline : public Component, public Timer
 {
 public:
     ZoomTimeline(FileReader*);
@@ -113,6 +117,8 @@ private:
     bool leftSliderIsSelected;
     bool rightSliderIsSelected;
     bool playbackRegionIsSelected;
+
+    void timerCallback();
 
 };
 

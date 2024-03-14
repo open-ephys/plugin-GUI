@@ -15,7 +15,7 @@ on:
 jobs:
   build-ubuntu:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     
     steps:
     - uses: actions/checkout@v1
@@ -25,9 +25,31 @@ jobs:
         cd Resources/Scripts
         sudo ./install_linux_dependencies.sh
         cd ../../Build && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
-        make all
+        make -j4
 #    - name: test
 #      run: cd build && ctest
+    - name: deploy_dev
+      if: github.ref == 'refs/heads/development'
+      env:
+        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+      run: |
+        cd Build
+        cp -r Release open-ephys
+        cp ../LICENSE open-ephys
+        zipfile=open-ephys-latest-linux-dev.zip
+        zip -r $zipfile open-ephys
+        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
+        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Dev/linux/$zipfile"
+        cd ../Resources/Installers/Linux/Open-Ephys_Installer
+        mkdir -p usr/local/bin/open-ephys-gui
+        cp -r ../../../../Build/Release/* usr/local/bin/open-ephys-gui
+        cp ../../../Scripts/40-open-ephys.rules usr/local/bin/open-ephys-gui
+        cd ..
+        dpkg-deb --build Open-Ephys_Installer
+        installer=open-ephys-gui-latest-dev.deb
+        mv -v Open-Ephys_Installer.deb $installer
+        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Dev-Installer/linux/$installer"
+      shell: bash
     - name: deploy_test
       if: github.ref == 'refs/heads/testing'
       env:

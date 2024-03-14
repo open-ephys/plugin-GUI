@@ -119,7 +119,7 @@ public:
 	String generateDirectoryName();
 
 	/* Creates a new recording directory*/
-	void createNewDirectory();
+	void createNewDirectory(bool resetCounters = false);
 
 	/* Callback for responding to changes in data-directory-related settings*/
 	void filenameComponentChanged(FilenameComponent*);
@@ -159,6 +159,9 @@ public:
 
 	/** Returns the parent directory for this Record Node (can be different from default directory) */
 	File getDataDirectory();
+
+	/** Checks if the current recording directory has sufficient space to record */
+	void checkDiskSpace();
 
 	/** Returns true if this Record Node is writing data*/
 	bool getRecordingStatus() const;

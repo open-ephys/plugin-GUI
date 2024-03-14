@@ -104,9 +104,18 @@ void PhaseDetector::parameterValueChanged(Parameter* param)
     } 
     else if (param->getName().equalsIgnoreCase("Channel"))
     {
-        int localIndex = (int)param->getValue();
-        int globalIndex = getDataStream(param->getStreamId())->getContinuousChannels()[localIndex]->getGlobalIndex();
-        settings[param->getStreamId()]->triggerChannel = globalIndex;
+        Array<var>* array = param->getValue().getArray();
+        
+        if (array->size() > 0)
+        {
+            int localIndex = int(array->getFirst());
+            int globalIndex = getDataStream(param->getStreamId())->getContinuousChannels()[localIndex]->getGlobalIndex();
+            settings[param->getStreamId()]->triggerChannel = globalIndex;
+        }
+        else
+        {
+            settings[param->getStreamId()]->triggerChannel = -1;
+        }
     } 
     else if (param->getName().equalsIgnoreCase("TTL_out"))
     {
@@ -203,7 +212,7 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
 
                             addEvent(ptr, i);
 
-                            //LOGD("PEAK");
+                            //LOGD("[phase detector] PEAK found!");
                         }
 
                         module->currentPhase = FALLING_POS;
@@ -291,6 +300,14 @@ void PhaseDetector::process (AudioBuffer<float>& buffer)
 
                     }
                 }
+            }
+
+            // If event is on when 'None' is selected in channel selector, turn off event
+            if (module->wasTriggered && module->triggerChannel < 0)
+            {
+                TTLEventPtr ptr = module->createEvent(firstSampleInBlock, false);
+
+                addEvent(ptr, 0);
             }
         }
 

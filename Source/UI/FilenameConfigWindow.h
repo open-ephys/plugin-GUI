@@ -73,7 +73,7 @@ public:
     String getNextValue(bool usePlaceholderText);
 
     /** Validate filename field candidate */
-    static String validate(String field);
+    String validate(String field);
 
     Type type;
     State state;

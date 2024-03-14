@@ -54,7 +54,7 @@ public:
     void clear();
 
     /** Adds a spike plot with 1, 2, or 3 channels*/
-    SpikePlot* addSpikePlot(int numChannels, int electrodeNum, String name);
+    SpikePlot* addSpikePlot(int numChannels, int electrodeNum, String name, std::string identifier);
 
     /** Returns a spike plot based on index*/
     SpikePlot* getSpikePlot(int index);
@@ -94,6 +94,12 @@ public:
 
     /** Sets the range for a given plot*/
     void setRangeForWaveAxis(int plotNum, int axisNum, float range);
+
+    /** Returns the monitor state for a given plot*/
+    bool getMonitorStateForPlot(int plotNum);
+
+    /** Sets the monitor state for a given plot*/
+    void setMonitorStateForPlot(int plotNum, bool monitorState);
 
     /** Allows the threshold coordinator to change thresholds synchronously*/
     void registerThresholdCoordinator(SpikeThresholdCoordinator* stc);

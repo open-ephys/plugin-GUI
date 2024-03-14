@@ -40,7 +40,7 @@ EditorViewport::EditorViewport(SignalChainTabComponent* s_)
       somethingIsBeingDraggedOver(false),
       shiftDown(false),
       lastEditorClicked(0),
-      selectionIndex(0),
+      selectionIndex(-1),
       insertionPoint(0),
       componentWantsToMove(false),
       indexOfMovingComponent(-1),
@@ -252,7 +252,7 @@ GenericProcessor* EditorViewport::addProcessor(Plugin::Description description, 
 void EditorViewport::clearSignalChain()
 {
 
-    if (!CoreServices::getAcquisitionStatus())
+    if (!CoreServices::getAcquisitionStatus() && !signalChainIsLocked)
     {
         LOGD("Clearing signal chain.");
         
@@ -264,6 +264,11 @@ void EditorViewport::clearSignalChain()
     {
         CoreServices::sendStatusMessage("Cannot clear signal chain while acquisition is active.");
     }
+}
+
+void EditorViewport::lockSignalChain(bool shouldLock)
+{
+    signalChainIsLocked = shouldLock;
 }
 
 void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bool updateSettings)
@@ -393,13 +398,41 @@ void EditorViewport::moveSelection(const KeyPress& key)
     if (key.getKeyCode() == key.leftKey)
     {
 
-        if (mk.isShiftDown())
+        if (mk.isShiftDown() 
+            && lastEditorClicked != 0
+            && editorArray.contains(lastEditorClicked))
         {
-            selectionIndex--;
+            int primaryIndex = editorArray.indexOf(lastEditorClicked);
+
+            // set new selection index
+            if (selectionIndex == -1)
+            {
+                // if no selection index has been set yet, set it to the primary index
+                selectionIndex = primaryIndex == 0 ? 0 : primaryIndex - 1;
+            }
+            else if (selectionIndex == 0)
+            {
+                // if the selection index is already at the left edge, return
+                return;
+            }
+            else if(selectionIndex <= primaryIndex) 
+            {
+                // if previous selection index is to the left of the primary index, decrement it
+                selectionIndex--;
+            }
+
+            // switch selection state of the editor at the new selection index
+            if (selectionIndex != primaryIndex)
+                editorArray[selectionIndex]->switchSelectedState();
+
+            // if the selection index is to the right of the primary index,
+            // decrement it after switching the selection state
+            if (selectionIndex > primaryIndex)
+                selectionIndex--;
         }
         else
         {
-            selectionIndex = 0;
+            selectionIndex = -1;
 
             for (int i = 0; i < editorArray.size(); i++)
             {
@@ -416,14 +449,41 @@ void EditorViewport::moveSelection(const KeyPress& key)
     else if (key.getKeyCode() == key.rightKey)
     {
 
-        if (mk.isShiftDown())
+        if (mk.isShiftDown()
+            && lastEditorClicked != 0 
+            && editorArray.contains(lastEditorClicked))
         {
-            selectionIndex++;
+            int primaryIndex = editorArray.indexOf(lastEditorClicked);
+
+            if (selectionIndex == -1)
+            {
+                // if no selection index has been set yet, set it to the primary index
+                selectionIndex = primaryIndex == (editorArray.size() - 1) ? primaryIndex : primaryIndex + 1;
+            }
+            else if (selectionIndex == editorArray.size() - 1)
+            {
+                // if the selection index is already at the right edge, return
+                return;
+            }
+            else if (selectionIndex >= primaryIndex)
+            {
+                // if previous selection index is to the right of the primary index, increment it
+                selectionIndex++;
+            }
+
+            // switch selection state of the editor at the new selection index
+            if (selectionIndex != primaryIndex)
+                editorArray[selectionIndex]->switchSelectedState();
+
+            // if the selection index is to the left of the primary index,
+            // increment it after switching the selection state
+            if (selectionIndex < primaryIndex)
+                selectionIndex++;
         }
         else
         {
 
-            selectionIndex = 0;
+            selectionIndex = -1;
 
             // bool stopSelection = false;
             int i = 0;
@@ -446,30 +506,6 @@ void EditorViewport::moveSelection(const KeyPress& key)
                 }
             }
         }
-    }
-
-    if (mk.isShiftDown() && lastEditorClicked != 0 && editorArray.contains(lastEditorClicked))
-    {
-
-        LOGDD("Selection index: ", selectionIndex);
-
-        int startIndex = editorArray.indexOf(lastEditorClicked);
-
-        if (selectionIndex < 0)
-        {
-
-             for (int i = startIndex-1; i >= startIndex + selectionIndex; i--)
-             {
-                 editorArray[i]->select();
-             }
-
-        } else if (selectionIndex > 0)
-        {
-            for (int i = startIndex+1; i <= startIndex + selectionIndex; i++)
-             {
-                 editorArray[i]->select();
-             }
-         }
     }
 }
 
@@ -756,18 +792,18 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                 else
                     m.addItem(3, "Collapse", true);
 
-                if (!CoreServices::getAcquisitionStatus())
+                if (!CoreServices::getAcquisitionStatus() && !signalChainIsLocked)
                     m.addItem(2, "Delete", true);
                 else
                     m.addItem(2, "Delete", false);
 
-                m.addItem(1, "Rename", true);
+                m.addItem(1, "Rename", !signalChainIsLocked);
                 
                 m.addSeparator();
 
                 m.addItem(4, "Save settings...", true);
                 
-                if (!CoreServices::getAcquisitionStatus())
+                if (!CoreServices::getAcquisitionStatus() && !signalChainIsLocked)
                     m.addItem(5, "Load settings...", true);
                 else
                     m.addItem(5, "Load settings...", false);
@@ -776,6 +812,13 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                 
                 m.addItem(6, "Save image...", true);
 
+                Plugin::Type type = editorArray[i]->getProcessor()->getPluginType();
+                if (type != Plugin::Type::BUILT_IN && type != Plugin::Type::INVALID)
+                {
+                    m.addSeparator();
+                    String pluginVer = editorArray[i]->getProcessor()->getLibVersion();
+                    m.addItem(7, "Plugin v" + pluginVer, false);
+                }
 
                 const int result = m.show();
 
@@ -889,11 +932,12 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     }
                 }
 
-                lastEditorClicked = editorArray[i];
+                selectionIndex = i;
                 break;
             }
 
             lastEditorClicked = editorArray[i];
+            selectionIndex = -1;
         }
         else
         {
@@ -912,54 +956,56 @@ void EditorViewport::mouseDown(const MouseEvent& e)
 void EditorViewport::mouseDrag(const MouseEvent& e)
 {
 
-
-    if (editorArray.contains((GenericEditor*) e.originalComponent)
-        && e.y < 15
-        && !CoreServices::getAcquisitionStatus()
-        && editorArray.size() > 1
-        && e.getDistanceFromDragStart() > 10
-        )
+    if (!signalChainIsLocked)
     {
-
-        componentWantsToMove = true;
-        indexOfMovingComponent = editorArray.indexOf((GenericEditor*) e.originalComponent);
-
-    }
-
-    if (componentWantsToMove)
-    {
-
-        somethingIsBeingDraggedOver = true;
-
-        bool foundInsertionPoint = false;
-
-        int lastCenterPoint = 0;
-        int leftEdge;
-        int centerPoint;
-
-        const MouseEvent event = e.getEventRelativeTo(this);
-
-        for (int n = 0; n < editorArray.size(); n++)
+        if (editorArray.contains((GenericEditor*)e.originalComponent)
+            && e.y < 15
+            && !CoreServices::getAcquisitionStatus()
+            && editorArray.size() > 1
+            && e.getDistanceFromDragStart() > 10
+            )
         {
-            leftEdge = editorArray[n]->getX();
-            centerPoint = leftEdge + (editorArray[n]->getWidth())/2;
 
-            if (event.x < centerPoint && event.x > lastCenterPoint)
+            componentWantsToMove = true;
+            indexOfMovingComponent = editorArray.indexOf((GenericEditor*)e.originalComponent);
+
+        }
+
+        if (componentWantsToMove)
+        {
+
+            somethingIsBeingDraggedOver = true;
+
+            bool foundInsertionPoint = false;
+
+            int lastCenterPoint = 0;
+            int leftEdge;
+            int centerPoint;
+
+            const MouseEvent event = e.getEventRelativeTo(this);
+
+            for (int n = 0; n < editorArray.size(); n++)
             {
-                insertionPoint = n;
-                foundInsertionPoint = true;
+                leftEdge = editorArray[n]->getX();
+                centerPoint = leftEdge + (editorArray[n]->getWidth()) / 2;
+
+                if (event.x < centerPoint && event.x > lastCenterPoint)
+                {
+                    insertionPoint = n;
+                    foundInsertionPoint = true;
+                }
+
+                lastCenterPoint = centerPoint;
             }
 
-            lastCenterPoint = centerPoint;
-        }
+            if (!foundInsertionPoint && indexOfMovingComponent != editorArray.size() - 1)
+            {
+                insertionPoint = editorArray.size();
+            }
 
-        if (!foundInsertionPoint && indexOfMovingComponent != editorArray.size()-1)
-        {
-            insertionPoint = editorArray.size();
+            refreshEditors();
+            repaint();
         }
-        
-        refreshEditors();
-        repaint();
     }
 
 }
@@ -1462,7 +1508,7 @@ std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
     
     for (auto editor : editorArray)
     {
-        XmlElement* visibleEditorXml = new XmlElement(editor->getName().replaceCharacters(" ","_").toUpperCase());
+        XmlElement* visibleEditorXml = new XmlElement(editor->getName().replaceCharacters(" ()","___").toUpperCase());
         visibleEditorXml->setAttribute("ID", editor->getProcessor()->getNodeId());
         editorViewportSettings->addChildElement(visibleEditorXml);
     }
@@ -1670,6 +1716,8 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
         return "Failed To Open " + currentFile.getFileName();
     }
     
+    /* commented out in version 0.6.6
+    
     if (!sameVersion)
     {
         String responseString = "Your configuration file was saved from a different version of the GUI than the one you're using. \n";
@@ -1695,7 +1743,7 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
         {
             return "Failed To Open " + currentFile.getFileName();
         }
-    }
+    }*/
     
     MouseCursor::showWaitCursor();
 
@@ -1813,6 +1861,10 @@ const String EditorViewport::loadStateFromXml(XmlElement* xml)
 
 void EditorViewport::deleteSelectedProcessors()
 {
+
+    if (signalChainIsLocked)
+        return;
+    
     undoManager.beginNewTransaction();
 
     Array<GenericEditor*> editors = Array(editorArray);

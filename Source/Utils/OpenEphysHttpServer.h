@@ -33,6 +33,8 @@
 
 #include "../MainWindow.h"
 #include "../AccessClass.h"
+#include "../UI/ProcessorList.h"
+#include "../UI/EditorViewport.h"
 
 #include "Utils.h"
 
@@ -82,6 +84,8 @@ using json = nlohmann::json;
  * - GET /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name>
  * - PUT /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name>
  * - PUT /api/processors/<processor_id>/config
+ * - PUT /api/processors/add
+ * - PUT /api/processors/delete
  * - PUT /api/window
  *
  * All endpoints are JSON endpoints. The PUT endpoint expects two parameters: "channel" (an integer), and "value",
@@ -218,6 +222,17 @@ public:
                     LOGD("'default_record_engine' not specified'");
                 }
 
+                try {
+                    std::string start_new_directory = request_json["start_new_directory"];
+                    LOGD("Found 'start_new_directory': ", start_new_directory);
+                    const MessageManagerLock mml;
+                    if (start_new_directory == "true")
+                        CoreServices::createNewRecordingDirectory();
+                }
+                catch (json::exception& e) {
+                    LOGD("'start_new_directory' not specified'");
+                }
+
                 json ret;
                 recording_info_to_json(graph_, &ret);
                 res.set_content(ret.dump(), "application/json");
@@ -321,6 +336,21 @@ public:
 
             json ret;
             status_to_json(graph_, &ret);
+            res.set_content(ret.dump(), "application/json");
+            });
+
+        svr_->Get("/api/processors/list", [this](const httplib::Request&, httplib::Response& res) {
+            auto listOfProc = AccessClass::getProcessorList()->getItemList();
+
+            std::vector<json> processors_json;
+            for(const auto& p : listOfProc) {
+                json processor_json;
+                processor_json["name"] = p.toStdString();
+                processors_json.push_back(processor_json);
+            }
+            json ret;
+            ret["processors"] = processors_json;
+
             res.set_content(ret.dump(), "application/json");
             });
         
@@ -472,13 +502,180 @@ public:
                 return;
             }
 
+            String return_msg = graph_->sendConfigMessage(processor, String(message_str));
+             
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json");
+            });
+
+        svr_->Get("/api/processors/clear", [this](const httplib::Request&, httplib::Response& res) {
+
+            String return_msg;
+
+            if (!CoreServices::getAcquisitionStatus())
+            {
+                const MessageManagerLock mml;
+                graph_->clearSignalChain();
+                return_msg = "Signal chain cleared successfully.";
+            } else {
+                return_msg = "Cannot clear signal chain while acquisition is active!";
+            }
+
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json");
+            });
+
+        svr_->Put("/api/processors/delete", [this](const httplib::Request& req, httplib::Response& res) {
+
+            LOGD( "Received PUT request" );
+            
+            json request_json;
+            try {
+                LOGD( "Trying to decode" );
+                request_json = json::parse(req.body);
+                LOGD( "Parsed" );
+            }
+            catch (json::exception& e) {
+                LOGD( "Hit exception" );
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
+            
+            int procId;
+            if (!request_json.contains("id")) {
+                LOGD( "No 'id' element found." );
+                res.set_content("Request must contain processor id.", "text/plain");
+                res.status = 400;
+                return;
+            }
+            else {
+                procId = request_json["id"];
+                LOGD( "Found a processor id." );
+            }
+
+            auto processor = find_processor(String(procId).toStdString());
+            if (processor == nullptr) {
+                LOGD( "Could not find processor" );
+                res.status = 404;
+                return;
+            }
+
+            String return_msg;
+            
+            if (!CoreServices::getAcquisitionStatus())
+            {   
+                Array<GenericProcessor*> processorNodes;
+                String processorName = processor->getDisplayName();
+
+                processorNodes.add(processor);
+
+                const MessageManagerLock mml;
+                graph_->deleteNodes(processorNodes);
+
+                return_msg = processorName + " [" +  String(procId) + "] deleted successfully";
+            } else {
+                return_msg = "Cannot delete processors while acquisition is active.";
+            }
+             
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json");
+            });
+
+        
+        svr_->Put("/api/processors/add", [this](const httplib::Request& req, httplib::Response& res) {
+
+            LOGD( "Received PUT request" );
+            
+            json request_json;
+            try {
+                LOGD( "Trying to decode" );
+                request_json = json::parse(req.body);
+                LOGD( "Parsed" );
+            }
+            catch (json::exception& e) {
+                LOGD( "Hit exception" );
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
+            
+            std::string procName;
+            if (!request_json.contains("name")) {
+                LOGD( "No 'name' element found." );
+                res.set_content("Request must contain processor name.", "text/plain");
+                res.status = 400;
+                return;
+            }
+            else {
+                procName = request_json["name"];
+                LOGD( "Found processor name: ", procName);
+            }
+
+            int sourceNodeId = 0;
+            int destNodeId = 0;
+
+            if(request_json.contains("source_id"))
+                sourceNodeId = request_json["source_id"];
+            else if (request_json.contains("dest_id"))
+                destNodeId = request_json["dest_id"];
+
+            LOGD( "Found a source/dest node id." );
+
+            
+            auto listOfProc = AccessClass::getProcessorList()->getItemList();
+            bool foundProcessor = false;
+            for(auto p : listOfProc)
+            {
+                if(p.equalsIgnoreCase(String(procName)))
+                {
+                    foundProcessor = true;
+                    break;
+                }
+            }
+
+            if (!foundProcessor) {
+                LOGD( "Could not find processor in the Processor List" );
+                res.status = 404;
+                return;
+            }
+
             String return_msg;
             
             if (!CoreServices::getAcquisitionStatus())
             {
-                return_msg = graph_->sendConfigMessage(processor, String(message_str));
+                auto description = AccessClass::getProcessorList()->getItemDescriptionfromList(procName);
+
+                GenericProcessor* sourceProcessor = nullptr;
+                GenericProcessor* destProcessor = nullptr;
+                
+                if (sourceNodeId == 0)
+                {
+                    destProcessor = graph_->getProcessorWithNodeId(destNodeId);
+                    
+                    if (destProcessor != nullptr)
+                        sourceProcessor = destProcessor->getSourceNode();
+                }
+                else
+                {
+                    sourceProcessor = graph_->getProcessorWithNodeId(sourceNodeId);
+                    
+                    if (sourceProcessor != nullptr)
+                        destProcessor = sourceProcessor->getDestNode();
+                }
+
+                const MessageManagerLock mml;
+                graph_->createProcessor(description,
+                    sourceProcessor,
+                    destProcessor);
+
+                return_msg = procName + " added successfully";
+                
             } else {
-                return_msg = "Cannot send config message while acquisition is active.";
+                return_msg = "Cannot add processors while acquisition is active.";
             }
              
             json ret;
@@ -655,6 +852,32 @@ public:
                 LOGD("Unrecognized command");
             }
             
+
+            });
+
+        svr_->Get("/api/undo", [this](const httplib::Request& req, httplib::Response& res) {
+            std::string message_str;
+            LOGD( "Received undo request" );
+
+            json ret;
+            res.set_content(ret.dump(), "application/json");
+            res.status = 400;
+
+            const MessageManagerLock mml;
+            AccessClass::getEditorViewport()->undo();
+
+            });
+
+        svr_->Get("/api/redo", [this](const httplib::Request& req, httplib::Response& res) {
+            std::string message_str;
+            LOGD( "Received redo request" );
+
+            json ret;
+            res.set_content(ret.dump(), "application/json");
+            res.status = 400;
+
+            const MessageManagerLock mml;
+            AccessClass::getEditorViewport()->redo();
 
             });
                    

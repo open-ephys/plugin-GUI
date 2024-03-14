@@ -90,6 +90,8 @@ public:
     /** Get list of processors **/
     Array<String> getItemList();
 
+    Plugin::Description getItemDescriptionfromList(const String& processorName);
+
     /** Set component bounds */
     void resized();
     
@@ -148,7 +150,7 @@ private:
     
     ProcessorListItem* hoverItem;
     int maximumNameOffset;
-    
+
     Viewport* viewport;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProcessorList);

@@ -161,13 +161,15 @@ private:
 bool BluetoothMidiDevicePairingDialogue::open (ModalComponentManager::Callback* exitCallback,
                                                Rectangle<int>* bounds)
 {
-    new BluetoothMidiSelectorWindowHelper (exitCallback, bounds);
-    return true;
+    // new BluetoothMidiSelectorWindowHelper (exitCallback, bounds);
+    std::unique_ptr<ModalComponentManager::Callback> cb (exitCallback);
+    jassertfalse;
+    return false;
 }
 
 bool BluetoothMidiDevicePairingDialogue::isAvailable()
 {
-    return true;
+    return false;
 }
 
 #else

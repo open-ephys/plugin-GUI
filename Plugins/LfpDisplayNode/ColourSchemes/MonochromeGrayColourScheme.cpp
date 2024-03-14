@@ -22,8 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "MonochromeGrayColourScheme.h"
-#include "../LfpDisplayCanvas.h"
-#include "../LfpDisplay.h"
 
 #include <math.h>
 
@@ -54,18 +52,8 @@ Array<Colour> MonochromeGrayColourScheme::colourList = []() -> Array<Colour> {
     return colours;
 }();
 
-MonochromeGrayColourScheme::MonochromeGrayColourScheme(LfpDisplay* display, LfpDisplaySplitter* canvas)
-    : LfpViewer::ChannelColourScheme(MonochromeGrayColourScheme::colourList.size(), display, canvas)
-{
-    setName("Monochrome Gray");
-}
-
-void MonochromeGrayColourScheme::paint(Graphics& g)
-{
-
-}
-
-void MonochromeGrayColourScheme::resized()
+MonochromeGrayColourScheme::MonochromeGrayColourScheme()
+    : LfpViewer::ChannelColourScheme("Monochrome Gray", MonochromeGrayColourScheme::colourList.size())
 {
 
 }

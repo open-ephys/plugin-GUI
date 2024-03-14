@@ -85,8 +85,9 @@ private:
     Array<int> tabArray;
 
     /** Maps processors to their respective tabs within the DataViewport. */
-    std::map<int, String> tabNameMap;
-    std::map<int, Component*> tabComponentMap;
+    Array<int> savedTabIndices;
+    Array<String> savedTabNames;
+    Array<Component*> savedTabComponents;
 
     void paint(Graphics& g);
     int tabDepth;

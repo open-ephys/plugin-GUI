@@ -392,6 +392,8 @@ void VisualizerEditor::setActiveTabId (int tindex)
 
 void VisualizerEditor::removeTab (int tindex)
 {
+
+    //std::cout << "Removing tab for " << nodeId << std::endl;
     AccessClass::getDataViewport()->destroyTab (tindex);
     tabIndex = -1;
 }
@@ -401,6 +403,8 @@ int VisualizerEditor::addTab (String textOfTab, Visualizer* contentComponent)
 {
     tabText  = textOfTab;
     tabIndex = AccessClass::getDataViewport()->addTabToDataViewport (textOfTab, contentComponent);
+
+    //std::cout << "Adding tab for " << nodeId << " at " << tabIndex << std::endl;
 
     return tabIndex;
 }

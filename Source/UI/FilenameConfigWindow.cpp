@@ -33,7 +33,6 @@ FilenameFieldComponent::FilenameFieldComponent(int type_, int state_, String val
 {
 
     typeLabel = std::make_unique<Label>("Type", types[type_] + ":");
-    //typeLabel->setFont(Font(1.5*typeLabel->getFont().getHeight()));
     typeLabel->setColour(Label::textColourId, Colours::white);
     typeLabel->setBounds(0, 0, 80, 32);
     addAndMakeVisible(typeLabel.get());
@@ -81,7 +80,7 @@ String FilenameFieldComponent::validate(String candidate)
 
     String errorStr = "";
 
-    if (candidate.length() == 0)
+    if (candidate.length() == 0 && state != State::NONE)
         errorStr = "File name must have at least 1 character.";
 
     if (candidate.contains(File::getSeparatorString()))
@@ -125,20 +124,37 @@ String FilenameFieldComponent::getNextValue(bool usePlaceholderText)
 
         newDirectoryNeeded = false;
 
+        stateButton->setButtonText(states[state]);
+
         if (state == FilenameFieldComponent::State::CUSTOM)
         {
+            valueLabel->setEditable(true);
+            valueLabel->setColour(Label::ColourIds::backgroundColourId, Colours::white);
+            valueLabel->setText(value, dontSendNotification);
+
             return value;
         }
 
         if (state == FilenameFieldComponent::State::NONE)
         {
-            return "";
+            valueLabel->setEditable(false);
+            valueLabel->setColour(Label::ColourIds::backgroundColourId, Colours::grey);
+            valueLabel->setText("", dontSendNotification);
+
+            value = "";
+
+            return value;
         }
 
         if (state == FilenameFieldComponent::State::AUTO)
         {
+
+            valueLabel->setEditable(false);
+            valueLabel->setColour(Label::ColourIds::backgroundColourId, Colours::grey);
+
             if (type == FilenameFieldComponent::Type::MAIN)
             {
+
 
                 if (usePlaceholderText)
                 {
@@ -201,14 +217,7 @@ String FilenameFieldComponent::getNextValue(bool usePlaceholderText)
             }
         }
     }
-    else {
-        
-        //std::cout << "New directory NOT needed." << std::endl;
-        //std::cout << "Returning: " << value << std::endl;
-
-        return value;
-    }
-
+    return value;
     
 }
 

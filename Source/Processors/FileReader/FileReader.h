@@ -135,6 +135,9 @@ public:
     /** Converts milliseconds to samples using current stream's sample rate */
     int64 millisecondsToSamples (unsigned int ms) const;
 
+        /** Swaps the backbuffer to the front and flags the background readerthread to update the new backbuffer */
+    void switchBuffer();
+
 private:
 
     /** Currently only support one event channel per stream */
@@ -177,9 +180,6 @@ private:
 
 	unsigned int m_bufferSize;
 	float m_sysSampleRate;
-    
-    /** Swaps the backbuffer to the front and flags the background readerthread to update the new backbuffer */
-    void switchBuffer();
     
     HeapBlock<int16>* getFrontBuffer();
     HeapBlock<int16>* getBackBuffer();
