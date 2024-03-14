@@ -182,7 +182,8 @@ private:
     // Main options
     std::unique_ptr<ComboBox> timebaseSelection;
     std::unique_ptr<ComboBox> spreadSelection;
-    std::unique_ptr<ComboBox> rangeSelection;
+    std::unique_ptr<ComboBox> rangeSelectionMin;
+    std::unique_ptr<ComboBox> rangeSelectionMax;
     OwnedArray<UtilityButton> typeButtons;
     
     std::unique_ptr<ComboBox> overlapSelection; // what do we do with this?
@@ -228,8 +229,10 @@ private:
     StringArray sectionTitles;
     
 	ContinuousChannel::Type selectedChannelType;
-    int selectedVoltageRange[CHANNEL_TYPES];
-    String selectedVoltageRangeValues[CHANNEL_TYPES];
+    int selectedVoltageRangeMin[CHANNEL_TYPES];
+    String selectedVoltageRangeValuesMin[CHANNEL_TYPES];
+    int selectedVoltageRangeMax[CHANNEL_TYPES];
+    String selectedVoltageRangeValuesMax[CHANNEL_TYPES];
     float rangeGain[CHANNEL_TYPES];
     StringArray rangeUnits;
     StringArray typeNames;

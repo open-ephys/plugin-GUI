@@ -105,6 +105,19 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     addAndMakeVisible(spreadSelection.get());
 
     // Voltage range
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-15000");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-10000");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-5000");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-2000");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-1000");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-750");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-500");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-400");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-250");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-100");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-50");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-25");
+    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("0");
     voltageRanges[ContinuousChannel::Type::ELECTRODE].add("25");
     voltageRanges[ContinuousChannel::Type::ELECTRODE].add("50");
     voltageRanges[ContinuousChannel::Type::ELECTRODE].add("100");
@@ -117,7 +130,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     voltageRanges[ContinuousChannel::Type::ELECTRODE].add("5000");
     voltageRanges[ContinuousChannel::Type::ELECTRODE].add("10000");
     voltageRanges[ContinuousChannel::Type::ELECTRODE].add("15000");
-    selectedVoltageRange[ContinuousChannel::Type::ELECTRODE] = 4;
+    selectedVoltageRangeMax[ContinuousChannel::Type::ELECTRODE] = 4;
     rangeGain[ContinuousChannel::Type::ELECTRODE] = 1; //uV
     rangeSteps[ContinuousChannel::Type::ELECTRODE] = 20;
     rangeUnits.add(CharPointer_UTF8("\xC2\xB5V"));
@@ -135,6 +148,16 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     typeButtons.add(tbut);
 
     //Ranges for AUX/accelerometer data
+    voltageRanges[ContinuousChannel::Type::AUX].add("-2000");
+    voltageRanges[ContinuousChannel::Type::AUX].add("-1000");
+    voltageRanges[ContinuousChannel::Type::AUX].add("-750");
+    voltageRanges[ContinuousChannel::Type::AUX].add("-500");
+    voltageRanges[ContinuousChannel::Type::AUX].add("-400");
+    voltageRanges[ContinuousChannel::Type::AUX].add("-250");
+    voltageRanges[ContinuousChannel::Type::AUX].add("-100");
+    voltageRanges[ContinuousChannel::Type::AUX].add("-50");
+    voltageRanges[ContinuousChannel::Type::AUX].add("-25");
+    voltageRanges[ContinuousChannel::Type::AUX].add("0");
     voltageRanges[ContinuousChannel::Type::AUX].add("25");
     voltageRanges[ContinuousChannel::Type::AUX].add("50");
     voltageRanges[ContinuousChannel::Type::AUX].add("100");
@@ -144,7 +167,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     voltageRanges[ContinuousChannel::Type::AUX].add("750");
     voltageRanges[ContinuousChannel::Type::AUX].add("1000");
     voltageRanges[ContinuousChannel::Type::AUX].add("2000");
-    selectedVoltageRange[ContinuousChannel::Type::AUX] = 9;
+    selectedVoltageRangeMax[ContinuousChannel::Type::AUX] = 9;
     rangeGain[ContinuousChannel::Type::AUX] = 0.001f; //mV
     rangeSteps[ContinuousChannel::Type::AUX] = 10;
     rangeUnits.add("mV");
@@ -161,6 +184,15 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     typeButtons.add(tbut);
 
     //Ranges for ADC data
+    voltageRanges[ContinuousChannel::Type::ADC].add("-10.0");
+    voltageRanges[ContinuousChannel::Type::ADC].add("-5.0");
+    voltageRanges[ContinuousChannel::Type::ADC].add("-2.0");
+    voltageRanges[ContinuousChannel::Type::ADC].add("-1.0");
+    voltageRanges[ContinuousChannel::Type::ADC].add("-0.5");
+    voltageRanges[ContinuousChannel::Type::ADC].add("-0.1");
+    voltageRanges[ContinuousChannel::Type::ADC].add("-0.05");
+    voltageRanges[ContinuousChannel::Type::ADC].add("-0.01");
+    voltageRanges[ContinuousChannel::Type::ADC].add("0.0");
     voltageRanges[ContinuousChannel::Type::ADC].add("0.01");
     voltageRanges[ContinuousChannel::Type::ADC].add("0.05");
     voltageRanges[ContinuousChannel::Type::ADC].add("0.1");
@@ -169,7 +201,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     voltageRanges[ContinuousChannel::Type::ADC].add("2.0");
     voltageRanges[ContinuousChannel::Type::ADC].add("5.0");
     voltageRanges[ContinuousChannel::Type::ADC].add("10.0");
-    selectedVoltageRange[ContinuousChannel::Type::ADC] = 8;
+    selectedVoltageRangeMax[ContinuousChannel::Type::ADC] = 8;
     rangeGain[ContinuousChannel::Type::ADC] = 1; //V
     rangeSteps[ContinuousChannel::Type::ADC] = 0.1; //in V
     rangeUnits.add("V");
@@ -185,16 +217,23 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     addAndMakeVisible(tbut);
     typeButtons.add(tbut);
 
-    selectedVoltageRangeValues[ContinuousChannel::Type::ELECTRODE] = voltageRanges[ContinuousChannel::Type::ELECTRODE][selectedVoltageRange[ContinuousChannel::Type::ELECTRODE] - 1];
-    selectedVoltageRangeValues[ContinuousChannel::Type::AUX] = voltageRanges[ContinuousChannel::Type::AUX][selectedVoltageRange[ContinuousChannel::Type::AUX] - 1];
-    selectedVoltageRangeValues[ContinuousChannel::Type::ADC] = voltageRanges[ContinuousChannel::Type::ADC][selectedVoltageRange[ContinuousChannel::Type::ADC] - 1];
+    selectedVoltageRangeValuesMax[ContinuousChannel::Type::ELECTRODE] = voltageRanges[ContinuousChannel::Type::ELECTRODE][selectedVoltageRangeMax[ContinuousChannel::Type::ELECTRODE] - 1];
+    selectedVoltageRangeValuesMax[ContinuousChannel::Type::AUX] = voltageRanges[ContinuousChannel::Type::AUX][selectedVoltageRangeMax[ContinuousChannel::Type::AUX] - 1];
+    selectedVoltageRangeValuesMax[ContinuousChannel::Type::ADC] = voltageRanges[ContinuousChannel::Type::ADC][selectedVoltageRangeMax[ContinuousChannel::Type::ADC] - 1];
 
-    rangeSelection = std::make_unique<ComboBox>("Voltage range");
-    rangeSelection->addItemList(voltageRanges[ContinuousChannel::Type::ELECTRODE], 1);
-    rangeSelection->setSelectedId(selectedVoltageRange[ContinuousChannel::Type::ELECTRODE], sendNotification);
-    rangeSelection->setEditableText(true);
-    rangeSelection->addListener(this);
-    addAndMakeVisible(rangeSelection.get());
+    rangeSelectionMin= std::make_unique<ComboBox>("Voltage range");
+    rangeSelectionMin->addItemList(voltageRanges[ContinuousChannel::Type::ELECTRODE], 1);
+    rangeSelectionMin->setSelectedId(selectedVoltageRangeMax[ContinuousChannel::Type::ELECTRODE], sendNotification);
+    rangeSelectionMin->setEditableText(true);
+    rangeSelectionMin->addListener(this);
+    addAndMakeVisible(rangeSelectionMin.get());
+
+    rangeSelectionMax = std::make_unique<ComboBox>("Voltage range");
+    rangeSelectionMax->addItemList(voltageRanges[ContinuousChannel::Type::ELECTRODE], 1);
+    rangeSelectionMax->setSelectedId(selectedVoltageRangeMax[ContinuousChannel::Type::ELECTRODE], sendNotification);
+    rangeSelectionMax->setEditableText(true);
+    rangeSelectionMax->addListener(this);
+    addAndMakeVisible(rangeSelectionMax.get());
 
     // Event overlay
     for (int i = 0; i < 8; i++)
@@ -420,13 +459,13 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     addAndMakeVisible(overlapSelection.get());
     
     //Ranges for neural data
-    lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::ELECTRODE][selectedVoltageRange[ContinuousChannel::Type::ELECTRODE] - 1].getFloatValue()
+    lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::ELECTRODE][selectedVoltageRangeMax[ContinuousChannel::Type::ELECTRODE] - 1].getFloatValue()
         *rangeGain[ContinuousChannel::Type::ELECTRODE]
         , ContinuousChannel::Type::ELECTRODE);
-    lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::ADC][selectedVoltageRange[ContinuousChannel::Type::ADC] - 1].getFloatValue()
+    lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::ADC][selectedVoltageRangeMax[ContinuousChannel::Type::ADC] - 1].getFloatValue()
         *rangeGain[ContinuousChannel::Type::AUX]
         , ContinuousChannel::Type::ADC);
-    lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::AUX][selectedVoltageRange[ContinuousChannel::Type::AUX] - 1].getFloatValue()
+    lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::AUX][selectedVoltageRangeMax[ContinuousChannel::Type::AUX] - 1].getFloatValue()
         *rangeGain[ContinuousChannel::Type::AUX]
         , ContinuousChannel::Type::AUX);
 
@@ -444,12 +483,13 @@ void LfpDisplayOptions::resized()
     // MAIN OPTIONS
     timebaseSelection->setBounds(8, getHeight() - 30, 90, height);
     spreadSelection->setBounds(timebaseSelection->getRight() + 20, getHeight() - 30, 90, height);
-    rangeSelection->setBounds(spreadSelection->getRight() + 20, getHeight()-30, 90, height);
+    rangeSelectionMin->setBounds(spreadSelection->getRight() + 20, getHeight() - 30, 90, height);
+    rangeSelectionMax->setBounds(rangeSelectionMin->getRight() + 5, getHeight()-30, 90, height);
 
     int bh = 25 / typeButtons.size();
     for (int i = 0; i < typeButtons.size(); i++)
     {
-        typeButtons[i]->setBounds(rangeSelection->getRight()+5, getHeight() - 30 + i * bh, 50, bh);
+        typeButtons[i]->setBounds(rangeSelectionMax->getRight()+5, getHeight() - 30 + i * bh, 50, bh);
     }
 
     for (int i = 0; i < 8; i++)
@@ -459,9 +499,9 @@ void LfpDisplayOptions::resized()
         eventDisplayInterfaces[i]->repaint();
     }
 
-    ttlWordLabel->setBounds(565, getHeight() - 30, 90, height);
+    ttlWordLabel->setBounds(700, getHeight() - 30, 90, height);
 
-    pauseButton->setBounds(680, getHeight() - 40, 70, 30);
+    pauseButton->setBounds(ttlWordLabel->getRight() + 30, getHeight() - 40, 70, 30);
     
     colourSchemeOptionSelection->setBounds(pauseButton->getRight() + 30,
         getHeight() - 30,
@@ -574,10 +614,11 @@ void LfpDisplayOptions::paint(Graphics& g)
 
     g.drawText("Timebase (s)", timebaseSelection->getX(), timebaseSelection->getY()-22, 300, 20, Justification::left, false);
     g.drawText("Chan height (px)", spreadSelection->getX(), spreadSelection->getY() - 22, 300, 20, Justification::left, false);
-    g.drawText("Range (" + rangeUnits[selectedChannelType] + ")", rangeSelection->getX(), rangeSelection->getY() - 22, 300, 20, Justification::left, false);
+    g.drawText("Range Min (" + rangeUnits[selectedChannelType] + ")", rangeSelectionMin->getX(), rangeSelectionMin->getY() - 22, 300, 20, Justification::left, false);
+    g.drawText("Range Max (" + rangeUnits[selectedChannelType] + ")", rangeSelectionMax->getX(), rangeSelectionMax->getY() - 22, 300, 20, Justification::left, false);
 
-    g.drawText("Overlay", 350, getHeight() - 43, 100, 20, Justification::right, false);
-    g.drawText("Events:", 350, getHeight() - 25, 100, 20, Justification::right, false);
+    g.drawText("Overlay", rangeSelectionMax->getRight() + 30, getHeight() - 43, 100, 20, Justification::right, false);
+    g.drawText("Events:", rangeSelectionMax->getRight() + 30, getHeight() - 25, 100, 20, Justification::right, false);
 
     g.drawText("TTL word:", ttlWordLabel->getX(), ttlWordLabel->getY() -22, 70, 20, Justification::left, false);
 
@@ -730,14 +771,18 @@ void LfpDisplayOptions::setRangeSelection(float range, bool canvasMustUpdate)
 {
     if (canvasMustUpdate)
     {
-        rangeSelection->setText(String(range/rangeGain[selectedChannelType]), sendNotification); 
+        rangeSelectionMin->setText(String(range / rangeGain[selectedChannelType]), sendNotification);
+        rangeSelectionMax->setText(String(range/rangeGain[selectedChannelType]), sendNotification); 
     }
     else
     {
-        rangeSelection->setText(String(range/rangeGain[selectedChannelType]),dontSendNotification);
+        rangeSelectionMin->setText(String(range / rangeGain[selectedChannelType]), sendNotification);
+        rangeSelectionMax->setText(String(range/rangeGain[selectedChannelType]),dontSendNotification);
         
-        selectedVoltageRange[selectedChannelType] = rangeSelection->getSelectedId();
-        selectedVoltageRangeValues[selectedChannelType] = rangeSelection->getText();
+        selectedVoltageRangeMax[selectedChannelType] = rangeSelectionMin->getSelectedId();
+        selectedVoltageRangeValuesMax[selectedChannelType] = rangeSelectionMin->getText();
+        selectedVoltageRangeMax[selectedChannelType] = rangeSelectionMax->getSelectedId();
+        selectedVoltageRangeValuesMax[selectedChannelType] = rangeSelectionMax->getText();
 
         canvasSplit->repaint();
         canvasSplit->refresh();
@@ -1102,12 +1147,12 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 
         timescale->setTimebase(canvasSplit->timebase);
     }
-    else if (cb == rangeSelection.get())
+    else if (cb == rangeSelectionMin.get())
     {
         if (cb->getSelectedId())
         {
-        lfpDisplay->setRange(voltageRanges[selectedChannelType][cb->getSelectedId()-1].getFloatValue()*rangeGain[selectedChannelType]
-            ,selectedChannelType);
+            lfpDisplay->setRange(voltageRanges[selectedChannelType][cb->getSelectedId() - 1].getFloatValue() * rangeGain[selectedChannelType]
+                , selectedChannelType);
         }
         else
         {
@@ -1135,14 +1180,57 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
             }
             else
             {
-                if (selectedVoltageRange[selectedChannelType])
-                    cb->setText(selectedVoltageRangeValues[selectedChannelType],dontSendNotification);
+                if (selectedVoltageRangeMax[selectedChannelType])
+                    cb->setText(selectedVoltageRangeValuesMax[selectedChannelType],dontSendNotification);
                 else
-                    cb->setSelectedId(selectedVoltageRange[selectedChannelType],dontSendNotification);
+                    cb->setSelectedId(selectedVoltageRangeMax[selectedChannelType],dontSendNotification);
             }
         }
-        selectedVoltageRange[selectedChannelType] = cb->getSelectedId();
-        selectedVoltageRangeValues[selectedChannelType] = cb->getText();
+        selectedVoltageRangeMax[selectedChannelType] = cb->getSelectedId();
+        selectedVoltageRangeValuesMax[selectedChannelType] = cb->getText();
+        canvasSplit->redraw();
+    }
+    else if (cb == rangeSelectionMax.get())
+    {
+        if (cb->getSelectedId())
+        {
+            lfpDisplay->setRange(voltageRanges[selectedChannelType][cb->getSelectedId() - 1].getFloatValue() * rangeGain[selectedChannelType]
+                , selectedChannelType);
+        }
+        else
+        {
+            float vRange = cb->getText().getFloatValue();
+            if (vRange)
+            {
+                if (vRange < voltageRanges[selectedChannelType][0].getFloatValue())
+                {
+                    cb->setSelectedId(1, dontSendNotification);
+                    vRange = voltageRanges[selectedChannelType][0].getFloatValue();
+                }
+                else if (vRange > voltageRanges[selectedChannelType][voltageRanges[selectedChannelType].size() - 1].getFloatValue())
+                {
+                    // cb->setSelectedId(voltageRanges[selectedChannelType].size(),dontSendNotification);
+                    // vRange = voltageRanges[selectedChannelType][voltageRanges[selectedChannelType].size()-1].getFloatValue();
+                }
+                else
+                {
+                    if (rangeGain[selectedChannelType] > 1)
+                        cb->setText(String(vRange, 1), dontSendNotification);
+                    else
+                        cb->setText(String(vRange), dontSendNotification);
+                }
+                lfpDisplay->setRange(vRange * rangeGain[selectedChannelType], selectedChannelType);
+            }
+            else
+            {
+                if (selectedVoltageRangeMin[selectedChannelType])
+                    cb->setText(selectedVoltageRangeValuesMin[selectedChannelType], dontSendNotification);
+                else
+                    cb->setSelectedId(selectedVoltageRangeMin[selectedChannelType], dontSendNotification);
+            }
+        }
+        selectedVoltageRangeMin[selectedChannelType] = cb->getSelectedId();
+        selectedVoltageRangeValuesMin[selectedChannelType] = cb->getText();
         canvasSplit->redraw();
     }
     else if (cb == spreadSelection.get())
@@ -1314,14 +1402,22 @@ void LfpDisplayOptions::setSelectedType(ContinuousChannel::Type type, bool toggl
     if (selectedChannelType == type)
         return; //Nothing to do here
     selectedChannelType = type;
-    rangeSelection->clear(dontSendNotification);
-    rangeSelection->addItemList(voltageRanges[type],1);
+    rangeSelectionMin->clear(dontSendNotification);
+    rangeSelectionMin->addItemList(voltageRanges[type], 1);
+    rangeSelectionMax->clear(dontSendNotification);
+    rangeSelectionMax->addItemList(voltageRanges[type],1);
 
-    int id = selectedVoltageRange[type];
+    int id = selectedVoltageRangeMax[type];
     if (id)
-        rangeSelection->setSelectedId(id,sendNotification);
+    {
+        rangeSelectionMin->setSelectedId(id, sendNotification);
+        rangeSelectionMax->setSelectedId(id, sendNotification);
+    }
     else
-        rangeSelection->setText(selectedVoltageRangeValues[selectedChannelType],dontSendNotification);
+    {
+        rangeSelectionMin->setText(selectedVoltageRangeValuesMax[selectedChannelType], dontSendNotification);
+        rangeSelectionMax->setText(selectedVoltageRangeValuesMax[selectedChannelType], dontSendNotification);
+    }
     
     repaint(5,getHeight()-55,300,100);
 
@@ -1346,8 +1442,10 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
 
     xmlNode->setAttribute("SubprocessorID", canvasSplit->streamSelection->getSelectedId());
 
-    xmlNode->setAttribute("Range",selectedVoltageRangeValues[0]+","+selectedVoltageRangeValues[1]+
-        ","+selectedVoltageRangeValues[2]);
+    xmlNode->setAttribute("RangeMin", selectedVoltageRangeValuesMin[0] + "," + selectedVoltageRangeValuesMin[1] +
+        "," + selectedVoltageRangeValuesMin[2]);
+    xmlNode->setAttribute("RangeMax",selectedVoltageRangeValuesMax[0]+","+selectedVoltageRangeValuesMax[1]+
+        ","+selectedVoltageRangeValuesMax[2]);
     xmlNode->setAttribute("Timebase",timebaseSelection->getText());
     xmlNode->setAttribute("Spread",spreadSelection->getText());
     xmlNode->setAttribute("colourScheme", colourSchemeOptionSelection->getSelectedId());
@@ -1431,18 +1529,29 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             start = Time::getHighResolutionTicks();
 
             // RANGE
-            StringArray ranges;
-            ranges.addTokens(xmlNode->getStringAttribute("Range"),",",String());
-            selectedVoltageRangeValues[0] = ranges[0];
-            selectedVoltageRangeValues[1] = ranges[1];
-            selectedVoltageRangeValues[2] = ranges[2];
-            selectedVoltageRange[0] = voltageRanges[0].indexOf(ranges[0])+1;
-            selectedVoltageRange[1] = voltageRanges[1].indexOf(ranges[1])+1;
-            selectedVoltageRange[2] = voltageRanges[2].indexOf(ranges[2])+1;
-            rangeSelection->setText(ranges[0]);
-            lfpDisplay->setRange(ranges[0].getFloatValue() * rangeGain[0], ContinuousChannel::Type::ELECTRODE);
-            lfpDisplay->setRange(ranges[1].getFloatValue() * rangeGain[1], ContinuousChannel::Type::AUX);
-            lfpDisplay->setRange(ranges[2].getFloatValue() * rangeGain[2], ContinuousChannel::Type::ADC);
+            StringArray rangesMin;
+            rangesMin.addTokens(xmlNode->getStringAttribute("RangeMin"),",",String());
+            selectedVoltageRangeValuesMin[0] = rangesMin[0];
+            selectedVoltageRangeValuesMin[1] = rangesMin[1];
+            selectedVoltageRangeValuesMin[2] = rangesMin[2];
+            selectedVoltageRangeMin[0] = voltageRanges[0].indexOf(rangesMin[0])+1;
+            selectedVoltageRangeMin[1] = voltageRanges[1].indexOf(rangesMin[1])+1;
+            selectedVoltageRangeMin[2] = voltageRanges[2].indexOf(rangesMin[2])+1;
+            rangeSelectionMin->setText(rangesMin[0]);
+
+            StringArray rangesMax;
+            rangesMax.addTokens(xmlNode->getStringAttribute("RangeMax"), ",", String());
+            selectedVoltageRangeValuesMax[0] = rangesMax[0];
+            selectedVoltageRangeValuesMax[1] = rangesMax[1];
+            selectedVoltageRangeValuesMax[2] = rangesMax[2];
+            selectedVoltageRangeMax[0] = voltageRanges[0].indexOf(rangesMax[0]) + 1;
+            selectedVoltageRangeMax[1] = voltageRanges[1].indexOf(rangesMax[1]) + 1;
+            selectedVoltageRangeMax[2] = voltageRanges[2].indexOf(rangesMax[2]) + 1;
+            rangeSelectionMax->setText(rangesMax[0]);
+
+            lfpDisplay->setRange(rangesMax[0].getFloatValue() * rangeGain[0], ContinuousChannel::Type::ELECTRODE);
+            lfpDisplay->setRange(rangesMax[1].getFloatValue() * rangeGain[1], ContinuousChannel::Type::AUX);
+            lfpDisplay->setRange(rangesMax[2].getFloatValue() * rangeGain[2], ContinuousChannel::Type::ADC);
 
             
            // LOGD("    Set range in ", MS_FROM_START, " milliseconds");
