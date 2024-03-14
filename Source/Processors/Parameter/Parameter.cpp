@@ -30,6 +30,8 @@ String Parameter::getParameterTypeString() const
         return "Boolean";
     else if (m_parameterType == Parameter::INT_PARAM)
         return "Integer";
+    else if (m_parameterType == Parameter::STRING_PARAM)
+        return "String";
     else if (m_parameterType == Parameter::CATEGORICAL_PARAM)
         return "Categorical";
     else if (m_parameterType == Parameter::FLOAT_PARAM)
@@ -239,7 +241,7 @@ StringParameter::StringParameter(GenericProcessor* processor,
     String defaultValue_,
     bool deactivateDuringAcquisition)
     : Parameter(processor,
-        ParameterType::INT_PARAM,
+        ParameterType::STRING_PARAM,
         scope,
         name,
         description,

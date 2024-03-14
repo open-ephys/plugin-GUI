@@ -166,6 +166,9 @@ public:
 	/** Returns true if this Record Node is writing data*/
 	bool getRecordingStatus() const;
 
+    /** Returns the root directory in which this Record Node is writing data. Is located within the getDataDirectory(). */
+    File getRootDirectory() const;
+
 	/** Get the last settings.xml in string form. Since the string will be large, returns a const ref.*/
 	const String &getLastSettingsXml() const;
 

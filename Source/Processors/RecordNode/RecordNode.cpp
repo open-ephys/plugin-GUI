@@ -215,6 +215,10 @@ void RecordNode::setDataDirectory(File directory)
 	checkDiskSpace();
 }
 
+File RecordNode::getRootDirectory() const {
+    return rootFolder;
+}
+
 void RecordNode::createNewDirectory()
 {
 
