@@ -113,9 +113,9 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
 
     addMouseListener(this, true);
 
-    for (int i = 0; i < 8; i++)
+    for (int ttlLine = 0; ttlLine < 8; ttlLine++)
     {
-        eventDisplayEnabled[i] = true;
+        eventDisplayEnabled[ttlLine] = true;
     }
 
     savedChannelState.insertMultiple(0, true, 10000); // max 10k channels
@@ -444,7 +444,8 @@ void LfpDisplay::refresh()
         totalPixelsToFill = canvasSplit->screenBufferWidth - fillfrom + fillto;
     }
 
-	//std::cout << fillfrom << " : " << fillto << " ::: " << "totalPixelsToFill: " << totalPixelsToFill << std::endl;
+    //if (totalPixelsToFill > 0)
+	//    std::cout << fillfrom << " : " << fillto << " ::: " << "totalPixelsToFill: " << totalPixelsToFill << std::endl;
 
     int topBorder = viewport->getViewPositionY();
     int bottomBorder = viewport->getViewHeight() + topBorder;
@@ -493,11 +494,11 @@ void LfpDisplay::refresh()
         fillfrom_local = lastBitmapIndex;
         fillto_local = (lastBitmapIndex + totalPixelsToFill) % totalXPixels;
 
-        /*if (fillto != 0)
-        {
-            std::cout << fillfrom << " : " << fillto << " ::: " <<
-                fillfrom_local << " : " << fillto_local << " :: " << totalPixelsToFill << " ::: " << totalXPixels << std::endl;
-        }*/
+        //if (fillto != 0)
+        //{
+        //    std::cout << fillfrom << " : " << fillto << " ::: " <<
+        //        fillfrom_local << " : " << fillto_local << " :: " << totalPixelsToFill << " ::: " << totalXPixels << std::endl;
+       // }
 
 
         for (int i = 0; i < numChans; i++)
@@ -591,6 +592,7 @@ void LfpDisplay::refresh()
 
 void LfpDisplay::setRange(float r, ContinuousChannel::Type type)
 {
+
     range[type] = r;
     
     if (channels.size() > 0)
@@ -601,7 +603,6 @@ void LfpDisplay::setRange(float r, ContinuousChannel::Type type)
             if (channels[i]->getType() == type)
                 channels[i]->setRange(range[type]);
         }
-        canvasSplit->fullredraw = true; //issue full redraw
 
         if (displayIsPaused)
         {
@@ -659,6 +660,19 @@ void LfpDisplay::setInputInverted(bool isInverted)
 
 }
 
+Array<bool> LfpDisplay::getInputInverted()
+{
+
+    Array<bool> invertedState;
+
+    for (int i = 0; i < numChans; i++)
+    {
+		invertedState.add(channels[i]->getInputInverted());
+    }
+
+    return invertedState;
+}
+
 void LfpDisplay::setDrawMethod(bool isDrawMethod)
 {
     for (int i = 0; i < numChans; i++)
@@ -712,6 +726,13 @@ void LfpDisplay::orderChannelsByDepth(bool state)
     channelsOrderedByDepth = state;
 
     rebuildDrawableChannelsList();
+
+}
+
+bool LfpDisplay::shouldOrderChannelsByDepth()
+{
+
+    return channelsOrderedByDepth;
 
 }
 
@@ -820,8 +841,6 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
         viewport->setViewPosition(oldX,oldY+scrollBy); // set back to previous position plus offset
 
         options->setSpreadSelection(newHeight); // update combobox
-        
-        canvasSplit->fullredraw = true;//issue full redraw - scrolling without modifier doesnt require a full redraw
     }
     else
     {
@@ -844,8 +863,7 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
             }
 
             options->setRangeSelection(h); // update combobox
-            canvasSplit->fullredraw = true; //issue full redraw - scrolling without modifier doesnt require a full redraw
-            
+
         }
         else    // just scroll
         {
@@ -853,11 +871,7 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
             if (viewport != nullptr && e.eventComponent == this) // passes only if it's not a listening event
             {
                 viewport->mouseWheelMove(e.getEventRelativeTo(canvasSplit), wheel);
-
-                //canvasSplit->syncDisplayBuffer();
             }
-                
-
         }
       
     }
@@ -868,8 +882,6 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
         scrollY = viewport->getViewPositionY();
     }
     
-   // refresh(); // doesn't seem to be needed now that channels draw to bitmap
-
 }
 
 void LfpDisplay::toggleSingleChannel(LfpChannelTrack drawableChannel)
@@ -981,27 +993,38 @@ void LfpDisplay::rebuildDrawableChannelsList()
     removeAllChildren(); // start with clean slate
     
     Array<LfpChannelTrack> channelsToDraw; // all visible channels will be added to this array
-
+    Array<int> filteredChannels;
+    if(canvasSplit -> displayBuffer) {
+        filteredChannels = canvasSplit -> getFilteredChannels();
+    }
     // iterate over all channels and select drawable ones
-    for (int i = 0, drawableChannelNum = 0; i < channels.size(); i++)
+    for (int i = 0, drawableChannelNum = 0, filterChannelIndex = 0; i < channels.size(); i++)
     {
-        
 		//std::cout << "Checking for hidden channels" << std::endl;
-        if (displaySkipAmt == 0 || (i % displaySkipAmt == 0)) // no skips, add all channels
-        {
-            channels[i]->setHidden(false);
-            channelInfo[i]->setHidden(false);
-            
-            channelInfo[i]->setDrawableChannelNumber(drawableChannelNum++);
-            channelInfo[i]->resized(); // to update the conditional drawing of enableButton and channel num
-            
-            channelsToDraw.add(LfpDisplay::LfpChannelTrack{
-                channels[i],
-                channelInfo[i]
-            });
+        int channelNumber = filteredChannels.size() ? canvasSplit->displayBuffer->channelMetadata[i].description.getIntValue(): -1;
+        //the filter list can have channels that aren't selected for acqusition; this skips those filtered channels
+        while(filterChannelIndex < filteredChannels.size() && channelNumber > filteredChannels[filterChannelIndex]){
+            filterChannelIndex++;
+        }
+        if(filteredChannels.size() == 0 || (filterChannelIndex < filteredChannels.size() && channelNumber == filteredChannels[filterChannelIndex])) {
+            if (displaySkipAmt == 0 || ((filteredChannels.size() ? filterChannelIndex : i) % displaySkipAmt == 0)) // no skips, add all channels
+            {
 
-            addAndMakeVisible(channels[i]);
-            addAndMakeVisible(channelInfo[i]);
+                channels[i]->setHidden(false);
+                channelInfo[i]->setHidden(false);
+                
+                channelInfo[i]->setDrawableChannelNumber(drawableChannelNum++);
+                channelInfo[i]->resized(); // to update the conditional drawing of enableButton and channel num
+                
+                channelsToDraw.add(LfpDisplay::LfpChannelTrack{
+                    channels[i],
+                    channelInfo[i]
+                });
+                
+                addAndMakeVisible(channels[i]);
+                addAndMakeVisible(channelInfo[i]);
+            }
+            filterChannelIndex++;
         }
         else // skip some channels
         {
@@ -1227,15 +1250,15 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 
 }
 
-bool LfpDisplay::setEventDisplayState(int ch, bool state)
+bool LfpDisplay::setEventDisplayState(int ttlLine, bool state)
 {
-    eventDisplayEnabled[ch] = state;
-    return eventDisplayEnabled[ch];
+    eventDisplayEnabled[ttlLine] = state;
+    return eventDisplayEnabled[ttlLine];
 }
 
-bool LfpDisplay::getEventDisplayState(int ch)
+bool LfpDisplay::getEventDisplayState(int ttlLine)
 {
-    return eventDisplayEnabled[ch];
+    return eventDisplayEnabled[ttlLine];
 }
 
 void LfpDisplay::setEnabledState(bool state, int chan, bool updateSaved)

@@ -98,7 +98,8 @@ SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx, bool isPri
     nChannels(nChans),
     selectedId(selectedIdx),
     isPrimary(isPrimary_),
-    detectedChange(false)
+    detectedChange(false),
+    editable(true)
 {
 
     width = 368; //can use any multiples of 16 here for dynamic resizing
@@ -143,6 +144,16 @@ SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx, bool isPri
 	setSize (width, height + buttonSize);
 	setColour(ColourSelector::backgroundColourId, Colours::transparentBlack);
 
+}
+
+void SyncChannelSelector::setEditable(bool editable) 
+{
+    this->editable = editable;
+
+    for (int i = 0; i < buttons.size(); i++)
+        buttons[i]->setEnabled(editable);
+
+    setSize(width, buttonSize + buttonSize * (editable && !isPrimary));
 }
 
 SyncChannelSelector::~SyncChannelSelector() {}

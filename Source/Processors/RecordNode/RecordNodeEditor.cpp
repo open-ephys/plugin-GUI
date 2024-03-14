@@ -148,7 +148,6 @@ void RecordNodeEditor::stopRecording()
     spikeRecord->setEnabled(true);
 }
 
-
 void RecordNodeEditor::comboBoxChanged(ComboBox* box)
 {
 
@@ -261,7 +260,7 @@ void RecordNodeEditor::updateSettings()
     spikeRecord->setToggleState(recordNode->recordSpikes, dontSendNotification);
     
     dataPathLabel->setText(recordNode->getDataDirectory().getFullPathName(), dontSendNotification);
-
+	dataPathLabel->setTooltip(dataPathLabel->getText());
 }
 
 void RecordNodeEditor::buttonClicked(Button *button)
@@ -505,6 +504,7 @@ void FifoMonitor::mouseDown(const MouseEvent &event)
 	bool editable = !recordNode->recordThread->isThreadRunning();
     auto* channelSelector = new PopupChannelSelector(this, channelStates);
 	channelSelector->setChannelButtonColour(Colours::red);
+	channelSelector->setEditable(!recordNode->getRecordingStatus());
 
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
@@ -576,19 +576,20 @@ void FifoMonitor::timerCallback()
 				lastUpdateTime = currentTime;
 				lastFreeSpace = bytesFree;
 
-				recordingTimeLeftInSeconds = (int) (bytesFree / dataRate / 1000.0f);
+				recordingTimeLeftInSeconds = bytesFree / dataRate / 1000.0f;
 
 				LOGD("Data rate: ", dataRate, " bytes/ms");
 
 				// Stop recording and show warning when less than 5 minutes of disk space left
-				if (dataRate > 0 && recordingTimeLeftInSeconds < 60*5) {
+				if (dataRate > 0.0f && recordingTimeLeftInSeconds < (60.0f * 5.0f)) 
+				{
 					CoreServices::setRecordingStatus(false);
 					String msg = "Recording stopped. Less than 5 minutes of disk space remaining.";
 					AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "WARNING", msg);
 				}
 
 				String msg = String(bytesFree / pow(2, 30)) + " GB available\n";
-				msg += String(recordingTimeLeftInSeconds / 60) + " minutes remaining\n";
+				msg += String(int(recordingTimeLeftInSeconds / 60.0f)) + " minutes remaining\n";
 				msg += "Data rate: " + String(dataRate * 1000 / pow(2, 20), 2) + " MB/s";
 				setTooltip(msg);
 			}

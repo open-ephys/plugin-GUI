@@ -101,7 +101,7 @@ private :
 	float dataRate;
 	float lastFreeSpace;
 	float lastUpdateTime;
-	int recordingTimeLeftInSeconds;
+	float recordingTimeLeftInSeconds;
 	
 };
 

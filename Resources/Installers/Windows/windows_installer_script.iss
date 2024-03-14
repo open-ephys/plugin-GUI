@@ -1,8 +1,8 @@
 [Setup]
 AppName=Open Ephys
-AppVersion=0.6.4
-AppVerName=Open Ephys 0.6.4
-AppCopyright=Copyright (C) 2010-2022, Open Ephys & Contributors
+AppVersion=0.6.7
+AppVerName=Open Ephys 0.6.7
+AppCopyright=Copyright (C) 2010-2024, Open Ephys & Contributors
 AppPublisher=open-ephys.org
 AppPublisherURL=https://open-ephys.org/gui
 DefaultDirName={autopf}\Open Ephys
@@ -20,11 +20,16 @@ WizardStyle=modern
 
 [Tasks]
 Name: desktopicon; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
-Name: install_usb; Description: "Install Opal Kelly Front Panel USB driver for Open Ephys Acquisition Board"; GroupDescription: "External drivers:";
+Name: install_usb1; Description: "Install FTDI D3XX driver (Open Ephys FPGA board)"; GroupDescription: "Acquisition Board drivers:";
+Name: install_usb2; Description: "Install Opal Kelly Front Panel USB driver (Opal Kelly FPGA board)"; GroupDescription: "Acquisition Board drivers:"; Flags: unchecked;
+
+[Dirs]
+Name: "{commonappdata}\Open Ephys"; Permissions: users-modify; Flags: uninsneveruninstall;
 
 [Files]
 Source: "..\..\..\Build\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; BeforeInstall: UpdateProgress(0);
-Source: "..\..\..\Build\Release\shared\*"; DestDir: "{commonappdata}\Open Ephys\shared-api8"; Flags: ignoreversion recursesubdirs; BeforeInstall: UpdateProgress(55);
+Source: "..\..\..\Build\Release\shared\*"; DestDir: "{commonappdata}\Open Ephys\shared-api8"; Flags: ignoreversion recursesubdirs uninsneveruninstall; BeforeInstall: UpdateProgress(55);
+Source: "..\..\DLLs\FTD3XXDriver_WHQLCertified_1.3.0.8_Installer.exe"; DestDir: {tmp}; Flags: deleteafterinstall; BeforeInstall: UpdateProgress(80);
 Source: "..\..\DLLs\FrontPanelUSB-DriverOnly-4.5.5.exe"; DestDir: {tmp}; Flags: deleteafterinstall; BeforeInstall: UpdateProgress(90);
 
 [Icons]
@@ -33,7 +38,9 @@ Name: "{autodesktop}\Open Ephys"; Filename: "{app}\open-ephys.exe"; Tasks: deskt
 Name: "{autoprograms}\Open Ephys"; Filename: "{app}\open-ephys.exe"
 
 [Run]
-Filename: "{tmp}\FrontPanelUSB-DriverOnly-4.5.5.exe"; StatusMsg: "Installing Front Panel USB driver..."; Tasks: install_usb; Flags: skipifsilent
+Filename: "{tmp}\FTD3XXDriver_WHQLCertified_1.3.0.8_Installer.exe"; StatusMsg: "Installing FTDI D3XX driver..."; Tasks: install_usb1; Flags: skipifsilent
+Filename: "{tmp}\FrontPanelUSB-DriverOnly-4.5.5.exe"; StatusMsg: "Installing Front Panel USB driver..."; Tasks: install_usb2; Flags: skipifsilent
+Filename: "{app}\open-ephys.exe"; Description: "Launch Open Ephys GUI"; Flags: postinstall nowait skipifsilent
 
 [Code]
 // types and variables

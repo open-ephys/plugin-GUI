@@ -560,7 +560,7 @@ void LfpDisplayCanvas::mouseUp(const MouseEvent& e)
 {
     if (borderToDrag >= 0)
     {
-        std::cout << "Mouse up" << std::endl;
+        //std::cout << "Mouse up" << std::endl;
 
         resized();
         borderToDrag = -1;
@@ -744,10 +744,10 @@ void LfpDisplaySplitter::resized()
         viewport->setBounds(0, timescaleHeight, getWidth(), getHeight() - 32);
     }
 
-    if (screenBufferMean != nullptr)
-    {
+    //if (screenBufferMean != nullptr)
+    //{
         refreshScreenBuffer();
-    }
+    //}
        
     if (nChans > 0)
     {
@@ -967,22 +967,22 @@ void LfpDisplaySplitter::updateSettings()
 
     }
         
-    lfpDisplay->rebuildDrawableChannelsList();
+    lfpDisplay->rebuildDrawableChannelsList(); // calls setColors(), which calls refresh
 
     isLoading = false;
         
-    syncDisplay();
-    syncDisplayBuffer();
+    syncDisplay(); // sets lastBitmapIndex to 0
+    syncDisplayBuffer(); // sets displayBufferIndex to 0
 
     isUpdating = false;
 
-    lfpDisplay->setColors();
+    //lfpDisplay->setColors(); // calls refresh
 
     resized();
 
     lfpDisplay->restoreViewPosition();
 
-    lfpDisplay->refresh();
+    //lfpDisplay->refresh(); // calls refresh
 
 }
 
@@ -1483,12 +1483,24 @@ void LfpDisplaySplitter::setTimebase(float t)
 {
     timebase = t;
 
+    /*if (timebase <= 0.1)
+    {
+        stopTimer();
+        startTimer(1000);
+    }
+    else {
+        stopTimer();
+        startTimer(50);
+    }*/
+
     if (trialAveraging)
     {
         numTrials = -1;
     }
 
     syncDisplay();
+    syncDisplayBuffer();
+    refreshScreenBuffer();
 
     reachedEnd = true;
 }
@@ -1660,9 +1672,17 @@ void LfpDisplaySplitter::visibleAreaChanged()
 
 void LfpDisplaySplitter::refresh()
 {
+    
     updateScreenBuffer();
-
-    lfpDisplay->refresh(); // redraws only the new part of the screen buffer, unless fullredraw is set to true
+    
+    if (shouldRebuildChannelList) 
+    {
+        shouldRebuildChannelList = false;
+        lfpDisplay->rebuildDrawableChannelsList(); // calls resized()/refresh() after rebuilding list
+    }
+    else {
+        lfpDisplay->refresh(); // redraws only the new part of the screen buffer, unless fullredraw is set to true
+    }
 }
 
 void LfpDisplaySplitter::comboBoxChanged(juce::ComboBox *comboBox)

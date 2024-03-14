@@ -206,6 +206,7 @@ private:
 		setClockModeHHMMSS      = 0x2112,
         toggleHttpServer        = 0x4001,
         showHelp				= 0x2011,
+        checkForUpdates         = 0x2022,
         resizeWindow            = 0x2012,
         reloadOnStartup         = 0x2013,
         saveSignalChainAs       = 0x2014,

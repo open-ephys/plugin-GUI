@@ -165,6 +165,10 @@ public:
 
 	OwnedArray<ChannelButton> channelButtons;
 
+	void setEditable(bool editable);
+
+	bool isEditable() { return editable; }
+
 private:
 	Listener* listener;
 
@@ -194,6 +198,12 @@ private:
 	Array<int> channelStates;
 	Array<int> selectedButtons;
 	Array<int> activeChannels;
+
+	int buttonSize;
+	int width;
+	int height;
+	int nRows;
+	int nColumns;
 };
 
 

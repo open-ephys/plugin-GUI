@@ -61,8 +61,6 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     // MAIN OPTIONS
 
     // Timebase
-    timebases.add("0.010");
-    timebases.add("0.025");
     timebases.add("0.050");
     timebases.add("0.100");
     timebases.add("0.250");
@@ -74,7 +72,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     timebases.add("5.0");
     timebases.add("10.0");
     timebases.add("20.0");
-    selectedTimebase = 8;
+    selectedTimebase = 6;
     selectedTimebaseValue = timebases[selectedTimebase - 1];
 
     timebaseSelection = std::make_unique<ComboBox>("Timebase");
@@ -121,7 +119,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     voltageRanges[ContinuousChannel::Type::ELECTRODE].add("15000");
     selectedVoltageRange[ContinuousChannel::Type::ELECTRODE] = 4;
     rangeGain[ContinuousChannel::Type::ELECTRODE] = 1; //uV
-    rangeSteps[ContinuousChannel::Type::ELECTRODE] = 10;
+    rangeSteps[ContinuousChannel::Type::ELECTRODE] = 20;
     rangeUnits.add(CharPointer_UTF8("\xC2\xB5V"));
     typeNames.add("DATA");
 
@@ -775,6 +773,10 @@ void LfpDisplayOptions::togglePauseButton(bool sendUpdate)
 
 void LfpDisplayOptions::setChannelsReversed(bool state)
 {
+
+    if (lfpDisplay->getChannelsReversed() == state) // ignore if we're not changing state
+        return;
+
     lfpDisplay->setChannelsReversed(state);
     canvasSplit->fullredraw = true;
 
@@ -791,6 +793,7 @@ void LfpDisplayOptions::setChannelsReversed(bool state)
 
 void LfpDisplayOptions::setInputInverted(bool state)
 {
+    
     lfpDisplay->setInputInverted(state);
 
     invertInputButton->setToggleState(state, dontSendNotification);
@@ -849,6 +852,9 @@ void LfpDisplayOptions::setAveraging(bool state)
 void LfpDisplayOptions::setSortByDepth(bool state)
 {
 
+    if (lfpDisplay->shouldOrderChannelsByDepth() == state)
+        return;
+         
     if (canvasSplit->displayBuffer != nullptr)
         lfpDisplay->orderChannelsByDepth(state);
 
@@ -1504,7 +1510,10 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             //LOGD("    --> setShowChannelNumbers: ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();
 
-            setInputInverted(xmlNode->getBoolAttribute("isInverted", false));
+            bool shouldInvert = xmlNode->getBoolAttribute("isInverted", false);
+            
+			if (invertInputButton->getToggleState() != shouldInvert)
+                setInputInverted(shouldInvert);
             
             //LOGD("    --> setInputInverted: ", MS_FROM_START, " milliseconds");
             start = Time::getHighResolutionTicks();

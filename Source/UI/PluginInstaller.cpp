@@ -35,6 +35,7 @@
 #include <Windows.h>
 #endif
 
+namespace fs = std::filesystem;
 
 //-----------------------------------------------------------------------
 static inline File getPluginsDirectory() {
@@ -483,7 +484,7 @@ void PluginInstallerComponent::run()
 		checkForUpdates = false;
 	}
 
-	if(updatablePlugins.size() > 0)
+	/*if (updatablePlugins.size() > 0)
 	{
 		const String updatemsg = "Some of your plugins have updates available! "
 								 "Please update them to get the latest features and bug-fixes.";
@@ -491,7 +492,7 @@ void PluginInstallerComponent::run()
 		AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::InfoIcon,
 										 "Updates Available",
 										 updatemsg, "OK", this);
-	}
+	}*/
 }
 
 void PluginInstallerComponent::buttonClicked(Button* button)
@@ -996,9 +997,17 @@ void PluginInfoComponent::buttonClicked(Button* button)
 		if(!uninstallPlugin(pInfo.pluginName))
 		{
 			LOGE("Failed to uninstall ", pInfo.displayName);
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+										"[Plugin Installer] " + pInfo.displayName, 
+										"Failed to uninstall " + pInfo.displayName);
 		}
 		else
+		{
 			LOGC(pInfo.displayName, " uninstalled successfully!");
+			AlertWindow::showMessageBoxAsync(AlertWindow::InfoIcon, 
+										"[Plugin Installer] " + pInfo.displayName, 
+										pInfo.displayName + " uninstalled successfully");
+		}
 	}
 	else if (button == &documentationButton)
 	{
@@ -1015,6 +1024,46 @@ void PluginInfoComponent::setDownloadURL(const String& url)
 void PluginInfoComponent::run()
 {
 
+	// Check if plugin already present in signal chain
+	bool pluginInUse = false;
+	if(pInfo.type == "RecordEngine" && AccessClass::getProcessorGraph()->hasRecordNode())
+	{
+		pluginInUse = true;
+	}
+	else
+	{
+		auto processors = AccessClass::getProcessorGraph()->getListOfProcessors();
+		for (auto* p : processors)
+		{
+			if (p->getLibName().equalsIgnoreCase(pInfo.displayName))
+			{
+				pluginInUse = true;
+				break;
+			}
+		}
+	}
+
+	if (pluginInUse)
+	{
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+									"[Plugin Installer] " + pInfo.displayName, 
+									pInfo.displayName + " is already in use. Please remove all instances of it from the signal chain and try again.");
+
+		LOGE("Error.. Plugin already in use. Please remove it from the signal chain and try again.");
+		return;
+	}
+
+	// Remove older version of the plugin if present
+	if(!AccessClass::getPluginManager()->removePlugin(pInfo.displayName))
+	{
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+									"[Plugin Installer] ERROR", 
+									"Unable to remove current installed version of " + pInfo.displayName + "... Plugin update failed.");
+
+		LOGE("Unable to remove current installed version of " + pInfo.displayName + "... Plugin update failed.");
+		return;
+	}
+	
 	// If a plugin has depencies outside its zip, download them
 	for (int i = 0; i < pInfo.dependencies.size(); i++)
 	{
@@ -1023,7 +1072,11 @@ void PluginInfoComponent::run()
 
 		int retCode = downloadPlugin(pInfo.dependencies[i], pInfo.dependencyVersions[i], true);
 
-		if (retCode == 2)
+		if (retCode == 1)
+		{
+			continue;
+		}
+		else if (retCode == 2)
 		{
 			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
 											"[Plugin Installer] " + pInfo.dependencies[i], 
@@ -1052,11 +1105,21 @@ void PluginInfoComponent::run()
 			LOGE("HTTP request failed!! Please check your internet connection...");
 			return;
 		}
+		else
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+											"[Plugin Installer] " + pInfo.dependencies[i], 
+											"An unknown error occured while installing dependencies for " + pInfo.displayName
+											+ ". Please contact the developers.");
+
+			LOGE("Download Failed!!");
+			return;
+		}
 		
 	}
 	
 	setStatusMessage("Downloading " + pInfo.displayName + " ...");
-	LOGD("Downloading Plugin: ", pInfo.pluginName, "...  ");
+	LOGC("Downloading Plugin: ", pInfo.displayName, " | Version: ", pInfo.selectedVersion);
 
 	// download the plugin
 	int dlReturnCode = downloadPlugin(pInfo.pluginName, pInfo.selectedVersion, false);
@@ -1067,7 +1130,7 @@ void PluginInfoComponent::run()
 										"[Plugin Installer] " + pInfo.displayName, 
 										pInfo.displayName + " Installed Successfully");
 
-		LOGD("Download Successfull!!");
+		LOGC("Download Successfull!!");
 
 		pInfo.installedVersion = pInfo.selectedVersion;
 		installedVerText.setText(pInfo.installedVersion, dontSendNotification);
@@ -1142,17 +1205,8 @@ void PluginInfoComponent::run()
 		if(pInfo.latestVersion.equalsIgnoreCase(pInfo.latestVersion))
 		{
 			updatablePlugins.removeString(pInfo.pluginName);
-			this->getParentComponent()->resized();
+			this->getParentComponent()->repaint();
 		}
-	}
-	else if (dlReturnCode == PLUGIN_IN_USE || dlReturnCode == RECNODE_IN_USE)
-	{
-		String name = (dlReturnCode == PLUGIN_IN_USE) ? pInfo.displayName : "Record Node";
-		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-										"[Plugin Installer] " + pInfo.displayName, 
-										name + " is already in use. Please remove it from the signal chain and try again.");
-
-		LOGE("Error.. Plugin already in use. Please remove it from the signal chain and try again.");
 	}
 	else if(dlReturnCode == HTTP_ERR)
 	{
@@ -1282,14 +1336,18 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 	LOGC("Uninstalling plugin: ", pInfo.displayName);
 
 	// Check whether the plugin is loaded in a signal chain
-	if(AccessClass::getProcessorGraph()->processorWithSameNameExists(pInfo.displayName))
+	auto processors = AccessClass::getProcessorGraph()->getListOfProcessors();
+	for (auto* p : processors)
 	{
-		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
-										"[Plugin Installer] " + pInfo.displayName, 
-										pInfo.displayName + " is already in use. Please remove it from the signal chain and try again.");
-		
-		LOGD("Plugin present in signal chain! Please remove it before uninstalling the plugin.");
-		return false;	
+		if (p->getLibName().equalsIgnoreCase(pInfo.displayName))
+		{
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, 
+											"[Plugin Installer] " + pInfo.displayName, 
+											pInfo.displayName + " is already in use. Please remove all instances of it from the signal chain and try again.");
+			
+			LOGD("Plugin present in signal chain! Please remove it before uninstalling the plugin.");
+			return false;
+		}
 	}
 	
 	// Open installedPluings.xml file
@@ -1313,38 +1371,15 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 		dllName = pluginElement->getAttributeValue(1);
 	}
 
-	// Remove plugin from PluginManager
+	// Remove and unload plugin via PluginManager
 	if(!AccessClass::getPluginManager()->removePlugin(pInfo.displayName))
 		return false;
-
-	//delete plugin file
-	File pluginFile = getPluginsDirectory().getChildFile(dllName);
-	if(!pluginFile.deleteRecursively())
-	{
-		LOGD("Unable to delete ", pluginFile.getFullPathName(), " ...Trying again!");
-
-#ifdef _WIN32
-		const char* processorLocCString = static_cast<const char*>(pluginFile.getFullPathName().toUTF8());
-		HMODULE md = GetModuleHandleA(processorLocCString);
-
-		if(FreeLibrary(md))
-			LOGD("Unloaded ", dllName);
-
-		if(!pluginFile.deleteFile())
-		{
-			return false;
-		}
-#else
-		return false;
-#endif
-	}
 
 	// Remove plugin XML entry
 	xml->getFirstChildElement()->removeChildElement(pluginElement, true);
 	if (! xml->writeTo(xmlFile))
 	{
 		LOGD("Error! Couldn't write to installedPlugins.xml");
-		return false;
 	}
 
 	AccessClass::getProcessorList()->fillItemList();
@@ -1357,6 +1392,14 @@ bool PluginInfoComponent::uninstallPlugin(const String& plugin)
 	downloadButton.setEnabled(true);
 	downloadButton.setButtonText("Install");
 	installedVerText.setText("No", dontSendNotification);
+
+	//delete plugin file
+	File pluginFile = getPluginsDirectory().getChildFile(dllName);
+	if(!pluginFile.deleteRecursively())
+	{
+		LOGE("Unable to delete plugin file ", pluginFile.getFullPathName(), " ... Please remove it manually!!");
+		return false;
+	}
 
 	return true;
 }
@@ -1380,7 +1423,7 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 
 	// Could not retrieve data
 	if(!fileStream)
-		return 9;
+		return 7;
 
 	// ZIP file empty, return.
 	if(fileStream->getTotalLength() == 0)
@@ -1466,76 +1509,79 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 				child->addChildElement(pluginEntry.release());
 
 		}
-
-		// Check if plugin already present in signal chain
-		if(pInfo.type == "RecordEngine" && AccessClass::getProcessorGraph()->hasRecordNode())
-		{
-			pluginFile.deleteFile();
-			return 8;
-		}
-		else if(AccessClass::getProcessorGraph()->processorWithSameNameExists(pInfo.displayName))
-		{
-			pluginFile.deleteFile();
-			return 7;	
-		}
 	}
 
-	// Uncompress plugin zip file in temp directory
-	String pluginDllPath;
-
+	// Create temp directory to uncompress the plugin
 	File tempDir = File::getSpecialLocation(File::tempDirectory).getChildFile("open-ephys");
 	tempDir.createDirectory();
 
-	pluginZip.uncompressTo(tempDir);
+	// Delete any existing files in temp directory
+	if (tempDir.getChildFile("plugins").exists())
+		tempDir.getChildFile("plugins").deleteRecursively();
 
+	if (tempDir.getChildFile("shared").exists())
+		tempDir.getChildFile("shared").deleteRecursively();
+
+	// Uncompress the plugin zip file to temp directory
+	juce::Result res = pluginZip.uncompressTo(tempDir);
+
+	if (res.failed())
+	{
+		LOGE("Failed to uncompress plugin zip file: ", res.getErrorMessage());
+		tempDir.deleteRecursively();
+		pluginFile.deleteFile();
+		return 2;
+	}
+
+	String pluginDllPath;
+
+	// copy plugin DLL from temp directory to actual location
 	if(!isDependency)
 	{
-		// copy plugin DLL from temp directory to actual location
-		bool copySuccess = tempDir.getChildFile("plugins").getChildFile(dllName)
-							.copyFileTo(getPluginsDirectory().getChildFile(dllName));
+		fs::path tempPluginPath = tempDir.getChildFile("plugins").getFullPathName().toStdString();
+		fs::path destPluginPath = getPluginsDirectory().getFullPathName().toStdString();
 
-		File dllFile = getPluginsDirectory().getChildFile(dllName);
-		pluginDllPath = dllFile.getFullPathName();
-
-		if(!copySuccess && dllFile.exists())
-		{
-#ifdef _WIN32
-			const char* processorLocCString = static_cast<const char*>(pluginDllPath.toUTF8());
-			HMODULE md = GetModuleHandleA(processorLocCString);
-
-			if(FreeLibrary(md))
-				LOGD("Unloaded old ", dllName);
-			
-			// try copying again after unloading old DLL
-			copySuccess = tempDir.getChildFile("plugins").getChildFile(dllName)
-							.copyFileTo(getPluginsDirectory().getChildFile(dllName));
-
-			if(!copySuccess)
-			{
-				LOGC("Unable to replace/update exisiting plugin file!");
+		// Copy only if plugin file exists
+		if(fs::exists(tempPluginPath))
+		{	
+			const auto copyOptions = fs::copy_options::overwrite_existing
+									| fs::copy_options::recursive;
+			try {
+				fs::copy(tempPluginPath, destPluginPath, copyOptions);
+			} catch(fs::filesystem_error& e) {
+				LOGE("Could not copy plugin files: \"", e.what(), "\"");
+				tempDir.deleteRecursively();
 				pluginFile.deleteFile();
 				return 2;
 			}
-#endif		
 		}
+		else
+		{
+			LOGE("Plugin file not found in temp directory!!");
+			tempDir.deleteRecursively();
+			pluginFile.deleteFile();
+			return 2;
+		}
+
+		pluginDllPath = getPluginsDirectory().getChildFile(dllName).getFullPathName();
 	}
 
 	/* Copy shared files 
 	*  Uses C++17's filesystem::copy functionality to allow copying symlinks
 	*/
-	std::filesystem::path tempSharedPath = tempDir.getChildFile("shared").getFullPathName().toStdString();
-	std::filesystem::path destSharedPath = getSharedDirectory().getFullPathName().toStdString();
+	fs::path tempSharedPath = tempDir.getChildFile("shared").getFullPathName().toStdString();
+	fs::path destSharedPath = getSharedDirectory().getFullPathName().toStdString();
 
 	// Copy only if shared files exist
-	if(std::filesystem::exists(tempSharedPath))
+	if(fs::exists(tempSharedPath))
 	{
-		const auto copyOptions = std::filesystem::copy_options::overwrite_existing
-								| std::filesystem::copy_options::recursive
-								| std::filesystem::copy_options::copy_symlinks
+		const auto copyOptions = fs::copy_options::overwrite_existing
+								| fs::copy_options::recursive
+								| fs::copy_options::copy_symlinks
 								;
 		try {
-			std::filesystem::copy(tempSharedPath, destSharedPath, copyOptions);
-		} catch(std::filesystem::filesystem_error& e) {
+			fs::copy(tempSharedPath, destSharedPath, copyOptions);
+		} catch(fs::filesystem_error& e) {
 			LOGE("Could not copy shared files: \"", e.what(), "\"");
 		}
 	}
@@ -1555,14 +1601,14 @@ int PluginInfoComponent::downloadPlugin(const String& plugin, const String& vers
 		
 		int loadPlugin = AccessClass::getPluginManager()->loadPlugin(pluginDllPath);
 
-		if (loadPlugin == -1)
-			return 6;
-
 		AccessClass::getProcessorList()->fillItemList();
 		AccessClass::getProcessorList()->repaint();
 
 		if(pInfo.type == "RecordEngine")
 			AccessClass::getControlPanel()->updateRecordEngineList();
+		
+		if (loadPlugin == -1)
+			return 6;
 		
 	}
 

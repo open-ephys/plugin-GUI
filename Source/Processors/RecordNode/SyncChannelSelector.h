@@ -104,7 +104,13 @@ public:
 
 	OwnedArray<SyncChannelButton> buttons;
 
+	void setEditable(bool editable);
+
+	bool isEditable() { return editable; }
+
 private:
+
+	bool editable;
 
     ScopedPointer<SetButton> setPrimaryStreamButton;
     

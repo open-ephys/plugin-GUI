@@ -64,7 +64,8 @@ void DisplayBuffer::addChannel(
     ContinuousChannel::Type type, 
     bool isRecorded,
     int group, 
-    float ypos, 
+    float ypos,
+    String description,
     String structure)
 {
     ChannelMetadata metadata = ChannelMetadata();
@@ -75,6 +76,7 @@ void DisplayBuffer::addChannel(
     metadata.structure = structure;
     metadata.type = type;
     metadata.isRecorded = isRecorded;
+    metadata.description = description;
 
     channelMetadata.add(metadata);
     channelMap[channelNum] = numChannels;
