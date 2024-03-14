@@ -57,6 +57,11 @@ add_sources(${PLUGIN_NAME}
 	ColourSchemes/LightBackgroundColourScheme.cpp
 	ColourSchemes/LightBackgroundColourScheme.h
 	)
+
+if(BUILD_TESTS)
+    copy_sources(${PLUGIN_NAME} ${PLUGIN_NAME}_testable)
+    add_subdirectory(Tests)
+endif()
 	
 #optional: create IDE groups
 plugin_create_filters()

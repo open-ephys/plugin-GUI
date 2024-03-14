@@ -84,11 +84,33 @@ public:
         customLookAndFeel = std::make_unique<CustomLookAndFeel>();
         LookAndFeel::setDefaultLookAndFeel(customLookAndFeel.get());
 
-        // signal chain to load
+        // Parse parameters
         if (!parameters.isEmpty())
         {
-            File fileToLoad(File::getCurrentWorkingDirectory().getChildFile(parameters[0]));
-            mainWindow = std::make_unique<MainWindow>(fileToLoad);
+            
+            bool isConsoleApp = false;
+            File fileToLoad;
+            
+            for (auto param : parameters)
+            {
+                if (param.equalsIgnoreCase("--headless"))
+                    isConsoleApp = true;
+                
+                else
+                {
+                    File localPath(File::getCurrentWorkingDirectory().getChildFile(param));
+                    File globalPath(param);
+                    
+                    if (localPath.existsAsFile())
+                        fileToLoad = localPath;
+                    
+                    if (globalPath.existsAsFile())
+                        fileToLoad = globalPath;
+                    
+                }
+            }
+            
+            mainWindow = std::make_unique<MainWindow>(fileToLoad, isConsoleApp);
         }
         else
         {

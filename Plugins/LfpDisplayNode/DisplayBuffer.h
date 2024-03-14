@@ -38,7 +38,7 @@ namespace LfpViewer {
         after which it is drawn.
 
     */
-    class DisplayBuffer : public AudioBuffer<float>
+    class TESTABLE DisplayBuffer : public AudioBuffer<float>
     {
     public:
 

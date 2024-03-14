@@ -32,6 +32,9 @@
 
 AudioComponent::AudioComponent() : isPlaying(false)
 {
+    
+    AccessClass::setAudioComponent(this);
+    
     bool initialized = false;
     while (!initialized)
     {

@@ -30,3 +30,4 @@ Should be included in the source files which declare an editor class intended fo
 #include "EditorHeaders.h"
 #include "../../Source/Processors/Visualization/DataWindow.h"
 #include "../../Source/Processors/Editors/VisualizerEditor.h"
+#include "../../Source/TestableExport.h"

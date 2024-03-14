@@ -22,7 +22,7 @@
  */
 
 #include "UIComponent.h"
-#include "../Processors/PluginManager/PluginManager.h"
+
 #include <stdio.h>
 
 #include "InfoLabel.h"
@@ -31,24 +31,19 @@
 #include "EditorViewport.h"
 #include "MessageCenterButton.h"
 #include "DataViewport.h"
-#include "../Processors/MessageCenter/MessageCenterEditor.h"
 #include "GraphViewer.h"
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../Audio/AudioComponent.h"
 #include "../MainWindow.h"
 #include "../AutoUpdater.h"
 
-	UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_)
-: mainWindow(mainWindow_), processorGraph(pgraph), audio(audio_), messageCenterIsCollapsed(true)
+	UIComponent::UIComponent(MainWindow* mainWindow_, ProcessorGraph* pgraph, AudioComponent* audio_, ControlPanel* controlPanel_)
+: mainWindow(mainWindow_), processorGraph(pgraph), audio(audio_), controlPanel(controlPanel_), messageCenterIsCollapsed(true)
 
 {
-
-	processorGraph->createDefaultNodes();
-
+    
 	messageCenterEditor = (MessageCenterEditor*) processorGraph->getMessageCenter()->createEditor();
-	addActionListener(messageCenterEditor);
-	
-	LOGD("Created message center.");
+	LOGD("Created message center editor.");
 
 	infoLabel = new InfoLabel();
 	LOGD("Created info label.");
@@ -67,14 +62,12 @@
     addAndMakeVisible(signalChainTabComponent);
     
 	editorViewport = new EditorViewport(signalChainTabComponent);
-	//addAndMakeVisible(editorViewport);
-    
+
 	LOGD("Created editor viewport.");
 
 	editorViewportButton = new EditorViewportButton(this);
 	addAndMakeVisible(editorViewportButton);
 
-	controlPanel = new ControlPanel(processorGraph, audio);
 	addAndMakeVisible(controlPanel);
     
 	LOGD("Created control panel.");
@@ -92,28 +85,11 @@
 	processorList->setBounds(0,0,195,processorList->getTotalHeight());
 	LOGD("Created filter list.");
 
-	pluginManager = new PluginManager();
-	LOGD("Created plugin manager");
-
 	setBounds(0,0,500,400);
 
 	AccessClass::setUIComponent(this);
 
-	getPluginManager()->loadAllPlugins();
-
 	getProcessorList()->fillItemList();
-	controlPanel->updateRecordEngineList();
-
-	processorGraph->updateBufferSize(); // needs to happen after processorGraph gets the right pointers
-
-#if JUCE_MAC
-	MenuBarModel::setMacMainMenu(this);
-	mainWindow->setMenuBar(0);
-#else
-	mainWindow->setMenuBar(this);
-	mainWindow->getMenuBarComponent()->setName("MainMenu");
-#endif
-
 }
 
 UIComponent::~UIComponent()
@@ -125,8 +101,6 @@ UIComponent::~UIComponent()
 		pluginInstaller->setVisible(false);
 		delete pluginInstaller;
 	}
-
-	AccessClass::shutdownBroadcaster();
 }
 
 /** Returns a pointer to the EditorViewport. */
@@ -166,11 +140,6 @@ ControlPanel* UIComponent::getControlPanel()
 	return controlPanel;
 }
 
-/** Returns a pointer to the MessageCenterEditor. */
-MessageCenterEditor* UIComponent::getMessageCenter()
-{
-	return messageCenterEditor;
-}
 
 /** Returns a pointer to the UIComponent. */
 UIComponent* UIComponent::getUIComponent()
@@ -182,11 +151,6 @@ UIComponent* UIComponent::getUIComponent()
 AudioComponent* UIComponent::getAudioComponent()
 {
 	return audio;
-}
-
-PluginManager* UIComponent::getPluginManager()
-{
-	return pluginManager;
 }
 
 PluginInstaller* UIComponent::getPluginInstaller()

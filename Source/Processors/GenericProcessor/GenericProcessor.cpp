@@ -24,6 +24,7 @@
 #include "GenericProcessor.h"
 
 #include "../../AccessClass.h"
+#include "../../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../../Utils/Utils.h"
 #include "../Editors/GenericEditor.h"
 
@@ -47,8 +48,9 @@
 
 const String GenericProcessor::m_unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");
 
-GenericProcessor::GenericProcessor(const String& name)
+GenericProcessor::GenericProcessor(const String& name, bool headlessMode_)
 	: GenericProcessorBase(name)
+    , headlessMode(headlessMode_)
 	, sourceNode(nullptr)
 	, destNode(nullptr)
 	, isEnabled(true)
@@ -92,7 +94,7 @@ void GenericProcessor::setNodeId(int id)
 {
 	nodeId = id;
 
-	if (editor != 0)
+	if (editor != nullptr)
 	{
 		editor->updateName();
 	}
@@ -396,7 +398,8 @@ void GenericProcessor::parameterChangeRequest(Parameter* param)
 
 	setParameter(-1, 0.0f);
 
-	getEditor()->updateView();
+    if (!headlessMode)
+        getEditor()->updateView();
 }
 
 void GenericProcessor::setParameter(int parameterIndex, float newValue)
@@ -551,6 +554,7 @@ void GenericProcessor::clearSettings()
     startSamplesForBlock.clear();
 	numSamplesInBlock.clear();
 	processStartTimes.clear();
+    referenceSamplesForBlock.clear();
 
 }
 
@@ -837,7 +841,7 @@ void GenericProcessor::update()
             messageChannel.reset();
             messageChannel = std::make_unique<EventChannel>(*sourceNode->getMessageChannel());
             messageChannel->addProcessor(processorInfo.get());
-            messageChannel->setDataStream(AccessClass::getMessageCenter()->messageCenter->getMessageStream());
+            messageChannel->setDataStream(AccessClass::getMessageCenter()->getMessageStream());
 
             if (sourceNode->isSplitter())
             {
@@ -887,12 +891,12 @@ void GenericProcessor::update()
         {
             // connect first processor in signal chain to message center
            // messageChannel.reset();
-            const EventChannel* originalChannel = AccessClass::getMessageCenter()->messageCenter->getMessageChannel();
+            const EventChannel* originalChannel = AccessClass::getMessageCenter()->getMessageChannel();
             EventChannel* newChannel = new EventChannel(*originalChannel);
             messageChannel.reset(newChannel);
            // messageChannel = std::make_unique<EventChannel>(originalChannel);
             messageChannel->addProcessor(processorInfo.get());
-            messageChannel->setDataStream(AccessClass::getMessageCenter()->messageCenter->getMessageStream());
+            messageChannel->setDataStream(AccessClass::getMessageCenter()->getMessageStream());
 
             if (!isSource())
                 isEnabled = false;
@@ -1049,6 +1053,7 @@ void GenericProcessor::update()
               if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
               {
                    
+                   
                  SelectedChannelsParameter* p = (SelectedChannelsParameter*) spikeChannel->getParameter(param->getName());
                      
                  p->setChannelCount(channelCount);
@@ -1079,7 +1084,8 @@ void GenericProcessor::update()
 		44100.0,         // sampleRate (always 44100 Hz, default audio card rate)
 		128);            // blockSize
 
-	editor->update(isEnabled); // allow the editor to update its settings
+    if (editor != nullptr)
+        editor->update(isEnabled); // allow the editor to update its settings
 
     LOGG("    TOTAL TIME: ", MS_FROM_START, " milliseconds");
 }
@@ -1172,6 +1178,17 @@ double GenericProcessor::getFirstTimestampForBlock(uint16 streamId) const
 }
 
 
+std::optional<std::pair<int64, double>> GenericProcessor::getReferenceSampleForBlock(uint16 streamId){
+    if(referenceSamplesForBlock.find(streamId) != referenceSamplesForBlock.end()) {
+        return referenceSamplesForBlock.at(streamId);
+    }
+    else {
+        return std::nullopt;
+    }
+}
+
+
+
 void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
                                               double timestamp,
                                               uint32 nSamples,
@@ -1192,9 +1209,35 @@ void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
 	m_currentMidiBuffer->addEvent(data, dataSize, 0);
 
 	//since the processor generating the timestamp won't get the event, add it to the map
-    startTimestampsForBlock[streamId] = timestamp;
     startSamplesForBlock[streamId] = sampleNumber;
 	processStartTimes[streamId] = m_initialProcessTime;
+    startTimestampsForBlock[streamId] = timestamp;
+
+}
+
+void GenericProcessor::setReferenceSample(uint16 streamId,
+                        double timestamp,
+                        int64 sampleIndex)
+{
+    //Check last referenceSample and return if this sample is equal
+    if(referenceSamplesForBlock.find(streamId) != referenceSamplesForBlock.end()) {
+        std::optional<std::pair<int64, double>> lastReferenceSample = referenceSamplesForBlock.at(streamId);
+        if(lastReferenceSample.has_value()) {
+            if(sampleIndex == lastReferenceSample.value().first && timestamp == lastReferenceSample.value().second) {
+                return;
+            }
+        }
+    }
+
+    HeapBlock<char> data;
+    size_t dataSize = SystemEvent::fillReferenceSampleEvent(data,
+        this,
+        streamId,
+        sampleIndex,
+        timestamp);
+    
+    m_currentMidiBuffer->addEvent(data, dataSize, 0);
+    referenceSamplesForBlock[streamId] = {sampleIndex, timestamp};
 
 }
 
@@ -1217,7 +1260,7 @@ int GenericProcessor::processEventBuffer()
 
 	if (m_currentMidiBuffer->getNumEvents() > 0)
 	{
-        
+        std::map<uint16, std::optional<std::pair<int64, double>>> newReferenceSamples;
         for (const auto meta : *m_currentMidiBuffer)
         {
             const uint8* dataptr = meta.data;
@@ -1234,6 +1277,7 @@ int GenericProcessor::processEventBuffer()
 				uint32 nSamples = *reinterpret_cast<const uint32*>(dataptr + 24);
 				int64 initialTicks = *reinterpret_cast<const int64*>(dataptr + 28);
 
+
                // if (startSamplesForBlock[sourceStreamId] > startSample)
                 //    std::cout << "GET: " << getNodeId() << " " << sourceStreamId << " " << startSamplesForBlock[sourceStreamId] << " " << startSample << std::endl;
 				
@@ -1241,6 +1285,7 @@ int GenericProcessor::processEventBuffer()
                 startTimestampsForBlock[sourceStreamId] = startTimestamp;
                 numSamplesInBlock[sourceStreamId] = nSamples;
 				processStartTimes[sourceStreamId] = initialTicks;
+
 					
 			}
             else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT
@@ -1249,9 +1294,11 @@ int GenericProcessor::processEventBuffer()
                 uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
                 uint8 eventBit = *reinterpret_cast<const uint8*>(dataptr + 24);
                 bool eventState = *reinterpret_cast<const bool*>(dataptr + 25);
-                
-                getEditor()->setTTLState(sourceStreamId, eventBit, eventState);
-                
+
+                if (!headlessMode) {
+                    getEditor()->setTTLState(sourceStreamId, eventBit, eventState);
+                }
+
             } else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT
             && static_cast<EventChannel::Type>(*(dataptr + 1) == EventChannel::Type::TEXT))
             {
@@ -1259,8 +1306,31 @@ int GenericProcessor::processEventBuffer()
                 TextEventPtr textEvent = TextEvent::deserialize(dataptr, getMessageChannel());
 
                 handleBroadcastMessage(textEvent->getText());
+            } else if (static_cast<Event::Type> (*dataptr) == Event::Type::SYSTEM_EVENT
+                && static_cast<SystemEvent::Type>(*(dataptr + 1) == SystemEvent::Type::REFERENCE_SAMPLE))
+            {
+                uint16 sourceProcessorId = *reinterpret_cast<const uint16*>(dataptr + 2);
+                uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
+                uint32 sourceChannelIndex = *reinterpret_cast<const uint16*>(dataptr + 6);
+                
+                int64 sampleIndex = *reinterpret_cast<const int64*>(dataptr + 8);
+                double sampleTimestamp = *reinterpret_cast<const double*>(dataptr + 16);
+                newReferenceSamples[sourceStreamId] = {sampleIndex, sampleTimestamp};
             }
 		}
+        
+        //Add all new reference samples for block, set all others to nullopt
+        for(auto ds : getDataStreams()) {
+            std::optional<std::pair<int64, double>> newReferenceSample;
+            if(newReferenceSamples.find(ds->getStreamId()) != newReferenceSamples.end()) {
+                newReferenceSample = newReferenceSamples.at(ds->getStreamId());
+            }
+            else {
+                newReferenceSample = std::nullopt;
+            }
+            referenceSamplesForBlock[ds->getStreamId()] = newReferenceSample;
+        }
+
 	}
 
 	return numRead;
@@ -1424,6 +1494,11 @@ void GenericProcessor::broadcastMessage(String msg)
 	AccessClass::getMessageCenter()->broadcastMessage(msg);
 }
 
+void GenericProcessor::sendConfigMessage(GenericProcessor* destination, String message) {
+    AccessClass::getProcessorGraph()->sendConfigMessage(destination, message);
+}
+
+
 void GenericProcessor::addSpike(const Spike* spike)
 {
 	size_t size = SPIKE_BASE_SIZE
@@ -1451,7 +1526,8 @@ void GenericProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer& even
 
 	process(buffer);
     
-	latencyMeter->setLatestLatency(processStartTimes);
+    if (!headlessMode)
+        latencyMeter->setLatestLatency(processStartTimes);
 }
 
 Array<const EventChannel*> GenericProcessor::getEventChannels()
@@ -1716,7 +1792,8 @@ void GenericProcessor::saveToXml(XmlElement* xml)
 
 	saveCustomParametersToXml(xml->createNewChildElement("CUSTOM_PARAMETERS"));
 
-	getEditor()->saveToXml(xml->createNewChildElement("EDITOR"));
+    if (!headlessMode)
+        getEditor()->saveToXml(xml->createNewChildElement("EDITOR"));
 }
 
 
@@ -1877,10 +1954,12 @@ void GenericProcessor::loadFromXml()
 
         for (auto* xmlNode : parametersAsXml->getChildWithTagNameIterator("EDITOR"))
         {
-            getEditor()->loadFromXml(xmlNode);
+            if (editor != nullptr)
+                getEditor()->loadFromXml(xmlNode);
+            
+            LOGG("    Loaded editor parameters in ", MS_FROM_START, " milliseconds");
         }
 
-        LOGG("    Loaded editor parameters in ", MS_FROM_START, " milliseconds");
 	}
 
 	m_paramsWereLoaded = true;

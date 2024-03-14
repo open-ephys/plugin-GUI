@@ -24,14 +24,18 @@
 #ifndef __ACCESSCLASS_H_CE1DC2DE__
 #define __ACCESSCLASS_H_CE1DC2DE__
 
+
+
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "TestableExport.h"
+
 
 class UIComponent;
 class EditorViewport;
 class ProcessorList;
 class DataViewport;
 class ProcessorGraph;
-class MessageCenterEditor;
+class MessageCenter;
 class ControlPanel;
 class AudioComponent;
 class GraphViewer;
@@ -49,6 +53,18 @@ namespace AccessClass
 	*/
 void setUIComponent(UIComponent*);
 
+/** Sets the object's ProcessorGraph
+    */
+void setProcessorGraph(ProcessorGraph*);
+
+/** Sets the object's AudioComponent
+    */
+void setAudioComponent(AudioComponent*);
+
+/** Sets the object's ControlPanel
+    */
+void setControlPanel(ControlPanel*);
+
 /** Returns a pointer to the application's EditorViewport. */
 EditorViewport* getEditorViewport();
 
@@ -65,7 +81,7 @@ ProcessorGraph* getProcessorGraph();
 ControlPanel* getControlPanel();
 
 /** Returns a pointer to the application's MessageCenter. */
-MessageCenterEditor* getMessageCenter();
+MessageCenter* getMessageCenter();
 
 /** Returns a pointer to the application's UIComponent. */
 UIComponent* getUIComponent();
@@ -79,7 +95,14 @@ GraphViewer* getGraphViewer();
 /** Returns a pointer to the application's PluginManager. */
 PluginManager* getPluginManager();
 
+/** Retursn a pointer to the */
 ActionBroadcaster* getBroadcaster();
+
+void TESTABLE setMessageCenter(MessageCenter * mc_);
+
+
+/** Clears all of the global state in AccessClass. Only for use in testing. */
+void TESTABLE clearAccessClassStateForTesting();
 
 void shutdownBroadcaster();
 
@@ -88,11 +111,13 @@ void shutdownBroadcaster();
 //used by various internal parts of the core GUI which need access
 //to those members, while keeping them inaccessible by normal plugins
 
-class ExternalProcessorAccessor
+class TESTABLE ExternalProcessorAccessor
 {
 
 public:
+
 	static MidiBuffer* getMidiBuffer(GenericProcessor* proc);
+    static void injectNumSamples(GenericProcessor* proc, uint16_t dataStream, uint32_t numSamples);
 };
 
 };

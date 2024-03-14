@@ -232,7 +232,7 @@ void Merger::updateSettings()
         if (sourceNodeA->isMerger())
         {
             isEnabled = false;
-            messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
+            messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->getMessageChannel());
             messageChannel->addProcessor(processorInfo.get());
             return;
         }
@@ -260,7 +260,7 @@ void Merger::updateSettings()
 
             if (messageChannel == nullptr)
             {
-                messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
+                messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->getMessageChannel());
                 messageChannel->addProcessor(processorInfo.get());
             }
             return;
@@ -285,7 +285,7 @@ void Merger::updateSettings()
     
     if (messageChannel == nullptr)
     {
-        messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->messageCenter->getMessageChannel());
+        messageChannel = std::make_unique<EventChannel>(*AccessClass::getMessageCenter()->getMessageChannel());
         messageChannel->addProcessor(processorInfo.get());
     }
 
@@ -296,6 +296,7 @@ void Merger::updateSettings()
 void Merger::saveCustomParametersToXml(XmlElement* parentElement)
 {
     XmlElement* mainNode = parentElement->createNewChildElement("MERGER");
+    
     if (sourceNodeA!= nullptr)
         mainNode->setAttribute("NodeA",	sourceNodeA->getNodeId());
     else
@@ -312,8 +313,14 @@ void Merger::saveCustomParametersToXml(XmlElement* parentElement)
 
 void Merger::loadCustomParametersFromXml(XmlElement* xml)
 {
-    MergerEditor* me = (MergerEditor*) getEditor();
-    me->switchSource(xml->getIntAttribute("activePath", 0));
+    
+    if (!headlessMode)
+    {
+        MergerEditor* me = (MergerEditor*) getEditor();
+        
+        me->switchSource(xml->getIntAttribute("activePath", 0));
+    }
+    
 }
 
 void Merger::restoreConnections()
@@ -341,7 +348,9 @@ void Merger::restoreConnections()
                           switchIO(0);
                           setMergerSourceNode(p[k]);
                           p[k]->setDestNode(this);
-                          editor->switchSource(0);
+                           
+                          if (editor != nullptr)
+                              editor->switchSource(0);
                        }
                        else if (p[k]->getNodeId() == nodeIdB)
                         {
@@ -349,11 +358,14 @@ void Merger::restoreConnections()
                             switchIO(1);
                             setMergerSourceNode(p[k]);
                             p[k]->setDestNode(this);
-                            editor->switchSource(1);
+                            
+                            if (editor != nullptr)
+                                editor->switchSource(1);
                         }
                     }
                     
-                    editor->switchSource(mergerSettings->getIntAttribute("activePath", 0));
+                    if (editor != nullptr)
+                        editor->switchSource(mergerSettings->getIntAttribute("activePath", 0));
                 }
             }
         }

@@ -65,8 +65,8 @@ void BandpassFilterSettings::setFilterParameters(double lowCut, double highCut, 
 }
 
 
-FilterNode::FilterNode()
-    : GenericProcessor  ("Bandpass Filter")
+FilterNode::FilterNode(bool headless)
+    : GenericProcessor  ("Bandpass Filter", headless)
 {
     addFloatParameter(Parameter::STREAM_SCOPE, "low_cut", "Filter low cut", 300, 0.1, 15000, false);
     addFloatParameter(Parameter::STREAM_SCOPE, "high_cut", "Filter high cut", 6000, 0.1, 15000, false);
@@ -204,9 +204,8 @@ void FilterNode::process (AudioBuffer<float>& buffer)
             
             const uint16 streamId = stream->getStreamId();
             const uint32 numSamples = getNumSamplesInBlock(streamId);
-
-            for (auto localChannelIndex : *((*stream)["Channels"].getArray()))
-            {
+            int num_channels = stream->getChannelCount();
+            for (int localChannelIndex = 0; localChannelIndex < num_channels; ++localChannelIndex) {
                 int globalChannelIndex = getGlobalChannelIndex(stream->getStreamId(), (int) localChannelIndex);
 
                 float* ptr = buffer.getWritePointer(globalChannelIndex);

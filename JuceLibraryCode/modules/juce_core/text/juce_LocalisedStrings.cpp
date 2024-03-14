@@ -81,7 +81,7 @@ namespace
     {
         LeakAvoidanceTrick()
         {
-            const std::unique_ptr<LocalisedStrings> dummy (new LocalisedStrings (String(), false));
+            const std::unique_ptr<LocalisedStrings> dummy (new LocalisedStrings (String(""), false));
         }
     };
 

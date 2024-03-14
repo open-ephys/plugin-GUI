@@ -298,6 +298,11 @@ void SourceNode::broadcastDataThreadMessage(String msg)
     broadcastMessage(msg);
 }
 
+void SourceNode::sendDataThreadConfigMessage(GenericProcessor* destProcessor, String msg) {
+    sendConfigMessage(destProcessor, msg);
+}
+
+
 void SourceNode::process(AudioBuffer<float>& buffer)
 {
 	int copiedChannels = 0;
@@ -311,6 +316,7 @@ void SourceNode::process(AudioBuffer<float>& buffer)
             &timestamp,
             static_cast<uint64*>(eventCodeBuffers[streamIdx]->getData()),
             buffer.getNumSamples(),
+            &timestampSampleIndex,
             copiedChannels,
             channelsToCopy);
 
@@ -325,6 +331,10 @@ void SourceNode::process(AudioBuffer<float>& buffer)
                                timestamp,
                                nSamples,
                                dataStreams[streamIdx]->getStreamId());
+        
+        if(timestampSampleIndex.has_value()) {
+            setReferenceSample(dataStreams[streamIdx]->getStreamId(), timestamp, timestampSampleIndex.value());
+        }
 
 		if (eventChannels[streamIdx])
 		{

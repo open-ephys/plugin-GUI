@@ -48,6 +48,7 @@
 #include <map>
 #include <unordered_map>
 #include <limits>
+#include <optional>
 
 class EditorViewport;
 class DataViewport;
@@ -93,7 +94,7 @@ class PLUGIN_API GenericProcessor   : public GenericProcessorBase
 
 public:
     /** Constructor (sets the processor's name). */
-    GenericProcessor (const String& name);
+    GenericProcessor (const String& name, bool headlessMode = false);
 
     /** Destructor. */
     virtual ~GenericProcessor();
@@ -490,6 +491,9 @@ public:
     
     /** Sets whether processor will have behaviour like Source, Sink, Splitter, Utility or Merge */
     void setProcessorType (Plugin::Processor::Type processorType);
+    
+    /** Sets whether the processor is operating in headless mode */
+    void setHeadlessMode(bool mode) { headlessMode = mode; }
 
 protected:
 
@@ -505,12 +509,23 @@ protected:
     
     /** Used to get the current timestamp for a given stream.*/
     double getFirstTimestampForBlock(uint16 streamId) const;
+    
+    /** Used to get the sample index for the current timestamp for a given stream*/
+    int64 getTimestampSampleIndexForBlock(uint16 streamId) const;
+    
+    std::optional<std::pair<int64, double>> getReferenceSampleForBlock(uint16 streamId);
+
 
 	/** Used to set the timestamp for a given buffer, for a given DataStream. */
 	void setTimestampAndSamples(int64 startSampleForBlock,
                                 double startTimestampForBlock,
                                 uint32 nSamples,
                                 uint16 streamId);
+    
+    void setReferenceSample(uint16 streamId,
+                            double timestamp,
+                            int64 sampleIndex);
+    
     
     // --------------------------------------------
     //     CHANNEL INDEXING
@@ -552,6 +567,8 @@ protected:
     /** Sends a TEXT event to all other processors, via the MessageCenter, while acquisition is active.
         If recording is active, this message will be recorded */
     void broadcastMessage(String msg);
+    
+    void sendConfigMessage(GenericProcessor* destination, String message);
 
     /** Add a Spike event to the outgoing buffer */
     void addSpike(const Spike* event);
@@ -645,8 +662,12 @@ protected:
     /** Holds a pointer to the event channel for sending messages**/
     std::unique_ptr<EventChannel> messageChannel;
     
+    /** Set to true if GUI is running in headless mode*/
+    bool headlessMode;
+    
 private:
 
+    
     /** Clears the settings arrays.*/
     void clearSettings();
 
@@ -661,6 +682,10 @@ private:
 
     /** Map between stream IDs and start time of process callbacks. */
     std::map<uint16, int64> processStartTimes;
+    
+    
+    /** Map between stream IDs and  reference samples */
+    std::map<uint16, std::optional<std::pair<int64, double>>> referenceSamplesForBlock;
 
     /** First software timestamp of process() callback. */
 	juce::int64 m_initialProcessTime;
@@ -723,6 +748,7 @@ private:
     Array<bool> ttlLineStates;
 
     bool wasConnected;
+
 
     std::unique_ptr<LatencyMeter> latencyMeter;
 

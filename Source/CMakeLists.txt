@@ -1,7 +1,8 @@
 #Open Ephys GUI directory-specific file
 
 #add files in this folder
-add_sources(open-ephys 
+add_sources(open-ephys
+	TestableExport.h
 	AccessClass.h
 	AccessClass.cpp
 	AutoUpdater.cpp

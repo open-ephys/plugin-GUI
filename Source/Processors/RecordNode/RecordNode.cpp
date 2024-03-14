@@ -546,11 +546,14 @@ void RecordNode::updateSettings()
 #endif
 
 	//Refresh editor as needed
-	if (static_cast<RecordNodeEditor*> (getEditor())->monitorsVisible)
-	{
-		static_cast<RecordNodeEditor*> (getEditor())->showFifoMonitors(false);
-		static_cast<RecordNodeEditor*> (getEditor())->buttonClicked(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
-	}
+    if (!headlessMode)
+    {
+        if (static_cast<RecordNodeEditor*> (getEditor())->monitorsVisible)
+        {
+            static_cast<RecordNodeEditor*> (getEditor())->showFifoMonitors(false);
+            static_cast<RecordNodeEditor*> (getEditor())->buttonClicked(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
+        }
+    }
 
 }
 
@@ -578,7 +581,7 @@ bool RecordNode::startAcquisition()
 
     synchronizer.startAcquisition();
 
-    if (eventChannels.getLast()->getSourceNodeName() != "Message Center")
+    if (eventChannels.size() == 0 || eventChannels.getLast()->getSourceNodeName() != "Message Center")
     {
         eventChannels.add(new EventChannel(*messageChannel));
         eventChannels.getLast()->addProcessor(processorInfo.get());
@@ -594,8 +597,16 @@ bool RecordNode::stopAcquisition()
 
     synchronizer.stopAcquisition();
 
+    if (hasRecorded) {
+        // stopRecording() signals the thread to exit, but we should wait here until the thread actually gracefully
+        // exits before we reset some of its needed data (e.g. eventQueue, spikeQueue, etc.)
+        if (recordThread) {
+            recordThread->waitForThreadToExit(1000);
+        }
+    }
+
 	// Remove message channel
-    if (eventChannels.getLast()->getSourceNodeName() == "Message Center")
+    if (eventChannels.size() > 0 && eventChannels.getLast()->getSourceNodeName() == "Message Center")
     {
         eventChannels.removeLast();
     }
@@ -628,7 +639,7 @@ void RecordNode::startRecording()
 	OwnedArray<RecordProcessorInfo> procInfo;
     
     // in case recording starts before acquisition:
-    if (eventChannels.getLast()->getSourceNodeName() != "Message Center")
+    if (eventChannels.size() == 0 || eventChannels.getLast()->getSourceNodeName() != "Message Center")
     {
         eventChannels.add(new EventChannel(*messageChannel));
         eventChannels.getLast()->addProcessor(processorInfo.get());
@@ -709,8 +720,12 @@ void RecordNode::startRecording()
 	if (settingsNeeded)
 	{
 		String settingsFileName = rootFolder.getFullPathName() + File::getSeparatorString() + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String()) + ".xml";
-		AccessClass::getEditorViewport()->saveState(File(settingsFileName), lastSettingsText);
-		settingsNeeded = false;
+        
+        //std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
+        
+		//AccessClass::getProcessorGraph()->saveToXml(File(settingsFileName), lastSettingsText);
+		
+        settingsNeeded = false;
 	}
 }
 
@@ -1002,13 +1017,16 @@ void RecordNode::clearRecordEngines()
 void RecordNode::saveCustomParametersToXml(XmlElement* xml)
 {
 
-    RecordNodeEditor* recordNodeEditor = (RecordNodeEditor*) getEditor();
-
     xml->setAttribute ("path", dataDirectory.getFullPathName());
     xml->setAttribute("engine", recordEngine->getEngineId());
     xml->setAttribute ("recordEvents", recordEvents);
     xml->setAttribute ("recordSpikes", recordSpikes);
-    xml->setAttribute("fifoMonitorsVisible", recordNodeEditor->fifoDrawerButton->getToggleState());
+    
+    if (!headlessMode)
+    {
+        RecordNodeEditor* recordNodeEditor = (RecordNodeEditor*) getEditor();
+        xml->setAttribute("fifoMonitorsVisible", recordNodeEditor->fifoDrawerButton->getToggleState());
+    }
 
     //Save channel states:
     for (auto stream : getDataStreams())
@@ -1062,9 +1080,7 @@ void RecordNode::saveCustomParametersToXml(XmlElement* xml)
 
 void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
 {
-
-    RecordNodeEditor* recordNodeEditor = (RecordNodeEditor*) getEditor();
-
+    
     //Get saved record path
     String savedPath = xml->getStringAttribute("path");
 
@@ -1077,7 +1093,6 @@ void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
 
     recordEvents = xml->getBoolAttribute("recordEvents", true);
     recordSpikes = xml->getBoolAttribute("recordSpikes", true);
-
 
     Array<int> matchingIndexes;
     savedDataStreamParameters.clear();
@@ -1159,3 +1174,18 @@ void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
     }
 
 }
+
+void RecordNode::overrideRecordEngine(RecordEngineManager* engine) {
+    if (recordEngine.get() != nullptr)
+    {
+
+        recordEngine.reset(engine->instantiateEngine());
+
+        if (recordThread != nullptr) {
+            recordThread->setEngine(recordEngine.get());
+        }
+    } else {
+        recordEngine.reset(engine->instantiateEngine());
+    }
+}
+

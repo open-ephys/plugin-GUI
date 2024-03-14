@@ -58,7 +58,8 @@ void AudioNode::registerProcessor(const GenericProcessor* sourceNode)
 
 void AudioNode::updateBufferSize()
 {
-    audioEditor->updateBufferSizeText();
+    if (audioEditor != nullptr)
+        audioEditor->updateBufferSizeText();
 }
 
 

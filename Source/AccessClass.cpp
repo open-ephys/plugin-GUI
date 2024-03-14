@@ -24,6 +24,7 @@
 #include "AccessClass.h"
 #include "Processors/GenericProcessor/GenericProcessor.h"
 #include "Processors/MessageCenter/MessageCenterEditor.h"
+#include "Processors/ProcessorGraph/ProcessorGraph.h"
 
 #include "UI/UIComponent.h"
 
@@ -38,7 +39,7 @@ ProcessorList* pl = nullptr;
 DataViewport* dv = nullptr;
 ProcessorGraph* pg = nullptr;
 ControlPanel* cp = nullptr;
-MessageCenterEditor* mc = nullptr;
+MessageCenter* mc = nullptr;
 AudioComponent* ac = nullptr;
 GraphViewer* gv = nullptr;
 PluginManager* pm = nullptr;
@@ -53,15 +54,35 @@ void setUIComponent(UIComponent* ui_)
     ev = ui->getEditorViewport();
     dv = ui->getDataViewport();
     pl = ui->getProcessorList();
-    pg = ui->getProcessorGraph();
-    cp = ui->getControlPanel();
-    mc = ui->getMessageCenter();
-    ac = ui->getAudioComponent();
     gv = ui->getGraphViewer();
-	pm = ui->getPluginManager();
+    
+}
+
+void setProcessorGraph(ProcessorGraph* pg_)
+{
+    if (pg != nullptr) return;
+        pg = pg_;
+
+    pm = pg->getPluginManager();
+    mc = pg->getMessageCenter();
+    
     bc = std::make_unique<ActionBroadcaster>();
     bc->addActionListener(mc);
 }
+
+void setAudioComponent(AudioComponent* ac_)
+{
+    if (ac != nullptr) return;
+    ac = ac_;
+}
+
+void setControlPanel(ControlPanel* cp_)
+{
+    if (cp != nullptr) return;
+    cp = cp_;
+}
+
+
 
 void shutdownBroadcaster()
 {
@@ -99,7 +120,7 @@ ControlPanel* getControlPanel()
 }
 
 /** Returns a pointer to the application's MessageCenter. */
-MessageCenterEditor* getMessageCenter()
+MessageCenter* getMessageCenter()
 {
     return mc;
 }
@@ -124,7 +145,7 @@ GraphViewer* getGraphViewer()
 
 PluginManager* getPluginManager()
 {
-	return pm;
+    return pm;
 }
 
 ActionBroadcaster* getBroadcaster()
@@ -132,10 +153,35 @@ ActionBroadcaster* getBroadcaster()
     return bc.get();
 }
 
+void clearAccessClassStateForTesting() {
+    ui = nullptr;
+    ev = nullptr;
+    pl = nullptr;
+    dv = nullptr;
+    pg = nullptr;
+    cp = nullptr;
+    mc = nullptr;
+    ac = nullptr;
+    gv = nullptr;
+    pm = nullptr;
+    bc.reset();
+}
+
 
 MidiBuffer* ExternalProcessorAccessor::getMidiBuffer(GenericProcessor* proc)
 {
 	return proc->m_currentMidiBuffer;
+}
+
+
+void ExternalProcessorAccessor::injectNumSamples(GenericProcessor *proc, uint16_t dataStream, uint32_t numSamples) {
+    proc->numSamplesInBlock[dataStream] = numSamples;
+}
+
+//**Set the MessageCenter for testing only**//
+void setMessageCenter(MessageCenter * mc_){
+    if(pg != nullptr) return;
+    mc = mc_;
 }
 
 }

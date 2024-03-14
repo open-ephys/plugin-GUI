@@ -60,7 +60,7 @@ static inline File getSharedDirectory() {
     return std::move(dir);
 }
 
-static String osType;
+static String osType = String("");
 StringArray updatablePlugins;
 
 PluginInstaller::PluginInstaller(MainWindow* mainWindow, bool loadComponents)

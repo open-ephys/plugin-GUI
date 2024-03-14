@@ -30,7 +30,6 @@
 #include "../Events/Event.h"
 #include "../Settings/ProcessorInfo.h"
 
-#define MAX_MSG_LENGTH 512
 //---------------------------------------------------------------------
 
 MessageCenter::MessageCenter() :
@@ -113,33 +112,41 @@ void MessageCenter::setParameter(int parameterIndex, float newValue)
     if (parameterIndex == 1)
     {
         newEventAvailable = true;
-        messageCenterEditor->messageReceived(true);
     }
 
 }
 
-bool MessageCenter::startAcquisition()
+void MessageCenter::actionListenerCallback(const String& message)
 {
-    messageCenterEditor->startAcquisition();
-    return true;
+    
+    if (messageCenterEditor != nullptr)
+        messageCenterEditor->addMessage(message);
+    else
+        LOGC(message);
+    
 }
 
-bool MessageCenter::stopAcquisition()
+void MessageCenter::broadcastMessage(String msg)
 {
-    messageCenterEditor->stopAcquisition();
-    return true;
+    messageToBroadcast = msg;
+    
+    setParameter(1, 1);
 }
 
-void MessageCenter::process(AudioSampleBuffer& buffer)
+void MessageCenter::process(AudioBuffer<float>& buffer)
 {
     
     if (newEventAvailable)
     {
 
-        String eventString = messageCenterEditor->getOutgoingMessage();
+        String eventString = messageToBroadcast;
 
-		eventString = eventString.dropLastCharacters(eventString.length() - MAX_MSG_LENGTH);
-        
+        if (eventString.length() > eventChannels[0]->getLength()) {
+            LOGC("**WARNING** Truncating broadcast message from length ",
+                 eventString.length(), " to ", eventChannels[0]->getLength());
+            eventString = eventString.dropLastCharacters(eventString.length() - eventChannels[0]->getLength());
+        }
+
         int64 ts = CoreServices::getGlobalTimestamp();
 
 		TextEventPtr event = TextEvent::createTextEvent(eventChannels[0],

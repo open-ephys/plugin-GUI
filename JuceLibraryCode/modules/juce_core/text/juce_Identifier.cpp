@@ -23,7 +23,7 @@
 namespace juce
 {
 
-Identifier::Identifier() noexcept {}
+Identifier::Identifier()  noexcept : name(String("")) {}
 Identifier::~Identifier() noexcept {}
 
 Identifier::Identifier (const Identifier& other) noexcept  : name (other.name) {}

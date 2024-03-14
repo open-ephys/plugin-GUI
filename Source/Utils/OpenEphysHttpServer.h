@@ -28,7 +28,12 @@
 #include "../Processors/GenericProcessor/GenericProcessor.h"
 
 #include <sstream>
+
+#ifdef OPENEPHYS_INCLUDE_HTTPLIB
 #include "httplib.h"
+#else
+#include <httplib.h>
+#endif
 #include "json.hpp"
 
 #include "../MainWindow.h"
@@ -91,6 +96,7 @@ using json = nlohmann::json;
  * All endpoints are JSON endpoints. The PUT endpoint expects two parameters: "channel" (an integer), and "value",
  * which should have a type matching the type of the parameter.
  */
+
 class OpenEphysHttpServer : juce::Thread {
 public:
 
