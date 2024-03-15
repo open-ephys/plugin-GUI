@@ -121,10 +121,13 @@ public:
     void setDrawableChannelNumber(int channelId);
 
     /** Sets the voltage range for this channel */
-    void setRange(float range);
+    void setRange(float min, float max);
 
-    /** Returns the voltage range index for this channel*/
-    float getRange();
+    /** Returns the min voltage range index for this channel*/
+    float getRangeMin();
+
+    /** Returns the max voltage range index for this channel*/
+    float getRangeMax();
 
     /** Sets whether this channel display should be inverted */
     void setInputInverted(bool);
@@ -200,7 +203,8 @@ protected:
     int channelHeight;
     float channelHeightFloat;
 
-    float range;
+    float rangeMin;
+    float rangeMax;
 
     bool isEnabled;
     bool inputInverted;

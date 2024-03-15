@@ -104,9 +104,9 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
     channelColours.add(Colour(82, 173, 0));
     channelColours.add(Colour(125, 99, 32));
 
-    range[0] = 1000; // headstage channels
-    range[1] = 500;  // aux channels
-    range[2] = 500000; // adc channels
+    rangeMax[0] = 1000; // headstage channels
+    rangeMax[1] = 500;  // aux channels
+    rangeMax[2] = 500000; // adc channels
 
     scrollX = 0;
     scrollY = 0;
@@ -153,8 +153,8 @@ ChannelColourScheme * LfpDisplay::getColourSchemePtr()
 
 void LfpDisplay::updateRange(int i)
 {
-    channels[i]->setRange(range[channels[i]->getType()]);
-    channelInfo[i]->setRange(range[channels[i]->getType()]);
+    channels[i]->setRange(rangeMax[channels[i]->getType()]);
+    channelInfo[i]->setRange(rangeMax[channels[i]->getType()]);
 }
 
 void LfpDisplay::setNumChannels(int newChannelCount)
@@ -590,10 +590,10 @@ void LfpDisplay::refresh()
 
 }
 
-void LfpDisplay::setRange(float r, ContinuousChannel::Type type)
+void LfpDisplay::setRange(float min, float max, ContinuousChannel::Type type)
 {
-
-    range[type] = r;
+    rangeMin[type] = min;
+    rangeMax[type] = max;
     
     if (channels.size() > 0)
     {
@@ -601,7 +601,7 @@ void LfpDisplay::setRange(float r, ContinuousChannel::Type type)
         for (int i = 0; i < numChans; i++)
         {
             if (channels[i]->getType() == type)
-                channels[i]->setRange(range[type]);
+                channels[i]->setRange(rangeMin[type], rangeMax[type]);
         }
 
         if (displayIsPaused)
@@ -615,17 +615,32 @@ void LfpDisplay::setRange(float r, ContinuousChannel::Type type)
     }
 }
 
-int LfpDisplay::getRange()
+int LfpViewer::LfpDisplay::getRangeMin()
 {
-    return getRange(options->getSelectedType());
+    return getRangeMin(options->getSelectedType());
 }
 
-int LfpDisplay::getRange(ContinuousChannel::Type type)
+int LfpViewer::LfpDisplay::getRangeMin(ContinuousChannel::Type type)
+{
+    for (int i = 0; i < numChans; i++)
+    {
+        if (channels[i]->getType() == type)
+            return channels[i]->getRangeMin();
+    }
+    return 0;
+}
+
+int LfpDisplay::getRangeMax()
+{
+    return getRangeMax(options->getSelectedType());
+}
+
+int LfpDisplay::getRangeMax(ContinuousChannel::Type type)
 {
     for (int i=0; i < numChans; i++)
     {
         if (channels[i]->getType() == type)
-            return channels[i]->getRange();
+            return channels[i]->getRangeMax();
     }
     return 0;
 }
@@ -846,7 +861,8 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
     {
         if (e.mods.isAltDown())  // ALT + scroll wheel -> change channel range (was SHIFT but that clamps wheel.deltaY to 0 on OSX for some reason..)
         {
-            int h = getRange();
+            int hMin = getRangeMin();
+            int hMax = getRangeMax();
             
             int step = options->getRangeStep(options->getSelectedType());
                        
@@ -854,15 +870,15 @@ void LfpDisplay::mouseWheelMove(const MouseEvent&  e, const MouseWheelDetails&  
             
             if (wheel.deltaY > 0)
             {
-                setRange(h+step,options->getSelectedType());
+                setRange(hMin + step, hMax+step,options->getSelectedType());
             }
             else
             {
-                if (h > step+1)
-                    setRange(h-step,options->getSelectedType());
+                if (hMax > step+1)
+                    setRange(hMin - step, hMax-step,options->getSelectedType());
             }
 
-            options->setRangeSelection(h); // update combobox
+            options->setRangeSelection(hMax); // update combobox
 
         }
         else    // just scroll
@@ -1233,7 +1249,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
         {
             drawableChannels[0].channelInfo->updateXY(
                                                       float(x)/getWidth()*canvasSplit->timebase,
-                                                      (-(float(y)-viewport->getViewPositionY())/viewport->getViewHeight()*float(getRange()))+float(getRange()/2)
+                                                      (-(float(y)-viewport->getViewPositionY())/viewport->getViewHeight()*float(getRangeMax()))+float(getRangeMax()/2)
                                                       );
         }
     }

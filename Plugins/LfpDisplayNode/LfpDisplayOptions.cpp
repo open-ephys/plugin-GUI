@@ -221,7 +221,7 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
     selectedVoltageRangeValuesMax[ContinuousChannel::Type::AUX] = voltageRanges[ContinuousChannel::Type::AUX][selectedVoltageRangeMax[ContinuousChannel::Type::AUX] - 1];
     selectedVoltageRangeValuesMax[ContinuousChannel::Type::ADC] = voltageRanges[ContinuousChannel::Type::ADC][selectedVoltageRangeMax[ContinuousChannel::Type::ADC] - 1];
 
-    rangeSelectionMin= std::make_unique<ComboBox>("Voltage range");
+    rangeSelectionMin = std::make_unique<ComboBox>("Voltage range");
     rangeSelectionMin->addItemList(voltageRanges[ContinuousChannel::Type::ELECTRODE], 1);
     rangeSelectionMin->setSelectedId(selectedVoltageRangeMax[ContinuousChannel::Type::ELECTRODE], sendNotification);
     rangeSelectionMin->setEditableText(true);

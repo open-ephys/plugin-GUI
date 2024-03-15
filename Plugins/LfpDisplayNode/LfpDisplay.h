@@ -89,13 +89,19 @@ public:
     void mouseWheelMove(const MouseEvent&  event, const MouseWheelDetails&   wheel) ;
 
     /** Sets the display range for a particular channel type*/
-	void setRange(float range, ContinuousChannel::Type type);
+	void setRange(float min, float max, ContinuousChannel::Type type);
     
-    /** Returns the display range for the current channel type*/
-    int getRange();
+    /** Returns the min display range for the current channel type*/
+    int getRangeMin();
 
-    /** Returns the display range for the specified channel type */
-	int getRange(ContinuousChannel::Type type);
+    /** Returns the min display range for the specified channel type */
+    int getRangeMin(ContinuousChannel::Type type);
+
+    /** Returns the max display range for the current channel type*/
+    int getRangeMax();
+
+    /** Returns the max display range for the specified channel type */
+	int getRangeMax(ContinuousChannel::Type type);
 
     /** Sets the channel height in pixels */
     void setChannelHeight(int r, bool resetSingle = true);
@@ -332,7 +338,8 @@ private:
     LfpDisplaySplitter* canvasSplit;
     Viewport* viewport;
 
-    float range[3];
+    float rangeMin[3];
+    float rangeMax[3];
     
     LfpBitmapPlotter * plotter;
     
