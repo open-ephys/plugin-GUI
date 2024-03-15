@@ -331,7 +331,7 @@ TEST_F(LfpDisplayNodeTests, VisualIntegrityTest) {
     
     //Resize canvas to have half the vertical height and twice the uV range
     canvas -> setChannelHeight(0, 20);
-    canvas -> setChannelRange(0, 500, ContinuousChannel::Type::ELECTRODE);
+    canvas -> setChannelRange(0, 500, 500, ContinuousChannel::Type::ELECTRODE);
     canvas -> refreshState();
     SetExpectedImageParameters(canvas.get());
 

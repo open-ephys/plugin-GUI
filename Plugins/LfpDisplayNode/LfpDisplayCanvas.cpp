@@ -650,11 +650,11 @@ bool LfpDisplayCanvas::setChannelHeight(int splitIndex, int height) {
     return true;
 }
 
-bool LfpDisplayCanvas::setChannelRange(int splitIndex, int range, ContinuousChannel::Type type) {
+bool LfpDisplayCanvas::setChannelRange(int splitIndex, int min, int max, ContinuousChannel::Type type) {
     if(splitIndex >= displaySplits.size()) {
         return false;
     }
-    displaySplits[splitIndex] -> lfpDisplay->setRange(range, type);
+    displaySplits[splitIndex] -> lfpDisplay->setRange(min, max, type);
                                                       
     return true;
 }
