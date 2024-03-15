@@ -239,6 +239,8 @@ namespace LfpViewer {
 		int rangeSteps[CHANNEL_TYPES];
 
 		bool medianOffsetOnForSpikeRaster;
+		int rangeSelectionMinIndex[3];
+		int rangeSelectionMaxIndex[3];
 	};
 
 }; // namespace

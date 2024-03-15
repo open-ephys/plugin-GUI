@@ -1155,6 +1155,12 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 	}
 	else if (cb == rangeSelectionMin.get())
 	{
+		float min = voltageRanges[selectedChannelType][cb->getSelectedId() - 1].getFloatValue();
+		float max = rangeSelectionMax->getText().getFloatValue();
+
+		if (min > max)
+			return;
+
 		if (cb->getSelectedId())
 		{
 			lfpDisplay->setRange(voltageRanges[selectedChannelType][cb->getSelectedId() - 1].getFloatValue() * rangeGain[selectedChannelType],
@@ -1199,6 +1205,12 @@ void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 	}
 	else if (cb == rangeSelectionMax.get())
 	{
+		float min = rangeSelectionMax->getText().getFloatValue();
+		float max = voltageRanges[selectedChannelType][cb->getSelectedId() - 1].getFloatValue();
+
+		if (max < min)
+			return;
+
 		if (cb->getSelectedId())
 		{
 			lfpDisplay->setRange(lfpDisplay->getRangeMin(),
