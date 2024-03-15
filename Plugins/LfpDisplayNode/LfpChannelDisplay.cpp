@@ -289,7 +289,7 @@ void LfpChannelDisplay::pxPaint()
 			&& (from_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold()
 				|| to_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold());
 
-		from = from + getHeight() / ;       // so the plot is centered in the channeldisplay
+		from = from + getHeight() / 2;       // so the plot is centered in the channeldisplay
 		to = to + getHeight() / 2;
 
 		int samplerange = to - from;
