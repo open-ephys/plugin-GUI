@@ -1,23 +1,23 @@
 /*
-    ------------------------------------------------------------------
+	------------------------------------------------------------------
 
-    This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+	This file is part of the Open Ephys GUI
+	Copyright (C) 2013 Open Ephys
 
-    ------------------------------------------------------------------
+	------------------------------------------------------------------
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 #ifndef __LFPCHANNELDISPLAY_H__
@@ -33,189 +33,202 @@
 
 namespace LfpViewer {
 
-/**
-    Displays the information pertaining to a single data channel.
- */
-class LfpChannelDisplay : public Component
-{
-public:
+	/**
+		Displays the information pertaining to a single data channel.
+	 */
+	class LfpChannelDisplay : public Component
+	{
+	public:
 
-    /** Constructor */
-    LfpChannelDisplay(LfpDisplaySplitter*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
+		/** Constructor */
+		LfpChannelDisplay(LfpDisplaySplitter*, LfpDisplay*, LfpDisplayOptions*, int channelNumber);
 
-    /** Destructor */
-    ~LfpChannelDisplay();
+		/** Destructor */
+		~LfpChannelDisplay();
 
-    /** Sets component boundaries */
-    void resized();
-    
-    /** Renders the LfpChannelDisplay*/
-    void paint(Graphics& g);
-    
-    /** Similar to paint(), but just populates the lfpChannelBitmap
-    
-        needs to avoid a paint(Graphics& g) mechanism here becauswe we need to clear the screen in the lfpDisplay repaint(),
-        because otherwise we cant deal with the channel overlap (need to clear a vertical section first, _then_ all channels are
-        drawn, so cant do it per channel)
+		/** Sets component boundaries */
+		void resized();
 
-    */
-    void pxPaint();
+		/** Renders the LfpChannelDisplay*/
+		void paint(Graphics& g);
 
-    /** Populates the lfpChannelBitmap while scrolling back in time
+		/** Similar to paint(), but just populates the lfpChannelBitmap
 
-        needs to avoid a paint(Graphics& g) mechanism here becauswe we need to clear the screen in the lfpDisplay repaint(),
-        because otherwise we cant deal with the channel overlap (need to clear a vertical section first, _then_ all channels are
-        drawn, so cant do it per channel)
+			needs to avoid a paint(Graphics& g) mechanism here becauswe we need to clear the screen in the lfpDisplay repaint(),
+			because otherwise we cant deal with the channel overlap (need to clear a vertical section first, _then_ all channels are
+			drawn, so cant do it per channel)
 
-    */
-    void pxPaintHistory(int playhead, int rightEdge, int maxScreenBufferIndex);
-                
-    /** Selects this channel*/
-    void select();
+		*/
+        void pxPaint();
 
-    /** Deselects this channel */
-    void deselect();
+        /** Populates the lfpChannelBitmap while scrolling back in time
 
-    /** Returns true if this channel is selected */
-    bool getSelected();
+            needs to avoid a paint(Graphics& g) mechanism here becauswe we need to clear the screen in the lfpDisplay repaint(),
+            because otherwise we cant deal with the channel overlap (need to clear a vertical section first, _then_ all channels are
+            drawn, so cant do it per channel)
 
-    /** Sets the channel name */
-    void setName(String);
+        */
+        void pxPaintHistory(int playhead, int rightEdge, int maxScreenBufferIndex);
 
-    /** Sets the channel group */
-    void setGroup(int);
+		/** Selects this channel*/
+		void select();
 
-    /** Sets the channel depth*/
-    void setDepth(float);
+		/** Deselects this channel */
+		void deselect();
 
-    /** Sets whether or not the channel is recorded by an upstream Record Node*/
-    void setRecorded(bool);
+		/** Returns true if this channel is selected */
+		bool getSelected();
 
-    /** Sets the color for this channel's trace */
-    void setColour(Colour c);
+		/** Sets the channel name */
+		void setName(String);
 
-    /** Sets the height for this channel */
-    void setChannelHeight(int);
+		/** Sets the channel group */
+		void setGroup(int);
 
-    /** Returns the height for this channel*/
-    int getChannelHeight();
+		/** Sets the channel depth*/
+		void setDepth(float);
 
-    /** Sets the amount of pixel overlap with adjacent channels */
-    void setChannelOverlap(int);
+		/** Sets whether or not the channel is recorded by an upstream Record Node*/
+		void setRecorded(bool);
 
-    /** Returns the amount of pixel overlap with adjacent channels*/
-    int getChannelOverlap();
-    
-    /** Return the assigned channel number */
-    int getChannelNumber();
-    
-    /** Return the assigned channel name */
-    String getName();
+		/** Sets the color for this channel's trace */
+		void setColour(Colour c);
 
-    /** Returns the assigned channel number for this display, relative
-        to the subset of channels being drawn to the canvas */
-    int getDrawableChannelNumber();
-    
-    /** Set the channel number of this channel relative to the subset of
-        channels being drawn to the canvas */
-    void setDrawableChannelNumber(int channelId);
+		/** Sets the height for this channel */
+		void setChannelHeight(int);
 
-    /** Sets the voltage range for this channel */
-    void setRange(float min, float max);
+		/** Returns the height for this channel*/
+		int getChannelHeight();
 
-    /** Returns the min voltage range index for this channel*/
-    float getRangeMin();
+		/** Sets the amount of pixel overlap with adjacent channels */
+		void setChannelOverlap(int);
 
-    /** Returns the max voltage range index for this channel*/
-    float getRangeMax();
+		/** Returns the amount of pixel overlap with adjacent channels*/
+		int getChannelOverlap();
 
-    /** Sets whether this channel display should be inverted */
-    void setInputInverted(bool);
+		/** Return the assigned channel number */
+		int getChannelNumber();
 
-    /** Returns whether this channel display is inverted */
-    bool getInputInverted();
+		/** Return the assigned channel name */
+		String getName();
 
-    /** Sets whether this channel display can be inverted */
-    void setCanBeInverted(bool);
+		/** Returns the assigned channel number for this display, relative
+			to the subset of channels being drawn to the canvas */
+		int getDrawableChannelNumber();
 
-    /** Switches between pixel-wise and histogram drawing methods */
-    void setDrawMethod(bool);
+		/** Set the channel number of this channel relative to the subset of
+			channels being drawn to the canvas */
+		void setDrawableChannelNumber(int channelId);
 
-    /** Returns the available options for this channel */
-    PopupMenu getOptions();
+		/** Sets the voltage range for this channel */
+		void setRange(float min, float max);
 
-    /** Changes a parameter based on ID*/
-    void changeParameter(const int id);
+		/** Returns the min voltage range index for this channel*/
+		float getRangeMin();
 
-    /** Sets whether this channel is enabled */
-    void setEnabledState(bool);
+		/** Returns the max voltage range index for this channel*/
+		float getRangeMax();
 
-    /** Returns the enabled state for this channel*/
-    bool getEnabledState() { return isEnabled; }
-    
-    /** Set the isHidden flag, indicates whether this channel display
-        should render to screen or not */
-    void setHidden(bool);
-    
-    /** Return a bool flag describing whether this channel display is
-        hidden from the canvas */
-    bool getHidden() {
-        return isHidden;
-    }
+		/** Sets whether this channel display should be inverted */
+		void setInputInverted(bool);
 
-    /** Reut*/
-    ContinuousChannel::Type getType();
-    virtual void updateType(ContinuousChannel::Type);
+		/** Returns whether this channel display is inverted */
+		bool getInputInverted();
 
-    void setType(ContinuousChannel::Type);
+		/** Sets whether this channel display can be inverted */
+		void setCanBeInverted(bool);
 
-    float getDepth() { return depth; }
-    int getGroup() { return group; }
-    
-    int ifrom, ito, ito_local, ifrom_local;
+		/** Switches between pixel-wise and histogram drawing methods */
+		void setDrawMethod(bool);
 
-    bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
+		/** Returns the available options for this channel */
+		PopupMenu getOptions();
 
-protected:
-    
-    void drawEventOverlay(int x, int yfrom, int yto, Image::BitmapData* image);
+		/** Changes a parameter based on ID*/
+		void changeParameter(const int id);
 
-    LfpDisplaySplitter* canvasSplit;
-    LfpDisplay* display;
-    LfpDisplayOptions* options;
+		/** Sets whether this channel is enabled */
+		void setEnabledState(bool);
 
-    bool isSelected;
-    bool isHidden;
+		/** Returns the enabled state for this channel*/
+		bool getEnabledState() { return isEnabled; }
 
-    int chan;
-    int drawableChan;
+		/** Set the isHidden flag, indicates whether this channel display
+			should render to screen or not */
+		void setHidden(bool);
 
-    String name;
-    int group;
-    float depth;
-    bool isRecorded;
+		/** Return a bool flag describing whether this channel display is
+			hidden from the canvas */
+		bool getHidden() {
+			return isHidden;
+		}
 
-    Font channelFont;
+		/** Reut*/
+		ContinuousChannel::Type getType();
+		virtual void updateType(ContinuousChannel::Type);
 
-    Colour lineColour;
+		void setType(ContinuousChannel::Type);
 
-    int channelOverlap;
-    int channelHeight;
-    float channelHeightFloat;
+		float getDepth() { return depth; }
+		int getGroup() { return group; }
 
-    float rangeMin;
-    float rangeMax;
+		int ifrom, ito, ito_local, ifrom_local;
 
-    bool isEnabled;
-    bool inputInverted;
-    bool canBeInverted;
-    bool drawMethod;
-    bool recordingIsActive;
+		bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
-    ContinuousChannel::Type type;
-    String typeStr;
-    
-};
-   
+	protected:
+
+		void drawEventOverlay(int x, int yfrom, int yto, Image::BitmapData* image);
+
+		LfpDisplaySplitter* canvasSplit;
+		LfpDisplay* display;
+		LfpDisplayOptions* options;
+
+		bool isSelected;
+		bool isHidden;
+
+		int chan;
+		int drawableChan;
+
+		String name;
+		int group;
+		float depth;
+		bool isRecorded;
+
+		Font channelFont;
+
+		Colour lineColour;
+
+		int channelOverlap;
+		int channelHeight;
+		float channelHeightFloat;
+
+		float rangeMin;
+		float rangeMax;
+
+		bool isEnabled;
+		bool inputInverted;
+		bool canBeInverted;
+		bool drawMethod;
+		bool recordingIsActive;
+
+		ContinuousChannel::Type type;
+		String typeStr;
+	
+	private:
+		void drawZeroLine(int center, int& m, Image::BitmapData& bdLfpChannelBitmap, int i);
+		void drawRangeMarkers(int center, int &m, juce::Image::BitmapData &bdLfpChannelBitmap, int i);
+		void drawEventMarkers(int index, int jfrom_wholechannel, int jto_wholechannel, juce::Image::BitmapData &bdLfpChannelBitmap, int i);
+		void drawPlot(int index, int i, bool drawWithOffsetCorrection, 
+			bool& clipWarningHi, bool& clipWarningLo, 
+			bool& saturateWarningHi, bool& saturateWarningLo,
+			bool& spikeFlag, LfpBitmapPlotterInfo& plotterInfo, Image::BitmapData& bdLfpChannelBitmap);
+		void drawCorrections(bool& clipWarningHi, bool& clipWarningLo, 
+			bool& saturateWarningHi, bool& saturateWarningLo, bool spikeFlag, 
+			int i, int jfrom_wholechannel_clip, int jto_wholechannel_clip, 
+			int jfrom_wholechannel, int jto_wholechannel,
+			Image::BitmapData& bdLfpChannelBitmap);
+	};
+
 }; // namespace
 #endif

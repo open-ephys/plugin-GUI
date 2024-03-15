@@ -43,1666 +43,1504 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace LfpViewer;
 
-LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitter* canvasSplit_, 
-                                     LfpTimescale* timescale_, LfpDisplay* lfpDisplay_, 
-                                     LfpDisplayNode* processor_)
-    : canvas(canvas_),
-      canvasSplit(canvasSplit_),
-      lfpDisplay(lfpDisplay_),
-      timescale(timescale_),
-      processor(processor_),
-      selectedChannelType(ContinuousChannel::Type::ELECTRODE),
-      labelFont("Fira Sans", "Regular", 13.0f),
-      labelColour(100, 100, 100),
-      medianOffsetOnForSpikeRaster(false),
-      ttlWordString("NONE")
+LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitter* canvasSplit_,
+	LfpTimescale* timescale_, LfpDisplay* lfpDisplay_,
+	LfpDisplayNode* processor_)
+	: canvas(canvas_),
+	canvasSplit(canvasSplit_),
+	lfpDisplay(lfpDisplay_),
+	timescale(timescale_),
+	processor(processor_),
+	selectedChannelType(ContinuousChannel::Type::ELECTRODE),
+	labelFont("Fira Sans", "Regular", 13.0f),
+	labelColour(100, 100, 100),
+	medianOffsetOnForSpikeRaster(false),
+	ttlWordString("NONE")
 {
 
-    // MAIN OPTIONS
+	// MAIN OPTIONS
 
-    // Timebase
-    timebases.add("0.050");
-    timebases.add("0.100");
-    timebases.add("0.250");
-    timebases.add("0.500");
-    timebases.add("1.0");
-    timebases.add("2.0");
-    timebases.add("3.0");
-    timebases.add("4.0");
-    timebases.add("5.0");
-    timebases.add("10.0");
-    timebases.add("20.0");
-    selectedTimebase = 6;
-    selectedTimebaseValue = timebases[selectedTimebase - 1];
+	// Timebase
+	timebases.add("0.050");
+	timebases.add("0.100");
+	timebases.add("0.250");
+	timebases.add("0.500");
+	timebases.add("1.0");
+	timebases.add("2.0");
+	timebases.add("3.0");
+	timebases.add("4.0");
+	timebases.add("5.0");
+	timebases.add("10.0");
+	timebases.add("20.0");
+	selectedTimebase = 6;
+	selectedTimebaseValue = timebases[selectedTimebase - 1];
 
-    timebaseSelection = std::make_unique<ComboBox>("Timebase");
-    timebaseSelection->addItemList(timebases, 1);
-    timebaseSelection->setSelectedId(selectedTimebase, sendNotification);
-    timebaseSelection->setEditableText(true);
-    timebaseSelection->addListener(this);
-    addAndMakeVisible(timebaseSelection.get());
+	timebaseSelection = std::make_unique<ComboBox>("Timebase");
+	timebaseSelection->addItemList(timebases, 1);
+	timebaseSelection->setSelectedId(selectedTimebase, sendNotification);
+	timebaseSelection->setEditableText(true);
+	timebaseSelection->addListener(this);
+	addAndMakeVisible(timebaseSelection.get());
 
-    // Channel height
-    spreads.add("6");
-    spreads.add("10");
-    spreads.add("20");
-    spreads.add("30");
-    spreads.add("40");
-    spreads.add("50");
-    spreads.add("60");
-    spreads.add("70");
-    spreads.add("80");
-    spreads.add("90");
-    spreads.add("100");
-    selectedSpread = 5;
-    selectedSpreadValue = spreads[selectedSpread - 1];
+	// Channel height
+	spreads.add("6");
+	spreads.add("10");
+	spreads.add("20");
+	spreads.add("30");
+	spreads.add("40");
+	spreads.add("50");
+	spreads.add("60");
+	spreads.add("70");
+	spreads.add("80");
+	spreads.add("90");
+	spreads.add("100");
+	selectedSpread = 5;
+	selectedSpreadValue = spreads[selectedSpread - 1];
 
-    spreadSelection = std::make_unique<ComboBox>("Spread");
-    spreadSelection->addItemList(spreads, 1);
-    spreadSelection->setSelectedId(selectedSpread, sendNotification);
-    spreadSelection->addListener(this);
-    spreadSelection->setEditableText(true);
-    addAndMakeVisible(spreadSelection.get());
+	spreadSelection = std::make_unique<ComboBox>("Spread");
+	spreadSelection->addItemList(spreads, 1);
+	spreadSelection->setSelectedId(selectedSpread, sendNotification);
+	spreadSelection->addListener(this);
+	spreadSelection->setEditableText(true);
+	addAndMakeVisible(spreadSelection.get());
 
-    // Voltage range
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-15000");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-10000");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-5000");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-2000");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-1000");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-750");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-500");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-400");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-250");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-100");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-50");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("-25");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("0");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("25");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("50");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("100");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("250");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("400");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("500");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("750");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("1000");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("2000");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("5000");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("10000");
-    voltageRanges[ContinuousChannel::Type::ELECTRODE].add("15000");
-    selectedVoltageRangeMax[ContinuousChannel::Type::ELECTRODE] = 4;
-    rangeGain[ContinuousChannel::Type::ELECTRODE] = 1; //uV
-    rangeSteps[ContinuousChannel::Type::ELECTRODE] = 20;
-    rangeUnits.add(CharPointer_UTF8("\xC2\xB5V"));
-    typeNames.add("DATA");
+	// Voltage range
+	voltageRangeValues[ContinuousChannel::Type::ELECTRODE] = std::make_pair(250, 250);
+	rangeGain[ContinuousChannel::Type::ELECTRODE] = 1; //uV
+	rangeSteps[ContinuousChannel::Type::ELECTRODE] = 20;
+	rangeUnits.add(CharPointer_UTF8("\xC2\xB5V"));
+	typeNames.add("DATA");
 
-    UtilityButton* tbut;
-    tbut = new UtilityButton("DATA", Font("Silkscreen", "Regular", 9));
-    tbut->setEnabledState(true);
-    tbut->setCorners(false, false, false, false);
-    tbut->addListener(this);
-    tbut->setClickingTogglesState(true);
-    tbut->setRadioGroupId(100, dontSendNotification);
-    tbut->setToggleState(true, dontSendNotification);
-    addAndMakeVisible(tbut);
-    typeButtons.add(tbut);
+	UtilityButton* tbut;
+	tbut = new UtilityButton("DATA", Font("Silkscreen", "Regular", 9));
+	tbut->setEnabledState(true);
+	tbut->setCorners(false, false, false, false);
+	tbut->addListener(this);
+	tbut->setClickingTogglesState(true);
+	tbut->setRadioGroupId(100, dontSendNotification);
+	tbut->setToggleState(true, dontSendNotification);
+	addAndMakeVisible(tbut);
+	typeButtons.add(tbut);
 
-    //Ranges for AUX/accelerometer data
-    voltageRanges[ContinuousChannel::Type::AUX].add("-2000");
-    voltageRanges[ContinuousChannel::Type::AUX].add("-1000");
-    voltageRanges[ContinuousChannel::Type::AUX].add("-750");
-    voltageRanges[ContinuousChannel::Type::AUX].add("-500");
-    voltageRanges[ContinuousChannel::Type::AUX].add("-400");
-    voltageRanges[ContinuousChannel::Type::AUX].add("-250");
-    voltageRanges[ContinuousChannel::Type::AUX].add("-100");
-    voltageRanges[ContinuousChannel::Type::AUX].add("-50");
-    voltageRanges[ContinuousChannel::Type::AUX].add("-25");
-    voltageRanges[ContinuousChannel::Type::AUX].add("0");
-    voltageRanges[ContinuousChannel::Type::AUX].add("25");
-    voltageRanges[ContinuousChannel::Type::AUX].add("50");
-    voltageRanges[ContinuousChannel::Type::AUX].add("100");
-    voltageRanges[ContinuousChannel::Type::AUX].add("250");
-    voltageRanges[ContinuousChannel::Type::AUX].add("400");
-    voltageRanges[ContinuousChannel::Type::AUX].add("500");
-    voltageRanges[ContinuousChannel::Type::AUX].add("750");
-    voltageRanges[ContinuousChannel::Type::AUX].add("1000");
-    voltageRanges[ContinuousChannel::Type::AUX].add("2000");
-    selectedVoltageRangeMax[ContinuousChannel::Type::AUX] = 9;
-    rangeGain[ContinuousChannel::Type::AUX] = 0.001f; //mV
-    rangeSteps[ContinuousChannel::Type::AUX] = 10;
-    rangeUnits.add("mV");
-    typeNames.add("AUX");
+	//Ranges for AUX/accelerometer data
+	voltageRangeValues[ContinuousChannel::Type::AUX] = std::make_pair(2000, 2000);
+	rangeGain[ContinuousChannel::Type::AUX] = 0.001f; //mV
+	rangeSteps[ContinuousChannel::Type::AUX] = 10;
+	rangeUnits.add("mV");
+	typeNames.add("AUX");
 
-    tbut = new UtilityButton("AUX", Font("Silkscreen", "Regular", 9));
-    tbut->setEnabledState(true);
-    tbut->setCorners(false, false, false, false);
-    tbut->addListener(this);
-    tbut->setClickingTogglesState(true);
-    tbut->setRadioGroupId(100, dontSendNotification);
-    tbut->setToggleState(false, dontSendNotification);
-    addAndMakeVisible(tbut);
-    typeButtons.add(tbut);
+	tbut = new UtilityButton("AUX", Font("Silkscreen", "Regular", 9));
+	tbut->setEnabledState(true);
+	tbut->setCorners(false, false, false, false);
+	tbut->addListener(this);
+	tbut->setClickingTogglesState(true);
+	tbut->setRadioGroupId(100, dontSendNotification);
+	tbut->setToggleState(false, dontSendNotification);
+	addAndMakeVisible(tbut);
+	typeButtons.add(tbut);
 
-    //Ranges for ADC data
-    voltageRanges[ContinuousChannel::Type::ADC].add("-10.0");
-    voltageRanges[ContinuousChannel::Type::ADC].add("-5.0");
-    voltageRanges[ContinuousChannel::Type::ADC].add("-2.0");
-    voltageRanges[ContinuousChannel::Type::ADC].add("-1.0");
-    voltageRanges[ContinuousChannel::Type::ADC].add("-0.5");
-    voltageRanges[ContinuousChannel::Type::ADC].add("-0.1");
-    voltageRanges[ContinuousChannel::Type::ADC].add("-0.05");
-    voltageRanges[ContinuousChannel::Type::ADC].add("-0.01");
-    voltageRanges[ContinuousChannel::Type::ADC].add("0.0");
-    voltageRanges[ContinuousChannel::Type::ADC].add("0.01");
-    voltageRanges[ContinuousChannel::Type::ADC].add("0.05");
-    voltageRanges[ContinuousChannel::Type::ADC].add("0.1");
-    voltageRanges[ContinuousChannel::Type::ADC].add("0.5");
-    voltageRanges[ContinuousChannel::Type::ADC].add("1.0");
-    voltageRanges[ContinuousChannel::Type::ADC].add("2.0");
-    voltageRanges[ContinuousChannel::Type::ADC].add("5.0");
-    voltageRanges[ContinuousChannel::Type::ADC].add("10.0");
-    selectedVoltageRangeMax[ContinuousChannel::Type::ADC] = 8;
-    rangeGain[ContinuousChannel::Type::ADC] = 1; //V
-    rangeSteps[ContinuousChannel::Type::ADC] = 0.1; //in V
-    rangeUnits.add("V");
-    typeNames.add("ADC");
+	//Ranges for ADC data
+	voltageRangeValues[ContinuousChannel::Type::ADC] = std::make_pair(10.0, 10.0);
+	rangeGain[ContinuousChannel::Type::ADC] = 1; //V
+	rangeSteps[ContinuousChannel::Type::ADC] = 0.1; //in V
+	rangeUnits.add("V");
+	typeNames.add("ADC");
 
-    tbut = new UtilityButton("ADC", Font("Silkscreen", "Regular", 9));
-    tbut->setEnabledState(true);
-    tbut->setCorners(false, false, false, false);
-    tbut->addListener(this);
-    tbut->setClickingTogglesState(true);
-    tbut->setRadioGroupId(100, dontSendNotification);
-    tbut->setToggleState(false, dontSendNotification);
-    addAndMakeVisible(tbut);
-    typeButtons.add(tbut);
+	tbut = new UtilityButton("ADC", Font("Silkscreen", "Regular", 9));
+	tbut->setEnabledState(true);
+	tbut->setCorners(false, false, false, false);
+	tbut->addListener(this);
+	tbut->setClickingTogglesState(true);
+	tbut->setRadioGroupId(100, dontSendNotification);
+	tbut->setToggleState(false, dontSendNotification);
+	addAndMakeVisible(tbut);
+	typeButtons.add(tbut);
 
-    selectedVoltageRangeValuesMax[ContinuousChannel::Type::ELECTRODE] = voltageRanges[ContinuousChannel::Type::ELECTRODE][selectedVoltageRangeMax[ContinuousChannel::Type::ELECTRODE] - 1];
-    selectedVoltageRangeValuesMax[ContinuousChannel::Type::AUX] = voltageRanges[ContinuousChannel::Type::AUX][selectedVoltageRangeMax[ContinuousChannel::Type::AUX] - 1];
-    selectedVoltageRangeValuesMax[ContinuousChannel::Type::ADC] = voltageRanges[ContinuousChannel::Type::ADC][selectedVoltageRangeMax[ContinuousChannel::Type::ADC] - 1];
+	voltageRangeMin = std::make_unique<Label>("Voltage range min", "250");
+	voltageRangeMin->setColour(Label::textColourId, Colours::white);
+	voltageRangeMin->setColour(Label::backgroundColourId, Colours::grey);
+	voltageRangeMin->setEditable(true);
+	voltageRangeMin->addListener(this);
+	addAndMakeVisible(voltageRangeMin.get());
 
-    rangeSelectionMin = std::make_unique<ComboBox>("Voltage range");
-    rangeSelectionMin->addItemList(voltageRanges[ContinuousChannel::Type::ELECTRODE], 1);
-    rangeSelectionMin->setSelectedId(selectedVoltageRangeMax[ContinuousChannel::Type::ELECTRODE], sendNotification);
-    rangeSelectionMin->setEditableText(true);
-    rangeSelectionMin->addListener(this);
-    addAndMakeVisible(rangeSelectionMin.get());
+	voltageRangeMax = std::make_unique<Label>("Voltage range max", "250");
+	voltageRangeMax->setColour(Label::textColourId, Colours::white);
+	voltageRangeMax->setColour(Label::backgroundColourId, Colours::grey);
+	voltageRangeMax->setEditable(true);
+	voltageRangeMax->addListener(this);
+	addAndMakeVisible(voltageRangeMax.get());
 
-    rangeSelectionMax = std::make_unique<ComboBox>("Voltage range");
-    rangeSelectionMax->addItemList(voltageRanges[ContinuousChannel::Type::ELECTRODE], 1);
-    rangeSelectionMax->setSelectedId(selectedVoltageRangeMax[ContinuousChannel::Type::ELECTRODE], sendNotification);
-    rangeSelectionMax->setEditableText(true);
-    rangeSelectionMax->addListener(this);
-    addAndMakeVisible(rangeSelectionMax.get());
+	// Event overlay
+	for (int i = 0; i < 8; i++)
+	{
 
-    // Event overlay
-    for (int i = 0; i < 8; i++)
-    {
+		EventDisplayInterface* eventOptions = new EventDisplayInterface(lfpDisplay, canvasSplit, i);
+		eventDisplayInterfaces.add(eventOptions);
+		addAndMakeVisible(eventOptions);
+		lfpDisplay->setEventDisplayState(i, true);
+	}
 
-        EventDisplayInterface* eventOptions = new EventDisplayInterface(lfpDisplay, canvasSplit, i);
-        eventDisplayInterfaces.add(eventOptions);
-        addAndMakeVisible(eventOptions);
-        lfpDisplay->setEventDisplayState(i, true);
-    }
+	// TTL Word
+	ttlWordLabel = std::make_unique<Label>("TTL word");
+	ttlWordLabel->setColour(Label::backgroundColourId, Colour(25, 25, 25));
+	ttlWordLabel->setColour(Label::textColourId, Colour(120, 120, 100));
+	addAndMakeVisible(ttlWordLabel.get());
+	startTimer(250);
 
-    // TTL Word
-    ttlWordLabel = std::make_unique<Label>("TTL word");
-    ttlWordLabel->setColour(Label::backgroundColourId, Colour(25,25,25));
-    ttlWordLabel->setColour(Label::textColourId, Colour(120,120,100));
-    addAndMakeVisible(ttlWordLabel.get());
-    startTimer(250);
+	// Pause button
+	pauseButton = std::make_unique<UtilityButton>("Pause", Font("Default", "Plain", 15));
+	pauseButton->setRadius(5.0f);
+	pauseButton->setEnabledState(true);
+	pauseButton->setCorners(true, true, true, true);
+	pauseButton->addListener(this);
+	pauseButton->setClickingTogglesState(true);
+	pauseButton->setToggleState(false, sendNotification);
+	addAndMakeVisible(pauseButton.get());
 
-    // Pause button
-    pauseButton = std::make_unique<UtilityButton>("Pause", Font("Default", "Plain", 15));
-    pauseButton->setRadius(5.0f);
-    pauseButton->setEnabledState(true);
-    pauseButton->setCorners(true, true, true, true);
-    pauseButton->addListener(this);
-    pauseButton->setClickingTogglesState(true);
-    pauseButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(pauseButton.get());
+	// Color scheme
+	StringArray colourSchemeNames = lfpDisplay->getColourSchemeNameArray();
+	colourSchemeOptionSelection = std::make_unique<ComboBox>("colorSchemeOptionSelection");
+	colourSchemeOptionSelection->addItemList(colourSchemeNames, 1);
+	colourSchemeOptionSelection->setEditableText(false);
+	colourSchemeOptionSelection->addListener(this);
+	colourSchemeOptionSelection->setSelectedId(1, dontSendNotification);
+	addAndMakeVisible(colourSchemeOptionSelection.get());
 
-    // Color scheme
-    StringArray colourSchemeNames = lfpDisplay->getColourSchemeNameArray();
-    colourSchemeOptionSelection = std::make_unique<ComboBox>("colorSchemeOptionSelection");
-    colourSchemeOptionSelection->addItemList(colourSchemeNames, 1);
-    colourSchemeOptionSelection->setEditableText(false);
-    colourSchemeOptionSelection->addListener(this);
-    colourSchemeOptionSelection->setSelectedId(1, dontSendNotification);
-    addAndMakeVisible(colourSchemeOptionSelection.get());
+	// Color grouping
+	colorGroupings.add("1");
+	colorGroupings.add("2");
+	colorGroupings.add("4");
+	colorGroupings.add("8");
+	colorGroupings.add("16");
 
-    // Color grouping
-    colorGroupings.add("1");
-    colorGroupings.add("2");
-    colorGroupings.add("4");
-    colorGroupings.add("8");
-    colorGroupings.add("16");
+	colorGroupingSelection = std::make_unique<ComboBox>("Color Grouping");
+	colorGroupingSelection->addItemList(colorGroupings, 1);
+	colorGroupingSelection->setSelectedId(1, sendNotification);
+	colorGroupingSelection->addListener(this);
+	addAndMakeVisible(colorGroupingSelection.get());
 
-    colorGroupingSelection = std::make_unique<ComboBox>("Color Grouping");
-    colorGroupingSelection->addItemList(colorGroupings, 1);
-    colorGroupingSelection->setSelectedId(1, sendNotification);
-    colorGroupingSelection->addListener(this);
-    addAndMakeVisible(colorGroupingSelection.get());
+	// THRESHOLDS SECTION
+	sectionTitles.add("THRESHOLDS");
 
-    // THRESHOLDS SECTION
-    sectionTitles.add("THRESHOLDS");
+	// Spike raster
+	spikeRasterSelectionOptions = { "OFF", "-50", "-100", "-150", "-200", "-300", "-400", "-500" };
+	selectedSpikeRasterThreshold = 1;
+	selectedSpikeRasterThresholdValue = spikeRasterSelectionOptions[selectedSpikeRasterThreshold - 1];
 
-    // Spike raster
-    spikeRasterSelectionOptions = { "OFF", "-50", "-100", "-150", "-200", "-300", "-400", "-500" };
-    selectedSpikeRasterThreshold = 1;
-    selectedSpikeRasterThresholdValue = spikeRasterSelectionOptions[selectedSpikeRasterThreshold - 1];
+	spikeRasterSelection = std::make_unique<ComboBox>("spikeRasterSelection");
+	spikeRasterSelection->addItemList(spikeRasterSelectionOptions, 1);
+	spikeRasterSelection->setSelectedId(selectedSpikeRasterThreshold, dontSendNotification);
+	spikeRasterSelection->setEditableText(true);
+	spikeRasterSelection->addListener(this);
+	addAndMakeVisible(spikeRasterSelection.get());
 
-    spikeRasterSelection = std::make_unique<ComboBox>("spikeRasterSelection");
-    spikeRasterSelection->addItemList(spikeRasterSelectionOptions, 1);
-    spikeRasterSelection->setSelectedId(selectedSpikeRasterThreshold, dontSendNotification);
-    spikeRasterSelection->setEditableText(true);
-    spikeRasterSelection->addListener(this);
-    addAndMakeVisible(spikeRasterSelection.get());
+	// Clip warning
+	clipThresholds.add("OFF");
+	clipThresholds.add("ON");
 
-    // Clip warning
-    clipThresholds.add("OFF");
-    clipThresholds.add("ON");
+	clipWarningSelection = std::make_unique<ComboBox>("Clip Warning");
+	clipWarningSelection->addItemList(clipThresholds, 1);
+	clipWarningSelection->setSelectedId(1, dontSendNotification);
+	clipWarningSelection->addListener(this);
+	clipWarningSelection->setEditableText(false);
+	addAndMakeVisible(clipWarningSelection.get());
 
-    clipWarningSelection = std::make_unique<ComboBox>("Clip Warning");
-    clipWarningSelection->addItemList(clipThresholds, 1);
-    clipWarningSelection->setSelectedId(1, dontSendNotification);
-    clipWarningSelection->addListener(this);
-    clipWarningSelection->setEditableText(false);
-    addAndMakeVisible(clipWarningSelection.get());
+	// Saturation warning
+	saturationThresholds.add("OFF");
+	saturationThresholds.add("0.5");
+	saturationThresholds.add("100");
+	saturationThresholds.add("1000");
+	saturationThresholds.add("5000");
+	saturationThresholds.add("6389");
 
-    // Saturation warning
-    saturationThresholds.add("OFF");
-    saturationThresholds.add("0.5");
-    saturationThresholds.add("100");
-    saturationThresholds.add("1000");
-    saturationThresholds.add("5000");
-    saturationThresholds.add("6389");
-
-    saturationWarningSelection = std::make_unique<ComboBox>("Saturation Warning");
-    saturationWarningSelection->addItemList(saturationThresholds, 1);
-    saturationWarningSelection->setSelectedId(1, dontSendNotification);
-    saturationWarningSelection->addListener(this);
-    saturationWarningSelection->setEditableText(false);
-    addAndMakeVisible(saturationWarningSelection.get());
+	saturationWarningSelection = std::make_unique<ComboBox>("Saturation Warning");
+	saturationWarningSelection->addItemList(saturationThresholds, 1);
+	saturationWarningSelection->setSelectedId(1, dontSendNotification);
+	saturationWarningSelection->addListener(this);
+	saturationWarningSelection->setEditableText(false);
+	addAndMakeVisible(saturationWarningSelection.get());
 
 
-    // CHANNELS SECTION
-    sectionTitles.add("CHANNELS");
+	// CHANNELS SECTION
+	sectionTitles.add("CHANNELS");
 
-    // Reverse order
-    reverseChannelsDisplayButton = std::make_unique<UtilityButton>("OFF", labelFont);
-    reverseChannelsDisplayButton->setRadius(5.0f);
-    reverseChannelsDisplayButton->setEnabledState(true);
-    reverseChannelsDisplayButton->setCorners(true, true, true, true);
-    reverseChannelsDisplayButton->addListener(this);
-    reverseChannelsDisplayButton->setClickingTogglesState(true);
-    reverseChannelsDisplayButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(reverseChannelsDisplayButton.get());
+	// Reverse order
+	reverseChannelsDisplayButton = std::make_unique<UtilityButton>("OFF", labelFont);
+	reverseChannelsDisplayButton->setRadius(5.0f);
+	reverseChannelsDisplayButton->setEnabledState(true);
+	reverseChannelsDisplayButton->setCorners(true, true, true, true);
+	reverseChannelsDisplayButton->addListener(this);
+	reverseChannelsDisplayButton->setClickingTogglesState(true);
+	reverseChannelsDisplayButton->setToggleState(false, sendNotification);
+	addAndMakeVisible(reverseChannelsDisplayButton.get());
 
-    // Sort by depth
-    sortByDepthButton = std::make_unique<UtilityButton>("OFF", labelFont);
-    sortByDepthButton->setRadius(5.0f);
-    sortByDepthButton->setEnabledState(true);
-    sortByDepthButton->setCorners(true, true, true, true);
-    sortByDepthButton->addListener(this);
-    sortByDepthButton->setClickingTogglesState(true);
-    sortByDepthButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(sortByDepthButton.get());
+	// Sort by depth
+	sortByDepthButton = std::make_unique<UtilityButton>("OFF", labelFont);
+	sortByDepthButton->setRadius(5.0f);
+	sortByDepthButton->setEnabledState(true);
+	sortByDepthButton->setCorners(true, true, true, true);
+	sortByDepthButton->addListener(this);
+	sortByDepthButton->setClickingTogglesState(true);
+	sortByDepthButton->setToggleState(false, sendNotification);
+	addAndMakeVisible(sortByDepthButton.get());
 
-    // Channel skip
-    channelDisplaySkipOptions.add("None");
-    channelDisplaySkipOptions.add("2");
-    channelDisplaySkipOptions.add("4");
-    channelDisplaySkipOptions.add("8");
-    channelDisplaySkipOptions.add("16");
-    channelDisplaySkipOptions.add("32");
-    channelDisplaySkipOptions.add("64");
-    selectedChannelDisplaySkip = 1;
-    selectedChannelDisplaySkipValue = channelDisplaySkipOptions[selectedChannelDisplaySkip - 1];
-    
-    channelDisplaySkipSelection = std::make_unique<ComboBox>("Channel Skip");
-    channelDisplaySkipSelection->addItemList(channelDisplaySkipOptions, 1);
-    channelDisplaySkipSelection->setSelectedId(selectedChannelDisplaySkip, sendNotification);
-    channelDisplaySkipSelection->setEditableText(false);
-    channelDisplaySkipSelection->addListener(this);
-    addAndMakeVisible(channelDisplaySkipSelection.get());
+	// Channel skip
+	channelDisplaySkipOptions.add("None");
+	channelDisplaySkipOptions.add("2");
+	channelDisplaySkipOptions.add("4");
+	channelDisplaySkipOptions.add("8");
+	channelDisplaySkipOptions.add("16");
+	channelDisplaySkipOptions.add("32");
+	channelDisplaySkipOptions.add("64");
+	selectedChannelDisplaySkip = 1;
+	selectedChannelDisplaySkipValue = channelDisplaySkipOptions[selectedChannelDisplaySkip - 1];
 
-    // Show channel number button
-    showChannelNumberButton = std::make_unique<UtilityButton>("OFF", labelFont);
-    showChannelNumberButton->setRadius(5.0f);
-    showChannelNumberButton->setEnabledState(true);
-    showChannelNumberButton->setCorners(true, true, true, true);
-    showChannelNumberButton->addListener(this);
-    showChannelNumberButton->setClickingTogglesState(true);
-    showChannelNumberButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(showChannelNumberButton.get());
+	channelDisplaySkipSelection = std::make_unique<ComboBox>("Channel Skip");
+	channelDisplaySkipSelection->addItemList(channelDisplaySkipOptions, 1);
+	channelDisplaySkipSelection->setSelectedId(selectedChannelDisplaySkip, sendNotification);
+	channelDisplaySkipSelection->setEditableText(false);
+	channelDisplaySkipSelection->addListener(this);
+	addAndMakeVisible(channelDisplaySkipSelection.get());
 
-    // SIGNAL PROCESSING SECTION
-    sectionTitles.add("SIGNALS");
+	// Show channel number button
+	showChannelNumberButton = std::make_unique<UtilityButton>("OFF", labelFont);
+	showChannelNumberButton->setRadius(5.0f);
+	showChannelNumberButton->setEnabledState(true);
+	showChannelNumberButton->setCorners(true, true, true, true);
+	showChannelNumberButton->addListener(this);
+	showChannelNumberButton->setClickingTogglesState(true);
+	showChannelNumberButton->setToggleState(false, sendNotification);
+	addAndMakeVisible(showChannelNumberButton.get());
 
-    // invert signal
-    invertInputButton = std::make_unique<UtilityButton>("OFF", labelFont);
-    invertInputButton->setRadius(5.0f);
-    invertInputButton->setEnabledState(true);
-    invertInputButton->setCorners(true, true, true, true);
-    invertInputButton->addListener(this);
-    invertInputButton->setClickingTogglesState(true);
-    invertInputButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(invertInputButton.get());
+	// SIGNAL PROCESSING SECTION
+	sectionTitles.add("SIGNALS");
 
-    // subtract offset
-    medianOffsetPlottingButton = std::make_unique<UtilityButton>("OFF", labelFont);
-    medianOffsetPlottingButton->setRadius(5.0f);
-    medianOffsetPlottingButton->setEnabledState(true);
-    medianOffsetPlottingButton->setCorners(true, true, true, true);
-    medianOffsetPlottingButton->addListener(this);
-    medianOffsetPlottingButton->setClickingTogglesState(true);
-    medianOffsetPlottingButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(medianOffsetPlottingButton.get());
+	// invert signal
+	invertInputButton = std::make_unique<UtilityButton>("OFF", labelFont);
+	invertInputButton->setRadius(5.0f);
+	invertInputButton->setEnabledState(true);
+	invertInputButton->setCorners(true, true, true, true);
+	invertInputButton->addListener(this);
+	invertInputButton->setClickingTogglesState(true);
+	invertInputButton->setToggleState(false, sendNotification);
+	addAndMakeVisible(invertInputButton.get());
 
-    // TRIGGERED DISPLAY
-    sectionTitles.add("TRIGGERED DISPLAY");
-    // trigger channel selection
-    triggerSources.add("None");
-    for (int k = 1; k <= 8; k++)
-    {
-        triggerSources.add(String(k));
-    }
+	// subtract offset
+	medianOffsetPlottingButton = std::make_unique<UtilityButton>("OFF", labelFont);
+	medianOffsetPlottingButton->setRadius(5.0f);
+	medianOffsetPlottingButton->setEnabledState(true);
+	medianOffsetPlottingButton->setCorners(true, true, true, true);
+	medianOffsetPlottingButton->addListener(this);
+	medianOffsetPlottingButton->setClickingTogglesState(true);
+	medianOffsetPlottingButton->setToggleState(false, sendNotification);
+	addAndMakeVisible(medianOffsetPlottingButton.get());
 
-    triggerSourceSelection = std::make_unique<ComboBox>("Trigger Source");
-    triggerSourceSelection->addItemList(triggerSources, 1);
-    triggerSourceSelection->setSelectedId(1, sendNotification);
-    triggerSourceSelection->addListener(this);
-    addAndMakeVisible(triggerSourceSelection.get());
+	// TRIGGERED DISPLAY
+	sectionTitles.add("TRIGGERED DISPLAY");
+	// trigger channel selection
+	triggerSources.add("None");
+	for (int k = 1; k <= 8; k++)
+	{
+		triggerSources.add(String(k));
+	}
 
-    // average signal
-    averageSignalButton = std::make_unique<UtilityButton>("OFF", labelFont);
-    averageSignalButton->setRadius(5.0f);
-    averageSignalButton->setEnabledState(true);
-    averageSignalButton->setCorners(true, true, true, true);
-    averageSignalButton->addListener(this);
-    averageSignalButton->setClickingTogglesState(true);
-    averageSignalButton->setToggleState(false, sendNotification);
-    addAndMakeVisible(averageSignalButton.get());
+	triggerSourceSelection = std::make_unique<ComboBox>("Trigger Source");
+	triggerSourceSelection->addItemList(triggerSources, 1);
+	triggerSourceSelection->setSelectedId(1, sendNotification);
+	triggerSourceSelection->addListener(this);
+	addAndMakeVisible(triggerSourceSelection.get());
 
-    // reset triggered display
-    resetButton = std::make_unique<UtilityButton>("RESET", labelFont);
-    resetButton->setRadius(5.0f);
-    resetButton->setEnabledState(true);
-    resetButton->setCorners(true, true, true, true);
-    resetButton->addListener(this);
-    resetButton->setClickingTogglesState(false);
-    resetButton->setToggleState(false, sendNotification);
-    addChildComponent(resetButton.get());
+	// average signal
+	averageSignalButton = std::make_unique<UtilityButton>("OFF", labelFont);
+	averageSignalButton->setRadius(5.0f);
+	averageSignalButton->setEnabledState(true);
+	averageSignalButton->setCorners(true, true, true, true);
+	averageSignalButton->addListener(this);
+	averageSignalButton->setClickingTogglesState(true);
+	averageSignalButton->setToggleState(false, sendNotification);
+	addAndMakeVisible(averageSignalButton.get());
 
-    // init show/hide options button
-    showHideOptionsButton = std::make_unique<ShowHideOptionsButton>(this);
-    showHideOptionsButton->addListener(this);
-    addAndMakeVisible(showHideOptionsButton.get());
+	// reset triggered display
+	resetButton = std::make_unique<UtilityButton>("RESET", labelFont);
+	resetButton->setRadius(5.0f);
+	resetButton->setEnabledState(true);
+	resetButton->setCorners(true, true, true, true);
+	resetButton->addListener(this);
+	resetButton->setClickingTogglesState(false);
+	resetButton->setToggleState(false, sendNotification);
+	addChildComponent(resetButton.get());
 
-    // do we still need this?
-    overlaps.add("0.5");
-    overlaps.add("0.75");
-    overlaps.add("1");
-    overlaps.add("2");
-    overlaps.add("3");
-    overlaps.add("4");
-    overlaps.add("5");
-    selectedOverlap = 4;
-    selectedOverlapValue = overlaps[selectedOverlap-1];
+	// init show/hide options button
+	showHideOptionsButton = std::make_unique<ShowHideOptionsButton>(this);
+	showHideOptionsButton->addListener(this);
+	addAndMakeVisible(showHideOptionsButton.get());
 
-    overlapSelection = std::make_unique<ComboBox>("Overlap");
-    overlapSelection->addItemList(overlaps, 1);
-    overlapSelection->setSelectedId(selectedOverlap,sendNotification);
-    overlapSelection->addListener(this);
-    overlapSelection->setEditableText(true);
-    addAndMakeVisible(overlapSelection.get());
-    
-    //Ranges for neural data
-    lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::ELECTRODE][selectedVoltageRangeMax[ContinuousChannel::Type::ELECTRODE] - 1].getFloatValue()
-        *rangeGain[ContinuousChannel::Type::ELECTRODE]
-        , ContinuousChannel::Type::ELECTRODE);
-    lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::ADC][selectedVoltageRangeMax[ContinuousChannel::Type::ADC] - 1].getFloatValue()
-        *rangeGain[ContinuousChannel::Type::AUX]
-        , ContinuousChannel::Type::ADC);
-    lfpDisplay->setRange(voltageRanges[ContinuousChannel::Type::AUX][selectedVoltageRangeMax[ContinuousChannel::Type::AUX] - 1].getFloatValue()
-        *rangeGain[ContinuousChannel::Type::AUX]
-        , ContinuousChannel::Type::AUX);
+	// do we still need this?
+	overlaps.add("0.5");
+	overlaps.add("0.75");
+	overlaps.add("1");
+	overlaps.add("2");
+	overlaps.add("3");
+	overlaps.add("4");
+	overlaps.add("5");
+	selectedOverlap = 4;
+	selectedOverlapValue = overlaps[selectedOverlap - 1];
 
+	overlapSelection = std::make_unique<ComboBox>("Overlap");
+	overlapSelection->addItemList(overlaps, 1);
+	overlapSelection->setSelectedId(selectedOverlap, sendNotification);
+	overlapSelection->addListener(this);
+	overlapSelection->setEditableText(true);
+	addAndMakeVisible(overlapSelection.get());
+
+	//Ranges for neural data
+	float minElectrode = voltageRangeValues[ContinuousChannel::Type::ELECTRODE].first * rangeGain[ContinuousChannel::Type::ELECTRODE];
+	float minAdc = voltageRangeValues[ContinuousChannel::Type::ADC].first * rangeGain[ContinuousChannel::Type::AUX];
+	float minAux = voltageRangeValues[ContinuousChannel::Type::AUX].first * rangeGain[ContinuousChannel::Type::AUX];
+	float maxElectrode = voltageRangeValues[ContinuousChannel::Type::ELECTRODE].second * rangeGain[ContinuousChannel::Type::ELECTRODE];
+	float maxAdc = voltageRangeValues[ContinuousChannel::Type::ADC].second * rangeGain[ContinuousChannel::Type::AUX];
+	float maxAux = voltageRangeValues[ContinuousChannel::Type::AUX].second * rangeGain[ContinuousChannel::Type::AUX];
+
+	lfpDisplay->setRange(minElectrode, maxElectrode, ContinuousChannel::Type::ELECTRODE);
+	lfpDisplay->setRange(minAdc, maxAdc, ContinuousChannel::Type::ADC);
+	lfpDisplay->setRange(minAux, maxAux, ContinuousChannel::Type::AUX);
 }
 
 void LfpDisplayOptions::timerCallback()
 {
-    ttlWordLabel->setText(ttlWordString, dontSendNotification);
+	ttlWordLabel->setText(ttlWordString, dontSendNotification);
+}
+
+void LfpViewer::LfpDisplayOptions::labelTextChanged(Label* labelThatHasChanged)
+{
+	if (labelThatHasChanged != voltageRangeMin.get() || labelThatHasChanged != voltageRangeMax.get())
+		return; 
+
+	if (labelThatHasChanged->getText().getFloatValue() == 0.0f)
+		labelThatHasChanged->setText("1", dontSendNotification);
+		
+    lfpDisplay->setRange(voltageRangeMin->getText().getFloatValue(), voltageRangeMax->getText().getFloatValue(), selectedChannelType);
 }
 
 void LfpDisplayOptions::resized()
 {
-    int height = 22;
+	int height = 22;
 
-    // MAIN OPTIONS
-    timebaseSelection->setBounds(8, getHeight() - 30, 90, height);
-    spreadSelection->setBounds(timebaseSelection->getRight() + 20, getHeight() - 30, 90, height);
-    rangeSelectionMin->setBounds(spreadSelection->getRight() + 20, getHeight() - 30, 90, height);
-    rangeSelectionMax->setBounds(rangeSelectionMin->getRight() + 5, getHeight()-30, 90, height);
+	// MAIN OPTIONS
+	timebaseSelection->setBounds(8, getHeight() - 30, 90, height);
+	spreadSelection->setBounds(timebaseSelection->getRight() + 20, getHeight() - 30, 90, height);
+	voltageRangeMin->setBounds(spreadSelection->getRight() + 20, getHeight() - 30, 90, height);
+	voltageRangeMax->setBounds(voltageRangeMin->getRight() + 5, getHeight() - 30, 90, height);
 
-    int bh = 25 / typeButtons.size();
-    for (int i = 0; i < typeButtons.size(); i++)
-    {
-        typeButtons[i]->setBounds(rangeSelectionMax->getRight()+5, getHeight() - 30 + i * bh, 50, bh);
-    }
+	int bh = 25 / typeButtons.size();
+	for (int i = 0; i < typeButtons.size(); i++)
+	{
+		typeButtons[i]->setBounds(voltageRangeMax->getRight() + 5, getHeight() - 30 + i * bh, 50, bh);
+	}
 
-    for (int i = 0; i < 8; i++)
-    {
-        eventDisplayInterfaces[i]->setBounds(typeButtons[0]->getRight() + 90 + (floor(i / 2) * 20),
-                                                            getHeight() - 45 + (i % 2) * 20, 20, 20); // arrange event channel buttons in two rows
-        eventDisplayInterfaces[i]->repaint();
-    }
+	for (int i = 0; i < 8; i++)
+	{
+		eventDisplayInterfaces[i]->setBounds(typeButtons[0]->getRight() + 90 + (floor(i / 2) * 20),
+			getHeight() - 45 + (i % 2) * 20, 20, 20); // arrange event channel buttons in two rows
+		eventDisplayInterfaces[i]->repaint();
+	}
 
-    ttlWordLabel->setBounds(700, getHeight() - 30, 90, height);
+	ttlWordLabel->setBounds(700, getHeight() - 30, 90, height);
 
-    pauseButton->setBounds(ttlWordLabel->getRight() + 30, getHeight() - 40, 70, 30);
-    
-    colourSchemeOptionSelection->setBounds(pauseButton->getRight() + 30,
-        getHeight() - 30,
-        180,
-        height);
+	pauseButton->setBounds(ttlWordLabel->getRight() + 30, getHeight() - 40, 70, 30);
 
-    colorGroupingSelection->setBounds(colourSchemeOptionSelection->getRight() + 15, getHeight() - 30, 55, height);
+	colourSchemeOptionSelection->setBounds(pauseButton->getRight() + 30,
+		getHeight() - 30,
+		180,
+		height);
 
-    int startHeight = 167;
-    int verticalSpacing = 29;
-    int xOffset = 200;
+	colorGroupingSelection->setBounds(colourSchemeOptionSelection->getRight() + 15, getHeight() - 30, 55, height);
 
-    // THRESHOLDS
-    spikeRasterSelection->setBounds(96,
-        getHeight() - startHeight,
-        80,
-        height);
+	int startHeight = 167;
+	int verticalSpacing = 29;
+	int xOffset = 200;
 
-    clipWarningSelection->setBounds(96,
-        getHeight() - startHeight + verticalSpacing, 
-        80, 
-        height);
+	// THRESHOLDS
+	spikeRasterSelection->setBounds(96,
+		getHeight() - startHeight,
+		80,
+		height);
 
-    saturationWarningSelection->setBounds(96,
-        getHeight() - startHeight + verticalSpacing * 2,
-        80, 
-        height);
+	clipWarningSelection->setBounds(96,
+		getHeight() - startHeight + verticalSpacing,
+		80,
+		height);
 
-    // CHANNELS
-    
-    reverseChannelsDisplayButton->setBounds(getWidth() / 4 + 107,
-        getHeight() - startHeight,
-        35,
-        height);
+	saturationWarningSelection->setBounds(96,
+		getHeight() - startHeight + verticalSpacing * 2,
+		80,
+		height);
 
-    sortByDepthButton->setBounds(getWidth() / 4 + 102,
-        getHeight() - startHeight + verticalSpacing,
-        35,
-        height);
+	// CHANNELS
 
-    channelDisplaySkipSelection->setBounds(getWidth() / 4 + 47,
-        getHeight() - startHeight + verticalSpacing *2,
-        80,
-        height);
-    
-    showChannelNumberButton->setBounds(getWidth() / 4 + 102,
-             getHeight() - startHeight + +verticalSpacing*3,
-             35,
-        height);
+	reverseChannelsDisplayButton->setBounds(getWidth() / 4 + 107,
+		getHeight() - startHeight,
+		35,
+		height);
 
-    // SIGNAL PROCESSING
-    invertInputButton->setBounds(getWidth() / 2 + 95,
-        getHeight() - startHeight, 
-        35, 
-        height);
+	sortByDepthButton->setBounds(getWidth() / 4 + 102,
+		getHeight() - startHeight + verticalSpacing,
+		35,
+		height);
 
-    medianOffsetPlottingButton->setBounds(getWidth() / 2 + 110,
-        getHeight()- startHeight + verticalSpacing,
-        35,
-        height);
+	channelDisplaySkipSelection->setBounds(getWidth() / 4 + 47,
+		getHeight() - startHeight + verticalSpacing * 2,
+		80,
+		height);
 
-    //TRIGGERED DISPLAY
-    triggerSourceSelection->setBounds(getWidth() / 4 * 3 + 118,
-        getHeight()-startHeight,
-        80,
-        height);
+	showChannelNumberButton->setBounds(getWidth() / 4 + 102,
+		getHeight() - startHeight + +verticalSpacing * 3,
+		35,
+		height);
 
-    averageSignalButton->setBounds(getWidth() / 4 * 3 + 112,
-        getHeight() - startHeight + verticalSpacing, 
-        35, 
-        height);
+	// SIGNAL PROCESSING
+	invertInputButton->setBounds(getWidth() / 2 + 95,
+		getHeight() - startHeight,
+		35,
+		height);
 
-    resetButton->setBounds(getWidth() / 4 * 3 + 156,
-        getHeight() - startHeight + verticalSpacing, 
-        50, 
-        height);
+	medianOffsetPlottingButton->setBounds(getWidth() / 2 + 110,
+		getHeight() - startHeight + verticalSpacing,
+		35,
+		height);
+
+	//TRIGGERED DISPLAY
+	triggerSourceSelection->setBounds(getWidth() / 4 * 3 + 118,
+		getHeight() - startHeight,
+		80,
+		height);
+
+	averageSignalButton->setBounds(getWidth() / 4 * 3 + 112,
+		getHeight() - startHeight + verticalSpacing,
+		35,
+		height);
+
+	resetButton->setBounds(getWidth() / 4 * 3 + 156,
+		getHeight() - startHeight + verticalSpacing,
+		50,
+		height);
 
 
-    showHideOptionsButton->setBounds (getWidth() - 28, getHeight() - 28, 20, 20);
+	showHideOptionsButton->setBounds(getWidth() - 28, getHeight() - 28, 20, 20);
 }
 
 void LfpDisplayOptions::paint(Graphics& g)
 {
-    int row1 = 55;
-    int row2 = 110;
+	int row1 = 55;
+	int row2 = 110;
 
-    g.fillAll(Colours::black);
-    g.setFont(Font("Default", 20, Font::plain));
+	g.fillAll(Colours::black);
+	g.setFont(Font("Default", 20, Font::plain));
 
-    g.setColour(Colour(100,100,100));
+	g.setColour(Colour(100, 100, 100));
 
-    if (getHeight() > 150)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            if (i > 0)
-                g.drawLine(getWidth() / 4 * i, getHeight() - 200, getWidth() / 4 * i, 150);
+	if (getHeight() > 150)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			if (i > 0)
+				g.drawLine(getWidth() / 4 * i, getHeight() - 200, getWidth() / 4 * i, 150);
 
-            g.drawText(sectionTitles[i], 
-                getWidth()/4 * i + 10, 
-                7, 
-                300, 
-                20, 
-                Justification::left, false);
-        }
-  
-    }
+			g.drawText(sectionTitles[i],
+				getWidth() / 4 * i + 10,
+				7,
+				300,
+				20,
+				Justification::left, false);
+		}
 
-    g.setFont(Font("Fira Sans", 16, Font::plain));
+	}
 
-    g.drawText("Timebase (s)", timebaseSelection->getX(), timebaseSelection->getY()-22, 300, 20, Justification::left, false);
-    g.drawText("Chan height (px)", spreadSelection->getX(), spreadSelection->getY() - 22, 300, 20, Justification::left, false);
-    g.drawText("Range Min (" + rangeUnits[selectedChannelType] + ")", rangeSelectionMin->getX(), rangeSelectionMin->getY() - 22, 300, 20, Justification::left, false);
-    g.drawText("Range Max (" + rangeUnits[selectedChannelType] + ")", rangeSelectionMax->getX(), rangeSelectionMax->getY() - 22, 300, 20, Justification::left, false);
+	g.setFont(Font("Fira Sans", 16, Font::plain));
 
-    g.drawText("Overlay", rangeSelectionMax->getRight() + 30, getHeight() - 43, 100, 20, Justification::right, false);
-    g.drawText("Events:", rangeSelectionMax->getRight() + 30, getHeight() - 25, 100, 20, Justification::right, false);
+	g.drawText("Timebase (s)", timebaseSelection->getX(), timebaseSelection->getY() - 22, 300, 20, Justification::left, false);
+	g.drawText("Chan height (px)", spreadSelection->getX(), spreadSelection->getY() - 22, 300, 20, Justification::left, false);
+	g.drawText("Range Min (" + rangeUnits[selectedChannelType] + ")", voltageRangeMin->getX(), voltageRangeMin->getY() - 22, 300, 20, Justification::left, false);
+	g.drawText("Range Max (" + rangeUnits[selectedChannelType] + ")", voltageRangeMax->getX(), voltageRangeMax->getY() - 22, 300, 20, Justification::left, false);
 
-    g.drawText("TTL word:", ttlWordLabel->getX(), ttlWordLabel->getY() -22, 70, 20, Justification::left, false);
+	g.drawText("Overlay", voltageRangeMax->getRight() + 30, getHeight() - 43, 100, 20, Justification::right, false);
+	g.drawText("Events:", voltageRangeMax->getRight() + 30, getHeight() - 25, 100, 20, Justification::right, false);
 
-    g.drawText("Color scheme", colourSchemeOptionSelection->getX(), colourSchemeOptionSelection->getY() - 22, 300, 20, Justification::left, false);
-    g.drawText("Color grouping", colorGroupingSelection->getX(), colorGroupingSelection->getY() - 22, 300, 20, Justification::left, false);
+	g.drawText("TTL word:", ttlWordLabel->getX(), ttlWordLabel->getY() - 22, 70, 20, Justification::left, false);
 
-    g.drawText("Spike raster:",
-        10,
-        spikeRasterSelection->getY(),
-        100,
-        22,
-        Justification::left,
-        false);
+	g.drawText("Color scheme", colourSchemeOptionSelection->getX(), colourSchemeOptionSelection->getY() - 22, 300, 20, Justification::left, false);
+	g.drawText("Color grouping", colorGroupingSelection->getX(), colorGroupingSelection->getY() - 22, 300, 20, Justification::left, false);
 
-    g.drawText("Clip warning:",
-        10,
-        clipWarningSelection->getY(),
-        150,
-        22,
-        Justification::left,
-        false);
+	g.drawText("Spike raster:",
+		10,
+		spikeRasterSelection->getY(),
+		100,
+		22,
+		Justification::left,
+		false);
 
-    g.drawText("Sat. warning:",
-        10,
-        saturationWarningSelection->getY(),
-        150,
-        22,
-        Justification::left,
-        false);
+	g.drawText("Clip warning:",
+		10,
+		clipWarningSelection->getY(),
+		150,
+		22,
+		Justification::left,
+		false);
 
-    g.drawText("Reverse order:",
-        getWidth() / 4 + 10,
-        reverseChannelsDisplayButton->getY(),
-        100,
-        22,
-        Justification::left,
-        false);
+	g.drawText("Sat. warning:",
+		10,
+		saturationWarningSelection->getY(),
+		150,
+		22,
+		Justification::left,
+		false);
 
-    g.drawText("Sort by depth:",
-        getWidth() / 4 + 10,
-        sortByDepthButton->getY(),
-        150,
-        22,
-        Justification::left,
-        false);
+	g.drawText("Reverse order:",
+		getWidth() / 4 + 10,
+		reverseChannelsDisplayButton->getY(),
+		100,
+		22,
+		Justification::left,
+		false);
 
-    g.drawText("Skip:",
-        getWidth() / 4 + 10,
-        channelDisplaySkipSelection->getY(),
-        150,
-        22,
-        Justification::left,
-        false);
+	g.drawText("Sort by depth:",
+		getWidth() / 4 + 10,
+		sortByDepthButton->getY(),
+		150,
+		22,
+		Justification::left,
+		false);
 
-    g.drawText("Show number:",
-        getWidth() / 4 + 10,
-        showChannelNumberButton->getY(),
-        150,
-        22,
-        Justification::left,
-        false);
+	g.drawText("Skip:",
+		getWidth() / 4 + 10,
+		channelDisplaySkipSelection->getY(),
+		150,
+		22,
+		Justification::left,
+		false);
 
-    g.drawText("Invert signal:",
-        getWidth() / 2 + 10,
-        invertInputButton->getY(),
-        150,
-        22,
-        Justification::left,
-        false);
+	g.drawText("Show number:",
+		getWidth() / 4 + 10,
+		showChannelNumberButton->getY(),
+		150,
+		22,
+		Justification::left,
+		false);
 
-    g.drawText("Subtract offset:",
-        getWidth() / 2 + 10,
-        medianOffsetPlottingButton->getY(),
-        150,
-        22,
-        Justification::left,
-        false);
+	g.drawText("Invert signal:",
+		getWidth() / 2 + 10,
+		invertInputButton->getY(),
+		150,
+		22,
+		Justification::left,
+		false);
 
-    g.drawText("Trigger channel:",
-        getWidth() / 4 * 3 + 10,
-        triggerSourceSelection->getY(),
-        150,
-        22,
-        Justification::left,
-        false);
+	g.drawText("Subtract offset:",
+		getWidth() / 2 + 10,
+		medianOffsetPlottingButton->getY(),
+		150,
+		22,
+		Justification::left,
+		false);
 
-    g.drawText("Trial averaging:",
-        getWidth() / 4 * 3 + 10,
-        averageSignalButton->getY(),
-        150,
-        22,
-        Justification::left,
-        false);
+	g.drawText("Trigger channel:",
+		getWidth() / 4 * 3 + 10,
+		triggerSourceSelection->getY(),
+		150,
+		22,
+		Justification::left,
+		false);
 
-    /*g.drawText("Range("+ rangeUnits[selectedChannelType] +")",115,getHeight()-row1,300,20,Justification::left, false);
-    
-    g.drawText("Size(px)",5,getHeight()-row2,300,20,Justification::left, false);
-    g.drawText("Clip",100,getHeight()-row2,300,20,Justification::left, false);
-    g.drawText("Warn",168,getHeight()-row2,300,20,Justification::left, false);
-    
-    g.drawText("Sat. Warning",225,getHeight()-row2,300,20,Justification::left, false);
+	g.drawText("Trial averaging:",
+		getWidth() / 4 * 3 + 10,
+		averageSignalButton->getY(),
+		150,
+		22,
+		Justification::left,
+		false);
 
-    g.drawText("Color grouping",365,getHeight()-row2,300,20,Justification::left, false);
+	/*g.drawText("Range("+ rangeUnits[selectedChannelType] +")",115,getHeight()-row1,300,20,Justification::left, false);
 
-    g.drawText("Event disp.",375,getHeight()-row1,300,20,Justification::left, false);
-    g.drawText("Trigger",475,getHeight()-row1,300,20,Justification::left, false);
+	g.drawText("Size(px)",5,getHeight()-row2,300,20,Justification::left, false);
+	g.drawText("Clip",100,getHeight()-row2,300,20,Justification::left, false);
+	g.drawText("Warn",168,getHeight()-row2,300,20,Justification::left, false);
 
-    if(canvasSplit->drawClipWarning)
-    {
-        g.setColour(Colours::white);
-        g.fillRoundedRectangle(173,getHeight()-90-1,24,24,6.0f);
-    }
-    
-    if(canvasSplit->drawSaturationWarning)
-    {
-        g.setColour(Colours::red);
-        g.fillRoundedRectangle(323,getHeight()-90-1,24,24,6.0f);
-    }*/
+	g.drawText("Sat. Warning",225,getHeight()-row2,300,20,Justification::left, false);
+
+	g.drawText("Color grouping",365,getHeight()-row2,300,20,Justification::left, false);
+
+	g.drawText("Event disp.",375,getHeight()-row1,300,20,Justification::left, false);
+	g.drawText("Trigger",475,getHeight()-row1,300,20,Justification::left, false);
+
+	if(canvasSplit->drawClipWarning)
+	{
+		g.setColour(Colours::white);
+		g.fillRoundedRectangle(173,getHeight()-90-1,24,24,6.0f);
+	}
+
+	if(canvasSplit->drawSaturationWarning)
+	{
+		g.setColour(Colours::red);
+		g.fillRoundedRectangle(323,getHeight()-90-1,24,24,6.0f);
+	}*/
 
 
 }
 
 int LfpDisplayOptions::getChannelHeight()
 {
-    return (int)spreadSelection->getText().getIntValue();
+	return (int)spreadSelection->getText().getIntValue();
 }
 
 
 bool LfpDisplayOptions::getInputInvertedState()
 {
-    return invertInputButton->getToggleState();
+	return invertInputButton->getToggleState();
 }
 
 bool LfpDisplayOptions::getChannelNameState()
 {
-    return showChannelNumberButton->getToggleState();
+	return showChannelNumberButton->getToggleState();
 }
 
 void LfpDisplayOptions::setPausedState(bool isPaused)
 {
 
-    pauseButton->setToggleState(isPaused, dontSendNotification);
-    
+	pauseButton->setToggleState(isPaused, dontSendNotification);
+
 	timebaseSelection->setEnabled(!isPaused);
 
-    
+
 }
 
-void LfpDisplayOptions::setRangeSelection(float range, bool canvasMustUpdate)
+void LfpDisplayOptions::setRangeSelection(float min, float max, bool canvasMustUpdate)
 {
-    if (canvasMustUpdate)
-    {
-        rangeSelectionMin->setText(String(range / rangeGain[selectedChannelType]), sendNotification);
-        rangeSelectionMax->setText(String(range/rangeGain[selectedChannelType]), sendNotification); 
-    }
-    else
-    {
-        rangeSelectionMin->setText(String(range / rangeGain[selectedChannelType]), sendNotification);
-        rangeSelectionMax->setText(String(range/rangeGain[selectedChannelType]),dontSendNotification);
-        
-        selectedVoltageRangeMax[selectedChannelType] = rangeSelectionMin->getSelectedId();
-        selectedVoltageRangeValuesMax[selectedChannelType] = rangeSelectionMin->getText();
-        selectedVoltageRangeMax[selectedChannelType] = rangeSelectionMax->getSelectedId();
-        selectedVoltageRangeValuesMax[selectedChannelType] = rangeSelectionMax->getText();
+	if (canvasMustUpdate)
+	{
+		voltageRangeMin->setText(String(min / rangeGain[selectedChannelType]), sendNotification);
+		voltageRangeMax->setText(String(max / rangeGain[selectedChannelType]), sendNotification);
+	}
+	else
+	{
+		voltageRangeMin->setText(String(min / rangeGain[selectedChannelType]), sendNotification);
+		voltageRangeMax->setText(String(max / rangeGain[selectedChannelType]), dontSendNotification);
 
-        canvasSplit->repaint();
-        canvasSplit->refresh();
-    }
+		voltageRangeValues[selectedChannelType].first = voltageRangeMin->getText().getFloatValue();
+		voltageRangeValues[selectedChannelType].second = voltageRangeMax->getText().getFloatValue();
+
+		canvasSplit->repaint();
+		canvasSplit->refresh();
+	}
 
 }
 
 void LfpDisplayOptions::setSpreadSelection(int spread, bool canvasMustUpdate, bool deferDisplayRefresh)
 {
-    
-    if (canvasMustUpdate)
-    {
-        spreadSelection->setText(String(spread),sendNotification);
-    }
-    else
-    {
-        spreadSelection->setText(String(spread),dontSendNotification);
-        selectedSpread = spreadSelection->getSelectedId();
-        selectedSpreadValue = spreadSelection->getText();
 
-        if (!deferDisplayRefresh)
-        {
-            canvasSplit->repaint();
-            canvasSplit->refresh();
-        }
-    }
+	if (canvasMustUpdate)
+	{
+		spreadSelection->setText(String(spread), sendNotification);
+	}
+	else
+	{
+		spreadSelection->setText(String(spread), dontSendNotification);
+		selectedSpread = spreadSelection->getSelectedId();
+		selectedSpreadValue = spreadSelection->getText();
+
+		if (!deferDisplayRefresh)
+		{
+			canvasSplit->repaint();
+			canvasSplit->refresh();
+		}
+	}
 }
 
 void LfpDisplayOptions::togglePauseButton(bool sendUpdate)
 {
-    pauseButton->setToggleState(!pauseButton->getToggleState(), sendUpdate ? sendNotification : dontSendNotification);
+	pauseButton->setToggleState(!pauseButton->getToggleState(), sendUpdate ? sendNotification : dontSendNotification);
 }
 
 void LfpDisplayOptions::setChannelsReversed(bool state)
 {
 
-    if (lfpDisplay->getChannelsReversed() == state) // ignore if we're not changing state
-        return;
+	if (lfpDisplay->getChannelsReversed() == state) // ignore if we're not changing state
+		return;
 
-    lfpDisplay->setChannelsReversed(state);
-    canvasSplit->fullredraw = true;
+	lfpDisplay->setChannelsReversed(state);
+	canvasSplit->fullredraw = true;
 
-    reverseChannelsDisplayButton->setToggleState(state, dontSendNotification);
+	reverseChannelsDisplayButton->setToggleState(state, dontSendNotification);
 
-    if (state)
-    {
-        reverseChannelsDisplayButton->setLabel("ON");
-    }
-    else {
-        reverseChannelsDisplayButton->setLabel("OFF");
-    }
+	if (state)
+	{
+		reverseChannelsDisplayButton->setLabel("ON");
+	}
+	else {
+		reverseChannelsDisplayButton->setLabel("OFF");
+	}
 }
 
 void LfpDisplayOptions::setInputInverted(bool state)
 {
-    
-    lfpDisplay->setInputInverted(state);
 
-    invertInputButton->setToggleState(state, dontSendNotification);
+	lfpDisplay->setInputInverted(state);
 
-    if (state)
-    {
-        invertInputButton->setLabel("ON");
-    }
-    else {
-        invertInputButton->setLabel("OFF");
-    }
+	invertInputButton->setToggleState(state, dontSendNotification);
+
+	if (state)
+	{
+		invertInputButton->setLabel("ON");
+	}
+	else {
+		invertInputButton->setLabel("OFF");
+	}
 
 }
 
 void LfpDisplayOptions::setMedianOffset(bool state)
 {
-    if (lfpDisplay->getSpikeRasterPlotting())
-    {
-        medianOffsetPlottingButton->setToggleState(true, dontSendNotification);
-        medianOffsetPlottingButton->setLabel("ON");
-        return;
-    }
-    else
-    {
-        lfpDisplay->setMedianOffsetPlotting(state);
-        medianOffsetPlottingButton->setToggleState(state, dontSendNotification);
-    }
+	if (lfpDisplay->getSpikeRasterPlotting())
+	{
+		medianOffsetPlottingButton->setToggleState(true, dontSendNotification);
+		medianOffsetPlottingButton->setLabel("ON");
+		return;
+	}
+	else
+	{
+		lfpDisplay->setMedianOffsetPlotting(state);
+		medianOffsetPlottingButton->setToggleState(state, dontSendNotification);
+	}
 
 
-    if (state)
-    {
-        medianOffsetPlottingButton->setLabel("ON");
-    }
-    else {
-        medianOffsetPlottingButton->setLabel("OFF");
-    }
+	if (state)
+	{
+		medianOffsetPlottingButton->setLabel("ON");
+	}
+	else {
+		medianOffsetPlottingButton->setLabel("OFF");
+	}
 }
 
 void LfpDisplayOptions::setAveraging(bool state)
 {
-    canvasSplit->setAveraging(state);
+	canvasSplit->setAveraging(state);
 
-    averageSignalButton->setToggleState(state, dontSendNotification);
+	averageSignalButton->setToggleState(state, dontSendNotification);
 
-    if (state)
-    {
-        averageSignalButton->setLabel("ON");
-        resetButton->setVisible(true);
-    }
-    else {
-        averageSignalButton->setLabel("OFF");
-        resetButton->setVisible(false);
-    }
+	if (state)
+	{
+		averageSignalButton->setLabel("ON");
+		resetButton->setVisible(true);
+	}
+	else {
+		averageSignalButton->setLabel("OFF");
+		resetButton->setVisible(false);
+	}
 }
 
 void LfpDisplayOptions::setSortByDepth(bool state)
 {
 
-    if (lfpDisplay->shouldOrderChannelsByDepth() == state)
-        return;
-         
-    if (canvasSplit->displayBuffer != nullptr)
-        lfpDisplay->orderChannelsByDepth(state);
+	if (lfpDisplay->shouldOrderChannelsByDepth() == state)
+		return;
 
-    sortByDepthButton->setToggleState(state, dontSendNotification);
+	if (canvasSplit->displayBuffer != nullptr)
+		lfpDisplay->orderChannelsByDepth(state);
 
-    if (state)
-    {
-        sortByDepthButton->setLabel("ON");
-    }
-    else {
-        sortByDepthButton->setLabel("OFF");
-    }
+	sortByDepthButton->setToggleState(state, dontSendNotification);
+
+	if (state)
+	{
+		sortByDepthButton->setLabel("ON");
+	}
+	else {
+		sortByDepthButton->setLabel("OFF");
+	}
 }
 
 void LfpDisplayOptions::setShowChannelNumbers(bool state)
 {
 
-    showChannelNumberButton->setToggleState(state, dontSendNotification);
+	showChannelNumberButton->setToggleState(state, dontSendNotification);
 
-    int numChannels = lfpDisplay->channelInfo.size();
+	int numChannels = lfpDisplay->channelInfo.size();
 
-    for (int i = 0; i < numChannels; ++i)
-    {
-        lfpDisplay->channelInfo[i]->repaint();
-    }
+	for (int i = 0; i < numChannels; ++i)
+	{
+		lfpDisplay->channelInfo[i]->repaint();
+	}
 
-    if (state)
-    {
-        showChannelNumberButton->setLabel("ON");
-    }
-    else {
-        showChannelNumberButton->setLabel("OFF");
-    }
+	if (state)
+	{
+		showChannelNumberButton->setLabel("ON");
+	}
+	else {
+		showChannelNumberButton->setLabel("OFF");
+	}
 }
 
 void LfpDisplayOptions::setTTLWord(String word)
 {
-    ttlWordString = word;
+	ttlWordString = word;
 }
 
 void LfpDisplayOptions::buttonClicked(Button* b)
 {
-    if (b == invertInputButton.get())
-    {
-        setInputInverted(b->getToggleState());
-        return;
-    }
-    if (b == reverseChannelsDisplayButton.get())
-    {
-        setChannelsReversed(b->getToggleState());
-        return;
-    }
-    if (b == medianOffsetPlottingButton.get())
-    {
-        setMedianOffset(b->getToggleState());
-        return;
-    } 
-    
-    if (b == averageSignalButton.get())
-    {
-        setAveraging(b->getToggleState());
-        return;
-    }
+	if (b == invertInputButton.get())
+	{
+		setInputInverted(b->getToggleState());
+		return;
+	}
+	if (b == reverseChannelsDisplayButton.get())
+	{
+		setChannelsReversed(b->getToggleState());
+		return;
+	}
+	if (b == medianOffsetPlottingButton.get())
+	{
+		setMedianOffset(b->getToggleState());
+		return;
+	}
 
-    if (b == sortByDepthButton.get())
-    {
-        setSortByDepth(b->getToggleState());
-        return;
-    }
+	if (b == averageSignalButton.get())
+	{
+		setAveraging(b->getToggleState());
+		return;
+	}
 
-    if (b == resetButton.get())
-    {
-        canvasSplit->resetTrials();
-    }
+	if (b == sortByDepthButton.get())
+	{
+		setSortByDepth(b->getToggleState());
+		return;
+	}
 
-    if (b == pauseButton.get())
-    {
-        lfpDisplay->pause(b->getToggleState());
-        timescale->setPausedState(b->getToggleState());
-        return;
-    }
+	if (b == resetButton.get())
+	{
+		canvasSplit->resetTrials();
+	}
 
-    if (b == showHideOptionsButton.get())
-    {
-        canvas->toggleOptionsDrawer(b->getToggleState());
-    }
+	if (b == pauseButton.get())
+	{
+		lfpDisplay->pause(b->getToggleState());
+		timescale->setPausedState(b->getToggleState());
+		return;
+	}
 
-    if (b == showChannelNumberButton.get())
-    {
-        setShowChannelNumbers(b->getToggleState());
-        return;
-    }
+	if (b == showHideOptionsButton.get())
+	{
+		canvas->toggleOptionsDrawer(b->getToggleState());
+	}
 
-    int idx = typeButtons.indexOf((UtilityButton*) b);
+	if (b == showChannelNumberButton.get())
+	{
+		setShowChannelNumbers(b->getToggleState());
+		return;
+	}
 
-    if ((idx >= 0) && (b->getToggleState()))
-    {
-        for (int i = 0; i < lfpDisplay->getNumChannels(); i++)
-        {
-            if (lfpDisplay->channels[i]->getSelected())
-            {
-                lfpDisplay->channels[i]->deselect();
-                lfpDisplay->channels[i]->repaint();
-            }
-        } 
+	int idx = typeButtons.indexOf((UtilityButton*)b);
 
-        setSelectedType((ContinuousChannel::Type) idx, false);
-    }
+	if ((idx >= 0) && (b->getToggleState()))
+	{
+		for (int i = 0; i < lfpDisplay->getNumChannels(); i++)
+		{
+			if (lfpDisplay->channels[i]->getSelected())
+			{
+				lfpDisplay->channels[i]->deselect();
+				lfpDisplay->channels[i]->repaint();
+			}
+		}
+
+		setSelectedType((ContinuousChannel::Type)idx, false);
+	}
 
 }
 
 void LfpDisplayOptions::setTimebaseAndSelectionText(float timebase)
 {
-    canvasSplit->setTimebase(timebase);
-    
-    if (canvasSplit->timebase) // if timebase != 0
-    {
-        if (canvasSplit->timebase < timebases[0].getFloatValue())
-        {
-            timebaseSelection->setSelectedId(1, dontSendNotification);
-            canvasSplit->setTimebase(timebases[0].getFloatValue());
-        }
-        else if (canvasSplit->timebase > timebases[timebases.size()-1].getFloatValue())
-        {
-            timebaseSelection->setSelectedId(timebases.size(), dontSendNotification);
-            canvasSplit->setTimebase(timebases[timebases.size()-1].getFloatValue());
-        }
-        else{
-            timebaseSelection->setText(String(canvasSplit->timebase, 1), dontSendNotification);
-        }
-    }
-    else
-    {
-        if (selectedSpread == 0)
-        {
-            timebaseSelection->setText(selectedTimebaseValue, dontSendNotification);
-            canvasSplit->setTimebase(selectedTimebaseValue.getFloatValue());
-        }
-        else
-        {
-            timebaseSelection->setSelectedId(selectedTimebase,dontSendNotification);
-            canvasSplit->setTimebase(timebases[selectedTimebase-1].getFloatValue());
-        }
-        
-    }
+	canvasSplit->setTimebase(timebase);
 
-    timescale->setTimebase(canvasSplit->timebase);
+	if (canvasSplit->timebase) // if timebase != 0
+	{
+		if (canvasSplit->timebase < timebases[0].getFloatValue())
+		{
+			timebaseSelection->setSelectedId(1, dontSendNotification);
+			canvasSplit->setTimebase(timebases[0].getFloatValue());
+		}
+		else if (canvasSplit->timebase > timebases[timebases.size() - 1].getFloatValue())
+		{
+			timebaseSelection->setSelectedId(timebases.size(), dontSendNotification);
+			canvasSplit->setTimebase(timebases[timebases.size() - 1].getFloatValue());
+		}
+		else {
+			timebaseSelection->setText(String(canvasSplit->timebase, 1), dontSendNotification);
+		}
+	}
+	else
+	{
+		if (selectedSpread == 0)
+		{
+			timebaseSelection->setText(selectedTimebaseValue, dontSendNotification);
+			canvasSplit->setTimebase(selectedTimebaseValue.getFloatValue());
+		}
+		else
+		{
+			timebaseSelection->setSelectedId(selectedTimebase, dontSendNotification);
+			canvasSplit->setTimebase(timebases[selectedTimebase - 1].getFloatValue());
+		}
+
+	}
+
+	timescale->setTimebase(canvasSplit->timebase);
 }
 
 void LfpDisplayOptions::comboBoxChanged(ComboBox* cb)
 {
-    if (canvasSplit->getNumChannels() == 0) return;
-    
-    if (cb == channelDisplaySkipSelection.get())
-    {
-        const int skipAmt = pow(2, cb->getSelectedId() - 1);
-        lfpDisplay->setChannelDisplaySkipAmount(skipAmt);
-    }
-    else if (cb == spikeRasterSelection.get())
-    {
-        // if custom value
-        if (cb->getSelectedId() == 0)
-        {
-            auto val = fabsf(cb->getText().getFloatValue());
+	if (canvasSplit->getNumChannels() == 0) return;
 
-            if (val == 0) // if value is zero, just disable plotting and set text to "Off"
-            {
-                cb->setSelectedItemIndex(0, dontSendNotification);
-                lfpDisplay->setSpikeRasterPlotting(false);
+	if (cb == channelDisplaySkipSelection.get())
+	{
+		const int skipAmt = pow(2, cb->getSelectedId() - 1);
+		lfpDisplay->setChannelDisplaySkipAmount(skipAmt);
+	}
+	else if (cb == spikeRasterSelection.get())
+	{
+		// if custom value
+		if (cb->getSelectedId() == 0)
+		{
+			auto val = fabsf(cb->getText().getFloatValue());
 
-                if (medianOffsetOnForSpikeRaster)
-                {
-                    medianOffsetPlottingButton->setToggleState(false, sendNotification);
-                    medianOffsetOnForSpikeRaster = false;
-                }
-                return;
-            }
-            
-            if (val > 500)
-            {
-                val = 500;
-            }
-            
-            val *= -1;
-            
-            spikeRasterSelection->setText(String(val), dontSendNotification);
-            lfpDisplay->setSpikeRasterThreshold(val);
+			if (val == 0) // if value is zero, just disable plotting and set text to "Off"
+			{
+				cb->setSelectedItemIndex(0, dontSendNotification);
+				lfpDisplay->setSpikeRasterPlotting(false);
 
-            if (!medianOffsetPlottingButton->getToggleState())
-            {
-                medianOffsetPlottingButton->setToggleState(true, sendNotification);
-                medianOffsetOnForSpikeRaster = true;
-            }
-            else {
-                medianOffsetOnForSpikeRaster = false;
-            }
-                
-            lfpDisplay->setSpikeRasterPlotting(true);
-        }
-        else if (cb->getSelectedItemIndex() == 0) // if "Off"
-        {
+				if (medianOffsetOnForSpikeRaster)
+				{
+					medianOffsetPlottingButton->setToggleState(false, sendNotification);
+					medianOffsetOnForSpikeRaster = false;
+				}
+				return;
+			}
 
-            lfpDisplay->setSpikeRasterPlotting(false);
+			if (val > 500)
+			{
+				val = 500;
+			}
 
-            if (medianOffsetOnForSpikeRaster)
-            {
-                medianOffsetPlottingButton->setToggleState(false, sendNotification);
-                medianOffsetOnForSpikeRaster = false;
-            }
-            return;
-        }
-        else
-        {
-            auto val = cb->getText().getFloatValue();
+			val *= -1;
 
-            lfpDisplay->setSpikeRasterThreshold(val);
+			spikeRasterSelection->setText(String(val), dontSendNotification);
+			lfpDisplay->setSpikeRasterThreshold(val);
 
-            if (!medianOffsetPlottingButton->getToggleState())
-            {
-                medianOffsetPlottingButton->setToggleState(true, sendNotification);
-                medianOffsetOnForSpikeRaster = true;
-            }
-                
+			if (!medianOffsetPlottingButton->getToggleState())
+			{
+				medianOffsetPlottingButton->setToggleState(true, sendNotification);
+				medianOffsetOnForSpikeRaster = true;
+			}
+			else {
+				medianOffsetOnForSpikeRaster = false;
+			}
 
-            lfpDisplay->setSpikeRasterPlotting(true);
-        }
-    }
-    else if (cb == colourSchemeOptionSelection.get())
-    {
-        lfpDisplay->setActiveColourSchemeIdx(cb->getSelectedId()-1);
+			lfpDisplay->setSpikeRasterPlotting(true);
+		}
+		else if (cb->getSelectedItemIndex() == 0) // if "Off"
+		{
 
-        lfpDisplay->setColors();
-        canvasSplit->redraw();
-    }
-    else if (cb == timebaseSelection.get())
-    {
-        if (cb->getSelectedId())
-        {
-            canvasSplit->setTimebase(timebases[cb->getSelectedId() - 1].getFloatValue());
-        }
-        else
-        {
-            setTimebaseAndSelectionText(cb->getText().getFloatValue());
-        }
+			lfpDisplay->setSpikeRasterPlotting(false);
 
-        timescale->setTimebase(canvasSplit->timebase);
-    }
-    else if (cb == rangeSelectionMin.get())
-    {
-        if (cb->getSelectedId())
-        {
-            lfpDisplay->setRange(voltageRanges[selectedChannelType][cb->getSelectedId() - 1].getFloatValue() * rangeGain[selectedChannelType]
-                , selectedChannelType);
-        }
-        else
-        {
-            float vRange = cb->getText().getFloatValue();
-            if (vRange)
-            {
-                if (vRange < voltageRanges[selectedChannelType][0].getFloatValue())
-                {
-                    cb->setSelectedId(1,dontSendNotification);
-                    vRange = voltageRanges[selectedChannelType][0].getFloatValue();
-                }
-                else if (vRange > voltageRanges[selectedChannelType][voltageRanges[selectedChannelType].size()-1].getFloatValue())
-                {
-                   // cb->setSelectedId(voltageRanges[selectedChannelType].size(),dontSendNotification);
-                   // vRange = voltageRanges[selectedChannelType][voltageRanges[selectedChannelType].size()-1].getFloatValue();
-                }
-                else
-                {
-                    if (rangeGain[selectedChannelType] > 1)
-                        cb->setText(String(vRange,1),dontSendNotification);
-                    else
-                        cb->setText(String(vRange),dontSendNotification);
-                }
-                lfpDisplay->setRange(vRange*rangeGain[selectedChannelType],selectedChannelType);
-            }
-            else
-            {
-                if (selectedVoltageRangeMax[selectedChannelType])
-                    cb->setText(selectedVoltageRangeValuesMax[selectedChannelType],dontSendNotification);
-                else
-                    cb->setSelectedId(selectedVoltageRangeMax[selectedChannelType],dontSendNotification);
-            }
-        }
-        selectedVoltageRangeMax[selectedChannelType] = cb->getSelectedId();
-        selectedVoltageRangeValuesMax[selectedChannelType] = cb->getText();
-        canvasSplit->redraw();
-    }
-    else if (cb == rangeSelectionMax.get())
-    {
-        if (cb->getSelectedId())
-        {
-            lfpDisplay->setRange(voltageRanges[selectedChannelType][cb->getSelectedId() - 1].getFloatValue() * rangeGain[selectedChannelType]
-                , selectedChannelType);
-        }
-        else
-        {
-            float vRange = cb->getText().getFloatValue();
-            if (vRange)
-            {
-                if (vRange < voltageRanges[selectedChannelType][0].getFloatValue())
-                {
-                    cb->setSelectedId(1, dontSendNotification);
-                    vRange = voltageRanges[selectedChannelType][0].getFloatValue();
-                }
-                else if (vRange > voltageRanges[selectedChannelType][voltageRanges[selectedChannelType].size() - 1].getFloatValue())
-                {
-                    // cb->setSelectedId(voltageRanges[selectedChannelType].size(),dontSendNotification);
-                    // vRange = voltageRanges[selectedChannelType][voltageRanges[selectedChannelType].size()-1].getFloatValue();
-                }
-                else
-                {
-                    if (rangeGain[selectedChannelType] > 1)
-                        cb->setText(String(vRange, 1), dontSendNotification);
-                    else
-                        cb->setText(String(vRange), dontSendNotification);
-                }
-                lfpDisplay->setRange(vRange * rangeGain[selectedChannelType], selectedChannelType);
-            }
-            else
-            {
-                if (selectedVoltageRangeMin[selectedChannelType])
-                    cb->setText(selectedVoltageRangeValuesMin[selectedChannelType], dontSendNotification);
-                else
-                    cb->setSelectedId(selectedVoltageRangeMin[selectedChannelType], dontSendNotification);
-            }
-        }
-        selectedVoltageRangeMin[selectedChannelType] = cb->getSelectedId();
-        selectedVoltageRangeValuesMin[selectedChannelType] = cb->getText();
-        canvasSplit->redraw();
-    }
-    else if (cb == spreadSelection.get())
-    {
-        
-        if (cb->getSelectedId())
-        {
-            if (lfpDisplay->getSingleChannelState())
-            {
-                lfpDisplay->cacheNewChannelHeight(spreads[cb->getSelectedId()-1].getIntValue());
-            }
-            else
-            {
-                lfpDisplay->setChannelHeight(spreads[cb->getSelectedId()-1].getIntValue());
-                resized();
-            }
-        }
-        else
-        {
-            int spread = cb->getText().getIntValue();
-            if (spread)
-            {
-                if (spread < spreads[0].getFloatValue())
-                {
-                    cb->setSelectedId(1,dontSendNotification);
-                    spread = spreads[0].getFloatValue();
-                }
-                else if (spread > spreads[spreads.size()-1].getFloatValue())
-                {
-                    cb->setSelectedId(spreads.size(),dontSendNotification);
-                    spread = spreads[spreads.size()-1].getFloatValue();
-                }
-                else
-                {
-                    cb->setText(String(spread),dontSendNotification);
-                }
-                
-                // if single channel focus is on, cache the value
-                if (lfpDisplay->getSingleChannelState())
-                {
-                    lfpDisplay->cacheNewChannelHeight(spread);
-                }
-                else
-                {
-                    lfpDisplay->setChannelHeight(spread);
-                    canvasSplit->resized();
-                }
-            }
-            else
-            {
-                if (selectedSpread == 0)
-                    cb->setText(selectedSpreadValue,dontSendNotification);
-                else
-                    cb->setSelectedId(selectedSpread,dontSendNotification);
-            }
-        }
-        selectedSpread = cb->getSelectedId();
-        selectedSpreadValue = cb->getText();
+			if (medianOffsetOnForSpikeRaster)
+			{
+				medianOffsetPlottingButton->setToggleState(false, sendNotification);
+				medianOffsetOnForSpikeRaster = false;
+			}
+			return;
+		}
+		else
+		{
+			auto val = cb->getText().getFloatValue();
 
-        if (!lfpDisplay->getSingleChannelState()) canvasSplit->redraw();
-    }
-    else if (cb == saturationWarningSelection.get())
-    {
-        if (cb->getSelectedId() > 1)
-        {
-            selectedSaturationValueFloat = (saturationThresholds[cb->getSelectedId()-1].getFloatValue());
-            canvasSplit->drawSaturationWarning = true;
-        }
-        else
-        {
-            canvasSplit->drawSaturationWarning = false;
-        }
+			lfpDisplay->setSpikeRasterThreshold(val);
 
-        canvasSplit->redraw();
-    }
-    else if (cb == clipWarningSelection.get())
-    {
-        if (cb->getSelectedId() == 1)
-        {
-            canvasSplit->drawClipWarning = false;
-        }
-        else
-        {
-            canvasSplit->drawClipWarning = true;
-        }
-
-        canvasSplit->redraw();
-
-    }
-    else if (cb == overlapSelection.get())
-    {
-        if (cb->getSelectedId())
-        {
-            canvasSplit->channelOverlapFactor = (overlaps[cb->getSelectedId()-1].getFloatValue());
-            canvasSplit->resized();
-        }
-        else
-        {
-            float overlap = cb->getText().getFloatValue();
-            if (overlap)
-            {
-                if (overlap < overlaps[0].getFloatValue())
-                {
-                    cb->setSelectedId(1,dontSendNotification);
-                    overlap = overlaps[0].getFloatValue();
-                }
-                else if (overlap > overlaps[overlaps.size()-1].getFloatValue())
-                {
-                    cb->setSelectedId(overlaps.size(),dontSendNotification);
-                    overlap = overlaps[overlaps.size()-1].getFloatValue();
-                }
-                else
-                {
-                    cb->setText(String(overlap),dontSendNotification);
-                }
-                canvasSplit->channelOverlapFactor= overlap;
-                canvasSplit->resized();
-            }
-            else
-            {
-                if (selectedSpread == 0)
-                    cb->setText(selectedSpreadValue,dontSendNotification);
-                else
-                    cb->setSelectedId(selectedSpread,dontSendNotification);
-            }
-        }
-        selectedSpread = cb->getSelectedId();
-        selectedSpreadValue = cb->getText();
-        lfpDisplay->setChannelHeight( lfpDisplay->getChannelHeight());
-        canvasSplit->redraw();
-    }
-    else if (cb == colorGroupingSelection.get())
-    {
-        // set color grouping here
-        lfpDisplay->setColorGrouping(colorGroupings[cb->getSelectedId()-1].getIntValue());// so that channel colors get re-assigned
-        canvasSplit->redraw();
-    }
-    else if (cb == triggerSourceSelection.get())
-    {
-        canvasSplit->setTriggerChannel(cb->getSelectedId() - 2);
-        processor->setParameter(cb->getSelectedId()-2, float(canvasSplit->splitID));
-    }
+			if (!medianOffsetPlottingButton->getToggleState())
+			{
+				medianOffsetPlottingButton->setToggleState(true, sendNotification);
+				medianOffsetOnForSpikeRaster = true;
+			}
 
 
-    
+			lfpDisplay->setSpikeRasterPlotting(true);
+		}
+	}
+	else if (cb == colourSchemeOptionSelection.get())
+	{
+		lfpDisplay->setActiveColourSchemeIdx(cb->getSelectedId() - 1);
+
+		lfpDisplay->setColors();
+		canvasSplit->redraw();
+	}
+	else if (cb == timebaseSelection.get())
+	{
+		if (cb->getSelectedId())
+		{
+			canvasSplit->setTimebase(timebases[cb->getSelectedId() - 1].getFloatValue());
+		}
+		else
+		{
+			setTimebaseAndSelectionText(cb->getText().getFloatValue());
+		}
+
+		timescale->setTimebase(canvasSplit->timebase);
+	}
+	else if (cb == spreadSelection.get())
+	{
+
+		if (cb->getSelectedId())
+		{
+			if (lfpDisplay->getSingleChannelState())
+			{
+				lfpDisplay->cacheNewChannelHeight(spreads[cb->getSelectedId() - 1].getIntValue());
+			}
+			else
+			{
+				lfpDisplay->setChannelHeight(spreads[cb->getSelectedId() - 1].getIntValue());
+				resized();
+			}
+		}
+		else
+		{
+			int spread = cb->getText().getIntValue();
+			if (spread)
+			{
+				if (spread < spreads[0].getFloatValue())
+				{
+					cb->setSelectedId(1, dontSendNotification);
+					spread = spreads[0].getFloatValue();
+				}
+				else if (spread > spreads[spreads.size() - 1].getFloatValue())
+				{
+					cb->setSelectedId(spreads.size(), dontSendNotification);
+					spread = spreads[spreads.size() - 1].getFloatValue();
+				}
+				else
+				{
+					cb->setText(String(spread), dontSendNotification);
+				}
+
+				// if single channel focus is on, cache the value
+				if (lfpDisplay->getSingleChannelState())
+				{
+					lfpDisplay->cacheNewChannelHeight(spread);
+				}
+				else
+				{
+					lfpDisplay->setChannelHeight(spread);
+					canvasSplit->resized();
+				}
+			}
+			else
+			{
+				if (selectedSpread == 0)
+					cb->setText(selectedSpreadValue, dontSendNotification);
+				else
+					cb->setSelectedId(selectedSpread, dontSendNotification);
+			}
+		}
+		selectedSpread = cb->getSelectedId();
+		selectedSpreadValue = cb->getText();
+
+		if (!lfpDisplay->getSingleChannelState()) canvasSplit->redraw();
+	}
+	else if (cb == saturationWarningSelection.get())
+	{
+		if (cb->getSelectedId() > 1)
+		{
+			selectedSaturationValueFloat = (saturationThresholds[cb->getSelectedId() - 1].getFloatValue());
+			canvasSplit->drawSaturationWarning = true;
+		}
+		else
+		{
+			canvasSplit->drawSaturationWarning = false;
+		}
+
+		canvasSplit->redraw();
+	}
+	else if (cb == clipWarningSelection.get())
+	{
+		if (cb->getSelectedId() == 1)
+		{
+			canvasSplit->drawClipWarning = false;
+		}
+		else
+		{
+			canvasSplit->drawClipWarning = true;
+		}
+
+		canvasSplit->redraw();
+
+	}
+	else if (cb == overlapSelection.get())
+	{
+		if (cb->getSelectedId())
+		{
+			canvasSplit->channelOverlapFactor = (overlaps[cb->getSelectedId() - 1].getFloatValue());
+			canvasSplit->resized();
+		}
+		else
+		{
+			float overlap = cb->getText().getFloatValue();
+			if (overlap)
+			{
+				if (overlap < overlaps[0].getFloatValue())
+				{
+					cb->setSelectedId(1, dontSendNotification);
+					overlap = overlaps[0].getFloatValue();
+				}
+				else if (overlap > overlaps[overlaps.size() - 1].getFloatValue())
+				{
+					cb->setSelectedId(overlaps.size(), dontSendNotification);
+					overlap = overlaps[overlaps.size() - 1].getFloatValue();
+				}
+				else
+				{
+					cb->setText(String(overlap), dontSendNotification);
+				}
+				canvasSplit->channelOverlapFactor = overlap;
+				canvasSplit->resized();
+			}
+			else
+			{
+				if (selectedSpread == 0)
+					cb->setText(selectedSpreadValue, dontSendNotification);
+				else
+					cb->setSelectedId(selectedSpread, dontSendNotification);
+			}
+		}
+		selectedSpread = cb->getSelectedId();
+		selectedSpreadValue = cb->getText();
+		lfpDisplay->setChannelHeight(lfpDisplay->getChannelHeight());
+		canvasSplit->redraw();
+	}
+	else if (cb == colorGroupingSelection.get())
+	{
+		// set color grouping here
+		lfpDisplay->setColorGrouping(colorGroupings[cb->getSelectedId() - 1].getIntValue());// so that channel colors get re-assigned
+		canvasSplit->redraw();
+	}
+	else if (cb == triggerSourceSelection.get())
+	{
+		canvasSplit->setTriggerChannel(cb->getSelectedId() - 2);
+		processor->setParameter(cb->getSelectedId() - 2, float(canvasSplit->splitID));
+	}
+
+
+
 }
 
 ContinuousChannel::Type LfpDisplayOptions::getChannelType(int n)
 {
-    if (n < processor->getNumInputs())
-    {
-        const ContinuousChannel* chan = processor->getContinuousChannel(n);
-        return processor->getContinuousChannel(n)->getChannelType();
-    }
-    else
-    {
-        return ContinuousChannel::Type::ELECTRODE;
-    }
-       
+	if (n < processor->getNumInputs())
+	{
+		const ContinuousChannel* chan = processor->getContinuousChannel(n);
+		return processor->getContinuousChannel(n)->getChannelType();
+	}
+	else
+	{
+		return ContinuousChannel::Type::ELECTRODE;
+	}
+
 }
 
 ContinuousChannel::Type LfpDisplayOptions::getSelectedType()
 {
-    return selectedChannelType;
+	return selectedChannelType;
 }
 
 void LfpDisplayOptions::setSelectedType(ContinuousChannel::Type type, bool toggleButton)
 {
-    if (selectedChannelType == type)
-        return; //Nothing to do here
-    selectedChannelType = type;
-    rangeSelectionMin->clear(dontSendNotification);
-    rangeSelectionMin->addItemList(voltageRanges[type], 1);
-    rangeSelectionMax->clear(dontSendNotification);
-    rangeSelectionMax->addItemList(voltageRanges[type],1);
+	if (selectedChannelType == type)
+		return; //Nothing to do here
+	selectedChannelType = type;
 
-    int id = selectedVoltageRangeMax[type];
-    if (id)
-    {
-        rangeSelectionMin->setSelectedId(id, sendNotification);
-        rangeSelectionMax->setSelectedId(id, sendNotification);
-    }
-    else
-    {
-        rangeSelectionMin->setText(selectedVoltageRangeValuesMax[selectedChannelType], dontSendNotification);
-        rangeSelectionMax->setText(selectedVoltageRangeValuesMax[selectedChannelType], dontSendNotification);
-    }
-    
-    repaint(5,getHeight()-55,300,100);
+	voltageRangeMin->setText(String(voltageRangeValues[selectedChannelType].first), dontSendNotification);
+	voltageRangeMax->setText(String(voltageRangeValues[selectedChannelType].second), dontSendNotification);
 
-    if (toggleButton)
-        typeButtons[type]->setToggleState(true,dontSendNotification);
+	repaint(5, getHeight() - 55, 300, 100);
+
+	if (toggleButton)
+		typeButtons[type]->setToggleState(true, dontSendNotification);
 }
 
 String LfpDisplayOptions::getTypeName(ContinuousChannel::Type type)
 {
-    return typeNames[type];
+	return typeNames[type];
 }
 
 int LfpDisplayOptions::getRangeStep(ContinuousChannel::Type type)
 {
-    return rangeSteps[type];
+	return rangeSteps[type];
 }
 
 void LfpDisplayOptions::saveParameters(XmlElement* xml)
 {
 
-    XmlElement* xmlNode = xml->createNewChildElement("LFPDISPLAY" + String(canvasSplit->splitID));
+	XmlElement* xmlNode = xml->createNewChildElement("LFPDISPLAY" + String(canvasSplit->splitID));
 
-    xmlNode->setAttribute("SubprocessorID", canvasSplit->streamSelection->getSelectedId());
+	xmlNode->setAttribute("SubprocessorID", canvasSplit->streamSelection->getSelectedId());
 
-    xmlNode->setAttribute("RangeMin", selectedVoltageRangeValuesMin[0] + "," + selectedVoltageRangeValuesMin[1] +
-        "," + selectedVoltageRangeValuesMin[2]);
-    xmlNode->setAttribute("RangeMax",selectedVoltageRangeValuesMax[0]+","+selectedVoltageRangeValuesMax[1]+
-        ","+selectedVoltageRangeValuesMax[2]);
-    xmlNode->setAttribute("Timebase",timebaseSelection->getText());
-    xmlNode->setAttribute("Spread",spreadSelection->getText());
-    xmlNode->setAttribute("colourScheme", colourSchemeOptionSelection->getSelectedId());
-    xmlNode->setAttribute("colorGrouping",colorGroupingSelection->getSelectedId());
-    
-    xmlNode->setAttribute("spikeRaster", spikeRasterSelection->getText());
-    xmlNode->setAttribute("clipWarning", clipWarningSelection->getSelectedId());
-    xmlNode->setAttribute("satWarning", saturationWarningSelection->getSelectedId());
+	xmlNode->setAttribute("RangeMin", String(voltageRangeValues[0].first) + "," + String(voltageRangeValues[1].first) +
+		"," + String(voltageRangeValues[2].first));
+	xmlNode->setAttribute("RangeMax", String(voltageRangeValues[0].second) + "," + String(voltageRangeValues[1].second) +
+		"," + String(voltageRangeValues[2].second));
+	xmlNode->setAttribute("Timebase", timebaseSelection->getText());
+	xmlNode->setAttribute("Spread", spreadSelection->getText());
+	xmlNode->setAttribute("colourScheme", colourSchemeOptionSelection->getSelectedId());
+	xmlNode->setAttribute("colorGrouping", colorGroupingSelection->getSelectedId());
 
-    xmlNode->setAttribute("reverseOrder", reverseChannelsDisplayButton->getToggleState());
-    xmlNode->setAttribute("sortByDepth", sortByDepthButton->getToggleState());
-    xmlNode->setAttribute("channelSkip", channelDisplaySkipSelection->getSelectedId());
-    xmlNode->setAttribute("showChannelNum", showChannelNumberButton->getToggleState());
-    xmlNode->setAttribute("subtractOffset", medianOffsetPlottingButton->getToggleState());
+	xmlNode->setAttribute("spikeRaster", spikeRasterSelection->getText());
+	xmlNode->setAttribute("clipWarning", clipWarningSelection->getSelectedId());
+	xmlNode->setAttribute("satWarning", saturationWarningSelection->getSelectedId());
 
-    xmlNode->setAttribute("isInverted",invertInputButton->getToggleState());
-    
-    xmlNode->setAttribute("triggerSource", triggerSourceSelection->getSelectedId());
-    xmlNode->setAttribute("trialAvg", averageSignalButton->getToggleState());
+	xmlNode->setAttribute("reverseOrder", reverseChannelsDisplayButton->getToggleState());
+	xmlNode->setAttribute("sortByDepth", sortByDepthButton->getToggleState());
+	xmlNode->setAttribute("channelSkip", channelDisplaySkipSelection->getSelectedId());
+	xmlNode->setAttribute("showChannelNum", showChannelNumberButton->getToggleState());
+	xmlNode->setAttribute("subtractOffset", medianOffsetPlottingButton->getToggleState());
 
-    xmlNode->setAttribute("singleChannelView", lfpDisplay->getSingleChannelShown());
+	xmlNode->setAttribute("isInverted", invertInputButton->getToggleState());
 
-    int eventButtonState = 0;
+	xmlNode->setAttribute("triggerSource", triggerSourceSelection->getSelectedId());
+	xmlNode->setAttribute("trialAvg", averageSignalButton->getToggleState());
 
-    for (int i = 0; i < 8; i++)
-    {
-        if (lfpDisplay->eventDisplayEnabled[i])
-        {
-            eventButtonState += (1 << i);
-        }
-    }
+	xmlNode->setAttribute("singleChannelView", lfpDisplay->getSingleChannelShown());
 
-    xmlNode->setAttribute("EventButtonState", eventButtonState);
+	int eventButtonState = 0;
 
-    String channelDisplayState = "";
+	for (int i = 0; i < 8; i++)
+	{
+		if (lfpDisplay->eventDisplayEnabled[i])
+		{
+			eventButtonState += (1 << i);
+		}
+	}
 
-    for (int i = 0; i < canvasSplit->nChans; i++)
-    {
-        if (lfpDisplay->savedChannelState[i])
-        {
-            channelDisplayState += "1";
-        }
-        else
-        {
-            channelDisplayState += "0";
-        }
-    }
+	xmlNode->setAttribute("EventButtonState", eventButtonState);
 
-    xmlNode->setAttribute("ChannelDisplayState", channelDisplayState);
+	String channelDisplayState = "";
 
-    xmlNode->setAttribute("ScrollX",canvasSplit->viewport->getViewPositionX());
-    xmlNode->setAttribute("ScrollY",canvasSplit->viewport->getViewPositionY());
+	for (int i = 0; i < canvasSplit->nChans; i++)
+	{
+		if (lfpDisplay->savedChannelState[i])
+		{
+			channelDisplayState += "1";
+		}
+		else
+		{
+			channelDisplayState += "0";
+		}
+	}
+
+	xmlNode->setAttribute("ChannelDisplayState", channelDisplayState);
+
+	xmlNode->setAttribute("ScrollX", canvasSplit->viewport->getViewPositionX());
+	xmlNode->setAttribute("ScrollY", canvasSplit->viewport->getViewPositionY());
 }
 
 void LfpDisplayOptions::loadParameters(XmlElement* xml)
 {
 
-    canvasSplit->isLoading = true;
+	canvasSplit->isLoading = true;
 
-    for (auto* xmlNode : xml->getChildIterator())
-    {
+	for (auto* xmlNode : xml->getChildIterator())
+	{
 
-        if (xmlNode->hasTagName("LFPDISPLAY" + String(canvasSplit->splitID)))
-        {
-            uint32 id = xmlNode->getIntAttribute("SubprocessorID");
+		if (xmlNode->hasTagName("LFPDISPLAY" + String(canvasSplit->splitID)))
+		{
+			uint32 id = xmlNode->getIntAttribute("SubprocessorID");
 
-            int64 start = Time::getHighResolutionTicks();
+			int64 start = Time::getHighResolutionTicks();
 
-            if (canvasSplit->displayBuffer != nullptr)
-                canvasSplit->displayBuffer->removeDisplay(canvasSplit->splitID);
+			if (canvasSplit->displayBuffer != nullptr)
+				canvasSplit->displayBuffer->removeDisplay(canvasSplit->splitID);
 
-            if (processor->displayBufferMap.find(id) == processor->displayBufferMap.end())
-                canvasSplit->displayBuffer = processor->getDisplayBuffers().getFirst();   
-            else
-                canvasSplit->displayBuffer = processor->displayBufferMap[id];
+			if (processor->displayBufferMap.find(id) == processor->displayBufferMap.end())
+				canvasSplit->displayBuffer = processor->getDisplayBuffers().getFirst();
+			else
+				canvasSplit->displayBuffer = processor->displayBufferMap[id];
 
-            if (canvasSplit->displayBuffer != nullptr)
-                canvasSplit->displayBuffer->addDisplay(canvasSplit->splitID);
+			if (canvasSplit->displayBuffer != nullptr)
+				canvasSplit->displayBuffer->addDisplay(canvasSplit->splitID);
 
-            //LOGD("    Added displays in ", MS_FROM_START, " milliseconds");
-            start = Time::getHighResolutionTicks();
+			//LOGD("    Added displays in ", MS_FROM_START, " milliseconds");
+			start = Time::getHighResolutionTicks();
 
-            // RANGE
-            StringArray rangesMin;
-            rangesMin.addTokens(xmlNode->getStringAttribute("RangeMin"),",",String());
-            selectedVoltageRangeValuesMin[0] = rangesMin[0];
-            selectedVoltageRangeValuesMin[1] = rangesMin[1];
-            selectedVoltageRangeValuesMin[2] = rangesMin[2];
-            selectedVoltageRangeMin[0] = voltageRanges[0].indexOf(rangesMin[0])+1;
-            selectedVoltageRangeMin[1] = voltageRanges[1].indexOf(rangesMin[1])+1;
-            selectedVoltageRangeMin[2] = voltageRanges[2].indexOf(rangesMin[2])+1;
-            rangeSelectionMin->setText(rangesMin[0]);
+			// RANGE
+			StringArray rangesMin;
+			rangesMin.addTokens(xmlNode->getStringAttribute("RangeMin"), ",", String());
+			voltageRangeValues[0].first = rangesMin[0].getFloatValue();
+            voltageRangeValues[1].first = rangesMin[1].getFloatValue();
+			voltageRangeValues[2].first = rangesMin[2].getFloatValue();
+			voltageRangeMin->setText(rangesMin[0], dontSendNotification);
 
-            StringArray rangesMax;
-            rangesMax.addTokens(xmlNode->getStringAttribute("RangeMax"), ",", String());
-            selectedVoltageRangeValuesMax[0] = rangesMax[0];
-            selectedVoltageRangeValuesMax[1] = rangesMax[1];
-            selectedVoltageRangeValuesMax[2] = rangesMax[2];
-            selectedVoltageRangeMax[0] = voltageRanges[0].indexOf(rangesMax[0]) + 1;
-            selectedVoltageRangeMax[1] = voltageRanges[1].indexOf(rangesMax[1]) + 1;
-            selectedVoltageRangeMax[2] = voltageRanges[2].indexOf(rangesMax[2]) + 1;
-            rangeSelectionMax->setText(rangesMax[0]);
+			StringArray rangesMax;
+			rangesMax.addTokens(xmlNode->getStringAttribute("RangeMax"), ",", String());
+			voltageRangeValues[0].second = rangesMax[0].getFloatValue();
+            voltageRangeValues[1].second = rangesMax[1].getFloatValue();
+            voltageRangeValues[2].second = rangesMax[2].getFloatValue();
+			voltageRangeMax->setText(rangesMax[0], dontSendNotification);
 
-            lfpDisplay->setRange(rangesMax[0].getFloatValue() * rangeGain[0], ContinuousChannel::Type::ELECTRODE);
-            lfpDisplay->setRange(rangesMax[1].getFloatValue() * rangeGain[1], ContinuousChannel::Type::AUX);
-            lfpDisplay->setRange(rangesMax[2].getFloatValue() * rangeGain[2], ContinuousChannel::Type::ADC);
+			lfpDisplay->setRange(rangesMin[0].getFloatValue() * rangeGain[0], rangesMax[0].getFloatValue() * rangeGain[0], ContinuousChannel::Type::ELECTRODE);
+			lfpDisplay->setRange(rangesMin[1].getFloatValue() * rangeGain[1], rangesMax[1].getFloatValue() * rangeGain[1], ContinuousChannel::Type::AUX);
+			lfpDisplay->setRange(rangesMin[2].getFloatValue() * rangeGain[2], rangesMax[2].getFloatValue() * rangeGain[2], ContinuousChannel::Type::ADC);
 
-            
-           // LOGD("    Set range in ", MS_FROM_START, " milliseconds");
-            start = Time::getHighResolutionTicks();
+			// LOGD("    Set range in ", MS_FROM_START, " milliseconds");
+			start = Time::getHighResolutionTicks();
 
-            // TIMEBASE
-            timebaseSelection->setText(xmlNode->getStringAttribute("Timebase"), dontSendNotification);
-            canvasSplit->setTimebase(xmlNode->getStringAttribute("Timebase").getFloatValue());
+			// TIMEBASE
+			timebaseSelection->setText(xmlNode->getStringAttribute("Timebase"), dontSendNotification);
+			canvasSplit->setTimebase(xmlNode->getStringAttribute("Timebase").getFloatValue());
 
-           //LOGD("    Set timebase in ", MS_FROM_START, " milliseconds");
-            start = Time::getHighResolutionTicks();
+			//LOGD("    Set timebase in ", MS_FROM_START, " milliseconds");
+			start = Time::getHighResolutionTicks();
 
-            // SPREAD
-            spreadSelection->setText(xmlNode->getStringAttribute("Spread"), dontSendNotification);
+			// SPREAD
+			spreadSelection->setText(xmlNode->getStringAttribute("Spread"), dontSendNotification);
 
-            // COLOUR SCHEME
-            lfpDisplay->setActiveColourSchemeIdx(xmlNode->getIntAttribute("colourScheme") - 1);
-            colourSchemeOptionSelection->setSelectedId(xmlNode->getIntAttribute("colourScheme"), dontSendNotification);
+			// COLOUR SCHEME
+			lfpDisplay->setActiveColourSchemeIdx(xmlNode->getIntAttribute("colourScheme") - 1);
+			colourSchemeOptionSelection->setSelectedId(xmlNode->getIntAttribute("colourScheme"), dontSendNotification);
 
-            // COLOUR GROUPING
-            colorGroupingSelection->setSelectedId(xmlNode->getIntAttribute("colorGrouping"), dontSendNotification);
-            lfpDisplay->setColorGrouping(colorGroupings[colorGroupingSelection->getSelectedId() - 1].getIntValue());
+			// COLOUR GROUPING
+			colorGroupingSelection->setSelectedId(xmlNode->getIntAttribute("colorGrouping"), dontSendNotification);
+			lfpDisplay->setColorGrouping(colorGroupings[colorGroupingSelection->getSelectedId() - 1].getIntValue());
 
-            // SPIKE RASTER
-            String spikeRasterThresh = xmlNode->getStringAttribute("spikeRaster", "OFF");
-            spikeRasterSelection->setText(spikeRasterThresh, dontSendNotification);
-            if (!spikeRasterThresh.equalsIgnoreCase("OFF"))
-            {
-                lfpDisplay->setSpikeRasterPlotting(true);
-                lfpDisplay->setSpikeRasterThreshold(spikeRasterThresh.getFloatValue());
-            }
+			// SPIKE RASTER
+			String spikeRasterThresh = xmlNode->getStringAttribute("spikeRaster", "OFF");
+			spikeRasterSelection->setText(spikeRasterThresh, dontSendNotification);
+			if (!spikeRasterThresh.equalsIgnoreCase("OFF"))
+			{
+				lfpDisplay->setSpikeRasterPlotting(true);
+				lfpDisplay->setSpikeRasterThreshold(spikeRasterThresh.getFloatValue());
+			}
 
-            // CLIP WARNING
-            int clipWarning = xmlNode->getIntAttribute("clipWarning", 1);
-            clipWarningSelection->setSelectedId(clipWarning, dontSendNotification);
-            if (clipWarning == 2)
-                canvasSplit->drawClipWarning = true;
+			// CLIP WARNING
+			int clipWarning = xmlNode->getIntAttribute("clipWarning", 1);
+			clipWarningSelection->setSelectedId(clipWarning, dontSendNotification);
+			if (clipWarning == 2)
+				canvasSplit->drawClipWarning = true;
 
-            // SATURATION WARNING
-            saturationWarningSelection->setSelectedId(xmlNode->getIntAttribute("satWarning"), dontSendNotification);
+			// SATURATION WARNING
+			saturationWarningSelection->setSelectedId(xmlNode->getIntAttribute("satWarning"), dontSendNotification);
 
-            if (saturationWarningSelection->getSelectedId() > 1)
-            {
-                selectedSaturationValueFloat = (saturationThresholds[saturationWarningSelection->getSelectedId() - 1].getFloatValue());
-                canvasSplit->drawSaturationWarning = true;
-            }
+			if (saturationWarningSelection->getSelectedId() > 1)
+			{
+				selectedSaturationValueFloat = (saturationThresholds[saturationWarningSelection->getSelectedId() - 1].getFloatValue());
+				canvasSplit->drawSaturationWarning = true;
+			}
 
-            //LOGD("    Additional settings in ", MS_FROM_START, " milliseconds");
-            start = Time::getHighResolutionTicks();
+			//LOGD("    Additional settings in ", MS_FROM_START, " milliseconds");
+			start = Time::getHighResolutionTicks();
 
-            // TOGGLE BUTTONS
+			// TOGGLE BUTTONS
 
-            setChannelsReversed(xmlNode->getBoolAttribute("reverseOrder", false));
+			setChannelsReversed(xmlNode->getBoolAttribute("reverseOrder", false));
 
-            //LOGD("    --> setChannelsReversed: ", MS_FROM_START, " milliseconds");
-            start = Time::getHighResolutionTicks();
+			//LOGD("    --> setChannelsReversed: ", MS_FROM_START, " milliseconds");
+			start = Time::getHighResolutionTicks();
 
-            setSortByDepth(xmlNode->getBoolAttribute("sortByDepth", false));
+			setSortByDepth(xmlNode->getBoolAttribute("sortByDepth", false));
 
-            //LOGD("    --> setSortByDepth: ", MS_FROM_START, " milliseconds");
-            start = Time::getHighResolutionTicks();
+			//LOGD("    --> setSortByDepth: ", MS_FROM_START, " milliseconds");
+			start = Time::getHighResolutionTicks();
 
-            setShowChannelNumbers(xmlNode->getBoolAttribute("showChannelNum", false));
+			setShowChannelNumbers(xmlNode->getBoolAttribute("showChannelNum", false));
 
-            //LOGD("    --> setShowChannelNumbers: ", MS_FROM_START, " milliseconds");
-            start = Time::getHighResolutionTicks();
+			//LOGD("    --> setShowChannelNumbers: ", MS_FROM_START, " milliseconds");
+			start = Time::getHighResolutionTicks();
 
-            bool shouldInvert = xmlNode->getBoolAttribute("isInverted", false);
-            
+			bool shouldInvert = xmlNode->getBoolAttribute("isInverted", false);
+
 			if (invertInputButton->getToggleState() != shouldInvert)
-                setInputInverted(shouldInvert);
-            
-            //LOGD("    --> setInputInverted: ", MS_FROM_START, " milliseconds");
-            start = Time::getHighResolutionTicks();
+				setInputInverted(shouldInvert);
 
-            setAveraging(xmlNode->getBoolAttribute("trialAvg", false));
-            //LOGD("    --> setAveraging: ", MS_FROM_START, " milliseconds");
-            start = Time::getHighResolutionTicks();
+			//LOGD("    --> setInputInverted: ", MS_FROM_START, " milliseconds");
+			start = Time::getHighResolutionTicks();
 
-            setMedianOffset(xmlNode->getBoolAttribute("subtractOffset", false));
+			setAveraging(xmlNode->getBoolAttribute("trialAvg", false));
+			//LOGD("    --> setAveraging: ", MS_FROM_START, " milliseconds");
+			start = Time::getHighResolutionTicks();
 
-            //LOGD("    --> setMedianOffset: ", MS_FROM_START, " milliseconds");
-            start = Time::getHighResolutionTicks();
+			setMedianOffset(xmlNode->getBoolAttribute("subtractOffset", false));
 
-            // CHANNEL SKIP
-            channelDisplaySkipSelection->setSelectedId(xmlNode->getIntAttribute("channelSkip"), dontSendNotification);
-            const int skipAmt = pow(2, channelDisplaySkipSelection->getSelectedId() - 1);
-            lfpDisplay->setChannelDisplaySkipAmount(skipAmt);
+			//LOGD("    --> setMedianOffset: ", MS_FROM_START, " milliseconds");
+			start = Time::getHighResolutionTicks();
 
-            // TRIGGER SOURCE
-            triggerSourceSelection->setSelectedId(xmlNode->getIntAttribute("triggerSource"), dontSendNotification);
-            canvasSplit->setTriggerChannel(triggerSourceSelection->getSelectedId() - 2);
-            processor->setParameter(triggerSourceSelection->getSelectedId() - 2, float(canvasSplit->splitID));
-            
-            //LOGD("    Set trigger source in ", MS_FROM_START, " milliseconds");
-            start = Time::getHighResolutionTicks();
+			// CHANNEL SKIP
+			channelDisplaySkipSelection->setSelectedId(xmlNode->getIntAttribute("channelSkip"), dontSendNotification);
+			const int skipAmt = pow(2, channelDisplaySkipSelection->getSelectedId() - 1);
+			lfpDisplay->setChannelDisplaySkipAmount(skipAmt);
 
-           // drawMethodButton->setToggleState(xmlNode->getBoolAttribute("drawMethod", true), sendNotification);
+			// TRIGGER SOURCE
+			triggerSourceSelection->setSelectedId(xmlNode->getIntAttribute("triggerSource"), dontSendNotification);
+			canvasSplit->setTriggerChannel(triggerSourceSelection->getSelectedId() - 2);
+			processor->setParameter(triggerSourceSelection->getSelectedId() - 2, float(canvasSplit->splitID));
 
-            lfpDisplay->setScrollPosition(xmlNode->getIntAttribute("ScrollX"),
-                                          xmlNode->getIntAttribute("ScrollY"));
+			//LOGD("    Set trigger source in ", MS_FROM_START, " milliseconds");
+			start = Time::getHighResolutionTicks();
 
-            //LOGD("    Set scroll position in ", MS_FROM_START, " milliseconds");
-            start = Time::getHighResolutionTicks();
+			// drawMethodButton->setToggleState(xmlNode->getBoolAttribute("drawMethod", true), sendNotification);
 
-            int eventButtonState = xmlNode->getIntAttribute("EventButtonState");
+			lfpDisplay->setScrollPosition(xmlNode->getIntAttribute("ScrollX"),
+				xmlNode->getIntAttribute("ScrollY"));
 
-            for (int i = 0; i < 8; i++)
-            {
-                lfpDisplay->eventDisplayEnabled[i] = (eventButtonState >> i) & 1;
+			//LOGD("    Set scroll position in ", MS_FROM_START, " milliseconds");
+			start = Time::getHighResolutionTicks();
 
-                eventDisplayInterfaces[i]->checkEnabledState();
-            }
+			int eventButtonState = xmlNode->getIntAttribute("EventButtonState");
 
-            String channelDisplayState = xmlNode->getStringAttribute("ChannelDisplayState");
+			for (int i = 0; i < 8; i++)
+			{
+				lfpDisplay->eventDisplayEnabled[i] = (eventButtonState >> i) & 1;
 
-            for (int i = 0; i < channelDisplayState.length(); i++)
-            {
+				eventDisplayInterfaces[i]->checkEnabledState();
+			}
 
-                if (channelDisplayState.substring(i,i+1).equalsIgnoreCase("1"))
-                {
-                    lfpDisplay->setEnabledState(true, i, true);
-                }
-                else
-                {
-                    lfpDisplay->setEnabledState(false, i, true);
-                }
+			String channelDisplayState = xmlNode->getStringAttribute("ChannelDisplayState");
 
-            }
+			for (int i = 0; i < channelDisplayState.length(); i++)
+			{
 
-            //LOGD("    Set channel display state in ", MS_FROM_START, " milliseconds");
-            
-            if(canvas->optionsDrawerIsOpen)
-                showHideOptionsButton->setToggleState(true, dontSendNotification);
+				if (channelDisplayState.substring(i, i + 1).equalsIgnoreCase("1"))
+				{
+					lfpDisplay->setEnabledState(true, i, true);
+				}
+				else
+				{
+					lfpDisplay->setEnabledState(false, i, true);
+				}
 
-            start = Time::getHighResolutionTicks();
+			}
 
-            lfpDisplay->setSingleChannelView(xmlNode->getIntAttribute("singleChannelView", -1));
+			//LOGD("    Set channel display state in ", MS_FROM_START, " milliseconds");
 
-            lfpDisplay->setColors();
-            canvasSplit->redraw();
+			if (canvas->optionsDrawerIsOpen)
+				showHideOptionsButton->setToggleState(true, dontSendNotification);
 
-            lfpDisplay->restoreViewPosition();
+			start = Time::getHighResolutionTicks();
 
-            //LOGD("    Restored view in ", MS_FROM_START, " milliseconds");
-        }
+			lfpDisplay->setSingleChannelView(xmlNode->getIntAttribute("singleChannelView", -1));
 
-        
-    }
+			lfpDisplay->setColors();
+			canvasSplit->redraw();
 
-   // std::cout << "Finished loading LFP options." << std::endl;
+			lfpDisplay->restoreViewPosition();
+
+			//LOGD("    Restored view in ", MS_FROM_START, " milliseconds");
+		}
+
+
+	}
+
+	// std::cout << "Finished loading LFP options." << std::endl;
 
 }
 

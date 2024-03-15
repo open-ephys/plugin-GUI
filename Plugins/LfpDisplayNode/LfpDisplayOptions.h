@@ -1,23 +1,23 @@
 /*
-    ------------------------------------------------------------------
+	------------------------------------------------------------------
 
-    This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+	This file is part of the Open Ephys GUI
+	Copyright (C) 2013 Open Ephys
 
-    ------------------------------------------------------------------
+	------------------------------------------------------------------
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 #ifndef __LFPDISPLAYOPTIONS_H__
@@ -35,212 +35,212 @@
 
 namespace LfpViewer {
 
-/**
- 
-    Holds the LfpDisplay UI controls
- 
- */
-class LfpDisplayOptions : 
-    public Component,
-    public ComboBox::Listener,
-    public Button::Listener,
-    public Timer
-{
-public:
+	/**
 
-    /** Construtor */
-    LfpDisplayOptions(LfpDisplayCanvas*,
-                      LfpDisplaySplitter*, 
-                      LfpTimescale*, 
-                      LfpDisplay*, 
-                      LfpDisplayNode*);
+		Holds the LfpDisplay UI controls
 
-    /** Destructor */
-    ~LfpDisplayOptions() { }
+	 */
+	class LfpDisplayOptions :
+		public Component,
+		public ComboBox::Listener,
+		public Button::Listener,
+		public Label::Listener,
+		public Timer
+	{
+	public:
 
-    /** Paint background*/
-    void paint(Graphics& g);
+		/** Construtor */
+		LfpDisplayOptions(LfpDisplayCanvas*,
+			LfpDisplaySplitter*,
+			LfpTimescale*,
+			LfpDisplay*,
+			LfpDisplayNode*);
 
-    /** Set sub-component locations*/
-    void resized();
+		/** Destructor */
+		~LfpDisplayOptions() { }
 
-    /** Respond to combo box selection */
-    void comboBoxChanged(ComboBox* cb);
+		/** Paint background*/
+		void paint(Graphics& g);
 
-    /** Respond to button clicks */
-    void buttonClicked(Button* button);
+		/** Set sub-component locations*/
+		void resized();
 
-    /** Set range selection combo box to correct value if it has been changed by scolling etc. */
-    void setRangeSelection(float range, bool canvasMustUpdate = false); 
-    
-    /** Set spread selection combo box to correct value if it has been changed by scolling etc. */
-    void setSpreadSelection(int spread, bool canvasMustUpdate = false, bool deferDisplayRefresh = false); 
+		/** Respond to combo box selection */
+		void comboBoxChanged(ComboBox* cb);
 
-    /** Changes the timebase value used by LfpTimescale and LfpDisplayCanvas. */
-    void setTimebaseAndSelectionText(float timebase);
+		/** Respond to button clicks */
+		void buttonClicked(Button* button);
 
-    /** Returns the selected channel height*/
-    int getChannelHeight();
+		/** Set range selection combo box to correct value if it has been changed by scolling etc. */
+		void setRangeSelection(float min, float max, bool canvasMustUpdate = false);
 
-    /** Returns true if channel polarity is inverted */
-    bool getInputInvertedState();
+		/** Set spread selection combo box to correct value if it has been changed by scolling etc. */
+		void setSpreadSelection(int spread, bool canvasMustUpdate = false, bool deferDisplayRefresh = false);
 
-    /** Returns true if channel names should be shown*/
-	bool getChannelNameState();
+		/** Changes the timebase value used by LfpTimescale and LfpDisplayCanvas. */
+		void setTimebaseAndSelectionText(float timebase);
 
-    /** Toggles pause button (e.g. if space bar is pressed) */
-    void togglePauseButton(bool sendUpdate = true);
+		/** Returns the selected channel height*/
+		int getChannelHeight();
 
-    /** Saves all options to XML */
-    void saveParameters(XmlElement* xml);
+		/** Returns true if channel polarity is inverted */
+		bool getInputInvertedState();
 
-    /** Loads options from XML */
-    void loadParameters(XmlElement* xml);
+		/** Returns true if channel names should be shown*/
+		bool getChannelNameState();
 
-    /** Returns the channel type of a given channel index */
-	ContinuousChannel::Type getChannelType(int index);
+		/** Toggles pause button (e.g. if space bar is pressed) */
+		void togglePauseButton(bool sendUpdate = true);
 
-    /** Returns the selected channel type for the range editor */
-    ContinuousChannel::Type getSelectedType();
+		/** Saves all options to XML */
+		void saveParameters(XmlElement* xml);
 
-    /** Returns the name for a given channel type (DATA, AUX, ADC) */
-    String getTypeName(ContinuousChannel::Type type);
+		/** Loads options from XML */
+		void loadParameters(XmlElement* xml);
 
-    /** Returns the range step size for a given channel type (DATA, AUX, ADC) */
-	int getRangeStep(ContinuousChannel::Type type);
+		/** Returns the channel type of a given channel index */
+		ContinuousChannel::Type getChannelType(int index);
 
-    /** Set the selected channel type (DATA, AUX, ADC) */
-	void setSelectedType(ContinuousChannel::Type type, bool toggleButton = true);
+		/** Returns the selected channel type for the range editor */
+		ContinuousChannel::Type getSelectedType();
 
-    /** Sets whether channel order should be reversed */
-    void setChannelsReversed(bool);
+		/** Returns the name for a given channel type (DATA, AUX, ADC) */
+		String getTypeName(ContinuousChannel::Type type);
 
-    /** Sets whether channels should be sorted by depth*/
-    void setSortByDepth(bool);
+		/** Returns the range step size for a given channel type (DATA, AUX, ADC) */
+		int getRangeStep(ContinuousChannel::Type type);
 
-    /** Sets whether signal polarity should be inverted */
-    void setInputInverted(bool);
+		/** Set the selected channel type (DATA, AUX, ADC) */
+		void setSelectedType(ContinuousChannel::Type type, bool toggleButton = true);
 
-    /** Sets whether the median of each channel should be subtracted */
-    void setMedianOffset(bool);
+		/** Sets whether channel order should be reversed */
+		void setChannelsReversed(bool);
 
-    /** Sets whether to use averaging in triggered display*/
-    void setAveraging(bool);
-    
-    /** Sets whether channel numbers should be shown instead of names */
-    void setShowChannelNumbers(bool);
+		/** Sets whether channels should be sorted by depth*/
+		void setSortByDepth(bool);
 
-    /** Sets the latest ttl word value */
-    void setTTLWord(String word);
+		/** Sets whether signal polarity should be inverted */
+		void setInputInverted(bool);
 
-    /** Sets the state of the pause button and can enable / disable some options */
-    void setPausedState(bool isPaused);
+		/** Sets whether the median of each channel should be subtracted */
+		void setMedianOffset(bool);
 
-    int selectedSpread;
-    String selectedSpreadValue;
+		/** Sets whether to use averaging in triggered display*/
+		void setAveraging(bool);
 
-    int selectedTimebase;
-    String selectedTimebaseValue;
+		/** Sets whether channel numbers should be shown instead of names */
+		void setShowChannelNumbers(bool);
 
-    int selectedOverlap;
-    String selectedOverlapValue;
-    
-    int selectedChannelDisplaySkip;
-    String selectedChannelDisplaySkipValue;
-    
-    int selectedSpikeRasterThreshold;
-    String selectedSpikeRasterThresholdValue;
+		/** Sets the latest ttl word value */
+		void setTTLWord(String word);
 
-    // this enum is a candidate option for refactoring, not used yet
-    enum ChannelDisplaySkipValue {
-        None = 0,
-        One,
-        Two,
-        Four,
-        Eight,
-        Sixteen,
-        ThirtyTwo
-    } enum_selectedChannelDisplaySkipValue = None;
-    
-    float selectedSaturationValueFloat;
-    
-    void timerCallback();
+		/** Sets the state of the pause button and can enable / disable some options */
+		void setPausedState(bool isPaused);
 
-private:
+		int selectedSpread;
+		String selectedSpreadValue;
 
-    LfpDisplayCanvas* canvas;
-    LfpDisplaySplitter* canvasSplit;
-    LfpDisplay* lfpDisplay;
-    LfpTimescale* timescale;
-    LfpDisplayNode* processor;
-    
-    Font labelFont;
-    Colour labelColour;
-    
-    String ttlWordString;
+		int selectedTimebase;
+		String selectedTimebaseValue;
 
-    // Main options
-    std::unique_ptr<ComboBox> timebaseSelection;
-    std::unique_ptr<ComboBox> spreadSelection;
-    std::unique_ptr<ComboBox> rangeSelectionMin;
-    std::unique_ptr<ComboBox> rangeSelectionMax;
-    OwnedArray<UtilityButton> typeButtons;
-    
-    std::unique_ptr<ComboBox> overlapSelection; // what do we do with this?
-    
-    OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
-    std::unique_ptr<Label> ttlWordLabel;
-    std::unique_ptr<UtilityButton> pauseButton;
-    std::unique_ptr<ComboBox> colourSchemeOptionSelection;
-    std::unique_ptr<ComboBox> colorGroupingSelection;
-    
-    std::unique_ptr<ShowHideOptionsButton> showHideOptionsButton;
+		int selectedOverlap;
+		String selectedOverlapValue;
 
-    // THRESHOLDS SECTION
-    std::unique_ptr<ComboBox> spikeRasterSelection;
-    std::unique_ptr<ComboBox> saturationWarningSelection; // optionally raise hell if the actual data is saturating
-    std::unique_ptr<ComboBox> clipWarningSelection; // optinally draw (subtle) warning if data is clipped in display
-    
-    // CHANNELS SECTION
-    std::unique_ptr<UtilityButton> reverseChannelsDisplayButton;
-    std::unique_ptr<UtilityButton> sortByDepthButton;
-    std::unique_ptr<ComboBox> channelDisplaySkipSelection;
-    std::unique_ptr<UtilityButton> showChannelNumberButton;
+		int selectedChannelDisplaySkip;
+		String selectedChannelDisplaySkipValue;
 
-    // SIGNAL PROCESSING SECTION
-    std::unique_ptr<UtilityButton> medianOffsetPlottingButton;
-    std::unique_ptr<UtilityButton> invertInputButton;
+		int selectedSpikeRasterThreshold;
+		String selectedSpikeRasterThresholdValue;
 
-    // TRIGGERED DISPLAY SECTION
-    std::unique_ptr<ComboBox> triggerSourceSelection;
-    std::unique_ptr<UtilityButton> averageSignalButton;
-    std::unique_ptr<UtilityButton> resetButton;
-     
-    StringArray voltageRanges[CHANNEL_TYPES];
-    StringArray timebases;
-    StringArray spreads; // option for vertical spacing between channels
-    StringArray colorGroupings; // option for coloring every N channels the same
-    StringArray triggerSources; // option for trigger source event channel
-    StringArray overlaps; //
-    StringArray saturationThresholds; //default values for when different amplifiers saturate
-    StringArray clipThresholds;
-    StringArray spikeRasterSelectionOptions;
-    StringArray channelDisplaySkipOptions;
-    StringArray sectionTitles;
-    
-	ContinuousChannel::Type selectedChannelType;
-    int selectedVoltageRangeMin[CHANNEL_TYPES];
-    String selectedVoltageRangeValuesMin[CHANNEL_TYPES];
-    int selectedVoltageRangeMax[CHANNEL_TYPES];
-    String selectedVoltageRangeValuesMax[CHANNEL_TYPES];
-    float rangeGain[CHANNEL_TYPES];
-    StringArray rangeUnits;
-    StringArray typeNames;
-    int rangeSteps[CHANNEL_TYPES];
+		// this enum is a candidate option for refactoring, not used yet
+		enum ChannelDisplaySkipValue {
+			None = 0,
+			One,
+			Two,
+			Four,
+			Eight,
+			Sixteen,
+			ThirtyTwo
+		} enum_selectedChannelDisplaySkipValue = None;
 
-    bool medianOffsetOnForSpikeRaster;
+		float selectedSaturationValueFloat;
+
+		void timerCallback();
+
+	private:
+
+		LfpDisplayCanvas* canvas;
+		LfpDisplaySplitter* canvasSplit;
+		LfpDisplay* lfpDisplay;
+		LfpTimescale* timescale;
+		LfpDisplayNode* processor;
+
+		Font labelFont;
+		Colour labelColour;
+
+		String ttlWordString;
+
+		// Main options
+		std::unique_ptr<ComboBox> timebaseSelection;
+		std::unique_ptr<ComboBox> spreadSelection;
+		std::unique_ptr<Label> voltageRangeMin;
+		std::unique_ptr<Label> voltageRangeMax;
+		OwnedArray<UtilityButton> typeButtons;
+
+		std::unique_ptr<ComboBox> overlapSelection; // what do we do with this?
+
+		OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
+		std::unique_ptr<Label> ttlWordLabel;
+		std::unique_ptr<UtilityButton> pauseButton;
+		std::unique_ptr<ComboBox> colourSchemeOptionSelection;
+		std::unique_ptr<ComboBox> colorGroupingSelection;
+
+		std::unique_ptr<ShowHideOptionsButton> showHideOptionsButton;
+
+		// THRESHOLDS SECTION
+		std::unique_ptr<ComboBox> spikeRasterSelection;
+		std::unique_ptr<ComboBox> saturationWarningSelection; // optionally raise hell if the actual data is saturating
+		std::unique_ptr<ComboBox> clipWarningSelection; // optinally draw (subtle) warning if data is clipped in display
+
+		// CHANNELS SECTION
+		std::unique_ptr<UtilityButton> reverseChannelsDisplayButton;
+		std::unique_ptr<UtilityButton> sortByDepthButton;
+		std::unique_ptr<ComboBox> channelDisplaySkipSelection;
+		std::unique_ptr<UtilityButton> showChannelNumberButton;
+
+		// SIGNAL PROCESSING SECTION
+		std::unique_ptr<UtilityButton> medianOffsetPlottingButton;
+		std::unique_ptr<UtilityButton> invertInputButton;
+
+		// TRIGGERED DISPLAY SECTION
+		std::unique_ptr<ComboBox> triggerSourceSelection;
+		std::unique_ptr<UtilityButton> averageSignalButton;
+		std::unique_ptr<UtilityButton> resetButton;
+
+		StringArray timebases;
+		StringArray spreads; // option for vertical spacing between channels
+		StringArray colorGroupings; // option for coloring every N channels the same
+		StringArray triggerSources; // option for trigger source event channel
+		StringArray overlaps; //
+		StringArray saturationThresholds; //default values for when different amplifiers saturate
+		StringArray clipThresholds;
+		StringArray spikeRasterSelectionOptions;
+		StringArray channelDisplaySkipOptions;
+		StringArray sectionTitles;
+
+		ContinuousChannel::Type selectedChannelType;
+		std::pair<float, float> voltageRangeValues[CHANNEL_TYPES];
+		float rangeGain[CHANNEL_TYPES];
+		StringArray rangeUnits;
+		StringArray typeNames;
+		int rangeSteps[CHANNEL_TYPES];
+
+		bool medianOffsetOnForSpikeRaster;
+
+		// Inherited via Listener
+		void labelTextChanged(Label* labelThatHasChanged) override;
 };
-    
+
 }; // namespace
 
 #endif

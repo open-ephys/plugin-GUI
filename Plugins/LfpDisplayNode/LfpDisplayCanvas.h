@@ -125,7 +125,7 @@ public:
 
     bool setChannelHeight(int splitIndex, int height);
 
-    bool setChannelRange(int splitIndex, int range, ContinuousChannel::Type type);
+    bool setChannelRange(int splitIndex, int min, int max, ContinuousChannel::Type type);
 
 
     
