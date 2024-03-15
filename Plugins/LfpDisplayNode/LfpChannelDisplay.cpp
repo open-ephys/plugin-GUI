@@ -241,10 +241,10 @@ void LfpChannelDisplay::pxPaint()
 		}
 
 		// set max-min range for plotting
-		double a = (canvasSplit->getYCoordMax(chan, index) / rangeMax * channelHeightFloat);
-		double b = (canvasSplit->getYCoordMin(chan, index) / rangeMin * channelHeightFloat);
+		double a = (canvasSplit->getYCoordMax(chan, index) - rangeMin) / rangeMax * channelHeightFloat;
+		double b = (canvasSplit->getYCoordMin(chan, index) - rangeMin) / rangeMax * channelHeightFloat;
 
-		double meanMax = (canvasSplit->getMean(chan) / rangeMax * channelHeightFloat);
+		double meanMax = (canvasSplit->getMean(chan)  / rangeMax * channelHeightFloat);
 		double meanMin = (canvasSplit->getMean(chan) / rangeMin * channelHeightFloat);
 
 		if (drawWithOffsetCorrection)
@@ -289,7 +289,7 @@ void LfpChannelDisplay::pxPaint()
 			&& (from_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold()
 				|| to_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold());
 
-		from = from + getHeight() / 2;       // so the plot is centered in the channeldisplay
+		from = from + getHeight() / ;       // so the plot is centered in the channeldisplay
 		to = to + getHeight() / 2;
 
 		int samplerange = to - from;
