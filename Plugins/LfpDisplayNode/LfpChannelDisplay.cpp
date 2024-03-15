@@ -691,6 +691,8 @@ void LfpChannelDisplay::setRange(float min, float max)
 	rangeMin = min;
 	rangeMax = max;
 
+	if (rangeMin > rangeMax)
+		std::swap(rangeMin, rangeMax);
 }
 
 float LfpViewer::LfpChannelDisplay::getRangeMin()
