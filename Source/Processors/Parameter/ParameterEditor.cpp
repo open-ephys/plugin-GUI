@@ -798,16 +798,20 @@ void SelectedChannelsParameterEditor::buttonClicked(Button* button_)
 
     SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
 
-    auto* channelSelector = new PopupChannelSelector(this, p->getChannelStates());
+    auto* channelSelector = new PopupChannelSelector(button.get(), this, p->getChannelStates());
 
     channelSelector->setChannelButtonColour(param->getColor());
     
     channelSelector->setMaximumSelectableChannels(p->getMaxSelectableChannels());
 
+    CoreServices::getPopoverManager()->showPopover(std::unique_ptr<Component>(channelSelector), button.get());
+
+    /*
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
             button->getScreenBounds(),
             nullptr);
+    */
 }
 
 void SelectedChannelsParameterEditor::updateView()
@@ -841,7 +845,7 @@ MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param, int r
             selected++;
 
     button = std::make_unique<TextButton>(String(selected) + "/" + String(numChannels));
-    button->setName(param->getKey());
+    button->setComponentID(param->getKey());
     button->addListener(this);
     button->setClickingTogglesState(false);
     button->setTooltip("Mask channels to filter within this stream");
@@ -875,6 +879,12 @@ void MaskChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
         newArray.add(newChannels[i]);
     
     param->setNextValue(newArray);
+
+    Parameter::ChangeValue* action = new Parameter::ChangeValue(param->getKey(), newArray);
+
+    AccessClass::getUndoManager()->beginNewTransaction();
+    AccessClass::getUndoManager()->setCurrentTransactionName(button->getComponentID());
+    AccessClass::getUndoManager()->perform(action);
     
     updateView();
 
@@ -890,14 +900,18 @@ void MaskChannelsParameterEditor::buttonClicked(Button* button_)
     
     std::vector<bool> channelStates = p->getChannelStates();
 
-    auto* channelSelector = new PopupChannelSelector(this, channelStates);
+    auto* channelSelector = new PopupChannelSelector(button.get(), this, channelStates);
 
     channelSelector->setChannelButtonColour(param->getColor());
 
+    CoreServices::getPopoverManager()->showPopover(std::unique_ptr<Component>(channelSelector), button.get());
+
+    /*
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
             button->getScreenBounds(),
             nullptr);
+    */
 }
 
 void MaskChannelsParameterEditor::updateView()

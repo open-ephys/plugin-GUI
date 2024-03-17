@@ -119,8 +119,8 @@ RangeEditor::RangeEditor(const String& name, const Font& font) :
 }
 
 
-PopupChannelSelector::PopupChannelSelector(PopupChannelSelector::Listener* listener_, std::vector<bool> channelStates) 
-    : listener(listener_),
+PopupChannelSelector::PopupChannelSelector(Component* parent, PopupChannelSelector::Listener* listener_, std::vector<bool> channelStates) 
+    : PopoverComponent(parent), listener(listener_),
     nChannels(channelStates.size()),
     mouseDragged(false), 
     startDragCoords(0,0),
@@ -228,9 +228,9 @@ void PopupChannelSelector::update(Array<int> selectedChannels)
     for (auto* btn : channelButtons)
     {
         if (selectedChannels.contains(btn->getId()))
-            btn->setToggleState(true, NotificationType::dontSendNotification);
+            btn->setToggleState(true, NotificationType::sendNotification);
         else
-            btn->setToggleState(false, NotificationType::dontSendNotification);
+            btn->setToggleState(false, NotificationType::sendNotification);
     }
 }
 
@@ -259,13 +259,12 @@ ChannelButton* PopupChannelSelector::getButtonForId(int btnId)
 
 bool PopupChannelSelector::keyPressed(const KeyPress& key)
 {
-    if (PopoverComponent::keyPressed(key)) //undo/redo was pressed
+    if (PopoverComponent::keyPressed(key)) //undo/redo was performed
     {
         LOGD("*** Undo/Redo was pressed");
         update(listener->getSelectedChannels());
     }
-
-    return false;
+    return true;
 }
 
 void PopupChannelSelector::mouseMove(const MouseEvent &event)

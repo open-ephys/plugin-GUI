@@ -73,9 +73,9 @@ public:
     /** Update configuration window */
     void updateConfigurationWindow();
 
-private:
-
     std::unique_ptr<UtilityButton> configureButton;
+
+private:
 
     PopupConfigurationWindow* currentConfigWindow;
 

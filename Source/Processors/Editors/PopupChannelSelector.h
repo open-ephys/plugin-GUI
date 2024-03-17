@@ -131,7 +131,7 @@ public:
 	};
 
 	/** Constructor */
-	PopupChannelSelector(Listener* listener, std::vector<bool> channelStates);
+	PopupChannelSelector(Component* parent, Listener* listener, std::vector<bool> channelStates);
 
 	/** Destructor */
 	~PopupChannelSelector() { }

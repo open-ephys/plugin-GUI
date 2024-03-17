@@ -44,6 +44,7 @@ class DataViewport;
 class EditorViewport;
 class SignalChainTabComponent;
 class DefaultConfigWindow;
+class PopoverManager;
 
 /**
 
@@ -103,8 +104,11 @@ public:
     /** Returns a pointer to the AudioComponent. */
 	AudioComponent* getAudioComponent();
 
-    /** Returns a pointer ot the Plugin Installer (UI) */
+    /** Returns a pointer to the Plugin Installer (UI) */
     PluginInstaller* getPluginInstaller();
+
+    /** Returns a pointer to the Popover Manager */
+    PopoverManager* getPopoverManager();
     
     /** Called by the MessageCenterButton */
     void buttonClicked(Button* button);
@@ -194,6 +198,9 @@ private:
     /** Pointer to the GUI's ControlPanel. Owned by the MainWindow. */
     ControlPanel* controlPanel;
 
+    /** Pointer to the GUI's PopoverManager. Owned by the MainWindow */
+    PopoverManager* popoverManager;
+
     /** Pointer to the GUI's MessageCenterEditor. Owned by the MessageCenter. */
     MessageCenterEditor* messageCenterEditor;
     
@@ -239,6 +246,8 @@ private:
     ColorTheme theme = THEME1;
     
     CustomLookAndFeel customLookAndFeel;
+
+    Component* findComponentByIDRecursive(Component* parent, const String& id);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponent);
 

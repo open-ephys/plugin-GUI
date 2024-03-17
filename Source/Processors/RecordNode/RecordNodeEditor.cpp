@@ -128,6 +128,7 @@ RecordChannelsParameterEditor::RecordChannelsParameterEditor(RecordNode* rn, Par
 
     monitor = std::make_unique<StreamMonitor>(recordNode, streamId);
     monitor->setTooltip(sourceNodeId + " | " + streamName);
+	monitor->setComponentID(sourceNodeId + " | " + streamName);
 	monitor->addListener(this);
 	monitor->setBounds(0, 0, 15, 73);
 	addAndMakeVisible(monitor.get());
@@ -145,6 +146,12 @@ void RecordChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
         newArray.add(newChannels[i]);
 
     param->setNextValue(newArray);
+
+	Parameter::ChangeValue* action = new Parameter::ChangeValue(param->getKey(), newArray);
+
+    AccessClass::getUndoManager()->beginNewTransaction();
+    AccessClass::getUndoManager()->setCurrentTransactionName(monitor->getComponentID());
+    AccessClass::getUndoManager()->perform(action);
 
     updateView();
 }
@@ -172,13 +179,18 @@ void RecordChannelsParameterEditor::buttonClicked(Button* label)
 
     std::vector<bool> channelStates = p->getChannelStates();
 
-    auto* channelSelector = new PopupChannelSelector(this, channelStates);
+    auto* channelSelector = new PopupChannelSelector(label, this, channelStates);
+
 	channelSelector->setChannelButtonColour(param->getColor());
 
+	CoreServices::getPopoverManager()->showPopover(std::unique_ptr<PopoverComponent>(channelSelector), monitor.get());
+
+	/*
     CallOutBox& myBox
         = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
             editor->getScreenBounds(),
             nullptr);
+	*/
 }
 
 void RecordChannelsParameterEditor::updateView()

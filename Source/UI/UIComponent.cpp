@@ -171,6 +171,11 @@ PluginInstaller* UIComponent::getPluginInstaller()
 	return pluginInstaller;
 }
 
+PopoverManager* UIComponent::getPopoverManager()
+{
+	return popoverManager;
+}
+
 void UIComponent::buttonClicked(Button* button)
 {
     if (button == &messageCenterButton)
@@ -813,12 +818,23 @@ bool UIComponent::perform(const InvocationInfo& info)
 
         case undo:
             {
+				String desc = AccessClass::getProcessorGraph()->getUndoManager()->getUndoDescription();
+				if (desc != "") {
+					Component* foundComponent = findComponentByIDRecursive(this, desc);
+					((Button*)foundComponent)->triggerClick();
+				}
                 AccessClass::getProcessorGraph()->getUndoManager()->undo();
                 break;
             }
             
         case redo:
             {
+				String desc = AccessClass::getProcessorGraph()->getUndoManager()->getRedoDescription();
+				if (desc != "") {
+					Component* foundComponent = findComponentByIDRecursive(this, desc);
+					((Button*)foundComponent)->triggerClick();
+				}
+				//show the popover and process the key press there. 
                 AccessClass::getProcessorGraph()->getUndoManager()->redo();
                 break;
             }
@@ -972,6 +988,26 @@ Array<String> UIComponent::getRecentlyUsedFilenames()
 void UIComponent::setRecentlyUsedFilenames(const Array<String>& filenames)
 {
 	controlPanel->setRecentlyUsedFilenames(filenames);
+}
+
+Component* UIComponent::findComponentByIDRecursive(Component* parent, const String& componentID) {
+    if (!parent) return nullptr;
+
+    // Check if the current component matches the ID
+    if (parent->getComponentID() == componentID) {
+        return parent;
+    }
+
+    // Recursively search in child components
+    for (auto* child : parent->getChildren()) {
+        Component* found = findComponentByIDRecursive(child, componentID);
+        if (found) {
+            return found;
+        }
+    }
+
+    // Not found in this branch of the hierarchy
+    return nullptr;
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

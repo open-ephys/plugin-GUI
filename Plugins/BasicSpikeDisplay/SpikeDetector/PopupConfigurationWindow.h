@@ -426,6 +426,9 @@ public:
     /** Get channel states */
     Array<int> getSelectedChannels() { return startChannels; }
 
+    /** Get selected electrode type */
+    SpikeChannel::Type getSelectedType() { return (SpikeChannel::Type)spikeChannelTypeSelector->getSelectedId(); }
+
     /** Responds to changes in the PopupChannelSelector*/
     void channelStateChanged(Array<int> selectedChannels);
 

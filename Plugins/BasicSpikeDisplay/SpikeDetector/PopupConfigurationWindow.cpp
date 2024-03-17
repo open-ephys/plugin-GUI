@@ -367,22 +367,19 @@ void ChannelSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
     if (acquisitionIsActive)
         return;
 
-    auto* channelSelector = new PopupChannelSelector(this, channels->getChannelStates());
+    auto* channelSelector = new PopupChannelSelector(this, this, channels->getChannelStates());
     
     channelSelector->setChannelButtonColour(Colour(0, 174, 239));
     channelSelector->setMaximumSelectableChannels(channels->getMaxSelectableChannels());
 
-     CallOutBox& myBox
-        = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
-            getScreenBounds(),
-            nullptr);
+    CoreServices::getPopoverManager()->showPopover(std::unique_ptr<PopoverComponent>(channelSelector), this);
 }
     
 void ChannelSelectorCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
 {
     
     Array<int> chans = channels->getArrayValue();
-    
+        
     String s = "[";
     
     for (auto chan : chans)
@@ -962,7 +959,7 @@ void SpikeChannelGenerator::buttonClicked(Button* button)
         //std::cout << "Button clicked! Sending " << startChannels.size() << " start channels " << std::endl;
 
         if (startChannels.size() == 0)
-             editor->addSpikeChannels(window, channelType, numSpikeChannelsToAdd);
+            editor->addSpikeChannels(window, channelType, numSpikeChannelsToAdd);
         else
             editor->addSpikeChannels(window, channelType, startChannels.size(), startChannels);
 
@@ -1000,7 +997,7 @@ void SpikeChannelGenerator::buttonClicked(Button* button)
             
         }
 
-        auto* channelSelector = new PopupChannelSelector(this, channelStates);
+        auto* channelSelector = new PopupChannelSelector(button, this, channelStates);
 
         channelSelector->setChannelButtonColour(Colour(0, 174, 239));
 
@@ -1032,7 +1029,7 @@ void SpikeChannelGenerator::paint(Graphics& g)
 PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_, 
                                                    Array<SpikeChannel*> spikeChannels, 
                                                    bool acquisitionIsActive) 
-    : editor(editor_)
+    : PopoverComponent(editor_->configureButton.get()), editor(editor_)
 {
     //tableHeader.reset(new TableHeaderComponent());
 
@@ -1137,10 +1134,17 @@ void PopupConfigurationWindow::update(Array<SpikeChannel*> spikeChannels)
 
 bool PopupConfigurationWindow::keyPressed(const KeyPress& key)
 {
+    // Popover component handles globally reserved keys
     if (PopoverComponent::keyPressed(key)) //undo/redo was pressed
     {
         SpikeDetector* spikeDetector = (SpikeDetector*)editor->getProcessor();
         update(spikeDetector->getSpikeChannelsForStream(editor->getCurrentStream()));
+    }
+
+    // Pressing 'a' key adds a new spike channel
+    if (key.getTextCharacter() == 'a')
+    {
+        editor->addSpikeChannels(this, spikeChannelGenerator->getSelectedType(), 1);
     }
 
     return true;

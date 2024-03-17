@@ -580,11 +580,6 @@ void SelectedChannelsParameter::setNextValue(var newValue_, bool undoable)
     {
         newValue = newValue_;
     }
-    
-    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
-
-    AccessClass::getUndoManager()->beginNewTransaction();
-    AccessClass::getUndoManager()->perform(action);
 
 }
 
@@ -709,11 +704,6 @@ void MaskChannelsParameter::setNextValue(var newValue_, bool undoable)
     if (result == maskChannelsToString()) return;
 
     newValue = values;
-    
-    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
-
-    AccessClass::getUndoManager()->beginNewTransaction();
-    AccessClass::getUndoManager()->perform(action);
 
 }
 
