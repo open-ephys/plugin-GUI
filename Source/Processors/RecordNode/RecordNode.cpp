@@ -635,16 +635,6 @@ void RecordNode::updateSettings()
 	}
 #endif
 
-	//Refresh editor as needed
-    if (!headlessMode)
-    {
-        if (static_cast<RecordNodeEditor*> (getEditor())->monitorsVisible)
-        {
-            static_cast<RecordNodeEditor*> (getEditor())->showFifoMonitors(false);
-            static_cast<RecordNodeEditor*> (getEditor())->buttonClicked(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
-        }
-    }
-
 }
 
 bool RecordNode::isSynchronized()

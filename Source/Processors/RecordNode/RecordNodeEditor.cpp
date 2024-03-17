@@ -512,6 +512,7 @@ RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
 	*/
 
     fifoDrawerButton->triggerClick();
+	//fifoDrawerButton->setEnabled(false); //TOFIX: Incompatible w/ custom fifo param editors.
 
 }
 
@@ -720,8 +721,8 @@ void RecordNodeEditor::collapsedStateChanged()
 
 void RecordNodeEditor::updateSettings()
 {
-
 	updateFifoMonitors();
+	showFifoMonitors(fifoDrawerButton->getToggleState());
     /*
     eventRecord->setToggleState(recordNode->recordEvents, dontSendNotification);
     spikeRecord->setToggleState(recordNode->recordSpikes, dontSendNotification);
@@ -751,7 +752,6 @@ void RecordNodeEditor::buttonClicked(Button *button)
 	//TODO: Could probably turn this into a CustomToggleButton
 	if (button == fifoDrawerButton)
 	{
-		updateFifoMonitors();
 		showFifoMonitors(button->getToggleState());
 	}
 	/*
@@ -795,18 +795,13 @@ void RecordNodeEditor::setDataDirectory(String dir)
 void RecordNodeEditor::showFifoMonitors(bool show)
 {
 
-	monitorsVisible = show;
-
-	int offset;
-
-	if (show)
-		numDataStreams = recordNode->getNumDataStreams();
+	numDataStreams = recordNode->getNumDataStreams();
 
 	int dX = 20 * (numDataStreams + 1);
-	dX = show ? dX : -dX;
+	dX = show ? dX : 0;
 
 	fifoDrawerButton->setBounds(
-		fifoDrawerButton->getX() + dX, fifoDrawerButton->getY(),
+		4 + dX, fifoDrawerButton->getY(),
 		fifoDrawerButton->getWidth(), fifoDrawerButton->getHeight());
 	/*
 	diskSpaceLabel->setBounds(
@@ -815,13 +810,13 @@ void RecordNodeEditor::showFifoMonitors(bool show)
 	*/
 
 	diskSpaceMonitor->setBounds(
-		diskSpaceMonitor->getX() + dX, diskSpaceMonitor->getY(),
+		18 + dX, diskSpaceMonitor->getY(),
 		diskSpaceMonitor->getWidth(), diskSpaceMonitor->getHeight());
 
 	for (auto& p : {"directory", "engine", "events", "spikes"})
     {
         auto* ed = getParameterEditor(p);
-        ed->setBounds(ed->getX() + dX, ed->getY(), ed->getWidth(), ed->getHeight());
+        ed->setBounds(42 + dX, ed->getY(), ed->getWidth(), ed->getHeight());
     }
 
     /*
@@ -862,7 +857,7 @@ void RecordNodeEditor::showFifoMonitors(bool show)
 		streamSelector->getWidth(), streamSelector->getHeight());
 	*/
 
-	desiredWidth += dX;
+	desiredWidth = 165 + dX;
 
 	if (getCollapsedState())
 		return;
