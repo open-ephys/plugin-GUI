@@ -374,14 +374,6 @@ void RecordNode::setEngine(String id)
 
         }
 	}
-
-	/*
-	if (getEditor() != nullptr)
-	{
-		RecordNodeEditor* ed = (RecordNodeEditor*)getEditor();
-		ed->setEngine(id);
-	}
-	*/
 }
 
 std::vector<RecordEngineManager*> RecordNode::getAvailableRecordEngines()
@@ -563,45 +555,6 @@ void RecordNode::updateSettings()
 		synchronizer.addDataStream(stream->getKey(), stream->getSampleRate());
 
 		fifoUsage[streamId] = 0.0f;
-
-		/*
-		if (recordContinuousChannels[streamId].empty()) // this ID has not been seen yet
-		{
-			for (auto channel : stream->getContinuousChannels())
-			{
-				recordContinuousChannels[streamId].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
-				channel->isRecorded = CONTINUOUS_CHANNELS_ON_BY_DEFAULT;
-				//LOGD("Channel ", channel->getName(), ": ", channel->isRecorded);
-				//LOGD(recordContinuousChannels[streamId].size())
-				//dataChannelOrder[count] = channel->getLocalIndex();
-				//count++;
-			}
-
-		}
-		else // we already have this ID, just apply the existing settings
-		{
-			int localIndex = 0;
-
-			for (auto channel : stream->getContinuousChannels())
-			{
-				if (localIndex < recordContinuousChannels[streamId].size())
-				{
-					channel->isRecorded = recordContinuousChannels[streamId][localIndex];
-				} else {
-					recordContinuousChannels[streamId].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
-					channel->isRecorded = CONTINUOUS_CHANNELS_ON_BY_DEFAULT;
-				}
-
-				//LOGD("Channel ", channel->getName(), ": ", channel->isRecorded);
-
-				localIndex++;
-				//dataChannelOrder[count] = channel->getLocalIndex();
-				//count++;
-			}
-
-		}
-		*/
-
 	}
 
 	synchronizer.finishedUpdate();
@@ -1088,18 +1041,6 @@ int RecordNode::getTotalRecordedStreams()
     return numStreams;
 }
 
-// not called?
-void RecordNode::registerRecordEngine(RecordEngine *engine)
-{
-	engineArray.add(engine);
-}
-
-// not called?
-void RecordNode::clearRecordEngines()
-{
-	engineArray.clear();
-}
-
 void RecordNode::saveCustomParametersToXml(XmlElement* xml)
 {
 	if (!headlessMode)
@@ -1107,71 +1048,7 @@ void RecordNode::saveCustomParametersToXml(XmlElement* xml)
         RecordNodeEditor* recordNodeEditor = (RecordNodeEditor*) getEditor();
         xml->setAttribute("fifoMonitorsVisible", recordNodeEditor->fifoDrawerButton->getToggleState());
     }
-	/*
-    xml->setAttribute ("path", dataDirectory.getFullPathName());
-    xml->setAttribute("engine", recordEngine->getEngineId());
-    xml->setAttribute ("recordEvents", recordEvents);
-    xml->setAttribute ("recordSpikes", recordSpikes);
-    
-    if (!headlessMode)
-    {
-        RecordNodeEditor* recordNodeEditor = (RecordNodeEditor*) getEditor();
-        xml->setAttribute("fifoMonitorsVisible", recordNodeEditor->fifoDrawerButton->getToggleState());
-    }
-
-    //Save channel states:
-    for (auto stream : getDataStreams())
-    {
-
-        //const uint16 streamId = stream->getStreamId();
-		const String streamKey = stream->getKey();
-
-		auto selectedChannels = ((MaskChannelsParameter*)stream->getParameter("channels"))->getChannelStates();
-
-        if (selectedChannels.size() > 0)
-        {
-            XmlElement* streamXml = xml->createNewChildElement("STREAM");
-
-            streamXml->setAttribute("isMainStream", synchronizer.mainStreamKey == streamKey);
-            streamXml->setAttribute("sync_line", getSyncLine(streamKey));
-            streamXml->setAttribute("name", stream->getName());
-            streamXml->setAttribute("source_node_id", stream->getSourceNodeId());
-            streamXml->setAttribute("sample_rate", stream->getSampleRate());
-            streamXml->setAttribute("channel_count", stream->getChannelCount());
-
-            if (stream->hasDevice())
-                streamXml->setAttribute("device_name", stream->device->getName());
-
-            String stateString;
-            bool allOn = true;
-            bool allOff = true;
-
-            for (int ch = 0; ch < selectedChannels.size(); ch++)
-            {
-                bool state = selectedChannels[ch];
-
-                if (!state)
-                    allOn = false;
-
-                if (state)
-                    allOff = false;
-
-                stateString += state ? "1" : "0";
-            }
-
-            if (allOn)
-                stateString = "ALL";
-
-            if (allOff)
-                stateString = "NONE";
-
-            streamXml->setAttribute("recording_state", stateString);
-
-        }
-    }
-	*/
 }
-
 
 void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
 {
@@ -1184,99 +1061,4 @@ void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
 				recordNodeEditor->fifoDrawerButton->triggerClick();
 		}
 	}
-	/*
-
-    String savedPath = xml->getStringAttribute("path");
-
-	if (savedPath == "default" || !File(savedPath).exists())
-        savedPath = CoreServices::getRecordingParentDirectory().getFullPathName();
-
-    setDataDirectory(File(savedPath));
-
-    setEngine(xml->getStringAttribute("engine", "BINARY"));
-
-    recordEvents = xml->getBoolAttribute("recordEvents", true);
-    recordSpikes = xml->getBoolAttribute("recordSpikes", true);
-
-    Array<int> matchingIndexes;
-    savedDataStreamParameters.clear();
-
-    for (auto* subNode : xml->getChildIterator())
-    {
-        if (subNode->hasTagName("STREAM"))
-        {
-
-            ParameterCollection* parameterCollection = new ParameterCollection();
-
-            parameterCollection->owner.channel_count = subNode->getIntAttribute("channel_count");
-            parameterCollection->owner.name = subNode->getStringAttribute("name");
-            parameterCollection->owner.sample_rate = subNode->getDoubleAttribute("sample_rate");
-            parameterCollection->owner.channel_count = subNode->getIntAttribute("channel_count");
-            parameterCollection->owner.sourceNodeId = subNode->getIntAttribute("source_node_id");
-
-            if (subNode->hasAttribute("device_name"))
-                parameterCollection->owner.deviceName = subNode->getStringAttribute("device_name");
-
-            savedDataStreamParameters.add(parameterCollection);
-        }
-    }
-
-    for (auto stream : dataStreams)
-    {
-
-        if (findMatchingStreamParameters(stream) > -1)
-        {
-
-			//const uint16 streamId = stream->getStreamId();
-			const String streamKey = stream->getKey();
-
-            for (auto* subNode : xml->getChildIterator())
-            {
-                if (subNode->hasTagName("STREAM")
-					&& subNode->getStringAttribute("name") == stream->getName()
-					&& subNode->getIntAttribute("source_node_id") == stream->getSourceNodeId())
-                {
-
-					if (subNode->getBoolAttribute("isMainStream", false))
-					{
-						setMainDataStream(stream->getKey());
-					}
-
-					setSyncLine(stream->getKey(), subNode->getIntAttribute("sync_line", 0));
-
-					String recordState = subNode->getStringAttribute("recording_state", "ALL");
-
-					for (int ch = 0; ch < recordContinuousChannels[streamId].size(); ch++)
-					{
-						bool channelState;
-
-						if (recordState.equalsIgnoreCase("ALL"))
-						{
-							channelState = true;
-						}
-						else if (recordState.equalsIgnoreCase("NONE"))
-						{
-							channelState = false;
-						}
-						else {
-							if (recordState.length() > ch)
-							{
-								channelState = recordState.substring(ch, ch + 1) == "1" ? true : false;
-							}
-							else {
-								channelState = true;
-							}
-						}
-
-						recordContinuousChannels[streamId][ch] = channelState;
-					}
-
-                }
-            }
-
-
-        }
-    }
-	*/
-
 }
