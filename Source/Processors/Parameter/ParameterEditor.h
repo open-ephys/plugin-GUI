@@ -372,13 +372,13 @@ public:
 
     /** Constructor (float) */
     BoundedValueEditor(float min, float max, float step, String units_ = "")
-        : Label("",""), isEnabled(true), minValue(double(min)), maxValue(double(max)), stepSize(double(step)), units(units_) {
+        : Label("",""), minValue(double(min)), maxValue(double(max)), stepSize(double(step)), units(units_) {
             setEditable(true, true, false);
         }
 
     /** Constructor (int) */
     BoundedValueEditor(int min, int max, int step, String units_ = "")
-        : Label("",""), isEnabled(true), minValue(double(min)), maxValue(double(max)), stepSize(double(step)), units(units_) {
+        : Label("",""), minValue(double(min)), maxValue(double(max)), stepSize(double(step)), units(units_) {
             setEditable(true, true, false);
         }
 
@@ -397,7 +397,6 @@ private:
 
     void paint (Graphics& g) override;
 
-    bool isEnabled;
     bool mouseWasDragged = false;
 
     double minValue;
