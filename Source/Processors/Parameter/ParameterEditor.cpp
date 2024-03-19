@@ -587,7 +587,7 @@ void BoundedValueEditor::paint(juce::Graphics& g)
     g.fillRect(1, 1, coloredWidth > 3 ? coloredWidth - 2 : 2, getHeight() - 2);
 
     // Fill the rest of the background with another color
-    g.setColour(getLookAndFeel().findColour(Label::backgroundColourId));
+    g.setColour(getLookAndFeel().findColour(TextEditor::backgroundColourId));
     g.fillRect(coloredWidth > 0 ? coloredWidth : 1, 1, getWidth() - coloredWidth > 1 ? getWidth() - coloredWidth - 1 : 1, getHeight() - 2);
 
     // Draw the text with units
