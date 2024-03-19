@@ -864,10 +864,13 @@ void GraphNode::mouseDown (const MouseEvent& m)
 {    
     AccessClass::getEditorViewport()->highlightEditor(editor);
 
-    if (processor->isMerger() || processor->isSplitter() || processor->isEmpty())
+    if (processor->isMerger() 
+        || processor->isSplitter()
+        || processor->isEmpty()
+        || processorParamComponent->heightInPixels == 0)
         return;
 
-    if (m.getEventRelativeTo(this).y < 20)
+    if (m.getEventRelativeTo(this).y < 20 && m.getEventRelativeTo(this).x > 24)
     {
         if (processorInfoVisible)
         {    
@@ -883,6 +886,43 @@ void GraphNode::mouseDown (const MouseEvent& m)
         }
 
         updateGraphView();
+    }
+}
+
+
+void GraphNode::mouseDoubleClick (const MouseEvent& m)
+{
+    // Expand/collapse all info panels on double click on node id
+    
+    if (processor->isMerger() || processor->isSplitter() || processor->isEmpty())
+        return;
+
+    if (m.getEventRelativeTo(this).y < 20 && m.getEventRelativeTo(this).x <= 24)
+    {
+        bool makeVisible = true;
+
+        for (auto& it : streamInfoVisible)
+        {
+            if (it.second)
+            {
+                makeVisible = false;
+                break;
+            }
+        }
+
+        if (processorInfoVisible)
+            makeVisible = false;
+        
+        
+        processorInfoVisible = makeVisible;
+
+        for (auto& it : streamInfoVisible)
+        {
+            it.second = makeVisible;
+            streamParamsVisible[it.first] = makeVisible;
+        }
+
+        restorePanels();
     }
 }
 
@@ -1096,19 +1136,18 @@ void GraphNode::restorePanels()
 {
     LOGDD("Restoring panels for graph node: ", editor->getNameAndId());
 
+    if (processor->isMerger() || processor->isSplitter() || processor->isEmpty())
+        return;
+    
+    updateBoundaries();
     if (processorInfoVisible)
-    {
-        updateBoundaries();
         infoPanel->expandPanelFully(processorParamComponent.get(), false);
-    }
+    else
+        infoPanel->setPanelSize(processorParamComponent.get(), 0, false);
     
     for (auto info : dataStreamInfos)
-    {
-        if (streamInfoVisible[info->getStreamKey()])
-        {
-            info->restorePanels();
-        }
-    }
+        info->restorePanels();
+
 }
 
 

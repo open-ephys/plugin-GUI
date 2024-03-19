@@ -187,6 +187,9 @@ public:
     /** Behavior on mouse click */
     void mouseDown  (const MouseEvent& event) override;
 
+    /** Behavior on mouse double click */
+    void mouseDoubleClick(const MouseEvent& event) override;
+
     /** Indicates whether node has an editor component */
     bool hasEditor (GenericEditor* editor) const;
 
