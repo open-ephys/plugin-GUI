@@ -242,7 +242,7 @@ void DraggableTabComponent::addNewTab(String name, Component* component, int nod
     
     tabNodeIds.add(nodeId);
     
-    addTab(name, Colours::darkcyan, component, false, tabNodeIds.size()-1);
+    addTab(name, Colours::darkgrey, component, false, tabNodeIds.size()-1);
 
     setCurrentTabIndex(tabNodeIds.size()-1);
 
