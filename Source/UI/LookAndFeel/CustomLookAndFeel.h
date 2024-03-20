@@ -217,7 +217,7 @@ public:
     int getTabButtonSpaceAroundImage() override;
     int getTabButtonOverlap (int tabDepth) override;
     int getTabButtonBestWidth (TabBarButton&, int tabDepth) override;
-    Rectangle<int> getTabButtonExtraComponentBounds (const TabBarButton&, Rectangle<int>& textArea, Component& extraComp) override;
+    juce::Rectangle<int> getTabButtonExtraComponentBounds (const TabBarButton&, juce::Rectangle<int>& textArea, Component& extraComp) override;
 
     void drawTabButton (TabBarButton&, Graphics&, bool isMouseOver, bool isMouseDown) override;
     Font getTabButtonFont (TabBarButton&, float height) override;
