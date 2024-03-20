@@ -914,9 +914,8 @@ bool UIComponent::perform(const InvocationInfo& info)
                 dataViewport->removeTab(1);
             else
             {
-                dataViewport->addTab("Graph", graphViewer, 1);
+                dataViewport->addTab("Graph", graphViewer->getGraphViewport(), 1);
                 graphViewerIsOpen = true;
-                graphViewer->repaint();
             }
                 
                 
