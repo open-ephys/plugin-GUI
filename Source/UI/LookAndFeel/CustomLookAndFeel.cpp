@@ -122,6 +122,7 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(ThemeColors::controlPanelButtonColorId, Colour(180,180,180));
         setColour(ThemeColors::controlPanelButtonOnColorId, Colours::yellow);
         setColour(ThemeColors::graphViewerBackgroundColorId, Colour(20,20,20));
+        setColour(ThemeColors::editorViewportBackgroundColorId, Colour(20,20,20));
         
         setColour(ThemeColors::editorGradientColorId1, Colour(190,190,190));
         setColour(ThemeColors::editorGradientColorId2, Colour(185,185,185));
@@ -165,6 +166,7 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(ThemeColors::controlPanelButtonColorId, Colour(50,50,50));
         setColour(ThemeColors::controlPanelButtonOnColorId, Colours::springgreen);
         setColour(ThemeColors::graphViewerBackgroundColorId, Colour(35,35,35));
+        setColour(ThemeColors::editorViewportBackgroundColorId, Colour(35,35,35));
         
         setColour(ThemeColors::editorGradientColorId1, Colour(25,25,25));
         setColour(ThemeColors::editorGradientColorId2, Colour(40,40,40));

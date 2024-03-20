@@ -205,8 +205,6 @@ private:
 class RecordNodeEditor : 
 	public GenericEditor,
     public Timer,
-    public ComboBox::Listener,
-    public Label::Listener,
     public Button::Listener
 {
 public:
@@ -228,21 +226,9 @@ public:
 
 	/** Automatically opens the drawer to reveal FIFO Monitors */
 	void timerCallback();
-
-	/** Updates the local directory for this Record Node*/
-	void setDataDirectory(String dir);
-
-	/** Sets the Record Engine for this Record Node*/
-	void setEngine(String id);
     
     /** Updates settings based on Record Node state*/
     void updateSettings() override;
-
-	/** Used to change active Record Engine */
-	void comboBoxChanged(ComboBox*); 
-
-	/** Respond to changes in data directory */
-	void labelTextChanged(Label*);
 
 	/** Respond to button clicks*/
 	void buttonClicked(Button* button);

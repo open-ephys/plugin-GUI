@@ -79,7 +79,7 @@ GraphViewer::GraphViewer()
 void GraphViewer::updateBoundaries()
 {
     int maxHeight = 0;
-    int maxWidth = graphViewport->getWidth() - 30;
+    int maxWidth = 0;
 
     for (auto node : availableNodes)
     {
@@ -90,7 +90,7 @@ void GraphViewer::updateBoundaries()
             maxWidth = node->getRight();
     }
 
-    setBounds(0, 0, maxWidth + 10, maxHeight + 10);
+    setBounds(0, 0, maxWidth + 20, maxHeight + 20);
 }
 
 
@@ -173,7 +173,7 @@ void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcesso
                     node->updateBoundaries();
                 }
 
-                int newY = getNodeForEditor(processor->getEditor())->getBottom() + 35;
+                int newY = getNodeForEditor(processor->getEditor())->getCollapsedBottom() + 35;
                 int nextLevel = getNodeForEditor(processor->getEditor())->getLevel() + 1;
                 if(levelStartY.count(nextLevel) == 0)
                     levelStartY[nextLevel] = newY;
@@ -827,6 +827,12 @@ int GraphNode::getHorzShift() const
 }
 
 
+int GraphNode::getCollapsedBottom() const
+{
+    return getPosition().getY() + 20 + (dataStreamButtons.size() * 20);
+}
+
+
 void GraphNode::setHorzShift (int shift)
 {
     horzShift = shift;
@@ -858,10 +864,13 @@ void GraphNode::mouseDown (const MouseEvent& m)
 {    
     AccessClass::getEditorViewport()->highlightEditor(editor);
 
-    if (processor->isMerger() || processor->isSplitter() || processor->isEmpty())
+    if (processor->isMerger() 
+        || processor->isSplitter()
+        || processor->isEmpty()
+        || processorParamComponent->heightInPixels == 0)
         return;
 
-    if (m.getEventRelativeTo(this).y < 20)
+    if (m.getEventRelativeTo(this).y < 20 && m.getEventRelativeTo(this).x > 24)
     {
         if (processorInfoVisible)
         {    
@@ -877,6 +886,43 @@ void GraphNode::mouseDown (const MouseEvent& m)
         }
 
         updateGraphView();
+    }
+}
+
+
+void GraphNode::mouseDoubleClick (const MouseEvent& m)
+{
+    // Expand/collapse all info panels on double click on node id
+    
+    if (processor->isMerger() || processor->isSplitter() || processor->isEmpty())
+        return;
+
+    if (m.getEventRelativeTo(this).y < 20 && m.getEventRelativeTo(this).x <= 24)
+    {
+        bool makeVisible = true;
+
+        for (auto& it : streamInfoVisible)
+        {
+            if (it.second)
+            {
+                makeVisible = false;
+                break;
+            }
+        }
+
+        if (processorInfoVisible)
+            makeVisible = false;
+        
+        
+        processorInfoVisible = makeVisible;
+
+        for (auto& it : streamInfoVisible)
+        {
+            it.second = makeVisible;
+            streamParamsVisible[it.first] = makeVisible;
+        }
+
+        restorePanels();
     }
 }
 
@@ -1090,19 +1136,18 @@ void GraphNode::restorePanels()
 {
     LOGDD("Restoring panels for graph node: ", editor->getNameAndId());
 
+    if (processor->isMerger() || processor->isSplitter() || processor->isEmpty())
+        return;
+    
+    updateBoundaries();
     if (processorInfoVisible)
-    {
-        updateBoundaries();
         infoPanel->expandPanelFully(processorParamComponent.get(), false);
-    }
+    else
+        infoPanel->setPanelSize(processorParamComponent.get(), 0, false);
     
     for (auto info : dataStreamInfos)
-    {
-        if (streamInfoVisible[info->getStreamKey()])
-        {
-            info->restorePanels();
-        }
-    }
+        info->restorePanels();
+
 }
 
 
@@ -1167,7 +1212,7 @@ void GraphNode::paint (Graphics& g)
     if(processor->isEmpty())
     {
         g.setColour(Colour(150, 150, 150));
-        g.drawRect(0, 0, getWidth(), 20, 2);
+        g.drawRoundedRectangle(1, 1, getWidth() - 2, 18, 5.0f, 2.0f);
         
         g.drawFittedText("No Source", 10, 0,
             getWidth() - 10, 20, Justification::centredLeft, 1);
@@ -1191,9 +1236,25 @@ void GraphNode::paint (Graphics& g)
 
 void GraphNode::paintOverChildren(Graphics& g)
 {
-    g.setColour(Colours::yellow);
+    if (processor->isEmpty())
+        return;
+    
     if (isMouseOver)
     {
-        g.drawRect(0, 0, getWidth(), getHeight(), 2);
+        g.setColour(Colours::yellow);
+        g.drawRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 5.0f, 2.0f);
+    }
+    else
+    {
+        Path fakeRoundedCorners;
+        juce::Rectangle<float> bounds = {0, 0, (float)getWidth(), (float)getHeight()};
+
+        const float cornerSize = 5.0f; //desired corner size
+        fakeRoundedCorners.addRectangle(bounds); //What you start with
+        fakeRoundedCorners.setUsingNonZeroWinding(false); //The secret sauce
+        fakeRoundedCorners.addRoundedRectangle(bounds.reduced(1.0f), cornerSize); //subtract this shape
+
+        g.setColour(findColour(ThemeColors::graphViewerBackgroundColorId));
+        g.fillPath(fakeRoundedCorners);
     }
 }

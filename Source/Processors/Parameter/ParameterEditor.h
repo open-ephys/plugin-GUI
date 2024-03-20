@@ -48,7 +48,6 @@ public:
             param->addListener(this);
         
         layout = Layout::nameOnRight;
-        color = Colours::black;
     }
 
     /** Destructor */
@@ -142,12 +141,6 @@ public:
     /** Returns a pointer to the parameter editor element for customization */
     Component* getEditor() { return editor; }
 
-    /** Sets the parameter color */
-    void setColor(Colour color_) { color = color_; };
-
-    /** Gets the parameter color */
-    Colour getColor() { return color; };
-
 protected:
     Parameter* param;
     
@@ -156,7 +149,6 @@ protected:
     std::unique_ptr<Label> label = nullptr;
     Component* editor = nullptr;
 
-    Colour color;
     Layout layout;
 
     /** Updates label and editor bounds based on layout */
@@ -380,13 +372,13 @@ public:
 
     /** Constructor (float) */
     BoundedValueEditor(float min, float max, float step, String units_ = "")
-        : Label("",""), isEnabled(true), minValue(double(min)), maxValue(double(max)), stepSize(double(step)), units(units_) {
+        : Label("",""), minValue(double(min)), maxValue(double(max)), stepSize(double(step)), units(units_) {
             setEditable(true, true, false);
         }
 
     /** Constructor (int) */
     BoundedValueEditor(int min, int max, int step, String units_ = "")
-        : Label("",""), isEnabled(true), minValue(double(min)), maxValue(double(max)), stepSize(double(step)), units(units_) {
+        : Label("",""), minValue(double(min)), maxValue(double(max)), stepSize(double(step)), units(units_) {
             setEditable(true, true, false);
         }
 
@@ -405,7 +397,6 @@ private:
 
     void paint (Graphics& g) override;
 
-    bool isEnabled;
     bool mouseWasDragged = false;
 
     double minValue;

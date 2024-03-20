@@ -206,28 +206,6 @@ int Merger::addSettingsFromSourceNode(GenericProcessor* sn, int continuousChanne
     return continuousChannelGlobalIndex;
 }
 
-Array<const DataStream*> Merger::getStreamsForDestNode(GenericProcessor* node)
-{
-    Array<const DataStream*> outputStreams;
-
-    for (auto stream : dataStreams)
-    {
-        if (checkStream(stream))
-            outputStreams.add(stream);
-    }
-
-    return outputStreams;
-}
-
-
-bool Merger::checkStream(const DataStream* stream)
-{
-    MergerEditor* ed = (MergerEditor*)getEditor();
-
-    return ed->checkStream(stream);
-}
-
-
 void Merger::updateSettings()
 {
     

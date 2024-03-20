@@ -27,13 +27,20 @@
 DelayMonitor::DelayMonitor() : 
     delay(0.0f), 
     isEnabled(true), 
-    colour(Colours::black),
+    colour(Colours::white),
     font("Fira Sans", "SemiBold", 12)
 {
+    setInterceptsMouseClicks(false, false);
+}
+
+DelayMonitor::~DelayMonitor()
+{
+    //std::cout << "DELAY MONITOR DELETING" << std::endl;
 }
 
 void DelayMonitor::setDelay(float delayMs)
 {
+	//std::cout << "Delay monitor::setDelay " << delayMs << std::endl;
     delay = delayMs;
 }
 
@@ -42,9 +49,9 @@ void DelayMonitor::setEnabled(bool state)
     isEnabled = state;
     
     if (isEnabled)
-        colour = Colours::black;
+        colour = Colours::white;
     else
-        colour = Colours::darkgrey;
+        colour = Colours::grey;
     
     repaint();
 }
@@ -66,7 +73,15 @@ void DelayMonitor::timerCallback()
 
 void DelayMonitor::paint(Graphics& g)
 {
+
     g.setColour(colour);
     g.setFont(font);
-    g.drawText(String(delay, 2) + " ms", 0, 0, 60, 15, Justification::left);
+    g.drawText(String(delay, 2) + " ms", 0, 0, 60, 20, Justification::centredLeft);
+
+}
+
+
+void DelayMonitor::handleCommandMessage(int commandId)
+{
+    repaint();   
 }

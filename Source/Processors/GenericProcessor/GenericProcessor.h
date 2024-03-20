@@ -571,7 +571,8 @@ protected:
 	void setTimestampAndSamples(int64 startSampleForBlock,
                                 double startTimestampForBlock,
                                 uint32 nSamples,
-                                uint16 streamId);
+                                uint16 streamId,
+                                uint16 syncStreamId = 0);
     
     // --------------------------------------------
     //     CHANNEL INDEXING
@@ -713,6 +714,9 @@ private:
     
     /** Map between stream IDs and buffer timestamps. */
     std::map<uint16, int64> startSamplesForBlock;
+
+    /** Map between stream IDs main clock stream IDs. */
+    std::map<uint16, uint16> syncStreamIds;
 
     /** Map between stream IDs and start time of process callbacks. */
     std::map<uint16, int64> processStartTimes;

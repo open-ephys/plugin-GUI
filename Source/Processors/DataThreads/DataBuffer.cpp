@@ -55,6 +55,8 @@ void DataBuffer::resize (int chans, int size)
 {
     buffer.setSize (chans, size);
 
+	abstractFifo.setTotalSize(size);
+
     sampleNumberBuffer.malloc (size);
     timestampBuffer.malloc (size);
     eventCodeBuffer.malloc (size);

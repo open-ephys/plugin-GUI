@@ -45,7 +45,7 @@ typedef ScopedPointer<EventBase> EventBasePtr;
 * 
 * Base class for all Event objects (including Spikes)
 * 
-* Event objects can be packaged into EventPackets and passed between
+* Event objects are packaged into EventPackets and passed between
 * processors.
 * 
 * ==============================
@@ -56,7 +56,7 @@ typedef ScopedPointer<EventBase> EventBasePtr;
 * 1 Byte: 8-bit Event Sub-type (TTL, Text, Binary, etc.)
 * 2 Bytes: 16-bit Source processor ID
 * 2 Bytes: 16-bit Source stream ID
-* 2 Bytes: 16-bit Source channel index
+* 2 Bytes: 16-bit Source channel index or Synchronized stream ID
 * 8 Bytes: 64-bit Sample number
 * 8 Bytes: double Timestamp (in seconds)
 * Variable: Optional data payload
@@ -76,7 +76,7 @@ public:
 	*/
 	enum Type
 	{
-		// Used for information about each buffer; not seen by plugins
+		// Holds information about each buffer; not seen by plugins
 		SYSTEM_EVENT,
 
 		// TTL, Text, and Binary events generated and handled by plugins
@@ -191,7 +191,7 @@ protected:
 * 1 Byte: Event Sub-type (Timestamp, Parameter, or Sync text)
 * 2 Bytes: Source processor ID
 * 2 Bytes: Source stream ID
-* 2 Bytes: Zeros (to maintain alignment with other events)
+* 2 Bytes: Synchronized stream ID (the stream that holds the main clock)
 * 8 Bytes: Start sample for block (int64)
 * 8 Bytes: Start timestamp for block (double)
 * 4 Bytes: Buffer sample number
@@ -224,16 +224,17 @@ public:
 
 	};
 
-	/* Create a TIMESTAMP_AND_SAMPLES event */
+	/* Create a TIMESTAMP_AND_SAMPLES event (used by processors that update timestamps) */
 	static size_t fillTimestampAndSamplesData(HeapBlock<char>& data, 
 		const GenericProcessor* proc, 
 		uint16 streamId, 
 		int64 startSampleForBlock,
         double timestamp,
 		uint32 nSamplesInBlock,
-		int64 processStartTime);
+		int64 processStartTime,
+		uint16 syncStreamId = 0);
 		
-	/* Create a TIMESTAMP_SYNC_TEXT event */
+	/* Create a TIMESTAMP_SYNC_TEXT event (used by Record Node) */
 	static size_t fillTimestampSyncTextData(HeapBlock<char>& data, 
 		const GenericProcessor* proc, 
 		uint16 streamId,
@@ -252,6 +253,15 @@ public:
 	
 	/* Get the sync text from an EventPacket object */
 	static String getSyncText(const EventPacket& msg);
+
+	/* Get the ID of the DataStream that serves as the main clock (0 if not synchronized yet) */
+	uint16 getSyncStreamId() const;
+
+	/* Get the main clock stream ID from an EventPacket object */
+	static uint16 getSyncStreamId(const EventPacket& packet);
+
+	/* Get the  main clock stream ID from a raw byte buffer */
+	static uint16 getSyncStreamId(const uint8* data);
 
 private:
 
@@ -341,6 +351,21 @@ typedef ScopedPointer<TTLEvent> TTLEventPtr;
 * 
 * TTL events can also hold arbitrary information in their 
 * metadata field, which can be used to annotate individual events.
+* 
+* =============================
+* TTL Event Packet Structure
+* =============================
+* 
+* 1 Byte: Event type (PROCESSOR_EVENT)
+* 1 Byte: Event Sub-type (TTL_EVENT)
+* 2 Bytes: Source processor ID
+* 2 Bytes: Source stream ID
+* 2 Bytes: Source channel index
+* 8 Bytes: Sample number
+* 8 Bytes: Timestamp (in seconds)
+* 1 byte: TTL line index
+* 1 byte: TTL state (0 = LOW, 1 = HIGH)
+* 8 bytes: TTL word (current state across first 64 lines) 
 *
 * TTLEvent class is part of the Open Ephys Plugin API
 *
@@ -420,8 +445,24 @@ typedef ScopedPointer<TextEvent> TextEventPtr;
 *
 * Text events can be broadcast to all processors, allowing
 * messages to be transmitted "backwards" through the signal chain
-*
-* The TextEvent class is part of the Open Ephys Plugin API
+* 
+* Text events can hold a maximum of 512 characters
+* (defined as MAX_MSG_LENGTH in EventChannel.cpp)
+* 
+* =============================
+* Text Event Packet Structure
+* =============================
+* 
+* 1 Byte: Event type (PROCESSOR_EVENT)
+* 1 Byte: Event Sub-type (TEXT_EVENT)
+* 2 Bytes: Source processor ID
+* 2 Bytes: Source stream ID
+* 2 Bytes: Source channel index
+* 8 Bytes: Sample number
+* 8 Bytes: Timestamp (in seconds)
+* variable: message contents (as UTF-8 string)
+* 
+* TextEvent class is part of the Open Ephys Plugin API
 *
 */
 class PLUGIN_API TextEvent : public Event

@@ -114,6 +114,9 @@ public:
         the parameters of the underlying processor are changed. */
     void update();
 
+    /** Called by the update() method to allow the visualizer to update its custom settings.*/
+    virtual void updateSettings() { }
+
     /** Starts animation callbacks at refreshRate Hz. */
 	void startCallbacks();
 
@@ -129,9 +132,6 @@ public:
     void parameterChangeRequest(Parameter*);
 
     GenericProcessor* getProcessor() { return processor; }
-
-    /** An array of pointers to ParameterEditors created based on the Parameters of an editor's underlying processor. */
-    OwnedArray<ParameterEditor> parameterEditors;
 
 protected:
 
@@ -177,7 +177,7 @@ protected:
     void addSelectedChannelsParameter(const String& name,
         const String& displayName,
         const String& description,
-        int maxSelectedChannels = std::numeric_limits<int>::max(),
+        int maxSelectedChannels = 9999,
         bool deactivateDuringAcquisition = false);
     
     /** Adds a mask channels parameter, which will later be accessed by name*/
@@ -208,14 +208,13 @@ protected:
         const String& description,
         bool deactivateDuringAcquisition = false);
 
-    /** Called by the update() method to allow the visualizer to update its custom settings.*/
-    virtual void updateSettings() { }
-
 private:
 
     GenericProcessor* processor;
 
     OwnedArray<ParameterEditorOwner> parameterEditorOwners;
+
+    Array<ParameterEditor*> allParamEditors;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Visualizer);
 };

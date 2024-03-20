@@ -21,11 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <stdio.h>
 
 #include "ChannelMappingEditor.h"
 #include "ChannelMappingNode.h"
-#include <stdio.h>
 
+#include "ChannelMappingNodeActions.h"
 
 ChannelMappingEditor::ChannelMappingEditor(GenericProcessor* parentNode)
     : GenericEditor(parentNode),
@@ -423,18 +424,17 @@ void ChannelMappingEditor::mouseUp(const MouseEvent& e)
         
         electrodeButtons[lastHoverButton]->setVisible(true);
 
-        Array<int> order;
+        Array<int> newChannelOrder;
 
         for (auto button : electrodeButtons)
         {
-            order.add(button->getChannelNum() - 1);
+            newChannelOrder.add(button->getChannelNum() - 1);
         }
 
-        ChannelMappingNode* processor = (ChannelMappingNode*)getProcessor();
+        MapChannelsAction* action = new MapChannelsAction((ChannelMappingNode*)getProcessor(), getProcessor()->getDataStream(getCurrentStream()), newChannelOrder);
 
-        processor->setChannelOrder(getCurrentStream(), order);
-
-        CoreServices::updateSignalChain(this);
+        CoreServices::getUndoManager()->beginNewTransaction();
+        CoreServices::getUndoManager()->perform((UndoableAction*)action);
         
         /*int from, to;
         if (lastHoverButton == initialDraggedButton)

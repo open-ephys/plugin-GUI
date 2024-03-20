@@ -36,23 +36,3 @@ ArduinoOutputEditor::ArduinoOutputEditor(GenericProcessor* parentNode)
     addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "input_line", 10, 79);
     addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "gate_line", 10, 104);
 }
-
-
-void ArduinoOutputEditor::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
-{
-    if (comboBoxThatHasChanged == deviceSelector.get())
-    {
-        ArduinoOutput* processor = (ArduinoOutput*) getProcessor();
-        processor->setDevice(deviceSelector->getText());
-        CoreServices::updateSignalChain(this);
-    }
-}
-
-void ArduinoOutputEditor::updateDevice(String deviceName)
-{
-    for (int i = 0; i < deviceSelector->getNumItems(); i++)
-    {
-        if (deviceSelector->getItemText(i).equalsIgnoreCase(deviceName))
-            deviceSelector->setSelectedId(deviceSelector->getItemId(i), dontSendNotification);
-    }
-}

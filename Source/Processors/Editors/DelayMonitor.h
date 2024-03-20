@@ -49,7 +49,7 @@ public:
     DelayMonitor();
 
     /** Destructor */
-	~DelayMonitor() { }
+    ~DelayMonitor();
 
     /** Sets the most recent delay (in ms)*/
     void setDelay(float delayMs);
@@ -69,12 +69,16 @@ public:
     /** Stops the timer*/
     void stopAcquisition();
 
+    /** Sends repaint command asynchronously */
+    void handleCommandMessage(int commandId);
+
 private:
     
     bool isEnabled;
     Colour colour;
     float delay;
     Font font;
+    bool canRepaint = true;
 };
 
 

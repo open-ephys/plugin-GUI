@@ -590,12 +590,31 @@ void BoundedValueEditor::paint(juce::Graphics& g)
     g.setColour(getLookAndFeel().findColour(TextEditor::backgroundColourId));
     g.fillRect(coloredWidth > 0 ? coloredWidth : 1, 1, getWidth() - coloredWidth > 1 ? getWidth() - coloredWidth - 1 : 1, getHeight() - 2);
 
-    // Draw a rounded border
-    g.setColour(Colours::black);
-    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f, 0.5f), 3.0f, 1.0f);
+    // Draw the text with units
+    if (! isBeingEdited())
+    {
+        auto alpha = isEnabled() ? 1.0f : 0.5f;
+        const Font font (getFont());
 
-    // Call the base class method to ensure the text is drawn
-    juce::Label::paint(g);
+        g.setColour (findColour (Label::textColourId).withMultipliedAlpha (alpha));
+        g.setFont (font);
+
+        auto textArea = getBorderSize().subtractedFrom (getLocalBounds());
+
+        String valueWithUnits = units.isEmpty() ? getText() : getText() + " " + units;
+        g.drawFittedText (valueWithUnits, textArea, getJustificationType(),
+                          jmax (1, (int) ((float) textArea.getHeight() / font.getHeight())),
+                          getMinimumHorizontalScale());
+
+        g.setColour (Colours::black.withMultipliedAlpha (alpha));
+    }
+    else if (isEnabled())
+    {
+       g.setColour(Colours::black);
+    }
+
+    // Draw a rounded rectangle border
+    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f, 0.5f), 3.0f, 1.0f);
 }
 
 void BoundedValueEditor::mouseDrag(const MouseEvent& event)
@@ -609,7 +628,7 @@ void BoundedValueEditor::mouseDrag(const MouseEvent& event)
     float multiplier = std::pow(10.0f, -std::log10(stepSize));
     newValue = std::round(newValue * multiplier) / multiplier;
 
-    setText(String(newValue) + " " + units, juce::dontSendNotification);
+    setText(String(newValue), juce::dontSendNotification);
 
     mouseWasDragged = true;
 

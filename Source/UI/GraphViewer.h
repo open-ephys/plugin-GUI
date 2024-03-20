@@ -187,6 +187,9 @@ public:
     /** Behavior on mouse click */
     void mouseDown  (const MouseEvent& event) override;
 
+    /** Behavior on mouse double click */
+    void mouseDoubleClick(const MouseEvent& event) override;
+
     /** Indicates whether node has an editor component */
     bool hasEditor (GenericEditor* editor) const;
 
@@ -228,6 +231,9 @@ public:
     
     /** Returns horizontal shift (x-position of node in graph display */
     int getHorzShift() const;
+
+    /** Returns collapsed bottom of node in graph display */
+    int getCollapsedBottom() const;
     
     /** Sets the level (y-position) of node in graph display */
     void setLevel (int newLevel);
@@ -285,7 +291,7 @@ private:
     std::unique_ptr<ProcessorParameterComponent> processorParamComponent;
     std::unique_ptr<Component> processorParamHeader;
 
-    DropShadower nodeDropShadower { DropShadow(Colours::black.withAlpha(0.8f), 10, {2,10}) };
+    DropShadower nodeDropShadower { DropShadow(Colours::black.withAlpha(0.85f), 10, {2,10}) };
     
     bool isMouseOver;
     int horzShift;

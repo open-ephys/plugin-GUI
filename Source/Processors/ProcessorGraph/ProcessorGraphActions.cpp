@@ -132,6 +132,8 @@ bool AddProcessor::undo()
         settings = processorGraph->createNodeXml(processor, false);
 
         processorGraph->deleteNodes(processorToDelete);
+
+        processorGraph->reconnectProcessors(sourceNodeId, destNodeId);
     }
        
     return true;
@@ -139,12 +141,22 @@ bool AddProcessor::undo()
    
 
 PasteProcessors::PasteProcessors(Array<XmlElement*> copyBuffer_,
-    int insertionPoint_) :
+    int insertionPoint_,
+    GenericProcessor* sourceProcessor,
+    GenericProcessor* destProcessor) :
     processorGraph(AccessClass::getProcessorGraph()),
     insertionPoint(insertionPoint_),
     copyBuffer(copyBuffer_)
 {
-
+    if (sourceProcessor != nullptr)
+        sourceNodeId = sourceProcessor->getNodeId();
+    else
+        sourceNodeId = -1;
+    
+    if (destProcessor != nullptr)
+        destNodeId = destProcessor->getNodeId();
+    else
+        destNodeId = -1;
 }
 
 PasteProcessors::~PasteProcessors()
@@ -156,10 +168,11 @@ bool PasteProcessors::perform()
 {
     Array<GenericProcessor*> newProcessors;
     
-    for (int i = 0; i < copyBuffer.size(); i++)
+    // paste processors in reverse order so sources dont immediately create a new signal chain
+    for (int i = copyBuffer.size() - 1; i >= 0; i--)
     {
         newProcessors.add(processorGraph->createProcessorAtInsertionPoint(copyBuffer.getUnchecked(i),
-            insertionPoint++, true));
+            insertionPoint, true));
     }
 
     for (auto p : newProcessors)
@@ -189,6 +202,8 @@ bool PasteProcessors::undo()
     }
 
     processorGraph->deleteNodes(processorsToDelete);
+
+    processorGraph->reconnectProcessors(sourceNodeId, destNodeId);
 
     nodeIds.clear();
 
@@ -448,6 +463,9 @@ bool LoadSignalChain::perform()
     LOGDD("Performing load signal chain.");
 
     processorGraph->loadFromXml(newSettings.get());
+
+    for (auto &p : processorGraph->getListOfProcessors())
+        processorGraph->updateUndoableActions(p->getNodeId());
     
     return true;
 }

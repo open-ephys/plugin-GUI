@@ -617,6 +617,7 @@ void GenericProcessor::clearSettings()
 
 	startTimestampsForBlock.clear();
     startSamplesForBlock.clear();
+    syncStreamIds.clear();
 	numSamplesInBlock.clear();
 	processStartTimes.clear();
 
@@ -924,16 +925,9 @@ void GenericProcessor::update()
                     }
                     
                 }
-            } else if (sourceNode->isMerger())
+            } 
+            else 
             {
-                Merger* merger = (Merger*) sourceNode;
-
-                for (auto stream : merger->getStreamsForDestNode(this))
-                {
-                    continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
-                }
-            }
-            else {
                 for (auto stream : sourceNode->getStreamsForDestNode(this))
                 {
                     continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
@@ -1259,7 +1253,8 @@ double GenericProcessor::getFirstTimestampForBlock(uint16 streamId) const
 void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
                                               double timestamp,
                                               uint32 nSamples,
-                                              uint16 streamId)
+                                              uint16 streamId,
+                                              uint16 syncStreamId)
 {
     
 	HeapBlock<char> data;
@@ -1269,7 +1264,8 @@ void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
         sampleNumber,
         timestamp,
 		nSamples,
-		m_initialProcessTime);
+		m_initialProcessTime,
+        syncStreamId);
 
     
 
@@ -1278,6 +1274,7 @@ void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
 	//since the processor generating the timestamp won't get the event, add it to the map
     startTimestampsForBlock[streamId] = timestamp;
     startSamplesForBlock[streamId] = sampleNumber;
+    syncStreamIds[streamId] = syncStreamId;
 	processStartTimes[streamId] = m_initialProcessTime;
 
 }
@@ -1311,7 +1308,7 @@ int GenericProcessor::processEventBuffer()
 			{
 				uint16 sourceProcessorId = *reinterpret_cast<const uint16*>(dataptr + 2);
 				uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
-				uint32 sourceChannelIndex = *reinterpret_cast<const uint16*>(dataptr + 6);
+				uint16 syncStreamId = *reinterpret_cast<const uint16*>(dataptr + 6);
                 
 				int64 startSample = *reinterpret_cast<const int64*>(dataptr + 8);
                 double startTimestamp = *reinterpret_cast<const double*>(dataptr + 16);
@@ -1323,6 +1320,7 @@ int GenericProcessor::processEventBuffer()
 				
                 startSamplesForBlock[sourceStreamId] = startSample;
                 startTimestampsForBlock[sourceStreamId] = startTimestamp;
+				syncStreamIds[sourceStreamId] = syncStreamId;
                 numSamplesInBlock[sourceStreamId] = nSamples;
 				processStartTimes[sourceStreamId] = initialTicks;
 					

@@ -191,12 +191,6 @@ public:
 		in kilobytes in the current dataDirectory.
 	*/
   float getFreeSpaceKilobytes() const;
-
-  /** Adds a Record Engine to use */
-  void registerRecordEngine(RecordEngine *engine);
-
-  /** Clears the list of active Record Engines*/
-  void clearRecordEngines();
     
     /** Returns true if all streams within this Record Node are synchronized*/
     bool isSynchronized();

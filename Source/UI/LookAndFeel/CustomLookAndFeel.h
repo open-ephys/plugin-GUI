@@ -48,6 +48,7 @@ namespace ThemeColors {
         controlPanelButtonColorId,
         controlPanelButtonOnColorId,
         graphViewerBackgroundColorId,
+        editorViewportBackgroundColorId,
         editorGradientColorId1,
         editorGradientColorId2,
         editorGradientColorId3

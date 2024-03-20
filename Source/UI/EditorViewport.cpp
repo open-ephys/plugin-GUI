@@ -40,7 +40,7 @@ EditorViewport::EditorViewport(SignalChainTabComponent* s_)
       somethingIsBeingDraggedOver(false),
       shiftDown(false),
       lastEditorClicked(0),
-      selectionIndex(0),
+      selectionIndex(-1),
       insertionPoint(0),
       componentWantsToMove(false),
       indexOfMovingComponent(-1),
@@ -74,6 +74,9 @@ EditorViewport::~EditorViewport()
 void EditorViewport::paint(Graphics& g)
 {
 
+    g.setColour(findColour(ThemeColors::editorViewportBackgroundColorId));
+    g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight()-12, 5.0f);
+
     if (somethingIsBeingDraggedOver)
     {
         g.setColour(Colours::yellow);
@@ -83,7 +86,7 @@ void EditorViewport::paint(Graphics& g)
         g.setColour(Colour(48,48,48));
     }
 
-    g.drawRect(0, 0, getWidth(), getHeight()-15);
+    g.drawRoundedRectangle(1, 1, getWidth() - 2, getHeight()-12, 4.0f, 2.0f);
     
     if (somethingIsBeingDraggedOver)
     {
@@ -457,13 +460,48 @@ void EditorViewport::moveSelection(const KeyPress& key)
     if (key.getKeyCode() == key.leftKey)
     {
 
-        if (mk.isShiftDown())
+        if (mk.isShiftDown() 
+            && lastEditorClicked != nullptr 
+            && editorArray.contains(lastEditorClicked))
         {
-            selectionIndex--;
+            int primaryIndex = editorArray.indexOf(lastEditorClicked);
+
+            // set new selection index
+            if (selectionIndex == -1)
+            {
+                // if no selection index has been set yet, set it to the primary index
+                selectionIndex = primaryIndex == 0 ? 0 : primaryIndex - 1;
+            }
+            else if (selectionIndex == 0)
+            {
+                // if the selection index is already at the left edge, return
+                return;
+            }
+            else if(selectionIndex <= primaryIndex) 
+            {
+                // if previous selection index is to the left of the primary index, decrement it
+                selectionIndex--;
+            }
+
+            // if the editor at the new selection index is empty, skip it
+            if (editorArray[selectionIndex]->getProcessor()->isEmpty())
+            {   
+                selectionIndex++;
+                return;
+            }
+
+            // switch selection state of the editor at the new selection index
+            if (selectionIndex != primaryIndex)
+                editorArray[selectionIndex]->switchSelectedState();
+
+            // if the selection index is to the right of the primary index,
+            // decrement it after switching the selection state
+            if (selectionIndex > primaryIndex)
+                selectionIndex--;
         }
         else
         {
-            selectionIndex = 0;
+            selectionIndex = -1;
 
             for (int i = 0; i < editorArray.size(); i++)
             {
@@ -480,14 +518,41 @@ void EditorViewport::moveSelection(const KeyPress& key)
     else if (key.getKeyCode() == key.rightKey)
     {
 
-        if (mk.isShiftDown())
+        if (mk.isShiftDown() 
+            && lastEditorClicked != nullptr
+            && editorArray.contains(lastEditorClicked))
         {
-            selectionIndex++;
+            int primaryIndex = editorArray.indexOf(lastEditorClicked);
+
+            if (selectionIndex == -1)
+            {
+                // if no selection index has been set yet, set it to the primary index
+                selectionIndex = primaryIndex == (editorArray.size() - 1) ? primaryIndex : primaryIndex + 1;
+            }
+            else if (selectionIndex == editorArray.size() - 1)
+            {
+                // if the selection index is already at the right edge, return
+                return;
+            }
+            else if (selectionIndex >= primaryIndex)
+            {
+                // if previous selection index is to the right of the primary index, increment it
+                selectionIndex++;
+            }
+
+            // switch selection state of the editor at the new selection index
+            if (selectionIndex != primaryIndex)
+                editorArray[selectionIndex]->switchSelectedState();
+
+            // if the selection index is to the left of the primary index,
+            // increment it after switching the selection state
+            if (selectionIndex < primaryIndex)
+                selectionIndex++;
         }
         else
         {
 
-            selectionIndex = 0;
+            selectionIndex = -1;
 
             // bool stopSelection = false;
             int i = 0;
@@ -510,30 +575,6 @@ void EditorViewport::moveSelection(const KeyPress& key)
                 }
             }
         }
-    }
-
-    if (mk.isShiftDown() && lastEditorClicked != 0 && editorArray.contains(lastEditorClicked))
-    {
-
-        LOGDD("Selection index: ", selectionIndex);
-
-        int startIndex = editorArray.indexOf(lastEditorClicked);
-
-        if (selectionIndex < 0)
-        {
-
-             for (int i = startIndex-1; i >= startIndex + selectionIndex; i--)
-             {
-                 editorArray[i]->select();
-             }
-
-        } else if (selectionIndex > 0)
-        {
-            for (int i = startIndex+1; i <= startIndex + selectionIndex; i++)
-             {
-                 editorArray[i]->select();
-             }
-         }
     }
 }
 
@@ -635,7 +676,7 @@ void EditorViewport::copySelectedEditors()
 
         for (auto editor : editorArray)
         {
-            if (editor->getSelectionState())
+            if (!editor->getProcessor()->isEmpty() && editor->getSelectionState())
                 copyInfo.add( AccessClass::getProcessorGraph()->createNodeXml(editor->getProcessor(), false) );
         }
 
@@ -727,7 +768,19 @@ void EditorViewport::paste()
 
             AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
 
-            PasteProcessors* action = new PasteProcessors(processorInfo, insertionPoint);
+            GenericProcessor* source = nullptr;
+            GenericProcessor* dest = nullptr;
+            if (insertionPoint > 0)
+            {
+                source = editorArray[insertionPoint-1]->getProcessor();
+            }
+
+            if (editorArray.size() > insertionPoint)
+            {
+                dest = editorArray[insertionPoint]->getProcessor();
+            }
+
+            PasteProcessors* action = new PasteProcessors(processorInfo, insertionPoint, source, dest);
 
             AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
 
@@ -926,11 +979,12 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     }
                 }
 
-                lastEditorClicked = editorArray[i];
+                selectionIndex = i;
                 break;
             }
 
             lastEditorClicked = editorArray[i];
+            selectionIndex = -1;
         }
         else
         {

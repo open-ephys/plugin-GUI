@@ -470,6 +470,36 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
                 break;
         }
     }
+    else
+    {
+        //Check type and increment counter
+        switch (type)
+        {
+        case SpikeChannel::SINGLE:
+            if (currentStream > 0)
+            {
+                settings[currentStream]->singleElectrodeCount++;
+                singleElectrodeCount++;
+            }
+            break;
+        case SpikeChannel::STEREOTRODE:
+            if (currentStream > 0)
+            {
+                settings[currentStream]->stereotrodeCount++;
+                stereotrodeCount++;
+            }
+            break;
+        case SpikeChannel::TETRODE:
+            if (currentStream > 0)
+            {
+                settings[currentStream]->tetrodeCount++;
+                tetrodeCount++;
+            }
+            break;
+        case SpikeChannel::INVALID:
+                break;
+        }
+    }
 
     name = ensureUniqueName(name, currentStream);
 
@@ -581,11 +611,27 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
 
 void SpikeDetector::removeSpikeChannel(String spikeChannelKey)
 {
+    // Search for spike channel to remove
     for (int i = 0; i < spikeChannels.size(); i++)
     {
+        // Match by key
         if (spikeChannels[i]->getIdentifier() == spikeChannelKey)
         {
-            LOGD("Removing spike channel: ", spikeChannels[i]->getName(), " from stream ", spikeChannels[i]->getStreamId());
+            // Remove the spike channel from the list and update counters
+            uint16 streamId = spikeChannels[i]->getStreamId();
+            if (spikeChannels[i]->getChannelType() == SpikeChannel::SINGLE)
+            {
+                settings[streamId]->singleElectrodeCount--;
+            }
+            else if (spikeChannels[i]->getChannelType() == SpikeChannel::STEREOTRODE)
+            {
+                settings[streamId]->stereotrodeCount--;
+            }
+            else if (spikeChannels[i]->getChannelType() == SpikeChannel::TETRODE)
+            {
+                settings[streamId]->tetrodeCount--;
+            }
+
             spikeChannels.removeObject(spikeChannels[i]);
             break;
         }

@@ -264,6 +264,9 @@ public:
     /** Get the ID of the stream that's currently selected.*/
     uint16 getCurrentStream() { return selectedStream; }
 
+    /** Called when new TTL and Delay monitors are created */
+    void updateDelayAndTTLMonitors();
+
     /** Notifies editor that the selected stream has changed.*/
     virtual void selectedStreamHasChanged();
 
@@ -317,7 +320,7 @@ protected:
     void addCustomParameterEditor(ParameterEditor* editor, int xPos, int yPos);
 
     /** A pointer to the editor's StreamSelector. */
-    std::unique_ptr<StreamSelector> streamSelector;
+    std::unique_ptr<StreamSelectorTable> streamSelector;
 
     /** Holds the value of the stream that's currently visible*/
     uint16 selectedStream;
@@ -370,10 +373,16 @@ private:
 class PLUGIN_API DrawerButton : public Button
 {
 public:
+
+    /** Constructor */
     DrawerButton (const String& name);
+    
+    /** Destructor */
     ~DrawerButton();
 
 private:
+    
+    /** Render the button */
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
