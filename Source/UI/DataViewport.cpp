@@ -533,7 +533,7 @@ Component* DataViewport::getContentComponentForNodeId(int nodeId)
 
 Component* DataViewport::getActiveTabContentComponent()
 {
-    draggableTabComponents.getFirst()->getCurrentContentComponent();
+    return draggableTabComponents.getFirst()->getCurrentContentComponent();
 }
 
 void DataViewport::saveStateToXml(XmlElement* xml)
