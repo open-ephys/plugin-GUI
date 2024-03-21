@@ -1,4 +1,5 @@
 #include "PopoverComponent.h"
+#include "UIComponent.h"
 
 #include "../CoreServices.h"
 
@@ -19,7 +20,6 @@ bool PopoverComponent::keyPressed(const KeyPress &key)
     {
         if (!undoManager->canUndo()) return false;
 
-        //Get descripion of next undo action, if it's not from this popover, close the popover
         String desc = undoManager->getUndoDescription();
         if (desc == "")
         {
@@ -27,7 +27,15 @@ bool PopoverComponent::keyPressed(const KeyPress &key)
             undoManager->undo();
             return false;
         }
-        else //TODO: make sure the right popup is showing for the next action
+        else if (desc != parent->getComponentID())
+        {
+            findParentComponentOfClass<CallOutBox>()->exitModalState(0);
+            Component* foundComponent = AccessClass::getUIComponent()->findComponentByIDRecursive(AccessClass::getUIComponent(), desc);
+            ((Button*)foundComponent)->triggerClick();
+            undoManager->undo();
+            return false;
+        } 
+        else
         {
             undoManager->undo();
             return true;
@@ -45,7 +53,15 @@ bool PopoverComponent::keyPressed(const KeyPress &key)
             undoManager->redo();
             return false;
         }
-        else //TODO: make sure the right popup is showing for the next action
+        else if (desc != parent->getComponentID())
+        {
+            findParentComponentOfClass<CallOutBox>()->exitModalState(0);
+            Component* foundComponent = AccessClass::getUIComponent()->findComponentByIDRecursive(AccessClass::getUIComponent(), desc);
+            ((Button*)foundComponent)->triggerClick();
+            undoManager->redo();
+            return false;
+        } 
+        else
         {
             undoManager->redo();
             return true;
@@ -56,4 +72,24 @@ bool PopoverComponent::keyPressed(const KeyPress &key)
         findParentComponentOfClass<CallOutBox>()->exitModalState(0);
         return true;
     }
+}
+
+Component* PopoverComponent::findComponentByIDRecursive(Component* parent, const String& componentID) {
+    if (!parent) return nullptr;
+
+    // Check if the current component matches the ID
+    if (parent->getComponentID() == componentID) {
+        return parent;
+    }
+
+    // Recursively search in child components
+    for (auto* child : parent->getChildren()) {
+        Component* found = findComponentByIDRecursive(child, componentID);
+        if (found) {
+            return found;
+        }
+    }
+
+    // Not found in this branch of the hierarchy
+    return nullptr;
 }

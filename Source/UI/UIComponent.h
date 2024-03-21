@@ -162,6 +162,9 @@ public:
 
     /** Set list of recently used recording directories */
     void setRecentlyUsedFilenames(const Array<String>& filenames);
+
+    /** Finds a child component based on a unique component ID */
+    Component* findComponentByIDRecursive(Component* parent, const String& id);
 	
 private:
 
@@ -246,8 +249,6 @@ private:
     ColorTheme theme = THEME1;
     
     CustomLookAndFeel customLookAndFeel;
-
-    Component* findComponentByIDRecursive(Component* parent, const String& id);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponent);
 

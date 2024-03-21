@@ -47,6 +47,8 @@ public:
     PopoverComponent(Component* parent);
     virtual ~PopoverComponent();
 
+    Component* findComponentByIDRecursive(Component* parent, const String& componentID);
+
     bool keyPressed(const KeyPress &key) override;
 
     void setUndoManager(UndoManager* manager)
