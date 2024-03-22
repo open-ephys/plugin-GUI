@@ -60,9 +60,6 @@ UIComponent::UIComponent(MainWindow* mainWindow_,
 
 	dataViewport = new DataViewport();
 	addChildComponent(dataViewport);
-	dataViewport->addTab("Info", infoLabel, 0);
-	dataViewport->addTab("Graph", graphViewer->getGraphViewport(), 1);
-
 	LOGD("Created data viewport.");
 
     signalChainTabComponent = new SignalChainTabComponent();
@@ -391,6 +388,24 @@ void UIComponent::setTheme(ColorTheme t)
 ColorTheme UIComponent::getTheme()
 {
     return theme;
+}
+
+void UIComponent::addInfoTab()
+{
+	if (!infoTabIsOpen)
+	{
+		dataViewport->addTab("Info", infoLabel, 0);
+		infoTabIsOpen = true;
+	}
+}
+
+void UIComponent::addGraphTab()
+{
+	if (!graphViewerIsOpen)
+	{
+		dataViewport->addTab("Graph", graphViewer->getGraphViewport(), 1);
+		graphViewerIsOpen = true;
+	}
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

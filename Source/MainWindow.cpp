@@ -192,6 +192,13 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 		}
 	}
 
+	if (!isConsoleApp)
+    {
+		UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
+		ui->addInfoTab();
+		ui->addGraphTab();
+	}
+
 	http_server_thread = std::make_unique<OpenEphysHttpServer>(processorGraph.get());
 
 	if (shouldEnableHttpServer) {

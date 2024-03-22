@@ -294,7 +294,7 @@ void DraggableTabComponent::moveTabAfter(int incomingNodeId, String name, int lo
     
     tabNodeIds.insert(index, incomingNodeId);
     
-    addTab(name, Colours::darkcyan, contentComponent, false, index);
+    addTab(name, Colours::darkgrey, contentComponent, false, index);
 
     setCurrentTabIndex(index);
     
@@ -538,8 +538,24 @@ Component* DataViewport::getActiveTabContentComponent()
 
 void DataViewport::saveStateToXml(XmlElement* xml)
 {
-    /*XmlElement* dataViewportState = xml->createNewChildElement("DATAVIEWPORT");
-    dataViewportState->setAttribute("selectedTab", tabArray[draggableTabComponents.getFirst()->getCurrentTabIndex()]);*/
+    XmlElement* dataViewportState = xml->createNewChildElement("DATAVIEWPORT");
+
+    // save tab order in each draggableTabComponent
+    for (int i = 0; i < draggableTabComponents.size(); i++)
+    {
+        XmlElement* tabOrder = dataViewportState->createNewChildElement("TABBEDCOMPONENT");
+        tabOrder->setAttribute("index", i);
+
+        Array<int> tabNodeIds = draggableTabComponents[i]->getTabNodeIds();
+        tabOrder->setAttribute("selectedTabNodeId", 
+                               tabNodeIds[draggableTabComponents[i]->getCurrentTabIndex()]);
+
+        for (int j = 0; j < draggableTabComponents[i]->getNumTabs(); j++)
+        {
+            XmlElement* tab = tabOrder->createNewChildElement("TAB");
+            tab->setAttribute("nodeId", tabNodeIds[j]);
+        }
+    }
 }
 
 void DataViewport::loadStateFromXml(XmlElement* xml)
@@ -570,6 +586,69 @@ void DataViewport::loadStateFromXml(XmlElement* xml)
     savedTabIndices.clear();
     savedTabComponents.clear();
     savedTabNames.clear();*/
+    auto* dvXml = xml->getChildByName("DATAVIEWPORT");
+
+    if (dvXml != nullptr)
+    {
+        LOGD("Loading DataViewport state from XML...");
+        for (auto* xmlNode : dvXml->getChildIterator())
+        {
+            if (xmlNode->hasTagName("TABBEDCOMPONENT"))
+            {
+                int index = xmlNode->getIntAttribute("index", -1);
+                int selectedTab = xmlNode->getIntAttribute("selectedTabNodeId", -1);
+
+                if (index > -1)
+                {
+                    // add new tabbed component if necessary
+                    if ((draggableTabComponents.size() - 1) < index)
+                    {
+                        LOGD("Adding new tabbed component")
+                        DraggableTabComponent* d = new DraggableTabComponent(this);
+                        addAndMakeVisible(d);
+                        draggableTabComponents.add(d);
+                    }
+                    
+                    activeTabbedComponent = index;
+
+                    int tabIndex = -1;
+
+                    // add tabs to the tabbed component
+                    for (auto* tab : xmlNode->getChildIterator())
+                    {
+                        if (tab->hasTagName("TAB"))
+                        {
+                            tabIndex++;
+                            int nodeId = tab->getIntAttribute("nodeId", -1);
+
+                            LOGD("Adding tab ", nodeId, " to tabbed component ", index);
+
+                            if (nodeId == 0) // info tab
+                                AccessClass::getUIComponent()->addInfoTab();
+                            else if (nodeId == 1) // graph tab
+                                AccessClass::getUIComponent()->addGraphTab();
+                            else if (nodeId > 99) // visualizer tab
+                            {
+                                GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId);
+                                if (processor != nullptr)
+                                {
+                                    VisualizerEditor* editor = (VisualizerEditor*) processor->getEditor();
+                                    editor->addTab();
+                                }
+                            }
+                        }
+                    }
+
+                    resized();
+
+                    // select the tab in the tabbed component
+                    draggableTabComponents[index]->selectTab(selectedTab);
+                }
+            }
+        }
+
+        LOGD("DataViewport state loaded.");
+    }
 
 }
 

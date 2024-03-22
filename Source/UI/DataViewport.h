@@ -165,7 +165,10 @@ public:
     
     /** Returns the number of tabs available */
     int getNumTabs() { return tabNodeIds.size(); }
-    
+
+    /** Gets tab node ids */
+    Array<int> getTabNodeIds() { return tabNodeIds; }
+
     /** Informs the component within the current tab that it's now active.*/
     void currentTabChanged(int newIndex, const String& newTabName);
     

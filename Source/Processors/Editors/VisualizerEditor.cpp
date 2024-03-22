@@ -256,7 +256,6 @@ void VisualizerEditor::saveCustomParametersToXml (XmlElement* xml)
 
     XmlElement* tabButtonState = xml->createNewChildElement (EDITOR_TAG_TAB);
     tabButtonState->setAttribute ("Active", tabSelector->getToggleState());
-    //tabButtonState->setAttribute ("Index", tabIndex);
 
     XmlElement* windowButtonState = xml->createNewChildElement (EDITOR_TAG_WINDOW);
     windowButtonState->setAttribute ("Active", windowSelector->getToggleState());
@@ -292,23 +291,15 @@ void VisualizerEditor::loadCustomParametersFromXml (XmlElement* xml)
         if (xmlNode->hasTagName (EDITOR_TAG_TAB))
         {
             bool tabState = xmlNode->getBoolAttribute ("Active");
-            int newIndex = xmlNode->getIntAttribute ("Index", -1);
 
             if (tabState)
             {
-                tabSelector->setToggleState(true, dontSendNotification);
-                
+                /* NB: DataViewport::loadStateFromXml() will call addTab() for us 
+                   to maintain tab configuration
+                */
                 checkForCanvas();
-                
-                if (newIndex == -1)
-                {
-                    //addTab(tabText, canvas.get());
-                }
-                else
-                {
-                    //tabIndex = newIndex;
-                    //AccessClass::getDataViewport()->addTabAtIndex(tabIndex, tabText, canvas.get());
-                }
+
+                tabSelector->setToggleState(true, dontSendNotification);
 
                 break;
             }

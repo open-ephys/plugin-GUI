@@ -158,6 +158,12 @@ public:
 
     /** Set list of recently used recording directories */
     void setRecentlyUsedFilenames(const Array<String>& filenames);
+
+    // Adds the info tab to the DataViewport if it is not already open
+    void addInfoTab();
+
+    // Adds the graph tab to the DataViewport if it is not already open
+    void addGraphTab();
     
     /** Notifies the UI component when the graph viewer is closed */
     void closeGraphViewer() { graphViewerIsOpen = false; }
@@ -174,8 +180,8 @@ private:
     ScopedPointer<InfoLabel> infoLabel;
     ScopedPointer<GraphViewer> graphViewer;
     
-    bool infoTabIsOpen = true;
-    bool graphViewerIsOpen = true;
+    bool infoTabIsOpen = false;
+    bool graphViewerIsOpen = false;
     
     EditorViewport* editorViewport;
     
