@@ -235,7 +235,7 @@ SpikeDetector::SpikeDetector()
 
 SpikeDetector::~SpikeDetector()
 {
-    //mostRecentParameters.clear();
+    //addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to use for configuring next spike channels");
 }
 
 

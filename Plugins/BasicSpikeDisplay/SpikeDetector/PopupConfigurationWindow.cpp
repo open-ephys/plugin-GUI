@@ -1003,10 +1003,14 @@ void SpikeChannelGenerator::buttonClicked(Button* button)
 
         channelSelector->setMaximumSelectableChannels(numSpikeChannelsToAdd);
 
+        CoreServices::getPopoverManager()->showPopover(std::unique_ptr<PopoverComponent>(channelSelector), channelSelectorButton.get());
+
+        /*
         CallOutBox& myBox
             = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
                 button->getScreenBounds(),
                 nullptr);
+        */
     }
 
 }

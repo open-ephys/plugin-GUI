@@ -302,6 +302,7 @@ void CategoricalParameter::setNextValue(var newValue_, bool undoable)
 
 int CategoricalParameter::getSelectedIndex()
 {
+    if (!categories.size()) return 0;
     return (int)currentValue;
 }
 

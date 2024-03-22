@@ -122,10 +122,16 @@ public:
         }
         
         s += "]";
-        
-        setText(s, dontSendNotification);
             
         channels->setNextValue(newArray);
+
+        Parameter::ChangeValue* action = new Parameter::ChangeValue(channels->getKey(), newArray);
+
+        AccessClass::getUndoManager()->beginNewTransaction();
+        AccessClass::getUndoManager()->setCurrentTransactionName(this->getName() + " change");
+        AccessClass::getUndoManager()->perform(action);
+
+        setText(s, dontSendNotification);
     
     }
     

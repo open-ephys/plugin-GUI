@@ -23,15 +23,16 @@ bool PopoverComponent::keyPressed(const KeyPress &key)
         String desc = undoManager->getUndoDescription();
         if (desc == "")
         {
-            findParentComponentOfClass<CallOutBox>()->exitModalState(0);
+            //findParentComponentOfClass<CallOutBox>()->exitModalState(0);
+            juce::ModalComponentManager::getInstance()->cancelAllModalComponents();
             undoManager->undo();
             return false;
         }
         else if (desc != parent->getComponentID())
         {
-            findParentComponentOfClass<CallOutBox>()->exitModalState(0);
+            juce::ModalComponentManager::getInstance()->cancelAllModalComponents();
             Component* foundComponent = AccessClass::getUIComponent()->findComponentByIDRecursive(AccessClass::getUIComponent(), desc);
-            ((Button*)foundComponent)->triggerClick();
+            //((Button*)foundComponent)->triggerClick();
             undoManager->undo();
             return false;
         } 
