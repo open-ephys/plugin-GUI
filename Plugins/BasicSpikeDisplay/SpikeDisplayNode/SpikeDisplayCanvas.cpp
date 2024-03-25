@@ -262,11 +262,11 @@ void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
 
         plotNode->setAttribute("isMonitored", spikeDisplay->getMonitorStateForPlot(i));
 
-        for (int j = 0; j < spikeDisplay->getNumChannelsForPlot(i); j++)
+        for (int j = 0; j < spikeDisplay->getNumChannelsForPlot(spikePlotIdx); j++)
         {
             XmlElement* axisNode = plotNode->createNewChildElement("AXIS");
-            axisNode->setAttribute("thresh",spikeDisplay->getThresholdForWaveAxis(i,j));
-            axisNode->setAttribute("range",spikeDisplay->getRangeForWaveAxis(i,j));
+            axisNode->setAttribute("thresh",spikeDisplay->getThresholdForWaveAxis(spikePlotIdx,j));
+            axisNode->setAttribute("range",spikeDisplay->getRangeForWaveAxis(spikePlotIdx,j));
         }
     }
 
