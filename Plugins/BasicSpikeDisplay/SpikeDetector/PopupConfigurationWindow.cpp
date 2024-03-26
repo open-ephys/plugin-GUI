@@ -361,6 +361,14 @@ void ThresholdSelectorCustomComponent::setThreshold(ThresholderType type, int ch
     repaint();
 }
 
+ChannelSelectorCustomComponent::ChannelSelectorCustomComponent(int rowNumber, SelectedChannelsParameter* channels_, bool acquisitionIsActive_)
+    : channels(channels_), acquisitionIsActive(acquisitionIsActive_)
+{
+    SpikeChannel* owner = (SpikeChannel*)channels->getOwner();
+    setComponentID(channels_->getKey());
+    LOGD("*** Setting component ID: " + channels_->getKey());
+    setEditable(false, false, false);
+}
 
 void ChannelSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
 {
@@ -684,6 +692,7 @@ Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber,
         if (channelsLabel == nullptr)
         {
             channelsLabel = new ChannelSelectorCustomComponent(
+                rowNumber,
                 (SelectedChannelsParameter*) spikeChannels[rowNumber]->getParameter("local_channels"),
                 acquisitionIsActive);
         }

@@ -87,12 +87,7 @@ class ChannelSelectorCustomComponent :
 public:
 
     /** Constructor */
-    ChannelSelectorCustomComponent(SelectedChannelsParameter* channels_, bool acquisitionIsActive_)
-        : channels(channels_),
-          acquisitionIsActive(acquisitionIsActive_)
-    {
-        setEditable(false, false, false);
-    }
+    ChannelSelectorCustomComponent(int rowNumber, SelectedChannelsParameter* channels_, bool acquisitionIsActive_);
 
     /** Responds to mouse clicks */
     void mouseDown(const juce::MouseEvent& event) override;
@@ -113,26 +108,23 @@ public:
             newArray.add(newChannels[i]);
             LOGD("Channel ", newChannels[i], " selected");
         }
-        
-        String s = "[";
-        
-        for (auto chan : newArray)
-        {
-            s += String(int(chan)+1) + ",";
-        }
-        
-        s += "]";
-            
+
         channels->setNextValue(newArray);
 
         Parameter::ChangeValue* action = new Parameter::ChangeValue(channels->getKey(), newArray);
 
         AccessClass::getUndoManager()->beginNewTransaction();
-        AccessClass::getUndoManager()->setCurrentTransactionName(this->getName() + " change");
+        AccessClass::getUndoManager()->setCurrentTransactionName(getComponentID());
         AccessClass::getUndoManager()->perform(action);
 
+        String s = "[";
+        for (auto chan : newArray)
+        {
+            s += String(int(chan)+1) + ",";
+        }
+        s += "]";
+
         setText(s, dontSendNotification);
-    
     }
     
     /** Sets row and column */

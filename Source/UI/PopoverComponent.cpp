@@ -30,9 +30,10 @@ bool PopoverComponent::keyPressed(const KeyPress &key)
         }
         else if (desc != parent->getComponentID())
         {
+            String parentID = parent->getComponentID();
             juce::ModalComponentManager::getInstance()->cancelAllModalComponents();
             Component* foundComponent = AccessClass::getUIComponent()->findComponentByIDRecursive(AccessClass::getUIComponent(), desc);
-            //((Button*)foundComponent)->triggerClick();
+            ((Button*)foundComponent)->triggerClick();
             undoManager->undo();
             return false;
         } 
