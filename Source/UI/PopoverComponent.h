@@ -17,20 +17,21 @@ class PopoverComponent;
 
 class PopoverManager {
 public:
-    void showPopover(std::unique_ptr<Component> popoverComponent, Component* anchor) {
-        auto& myBox = juce::CallOutBox::launchAsynchronously(std::move(popoverComponent),
-                                                             anchor->getScreenBounds(),
-                                                             nullptr);
 
-        juce::ModalComponentManager::getInstance()->attachCallback(&myBox, juce::ModalCallbackFunction::create([this](int result) {
-            onPopoverDismissed(result);
-        }));
-    }
+    PopoverManager() {};
+
+    ~PopoverManager() {};
+
+    void showPopover(std::unique_ptr<Component> popoverComponent, Component* anchor);
+
+    int getPopoverStackSize() { return popoverStack.size(); }
+
+    String getActivePopover() { return popoverStack.back(); }
 
 protected:
-    void onPopoverDismissed(int result) {
-        LOGD("*** PopupoverConfigurationWindow closed");
-    }
+    void onPopoverDismissed(int result);
+
+    std::vector<String> popoverStack;
 };
 
 

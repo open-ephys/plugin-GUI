@@ -97,6 +97,8 @@ UIComponent::UIComponent(MainWindow* mainWindow_,
 	AccessClass::setUIComponent(this);
 
 	getProcessorList()->fillItemList();
+
+	popoverManager = std::make_unique<PopoverManager>();
 }
 
 UIComponent::~UIComponent()
@@ -173,7 +175,7 @@ PluginInstaller* UIComponent::getPluginInstaller()
 
 PopoverManager* UIComponent::getPopoverManager()
 {
-	return popoverManager;
+	return popoverManager.get();
 }
 
 void UIComponent::buttonClicked(Button* button)
@@ -819,9 +821,25 @@ bool UIComponent::perform(const InvocationInfo& info)
         case undo:
             {
 				String desc = AccessClass::getProcessorGraph()->getUndoManager()->getUndoDescription();
-				if (desc != "") {
-					Component* foundComponent = findComponentByIDRecursive(this, desc);
-					((Button*)foundComponent)->triggerClick();
+				if (desc != "") { //action belongs to a popover
+					PopoverManager* pm = CoreServices::getPopoverManager();
+					if (pm->getPopoverStackSize() > 0) { //if there is already a popover open
+						if (pm->getActivePopover() == "config_spikes" && desc.contains("local_channels")) {
+							LOGD("Made it here");
+						}
+					}
+
+
+                    if (desc.contains("local_channels"))
+                    {
+                        Component* foundComponent = findComponentByIDRecursive(this, "config_spikes");
+                        ((Button*)foundComponent)->triggerClick();
+                    }
+                    else
+                    {
+                        Component* foundComponent = findComponentByIDRecursive(this, desc);
+                        ((Button*)foundComponent)->triggerClick();
+                    }
 				}
                 AccessClass::getProcessorGraph()->getUndoManager()->undo();
                 break;
@@ -831,8 +849,16 @@ bool UIComponent::perform(const InvocationInfo& info)
             {
 				String desc = AccessClass::getProcessorGraph()->getUndoManager()->getRedoDescription();
 				if (desc != "") {
-					Component* foundComponent = findComponentByIDRecursive(this, desc);
-					((Button*)foundComponent)->triggerClick();
+                    if (desc.contains("local_channels"))
+                    {
+                        Component* foundComponent = findComponentByIDRecursive(this, "configure");
+                        ((Button*)foundComponent)->triggerClick();
+                    }
+                    else
+                    {
+                        Component* foundComponent = findComponentByIDRecursive(this, desc);
+                        ((Button*)foundComponent)->triggerClick();
+                    }
 				}
 				//show the popover and process the key press there. 
                 AccessClass::getProcessorGraph()->getUndoManager()->redo();

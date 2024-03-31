@@ -183,6 +183,8 @@ private:
 
     std::unique_ptr<DefaultConfigWindow> defaultConfigWindow;
 
+    std::unique_ptr<PopoverManager> popoverManager;
+
     Viewport processorListViewport;
 
     /** Pointer to the GUI's MainWindow, which owns the UIComponent. */
@@ -200,9 +202,6 @@ private:
     
     /** Pointer to the GUI's ControlPanel. Owned by the MainWindow. */
     ControlPanel* controlPanel;
-
-    /** Pointer to the GUI's PopoverManager. Owned by the MainWindow */
-    PopoverManager* popoverManager;
 
     /** Pointer to the GUI's MessageCenterEditor. Owned by the MessageCenter. */
     MessageCenterEditor* messageCenterEditor;

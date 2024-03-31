@@ -3,6 +3,39 @@
 
 #include "../CoreServices.h"
 
+void PopoverManager::showPopover(std::unique_ptr<Component> popoverComponent, Component* anchor)
+{
+
+    String componentID = anchor->getComponentID();
+
+    auto &myBox = juce::CallOutBox::launchAsynchronously(std::move(popoverComponent),
+                                                            anchor->getScreenBounds(),
+                                                            nullptr);
+
+    LOGD("***Adding popover: " + componentID);
+
+    popoverStack.push_back(componentID);
+
+    juce::ModalComponentManager::getInstance()->attachCallback(&myBox, juce::ModalCallbackFunction::create([this](int result) {
+        onPopoverDismissed(result);
+    }));
+
+}
+
+void PopoverManager::onPopoverDismissed(int result)
+{
+    if (popoverStack.size() > 0)
+    {
+        String componentID = popoverStack.back();
+        popoverStack.pop_back();
+        LOGD("***Closed popover " + componentID);
+    }
+    else
+    {
+        LOGD("***No popovers to remove");
+    }
+}
+
 PopoverComponent::PopoverComponent(Component* parent_) : parent(parent_)
 {
     undoManager = CoreServices::getUndoManager();
@@ -30,10 +63,19 @@ bool PopoverComponent::keyPressed(const KeyPress &key)
         }
         else if (desc != parent->getComponentID())
         {
+            PopoverManager* pm = CoreServices::getPopoverManager();
             String parentID = parent->getComponentID();
-            juce::ModalComponentManager::getInstance()->cancelAllModalComponents();
             Component* foundComponent = AccessClass::getUIComponent()->findComponentByIDRecursive(AccessClass::getUIComponent(), desc);
-            ((Button*)foundComponent)->triggerClick();
+            if (foundComponent != nullptr) {
+                juce::ModalComponentManager::getInstance()->cancelAllModalComponents();
+                ((Button*)foundComponent)->triggerClick();
+            }
+            else
+            {
+                Component* next = AccessClass::getUIComponent()->findComponentByIDRecursive(this, desc);
+                
+                LOGD("Made it here");
+            }
             undoManager->undo();
             return false;
         } 
@@ -57,6 +99,7 @@ bool PopoverComponent::keyPressed(const KeyPress &key)
         }
         else if (desc != parent->getComponentID())
         {
+            PopoverManager* pm = CoreServices::getPopoverManager();
             findParentComponentOfClass<CallOutBox>()->exitModalState(0);
             Component* foundComponent = AccessClass::getUIComponent()->findComponentByIDRecursive(AccessClass::getUIComponent(), desc);
             ((Button*)foundComponent)->triggerClick();

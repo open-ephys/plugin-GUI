@@ -82,12 +82,15 @@ private:
 */
 class ChannelSelectorCustomComponent : 
     public juce::Label,
-    public PopupChannelSelector::Listener
+    public PopupChannelSelector::Listener,
+    public Timer
 {
 public:
 
     /** Constructor */
     ChannelSelectorCustomComponent(int rowNumber, SelectedChannelsParameter* channels_, bool acquisitionIsActive_);
+
+    void showAsPopover();
 
     /** Responds to mouse clicks */
     void mouseDown(const juce::MouseEvent& event) override;
@@ -106,7 +109,6 @@ public:
         for (int i = 0; i < newChannels.size(); i++)
         {
             newArray.add(newChannels[i]);
-            LOGD("Channel ", newChannels[i], " selected");
         }
 
         channels->setNextValue(newArray);
@@ -116,6 +118,26 @@ public:
         AccessClass::getUndoManager()->beginNewTransaction();
         AccessClass::getUndoManager()->setCurrentTransactionName(getComponentID());
         AccessClass::getUndoManager()->perform(action);
+    }
+    
+    /** Sets row and column */
+    void setRowAndColumn(const int newRow, const int newColumn);
+    
+    /** Sets the underlying parametr for this component */
+    void setParameter(SelectedChannelsParameter* channels_) { channels = channels_; }
+
+    void timerCallback() { 
+        updateView();
+    }
+
+    void updateView() 
+    {
+        Array<var> newArray;
+    
+        for (int i = 0; i < channels->getArrayValue().size(); i++)
+        {
+            newArray.add(channels->getArrayValue()[i]);
+        }
 
         String s = "[";
         for (auto chan : newArray)
@@ -126,12 +148,6 @@ public:
 
         setText(s, dontSendNotification);
     }
-    
-    /** Sets row and column */
-    void setRowAndColumn(const int newRow, const int newColumn);
-    
-    /** Sets the underlying parametr for this component */
-    void setParameter(SelectedChannelsParameter* channels_) { channels = channels_; }
 
     int row;
 

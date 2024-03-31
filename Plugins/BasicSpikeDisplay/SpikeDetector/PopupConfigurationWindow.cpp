@@ -368,6 +368,17 @@ ChannelSelectorCustomComponent::ChannelSelectorCustomComponent(int rowNumber, Se
     setComponentID(channels_->getKey());
     LOGD("*** Setting component ID: " + channels_->getKey());
     setEditable(false, false, false);
+    startTimer(500);
+}
+
+void ChannelSelectorCustomComponent::showAsPopover()
+{
+    auto* channelSelector = new PopupChannelSelector(this, this, channels->getChannelStates());
+    
+    channelSelector->setChannelButtonColour(Colour(0, 174, 239));
+    channelSelector->setMaximumSelectableChannels(channels->getMaxSelectableChannels());
+
+    CoreServices::getPopoverManager()->showPopover(std::unique_ptr<PopoverComponent>(channelSelector), this);
 }
 
 void ChannelSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
@@ -375,12 +386,7 @@ void ChannelSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
     if (acquisitionIsActive)
         return;
 
-    auto* channelSelector = new PopupChannelSelector(this, this, channels->getChannelStates());
-    
-    channelSelector->setChannelButtonColour(Colour(0, 174, 239));
-    channelSelector->setMaximumSelectableChannels(channels->getMaxSelectableChannels());
-
-    CoreServices::getPopoverManager()->showPopover(std::unique_ptr<PopoverComponent>(channelSelector), this);
+    showAsPopover();
 }
     
 void ChannelSelectorCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
@@ -1147,6 +1153,13 @@ void PopupConfigurationWindow::update(Array<SpikeChannel*> spikeChannels)
 
 bool PopupConfigurationWindow::keyPressed(const KeyPress& key)
 {
+    if (key.getKeyCode() == 90)
+    {
+        if (!CoreServices::getUndoManager()->canUndo()) return false;
+
+        String desc = CoreServices::getUndoManager()->getUndoDescription();
+    }
+
     // Popover component handles globally reserved keys
     if (PopoverComponent::keyPressed(key)) //undo/redo was pressed
     {
