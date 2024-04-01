@@ -24,11 +24,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __RECORDNODEEDITOR_H__
 #define __RECORDNODEEDITOR_H__
 
+#include "../Editors/GenericEditor.h"
 #include "../Editors/PopupChannelSelector.h"
 #include "../../Utils/Utils.h"
-
-#include "SyncChannelSelector.h"
-#include "SyncControlButton.h"
 
 class RecordThread;
 class RecordNode;
@@ -102,38 +100,6 @@ private:
 	RecordNode* recordNode;
 };
 
-class SyncChannelsParameterEditor : public ParameterEditor,
-	public Button::Listener,
-	public SyncChannelSelector::Listener,
-	public ComponentListener
-{
-public:
-
-	/** Constructor */
-	SyncChannelsParameterEditor(RecordNode* rn, Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
-
-	/** Destructor */
-	virtual ~SyncChannelsParameterEditor() { }
-
-	/** Displays the PopupChannelSelector*/
-	void buttonClicked(Button* label) override;
-
-	/** Must ensure that editor state matches underlying parameter */
-	virtual void updateView() override;
-
-	/** Responds to changes in the PopupChannelSelector*/
-	void channelStateChanged(Array<int> selectedChannels) override;
-
-	/** Sets sub-component locations */
-	virtual void resized() override;
-
-	void componentBeingDeleted(Component &component) override;
-
-private:
-	std::unique_ptr<SyncControlButton> syncControlButton;
-
-	RecordNode* recordNode;
-};
 
 /**
     

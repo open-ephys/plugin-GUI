@@ -26,6 +26,7 @@ add_subdirectory(Serial)
 add_subdirectory(Settings)
 add_subdirectory(SourceNode)
 add_subdirectory(Splitter)
+add_subdirectory(Synchronizer)
 add_subdirectory(Visualization)
 
 

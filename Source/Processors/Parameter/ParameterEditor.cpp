@@ -912,6 +912,243 @@ void MaskChannelsParameterEditor::resized()
 }
 
 
+SyncControlButton::SyncControlButton(SynchronizingProcessor* node_,
+                                     const String& name,
+                                     String streamKey_,
+                                     int ttlLineCount_)
+    : Button(name),
+      streamKey(streamKey_),
+      node(node_),
+      ttlLineCount(ttlLineCount_)
+{
+
+    isPrimary = node->isMainDataStream(streamKey);
+    LOGD("SyncControlButton::Constructor; Stream: ", streamKey, " is main stream: ", isPrimary);
+    startTimer(250);
+    
+    setTooltip(name);
+    
+}
+
+SyncControlButton::~SyncControlButton() {}
+
+void SyncControlButton::timerCallback()
+{
+    repaint();
+}
+
+void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+{
+
+    g.setColour(Colours::grey);
+    g.fillRoundedRectangle(0,0,getWidth(),getHeight(),4);
+    
+    switch(node->synchronizer.getStatus(streamKey)) {
+        
+        case SyncStatus::OFF :
+        {
+            if (isMouseOver)
+            {
+                //LIGHT GREY
+                g.setColour(Colour(150, 150, 150));
+            }
+            else
+            {
+                //DARK GREY
+                g.setColour(Colour(110, 110, 110));
+            }
+            break;
+        }
+        case SyncStatus::SYNCING :
+        {
+
+            if (isMouseOver)
+            {
+                //LIGHT ORANGE
+               g.setColour(Colour(255,216,177));
+            }
+            else
+            {
+                //DARK ORAN
+               g.setColour(Colour(255,165,0));
+            }
+            break;
+        }
+        case SyncStatus::SYNCED :
+        {
+
+            if (isMouseOver)
+            {
+                //LIGHT GREEN
+                g.setColour(Colour(25, 255, 25));
+            }
+            else
+            {
+                //DARK GREEN
+                g.setColour(Colour(25, 220, 25));
+            }
+            break;
+
+        }
+    }
+    
+    g.fillRoundedRectangle(2, 2, getWidth()-4, getHeight()-4, 2);
+
+    if (node->isMainDataStream(streamKey))
+    {
+        g.setColour(Colour(255,255,255));
+        g.setFont(Font(10));
+        g.drawText("M", 0, 0, getWidth(), getHeight(), juce::Justification::centred);
+    }
+    
+}
+
+TtlLineParameterEditor::TtlLineParameterEditor(Parameter* param, 
+    Parameter* syncParam_,
+    int rowHeightPixels, 
+    int rowWidthPixels) 
+    : ParameterEditor(param),
+    syncParam(syncParam_)
+{
+    jassert(param->getType() == Parameter::TTL_LINE_PARAM);
+    
+    TtlLineParameter* ttlParam = ((TtlLineParameter*)param);
+    DataStream* paramStream = ((DataStream*)param->getOwner());
+    
+    if (syncParam != nullptr)
+    {
+        jassert(syncParam != nullptr);
+        jassert(syncParam->getType() == Parameter::SELECTED_STREAM_PARAM);
+        jassert(syncParam->getScope() == Parameter::ParameterScope::PROCESSOR_SCOPE);
+
+        GenericProcessor* syncProcessor = ((GenericProcessor*)syncParam->getOwner());
+
+        syncControlButton = std::make_unique<SyncControlButton>(dynamic_cast<SynchronizingProcessor*>(syncProcessor),
+                                                                syncParam->getDisplayName(),
+                                                                paramStream->getKey(),
+                                                                ttlParam->getMaxAvailableLines());
+        syncControlButton->setTooltip("Configure synchronization settings for this stream");
+        syncControlButton->addListener(this);
+        syncControlButton->setBounds(0, 0, 15, 15);
+        addAndMakeVisible(syncControlButton.get());
+
+        setBounds(0, 0, 15, 15);
+        editor = (Component*)syncControlButton.get();
+    }
+    else
+    {
+        int selectedLine = ((TtlLineParameter*)param)->getSelectedLine();
+        textButton = std::make_unique<TextButton>("Line " + String(selectedLine + 1), "Selected TTL Line");
+        textButton->setName(param->getKey());
+        textButton->addListener(this);
+        textButton->setClickingTogglesState(false);
+        textButton->setTooltip(param->getDescription());
+        addAndMakeVisible(textButton.get());
+
+        label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
+        Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+        label->setFont(labelFont);
+        label->setJustificationType(Justification::left);
+        addAndMakeVisible(label.get());
+
+        setBounds(0, 0, rowWidthPixels, rowHeightPixels);
+        label->setBounds(rowWidthPixels / 2, 0, rowWidthPixels / 2, rowHeightPixels);
+        textButton->setBounds(0, 0, rowWidthPixels/2, rowHeightPixels);
+
+        editor = (Component*)textButton.get();
+    }
+}
+
+void TtlLineParameterEditor::selectedLineChanged(int newLine)
+{
+    param->setNextValue(newLine);
+    updateView();
+}
+
+void TtlLineParameterEditor::primaryStreamChanged()
+{
+    if (syncParam == nullptr || syncParam->getType() != Parameter::SELECTED_STREAM_PARAM)
+        return;
+
+    Array<String> streamNames = ((SelectedStreamParameter*)syncParam)->getStreamNames();
+
+    DataStream* paramStream = (DataStream*)param->getOwner();
+    int streamIndex = -1;
+    
+    LOGA(param->getKey(), "::primaryStreamChanged; Stream: ", paramStream->getKey());
+
+    for (int i = 0; i < streamNames.size(); i++)
+    {
+        if (streamNames[i] == paramStream->getKey())
+        {
+            streamIndex = i;
+            break;
+        }
+    }
+
+    if (streamIndex >= 0)
+        syncParam->setNextValue(streamIndex);
+}
+
+void TtlLineParameterEditor::buttonClicked(Button* button_)
+{
+    if (param == nullptr)
+        return;
+
+    TtlLineParameter* p = (TtlLineParameter*)param;
+
+    if (syncParam != nullptr)
+    {
+        DataStream* paramStream = (DataStream*)p->getOwner();
+
+        auto* syncSelector = new SyncLineSelector(this, 
+            p->getMaxAvailableLines(), 
+            p->getSelectedLine(), 
+            paramStream->getKey() == syncParam->getValueAsString());
+
+        CallOutBox& myBox
+            = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(syncSelector),
+                editor->getScreenBounds(),
+                nullptr);
+    }
+    else
+    {  
+
+        auto* lineSelector = new SyncLineSelector(this, 
+            p->getMaxAvailableLines(), 
+            p->getSelectedLine(), 
+            true);
+        
+        CallOutBox& myBox
+            = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(lineSelector),
+                editor->getScreenBounds(),
+                nullptr);
+    }
+}
+
+void TtlLineParameterEditor::updateView()
+{
+    if (param == nullptr)
+        editor->setEnabled(false);
+    else
+    {
+        editor->setEnabled(true);
+
+        if(textButton != nullptr)
+        {
+            int selected = ((TtlLineParameter*)param)->getSelectedLine();
+            textButton->setButtonText("Line " + String(selected + 1));
+        }
+    }
+}
+
+void TtlLineParameterEditor::resized()
+{
+    if (textButton != nullptr)
+        updateBounds();
+}
+
+
 PathParameterEditor::PathParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
     setBounds(0, 0, rowWidthPixels, rowHeightPixels);

@@ -316,6 +316,15 @@ protected:
     /** Adds a time editor for a paramater of a given name. */
     void addTimeParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
+    /** Adds a ttl line editor for a parameter of a given name. */
+    void addTtlLineParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+
+    /** Adds a sync line editor for a parameter of a given name. 
+     * @param syncLineParam is the parameter that will be updated when the sync line is changed
+     * @param syncStreamParam is the parameter that will be updated when the main sync stream is changed
+    */
+    void addSyncLineParameterEditor(TtlLineParameter* syncLineParam, SelectedStreamParameter* syncStreamParam, int xPos, int yPos);
+
     /** Adds a custom editor for a parameter of a given name. */
     void addCustomParameterEditor(ParameterEditor* editor, int xPos, int yPos);
 

@@ -168,6 +168,11 @@ void ParameterCollection::copyParametersTo(ParameterOwner* pOwner)
             TimeParameter* p = (TimeParameter*) parameter;
             pOwner->addParameter(new TimeParameter(*p));
         }
+        else if (parameter->getType() == Parameter::TTL_LINE_PARAM)
+        {
+            TtlLineParameter* p = (TtlLineParameter*) parameter;
+            pOwner->addParameter(new TtlLineParameter(*p));
+        }
  
     }
 }
@@ -251,7 +256,13 @@ void ParameterCollection::copyParametersFrom(ParameterOwner* pOwner)
             p2->setOwner(nullptr);
             addParameter(p2);
         }
-            
+        else if (parameter->getType() == Parameter::TTL_LINE_PARAM)
+        {
+            TtlLineParameter* p = (TtlLineParameter*) parameter;
+            TtlLineParameter* p2 = new TtlLineParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
+        }
     }
 
     if (pOwner->getType() == ParameterOwner::DATASTREAM)

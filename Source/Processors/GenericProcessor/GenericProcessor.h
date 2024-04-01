@@ -374,6 +374,14 @@ public:
         const String& displayName,
         const String& description,
         bool deactivateDuringAcquisition = true);
+    
+    void addTtlLineParameter(Parameter::ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        int maxAvailableLines = 8,
+        bool syncMode = false,
+        bool deactivateDuringAcquisition = false);
 
     /** Returns a pointer to a parameter created inside this processor
         Includes processor, stream, & channel scoped parameters

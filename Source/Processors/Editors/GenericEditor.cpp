@@ -250,6 +250,24 @@ void GenericEditor::addTimeParameterEditor(Parameter::ParameterScope scope,
     addCustomParameterEditor(new TimeParameterEditor(param), xPos_, yPos_);
 }
 
+void GenericEditor::addTtlLineParameterEditor(Parameter::ParameterScope scope,
+    const String& parameterName,
+    int xPos_,
+    int yPos_)
+{
+    jassert(scope == Parameter::ParameterScope::STREAM_SCOPE);
+    Parameter* param = getProcessor()->getStreamParameter(parameterName);
+    addCustomParameterEditor(new TtlLineParameterEditor(param), xPos_, yPos_);
+}
+
+void GenericEditor::addSyncLineParameterEditor(TtlLineParameter* ttlParam,
+    SelectedStreamParameter* syncStreamParam,
+    int xPos_,
+    int yPos_)
+{
+    addCustomParameterEditor(new TtlLineParameterEditor(ttlParam, syncStreamParam), xPos_, yPos_);
+}
+
 void GenericEditor::addCustomParameterEditor(ParameterEditor* ed, int xPos_, int yPos_)
 {
     parameterEditors.add(ed);
@@ -1221,6 +1239,9 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
 
     for (auto ed : parameterEditors)
     {
+        if (ed->shouldUpdateOnSelectedStreamChanged() == false)
+            continue;
+
         const String parameterName = ed->getParameterName();
         
         if (getProcessor()->hasParameter(parameterName))
@@ -1237,8 +1258,7 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
                 if (stream->hasParameter(parameterName))
                 {
                     Parameter* streamParam = stream->getParameter(parameterName);
-                    if (streamParam->shouldUpdateOnSelectedStreamChanged())
-                        ed->setParameter(streamParam);
+                    ed->setParameter(streamParam);
                 }
                 else
                 {

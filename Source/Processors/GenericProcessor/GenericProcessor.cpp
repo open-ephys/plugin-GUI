@@ -460,6 +460,29 @@ void GenericProcessor::addNotificationParameter(
         dataStreamParameters.add(p);
 }
 
+void GenericProcessor::addTtlLineParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    int maxTtlLines,
+    bool syncMode,
+    bool deactivateDuringAcquisition)
+{
+
+    TtlLineParameter* p = new TtlLineParameter(
+        scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
+        scope,
+        name, 
+        displayName,
+        description,
+        maxTtlLines,
+        syncMode,
+        deactivateDuringAcquisition);
+
+    dataStreamParameters.add(p);
+}
+
 void GenericProcessor::parameterChangeRequest(Parameter* param)
 {
 	currentParameter = param;
@@ -1060,6 +1083,11 @@ void GenericProcessor::update()
                 {
                     NotificationParameter* p = (NotificationParameter*)param;
                     stream->addParameter(new NotificationParameter(*p));
+                }
+                else if (param->getType() == Parameter::TTL_LINE_PARAM)
+                {
+                    TtlLineParameter* p = (TtlLineParameter*)param;
+                    stream->addParameter(new TtlLineParameter(*p));
                 }
             }
         }
@@ -1947,6 +1975,13 @@ void GenericProcessor::loadFromXml()
                                 {
                                     TimeParameter* p = (TimeParameter*)parameter;
                                     TimeParameter* p2 = new TimeParameter(*p);
+                                    p2->fromXml(streamParams);
+                                    parameterCollection->addParameter(p2);
+                                }
+                                else if (parameter->getType() == Parameter::TTL_LINE_PARAM)
+                                {
+                                    TtlLineParameter* p = (TtlLineParameter*)parameter;
+                                    TtlLineParameter* p2 = new TtlLineParameter(*p);
                                     p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }

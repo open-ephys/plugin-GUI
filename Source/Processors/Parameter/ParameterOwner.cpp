@@ -183,6 +183,18 @@ Array<ParameterEditor*> ParameterOwner::createDefaultEditor()
             editors.add(timeParameterEditor);
             break;
         }
+        case Parameter::STRING_PARAM:
+        {
+            TextBoxParameterEditor* stringParameterEditor = new TextBoxParameterEditor(parameter);
+            editors.add(stringParameterEditor);
+            break;
+        }
+        case Parameter::TTL_LINE_PARAM:
+        {
+            TtlLineParameterEditor* ttlLineParameterEditor = new TtlLineParameterEditor(parameter);
+            editors.add(ttlLineParameterEditor);
+            break;
+        }
         default:
         {
             break;

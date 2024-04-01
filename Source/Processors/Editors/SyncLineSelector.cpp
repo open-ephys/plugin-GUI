@@ -21,11 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "SyncChannelSelector.h"
+#include "SyncLineSelector.h"
 #include <string>
 #include <vector>
 
-SyncChannelButton::SyncChannelButton(int _id, SyncChannelSelector* _parent) 
+SyncChannelButton::SyncChannelButton(int _id, SyncLineSelector* _parent) 
     : Button(String(_id)), id(_id), parent(_parent) 
 {
 
@@ -63,14 +63,14 @@ void SyncChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
 
 }
 
-SetButton::SetButton(const String& name) : Button(name) 
+SetPrimaryButton::SetPrimaryButton(const String& name) : Button(name) 
 {
 
 }
 
-SetButton::~SetButton() {}
+SetPrimaryButton::~SetPrimaryButton() {}
 
-void SetButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+void SetPrimaryButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
     g.setColour(Colour(0,0,0));
     g.fillRoundedRectangle (0.0f, 0.0f, getWidth(), getHeight(), 0.001*getWidth());
@@ -93,12 +93,13 @@ void SetButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 	g.drawText (String(getName()), 0, 0, getWidth(), getHeight(), Justification::centred);
 }
 
-//SyncChannelSelector::SyncChannelSelector(int nChans, int selectedIdx, bool isPrimary_)
-SyncChannelSelector::SyncChannelSelector(SyncChannelSelector::Listener* listener_, std::vector<bool> channelStates)
+//SyncLineSelector::SyncLineSelector(int nChans, int selectedIdx, bool isPrimary_)
+SyncLineSelector::SyncLineSelector(SyncLineSelector::Listener* listener_, int numChans, int selectedLine_, bool isPrimary_)
     : listener(listener_),
-    isPrimary(false),
-    nChannels(channelStates.size()),
-    detectedChange(false)
+    isPrimary(isPrimary_),
+    nChannels(numChans),
+    detectedChange(false),
+    selectedLine(selectedLine_)
 {
 
     width = 368; //can use any multiples of 16 here for dynamic resizing
@@ -117,12 +118,9 @@ SyncChannelSelector::SyncChannelSelector(SyncChannelSelector::Listener* listener
                 int buttonIdx = nColumns*i+j;
                 buttons.add(new SyncChannelButton(nColumns*i+j+1, this));
                 buttons.getLast()->setBounds(width/nColumns*j, height/nRows*i, buttonSize, buttonSize);
-                buttons.getLast()->setToggleState(channelStates[buttonIdx], NotificationType::dontSendNotification);
+                buttons.getLast()->setToggleState((buttonIdx == selectedLine ? true : false), NotificationType::dontSendNotification);
                 buttons.getLast()->addListener(this);
                 addChildAndSetID(buttons.getLast(), String(buttonIdx));
-
-                if (channelStates[buttonIdx])
-                    selectedChannelIdx = buttonIdx;
             }
 			
 		}
@@ -130,7 +128,7 @@ SyncChannelSelector::SyncChannelSelector(SyncChannelSelector::Listener* listener
     
     if (!isPrimary)
     {
-        setPrimaryStreamButton = new SetButton("Set as main clock");
+        setPrimaryStreamButton = new SetPrimaryButton("Set as main clock");
         setPrimaryStreamButton->setBounds(0, height, 0.5*width, width / nColumns);
         setPrimaryStreamButton->addListener(this);
         addChildAndSetID(setPrimaryStreamButton,"SETPRIMARY");
@@ -149,15 +147,15 @@ SyncChannelSelector::SyncChannelSelector(SyncChannelSelector::Listener* listener
 
 }
 
-SyncChannelSelector::~SyncChannelSelector() {}
+SyncLineSelector::~SyncLineSelector() {}
 
-void SyncChannelSelector::mouseMove(const MouseEvent &event) {}
+void SyncLineSelector::mouseMove(const MouseEvent &event) {}
 
-void SyncChannelSelector::mouseDown(const MouseEvent &event) {}
+void SyncLineSelector::mouseDown(const MouseEvent &event) {}
 
-void SyncChannelSelector::mouseUp(const MouseEvent &event) {}
+void SyncLineSelector::mouseUp(const MouseEvent &event) {}
 
-void SyncChannelSelector::buttonClicked(Button* button)
+void SyncLineSelector::buttonClicked(Button* button)
 {
 
     if (button->getComponentID() == "SETPRIMARY")
@@ -165,7 +163,8 @@ void SyncChannelSelector::buttonClicked(Button* button)
         setSize (width, buttonSize * nRows);
         height = buttonSize * (nRows);
         isPrimary = true;
-        findParentComponentOfClass<CallOutBox>()->exitModalState(0);
+        setPrimaryStreamButton->setVisible(false);
+        listener->primaryStreamChanged();
     }
     else
     {
@@ -173,7 +172,8 @@ void SyncChannelSelector::buttonClicked(Button* button)
             buttons[i]->setToggleState(false, dontSendNotification);
 
         button->setToggleState(true, dontSendNotification);
-        selectedChannelIdx = std::stoi(button->getComponentID().toStdString());
+        selectedLine = std::stoi(button->getComponentID().toStdString());
+        listener->selectedLineChanged(selectedLine);
         repaint();
     }
     

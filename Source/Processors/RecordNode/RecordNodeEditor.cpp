@@ -24,9 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include "RecordNodeEditor.h"
 #include "RecordNode.h"
-
-#include "SyncChannelSelector.h"
-
 #include "../../CoreServices.h"
 
 StreamMonitor::StreamMonitor(RecordNode* rn, uint64 id)
@@ -177,95 +174,6 @@ void RecordChannelsParameterEditor::resized()
 	updateBounds();
 }
 
-SyncChannelsParameterEditor::SyncChannelsParameterEditor(RecordNode* rn, Parameter* param, int rowHeightPixels, int rowWidthPixels) 
-	: ParameterEditor(param)
-{
-
-	recordNode = rn;
-
-	DataStream* stream = ((DataStream*)param->getOwner());
-
-	uint64 streamId = stream->getStreamId();
-	String streamName  = stream->getName();
-	int sourceNodeId = stream->getSourceNodeId();
-
-	int nEvents = 8;
-
-	syncControlButton = std::make_unique<SyncControlButton>(recordNode,
-                                                recordNode->getDataStream(streamId)->getName(),
-                                                stream->getKey(), 8);
-	syncControlButton->setTooltip("Configure synchronization settings for this stream");
-	syncControlButton->addListener(this);
-	syncControlButton->setBounds(0, 0, 15, 15);
-	addAndMakeVisible(syncControlButton.get());
-
-	setBounds(0, 0, 15, 15);
-
-	editor = syncControlButton.get();
-}
-
-void SyncChannelsParameterEditor::buttonClicked(Button*)
-{
-    if (param == nullptr)
-        return;
-
-    SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
-
-	std::vector<bool> channelStates = p->getChannelStates();
-
-    auto* channelSelector = new SyncChannelSelector(this, channelStates);
-
-    //channelSelector->setChannelButtonColour(Colour(255, 0, 0));
-
-    CallOutBox& myBox
-        = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
-            editor->getScreenBounds(),
-            nullptr);
-
-	myBox.addComponentListener(this);
-	//myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
-}
-
-void SyncChannelsParameterEditor::componentBeingDeleted(Component& component)
-{
-	SyncChannelSelector* syncChannelSelector = (SyncChannelSelector*)component.getChildComponent(0);
-
-	int selectedChannel = syncChannelSelector->getSelectedChannel();
-	channelStateChanged(Array<int>(selectedChannel));
-
-	if (syncChannelSelector->isPrimary)
-	{
-		int streamIdx = 0;
-		for (auto& stream : recordNode->getDataStreams())
-		{
-			if (stream->getStreamId() == ((DataStream*)param->getOwner())->getStreamId())
-				break;
-			streamIdx++;
-		}
-		recordNode->getParameter("main_sync")->setNextValue(streamIdx);
-	}
-}
-
-void SyncChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
-{
-    Array<var> newArray;
-
-    for (int i = 0; i < newChannels.size(); i++)
-        newArray.add(newChannels[i]);
-    
-    param->setNextValue(newArray);
-
-    updateView();
-}
-
-void SyncChannelsParameterEditor::updateView()
-{
-}
-
-void SyncChannelsParameterEditor::resized()
-{
-	updateBounds();
-}
 
 RecordToggleButton::RecordToggleButton(const String& name) : CustomToggleButton() {}
 
@@ -403,16 +311,20 @@ void RecordNodeEditor::updateFifoMonitors()
 	{
 		uint64 streamId = stream->getStreamId();
 
+		// Add a recording channel selector for each stream
 		Parameter* channels = recordNode->getDataStream(streamId)->getParameter("channels");
 		recordNode->getDataStream(streamId)->setColor("channels", getLookAndFeel().findColour(ProcessorColor::IDs::RECORD_COLOR));
 		addCustomParameterEditor(new RecordChannelsParameterEditor(recordNode, channels), 18 + streamCount * 20, 32);
 		parameterEditors.getLast()->setVisible(!getCollapsedState());
+		parameterEditors.getLast()->disableUpdateOnSelectedStreamChanged();
 		streamMonitors.push_back(parameterEditors.getLast());
 
-		Parameter* sync = recordNode->getDataStream(streamId)->getParameter("sync_line");
-		recordNode->getDataStream(streamId)->setColor("sync_line", getLookAndFeel().findColour(ProcessorColor::IDs::SYNC_COLOR));
-		addCustomParameterEditor(new SyncChannelsParameterEditor(recordNode, sync), 18 + streamCount * 20, 110);
+		// Add a sync line selector for each stream
+		Parameter* syncLineParam = recordNode->getDataStream(streamId)->getParameter("sync_line");
+		Parameter* mainSyncParam = recordNode->getParameter("main_sync");
+		addSyncLineParameterEditor((TtlLineParameter*)syncLineParam, (SelectedStreamParameter*)mainSyncParam, 18 + streamCount * 20, 110);
 		parameterEditors.getLast()->setVisible(!getCollapsedState());
+		parameterEditors.getLast()->disableUpdateOnSelectedStreamChanged();
 		syncMonitors.push_back(parameterEditors.getLast());
 
 		streamCount++;

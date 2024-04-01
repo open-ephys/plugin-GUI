@@ -90,6 +90,7 @@ public:
         SELECTED_PROCESSOR_PARAM,
         SELECTED_STREAM_PARAM,
         MASK_CHANNELS_PARAM,
+        TTL_LINE_PARAM,
         PATH_PARAM,
         TIME_PARAM,
         NAME_PARAM,
@@ -210,16 +211,6 @@ public:
     /** Determines whether the parameter's editor is accessible after acquisition starts*/
     bool shouldDeactivateDuringAcquisition() {
         return m_deactivateDuringAcquisition;
-    }
-
-    /** Determines whether the parameter's editor should update if the selected stream has changed */
-    bool shouldUpdateOnSelectedStreamChanged() {
-        return m_updateOnSelectedStreamChanged;
-    }
-
-    /** Disables editor updates when the selected stream has changes */
-    void disableUpdateOnSelectedStreamChanged() {
-        m_updateOnSelectedStreamChanged = false;
     }
 
     /** Sets the parameter value*/
@@ -741,6 +732,61 @@ private:
 
     int channelCount;
 };
+
+
+/**
+*
+    Represents a Parameter that holds value of currently selected line in a given Event Channel.
+
+    (Optional) The maximum number of avaialble lines
+               can be specified.
+
+*/
+class PLUGIN_API TtlLineParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    TtlLineParameter(ParameterOwner* owner,
+        ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        int maxAvailableLines = 8,
+        bool syncMode = false,
+        bool deactivateDuringAcquisition = false);
+
+    /** Sets the current value*/
+    virtual void setNextValue(var newValue, bool undoable = true) override;
+
+    /** Gets the value as an integer*/
+    int getSelectedLine();
+
+    /** Returns the max selectable channels*/
+    int getMaxAvailableLines() const {
+        return lineCount;
+    }
+    
+    void setMaxAvailableLines(int count) {
+        lineCount = count;
+    }
+
+    /** Gets the value as a string**/
+    String getValueAsString() override;
+
+    /** Saves the parameter to an XML Element*/
+    void toXml(XmlElement*) override;
+
+    /** Loads the parameter from an XML Element*/
+    void fromXml(XmlElement*) override;
+
+    bool syncModeEnabled() { return syncMode; }
+
+private:
+
+    int lineCount;
+    bool syncMode;
+};
+
 
 /**
 *

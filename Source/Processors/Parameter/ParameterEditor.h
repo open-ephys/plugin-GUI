@@ -27,7 +27,9 @@
 
 #include "Parameter.h"
 #include "../Editors/PopupChannelSelector.h"
+#include "../Editors/SyncLineSelector.h"
 #include "../Editors/PopupTimeEditor.h"
+#include "../Synchronizer/Synchronizer.h"
 
 #include "../../UI/LookAndFeel/CustomLookAndFeel.h"
 
@@ -48,6 +50,8 @@ public:
             param->addListener(this);
         
         layout = Layout::nameOnRight;
+
+        m_updateOnSelectedStreamChanged = true;
     }
 
     /** Destructor */
@@ -124,12 +128,17 @@ public:
     }
 
     /** Returns true if this editor should update when the selected stream is changed (see RecordNode streamMonitors)*/
-    bool shouldUpdateOnSelectedStreamChange()
+    bool shouldUpdateOnSelectedStreamChanged()
     {
         if (param != nullptr)
-            return param->shouldUpdateOnSelectedStreamChanged();
+            return m_updateOnSelectedStreamChanged;
         else
             return false;
+    }
+
+    /** Disables editor updates when the selected stream has changes */
+    void disableUpdateOnSelectedStreamChanged() {
+        m_updateOnSelectedStreamChanged = false;
     }
 
     /** Returns the name of the underlying parameter*/
@@ -153,6 +162,8 @@ protected:
 
     /** Updates label and editor bounds based on layout */
     void updateBounds();
+
+    bool m_updateOnSelectedStreamChanged;
 };
 
 
@@ -534,6 +545,95 @@ public:
 private:
     std::unique_ptr<Button> button;
 };
+
+
+/**
+    
+    Button for selecting a sync line for a particular data stream
+    Shows the synchronization status of the stream as well as whether 
+    it is the main stream or not
+ */
+class PLUGIN_API SyncControlButton :
+    public Button,
+    public Timer
+{
+public:
+    
+    /** Constructor */
+    SyncControlButton(SynchronizingProcessor* node,
+                      const String& name,
+                      String streamKey,
+                      int ttlLineCount = 8);
+    
+    /** Destructor */
+    ~SyncControlButton();
+
+    /** Creates the sync selection interface */
+    //void mouseUp(const MouseEvent &event) override;
+    
+    String streamKey;
+    bool isPrimary;
+    int ttlLineCount;
+
+private:
+    
+    /** Checks whether the underlying stream is synchronized */
+    void timerCallback();
+    
+    /** Renders the button */
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+    
+    /** Called when popup selection interface is closed */
+    //void componentBeingDeleted(Component &component);
+    
+    SynchronizingProcessor* node;
+
+};
+
+/**
+    Creates a special popup editor for a TtlLineParameter
+
+    Displays the currently active TTL line,
+    and makes it possible to select them by clicking.
+
+*/
+class PLUGIN_API TtlLineParameterEditor : 
+    public ParameterEditor,
+    public Button::Listener,
+    public SyncLineSelector::Listener
+{
+public:
+
+    /** Constructor */
+    TtlLineParameterEditor(Parameter* param,
+                           Parameter* syncParam = nullptr,
+                           int rowHeightPixels = 18,
+                           int rowWidthPixels = 160);
+
+    /** Destructor */
+    virtual ~TtlLineParameterEditor() { }
+
+    /** Displays the PopupChannelSelector*/
+    void buttonClicked(Button* label) override;
+
+    /** Must ensure that editor state matches underlying parameter */
+    virtual void updateView() override;
+
+    /** Responds to changes in the SyncLineSelector */
+    void selectedLineChanged(int selectedLine) override;
+
+    /** Sets parameter's stream as primary */
+    void primaryStreamChanged() override;
+
+    /** Sets sub-component locations */
+    virtual void resized() override;
+
+private:
+    std::unique_ptr<TextButton> textButton;
+    std::unique_ptr<SyncControlButton> syncControlButton;
+    Parameter* syncParam;
+};
+
 
 class PLUGIN_API PathParameterEditor : public ParameterEditor,
     public Button::Listener

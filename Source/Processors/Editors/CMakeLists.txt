@@ -19,6 +19,8 @@ add_sources(open-ephys
 	PopupChannelSelector.cpp
 	PopupChannelSelector.h
 	PopupTimeEditor.h
+	SyncLineSelector.cpp
+	SyncLineSelector.h
 )
 
 #add nested directories

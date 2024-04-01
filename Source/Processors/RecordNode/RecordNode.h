@@ -13,7 +13,7 @@
 #include "RecordNodeEditor.h"
 #include "RecordThread.h"
 #include "DataQueue.h"
-#include "Synchronizer.h"
+#include "../Synchronizer/Synchronizer.h"
 #include "../../Utils/Utils.h"
 #include "../../TestableExport.h"
 

@@ -29,7 +29,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
 #include "../GenericProcessor/GenericProcessor.h"
-#include "../RecordNode/Synchronizer.h"
+#include "../Synchronizer/Synchronizer.h"
 
 /** Holds settings for one stream's event channel*/
 class EventTranslatorSettings

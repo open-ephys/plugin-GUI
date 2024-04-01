@@ -57,6 +57,8 @@ String Parameter::getParameterTypeString() const
         return "Selected Stream";
     else if (m_parameterType == MASK_CHANNELS_PARAM)
         return "Mask Channels";
+    else if (m_parameterType == TTL_LINE_PARAM)
+        return "TTL Line";
     else if (m_parameterType == PATH_PARAM)
         return "Path";
     else if (m_parameterType == TIME_PARAM)
@@ -835,6 +837,71 @@ void MaskChannelsParameter::setChannelCount(int count)
     currentValue = values;
     channelCount = count;
 }
+
+
+TtlLineParameter::TtlLineParameter(ParameterOwner* owner,
+    ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    int maxAvailableLines_,
+    bool syncMode_,
+    bool deactivateDuringAcquisition)
+    : Parameter(owner,
+        ParameterType::TTL_LINE_PARAM,
+        scope,
+        name,
+        displayName,
+        description,
+        0,
+        deactivateDuringAcquisition),
+    lineCount(maxAvailableLines_),
+    syncMode(syncMode_)
+{
+    jassert((lineCount >= 0 && lineCount < 256));
+    jassert(scope == ParameterScope::STREAM_SCOPE);
+}
+
+void TtlLineParameter::setNextValue(var newValue_, bool undoable)
+{
+
+    if (newValue_ == currentValue) return;
+
+    if ((int)newValue_ < lineCount && (int)newValue_ >= 0)
+    {
+        newValue = newValue_;
+    }
+    
+    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+
+    AccessClass::getUndoManager()->beginNewTransaction();
+    AccessClass::getUndoManager()->perform(action);
+
+}
+
+int TtlLineParameter::getSelectedLine()
+{
+    return (int)currentValue;
+}
+
+String TtlLineParameter::getValueAsString()
+{
+    return currentValue.toString();
+}
+
+void TtlLineParameter::toXml(XmlElement* xml)
+{
+    xml->setAttribute(getName(), (int)currentValue);
+}
+
+void TtlLineParameter::fromXml(XmlElement* xml)
+{
+    if (xml->hasAttribute(getName()))
+        currentValue = xml->getIntAttribute(getName(), defaultValue);
+    
+    //std::cout << "Loading selected channels parameter at " << this << std::endl;
+}
+
 
 PathParameter::PathParameter(ParameterOwner* owner,
     ParameterScope scope,

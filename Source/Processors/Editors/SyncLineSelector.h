@@ -25,22 +25,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SYNCCHANNEL_SELECTOR_H_INCLUDED
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../Editors/GenericEditor.h"
 #include "../../Utils/Utils.h"
 
-class SyncChannelSelector;
+class SyncLineSelector;
 
 /** 
 
 Allows the user to select the TTL line to use for synchronization
 
 */
-class SyncChannelButton : public Button	
+class PLUGIN_API SyncChannelButton : public Button	
 {
 public:
 
 	/** Constructor */
-	SyncChannelButton(int id, SyncChannelSelector* parent);
+	SyncChannelButton(int id, SyncLineSelector* parent);
 
 	/** Destructor */
 	~SyncChannelButton();
@@ -51,21 +50,21 @@ public:
 private:
 
 	int id; 
-	SyncChannelSelector* parent;
+	SyncLineSelector* parent;
     int width;
     int height;
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
-class SetButton : public Button	
+class PLUGIN_API SetPrimaryButton : public Button	
 {
 public:
 
 	/** Constructor */
-	SetButton(const String& name);
+	SetPrimaryButton(const String& name);
 
 	/** Destructor */
-	~SetButton();
+	~SetPrimaryButton();
 
 private:
 	/** Renders the button*/
@@ -73,7 +72,7 @@ private:
 };
 
 
-class SyncChannelSelector : 
+class PLUGIN_API SyncLineSelector : 
 	public Component,
 	public Button::Listener
 {
@@ -83,17 +82,22 @@ public:
 	{
 	public:
 		virtual ~Listener() { }
-		virtual void channelStateChanged(Array<int> selectedChannels) = 0;
+
+		// Called when the selected sync line changes
+		virtual void selectedLineChanged(int selectedLine) = 0;
+
+		// Called when the user sets the primary stream for synchronization
+		virtual void primaryStreamChanged() = 0;
 	};
 
 	/** Constructor */
-	SyncChannelSelector(Listener* listener, std::vector<bool> channelStates);
-	//SyncChannelSelector(int nChans, int selectedChannelIdx, bool isPrimary);
+	SyncLineSelector(Listener* listener, int numChans, int selectedLine, bool isPrimary);
+	//SyncLineSelector(int nChans, int selectedChannelIdx, bool isPrimary);
 
 	/** Destructor */
-	~SyncChannelSelector();
+	~SyncLineSelector();
 
-	int getSelectedChannel() { return selectedChannelIdx; }
+	int getSelectedChannel() { return selectedLine; }
 
 	/** Mouse listener methods*/
 	void mouseDown(const MouseEvent &event);
@@ -104,7 +108,6 @@ public:
 	void buttonClicked(Button*);
 
 	int nChannels;
-	int selectedId;
 	bool isPrimary;
     
     bool detectedChange;
@@ -121,9 +124,9 @@ private:
 	
 	Listener* listener;
 
-    ScopedPointer<SetButton> setPrimaryStreamButton;
+    ScopedPointer<SetPrimaryButton> setPrimaryStreamButton;
     
-	int selectedChannelIdx = 0;
+	int selectedLine = 0;
 };
 
 #endif // SYNCCHANNEL_SELECTOR_H_INCLUDED

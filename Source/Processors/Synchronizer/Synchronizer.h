@@ -40,12 +40,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * Represents an incoming data stream
  *
  * */
-class Stream
+class SyncStream
 {
 public:
 
     /** Constructor */
-    Stream(String streamKey, float expectedSampleRate);
+    SyncStream(String streamKey, float expectedSampleRate);
 
     /** Resets stream parameters before acquisition */
     void reset();
@@ -110,9 +110,7 @@ public:
 
 };
 
-class RecordNode;
-
-enum SyncStatus {
+enum PLUGIN_API SyncStatus {
     OFF,        //Synchronizer is not running
     SYNCING,    //Synchronizer is attempting to sync
     SYNCED      //Signal has been synchronized
@@ -135,7 +133,7 @@ enum SyncStatus {
     to be regular, however.
 
 */
-class Synchronizer : public HighResolutionTimer
+class PLUGIN_API Synchronizer : public HighResolutionTimer
 {
 public:
 
@@ -188,8 +186,8 @@ public:
     /** Signals start of acquisition */
     void stopAcquisition();
 
-    String mainStreamKey = "";
-    String previousMainStreamKey = "";
+    String mainStreamKey = String();
+    String previousMainStreamKey = String();
 
     /** Total number of streams*/
     int streamCount;
@@ -209,8 +207,8 @@ private:
 
     bool firstMainSyncEvent;
 
-    std::map<String, Stream*> streams;
-    OwnedArray<Stream> dataStreamObjects;
+    std::map<String, SyncStream*> streams;
+    OwnedArray<SyncStream> dataStreamObjects;
 
     void openSyncWindow();
 };
@@ -220,7 +218,7 @@ private:
     Abstract base class for Record Node and Event Translator
  
  */
-class SynchronizingProcessor
+class PLUGIN_API SynchronizingProcessor
 {
 public:
     /** Sets the main data stream to use for synchronization */

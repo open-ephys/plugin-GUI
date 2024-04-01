@@ -99,11 +99,8 @@ void RecordNode::registerParameters()
 	engineParam->setCategories(recordEngines);
 
 	addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to record from", true);
-	dataStreamParameters.getLast()->disableUpdateOnSelectedStreamChanged();
-	addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "sync_line", "Sync Line", "Event line to use for sync signal", 1, true);
-	dataStreamParameters.getLast()->disableUpdateOnSelectedStreamChanged();
-	
-	addSelectedStreamParameter(Parameter::PROCESSOR_SCOPE, "main_sync", "Main Sync Stream ID", "Use this stream as main sync", {}, 0, true);
+	addTtlLineParameter(Parameter::STREAM_SCOPE, "sync_line", "Sync Line", "Event line to use for sync signal", 8, true, true);
+	addSelectedStreamParameter(Parameter::PROCESSOR_SCOPE, "main_sync", "Main Sync Stream", "Use this stream as main sync", {}, 0, true);
 }
 
 void RecordNode::initialize(bool signalChainIsLoading)
@@ -141,9 +138,11 @@ void RecordNode::parameterValueChanged(Parameter* p)
 	else if (p->getName() == "sync_line")
 	{
 		LOGD("Parameter changed: sync_line");
+		synchronizer.setSyncLine(getDataStream(p->getStreamId())->getKey(), ((TtlLineParameter*)p)->getSelectedLine());
 	}
 	else if (p->getName() == "main_sync")
 	{
+		LOGD("Parameter changed: main_sync");
 		Array<String> streamNames = ((SelectedStreamParameter*)p)->getStreamNames();
 		for (auto stream : dataStreams)
 		{
@@ -537,15 +536,11 @@ void RecordNode::updateSettings()
 	activeStreamIds.clear();
 	synchronizer.prepareForUpdate();
 
-	Array<String> streamNames;
 
 	for (auto stream : dataStreams)
 	{
 
 		//parameterValueChanged(stream->getParameter("sync_line"));
-
-		streamNames.add(String(stream->getSourceNodeId()) + " | " + stream->getName());
-		((SelectedChannelsParameter*)stream->getParameter("sync_line"))->setChannelCount(8); 
 
 		const uint16 streamId = stream->getStreamId();
 		activeStreamIds.add(streamId);

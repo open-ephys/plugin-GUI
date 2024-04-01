@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Synchronizer.h"
 
-Stream::Stream(String streamKey_, float expectedSampleRate_)
+SyncStream::SyncStream(String streamKey_, float expectedSampleRate_)
 	: streamKey(streamKey_),
 	  expectedSampleRate(expectedSampleRate_),
 	  actualSampleRate(-1.0f),
@@ -34,7 +34,7 @@ Stream::Stream(String streamKey_, float expectedSampleRate_)
 	reset();
 }
 
-void Stream::reset()
+void SyncStream::reset()
 {
 
 	startSampleMainTime = -1.0f;
@@ -50,7 +50,7 @@ void Stream::reset()
 
 }
 
-void Stream::setMainTime(float time)
+void SyncStream::setMainTime(float time)
 {
 	if (!receivedMainTimeInWindow)
 	{
@@ -65,7 +65,7 @@ void Stream::setMainTime(float time)
 
 }
 
-void Stream::addEvent(int64 sampleNumber)
+void SyncStream::addEvent(int64 sampleNumber)
 {
 	//LOGD("[+] Adding event for stream ", streamId, " (", sampleNumber, ")");
 	
@@ -80,7 +80,7 @@ void Stream::addEvent(int64 sampleNumber)
 
 }
 
-void Stream::closeSyncWindow()
+void SyncStream::closeSyncWindow()
 {
 
 	//LOGC("Stream ", streamId, " Closing Sync Window...receivedEvent: ", receivedEventInWindow, ", receivedMainTime: ", receivedMainTimeInWindow);
@@ -205,7 +205,7 @@ void Synchronizer::addDataStream(String streamKey, float expectedSampleRate)
 	if (streams.count(streamKey) == 0)
 	{
         //std::cout << "Creating new Stream object" << std::endl;
-		dataStreamObjects.add(new Stream(streamKey, expectedSampleRate));
+		dataStreamObjects.add(new SyncStream(streamKey, expectedSampleRate));
 		streams[streamKey] = dataStreamObjects.getLast();
 		setSyncLine(streamKey, 0);
 	} else {
