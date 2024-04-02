@@ -43,7 +43,7 @@ PhaseDetectorEditor::PhaseDetectorEditor(GenericProcessor* parentNode)
     chanEditor->setLayout(ParameterEditor::Layout::nameOnTop);
     chanEditor->setSize(80, 34);
 
-    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "TTL_out", 110, 57);
+    addTtlLineParameterEditor(Parameter::STREAM_SCOPE, "TTL_out", 110, 57);
     ParameterEditor* ttlEditor = getParameterEditor("TTL_out");
     ttlEditor->setLayout(ParameterEditor::Layout::nameOnTop);
     ttlEditor->setSize(80, 34);
