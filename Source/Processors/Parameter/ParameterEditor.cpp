@@ -926,8 +926,8 @@ SyncControlButton::SyncControlButton(SynchronizingProcessor* node_,
     LOGD("SyncControlButton::Constructor; Stream: ", streamKey, " is main stream: ", isPrimary);
     startTimer(250);
     
-    setTooltip(name);
-    
+    setTooltip("Configure synchronization settings for " + streamKey);
+
 }
 
 SyncControlButton::~SyncControlButton() {}
@@ -1027,7 +1027,7 @@ TtlLineParameterEditor::TtlLineParameterEditor(Parameter* param,
                                                                 syncParam->getDisplayName(),
                                                                 paramStream->getKey(),
                                                                 ttlParam->getMaxAvailableLines());
-        syncControlButton->setTooltip("Configure synchronization settings for this stream");
+
         syncControlButton->addListener(this);
         syncControlButton->setBounds(0, 0, 15, 15);
         addAndMakeVisible(syncControlButton.get());
