@@ -127,16 +127,15 @@ public:
             return false;
     }
 
-    /** Returns true if this editor should update when the selected stream is changed (see RecordNode streamMonitors)*/
+    /** Returns true if this editor should update when the selected stream is changed */
     bool shouldUpdateOnSelectedStreamChanged()
     {
-        if (param != nullptr)
-            return m_updateOnSelectedStreamChanged;
-        else
-            return false;
+        return m_updateOnSelectedStreamChanged;
     }
 
-    /** Disables editor updates when the selected stream has changes */
+    /** Disables editor updates when the selected stream has changes 
+     * @see RecordNode Sync Line editors
+    */
     void disableUpdateOnSelectedStreamChanged() {
         m_updateOnSelectedStreamChanged = false;
     }
