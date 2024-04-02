@@ -53,6 +53,8 @@ private:
 	SyncLineSelector* parent;
     int width;
     int height;
+	Colour btnColor;
+
 	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
@@ -119,6 +121,8 @@ public:
 	int height;
 
 	OwnedArray<SyncChannelButton> buttons;
+
+	Array<Colour> lineColors;
 
 private:
 	

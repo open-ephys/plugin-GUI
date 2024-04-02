@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 SyncChannelButton::SyncChannelButton(int _id, SyncLineSelector* _parent) 
     : Button(String(_id)), id(_id), parent(_parent) 
 {
-
+    btnColor = parent->lineColors[(id - 1) % parent->lineColors.size()];
 }
 
 
@@ -43,21 +43,25 @@ void SyncChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
     if (isMouseOver)
 	{
 		if (getToggleState())
-			g.setColour(Colour(255, 200, 0));
+			g.setColour(btnColor.brighter());
 		else
 			g.setColour(Colour(210, 210, 210));
 	}
 	else 
 	{
 		if (getToggleState())
-			g.setColour(Colour(255, 128, 0));
+			g.setColour(btnColor);
 		else
 			g.setColour(Colour(110, 110, 110));
 	}
 	g.fillRoundedRectangle(1,1,getWidth()-2,getHeight()-2,0.001*getWidth());
 
     //Draw text string in middle of button
-	g.setColour(Colour(255,255,255));
+    if (getToggleState())
+        g.setColour(btnColor.contrasting());
+    else
+        g.setColour(Colour(255,255,255));
+
 	g.setFont(10);
 	g.drawText (String(id), 0,0, getWidth(), getHeight(), Justification::centred); 
 
@@ -101,7 +105,15 @@ SyncLineSelector::SyncLineSelector(SyncLineSelector::Listener* listener_, int nu
     detectedChange(false),
     selectedLine(selectedLine_)
 {
-
+    lineColors.add(Colour(224, 185, 36));
+    lineColors.add(Colour(243, 119, 33));
+    lineColors.add(Colour(237, 37, 36));
+    lineColors.add(Colour(217, 46, 171));
+    lineColors.add(Colour(101, 31, 255));
+    lineColors.add(Colour(48, 117, 255));
+    lineColors.add(Colour(116, 227, 156));
+    lineColors.add(Colour(82, 173, 0));
+    
     width = 368; //can use any multiples of 16 here for dynamic resizing
 
     int nColumns = 16;

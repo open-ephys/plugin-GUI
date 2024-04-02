@@ -130,7 +130,6 @@ public:
         defaultValue(defaultValue_),
         newValue(defaultValue_),
         m_deactivateDuringAcquisition(deactivateDuringAcquisition_),
-        m_updateOnSelectedStreamChanged(scope_ == STREAM_SCOPE),
         m_identifier("UNKNOWN"),
         isEnabledFlag(true)
     {
@@ -147,7 +146,6 @@ public:
         defaultValue(other.defaultValue),
         previousValue(other.previousValue),
         m_deactivateDuringAcquisition(other.m_deactivateDuringAcquisition),
-        m_updateOnSelectedStreamChanged(other.m_updateOnSelectedStreamChanged),
         isEnabledFlag(other.isEnabledFlag)
     {
         parameterListeners.clear();
@@ -342,7 +340,6 @@ private:
     String m_description;
 
     bool m_deactivateDuringAcquisition;
-    bool m_updateOnSelectedStreamChanged;
     bool isEnabledFlag;
 
     Array<Listener*> parameterListeners;
