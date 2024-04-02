@@ -435,13 +435,21 @@ void GenericEditor::editorStartAcquisition()
 		streamSelector->startAcquisition();
 	}
 
-    for (int n = 0; n < parameterEditors.size(); n++)
+    for (auto param : getProcessor()->getParameters())
     {
-
-        if (parameterEditors[n]->shouldDeactivateDuringAcquisition())
-            parameterEditors[n]->setEnabled(false);
-
+        if (param->shouldDeactivateDuringAcquisition())
+            param->setEnabled(false);
     }
+
+    for (auto stream : getProcessor()->dataStreams)
+    {
+        for (auto param : stream->getParameters())
+        {
+            if (param->shouldDeactivateDuringAcquisition())
+                param->setEnabled(false);
+        }
+    }
+    
 
     acquisitionIsActive = true;
 
@@ -459,12 +467,19 @@ void GenericEditor::editorStopAcquisition()
         streamSelector->stopAcquisition();
     }
 
-    for (int n = 0; n < parameterEditors.size(); n++)
+    for (auto param : getProcessor()->getParameters())
     {
+        if (param->shouldDeactivateDuringAcquisition())
+            param->setEnabled(true);
+    }
 
-        if (parameterEditors[n]->shouldDeactivateDuringAcquisition())
-            parameterEditors[n]->setEnabled(true);
-
+    for (auto stream : getProcessor()->dataStreams)
+    {
+        for (auto param : stream->getParameters())
+        {
+            if (param->shouldDeactivateDuringAcquisition())
+                param->setEnabled(true);
+        }
     }
 
     acquisitionIsActive = false;
