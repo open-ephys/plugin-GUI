@@ -44,6 +44,7 @@ namespace LfpViewer {
 		public Component,
 		public ComboBox::Listener,
 		public Button::Listener,
+		public Label::Listener,
 		public Timer
 	{
 	public:
@@ -182,8 +183,8 @@ namespace LfpViewer {
 		// Main options
 		std::unique_ptr<ComboBox> timebaseSelection;
 		std::unique_ptr<ComboBox> spreadSelection;
-		std::unique_ptr<ComboBox> rangeSelectionMin;
-		std::unique_ptr<ComboBox> rangeSelectionMax;
+		std::unique_ptr<Label> voltageRangeMin;
+		std::unique_ptr<Label> voltageRangeMax;
 		OwnedArray<UtilityButton> typeButtons;
 
 		std::unique_ptr<ComboBox> overlapSelection; // what do we do with this?
@@ -216,7 +217,6 @@ namespace LfpViewer {
 		std::unique_ptr<UtilityButton> averageSignalButton;
 		std::unique_ptr<UtilityButton> resetButton;
 
-		StringArray voltageRanges[CHANNEL_TYPES];
 		StringArray timebases;
 		StringArray spreads; // option for vertical spacing between channels
 		StringArray colorGroupings; // option for coloring every N channels the same
@@ -229,19 +229,17 @@ namespace LfpViewer {
 		StringArray sectionTitles;
 
 		ContinuousChannel::Type selectedChannelType;
-		int selectedVoltageRangeMin[CHANNEL_TYPES];
-		String selectedVoltageRangeValuesMin[CHANNEL_TYPES];
-		int selectedVoltageRangeMax[CHANNEL_TYPES];
-		String selectedVoltageRangeValuesMax[CHANNEL_TYPES];
+		std::pair<float, float> voltageRangeValues[CHANNEL_TYPES];
 		float rangeGain[CHANNEL_TYPES];
 		StringArray rangeUnits;
 		StringArray typeNames;
 		int rangeSteps[CHANNEL_TYPES];
 
 		bool medianOffsetOnForSpikeRaster;
-		int rangeSelectionMinIndex[3];
-		int rangeSelectionMaxIndex[3];
-	};
+
+		// Inherited via Listener
+		void labelTextChanged(Label* labelThatHasChanged) override;
+};
 
 }; // namespace
 
