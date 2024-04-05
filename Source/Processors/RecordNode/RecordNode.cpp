@@ -607,6 +607,9 @@ bool RecordNode::isSynchronized()
 bool RecordNode::startAcquisition()
 {
 
+	recordEvents = ((BooleanParameter*)getParameter("events"))->getBoolValue();
+	recordSpikes = ((BooleanParameter*)getParameter("spikes"))->getBoolValue();
+
     synchronizer.startAcquisition();
 
     if (eventChannels.size() == 0 || eventChannels.getLast()->getSourceNodeName() != "Message Center")
