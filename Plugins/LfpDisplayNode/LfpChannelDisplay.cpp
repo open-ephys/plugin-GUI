@@ -506,15 +506,14 @@ void LfpChannelDisplay::pxPaintHistory(int playhead, int rightEdge, int maxScree
 
 		// set max-min range for plotting
 		double a = (canvasSplit->getYCoordMax(chan, index) / rangeMax * channelHeightFloat);
-		double b = (canvasSplit->getYCoordMin(chan, index) / rangeMin * channelHeightFloat);
+		double b = (canvasSplit->getYCoordMin(chan, index) / rangeMax * channelHeightFloat);
 
-		double meanMax = (canvasSplit->getMean(chan) / rangeMax * channelHeightFloat);
-		double meanMin = (canvasSplit->getMean(chan) / rangeMin * channelHeightFloat);
+		double mean = (canvasSplit->getMean(chan) / rangeMax * channelHeightFloat);
 
 		if (drawWithOffsetCorrection)
 		{
-			a -= meanMax;
-			b -= meanMin;
+			a -= mean;
+			b -= mean;
 		}
 
 		double a_raw = canvasSplit->getYCoordMax(chan, index);
@@ -560,8 +559,8 @@ void LfpChannelDisplay::pxPaintHistory(int playhead, int rightEdge, int maxScree
 
 		plotterInfo.channelID = chan;
 		plotterInfo.y = getY();
-		plotterInfo.from = from;
-		plotterInfo.to = to;
+		plotterInfo.from = rangeMin;
+		plotterInfo.to = rangeMax;
 		plotterInfo.samp = i;
 		plotterInfo.lineColour = lineColour;
 
