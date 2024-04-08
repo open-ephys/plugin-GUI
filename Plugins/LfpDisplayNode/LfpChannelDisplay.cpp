@@ -157,8 +157,6 @@ void LfpChannelDisplay::pxPaint()
 	bool saturateWarningLo = false;
 
 	int stepSize = 1;
-	int from = 0;
-	int to = 0;
 	int endIndex;
 
 
@@ -240,9 +238,14 @@ void LfpChannelDisplay::pxPaint()
 			}
 		}
 
+		int range = (rangeMax - rangeMin);
+
+		if (range == 0)
+			range = 0.0001f;
+
 		// set max-min range for plotting
-		double a = canvasSplit->getYCoordMax(chan, index) / rangeMax * channelHeightFloat;
-		double b = canvasSplit->getYCoordMin(chan, index) / rangeMax * channelHeightFloat;
+		double a = canvasSplit->getYCoordMax(chan, index) / (rangeMax - rangeMin) * channelHeightFloat;
+		double b = canvasSplit->getYCoordMin(chan, index) / (rangeMax - rangeMin) * channelHeightFloat;
 
 		double mean = canvasSplit->getMean(chan) / rangeMax * channelHeightFloat;
 
@@ -252,6 +255,8 @@ void LfpChannelDisplay::pxPaint()
 			b -= mean;
 		}
 
+		int from = 0;
+		int to = 0;
 		double a_raw = canvasSplit->getYCoordMax(chan, index);
 		double b_raw = canvasSplit->getYCoordMin(chan, index);
 		double from_raw = 0; double to_raw = 0;
@@ -294,8 +299,8 @@ void LfpChannelDisplay::pxPaint()
 
 		plotterInfo.channelID = chan;
 		plotterInfo.y = getY();
-		plotterInfo.from = rangeMin;
-		plotterInfo.to = rangeMax;
+		plotterInfo.from = from;
+		plotterInfo.to = to;
 		plotterInfo.samp = i;
 		plotterInfo.lineColour = lineColour;
 
@@ -559,8 +564,8 @@ void LfpChannelDisplay::pxPaintHistory(int playhead, int rightEdge, int maxScree
 
 		plotterInfo.channelID = chan;
 		plotterInfo.y = getY();
-		plotterInfo.from = rangeMin;
-		plotterInfo.to = rangeMax;
+		plotterInfo.from = from;
+		plotterInfo.to = to;
 		plotterInfo.samp = i;
 		plotterInfo.lineColour = lineColour;
 
