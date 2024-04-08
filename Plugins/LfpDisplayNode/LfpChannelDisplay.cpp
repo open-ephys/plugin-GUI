@@ -238,16 +238,16 @@ void LfpChannelDisplay::pxPaint()
 			}
 		}
 
-		int range = (rangeMax - rangeMin);
+		int range = (rangeMax);
 
-		if (range == 0)
-			range = 0.0001f;
+		if (range == 0.0f)
+			range = 1.0f;
 
 		// set max-min range for plotting
-		double a = canvasSplit->getYCoordMax(chan, index) / (rangeMax - rangeMin) * channelHeightFloat;
-		double b = canvasSplit->getYCoordMin(chan, index) / (rangeMax - rangeMin) * channelHeightFloat;
+		double a = canvasSplit->getYCoordMax(chan, index) / range * channelHeightFloat;
+		double b = canvasSplit->getYCoordMin(chan, index) / range * channelHeightFloat;
 
-		double mean = canvasSplit->getMean(chan) / rangeMax * channelHeightFloat;
+		double mean = canvasSplit->getMean(chan) / range * channelHeightFloat;
 
 		if (drawWithOffsetCorrection)
 		{
@@ -255,8 +255,7 @@ void LfpChannelDisplay::pxPaint()
 			b -= mean;
 		}
 
-		int from = 0;
-		int to = 0;
+		int from = 0, to = 0;
 		double a_raw = canvasSplit->getYCoordMax(chan, index);
 		double b_raw = canvasSplit->getYCoordMin(chan, index);
 		double from_raw = 0; double to_raw = 0;
