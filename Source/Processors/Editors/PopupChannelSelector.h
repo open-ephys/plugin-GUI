@@ -151,9 +151,6 @@ public:
 	/** Respond to button clicks*/
 	void buttonClicked(Button*);
 
-	/** Respond to key presses */
-	bool keyPressed(const KeyPress &key) override;
-
 	/** Checks whether shift key is down*/
 	void modifierKeysChanged(const ModifierKeys& modifiers);
 
@@ -168,7 +165,7 @@ public:
 
 	OwnedArray<ChannelButton> channelButtons;
 
-	void update(Array<int> selectedChannels);
+	void updatePopup() override;
 
 private:
 	Listener* listener;

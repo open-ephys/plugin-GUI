@@ -51,72 +51,32 @@ bool PopoverComponent::keyPressed(const KeyPress &key)
 {
     if (key == KeyPress('z', ModifierKeys::commandModifier, 0))
     {
+        LOGD(" [PopupComponent] Undoing action");
+        
         if (!undoManager->canUndo()) return false;
 
-        String desc = undoManager->getUndoDescription();
-        if (desc == "")
-        {
-            //findParentComponentOfClass<CallOutBox>()->exitModalState(0);
-            juce::ModalComponentManager::getInstance()->cancelAllModalComponents();
-            undoManager->undo();
-            return false;
-        }
-        else if (desc != parent->getComponentID())
-        {
-            PopoverManager* pm = CoreServices::getPopoverManager();
-            String parentID = parent->getComponentID();
-            Component* foundComponent = AccessClass::getUIComponent()->findComponentByIDRecursive(AccessClass::getUIComponent(), desc);
-            if (foundComponent != nullptr) {
-                juce::ModalComponentManager::getInstance()->cancelAllModalComponents();
-                ((Button*)foundComponent)->triggerClick();
-            }
-            else
-            {
-                Component* next = AccessClass::getUIComponent()->findComponentByIDRecursive(this, desc);
-                
-                LOGD("Made it here");
-            }
-            undoManager->undo();
-            return false;
-        } 
-        else
-        {
-            undoManager->undo();
-            return true;
-        }
+        findParentComponentOfClass<CallOutBox>()->exitModalState(0);
+        undoManager->undo();
+        updatePopup();
+        return true;
     }
     else if (key == KeyPress('z', ModifierKeys::commandModifier | ModifierKeys::shiftModifier, 0))
     {
-        //Get descripion of next undo action, if it's not from this popover, close the popover
+        LOGD(" [PopupComponent] Redoing action");
+
         if (!undoManager->canRedo()) return false;
 
-        String desc = undoManager->getRedoDescription();
-        if (desc == "")
-        {
-            findParentComponentOfClass<CallOutBox>()->exitModalState(0);
-            undoManager->redo();
-            return false;
-        }
-        else if (desc != parent->getComponentID())
-        {
-            PopoverManager* pm = CoreServices::getPopoverManager();
-            findParentComponentOfClass<CallOutBox>()->exitModalState(0);
-            Component* foundComponent = AccessClass::getUIComponent()->findComponentByIDRecursive(AccessClass::getUIComponent(), desc);
-            ((Button*)foundComponent)->triggerClick();
-            undoManager->redo();
-            return false;
-        } 
-        else
-        {
-            undoManager->redo();
-            return true;
-        }
+        undoManager->redo();
+        updatePopup();
+        return true;
     }
     else if (key == KeyPress(KeyPress::escapeKey, 0, 0))
     {
         findParentComponentOfClass<CallOutBox>()->exitModalState(0);
         return true;
     }
+
+    return false;
 }
 
 Component* PopoverComponent::findComponentByIDRecursive(Component* parent, const String& componentID) {

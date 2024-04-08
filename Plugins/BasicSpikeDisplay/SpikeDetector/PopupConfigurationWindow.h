@@ -37,26 +37,13 @@ class SpikeDetectorTableModel;
 *   Table component used to edit Spike Channel names
 */
 class EditableTextCustomComponent : 
-    public juce::Label,
+    public ParameterEditor,
     public Label::Listener
 {
 public:
 
     /** Constructor */
-    EditableTextCustomComponent(SpikeDetector* spikeDetector_, StringParameter* name_, bool acquisitionIsActive_)
-        : name(name_),
-          spikeDetector(spikeDetector_),
-          acquisitionIsActive(acquisitionIsActive_)
-    {
-        setEditable(false, !acquisitionIsActive, false);
-        addListener(this);
-        setColour(Label::textColourId, Colours::white);
-        setColour(Label::textWhenEditingColourId, Colours::yellow);
-        setColour(TextEditor::highlightedTextColourId, Colours::yellow);
-    }
-
-    /** Responds to button clicks */
-    void mouseDown(const juce::MouseEvent& event) override;
+    EditableTextCustomComponent(SpikeDetector* spikeDetector_, StringParameter* name_, bool acquisitionIsActive_);
     
     /** Called when the label is updated */
     void labelTextChanged(Label* label) override;
@@ -64,8 +51,13 @@ public:
     /** Sets row and column */
     void setRowAndColumn(const int newRow, const int newColumn);
     
-    /** Sets the "name* parameter referenced by this component */
-    void setParameter(StringParameter* name_) { name = name_; }
+    /** Update the view when parameter value is changed */
+    void updateView() override;
+
+    void resized() override
+    {
+        label->setBounds(2, 2, getWidth() - 4, getHeight() - 4);
+    }
 
     int row;
 
@@ -81,9 +73,8 @@ private:
 *   used by a Spike Channel
 */
 class ChannelSelectorCustomComponent : 
-    public juce::Label,
     public PopupChannelSelector::Listener,
-    public Timer
+    public ParameterEditor
 {
 public:
 
@@ -98,7 +89,10 @@ public:
     /** Get selected channels */
     Array<int> getSelectedChannels() override
     {
-        return channels->getArrayValue();
+        if (param == nullptr)
+            return Array<int>();
+        else
+            return channels->getArrayValue();
     }
     
     /** Callback for changes in PopupChannelSelector */
@@ -112,41 +106,23 @@ public:
         }
 
         channels->setNextValue(newArray);
-
-        Parameter::ChangeValue* action = new Parameter::ChangeValue(channels->getKey(), newArray);
-
-        AccessClass::getUndoManager()->beginNewTransaction();
-        AccessClass::getUndoManager()->setCurrentTransactionName(getComponentID());
-        AccessClass::getUndoManager()->perform(action);
     }
     
     /** Sets row and column */
     void setRowAndColumn(const int newRow, const int newColumn);
     
     /** Sets the underlying parametr for this component */
-    void setParameter(SelectedChannelsParameter* channels_) { channels = channels_; }
+    // void setParameter(SelectedChannelsParameter* channels_) { channels = channels_; }
 
-    void timerCallback() { 
-        updateView();
-    }
+    // void timerCallback() { 
+    //     updateView();
+    // }
 
-    void updateView() 
+    void updateView() override;
+
+    void resized() override
     {
-        Array<var> newArray;
-    
-        for (int i = 0; i < channels->getArrayValue().size(); i++)
-        {
-            newArray.add(channels->getArrayValue()[i]);
-        }
-
-        String s = "[";
-        for (auto chan : newArray)
-        {
-            s += String(int(chan)+1) + ",";
-        }
-        s += "]";
-
-        setText(s, dontSendNotification);
+        label->setBounds(2, 2, getWidth() - 4, getHeight() - 4);
     }
 
     int row;
@@ -491,6 +467,9 @@ public:
 
     /** Updates the window with a new set of Spike Channels*/
     void update(Array<SpikeChannel*> spikeChannels);
+
+    /** Callback to update the popup */ 
+    void updatePopup() override {};
 
     /** Custom table header component (not currently used)*/
     //std::unique_ptr<TableHeaderComponent> tableHeader;

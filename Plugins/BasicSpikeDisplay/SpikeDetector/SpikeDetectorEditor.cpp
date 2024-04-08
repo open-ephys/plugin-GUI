@@ -91,13 +91,11 @@ void SpikeDetectorEditor::addSpikeChannels(PopupConfigurationWindow* window, Spi
 
     AddSpikeChannels* action = new AddSpikeChannels(processor, stream, type, count, startChannels, nextAvailableChannel);
         
+    CoreServices::getUndoManager()->beginNewTransaction("addSpikeChannels");
+    CoreServices::getUndoManager()->perform((UndoableAction*)action);
+
     if (window != nullptr)
-    {
-        window->getUndoManager()->beginNewTransaction();
-        window->getUndoManager()->setCurrentTransactionName(configureButton->getComponentID());
-        window->getUndoManager()->perform((UndoableAction*)action);
         window->update(processor->getSpikeChannelsForStream(getCurrentStream()));
-    }
 
 }
 
@@ -114,13 +112,11 @@ void SpikeDetectorEditor::removeSpikeChannels(PopupConfigurationWindow* window, 
     // Now called in perform
     //CoreServices::updateSignalChain(this);
 
+    CoreServices::getUndoManager()->beginNewTransaction("removeSpikeChannels");
+    CoreServices::getUndoManager()->perform((UndoableAction*)action);
+
     if (window != nullptr)
-    {
-        window->getUndoManager()->beginNewTransaction();
-        window->getUndoManager()->setCurrentTransactionName(configureButton->getComponentID());
-        window->getUndoManager()->perform((UndoableAction*)action);
         window->update(processor->getSpikeChannelsForStream(getCurrentStream()));
-    }
 
 }
 

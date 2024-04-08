@@ -33,30 +33,49 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-void EditableTextCustomComponent::mouseDown(const MouseEvent& event)
+
+EditableTextCustomComponent::EditableTextCustomComponent
+    (SpikeDetector* spikeDetector_, StringParameter* name_, bool acquisitionIsActive_)
+    : ParameterEditor(name_),
+      name(name_),
+      spikeDetector(spikeDetector_),
+      acquisitionIsActive(acquisitionIsActive_)
 {
-    //owner->selectRowsBasedOnModifierKeys(row, event.mods, false);
-    Label::mouseDown(event);
+    label = std::make_unique<Label>(param->getKey(), param->getValueAsString());
+    label->setEditable(false, !acquisitionIsActive, false);
+    label->setColour(Label::textColourId, Colours::white);
+    label->setColour(Label::textWhenEditingColourId, Colours::yellow);
+    label->addListener(this);
+    addAndMakeVisible(label.get());
 }
 
 void EditableTextCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
 {
     row = newRow;
     columnId = newColumn;
-    setText(name->getStringValue(), dontSendNotification);
+    name = (StringParameter*)param;
     
 }
 
-void EditableTextCustomComponent::labelTextChanged(Label* label)
+void EditableTextCustomComponent::labelTextChanged(Label* labelThatHasChanged)
 {
-    String candidateName = label->getText();
+    if (labelThatHasChanged != label.get()) return;
 
+    String candidateName = label->getText();
     String newName = spikeDetector->ensureUniqueName(candidateName, name->getStreamId());
 
     label->setText(newName, dontSendNotification);
 
     name->setNextValue(newName);
 }
+
+void EditableTextCustomComponent::updateView()
+{
+    if (param == nullptr) return;
+
+    label->setText(param->getValueAsString(), dontSendNotification);
+}
+
 
 PopupThresholdComponent::PopupThresholdComponent(SpikeDetectorTableModel* table_,
                                                  ThresholdSelectorCustomComponent* owner_,
@@ -74,7 +93,6 @@ PopupThresholdComponent::PopupThresholdComponent(SpikeDetectorTableModel* table_
     abs_thresholds(abs_thresholds_),
     dyn_thresholds(dyn_thresholds_),
     std_thresholds(std_thresholds_)
-
 {
     
     const int sliderWidth = 18;
@@ -142,6 +160,7 @@ void PopupThresholdComponent::createSliders()
         slider->setColour(Slider::textBoxTextColourId, Colours::white);
         slider->setColour(Slider::backgroundColourId, Colours::darkgrey);
         slider->setColour(Slider::trackColourId, Colours::blue);
+        slider->setChangeNotificationOnlyOnRelease(true);
         
         switch (thresholdType)
         {
@@ -362,23 +381,24 @@ void ThresholdSelectorCustomComponent::setThreshold(ThresholderType type, int ch
 }
 
 ChannelSelectorCustomComponent::ChannelSelectorCustomComponent(int rowNumber, SelectedChannelsParameter* channels_, bool acquisitionIsActive_)
-    : channels(channels_), acquisitionIsActive(acquisitionIsActive_)
+    : ParameterEditor(channels_), channels(channels_), acquisitionIsActive(acquisitionIsActive_)
 {
-    SpikeChannel* owner = (SpikeChannel*)channels->getOwner();
-    setComponentID(channels_->getKey());
-    LOGD("*** Setting component ID: " + channels_->getKey());
-    setEditable(false, false, false);
-    startTimer(500);
+    label = std::make_unique<Label>(param->getKey());
+    label->setColour(Label::textColourId, Colours::white);
+    addAndMakeVisible(label.get());
+
+    label->setEditable(false, false, false);
+    label->setInterceptsMouseClicks(false, false);
 }
 
 void ChannelSelectorCustomComponent::showAsPopover()
 {
-    auto* channelSelector = new PopupChannelSelector(this, this, channels->getChannelStates());
+    auto* channelSelector = new PopupChannelSelector((Component*)this, this, channels->getChannelStates());
     
     channelSelector->setChannelButtonColour(Colour(0, 174, 239));
     channelSelector->setMaximumSelectableChannels(channels->getMaxSelectableChannels());
 
-    CoreServices::getPopoverManager()->showPopover(std::unique_ptr<PopoverComponent>(channelSelector), this);
+    CoreServices::getPopoverManager()->showPopover(std::unique_ptr<Component>(channelSelector), this);
 }
 
 void ChannelSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
@@ -391,21 +411,17 @@ void ChannelSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
     
 void ChannelSelectorCustomComponent::setRowAndColumn(const int newRow, const int newColumn)
 {
-    
-    Array<int> chans = channels->getArrayValue();
-        
-    String s = "[";
-    
-    for (auto chan : chans)
-    {
-        s += String(chan+1) + ",";
-    }
-    
-    s += "]";
-    
-    setText(s, dontSendNotification);
+    channels = (SelectedChannelsParameter*)param;
 }
 
+void ChannelSelectorCustomComponent::updateView()
+{
+    if (param == nullptr) return;
+
+    String s = "[" + channels->getValueAsString() + "]";
+
+    label->setText(s, dontSendNotification);
+}
 
 void WaveformSelectorCustomComponent::mouseDown(const juce::MouseEvent& event)
 {
@@ -1090,7 +1106,6 @@ PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_,
     addAndMakeVisible(viewport.get());
     update(spikeChannels);
 
-    
 }
 
 void PopupConfigurationWindow::scrollBarMoved(ScrollBar* scrollBar, double newRangeStart)
@@ -1153,18 +1168,24 @@ void PopupConfigurationWindow::update(Array<SpikeChannel*> spikeChannels)
 
 bool PopupConfigurationWindow::keyPressed(const KeyPress& key)
 {
-    if (key.getKeyCode() == 90)
-    {
-        if (!CoreServices::getUndoManager()->canUndo()) return false;
 
-        String desc = CoreServices::getUndoManager()->getUndoDescription();
-    }
+    // Get the description of the last undo/redo action
+    String desc = "";
+    if (CoreServices::getUndoManager()->canUndo())
+        desc = CoreServices::getUndoManager()->getUndoDescription();
+    else if (CoreServices::getUndoManager()->canRedo())
+        desc = CoreServices::getUndoManager()->getRedoDescription();
 
+    
     // Popover component handles globally reserved keys
     if (PopoverComponent::keyPressed(key)) //undo/redo was pressed
     {
-        SpikeDetector* spikeDetector = (SpikeDetector*)editor->getProcessor();
-        update(spikeDetector->getSpikeChannelsForStream(editor->getCurrentStream()));
+        // If the undo/redo was related to adding or removing spike channels, update the configuration window
+        if (desc == "addSpikeChannels" || desc == "removeSpikeChannels")
+        {
+            SpikeDetector* spikeDetector = (SpikeDetector*)editor->getProcessor();
+            update(spikeDetector->getSpikeChannelsForStream(editor->getCurrentStream()));
+        }
     }
 
     // Pressing 'a' key adds a new spike channel

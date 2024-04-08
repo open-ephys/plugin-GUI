@@ -879,12 +879,6 @@ void MaskChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
         newArray.add(newChannels[i]);
     
     param->setNextValue(newArray);
-
-    Parameter::ChangeValue* action = new Parameter::ChangeValue(param->getKey(), newArray);
-
-    AccessClass::getUndoManager()->beginNewTransaction();
-    AccessClass::getUndoManager()->setCurrentTransactionName(button->getComponentID());
-    AccessClass::getUndoManager()->perform(action);
     
     updateView();
 

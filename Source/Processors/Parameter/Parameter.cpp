@@ -581,6 +581,11 @@ void SelectedChannelsParameter::setNextValue(var newValue_, bool undoable)
         newValue = newValue_;
     }
 
+    Parameter::ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+
+    AccessClass::getUndoManager()->beginNewTransaction();
+    AccessClass::getUndoManager()->perform(action);
+
 }
 
 std::vector<bool> SelectedChannelsParameter::getChannelStates()
@@ -705,6 +710,10 @@ void MaskChannelsParameter::setNextValue(var newValue_, bool undoable)
 
     newValue = values;
 
+    Parameter::ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+
+    AccessClass::getUndoManager()->beginNewTransaction();
+    AccessClass::getUndoManager()->perform(action);
 }
 
 std::vector<bool> MaskChannelsParameter::getChannelStates()

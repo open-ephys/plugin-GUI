@@ -82,6 +82,14 @@ public:
         return isOpen;
     }
 
+    void focusOfChildComponentChanged(FocusChangeType cause) override
+    {
+        if (isShowing())
+            this->grabKeyboardFocus();
+    }
+
+    virtual void updatePopup() = 0;
+
 private:
 
     bool isOpen;

@@ -223,8 +223,9 @@ PopupChannelSelector::PopupChannelSelector(Component* parent, PopupChannelSelect
 
 }
 
-void PopupChannelSelector::update(Array<int> selectedChannels)
+void PopupChannelSelector::updatePopup()
 {
+    Array<int> selectedChannels = listener->getSelectedChannels();
     for (auto* btn : channelButtons)
     {
         if (selectedChannels.contains(btn->getId()))
@@ -255,16 +256,6 @@ ChannelButton* PopupChannelSelector::getButtonForId(int btnId)
     }
 
     return nullptr;
-}
-
-bool PopupChannelSelector::keyPressed(const KeyPress& key)
-{
-    if (PopoverComponent::keyPressed(key)) //undo/redo was performed
-    {
-        LOGD("*** Undo/Redo was pressed");
-        update(listener->getSelectedChannels());
-    }
-    return true;
 }
 
 void PopupChannelSelector::mouseMove(const MouseEvent &event)
