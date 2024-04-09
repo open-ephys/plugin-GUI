@@ -193,7 +193,6 @@ void LfpChannelDisplay::pxPaint()
 		int m = getY() + center;
 		drawZeroLine(center, m, bdLfpChannelBitmap, i);
 		//draw range markers
-		int m;
 		drawRangeMarkers(center, m, bdLfpChannelBitmap, i);
 		// draw event markers
         drawEventMarkers(index, jfrom_wholechannel, jto_wholechannel, bdLfpChannelBitmap, i);
@@ -454,7 +453,7 @@ void LfpViewer::LfpChannelDisplay::drawPlot(int index, int i, bool drawWithOffse
 		if (from_raw < -options->selectedSaturationValueFloat) { saturateWarningLo = true; };
 		if (to_raw < -options->selectedSaturationValueFloat) { saturateWarningLo = true; };
 
-		bool spikeFlag = display->getSpikeRasterPlotting()
+		spikeFlag = display->getSpikeRasterPlotting()
 			&& (from_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold()
 				|| to_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold());
 
