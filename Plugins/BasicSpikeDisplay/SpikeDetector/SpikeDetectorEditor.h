@@ -73,6 +73,10 @@ public:
     /** Update configuration window */
     void updateConfigurationWindow();
 
+    /** Update settings */
+    void updateSettings() override { updateConfigurationWindow(); }
+
+
     std::unique_ptr<UtilityButton> configureButton;
 
 private:

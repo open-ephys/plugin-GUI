@@ -41,7 +41,7 @@ protected:
  * 
  */
 
-class PLUGIN_API PopoverComponent : public Component
+class PLUGIN_API PopoverComponent : public Component, public ComponentListener
 {
 
 public:
@@ -86,6 +86,12 @@ public:
     {
         if (isShowing())
             this->grabKeyboardFocus();
+    }
+
+    void componentBeingDeleted(Component& component) override
+    {
+        findParentComponentOfClass<CallOutBox>()->exitModalState(0);
+        parent = nullptr;
     }
 
     virtual void updatePopup() = 0;

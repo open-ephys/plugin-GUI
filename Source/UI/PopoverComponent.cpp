@@ -41,10 +41,15 @@ PopoverComponent::PopoverComponent(Component* parent_) : parent(parent_)
     undoManager = CoreServices::getUndoManager();
 
     setWantsKeyboardFocus(true);
+    parent->addComponentListener(this);
 }
 
 PopoverComponent::~PopoverComponent()
 {
+    if (parent != nullptr)
+    {
+        parent->removeComponentListener(this);
+    }
 }
 
 bool PopoverComponent::keyPressed(const KeyPress &key)
@@ -55,7 +60,12 @@ bool PopoverComponent::keyPressed(const KeyPress &key)
         
         if (!undoManager->canUndo()) return false;
 
-        findParentComponentOfClass<CallOutBox>()->exitModalState(0);
+        if (Component::getNumCurrentlyModalComponents() > 1)
+        {
+            findParentComponentOfClass<CallOutBox>()->exitModalState(0);
+            return false;
+        }
+    
         undoManager->undo();
         updatePopup();
         return true;

@@ -753,6 +753,7 @@ Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber,
                 acquisitionIsActive);
         }
 
+        thresholdSelector->setSpikeChannel(spikeChannels[rowNumber]);
         thresholdSelector->setRowAndColumn(rowNumber, columnId);
         thresholdSelector->setTableModel(this);
         
@@ -1170,22 +1171,20 @@ bool PopupConfigurationWindow::keyPressed(const KeyPress& key)
 {
 
     // Get the description of the last undo/redo action
-    String desc = "";
-    if (CoreServices::getUndoManager()->canUndo())
-        desc = CoreServices::getUndoManager()->getUndoDescription();
-    else if (CoreServices::getUndoManager()->canRedo())
-        desc = CoreServices::getUndoManager()->getRedoDescription();
-
+    // String desc = "";
     
+    // if (key.getKeyCode() == 90 && key.getModifiers().isCommandDown())
+    //     desc = CoreServices::getUndoManager()->getUndoDescription();
+    // else if (key.getKeyCode() == 90 && key.getModifiers().isCommandDown() && key.getModifiers().isShiftDown())
+    //     desc = CoreServices::getUndoManager()->getRedoDescription();
+
+    // LOGD("Key pressed in configuration window. Description: ", desc, ". Key: ", key.getTextDescription());
+
     // Popover component handles globally reserved keys
     if (PopoverComponent::keyPressed(key)) //undo/redo was pressed
     {
-        // If the undo/redo was related to adding or removing spike channels, update the configuration window
-        if (desc == "addSpikeChannels" || desc == "removeSpikeChannels")
-        {
-            SpikeDetector* spikeDetector = (SpikeDetector*)editor->getProcessor();
-            update(spikeDetector->getSpikeChannelsForStream(editor->getCurrentStream()));
-        }
+        // SpikeDetector* spikeDetector = (SpikeDetector*)editor->getProcessor();
+        // update(spikeDetector->getSpikeChannelsForStream(editor->getCurrentStream()));
     }
 
     // Pressing 'a' key adds a new spike channel
