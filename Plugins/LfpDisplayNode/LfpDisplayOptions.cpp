@@ -413,8 +413,11 @@ void LfpDisplayOptions::timerCallback()
 
 void LfpViewer::LfpDisplayOptions::labelTextChanged(Label* labelThatHasChanged)
 {
-	if (labelThatHasChanged != voltageRangeMin.get() || labelThatHasChanged != voltageRangeMax.get())
+	if (labelThatHasChanged != voltageRangeMin.get() && labelThatHasChanged != voltageRangeMax.get())
 		return; 
+
+	if (labelThatHasChanged->getText().getFloatValue() == 0.0f)
+		labelThatHasChanged->setText("1", dontSendNotification);
 		
     lfpDisplay->setRange(voltageRangeMin->getText().getFloatValue(), voltageRangeMax->getText().getFloatValue(), selectedChannelType);
 }

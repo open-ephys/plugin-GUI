@@ -238,135 +238,12 @@ void LfpChannelDisplay::pxPaint()
 			}
 		}
 
-		int range = (rangeMax);
-
-		if (range == 0.0f)
-			range = 1.0f;
-
-		// set max-min range for plotting
-		double a = canvasSplit->getYCoordMax(chan, index) / range * channelHeightFloat;
-		double b = canvasSplit->getYCoordMin(chan, index) / range * channelHeightFloat;
-
-		double mean = canvasSplit->getMean(chan) / range * channelHeightFloat;
-
-		if (drawWithOffsetCorrection)
-		{
-			a -= mean;
-			b -= mean;
-		}
-
-		int from = 0, to = 0;
-		double a_raw = canvasSplit->getYCoordMax(chan, index);
-		double b_raw = canvasSplit->getYCoordMin(chan, index);
-		double from_raw = 0; double to_raw = 0;
-
-		if (a < b)
-		{
-			from = (a); to = (b);
-			from_raw = (a_raw); to_raw = (b_raw);
-		}
-		else
-		{
-			from = (b); to = (a);
-			from_raw = (b_raw); to_raw = (a_raw);
-		}
-
-		// start by clipping so that we're not populating pixels that we dont want to plot
-		int lm = channelHeightFloat * canvasSplit->channelOverlapFactor;
-		if (lm > 0)
-			lm = -lm;
-
-		if (from > -lm) { from = -lm; clipWarningHi = true; };
-		if (to > -lm) { to = -lm; clipWarningHi = true; };
-		if (from < lm) { from = lm; clipWarningLo = true; };
-		if (to < lm) { to = lm; clipWarningLo = true; };
-
-		// test if raw data is clipped for displaying saturation warning
-		if (from_raw > options->selectedSaturationValueFloat) { saturateWarningHi = true; };
-		if (to_raw > options->selectedSaturationValueFloat) { saturateWarningHi = true; };
-		if (from_raw < -options->selectedSaturationValueFloat) { saturateWarningLo = true; };
-		if (to_raw < -options->selectedSaturationValueFloat) { saturateWarningLo = true; };
-
-		bool spikeFlag = display->getSpikeRasterPlotting()
-			&& (from_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold()
-				|| to_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold());
-
-		from = from + getHeight() / 2;       // so the plot is centered in the channeldisplay
-		to = to + getHeight() / 2;
-
-		int samplerange = to - from;
-
-		plotterInfo.channelID = chan;
-		plotterInfo.y = getY();
-		plotterInfo.from = from;
-		plotterInfo.to = to;
-		plotterInfo.samp = i;
-		plotterInfo.lineColour = lineColour;
-
-		// Do the actual plotting for the selected plotting method
-		if (!display->getSpikeRasterPlotting())
-			display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo);
-
-		// now draw warnings, if needed
-		if (canvasSplit->drawClipWarning) // draw simple warning if display cuts off data
-		{
-
-			if (clipWarningHi) {
-				for (int j = 0; j <= 3; j++)
-				{
-					int clipmarker = jto_wholechannel_clip;
-
-					if (clipmarker > 0 && clipmarker < display->lfpChannelBitmap.getHeight()) {
-						bdLfpChannelBitmap.setPixelColour(i, clipmarker - j, Colour(255, 255, 255));
-					}
-				}
-			}
-
-			if (clipWarningLo) {
-				for (int j = 0; j <= 3; j++)
-				{
-					int clipmarker = jfrom_wholechannel_clip;
-
-					if (clipmarker > 0 && clipmarker < display->lfpChannelBitmap.getHeight()) {
-						bdLfpChannelBitmap.setPixelColour(i, clipmarker + j, Colour(255, 255, 255));
-					}
-				}
-			}
-
-			clipWarningHi = false;
-			clipWarningLo = false;
-		}
-
-		if (spikeFlag) // draw spikes
-		{
-			for (int k = jfrom_wholechannel; k <= jto_wholechannel; k++) { // draw line
-				if (k > 0 && k < display->lfpChannelBitmap.getHeight()) {
-					bdLfpChannelBitmap.setPixelColour(i, k, lineColour);
-				}
-			};
-		}
-
-		if (canvasSplit->drawSaturationWarning) // draw bigger warning if actual data gets cuts off
-		{
-
-			if (saturateWarningHi || saturateWarningLo) {
-
-				for (int k = jfrom_wholechannel; k <= jto_wholechannel; k++) { // draw line
-					Colour thiscolour = Colour(255, 0, 0);
-					if (fmod((i + k), 50) > 25) {
-						thiscolour = Colour(255, 255, 255);
-					}
-					if (k > 0 && k < display->lfpChannelBitmap.getHeight()) {
-						bdLfpChannelBitmap.setPixelColour(i, k, thiscolour);
-					}
-				};
-			}
-
-			saturateWarningHi = false; // we likely just need one of this because for this warning we dont care if its saturating on the positive or negative side
-			saturateWarningLo = false;
-
-		} // if i < getWidth()
-
+		plotRange(drawWithOffsetCorrection, clipWarningHi, clipWarningLo, saturateWarningHi,
+			saturateWarningLo, plotterInfo, bdLfpChannelBitmap,
+			index, rangeMin, i, jfrom_wholechannel, jto_wholechannel, jfrom_wholechannel_clip, jto_wholechannel_clip);
+		//plotRange(drawWithOffsetCorrection, clipWarningHi, clipWarningLo, saturateWarningHi, 
+		//	saturateWarningLo, plotterInfo, bdLfpChannelBitmap, 
+		//	index, rangeMax, i, jfrom_wholechannel, jto_wholechannel, jfrom_wholechannel_clip, jto_wholechannel_clip);
 	} //  for (int index = ifrom; index < ito; index++)
 
 }
@@ -660,6 +537,164 @@ void LfpChannelDisplay::drawEventOverlay(int x, int yfrom, int yto, Image::Bitma
 			}
 		}
 	}
+}
+
+void LfpViewer::LfpChannelDisplay::plotRange(bool drawWithOffsetCorrection, 
+	bool& clipWarningHi, bool& clipWarningLo, bool& saturateWarningHi, bool& saturateWarningLo, 
+	LfpBitmapPlotterInfo& plotterInfo, Image::BitmapData& bdLfpChannelBitmap, 
+	int index, float range, int i, int jfrom_wholechannel, int jto_wholechannel, int jfrom_wholechannel_clip, int jto_wholechannel_clip)
+{
+	// set max-min range for plotting
+	double a = canvasSplit->getYCoordMax(chan, index) / rangeMax * channelHeightFloat;
+	double b = canvasSplit->getYCoordMin(chan, index) / rangeMax * channelHeightFloat;
+	double c = canvasSplit->getYCoordMax(chan, index) / rangeMin * channelHeightFloat;
+	double d = canvasSplit->getYCoordMin(chan, index) / rangeMin * channelHeightFloat;
+
+	double mean = canvasSplit->getMean(chan) / rangeMax * channelHeightFloat;
+	double meann = canvasSplit->getMean(chan) / rangeMin * channelHeightFloat;
+
+	if (drawWithOffsetCorrection)
+	{
+		a -= mean;
+		b -= mean;
+		c -= meann;
+		d -= meann;
+	}
+
+	int from = 0, to = 0;
+	double a_raw = canvasSplit->getYCoordMax(chan, index);
+	double b_raw = canvasSplit->getYCoordMin(chan, index);
+	double from_raw = 0; double to_raw = 0;
+	int fromm = 0, too = 0;
+
+	if (a < b)
+	{
+		from = (a); to = (b);
+		from_raw = (a_raw); to_raw = (b_raw);
+	}
+	else
+	{
+		from = (b); to = (a);
+		from_raw = (b_raw); to_raw = (a_raw);
+	}
+
+	if (c < d)
+	{
+		fromm = (c); to = (d);
+	}
+	else
+	{
+		from = (d); to = (c);
+	}
+
+	// start by clipping so that we're not populating pixels that we dont want to plot
+	int lm = channelHeightFloat * canvasSplit->channelOverlapFactor;
+	if (lm > 0)
+		lm = -lm;
+
+	if (from > -lm) { from = -lm; clipWarningHi = true; };
+	if (to > -lm) { to = -lm; clipWarningHi = true; };
+	if (from < lm) { from = lm; clipWarningLo = true; };
+	if (to < lm) { to = lm; clipWarningLo = true; };
+	if (fromm > -lm) { fromm = -lm; clipWarningHi = true; };
+	if (too > -lm) { too = -lm; clipWarningHi = true; };
+	if (fromm < lm) { fromm = lm; clipWarningLo = true; };
+	if (too < lm) { too = lm; clipWarningLo = true; };
+
+	// test if raw data is clipped for displaying saturation warning
+	if (from_raw > options->selectedSaturationValueFloat) { saturateWarningHi = true; };
+	if (to_raw > options->selectedSaturationValueFloat) { saturateWarningHi = true; };
+	if (from_raw < -options->selectedSaturationValueFloat) { saturateWarningLo = true; };
+	if (to_raw < -options->selectedSaturationValueFloat) { saturateWarningLo = true; };
+
+	bool spikeFlag = display->getSpikeRasterPlotting()
+		&& (from_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold()
+			|| to_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold());
+
+	from = from + getHeight() / 2;       // so the plot is centered in the channeldisplay
+	to = to + getHeight() / 2;
+	fromm = fromm + getHeight() / 2;       // so the plot is centered in the channeldisplay
+	too = too + getHeight() / 2;
+
+	int samplerange = to - from;
+
+	//LOGC("channel: ", chan, ", index: ", index, ", a: ", a, ", b: ", b, ", from: ", from, ", to: ", to, ", component height: ", getHeight())
+
+	if (from > fromm)
+		from = fromm;
+	if (to > too)
+		to = too;
+
+	plotterInfo.channelID = chan;
+	plotterInfo.y = getY();
+	plotterInfo.from = from;
+	plotterInfo.to = to;
+	plotterInfo.samp = i;
+	plotterInfo.lineColour = lineColour;
+
+	// Do the actual plotting for the selected plotting method
+	if (!display->getSpikeRasterPlotting())
+		display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo);
+
+	// now draw warnings, if needed
+	if (canvasSplit->drawClipWarning) // draw simple warning if display cuts off data
+	{
+
+		if (clipWarningHi) {
+			for (int j = 0; j <= 3; j++)
+			{
+				int clipmarker = jto_wholechannel_clip;
+
+				if (clipmarker > 0 && clipmarker < display->lfpChannelBitmap.getHeight()) {
+					bdLfpChannelBitmap.setPixelColour(i, clipmarker - j, Colour(255, 255, 255));
+				}
+			}
+		}
+
+		if (clipWarningLo) {
+			for (int j = 0; j <= 3; j++)
+			{
+				int clipmarker = jfrom_wholechannel_clip;
+
+				if (clipmarker > 0 && clipmarker < display->lfpChannelBitmap.getHeight()) {
+					bdLfpChannelBitmap.setPixelColour(i, clipmarker + j, Colour(255, 255, 255));
+				}
+			}
+		}
+
+		clipWarningHi = false;
+		clipWarningLo = false;
+	}
+
+	if (spikeFlag) // draw spikes
+	{
+		for (int k = jfrom_wholechannel; k <= jto_wholechannel; k++) { // draw line
+			if (k > 0 && k < display->lfpChannelBitmap.getHeight()) {
+				bdLfpChannelBitmap.setPixelColour(i, k, lineColour);
+			}
+		};
+	}
+
+	if (canvasSplit->drawSaturationWarning) // draw bigger warning if actual data gets cuts off
+	{
+
+		if (saturateWarningHi || saturateWarningLo) {
+
+			for (int k = jfrom_wholechannel; k <= jto_wholechannel; k++) { // draw line
+				Colour thiscolour = Colour(255, 0, 0);
+				if (fmod((i + k), 50) > 25) {
+					thiscolour = Colour(255, 255, 255);
+				}
+				if (k > 0 && k < display->lfpChannelBitmap.getHeight()) {
+					bdLfpChannelBitmap.setPixelColour(i, k, thiscolour);
+				}
+			};
+		}
+
+		saturateWarningHi = false; // we likely just need one of this because for this warning we dont care if its saturating on the positive or negative side
+		saturateWarningLo = false;
+
+	} // if i < getWidth()
 }
 
 void LfpChannelDisplay::paint(Graphics& g) {}
