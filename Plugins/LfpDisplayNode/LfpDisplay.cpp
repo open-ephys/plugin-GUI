@@ -861,27 +861,19 @@ void LfpDisplay::mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& wh
 	{
 		if (e.mods.isAltDown())  // ALT + scroll wheel -> change channel range (was SHIFT but that clamps wheel.deltaY to 0 on OSX for some reason..)
 		{
+			if (wheel.deltaY == 0)
+				return;
+
 			int hMin = getRangeMin();
 			int hMax = getRangeMax();
-
 			int step = options->getRangeStep(options->getSelectedType());
 
-			// std::cout << wheel.deltaY << std::endl;
-
 			if (wheel.deltaY > 0)
-			{
-				setRange(hMin + step, hMax + step, options->getSelectedType());
-			}
+				setRange(hMin + step, hMax - step, options->getSelectedType());
 			else
-			{
-				if (hMax > step + 1)
-				{
-					setRange(hMin - step, hMax - step, options->getSelectedType());
-				}
-			}
+				setRange(hMin - step, hMax + step, options->getSelectedType());
 
-			options->setRangeSelection(hMin, hMax); // update combobox
-
+			options->setRangeSelection(getRangeMin(), getRangeMax());
 		}
 		else    // just scroll
 		{
