@@ -241,46 +241,46 @@ void LfpChannelDisplay::pxPaint()
 		
 
 		// set max-min range for plotting
-		double a_max = canvasSplit->getYCoordMax(chan, index) / rangeMax * channelHeightFloat;
-		double b_max = canvasSplit->getYCoordMin(chan, index) / rangeMax * channelHeightFloat;
-		double a_min = canvasSplit->getYCoordMax(chan, index) / rangeMin * channelHeightFloat;
-		double b_min = canvasSplit->getYCoordMin(chan, index) / rangeMin * channelHeightFloat;
+		double aRangeMax = canvasSplit->getYCoordMax(chan, index) / rangeMax * channelHeightFloat;
+		double bRangeMax = canvasSplit->getYCoordMin(chan, index) / rangeMax * channelHeightFloat;
+		double aRangeMin = canvasSplit->getYCoordMax(chan, index) / rangeMin * channelHeightFloat;
+		double bRangeMin = canvasSplit->getYCoordMin(chan, index) / rangeMin * channelHeightFloat;
 
-		double mean_max = canvasSplit->getMean(chan) / rangeMax * channelHeightFloat;
-		double mean_min = canvasSplit->getMean(chan) / rangeMin * channelHeightFloat;
+		double meanRangeMax = canvasSplit->getMean(chan) / rangeMax * channelHeightFloat;
+		double meanRangeMin = canvasSplit->getMean(chan) / rangeMin * channelHeightFloat;
 
 		if (drawWithOffsetCorrection)
 		{
-			a_max -= mean_max;
-			b_max -= mean_max;
-			a_min -= mean_min;
-            b_min -= mean_min;
+			aRangeMax -= meanRangeMax;
+			bRangeMax -= meanRangeMax;
+			aRangeMin -= meanRangeMin;
+            bRangeMin -= meanRangeMin;
 		}
 
-		int from_max = 0, to_max = 0;
-		int from_min = 0, to_min = 0;
+		int fromRangeMax = 0, toRangeMax = 0;
+		int fromRangeMin = 0, toRangeMin = 0;
 		double a_raw = canvasSplit->getYCoordMax(chan, index);
 		double b_raw = canvasSplit->getYCoordMin(chan, index);
 		double from_raw = 0; double to_raw = 0;
 
-		if (a_max < b_max)
+		if (aRangeMax < bRangeMax)
 		{
-			from_max = (a_max); to_max = (b_max);
+			fromRangeMax = (aRangeMax); toRangeMax = (bRangeMax);
 			from_raw = (a_raw); to_raw = (b_raw);
 		}
 		else
 		{
-			from_max = (b_max); to_max = (a_max);
+			fromRangeMax = (bRangeMax); toRangeMax = (aRangeMax);
 			from_raw = (b_raw); to_raw = (a_raw);
 		}
 
-		if (a_min < b_min)
+		if (aRangeMin < bRangeMin)
 		{
-			from_min = (a_min); to_min = (b_min);
+			fromRangeMin = (aRangeMin); toRangeMin = (bRangeMin);
 		}
 		else
 		{
-			from_min = (b_min); to_min = (a_min);
+			fromRangeMin = (bRangeMin); toRangeMin = (aRangeMin);
 		}
 
 		// start by clipping so that we're not populating pixels that we dont want to plot
@@ -288,14 +288,14 @@ void LfpChannelDisplay::pxPaint()
 		if (lm > 0)
 			lm = -lm;
 
-		if (from_max > -lm) { from_max = -lm; clipWarningHi = true; };
-		if (to_max > -lm) { to_max = -lm; clipWarningHi = true; };
-		if (from_max < lm) { from_max = lm; clipWarningLo = true; };
-		if (to_max < lm) { to_max = lm; clipWarningLo = true; };
-		if (from_min > -lm) { from_min = -lm; clipWarningHi = true; };
-		if (to_min > -lm) { to_min = -lm; clipWarningHi = true; };
-		if (from_min < lm) { from_min = lm; clipWarningLo = true; };
-		if (to_min < lm) { to_min = lm; clipWarningLo = true; };
+		if (fromRangeMax > -lm) { fromRangeMax = -lm; clipWarningHi = true; };
+		if (toRangeMax > -lm) { toRangeMax = -lm; clipWarningHi = true; };
+		if (fromRangeMax < lm) { fromRangeMax = lm; clipWarningLo = true; };
+		if (toRangeMax < lm) { toRangeMax = lm; clipWarningLo = true; };
+		if (fromRangeMin > -lm) { fromRangeMin = -lm; clipWarningHi = true; };
+		if (toRangeMin > -lm) { toRangeMin = -lm; clipWarningHi = true; };
+		if (fromRangeMin < lm) { fromRangeMin = lm; clipWarningLo = true; };
+		if (toRangeMin < lm) { toRangeMin = lm; clipWarningLo = true; };
 
 		// test if raw data is clipped for displaying saturation warning
 		if (from_raw > options->selectedSaturationValueFloat) { saturateWarningHi = true; };
@@ -307,15 +307,15 @@ void LfpChannelDisplay::pxPaint()
 			&& (from_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold()
 				|| to_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold());
 
-		from_max = from_max + getHeight() / 2;       // so the plot is centered in the channeldisplay
-		to_max = to_max + getHeight() / 2;
-		from_min = from_min + getHeight() / 2;       // so the plot is centered in the channeldisplay
-		to_min = to_min + getHeight() / 2;
+		fromRangeMax = fromRangeMax + getHeight() / 2;       // so the plot is centered in the channeldisplay
+		toRangeMax = toRangeMax + getHeight() / 2;
+		fromRangeMin = fromRangeMin + getHeight() / 2;       // so the plot is centered in the channeldisplay
+		toRangeMin = toRangeMin + getHeight() / 2;
 
-		int from = from_max, to = to_max;
+		int from = fromRangeMax, to = toRangeMax;
 
-		if (from_max < from_min) from = from_min;
-		if (to_max > to_min) to = to_min;
+		if (fromRangeMax < fromRangeMin) from = fromRangeMin;
+		if (toRangeMax > toRangeMin) to = toRangeMin;
 
 		int samplerange = to - from;
 
