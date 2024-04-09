@@ -59,16 +59,16 @@ namespace LfpViewer {
 			drawn, so cant do it per channel)
 
 		*/
-		void pxPaint();
+        void pxPaint();
 
-		/** Populates the lfpChannelBitmap while scrolling back in time
+        /** Populates the lfpChannelBitmap while scrolling back in time
 
-			needs to avoid a paint(Graphics& g) mechanism here becauswe we need to clear the screen in the lfpDisplay repaint(),
-			because otherwise we cant deal with the channel overlap (need to clear a vertical section first, _then_ all channels are
-			drawn, so cant do it per channel)
+            needs to avoid a paint(Graphics& g) mechanism here becauswe we need to clear the screen in the lfpDisplay repaint(),
+            because otherwise we cant deal with the channel overlap (need to clear a vertical section first, _then_ all channels are
+            drawn, so cant do it per channel)
 
-		*/
-		void pxPaintHistory(int playhead, int rightEdge, int maxScreenBufferIndex);
+        */
+        void pxPaintHistory(int playhead, int rightEdge, int maxScreenBufferIndex);
 
 		/** Selects this channel*/
 		void select();
@@ -214,7 +214,20 @@ namespace LfpViewer {
 
 		ContinuousChannel::Type type;
 		String typeStr;
-
+	
+	private:
+		void drawZeroLine(int center, int& m, Image::BitmapData& bdLfpChannelBitmap, int i);
+		void drawRangeMarkers(int center, int &m, juce::Image::BitmapData &bdLfpChannelBitmap, int i);
+		void drawEventMarkers(int index, int jfrom_wholechannel, int jto_wholechannel, juce::Image::BitmapData &bdLfpChannelBitmap, int i);
+		void drawPlot(int index, int i, bool drawWithOffsetCorrection, 
+			bool& clipWarningHi, bool& clipWarningLo, 
+			bool& saturateWarningHi, bool& saturateWarningLo,
+			bool& spikeFlag, LfpBitmapPlotterInfo& plotterInfo, Image::BitmapData& bdLfpChannelBitmap);
+		void drawCorrections(bool& clipWarningHi, bool& clipWarningLo, 
+			bool& saturateWarningHi, bool& saturateWarningLo, bool spikeFlag, 
+			int i, int jfrom_wholechannel_clip, int jto_wholechannel_clip, 
+			int jfrom_wholechannel, int jto_wholechannel,
+			Image::BitmapData& bdLfpChannelBitmap);
 	};
 
 }; // namespace
