@@ -215,11 +215,6 @@ namespace LfpViewer {
 		ContinuousChannel::Type type;
 		String typeStr;
 
-	private:
-		void plotRange(bool drawWithOffsetCorrection,
-			bool& clipWarningHi, bool& clipWarningLo, bool& saturateWarningHi, bool& saturateWarningLo,
-			LfpBitmapPlotterInfo& plotterInfo, Image::BitmapData& bdLfpChannelBitmap,
-			int index, float range, int i, int jfrom_wholechannel, int jto_wholechannel, int jfrom_wholechannel_clip, int jto_wholechannel_clip);
 	};
 
 }; // namespace
