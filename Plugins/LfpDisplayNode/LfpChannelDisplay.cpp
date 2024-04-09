@@ -307,10 +307,10 @@ void LfpChannelDisplay::pxPaint()
 			&& (from_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold()
 				|| to_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold());
 
-		fromRangeMax = fromRangeMax + getHeight() / 2;       // so the plot is centered in the channeldisplay
-		toRangeMax = toRangeMax + getHeight() / 2;
-		fromRangeMin = fromRangeMin + getHeight() / 2;       // so the plot is centered in the channeldisplay
-		toRangeMin = toRangeMin + getHeight() / 2;
+		fromRangeMax += getHeight() / 2;       // so the plot is centered in the channeldisplay
+		toRangeMax += getHeight() / 2;
+		fromRangeMin += + getHeight() / 2;    
+		toRangeMin += + getHeight() / 2;
 
 		int from = fromRangeMax, to = toRangeMax;
 
