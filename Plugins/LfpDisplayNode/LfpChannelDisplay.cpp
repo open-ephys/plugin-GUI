@@ -389,96 +389,73 @@ void LfpViewer::LfpChannelDisplay::drawPlot(int index, int i, bool drawWithOffse
 	bool& clipWarningHi, bool& clipWarningLo, 
 	bool& saturateWarningHi, bool& saturateWarningLo,
 	bool& spikeFlag, LfpBitmapPlotterInfo& plotterInfo, Image::BitmapData& bdLfpChannelBitmap)
-{
-		// set max-min range for plotting
-		double aRangeMax = canvasSplit->getYCoordMax(chan, index) / rangeMax * channelHeightFloat;
-		double bRangeMax = canvasSplit->getYCoordMin(chan, index) / rangeMax * channelHeightFloat;
-		double aRangeMin = canvasSplit->getYCoordMax(chan, index) / rangeMin * channelHeightFloat;
-		double bRangeMin = canvasSplit->getYCoordMin(chan, index) / rangeMin * channelHeightFloat;
+{	
+	// set max-min range for plotting
+	double range_numerator = 0;
+	double range_denominator = rangeMax;
 
-		double meanRangeMax = canvasSplit->getMean(chan) / rangeMax * channelHeightFloat;
-		double meanRangeMin = canvasSplit->getMean(chan) / rangeMin * channelHeightFloat;
+	double a = (canvasSplit->getYCoordMax(chan, index) - range_numerator) / range_denominator * channelHeightFloat;
+	double b = (canvasSplit->getYCoordMin(chan, index) - range_numerator) / range_denominator * channelHeightFloat;
 
-		if (drawWithOffsetCorrection)
-		{
-			aRangeMax -= meanRangeMax;
-			bRangeMax -= meanRangeMax;
-			aRangeMin -= meanRangeMin;
-            bRangeMin -= meanRangeMin;
-		}
+	double mean = (canvasSplit->getMean(chan) - range_numerator) / range_denominator * channelHeightFloat;
 
-		int fromRangeMax = 0, toRangeMax = 0;
-		int fromRangeMin = 0, toRangeMin = 0;
-		double a_raw = canvasSplit->getYCoordMax(chan, index);
-		double b_raw = canvasSplit->getYCoordMin(chan, index);
-		double from_raw = 0; double to_raw = 0;
+	if (drawWithOffsetCorrection)
+	{
+		a -= mean;
+		b -= mean;
+	}
 
-		if (aRangeMax < bRangeMax)
-		{
-			fromRangeMax = (aRangeMax); toRangeMax = (bRangeMax);
-			from_raw = (a_raw); to_raw = (b_raw);
-		}
-		else
-		{
-			fromRangeMax = (bRangeMax); toRangeMax = (aRangeMax);
-			from_raw = (b_raw); to_raw = (a_raw);
-		}
+	int from = 0, to = 0;
+	double a_raw = canvasSplit->getYCoordMax(chan, index);
+	double b_raw = canvasSplit->getYCoordMin(chan, index);
+	double from_raw = 0; double to_raw = 0;
 
-		if (aRangeMin < bRangeMin)
-		{
-			fromRangeMin = (aRangeMin); toRangeMin = (bRangeMin);
-		}
-		else
-		{
-			fromRangeMin = (bRangeMin); toRangeMin = (aRangeMin);
-		}
+	if (a < b)
+	{
+		from = (a); to = (b);
+		from_raw = (a_raw); to_raw = (b_raw);
+	}
+	else
+	{
+		from = (b); to = (a);
+		from_raw = (b_raw); to_raw = (a_raw);
+	}
 
-		// start by clipping so that we're not populating pixels that we dont want to plot
-		int lm = channelHeightFloat * canvasSplit->channelOverlapFactor;
-		if (lm > 0)
-			lm = -lm;
+	// start by clipping so that we're not populating pixels that we dont want to plot
+	int lm = channelHeightFloat * canvasSplit->channelOverlapFactor;
+	if (lm > 0)
+		lm = -lm;
 
-		if (fromRangeMax > -lm) { fromRangeMax = -lm; clipWarningHi = true; };
-		if (toRangeMax > -lm) { toRangeMax = -lm; clipWarningHi = true; };
-		if (fromRangeMax < lm) { fromRangeMax = lm; clipWarningLo = true; };
-		if (toRangeMax < lm) { toRangeMax = lm; clipWarningLo = true; };
-		if (fromRangeMin > -lm) { fromRangeMin = -lm; clipWarningHi = true; };
-		if (toRangeMin > -lm) { toRangeMin = -lm; clipWarningHi = true; };
-		if (fromRangeMin < lm) { fromRangeMin = lm; clipWarningLo = true; };
-		if (toRangeMin < lm) { toRangeMin = lm; clipWarningLo = true; };
+	if (from > -lm) { from = -lm; clipWarningHi = true; };
+	if (to > -lm) { to = -lm; clipWarningHi = true; };
+	if (from < lm) { from = lm; clipWarningLo = true; };
+	if (to < lm) { to = lm; clipWarningLo = true; };
 
-		// test if raw data is clipped for displaying saturation warning
-		if (from_raw > options->selectedSaturationValueFloat) { saturateWarningHi = true; };
-		if (to_raw > options->selectedSaturationValueFloat) { saturateWarningHi = true; };
-		if (from_raw < -options->selectedSaturationValueFloat) { saturateWarningLo = true; };
-		if (to_raw < -options->selectedSaturationValueFloat) { saturateWarningLo = true; };
+	// test if raw data is clipped for displaying saturation warning
+	if (from_raw > options->selectedSaturationValueFloat) { saturateWarningHi = true; };
+	if (to_raw > options->selectedSaturationValueFloat) { saturateWarningHi = true; };
+	if (from_raw < -options->selectedSaturationValueFloat) { saturateWarningLo = true; };
+	if (to_raw < -options->selectedSaturationValueFloat) { saturateWarningLo = true; };
 
-		spikeFlag = display->getSpikeRasterPlotting()
-			&& (from_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold()
-				|| to_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold());
+	spikeFlag = display->getSpikeRasterPlotting()
+		&& (from_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold()
+			|| to_raw - canvasSplit->getYCoordMean(chan, index) < display->getSpikeRasterThreshold());
 
-		fromRangeMax += getHeight() / 2;       // so the plot is centered in the channeldisplay
-		toRangeMax += getHeight() / 2;
-		fromRangeMin += + getHeight() / 2;    
-		toRangeMin += + getHeight() / 2;
+	from += getHeight() / 2;       // so the plot is centered in the channeldisplay
+	to += getHeight() / 2;
 
-		int from = fromRangeMax, to = toRangeMax;
+	int samplerange = to - from;
 
-		if (fromRangeMax < fromRangeMin) from = fromRangeMin;
-		if (toRangeMax > toRangeMin) to = toRangeMin;
+	plotterInfo.channelID = chan;
+	plotterInfo.y = getY();
+	plotterInfo.from = from;
+	plotterInfo.to = to;
+	plotterInfo.samp = i;
+	plotterInfo.lineColour = lineColour;
 
-		int samplerange = to - from;
-
-		plotterInfo.channelID = chan;
-		plotterInfo.y = getY();
-		plotterInfo.from = from;
-		plotterInfo.to = to;
-		plotterInfo.samp = i;
-		plotterInfo.lineColour = lineColour;
-
-		// Do the actual plotting for the selected plotting method
-		if (!display->getSpikeRasterPlotting())
-			display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo);
+	// Do the actual plotting for the selected plotting method
+	if (!display->getSpikeRasterPlotting())
+		display->getPlotterPtr()->plot(bdLfpChannelBitmap, plotterInfo);
 }
 
 void LfpViewer::LfpChannelDisplay::drawCorrections(bool& clipWarningHi, bool& clipWarningLo, 
