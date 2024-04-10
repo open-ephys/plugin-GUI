@@ -469,7 +469,7 @@ public:
     void update(Array<SpikeChannel*> spikeChannels);
 
     /** Callback to update the popup */ 
-    void updatePopup() override {};
+    void updatePopup() override;
 
     /** Custom table header component (not currently used)*/
     //std::unique_ptr<TableHeaderComponent> tableHeader;

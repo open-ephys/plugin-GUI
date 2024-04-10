@@ -1167,25 +1167,18 @@ void PopupConfigurationWindow::update(Array<SpikeChannel*> spikeChannels)
     
 }
 
+
+void PopupConfigurationWindow::updatePopup()
+{
+    SpikeDetector* spikeDetector = (SpikeDetector*)editor->getProcessor();
+    update(spikeDetector->getSpikeChannelsForStream(editor->getCurrentStream()));
+}
+
+
 bool PopupConfigurationWindow::keyPressed(const KeyPress& key)
 {
-
-    // Get the description of the last undo/redo action
-    // String desc = "";
-    
-    // if (key.getKeyCode() == 90 && key.getModifiers().isCommandDown())
-    //     desc = CoreServices::getUndoManager()->getUndoDescription();
-    // else if (key.getKeyCode() == 90 && key.getModifiers().isCommandDown() && key.getModifiers().isShiftDown())
-    //     desc = CoreServices::getUndoManager()->getRedoDescription();
-
-    // LOGD("Key pressed in configuration window. Description: ", desc, ". Key: ", key.getTextDescription());
-
-    // Popover component handles globally reserved keys
-    if (PopoverComponent::keyPressed(key)) //undo/redo was pressed
-    {
-        // SpikeDetector* spikeDetector = (SpikeDetector*)editor->getProcessor();
-        // update(spikeDetector->getSpikeChannelsForStream(editor->getCurrentStream()));
-    }
+    // Popover component handles globally reserved undo/redo keys
+    PopoverComponent::keyPressed(key);
 
     // Pressing 'a' key adds a new spike channel
     if (key.getTextCharacter() == 'a')

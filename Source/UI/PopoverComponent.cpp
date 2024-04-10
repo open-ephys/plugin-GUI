@@ -67,7 +67,10 @@ bool PopoverComponent::keyPressed(const KeyPress &key)
         }
     
         undoManager->undo();
-        updatePopup();
+
+        if (parent != nullptr)
+            updatePopup();
+
         return true;
     }
     else if (key == KeyPress('z', ModifierKeys::commandModifier | ModifierKeys::shiftModifier, 0))
