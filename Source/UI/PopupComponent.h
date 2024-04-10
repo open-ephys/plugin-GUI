@@ -15,7 +15,7 @@ class PopupComponent;
  * 
  */
 
-class PopupManager {
+class PLUGIN_API PopupManager {
 public:
 
     PopupManager() {};
