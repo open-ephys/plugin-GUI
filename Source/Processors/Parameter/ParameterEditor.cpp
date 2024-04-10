@@ -804,7 +804,7 @@ void SelectedChannelsParameterEditor::buttonClicked(Button* button_)
     
     channelSelector->setMaximumSelectableChannels(p->getMaxSelectableChannels());
 
-    CoreServices::getPopoverManager()->showPopover(std::unique_ptr<Component>(channelSelector), button.get());
+    CoreServices::getPopupManager()->showPopup(std::unique_ptr<Component>(channelSelector), button.get());
 
     /*
     CallOutBox& myBox
@@ -898,7 +898,7 @@ void MaskChannelsParameterEditor::buttonClicked(Button* button_)
 
     channelSelector->setChannelButtonColour(param->getColor());
 
-    CoreServices::getPopoverManager()->showPopover(std::unique_ptr<Component>(channelSelector), button.get());
+    CoreServices::getPopupManager()->showPopup(std::unique_ptr<Component>(channelSelector), button.get());
 
     /*
     CallOutBox& myBox

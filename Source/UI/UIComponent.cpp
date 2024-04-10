@@ -98,7 +98,7 @@ UIComponent::UIComponent(MainWindow* mainWindow_,
 
 	getProcessorList()->fillItemList();
 
-	popoverManager = std::make_unique<PopoverManager>();
+	popupManager = std::make_unique<PopupManager>();
 }
 
 UIComponent::~UIComponent()
@@ -173,9 +173,9 @@ PluginInstaller* UIComponent::getPluginInstaller()
 	return pluginInstaller;
 }
 
-PopoverManager* UIComponent::getPopoverManager()
+PopupManager* UIComponent::getPopupManager()
 {
-	return popoverManager.get();
+	return popupManager.get();
 }
 
 void UIComponent::buttonClicked(Button* button)

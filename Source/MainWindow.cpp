@@ -134,7 +134,7 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
                 peer->setIcon(windowIcon);
         #endif
 
-		popoverManager = std::make_unique<PopoverManager>();
+		popupManager = std::make_unique<PopupManager>();
     }
     
     controlPanel->updateRecordEngineList();

@@ -120,7 +120,7 @@ RangeEditor::RangeEditor(const String& name, const Font& font) :
 
 
 PopupChannelSelector::PopupChannelSelector(Component* parent, PopupChannelSelector::Listener* listener_, std::vector<bool> channelStates) 
-    : PopoverComponent(parent), listener(listener_),
+    : PopupComponent(parent), listener(listener_),
     nChannels(channelStates.size()),
     mouseDragged(false), 
     startDragCoords(0,0),

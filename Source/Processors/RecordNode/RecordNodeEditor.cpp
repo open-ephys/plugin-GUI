@@ -147,12 +147,6 @@ void RecordChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
 
     param->setNextValue(newArray);
 
-	Parameter::ChangeValue* action = new Parameter::ChangeValue(param->getKey(), newArray);
-
-    AccessClass::getUndoManager()->beginNewTransaction();
-    AccessClass::getUndoManager()->setCurrentTransactionName(monitor->getComponentID());
-    AccessClass::getUndoManager()->perform(action);
-
     updateView();
 }
 
@@ -183,7 +177,7 @@ void RecordChannelsParameterEditor::buttonClicked(Button* label)
 
 	channelSelector->setChannelButtonColour(param->getColor());
 
-	CoreServices::getPopoverManager()->showPopover(std::unique_ptr<PopoverComponent>(channelSelector), monitor.get());
+	CoreServices::getPopupManager()->showPopup(std::unique_ptr<PopupComponent>(channelSelector), monitor.get());
 
 	/*
     CallOutBox& myBox

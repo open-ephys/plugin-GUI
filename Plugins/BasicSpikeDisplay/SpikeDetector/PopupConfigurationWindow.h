@@ -81,7 +81,7 @@ public:
     /** Constructor */
     ChannelSelectorCustomComponent(int rowNumber, SelectedChannelsParameter* channels_, bool acquisitionIsActive_);
 
-    void showAsPopover();
+    void showAsPopup();
 
     /** Responds to mouse clicks */
     void mouseDown(const juce::MouseEvent& event) override;
@@ -449,7 +449,7 @@ private:
 /**
 *   Popup window used to edit Spike Channel settings
 */
-class PopupConfigurationWindow : public PopoverComponent,
+class PopupConfigurationWindow : public PopupComponent,
     public ScrollBar::Listener
 {
 

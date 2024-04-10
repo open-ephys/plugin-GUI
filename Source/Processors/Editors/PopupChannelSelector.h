@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../../Utils/Utils.h"
 #include "../PluginManager/OpenEphysPlugin.h"
-#include "../../UI/PopoverComponent.h"
+#include "../../UI/PopupComponent.h"
 
 enum Select { ALL, NONE, RANGE };
 
@@ -116,7 +116,7 @@ public:
 
 */
 class PLUGIN_API PopupChannelSelector :
-	public PopoverComponent,
+	public PopupComponent,
 	public Button::Listener,
 	public TextEditor::Listener
 {

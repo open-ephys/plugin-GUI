@@ -1,42 +1,42 @@
-#include "PopoverComponent.h"
+#include "PopupComponent.h"
 #include "UIComponent.h"
 
 #include "../CoreServices.h"
 
-void PopoverManager::showPopover(std::unique_ptr<Component> popoverComponent, Component* anchor)
+void PopupManager::showPopup(std::unique_ptr<Component> popupComponent, Component* anchor)
 {
 
     String componentID = anchor->getComponentID();
 
-    auto &myBox = juce::CallOutBox::launchAsynchronously(std::move(popoverComponent),
+    auto &myBox = juce::CallOutBox::launchAsynchronously(std::move(popupComponent),
                                                             anchor->getScreenBounds(),
                                                             nullptr);
 
-    LOGD("***Adding popover: " + componentID);
+    LOGD("***Adding popup: " + componentID);
 
-    popoverStack.push_back(componentID);
+    popupStack.push_back(componentID);
 
     juce::ModalComponentManager::getInstance()->attachCallback(&myBox, juce::ModalCallbackFunction::create([this](int result) {
-        onPopoverDismissed(result);
+        onPopupDismissed(result);
     }));
 
 }
 
-void PopoverManager::onPopoverDismissed(int result)
+void PopupManager::onPopupDismissed(int result)
 {
-    if (popoverStack.size() > 0)
+    if (popupStack.size() > 0)
     {
-        String componentID = popoverStack.back();
-        popoverStack.pop_back();
-        LOGD("***Closed popover " + componentID);
+        String componentID = popupStack.back();
+        popupStack.pop_back();
+        LOGD("***Closed popup " + componentID);
     }
     else
     {
-        LOGD("***No popovers to remove");
+        LOGD("***No popups to remove");
     }
 }
 
-PopoverComponent::PopoverComponent(Component* parent_) : parent(parent_)
+PopupComponent::PopupComponent(Component* parent_) : parent(parent_)
 {
     undoManager = CoreServices::getUndoManager();
 
@@ -44,7 +44,7 @@ PopoverComponent::PopoverComponent(Component* parent_) : parent(parent_)
     parent->addComponentListener(this);
 }
 
-PopoverComponent::~PopoverComponent()
+PopupComponent::~PopupComponent()
 {
     if (parent != nullptr)
     {
@@ -52,7 +52,7 @@ PopoverComponent::~PopoverComponent()
     }
 }
 
-bool PopoverComponent::keyPressed(const KeyPress &key)
+bool PopupComponent::keyPressed(const KeyPress &key)
 {
     if (key == KeyPress('z', ModifierKeys::commandModifier, 0))
     {
@@ -92,7 +92,7 @@ bool PopoverComponent::keyPressed(const KeyPress &key)
     return false;
 }
 
-Component* PopoverComponent::findComponentByIDRecursive(Component* parent, const String& componentID) {
+Component* PopupComponent::findComponentByIDRecursive(Component* parent, const String& componentID) {
     if (!parent) return nullptr;
 
     // Check if the current component matches the ID

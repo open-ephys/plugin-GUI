@@ -67,7 +67,7 @@ void SpikeDetectorEditor::buttonClicked(Button* button)
                                                            spikeChannels,
                                                            acquisitionIsActive);
 
-        CoreServices::getPopoverManager()->showPopover(std::unique_ptr<PopoverComponent>(currentConfigWindow), button);
+        CoreServices::getPopupManager()->showPopup(std::unique_ptr<PopupComponent>(currentConfigWindow), button);
     }
 
 }

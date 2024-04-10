@@ -1,5 +1,5 @@
-#ifndef __POPOVERCOMPONENT_H__
-#define __POPOVERCOMPONENT_H__
+#ifndef __POPUPCOMPONENT_H__
+#define __POPUPCOMPONENT_H__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../Processors/PluginManager/OpenEphysPlugin.h"
@@ -7,46 +7,46 @@
 #include "../AccessClass.h"
 
 class UIComponent;
-class PopoverComponent;
+class PopupComponent;
 
 /**
  * 
- *  A manager class that keeps track of all the popovers in the application
+ *  A manager class that keeps track of all the popups in the application
  * 
  */
 
-class PopoverManager {
+class PopupManager {
 public:
 
-    PopoverManager() {};
+    PopupManager() {};
 
-    ~PopoverManager() {};
+    ~PopupManager() {};
 
-    void showPopover(std::unique_ptr<Component> popoverComponent, Component* anchor);
+    void showPopup(std::unique_ptr<Component> popupComponent, Component* anchor);
 
-    int getPopoverStackSize() { return popoverStack.size(); }
+    int getPopupStackSize() { return popupStack.size(); }
 
-    String getActivePopover() { return popoverStack.back(); }
+    String getActivePopup() { return popupStack.back(); }
 
 protected:
-    void onPopoverDismissed(int result);
+    void onPopupDismissed(int result);
 
-    std::vector<String> popoverStack;
+    std::vector<String> popupStack;
 };
 
 
 /**
  * 
- *  A popover component that can be used to display additional components in a callout box
+ *  A popup component that can be used to display additional components in a callout box
  * 
  */
 
-class PLUGIN_API PopoverComponent : public Component, public ComponentListener
+class PLUGIN_API PopupComponent : public Component, public ComponentListener
 {
 
 public:
-    PopoverComponent(Component* parent);
-    virtual ~PopoverComponent();
+    PopupComponent(Component* parent);
+    virtual ~PopupComponent();
 
     Component* findComponentByIDRecursive(Component* parent, const String& componentID);
 
@@ -104,8 +104,8 @@ private:
 
     UndoManager* undoManager;
     
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PopoverComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PopupComponent)
 
 };
 
-#endif  // __POPOVERCOMPONENT_H__
+#endif  // __POPUPCOMPONENT_H__

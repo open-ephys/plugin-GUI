@@ -29,7 +29,7 @@
 #include "Processors/RecordNode/RecordNode.h"
 #include "UI/EditorViewport.h"
 #include "UI/ControlPanel.h"
-#include "UI/PopoverComponent.h"
+#include "UI/PopupComponent.h"
 #include "Processors/MessageCenter/MessageCenterEditor.h"
 #include "Processors/Events/Event.h"
 
@@ -439,9 +439,9 @@ namespace CoreServices
 		return getProcessorGraph()->getUndoManager();
 	}
 
-	PopoverManager* getPopoverManager()
+	PopupManager* getPopupManager()
 	{
-		return getUIComponent()->getPopoverManager();
+		return getUIComponent()->getPopupManager();
 	}
 
 

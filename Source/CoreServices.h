@@ -33,7 +33,7 @@ class GenericEditor;
 class GenericProcessor;
 class SpikeChannel;
 class Spike;
-class PopoverManager;
+class PopupManager;
 
 namespace CoreServices
 {
@@ -212,8 +212,8 @@ PLUGIN_API String getGUIVersion();
 /** Gets the GUI's undo manager */
 PLUGIN_API UndoManager* getUndoManager();
 
-/** Gets the GUI's popover manager */
-PLUGIN_API PopoverManager* getPopoverManager();
+/** Gets the GUI's popup manager */
+PLUGIN_API PopupManager* getPopupManager();
 
 
 namespace PluginInstaller

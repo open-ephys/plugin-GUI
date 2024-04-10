@@ -44,7 +44,7 @@ class DataViewport;
 class EditorViewport;
 class SignalChainTabComponent;
 class DefaultConfigWindow;
-class PopoverManager;
+class PopupManager;
 
 /**
 
@@ -107,8 +107,8 @@ public:
     /** Returns a pointer to the Plugin Installer (UI) */
     PluginInstaller* getPluginInstaller();
 
-    /** Returns a pointer to the Popover Manager */
-    PopoverManager* getPopoverManager();
+    /** Returns a pointer to the Popup Manager */
+    PopupManager* getPopupManager();
     
     /** Called by the MessageCenterButton */
     void buttonClicked(Button* button);
@@ -183,7 +183,7 @@ private:
 
     std::unique_ptr<DefaultConfigWindow> defaultConfigWindow;
 
-    std::unique_ptr<PopoverManager> popoverManager;
+    std::unique_ptr<PopupManager> popupManager;
 
     Viewport processorListViewport;
 
