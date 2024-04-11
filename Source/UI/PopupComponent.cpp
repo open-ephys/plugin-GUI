@@ -12,6 +12,8 @@ void PopupManager::showPopup(std::unique_ptr<Component> popupComponent, Componen
                                                             anchor->getScreenBounds(),
                                                             nullptr);
 
+    myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+
     LOGD("***Adding popup: " + componentID);
 
     popupStack.push_back(componentID);

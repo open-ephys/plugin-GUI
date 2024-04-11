@@ -141,7 +141,7 @@ class ThresholdSelectorCustomComponent;
     type and threshold level
 
 */
-class PopupThresholdComponent : public Component,
+class PopupThresholdComponent : public PopupComponent,
     public Slider::Listener,
     public Button::Listener
 {
@@ -169,6 +169,9 @@ public:
 
     /** Responds to button clicks */
     void buttonClicked(Button* button);
+
+    /** Updates the view */
+    void updatePopup() override { repaint(); }
     
 private:
     std::unique_ptr<UtilityButton> lockButton;
@@ -371,6 +374,9 @@ public:
 
     /** Changes threshold type when multiple rows are selected */
     void broadcastThresholdTypeToSelectedRows(int rowThatWasClicked, ThresholderType type);
+
+    /** Handles key delete key presses */
+    void deleteKeyPressed(int rowThatWasClicked) override;
 
     /** Deletes the SpikeChannel objects associated with each row */
     void deleteSelectedRows(int rowThatWasClicked);

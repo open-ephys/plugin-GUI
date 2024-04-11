@@ -86,6 +86,7 @@ PopupThresholdComponent::PopupThresholdComponent(SpikeDetectorTableModel* table_
                                                  Array<FloatParameter*> std_thresholds_,
                                                  Array<FloatParameter*> dyn_thresholds_,
                                                  bool lockThresholds) :
+    PopupComponent(owner_),
     table(table_),
     owner(owner_),
     row(row_),
@@ -278,12 +279,7 @@ void ThresholdSelectorCustomComponent::mouseDown(const MouseEvent& event)
                                                        dyn_thresholds,
                                                        true );
 
-    CallOutBox& myBox
-        = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(popupComponent),
-            getScreenBounds(),
-            nullptr);
-    
-    myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
+    CoreServices::getPopupManager()->showPopup(std::unique_ptr<Component>(popupComponent), this);
     
 }
 
@@ -524,6 +520,11 @@ void SpikeDetectorTableModel::cellClicked(int rowNumber, int columnId, const Mou
     //if (event.mods.isRightButtonDown())
     //    std::cout << "Right click!" << std::endl;
 
+}
+
+void SpikeDetectorTableModel::deleteKeyPressed(int lastRowSelected)
+{
+    deleteSelectedRows(lastRowSelected);
 }
 
 void SpikeDetectorTableModel::deleteSelectedRows(int rowThatWasClicked)
