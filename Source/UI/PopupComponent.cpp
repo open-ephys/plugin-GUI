@@ -79,8 +79,17 @@ bool PopupComponent::keyPressed(const KeyPress &key)
 
         if (!undoManager->canRedo()) return false;
 
+        if (Component::getNumCurrentlyModalComponents() > 1)
+        {
+            findParentComponentOfClass<CallOutBox>()->exitModalState(0);
+            return false;
+        }
+
         undoManager->redo();
-        updatePopup();
+        
+        if (parent != nullptr)
+            updatePopup();
+
         return true;
     }
     else if (key == KeyPress(KeyPress::escapeKey, 0, 0))
