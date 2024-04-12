@@ -652,6 +652,8 @@ void BoundedValueEditor::paint(juce::Graphics& g)
 
 void BoundedValueEditor::mouseDrag(const MouseEvent& event)
 {
+    if (!isEnabled()) return;
+
     // Calculate the new value based on the mouse position
     double newValue = static_cast<float>(event.position.x) / getWidth() * (maxValue - minValue) + minValue;
 
@@ -760,6 +762,7 @@ void BoundedValueParameterEditor::updateView()
 {
     if (param != nullptr)
     {
+        valueEditor->setEnabled(true);
 
         if (param->getType() == Parameter::FLOAT_PARAM)
         {
@@ -770,6 +773,10 @@ void BoundedValueParameterEditor::updateView()
             IntParameter* p = (IntParameter*)param;
             valueEditor->setText(String(p->getIntValue()), dontSendNotification);
         }
+    }
+    else
+    {
+        valueEditor->setEnabled(false);
     }
 
     repaint();
