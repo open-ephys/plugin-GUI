@@ -262,6 +262,9 @@ public:
     {
         currentValue = previousValue;
     }
+
+    /** Returns a description of how the value changed from its previous state */
+    virtual String getChangeDescription() = 0;
     
     /** Returns a pointer to the ParameterOwner this parameter is associated with**/
     ParameterOwner* getOwner() { return parameterOwner; }
@@ -324,12 +327,17 @@ public:
         /** Undo the action*/
         bool undo();
 
+        /** Log the action */
+        void log();
+
     private:
         std::string key;
 
         var originalValue;
         var newValue;
     };
+
+    void logValueChange();
     
 protected:
 
@@ -385,6 +393,9 @@ public:
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
 
+    /** Gets the value change description */
+    virtual String getChangeDescription();
+
     /** Saves the parameter to an XML Element*/
     virtual void toXml(XmlElement*) override;
 
@@ -423,6 +434,9 @@ public:
     
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
+
+    /** Gets the value change description */
+    virtual String getChangeDescription();
 
     /** Updates the categories*/
     void setCategories(Array<String> categories);
@@ -471,6 +485,9 @@ public:
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
 
+    /** Gets the value change description */
+    virtual String getChangeDescription();
+
     int getMinValue() { return minValue; }
 
     int getMaxValue() { return maxValue; }
@@ -512,6 +529,9 @@ public:
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
 
+    /** Gets the value change description */
+    virtual String getChangeDescription();
+
     /** Saves the parameter to an XML Element*/
     virtual void toXml(XmlElement*) override;
 
@@ -552,6 +572,9 @@ public:
     
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
+
+    /** Gets the value change description */
+    virtual String getChangeDescription();
 
     /** Gets the minimum value for this parameter*/
     float getMinValue() { return minValue; }
@@ -612,6 +635,9 @@ public:
     /** Gets the value as a string**/
     virtual String getValueAsString() override { return streamNames[currentValue]; };
 
+    /** Gets the value change description */
+    virtual String getChangeDescription();
+
     /** Saves the parameter to an XML Element*/
     virtual void toXml(XmlElement*) override;
 
@@ -671,6 +697,9 @@ public:
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
 
+    /** Gets the value change description */
+    virtual String getChangeDescription();
+
     /** Sets the total number of available channels in this stream*/
     void setChannelCount(int count);
 
@@ -723,6 +752,9 @@ public:
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
 
+    /** Gets the value change description */
+    virtual String getChangeDescription();
+
     /** Sets the total number of available channels in this stream*/
     void setChannelCount(int count);
 
@@ -767,6 +799,9 @@ public:
     /** Gets the value as an integer*/
     virtual String getValueAsString() override { return currentValue.toString(); };
 
+    /** Gets the value change description */
+    virtual String getChangeDescription();
+
     /** Saves the parameter to an XML Element*/
     virtual void toXml(XmlElement*) override;
 
@@ -808,6 +843,9 @@ public:
 
     /** Gets the value as a string**/
     virtual String getValueAsString() override { return currentValue.toString(); }
+
+    /** Gets the value change description */
+    virtual String getChangeDescription();
 
     /** Saves the parameter to an XML Element*/
     virtual void toXml(XmlElement*) override;
@@ -891,6 +929,9 @@ public:
         /** Undo the action*/
         bool undo();
 
+        /** Log the action*/
+        void log();
+
     private:
         std::string key;
 
@@ -929,6 +970,9 @@ public:
     
     /** Gets the value as a string**/
     String getValueAsString() override { return String(); }
+
+    /** Gets the value change description */
+    String getChangeDescription() override { return String(); }
 
     /** Saves the parameter to an XML Element*/
     void toXml(XmlElement*) override { }

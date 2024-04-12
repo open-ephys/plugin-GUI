@@ -169,6 +169,55 @@ void Parameter::valueChanged()
     {
 		listener->parameterChanged(this);
     }
+
+    logValueChange();
+
+}
+
+void Parameter::logValueChange()
+{
+    if (getScope() == ParameterScope::GLOBAL_SCOPE)
+    {
+        CoreServices::sendStatusMessage("Changed " + getDisplayName() + " to " + getChangeDescription());
+    }
+    else if (getScope() == ParameterScope::PROCESSOR_SCOPE)
+    {
+        auto processor = (GenericProcessor*)getOwner();
+        CoreServices::sendStatusMessage("Changed " + String(processor->getNodeId()) + "|" + processor->getName() + "|" + getDisplayName() + " to " + getChangeDescription());
+    }
+    else if (getScope() == ParameterScope::STREAM_SCOPE)
+    {
+        //Get the processor that owns the stream
+        auto stream = (DataStream*)getOwner();
+        int nodeID = stream->getNodeId();
+        GenericProcessor* proc = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeID);
+        String procKey = String(nodeID) + "|" + proc->getName();
+
+        //Get stream source key
+        int firstDelimPos = String(getKey()).indexOfChar('|');
+        int secondDelimPos = String(getKey()).indexOfChar(firstDelimPos + 1, '|');
+        String srcKey = String(getKey()).substring(0, secondDelimPos + 1);
+        CoreServices::sendStatusMessage("Changed " + procKey + "|" + srcKey + getDisplayName() + " to " + getChangeDescription());
+    }
+    else if (getScope() == ParameterScope::VISUALIZER_SCOPE)
+    {
+        auto visualizer = (Visualizer*)getOwner();
+        auto processor = visualizer->getProcessor();
+        CoreServices::sendStatusMessage("Changed parameter " + getDisplayName() + " in visualizer " + String(processor->getNodeId()) + "|" + visualizer->getName() + " to " + getChangeDescription());
+    }
+    else if (getScope() == ParameterScope::SPIKE_CHANNEL_SCOPE)
+    {
+        //Get spike source node ID
+        auto channel = (SpikeChannel*)getOwner();
+        int firstDelimPos = String(channel->getIdentifier()).indexOfChar('|');
+        int secondDelimPos = String(channel->getIdentifier()).indexOfChar(firstDelimPos + 1, '|');
+        int thirdDelimPos = String(channel->getIdentifier()).indexOfChar(secondDelimPos + 1, '|');
+
+        String srcKey = String(channel->getIdentifier()).substring(secondDelimPos + 1, thirdDelimPos + 1);
+        String streamKey = String(channel->getIdentifier()).substring(0, secondDelimPos + 1);
+
+        CoreServices::sendStatusMessage("Changed " + srcKey + "Spike Detector|" +  streamKey + channel->getName() + "|" + getDisplayName() + " : " + getChangeDescription());
+    }
 }
 
 Parameter::ChangeValue::ChangeValue(std::string key_, var newValue_)
@@ -190,9 +239,12 @@ bool Parameter::ChangeValue::perform()
     p->getOwner()->parameterChangeRequest(p);
     
     p->valueChanged();
+
+    p->logValueChange();
     
     return true;
 }
+
 
 bool Parameter::ChangeValue::undo()
 {
@@ -202,6 +254,8 @@ bool Parameter::ChangeValue::undo()
     p->getOwner()->parameterChangeRequest(p);
 
     p->valueChanged();
+
+    p->logValueChange();
     
     return true;
 }
@@ -257,6 +311,11 @@ String BooleanParameter::getValueAsString()
     }
 }
 
+String BooleanParameter::getChangeDescription()
+{
+    return getValueAsString();
+}
+
 void BooleanParameter::toXml(XmlElement* xml) 
 {
     xml->setAttribute(getName(), (bool) currentValue);
@@ -298,6 +357,7 @@ void CategoricalParameter::setNextValue(var newValue_, bool undoable)
     
     AccessClass::getUndoManager()->beginNewTransaction();
     AccessClass::getUndoManager()->perform(action);   
+
 }
 
 int CategoricalParameter::getSelectedIndex()
@@ -313,6 +373,11 @@ String CategoricalParameter::getSelectedString()
 String CategoricalParameter::getValueAsString()
 {
     return getSelectedString();
+}
+
+String CategoricalParameter::getChangeDescription()
+{
+    return getValueAsString();
 }
 
 const Array<String>& CategoricalParameter::getCategories()
@@ -390,6 +455,11 @@ String IntParameter::getValueAsString()
     return String(getIntValue());
 }
 
+String IntParameter::getChangeDescription()
+{
+    return getValueAsString();
+}
+
 void IntParameter::toXml(XmlElement* xml)
 {
     xml->setAttribute(getName(), (int) currentValue);
@@ -445,6 +515,11 @@ String StringParameter::getStringValue()
 String StringParameter::getValueAsString()
 {
     return getStringValue();
+}
+
+String StringParameter::getChangeDescription()
+{
+    return getValueAsString();
 }
 
 void StringParameter::toXml(XmlElement* xml)
@@ -520,7 +595,12 @@ float FloatParameter::getFloatValue()
 
 String FloatParameter::getValueAsString()
 {
-    return String(getFloatValue());
+    return String(getFloatValue()) + " " + unit;
+}
+
+String FloatParameter::getChangeDescription()
+{
+    return getValueAsString();
 }
 
 void FloatParameter::toXml(XmlElement* xml)
@@ -619,6 +699,45 @@ Array<int> SelectedChannelsParameter::getArrayValue()
 String SelectedChannelsParameter::getValueAsString()
 {
     return selectedChannelsToString();
+}
+
+String SelectedChannelsParameter::getChangeDescription()
+{
+    //compare previousValue to currentValue and return a string describing the change
+    Array<int> prev;
+    for (int i = 0; i < previousValue.getArray()->size(); i++)
+    {
+        prev.add(previousValue[i]);
+    }
+
+    Array<int> curr;
+    for (int i = 0; i < currentValue.getArray()->size(); i++)
+    {
+        curr.add(currentValue[i]);
+    }
+
+    //find how many values different from prev to curr
+    int diff = 0;
+
+    for (int i = 0; i < curr.size(); i++)
+    {
+        if (!prev.contains(curr[i]))
+            diff++;
+    }
+    
+    for (int i = 0; i < prev.size(); i++) {
+        if (!curr.contains(prev[i]))
+            diff++;
+    }
+
+    if (diff == 0) //should never get here
+        return "No change";
+    else if (diff == 1)
+        return " (1 channel state changed)";
+    else
+        return "(" + String(diff) + " channel states changed)";
+
+
 }
 
 void SelectedChannelsParameter::toXml(XmlElement* xml)
@@ -747,6 +866,44 @@ Array<int> MaskChannelsParameter::getArrayValue()
 String MaskChannelsParameter::getValueAsString()
 {
     return maskChannelsToString();
+}
+
+String MaskChannelsParameter::getChangeDescription()
+{
+    //compare previousValue to currentValue and return a string describing the change
+    Array<int> prev;
+    for (int i = 0; i < previousValue.getArray()->size(); i++)
+    {
+        prev.add(previousValue[i]);
+    }
+
+    Array<int> curr;
+    for (int i = 0; i < currentValue.getArray()->size(); i++)
+    {
+        curr.add(currentValue[i]);
+    }
+
+    //find how many values different from prev to curr
+    int diff = 0;
+
+    for (int i = 0; i < curr.size(); i++)
+    {
+        if (!prev.contains(curr[i]))
+            diff++;
+    }
+    
+    for (int i = 0; i < prev.size(); i++) {
+        if (!curr.contains(prev[i]))
+            diff++;
+    }
+
+    if (diff == 0) //should never get here
+        return "No change";
+    else if (diff == 1)
+        return " (1 channel state changed)";
+    else
+        return "(" + String(diff) + " channel states changed)";
+
 }
 
 void MaskChannelsParameter::toXml(XmlElement* xml)
@@ -895,6 +1052,11 @@ void PathParameter::fromXml(XmlElement* xml)
     currentValue = xml->getStringAttribute(getName(), defaultValue);
 }
 
+String PathParameter::getChangeDescription()
+{
+    return currentValue.toString();
+}
+
 SelectedStreamParameter::SelectedStreamParameter(ParameterOwner* owner,
     ParameterScope scope,
     const String& name,
@@ -963,6 +1125,11 @@ void SelectedStreamParameter::fromXml(XmlElement* xml)
 {
     int loadValue = xml->getIntAttribute(getName(), defaultValue);
     currentValue = loadValue < streamNames.size() ? (var)loadValue : defaultValue;
+}
+
+String SelectedStreamParameter::getChangeDescription()
+{
+    return streamNames[(int)currentValue];
 }
 
 TimeParameter::TimeParameter(ParameterOwner* owner,
@@ -1041,6 +1208,8 @@ bool TimeParameter::ChangeValue::perform()
 
     p->valueChanged();
 
+    p->logValueChange();
+
     return true;
 }
 
@@ -1054,7 +1223,14 @@ bool TimeParameter::ChangeValue::undo()
 
     p->valueChanged();
 
+    p->logValueChange();
+
     return true;
+}
+
+String TimeParameter::getChangeDescription()
+{
+    return getValueAsString();
 }
 
 NotificationParameter::NotificationParameter(ParameterOwner* owner,
