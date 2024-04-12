@@ -84,6 +84,39 @@ TextEditor* CustomTextBox::createEditorComponent()
     return ed;
 }
 
+void CustomTextBox::paint(juce::Graphics& g)
+{
+    // Fill the background with a rounded rectangle
+    g.setColour(findColour(Label::backgroundColourId));
+    g.fillRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f, 0.5f), 3.0f);
+
+    // Draw the text with units
+    if (! isBeingEdited())
+    {
+        auto alpha = isEnabled() ? 1.0f : 0.5f;
+        const Font font (getFont());
+
+        g.setColour (findColour (Label::textColourId).withMultipliedAlpha (alpha));
+        g.setFont (font);
+
+        auto textArea = getBorderSize().subtractedFrom (getLocalBounds());
+
+        String valueWithUnits = units.isEmpty() ? getText() : getText() + " " + units;
+        g.drawFittedText (valueWithUnits, textArea, getJustificationType(),
+                          jmax (1, (int) ((float) textArea.getHeight() / font.getHeight())),
+                          getMinimumHorizontalScale());
+
+        g.setColour (Colours::black.withMultipliedAlpha (alpha));
+    }
+    else if (isEnabled())
+    {
+       g.setColour(Colours::black);
+    }
+
+    // Draw a rounded rectangle border
+    g.drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f, 0.5f), 3.0f, 1.0f);
+}
+
 TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels)
     : ParameterEditor(param)
 {
@@ -99,11 +132,11 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPi
     addAndMakeVisible(label.get());
 
     if(param->getType() == Parameter::FLOAT_PARAM)
-        valueTextBox = std::make_unique<CustomTextBox>("Parameter value", String(float(param->getValue())), "0123456789.");
+        valueTextBox = std::make_unique<CustomTextBox>(param->getKey(), String(float(param->getValue())), "0123456789.", ((FloatParameter*)param)->getUnit());
     else if(param->getType() == Parameter::INT_PARAM)
-        valueTextBox = std::make_unique<CustomTextBox>("Parameter value", String(int(param->getValue())), "0123456789");
+        valueTextBox = std::make_unique<CustomTextBox>(param->getKey(), String(int(param->getValue())), "0123456789");
     else
-        valueTextBox = std::make_unique<CustomTextBox>("Parameter value", param->getValue().toString(), "");
+        valueTextBox = std::make_unique<CustomTextBox>(param->getKey(), param->getValue().toString(), "");
 
     valueTextBox->setFont(Font("CP Mono", "Plain", int(0.75*rowHeightPixels)));
     valueTextBox->setName(param->getKey());

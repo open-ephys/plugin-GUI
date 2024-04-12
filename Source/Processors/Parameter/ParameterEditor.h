@@ -174,9 +174,10 @@ class PLUGIN_API CustomTextBox : public Label
 public:
 
     /** Constructor */
-    CustomTextBox(const String& name, const String& text, const String& allowedCharacters) 
+    CustomTextBox(const String& name, const String& text, const String& allowedCharacters, const String& units = "") 
         : Label(name, text),
-          allowedChars(allowedCharacters)
+          allowedChars(allowedCharacters),
+          units(units)
     {};
 
     /** Destructor */
@@ -185,8 +186,11 @@ public:
     /** Creates the editor component */
     TextEditor* createEditorComponent() override;
 
+    void paint(Graphics& g) override;
+
 private:
     String allowedChars;
+    String units;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomTextBox)
 };
