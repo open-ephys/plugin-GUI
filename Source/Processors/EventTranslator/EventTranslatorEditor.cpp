@@ -31,7 +31,7 @@ EventTranslatorEditor::EventTranslatorEditor (GenericProcessor* parentNode)
     : GenericEditor (parentNode)
 {
 
-    desiredWidth = 150;
+    desiredWidth = 170;
 
 }
 
@@ -42,7 +42,6 @@ EventTranslatorEditor::~EventTranslatorEditor()
 
 void EventTranslatorEditor::updateSettings()
 {
-    buttons.clear();
     
     EventTranslator* proc = (EventTranslator*) getProcessor();
     
@@ -64,21 +63,20 @@ void EventTranslatorEditor::updateSettings()
             numLines = eventChannels[0]->getMaxTTLBits();
         else
             numLines = 1;
+
+		TtlLineParameter* syncLineParam = (TtlLineParameter*)proc->getDataStream(streamId)->getParameter("sync_line");
+        syncLineParam->setMaxAvailableLines(numLines);
+
+		Parameter* mainSyncParam = proc->getParameter("main_sync");
         
-        String name = stream->getSourceNodeName() + " (" +
-                      String(stream->getSourceNodeId()) + ") - " +
-                      stream->getName();
-        
-        buttons.add(new SyncControlButton(proc,
-                                          name,
-                                          stream->getKey(),
-                                          numLines));
-        
-        buttons.getLast()->setBounds(18 + column * 25, 30 + row * 25, 18, 18);
-        addAndMakeVisible(buttons.getLast());
+		// Add a sync line parameter editor for each stream
+        addSyncLineParameterEditor(syncLineParam, (SelectedStreamParameter*)mainSyncParam, 18 + column * 25, 30 + row * 25);
+		ParameterEditor* syncEditor = parameterEditors.getLast();
+        syncEditor->setSize(18, 18);
+        syncEditor->getEditor()->setSize(18, 18);
+        syncEditor->disableUpdateOnSelectedStreamChanged();
 
         streamCount++;
     }
-    
     
 }

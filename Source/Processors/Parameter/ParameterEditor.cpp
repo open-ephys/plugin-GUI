@@ -1037,8 +1037,7 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
     if (node->isMainDataStream(streamKey))
     {
         g.setColour(Colour(255,255,255));
-        g.setFont(Font(10));
-        g.drawText("M", 0, 0, getWidth(), getHeight(), juce::Justification::centred);
+        g.drawText("M", getLocalBounds().reduced(3), juce::Justification::centred);
     }
     
 }

@@ -69,21 +69,20 @@ public:
 
     /** Creates the editor */
     AudioProcessorEditor* createEditor() override;
+
+    /** Register parameters */
+	void registerParameters() override;
     
     /** Updates the EventTranslator settings*/
     void updateSettings() override;
+
+    void parameterValueChanged(Parameter* parameter) override;
     
     /** Informs synchronizer about acquisition start */
     bool startAcquisition() override;
     
     /** Informs synchronizer about acquisition start */
     bool stopAcquisition() override;
-    
-    /** Save sync channel parameters*/
-    void saveCustomParametersToXml(XmlElement* xml);
-    
-    /** Load sync channel parameters*/
-    void loadCustomParametersFromXml(XmlElement* xml);
 
 private:
     
