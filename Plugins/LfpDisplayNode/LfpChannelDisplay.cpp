@@ -391,13 +391,14 @@ void LfpViewer::LfpChannelDisplay::drawPlot(int index, int i, bool drawWithOffse
 	bool& spikeFlag, LfpBitmapPlotterInfo& plotterInfo, Image::BitmapData& bdLfpChannelBitmap)
 {	
 	// set max-min range for plotting
-	double range_numerator = 0;
-	double range_denominator = rangeMax;
+	double range_numerator = rangeMin;
+	double denominator = rangeMax - rangeMin * channelHeightFloat;
+	denominator = std::max(denominator, 1.0);
 
-	double a = (canvasSplit->getYCoordMax(chan, index) - range_numerator) / range_denominator * channelHeightFloat;
-	double b = (canvasSplit->getYCoordMin(chan, index) - range_numerator) / range_denominator * channelHeightFloat;
+	double a = (canvasSplit->getYCoordMax(chan, index)) / denominator;
+	double b = (canvasSplit->getYCoordMin(chan, index) - range_numerator) / denominator;
 
-	double mean = (canvasSplit->getMean(chan) - range_numerator) / range_denominator * channelHeightFloat;
+	double mean = (canvasSplit->getMean(chan) - range_numerator) / denominator;
 
 	if (drawWithOffsetCorrection)
 	{
