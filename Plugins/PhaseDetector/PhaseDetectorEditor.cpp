@@ -48,7 +48,7 @@ PhaseDetectorEditor::PhaseDetectorEditor(GenericProcessor* parentNode)
     ttlEditor->setLayout(ParameterEditor::Layout::nameOnTop);
     ttlEditor->setSize(80, 34);
 
-    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "gate_line", 110, 92);
+    addTtlLineParameterEditor(Parameter::STREAM_SCOPE, "gate_line", 110, 92);
     ParameterEditor* gateEditor = getParameterEditor("gate_line");
     gateEditor->setLayout(ParameterEditor::Layout::nameOnTop);
     gateEditor->setSize(80, 34);

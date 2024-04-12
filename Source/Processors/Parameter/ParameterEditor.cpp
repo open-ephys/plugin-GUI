@@ -1097,7 +1097,7 @@ void TtlLineParameterEditor::buttonClicked(Button* button_)
 
     TtlLineParameter* p = (TtlLineParameter*)param;
 
-    if (syncParam != nullptr)
+    if (p->syncModeEnabled() && syncParam != nullptr)
     {
         DataStream* paramStream = (DataStream*)p->getOwner();
 
@@ -1117,7 +1117,8 @@ void TtlLineParameterEditor::buttonClicked(Button* button_)
         auto* lineSelector = new SyncLineSelector(this, 
             p->getMaxAvailableLines(), 
             p->getSelectedLine(), 
-            true);
+            true,
+            p->canSelectNone());
         
         CallOutBox& myBox
             = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(lineSelector),
@@ -1137,7 +1138,8 @@ void TtlLineParameterEditor::updateView()
         if(textButton != nullptr)
         {
             int selected = ((TtlLineParameter*)param)->getSelectedLine();
-            textButton->setButtonText("Line " + String(selected + 1));
+            String btnText = selected == -1 ? "None" : "Line " + String(selected + 1);
+            textButton->setButtonText(btnText);
         }
     }
 }

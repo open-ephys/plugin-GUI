@@ -375,12 +375,18 @@ public:
         const String& description,
         bool deactivateDuringAcquisition = true);
     
+    /** Adds a parameter that allows the user to select a TTL Line
+     * @param maxAvailableLines The number of TTL lines available for selection
+     * @param syncMode Set to true if the ttl line will be used for synchronization
+     * @param canSelectNone Set to true if the user can select no TTL line (cant be used with syncMode = true)
+     */
     void addTtlLineParameter(Parameter::ParameterScope scope,
         const String& name,
         const String& displayName,
         const String& description,
         int maxAvailableLines = 8,
         bool syncMode = false,
+        bool canSelectNone = false,
         bool deactivateDuringAcquisition = false);
 
     /** Returns a pointer to a parameter created inside this processor

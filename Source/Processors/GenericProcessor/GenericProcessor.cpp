@@ -467,6 +467,7 @@ void GenericProcessor::addTtlLineParameter(
     const String& description,
     int maxTtlLines,
     bool syncMode,
+    bool canSelectNone,
     bool deactivateDuringAcquisition)
 {
 
@@ -478,6 +479,7 @@ void GenericProcessor::addTtlLineParameter(
         description,
         maxTtlLines,
         syncMode,
+        canSelectNone,
         deactivateDuringAcquisition);
 
     dataStreamParameters.add(p);

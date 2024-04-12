@@ -157,6 +157,18 @@ void DataThread::addNotificationParameter(Parameter::ParameterScope scope,
     sn->addNotificationParameter(scope, name, displayName, description, deactivateDuringAcquisition);
 }
 
+void DataThread::addTtlLineParameter(Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    int maxAvailableLines,
+    bool syncMode,
+    bool canSelectNone,
+    bool deactivateDuringAcquisition )
+{
+    sn->addTtlLineParameter(scope, name, displayName, description, maxAvailableLines, syncMode, canSelectNone, deactivateDuringAcquisition);
+}
+
 Parameter* DataThread::getParameter(String name) const
 {
     return sn->getParameter(name);

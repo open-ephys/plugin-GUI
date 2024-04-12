@@ -846,6 +846,7 @@ TtlLineParameter::TtlLineParameter(ParameterOwner* owner,
     const String& description,
     int maxAvailableLines_,
     bool syncMode_,
+    bool canSelectNone_,
     bool deactivateDuringAcquisition)
     : Parameter(owner,
         ParameterType::TTL_LINE_PARAM,
@@ -856,10 +857,15 @@ TtlLineParameter::TtlLineParameter(ParameterOwner* owner,
         0,
         deactivateDuringAcquisition),
     lineCount(maxAvailableLines_),
-    syncMode(syncMode_)
+    syncMode(syncMode_),
+    selectNone(canSelectNone_)
 {
     jassert((lineCount >= 0 && lineCount < 256));
     jassert(scope == ParameterScope::STREAM_SCOPE);
+    
+    // Can't have both sync mode and select none
+    if (syncMode && selectNone)
+        jassertfalse;
 }
 
 void TtlLineParameter::setNextValue(var newValue_, bool undoable)
@@ -867,15 +873,16 @@ void TtlLineParameter::setNextValue(var newValue_, bool undoable)
 
     if (newValue_ == currentValue) return;
 
-    if ((int)newValue_ < lineCount && (int)newValue_ >= 0)
+    if (((int)newValue_ < lineCount && (int)newValue_ >= 0) 
+        || (!syncMode && (int)newValue_ == -1)) // -1 is a valid value for non-sync mode
     {
         newValue = newValue_;
-    }
     
-    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+        ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
 
-    AccessClass::getUndoManager()->beginNewTransaction();
-    AccessClass::getUndoManager()->perform(action);
+        AccessClass::getUndoManager()->beginNewTransaction();
+        AccessClass::getUndoManager()->perform(action);
+    }
 
 }
 

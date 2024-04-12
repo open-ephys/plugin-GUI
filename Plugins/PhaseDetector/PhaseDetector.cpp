@@ -75,9 +75,17 @@ TTLEventPtr PhaseDetectorSettings::clearOutputLine(int64 sample_number)
 PhaseDetector::PhaseDetector() : GenericProcessor ("Phase Detector")
 {
 
+}
+
+void PhaseDetector::registerParameters()
+{
     addSelectedChannelsParameter(Parameter::STREAM_SCOPE, "channel", "Channel", "The continuous channel to analyze", 1);
+
     addTtlLineParameter(Parameter::STREAM_SCOPE, "ttl_out", "TTL out", "The output TTL line", 16);
-    addIntParameter(Parameter::STREAM_SCOPE,"gate_line", "Gate line", "The input TTL line for gating the signal (0 = off)", 0, 0, 16);
+    
+    addTtlLineParameter(Parameter::STREAM_SCOPE,"gate_line", "Gate line", "The input TTL line for gating the signal", 16, false, true);
+    getStreamParameter("gate_line")->currentValue = -1;
+
     addCategoricalParameter(Parameter::STREAM_SCOPE,
         "phase",
         "Phase",
@@ -127,7 +135,7 @@ void PhaseDetector::parameterValueChanged(Parameter* param)
     }
     else if (param->getName().equalsIgnoreCase("gate_line"))
     {
-        settings[param->getStreamId()]->gateLine = (int)param->getValue() - 1;
+        settings[param->getStreamId()]->gateLine = (int)param->getValue();
     }
 
 }

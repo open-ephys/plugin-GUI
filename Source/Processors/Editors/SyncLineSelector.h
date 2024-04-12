@@ -93,7 +93,7 @@ public:
 	};
 
 	/** Constructor */
-	SyncLineSelector(Listener* listener, int numChans, int selectedLine, bool isPrimary);
+	SyncLineSelector(Listener* listener, int numChans, int selectedLine, bool isPrimary, bool canSelectNone = false);
 	//SyncLineSelector(int nChans, int selectedChannelIdx, bool isPrimary);
 
 	/** Destructor */
@@ -131,6 +131,7 @@ private:
     ScopedPointer<SetPrimaryButton> setPrimaryStreamButton;
     
 	int selectedLine = 0;
+	bool canSelectNone = false;
 };
 
 #endif // SYNCCHANNEL_SELECTOR_H_INCLUDED

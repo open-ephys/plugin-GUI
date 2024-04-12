@@ -750,6 +750,7 @@ public:
         const String& description,
         int maxAvailableLines = 8,
         bool syncMode = false,
+        bool canSelectNone = false,
         bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
@@ -778,10 +779,13 @@ public:
 
     bool syncModeEnabled() { return syncMode; }
 
+    bool canSelectNone() { return selectNone; }
+
 private:
 
     int lineCount;
     bool syncMode;
+    bool selectNone;
 };
 
 

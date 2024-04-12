@@ -98,12 +98,13 @@ void SetPrimaryButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonD
 }
 
 //SyncLineSelector::SyncLineSelector(int nChans, int selectedIdx, bool isPrimary_)
-SyncLineSelector::SyncLineSelector(SyncLineSelector::Listener* listener_, int numChans, int selectedLine_, bool isPrimary_)
+SyncLineSelector::SyncLineSelector(SyncLineSelector::Listener* listener_, int numChans, int selectedLine_, bool isPrimary_, bool canSelectNone_)
     : listener(listener_),
     isPrimary(isPrimary_),
     nChannels(numChans),
     detectedChange(false),
-    selectedLine(selectedLine_)
+    selectedLine(selectedLine_),
+    canSelectNone(canSelectNone_)
 {
     lineColors.add(Colour(224, 185, 36));
     lineColors.add(Colour(243, 119, 33));
@@ -180,11 +181,26 @@ void SyncLineSelector::buttonClicked(Button* button)
     }
     else
     {
-        for (int i = 0; i < buttons.size(); i++)
-            buttons[i]->setToggleState(false, dontSendNotification);
+        bool sameButton = false;
 
-        button->setToggleState(true, dontSendNotification);
-        selectedLine = std::stoi(button->getComponentID().toStdString());
+        for (int i = 0; i < buttons.size(); i++)
+        {
+            if (buttons[i]->getToggleState() && buttons[i] == button)
+                sameButton = true;
+
+            buttons[i]->setToggleState(false, dontSendNotification);
+        }
+
+        if (canSelectNone && sameButton)
+        {
+            selectedLine = -1;
+        }
+        else
+        {
+            button->setToggleState(true, dontSendNotification);
+            selectedLine = std::stoi(button->getComponentID().toStdString());
+        }
+        
         listener->selectedLineChanged(selectedLine);
         repaint();
     }

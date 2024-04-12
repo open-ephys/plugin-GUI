@@ -508,6 +508,7 @@ DataStreamInfo::DataStreamInfo(DataStream* stream_, GenericEditor* editor, Graph
     {
         // set parameter editor bounds
         paramEditor->setBounds(5, yPos, rowWidthPixels, rowHeightPixels);
+        paramEditor->updateView();
         yPos += rowHeightPixels + 5;
 
         //transfer ownership to DataStreamInfo
@@ -644,6 +645,7 @@ ProcessorParameterComponent::ProcessorParameterComponent(GenericProcessor* p)
     {
         // set parameter editor bounds
         editor->setBounds(5, yPos, rowWidthPixels, rowHeightPixels);
+        editor->updateView();
         yPos += rowHeightPixels + 5;
 
         //transfer ownership to DataStreamInfo

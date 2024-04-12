@@ -99,7 +99,7 @@ void RecordNode::registerParameters()
 	engineParam->setCategories(recordEngines);
 
 	addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to record from", true);
-	addTtlLineParameter(Parameter::STREAM_SCOPE, "sync_line", "Sync Line", "Event line to use for sync signal", 8, true, true);
+	addTtlLineParameter(Parameter::STREAM_SCOPE, "sync_line", "Sync Line", "Event line to use for sync signal", 8, true, false, true);
 	addSelectedStreamParameter(Parameter::PROCESSOR_SCOPE, "main_sync", "Main Sync Stream", "Use this stream as main sync", {}, 0, true);
 }
 
