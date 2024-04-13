@@ -353,7 +353,7 @@ void GenericEditor::resized()
         {
             if (drawerOpen)
             {
-                streamSelector->setBounds(desiredWidth, 25, 
+                streamSelector->setBounds(desiredWidth, 29, 
                                           streamSelector->getDesiredWidth(), 
                                           getHeight() - 35);
                 streamSelector->setVisible(true);

@@ -703,7 +703,7 @@ StreamSelectorTable::StreamSelectorTable(GenericEditor* ed_) :
     setLookAndFeel(customTableLookAndFeel.get());
 
     expanderButton = std::make_unique<ExpanderButton>();
-    addAndMakeVisible(expanderButton.get());
+    //addAndMakeVisible(expanderButton.get());
     expanderButton->setBounds(222, 4, 15, 15);
     expanderButton->addListener(this);
 
