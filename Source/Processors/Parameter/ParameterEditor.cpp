@@ -1365,7 +1365,7 @@ TimeParameterEditor::TimeParameterEditor(Parameter* param, int rowHeightPixels, 
     button->setName(param->getKey());
     button->addListener(this);
     button->setClickingTogglesState(false);
-    button->setTooltip("Set a time...");
+    button->setTooltip("Uninitialized");
     addAndMakeVisible(button.get());
 
     int width = rowWidthPixels;
@@ -1410,7 +1410,10 @@ void TimeParameterEditor::resized()
 void TimeParameterEditor::timerCallback()
 {
     if (param != nullptr)
+    {
         button->setButtonText(((TimeParameter*)param)->getTimeValue()->toString());
+        button->setTooltip("Max time: " + String(((TimeParameter*)param)->getTimeValue()->getMaxTimeInMilliseconds()) + " ms");
+    }
     else
         button->setButtonText("00:00:00.000");
 }

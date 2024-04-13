@@ -122,6 +122,14 @@ public:
     /* Returns a list of file formats supported by the GUI */
 	StringArray getSupportedExtensions() const;
 
+    /** Sets the current stream to read data from */
+    void setActiveStream (int index, bool resetPlayback = false);
+
+    /** Returns the current stream index */
+    int getActiveStream() const;
+
+    FileSource* getInputFile() { return input.get(); }
+
     /** Returns the total number of samples per channel */
     int64 getCurrentNumTotalSamples();
 
@@ -183,9 +191,6 @@ private:
 
     /** Flag if a new file has been loaded */
     bool gotNewFile;
-    
-    /** Sets the current stream to read data from */
-    void setActiveStream (int index);
 
     int64 totalSamplesAcquired;
 
@@ -200,7 +205,7 @@ private:
     int64 loopCount;
     bool playbackActive;
 
-    ScopedPointer<FileSource> input;
+    std::unique_ptr<FileSource> input;
 
     /* Pointer to current front buffer */
     HeapBlock<int16> * readBuffer;      

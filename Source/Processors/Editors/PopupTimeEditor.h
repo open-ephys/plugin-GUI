@@ -106,6 +106,7 @@ public:
 
     virtual ~PopupTimeEditor()
     {
+        //Validate entries and update parameter only if valid
         TimeParameter::TimeValue* tv = p->getTimeValue();
         TimeParameter::TimeValue* newTv = new TimeParameter::TimeValue(
             hourEditor.getText().getIntValue(),
@@ -114,7 +115,8 @@ public:
         );
         int t1 = newTv->getTimeInMilliseconds();
         int t2 = p->getTimeValue()->getMaxTimeInMilliseconds();
-        if (newTv->getTimeInMilliseconds() < p->getTimeValue()->getMaxTimeInMilliseconds())
+        if (newTv->getTimeInMilliseconds() < p->getTimeValue()->getMaxTimeInMilliseconds()
+            && newTv->getTimeInMilliseconds() > p->getTimeValue()->getMinTimeInMilliseconds())
             p->setNextValue(newTv->toString(),true);
     }
 
