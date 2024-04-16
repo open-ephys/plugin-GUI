@@ -2,8 +2,8 @@
 
 <SETTINGS>
   <INFO>
-    <VERSION>0.6.4</VERSION>
-    <PLUGIN_API_VERSION>8</PLUGIN_API_VERSION>
+    <VERSION>0.7.0</VERSION>
+    <PLUGIN_API_VERSION>9</PLUGIN_API_VERSION>
     <DATE>unknown</DATE>
     <OS>Windows, Linux, or macOS</OS>
     <MACHINE name="computer" cpu_model="any"
@@ -13,7 +13,7 @@
     <PROCESSOR name="OE FPGA Acquisition Board" insertionPoint="0" pluginName="OE FPGA Acquisition Board"
                type="4" index="0" libraryName="OE FPGA Acquisition Board" libraryVersion=""
                processorType="2" nodeId="100">
-      <GLOBAL_PARAMETERS/>
+      <PROCESSOR_PARAMETERS/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
         <PARAMETERS/>
@@ -26,7 +26,7 @@
               TTLFastSettle="1" DAC_TTL="0" DAC_HPF="1" DSPOffset="1" DSPCutoffFreq="0.1457129257077072"
               save_impedance_measurements="0" auto_measure_impedances="0" LEDs="1"
               ClockDivideRatio="1" Channel_Naming_Scheme="1">
-        <TAB Active="1" Index="3"/>
+        <TAB Active="1"/>
         <WINDOW Active="0"/>
         <ADCRANGE Channel="0" Range="0"/>
         <ADCRANGE Channel="1" Range="0"/>
@@ -41,22 +41,19 @@
     <PROCESSOR name="Record Node" insertionPoint="1" pluginName="Record Node"
                type="0" index="3" libraryName="" libraryVersion="" processorType="8"
                nodeId="101">
-      <GLOBAL_PARAMETERS/>
+      <PROCESSOR_PARAMETERS directory="default" engine="0"
+                            events="1" spikes="1" main_sync="0"/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
-        <PARAMETERS enable_stream="1"/>
+        <PARAMETERS enable_stream="1" channels="" sync_line="0"/>
       </STREAM>
-      <CUSTOM_PARAMETERS path="default" engine="BINARY" recordEvents="1"
-                         recordSpikes="1" fifoMonitorsVisible="1">
-        <STREAM isMainStream="1" sync_line="0" name="Rhythm Data" source_node_id="100"
-                sample_rate="30000.0" channel_count="72" recording_state="ALL"/>
-      </CUSTOM_PARAMETERS>
+      <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="LFP Viewer" insertionPoint="1" pluginName="LFP Viewer"
                type="1" index="8" libraryName="LFP viewer" libraryVersion="0.1.0"
                processorType="3" nodeId="103">
-      <GLOBAL_PARAMETERS/>
+      <PROCESSOR_PARAMETERS/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
         <PARAMETERS enable_stream="1"/>
@@ -64,36 +61,39 @@
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="LFP Viewer" activeStream="0"
               Type="LfpDisplayEditor">
-        <TAB Active="1" Index="4"/>
+        <TAB Active="1"/>
         <WINDOW Active="0"/>
         <VALUES SelectedLayout="1"/>
-        <LFPDISPLAY0 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
-                     colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
-                     satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
-                     showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
-                     trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="111111111111111111111111111111111111111111111111111111111111111111111111"
-                     ScrollX="0" ScrollY="0"/>
-        <LFPDISPLAY1 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
-                     colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
-                     satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
-                     showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
-                     trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="111111111111111111111111111111111111111111111111111111111111111111111111"
-                     ScrollX="0" ScrollY="0"/>
-        <LFPDISPLAY2 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
-                     colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
-                     satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
-                     showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
-                     trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="111111111111111111111111111111111111111111111111111111111111111111111111"
-                     ScrollX="0" ScrollY="0"/>
-        <CANVAS doubleVerticalSplitRatio="0.5" doubleHorizontalSplitRatio="0.5"
-                tripleHorizontalSplitRatio="0.33,0.66" tripleVerticalSplitRatio="0.33,0.66"
-                showAllOptions="0"/>
+        <VISUALIZER_PARAMETERS/>
+        <CUSTOM_PARAMETERS>
+          <LFPDISPLAY0 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+                      colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
+                      satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
+                      showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
+                      trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="111111111111111111111111111111111111111111111111111111111111111111111111"
+                      ScrollX="0" ScrollY="0"/>
+          <LFPDISPLAY1 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+                      colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
+                      satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
+                      showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
+                      trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="111111111111111111111111111111111111111111111111111111111111111111111111"
+                      ScrollX="0" ScrollY="0"/>
+          <LFPDISPLAY2 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+                      colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
+                      satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
+                      showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
+                      trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="111111111111111111111111111111111111111111111111111111111111111111111111"
+                      ScrollX="0" ScrollY="0"/>
+          <CANVAS doubleVerticalSplitRatio="0.5" doubleHorizontalSplitRatio="0.5"
+                  tripleHorizontalSplitRatio="0.33,0.66" tripleVerticalSplitRatio="0.33,0.66"
+                  showAllOptions="0"/>
+        </CUSTOM_PARAMETERS>
       </EDITOR>
     </PROCESSOR>
     <PROCESSOR name="Bandpass Filter" insertionPoint="1" pluginName="Bandpass Filter"
                type="1" index="6" libraryName="Bandpass Filter" libraryVersion="0.1.0"
                processorType="1" nodeId="104">
-      <GLOBAL_PARAMETERS/>
+      <PROCESSOR_PARAMETERS/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
         <PARAMETERS enable_stream="1" high_cut="6000.0" low_cut="300.0" Channels=""/>
@@ -105,7 +105,7 @@
     <PROCESSOR name="Spike Detector" insertionPoint="1" pluginName="Spike Detector"
                type="1" index="2" libraryName="Basic Spike Display" libraryVersion="0.1.0"
                processorType="1" nodeId="105">
-      <GLOBAL_PARAMETERS/>
+      <PROCESSOR_PARAMETERS/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
         <PARAMETERS enable_stream="1"/>
@@ -150,7 +150,7 @@
     <PROCESSOR name="Audio Monitor" insertionPoint="1" pluginName="Audio Monitor"
                type="0" index="4" libraryName="" libraryVersion="" processorType="6"
                nodeId="102">
-      <GLOBAL_PARAMETERS audio_output="1" mute_audio="0"/>
+      <PROCESSOR_PARAMETERS audio_output="1" mute_audio="0"/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
         <PARAMETERS enable_stream="1" Channels=""/>
@@ -162,22 +162,19 @@
     <PROCESSOR name="Record Node" insertionPoint="1" pluginName="Record Node"
                type="0" index="3" libraryName="" libraryVersion="" processorType="8"
                nodeId="106">
-      <GLOBAL_PARAMETERS/>
+      <PROCESSOR_PARAMETERS directory="default" engine="0"
+                            events="1" spikes="1" main_sync="0"/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
-        <PARAMETERS enable_stream="1"/>
+        <PARAMETERS enable_stream="1" channels="" sync_line="0"/>
       </STREAM>
-      <CUSTOM_PARAMETERS path="default" engine="BINARY" recordEvents="1"
-                         recordSpikes="1" fifoMonitorsVisible="1">
-        <STREAM isMainStream="1" sync_line="0" name="Rhythm Data" source_node_id="100"
-                sample_rate="30000.0" channel_count="72" recording_state="ALL"/>
-      </CUSTOM_PARAMETERS>
+      <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="Spike Viewer" insertionPoint="1" pluginName="Spike Viewer"
                type="1" index="3" libraryName="Basic Spike Display" libraryVersion="0.1.0"
                processorType="3" nodeId="107">
-      <GLOBAL_PARAMETERS/>
+      <PROCESSOR_PARAMETERS/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
               sample_rate="30000.0" channel_count="72">
         <PARAMETERS enable_stream="1"/>
@@ -185,7 +182,7 @@
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Spike Viewer" activeStream="0"
               Type="Visualizer" scale_factor_index="5">
-        <TAB Active="1" Index="5"/>
+        <TAB Active="1"/>
         <WINDOW Active="0"/>
         <SPIKEDISPLAY LockThresholds="0" InvertSpikes="0">
           <PLOT>
@@ -226,7 +223,15 @@
     <RECORD_NODE ID="106"/>
     <SPIKE_VIEWER ID="107"/>
   </EDITORVIEWPORT>
-  <DATAVIEWPORT selectedTab="5"/>
+    <DATAVIEWPORT>
+    <TABBEDCOMPONENT index="0" selectedTabNodeId="107">
+      <TAB nodeId="0"/>
+      <TAB nodeId="1"/>
+      <TAB nodeId="100"/>
+      <TAB nodeId="103"/>
+      <TAB nodeId="107"/>
+    </TABBEDCOMPONENT>
+  </DATAVIEWPORT>
   <AUDIO sampleRate="48000.0" bufferSize="1024" deviceType="Windows Audio">
     <DEVICESETUP deviceType="Windows Audio" audioOutputDeviceName="Speaker/HP (Realtek High Definition Audio)"
                  audioInputDeviceName="" audioDeviceRate="48000.0" audioDeviceBufferSize="1024"
