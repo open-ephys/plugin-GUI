@@ -46,6 +46,16 @@ void EventTranslatorEditor::updateSettings()
     EventTranslator* proc = (EventTranslator*) getProcessor();
     
     int streamCount = 0;
+
+    Array<ParameterEditor*> toRemove;
+    for (auto ed : parameterEditors)
+        if (ed->getParameterName() == "sync_line")
+            toRemove.add(ed);
+    
+    for (int i = 0; i < toRemove.size(); i++)
+        parameterEditors.removeObject(toRemove[i]);
+    
+    toRemove.clear();
     
     for (auto stream : proc->getDataStreams())
     {
