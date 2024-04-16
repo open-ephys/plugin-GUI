@@ -691,12 +691,6 @@ BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int r
     jassert(param->getType() == Parameter::FLOAT_PARAM
         || param->getType() == Parameter::INT_PARAM);
 
-    /* TODO: Unit should be displayed next to actual value while not editing
-    String unit = "";
-    if (param->getType() == Parameter::FLOAT_PARAM) unit = ((FloatParameter*)param)->getUnit();
-    unit = (unit != "" ? " [" + ((FloatParameter*)param)->getUnit() + "]" : "");
-    */
-
     label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
     Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
@@ -790,6 +784,8 @@ void BoundedValueParameterEditor::resized()
 
 SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
+    jassert(param->getType() == Parameter::SELECTED_CHANNELS_PARAM);
+    
     int selectedChannels = ((SelectedChannelsParameter*)param)->getArrayValue().size();
     int numChannels = ((SelectedChannelsParameter*)param)->getChannelStates().size();
 
@@ -868,6 +864,7 @@ void SelectedChannelsParameterEditor::resized()
 
 MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
+    jassert(param->getType() == Parameter::MASK_CHANNELS_PARAM);
 
     int numChannels = ((MaskChannelsParameter*)param)->getChannelStates().size();
     int selected = 0;
@@ -1192,6 +1189,8 @@ void TtlLineParameterEditor::resized()
 
 PathParameterEditor::PathParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
+    jassert(param->getType() == Parameter::PATH_PARAM);
+    
     setBounds(0, 0, rowWidthPixels, rowHeightPixels);
 
     button = std::make_unique<TextButton>("Browse");

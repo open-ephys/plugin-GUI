@@ -131,14 +131,50 @@ Array<ParameterEditor*> ParameterOwner::createDefaultEditor()
         {
         case Parameter::INT_PARAM:
         {
-            TextBoxParameterEditor* intParameterEditor = new TextBoxParameterEditor(parameter);
-            editors.add(intParameterEditor);
+            if (parameter->getParameterEditorType() == Parameter::ParameterEditorType::COMBOBOX_EDITOR)
+            {
+                ComboBoxParameterEditor* intParameterEditor = new ComboBoxParameterEditor(parameter);
+                editors.add(intParameterEditor);
+            }
+            else if (parameter->getParameterEditorType() == Parameter::ParameterEditorType::SLIDER_EDITOR)
+            {
+                SliderParameterEditor* intParameterEditor = new SliderParameterEditor(parameter);
+                editors.add(intParameterEditor);
+            }
+            else if (parameter->getParameterEditorType() == Parameter::ParameterEditorType::BOUNDED_VALUE_EDITOR)
+            {
+                BoundedValueParameterEditor* intParameterEditor = new BoundedValueParameterEditor(parameter);
+                editors.add(intParameterEditor);
+            }
+            else if (parameter->getParameterEditorType() == Parameter::ParameterEditorType::SELECTED_STREAM_EDITOR)
+            {
+                SelectedStreamParameterEditor* intParameterEditor = new SelectedStreamParameterEditor(parameter);
+                editors.add(intParameterEditor);
+            }
+            else
+            {
+                TextBoxParameterEditor* intParameterEditor = new TextBoxParameterEditor(parameter);
+                editors.add(intParameterEditor);
+            }
             break;
         }
         case Parameter::FLOAT_PARAM:
         {
-            TextBoxParameterEditor* floatParameterEditor = new TextBoxParameterEditor(parameter);
-            editors.add(floatParameterEditor);
+            if (parameter->getParameterEditorType() == Parameter::ParameterEditorType::SLIDER_EDITOR)
+            {
+                SliderParameterEditor* floatParameterEditor = new SliderParameterEditor(parameter);
+                editors.add(floatParameterEditor);
+            }
+            else if (parameter->getParameterEditorType() == Parameter::ParameterEditorType::BOUNDED_VALUE_EDITOR)
+            {
+                BoundedValueParameterEditor* floatParameterEditor = new BoundedValueParameterEditor(parameter);
+                editors.add(floatParameterEditor);
+            }
+            else
+            {
+                TextBoxParameterEditor* floatParameterEditor = new TextBoxParameterEditor(parameter);
+                editors.add(floatParameterEditor);
+            }
             break;
         }
         case Parameter::BOOLEAN_PARAM:

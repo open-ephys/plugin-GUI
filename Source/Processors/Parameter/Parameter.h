@@ -97,6 +97,22 @@ public:
         COLOUR_PARAM,
         NOTIFICATION_PARAM
     };
+
+    enum ParameterEditorType
+    {
+        UNKNOWN = 0,
+        TEXTBOX_EDITOR,
+        TOGGLE_EDITOR,
+        COMBOBOX_EDITOR,
+        SLIDER_EDITOR,
+        BOUNDED_VALUE_EDITOR,
+        SELECTED_CHANNELS_EDITOR,
+        SELECTED_STREAM_EDITOR,
+        MASK_CHANNELS_EDITOR,
+        TTL_LINE_EDITOR,
+        PATH_EDITOR,
+        TIME_EDITOR
+    };
     
     enum ParameterScope
     {
@@ -131,7 +147,8 @@ public:
         newValue(defaultValue_),
         m_deactivateDuringAcquisition(deactivateDuringAcquisition_),
         m_identifier("UNKNOWN"),
-        isEnabledFlag(true)
+        isEnabledFlag(true),
+        m_editorType(ParameterEditorType::UNKNOWN)
     {
     }
 
@@ -146,7 +163,8 @@ public:
         defaultValue(other.defaultValue),
         previousValue(other.previousValue),
         m_deactivateDuringAcquisition(other.m_deactivateDuringAcquisition),
-        isEnabledFlag(other.isEnabledFlag)
+        isEnabledFlag(other.isEnabledFlag),
+        m_editorType(other.m_editorType)
     {
         parameterListeners.clear();
     }
@@ -267,6 +285,22 @@ public:
     /** Returns the color any visualization of this parameter should use */
     Colour getColor();
 
+    /** Set the type of the parameter editor used for this parameter 
+     * Used by the GenericEditor to set which parameter editor to use when creating default editors 
+    */
+    void setParmeterEditorType(ParameterEditorType editorType) 
+    { 
+        m_editorType = editorType; 
+    }
+
+    /** Returns the type of the parameter editor.
+     * Returns UNKNOWN if not set.
+    */
+    ParameterEditorType getParameterEditorType() 
+    { 
+        return m_editorType; 
+    }
+
     /** Parameter listener class -- used for Parameter Editors */
     class Listener
     {
@@ -335,6 +369,7 @@ private:
 
     ParameterType m_parameterType;
     ParameterScope m_parameterScope;
+    ParameterEditorType m_editorType;
     String m_name;
     String m_displayName;
     String m_description;

@@ -90,7 +90,7 @@ void GraphViewer::updateBoundaries()
             maxWidth = node->getRight();
     }
 
-    setBounds(0, 0, maxWidth + 20, maxHeight + 20);
+    setSize(maxWidth + 20, maxHeight + 20);
 }
 
 
