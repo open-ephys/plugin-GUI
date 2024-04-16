@@ -48,6 +48,9 @@ public:
     /** Destructor*/
     ~AudioMonitor() { }
 
+    /** Add and register parameters*/
+    void registerParameters() override;
+
     /** Re-samples, filters, and copies selected channels*/
     void process (AudioBuffer<float>& buffer) override;
     
@@ -74,6 +77,9 @@ public:
     
     /** Allows other processors to configure the Audio Monitor during acquisition*/
     void handleBroadcastMessage(String message) override;
+
+    /** Sets the selected stream and updates the filter parameters*/
+    void setSelectedStream(uint16 streamId);
 
 private:
     

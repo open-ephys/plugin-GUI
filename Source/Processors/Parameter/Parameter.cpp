@@ -326,6 +326,12 @@ const Array<String>& CategoricalParameter::getCategories()
 void CategoricalParameter::setCategories(Array<String> categories_)
 {
     categories = categories_;
+
+    if (categories.size() > 0 && (int)currentValue >= categories.size())
+    {
+        currentValue = categories.size() - 1;
+        valueChanged();
+    }
 }
 
 void CategoricalParameter::toXml(XmlElement* xml)
