@@ -479,6 +479,9 @@ public:
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
+    /** Get selected channels */
+    Array<int> getSelectedChannels() override;
+
     /** Responds to changes in the PopupChannelSelector*/
     void channelStateChanged(Array<int> selectedChannels) override;
 
@@ -538,6 +541,9 @@ public:
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
+
+    /** Get selected channels */
+    Array<int> getSelectedChannels() override;
 
     /** Responds to changes in the PopupChannelSelector*/
     void channelStateChanged(Array<int> selectedChannels) override;

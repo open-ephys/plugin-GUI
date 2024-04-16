@@ -224,6 +224,8 @@ void SpikeChannel::reset()
 void SpikeChannel::parameterChangeRequest(Parameter* param)
 {
 	processorChain.getLast()->parameterChangeRequest(param);
+
+	
 }
 
 /*SpikeChannel::ThresholdType SpikeChannel::getThresholdType() const

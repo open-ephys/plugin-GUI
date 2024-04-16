@@ -94,6 +94,8 @@ UIComponent::UIComponent(MainWindow* mainWindow_,
 	AccessClass::setUIComponent(this);
 
 	getProcessorList()->fillItemList();
+
+	popupManager = std::make_unique<PopupManager>();
 }
 
 UIComponent::~UIComponent()
@@ -166,6 +168,11 @@ PluginInstaller* UIComponent::getPluginInstaller()
 		pluginInstaller = new PluginInstaller(this->mainWindow, false);
 	}
 	return pluginInstaller;
+}
+
+PopupManager* UIComponent::getPopupManager()
+{
+	return popupManager.get();
 }
 
 void UIComponent::buttonClicked(Button* button)
@@ -331,7 +338,7 @@ void UIComponent::resized()
             
         } else {
             messageCenterEditor->expand();
-            messageCenterEditor->setBounds(6,h-305,w-241,300);
+            messageCenterEditor->setBounds(6,h-getHeight()+5,getWidth(),getHeight());
         }
 	}
     
@@ -1026,6 +1033,26 @@ Array<String> UIComponent::getRecentlyUsedFilenames()
 void UIComponent::setRecentlyUsedFilenames(const Array<String>& filenames)
 {
 	controlPanel->setRecentlyUsedFilenames(filenames);
+}
+
+Component* UIComponent::findComponentByIDRecursive(Component* parent, const String& componentID) {
+    if (!parent) return nullptr;
+
+    // Check if the current component matches the ID
+    if (parent->getComponentID() == componentID) {
+        return parent;
+    }
+
+    // Recursively search in child components
+    for (auto* child : parent->getChildren()) {
+        Component* found = findComponentByIDRecursive(child, componentID);
+        if (found) {
+            return found;
+        }
+    }
+
+    // Not found in this branch of the hierarchy
+    return nullptr;
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

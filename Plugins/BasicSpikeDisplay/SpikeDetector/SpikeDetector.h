@@ -222,6 +222,9 @@ public:
     /** Ensures that selected channel names are unique across all channels in a stream */
     String ensureUniqueName(String name, uint16 streamId);
 
+    /** Gets the next avaialable channel to start adding electrodes */
+    int getNextAvailableChannelForStream(uint16 streamId);
+
 
     // CREATE AND DELETE ELECTRODES
     // =====================================================================

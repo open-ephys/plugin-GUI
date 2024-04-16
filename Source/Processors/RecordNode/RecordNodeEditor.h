@@ -88,6 +88,8 @@ public:
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
+	Array<int> getSelectedChannels() override;
+
     /** Responds to changes in the PopupChannelSelector*/
     void channelStateChanged(Array<int> selectedChannels) override;
 

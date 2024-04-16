@@ -22,6 +22,8 @@ add_sources(open-ephys
 	InfoLabel.h
 	PluginInstaller.cpp 
 	PluginInstaller.h
+	PopupComponent.cpp
+	PopupComponent.h
 	ProcessorList.cpp
 	ProcessorList.h
 	UIComponent.cpp

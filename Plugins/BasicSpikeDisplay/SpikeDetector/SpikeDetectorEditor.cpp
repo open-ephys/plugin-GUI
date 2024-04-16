@@ -22,7 +22,6 @@
 */
 
 #include "SpikeDetectorEditor.h"
-#include "SpikeDetector.h"
 #include "PopupConfigurationWindow.h"
 
 #include "SpikeDetectorActions.h"
@@ -39,6 +38,7 @@ SpikeDetectorEditor::SpikeDetectorEditor(GenericProcessor* parentNode)
     desiredWidth = 220;
     
     configureButton = std::make_unique<UtilityButton>("configure", titleFont);
+    configureButton->setComponentID("config_spikes");
     configureButton->addListener(this);
     configureButton->setRadius(3.0f);
     configureButton->setBounds(70, 60, 80, 30);
@@ -58,7 +58,6 @@ void SpikeDetectorEditor::buttonClicked(Button* button)
 
     if (button == configureButton.get())
     {
-
         SpikeDetector* processor = (SpikeDetector*)getProcessor();
         
         Array<SpikeChannel*> spikeChannels = processor->getSpikeChannelsForStream(getCurrentStream());
@@ -68,16 +67,7 @@ void SpikeDetectorEditor::buttonClicked(Button* button)
                                                            spikeChannels,
                                                            acquisitionIsActive);
 
-        currentConfigWindow->update(processor->getSpikeChannelsForStream(getCurrentStream()));
-
-        CallOutBox& myBox
-            = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(currentConfigWindow), 
-                button->getScreenBounds(),
-                nullptr);
-
-        myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
-        
-        return;
+        CoreServices::getPopupManager()->showPopup(std::unique_ptr<PopupComponent>(currentConfigWindow), button);
     }
 
 }
@@ -95,18 +85,15 @@ void SpikeDetectorEditor::addSpikeChannels(PopupConfigurationWindow* window, Spi
 {
     SpikeDetector* processor = (SpikeDetector*)getProcessor();
 
-    LOGD("** ADDING TO CURRENT STREAM: ", getCurrentStream());
-
     DataStream* stream = processor->getDataStream(getCurrentStream());
 
-    AddSpikeChannels* action = new AddSpikeChannels(processor, stream, type, count, startChannels);
+    int nextAvailableChannel = processor->getNextAvailableChannelForStream(stream->getStreamId());
 
-    CoreServices::getUndoManager()->beginNewTransaction();
+    AddSpikeChannels* action = new AddSpikeChannels(processor, stream, type, count, startChannels, nextAvailableChannel);
+        
+    CoreServices::getUndoManager()->beginNewTransaction("addSpikeChannels");
     CoreServices::getUndoManager()->perform((UndoableAction*)action);
 
-    // Now called in perform
-    //CoreServices::updateSignalChain(this);
-        
     if (window != nullptr)
         window->update(processor->getSpikeChannelsForStream(getCurrentStream()));
 
@@ -121,12 +108,12 @@ void SpikeDetectorEditor::removeSpikeChannels(PopupConfigurationWindow* window, 
     DataStream* stream = processor->getDataStream(getCurrentStream());
 
     RemoveSpikeChannels* action = new RemoveSpikeChannels(processor, stream, spikeChannelsToRemove, indeces);
-
-    CoreServices::getUndoManager()->beginNewTransaction();
-    CoreServices::getUndoManager()->perform((UndoableAction*)action);
     
     // Now called in perform
     //CoreServices::updateSignalChain(this);
+
+    CoreServices::getUndoManager()->beginNewTransaction("removeSpikeChannels");
+    CoreServices::getUndoManager()->perform((UndoableAction*)action);
 
     if (window != nullptr)
         window->update(processor->getSpikeChannelsForStream(getCurrentStream()));

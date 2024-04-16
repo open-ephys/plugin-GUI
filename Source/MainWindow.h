@@ -130,6 +130,9 @@ private:
 
     /** A pointer to the DocumentWindow (only instantiated if running in GUI mode). */
     std::unique_ptr<MainDocumentWindow> documentWindow;
+
+    /** A pointer to the application's PopupManager (owned by the MainWindow). */
+    std::unique_ptr<PopupManager> popupManager;
     
     /** A pointer to the application's AudioComponent (owned by the MainWindow). */
     std::unique_ptr<AudioComponent> audioComponent;

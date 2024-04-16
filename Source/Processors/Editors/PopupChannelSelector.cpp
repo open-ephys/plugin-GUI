@@ -119,8 +119,8 @@ RangeEditor::RangeEditor(const String& name, const Font& font) :
 }
 
 
-PopupChannelSelector::PopupChannelSelector(PopupChannelSelector::Listener* listener_, std::vector<bool> channelStates) 
-    : listener(listener_),
+PopupChannelSelector::PopupChannelSelector(Component* parent, PopupChannelSelector::Listener* listener_, std::vector<bool> channelStates) 
+    : PopupComponent(parent), listener(listener_),
     nChannels(channelStates.size()),
     mouseDragged(false), 
     startDragCoords(0,0),
@@ -131,11 +131,24 @@ PopupChannelSelector::PopupChannelSelector(PopupChannelSelector::Listener* liste
     maxSelectable(-1)
 {
 
-    int width = 368; //can use any multiples of 16 here for dynamic resizing
+    int nColumns;
 
-    int nColumns = 16;
+    if (nChannels <= 512)
+    {
+        nColumns = 16;
+    }
+    else if (nChannels <= 1024)
+    {
+        nColumns = 32;
+    }
+    else
+    {
+        nColumns = 64;
+    }
+    int width = 23 * nColumns;
+
     int nRows = nChannels / nColumns + (int)(!(nChannels % nColumns == 0));
-    int buttonSize = width / 16;
+    int buttonSize = width / nColumns;
     int height = buttonSize * nRows;
 
     maxSelectable = (maxSelectable == -1) ? nChannels : maxSelectable;
@@ -208,6 +221,18 @@ PopupChannelSelector::PopupChannelSelector(PopupChannelSelector::Listener* liste
     
 	setColour(ColourSelector::backgroundColourId, Colours::transparentBlack);
 
+}
+
+void PopupChannelSelector::updatePopup()
+{
+    Array<int> selectedChannels = listener->getSelectedChannels();
+    for (auto* btn : channelButtons)
+    {
+        if (selectedChannels.contains(btn->getId()))
+            btn->setToggleState(true, NotificationType::sendNotification);
+        else
+            btn->setToggleState(false, NotificationType::sendNotification);
+    }
 }
 
 void PopupChannelSelector::setMaximumSelectableChannels(int num)

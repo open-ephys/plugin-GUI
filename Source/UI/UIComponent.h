@@ -44,6 +44,7 @@ class DataViewport;
 class EditorViewport;
 class SignalChainTabComponent;
 class DefaultConfigWindow;
+class PopupManager;
 
 /**
 
@@ -103,8 +104,11 @@ public:
     /** Returns a pointer to the AudioComponent. */
 	AudioComponent* getAudioComponent();
 
-    /** Returns a pointer ot the Plugin Installer (UI) */
+    /** Returns a pointer to the Plugin Installer (UI) */
     PluginInstaller* getPluginInstaller();
+
+    /** Returns a pointer to the Popup Manager */
+    PopupManager* getPopupManager();
     
     /** Called by the MessageCenterButton */
     void buttonClicked(Button* button);
@@ -170,6 +174,9 @@ public:
     
     /** Notifies the UI component when the info tab is closed */
     void closeInfoTab() { infoTabIsOpen = false; }
+    
+    /** Finds a child component based on a unique component ID */
+    Component* findComponentByIDRecursive(Component* parent, const String& id);
 	
 private:
 
@@ -190,6 +197,8 @@ private:
     WeakReference<PluginInstaller> pluginInstaller;
 
     std::unique_ptr<DefaultConfigWindow> defaultConfigWindow;
+
+    std::unique_ptr<PopupManager> popupManager;
 
     Viewport processorListViewport;
 

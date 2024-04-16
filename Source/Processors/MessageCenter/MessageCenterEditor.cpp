@@ -261,7 +261,7 @@ void MessageCenterEditor::resized()
     if (incomingMessageLog != 0)
     {
         float h = incomingMessageLog->getDesiredHeight();
-        
+
         if (h < 265)
         {
             incomingMessageViewport->setBounds(4,

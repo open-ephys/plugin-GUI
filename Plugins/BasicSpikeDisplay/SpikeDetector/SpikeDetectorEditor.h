@@ -27,6 +27,8 @@
 
 #include <EditorHeaders.h>
 
+#include "SpikeDetector.h"
+
 class PopupConfigurationWindow;
 
 /**
@@ -71,9 +73,9 @@ public:
     /** Update configuration window */
     void updateConfigurationWindow();
 
-private:
-
     std::unique_ptr<UtilityButton> configureButton;
+
+private:
 
     PopupConfigurationWindow* currentConfigWindow;
 

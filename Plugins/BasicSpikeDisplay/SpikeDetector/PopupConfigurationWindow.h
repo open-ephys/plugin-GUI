@@ -37,26 +37,13 @@ class SpikeDetectorTableModel;
 *   Table component used to edit Spike Channel names
 */
 class EditableTextCustomComponent : 
-    public juce::Label,
+    public ParameterEditor,
     public Label::Listener
 {
 public:
 
     /** Constructor */
-    EditableTextCustomComponent(SpikeDetector* spikeDetector_, StringParameter* name_, bool acquisitionIsActive_)
-        : name(name_),
-          spikeDetector(spikeDetector_),
-          acquisitionIsActive(acquisitionIsActive_)
-    {
-        setEditable(false, !acquisitionIsActive, false);
-        addListener(this);
-        setColour(Label::textColourId, Colours::white);
-        setColour(Label::textWhenEditingColourId, Colours::yellow);
-        setColour(TextEditor::highlightedTextColourId, Colours::yellow);
-    }
-
-    /** Responds to button clicks */
-    void mouseDown(const juce::MouseEvent& event) override;
+    EditableTextCustomComponent(SpikeDetector* spikeDetector_, StringParameter* name_, bool acquisitionIsActive_);
     
     /** Called when the label is updated */
     void labelTextChanged(Label* label) override;
@@ -64,8 +51,13 @@ public:
     /** Sets row and column */
     void setRowAndColumn(const int newRow, const int newColumn);
     
-    /** Sets the "name* parameter referenced by this component */
-    void setParameter(StringParameter* name_) { name = name_; }
+    /** Update the view when parameter value is changed */
+    void updateView() override;
+
+    void resized() override
+    {
+        label->setBounds(2, 2, getWidth() - 4, getHeight() - 4);
+    }
 
     int row;
 
@@ -81,21 +73,27 @@ private:
 *   used by a Spike Channel
 */
 class ChannelSelectorCustomComponent : 
-    public juce::Label,
-    public PopupChannelSelector::Listener
+    public PopupChannelSelector::Listener,
+    public ParameterEditor
 {
 public:
 
     /** Constructor */
-    ChannelSelectorCustomComponent(SelectedChannelsParameter* channels_, bool acquisitionIsActive_)
-        : channels(channels_),
-          acquisitionIsActive(acquisitionIsActive_)
-    {
-        setEditable(false, false, false);
-    }
+    ChannelSelectorCustomComponent(int rowNumber, SelectedChannelsParameter* channels_, bool acquisitionIsActive_);
+
+    void showAsPopup();
 
     /** Responds to mouse clicks */
     void mouseDown(const juce::MouseEvent& event) override;
+
+    /** Get selected channels */
+    Array<int> getSelectedChannels() override
+    {
+        if (param == nullptr)
+            return Array<int>();
+        else
+            return channels->getArrayValue();
+    }
     
     /** Callback for changes in PopupChannelSelector */
     void channelStateChanged(Array<int> newChannels) override
@@ -105,29 +103,27 @@ public:
         for (int i = 0; i < newChannels.size(); i++)
         {
             newArray.add(newChannels[i]);
-            LOGD("Channel ", newChannels[i], " selected");
         }
-        
-        String s = "[";
-        
-        for (auto chan : newArray)
-        {
-            s += String(int(chan)+1) + ",";
-        }
-        
-        s += "]";
-        
-        setText(s, dontSendNotification);
-            
+
         channels->setNextValue(newArray);
-    
     }
     
     /** Sets row and column */
     void setRowAndColumn(const int newRow, const int newColumn);
     
     /** Sets the underlying parametr for this component */
-    void setParameter(SelectedChannelsParameter* channels_) { channels = channels_; }
+    // void setParameter(SelectedChannelsParameter* channels_) { channels = channels_; }
+
+    // void timerCallback() { 
+    //     updateView();
+    // }
+
+    void updateView() override;
+
+    void resized() override
+    {
+        label->setBounds(2, 2, getWidth() - 4, getHeight() - 4);
+    }
 
     int row;
 
@@ -145,7 +141,7 @@ class ThresholdSelectorCustomComponent;
     type and threshold level
 
 */
-class PopupThresholdComponent : public Component,
+class PopupThresholdComponent : public PopupComponent,
     public Slider::Listener,
     public Button::Listener
 {
@@ -173,6 +169,9 @@ public:
 
     /** Responds to button clicks */
     void buttonClicked(Button* button);
+
+    /** Updates the view */
+    void updatePopup() override { repaint(); }
     
 private:
     std::unique_ptr<UtilityButton> lockButton;
@@ -376,6 +375,9 @@ public:
     /** Changes threshold type when multiple rows are selected */
     void broadcastThresholdTypeToSelectedRows(int rowThatWasClicked, ThresholderType type);
 
+    /** Handles key delete key presses */
+    void deleteKeyPressed(int rowThatWasClicked) override;
+
     /** Deletes the SpikeChannel objects associated with each row */
     void deleteSelectedRows(int rowThatWasClicked);
 
@@ -417,6 +419,12 @@ public:
     /** Destructor*/
     ~SpikeChannelGenerator() { }
 
+    /** Get channel states */
+    Array<int> getSelectedChannels() { return startChannels; }
+
+    /** Get selected electrode type */
+    SpikeChannel::Type getSelectedType() { return (SpikeChannel::Type)spikeChannelTypeSelector->getSelectedId(); }
+
     /** Responds to changes in the PopupChannelSelector*/
     void channelStateChanged(Array<int> selectedChannels);
 
@@ -447,7 +455,7 @@ private:
 /**
 *   Popup window used to edit Spike Channel settings
 */
-class PopupConfigurationWindow : public Component,
+class PopupConfigurationWindow : public PopupComponent,
     public ScrollBar::Listener
 {
 
@@ -461,8 +469,13 @@ public:
     /** Destructor */
     ~PopupConfigurationWindow() { }
 
+    bool keyPressed(const KeyPress &key) override;
+
     /** Updates the window with a new set of Spike Channels*/
     void update(Array<SpikeChannel*> spikeChannels);
+
+    /** Callback to update the popup */ 
+    void updatePopup() override;
 
     /** Custom table header component (not currently used)*/
     //std::unique_ptr<TableHeaderComponent> tableHeader;
