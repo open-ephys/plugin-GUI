@@ -81,7 +81,7 @@ void AudioMonitor::registerParameters()
         "spike_channel",
         "Spike Channel",
         "Select the spike channel. This will automatically select relevant channels to monitor.",
-        { "No spike channle" },
+        { "No spike channel" },
         0
     );
 }

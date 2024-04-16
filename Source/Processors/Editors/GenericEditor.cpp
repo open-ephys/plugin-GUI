@@ -146,7 +146,7 @@ void GenericEditor::addToggleParameterEditor(Parameter::ParameterScope scope,
 }
 
 
-void GenericEditor::addSliderParameterEditor(Parameter::ParameterScope scope,
+void GenericEditor::addBoundedValueParameterEditor(Parameter::ParameterScope scope,
     const String& parameterName,
     int xPos_,
     int yPos_)

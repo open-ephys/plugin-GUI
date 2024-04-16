@@ -136,11 +136,6 @@ Array<ParameterEditor*> ParameterOwner::createDefaultEditor()
                 ComboBoxParameterEditor* intParameterEditor = new ComboBoxParameterEditor(parameter);
                 editors.add(intParameterEditor);
             }
-            else if (parameter->getParameterEditorType() == Parameter::ParameterEditorType::SLIDER_EDITOR)
-            {
-                SliderParameterEditor* intParameterEditor = new SliderParameterEditor(parameter);
-                editors.add(intParameterEditor);
-            }
             else if (parameter->getParameterEditorType() == Parameter::ParameterEditorType::BOUNDED_VALUE_EDITOR)
             {
                 BoundedValueParameterEditor* intParameterEditor = new BoundedValueParameterEditor(parameter);
@@ -160,12 +155,7 @@ Array<ParameterEditor*> ParameterOwner::createDefaultEditor()
         }
         case Parameter::FLOAT_PARAM:
         {
-            if (parameter->getParameterEditorType() == Parameter::ParameterEditorType::SLIDER_EDITOR)
-            {
-                SliderParameterEditor* floatParameterEditor = new SliderParameterEditor(parameter);
-                editors.add(floatParameterEditor);
-            }
-            else if (parameter->getParameterEditorType() == Parameter::ParameterEditorType::BOUNDED_VALUE_EDITOR)
+            if (parameter->getParameterEditorType() == Parameter::ParameterEditorType::BOUNDED_VALUE_EDITOR)
             {
                 BoundedValueParameterEditor* floatParameterEditor = new BoundedValueParameterEditor(parameter);
                 editors.add(floatParameterEditor);
