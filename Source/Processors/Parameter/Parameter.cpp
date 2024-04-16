@@ -239,8 +239,6 @@ bool Parameter::ChangeValue::perform()
     p->getOwner()->parameterChangeRequest(p);
     
     p->valueChanged();
-
-    p->logValueChange();
     
     return true;
 }
@@ -254,8 +252,6 @@ bool Parameter::ChangeValue::undo()
     p->getOwner()->parameterChangeRequest(p);
 
     p->valueChanged();
-
-    p->logValueChange();
     
     return true;
 }
@@ -1208,8 +1204,6 @@ bool TimeParameter::ChangeValue::perform()
 
     p->valueChanged();
 
-    p->logValueChange();
-
     return true;
 }
 
@@ -1222,8 +1216,6 @@ bool TimeParameter::ChangeValue::undo()
     p->getOwner()->parameterChangeRequest(p);
 
     p->valueChanged();
-
-    p->logValueChange();
 
     return true;
 }
