@@ -295,8 +295,8 @@ protected:
     /** Adds a check box editor for a parameter of a given name. */
     void addToggleParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
-    /** Adds a slider editor for a parameter of a given name. */
-    void addSliderParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+    /** Adds a bounded value editor for a parameter of a given name. */
+    void addBoundedValueParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a combo box editor for a parameter of a given name. */
     void addComboBoxParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);

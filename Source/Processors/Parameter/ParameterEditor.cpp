@@ -385,218 +385,6 @@ void ComboBoxParameterEditor::resized()
 }
 
 
-CustomSlider::CustomSlider() : isEnabled(true)
-{
-    setLookAndFeel (&sliderLookAndFeel);
-    
-    setSliderStyle (Slider::SliderStyle::RotaryVerticalDrag);
-    setRotaryParameters (MathConstants<float>::pi * 1.25f,
-                         MathConstants<float>::pi * 2.75f,
-                         true);
-    setVelocityBasedMode (true);
-    setVelocityModeParameters (0.5, 1, 0.09, false);
-    setRange (0.0, 100.0, 0.01);
-    setValue (50.0);
-    onValueChange = [&]()
-    {
-        if (getValue() < 10)
-            setNumDecimalPlacesToDisplay (1);
-        else if (10 <= getValue() && getValue() < 100)
-            setNumDecimalPlacesToDisplay (0);
-        else
-            setNumDecimalPlacesToDisplay (0);
-    };
-}
-
-void CustomSlider::mouseDown (const MouseEvent& event)
-{
-    if (!isEnabled)
-        return;
-
-    Slider::mouseDown (event);
-
-    setMouseCursor (MouseCursor::NoCursor);
-}
-
-void CustomSlider::mouseDrag(const MouseEvent& event)
-{
-    if (!isEnabled)
-        return;
-
-    Slider::mouseDrag(event);
-}
-
-void CustomSlider::mouseUp (const MouseEvent& event)
-{
-    if (!isEnabled)
-        return;
-
-    Slider::mouseUp (event);
-
-    Desktop::getInstance().getMainMouseSource().setScreenPosition (event.source.getLastMouseDownPosition());
-
-    setMouseCursor (MouseCursor::NormalCursor);
-}
-
-CustomSlider::~CustomSlider()
-{
-    setLookAndFeel(nullptr);
-}
-
-
-Slider::SliderLayout SliderLookAndFeel::getSliderLayout (juce::Slider& slider)
-{
-    auto localBounds = slider.getLocalBounds();
-
-    Slider::SliderLayout layout;
-
-    layout.textBoxBounds = localBounds;
-    layout.sliderBounds = localBounds;
-
-    return layout;
-}
-
-void SliderLookAndFeel::drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos,
-                                          const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider)
-{
-    auto fill = slider.findColour (Slider::rotarySliderFillColourId);
-
-    auto bounds = Rectangle<float> (x, y, width, height).reduced (2.0f);
-    auto radius = jmin (bounds.getWidth(), bounds.getHeight()) / 2.0f;
-    auto toAngle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
-    auto lineW = radius * 0.085f;
-    auto arcRadius = radius - lineW * 1.9f;
-
-    Path backgroundArc;
-    backgroundArc.addCentredArc (bounds.getCentreX(),
-                                 bounds.getCentreY(),
-                                 arcRadius,
-                                 arcRadius,
-                                 0.0f,
-                                 rotaryStartAngle,
-                                 rotaryEndAngle,
-                                 true);
-
-    g.setColour (blackGrey);
-    g.strokePath (backgroundArc, PathStrokeType (lineW, PathStrokeType::curved, PathStrokeType::rounded));
-
-    Path valueArc;
-    valueArc.addCentredArc (bounds.getCentreX(),
-                            bounds.getCentreY(),
-                            arcRadius,
-                            arcRadius,
-                            0.0f,
-                            rotaryStartAngle,
-                            toAngle,
-                            true);
-
-    g.setColour (fill);
-    g.strokePath (valueArc, PathStrokeType (lineW, PathStrokeType::curved, PathStrokeType::rounded));
-
-    auto thumbWidth = radius * 0.085f * 2.0f;
-
-    Path thumb;
-    thumb.addRectangle (-thumbWidth / 2, -thumbWidth / 2, thumbWidth, radius + lineW);
-
-    g.setColour (offWhite);
-    g.fillPath (thumb, AffineTransform::rotation (toAngle + 3.12f).translated (bounds.getCentre()));
-
-    g.fillEllipse (bounds.reduced (radius * 0.28));
-}
-
-Label* SliderLookAndFeel::createSliderTextBox (Slider& slider)
-{
-    auto* l = new Label();
-
-    l->setFont (17.0f);
-    l->setJustificationType (Justification::centred);
-    l->setColour (Label::textColourId, slider.findColour (Slider::textBoxTextColourId));
-    l->setColour (Label::textWhenEditingColourId, slider.findColour (Slider::textBoxTextColourId));
-    l->setColour (Label::outlineWhenEditingColourId, slider.findColour (Slider::textBoxOutlineColourId));
-    l->setInterceptsMouseClicks (false, false);
-
-    return l;
-}
-
-
-SliderParameterEditor::SliderParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
-{
-
-    jassert(param->getType() == Parameter::FLOAT_PARAM
-        || param->getType() == Parameter::INT_PARAM);
-
-    label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-    label->setFont(Font("Silkscreen", "Regular", 12));
-    addAndMakeVisible(label.get());
-
-    slider = std::make_unique<CustomSlider>();
-    slider->setName(param->getKey());
-    slider->addListener(this);
-    slider->setTooltip(param->getDescription());
-    
-    slider->setColour (Slider::rotarySliderFillColourId,
-                       Colour(0, 174, 239));
-    addAndMakeVisible(slider.get());
-
-    if (param->getType() == Parameter::FLOAT_PARAM)
-    {
-        FloatParameter* p = (FloatParameter*)param;
-
-        slider->setRange(p->getMinValue(), p->getMaxValue(), p->getStepSize());
-        slider->setValue(p->getFloatValue(), dontSendNotification);
-    }
-    else {
-        IntParameter* p = (IntParameter*)param;
-
-        slider->setRange(p->getMinValue(), p->getMaxValue(), 1);
-        slider->setValue(p->getIntValue(), dontSendNotification);
-    }
-
-    setBounds(0, 0, rowWidthPixels, 65);
-
-    editor = (Component*)slider.get();
-}
-
-void SliderParameterEditor::sliderValueChanged(Slider* slider)
-{
-
-    if (param != nullptr)
-        param->setNextValue(slider->getValue());
-}
-
-void SliderParameterEditor::updateView()
-{
-    if (param != nullptr)
-    {
-        slider->setColour(Slider::rotarySliderFillColourId,
-            Colour(0, 174, 239));
-
-        if (param->getType() == Parameter::FLOAT_PARAM)
-        {
-            FloatParameter* p = (FloatParameter*)param;
-
-            //slider->setValue(p->getFloatValue(), dontSendNotification);
-        }
-        else {
-            IntParameter* p = (IntParameter*)param;
-
-            //slider->setValue(p->getIntValue(), dontSendNotification);
-        }
-    }
-    else {
-        slider->setColour(Slider::rotarySliderFillColourId,
-            Colour(150, 150, 150));
-    }
-        
-    repaint();
-}
-
-void SliderParameterEditor::resized()
-{
-    updateBounds();
-}
-
-
 TextEditor* BoundedValueEditor::createEditorComponent()
 {
     auto* editor = new juce::TextEditor(getComponentID());
@@ -691,12 +479,6 @@ BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int r
     jassert(param->getType() == Parameter::FLOAT_PARAM
         || param->getType() == Parameter::INT_PARAM);
 
-    /* TODO: Unit should be displayed next to actual value while not editing
-    String unit = "";
-    if (param->getType() == Parameter::FLOAT_PARAM) unit = ((FloatParameter*)param)->getUnit();
-    unit = (unit != "" ? " [" + ((FloatParameter*)param)->getUnit() + "]" : "");
-    */
-
     label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
     Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
@@ -790,6 +572,8 @@ void BoundedValueParameterEditor::resized()
 
 SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
+    jassert(param->getType() == Parameter::SELECTED_CHANNELS_PARAM);
+    
     int selectedChannels = ((SelectedChannelsParameter*)param)->getArrayValue().size();
     int numChannels = ((SelectedChannelsParameter*)param)->getChannelStates().size();
 
@@ -877,6 +661,7 @@ void SelectedChannelsParameterEditor::resized()
 
 MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
+    jassert(param->getType() == Parameter::MASK_CHANNELS_PARAM);
 
     int numChannels = ((MaskChannelsParameter*)param)->getChannelStates().size();
     int selected = 0;
@@ -1210,6 +995,8 @@ void TtlLineParameterEditor::resized()
 
 PathParameterEditor::PathParameterEditor(Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor(param)
 {
+    jassert(param->getType() == Parameter::PATH_PARAM);
+    
     setBounds(0, 0, rowWidthPixels, rowHeightPixels);
 
     button = std::make_unique<TextButton>("Browse");
