@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -53,19 +46,19 @@ namespace TabbedComponentHelpers
 }
 
 //==============================================================================
-struct TabbedComponent::ButtonBar  : public TabbedButtonBar
+struct TabbedComponent::ButtonBar final : public TabbedButtonBar
 {
     ButtonBar (TabbedComponent& tabComp, TabbedButtonBar::Orientation o)
         : TabbedButtonBar (o), owner (tabComp)
     {
     }
 
-    void currentTabChanged (int newCurrentTabIndex, const String& newTabName)
+    void currentTabChanged (int newCurrentTabIndex, const String& newTabName) override
     {
         owner.changeCallback (newCurrentTabIndex, newTabName);
     }
 
-    void popupMenuClickOnTab (int tabIndex, const String& tabName)
+    void popupMenuClickOnTab (int tabIndex, const String& tabName) override
     {
         owner.popupMenuClickOnTab (tabIndex, tabName);
     }
@@ -75,7 +68,7 @@ struct TabbedComponent::ButtonBar  : public TabbedButtonBar
         return owner.tabs->getTabBackgroundColour (tabIndex);
     }
 
-    TabBarButton* createTabButton (const String& tabName, int tabIndex)
+    TabBarButton* createTabButton (const String& tabName, int tabIndex) override
     {
         return owner.createTabButton (tabName, tabIndex);
     }

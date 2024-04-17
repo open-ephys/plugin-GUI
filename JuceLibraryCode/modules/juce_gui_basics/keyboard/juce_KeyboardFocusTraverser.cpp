@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -35,10 +28,10 @@ namespace KeyboardFocusTraverserHelpers
     }
 
     static Component* traverse (Component* current, Component* container,
-                                FocusHelpers::NavigationDirection direction)
+                                detail::FocusHelpers::NavigationDirection direction)
     {
-        if (auto* comp = FocusHelpers::navigateFocus (current, container, direction,
-                                                      &Component::isKeyboardFocusContainer))
+        if (auto* comp = detail::FocusHelpers::navigateFocus (current, container, direction,
+                                                              &Component::isKeyboardFocusContainer))
         {
             if (isKeyboardFocusable (comp, container))
                 return comp;
@@ -53,13 +46,13 @@ namespace KeyboardFocusTraverserHelpers
 Component* KeyboardFocusTraverser::getNextComponent (Component* current)
 {
     return KeyboardFocusTraverserHelpers::traverse (current, current->findKeyboardFocusContainer(),
-                                                    FocusHelpers::NavigationDirection::forwards);
+                                                    detail::FocusHelpers::NavigationDirection::forwards);
 }
 
 Component* KeyboardFocusTraverser::getPreviousComponent (Component* current)
 {
     return KeyboardFocusTraverserHelpers::traverse (current, current->findKeyboardFocusContainer(),
-                                                    FocusHelpers::NavigationDirection::backwards);
+                                                    detail::FocusHelpers::NavigationDirection::backwards);
 }
 
 Component* KeyboardFocusTraverser::getDefaultComponent (Component* parentComponent)
@@ -74,9 +67,9 @@ Component* KeyboardFocusTraverser::getDefaultComponent (Component* parentCompone
 std::vector<Component*> KeyboardFocusTraverser::getAllComponents (Component* parentComponent)
 {
     std::vector<Component*> components;
-    FocusHelpers::findAllComponents (parentComponent,
-                                     components,
-                                     &Component::isKeyboardFocusContainer);
+    detail::FocusHelpers::findAllComponents (parentComponent,
+                                             components,
+                                             &Component::isKeyboardFocusContainer);
 
     auto removePredicate = [parentComponent] (const Component* comp)
     {
@@ -94,7 +87,7 @@ std::vector<Component*> KeyboardFocusTraverser::getAllComponents (Component* par
 //==============================================================================
 #if JUCE_UNIT_TESTS
 
-struct KeyboardFocusTraverserTests  : public UnitTest
+struct KeyboardFocusTraverserTests final : public UnitTest
 {
     KeyboardFocusTraverserTests()
         : UnitTest ("KeyboardFocusTraverser", UnitTestCategories::gui)
@@ -253,7 +246,7 @@ struct KeyboardFocusTraverserTests  : public UnitTest
     }
 
 private:
-    struct TestComponent  : public Component
+    struct TestComponent final : public Component
     {
         TestComponent()
         {

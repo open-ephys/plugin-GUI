@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -49,6 +45,20 @@ struct DefaultHashFunctions
     static int generateHash (const void* key, int upperLimit) noexcept      { return generateHash ((uint64) (pointer_sized_uint) key, upperLimit); }
     /** Generates a simple hash from a UUID. */
     static int generateHash (const Uuid& key, int upperLimit) noexcept      { return generateHash (key.hash(), upperLimit); }
+    /** Generates a standard FNV1a hash from a block of data */
+    static constexpr auto fnvOffsetBasis = 0xcbf29ce484222325;
+    static constexpr uint64 generateHash(uint8 const* data, size_t numBytes, uint64 hash = fnvOffsetBasis)
+    {
+        constexpr auto fnvPrime = 0x100000001b3;
+
+        while (numBytes > 0)
+        {
+            hash = (hash ^ *data++) * fnvPrime;
+            --numBytes;
+        }
+
+        return hash;
+    }
 };
 
 
@@ -142,7 +152,7 @@ public:
 
         for (auto i = hashSlots.size(); --i >= 0;)
         {
-            auto* h = hashSlots.getUnchecked(i);
+            auto* h = hashSlots.getUnchecked (i);
 
             while (h != nullptr)
             {
@@ -217,7 +227,7 @@ public:
         const ScopedLockType sl (getLock());
 
         for (auto i = getNumSlots(); --i >= 0;)
-            for (auto* entry = hashSlots.getUnchecked(i); entry != nullptr; entry = entry->nextEntry)
+            for (auto* entry = hashSlots.getUnchecked (i); entry != nullptr; entry = entry->nextEntry)
                 if (entry->value == valueToLookFor)
                     return true;
 
@@ -269,7 +279,7 @@ public:
 
         for (auto i = getNumSlots(); --i >= 0;)
         {
-            auto* entry = hashSlots.getUnchecked(i);
+            auto* entry = hashSlots.getUnchecked (i);
             HashEntry* previous = nullptr;
 
             while (entry != nullptr)
@@ -311,7 +321,7 @@ public:
         {
             HashEntry* nextEntry = nullptr;
 
-            for (auto* entry = hashSlots.getUnchecked(i); entry != nullptr; entry = nextEntry)
+            for (auto* entry = hashSlots.getUnchecked (i); entry != nullptr; entry = nextEntry)
             {
                 auto hashIndex = generateHashFor (entry->key, newNumberOfSlots);
 

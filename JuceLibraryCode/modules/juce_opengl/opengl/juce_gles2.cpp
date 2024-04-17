@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -460,6 +453,9 @@
     X (void        , glGetInteger64vAPPLE, (GLenum pname, GLint64 *params)) \
     X (void        , glGetSyncivAPPLE, (GLsync sync, GLenum pname, GLsizei count, GLsizei *length, GLint *values))
 
+#define JUCE_GL_FUNCTIONS_GL_ARM_shader_core_properties \
+    X (void        , glMaxActiveShaderCoresARM, (GLuint count))
+
 #define JUCE_GL_FUNCTIONS_GL_EXT_EGL_image_storage \
     X (void        , glEGLImageTargetTexStorageEXT, (GLenum target, GLeglImageOES image, const GLint* attrib_list)) \
     X (void        , glEGLImageTargetTextureStorageEXT, (GLuint texture, GLeglImageOES image, const GLint* attrib_list))
@@ -547,6 +543,16 @@
 #define JUCE_GL_FUNCTIONS_GL_EXT_external_buffer \
     X (void        , glBufferStorageExternalEXT, (GLenum target, GLintptr offset, GLsizeiptr size, GLeglClientBufferEXT clientBuffer, GLbitfield flags)) \
     X (void        , glNamedBufferStorageExternalEXT, (GLuint buffer, GLintptr offset, GLsizeiptr size, GLeglClientBufferEXT clientBuffer, GLbitfield flags))
+
+#define JUCE_GL_FUNCTIONS_GL_EXT_fragment_shading_rate \
+    X (void        , glGetFragmentShadingRatesEXT, (GLsizei samples, GLsizei maxCount, GLsizei *count, GLenum *shadingRates)) \
+    X (void        , glShadingRateEXT, (GLenum rate)) \
+    X (void        , glShadingRateCombinerOpsEXT, (GLenum combinerOp0, GLenum combinerOp1)) \
+    X (void        , glFramebufferShadingRateEXT, (GLenum target, GLenum attachment, GLuint texture, GLint baseLayer, GLsizei numLayers, GLsizei texelWidth, GLsizei texelHeight))
+
+#define JUCE_GL_FUNCTIONS_GL_EXT_framebuffer_blit_layers \
+    X (void        , glBlitFramebufferLayersEXT, (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter)) \
+    X (void        , glBlitFramebufferLayerEXT, (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint srcLayer, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLint dstLayer, GLbitfield mask, GLenum filter))
 
 #define JUCE_GL_FUNCTIONS_GL_EXT_geometry_shader \
     X (void        , glFramebufferTextureEXT, (GLenum target, GLenum attachment, GLuint texture, GLint level))
@@ -640,7 +646,7 @@
     X (GLuint      , glCreateShaderProgramEXT, (GLenum type, const GLchar *string)) \
     X (void        , glActiveShaderProgramEXT, (GLuint pipeline, GLuint program)) \
     X (void        , glBindProgramPipelineEXT, (GLuint pipeline)) \
-    X (GLuint      , glCreateShaderProgramvEXT, (GLenum type, GLsizei count, const GLchar **strings)) \
+    X (GLuint      , glCreateShaderProgramvEXT, (GLenum type, GLsizei count, const GLchar *const*strings)) \
     X (void        , glDeleteProgramPipelinesEXT, (GLsizei n, const GLuint *pipelines)) \
     X (void        , glGenProgramPipelinesEXT, (GLsizei n, GLuint *pipelines)) \
     X (void        , glGetProgramPipelineInfoLogEXT, (GLuint pipeline, GLsizei bufSize, GLsizei *length, GLchar *infoLog)) \
@@ -718,6 +724,10 @@
     X (void        , glTextureStorage1DEXT, (GLuint texture, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width)) \
     X (void        , glTextureStorage2DEXT, (GLuint texture, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)) \
     X (void        , glTextureStorage3DEXT, (GLuint texture, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth))
+
+#define JUCE_GL_FUNCTIONS_GL_EXT_texture_storage_compression \
+    X (void        , glTexStorageAttribs2DEXT, (GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, const GLint* attrib_list)) \
+    X (void        , glTexStorageAttribs3DEXT, (GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, const GLint* attrib_list))
 
 #define JUCE_GL_FUNCTIONS_GL_EXT_texture_view \
     X (void        , glTextureViewEXT, (GLuint texture, GLenum target, GLuint origtexture, GLenum internalformat, GLuint minlevel, GLuint numlevels, GLuint minlayer, GLuint numlayers))
@@ -1265,6 +1275,7 @@
     JUCE_GL_FUNCTIONS_GL_APPLE_copy_texture_levels \
     JUCE_GL_FUNCTIONS_GL_APPLE_framebuffer_multisample \
     JUCE_GL_FUNCTIONS_GL_APPLE_sync \
+    JUCE_GL_FUNCTIONS_GL_ARM_shader_core_properties \
     JUCE_GL_FUNCTIONS_GL_EXT_EGL_image_storage \
     JUCE_GL_FUNCTIONS_GL_EXT_base_instance \
     JUCE_GL_FUNCTIONS_GL_EXT_blend_func_extended \
@@ -1283,6 +1294,8 @@
     JUCE_GL_FUNCTIONS_GL_EXT_draw_instanced \
     JUCE_GL_FUNCTIONS_GL_EXT_draw_transform_feedback \
     JUCE_GL_FUNCTIONS_GL_EXT_external_buffer \
+    JUCE_GL_FUNCTIONS_GL_EXT_fragment_shading_rate \
+    JUCE_GL_FUNCTIONS_GL_EXT_framebuffer_blit_layers \
     JUCE_GL_FUNCTIONS_GL_EXT_geometry_shader \
     JUCE_GL_FUNCTIONS_GL_EXT_instanced_arrays \
     JUCE_GL_FUNCTIONS_GL_EXT_map_buffer_range \
@@ -1308,6 +1321,7 @@
     JUCE_GL_FUNCTIONS_GL_EXT_texture_border_clamp \
     JUCE_GL_FUNCTIONS_GL_EXT_texture_buffer \
     JUCE_GL_FUNCTIONS_GL_EXT_texture_storage \
+    JUCE_GL_FUNCTIONS_GL_EXT_texture_storage_compression \
     JUCE_GL_FUNCTIONS_GL_EXT_texture_view \
     JUCE_GL_FUNCTIONS_GL_NV_timeline_semaphore \
     JUCE_GL_FUNCTIONS_GL_EXT_win32_keyed_mutex \

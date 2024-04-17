@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -340,7 +333,7 @@ public:
             using Vst3Fn = decltype (vst3Fn);
             using AuFn = decltype (auFn);
 
-            struct Visitor : ExtensionsVisitor, Vst3Fn, AuFn
+            struct Visitor final : public ExtensionsVisitor, Vst3Fn, AuFn
             {
                 explicit Visitor (Vst3Fn vst3Fn, AuFn auFn) : Vst3Fn (std::move (vst3Fn)), AuFn (std::move (auFn)) {}
                 void visitVST3Client (const VST3Client& x) override { Vst3Fn::operator() (x); }
@@ -458,7 +451,7 @@ void createARAFactoryAsync (AudioPluginInstance& instance, std::function<void (A
     if (! instance.getPluginDescription().hasARAExtension)
         cb (ARAFactoryWrapper{});
 
-    struct Extensions : public ExtensionsVisitor
+    struct Extensions final : public ExtensionsVisitor
     {
         Extensions (std::function<void (ARAFactoryWrapper)> callbackIn)
             : callback (std::move (callbackIn))
@@ -472,7 +465,7 @@ void createARAFactoryAsync (AudioPluginInstance& instance, std::function<void (A
         std::function<void (ARAFactoryWrapper)> callback;
     };
 
-    Extensions extensions { std::move(cb) };
+    Extensions extensions { std::move (cb) };
     instance.getExtensions (extensions);
 }
 

@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -509,6 +505,10 @@ public:
 
         Also note that on some OSes (e.g. Windows), moving files between different
         volumes may not be possible.
+
+        This function will often fail to move directories because of the ambiguities
+        about merging existing directories. Use copyDirectoryTo() and deleteRecursively()
+        in these situations.
 
         @returns    true if the operation succeeds
     */
@@ -1060,7 +1060,7 @@ public:
     bool isSymbolicLink() const;
 
     /** If this file is a link or alias, this returns the file that it points to.
-        If the file isn't actually link, it'll just return itself.
+        If the file isn't actually a link, it'll just return itself.
     */
     File getLinkedTarget() const;
 
@@ -1150,6 +1150,7 @@ private:
 
     static String parseAbsolutePath (const String&);
     String getPathUpToLastSlash() const;
+    bool isNonEmptyDirectory() const;
 
     Result createDirectoryInternal (const String&) const;
     bool copyInternal (const File&) const;

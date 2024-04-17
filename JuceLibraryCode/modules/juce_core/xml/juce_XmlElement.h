@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -163,12 +159,7 @@ public:
     /** Writes the document to a file as UTF-8.
         @see writeTo, toString
     */
-    bool writeTo (const File& destinationFile, const TextFormat& format) const;
-
-    /** Writes the document to a file as UTF-8.
-        @see writeTo, toString
-    */
-    bool writeTo(const File& destinationFile) const;
+    bool writeTo (const File& destinationFile, const TextFormat& format = {}) const;
 
     //==============================================================================
     /** Returns this element's tag type name.
@@ -211,7 +202,7 @@ public:
     /** Returns the name of one of the elements attributes.
 
         E.g. for an element such as \<MOOSE legs="4" antlers="2">, then
-        getAttributeName(1) would return "antlers".
+        getAttributeName (1) would return "antlers".
 
         @see getAttributeValue, getStringAttribute
     */
@@ -220,7 +211,7 @@ public:
     /** Returns the value of one of the elements attributes.
 
         E.g. for an element such as \<MOOSE legs="4" antlers="2">, then
-        getAttributeName(1) would return "2".
+        getAttributeName (1) would return "2".
 
         @see getAttributeName, getStringAttribute
     */
@@ -694,7 +685,7 @@ private:
             return *this;
         }
 
-        Iterator operator++(int)
+        Iterator operator++ (int)
         {
             auto copy = *this;
             ++(*this);
@@ -795,7 +786,7 @@ private:
     void reorderChildElements (XmlElement**, int) noexcept;
     XmlAttributeNode* getAttribute (StringRef) const noexcept;
 
-    // Sigh.. L"" or _T("") string literals are problematic in general, and really inappropriate
+    // Sigh.. L"" or _T ("") string literals are problematic in general, and really inappropriate
     // for XML tags. Use a UTF-8 encoded literal instead, or if you're really determined to use
     // UTF-16, cast it to a String and use the other constructor.
     XmlElement (const wchar_t*) = delete;

@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -26,7 +19,7 @@
 namespace juce
 {
 
-class TableHeaderComponent::DragOverlayComp   : public Component
+class TableHeaderComponent::DragOverlayComp final : public Component
 {
 public:
     DragOverlayComp (const Image& i) : image (i)
@@ -325,7 +318,7 @@ void TableHeaderComponent::resizeColumnsToFit (int firstColumnIndex, int targetT
 
     for (int i = firstColumnIndex; i < columns.size(); ++i)
     {
-        auto* ci = columns.getUnchecked(i);
+        auto* ci = columns.getUnchecked (i);
 
         if (ci->isVisible())
             sor.addItem (ci->lastDeliberateWidth, ci->minimumWidth, ci->maximumWidth);
@@ -336,7 +329,7 @@ void TableHeaderComponent::resizeColumnsToFit (int firstColumnIndex, int targetT
 
     for (int i = firstColumnIndex; i < columns.size(); ++i)
     {
-        auto* ci = columns.getUnchecked(i);
+        auto* ci = columns.getUnchecked (i);
 
         if (ci->isVisible())
         {
@@ -718,7 +711,7 @@ void TableHeaderComponent::beginDrag (const MouseEvent& e)
 
             for (int i = listeners.size(); --i >= 0;)
             {
-                listeners.getUnchecked(i)->tableColumnDraggingChanged (this, columnIdBeingDragged);
+                listeners.getUnchecked (i)->tableColumnDraggingChanged (this, columnIdBeingDragged);
                 i = jmin (i, listeners.size() - 1);
             }
         }
@@ -737,7 +730,7 @@ void TableHeaderComponent::endDrag (const int finalIndex)
 
         for (int i = listeners.size(); --i >= 0;)
         {
-            listeners.getUnchecked(i)->tableColumnDraggingChanged (this, 0);
+            listeners.getUnchecked (i)->tableColumnDraggingChanged (this, 0);
             i = jmin (i, listeners.size() - 1);
         }
     }
@@ -790,7 +783,7 @@ int TableHeaderComponent::visibleIndexToTotalIndex (const int visibleIndex) cons
 
     for (int i = 0; i < columns.size(); ++i)
     {
-        if (columns.getUnchecked(i)->isVisible())
+        if (columns.getUnchecked (i)->isVisible())
         {
             if (n == visibleIndex)
                 return i;
@@ -826,7 +819,7 @@ void TableHeaderComponent::handleAsyncUpdate()
     {
         for (int i = listeners.size(); --i >= 0;)
         {
-            listeners.getUnchecked(i)->tableSortOrderChanged (this);
+            listeners.getUnchecked (i)->tableSortOrderChanged (this);
             i = jmin (i, listeners.size() - 1);
         }
     }
@@ -835,7 +828,7 @@ void TableHeaderComponent::handleAsyncUpdate()
     {
         for (int i = listeners.size(); --i >= 0;)
         {
-            listeners.getUnchecked(i)->tableColumnsChanged (this);
+            listeners.getUnchecked (i)->tableColumnsChanged (this);
             i = jmin (i, listeners.size() - 1);
         }
     }
@@ -844,7 +837,7 @@ void TableHeaderComponent::handleAsyncUpdate()
     {
         for (int i = listeners.size(); --i >= 0;)
         {
-            listeners.getUnchecked(i)->tableColumnsResized (this);
+            listeners.getUnchecked (i)->tableColumnsResized (this);
             i = jmin (i, listeners.size() - 1);
         }
     }

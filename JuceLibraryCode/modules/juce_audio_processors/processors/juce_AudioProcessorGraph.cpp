@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -500,8 +493,17 @@ struct GraphRenderSequence
 {
     using Node = AudioProcessorGraph::Node;
 
+    struct GlobalIO
+    {
+        AudioBuffer<FloatType>& audioIn;
+        AudioBuffer<FloatType>& audioOut;
+        MidiBuffer& midiIn;
+        MidiBuffer& midiOut;
+    };
+
     struct Context
     {
+        GlobalIO globalIO;
         AudioPlayHead* audioPlayHead;
         int numSamples;
     };
@@ -533,14 +535,17 @@ struct GraphRenderSequence
             return;
         }
 
-        currentAudioInputBuffer = &buffer;
         currentAudioOutputBuffer.setSize (jmax (1, buffer.getNumChannels()), numSamples);
         currentAudioOutputBuffer.clear();
-        currentMidiInputBuffer = &midiMessages;
         currentMidiOutputBuffer.clear();
 
         {
-            const Context context { audioPlayHead, numSamples };
+            const Context context { { buffer,
+                                      currentAudioOutputBuffer,
+                                      midiMessages,
+                                      currentMidiOutputBuffer },
+                                    audioPlayHead,
+                                    numSamples };
 
             for (const auto& op : renderOps)
                 op->process (context);
@@ -551,14 +556,13 @@ struct GraphRenderSequence
 
         midiMessages.clear();
         midiMessages.addEvents (currentMidiOutputBuffer, 0, buffer.getNumSamples(), 0);
-        currentAudioInputBuffer = nullptr;
     }
 
     JUCE_BEGIN_IGNORE_WARNINGS_MSVC (4661)
 
     void addClearChannelOp (int index)
     {
-        struct ClearOp : public RenderOp
+        struct ClearOp final : public RenderOp
         {
             explicit ClearOp (int indexIn) : index (indexIn) {}
 
@@ -581,7 +585,7 @@ struct GraphRenderSequence
 
     void addCopyChannelOp (int srcIndex, int dstIndex)
     {
-        struct CopyOp : public RenderOp
+        struct CopyOp final : public RenderOp
         {
             explicit CopyOp (int fromIn, int toIn) : from (fromIn), to (toIn) {}
 
@@ -606,7 +610,7 @@ struct GraphRenderSequence
 
     void addAddChannelOp (int srcIndex, int dstIndex)
     {
-        struct AddOp : public RenderOp
+        struct AddOp final : public RenderOp
         {
             explicit AddOp (int fromIn, int toIn) : from (fromIn), to (toIn) {}
 
@@ -633,7 +637,7 @@ struct GraphRenderSequence
 
     void addClearMidiBufferOp (int index)
     {
-        struct ClearOp : public RenderOp
+        struct ClearOp final : public RenderOp
         {
             explicit ClearOp (int indexIn) : index (indexIn) {}
 
@@ -656,7 +660,7 @@ struct GraphRenderSequence
 
     void addCopyMidiBufferOp (int srcIndex, int dstIndex)
     {
-        struct CopyOp : public RenderOp
+        struct CopyOp final : public RenderOp
         {
             explicit CopyOp (int fromIn, int toIn) : from (fromIn), to (toIn) {}
 
@@ -681,7 +685,7 @@ struct GraphRenderSequence
 
     void addAddMidiBufferOp (int srcIndex, int dstIndex)
     {
-        struct AddOp : public RenderOp
+        struct AddOp final : public RenderOp
         {
             explicit AddOp (int fromIn, int toIn) : from (fromIn), to (toIn) {}
 
@@ -706,7 +710,7 @@ struct GraphRenderSequence
 
     void addDelayChannelOp (int chan, int delaySize)
     {
-        struct DelayChannelOp : public RenderOp
+        struct DelayChannelOp final : public RenderOp
         {
             DelayChannelOp (int chan, int delaySize)
                 : buffer ((size_t) (delaySize + 1), (FloatType) 0),
@@ -748,7 +752,30 @@ struct GraphRenderSequence
                        int totalNumChans,
                        int midiBuffer)
     {
-        renderOps.push_back (std::make_unique<ProcessOp> (node, audioChannelsUsed, totalNumChans, midiBuffer));
+        auto op = [&]() -> std::unique_ptr<NodeOp>
+        {
+            if (auto* ioNode = dynamic_cast<const AudioProcessorGraph::AudioGraphIOProcessor*> (node->getProcessor()))
+            {
+                switch (ioNode->getType())
+                {
+                    case AudioProcessorGraph::AudioGraphIOProcessor::audioInputNode:
+                        return std::make_unique<AudioInOp> (node, audioChannelsUsed, totalNumChans, midiBuffer);
+
+                    case AudioProcessorGraph::AudioGraphIOProcessor::audioOutputNode:
+                        return std::make_unique<AudioOutOp> (node, audioChannelsUsed, totalNumChans, midiBuffer);
+
+                    case AudioProcessorGraph::AudioGraphIOProcessor::midiInputNode:
+                        return std::make_unique<MidiInOp> (node, audioChannelsUsed, totalNumChans, midiBuffer);
+
+                    case AudioProcessorGraph::AudioGraphIOProcessor::midiOutputNode:
+                        return std::make_unique<MidiOutOp> (node, audioChannelsUsed, totalNumChans, midiBuffer);
+                }
+            }
+
+            return std::make_unique<ProcessOp> (node, audioChannelsUsed, totalNumChans, midiBuffer);
+        }();
+
+        renderOps.push_back (std::move (op));
     }
 
     void prepareBuffers (int blockSize)
@@ -758,8 +785,6 @@ struct GraphRenderSequence
         currentAudioOutputBuffer.setSize (numBuffersNeeded + 1, blockSize);
         currentAudioOutputBuffer.clear();
 
-        currentAudioInputBuffer = nullptr;
-        currentMidiInputBuffer = nullptr;
         currentMidiOutputBuffer.clear();
 
         midiBuffers.clearQuick();
@@ -779,9 +804,7 @@ struct GraphRenderSequence
     int numBuffersNeeded = 0, numMidiBuffersNeeded = 0;
 
     AudioBuffer<FloatType> renderingBuffer, currentAudioOutputBuffer;
-    AudioBuffer<FloatType>* currentAudioInputBuffer = nullptr;
 
-    MidiBuffer* currentMidiInputBuffer = nullptr;
     MidiBuffer currentMidiOutputBuffer;
 
     Array<MidiBuffer> midiBuffers;
@@ -796,12 +819,12 @@ private:
         virtual void process (const Context&) = 0;
     };
 
-    struct ProcessOp : public RenderOp
+    struct NodeOp : public RenderOp
     {
-        ProcessOp (const Node::Ptr& n,
-                   const Array<int>& audioChannelsUsed,
-                   int totalNumChans,
-                   int midiBufferIndex)
+        NodeOp (const Node::Ptr& n,
+                const Array<int>& audioChannelsUsed,
+                int totalNumChans,
+                int midiBufferIndex)
             : node (n),
               processor (*n->getProcessor()),
               audioChannelsToUse (audioChannelsUsed),
@@ -812,7 +835,7 @@ private:
                 audioChannelsToUse.add (0);
         }
 
-        void prepare (FloatType* const* renderBuffer, MidiBuffer* buffers) override
+        void prepare (FloatType* const* renderBuffer, MidiBuffer* buffers) final
         {
             for (size_t i = 0; i < audioChannels.size(); ++i)
                 audioChannels[i] = renderBuffer[audioChannelsToUse.getUnchecked ((int) i)];
@@ -820,7 +843,7 @@ private:
             midiBuffer = buffers + midiBufferToUse;
         }
 
-        void process (const Context& c) override
+        void process (const Context& c) final
         {
             processor.setPlayHead (c.audioPlayHead);
 
@@ -835,50 +858,18 @@ private:
 
             AudioBuffer<FloatType> buffer { audioChannels.data(), numAudioChannels, c.numSamples };
 
-            const ScopedLock lock (processor.getCallbackLock());
-
             if (processor.isSuspended())
+            {
                 buffer.clear();
-            else
-                callProcess (buffer, *midiBuffer);
-        }
-
-        void callProcess (AudioBuffer<float>& buffer, MidiBuffer& midi)
-        {
-            if (processor.isUsingDoublePrecision())
-            {
-                tempBufferDouble.makeCopyOf (buffer, true);
-                process (*node, tempBufferDouble, midi);
-                buffer.makeCopyOf (tempBufferDouble, true);
             }
             else
             {
-                process (*node, buffer, midi);
+                const auto bypass = node->isBypassed() && processor.getBypassParameter() == nullptr;
+                processWithBuffer (c.globalIO, bypass, buffer, *midiBuffer);
             }
         }
 
-        void callProcess (AudioBuffer<double>& buffer, MidiBuffer& midi)
-        {
-            if (processor.isUsingDoublePrecision())
-            {
-                process (*node, buffer, midi);
-            }
-            else
-            {
-                tempBufferFloat.makeCopyOf (buffer, true);
-                process (*node, tempBufferFloat, midi);
-                buffer.makeCopyOf (tempBufferFloat, true);
-            }
-        }
-
-        template <typename Value>
-        static void process (const Node& node, AudioBuffer<Value>& audio, MidiBuffer& midi)
-        {
-            if (node.isBypassed() && node.getProcessor()->getBypassParameter() == nullptr)
-                node.getProcessor()->processBlockBypassed (audio, midi);
-            else
-                node.getProcessor()->processBlock (audio, midi);
-        }
+        virtual void processWithBuffer (const GlobalIO&, bool bypass, AudioBuffer<FloatType>& audio, MidiBuffer& midi) = 0;
 
         const Node::Ptr node;
         AudioProcessor& processor;
@@ -886,8 +877,106 @@ private:
 
         Array<int> audioChannelsToUse;
         std::vector<FloatType*> audioChannels;
-        AudioBuffer<float> tempBufferFloat, tempBufferDouble;
         const int midiBufferToUse;
+    };
+
+    struct ProcessOp final : public NodeOp
+    {
+        using NodeOp::NodeOp;
+
+        void processWithBuffer (const GlobalIO&, bool bypass, AudioBuffer<FloatType>& audio, MidiBuffer& midi) final
+        {
+            callProcess (bypass, audio, midi);
+        }
+
+        void callProcess (bool bypass, AudioBuffer<float>& buffer, MidiBuffer& midi)
+        {
+            if (this->processor.isUsingDoublePrecision())
+            {
+                tempBufferDouble.makeCopyOf (buffer, true);
+                processImpl (bypass, this->processor, tempBufferDouble, midi);
+                buffer.makeCopyOf (tempBufferDouble, true);
+            }
+            else
+            {
+                processImpl (bypass, this->processor, buffer, midi);
+            }
+        }
+
+        void callProcess (bool bypass, AudioBuffer<double>& buffer, MidiBuffer& midi)
+        {
+            if (this->processor.isUsingDoublePrecision())
+            {
+                processImpl (bypass, this->processor, buffer, midi);
+            }
+            else
+            {
+                tempBufferFloat.makeCopyOf (buffer, true);
+                processImpl (bypass, this->processor, tempBufferFloat, midi);
+                buffer.makeCopyOf (tempBufferFloat, true);
+            }
+        }
+
+        template <typename Value>
+        static void processImpl (bool bypass, AudioProcessor& p, AudioBuffer<Value>& audio, MidiBuffer& midi)
+        {
+            if (bypass)
+                p.processBlockBypassed (audio, midi);
+            else
+                p.processBlock (audio, midi);
+        }
+
+        AudioBuffer<float> tempBufferFloat, tempBufferDouble;
+    };
+
+    struct MidiInOp final : public NodeOp
+    {
+        using NodeOp::NodeOp;
+
+        void processWithBuffer (const GlobalIO& g, bool bypass, AudioBuffer<FloatType>& audio, MidiBuffer& midi) final
+        {
+            if (! bypass)
+                midi.addEvents (g.midiIn, 0, audio.getNumSamples(), 0);
+        }
+    };
+
+    struct MidiOutOp final : public NodeOp
+    {
+        using NodeOp::NodeOp;
+
+        void processWithBuffer (const GlobalIO& g, bool bypass, AudioBuffer<FloatType>& audio, MidiBuffer& midi) final
+        {
+            if (! bypass)
+                g.midiOut.addEvents (midi, 0, audio.getNumSamples(), 0);
+        }
+    };
+
+    struct AudioInOp final : public NodeOp
+    {
+        using NodeOp::NodeOp;
+
+        void processWithBuffer (const GlobalIO& g, bool bypass, AudioBuffer<FloatType>& audio, MidiBuffer&) final
+        {
+            if (bypass)
+                return;
+
+            for (int i = jmin (g.audioIn.getNumChannels(), audio.getNumChannels()); --i >= 0;)
+                audio.copyFrom (i, 0, g.audioIn, i, 0, audio.getNumSamples());
+        }
+    };
+
+    struct AudioOutOp final : public NodeOp
+    {
+        using NodeOp::NodeOp;
+
+        void processWithBuffer (const GlobalIO& g, bool bypass, AudioBuffer<FloatType>& audio, MidiBuffer&) final
+        {
+            if (bypass)
+                return;
+
+            for (int i = jmin (g.audioOut.getNumChannels(), audio.getNumChannels()); --i >= 0;)
+                g.audioOut.addFrom (i, 0, audio, i, 0, audio.getNumSamples());
+        }
     };
 
     std::vector<std::unique_ptr<RenderOp>> renderOps;
@@ -950,12 +1039,13 @@ private:
 
     enum { readOnlyEmptyBufferIndex = 0 };
 
-    HashMap<uint32, int> delays;
+    std::unordered_map<uint32, int> delays;
     int totalLatency = 0;
 
     int getNodeDelay (NodeID nodeID) const noexcept
     {
-        return delays[nodeID.uid];
+        const auto iter = delays.find (nodeID.uid);
+        return iter != delays.end() ? iter->second : 0;
     }
 
     int getInputLatencyForNode (const Connections& c, NodeID nodeID) const
@@ -1283,7 +1373,7 @@ private:
         auto totalChans = jmax (numIns, numOuts);
 
         Array<int> audioChannelsToUse;
-        auto maxLatency = getInputLatencyForNode (c, node.nodeID);
+        const auto maxInputLatency = getInputLatencyForNode (c, node.nodeID);
 
         for (int inputChan = 0; inputChan < numIns; ++inputChan)
         {
@@ -1294,7 +1384,7 @@ private:
                                                          node,
                                                          inputChan,
                                                          ourRenderingIndex,
-                                                         maxLatency);
+                                                         maxInputLatency);
             jassert (index >= 0);
 
             audioChannelsToUse.add (index);
@@ -1317,10 +1407,11 @@ private:
         if (processor.producesMidi())
             midiBuffers.getReference (midiBufferToUse).channel = { node.nodeID, midiChannelIndex };
 
-        delays.set (node.nodeID.uid, maxLatency + processor.getLatencySamples());
+        const auto thisNodeLatency = maxInputLatency + processor.getLatencySamples();
+        delays[node.nodeID.uid] = thisNodeLatency;
 
         if (numOuts == 0)
-            totalLatency = maxLatency;
+            totalLatency = jmax (totalLatency, thisNodeLatency);
 
         sequence.addProcessOp (node, audioChannelsToUse, totalChans, midiBufferToUse);
     }
@@ -1430,15 +1521,6 @@ public:
             jassertfalse; // Not prepared for this audio format!
     }
 
-    template <typename FloatType>
-    void processIO (AudioGraphIOProcessor& io, AudioBuffer<FloatType>& audio, MidiBuffer& midi)
-    {
-        if (auto* s = std::get_if<GraphRenderSequence<FloatType>> (&sequence.sequence))
-            processIOBlock (io, *s, audio, midi);
-        else
-            jassertfalse; // Not prepared for this audio format!
-    }
-
     int getLatencySamples() const { return sequence.latencySamples; }
     PrepareSettings getSettings() const { return settings; }
 
@@ -1457,49 +1539,27 @@ private:
         visitRenderSequence (*this, [&] (auto& seq) { seq.prepareBuffers (settings.blockSize); });
     }
 
-    template <typename FloatType, typename SequenceType>
-    static void processIOBlock (AudioGraphIOProcessor& io,
-                                SequenceType& sequence,
-                                AudioBuffer<FloatType>& buffer,
-                                MidiBuffer& midiMessages)
-    {
-        switch (io.getType())
-        {
-            case AudioGraphIOProcessor::audioOutputNode:
-            {
-                auto&& currentAudioOutputBuffer = sequence.currentAudioOutputBuffer;
-
-                for (int i = jmin (currentAudioOutputBuffer.getNumChannels(), buffer.getNumChannels()); --i >= 0;)
-                    currentAudioOutputBuffer.addFrom (i, 0, buffer, i, 0, buffer.getNumSamples());
-
-                break;
-            }
-
-            case AudioGraphIOProcessor::audioInputNode:
-            {
-                auto* currentInputBuffer = sequence.currentAudioInputBuffer;
-
-                for (int i = jmin (currentInputBuffer->getNumChannels(), buffer.getNumChannels()); --i >= 0;)
-                    buffer.copyFrom (i, 0, *currentInputBuffer, i, 0, buffer.getNumSamples());
-
-                break;
-            }
-
-            case AudioGraphIOProcessor::midiOutputNode:
-                sequence.currentMidiOutputBuffer.addEvents (midiMessages, 0, buffer.getNumSamples(), 0);
-                break;
-
-            case AudioGraphIOProcessor::midiInputNode:
-                midiMessages.addEvents (*sequence.currentMidiInputBuffer, 0, buffer.getNumSamples(), 0);
-                break;
-
-            default:
-                break;
-        }
-    }
-
     PrepareSettings settings;
     SequenceAndLatency sequence;
+};
+
+//==============================================================================
+/*  Holds information about the properties of a graph node at the point it was prepared.
+
+    If the bus layout or latency of a given node changes, the graph should be rebuilt so
+    that channel connections are ordered correctly, and the graph's internal delay lines have
+    the correct delay.
+*/
+class NodeAttributes
+{
+    auto tie() const { return std::tie (layout, latencySamples); }
+
+public:
+    AudioProcessor::BusesLayout layout;
+    int latencySamples = 0;
+
+    bool operator== (const NodeAttributes& other) const { return tie() == other.tie(); }
+    bool operator!= (const NodeAttributes& other) const { return tie() != other.tie(); }
 };
 
 //==============================================================================
@@ -1513,27 +1573,33 @@ class RenderSequenceSignature
 
 public:
     RenderSequenceSignature (const PrepareSettings s, const Nodes& n, const Connections& c)
-        : settings (s), connections (c), nodes (getNodeIDs (n)) {}
+        : settings (s), connections (c), nodes (getNodeMap (n)) {}
 
     bool operator== (const RenderSequenceSignature& other) const { return tie() == other.tie(); }
     bool operator!= (const RenderSequenceSignature& other) const { return tie() != other.tie(); }
 
 private:
-    static std::vector<AudioProcessorGraph::NodeID> getNodeIDs (const Nodes& n)
+    using NodeMap = std::map<AudioProcessorGraph::NodeID, NodeAttributes>;
+
+    static NodeMap getNodeMap (const Nodes& n)
     {
         const auto& nodeRefs = n.getNodes();
-        std::vector<AudioProcessorGraph::NodeID> result;
-        result.reserve ((size_t) nodeRefs.size());
+        NodeMap result;
 
         for (const auto& node : nodeRefs)
-            result.push_back (node->nodeID);
+        {
+            auto* proc = node->getProcessor();
+            result.emplace (node->nodeID,
+                            NodeAttributes { proc->getBusesLayout(),
+                                             proc->getLatencySamples() });
+        }
 
         return result;
     }
 
     PrepareSettings settings;
     Connections connections;
-    std::vector<AudioProcessorGraph::NodeID> nodes;
+    NodeMap nodes;
 };
 
 //==============================================================================
@@ -1544,7 +1610,7 @@ private:
     At the top of the audio callback, RenderSequenceExchange::updateAudioThreadState will
     attempt to install the most-recently-baked graph, if there's one waiting.
 */
-class RenderSequenceExchange : private Timer
+class RenderSequenceExchange final : private Timer
 {
 public:
     RenderSequenceExchange()
@@ -1623,16 +1689,10 @@ bool AudioProcessorGraph::Connection::operator< (const Connection& other) const 
 }
 
 //==============================================================================
-class AudioProcessorGraph::Pimpl : public AsyncUpdater
+class AudioProcessorGraph::Pimpl
 {
 public:
     explicit Pimpl (AudioProcessorGraph& o) : owner (&o) {}
-
-    ~Pimpl() override
-    {
-        cancelPendingUpdate();
-        clear (UpdateKind::sync);
-    }
 
     const auto& getNodes() const { return nodes.getNodes(); }
 
@@ -1653,7 +1713,7 @@ public:
     }
 
     Node::Ptr addNode (std::unique_ptr<AudioProcessor> newProcessor,
-                       const NodeID nodeID,
+                       std::optional<NodeID> nodeID,
                        UpdateKind updateKind)
     {
         if (newProcessor.get() == owner)
@@ -1662,7 +1722,7 @@ public:
             return nullptr;
         }
 
-        const auto idToUse = nodeID == NodeID() ? NodeID { ++(lastNodeID.uid) } : nodeID;
+        const auto idToUse = nodeID.value_or (NodeID { lastNodeID.uid + 1 });
 
         auto added = nodes.addNode (std::move (newProcessor), idToUse);
 
@@ -1778,12 +1838,15 @@ public:
         topologyChanged (UpdateKind::sync);
     }
 
-    void rebuild()
+    void rebuild (UpdateKind updateKind)
     {
-        if (MessageManager::getInstance()->isThisTheMessageThread())
+        if (updateKind == UpdateKind::none)
+            return;
+
+        if (updateKind == UpdateKind::sync && MessageManager::getInstance()->isThisTheMessageThread())
             handleAsyncUpdate();
         else
-            triggerAsyncUpdate();
+            updater.triggerAsyncUpdate();
     }
 
     void reset()
@@ -1842,14 +1905,10 @@ private:
     void topologyChanged (UpdateKind updateKind)
     {
         owner->sendChangeMessage();
-
-        if (updateKind == UpdateKind::sync && MessageManager::getInstance()->isThisTheMessageThread())
-            handleAsyncUpdate();
-        else
-            triggerAsyncUpdate();
+        rebuild (updateKind);
     }
 
-    void handleAsyncUpdate() override
+    void handleAsyncUpdate()
     {
         if (const auto newSettings = nodeStates.applySettings (nodes))
         {
@@ -1872,7 +1931,6 @@ private:
         }
     }
 
-
     AudioProcessorGraph* owner = nullptr;
     Nodes nodes;
     Connections connections;
@@ -1880,6 +1938,7 @@ private:
     RenderSequenceExchange renderSequenceExchange;
     NodeID lastNodeID;
     std::optional<RenderSequenceSignature> lastBuiltSequence;
+    LockingAsyncUpdater updater { [this] { handleAsyncUpdate(); } };
 };
 
 //==============================================================================
@@ -1906,7 +1965,7 @@ AudioProcessorGraph::Node* AudioProcessorGraph::getNodeForId (NodeID x) const   
 bool AudioProcessorGraph::disconnectNode (NodeID nodeID, UpdateKind updateKind)                             { return pimpl->disconnectNode (nodeID, updateKind); }
 void AudioProcessorGraph::releaseResources()                                                                { return pimpl->releaseResources(); }
 bool AudioProcessorGraph::removeIllegalConnections (UpdateKind updateKind)                                  { return pimpl->removeIllegalConnections (updateKind); }
-void AudioProcessorGraph::rebuild()                                                                         { return pimpl->rebuild(); }
+void AudioProcessorGraph::rebuild()                                                                         { return pimpl->rebuild (UpdateKind::sync); }
 void AudioProcessorGraph::reset()                                                                           { return pimpl->reset(); }
 bool AudioProcessorGraph::canConnect (const Connection& c) const                                            { return pimpl->canConnect (c); }
 bool AudioProcessorGraph::isConnected (const Connection& c) const noexcept                                  { return pimpl->isConnected (c); }
@@ -1916,7 +1975,7 @@ bool AudioProcessorGraph::isAnInputTo (const Node& source, const Node& destinati
 bool AudioProcessorGraph::isAnInputTo (NodeID source, NodeID destination) const noexcept                    { return pimpl->isAnInputTo (source, destination); }
 
 AudioProcessorGraph::Node::Ptr AudioProcessorGraph::addNode (std::unique_ptr<AudioProcessor> newProcessor,
-                                                             NodeID nodeId,
+                                                             std::optional<NodeID> nodeId,
                                                              UpdateKind updateKind)
 {
     return pimpl->addNode (std::move (newProcessor), nodeId, updateKind);
@@ -2000,20 +2059,16 @@ bool AudioProcessorGraph::AudioGraphIOProcessor::supportsDoublePrecisionProcessi
     return true;
 }
 
-void AudioProcessorGraph::AudioGraphIOProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
+void AudioProcessorGraph::AudioGraphIOProcessor::processBlock (AudioBuffer<float>&, MidiBuffer&)
 {
-    jassert (graph != nullptr);
-
-    if (auto* state = graph->pimpl->getAudioThreadState())
-        state->processIO (*this, buffer, midiMessages);
+    // The graph should never call this!
+    jassertfalse;
 }
 
-void AudioProcessorGraph::AudioGraphIOProcessor::processBlock (AudioBuffer<double>& buffer, MidiBuffer& midiMessages)
+void AudioProcessorGraph::AudioGraphIOProcessor::processBlock (AudioBuffer<double>&, MidiBuffer&)
 {
-    jassert (graph != nullptr);
-
-    if (auto* state = graph->pimpl->getAudioThreadState())
-        state->processIO (*this, buffer, midiMessages);
+    // The graph should never call this!
+    jassertfalse;
 }
 
 double AudioProcessorGraph::AudioGraphIOProcessor::getTailLengthSeconds() const
@@ -2051,22 +2106,22 @@ void AudioProcessorGraph::AudioGraphIOProcessor::setParentGraph (AudioProcessorG
 {
     graph = newGraph;
 
-    if (graph != nullptr)
-    {
-        setPlayConfigDetails (type == audioOutputNode ? graph->getTotalNumOutputChannels() : 0,
-                              type == audioInputNode  ? graph->getTotalNumInputChannels()  : 0,
-                              getSampleRate(),
-                              getBlockSize());
+    if (graph == nullptr)
+        return;
 
-        updateHostDisplay();
-    }
+    setPlayConfigDetails (type == audioOutputNode ? newGraph->getTotalNumOutputChannels() : 0,
+                          type == audioInputNode  ? newGraph->getTotalNumInputChannels()  : 0,
+                          getSampleRate(),
+                          getBlockSize());
+
+    updateHostDisplay();
 }
 
 //==============================================================================
 //==============================================================================
 #if JUCE_UNIT_TESTS
 
-class AudioProcessorGraphTests : public UnitTest
+class AudioProcessorGraphTests final : public UnitTest
 {
 public:
     AudioProcessorGraphTests()
@@ -2167,6 +2222,42 @@ public:
             }
         }
 
+        beginTest ("rebuilding the graph recalculates overall latency");
+        {
+            AudioProcessorGraph graph;
+
+            const auto nodeA = graph.addNode (BasicProcessor::make (BasicProcessor::getStereoProperties(), MidiIn::no, MidiOut::no))->nodeID;
+            const auto nodeB = graph.addNode (BasicProcessor::make (BasicProcessor::getStereoProperties(), MidiIn::no, MidiOut::no))->nodeID;
+            const auto final = graph.addNode (BasicProcessor::make (BasicProcessor::getInputOnlyProperties(), MidiIn::no, MidiOut::no))->nodeID;
+
+            expect (graph.addConnection ({ { nodeA, 0 }, { nodeB, 0 } }));
+            expect (graph.addConnection ({ { nodeA, 1 }, { nodeB, 1 } }));
+            expect (graph.addConnection ({ { nodeB, 0 }, { final, 0 } }));
+            expect (graph.addConnection ({ { nodeB, 1 }, { final, 1 } }));
+
+            expect (graph.getLatencySamples() == 0);
+
+            // Graph isn't built, latency is 0 if prepareToPlay hasn't been called yet
+            const auto nodeALatency = 100;
+            graph.getNodeForId (nodeA)->getProcessor()->setLatencySamples (nodeALatency);
+            graph.rebuild();
+            expect (graph.getLatencySamples() == 0);
+
+            graph.prepareToPlay (44100, 512);
+
+            expect (graph.getLatencySamples() == nodeALatency);
+
+            const auto nodeBLatency = 200;
+            graph.getNodeForId (nodeB)->getProcessor()->setLatencySamples (nodeBLatency);
+            graph.rebuild();
+            expect (graph.getLatencySamples() == nodeALatency + nodeBLatency);
+
+            const auto finalLatency = 300;
+            graph.getNodeForId (final)->getProcessor()->setLatencySamples (finalLatency);
+            graph.rebuild();
+            expect (graph.getLatencySamples() == nodeALatency + nodeBLatency + finalLatency);
+        }
+
         beginTest ("large render sequence can be built");
         {
             AudioProcessorGraph graph;
@@ -2202,7 +2293,7 @@ private:
     enum class MidiIn  { no, yes };
     enum class MidiOut { no, yes };
 
-    class BasicProcessor  : public AudioProcessor
+    class BasicProcessor final : public AudioProcessor
     {
     public:
         explicit BasicProcessor (const AudioProcessor::BusesProperties& layout, MidiIn mIn, MidiOut mOut)
@@ -2236,6 +2327,11 @@ private:
                                                      MidiOut midiOut)
         {
             return std::make_unique<BasicProcessor> (layout, midiIn, midiOut);
+        }
+
+        static BusesProperties getInputOnlyProperties()
+        {
+            return BusesProperties().withInput  ("in", AudioChannelSet::stereo());
         }
 
         static BusesProperties getStereoProperties()

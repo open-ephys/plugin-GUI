@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -87,44 +83,54 @@ void DynamicObject::cloneAllProperties()
             *v = v->clone();
 }
 
-DynamicObject::Ptr DynamicObject::clone()
+std::unique_ptr<DynamicObject> DynamicObject::clone() const
 {
-    Ptr d (new DynamicObject (*this));
-    d->cloneAllProperties();
-    return d;
+    auto result = std::make_unique<DynamicObject> (*this);
+    result->cloneAllProperties();
+    return result;
 }
 
-void DynamicObject::writeAsJSON (OutputStream& out, const int indentLevel, const bool allOnOneLine, int maximumDecimalPlaces)
+void DynamicObject::writeAsJSON (OutputStream& out, const JSON::FormatOptions& format)
 {
     out << '{';
-    if (! allOnOneLine)
+    if (format.getSpacing() == JSON::Spacing::multiLine)
         out << newLine;
 
     const int numValues = properties.size();
 
     for (int i = 0; i < numValues; ++i)
     {
-        if (! allOnOneLine)
-            JSONFormatter::writeSpaces (out, indentLevel + JSONFormatter::indentSize);
+        if (format.getSpacing() == JSON::Spacing::multiLine)
+            JSONFormatter::writeSpaces (out, format.getIndentLevel() + JSONFormatter::indentSize);
 
         out << '"';
         JSONFormatter::writeString (out, properties.getName (i));
-        out << "\": ";
-        JSONFormatter::write (out, properties.getValueAt (i), indentLevel + JSONFormatter::indentSize, allOnOneLine, maximumDecimalPlaces);
+        out << "\":";
+
+        if (format.getSpacing() != JSON::Spacing::none)
+            out << ' ';
+
+        JSON::writeToStream (out,
+                             properties.getValueAt (i),
+                             format.withIndentLevel (format.getIndentLevel() + JSONFormatter::indentSize));
 
         if (i < numValues - 1)
         {
-            if (allOnOneLine)
-                out << ", ";
-            else
-                out << ',' << newLine;
+            out << ",";
+
+            switch (format.getSpacing())
+            {
+                case JSON::Spacing::none: break;
+                case JSON::Spacing::singleLine: out << ' '; break;
+                case JSON::Spacing::multiLine: out << newLine; break;
+            }
         }
-        else if (! allOnOneLine)
+        else if (format.getSpacing() == JSON::Spacing::multiLine)
             out << newLine;
     }
 
-    if (! allOnOneLine)
-        JSONFormatter::writeSpaces (out, indentLevel);
+    if (format.getSpacing() == JSON::Spacing::multiLine)
+        JSONFormatter::writeSpaces (out, format.getIndentLevel());
 
     out << '}';
 }

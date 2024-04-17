@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -948,7 +941,7 @@ namespace WavFileHelpers
         }
     };
 
-    //=============================================================================
+    //==============================================================================
     namespace IXMLChunk
     {
         static const std::unordered_set<String> aswgMetadataKeys
@@ -1204,7 +1197,7 @@ namespace WavFileHelpers
 }
 
 //==============================================================================
-class WavAudioFormatReader  : public AudioFormatReader
+class WavAudioFormatReader final : public AudioFormatReader
 {
 public:
     WavAudioFormatReader (InputStream* in)  : AudioFormatReader (in, wavFormatName)
@@ -1579,7 +1572,7 @@ private:
 };
 
 //==============================================================================
-class WavAudioFormatWriter  : public AudioFormatWriter
+class WavAudioFormatWriter final : public AudioFormatWriter
 {
 public:
     WavAudioFormatWriter (OutputStream* const out, const double rate,
@@ -1843,7 +1836,7 @@ private:
 };
 
 //==============================================================================
-class MemoryMappedWavReader   : public MemoryMappedAudioFormatReader
+class MemoryMappedWavReader final : public MemoryMappedAudioFormatReader
 {
 public:
     MemoryMappedWavReader (const File& wavFile, const WavAudioFormatReader& reader)
@@ -1857,6 +1850,9 @@ public:
     {
         clearSamplesBeyondAvailableLength (destSamples, numDestChannels, startOffsetInDestBuffer,
                                            startSampleInFile, numSamples, lengthInSamples);
+
+        if (numSamples <= 0)
+            return true;
 
         if (map == nullptr || ! mappedSection.contains (Range<int64> (startSampleInFile, startSampleInFile + numSamples)))
         {
@@ -2113,7 +2109,7 @@ bool WavAudioFormat::replaceMetadataInFile (const File& wavFile, const StringPai
 //==============================================================================
 #if JUCE_UNIT_TESTS
 
-struct WaveAudioFormatTests : public UnitTest
+struct WaveAudioFormatTests final : public UnitTest
 {
     WaveAudioFormatTests()
         : UnitTest ("Wave audio format tests", UnitTestCategories::audio)

@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -26,7 +19,7 @@
 namespace juce
 {
 
-struct GraphicsFontHelpers
+    struct GraphicsFontHelpers
 {
     static auto compareFont (const Font& a, const Font& b) { return Font::compare (a, b); }
 };
@@ -134,10 +127,10 @@ namespace
        #if JUCE_DEBUG
         const int maxVal = 0x3fffffff;
 
-        jassertquiet ((int) x >= -maxVal && (int) x <= maxVal
-                   && (int) y >= -maxVal && (int) y <= maxVal
-                   && (int) w >= 0 && (int) w <= maxVal
-                   && (int) h >= 0 && (int) h <= maxVal);
+        jassert ((int) x >= -maxVal && (int) x <= maxVal
+              && (int) y >= -maxVal && (int) y <= maxVal
+              && (int) w >= 0 && (int) w <= maxVal
+              && (int) h >= 0 && (int) h <= maxVal);
        #endif
 
         return { x, y, w, h };
@@ -152,9 +145,6 @@ Graphics::Graphics (const Image& imageToDrawOnto)
     jassert (imageToDrawOnto.isValid()); // Can't draw into a null image!
 }
 
-Graphics::~Graphics(){}
-
-
 Graphics::Graphics (LowLevelGraphicsContext& internalContext) noexcept
     : context (internalContext)
 {
@@ -163,6 +153,10 @@ Graphics::Graphics (LowLevelGraphicsContext& internalContext) noexcept
 //==============================================================================
 void Graphics::resetToDefaultState()
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT(etw::resetToDefaultState, context.llgcFrameNumber, etw::graphicsKeyword);
+#endif
+
     saveStateIfPending();
     context.setFill (FillType());
     context.setFont (Font());
@@ -176,6 +170,10 @@ bool Graphics::isVectorDevice() const
 
 bool Graphics::reduceClipRegion (Rectangle<int> area)
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT_INT_RECT(etw::reduceClipRegionRectangle, context.llgcFrameNumber, area, etw::graphicsKeyword)
+#endif
+
     saveStateIfPending();
     return context.clipToRectangle (area);
 }
@@ -187,12 +185,20 @@ bool Graphics::reduceClipRegion (int x, int y, int w, int h)
 
 bool Graphics::reduceClipRegion (const RectangleList<int>& clipRegion)
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT_INT_RECT_LIST(etw::reduceClipRegionRectangleList, context.llgcFrameNumber, clipRegion, etw::graphicsKeyword)
+#endif
+
     saveStateIfPending();
     return context.clipToRectangleList (clipRegion);
 }
 
 bool Graphics::reduceClipRegion (const Path& path, const AffineTransform& transform)
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT(etw::reduceClipRegionPath, context.llgcFrameNumber, etw::graphicsKeyword);
+#endif
+
     saveStateIfPending();
     context.clipToPath (path, transform);
     return ! context.isClipEmpty();
@@ -200,6 +206,10 @@ bool Graphics::reduceClipRegion (const Path& path, const AffineTransform& transf
 
 bool Graphics::reduceClipRegion (const Image& image, const AffineTransform& transform)
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT(etw::reduceClipRegionImage, context.llgcFrameNumber, etw::graphicsKeyword);
+#endif
+
     saveStateIfPending();
     context.clipToImageAlpha (image, transform);
     return ! context.isClipEmpty();
@@ -207,6 +217,10 @@ bool Graphics::reduceClipRegion (const Image& image, const AffineTransform& tran
 
 void Graphics::excludeClipRegion (Rectangle<int> rectangleToExclude)
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT_INT_RECT(etw::excludeClipRegion, context.llgcFrameNumber, rectangleToExclude, etw::graphicsKeyword);
+#endif
+
     saveStateIfPending();
     context.excludeClipRectangle (rectangleToExclude);
 }
@@ -223,12 +237,20 @@ Rectangle<int> Graphics::getClipBounds() const
 
 void Graphics::saveState()
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT(etw::saveState, context.llgcFrameNumber, etw::graphicsKeyword);
+#endif
+
     saveStateIfPending();
     saveStatePending = true;
 }
 
 void Graphics::restoreState()
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT(etw::restoreState, context.llgcFrameNumber, etw::graphicsKeyword);
+#endif
+
     if (saveStatePending)
         saveStatePending = false;
     else
@@ -239,6 +261,10 @@ void Graphics::saveStateIfPending()
 {
     if (saveStatePending)
     {
+#if JUCE_ETW_TRACELOGGING
+        SCOPED_TRACE_EVENT(etw::saveState, context.llgcFrameNumber, etw::graphicsKeyword);
+#endif
+
         saveStatePending = false;
         context.saveState();
     }
@@ -257,6 +283,10 @@ void Graphics::setOrigin (int x, int y)
 
 void Graphics::addTransform (const AffineTransform& transform)
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT(etw::addTransform, context.llgcFrameNumber, etw::graphicsKeyword);
+#endif
+
     saveStateIfPending();
     context.addTransform (transform);
 }
@@ -268,12 +298,20 @@ bool Graphics::clipRegionIntersects (Rectangle<int> area) const
 
 void Graphics::beginTransparencyLayer (float layerOpacity)
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT(etw::beginTransparencyLayer, context.llgcFrameNumber, etw::graphicsKeyword);
+#endif
+
     saveStateIfPending();
     context.beginTransparencyLayer (layerOpacity);
 }
 
 void Graphics::endTransparencyLayer()
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT(etw::endTransparencyLayer, context.llgcFrameNumber, etw::graphicsKeyword);
+#endif
+
     context.endTransparencyLayer();
 }
 
@@ -512,42 +550,74 @@ void Graphics::drawFittedText (const String& text, int x, int y, int width, int 
 //==============================================================================
 void Graphics::fillRect (Rectangle<int> r) const
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT_INT_RECT(etw::fillRect, context.llgcFrameNumber, r, etw::graphicsKeyword)
+#endif
+
     context.fillRect (r, false);
 }
 
 void Graphics::fillRect (Rectangle<float> r) const
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT_FLOAT_RECT(etw::fillRect, context.llgcFrameNumber, r, etw::graphicsKeyword)
+#endif
+
     context.fillRect (r);
 }
 
 void Graphics::fillRect (int x, int y, int width, int height) const
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT_INT_XYWH(etw::fillRect, context.llgcFrameNumber, x, y, width, height, etw::graphicsKeyword)
+#endif
+
     context.fillRect (coordsToRectangle (x, y, width, height), false);
 }
 
 void Graphics::fillRect (float x, float y, float width, float height) const
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT_FLOAT_XYWH(etw::fillRect, context.llgcFrameNumber, x, y, width, height, etw::graphicsKeyword)
+#endif
+
     fillRect (coordsToRectangle (x, y, width, height));
 }
 
 void Graphics::fillRectList (const RectangleList<float>& rectangles) const
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT_FLOAT_RECT_LIST(etw::fillRectList, context.llgcFrameNumber, rectangles, etw::graphicsKeyword)
+#endif
+
     context.fillRectList (rectangles);
 }
 
 void Graphics::fillRectList (const RectangleList<int>& rects) const
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT_INT_RECT_LIST(etw::fillRectList, context.llgcFrameNumber, rects, etw::graphicsKeyword)
+#endif
+
     for (auto& r : rects)
         context.fillRect (r, false);
 }
 
 void Graphics::fillAll() const
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT(etw::fillAll, context.llgcFrameNumber, etw::graphicsKeyword);
+#endif
+
     context.fillAll();
 }
 
 void Graphics::fillAll (Colour colourToUse) const
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT(etw::fillAll, context.llgcFrameNumber, etw::graphicsKeyword);
+#endif
+
     if (! colourToUse.isTransparent())
     {
         context.saveState();
@@ -561,12 +631,20 @@ void Graphics::fillAll (Colour colourToUse) const
 //==============================================================================
 void Graphics::fillPath (const Path& path) const
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT(etw::fillPath, context.llgcFrameNumber, etw::graphicsKeyword);
+#endif
+
     if (! (context.isClipEmpty() || path.isEmpty()))
         context.fillPath (path, AffineTransform());
 }
 
 void Graphics::fillPath (const Path& path, const AffineTransform& transform) const
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT(etw::fillPath, context.llgcFrameNumber, etw::graphicsKeyword);
+#endif
+
     if (! (context.isClipEmpty() || path.isEmpty()))
         context.fillPath (path, transform);
 }
@@ -575,6 +653,15 @@ void Graphics::strokePath (const Path& path,
                            const PathStrokeType& strokeType,
                            const AffineTransform& transform) const
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT(etw::strokePath, context.llgcFrameNumber, etw::graphicsKeyword);
+#endif
+
+    if (context.drawPath(path, strokeType, transform))
+    {
+        return;
+    }
+
     Path stroke;
     strokeType.createStrokedPath (stroke, path, transform, context.getPhysicalPixelScaleFactor());
     fillPath (stroke);
@@ -598,7 +685,16 @@ void Graphics::drawRect (Rectangle<int> r, int lineThickness) const
 
 void Graphics::drawRect (Rectangle<float> r, const float lineThickness) const
 {
+#if JUCE_ETW_TRACELOGGING
+    SCOPED_TRACE_EVENT_FLOAT_RECT(etw::drawRect, context.llgcFrameNumber, r, etw::graphicsKeyword);
+#endif
+
     jassert (r.getWidth() >= 0.0f && r.getHeight() >= 0.0f);
+
+    if (context.drawRect(r, lineThickness))
+    {
+        return;
+    }
 
     RectangleList<float> rects;
     rects.addWithoutMerging (r.removeFromTop    (lineThickness));
@@ -611,6 +707,11 @@ void Graphics::drawRect (Rectangle<float> r, const float lineThickness) const
 //==============================================================================
 void Graphics::fillEllipse (Rectangle<float> area) const
 {
+    if (context.fillEllipse(area))
+    {
+        return;
+    }
+
     Path p;
     p.addEllipse (area);
     fillPath (p);
@@ -628,9 +729,14 @@ void Graphics::drawEllipse (float x, float y, float width, float height, float l
 
 void Graphics::drawEllipse (Rectangle<float> area, float lineThickness) const
 {
+    if (context.drawEllipse(area, lineThickness))
+    {
+        return;
+    }
+
     Path p;
 
-    if (area.getWidth() == area.getHeight())
+    if (approximatelyEqual (area.getWidth(), area.getHeight()))
     {
         // For a circle, we can avoid having to generate a stroke
         p.addEllipse (area.expanded (lineThickness * 0.5f));
@@ -652,6 +758,11 @@ void Graphics::fillRoundedRectangle (float x, float y, float width, float height
 
 void Graphics::fillRoundedRectangle (Rectangle<float> r, const float cornerSize) const
 {
+    if (context.fillRoundedRectangle(r, cornerSize))
+    {
+        return;
+    }
+
     Path p;
     p.addRoundedRectangle (r, cornerSize);
     fillPath (p);
@@ -665,6 +776,11 @@ void Graphics::drawRoundedRectangle (float x, float y, float width, float height
 
 void Graphics::drawRoundedRectangle (Rectangle<float> r, float cornerSize, float lineThickness) const
 {
+    if (context.drawRoundedRectangle(r, cornerSize, lineThickness))
+    {
+        return;
+    }
+
     Path p;
     p.addRoundedRectangle (r, cornerSize);
     strokePath (p, PathStrokeType (lineThickness));
@@ -754,6 +870,11 @@ void Graphics::drawLine (float x1, float y1, float x2, float y2, float lineThick
 
 void Graphics::drawLine (Line<float> line, const float lineThickness) const
 {
+    if (context.drawLineWithThickness(line, lineThickness))
+    {
+        return;
+    }
+
     Path p;
     p.addLineSegment (line, lineThickness);
     fillPath (p);
@@ -784,7 +905,7 @@ void Graphics::drawDashedLine (Line<float> line, const float* dashLengths,
                 const Line<float> segment (line.getStart() + (delta * lastAlpha).toFloat(),
                                            line.getStart() + (delta * jmin (1.0, alpha)).toFloat());
 
-                if (lineThickness != 1.0f)
+                if (! approximatelyEqual (lineThickness, 1.0f))
                     drawLine (segment, lineThickness);
                 else
                     context.drawLine (segment);

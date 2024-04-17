@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -26,9 +19,9 @@
 namespace juce
 {
 
-class ParameterListener   : private AudioProcessorParameter::Listener,
-                            private AudioProcessorListener,
-                            private Timer
+class ParameterListener : private AudioProcessorParameter::Listener,
+                          private AudioProcessorListener,
+                          private Timer
 {
 public:
     ParameterListener (AudioProcessor& proc, AudioProcessorParameter& param)
@@ -107,7 +100,7 @@ public:
 };
 
 //==============================================================================
-class BooleanParameterComponent : public ParameterComponent
+class BooleanParameterComponent final : public ParameterComponent
 {
 public:
     BooleanParameterComponent (AudioProcessor& proc, AudioProcessorParameter& param)
@@ -154,7 +147,7 @@ private:
 };
 
 //==============================================================================
-class SwitchParameterComponent : public ParameterComponent
+class SwitchParameterComponent final : public ParameterComponent
 {
 public:
     SwitchParameterComponent (AudioProcessor& proc, AudioProcessorParameter& param)
@@ -256,7 +249,7 @@ private:
 };
 
 //==============================================================================
-class ChoiceParameterComponent : public ParameterComponent
+class ChoiceParameterComponent final : public ParameterComponent
 {
 public:
     ChoiceParameterComponent (AudioProcessor& proc, AudioProcessorParameter& param)
@@ -318,7 +311,7 @@ private:
 };
 
 //==============================================================================
-class SliderParameterComponent : public ParameterComponent
+class SliderParameterComponent final : public ParameterComponent
 {
 public:
     SliderParameterComponent (AudioProcessor& proc, AudioProcessorParameter& param)
@@ -378,7 +371,7 @@ private:
     {
         auto newVal = (float) slider.getValue();
 
-        if (getParameter().getValue() != newVal)
+        if (! approximatelyEqual (getParameter().getValue(), newVal))
         {
             if (! isDragging)
                 getParameter().beginChangeGesture();
@@ -411,9 +404,9 @@ private:
 };
 
 //==============================================================================
-class ParameterDisplayComponent   : public Component,
-                                    private AudioProcessorListener,
-                                    private AsyncUpdater
+class ParameterDisplayComponent final : public Component,
+                                        private AudioProcessorListener,
+                                        private AsyncUpdater
 {
 public:
     ParameterDisplayComponent (AudioProcessorEditor& editorIn, AudioProcessorParameter& param)
@@ -515,7 +508,7 @@ private:
 };
 
 //==============================================================================
-struct ParamControlItem : public TreeViewItem
+struct ParamControlItem final : public TreeViewItem
 {
     ParamControlItem (AudioProcessorEditor& editorIn, AudioProcessorParameter& paramIn)
         : editor (editorIn), param (paramIn) {}
@@ -533,7 +526,7 @@ struct ParamControlItem : public TreeViewItem
     AudioProcessorParameter& param;
 };
 
-struct ParameterGroupItem : public TreeViewItem
+struct ParameterGroupItem final : public TreeViewItem
 {
     ParameterGroupItem (AudioProcessorEditor& editor, const AudioProcessorParameterGroup& group)
         : name (group.getName())

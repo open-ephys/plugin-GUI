@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -96,9 +92,9 @@ bool NamedValueSet::operator== (const NamedValueSet& other) const noexcept
     for (int i = 0; i < num; ++i)
     {
         // optimise for the case where the keys are in the same order
-        if (values.getReference(i).name == other.values.getReference(i).name)
+        if (values.getReference (i).name == other.values.getReference (i).name)
         {
-            if (values.getReference(i).value != other.values.getReference(i).value)
+            if (values.getReference (i).value != other.values.getReference (i).value)
                 return false;
         }
         else
@@ -106,8 +102,8 @@ bool NamedValueSet::operator== (const NamedValueSet& other) const noexcept
             // if we encounter keys that are in a different order, search remaining items by brute force..
             for (int j = i; j < num; ++j)
             {
-                if (auto* otherVal = other.getVarPointer (values.getReference(j).name))
-                    if (values.getReference(j).value == *otherVal)
+                if (auto* otherVal = other.getVarPointer (values.getReference (j).name))
+                    if (values.getReference (j).value == *otherVal)
                         continue;
 
                 return false;
@@ -205,7 +201,7 @@ int NamedValueSet::indexOf (const Identifier& name) const noexcept
     auto numValues = values.size();
 
     for (int i = 0; i < numValues; ++i)
-        if (values.getReference(i).name == name)
+        if (values.getReference (i).name == name)
             return i;
 
     return -1;
@@ -217,7 +213,7 @@ bool NamedValueSet::remove (const Identifier& name)
 
     for (int i = 0; i < numValues; ++i)
     {
-        if (values.getReference(i).name == name)
+        if (values.getReference (i).name == name)
         {
             values.remove (i);
             return true;

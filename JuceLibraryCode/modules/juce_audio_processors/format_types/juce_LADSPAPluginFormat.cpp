@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -42,7 +35,7 @@ static int insideLADSPACallback = 0;
 #endif
 
 //==============================================================================
-class LADSPAModuleHandle    : public ReferenceCountedObject
+class LADSPAModuleHandle final : public ReferenceCountedObject
 {
 public:
     LADSPAModuleHandle (const File& f)
@@ -69,7 +62,7 @@ public:
     {
         for (auto i = getActiveModules().size(); --i >= 0;)
         {
-            auto* module = getActiveModules().getUnchecked(i);
+            auto* module = getActiveModules().getUnchecked (i);
 
             if (module->file == file)
                 return module;
@@ -157,8 +150,8 @@ public:
 
         jassert (insideLADSPACallback == 0);
 
-        if (handle != nullptr && plugin != nullptr && plugin->cleanup != nullptr)
-            plugin->cleanup (handle);
+        if (handle != nullptr && plugin != nullptr)
+            NullCheckedInvocation::invoke (plugin->cleanup, handle);
 
         initialised = false;
         module = nullptr;
@@ -209,8 +202,8 @@ public:
         setLatencySamples (0);
 
         // Some plugins crash if this doesn't happen:
-        if (plugin->activate   != nullptr)   plugin->activate (handle);
-        if (plugin->deactivate != nullptr)   plugin->deactivate (handle);
+        NullCheckedInvocation::invoke (plugin->activate, handle);
+        NullCheckedInvocation::invoke (plugin->deactivate, handle);
     }
 
     //==============================================================================
@@ -275,15 +268,14 @@ public:
                 firstParam->setValue (old);
             }
 
-            if (plugin->activate != nullptr)
-                plugin->activate (handle);
+            NullCheckedInvocation::invoke (plugin->activate, handle);
         }
     }
 
     void releaseResources() override
     {
         if (handle != nullptr && plugin->deactivate != nullptr)
-            plugin->deactivate (handle);
+            NullCheckedInvocation::invoke (plugin->deactivate, handle);
 
         tempBuffer.setSize (1, 1);
     }
@@ -301,7 +293,7 @@ public:
             if (plugin->run != nullptr)
             {
                 for (int i = 0; i < outputs.size(); ++i)
-                    plugin->connect_port (handle, (size_t) outputs.getUnchecked(i),
+                    plugin->connect_port (handle, (size_t) outputs.getUnchecked (i),
                                           i < buffer.getNumChannels() ? buffer.getWritePointer (i) : nullptr);
 
                 plugin->run (handle, (size_t) numSamples);
@@ -314,7 +306,7 @@ public:
                 tempBuffer.clear();
 
                 for (int i = 0; i < outputs.size(); ++i)
-                    plugin->connect_port (handle, (size_t) outputs.getUnchecked(i), tempBuffer.getWritePointer (i));
+                    plugin->connect_port (handle, (size_t) outputs.getUnchecked (i), tempBuffer.getWritePointer (i));
 
                 plugin->run_adding (handle, (size_t) numSamples);
 
@@ -457,7 +449,7 @@ private:
             {
                 const ScopedLock sl (pluginInstance.lock);
 
-                if (paramValue.unscaled != newValue)
+                if (! approximatelyEqual (paramValue.unscaled, newValue))
                     paramValue = ParameterValue (getNewParamScaled (interface->PortRangeHints [paramID], newValue), newValue);
             }
         }

@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -20,9 +16,7 @@
   ==============================================================================
 */
 
-namespace juce
-{
-namespace universal_midi_packets
+namespace juce::universal_midi_packets
 {
 
 constexpr uint8_t  operator""_u8  (unsigned long long int i) { return static_cast<uint8_t>  (i); }
@@ -30,7 +24,7 @@ constexpr uint16_t operator""_u16 (unsigned long long int i) { return static_cas
 constexpr uint32_t operator""_u32 (unsigned long long int i) { return static_cast<uint32_t> (i); }
 constexpr uint64_t operator""_u64 (unsigned long long int i) { return static_cast<uint64_t> (i); }
 
-class UniversalMidiPacketTests : public UnitTest
+class UniversalMidiPacketTests final : public UnitTest
 {
 public:
     UniversalMidiPacketTests()
@@ -991,21 +985,11 @@ private:
         }
     }
 
-   #if JUCE_WINDOWS && ! JUCE_MINGW
-    #define JUCE_CHECKED_ITERATOR(msg, size) \
-        stdext::checked_array_iterator<std::remove_reference_t<decltype (msg)>> ((msg), (size_t) (size))
-   #else
-    #define JUCE_CHECKED_ITERATOR(msg, size) (msg)
-   #endif
-
     static bool equal (const MidiMessage& a, const MidiMessage& b) noexcept
     {
         return a.getRawDataSize() == b.getRawDataSize()
-               && std::equal (a.getRawData(), a.getRawData() + a.getRawDataSize(),
-                              JUCE_CHECKED_ITERATOR (b.getRawData(), b.getRawDataSize()));
+               && std::equal (a.getRawData(), a.getRawData() + a.getRawDataSize(), b.getRawData());
     }
-
-    #undef JUCE_CHECKED_ITERATOR
 
     static bool equal (const MidiBuffer& a, const MidiBuffer& b) noexcept
     {
@@ -1015,5 +999,4 @@ private:
 
 static UniversalMidiPacketTests universalMidiPacketTests;
 
-}
-}
+} // namespace juce::universal_midi_packets

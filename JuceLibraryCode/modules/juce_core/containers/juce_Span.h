@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -88,6 +84,8 @@ namespace detail
     or other similar container.
 
     This is a bit like std::span from C++20, but with a more limited interface.
+
+    @tags{Core}
 */
 template <typename Value, size_t Extent = dynamicExtent>
 class Span : private detail::NumBase<Extent> // for empty-base optimisation
@@ -111,6 +109,10 @@ public:
     constexpr Span (const Span&) = default;
 
     constexpr Span& operator= (const Span&) = default;
+
+    constexpr Span (Span&&) noexcept = default;
+
+    constexpr Span& operator= (Span&&) noexcept = default;
 
     using Base::size;
 

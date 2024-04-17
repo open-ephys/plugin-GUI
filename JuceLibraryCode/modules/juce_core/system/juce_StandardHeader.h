@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -29,7 +25,7 @@
 */
 #define JUCE_MAJOR_VERSION      7
 #define JUCE_MINOR_VERSION      0
-#define JUCE_BUILDNUMBER        5
+#define JUCE_BUILDNUMBER        11
 
 /** Current JUCE version number.
 
@@ -66,7 +62,9 @@
 #include <optional>
 #include <queue>
 #include <set>
+#include <stack>
 #include <sstream>
+#include <string_view>
 #include <thread>
 #include <typeindex>
 #include <unordered_map>
@@ -91,6 +89,7 @@ JUCE_BEGIN_IGNORE_WARNINGS_MSVC (4514 4245 4100)
 
 #if JUCE_MAC || JUCE_IOS
  #include <libkern/OSAtomic.h>
+ #include <libkern/OSByteOrder.h>
  #include <xlocale.h>
  #include <signal.h>
 #endif
@@ -132,13 +131,6 @@ JUCE_END_IGNORE_WARNINGS_MSVC
 #undef minor
 #undef KeyPress
 
-// <Open-Ephys>
-// Modified by Open-Ephys.
-// For some reason this define doesn't work as an Xcode option. Add it to linux as well.
-#if JUCE_MAC || JUCE_LINUX
- #define JUCE_API __attribute__((visibility("default")))
-#endif
-
 //==============================================================================
 // DLL building settings on Windows
 #if JUCE_MSVC
@@ -153,7 +145,7 @@ JUCE_END_IGNORE_WARNINGS_MSVC
   #pragma warning (disable: 1125) // (virtual override warning)
  #endif
 #elif defined (JUCE_DLL) || defined (JUCE_DLL_BUILD)
- #define JUCE_API __attribute__ ((visibility("default")))
+ #define JUCE_API __attribute__ ((visibility ("default")))
 #endif
 
 //==============================================================================

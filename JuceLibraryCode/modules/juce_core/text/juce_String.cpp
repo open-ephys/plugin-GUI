@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -439,7 +435,7 @@ namespace NumberToStringConverters
         return printDigits (t, v);
     }
 
-    struct StackArrayStream  : public std::basic_streambuf<char, std::char_traits<char>>
+    struct StackArrayStream final : public std::basic_streambuf<char, std::char_traits<char>>
     {
         explicit StackArrayStream (char* d)
         {
@@ -789,7 +785,7 @@ namespace StringHelpers
     template <typename T>
     inline String& operationAddAssign (String& str, const T number)
     {
-        char buffer [(sizeof(T) * 8) / 2];
+        char buffer [(sizeof (T) * 8) / 2];
         auto* end = buffer + numElementsInArray (buffer);
         auto* start = NumberToStringConverters::numberToString (end, number);
 
@@ -2266,7 +2262,7 @@ static String serialiseDouble (double input)
 
     int intInput = (int) input;
 
-    if ((double) intInput == input)
+    if (exactlyEqual ((double) intInput, input))
         return { input, 1 };
 
     auto numberOfDecimalPlaces = [absInput]
@@ -2319,7 +2315,7 @@ JUCE_END_IGNORE_WARNINGS_MSVC
 #define STRINGIFY2(X) #X
 #define STRINGIFY(X) STRINGIFY2(X)
 
-class StringTests  : public UnitTest
+class StringTests final : public UnitTest
 {
 public:
     StringTests()
@@ -2420,12 +2416,12 @@ public:
             expect (s.compare (String ("012345678")) == 0);
             expect (s.compare (String ("012345679")) < 0);
             expect (s.compare (String ("012345676")) > 0);
-            expect (String("a").compareNatural ("A") == 0);
-            expect (String("A").compareNatural ("B") < 0);
-            expect (String("a").compareNatural ("B") < 0);
-            expect (String("10").compareNatural ("2") > 0);
-            expect (String("Abc 10").compareNatural ("aBC 2") > 0);
-            expect (String("Abc 1").compareNatural ("aBC 2") < 0);
+            expect (String ("a").compareNatural ("A") == 0);
+            expect (String ("A").compareNatural ("B") < 0);
+            expect (String ("a").compareNatural ("B") < 0);
+            expect (String ("10").compareNatural ("2") > 0);
+            expect (String ("Abc 10").compareNatural ("aBC 2") > 0);
+            expect (String ("Abc 1").compareNatural ("aBC 2") < 0);
             expect (s.substring (2, 3) == String::charToString (s[2]));
             expect (s.substring (0, 1) == String::charToString (s[0]));
             expect (s.getLastCharacter() == s [s.length() - 1]);
@@ -2567,16 +2563,16 @@ public:
 
             beginTest ("Numeric conversions");
             expect (String().getIntValue() == 0);
-            expect (String().getDoubleValue() == 0.0);
-            expect (String().getFloatValue() == 0.0f);
+            expectEquals (String().getDoubleValue(), 0.0);
+            expectEquals (String().getFloatValue(), 0.0f);
             expect (s.getIntValue() == 12345678);
             expect (s.getLargeIntValue() == (int64) 12345678);
-            expect (s.getDoubleValue() == 12345678.0);
-            expect (s.getFloatValue() == 12345678.0f);
+            expectEquals (s.getDoubleValue(), 12345678.0);
+            expectEquals (s.getFloatValue(), 12345678.0f);
             expect (String (-1234).getIntValue() == -1234);
             expect (String ((int64) -1234).getLargeIntValue() == -1234);
-            expect (String (-1234.56).getDoubleValue() == -1234.56);
-            expect (String (-1234.56f).getFloatValue() == -1234.56f);
+            expectEquals (String (-1234.56).getDoubleValue(), -1234.56);
+            expectEquals (String (-1234.56f).getFloatValue(), -1234.56f);
             expect (String (std::numeric_limits<int>::max()).getIntValue() == std::numeric_limits<int>::max());
             expect (String (std::numeric_limits<int>::min()).getIntValue() == std::numeric_limits<int>::min());
             expect (String (std::numeric_limits<int64>::max()).getLargeIntValue() == std::numeric_limits<int64>::max());
@@ -2707,7 +2703,7 @@ public:
             expectEquals (s5.upToLastOccurrenceOf (String(), true, false), s5);
             expectEquals (s5.upToLastOccurrenceOf ("zword", true, false), s5);
             expectEquals (s5.upToLastOccurrenceOf ("word", true, false), s5.dropLastCharacters (1));
-            expectEquals (s5.dropLastCharacters(1).upToLastOccurrenceOf ("word", true, false), s5.dropLastCharacters (1));
+            expectEquals (s5.dropLastCharacters (1).upToLastOccurrenceOf ("word", true, false), s5.dropLastCharacters (1));
             expectEquals (s5.upToLastOccurrenceOf ("Word", true, true), s5.dropLastCharacters (1));
             expectEquals (s5.upToLastOccurrenceOf ("word", false, false), s5.dropLastCharacters (5));
             expectEquals (s5.upToLastOccurrenceOf ("Word", false, true), s5.dropLastCharacters (5));

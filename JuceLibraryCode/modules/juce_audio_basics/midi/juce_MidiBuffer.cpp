@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -126,13 +122,7 @@ bool MidiBuffer::addEvent (const MidiMessage& m, int sampleNumber)
 
 bool MidiBuffer::addEvent (const void* newData, int maxBytes, int sampleNumber)
 {
-    // <Open-Ephys>
-    // Modified by Open-Ephys.
-    // =======================================================================
-    // auto numBytes = MidiBufferHelpers::findActualEventLength (static_cast<const uint8*> (newData), maxBytes);
-    const int numBytes = maxBytes;
-    // =======================================================================
-    
+    auto numBytes = MidiBufferHelpers::findActualEventLength (static_cast<const uint8*> (newData), maxBytes);
 
     if (numBytes <= 0)
         return true;
@@ -258,7 +248,7 @@ JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 //==============================================================================
 #if JUCE_UNIT_TESTS
 
-struct MidiBufferTest  : public UnitTest
+struct MidiBufferTest final : public UnitTest
 {
     MidiBufferTest()
         : UnitTest ("MidiBuffer", UnitTestCategories::midi)

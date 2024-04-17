@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -268,7 +261,7 @@ bool MD5::operator!= (const MD5& other) const noexcept   { return ! operator== (
 //==============================================================================
 #if JUCE_UNIT_TESTS
 
-class MD5Tests  : public UnitTest
+class MD5Tests final : public UnitTest
 {
 public:
     MD5Tests()
@@ -297,7 +290,7 @@ public:
         test ("The quick brown fox jumps over the lazy dog",  "9e107d9d372bb6826bd81d3542a419d6");
         test ("The quick brown fox jumps over the lazy dog.", "e4d909c290d0fb1ca068ffaddf22cbd0");
 
-        expectEquals (MD5 (CharPointer_UTF8(nullptr)).toHexString(), String ("d41d8cd98f00b204e9800998ecf8427e"));
+        expectEquals (MD5 (CharPointer_UTF8 (nullptr)).toHexString(), String ("d41d8cd98f00b204e9800998ecf8427e"));
     }
 };
 

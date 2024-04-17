@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -31,8 +24,8 @@ bool juce_performDragDropText (const String&, bool& shouldStop);
 
 
 //==============================================================================
-class DragAndDropContainer::DragImageComponent  : public Component,
-                                                  private Timer
+class DragAndDropContainer::DragImageComponent final : public Component,
+                                                       private Timer
 {
 public:
     DragImageComponent (const ScaledImage& im,
@@ -98,12 +91,12 @@ public:
             // (note: use a local copy of this in case the callback runs
             // a modal loop and deletes this object before the method completes)
             auto details = sourceDetails;
-            DragAndDropTarget* finalTarget = nullptr;
 
             auto wasVisible = isVisible();
             setVisible (false);
-            Component* unused;
-            finalTarget = findTarget (e.getScreenPosition(), details.localPosition, unused);
+            const auto [finalTarget, unused, localPosition] = findTarget (e.getScreenPosition());
+            ignoreUnused (unused);
+            details.localPosition = localPosition;
 
             if (wasVisible) // fade the component and remove it - it'll be deleted later by the timer callback
                 dismissWithAnimation (finalTarget == nullptr);
@@ -133,8 +126,8 @@ public:
 
         setNewScreenPos (screenPos);
 
-        Component* newTargetComp;
-        auto* newTarget = findTarget (screenPos, details.localPosition, newTargetComp);
+        const auto [newTarget, newTargetComp, localPosition] = findTarget (screenPos);
+        details.localPosition = localPosition;
 
         setVisible (newTarget == nullptr || newTarget->shouldDrawDragImageWhenOver());
 
@@ -288,8 +281,7 @@ private:
         return getLocalPoint (sourceComponent, offsetInSource) - getLocalPoint (sourceComponent, Point<int>());
     }
 
-    DragAndDropTarget* findTarget (Point<int> screenPos, Point<int>& relativePos,
-                                   Component*& resultComponent) const
+    std::tuple<DragAndDropTarget*, Component*, Point<int>> findTarget (Point<int> screenPos) const
     {
         auto* hit = getParentComponent();
 
@@ -305,20 +297,13 @@ private:
         while (hit != nullptr)
         {
             if (auto* ddt = dynamic_cast<DragAndDropTarget*> (hit))
-            {
                 if (ddt->isInterestedInDragSource (details))
-                {
-                    relativePos = hit->getLocalPoint (nullptr, screenPos);
-                    resultComponent = hit;
-                    return ddt;
-                }
-            }
+                    return std::tuple (ddt, hit, hit->getLocalPoint (nullptr, screenPos));
 
             hit = hit->getParentComponent();
         }
 
-        resultComponent = nullptr;
-        return nullptr;
+        return {};
     }
 
     void setNewScreenPos (Point<int> screenPos)
@@ -453,24 +438,28 @@ void DragAndDropContainer::startDragging (const var& sourceDescription,
         const auto clipped = (image.getBounds().toDouble() / scaleFactor).getConstrainedPoint (relPos);
 
         Image fade (Image::SingleChannel, image.getWidth(), image.getHeight(), true);
-        Graphics fadeContext (fade);
+        {
+            Graphics fadeContext(fade);
 
-        ColourGradient gradient;
-        gradient.isRadial = true;
-        gradient.point1 = clipped.toFloat() * scaleFactor;
-        gradient.point2 = gradient.point1 + Point<float> (0.0f, scaleFactor * 400.0f);
-        gradient.addColour (0.0, Colours::white);
-        gradient.addColour (0.375, Colours::white);
-        gradient.addColour (1.0, Colours::transparentWhite);
+            ColourGradient gradient;
+            gradient.isRadial = true;
+            gradient.point1 = clipped.toFloat() * scaleFactor;
+            gradient.point2 = gradient.point1 + Point<float>(0.0f, scaleFactor * 400.0f);
+            gradient.addColour(0.0, Colours::white);
+            gradient.addColour(0.375, Colours::white);
+            gradient.addColour(1.0, Colours::transparentWhite);
 
-        fadeContext.setGradientFill (gradient);
-        fadeContext.fillAll();
+            fadeContext.setGradientFill(gradient);
+            fadeContext.fillAll();
+        }
 
         Image composite (Image::ARGB, image.getWidth(), image.getHeight(), true);
-        Graphics compositeContext (composite);
+        {
+            Graphics compositeContext(composite);
 
-        compositeContext.reduceClipRegion (fade, {});
-        compositeContext.drawImageAt (image, 0, 0);
+            compositeContext.reduceClipRegion(fade, {});
+            compositeContext.drawImageAt(image, 0, 0);
+        }
 
         return { ScaledImage (composite, scaleFactor), clipped };
     }();

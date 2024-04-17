@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -25,7 +21,11 @@ namespace juce
 
 class AudioIODevice;
 
-/** Additional information that may be passed to the AudioIODeviceCallback. */
+/**
+    Additional information that may be passed to the AudioIODeviceCallback.
+
+    @tags{Audio}
+*/
 struct AudioIODeviceCallbackContext
 {
     /** If the host provides this information, this field will be set to point to
@@ -171,6 +171,21 @@ public:
     virtual StringArray getInputChannelNames() = 0;
 
     //==============================================================================
+    /** For devices that support a default layout, returns the channels that are enabled in the
+        default layout.
+
+        Returns nullopt if the device doesn't supply a default layout.
+    */
+    virtual std::optional<BigInteger> getDefaultOutputChannels() const { return {}; }
+
+    /** For devices that support a default layout, returns the channels that are enabled in the
+        default layout.
+
+        Returns nullopt if the device doesn't supply a default layout.
+    */
+    virtual std::optional<BigInteger> getDefaultInputChannels()  const { return {}; }
+
+    //==============================================================================
     /** Returns the set of sample-rates this device supports.
         @see getCurrentSampleRate
     */
@@ -288,6 +303,8 @@ public:
     */
     virtual int getInputLatencyInSamples() = 0;
 
+    /** Returns the workgroup for this device. */
+    virtual AudioWorkgroup getWorkgroup() const { return {}; }
 
     //==============================================================================
     /** True if this device can show a pop-up control panel for editing its settings.

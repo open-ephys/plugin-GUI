@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -324,8 +317,8 @@ public:
     }
 
     /** Returns a rectangle which is the same as this one moved by a given amount. */
-    Rectangle translated (ValueType deltaX,
-                          ValueType deltaY) const noexcept
+    [[nodiscard]] Rectangle translated (ValueType deltaX,
+                                        ValueType deltaY) const noexcept
     {
         return { pos.x + deltaX, pos.y + deltaY, w, h };
     }
@@ -448,8 +441,8 @@ public:
         Effectively, the rectangle returned is (x - deltaX, y - deltaY, w + deltaX * 2, h + deltaY * 2).
         @see expand, reduce, reduced
     */
-    Rectangle expanded (ValueType deltaX,
-                        ValueType deltaY) const noexcept
+    [[nodiscard]] Rectangle expanded (ValueType deltaX,
+                                      ValueType deltaY) const noexcept
     {
         auto nw = jmax (ValueType(), w + deltaX * 2);
         auto nh = jmax (ValueType(), h + deltaY * 2);
@@ -461,7 +454,7 @@ public:
         Effectively, the rectangle returned is (x - delta, y - delta, w + delta * 2, h + delta * 2).
         @see expand, reduce, reduced
     */
-    Rectangle expanded (ValueType delta) const noexcept
+    [[nodiscard]] Rectangle expanded (ValueType delta) const noexcept
     {
         return expanded (delta, delta);
     }
@@ -482,8 +475,8 @@ public:
         Effectively, the rectangle returned is (x + deltaX, y + deltaY, w - deltaX * 2, h - deltaY * 2).
         @see reduce, expand, expanded
     */
-    Rectangle reduced (ValueType deltaX,
-                       ValueType deltaY) const noexcept
+    [[nodiscard]] Rectangle reduced (ValueType deltaX,
+                                     ValueType deltaY) const noexcept
     {
         return expanded (-deltaX, -deltaY);
     }
@@ -493,7 +486,7 @@ public:
         Effectively, the rectangle returned is (x + delta, y + delta, w - delta * 2, h - delta * 2).
         @see reduce, expand, expanded
     */
-    Rectangle reduced (ValueType delta) const noexcept
+    [[nodiscard]] Rectangle reduced (ValueType delta) const noexcept
     {
         return reduced (delta, delta);
     }
@@ -613,10 +606,14 @@ public:
 
     //==============================================================================
     /** Returns true if the two rectangles are identical. */
-    bool operator== (const Rectangle& other) const noexcept     { return pos == other.pos && w == other.w && h == other.h; }
+    bool operator== (const Rectangle& other) const noexcept
+    {
+        const auto tie = [] (const Rectangle& r) { return std::tie (r.pos, r.w, r.h); };
+        return tie (*this) == tie (other);
+    }
 
     /** Returns true if the two rectangles are not identical. */
-    bool operator!= (const Rectangle& other) const noexcept     { return pos != other.pos || w != other.w || h != other.h; }
+    bool operator!= (const Rectangle& other) const noexcept     { return ! operator== (other); }
 
     /** Returns true if this coordinate is inside the rectangle. */
     bool contains (ValueType xCoord, ValueType yCoord) const noexcept
@@ -737,7 +734,7 @@ public:
     */
     bool enlargeIfAdjacent (Rectangle other) noexcept
     {
-        if (pos.x == other.pos.x && getRight() == other.getRight()
+        if (exactlyEqual (pos.x, other.pos.x) && exactlyEqual (getRight(), other.getRight())
              && (other.getBottom() >= pos.y && other.pos.y <= getBottom()))
         {
             auto newY = jmin (pos.y, other.pos.y);
@@ -746,7 +743,7 @@ public:
             return true;
         }
 
-        if (pos.y == other.pos.y && getBottom() == other.getBottom()
+        if (exactlyEqual (pos.y, other.pos.y) && exactlyEqual (getBottom(), other.getBottom())
              && (other.getRight() >= pos.x && other.pos.x <= getRight()))
         {
             auto newX = jmin (pos.x, other.pos.x);
@@ -811,7 +808,7 @@ public:
 
         This should only be used on floating point rectangles.
     */
-    Rectangle transformedBy (const AffineTransform& transform) const noexcept
+    [[nodiscard]] Rectangle transformedBy (const AffineTransform& transform) const noexcept
     {
         using FloatType = TypeHelpers::SmallestFloatType<ValueType>;
 

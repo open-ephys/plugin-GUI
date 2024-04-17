@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -48,27 +41,33 @@
   // get rid of some warnings in Window's own headers
  JUCE_BEGIN_IGNORE_WARNINGS_MSVC (4458)
 
- #if JUCE_MINGW && JUCE_USE_DIRECTWRITE
-  #warning "DirectWrite not currently implemented with mingw..."
-  #undef JUCE_USE_DIRECTWRITE
- #endif
-
- #if JUCE_USE_DIRECTWRITE || JUCE_DIRECT2D
-  /*  This is a workaround for broken-by-default function definitions
-      in the MinGW headers. If you're using a newer distribution of MinGW,
-      then your headers may substitute the broken definitions with working definitions
-      when this flag is enabled. Unfortunately, not all MinGW headers contain this
-      workaround, so Direct2D remains disabled by default when building with MinGW.
-  */
-  #define WIDL_EXPLICIT_AGGREGATE_RETURNS 1
-
   /* If you hit a compile error trying to include these files, you may need to update
      your version of the Windows SDK to the latest one. The DirectWrite and Direct2D
-     headers are in the version 7 SDKs.
+     headers are in the version 8 SDKs.
+
+     Need Direct2D 1.3 for sprite batching
   */
-  #include <d2d1.h>
+
+  #pragma push_macro("NTDDI_VERSION")
+  #if NTDDI_VERSION < NTDDI_WIN10_TH2
+  #undef NTDDI_VERSION
+  #define NTDDI_VERSION NTDDI_WIN10_TH2
+  #endif
+  #include <d2d1_3.h>
+  #pragma pop_macro("NTDDI_VERSION")
+
+  #include <d3d11_2.h>
   #include <dwrite.h>
- #endif
+  #include <dcomp.h>
+  #include <dxgi1_3.h>
+  #include <processthreadsapi.h>
+
+#if JUCE_ETW_TRACELOGGING
+  #include <evntrace.h>
+  #include <TraceLoggingProvider.h>
+  #include "native/juce_ETW_windows.h"
+#endif
+#include "native/juce_ETW_windows.h"
 
  #if JUCE_MINGW
   #include <malloc.h>
@@ -76,6 +75,15 @@
  #endif
 
  JUCE_END_IGNORE_WARNINGS_MSVC
+
+ #if ! JUCE_DONT_AUTOLINK_TO_WIN32_LIBRARIES
+  #pragma comment (lib, "Dwrite.lib")
+  #pragma comment (lib, "D2d1.lib")
+  #pragma comment (lib, "DXGI.lib")
+  #pragma comment (lib, "D3D11.lib")
+  #pragma comment (lib, "DComp.lib")
+  #pragma comment (lib, "dxguid.lib")
+#endif
 
 #elif JUCE_IOS
  #import <QuartzCore/QuartzCore.h>
@@ -139,32 +147,41 @@
 #endif
 
 #if JUCE_USE_FREETYPE
- #include "native/juce_freetype_Fonts.cpp"
+ #include "native/juce_Fonts_freetype.cpp"
 #endif
 
 //==============================================================================
 #if JUCE_MAC || JUCE_IOS
- #include "native/juce_mac_Fonts.mm"
- #include "native/juce_mac_CoreGraphicsContext.mm"
- #include "native/juce_mac_IconHelpers.cpp"
+ #include "native/juce_Fonts_mac.mm"
+ #include "native/juce_CoreGraphicsContext_mac.mm"
+ #include "native/juce_IconHelpers_mac.cpp"
 
 #elif JUCE_WINDOWS
- #include "native/juce_win32_DirectWriteTypeface.cpp"
- #include "native/juce_win32_DirectWriteTypeLayout.cpp"
- #include "native/juce_win32_Fonts.cpp"
- #include "native/juce_win32_IconHelpers.cpp"
- #if JUCE_DIRECT2D
-  #include "native/juce_win32_Direct2DGraphicsContext.cpp"
- #endif
+ #include "native/juce_DirectX_windows.h"
+ #include "native/juce_DirectWriteCustomFontCollection_windows.cpp"
+ #include "native/juce_DirectX_windows.cpp"
+ #include "native/juce_DirectWriteTypeface_windows.cpp"
+ #include "native/juce_DirectWriteTypeLayout_windows.cpp"
+ #include "native/juce_Fonts_windows.cpp"
+ #include "native/juce_IconHelpers_windows.cpp"
+ #include "native/juce_Direct2DHelpers_windows.cpp"
+ #include "native/juce_Direct2DResources_windows.cpp"
+ #include "native/juce_Direct2DImage_windows.h"
+ #include "native/juce_Direct2DGraphicsContext_windows.cpp"
+ #include "native/juce_Direct2DHwndContext_windows.cpp"
+ #include "native/juce_Direct2DImageContext_windows.h"
+ #include "native/juce_Direct2DImageContext_windows.cpp"
+ #include "native/juce_Direct2DImage_windows.cpp"
+ #include "native/juce_Direct2DMetrics_windows.cpp"
 
 #elif JUCE_LINUX || JUCE_BSD
- #include "native/juce_linux_Fonts.cpp"
- #include "native/juce_linux_IconHelpers.cpp"
+ #include "native/juce_Fonts_linux.cpp"
+ #include "native/juce_IconHelpers_linux.cpp"
 
 #elif JUCE_ANDROID
- #include "native/juce_android_GraphicsContext.cpp"
- #include "native/juce_android_Fonts.cpp"
- #include "native/juce_android_IconHelpers.cpp"
+ #include "native/juce_GraphicsContext_android.cpp"
+ #include "native/juce_Fonts_android.cpp"
+ #include "native/juce_IconHelpers_android.cpp"
 
 #endif
 

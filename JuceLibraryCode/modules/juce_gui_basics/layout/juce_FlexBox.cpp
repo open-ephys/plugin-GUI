@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -84,8 +77,16 @@ struct FlexBoxLayoutCalculation
 
     ItemWithState& getItem (int x, int y) const noexcept     { return *lineItems[y * numItems + x]; }
 
-    static bool isAuto (Coord value) noexcept                { return value == FlexItem::autoValue; }
-    static bool isAssigned (Coord value) noexcept            { return value != FlexItem::notAssigned; }
+    static bool isAuto (Coord value) noexcept
+    {
+        return exactlyEqual (value, static_cast<Coord> (FlexItem::autoValue));
+    }
+
+    static bool isAssigned (Coord value) noexcept
+    {
+        return ! exactlyEqual (value, static_cast<Coord> (FlexItem::notAssigned));
+    }
+
     static Coord getValueOrZeroIfAuto (Coord value) noexcept { return isAuto (value) ? Coord() : value; }
 
     //==============================================================================
@@ -604,12 +605,12 @@ private:
 
         if (positiveFlexibility)
         {
-            if (totalFlexGrow != 0.0)
+            if (! approximatelyEqual (totalFlexGrow, 0.0))
                 changeUnit = difference / totalFlexGrow;
         }
         else
         {
-            if (totalFlexShrink != 0.0)
+            if (! approximatelyEqual (totalFlexShrink, 0.0))
                 changeUnit = difference / totalFlexShrink;
         }
 
@@ -834,7 +835,7 @@ FlexItem FlexItem::withAlignSelf (AlignSelf a) const noexcept        { auto fi =
 //==============================================================================
 #if JUCE_UNIT_TESTS
 
-class FlexBoxTests : public UnitTest
+class FlexBoxTests final : public UnitTest
 {
 public:
     FlexBoxTests() : UnitTest ("FlexBox", UnitTestCategories::gui) {}

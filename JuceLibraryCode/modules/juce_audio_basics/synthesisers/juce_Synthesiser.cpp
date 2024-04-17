@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -153,7 +149,7 @@ void Synthesiser::setMinimumRenderingSubdivisionSize (int numSamples, bool shoul
 //==============================================================================
 void Synthesiser::setCurrentPlaybackSampleRate (const double newRate)
 {
-    if (sampleRate != newRate)
+    if (! approximatelyEqual (sampleRate, newRate))
     {
         const ScopedLock sl (lock);
         allNotesOff (0, false);
@@ -171,7 +167,7 @@ void Synthesiser::processNextBlock (AudioBuffer<floatType>& outputAudio,
                                     int numSamples)
 {
     // must set the sample rate before using this!
-    jassert (sampleRate != 0);
+    jassert (! exactlyEqual (sampleRate, 0.0));
     const int targetChannels = outputAudio.getNumChannels();
 
     auto midiIterator = midiData.findNextSamplePosition (startSample);

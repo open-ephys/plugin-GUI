@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -30,7 +23,7 @@ ColourGradient::ColourGradient() noexcept  : isRadial (false)
 {
    #if JUCE_DEBUG
     point1.setX (987654.0f);
-    #define JUCE_COLOURGRADIENT_CHECK_COORDS_INITIALISED   jassert (point1.x != 987654.0f);
+    #define JUCE_COLOURGRADIENT_CHECK_COORDS_INITIALISED jassert (! exactlyEqual (point1.x, 987654.0f));
    #else
     #define JUCE_COLOURGRADIENT_CHECK_COORDS_INITIALISED
    #endif
@@ -125,7 +118,7 @@ int ColourGradient::addColour (const double proportionAlongGradient, Colour colo
 
     int i;
     for (i = 0; i < colours.size(); ++i)
-        if (colours.getReference(i).position > pos)
+        if (colours.getReference (i).position > pos)
             break;
 
     colours.insert (i, { pos, colour });
@@ -174,13 +167,13 @@ void ColourGradient::setColour (int index, Colour newColour) noexcept
 
 Colour ColourGradient::getColourAtPosition (double position) const noexcept
 {
-    jassert (colours.getReference(0).position == 0.0); // the first colour specified has to go at position 0
+    jassert (approximatelyEqual (colours.getReference (0).position, 0.0)); // the first colour specified has to go at position 0
 
     if (position <= 0 || colours.size() <= 1)
-        return colours.getReference(0).colour;
+        return colours.getReference (0).colour;
 
     int i = colours.size() - 1;
-    while (position < colours.getReference(i).position)
+    while (position < colours.getReference (i).position)
         --i;
 
     auto& p1 = colours.getReference (i);
@@ -199,7 +192,7 @@ void ColourGradient::createLookupTable (PixelARGB* const lookupTable, const int 
     JUCE_COLOURGRADIENT_CHECK_COORDS_INITIALISED // Trying to use this object without setting its coordinates?
     jassert (colours.size() >= 2);
     jassert (numEntries > 0);
-    jassert (colours.getReference(0).position == 0.0); // The first colour specified has to go at position 0
+    jassert (approximatelyEqual (colours.getReference (0).position, 0.0)); // The first colour specified has to go at position 0
 
     int index = 0;
 
@@ -258,12 +251,19 @@ bool ColourGradient::isInvisible() const noexcept
 
 bool ColourGradient::ColourPoint::operator== (ColourPoint other) const noexcept
 {
-    return position == other.position && colour == other.colour;
+    const auto tie = [] (const ColourPoint& p) { return std::tie (p.position, p.colour); };
+    return tie (*this) == tie (other);
 }
 
 bool ColourGradient::ColourPoint::operator!= (ColourPoint other) const noexcept
 {
-    return position != other.position || colour != other.colour;
+    return ! operator== (other);
 }
+
+uint64 ColourGradient::getHash() const noexcept
+{
+    return DefaultHashFunctions::generateHash(reinterpret_cast<uint8 const*>(colours.getRawDataPointer()), (size_t)colours.size() * sizeof(ColourPoint));
+}
+
 
 } // namespace juce

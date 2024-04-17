@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -128,7 +124,7 @@ public:
 
         auto proportion = clampTo0To1 ((v - start) / (end - start));
 
-        if (skew == static_cast<ValueType> (1))
+        if (exactlyEqual (skew, static_cast<ValueType> (1)))
             return proportion;
 
         if (! symmetricSkew)
@@ -154,7 +150,7 @@ public:
 
         if (! symmetricSkew)
         {
-            if (skew != static_cast<ValueType> (1) && proportion > ValueType())
+            if (! exactlyEqual (skew, static_cast<ValueType> (1)) && proportion > ValueType())
                 proportion = std::exp (std::log (proportion) / skew);
 
             return start + (end - start) * proportion;
@@ -162,7 +158,7 @@ public:
 
         auto distanceFromMiddle = static_cast<ValueType> (2) * proportion - static_cast<ValueType> (1);
 
-        if (skew != static_cast<ValueType> (1) && distanceFromMiddle != static_cast<ValueType> (0))
+        if (! exactlyEqual (skew, static_cast<ValueType> (1)) && ! exactlyEqual (distanceFromMiddle, static_cast<ValueType> (0)))
             distanceFromMiddle = std::exp (std::log (std::abs (distanceFromMiddle)) / skew)
                                  * (distanceFromMiddle < ValueType() ? static_cast<ValueType> (-1)
                                                                      : static_cast<ValueType> (1));
@@ -250,7 +246,7 @@ private:
 
         // If you hit this assertion then either your normalisation function is not working
         // correctly or your input is out of the expected bounds.
-        jassert (clampedValue == value);
+        jassert (exactlyEqual (clampedValue, value));
 
         return clampedValue;
     }

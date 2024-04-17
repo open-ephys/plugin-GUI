@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -25,6 +18,33 @@
 
 namespace juce
 {
+
+#ifndef DOXYGEN
+namespace detail
+{
+class BoundsChangeListener final : private ComponentListener
+{
+public:
+    BoundsChangeListener (Component& c, std::function<void()> cb)
+        : callback (std::move (cb)),
+          componentListenerGuard { [comp = &c, this] { comp->removeComponentListener (this); } }
+    {
+        jassert (callback != nullptr);
+
+        c.addComponentListener (this);
+    }
+
+private:
+    void componentMovedOrResized (Component&, bool, bool) override
+    {
+        callback();
+    }
+
+    std::function<void()> callback;
+    ErasedScopeGuard componentListenerGuard;
+};
+} // namespace detail
+#endif
 
 //==============================================================================
 /**
@@ -220,11 +240,16 @@ protected:
     AffineTransform drawableTransform;
 
     void nonConstDraw (Graphics&, float opacity, const AffineTransform&);
-    void updateTransform();
 
     Drawable (const Drawable&);
     Drawable& operator= (const Drawable&);
     JUCE_LEAK_DETECTOR (Drawable)
+
+
+private:
+    void updateTransform();
+
+    detail::BoundsChangeListener boundsChangeListener { *this, [this] { updateTransform(); } };
 };
 
 } // namespace juce

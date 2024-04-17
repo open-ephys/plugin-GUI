@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -26,7 +19,7 @@
 namespace juce
 {
 
-class ValueTree::SharedObject  : public ReferenceCountedObject
+class ValueTree::SharedObject final : public ReferenceCountedObject
 {
 public:
     using Ptr = ReferenceCountedObjectPtr<SharedObject>;
@@ -408,7 +401,7 @@ public:
     }
 
     //==============================================================================
-    struct SetPropertyAction  : public UndoableAction
+    struct SetPropertyAction final : public UndoableAction
     {
         SetPropertyAction (Ptr targetObject, const Identifier& propertyName,
                            const var& newVal, const var& oldVal, bool isAdding, bool isDeleting,
@@ -472,7 +465,7 @@ public:
     };
 
     //==============================================================================
-    struct AddOrRemoveChildAction  : public UndoableAction
+    struct AddOrRemoveChildAction final : public UndoableAction
     {
         AddOrRemoveChildAction (Ptr parentObject, int index, SharedObject* newChild)
             : target (std::move (parentObject)),
@@ -524,7 +517,7 @@ public:
     };
 
     //==============================================================================
-    struct MoveChildAction  : public UndoableAction
+    struct MoveChildAction final : public UndoableAction
     {
         MoveChildAction (Ptr parentObject, int fromIndex, int toIndex) noexcept
             : parent (std::move (parentObject)), startIndex (fromIndex), endIndex (toIndex)
@@ -809,8 +802,8 @@ int ValueTree::getReferenceCount() const noexcept
 }
 
 //==============================================================================
-struct ValueTreePropertyValueSource  : public Value::ValueSource,
-                                       private ValueTree::Listener
+struct ValueTreePropertyValueSource final : public Value::ValueSource,
+                                            private ValueTree::Listener
 {
     ValueTreePropertyValueSource (const ValueTree& vt, const Identifier& prop, UndoManager* um, bool sync)
         : tree (vt), property (prop), undoManager (um), updateSynchronously (sync)
@@ -1118,7 +1111,7 @@ JUCE_END_IGNORE_WARNINGS_MSVC
 //==============================================================================
 #if JUCE_UNIT_TESTS
 
-class ValueTreeTests  : public UnitTest
+class ValueTreeTests final : public UnitTest
 {
 public:
     ValueTreeTests()

@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -161,6 +157,8 @@ BigInteger& BigInteger::operator= (const BigInteger& other)
 
     return *this;
 }
+
+BigInteger::~BigInteger() = default;
 
 uint32* BigInteger::getValues() const noexcept
 {
@@ -1003,7 +1001,7 @@ void BigInteger::montgomeryMultiplication (const BigInteger& other, const BigInt
 void BigInteger::extendedEuclidean (const BigInteger& a, const BigInteger& b,
                                     BigInteger& x, BigInteger& y)
 {
-    BigInteger p(a), q(b), gcd(1);
+    BigInteger p (a), q (b), gcd (1);
     Array<BigInteger> tempValues;
 
     while (! q.isZero())
@@ -1294,7 +1292,7 @@ uint32 readLittleEndianBitsInBuffer (const void* buffer, uint32 startBit, uint32
 //==============================================================================
 #if JUCE_UNIT_TESTS
 
-class BigIntegerTests  : public UnitTest
+class BigIntegerTests final : public UnitTest
 {
 public:
     BigIntegerTests()
@@ -1319,12 +1317,12 @@ public:
             Random r = getRandom();
 
             expect (BigInteger().isZero());
-            expect (BigInteger(1).isOne());
+            expect (BigInteger (1).isOne());
 
             for (int j = 10000; --j >= 0;)
             {
-                BigInteger b1 (getBigRandom(r)),
-                           b2 (getBigRandom(r));
+                BigInteger b1 (getBigRandom (r)),
+                           b2 (getBigRandom (r));
 
                 BigInteger b3 = b1 + b2;
                 expect (b3 > b1 && b3 > b2);

@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -156,6 +149,11 @@ public:
     */
     virtual var getDragSourceDescription (const SparseSet<int>& rowsToDescribe);
 
+    /** Called when starting a drag operation on a list row to determine whether the item may be
+        dragged to other windows. Returns true by default.
+    */
+    virtual bool mayDragToExternalWindows() const   { return true; }
+
     /** You can override this to provide tool tips for specific rows.
         @see TooltipClient
     */
@@ -216,7 +214,7 @@ public:
     void setModel (ListBoxModel* newModel);
 
     /** Returns the current list model. */
-    ListBoxModel* getModel() const noexcept
+    ListBoxModel* getListBoxModel() const noexcept
     {
        #if ! JUCE_DISABLE_ASSERTIONS
         checkModelPtrIsValid();
@@ -260,6 +258,11 @@ public:
         By default this is true, but you may want to turn it off.
     */
     void setRowSelectedOnMouseDown (bool isSelectedOnMouseDown) noexcept;
+
+    /** Gets whether a row should be selected when the mouse is pressed or released.
+        By default this is true, but you may want to turn it off.
+    */
+    bool getRowSelectedOnMouseDown() const                  { return selectOnMouseDown; }
 
     /** Makes the list react to mouse moves by selecting the row that the mouse if over.
 
@@ -601,6 +604,9 @@ public:
     [[deprecated ("This method's bool parameter has changed: see the new method signature.")]]
     void setSelectedRows (const SparseSet<int>&, bool);
    #endif
+
+    [[deprecated ("The name of this function is ambiguous if derived classes supply their own models, use getListBoxModel instead")]]
+    ListBoxModel* getModel() const noexcept  { return getListBoxModel(); }
 
 private:
     //==============================================================================

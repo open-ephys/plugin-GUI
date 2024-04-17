@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -144,7 +137,7 @@ public:
         The isNull() method is the opposite of isValid().
         @see isNull
     */
-    inline bool isValid() const noexcept                    { return image != nullptr; }
+    bool isValid() const noexcept;
 
     /** Returns true if this image is not valid.
         If you create an Image with the default constructor, it has no size or content, and is null
@@ -152,7 +145,7 @@ public:
         The isNull() method is the opposite of isValid().
         @see isValid
     */
-    inline bool isNull() const noexcept                     { return image == nullptr; }
+    bool isNull() const noexcept { return ! isValid(); }
 
     //==============================================================================
     /** Returns the image's width (in pixels). */
@@ -450,10 +443,17 @@ public:
 
     using Ptr = ReferenceCountedObjectPtr<ImagePixelData>;
 
+    virtual bool isValid() const noexcept
+    {
+        return true;
+    }
+
     /** Creates a context that will draw into this image. */
     virtual std::unique_ptr<LowLevelGraphicsContext> createLowLevelContext() = 0;
     /** Creates a copy of this image. */
     virtual Ptr clone() = 0;
+    /** Creates a copy of this image. */
+    virtual Ptr clip(Rectangle<int> sourceArea);
     /** Creates an instance of the type of this image. */
     virtual std::unique_ptr<ImageType> createType() const = 0;
     /** Initialises a BitmapData object. */
@@ -462,6 +462,8 @@ public:
         shared image data. This is different to the reference count as an instance of ImagePixelData
         can internally depend on another ImagePixelData via it's member variables. */
     virtual int getSharedCount() const noexcept;
+
+    virtual std::optional<Image> applyGaussianBlurEffect(float /*radius*/, int) { return {}; }
 
 
     /** The pixel format of the image data. */
@@ -517,6 +519,7 @@ public:
         @code myImage = SoftwareImageType().convert (myImage); @endcode
     */
     virtual Image convert (const Image& source) const;
+    virtual Image convertFromBitmapData (Image::BitmapData const& source) const;
 };
 
 //==============================================================================
@@ -548,10 +551,13 @@ class JUCE_API  NativeImageType   : public ImageType
 {
 public:
     NativeImageType();
+    NativeImageType(float scaleFactor_);
     ~NativeImageType() override;
 
     ImagePixelData::Ptr create (Image::PixelFormat, int width, int height, bool clearImage) const override;
     int getTypeID() const override;
+
+    float const scaleFactor = 1.0f;
 };
 
 } // namespace juce

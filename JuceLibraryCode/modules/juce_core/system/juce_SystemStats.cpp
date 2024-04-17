@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -37,9 +33,9 @@ String SystemStats::getJUCEVersion()
     static_assert (sizeof (int64) == 8,                          "Basic sanity test failed: please report!");
     static_assert (sizeof (uint64) == 8,                         "Basic sanity test failed: please report!");
 
-    return "JUCE v" JUCE_STRINGIFY(JUCE_MAJOR_VERSION)
-                "." JUCE_STRINGIFY(JUCE_MINOR_VERSION)
-                "." JUCE_STRINGIFY(JUCE_BUILDNUMBER);
+    return "JUCE v" JUCE_STRINGIFY (JUCE_MAJOR_VERSION)
+                "." JUCE_STRINGIFY (JUCE_MINOR_VERSION)
+                "." JUCE_STRINGIFY (JUCE_BUILDNUMBER);
 }
 
 #if JUCE_ANDROID && ! defined (JUCE_DISABLE_JUCE_VERSION_PRINTING)
@@ -60,24 +56,64 @@ String SystemStats::getJUCEVersion()
 
 StringArray SystemStats::getDeviceIdentifiers()
 {
+    for (const auto flag : { MachineIdFlags::fileSystemId, MachineIdFlags::macAddresses  })
+        if (auto ids = getMachineIdentifiers (flag); ! ids.isEmpty())
+            return ids;
+
+    jassertfalse; // Failed to create any IDs!
+    return {};
+}
+
+String getLegacyUniqueDeviceID();
+
+StringArray SystemStats::getMachineIdentifiers (MachineIdFlags flags)
+{
+    auto macAddressProvider = [] (StringArray& arr)
+    {
+        for (const auto& mac : MACAddress::getAllAddresses())
+            arr.add (mac.toString());
+    };
+
+    auto fileSystemProvider = [] (StringArray& arr)
+    {
+       #if JUCE_WINDOWS
+        File f (File::getSpecialLocation (File::windowsSystemDirectory));
+       #else
+        File f ("~");
+       #endif
+        if (auto num = f.getFileIdentifier())
+            arr.add (String::toHexString ((int64) num));
+    };
+
+    auto legacyIdProvider = [] ([[maybe_unused]] StringArray& arr)
+    {
+       #if JUCE_WINDOWS
+        arr.add (getLegacyUniqueDeviceID());
+       #endif
+    };
+
+    auto uniqueIdProvider = [] (StringArray& arr)
+    {
+        arr.add (getUniqueDeviceID());
+    };
+
+    struct Provider { MachineIdFlags flag; void (*func) (StringArray&); };
+    static const Provider providers[] =
+    {
+        { MachineIdFlags::macAddresses,   macAddressProvider },
+        { MachineIdFlags::fileSystemId,   fileSystemProvider },
+        { MachineIdFlags::legacyUniqueId, legacyIdProvider },
+        { MachineIdFlags::uniqueId,       uniqueIdProvider }
+    };
+
     StringArray ids;
 
-   #if JUCE_WINDOWS
-    File f (File::getSpecialLocation (File::windowsSystemDirectory));
-   #else
-    File f ("~");
-   #endif
-    if (auto num = f.getFileIdentifier())
+    for (const auto& provider : providers)
     {
-        ids.add (String::toHexString ((int64) num));
-    }
-    else
-    {
-        for (auto& address : MACAddress::getAllAddresses())
-            ids.add (address.toString());
+        if (hasBitValueSet (flags, provider.flag))
+            provider.func (ids);
     }
 
-    jassert (! ids.isEmpty()); // Failed to create any IDs!
     return ids;
 }
 
@@ -230,13 +266,8 @@ void SystemStats::setApplicationCrashHandler (CrashHandlerFunction handler)
 bool SystemStats::isRunningInAppExtensionSandbox() noexcept
 {
    #if JUCE_MAC || JUCE_IOS
-    static bool firstQuery = true;
-    static bool isRunningInAppSandbox = false;
-
-    if (firstQuery)
+    static bool isRunningInAppSandbox = [&]
     {
-        firstQuery = false;
-
         File bundle = File::getSpecialLocation (File::invokedExecutableFile).getParentDirectory();
 
        #if JUCE_MAC
@@ -244,8 +275,10 @@ bool SystemStats::isRunningInAppExtensionSandbox() noexcept
        #endif
 
         if (bundle.isDirectory())
-            isRunningInAppSandbox = (bundle.getFileExtension() == ".appex");
-    }
+            return bundle.getFileExtension() == ".appex";
+
+        return false;
+    }();
 
     return isRunningInAppSandbox;
    #else
@@ -255,7 +288,7 @@ bool SystemStats::isRunningInAppExtensionSandbox() noexcept
 
 #if JUCE_UNIT_TESTS
 
-class UniqueHardwareIDTest  : public UnitTest
+class UniqueHardwareIDTest final : public UnitTest
 {
 public:
     //==============================================================================

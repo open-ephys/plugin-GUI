@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -133,7 +126,16 @@ public:
     /** Returns true if non-power-of-two textures are supported in this context. */
     bool isTextureNpotSupported() const;
 
-    /** OpenGL versions, used by setOpenGLVersionRequired(). */
+    /** OpenGL versions, used by setOpenGLVersionRequired().
+
+        The Core profile doesn't include some legacy functionality, including the
+        fixed-function pipeline.
+
+        The Compatibility profile is backwards-compatible, and includes functionality
+        deprecated in the Core profile. However, not all implementations provide
+        compatibility profiles targeting later versions of OpenGL. To run on the
+        broadest range of hardware, using the 3.2 Core profile is recommended.
+    */
     enum OpenGLVersion
     {
         defaultGLVersion = 0, ///< Whatever the device decides to give us, normally a compatibility profile
@@ -262,9 +264,12 @@ public:
     void executeOnGLThread (T&& functor, bool blockUntilFinished);
 
     //==============================================================================
-    /** Returns the scale factor used by the display that is being rendered.
+    /** Returns a scale factor that relates the context component's size to the number
+        of physical pixels it covers on the screen.
 
-        The scale is that of the display - see Displays::Display::scale
+        In special cases it will be the same as Displays::Display::scale, but it also
+        includes AffineTransforms that affect the rendered area, and will be correctly
+        reported not just in standalone applications but plugins as well.
 
         Note that this should only be called during an OpenGLRenderer::renderOpenGL()
         callback - at other times the value it returns is undefined.
@@ -284,6 +289,12 @@ public:
         native code is probably the best way to find out what it is.
     */
     void* getRawContext() const noexcept;
+
+    /** Returns true if this context is using the core profile.
+
+        @see OpenGLVersion
+    */
+    bool isCoreProfile() const;
 
     /** This structure holds a set of dynamically loaded GL functions for use on this context. */
     OpenGLExtensionFunctions extensions;

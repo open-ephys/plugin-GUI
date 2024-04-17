@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -205,6 +198,23 @@ public:
         or nullptr if it does not have one.
     */
     std::unique_ptr<ResizableCornerComponent> resizableCorner;
+
+    /** The plugin wrapper will call this function to decide whether to use a layer-backed view to
+        host the editor on macOS and iOS.
+
+        Layer-backed views generally provide better performance, and are recommended in most
+        situations. However, on older macOS versions (confirmed on 10.12 and 10.13), displaying an
+        OpenGL context inside a layer-backed view can lead to deadlocks, so it is recommended to
+        avoid layer-backed views when using OpenGL on these OS versions.
+
+        The default behaviour of this function is to return false if and only if the juce_opengl
+        module is present and the current platform is macOS 10.13 or earlier.
+
+        You may want to override this behaviour if your plugin has an option to enable and disable
+        OpenGL rendering. If you know your plugin editor will never use OpenGL rendering, you can
+        set this function to return true in all situations.
+    */
+    virtual bool wantsLayerBackedView() const;
 
 private:
     //==============================================================================

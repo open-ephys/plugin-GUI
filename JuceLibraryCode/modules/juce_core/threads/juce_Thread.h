@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -43,6 +39,9 @@ class JUCE_API  Thread
 {
 public:
     //==============================================================================
+    static constexpr size_t osDefaultStackSize { 0 };
+
+    //==============================================================================
     /** The different runtime priorities of non-realtime threads.
 
         @see startThread
@@ -72,14 +71,133 @@ public:
     */
     struct RealtimeOptions
     {
-        /** Linux only: A value with a range of 0-10, where 10 is the highest priority. */
-        int priority = 5;
+        /** A value with a range of 0-10, where 10 is the highest priority.
 
-        /** iOS/macOS only: A millisecond value representing the estimated time between each
-                            'Thread::run' call. Your thread may be penalised if you frequently
-                            overrun this.
+            Currently only used by Posix platforms.
+
+            @see getPriority
         */
-        uint32_t workDurationMs = 0;
+        [[nodiscard]] RealtimeOptions withPriority (int newPriority) const
+        {
+            jassert (isPositiveAndNotGreaterThan (newPriority, 10));
+            return withMember (*this, &RealtimeOptions::priority, juce::jlimit (0, 10, newPriority));
+        }
+
+        /** Specify the expected amount of processing time required each time the thread wakes up.
+
+            Only used by macOS/iOS.
+
+            @see getProcessingTimeMs, withMaximumProcessingTimeMs, withPeriodMs, withPeriodHz
+        */
+        [[nodiscard]] RealtimeOptions withProcessingTimeMs (double newProcessingTimeMs) const
+        {
+            jassert (newProcessingTimeMs > 0.0);
+            return withMember (*this, &RealtimeOptions::processingTimeMs, newProcessingTimeMs);
+        }
+
+        /** Specify the maximum amount of processing time required each time the thread wakes up.
+
+            Only used by macOS/iOS.
+
+            @see getMaximumProcessingTimeMs, withProcessingTimeMs, withPeriodMs, withPeriodHz
+        */
+        [[nodiscard]] RealtimeOptions withMaximumProcessingTimeMs (double newMaximumProcessingTimeMs) const
+        {
+            jassert (newMaximumProcessingTimeMs > 0.0);
+            return withMember (*this, &RealtimeOptions::maximumProcessingTimeMs, newMaximumProcessingTimeMs);
+        }
+
+        /** Specify the maximum amount of processing time required each time the thread wakes up.
+
+            This is identical to 'withMaximumProcessingTimeMs' except it calculates the processing time
+            from a sample rate and block size. This is useful if you want to run this thread in parallel
+            to an audio device thread.
+
+            Only used by macOS/iOS.
+
+            @see withMaximumProcessingTimeMs, AudioWorkgroup, ScopedWorkgroupToken
+        */
+        [[nodiscard]] RealtimeOptions withApproximateAudioProcessingTime (int samplesPerFrame, double sampleRate) const
+        {
+            jassert (samplesPerFrame > 0);
+            jassert (sampleRate > 0.0);
+
+            const auto approxFrameTimeMs = (samplesPerFrame / sampleRate) * 1000.0;
+            return withMaximumProcessingTimeMs (approxFrameTimeMs);
+        }
+
+        /** Specify the approximate amount of time between each thread wake up.
+
+            Alternatively call withPeriodHz().
+
+            Only used by macOS/iOS.
+
+            @see getPeriodMs, withPeriodHz, withProcessingTimeMs, withMaximumProcessingTimeMs,
+        */
+        [[nodiscard]] RealtimeOptions withPeriodMs (double newPeriodMs) const
+        {
+            jassert (newPeriodMs > 0.0);
+            return withMember (*this, &RealtimeOptions::periodMs, newPeriodMs);
+        }
+
+        /** Specify the approximate frequency at which the thread will be woken up.
+
+            Alternatively call withPeriodMs().
+
+            Only used by macOS/iOS.
+
+            @see getPeriodHz, withPeriodMs, withProcessingTimeMs, withMaximumProcessingTimeMs,
+        */
+        [[nodiscard]] RealtimeOptions withPeriodHz (double newPeriodHz) const
+        {
+            jassert (newPeriodHz > 0.0);
+            return withPeriodMs (1'000.0 / newPeriodHz);
+        }
+
+        /** Returns a value with a range of 0-10, where 10 is the highest priority.
+
+            @see withPriority
+        */
+        [[nodiscard]] int getPriority() const
+        {
+            return priority;
+        }
+
+        /** Returns the expected amount of processing time required each time the thread
+            wakes up.
+
+            @see withProcessingTimeMs, getMaximumProcessingTimeMs, getPeriodMs
+        */
+        [[nodiscard]] std::optional<double> getProcessingTimeMs() const
+        {
+            return processingTimeMs;
+        }
+
+        /** Returns the maximum amount of processing time required each time the thread
+            wakes up.
+
+            @see withMaximumProcessingTimeMs, getProcessingTimeMs, getPeriodMs
+        */
+        [[nodiscard]] std::optional<double> getMaximumProcessingTimeMs() const
+        {
+            return maximumProcessingTimeMs;
+        }
+
+        /** Returns the approximate amount of time between each thread wake up, or
+            nullopt if there is no inherent periodicity.
+
+            @see withPeriodMs, withPeriodHz, getProcessingTimeMs, getMaximumProcessingTimeMs
+        */
+        [[nodiscard]] std::optional<double> getPeriodMs() const
+        {
+            return periodMs;
+        }
+
+    private:
+        int priority { 5 };
+        std::optional<double> processingTimeMs;
+        std::optional<double> maximumProcessingTimeMs;
+        std::optional<double> periodMs{};
     };
 
     //==============================================================================
@@ -95,7 +213,7 @@ public:
                                 is zero then the default stack size of the OS will
                                 be used.
     */
-    explicit Thread (const String& threadName, size_t threadStackSize = 0);
+    explicit Thread (const String& threadName, size_t threadStackSize = osDefaultStackSize);
 
     /** Destructor.
 
@@ -337,7 +455,7 @@ public:
 
         @returns    true if the event has been signalled, false if the timeout expires.
     */
-    bool wait (int timeOutMilliseconds) const;
+    bool wait (double timeOutMilliseconds) const;
 
     /** Wakes up the thread.
 
@@ -461,7 +579,7 @@ private:
     const String threadName;
     std::atomic<void*> threadHandle { nullptr };
     std::atomic<ThreadID> threadId { nullptr };
-    Optional<RealtimeOptions> realtimeOptions = {};
+    std::optional<RealtimeOptions> realtimeOptions = {};
     CriticalSection startStopLock;
     WaitableEvent startSuspensionEvent, defaultEvent;
     size_t threadStackSize;

@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -58,13 +51,14 @@ namespace pnglibNamespace
    using std::free;
   #endif
 
-   JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wsign-conversion",
+   JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wcomma",
+                                        "-Wfloat-equal",
                                         "-Wimplicit-fallthrough",
-                                        "-Wtautological-constant-out-of-range-compare",
-                                        "-Wzero-as-null-pointer-constant",
-                                        "-Wcomma",
                                         "-Wmaybe-uninitialized",
-                                        "-Wnull-pointer-subtraction")
+                                        "-Wnull-pointer-subtraction",
+                                        "-Wsign-conversion",
+                                        "-Wtautological-constant-out-of-range-compare",
+                                        "-Wzero-as-null-pointer-constant")
 
   #undef check
   using std::abs;
@@ -354,7 +348,7 @@ namespace PNGHelpers
     static void JUCE_CDECL errorCallback (png_structp p, png_const_charp)
     {
        #ifdef PNG_SETJMP_SUPPORTED
-        setjmp(png_jmpbuf(p));
+        setjmp (png_jmpbuf (p));
        #else
         longjmp (*(jmp_buf*) p->error_ptr, 1);
        #endif

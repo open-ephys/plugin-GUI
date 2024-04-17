@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -105,24 +98,27 @@ public:
     Type get() const noexcept                        { return cachedValue; }
 
     /** Dereference operator. Provides direct access to the property.  */
-    Type& operator*() noexcept                       { return cachedValue; }
+    const Type& operator*() const noexcept           { return cachedValue; }
 
     /** Dereference operator. Provides direct access to members of the property
         if it is of object type.
     */
-    Type* operator->() noexcept                      { return &cachedValue; }
+    const Type* operator->() const noexcept          { return &cachedValue; }
 
     /** Returns true if the current value of the property (or the fallback value)
         is equal to other.
     */
     template <typename OtherType>
-    bool operator== (const OtherType& other) const   { return cachedValue == other; }
+    bool operator== (const OtherType& other) const
+    {
+        return cachedValue == other;
+    }
 
     /** Returns true if the current value of the property (or the fallback value)
         is not equal to other.
      */
     template <typename OtherType>
-    bool operator!= (const OtherType& other) const   { return cachedValue != other; }
+    bool operator!= (const OtherType& other) const   { return ! operator== (other); }
 
     //==============================================================================
     /** Returns the current property as a Value object. */
@@ -245,7 +241,7 @@ inline CachedValue<Type>& CachedValue<Type>::operator= (const Type& newValue)
 template <typename Type>
 inline void CachedValue<Type>::setValue (const Type& newValue, UndoManager* undoManagerToUse)
 {
-    if (cachedValue != newValue || isUsingDefault())
+    if (! exactlyEqual (cachedValue, newValue) || isUsingDefault())
     {
         cachedValue = newValue;
         targetTree.setProperty (targetProperty, VariantConverter<Type>::toVar (newValue), undoManagerToUse);

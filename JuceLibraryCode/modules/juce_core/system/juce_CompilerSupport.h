@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -61,6 +57,15 @@
   #if ! __has_feature (cxx_exceptions)
    #define JUCE_EXCEPTIONS_DISABLED 1
   #endif
+ #endif
+
+ #if ! defined (JUCE_SILENCE_XCODE_15_LINKER_WARNING)                          \
+     && defined (__apple_build_version__)                                      \
+     && __apple_build_version__ >= 15000000                                    \
+     && __apple_build_version__ <  15000100
+
+  // Due to known issues, the linker in Xcode 15.0 may produce broken binaries.
+  #error Please upgrade to Xcode 15.1 or higher
  #endif
 
  #define JUCE_CXX14_IS_AVAILABLE (__cplusplus >= 201402L)

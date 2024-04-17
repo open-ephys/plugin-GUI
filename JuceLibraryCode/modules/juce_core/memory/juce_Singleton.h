@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -128,10 +124,10 @@ struct SingletonHolder  : private MutexType // (inherited so we can use the empt
 /**
     Macro to generate the appropriate methods and boilerplate for a singleton class.
 
-    To use this, add the line JUCE_DECLARE_SINGLETON(MyClass, doNotRecreateAfterDeletion)
+    To use this, add the line JUCE_DECLARE_SINGLETON (MyClass, doNotRecreateAfterDeletion)
     to the class's definition.
 
-    Then put a macro JUCE_IMPLEMENT_SINGLETON(MyClass) along with the class's
+    Then put a macro JUCE_IMPLEMENT_SINGLETON (MyClass) along with the class's
     implementation code.
 
     It's also a very good idea to also add the call clearSingletonInstance() in your class's

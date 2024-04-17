@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -31,6 +24,8 @@ JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wc99-extensions",
                                      "-Wdeprecated-declarations",
                                      "-Wextra-semi",
                                      "-Wfloat-conversion",
+                                     "-Wfloat-equal",
+                                     "-Wformat-overflow",
                                      "-Wimplicit-float-conversion",
                                      "-Wimplicit-int-conversion",
                                      "-Wmicrosoft-include",
@@ -44,8 +39,7 @@ JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wc99-extensions",
                                      "-Wsign-conversion",
                                      "-Wswitch-enum",
                                      "-Wunused-parameter",
-                                     "-Wzero-as-null-pointer-constant",
-                                     "-Wformat-overflow")
+                                     "-Wzero-as-null-pointer-constant")
 JUCE_BEGIN_IGNORE_WARNINGS_MSVC (4100 4200 4244 4267 4389 4702 4706 4800 4996 6308 28182 28183 6385 6386 6387 6011 6282 6323 6330 6001 6031)
 
 extern "C"
@@ -115,3 +109,6 @@ using namespace Utils;
 #pragma pop_macro ("nil")
 
 } // extern "C"
+
+JUCE_END_IGNORE_WARNINGS_MSVC
+JUCE_END_IGNORE_WARNINGS_GCC_LIKE

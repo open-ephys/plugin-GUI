@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -23,10 +19,11 @@
 namespace juce
 {
 
-struct ThreadPool::ThreadPoolThread  : public Thread
+struct ThreadPool::ThreadPoolThread final : public Thread
 {
-    ThreadPoolThread (ThreadPool& p, size_t stackSize)
-       : Thread ("Pool", stackSize), pool (p)
+    ThreadPoolThread (ThreadPool& p, const Options& options)
+       : Thread { options.threadName, options.threadStackSizeBytes },
+         pool { p }
     {
     }
 
@@ -93,18 +90,24 @@ ThreadPoolJob* ThreadPoolJob::getCurrentThreadPoolJob()
 }
 
 //==============================================================================
-ThreadPool::ThreadPool (int numThreads, size_t threadStackSize, Thread::Priority priority)
+ThreadPool::ThreadPool (const Options& options)
 {
-    jassert (numThreads > 0); // not much point having a pool without any threads!
+    // not much point having a pool without any threads!
+    jassert (options.numberOfThreads > 0);
 
-    for (int i = jmax (1, numThreads); --i >= 0;)
-        threads.add (new ThreadPoolThread (*this, threadStackSize));
+    for (int i = jmax (1, options.numberOfThreads); --i >= 0;)
+        threads.add (new ThreadPoolThread (*this, options));
 
     for (auto* t : threads)
-        t->startThread (priority);
+        t->startThread (options.desiredThreadPriority);
 }
 
-ThreadPool::ThreadPool() : ThreadPool (SystemStats::getNumCpus(), 0, Thread::Priority::normal)
+ThreadPool::ThreadPool (int numberOfThreads,
+                        size_t threadStackSizeBytes,
+                        Thread::Priority desiredThreadPriority)
+    : ThreadPool { Options{}.withNumberOfThreads (numberOfThreads)
+                            .withThreadStackSizeBytes (threadStackSizeBytes)
+                            .withDesiredThreadPriority (desiredThreadPriority) }
 {
 }
 
@@ -147,7 +150,7 @@ void ThreadPool::addJob (ThreadPoolJob* job, bool deleteJobWhenFinished)
 
 void ThreadPool::addJob (std::function<ThreadPoolJob::JobStatus()> jobToRun)
 {
-    struct LambdaJobWrapper  : public ThreadPoolJob
+    struct LambdaJobWrapper final : public ThreadPoolJob
     {
         LambdaJobWrapper (std::function<ThreadPoolJob::JobStatus()> j) : ThreadPoolJob ("lambda"), job (j) {}
         JobStatus runJob() override      { return job(); }
@@ -160,15 +163,15 @@ void ThreadPool::addJob (std::function<ThreadPoolJob::JobStatus()> jobToRun)
 
 void ThreadPool::addJob (std::function<void()> jobToRun)
 {
-    struct LambdaJobWrapper  : public ThreadPoolJob
+    struct LambdaJobWrapper final : public ThreadPoolJob
     {
-        LambdaJobWrapper (std::function<void()> j) : ThreadPoolJob ("lambda"), job (j) {}
+        LambdaJobWrapper (std::function<void()> j) : ThreadPoolJob ("lambda"), job (std::move (j)) {}
         JobStatus runJob() override      { job(); return ThreadPoolJob::jobHasFinished; }
 
         std::function<void()> job;
     };
 
-    addJob (new LambdaJobWrapper (jobToRun), true);
+    addJob (new LambdaJobWrapper (std::move (jobToRun)), true);
 }
 
 int ThreadPool::getNumJobs() const noexcept
@@ -270,7 +273,7 @@ bool ThreadPool::removeAllJobs (bool interruptRunningJobs, int timeOutMs,
 
             for (int i = jobs.size(); --i >= 0;)
             {
-                auto* job = jobs.getUnchecked(i);
+                auto* job = jobs.getUnchecked (i);
 
                 if (selectedJobsToRemove == nullptr || selectedJobsToRemove->isJobSuitable (job))
                 {

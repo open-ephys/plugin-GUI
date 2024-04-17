@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -27,8 +20,8 @@ namespace juce
 {
 
 //==============================================================================
-class FileChooser::NonNative    : public std::enable_shared_from_this<NonNative>,
-                                  public FileChooser::Pimpl
+class FileChooser::NonNative final : public std::enable_shared_from_this<NonNative>,
+                                     public FileChooser::Pimpl
 {
 public:
     NonNative (FileChooser& fileChooser, int flags, FilePreviewComponent* preview)
@@ -165,7 +158,7 @@ bool FileChooser::browseForDirectory()
 
 bool FileChooser::showDialog (const int flags, FilePreviewComponent* const previewComp)
 {
-    FocusRestorer focusRestorer;
+    detail::FocusRestorer focusRestorer;
 
     pimpl = createPimpl (flags, previewComp);
     pimpl->runModally();
@@ -259,15 +252,14 @@ URL FileChooser::getURLResult() const
 
 void FileChooser::finished (const Array<URL>& asyncResults)
 {
-     std::function<void (const FileChooser&)> callback;
-     std::swap (callback, asyncCallback);
+    const auto callback = std::exchange (asyncCallback, nullptr);
 
-     results = asyncResults;
+    results = asyncResults;
 
-     pimpl.reset();
+    pimpl.reset();
 
-     if (callback)
-         callback (*this);
+    if (callback)
+        callback (*this);
 }
 
 #if ! JUCE_ANDROID

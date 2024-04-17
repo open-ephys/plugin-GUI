@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -39,13 +35,18 @@
  #include <emmintrin.h>
 #endif
 
-#ifndef JUCE_USE_VDSP_FRAMEWORK
- #define JUCE_USE_VDSP_FRAMEWORK 1
-#endif
+#if JUCE_MAC || JUCE_IOS
+ #ifndef JUCE_USE_VDSP_FRAMEWORK
+  #define JUCE_USE_VDSP_FRAMEWORK 1
+ #endif
 
-#if (JUCE_MAC || JUCE_IOS) && JUCE_USE_VDSP_FRAMEWORK
- #include <Accelerate/Accelerate.h>
-#else
+ #if JUCE_USE_VDSP_FRAMEWORK
+  #include <Accelerate/Accelerate.h>
+ #endif
+
+ #include "native/juce_AudioWorkgroup_mac.h"
+
+#elif JUCE_USE_VDSP_FRAMEWORK
  #undef JUCE_USE_VDSP_FRAMEWORK
 #endif
 
@@ -89,13 +90,13 @@
 #include "synthesisers/juce_Synthesiser.cpp"
 #include "audio_play_head/juce_AudioPlayHead.cpp"
 #include "midi/juce_MidiDataConcatenator.h"
-
 #include "midi/ump/juce_UMP.h"
 #include "midi/ump/juce_UMPUtils.cpp"
 #include "midi/ump/juce_UMPView.cpp"
 #include "midi/ump/juce_UMPSysEx7.cpp"
 #include "midi/ump/juce_UMPMidi1ToMidi2DefaultTranslator.cpp"
 #include "midi/ump/juce_UMPIterator.cpp"
+#include "utilities/juce_AudioWorkgroup.cpp"
 
 #if JUCE_UNIT_TESTS
  #include "utilities/juce_ADSR_test.cpp"

@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -54,8 +50,16 @@ RelativeTime RelativeTime::operator-= (double secs) noexcept        { numSeconds
 JUCE_API RelativeTime JUCE_CALLTYPE operator+ (RelativeTime t1, RelativeTime t2) noexcept  { return t1 += t2; }
 JUCE_API RelativeTime JUCE_CALLTYPE operator- (RelativeTime t1, RelativeTime t2) noexcept  { return t1 -= t2; }
 
-JUCE_API bool JUCE_CALLTYPE operator== (RelativeTime t1, RelativeTime t2) noexcept       { return t1.inSeconds() == t2.inSeconds(); }
-JUCE_API bool JUCE_CALLTYPE operator!= (RelativeTime t1, RelativeTime t2) noexcept       { return t1.inSeconds() != t2.inSeconds(); }
+JUCE_API bool JUCE_CALLTYPE operator== (RelativeTime t1, RelativeTime t2) noexcept
+{
+    return exactlyEqual (t1.inSeconds(), t2.inSeconds());
+}
+
+JUCE_API bool JUCE_CALLTYPE operator!= (RelativeTime t1, RelativeTime t2) noexcept
+{
+    return ! (t1 == t2);
+}
+
 JUCE_API bool JUCE_CALLTYPE operator>  (RelativeTime t1, RelativeTime t2) noexcept       { return t1.inSeconds() >  t2.inSeconds(); }
 JUCE_API bool JUCE_CALLTYPE operator<  (RelativeTime t1, RelativeTime t2) noexcept       { return t1.inSeconds() <  t2.inSeconds(); }
 JUCE_API bool JUCE_CALLTYPE operator>= (RelativeTime t1, RelativeTime t2) noexcept       { return t1.inSeconds() >= t2.inSeconds(); }
@@ -67,13 +71,13 @@ static String translateTimeField (int n, const char* singular, const char* plura
     return TRANS (n == 1 ? singular : plural).replace (n == 1 ? "1" : "2", String (n));
 }
 
-static String describeYears   (int n)      { return translateTimeField (n, NEEDS_TRANS("1 year"),  NEEDS_TRANS("2 years")); }
-static String describeMonths  (int n)      { return translateTimeField (n, NEEDS_TRANS("1 month"), NEEDS_TRANS("2 months")); }
-static String describeWeeks   (int n)      { return translateTimeField (n, NEEDS_TRANS("1 week"),  NEEDS_TRANS("2 weeks")); }
-static String describeDays    (int n)      { return translateTimeField (n, NEEDS_TRANS("1 day"),   NEEDS_TRANS("2 days")); }
-static String describeHours   (int n)      { return translateTimeField (n, NEEDS_TRANS("1 hr"),    NEEDS_TRANS("2 hrs")); }
-static String describeMinutes (int n)      { return translateTimeField (n, NEEDS_TRANS("1 min"),   NEEDS_TRANS("2 mins")); }
-static String describeSeconds (int n)      { return translateTimeField (n, NEEDS_TRANS("1 sec"),   NEEDS_TRANS("2 secs")); }
+static String describeYears   (int n)      { return translateTimeField (n, NEEDS_TRANS ("1 year"),  NEEDS_TRANS ("2 years")); }
+static String describeMonths  (int n)      { return translateTimeField (n, NEEDS_TRANS ("1 month"), NEEDS_TRANS ("2 months")); }
+static String describeWeeks   (int n)      { return translateTimeField (n, NEEDS_TRANS ("1 week"),  NEEDS_TRANS ("2 weeks")); }
+static String describeDays    (int n)      { return translateTimeField (n, NEEDS_TRANS ("1 day"),   NEEDS_TRANS ("2 days")); }
+static String describeHours   (int n)      { return translateTimeField (n, NEEDS_TRANS ("1 hr"),    NEEDS_TRANS ("2 hrs")); }
+static String describeMinutes (int n)      { return translateTimeField (n, NEEDS_TRANS ("1 min"),   NEEDS_TRANS ("2 mins")); }
+static String describeSeconds (int n)      { return translateTimeField (n, NEEDS_TRANS ("1 sec"),   NEEDS_TRANS ("2 secs")); }
 
 String RelativeTime::getApproximateDescription() const
 {

@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -87,7 +83,7 @@ namespace juce
 
 #if JUCE_CLANG && defined (__has_feature) && ! defined (JUCE_ANALYZER_NORETURN)
  #if __has_feature (attribute_analyzer_noreturn)
-  inline void __attribute__((analyzer_noreturn)) juce_assert_noreturn() {}
+  inline void __attribute__ ((analyzer_noreturn)) juce_assert_noreturn() {}
   #define JUCE_ANALYZER_NORETURN juce::juce_assert_noreturn();
  #endif
 #endif
@@ -163,9 +159,7 @@ namespace juce
 
   /** Platform-independent assertion macro which suppresses ignored-variable
       warnings in all build modes. You should probably use a plain jassert()
-      by default, and only replace it with jassertquiet() once you've
-      convinced yourself that any unused-variable warnings emitted by the
-      compiler are harmless.
+      and [[maybe_unused]] by default.
   */
   #define jassertquiet(expression)      JUCE_BLOCK_WITH_FORCED_SEMICOLON (if (! (expression)) jassertfalse;)
 
@@ -174,7 +168,7 @@ namespace juce
   // If debugging is disabled, these dummy debug and assertion macros are used..
 
   #define DBG(textToWrite)
-  #define jassertfalse                  JUCE_BLOCK_WITH_FORCED_SEMICOLON (JUCE_LOG_CURRENT_ASSERTION)
+  #define jassertfalse                  JUCE_BLOCK_WITH_FORCED_SEMICOLON (JUCE_LOG_CURRENT_ASSERTION;)
 
   #if JUCE_LOG_ASSERTIONS
    #define jassert(expression)          JUCE_BLOCK_WITH_FORCED_SEMICOLON (if (! (expression)) jassertfalse;)
@@ -285,7 +279,7 @@ namespace juce
   #if JUCE_MSVC
    #define forcedinline       __forceinline
   #else
-   #define forcedinline       inline __attribute__((always_inline))
+   #define forcedinline       inline __attribute__ ((always_inline))
   #endif
 #endif
 
@@ -303,12 +297,12 @@ namespace juce
 #elif ! defined (JUCE_MODAL_LOOPS_PERMITTED)
  /** Some operating environments don't provide a modal loop mechanism, so this flag can be
      used to disable any functions that try to run a modal loop. */
- #define JUCE_MODAL_LOOPS_PERMITTED 1
+ #define JUCE_MODAL_LOOPS_PERMITTED 0
 #endif
 
 //==============================================================================
 #if JUCE_GCC || JUCE_CLANG
- #define JUCE_PACKED __attribute__((packed))
+ #define JUCE_PACKED __attribute__ ((packed))
 #elif ! defined (DOXYGEN)
  #define JUCE_PACKED
 #endif
@@ -317,7 +311,7 @@ namespace juce
 #if JUCE_GCC || DOXYGEN
  /** This can be appended to a function declaration to tell gcc to disable associative
      math optimisations which break some floating point algorithms. */
- #define JUCE_NO_ASSOCIATIVE_MATH_OPTIMISATIONS   __attribute__((__optimize__("no-associative-math")))
+ #define JUCE_NO_ASSOCIATIVE_MATH_OPTIMISATIONS   __attribute__ ((__optimize__ ("no-associative-math")))
 #else
  #define JUCE_NO_ASSOCIATIVE_MATH_OPTIMISATIONS
 #endif

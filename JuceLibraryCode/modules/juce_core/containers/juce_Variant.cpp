@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -201,7 +197,7 @@ struct var::VariantType
     static int64  doubleToInt64  (const ValueUnion& data) noexcept   { return (int64) data.doubleValue; }
     static double doubleToDouble (const ValueUnion& data) noexcept   { return data.doubleValue; }
     static String doubleToString (const ValueUnion& data)            { return serialiseDouble (data.doubleValue); }
-    static bool   doubleToBool   (const ValueUnion& data) noexcept   { return data.doubleValue != 0.0; }
+    static bool   doubleToBool   (const ValueUnion& data) noexcept   { return ! exactlyEqual (data.doubleValue, 0.0); }
 
     static bool doubleEquals (const ValueUnion& data, const ValueUnion& otherData, const VariantType& otherType) noexcept
     {
@@ -314,7 +310,7 @@ struct var::VariantType
     static var objectClone (const var& original)
     {
         if (auto* d = original.getDynamicObject())
-            return d->clone().get();
+            return d->clone().release();
 
         jassertfalse; // can only clone DynamicObjects!
         return {};
@@ -401,7 +397,7 @@ struct var::VariantType
         }
     }
 
-    struct RefCountedArray  : public ReferenceCountedObject
+    struct RefCountedArray final : public ReferenceCountedObject
     {
         RefCountedArray (const Array<var>& a)  : array (a)  { incReferenceCount(); }
         RefCountedArray (Array<var>&& a)  : array (std::move (a)) { incReferenceCount(); }
@@ -645,7 +641,7 @@ static int compare (const var& v1, const var& v2)
         return v1.toString().compare (v2.toString());
 
     auto diff = static_cast<double> (v1) - static_cast<double> (v2);
-    return diff == 0 ? 0 : (diff < 0 ? -1 : 1);
+    return exactlyEqual (diff, 0.0) ? 0 : (diff < 0 ? -1 : 1);
 }
 
 bool operator== (const var& v1, const var& v2)     { return v1.equals (v2); }

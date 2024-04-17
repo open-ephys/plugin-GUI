@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -29,7 +22,7 @@ namespace juce
 namespace WindowsMediaCodec
 {
 
-class JuceIStream   : public ComBaseClassHelper<IStream>
+class JuceIStream final : public ComBaseClassHelper<IStream>
 {
 public:
     JuceIStream (InputStream& in) noexcept
@@ -37,15 +30,15 @@ public:
     {
     }
 
-    JUCE_COMRESULT Commit (DWORD)                        { return S_OK; }
-    JUCE_COMRESULT Write (const void*, ULONG, ULONG*)    { return E_NOTIMPL; }
-    JUCE_COMRESULT Clone (IStream**)                     { return E_NOTIMPL; }
-    JUCE_COMRESULT SetSize (ULARGE_INTEGER)              { return E_NOTIMPL; }
-    JUCE_COMRESULT Revert()                              { return E_NOTIMPL; }
-    JUCE_COMRESULT LockRegion (ULARGE_INTEGER, ULARGE_INTEGER, DWORD)    { return E_NOTIMPL; }
-    JUCE_COMRESULT UnlockRegion (ULARGE_INTEGER, ULARGE_INTEGER, DWORD)  { return E_NOTIMPL; }
+    JUCE_COMRESULT Commit (DWORD)                                        override { return S_OK; }
+    JUCE_COMRESULT Write (const void*, ULONG, ULONG*)                    override { return E_NOTIMPL; }
+    JUCE_COMRESULT Clone (IStream**)                                     override { return E_NOTIMPL; }
+    JUCE_COMRESULT SetSize (ULARGE_INTEGER)                              override { return E_NOTIMPL; }
+    JUCE_COMRESULT Revert()                                              override { return E_NOTIMPL; }
+    JUCE_COMRESULT LockRegion (ULARGE_INTEGER, ULARGE_INTEGER, DWORD)    override { return E_NOTIMPL; }
+    JUCE_COMRESULT UnlockRegion (ULARGE_INTEGER, ULARGE_INTEGER, DWORD)  override { return E_NOTIMPL; }
 
-    JUCE_COMRESULT Read (void* dest, ULONG numBytes, ULONG* bytesRead)
+    JUCE_COMRESULT Read (void* dest, ULONG numBytes, ULONG* bytesRead) override
     {
         auto numRead = source.read (dest, (size_t) numBytes);
 
@@ -55,7 +48,7 @@ public:
         return (numRead == (int) numBytes) ? S_OK : S_FALSE;
     }
 
-    JUCE_COMRESULT Seek (LARGE_INTEGER position, DWORD origin, ULARGE_INTEGER* resultPosition)
+    JUCE_COMRESULT Seek (LARGE_INTEGER position, DWORD origin, ULARGE_INTEGER* resultPosition) override
     {
         auto newPos = (int64) position.QuadPart;
 
@@ -80,7 +73,7 @@ public:
     }
 
     JUCE_COMRESULT CopyTo (IStream* destStream, ULARGE_INTEGER numBytesToDo,
-                           ULARGE_INTEGER* bytesRead, ULARGE_INTEGER* bytesWritten)
+                           ULARGE_INTEGER* bytesRead, ULARGE_INTEGER* bytesWritten) override
     {
         uint64 totalCopied = 0;
         auto numBytes = (int64) numBytesToDo.QuadPart;
@@ -105,7 +98,7 @@ public:
         return S_OK;
     }
 
-    JUCE_COMRESULT Stat (STATSTG* stat, DWORD)
+    JUCE_COMRESULT Stat (STATSTG* stat, DWORD) override
     {
         if (stat == nullptr)
             return STG_E_INVALIDPOINTER;
@@ -127,7 +120,7 @@ static const char* wmFormatName = "Windows Media";
 static const char* const extensions[] = { ".mp3", ".wmv", ".asf", ".wm", ".wma", nullptr };
 
 //==============================================================================
-class WMAudioReader   : public AudioFormatReader
+class WMAudioReader final : public AudioFormatReader
 {
 public:
     WMAudioReader (InputStream* const input_)
@@ -319,7 +312,7 @@ WindowsMediaAudioFormat::WindowsMediaAudioFormat()
 {
 }
 
-WindowsMediaAudioFormat::~WindowsMediaAudioFormat() {}
+WindowsMediaAudioFormat::~WindowsMediaAudioFormat() = default;
 
 Array<int> WindowsMediaAudioFormat::getPossibleSampleRates()    { return {}; }
 Array<int> WindowsMediaAudioFormat::getPossibleBitDepths()      { return {}; }

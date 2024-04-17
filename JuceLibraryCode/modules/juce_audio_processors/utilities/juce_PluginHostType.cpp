@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -36,7 +29,7 @@ Image JUCE_API getIconFromApplication (const String&, const int);
 
 AudioProcessor::WrapperType PluginHostType::jucePlugInClientCurrentWrapperType = AudioProcessor::wrapperType_Undefined;
 std::function<bool (AudioProcessor&)> PluginHostType::jucePlugInIsRunningInAudioSuiteFn = nullptr;
-String PluginHostType::hostIdReportedByWrapper = String("");
+String PluginHostType::hostIdReportedByWrapper;
 
 bool PluginHostType::isInterAppAudioConnected() const
 {
@@ -119,6 +112,7 @@ const char* PluginHostType::getHostDescription() const noexcept
         case pluginval:                return "pluginval";
         case MergingPyramix:           return "Pyramix";
         case MuseReceptorGeneric:      return "Muse Receptor";
+        case Maschine:                 return "NI Maschine";
         case Reaper:                   return "Reaper";
         case Reason:                   return "Reason";
         case Renoise:                  return "Renoise";
@@ -213,6 +207,7 @@ PluginHostType::HostType PluginHostType::getHostType()
     if (hostFilename.containsIgnoreCase   ("OsxFL"))                    return FruityLoops;
     if (hostFilename.containsIgnoreCase   ("pluginval"))                return pluginval;
     if (hostFilename.containsIgnoreCase   ("AudioPluginHost"))          return JUCEPluginHost;
+    if (hostFilename.containsIgnoreCase   ("Maschine"))                 return Maschine;
     if (hostFilename.containsIgnoreCase   ("Vienna Ensemble Pro"))      return ViennaEnsemblePro;
     if (hostFilename.containsIgnoreCase   ("auvaltool"))                return AUVal;
     if (hostFilename.containsIgnoreCase   ("com.apple.audio.infohelper")) return AppleInfoHelper;
@@ -280,6 +275,7 @@ PluginHostType::HostType PluginHostType::getHostType()
     if (hostFilename.containsIgnoreCase   ("Wavelab"))               return SteinbergWavelabGeneric;
     if (hostFilename.containsIgnoreCase   ("TestHost"))              return SteinbergTestHost;
     if (hostFilename.containsIgnoreCase   ("rm-host"))               return MuseReceptorGeneric;
+    if (hostFilename.containsIgnoreCase   ("Maschine"))              return Maschine;
     if (hostFilename.startsWith           ("FL"))                    return FruityLoops;
     if (hostFilename.contains             ("ilbridge."))             return FruityLoops;
     if (hostPath.containsIgnoreCase       ("Studio One"))            return StudioOne;

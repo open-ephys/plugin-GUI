@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -107,7 +103,7 @@ void MPESynthesiserBase::renderNextBlock (AudioBuffer<floatType>& outputAudio,
                                           int numSamples)
 {
     // you must set the sample rate before using this!
-    jassert (sampleRate != 0);
+    jassert (! approximatelyEqual (sampleRate, 0.0));
 
     const ScopedLock sl (noteStateLock);
 
@@ -144,7 +140,7 @@ template void MPESynthesiserBase::renderNextBlock<double> (AudioBuffer<double>&,
 //==============================================================================
 void MPESynthesiserBase::setCurrentPlaybackSampleRate (const double newRate)
 {
-    if (sampleRate != newRate)
+    if (! approximatelyEqual (sampleRate, newRate))
     {
         const ScopedLock sl (noteStateLock);
         instrument.releaseAllNotes();
@@ -164,7 +160,7 @@ void MPESynthesiserBase::setMinimumRenderingSubdivisionSize (int numSamples, boo
 
 namespace
 {
-    class MpeSynthesiserBaseTests : public UnitTest
+    class MpeSynthesiserBaseTests final : public UnitTest
     {
         enum class CallbackKind { process, midi };
 
@@ -190,7 +186,7 @@ namespace
             std::vector<CallbackKind> order;
         };
 
-        class MockSynthesiser  : public MPESynthesiserBase
+        class MockSynthesiser final : public MPESynthesiserBase
         {
         public:
             Events events;

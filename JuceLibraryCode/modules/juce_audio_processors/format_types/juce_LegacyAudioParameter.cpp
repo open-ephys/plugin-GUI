@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -29,7 +22,7 @@ namespace juce
 JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
 JUCE_BEGIN_IGNORE_WARNINGS_MSVC (4996)
 
-class LegacyAudioParameter :   public AudioProcessorParameter
+class LegacyAudioParameter final : public HostedAudioProcessorParameter
 {
 public:
     LegacyAudioParameter (AudioProcessor& audioProcessorToUse, int audioParameterIndex)
@@ -54,7 +47,7 @@ public:
     bool isMetaParameter() const override              { return processor->isMetaParameter (parameterIndex); }
     Category getCategory() const override              { return processor->getParameterCategory (parameterIndex); }
     String getCurrentValueAsText() const override      { return processor->getParameterText (parameterIndex); }
-    String getParamID() const                          { return processor->getParameterID (parameterIndex); }
+    String getParameterID() const override             { return processor->getParameterID (parameterIndex); }
 
     //==============================================================================
     float getValueForText (const String&) const override
@@ -101,12 +94,12 @@ public:
     static String getParamID (const AudioProcessorParameter* param, bool forceLegacyParamIDs) noexcept
     {
         if (auto* legacy = dynamic_cast<const LegacyAudioParameter*> (param))
-            return forceLegacyParamIDs ? String (legacy->parameterIndex) : legacy->getParamID();
+            return forceLegacyParamIDs ? String (legacy->parameterIndex) : legacy->getParameterID();
 
-        if (auto* paramWithID = dynamic_cast<const AudioProcessorParameterWithID*> (param))
+        if (auto* paramWithID = dynamic_cast<const HostedAudioProcessorParameter*> (param))
         {
             if (! forceLegacyParamIDs)
-                return paramWithID->paramID;
+                return paramWithID->getParameterID();
         }
 
         if (param != nullptr)

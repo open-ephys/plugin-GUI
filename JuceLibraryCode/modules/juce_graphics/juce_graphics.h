@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -35,7 +28,7 @@
 
   ID:                 juce_graphics
   vendor:             juce
-  version:            7.0.5
+  version:            7.0.11
   name:               JUCE graphics classes
   description:        Classes for 2D vector graphics, image loading/saving, font handling, etc.
   website:            http://www.juce.com/juce
@@ -67,15 +60,6 @@
 */
 #ifndef JUCE_USE_COREIMAGE_LOADER
  #define JUCE_USE_COREIMAGE_LOADER 1
-#endif
-
-/** Config: JUCE_USE_DIRECTWRITE
-
-    Enabling this flag means that DirectWrite will be used when available for font
-    management and layout.
-*/
-#ifndef JUCE_USE_DIRECTWRITE
- #define JUCE_USE_DIRECTWRITE 1
 #endif
 
 /** Config: JUCE_DISABLE_COREGRAPHICS_FONT_SMOOTHING
@@ -150,10 +134,12 @@ namespace juce
 #include "effects/juce_GlowEffect.h"
 
 #if JUCE_GRAPHICS_INCLUDE_COREGRAPHICS_HELPERS && (JUCE_MAC || JUCE_IOS)
- #include "native/juce_mac_CoreGraphicsHelpers.h"
- #include "native/juce_mac_CoreGraphicsContext.h"
+ #include "native/juce_CoreGraphicsHelpers_mac.h"
+ #include "native/juce_CoreGraphicsContext_mac.h"
 #endif
 
-#if JUCE_DIRECT2D && JUCE_WINDOWS
-#include "native/juce_win32_Direct2DGraphicsContext.h"
-#endif
+ #if JUCE_WINDOWS
+ #include "native/juce_Direct2DMetrics_windows.h"
+ #include "native/juce_Direct2DGraphicsContext_windows.h"
+ #include "native/juce_Direct2DHwndContext_windows.h"
+ #endif

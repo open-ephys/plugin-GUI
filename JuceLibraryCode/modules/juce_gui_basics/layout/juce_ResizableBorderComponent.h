@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -125,7 +118,7 @@ public:
         /** Returns an appropriate mouse-cursor for this resize zone. */
         MouseCursor getMouseCursor() const noexcept;
 
-        /** Returns true if dragging this zone will move the enire object without resizing it. */
+        /** Returns true if dragging this zone will move the entire object without resizing it. */
         bool isDraggingWholeObject() const noexcept     { return zone == centre; }
         /** Returns true if dragging this zone will move the object's left edge. */
         bool isDraggingLeftEdge() const noexcept        { return (zone & left) != 0; }

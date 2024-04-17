@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -46,6 +39,9 @@ class JUCE_API  WebBrowserComponent  : public Component
 {
 public:
     //==============================================================================
+    /**
+        Options to configure WebBrowserComponent.
+    */
     class JUCE_API Options
     {
     public:
@@ -65,7 +61,7 @@ public:
 
                     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-                or you need to change windows registry values for your application.  More infromation on the latter
+                or you need to change windows registry values for your application.  More information on the latter
                 can be found here:
 
                 https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/general-info/ee330730(v=vs.85)?redirectedfrom=MSDN#browser-emulation
@@ -93,7 +89,7 @@ public:
             handy to stop the browser using resources in the background when it's not
             actually being used.
         */
-        [[nodiscard]] Options withKeepPageLoadedWhenBrowserIsHidden () const   { return withMember (*this, &Options::keepPageLoadedWhenBrowserIsHidden, true); }
+        [[nodiscard]] Options withKeepPageLoadedWhenBrowserIsHidden() const   { return withMember (*this, &Options::keepPageLoadedWhenBrowserIsHidden, true); }
 
         /**
             Use a specific user agent string when requesting web pages.
@@ -264,12 +260,17 @@ public:
     /** @internal */
     void visibilityChanged() override;
     /** @internal */
-    void focusGained (FocusChangeType) override;
+    void focusGainedWithDirection (FocusChangeType, FocusChangeDirection) override;
 
     /** @internal */
     class Pimpl;
 
 private:
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override
+    {
+        return std::make_unique<AccessibilityHandler> (*this, AccessibilityRole::group);
+    }
+
     //==============================================================================
     std::unique_ptr<Pimpl> browser;
     bool blankPageShown = false, unloadPageWhenHidden;

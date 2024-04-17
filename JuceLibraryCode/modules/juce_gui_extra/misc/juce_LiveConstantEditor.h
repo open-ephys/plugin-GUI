@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -23,16 +16,13 @@
   ==============================================================================
 */
 
-namespace juce
-{
-
 #if JUCE_ENABLE_LIVE_CONSTANT_EDITOR && ! defined (DOXYGEN)
 
 //==============================================================================
 /** You can safely ignore all the stuff in this namespace - it's a bunch of boilerplate
     code used to implement the JUCE_LIVE_CONSTANT functionality.
 */
-namespace LiveConstantEditor
+namespace juce::LiveConstantEditor
 {
     int64 parseInt (String);
     double parseDouble (const String&);
@@ -76,7 +66,7 @@ namespace LiveConstantEditor
     template <typename Type>
     inline String getAsCode (Type& v, bool preferHex)       { return getAsString (v, preferHex); }
     inline String getAsCode (Colour v, bool)                { return "Colour (0x" + String::toHexString ((int) v.getARGB()).paddedLeft ('0', 8) + ")"; }
-    inline String getAsCode (const String& v, bool)         { return CppTokeniserFunctions::addEscapeChars(v).quoted(); }
+    inline String getAsCode (const String& v, bool)         { return CppTokeniserFunctions::addEscapeChars (v).quoted(); }
     inline String getAsCode (const char* v, bool)           { return getAsCode (String (v), false); }
 
     template <typename Type>
@@ -243,7 +233,8 @@ namespace LiveConstantEditor
     {
         return getValue (file, line, String (initialValue));
     }
-}
+
+} // namespace juce::LiveConstantEditor
 
 #endif
 
@@ -301,5 +292,3 @@ namespace LiveConstantEditor
  #define JUCE_LIVE_CONSTANT(initialValue) \
     (initialValue)
 #endif
-
-} // namespace juce

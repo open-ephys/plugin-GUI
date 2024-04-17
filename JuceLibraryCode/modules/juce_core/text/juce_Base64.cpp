@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -108,8 +104,8 @@ bool Base64::convertFromBase64 (OutputStream& binaryOutput, StringRef base64Text
 String Base64::toBase64 (const void* sourceData, size_t sourceDataSize)
 {
     MemoryOutputStream m ((sourceDataSize * 4) / 3 + 3);
-    bool ok = convertToBase64 (m, sourceData, sourceDataSize);
-    jassertquiet (ok); // should always succeed for this simple case
+    [[maybe_unused]] bool ok = convertToBase64 (m, sourceData, sourceDataSize);
+    jassert (ok); // should always succeed for this simple case
     return m.toString();
 }
 
@@ -123,7 +119,7 @@ String Base64::toBase64 (const String& text)
 //==============================================================================
 #if JUCE_UNIT_TESTS
 
-class Base64Tests  : public UnitTest
+class Base64Tests final : public UnitTest
 {
 public:
     Base64Tests()

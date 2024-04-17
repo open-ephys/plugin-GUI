@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -177,7 +170,7 @@ void GlyphArrangement::addCurtailedLineOfText (const Font& font, const String& t
             auto isWhitespace = isNonBreakingSpace (*t) || t.isWhitespace();
 
             glyphs.add (PositionedGlyph (font, t.getAndAdvance(),
-                                         newGlyphs.getUnchecked(i),
+                                         newGlyphs.getUnchecked (i),
                                          xOffset + thisX, yOffset,
                                          nextX - thisX, isWhitespace));
         }
@@ -239,8 +232,8 @@ void GlyphArrangement::addJustifiedText (const Font& font, const String& text,
     {
         int i = lineStartIndex;
 
-        if (glyphs.getReference(i).getCharacter() != '\n'
-              && glyphs.getReference(i).getCharacter() != '\r')
+        if (glyphs.getReference (i).getCharacter() != '\n'
+              && glyphs.getReference (i).getCharacter() != '\r')
             ++i;
 
         auto lineMaxX = glyphs.getReference (lineStartIndex).getLeft() + maxLineWidth;
@@ -256,7 +249,7 @@ void GlyphArrangement::addJustifiedText (const Font& font, const String& text,
                 ++i;
 
                 if (c == '\r' && i < glyphs.size()
-                     && glyphs.getReference(i).getCharacter() == '\n')
+                     && glyphs.getReference (i).getCharacter() == '\n')
                     ++i;
 
                 break;
@@ -312,7 +305,7 @@ void GlyphArrangement::addFittedText (const Font& f, const String& text,
                                       Justification layout, int maximumLines,
                                       float minimumHorizontalScale)
 {
-    if (minimumHorizontalScale == 0.0f)
+    if (approximatelyEqual (minimumHorizontalScale, 0.0f))
         minimumHorizontalScale = Font::getDefaultMinimumHorizontalScaleFactor();
 
     // doesn't make much sense if this is outside a sensible range of 0.5 to 1.0
@@ -363,7 +356,7 @@ void GlyphArrangement::moveRangeOfGlyphs (int startIndex, int num, const float d
 {
     jassert (startIndex >= 0);
 
-    if (dx != 0.0f || dy != 0.0f)
+    if (! approximatelyEqual (dx, 0.0f) || ! approximatelyEqual (dy, 0.0f))
     {
         if (num < 0 || startIndex + num > glyphs.size())
             num = glyphs.size() - startIndex;
@@ -491,7 +484,7 @@ void GlyphArrangement::justifyGlyphs (int startIndex, int num,
             {
                 auto glyphY = glyphs.getReference (startIndex + i).getBaselineY();
 
-                if (glyphY != baseY)
+                if (! approximatelyEqual (glyphY, baseY))
                 {
                     spreadOutLine (startIndex + lineStart, i - lineStart, width);
 
@@ -695,7 +688,7 @@ void GlyphArrangement::drawGlyphUnderline (const Graphics& g, const PositionedGl
     auto lineThickness = (pg.font.getDescent()) * 0.3f;
     auto nextX = pg.x + pg.w;
 
-    if (i < glyphs.size() - 1 && glyphs.getReference (i + 1).y == pg.y)
+    if (i < glyphs.size() - 1 && approximatelyEqual (glyphs.getReference (i + 1).y, pg.y))
         nextX = glyphs.getReference (i + 1).x;
 
     Path p;
@@ -703,46 +696,107 @@ void GlyphArrangement::drawGlyphUnderline (const Graphics& g, const PositionedGl
     g.fillPath (p, transform);
 }
 
+Rectangle<float> GlyphArrangement::getUnderlineArea(Font const& font, PositionedGlyph const& firstGlyph, PositionedGlyph const& lastGlyph)
+{
+    if (font.isUnderlined())
+    {
+        auto lineThickness = font.getDescent() * 0.3f;
+
+        return
+        {
+            firstGlyph.x,
+            firstGlyph.y + lineThickness * 2.0f,
+            lastGlyph.getRight() - firstGlyph.x,
+            lineThickness
+        };
+    }
+
+    return {};
+}
+
 void GlyphArrangement::draw (const Graphics& g) const
 {
     draw (g, {});
 }
 
-void GlyphArrangement::draw (const Graphics& g, AffineTransform transform) const
+void GlyphArrangement::draw(const Graphics& g, AffineTransform transform) const
 {
     auto& context = g.getInternalContext();
-    auto lastFont = context.getFont();
-    bool needToRestore = false;
+    auto originalFont = context.getFont();
+    auto lastFont = originalFont;
 
-    for (int i = 0; i < glyphs.size(); ++i)
+    if (context.supportsGlyphRun())
     {
-        auto& pg = glyphs.getReference (i);
-
-        if (pg.font.isUnderlined())
-            drawGlyphUnderline (g, pg, i, transform);
-
-        if (! pg.isWhitespace())
+        int start = 0;
+        int index = 0;
+        while (index < glyphs.size())
         {
-            if (lastFont != pg.font)
+            auto& pg = glyphs.getReference(index);
+            if (lastFont != pg.getFont())
             {
-                lastFont = pg.font;
+                context.setFont(pg.getFont());
+                lastFont = pg.getFont();
 
-                if (! needToRestore)
+                int numGlyphs = index - start;
+                if (numGlyphs > 0)
                 {
-                    needToRestore = true;
-                    context.saveState();
+                    auto underlineArea = getUnderlineArea(lastFont, glyphs[0], glyphs[index + start - 1]);
+                    context.drawPositionedGlyphRun(glyphs, start, numGlyphs, transform, underlineArea);
+                    start = index;
                 }
-
-                context.setFont (lastFont);
             }
 
-            context.drawGlyph (pg.glyph, AffineTransform::translation (pg.x, pg.y)
-                                                         .followedBy (transform));
+            ++index;
         }
-    }
 
-    if (needToRestore)
-        context.restoreState();
+        int numGlyphs = index - start;
+        if (numGlyphs > 0)
+        {
+            auto underlineArea = getUnderlineArea(lastFont, glyphs[0], glyphs[index + start - 1]);
+            context.drawPositionedGlyphRun(glyphs, start, numGlyphs, transform, underlineArea);
+        }
+
+        context.setFont(originalFont);
+    }
+    else
+    {
+        //
+        // Send one glyph at a time to the low-level graphics context
+        //
+        bool needToRestore = false;
+
+        for (int i = 0; i < glyphs.size(); ++i)
+        {
+            auto& pg = glyphs.getReference(i);
+
+            if (pg.font.isUnderlined())
+                drawGlyphUnderline(g, pg, i, transform);
+
+            if (!pg.isWhitespace())
+            {
+                if (lastFont != pg.font)
+                {
+                    lastFont = pg.font;
+
+                    if (!needToRestore)
+                    {
+                        needToRestore = true;
+                        context.saveState();
+                    }
+
+                    context.setFont(lastFont);
+                }
+
+                auto tx = AffineTransform::translation(pg.x, pg.y)
+                    .followedBy(transform);
+
+                context.drawGlyph(pg.glyph, tx);
+            }
+        }
+
+        if (needToRestore)
+            context.restoreState();
+    }
 }
 
 void GlyphArrangement::createPath (Path& path) const

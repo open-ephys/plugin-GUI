@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -124,7 +117,7 @@ void AudioVisualiserComponent::pushBuffer (const float* const* d, int numChannel
     numChannels = jmin (numChannels, channels.size());
 
     for (int i = 0; i < numChannels; ++i)
-        channels.getUnchecked(i)->pushSamples (d[i], num);
+        channels.getUnchecked (i)->pushSamples (d[i], num);
 }
 
 void AudioVisualiserComponent::pushBuffer (const AudioBuffer<float>& buffer)
@@ -139,7 +132,7 @@ void AudioVisualiserComponent::pushBuffer (const AudioSourceChannelInfo& buffer)
     auto numChannels = jmin (buffer.buffer->getNumChannels(), channels.size());
 
     for (int i = 0; i < numChannels; ++i)
-        channels.getUnchecked(i)->pushSamples (buffer.buffer->getReadPointer (i, buffer.startSample),
+        channels.getUnchecked (i)->pushSamples (buffer.buffer->getReadPointer (i, buffer.startSample),
                                                buffer.numSamples);
 }
 
@@ -148,7 +141,7 @@ void AudioVisualiserComponent::pushSample (const float* d, int numChannels)
     numChannels = jmin (numChannels, channels.size());
 
     for (int i = 0; i < numChannels; ++i)
-        channels.getUnchecked(i)->pushSample (d[i]);
+        channels.getUnchecked (i)->pushSample (d[i]);
 }
 
 void AudioVisualiserComponent::setSamplesPerBlock (int newSamplesPerPixel) noexcept

@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -74,11 +67,8 @@ public:
         This is used as a channel index value if you want to refer to the midi input
         or output instead of an audio channel.
     */
-    // <Open-Ephys>
-    // Modified by Open-Ephys.
-    // enum { midiChannelIndex = 0x1000 };
-    enum { midiChannelIndex = 0x8000 };
-    
+    enum { midiChannelIndex = 0x1000 };
+
     //==============================================================================
     /**
         Represents an input or output channel of a node in an AudioProcessorGraph.
@@ -130,7 +120,7 @@ public:
             if (processor != nullptr)
             {
                 if (auto* bypassParam = processor->getBypassParameter())
-                    return (bypassParam->getValue() != 0.0f);
+                    return ! approximatelyEqual (bypassParam->getValue(), 0.0f);
             }
 
             return bypassed;
@@ -154,7 +144,7 @@ public:
 
         /** @internal
 
-            Returns true if setBypassed(true) was called on this node.
+            Returns true if setBypassed (true) was called on this node.
             This behaviour is different from isBypassed(), which may additionally return true if
             the node has a bypass parameter that is not set to 0.
         */
@@ -255,7 +245,7 @@ public:
 
         If this succeeds, it returns a pointer to the newly-created node.
     */
-    Node::Ptr addNode (std::unique_ptr<AudioProcessor> newProcessor, NodeID nodeId = {}, UpdateKind = UpdateKind::sync);
+    Node::Ptr addNode (std::unique_ptr<AudioProcessor> newProcessor, std::optional<NodeID> nodeId = std::nullopt, UpdateKind = UpdateKind::sync);
 
     /** Deletes a node within the graph which has the specified ID.
         This will also delete any connections that are attached to this node.

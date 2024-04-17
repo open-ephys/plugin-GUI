@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -160,7 +156,7 @@ namespace MidiFileHelpers
 
         for (int i = 0; i < numEvents; ++i)
         {
-            auto& m = tempoEvents.getEventPointer(i)->message;
+            auto& m = tempoEvents.getEventPointer (i)->message;
             auto eventTime = m.getTimeStamp();
 
             if (eventTime >= time)
@@ -174,9 +170,9 @@ namespace MidiFileHelpers
 
             while (i + 1 < numEvents)
             {
-                auto& m2 = tempoEvents.getEventPointer(i + 1)->message;
+                auto& m2 = tempoEvents.getEventPointer (i + 1)->message;
 
-                if (m2.getTimeStamp() != eventTime)
+                if (! approximatelyEqual (m2.getTimeStamp(), eventTime))
                     break;
 
                 if (m2.isTempoMetaEvent())
@@ -200,7 +196,7 @@ namespace MidiFileHelpers
 
             for (int j = 0; j < numEvents; ++j)
             {
-                auto& m = track->getEventPointer(j)->message;
+                auto& m = track->getEventPointer (j)->message;
 
                 if ((m.*method)())
                     results.addEvent (m);
@@ -439,7 +435,7 @@ void MidiFile::convertTimestampTicksToSeconds()
         {
             for (int j = ms->getNumEvents(); --j >= 0;)
             {
-                auto& m = ms->getEventPointer(j)->message;
+                auto& m = ms->getEventPointer (j)->message;
                 m.setTimeStamp (MidiFileHelpers::convertTicksToSeconds (m.getTimeStamp(), tempoEvents, timeFormat));
             }
         }
@@ -475,7 +471,7 @@ bool MidiFile::writeTrack (OutputStream& mainOut, const MidiMessageSequence& ms)
 
     for (int i = 0; i < ms.getNumEvents(); ++i)
     {
-        auto& mm = ms.getEventPointer(i)->message;
+        auto& mm = ms.getEventPointer (i)->message;
 
         if (mm.isEndOfTrackMetaEvent())
             endOfTrackEventWritten = true;
@@ -530,7 +526,7 @@ bool MidiFile::writeTrack (OutputStream& mainOut, const MidiMessageSequence& ms)
 //==============================================================================
 #if JUCE_UNIT_TESTS
 
-struct MidiFileTest  : public UnitTest
+struct MidiFileTest final : public UnitTest
 {
     MidiFileTest()
         : UnitTest ("MidiFile", UnitTestCategories::midi)

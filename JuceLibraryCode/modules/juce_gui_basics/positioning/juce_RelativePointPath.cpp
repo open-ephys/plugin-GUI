@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -37,7 +30,7 @@ RelativePointPath::RelativePointPath (const RelativePointPath& other)
       containsDynamicPoints (false)
 {
     for (int i = 0; i < other.elements.size(); ++i)
-        elements.add (other.elements.getUnchecked(i)->clone());
+        elements.add (other.elements.getUnchecked (i)->clone());
 }
 
 RelativePointPath::RelativePointPath (const Path& path)
@@ -71,8 +64,8 @@ bool RelativePointPath::operator== (const RelativePointPath& other) const noexce
 
     for (int i = 0; i < elements.size(); ++i)
     {
-        ElementBase* const e1 = elements.getUnchecked(i);
-        ElementBase* const e2 = other.elements.getUnchecked(i);
+        ElementBase* const e1 = elements.getUnchecked (i);
+        ElementBase* const e2 = other.elements.getUnchecked (i);
 
         if (e1->type != e2->type)
             return false;
@@ -106,7 +99,7 @@ void RelativePointPath::swapWith (RelativePointPath& other) noexcept
 void RelativePointPath::createPath (Path& path, Expression::Scope* scope) const
 {
     for (int i = 0; i < elements.size(); ++i)
-        elements.getUnchecked(i)->addToPath (path, scope);
+        elements.getUnchecked (i)->addToPath (path, scope);
 }
 
 bool RelativePointPath::containsAnyDynamicPoints() const

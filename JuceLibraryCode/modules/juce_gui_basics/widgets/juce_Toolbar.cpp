@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -29,7 +22,7 @@ namespace juce
 const char* const Toolbar::toolbarDragDescriptor = "_toolbarItem_";
 
 //==============================================================================
-class Toolbar::Spacer  : public ToolbarItemComponent
+class Toolbar::Spacer final : public ToolbarItemComponent
 {
 public:
     Spacer (int itemID, float sizeToUse, bool shouldDrawBar)
@@ -151,7 +144,7 @@ private:
 };
 
 //==============================================================================
-class Toolbar::MissingItemsComponent  : public PopupMenu::CustomComponent
+class Toolbar::MissingItemsComponent final : public PopupMenu::CustomComponent
 {
 public:
     MissingItemsComponent (Toolbar& bar, int h)
@@ -161,7 +154,7 @@ public:
     {
         for (int i = bar.items.size(); --i >= 0;)
         {
-            auto* tc = bar.items.getUnchecked(i);
+            auto* tc = bar.items.getUnchecked (i);
 
             if (tc != nullptr && dynamic_cast<Spacer*> (tc) == nullptr && ! tc->isVisible())
             {
@@ -385,7 +378,7 @@ String Toolbar::toString() const
     String s ("TB:");
 
     for (int i = 0; i < getNumItems(); ++i)
-        s << getItemId(i) << ' ';
+        s << getItemId (i) << ' ';
 
     return s.trimEnd();
 }
@@ -656,11 +649,14 @@ void Toolbar::lookAndFeelChanged()
 void Toolbar::mouseDown (const MouseEvent&) {}
 
 //==============================================================================
-class Toolbar::CustomisationDialog   : public DialogWindow
+class Toolbar::CustomisationDialog final : public DialogWindow
 {
 public:
     CustomisationDialog (ToolbarItemFactory& factory, Toolbar& bar, int optionFlags)
-        : DialogWindow (TRANS("Add/remove items from toolbar"), Colours::white, true, true),
+        : DialogWindow (TRANS ("Add/remove items from toolbar"),
+                        bar.findColour (Toolbar::customisationDialogBackgroundColourId),
+                        true,
+                        true),
           toolbar (bar)
     {
         setContentOwned (new CustomiserPanel (factory, toolbar, optionFlags), true);
@@ -682,7 +678,7 @@ public:
     bool canModalEventBeSentToComponent (const Component* comp) override
     {
         return toolbar.isParentOf (comp)
-                 || dynamic_cast<const ToolbarItemComponent::ItemDragAndDropOverlayComponent*> (comp) != nullptr;
+                 || dynamic_cast<const detail::ToolbarItemDragAndDropOverlayComponent*> (comp) != nullptr;
     }
 
     void positionNearBar()
@@ -733,9 +729,9 @@ private:
                 addAndMakeVisible (styleBox);
                 styleBox.setEditableText (false);
 
-                if ((optionFlags & Toolbar::allowIconsOnlyChoice) != 0)     styleBox.addItem (TRANS("Show icons only"), 1);
-                if ((optionFlags & Toolbar::allowIconsWithTextChoice) != 0) styleBox.addItem (TRANS("Show icons and descriptions"), 2);
-                if ((optionFlags & Toolbar::allowTextOnlyChoice) != 0)      styleBox.addItem (TRANS("Show descriptions only"), 3);
+                if ((optionFlags & Toolbar::allowIconsOnlyChoice) != 0)     styleBox.addItem (TRANS ("Show icons only"), 1);
+                if ((optionFlags & Toolbar::allowIconsWithTextChoice) != 0) styleBox.addItem (TRANS ("Show icons and descriptions"), 2);
+                if ((optionFlags & Toolbar::allowTextOnlyChoice) != 0)      styleBox.addItem (TRANS ("Show descriptions only"), 3);
 
                 int selectedStyle = 0;
                 switch (bar.getStyle())

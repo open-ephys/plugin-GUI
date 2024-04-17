@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -282,7 +275,7 @@ public:
         Group* parent = nullptr;
     };
 
-    struct Param  : public Base
+    struct Param final : public Base
     {
         int paramID;
         juce::String expr, name, label;
@@ -292,7 +285,7 @@ public:
         float defaultValue;
     };
 
-    struct Group  : public Base
+    struct Group final : public Base
     {
         juce::String name;
         juce::OwnedArray<Base> paramTree;
@@ -379,8 +372,8 @@ public:
 private:
     VSTXMLInfo (const juce::XmlElement& xml)
     {
-        switchValueType.entries.add (new Entry({ TRANS("Off"), Range ("[0, 0.5[") }));
-        switchValueType.entries.add (new Entry({ TRANS("On"),  Range ("[0.5, 1]") }));
+        switchValueType.entries.add (new Entry ({ TRANS ("Off"), Range ("[0, 0.5[") }));
+        switchValueType.entries.add (new Entry ({ TRANS ("On"),  Range ("[0.5, 1]") }));
 
         for (auto* item : xml.getChildIterator())
         {
@@ -443,7 +436,7 @@ private:
 
             if (entryXml->hasAttribute ("value"))
             {
-                entry->range.set(entryXml->getStringAttribute ("value"));
+                entry->range.set (entryXml->getStringAttribute ("value"));
             }
             else
             {
@@ -582,7 +575,7 @@ private:
 };
 
 //==============================================================================
-struct ModuleHandle    : public ReferenceCountedObject
+struct ModuleHandle final : public ReferenceCountedObject
 {
     File file;
     MainCall moduleMain, customMain = {};
@@ -741,16 +734,16 @@ struct ModuleHandle    : public ReferenceCountedObject
                 {
                     if (CFBundleLoadExecutable (bundleRef.get()))
                     {
-                        moduleMain = (MainCall) CFBundleGetFunctionPointerForName (bundleRef.get(), CFSTR("main_macho"));
+                        moduleMain = (MainCall) CFBundleGetFunctionPointerForName (bundleRef.get(), CFSTR ("main_macho"));
 
                         if (moduleMain == nullptr)
-                            moduleMain = (MainCall) CFBundleGetFunctionPointerForName (bundleRef.get(), CFSTR("VSTPluginMain"));
+                            moduleMain = (MainCall) CFBundleGetFunctionPointerForName (bundleRef.get(), CFSTR ("VSTPluginMain"));
 
                         JUCE_VST_WRAPPER_LOAD_CUSTOM_MAIN
 
                         if (moduleMain != nullptr)
                         {
-                            if (CFTypeRef name = CFBundleGetValueForInfoDictionaryKey (bundleRef.get(), CFSTR("CFBundleName")))
+                            if (CFTypeRef name = CFBundleGetValueForInfoDictionaryKey (bundleRef.get(), CFSTR ("CFBundleName")))
                             {
                                 if (CFGetTypeID (name) == CFStringGetTypeID())
                                 {
@@ -778,7 +771,7 @@ struct ModuleHandle    : public ReferenceCountedObject
                                                     .findChildFiles (File::findFiles, false, "*.vstxml");
 
                             if (! vstXmlFiles.isEmpty())
-                                vstXml = parseXML (vstXmlFiles.getReference(0));
+                                vstXml = parseXML (vstXmlFiles.getReference (0));
                         }
                     }
 
@@ -904,7 +897,7 @@ struct VSTPluginInstance final   : public AudioPluginInstance,
             {
                 const ScopedLock sl (pluginInstance.lock);
 
-                if (effect->getParameter (effect, getParameterIndex()) != newValue)
+                if (! approximatelyEqual (effect->getParameter (effect, getParameterIndex()), newValue))
                     effect->setParameter (effect, getParameterIndex(), newValue);
             }
         }
@@ -1257,7 +1250,7 @@ struct VSTPluginInstance final   : public AudioPluginInstance,
 
     void getExtensions (ExtensionsVisitor& visitor) const override
     {
-        struct Extensions : public ExtensionsVisitor::VSTClient
+        struct Extensions final : public ExtensionsVisitor::VSTClient
         {
             explicit Extensions (const VSTPluginInstance* instanceIn) : instance (instanceIn) {}
 
@@ -1996,15 +1989,15 @@ private:
     {
         VST2BypassParameter (VSTPluginInstance& effectToUse)
             : parent (effectToUse),
-              vstOnStrings (TRANS("on"), TRANS("yes"), TRANS("true")),
-              vstOffStrings (TRANS("off"), TRANS("no"), TRANS("false")),
-              values (TRANS("Off"), TRANS("On"))
+              vstOnStrings (TRANS ("on"), TRANS ("yes"), TRANS ("true")),
+              vstOffStrings (TRANS ("off"), TRANS ("no"), TRANS ("false")),
+              values (TRANS ("Off"), TRANS ("On"))
         {
         }
 
         void setValue (float newValue) override
         {
-            currentValue = (newValue != 0.0f);
+            currentValue = (! approximatelyEqual (newValue, 0.0f));
 
             if (parent.vstSupportsBypass)
                 parent.dispatch (Vst2::effSetBypass, 0, currentValue ? 1 : 0, nullptr, 0.0f);
@@ -2028,7 +2021,7 @@ private:
         float getValue() const override                                     { return currentValue; }
         float getDefaultValue() const override                              { return 0.0f; }
         String getName (int /*maximumStringLength*/) const override         { return "Bypass"; }
-        String getText (float value, int) const override                    { return (value != 0.0f ? TRANS("On") : TRANS("Off")); }
+        String getText (float value, int) const override                    { return (! approximatelyEqual (value, 0.0f) ? TRANS ("On") : TRANS ("Off")); }
         bool isAutomatable() const override                                 { return true; }
         bool isDiscrete() const override                                    { return true; }
         bool isBoolean() const override                                     { return true; }
@@ -2121,7 +2114,7 @@ private:
             handleUpdateNowIfNeeded();
 
             for (int i = ComponentPeer::getNumPeers(); --i >= 0;)
-                if (auto* p = ComponentPeer::getPeer(i))
+                if (auto* p = ComponentPeer::getPeer (i))
                     p->performAnyPendingRepaintsNow();
         }
     }
@@ -2740,7 +2733,7 @@ private:
     {
         if (processBlockBypassedCalled)
         {
-            if (bypassParam->getValue() == 0.0f || ! lastProcessBlockCallWasBypass)
+            if (approximatelyEqual (bypassParam->getValue(), 0.0f) || ! lastProcessBlockCallWasBypass)
                 bypassParam->setValue (1.0f);
         }
         else
@@ -2761,11 +2754,11 @@ struct VSTPluginWindow;
 static Array<VSTPluginWindow*> activeVSTWindows;
 
 //==============================================================================
-struct VSTPluginWindow   : public AudioProcessorEditor,
-                          #if ! JUCE_MAC
-                           private ComponentMovementWatcher,
-                          #endif
-                           private Timer
+struct VSTPluginWindow final : public AudioProcessorEditor,
+                              #if ! JUCE_MAC
+                               private ComponentMovementWatcher,
+                              #endif
+                               private Timer
 {
 public:
     VSTPluginWindow (VSTPluginInstance& plug)
@@ -3384,7 +3377,7 @@ private:
     NativeScaleFactorNotifier scaleNotifier { this, ScaleNotifierCallback { *this } };
 
     #if JUCE_WINDOWS
-     struct ViewComponent : public HWNDComponent
+     struct ViewComponent final : public HWNDComponent
      {
          ViewComponent()
          {
@@ -3398,7 +3391,7 @@ private:
          void paint (Graphics& g) override { g.fillAll (Colours::black); }
 
      private:
-         struct Inner : public Component
+         struct Inner final : public Component
          {
              Inner() { setOpaque (true); }
              void paint (Graphics& g) override { g.fillAll (Colours::black); }

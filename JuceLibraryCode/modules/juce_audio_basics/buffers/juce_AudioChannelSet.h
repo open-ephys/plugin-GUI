@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -196,11 +192,23 @@ public:
     */
     static AudioChannelSet JUCE_CALLTYPE create7point1SDDS();
 
+    /** Creates a set for a 5.0.2 surround setup (left, right, centre, leftSurround, rightSurround, topSideLeft, topSideRight).
+
+        Is equivalent to: AAX_eStemFormat_5_0_2 (AAX).
+    */
+    static AudioChannelSet JUCE_CALLTYPE create5point0point2();
+
     /** Creates a set for a 5.1.2 surround setup (left, right, centre, LFE, leftSurround, rightSurround, topSideLeft, topSideRight).
 
         Is equivalent to: kAudioChannelLayoutTag_Atmos_5_1_2 (CoreAudio).
     */
     static AudioChannelSet JUCE_CALLTYPE create5point1point2();
+
+    /** Creates a set for a 5.0.4 surround setup (left, right, centre, leftSurround, rightSurround, topFrontLeft, topFrontRight, topRearLeft, topRearRight).
+
+        Is equivalent to: AAX_eStemFormat_5_0_4 (AAX).
+    */
+    static AudioChannelSet JUCE_CALLTYPE create5point0point4();
 
     /** Creates a set for a 5.1.4 surround setup (left, right, centre, LFE, leftSurround, rightSurround, topFrontLeft, topFrontRight, topRearLeft, topRearRight).
 
@@ -232,11 +240,35 @@ public:
     */
     static AudioChannelSet JUCE_CALLTYPE create7point1point4();
 
+    /** Creates a set for 7.0.6 surround setup (left, right, centre, leftSurroundSide, rightSurroundSide, leftSurroundRear, rightSurroundRear, topFrontLeft, topFrontRight, topSideLeft, topSideRight, topRearLeft, topRearRight).
+
+        Is equivalent to: AAX_eStemFormat_7_0_6 (AAX).
+    */
+    static AudioChannelSet JUCE_CALLTYPE create7point0point6();
+
     /** Creates a set for Dolby Atmos 7.1.6 surround setup (left, right, centre, leftSurroundSide, rightSurroundSide, leftSurroundRear, rightSurroundRear, LFE, topFrontLeft, topFrontRight, topSideLeft, topSideRight, topRearLeft, topRearRight).
 
         Is equivalent to: k71_6 (VST), n/a (AAX), n/a (CoreAudio)
     */
     static AudioChannelSet JUCE_CALLTYPE create7point1point6();
+
+    /** Creates a set for a 9.0.4 surround setup (left, right, centre, leftSurroundSide, rightSurroundSide, leftSurroundRear, rightSurroundRear, wideLeft, wideRight, topFrontLeft, topFrontRight, topRearLeft, topRearRight).
+
+        Is equivalent to: k90_4 (VST3), AAX_eStemFormat_9_0_4 (AAX).
+    */
+    static AudioChannelSet JUCE_CALLTYPE create9point0point4();
+
+    /** Creates a set for a 9.1.4 surround setup (left, right, centre, LFE, leftSurroundSide, rightSurroundSide, leftSurroundRear, rightSurroundRear, wideLeft, wideRight, topFrontLeft, topFrontRight, topRearLeft, topRearRight).
+
+        Is equivalent to: k91_4 (VST3), AAX_eStemFormat_9_1_4 (AAX).
+    */
+    static AudioChannelSet JUCE_CALLTYPE create9point1point4();
+
+    /** Creates a set for a 9.0.6 surround setup (left, right, centre, LFE, leftSurroundSide, rightSurroundSide, leftSurroundRear, rightSurroundRear, wideLeft, wideRight, topFrontLeft, topFrontRight, topSideLeft, topSideRight, topRearLeft, topRearRight).
+
+        Is equivalent to: k90_6 (VST3), AAX_eStemFormat_9_0_6 (AAX).
+    */
+    static AudioChannelSet JUCE_CALLTYPE create9point0point6();
 
     /** Creates a set for a 9.1.6 surround setup (left, right, centre, LFE, leftSurroundSide, rightSurroundSide, leftSurroundRear, rightSurroundRear, wideLeft, wideRight, topFrontLeft, topFrontRight, topSideLeft, topSideRight, topRearLeft, topRearRight).
 
@@ -420,6 +452,40 @@ public:
         bottomRearRight     = 71, /**< Bottom Rear Right (Brr)  */
 
         //==============================================================================
+
+        // sixth-order ambisonic
+        ambisonicACN36      = 72, /**< Sixth-order ambisonic channel number 36. */
+        ambisonicACN37      = 73, /**< Sixth-order ambisonic channel number 37. */
+        ambisonicACN38      = 74, /**< Sixth-order ambisonic channel number 38. */
+        ambisonicACN39      = 75, /**< Sixth-order ambisonic channel number 39. */
+        ambisonicACN40      = 76, /**< Sixth-order ambisonic channel number 40. */
+        ambisonicACN41      = 77, /**< Sixth-order ambisonic channel number 41. */
+        ambisonicACN42      = 78, /**< Sixth-order ambisonic channel number 42. */
+        ambisonicACN43      = 79, /**< Sixth-order ambisonic channel number 43. */
+        ambisonicACN44      = 80, /**< Sixth-order ambisonic channel number 44. */
+        ambisonicACN45      = 81, /**< Sixth-order ambisonic channel number 45. */
+        ambisonicACN46      = 82, /**< Sixth-order ambisonic channel number 46. */
+        ambisonicACN47      = 83, /**< Sixth-order ambisonic channel number 47. */
+        ambisonicACN48      = 84, /**< Sixth-order ambisonic channel number 48. */
+
+        // seventh-order ambisonic
+        ambisonicACN49      = 85, /**< Seventh-order ambisonic channel number 49. */
+        ambisonicACN50      = 86, /**< Seventh-order ambisonic channel number 50. */
+        ambisonicACN51      = 87, /**< Seventh-order ambisonic channel number 51. */
+        ambisonicACN52      = 88, /**< Seventh-order ambisonic channel number 52. */
+        ambisonicACN53      = 89, /**< Seventh-order ambisonic channel number 53. */
+        ambisonicACN54      = 90, /**< Seventh-order ambisonic channel number 54. */
+        ambisonicACN55      = 91, /**< Seventh-order ambisonic channel number 55. */
+        ambisonicACN56      = 92, /**< Seventh-order ambisonic channel number 56. */
+        ambisonicACN57      = 93, /**< Seventh-order ambisonic channel number 57. */
+        ambisonicACN58      = 94, /**< Seventh-order ambisonic channel number 58. */
+        ambisonicACN59      = 95, /**< Seventh-order ambisonic channel number 59. */
+        ambisonicACN60      = 96, /**< Seventh-order ambisonic channel number 60. */
+        ambisonicACN61      = 97, /**< Seventh-order ambisonic channel number 61. */
+        ambisonicACN62      = 98, /**< Seventh-order ambisonic channel number 62. */
+        ambisonicACN63      = 99, /**< Seventh-order ambisonic channel number 63. */
+
+        //==============================================================================
         discreteChannel0    = 128  /**< Non-typed individual channels are indexed upwards from this value. */
     };
 
@@ -435,7 +501,7 @@ public:
     //==============================================================================
     enum
     {
-        maxChannelsOfNamedLayout = 36
+        maxChannelsOfNamedLayout = 64
     };
 
     /** Adds a channel to the set. */
@@ -506,6 +572,12 @@ public:
     int32 getWaveChannelMask() const noexcept;
 
     //==============================================================================
+    /** Returns the ambisonic order that includes exactly numChannels, or -1 if no
+        supported ambisonic order contains exactly numChannels.
+    */
+    static int getAmbisonicOrderForNumChannels (int numChannels, int maxOrderToCheck = 7);
+
+    //==============================================================================
     bool operator== (const AudioChannelSet&) const noexcept;
     bool operator!= (const AudioChannelSet&) const noexcept;
     bool operator<  (const AudioChannelSet&) const noexcept;
@@ -518,8 +590,6 @@ private:
     explicit AudioChannelSet (uint32);
     explicit AudioChannelSet (const std::initializer_list<ChannelType>&);
 
-    //==============================================================================
-    static int JUCE_CALLTYPE getAmbisonicOrderForNumChannels (int);
 };
 
 } // namespace juce

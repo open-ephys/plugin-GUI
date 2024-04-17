@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -28,6 +21,8 @@ namespace juce
 
 /**
     Combines a parameter ID and a version hint.
+
+    @tags{Audio}
 */
 class ParameterID
 {
@@ -42,7 +37,7 @@ public:
         @param versionHint      Influences parameter ordering in Audio Unit plugins.
                                 Used to provide backwards compatibility of Audio Unit plugins in
                                 Logic and GarageBand.
-                                @see AudioProcessorParameter(int)
+                                @see AudioProcessorParameter (int)
     */
     template <typename StringLike, typename = DisableIfSameOrDerived<ParameterID, StringLike>>
     ParameterID (StringLike&& identifier, int versionHint = 0)
@@ -51,7 +46,7 @@ public:
     /** @see AudioProcessorParameterWithID::paramID */
     auto getParamID()               const { return paramID; }
 
-    /** @see AudioProcessorParameter(int) */
+    /** @see AudioProcessorParameter (int) */
     auto getVersionHint()           const { return version; }
 
 private:
@@ -62,6 +57,8 @@ private:
 /**
     An instance of this class may be passed to the constructor of an AudioProcessorParameterWithID
     to set optional characteristics of that parameter.
+
+    @tags{Audio}
 */
 class AudioProcessorParameterWithIDAttributes
 {

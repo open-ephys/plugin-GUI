@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -23,8 +19,8 @@
 namespace juce
 {
 
-struct FallbackDownloadTask  : public URL::DownloadTask,
-                               public Thread
+struct FallbackDownloadTask final : public URL::DownloadTask,
+                                    public Thread
 {
     FallbackDownloadTask (std::unique_ptr<FileOutputStream> outputStreamToUse,
                           size_t bufferSizeToUse,
@@ -598,7 +594,7 @@ template <typename Stream> struct iOSFileStreamWrapperFlush    { static void flu
 template <> struct iOSFileStreamWrapperFlush<FileOutputStream> { static void flush (OutputStream* o) { o->flush(); } };
 
 template <typename Stream>
-class iOSFileStreamWrapper : public Stream
+class iOSFileStreamWrapper final : public Stream
 {
 public:
     iOSFileStreamWrapper (URL& urlToUse)
@@ -769,7 +765,7 @@ std::unique_ptr<InputStream> URL::createInputStream (const InputStreamOptions& o
         return stream;
     }();
 
-    struct ProgressCallbackCaller  : public WebInputStream::Listener
+    struct ProgressCallbackCaller final : public WebInputStream::Listener
     {
         ProgressCallbackCaller (std::function<bool (int, int)> progressCallbackToUse)
             : callback (std::move (progressCallbackToUse))
@@ -947,7 +943,7 @@ String URL::removeEscapeChars (const String& s)
 
     for (int i = 0; i < utf8.size(); ++i)
     {
-        if (utf8.getUnchecked(i) == '%')
+        if (utf8.getUnchecked (i) == '%')
         {
             auto hexDigit1 = CharacterFunctions::getHexDigitValue ((juce_wchar) (uint8) utf8 [i + 1]);
             auto hexDigit2 = CharacterFunctions::getHexDigitValue ((juce_wchar) (uint8) utf8 [i + 2]);
@@ -975,7 +971,7 @@ String URL::addEscapeChars (const String& s, bool isParameter, bool roundBracket
 
     for (int i = 0; i < utf8.size(); ++i)
     {
-        auto c = utf8.getUnchecked(i);
+        auto c = utf8.getUnchecked (i);
 
         if (! (CharacterFunctions::isLetterOrDigit (c)
                  || legalChars.containsChar ((juce_wchar) c)))
@@ -1022,7 +1018,7 @@ std::unique_ptr<InputStream> URL::createInputStream (bool usePostCommand,
                                 .withConnectionTimeoutMs (timeOutMs)
                                 .withResponseHeaders (responseHeaders)
                                 .withStatusCode (statusCode)
-                                .withNumRedirectsToFollow(numRedirectsToFollow)
+                                .withNumRedirectsToFollow (numRedirectsToFollow)
                                 .withHttpRequestCmd (httpRequestCmd));
 }
 

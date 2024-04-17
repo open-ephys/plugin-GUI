@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -79,10 +72,19 @@ void DropShadow::drawForImage (Graphics& g, const Image& srcImage) const
 
     if (srcImage.isValid())
     {
-        Image shadowImage (srcImage.convertedToFormat (Image::SingleChannel));
-        shadowImage.duplicateIfShared();
+        Image shadowImage;
 
-        blurSingleChannelImage (shadowImage, radius);
+        if (auto nativeEffectImage = srcImage.getPixelData()->applyGaussianBlurEffect((float)radius, g.getInternalContext().llgcFrameNumber); nativeEffectImage.has_value())
+        {
+            shadowImage = *nativeEffectImage;
+        }
+        else
+        {
+            shadowImage = srcImage.convertedToFormat(Image::SingleChannel);
+            shadowImage.duplicateIfShared();
+
+            blurSingleChannelImage(shadowImage, radius);
+        }
 
         g.setColour (colour);
         g.drawImageAt (shadowImage, offset.x, offset.y, true);
@@ -99,16 +101,23 @@ void DropShadow::drawForPath (Graphics& g, const Path& path) const
 
     if (area.getWidth() > 2 && area.getHeight() > 2)
     {
-        Image renderedPath (Image::SingleChannel, area.getWidth(), area.getHeight(), true);
+        Image renderedPath(Image::SingleChannel, area.getWidth(), area.getHeight(), true);
 
         {
-            Graphics g2 (renderedPath);
-            g2.setColour (Colours::white);
-            g2.fillPath (path, AffineTransform::translation ((float) (offset.x - area.getX()),
-                                                             (float) (offset.y - area.getY())));
+            Graphics g2(renderedPath);
+            g2.setColour(Colours::white);
+            g2.fillPath(path, AffineTransform::translation((float)(offset.x - area.getX()),
+                (float)(offset.y - area.getY())));
         }
 
-        blurSingleChannelImage (renderedPath, radius);
+        if (auto shadowedImage = renderedPath.getPixelData()->applyGaussianBlurEffect((float)radius,g.getInternalContext().llgcFrameNumber); shadowedImage.has_value())
+        {
+            renderedPath = *shadowedImage;
+        }
+        else
+        {
+            blurSingleChannelImage(renderedPath, radius);
+        }
 
         g.setColour (colour);
         g.drawImageAt (renderedPath, area.getX(), area.getY(), true);

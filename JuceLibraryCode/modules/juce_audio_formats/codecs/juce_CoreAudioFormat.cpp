@@ -1,20 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
-
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -25,8 +18,8 @@
 
 #if JUCE_MAC || JUCE_IOS
 
-#include <juce_audio_basics/native/juce_mac_CoreAudioLayouts.h>
-#include <juce_core/native/juce_mac_CFHelpers.h>
+#include <juce_audio_basics/native/juce_CoreAudioLayouts_mac.h>
+#include <juce_core/native/juce_CFHelpers_mac.h>
 
 namespace juce
 {
@@ -267,7 +260,7 @@ struct CoreAudioFormatMetatdata
         for (int i = 0; i < numTimeSigEvents; ++i)
         {
             int numerator, denominator;
-            timeSigEvents.getEventPointer(i)->message.getTimeSignatureInfo (numerator, denominator);
+            timeSigEvents.getEventPointer (i)->message.getTimeSignatureInfo (numerator, denominator);
 
             String timeSigString;
             timeSigString << numerator << '/' << denominator;
@@ -384,7 +377,7 @@ struct CoreAudioFormatMetatdata
 };
 
 //==============================================================================
-class CoreAudioReader : public AudioFormatReader
+class CoreAudioReader final : public AudioFormatReader
 {
 public:
     using StreamKind = CoreAudioFormat::StreamKind;
@@ -664,7 +657,7 @@ AudioFormatWriter* CoreAudioFormat::createWriterFor (OutputStream*,
 #define DEFINE_CHANNEL_LAYOUT_DFL_ENTRY(x) CoreAudioChannelLayoutTag { x, #x, AudioChannelSet() }
 #define DEFINE_CHANNEL_LAYOUT_TAG_ENTRY(x, y) CoreAudioChannelLayoutTag { x, #x, y }
 
-class CoreAudioLayoutsUnitTest  : public UnitTest
+class CoreAudioLayoutsUnitTest final : public UnitTest
 {
 public:
     CoreAudioLayoutsUnitTest()

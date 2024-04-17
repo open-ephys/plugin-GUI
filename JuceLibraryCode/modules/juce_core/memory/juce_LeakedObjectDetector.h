@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -65,12 +61,6 @@ public:
                 your object management. Tut, tut. Always, always use std::unique_ptrs, OwnedArrays,
                 ReferenceCountedObjects, etc, and avoid the 'delete' operator at all costs!
             */
-            /** If you hit this using a UNIX-based compile flow that links to a Leak-Detected class,
-                then you may be leaking objects due to compiler-generated destructors referencing a
-                copy of numObjects. Make sure the leaked object has a destructor declaration
-                and its destructor has a non-default definitions in an implementation (.cpp) file.
-                
-            */
             jassertfalse;
         }
     }
@@ -119,7 +109,7 @@ private:
  #if (DOXYGEN || JUCE_CHECK_MEMORY_LEAKS)
   /** This macro lets you embed a leak-detecting object inside a class.
 
-      To use it, simply declare a JUCE_LEAK_DETECTOR(YourClassName) inside a private section
+      To use it, simply declare a JUCE_LEAK_DETECTOR (YourClassName) inside a private section
       of the class declaration. E.g.
 
       @code

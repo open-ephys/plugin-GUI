@@ -1,17 +1,13 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE 8 technical preview.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+   You may use this code under the terms of the GPL v3
+   (see www.gnu.org/licenses).
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   For the technical preview this file cannot be licensed commercially.
 
    JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
    EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
@@ -91,7 +87,7 @@ void JUCEApplicationBase::sendUnhandledException (const std::exception* const e,
 #endif
 
 #if JUCE_HANDLE_MULTIPLE_INSTANCES
-struct JUCEApplicationBase::MultipleInstanceHandler  : public ActionListener
+struct JUCEApplicationBase::MultipleInstanceHandler final : public ActionListener
 {
     MultipleInstanceHandler (const String& appName)
         : appLock ("juceAppLock_" + appName)
@@ -183,8 +179,8 @@ StringArray JUCE_CALLTYPE JUCEApplicationBase::getCommandLineParameterArray()
  extern void initialiseNSApplication();
 #endif
 
-#if (JUCE_LINUX || JUCE_BSD) && JUCE_MODULE_AVAILABLE_juce_gui_extra && (! defined(JUCE_WEB_BROWSER) || JUCE_WEB_BROWSER)
- extern int juce_gtkWebkitMain (int argc, const char* argv[]);
+#if (JUCE_LINUX || JUCE_BSD) && JUCE_MODULE_AVAILABLE_juce_gui_extra && (! defined (JUCE_WEB_BROWSER) || JUCE_WEB_BROWSER)
+ extern "C" int juce_gtkWebkitMain (int argc, const char* const* argv);
 #endif
 
 #if JUCE_WINDOWS
@@ -231,7 +227,7 @@ int JUCEApplicationBase::main (int argc, const char* argv[])
         initialiseNSApplication();
        #endif
 
-       #if (JUCE_LINUX || JUCE_BSD) && JUCE_MODULE_AVAILABLE_juce_gui_extra && (! defined(JUCE_WEB_BROWSER) || JUCE_WEB_BROWSER)
+       #if (JUCE_LINUX || JUCE_BSD) && JUCE_MODULE_AVAILABLE_juce_gui_extra && (! defined (JUCE_WEB_BROWSER) || JUCE_WEB_BROWSER)
         if (argc >= 2 && String (argv[1]) == "--juce-gtkwebkitfork-child")
             return juce_gtkWebkitMain (argc, argv);
        #endif
@@ -290,9 +286,9 @@ bool JUCEApplicationBase::initialiseApp()
         // a redirect or similar.
         FILE* ignore;
 
-        if (_fileno(stdout) < 0) freopen_s (&ignore, "CONOUT$", "w", stdout);
-        if (_fileno(stderr) < 0) freopen_s (&ignore, "CONOUT$", "w", stderr);
-        if (_fileno(stdin)  < 0) freopen_s (&ignore, "CONIN$",  "r", stdin);
+        if (_fileno (stdout) < 0) freopen_s (&ignore, "CONOUT$", "w", stdout);
+        if (_fileno (stderr) < 0) freopen_s (&ignore, "CONOUT$", "w", stderr);
+        if (_fileno (stdin)  < 0) freopen_s (&ignore, "CONIN$",  "r", stdin);
     }
    #endif
 
