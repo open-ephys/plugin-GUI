@@ -178,12 +178,12 @@ void Parameter::logValueChange()
 {
     if (getScope() == ParameterScope::GLOBAL_SCOPE)
     {
-        CoreServices::sendStatusMessage("Changed " + getDisplayName() + " to " + getChangeDescription());
+        CoreServices::sendStatusMessage("Changed " + getDisplayName() + ": " + getChangeDescription());
     }
     else if (getScope() == ParameterScope::PROCESSOR_SCOPE)
     {
         auto processor = (GenericProcessor*)getOwner();
-        CoreServices::sendStatusMessage("Changed " + String(processor->getNodeId()) + "|" + processor->getName() + "|" + getDisplayName() + " to " + getChangeDescription());
+        CoreServices::sendStatusMessage("Changed " + String(processor->getNodeId()) + "|" + processor->getName() + "|" + getDisplayName() + ": " + getChangeDescription());
     }
     else if (getScope() == ParameterScope::STREAM_SCOPE)
     {
@@ -197,13 +197,13 @@ void Parameter::logValueChange()
         int firstDelimPos = String(getKey()).indexOfChar('|');
         int secondDelimPos = String(getKey()).indexOfChar(firstDelimPos + 1, '|');
         String srcKey = String(getKey()).substring(0, secondDelimPos + 1);
-        CoreServices::sendStatusMessage("Changed " + procKey + "|" + srcKey + getDisplayName() + " to " + getChangeDescription());
+        CoreServices::sendStatusMessage("Changed " + procKey + "|" + srcKey + getDisplayName() + ": " + getChangeDescription());
     }
     else if (getScope() == ParameterScope::VISUALIZER_SCOPE)
     {
         auto visualizer = (Visualizer*)getOwner();
         auto processor = visualizer->getProcessor();
-        CoreServices::sendStatusMessage("Changed parameter " + getDisplayName() + " in visualizer " + String(processor->getNodeId()) + "|" + visualizer->getName() + " to " + getChangeDescription());
+        CoreServices::sendStatusMessage("Changed parameter " + getDisplayName() + " in visualizer " + String(processor->getNodeId()) + "|" + visualizer->getName() + ": " + getChangeDescription());
     }
     else if (getScope() == ParameterScope::SPIKE_CHANNEL_SCOPE)
     {
@@ -216,7 +216,7 @@ void Parameter::logValueChange()
         String srcKey = String(channel->getIdentifier()).substring(secondDelimPos + 1, thirdDelimPos + 1);
         String streamKey = String(channel->getIdentifier()).substring(0, secondDelimPos + 1);
 
-        CoreServices::sendStatusMessage("Changed " + srcKey + "Spike Detector|" +  streamKey + channel->getName() + "|" + getDisplayName() + " : " + getChangeDescription());
+        CoreServices::sendStatusMessage("Changed " + srcKey + "Spike Detector|" +  streamKey + channel->getName() + "|" + getDisplayName() + ": " + getChangeDescription());
     }
 }
 
@@ -739,9 +739,9 @@ String SelectedChannelsParameter::getChangeDescription()
     if (diff == 0) //should never get here
         return "No change";
     else if (diff == 1)
-        return " (1 channel state changed)";
+        return " 1 channel";
     else
-        return "(" + String(diff) + " channel states changed)";
+        return String(diff) + " channels";
 
 
 }
@@ -906,9 +906,9 @@ String MaskChannelsParameter::getChangeDescription()
     if (diff == 0) //should never get here
         return "No change";
     else if (diff == 1)
-        return " (1 channel state changed)";
+        return " 1 channel";
     else
-        return "(" + String(diff) + " channel states changed)";
+        return String(diff) + " channels";
 
 }
 
