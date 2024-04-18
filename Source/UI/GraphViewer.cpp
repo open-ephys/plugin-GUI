@@ -765,9 +765,9 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
         infoPanel->setMaximumPanelSize(processorParamComponent.get(), 
                                        processorParamComponent->heightInPixels);
 
-        processorParamHeader = std::make_unique<Component>(processor->getName() + " Header");
+        processorParamHeader = new Component(processor->getName() + " Header");
         processorParamHeader->setBounds(0, 0, processorParamComponent->getWidth(), 20);
-        infoPanel->setCustomPanelHeader(processorParamComponent.get(), processorParamHeader.get(), false);
+        infoPanel->setCustomPanelHeader(processorParamComponent.get(), processorParamHeader, true);
         processorParamHeader->removeMouseListener(processorParamHeader->getParentComponent());
 
         // Add data stream info panel and buttons
@@ -1098,9 +1098,9 @@ void GraphNode::updateStreamInfo()
         infoPanel->setMaximumPanelSize(processorParamComponent.get(), 
                                        processorParamComponent->heightInPixels);
 
-        processorParamHeader.reset(new Component(processor->getName() + " Header"));
+        processorParamHeader = new Component(processor->getName() + " Header");
         processorParamHeader->setBounds(0, 0, processorParamComponent->getWidth(), 20);
-        infoPanel->setCustomPanelHeader(processorParamComponent.get(), processorParamHeader.get(), false);
+        infoPanel->setCustomPanelHeader(processorParamComponent.get(), processorParamHeader, true);
         processorParamHeader->removeMouseListener(processorParamHeader->getParentComponent());
 
         // recreate data stream info panels and buttons and add them to infoPanel

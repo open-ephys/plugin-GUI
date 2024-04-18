@@ -289,7 +289,7 @@ private:
     Array<DataStreamInfo*> dataStreamInfos;
 
     std::unique_ptr<ProcessorParameterComponent> processorParamComponent;
-    std::unique_ptr<Component> processorParamHeader;
+    Component* processorParamHeader;
 
     DropShadower nodeDropShadower { DropShadow(Colours::black.withAlpha(0.85f), 10, {2,10}) };
     
