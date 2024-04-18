@@ -87,7 +87,7 @@ CustomLookAndFeel::CustomLookAndFeel() :
 
 {
 
-    silkscreen = new CustomTypeface(silkscreenStream);
+    // silkscreen = new CustomTypeface(silkscreenStream);
 
     setTheme(THEME1);
     
@@ -295,7 +295,7 @@ Typeface::Ptr CustomLookAndFeel::getTypefaceForFont(const Font& font)
     }
     else if (typefaceName.equalsIgnoreCase("Silkscreen"))
     {
-        return silkscreen;
+        return firaCodeSemiBold;
     }
     else if (typefaceName.equalsIgnoreCase("Ostrich"))
     {
