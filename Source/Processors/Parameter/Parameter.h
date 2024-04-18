@@ -898,6 +898,9 @@ public:
     /** Returns a list of valid file extensions if applicable */
     StringArray getValidFilePatterns() { return filePatternsAllowed; }
 
+    /** Returns true if the current path is valid for this parameter */
+    bool isValid();
+
 private:
 
     StringArray filePatternsAllowed;

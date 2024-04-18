@@ -1057,6 +1057,11 @@ void PathParameterEditor::updateView()
     if (param)
     {
         button->setButtonText(param->getValueAsString());
+        if (!((PathParameter*)param)->isValid())
+        {
+            button->setColour(TextButton::textColourOnId, Colours::red);
+            button->setColour(TextButton::textColourOffId, Colours::red);
+        }
         //Alternatively:
         //button->setButtonText(File(param->getValueAsString()).getFileName());
         button->setTooltip(param->getValueAsString());
