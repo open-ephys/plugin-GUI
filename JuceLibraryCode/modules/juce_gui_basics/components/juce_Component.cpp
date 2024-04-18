@@ -1,17 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -489,79 +505,6 @@ bool Component::isOpaque() const noexcept
 }
 
 //==============================================================================
-
-StandardCachedComponentImage::StandardCachedComponentImage(Component& c) noexcept : owner(c) {}
-
-void StandardCachedComponentImage::paint(Graphics& g)
-{
-    scale = g.getInternalContext().getPhysicalPixelScaleFactor();
-    auto compBounds = owner.getLocalBounds();
-    auto imageBounds = compBounds * scale;
-
-    if (image.isNull() || image.getBounds() != imageBounds)
-    {
-#if JUCE_WINDOWS
-        auto imageType = SoftwareImageType{};
-#else
-        auto imageType = NativeImageType{};
-#endif
-
-        image = Image(owner.isOpaque() ? Image::RGB
-            : Image::ARGB,
-            jmax(1, imageBounds.getWidth()),
-            jmax(1, imageBounds.getHeight()),
-            !owner.isOpaque(),
-            imageType);
-
-        validArea.clear();
-    }
-
-    paintImage(compBounds, AffineTransform::scale(scale));
-
-    validArea = compBounds;
-
-    g.setColour(Colours::black.withAlpha(owner.getAlpha()));
-    g.drawImageTransformed(image, AffineTransform::scale((float)compBounds.getWidth() / (float)imageBounds.getWidth(),
-        (float)compBounds.getHeight() / (float)imageBounds.getHeight()), false);
-}
-
-void StandardCachedComponentImage::paintImage(Rectangle<int> compBounds, AffineTransform transform)
-{
-    if (!validArea.containsRectangle(compBounds))
-    {
-        Graphics imG(image);
-        auto& lg = imG.getInternalContext();
-
-        lg.addTransform(transform);
-
-        for (auto& i : validArea)
-            lg.excludeClipRectangle(i);
-
-        if (!owner.isOpaque())
-        {
-            lg.setFill(Colours::transparentBlack);
-            lg.fillRect(compBounds, true);
-            lg.setFill(Colours::black);
-        }
-
-        owner.paintEntireComponent(imG, true);
-    }
-}
-
-bool StandardCachedComponentImage::invalidateAll() { validArea.clear(); return true; }
-bool StandardCachedComponentImage::invalidate(const Rectangle<int>& area) { validArea.subtract(area); return true; }
-void StandardCachedComponentImage::releaseResources() { image = Image(); }
-
-#if !JUCE_WINDOWS
-
-static std::unique_ptr<CachedComponentImage> createNativeCachedComponentImage(Component& component)
-{
-    return std::make_unique<StandardCachedComponentImage>(component);
-}
-
-#endif
-
-
 void Component::setCachedComponentImage (CachedComponentImage* newCachedImage)
 {
     if (cachedImage.get() != newCachedImage)
@@ -577,12 +520,12 @@ void Component::setBufferedToImage (bool shouldBeBuffered)
     // so by calling setBufferedToImage, you'll be deleting the custom one - this is almost certainly
     // not what you wanted to happen... If you really do know what you're doing here, and want to
     // avoid this assertion, just call setCachedComponentImage (nullptr) before setBufferedToImage().
-    jassert (cachedImage == nullptr || dynamic_cast<StandardCachedComponentImage*> (cachedImage.get()) != nullptr);
+    jassert (cachedImage == nullptr || dynamic_cast<detail::StandardCachedComponentImage*> (cachedImage.get()) != nullptr);
 
     if (shouldBeBuffered)
     {
         if (cachedImage == nullptr)
-            cachedImage = createNativeCachedComponentImage (*this);
+            cachedImage = std::make_unique<detail::StandardCachedComponentImage> (*this);
     }
     else
     {
@@ -1657,7 +1600,6 @@ void Component::paintOverChildren (Graphics&)
 }
 
 //==============================================================================
-
 void Component::paintWithinParentContext (Graphics& g)
 {
     g.setOrigin (getPosition());
@@ -1670,7 +1612,7 @@ void Component::paintWithinParentContext (Graphics& g)
 
 void Component::paintComponentAndChildren (Graphics& g)
 {
-#if JUCE_ETW_TRACELOGGING
+   #if JUCE_ETW_TRACELOGGING
     {
         int depth = 0;
         auto parent = getParentComponent();
@@ -1680,9 +1622,9 @@ void Component::paintComponentAndChildren (Graphics& g)
             depth++;
         }
 
-        TRACE_LOG_PAINT_COMPONENT_AND_CHILDREN(depth);
+        JUCE_TRACE_LOG_PAINT_COMPONENT_AND_CHILDREN (depth);
     }
-#endif
+   #endif
 
     auto clipBounds = g.getClipBounds();
 
@@ -1767,19 +1709,18 @@ void Component::paintEntireComponent (Graphics& g, bool ignoreAlphaLevel)
 
         auto scaledBounds = getLocalBounds() * scale;
 
-        //
         // Store the effect image in the image cache to avoid recreating it every time
-        //
         auto imageFormat = flags.opaqueFlag ? Image::RGB : Image::ARGB;
-        int64 imageHashCode = scaledBounds.getWidth() | ((int64)scaledBounds.getHeight() << 24) | ((int64)imageFormat << 56);
+        int64 imageHashCode = scaledBounds.getWidth() | ((int64) scaledBounds.getHeight() << 24) | ((int64) imageFormat << 56);
         auto effectImage = ImageCache::getFromHashCode (imageHashCode);
+
         if (effectImage.isNull())
         {
-            effectImage = Image{ imageFormat, scaledBounds.getWidth(), scaledBounds.getHeight(), !flags.opaqueFlag };
+            effectImage = Image { imageFormat, scaledBounds.getWidth(), scaledBounds.getHeight(), ! flags.opaqueFlag };
             ImageCache::addImageToCache (effectImage, imageHashCode);
         }
 
-        effectImage.clear(effectImage.getBounds(), (imageFormat == Image::ARGB) ? Colours::transparentBlack : Colours::black);
+        effectImage.clear (effectImage.getBounds(), (imageFormat == Image::ARGB) ? Colours::transparentBlack : Colours::black);
 
         {
             Graphics g2 (effectImage);
@@ -1879,6 +1820,11 @@ void Component::setLookAndFeel (LookAndFeel* newLookAndFeel)
         lookAndFeel = newLookAndFeel;
         sendLookAndFeelChange();
     }
+}
+
+FontOptions Component::withDefaultMetrics (FontOptions opt) const
+{
+    return getLookAndFeel().withDefaultMetrics (std::move (opt));
 }
 
 void Component::lookAndFeelChanged() {}

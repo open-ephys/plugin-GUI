@@ -1,1189 +1,670 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifdef __INTELLISENSE__
-
-#define JUCE_CORE_INCLUDE_COM_SMART_PTR 1
-#define JUCE_WINDOWS                    1
-
-#include <windows.h>
-#include <juce_core/juce_core.h>
-#include <juce_graphics/juce_graphics.h>
-#include <d2d1_3.h>
-#include <d3d11_1.h>
-#include <dwrite.h>
-#include <dcomp.h>
-#include "juce_ETW_windows.h"
-#include "juce_DirectX_windows.h"
-#include "juce_Direct2DHelpers_windows.cpp"
-
-#endif
-
 namespace juce
 {
-    namespace direct2d
+
+struct Direct2DDeviceContext
+{
+    HRESULT createHwndRenderTarget (HWND hwnd)
     {
+        if (hwndRenderTarget != nullptr)
+            return S_OK;
 
-        //==============================================================================
-        //
-        // Device context and transform
-        //
+        SharedResourcePointer<DirectX> directX;
 
-        struct DeviceContext
+        D2D1_SIZE_U size { 1, 1 };
+
+        D2D1_RENDER_TARGET_PROPERTIES renderTargetProps{};
+        renderTargetProps.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
+        renderTargetProps.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
+
+        D2D1_HWND_RENDER_TARGET_PROPERTIES hwndRenderTargetProps{};
+        hwndRenderTargetProps.hwnd = hwnd;
+        hwndRenderTargetProps.pixelSize = size;
+        hwndRenderTargetProps.presentOptions = D2D1_PRESENT_OPTIONS_IMMEDIATELY | D2D1_PRESENT_OPTIONS_RETAIN_CONTENTS;
+        return directX->getD2DFactory()->CreateHwndRenderTarget (&renderTargetProps,
+                                                                 &hwndRenderTargetProps,
+                                                                 hwndRenderTarget.resetAndGetPointerAddress());
+    }
+
+    void resetTransform()
+    {
+        context->SetTransform (D2D1::IdentityMatrix());
+    }
+
+    void setTransform (AffineTransform newTransform)
+    {
+        context->SetTransform (D2DUtilities::transformToMatrix (newTransform));
+    }
+
+    void release()
+    {
+        hwndRenderTarget = nullptr;
+        context = nullptr;
+    }
+
+    static ComSmartPtr<ID2D1DeviceContext1> createContext (DxgiAdapter::Ptr adapter)
+    {
+        ComSmartPtr<ID2D1DeviceContext1> result;
+
+        if (const auto hr = adapter->direct2DDevice->CreateDeviceContext (D2D1_DEVICE_CONTEXT_OPTIONS_ENABLE_MULTITHREADED_OPTIMIZATIONS,
+                                                                          result.resetAndGetPointerAddress());
+            FAILED (hr))
         {
-            HRESULT createHwndRenderTarget(HWND hwnd)
-            {
-                HRESULT hr = S_OK;
-
-                if (hwndRenderTarget == nullptr)
-                {
-                    SharedResourcePointer<DirectX> directX;
-
-                    D2D1_SIZE_U size{ 1, 1 };
-
-                    D2D1_RENDER_TARGET_PROPERTIES renderTargetProps{};
-                    renderTargetProps.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
-                    renderTargetProps.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
-
-                    D2D1_HWND_RENDER_TARGET_PROPERTIES hwndRenderTargetProps{};
-                    hwndRenderTargetProps.hwnd = hwnd;
-                    hwndRenderTargetProps.pixelSize = size;
-                    hwndRenderTargetProps.presentOptions = D2D1_PRESENT_OPTIONS_IMMEDIATELY | D2D1_PRESENT_OPTIONS_RETAIN_CONTENTS;
-                    hr = directX->direct2D.getFactory()->CreateHwndRenderTarget(&renderTargetProps,
-                        &hwndRenderTargetProps,
-                        hwndRenderTarget.resetAndGetPointerAddress());
-                }
-
-                return hr;
-            }
-
-            void resetTransform()
-            {
-                context->SetTransform(D2D1::IdentityMatrix());
-                transform = {};
-            }
-
-            void setTransform(AffineTransform newTransform)
-            {
-                context->SetTransform(transformToMatrix(newTransform));
-                transform = newTransform;
-            }
-
-            void release()
-            {
-                hwndRenderTarget = nullptr;
-                context = nullptr;
-            }
-
-            ComSmartPtr<ID2D1DeviceContext1> context;
-            ComSmartPtr<ID2D1HwndRenderTarget> hwndRenderTarget;
-            AffineTransform                 transform;
-        };
-
-        //==============================================================================
-        //
-        // Direct2D bitmap
-        //
-
-        struct Metrics;
-        class Direct2DBitmap
-        {
-        public:
-            static Direct2DBitmap fromImage(Image const& image, ID2D1DeviceContext1* deviceContext, Image::PixelFormat outputFormat)
-            {
-                JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME(MetricsHub::getInstance()->imageContextMetrics, createBitmapTime);
-
-                jassert(outputFormat == Image::ARGB || outputFormat == Image::SingleChannel);
-
-                TRACE_LOG_D2D_PAINT_CALL(etw::createDirect2DBitmapFromImage, etw::graphicsKeyword);
-
-                //
-                // Calling Image::convertedToFormat could cause unchecked recursion since convertedToFormat
-                // calls Graphics::drawImageAt which calls Direct2DGraphicsContext::drawImage which calls this function...
-                //
-                // Use a software image for the conversion instead so the Graphics::drawImageAt call doesn't go
-                // through the Direct2D renderer
-                //
-                // Be sure to explicitly set the DPI to 96.0 for the image; otherwise it will default to the screen DPI
-                // and may be scaled incorrectly
-                //
-                Image convertedImage = SoftwareImageType{}.convert(image).convertedToFormat(outputFormat);
-                Image::BitmapData bitmapData{ convertedImage, Image::BitmapData::readWrite };
-
-                D2D1_BITMAP_PROPERTIES1 bitmapProperties{};
-                bitmapProperties.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
-                bitmapProperties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
-                bitmapProperties.dpiX = USER_DEFAULT_SCREEN_DPI;
-                bitmapProperties.dpiY = USER_DEFAULT_SCREEN_DPI;
-
-                switch (outputFormat)
-                {
-                case Image::RGB:
-                    bitmapProperties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_IGNORE;
-                    break;
-
-                case Image::SingleChannel:
-                    bitmapProperties.pixelFormat.format = DXGI_FORMAT_A8_UNORM;
-                    break;
-
-                case Image::UnknownFormat:
-                    jassertfalse;
-                    break;
-
-                case Image::ARGB:
-                default:
-                    break;
-                }
-
-                D2D1_SIZE_U size = { (UINT32)image.getWidth(), (UINT32)image.getHeight() };
-
-                Direct2DBitmap direct2DBitmap;
-                deviceContext->CreateBitmap(size, bitmapData.data, (UINT32) bitmapData.lineStride, bitmapProperties, direct2DBitmap.bitmap.resetAndGetPointerAddress());
-                return direct2DBitmap;
-            }
-
-            void createBitmap(ID2D1DeviceContext1* deviceContext,
-                Image::PixelFormat format,
-                D2D_SIZE_U size,
-                int lineStride,
-                float dpiScaleFactor,
-                D2D1_BITMAP_OPTIONS options)
-            {
-                TRACE_LOG_D2D_PAINT_CALL(etw::createDirect2DBitmap, etw::graphicsKeyword);
-
-                if (! bitmap)
-                {
-                    JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME(MetricsHub::getInstance()->imageContextMetrics, createBitmapTime);
-
-#if JUCE_DEBUG
-                    //
-                    // Verify that the GPU can handle a bitmap of this size
-                    //
-                    // If you need a bitmap larger than this, you'll need to either split it up into multiple bitmaps
-                    // or use a software image (see SoftwareImageType).
-                    //
-                    auto maxBitmapSize = deviceContext->GetMaximumBitmapSize();
-                    jassert(size.width <= maxBitmapSize && size.height <= maxBitmapSize);
-#endif
-
-                    D2D1_BITMAP_PROPERTIES1 bitmapProperties = {};
-                    bitmapProperties.dpiX = dpiScaleFactor * USER_DEFAULT_SCREEN_DPI;
-                    bitmapProperties.dpiY = bitmapProperties.dpiX;
-                    bitmapProperties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
-                    bitmapProperties.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
-                    bitmapProperties.bitmapOptions = options;
-
-                    switch (format)
-                    {
-                    case Image::RGB:
-                        bitmapProperties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_IGNORE;
-                        break;
-
-                    case Image::SingleChannel:
-                        bitmapProperties.pixelFormat.format = DXGI_FORMAT_A8_UNORM;
-                        break;
-
-                    case Image::UnknownFormat:
-                        jassertfalse;
-                        break;
-
-                    case Image::ARGB:
-                    default:
-                        break;
-                    }
-
-                    deviceContext->CreateBitmap(
-                        size,
-                        nullptr,
-                        (UINT32) lineStride,
-                        bitmapProperties,
-                        bitmap.resetAndGetPointerAddress());
-                }
-            }
-
-            void setD2D1Bitmap(ID2D1Bitmap1* bitmap_)
-            {
-                bitmap = bitmap_;
-            }
-
-            ID2D1Bitmap1* getD2D1Bitmap() const noexcept
-            {
-                return bitmap;
-            }
-
-            void release()
-            {
-                bitmap = nullptr;
-            }
-
-        protected:
-            ComSmartPtr<ID2D1Bitmap1> bitmap;
-        };
-
-
-        //==============================================================================
-        //
-        // Geometry caching
-        //
-
-        class GeometryCache
-        {
-        public:
-            virtual ~GeometryCache()
-            {
-                release();
-            }
-
-            void release()
-            {
-                hashMap.clear();
-            }
-
-        protected:
-
-            static float findGeometryFlatteningTolerance(float scaleFactor)
-            {
-                //
-                // Could use D2D1::ComputeFlatteningTolerance here, but that requires defining NTDDI_VERSION and it doesn't do anything special.
-                //
-                // Direct2D default flattening tolerance is 0.25
-                //
-                return 0.25f / scaleFactor;
-            }
-
-            //==============================================================================
-            //
-            // Caching
-            //
-            struct CachedGeometryRealisation : public ReferenceCountedObject
-            {
-                CachedGeometryRealisation(uint64 hash_) :
-                    hash(hash_)
-                {
-                }
-
-                CachedGeometryRealisation(CachedGeometryRealisation const& other) :
-                    hash(other.hash),
-                    pathModificationCount(other.pathModificationCount),
-                    geometryRealisation(other.geometryRealisation)
-                {
-                }
-
-                CachedGeometryRealisation(CachedGeometryRealisation&& other)  noexcept :
-                    hash(other.hash),
-                    pathModificationCount(other.pathModificationCount),
-                    geometryRealisation(other.geometryRealisation)
-                {
-                }
-
-                ~CachedGeometryRealisation()
-                {
-                    clear();
-                }
-
-                void clear()
-                {
-                    hash = 0;
-                    geometryRealisation = nullptr;
-                }
-
-                uint64 hash = 0;
-                int pathModificationCount = 0;
-                ComSmartPtr<ID2D1GeometryRealization> geometryRealisation;
-
-                using Ptr = ReferenceCountedObjectPtr<CachedGeometryRealisation>;
-            };
-
-            class HashMap
-            {
-            public:
-                ~HashMap()
-                {
-                    clear();
-                }
-
-                void clear()
-                {
-                    lruCache.clear();
-                }
-
-                auto size() const noexcept
-                {
-                    return lruCache.size();
-                }
-
-                CachedGeometryRealisation::Ptr getCachedGeometryRealisation(uint64 hash)
-                {
-                    trim();
-
-                    if (auto entry = lruCache.get(hash))
-                    {
-                        return entry;
-                    }
-
-                    CachedGeometryRealisation::Ptr cachedGeometryRealisation = new CachedGeometryRealisation{ hash };
-                    lruCache.set(hash, cachedGeometryRealisation);
-                    return cachedGeometryRealisation;
-                }
-
-                void trim()
-                {
-                    //
-                    // Remove any expired entries
-                    //
-                    while (lruCache.size() > maxNumCacheEntries)
-                    {
-                        TRACE_LOG_D2D_PAINT_CALL(etw::releaseGeometryRealization, etw::graphicsKeyword);
-
-                        lruCache.popBack();
-                    }
-                }
-
-            private:
-                static int constexpr maxNumCacheEntries = 128;
-
-                direct2d::LeastRecentlyUsedCache<uint64, CachedGeometryRealisation::Ptr> lruCache;
-            } hashMap;
-        };
-
-        class FilledGeometryCache : public GeometryCache
-        {
-        public:
-            ~FilledGeometryCache() override = default;
-
-            ID2D1GeometryRealization* getGeometryRealisation(const Path& path,
-                ID2D1Factory2* factory,
-                ID2D1DeviceContext1* deviceContext,
-                float dpiScaleFactor,
-                [[maybe_unused]] int frameNumber,
-                direct2d::Metrics* metrics)
-            {
-                if (path.getModificationCount() == 0 || !path.isCacheEnabled())
-                {
-                    return nullptr;
-                }
-
-                auto flatteningTolerance = findGeometryFlatteningTolerance(dpiScaleFactor);
-                auto hash = calculatePathHash(path, flatteningTolerance);
-
-                if (auto cachedGeometry = hashMap.getCachedGeometryRealisation(hash))
-                {
-                    if (cachedGeometry->geometryRealisation && cachedGeometry->pathModificationCount != path.getModificationCount())
-                    {
-                        cachedGeometry->geometryRealisation = nullptr;
-                        cachedGeometry->pathModificationCount = 0;
-                    }
-
-                    if (cachedGeometry->geometryRealisation)
-                    {
-                        TRACE_LOG_D2D_PAINT_CALL(etw::filledGeometryRealizationCacheHit, frameNumber);
-                    }
-
-                    else
-                    {
-                        if (auto geometry = direct2d::pathToPathGeometry(factory, path, D2D1_FIGURE_BEGIN_FILLED, metrics))
-                        {
-                            JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME(metrics, createFilledGRTime);
-
-                            auto hr = deviceContext->CreateFilledGeometryRealization(geometry, flatteningTolerance, cachedGeometry->geometryRealisation.resetAndGetPointerAddress());
-                            switch (hr)
-                            {
-                            case S_OK:
-                                cachedGeometry->pathModificationCount = path.getModificationCount();
-
-                                TRACE_LOG_D2D_PAINT_CALL(etw::filledGeometryRealizationCreated, frameNumber);
-                                break;
-
-                            case E_OUTOFMEMORY:
-                                return nullptr;
-                            }
-                        }
-                    }
-
-                    return cachedGeometry->geometryRealisation;
-                }
-
-                return nullptr;
-            }
-
-        private:
-
-            //==============================================================================
-            //
-            // Hashing
-            //
-
-            uint64 calculatePathHash(Path const& path, float flatteningTolerance)
-            {
-                return DefaultHashFunctions::generateHash(reinterpret_cast<uint8 const*>(&flatteningTolerance), sizeof(flatteningTolerance), path.getUniqueID());
-            }
-
-        };
-
-        class StrokeGeometryCache : public GeometryCache
-        {
-        public:
-            ~StrokeGeometryCache() override = default;
-
-            ID2D1GeometryRealization* getGeometryRealisation(const Path& path,
-                const PathStrokeType& strokeType,
-                ID2D1Factory2* factory,
-                ID2D1DeviceContext1* deviceContext,
-                float xScaleFactor,
-                float yScaleFactor,
-                float dpiScaleFactor,
-                [[maybe_unused]] int frameNumber,
-                Metrics* metrics)
-            {
-                if (path.getModificationCount() == 0 || !path.isCacheEnabled())
-                {
-                    return nullptr;
-                }
-
-                auto flatteningTolerance = findGeometryFlatteningTolerance(dpiScaleFactor * (xScaleFactor + yScaleFactor) * 0.5f);
-                auto hash = calculatePathHash(path, strokeType, flatteningTolerance, xScaleFactor, yScaleFactor);
-
-                if (auto cachedGeometry = hashMap.getCachedGeometryRealisation(hash))
-                {
-                    if (cachedGeometry->geometryRealisation && cachedGeometry->pathModificationCount != path.getModificationCount())
-                    {
-                        cachedGeometry->geometryRealisation = nullptr;
-                        cachedGeometry->pathModificationCount = 0;
-                    }
-
-                    if (cachedGeometry->geometryRealisation)
-                    {
-                        TRACE_LOG_D2D_PAINT_CALL(etw::strokedGeometryRealizationCacheHit, frameNumber);
-                    }
-                    else
-                    {
-                        auto transform = AffineTransform::scale(xScaleFactor, yScaleFactor, path.getBounds().getX(), path.getBounds().getY());
-                        if (auto geometry = direct2d::pathToPathGeometry(factory, path, transform, D2D1_FIGURE_BEGIN_HOLLOW, metrics))
-                        {
-                            if (auto strokeStyle = direct2d::pathStrokeTypeToStrokeStyle(factory, strokeType))
-                            {
-                                JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME(metrics, createStrokedGRTime);
-
-                                //
-                                // For stroked paths, the transform will affect the thickness of the path as well
-                                // as the dimensions of the path. Divide the stroke thickness by the scale factor
-                                // of the transform to compensate
-                                //
-                                auto hr = deviceContext->CreateStrokedGeometryRealization(geometry,
-                                    flatteningTolerance,
-                                    strokeType.getStrokeThickness(),
-                                    strokeStyle,
-                                    cachedGeometry->geometryRealisation.resetAndGetPointerAddress());
-
-                                switch (hr)
-                                {
-                                case S_OK:
-                                    cachedGeometry->pathModificationCount = path.getModificationCount();
-
-                                    TRACE_LOG_D2D_PAINT_CALL(etw::strokedGeometryRealizationCreated, frameNumber);
-                                    break;
-
-                                case E_OUTOFMEMORY:
-                                    return nullptr;
-                                }
-                            }
-                        }
-                    }
-
-                    return cachedGeometry->geometryRealisation;
-                }
-
-                return nullptr;
-            }
-
-        private:
-
-            uint64 calculatePathHash(Path const& path, PathStrokeType const& strokeType, float flatteningTolerance, float xScaleFactor, float yScaleFactor)
-            {
-                struct
-                {
-                    int xScaleFactor, yScaleFactor, flatteningTolerance, strokeThickness;
-                    PathStrokeType::JointStyle jointStyle;
-                    PathStrokeType::EndCapStyle endStyle;
-                } extraHashData;
-
-                //
-                // Round the various float value to 128ths to avoid floating point hash differences
-                //
-                extraHashData.xScaleFactor = roundToInt(xScaleFactor * 128.0f);
-                extraHashData.yScaleFactor = roundToInt(yScaleFactor * 128.0f);
-                extraHashData.flatteningTolerance = roundToInt(flatteningTolerance * 128.0f);
-                extraHashData.strokeThickness = roundToInt(strokeType.getStrokeThickness() * 128.0f);
-                extraHashData.jointStyle = strokeType.getJointStyle();
-                extraHashData.endStyle = strokeType.getEndStyle();
-
-                return DefaultHashFunctions::generateHash(reinterpret_cast<uint8 const*>(&extraHashData), sizeof(extraHashData), path.getUniqueID());
-            }
-        };
-
-
-        //==============================================================================
-        //
-        // Colour gradient caching
-        //
-
-        template<class BrushType>
-        class ColourGradientCache
-        {
-        public:
-            ~ColourGradientCache()
-            {
-                release();
-            }
-
-            void release()
-            {
-                gradientMap.clear();
-            }
-
-            void get(ColourGradient const&, ID2D1DeviceContext1*, ComSmartPtr<BrushType>&, Metrics* metrics);
-
-
-        protected:
-            uint64 calculateGradientHash(ColourGradient const& gradient)
-            {
-                return gradient.getHash();
-            }
-
-            void makeGradientStopCollection(ColourGradient const& gradient,
-                ID2D1DeviceContext1* deviceContext,
-                ComSmartPtr<ID2D1GradientStopCollection>& gradientStops,
-                [[maybe_unused]] Metrics* metrics) const noexcept
-            {
-                JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME(metrics, createGradientTime);
-
-                const int numColors = gradient.getNumColours();
-
-                HeapBlock<D2D1_GRADIENT_STOP> stops{ numColors };
-
-                for (int i = numColors - 1; i >= 0; --i)
-                {
-                    stops[i].color = direct2d::colourToD2D(gradient.getColour(i));
-                    stops[i].position = (FLOAT)gradient.getColourPosition(i);
-                }
-
-                deviceContext->CreateGradientStopCollection(stops.getData(), (UINT32)numColors, gradientStops.resetAndGetPointerAddress());
-            }
-
-            class HashMap
-            {
-            public:
-                ~HashMap()
-                {
-                    clear();
-                }
-
-                void clear()
-                {
-                    lruCache.clear();
-                }
-
-                auto size() const noexcept
-                {
-                    return lruCache.size();
-                }
-
-                void getCachedBrush(uint64 hash, ComSmartPtr<BrushType>& brush)
-                {
-                    trim();
-
-                    brush = lruCache.get(hash);
-                }
-
-                void store(uint64 hash, ComSmartPtr<BrushType>& brush)
-                {
-                    lruCache.set(hash, brush);
-                }
-
-                void trim()
-                {
-                    //
-                    // Remove any expired entries
-                    //
-                    while (lruCache.size() > maxNumCacheEntries)
-                    {
-                        TRACE_LOG_D2D_PAINT_CALL(etw::releaseGradient, etw::graphicsKeyword);
-
-                        lruCache.popBack();
-                    }
-                }
-
-            private:
-                static int constexpr maxNumCacheEntries = 128;
-
-                direct2d::LeastRecentlyUsedCache<uint64, ComSmartPtr<BrushType>> lruCache;
-            };
-
-            HashMap gradientMap;
-        };
-
-        template<>
-        void ColourGradientCache<ID2D1LinearGradientBrush>::get(ColourGradient const& gradient, ID2D1DeviceContext1* deviceContext, ComSmartPtr<ID2D1LinearGradientBrush>& brush, Metrics* metrics)
-        {
-            jassert(!gradient.isRadial);
-
-            //
-            // Already cached?
-            //
-            const auto p1 = gradient.point1;
-            const auto p2 = gradient.point2;
-
-            auto hash = calculateGradientHash(gradient);
-            if (gradientMap.getCachedBrush(hash, brush); brush != nullptr)
-            {
-                return;
-            }
-
-            //
-            // Make and store a new gradient brush
-            //
-            ComSmartPtr<ID2D1GradientStopCollection> gradientStops;
-            makeGradientStopCollection(gradient, deviceContext, gradientStops, metrics);
-
-            D2D1_BRUSH_PROPERTIES brushProps = { 1.0f, D2D1::IdentityMatrix() };
-            const auto linearGradientBrushProperties = D2D1::LinearGradientBrushProperties({ p1.x, p1.y }, { p2.x, p2.y });
-
-            deviceContext->CreateLinearGradientBrush(linearGradientBrushProperties,
-                brushProps,
-                gradientStops,
-                brush.resetAndGetPointerAddress());
-
-            gradientMap.store(hash, brush);
+            jassertfalse;
+            return {};
         }
 
-        template<>
-        void ColourGradientCache<ID2D1RadialGradientBrush>::get(ColourGradient const& gradient, ID2D1DeviceContext1* deviceContext, ComSmartPtr<ID2D1RadialGradientBrush>& brush, Metrics* metrics)
-        {
-            jassert(gradient.isRadial);
+        result->SetTextAntialiasMode (D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
+        result->SetAntialiasMode (D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+        result->SetUnitMode (D2D1_UNIT_MODE_PIXELS);
 
-            //
-            // Already cached?
-            //
-            const auto p1 = gradient.point1;
-            const auto p2 = gradient.point2;
-            const auto r = p1.getDistanceFrom(p2);
+        return result;
+    }
 
-            auto hash = calculateGradientHash(gradient);
-            if (gradientMap.getCachedBrush(hash, brush); brush != nullptr)
-            {
-                return;
-            }
+    ComSmartPtr<ID2D1DeviceContext1> context;
+    ComSmartPtr<ID2D1HwndRenderTarget> hwndRenderTarget;
+};
 
-            //
-            // Make and store a new gradient brush
-            //
-            ComSmartPtr<ID2D1GradientStopCollection> gradientStops;
-            makeGradientStopCollection(gradient, deviceContext, gradientStops, metrics);
+class Direct2DBitmap final
+{
+public:
+    static ComSmartPtr<ID2D1Bitmap1> fromImage (const Image& image,
+                                                ComSmartPtr<ID2D1DeviceContext1> deviceContext,
+                                                Image::PixelFormat outputFormat)
+    {
+        JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME (Direct2DMetricsHub::getInstance()->imageContextMetrics, createBitmapTime);
 
-            D2D1_BRUSH_PROPERTIES brushProps = { 1.0F, D2D1::IdentityMatrix() };
-            const auto radialGradientBrushProperties = D2D1::RadialGradientBrushProperties({ p1.x, p1.y }, {}, r, r);
+        jassert (outputFormat == Image::ARGB || outputFormat == Image::SingleChannel);
 
-            deviceContext->CreateRadialGradientBrush(radialGradientBrushProperties,
-                brushProps,
-                gradientStops,
-                brush.resetAndGetPointerAddress());
+        JUCE_TRACE_LOG_D2D_PAINT_CALL (etw::createDirect2DBitmapFromImage, etw::graphicsKeyword);
 
-            gradientMap.store(hash, brush);
-        }
-
-        //==============================================================================
+        // Calling Image::convertedToFormat could cause unchecked recursion since convertedToFormat
+        // calls Graphics::drawImageAt which calls Direct2DGraphicsContext::drawImage which calls this function...
         //
-        // Sprite batch
+        // Use a software image for the conversion instead so the Graphics::drawImageAt call doesn't go
+        // through the Direct2D renderer
         //
+        // Be sure to explicitly set the DPI to 96.0 for the image; otherwise it will default to the screen DPI
+        // and may be scaled incorrectly
+        const auto convertedImage = SoftwareImageType{}.convert (image).convertedToFormat (outputFormat);
 
-        class RectangleListSpriteBatch
+        if (! convertedImage.isValid())
+            return {};
+
+        Image::BitmapData bitmapData { convertedImage, Image::BitmapData::readWrite };
+
+        D2D1_BITMAP_PROPERTIES1 bitmapProperties{};
+        bitmapProperties.pixelFormat.format = outputFormat == Image::SingleChannel
+                                            ? DXGI_FORMAT_A8_UNORM
+                                            : DXGI_FORMAT_B8G8R8A8_UNORM;
+        bitmapProperties.pixelFormat.alphaMode = outputFormat == Image::RGB
+                                               ? D2D1_ALPHA_MODE_IGNORE
+                                               : D2D1_ALPHA_MODE_PREMULTIPLIED;
+        bitmapProperties.dpiX = USER_DEFAULT_SCREEN_DPI;
+        bitmapProperties.dpiY = USER_DEFAULT_SCREEN_DPI;
+
+        const D2D1_SIZE_U size { (UINT32) image.getWidth(), (UINT32) image.getHeight() };
+
+        ComSmartPtr<ID2D1Bitmap1> bitmap;
+        deviceContext->CreateBitmap (size,
+                                     bitmapData.data,
+                                     (UINT32) bitmapData.lineStride,
+                                     bitmapProperties,
+                                     bitmap.resetAndGetPointerAddress());
+        return bitmap;
+    }
+
+    static ComSmartPtr<ID2D1Bitmap1> createBitmap (ComSmartPtr<ID2D1DeviceContext1> deviceContext,
+                                                   Image::PixelFormat format,
+                                                   D2D_SIZE_U size,
+                                                   int lineStride,
+                                                   D2D1_BITMAP_OPTIONS options)
+    {
+        JUCE_TRACE_LOG_D2D_PAINT_CALL (etw::createDirect2DBitmap, etw::graphicsKeyword);
+
+        JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME (Direct2DMetricsHub::getInstance()->imageContextMetrics, createBitmapTime);
+
+       #if JUCE_DEBUG
+        // Verify that the GPU can handle a bitmap of this size
+        //
+        // If you need a bitmap larger than this, you'll need to either split it up into multiple bitmaps
+        // or use a software image (see SoftwareImageType).
+        auto maxBitmapSize = deviceContext->GetMaximumBitmapSize();
+        jassert (size.width <= maxBitmapSize && size.height <= maxBitmapSize);
+       #endif
+
+        D2D1_BITMAP_PROPERTIES1 bitmapProperties{};
+        bitmapProperties.dpiX = bitmapProperties.dpiY = USER_DEFAULT_SCREEN_DPI;
+        bitmapProperties.pixelFormat.format = format == Image::SingleChannel
+                                            ? DXGI_FORMAT_A8_UNORM
+                                            : DXGI_FORMAT_B8G8R8A8_UNORM;
+        bitmapProperties.pixelFormat.alphaMode = format == Image::RGB
+                                               ? D2D1_ALPHA_MODE_IGNORE
+                                               : D2D1_ALPHA_MODE_PREMULTIPLIED;
+        bitmapProperties.bitmapOptions = options;
+
+        ComSmartPtr<ID2D1Bitmap1> bitmap;
+        deviceContext->CreateBitmap (size,
+                                     nullptr,
+                                     (UINT32) lineStride,
+                                     bitmapProperties,
+                                     bitmap.resetAndGetPointerAddress());
+        return bitmap;
+    }
+
+    Direct2DBitmap() = delete;
+};
+
+static ComSmartPtr<ID2D1GradientStopCollection> makeGradientStopCollection (const ColourGradient& gradient,
+                                                                            ComSmartPtr<ID2D1DeviceContext1> deviceContext,
+                                                                            [[maybe_unused]] Direct2DMetrics* metrics) noexcept
+{
+    JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME (metrics, createGradientTime);
+
+    const int numColors = gradient.getNumColours();
+
+    std::vector<D2D1_GRADIENT_STOP> stops ((size_t) numColors);
+
+    for (auto [index, stop] : enumerate (stops, int{}))
+    {
+        stop.color = D2DUtilities::toCOLOR_F (gradient.getColour (index));
+        stop.position = (FLOAT) gradient.getColourPosition (index);
+    }
+
+    ComSmartPtr<ID2D1GradientStopCollection> result;
+    deviceContext->CreateGradientStopCollection (stops.data(), (UINT32) stops.size(), result.resetAndGetPointerAddress());
+    return result;
+}
+
+class LinearGradientCache
+{
+public:
+    ComSmartPtr<ID2D1LinearGradientBrush> get (const ColourGradient& gradient,
+                                               ComSmartPtr<ID2D1DeviceContext1> deviceContext,
+                                               Direct2DMetrics* metrics)
+    {
+        jassert (! gradient.isRadial);
+
+        return cache.get (gradient, [&deviceContext, &metrics] (const auto& key)
         {
-        public:
-            RectangleListSpriteBatch() = default;
-            ~RectangleListSpriteBatch()
-            {
-                release();
-            }
+            const auto gradientStops = makeGradientStopCollection (key, deviceContext, metrics);
+            const auto p1 = key.point1;
+            const auto p2 = key.point2;
+            const auto linearGradientBrushProperties = D2D1::LinearGradientBrushProperties ({ p1.x, p1.y }, { p2.x, p2.y });
+            const D2D1_BRUSH_PROPERTIES brushProps { 1.0f, D2D1::IdentityMatrix() };
 
-            void release()
-            {
-                whiteRectangle = nullptr;
-                spriteBatches.clear();
-                destinations.free();
-                destinationsCapacity = 0;
-            }
+            ComSmartPtr<ID2D1LinearGradientBrush> result;
+            deviceContext->CreateLinearGradientBrush (linearGradientBrushProperties,
+                                                      brushProps,
+                                                      gradientStops,
+                                                      result.resetAndGetPointerAddress());
+            return result;
+        });
+    }
 
-            void fillRectangles(ID2D1DeviceContext1* deviceContext,
-                const RectangleList<float>& rectangles,
-                Colour const colour,
-                std::function<Rectangle<float>(Rectangle<float> const r)> transformRectangle,
-                [[maybe_unused]] Metrics* metrics)
+private:
+    LruCache<ColourGradient, ComSmartPtr<ID2D1LinearGradientBrush>> cache;
+};
+
+class RadialGradientCache
+{
+public:
+    ComSmartPtr<ID2D1RadialGradientBrush> get (const ColourGradient& gradient,
+                                               ComSmartPtr<ID2D1DeviceContext1> deviceContext,
+                                               Direct2DMetrics* metrics)
+    {
+        jassert (gradient.isRadial);
+
+        return cache.get (gradient, [&deviceContext, &metrics] (const auto& key)
+        {
+            const auto gradientStops = makeGradientStopCollection (key, deviceContext, metrics);
+
+            const auto p1 = key.point1;
+            const auto p2 = key.point2;
+            const auto r = p1.getDistanceFrom (p2);
+            const auto radialGradientBrushProperties = D2D1::RadialGradientBrushProperties ({ p1.x, p1.y }, {}, r, r);
+            const D2D1_BRUSH_PROPERTIES brushProps { 1.0F, D2D1::IdentityMatrix() };
+
+            ComSmartPtr<ID2D1RadialGradientBrush> result;
+            deviceContext->CreateRadialGradientBrush (radialGradientBrushProperties,
+                                                      brushProps,
+                                                      gradientStops,
+                                                      result.resetAndGetPointerAddress());
+            return result;
+        });
+    }
+
+private:
+    LruCache<ColourGradient, ComSmartPtr<ID2D1RadialGradientBrush>> cache;
+};
+
+class RectangleListSpriteBatch
+{
+public:
+    RectangleListSpriteBatch() = default;
+
+    ~RectangleListSpriteBatch()
+    {
+        release();
+    }
+
+    void release()
+    {
+        whiteRectangle = nullptr;
+        spriteBatches = {};
+        destinations.free();
+        destinationsCapacity = 0;
+    }
+
+    template <typename TransformRectangle>
+    void fillRectangles (ComSmartPtr<ID2D1DeviceContext1> deviceContext,
+                         const RectangleList<float>& rectangles,
+                         const Colour colour,
+                         TransformRectangle&& transformRectangle,
+                         [[maybe_unused]] Direct2DMetrics* metrics)
+    {
+        if (rectangles.isEmpty())
+            return;
+
+        JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME (metrics, spriteBatchTime)
+
+        auto numRectanglesPainted = 0;
+        while (numRectanglesPainted < rectangles.getNumRectangles())
+        {
+            auto numRectanglesRemaining = rectangles.getNumRectangles() - numRectanglesPainted;
+            auto spriteBatchSize = isPowerOfTwo (numRectanglesRemaining) ? numRectanglesRemaining : (nextPowerOfTwo (numRectanglesRemaining) >> 1);
+
             {
-                if (rectangles.isEmpty())
+                JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME (metrics, spriteBatchSetupTime);
+
+                if (destinationsCapacity < (size_t) spriteBatchSize)
                 {
+                    destinations.calloc (spriteBatchSize);
+                    destinationsCapacity = (size_t) spriteBatchSize;
+                }
+
+                auto destination = destinations.getData();
+
+                for (int i = numRectanglesPainted; i < numRectanglesPainted + spriteBatchSize; ++i)
+                {
+                    auto r = rectangles.getRectangle (i);
+                    r = transformRectangle (r);
+                    *destination = D2DUtilities::toRECT_F (r);
+                    ++destination;
+                }
+            }
+
+            if (! whiteRectangle)
+            {
+                JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME (metrics, createSpriteSourceTime);
+
+                auto hr = deviceContext->CreateCompatibleRenderTarget (D2D1_SIZE_F { (float) rectangleSize, (float) rectangleSize },
+                                                                       D2D1_SIZE_U { rectangleSize, rectangleSize },
+                                                                       D2D1_PIXEL_FORMAT { DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED },
+                                                                       whiteRectangle.resetAndGetPointerAddress());
+                if (FAILED (hr))
                     return;
-                }
 
-                JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME(metrics, spriteBatchTime)
+                whiteRectangle->BeginDraw();
+                whiteRectangle->Clear (D2D1_COLOR_F { 1.0f, 1.0f, 1.0f, 1.0f });
+                whiteRectangle->EndDraw();
+            }
 
-                auto numRectanglesPainted = 0;
-                while (numRectanglesPainted < rectangles.getNumRectangles())
+            ComSmartPtr<ID2D1Bitmap> bitmap;
+            if (auto hr = whiteRectangle->GetBitmap (bitmap.resetAndGetPointerAddress()); SUCCEEDED (hr))
+            {
+                ComSmartPtr<ID2D1DeviceContext3> deviceContext3;
+                if (hr = deviceContext->QueryInterface<ID2D1DeviceContext3> (deviceContext3.resetAndGetPointerAddress()); SUCCEEDED (hr))
                 {
-                    auto numRectanglesRemaining = rectangles.getNumRectangles() - numRectanglesPainted;
-                    auto spriteBatchSize = isPowerOfTwo(numRectanglesRemaining) ? numRectanglesRemaining : (nextPowerOfTwo(numRectanglesRemaining) >> 1);
+                    auto d2dColour = D2DUtilities::toCOLOR_F (colour);
+                    auto spriteBatch = getSpriteBatch (*deviceContext3, (uint32) spriteBatchSize);
 
+                    if (spriteBatch == nullptr)
+                        return;
+
+                    auto setCount = jmin ((uint32) spriteBatchSize, spriteBatch->GetSpriteCount());
+                    auto addCount = (uint32) spriteBatchSize > setCount ? (uint32) spriteBatchSize - setCount : 0;
+
+                    if (setCount != 0)
                     {
-                        JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME(metrics, spriteBatchSetupTime);
+                        JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME (metrics, setSpritesTime);
 
-                        if (destinationsCapacity < (size_t)spriteBatchSize)
-                        {
-                            destinations.calloc(spriteBatchSize);
-                            destinationsCapacity = (size_t)spriteBatchSize;
-                        }
-
-                        auto destination = destinations.getData();
-
-                        for (int i = numRectanglesPainted; i < numRectanglesPainted + spriteBatchSize; ++i)
-                        {
-                            auto r = rectangles.getRectangle(i);
-                            r = transformRectangle(r);
-                            *destination = direct2d::rectangleToRectF(r);
-                            ++destination;
-                        }
+                        spriteBatch->SetSprites (0, setCount, destinations.getData(), nullptr, &d2dColour, nullptr, sizeof (D2D1_RECT_F), 0, 0, 0);
                     }
 
-                    if (!whiteRectangle)
+                    if (addCount != 0)
                     {
-                        JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME(metrics, createSpriteSourceTime);
+                        JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME (metrics, addSpritesTime);
 
-                        auto hr = deviceContext->CreateCompatibleRenderTarget(D2D1_SIZE_F{ (float)rectangleSize, (float)rectangleSize },
-                            D2D1_SIZE_U{ rectangleSize, rectangleSize },
-                            D2D1_PIXEL_FORMAT{ DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED },
-                            whiteRectangle.resetAndGetPointerAddress());
-                        if (FAILED(hr))
-                        {
-                            return;
-                        }
-
-                        whiteRectangle->BeginDraw();
-                        whiteRectangle->Clear(D2D1_COLOR_F{ 1.0f, 1.0f, 1.0f, 1.0f });
-                        whiteRectangle->EndDraw();
+                        spriteBatch->AddSprites (addCount, destinations.getData() + setCount, nullptr, &d2dColour, nullptr, sizeof (D2D1_RECT_F), 0, 0, 0);
                     }
 
-                    ComSmartPtr<ID2D1Bitmap> bitmap;
-                    if (auto hr = whiteRectangle->GetBitmap(bitmap.resetAndGetPointerAddress()); SUCCEEDED(hr))
-                    {
-                        ComSmartPtr<ID2D1DeviceContext3> deviceContext3;
-                        if (hr = deviceContext->QueryInterface<ID2D1DeviceContext3>(deviceContext3.resetAndGetPointerAddress()); SUCCEEDED(hr))
-                        {
-                            auto d2dColour = direct2d::colourToD2D(colour);
+                    JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME (metrics, drawSpritesTime);
 
-                            auto spriteBatch = spriteBatches.get((uint32)spriteBatchSize);
-                            if (!spriteBatch)
-                            {
-                                JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME(metrics, createSpriteBatchTime);
-
-                                if (hr = deviceContext3->CreateSpriteBatch(spriteBatch.resetAndGetPointerAddress()); FAILED(hr))
-                                {
-                                    return;
-                                }
-
-                                spriteBatches.set((uint32)spriteBatchSize, spriteBatch);
-                            }
-
-                            auto setCount = jmin((uint32)spriteBatchSize, spriteBatch->GetSpriteCount());
-                            auto addCount = (uint32)spriteBatchSize > setCount ? (uint32)spriteBatchSize - setCount : 0;
-
-                            if (setCount != 0)
-                            {
-                                JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME(metrics, setSpritesTime);
-
-                                spriteBatch->SetSprites(0, setCount, destinations.getData(), nullptr, &d2dColour, nullptr, sizeof(D2D1_RECT_F), 0, 0, 0);
-                            }
-
-                            if (addCount != 0)
-                            {
-                                JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME(metrics, addSpritesTime);
-
-                                spriteBatch->AddSprites(addCount, destinations.getData() + setCount, nullptr, &d2dColour, nullptr, sizeof(D2D1_RECT_F), 0, 0, 0);
-                            }
-
-                            JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME(metrics, drawSpritesTime);
-
-                            deviceContext3->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
-                            deviceContext3->DrawSpriteBatch(spriteBatch, bitmap);
-                            deviceContext3->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-                        }
-                    }
-
-                    numRectanglesPainted += spriteBatchSize;
-                }
-
-                while (spriteBatches.size() > maxCacheSize)
-                {
-                    spriteBatches.popBack();
+                    deviceContext3->SetAntialiasMode (D2D1_ANTIALIAS_MODE_ALIASED);
+                    deviceContext3->DrawSpriteBatch (spriteBatch, bitmap);
+                    deviceContext3->SetAntialiasMode (D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
                 }
             }
 
-        private:
-            static constexpr uint32 rectangleSize = 32;
-            ComSmartPtr<ID2D1BitmapRenderTarget> whiteRectangle;
-            HeapBlock<D2D1_RECT_F> destinations;
-            size_t destinationsCapacity = 0;
-            static constexpr size_t maxCacheSize = 8;
-            direct2d::LeastRecentlyUsedCache<uint32, ComSmartPtr<ID2D1SpriteBatch>> spriteBatches;
-        };
+            numRectanglesPainted += spriteBatchSize;
+        }
+    }
 
-        //==============================================================================
-        //
-        // Device resources
-        //
-
-        class DeviceResources
+private:
+    ComSmartPtr<ID2D1SpriteBatch> getSpriteBatch (ID2D1DeviceContext3& dc, uint32 key)
+    {
+        return spriteBatches.get ((uint32) key, [&dc] (auto) -> ComSmartPtr<ID2D1SpriteBatch>
         {
-        public:
-            DeviceResources() = default;
+            ComSmartPtr<ID2D1SpriteBatch> result;
+            if (const auto hr = dc.CreateSpriteBatch (result.resetAndGetPointerAddress()); SUCCEEDED (hr))
+                return result;
 
-            ~DeviceResources()
+            return nullptr;
+        });
+    }
+
+    static constexpr uint32 rectangleSize = 32;
+    ComSmartPtr<ID2D1BitmapRenderTarget> whiteRectangle;
+    HeapBlock<D2D1_RECT_F> destinations;
+    size_t destinationsCapacity = 0;
+    LruCache<uint32, ComSmartPtr<ID2D1SpriteBatch>, 8> spriteBatches;
+};
+
+class Direct2DDeviceResources
+{
+public:
+    Direct2DDeviceResources() = default;
+
+    // Create a Direct2D device context for a DXGI adapter
+    HRESULT create (DxgiAdapter::Ptr adapter)
+    {
+        jassert (adapter);
+
+        if (deviceContext.context == nullptr)
+            deviceContext.context = Direct2DDeviceContext::createContext (adapter);
+
+        if (colourBrush == nullptr)
+        {
+            if (const auto hr = deviceContext.context->CreateSolidColorBrush (D2D1::ColorF (0.0f, 0.0f, 0.0f, 1.0f),
+                                                                              colourBrush.resetAndGetPointerAddress());
+                FAILED (hr))
             {
-                release();
-            }
-
-            //
-            // Create a Direct2D device context for a DXGI adapter
-            //
-            HRESULT create(DirectX::DXGI::Adapter::Ptr adapter, double dpiScalingFactor)
-            {
-                HRESULT hr = S_OK;
-
-                jassert(adapter);
-
-                if (adapter->direct2DDevice == nullptr)
-                {
-                    SharedResourcePointer<DirectX> directX;
-                    if (hr = adapter->createDirect2DResources(directX->direct2D.getFactory()); FAILED(hr)) return hr;
-                }
-
-                if (deviceContext.context == nullptr)
-                {
-                    hr = adapter->direct2DDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_ENABLE_MULTITHREADED_OPTIMIZATIONS,
-                        deviceContext.context.resetAndGetPointerAddress());
-                    if (FAILED(hr)) return hr;
-                }
-
-                deviceContext.context->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_GRAYSCALE);
-                deviceContext.context->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-
-                float dpi = (float)(USER_DEFAULT_SCREEN_DPI * dpiScalingFactor);
-                deviceContext.context->SetDpi(dpi, dpi);
-
-                if (colourBrush == nullptr)
-                {
-                    hr = deviceContext.context->CreateSolidColorBrush(D2D1::ColorF(0.0f, 0.0f, 0.0f, 1.0f),
-                        colourBrush.resetAndGetPointerAddress());
-                    jassertquiet(SUCCEEDED(hr));
-                }
-
-                if (rectangleListSpriteBatch == nullptr)
-                {
-                    ComSmartPtr<ID2D1DeviceContext3> deviceContext3;
-                    if (hr = deviceContext.context->QueryInterface<ID2D1DeviceContext3>(deviceContext3.resetAndGetPointerAddress()); SUCCEEDED(hr))
-                    {
-                        rectangleListSpriteBatch = std::make_unique<RectangleListSpriteBatch>();
-                    }
-                }
-
+                jassertfalse;
                 return hr;
             }
+        }
 
-            void release()
-            {
-                rectangleListSpriteBatch = nullptr;
-                linearGradientCache.release();
-                radialGradientCache.release();
-                filledGeometryCache.release();
-                strokedGeometryCache.release();
-                colourBrush = nullptr;
-                deviceContext.release();
-            }
+        if (rectangleListSpriteBatch == nullptr)
+            rectangleListSpriteBatch = std::make_unique<RectangleListSpriteBatch>();
 
-            bool canPaint(DirectX::DXGI::Adapter::Ptr adapter)
-            {
-                return adapter->direct2DDevice != nullptr && deviceContext.context != nullptr && colourBrush != nullptr;
-            }
+        return S_OK;
+    }
 
-            DeviceContext                     deviceContext;
-            ComSmartPtr<ID2D1SolidColorBrush> colourBrush;
-            FilledGeometryCache               filledGeometryCache;
-            StrokeGeometryCache               strokedGeometryCache;
-            ColourGradientCache<ID2D1LinearGradientBrush> linearGradientCache;
-            ColourGradientCache<ID2D1RadialGradientBrush> radialGradientCache;
-            std::unique_ptr<RectangleListSpriteBatch> rectangleListSpriteBatch;
-        };
+    void release()
+    {
+        rectangleListSpriteBatch = nullptr;
+        linearGradientCache = {};
+        radialGradientCache = {};
+        colourBrush = nullptr;
+        deviceContext.release();
+    }
 
-        //==============================================================================
-        //
-        // Swap chain
-        //
+    bool canPaint (DxgiAdapter::Ptr adapter) const
+    {
+        return adapter->direct2DDevice != nullptr && deviceContext.context != nullptr && colourBrush != nullptr;
+    }
 
-        class SwapChain
+    Direct2DDeviceContext deviceContext;
+    ComSmartPtr<ID2D1SolidColorBrush> colourBrush;
+    LinearGradientCache linearGradientCache;
+    RadialGradientCache radialGradientCache;
+    std::unique_ptr<RectangleListSpriteBatch> rectangleListSpriteBatch;
+};
+
+class SwapChain
+{
+public:
+    SwapChain() = default;
+
+    HRESULT create (HWND hwnd, Rectangle<int> size, DxgiAdapter::Ptr adapter)
+    {
+        if (chain != nullptr || hwnd == nullptr)
+            return S_OK;
+
+        SharedResourcePointer<DirectX> directX;
+        auto dxgiFactory = directX->adapters.getFactory();
+
+        if (dxgiFactory == nullptr || adapter->direct3DDevice == nullptr)
+            return E_FAIL;
+
+        buffer = nullptr;
+        chain = nullptr;
+
+        // Make the waitable swap chain
+        // Create the swap chain with premultiplied alpha support for transparent windows
+        DXGI_SWAP_CHAIN_DESC1 swapChainDescription = {};
+        swapChainDescription.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+        swapChainDescription.Width = (UINT) size.getWidth();
+        swapChainDescription.Height = (UINT) size.getHeight();
+        swapChainDescription.SampleDesc.Count = 1;
+        swapChainDescription.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        swapChainDescription.BufferCount = bufferCount;
+        swapChainDescription.SwapEffect = swapEffect;
+        swapChainDescription.Flags = swapChainFlags;
+
+        swapChainDescription.Scaling = DXGI_SCALING_STRETCH;
+        swapChainDescription.AlphaMode = DXGI_ALPHA_MODE_PREMULTIPLIED;
+
+        if (const auto hr = dxgiFactory->CreateSwapChainForComposition (adapter->direct3DDevice,
+                                                                        &swapChainDescription,
+                                                                        nullptr,
+                                                                        chain.resetAndGetPointerAddress());
+            FAILED (hr))
         {
-        public:
-            SwapChain() = default;
+            return hr;
+        }
 
-            ~SwapChain()
-            {
-                release();
-            }
+        // Get the waitable swap chain presentation event and set the maximum frame latency
+        ComSmartPtr<IDXGISwapChain2> chain2;
+        if (const auto hr = chain.QueryInterface (chain2); FAILED (hr))
+            return hr;
 
-            HRESULT create(HWND hwnd, Rectangle<int> size, DirectX::DXGI::Adapter::Ptr adapter)
-            {
-                if (!chain && hwnd)
-                {
-                    SharedResourcePointer<DirectX> directX;
-                    auto dxgiFactory = directX->dxgi.getFactory();
+        if (chain2 == nullptr)
+            return E_FAIL;
 
-                    if (dxgiFactory == nullptr || adapter->direct3DDevice == nullptr)
-                    {
-                        return E_FAIL;
-                    }
+        swapChainEvent.emplace (chain2->GetFrameLatencyWaitableObject());
+        if (swapChainEvent->getHandle() == INVALID_HANDLE_VALUE)
+            return E_NOINTERFACE;
 
-                    HRESULT hr = S_OK;
+        if (const auto hr = chain2->SetMaximumFrameLatency (1); SUCCEEDED (hr))
+            state = State::chainAllocated;
 
-                    buffer = nullptr;
-                    chain = nullptr;
+        return S_OK;
+    }
 
-                    //
-                    // Make the waitable swap chain
-                    //
-                    // Create the swap chain with premultiplied alpha support for transparent windows
-                    //
-                    DXGI_SWAP_CHAIN_DESC1 swapChainDescription = {};
-                    swapChainDescription.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-                    swapChainDescription.Width = (UINT) size.getWidth();
-                    swapChainDescription.Height = (UINT) size.getHeight();
-                    swapChainDescription.SampleDesc.Count = 1;
-                    swapChainDescription.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-                    swapChainDescription.BufferCount = bufferCount;
-                    swapChainDescription.SwapEffect = swapEffect;
-                    swapChainDescription.Flags = swapChainFlags;
+    HRESULT createBuffer (ComSmartPtr<ID2D1DeviceContext> deviceContext)
+    {
+        if (deviceContext == nullptr || chain == nullptr || buffer != nullptr)
+            return S_OK;
 
-                    swapChainDescription.Scaling = DXGI_SCALING_STRETCH;
-                    swapChainDescription.AlphaMode = DXGI_ALPHA_MODE_PREMULTIPLIED;
-                    hr = dxgiFactory->CreateSwapChainForComposition(adapter->direct3DDevice,
-                        &swapChainDescription,
-                        nullptr,
-                        chain.resetAndGetPointerAddress());
-                    jassert(SUCCEEDED(hr));
+        ComSmartPtr<IDXGISurface> surface;
+        JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wlanguage-extension-token")
+        if (const auto hr = chain->GetBuffer (0, __uuidof (surface), reinterpret_cast<void**> (surface.resetAndGetPointerAddress())); FAILED (hr))
+            return hr;
+        JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 
-                    if (SUCCEEDED(hr))
-                    {
-                        //
-                        // Get the waitable swap chain presentation event and set the maximum frame latency
-                        //
-                        ComSmartPtr<IDXGISwapChain2> chain2;
-                        chain.QueryInterface<IDXGISwapChain2>(chain2);
-                        if (chain2)
-                        {
-                            swapChainEvent.emplace(chain2->GetFrameLatencyWaitableObject());
-                            if (swapChainEvent->getHandle() == INVALID_HANDLE_VALUE)
-                                return E_NOINTERFACE;
+        D2D1_BITMAP_PROPERTIES1 bitmapProperties{};
+        bitmapProperties.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW;
+        bitmapProperties.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
+        bitmapProperties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
 
-                            hr = chain2->SetMaximumFrameLatency(1);
-                            if (SUCCEEDED(hr))
-                            {
-                                state = State::chainAllocated;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        return E_NOINTERFACE;
-                    }
+        if (const auto hr = deviceContext->CreateBitmapFromDxgiSurface (surface, bitmapProperties, buffer.resetAndGetPointerAddress()); FAILED (hr))
+            return hr;
 
-                    return hr;
-                }
+        state = State::bufferAllocated;
+        return S_OK;
+    }
 
-                return S_OK;
-            }
+    void release()
+    {
+        buffer = nullptr;
+        chain = nullptr;
+        state = State::idle;
+    }
 
-            HRESULT createBuffer(ID2D1DeviceContext* const deviceContext)
-            {
-                if (deviceContext && chain && !buffer)
-                {
-                    ComSmartPtr<IDXGISurface> surface;
-                    JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE("-Wlanguage-extension-token")
-                    auto hr = chain->GetBuffer(0, __uuidof (surface), reinterpret_cast<void**> (surface.resetAndGetPointerAddress()));
-                    JUCE_END_IGNORE_WARNINGS_GCC_LIKE
-                    if (SUCCEEDED(hr))
-                    {
-                        D2D1_BITMAP_PROPERTIES1 bitmapProperties = {};
-                        bitmapProperties.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW;
-                        bitmapProperties.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
-                        bitmapProperties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
+    bool canPaint() const
+    {
+        return chain != nullptr && buffer != nullptr && state >= State::bufferAllocated;
+    }
 
-                        hr = deviceContext->CreateBitmapFromDxgiSurface(surface, bitmapProperties, buffer.resetAndGetPointerAddress());
-                        jassert(SUCCEEDED(hr));
+    HRESULT resize (Rectangle<int> newSize, float dpiScalingFactor, ComSmartPtr<ID2D1DeviceContext> deviceContext)
+    {
+        if (chain == nullptr)
+            return E_FAIL;
 
-                        if (SUCCEEDED(hr))
-                        {
-                            state = State::bufferAllocated;
-                        }
-                    }
+        auto scaledSize = newSize * dpiScalingFactor;
+        scaledSize = scaledSize.getUnion ({ Direct2DGraphicsContext::minFrameSize, Direct2DGraphicsContext::minFrameSize })
+                               .getIntersection ({ Direct2DGraphicsContext::maxFrameSize, Direct2DGraphicsContext::maxFrameSize });
 
-                    return hr;
-                }
+        buffer = nullptr;
+        state = State::chainAllocated;
 
-                return S_OK;
-            }
+        auto dpi = USER_DEFAULT_SCREEN_DPI * dpiScalingFactor;
+        deviceContext->SetDpi (dpi, dpi);
 
-            void release()
-            {
-                buffer = nullptr;
-                chain = nullptr;
-                state = State::idle;
-            }
+        if (const auto hr = chain->ResizeBuffers (0, (UINT) scaledSize.getWidth(), (UINT) scaledSize.getHeight(), DXGI_FORMAT_B8G8R8A8_UNORM, swapChainFlags); FAILED (hr))
+            return hr;
 
-            bool canPaint()
-            {
-                return chain != nullptr && buffer != nullptr && state >= State::bufferAllocated;
-            }
-
-            HRESULT resize(Rectangle<int> newSize, float dpiScalingFactor, ID2D1DeviceContext* const deviceContext)
-            {
-                if (chain)
-                {
-                    auto scaledSize = newSize * dpiScalingFactor;
-                    scaledSize =
-                        scaledSize.getUnion({ Direct2DGraphicsContext::minFrameSize, Direct2DGraphicsContext::minFrameSize })
-                        .getIntersection({ Direct2DGraphicsContext::maxFrameSize, Direct2DGraphicsContext::maxFrameSize });
-
-                    buffer = nullptr;
-                    state = State::chainAllocated;
-
-                    auto dpi = USER_DEFAULT_SCREEN_DPI * dpiScalingFactor;
-                    deviceContext->SetDpi(dpi, dpi);
-
-                    auto hr = chain->ResizeBuffers(0, (UINT) scaledSize.getWidth(), (UINT) scaledSize.getHeight(), DXGI_FORMAT_B8G8R8A8_UNORM, swapChainFlags);
-                    if (SUCCEEDED(hr))
-                    {
-                        hr = createBuffer(deviceContext);
-                    }
-
-                    if (FAILED(hr))
-                    {
-                        release();
-                    }
-
-                    return hr;
-                }
-
-                return E_FAIL;
-            }
-
-            Rectangle<int> getSize() const
-            {
-                if (buffer)
-                {
-                    auto size = buffer->GetPixelSize();
-                    return { (int)size.width, (int)size.height };
-                }
-
-                return {};
-            }
-
-            DXGI_SWAP_EFFECT const                     swapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-            UINT const                                 bufferCount = 2;
-            uint32 const                               swapChainFlags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
-            uint32 const                               presentSyncInterval = 1;
-            uint32 const                               presentFlags = 0;
-            ComSmartPtr<IDXGISwapChain1>               chain;
-            ComSmartPtr<ID2D1Bitmap1>                  buffer;
-            std::optional<ScopedEvent> swapChainEvent;
-
-            enum class State
-            {
-                idle,
-                chainAllocated,
-                bufferAllocated,
-                bufferFilled
-            };
-            State state = State::idle;
-        };
-
-        //==============================================================================
-        //
-        // DirectComposition
-        //
-        // Using DirectComposition enables transparent windows and smoother window
-        // resizing
-        //
-        // This class builds a simple DirectComposition tree that ultimately contains
-        // the swap chain
-        //
-
-#define JUCE_EARLY_EXIT(expr) \
-    JUCE_BLOCK_WITH_FORCED_SEMICOLON ( if (const auto hr = (expr); ! SUCCEEDED (hr)) return hr; )
-
-        class CompositionTree
+        if (const auto hr = createBuffer (deviceContext); FAILED (hr))
         {
-        public:
-            HRESULT create(IDXGIDevice* const dxgiDevice, HWND hwnd, IDXGISwapChain1* const swapChain)
-            {
-                if (compositionDevice != nullptr)
-                    return S_OK;
+            release();
+            return hr;
+        }
 
-                if (dxgiDevice == nullptr)
-                    return S_FALSE;
+        return S_OK;
+    }
 
-                JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE("-Wlanguage-extension-token")
-                JUCE_EARLY_EXIT(DCompositionCreateDevice(dxgiDevice,
-                    __uuidof (IDCompositionDevice),
-                    reinterpret_cast<void**> (compositionDevice.resetAndGetPointerAddress())));
-                JUCE_END_IGNORE_WARNINGS_GCC_LIKE
-                JUCE_EARLY_EXIT(compositionDevice->CreateTargetForHwnd(hwnd, FALSE, compositionTarget.resetAndGetPointerAddress()));
-                JUCE_EARLY_EXIT(compositionDevice->CreateVisual(compositionVisual.resetAndGetPointerAddress()));
-                JUCE_EARLY_EXIT(compositionTarget->SetRoot(compositionVisual));
-                JUCE_EARLY_EXIT(compositionVisual->SetContent(swapChain));
-                JUCE_EARLY_EXIT(compositionDevice->Commit());
-                return S_OK;
-            }
+    Rectangle<int> getSize() const
+    {
+        if (buffer == nullptr)
+            return {};
 
-            void release()
-            {
-                compositionVisual = nullptr;
-                compositionTarget = nullptr;
-                compositionDevice = nullptr;
-            }
+        auto size = buffer->GetPixelSize();
+        return { (int) size.width, (int) size.height };
+    }
 
-            bool canPaint() const
-            {
-                return compositionVisual != nullptr;
-            }
+    DXGI_SWAP_EFFECT const swapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+    UINT const bufferCount = 2;
+    uint32 const swapChainFlags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+    uint32 const presentSyncInterval = 1;
+    uint32 const presentFlags = 0;
+    ComSmartPtr<IDXGISwapChain1> chain;
+    ComSmartPtr<ID2D1Bitmap1> buffer;
+    std::optional<WindowsScopedEvent> swapChainEvent;
 
-        private:
-            ComSmartPtr<IDCompositionDevice> compositionDevice;
-            ComSmartPtr<IDCompositionTarget> compositionTarget;
-            ComSmartPtr<IDCompositionVisual> compositionVisual;
-        };
+    enum class State
+    {
+        idle,
+        chainAllocated,
+        bufferAllocated,
+        bufferFilled
+    };
+    State state = State::idle;
+};
 
-#undef JUCE_EARLY_EXIT
+//==============================================================================
+/*  DirectComposition
+    Using DirectComposition enables transparent windows and smoother window
+    resizing
 
-    } // namespace direct2d
+    This class builds a simple DirectComposition tree that ultimately contains
+    the swap chain
+*/
+class CompositionTree
+{
+public:
+    HRESULT create (IDXGIDevice* const dxgiDevice, HWND hwnd, IDXGISwapChain1* const swapChain)
+    {
+        if (compositionDevice != nullptr)
+            return S_OK;
+
+        if (dxgiDevice == nullptr)
+            return E_FAIL;
+
+        JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wlanguage-extension-token")
+        if (const auto hr = DCompositionCreateDevice (dxgiDevice,
+                                                      __uuidof (IDCompositionDevice),
+                                                      reinterpret_cast<void**> (compositionDevice.resetAndGetPointerAddress()));
+            FAILED (hr))
+        {
+            return hr;
+        }
+        JUCE_END_IGNORE_WARNINGS_GCC_LIKE
+
+        if (const auto hr = compositionDevice->CreateTargetForHwnd (hwnd, FALSE, compositionTarget.resetAndGetPointerAddress()); FAILED (hr))
+            return hr;
+        if (const auto hr = compositionDevice->CreateVisual (compositionVisual.resetAndGetPointerAddress()); FAILED (hr))
+            return hr;
+        if (const auto hr = compositionTarget->SetRoot (compositionVisual); FAILED (hr))
+            return hr;
+        if (const auto hr = compositionVisual->SetContent (swapChain); FAILED (hr))
+            return hr;
+        if (const auto hr = compositionDevice->Commit(); FAILED (hr))
+            return hr;
+
+        return S_OK;
+    }
+
+    void release()
+    {
+        compositionVisual = nullptr;
+        compositionTarget = nullptr;
+        compositionDevice = nullptr;
+    }
+
+    bool canPaint() const
+    {
+        return compositionVisual != nullptr;
+    }
+
+private:
+    ComSmartPtr<IDCompositionDevice> compositionDevice;
+    ComSmartPtr<IDCompositionTarget> compositionTarget;
+    ComSmartPtr<IDCompositionVisual> compositionVisual;
+};
 
 } // namespace juce

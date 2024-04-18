@@ -1,616 +1,580 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifdef __INTELLISENSE__
-
-#define JUCE_CORE_INCLUDE_COM_SMART_PTR 1
-#define JUCE_WINDOWS                    1
-
-#include <d2d1_3.h>
-#include <d3d11_1.h>
-#include <dcomp.h>
-#include <dwrite.h>
-#include <juce_core/juce_core.h>
-#include <juce_graphics/juce_graphics.h>
-#include <windows.h>
-#include "juce_ETW_windows.h"
-#include "juce_DirectX_windows.h"
-#include "juce_Direct2DImage_windows.h"
-
-#endif
-
 namespace juce
 {
 
-    //==============================================================================
-    //
-    // Direct2D pixel data
-    //
-
-    Direct2DPixelData::Direct2DPixelData(Image::PixelFormat formatToUse,
-        direct2d::DPIScalableArea<int> area_,
-        bool clearImage_,
-        DirectX::DXGI::Adapter::Ptr adapter_)
-        : ImagePixelData(formatToUse,
-            area_.getDeviceIndependentWidth(),
-            area_.getDeviceIndependentHeight()),
-        deviceIndependentClipArea(area_.withZeroOrigin().getDeviceIndependentArea()),
-        imageAdapter(adapter_),
-        bitmapArea(area_.withZeroOrigin()),
-        pixelStride((formatToUse == Image::SingleChannel) ? 1 : 4),
-        lineStride((pixelStride* jmax(1, width) + 3) & ~3),
-        clearImage(clearImage_)
+class NativeReadOnlyDataReleaser : public Image::BitmapData::BitmapDataReleaser
+{
+public:
+    NativeReadOnlyDataReleaser (Image::PixelFormat pixelFormat,
+                                int lineStride,
+                                int w,
+                                int h,
+                                ComSmartPtr<ID2D1DeviceContext1> deviceContextIn,
+                                ComSmartPtr<ID2D1Bitmap1> sourceBitmap,
+                                Point<int> offset)
+        : bitmap (Direct2DBitmap::createBitmap (deviceContextIn,
+                                                pixelFormat,
+                                                { (UINT32) w, (UINT32) h },
+                                                lineStride,
+                                                D2D1_BITMAP_OPTIONS_CPU_READ | D2D1_BITMAP_OPTIONS_CANNOT_DRAW))
     {
-        createAdapterBitmap();
+        const D2D1_POINT_2U destPoint { 0, 0 };
+        const Rectangle fullRect { w, h };
+        const auto sourceRect = D2DUtilities::toRECT_U (fullRect.getIntersection (fullRect.withPosition (offset)));
 
-        directX->dxgi.adapters.listeners.add(this);
+        if (auto hr = bitmap->CopyFromBitmap (&destPoint, sourceBitmap, &sourceRect); FAILED (hr))
+            return;
+
+        D2D1_MAPPED_RECT mappedRect{};
+        bitmap->Map (D2D1_MAP_OPTIONS_READ, &mappedRect);
+        data = mappedRect.bits;
+        pitch = mappedRect.pitch;
     }
 
-    Direct2DPixelData::Direct2DPixelData(ReferenceCountedObjectPtr<Direct2DPixelData> source_,
-        Rectangle<int> clipArea_,
-        DirectX::DXGI::Adapter::Ptr adapter_)
-        : ImagePixelData(source_->pixelFormat, clipArea_.getWidth(), clipArea_.getHeight()),
-        deviceIndependentClipArea(clipArea_ + source_->deviceIndependentClipArea.getPosition()),
-        imageAdapter(adapter_),
-        bitmapArea(source_->bitmapArea.withZeroOrigin()),
-        pixelStride(source_->pixelStride),
-        lineStride(source_->lineStride),
-        clearImage(false),
-        adapterBitmap(source_->adapterBitmap)
+    ~NativeReadOnlyDataReleaser() override
     {
-        createAdapterBitmap();
-
-        directX->dxgi.adapters.listeners.add(this);
+        bitmap->Unmap();
     }
 
-    Direct2DPixelData::Direct2DPixelData(Image::PixelFormat formatToUse,
-        direct2d::DPIScalableArea<int> area_,
-        bool clearImage_,
-        ID2D1Bitmap1* d2d1Bitmap,
-        DirectX::DXGI::Adapter::Ptr adapter_)
-        : ImagePixelData(formatToUse,
-            area_.getDeviceIndependentWidth(),
-            area_.getDeviceIndependentHeight()),
-        deviceIndependentClipArea(area_.getDeviceIndependentArea()),
-        imageAdapter(adapter_),
-        bitmapArea(area_.withZeroOrigin()),
-        pixelStride(4),
-        lineStride((pixelStride* jmax(1, width) + 3) & ~3),
-        clearImage(clearImage_)
+    auto getData() const
     {
-        if (!imageAdapter || !imageAdapter->direct2DDevice)
-        {
-            imageAdapter = directX->dxgi.adapters.getDefaultAdapter();
-        }
-
-        deviceResources.create(imageAdapter, getDPIScalingFactor());
-
-        adapterBitmap.setD2D1Bitmap(d2d1Bitmap);
-
-        directX->dxgi.adapters.listeners.add(this);
+        return data;
     }
 
-    Direct2DPixelData::~Direct2DPixelData()
+    auto getPitch() const
     {
-        directX->dxgi.adapters.listeners.remove(this);
+        return pitch;
     }
 
-    bool Direct2DPixelData::isValid() const noexcept
+private:
+    ComSmartPtr<ID2D1Bitmap1> bitmap;
+    BYTE* data = nullptr;
+    UINT32 pitch = 0;
+};
+
+class SoftwareDataReleaser : public Image::BitmapData::BitmapDataReleaser
+{
+public:
+    SoftwareDataReleaser (std::unique_ptr<Image::BitmapData::BitmapDataReleaser> r,
+                          Image backupIn,
+                          ComSmartPtr<ID2D1Bitmap1> nativeBitmapIn,
+                          Image::BitmapData::ReadWriteMode modeIn,
+                          D2D1_RECT_U targetRectIn)
+        : oldReleaser (std::move (r)),
+          backup (std::move (backupIn)),
+          nativeBitmap (nativeBitmapIn),
+          targetRect (targetRectIn),
+          mode (modeIn)
     {
-        return imageAdapter && imageAdapter->direct2DDevice && adapterBitmap.getD2D1Bitmap() != nullptr;
     }
 
-    void Direct2DPixelData::createAdapterBitmap()
+    static void flushImage (Image softwareImage, ComSmartPtr<ID2D1Bitmap1> native, D2D1_RECT_U target)
     {
-        if (!imageAdapter || !imageAdapter->direct2DDevice)
-            imageAdapter = directX->dxgi.adapters.getDefaultAdapter();
+        if (softwareImage.getFormat() == Image::PixelFormat::RGB)
+            softwareImage = softwareImage.convertedToFormat (Image::PixelFormat::ARGB);
 
-        deviceResources.create(imageAdapter, getDPIScalingFactor());
-        adapterBitmap.create(deviceResources.deviceContext.context, pixelFormat, bitmapArea, lineStride, clearImage);
+        const Image::BitmapData bitmapData { softwareImage,
+                                             (int) target.left,
+                                             (int) target.top,
+                                             (int) (target.right - target.left),
+                                             (int) (target.bottom - target.top),
+                                             Image::BitmapData::readOnly };
+        const auto hr = native->CopyFromMemory (&target, bitmapData.data, (UINT32) bitmapData.lineStride);
+        jassertquiet (SUCCEEDED (hr));
     }
 
-    void Direct2DPixelData::release()
+    ~SoftwareDataReleaser() override
     {
-        if (adapterBitmap.getD2D1Bitmap())
-        {
-            listeners.call(&Listener::imageDataBeingDeleted, this);
-        }
+        // Ensure that writes to the backup bitmap have been flushed before reading from it
+        oldReleaser = nullptr;
 
-        imageAdapter = nullptr;
-        deviceResources.release();
-        adapterBitmap.release();
-
-        for (auto bitmap : mappableBitmaps)
-        {
-            bitmap->release();
-        }
+        if (mode != Image::BitmapData::ReadWriteMode::readOnly)
+            flushImage (backup, nativeBitmap, targetRect);
     }
 
-    int64 Direct2DPixelData::getEffectImageHash() const noexcept
+private:
+    std::unique_ptr<Image::BitmapData::BitmapDataReleaser> oldReleaser;
+    Image backup;
+    ComSmartPtr<ID2D1Bitmap1> nativeBitmap;
+    D2D1_RECT_U targetRect{};
+    Image::BitmapData::ReadWriteMode mode{};
+};
+
+ComSmartPtr<ID2D1Bitmap1> Direct2DPixelData::createAdapterBitmap() const
+{
+    auto bitmap = Direct2DBitmap::createBitmap (context,
+                                                pixelFormat,
+                                                { (UINT32) width, (UINT32) height },
+                                                getLineStride(),
+                                                D2D1_BITMAP_OPTIONS_TARGET);
+
+    // The bitmap may be slightly too large due
+    // to DPI scaling, so fill it with transparent black
+    if (bitmap == nullptr || ! clearImage)
+        return bitmap;
+
+    context->SetTarget (bitmap);
+    context->BeginDraw();
+    context->Clear();
+    context->EndDraw();
+    context->SetTarget (nullptr);
+
+    return bitmap;
+}
+
+void Direct2DPixelData::createDeviceResources()
+{
+    if (adapter == nullptr)
+        adapter = directX->adapters.getDefaultAdapter();
+
+    if (context == nullptr)
+        context = Direct2DDeviceContext::createContext (adapter);
+
+    if (nativeBitmap == nullptr)
     {
-        auto hash = 0xd2d000000000000ll;
-        hash |= width;
-        hash |= (int64)height << 24;
-        return hash;
+        nativeBitmap = createAdapterBitmap();
+
+        if (backup.isValid())
+            SoftwareDataReleaser::flushImage (backup, nativeBitmap, { 0, 0, (UINT32) width, (UINT32) height });
+    }
+}
+
+void Direct2DPixelData::initBitmapDataReadOnly (Image::BitmapData& bitmap, int x, int y)
+{
+    const auto pixelStride = getPixelStride();
+    const auto lineStride = getLineStride();
+
+    const auto offset = (size_t) x * (size_t) pixelStride + (size_t) y * (size_t) lineStride;
+    bitmap.pixelFormat = pixelFormat;
+    bitmap.pixelStride = pixelStride;
+    bitmap.lineStride = lineStride;
+    bitmap.size = (size_t) (height * lineStride) - offset;
+
+    JUCE_TRACE_LOG_D2D_IMAGE_MAP_DATA;
+
+    auto releaser = std::make_unique<NativeReadOnlyDataReleaser> (pixelFormat,
+                                                                  lineStride,
+                                                                  width,
+                                                                  height,
+                                                                  context,
+                                                                  getAdapterD2D1Bitmap(),
+                                                                  Point { x, y });
+    bitmap.data = releaser->getData();
+    bitmap.lineStride = (int) releaser->getPitch();
+    bitmap.dataReleaser = std::move (releaser);
+}
+
+auto Direct2DPixelData::make (Image::PixelFormat formatToUse,
+                              int widthIn,
+                              int heightIn,
+                              bool clearImageIn,
+                              DxgiAdapter::Ptr adapterIn) -> Ptr
+{
+    return new Direct2DPixelData (formatToUse, widthIn, heightIn, clearImageIn, adapterIn);
+}
+
+auto Direct2DPixelData::fromDirect2DBitmap (ComSmartPtr<ID2D1Bitmap1> bitmap) -> Ptr
+{
+    const auto size = bitmap->GetPixelSize();
+    return new Direct2DPixelData { Image::ARGB, (int) size.width, (int) size.height, false, nullptr };
+}
+
+Direct2DPixelData::Direct2DPixelData (Image::PixelFormat f, int widthIn, int heightIn, bool clear, DxgiAdapter::Ptr adapterIn)
+    : ImagePixelData (f, widthIn, heightIn),
+      clearImage (clear),
+      adapter (adapterIn != nullptr ? adapterIn : directX->adapters.getDefaultAdapter())
+{
+    directX->adapters.addListener (*this);
+}
+
+Direct2DPixelData::~Direct2DPixelData()
+{
+    directX->adapters.removeListener (*this);
+}
+
+std::unique_ptr<LowLevelGraphicsContext> Direct2DPixelData::createLowLevelContext()
+{
+    sendDataChangeMessage();
+
+    return std::make_unique<Direct2DImageContext> (this);
+}
+
+void Direct2DPixelData::initialiseBitmapData (Image::BitmapData& bitmap, int x, int y, Image::BitmapData::ReadWriteMode mode)
+{
+    JUCE_TRACE_LOG_D2D_IMAGE_MAP_DATA;
+
+    // The native format matches the JUCE format, and there's no need to write from CPU->GPU, so
+    // map the GPU memory as read-only and return that.
+    if (mode == Image::BitmapData::ReadWriteMode::readOnly && pixelFormat != Image::PixelFormat::RGB)
+    {
+        initBitmapDataReadOnly (bitmap, x, y);
+        return;
     }
 
-    ReferenceCountedObjectPtr<Direct2DPixelData> Direct2DPixelData::fromDirect2DBitmap(ID2D1Bitmap1* const bitmap,
-        direct2d::DPIScalableArea<int> area)
+    // The native format does not match the JUCE format, or the user wants to read the current state of the image.
+    // If the user wants to read the image, then we'll need to copy it to CPU memory.
+    if (mode != Image::BitmapData::ReadWriteMode::writeOnly)
     {
-        Direct2DPixelData::Ptr pixelData = new Direct2DPixelData{ Image::ARGB, area, false };
-        pixelData->adapterBitmap.setD2D1Bitmap(bitmap);
-        return pixelData;
+        // Store the previous width and height, and set up the BitmapData to cover the entire image area
+        const auto oldW = std::exchange (bitmap.width, width);
+        const auto oldH = std::exchange (bitmap.height, height);
+
+        // Map the image as read-only.
+        initBitmapDataReadOnly (bitmap, 0, 0);
+        // Copy the mapped image to CPU memory in the correct format.
+        backup = BitmapDataDetail::convert (bitmap, SoftwareImageType{});
+        // Unmap the image (important, the BitmapData is reused later on).
+        bitmap.dataReleaser = {};
+
+        // Reset the initial width and height
+        bitmap.width  = oldW;
+        bitmap.height = oldH;
     }
 
-    std::unique_ptr<LowLevelGraphicsContext> Direct2DPixelData::createLowLevelContext()
+    // If the user doesn't want to read from the image, then we may need to create a blank image that they can write to.
+    if (! backup.isValid())
+        backup = Image { SoftwareImageType{}.create (pixelFormat, width, height, false) };
+
+    // Redirect the BitmapData to our backup software image.
+    backup.getPixelData()->initialiseBitmapData (bitmap, x, y, mode);
+
+    // When this dataReleaser is destroyed, then if the mode is not read-only, image data will be copied
+    // from the software image to GPU memory.
+    bitmap.dataReleaser = std::make_unique<SoftwareDataReleaser> (std::move (bitmap.dataReleaser),
+                                                                  backup,
+                                                                  getAdapterD2D1Bitmap(),
+                                                                  mode,
+                                                                  D2D1_RECT_U { (UINT32) x, (UINT32) y, (UINT32) width, (UINT32) height });
+}
+
+void Direct2DPixelData::flushToSoftwareBackup()
+{
+    backup = SoftwareImageType{}.convert (Image { this });
+}
+
+ImagePixelData::Ptr Direct2DPixelData::clone()
+{
+    auto cloned = make (pixelFormat, width, height, false, nullptr);
+
+    if (cloned == nullptr)
+        return {};
+
+    cloned->backup = backup.createCopy();
+
+    const D2D1_POINT_2U destinationPoint { 0, 0 };
+    const auto sourceRectU = D2DUtilities::toRECT_U (Rectangle { width, height });
+    const auto sourceD2D1Bitmap = getAdapterD2D1Bitmap();
+    const auto destinationD2D1Bitmap = cloned->getAdapterD2D1Bitmap();
+
+    if (sourceD2D1Bitmap == nullptr || destinationD2D1Bitmap == nullptr)
+        return {};
+
+    if (const auto hr = destinationD2D1Bitmap->CopyFromBitmap (&destinationPoint, sourceD2D1Bitmap, &sourceRectU); FAILED (hr))
     {
-        sendDataChangeMessage();
-
-        createAdapterBitmap();
-
-        auto bitmap = getAdapterD2D1Bitmap(imageAdapter);
-        jassert(bitmap);
-
-        auto context = std::make_unique<Direct2DImageContext>(imageAdapter);
-        context->startFrame(bitmap, getDPIScalingFactor());
-        context->clipToRectangle(deviceIndependentClipArea);
-        context->setOrigin(deviceIndependentClipArea.getPosition());
-        return context;
-    }
-
-    ID2D1Bitmap1* Direct2DPixelData::getAdapterD2D1Bitmap(DirectX::DXGI::Adapter::Ptr adapter)
-    {
-        jassert(adapter && adapter->direct2DDevice);
-
-        if (!imageAdapter || !imageAdapter->direct2DDevice || imageAdapter->direct2DDevice != adapter->direct2DDevice)
-        {
-            release();
-
-            imageAdapter = adapter;
-
-            createAdapterBitmap();
-        }
-
-        jassert(imageAdapter && imageAdapter->direct2DDevice);
-        jassert(adapter->direct2DDevice == imageAdapter->direct2DDevice);
-
-        return adapterBitmap.getD2D1Bitmap();
-    }
-
-    void Direct2DPixelData::initialiseBitmapData(Image::BitmapData& bitmap, int x, int y, Image::BitmapData::ReadWriteMode mode)
-    {
-        TRACE_LOG_D2D_IMAGE_MAP_DATA;
-
-        x += deviceIndependentClipArea.getX();
-        y += deviceIndependentClipArea.getY();
-
-        //
-        // Use a mappable Direct2D bitmap to read the contents of the bitmap from the CPU back to the CPU
-        //
-        // Mapping the bitmap to the CPU means this class can read the pixel data, but the mappable bitmap
-        // cannot be a render target
-        //
-        // So - the Direct2D image low-level graphics context allocates two bitmaps - the adapter bitmap and the mappable bitmap.
-        // initialiseBitmapData copies the contents of the adapter bitmap to the mappable bitmap, then maps that mappable bitmap to the
-        // CPU.
-        //
-        // Ultimately the data releaser copies the bitmap data from the CPU back to the GPU
-        //
-        // Adapter bitmap -> mappable bitmap -> mapped bitmap data -> adapter bitmap
-        //
-        bitmap.size = 0;
-        bitmap.pixelFormat = pixelFormat;
-        bitmap.pixelStride = pixelStride;
-        bitmap.data = nullptr;
-
-        auto mappableBitmap = new MappableBitmap{};
-
-        if (auto sourceBitmap = getAdapterD2D1Bitmap(imageAdapter))
-        {
-            mappableBitmap->createAndMap(sourceBitmap,
-                pixelFormat,
-                Rectangle<int>{ x, y, width, height },
-                deviceResources.deviceContext.context,
-                deviceIndependentClipArea,
-                getDPIScalingFactor(),
-                lineStride);
-            mappableBitmaps.add(mappableBitmap);
-        }
-
-        bitmap.lineStride = (int)mappableBitmap->mappedRect.pitch;
-        bitmap.data = mappableBitmap->mappedRect.bits;
-        bitmap.size = (size_t)mappableBitmap->mappedRect.pitch * (size_t)height;
-
-        if (pixelFormat == Image::RGB && bitmap.data)
-        {
-            //
-            // Direct2D doesn't support RGB formats, but some legacy code assumes that the pixel stride is 3.
-            // Convert the ARGB data to RGB
-            // The alpha mode should be set to D2D1_ALPHA_MODE_IGNORE, so the alpha value can be skipped.
-            //
-            mappableBitmap->rgbProxyImage = SoftwareImageType{}.convertFromBitmapData(bitmap);
-            mappableBitmap->rgbProxyBitmapData = std::make_unique<Image::BitmapData>(mappableBitmap->rgbProxyImage, mode);
-
-            //
-            // Change the bitmap data to refer to the RGB proxy
-            //
-            bitmap.pixelStride = mappableBitmap->rgbProxyBitmapData->pixelStride;
-            bitmap.lineStride = mappableBitmap->rgbProxyBitmapData->lineStride;
-            bitmap.data = mappableBitmap->rgbProxyBitmapData->data;
-            bitmap.size = mappableBitmap->rgbProxyBitmapData->size;
-        }
-
-        auto bitmapDataScaledArea = direct2d::DPIScalableArea<int>::fromDeviceIndependentArea({ bitmap.width, bitmap.height }, getDPIScalingFactor());
-        bitmap.width = bitmapDataScaledArea.getPhysicalArea().getWidth();
-        bitmap.height = bitmapDataScaledArea.getPhysicalArea().getHeight();
-
-        bitmap.dataReleaser = std::make_unique<Direct2DBitmapReleaser>(*this, mappableBitmap, mode);
-
-        if (mode != Image::BitmapData::readOnly) sendDataChangeMessage();
-    }
-
-    ImagePixelData::Ptr Direct2DPixelData::clone()
-    {
-        auto sourceArea = direct2d::DPIScalableArea<int>::fromDeviceIndependentArea(deviceIndependentClipArea, getDPIScalingFactor());
-        sourceArea.clipToPhysicalArea(bitmapArea.getPhysicalArea());
-
-        auto clone = new Direct2DPixelData{ pixelFormat,
-            sourceArea,
-            false,
-            imageAdapter };
-
-        D2D1_POINT_2U destinationPoint{ 0, 0 };
-        auto sourceRectU = sourceArea.getPhysicalAreaD2DRectU();
-        auto sourceD2D1Bitmap = getAdapterD2D1Bitmap(imageAdapter);
-        auto destinationD2D1Bitmap = clone->getAdapterD2D1Bitmap(imageAdapter);
-        if (sourceD2D1Bitmap && destinationD2D1Bitmap)
-        {
-            auto hr = destinationD2D1Bitmap->CopyFromBitmap(&destinationPoint, sourceD2D1Bitmap, &sourceRectU);
-            jassertquiet(SUCCEEDED(hr));
-            if (SUCCEEDED(hr))
-            {
-                return clone;
-            }
-        }
-
-        return nullptr;
-    }
-
-    ImagePixelData::Ptr Direct2DPixelData::clip(Rectangle<int> sourceArea)
-    {
-        sourceArea = sourceArea.getIntersection({ width, height });
-
-        return new Direct2DPixelData{ this,
-            sourceArea,
-            imageAdapter };
-    }
-
-    float Direct2DPixelData::getDPIScalingFactor() const noexcept
-    {
-        return bitmapArea.getDPIScalingFactor();
-    }
-
-    std::optional<Image> Direct2DPixelData::applyGaussianBlurEffect(float radius, [[maybe_unused]] int frameNumber)
-    {
-        SCOPED_TRACE_EVENT(etw::nativeDropShadow, frameNumber, etw::graphicsKeyword);
-
-        ComSmartPtr<ID2D1Effect> effect;
-
-        if (deviceResources.deviceContext.context)
-        {
-            deviceResources.deviceContext.context->CreateEffect(CLSID_D2D1GaussianBlur, effect.resetAndGetPointerAddress());
-            if (effect)
-            {
-                effect->SetInput(0, getAdapterD2D1Bitmap(imageAdapter));
-                effect->SetValue(D2D1_GAUSSIANBLUR_PROP_STANDARD_DEVIATION, radius / 8.0f);
-                return applyNativeEffect(effect);
-            }
-        }
-
+        jassertfalse;
         return {};
     }
 
-    std::optional<Image> Direct2DPixelData::applyNativeEffect(ID2D1Effect* effect)
+    return cloned;
+}
+
+void Direct2DPixelData::applyGaussianBlurEffect (float radius, Image& result)
+{
+    // The result must be a separate image!
+    jassert (result.getPixelData() != this);
+
+    if (context == nullptr)
     {
-        auto hash = getEffectImageHash();
-        auto outputImage = ImageCache::getFromHashCode(hash);
-        if (outputImage.isNull())
-        {
-            outputImage = Image{ Image::ARGB, width,height, false };
-            ImageCache::addImageToCache(outputImage, hash);
-        }
-
-        applyNativeEffect(effect, outputImage);
-
-        return outputImage;
+        result = {};
+        return;
     }
 
-    void Direct2DPixelData::applyNativeEffect(ID2D1Effect* effect, Image& destImage)
+    ComSmartPtr<ID2D1Effect> effect;
+    if (const auto hr = context->CreateEffect (CLSID_D2D1GaussianBlur, effect.resetAndGetPointerAddress());
+        FAILED (hr) || effect == nullptr)
     {
-        auto outputPixelData = dynamic_cast<Direct2DPixelData*>(destImage.getPixelData());
-        if (auto outputDataContext = outputPixelData->deviceResources.deviceContext.context)
-        {
-            outputDataContext->SetTarget(outputPixelData->getAdapterD2D1Bitmap(imageAdapter));
-            outputDataContext->BeginDraw();
-            outputDataContext->Clear();
-            outputDataContext->DrawImage(effect);
-            outputDataContext->EndDraw();
-            outputDataContext->SetTarget(nullptr);
-        }
+        result = {};
+        return;
     }
 
-    std::unique_ptr<ImageType> Direct2DPixelData::createType() const
+    effect->SetInput (0, getAdapterD2D1Bitmap());
+    effect->SetValue (D2D1_GAUSSIANBLUR_PROP_STANDARD_DEVIATION, radius / 3.0f);
+
+    const auto tie = [] (const auto& x) { return std::tuple (x.pixelFormat, x.width, x.height); };
+    const auto originalPixelData = dynamic_cast<Direct2DPixelData*> (result.getPixelData());
+
+    if (originalPixelData == nullptr || tie (*this) != tie (*originalPixelData))
+        result = Image { make (pixelFormat, width, height, false, adapter) };
+
+    const auto outputPixelData = dynamic_cast<Direct2DPixelData*> (result.getPixelData());
+
+    if (outputPixelData == nullptr)
     {
-        return std::make_unique<NativeImageType>(getDPIScalingFactor());
+        result = {};
+        return;
     }
 
-    void Direct2DPixelData::adapterCreated(DirectX::DXGI::Adapter::Ptr adapter)
-    {
-        if (!imageAdapter || imageAdapter->uniqueIDMatches(adapter))
-        {
-            release();
+    outputPixelData->createDeviceResources();
+    auto outputDataContext = outputPixelData->context;
 
-            imageAdapter = adapter;
-        }
+    if (outputDataContext == nullptr)
+    {
+        result = {};
+        return;
     }
 
-    void Direct2DPixelData::adapterRemoved(DirectX::DXGI::Adapter::Ptr adapter)
+    outputDataContext->SetTarget (outputPixelData->getAdapterD2D1Bitmap());
+    outputDataContext->BeginDraw();
+    outputDataContext->Clear();
+    outputDataContext->DrawImage (effect);
+    outputDataContext->EndDraw();
+    outputDataContext->SetTarget (nullptr);
+}
+
+std::unique_ptr<ImageType> Direct2DPixelData::createType() const
+{
+    return std::make_unique<NativeImageType>();
+}
+
+void Direct2DPixelData::adapterCreated (DxgiAdapter::Ptr)
+{
+}
+
+void Direct2DPixelData::adapterRemoved (DxgiAdapter::Ptr)
+{
+    adapter = nullptr;
+    context = nullptr;
+    nativeBitmap = nullptr;
+}
+
+ComSmartPtr<ID2D1Bitmap1> Direct2DPixelData::getAdapterD2D1Bitmap()
+{
+    createDeviceResources();
+    return nativeBitmap;
+}
+
+//==============================================================================
+ImagePixelData::Ptr NativeImageType::create (Image::PixelFormat format, int width, int height, bool clearImage) const
+{
+    SharedResourcePointer<DirectX> directX;
+
+    if (directX->adapters.getFactory() == nullptr)
     {
-        if (imageAdapter && imageAdapter->uniqueIDMatches(adapter))
-        {
-            release();
-        }
+        // Make sure the DXGI factory exists
+        //
+        // The caller may be trying to create an Image from a static variable; if this is a DLL, then this is
+        // probably called from DllMain. You can't create a DXGI factory from DllMain, so fall back to a
+        // software image.
+        return new SoftwarePixelData { format, width, height, clearImage };
     }
 
-    Direct2DPixelData::Direct2DBitmapReleaser::Direct2DBitmapReleaser(Direct2DPixelData& pixelData_, ReferenceCountedObjectPtr<MappableBitmap> mappableBitmap_, Image::BitmapData::ReadWriteMode mode_)
-        : pixelData(pixelData_),
-        mappableBitmap(mappableBitmap_),
-        mode(mode_)
-    {
-    }
+    return Direct2DPixelData::make (format, width, height, clearImage, nullptr);
+}
 
-    Direct2DPixelData::Direct2DBitmapReleaser::~Direct2DBitmapReleaser()
-    {
-        TRACE_LOG_D2D_IMAGE_UNMAP_DATA;
-
-        mappableBitmap->unmap(pixelData.adapterBitmap.getD2D1Bitmap(), mode);
-        pixelData.mappableBitmaps.removeObject(mappableBitmap);
-    }
-
-    //==============================================================================
-    //
-    // Direct2D native image type
-    //
-
-    ImagePixelData::Ptr NativeImageType::create(Image::PixelFormat format, int width, int height, bool clearImage) const
-    {
-        SharedResourcePointer<DirectX> directX;
-        if (!directX->dxgi.isReady())
-        {
-            //
-            // Make sure the DXGI factory exists
-            //
-            // The caller may be trying to create an Image from a static variable; if this is a DLL, then this is
-            // probably called from DllMain. You can't create a DXGI factory from DllMain, so fall back to a
-            // software image.
-            //
-            return new SoftwarePixelData{ format, width, height, clearImage };
-        }
-
-        auto area = direct2d::DPIScalableArea<int>::fromDeviceIndependentArea({ width, height }, scaleFactor);
-        return new Direct2DPixelData{ format, area, clearImage };
-    }
-
-    //==============================================================================
-    //
-    // Unit test
-    //
-
+//==============================================================================
+//==============================================================================
 #if JUCE_UNIT_TESTS
 
-    class Direct2DImageUnitTest final : public UnitTest
+class Direct2DImageUnitTest final : public UnitTest
+{
+public:
+    Direct2DImageUnitTest()
+        : UnitTest ("Direct2DImageUnitTest", UnitTestCategories::graphics)
     {
-    public:
-        Direct2DImageUnitTest()
-            : UnitTest("Direct2DImageUnitTest", UnitTestCategories::graphics)
+        compareFunctions[{ Image::RGB, Image::RGB }] = [] (uint8* rgb1, uint8* rgb2)
         {
-            compareFunctions[{Image::RGB, Image::RGB}] = [](uint8* rgb1, uint8* rgb2)
-                {
-                    return rgb1[0] == rgb2[0] &&
-                        rgb1[1] == rgb2[1] &&
-                        rgb1[2] == rgb2[2];
-                };
+            return rgb1[0] == rgb2[0] && rgb1[1] == rgb2[1] && rgb1[2] == rgb2[2];
+        };
 
-            compareFunctions[{Image::RGB, Image::ARGB}] = [](uint8* rgb, uint8* argb)
-                {
-                    //
-                    // Compare bytes directly to avoid alpha premultiply issues
-                    //
-                    return rgb[0] == argb[0] &&  // blue
-                        rgb[1] == argb[1] && // green
-                        rgb[2] == argb[2]; // red
-                };
+        compareFunctions[{ Image::RGB, Image::ARGB }] = [] (uint8* rgb, uint8* argb)
+        {
+            // Compare bytes directly to avoid alpha premultiply issues
+            return rgb[0] == argb[0] && // blue
+                   rgb[1] == argb[1] && // green
+                   rgb[2] == argb[2]; // red
+        };
 
-            compareFunctions[{Image::RGB, Image::SingleChannel}] = [](uint8*, uint8* singleChannel)
-                {
-                    return *singleChannel == 0xff;
-                };
+        compareFunctions[{ Image::RGB, Image::SingleChannel }] = [] (uint8*, uint8* singleChannel)
+        {
+            return *singleChannel == 0xff;
+        };
 
+        compareFunctions[{ Image::ARGB, Image::RGB }] = [] (uint8* argb, uint8* rgb)
+        {
+            // Compare bytes directly to avoid alpha premultiply issues
+            return argb[0] == rgb[0] && argb[1] == rgb[1] && argb[2] == rgb[2];
+        };
 
-            compareFunctions[{Image::ARGB, Image::RGB}] = [](uint8* argb, uint8* rgb)
-                {
-                    //
-                    // Compare bytes directly to avoid alpha premultiply issues
-                    //
-                    return argb[0] == rgb[0] &&
-                        argb[1] == rgb[1] &&
-                        argb[2] == rgb[2];
-                };
+        compareFunctions[{ Image::ARGB, Image::ARGB }] = [] (uint8* argb1, uint8* argb2)
+        {
+            return *reinterpret_cast<uint32*> (argb1) == *reinterpret_cast<uint32*> (argb2);
+        };
 
-            compareFunctions[{Image::ARGB, Image::ARGB}] = [](uint8* argb1, uint8* argb2)
-                {
-                    return *reinterpret_cast<uint32*>(argb1) == *reinterpret_cast<uint32*>(argb2);
-                };
+        compareFunctions[{ Image::ARGB, Image::SingleChannel }] = [] (uint8* argb, uint8* singleChannel)
+        {
+            return argb[3] = *singleChannel;
+        };
 
-            compareFunctions[{Image::ARGB, Image::SingleChannel}] = [](uint8* argb, uint8* singleChannel)
-                {
-                    return argb[3] = *singleChannel;
-                };
+        compareFunctions[{ Image::SingleChannel, Image::RGB }] = [] (uint8* singleChannel, uint8* rgb)
+        {
+            auto alpha = *singleChannel;
+            return rgb[0] == alpha && rgb[1] == alpha && rgb[2] == alpha;
+        };
 
+        compareFunctions[{ Image::SingleChannel, Image::ARGB }] = [] (uint8* singleChannel, uint8* argb)
+        {
+            return *singleChannel = argb[3];
+        };
 
-            compareFunctions[{Image::SingleChannel, Image::RGB}] = [](uint8* singleChannel, uint8* rgb)
-                {
-                    auto alpha = *singleChannel;
-                    return rgb[0] == alpha &&
-                        rgb[1] == alpha &&
-                        rgb[2] == alpha;
-                };
+        compareFunctions[{ Image::SingleChannel, Image::SingleChannel }] = [] (uint8* singleChannel1, uint8* singleChannel2)
+        {
+            return *singleChannel1 == *singleChannel2;
+        };
+    }
 
-            compareFunctions[{Image::SingleChannel, Image::ARGB}] = [](uint8* singleChannel, uint8* argb)
-                {
-                    return *singleChannel = argb[3];
-                };
+    void runTest() override
+    {
+        beginTest ("Direct2DImageUnitTest");
 
-            compareFunctions[{Image::SingleChannel, Image::SingleChannel}] = [](uint8* singleChannel1, uint8* singleChannel2)
-                {
-                    return *singleChannel1 == *singleChannel2;
-                };
+        random = getRandom();
+
+        for (auto format : formats)
+            compareSameFormat (format);
+
+        testFormatConversion();
+    }
+
+    Rectangle<int> randomRectangleWithin (Rectangle<int> container) noexcept
+    {
+        auto x = random.nextInt (container.getWidth() - 2);
+        auto y = random.nextInt (container.getHeight() - 2);
+        auto w = random.nextInt (container.getHeight() - x);
+        auto h = random.nextInt (container.getWidth() - y);
+        h = jmax (h, 1);
+        w = jmax (w, 1);
+        return Rectangle<int> { x, y, w, h };
+    }
+
+    void compareSameFormat (Image::PixelFormat format)
+    {
+        auto softwareImage = Image { SoftwareImageType{}.create (format, 100, 100, true) };
+        {
+            Graphics g { softwareImage };
+            g.fillCheckerBoard (softwareImage.getBounds().toFloat(), 21.0f, 21.0f, makeRandomColor(), makeRandomColor());
         }
 
-        void runTest() override
+        auto direct2DImage = NativeImageType{}.convert (softwareImage);
+
+        compareImages (softwareImage, direct2DImage, compareFunctions[{ softwareImage.getFormat(), direct2DImage.getFormat() }]);
+        checkReadWriteModes (softwareImage);
+        checkReadWriteModes (direct2DImage);
+    }
+
+    void compareImages (Image& image1, Image& image2, std::function<bool (uint8*, uint8*)> compareBytes)
+    {
         {
-            beginTest("Direct2DImageUnitTest");
+            // BitmapData width & height should match
+            Rectangle<int> area = randomRectangleWithin (image1.getBounds());
+            Image::BitmapData data1 { image1, area.getX(), area.getY(), area.getWidth(), area.getHeight(), Image::BitmapData::ReadWriteMode::readOnly };
+            Image::BitmapData data2 { image2, area.getX(), area.getY(), area.getWidth(), area.getHeight(), Image::BitmapData::ReadWriteMode::readOnly };
 
-            for (auto format : formats)
-            {
-                compareSameFormat(format);
-            }
-
-            testFormatConversion();
+            expect (data1.width == data2.width);
+            expect (data1.height == data2.height);
         }
 
-        Rectangle<int> randomRectangleWithin(Rectangle<int> container) const noexcept
         {
-            auto x = getRandom().nextInt(container.getWidth() - 2);
-            auto y = getRandom().nextInt(container.getHeight() - 2);
-            auto w = getRandom().nextInt(container.getHeight() - x);
-            auto h = getRandom().nextInt(container.getWidth() - y);
-            h = jmax(h, 1);
-            w = jmax(w, 1);
-            return Rectangle<int>{ x, y, w, h };
-        }
+            // Bitmap data should match after ImageType::convert
+            Image::BitmapData data1 { image1, Image::BitmapData::ReadWriteMode::readOnly };
+            Image::BitmapData data2 { image2, Image::BitmapData::ReadWriteMode::readOnly };
 
-        void compareSameFormat(Image::PixelFormat format)
-        {
-            auto softwareImage = Image{ SoftwareImageType{}.create(format, 100, 100, true) };
+            for (int y = 0; y < data1.height; ++y)
             {
-                Graphics g{ softwareImage };
-                g.fillCheckerBoard(softwareImage.getBounds().toFloat(), 21.0f, 21.0f, makeRandomColor(), makeRandomColor());
-            }
+                auto line1 = data1.getLinePointer (y);
+                auto line2 = data2.getLinePointer (y);
 
-            auto direct2DImage = NativeImageType{}.convert(softwareImage);
-
-            compareImages(softwareImage, direct2DImage, compareFunctions[{ softwareImage.getFormat(), direct2DImage.getFormat()} ]);
-            checkReadWriteModes(softwareImage);
-            checkReadWriteModes(direct2DImage);
-        }
-
-        void compareImages(Image& image1, Image& image2, std::function<bool(uint8*, uint8*)> compareBytes)
-        {
-            {
-                //
-                // BitmapData width & height should match
-                //
-                Rectangle<int> area = randomRectangleWithin(image1.getBounds());
-                Image::BitmapData data1{ image1, area.getX(), area.getY(), area.getWidth(), area.getHeight(), Image::BitmapData::ReadWriteMode::readOnly };
-                Image::BitmapData data2{ image2, area.getX(), area.getY(), area.getWidth(), area.getHeight(), Image::BitmapData::ReadWriteMode::readOnly };
-
-                expect(data1.width == data2.width);
-                expect(data1.height == data2.height);
-            }
-
-            {
-                //
-                // Bitmap data should match after ImageType::convert
-                //
-                Image::BitmapData data1{ image1, Image::BitmapData::ReadWriteMode::readOnly };
-                Image::BitmapData data2{ image2, Image::BitmapData::ReadWriteMode::readOnly };
-
-                for (int y = 0; y < data1.height; ++y)
+                for (int x = 0; x < data1.width; ++x)
                 {
-                    auto line1 = data1.getLinePointer(y);
-                    auto line2 = data2.getLinePointer(y);
+                    expect (compareBytes (line1, line2), "Failed comparing format " + String { image1.getFormat() } + " to " + String { image2.getFormat() });
 
-                    for (int x = 0; x < data1.width; ++x)
-                    {
-                        expect(compareBytes(line1, line2), "Failed comparing format " + String{ image1.getFormat() } + " to " + String{ image2.getFormat() });
-
-                        line1 += data1.pixelStride;
-                        line2 += data2.pixelStride;
-                    }
+                    line1 += data1.pixelStride;
+                    line2 += data2.pixelStride;
                 }
             }
-
-            {
-                //
-                // Subsection data should match
-                //
-                // Should be able to have two different BitmapData objects simultaneously for the same source image
-                //
-                Rectangle<int> area1 = randomRectangleWithin(image1.getBounds());
-                Rectangle<int> area2 = randomRectangleWithin(image1.getBounds());
-                Image::BitmapData data1{ image1, Image::BitmapData::ReadWriteMode::readOnly };
-                Image::BitmapData data2a{ image2, area1.getX(), area1.getY(), area1.getWidth(), area1.getHeight(), Image::BitmapData::ReadWriteMode::readOnly };
-                Image::BitmapData data2b{ image2, area2.getX(), area2.getY(), area2.getWidth(), area2.getHeight(), Image::BitmapData::ReadWriteMode::readOnly };
-
-                auto compareSubsection = [&](Image::BitmapData& subsection1, Image::BitmapData& subsection2, Rectangle<int> area)
-                {
-                    for (int y = 0; y < area.getHeight(); ++y)
-                    {
-                        auto line1 = subsection1.getLinePointer(y + area.getY());
-                        auto line2 = subsection2.getLinePointer(y);
-
-                        for (int x = 0; x < area.getWidth(); ++x)
-                        {
-                            expect(compareBytes(line1 + (x + area.getX()) * subsection1.pixelStride, line2 + x * subsection2.pixelStride));
-                        }
-                    }
-                };
-
-                compareSubsection(data1, data2a, area1);
-                compareSubsection(data1, data2b, area2);
-            }
         }
 
-        void checkReadWriteModes(Image& image)
         {
-            //
-            // Check read and write modes
-            //
-            int x = getRandom().nextInt(image.getWidth());
-            auto writeColor = makeRandomColor().withAlpha(1.0f);
-            auto expectedColor = writeColor;
-            switch (image.getFormat())
+            // Subsection data should match
+            // Should be able to have two different BitmapData objects simultaneously for the same source image
+            Rectangle<int> area1 = randomRectangleWithin (image1.getBounds());
+            Rectangle<int> area2 = randomRectangleWithin (image1.getBounds());
+            Image::BitmapData data1 { image1, Image::BitmapData::ReadWriteMode::readOnly };
+            Image::BitmapData data2a { image2, area1.getX(), area1.getY(), area1.getWidth(), area1.getHeight(), Image::BitmapData::ReadWriteMode::readOnly };
+            Image::BitmapData data2b { image2, area2.getX(), area2.getY(), area2.getWidth(), area2.getHeight(), Image::BitmapData::ReadWriteMode::readOnly };
+
+            auto compareSubsection = [&] (Image::BitmapData& subsection1, Image::BitmapData& subsection2, Rectangle<int> area)
             {
+                for (int y = 0; y < area.getHeight(); ++y)
+                {
+                    auto line1 = subsection1.getLinePointer (y + area.getY());
+                    auto line2 = subsection2.getLinePointer (y);
+
+                    for (int x = 0; x < area.getWidth(); ++x)
+                    {
+                        expect (compareBytes (line1 + (x + area.getX()) * subsection1.pixelStride, line2 + x * subsection2.pixelStride));
+                    }
+                }
+            };
+
+            compareSubsection (data1, data2a, area1);
+            compareSubsection (data1, data2b, area2);
+        }
+    }
+
+    void checkReadWriteModes (Image& image)
+    {
+        // Check read and write modes
+        int x = random.nextInt (image.getWidth());
+        auto writeColor = makeRandomColor().withAlpha (1.0f);
+        auto expectedColor = writeColor;
+        switch (image.getFormat())
+        {
             case Image::SingleChannel:
             {
                 auto alpha = writeColor.getAlpha();
-                expectedColor = Colour{ alpha, alpha, alpha, alpha };
+                expectedColor = Colour { alpha, alpha, alpha, alpha };
                 break;
             }
 
@@ -622,69 +586,68 @@ namespace juce
             default:
                 jassertfalse;
                 break;
-            }
-
-            {
-                Image::BitmapData data{ image, Image::BitmapData::ReadWriteMode::writeOnly };
-
-                for (int y = 0; y < data.height; ++y)
-                {
-                    data.setPixelColour(x, y, writeColor);
-                }
-            }
-
-            {
-                Image::BitmapData data{ image, Image::BitmapData::ReadWriteMode::readOnly };
-
-                for (int y = 0; y < data.height; ++y)
-                {
-                    auto color = data.getPixelColour(x, y);
-                    expect(color == expectedColor);
-                }
-            }
         }
 
-        void testFormatConversion()
         {
-            for (auto sourceFormat : formats)
+            Image::BitmapData data { image, Image::BitmapData::ReadWriteMode::writeOnly };
+
+            for (int y = 0; y < data.height; ++y)
+                data.setPixelColour (x, y, writeColor);
+        }
+
+        {
+            Image::BitmapData data { image, Image::BitmapData::ReadWriteMode::readOnly };
+
+            for (int y = 0; y < data.height; ++y)
             {
-                for (auto destFormat : formats)
-                {
-                    auto softwareStartImage = Image{ SoftwareImageType{}.create(sourceFormat, 100, 100, true) };
-                    {
-                        Graphics g{ softwareStartImage };
-                        g.fillCheckerBoard(softwareStartImage.getBounds().toFloat(), 21.0f, 21.0f, makeRandomColor(), makeRandomColor());
-                    }
-                    auto convertedSoftwareImage = softwareStartImage.convertedToFormat(destFormat);
-
-                    compareImages(softwareStartImage, convertedSoftwareImage, compareFunctions[{sourceFormat, destFormat}]);
-
-                    auto direct2DImage = NativeImageType{}.convert(softwareStartImage);
-
-                    compareImages(softwareStartImage, direct2DImage, compareFunctions[{ sourceFormat, sourceFormat }]);
-
-                    auto convertedDirect2DImage = direct2DImage.convertedToFormat(destFormat);
-
-                    compareImages(softwareStartImage, convertedDirect2DImage, compareFunctions[{ sourceFormat, destFormat }]);
-                }
+                auto color = data.getPixelColour (x, y);
+                expect (color == expectedColor);
             }
         }
+    }
 
-        Colour makeRandomColor()
+    void testFormatConversion()
+    {
+        for (auto sourceFormat : formats)
         {
-            auto random = getRandom();
-            uint8 red = (uint8)random.nextInt(255);
-            uint8 green = (uint8)random.nextInt(255);
-            uint8 blue = (uint8)random.nextInt(255);
-            uint8 alpha = (uint8)random.nextInt(255);
-            return Colour{ red, green, blue, alpha };
+            for (auto destFormat : formats)
+            {
+                auto softwareStartImage = Image { SoftwareImageType {}.create (sourceFormat, 100, 100, true) };
+                {
+                    Graphics g { softwareStartImage };
+                    g.fillCheckerBoard (softwareStartImage.getBounds().toFloat(), 21.0f, 21.0f, makeRandomColor(), makeRandomColor());
+                }
+                auto convertedSoftwareImage = softwareStartImage.convertedToFormat (destFormat);
+
+                compareImages (softwareStartImage, convertedSoftwareImage, compareFunctions[{ sourceFormat, destFormat }]);
+
+                auto direct2DImage = NativeImageType {}.convert (softwareStartImage);
+
+                compareImages (softwareStartImage, direct2DImage, compareFunctions[{ sourceFormat, sourceFormat }]);
+
+                auto convertedDirect2DImage = direct2DImage.convertedToFormat (destFormat);
+
+                compareImages (softwareStartImage, convertedDirect2DImage, compareFunctions[{ sourceFormat, destFormat }]);
+            }
         }
+    }
 
-        std::array<Image::PixelFormat, 3> const formats{ Image::RGB, Image::ARGB, Image::SingleChannel };
-        std::map<std::pair<Image::PixelFormat, Image::PixelFormat>, std::function<bool(uint8*, uint8*)>> compareFunctions;
-    };
+    Colour makeRandomColor()
+    {
+        uint8 red = (uint8) random.nextInt (255);
+        uint8 green = (uint8) random.nextInt (255);
+        uint8 blue = (uint8) random.nextInt (255);
+        uint8 alpha = (uint8) random.nextInt (255);
+        return Colour { red, green, blue, alpha };
+    }
 
-    static Direct2DImageUnitTest direct2DImageUnitTest;
+
+    Random random;
+    std::array<Image::PixelFormat, 3> const formats { Image::RGB, Image::ARGB, Image::SingleChannel };
+    std::map<std::pair<Image::PixelFormat, Image::PixelFormat>, std::function<bool (uint8*, uint8*)>> compareFunctions;
+};
+
+static Direct2DImageUnitTest direct2DImageUnitTest;
 
 #endif
 

@@ -1,17 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -400,6 +416,13 @@ public:
     */
     int getReferenceCount() const noexcept;
 
+    /** Applies a blur to this image, placing the blurred image in the result out-parameter.
+
+        If result is already the correct size, then its storage will be reused directly.
+        Otherwise, new storage may be allocated for the blurred image.
+    */
+    void applyGaussianBlurEffect (float radius, Image& result) const;
+
     //==============================================================================
     /** @internal */
     ImagePixelData* getPixelData() const noexcept       { return image.get(); }
@@ -443,28 +466,29 @@ public:
 
     using Ptr = ReferenceCountedObjectPtr<ImagePixelData>;
 
-    virtual bool isValid() const noexcept
-    {
-        return true;
-    }
-
     /** Creates a context that will draw into this image. */
     virtual std::unique_ptr<LowLevelGraphicsContext> createLowLevelContext() = 0;
     /** Creates a copy of this image. */
     virtual Ptr clone() = 0;
-    /** Creates a copy of this image. */
-    virtual Ptr clip(Rectangle<int> sourceArea);
     /** Creates an instance of the type of this image. */
     virtual std::unique_ptr<ImageType> createType() const = 0;
     /** Initialises a BitmapData object. */
     virtual void initialiseBitmapData (Image::BitmapData&, int x, int y, Image::BitmapData::ReadWriteMode) = 0;
     /** Returns the number of Image objects which are currently referring to the same internal
         shared image data. This is different to the reference count as an instance of ImagePixelData
-        can internally depend on another ImagePixelData via it's member variables. */
+        can internally depend on another ImagePixelData via it's member variables.
+    */
     virtual int getSharedCount() const noexcept;
 
-    virtual std::optional<Image> applyGaussianBlurEffect(float /*radius*/, int) { return {}; }
+    /** Applies a native blur effect to this image, if available.
 
+        Implementations should attempt to re-use the storage provided in the result out-parameter
+        when possible.
+
+        If native blurs are unsupported, or if creating a blur fails for any other reason,
+        the result out-parameter will be reset to an invalid image.
+    */
+    virtual void applyGaussianBlurEffect (float radius, Image& result);
 
     /** The pixel format of the image data. */
     const Image::PixelFormat pixelFormat;
@@ -519,7 +543,6 @@ public:
         @code myImage = SoftwareImageType().convert (myImage); @endcode
     */
     virtual Image convert (const Image& source) const;
-    virtual Image convertFromBitmapData (Image::BitmapData const& source) const;
 };
 
 //==============================================================================
@@ -551,13 +574,10 @@ class JUCE_API  NativeImageType   : public ImageType
 {
 public:
     NativeImageType();
-    NativeImageType(float scaleFactor_);
     ~NativeImageType() override;
 
     ImagePixelData::Ptr create (Image::PixelFormat, int width, int height, bool clearImage) const override;
     int getTypeID() const override;
-
-    float const scaleFactor = 1.0f;
 };
 
 } // namespace juce

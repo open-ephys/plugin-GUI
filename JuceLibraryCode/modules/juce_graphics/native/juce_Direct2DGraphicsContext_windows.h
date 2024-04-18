@@ -1,33 +1,39 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
 
 namespace juce
 {
-
-#if JUCE_ETW_TRACELOGGING
-
-struct ETWEventProvider
-{
-    ETWEventProvider();
-    ~ETWEventProvider();
-};
-
-#endif
 
 class Direct2DGraphicsContext : public LowLevelGraphicsContext
 {
@@ -36,14 +42,11 @@ public:
     ~Direct2DGraphicsContext() override;
 
     //==============================================================================
-    bool isVectorDevice() const override
-    {
-        return false;
-    }
+    bool isVectorDevice() const override { return false; }
 
     void setOrigin (Point<int>) override;
     void addTransform (const AffineTransform&) override;
-    float getPhysicalPixelScaleFactor() override;
+    float getPhysicalPixelScaleFactor() const override;
     bool clipToRectangle (const Rectangle<int>&) override;
     bool clipToRectangleList (const RectangleList<int>&) override;
     void excludeClipRectangle (const Rectangle<int>&) override;
@@ -75,71 +78,79 @@ public:
     void drawLine (const Line<float>&) override;
     void setFont (const Font&) override;
     const Font& getFont() override;
-    void drawGlyph (int glyphNumber, const AffineTransform&) override;
-    bool drawTextLayout (const AttributedString&, const Rectangle<float>&) override;
-
+    void drawGlyphs (Span<const uint16_t>,
+                     Span<const Point<float>>,
+                     const AffineTransform&) override;
 
     //==============================================================================
-    //
-    // These methods are not part of the standard LowLevelGraphicsContext; they
-    // were added because Direct2D supports these drawing primitives
-    //
-    // Standard LLGC only supports drawing one glyph at a time; it's much more
-    // efficient to pass an entire run of glyphs to the device context
-    //
-    bool drawLineWithThickness (const Line<float>&, float) override;
+    // These methods were not originally part of the LowLevelGraphicsContext; they
+    // were added because Direct2D supports these drawing primitives directly.
+    // The specialised functions are more efficient than emulating the same behaviour, e.g.
+    // by drawing paths.
+    void drawLineWithThickness (const Line<float>&, float) override;
 
-    bool drawEllipse (Rectangle<float> area, float lineThickness) override;
-    bool fillEllipse (Rectangle<float> area) override;
+    void drawEllipse (const Rectangle<float>& area, float lineThickness) override;
+    void fillEllipse (const Rectangle<float>& area) override;
 
-    bool drawRect (const Rectangle<float>&, float) override;
-    bool drawPath (const Path&, const PathStrokeType& strokeType, const AffineTransform&) override;
+    void drawRect (const Rectangle<float>&, float) override;
+    void strokePath (const Path&, const PathStrokeType& strokeType, const AffineTransform&) override;
 
-    bool drawRoundedRectangle (Rectangle<float> area, float cornerSize, float lineThickness) override;
-    bool fillRoundedRectangle (Rectangle<float> area, float cornerSize) override;
-
-    bool supportsGlyphRun() override
-    {
-        return true;
-    }
-    void drawPositionedGlyphRun (Array<PositionedGlyph> const& glyphs,
-                       int                           startIndex,
-                       int                           numGlyphs,
-                       const AffineTransform&        transform,
-                       Rectangle<float>              underlineArea) override;
-    void drawTextLayoutGlyphRun(Array<TextLayout::Glyph> const&, Font const&, const AffineTransform&) override;
-
+    void drawRoundedRectangle (const Rectangle<float>& area, float cornerSize, float lineThickness) override;
+    void fillRoundedRectangle (const Rectangle<float>& area, float cornerSize) override;
 
     //==============================================================================
     bool startFrame();
     void endFrame();
 
-    void setPhysicalPixelScaleFactor(float scale_);
+    virtual Image createSnapshot() const { return {}; }
 
-    virtual Image createSnapshot(Rectangle<int> /*areaDIPs*/)
-    {
-        return {};
-    }
+    uint64_t getFrameId() const override { return frame; }
 
-    virtual Image createSnapshot()
-    {
-        return {};
-    }
-
-    direct2d::Metrics::Ptr metrics;
+    Direct2DMetrics::Ptr metrics;
 
     //==============================================================================
-    //
     // Min & max frame sizes; same as Direct3D texture size limits
-    //
     static int constexpr minFrameSize = 1;
     static int constexpr maxFrameSize = 16384;
 
     //==============================================================================
+    void setPhysicalPixelScaleFactor (float);
+
 protected:
     struct SavedState;
     SavedState* currentState = nullptr;
-    RectangleList<int> pendingDeviceSpaceClipList;
+
+    class PendingClipList
+    {
+    public:
+        void clipTo (Rectangle<float> i)
+        {
+            list.clipTo (i);
+        }
+
+        template <typename Numeric>
+        void clipTo (const RectangleList<Numeric>& other)
+        {
+            list.clipTo (other);
+        }
+
+        void subtract (Rectangle<float> i)
+        {
+            list.subtract (i);
+        }
+
+        RectangleList<float> getList() const { return list; }
+
+        void reset (Rectangle<float> maxBounds)
+        {
+            list = maxBounds;
+        }
+
+    private:
+        RectangleList<float> list;
+    };
+
+    PendingClipList pendingClipList;
 
     struct Pimpl;
     virtual Pimpl* getPimpl() const noexcept = 0;
@@ -147,17 +158,19 @@ protected:
     void resetPendingClipList();
     void applyPendingClipList();
     virtual void clearTargetBuffer() = 0;
-    void drawGlyphCommon (int numGlyphs, Font const& font, const AffineTransform& transform, Rectangle<float> underlineArea);
 
     struct ScopedTransform
     {
-        ScopedTransform(Pimpl& pimpl_, SavedState* state_);
-        ScopedTransform(Pimpl& pimpl_, SavedState* state_, const AffineTransform& transform);
+        ScopedTransform (Pimpl&, SavedState*);
+        ScopedTransform (Pimpl&, SavedState*, const AffineTransform& transform);
         ~ScopedTransform();
 
         Pimpl& pimpl;
         SavedState* state = nullptr;
     };
+
+    uint64_t frame = 0;
+    float scale = 1.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Direct2DGraphicsContext)
 };

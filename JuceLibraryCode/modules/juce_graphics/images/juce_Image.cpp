@@ -1,17 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -19,28 +35,62 @@
 namespace juce
 {
 
-//==============================================================================
+struct BitmapDataDetail
+{
+    BitmapDataDetail() = delete;
+
+    static void convert (const Image::BitmapData& src, Image::BitmapData& dest)
+    {
+        jassert (src.width == dest.width);
+        jassert (src.height == dest.height);
+
+        if (src.pixelStride == dest.pixelStride && src.pixelFormat == dest.pixelFormat)
+        {
+            for (int y = 0; y < dest.height; ++y)
+                memcpy (dest.getLinePointer (y), src.getLinePointer (y), (size_t) dest.pixelStride * (size_t) dest.width);
+        }
+        else
+        {
+            for (int y = 0; y < dest.height; ++y)
+                for (int x = 0; x < dest.width; ++x)
+                    dest.setPixelColour (x, y, src.getPixelColour (x, y));
+        }
+    }
+
+    static Image convert (const Image::BitmapData& src, const ImageType& type)
+    {
+        Image result (type.create (src.pixelFormat, src.width, src.height, false));
+
+        {
+            Image::BitmapData dest (result, Image::BitmapData::writeOnly);
+            BitmapDataDetail::convert (src, dest);
+        }
+
+        return result;
+    }
+};
 
 class SubsectionPixelData : public ImagePixelData
 {
 public:
-    SubsectionPixelData(ImagePixelData::Ptr source, Rectangle<int> r)
-        : ImagePixelData(source->pixelFormat, r.getWidth(), r.getHeight()),
-        sourceImage(std::move(source)), area(r)
+    SubsectionPixelData (ImagePixelData::Ptr source, Rectangle<int> r)
+        : ImagePixelData (source->pixelFormat, r.getWidth(), r.getHeight()),
+          sourceImage (std::move (source)),
+          area (r)
     {
     }
 
     std::unique_ptr<LowLevelGraphicsContext> createLowLevelContext() override
     {
         auto g = sourceImage->createLowLevelContext();
-        g->clipToRectangle(area);
-        g->setOrigin(area.getPosition());
+        g->clipToRectangle (area);
+        g->setOrigin (area.getPosition());
         return g;
     }
 
-    void initialiseBitmapData(Image::BitmapData& bitmap, int x, int y, Image::BitmapData::ReadWriteMode mode) override
+    void initialiseBitmapData (Image::BitmapData& bitmap, int x, int y, Image::BitmapData::ReadWriteMode mode) override
     {
-        sourceImage->initialiseBitmapData(bitmap, x + area.getX(), y + area.getY(), mode);
+        sourceImage->initialiseBitmapData (bitmap, x + area.getX(), y + area.getY(), mode);
 
         if (mode != Image::BitmapData::readOnly)
             sendDataChangeMessage();
@@ -48,14 +98,14 @@ public:
 
     ImagePixelData::Ptr clone() override
     {
-        jassert(getReferenceCount() > 0); // (This method can't be used on an unowned pointer, as it will end up self-deleting)
+        jassert (getReferenceCount() > 0); // (This method can't be used on an unowned pointer, as it will end up self-deleting)
         auto type = createType();
 
-        Image newImage(type->create(pixelFormat, area.getWidth(), area.getHeight(), pixelFormat != Image::RGB));
+        Image newImage (type->create (pixelFormat, area.getWidth(), area.getHeight(), pixelFormat != Image::RGB));
 
         {
-            Graphics g(newImage);
-            g.drawImageAt(Image(*this), 0, 0);
+            Graphics g (newImage);
+            g.drawImageAt (Image (*this), 0, 0);
         }
 
         return *newImage.getPixelData();
@@ -71,11 +121,10 @@ private:
     const ImagePixelData::Ptr sourceImage;
     const Rectangle<int> area;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SubsectionPixelData)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SubsectionPixelData)
 };
 
 //==============================================================================
-
 ImagePixelData::ImagePixelData (Image::PixelFormat format, int w, int h)
     : pixelFormat (format), width (w), height (h)
 {
@@ -88,11 +137,6 @@ ImagePixelData::~ImagePixelData()
     listeners.call ([this] (Listener& l) { l.imageDataBeingDeleted (this); });
 }
 
-ImagePixelData::Ptr ImagePixelData::clip(Rectangle<int> sourceArea)
-{
-    return new SubsectionPixelData{ this, sourceArea };
-}
-
 void ImagePixelData::sendDataChangeMessage()
 {
     listeners.call ([this] (Listener& l) { l.imageDataChanged (this); });
@@ -103,9 +147,14 @@ int ImagePixelData::getSharedCount() const noexcept
     return getReferenceCount();
 }
 
+void ImagePixelData::applyGaussianBlurEffect ([[maybe_unused]] float radius, Image& result)
+{
+    result = {};
+}
+
 //==============================================================================
-ImageType::ImageType() {}
-ImageType::~ImageType() {}
+ImageType::ImageType() = default;
+ImageType::~ImageType() = default;
 
 Image ImageType::convert (const Image& source) const
 {
@@ -113,31 +162,15 @@ Image ImageType::convert (const Image& source) const
         return source;
 
     const Image::BitmapData src (source, Image::BitmapData::readOnly);
-    return convertFromBitmapData (src);
-}
 
-Image ImageType::convertFromBitmapData (Image::BitmapData const& src) const
-{
-    Image newImage (create (src.pixelFormat, src.width, src.height, false));
-    Image::BitmapData dest (newImage, Image::BitmapData::writeOnly);
+    if (src.data == nullptr)
+        return {};
 
-    if (src.pixelStride == dest.pixelStride && src.pixelFormat == dest.pixelFormat)
-    {
-        for (int y = 0; y < dest.height; ++y)
-            memcpy (dest.getLinePointer (y), src.getLinePointer (y), (size_t) dest.pixelStride * (size_t)dest.width);
-    }
-    else
-    {
-        for (int y = 0; y < dest.height; ++y)
-            for (int x = 0; x < dest.width; ++x)
-                dest.setPixelColour (x, y, src.getPixelColour (x, y));
-    }
-
-    return newImage;
+    return BitmapDataDetail::convert (src, *this);
 }
 
 //==============================================================================
-class SoftwarePixelData  : public ImagePixelData
+class SoftwarePixelData : public ImagePixelData
 {
 public:
     SoftwarePixelData (Image::PixelFormat formatToUse, int w, int h, bool clearImage)
@@ -183,8 +216,8 @@ private:
     JUCE_LEAK_DETECTOR (SoftwarePixelData)
 };
 
-SoftwareImageType::SoftwareImageType() {}
-SoftwareImageType::~SoftwareImageType() {}
+SoftwareImageType::SoftwareImageType() = default;
+SoftwareImageType::~SoftwareImageType() = default;
 
 ImagePixelData::Ptr SoftwareImageType::create (Image::PixelFormat format, int width, int height, bool clearImage) const
 {
@@ -197,9 +230,8 @@ int SoftwareImageType::getTypeID() const
 }
 
 //==============================================================================
-NativeImageType::NativeImageType() {}
-NativeImageType::NativeImageType(float scaleFactor_) : scaleFactor(scaleFactor_) {}
-NativeImageType::~NativeImageType() {}
+NativeImageType::NativeImageType() = default;
+NativeImageType::~NativeImageType() = default;
 
 int NativeImageType::getTypeID() const
 {
@@ -225,14 +257,11 @@ Image Image::getClippedImage (const Rectangle<int>& area) const
     if (validArea.isEmpty())
         return {};
 
-    return Image{ image->clip(validArea) };
+    return Image { ImagePixelData::Ptr { new SubsectionPixelData { image, validArea } } };
 }
-
 
 //==============================================================================
-Image::Image() noexcept
-{
-}
+Image::Image() noexcept = default;
 
 Image::Image (ReferenceCountedObjectPtr<ImagePixelData> instance) noexcept
     : image (std::move (instance))
@@ -271,15 +300,42 @@ Image& Image::operator= (Image&& other) noexcept
     return *this;
 }
 
-Image::~Image()
-{
-}
+Image::~Image() = default;
 
 int Image::getReferenceCount() const noexcept           { return image == nullptr ? 0 : image->getSharedCount(); }
 
+void Image::applyGaussianBlurEffect (float radius, Image& result) const
+{
+    if (image == nullptr)
+    {
+        result = {};
+        return;
+    }
+
+    auto copy = result;
+    image->applyGaussianBlurEffect (radius, copy);
+
+    if (copy.isValid())
+    {
+        result = std::move (copy);
+        return;
+    }
+
+    const auto tie = [] (const auto& x) { return std::tuple (x.getFormat(), x.getWidth(), x.getHeight()); };
+
+    if (tie (*this) != tie (result))
+        result = Image { getFormat(), getWidth(), getHeight(), false };
+
+    ImageConvolutionKernel blurKernel (roundToInt (radius * 2.0f));
+
+    blurKernel.createGaussianBlur (radius);
+
+    blurKernel.applyToImage (result, *this, result.getBounds());
+}
+
 bool Image::isValid() const noexcept
 {
-    return image && image->isValid();
+    return image != nullptr;
 }
 
 int Image::getWidth() const noexcept                    { return image == nullptr ? 0 : image->width; }
@@ -342,16 +398,10 @@ Image Image::convertedToFormat (PixelFormat newFormat) const
     {
         if (! hasAlphaChannel())
         {
-            //
-            // RGB -> SingleChannel
-            //
             newImage.clear (getBounds(), Colours::black);
         }
         else
         {
-            //
-            // ARGB -> SingleChannel
-            //
             const BitmapData destData (newImage, 0, 0, w, h, BitmapData::writeOnly);
             const BitmapData srcData (*this, 0, 0, w, h);
 
@@ -367,9 +417,6 @@ Image Image::convertedToFormat (PixelFormat newFormat) const
     }
     else if (image->pixelFormat == SingleChannel && newFormat == Image::ARGB)
     {
-        //
-        // SingleChannel -> ARGB
-        //
         const BitmapData destData (newImage, 0, 0, w, h, BitmapData::writeOnly);
         const BitmapData srcData (*this, 0, 0, w, h);
 
@@ -384,11 +431,6 @@ Image Image::convertedToFormat (PixelFormat newFormat) const
     }
     else
     {
-        //
-        // SingleChannel-> RGB
-        // RGB -> ARGB
-        // ARGB -> RGB
-        //
         if (hasAlphaChannel())
             newImage.clear (getBounds());
 

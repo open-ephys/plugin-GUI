@@ -1,17 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -176,6 +192,33 @@ struct ScopedCGContextState
     CGContextRef context;
 };
 
+struct CoreGraphicsContext::SavedState
+{
+    SavedState() = default;
+
+    SavedState (const SavedState& other)
+        : fillType (other.fillType), font (other.font),
+          textMatrix (other.textMatrix), inverseTextMatrix (other.inverseTextMatrix),
+          gradient (other.gradient.get() != nullptr ? CGGradientRetain (other.gradient.get()) : nullptr)
+    {
+    }
+
+    ~SavedState() = default;
+
+    void setFill (const FillType& newFill)
+    {
+        fillType = newFill;
+        gradient = nullptr;
+    }
+
+    FillType fillType;
+    Font font { FontOptions { 1.0f } };
+    CFUniquePtr<CTFontRef> fontRef{};
+    CGAffineTransform textMatrix = CGAffineTransformIdentity,
+               inverseTextMatrix = CGAffineTransformIdentity;
+    detail::GradientPtr gradient = {};
+};
+
 //==============================================================================
 CoreGraphicsContext::CoreGraphicsContext (CGContextRef c, float h)
     : context (c),
@@ -201,7 +244,7 @@ CoreGraphicsContext::CoreGraphicsContext (CGContextRef c, float h)
     CGContextSetBlendMode (context.get(), kCGBlendModeNormal);
     rgbColourSpace.reset (CGColorSpaceCreateWithName (kCGColorSpaceSRGB));
     greyColourSpace.reset (CGColorSpaceCreateWithName (kCGColorSpaceGenericGrayGamma2_2));
-    setFont (Font());
+    setFont (FontOptions());
 }
 
 CoreGraphicsContext::~CoreGraphicsContext()
@@ -229,7 +272,7 @@ void CoreGraphicsContext::addTransform (const AffineTransform& transform)
     jassert (getPhysicalPixelScaleFactor() > 0.0f);
 }
 
-float CoreGraphicsContext::getPhysicalPixelScaleFactor()
+float CoreGraphicsContext::getPhysicalPixelScaleFactor() const
 {
     auto t = CGContextGetUserSpaceToDeviceSpaceTransform (context.get());
     auto determinant = (t.a * t.d) - (t.c * t.b);
@@ -614,22 +657,8 @@ void CoreGraphicsContext::setFont (const Font& newFont)
 {
     if (state->font != newFont)
     {
-        state->fontRef = nullptr;
         state->font = newFont;
-
-        auto typeface = state->font.getTypefacePtr();
-
-        if (auto osxTypeface = dynamic_cast<OSXTypeface*> (typeface.get()))
-        {
-            state->fontRef = osxTypeface->fontRef;
-            CGContextSetFont (context.get(), state->fontRef);
-            CGContextSetFontSize (context.get(), state->font.getHeight() * osxTypeface->fontHeightToPointsFactor);
-
-            state->textMatrix = osxTypeface->renderingTransform;
-            state->textMatrix.a *= state->font.getHorizontalScale();
-            CGContextSetTextMatrix (context.get(), state->textMatrix);
-            state->inverseTextMatrix = CGAffineTransformInvert (state->textMatrix);
-         }
+        state->fontRef = nullptr;
     }
 }
 
@@ -638,74 +667,49 @@ const Font& CoreGraphicsContext::getFont()
     return state->font;
 }
 
-void CoreGraphicsContext::drawGlyph (int glyphNumber, const AffineTransform& transform)
+void CoreGraphicsContext::drawGlyphs (Span<const uint16_t> glyphs,
+                                      Span<const Point<float>> positions,
+                                      const AffineTransform& transform)
 {
-    if (state->fontRef != nullptr && state->fillType.isColour())
+    jassert (glyphs.size() == positions.size());
+
+    if (state->fillType.isColour())
     {
-        auto cgTransformIsOnlyTranslation = [] (CGAffineTransform t)
-        {
-            return t.a == 1.0f && t.d == 1.0f && t.b == 0.0f && t.c == 0.0f;
-        };
+        const auto scale = state->font.getHorizontalScale();
 
-        if (transform.isOnlyTranslation() && cgTransformIsOnlyTranslation (state->inverseTextMatrix))
+        if (state->fontRef == nullptr)
         {
-            auto x = transform.mat02 + state->inverseTextMatrix.tx;
-            auto y = transform.mat12 + state->inverseTextMatrix.ty;
+            const auto hbFont = state->font.getNativeDetails().font;
+            state->fontRef.reset (hb_coretext_font_get_ct_font (hbFont.get()));
+            CFRetain (state->fontRef.get());
 
-            CGGlyph glyphs[1] = { (CGGlyph) glyphNumber };
-            CGPoint positions[1] = { { x, flipHeight - roundToInt (y) } };
-            CGContextShowGlyphsAtPositions (context.get(), glyphs, positions, 1);
+            const auto slant = hb_font_get_synthetic_slant (hbFont.get());
+
+            state->textMatrix = CGAffineTransformMake (scale, 0, slant * scale, 1.0f, 0, 0);
+            CGContextSetTextMatrix (context.get(), state->textMatrix);
+            state->inverseTextMatrix = CGAffineTransformInvert (state->textMatrix);
         }
-        else
-        {
-            ScopedCGContextState scopedState (context.get());
 
-            flip();
-            applyTransform (transform);
-            CGContextConcatCTM (context.get(), state->inverseTextMatrix);
-            auto cgTransform = state->textMatrix;
-            cgTransform.d = -cgTransform.d;
-            CGContextConcatCTM (context.get(), cgTransform);
+        ScopedCGContextState scopedState (context.get());
+        flip();
+        applyTransform (AffineTransform::scale (1.0f, -1.0f).followedBy (transform));
 
-            CGGlyph glyphs[1] = { (CGGlyph) glyphNumber };
-            CGPoint positions[1] = { { 0.0f, 0.0f } };
-            CGContextShowGlyphsAtPositions (context.get(), glyphs, positions, 1);
-        }
+        std::vector<CGPoint> pos (glyphs.size());
+        std::transform (positions.begin(), positions.end(), pos.begin(), [scale] (const auto& p) { return CGPointMake (p.x / scale, -p.y); });
+
+        CTFontDrawGlyphs (state->fontRef.get(), glyphs.data(), pos.data(), glyphs.size(), context.get());
     }
     else
     {
-        Path p;
-        auto& f = state->font;
-        f.getTypefacePtr()->getOutlineForGlyph (glyphNumber, p);
-
-        fillPath (p, AffineTransform::scale (f.getHeight() * f.getHorizontalScale(), f.getHeight())
-                                     .followedBy (transform));
+        for (const auto [index, glyph] : enumerate (glyphs, size_t{}))
+        {
+            Path p;
+            auto& f = state->font;
+            f.getTypefacePtr()->getOutlineForGlyph (f.getMetricsKind(), glyph, p);
+            const auto scale = f.getHeight();
+            fillPath (p, AffineTransform::scale (scale * f.getHorizontalScale(), scale).translated (positions[index]).followedBy (transform));
+        }
     }
-}
-
-bool CoreGraphicsContext::drawTextLayout (const AttributedString& text, const Rectangle<float>& area)
-{
-    return CoreTextTypeLayout::drawToCGContext (text, area, context.get(), (float) flipHeight);
-}
-
-CoreGraphicsContext::SavedState::SavedState()
-    : font (1.0f)
-{
-}
-
-CoreGraphicsContext::SavedState::SavedState (const SavedState& other)
-    : fillType (other.fillType), font (other.font), fontRef (other.fontRef),
-      textMatrix (other.textMatrix), inverseTextMatrix (other.inverseTextMatrix),
-      gradient (other.gradient.get() != nullptr ? CGGradientRetain (other.gradient.get()) : nullptr)
-{
-}
-
-CoreGraphicsContext::SavedState::~SavedState() = default;
-
-void CoreGraphicsContext::SavedState::setFill (const FillType& newFill)
-{
-    fillType = newFill;
-    gradient = nullptr;
 }
 
 static CGGradientRef createGradient (const ColourGradient& g, CGColorSpaceRef colourSpace)

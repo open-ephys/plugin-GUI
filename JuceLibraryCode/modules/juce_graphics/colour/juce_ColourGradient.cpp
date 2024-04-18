@@ -1,17 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -73,8 +89,6 @@ ColourGradient::ColourGradient (Colour colour1, Point<float> p1,
                  ColourPoint { 1.0, colour2 });
 }
 
-ColourGradient::~ColourGradient() {}
-
 ColourGradient ColourGradient::vertical (Colour c1, float y1, Colour c2, float y2)
 {
     return { c1, 0, y1, c2, 0, y2, false };
@@ -85,17 +99,45 @@ ColourGradient ColourGradient::horizontal (Colour c1, float x1, Colour c2, float
     return { c1, x1, 0, c2, x2, 0, false };
 }
 
-bool ColourGradient::operator== (const ColourGradient& other) const noexcept
+struct PointComparisons
 {
-    return point1 == other.point1 && point2 == other.point2
-            && isRadial == other.isRadial
-            && colours == other.colours;
+    auto tie() const { return std::tie (point->x, point->y); }
+
+    bool operator== (const PointComparisons& other) const { return tie() == other.tie(); }
+    bool operator!= (const PointComparisons& other) const { return tie() != other.tie(); }
+    bool operator<  (const PointComparisons& other) const { return tie() <  other.tie(); }
+
+    const Point<float>* point = nullptr;
+};
+
+struct ColourGradient::ColourPointArrayComparisons
+{
+    bool operator== (const ColourPointArrayComparisons& other) const { return *array == *other.array; }
+    bool operator!= (const ColourPointArrayComparisons& other) const { return *array != *other.array; }
+
+    bool operator<  (const ColourPointArrayComparisons& other) const
+    {
+        return std::lexicographical_compare (array->begin(), array->end(), other.array->begin(), other.array->end());
+    }
+
+    const Array<ColourGradient::ColourPoint>* array = nullptr;
+};
+
+auto ColourGradient::tie() const
+{
+    return std::tuple (PointComparisons { &point1 },
+                       PointComparisons { &point2 },
+                       isRadial,
+                       ColourPointArrayComparisons { &colours });
 }
 
-bool ColourGradient::operator!= (const ColourGradient& other) const noexcept
-{
-    return ! operator== (other);
-}
+bool ColourGradient::operator== (const ColourGradient& other) const noexcept { return tie() == other.tie(); }
+bool ColourGradient::operator!= (const ColourGradient& other) const noexcept { return tie() != other.tie(); }
+
+bool ColourGradient::operator<  (const ColourGradient& other) const noexcept { return tie() <  other.tie(); }
+bool ColourGradient::operator<= (const ColourGradient& other) const noexcept { return tie() <= other.tie(); }
+bool ColourGradient::operator>  (const ColourGradient& other) const noexcept { return tie() >  other.tie(); }
+bool ColourGradient::operator>= (const ColourGradient& other) const noexcept { return tie() >= other.tie(); }
 
 //==============================================================================
 void ColourGradient::clearColours()
@@ -248,22 +290,5 @@ bool ColourGradient::isInvisible() const noexcept
 
     return true;
 }
-
-bool ColourGradient::ColourPoint::operator== (ColourPoint other) const noexcept
-{
-    const auto tie = [] (const ColourPoint& p) { return std::tie (p.position, p.colour); };
-    return tie (*this) == tie (other);
-}
-
-bool ColourGradient::ColourPoint::operator!= (ColourPoint other) const noexcept
-{
-    return ! operator== (other);
-}
-
-uint64 ColourGradient::getHash() const noexcept
-{
-    return DefaultHashFunctions::generateHash(reinterpret_cast<uint8 const*>(colours.getRawDataPointer()), (size_t)colours.size() * sizeof(ColourPoint));
-}
-
 
 } // namespace juce

@@ -71,6 +71,7 @@ set(JUCE_SOURCE
     ${JUCE_DIRECTORY}/include_juce_data_structures.${JUCE_FILES_EXTENSION}
     ${JUCE_DIRECTORY}/include_juce_events.${JUCE_FILES_EXTENSION}
     ${JUCE_DIRECTORY}/include_juce_graphics.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_graphics_Harfbuzz.cpp
     ${JUCE_DIRECTORY}/include_juce_gui_basics.${JUCE_FILES_EXTENSION}
     ${JUCE_DIRECTORY}/include_juce_gui_extra.${JUCE_FILES_EXTENSION}
     ${JUCE_DIRECTORY}/include_juce_opengl.${JUCE_FILES_EXTENSION}

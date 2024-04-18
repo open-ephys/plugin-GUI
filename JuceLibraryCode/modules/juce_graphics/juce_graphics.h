@@ -1,17 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -28,17 +44,17 @@
 
   ID:                 juce_graphics
   vendor:             juce
-  version:            7.0.11
+  version:            8.0.0
   name:               JUCE graphics classes
   description:        Classes for 2D vector graphics, image loading/saving, font handling, etc.
   website:            http://www.juce.com/juce
-  license:            GPL/Commercial
+  license:            AGPLv3/Commercial
   minimumCppStandard: 17
 
   dependencies:       juce_events
   OSXFrameworks:      Cocoa QuartzCore
   iOSFrameworks:      CoreGraphics CoreImage CoreText QuartzCore
-  linuxPackages:      freetype2
+  linuxPackages:      freetype2 fontconfig
 
  END_JUCE_MODULE_DECLARATION
 
@@ -115,17 +131,19 @@ namespace juce
 #include "images/juce_ImageCache.h"
 #include "images/juce_ImageConvolutionKernel.h"
 #include "images/juce_ImageFileFormat.h"
+#include "contexts/juce_GraphicsContext.h"
+#include "images/juce_Image.h"
+#include "colour/juce_FillType.h"
 #include "fonts/juce_Typeface.h"
+#include "fonts/juce_FontOptions.h"
 #include "fonts/juce_Font.h"
+#include "detail/juce_Ranges.h"
 #include "fonts/juce_AttributedString.h"
 #include "fonts/juce_GlyphArrangement.h"
 #include "fonts/juce_TextLayout.h"
-#include "fonts/juce_CustomTypeface.h"
-#include "contexts/juce_GraphicsContext.h"
 #include "contexts/juce_LowLevelGraphicsContext.h"
-#include "images/juce_Image.h"
 #include "images/juce_ScaledImage.h"
-#include "colour/juce_FillType.h"
+#include "fonts/juce_LruCache.h"
 #include "native/juce_RenderingHelpers.h"
 #include "contexts/juce_LowLevelGraphicsSoftwareRenderer.h"
 #include "contexts/juce_LowLevelGraphicsPostScriptRenderer.h"
@@ -138,8 +156,8 @@ namespace juce
  #include "native/juce_CoreGraphicsContext_mac.h"
 #endif
 
- #if JUCE_WINDOWS
+#if JUCE_WINDOWS
  #include "native/juce_Direct2DMetrics_windows.h"
  #include "native/juce_Direct2DGraphicsContext_windows.h"
  #include "native/juce_Direct2DHwndContext_windows.h"
- #endif
+#endif

@@ -1,17 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -439,26 +455,26 @@ void DragAndDropContainer::startDragging (const var& sourceDescription,
 
         Image fade (Image::SingleChannel, image.getWidth(), image.getHeight(), true);
         {
-            Graphics fadeContext(fade);
+            Graphics fadeContext (fade);
 
             ColourGradient gradient;
             gradient.isRadial = true;
             gradient.point1 = clipped.toFloat() * scaleFactor;
-            gradient.point2 = gradient.point1 + Point<float>(0.0f, scaleFactor * 400.0f);
-            gradient.addColour(0.0, Colours::white);
-            gradient.addColour(0.375, Colours::white);
-            gradient.addColour(1.0, Colours::transparentWhite);
+            gradient.point2 = gradient.point1 + Point<float> (0.0f, scaleFactor * 400.0f);
+            gradient.addColour (0.0, Colours::white);
+            gradient.addColour (0.375, Colours::white);
+            gradient.addColour (1.0, Colours::transparentWhite);
 
-            fadeContext.setGradientFill(gradient);
+            fadeContext.setGradientFill (gradient);
             fadeContext.fillAll();
         }
 
         Image composite (Image::ARGB, image.getWidth(), image.getHeight(), true);
         {
-            Graphics compositeContext(composite);
+            Graphics compositeContext (composite);
 
-            compositeContext.reduceClipRegion(fade, {});
-            compositeContext.drawImageAt(image, 0, 0);
+            compositeContext.reduceClipRegion (fade, {});
+            compositeContext.drawImageAt (image, 0, 0);
         }
 
         return { ScaledImage (composite, scaleFactor), clipped };

@@ -1,141 +1,124 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
 
-#ifdef __INTELLISENSE__
-
-#define JUCE_CORE_INCLUDE_COM_SMART_PTR 1
-#define JUCE_WINDOWS                    1
-
-#include <d2d1_3.h>
-#include <d3d11_1.h>
-#include <dcomp.h>
-#include <dwrite.h>
-#include <juce_core/juce_core.h>
-#include <juce_graphics/juce_graphics.h>
-#include <windows.h>
-#include "juce_ETW_windows.h"
-#include "juce_Direct2DHelpers_windows.cpp"
-
-#endif
-
 namespace juce
 {
 
-    //==============================================================================
+struct Direct2DImageContext::ImagePimpl : public Direct2DGraphicsContext::Pimpl
+{
+public:
+    static constexpr auto opaque = false;
 
-    struct Direct2DImageContext::ImagePimpl : public Direct2DGraphicsContext::Pimpl
+    ImagePimpl (Direct2DImageContext& ownerIn, Direct2DPixelData::Ptr targetIn)
+        : Pimpl (ownerIn, opaque),
+          target (targetIn)
     {
-    private:
-        ComSmartPtr<ID2D1Bitmap1> targetBitmap;
-        Point<int> const          origin;
+        if (target != nullptr)
+            adapter = target->getAdapter();
+        else
+            jassertfalse;
+    }
 
-        void updatePaintAreas() override
-        {
-            paintAreas = getFrameSize();
-        }
+    Rectangle<int> getFrameSize() override
+    {
+        const auto targetBitmap = getBitmap();
 
-        JUCE_DECLARE_WEAK_REFERENCEABLE(ImagePimpl)
-
-    public:
-        ImagePimpl(Direct2DImageContext& owner_, DirectX::DXGI::Adapter::Ptr adapter_)
-            : Pimpl(owner_, false /* opaque */)
-        {
-            adapter = adapter_;
-        }
-
-        ~ImagePimpl() override {}
-
-        void setTargetBitmap(ID2D1Bitmap1* targetBitmap_)
-        {
-            targetBitmap = targetBitmap_;
-        }
-
-        void setScaleFactor(float scale_) override
-        {
-            Pimpl::setScaleFactor(scale_);
-
-            if (deviceResources.deviceContext.context)
-            {
-                auto dpi = USER_DEFAULT_SCREEN_DPI * dpiScalingFactor;
-                deviceResources.deviceContext.context->SetDpi(dpi, dpi);
-            }
-        }
-
-        Rectangle<int> getFrameSize() override
-        {
-            if (targetBitmap)
-            {
-                auto size = targetBitmap->GetSize();
-                return Rectangle<float>{ size.width, size.height }.getSmallestIntegerContainer();
-            }
-
+        if (targetBitmap == nullptr)
             return {};
-        }
 
-        ID2D1Image* getDeviceContextTarget() override
-        {
-            return targetBitmap;
-        }
-
-    };
-
-    //==============================================================================
-
-    int Direct2DImageContext::nextFrameNumber = -1;
-
-    Direct2DImageContext::Direct2DImageContext(DirectX::DXGI::Adapter::Ptr adapter_) :
-        pimpl(new ImagePimpl{ *this, adapter_ })
-    {
-#if JUCE_DIRECT2D_METRICS
-        metrics = direct2d::MetricsHub::getInstance()->imageContextMetrics;
-#endif
-
-        llgcFrameNumber = nextFrameNumber;
-        nextFrameNumber--;
+        auto size = targetBitmap->GetSize();
+        return Rectangle<float> { size.width, size.height }.getSmallestIntegerContainer();
     }
 
-    Direct2DImageContext::~Direct2DImageContext()
+    ComSmartPtr<ID2D1Image> getDeviceContextTarget() const override
     {
-        endFrame();
-
-        TRACE_LOG_D2D_PAINT_CALL(etw::direct2dImagePaintEnd, llgcFrameNumber);
+        return getBitmap();
     }
 
-    Direct2DGraphicsContext::Pimpl* Direct2DImageContext::getPimpl() const noexcept
+    HRESULT finishFrame() override
     {
-        return pimpl.get();
+        const auto result = Pimpl::finishFrame();
+
+        if (target != nullptr)
+            target->flushToSoftwareBackup();
+
+        return result;
     }
 
-    void Direct2DImageContext::startFrame(ID2D1Bitmap1* bitmap, float dpiScaleFactor)
+private:
+    ComSmartPtr<ID2D1Bitmap1> getBitmap() const
     {
-        pimpl->setTargetBitmap(bitmap);
-        pimpl->setScaleFactor(dpiScaleFactor);
+        if (target == nullptr)
+            return {};
 
-        Direct2DGraphicsContext::startFrame();
-
-        TRACE_LOG_D2D_PAINT_CALL(etw::direct2dImagePaintStart, llgcFrameNumber);
+        return target->getAdapterD2D1Bitmap();
     }
 
-    void Direct2DImageContext::clearTargetBuffer()
+    void updatePaintAreas() override
     {
-        //
-        // The bitmap was already cleared when it was created; do nothing here
-        //
+        paintAreas = getFrameSize();
     }
+
+    Direct2DPixelData::Ptr target;
+
+    JUCE_DECLARE_WEAK_REFERENCEABLE (ImagePimpl)
+};
+
+//==============================================================================
+Direct2DImageContext::Direct2DImageContext (Direct2DPixelData::Ptr targetIn)
+    : pimpl (new ImagePimpl { *this, targetIn })
+{
+   #if JUCE_DIRECT2D_METRICS
+    metrics = Direct2DMetricsHub::getInstance()->imageContextMetrics;
+   #endif
+
+    startFrame();
+}
+
+Direct2DImageContext::~Direct2DImageContext()
+{
+    endFrame();
+}
+
+Direct2DGraphicsContext::Pimpl* Direct2DImageContext::getPimpl() const noexcept
+{
+    return pimpl.get();
+}
+
+void Direct2DImageContext::clearTargetBuffer()
+{
+    // The bitmap was already cleared when it was created; do nothing here
+}
 
 } // namespace juce

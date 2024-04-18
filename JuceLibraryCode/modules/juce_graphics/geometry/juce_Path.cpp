@@ -1,17 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -61,9 +77,7 @@ static bool isMarker (float value, float marker) noexcept
 }
 
 //==============================================================================
-Path::PathBounds::PathBounds() noexcept
-{
-}
+Path::PathBounds::PathBounds() noexcept = default;
 
 Rectangle<float> Path::PathBounds::getRectangle() const noexcept
 {
@@ -72,7 +86,7 @@ Rectangle<float> Path::PathBounds::getRectangle() const noexcept
 
 void Path::PathBounds::reset() noexcept
 {
-    pathXMin = pathYMin = pathYMax = pathXMax = 0;
+    *this = {};
 }
 
 void Path::PathBounds::reset (float x, float y) noexcept
@@ -91,88 +105,68 @@ void Path::PathBounds::extend (float x, float y) noexcept
 }
 
 //==============================================================================
-Path::Path()
-{
-}
+Path::Path() = default;
 
-Path::~Path()
-{
-}
+Path::~Path() = default;
 
 Path::Path (const Path& other)
     : data (other.data),
       bounds (other.bounds),
-      useNonZeroWinding (other.useNonZeroWinding),
-      cacheInfo(other.cacheInfo),
-      uniqueID(createUniqueID())
+      useNonZeroWinding (other.useNonZeroWinding)
 {
 }
 
 Path& Path::operator= (const Path& other)
 {
-    if (this != &other)
-    {
-        data = other.data;
-        bounds = other.bounds;
-        useNonZeroWinding = other.useNonZeroWinding;
-        cacheInfo = other.cacheInfo;
-        uniqueID = createUniqueID();
-    }
-
+    auto copy = other;
+    *this = std::move (copy);
     return *this;
 }
 
 Path::Path (Path&& other) noexcept
-    : data (std::move (other.data)),
-      bounds (other.bounds),
-      useNonZeroWinding (other.useNonZeroWinding),
-      cacheInfo(other.cacheInfo),
-      uniqueID(other.uniqueID)
+    : data (std::exchange (other.data, {})),
+      bounds (std::exchange (other.bounds, {})),
+      useNonZeroWinding (std::exchange (other.useNonZeroWinding, {}))
 {
 }
 
 Path& Path::operator= (Path&& other) noexcept
 {
-    data = std::move (other.data);
-    bounds = other.bounds;
-    useNonZeroWinding = other.useNonZeroWinding;
-    cacheInfo = other.cacheInfo;
-    uniqueID = other.uniqueID;
+    auto copy = std::move (other);
+    swapWithPath (copy);
     return *this;
 }
 
-bool Path::operator== (const Path& other) const noexcept    { return useNonZeroWinding == other.useNonZeroWinding && data == other.data; }
+bool Path::operator== (const Path& other) const noexcept
+{
+    const auto tie = [] (const auto& x) { return std::tie (x.useNonZeroWinding, x.data); };
+    return tie (*this) == tie (other);
+}
+
 bool Path::operator!= (const Path& other) const noexcept    { return ! operator== (other); }
 
 void Path::clear() noexcept
 {
     data.clearQuick();
     bounds.reset();
-    cacheInfo.incrementModificationCount();
 }
 
 void Path::swapWithPath (Path& other) noexcept
 {
     data.swapWith (other.data);
-    std::swap (bounds.pathXMin, other.bounds.pathXMin);
-    std::swap (bounds.pathXMax, other.bounds.pathXMax);
-    std::swap (bounds.pathYMin, other.bounds.pathYMin);
-    std::swap (bounds.pathYMax, other.bounds.pathYMax);
+    std::swap (bounds, other.bounds);
     std::swap (useNonZeroWinding, other.useNonZeroWinding);
-    std::swap (cacheInfo, other.cacheInfo);
 }
 
 //==============================================================================
 void Path::setUsingNonZeroWinding (const bool isNonZero) noexcept
 {
     useNonZeroWinding = isNonZero;
-    cacheInfo.incrementModificationCount();
 }
 
 void Path::scaleToFit (float x, float y, float w, float h, bool preserveProportions) noexcept
 {
     applyTransform (getTransformToScaleToFit (x, y, w, h, preserveProportions));
-    cacheInfo.incrementModificationCount();
 }
 
 //==============================================================================
@@ -223,7 +217,6 @@ void Path::startNewSubPath (const float x, const float y)
         bounds.extend (x, y);
 
     data.add (moveMarker, x, y);
-    cacheInfo.incrementModificationCount();
 }
 
 void Path::startNewSubPath (Point<float> start)
@@ -240,7 +233,6 @@ void Path::lineTo (const float x, const float y)
 
     data.add (lineMarker, x, y);
     bounds.extend (x, y);
-    cacheInfo.incrementModificationCount();
 }
 
 void Path::lineTo (Point<float> end)
@@ -259,7 +251,6 @@ void Path::quadraticTo (const float x1, const float y1,
 
     data.add (quadMarker, x1, y1, x2, y2);
     bounds.extend (x1, y1, x2, y2);
-    cacheInfo.incrementModificationCount();
 }
 
 void Path::quadraticTo (Point<float> controlPoint, Point<float> endPoint)
@@ -281,7 +272,6 @@ void Path::cubicTo (const float x1, const float y1,
 
     data.add (cubicMarker, x1, y1, x2, y2, x3, y3);
     bounds.extend (x1, y1, x2, y2, x3, y3);
-    cacheInfo.incrementModificationCount();
 }
 
 void Path::cubicTo (Point<float> controlPoint1,
@@ -296,10 +286,7 @@ void Path::cubicTo (Point<float> controlPoint1,
 void Path::closeSubPath()
 {
     if (! (data.isEmpty() || isMarker (data.getLast(), closeSubPathMarker)))
-    {
         data.add (closeSubPathMarker);
-        cacheInfo.incrementModificationCount();
-    }
 }
 
 Point<float> Path::getCurrentPosition() const
@@ -354,8 +341,6 @@ void Path::addRectangle (float x, float y, float w, float h)
               lineMarker, x2, y1,
               lineMarker, x2, y2,
               closeSubPathMarker);
-
-    cacheInfo.incrementModificationCount();
 }
 
 void Path::addRoundedRectangle (float x, float y, float w, float h, float csx, float csy)
@@ -882,8 +867,6 @@ void Path::applyTransform (const AffineTransform& transform) noexcept
             d += 6;
         }
     }
-
-    cacheInfo.incrementModificationCount();
 }
 
 
@@ -974,8 +957,8 @@ bool Path::contains (float x, float y, float tolerance) const
         }
     }
 
-    return useNonZeroWinding ? (negativeCrossings != positiveCrossings)
-                             : ((negativeCrossings + positiveCrossings) & 1) != 0;
+    return isUsingNonZeroWinding() ? (negativeCrossings != positiveCrossings)
+                                   : ((negativeCrossings + positiveCrossings) & 1) != 0;
 }
 
 bool Path::contains (Point<float> point, float tolerance) const
@@ -1239,8 +1222,6 @@ Path Path::createPathWithRoundedCorners (const float cornerRadius) const
 //==============================================================================
 void Path::loadPathFromStream (InputStream& source)
 {
-    cacheInfo.incrementModificationCount();
-
     while (! source.isExhausted())
     {
         switch (source.readByte())
@@ -1313,7 +1294,7 @@ void Path::loadPathFromData (const void* const pathData, const size_t numberOfBy
 
 void Path::writePathToStream (OutputStream& dest) const
 {
-    dest.writeByte (useNonZeroWinding ? 'n' : 'z');
+    dest.writeByte (isUsingNonZeroWinding() ? 'n' : 'z');
 
     for (auto* i = data.begin(); i != data.end();)
     {
@@ -1361,7 +1342,7 @@ void Path::writePathToStream (OutputStream& dest) const
 String Path::toString() const
 {
     MemoryOutputStream s (2048);
-    if (! useNonZeroWinding)
+    if (! isUsingNonZeroWinding())
         s << 'a';
 
     float lastMarker = 0.0f;
@@ -1495,10 +1476,6 @@ void Path::restoreFromString (StringRef stringVersion)
 //==============================================================================
 Path::Iterator::Iterator (const Path& p) noexcept
     : elementType (startNewSubPath), path (p), index (path.data.begin())
-{
-}
-
-Path::Iterator::~Iterator() noexcept
 {
 }
 

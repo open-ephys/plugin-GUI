@@ -1,17 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -41,8 +57,16 @@
 #include <cctype>
 
 //==============================================================================
+#ifdef JUCE_DISPLAY_SPLASH_SCREEN
+ JUCE_COMPILER_WARNING ("This version of JUCE does not use the splash screen, the flag JUCE_DISPLAY_SPLASH_SCREEN is ignored")
+#endif
+
+#ifdef JUCE_USE_DARK_SPLASH_SCREEN
+ JUCE_COMPILER_WARNING ("This version of JUCE does not use the splash screen, the flag JUCE_USE_DARK_SPLASH_SCREEN is ignored")
+#endif
+
+//==============================================================================
 #if JUCE_MAC
- #import <WebKit/WebKit.h>
  #import <IOKit/pwr_mgt/IOPMLib.h>
  #import <MetalKit/MetalKit.h>
 
@@ -56,19 +80,19 @@
 
 //==============================================================================
 #elif JUCE_WINDOWS
- #include <windowsx.h>
- #include <vfw.h>
- #include <commdlg.h>
  #include <commctrl.h>
- #include <sapi.h>
- #include <dxgi1_3.h>
+ #include <commdlg.h>
  #include <d2d1_3.h>
  #include <d3d11_2.h>
+ #include <dxgi1_3.h>
+ #include <sapi.h>
+ #include <vfw.h>
+ #include <windowsx.h>
 
-#if JUCE_ETW_TRACELOGGING
-#include <evntrace.h>
-#include <TraceLoggingProvider.h>
-#endif
+ #if JUCE_ETW_TRACELOGGING
+  #include <TraceLoggingProvider.h>
+  #include <evntrace.h>
+ #endif
 
  #if JUCE_MINGW
   // Some MinGW headers use 'new' as a parameter name
@@ -102,6 +126,8 @@
 #endif
 
 //==============================================================================
+#include <juce_graphics/native/juce_EventTracing.h>
+
 #include "detail/juce_AccessibilityHelpers.h"
 #include "detail/juce_ButtonAccessibilityHandler.h"
 #include "detail/juce_ScalingHelpers.h"
@@ -122,6 +148,7 @@
 #include "detail/juce_WindowingHelpers.h"
 #include "detail/juce_AlertWindowHelpers.h"
 #include "detail/juce_TopLevelWindowManager.h"
+#include "detail/juce_StandardCachedComponentImage.h"
 
 //==============================================================================
 #if JUCE_IOS || JUCE_WINDOWS
@@ -163,8 +190,8 @@
  #include "native/juce_MouseCursor_mac.mm"
 
 #elif JUCE_WINDOWS
- #include "../juce_graphics/native/juce_ETW_windows.h"
- #include "../juce_graphics/native/juce_DirectX_windows.h"
+ #include <juce_graphics/native/juce_DirectX_windows.h>
+
  #include "native/accessibility/juce_ComInterfaces_windows.h"
  #include "native/accessibility/juce_WindowsUIAWrapper_windows.h"
  #include "native/accessibility/juce_AccessibilityElement_windows.h"
@@ -173,8 +200,8 @@
  #include "native/accessibility/juce_AccessibilityElement_windows.cpp"
  #include "native/accessibility/juce_Accessibility_windows.cpp"
  #include "native/juce_WindowsHooks_windows.h"
- #include "native/juce_VBlank_windows.h"
  #include "native/juce_WindowUtils_windows.cpp"
+ #include "native/juce_VBlank_windows.cpp"
  #include "native/juce_Windowing_windows.cpp"
  #include "native/juce_WindowsHooks_windows.cpp"
  #include "native/juce_NativeMessageBox_windows.cpp"
@@ -301,7 +328,6 @@
 #include "misc/juce_BubbleComponent.cpp"
 #include "misc/juce_DropShadower.cpp"
 #include "misc/juce_FocusOutline.cpp"
-#include "misc/juce_JUCESplashScreen.cpp"
 #include "mouse/juce_ComponentDragger.cpp"
 #include "mouse/juce_DragAndDropContainer.cpp"
 #include "mouse/juce_MouseEvent.cpp"

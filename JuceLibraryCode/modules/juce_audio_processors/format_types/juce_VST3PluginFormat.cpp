@@ -1,17 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -1591,15 +1607,11 @@ private:
     {
         auto rect = componentToVST3Rect (bounds);
         auto constrainedRect = rect;
-        view->checkSizeConstraint(&constrainedRect);
+        view->checkSizeConstraint (&constrainedRect);
 
-        //
         // Prevent inadvertent window growth while dragging; see componentMovedOrResized below
-        //
         if (constrainedRect.getWidth() != rect.getWidth() || constrainedRect.getHeight() != rect.getHeight())
-        {
-            bounds = vst3ToComponentRect(constrainedRect);
-        }
+            bounds = vst3ToComponentRect (constrainedRect);
     }
 
     //==============================================================================
@@ -1625,24 +1637,21 @@ private:
 
         if (view->canResize() == kResultTrue)
         {
-            //
             // componentToVST3Rect will apply DPI scaling and round to the nearest integer; vst3ToComponentRect
             // will invert the DPI scaling, but the logical size returned by vst3ToComponentRect may be
             // different from the original size due to floating point rounding if the scale factor is > 100%.
             // This can cause the window to unexpectedly grow while it's moving.
-            //
             auto scaledRect = componentToVST3Rect (getLocalBounds());
 
             auto constrainedRect = scaledRect;
             view->checkSizeConstraint (&constrainedRect);
 
-            //
+            const auto tieRect = [] (const auto& x) { return std::tuple (x.getWidth(), x.getHeight()); };
+
             // Only update the size if the constrained size is actually different
-            //
-            if (constrainedRect.getWidth() != scaledRect.getWidth() ||
-                 constrainedRect.getHeight() != scaledRect.getHeight())
+            if (tieRect (constrainedRect) != tieRect (scaledRect))
             {
-                const ScopedValueSetter<bool> recursiveResizeSetter (recursiveResize, true);
+                const ScopedValueSetter recursiveResizeSetter (recursiveResize, true);
 
                 const auto logicalSize = vst3ToComponentRect (constrainedRect);
                 setSize (logicalSize.getWidth(), logicalSize.getHeight());
@@ -1758,13 +1767,11 @@ private:
 
             updatePluginScale();
 
-#if JUCE_WINDOWS
-            //
+           #if JUCE_WINDOWS
             // Make sure the embedded component window is the right size
             // and invalidate the embedded HWND and any child windows
-            //
             embeddedComponent.updateHWNDBounds();
-#endif
+           #endif
         }
     }
 
@@ -1812,12 +1819,10 @@ private:
         ViewComponent()
         {
             setOpaque (true);
-            inner.addToDesktop(0);
+            inner.addToDesktop (0);
 
-            if (auto* innerPeer = inner.getPeer())
-            {
-                setHWND(innerPeer->getNativeHandle());
-            }
+            if (auto* peer = inner.getPeer())
+                setHWND (peer->getNativeHandle());
         }
 
         void paint (Graphics& g) override { g.fillAll (Colours::black); }

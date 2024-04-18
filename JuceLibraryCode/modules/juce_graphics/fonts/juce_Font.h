@@ -1,17 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -19,7 +35,6 @@
 namespace juce
 {
 
-//==============================================================================
 /**
     Represents a particular font, including its size, style, etc.
 
@@ -46,6 +61,9 @@ public:
         underlined  = 4     /**< underlines the font. @see setStyleFlags */
     };
 
+    /** Constructs a Font from a set of options describing the font. */
+    Font (FontOptions options);
+
     //==============================================================================
     /** Creates a sans-serif font in a given size.
 
@@ -55,6 +73,7 @@ public:
                             just Font::plain for the normal style.
         @see FontStyleFlags, getDefaultSansSerifFontName
     */
+    [[deprecated ("Use the constructor that takes a FontOptions argument")]]
     Font (float fontHeight, int styleFlags = plain);
 
     /** Creates a font with a given typeface and parameters.
@@ -66,6 +85,7 @@ public:
                             just Font::plain for the normal style.
         @see FontStyleFlags, getDefaultSansSerifFontName
     */
+    [[deprecated ("Use the constructor that takes a FontOptions argument")]]
     Font (const String& typefaceName, float fontHeight, int styleFlags);
 
     /** Creates a font with a given typeface and parameters.
@@ -74,12 +94,11 @@ public:
         @param typefaceStyle the font style of the typeface to use
         @param fontHeight    the height in pixels (can be fractional)
     */
+    [[deprecated ("Use the constructor that takes a FontOptions argument")]]
     Font (const String& typefaceName, const String& typefaceStyle, float fontHeight);
 
-    /** Creates a copy of another Font object. */
-    Font (const Font& other) noexcept;
-
     /** Creates a font for a typeface. */
+    [[deprecated ("Use the constructor that takes a FontOptions argument")]]
     Font (const Typeface::Ptr& typeface);
 
     /** Creates a basic sans-serif font at a default height.
@@ -88,7 +107,11 @@ public:
         on drawing with - this constructor is here to help initialise objects before changing
         the font's settings later.
     */
+    [[deprecated ("Use the constructor that takes a FontOptions argument")]]
     Font();
+
+    /** Creates a copy of another Font object. */
+    Font (const Font& other) noexcept;
 
     /** Move constructor */
     Font (Font&& other) noexcept;
@@ -153,6 +176,30 @@ public:
     StringArray getAvailableStyles() const;
 
     //==============================================================================
+    /** Sets the names of the fallback font families that should be tried, in order,
+        when searching for glyphs that are missing in the main typeface, specified via
+        setTypefaceName() or Font(const Typeface::Ptr&).
+    */
+    void setPreferredFallbackFamilies (const StringArray& fallbacks);
+
+    /** Returns the names of the fallback font families.
+    */
+    StringArray getPreferredFallbackFamilies() const;
+
+    /** When drawing text using this Font, specifies whether glyphs that are missing in the main
+        typeface should be replaced with glyphs from other fonts.
+        To find missing glyphs, the typefaces for the preferred fallback families will be checked
+        in order, followed by the system fallback fonts. The system fallback font is likely to be
+        different on each platform.
+
+        Fallback is enabled by default.
+    */
+    void setFallbackEnabled (bool enabled);
+
+    /** Returns true if fallback is enabled, or false otherwise. */
+    bool getFallbackEnabled() const;
+
+    //==============================================================================
     /** Returns a typeface font family that represents the default sans-serif font.
 
         This is also the typeface that will be used when a font is created without
@@ -192,7 +239,13 @@ public:
     */
     static const String& getDefaultStyle();
 
-    /** Returns the default system typeface for the given font. */
+    /** Returns the default system typeface for the given font.
+
+        Note: This will only ever return the typeface for the font's "main" family.
+        Before attempting to render glyphs from this typeface, it's a good idea to check
+        that those glyphs are present in the typeface, and to select a different
+        face if necessary.
+    */
     static Typeface::Ptr getDefaultTypefaceForFont (const Font& font);
 
     //==============================================================================
@@ -296,6 +349,9 @@ public:
     /** Returns true if the font is underlined. */
     bool isUnderlined() const noexcept;
 
+    /** Returns the kind of metrics used by this Font. */
+    TypefaceMetricsKind getMetricsKind() const noexcept;
+
     //==============================================================================
     /** Returns the font's horizontal scale.
         A value of 1.0 is the normal scale, less than this will be narrower, greater
@@ -330,7 +386,8 @@ public:
     */
     static void setDefaultMinimumHorizontalScaleFactor (float newMinimumScaleFactor) noexcept;
 
-    /** Returns the font's kerning.
+    /** Returns the font's tracking, i.e. spacing applied between characters in
+        addition to the kerning defined by the font.
 
         This is the extra space added between adjacent characters, as a proportion
         of the font's height.
@@ -340,7 +397,7 @@ public:
     */
     float getExtraKerningFactor() const noexcept;
 
-    /** Returns a copy of this font with a new kerning factor.
+    /** Returns a copy of this font with a new tracking factor.
         @param extraKerning     a multiple of the font's height that will be added
                                 to space between the characters. So a value of zero is
                                 normal spacing, positive values spread the letters out,
@@ -348,7 +405,7 @@ public:
     */
     [[nodiscard]] Font withExtraKerningFactor (float extraKerning) const;
 
-    /** Changes the font's kerning.
+    /** Changes the font's tracking.
         @param extraKerning     a multiple of the font's height that will be added
                                 to space between the characters. So a value of zero is
                                 normal spacing, positive values spread the letters out,
@@ -388,17 +445,13 @@ public:
     void getGlyphPositions (const String& text, Array<int>& glyphs, Array<float>& xOffsets) const;
 
     //==============================================================================
-   #ifndef DOXYGEN
-    /** Returns the typeface used by this font.
+    /** Returns the main typeface used by this font.
 
-        Note that the object returned may go out of scope if this font is deleted
-        or has its style changed.
+        Note: This will only ever return the typeface for the "main" family.
+        Before attempting to render glyphs from this typeface, it's a good idea to check
+        that those glyphs are present in the typeface, and to select a different
+        face if necessary.
     */
-    [[deprecated ("This method is unsafe, use getTypefacePtr() instead.")]]
-    Typeface* getTypeface() const;
-   #endif
-
-    /** Returns the typeface used by this font. */
     Typeface::Ptr getTypefacePtr() const;
 
     /** Creates an array of Font objects to represent all the fonts on the system.
@@ -429,25 +482,30 @@ public:
     static StringArray findAllTypefaceStyles (const String& family);
 
     //==============================================================================
-    /** Returns the font family of the typeface to be used for rendering glyphs that aren't
-        found in the requested typeface.
-    */
-    static const String& getFallbackFontName();
+    /** Attempts to locate a visually similar font that is capable of rendering the
+        provided string.
 
-    /** Sets the (platform-specific) font family of the typeface to use to find glyphs that
-        aren't available in whatever font you're trying to use.
-    */
-    static void setFallbackFontName (const String& name);
+        If fallback is disabled on this Font by setFallbackEnabled(), then this will
+        always return a copy of the current Font.
 
-    /** Returns the font style of the typeface to be used for rendering glyphs that aren't
-        found in the requested typeface.
-    */
-    static const String& getFallbackFontStyle();
+        Otherwise, the current font, then each of the fallback fonts specified by
+        setPreferredFallbackFamilies() will be checked, and the first Font that is
+        capable of rendering the string will be returned. If none of these fonts is
+        suitable, then the system font fallback mechanism will be used to locate a
+        font from the currently installed fonts. If the system also cannot find any
+        suitable font, then a copy of the original Font will be returned.
 
-    /** Sets the (platform-specific) font style of the typeface to use to find glyphs that
-        aren't available in whatever font you're trying to use.
+        Note that most fonts don't contain glyphs for all possible unicode codepoints,
+        and instead may contain e.g. just the glyphs required for a specific script. So,
+        if the provided text would be displayed using several scripts (multiple languages,
+        emoji, etc.) then there's a good chance that no single font will be able to
+        render the entire text. Shorter strings will generally produce better fallback
+        results than longer strings, with the caveat that the system may take control
+        characters such as combining marks and variation selectors into account when
+        selecting suitable fonts, so querying fallbacks character-by-character is likely
+        to produce poor results.
     */
-    static void setFallbackFontStyle (const String& style);
+    Font findSuitableFontForText (const String& text, const String& language = {}) const;
 
     //==============================================================================
     /** Creates a string to describe this font.
@@ -462,12 +520,23 @@ public:
     */
     static Font fromString (const String& fontDescription);
 
+    /** @internal */
+    class Native;
+
+    /** @internal
+
+        At the moment, this is a way to get at the hb_font_t that backs this font.
+        The typeface's hb_font_t is sized appropriately for this font instance.
+        The font may also have synthetic slant and bold applied.
+        This is only for internal use!
+    */
+    Native getNativeDetails() const;
+
 private:
     //==============================================================================
     static bool compare (const Font&, const Font&) noexcept;
 
     void dupeInternalIfShared();
-    void checkTypefaceSuitability();
     float getHeightToPointsFactor() const;
 
     friend struct GraphicsFontHelpers;

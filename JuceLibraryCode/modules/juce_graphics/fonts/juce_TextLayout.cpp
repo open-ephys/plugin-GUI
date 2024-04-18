@@ -1,17 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE 8 technical preview.
+   This file is part of the JUCE framework.
    Copyright (c) Raw Material Software Limited
 
-   You may use this code under the terms of the GPL v3
-   (see www.gnu.org/licenses).
+   JUCE is an open source framework subject to commercial or open source
+   licensing.
 
-   For the technical preview this file cannot be licensed commercially.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -198,6 +214,9 @@ void TextLayout::draw (Graphics& g, Rectangle<float> area) const
     auto clipTop    = (float) clip.getY()      - origin.y;
     auto clipBottom = (float) clip.getBottom() - origin.y;
 
+    std::vector<uint16_t> glyphNumbers;
+    std::vector<Point<float>> positions;
+
     for (auto& line : *this)
     {
         auto lineRangeY = line.getLineBoundsY();
@@ -215,24 +234,31 @@ void TextLayout::draw (Graphics& g, Rectangle<float> area) const
             context.setFont (run->font);
             context.setFill (run->colour);
 
-            if (context.supportsGlyphRun())
+            const auto& glyphs = run->glyphs;
+
+            glyphNumbers.resize ((size_t) glyphs.size());
+            std::transform (glyphs.begin(), glyphs.end(), glyphNumbers.begin(), [&] (const Glyph& x)
             {
-                context.drawTextLayoutGlyphRun (run->glyphs, run->font, AffineTransform::translation(lineOrigin.x, lineOrigin.y));
-            }
-            else
+                return (uint16_t) x.glyphCode;
+            });
+
+            positions.resize ((size_t) glyphs.size());
+            std::transform (glyphs.begin(), glyphs.end(), positions.begin(), [&] (const Glyph& x)
             {
-                for (auto& glyph : run->glyphs)
-                    context.drawGlyph(glyph.glyphCode, AffineTransform::translation(lineOrigin.x + glyph.anchor.x,
-                        lineOrigin.y + glyph.anchor.y));
-            }
+                return x.anchor;
+            });
+
+            context.drawGlyphs (glyphNumbers, positions, AffineTransform::translation (lineOrigin));
 
             if (run->font.isUnderlined())
             {
-                auto runExtent = run->getRunBoundsX();
-                auto lineThickness = run->font.getDescent() * 0.3f;
+                const auto runExtent = run->getRunBoundsX();
+                const auto lineThickness = run->font.getDescent() * 0.3f;
 
-                context.fillRect ({ runExtent.getStart() + lineOrigin.x, lineOrigin.y + lineThickness * 2.0f,
-                                    runExtent.getLength(), lineThickness });
+                context.fillRect ({ runExtent.getStart() + lineOrigin.x,
+                                    lineOrigin.y + lineThickness * 2.0f,
+                                    runExtent.getLength(),
+                                    lineThickness });
             }
         }
     }
