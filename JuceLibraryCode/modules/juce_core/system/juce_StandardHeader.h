@@ -23,9 +23,9 @@
 
     See also SystemStats::getJUCEVersion() for a string version.
 */
-#define JUCE_MAJOR_VERSION      7
+#define JUCE_MAJOR_VERSION      8
 #define JUCE_MINOR_VERSION      0
-#define JUCE_BUILDNUMBER        11
+#define JUCE_BUILDNUMBER        0
 
 /** Current JUCE version number.
 
@@ -130,6 +130,13 @@ JUCE_END_IGNORE_WARNINGS_MSVC
 #undef major
 #undef minor
 #undef KeyPress
+
+// <Open-Ephys>
+// Modified by Open-Ephys.
+// For some reason this define doesn't work as an Xcode option. Add it to linux as well.
+#if JUCE_MAC || JUCE_LINUX
+ #define JUCE_API __attribute__((visibility("default")))
+#endif
 
 //==============================================================================
 // DLL building settings on Windows

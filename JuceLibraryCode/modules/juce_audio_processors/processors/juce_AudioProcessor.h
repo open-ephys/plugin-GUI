@@ -37,7 +37,7 @@ namespace juce
 
     @tags{Audio}
 */
-class JUCE_API  AudioProcessor : private AAXClientExtensions
+class JUCE_API  AudioProcessor
 {
 protected:
     struct BusesProperties;
@@ -1184,7 +1184,7 @@ public:
     /** Returns a reference to an object that implements AAX specific information regarding
         this AudioProcessor.
     */
-    virtual AAXClientExtensions& getAAXClientExtensions()       { return *this; }
+    virtual AAXClientExtensions& getAAXClientExtensions();
 
     /** Returns a non-owning pointer to an object that implements VST2 specific information
         regarding this AudioProcessor.

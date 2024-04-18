@@ -1313,4 +1313,6 @@ bool operator!= (const AudioBuffer<Type>& a, const AudioBuffer<Type>& b)
 */
 using AudioSampleBuffer = AudioBuffer<float>;
 
+using SynchronizedTimestampBuffer = AudioBuffer<double>;
+
 } // namespace juce
