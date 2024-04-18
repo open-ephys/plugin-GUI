@@ -121,7 +121,7 @@ void LfpChannelDisplay::pxPaint()
         return; // return early if THIS display is not enabled
     }
 
-    Image::BitmapData bdLfpChannelBitmap(display->lfpChannelBitmap, 0,0, display->lfpChannelBitmap.getWidth(), display->lfpChannelBitmap.getHeight());
+    Image::BitmapData bdLfpChannelBitmap(display->lfpChannelBitmap, Image::BitmapData::readWrite);
     
     int center = getHeight()/2;
 
@@ -375,7 +375,7 @@ void LfpChannelDisplay::pxPaintHistory(int playhead, int rightEdge, int maxScree
         return; // return early if THIS display is not enabled
     }
 
-    Image::BitmapData bdLfpChannelBitmap(display->lfpChannelBitmap, 0, 0, display->lfpChannelBitmap.getWidth(), display->lfpChannelBitmap.getHeight());
+    Image::BitmapData bdLfpChannelBitmap(display->lfpChannelBitmap, Image::BitmapData::readWrite);
 
     int center = getHeight() / 2;
 

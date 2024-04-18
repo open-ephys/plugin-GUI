@@ -296,10 +296,10 @@ void LfpDisplay::resized()
     //LOGD(" !! LFP DISPLAY RESIZED TO: ", getWidth(), " pixels.");
 
     if (getWidth() > 0 && getHeight() > 0)
-        lfpChannelBitmap = Image(Image::ARGB, getWidth() - canvasSplit->leftmargin, getHeight(), true);
+        lfpChannelBitmap = Image(Image::ARGB, getWidth() - canvasSplit->leftmargin, getHeight(), true, SoftwareImageType());
     else
-        lfpChannelBitmap = Image(Image::ARGB, 10, 10, true);
-
+        lfpChannelBitmap = Image(Image::ARGB, 10, 10, true, SoftwareImageType());
+    
     if (getWidth() == 0)
     {
         //LOGD("   ::: Not visible, returning.");
