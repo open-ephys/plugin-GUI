@@ -75,7 +75,8 @@ bool SpikeDisplayNode::startAcquisition()
 		Electrode* elec = electrodes[i];
 	}
 
-    editor->enable();
+    if (!headlessMode)
+        editor->enable();
 
     totalCallbacks = 0;
     spikeCount = 0;
