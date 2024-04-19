@@ -260,8 +260,6 @@ private:
         ostrich,
         silkscreen;
     
-    MemoryInputStream silkscreenStream;
-
     Font getCommonMenuFont();
 };
 

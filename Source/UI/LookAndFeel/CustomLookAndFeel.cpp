@@ -33,9 +33,8 @@ CustomLookAndFeel::CustomLookAndFeel() :
     // to them whenever they're used).
 
 
-    silkscreenStream(BinaryData::silkscreenserialized,
-        BinaryData::silkscreenserializedSize,
-        false),
+    silkscreen(Typeface::createSystemTypefaceFor(BinaryData::SilkscreenRegular_ttf,
+        BinaryData::SilkscreenRegular_ttfSize)),
 
     cpmonoExtraLight(Typeface::createSystemTypefaceFor(BinaryData::CPMonoExtraLight_otf,
         BinaryData::CPMonoExtraLight_otfSize)),
@@ -77,10 +76,10 @@ CustomLookAndFeel::CustomLookAndFeel() :
 
     nimbusSans(Typeface::createSystemTypefaceFor(BinaryData::NimbusSans_otf,
         BinaryData::NimbusSans_otfSize)),
-    nordic(Typeface::createSystemTypefaceFor(BinaryData::Nordic_ttf,
-        BinaryData::Nordic_ttfSize)),
-    ostrich(Typeface::createSystemTypefaceFor(BinaryData::Ostrich_ttf,
-        BinaryData::Ostrich_ttfSize)),
+    nordic(Typeface::createSystemTypefaceFor(BinaryData::nordic_ttf,
+        BinaryData::nordic_ttfSize)),
+    ostrich(Typeface::createSystemTypefaceFor(BinaryData::ostrich_ttf,
+        BinaryData::ostrich_ttfSize)),
     bebasNeue(Typeface::createSystemTypefaceFor(BinaryData::BebasNeue_otf,
         BinaryData::BebasNeue_otfSize))
 
@@ -295,7 +294,7 @@ Typeface::Ptr CustomLookAndFeel::getTypefaceForFont(const Font& font)
     }
     else if (typefaceName.equalsIgnoreCase("Silkscreen"))
     {
-        return firaCodeSemiBold;
+        return silkscreen;
     }
     else if (typefaceName.equalsIgnoreCase("Ostrich"))
     {
