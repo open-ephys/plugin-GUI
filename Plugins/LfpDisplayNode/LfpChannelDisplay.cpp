@@ -392,10 +392,10 @@ void LfpViewer::LfpChannelDisplay::drawPlot(int index, int i, bool drawWithOffse
 {	
 	// set max-min range for plotting
 	double range_numerator = rangeMin;
-	double denominator = rangeMax - rangeMin * channelHeightFloat;
-	denominator = std::max(denominator, 1.0);
+	double denominator = (rangeMax - rangeMin) * channelHeightFloat;
+	if (denominator == 0) denominator = 1;
 
-	double a = (canvasSplit->getYCoordMax(chan, index)) / denominator;
+	double a = (canvasSplit->getYCoordMax(chan, index) - range_numerator) / denominator;
 	double b = (canvasSplit->getYCoordMin(chan, index) - range_numerator) / denominator;
 
 	double mean = (canvasSplit->getMean(chan) - range_numerator) / denominator;
