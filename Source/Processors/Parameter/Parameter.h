@@ -180,7 +180,8 @@ public:
         }
     }
 
-    
+    /** Returns true if the parameter is valid */
+    virtual bool isValid() { return true; }
 
     /** Static identifier to keep track of unique parameters */
     static int64 parameterCounter;
@@ -899,7 +900,7 @@ public:
     StringArray getValidFilePatterns() { return filePatternsAllowed; }
 
     /** Returns true if the current path is valid for this parameter */
-    bool isValid();
+    bool isValid() override;
 
 private:
 

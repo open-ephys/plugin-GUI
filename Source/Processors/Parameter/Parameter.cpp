@@ -1127,15 +1127,22 @@ void PathParameter::setNextValue(var newValue_, bool undoable)
 
 bool PathParameter::isValid()
 {
-    if (!isDirectory && File(currentValue.toString()).existsAsFile())
+    if (currentValue.toString() == "default") {
+        currentValue = defaultValue;
+        return true;
+    }
+    else if (!isDirectory && File(currentValue.toString()).existsAsFile())
     {
+        LOGD("*** Validated file: ", currentValue.toString());
         return true;
     }
     else if (isDirectory && File(currentValue.toString()).exists())
     {
+        LOGD("*** Validated directory: ", currentValue.toString());
         return true;
     }
 
+    LOGD("*** ERROR: Invalid file path: ", currentValue.toString());
     return false;
 }
 

@@ -1811,6 +1811,17 @@ void ProcessorGraph::startAcquisition()
 
     LOGD("ProcessorGraph starting acquisition...");
 
+    //Check if all parameters are valid:
+    for (auto param : Parameter::parameterMap)
+    {
+        if (!param.second->isValid())
+        {
+            LOGD("Parameter ", param.second->getName(), " is not valid.");
+            AccessClass::getUIComponent()->disableCallbacks();
+            return;
+        }
+    }
+
     for (int i = 0; i < getNumNodes(); i++)
     {
         Node* node = getNode(i);
