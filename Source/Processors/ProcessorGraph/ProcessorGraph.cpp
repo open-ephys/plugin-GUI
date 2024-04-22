@@ -1731,7 +1731,21 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 bool ProcessorGraph::isReady()
 {
 
-    LOGD("ProcessorGraph::enableProcessors()");
+    LOGD("ProcessorGraph checking for all valid parameters...");
+
+    for (auto param : Parameter::parameterMap)
+    {
+        if (!param.second->isValid())
+        {
+            CoreServices::sendStatusMessage("Parameter " + param.second->getName() + " is not valid.");
+            AccessClass::getUIComponent()->disableCallbacks();
+            return;
+        }
+    }
+
+    LOGD("All parameters are valid.");
+
+    LOGD("ProcessorGraph checking minimum number of nodes...");
 
     if (getNumNodes() < 4)
     {
@@ -1810,17 +1824,6 @@ void ProcessorGraph::startAcquisition()
 {
 
     LOGD("ProcessorGraph starting acquisition...");
-
-    //Check if all parameters are valid:
-    for (auto param : Parameter::parameterMap)
-    {
-        if (!param.second->isValid())
-        {
-            LOGD("Parameter ", param.second->getName(), " is not valid.");
-            AccessClass::getUIComponent()->disableCallbacks();
-            return;
-        }
-    }
 
     for (int i = 0; i < getNumNodes(); i++)
     {
