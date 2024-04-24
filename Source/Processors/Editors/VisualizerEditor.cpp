@@ -187,6 +187,15 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
             editor->dataWindow->setContentNonOwned (editor->canvas.get(), false);
             editor->dataWindow->setVisible (true);
             editor->dataWindow->addListener (editor);
+
+            // Set the rendering engine for the window
+            auto editorPeer = editor->getPeer();
+            if (auto peer = editor->canvas->getPeer())
+            {
+                auto editorPeer = editor->getPeer();
+                if (editorPeer)
+                    peer->setCurrentRenderingEngine(editorPeer->getCurrentRenderingEngine());
+            }
         }
         else
         {

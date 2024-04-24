@@ -52,8 +52,8 @@ UIComponent::UIComponent(MainWindow* mainWindow_,
 	messageCenterEditor = (MessageCenterEditor*) processorGraph->getMessageCenter()->createEditor();
 	LOGD("Created message center editor.");
 
-	infoLabel = new InfoLabel();
-	LOGD("Created info label.");
+	// infoLabel = new InfoLabel();
+	// LOGD("Created info label.");
 
 	graphViewer = new GraphViewer();
 	LOGD("Created graph viewer.");
@@ -399,11 +399,11 @@ ColorTheme UIComponent::getTheme()
 
 void UIComponent::addInfoTab()
 {
-	if (!infoTabIsOpen)
-	{
-		dataViewport->addTab("Info", infoLabel, 0);
-		infoTabIsOpen = true;
-	}
+	// if (!infoTabIsOpen)
+	// {
+	// 	dataViewport->addTab("Info", infoLabel, 0);
+	// 	infoTabIsOpen = true;
+	// }
 }
 
 void UIComponent::addGraphTab()
@@ -489,6 +489,14 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
         menu.addSeparator();
         menu.addSubMenu("Theme", themeMenu);
 		menu.addSeparator();
+
+#if JUCE_WINDOWS
+		PopupMenu rendererMenu;
+		rendererMenu.addCommandItem(commandManager, setSoftwareRenderer);
+		rendererMenu.addCommandItem(commandManager, setDirect2DRenderer);
+		menu.addSubMenu("Renderer", rendererMenu);
+		menu.addSeparator();
+#endif
 		menu.addCommandItem(commandManager, resizeWindow);
 
 	}
@@ -546,7 +554,9 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		openPluginInstaller,
 		openDefaultConfigWindow,
         setColorTheme1,
-        setColorTheme2
+        setColorTheme2,
+		setSoftwareRenderer,
+        setDirect2DRenderer
 	};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -557,6 +567,13 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 {
 
 	bool acquisitionStarted = getAudioComponent()->callbacksAreActive();
+
+	int renderer = 0;
+
+	if (auto peer = getPeer())
+	{
+		renderer = peer->getCurrentRenderingEngine();
+	}
 
 	switch (commandID)
 	{
@@ -706,6 +723,16 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 
 		case resizeWindow:
 			result.setInfo("Reset window bounds", "Reset window bounds", "General", 0);
+			break;
+		
+		case setSoftwareRenderer:
+			result.setInfo("Software (CPU)", "Use the software renderer.", "General", 0);
+			result.setTicked(renderer == 0);
+			break;
+		
+		case setDirect2DRenderer:
+			result.setInfo("Direct2D (GPU)", "Use the Direct2D renderer.", "General", 0);
+			result.setTicked(renderer == 1);
 			break;
 
 		default:
@@ -966,6 +993,26 @@ bool UIComponent::perform(const InvocationInfo& info)
         case setColorTheme2:
             setTheme(ColorTheme::THEME2);
             break;
+		
+		case setSoftwareRenderer:
+			{
+				if (auto peer = getPeer())
+				{
+					peer->setCurrentRenderingEngine(0);
+					repaint();
+				}
+				break;
+			}
+		
+		case setDirect2DRenderer:
+			{
+				if (auto peer = getPeer())
+				{
+					peer->setCurrentRenderingEngine(1);
+					repaint();
+				}
+				break;
+			}
 
 		case openPluginInstaller:
 			{

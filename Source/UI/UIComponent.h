@@ -254,7 +254,9 @@ private:
         savePluginSettings      = 0x3002,
         lockSignalChain         = 0x5001,
         setColorTheme1          = 0x6111,
-        setColorTheme2          = 0x6112
+        setColorTheme2          = 0x6112,
+        setSoftwareRenderer     = 0x7001,
+        setDirect2DRenderer     = 0x7002
         
     };
 
