@@ -83,11 +83,10 @@ void LfpTimescale::paint(Graphics& g)
         {
             float lineHeight;
 
-            g.drawLine(xLoc,
-                0,
-                xLoc,
-                timescaleHeight,
-                2.0f);
+            g.fillRect(xLoc,
+                0.0f,
+                2.0f,
+                (float)timescaleHeight);
 
             g.drawText(labels[i] + " " + timeScaleUnitLabel,
                 xLoc + 10,
@@ -126,7 +125,7 @@ void LfpTimescale::setPausedState(bool isPaused_)
     else {
         lfpDisplay->pause(true);
         isPaused = true;
-        startTimer(100);
+        startTimer(20);
     }
 
     repaint();

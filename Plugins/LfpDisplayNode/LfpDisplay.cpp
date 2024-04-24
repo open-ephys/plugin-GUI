@@ -362,7 +362,10 @@ void LfpDisplay::resized()
 void LfpDisplay::paint(Graphics& g)
 {
     
-    g.drawImageAt(lfpChannelBitmap, canvasSplit->leftmargin, 0);
+    // g.drawImageAt(lfpChannelBitmap, canvasSplit->leftmargin, 0);
+    auto viewArea = viewport->getViewArea();
+    g.drawImage(lfpChannelBitmap, canvasSplit->leftmargin, viewArea.getY(), getWidth() - canvasSplit->leftmargin, viewArea.getHeight(), 
+    0,  viewArea.getY(), lfpChannelBitmap.getWidth(), viewArea.getHeight());
     
 }
 
@@ -389,15 +392,21 @@ void LfpDisplay::refresh()
     int totalXPixels = lfpChannelBitmap.getWidth();
     int totalYPixels = lfpChannelBitmap.getHeight();
 
+    int topBorder = viewport->getViewPositionY();
+    int bottomBorder = viewport->getViewHeight() + topBorder;
+
     //std::cout << "refresh display " << std::endl;
 
     // X-bounds of this update
     int fillfrom = canvasSplit->lastScreenBufferIndex[0]; 
     int fillto = canvasSplit->screenBufferIndex[0]; 
 
+    // If the display is paused, check and draw for backwards scrolling
     if (displayIsPaused)
     {
-        if (timeOffsetChanged && canRefresh)
+        // Check if the time offset has changed or if a full redraw is needed
+        if ((timeOffsetChanged && canRefresh)
+            || canvasSplit->fullredraw)
         {
 
             //std::cout << "Time offset: " << timeOffset << std::endl;
@@ -415,11 +424,19 @@ void LfpDisplay::refresh()
 
             for (int i = 0; i < numChans; i++)
             {
-                channels[i]->pxPaintHistory(playhead, rightEdge, maxScreenBufferIndex);
-                channelInfo[i]->repaint();
+                int componentTop = channels[i]->getY();
+                int componentBottom = channels[i]->getHeight() + componentTop;
+                
+                if ((topBorder <= componentBottom && bottomBorder >= componentTop)) // only draw things that are visible
+                {
+                    channels[i]->pxPaintHistory(playhead, rightEdge, maxScreenBufferIndex);
+                    channelInfo[i]->repaint();
+                }
             }
 
             repaint();
+
+            canvasSplit->fullredraw = false;
 
             return;
 
@@ -447,9 +464,6 @@ void LfpDisplay::refresh()
     //if (totalPixelsToFill > 0)
 	//    std::cout << fillfrom << " : " << fillto << " ::: " << "totalPixelsToFill: " << totalPixelsToFill << std::endl;
 
-    int topBorder = viewport->getViewPositionY();
-    int bottomBorder = viewport->getViewHeight() + topBorder;
-
     int fillfrom_local, fillto_local;
 
     if (canvasSplit->fullredraw)
@@ -476,7 +490,7 @@ void LfpDisplay::refresh()
 
         canvasSplit->fullredraw = false;
 
-        repaint(0, topBorder, getWidth(), bottomBorder - topBorder);
+        repaint();
 
        /* if (colorSchemeChanged)
         {
@@ -543,38 +557,12 @@ void LfpDisplay::refresh()
 
         if ((topBorder <= componentBottom && bottomBorder >= componentTop)) // only draw things that are visible
         {
-            if (canvasSplit->fullredraw)
-            {
-                channels[i]->fullredraw = true;
-
-                channels[i]->pxPaint();
-                channelInfo[i]->repaint();
-            }
-            else
-            {
-                 channels[i]->pxPaint(); // draws to lfpChannelBitmap
-                
-                 // it's not clear why, but apparently because the pxPaint() is in a child component of LfpDisplay, 
-                 // we also need to issue repaint() calls for each channel, even though there's nothing 
-                 // to repaint there. Otherwise, the repaint call in LfpDisplay::refresh(), a few lines down, 
-                 // lags behind the update line by ~60 px. This could have something to do with the repaint 
-                 // message passing in juce. In any case, this seemingly redundant repaint here seems to fix the issue.
-                
-                 // we redraw from 0 to +2 (px) relative to the real redraw window, the +1 draws the vertical update line
-                 if (fillfrom_local < fillto_local)
-                 {
-                     channels[i]->repaint(fillfrom_local, 0, fillto_local - fillfrom_local + 2, channels[i]->getHeight());
-                 }
-                 else
-                 {
-                     channels[i]->repaint(fillfrom_local, 0, totalXPixels - fillfrom_local + 2, channels[i]->getHeight());
-                     channels[i]->repaint(0, 0, fillto_local + 2, channels[i]->getHeight());
-                 }
-                
-            }
+            channels[i]->pxPaint(); // draws to lfpChannelBitmap
         }
 
     }
+
+    repaint();
 
     if (fillfrom_local == 0 && singleChan != -1)
     {

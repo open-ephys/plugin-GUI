@@ -598,7 +598,8 @@ bool LfpDisplayCanvas::keyPressed(const KeyPress& key)
     {
         for (auto split : displaySplits)
         {
-            split->handleSpaceKeyPauseEvent();
+            if (split->getSelectedState() || selectedLayout == SINGLE)
+                split->handleSpaceKeyPauseEvent();
         }
         
         return true;
@@ -857,7 +858,7 @@ void LfpDisplaySplitter::beginAnimation()
 
     }    
 
-    startTimer(50);
+    startTimer(20);
 
     reachedEnd = true;
 }

@@ -60,6 +60,7 @@ LfpChannelDisplay::LfpChannelDisplay(LfpDisplaySplitter* c, LfpDisplay* d, LfpDi
     , drawMethod(false)
     , isHidden(false)
     , ifrom(0), ito(0)
+    , ifrom_local(0), ito_local(0)
 {
 
     name = String(channelNumber+1); // default is to make the channelNumber the name
