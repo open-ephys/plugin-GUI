@@ -1733,13 +1733,25 @@ bool ProcessorGraph::isReady()
 
     LOGD("ProcessorGraph checking for all valid parameters...");
 
-    for (auto param : Parameter::parameterMap)
+    //Iterate through all the active nodes in the signal chain
+    for (int i = 0; i < getNumNodes(); i++)
     {
-        if (!param.second->isValid())
+        Node* node = getNode(i);
+
+        if (node->nodeID != NodeID(OUTPUT_NODE_ID))
         {
-            CoreServices::sendStatusMessage("Parameter " + param.second->getName() + " is not valid.");
-            AccessClass::getUIComponent()->disableCallbacks();
-            return;
+            GenericProcessor* p = (GenericProcessor*) node->getProcessor();
+
+            for (auto param : p->getParameters())
+            {
+                if (!param->isValid())
+                {
+                    CoreServices::sendStatusMessage("Parameter " + param->getKey() + " is not valid.");
+                    AccessClass::getUIComponent()->disableCallbacks();
+                    return false;
+                }
+            }
+
         }
     }
 
