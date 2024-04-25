@@ -20,6 +20,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: build
+      env:
+        CC: gcc-10
+        CXX: g++-10
       run: |
         sudo apt update
         cd Resources/Scripts
