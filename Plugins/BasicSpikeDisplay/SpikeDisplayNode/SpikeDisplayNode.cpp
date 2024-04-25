@@ -89,7 +89,9 @@ bool SpikeDisplayNode::stopAcquisition()
 {
 
     SpikeDisplayEditor* editor = (SpikeDisplayEditor*) getEditor();
-    editor->disable();
+    
+    if (!headlessMode)
+        editor->disable();
 
     return true;
 }
