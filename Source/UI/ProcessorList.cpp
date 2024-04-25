@@ -193,7 +193,7 @@ void ProcessorList::drawItemName(Graphics& g, ProcessorListItem* item)
         {
             g.drawText(">", offsetX - 15, 5, getWidth()-9, itemHeight, Justification::left, false);
         }
-        g.drawText(name, offsetX, 5, maxWidth, itemHeight, Justification::left, false);
+        g.drawText(name, offsetX, 5, maxWidth + offsetX, itemHeight, Justification::left, false);
 
 	}
 	else
