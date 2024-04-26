@@ -221,7 +221,7 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
                getWidth(),
                10,
                isCentered ? Justification::centred : Justification::centredLeft,
-               false);
+               true);
     
     g.setColour(lineColour);
     g.fillRect(0, 0, 2, getHeight());
@@ -310,5 +310,14 @@ void LfpChannelDisplayInfo::setChannelNumberIsHidden(bool shouldBeHidden)
 bool LfpChannelDisplayInfo::isChannelNumberHidden()
 {
     return channelNumberHidden;
+}
+
+String LfpViewer::LfpChannelDisplayInfo::getTooltip()
+{
+    const bool showChannelNumbers = options->getChannelNameState();
+    const String channelString = (isChannelNumberHidden() ? ("--") :
+        showChannelNumbers ? String(getChannelNumber() + 1) : getName());
+
+    return channelString;
 }
 

@@ -341,6 +341,8 @@ private:
 
     uint8 activeColourScheme;
     OwnedArray<ChannelColourScheme> colourSchemeList;
+
+    int lfpChannelBitmapPosX = 0;
 };
   
 }; // end LfpViewer namespace

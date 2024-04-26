@@ -292,11 +292,12 @@ void LfpDisplay::restoreViewPosition()
 void LfpDisplay::resized()
 {
     int totalHeight = 0;
+    const int channelPosX = canvasSplit->leftmargin + 40;
 
     //LOGD(" !! LFP DISPLAY RESIZED TO: ", getWidth(), " pixels.");
 
     if (getWidth() > 0 && getHeight() > 0)
-        lfpChannelBitmap = Image(Image::ARGB, getWidth() - canvasSplit->leftmargin, getHeight(), true);
+        lfpChannelBitmap = Image(Image::ARGB, getWidth() - channelPosX, getHeight(), true);
     else
         lfpChannelBitmap = Image(Image::ARGB, 10, 10, true);
 
@@ -315,9 +316,9 @@ void LfpDisplay::resized()
         
         if (disp->getHidden()) continue;
         
-        disp->setBounds(canvasSplit->leftmargin,
+        disp->setBounds(channelPosX,
                         totalHeight-(disp->getChannelOverlap()*canvasSplit->channelOverlapFactor)/2,
-                        getWidth()- canvasSplit->leftmargin,
+                        getWidth() - channelPosX,
                         disp->getChannelHeight()+(disp->getChannelOverlap()*canvasSplit->channelOverlapFactor));
         
 
@@ -325,7 +326,7 @@ void LfpDisplay::resized()
 
         info->setBounds(2,
                         totalHeight-disp->getChannelHeight() + (disp->getChannelOverlap()*canvasSplit->channelOverlapFactor)/4.0,
-                        canvasSplit->leftmargin -2,
+                        channelPosX,
                         disp->getChannelHeight());
         
         totalHeight += disp->getChannelHeight();
@@ -361,8 +362,8 @@ void LfpDisplay::resized()
 
 void LfpDisplay::paint(Graphics& g)
 {
-    
-    g.drawImageAt(lfpChannelBitmap, canvasSplit->leftmargin, 0);
+    const int channelPosX = canvasSplit->leftmargin + 40;
+    g.drawImageAt(lfpChannelBitmap, channelPosX, 0);
     
 }
 
@@ -380,8 +381,10 @@ void LfpDisplay::refresh()
     if (numChans == 0)
         return;
 
+    const int channelPosX = canvasSplit->leftmargin + 40;
+
     // Ensure the lfpChannelBitmap has been initialized
-    if (lfpChannelBitmap.isNull() || lfpChannelBitmap.getWidth() < getWidth() - canvasSplit->leftmargin)
+    if (lfpChannelBitmap.isNull() || lfpChannelBitmap.getWidth() < getWidth() - channelPosX)
     {
         resized();
     }
@@ -963,7 +966,9 @@ void LfpDisplay::rebuildDrawableChannelsList()
                 // necessary image size for drawing)
                 setChannelHeight(newHeight, false);
 
-                lfpChannelTrack.channel->setTopLeftPosition(canvasSplit->leftmargin, 0);
+                const int channelPosX = canvasSplit->leftmargin + 40;
+
+                lfpChannelTrack.channel->setTopLeftPosition(channelPosX, 0);
                 lfpChannelTrack.channelInfo->setTopLeftPosition(0, 0);
                 setSize(getWidth(), getChannelHeight());
 

@@ -41,7 +41,8 @@ namespace LfpViewer {
     associated LfpChannelDisplay waveform on or off.
  */
 class LfpChannelDisplayInfo : public LfpChannelDisplay,
-    public Button::Listener
+    public Button::Listener,
+    public TooltipClient
 {
     friend class LfpDisplay;
 public:
@@ -87,6 +88,8 @@ public:
     
     /** Disengages the mouse drag to resize track height */
     virtual void mouseUp(const MouseEvent &event) override;
+
+
     
 private:
 
@@ -112,6 +115,9 @@ private:
     /** Get/set whether channel number is hidden */
     void setChannelNumberIsHidden(bool shouldBeHidden);
     bool isChannelNumberHidden();
+
+    // Inherited via TooltipClient
+    String getTooltip() override;
 };
 
 }; // namespace
