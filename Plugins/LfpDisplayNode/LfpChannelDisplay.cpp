@@ -53,8 +53,8 @@ LfpChannelDisplay::LfpChannelDisplay(LfpDisplaySplitter* c, LfpDisplay* d, LfpDi
 	, drawableChan(channelNumber)
 	, channelOverlap(300)
 	, channelHeight(30)
-	, rangeMin(250.0f)
-	, rangeMax(250.0f)
+	, rangeOffset(250.0f)
+	, range(250.0f)
 	, isEnabled(true)
 	, inputInverted(false)
 	, canBeInverted(true)
@@ -391,14 +391,11 @@ void LfpViewer::LfpChannelDisplay::drawPlot(int index, int i, bool drawWithOffse
 	bool& spikeFlag, LfpBitmapPlotterInfo& plotterInfo, Image::BitmapData& bdLfpChannelBitmap)
 {	
 	// set max-min range for plotting
-	double range_numerator = rangeMin;
-	double denominator = (rangeMax - rangeMin) * channelHeightFloat;
-	if (denominator == 0) denominator = 1;
+	if (range == 0) range = 1;
+	double a = (canvasSplit->getYCoordMax(chan, index) / range * channelHeightFloat) + rangeOffset;
+	double b = (canvasSplit->getYCoordMin(chan, index) / range * channelHeightFloat) + rangeOffset;
 
-	double a = (canvasSplit->getYCoordMax(chan, index) - range_numerator) / denominator;
-	double b = (canvasSplit->getYCoordMin(chan, index) - range_numerator) / denominator;
-
-	double mean = (canvasSplit->getMean(chan) - range_numerator) / denominator;
+	double mean = canvasSplit->getMean(chan) / range * channelHeightFloat;
 
 	if (drawWithOffsetCorrection)
 	{
@@ -550,23 +547,20 @@ void LfpChannelDisplay::changeParameter(int id)
 	}
 }
 
-void LfpChannelDisplay::setRange(float min, float max)
+void LfpChannelDisplay::setRange(float offset, float rangeValue)
 {
-	rangeMin = min;
-	rangeMax = max;
-
-	if (rangeMin > rangeMax)
-		std::swap(rangeMin, rangeMax);
+	rangeOffset = offset;
+	range = rangeValue;
 }
 
-float LfpViewer::LfpChannelDisplay::getRangeMin()
+float LfpViewer::LfpChannelDisplay::getRangeOffset()
 {
-	return rangeMin;
+	return rangeOffset;
 }
 
-float LfpChannelDisplay::getRangeMax()
+float LfpChannelDisplay::getRange()
 {
-	return rangeMax;
+	return range;
 }
 
 void LfpChannelDisplay::select()

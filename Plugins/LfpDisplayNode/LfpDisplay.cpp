@@ -104,9 +104,9 @@ LfpDisplay::LfpDisplay(LfpDisplaySplitter* c, Viewport* v)
 	channelColours.add(Colour(82, 173, 0));
 	channelColours.add(Colour(125, 99, 32));
 
-	rangeMax[0] = 1000; // headstage channels
-	rangeMax[1] = 500;  // aux channels
-	rangeMax[2] = 500000; // adc channels
+	range[0] = 1000; // headstage channels
+	range[1] = 500;  // aux channels
+	range[2] = 500000; // adc channels
 
 	scrollX = 0;
 	scrollY = 0;
@@ -153,8 +153,8 @@ ChannelColourScheme* LfpDisplay::getColourSchemePtr()
 
 void LfpDisplay::updateRange(int i)
 {
-	channels[i]->setRange(rangeMin[channels[i]->getType()], rangeMax[channels[i]->getType()]);
-	channelInfo[i]->setRange(rangeMin[channels[i]->getType()], rangeMax[channels[i]->getType()]);
+	channels[i]->setRange(rangeOffset[channels[i]->getType()], range[channels[i]->getType()]);
+	channelInfo[i]->setRange(rangeOffset[channels[i]->getType()], range[channels[i]->getType()]);
 }
 
 void LfpDisplay::setNumChannels(int newChannelCount)
@@ -590,10 +590,10 @@ void LfpDisplay::refresh()
 
 }
 
-void LfpDisplay::setRange(float min, float max, ContinuousChannel::Type type)
+void LfpDisplay::setRange(float offset, float rangeValue, ContinuousChannel::Type type)
 {
-	rangeMin[type] = min;
-	rangeMax[type] = max;
+	rangeOffset[type] = offset;
+	range[type] = rangeValue;
 
 	if (channels.size() > 0)
 	{
@@ -601,7 +601,7 @@ void LfpDisplay::setRange(float min, float max, ContinuousChannel::Type type)
 		for (int i = 0; i < numChans; i++)
 		{
 			if (channels[i]->getType() == type)
-				channels[i]->setRange(rangeMin[type], rangeMax[type]);
+				channels[i]->setRange(rangeOffset[type], range[type]);
 		}
 
 		if (displayIsPaused)
@@ -615,32 +615,32 @@ void LfpDisplay::setRange(float min, float max, ContinuousChannel::Type type)
 	}
 }
 
-int LfpViewer::LfpDisplay::getRangeMin()
+int LfpViewer::LfpDisplay::getRangeOffset()
 {
-	return getRangeMin(options->getSelectedType());
+	return getRangeOffset(options->getSelectedType());
 }
 
-int LfpViewer::LfpDisplay::getRangeMin(ContinuousChannel::Type type)
+int LfpViewer::LfpDisplay::getRangeOffset(ContinuousChannel::Type type)
 {
 	for (int i = 0; i < numChans; i++)
 	{
 		if (channels[i]->getType() == type)
-			return channels[i]->getRangeMin();
+			return channels[i]->getRangeOffset();
 	}
 	return 0;
 }
 
-int LfpDisplay::getRangeMax()
+int LfpDisplay::getRange()
 {
-	return getRangeMax(options->getSelectedType());
+	return getRange(options->getSelectedType());
 }
 
-int LfpDisplay::getRangeMax(ContinuousChannel::Type type)
+int LfpDisplay::getRange(ContinuousChannel::Type type)
 {
 	for (int i = 0; i < numChans; i++)
 	{
 		if (channels[i]->getType() == type)
-			return channels[i]->getRangeMax();
+			return channels[i]->getRange();
 	}
 	return 0;
 }
@@ -864,8 +864,8 @@ void LfpDisplay::mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& wh
 			if (wheel.deltaY == 0)
 				return;
 
-			int hMin = getRangeMin();
-			int hMax = getRangeMax();
+			int hMin = getRangeOffset();
+			int hMax = getRange();
 			int step = options->getRangeStep(options->getSelectedType());
 
 			if (wheel.deltaY > 0)
@@ -873,7 +873,7 @@ void LfpDisplay::mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& wh
 			else
 				setRange(hMin - step, hMax + step, options->getSelectedType());
 
-			options->setRangeSelection(getRangeMin(), getRangeMax());
+			options->setRangeSelection(getRangeOffset(), getRange());
 		}
 		else    // just scroll
 		{
@@ -1243,7 +1243,7 @@ void LfpDisplay::mouseDown(const MouseEvent& event)
 		{
 			drawableChannels[0].channelInfo->updateXY(
 				float(x) / getWidth() * canvasSplit->timebase,
-				(-(float(y) - viewport->getViewPositionY()) / viewport->getViewHeight() * float(getRangeMax())) + float(getRangeMax() / 2)
+				(-(float(y) - viewport->getViewPositionY()) / viewport->getViewHeight() * float(getRange())) + float(getRange() / 2)
 			);
 		}
 	}

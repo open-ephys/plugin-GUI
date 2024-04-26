@@ -183,8 +183,8 @@ namespace LfpViewer {
 		// Main options
 		std::unique_ptr<ComboBox> timebaseSelection;
 		std::unique_ptr<ComboBox> spreadSelection;
-		std::unique_ptr<Label> voltageRangeMin;
-		std::unique_ptr<Label> voltageRangeMax;
+		std::unique_ptr<Label> voltageRangeOffset;
+		std::unique_ptr<Label> voltageRange;
 		OwnedArray<UtilityButton> typeButtons;
 
 		std::unique_ptr<ComboBox> overlapSelection; // what do we do with this?

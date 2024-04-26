@@ -156,19 +156,19 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
 	addAndMakeVisible(tbut);
 	typeButtons.add(tbut);
 
-	voltageRangeMin = std::make_unique<Label>("Voltage range min", "250");
-	voltageRangeMin->setColour(Label::textColourId, Colours::white);
-	voltageRangeMin->setColour(Label::backgroundColourId, Colours::grey);
-	voltageRangeMin->setEditable(true);
-	voltageRangeMin->addListener(this);
-	addAndMakeVisible(voltageRangeMin.get());
+	voltageRangeOffset = std::make_unique<Label>("Voltage range offset", "0");
+	voltageRangeOffset->setColour(Label::textColourId, Colours::white);
+	voltageRangeOffset->setColour(Label::backgroundColourId, Colours::grey);
+	voltageRangeOffset->setEditable(true);
+	voltageRangeOffset->addListener(this);
+	addAndMakeVisible(voltageRangeOffset.get());
 
-	voltageRangeMax = std::make_unique<Label>("Voltage range max", "250");
-	voltageRangeMax->setColour(Label::textColourId, Colours::white);
-	voltageRangeMax->setColour(Label::backgroundColourId, Colours::grey);
-	voltageRangeMax->setEditable(true);
-	voltageRangeMax->addListener(this);
-	addAndMakeVisible(voltageRangeMax.get());
+	voltageRange = std::make_unique<Label>("Voltage range", "250");
+	voltageRange->setColour(Label::textColourId, Colours::white);
+	voltageRange->setColour(Label::backgroundColourId, Colours::grey);
+	voltageRange->setEditable(true);
+	voltageRange->addListener(this);
+	addAndMakeVisible(voltageRange.get());
 
 	// Event overlay
 	for (int i = 0; i < 8; i++)
@@ -413,10 +413,10 @@ void LfpDisplayOptions::timerCallback()
 
 void LfpViewer::LfpDisplayOptions::labelTextChanged(Label* labelThatHasChanged)
 {
-	if (labelThatHasChanged != voltageRangeMin.get() && labelThatHasChanged != voltageRangeMax.get())
+	if (labelThatHasChanged != voltageRangeOffset.get() && labelThatHasChanged != voltageRange.get())
 		return; 
 		
-    lfpDisplay->setRange(voltageRangeMin->getText().getFloatValue(), voltageRangeMax->getText().getFloatValue(), selectedChannelType);
+    lfpDisplay->setRange(voltageRangeOffset->getText().getFloatValue(), voltageRange->getText().getFloatValue(), selectedChannelType);
 }
 
 void LfpDisplayOptions::resized()
@@ -426,13 +426,13 @@ void LfpDisplayOptions::resized()
 	// MAIN OPTIONS
 	timebaseSelection->setBounds(8, getHeight() - 30, 90, height);
 	spreadSelection->setBounds(timebaseSelection->getRight() + 20, getHeight() - 30, 90, height);
-	voltageRangeMin->setBounds(spreadSelection->getRight() + 20, getHeight() - 30, 90, height);
-	voltageRangeMax->setBounds(voltageRangeMin->getRight() + 5, getHeight() - 30, 90, height);
+	voltageRangeOffset->setBounds(spreadSelection->getRight() + 20, getHeight() - 30, 90, height);
+	voltageRange->setBounds(voltageRangeOffset->getRight() + 5, getHeight() - 30, 90, height);
 
 	int bh = 25 / typeButtons.size();
 	for (int i = 0; i < typeButtons.size(); i++)
 	{
-		typeButtons[i]->setBounds(voltageRangeMax->getRight() + 5, getHeight() - 30 + i * bh, 50, bh);
+		typeButtons[i]->setBounds(voltageRange->getRight() + 5, getHeight() - 30 + i * bh, 50, bh);
 	}
 
 	for (int i = 0; i < 8; i++)
@@ -557,11 +557,11 @@ void LfpDisplayOptions::paint(Graphics& g)
 
 	g.drawText("Timebase (s)", timebaseSelection->getX(), timebaseSelection->getY() - 22, 300, 20, Justification::left, false);
 	g.drawText("Chan height (px)", spreadSelection->getX(), spreadSelection->getY() - 22, 300, 20, Justification::left, false);
-	g.drawText("Range Min (" + rangeUnits[selectedChannelType] + ")", voltageRangeMin->getX(), voltageRangeMin->getY() - 22, 300, 20, Justification::left, false);
-	g.drawText("Range Max (" + rangeUnits[selectedChannelType] + ")", voltageRangeMax->getX(), voltageRangeMax->getY() - 22, 300, 20, Justification::left, false);
+	g.drawText("Offset (" + rangeUnits[selectedChannelType] + ")", voltageRangeOffset->getX(), voltageRangeOffset->getY() - 22, 300, 20, Justification::left, false);
+	g.drawText("Range (" + rangeUnits[selectedChannelType] + ")", voltageRange->getX(), voltageRange->getY() - 22, 300, 20, Justification::left, false);
 
-	g.drawText("Overlay", voltageRangeMax->getRight() + 30, getHeight() - 43, 100, 20, Justification::right, false);
-	g.drawText("Events:", voltageRangeMax->getRight() + 30, getHeight() - 25, 100, 20, Justification::right, false);
+	g.drawText("Overlay", voltageRange->getRight() + 30, getHeight() - 43, 100, 20, Justification::right, false);
+	g.drawText("Events:", voltageRange->getRight() + 30, getHeight() - 25, 100, 20, Justification::right, false);
 
 	g.drawText("TTL word:", ttlWordLabel->getX(), ttlWordLabel->getY() - 22, 70, 20, Justification::left, false);
 
@@ -714,16 +714,16 @@ void LfpDisplayOptions::setRangeSelection(float min, float max, bool canvasMustU
 {
 	if (canvasMustUpdate)
 	{
-		voltageRangeMin->setText(String(min / rangeGain[selectedChannelType]), sendNotification);
-		voltageRangeMax->setText(String(max / rangeGain[selectedChannelType]), sendNotification);
+		voltageRangeOffset->setText(String(min / rangeGain[selectedChannelType]), sendNotification);
+		voltageRange->setText(String(max / rangeGain[selectedChannelType]), sendNotification);
 	}
 	else
 	{
-		voltageRangeMin->setText(String(min / rangeGain[selectedChannelType]), sendNotification);
-		voltageRangeMax->setText(String(max / rangeGain[selectedChannelType]), dontSendNotification);
+		voltageRangeOffset->setText(String(min / rangeGain[selectedChannelType]), sendNotification);
+		voltageRange->setText(String(max / rangeGain[selectedChannelType]), dontSendNotification);
 
-		voltageRangeValues[selectedChannelType].first = voltageRangeMin->getText().getFloatValue();
-		voltageRangeValues[selectedChannelType].second = voltageRangeMax->getText().getFloatValue();
+		voltageRangeValues[selectedChannelType].first = voltageRangeOffset->getText().getFloatValue();
+		voltageRangeValues[selectedChannelType].second = voltageRange->getText().getFloatValue();
 
 		canvasSplit->repaint();
 		canvasSplit->refresh();
@@ -1258,8 +1258,8 @@ void LfpDisplayOptions::setSelectedType(ContinuousChannel::Type type, bool toggl
 		return; //Nothing to do here
 	selectedChannelType = type;
 
-	voltageRangeMin->setText(String(voltageRangeValues[selectedChannelType].first), dontSendNotification);
-	voltageRangeMax->setText(String(voltageRangeValues[selectedChannelType].second), dontSendNotification);
+	voltageRangeOffset->setText(String(voltageRangeValues[selectedChannelType].first), dontSendNotification);
+	voltageRange->setText(String(voltageRangeValues[selectedChannelType].second), dontSendNotification);
 
 	repaint(5, getHeight() - 55, 300, 100);
 
@@ -1284,9 +1284,9 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
 
 	xmlNode->setAttribute("SubprocessorID", canvasSplit->streamSelection->getSelectedId());
 
-	xmlNode->setAttribute("RangeMin", String(voltageRangeValues[0].first) + "," + String(voltageRangeValues[1].first) +
+	xmlNode->setAttribute("RangeOffset", String(voltageRangeValues[0].first) + "," + String(voltageRangeValues[1].first) +
 		"," + String(voltageRangeValues[2].first));
-	xmlNode->setAttribute("RangeMax", String(voltageRangeValues[0].second) + "," + String(voltageRangeValues[1].second) +
+	xmlNode->setAttribute("Range", String(voltageRangeValues[0].second) + "," + String(voltageRangeValues[1].second) +
 		"," + String(voltageRangeValues[2].second));
 	xmlNode->setAttribute("Timebase", timebaseSelection->getText());
 	xmlNode->setAttribute("Spread", spreadSelection->getText());
@@ -1372,18 +1372,18 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
 			// RANGE
 			StringArray rangesMin;
-			rangesMin.addTokens(xmlNode->getStringAttribute("RangeMin"), ",", String());
+			rangesMin.addTokens(xmlNode->getStringAttribute("RangeOffset"), ",", String());
 			voltageRangeValues[0].first = rangesMin[0].getFloatValue();
             voltageRangeValues[1].first = rangesMin[1].getFloatValue();
 			voltageRangeValues[2].first = rangesMin[2].getFloatValue();
-			voltageRangeMin->setText(rangesMin[0], dontSendNotification);
+			voltageRangeOffset->setText(rangesMin[0], dontSendNotification);
 
 			StringArray rangesMax;
-			rangesMax.addTokens(xmlNode->getStringAttribute("RangeMax"), ",", String());
+			rangesMax.addTokens(xmlNode->getStringAttribute("Range"), ",", String());
 			voltageRangeValues[0].second = rangesMax[0].getFloatValue();
             voltageRangeValues[1].second = rangesMax[1].getFloatValue();
             voltageRangeValues[2].second = rangesMax[2].getFloatValue();
-			voltageRangeMax->setText(rangesMax[0], dontSendNotification);
+			voltageRange->setText(rangesMax[0], dontSendNotification);
 
 			lfpDisplay->setRange(rangesMin[0].getFloatValue() * rangeGain[0], rangesMax[0].getFloatValue() * rangeGain[0], ContinuousChannel::Type::ELECTRODE);
 			lfpDisplay->setRange(rangesMin[1].getFloatValue() * rangeGain[1], rangesMax[1].getFloatValue() * rangeGain[1], ContinuousChannel::Type::AUX);

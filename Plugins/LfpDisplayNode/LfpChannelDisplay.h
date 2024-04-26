@@ -121,13 +121,13 @@ namespace LfpViewer {
 		void setDrawableChannelNumber(int channelId);
 
 		/** Sets the voltage range for this channel */
-		void setRange(float min, float max);
+		void setRange(float offset, float rangeValue);
 
 		/** Returns the min voltage range index for this channel*/
-		float getRangeMin();
+		float getRangeOffset();
 
 		/** Returns the max voltage range index for this channel*/
-		float getRangeMax();
+		float getRange();
 
 		/** Sets whether this channel display should be inverted */
 		void setInputInverted(bool);
@@ -203,8 +203,8 @@ namespace LfpViewer {
 		int channelHeight;
 		float channelHeightFloat;
 
-		float rangeMin;
-		float rangeMax;
+		float rangeOffset;
+		float range;
 
 		bool isEnabled;
 		bool inputInverted;
