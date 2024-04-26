@@ -391,9 +391,8 @@ void LfpViewer::LfpChannelDisplay::drawPlot(int index, int i, bool drawWithOffse
 	bool& spikeFlag, LfpBitmapPlotterInfo& plotterInfo, Image::BitmapData& bdLfpChannelBitmap)
 {	
 	// set max-min range for plotting
-	if (range == 0) range = 1;
-	double a = (canvasSplit->getYCoordMax(chan, index) / range * channelHeightFloat) + rangeOffset;
-	double b = (canvasSplit->getYCoordMin(chan, index) / range * channelHeightFloat) + rangeOffset;
+	double a = ((canvasSplit->getYCoordMax(chan, index)) / range * channelHeightFloat) + (rangeOffset / range * channelHeightFloat);
+	double b = ((canvasSplit->getYCoordMin(chan, index)) / range * channelHeightFloat) + (rangeOffset / range * channelHeightFloat);
 
 	double mean = canvasSplit->getMean(chan) / range * channelHeightFloat;
 
