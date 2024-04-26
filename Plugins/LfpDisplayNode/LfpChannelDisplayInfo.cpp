@@ -218,7 +218,7 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
     g.drawText(channelString,
                showChannelNumbers ? 6 : 2,
                center-4,
-               getWidth(),
+               getWidth() - enableButton->getWidth() - 2,
                10,
                isCentered ? Justification::centred : Justification::centredLeft,
                true);
