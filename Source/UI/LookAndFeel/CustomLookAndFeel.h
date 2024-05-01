@@ -122,38 +122,15 @@ public:
 
     // ======== custom slider methods: =============================
 
-    void drawLinearSliderThumb(Graphics& g,
-                               int x, int y,
-                               int width, int height,
-                               float sliderPos,
-                               float minSliderPos,
-                               float maxSliderPos,
-                               const Slider::SliderStyle style,
-                               Slider& slider);
-
-    void drawLinearSliderBackground(Graphics& g,
-                                    int x, int y,
-                                    int width, int height,
-                                    float /*sliderPos*/,
-                                    float /*minSliderPos*/,
-                                    float /*maxSliderPos*/,
-                                    const Slider::SliderStyle /*style*/,
-                                    Slider& slider);
+    void drawLinearSlider (Graphics&, int x, int y, int width, int height,
+                           float sliderPos, float minSliderPos, float maxSliderPos,
+                           Slider::SliderStyle, Slider&) override;
 
 
     int getSliderThumbRadius(Slider& slider);
 
-    void drawSliderKnob(Graphics& g,
-                        const float x, const float y,
-                        const float diameter,
-                        const Colour& colour,
-                        const float outlineThickness) throw();
-
-    void drawGlassPointer(Graphics& g,
-                          const float x, const float y,
-                          const float diameter,
-                          const Colour& colour, const float outlineThickness,
-                          const int direction) throw();
+    void drawPointer (Graphics&, float x, float y, float diameter,
+                      const Colour&, int direction) noexcept;
 
     Button* createSliderButton(Slider& s, bool	isIncrement);
 
@@ -232,7 +209,12 @@ public:
 
     void createTabButtonShape (TabBarButton&, Path&,  bool isMouseOver, bool isMouseDown) override;
     void fillTabButtonShape (TabBarButton&, Graphics&, const Path&, bool isMouseOver, bool isMouseDown) override;
+
+    // ======== custom CallOutBox method: ================================
+    void drawCallOutBoxBackground (CallOutBox&, Graphics&, const Path&, Image&) override;
     
+    // ======== custom TableHeaderComponent methods: ================================
+    void drawTableHeaderBackground (Graphics&, TableHeaderComponent&) override;
 
 private:
 
