@@ -74,8 +74,8 @@ EditorViewport::~EditorViewport()
 void EditorViewport::paint(Graphics& g)
 {
 
-    g.setColour(findColour(ThemeColors::editorViewportBackgroundColorId));
-    g.fillRoundedRectangle(1, 1, getWidth()-2, getHeight()-12, 5.0f);
+    g.setColour(findColour(ThemeColors::componentParentBackground));
+    g.fillRoundedRectangle(1, 1, getWidth()-2, getHeight()-14, 5.0f);
 
     if (somethingIsBeingDraggedOver)
     {
@@ -83,10 +83,21 @@ void EditorViewport::paint(Graphics& g)
     }
     else
     {
-        g.setColour(Colour(48,48,48));
+        g.setColour(findColour(ThemeColors::outline).withAlpha(0.5f));
     }
 
-    g.drawRoundedRectangle(1, 1, getWidth()-2, getHeight() - 14, 8.0f, 2.0f);
+    g.drawRoundedRectangle(1, 1, getWidth()-2, getHeight() - 14, 5.0f, 2.0f);
+
+    for (int i = 0; i < editorArray.size(); i++)
+    {
+        if (editorArray[i]->getProcessor()->isEmpty())
+            continue;
+
+        Path editorBorderPath;
+        editorBorderPath.addRoundedRectangle(editorArray[i]->getBounds().reduced(1,1), 5.0f);
+
+        DropShadow (findColour(ThemeColors::dropShadowColor), 10, Point<int> (4, 2)).drawForPath (g, editorBorderPath);
+    }
     
     if (somethingIsBeingDraggedOver)
     {
@@ -107,8 +118,8 @@ void EditorViewport::paint(Graphics& g)
         }
 
         g.setColour(Colours::yellow);
-        g.drawLine(insertionX, (float) BORDER_SIZE + 5,
-                   insertionX, (float) getHeight()-(float) BORDER_SIZE*3 - 5, 3.0f);
+        g.fillRect(insertionX, (float) BORDER_SIZE + 5,
+                   3.0f, (float) (getHeight()- 3 * (BORDER_SIZE + 5)));
 
     }
     
@@ -1313,7 +1324,7 @@ void SignalChainTabComponent::setScrollOffset(int offset)
 
 void SignalChainTabComponent::paint(Graphics& g)
 {
-    g.setColour(Colours::darkgrey);
+    g.setColour(findColour(ThemeColors::defaultFill));
     
     for (int n = 0; n < 4; n++)
     {

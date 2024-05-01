@@ -290,8 +290,6 @@ private:
 
     std::unique_ptr<ProcessorParameterComponent> processorParamComponent;
     Component* processorParamHeader;
-
-    DropShadower nodeDropShadower { DropShadow(Colours::black.withAlpha(0.85f), 10, {2,10}) };
     
     bool isMouseOver;
     int horzShift;
@@ -360,6 +358,9 @@ public:
     
     /** Draws the GraphViewer.*/
     void paint (Graphics& g)    override;
+
+    /** Draws the drop shadows for nodes.*/
+    void paintOverChildren (Graphics& g) override;
 
     /** Resizes the component, based on the bottom-most node*/
     void updateBoundaries();

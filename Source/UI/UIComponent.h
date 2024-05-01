@@ -75,7 +75,8 @@ public:
     UIComponent(MainWindow* mainWindow_,
                 ProcessorGraph* pgraph,
                 AudioComponent* audio,
-                ControlPanel* controlPanel);
+                ControlPanel* controlPanel,
+                CustomLookAndFeel* customLookAndFeel);
 
     /** Destructor */
     ~UIComponent();
@@ -253,8 +254,9 @@ private:
         loadPluginSettings      = 0x3001,
         savePluginSettings      = 0x3002,
         lockSignalChain         = 0x5001,
-        setColorTheme1          = 0x6111,
-        setColorTheme2          = 0x6112,
+        setColorThemeLight      = 0x6111,
+        setColorThemeMedium    = 0x6112,
+        setColorThemeDark       = 0x6113,
         setSoftwareRenderer     = 0x7001,
         setDirect2DRenderer     = 0x7002
         
@@ -264,9 +266,9 @@ private:
     
     bool messageCenterIsCollapsed = true;
     
-    ColorTheme theme = THEME1;
+    ColorTheme theme = MEDIUM;
     
-    CustomLookAndFeel customLookAndFeel;
+    CustomLookAndFeel* customLookAndFeel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponent);
 

@@ -87,7 +87,7 @@ TextEditor* CustomTextBox::createEditorComponent()
 void CustomTextBox::paint(juce::Graphics& g)
 {
     // Fill the background with a rounded rectangle
-    g.setColour(findColour(Label::backgroundColourId));
+    g.setColour(findColour(ThemeColors::widgetBackground));
     g.fillRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f, 0.5f), 3.0f);
 
     // Draw the text with units
@@ -106,11 +106,11 @@ void CustomTextBox::paint(juce::Graphics& g)
                           jmax (1, (int) ((float) textArea.getHeight() / font.getHeight())),
                           getMinimumHorizontalScale());
 
-        g.setColour (Colours::black.withMultipliedAlpha (alpha));
+        g.setColour (findColour(ThemeColors::outline).withMultipliedAlpha (alpha));
     }
     else if (isEnabled())
     {
-       g.setColour(Colours::black);
+       g.setColour(findColour(ThemeColors::outline));
     }
 
     // Draw a rounded rectangle border
@@ -128,7 +128,6 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPi
     Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
     int width = rowWidthPixels;
     label->setFont(labelFont);
-    label->setColour(Label::textColourId, Colours::black);
     addAndMakeVisible(label.get());
 
     if(param->getType() == Parameter::FLOAT_PARAM)
@@ -140,8 +139,8 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPi
 
     valueTextBox->setFont(Font("CP Mono", "Plain", int(0.75*rowHeightPixels)));
     valueTextBox->setName(param->getKey());
-    valueTextBox->setColour(Label::textColourId, Colours::black);
-    valueTextBox->setColour(Label::backgroundColourId, Colours::lightgrey);
+    // valueTextBox->setColour(Label::textColourId, Colours::black);
+    // valueTextBox->setColour(Label::backgroundColourId, Colours::lightgrey);
     valueTextBox->setJustificationType(Justification::centred);
     valueTextBox->setEditable(true);
     valueTextBox->addListener(this);
@@ -194,24 +193,25 @@ void CustomToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsH
     // Set the color based on the button state
     if (getToggleState())
     {
-        g.setColour(juce::Colours::orange);
+        g.setColour(findColour(ThemeColors::highlightedFill));
     }
     else
     {
-        g.setColour(juce::Colours::grey);
+        g.setColour(findColour(ThemeColors::defaultFill));
     }
 
     // Draw a rounded rectangle
     g.fillRoundedRectangle(getLocalBounds().toFloat(), 3.0f);
 
     // Set the text color
-    g.setColour(juce::Colours::black);
+    g.setColour(findColour(ThemeColors::outline));
 
     // Draw a rounded rectangle border
     g.drawRoundedRectangle(getLocalBounds().toFloat(), 3.0f, 1.0f);
 
     // Set the text font
     g.setFont(Font("Fira Sans", "Regular", int(0.75*getHeight())));
+    g.setColour(findColour(ThemeColors::defaultText));
 
     // Set the text based on the button state
     if (getToggleState())
@@ -231,7 +231,6 @@ ToggleParameterEditor:: ToggleParameterEditor(Parameter* param, int rowHeightPix
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
     label->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
-    label->setColour(Label::textColourId, Colours::black);
     addAndMakeVisible(label.get());
 
     toggleButton = std::make_unique<CustomToggleButton>();
@@ -427,11 +426,11 @@ void BoundedValueEditor::paint(juce::Graphics& g)
                           jmax (1, (int) ((float) textArea.getHeight() / font.getHeight())),
                           getMinimumHorizontalScale());
 
-        g.setColour (Colours::black.withMultipliedAlpha (alpha));
+        g.setColour (findColour(ThemeColors::outline).withMultipliedAlpha (alpha));
     }
     else if (isEnabled())
     {
-       g.setColour(Colours::black);
+       g.setColour(findColour(ThemeColors::outline));
     }
 
     // Draw a rounded rectangle border
@@ -828,7 +827,7 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
             else
             {
                 //DARK GREEN
-                g.setColour(Colour(25, 220, 25));
+                g.setColour(Colour(25, 255, 25).darker(0.5f));
             }
             break;
 

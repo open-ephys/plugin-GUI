@@ -31,10 +31,17 @@
 
 MainDocumentWindow::MainDocumentWindow()
     : DocumentWindow(JUCEApplication::getInstance()->getApplicationName(),
-                     Colour(Colours::black),
-                     DocumentWindow::allButtons)
+                     Colour(25, 25, 25),
+                     DocumentWindow::allButtons, 
+					 false)
 {
-    
+    #ifdef __APPLE__
+        File iconDir = File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/Resources");
+	#else
+		File iconDir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
+	#endif
+	Image titleBarIcon = ImageCache::getFromFile(iconDir.getChildFile("icon-small.png"));
+	setIcon(titleBarIcon);
 }
 
 MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
@@ -43,10 +50,16 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
     
     if (!isConsoleApp)
     {
-        documentWindow = std::make_unique<MainDocumentWindow>();
+        customLookAndFeel = std::make_unique<CustomLookAndFeel>();
+        LookAndFeel::setDefaultLookAndFeel(customLookAndFeel.get());
+		
+		documentWindow = std::make_unique<MainDocumentWindow>();
         
         documentWindow->setResizable(true,      // isResizable
                                      false);   // useBottomCornerRisizer -- doesn't work very well
+
+		documentWindow->setLookAndFeel(customLookAndFeel.get());
+
     } else {
         LOGC("Running in headless mode.");
     }
@@ -95,7 +108,7 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
     if (!isConsoleApp)
     {
         LOGD("Creating UI component...");
-        documentWindow->setContentOwned(new UIComponent(this, processorGraph.get(), audioComponent.get(), controlPanel.get()), true);
+        documentWindow->setContentOwned(new UIComponent(this, processorGraph.get(), audioComponent.get(), controlPanel.get(), customLookAndFeel.get()), true);
 
         UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
         
@@ -107,7 +120,9 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
         documentWindow->getMenuBarComponent()->setName("MainMenu");
     #endif
 
-        commandManager.registerAllCommandsForTarget(ui);
+        // documentWindow->setLookAndFeel(LookAndFeel::getDefaultLookAndFeel());
+
+		commandManager.registerAllCommandsForTarget(ui);
         commandManager.registerAllCommandsForTarget(JUCEApplication::getInstance());
 
         ui->setApplicationCommandManagerToWatch(&commandManager);
@@ -116,7 +131,8 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 
         LOGD("Loading window bounds.");
         loadWindowBounds();
-        documentWindow->setUsingNativeTitleBar(true);
+        documentWindow->setUsingNativeTitleBar(false);
+		documentWindow->setDropShadowEnabled(true);
         documentWindow->addToDesktop(documentWindow->getDesktopWindowStyleFlags());  // prevents the maximize
                                                                                 // button from randomly disappearing
         documentWindow->setVisible(true);
@@ -125,9 +141,7 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
         documentWindow->setResizeLimits(500, 500, 10000, 10000);
         
         // Set main window icon to display
-        #ifdef __APPLE__
-            File iconDir = File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/Resources");
-        #else
+        #ifdef JUCE_LINUX
             File iconDir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
             Image windowIcon = ImageFileFormat::loadFrom(iconDir.getChildFile("icon-small.png"));
             if (auto peer = documentWindow->getPeer())
@@ -237,6 +251,8 @@ MainWindow::~MainWindow()
         saveWindowBounds();
         UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
         ui->disableDataViewport();
+
+		documentWindow->setLookAndFeel(nullptr);
         
         documentWindow->setMenuBar(0);
 
@@ -262,6 +278,17 @@ void MainWindow::enableHttpServer() {
 
 void MainWindow::disableHttpServer() {
     http_server_thread->stop();
+}
+
+void MainWindow::repaint()
+{
+	if (!isConsoleApp)
+	{
+		documentWindow->repaint();
+		documentWindow->getMenuBarComponent()->repaint();
+		Colour c = documentWindow->getLookAndFeel().findColour(ResizableWindow::backgroundColourId);
+		documentWindow->setBackgroundColour(c);
+	}
 }
 
 void MainDocumentWindow::closeButtonPressed()

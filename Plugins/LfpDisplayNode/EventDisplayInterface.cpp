@@ -38,9 +38,7 @@ EventDisplayInterface::EventDisplayInterface(LfpDisplay* display_, LfpDisplaySpl
 
     chButton = std::make_unique<UtilityButton>(String(channelNumber+1), Font("Small Text", 13, Font::plain));
     chButton->setRadius(5.0f);
-    chButton->setBounds(4,4,14,14);
     chButton->setEnabledState(true);
-    chButton->setCorners(true, false, true, false);
     chButton->addListener(this);
     addAndMakeVisible(chButton.get());
 
@@ -78,7 +76,7 @@ void EventDisplayInterface::buttonClicked(Button* button)
 
 }
 
-void EventDisplayInterface::paint(Graphics& g)
+void EventDisplayInterface::paintOverChildren(Graphics& g)
 {
 
     checkEnabledState();
@@ -86,8 +84,12 @@ void EventDisplayInterface::paint(Graphics& g)
     if (isEnabled)
     {
         g.setColour(display->channelColours[channelNumber * 2]);
-        g.fillRoundedRectangle(2,2,getWidth()-2,getHeight()-2,6.0f);
+        g.drawRoundedRectangle(1,1,getWidth()-2,getHeight()-2,5.0f, 3.0f);
     }
 
 }
 
+void EventDisplayInterface::resized()
+{
+    chButton->setBounds(1, 1, getWidth() - 2, getHeight() - 2);
+}

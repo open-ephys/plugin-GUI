@@ -40,15 +40,15 @@
 UIComponent::UIComponent(MainWindow* mainWindow_,
                          ProcessorGraph* processorGraph_,
                          AudioComponent* audioComponent_,
-                         ControlPanel* controlPanel_)
+                         ControlPanel* controlPanel_,
+						 CustomLookAndFeel* customLookAndFeel_)
 : mainWindow(mainWindow_),
   processorGraph(processorGraph_),
   audio(audioComponent_),
-  controlPanel(controlPanel_)
+  controlPanel(controlPanel_),
+  customLookAndFeel(customLookAndFeel_)
 {
-    
-    setLookAndFeel(&customLookAndFeel);
-    
+        
 	messageCenterEditor = (MessageCenterEditor*) processorGraph->getMessageCenter()->createEditor();
 	LOGD("Created message center editor.");
 
@@ -108,7 +108,7 @@ UIComponent::~UIComponent()
 		delete pluginInstaller;
 	}
     
-    setLookAndFeel(nullptr);
+    // setLookAndFeel(nullptr);
 }
 
 /** Returns a pointer to the EditorViewport. */
@@ -338,7 +338,7 @@ void UIComponent::resized()
             
         } else {
             messageCenterEditor->expand();
-            messageCenterEditor->setBounds(6,h-getHeight()+5,getWidth(),getHeight());
+            messageCenterEditor->setBounds(6, 6,getWidth()-6,getHeight()-6);
         }
 	}
     
@@ -381,15 +381,19 @@ void UIComponent::childComponentChanged()
 
 void UIComponent::setTheme(ColorTheme t)
 {
-    customLookAndFeel.setTheme(t);
+    customLookAndFeel->setTheme(t);
     
     theme = t;
     
-    repaint();
+    mainWindow->repaint();
     
     controlPanel->updateColors();
+
+	messageCenterButton.updateColors();
     
     getProcessorGraph()->refreshColors();
+
+	processorList->repaint();
 }
 
 ColorTheme UIComponent::getTheme()
@@ -476,8 +480,9 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 		clockMenu.addCommandItem(commandManager, setClockModeHHMMSS);
         
         PopupMenu themeMenu;
-        themeMenu.addCommandItem(commandManager, setColorTheme1);
-        themeMenu.addCommandItem(commandManager, setColorTheme2);
+        themeMenu.addCommandItem(commandManager, setColorThemeLight);
+        themeMenu.addCommandItem(commandManager, setColorThemeMedium);
+        themeMenu.addCommandItem(commandManager, setColorThemeDark);
 
 		menu.addCommandItem(commandManager, toggleProcessorList);
 		menu.addCommandItem(commandManager, toggleSignalChain);
@@ -553,8 +558,9 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		resizeWindow,
 		openPluginInstaller,
 		openDefaultConfigWindow,
-        setColorTheme1,
-        setColorTheme2,
+        setColorThemeLight,
+        setColorThemeMedium,
+		setColorThemeDark,
 		setSoftwareRenderer,
         setDirect2DRenderer
 	};
@@ -691,15 +697,20 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			result.setTicked(controlPanel->clock->getMode() == Clock::HHMMSS);
 			break;
             
-        case setColorTheme1:
-            result.setInfo("Theme 1", "Set color theme 1.", "General", 0);
-            result.setTicked(getTheme() == ColorTheme::THEME1);
+        case setColorThemeLight:
+            result.setInfo("Light", "Set color theme Light.", "General", 0);
+            result.setTicked(getTheme() == ColorTheme::LIGHT);
             break;
 
-        case setColorTheme2:
-            result.setInfo("Theme 2", "Set color theme 2.", "General", 0);
-            result.setTicked(getTheme() == ColorTheme::THEME2);
+        case setColorThemeMedium:
+            result.setInfo("Medium", "Set color theme default.", "General", 0);
+            result.setTicked(getTheme() == ColorTheme::MEDIUM);
             break;
+		
+		case setColorThemeDark:
+			result.setInfo("Dark", "Set color theme dark.", "General", 0);
+			result.setTicked(getTheme() == ColorTheme::DARK);
+			break;
 
 		case openPluginInstaller:
 			result.setInfo("Plugin Installer", "Launch the plugin installer.", "General", 0);
@@ -986,12 +997,16 @@ bool UIComponent::perform(const InvocationInfo& info)
 			controlPanel->clock->setMode(Clock::HHMMSS);
 			break;
             
-        case setColorTheme1:
-            setTheme(ColorTheme::THEME1);
+        case setColorThemeLight:
+            setTheme(ColorTheme::LIGHT);
             break;
 
-        case setColorTheme2:
-            setTheme(ColorTheme::THEME2);
+		case setColorThemeMedium:
+			setTheme(ColorTheme::MEDIUM);
+			break;
+
+        case setColorThemeDark:
+            setTheme(ColorTheme::DARK);
             break;
 		
 		case setSoftwareRenderer:
@@ -1067,7 +1082,7 @@ void UIComponent::loadStateFromXml(XmlElement* xml)
             editorViewportButton->toggleState();
         }
         
-        setTheme((ColorTheme) xmlNode->getIntAttribute("colorTheme", ColorTheme::THEME1));
+        setTheme((ColorTheme) xmlNode->getIntAttribute("colorTheme", ColorTheme::MEDIUM));
 
 	}
 }
@@ -1121,13 +1136,11 @@ EditorViewportButton::~EditorViewportButton()
 void EditorViewportButton::paint(Graphics& g)
 {
 
-	g.fillAll(Colour(58,58,58));
+	g.fillAll(findColour(ThemeColors::componentBackground));
 
-	g.setColour(Colours::white);
+	g.setColour(findColour(ThemeColors::defaultText));
 	g.setFont(buttonFont);
 	g.drawText("SIGNAL CHAIN", 10, 0, getWidth(), getHeight(), Justification::left, false);
-
-	g.setColour(Colours::white);
 
 	Path p;
 

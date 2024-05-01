@@ -53,7 +53,7 @@ GraphViewport::GraphViewport(GraphViewer* gv)
 
 void GraphViewport::paint(Graphics& g)
 {
-    g.fillAll(findColour(ThemeColors::graphViewerBackgroundColorId));
+    g.fillAll(findColour(ThemeColors::componentParentBackground));
     g.setOpacity(0.6f);
     g.drawImageAt(bw_logo, getWidth() - 175, getHeight() - 115);
 
@@ -305,6 +305,8 @@ void GraphViewer::paint (Graphics& g)
     // Draw connections
     const int numAvailableNodes = availableNodes.size();
 
+    Colour pathColor = findColour(ThemeColors::defaultFill);
+
     for (int i = 0; i < numAvailableNodes; ++i)
     {
         if(rootProcessors.contains(availableNodes[i]->getProcessor()))
@@ -319,22 +321,22 @@ void GraphViewer::paint (Graphics& g)
             linePath.startNewSubPath(startPoint);
             linePath.lineTo(endPoint);
 
-            g.setColour(Colour(30, 30, 30));
+            g.setColour(pathColor);
             PathStrokeType stroke1(10.0f);
             g.strokePath(linePath, stroke1);
 
-            g.setColour(Colour(90, 90, 90));
-            PathStrokeType stroke2(7.5f);
-            g.strokePath(linePath, stroke2);
+            // g.setColour(pathColor.brighter(0.4f));
+            // PathStrokeType stroke2(7.5f);
+            // g.strokePath(linePath, stroke2);
 
-            g.setColour(Colour(150, 150, 150));
-            PathStrokeType stroke3(4.5f);
-            g.strokePath(linePath, stroke3);
+            // g.setColour(pathColor.brighter(0.8f));
+            // PathStrokeType stroke3(4.5f);
+            // g.strokePath(linePath, stroke3);
 
-            Colour ellipseColour = Colour(30,30,30);
-            ColourGradient ellipseGradient = ColourGradient(Colours::lightgrey,
+            Colour ellipseColour = findColour(ThemeColors::defaultFill);
+            ColourGradient ellipseGradient = ColourGradient(pathColor.brighter(),
                                                 startPoint.x - 10.0f, startPoint.y,
-                                                Colours::grey,
+                                                pathColor,
                                                 startPoint.x, startPoint.y,
                                                 true);
 
@@ -374,7 +376,21 @@ void GraphViewer::paint (Graphics& g)
                     connectNodes (i, indexOfDest, g);
             }
         }
+
+        if (availableNodes[i]->getProcessor()->isEmpty())
+            continue;
+        
+        Path nodePath;
+        nodePath.addRoundedRectangle(availableNodes[i]->getBounds().reduced(1.0f).toFloat(), 5.0f);
+        
+        DropShadow(findColour(ThemeColors::dropShadowColor), 10, Point<int>(2, 8)).drawForPath(g, nodePath);
     }
+}
+
+
+void GraphViewer::paintOverChildren (Graphics& g)
+{
+    
 }
 
 
@@ -392,9 +408,9 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
     
     linePath.startNewSubPath (x1, y1);
 
-    if(availableNodes[node1]->getHorzShift() == availableNodes[node2]->getHorzShift())
+    if(availableNodes[node1]->getLevel() == availableNodes[node2]->getLevel())
     {    
-        linePath.lineTo(end);
+        linePath.lineTo(end.withX(x2 - 2.0f));
     }
     else
     {
@@ -407,7 +423,7 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
     
     if (availableNodes[node1]->getProcessor()->isEmpty())
     {
-        g.setColour(Colour(150, 150, 150));
+        g.setColour(findColour(ThemeColors::defaultFill));
         Path dashedLinePath;
         PathStrokeType stroke3(2.0f);
         const float dashLengths[2] = { 5.0f, 5.0f };
@@ -417,7 +433,7 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
     }
     else
     {
-        g.setColour (Colour(30,30,30));
+        g.setColour (findColour(ThemeColors::defaultFill));
         PathStrokeType stroke3 (3.5f);
         Path arrowPath;
         stroke3.createStrokedPath(arrowPath, linePath);
@@ -717,7 +733,7 @@ void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
     g.setColour(Colour(30, 30, 30));
     g.fillAll();
 
-    g.setColour(Colours::lightgrey);
+    g.setColour(findColour(ThemeColors::componentBackground));
     g.fillRect(1, 0, 24, getHeight() - 1);
 
     if(getButtonText().equalsIgnoreCase("Parameters"))
@@ -727,7 +743,7 @@ void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
 
     g.fillRect(25, 0, getWidth() - 26, getHeight() - 1);
 
-    g.setColour(Colour(30, 30, 30));
+    g.setColour(findColour(ThemeColors::defaultText));
 
     if (getToggleState())
         g.fillPath(pathOpen);
@@ -801,7 +817,7 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
     previousHeight = 0;
     verticalOffset = 0;
 
-    nodeDropShadower.setOwner(this);
+    // nodeDropShadower.setOwner(this);
 }
 
 
@@ -1213,9 +1229,10 @@ void GraphNode::paint (Graphics& g)
 
     if(processor->isEmpty())
     {
-        g.setColour(Colour(150, 150, 150));
+        g.setColour(findColour(ThemeColors::defaultFill));
         g.drawRoundedRectangle(1, 1, getWidth() - 2, 18, 5.0f, 2.0f);
         
+        g.setColour(findColour(ThemeColors::defaultText));
         g.drawFittedText("No Source", 10, 0,
             getWidth() - 10, 20, Justification::centredLeft, 1);
     }
@@ -1224,12 +1241,12 @@ void GraphNode::paint (Graphics& g)
         g.setColour(Colour(30, 30, 30));
         g.fillRect(0, 0, getWidth(), 20);
 
-        g.setColour(Colours::lightgrey);
+        g.setColour(findColour(ThemeColors::componentBackground));
         g.fillRect(1, 1, 24, 18);
         g.setColour(editor->getBackgroundColor());
-        g.fillRect(25, 1, getWidth() - 26, 18);
+        g.fillRect(25, 1, getWidth() - 25, 18);
 
-        g.setColour (Colours::black); // : editor->getBackgroundColor());
+        g.setColour (findColour(ThemeColors::defaultText)); // : editor->getBackgroundColor());
         g.drawText (String(nodeId), 1, 0, 23, 20, Justification::centred, true);
         g.setColour(Colours::white); // : editor->getBackgroundColor());
         g.drawText(getName(), 29, 0, getWidth() - 29, 20, Justification::left, true);
@@ -1241,22 +1258,20 @@ void GraphNode::paintOverChildren(Graphics& g)
     if (processor->isEmpty())
         return;
     
+    Path fakeRoundedCorners;
+    juce::Rectangle<float> bounds = {0, 0, (float)getWidth(), (float)getHeight()};
+
+    const float cornerSize = 5.0f; //desired corner size
+    fakeRoundedCorners.addRectangle(bounds); //What you start with
+    fakeRoundedCorners.setUsingNonZeroWinding(false); //The secret sauce
+    fakeRoundedCorners.addRoundedRectangle(bounds.reduced(1.0f), cornerSize); //subtract this shape
+
+    g.setColour(findColour(ThemeColors::componentParentBackground));
+    g.fillPath(fakeRoundedCorners);
+
     if (isMouseOver)
     {
         g.setColour(Colours::yellow);
         g.drawRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 5.0f, 2.0f);
-    }
-    else
-    {
-        Path fakeRoundedCorners;
-        juce::Rectangle<float> bounds = {0, 0, (float)getWidth(), (float)getHeight()};
-
-        const float cornerSize = 5.0f; //desired corner size
-        fakeRoundedCorners.addRectangle(bounds); //What you start with
-        fakeRoundedCorners.setUsingNonZeroWinding(false); //The secret sauce
-        fakeRoundedCorners.addRoundedRectangle(bounds.reduced(1.0f), cornerSize); //subtract this shape
-
-        g.setColour(findColour(ThemeColors::graphViewerBackgroundColorId));
-        g.fillPath(fakeRoundedCorners);
     }
 }

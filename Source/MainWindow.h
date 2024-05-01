@@ -32,6 +32,7 @@
 #include "UI/DefaultConfig.h"
 #include "UI/ControlPanel.h"
 #include "Utils/OpenEphysHttpServer.h"
+#include "UI/LookAndFeel/CustomLookAndFeel.h"
 
 class OpenEphysHttpServer;
 
@@ -105,6 +106,9 @@ public:
     /** Sets the size of the Main Window */
     void centreWithSize(int, int);
 
+    /** Repaints the main window and all of it's components*/
+    void repaint();
+
 private:
     
     /** Saves the processor graph to a file*/
@@ -130,6 +134,8 @@ private:
 
     /** A pointer to the DocumentWindow (only instantiated if running in GUI mode). */
     std::unique_ptr<MainDocumentWindow> documentWindow;
+
+    std::unique_ptr <CustomLookAndFeel> customLookAndFeel;
 
     /** A pointer to the application's PopupManager (owned by the MainWindow). */
     std::unique_ptr<PopupManager> popupManager;

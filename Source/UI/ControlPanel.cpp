@@ -64,13 +64,13 @@ void PlayButton::updateImages()
     p.applyTransform(AffineTransform::scale(0.8f));
     p.applyTransform(AffineTransform::translation(2,2));
     normal.setPath(p);
-    normal.setFill(findColour(ThemeColors::controlPanelButtonColorId));
+    normal.setFill(findColour(ThemeColors::defaultFill));
     normal.setStrokeThickness(0.0f);
 
     over.setPath(p);
-    over.setFill(findColour(ThemeColors::controlPanelButtonColorId));
+    over.setFill(findColour(ThemeColors::defaultFill));
     over.setStrokeThickness(2.0f);
-    over.setStrokeFill(findColour(ThemeColors::controlPanelButtonColorId));
+    over.setStrokeFill(findColour(ThemeColors::defaultFill));
     
     down.setPath(p);
     down.setFill(Colours::white);
@@ -101,13 +101,13 @@ void RecordButton::updateImages()
     p.applyTransform(AffineTransform::scale(0.8f));
     p.applyTransform(AffineTransform::translation(2,2));
     normal.setPath(p);
-    normal.setFill(findColour(ThemeColors::controlPanelButtonColorId));
+    normal.setFill(findColour(ThemeColors::defaultFill));
     normal.setStrokeThickness(0.0f);
 
     over.setPath(p);
-    over.setFill(findColour(ThemeColors::controlPanelButtonColorId));
+    over.setFill(findColour(ThemeColors::defaultFill));
     over.setStrokeThickness(2.0f);
-    over.setStrokeFill(findColour(ThemeColors::controlPanelButtonColorId));
+    over.setStrokeFill(findColour(ThemeColors::defaultFill));
     
     down.setPath(p);
     down.setFill(Colours::white);
@@ -134,14 +134,15 @@ void CPUMeter::updateCPU(float usage)
 
 void CPUMeter::paint(Graphics& g)
 {
-    g.fillAll(Colours::grey);
+    g.fillAll(findColour(ThemeColors::widgetBackground));
 
     g.setColour(Colours::yellow);
     g.fillRect(0.0f, 0.0f, getWidth() * cpu, float(getHeight()));
 
-    g.setColour(Colours::black);
+    g.setColour(findColour(ThemeColors::outline));
     g.drawRect(0,0,getWidth(),getHeight(),1);
 
+    g.setColour(findColour(ThemeColors::defaultText));
     g.setFont(font);
     g.drawSingleLineText("CPU",65,12);
 
@@ -167,9 +168,9 @@ void DiskSpaceMeter::updateDiskSpace(float percent)
 void DiskSpaceMeter::paint(Graphics& g)
 {
 
-    g.fillAll(Colours::grey);
+    g.fillAll(findColour(ThemeColors::widgetBackground));
 
-    g.setColour(Colours::lightgrey);
+    g.setColour(findColour(ThemeColors::defaultFill));
     if (diskFree > 0)
     {
         if (diskFree > 1.0)
@@ -177,9 +178,10 @@ void DiskSpaceMeter::paint(Graphics& g)
         g.fillRect(0.0f, 0.0f, getWidth() * diskFree, float(getHeight()));
     }
 
-    g.setColour(Colours::black);
+    g.setColour(findColour(ThemeColors::outline));
     g.drawRect(0, 0, getWidth(), getHeight(), 1);
 
+    g.setColour(findColour(ThemeColors::defaultText));
     g.setFont(font);
     g.drawSingleLineText("DF",75,12);
 
@@ -236,9 +238,9 @@ void Clock::drawTime(Graphics& g)
     {
 
         if (isRunning)
-            g.setColour(Colours::yellow);
+            g.setColour(findColour(ThemeColors::highlightedText));
         else
-            g.setColour(Colours::white);
+            g.setColour(findColour(ThemeColors::defaultText));
 
         h = floor(totalTime / 3600000.0f);
         m = floor(totalTime / 60000.0);
@@ -269,7 +271,7 @@ void Clock::drawTime(Graphics& g)
     
 
     g.setFont(clockFont);
-    g.drawText(timeString, 0, 0, getWidth(), getHeight(), Justification::left, false);
+    g.drawText(timeString, 0, 0, getWidth(), getHeight(), Justification::centred, false);
 
 }
 
@@ -359,15 +361,11 @@ ControlPanelButton::ControlPanelButton(ControlPanel* cp_)
 
 void ControlPanelButton::paint(Graphics& g)
 {
-    
-    if (open)
-        g.setColour(findColour(ThemeColors::controlPanelButtonColorId).withAlpha(0.5f));
-    else
-        g.setColour(findColour(ThemeColors::controlPanelButtonColorId).withAlpha(0.2f));
+    g.setColour(findColour(ThemeColors::defaultFill));
     
     g.fillEllipse(0, 0, getWidth(), getHeight());
 
-    g.setColour(findColour(ThemeColors::controlPanelBackgroundColorId));
+    g.setColour(findColour(ThemeColors::componentBackground));
     
     if (open)
         g.fillPath(openPath);
@@ -552,9 +550,9 @@ void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
 
             if (!isConsoleApp)
             {
-                playButton->getNormalImage()->replaceColour(findColour(ThemeColors::controlPanelButtonColorId), findColour(ThemeColors::controlPanelButtonOnColorId));
-                playButton->getOverImage()->replaceColour(findColour(ThemeColors::controlPanelButtonColorId),
-                                                          findColour(ThemeColors::controlPanelButtonOnColorId));
+                playButton->getNormalImage()->replaceColour(findColour(ThemeColors::defaultFill), findColour(ThemeColors::highlightedFill));
+                playButton->getOverImage()->replaceColour(findColour(ThemeColors::defaultFill),
+                                                          findColour(ThemeColors::highlightedFill));
   
                 audioEditor->disable();
                 
@@ -585,8 +583,8 @@ void ControlPanel::stopAcquisition()
 
     if (!isConsoleApp)
     {
-        playButton->getNormalImage()->replaceColour(findColour(ThemeColors::controlPanelButtonOnColorId), findColour(ThemeColors::controlPanelButtonColorId));
-        playButton->getOverImage()->replaceColour(findColour(ThemeColors::controlPanelButtonOnColorId), findColour(ThemeColors::controlPanelButtonColorId));
+        playButton->getNormalImage()->replaceColour(findColour(ThemeColors::highlightedFill), findColour(ThemeColors::defaultFill));
+        playButton->getOverImage()->replaceColour(findColour(ThemeColors::highlightedFill), findColour(ThemeColors::defaultFill));
         
         refreshMeters();
 
@@ -714,7 +712,7 @@ void ControlPanel::createPaths()
 void ControlPanel::paint(Graphics& g)
 {
     if (!recordButton->getToggleState())
-        g.setColour (findColour(ThemeColors::controlPanelBackgroundColorId));
+        g.setColour (findColour(ThemeColors::componentBackground));
     else
         g.setColour(Colour(255,0,0));
     
@@ -723,7 +721,7 @@ void ControlPanel::paint(Graphics& g)
     if (open)
     {
         createPaths();
-        g.setColour(Colours::black);
+        g.setColour(findColour(ThemeColors::windowBackground));
         g.fillPath(p1);
         g.fillPath(p2);
     }
@@ -780,16 +778,16 @@ void ControlPanel::resized()
 
     // Set positions for controls and clock
     // ====================================================================
-    const int controlButtonWidth    = h - 5;
-    const int controlButtonHeight   = h - 10;
-    const int clockWidth      = h * 6 - 10;
+    const int controlButtonWidth    = 22;
+    const int controlButtonHeight   = 22;
+    const int clockWidth            = 195;
     const int controlsMargin        = 10;
     const int totalControlsWidth = controlButtonWidth * 2 + controlsMargin + clockWidth;
     if (currentNumRows != 3)
     {
-        playButton->setBounds   (w - h * 8, 5, controlButtonWidth, controlButtonHeight);
-        recordButton->setBounds (w - h * 7, 5, controlButtonWidth, controlButtonHeight);
-        clock->setBounds  (w - clockWidth, 0, clockWidth,  h);
+        playButton->setBounds (w - clockWidth - 2 * (controlButtonHeight + controlsMargin) - 22 , 5, controlButtonWidth, controlButtonHeight);
+        recordButton->setBounds (w - clockWidth - controlButtonHeight - controlsMargin - 22, 5, controlButtonWidth, controlButtonHeight);
+        clock->setBounds  (w - clockWidth - 32, 0, clockWidth,  h);
     }
     else
     {
@@ -889,7 +887,7 @@ void ControlPanel::labelTextChanged(Label* label)
     newDirectoryButton->setEnabledState(false);
     clock->resetRecordTime();
 
-    filenameText->setColour(Label::textColourId, Colours::grey);
+    // filenameText->setColour(Label::textColourId, Colours::grey);
 }
 
 void ControlPanel::startRecording()
@@ -897,10 +895,10 @@ void ControlPanel::startRecording()
 
     clock->startRecording(); // turn on recording
 
-    filenameText->setColour(Label::textColourId, Colours::black);
+    // filenameText->setColour(Label::textColourId, Colours::black);
     
-    recordButton->getNormalImage()->replaceColour(findColour(ThemeColors::controlPanelButtonColorId), findColour(ThemeColors::controlPanelButtonOnColorId));
-    recordButton->getOverImage()->replaceColour(findColour(ThemeColors::controlPanelButtonColorId), findColour(ThemeColors::controlPanelButtonOnColorId));
+    recordButton->getNormalImage()->replaceColour(findColour(ThemeColors::defaultFill), findColour(ThemeColors::highlightedFill));
+    recordButton->getOverImage()->replaceColour(findColour(ThemeColors::defaultFill), findColour(ThemeColors::highlightedFill));
 
     if (!newDirectoryButton->getEnabledState()) // new directory is required
     {
@@ -933,8 +931,8 @@ void ControlPanel::stopRecording()
     clock->stopRecording();
     newDirectoryButton->setEnabledState(true);
 
-    recordButton->getNormalImage()->replaceColour(findColour(ThemeColors::controlPanelButtonOnColorId), findColour(ThemeColors::controlPanelButtonColorId));
-    recordButton->getOverImage()->replaceColour(findColour(ThemeColors::controlPanelButtonOnColorId), findColour(ThemeColors::controlPanelButtonColorId));
+    recordButton->getNormalImage()->replaceColour(findColour(ThemeColors::highlightedFill), findColour(ThemeColors::defaultFill));
+    recordButton->getOverImage()->replaceColour(findColour(ThemeColors::highlightedFill), findColour(ThemeColors::defaultFill));
 
     recordButton->setToggleState(false, dontSendNotification);
 
@@ -958,6 +956,9 @@ void ControlPanel::componentBeingDeleted(Component &component)
 
 void ControlPanel::updateColors()
 {
+    if (getAcquisitionState())
+        return;
+        
     playButton->updateImages();
     recordButton->updateImages();
 }
@@ -990,7 +991,7 @@ void ControlPanel::buttonClicked(Button* button)
         newDirectoryButton->setEnabledState(false);
         clock->resetRecordTime();
 
-        filenameText->setColour(Label::textColourId, Colours::grey);
+        // filenameText->setColour(Label::textColourId, Colours::grey);
 
         return;
     }
@@ -1092,7 +1093,7 @@ void ControlPanel::setSelectedRecordEngine(int index)
     newDirectoryButton->setEnabledState(false);
     clock->resetRecordTime();
 
-    filenameText->setColour(Label::textColourId, Colours::grey);
+    // filenameText->setColour(Label::textColourId, Colours::grey);
     lastEngineIndex = index;
 }
 

@@ -42,14 +42,14 @@ void CloseTabButton::paintButton(Graphics& g, bool isMouseOverButton, bool isBut
     int xoffset = (getWidth() - 14) /2 ;
     int yoffset = (getHeight() - 14) /2 ;
     
-    g.setColour(Colours::white.withAlpha(0.25f));
+    g.setColour(findColour(ThemeColors::defaultText).withAlpha(0.25f));
     
     if (isMouseOverButton)
     {
         g.fillRoundedRectangle(xoffset, yoffset, 14, 14, 4.0f);
     }
     
-    g.setColour(Colours::white);
+    g.setColour(findColour(ThemeColors::defaultText));
     
     Path path;
     path.addLineSegment(Line<float>(2, 2, 8, 8), 0.0f);
@@ -153,6 +153,7 @@ void CustomTabButton::paintButton(Graphics& g,
                                   bool isMouseDown)
 {
     
+    getTabbedButtonBar().setTabBackgroundColour(getIndex(), findColour(ThemeColors::componentBackground));
     
     getLookAndFeel().drawTabButton(*this, g, isMouseOver, isMouseDown);
     
@@ -177,7 +178,7 @@ DraggableTabComponent::DraggableTabComponent(DataViewport* parent_) :
 {
     setTabBarDepth(28);
     setOutline(0);
-    setIndent(8); // gap to leave around the edge
+    setIndent(5); // gap to leave around the edge
                   // of the content component
 
 }
@@ -340,18 +341,18 @@ void DraggableTabComponent::paint(Graphics& g)
     }
 
     if (o == TabbedButtonBar::TabsAtTop)
-        y += 32;
+        y += 28;
     else if (o == TabbedButtonBar::TabsAtBottom)
-        b -= 32;
+        b -= 28;
     else if (o == TabbedButtonBar::TabsAtLeft)
-        x += 32;
+        x += 28;
     else if (o == TabbedButtonBar::TabsAtRight)
-        r -= 32;
+        r -= 28;
 
-    g.setColour(Colour(58,58,58));
+    g.setColour(findColour(ThemeColors::componentBackground));
     g.fillRoundedRectangle(x,y,r-x,b-y,5.0f);
-    g.fillRect(x,y,r-20,b-y);
-    g.fillRect(x,20,r-x,b-20);
+    // g.fillRect(x,y,r-20,b-y);
+    // g.fillRect(x,20,r-x,b-20);
     
 
 }
@@ -389,13 +390,13 @@ void AddTabbedComponentButton::paintButton(Graphics& g, bool isMouseOverButton, 
 
     if (isMouseOverButton)
     {
-        g.setColour(Colours::white.withAlpha(0.25f));
+        g.setColour(findColour(ThemeColors::defaultFill).withAlpha(0.25f));
         g.fillRoundedRectangle(0, 0, 20, 20, 5.0f);
         
         
     }
     
-    g.setColour(Colour(150,150,150));
+    g.setColour(findColour(ThemeColors::defaultFill));
     g.strokePath(path, PathStrokeType(1.0f));
     
 }

@@ -196,19 +196,19 @@ void MessageCenterEditor::collapse()
 void MessageCenterEditor::paint(Graphics& g)
 {
 
-    g.setColour(Colours::lightgrey.withAlpha(0.5f)); // edge color (58,58,58)
+    g.setColour(findColour(ThemeColors::outline).withAlpha(0.5f)); // edge color
 
-    g.fillRoundedRectangle(1, 1, getWidth()-2, getHeight()-2, 8.0f);
+    g.drawRoundedRectangle(1, 1, getWidth()-2, getHeight()-2, 6.0f, 2.0f);
 
     if (isExpanded)
-        g.setColour(Colours::lightgrey.withAlpha(0.8f));
+        g.setColour(findColour(ThemeColors::widgetBackground).withAlpha(0.85f));
     else
-        g.setColour(Colour(100,100,100));
+        g.setColour(findColour(ThemeColors::widgetBackground));
     
-    g.fillRoundedRectangle(3, 3, getWidth()-6, getHeight()-6, 6.0f);
+    g.fillRoundedRectangle(2, 2, getWidth()-4, getHeight()-4, 6.0f);
     
     g.setColour(backgroundColor);
-    g.fillRoundedRectangle(3, 3, getWidth()-6, getHeight()-6, 6.0f);
+    g.fillRoundedRectangle(2, 2, getWidth()-4, getHeight()-4, 6.0f);
     
     g.setColour(Colours::white.withAlpha(0.2f)); // background color (100,100,100)
     
@@ -234,7 +234,7 @@ void MessageCenterEditor::paint(Graphics& g)
     if (isExpanded)
     {
         g.setFont (Font("CP Mono", "Bold", 80));
-        g.setColour(Colours::white.withAlpha(0.1f));
+        g.setColour(findColour(ThemeColors::defaultFill).withAlpha(0.25f));
         g.drawText("INCOMING", 4,
         25,
         getWidth()/2-11,
@@ -321,10 +321,7 @@ MessageLabel::MessageLabel(const String& componentName, const String& labelText)
     : Label(componentName,labelText)
 {
     setJustificationType(Justification::bottomLeft);
-    setColour(Label::textColourId, Colours::black);
-    setColour(Label::textWhenEditingColourId, Colours::black);
-    setColour(Label::outlineWhenEditingColourId, Colours::darkgrey);
-    setFont(Font("CP Mono", "Plain", 15));
+    setFont(Font("CP Mono", "Plain", 16));
     setBorderSize(BorderSize<int>(0, 7, 2, 0));
     setMinimumHorizontalScale (1.0f);
     

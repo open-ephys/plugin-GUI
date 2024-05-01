@@ -205,7 +205,7 @@ void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButto
     g.fillRoundedRectangle(0,0,getWidth(),getHeight(),0.2*getWidth());
 
 	if (!getToggleState())
-		g.setColour(Colour(110,110,110));
+		g.setColour(findColour(ThemeColors::widgetBackground));
 	else
 		g.setColour(Colour(255,0,0));
 
@@ -220,7 +220,6 @@ RecordToggleParameterEditor::RecordToggleParameterEditor(Parameter* param) : Par
 
 	label = std::make_unique<Label>("Parameter name", param->getDisplayName());
     label->setFont(Font("Small Text", 12.0f, Font::plain));
-    label->setColour(Label::textColourId, Colours::black);
     addAndMakeVisible(label.get());
 
     toggleButton = std::make_unique<RecordToggleButton>(param->getDisplayName());//param->getDisplayName());

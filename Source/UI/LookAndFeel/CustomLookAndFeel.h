@@ -41,24 +41,27 @@ namespace ProcessorColor {
     };
 }
 
-namespace ThemeColors {
-    enum Colors
-    {
-        controlPanelBackgroundColorId,
-        controlPanelButtonColorId,
-        controlPanelButtonOnColorId,
-        graphViewerBackgroundColorId,
-        editorViewportBackgroundColorId,
-        editorGradientColorId1,
-        editorGradientColorId2,
-        editorGradientColorId3
-    };
-}
+enum ThemeColors
+{
+    componentBackground = 0x9001,
+    componentParentBackground,
+    windowBackground,
+    widgetBackground,
+    menuBackground,
+    menuHighlightText,
+    outline,
+    defaultText,
+    defaultFill,
+    highlightedText,
+    highlightedFill,
+    dropShadowColor
+};
 
 enum ColorTheme
 {
-    THEME1,
-    THEME2
+    LIGHT,
+    MEDIUM,
+    DARK
 };
 
 /**
@@ -81,6 +84,8 @@ public:
 
     /** Destructor */
     ~CustomLookAndFeel();
+
+    std::map<ColorTheme, std::map<ThemeColors, Colour>> themeColorsMap;
     
     /** Set color theme*/
     void setTheme(ColorTheme theme);
@@ -109,11 +114,11 @@ public:
                        bool isMouseDown);
     
     // ======== custom tooltip methods: ============================
-    juce::Rectangle<int> getTooltipBounds(const String &tipText, Point<int> screenPos, juce::Rectangle<int> parentArea) override;
+    // juce::Rectangle<int> getTooltipBounds(const String &tipText, Point<int> screenPos, juce::Rectangle<int> parentArea) override;
     
-    void drawTooltip(Graphics &, const String &text, int width, int height) override;
+    // void drawTooltip(Graphics &, const String &text, int width, int height) override;
 
-    TextLayout layoutTooltipText(const String& text, Colour colour);
+    // TextLayout layoutTooltipText(const String& text, Colour colour);
 
     // ======== custom slider methods: =============================
 
@@ -204,7 +209,7 @@ public:
 
     // ========= custom document window methods: ===========================
     Button* createDocumentWindowButton (int) override;
-
+    void positionDocumentWindowButtons (DocumentWindow&, int, int, int, int, Button*, Button*, Button*, bool) override;
     void drawDocumentWindowTitleBar (DocumentWindow&, Graphics&, int, int, int, int, const Image*, bool) override;
 
     // ========= custom Alert Window methods: ===========================
@@ -261,6 +266,8 @@ private:
         silkscreen;
     
     Font getCommonMenuFont();
+
+    void initializeColors();
 };
 
 

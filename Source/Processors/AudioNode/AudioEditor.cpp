@@ -61,13 +61,13 @@ AudioWindowButton::AudioWindowButton()
 void AudioWindowButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (getToggleState())
-        g.setColour (findColour(ThemeColors::controlPanelButtonOnColorId));
+        g.setColour (findColour(ThemeColors::highlightedFill));
     else
-        g.setColour (findColour(ThemeColors::controlPanelButtonColorId));
+        g.setColour (findColour(ThemeColors::defaultText));
 
     const bool isLatencyLabelVisible = getParentComponent()->getWidth() >= 450;
     auto textToDraw = isLatencyLabelVisible ? textString : textString.fromLastOccurrenceOf (":", false, true);
-    g.setFont (Font("Silkscreen", "Regular", 12));
+    g.setFont (Font("Silkscreen", "Regular", 14));
     g.drawSingleLineText (textToDraw, 0, 15);
 }
 
@@ -250,8 +250,8 @@ void AudioEditor::componentVisibilityChanged(Component& component)
 void AudioEditor::paint (Graphics& g)
 {
     const int margin = getWidth() * 0.03;
-    g.setColour (findColour(ThemeColors::controlPanelButtonColorId));
-    g.setFont(Font("Silkscreen", "Regular", 12));
+    g.setColour (findColour(ThemeColors::defaultText));
+    g.setFont(Font("Silkscreen", "Regular", 14));
     g.drawSingleLineText ("GATE:", volumeSlider->getBounds().getRight() + margin, 20);
 }
 
@@ -330,5 +330,5 @@ void AudioConfigurationWindow::resized()
 
 void AudioConfigurationWindow::paint (Graphics& g)
 {
-    g.fillAll (findColour(ThemeColors::controlPanelBackgroundColorId));
+    g.fillAll (findColour(ThemeColors::componentBackground));
 }

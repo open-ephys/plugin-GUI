@@ -211,8 +211,6 @@ LfpDisplayOptions::LfpDisplayOptions(LfpDisplayCanvas* canvas_, LfpDisplaySplitt
 
     // TTL Word
     ttlWordLabel = std::make_unique<Label>("TTL word");
-    ttlWordLabel->setColour(Label::backgroundColourId, Colour(25,25,25));
-    ttlWordLabel->setColour(Label::textColourId, Colour(120,120,100));
     addAndMakeVisible(ttlWordLabel.get());
     startTimer(250);
 
@@ -457,10 +455,10 @@ void LfpDisplayOptions::resized()
     spreadSelection->setBounds(timebaseSelection->getRight() + 20, getHeight() - 30, 90, height);
     rangeSelection->setBounds(spreadSelection->getRight() + 20, getHeight()-30, 90, height);
 
-    int bh = 25 / typeButtons.size();
+    int bh = 36 / typeButtons.size();
     for (int i = 0; i < typeButtons.size(); i++)
     {
-        typeButtons[i]->setBounds(rangeSelection->getRight()+5, getHeight() - 30 + i * bh, 50, bh);
+        typeButtons[i]->setBounds(rangeSelection->getRight()+5, getHeight() - 40 + i * bh, 50, bh);
     }
 
     for (int i = 0; i < 8; i++)
@@ -559,10 +557,12 @@ void LfpDisplayOptions::paint(Graphics& g)
     int row1 = 55;
     int row2 = 110;
 
-    g.fillAll(Colours::black);
+    ttlWordLabel->setColour(Label::outlineColourId, findColour(ThemeColors::outline));
+
+    g.fillAll(findColour(ThemeColors::componentBackground));
     g.setFont(Font("Default", 20, Font::plain));
 
-    g.setColour(Colour(150,150,150));
+    g.setColour(findColour(ThemeColors::defaultText));
 
     if (getHeight() > 150)
     {

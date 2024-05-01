@@ -25,6 +25,7 @@
 #define MessageCenterButton_h
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "../UI/LookAndFeel/CustomLookAndFeel.h"
 
 /**
 
@@ -52,22 +53,22 @@ public:
         downArrow.lineTo(20.0f, 5.0f);
 
         expanded.setPath(upArrow);
-        expanded.setFill(Colours::white.withAlpha(0.0f));
+        expanded.setFill(Colour(0x00000000));
         expanded.setStrokeFill(Colour(220,220,220));
         expanded.setStrokeThickness(1.0f);
         
         expandedOver.setPath(upArrow);
-        expandedOver.setFill(Colours::white.withAlpha(0.0f));
+        expandedOver.setFill(Colour(0x00000000));
         expandedOver.setStrokeFill(Colour(230,230,230));
         expandedOver.setStrokeThickness(1.0f);
     
         collapsed.setPath(downArrow);
-        collapsed.setFill(Colours::white.withAlpha(0.0f));
+        collapsed.setFill(Colour(0x00000000));
         collapsed.setStrokeFill(Colour(130,130,130));
         collapsed.setStrokeThickness(1.0f);
         
         collapsedOver.setPath(downArrow);
-        collapsedOver.setFill(Colours::white.withAlpha(0.0f));
+        collapsedOver.setFill(Colour(0x00000000));
         collapsedOver.setStrokeFill(Colour(150,150,150));
         collapsedOver.setStrokeThickness(1.0f);
     
@@ -88,6 +89,16 @@ public:
             setImages(&collapsed, &collapsedOver, &collapsedOver);
         }
         
+    }
+
+    void updateColors()
+    {
+        expanded.setStrokeFill(findColour(ThemeColors::defaultFill));
+        expandedOver.setStrokeFill(findColour(ThemeColors::defaultFill));
+        collapsed.setStrokeFill(findColour(ThemeColors::defaultFill));
+        collapsedOver.setStrokeFill(findColour(ThemeColors::defaultFill));
+
+        repaint();
     }
 
     DrawablePath expanded, expandedOver, collapsed, collapsedOver;

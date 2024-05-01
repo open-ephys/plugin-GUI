@@ -27,7 +27,6 @@
 #endif
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainWindow.h"
-#include "UI/LookAndFeel/CustomLookAndFeel.h"
 
 #include <stdio.h>
 #include <fstream>
@@ -80,9 +79,6 @@ public:
 #endif
 
         SystemStats::setApplicationCrashHandler(handleCrash);
-
-        customLookAndFeel = std::make_unique<CustomLookAndFeel>();
-        LookAndFeel::setDefaultLookAndFeel(customLookAndFeel.get());
 
         // Parse parameters
         if (!parameters.isEmpty())
@@ -180,7 +176,6 @@ public:
 
 private:
     std::unique_ptr <MainWindow> mainWindow;
-    std::unique_ptr <CustomLookAndFeel> customLookAndFeel;
     std::ofstream console_out;
 };
 

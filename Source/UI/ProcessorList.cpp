@@ -154,7 +154,11 @@ void ProcessorList::drawItem(Graphics& g, ProcessorListItem* item)
 void ProcessorList::drawItemName(Graphics& g, ProcessorListItem* item)
 {
     
-	g.setColour(Colours::white);
+	if (item->getName().equalsIgnoreCase("Processors"))
+		g.setColour(findColour(ThemeColors::defaultText));
+	else
+		g.setColour(Colours::white);
+
 	g.setFont(listFontPlain);
 
 	float offsetX, offsetY;

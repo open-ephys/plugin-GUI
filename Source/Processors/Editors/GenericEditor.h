@@ -470,9 +470,8 @@ private:
     Font font;
     bool roundUL, roundUR, roundLL, roundLR;
     float radius;
-    ColourGradient selectedGrad, selectedOverGrad, neutralGrad, neutralOverGrad;
-    Colour fontColor;
     Path outlinePath;
+    Path fillPath;
 
     bool isEnabled;
 
