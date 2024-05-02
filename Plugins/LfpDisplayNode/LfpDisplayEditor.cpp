@@ -40,16 +40,16 @@ LayoutButton::~LayoutButton()
 void LayoutButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if(getToggleState())
-        g.setColour(Colours::orange);
+        g.setColour(findColour(ThemeColors::highlightedFill));
     else
-        g.setColour(Colours::grey);
+        g.setColour(findColour(ThemeColors::widgetBackground));
 
     g.fillRoundedRectangle(0, 0, getWidth(), getHeight(), 3);
     
-    if(isMouseOver)
-        g.setColour(Colours::white);
+    if(getToggleState())
+        g.setColour(Colours::black.withAlpha(isMouseOver ? 0.6f : 1.0f));
     else
-        g.setColour(Colours::black);
+        g.setColour(findColour(ThemeColors::defaultText).withAlpha(isMouseOver ? 0.6f : 1.0f));
 
     juce::Path path;
 
@@ -79,7 +79,6 @@ void LayoutButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
         g.fillRect(3.0f, (float)(getHeight()/3) + 1.0f, (float)(getWidth()-6), 1.0f);
         g.fillRect(3.0f, (float)(2*getHeight()/3) - 1.0f, (float)(getWidth()-6), 1.0f);
     }
-    
 
 }
 

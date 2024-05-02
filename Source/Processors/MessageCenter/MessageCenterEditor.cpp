@@ -210,10 +210,10 @@ void MessageCenterEditor::paint(Graphics& g)
     g.setColour(backgroundColor);
     g.fillRoundedRectangle(2, 2, getWidth()-4, getHeight()-4, 6.0f);
     
-    g.setColour(Colours::white.withAlpha(0.2f)); // background color (100,100,100)
+    g.setColour(findColour(ThemeColors::outline).withAlpha(0.5f)); // dividing line
     
     if (isExpanded)
-        g.drawLine(getWidth()/2+9, 10, getWidth()/2+9, getHeight() - 30);
+        g.fillRect(getWidth()/2+9, 10, 2, getHeight() - 30);
 
     g.setColour(incomingBackground); // incoming background
     
@@ -245,7 +245,7 @@ void MessageCenterEditor::paint(Graphics& g)
         getHeight()-60, Justification::centred);
     }
 
-    g.setColour(Colours::grey);
+    g.setColour(findColour(ThemeColors::outline).withAlpha(0.5f));
     g.drawRect(getWidth()/2+26,getHeight()-25,getWidth()/2-80, 20);
 
 }

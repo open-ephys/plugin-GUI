@@ -98,10 +98,10 @@ CustomLookAndFeel::~CustomLookAndFeel() {}
 
 void CustomLookAndFeel::initializeColors()
 {
-    setColour(ProcessorColor::IDs::FILTER_COLOR, Colour(0, 174, 239));
+    setColour(ProcessorColor::IDs::FILTER_COLOR, Colour(0, 160, 225));
     setColour(ProcessorColor::IDs::SINK_COLOR, Colour(0, 166, 81));
     setColour(ProcessorColor::IDs::SOURCE_COLOR, Colour(241, 90, 41));
-    setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(147, 149, 152));
+    setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(90, 110, 110));
     setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(255, 0, 0));
     setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(0,0,0));
     setColour(ProcessorColor::IDs::SYNC_COLOR, Colour(255,165,0));
@@ -773,13 +773,13 @@ void CustomLookAndFeel::drawButtonBackground (Graphics& g,
                                               bool isMouseOverButton, bool isButtonDown)
 {
     auto cornerSize = 3.0f;
-    auto bounds = button.getLocalBounds().toFloat();
+    auto bounds = button.getLocalBounds().toFloat().reduced (0.5f, 0.5f);
 
-    auto baseColour = backgroundColour.withMultipliedSaturation (button.hasKeyboardFocus (true) ? 1.3f : 0.9f)
-                                      .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.35f);
+    auto baseColour = backgroundColour.withMultipliedSaturation (button.hasKeyboardFocus (true) ? 1.3f : 1.0f)
+                                      .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.5f);
 
     if (isButtonDown || isMouseOverButton)
-        baseColour = baseColour.contrasting (isButtonDown ? 0.35f : 0.05f);
+        baseColour = baseColour.contrasting (isButtonDown ? 0.2f : 0.05f);
 
     g.setColour (baseColour);
 
@@ -800,24 +800,17 @@ void CustomLookAndFeel::drawButtonBackground (Graphics& g,
                                   ! (flatOnRight || flatOnBottom));
 
         g.fillPath (path);
-        g.setColour(findColour(ComboBox::outlineColourId));
+
+        g.setColour (button.findColour (ComboBox::outlineColourId));
         g.strokePath (path, PathStrokeType (1.0f));
     }
     else
     {
         g.fillRoundedRectangle (bounds, cornerSize);
-    }
 
-    g.setColour(Colours::black);
-    g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.0f);
-
-    /*
-    if (button.hasKeyboardFocus(false))
-    {
-        g.setColour(Colours::white);
-        g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.5f);
+        g.setColour (button.findColour (ComboBox::outlineColourId));
+        g.drawRoundedRectangle (bounds, cornerSize, 1.0f);
     }
-    */
 }
 
 

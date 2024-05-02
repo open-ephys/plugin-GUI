@@ -45,23 +45,8 @@ public:
     /** Destructor */
     virtual ~ButtonGroupManager();
 
-    //==============================================================================
-    /** A set of colour IDs to use to change the colour of various aspects of the button.
-
-        These constants can be used either via the Component::setColour(), or LookAndFeel::setColour()
-        methods.
-
-        @see Component::setColour, Component::findColour, LookAndFeel::setColour, LookAndFeel::findColour
-    */
-    enum ColourIds
-    {
-        backgroundColourId              = 0x1000100,  /**< The colour used to fill the buttons' manager background. */
-        outlineColourId                 = 0x1000101,  /**< The colour used for the outline of button manager. */
-    };
-
     // Component methods
     // ===========================================================
-    void paint (Graphics& g)    override;
     void colourChanged()        override;
 
     /** All component, that inherit ButtonGroupManager should override the resized() method

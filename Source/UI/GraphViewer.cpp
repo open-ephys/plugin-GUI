@@ -325,14 +325,6 @@ void GraphViewer::paint (Graphics& g)
             PathStrokeType stroke1(10.0f);
             g.strokePath(linePath, stroke1);
 
-            // g.setColour(pathColor.brighter(0.4f));
-            // PathStrokeType stroke2(7.5f);
-            // g.strokePath(linePath, stroke2);
-
-            // g.setColour(pathColor.brighter(0.8f));
-            // PathStrokeType stroke3(4.5f);
-            // g.strokePath(linePath, stroke3);
-
             Colour ellipseColour = findColour(ThemeColors::defaultFill);
             ColourGradient ellipseGradient = ColourGradient(pathColor.brighter(),
                                                 startPoint.x - 10.0f, startPoint.y,
@@ -348,7 +340,7 @@ void GraphViewer::paint (Graphics& g)
             int level = rootProcessors.indexOf(nodeProcessor);
             static const String letters = "ABCDEFGHI";
 
-            g.setColour(Colours::black);
+            g.setColour(findColour(ThemeColors::defaultText));
             g.setFont(Font("Silkscreen", "Regular", 14));
             g.drawText (String::charToString(letters[level]), startPoint.x - 20, startPoint.y - 10, 20, 20, Justification::centred, true);
 
@@ -565,11 +557,9 @@ DataStreamInfo::~DataStreamInfo()
 void DataStreamInfo::paint(Graphics& g)
 {
     g.setFont(Font("Fira Sans", "SemiBold", 14));
-    g.setColour(Colour(30, 30, 30));
-    g.drawRect(0, 0, getWidth(), getHeight(), 1);
-    g.setColour(Colours::white.darker());
-    g.fillRect(1, 0, getWidth() - 2, getHeight() - 1);
-    g.fillRect(1, 0, 24, getHeight() - 1);
+
+    g.fillAll(findColour(ThemeColors::componentBackground));
+    // g.fillRect(1, 0, 24, getHeight() - 1);
 
     int numEventChannels = stream->getEventChannels().size();
     int numSpikeChannels = stream->getSpikeChannels().size();
@@ -577,7 +567,7 @@ void DataStreamInfo::paint(Graphics& g)
     String ttlText = numEventChannels == 1 ? "TTL Channel" : "TTL Channels";
     String spikeText = numSpikeChannels == 1 ? "Spike Channel" : "Spike Channels";
 
-    g.setColour(Colours::black);
+    g.setColour(findColour(ThemeColors::defaultText));
     g.drawText("@ " + String(stream->getSampleRate()) + " Hz", 30, 0, getWidth() - 30, 20, Justification::left);
     g.drawText(ttlText, 30, 20, getWidth() - 30, 20, Justification::left);
     g.drawText(spikeText, 30, 40, getWidth() - 30, 20, Justification::left);
@@ -684,10 +674,7 @@ ProcessorParameterComponent::~ProcessorParameterComponent()
 
 void ProcessorParameterComponent::paint(Graphics& g)
 {
-    g.setColour(Colour(30, 30, 30));
-    g.drawRect(0, 0, getWidth(), getHeight(), 1);
-    g.setColour(Colours::white.darker());
-    g.fillRect(1, 0, getWidth() - 2, getHeight() - 1);
+    g.fillAll(findColour(ThemeColors::componentBackground));
 }
 
 void ProcessorParameterComponent::updateView()
@@ -730,18 +717,18 @@ int DataStreamButton::getDesiredHeight() const
 void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
 {
 
-    g.setColour(Colour(30, 30, 30));
-    g.fillAll();
-
     g.setColour(findColour(ThemeColors::componentBackground));
-    g.fillRect(1, 0, 24, getHeight() - 1);
+    g.fillRect(0, 0, 25, getHeight());
 
     if(getButtonText().equalsIgnoreCase("Parameters"))
         g.setColour(editor->getBackgroundColor().withSaturation(0.5f).withAlpha(0.7f));
     else
         g.setColour(editor->getBackgroundColor().withAlpha(0.5f));
 
-    g.fillRect(25, 0, getWidth() - 26, getHeight() - 1);
+    g.fillRect(25, 0, getWidth() - 25, getHeight());
+
+    g.setColour(findColour(ThemeColors::outline));
+    g.drawRect(0, 0, getWidth(), getHeight(), 1);
 
     g.setColour(findColour(ThemeColors::defaultText));
 
@@ -1238,13 +1225,10 @@ void GraphNode::paint (Graphics& g)
     }
     else
     {
-        g.setColour(Colour(30, 30, 30));
-        g.fillRect(0, 0, getWidth(), 20);
-
         g.setColour(findColour(ThemeColors::componentBackground));
-        g.fillRect(1, 1, 24, 18);
+        g.fillRect(0, 0, 25, 20);
         g.setColour(editor->getBackgroundColor());
-        g.fillRect(25, 1, getWidth() - 25, 18);
+        g.fillRect(25, 0, getWidth() - 25, 20);
 
         g.setColour (findColour(ThemeColors::defaultText)); // : editor->getBackgroundColor());
         g.drawText (String(nodeId), 1, 0, 23, 20, Justification::centred, true);

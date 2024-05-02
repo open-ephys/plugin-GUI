@@ -34,17 +34,25 @@ static const Colour COLOUR_SLIDER_TRACK_FILL    (Colour::fromRGB (255, 255, 255)
 MuteButton::MuteButton()
     : ImageButton ("MuteButton")
 {
-    Image offimage = ImageCache::getFromMemory  (BinaryData::muteoff_png, BinaryData::muteoff_pngSize);
-    Image onimage  = ImageCache::getFromMemory  (BinaryData::muteon_png,  BinaryData::muteon_pngSize);
+    offimage = ImageCache::getFromMemory  (BinaryData::muteoff_png, BinaryData::muteoff_pngSize);
+    onimage  = ImageCache::getFromMemory  (BinaryData::muteon_png,  BinaryData::muteon_pngSize);
 
     setImages (false, true, true,
-               offimage, 1.0f, Colours::white.withAlpha (0.0f),
-               offimage, 1.0f, Colours::black.withAlpha (0.0f),
-               onimage,  1.0f, Colours::lightgrey);
+               offimage, 1.0f, findColour(ThemeColors::defaultText),
+               offimage, 0.5f, findColour(ThemeColors::defaultText).withAlpha(0.5f),
+               onimage,  0.7f, findColour(ThemeColors::defaultText).withAlpha(0.7f));
 
     setClickingTogglesState (true);
 
     setTooltip ("Mute audio");
+}
+
+void MuteButton::updateImages()
+{
+    setImages (false, true, true,
+               offimage, 1.0f, findColour(ThemeColors::defaultText),
+               offimage, 0.5f, findColour(ThemeColors::defaultText).withAlpha(0.5f),
+               onimage,  0.7f, findColour(ThemeColors::defaultText).withAlpha(0.7f));
 }
 
 
@@ -100,10 +108,6 @@ AudioEditor::AudioEditor (AudioNode* owner)
     volumeSlider->setTextBoxStyle (Slider::NoTextBox,
                                    false, 0, 0);
     volumeSlider->setRange (0, 100, 1);
-    volumeSlider->setColour (Slider::backgroundColourId, COLOUR_SLIDER_TRACK);
-    volumeSlider->setColour (Slider::trackColourId,      COLOUR_SLIDER_TRACK_FILL);
-    volumeSlider->setColour (Slider::thumbColourId,      COLOUR_SLIDER_TRACK_FILL);
-    volumeSlider->setLookAndFeel (materialSliderLookAndFeel);
     volumeSlider->addListener (this);
     volumeSlider->setValue(50);
     addAndMakeVisible (volumeSlider);
@@ -113,10 +117,6 @@ AudioEditor::AudioEditor (AudioNode* owner)
     noiseGateSlider->setTextBoxStyle (Slider::NoTextBox,
                                       false, 0, 0);
     noiseGateSlider->setRange (0,100,1);
-    noiseGateSlider->setColour (Slider::backgroundColourId, COLOUR_SLIDER_TRACK);
-    noiseGateSlider->setColour (Slider::trackColourId,      COLOUR_SLIDER_TRACK_FILL);
-    noiseGateSlider->setColour (Slider::thumbColourId,      COLOUR_SLIDER_TRACK_FILL);
-    noiseGateSlider->setLookAndFeel (materialSliderLookAndFeel);
     noiseGateSlider->addListener (this);
     addAndMakeVisible (noiseGateSlider);
 
@@ -125,8 +125,7 @@ AudioEditor::AudioEditor (AudioNode* owner)
 
 AudioEditor::~AudioEditor()
 {
-    noiseGateSlider->setLookAndFeel(nullptr);
-    volumeSlider->setLookAndFeel(nullptr);
+
 }
 
 
@@ -253,6 +252,8 @@ void AudioEditor::paint (Graphics& g)
     g.setColour (findColour(ThemeColors::defaultText));
     g.setFont(Font("Silkscreen", "Regular", 14));
     g.drawSingleLineText ("GATE:", volumeSlider->getBounds().getRight() + margin, 20);
+
+    muteButton->updateImages();
 }
 
 

@@ -1437,10 +1437,10 @@ LevelMonitor::~LevelMonitor() {}
 
 void LevelMonitor::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-	g.setColour(Colours::grey);
-	g.fillRoundedRectangle(0, 0, this->getWidth(), this->getHeight(), 4);
-	g.setColour(Colours::lightslategrey);
-	g.fillRoundedRectangle(2, 2, this->getWidth() - 4, this->getHeight() - 4, 2);
+	g.setColour(findColour(ThemeColors::outline));
+	g.drawRoundedRectangle(1, 1, this->getWidth() - 2, this->getHeight() - 2, 3, 1);
+	g.setColour(findColour(ThemeColors::widgetBackground));
+	g.fillRoundedRectangle(1, 1, this->getWidth() - 2, this->getHeight() - 2, 3);
 
 	if (fillPercentage < 0.7)
 		g.setColour(Colours::yellow);

@@ -1675,23 +1675,14 @@ void LfpDisplaySplitter::paint(Graphics& g)
     //}
 
     Colour borderColour;
-    ColourGradient timelineColour;
 
     if (isSelected)
     {
         borderColour = Colour(252, 210, 0);
-
-        timelineColour = ColourGradient(Colour(252, 210, 0), 0, 0,
-            Colour(173, 145, 3), 0, 30,
-            false);
     }
     else {
 
-        borderColour = Colour(40, 40, 40);
-
-        timelineColour = ColourGradient(Colour(50, 50, 50), 0, 0,
-            Colour(25, 25, 25), 0, 30,
-            false);
+        borderColour = Colour(findColour(ThemeColors::componentParentBackground));
     }
 
     g.setColour(borderColour);
@@ -1701,7 +1692,6 @@ void LfpDisplaySplitter::paint(Graphics& g)
     else
         g.drawRect(0, 0, getWidth(), getHeight() - 55, 2);
     
-    g.setGradientFill(timelineColour);
     g.fillRect(2, 2, getWidth()-4, 28);
 
 }

@@ -81,7 +81,7 @@ SpikePlot* SpikeDisplay::getSpikePlot(int index)
 void SpikeDisplay::paint(Graphics& g)
 {
 
-    g.fillAll(Colours::darkgrey);
+    g.fillAll(findColour(ThemeColors::componentBackground));
 
 }
 

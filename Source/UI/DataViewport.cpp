@@ -377,10 +377,11 @@ AddTabbedComponentButton::AddTabbedComponentButton()
 : Button("Add Tabbed Component")
 {
     
-    path.addRoundedRectangle(3, 3, 14, 14, 3.0f);
-    path.addLineSegment(Line<float>(7, 3, 7, 17), 0.0f);
-    path.addLineSegment(Line<float>(12, 8, 12, 12), 0.0f);
-    path.addLineSegment(Line<float>(10, 10, 14, 10), 0.0f);
+    path.addRoundedRectangle(1, 1, 18, 18, 3.0f);
+    path.addLineSegment(Line<float>(9, 1, 9, 18), 0.0f);
+    path.addTriangle(12, 7, 12, 13, 17, 10);
+    // path.addLineSegment(Line<float>(12, 8, 12, 12), 0.0f);
+    // path.addLineSegment(Line<float>(10, 10, 14, 10), 0.0f);
     
 }
 

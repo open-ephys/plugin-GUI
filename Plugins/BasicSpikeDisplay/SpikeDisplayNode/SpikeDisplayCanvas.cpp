@@ -175,7 +175,7 @@ void SpikeDisplayCanvas::resized()
 
 void SpikeDisplayCanvas::paint(Graphics& g)
 {
-    g.fillAll(Colours::black);
+    g.fillAll(findColour(ThemeColors::componentParentBackground));
 }
 
 void SpikeDisplayCanvas::refresh()

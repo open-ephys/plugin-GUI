@@ -558,6 +558,10 @@ void ProcessorList::loadStateFromXml(XmlElement* xml)
 			{
                 
                 int ID = colorNode->getIntAttribute("ID");
+
+				// Ignore the processor color
+				if (ID == ProcessorColor::IDs::PROCESSOR_COLOR)
+					continue;
                 
 				getLookAndFeel().setColour(ID,
 						Colour(

@@ -31,7 +31,6 @@
 
 class AudioNode;
 class AudioComponent;
-class MaterialSliderLookAndFeel;
 
 /**
   Toggles audio output on and off.
@@ -48,6 +47,14 @@ public:
 
     /** Destructor */
     ~MuteButton() { }
+
+    /** Updates the button's images */
+    void updateImages();
+  
+private:
+
+    Image onimage, offimage;
+
 };
 
 
@@ -170,8 +177,6 @@ private:
 
     ScopedPointer<Slider> volumeSlider;
     ScopedPointer<Slider> noiseGateSlider;
-
-    SharedResourcePointer<MaterialSliderLookAndFeel> materialSliderLookAndFeel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioEditor);
 };
