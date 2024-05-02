@@ -370,5 +370,5 @@ void Visualizer::loadFromXml(XmlElement* xml)
         }
     }
     
-    loadCustomParametersFromXml(xml);
+    loadCustomParametersFromXml(xml->getChildByName("CUSTOM_PARAMETERS"));
 }
