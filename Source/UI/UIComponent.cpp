@@ -1061,7 +1061,6 @@ void UIComponent::saveStateToXml(XmlElement* xml)
 	XmlElement* uiComponentState = xml->createNewChildElement("UICOMPONENT");
 	uiComponentState->setAttribute("isProcessorListOpen",processorList->isOpen());
 	uiComponentState->setAttribute("isEditorViewportOpen",editorViewportButton->isOpen());
-    uiComponentState->setAttribute("colorTheme", (int) getTheme());
 }
 
 void UIComponent::loadStateFromXml(XmlElement* xml)
@@ -1081,8 +1080,6 @@ void UIComponent::loadStateFromXml(XmlElement* xml)
         {
             editorViewportButton->toggleState();
         }
-        
-        setTheme((ColorTheme) xmlNode->getIntAttribute("colorTheme", ColorTheme::MEDIUM));
 
 	}
 }
