@@ -1357,7 +1357,9 @@ void LfpDisplayOptions::saveParameters(XmlElement* xml)
 
     XmlElement* xmlNode = xml->createNewChildElement("LFPDISPLAY" + String(canvasSplit->splitID));
 
-    xmlNode->setAttribute("SubprocessorID", canvasSplit->streamSelection->getSelectedId());
+    //xmlNode->setAttribute("SubprocessorID", canvasSplit->streamSelection->getSelectedId());
+
+    xmlNode->setAttribute("stream_key", canvasSplit->getStreamKey());
 
     xmlNode->setAttribute("Range",selectedVoltageRangeValues[0]+","+selectedVoltageRangeValues[1]+
         ","+selectedVoltageRangeValues[2]);
@@ -1425,17 +1427,19 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
 
         if (xmlNode->hasTagName("LFPDISPLAY" + String(canvasSplit->splitID)))
         {
-            uint32 id = xmlNode->getIntAttribute("SubprocessorID");
+            //uint32 id = xmlNode->getIntAttribute("SubprocessorID");
+
+            String streamKey = xmlNode->getStringAttribute("stream_key");
 
             int64 start = Time::getHighResolutionTicks();
 
             if (canvasSplit->displayBuffer != nullptr)
                 canvasSplit->displayBuffer->removeDisplay(canvasSplit->splitID);
 
-            if (processor->displayBufferMap.find(id) == processor->displayBufferMap.end())
+            if (processor->displayBufferMap.find(streamKey) == processor->displayBufferMap.end())
                 canvasSplit->displayBuffer = processor->getDisplayBuffers().getFirst();   
             else
-                canvasSplit->displayBuffer = processor->displayBufferMap[id];
+                canvasSplit->displayBuffer = processor->displayBufferMap[streamKey];
 
             if (canvasSplit->displayBuffer != nullptr)
                 canvasSplit->displayBuffer->addDisplay(canvasSplit->splitID);

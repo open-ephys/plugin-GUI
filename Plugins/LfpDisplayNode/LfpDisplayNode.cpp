@@ -80,19 +80,21 @@ void LfpDisplayNode::updateSettings()
         uint16 streamId = channel->getStreamId();
         String name = channel->getStreamName();
 
-        if (displayBufferMap.count(streamId) == 0)
+        String stream_key = getDataStream(streamId)->getKey();
+
+        if (displayBufferMap.count(stream_key) == 0)
         {
             
             displayBuffers.add(new DisplayBuffer(streamId, name, channel->getSampleRate()));
-            displayBufferMap[streamId] = displayBuffers.getLast();
+            displayBufferMap[stream_key] = displayBuffers.getLast();
 
         }
         else {
-            displayBufferMap[streamId]->sampleRate = channel->getSampleRate();
-            displayBufferMap[streamId]->name = name;
+            displayBufferMap[stream_key]->sampleRate = channel->getSampleRate();
+            displayBufferMap[stream_key]->name = name;
         }
 //
-        displayBufferMap[streamId]->addChannel(channel->getName(), // name
+        displayBufferMap[stream_key]->addChannel(channel->getName(), // name
             ch, // index
             channel->getChannelType(), // type
             channel->isRecorded,
@@ -113,7 +115,7 @@ void LfpDisplayNode::updateSettings()
         }
         else {
 
-            displayBufferMap.erase(displayBuffer->id);
+            displayBufferMap.erase(displayBuffer->streamKey);
             toDelete.add(displayBuffer);
 
             for (auto splitID : displayBuffer->displays)
@@ -261,9 +263,9 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
         }
     }
 
-    if (displayBufferMap.count(eventStreamId))
+    if (displayBufferMap.count(getDataStream(eventStreamId)->getKey()))
     {
-        displayBufferMap[eventStreamId]->addEvent(eventTime, eventChannel, eventId,
+        displayBufferMap[getDataStream(eventStreamId)->getKey()]->addEvent(eventTime, eventChannel, eventId,
                                                   getNumSamplesInBlock(eventStreamId)
         );
     }
@@ -305,6 +307,7 @@ void LfpDisplayNode::finalizeEventChannels()
 
     for (auto displayBuffer : displayBuffers)
     {
+
         int numSamples = getNumSamplesInBlock(displayBuffer->id);
         displayBuffer->finalizeEventChannel(numSamples);
     }
@@ -324,7 +327,9 @@ void LfpDisplayNode::process (AudioBuffer<float>& buffer)
 
         const uint32 nSamples = getNumSamplesInBlock(streamId);
 
-        displayBufferMap[streamId]->addData(buffer, chan, nSamples);
+        String streamKey = getDataStream(streamId)->getKey();
+
+        displayBufferMap[streamKey]->addData(buffer, chan, nSamples);
     }
 }
 

@@ -357,6 +357,8 @@ public:
     void setFilteredChannels(Array<int> channels){filteredChannels = channels;}
     Array<int> getFilteredChannels(){return filteredChannels;}
 
+    String getStreamKey();
+
 private:
 
     bool isSelected;

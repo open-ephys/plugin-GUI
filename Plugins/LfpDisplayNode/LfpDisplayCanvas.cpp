@@ -745,7 +745,7 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
     timescale = std::make_unique < LfpTimescale>(this, lfpDisplay.get());
     options = std::make_unique<LfpDisplayOptions>(canvas, this, timescale.get(), lfpDisplay.get(), node);
 
-    streamSelection = std::make_unique<ComboBox>("Subprocessor selection");
+    streamSelection = std::make_unique<ComboBox>("Stream selection");
     streamSelection->addListener(this);
 
     lfpDisplay->options = options.get();
@@ -771,6 +771,12 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
     displayBuffer = nullptr;
 
+}
+
+String LfpDisplaySplitter::getStreamKey()
+{
+    DataStream* stream = processor->getDataStream(selectedStreamId);
+    return stream->getKey();
 }
 
 void LfpDisplaySplitter::resized()
@@ -941,7 +947,7 @@ void LfpDisplaySplitter::updateSettings()
 
         if (displayBuffer != nullptr)
         {
-            if (buffer->id == displayBuffer->id)
+            if (buffer->streamKey == displayBuffer->streamKey)
                 foundMatchingBuffer = true;
         }
     }
@@ -1644,7 +1650,7 @@ void LfpDisplaySplitter::setDrawableStream(uint16 sp)
 {
    
     selectedStreamId = sp;
-    displayBuffer = processor->displayBufferMap[sp];
+    displayBuffer = processor->displayBufferMap[processor->getDataStream(sp)->getKey()];
 
     updateSettings();
 }
