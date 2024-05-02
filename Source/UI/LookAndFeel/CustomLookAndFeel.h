@@ -216,6 +216,11 @@ public:
     // ======== custom TableHeaderComponent methods: ================================
     void drawTableHeaderBackground (Graphics&, TableHeaderComponent&) override;
 
+    // ======== custom Resizable Component methods: ================================
+    void drawResizableFrame (Graphics&, int w, int h, const BorderSize<int>&) override;
+    void fillResizableWindowBackground (Graphics&, int w, int h, const BorderSize<int>&, ResizableWindow&) override;
+    void drawResizableWindowBorder (Graphics&, int w, int h, const BorderSize<int>& border, ResizableWindow&) override;
+
 private:
 
     Typeface::Ptr

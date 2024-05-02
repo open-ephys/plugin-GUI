@@ -239,7 +239,7 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
     setColour(TabbedComponent::backgroundColourId, transparent);
     setColour(TabbedComponent::outlineColourId, transparent);
     setColour(TabbedButtonBar::tabOutlineColourId, currentThemeColors[ThemeColors::outline].withAlpha(0.5f));
-    setColour(TabbedButtonBar::tabTextColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(TabbedButtonBar::tabTextColourId, currentThemeColors[ThemeColors::defaultText].withAlpha(0.75f));
     setColour(TabbedButtonBar::frontOutlineColourId , currentThemeColors[ThemeColors::outline]);
     setColour(TabbedButtonBar::frontTextColourId , currentThemeColors[ThemeColors::defaultText]);
 
@@ -744,7 +744,7 @@ void CustomLookAndFeel::drawMenuBarBackground (Graphics& g, int width, int heigh
     g.fillRect  (r.removeFromTop (1));
     g.fillRect  (r.removeFromBottom (1));
 
-    g.setGradientFill (ColourGradient (colour, 0, 0, colour.darker (0.08f), 0, (float) height, false));
+    g.setGradientFill (ColourGradient::vertical (colour, 0, colour.darker (0.2f), (float) height));
     g.fillRect (r);
 
     if(menuBar.getName().equalsIgnoreCase("MainMenu"))
@@ -1249,11 +1249,11 @@ void CustomLookAndFeel::fillTabButtonShape (TabBarButton& button, Graphics& g, c
 
     g.fillPath (path);
 
-    // g.setColour (button.findColour (isFrontTab ? TabbedButtonBar::frontOutlineColourId
-    //                                            : TabbedButtonBar::tabOutlineColourId, false)
-    //                 .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.5f));
+    g.setColour (button.findColour (isFrontTab ? TabbedButtonBar::frontOutlineColourId
+                                               : TabbedButtonBar::tabOutlineColourId, false)
+                    .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.5f));
 
-    // g.strokePath (path, PathStrokeType (isFrontTab ? 1.0f : 0.5f));
+    g.strokePath (path, PathStrokeType (isFrontTab ? 1.0f : 0.5f));
 }
 
 Font CustomLookAndFeel::getTabButtonFont (TabBarButton&, float height)
@@ -1317,7 +1317,7 @@ void CustomLookAndFeel::drawTabButton (TabBarButton& button, Graphics& g, bool i
     tabShape.applyTransform (AffineTransform::translation ((float) activeArea.getX(),
                                                            (float) activeArea.getY()));
 
-    DropShadow (Colours::black.withAlpha (0.5f), 8, Point<int> (0, 0)).drawForPath (g, tabShape);
+    DropShadow (findColour(ThemeColors::dropShadowColor), 8, Point<int> (0, 0)).drawForPath (g, tabShape);
 
     fillTabButtonShape (button, g, tabShape, isMouseOver, isMouseDown);
     drawTabButtonText (button, g, isMouseOver, isMouseDown);
@@ -1365,7 +1365,7 @@ void CustomLookAndFeel::drawTabAreaBehindFrontButton (TabbedButtonBar& bar, Grap
     }
 
     g.setGradientFill (gradient);
-    g.fillRect (shadowRect.expanded (2, 2));
+    g.fillRect (shadowRect);
 }
 
 
@@ -1406,4 +1406,24 @@ void CustomLookAndFeel::drawTableHeaderBackground (Graphics& g, TableHeaderCompo
 
     for (int i = header.getNumColumns (true); --i >= 0;)
         g.fillRect (header.getColumnPosition (i).removeFromRight (1));
+}
+
+void CustomLookAndFeel::drawResizableFrame (Graphics& g, int w, int h, const BorderSize<int>& border)
+{
+
+}
+
+void CustomLookAndFeel::fillResizableWindowBackground (Graphics& g, int /*w*/, int /*h*/,
+                                                    const BorderSize<int>& /*border*/, ResizableWindow& window)
+{
+    g.setColour (window.getBackgroundColour());
+    g.fillRoundedRectangle (window.getLocalBounds().toFloat(), 8.0f);
+}
+
+void CustomLookAndFeel::drawResizableWindowBorder(juce::Graphics& g, int w, int h,
+                               const juce::BorderSize< int >& border,
+                               juce::ResizableWindow& window)
+{
+    g.setColour (findColour (ThemeColors::outline).withAlpha (0.8f));
+    g.drawRoundedRectangle (window.getLocalBounds().toFloat(), 8.0f, 3.0f);
 }

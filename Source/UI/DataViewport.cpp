@@ -335,9 +335,9 @@ void DraggableTabComponent::paint(Graphics& g)
     
     if (isDraggingOver)
     {
-        g.setColour(Colour(100,100,100));
+        g.setColour(findColour(ThemeColors::highlightedFill).withAlpha(0.5f));
         
-        g.fillAll();
+        g.fillRect(getTabbedButtonBar().getBounds());
     }
 
     if (o == TabbedButtonBar::TabsAtTop)
@@ -349,12 +349,15 @@ void DraggableTabComponent::paint(Graphics& g)
     else if (o == TabbedButtonBar::TabsAtRight)
         r -= 28;
 
-    g.setColour(findColour(ThemeColors::componentBackground));
-    g.fillRoundedRectangle(x,y,r-x,b-y,5.0f);
-    // g.fillRect(x,y,r-20,b-y);
-    // g.fillRect(x,20,r-x,b-20);
-    
+    Rectangle<float> bounds(x, y, r-x, b-y);
 
+    g.setColour(findColour(ThemeColors::componentBackground));
+    g.fillRoundedRectangle(bounds.reduced(1.0f), 5.0f);
+
+    g.setColour(findColour(
+        isDraggingOver ? ThemeColors::highlightedFill : ThemeColors::outline).withAlpha(0.5f));
+    g.drawRoundedRectangle(bounds.reduced(1.0f), 5.0f, 2.0f);
+    
 }
 
 
@@ -397,7 +400,7 @@ void AddTabbedComponentButton::paintButton(Graphics& g, bool isMouseOverButton, 
         
     }
     
-    g.setColour(findColour(ThemeColors::defaultFill));
+    g.setColour(findColour(ThemeColors::defaultText).withAlpha(0.7f));
     g.strokePath(path, PathStrokeType(1.0f));
     
 }
@@ -427,7 +430,7 @@ void DataViewport::resized()
         draggableTabComponents[i]->setBounds(width * i, 0, width, getHeight());
     }
     
-    addTabbedComponentButton->setBounds(getWidth() - 26, getHeight() - 26, 20, 20);
+    addTabbedComponentButton->setBounds(getWidth() - 24, getHeight() - 26, 20, 20);
     addTabbedComponentButton->toFront(false);
     
     if (draggableTabComponents[activeTabbedComponent]->getNumTabs() > 1 && activeTabbedComponent < 2)
