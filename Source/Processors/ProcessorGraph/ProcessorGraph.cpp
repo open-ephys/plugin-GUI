@@ -230,7 +230,7 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
             id = currentNodeId++;
         }
 
-         // identifier within processor graph
+        // identifier within processor graph
         processor->setNodeId(id);
         Node* n = addNode(std::move(processor), NodeID(id)); // have to add it so it can be deleted by the graph
 

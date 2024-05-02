@@ -70,7 +70,4 @@ void FakeSourceNode::setParams(const FakeSourceNodeParams &params) {
     cached_datastreams_.clear();
 }
 
-
-
 void FakeSourceNode::process(AudioBuffer<float>& continuousBuffer) {}
-
