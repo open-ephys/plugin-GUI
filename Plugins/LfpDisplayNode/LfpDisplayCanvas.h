@@ -309,7 +309,7 @@ public:
     bool fullredraw;
 
     /** Left margin for lfp plots (so the ch number text doesnt overlap) */
-    static const int leftmargin = 60; // 
+    static const int leftmargin = 100; // 
 
     Array<bool> isChannelEnabled;
 
