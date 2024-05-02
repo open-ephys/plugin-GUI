@@ -212,6 +212,15 @@ public:
     */
     static const String& getDefaultSansSerifFontName();
 
+    /** Returns a typeface font family that represents the system UI font.
+
+        Note that this method just returns a generic placeholder string that means "the default
+        UI font" - it's not the actual font family of this font.
+
+        @see getDefaultSansSerifFontName, setTypefaceName
+    */
+    static const String& getSystemUIFontName();
+
     /** Returns a typeface font family that represents the default serif font.
 
         Note that this method just returns a generic placeholder string that means "the default
@@ -256,9 +265,21 @@ public:
     [[nodiscard]] Font withPointHeight (float heightInPoints) const;
 
     /** Changes the font's height.
-        @see getHeight, withHeight, setHeightWithoutChangingWidth
+
+        The font will be scaled so that the sum of the ascender and descender is equal to the
+        provided height in logical pixels.
+
+        @see setPointHeight, getHeight, withHeight, setHeightWithoutChangingWidth
     */
     void setHeight (float newHeight);
+
+    /** Changes the font's height.
+
+        The argument specifies the size of the font's em-square in logical pixels.
+
+        @see setHeight, getHeight, withHeight, setHeightWithoutChangingWidth
+    */
+    void setPointHeight (float newHeight);
 
     /** Changes the font's height without changing its width.
         This alters the horizontal scale to compensate for the change in height.

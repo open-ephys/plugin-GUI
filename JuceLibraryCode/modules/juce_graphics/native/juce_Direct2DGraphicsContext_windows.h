@@ -99,7 +99,7 @@ public:
     void fillRoundedRectangle (const Rectangle<float>& area, float cornerSize) override;
 
     //==============================================================================
-    bool startFrame();
+    bool startFrame (float dpiScale);
     void endFrame();
 
     virtual Image createSnapshot() const { return {}; }
@@ -112,9 +112,6 @@ public:
     // Min & max frame sizes; same as Direct3D texture size limits
     static int constexpr minFrameSize = 1;
     static int constexpr maxFrameSize = 16384;
-
-    //==============================================================================
-    void setPhysicalPixelScaleFactor (float);
 
 protected:
     struct SavedState;
@@ -170,7 +167,6 @@ protected:
     };
 
     uint64_t frame = 0;
-    float scale = 1.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Direct2DGraphicsContext)
 };

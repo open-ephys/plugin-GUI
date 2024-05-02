@@ -4774,24 +4774,21 @@ private:
         //
         // Direct2DLowLevelGraphicsContext::endFrame calls ID2D1DeviceContext::EndDraw to finish painting
         // and then tells the swap chain to present the next swap chain back buffer.
-        direct2DContext->setPhysicalPixelScaleFactor ((float) peer.getPlatformScaleFactor());
+        if (! direct2DContext->startFrame ((float) peer.getPlatformScaleFactor()))
+            return;
 
-        if (direct2DContext->startFrame())
+        peer.handlePaint (*direct2DContext);
+        direct2DContext->endFrame();
+
+       #if JUCE_DIRECT2D_METRICS
+        if (lastPaintStartTicks > 0)
         {
-            direct2DContext->addTransform (AffineTransform::scale ((float) peer.getPlatformScaleFactor()));
-            peer.handlePaint (*direct2DContext);
-            direct2DContext->endFrame();
-
-           #if JUCE_DIRECT2D_METRICS
-            if (lastPaintStartTicks > 0)
-            {
-                direct2DContext->metrics->addValueTicks (Direct2DMetrics::messageThreadPaintDuration,
-                                                         Time::getHighResolutionTicks() - paintStartTicks);
-                direct2DContext->metrics->addValueTicks (Direct2DMetrics::frameInterval, paintStartTicks - lastPaintStartTicks);
-            }
-            lastPaintStartTicks = paintStartTicks;
-           #endif
+            direct2DContext->metrics->addValueTicks (Direct2DMetrics::messageThreadPaintDuration,
+                                                     Time::getHighResolutionTicks() - paintStartTicks);
+            direct2DContext->metrics->addValueTicks (Direct2DMetrics::frameInterval, paintStartTicks - lastPaintStartTicks);
         }
+        lastPaintStartTicks = paintStartTicks;
+       #endif
     }
 
     HWNDComponentPeer& peer;

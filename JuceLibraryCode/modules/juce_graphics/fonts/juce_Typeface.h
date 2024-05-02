@@ -346,6 +346,36 @@ public:
     */
     virtual Typeface::Ptr createSystemFallback (const String& text, const String& language) const = 0;
 
+    /** Returns the system's default UI font.
+
+        This will differ depending on the platform.
+
+        On Linux/fontconfig, this returns the typeface mapped to the name "system-ui",
+        or nullptr if no such font exists.
+
+        On Windows, this queries SystemParametersInfo with the key SPI_GETNONCLIENTMETRICS,
+        and returns the lfMessageFont that is returned, or nullptr if the font cannot be found.
+
+        On macOS and iOS, this returns the result of CTFontCreateUIFontForLanguage() for
+        the kCTFontUIFontSystem typeface.
+
+        On Android 29+, this will use AFontMatcher to return the "system-ui" font. On earlier
+        Android versions, this will attempt to return the Roboto font.
+
+        NOTE: The metrics of the system typeface may be significantly different from the metrics of
+        the sans-serif font that JUCE would normally select to be the default font. This is
+        especially evident on Windows: For Segoe UI (the Windows system typeface)
+        the sum of ascender and descender is somewhat larger than the em-size of the font,
+        but for Verdana (the JUCE default sans-serif font on Windows) the sum of ascender and
+        descender is closer to the em-size. When the size of a font is set via
+        FontOptions::withHeight() or Font::setHeight(), JUCE will scale fonts based on the sum of
+        ascender and descender, so switching to Segoe UI might cause text to render at a much
+        smaller size than with Verdana. You may get better results by setting font sizes in points
+        using FontOptions::withFontHeight() and Font::setPointHeight(). When using points, Segoe UI
+        still renders slightly smaller than Verdana, but the differences are less pronounced.
+    */
+    static Typeface::Ptr findSystemTypeface();
+
 private:
     //==============================================================================
     String name;

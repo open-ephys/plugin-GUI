@@ -566,24 +566,47 @@ public:
 
     ComSmartPtr<IDWriteFontFace> getIDWriteFontFace() const { return dwFontFace; }
 
-private:
-    float getKerning (int glyph1, int glyph2) const
+    static Typeface::Ptr findSystemTypeface()
     {
-        const auto face = dwFontFace.getInterface<IDWriteFontFace1>();
+        NONCLIENTMETRICS nonClientMetrics{};
+        nonClientMetrics.cbSize = sizeof (NONCLIENTMETRICS);
 
-        const UINT16 glyphs[] { (UINT16) glyph1, (UINT16) glyph2 };
-        INT32 advances [std::size (glyphs)]{};
-
-        if (FAILED (face->GetDesignGlyphAdvances ((UINT32) std::size (glyphs), std::data (glyphs), std::data (advances))))
+        if (! SystemParametersInfo (SPI_GETNONCLIENTMETRICS, sizeof (NONCLIENTMETRICS), &nonClientMetrics, sizeof (NONCLIENTMETRICS)))
             return {};
 
-        DWRITE_FONT_METRICS metrics{};
-        face->GetMetrics (&metrics);
+        SharedResourcePointer<Direct2DFactories> factories;
 
-        // TODO(reuk) incorrect
-        return (float) advances[0] / (float) metrics.designUnitsPerEm;
+        ComSmartPtr<IDWriteGdiInterop> interop;
+        if (FAILED (factories->getDWriteFactory()->GetGdiInterop (interop.resetAndGetPointerAddress())) || interop == nullptr)
+            return {};
+
+        ComSmartPtr<IDWriteFont> dwFont;
+        if (FAILED (interop->CreateFontFromLOGFONT (&nonClientMetrics.lfMessageFont, dwFont.resetAndGetPointerAddress())) || dwFont == nullptr)
+            return {};
+
+        ComSmartPtr<IDWriteFontFace> dwFontFace;
+        if (FAILED (dwFont->CreateFontFace (dwFontFace.resetAndGetPointerAddress())) || dwFontFace == nullptr)
+            return {};
+
+        const auto name = getLocalisedFamilyName (*dwFont);
+        const auto style = getLocalisedStyle (*dwFont);
+
+        const HbFace hbFace { hb_directwrite_face_create (dwFontFace) };
+        HbFont font { hb_font_create (hbFace.get()) };
+        const auto gdiMetrics = getGdiMetrics (font.get());
+        const auto dwMetrics = getDwriteMetrics (dwFontFace);
+        const auto metrics = gdiMetrics.value_or (dwMetrics);
+
+        return new WindowsDirectWriteTypeface (name,
+                                               style,
+                                               dwFont,
+                                               dwFontFace,
+                                               std::move (font),
+                                               metrics,
+                                               {});
     }
 
+private:
     static UINT32 numUtf16Words (const CharPointer_UTF16& str)
     {
         return (UINT32) (str.findTerminatingNull().getAddress() - str.getAddress());
@@ -761,7 +784,7 @@ private:
             return {};
 
         const auto upem = (float) hb_face_get_upem (hb_font_get_face (font));
-        return TypefaceAscentDescent { (float) ascent / upem, (float) descent / upem };
+        return TypefaceAscentDescent { (float) std::abs (ascent) / upem, (float) std::abs (descent) / upem };
     }
 
     SharedResourcePointer<Direct2DFactories> factories;
@@ -795,7 +818,7 @@ struct DefaultFontNames
     String defaultSans, defaultSerif, defaultFixed, defaultFallback;
 };
 
-Typeface::Ptr Font::getDefaultTypefaceForFont (const Font& font)
+Typeface::Ptr Font::Native::getDefaultPlatformTypefaceForFont (const Font& font)
 {
     static DefaultFontNames defaultNames;
 
@@ -820,6 +843,11 @@ Typeface::Ptr Typeface::createSystemTypefaceFor (const Font& font)
 Typeface::Ptr Typeface::createSystemTypefaceFor (Span<const std::byte> data)
 {
     return WindowsDirectWriteTypeface::from (data);
+}
+
+Typeface::Ptr Typeface::findSystemTypeface()
+{
+    return WindowsDirectWriteTypeface::findSystemTypeface();
 }
 
 void Typeface::scanFolderForFonts (const File&)

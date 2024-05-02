@@ -482,8 +482,8 @@ public:
         swapChainDescription.Height = (UINT) size.getHeight();
         swapChainDescription.SampleDesc.Count = 1;
         swapChainDescription.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDescription.BufferCount = bufferCount;
-        swapChainDescription.SwapEffect = swapEffect;
+        swapChainDescription.BufferCount = 2;
+        swapChainDescription.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
         swapChainDescription.Flags = swapChainFlags;
 
         swapChainDescription.Scaling = DXGI_SCALING_STRETCH;
@@ -551,20 +551,16 @@ public:
         return chain != nullptr && buffer != nullptr && state >= State::bufferAllocated;
     }
 
-    HRESULT resize (Rectangle<int> newSize, float dpiScalingFactor, ComSmartPtr<ID2D1DeviceContext> deviceContext)
+    HRESULT resize (Rectangle<int> newSize, ComSmartPtr<ID2D1DeviceContext> deviceContext)
     {
         if (chain == nullptr)
             return E_FAIL;
 
-        auto scaledSize = newSize * dpiScalingFactor;
-        scaledSize = scaledSize.getUnion ({ Direct2DGraphicsContext::minFrameSize, Direct2DGraphicsContext::minFrameSize })
-                               .getIntersection ({ Direct2DGraphicsContext::maxFrameSize, Direct2DGraphicsContext::maxFrameSize });
+        auto scaledSize = newSize.getUnion ({ Direct2DGraphicsContext::minFrameSize, Direct2DGraphicsContext::minFrameSize })
+                                 .getIntersection ({ Direct2DGraphicsContext::maxFrameSize, Direct2DGraphicsContext::maxFrameSize });
 
         buffer = nullptr;
         state = State::chainAllocated;
-
-        auto dpi = USER_DEFAULT_SCREEN_DPI * dpiScalingFactor;
-        deviceContext->SetDpi (dpi, dpi);
 
         if (const auto hr = chain->ResizeBuffers (0, (UINT) scaledSize.getWidth(), (UINT) scaledSize.getHeight(), DXGI_FORMAT_B8G8R8A8_UNORM, swapChainFlags); FAILED (hr))
             return hr;
@@ -587,11 +583,9 @@ public:
         return { (int) size.width, (int) size.height };
     }
 
-    DXGI_SWAP_EFFECT const swapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-    UINT const bufferCount = 2;
-    uint32 const swapChainFlags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
-    uint32 const presentSyncInterval = 1;
-    uint32 const presentFlags = 0;
+    static constexpr uint32 swapChainFlags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+    static constexpr uint32 presentSyncInterval = 1;
+    static constexpr uint32 presentFlags = 0;
     ComSmartPtr<IDXGISwapChain1> chain;
     ComSmartPtr<ID2D1Bitmap1> buffer;
     std::optional<WindowsScopedEvent> swapChainEvent;

@@ -347,7 +347,7 @@ public:
 
     bool doesIntersectClipList (Line<float> r) const noexcept
     {
-        return doesIntersectClipList (Rectangle { r.getStart(), r.getEnd() });
+        return doesIntersectClipList (Rectangle { r.getStart(), r.getEnd() }.expanded (1.0f));
     }
 
     bool doesIntersectClipList (const RectangleList<float>& other) const noexcept
@@ -466,12 +466,7 @@ public:
         targetAlpha = alpha;
     }
 
-    virtual void clearBackground()
-    {
-        deviceResources.deviceContext.context->Clear (backgroundColor);
-    }
-
-    virtual SavedState* startFrame()
+    virtual SavedState* startFrame (float dpiScale)
     {
         prepare();
 
@@ -495,7 +490,7 @@ public:
         // Init device context transform
         deviceResources.deviceContext.resetTransform();
 
-        const auto effectiveDpi = USER_DEFAULT_SCREEN_DPI * owner.getPhysicalPixelScaleFactor();
+        const auto effectiveDpi = USER_DEFAULT_SCREEN_DPI * dpiScale;
         deviceResources.deviceContext.context->SetDpi (effectiveDpi, effectiveDpi);
 
         // Start drawing
@@ -704,9 +699,6 @@ public:
 
         const auto brush = owner.currentState->getBrush (fillTransform);
 
-        if (brush == nullptr)
-            return;
-
         if (transform.isOnlyTranslated)
         {
             const auto translated = shape + transform.offset.toFloat();
@@ -760,10 +752,10 @@ private:
 Direct2DGraphicsContext::Direct2DGraphicsContext() = default;
 Direct2DGraphicsContext::~Direct2DGraphicsContext() = default;
 
-bool Direct2DGraphicsContext::startFrame()
+bool Direct2DGraphicsContext::startFrame (float dpiScale)
 {
     auto pimpl = getPimpl();
-    currentState = pimpl->startFrame();
+    currentState = pimpl->startFrame (dpiScale);
 
     if (currentState == nullptr)
         return false;
@@ -780,6 +772,8 @@ bool Direct2DGraphicsContext::startFrame()
         // Init font & brush
         setFont (currentState->font);
         currentState->updateCurrentBrush();
+
+        addTransform (AffineTransform::scale (dpiScale));
     }
 
     return true;
@@ -942,11 +936,6 @@ void Direct2DGraphicsContext::excludeClipRectangle (const Rectangle<int>& userSp
         deviceSpaceClipList = frameSize;
         pendingClipList.subtract (userSpaceExcludedRectangle.toFloat());
     }
-}
-
-void Direct2DGraphicsContext::setPhysicalPixelScaleFactor (float f)
-{
-    scale = f;
 }
 
 void Direct2DGraphicsContext::resetPendingClipList()
@@ -1179,18 +1168,18 @@ void Direct2DGraphicsContext::setInterpolationQuality (Graphics::ResamplingQuali
 void Direct2DGraphicsContext::fillRect (const Rectangle<int>& r, bool replaceExistingContents)
 {
     if (replaceExistingContents)
-    {
-        JUCE_SCOPED_TRACE_EVENT_FRAME_RECT_I32 (etw::fillRectReplace, etw::direct2dKeyword, getFrameId(), r);
-
-        applyPendingClipList();
         clipToRectangle (r);
-        getPimpl()->clearBackground();
-        currentState->popTopLayer();
-    }
 
-    auto fill = [] (Rectangle<float> rect, ComSmartPtr<ID2D1DeviceContext1> deviceContext, ComSmartPtr<ID2D1Brush> brush)
+    const auto clearColour = currentState->fillType.colour;
+
+    auto fill = [replaceExistingContents, clearColour] (Rectangle<float> rect,
+                                                        ComSmartPtr<ID2D1DeviceContext1> deviceContext,
+                                                        ComSmartPtr<ID2D1Brush> brush)
     {
-        deviceContext->FillRectangle (D2DUtilities::toRECT_F (rect), brush);
+        if (replaceExistingContents)
+            deviceContext->Clear (D2DUtilities::toCOLOR_F (clearColour));
+        else if (brush != nullptr)
+            deviceContext->FillRectangle (D2DUtilities::toRECT_F (rect), brush);
     };
 
     getPimpl()->paintPrimitive (r.toFloat(), fill);
@@ -1200,7 +1189,8 @@ void Direct2DGraphicsContext::fillRect (const Rectangle<float>& r)
 {
     auto fill = [] (Rectangle<float> rect, ComSmartPtr<ID2D1DeviceContext1> deviceContext, ComSmartPtr<ID2D1Brush> brush)
     {
-        deviceContext->FillRectangle (D2DUtilities::toRECT_F (rect), brush);
+        if (brush != nullptr)
+            deviceContext->FillRectangle (D2DUtilities::toRECT_F (rect), brush);
     };
 
     getPimpl()->paintPrimitive (r, fill);
@@ -1213,8 +1203,9 @@ void Direct2DGraphicsContext::fillRectList (const RectangleList<float>& list)
 
     auto fill = [] (const RectangleList<float>& l, ComSmartPtr<ID2D1DeviceContext1> deviceContext, ComSmartPtr<ID2D1Brush> brush)
     {
-        for (const auto& r : l)
-            deviceContext->FillRectangle (D2DUtilities::toRECT_F (r), brush);
+        if (brush != nullptr)
+            for (const auto& r : l)
+                deviceContext->FillRectangle (D2DUtilities::toRECT_F (r), brush);
     };
 
     getPimpl()->paintPrimitive (list, fill);
@@ -1230,7 +1221,8 @@ void Direct2DGraphicsContext::drawRect (const Rectangle<float>& r, float lineThi
 
     auto draw = [&] (Rectangle<float> rect, ComSmartPtr<ID2D1DeviceContext1> deviceContext, ComSmartPtr<ID2D1Brush> brush)
     {
-        deviceContext->DrawRectangle (D2DUtilities::toRECT_F (rect), brush, lineThickness);
+        if (brush != nullptr)
+            deviceContext->DrawRectangle (D2DUtilities::toRECT_F (rect), brush, lineThickness);
     };
 
     auto reducedR = r.reduced (lineThickness * 0.5f);
@@ -1377,6 +1369,9 @@ void Direct2DGraphicsContext::drawLineWithThickness (const Line<float>& line, fl
 {
     auto draw = [&] (Line<float> l, ComSmartPtr<ID2D1DeviceContext1> deviceContext, ComSmartPtr<ID2D1Brush> brush)
     {
+        if (brush == nullptr)
+            return;
+
         const auto makePoint = [] (const auto& x) { return D2D1::Point2F (x.getX(), x.getY()); };
         deviceContext->DrawLine (makePoint (l.getStart()),
                                  makePoint (l.getEnd()),
@@ -1401,13 +1396,21 @@ const Font& Direct2DGraphicsContext::getFont()
 
 float Direct2DGraphicsContext::getPhysicalPixelScaleFactor() const
 {
-    return scale;
+    if (currentState != nullptr)
+        return currentState->currentTransform.getPhysicalPixelScaleFactor();
+
+    // If this is hit, there's no frame in progress, so the scale factor isn't meaningful
+    jassertfalse;
+    return 1.0f;
 }
 
 void Direct2DGraphicsContext::drawRoundedRectangle (const Rectangle<float>& area, float cornerSize, float lineThickness)
 {
     auto draw = [&] (Rectangle<float> rect, ComSmartPtr<ID2D1DeviceContext1> deviceContext, ComSmartPtr<ID2D1Brush> brush)
     {
+        if (brush == nullptr)
+            return;
+
         D2D1_ROUNDED_RECT roundedRect { D2DUtilities::toRECT_F (rect), cornerSize, cornerSize };
         deviceContext->DrawRoundedRectangle (roundedRect, brush, lineThickness);
     };
@@ -1419,6 +1422,9 @@ void Direct2DGraphicsContext::fillRoundedRectangle (const Rectangle<float>& area
 {
     auto fill = [&] (Rectangle<float> rect, ComSmartPtr<ID2D1DeviceContext1> deviceContext, ComSmartPtr<ID2D1Brush> brush)
     {
+        if (brush == nullptr)
+            return;
+
         D2D1_ROUNDED_RECT roundedRect { D2DUtilities::toRECT_F (rect), cornerSize, cornerSize };
         deviceContext->FillRoundedRectangle (roundedRect, brush);
     };
@@ -1430,6 +1436,9 @@ void Direct2DGraphicsContext::drawEllipse (const Rectangle<float>& area, float l
 {
     auto draw = [&] (Rectangle<float> rect, ComSmartPtr<ID2D1DeviceContext1> deviceContext, ComSmartPtr<ID2D1Brush> brush)
     {
+        if (brush == nullptr)
+            return;
+
         auto centre = rect.getCentre();
         D2D1_ELLIPSE ellipse { { centre.x, centre.y }, rect.proportionOfWidth (0.5f), rect.proportionOfHeight (0.5f) };
         deviceContext->DrawEllipse (ellipse, brush, lineThickness);
@@ -1442,6 +1451,9 @@ void Direct2DGraphicsContext::fillEllipse (const Rectangle<float>& area)
 {
     auto fill = [&] (Rectangle<float> rect, ComSmartPtr<ID2D1DeviceContext1> deviceContext, ComSmartPtr<ID2D1Brush> brush)
     {
+        if (brush == nullptr)
+            return;
+
         auto centre = rect.getCentre();
         D2D1_ELLIPSE ellipse { { centre.x, centre.y }, rect.proportionOfWidth (0.5f), rect.proportionOfHeight (0.5f) };
         deviceContext->FillEllipse (ellipse, brush);
