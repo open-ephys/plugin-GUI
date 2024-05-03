@@ -90,10 +90,8 @@ PluginInstaller::PluginInstaller(MainWindow* mainWindow, bool loadComponents)
 		int w = parent->getWidth();
 		int h = parent->getHeight();
 
-		setBounds(x + (0.5*w) - 450, y + 0.5*h - 240, 900, 480);
-	#if JUCE_MAC || JUCE_LINUX
+		centreWithSize(900, 480);
 		setUsingNativeTitleBar(true);
-	#endif
 		setContentOwned(new PluginInstallerComponent(), false);
 		setVisible(true);
 		setResizable(true, false); // useBottomCornerRisizer -- doesn't work very well

@@ -32,9 +32,7 @@ DataWindow::DataWindow(Button* cButton, String name)
 
 {
     centreWithSize(1020,780);
-#if JUCE_MAC || JUCE_LINUX
     setUsingNativeTitleBar(true);
-#endif
     setResizable(true,false);
 }
 

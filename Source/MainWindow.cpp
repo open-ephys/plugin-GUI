@@ -131,10 +131,8 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
         LOGD("Loading window bounds.");
         loadWindowBounds();
 
-	#if JUCE_MAC || JUCE_LINUX
 		// Use native title bar on Mac and Linux
         documentWindow->setUsingNativeTitleBar(true);
-	#endif
 
         documentWindow->addToDesktop(documentWindow->getDesktopWindowStyleFlags());  // prevents the maximize
                                                                                 // button from randomly disappearing
