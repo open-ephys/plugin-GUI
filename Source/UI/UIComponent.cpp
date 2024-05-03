@@ -382,10 +382,9 @@ void UIComponent::childComponentChanged()
 void UIComponent::setTheme(ColorTheme t)
 {
     customLookAndFeel->setTheme(t);
-    
-    theme = t;
-    
-    mainWindow->repaint();
+        
+    mainWindow->currentTheme = t;
+	mainWindow->repaint();
     
     controlPanel->updateColors();
 
@@ -398,7 +397,7 @@ void UIComponent::setTheme(ColorTheme t)
 
 ColorTheme UIComponent::getTheme()
 {
-    return theme;
+    return mainWindow->currentTheme;
 }
 
 void UIComponent::addInfoTab()

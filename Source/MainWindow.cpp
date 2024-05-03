@@ -139,6 +139,8 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 
         // Constraining the window's size doesn't seem to work:
         documentWindow->setResizeLimits(500, 500, 10000, 10000);
+
+		ui->setTheme(currentTheme);
         
         // Set main window icon to display
         #ifdef JUCE_LINUX
@@ -285,7 +287,10 @@ void MainWindow::repaint()
 	if (!isConsoleApp)
 	{
 		documentWindow->repaint();
-		documentWindow->getMenuBarComponent()->repaint();
+		
+		if(auto menuBarComp = documentWindow->getMenuBarComponent())
+			menuBarComp->repaint();
+
 		Colour c = documentWindow->getLookAndFeel().findColour(ResizableWindow::backgroundColourId);
 		documentWindow->setBackgroundColour(c);
 	}
@@ -388,7 +393,7 @@ void MainWindow::saveWindowBounds()
 	xml->setAttribute("shouldReloadOnStartup", shouldReloadOnStartup);
 	xml->setAttribute("shouldEnableHttpServer", shouldEnableHttpServer);
 	xml->setAttribute("automaticVersionChecking", automaticVersionChecking);
-	xml->setAttribute("colorTheme", (int) ((UIComponent*) documentWindow->getContentComponent())->getTheme());
+	xml->setAttribute("colorTheme", (int) currentTheme);
 
 	XmlElement* bounds = new XmlElement("BOUNDS");
 	bounds->setAttribute("x",documentWindow->getScreenX());
@@ -498,10 +503,7 @@ void MainWindow::loadWindowBounds()
 
 		}
 
-		
-		
-		UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
-		ui->setTheme((ColorTheme) xml->getIntAttribute("colorTheme", ColorTheme::MEDIUM));
+		currentTheme = (ColorTheme) xml->getIntAttribute("colorTheme", ColorTheme::MEDIUM);
 
 	}
 }

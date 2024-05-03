@@ -265,9 +265,7 @@ private:
     File currentConfigFile;
     
     bool messageCenterIsCollapsed = true;
-    
-    ColorTheme theme = MEDIUM;
-    
+        
     CustomLookAndFeel* customLookAndFeel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponent);

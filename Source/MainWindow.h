@@ -109,6 +109,8 @@ public:
     /** Repaints the main window and all of it's components*/
     void repaint();
 
+    ColorTheme currentTheme = ColorTheme::MEDIUM;
+
 private:
     
     /** Saves the processor graph to a file*/
