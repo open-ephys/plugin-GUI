@@ -55,12 +55,12 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
 
     if (activePath == 0)
     {
-    LOGD("Setting source node A.");
+        LOGD("Setting source node A.");
         sourceNodeA = sn;
     }
     else
     {
-    LOGD("Setting source node B.");
+        LOGD("Setting source node B.");
         sourceNodeB = sn;
     }
 
@@ -69,7 +69,10 @@ void Merger::setMergerSourceNode(GenericProcessor* sn)
 void Merger::switchIO(int sourceNum)
 {
 
-    static_cast<MergerEditor*>(getEditor())->switchSource(sourceNum, false);
+    LOGDD("Merger switching source path to ", sourceNum);
+
+    if (!headlessMode)
+        static_cast<MergerEditor*>(getEditor())->switchSource(sourceNum, false);
 
     activePath = sourceNum;
 
@@ -143,7 +146,7 @@ bool Merger::stillHasSource() const
 void Merger::switchIO()
 {
 
-    LOGDD("Merger switching source.");
+    LOGDD("Merger switching source. New path: ", 1 - activePath);
 
     if (activePath == 0)
     {
@@ -160,14 +163,19 @@ void Merger::switchIO()
 
 void Merger::lostInput()
 {
-    if (sourceNodeA == nullptr && sourceNodeB != nullptr)
-    {
-        sourceNodeA = sourceNodeB;
-        sourceNodeB = nullptr;
+    // if (sourceNodeA == nullptr && sourceNodeB != nullptr)
+    // {
+    //     // sourceNodeA = sourceNodeB;
+    //     // sourceNodeB = nullptr;
         
-        MergerEditor* ed = (MergerEditor*)getEditor();
-        ed->switchSource(0);
-    }
+    //     MergerEditor* ed = (MergerEditor*)getEditor();
+    //     ed->switchSource(1);
+    // }
+    // else if (sourceNodeB == nullptr && sourceNodeA != nullptr)
+    // {
+    //     MergerEditor* ed = (MergerEditor*)getEditor();
+    //     ed->switchSource(0);
+    // }
 }
 
 GenericProcessor* Merger::getSourceNode(int path)
@@ -197,28 +205,6 @@ int Merger::addSettingsFromSourceNode(GenericProcessor* sn, int continuousChanne
     
     return continuousChannelGlobalIndex;
 }
-
-Array<const DataStream*> Merger::getStreamsForDestNode(GenericProcessor* node)
-{
-    Array<const DataStream*> outputStreams;
-
-    for (auto stream : dataStreams)
-    {
-        if (checkStream(stream))
-            outputStreams.add(stream);
-    }
-
-    return outputStreams;
-}
-
-
-bool Merger::checkStream(const DataStream* stream)
-{
-    MergerEditor* ed = (MergerEditor*)getEditor();
-
-    return ed->checkStream(stream);
-}
-
 
 void Merger::updateSettings()
 {
@@ -328,6 +314,8 @@ void Merger::loadCustomParametersFromXml(XmlElement* xml)
 void Merger::restoreConnections()
 {
     
+    LOGDD("Restoring Merger (", getNodeId(), ") connections.");
+
     if (parametersAsXml != nullptr)
     {
         for (auto* mainNode : parametersAsXml->getChildIterator())
@@ -336,33 +324,23 @@ void Merger::restoreConnections()
             {
                 for (auto* mergerSettings : mainNode->getChildIterator())
                 {
-                   int nodeIdA = mergerSettings->getIntAttribute("NodeA");
-                   int nodeIdB = mergerSettings->getIntAttribute("NodeB");
+                    int nodeIdA = mergerSettings->getIntAttribute("NodeA");
+                    int nodeIdB = mergerSettings->getIntAttribute("NodeB");
 
-                   ProcessorGraph* gr = AccessClass::getProcessorGraph();
-                   Array<GenericProcessor*> p = gr->getListOfProcessors();
+                    ProcessorGraph* graph = AccessClass::getProcessorGraph();
+                    Array<GenericProcessor*> p = graph->getListOfProcessors();
 
-                   for (int k = 0; k < p.size(); k++)
-                   {
-                       if (p[k]->getNodeId() == nodeIdA)
-                       {
-                          LOGD("Setting Merger source A to ", nodeIdA);
-                          switchIO(0);
-                          setMergerSourceNode(p[k]);
-                          p[k]->setDestNode(this);
-                           
-                          if (editor != nullptr)
-                              editor->switchSource(0);
-                       }
-                       else if (p[k]->getNodeId() == nodeIdB)
+                    for (int k = 0; k < p.size(); k++)
+                    {
+                        if (p[k]->getNodeId() == nodeIdA)
                         {
-                            LOGD("Setting Merger source B to ", nodeIdB);
-                            switchIO(1);
-                            setMergerSourceNode(p[k]);
-                            p[k]->setDestNode(this);
-                            
-                            if (editor != nullptr)
-                                editor->switchSource(1);
+                            LOGDD("Setting Merger source A to ", nodeIdA);
+                            graph->connectMergerSource(this, p[k], 0);
+                        }
+                        else if (p[k]->getNodeId() == nodeIdB)
+                        {
+                            LOGDD("Setting Merger source B to ", nodeIdB);
+                            graph->connectMergerSource(this, p[k], 1);
                         }
                     }
                     

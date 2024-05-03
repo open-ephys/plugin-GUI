@@ -25,6 +25,7 @@
 #include "Utils/OpenEphysHttpServer.h"
 #include "UI/UIComponent.h"
 #include "UI/EditorViewport.h"
+#include "AutoUpdater.h"
 #include <stdio.h>
 
 
@@ -74,6 +75,7 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 	shouldReloadOnStartup = true;
 	shouldEnableHttpServer = true;
 	openDefaultConfigWindow = false;
+	automaticVersionChecking = true;
 
 	// Create ProcessorGraph and AudioComponent, and connect them.
 	// Callbacks will be set by the play button in the control panel
@@ -131,6 +133,8 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
             if (auto peer = documentWindow->getPeer())
                 peer->setIcon(windowIcon);
         #endif
+
+		popupManager = std::make_unique<PopupManager>();
     }
     
     controlPanel->updateRecordEngineList();
@@ -190,6 +194,13 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 		}
 	}
 
+	if (!isConsoleApp)
+    {
+		UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
+		ui->addInfoTab();
+		ui->addGraphTab();
+	}
+
 	http_server_thread = std::make_unique<OpenEphysHttpServer>(processorGraph.get());
 
 	if (shouldEnableHttpServer) {
@@ -198,6 +209,11 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 	else {
 		disableHttpServer();
 	}
+
+#ifdef NDEBUG
+	if(automaticVersionChecking)
+		LatestVersionCheckerAndUpdater::getInstance()->checkForNewVersion (true, this);
+#endif
 
 	Process::setPriority(Process::HighPriority);
 
@@ -344,6 +360,7 @@ void MainWindow::saveWindowBounds()
 	xml->setAttribute("version", JUCEApplication::getInstance()->getApplicationVersion());
 	xml->setAttribute("shouldReloadOnStartup", shouldReloadOnStartup);
 	xml->setAttribute("shouldEnableHttpServer", shouldEnableHttpServer);
+	xml->setAttribute("automaticVersionChecking", automaticVersionChecking);
 
 	XmlElement* bounds = new XmlElement("BOUNDS");
 	bounds->setAttribute("x",documentWindow->getScreenX());
@@ -407,6 +424,7 @@ void MainWindow::loadWindowBounds()
 
 		shouldReloadOnStartup = xml->getBoolAttribute("shouldReloadOnStartup", false);
 		shouldEnableHttpServer = xml->getBoolAttribute("shouldEnableHttpServer", false);
+		automaticVersionChecking = xml->getBoolAttribute("automaticVersionChecking", true);
 
 		for (auto* e : xml->getChildIterator())
 		{
@@ -414,21 +432,17 @@ void MainWindow::loadWindowBounds()
 			if (e->hasTagName("BOUNDS"))
 			{
 
-				int x = e->getIntAttribute("x");
-				int y = e->getIntAttribute("y");
-				int w = e->getIntAttribute("w");
-				int h = e->getIntAttribute("h");
+				String x = String(e->getIntAttribute("x"));
+				String y = String(e->getIntAttribute("y"));
+				String w = String(e->getIntAttribute("w"));
+				String h = String(e->getIntAttribute("h"));
 
-				// bool fs = e->getBoolAttribute("fullscreen");
+				String windowBoundsString;
+				windowBoundsString = x + " " + y + " " + w + " " + h;
 
-				// without the correction, you get drift over time
-#ifdef _WIN32
-                documentWindow->setTopLeftPosition(x,y); //Windows doesn't need correction
-#else
-                documentWindow->setTopLeftPosition(x,y-27);
-#endif
-                documentWindow->getContentComponent()->setBounds(0,0,w-10,h-33);
-				//setFullScreen(fs);
+				LOGD("Loading Window Bounds: ", windowBoundsString);
+				documentWindow->restoreWindowStateFromString(windowBoundsString);
+				
 			}
 			else if (e->hasTagName("RECENTDIRECTORYNAMES"))
 			{

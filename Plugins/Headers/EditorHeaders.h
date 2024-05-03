@@ -33,6 +33,7 @@ which should use VisualizerEditorHeaders.
 #include "../../Source/Processors/Editors/ElectrodeButtons.h"
 #include "../../Source/Processors/Editors/PopupChannelSelector.h"
 #include "../../Source/Processors/Parameter/ParameterEditor.h"
+#include "../../Source/UI/PopupComponent.h"
 
 #include "../../Source/Processors/Settings/SpikeChannel.h"
 #include "../../Source/Processors/Settings/EventChannel.h"

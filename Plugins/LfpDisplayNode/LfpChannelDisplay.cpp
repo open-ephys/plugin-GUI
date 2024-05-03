@@ -780,6 +780,11 @@ void LfpChannelDisplay::setInputInverted(bool isInverted)
     }
 }
 
+bool LfpChannelDisplay::getInputInverted()
+{
+    return inputInverted;
+}
+
 void LfpChannelDisplay::setDrawMethod(bool isDrawMethod)
 {
 

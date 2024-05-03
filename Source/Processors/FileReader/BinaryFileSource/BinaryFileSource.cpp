@@ -347,7 +347,7 @@ int BinaryFileSource::readData(int16* buffer, int nSamples)
 void BinaryFileSource::processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples)
 {
 
-	if (!inBuffer) return;
+	if (!inBuffer) return; //TOFIX: inBuffer should never be null
 
 	for (int i = 0; i < numSamples; i++)
 	{

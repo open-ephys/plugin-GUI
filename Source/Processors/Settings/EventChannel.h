@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../PluginManager/OpenEphysPlugin.h"
 #include "Metadata.h"
 #include "InfoObject.h"
+#include "../Parameter/ParameterOwner.h"
 
 /**
 *
@@ -39,7 +40,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 * The EventChannel class is part of the Open Ephys Plugin API
 *
 */
-class PLUGIN_API EventChannel : public ChannelInfoObject, public MetadataEventObject
+class PLUGIN_API EventChannel : 
+	public ChannelInfoObject,
+	public MetadataEventObject,
+	public ParameterOwner
 {
 public:
 

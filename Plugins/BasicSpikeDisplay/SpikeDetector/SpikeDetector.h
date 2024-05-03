@@ -222,6 +222,9 @@ public:
     /** Ensures that selected channel names are unique across all channels in a stream */
     String ensureUniqueName(String name, uint16 streamId);
 
+    /** Gets the next avaialable channel to start adding electrodes */
+    int getNextAvailableChannelForStream(uint16 streamId);
+
 
     // CREATE AND DELETE ELECTRODES
     // =====================================================================
@@ -229,14 +232,19 @@ public:
     SpikeChannel* addSpikeChannel(SpikeChannel::Type type,
                           uint16 currentStream,
                           int startChannel = -1,
-                          String name = "");
+                          String name = "",
+                          int index = -1);
 
-    /** Removes a spike channel, based on a SpikeChannel pointer. */
-    void removeSpikeChannel (SpikeChannel*);
+    /** Removes a spike channel, based on a SpikeChannel identifier. */
+    void removeSpikeChannel (String);
     // =====================================================================
 
     /** Get array of local SpikeChannel objects for a given dataStream*/
     Array<SpikeChannel*> getSpikeChannelsForStream(uint16 streamId);
+
+    /** Checks whether a spike channel has been loaded, to prevent double-loading
+    when there is a Merger in the signal chain */
+    bool alreadyLoaded(String name, SpikeChannel::Type type, int stream_source, String stream_name);
 
 private:
 
@@ -255,10 +263,6 @@ private:
     void addWaveformToSpikeBuffer (Spike::Buffer& s,
                                     int sampleIndex,
                                    AudioBuffer<float>& buffer);
-    
-    /** Checks whether a spike channel has been loaded, to prevent double-loading
-        when there is a Merger in the signal chain */
-    bool alreadyLoaded(String name, SpikeChannel::Type type, int stream_source, String stream_name);
 
     StreamSettings<SpikeDetectorSettings> settings;
 

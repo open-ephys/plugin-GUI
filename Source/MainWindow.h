@@ -84,7 +84,11 @@ public:
     /** Determines whether the ProcessorGraph http server is enabled. */
     bool shouldEnableHttpServer;
 
+    /** Determines whether the default config selection window needs to open on startup. */
     bool openDefaultConfigWindow;
+
+    /** Determines whether the Auto Updater needs to run on startup. */
+    bool automaticVersionChecking;
 
     /** Ends the process() callbacks and disables all processors.*/
 	void shutDownGUI();
@@ -126,6 +130,9 @@ private:
 
     /** A pointer to the DocumentWindow (only instantiated if running in GUI mode). */
     std::unique_ptr<MainDocumentWindow> documentWindow;
+
+    /** A pointer to the application's PopupManager (owned by the MainWindow). */
+    std::unique_ptr<PopupManager> popupManager;
     
     /** A pointer to the application's AudioComponent (owned by the MainWindow). */
     std::unique_ptr<AudioComponent> audioComponent;

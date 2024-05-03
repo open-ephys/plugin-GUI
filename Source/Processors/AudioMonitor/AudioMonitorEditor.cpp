@@ -110,7 +110,8 @@ AudioOutputSelector::AudioOutputSelector(Parameter* param) : ParameterEditor(par
     bothButton->setToggleState(true, dontSendNotification);
     addAndMakeVisible(outputChannelButtonManager.get());
  
-    setBounds(0, 0, 140, 20);
+    setBounds(0, 0, 120, 20);
+    outputChannelButtonManager->setBounds(0, 0, 120, 20);
 }
 
 
@@ -176,27 +177,17 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode)
 {
     audioMonitor = static_cast<AudioMonitor*>(parentNode);
     
-    addSelectedChannelsParameterEditor(Parameter::STREAM_SCOPE, "Channels", 10, 35);
-
-    Parameter* muteParam = parentNode->getParameter("mute_audio");
-    addCustomParameterEditor(new MonitorMuteButton(muteParam), 135, 35);
+    addSelectedChannelsParameterEditor(Parameter::STREAM_SCOPE, "channels", 15, 35);
 
     Parameter* outputParam = parentNode->getParameter("audio_output");
-    addCustomParameterEditor(new AudioOutputSelector(outputParam), 20, 65);
+    addCustomParameterEditor(new AudioOutputSelector(outputParam), 15, 65);
 
-    spikeChannelSelector = std::make_unique<ComboBox>("Spike Channels");
-    spikeChannelSelector->setBounds(20, 100, 140, 20);
+    Parameter* muteParam = parentNode->getParameter("mute_audio");
+    addCustomParameterEditor(new MonitorMuteButton(muteParam), 145, 65);
 
-    for (int i = 0; i < audioMonitor->getTotalSpikeChannels() ; i++)
-	{
-		spikeChannelSelector->addItem(audioMonitor->getSpikeChannel(i)->getName(), i + 1);
-	}
-    
-    spikeChannelSelector->setTextWhenNoChoicesAvailable("No spike channels");
-    spikeChannelSelector->setTextWhenNothingSelected("Select a Spike Channel");
-
-	spikeChannelSelector->addListener(this);
-	addAndMakeVisible(spikeChannelSelector.get());
+    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "spike_channel", 15, 100);
+    parameterEditors.getLast()->setLayout(ParameterEditor::Layout::nameHidden);
+    parameterEditors.getLast()->setSize(150, 20);
 
     desiredWidth = 180;
 }
@@ -204,49 +195,7 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode)
 void AudioMonitorEditor::selectedStreamHasChanged()
 {
 
-    if (selectedStream == 0)
-    {
-        spikeChannelSelector->clear();
-        return;
-    }
-        
-    const DataStream* stream = getProcessor()->getDataStream(selectedStream);
-
-    spikeChannels = stream->getSpikeChannels();
-
-    spikeChannelSelector->clear();
-
-    int id = 1;
-
-    spikeChannelSelector->addItem("No spike channel", id++);
-
-    for (auto spikeChannel : spikeChannels)
-    {
-        if (spikeChannel->isValid())
-            spikeChannelSelector->addItem(spikeChannel->getName(), id++);
-    }
-}
-
-void AudioMonitorEditor::comboBoxChanged(ComboBox* comboBox)
-{
-
-    const DataStream* stream = getProcessor()->getDataStream(selectedStream);
-
-    if (comboBox->getSelectedId() > 1)
-    {
-
-        Array<int> selectedChannels = spikeChannels[comboBox->getSelectedId() - 2]->localChannelIndexes;
-
-        Array<var> inds;
-
-        for (int ch : selectedChannels)
-        {
-            inds.add(ch);
-        }
-
-        stream->getParameter("Channels")->setNextValue(inds);
-    }
-    else {
-        stream->getParameter("Channels")->setNextValue(Array<var>());
-    }
+    if (selectedStream == 0) return;
+    
+    audioMonitor->setSelectedStream(selectedStream);
 }

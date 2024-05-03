@@ -75,7 +75,7 @@ RecordNode::RecordNode()
 
 	eventMonitor = new EventMonitor();
 
-	checkDiskSpace();
+	//checkDiskSpace();
 
 }
 
@@ -83,9 +83,87 @@ RecordNode::~RecordNode()
 {
 }
 
+void RecordNode::registerParameters()
+{
+	String defaultRecordDirectory = CoreServices::getRecordingParentDirectory().getFullPathName();
+	addPathParameter(Parameter::PROCESSOR_SCOPE, "directory", "Directory", "Path to write data to", defaultRecordDirectory, {}, true);
+	addCategoricalParameter(Parameter::PROCESSOR_SCOPE, "engine", "Engine", "Recording data format", {}, 0, true);
+	addBooleanParameter(Parameter::PROCESSOR_SCOPE, "events", "Record Events", "Toggle saving events coming into this node", true);
+	addBooleanParameter(Parameter::PROCESSOR_SCOPE, "spikes", "Record Spikes", "Toggle saving spikes coming into this node", true);
+
+	Array<String> recordEngines;
+	std::vector<RecordEngineManager*> engines = getAvailableRecordEngines();
+	for (int i = 0; i < engines.size(); i++)
+		recordEngines.add(engines[i]->getName());
+	CategoricalParameter* engineParam = (CategoricalParameter*)getParameter("engine");
+	engineParam->setCategories(recordEngines);
+
+	addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to record from", true);
+	addTtlLineParameter(Parameter::STREAM_SCOPE, "sync_line", "Sync Line", "Event line to use for sync signal", 8, true, false, true);
+	addSelectedStreamParameter(Parameter::PROCESSOR_SCOPE, "main_sync", "Main Sync Stream", "Use this stream as main sync", {}, 0, true);
+}
+
+void RecordNode::initialize(bool signalChainIsLoading)
+{
+	if (!signalChainIsLoading)
+		checkDiskSpace();
+}
+
+void RecordNode::parameterValueChanged(Parameter* p)
+{
+	if (p->getName() == "directory")
+	{
+		String newPath = static_cast<PathParameter*>(p)->getValue();
+		if (newPath == "default")
+			newPath = CoreServices::getRecordingParentDirectory().getFullPathName();
+		setDataDirectory(File(newPath));
+	}
+	else if (p->getName() == "engine")
+	{
+		LOGD("Parameter changed: engine");
+		setEngine(((CategoricalParameter*)p)->getSelectedString());
+	}
+	else if (p->getName() == "events")
+	{
+		setRecordEvents(((BooleanParameter*)p)->getBoolValue());
+	}
+	else if (p->getName() == "spikes")
+	{
+		setRecordSpikes(((BooleanParameter*)p)->getBoolValue());
+	}
+	else if (p->getName() == "channels")
+	{
+		LOGD("Parameter changed: channels");
+	}
+	else if (p->getName() == "sync_line")
+	{
+		LOGD("Parameter changed: sync_line");
+		synchronizer.setSyncLine(getDataStream(p->getStreamId())->getKey(), ((TtlLineParameter*)p)->getSelectedLine());
+	}
+	else if (p->getName() == "main_sync")
+	{
+		LOGD("Parameter changed: main_sync");
+		Array<String> streamNames = ((SelectedStreamParameter*)p)->getStreamNames();
+		for (auto stream : dataStreams)
+		{
+			String key = stream->getKey();
+			if (key == streamNames[((SelectedStreamParameter*)p)->getSelectedIndex()])
+			{
+				synchronizer.setMainDataStream(stream->getKey());
+				break;
+			}
+		}
+	}
+	else
+	{
+		LOGD("RecordNode: unknown parameter changed: ", p->getName());
+	}
+
+}
+
 void RecordNode::checkDiskSpace()
 {
-	int diskSpaceWarningThreshold = 5; //GB
+	float diskSpaceWarningThreshold = 5; //GB
 
 	File dataDir(dataDirectory);
 	int64 freeSpace = dataDir.getBytesFreeOnVolume();
@@ -94,27 +172,136 @@ void RecordNode::checkDiskSpace()
 
 	if (availableBytes < diskSpaceWarningThreshold && !isRecording)
 	{
-		String msg = "Less than " + String(diskSpaceWarningThreshold) + " GB of disk space available in " + String(dataDirectory.getFullPathName());
-		msg += ". Recording may fail. Please free up space or change the recording directory.";
+		String msg = "Record Node " + String(getNodeId());
+		msg += "\n\n";
+		msg += "Less than " + String(int(diskSpaceWarningThreshold)) + " GB of disk space available in:\n";
+		msg += "\n";
+		msg += "\t" + String(dataDirectory.getFullPathName());
+		msg += "\n\n";
+		msg += "Recording may fail. Please free up space or change the recording directory.";
+
 		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "WARNING", msg);
 	}
 }
 
-
 String RecordNode::handleConfigMessage(String msg)
 {
+	/*
+	Available messages:
+	- engine=<engine_name> -- changes the record engine
+	- SELECT <stream_index> NONE / ALL / <channels> -- selects which channels to record, e.g.:
+		"SELECT 0 NONE" -- deselect all channels for stream 0
+		"SELECT 1 1 2 3 4 5 6 7 8" -- select channels 1-8 for stream 1
+	*/
+
+	if (CoreServices::getAcquisitionStatus())
+	{
+		return "Cannot configure Record Node while acquisition is active.";
+	}
 
 	const MessageManagerLock mml;
 
     StringArray tokens;
     tokens.addTokens (msg, "=", "\"");
 
-    if (tokens.size() != 2) return "Invalid msg";
+	LOGD(tokens[0]);
 
 	if (tokens[0] == "engine")
-		static_cast<RecordNodeEditor*> (getEditor())->engineSelectCombo->setSelectedItemIndex(std::stoi(tokens[1].toStdString()), sendNotification);
-	else
-		LOGD("Record Node: invalid engine key");
+	{
+		if (tokens.size() == 2)
+		{
+			RecordNodeEditor* ed = static_cast<RecordNodeEditor*> (getEditor());
+			
+			int engineIndex = tokens[1].getIntValue();
+
+			int numEngines = ((CategoricalParameter*)getParameter("engine"))->getCategories().size();
+
+			if (engineIndex >= 0 && engineIndex < numEngines)
+			{
+				//ed->engineSelectCombo->setSelectedItemIndex(engineIndex, sendNotification);
+				getParameter("engine")->setNextValue(engineIndex);
+				return "Record Node: updated record engine to " + ((CategoricalParameter*)getParameter("engine"))->getCategories()[engineIndex];
+			}
+			else {
+				return "Record Node: invalid engine index (max = " + String(numEngines - 1) + ")";
+			}
+			
+		}
+		else
+		{
+			return "Record Node: invalid engine key";
+		}
+	}
+
+	tokens.clear();
+	tokens.addTokens(msg, " ", "");
+
+	LOGD(tokens[0]);
+
+	if (tokens[0] == "SELECT")
+	{
+
+		if (tokens.size() >= 3)
+		{
+			
+			int streamIndex = tokens[1].getIntValue();
+			uint16 streamId;
+			//std::vector<bool> channelStates;
+			Array<var> channelStates;
+
+			int channelCount;
+
+			if (streamIndex >= 0 && streamIndex < dataStreams.size())
+			{
+				streamId = dataStreams[streamIndex]->getStreamId();
+				channelCount = dataStreams[streamIndex]->getChannelCount();
+			}
+			else {
+				return "Record Node: Invalid stream index; max = " + String(dataStreams.size() - 1);
+			}
+			
+			if (tokens[2] == "NONE")
+			{
+				//select no channels
+				channelStates.clear();
+			}
+			else if (tokens[2] == "ALL")
+			{
+				//select all channels
+				for (int i = 0; i < channelCount; i++)
+				{
+					channelStates.add(i);
+				}
+			}
+			else
+			{
+				
+				Array<int> channels;
+
+				for (int i = 2; i < tokens.size(); i++)
+				{
+					int ch = tokens[i].getIntValue() - 1;
+					channels.add(ch);
+				}
+
+				//select some channels
+				for (int i = 0; i < channelCount; i++)
+				{
+					if (channels.contains(i))
+						channelStates.add(i);
+				}
+			}
+
+			//updateChannelStates(streamId, channelStates);
+			DataStream* stream = getDataStream(streamId);
+			MaskChannelsParameter* maskChannels = (MaskChannelsParameter*)stream->getParameter("channels");
+			maskChannels->setNextValue(channelStates);
+		}
+		else
+		{
+			LOGD("Record Node: invalid config message");
+		}
+	}
 
     return "Record Node received config: " + msg;
 }
@@ -125,11 +312,15 @@ void RecordNode::handleBroadcastMessage(String msg)
     if (recordEvents && isRecording)
     {
 
-        int64 messageSampleNumber = getFirstSampleNumberForBlock(synchronizer.mainStreamId);
+		String streamKey = synchronizer.mainStreamKey;
+
+		DataStream* mainStream = getDataStream(streamKey);
+
+        int64 messageSampleNumber = getFirstSampleNumberForBlock(mainStream->getStreamId());
 
         TextEventPtr event = TextEvent::createTextEvent(getMessageChannel(), messageSampleNumber, msg);
 
-        double ts = synchronizer.convertSampleNumberToTimestamp(synchronizer.mainStreamId, messageSampleNumber);
+        double ts = synchronizer.convertSampleNumberToTimestamp(synchronizer.mainStreamKey, messageSampleNumber);
 
         event->setTimestampInSeconds(ts);
 
@@ -165,7 +356,7 @@ void RecordNode::setEngine(String id)
 
 	for (auto engine : availableEngines)
 	{
-		if (engine->getID().compare(id) == 0)
+		if (engine->getName().equalsIgnoreCase(id))
         {
             if (recordEngine.get() != nullptr)
             {
@@ -181,12 +372,6 @@ void RecordNode::setEngine(String id)
             }
 
         }
-	}
-
-	if (getEditor() != nullptr)
-	{
-		RecordNodeEditor* ed = (RecordNodeEditor*)getEditor();
-		ed->setEngine(id);
 	}
 }
 
@@ -351,54 +536,20 @@ void RecordNode::updateSettings()
 	activeStreamIds.clear();
 	synchronizer.prepareForUpdate();
 
+
 	for (auto stream : dataStreams)
 	{
+
+		//parameterValueChanged(stream->getParameter("sync_line"));
+
 		const uint16 streamId = stream->getStreamId();
 		activeStreamIds.add(streamId);
 
 		LOGD("Record Node found stream: (", streamId, ") ", stream->getName());
 		//activeStreamIds.add(stream->getStreamId());
-		synchronizer.addDataStream(streamId,
-									stream->getSampleRate());
+		synchronizer.addDataStream(stream->getKey(), stream->getSampleRate());
 
 		fifoUsage[streamId] = 0.0f;
-
-		if (recordContinuousChannels[streamId].empty()) // this ID has not been seen yet
-		{
-			for (auto channel : stream->getContinuousChannels())
-			{
-				recordContinuousChannels[streamId].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
-				channel->isRecorded = CONTINUOUS_CHANNELS_ON_BY_DEFAULT;
-				//LOGD("Channel ", channel->getName(), ": ", channel->isRecorded);
-				//LOGD(recordContinuousChannels[streamId].size())
-				//dataChannelOrder[count] = channel->getLocalIndex();
-				//count++;
-			}
-
-		}
-		else // we already have this ID, just apply the existing settings
-		{
-			int localIndex = 0;
-
-			for (auto channel : stream->getContinuousChannels())
-			{
-				if (localIndex < recordContinuousChannels[streamId].size())
-				{
-					channel->isRecorded = recordContinuousChannels[streamId][localIndex];
-				} else {
-					recordContinuousChannels[streamId].push_back(CONTINUOUS_CHANNELS_ON_BY_DEFAULT);
-					channel->isRecorded = CONTINUOUS_CHANNELS_ON_BY_DEFAULT;
-				}
-
-				//LOGD("Channel ", channel->getName(), ": ", channel->isRecorded);
-
-				localIndex++;
-				//dataChannelOrder[count] = channel->getLocalIndex();
-				//count++;
-			}
-
-		}
-
 	}
 
 	synchronizer.finishedUpdate();
@@ -432,16 +583,6 @@ void RecordNode::updateSettings()
 	}
 #endif
 
-	//Refresh editor as needed
-    if (!headlessMode)
-    {
-        if (static_cast<RecordNodeEditor*> (getEditor())->monitorsVisible)
-        {
-            static_cast<RecordNodeEditor*> (getEditor())->showFifoMonitors(false);
-            static_cast<RecordNodeEditor*> (getEditor())->buttonClicked(static_cast<RecordNodeEditor*> (getEditor())->fifoDrawerButton);
-        }
-    }
-
 }
 
 bool RecordNode::isSynchronized()
@@ -453,7 +594,7 @@ bool RecordNode::isSynchronized()
     for (auto stream : dataStreams)
     {
 
-        SyncStatus status = synchronizer.getStatus(stream->getStreamId());
+        SyncStatus status = synchronizer.getStatus(stream->getKey());
 
         if (status != SYNCED)
             return false;
@@ -466,13 +607,16 @@ bool RecordNode::isSynchronized()
 bool RecordNode::startAcquisition()
 {
 
+	recordEvents = ((BooleanParameter*)getParameter("events"))->getBoolValue();
+	recordSpikes = ((BooleanParameter*)getParameter("spikes"))->getBoolValue();
+
     synchronizer.startAcquisition();
 
-    if (eventChannels.getLast()->getSourceNodeName() != "Message Center")
+    if (eventChannels.size() == 0 || eventChannels.getLast()->getSourceNodeName() != "Message Center")
     {
         eventChannels.add(new EventChannel(*messageChannel));
         eventChannels.getLast()->addProcessor(this);
-        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamId), false);
+        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamKey), false);
     }
     
     return true;
@@ -484,8 +628,16 @@ bool RecordNode::stopAcquisition()
 
     synchronizer.stopAcquisition();
 
+    if (hasRecorded) {
+        // stopRecording() signals the thread to exit, but we should wait here until the thread actually gracefully
+        // exits before we reset some of its needed data (e.g. eventQueue, spikeQueue, etc.)
+        if (recordThread) {
+            recordThread->waitForThreadToExit(1000);
+        }
+    }
+
 	// Remove message channel
-    if (eventChannels.getLast()->getSourceNodeName() == "Message Center")
+    if (eventChannels.size() > 0 && eventChannels.getLast()->getSourceNodeName() == "Message Center")
     {
         eventChannels.removeLast();
     }
@@ -518,11 +670,11 @@ void RecordNode::startRecording()
 	OwnedArray<RecordProcessorInfo> procInfo;
     
     // in case recording starts before acquisition:
-    if (eventChannels.getLast()->getSourceNodeName() != "Message Center")
+    if (eventChannels.size() == 0 || eventChannels.getLast()->getSourceNodeName() != "Message Center")
     {
         eventChannels.add(new EventChannel(*messageChannel));
         eventChannels.getLast()->addProcessor(this);
-        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamId), false);
+        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamKey), false);
     }
 
 	int lastSourceNodeId = -1;
@@ -549,9 +701,9 @@ void RecordNode::startRecording()
 			lastSourceNodeId = stream->getSourceNodeId();
 		}
 
-		for (auto channel : stream->getContinuousChannels())
+		for (auto channelRecordState : ((MaskChannelsParameter*)stream->getParameter("channels"))->getChannelStates())
 		{
-			if (channel->isRecorded)
+			if (channelRecordState)
 			{
 				channelMap.add(channelIndexInRecordNode);
                 localChannelMap.add(channelIndexInStream++);
@@ -645,7 +797,9 @@ void RecordNode::handleTTLEvent(TTLEventPtr event)
 
 	int64 sampleNumber = event->getSampleNumber();
 
-	synchronizer.addEvent(event->getStreamId(), event->getLine(), sampleNumber);
+	String streamKey = getDataStream(event->getStreamId())->getKey();
+
+	synchronizer.addEvent(streamKey, event->getLine(), sampleNumber);
 
 	if (recordEvents && isRecording)
 	{
@@ -653,7 +807,7 @@ void RecordNode::handleTTLEvent(TTLEventPtr event)
 		size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
 
 		HeapBlock<char> buffer(size);
-        event->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(event->getStreamId(), sampleNumber));
+        event->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(streamKey, sampleNumber));
 		event->serialize(buffer, size);
 
 		eventQueue->addEvent(EventPacket(buffer, size), sampleNumber);
@@ -674,7 +828,9 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 
 		int eventIndex = getIndexOfMatchingChannel(eventInfo);
 
-        Event::setTimestampInSeconds(packet, synchronizer.convertSampleNumberToTimestamp(eventInfo->getStreamId(), sampleNumber));
+		String streamKey = getDataStream(eventInfo->getStreamId())->getKey();
+
+        Event::setTimestampInSeconds(packet, synchronizer.convertSampleNumberToTimestamp(streamKey, sampleNumber));
 
 		eventQueue->addEvent(packet, sampleNumber, eventIndex);
 
@@ -690,7 +846,8 @@ void RecordNode::handleSpike(SpikePtr spike)
 
 	if (recordSpikes)
 	{
-        spike->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(spike->getStreamId(),
+		String streamKey = getDataStream(spike->getStreamId())->getKey();
+        spike->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(streamKey,
                                                                     spike->getSampleNumber()));
 		writeSpike(spike, spike->getChannelInfo());
 		eventMonitor->bufferedSpikes++;
@@ -763,6 +920,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 			streamIndex++;
 
 			const uint16 streamId = stream->getStreamId();
+			const String streamKey = stream->getKey();
 
             uint32 numSamples = getNumSamplesInBlock(streamId);
 
@@ -770,8 +928,8 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 
 			if (numSamples > 0)
 			{
-				double first = synchronizer.convertSampleNumberToTimestamp(streamId, sampleNumber);
-				double second = synchronizer.convertSampleNumberToTimestamp(streamId, sampleNumber + 1);
+				double first = synchronizer.convertSampleNumberToTimestamp(streamKey, sampleNumber);
+				double second = synchronizer.convertSampleNumberToTimestamp(streamKey, sampleNumber + 1);
 
 				fifoUsage[streamId] = dataQueue->writeSynchronizedTimestamps(
 					first,
@@ -781,10 +939,10 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 
 			}
 
-			for (auto channel : stream->getContinuousChannels())
+			for (auto channelRecordState : ((MaskChannelsParameter*)stream->getParameter("channels"))->getChannelStates())
 			{
 
-				if (channel->isRecorded)
+				if (channelRecordState)
 				{
 
 					channelIndex++;
@@ -881,175 +1039,24 @@ int RecordNode::getTotalRecordedStreams()
     return numStreams;
 }
 
-// not called?
-void RecordNode::registerRecordEngine(RecordEngine *engine)
-{
-	engineArray.add(engine);
-}
-
-// not called?
-void RecordNode::clearRecordEngines()
-{
-	engineArray.clear();
-}
-
 void RecordNode::saveCustomParametersToXml(XmlElement* xml)
 {
-
-    xml->setAttribute ("path", dataDirectory.getFullPathName());
-    xml->setAttribute("engine", recordEngine->getEngineId());
-    xml->setAttribute ("recordEvents", recordEvents);
-    xml->setAttribute ("recordSpikes", recordSpikes);
-    
-    if (!headlessMode)
+	if (!headlessMode)
     {
         RecordNodeEditor* recordNodeEditor = (RecordNodeEditor*) getEditor();
         xml->setAttribute("fifoMonitorsVisible", recordNodeEditor->fifoDrawerButton->getToggleState());
     }
-
-    //Save channel states:
-    for (auto stream : getDataStreams())
-    {
-
-        const uint16 streamId = stream->getStreamId();
-
-        if (recordContinuousChannels[streamId].size() > 0)
-        {
-            XmlElement* streamXml = xml->createNewChildElement("STREAM");
-
-            streamXml->setAttribute("isMainStream", synchronizer.mainStreamId == streamId);
-            streamXml->setAttribute("sync_line", getSyncLine(streamId));
-            streamXml->setAttribute("name", stream->getName());
-            streamXml->setAttribute("source_node_id", stream->getSourceNodeId());
-            streamXml->setAttribute("sample_rate", stream->getSampleRate());
-            streamXml->setAttribute("channel_count", stream->getChannelCount());
-
-            if (stream->hasDevice())
-                streamXml->setAttribute("device_name", stream->device->getName());
-
-            String stateString;
-            bool allOn = true;
-            bool allOff = true;
-
-            for (int ch = 0; ch < recordContinuousChannels[streamId].size(); ch++)
-            {
-                bool state = recordContinuousChannels[streamId][ch];
-
-                if (!state)
-                    allOn = false;
-
-                if (state)
-                    allOff = false;
-
-                stateString += state ? "1" : "0";
-            }
-
-            if (allOn)
-                stateString = "ALL";
-
-            if (allOff)
-                stateString = "NONE";
-
-            streamXml->setAttribute("recording_state", stateString);
-
-        }
-    }
 }
-
 
 void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
 {
-    
-    //Get saved record path
-    String savedPath = xml->getStringAttribute("path");
-
-	if (savedPath == "default" || !File(savedPath).exists())
-        savedPath = CoreServices::getRecordingParentDirectory().getFullPathName();
-
-    setDataDirectory(File(savedPath));
-
-    setEngine(xml->getStringAttribute("engine", "BINARY"));
-
-    recordEvents = xml->getBoolAttribute("recordEvents", true);
-    recordSpikes = xml->getBoolAttribute("recordSpikes", true);
-
-    Array<int> matchingIndexes;
-    savedDataStreamParameters.clear();
-
-    for (auto* subNode : xml->getChildIterator())
-    {
-        if (subNode->hasTagName("STREAM"))
-        {
-
-            ParameterCollection* parameterCollection = new ParameterCollection();
-
-            parameterCollection->owner.channel_count = subNode->getIntAttribute("channel_count");
-            parameterCollection->owner.name = subNode->getStringAttribute("name");
-            parameterCollection->owner.sample_rate = subNode->getDoubleAttribute("sample_rate");
-            parameterCollection->owner.channel_count = subNode->getIntAttribute("channel_count");
-            parameterCollection->owner.sourceNodeId = subNode->getIntAttribute("source_node_id");
-
-            if (subNode->hasAttribute("device_name"))
-                parameterCollection->owner.deviceName = subNode->getStringAttribute("device_name");
-
-            savedDataStreamParameters.add(parameterCollection);
-        }
-    }
-
-    for (auto stream : dataStreams)
-    {
-
-        if (findMatchingStreamParameters(stream) > -1)
-        {
-
-			const uint16 streamId = stream->getStreamId();
-
-            for (auto* subNode : xml->getChildIterator())
-            {
-                if (subNode->hasTagName("STREAM")
-					&& subNode->getStringAttribute("name") == stream->getName()
-					&& subNode->getIntAttribute("source_node_id") == stream->getSourceNodeId())
-                {
-
-					if (subNode->getBoolAttribute("isMainStream", false))
-					{
-						setMainDataStream(streamId);
-					}
-
-					setSyncLine(streamId, subNode->getIntAttribute("sync_line", 0));
-
-					String recordState = subNode->getStringAttribute("recording_state", "ALL");
-
-					for (int ch = 0; ch < recordContinuousChannels[streamId].size(); ch++)
-					{
-						bool channelState;
-
-						if (recordState.equalsIgnoreCase("ALL"))
-						{
-							channelState = true;
-						}
-						else if (recordState.equalsIgnoreCase("NONE"))
-						{
-							channelState = false;
-						}
-						else {
-							if (recordState.length() > ch)
-							{
-								channelState = recordState.substring(ch, ch + 1) == "1" ? true : false;
-							}
-							else {
-								channelState = true;
-							}
-						}
-
-						recordContinuousChannels[streamId][ch] = channelState;
-					}
-
-                }
-            }
-
-
-        }
-    }
-
+	if (xml->hasAttribute("fifoMonitorsVisible"))
+	{
+		if (!headlessMode)
+		{
+			RecordNodeEditor* recordNodeEditor = (RecordNodeEditor*)getEditor();
+			if (!xml->getBoolAttribute("fifoMonitorsVisible"))
+				recordNodeEditor->fifoDrawerButton->triggerClick();
+		}
+	}
 }

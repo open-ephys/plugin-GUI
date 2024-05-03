@@ -40,12 +40,13 @@ EditorViewport::EditorViewport(SignalChainTabComponent* s_)
       somethingIsBeingDraggedOver(false),
       shiftDown(false),
       lastEditorClicked(0),
-      selectionIndex(0),
+      selectionIndex(-1),
       insertionPoint(0),
       componentWantsToMove(false),
       indexOfMovingComponent(-1),
       loadingConfig(false),
-      signalChainTabComponent(s_)
+      signalChainTabComponent(s_),
+      dragProcType(Plugin::Processor::INVALID)
 {
 
     addMouseListener(this, true);
@@ -73,6 +74,9 @@ EditorViewport::~EditorViewport()
 void EditorViewport::paint(Graphics& g)
 {
 
+    g.setColour(findColour(ThemeColors::editorViewportBackgroundColorId));
+    g.fillRoundedRectangle(1, 1, getWidth()-2, getHeight()-12, 5.0f);
+
     if (somethingIsBeingDraggedOver)
     {
         g.setColour(Colours::yellow);
@@ -82,34 +86,31 @@ void EditorViewport::paint(Graphics& g)
         g.setColour(Colour(48,48,48));
     }
 
-    g.drawRect(0, 0, getWidth(), getHeight()-15);
+    g.drawRoundedRectangle(1, 1, getWidth()-2, getHeight() - 14, 8.0f, 2.0f);
     
     if (somethingIsBeingDraggedOver)
     {
-        float insertionX = (float)(BORDER_SIZE) * 2.5;
+        if (insertionPoint == 1
+            && editorArray[0]->getProcessor()->isEmpty()
+            && dragProcType == Plugin::Processor::SOURCE)
+            return;
+        
+        float insertionX = 0;
 
-        int n;
-        for (n = 0; n < insertionPoint; n++)
+        if (insertionPoint == 0)
         {
-            insertionX += editorArray[n]->getWidth();
+            insertionX = (float)(BORDER_SIZE) * 2.5f;
         }
-
-        if (n > 1)
-            insertionX += BORDER_SIZE*(n-1);
+        else if (insertionPoint > 0)
+        {
+            insertionX += editorArray[insertionPoint - 1]->getRight() + (BORDER_SIZE) * 1.5f;
+        }
 
         g.setColour(Colours::yellow);
         g.drawLine(insertionX, (float) BORDER_SIZE + 5,
                    insertionX, (float) getHeight()-(float) BORDER_SIZE*3 - 5, 3.0f);
 
     }
-    
-    int insertionX = BORDER_SIZE;
-    g.setColour(Colours::darkgrey);
-
-    int x = insertionX + 15;
-    int y = BORDER_SIZE;
-
-    g.drawImageAt(sourceDropImage, x, y);
     
 }
 
@@ -146,6 +147,9 @@ void EditorViewport::itemDragMove(const SourceDetails& dragSourceDetails)
 
     if (!CoreServices::getAcquisitionStatus())
     {
+        Array<var>* descr = dragSourceDetails.description.getArray();
+        dragProcType = (Plugin::Processor::Type) int(descr->getUnchecked(4));
+
         bool foundInsertionPoint = false;
 
         int lastCenterPoint = -1;
@@ -159,7 +163,21 @@ void EditorViewport::itemDragMove(const SourceDetails& dragSourceDetails)
 
             if (x < centerPoint && x > lastCenterPoint)
             {
-                insertionPoint = n;
+                if ((n == 0 || n == 1) && editorArray[0]->getProcessor()->isEmpty())
+                {
+                    insertionPoint = 1;
+
+                    if (dragProcType == Plugin::Processor::SOURCE)
+                        editorArray[0]->highlight();
+                }
+                else
+                {
+                    insertionPoint = n;
+
+                    if (editorArray[0]->getProcessor()->isEmpty()
+                        && editorArray[0]->getSelectionState())
+                        editorArray[0]->deselect();
+                }
                 foundInsertionPoint = true;
             }
 
@@ -169,6 +187,11 @@ void EditorViewport::itemDragMove(const SourceDetails& dragSourceDetails)
         if (!foundInsertionPoint)
         {
             insertionPoint = editorArray.size();
+            
+            if (editorArray.size() > 0
+                && editorArray[0]->getProcessor()->isEmpty()
+                && editorArray[0]->getSelectionState())
+                editorArray[0]->deselect();
         }
         
         repaint();
@@ -180,6 +203,12 @@ void EditorViewport::itemDragMove(const SourceDetails& dragSourceDetails)
 void EditorViewport::itemDragExit(const SourceDetails& dragSourceDetails)
 {
     somethingIsBeingDraggedOver = false;
+    dragProcType = Plugin::Processor::INVALID;
+
+    if (editorArray.size() > 0
+        && editorArray[0]->getProcessor()->isEmpty()
+        && editorArray[0]->getSelectionState())
+        editorArray[0]->deselect();
 
     repaint();
 
@@ -210,6 +239,12 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
         insertionPoint = -1; // make sure all editors are left-justified
         indexOfMovingComponent = -1;
         somethingIsBeingDraggedOver = false;
+        dragProcType = Plugin::Processor::INVALID;
+
+        if (editorArray.size() > 0
+            && editorArray[0]->getProcessor()->isEmpty()
+            && editorArray[0]->getSelectionState())
+            editorArray[0]->deselect();
         
         refreshEditors();
 
@@ -271,7 +306,7 @@ void EditorViewport::lockSignalChain(bool shouldLock)
     signalChainIsLocked = shouldLock;
 }
 
-void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bool updateSettings)
+void EditorViewport::makeEditorVisible(GenericEditor* editor,bool updateSettings)
 {
 
 	if (updateSettings)
@@ -279,16 +314,35 @@ void EditorViewport::makeEditorVisible(GenericEditor* editor, bool highlight, bo
     else
         AccessClass::getProcessorGraph()->updateViews(editor->getProcessor());
     
-    if (highlight)
+    for (auto ed : editorArray)
     {
-        for (auto ed : editorArray)
+        if (ed == editor )
         {
-            if (ed == editor )
-            {
-                ed->select();
-            } else {
-                ed->deselect();
-            }
+            ed->select();
+        } else {
+            ed->deselect();
+        }
+    }
+}
+
+void EditorViewport::highlightEditor(GenericEditor* editor)
+{
+    // Do not highlight if the editor is already selected
+    if(editor->getSelectionState())
+        return;
+
+    AccessClass::getProcessorGraph()->updateViews(editor->getProcessor());
+
+    Array<GenericProcessor*> processors = AccessClass::getProcessorGraph()->getListOfProcessors();
+    
+    for (auto proc : processors)
+    {
+        auto ed = proc->getEditor();
+        if (ed == editor )
+        {
+            ed->highlight();
+        } else {
+            ed->deselect();
         }
     }
 }
@@ -365,15 +419,22 @@ void EditorViewport::refreshEditors()
 
         int componentWidth = editor->getTotalWidth();
 
-        if (n == 0 && !editor->getProcessor()->isSource())
-        {
-            // leave room to drop a source node
-            lastBound += BORDER_SIZE * 10;
-        }
+        // if (n == 0 && !editor->getProcessor()->isSource())
+        // {
+        //     // leave room to drop a source node
+        //     lastBound += (BORDER_SIZE * 25) + BORDER_SIZE ;
+        // }
 
         if (somethingIsBeingDraggedOver && n == insertionPoint)
         {
-            if (indexOfMovingComponent == -1 // adding new processor
+            if (indexOfMovingComponent == -1 
+                && n == 1
+                && editorArray[0]->getProcessor()->isEmpty()
+                && dragProcType == Plugin::Processor::SOURCE)
+            {
+                // Do not move any processor
+            }
+            else if (indexOfMovingComponent == -1 // adding new processor
                 || (n != indexOfMovingComponent && n != indexOfMovingComponent + 1))
             {
                 if (n == 0)
@@ -399,13 +460,48 @@ void EditorViewport::moveSelection(const KeyPress& key)
     if (key.getKeyCode() == key.leftKey)
     {
 
-        if (mk.isShiftDown())
+        if (mk.isShiftDown() 
+            && lastEditorClicked != nullptr 
+            && editorArray.contains(lastEditorClicked))
         {
-            selectionIndex--;
+            int primaryIndex = editorArray.indexOf(lastEditorClicked);
+
+            // set new selection index
+            if (selectionIndex == -1)
+            {
+                // if no selection index has been set yet, set it to the primary index
+                selectionIndex = primaryIndex == 0 ? 0 : primaryIndex - 1;
+            }
+            else if (selectionIndex == 0)
+            {
+                // if the selection index is already at the left edge, return
+                return;
+            }
+            else if(selectionIndex <= primaryIndex) 
+            {
+                // if previous selection index is to the left of the primary index, decrement it
+                selectionIndex--;
+            }
+
+            // if the editor at the new selection index is empty, skip it
+            if (editorArray[selectionIndex]->getProcessor()->isEmpty())
+            {   
+                selectionIndex++;
+                return;
+            }
+
+            // switch selection state of the editor at the new selection index
+            if (selectionIndex != primaryIndex)
+                editorArray[selectionIndex]->switchSelectedState();
+
+            // if the selection index is to the right of the primary index,
+            // decrement it after switching the selection state
+            if (selectionIndex > primaryIndex)
+                selectionIndex--;
         }
         else
         {
-            selectionIndex = 0;
+            selectionIndex = -1;
 
             for (int i = 0; i < editorArray.size(); i++)
             {
@@ -422,14 +518,41 @@ void EditorViewport::moveSelection(const KeyPress& key)
     else if (key.getKeyCode() == key.rightKey)
     {
 
-        if (mk.isShiftDown())
+        if (mk.isShiftDown() 
+            && lastEditorClicked != nullptr
+            && editorArray.contains(lastEditorClicked))
         {
-            selectionIndex++;
+            int primaryIndex = editorArray.indexOf(lastEditorClicked);
+
+            if (selectionIndex == -1)
+            {
+                // if no selection index has been set yet, set it to the primary index
+                selectionIndex = primaryIndex == (editorArray.size() - 1) ? primaryIndex : primaryIndex + 1;
+            }
+            else if (selectionIndex == editorArray.size() - 1)
+            {
+                // if the selection index is already at the right edge, return
+                return;
+            }
+            else if (selectionIndex >= primaryIndex)
+            {
+                // if previous selection index is to the right of the primary index, increment it
+                selectionIndex++;
+            }
+
+            // switch selection state of the editor at the new selection index
+            if (selectionIndex != primaryIndex)
+                editorArray[selectionIndex]->switchSelectedState();
+
+            // if the selection index is to the left of the primary index,
+            // increment it after switching the selection state
+            if (selectionIndex < primaryIndex)
+                selectionIndex++;
         }
         else
         {
 
-            selectionIndex = 0;
+            selectionIndex = -1;
 
             // bool stopSelection = false;
             int i = 0;
@@ -452,30 +575,6 @@ void EditorViewport::moveSelection(const KeyPress& key)
                 }
             }
         }
-    }
-
-    if (mk.isShiftDown() && lastEditorClicked != 0 && editorArray.contains(lastEditorClicked))
-    {
-
-        LOGDD("Selection index: ", selectionIndex);
-
-        int startIndex = editorArray.indexOf(lastEditorClicked);
-
-        if (selectionIndex < 0)
-        {
-
-             for (int i = startIndex-1; i >= startIndex + selectionIndex; i--)
-             {
-                 editorArray[i]->select();
-             }
-
-        } else if (selectionIndex > 0)
-        {
-            for (int i = startIndex+1; i <= startIndex + selectionIndex; i++)
-             {
-                 editorArray[i]->select();
-             }
-         }
     }
 }
 
@@ -577,7 +676,7 @@ void EditorViewport::copySelectedEditors()
 
         for (auto editor : editorArray)
         {
-            if (editor->getSelectionState())
+            if (!editor->getProcessor()->isEmpty() && editor->getSelectionState())
                 copyInfo.add( AccessClass::getProcessorGraph()->createNodeXml(editor->getProcessor(), false) );
         }
 
@@ -669,7 +768,19 @@ void EditorViewport::paste()
 
             AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
 
-            PasteProcessors* action = new PasteProcessors(processorInfo, insertionPoint);
+            GenericProcessor* source = nullptr;
+            GenericProcessor* dest = nullptr;
+            if (insertionPoint > 0)
+            {
+                source = editorArray[insertionPoint-1]->getProcessor();
+            }
+
+            if (editorArray.size() > insertionPoint)
+            {
+                dest = editorArray[insertionPoint]->getProcessor();
+            }
+
+            PasteProcessors* action = new PasteProcessors(processorInfo, insertionPoint, source, dest);
 
             AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
 
@@ -680,23 +791,6 @@ void EditorViewport::paste()
     } else {
         
         CoreServices::sendStatusMessage("Cannot paste while acquisition is active.");
-    }
-}
-
-void EditorViewport::selectEditor(GenericEditor* editor)
-{
-    for (int i = 0; i < editorArray.size(); i++)
-    {
-
-        if (editor == editorArray[i]
-            || editor->getParentComponent() == editorArray[i])
-        {
-            editorArray[i]->select();
-        }
-        else
-        {
-            editorArray[i]->deselect();
-        }
     }
 }
 
@@ -716,6 +810,9 @@ void EditorViewport::mouseDown(const MouseEvent& e)
         if (e.eventComponent == editorArray[i])
         {
 
+            if (editorArray[i]->getProcessor()->isEmpty())
+                return;
+                
             if (e.getNumberOfClicks() == 2) // double-clicks toggle collapse state
             {
                 if (editorArray[i]->getCollapsedState())
@@ -882,11 +979,12 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     }
                 }
 
-                lastEditorClicked = editorArray[i];
+                selectionIndex = i;
                 break;
             }
 
             lastEditorClicked = editorArray[i];
+            selectionIndex = -1;
         }
         else
         {
@@ -914,9 +1012,18 @@ void EditorViewport::mouseDrag(const MouseEvent& e)
             && e.getDistanceFromDragStart() > 10
             )
         {
-
-            componentWantsToMove = true;
             indexOfMovingComponent = editorArray.indexOf((GenericEditor*)e.originalComponent);
+            dragProcType = editorArray[indexOfMovingComponent]->getProcessor()->getProcessorType();
+            if (editorArray[indexOfMovingComponent]->getProcessor()->isEmpty())
+            {
+                editorArray[indexOfMovingComponent]->deselect();
+                indexOfMovingComponent = -1;
+                return;
+            }
+            else
+            {
+                componentWantsToMove = true;
+            }
 
         }
 
@@ -940,7 +1047,17 @@ void EditorViewport::mouseDrag(const MouseEvent& e)
 
                 if (event.x < centerPoint && event.x > lastCenterPoint)
                 {
-                    insertionPoint = n;
+                    if(editorArray[n]->getProcessor()->isSource() && !editorArray[indexOfMovingComponent]->getProcessor()->isSource())
+                        return;
+
+                    if (n == 0 && editorArray[0]->getProcessor()->isEmpty())
+                    {
+                        insertionPoint = n + 1;
+                    }
+                    else
+                    {
+                        insertionPoint = n;
+                    }
                     foundInsertionPoint = true;
                 }
 
@@ -967,6 +1084,7 @@ void EditorViewport::mouseUp(const MouseEvent& e)
         
         somethingIsBeingDraggedOver = false;
         componentWantsToMove = false;
+        dragProcType = Plugin::Processor::INVALID;
 
         if (!getScreenBounds().contains(e.getScreenPosition()))
         {
@@ -1030,6 +1148,7 @@ void EditorViewport::mouseExit(const MouseEvent& e)
     {
         somethingIsBeingDraggedOver = false;
         componentWantsToMove = false;
+        dragProcType = Plugin::Processor::INVALID;
 
         repaint();
     }
@@ -1057,7 +1176,7 @@ SignalChainTabButton::SignalChainTabButton(int index) :
     setRadioGroupId(99);
     setClickingTogglesState(true);
 
-    buttonFont = Font("Small Text", 10, Font::plain);
+    buttonFont = Font("Silkscreen", 10, Font::plain);
     buttonFont.setHeight(14);
 
     offset = 0;
@@ -1324,6 +1443,9 @@ void EditorViewport::saveEditorViewportSettingsToXml(XmlElement* xml)
     
     for (auto editor : editorArray)
     {
+        if(editor->getProcessor()->isEmpty())
+            continue;
+            
         XmlElement* visibleEditorXml = new XmlElement(editor->getName().replaceCharacters(" ()","___").toUpperCase());
         visibleEditorXml->setAttribute("ID", editor->getProcessor()->getNodeId());
         editorViewportSettings->addChildElement(visibleEditorXml);
@@ -1511,7 +1633,7 @@ void EditorViewport::deleteSelectedProcessors()
     
     for (auto editor : editors)
     {
-        if (editor->getSelectionState())
+        if (!editor->getProcessor()->isEmpty() && editor->getSelectionState())
         {
             editorArray.remove(editorArray.indexOf(editor));
             DeleteProcessor* action = new DeleteProcessor(editor->getProcessor());

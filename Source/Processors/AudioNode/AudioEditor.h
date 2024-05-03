@@ -148,6 +148,9 @@ public:
     /** Loads settings*/
     void loadStateFromXml   (XmlElement* xml);
 
+    /** Gets AudioConfigurationWindow state */
+    bool isAudioConfigurationWindowVisible() { return audioConfigurationWindow != nullptr; };
+
 private:
 
     /** Responds to button presses*/

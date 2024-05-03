@@ -181,43 +181,6 @@ public:
 		float z = 0;
 		String description = "unknown";
 	};
-
-    // --------------------------------------------
-    //     PARAMETERS
-    // --------------------------------------------
-
-    /** Adds a parameter to this object**/
-    void addParameter(Parameter* p);
-
-    /** Returns a pointer to a parameter with a given name**/
-    Parameter* getParameter(String name) const { return parameters[name]; }
-
-	/** Returns true if an object has a parameter with a given name**/
-	bool hasParameter(String name) const { return parameters.contains(name); }
-
-    /** Returns a pointer to a parameter with a given name**/
-    Array<Parameter*> getParameters() { return parameters.getParameters(); }
-
-	/** Returns a pointer to a parameter with a given name**/
-	Array<String> getParameterNames() const;
-
-	/*Bracket operator returns the value of a parameter*/
-    var operator [](String name) const {return parameters[name]->getValue();}
-
-    /** Copies parameters from another InfoObject and clears the original ParameterCollection*/
-    void copyParameters(InfoObject* object);
-
-    /** Returns the number of parameters for this object*/
-    int numParameters() const { return parameters.size(); }
-
-	/** Initiates parameter value update */
-    virtual void parameterChangeRequest(Parameter*) { }
-
-    /** Called when a parameter value is updated, to allow plugin-specific responses*/
-    virtual void parameterValueChanged(Parameter*) { }
-
-	/** Creates a simple editor for modifying this object's parameters */
-	virtual Component* createDefaultEditor(int rowHeightPixels = 12, int rowWidthPixels = 120);
 	
 
 	// --------------------------------------------
@@ -269,9 +232,6 @@ public:
 	/** Holds information about the 3D position of the object*/
 	Position position;
 
-	/** Holds the parameters for this object */
-    ParameterCollection parameters;
-
 
 protected:
 	/** Constructor*/
@@ -297,8 +257,6 @@ private:
 	String m_sourceNodeName;
 
     bool m_isEnabled;
-
-	OwnedArray<ParameterEditor> editors;
 
     bool m_isLocal;
 };

@@ -13,8 +13,9 @@
 #include "RecordNodeEditor.h"
 #include "RecordThread.h"
 #include "DataQueue.h"
-#include "Synchronizer.h"
+#include "../Synchronizer/Synchronizer.h"
 #include "../../Utils/Utils.h"
+#include "../../TestableExport.h"
 
 #define WRITE_BLOCK_LENGTH		1024
 #define DATA_BUFFER_NBLOCKS		300
@@ -68,7 +69,7 @@ public:
 
 	@see: RecordThread, RecordEngine
 */
-class RecordNode :
+class TESTABLE RecordNode :
     public GenericProcessor,
     public SynchronizingProcessor,
     public FilenameComponentListener
@@ -87,6 +88,15 @@ public:
 
     /** Destructor */
     ~RecordNode();
+
+	/** Register parameters */
+	void registerParameters() override;
+
+	/** Initialize */
+	void initialize(bool signalChainIsLoading) override;
+
+	/** Respond to parameter value changes */
+	void parameterValueChanged(Parameter* p) override;
 
 	/** Allow configuration via OpenEphysHttpServer */
 	String handleConfigMessage(String msg) override;
@@ -181,12 +191,6 @@ public:
 		in kilobytes in the current dataDirectory.
 	*/
   float getFreeSpaceKilobytes() const;
-
-  /** Adds a Record Engine to use */
-  void registerRecordEngine(RecordEngine *engine);
-
-  /** Clears the list of active Record Engines*/
-  void clearRecordEngines();
     
     /** Returns true if all streams within this Record Node are synchronized*/
     bool isSynchronized();

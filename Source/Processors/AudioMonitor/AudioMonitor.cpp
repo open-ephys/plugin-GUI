@@ -33,22 +33,6 @@ AudioMonitor::AudioMonitor()
 {
 
     tempBuffer = std::make_unique<AudioSampleBuffer>();
-    
-    addBooleanParameter(Parameter::PROCESSOR_SCOPE,
-                        String("mute_audio"),
-                        "Mute audio for this Audio Monitor",
-                        false);
-    
-    addCategoricalParameter(Parameter::PROCESSOR_SCOPE,
-                            String("audio_output"),
-                            "Select L/R or both",
-                            { "LEFT", "BOTH", "RIGHT" },
-                            1);
-    
-    addSelectedChannelsParameter(Parameter::STREAM_SCOPE,
-                                 String("Channels"),
-                                 "Channels to monitor",
-                                 4);
 
     for (int i = 0; i < MAX_CHANNELS; i++)
     {
@@ -62,6 +46,44 @@ AudioMonitor::AudioMonitor()
         antialiasingfilters.add (new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (1024));
     }
 
+}
+
+
+void AudioMonitor::registerParameters()
+{
+    addBooleanParameter(
+        Parameter::PROCESSOR_SCOPE,
+        "mute_audio",
+        "Mute audio",
+        "Mute audio for this Audio Monitor",
+        false
+    );
+    
+    addCategoricalParameter(
+        Parameter::PROCESSOR_SCOPE,
+        "audio_output",
+        "Audio output",
+        "Select L/R or both",
+        { "LEFT", "BOTH", "RIGHT" },
+        1
+    );
+    
+    addSelectedChannelsParameter(
+        Parameter::STREAM_SCOPE,
+        "channels",
+        "Channels",
+        "Channels to monitor",
+        4
+    );
+
+    addCategoricalParameter(
+        Parameter::STREAM_SCOPE,
+        "spike_channel",
+        "Spike Channel",
+        "Select the spike channel. This will automatically select relevant channels to monitor.",
+        { "No spike channel" },
+        0
+    );
 }
 
 
@@ -79,18 +101,15 @@ void AudioMonitor::updateSettings()
     
     for (auto stream : dataStreams)
     {
-
-        Array<var>* activeChannels = stream->getParameter("Channels")->getValue().getArray();
+        Array<String> spikeChannelNames;
+        spikeChannelNames.add("No spike channel");
+        for (auto spikeChan : stream->getSpikeChannels())
+            spikeChannelNames.add(spikeChan->getName());
         
-        if (activeChannels->size() > 0)
-        {
-            selectedStream = stream->getStreamId();
-            
-            for (int i = 0; i < activeChannels->size(); i++)
-            {
-                updateFilter(i, selectedStream);
-            }
-        }
+        CategoricalParameter* spikeChanParam = (CategoricalParameter*)stream->getParameter("spike_channel");
+        spikeChanParam->setCategories(spikeChannelNames);
+        
+        parameterValueChanged(stream->getParameter("spike_channel"));
     }
 }
 
@@ -164,47 +183,34 @@ void AudioMonitor::recreateBuffers()
 
 void AudioMonitor::parameterValueChanged(Parameter* param)
 {
-    
-    LOGD("Audio Monitor: Value changed for ", param->getName(), ": ", (int)param->getValue());
-
-    if (param->getName().equalsIgnoreCase("Channels"))
+    if (param->getName().equalsIgnoreCase("spike_channel"))
     {
         
-        selectedStream = param->getStreamId();
+        DataStream* stream = getDataStream(param->getStreamId());
         
-        Array<var>* activeChannels = param->getValue().getArray();
+        int selectedIndex = (int)param->getValue();
 
-        if (activeChannels->size() == 0)
-            LOGA("No channels selected.");
+        Parameter* chansParam = stream->getParameter("channels");
         
-        LOGD("Num selected channels: ", activeChannels->size());
-
-        for (int i = 0; i < activeChannels->size(); i++)
+        if (selectedIndex > 0)
         {
-            
-            int localIndex =(int) activeChannels->getReference(i);
 
-            LOGA("Selected channel ", localIndex);
+            Array<int> selectedChannels = stream->getSpikeChannels()[selectedIndex - 1]->localChannelIndexes;
 
-            auto continuousChannels = getDataStream(selectedStream)->getContinuousChannels();
+            Array<var> inds;
 
-            if (continuousChannels.size() > localIndex)
+            for (int ch : selectedChannels)
             {
-                int globalIndex = continuousChannels[localIndex]->getGlobalIndex();
-
-                updateFilter(i, selectedStream);
+                inds.add(ch);
             }
 
+            chansParam->currentValue = inds;
+        }
+        else {
+            chansParam->currentValue = Array<var>();
         }
         
-        // clear monitored channels on all other streams
-        //for (auto stream : dataStreams)
-        //{
-        //    if (stream->getStreamId() != selectedStream)
-        //    {
-         //       stream->getParameter("Channels")->currentValue = Array<var>();
-        //    }
-        //}
+        chansParam->valueChanged();
     }
 }
 
@@ -264,7 +270,7 @@ void AudioMonitor::handleBroadcastMessage(String msg)
                             Array<var> ch;
                             ch.add(localChannel);
                             
-                            stream->getParameter("Channels")->setNextValue(ch);
+                            stream->getParameter("channels")->setNextValue(ch);
                         }
                     }
                 }
@@ -272,6 +278,18 @@ void AudioMonitor::handleBroadcastMessage(String msg)
         }
     }
 }
+
+
+void AudioMonitor::setSelectedStream(uint16 streamId)
+{
+    selectedStream = streamId;
+
+    for (int i = 0; i < MAX_CHANNELS; i++)
+    {
+        updateFilter(i, selectedStream);
+    }
+}
+
 
 void AudioMonitor::process (AudioBuffer<float>& buffer)
 {
@@ -297,7 +315,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                 AudioSampleBuffer* overflowBuffer;
                 AudioSampleBuffer* backupBuffer;
 
-                Array<var>* activeChannels = stream->getParameter("Channels")->getValue().getArray();
+                Array<var>* activeChannels = stream->getParameter("channels")->getValue().getArray();
 
                 for (int i = 0; i < activeChannels->size(); i++)
                 {

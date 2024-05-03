@@ -31,28 +31,8 @@ ArduinoOutputEditor::ArduinoOutputEditor(GenericProcessor* parentNode)
 {
     desiredWidth = 200;
     
-    addComboBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "Device", 10, 29);
-    addComboBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "Output Pin", 10, 54);
-    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "Input Line", 10, 79);
-    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "Gate Line", 10, 104);
-}
-
-
-void ArduinoOutputEditor::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
-{
-    if (comboBoxThatHasChanged == deviceSelector.get())
-    {
-        ArduinoOutput* processor = (ArduinoOutput*) getProcessor();
-        processor->setDevice(deviceSelector->getText());
-        CoreServices::updateSignalChain(this);
-    }
-}
-
-void ArduinoOutputEditor::updateDevice(String deviceName)
-{
-    for (int i = 0; i < deviceSelector->getNumItems(); i++)
-    {
-        if (deviceSelector->getItemText(i).equalsIgnoreCase(deviceName))
-            deviceSelector->setSelectedId(deviceSelector->getItemId(i), dontSendNotification);
-    }
+    addComboBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "device", 10, 29);
+    addComboBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "output_pin", 10, 54);
+    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "input_line", 10, 79);
+    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "gate_line", 10, 104);
 }

@@ -65,11 +65,11 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
     drawerButton->addListener(&drawerButtonListener);
 
     if (!owner->isSplitter() && !owner->isMerger())
-        addAndMakeVisible(drawerButton.get());
-
-    if (!owner->isSplitter())
     {
-        streamSelector = std::make_unique<StreamSelector>(this);
+
+        addAndMakeVisible(drawerButton.get());
+        
+        streamSelector = std::make_unique<StreamSelectorTable>(this);
         addAndMakeVisible(streamSelector.get());
     }
 
@@ -80,7 +80,9 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
 
 GenericEditor::~GenericEditor()
 {
+    LOGD("GenericEditor::destructor");
     
+    streamSelector.reset();
 }
 
 void GenericEditor::updateName()
@@ -120,10 +122,12 @@ void GenericEditor::addTextBoxParameterEditor(Parameter::ParameterScope scope,
     else
         param = getProcessor()->getStreamParameter(parameterName);
 
+    param->setParmeterEditorType(Parameter::ParameterEditorType::TEXTBOX_EDITOR);
+
     addCustomParameterEditor(new TextBoxParameterEditor(param), xPos_, yPos_);
 }
 
-void GenericEditor::addCheckBoxParameterEditor(Parameter::ParameterScope scope,
+void GenericEditor::addToggleParameterEditor(Parameter::ParameterScope scope,
     const String& parameterName,
     int xPos_,
     int yPos_)
@@ -136,17 +140,17 @@ void GenericEditor::addCheckBoxParameterEditor(Parameter::ParameterScope scope,
     else
         param = getProcessor()->getStreamParameter(parameterName);
 
-    addCustomParameterEditor(new CheckBoxParameterEditor(param), xPos_, yPos_);
+    param->setParmeterEditorType(Parameter::ParameterEditorType::TOGGLE_EDITOR);
+
+    addCustomParameterEditor(new ToggleParameterEditor(param), xPos_, yPos_);
 }
 
 
-void GenericEditor::addSliderParameterEditor(Parameter::ParameterScope scope,
+void GenericEditor::addBoundedValueParameterEditor(Parameter::ParameterScope scope,
     const String& parameterName,
     int xPos_,
     int yPos_)
 {
-    
-    //std::cout << "CREATING EDITOR: " << parameterName << std::endl;
 
     Parameter* param;
 
@@ -154,6 +158,8 @@ void GenericEditor::addSliderParameterEditor(Parameter::ParameterScope scope,
         param = getProcessor()->getParameter(parameterName);
     else
         param = getProcessor()->getStreamParameter(parameterName);
+
+    param->setParmeterEditorType(Parameter::ParameterEditorType::BOUNDED_VALUE_EDITOR);
 
     addCustomParameterEditor(new BoundedValueParameterEditor(param), xPos_, yPos_);
 }
@@ -172,6 +178,8 @@ void GenericEditor::addComboBoxParameterEditor(Parameter::ParameterScope scope,
     else
         param = getProcessor()->getStreamParameter(parameterName);
 
+    param->setParmeterEditorType(Parameter::ParameterEditorType::COMBOBOX_EDITOR);
+
     addCustomParameterEditor(new ComboBoxParameterEditor(param), xPos_, yPos_);
 }
 
@@ -181,8 +189,6 @@ void GenericEditor::addSelectedChannelsParameterEditor(Parameter::ParameterScope
     int xPos_,
     int yPos_)
 {
-
-    //std::cout << "CREATING EDITOR: " << parameterName << std::endl;
     
     Parameter* param;
 
@@ -190,6 +196,8 @@ void GenericEditor::addSelectedChannelsParameterEditor(Parameter::ParameterScope
         param = getProcessor()->getParameter(parameterName);
     else
         param = getProcessor()->getStreamParameter(parameterName);
+
+    param->setParmeterEditorType(Parameter::ParameterEditorType::SELECTED_CHANNELS_EDITOR);
 
     addCustomParameterEditor(new SelectedChannelsParameterEditor(param), xPos_, yPos_);
 }
@@ -199,8 +207,6 @@ void GenericEditor::addMaskChannelsParameterEditor(Parameter::ParameterScope sco
     int xPos_,
     int yPos_)
 {
-
-    //std::cout << "CREATING EDITOR: " << parameterName << std::endl;
     
     Parameter* param;
 
@@ -209,9 +215,80 @@ void GenericEditor::addMaskChannelsParameterEditor(Parameter::ParameterScope sco
     else
         param = getProcessor()->getStreamParameter(parameterName);
 
+    param->setParmeterEditorType(Parameter::ParameterEditorType::MASK_CHANNELS_EDITOR);
+
     addCustomParameterEditor(new MaskChannelsParameterEditor(param), xPos_, yPos_);
 }
 
+void GenericEditor::addPathParameterEditor(Parameter::ParameterScope scope,
+    const String& parameterName,
+    int xPos_,
+    int yPos_)
+{
+
+    Parameter* param;
+
+    if(scope == Parameter::PROCESSOR_SCOPE)
+        param = getProcessor()->getParameter(parameterName);
+    else
+        param = getProcessor()->getStreamParameter(parameterName);
+
+    param->setParmeterEditorType(Parameter::ParameterEditorType::PATH_EDITOR);
+    
+    addCustomParameterEditor(new PathParameterEditor(param), xPos_, yPos_);
+}
+
+void GenericEditor::addSelectedStreamParameterEditor(Parameter::ParameterScope scope,
+    const String& parameterName,
+    int xPos_,
+    int yPos_)
+{
+
+    Parameter* param = getProcessor()->getParameter(parameterName);
+
+    param->setParmeterEditorType(Parameter::ParameterEditorType::SELECTED_STREAM_EDITOR);
+
+    addCustomParameterEditor(new SelectedStreamParameterEditor(param), xPos_, yPos_);
+}
+
+void GenericEditor::addTimeParameterEditor(Parameter::ParameterScope scope,
+    const String& parameterName,
+    int xPos_,
+    int yPos_)
+{
+    Parameter* param;
+
+    if(scope == Parameter::PROCESSOR_SCOPE)
+        param = getProcessor()->getParameter(parameterName);
+    else
+        param = getProcessor()->getStreamParameter(parameterName);
+
+    param->setParmeterEditorType(Parameter::ParameterEditorType::TIME_EDITOR);
+    
+    addCustomParameterEditor(new TimeParameterEditor(param), xPos_, yPos_);
+}
+
+void GenericEditor::addTtlLineParameterEditor(Parameter::ParameterScope scope,
+    const String& parameterName,
+    int xPos_,
+    int yPos_)
+{
+    jassert(scope == Parameter::ParameterScope::STREAM_SCOPE);
+
+    Parameter* param = getProcessor()->getStreamParameter(parameterName);
+    param->setParmeterEditorType(Parameter::ParameterEditorType::TTL_LINE_EDITOR);
+
+    addCustomParameterEditor(new TtlLineParameterEditor(param), xPos_, yPos_);
+}
+
+void GenericEditor::addSyncLineParameterEditor(TtlLineParameter* ttlParam,
+    SelectedStreamParameter* syncStreamParam,
+    int xPos_,
+    int yPos_)
+{
+    ttlParam->setParmeterEditorType(Parameter::ParameterEditorType::TTL_LINE_EDITOR);
+    addCustomParameterEditor(new TtlLineParameterEditor(ttlParam, syncStreamParam), xPos_, yPos_);
+}
 
 void GenericEditor::addCustomParameterEditor(ParameterEditor* ed, int xPos_, int yPos_)
 {
@@ -225,7 +302,7 @@ void GenericEditor::addCustomParameterEditor(ParameterEditor* ed, int xPos_, int
 void GenericEditor::refreshColors()
 {
 
-    LOGD(getNameAndId(), " refreshing colors.");
+    // LOGD(getNameAndId(), " refreshing colors.");
 
     if (getProcessor()->isSource())
         backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::SOURCE_COLOR);
@@ -238,9 +315,39 @@ void GenericEditor::refreshColors()
     else
         backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::FILTER_COLOR);
     
-    LOGD("background color is ", backgroundColor.toString());
+    // LOGD("background color is ", backgroundColor.toString());
     
     getBackgroundGradient();
+
+    // loop though all parameter editors and update their parameter's color
+    for (auto ed : parameterEditors)
+    {
+        const String parameterName = ed->getParameterName();
+        
+        if (getProcessor()->hasParameter(parameterName))
+        {
+            Parameter* procParam = getProcessor()->getParameter(parameterName);
+
+            if (procParam->getType() == Parameter::ParameterType::SELECTED_CHANNELS_PARAM ||
+                procParam->getType() == Parameter::ParameterType::MASK_CHANNELS_PARAM)
+                    getProcessor()->setColor(parameterName, backgroundColor);
+        }
+        else if (selectedStream > 0)
+        {
+            auto currStream = getProcessor()->getDataStream(selectedStream);
+            
+            if (currStream->hasParameter(parameterName))
+            {
+                Parameter* streamParam = currStream->getParameter(parameterName);
+
+                if (streamParam->getType() == Parameter::ParameterType::SELECTED_CHANNELS_PARAM ||
+                    streamParam->getType() == Parameter::ParameterType::MASK_CHANNELS_PARAM)
+                    for (auto stream : getProcessor()->getDataStreams())
+                        getProcessor()->getDataStream(stream->getStreamId())->setColor(parameterName, backgroundColor);
+            }
+        }
+        
+    }
 
     repaint();
 
@@ -268,7 +375,7 @@ void GenericEditor::resized()
         {
             if (drawerOpen)
             {
-                streamSelector->setBounds(desiredWidth, 25, 
+                streamSelector->setBounds(desiredWidth, 29, 
                                           streamSelector->getDesiredWidth(), 
                                           getHeight() - 35);
                 streamSelector->setVisible(true);
@@ -350,13 +457,21 @@ void GenericEditor::editorStartAcquisition()
 		streamSelector->startAcquisition();
 	}
 
-    for (int n = 0; n < parameterEditors.size(); n++)
+    for (auto param : getProcessor()->getParameters())
     {
-
-        if (parameterEditors[n]->shouldDeactivateDuringAcquisition())
-            parameterEditors[n]->setEnabled(false);
-
+        if (param->shouldDeactivateDuringAcquisition())
+            param->setEnabled(false);
     }
+
+    for (auto stream : getProcessor()->dataStreams)
+    {
+        for (auto param : stream->getParameters())
+        {
+            if (param->shouldDeactivateDuringAcquisition())
+                param->setEnabled(false);
+        }
+    }
+    
 
     acquisitionIsActive = true;
 
@@ -374,12 +489,19 @@ void GenericEditor::editorStopAcquisition()
         streamSelector->stopAcquisition();
     }
 
-    for (int n = 0; n < parameterEditors.size(); n++)
+    for (auto param : getProcessor()->getParameters())
     {
+        if (param->shouldDeactivateDuringAcquisition())
+            param->setEnabled(true);
+    }
 
-        if (parameterEditors[n]->shouldDeactivateDuringAcquisition())
-            parameterEditors[n]->setEnabled(true);
-
+    for (auto stream : getProcessor()->dataStreams)
+    {
+        for (auto param : stream->getParameters())
+        {
+            if (param->shouldDeactivateDuringAcquisition())
+                param->setEnabled(true);
+        }
     }
 
     acquisitionIsActive = false;
@@ -387,7 +509,6 @@ void GenericEditor::editorStopAcquisition()
 
 void GenericEditor::paint(Graphics& g)
 {
-    int offset = 0;
 
     if (isEnabled)
         g.setColour (backgroundColor);
@@ -396,13 +517,30 @@ void GenericEditor::paint(Graphics& g)
 
     if (! isCollapsed)
     {
-        g.fillRect (1, 1, getWidth() - (2 + offset), getHeight() - 2);
+        // Paint titlebar
+        Path topRoundedEdge;
+        topRoundedEdge.addRoundedRectangle (1, 1,
+                                              getWidth() - 2, 23, 
+                                              5.0f, 5.0f, 
+                                              true, true, 
+                                              false, false);
+
+        g.fillPath (topRoundedEdge);
+        
+        // Paint body
         g.setGradientFill (backgroundGradient);
-        g.fillRect (1, 22, getWidth() - 2, getHeight() - 29);
+        Path bottomRoundedEdge;
+        bottomRoundedEdge.addRoundedRectangle (1, 23,
+                                              getWidth() - 2, getHeight() - 24, 
+                                              5.0f, 5.0f, 
+                                              false, false, 
+                                              true, true);
+
+        g.fillPath (bottomRoundedEdge);
     }
     else
     {
-        g.fillAll();
+        g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 5.0f);
     }
 
     // draw title
@@ -426,16 +564,11 @@ void GenericEditor::paint(Graphics& g)
 
     if (isSelected)
     {
-        g.setColour(Colours::yellow.withAlpha(0.5f));
+        // draw highlight box
+        g.setColour(Colours::yellow);
+        g.drawRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 5.0f, 2.0f);
 
     }
-    else
-    {
-        g.setColour(Colours::black);
-    }
-
-    // draw highlight box
-    g.drawRect(0,0,getWidth(),getHeight(),2.0);
 
 }
 
@@ -460,6 +593,18 @@ bool GenericEditor::checkDrawerButton(Button* button)
         return false;
     }
 
+}
+
+void GenericEditor::updateDelayAndTTLMonitors()
+{
+    for (auto stream : getProcessor()->getDataStreams())
+    {
+        delayMonitors[stream->getStreamId()] = streamSelector->getDelayMonitor(stream);
+        ttlMonitors[stream->getStreamId()] = streamSelector->getTTLMonitor(stream);
+
+        streamSelector->getTTLMonitor(stream)->updateSettings(stream->getEventChannels());
+
+    }
 }
 
 void GenericEditor::update(bool isEnabled_)
@@ -496,15 +641,14 @@ void GenericEditor::update(bool isEnabled_)
         for (auto stream : p->getDataStreams())
         {
 
+            LOGD("Editor ", getNameAndId(), " updating stream ", stream->getName());
+
             streamSelector->add(stream);
-            delayMonitors[stream->getStreamId()] = streamSelector->getDelayMonitor(stream);
-            ttlMonitors[stream->getStreamId()] = streamSelector->getTTLMonitor(stream);
-
-            streamSelector->getTTLMonitor(stream)->updateSettings(stream->getEventChannels());
-
         }
 
         selectedStream = streamSelector->finishedUpdate();
+
+        updateDelayAndTTLMonitors();
 
         if (numChannels == 0)
         {
@@ -530,13 +674,20 @@ void GenericEditor::update(bool isEnabled_)
 void GenericEditor::setTTLState(uint16 streamId, int bit, bool state)
 {
     if (ttlMonitors.find(streamId) != ttlMonitors.end())
-        ttlMonitors[streamId]->setState(bit, state);
+    {
+        if (ttlMonitors[streamId] != nullptr)
+            ttlMonitors[streamId]->setState(bit, state);
+    }
 }
 
 void GenericEditor::setMeanLatencyMs(uint16 streamId, float latencyMs)
 {
     if (delayMonitors.find(streamId) != delayMonitors.end())
-        delayMonitors[streamId]->setDelay(latencyMs);
+    {
+        if (delayMonitors[streamId] != nullptr)
+            delayMonitors[streamId]->setDelay(latencyMs);
+    }
+        
 }
 
 bool GenericEditor::getCollapsedState()
@@ -562,6 +713,10 @@ void GenericEditor::setCollapsedState(bool state)
             for (int i = 0; i < getNumChildComponents(); i++)
             {
                 Component* c = getChildComponent(i);
+
+                if (c == drawerButton.get() && selectedStream == 0)
+                    continue;
+
                 c->setVisible(true);
             }
 
@@ -791,7 +946,7 @@ void UtilityButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown
     g.setFont(font);
 
     g.setColour(fontColor);
-    g.drawText(label,0,0,getWidth(),getHeight(),Justification::centred,true);
+    g.drawFittedText(label,0,0,getWidth(),getHeight(),Justification::centred,2, 1.0f);
 
     //g.drawSingleLineText(getName(), getWidth()/2 - stringWidth/2, 12);
 
@@ -1081,7 +1236,6 @@ void GenericEditor::updateView()
     //    ed->updateView();
     //}
 
-    updateVisualizerView();
 }
 
 ParameterEditor* GenericEditor::getParameterEditor(const String& parameterName)
@@ -1098,8 +1252,6 @@ ParameterEditor* GenericEditor::getParameterEditor(const String& parameterName)
 void GenericEditor::updateCustomView() {}
 
 void GenericEditor::updateVisualizer() {}
-
-void GenericEditor::updateVisualizerView() {}
 
 void GenericEditor::saveCustomParametersToXml(XmlElement* xml) { }
 
@@ -1124,6 +1276,9 @@ void GenericEditor::updateSelectedStream(uint16 streamId)
 
     for (auto ed : parameterEditors)
     {
+        if (ed->shouldUpdateOnSelectedStreamChanged() == false)
+            continue;
+
         const String parameterName = ed->getParameterName();
         
         if (getProcessor()->hasParameter(parameterName))
@@ -1175,7 +1330,7 @@ void GenericEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled, b
         CoreServices::updateSignalChain(this);
     else
     {
-        streamSelector->getStreamInfoView(getProcessor()->getDataStream(streamId))->setEnabled(isEnabled);
+       // streamSelector->getStreamInfoView(getProcessor()->getDataStream(streamId))->setEnabled(isEnabled);
     }
 
 }
@@ -1388,4 +1543,39 @@ void ThresholdSlider::setActive(bool t)
 void ThresholdSlider::setValues(Array<double> v)
 {
 	valueArray = v;
+}
+
+LevelMonitor::LevelMonitor(GenericProcessor *p) : Button("LevelMonitor")
+{
+	processor = p;
+	updateFreq = 60; //10Hz
+	fillPercentage = 0.0;
+	lastUpdateTime = 0.0;
+	stateChangeSinceLastUpdate = false;
+}
+
+LevelMonitor::~LevelMonitor() {}
+
+void LevelMonitor::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+	g.setColour(Colours::grey);
+	g.fillRoundedRectangle(0, 0, this->getWidth(), this->getHeight(), 4);
+	g.setColour(Colours::lightslategrey);
+	g.fillRoundedRectangle(2, 2, this->getWidth() - 4, this->getHeight() - 4, 2);
+
+	if (fillPercentage < 0.7)
+		g.setColour(Colours::yellow);
+	else if (fillPercentage < 0.9)
+		g.setColour(Colours::orange);
+	else
+		g.setColour(Colours::red);
+
+	float barHeight = (this->getHeight() - 4) * fillPercentage;
+	g.fillRoundedRectangle(2, this->getHeight() - 2 - barHeight, this->getWidth() - 4, barHeight, 2);
+}
+
+void LevelMonitor::setFillPercentage(float fill_)
+{
+	fillPercentage = fill_;
+	repaint();
 }

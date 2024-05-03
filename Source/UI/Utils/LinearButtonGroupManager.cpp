@@ -77,7 +77,7 @@ void LinearButtonGroupManager::paintOverChildren (Graphics& g)
     {
         const int lineWidth  = m_buttons[m_selectedButtonIdx]->getBounds().getWidth();
         const int lineHeight = 3;
-        g.fillRect ( (int)m_currentButtonLineX, height - lineHeight - 1, lineWidth, lineHeight);
+        g.fillRect ( (int)m_currentButtonLineX + 1, height - lineHeight - 1, lineWidth - 2, lineHeight);
     }
 }
 

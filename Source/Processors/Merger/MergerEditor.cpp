@@ -159,7 +159,7 @@ void MergerEditor::mouseDown(const MouseEvent& e)
         
         Array<GenericProcessor*> selectableProcessors = getSelectableProcessors();
         
-        if (merger->sourceNodeA != 0)
+        if (merger->sourceNodeA != 0 && !merger->sourceNodeA->isEmpty())
         {
             menu.addItem(++menuItemIndex, // index
             "Input A: ", // message
@@ -198,7 +198,7 @@ void MergerEditor::mouseDown(const MouseEvent& e)
                      " ",
                      false);
         
-        if (merger->sourceNodeB != 0)
+        if (merger->sourceNodeB != 0 && !merger->sourceNodeB->isEmpty())
         {
             menu.addItem(++menuItemIndex, // index
                         "Input B: ", // message
@@ -262,11 +262,10 @@ void MergerEditor::mouseDown(const MouseEvent& e)
             if (result >= inputSelectionIndexA
                     && result < inputSelectionIndexA + selectableProcessors.size())
             {
-                switchSource(0);
-                merger->setMergerSourceNode(selectableProcessors[result - inputSelectionIndexA]);
-                selectableProcessors[result-inputSelectionIndexA]->setDestNode(merger);
-
-                AccessClass::getProcessorGraph()->updateSettings(getProcessor());
+                auto graph = AccessClass::getProcessorGraph();
+                graph->connectMergerSource(getProcessor(), selectableProcessors[result - inputSelectionIndexA], 0);
+                graph->updateSettings(getProcessor());
+                
                 return;
             }
         }
@@ -276,11 +275,10 @@ void MergerEditor::mouseDown(const MouseEvent& e)
             if (result >= inputSelectionIndexB
                     && result < inputSelectionIndexB + selectableProcessors.size())
             {
-                switchSource(1);
-                merger->setMergerSourceNode(selectableProcessors[result - inputSelectionIndexB]);
-                selectableProcessors[result-inputSelectionIndexB]->setDestNode(merger);
+                auto graph = AccessClass::getProcessorGraph();
+                graph->connectMergerSource(getProcessor(), selectableProcessors[result - inputSelectionIndexB], 1);
+                graph->updateSettings(getProcessor());
 
-                AccessClass::getProcessorGraph()->updateSettings(getProcessor());
                 return;
             }
         }
@@ -370,17 +368,6 @@ void MergerEditor::switchSource(int source, bool notify)
         processor->switchIO(source);
     }
 
-
-}
-
-
-
-
-bool MergerEditor::checkStream(const DataStream* stream)
-{
-
-    // buttons already exist:
-    return streamSelector->checkStream(stream);
 
 }
 

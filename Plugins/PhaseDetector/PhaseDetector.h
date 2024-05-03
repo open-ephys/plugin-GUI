@@ -90,6 +90,9 @@ public:
     /** Destructor*/
     ~PhaseDetector() { }
 
+    /** Registers parameters with the processor */
+    void registerParameters() override;
+
     /** Creates the custom editor for this plugin */
     AudioProcessorEditor* createEditor() override;
 

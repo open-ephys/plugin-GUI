@@ -56,6 +56,8 @@ public:
     */
     explicit Graphics (const Image& imageToDrawOnto);
 
+    ~Graphics();
+
     //==============================================================================
     /** Changes the current drawing colour.
 

@@ -38,7 +38,7 @@ namespace LfpViewer {
         after which it is drawn.
 
     */
-    class DisplayBuffer : public AudioBuffer<float>
+    class TESTABLE DisplayBuffer : public AudioBuffer<float>
     {
     public:
 
@@ -60,7 +60,8 @@ namespace LfpViewer {
                         ContinuousChannel::Type channelType, 
                         bool isRecorded,
                         int group = 0, 
-                        float ypos = 0, 
+                        float ypos = 0,
+                        String description = "",
                         String structure = "None");
 
         /** Initializes the event channel at the start of each buffer */
@@ -87,12 +88,14 @@ namespace LfpViewer {
             String structure = "None";
             ContinuousChannel::Type type;
             bool isRecorded = false;
+            String description = "";
         };
 
         Array<ChannelMetadata> channelMetadata;
-
+        
         String name;
         int id;
+        String streamKey;
 
         int64 bufferIndex;
         std::map<int, int> channelMap;

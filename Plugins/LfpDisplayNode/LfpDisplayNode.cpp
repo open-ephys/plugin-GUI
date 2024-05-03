@@ -53,7 +53,7 @@ AudioProcessorEditor* LfpDisplayNode::createEditor()
 
 void LfpDisplayNode::initialize(bool signalChainIsLoading)
 {
-    if (!signalChainIsLoading)
+    if (!signalChainIsLoading && !headlessMode)
     {
         LfpDisplayEditor* editor = (LfpDisplayEditor*)getEditor();
         editor->initialize(signalChainIsLoading);
@@ -80,24 +80,27 @@ void LfpDisplayNode::updateSettings()
         uint16 streamId = channel->getStreamId();
         String name = channel->getStreamName();
 
-        if (displayBufferMap.count(streamId) == 0)
+        String stream_key = getDataStream(streamId)->getKey();
+
+        if (displayBufferMap.count(stream_key) == 0)
         {
             
             displayBuffers.add(new DisplayBuffer(streamId, name, channel->getSampleRate()));
-            displayBufferMap[streamId] = displayBuffers.getLast();
+            displayBufferMap[stream_key] = displayBuffers.getLast();
 
         }
         else {
-            displayBufferMap[streamId]->sampleRate = channel->getSampleRate();
-            displayBufferMap[streamId]->name = name;
+            displayBufferMap[stream_key]->sampleRate = channel->getSampleRate();
+            displayBufferMap[stream_key]->name = name;
         }
-
-        displayBufferMap[streamId]->addChannel(channel->getName(), // name
+//
+        displayBufferMap[stream_key]->addChannel(channel->getName(), // name
             ch, // index
             channel->getChannelType(), // type
             channel->isRecorded,
             0, // group
-            channel->position.y // ypos
+            channel->position.y, // ypos
+            channel-> getDescription()
             );
 }
 
@@ -112,7 +115,7 @@ void LfpDisplayNode::updateSettings()
         }
         else {
 
-            displayBufferMap.erase(displayBuffer->id);
+            displayBufferMap.erase(displayBuffer->streamKey);
             toDelete.add(displayBuffer);
 
             for (auto splitID : displayBuffer->displays)
@@ -165,8 +168,10 @@ Array<DisplayBuffer*> LfpDisplayNode::getDisplayBuffers()
 bool LfpDisplayNode::startAcquisition()
 {
 
-    LfpDisplayEditor* editor = (LfpDisplayEditor*)getEditor();
-    editor->enable();
+    if (!headlessMode) {
+        LfpDisplayEditor* editor = (LfpDisplayEditor*)getEditor();
+        editor->enable();
+    }
 
     return true;
 
@@ -176,9 +181,16 @@ bool LfpDisplayNode::startAcquisition()
 bool LfpDisplayNode::stopAcquisition()
 {
 
-    LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
-    editor->disable();
+    if(!headlessMode) {
+        LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
+        editor->disable();
+    }
 
+    for(auto split : splitDisplays) {
+        Array<int> emptyArray = Array<int>();
+        split -> setFilteredChannels(emptyArray);
+    }
+    
     for (auto buffer : displayBuffers)
         buffer->ttlState = 0;
 
@@ -251,9 +263,9 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
         }
     }
 
-    if (displayBufferMap.count(eventStreamId))
+    if (displayBufferMap.count(getDataStream(eventStreamId)->getKey()))
     {
-        displayBufferMap[eventStreamId]->addEvent(eventTime, eventChannel, eventId,
+        displayBufferMap[getDataStream(eventStreamId)->getKey()]->addEvent(eventTime, eventChannel, eventId,
                                                   getNumSamplesInBlock(eventStreamId)
         );
     }
@@ -295,6 +307,7 @@ void LfpDisplayNode::finalizeEventChannels()
 
     for (auto displayBuffer : displayBuffers)
     {
+
         int numSamples = getNumSamplesInBlock(displayBuffer->id);
         displayBuffer->finalizeEventChannel(numSamples);
     }
@@ -314,7 +327,9 @@ void LfpDisplayNode::process (AudioBuffer<float>& buffer)
 
         const uint32 nSamples = getNumSamplesInBlock(streamId);
 
-        displayBufferMap[streamId]->addData(buffer, chan, nSamples);
+        String streamKey = getDataStream(streamId)->getKey();
+
+        displayBufferMap[streamKey]->addData(buffer, chan, nSamples);
     }
 }
 
@@ -327,3 +342,63 @@ void LfpDisplayNode::acknowledgeTrigger(int id)
 {
     latestTrigger.set(id, -1);
 }
+
+bool LfpDisplayNode::getIntField(DynamicObject::Ptr payload, String name, int& value, int lowerBound, int upperBound) {
+    if(!payload->hasProperty(name) || !payload->getProperty(name).isInt())
+        return false;
+    int tempVal = payload->getProperty(name);
+
+    if ((upperBound != INT32_MIN && tempVal > upperBound) || (lowerBound != INT32_MAX && tempVal < lowerBound))
+        return false;
+    value = tempVal;
+    return true;
+}
+
+
+void LfpDisplayNode::handleBroadcastMessage(String msg) {
+    var parsedMessage = JSON::parse(msg);
+    if(!parsedMessage.isObject())
+        return;
+    DynamicObject::Ptr jsonMessage = parsedMessage.getDynamicObject();
+    if(jsonMessage == nullptr)
+        return;
+    String pluginName= jsonMessage -> getProperty("plugin");
+    if(pluginName != "LFPViewer") {
+        return;
+    }
+    String command = jsonMessage -> getProperty("command");
+    DynamicObject::Ptr payload = jsonMessage -> getProperty("payload").getDynamicObject();
+    if(command == "filter") {
+        if(payload.get() == nullptr){
+            LOGD("Tried to filter in LFPViewer, but could not find a payload");
+            return;
+        }
+        int split, start, rows, cols, colsPerRow, end;
+        if(!getIntField(payload, "split", split, 0, 2) || !getIntField(payload, "start", start, 0)) {
+            LOGD("Tried to filter in LFPViewer, but a valid split and start weren't provided");
+            return;
+        }
+        Array<int> channelNames;
+        //If an end is specificed add channels from start to end
+        //Else calculate the rectangular selection based on rows and columns
+        if(getIntField(payload, "end", end, 0)) {
+            for(int index = 0; index < (end - start); index++) {
+                channelNames.add(start + index);
+            }
+        }
+        else {
+            if(!getIntField(payload, "rows", rows, 0) || !getIntField(payload, "cols", cols, 0) || !getIntField(payload, "colsPerRow", colsPerRow, 0)) {
+                LOGD("Tried to filter by rectangular selection in LFPViewer, but valid row/column/columnsPerRow counts weren't provided");
+                return;
+            }
+            for(int row = 0; row < rows; row++) {
+                for(int col = 0; col < cols; col++) {
+                    channelNames.add(start + col + row*colsPerRow);
+                }
+            }
+        }
+        splitDisplays[split] -> setFilteredChannels(channelNames);
+        splitDisplays[split] -> shouldRebuildChannelList = true;
+    }
+}
+

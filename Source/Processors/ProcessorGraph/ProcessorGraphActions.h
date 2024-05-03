@@ -65,6 +65,8 @@ private:
     bool signalChainIsLoading;
     
     int nodeId;
+
+    int mergerPath;
     
     Plugin::Description description;
 
@@ -87,7 +89,9 @@ public:
 
     /** Constructor*/
     PasteProcessors(Array<XmlElement*> copyBuffer,
-        int insertionPoint);
+        int insertionPoint,
+        GenericProcessor* source,
+        GenericProcessor* dest);
 
     /** Destructor */
     ~PasteProcessors();
@@ -104,6 +108,12 @@ private:
     Array<XmlElement*> copyBuffer;
 
     Array<int> nodeIds;
+
+    // source node id of the first processor in the copy buffer
+    int sourceNodeId; 
+    
+    // destination node id of the last processor in the copy buffer
+    int destNodeId; 
 
     int insertionPoint;
 
@@ -142,6 +152,7 @@ private:
     int sourceNodeId;
     int destNodeId;
     int nodeId;
+    int mergerPath;
     
     std::unique_ptr<XmlElement> settings;
     

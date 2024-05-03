@@ -29,6 +29,7 @@
 #include "Processors/RecordNode/RecordNode.h"
 #include "UI/EditorViewport.h"
 #include "UI/ControlPanel.h"
+#include "UI/PopupComponent.h"
 #include "Processors/MessageCenter/MessageCenterEditor.h"
 #include "Processors/Events/Event.h"
 
@@ -38,9 +39,14 @@ using namespace AccessClass;
 
 namespace CoreServices
 {
+	void updateSignalChain(GenericProcessor* source)
+	{
+		getProcessorGraph()->updateSettings(source);
+	}
+	
 	void updateSignalChain(GenericEditor* source)
 	{
-		getProcessorGraph()->updateSettings(source->getProcessor());
+		updateSignalChain(source->getProcessor());
 	}
 
 	void saveRecoveryConfig()
@@ -239,7 +245,9 @@ namespace CoreServices
 			for (auto* node : getProcessorGraph()->getRecordNodes())
 			{
 				if (node->getNodeId() == nodeId || applyToAll)
-					static_cast<RecordNodeEditor*>(node->getEditor())->setDataDirectory(dir);
+				{
+					node->getParameter("directory")->setNextValue(dir);
+				}
 			}
 		}
 
@@ -424,6 +432,16 @@ namespace CoreServices
 #define XSTR_DEF(s) #s
 #define STR_DEF(s) XSTR_DEF(s)
 		return STR_DEF(JUCE_APP_VERSION);
+	}
+
+	UndoManager* getUndoManager()
+	{
+		return getProcessorGraph()->getUndoManager();
+	}
+
+	PopupManager* getPopupManager()
+	{
+		return getUIComponent()->getPopupManager();
 	}
 
 

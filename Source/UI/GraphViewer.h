@@ -27,11 +27,14 @@
 #include "../AccessClass.h"
 #include "../Processors/Editors/GenericEditor.h"
 #include "../Processors/Visualization/Visualizer.h"
+#include "EditorViewport.h"
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 class DataStream;
 class GraphViewer;
+class GraphNode;
+class DataStreamButton;
 
 
 /**
@@ -40,12 +43,13 @@ class GraphViewer;
  @see GraphViewer, GraphNode
 */
 
-class DataStreamInfo : public Component
+class DataStreamInfo : public Component,
+    public Button::Listener
 {
 public:
 
     /** Constructor */
-    DataStreamInfo(DataStream* stream);
+    DataStreamInfo(DataStream* stream, GenericEditor* editor, GraphNode* node);
 
     /** Destructor */
     ~DataStreamInfo();
@@ -53,16 +57,70 @@ public:
     /** Paint component */
     void paint(Graphics& g);
 
-    int heightInPixels;
+    /** To respond to clicks in the DataStreamPanel*/
+    void buttonClicked(Button* button) override;
+
+    /** Returns height of the data stream editor */
+	int getDesiredHeight() const;
+
+    /** Returns max height of the data stream editor */
+	int getMaxHeight() const;
+
+    /** Returns the stream key */
+    String getStreamKey() const;
+
+    /** Restores panel state*/
+    void restorePanels();
+
+    DataStreamButton* headerButton = nullptr;
 
 private:
 
     DataStream* stream;
+    GraphNode* node;
 
-    std::unique_ptr<Component> streamParameterEditor;
+    std::unique_ptr<ConcertinaPanel> parameterPanel;
+    std::unique_ptr<Component> streamParameterEditorComponent;
+    DataStreamButton* parameterButton;
     
+    OwnedArray<ParameterEditor> parameterEditors;
+
+    int heightInPixels;
+    int editorHeight;
 
 };
+
+/* 
+    Holds processor-scoped parameters of a given processor.
+*/
+class ProcessorParameterComponent : public Component
+{
+public:
+
+    /** Constructor */
+    ProcessorParameterComponent(GenericProcessor* processor);
+
+    /** Destructor */
+    ~ProcessorParameterComponent();
+
+    /** Paint component */
+    void paint(Graphics& g);
+
+    /** Called when the node needs to update the view of its parameter editors.*/
+    void updateView();
+
+    int heightInPixels;
+
+private:
+
+    GenericProcessor* processor;
+
+    std::unique_ptr<Component> editorComponent;
+    
+    OwnedArray<ParameterEditor> parameterEditors;
+
+};
+
 
 /**
  Represents a DataStream handled by a given processor.
@@ -75,7 +133,7 @@ class DataStreamButton : public Button
 public:
 
     /** Constructor */
-    DataStreamButton(GenericEditor* editor, const DataStream* stream, DataStreamInfo* info);
+    DataStreamButton(DataStreamInfo* info, GenericEditor* editor, const String& text);
 
     /** Destructor */
     ~DataStreamButton();
@@ -86,11 +144,10 @@ public:
     /** Paint component */
     void paintButton(Graphics& g, bool isHighlighted, bool isDown);
 
-    Component* getComponent() const { return (Component*)info; }
+    DataStreamInfo* getDataStreamInfo() const { return info; }
 
 private:
 
-    const DataStream* stream;
     DataStreamInfo* info;
     Path pathOpen;
     Path pathClosed;
@@ -118,6 +175,9 @@ public:
     /** Paint component */
     void paint (Graphics& g)    override;
 
+    /** Paint over children */
+    void paintOverChildren (Graphics& g)    override;
+
     /** Behavior on start of mouse hover */
     void mouseEnter (const MouseEvent& event) override;
     
@@ -126,16 +186,28 @@ public:
     
     /** Behavior on mouse click */
     void mouseDown  (const MouseEvent& event) override;
-    
+
+    /** Behavior on mouse double click */
+    void mouseDoubleClick(const MouseEvent& event) override;
+
     /** Indicates whether node has an editor component */
     bool hasEditor (GenericEditor* editor) const;
 
-    /** To respond to clicks in the DataStreamPanel*/
+    /** To respond to DataStreamButton clicks */
     void buttonClicked(Button* button);
     
     /** Returns location of component center point */
     juce::Point<float> getCenterPoint() const;
+
+    /** Returns location of component start point */
+    juce::Point<float> getSrcPoint() const;
+
+    /** Returns location of component end point */
+    juce::Point<float> getDestPoint() const;
     
+    /** Returns processor for the node*/
+    GenericProcessor* getProcessor() const { return processor; }
+
     /** Returns editor of downstream node */
     GenericEditor* getDest()    const;
     
@@ -159,6 +231,9 @@ public:
     
     /** Returns horizontal shift (x-position of node in graph display */
     int getHorzShift() const;
+
+    /** Returns collapsed bottom of node in graph display */
+    int getCollapsedBottom() const;
     
     /** Sets the level (y-position) of node in graph display */
     void setLevel (int newLevel);
@@ -176,8 +251,29 @@ public:
     /** Adjusts the boundaries of this node, based on its inputs and outputs*/
     void updateBoundaries();
 
+    /**  Checks and updates stream information if necessary */
+    void updateStreamInfo();
+
+    /** Updates graph viewer boundaries and repaints it*/
+    void updateGraphView();
+
+    /* Sets DataStreamInfo panel size */
+    void setDataStreamPanelSize(Component* streamPanelComponent, int height);
+
+    /** Restores panel states */
+    void restorePanels();
+
     /** True if processor still exists */
     bool stillNeeded;
+
+    /** Stores processor parameter panel visibility state */
+    bool processorInfoVisible;
+
+    /** Stores stream info panel visibility state */
+    std::map<String, bool> streamInfoVisible;
+
+    /** Stores stream parameter panel visibility state */
+    std::map<String, bool> streamParamsVisible;
     
 private:
     GenericEditor* editor;
@@ -187,8 +283,15 @@ private:
 
     String getInfoString();
 
-    ConcertinaPanel dataStreamPanel;
+    std::unique_ptr<ConcertinaPanel> infoPanel;
+
     Array<DataStreamButton*> dataStreamButtons;
+    Array<DataStreamInfo*> dataStreamInfos;
+
+    std::unique_ptr<ProcessorParameterComponent> processorParamComponent;
+    std::unique_ptr<Component> processorParamHeader;
+
+    DropShadower nodeDropShadower { DropShadow(Colours::black.withAlpha(0.85f), 10, {2,10}) };
     
     bool isMouseOver;
     int horzShift;
@@ -262,10 +365,13 @@ public:
     void updateBoundaries();
     
     /** Adds a graph node for a particular processor */
-    void updateNodes    (Array<GenericProcessor*> rootProcessors);
+    void updateNodes    (GenericProcessor* processor, Array<GenericProcessor*> rootProcessors);
     
     /** Adds a graph node for a particular processor */
     void addNode    (GenericEditor* editor, int level, int offset);
+
+    /** Sets a graph node to be removed during next update */
+    void removeNode (GenericProcessor* processor);
     
     /** Clears the graph */
     void removeAllNodes();
@@ -280,13 +386,23 @@ public:
 
     /** Returns a pointer to the top-level component */
     GraphViewport* getGraphViewport() { return graphViewport.get(); }
+
+    int getLevelStartY(int level) const;
+
+    /** Save settings. */
+    void saveStateToXml(XmlElement*);
+
+    /** Load settings. */
+    void loadStateFromXml(XmlElement*);
     
 private:
     void connectNodes (int, int, Graphics&);
 
-    int rootNum;
-
     OwnedArray<GraphNode> availableNodes;
+
+    Array<GenericProcessor*> rootProcessors;
+
+    std::map<int, int> levelStartY;
 
     std::unique_ptr<GraphViewport> graphViewport;
 

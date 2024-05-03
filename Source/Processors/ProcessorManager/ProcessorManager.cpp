@@ -36,6 +36,7 @@
 #include "../EventTranslator/EventTranslator.h"
 
 #include "../PlaceholderProcessor/PlaceholderProcessor.h"
+#include "../EmptyProcessor/EmptyProcessor.h"
 
 /** Total number of built-in processors **/
 #define BUILT_IN_PROCESSOR_COUNT 6
@@ -59,7 +60,11 @@ namespace ProcessorManager
         
 		switch (index)
 		{
-		case -1:
+		case -2:
+			description.name = "Empty Processor";
+			description.processorType = Plugin::Processor::EMPTY;
+			break;
+        case -1:
 			description.name = "Placeholder Processor";
 			description.processorType = Plugin::Processor::UTILITY;
 			break;
@@ -102,6 +107,10 @@ namespace ProcessorManager
 		GenericProcessor* proc;
 		switch (index)
 		{
+        case -2:
+			proc = new EmptyProcessor();
+            proc->setProcessorType(Plugin::Processor::EMPTY);
+			break;
 		case -1:
 			proc = new PlaceholderProcessor("Empty placeholder", "Undefined", "0.0.0");
             proc->setProcessorType(Plugin::Processor::INVALID);
@@ -331,12 +340,23 @@ namespace ProcessorManager
                 }
             }
         } // if (description.index > -1)
-            
-        proc = new PlaceholderProcessor(description.name,
-                                        description.libName,
-                                        description.libVersion);
-        proc->setPluginData(Plugin::INVALID, -1);
-        proc->setProcessorType(description.processorType);
+        else if (description.index == -1)
+        {
+            proc = new PlaceholderProcessor(description.name,
+                                            description.libName,
+                                            description.libVersion);
+            proc->setPluginData(Plugin::INVALID, -1);
+            proc->setProcessorType(description.processorType);
+            return std::unique_ptr<GenericProcessor>(proc);
+        }
+        else if (description.index == -2)
+        {
+            proc = new EmptyProcessor();
+            proc->setPluginData(description.type, description.index);
+            proc->setProcessorType(Plugin::Processor::EMPTY);
+            return std::unique_ptr<GenericProcessor>(proc);
+        }
+        
         return std::unique_ptr<GenericProcessor>(proc);
 
 	} // createProcessor(Plugin::Description description)

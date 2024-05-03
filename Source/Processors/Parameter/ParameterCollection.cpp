@@ -21,7 +21,7 @@
 */
 
 #include "ParameterCollection.h"
-#include "../Settings/InfoObject.h"
+#include "ParameterOwner.h"
 #include "../Settings/DataStream.h"
 #include "../Settings/ContinuousChannel.h"
 #include "../Settings/SpikeChannel.h"
@@ -30,16 +30,15 @@
 
 #include "Parameter.h"
 
-ParameterCollection::ParameterCollection(InfoObject* object)
+ParameterCollection::ParameterCollection(ParameterOwner* pOwner)
 {
-    for (auto parameter : object->getParameters())
+    for (auto parameter : pOwner->getParameters())
         addParameter(parameter);
-
-    owner.name = object->getName();
     
-    if (object->getType() == InfoObject::DATASTREAM_INFO)
+    if (pOwner->getType() == ParameterOwner::DATASTREAM)
     {
-        DataStream* s = (DataStream*)object;
+        DataStream* s = (DataStream*)pOwner;
+        owner.name = s->getName();
         owner.channel_count = s->getChannelCount();
         owner.sample_rate = s->getSampleRate();
         owner.streamId = s->getStreamId();
@@ -49,25 +48,28 @@ ParameterCollection::ParameterCollection(InfoObject* object)
         if (s->hasDevice())
             owner.deviceName = s->device->getName();
     } 
-    else if (object->getType() == InfoObject::CONTINUOUS_CHANNEL)
+    else if (pOwner->getType() == ParameterOwner::CONTINUOUS_CHANNEL)
     {
-        ContinuousChannel* s = (ContinuousChannel*)object;
+        ContinuousChannel* s = (ContinuousChannel*)pOwner;
+        owner.name = s->getName();
         owner.sample_rate = s->getSampleRate();
         owner.streamId = s->getStreamId();
         owner.name = s->getName();
         owner.sourceNodeId = s->getSourceNodeId();
     } 
-    else if (object->getType() == InfoObject::SPIKE_CHANNEL)
+    else if (pOwner->getType() == ParameterOwner::SPIKE_CHANNEL)
     {
-        SpikeChannel* s = (SpikeChannel*)object;
+        SpikeChannel* s = (SpikeChannel*)pOwner;
+        owner.name = s->getName();
         owner.sample_rate = s->getSampleRate();
         owner.streamId = s->getStreamId();
         owner.name = s->getName();
         owner.sourceNodeId = s->getSourceNodeId();
     }
-    else if (object->getType() == InfoObject::EVENT_CHANNEL)
+    else if (pOwner->getType() == ParameterOwner::EVENT_CHANNEL)
     {
-        EventChannel* s = (EventChannel*)object;
+        EventChannel* s = (EventChannel*)pOwner;
+        owner.name = s->getName();
         owner.sample_rate = s->getSampleRate();
         owner.streamId = s->getStreamId();
         owner.name = s->getName();
@@ -81,143 +83,191 @@ ParameterCollection::~ParameterCollection()
 }
 
 
-void ParameterCollection::copyParameterValuesTo(InfoObject* obj)
+void ParameterCollection::copyParameterValuesTo(ParameterOwner* pOwner)
 {
     for (auto parameter : parameters)
     {
-        if (obj->hasParameter(parameter->getName()))
-            obj->getParameter(parameter->getName())->setNextValue(parameter->getValue());
+        if (pOwner->hasParameter(parameter->getName()))
+            pOwner->getParameter(parameter->getName())->currentValue = parameter->getValue();
     }
 }
 
-void ParameterCollection::copyParametersTo(InfoObject* obj)
+void ParameterCollection::copyParametersTo(ParameterOwner* pOwner)
 {
     int channelCount = -1;
     
-    if (obj->getType() == InfoObject::DATASTREAM_INFO)
+    if (pOwner->getType() == ParameterOwner::DATASTREAM)
     {
-        DataStream* s = (DataStream*)obj;
+        DataStream* s = (DataStream*)pOwner;
 		channelCount = s->getChannelCount();
     }
     
-    obj->parameters.clear();
+    pOwner->parameters.clear();
     
     for (auto parameter : parameters)
     {
         if (parameter->getType() == Parameter::INT_PARAM)
         {
             IntParameter* p = (IntParameter*) parameter;
-            p->setOwner(obj);
-            obj->addParameter(new IntParameter(*p));
+            pOwner->addParameter(new IntParameter(*p));
         }
         else if (parameter->getType() == Parameter::BOOLEAN_PARAM)
         {
             BooleanParameter* p = (BooleanParameter*) parameter;
-            p->setOwner(obj);
-            obj->addParameter(new BooleanParameter(*p));
+            pOwner->addParameter(new BooleanParameter(*p));
         }
         else if (parameter->getType() == Parameter::STRING_PARAM)
         {
             StringParameter* p = (StringParameter*) parameter;
-            p->setOwner(obj);
-            obj->addParameter(new StringParameter(*p));
+            pOwner->addParameter(new StringParameter(*p));
         }
         else if (parameter->getType() == Parameter::SELECTED_CHANNELS_PARAM)
         {
             SelectedChannelsParameter* p = (SelectedChannelsParameter*) parameter;
+            SelectedChannelsParameter* p2 = new SelectedChannelsParameter(*p);
             
-            if (channelCount != -1)
-                p->setChannelCount(channelCount);
+            pOwner->addParameter(p2);
 
-            p->setOwner(obj);
-            obj->addParameter(new SelectedChannelsParameter(*p));
+            if (channelCount != -1)
+                p2->setChannelCount(channelCount);
             
         }
         else if (parameter->getType() == Parameter::MASK_CHANNELS_PARAM)
         {
             MaskChannelsParameter* p = (MaskChannelsParameter*) parameter;
+            MaskChannelsParameter* p2 = new MaskChannelsParameter(*p);
+
+            pOwner->addParameter(p2);
 
             if (channelCount != -1)
-                p->setChannelCount(channelCount);
+                p2->setChannelCount(channelCount); 
 
-            p->setOwner(obj);
-            obj->addParameter(new MaskChannelsParameter(*p));
-            
         }
         else if (parameter->getType() == Parameter::CATEGORICAL_PARAM)
         {
             CategoricalParameter* p = (CategoricalParameter*) parameter;
-            p->setOwner(obj);
-            obj->addParameter(new CategoricalParameter(*p));
+            pOwner->addParameter(new CategoricalParameter(*p));
         }
         else if (parameter->getType() == Parameter::FLOAT_PARAM)
         {
             FloatParameter* p = (FloatParameter*) parameter;
-            p->setOwner(obj);
-            obj->addParameter(new FloatParameter(*p));
+            pOwner->addParameter(new FloatParameter(*p));
         }
-        
+        else if (parameter->getType() == Parameter::PATH_PARAM)
+        {
+            PathParameter* p = (PathParameter*) parameter;
+            pOwner->addParameter(new PathParameter(*p));
+        }
+        else if (parameter->getType() == Parameter::SELECTED_STREAM_PARAM)
+        {
+            SelectedStreamParameter* p = (SelectedStreamParameter*) parameter;
+            pOwner->addParameter(new SelectedStreamParameter(*p));
+        }
+        else if (parameter->getType() == Parameter::TIME_PARAM)
+        {
+            TimeParameter* p = (TimeParameter*) parameter;
+            pOwner->addParameter(new TimeParameter(*p));
+        }
+        else if (parameter->getType() == Parameter::TTL_LINE_PARAM)
+        {
+            TtlLineParameter* p = (TtlLineParameter*) parameter;
+            pOwner->addParameter(new TtlLineParameter(*p));
+        }
  
     }
 }
 
-void ParameterCollection::copyParametersFrom(InfoObject* obj)
+void ParameterCollection::copyParametersFrom(ParameterOwner* pOwner)
 {
     
     clear();
     
-    for (auto parameter : obj->getParameters())
+    for (auto parameter : pOwner->getParameters())
     {
         if (parameter->getType() == Parameter::INT_PARAM)
         {
             IntParameter* p = (IntParameter*) parameter;
-            p->setOwner(nullptr);
-            addParameter(new IntParameter(*p));
+            IntParameter* p2 = new IntParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
         }
         else if (parameter->getType() == Parameter::BOOLEAN_PARAM)
         {
             BooleanParameter* p = (BooleanParameter*) parameter;
-            p->setOwner(nullptr);
-            addParameter(new BooleanParameter(*p));
+            BooleanParameter* p2 = new BooleanParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
         }
         else if (parameter->getType() == Parameter::STRING_PARAM)
         {
             StringParameter* p = (StringParameter*) parameter;
-            p->setOwner(nullptr);
-            addParameter(new StringParameter(*p));
+            StringParameter* p2 = new StringParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
         }
         else if (parameter->getType() == Parameter::SELECTED_CHANNELS_PARAM)
         {
             SelectedChannelsParameter* p = (SelectedChannelsParameter*) parameter;
-            p->setOwner(nullptr);
-            addParameter(new SelectedChannelsParameter(*p));
+            SelectedChannelsParameter* p2 = new SelectedChannelsParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
             
         }
         else if (parameter->getType() == Parameter::MASK_CHANNELS_PARAM)
         {
             MaskChannelsParameter* p = (MaskChannelsParameter*) parameter;
-            p->setOwner(nullptr);
-            addParameter(new MaskChannelsParameter(*p));
+            MaskChannelsParameter* p2 = new MaskChannelsParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
             
         }
         else if (parameter->getType() == Parameter::CATEGORICAL_PARAM)
         {
             CategoricalParameter* p = (CategoricalParameter*) parameter;
-            p->setOwner(nullptr);
-            addParameter(new CategoricalParameter(*p));
+            CategoricalParameter* p2 = new CategoricalParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
         }
         else if (parameter->getType() == Parameter::FLOAT_PARAM)
         {
             FloatParameter* p = (FloatParameter*) parameter;
-            p->setOwner(nullptr);
-            addParameter(new FloatParameter(*p));
+            FloatParameter* p2 = new FloatParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
         }
-            
+        else if (parameter->getType() == Parameter::PATH_PARAM)
+        {
+            PathParameter* p = (PathParameter*) parameter;
+            PathParameter* p2 = new PathParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
+        }
+        else if (parameter->getType() == Parameter::SELECTED_STREAM_PARAM)
+        {
+            SelectedStreamParameter* p = (SelectedStreamParameter*) parameter;
+            SelectedStreamParameter* p2 = new SelectedStreamParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
+        }
+        else if (parameter->getType() == Parameter::TIME_PARAM)
+        {
+            TimeParameter* p = (TimeParameter*) parameter;
+            TimeParameter* p2 = new TimeParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
+        }
+        else if (parameter->getType() == Parameter::TTL_LINE_PARAM)
+        {
+            TtlLineParameter* p = (TtlLineParameter*) parameter;
+            TtlLineParameter* p2 = new TtlLineParameter(*p);
+            p2->setOwner(nullptr);
+            addParameter(p2);
+        }
     }
 
-    if (obj->getType() == InfoObject::DATASTREAM_INFO)
+    if (pOwner->getType() == ParameterOwner::DATASTREAM)
     {
-        DataStream* s = (DataStream*)obj;
+        DataStream* s = (DataStream*)pOwner;
         owner.channel_count = s->getChannelCount();
         owner.sample_rate = s->getSampleRate();
         owner.name = s->getName();
@@ -227,25 +277,25 @@ void ParameterCollection::copyParametersFrom(InfoObject* obj)
         //if (s->hasDevice())
         //    owner.deviceName = s->device->getName();
     }
-    else if (obj->getType() == InfoObject::CONTINUOUS_CHANNEL)
+    else if (pOwner->getType() == ParameterOwner::CONTINUOUS_CHANNEL)
     {
-        ContinuousChannel* s = (ContinuousChannel*)obj;
+        ContinuousChannel* s = (ContinuousChannel*)pOwner;
         owner.sample_rate = s->getSampleRate();
         owner.streamId = s->getStreamId();
         owner.name = s->getName();
         owner.sourceNodeId = s->getSourceNodeId();
     }
-    else if (obj->getType() == InfoObject::SPIKE_CHANNEL)
+    else if (pOwner->getType() == ParameterOwner::SPIKE_CHANNEL)
     {
-        SpikeChannel* s = (SpikeChannel*)obj;
+        SpikeChannel* s = (SpikeChannel*)pOwner;
         owner.sample_rate = s->getSampleRate();
         owner.streamId = s->getStreamId();
         owner.name = s->getName();
         owner.sourceNodeId = s->getSourceNodeId();
     }
-    else if (obj->getType() == InfoObject::EVENT_CHANNEL)
+    else if (pOwner->getType() == ParameterOwner::EVENT_CHANNEL)
     {
-        EventChannel* s = (EventChannel*)obj;
+        EventChannel* s = (EventChannel*)pOwner;
         owner.sample_rate = s->getSampleRate();
         owner.streamId = s->getStreamId();
         owner.name = s->getName();
@@ -256,16 +306,18 @@ void ParameterCollection::copyParametersFrom(InfoObject* obj)
 void ParameterCollection::addParameter(Parameter* p)
 {
 
-    if (parameterMap.find(p->getName()) != parameterMap.end()) {
-        for (int i = 0; i < parameters.size(); i++) {
-			if (parameters[i]->getName() == p->getName()) {
-				parameters.remove(i);
-				break;
-			}
-        }   
-    }
+    // if (parameterMap.find(p->getName()) != parameterMap.end()) {
+    //     for (int i = 0; i < parameters.size(); i++) {
+	// 		if (parameters[i]->getName() == p->getName()) {
+	// 			parameters.remove(i);
+	// 			break;
+	// 		}
+    //     }   
+    // }
     
-    parameters.add(p);
+    if (!parameters.contains(p))
+        parameters.add(p);
+        
     parameterMap[p->getName()] = p;
 }
 

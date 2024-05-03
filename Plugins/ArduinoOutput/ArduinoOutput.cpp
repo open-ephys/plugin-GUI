@@ -32,10 +32,10 @@ ArduinoOutput::ArduinoOutput()
     , gateIsOpen            (true)
     , deviceSelected        (false)
 {
-    addCategoricalParameter(Parameter::PROCESSOR_SCOPE, "Device", "The Arduino device to use", getDevices(), 0);
-    addIntParameter(Parameter::PROCESSOR_SCOPE, "Output Pin", "The Arduino pin to use", 13, 0, 13);
-    addIntParameter(Parameter::STREAM_SCOPE, "Input Line", "The TTL line for triggering output", 1, 1, 16);
-    addIntParameter(Parameter::STREAM_SCOPE, "Gate Line", "The TTL line for gating the output", 0, 0, 16);
+    addCategoricalParameter(Parameter::PROCESSOR_SCOPE, "device", "Device", "The Arduino device to use", getDevices(), 0, true);
+    addIntParameter(Parameter::PROCESSOR_SCOPE, "output_pin", "Output pin", "The Arduino pin to use", 13, 0, 13);
+    addIntParameter(Parameter::STREAM_SCOPE, "input_line", "Input line", "The TTL line for triggering output", 1, 1, 16);
+    addIntParameter(Parameter::STREAM_SCOPE, "gate_line", "Gate line", "The TTL line for gating the output", 0, 0, 16);
 }
 
 
@@ -77,9 +77,14 @@ void ArduinoOutput::setDevice (String devName)
 
     Time timer;
 
-    arduino.connect (devName.toStdString());
+    /* Avoid connecting to the same device twice */
+    if (devName != deviceString)
+    {
+        if (arduino.isArduinoReady())
+            arduino.disconnect();
 
-    LOGC("Connected");
+        arduino.connect (devName.toStdString());
+    }
 
     if (arduino.isArduinoReady())
     {
@@ -101,23 +106,26 @@ void ArduinoOutput::setDevice (String devName)
         LOGC("Updating...");
         arduino.update();
 
-        std::cout << "firmata v" << arduino.getMajorFirmwareVersion()
-                    << "." << arduino.getMinorFirmwareVersion() << std::endl;
+        LOGC("firmata v", arduino.getMajorFirmwareVersion(), ".", arduino.getMinorFirmwareVersion());
     }
+
+    deviceString = devName;
 
     if (arduino.isInitialized())
     {
-        std::cout << "Arduino is initialized." << std::endl;
+        LOGC("Arduino is initialized.");
         arduino.sendDigitalPinMode ((int) getParameter("output_pin")->getValue(), ARD_OUTPUT);
         CoreServices::sendStatusMessage (("Arduino initialized at " + devName));
         deviceSelected = true;
-        deviceString = devName;
     }
     else
     {
-        std::cout << "Arduino is NOT initialized." << std::endl;
+        arduino.disconnect();
+        LOGC("Arduino is NOT initialized.");
         CoreServices::sendStatusMessage (("Arduino could not be initialized at " + devName));
+        deviceSelected = false;
     }
+    CoreServices::updateSignalChain(this);
 }
 
 
@@ -136,9 +144,16 @@ bool ArduinoOutput::stopAcquisition()
 
 void ArduinoOutput::parameterValueChanged(Parameter* param)
 {
-    if (param->getName().equalsIgnoreCase("Device"))
+    if (param->getName().equalsIgnoreCase("device"))
     {
         setDevice(getDevices()[param->getValue()]);
+    }
+    else if (param->getName().equalsIgnoreCase("gate_line"))
+    {
+		if (int(param->getValue()) == 0)
+			gateIsOpen = true;
+		else
+			gateIsOpen = false;
     }
 }
 
@@ -187,14 +202,16 @@ void ArduinoOutput::handleTTLEvent(TTLEventPtr event)
 
 void ArduinoOutput::saveCustomParametersToXml(XmlElement* parentElement)
 {
-    parentElement->setAttribute("device", deviceString);
+    //parentElement->setAttribute("device", deviceString);
 }
 
 void ArduinoOutput::loadCustomParametersFromXml(XmlElement* xml)
 {
+    /*
     setDevice(xml->getStringAttribute("device", ""));
     ArduinoOutputEditor* ed = (ArduinoOutputEditor*) editor.get();
 
     ed->updateDevice(xml->getStringAttribute("device", ""));
+    */
 
 }

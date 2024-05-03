@@ -2,8 +2,8 @@
 
 <SETTINGS>
   <INFO>
-    <VERSION>0.6.4</VERSION>
-    <PLUGIN_API_VERSION>8</PLUGIN_API_VERSION>
+    <VERSION>0.7.0</VERSION>
+    <PLUGIN_API_VERSION>9</PLUGIN_API_VERSION>
     <DATE>unknown</DATE>
     <OS>Windows, Linux, or macOS</OS>
     <MACHINE name="computer" cpu_model="any"
@@ -13,38 +13,33 @@
     <PROCESSOR name="File Reader" insertionPoint="0" pluginName="File Reader"
                type="0" index="2" libraryName="" libraryVersion="" processorType="2"
                nodeId="100">
-      <GLOBAL_PARAMETERS/>
-      <STREAM name="example_data" description="A description of the File Reader Stream"
-              sample_rate="40000.0" channel_count="16">
-        <PARAMETERS/>
-      </STREAM>
-      <CUSTOM_PARAMETERS>
-        <FILENAME path="default" recording="0"/>
-      </CUSTOM_PARAMETERS>
-      <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="File Reader" activeStream="0"
-              Type="FileReader">
-        <TIME_LIMITS start_time="0.0" stop_time="4999.0"/>
-      </EDITOR>
-    </PROCESSOR>
-    <PROCESSOR name="Record Node" insertionPoint="1" pluginName="Record Node"
-               type="0" index="3" libraryName="" libraryVersion="" processorType="8"
-               nodeId="101">
-      <GLOBAL_PARAMETERS/>
+      <PROCESSOR_PARAMETERS selected_file="default" active_stream="0" start_time="00:00:00"
+                            end_time="00:00:04.999"/>
       <STREAM name="example_data" description="A description of the File Reader Stream"
               sample_rate="40000.0" channel_count="16">
         <PARAMETERS enable_stream="1"/>
       </STREAM>
-      <CUSTOM_PARAMETERS path="default" engine="BINARY"
-                         recordEvents="1" recordSpikes="1" fifoMonitorsVisible="1">
-        <STREAM isMainStream="1" sync_line="0" name="example_data" source_node_id="100"
-                sample_rate="40000.0" channel_count="16" recording_state="ALL"/>
+      <CUSTOM_PARAMETERS>
+        <SCRUBBERINTERFACE show="false"/>
       </CUSTOM_PARAMETERS>
+      <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="File Reader" activeStream="0"/>
+    </PROCESSOR>
+    <PROCESSOR name="Record Node" insertionPoint="1" pluginName="Record Node"
+               type="0" index="3" libraryName="" libraryVersion="" processorType="8"
+               nodeId="101">
+      <PROCESSOR_PARAMETERS directory="default" engine="0"
+                            events="1" spikes="1" main_sync="0"/>
+      <STREAM name="example_data" description="A description of the File Reader Stream"
+              sample_rate="40000.0" channel_count="16">
+        <PARAMETERS enable_stream="1" channels="" sync_line=""/>
+      </STREAM>
+      <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="LFP Viewer" insertionPoint="1" pluginName="LFP Viewer"
-               type="1" index="6" libraryName="LFP viewer" libraryVersion="0.1.0"
+               type="1" index="7" libraryName="LFP viewer" libraryVersion="0.1.0"
                processorType="3" nodeId="102">
-      <GLOBAL_PARAMETERS/>
+      <PROCESSOR_PARAMETERS/>
       <STREAM name="example_data" description="A description of the File Reader Stream"
               sample_rate="40000.0" channel_count="16">
         <PARAMETERS enable_stream="1"/>
@@ -52,48 +47,52 @@
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="LFP Viewer" activeStream="0"
               Type="LfpDisplayEditor">
-        <TAB Active="1" Index="3"/>
+        <TAB Active="1" />
         <WINDOW Active="0"/>
         <VALUES SelectedLayout="1"/>
-        <LFPDISPLAY0 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
-                     colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
-                     satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
-                     showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
-                     trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="1111111111111111"
-                     ScrollX="0" ScrollY="0"/>
-        <LFPDISPLAY1 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
-                     colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
-                     satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
-                     showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
-                     trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="1111111111111111"
-                     ScrollX="0" ScrollY="0"/>
-        <LFPDISPLAY2 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
-                     colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
-                     satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
-                     showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
-                     trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="1111111111111111"
-                     ScrollX="0" ScrollY="0"/>
-        <CANVAS doubleVerticalSplitRatio="0.5" doubleHorizontalSplitRatio="0.5"
-                tripleHorizontalSplitRatio="0.33,0.66" tripleVerticalSplitRatio="0.33,0.66"
-                showAllOptions="0"/>
+        <VISUALIZER_PARAMETERS/>
+        <CUSTOM_PARAMETERS>
+          <LFPDISPLAY0 SubprocessorID="10004" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+                       colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
+                       satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
+                       showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
+                       trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="1111111111111111"
+                       ScrollX="0" ScrollY="0"/>
+          <LFPDISPLAY1 SubprocessorID="10004" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+                       colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
+                       satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
+                       showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
+                       trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="1111111111111111"
+                       ScrollX="0" ScrollY="0"/>
+          <LFPDISPLAY2 SubprocessorID="10004" Range="250,2000,10.0" Timebase="2.0" Spread="40"
+                       colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
+                       satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
+                       showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
+                       trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="1111111111111111"
+                       ScrollX="0" ScrollY="0"/>
+          <CANVAS doubleVerticalSplitRatio="0.5" doubleHorizontalSplitRatio="0.5"
+                  tripleHorizontalSplitRatio="0.33,0.66" tripleVerticalSplitRatio="0.33,0.66"
+                  showAllOptions="0"/>
+        </CUSTOM_PARAMETERS>
       </EDITOR>
     </PROCESSOR>
     <PROCESSOR name="Bandpass Filter" insertionPoint="1" pluginName="Bandpass Filter"
-               type="1" index="5" libraryName="Bandpass Filter" libraryVersion="0.1.0"
+               type="1" index="6" libraryName="Bandpass Filter" libraryVersion="0.1.0"
                processorType="1" nodeId="103">
-      <GLOBAL_PARAMETERS/>
+      <PROCESSOR_PARAMETERS/>
       <STREAM name="example_data" description="A description of the File Reader Stream"
               sample_rate="40000.0" channel_count="16">
-        <PARAMETERS enable_stream="1" high_cut="6000.0" low_cut="300.0" Channels=""/>
+        <PARAMETERS enable_stream="1" high_cut="5000.0" low_cut="100.0" channels=""
+                    threads="3"/>
       </STREAM>
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Bandpass Filter"
               activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="Spike Detector" insertionPoint="1" pluginName="Spike Detector"
-               type="1" index="1" libraryName="Basic Spike Display" libraryVersion="0.1.0"
+               type="1" index="4" libraryName="Basic Spike Display" libraryVersion="0.1.0"
                processorType="1" nodeId="104">
-      <GLOBAL_PARAMETERS/>
+      <PROCESSOR_PARAMETERS/>
       <STREAM name="example_data" description="A description of the File Reader Stream"
               sample_rate="40000.0" channel_count="16">
         <PARAMETERS enable_stream="1"/>
@@ -150,34 +149,31 @@
     <PROCESSOR name="Record Node" insertionPoint="1" pluginName="Record Node"
                type="0" index="3" libraryName="" libraryVersion="" processorType="8"
                nodeId="105">
-      <GLOBAL_PARAMETERS/>
+      <PROCESSOR_PARAMETERS directory="default" engine="0"
+                            events="1" spikes="1" main_sync="0"/>
       <STREAM name="example_data" description="A description of the File Reader Stream"
               sample_rate="40000.0" channel_count="16">
-        <PARAMETERS enable_stream="1"/>
+        <PARAMETERS enable_stream="1" channels="" sync_line=""/>
       </STREAM>
-      <CUSTOM_PARAMETERS path="default" engine="BINARY"
-                         recordEvents="1" recordSpikes="1" fifoMonitorsVisible="1">
-        <STREAM isMainStream="1" sync_line="0" name="example_data" source_node_id="100"
-                sample_rate="40000.0" channel_count="16" recording_state="ALL"/>
-      </CUSTOM_PARAMETERS>
+      <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="Audio Monitor" insertionPoint="1" pluginName="Audio Monitor"
                type="0" index="4" libraryName="" libraryVersion="" processorType="6"
                nodeId="106">
-      <GLOBAL_PARAMETERS audio_output="1" mute_audio="0"/>
+      <PROCESSOR_PARAMETERS mute_audio="0" audio_output="1"/>
       <STREAM name="example_data" description="A description of the File Reader Stream"
               sample_rate="40000.0" channel_count="16">
-        <PARAMETERS enable_stream="1" Channels=""/>
+        <PARAMETERS enable_stream="1" channels=""/>
       </STREAM>
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Audio Monitor"
               activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="Spike Viewer" insertionPoint="1" pluginName="Spike Viewer"
-               type="1" index="2" libraryName="Basic Spike Display" libraryVersion="0.1.0"
+               type="1" index="5" libraryName="Basic Spike Display" libraryVersion="0.1.0"
                processorType="3" nodeId="107">
-      <GLOBAL_PARAMETERS/>
+      <PROCESSOR_PARAMETERS/>
       <STREAM name="example_data" description="A description of the File Reader Stream"
               sample_rate="40000.0" channel_count="16">
         <PARAMETERS enable_stream="1"/>
@@ -185,45 +181,56 @@
       <CUSTOM_PARAMETERS/>
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Spike Viewer" activeStream="0"
               Type="Visualizer" scale_factor_index="5">
-        <TAB Active="1" Index="4"/>
+        <TAB Active="1"/>
         <WINDOW Active="0"/>
-        <SPIKEDISPLAY LockThresholds="0" InvertSpikes="0">
-          <PLOT>
-            <AXIS thresh="0.0" range="250.0"/>
-            <AXIS thresh="0.0" range="250.0"/>
-          </PLOT>
-          <PLOT>
-            <AXIS thresh="0.0" range="250.0"/>
-            <AXIS thresh="0.0" range="250.0"/>
-          </PLOT>
-          <PLOT>
-            <AXIS thresh="0.0" range="250.0"/>
-            <AXIS thresh="0.0" range="250.0"/>
-          </PLOT>
-          <PLOT>
-            <AXIS thresh="0.0" range="250.0"/>
-            <AXIS thresh="0.0" range="250.0"/>
-          </PLOT>
-          <PLOT>
-            <AXIS thresh="0.0" range="250.0"/>
-            <AXIS thresh="0.0" range="250.0"/>
-          </PLOT>
-          <PLOT>
-            <AXIS thresh="0.0" range="250.0"/>
-            <AXIS thresh="0.0" range="250.0"/>
-          </PLOT>
-          <PLOT>
-            <AXIS thresh="0.0" range="250.0"/>
-            <AXIS thresh="0.0" range="250.0"/>
-          </PLOT>
-          <PLOT>
-            <AXIS thresh="0.0" range="250.0"/>
-            <AXIS thresh="0.0" range="250.0"/>
-          </PLOT>
-        </SPIKEDISPLAY>
+        <VISUALIZER_PARAMETERS/>
+        <CUSTOM_PARAMETERS>
+          <SPIKEDISPLAY LockThresholds="0" InvertSpikes="0" NumPlots="8">
+            <PLOT name="100|example_data|Stereotrode 1" isMonitored="0">
+              <AXIS thresh="0.0" range="250.0"/>
+              <AXIS thresh="0.0" range="250.0"/>
+            </PLOT>
+            <PLOT name="100|example_data|Stereotrode 2" isMonitored="0">
+              <AXIS thresh="0.0" range="250.0"/>
+              <AXIS thresh="0.0" range="250.0"/>
+            </PLOT>
+            <PLOT name="100|example_data|Stereotrode 3" isMonitored="0">
+              <AXIS thresh="0.0" range="250.0"/>
+              <AXIS thresh="0.0" range="250.0"/>
+            </PLOT>
+            <PLOT name="100|example_data|Stereotrode 4" isMonitored="0">
+              <AXIS thresh="0.0" range="250.0"/>
+              <AXIS thresh="0.0" range="250.0"/>
+            </PLOT>
+            <PLOT name="100|example_data|Stereotrode 5" isMonitored="0">
+              <AXIS thresh="0.0" range="250.0"/>
+              <AXIS thresh="0.0" range="250.0"/>
+            </PLOT>
+            <PLOT name="100|example_data|Stereotrode 6" isMonitored="0">
+              <AXIS thresh="0.0" range="250.0"/>
+              <AXIS thresh="0.0" range="250.0"/>
+            </PLOT>
+            <PLOT name="100|example_data|Stereotrode 7" isMonitored="0">
+              <AXIS thresh="0.0" range="250.0"/>
+              <AXIS thresh="0.0" range="250.0"/>
+            </PLOT>
+            <PLOT name="100|example_data|Stereotrode 8" isMonitored="0">
+              <AXIS thresh="0.0" range="250.0"/>
+              <AXIS thresh="0.0" range="250.0"/>
+            </PLOT>
+          </SPIKEDISPLAY>
+        </CUSTOM_PARAMETERS>
       </EDITOR>
     </PROCESSOR>
   </SIGNALCHAIN>
+  <CONTROLPANEL isOpen="1" recordPath="default"
+                recordEngine="BINARY" clockMode="0"/>
+  <AUDIOEDITOR isMuted="0" volume="50.0" noiseGate="10.0"/>
+  <FILENAMECONFIG>
+    <PREPEND state="0" value=""/>
+    <MAIN state="1" value="YYYY-MM-DD_HH-MM-SS"/>
+    <APPEND state="0" value=""/>
+  </FILENAMECONFIG>
   <EDITORVIEWPORT scroll="0">
     <FILE_READER ID="100"/>
     <RECORD_NODE ID="101"/>
@@ -234,19 +241,14 @@
     <AUDIO_MONITOR ID="106"/>
     <SPIKE_VIEWER ID="107"/>
   </EDITORVIEWPORT>
-  <DATAVIEWPORT selectedTab="4"/>
-  <AUDIO sampleRate="44100.0" bufferSize="1024" deviceType="Windows Audio">
-    <DEVICESETUP deviceType="Windows Audio" audioOutputDeviceName="Remote Audio"
-                 audioInputDeviceName="" audioDeviceRate="48000.0" audioDeviceBufferSize="1024"/>
-  </AUDIO>
-  <CONTROLPANEL isOpen="1" recordPath="default"
-                recordEngine="BINARY"/>
-  <AUDIOEDITOR isMuted="0" volume="50.0" noiseGate="10.0"/>
-  <FILENAMECONFIG>
-    <PREPEND state="0" value=""/>
-    <MAIN state="1" value="YYYY-MM-DD_HH-MM-SS"/>
-    <APPEND state="0" value=""/>
-  </FILENAMECONFIG>
+  <DATAVIEWPORT>
+    <TABBEDCOMPONENT index="0" selectedTabNodeId="107">
+      <TAB nodeId="0"/>
+      <TAB nodeId="1"/>
+      <TAB nodeId="102"/>
+      <TAB nodeId="107"/>
+    </TABBEDCOMPONENT>
+  </DATAVIEWPORT>
   <PROCESSORLIST>
     <COLOR ID="801" R="59" G="59" B="59"/>
     <COLOR ID="804" R="241" G="90" B="41"/>
@@ -256,5 +258,9 @@
     <COLOR ID="806" R="255" G="0" B="0"/>
     <COLOR ID="807" R="0" G="0" B="0"/>
   </PROCESSORLIST>
-  <UICOMPONENT isProcessorListOpen="1" isEditorViewportOpen="1"/>
+  <UICOMPONENT isProcessorListOpen="1" isEditorViewportOpen="1" colorTheme="0"/>
+  <AUDIO sampleRate="44100.0" bufferSize="1024" deviceType="CoreAudio">
+    <DEVICESETUP deviceType="CoreAudio" audioOutputDeviceName="MacBook Pro Speakers"
+                 audioInputDeviceName="" audioDeviceRate="44100.0" audioDeviceBufferSize="1024"/>
+  </AUDIO>
 </SETTINGS>

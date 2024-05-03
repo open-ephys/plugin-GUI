@@ -75,11 +75,11 @@ public:
     /** Destructor. */
     ~EditorViewport();
 
-    /** Selects the processor associated with a given editor. */
-    void selectEditor(GenericEditor* editor);
+    /** Highlights the given editor. */
+    void highlightEditor(GenericEditor* editor);
 
-    /** Ensures that the user can see the requested editor. */
-    void makeEditorVisible(GenericEditor* editor, bool highlight = true, bool updateSettings = false);
+    /** Ensures that the user can see the requested editor & its visualizer (if any). */
+    void makeEditorVisible(GenericEditor* editor, bool updateSettings = false);
 
     /** Updates the boundaries and visibility of all the editors in the signal chain. */
     void refreshEditors();
@@ -236,6 +236,9 @@ private:
     int insertionPoint;
     bool componentWantsToMove;
     int indexOfMovingComponent;
+    
+    // Keeps track of the processor type being dragged
+    Plugin::Processor::Type dragProcType;
 
     SignalChainTabComponent* signalChainTabComponent;
 

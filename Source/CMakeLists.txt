@@ -5,6 +5,8 @@ add_sources(open-ephys
 	TestableExport.h
 	AccessClass.h
 	AccessClass.cpp
+	AutoUpdater.cpp
+	AutoUpdater.h
 	CoreServices.h
 	CoreServices.cpp
 	MainWindow.h

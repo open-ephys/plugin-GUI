@@ -15,12 +15,6 @@ add_sources(open-ephys
 	RecordNodeEditor.h
 	RecordThread.cpp
 	RecordThread.h
-	SyncChannelSelector.cpp
-	SyncChannelSelector.h
-	SyncControlButton.cpp
-	SyncControlButton.h
-	Synchronizer.cpp
-	Synchronizer.h
 )
 
 #add nested directories

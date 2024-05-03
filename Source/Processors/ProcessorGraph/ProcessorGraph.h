@@ -26,15 +26,15 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
-#include "../PluginManager/PluginManager.h"
-
+#include "../../TestableExport.h"
 class GenericProcessor;
 class GenericEditor;
 class RecordNode;
 class AudioNode;
 class MessageCenter;
 class SignalChainTabButton;
-
+class PluginManager;
+class OpenEphysAction;
 struct ChannelKey {
     int inputNodeId;
     int inputIndex;
@@ -62,7 +62,7 @@ struct ChannelKey {
        AudioNode, Configuration, MessageCenter
 */
 
-class ProcessorGraph    : public AudioProcessorGraph
+class TESTABLE ProcessorGraph    : public AudioProcessorGraph
                         , public ChangeListener
 {
 public:
@@ -102,6 +102,8 @@ public:
     /* Remove a processor from the signal chain*/
     void removeProcessor(GenericProcessor* processor);
 
+    void connectMergerSource(GenericProcessor* merger, GenericProcessor* sourceNode, int mergerPath);
+
     /* Returns pointers to all of the processors in the signal chain*/
     Array<GenericProcessor*> getListOfProcessors();
     
@@ -131,6 +133,9 @@ public:
 
     /* Creates connections in signal chain*/
     void updateConnections();
+
+    /* Connects two processors if not already connected*/
+    void reconnectProcessors(int srcNodeId, int destNodeId);
 
     /* Calls startAcquisition() for all processors*/
     void startAcquisition();
@@ -164,6 +169,12 @@ public:
 
     /** Loops through processors and restores parameters, if they're available. */
     void restoreParameters();
+
+    /** Returns a list of all undoable actions for a particular processor ID */
+    std::vector<OpenEphysAction*> getUndoableActions(int nodeId);
+
+    /** Loops through any undoable actions for the processor ID and restores the pointer to the processor */
+    void updateUndoableActions(int nodeId);
     
     /* Updates the buffer size used for the process() callbacks*/
     void updateBufferSize();
@@ -220,9 +231,12 @@ public:
     
     /** Returns a plugin description from XML settings */
     Plugin::Description getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId);
+
+    /** Creates an EmptyProcessor source for the given destination processor */
+    void createEmptyProcessor(GenericProcessor* destProcessor, int rootIndex = -1, bool replaceRoot = false);
     
     /** Returns a pointer to the Plugin Manager object */
-    PluginManager* getPluginManager() { return pluginManager.get(); }
+    PluginManager* getPluginManager();
 
     UndoManager* getUndoManager() noexcept { return undoManager.get(); }
 
@@ -250,6 +264,8 @@ private:
     std::unique_ptr<PluginManager> pluginManager;
 
     std::unique_ptr<UndoManager> undoManager;
+
+    OwnedArray<GenericProcessor> emptyProcessors;
 
     int currentNodeId;
 

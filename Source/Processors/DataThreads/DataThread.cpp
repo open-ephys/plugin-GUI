@@ -39,6 +39,152 @@ DataThread::~DataThread()
 }
 
 
+void DataThread::addBooleanParameter(Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    bool defaultValue,
+    bool deactivateDuringAcquisition)
+{
+    sn->addBooleanParameter(scope, name, displayName, description, defaultValue, deactivateDuringAcquisition);
+}
+
+void DataThread::addIntParameter(Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    int defaultValue,
+    int minValue,
+    int maxValue,
+    bool deactivateDuringAcquisition)
+{
+    sn->addIntParameter(scope, name, displayName, description, defaultValue, minValue, maxValue, deactivateDuringAcquisition);
+}
+
+void DataThread::addStringParameter(Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    String defaultValue,
+    bool deactivateDuringAcquisition)
+{
+    sn->addStringParameter(scope, name, displayName, description, defaultValue, deactivateDuringAcquisition);
+}
+
+void DataThread::addFloatParameter(Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    const String& unit,
+    float defaultValue,
+    float minValue,
+    float maxValue,
+    float stepSize,
+    bool deactivateDuringAcquisition)
+{
+    sn->addFloatParameter(scope, name, displayName, description, unit, defaultValue, minValue, maxValue, stepSize, deactivateDuringAcquisition);
+}
+
+void DataThread::addSelectedChannelsParameter(Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    int maxSelectedChannels,
+    bool deactivateDuringAcquisition)
+{
+    sn->addSelectedChannelsParameter(scope, name, displayName, description, maxSelectedChannels, deactivateDuringAcquisition);
+}
+
+void DataThread::addMaskChannelsParameter(Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    bool deactivateDuringAcquisition)
+{
+    sn->addMaskChannelsParameter(scope, name, displayName, description, deactivateDuringAcquisition);
+}
+
+void DataThread::addCategoricalParameter(Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    Array<String> categories,
+    int defaultIndex,
+    bool deactivateDuringAcquisition)
+{
+    sn->addCategoricalParameter(scope, name, displayName, description, categories, defaultIndex, deactivateDuringAcquisition);
+}
+
+void DataThread::addPathParameter(Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    const String& defaultValue,
+    const StringArray& validFileExtensions,
+    bool isDirectory,
+    bool deactivateDuringAcquisition)
+{
+    sn->addPathParameter(scope, name, displayName, description, defaultValue, validFileExtensions, isDirectory, deactivateDuringAcquisition);
+}
+
+void DataThread::addSelectedStreamParameter(Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    Array<String> streamNames,
+    const int defaultIndex,
+    bool deactivateDuringAcquisition)
+{
+    sn->addSelectedStreamParameter(scope, name, displayName, description, streamNames, defaultIndex, deactivateDuringAcquisition);
+}
+
+void DataThread::addTimeParameter(Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    const String& defaultValue,
+    bool deactivateDuringAcquisition)
+{
+    sn->addTimeParameter(scope, name, displayName, description, defaultValue, deactivateDuringAcquisition);
+}
+
+void DataThread::addNotificationParameter(Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    bool deactivateDuringAcquisition)
+{
+    sn->addNotificationParameter(scope, name, displayName, description, deactivateDuringAcquisition);
+}
+
+void DataThread::addTtlLineParameter(Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    int maxAvailableLines,
+    bool syncMode,
+    bool canSelectNone,
+    bool deactivateDuringAcquisition )
+{
+    sn->addTtlLineParameter(scope, name, displayName, description, maxAvailableLines, syncMode, canSelectNone, deactivateDuringAcquisition);
+}
+
+Parameter* DataThread::getParameter(String name) const
+{
+    return sn->getParameter(name);
+}
+
+bool DataThread::hasParameter(String name) const
+{
+    return sn->hasParameter(name);
+}
+
+Array<Parameter*> DataThread::getParameters() 
+{
+    return sn->getParameters();
+}
+
+
 void DataThread::run()
 {
     setPriority (Thread::Priority::highest);

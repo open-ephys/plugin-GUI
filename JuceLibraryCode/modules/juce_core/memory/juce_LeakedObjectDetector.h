@@ -65,6 +65,12 @@ public:
                 your object management. Tut, tut. Always, always use std::unique_ptrs, OwnedArrays,
                 ReferenceCountedObjects, etc, and avoid the 'delete' operator at all costs!
             */
+            /** If you hit this using a UNIX-based compile flow that links to a Leak-Detected class,
+                then you may be leaking objects due to compiler-generated destructors referencing a
+                copy of numObjects. Make sure the leaked object has a destructor declaration
+                and its destructor has a non-default definitions in an implementation (.cpp) file.
+                
+            */
             jassertfalse;
         }
     }

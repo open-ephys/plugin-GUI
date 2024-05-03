@@ -45,9 +45,9 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl, 
     LOGD("Creating LfpDisplayCanvas");
 
     int64 start = Time::getHighResolutionTicks();
-
-    juce::TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
-    
+    if(!processor->getHeadlessMode()) {
+        juce::TopLevelWindow::getTopLevelWindow(0)->addKeyListener(this);
+    }
     optionsDrawerIsOpen = false;
 
     Array<DisplayBuffer*> displayBuffers = processor->getDisplayBuffers();
@@ -91,7 +91,9 @@ LfpDisplayCanvas::LfpDisplayCanvas(LfpDisplayNode* processor_, SplitLayouts sl, 
 
 LfpDisplayCanvas::~LfpDisplayCanvas()
 {
-    juce::TopLevelWindow::getTopLevelWindow(0)->removeKeyListener(this);
+    if(!processor->getHeadlessMode()) {
+        juce::TopLevelWindow::getTopLevelWindow(0)->removeKeyListener(this);
+    }
 }
 
 void LfpDisplayCanvas::resized()
@@ -295,7 +297,12 @@ void LfpDisplayCanvas::updateSettings()
 
 void LfpDisplayCanvas::refreshState()
 {
-
+#ifdef BUILD_TESTS
+    for (auto split : displaySplits)
+    {
+        split->refresh();
+    }
+#endif
 }
 
 void LfpDisplayCanvas::select(LfpDisplaySplitter* splitter)
@@ -614,6 +621,48 @@ void LfpDisplayCanvas::removeBufferForDisplay(int splitID)
     displaySplits[splitID]->displayBuffer = nullptr;
 }
 
+#if BUILD_TESTS
+
+bool LfpDisplayCanvas::getChannelBitmapBounds(int splitIndex, int& x, int& y, int& width, int& height) {
+    if(splitIndex >= displaySplits.size()) {
+        return false;
+    }
+    x = displaySplits[splitIndex] -> leftmargin;
+    y = displaySplits[splitIndex] -> viewport -> getY();
+    width = displaySplits[splitIndex] -> lfpDisplay->lfpChannelBitmap.getWidth();
+    height = displaySplits[splitIndex] -> lfpDisplay->lfpChannelBitmap.getHeight();
+    return true;
+}
+
+bool LfpDisplayCanvas::getChannelColors(int splitIndex, Array<Colour>& channelColors, Colour& backgroundColor) {
+    if(splitIndex >= displaySplits.size()) {
+        return false;
+    }
+    channelColors = displaySplits[splitIndex] -> lfpDisplay->channelColours;
+    backgroundColor = displaySplits[splitIndex] -> lfpDisplay->getColourSchemePtr() -> getBackgroundColour();
+    return true;
+}
+
+bool LfpDisplayCanvas::setChannelHeight(int splitIndex, int height) {
+    if(splitIndex >= displaySplits.size()) {
+        return false;
+    }
+    displaySplits[splitIndex] -> lfpDisplay->setChannelHeight(height);
+    return true;
+}
+
+bool LfpDisplayCanvas::setChannelRange(int splitIndex, int range, ContinuousChannel::Type type) {
+    if(splitIndex >= displaySplits.size()) {
+        return false;
+    }
+    displaySplits[splitIndex] -> lfpDisplay->setRange(range, type);
+                                                      
+    return true;
+}
+#endif
+
+
+
 void LfpDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
 {
 
@@ -696,7 +745,7 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
     timescale = std::make_unique < LfpTimescale>(this, lfpDisplay.get());
     options = std::make_unique<LfpDisplayOptions>(canvas, this, timescale.get(), lfpDisplay.get(), node);
 
-    streamSelection = std::make_unique<ComboBox>("Subprocessor selection");
+    streamSelection = std::make_unique<ComboBox>("Stream selection");
     streamSelection->addListener(this);
 
     lfpDisplay->options = options.get();
@@ -724,6 +773,12 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
 }
 
+String LfpDisplaySplitter::getStreamKey()
+{
+    DataStream* stream = processor->getDataStream(selectedStreamId);
+    return stream->getKey();
+}
+
 void LfpDisplaySplitter::resized()
 {
 
@@ -740,10 +795,10 @@ void LfpDisplaySplitter::resized()
         viewport->setBounds(0, timescaleHeight, getWidth(), getHeight() - 32);
     }
 
-    if (screenBufferMean != nullptr)
-    {
+    //if (screenBufferMean != nullptr)
+    //{
         refreshScreenBuffer();
-    }
+    //}
        
     if (nChans > 0)
     {
@@ -794,9 +849,10 @@ void LfpDisplaySplitter::beginAnimation()
 
     if (displayBuffer != nullptr)
     {
-
-        displayBuffer->resetIndices();
-
+        if(!processor->getHeadlessMode()) {
+            
+            displayBuffer->resetIndices();
+        }
         displayBufferSize = displayBuffer->getNumSamples();
 
         syncDisplay();
@@ -891,7 +947,7 @@ void LfpDisplaySplitter::updateSettings()
 
         if (displayBuffer != nullptr)
         {
-            if (buffer->id == displayBuffer->id)
+            if (buffer->streamKey == displayBuffer->streamKey)
                 foundMatchingBuffer = true;
         }
     }
@@ -963,22 +1019,22 @@ void LfpDisplaySplitter::updateSettings()
 
     }
         
-    lfpDisplay->rebuildDrawableChannelsList();
+    lfpDisplay->rebuildDrawableChannelsList(); // calls setColors(), which calls refresh
 
     isLoading = false;
         
-    syncDisplay();
-    syncDisplayBuffer();
+    syncDisplay(); // sets lastBitmapIndex to 0
+    syncDisplayBuffer(); // sets displayBufferIndex to 0
 
     isUpdating = false;
 
-    lfpDisplay->setColors();
+    //lfpDisplay->setColors(); // calls refresh
 
     resized();
 
     lfpDisplay->restoreViewPosition();
 
-    lfpDisplay->refresh();
+    //lfpDisplay->refresh(); // calls refresh
 
 }
 
@@ -1479,12 +1535,24 @@ void LfpDisplaySplitter::setTimebase(float t)
 {
     timebase = t;
 
+    /*if (timebase <= 0.1)
+    {
+        stopTimer();
+        startTimer(1000);
+    }
+    else {
+        stopTimer();
+        startTimer(50);
+    }*/
+
     if (trialAveraging)
     {
         numTrials = -1;
     }
 
     syncDisplay();
+    syncDisplayBuffer();
+    refreshScreenBuffer();
 
     reachedEnd = true;
 }
@@ -1582,7 +1650,7 @@ void LfpDisplaySplitter::setDrawableStream(uint16 sp)
 {
    
     selectedStreamId = sp;
-    displayBuffer = processor->displayBufferMap[sp];
+    displayBuffer = processor->displayBufferMap[processor->getDataStream(sp)->getKey()];
 
     updateSettings();
 }
@@ -1656,9 +1724,17 @@ void LfpDisplaySplitter::visibleAreaChanged()
 
 void LfpDisplaySplitter::refresh()
 {
+    
     updateScreenBuffer();
-
-    lfpDisplay->refresh(); // redraws only the new part of the screen buffer, unless fullredraw is set to true
+    
+    if (shouldRebuildChannelList) 
+    {
+        shouldRebuildChannelList = false;
+        lfpDisplay->rebuildDrawableChannelsList(); // calls resized()/refresh() after rebuilding list
+    }
+    else {
+        lfpDisplay->refresh(); // redraws only the new part of the screen buffer, unless fullredraw is set to true
+    }
 }
 
 void LfpDisplaySplitter::comboBoxChanged(juce::ComboBox *comboBox)

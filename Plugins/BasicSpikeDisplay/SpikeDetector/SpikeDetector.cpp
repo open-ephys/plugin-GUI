@@ -235,7 +235,7 @@ SpikeDetector::SpikeDetector()
 
 SpikeDetector::~SpikeDetector()
 {
-    //mostRecentParameters.clear();
+    //addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to use for configuring next spike channels");
 }
 
 
@@ -249,7 +249,7 @@ void SpikeDetector::parameterValueChanged(Parameter* p)
 {
     if (p->getName().equalsIgnoreCase("name"))
     {
-        p->getOwner()->setName(p->getValueAsString());
+        ((SpikeChannel*)p->getOwner())->setName(p->getValueAsString());
 
         CoreServices::updateSignalChain(getEditor());
         
@@ -353,6 +353,14 @@ void SpikeDetector::updateSettings()
 
 }
 
+int SpikeDetector::getNextAvailableChannelForStream(uint16 streamId)
+{
+    if (streamId > 0)
+        return settings[streamId]->nextAvailableChannel;
+    else
+        return nextAvailableChannel;
+}
+
 String SpikeDetector::ensureUniqueName(String name, uint16 currentStream)
 {
 
@@ -393,9 +401,10 @@ String SpikeDetector::ensureUniqueName(String name, uint16 currentStream)
 SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type, 
                                      uint16 currentStream,
                                      int startChannel,
-                                     String name)
+                                     String name,
+                                     int index)
 {
-    
+
     Array<var> selectedChannels;
     Array<int> localChannels;
 
@@ -421,6 +430,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
             nextAvailableChannel++;
         }
         else {
+            LOGD("ERROR: Should never go here?");
             localChannels.add(nextAvailableChannel++);
         }
         
@@ -469,6 +479,36 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
                 break;
         }
     }
+    else
+    {
+        //Check type and increment counter
+        switch (type)
+        {
+        case SpikeChannel::SINGLE:
+            if (currentStream > 0)
+            {
+                settings[currentStream]->singleElectrodeCount++;
+                singleElectrodeCount++;
+            }
+            break;
+        case SpikeChannel::STEREOTRODE:
+            if (currentStream > 0)
+            {
+                settings[currentStream]->stereotrodeCount++;
+                stereotrodeCount++;
+            }
+            break;
+        case SpikeChannel::TETRODE:
+            if (currentStream > 0)
+            {
+                settings[currentStream]->tetrodeCount++;
+                tetrodeCount++;
+            }
+            break;
+        case SpikeChannel::INVALID:
+                break;
+        }
+    }
 
     name = ensureUniqueName(name, currentStream);
 
@@ -487,10 +527,19 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
         localChannels
 
     };
+
+    SpikeChannel* spikeChannel;
     
-    spikeChannels.add(new SpikeChannel(spikeChannelSettings));
-    
-    SpikeChannel* spikeChannel = spikeChannels.getLast();
+    if (index < 0)
+    {
+        spikeChannels.add(new SpikeChannel(spikeChannelSettings));
+        spikeChannel = spikeChannels.getLast();
+    }
+    else
+    {
+        spikeChannels.insert(index, new SpikeChannel(spikeChannelSettings));
+        spikeChannel = spikeChannels[index];
+    }
     
     spikeChannel->addProcessor(this);
 
@@ -504,12 +553,14 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
     spikeChannel->addParameter(new StringParameter(this,
                             Parameter::SPIKE_CHANNEL_SCOPE,
                             "name",
+                            "Name",
                             "The name of a spike channel",
                             name));
     
     spikeChannel->addParameter(new CategoricalParameter(this,
                             Parameter::SPIKE_CHANNEL_SCOPE,
                             "waveform_type",
+                            "Waveform type",
                             "The type of waveform packaged in each spike object",
                             {"FULL","PEAK"},
                             0));
@@ -517,6 +568,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
     spikeChannel->addParameter(new CategoricalParameter(this,
                               Parameter::SPIKE_CHANNEL_SCOPE,
                               "thrshlder_type",
+                              "Threshold type",
                               "The type of thresholder to use",
                               {"ABS", "STD", "DYN"},0));
     
@@ -525,18 +577,21 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
         spikeChannel->addParameter(new FloatParameter(this,
             Parameter::SPIKE_CHANNEL_SCOPE,
             "abs_threshold" + String(ch+1),
+            "Abs. threshold" + String(ch+1),
             "Threshold for one channel when the absolute value thresholder is active", "uV", 
             -50.0f, -500.0f, -20.0f, 1.0f));
         
         spikeChannel->addParameter(new FloatParameter(this,
            Parameter::SPIKE_CHANNEL_SCOPE,
            "std_threshold" + String(ch+1),
+           "STD thres h" + String(ch+1),
            "Threshold for one channel when the std thresholder is active", "uV",
            4.0f, 1.0f, 10.0f, 0.01f));
         
         spikeChannel->addParameter(new FloatParameter(this,
           Parameter::SPIKE_CHANNEL_SCOPE,
           "dyn_threshold" + String(ch+1),
+          "Dyn. thresh " + String(ch+1),
           "Threshold for one channel when the dynamic thresholder is active", "uV",
           4.0f, 1.0f, 10.0f, 0.01f));
     }
@@ -544,6 +599,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
     spikeChannel->addParameter(new SelectedChannelsParameter(this,
                      Parameter::SPIKE_CHANNEL_SCOPE,
                      "local_channels",
+                     "Local channels",
                      "The local channel indices (within a Data Stream) used for spike detection",
                      selectedChannels,
                      spikeChannel->getNumChannels()));
@@ -553,6 +609,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
     const Array<const ContinuousChannel*>& sourceChannels = spikeChannel->getSourceChannels();
     std::string cacheKey = std::to_string(sourceChannels[0]->getSourceNodeId());
     cacheKey += "|" + spikeChannel->getStreamName().toStdString();
+    cacheKey += "|" + String(this->getNodeId()).toStdString();
     cacheKey += "|" + name.toStdString();
 
     spikeChannel->setIdentifier(cacheKey);
@@ -561,13 +618,33 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
 
 }
 
-
-void SpikeDetector::removeSpikeChannel (SpikeChannel* spikeChannel)
+void SpikeDetector::removeSpikeChannel(String spikeChannelKey)
 {
+    // Search for spike channel to remove
+    for (int i = 0; i < spikeChannels.size(); i++)
+    {
+        // Match by key
+        if (spikeChannels[i]->getIdentifier() == spikeChannelKey)
+        {
+            // Remove the spike channel from the list and update counters
+            uint16 streamId = spikeChannels[i]->getStreamId();
+            if (spikeChannels[i]->getChannelType() == SpikeChannel::SINGLE)
+            {
+                settings[streamId]->singleElectrodeCount--;
+            }
+            else if (spikeChannels[i]->getChannelType() == SpikeChannel::STEREOTRODE)
+            {
+                settings[streamId]->stereotrodeCount--;
+            }
+            else if (spikeChannels[i]->getChannelType() == SpikeChannel::TETRODE)
+            {
+                settings[streamId]->tetrodeCount--;
+            }
 
-    LOGD("Removing spike channel: ", spikeChannel->getName(), " from stream ", spikeChannel->getStreamId());
- 
-    spikeChannels.removeObject(spikeChannel);
+            spikeChannels.removeObject(spikeChannels[i]);
+            break;
+        }
+    }
 
     //Reset electrode and channel counters if no more spike channels after this delete
     if (!spikeChannels.size())
@@ -795,7 +872,7 @@ void SpikeDetector::saveCustomParametersToXml (XmlElement* xml)
     for (auto spikeChannel : spikeChannels)
     {
 
-        if (spikeChannel->isLocal())
+        if (spikeChannel->isLocal() && spikeChannel->isValid())
         {
             const uint16 streamId = spikeChannel->getStreamId();
 

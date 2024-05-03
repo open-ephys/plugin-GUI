@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist>
   <dict>
+    <!-- Existing keys -->
     <key>CFBundleExecutable</key>
     <string>open-ephys</string>
     <key>CFBundleIconFile</key>
@@ -24,6 +24,14 @@
     <key>NSHumanReadableCopyright</key>
     <string>Open Ephys</string>
     <key>NSHighResolutionCapable</key>
+    <true/>
+
+    <!-- Added keys for camera usage -->
+    <key>NSCameraUsageDescription</key>
+    <string>This application requires camera access to capture video.</string>
+
+    <!-- Added key for Continuity Camera support -->
+    <key>NSCameraUseContinuityCameraDeviceType</key>
     <true/>
   </dict>
 </plist>

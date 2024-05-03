@@ -35,6 +35,7 @@
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../Audio/AudioComponent.h"
 #include "../MainWindow.h"
+#include "../AutoUpdater.h"
 
 UIComponent::UIComponent(MainWindow* mainWindow_,
                          ProcessorGraph* processorGraph_,
@@ -59,9 +60,6 @@ UIComponent::UIComponent(MainWindow* mainWindow_,
 
 	dataViewport = new DataViewport();
 	addChildComponent(dataViewport);
-	dataViewport->addTabToDataViewport("Info", infoLabel);
-	dataViewport->addTabToDataViewport("Graph", graphViewer->getGraphViewport());
-
 	LOGD("Created data viewport.");
 
     signalChainTabComponent = new SignalChainTabComponent();
@@ -96,11 +94,13 @@ UIComponent::UIComponent(MainWindow* mainWindow_,
 	AccessClass::setUIComponent(this);
 
 	getProcessorList()->fillItemList();
+
+	popupManager = std::make_unique<PopupManager>();
 }
 
 UIComponent::~UIComponent()
 {
-	dataViewport->destroyTab(0); // get rid of tab for InfoLabel
+	//dataViewport->removeTab(0); // get rid of tab for InfoLabel
 
 	if (pluginInstaller)
 	{
@@ -168,6 +168,11 @@ PluginInstaller* UIComponent::getPluginInstaller()
 		pluginInstaller = new PluginInstaller(this->mainWindow, false);
 	}
 	return pluginInstaller;
+}
+
+PopupManager* UIComponent::getPopupManager()
+{
+	return popupManager.get();
 }
 
 void UIComponent::buttonClicked(Button* button)
@@ -333,7 +338,7 @@ void UIComponent::resized()
             
         } else {
             messageCenterEditor->expand();
-            messageCenterEditor->setBounds(6,h-305,w-241,300);
+            messageCenterEditor->setBounds(6,h-getHeight()+5,getWidth(),getHeight());
         }
 	}
     
@@ -390,6 +395,24 @@ void UIComponent::setTheme(ColorTheme t)
 ColorTheme UIComponent::getTheme()
 {
     return theme;
+}
+
+void UIComponent::addInfoTab()
+{
+	if (!infoTabIsOpen)
+	{
+		dataViewport->addTab("Info", infoLabel, 0);
+		infoTabIsOpen = true;
+	}
+}
+
+void UIComponent::addGraphTab()
+{
+	if (!graphViewerIsOpen)
+	{
+		dataViewport->addTab("Graph", graphViewer->getGraphViewport(), 1);
+		graphViewerIsOpen = true;
+	}
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -459,6 +482,8 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 		menu.addCommandItem(commandManager, toggleProcessorList);
 		menu.addCommandItem(commandManager, toggleSignalChain);
 		menu.addCommandItem(commandManager, toggleFileInfo);
+        menu.addCommandItem(commandManager, toggleInfoTab);
+        menu.addCommandItem(commandManager, toggleGraphViewer);
 		menu.addSeparator();
 		menu.addSubMenu("Clock mode", clockMenu);
         menu.addSeparator();
@@ -470,6 +495,8 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 	else if (menuIndex == 3)
 	{
 		menu.addCommandItem(commandManager, showHelp);
+		menu.addSeparator();
+		menu.addCommandItem(commandManager, checkForUpdates);
 	}
 
 	return menu;
@@ -509,9 +536,12 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		toggleSignalChain,
 		toggleHttpServer,
 		toggleFileInfo,
+        toggleInfoTab,
+        toggleGraphViewer,
 		setClockModeDefault,
 		setClockModeHHMMSS,
 		showHelp,
+		checkForUpdates,
 		resizeWindow,
 		openPluginInstaller,
 		openDefaultConfigWindow,
@@ -621,6 +651,18 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			result.addDefaultKeypress('F', ModifierKeys::shiftModifier);
 			result.setTicked(controlPanel->isOpen());
 			break;
+            
+        case toggleInfoTab:
+            result.setInfo("Info Tab", "Show/hide Info Tab.", "General", 0);
+            result.addDefaultKeypress('I', ModifierKeys::shiftModifier);
+            result.setTicked(infoTabIsOpen);
+            break;
+            
+        case toggleGraphViewer:
+            result.setInfo("Graph Viewer", "Show/hide Graph Viewer.", "General", 0);
+            result.addDefaultKeypress('G', ModifierKeys::shiftModifier);
+            result.setTicked(graphViewerIsOpen);
+            break;
 
 		case setClockModeDefault:
 			result.setInfo("Default", "Set clock mode to default.", "General", 0);
@@ -654,6 +696,11 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 
 		case showHelp:
 			result.setInfo("Online documentation...", "Launch the GUI's documentation website in a browser.", "General", 0);
+			result.setActive(true);
+			break;
+
+		case checkForUpdates:
+			result.setInfo("Check for updates...", "Checks if a newer version of the GUI is available", "General", 0);
 			result.setActive(true);
 			break;
 
@@ -858,6 +905,12 @@ bool UIComponent::perform(const InvocationInfo& info)
 				url.launchInDefaultBrowser();
 				break;
 			}
+		
+		case checkForUpdates:
+			{
+				LatestVersionCheckerAndUpdater::getInstance()->checkForNewVersion (false, mainWindow);
+				break;
+			}
 
 		case toggleProcessorList:
 			processorList->toggleState();
@@ -867,6 +920,29 @@ bool UIComponent::perform(const InvocationInfo& info)
 			controlPanel->toggleState();
 			break;
 
+        case toggleInfoTab:
+            if (infoTabIsOpen)
+                dataViewport->removeTab(0);
+            else
+            {
+                dataViewport->addTab("Info", infoLabel, 0);
+                infoTabIsOpen = true;
+            }
+                
+            break;
+            
+        case toggleGraphViewer:
+            if (graphViewerIsOpen)
+                dataViewport->removeTab(1);
+            else
+            {
+                dataViewport->addTab("Graph", graphViewer->getGraphViewport(), 1);
+                graphViewerIsOpen = true;
+            }
+                
+                
+            break;
+            
 		case toggleSignalChain:
 			editorViewportButton->toggleState();
 			break;
@@ -957,6 +1033,26 @@ Array<String> UIComponent::getRecentlyUsedFilenames()
 void UIComponent::setRecentlyUsedFilenames(const Array<String>& filenames)
 {
 	controlPanel->setRecentlyUsedFilenames(filenames);
+}
+
+Component* UIComponent::findComponentByIDRecursive(Component* parent, const String& componentID) {
+    if (!parent) return nullptr;
+
+    // Check if the current component matches the ID
+    if (parent->getComponentID() == componentID) {
+        return parent;
+    }
+
+    // Recursively search in child components
+    for (auto* child : parent->getChildren()) {
+        Component* found = findComponentByIDRecursive(child, componentID);
+        if (found) {
+            return found;
+        }
+    }
+
+    // Not found in this branch of the hierarchy
+    return nullptr;
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -8,20 +8,18 @@
 #include <ModelApplication.h>
 #include <TestFixtures.h>
 
-class RecordControlTests : public ProcessorTest {
+class RecordControlTests : public ::testing::Test {
 protected:
-    RecordControlTests() : ProcessorTest() {
+    RecordControlTests()  {
     }
 
     ~RecordControlTests() override {
     }
 
     void SetUp() override {
-        ProcessorTest::SetUp();
     }
 
     void TearDown() override {
-        ProcessorTest::TearDown();
 
     }
 

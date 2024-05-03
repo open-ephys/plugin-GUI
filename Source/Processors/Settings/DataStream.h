@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../PluginManager/OpenEphysPlugin.h"
 
 #include "InfoObject.h"
+#include "../Parameter/ParameterOwner.h"
 
 class GenericProcessor;
 class DeviceInfo;
@@ -67,7 +68,8 @@ class SpikeChannel;
 * 
 */
 class PLUGIN_API DataStream :
-	public InfoObject
+	public InfoObject,
+	public ParameterOwner
 {
 public:
 
@@ -111,6 +113,9 @@ public:
 
 	/** Returns the unique ID for this stream*/
 	uint16 getStreamId() const;
+
+	/** Returns a unique String for this stream */
+	String getKey() const { return String(getSourceNodeId()) + "|" + getName(); }
 
 	/** Returns true if this DataStream has a device associated with it.*/
 	bool hasDevice() const;

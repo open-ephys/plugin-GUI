@@ -25,7 +25,7 @@
 #define __AUDIOCOMPONENT_H_D97C73CF__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-
+#include "../TestableExport.h"
 /**
 
   Interfaces with system audio hardware.
@@ -42,7 +42,7 @@
 
 */
 
-class AudioComponent
+class TESTABLE AudioComponent
 {
 
 public:

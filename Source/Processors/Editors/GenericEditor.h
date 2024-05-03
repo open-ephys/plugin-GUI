@@ -209,9 +209,6 @@ public:
 
     /** Allows an editor to update the settings of its visualizer (such as channel count and sample rate).*/
     virtual void updateVisualizer();
-
-    /** Allows an editor to update the view of its visualizer's parameter editors.*/
-    virtual void updateVisualizerView();
     
     /** Returns the parameter editor for a given parameter name*/
     ParameterEditor* getParameterEditor(const String& parameterName);
@@ -267,6 +264,9 @@ public:
     /** Get the ID of the stream that's currently selected.*/
     uint16 getCurrentStream() { return selectedStream; }
 
+    /** Called when new TTL and Delay monitors are created */
+    void updateDelayAndTTLMonitors();
+
     /** Notifies editor that the selected stream has changed.*/
     virtual void selectedStreamHasChanged();
 
@@ -293,10 +293,10 @@ protected:
     void addTextBoxParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a check box editor for a parameter of a given name. */
-    void addCheckBoxParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+    void addToggleParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
-    /** Adds a slider editor for a parameter of a given name. */
-    void addSliderParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+    /** Adds a bounded value editor for a parameter of a given name. */
+    void addBoundedValueParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a combo box editor for a parameter of a given name. */
     void addComboBoxParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
@@ -304,14 +304,32 @@ protected:
     /** Adds a selected channels editor for a parameter of a given name. */
     void addSelectedChannelsParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
     
-    /** Adds a selected channels editor for a parameter of a given name. */
+    /** Adds a mask channels editor for a parameter of a given name. */
     void addMaskChannelsParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+
+    /** Adds a path browser editor for a parameter of a given name. */
+    void addPathParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+
+    /** Adds a selected stream editor for a parameter of a given name. */
+    void addSelectedStreamParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+
+    /** Adds a time editor for a paramater of a given name. */
+    void addTimeParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+
+    /** Adds a ttl line editor for a parameter of a given name. */
+    void addTtlLineParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+
+    /** Adds a sync line editor for a parameter of a given name. 
+     * @param syncLineParam is the parameter that will be updated when the sync line is changed
+     * @param syncStreamParam is the parameter that will be updated when the main sync stream is changed
+    */
+    void addSyncLineParameterEditor(TtlLineParameter* syncLineParam, SelectedStreamParameter* syncStreamParam, int xPos, int yPos);
 
     /** Adds a custom editor for a parameter of a given name. */
     void addCustomParameterEditor(ParameterEditor* editor, int xPos, int yPos);
 
     /** A pointer to the editor's StreamSelector. */
-    std::unique_ptr<StreamSelector> streamSelector;
+    std::unique_ptr<StreamSelectorTable> streamSelector;
 
     /** Holds the value of the stream that's currently visible*/
     uint16 selectedStream;
@@ -364,10 +382,16 @@ private:
 class PLUGIN_API DrawerButton : public Button
 {
 public:
+
+    /** Constructor */
     DrawerButton (const String& name);
+    
+    /** Destructor */
     ~DrawerButton();
 
 private:
+    
+    /** Render the button */
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
@@ -517,5 +541,44 @@ private:
     Array<double> valueArray;
 };
 
+/**
+  Used to monitor a variable in real-time as a level bar.
+
+  @see SpikeDetectorEditor
+*/
+class PLUGIN_API LevelMonitor : public Timer,
+	public Button
+{
+public:
+
+	/** Constructor */
+	LevelMonitor(GenericProcessor*);
+
+	/** Detructor */
+	~LevelMonitor();
+
+    /** Set update freq */
+    void setUpdateFreq(int freq) { updateFreq = freq; };
+
+	/** Sets fill amount */
+	void setFillPercentage(float percentage);
+
+	/** Draws the button */
+	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
+	/** Updates the display */
+	virtual void timerCallback() = 0;
+
+protected:
+
+	GenericProcessor* processor;
+
+	int updateFreq;
+
+	float fillPercentage;
+	float lastUpdateTime;
+	bool stateChangeSinceLastUpdate;
+
+};
 
 #endif  // __GENERICEDITOR_H_DD406E71__

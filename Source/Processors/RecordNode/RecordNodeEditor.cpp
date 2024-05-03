@@ -24,439 +24,194 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include "RecordNodeEditor.h"
 #include "RecordNode.h"
-
-#include "SyncChannelSelector.h"
-
 #include "../../CoreServices.h"
 
-RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
-	: GenericEditor(parentNode),
-	monitorsVisible(false), numDataStreams(0)
+StreamMonitor::StreamMonitor(RecordNode* rn, uint64 id)
+	: LevelMonitor(rn),
+	streamId(id)
 {
+	startTimerHz(10);
+}
 
-	recordNode = parentNode;
+StreamMonitor::~StreamMonitor() {}
 
-	fifoDrawerButton = new FifoDrawerButton(getNameAndId() + " Fifo Drawer Button");
-	fifoDrawerButton->setBounds(4, 40, 10, 78);
-	fifoDrawerButton->addListener(this);
-	addAndMakeVisible(fifoDrawerButton);
+void StreamMonitor::timerCallback()
+{
+	if (((RecordNode*)processor)->recordThread->isThreadRunning())
+		setFillPercentage(((RecordNode*)processor)->fifoUsage[streamId]);
+	else
+		setFillPercentage(0.0);
+}
 
-	diskSpaceLabel = new Label("diskSpaceLabel", "Avail:");
-	diskSpaceLabel->setBounds(7, 21, 40, 20);
-	diskSpaceLabel->setFont(Font("Small Text", 8.0f, Font::plain));
+DiskSpaceMonitor::DiskSpaceMonitor(RecordNode* rn)
+    : LevelMonitor(rn),
+      lastFreeSpace(0.0),
+      recordingTimeLeftInSeconds(0),
+	  dataRate(0.0)
+{
+	startTimerHz(1);
+}
 
-	diskSpaceMonitor = new FifoMonitor(recordNode, 0, "Available Disk Space");
-	diskSpaceMonitor->setBounds(18, 33, 15, 92);
-	addAndMakeVisible(diskSpaceMonitor);
+DiskSpaceMonitor::~DiskSpaceMonitor() {}
 
-	recordToggleButton = new RecordToggleButton(recordNode, getNameAndId() + " Recording Toggle Button");
-	recordToggleButton->setBounds(18, 110, 15, 15);
-	recordToggleButton->addListener(this);
-	//addAndMakeVisible(recordToggleButton); // functionality not implemented yet
+void DiskSpaceMonitor::reset()
+{
+	lastUpdateTime = Time::getMillisecondCounterHiRes();
+	lastFreeSpace = ((RecordNode*) processor)->getDataDirectory().getBytesFreeOnVolume();
+}
 
-	dataPathLabel = new Label(CoreServices::getRecordingParentDirectory().getFullPathName());
-	dataPathLabel->setText(CoreServices::getRecordingParentDirectory().getFullPathName(), juce::NotificationType::dontSendNotification);
-	dataPathLabel->setTooltip(dataPathLabel->getText());
-    dataPathLabel->setMinimumHorizontalScale(0.7f);
-	dataPathLabel->setBounds(42,35,72,20);
-	dataPathLabel->setColour(Label::backgroundColourId, Colours::grey);
-	dataPathLabel->setColour(Label::backgroundWhenEditingColourId, Colours::white);
-	dataPathLabel->setJustificationType(Justification::centredLeft);
-	dataPathLabel->addListener(this);
-	addAndMakeVisible(dataPathLabel);
+void DiskSpaceMonitor::timerCallback()
+{
+	RecordNode* recordNode = (RecordNode*) processor;
 
-	dataPathButton = new UtilityButton("...", Font(12));
-	dataPathButton->setBounds(117, 35, 18, 20);
-	dataPathButton->addListener(this);
-	addAndMakeVisible(dataPathButton);
-
-	engineSelectCombo = new ComboBox("engineSelectCombo");
-	engineSelectCombo->setBounds(42, 66, 93, 20);
-
-	std::vector<RecordEngineManager*> engines = recordNode->getAvailableRecordEngines();
-
-	int defaultEngine = 0;
-
-	for (int i = 0; i < engines.size(); i++)
+	if (!recordNode->getParameter("directory")->isValid())
 	{
-		engineSelectCombo->addItem(engines[i]->getName(), i + 1);
+		setFillPercentage(95.0);
+		setTooltip("Invalid directory");
 
-		if (CoreServices::getDefaultRecordEngineId().equalsIgnoreCase(engines[i]->getID()))
-			defaultEngine = i + 1;
-
+		recordNode->getParameter("directory")->valueChanged();
+		return;
 	}
-	engineSelectCombo->setSelectedId(defaultEngine);
-	engineSelectCombo->addListener(this);
-	addAndMakeVisible(engineSelectCombo);
 
-	recordEventsLabel = new Label("recordEvents", "RECORD EVENTS");
-	recordEventsLabel->setBounds(40, 91, 80, 20);
-	recordEventsLabel->setFont(Font("Small Text", 10.0f, Font::plain));
-	addAndMakeVisible(recordEventsLabel);
+	recordNode->getParameter("directory")->valueChanged();
 
-	eventRecord = new RecordToggleButton(recordNode, getNameAndId() + " Event Recording Toggle Button");
-	eventRecord->setBounds(120, 93, 15, 15);
-	eventRecord->addListener(this);
-	eventRecord->setToggleState(1, sendNotification); //enable event recortding by default
-	addAndMakeVisible(eventRecord);
+	int64 bytesFree = recordNode->getDataDirectory().getBytesFreeOnVolume();
+	int64 volumeSize = recordNode->getDataDirectory().getVolumeTotalSize();
 
-	recordSpikesLabel = new Label("recordSpikes", "RECORD SPIKES");
-	recordSpikesLabel->setBounds(40, 108, 76, 20);
-	recordSpikesLabel->setFont(Font("Small Text", 10.0f, Font::plain));
-	addAndMakeVisible(recordSpikesLabel);
+	float ratio = float(bytesFree) / float(volumeSize);
+	if (ratio > 0)
+		setFillPercentage(1.0f - ratio);
 
-	spikeRecord = new RecordToggleButton(recordNode, getNameAndId() + " Spike Recording Toggle Button");
-	spikeRecord->setBounds(120, 110, 15, 15);
-	spikeRecord->addListener(this);
-	spikeRecord->setToggleState(1, sendNotification); //enable spike recording by default
-	addAndMakeVisible(spikeRecord);
+	float currentTime = Time::getMillisecondCounterHiRes();
 
-	/*
-	writeSpeedLabel = new Label("writeSpeedLabel", "WRITE SPEED");
-	writeSpeedLabel->setBounds(40, 102, 76, 20);
-	writeSpeedLabel->setFont(Font("Small Text", 10.0f, Font::plain));
-	addAndMakeVisible(writeSpeedLabel);
-	*/
-
-	desiredWidth = 150;
-
-    fifoDrawerButton->triggerClick();
-
-}
-
-void RecordNodeEditor::timerCallback()
-{
-	fifoDrawerButton->triggerClick();
-	stopTimer();
-	//fifoDrawerButton->setEnabled(false);
-}
-
-void RecordNodeEditor::startRecording()
-{
-
-    dataPathButton->setEnabled(false);
-    engineSelectCombo->setEnabled(false);
-    eventRecord->setEnabled(false);
-    spikeRecord->setEnabled(false);
-}
-    
-void RecordNodeEditor::stopRecording()
-{
-    dataPathButton->setEnabled(true);
-    engineSelectCombo->setEnabled(true);
-    eventRecord->setEnabled(true);
-    spikeRecord->setEnabled(true);
-}
-
-
-void RecordNodeEditor::comboBoxChanged(ComboBox* box)
-{
-
-	if (!recordNode->recordThread->isThreadRunning())
+	if (recordNode->getRecordingStatus())
 	{
-		int selectedEngineIndex = box->getSelectedId() - 1;
-
-		std::vector<RecordEngineManager*> engines = CoreServices::getAvailableRecordEngines();
-
-#ifdef _WIN32
-		if (engines[selectedEngineIndex]->getID().equalsIgnoreCase("OPENEPHYS") &&
-			recordNode->getNumInputs() > 300)
+		// Update data rate and recording time left every 30 seconds
+		if (currentTime - lastUpdateTime > 5000.0f)
 		{
+			dataRate = (lastFreeSpace - bytesFree) / (currentTime - lastUpdateTime); //bytes/ms
+			lastUpdateTime = currentTime;
+			lastFreeSpace = bytesFree;
 
-			int new_max = 0;
-			int calculated_max = recordNode->getNumInputs()
-								 + recordNode->getTotalEventChannels()
-								 + recordNode->getTotalSpikeChannels()
-								 + recordNode->getNumDataStreams() // 1 timestamp file per stream
-								 + 5; // 1 each for STDIN + STDOUT + STDERROR, 1 for message channel & 1 for structure.openephys file 
+			recordingTimeLeftInSeconds = bytesFree / dataRate / 1000.0f;
 
-			if (calculated_max < 8192)
-				new_max = _setmaxstdio(calculated_max);
-
-			if (new_max != calculated_max)
+			// Stop recording and show warning when less than 5 minutes of disk space left
+			if (dataRate > 0.0f && recordingTimeLeftInSeconds < (60.0f * 5.0f))
 			{
-				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
-					"WARNING", "Open Ephys format does not support this many simultaneously recorded channels. Resetting to Binary format.");
-				box->setSelectedItemIndex(0);
-				recordNode->setEngine("BINARY");
+				CoreServices::setRecordingStatus(false);
+				String msg = "Recording stopped. Less than 5 minutes of disk space remaining.";
+				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "WARNING", msg);
+			}
 
-				return;
+			if (dataRate > 0.0f)
+			{
+				String msg = String(bytesFree / pow(2, 30)) + " GB available\n";
+				msg += String(int(recordingTimeLeftInSeconds / 60.0f)) + " minutes remaining\n";
+				msg += "Data rate: " + String(dataRate * 1000 / pow(2, 20), 2) + " MB/s";
+				setTooltip(msg);
+
+				LOGD("Data rate: ", dataRate, " bytes/ms");
 			}
 		}
-#endif
-
-		recordNode->setEngine(engines[selectedEngineIndex]->getID());
-
-		CoreServices::saveRecoveryConfig();
-		CoreServices::createNewRecordingDirectory();
-	}
-
-}
-
-void RecordNodeEditor::setEngine(String id)
-{
-
-	int selectedIndex = 0;
-
-	for (auto engine : CoreServices::getAvailableRecordEngines())
-	{
-		selectedIndex++;
-
-		if (engine->getID().compare(id) == 0)
-			engineSelectCombo->setSelectedId(selectedIndex, dontSendNotification);
-	}
-}
-
-void RecordNodeEditor::updateFifoMonitors()
-{
-
-	LOGD("Update FIFO monitors 2.");
-	streamLabels.clear();
-	streamMonitors.clear();
-	streamRecords.clear();
-
-	int streamCount = 0;
-
-	if (recordNode->getNumDataStreams() == 0)
-		return;
-
-	LOGD("Update FIFO monitors 3.");
-
-	for (auto const& [streamId, channelStates] : recordNode->recordContinuousChannels)
-	{
-
-		LOGD("Update FIFO monitors 4.");
-		streamMonitors.add(new FifoMonitor(recordNode, streamId, recordNode->getDataStream(streamId)->getName()));
-		streamMonitors.getLast()->setBounds(18 + streamCount * 20, 32, 15, 73);
-		addAndMakeVisible(streamMonitors.getLast());
-		streamMonitors.getLast()->setVisible(false);
-
-		LOGD("Adding sync control button for stream id: ", streamId);
-        
-        const Array<EventChannel*> eventChannels = recordNode->getDataStream(streamId)->getEventChannels();
-
-        int nEvents;
-
-        if (eventChannels.size() > 0)
-            nEvents = eventChannels[0]->getMaxTTLBits();
-        else
-            nEvents = 1;
-        
-		streamRecords.add(new SyncControlButton(recordNode,
-                                                recordNode->getDataStream(streamId)->getName(),
-                                                streamId, nEvents));
-		streamRecords.getLast()->setBounds(18 + streamCount * 20, 110, 15, 15);
-		addAndMakeVisible(streamRecords.getLast());
-		streamRecords.getLast()->setVisible(false);
-
-		streamCount++;
-
-	}
-
-}
-
-void RecordNodeEditor::updateSettings()
-{
-    eventRecord->setToggleState(recordNode->recordEvents, dontSendNotification);
-    spikeRecord->setToggleState(recordNode->recordSpikes, dontSendNotification);
-    
-    dataPathLabel->setText(recordNode->getDataDirectory().getFullPathName(), dontSendNotification);
-
-}
-
-void RecordNodeEditor::buttonClicked(Button *button)
-{
-
-	if (button == recordToggleButton)
-	{
-		//TODO: Clicking on the master record monitor should do something useful in the future...
-	}
-	else if (button == eventRecord && !recordNode->recordThread->isThreadRunning())
-	{
-		recordNode->setRecordEvents(button->getToggleState());
-	}
-	else if (button == spikeRecord && !recordNode->recordThread->isThreadRunning())
-	{
-		recordNode->setRecordSpikes(button->getToggleState());
-	}
-	else if (button == fifoDrawerButton)
-	{
-		updateFifoMonitors();
-
-		showFifoMonitors(button->getToggleState());
-
-	}
-	else if (button == dataPathButton)
-	{
-		LOGD("Change data write directory!");
-
-		FileChooser chooseWriteDirectory ("Please select the location to write data to...",
-											File(dataPathLabel->getText()), "");
-
-		if (chooseWriteDirectory.browseForDirectory())
-		{
-			recordNode->setDataDirectory(chooseWriteDirectory.getResult());
-			dataPathLabel->setText(chooseWriteDirectory.getResult().getFullPathName(), juce::NotificationType::dontSendNotification);
-			dataPathLabel->setTooltip(dataPathLabel->getText());
-		}
-
-	}
-
-}
-
-void RecordNodeEditor::labelTextChanged(Label* label)
-{
-	if(label == dataPathLabel)
-	{
-		recordNode->setDataDirectory(label->getText());
-		label->setTooltip(label->getText());
-	}
-}
-
-void RecordNodeEditor::collapsedStateChanged()
-{
-
-	if (getCollapsedState())
-	{
-		for (auto streamLabel : streamLabels)
-			streamLabel->setVisible(false);
-		for (auto streamMonitor : streamMonitors)
-			streamMonitor->setVisible(false);
-		for (auto streamRecord : streamRecords)
-			streamRecord->setVisible(false);
 	}
 	else
 	{
-		for (auto spl : streamLabels)
-			spl->setVisible(monitorsVisible);
-		for (auto spm : streamMonitors)
-			spm->setVisible(monitorsVisible);
-		for (auto spr : streamRecords)
-			spr->setVisible(monitorsVisible);
+		setTooltip(String(bytesFree / pow(2, 30)) + " GB available");
 	}
 
-
+	repaint();
 }
 
-void RecordNodeEditor::setDataDirectory(String dir)
+RecordChannelsParameterEditor::RecordChannelsParameterEditor(RecordNode* rn, Parameter* param, int rowHeightPixels, int rowWidthPixels) 
+	: ParameterEditor(param), recordNode(rn)
 {
-	dataPathLabel->setText(dir, sendNotificationSync);
-}
+	int numChannels = ((MaskChannelsParameter*)param)->getChannelStates().size();
+    int selected = 0;
+    for (auto chan : ((MaskChannelsParameter*)param)->getChannelStates())
+		if (chan) selected++;
 
-void RecordNodeEditor::showFifoMonitors(bool show)
+	uint64 streamId = ((DataStream*)param->getOwner())->getStreamId();
+	String streamName  = ((DataStream*)param->getOwner())->getName();
+	String sourceNodeId = String(((DataStream*)param->getOwner())->getSourceNodeId());
+
+    monitor = std::make_unique<StreamMonitor>(recordNode, streamId);
+    monitor->setTooltip(sourceNodeId + " | " + streamName);
+	monitor->setComponentID(sourceNodeId + " | " + streamName);
+	monitor->addListener(this);
+	monitor->setBounds(0, 0, 15, 73);
+	addAndMakeVisible(monitor.get());
+
+	setBounds(0, 0, 15, 73);
+
+	editor = monitor.get();
+};
+
+void RecordChannelsParameterEditor::channelStateChanged(Array<int> newChannels)
 {
+    Array<var> newArray;
 
-	monitorsVisible = show;
+    for (int i = 0; i < newChannels.size(); i++)
+        newArray.add(newChannels[i]);
 
-	int offset;
+    param->setNextValue(newArray);
 
-	if (show)
-		numDataStreams = recordNode->getNumDataStreams();
-
-	int dX = 20 * (numDataStreams + 1);
-	dX = show ? dX : -dX;
-
-	fifoDrawerButton->setBounds(
-		fifoDrawerButton->getX() + dX, fifoDrawerButton->getY(),
-		fifoDrawerButton->getWidth(), fifoDrawerButton->getHeight());
-
-	diskSpaceLabel->setBounds(
-		diskSpaceLabel->getX() + dX, diskSpaceLabel->getY(),
-		diskSpaceLabel->getWidth(), diskSpaceLabel->getHeight());
-
-	diskSpaceMonitor->setBounds(
-		diskSpaceMonitor->getX() + dX, diskSpaceMonitor->getY(),
-		diskSpaceMonitor->getWidth(), diskSpaceMonitor->getHeight());
-
-	recordToggleButton->setBounds(
-		recordToggleButton->getX() + dX, recordToggleButton->getY(),
-		recordToggleButton->getWidth(), recordToggleButton->getHeight());
-
-	dataPathLabel->setBounds(
-		dataPathLabel->getX() + dX, dataPathLabel->getY(),
-		dataPathLabel->getWidth(), dataPathLabel->getHeight());
-
-	dataPathButton->setBounds(
-		dataPathButton->getX() + dX, dataPathButton->getY(),
-		dataPathButton->getWidth(), dataPathButton->getHeight());
-
-	engineSelectCombo->setBounds(
-		engineSelectCombo->getX() + dX, engineSelectCombo->getY(),
-		engineSelectCombo->getWidth(), engineSelectCombo->getHeight());
-
-	recordEventsLabel->setBounds(
-		recordEventsLabel->getX() + dX, recordEventsLabel->getY(),
-		recordEventsLabel->getWidth(), recordEventsLabel->getHeight());
-
-	eventRecord->setBounds(
-		eventRecord->getX() + dX, eventRecord->getY(),
-		eventRecord->getWidth(), eventRecord->getHeight());
-
-	recordSpikesLabel->setBounds(
-		recordSpikesLabel->getX() + dX, recordSpikesLabel->getY(),
-		recordSpikesLabel->getWidth(), recordSpikesLabel->getHeight());
-
-	spikeRecord->setBounds(
-		spikeRecord->getX() + dX, spikeRecord->getY(),
-		spikeRecord->getWidth(), spikeRecord->getHeight());
-
-	streamSelector->setBounds(
-		streamSelector->getX() + dX, streamSelector->getY(),
-		streamSelector->getWidth(), streamSelector->getHeight());
-
-
-	desiredWidth += dX;
-
-	if (getCollapsedState())
-		return;
-
-	for (auto spl : streamLabels)
-		spl->setVisible(show);
-	for (auto spm : streamMonitors)
-		spm->setVisible(show);
-	for (auto spr : streamRecords)
-		spr->setVisible(show);
-
-	CoreServices::highlightEditor(this);
-	deselect();
-
+    updateView();
 }
 
-FifoDrawerButton::FifoDrawerButton(const String &name) : DrawerButton(name)
+Array<int> RecordChannelsParameterEditor::getSelectedChannels()
 {
+	MaskChannelsParameter* p = (MaskChannelsParameter*)param;
+	std::vector<bool> channelStates = p->getChannelStates();
+
+	Array<int> selectedChannels;
+
+	for (int i = 0; i < channelStates.size(); i++)
+		if (channelStates[i])
+			selectedChannels.add(i);
+
+	return selectedChannels;
 }
 
-FifoDrawerButton::~FifoDrawerButton()
+void RecordChannelsParameterEditor::buttonClicked(Button* label)
 {
+    if (param == nullptr)
+        return;
+
+    MaskChannelsParameter* p = (MaskChannelsParameter*)param;
+
+    std::vector<bool> channelStates = p->getChannelStates();
+
+    auto* channelSelector = new PopupChannelSelector(label, this, channelStates);
+
+	channelSelector->setChannelButtonColour(param->getColor());
+
+	CoreServices::getPopupManager()->showPopup(std::unique_ptr<PopupComponent>(channelSelector), monitor.get());
+
+	/*
+    CallOutBox& myBox
+        = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(channelSelector),
+            editor->getScreenBounds(),
+            nullptr);
+	*/
 }
 
-void FifoDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+void RecordChannelsParameterEditor::updateView()
 {
-	g.setColour(Colour(110, 110, 110));
-	if (isMouseOver)
-		g.setColour(Colour(210, 210, 210));
-
-	//g.drawVerticalLine(3, 0.0f, getHeight());
-	g.drawVerticalLine(5, 0.0f, getHeight());
-	//g.drawVerticalLine(7, 0.0f, getHeight());
+	/* Do nothing, handled by StreamMonitor timerCallback */
 }
 
-RecordToggleButton::RecordToggleButton(RecordNode* _node, const String& name) : Button(name) {
-	setClickingTogglesState(true);
-	node = _node;
-    startTimer(200);
+void RecordChannelsParameterEditor::resized()
+{
+	updateBounds();
 }
+
+
+RecordToggleButton::RecordToggleButton(const String& name) : CustomToggleButton() {}
 
 RecordToggleButton::~RecordToggleButton() {}
 
-void RecordToggleButton::timerCallback()
-{
-    repaint();
-}
-
 void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
-
     g.setColour(Colour(0,0,0));
     g.fillRoundedRectangle(0,0,getWidth(),getHeight(),0.2*getWidth());
 
@@ -467,162 +222,218 @@ void RecordToggleButton::paintButton(Graphics &g, bool isMouseOver, bool isButto
 
     g.fillRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
 
-	/*Draw static black circle in center on top */
 	g.setColour(Colour(0,0,0));
 	g.fillEllipse(0.35*getWidth(), 0.35*getHeight(), 0.3*getWidth(), 0.3*getHeight());
-
 }
 
-FifoMonitor::FifoMonitor(RecordNode* node, uint16 streamId_, String streamName_) :
-	recordNode(node),
-	streamId(streamId_),
-	streamName(streamName_),
-	fillPercentage(0.0),
-    stateChangeSinceLastUpdate(false),
-	dataRate(0.0),
-	lastUpdateTime(0.0),
-	lastFreeSpace(0.0),
-	recordingTimeLeftInSeconds(0)
+RecordToggleParameterEditor::RecordToggleParameterEditor(Parameter* param) : ParameterEditor(param)
 {
-	startTimer(500);
+
+	label = std::make_unique<Label>("Parameter name", param->getDisplayName());
+    label->setFont(Font("Small Text", 12.0f, Font::plain));
+    label->setColour(Label::textColourId, Colours::black);
+    addAndMakeVisible(label.get());
+
+    toggleButton = std::make_unique<RecordToggleButton>(param->getDisplayName());//param->getDisplayName());
+    toggleButton->setClickingTogglesState (true);
+    toggleButton->setTooltip ("Toggle recording state on/off");
+    toggleButton->addListener(this);
+    toggleButton->setToggleState(true, dontSendNotification);
+	toggleButton->setBounds(50, 0, 15, 15);
+    addAndMakeVisible(toggleButton.get());
+
+    label->setBounds(0, 0, 100, 15);
+	toggleButton->setBounds(95, 0, 15, 15);
+
+	setBounds(0, 0, 150, 20);
+
+	editor = toggleButton.get();
 }
 
-/* RECORD CHANNEL SELECTOR LISTENER */
-void FifoMonitor::mouseDown(const MouseEvent &event)
+void RecordToggleParameterEditor::buttonClicked(Button*)
 {
-
-	// Ignore right-clicks...add functionality for right-clicks later...
-	if (event.mods.isRightButtonDown())
-		return;
-
-	if (streamId == 0) // Disk space box was selected
-		return;
-
-	LOGA("Show Record Node channel selector for stream ", streamName);
-
-	channelStates = recordNode->recordContinuousChannels[streamId];
-
-	bool editable = !recordNode->recordThread->isThreadRunning();
-    auto* channelSelector = new PopupChannelSelector(this, channelStates);
-	channelSelector->setChannelButtonColour(Colours::red);
-
-    CallOutBox& myBox
-        = CallOutBox::launchAsynchronously (std::unique_ptr<Component>(channelSelector), getScreenBounds(), nullptr);
-    
-    //myBox.addComponentListener(this);
-
+    param->setNextValue(toggleButton->getToggleState());
 }
-/* No longer called -- all updates happen before the callout box is closed
-void FifoMonitor::componentBeingDeleted(Component &component)
+
+void RecordToggleParameterEditor::updateView()
 {
-    // called when popup window closes
-    
-    LOGD("Record Node channel selector closed");
-    
-    if (stateChangeSinceLastUpdate)
+    if (param != nullptr)
+        toggleButton->setToggleState(param->getValue(), dontSendNotification);
+}
+
+void RecordToggleParameterEditor::resized()
+{
+    //toggleButton->setBounds(0, 0, 20, 20);
+}
+
+RecordNodeEditor::RecordNodeEditor(RecordNode* parentNode)
+	: GenericEditor(parentNode),
+	monitorsVisible(false), numDataStreams(0)
+{
+	desiredWidth = 165;
+
+	recordNode = parentNode;
+
+	fifoDrawerButton = new FifoDrawerButton(getNameAndId() + " Fifo Drawer Button");
+	fifoDrawerButton->setBounds(4, 40, 10, 78);
+	fifoDrawerButton->addListener(this);
+	addAndMakeVisible(fifoDrawerButton);
+
+	diskSpaceMonitor = new DiskSpaceMonitor(recordNode);
+	diskSpaceMonitor->setBounds(18, 33, 15, 92);
+	addAndMakeVisible(diskSpaceMonitor);
+
+	addPathParameterEditor(Parameter::PROCESSOR_SCOPE, "directory", 42, 32);
+	addComboBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "engine", 42, 57);
+
+	for (auto& p : {"directory", "engine"})
     {
-        CoreServices::updateSignalChain(recordNode->getEditor());
-        stateChangeSinceLastUpdate = false;
+        auto* ed = getParameterEditor(p);
+		ed->setLayout(ParameterEditor::Layout::nameHidden);
+        ed->setBounds(ed->getX(), ed->getY(), 110, ed->getHeight());
     }
 
+	addCustomParameterEditor(new RecordToggleParameterEditor(parentNode->getParameter("events")), 40, 85);
+	addCustomParameterEditor(new RecordToggleParameterEditor(parentNode->getParameter("spikes")), 40, 107);
+
+	// Show the fifo monitors by default
+    fifoDrawerButton->triggerClick();
+
 }
-*/
 
-void FifoMonitor::channelStateChanged(Array<int> selectedChannels)
+void RecordNodeEditor::timerCallback()
 {
-	for (int i = 0; i < channelStates.size(); i++)
-	{
-		if (selectedChannels.contains(i))
-			channelStates[i] = true;
-		else
-			channelStates[i] = false;
-	}
+	fifoDrawerButton->triggerClick();
+	stopTimer();
+}
 
-	recordNode->updateChannelStates(streamId, channelStates);
+void RecordNodeEditor::startRecording()
+{
+	diskSpaceMonitor->reset();
+}
     
-    stateChangeSinceLastUpdate = true;
-
+void RecordNodeEditor::stopRecording()
+{
 }
 
-
-void FifoMonitor::timerCallback()
-{
-
-	if (streamId == 0) /* Disk space monitor */
+void RecordNodeEditor::updateFifoMonitors()
+{	
+	auto removeExistingMonitors = [this](std::vector<ParameterEditor*>& monitors)
 	{
-		float bytesFree = (float) recordNode->getDataDirectory().getBytesFreeOnVolume();
-		float volumeSize = (float) recordNode->getDataDirectory().getVolumeTotalSize();
-
-		float ratio = bytesFree / volumeSize;
-
-		if (ratio > 0)
-			setFillPercentage(1.0f - ratio);
-
-		if (!recordingTimeLeftInSeconds)
-			setTooltip(String(bytesFree / pow(2, 30)) + " GB available");
-
-		float currentTime = Time::getMillisecondCounterHiRes();
-
-		// Update data rate and recording time left every 30 seconds
-		if (recordNode->getRecordingStatus() && currentTime - lastUpdateTime > 30000) {
-
-			if (lastUpdateTime == 0.0) {
-				lastUpdateTime = Time::getMillisecondCounterHiRes();
-				lastFreeSpace = bytesFree;
-			}
-			else
+		for (auto& monitor : monitors)
+		{
+			for (auto& ed : this->parameterEditors)
 			{
-				dataRate = (lastFreeSpace - bytesFree) / (currentTime - lastUpdateTime); //bytes/ms
-				lastUpdateTime = currentTime;
-				lastFreeSpace = bytesFree;
-
-				recordingTimeLeftInSeconds = (int) (bytesFree / dataRate / 1000.0f);
-
-				LOGD("Data rate: ", dataRate, " bytes/ms");
-
-				// Stop recording and show warning when less than 5 minutes of disk space left
-				if (dataRate > 0 && recordingTimeLeftInSeconds < 60*5) {
-					CoreServices::setRecordingStatus(false);
-					String msg = "Recording stopped. Less than 5 minutes of disk space remaining.";
-					AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "WARNING", msg);
+				if (ed == monitor)
+				{
+					removeChildComponent(monitor);
+					parameterEditors.removeObject(monitor);
 				}
-
-				String msg = String(bytesFree / pow(2, 30)) + " GB available\n";
-				msg += String(recordingTimeLeftInSeconds / 60) + " minutes remaining\n";
-				msg += "Data rate: " + String(dataRate * 1000 / pow(2, 20), 2) + " MB/s";
-				setTooltip(msg);
 			}
 		}
-	}
-	else /* Stream monitor */
+		monitors.clear();
+	};
+
+	removeExistingMonitors(streamMonitors);
+	removeExistingMonitors(syncMonitors);
+
+	int streamCount = 0;
+	for (auto& stream : recordNode->getDataStreams())
 	{
-		setTooltip(String(recordNode->getDataStream(streamId)->getSourceNodeId())+" | "+streamName);
-		setFillPercentage(recordNode->fifoUsage[streamId]);
+		uint64 streamId = stream->getStreamId();
+
+		// Add a recording channel selector for each stream
+		Parameter* channels = recordNode->getDataStream(streamId)->getParameter("channels");
+		recordNode->getDataStream(streamId)->setColor("channels", getLookAndFeel().findColour(ProcessorColor::IDs::RECORD_COLOR));
+		addCustomParameterEditor(new RecordChannelsParameterEditor(recordNode, channels), 18 + streamCount * 20, 32);
+		parameterEditors.getLast()->setVisible(!getCollapsedState());
+		parameterEditors.getLast()->disableUpdateOnSelectedStreamChanged();
+		streamMonitors.push_back(parameterEditors.getLast());
+
+		// Add a sync line selector for each stream
+		Parameter* syncLineParam = recordNode->getDataStream(streamId)->getParameter("sync_line");
+		Parameter* mainSyncParam = recordNode->getParameter("main_sync");
+		addSyncLineParameterEditor((TtlLineParameter*)syncLineParam, (SelectedStreamParameter*)mainSyncParam, 18 + streamCount * 20, 110);
+		parameterEditors.getLast()->setVisible(!getCollapsedState());
+		parameterEditors.getLast()->disableUpdateOnSelectedStreamChanged();
+		syncMonitors.push_back(parameterEditors.getLast());
+
+		streamCount++;
 	}
-
 }
 
-void FifoMonitor::setFillPercentage(float fill_)
+void RecordNodeEditor::collapsedStateChanged()
 {
-	fillPercentage = fill_;
-
-	repaint();
-}
-
-void FifoMonitor::paint(Graphics &g)
-{
-	g.setColour(Colours::grey);
-	g.fillRoundedRectangle(0, 0, this->getWidth(), this->getHeight(), 4);
-	g.setColour(Colours::lightslategrey);
-	g.fillRoundedRectangle(2, 2, this->getWidth() - 4, this->getHeight() - 4, 2);
-
-	if (fillPercentage < 0.7)
-		g.setColour(Colours::yellow);
-	else if (fillPercentage < 0.9)
-		g.setColour(Colours::orange);
+	if (getCollapsedState())
+	{
+		for (auto monitor : streamMonitors)
+			monitor->setVisible(false);
+		for (auto monitor : syncMonitors)
+			monitor->setVisible(false);
+	}
 	else
-		g.setColour(Colours::red);
+	{
+		for (auto monitor : streamMonitors)
+			monitor->setVisible(monitorsVisible);
+		for (auto monitor : syncMonitors)
+			monitor->setVisible(monitorsVisible);
+	}
+}
 
-	float barHeight = (this->getHeight() - 4) * fillPercentage;
-	g.fillRoundedRectangle(2, this->getHeight() - 2 - barHeight, this->getWidth() - 4, barHeight, 2);
+void RecordNodeEditor::updateSettings()
+{
+	updateFifoMonitors();
+	showFifoMonitors(fifoDrawerButton->getToggleState());
+}
+
+void RecordNodeEditor::buttonClicked(Button *button)
+{
+	if (button == fifoDrawerButton)
+	{
+		showFifoMonitors(button->getToggleState());
+	}
+}
+
+void RecordNodeEditor::showFifoMonitors(bool show)
+{
+	numDataStreams = recordNode->getNumDataStreams();
+
+	int dX = 20 * (numDataStreams + 1);
+	dX = show ? dX : 0;
+
+	fifoDrawerButton->setBounds(
+		4 + dX, fifoDrawerButton->getY(),
+		fifoDrawerButton->getWidth(), fifoDrawerButton->getHeight());
+
+	diskSpaceMonitor->setBounds(
+		18 + dX, diskSpaceMonitor->getY(),
+		diskSpaceMonitor->getWidth(), diskSpaceMonitor->getHeight());
+
+	for (auto& p : {"directory", "engine", "events", "spikes"})
+    {
+        auto* ed = getParameterEditor(p);
+        ed->setBounds(42 + dX, ed->getY(), ed->getWidth(), ed->getHeight());
+    }
+
+	desiredWidth = 165 + dX;
+
+	if (getCollapsedState())
+		return;
+
+	for (auto& monitor : streamMonitors)
+		monitor->setVisible(show);
+	for (auto monitor : syncMonitors)
+		monitor->setVisible(show);
+
+	CoreServices::highlightEditor(this);
+	deselect();
+}
+
+void FifoDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
+{
+	g.setColour(Colour(110, 110, 110));
+	if (isMouseOver)
+		g.setColour(Colour(210, 210, 210));
+
+	g.drawVerticalLine(5, 0.0f, getHeight());
 }

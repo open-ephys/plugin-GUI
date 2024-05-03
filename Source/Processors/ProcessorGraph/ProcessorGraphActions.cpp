@@ -54,6 +54,8 @@ AddProcessor::AddProcessor(Plugin::Description description_,
         destNodeId = destProcessor->getNodeId();
     else
         destNodeId = -1;
+    
+    mergerPath = -1;
 }
 
 AddProcessor::~AddProcessor()
@@ -82,14 +84,24 @@ bool AddProcessor::perform()
     {
         processor->parametersAsXml = settings;
         processor->loadFromXml();
-    }
 
-    if (processor != nullptr && !signalChainIsLoading)
-        processor->initialize(false);
+        if (processor != nullptr && !signalChainIsLoading)
+            processor->initialize(false);
+
+    }
     
     if (processor != nullptr)
     {
         nodeId = processor->getNodeId();
+        
+        if (destProcessor != nullptr && destProcessor->isMerger())
+        {
+            Merger* merger = (Merger*)destProcessor;
+            mergerPath = merger->getPath();
+        }
+
+        processorGraph->updateUndoableActions(nodeId);
+
         return true;
     }
     else
@@ -98,7 +110,7 @@ bool AddProcessor::perform()
 
 bool AddProcessor::undo()
 {
-    LOGD("Undoing ADD for processor ", nodeId);
+    LOGDD("Undoing ADD for processor ", nodeId);
 
     Array<GenericProcessor*> processorToDelete;
     
@@ -108,11 +120,20 @@ bool AddProcessor::undo()
     if (settings != nullptr)
         delete settings;
     
+    // GenericProcessor* destProcessor = processor->getDestNode();
+    // if (mergerPath != -1 && destProcessor != nullptr && destProcessor->isMerger())
+    // {
+    //     Merger* merger = (Merger*)destProcessor;
+    //     merger->switchIO(mergerPath);
+    // }
+    
     if (processor != nullptr)
     {
         settings = processorGraph->createNodeXml(processor, false);
 
         processorGraph->deleteNodes(processorToDelete);
+
+        processorGraph->reconnectProcessors(sourceNodeId, destNodeId);
     }
        
     return true;
@@ -120,12 +141,22 @@ bool AddProcessor::undo()
    
 
 PasteProcessors::PasteProcessors(Array<XmlElement*> copyBuffer_,
-    int insertionPoint_) :
+    int insertionPoint_,
+    GenericProcessor* sourceProcessor,
+    GenericProcessor* destProcessor) :
     processorGraph(AccessClass::getProcessorGraph()),
     insertionPoint(insertionPoint_),
     copyBuffer(copyBuffer_)
 {
-
+    if (sourceProcessor != nullptr)
+        sourceNodeId = sourceProcessor->getNodeId();
+    else
+        sourceNodeId = -1;
+    
+    if (destProcessor != nullptr)
+        destNodeId = destProcessor->getNodeId();
+    else
+        destNodeId = -1;
 }
 
 PasteProcessors::~PasteProcessors()
@@ -137,10 +168,11 @@ bool PasteProcessors::perform()
 {
     Array<GenericProcessor*> newProcessors;
     
-    for (int i = 0; i < copyBuffer.size(); i++)
+    // paste processors in reverse order so sources dont immediately create a new signal chain
+    for (int i = copyBuffer.size() - 1; i >= 0; i--)
     {
         newProcessors.add(processorGraph->createProcessorAtInsertionPoint(copyBuffer.getUnchecked(i),
-            insertionPoint++, true));
+            insertionPoint, true));
     }
 
     for (auto p : newProcessors)
@@ -171,6 +203,8 @@ bool PasteProcessors::undo()
 
     processorGraph->deleteNodes(processorsToDelete);
 
+    processorGraph->reconnectProcessors(sourceNodeId, destNodeId);
+
     nodeIds.clear();
 
     return true;
@@ -195,6 +229,16 @@ DeleteProcessor::DeleteProcessor(GenericProcessor* processor_)
         destNodeId = processor->getDestNode()->getNodeId();
     else
         destNodeId = -1;
+
+    if (destNodeId != -1 && processor->getDestNode()->isMerger())
+    {
+        Merger* merger = (Merger*)processor->getDestNode();
+        mergerPath = merger->getPath();
+    }
+    else
+    {
+        mergerPath = -1;
+    }
 }
 
 DeleteProcessor::~DeleteProcessor()
@@ -227,6 +271,12 @@ bool DeleteProcessor::undo()
     GenericProcessor* sourceProcessor = processorGraph->getProcessorWithNodeId(sourceNodeId);
     
     GenericProcessor* destProcessor = processorGraph->getProcessorWithNodeId(destNodeId);
+
+    if (mergerPath != -1 && destProcessor != nullptr && destProcessor->isMerger())
+    {
+        Merger* merger = (Merger*)destProcessor;
+        merger->switchIO(mergerPath);
+    }
     
     processor = processorGraph->createProcessor(description,
                                         sourceProcessor,
@@ -234,12 +284,21 @@ bool DeleteProcessor::undo()
                                         false);
     processor->parametersAsXml = settings.get();
 
+    if(processor->isMerger())
+    {
+        Merger* merger = (Merger*)processor;
+        merger->restoreConnections();
+    }
+
     processor->loadFromXml();
     
     processorGraph->updateSettings(processor);
     
     if (processor != nullptr)
+    {
+        processorGraph->updateUndoableActions(nodeId);
         return true;
+    }
     else
         return false;
 }
@@ -404,6 +463,9 @@ bool LoadSignalChain::perform()
     LOGDD("Performing load signal chain.");
 
     processorGraph->loadFromXml(newSettings.get());
+
+    for (auto &p : processorGraph->getListOfProcessors())
+        processorGraph->updateUndoableActions(p->getNodeId());
     
     return true;
 }

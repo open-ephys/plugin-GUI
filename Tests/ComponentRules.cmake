@@ -21,12 +21,11 @@ add_executable(
 target_compile_features(${COMPONENT_NAME}_tests PRIVATE cxx_std_17)
 
 
-add_dependencies(${COMPONENT_NAME}_tests gui_testable_source)
+add_dependencies(${COMPONENT_NAME}_tests gui_testable_source test_helpers)
 target_compile_definitions(${COMPONENT_NAME}_tests PRIVATE -DTEST_RUNNER)
-target_link_libraries(${COMPONENT_NAME}_tests PRIVATE gtest_main gui_testable_source)
-target_include_directories(${COMPONENT_NAME}_tests PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules)
+target_link_libraries(${COMPONENT_NAME}_tests PRIVATE gtest_main test_helpers gui_testable_source)
+target_include_directories(${COMPONENT_NAME}_tests PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules ${PLUGIN_HEADER_PATH} ${TEST_HELPERS_DIRECTORY}/include)
 add_test(NAME ${COMPONENT_NAME}_tests  COMMAND ${COMPONENT_NAME}_tests)
-
 
 set_property(TARGET ${COMPONENT_NAME}_tests PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${COMPONENT_NAME})
 

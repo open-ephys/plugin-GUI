@@ -10,7 +10,11 @@ add_sources(open-ephys
 	ParameterEditor.h
 	ParameterCollection.cpp
 	ParameterCollection.h
+	ParameterEditorOwner.cpp
+	ParameterEditorOwner.h
 	ParameterHelpers.h
+	ParameterOwner.cpp
+	ParameterOwner.h
 )
 
 #add nested directories

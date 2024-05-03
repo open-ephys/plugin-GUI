@@ -24,6 +24,7 @@
 #include "GenericProcessor.h"
 
 #include "../../AccessClass.h"
+#include "../../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../../Utils/Utils.h"
 #include "../Editors/GenericEditor.h"
 
@@ -47,9 +48,11 @@
 
 const String GenericProcessor::m_unusedNameString("xxx-UNUSED-OPEN-EPHYS-xxx");
 
+std::map<int, std::vector<OpenEphysAction*>> GenericProcessor::undoableActions;
+
 GenericProcessor::GenericProcessor(const String& name, bool headlessMode_)
 	: GenericProcessorBase(name)
-    , InfoObject(InfoObject::Type::PROCESSOR_INFO)
+    , ParameterOwner(ParameterOwner::Type::OTHER)
     , headlessMode(headlessMode_)
 	, sourceNode(nullptr)
 	, destNode(nullptr)
@@ -71,6 +74,7 @@ GenericProcessor::GenericProcessor(const String& name, bool headlessMode_)
 
 	addBooleanParameter(Parameter::STREAM_SCOPE,
         "enable_stream",
+        "Enable",
 		"Determines whether or not processing is enabled for a particular stream",
 		true, true);
 }
@@ -168,15 +172,17 @@ Array<Parameter*> GenericProcessor::getParameters(SpikeChannel* spikeChannel)
 void GenericProcessor::addBooleanParameter(
     Parameter::ParameterScope scope,
     const String& name,
+    const String& displayName,
 	const String& description,
 	bool defaultValue,
 	bool deactivateDuringAcquisition)
 {
 
 	BooleanParameter* p = new BooleanParameter(
-		this, 
+        scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
 		scope,
 		name, 
+        displayName,
 		description, 
 		defaultValue, 
 		deactivateDuringAcquisition);
@@ -190,6 +196,7 @@ void GenericProcessor::addBooleanParameter(
 void GenericProcessor::addCategoricalParameter(
     Parameter::ParameterScope scope,
     const String& name,
+    const String& displayName,
 	const String& description,
 	Array<String> categories,
 	int defaultIndex,
@@ -197,9 +204,10 @@ void GenericProcessor::addCategoricalParameter(
 {
 
 	CategoricalParameter* p = new CategoricalParameter(
-		this, 
+		scope == Parameter::PROCESSOR_SCOPE ? this : nullptr, 
 		scope,
 		name, 
+        displayName,
 		description, 
 		categories, 
 		defaultIndex, 
@@ -214,6 +222,7 @@ void GenericProcessor::addCategoricalParameter(
 void GenericProcessor::addIntParameter(
     Parameter::ParameterScope scope,
     const String& name,
+    const String& displayName,
     const String& description,
 	int defaultValue,
 	int minValue,
@@ -222,9 +231,11 @@ void GenericProcessor::addIntParameter(
 {
 
 	IntParameter* p = 
-		new IntParameter(this, 
+		new IntParameter(
+            scope == Parameter::PROCESSOR_SCOPE ? this : nullptr, 
 			scope,
 			name, 
+            displayName,
 			description, 
 			defaultValue, 
 			minValue, 
@@ -241,14 +252,17 @@ void GenericProcessor::addIntParameter(
 void GenericProcessor::addStringParameter(
     Parameter::ParameterScope scope,
     const String& name,
+    const String& displayName,
     const String& description,
     String defaultValue,
     bool deactivateDuringAcquisition)
 {
     StringParameter* p =
-        new StringParameter(this,
+        new StringParameter(
+            scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
             scope,
             name,
+            displayName,
             description,
             defaultValue,
             deactivateDuringAcquisition);
@@ -262,6 +276,7 @@ void GenericProcessor::addStringParameter(
 void GenericProcessor::addFloatParameter(
 	Parameter::ParameterScope scope,
     const String& name,
+    const String& displayName,
     const String& description,
     const String& unit,
 	float defaultValue,
@@ -272,9 +287,11 @@ void GenericProcessor::addFloatParameter(
 {
 
 	FloatParameter* p =
-		new FloatParameter(this,
+		new FloatParameter(
+            scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
 			scope,
 			name,
+            displayName,
 			description,
             unit,
 			defaultValue,
@@ -293,6 +310,7 @@ void GenericProcessor::addFloatParameter(
 void GenericProcessor::addMaskChannelsParameter(
 	Parameter::ParameterScope scope,
     const String& name,
+    const String& displayName,
     const String& description,
 	bool deactivateDuringAcquisition)
 {
@@ -300,9 +318,11 @@ void GenericProcessor::addMaskChannelsParameter(
 	Array<var> defaultValue;
 
 	MaskChannelsParameter* p =
-		new MaskChannelsParameter(this,
+		new MaskChannelsParameter(
+            scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
 			scope,
 			name,
+            displayName,
 			description,
 			deactivateDuringAcquisition);
 
@@ -312,11 +332,10 @@ void GenericProcessor::addMaskChannelsParameter(
         dataStreamParameters.add(p);
 }
 
-
-
 void GenericProcessor::addSelectedChannelsParameter(
     Parameter::ParameterScope scope,
     const String& name,
+    const String& displayName,
     const String& description,
     int maxSelectedChannels,
     bool deactivateDuringAcquisition)
@@ -325,9 +344,11 @@ void GenericProcessor::addSelectedChannelsParameter(
     Array<var> defaultValue;
 
     SelectedChannelsParameter* p =
-        new SelectedChannelsParameter(this,
+        new SelectedChannelsParameter(
+            scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
             scope,
             name,
+            displayName,
             description,
             defaultValue,
             maxSelectedChannels,
@@ -339,8 +360,130 @@ void GenericProcessor::addSelectedChannelsParameter(
         dataStreamParameters.add(p);
 }
 
+void GenericProcessor::addPathParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    const String& defaultValue,
+    const StringArray& validFileExtensions,
+    bool isDirectory,
+    bool deactivateDuringAcquisition)
+{
 
+    PathParameter* p =
+        new PathParameter(this,
+            scope,
+            name,
+            displayName,
+            description,
+            defaultValue,
+            validFileExtensions,
+            isDirectory,
+            deactivateDuringAcquisition);
 
+    if (scope == Parameter::PROCESSOR_SCOPE)
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
+}
+
+void GenericProcessor::addSelectedStreamParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    Array<String> streamNames,
+    const int defaultIndex,
+    bool deactivateDuringAcquisition)
+{
+
+    SelectedStreamParameter* p =
+        new SelectedStreamParameter(this,
+            scope,
+            name,
+            displayName,
+            description,
+            streamNames,
+            defaultIndex,
+            deactivateDuringAcquisition);
+
+    if (scope == Parameter::PROCESSOR_SCOPE)
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
+}
+
+void GenericProcessor::addTimeParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    const String& defaultValue,
+    bool deactivateDuringAcquisition)
+{
+
+    TimeParameter* p =
+        new TimeParameter(this,
+            scope,
+            name,
+            displayName,
+            description,
+            defaultValue,
+            deactivateDuringAcquisition);
+
+    if (scope == Parameter::PROCESSOR_SCOPE)
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
+}
+
+void GenericProcessor::addNotificationParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+	const String& description,
+	bool deactivateDuringAcquisition)
+{
+
+	NotificationParameter* p = new NotificationParameter(
+        scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
+		scope,
+		name, 
+        displayName,
+		description, 
+		deactivateDuringAcquisition);
+
+	if (scope == Parameter::PROCESSOR_SCOPE)
+        addParameter(p);
+    else if (scope == Parameter::STREAM_SCOPE)
+        dataStreamParameters.add(p);
+}
+
+void GenericProcessor::addTtlLineParameter(
+    Parameter::ParameterScope scope,
+    const String& name,
+    const String& displayName,
+    const String& description,
+    int maxTtlLines,
+    bool syncMode,
+    bool canSelectNone,
+    bool deactivateDuringAcquisition)
+{
+
+    TtlLineParameter* p = new TtlLineParameter(
+        scope == Parameter::PROCESSOR_SCOPE ? this : nullptr,
+        scope,
+        name, 
+        displayName,
+        description,
+        maxTtlLines,
+        syncMode,
+        canSelectNone,
+        deactivateDuringAcquisition);
+
+    dataStreamParameters.add(p);
+}
 
 void GenericProcessor::parameterChangeRequest(Parameter* param)
 {
@@ -396,11 +539,6 @@ void GenericProcessor::setSourceNode(GenericProcessor* sn)
     else
     {
         sourceNode = sn;
-        if(sourceNode != nullptr)
-        {
-            setSourceNodeId(sourceNode->getNodeId());
-            setSourceNodeName(sourceNode->getName());
-        }
     }
 }
 
@@ -479,7 +617,7 @@ void GenericProcessor::clearSettings()
     configurationObjects.clearQuick(false);
     configurationObjects.addArray(configurationObjectsToKeep);
 
-    Array<DataStream*> dataStreamsToKeep;
+    Array<DataStream*> dataStreamsToDelete;
 
     
     for (auto obj : dataStreams)
@@ -492,20 +630,19 @@ void GenericProcessor::clearSettings()
             //std::cout << "SAVING STREAM PARAMETERS" << std::endl;
             savedDataStreamParameters.getLast()->copyParametersFrom(obj);
             
-            delete obj;
-        } else {
-            dataStreamsToKeep.add(obj);
+            dataStreamsToDelete.add(obj);
         }
             
     }
     
-    dataStreams.clearQuick(false);
-    dataStreams.addArray(dataStreamsToKeep);
+    for(auto obj : dataStreamsToDelete)
+        dataStreams.removeObject(obj, true);
 
     ttlEventChannel = nullptr;
 
 	startTimestampsForBlock.clear();
     startSamplesForBlock.clear();
+    syncStreamIds.clear();
 	numSamplesInBlock.clear();
 	processStartTimes.clear();
 
@@ -520,7 +657,7 @@ void GenericProcessor::setStreamEnabled(uint16 streamId, bool isEnabled)
 int GenericProcessor::findMatchingStreamParameters(DataStream* stream)
 {
 
-   // std::cout << "Finding best matching saved parameters for " << stream->getName() << " (" << stream->getNodeId() << ")" << std::endl;
+    // LOGDD("Finding best matching saved parameters for ", stream->getName(), " (", stream->getNodeId(), ")");
     
     for (int i = 0; i < savedDataStreamParameters.size(); i++)
     {
@@ -769,7 +906,6 @@ int GenericProcessor::copyDataStreamSettings(const DataStream* stream, int conti
 void GenericProcessor::updateDisplayName(String name)
 {
 	m_name = name;
-    InfoObject::setName(name);
 }
 
 
@@ -787,7 +923,7 @@ void GenericProcessor::update()
    
     if (!isMerger()) // only has one source
     {
-        if (sourceNode != nullptr)
+        if (sourceNode != nullptr && !sourceNode->isEmpty())
         {
             int continuousChannelGlobalIndex = 0;
 
@@ -814,16 +950,9 @@ void GenericProcessor::update()
                     }
                     
                 }
-            } else if (sourceNode->isMerger())
+            } 
+            else 
             {
-                Merger* merger = (Merger*) sourceNode;
-
-                for (auto stream : merger->getStreamsForDestNode(this))
-                {
-                    continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
-                }
-            }
-            else {
                 for (auto stream : sourceNode->getStreamsForDestNode(this))
                 {
                     continuousChannelGlobalIndex = copyDataStreamSettings(stream, continuousChannelGlobalIndex);
@@ -841,7 +970,7 @@ void GenericProcessor::update()
                 isEnabled = false;
                 
         }
-        else
+        else if (!isEmpty())
         {
             // connect first processor in signal chain to message center
            // messageChannel.reset();
@@ -852,7 +981,10 @@ void GenericProcessor::update()
             messageChannel->addProcessor(this);
             messageChannel->setDataStream(AccessClass::getMessageCenter()->getMessageStream());
 
-            if (!isSource())
+            // If Source call updateSettings immediately
+            if (isSource())
+                updateSettings();
+            else
                 isEnabled = false;
 
             LOGD(getNodeId(), " connected to Message Center");
@@ -865,6 +997,23 @@ void GenericProcessor::update()
 	updateChannelIndexMaps();
 
     LOGD("    Copied upstream settings in ", MS_FROM_START, " milliseconds");
+
+    /// UPDATE PROCESSOR PARAMETERS
+    if (!isSource() && numParameters() > 0)
+    {
+        for (auto param : getParameters())
+        {
+            if (param->getType() == Parameter::SELECTED_STREAM_PARAM)
+            {
+                Array<String> streamNames;
+                for (auto stream : dataStreams)
+                    streamNames.add(stream->getKey());
+                SelectedStreamParameter* p = (SelectedStreamParameter*)param;
+                p->setStreamNames(streamNames);
+                parameterValueChanged(p);
+            }
+        }
+    }
 
     /// UPDATE PARAMETERS FOR STREAMS
 	for (auto stream : dataStreams)
@@ -906,29 +1055,41 @@ void GenericProcessor::update()
                 else if (param->getType() == Parameter::SELECTED_CHANNELS_PARAM)
                 {
                     SelectedChannelsParameter* p = (SelectedChannelsParameter*)param;
-                    SelectedChannelsParameter* p2 = new SelectedChannelsParameter(this,
-                                                                            p->getScope(),
-                                                                            p->getName(),
-                                                                            p->getDescription(),
-                                                                            p->getValue(),
-                                                                            p->getMaxSelectableChannels(),
-                                                                            p->shouldDeactivateDuringAcquisition());
-                    
-                    p2->setChannelCount(stream->getChannelCount());
-                    //LOGD("GenericProcessor::update() Adding SelectedChannelsParameter to stream ", stream->getStreamId(), " with ", stream->getChannelCount(), " channels");
-
+                    SelectedChannelsParameter* p2 = new SelectedChannelsParameter(*p);
                     stream->addParameter(p2);
+                    p2->setChannelCount(stream->getChannelCount());
                 }
                 else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
                 {
                     MaskChannelsParameter* p = (MaskChannelsParameter*)param;
-                    MaskChannelsParameter* p2 = new MaskChannelsParameter(this,
-                                                                            p->getScope(),
-                                                                            p->getName(),
-                                                                            p->getDescription(),
-                                                                            p->shouldDeactivateDuringAcquisition());
-                    p2->setChannelCount(stream->getChannelCount());
+                    MaskChannelsParameter* p2 = new MaskChannelsParameter(*p);
                     stream->addParameter(p2);
+                    p2->setChannelCount(stream->getChannelCount());
+                }
+                else if (param->getType() == Parameter::PATH_PARAM)
+                {
+                    PathParameter* p = (PathParameter*)param;
+                    stream->addParameter(new PathParameter(*p));
+                }
+                else if (param->getType() == Parameter::SELECTED_STREAM_PARAM)
+                {
+                    SelectedStreamParameter* p = (SelectedStreamParameter*)param;
+                    stream->addParameter(new SelectedStreamParameter(*p));
+                }
+                else if (param->getType() == Parameter::TIME_PARAM)
+                {
+                    TimeParameter* p = (TimeParameter*)param;
+                    stream->addParameter(new TimeParameter(*p));
+                }
+                else if (param->getType() == Parameter::NOTIFICATION_PARAM)
+                {
+                    NotificationParameter* p = (NotificationParameter*)param;
+                    stream->addParameter(new NotificationParameter(*p));
+                }
+                else if (param->getType() == Parameter::TTL_LINE_PARAM)
+                {
+                    TtlLineParameter* p = (TtlLineParameter*)param;
+                    stream->addParameter(new TtlLineParameter(*p));
                 }
             }
         }
@@ -940,12 +1101,13 @@ void GenericProcessor::update()
                 {
                     SelectedChannelsParameter* p = (SelectedChannelsParameter*) stream->getParameter(param->getName());
                     p->setChannelCount(stream->getChannelCount());
-                    //LOGD("GenericProcessor::update() Setting SelectedChannelsParameter channel count for ", stream->getStreamId(), " to ", stream->getChannelCount(), " channels");
+                    LOGD("GenericProcessor::update() Setting SelectedChannelsParameter channel count for ", stream->getStreamId(), " to ", stream->getChannelCount(), " channels");
 
                 } else if (param->getType() == Parameter::MASK_CHANNELS_PARAM)
                 {
                     MaskChannelsParameter* p = (MaskChannelsParameter*) stream->getParameter(param->getName());
                     p->setChannelCount(stream->getChannelCount());
+                    LOGD("GenericProcessor::update() Setting MaskChannelsParameter channel count for ", stream->getStreamId(), " to ", stream->getChannelCount(), " channels");
 
                 }
             }
@@ -960,9 +1122,8 @@ void GenericProcessor::update()
 
             if (index > -1)
             {
-                //LOGD("GenericProcessor::update() Copying savedDataStreamParameters for ", stream->getStreamId());
-
-                //std::cout << "COPYING STREAM PARAMETERS TO" << std::endl;
+                LOGD("GenericProcessor::update() Copying savedDataStreamParameters for ", stream->getStreamId());
+                LOGD("COPYING STREAM PARAMETERS TO");
                 savedDataStreamParameters[index]->copyParametersTo(stream);
                 savedDataStreamParameters.remove(index);
             }
@@ -1005,7 +1166,7 @@ void GenericProcessor::update()
 
     LOGG("    Copied parameters in ", MS_FROM_START, " milliseconds");
 
-    if (!isMerger())
+    if (!isMerger() && !isSource())
         updateSettings(); // allow processors to change custom settings,
                           // including creation of streams / channels and
                           // setting isEnabled variable
@@ -1122,7 +1283,8 @@ double GenericProcessor::getFirstTimestampForBlock(uint16 streamId) const
 void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
                                               double timestamp,
                                               uint32 nSamples,
-                                              uint16 streamId)
+                                              uint16 streamId,
+                                              uint16 syncStreamId)
 {
     
 	HeapBlock<char> data;
@@ -1132,7 +1294,8 @@ void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
         sampleNumber,
         timestamp,
 		nSamples,
-		m_initialProcessTime);
+		m_initialProcessTime,
+        syncStreamId);
 
     
 
@@ -1141,6 +1304,7 @@ void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
 	//since the processor generating the timestamp won't get the event, add it to the map
     startTimestampsForBlock[streamId] = timestamp;
     startSamplesForBlock[streamId] = sampleNumber;
+    syncStreamIds[streamId] = syncStreamId;
 	processStartTimes[streamId] = m_initialProcessTime;
 
 }
@@ -1174,7 +1338,7 @@ int GenericProcessor::processEventBuffer()
 			{
 				uint16 sourceProcessorId = *reinterpret_cast<const uint16*>(dataptr + 2);
 				uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
-				uint32 sourceChannelIndex = *reinterpret_cast<const uint16*>(dataptr + 6);
+				uint16 syncStreamId = *reinterpret_cast<const uint16*>(dataptr + 6);
                 
 				int64 startSample = *reinterpret_cast<const int64*>(dataptr + 8);
                 double startTimestamp = *reinterpret_cast<const double*>(dataptr + 16);
@@ -1186,6 +1350,7 @@ int GenericProcessor::processEventBuffer()
 				
                 startSamplesForBlock[sourceStreamId] = startSample;
                 startTimestampsForBlock[sourceStreamId] = startTimestamp;
+				syncStreamIds[sourceStreamId] = syncStreamId;
                 numSamplesInBlock[sourceStreamId] = nSamples;
 				processStartTimes[sourceStreamId] = initialTicks;
 					
@@ -1196,9 +1361,11 @@ int GenericProcessor::processEventBuffer()
                 uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
                 uint8 eventBit = *reinterpret_cast<const uint8*>(dataptr + 24);
                 bool eventState = *reinterpret_cast<const bool*>(dataptr + 25);
-                
-                getEditor()->setTTLState(sourceStreamId, eventBit, eventState);
-                
+
+                if (!headlessMode) {
+                    getEditor()->setTTLState(sourceStreamId, eventBit, eventState);
+                }
+
             } else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT
             && static_cast<EventChannel::Type>(*(dataptr + 1) == EventChannel::Type::TEXT))
             {
@@ -1372,6 +1539,11 @@ void GenericProcessor::broadcastMessage(String msg)
 	AccessClass::getMessageCenter()->broadcastMessage(msg);
 }
 
+void GenericProcessor::sendConfigMessage(GenericProcessor* destination, String message) {
+    AccessClass::getProcessorGraph()->sendConfigMessage(destination, message);
+}
+
+
 void GenericProcessor::addSpike(const Spike* spike)
 {
 	size_t size = SPIKE_BASE_SIZE
@@ -1509,6 +1681,16 @@ DataStream* GenericProcessor::getDataStream(uint16 streamId) const
 	return dataStreamMap.at(streamId);
 }
 
+DataStream* GenericProcessor::getDataStream(String streamKey) const
+{
+    for (auto stream : dataStreams)
+    {
+        if (stream->getKey() == streamKey)
+            return stream;
+    }
+    return nullptr;
+}
+
 uint16 GenericProcessor::findSimilarStream(int sourceNodeId, String name, float sample_rate, bool sourceNodeIdMustMatch)
 {
 
@@ -1611,7 +1793,7 @@ void GenericProcessor::saveToXml(XmlElement* xml)
 {
 	xml->setAttribute("nodeId", nodeId);
     
-    XmlElement* paramsXml = xml->createNewChildElement("GLOBAL_PARAMETERS");
+    XmlElement* paramsXml = xml->createNewChildElement("PROCESSOR_PARAMETERS");
     
     for (auto param : getParameters())
     {
@@ -1680,13 +1862,14 @@ void GenericProcessor::loadFromXml()
 	if (parametersAsXml != nullptr)
 	{
 
-        LOGG("Loading parameters for ", getName(), " (", getNodeId(), ")");
+        LOGD("Loading parameters for ", getName(), " (", getNodeId(), ")");
 
         int64 start = Time::getHighResolutionTicks();
 
         for (auto* xmlNode : parametersAsXml->getChildIterator())
         {
-            if (xmlNode->hasTagName("GLOBAL_PARAMETERS"))
+            // Check for procesor-scoped parameter attributes
+            if (xmlNode->hasTagName("PROCESSOR_PARAMETERS") || xmlNode->hasTagName("GLOBAL_PARAMETERS"))
             {
                 for (int i = 0; i < xmlNode->getNumAttributes(); i++)
                 {
@@ -1722,49 +1905,42 @@ void GenericProcessor::loadFromXml()
                             if (dataStreams[0]->hasParameter(name))
                             {
                                 parameter = dataStreams[0]->getParameter(name);
-                                parameter->fromXml(streamParams);
 
                                 if (parameter->getType() == Parameter::INT_PARAM)
                                 {
                                     IntParameter* p = (IntParameter*)parameter;
                                     IntParameter* p2 = new IntParameter(*p);
+                                    p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::BOOLEAN_PARAM)
                                 {
                                     BooleanParameter* p = (BooleanParameter*)parameter;
                                     BooleanParameter* p2 = new BooleanParameter(*p);
+                                    p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::STRING_PARAM)
                                 {
                                     StringParameter* p = (StringParameter*)parameter;
                                     StringParameter* p2 = new StringParameter(*p);
+                                    p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::SELECTED_CHANNELS_PARAM)
                                 {
                                     SelectedChannelsParameter* p = (SelectedChannelsParameter*)parameter;
                                     
-                                    SelectedChannelsParameter* p2 = new SelectedChannelsParameter(this,
-                                                                                          p->getScope(),
-                                                                                          p->getName(),
-                                                                                          p->getDescription(),
-                                                                                          p->getValue(),
-                                                                                          p->getMaxSelectableChannels(),
-                                                                                          p->shouldDeactivateDuringAcquisition());
+                                    SelectedChannelsParameter* p2 = new SelectedChannelsParameter(*p);
+                                    p2->setChannelCount(parameterCollection->owner.channel_count);
                                     p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::MASK_CHANNELS_PARAM)
                                 {
                                     MaskChannelsParameter* p = (MaskChannelsParameter*)parameter;
-                                    MaskChannelsParameter* p2 = new MaskChannelsParameter(this,
-                                                                                          p->getScope(),
-                                                                                          p->getName(),
-                                                                                          p->getDescription(),
-                                                                                          p->shouldDeactivateDuringAcquisition());
-                                    p2->setChannelCount(4096); // max number of channels per stream
+                                    MaskChannelsParameter* p2 = new MaskChannelsParameter(*p);
+                                    p2->setChannelCount(parameterCollection->owner.channel_count);
                                     p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }
@@ -1772,13 +1948,48 @@ void GenericProcessor::loadFromXml()
                                 {
                                     CategoricalParameter* p = (CategoricalParameter*)parameter;
                                     CategoricalParameter* p2 = new CategoricalParameter(*p);
+                                    p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
                                 }
                                 else if (parameter->getType() == Parameter::FLOAT_PARAM)
                                 {
                                     FloatParameter* p = (FloatParameter*)parameter;
                                     FloatParameter* p2 = new FloatParameter(*p);
+                                    p2->fromXml(streamParams);
                                     parameterCollection->addParameter(p2);
+                                }
+                                else if (parameter->getType() == Parameter::PATH_PARAM)
+                                {
+                                    LOGD("Loading path parameter: ", name);
+                                    PathParameter* p = (PathParameter*)parameter;
+                                    PathParameter* p2 = new PathParameter(*p);
+                                    p2->fromXml(streamParams);
+                                    parameterCollection->addParameter(p2);
+                                }
+                                else if (parameter->getType() == Parameter::SELECTED_STREAM_PARAM)
+                                {
+                                    SelectedStreamParameter* p = (SelectedStreamParameter*)parameter;
+                                    SelectedStreamParameter* p2 = new SelectedStreamParameter(*p);
+                                    p2->fromXml(streamParams);
+                                    parameterCollection->addParameter(p2);
+                                }
+                                else if (parameter->getType() == Parameter::TIME_PARAM)
+                                {
+                                    TimeParameter* p = (TimeParameter*)parameter;
+                                    TimeParameter* p2 = new TimeParameter(*p);
+                                    p2->fromXml(streamParams);
+                                    parameterCollection->addParameter(p2);
+                                }
+                                else if (parameter->getType() == Parameter::TTL_LINE_PARAM)
+                                {
+                                    TtlLineParameter* p = (TtlLineParameter*)parameter;
+                                    TtlLineParameter* p2 = new TtlLineParameter(*p);
+                                    p2->fromXml(streamParams);
+                                    parameterCollection->addParameter(p2);
+                                }
+                                else
+                                {
+                                    jassertfalse;
                                 }
                             }
                             else
@@ -1804,14 +2015,25 @@ void GenericProcessor::loadFromXml()
                 {
                     savedDataStreamParameters[index]->copyParameterValuesTo(stream);
 
-                    for (auto param : savedDataStreamParameters[index]->getParameters())
+                    for (auto param : stream->getParameters())
                     {
+                        // TODO: This is necessary to prevent crash when undoing DeleteProcessor
+                        // 
+                        if (param->getOwner() == nullptr) continue;
+                        
+                        parameterValueChanged(param);
+                        
+                        //LOGD("Stream: ", stream->getName());
+                        /*
                         if (param->getName() == "enable_stream" && isFilter())
                         {
-                            getEditor()->streamEnabledStateChanged(stream->getStreamId(),
-                                (bool)param->getValue(),
-                                true);
+                            if(!headlessMode) {
+                                getEditor()->streamEnabledStateChanged(stream->getStreamId(),
+                                                                       (bool)param->getValue(),
+                                                                       true);
+                            }
                         }
+                         */
                             
                     }
 
@@ -1869,6 +2091,7 @@ bool GenericProcessor::isMerger()        const  { return getProcessorType() == P
 bool GenericProcessor::isAudioMonitor()  const  { return getProcessorType() == Plugin::Processor::AUDIO_MONITOR; }
 bool GenericProcessor::isUtility()       const  { return getProcessorType() == Plugin::Processor::UTILITY; }
 bool GenericProcessor::isRecordNode()    const  { return getProcessorType() == Plugin::Processor::RECORD_NODE; }
+bool GenericProcessor::isEmpty()         const  { return getProcessorType() == Plugin::Processor::EMPTY; }
 
 Plugin::Processor::Type GenericProcessor::getProcessorType() const
 {
@@ -1883,8 +2106,10 @@ String GenericProcessor::getProcessorTypeString() const
         return "Sink";
     else if (isFilter())
         return "Filter";
-    else
+    else if (isUtility())
         return "Utility";
+    else
+        return "Empty";
 }
 
 Plugin::Processor::Type GenericProcessor::typeFromString(String typeName)

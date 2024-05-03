@@ -104,6 +104,11 @@ void SourceNode::initialize(bool signalChainIsLoading)
     dataThread->initialize(signalChainIsLoading);
 }
 
+void SourceNode::registerParameters()
+{
+    dataThread->registerParameters();
+}
+
 
 void SourceNode::requestSignalChainUpdate()
 {
@@ -144,6 +149,12 @@ void SourceNode::updateSettings()
         LOGD(getName(), " isEnabled = ", isEnabled, " (updateSettings)");
 
 	}
+}
+
+
+void SourceNode::parameterValueChanged(Parameter* parameter)
+{
+    dataThread->parameterValueChanged(parameter);
 }
 
 
@@ -297,6 +308,11 @@ void SourceNode::broadcastDataThreadMessage(String msg)
 {
     broadcastMessage(msg);
 }
+
+void SourceNode::sendDataThreadConfigMessage(GenericProcessor* destProcessor, String msg) {
+    sendConfigMessage(destProcessor, msg);
+}
+
 
 void SourceNode::process(AudioBuffer<float>& buffer)
 {

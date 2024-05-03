@@ -25,6 +25,7 @@
 #define __CUSTOMLOOKANDFEEL_H_6B021009__
 
 #include <JuceHeader.h>
+#include "../../TestableExport.h"
 
 namespace ProcessorColor {
     enum IDs
@@ -35,7 +36,8 @@ namespace ProcessorColor {
         SOURCE_COLOR = 804,
         UTILITY_COLOR = 805,
         RECORD_COLOR = 806,
-        AUDIO_COLOR = 807
+        AUDIO_COLOR = 807,
+        SYNC_COLOR = 808
     };
 }
 
@@ -46,6 +48,7 @@ namespace ThemeColors {
         controlPanelButtonColorId,
         controlPanelButtonOnColorId,
         graphViewerBackgroundColorId,
+        editorViewportBackgroundColorId,
         editorGradientColorId1,
         editorGradientColorId2,
         editorGradientColorId3
@@ -69,7 +72,7 @@ enum ColorTheme
 
 */
 
-class CustomLookAndFeel : public LookAndFeel_V2
+class TESTABLE CustomLookAndFeel : public LookAndFeel_V2
 {
 public:
 
@@ -159,6 +162,8 @@ public:
     
     Font getComboBoxFont (ComboBox& box) override;
 
+    void positionComboBoxText (juce::ComboBox& box, juce::Label& label) override;
+
     // ========= custom popup menu & menu bar methods: ===========================
 
     void drawPopupMenuBackground (Graphics&, int width, int height);
@@ -206,6 +211,23 @@ public:
     Font getAlertWindowTitleFont() override;
     Font getAlertWindowMessageFont() override;
     Font getAlertWindowFont() override;
+    
+    // ======== custom TabButton methods: ================================
+    
+    int getTabButtonSpaceAroundImage() override;
+    int getTabButtonOverlap (int tabDepth) override;
+    int getTabButtonBestWidth (TabBarButton&, int tabDepth) override;
+    juce::Rectangle<int> getTabButtonExtraComponentBounds (const TabBarButton&, juce::Rectangle<int>& textArea, Component& extraComp) override;
+
+    void drawTabButton (TabBarButton&, Graphics&, bool isMouseOver, bool isMouseDown) override;
+    Font getTabButtonFont (TabBarButton&, float height) override;
+    void drawTabButtonText (TabBarButton&, Graphics&, bool isMouseOver, bool isMouseDown) override;
+    void drawTabbedButtonBarBackground (TabbedButtonBar&, Graphics&) override;
+    void drawTabAreaBehindFrontButton (TabbedButtonBar&, Graphics&, int w, int h) override;
+
+    void createTabButtonShape (TabBarButton&, Path&,  bool isMouseOver, bool isMouseDown) override;
+    void fillTabButtonShape (TabBarButton&, Graphics&, const Path&, bool isMouseOver, bool isMouseDown) override;
+    
 
 private:
 

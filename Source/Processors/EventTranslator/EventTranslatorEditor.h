@@ -47,12 +47,8 @@ public:
     /** Updates settings when signal chain is updated */
     void updateSettings() override;
 
-  
-
 private:
    
-    OwnedArray<SyncControlButton> buttons;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EventTranslatorEditor);
 };
 

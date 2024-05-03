@@ -50,6 +50,9 @@ public:
     /* Create a custom editor. */
     AudioProcessorEditor* createEditor() override;
 
+    /** Registers the parameters for a given processor */
+    void registerParameters() override;
+
     /* Copies samples from the DataThread's DataBuffer into the GUI's processing buffers. */
     void process (AudioBuffer<float>& buffer) override;
 
@@ -61,6 +64,10 @@ public:
 
     /* Broadcasts a message from the DataThread to all other processors*/
     void broadcastDataThreadMessage(String msg);
+    
+    /* Sends a config message from the DataThread to another processor while
+     acquisition is paused. Should only be used by a SourceNode's DataThread*/
+    void sendDataThreadConfigMessage(GenericProcessor* destProcessor, String msg);
 
     /* Gets the sample rate for a particular subprocessor*/
     float getSampleRate(int subProcessorIdx = 0) const override;
@@ -94,6 +101,9 @@ public:
 
     /** Passes initialize command to the DataThread*/
     void initialize(bool signalChainIsLoading) override;
+
+    /** Called when a parameter value is updated, to allow plugin-specific responses*/
+    void parameterValueChanged(Parameter*) override;
     
 private:
 

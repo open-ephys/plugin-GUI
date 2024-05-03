@@ -29,6 +29,7 @@
 #include "GenericProcessorBase.h"
 
 #include "../Parameter/Parameter.h"
+#include "../Parameter/ParameterOwner.h"
 #include "../../CoreServices.h"
 #include "../PluginManager/PluginClass.h"
 #include "../../Processors/Dsp/LinearSmoothedValueAtomic.h"
@@ -42,6 +43,8 @@
 
 #include "../Events/Event.h"
 #include "../Events/Spike.h"
+
+#include "../Actions/OpenEphysAction.h"
 
 #include <time.h>
 #include <stdio.h>
@@ -58,7 +61,7 @@ class GenericProcessorBase;
 class GenericEditor;
 
 class ConfigurationObject;
-class InfoObject;
+class ParameterOwner;
 class DeviceInfo;
 
 class Spike;
@@ -82,7 +85,7 @@ namespace AccessClass
 */
 class PLUGIN_API GenericProcessor   : public GenericProcessorBase
                                     , public PluginClass
-                                    , public InfoObject
+                                    , public ParameterOwner
 {
 	friend AccessClass::ExternalProcessorAccessor;
     friend class RecordEngine;
@@ -164,6 +167,9 @@ public:
     /** Sets the unique integer ID for a processor. */
     void setNodeId (int id);
 
+    /** Registers the parameters for a given processor */
+    virtual void registerParameters() {};
+
     // --------------------------------------------
     //       CREATING THE EDITOR
     // --------------------------------------------
@@ -232,6 +238,9 @@ public:
     /** Returns true if a processor is a record node, false otherwise. */
     bool isRecordNode() const;
 
+    /** Returns true if a processor is an Empty processor, false otherwise. */
+    bool isEmpty() const;
+
     /** Returns true if a processor is able to send its output to a given processor.
 
         Ideally, this should always return true, but there may be special cases
@@ -266,13 +275,14 @@ public:
     //     PARAMETERS
     // --------------------------------------------
 
-    using InfoObject::addParameter;
-    using InfoObject::getParameter;
-    using InfoObject::getParameters;
+    using ParameterOwner::addParameter;
+    using ParameterOwner::getParameter;
+    using ParameterOwner::getParameters;
 
     /** Adds a boolean parameter, which will later be accessed by name*/
     void addBooleanParameter(Parameter::ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         bool defaultValue,
         bool deactivateDuringAcquisition = false);
@@ -280,6 +290,7 @@ public:
     /** Adds an integer parameter, which will later be accessed by name*/
     void addIntParameter(Parameter::ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         int defaultValue,
         int minValue,
@@ -289,6 +300,7 @@ public:
     /** Adds a string parameter, which will later be accessed by name*/
     void addStringParameter(Parameter::ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         String defaultValue,
         bool deactivateDuringAcquisition = false);
@@ -296,6 +308,7 @@ public:
     /** Adds an float parameter, which will later be accessed by name*/
     void addFloatParameter(Parameter::ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         const String& unit,
         float defaultValue,
@@ -307,6 +320,7 @@ public:
     /** Adds a selected channels parameter, which will later be accessed by name*/
     void addSelectedChannelsParameter(Parameter::ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         int maxSelectedChannels = std::numeric_limits<int>::max(),
         bool deactivateDuringAcquisition = false);
@@ -314,15 +328,65 @@ public:
     /** Adds a mask channels parameter, which will later be accessed by name*/
     void addMaskChannelsParameter(Parameter::ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         bool deactivateDuringAcquisition = false);
 
     /** Adds a categorical parameter, which will later be accessed by name*/
     void addCategoricalParameter(Parameter::ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         Array<String> categories,
         int defaultIndex,
+        bool deactivateDuringAcquisition = false);
+
+    /** Adds a path parameter which holds a path to a folder or file */
+    void addPathParameter(Parameter::ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        const String& defaultValue,
+        const StringArray& validFileExtensions,
+        bool isDirectory,
+        bool deactivateDuringAcquisition = true);
+
+    /** Adds a selected stream parameter which holds the currentlu selected stream */
+    void addSelectedStreamParameter(Parameter::ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        Array<String> streamNames,
+        const int defaultIndex,
+        bool deactivateDuringAcquisition = true);
+
+    /** Adds a time parameter with microsecond precision in the form HH:MM:SS.sss */
+    void addTimeParameter(Parameter::ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        const String& defaultValue = "00:00:00",
+        bool deactivateDuringAcquisition = true);
+
+    /** Adds a path parameter which holds a path to a folder or file */
+    void addNotificationParameter(Parameter::ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        bool deactivateDuringAcquisition = true);
+    
+    /** Adds a parameter that allows the user to select a TTL Line
+     * @param maxAvailableLines The number of TTL lines available for selection
+     * @param syncMode Set to true if the ttl line will be used for synchronization
+     * @param canSelectNone Set to true if the user can select no TTL line (cant be used with syncMode = true)
+     */
+    void addTtlLineParameter(Parameter::ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        int maxAvailableLines = 8,
+        bool syncMode = false,
+        bool canSelectNone = false,
         bool deactivateDuringAcquisition = false);
 
     /** Returns a pointer to a parameter created inside this processor
@@ -437,6 +501,8 @@ public:
 
     DataStream* getDataStream(uint16 streamId) const;
 
+    DataStream* getDataStream(String streamKey) const;
+
     uint16 findSimilarStream(int sourceNodeId, String name, float sample_rate, bool sourceNodeIdMustMatch = false);
 
     virtual Array<const DataStream*> getStreamsForDestNode(GenericProcessor* processor);
@@ -492,7 +558,15 @@ public:
     /** Sets whether the processor is operating in headless mode */
     void setHeadlessMode(bool mode) { headlessMode = mode; }
 
+    /** Registers a custom undoable action associated with this processor */
+    static void registerUndoableAction(int nodeId, OpenEphysAction* action) { undoableActions[nodeId].push_back(action); }
+
+    /** Returns a list of undoable actions for a given processor ID */
+    static std::vector<OpenEphysAction*> getUndoableActions(int nodeId) { return undoableActions[nodeId]; }
+
 protected:
+
+    static std::map<int, std::vector<OpenEphysAction*>> undoableActions;
 
     // --------------------------------------------
     //     SAMPLES + TIMESTAMPS
@@ -511,7 +585,8 @@ protected:
 	void setTimestampAndSamples(int64 startSampleForBlock,
                                 double startTimestampForBlock,
                                 uint32 nSamples,
-                                uint16 streamId);
+                                uint16 streamId,
+                                uint16 syncStreamId = 0);
     
     // --------------------------------------------
     //     CHANNEL INDEXING
@@ -553,6 +628,10 @@ protected:
     /** Sends a TEXT event to all other processors, via the MessageCenter, while acquisition is active.
         If recording is active, this message will be recorded */
     void broadcastMessage(String msg);
+    
+    /** Sends a message String to another processor node in the ProcessorGraph while acqusition
+        not active */
+    void sendConfigMessage(GenericProcessor* destination, String message);
 
     /** Add a Spike event to the outgoing buffer */
     void addSpike(const Spike* event);
@@ -637,6 +716,7 @@ protected:
     
 private:
 
+    
     /** Clears the settings arrays.*/
     void clearSettings();
 
@@ -648,6 +728,9 @@ private:
     
     /** Map between stream IDs and buffer timestamps. */
     std::map<uint16, int64> startSamplesForBlock;
+
+    /** Map between stream IDs main clock stream IDs. */
+    std::map<uint16, uint16> syncStreamIds;
 
     /** Map between stream IDs and start time of process callbacks. */
     std::map<uint16, int64> processStartTimes;

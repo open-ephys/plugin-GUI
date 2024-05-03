@@ -24,6 +24,8 @@
 #include "CustomLookAndFeel.h"
 #include "../CustomArrowButton.h"
 
+#include "../../Utils/Utils.h"
+
 CustomLookAndFeel::CustomLookAndFeel() :
 
     // heap allocation is necessary here, because otherwise the typefaces are
@@ -105,7 +107,7 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(147, 149, 152));
         setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(255, 0, 0));
         setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(0,0,0));
-        
+        setColour(ProcessorColor::IDs::SYNC_COLOR, Colour(255,165,0));
         setColour(Label::backgroundColourId, Colours::whitesmoke.withAlpha(0.0f));
         setColour(TextEditor::highlightColourId, Colours::whitesmoke);
         setColour(ScrollBar::thumbColourId, Colours::darkgrey);
@@ -114,12 +116,13 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(ComboBox::focusedOutlineColourId, Colours::darkred);
         setColour(ComboBox::arrowColourId, Colour(10,10,10));
         
-        setColour(TextButton::buttonColourId, Colours::darkgrey);
+        setColour(TextButton::buttonColourId, Colours::lightgrey);
         
         setColour(ThemeColors::controlPanelBackgroundColorId, Colour(51,51,51));
         setColour(ThemeColors::controlPanelButtonColorId, Colour(180,180,180));
         setColour(ThemeColors::controlPanelButtonOnColorId, Colours::yellow);
         setColour(ThemeColors::graphViewerBackgroundColorId, Colour(20,20,20));
+        setColour(ThemeColors::editorViewportBackgroundColorId, Colour(20,20,20));
         
         setColour(ThemeColors::editorGradientColorId1, Colour(190,190,190));
         setColour(ThemeColors::editorGradientColorId2, Colour(185,185,185));
@@ -133,6 +136,11 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(TooltipWindow::backgroundColourId, Colours::white);
         setColour(TooltipWindow::outlineColourId, Colours::black);
         setColour(TooltipWindow::textColourId, Colours::black);
+        
+        setColour(TabbedButtonBar::tabOutlineColourId, Colours::black);
+        setColour(TabbedButtonBar::tabTextColourId, Colours::white);
+        setColour(TabbedButtonBar::frontOutlineColourId , Colours::black);
+        setColour(TabbedButtonBar::frontTextColourId , Colours::white);
     }
     else if (theme == THEME2)
     {
@@ -158,6 +166,7 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(ThemeColors::controlPanelButtonColorId, Colour(50,50,50));
         setColour(ThemeColors::controlPanelButtonOnColorId, Colours::springgreen);
         setColour(ThemeColors::graphViewerBackgroundColorId, Colour(35,35,35));
+        setColour(ThemeColors::editorViewportBackgroundColorId, Colour(35,35,35));
         
         setColour(ThemeColors::editorGradientColorId1, Colour(25,25,25));
         setColour(ThemeColors::editorGradientColorId2, Colour(40,40,40));
@@ -171,6 +180,11 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
         setColour(TooltipWindow::backgroundColourId, Colours::white);
         setColour(TooltipWindow::outlineColourId, Colours::black);
         setColour(TooltipWindow::textColourId, Colours::turquoise);
+        
+        setColour(TabbedButtonBar::tabOutlineColourId, Colours::black);
+        setColour(TabbedButtonBar::tabTextColourId, Colours::white);
+        setColour(TabbedButtonBar::frontOutlineColourId , Colours::black);
+        setColour(TabbedButtonBar::frontTextColourId , Colours::white);
     }
 }
 
@@ -647,9 +661,13 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
 {
     auto cornerSize = box.findParentComponentOfClass<ChoicePropertyComponent>() != nullptr ? 0.0f : 3.0f;
     Rectangle<int> boxBounds (0, 0, width, height);
+    auto bounds = boxBounds.toFloat();
 
-    g.setColour (findColour(ComboBox::backgroundColourId));
-    g.fillRect (boxBounds.toFloat());
+    auto baseColour = findColour(ComboBox::backgroundColourId).withMultipliedSaturation (box.hasKeyboardFocus (true) ? 1.3f : 0.9f)
+                                      .withMultipliedAlpha (box.isEnabled() ? 1.0f : 0.35f);
+
+    g.setColour (baseColour);
+    g.fillRoundedRectangle (bounds, cornerSize);
 
     if (box.isPopupActive() || box.hasKeyboardFocus(false))
     {
@@ -669,11 +687,22 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
 
     g.setColour (box.findColour (ComboBox::arrowColourId).withAlpha ((box.isEnabled() ? 0.9f : 0.2f)));
     g.fillPath(path);
+
+    g.setColour(Colours::black);
+    g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.0f);
+
 }
 
 Font CustomLookAndFeel::getComboBoxFont (ComboBox& box)
 {
-    return Font("Fira Sans", "Regular", box.getHeight() * 0.75f);
+    return Font("Fira Sans", "Regular", box.getHeight() * 0.75);
+}
+
+void CustomLookAndFeel::positionComboBoxText (juce::ComboBox& box, juce::Label& label)
+{
+    label.setFont (getComboBoxFont (box));
+    label.setBounds (0, 0, box.getWidth() - 20, box.getHeight());
+    box.setJustificationType (juce::Justification::left);
 }
 
 
@@ -772,11 +801,16 @@ void CustomLookAndFeel::drawButtonBackground (Graphics& g,
         g.fillRoundedRectangle (bounds, cornerSize);
     }
 
+    g.setColour(Colours::black);
+    g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.0f);
+
+    /*
     if (button.hasKeyboardFocus(false))
     {
-        g.setColour(Colours::darkgrey);
+        g.setColour(Colours::white);
         g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.5f);
     }
+    */
 }
 
 
@@ -790,13 +824,12 @@ void CustomLookAndFeel::drawButtonText (Graphics& g,
 
     g.setColour (textColour.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f));
 
-    auto font = getTextButtonFont(button, button.getHeight());
-    g.setFont(font);
+    g.setFont(Font("Fira Sans", "Regular", button.getHeight() * 0.75f));
 
     const int yIndent = jmin (4, button.proportionOfHeight (0.3f));
     const int cornerSize = jmin (button.getHeight(), button.getWidth()) / 2;
 
-    const int fontHeight = roundToInt (font.getHeight() * 0.6f);
+    const int fontHeight = roundToInt (button.getHeight());
     const int leftIndent  = jmin (fontHeight, 2 + cornerSize / 2);
     const int rightIndent = jmin (fontHeight, 2 + cornerSize / 2);
     const int textWidth = button.getWidth() - leftIndent - rightIndent;
@@ -1051,3 +1084,256 @@ Font CustomLookAndFeel::getAlertWindowTitleFont()      { return { "Fira Sans", "
 Font CustomLookAndFeel::getAlertWindowMessageFont()    { return { "Fira Sans", "Regular", 18.f }; }
 Font CustomLookAndFeel::getAlertWindowFont()           { return { "Fira Sans", "Regular", 16.f }; }
 
+
+//==================================================================
+// TAB BUTTON METHODS :
+//==================================================================
+
+int CustomLookAndFeel::getTabButtonOverlap (int tabDepth)
+{
+    return 0;
+}
+
+int CustomLookAndFeel::getTabButtonSpaceAroundImage()
+{
+    return 4;
+}
+
+int CustomLookAndFeel::getTabButtonBestWidth (TabBarButton& button, int tabDepth)
+{
+    int width = Font ((float) tabDepth * 0.7f).getStringWidth (button.getButtonText().trim())
+                   + getTabButtonOverlap (tabDepth) * 2 + 15;
+
+    if (auto* extraComponent = button.getExtraComponent())
+        width += button.getTabbedButtonBar().isVertical() ? extraComponent->getHeight()
+                                                          : extraComponent->getWidth();
+
+    return jlimit (tabDepth * 2, tabDepth * 8, width);
+}
+
+Rectangle<int> CustomLookAndFeel::getTabButtonExtraComponentBounds (const TabBarButton& button, Rectangle<int>& textArea, Component& comp)
+{
+    Rectangle<int> extraComp;
+
+    auto orientation = button.getTabbedButtonBar().getOrientation();
+
+    if (button.getExtraComponentPlacement() == TabBarButton::beforeText)
+    {
+        switch (orientation)
+        {
+            case TabbedButtonBar::TabsAtBottom:
+            case TabbedButtonBar::TabsAtTop:     extraComp = textArea.removeFromLeft   (comp.getWidth()); break;
+            case TabbedButtonBar::TabsAtLeft:    extraComp = textArea.removeFromBottom (comp.getHeight()); break;
+            case TabbedButtonBar::TabsAtRight:   extraComp = textArea.removeFromTop    (comp.getHeight()); break;
+            default:                             jassertfalse; break;
+        }
+    }
+    else
+    {
+        switch (orientation)
+        {
+            case TabbedButtonBar::TabsAtBottom:
+            case TabbedButtonBar::TabsAtTop:     extraComp = textArea.removeFromRight  (comp.getWidth()); break;
+            case TabbedButtonBar::TabsAtLeft:    extraComp = textArea.removeFromTop    (comp.getHeight()); break;
+            case TabbedButtonBar::TabsAtRight:   extraComp = textArea.removeFromBottom (comp.getHeight()); break;
+            default:                             jassertfalse; break;
+        }
+    }
+
+    return extraComp;
+}
+
+void CustomLookAndFeel::createTabButtonShape (TabBarButton& button, Path& p, bool /*isMouseOver*/, bool /*isMouseDown*/)
+{
+    auto activeArea = button.getActiveArea();
+    auto w = (float) activeArea.getWidth();
+    auto h = (float) activeArea.getHeight();
+
+    auto length = w;
+    auto depth = h;
+
+    if (button.getTabbedButtonBar().isVertical())
+        std::swap (length, depth);
+    
+    
+
+    const float indent = (float) getTabButtonOverlap ((int) depth);
+    const float overhang = 4.0f;
+
+    switch (button.getTabbedButtonBar().getOrientation())
+    {
+        case TabbedButtonBar::TabsAtLeft:
+            p.startNewSubPath (w, 0.0f);
+            p.lineTo (0.0f, indent);
+            p.lineTo (0.0f, h - indent);
+            p.lineTo (w, h);
+            p.lineTo (w + overhang, h + overhang);
+            p.lineTo (w + overhang, -overhang);
+            break;
+
+        case TabbedButtonBar::TabsAtRight:
+            p.startNewSubPath (0.0f, 0.0f);
+            p.lineTo (w, indent);
+            p.lineTo (w, h - indent);
+            p.lineTo (0.0f, h);
+            p.lineTo (-overhang, h + overhang);
+            p.lineTo (-overhang, -overhang);
+            break;
+
+        case TabbedButtonBar::TabsAtBottom:
+            p.startNewSubPath (0.0f, 0.0f);
+            p.lineTo (indent, h);
+            p.lineTo (w - indent, h);
+            p.lineTo (w, 0.0f);
+            p.lineTo (w + overhang, -overhang);
+            p.lineTo (-overhang, -overhang);
+            break;
+
+        case TabbedButtonBar::TabsAtTop:
+        default:
+            p.startNewSubPath (0.0f, h);
+            p.lineTo (indent, 0.0f);
+            p.lineTo (w - indent, 0.0f);
+            p.lineTo (w, h);
+            p.lineTo (w + overhang, h + overhang);
+            p.lineTo (-overhang, h + overhang);
+            break;
+    }
+
+    p.closeSubPath();
+
+    p = p.createPathWithRoundedCorners (4.0f);
+}
+
+void CustomLookAndFeel::fillTabButtonShape (TabBarButton& button, Graphics& g, const Path& path,
+                                         bool isMouseOver, bool isMouseDown)
+{
+    auto tabBackground = button.getTabBackgroundColour();
+    const bool isFrontTab = button.isFrontTab();
+
+    g.setColour (isFrontTab ? tabBackground
+                            : tabBackground.withMultipliedAlpha (0.9f));
+
+    g.fillPath (path);
+
+    g.setColour (button.findColour (isFrontTab ? TabbedButtonBar::frontOutlineColourId
+                                               : TabbedButtonBar::tabOutlineColourId, false)
+                    .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.5f));
+
+    g.strokePath (path, PathStrokeType (isFrontTab ? 1.0f : 0.5f));
+}
+
+Font CustomLookAndFeel::getTabButtonFont (TabBarButton&, float height)
+{
+    return Font("Fira Sans", "Regular", height * 0.7);
+}
+
+void CustomLookAndFeel::drawTabButtonText (TabBarButton& button, Graphics& g, bool isMouseOver, bool isMouseDown)
+{
+    auto area = button.getTextArea().toFloat();
+
+    auto length = area.getWidth();
+    auto depth  = area.getHeight();
+
+    if (button.getTabbedButtonBar().isVertical())
+        std::swap (length, depth);
+
+    Font font (getTabButtonFont (button, depth));
+    font.setUnderline (button.hasKeyboardFocus (false));
+
+    AffineTransform t;
+
+    switch (button.getTabbedButtonBar().getOrientation())
+    {
+        case TabbedButtonBar::TabsAtLeft:   t = t.rotated (MathConstants<float>::pi * -0.5f).translated (area.getX(), area.getBottom()); break;
+        case TabbedButtonBar::TabsAtRight:  t = t.rotated (MathConstants<float>::pi *  0.5f).translated (area.getRight(), area.getY()); break;
+        case TabbedButtonBar::TabsAtTop:
+        case TabbedButtonBar::TabsAtBottom: t = t.translated (area.getX(), area.getY()); break;
+        default:                            jassertfalse; break;
+    }
+
+    Colour col;
+
+    if (button.isFrontTab() && (button.isColourSpecified (TabbedButtonBar::frontTextColourId)
+                                    || isColourSpecified (TabbedButtonBar::frontTextColourId)))
+        col = findColour (TabbedButtonBar::frontTextColourId);
+    else if (button.isColourSpecified (TabbedButtonBar::tabTextColourId)
+                 || isColourSpecified (TabbedButtonBar::tabTextColourId))
+        col = findColour (TabbedButtonBar::tabTextColourId);
+    else
+        col = button.getTabBackgroundColour().contrasting();
+
+    auto alpha = button.isEnabled() ? ((isMouseOver || isMouseDown) ? 1.0f : 0.8f) : 0.3f;
+
+    g.setColour (col.withMultipliedAlpha (alpha));
+    g.setFont (font);
+    g.addTransform (t);
+
+    g.drawFittedText (button.getButtonText().trim(),
+                      0, 0, (int) length, (int) depth,
+                      Justification::centred,
+                      jmax (1, ((int) depth) / 12));
+}
+
+void CustomLookAndFeel::drawTabButton (TabBarButton& button, Graphics& g, bool isMouseOver, bool isMouseDown)
+{
+    Path tabShape;
+    createTabButtonShape (button, tabShape, isMouseOver, isMouseDown);
+
+    auto activeArea = button.getActiveArea();
+    tabShape.applyTransform (AffineTransform::translation ((float) activeArea.getX(),
+                                                           (float) activeArea.getY()));
+
+    DropShadow (Colours::black.withAlpha (0.5f), 2, Point<int> (0, 1)).drawForPath (g, tabShape);
+
+    fillTabButtonShape (button, g, tabShape, isMouseOver, isMouseDown);
+    drawTabButtonText (button, g, isMouseOver, isMouseDown);
+}
+
+void CustomLookAndFeel::drawTabbedButtonBarBackground (TabbedButtonBar&, Graphics& g) {}
+
+void CustomLookAndFeel::drawTabAreaBehindFrontButton (TabbedButtonBar& bar, Graphics& g, const int w, const int h)
+{
+    auto shadowSize = 0.2f;
+
+    Rectangle<int> shadowRect, line;
+    ColourGradient gradient (Colours::black.withAlpha (bar.isEnabled() ? 0.25f : 0.15f), 0, 0,
+                             Colours::transparentBlack, 0, 0, false);
+
+    switch (bar.getOrientation())
+    {
+        case TabbedButtonBar::TabsAtLeft:
+            gradient.point1.x = (float) w;
+            gradient.point2.x = (float) w * (1.0f - shadowSize);
+            shadowRect.setBounds ((int) gradient.point2.x, 0, w - (int) gradient.point2.x, h);
+            line.setBounds (w - 1, 0, 1, h);
+            break;
+
+        case TabbedButtonBar::TabsAtRight:
+            gradient.point2.x = (float) w * shadowSize;
+            shadowRect.setBounds (0, 0, (int) gradient.point2.x, h);
+            line.setBounds (0, 0, 1, h);
+            break;
+
+        case TabbedButtonBar::TabsAtTop:
+            gradient.point1.y = (float) h;
+            gradient.point2.y = (float) h * (1.0f - shadowSize);
+            shadowRect.setBounds (0, (int) gradient.point2.y, w, h - (int) gradient.point2.y);
+            line.setBounds (0, h - 1, w, 1);
+            break;
+
+        case TabbedButtonBar::TabsAtBottom:
+            gradient.point2.y = (float) h * shadowSize;
+            shadowRect.setBounds (0, 0, w, (int) gradient.point2.y);
+            line.setBounds (0, 0, w, 1);
+            break;
+
+        default: break;
+    }
+
+    g.setGradientFill (gradient);
+    g.fillRect (shadowRect.expanded (2, 2));
+
+    g.setColour (Colour (0x80000000));
+    g.fillRect (line);
+}

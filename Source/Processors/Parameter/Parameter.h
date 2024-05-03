@@ -25,6 +25,9 @@
 
 #include <JuceHeader.h>
 #include "../PluginManager/OpenEphysPlugin.h"
+#include "../../TestableExport.h"
+
+#include "../../Utils/Utils.h"
 
 /**
     Class for holding user-definable processor parameters.
@@ -38,7 +41,7 @@
     @see GenericProcessor, GenericEditor
 */
 
-class InfoObject;
+class ParameterOwner;
 class SpikeChannel;
 class ContinuousChannel;
 class EventChannel;
@@ -87,9 +90,27 @@ public:
         SELECTED_PROCESSOR_PARAM,
         SELECTED_STREAM_PARAM,
         MASK_CHANNELS_PARAM,
+        TTL_LINE_PARAM,
+        PATH_PARAM,
+        TIME_PARAM,
         NAME_PARAM,
         COLOUR_PARAM,
         NOTIFICATION_PARAM
+    };
+
+    enum ParameterEditorType
+    {
+        UNKNOWN = 0,
+        TEXTBOX_EDITOR,
+        TOGGLE_EDITOR,
+        COMBOBOX_EDITOR,
+        BOUNDED_VALUE_EDITOR,
+        SELECTED_CHANNELS_EDITOR,
+        SELECTED_STREAM_EDITOR,
+        MASK_CHANNELS_EDITOR,
+        TTL_LINE_EDITOR,
+        PATH_EDITOR,
+        TIME_EDITOR
     };
     
     enum ParameterScope
@@ -106,32 +127,61 @@ public:
     };
 
     /** Parameter constructor.*/
-    Parameter(InfoObject* infoObject_,
+    Parameter(ParameterOwner* owner,
         ParameterType type_,
         ParameterScope scope_,
         const String& name_,
+        const String& displatyName_,
         const String& description_,
         var defaultValue_,
         bool deactivateDuringAcquisition_ = false)
-        : infoObject(infoObject_),
-        // dataStream(nullptr),
-        // spikeChannel(nullptr),
-        // eventChannel(nullptr),
-        // continuousChannel(nullptr),
+        : parameterOwner(owner),
         m_parameterType(type_),
         m_parameterScope(scope_),
         m_name(name_),
+        m_displayName(displatyName_),
         m_description(description_),
         currentValue(defaultValue_),
         defaultValue(defaultValue_),
         newValue(defaultValue_),
         m_deactivateDuringAcquisition(deactivateDuringAcquisition_),
-        m_identifier("UNKNOWN")
+        m_identifier("UNKNOWN"),
+        isEnabledFlag(true),
+        m_editorType(ParameterEditorType::UNKNOWN)
     {
     }
 
+    /** Custom copy constructor -- set attributes and don't copy parameter listeners*/
+    Parameter(const Parameter& other) :
+        m_parameterType(other.m_parameterType),
+        m_parameterScope(other.m_parameterScope),
+        m_name(other.m_name),
+        m_displayName(other.m_displayName),
+        m_description(other.m_description),
+        currentValue(other.currentValue),
+        defaultValue(other.defaultValue),
+        previousValue(other.previousValue),
+        m_deactivateDuringAcquisition(other.m_deactivateDuringAcquisition),
+        isEnabledFlag(other.isEnabledFlag),
+        m_editorType(other.m_editorType)
+    {
+        parameterListeners.clear();
+    }
+
     /** Destructor */
-    virtual ~Parameter() { }
+    virtual ~Parameter() 
+    { 
+        if (parameterListeners.size() > 0)
+        {
+            for(auto listener : parameterListeners)
+                listener->removeParameter(this);
+
+            parameterListeners.clear();
+        }
+    }
+
+    /** Returns true if the parameter is valid */
+    virtual bool isValid() { return true; }
 
     /** Static identifier to keep track of unique parameters */
     static int64 parameterCounter;
@@ -159,6 +209,9 @@ public:
     /** Returns the common name of the parameter. */
     String getName() const noexcept { return m_name; }
 
+    /** Returns the displayed name of the parameter. */
+    String getDisplayName() const noexcept { return m_displayName; }
+
     /** Returns a description of the parameter.*/
     String getDescription() const noexcept { return m_description; }
 
@@ -171,40 +224,22 @@ public:
     /** Returns the streamId for this parameter (if available)*/
     uint16 getStreamId();
 
-   
-
-    // /** Sets the streamId for this parameter*/
-    // void setDataStream(DataStream* dataStream_) { dataStream = dataStream_;  }
-    
-    // /** Returns the SpikeChannel for this parameter (if available)*/
-    // SpikeChannel* getSpikeChannel() { return spikeChannel; }
-
-    // /** Sets the SpikeChannel for this parameter*/
-    // void setSpikeChannel(SpikeChannel* spikeChannel_) { spikeChannel = spikeChannel_;  }
-    
-    // /** Returns the EventChannel for this parameter (if available)*/
-    // EventChannel* getEventChannel() { return eventChannel; }
-
-    // /** Sets the EventChannel for this parameter*/
-    // void setEventChannel(EventChannel* eventChannel_) { eventChannel = eventChannel_;  }
-    
-    // /** Returns the ContinuousChannel for this parameter (if available)*/
-    // ContinuousChannel* getContinuousChannel() { return continuousChannel; }
-
-    // /** Sets the ContinuousChannel for this parameter*/
-    // void setContinuousChannel(ContinuousChannel* continuousChannel_) { continuousChannel = continuousChannel_;  }
-
     /** Determines whether the parameter's editor is accessible after acquisition starts*/
     bool shouldDeactivateDuringAcquisition() {
         return m_deactivateDuringAcquisition;
     }
 
     /** Sets the parameter value*/
-    virtual void setNextValue(var newValue) = 0;
+    virtual void setNextValue(var newValue, bool undoable = true) = 0;
 
     /** Returns the parameter value*/
     var getValue() {
         return currentValue;
+    }
+
+    /** Returns the parameter default value*/
+    var getDefaultValue() {
+        return defaultValue;
     }
 
     /** Updates parameter value (called by GenericProcessor::setParameter)*/
@@ -234,12 +269,40 @@ public:
     {
         currentValue = previousValue;
     }
-    
-    /** Returns a pointer to the InfoObject this parameter is associated with**/
-    InfoObject* getOwner() { return infoObject; }
 
-    /** Sets a pointer to the InfoObject this parameter is associated with**/
-    void setOwner(InfoObject* newOwner);
+    /** Returns a description of how the value changed from its previous state */
+    virtual String getChangeDescription() = 0;
+    
+    /** Returns a pointer to the ParameterOwner this parameter is associated with**/
+    ParameterOwner* getOwner() { return parameterOwner; }
+
+    /** Sets a pointer to the ParameterOwner this parameter is associated with**/
+    void setOwner(ParameterOwner* newOwner);
+    
+    /** Enables/disables the parameter */
+    void setEnabled(bool shouldBeEnabled);
+
+    /** Returns true if the parameter is enabled */
+    bool isEnabled() { return isEnabledFlag; }
+
+    /** Returns the color any visualization of this parameter should use */
+    Colour getColor();
+
+    /** Set the type of the parameter editor used for this parameter 
+     * Used by the GenericEditor to set which parameter editor to use when creating default editors 
+    */
+    void setParmeterEditorType(ParameterEditorType editorType) 
+    { 
+        m_editorType = editorType; 
+    }
+
+    /** Returns the type of the parameter editor.
+     * Returns UNKNOWN if not set.
+    */
+    ParameterEditorType getParameterEditorType() 
+    { 
+        return m_editorType; 
+    }
 
     /** Parameter listener class -- used for Parameter Editors */
     class Listener
@@ -254,6 +317,12 @@ public:
 
 		/** Called when the parameter value changes */
 		virtual void parameterChanged(Parameter* parameterThatHasChanged) = 0;
+
+        /** Called when the parameter is destroyed */
+        virtual void removeParameter(Parameter* parameterToRemove) = 0;
+
+        /** Called when the parameter is enabled/disbaled */
+        virtual void parameterEnabled(bool isEnabled) = 0;
 	};
 
     /** Add Listener for this parameter */
@@ -271,31 +340,31 @@ public:
     public:
         /** Constructor */
         ChangeValue(std::string key, var newValue);
-        
+
         /** Destructor */
         ~ChangeValue() { }
-        
+
         /** Perform the action */
         bool perform();
-        
+
         /** Undo the action*/
         bool undo();
-        
+
+        /** Log the action */
+        void log();
+
     private:
         std::string key;
 
         var originalValue;
         var newValue;
     };
+
+    void logValueChange();
     
 protected:
 
-    InfoObject* infoObject;
-    
-    // DataStream* dataStream;
-    // SpikeChannel* spikeChannel;
-    // EventChannel* eventChannel;
-    // ContinuousChannel* continuousChannel;
+    ParameterOwner* parameterOwner;
 
     var newValue;
     var previousValue;
@@ -308,10 +377,13 @@ private:
 
     ParameterType m_parameterType;
     ParameterScope m_parameterScope;
+    ParameterEditorType m_editorType;
     String m_name;
+    String m_displayName;
     String m_description;
 
     bool m_deactivateDuringAcquisition;
+    bool isEnabledFlag;
 
     Array<Listener*> parameterListeners;
 
@@ -327,21 +399,25 @@ class PLUGIN_API BooleanParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    BooleanParameter(InfoObject* infoObject,
+    BooleanParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         bool defaultValue,
         bool deactivateDuringAcquisition = false);
 
     /** Stages a value, to be changed by the processor*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the value as a boolean*/
     bool getBoolValue();
     
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
+
+    /** Gets the value change description */
+    virtual String getChangeDescription();
 
     /** Saves the parameter to an XML Element*/
     virtual void toXml(XmlElement*) override;
@@ -361,25 +437,29 @@ class PLUGIN_API CategoricalParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    CategoricalParameter(InfoObject* infoObject,
+    CategoricalParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         Array<String> categories,
         int defaultIndex,
         bool deactivateDuringAcquisition = false);
 
     /** Stages a value, to be changed by the processor*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the index as an integer*/
     int getSelectedIndex();
 
-    /** Gets the index as an integer*/
+    /** Gets the category at the current index*/
     String getSelectedString();
     
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
+
+    /** Gets the value change description */
+    virtual String getChangeDescription();
 
     /** Updates the categories*/
     void setCategories(Array<String> categories);
@@ -409,9 +489,10 @@ class PLUGIN_API IntParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    IntParameter(InfoObject* infoObject,
+    IntParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         int defaultValue,
         int minValue = 0,
@@ -419,13 +500,16 @@ public:
         bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the value as an integer*/
     int getIntValue();
     
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
+
+    /** Gets the value change description */
+    virtual String getChangeDescription();
 
     int getMinValue() { return minValue; }
 
@@ -451,21 +535,25 @@ class PLUGIN_API StringParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    StringParameter(InfoObject* infoObject,
+    StringParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         String defaultValue,
         bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the value as an integer*/
     String getStringValue();
     
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
+
+    /** Gets the value change description */
+    virtual String getChangeDescription();
 
     /** Saves the parameter to an XML Element*/
     virtual void toXml(XmlElement*) override;
@@ -484,9 +572,10 @@ class PLUGIN_API FloatParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    FloatParameter(InfoObject* infoObject,
+    FloatParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         const String& unit,
         float defaultValue,
@@ -496,7 +585,7 @@ public:
         bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the value as an integer*/
     float getFloatValue();
@@ -506,6 +595,9 @@ public:
     
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
+
+    /** Gets the value change description */
+    virtual String getChangeDescription();
 
     /** Gets the minimum value for this parameter*/
     float getMinValue() { return minValue; }
@@ -532,6 +624,57 @@ private:
 
 /**
 *
+    Represents a Parameter that holds the name of the active stream
+    within a processor that may have more than one stream.
+
+    Defaults to the first available stream by index.
+
+*/
+class PLUGIN_API SelectedStreamParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    SelectedStreamParameter(ParameterOwner* owner,
+        ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        Array<String> streamNames,
+        const int defaultIndex,
+        bool deactivateDuringAcquisition = true);
+
+    /** Sets the current value*/
+    virtual void setNextValue(var newValue, bool undoable = true) override;
+
+    /** Sets the list of available stream names */
+    void setStreamNames(Array<String> names);
+
+    /** Gets the list of available stream names */
+    Array<String>& getStreamNames() { return streamNames; };
+
+    /** Gets the value as an integer*/
+    int getSelectedIndex();
+
+    /** Gets the value as a string**/
+    virtual String getValueAsString() override { return streamNames[currentValue]; };
+
+    /** Gets the value change description */
+    virtual String getChangeDescription();
+
+    /** Saves the parameter to an XML Element*/
+    virtual void toXml(XmlElement*) override;
+
+    /** Loads the parameter from an XML Element*/
+    virtual void fromXml(XmlElement*) override;
+
+private:
+
+    Array<String> streamNames;
+    int streamIndex;
+};
+
+/**
+*
     Represents a Parameter that holds the selection
     state of all continuous channels in a given data stream.
 
@@ -547,16 +690,17 @@ class PLUGIN_API SelectedChannelsParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    SelectedChannelsParameter(InfoObject* infoObject,
+    SelectedChannelsParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         Array<var> defaultValue,
         int maxSelectableChannels = std::numeric_limits<int>::max(),
         bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the value as an integer*/
     Array<int> getArrayValue();
@@ -575,6 +719,9 @@ public:
     
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
+
+    /** Gets the value change description */
+    virtual String getChangeDescription();
 
     /** Sets the total number of available channels in this stream*/
     void setChannelCount(int count);
@@ -609,14 +756,15 @@ class PLUGIN_API MaskChannelsParameter : public Parameter
 {
 public:
     /** Parameter constructor.*/
-    MaskChannelsParameter(InfoObject* infoObject,
+    MaskChannelsParameter(ParameterOwner* owner,
         ParameterScope scope,
         const String& name,
+        const String& displayName,
         const String& description,
         bool deactivateDuringAcquisition = false);
 
     /** Sets the current value*/
-    virtual void setNextValue(var newValue) override;
+    virtual void setNextValue(var newValue, bool undoable = true) override;
 
     /** Gets the value as an integer*/
     Array<int> getArrayValue();
@@ -627,8 +775,14 @@ public:
     /** Gets the value as a string**/
     virtual String getValueAsString() override;
 
+    /** Gets the value change description */
+    virtual String getChangeDescription();
+
     /** Sets the total number of available channels in this stream*/
     void setChannelCount(int count);
+
+    /** Returns a list of masked channels as a string */
+    String maskChannelsToString();
 
     /** Saves the parameter to an XML Element*/
     virtual void toXml(XmlElement*) override;
@@ -638,12 +792,282 @@ public:
 
 private:
 
-    String maskChannelsToString();
-
     Array<var> parseMaskString(const String& input);
 
     int channelCount;
 };
 
+
+/**
+*
+    Represents a Parameter that holds value of currently selected line in a given Event Channel.
+
+    (Optional) The maximum number of avaialble lines
+               can be specified.
+
+*/
+class PLUGIN_API TtlLineParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    TtlLineParameter(ParameterOwner* owner,
+        ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        int maxAvailableLines = 8,
+        bool syncMode = false,
+        bool canSelectNone = false,
+        bool deactivateDuringAcquisition = false);
+
+    /** Sets the current value*/
+    virtual void setNextValue(var newValue, bool undoable = true) override;
+
+    /** Gets the value as an integer*/
+    int getSelectedLine();
+
+    /** Returns the max selectable channels*/
+    int getMaxAvailableLines() const {
+        return lineCount;
+    }
+    
+    void setMaxAvailableLines(int count) {
+        lineCount = count;
+    }
+
+    /** Gets the value as a string**/
+    String getValueAsString() override;
+
+    /** Gets the value change description */
+    virtual String getChangeDescription();
+
+    /** Saves the parameter to an XML Element*/
+    void toXml(XmlElement*) override;
+
+    /** Loads the parameter from an XML Element*/
+    void fromXml(XmlElement*) override;
+
+    bool syncModeEnabled() { return syncMode; }
+
+    bool canSelectNone() { return selectNone; }
+
+private:
+
+    int lineCount;
+    bool syncMode;
+    bool selectNone;
+};
+
+
+/**
+*
+    Represents a Parameter that holds a path to a file or directory.
+*/
+
+class PLUGIN_API PathParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    PathParameter(ParameterOwner* owner,
+        ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        const String& defaultValue,
+        const StringArray& filePatternsAllowed,
+        const bool isDirectory,
+        bool deactivateDuringAcquisition = true);
+
+    /** Sets the current value*/
+    virtual void setNextValue(var newValue, bool undoable = true) override;
+
+    /** Gets the value as an integer*/
+    virtual String getValueAsString() override { return currentValue.toString(); };
+
+    /** Gets the value change description */
+    virtual String getChangeDescription();
+
+    /** Saves the parameter to an XML Element*/
+    virtual void toXml(XmlElement*) override;
+
+    /** Loads the parameter from an XML Element*/
+    virtual void fromXml(XmlElement*) override;
+
+    /** Returns true if the path should be a directory */
+    bool getIsDirectory() { return isDirectory; }
+
+    /** Returns a list of valid file extensions if applicable */
+    StringArray getValidFilePatterns() { return filePatternsAllowed; }
+
+    /** Returns true if the current path is valid for this parameter */
+    bool isValid() override;
+
+private:
+
+    StringArray filePatternsAllowed;
+    bool isDirectory;
+
+};
+
+/**
+*
+    Represents a Parameter that holds a time value.
+*/
+
+class PLUGIN_API TimeParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    TimeParameter(ParameterOwner* owner,
+        ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        const String& defaultValue,
+        bool deactivateDuringAcquisition = true);
+
+    /** Sets the current value*/
+    virtual void setNextValue(var newValue, bool undoable = true) override;
+
+    /** Gets the value as a string**/
+    virtual String getValueAsString() override { return currentValue.toString(); }
+
+    /** Gets the value change description */
+    virtual String getChangeDescription();
+
+    /** Saves the parameter to an XML Element*/
+    virtual void toXml(XmlElement*) override;
+
+    /** Loads the parameter from an XML Element*/
+    virtual void fromXml(XmlElement*) override;
+
+    class TimeValue
+    {
+    public:
+        /** Constructor */
+        TimeValue(int hour_, int minute_, double second_)
+            : hour(hour_),
+            minute(minute_),
+            second(second_) {}
+
+        TimeValue(int ms) { setTimeFromMilliseconds(ms); }
+
+        TimeValue(String time) { setTimeFromString(time); }
+
+        /** Destructor */
+        ~TimeValue() {}
+
+        String toString() {
+            return String::formatted("%02d:%02d:%06.3f", this->hour, this->minute, this->second);
+        }
+
+        void setTimeFromString(String time) {
+            StringArray tokens;
+            tokens.addTokens(time, ":", "\"");
+            hour = tokens[0].getIntValue();
+            minute = tokens[1].getIntValue();
+            second = tokens[2].getDoubleValue();
+        }
+
+        void setHours(int h) { hour = h; }
+        void setMinutes(int m) { minute = m; }
+        void setSeconds(double s) { second = s; }
+
+        int getHours() { return hour; }
+        int getMinutes() { return minute; }
+        double getSeconds() { return second; }
+
+        int getTimeInMilliseconds() { return 1000 * (second + 60.0 * double(minute + 60 * hour)); }
+        void setTimeFromMilliseconds(int ms) {
+            hour = ms / 3600000;
+            minute = (ms - hour * 3600000) / 60000;
+            second = (ms - hour * 3600000.0f - minute * 60000.0f) / 1000.0f;
+        }
+
+        void setMinTimeInMilliseconds(int ms) { minTimeInMilliseconds = ms; }
+        int getMinTimeInMilliseconds() { return minTimeInMilliseconds; }
+
+        void setMaxTimeInMilliseconds(int ms) { maxTimeInMilliseconds = ms; }
+        int getMaxTimeInMilliseconds() { return maxTimeInMilliseconds; }
+
+    private:
+
+        int hour;
+        int minute;
+        double second;
+
+        int minTimeInMilliseconds;
+        int maxTimeInMilliseconds;
+    };
+
+    TimeValue* getTimeValue() { return timeValue; }
+
+    class ChangeValue : public UndoableAction
+    {
+    public:
+        /** Constructor */
+        ChangeValue(std::string key, var newValue);
+
+        /** Destructor */
+        ~ChangeValue() { }
+
+        /** Perform the action */
+        bool perform();
+
+        /** Undo the action*/
+        bool undo();
+
+        /** Log the action*/
+        void log();
+
+    private:
+        std::string key;
+
+        var originalValue;
+        var newValue;
+    };
+
+private:
+
+    TimeValue* timeValue;
+
+};
+
+
+/** 
+* 
+    Represents a Parameter that is only used for change notification.
+    E.g. to notify the processor that a certain event has occured.
+*/
+class PLUGIN_API NotificationParameter : public Parameter
+{
+public:
+    /** Parameter constructor.*/
+    NotificationParameter(ParameterOwner* owner,
+        ParameterScope scope,
+        const String& name,
+        const String& displayName,
+        const String& description,
+        bool deactivateDuringAcquisition = false);
+    
+    /** Notifies the processor that a certain event has occured by calling parameterValueChanged() */
+    void triggerNotification();
+
+    /** Stages a value, to be changed by the processor*/
+    virtual void setNextValue(var newValue, bool undoable = true) override;
+    
+    /** Gets the value as a string**/
+    String getValueAsString() override { return String(); }
+
+    /** Gets the value change description */
+    String getChangeDescription() override { return String(); }
+
+    /** Saves the parameter to an XML Element*/
+    void toXml(XmlElement*) override { }
+
+    /** Loads the parameter from an XML Element*/
+    void fromXml(XmlElement*) override { }
+
+};
 
 #endif  // __PARAMETER_H_62922AE5__

@@ -27,11 +27,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 #include "InfoObject.h"
+#include "../Parameter/ParameterOwner.h"
 
 class DataStream;
 
-class PLUGIN_API ContinuousChannel
-	: public ChannelInfoObject
+class PLUGIN_API ContinuousChannel :
+	public ChannelInfoObject,
+	public ParameterOwner
 {
 public:
 

@@ -77,6 +77,9 @@ StringArray::StringArray (const std::initializer_list<const char*>& stringList)
     strings.addArray (stringList);
 }
 
+StringArray::~StringArray(){}
+
+
 StringArray& StringArray::operator= (const StringArray& other)
 {
     strings = other.strings;

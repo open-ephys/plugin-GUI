@@ -49,7 +49,7 @@ class DisplayBuffer;
 
 */
     
-class LfpDisplayCanvas : public Visualizer,
+class TESTABLE LfpDisplayCanvas : public Visualizer,
                          public KeyListener
 {
 public:
@@ -118,7 +118,18 @@ public:
 
     /** Sets a buffer to nullptr when it's no longer needed */
     void removeBufferForDisplay(int);
+    
+#if BUILD_TESTS
+    bool getChannelBitmapBounds(int splitIndex, int& x, int& y, int& width, int& height);
+    
+    bool getChannelColors(int splitIndex, Array<Colour>& channelColors, Colour& backgroundColor);
 
+    bool setChannelHeight(int splitIndex, int height);
+
+    bool setChannelRange(int splitIndex, int range, ContinuousChannel::Type type);
+#endif
+
+    
     bool isLoading;
 
     bool optionsDrawerIsOpen;
@@ -340,6 +351,13 @@ public:
     uint16 selectedStreamId;
 
     void refreshScreenBuffer();
+    
+    bool shouldRebuildChannelList = false;
+    
+    void setFilteredChannels(Array<int> channels){filteredChannels = channels;}
+    Array<int> getFilteredChannels(){return filteredChannels;}
+
+    String getStreamKey();
 
 private:
 
@@ -381,6 +399,8 @@ private:
     int displayBufferSize;
 
     int scrollBarThickness;
+    
+    Array<int> filteredChannels = Array<int>();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LfpDisplaySplitter);
 

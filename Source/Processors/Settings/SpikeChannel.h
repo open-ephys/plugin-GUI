@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../PluginManager/OpenEphysPlugin.h"
 #include "Metadata.h"
 #include "InfoObject.h"
+#include "../Parameter/ParameterOwner.h"
 
 class ContinuousChannel;
 
@@ -47,7 +48,9 @@ public:
 };
 
 class PLUGIN_API SpikeChannel : 
-	public ChannelInfoObject, public MetadataEventObject
+	public ChannelInfoObject,
+	public MetadataEventObject,
+	public ParameterOwner
 {
 public:
 	enum Type
@@ -151,7 +154,9 @@ public:
     
     /** Determines whether channel sends the full waveform, or just the peak sample*/
     bool sendFullWaveform;
-    
+
+	/** Gets the eletrode start channel */
+	int getStartChannel() const { return localChannelIndexes[0]; };
 
 	// ====== STATIC METHODS ========= //
 
@@ -169,6 +174,9 @@ public:
 
 	/** Generates a default channel name to use*/
 	static String getIdentifierFromType(Type channelType);
+
+	/** Initiates parameter value update */
+	void parameterChangeRequest(Parameter*) override;
 
 protected:
 

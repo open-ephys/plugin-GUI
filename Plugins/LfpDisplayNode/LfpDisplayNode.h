@@ -44,7 +44,7 @@ namespace LfpViewer
   @see GenericProcessor, LfpDisplayEditor, LfpDisplayCanvas
 
 */
-class LfpDisplayNode :  public GenericProcessor
+class TESTABLE LfpDisplayNode :  public GenericProcessor
 
 {
 public:
@@ -88,8 +88,8 @@ public:
     /** Returns an array of pointers to the availble displayBuffers*/
     Array<DisplayBuffer*> getDisplayBuffers();
 
-    /** Map between data stream IDs and display buffer pointers*/
-    std::map<uint16, DisplayBuffer*> displayBufferMap;
+    /** Map between data stream keys and display buffer pointers*/
+    std::map<String, DisplayBuffer*> displayBufferMap;
 
     /** Sets an array of pointers to the 3 available split displays*/
     void setSplitDisplays(Array<LfpDisplaySplitter*>);
@@ -99,6 +99,17 @@ public:
 
     /** Acknowledges receipt of a trigger for a given split display*/
     void acknowledgeTrigger(int splitId);
+
+    /** Reads from int value from payload, returns if the value was found and is within bounds*/
+    bool getIntField(DynamicObject::Ptr payload, String name, int& value, int lowerBound = INT32_MAX, int upperBound = INT32_MIN);
+    
+    /** Handles messages from other processors during acquisition*/
+    void handleBroadcastMessage(String msg) override;
+
+
+    bool getHeadlessMode() const {
+        return headlessMode;
+    }
 
 private:
 

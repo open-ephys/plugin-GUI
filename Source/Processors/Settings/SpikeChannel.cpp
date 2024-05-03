@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SpikeChannel::SpikeChannel(SpikeChannel::Settings settings)
 	: ChannelInfoObject(InfoObject::Type::SPIKE_CHANNEL, nullptr),
+	ParameterOwner(ParameterOwner::Type::SPIKE_CHANNEL),
 	type(settings.type),
     localChannelIndexes(settings.localChannelIndexes),
 	numPreSamples(settings.numPrePeakSamples),
@@ -46,6 +47,7 @@ SpikeChannel::~SpikeChannel() { }
 
 SpikeChannel::SpikeChannel(const SpikeChannel& other)
  : ChannelInfoObject(other),
+	 ParameterOwner(ParameterOwner::Type::SPIKE_CHANNEL),
      type(other.type),
      localChannelIndexes(other.localChannelIndexes),
      numPreSamples(other.getPrePeakSamples()),
@@ -217,6 +219,13 @@ void SpikeChannel::reset()
     currentSampleIndex = 0;
     lastBufferIndex = 0;
     useOverflowBuffer = false;
+}
+
+void SpikeChannel::parameterChangeRequest(Parameter* param)
+{
+	processorChain.getLast()->parameterChangeRequest(param);
+
+	
 }
 
 /*SpikeChannel::ThresholdType SpikeChannel::getThresholdType() const

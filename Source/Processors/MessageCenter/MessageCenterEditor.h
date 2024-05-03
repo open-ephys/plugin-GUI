@@ -49,7 +49,7 @@ public:
     MessageCenterEditor(MessageCenter* owner);
 
     /** Destructor */
-    ~MessageCenterEditor() { }
+    ~MessageCenterEditor();
 
     /** Renders the editor */
     void paint(Graphics& g);

@@ -178,6 +178,9 @@ public:
     /** Loads display parameters */
     void loadCustomParametersFromXml(XmlElement* xml);
 
+    /** Loads spike plot settings */
+    void loadSpikeDisplaySettingsFromXml(XmlElement* xml);
+
     /** Pointer to the underlying SpikeDisplayNode*/
     SpikeDisplayNode* processor;
 

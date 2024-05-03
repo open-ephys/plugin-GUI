@@ -8,6 +8,8 @@ add_sources(open-ephys
 	FileReaderEditor.h
 	FileSource.cpp
 	FileSource.h
+	ScrubberInterface.cpp
+	ScrubberInterface.h
 )
 
 #add nested directories

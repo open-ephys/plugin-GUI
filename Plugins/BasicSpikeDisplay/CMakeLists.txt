@@ -12,6 +12,8 @@ add_sources(${PLUGIN_NAME}
 	SpikeDetector/SpikeDetectorEditor.h
 	SpikeDetector/PopupConfigurationWindow.cpp
 	SpikeDetector/PopupConfigurationWindow.h
+	SpikeDetector/SpikeDetectorActions.cpp
+	SpikeDetector/SpikeDetectorActions.h
 	SpikeDisplayNode/SpikeDisplayCanvas.cpp
 	SpikeDisplayNode/SpikeDisplayCanvas.h
 	SpikeDisplayNode/SpikeDisplay.cpp

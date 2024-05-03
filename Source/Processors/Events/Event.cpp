@@ -191,7 +191,7 @@ bool EventBase::compareMetadata(const MetadataEventObject* channelInfo, const Me
 }
 
 
-SystemEvent::Type SystemEvent::getSystemEventType(const MidiMessage& msg)
+SystemEvent::Type SystemEvent::getSystemEventType(const EventPacket& msg)
 {
 	const uint8* data = msg.getRawData();
 
@@ -204,7 +204,8 @@ size_t SystemEvent::fillTimestampAndSamplesData(HeapBlock<char>& data,
 	int64 startSampleForBlock,
     double startTimestampForBlock,
 	uint32 nSamplesInBlock,
-	int64 processStartTime)
+	int64 processStartTime,
+	uint16 syncStreamId)
 {
 	const int eventSize = EVENT_BASE_SIZE + 4 + 8;
 	data.malloc(eventSize);
@@ -212,8 +213,7 @@ size_t SystemEvent::fillTimestampAndSamplesData(HeapBlock<char>& data,
 	data[1] = TIMESTAMP_AND_SAMPLES;										 // 1 byte
 	*reinterpret_cast<uint16*>(data.getData() + 2) = proc->getNodeId();		 // 2 bytes
 	*reinterpret_cast<uint16*>(data.getData() + 4) = streamId;				 // 2 bytes
-	data[6] = 0;															 // 1 byte 
-	data[7] = 0;															 // 1 byte
+	*reinterpret_cast<uint16*>(data.getData() + 6) = syncStreamId;			 // 2 bytes
 	*reinterpret_cast<int64*>(data.getData() + 8) = startSampleForBlock;     // 8 bytes
     *reinterpret_cast<double*>(data.getData() + 16) = startTimestampForBlock;// 8 bytes
 	*reinterpret_cast<uint32*>(data.getData() + EVENT_BASE_SIZE) = nSamplesInBlock;		 // 8 bytes
@@ -283,6 +283,23 @@ String SystemEvent::getSyncText(const EventPacket& packet)
 	const char* data = reinterpret_cast<const char*>(packet.getRawData());
 
 	return String::fromUTF8(data + EVENT_BASE_SIZE, packet.getRawDataSize() - (EVENT_BASE_SIZE + 1));
+}
+
+uint16 SystemEvent::getSyncStreamId() const
+{
+	return m_sourceChannelIndex;
+}
+
+uint16 SystemEvent::getSyncStreamId(const EventPacket& packet)
+{
+	const uint8* data = packet.getRawData();
+
+	return *reinterpret_cast<const uint16*>(data + 6);
+}
+
+uint16 SystemEvent::getSyncStreamId(const uint8* data)
+{
+	return *reinterpret_cast<const uint16*>(data + 6);
 }
 
 Event::Event(const Event& other)

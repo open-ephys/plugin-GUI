@@ -86,8 +86,6 @@ VisualizerEditor::VisualizerEditor (GenericProcessor* parentNode, String tabText
     , dataWindow    (nullptr)
     , canvas        (nullptr)
     , tabText       (tabText)
-    , isPlaying     (false)
-    , tabIndex      (-1)
     , dataWindowButtonListener(this)
 {
     desiredWidth = desiredWidth_;
@@ -113,9 +111,9 @@ void VisualizerEditor::initializeSelectors()
 
 VisualizerEditor::~VisualizerEditor()
 {
-    if (tabIndex > -1)
+    if (isOpenInTab)
     {
-        AccessClass::getDataViewport()->destroyTab (tabIndex);
+        AccessClass::getDataViewport()->removeTab (nodeId, false);
     }
     
     if (dataWindow != nullptr)
@@ -139,7 +137,6 @@ void VisualizerEditor::enable()
     if (canvas != nullptr)
         canvas->beginAnimation();
 
-    isPlaying = true;
 }
 
 
@@ -147,8 +144,6 @@ void VisualizerEditor::disable()
 {
     if (canvas != nullptr)
         canvas->endAnimation();
-
-    isPlaying = false;
 }
 
 
@@ -158,19 +153,13 @@ void VisualizerEditor::updateVisualizer()
         canvas->update();
 }
 
-void VisualizerEditor::updateVisualizerView()
-{
-    if (canvas != nullptr)
-        canvas->updateView();
-}
-
 
 void VisualizerEditor::editorWasClicked()
 {
-    if (tabIndex > -1)
+    if (isOpenInTab)
     {
-        LOGD("Setting tab index to ", tabIndex);
-        AccessClass::getDataViewport()->selectTab (tabIndex);
+        LOGD("Setting tab index to ", nodeId);
+        AccessClass::getDataViewport()->selectTab (nodeId);
     }
 
     if (dataWindow && windowSelector->getToggleState())
@@ -186,10 +175,9 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
 
     if (button == editor->windowSelector.get())
     {
-        if (editor->tabSelector->getToggleState() && editor->windowSelector->getToggleState())
+        if (editor->tabSelector->getToggleState())
         {
-            editor->tabSelector->setToggleState (false, dontSendNotification);
-            editor->removeTab (editor->tabIndex);
+            editor->removeTab();
         }
 
         if (editor->dataWindow == nullptr) // have we created a window already?
@@ -217,20 +205,24 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
     }
     else if (button == editor->tabSelector.get())
     {
-        if (editor->tabSelector->getToggleState() && editor->tabIndex < 0)
+        LOGD("TAB BUTTON CLICKED");
+        
+        if (!editor->isOpenInTab)
         {
             if (editor->windowSelector->getToggleState())
             {
+                LOGD("CLOSING WINDOW");
                 editor->dataWindow->setContentNonOwned (0, false);
                 editor->windowSelector->setToggleState (false, dontSendNotification);
                 editor->dataWindow->setVisible (false);
             }
 
-            editor->addTab (editor->tabText, editor->canvas.get());
+            LOGD("ADDING TAB");
+            editor->addTab();
         }
-        else if (!editor->tabSelector->getToggleState() && editor->tabIndex > -1)
+        else
         {
-            editor->removeTab (editor->tabIndex);
+            editor->removeTab();
         }
     }
 
@@ -252,7 +244,7 @@ void VisualizerEditor::checkForCanvas()
 
         canvas->update();
 
-        if (isPlaying)
+        if (acquisitionIsActive)
             canvas->beginAnimation();
     }
 }
@@ -264,7 +256,6 @@ void VisualizerEditor::saveCustomParametersToXml (XmlElement* xml)
 
     XmlElement* tabButtonState = xml->createNewChildElement (EDITOR_TAG_TAB);
     tabButtonState->setAttribute ("Active", tabSelector->getToggleState());
-    tabButtonState->setAttribute ("Index", tabIndex);
 
     XmlElement* windowButtonState = xml->createNewChildElement (EDITOR_TAG_WINDOW);
     windowButtonState->setAttribute ("Active", windowSelector->getToggleState());
@@ -281,7 +272,7 @@ void VisualizerEditor::saveCustomParametersToXml (XmlElement* xml)
 
     if (canvas != nullptr)
     {
-        canvas->saveCustomParametersToXml(xml);
+        canvas->saveToXml(xml);
     }
     else {
         // if canvas was never created, we don't need to save custom parameters
@@ -300,23 +291,15 @@ void VisualizerEditor::loadCustomParametersFromXml (XmlElement* xml)
         if (xmlNode->hasTagName (EDITOR_TAG_TAB))
         {
             bool tabState = xmlNode->getBoolAttribute ("Active");
-            int newIndex = xmlNode->getIntAttribute ("Index", -1);
 
             if (tabState)
             {
-                tabSelector->setToggleState(true, dontSendNotification);
-                
+                /* NB: DataViewport::loadStateFromXml() will call addTab() for us 
+                   to maintain tab configuration
+                */
                 checkForCanvas();
-                
-                if(newIndex == -1)
-                {
-                    addTab(tabText, canvas.get());
-                }
-                else
-                {
-                    tabIndex = newIndex;
-                    AccessClass::getDataViewport()->addTabAtIndex(tabIndex, tabText, canvas.get());
-                }
+
+                tabSelector->setToggleState(true, dontSendNotification);
 
                 break;
             }
@@ -351,12 +334,12 @@ void VisualizerEditor::loadCustomParametersFromXml (XmlElement* xml)
         //Canvas is created on button callback, so open/close tab to simulate a hidden canvas
         tabSelector->setToggleState(true, sendNotification);
         if (canvas != nullptr)
-            canvas->loadCustomParametersFromXml(xml);
+            canvas->loadFromXml(xml);
         tabSelector->setToggleState(false, sendNotification);
     }
     else if (canvas != nullptr)
     {
-        canvas->loadCustomParametersFromXml(xml);
+        canvas->loadFromXml(xml);
     }
 
 }
@@ -386,31 +369,36 @@ void VisualizerEditor::removeWindowListener (DataWindow* dataWindowToUse, DataWi
 
 Component* VisualizerEditor::getActiveTabContentComponent() const
 {
-    return AccessClass::getDataViewport()->getCurrentContentComponent();
+    return AccessClass::getDataViewport()->getActiveTabContentComponent();
 }
 
 
-void VisualizerEditor::setActiveTabId (int tindex)
-{
-    AccessClass::getDataViewport()->selectTab (tindex);
-}
-
-
-void VisualizerEditor::removeTab (int tindex)
+void VisualizerEditor::removeTab()
 {
 
     //std::cout << "Removing tab for " << nodeId << std::endl;
-    AccessClass::getDataViewport()->destroyTab (tindex);
-    tabIndex = -1;
+    AccessClass::getDataViewport()->removeTab(nodeId);
+    
+    
+}
+
+void VisualizerEditor::tabWasClosed()
+{
+    tabSelector->setToggleState (false, dontSendNotification);
+    
+    isOpenInTab = false;
 }
 
 
-int VisualizerEditor::addTab (String textOfTab, Visualizer* contentComponent)
+void VisualizerEditor::addTab()
 {
-    tabText  = textOfTab;
-    tabIndex = AccessClass::getDataViewport()->addTabToDataViewport (textOfTab, contentComponent);
+    LOGD("CREATING CANVAS");
+    checkForCanvas();
+    
+    LOGD("ADDING TAB");
+    AccessClass::getDataViewport()->addTab(tabText, canvas.get(), nodeId);
+    
+    //tabSelector->setToggleState (true, dontSendNotification);
 
-    //std::cout << "Adding tab for " << nodeId << " at " << tabIndex << std::endl;
-
-    return tabIndex;
+    isOpenInTab = true;
 }

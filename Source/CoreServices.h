@@ -33,6 +33,7 @@ class GenericEditor;
 class GenericProcessor;
 class SpikeChannel;
 class Spike;
+class PopupManager;
 
 namespace CoreServices
 {
@@ -42,6 +43,7 @@ namespace CoreServices
 * For example, if a plugin adds a new EventChannel, updateSignalChain() must
 * be called in order for downstream plugins to register this change.
 */
+PLUGIN_API void updateSignalChain(GenericProcessor* source);
 PLUGIN_API void updateSignalChain(GenericEditor* source);
 
 /** Saves the recoveryConfig.xml settings file*/
@@ -206,6 +208,12 @@ PLUGIN_API File getSavedStateDirectory();
 
 /** Gets the GUI version */
 PLUGIN_API String getGUIVersion();
+
+/** Gets the GUI's undo manager */
+PLUGIN_API UndoManager* getUndoManager();
+
+/** Gets the GUI's popup manager */
+PLUGIN_API PopupManager* getPopupManager();
 
 
 namespace PluginInstaller

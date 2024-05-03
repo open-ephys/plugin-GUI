@@ -714,7 +714,6 @@ public:
 
             if (!CoreServices::getAcquisitionStatus())
             {
-                const MessageManagerLock mml;
                 graph_->getUndoManager()->redo();
                 return_msg = "Redo operation completed successfully.";
             } else {
@@ -741,6 +740,14 @@ public:
                     return;
                 } else {
                     LOGD( "Found parameter: ", parameter->getName() );
+                }
+
+                if(parameter->shouldDeactivateDuringAcquisition()
+                    && CoreServices::getAcquisitionStatus())
+                {
+                    res.set_content("Cannot change this parameter while acquisition is active.", "text/plain");
+                    res.status = 400;
+                    return;
                 }
 
                 json request_json;
@@ -783,6 +790,8 @@ public:
                     return;
                 }
 
+                const MessageManagerLock mml;
+
                 parameter->setNextValue(val);
 
                 json ret;
@@ -814,6 +823,14 @@ public:
                             return;
                         } else {
                             LOGD( "Found parameter: ", parameter->getName() );
+                        }
+
+                        if(parameter->shouldDeactivateDuringAcquisition()
+                            && CoreServices::getAcquisitionStatus())
+                        {
+                            res.set_content("Cannot change this parameter while acquisition is active.", "text/plain");
+                            res.status = 400;
+                            return;
                         }
 
                        json request_json;
