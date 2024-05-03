@@ -120,6 +120,8 @@ Graphics::Graphics (const Image& imageToDrawOnto)
     jassert (imageToDrawOnto.isValid()); // Can't draw into a null image!
 }
 
+Graphics::~Graphics() {}
+
 Graphics::Graphics (LowLevelGraphicsContext& internalContext) noexcept
     : context (internalContext)
 {

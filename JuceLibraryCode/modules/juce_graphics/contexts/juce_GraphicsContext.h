@@ -65,6 +65,9 @@ public:
     */
     explicit Graphics (const Image& imageToDrawOnto);
 
+    /** Destructor. */
+    ~Graphics();
+
     //==============================================================================
     /** Changes the current drawing colour.
 
