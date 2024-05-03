@@ -70,17 +70,14 @@ public:
 
         hourLabel.setText("H", dontSendNotification);
         hourLabel.setJustificationType(Justification::centred);
-        hourLabel.setColour(Label::textColourId, Colours::white);
         addAndMakeVisible(hourLabel);
 
         minuteLabel.setText("M", dontSendNotification);
         minuteLabel.setJustificationType(Justification::centred);
-        minuteLabel.setColour(Label::textColourId, Colours::white);
         addAndMakeVisible(minuteLabel);
 
         secondLabel.setText("S", dontSendNotification);
         secondLabel.setJustificationType(Justification::centred);
-        secondLabel.setColour(Label::textColourId, Colours::white);
         addAndMakeVisible(secondLabel);
 
         int hour = p->getTimeValue()->getHours();

@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SyncLineSelector.h"
 #include <string>
 #include <vector>
+#include "../../UI/LookAndFeel/CustomLookAndFeel.h"
 
 SyncChannelButton::SyncChannelButton(int _id, SyncLineSelector* _parent) 
     : Button(String(_id)), id(_id), parent(_parent) 
@@ -37,7 +38,7 @@ SyncChannelButton::~SyncChannelButton() {}
 void SyncChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
 
-	g.setColour(Colour(0,0,0));
+	g.setColour(findColour(ThemeColors::outline));
     g.fillRoundedRectangle(0.0f, 0.0f, getWidth(), getHeight(), 0.001*getWidth());
 
     if (isMouseOver)
@@ -45,14 +46,14 @@ void SyncChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
 		if (getToggleState())
 			g.setColour(btnColor.brighter());
 		else
-			g.setColour(Colour(210, 210, 210));
+			g.setColour(findColour(ThemeColors::widgetBackground).contrasting(0.3f));
 	}
 	else 
 	{
 		if (getToggleState())
 			g.setColour(btnColor);
 		else
-			g.setColour(Colour(110, 110, 110));
+			g.setColour(findColour(ThemeColors::widgetBackground));
 	}
 	g.fillRoundedRectangle(1,1,getWidth()-2,getHeight()-2,0.001*getWidth());
 
@@ -60,7 +61,7 @@ void SyncChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
     if (getToggleState())
         g.setColour(btnColor.contrasting());
     else
-        g.setColour(Colour(255,255,255));
+        g.setColour(findColour(ThemeColors::defaultText));
 
 	g.setFont(10);
 	g.drawText (String(id), 0,0, getWidth(), getHeight(), Justification::centred); 
@@ -76,23 +77,26 @@ SetPrimaryButton::~SetPrimaryButton() {}
 
 void SetPrimaryButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
-    g.setColour(Colour(0,0,0));
+    g.setColour(findColour(ThemeColors::outline));
     g.fillRoundedRectangle (0.0f, 0.0f, getWidth(), getHeight(), 0.001*getWidth());
 
     if (isMouseOver)
     {
-        g.setColour(Colour(220, 220, 220));
+        if (getToggleState())
+            g.setColour(findColour(ThemeColors::highlightedFill).withAlpha(0.5f));
+        else
+            g.setColour(findColour(ThemeColors::widgetBackground).contrasting(0.3f));
     }
     else
     {
         if (getToggleState())
-            g.setColour(Colour(200, 200, 200));
+            g.setColour(findColour(ThemeColors::highlightedFill));
         else
-            g.setColour(Colour(110, 110, 110));
+            g.setColour(findColour(ThemeColors::widgetBackground));
     }
     g.fillRoundedRectangle(0.0f, 0.0f, getWidth(), getHeight(), 0.01*getWidth());
     
-	g.setColour(Colour(255,255,255));
+	g.setColour(findColour(ThemeColors::defaultText));
 	g.setFont(12);
 	g.drawText (String(getName()), 0, 0, getWidth(), getHeight(), Justification::centred);
 }
