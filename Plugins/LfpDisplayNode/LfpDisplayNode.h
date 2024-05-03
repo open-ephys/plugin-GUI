@@ -89,7 +89,7 @@ public:
     Array<DisplayBuffer*> getDisplayBuffers();
 
     /** Map between data stream keys and display buffer pointers*/
-    std::map<String, DisplayBuffer*> displayBufferMap;
+    std::map<uint16, DisplayBuffer*> displayBufferMap;
 
     /** Sets an array of pointers to the 3 available split displays*/
     void setSplitDisplays(Array<LfpDisplaySplitter*>);

@@ -775,6 +775,9 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
 String LfpDisplaySplitter::getStreamKey()
 {
+    if (processor->getDataStreams().size() == 0)
+        return "";
+        
     DataStream* stream = processor->getDataStream(selectedStreamId);
     return stream->getKey();
 }
@@ -1650,7 +1653,7 @@ void LfpDisplaySplitter::setDrawableStream(uint16 sp)
 {
    
     selectedStreamId = sp;
-    displayBuffer = processor->displayBufferMap[processor->getDataStream(sp)->getKey()];
+    displayBuffer = processor->displayBufferMap[processor->getDataStream(sp)->getStreamId()];
 
     updateSettings();
 }

@@ -82,19 +82,18 @@ void LfpDisplayNode::updateSettings()
 
         String stream_key = getDataStream(streamId)->getKey();
 
-        if (displayBufferMap.count(stream_key) == 0)
+        if (displayBufferMap.count(streamId) == 0)
         {
-            
             displayBuffers.add(new DisplayBuffer(streamId, name, channel->getSampleRate()));
-            displayBufferMap[stream_key] = displayBuffers.getLast();
+            displayBufferMap[streamId] = displayBuffers.getLast();
 
         }
         else {
-            displayBufferMap[stream_key]->sampleRate = channel->getSampleRate();
-            displayBufferMap[stream_key]->name = name;
+            displayBufferMap[streamId]->sampleRate = channel->getSampleRate();
+            displayBufferMap[streamId]->name = name;
         }
 //
-        displayBufferMap[stream_key]->addChannel(channel->getName(), // name
+        displayBufferMap[streamId]->addChannel(channel->getName(), // name
             ch, // index
             channel->getChannelType(), // type
             channel->isRecorded,
@@ -115,7 +114,7 @@ void LfpDisplayNode::updateSettings()
         }
         else {
 
-            displayBufferMap.erase(displayBuffer->streamKey);
+            displayBufferMap.erase(displayBuffer->id);
             toDelete.add(displayBuffer);
 
             for (auto splitID : displayBuffer->displays)
@@ -263,11 +262,9 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
         }
     }
 
-    if (displayBufferMap.count(getDataStream(eventStreamId)->getKey()))
+    if (displayBufferMap.count(eventStreamId))
     {
-        displayBufferMap[getDataStream(eventStreamId)->getKey()]->addEvent(eventTime, eventChannel, eventId,
-                                                  getNumSamplesInBlock(eventStreamId)
-        );
+        displayBufferMap[eventStreamId]->addEvent(eventTime, eventChannel, eventId, getNumSamplesInBlock(eventStreamId));
     }
 
     for (auto display : splitDisplays)
@@ -329,7 +326,7 @@ void LfpDisplayNode::process (AudioBuffer<float>& buffer)
 
         String streamKey = getDataStream(streamId)->getKey();
 
-        displayBufferMap[streamKey]->addData(buffer, chan, nSamples);
+        displayBufferMap[streamId]->addData(buffer, chan, nSamples);
     }
 }
 
