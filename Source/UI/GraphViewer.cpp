@@ -372,10 +372,9 @@ void GraphViewer::paint (Graphics& g)
         if (availableNodes[i]->getProcessor()->isEmpty())
             continue;
         
-        Path nodePath;
-        nodePath.addRoundedRectangle(availableNodes[i]->getBounds().reduced(1.0f).toFloat(), 5.0f);
-        
-        DropShadow(findColour(ThemeColors::dropShadowColor), 10, Point<int>(2, 8)).drawForPath(g, nodePath);
+        // Draw drop shadow for node
+        DropShadow(findColour(ThemeColors::dropShadowColor), 10, Point<int>(2, 8))
+            .drawForRectangle(g, availableNodes[i]->getBounds().reduced(1));
     }
 }
 

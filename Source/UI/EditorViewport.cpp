@@ -88,15 +88,14 @@ void EditorViewport::paint(Graphics& g)
 
     g.drawRoundedRectangle(1, 1, getWidth()-2, getHeight() - 14, 5.0f, 2.0f);
 
+    // Draw drop shadow for each editor
     for (int i = 0; i < editorArray.size(); i++)
     {
         if (editorArray[i]->getProcessor()->isEmpty())
             continue;
 
-        Path editorBorderPath;
-        editorBorderPath.addRoundedRectangle(editorArray[i]->getBounds().reduced(1,1), 5.0f);
-
-        DropShadow (findColour(ThemeColors::dropShadowColor), 10, Point<int> (4, 2)).drawForPath (g, editorBorderPath);
+        DropShadow (findColour(ThemeColors::dropShadowColor), 10, Point<int> (4, 2))
+            .drawForRectangle (g, editorArray[i]->getBounds().reduced(1,1));
     }
     
     if (somethingIsBeingDraggedOver)
