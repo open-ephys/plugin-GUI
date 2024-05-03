@@ -290,7 +290,11 @@ AudioConfigurationWindow::AudioConfigurationWindow (AudioDeviceManager& adm, Aud
 
 {
     centreWithSize (360,500);
+
+#if JUCE_MAC || JUCE_LINUX
     setUsingNativeTitleBar (true);
+#endif
+
     setResizable (false,false);
 
     LOGDD("Audio CPU usage:", adm.getCpuUsage());

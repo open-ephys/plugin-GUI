@@ -120,7 +120,6 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
         documentWindow->getMenuBarComponent()->setName("MainMenu");
     #endif
 
-        // documentWindow->setLookAndFeel(LookAndFeel::getDefaultLookAndFeel());
 
 		commandManager.registerAllCommandsForTarget(ui);
         commandManager.registerAllCommandsForTarget(JUCEApplication::getInstance());
@@ -131,14 +130,18 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 
         LOGD("Loading window bounds.");
         loadWindowBounds();
-        documentWindow->setUsingNativeTitleBar(false);
-		documentWindow->setDropShadowEnabled(true);
+
+	#if JUCE_MAC || JUCE_LINUX
+		// Use native title bar on Mac and Linux
+        documentWindow->setUsingNativeTitleBar(true);
+	#endif
+
         documentWindow->addToDesktop(documentWindow->getDesktopWindowStyleFlags());  // prevents the maximize
                                                                                 // button from randomly disappearing
         documentWindow->setVisible(true);
 
         // Constraining the window's size doesn't seem to work:
-        documentWindow->setResizeLimits(500, 500, 10000, 10000);
+        documentWindow->setResizeLimits(800, 600, 10000, 10000);
 
 		ui->setTheme(currentTheme);
         

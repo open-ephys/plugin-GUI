@@ -738,7 +738,7 @@ void CustomLookAndFeel::drawMenuBarBackground (Graphics& g, int width, int heigh
 {
     const Colour colour (findColour(ThemeColors::menuBackground));
 
-    Rectangle<int> r (width, height);
+    Rectangle<int> r (1, 0, width - 2, height);
 
     g.setColour (colour.contrasting (0.15f));
     g.fillRect  (r.removeFromTop (1));
@@ -1417,13 +1417,13 @@ void CustomLookAndFeel::fillResizableWindowBackground (Graphics& g, int /*w*/, i
                                                     const BorderSize<int>& /*border*/, ResizableWindow& window)
 {
     g.setColour (window.getBackgroundColour());
-    g.fillRoundedRectangle (window.getLocalBounds().toFloat(), 8.0f);
+    g.fillRect (window.getLocalBounds().toFloat());
 }
 
 void CustomLookAndFeel::drawResizableWindowBorder(juce::Graphics& g, int w, int h,
                                const juce::BorderSize< int >& border,
                                juce::ResizableWindow& window)
 {
-    g.setColour (findColour (ThemeColors::outline).withAlpha (0.8f));
-    g.drawRoundedRectangle (window.getLocalBounds().toFloat(), 8.0f, 3.0f);
+    g.setColour (findColour (ThemeColors::outline).withAlpha (0.5f));
+    g.drawRect (window.getLocalBounds().toFloat());
 }

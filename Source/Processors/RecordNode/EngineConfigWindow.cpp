@@ -209,7 +209,9 @@ EngineConfigWindow::EngineConfigWindow(RecordEngineManager* man)
     if (height == 0)
         height = 10;
     centreWithSize(200,height);
+#if JUCE_MAC || JUCE_LINUX
     setUsingNativeTitleBar(true);
+#endif
     setResizable(false,false);
     setName(man->getName()+" recording configuration");
 
