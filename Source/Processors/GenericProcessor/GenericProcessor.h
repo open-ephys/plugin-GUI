@@ -581,12 +581,18 @@ protected:
     /** Used to get the current timestamp for a given stream.*/
     double getFirstTimestampForBlock(uint16 streamId) const;
 
+    std::optional<std::pair<int64, double>> getReferenceSampleForBlock(uint16 streamId);
+
 	/** Used to set the timestamp for a given buffer, for a given DataStream. */
 	void setTimestampAndSamples(int64 startSampleForBlock,
                                 double startTimestampForBlock,
                                 uint32 nSamples,
                                 uint16 streamId,
                                 uint16 syncStreamId = 0);
+
+    void setReferenceSample(uint16 streamId,
+        double timestamp,
+        int64 sampleIndex);
     
     // --------------------------------------------
     //     CHANNEL INDEXING
@@ -734,6 +740,9 @@ private:
 
     /** Map between stream IDs and start time of process callbacks. */
     std::map<uint16, int64> processStartTimes;
+
+    /** Map between stream IDs and  reference samples */
+    std::map<uint16, std::optional<std::pair<int64, double>>> referenceSamplesForBlock;
 
     /** First software timestamp of process() callback. */
 	juce::int64 m_initialProcessTime;

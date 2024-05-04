@@ -327,6 +327,7 @@ void SourceNode::process(AudioBuffer<float>& buffer)
             &timestamp,
             static_cast<uint64*>(eventCodeBuffers[streamIdx]->getData()),
             buffer.getNumSamples(),
+            &timestampSampleIndex,
             copiedChannels,
             channelsToCopy);
 
@@ -341,6 +342,11 @@ void SourceNode::process(AudioBuffer<float>& buffer)
                                timestamp,
                                nSamples,
                                dataStreams[streamIdx]->getStreamId());
+
+        if (timestampSampleIndex.has_value())
+        {
+            setReferenceSample(dataStreams[streamIdx]->getStreamId(), timestamp, timestampSampleIndex.value());
+        }
 
 		if (eventChannels[streamIdx])
 		{

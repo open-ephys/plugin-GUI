@@ -220,7 +220,10 @@ public:
 		PARAMETER_CHANGE = 2,
 
 		// Special text event sent by Source Processors at the start of recording
-		TIMESTAMP_SYNC_TEXT = 3
+		TIMESTAMP_SYNC_TEXT = 3,
+
+		// Indicates reference sample information for each incoming data buffer
+		REFERENCE_SAMPLE = 4
 
 	};
 
@@ -233,6 +236,12 @@ public:
 		uint32 nSamplesInBlock,
 		int64 processStartTime,
 		uint16 syncStreamId = 0);
+
+	static size_t fillReferenceSampleEvent(HeapBlock<char>& data,
+		const GenericProcessor* proc,
+		uint16 streamId,
+		int64 referenceSampleIndex,
+		double referenceSampleTimestamp);
 		
 	/* Create a TIMESTAMP_SYNC_TEXT event (used by Record Node) */
 	static size_t fillTimestampSyncTextData(HeapBlock<char>& data, 
