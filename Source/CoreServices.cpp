@@ -32,6 +32,7 @@
 #include "UI/PopupComponent.h"
 #include "Processors/MessageCenter/MessageCenterEditor.h"
 #include "Processors/Events/Event.h"
+#include "Processors/Merger/Merger.h"
 
 
 using namespace AccessClass;
