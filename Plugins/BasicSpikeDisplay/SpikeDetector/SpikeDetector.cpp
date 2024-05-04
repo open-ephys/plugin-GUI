@@ -872,7 +872,7 @@ void SpikeDetector::saveCustomParametersToXml (XmlElement* xml)
     for (auto spikeChannel : spikeChannels)
     {
 
-        if (spikeChannel->isLocal())
+        if (spikeChannel->isLocal() && spikeChannel->isValid())
         {
             const uint16 streamId = spikeChannel->getStreamId();
 

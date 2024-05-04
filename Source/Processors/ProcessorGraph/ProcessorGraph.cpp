@@ -1731,7 +1731,33 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
 bool ProcessorGraph::isReady()
 {
 
-    LOGD("ProcessorGraph::enableProcessors()");
+    LOGD("ProcessorGraph checking for all valid parameters...");
+
+    //Iterate through all the active nodes in the signal chain
+    for (int i = 0; i < getNumNodes(); i++)
+    {
+        Node* node = getNode(i);
+
+        if (node->nodeID != NodeID(OUTPUT_NODE_ID))
+        {
+            GenericProcessor* p = (GenericProcessor*) node->getProcessor();
+
+            for (auto param : p->getParameters())
+            {
+                if (!param->isValid())
+                {
+                    CoreServices::sendStatusMessage("Parameter " + param->getKey() + " is not valid.");
+                    AccessClass::getUIComponent()->disableCallbacks();
+                    return false;
+                }
+            }
+
+        }
+    }
+
+    LOGD("All parameters are valid.");
+
+    LOGD("ProcessorGraph checking minimum number of nodes...");
 
     if (getNumNodes() < 4)
     {

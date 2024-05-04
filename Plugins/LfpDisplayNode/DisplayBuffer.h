@@ -95,6 +95,7 @@ namespace LfpViewer {
         
         String name;
         int id;
+        String streamKey;
 
         int64 bufferIndex;
         std::map<int, int> channelMap;

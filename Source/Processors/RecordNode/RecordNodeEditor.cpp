@@ -64,6 +64,17 @@ void DiskSpaceMonitor::timerCallback()
 {
 	RecordNode* recordNode = (RecordNode*) processor;
 
+	if (!recordNode->getParameter("directory")->isValid())
+	{
+		setFillPercentage(95.0);
+		setTooltip("Invalid directory");
+
+		recordNode->getParameter("directory")->valueChanged();
+		return;
+	}
+
+	recordNode->getParameter("directory")->valueChanged();
+
 	int64 bytesFree = recordNode->getDataDirectory().getBytesFreeOnVolume();
 	int64 volumeSize = recordNode->getDataDirectory().getVolumeTotalSize();
 

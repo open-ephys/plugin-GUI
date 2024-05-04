@@ -305,6 +305,8 @@ bool FileReader::startAcquisition()
     if (!isEnabled)
         return false;
 
+    checkAudioDevice();
+
     /* Start asynchronous file reading thread */
 	startThread(); 
 
@@ -528,6 +530,36 @@ void FileReader::updateSettings()
 
     LOGD("File Reader finished updating custom settings.");
 
+}
+
+void FileReader::checkAudioDevice()
+{
+    /* Setup internal buffer based on audio device settings */
+    AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
+    AudioDeviceManager::AudioDeviceSetup ads;
+    adm.getAudioDeviceSetup(ads);
+    if (ads.sampleRate != m_sysSampleRate || ads.bufferSize != m_bufferSize)
+    {
+        m_sysSampleRate = ads.sampleRate;
+
+        m_bufferSize = ads.bufferSize;
+        if (m_bufferSize == 0) m_bufferSize = 1024;
+        m_samplesPerBuffer.set(m_bufferSize * (getDefaultSampleRate() / m_sysSampleRate));
+
+        bufferA.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
+        bufferB.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
+
+        /* Reset stream to start of playback */
+        input->seekTo(startSample);
+        currentSample = startSample;
+
+        /* Pre-fills the front buffer with a blocking read */
+        readAndFillBufferCache(bufferA);
+
+        readBuffer = &bufferB;
+        bufferCacheWindow = 0;
+        m_shouldFillBackBuffer.set(false);
+    }
 }
 
 int64 FileReader::getPlaybackStart()

@@ -183,6 +183,9 @@ public:
 
 private:
 
+    /** Checks for changes in the audio device settings */
+    void checkAudioDevice();
+
     /** Currently only support one event channel per stream */
     ScopedPointer<EventChannel> eventChannel;
 

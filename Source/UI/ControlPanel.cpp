@@ -532,6 +532,12 @@ void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
         
         return;
     }
+
+    if (audioEditor->isAudioConfigurationWindowVisible())
+    {
+        audioEditor->disable();
+        audioEditor->enable();
+    }
     
     if (graph->isReady()) // check that all processors are enabled
     {

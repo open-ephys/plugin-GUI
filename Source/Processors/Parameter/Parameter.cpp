@@ -1125,6 +1125,24 @@ void PathParameter::setNextValue(var newValue_, bool undoable)
 
 }
 
+bool PathParameter::isValid()
+{
+    if (currentValue.toString() == "default") {
+        currentValue = defaultValue;
+        return true;
+    }
+    else if (!isDirectory && File(currentValue.toString()).existsAsFile())
+    {
+        return true;
+    }
+    else if (isDirectory && File(currentValue.toString()).exists())
+    {
+        return true;
+    }
+
+    return false;
+}
+
 void PathParameter::toXml(XmlElement* xml)
 {
     xml->setAttribute(getName(), currentValue.toString());

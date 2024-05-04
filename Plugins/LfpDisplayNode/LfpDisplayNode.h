@@ -88,7 +88,7 @@ public:
     /** Returns an array of pointers to the availble displayBuffers*/
     Array<DisplayBuffer*> getDisplayBuffers();
 
-    /** Map between data stream IDs and display buffer pointers*/
+    /** Map between data stream keys and display buffer pointers*/
     std::map<uint16, DisplayBuffer*> displayBufferMap;
 
     /** Sets an array of pointers to the 3 available split displays*/

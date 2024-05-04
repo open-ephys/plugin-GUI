@@ -80,9 +80,10 @@ void LfpDisplayNode::updateSettings()
         uint16 streamId = channel->getStreamId();
         String name = channel->getStreamName();
 
+        String stream_key = getDataStream(streamId)->getKey();
+
         if (displayBufferMap.count(streamId) == 0)
         {
-            
             displayBuffers.add(new DisplayBuffer(streamId, name, channel->getSampleRate()));
             displayBufferMap[streamId] = displayBuffers.getLast();
 
@@ -263,9 +264,7 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
 
     if (displayBufferMap.count(eventStreamId))
     {
-        displayBufferMap[eventStreamId]->addEvent(eventTime, eventChannel, eventId,
-                                                  getNumSamplesInBlock(eventStreamId)
-        );
+        displayBufferMap[eventStreamId]->addEvent(eventTime, eventChannel, eventId, getNumSamplesInBlock(eventStreamId));
     }
 
     for (auto display : splitDisplays)
@@ -305,6 +304,7 @@ void LfpDisplayNode::finalizeEventChannels()
 
     for (auto displayBuffer : displayBuffers)
     {
+
         int numSamples = getNumSamplesInBlock(displayBuffer->id);
         displayBuffer->finalizeEventChannel(numSamples);
     }
@@ -323,6 +323,8 @@ void LfpDisplayNode::process (AudioBuffer<float>& buffer)
         const uint16 streamId = continuousChannels[chan]->getStreamId();
 
         const uint32 nSamples = getNumSamplesInBlock(streamId);
+
+        String streamKey = getDataStream(streamId)->getKey();
 
         displayBufferMap[streamId]->addData(buffer, chan, nSamples);
     }

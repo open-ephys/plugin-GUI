@@ -114,7 +114,7 @@ void RecordNode::parameterValueChanged(Parameter* p)
 	if (p->getName() == "directory")
 	{
 		String newPath = static_cast<PathParameter*>(p)->getValue();
-		if (newPath == "default" || !File(newPath).exists())
+		if (newPath == "default")
 			newPath = CoreServices::getRecordingParentDirectory().getFullPathName();
 		setDataDirectory(File(newPath));
 	}
