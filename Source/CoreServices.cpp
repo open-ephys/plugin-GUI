@@ -237,6 +237,88 @@ namespace CoreServices
 		return nodeIds;
 	}
 
+	GenericProcessor* getProcessorById(uint16_t nodeId)
+	{
+		if (getProcessorGraph() == nullptr)
+		{
+			return nullptr;
+		}
+		return getProcessorGraph()->getProcessorWithNodeId(nodeId);
+
+	}
+
+	std::vector<int> getPredecessorProcessorIds(GenericProcessor* node)
+	{
+		std::vector<int> predecessor_node_ids;
+
+		std::queue<GenericProcessor*> queued;
+		queued.push(node);
+		bool is_original = true;
+		while (!queued.empty())
+		{
+			auto cur = queued.front();
+			queued.pop();
+
+			// Don't push on the original node itself, nor populate the IDs for a merger/splitter
+			if (!cur->isMerger() && !cur->isSplitter() && !is_original)
+			{
+				predecessor_node_ids.push_back(cur->getNodeId());
+			}
+			is_original = false;
+
+			if (cur->isMerger())
+			{
+				Merger* merger = (Merger*)cur;
+				if (merger->getSourceNode(0) != nullptr)
+				{
+					queued.push(merger->getSourceNode(0));
+				}
+				if (merger->getSourceNode(1) != nullptr)
+				{
+					queued.push(merger->getSourceNode(1));
+				}
+			}
+			else
+			{
+				auto parent_node = cur->getSourceNode();
+				if (parent_node != nullptr)
+				{
+					queued.push(parent_node);
+				}
+			}
+		}
+
+		return predecessor_node_ids;
+	}
+
+	GenericProcessor* getProcessorByName(String processorName, bool onlySearchSources)
+	{
+		if (getProcessorGraph() == nullptr)
+		{
+			return nullptr;
+		}
+		Array<GenericProcessor*> processors;
+		if (onlySearchSources)
+		{
+			processors = getProcessorGraph()->getRootNodes();
+		}
+		else
+		{
+			processors = getProcessorGraph()->getListOfProcessors();
+		}
+
+		for (const auto& processor : processors)
+		{
+			if (processor->getName() == processorName)
+			{
+				return processor;
+			}
+		}
+
+		return nullptr;
+
+	}
+
 	namespace RecordNode
 	{
 

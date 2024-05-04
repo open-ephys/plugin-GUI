@@ -1,12 +1,15 @@
 #include "BroadcastPayload.h"
 
-BroadcastPayload::BroadcastPayload(String command, DynamicObject::Ptr payload) : _commandName(command), _payload(payload) {}
+BroadcastPayload::BroadcastPayload() : _commandName("") {}
+BroadcastPayload::BroadcastPayload(const String& command, DynamicObject::Ptr payload) : _commandName(command), _payload(payload) {}
 
-String BroadcastPayload::getCommandName() const {
-	return _commandName;
+String BroadcastPayload::getCommandName() const
+{
+    return _commandName;
 }
 
-bool BroadcastPayload::getIntField(String name, int& value, int lowerBound, int upperBound) {
+bool BroadcastPayload::getIntField(const String& name, int& value, int lowerBound, int upperBound)
+{
     if (!_payload->hasProperty(name) || !_payload->getProperty(name).isInt())
         return false;
     int tempVal = _payload->getProperty(name);
@@ -14,4 +17,9 @@ bool BroadcastPayload::getIntField(String name, int& value, int lowerBound, int 
         return false;
     value = tempVal;
     return true;
+}
+
+const DynamicObject::Ptr BroadcastPayload::getPayload() const
+{
+    return _payload;
 }
