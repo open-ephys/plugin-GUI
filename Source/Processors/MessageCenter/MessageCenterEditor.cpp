@@ -168,7 +168,7 @@ void MessageCenterEditor::expand()
     {
         isExpanded = true;
         
-        backgroundColor = Colour(100,100,100);
+        backgroundColor = findColour(ThemeColors::widgetBackground);
         
         resized();
         
@@ -184,7 +184,7 @@ void MessageCenterEditor::collapse()
     {
         isExpanded = false;
         
-        backgroundColor = Colours::lightgrey.withAlpha(0.30f);
+        backgroundColor = findColour(ThemeColors::componentBackground);
                         
         resized();
         
@@ -203,7 +203,7 @@ void MessageCenterEditor::paint(Graphics& g)
     if (isExpanded)
         g.setColour(findColour(ThemeColors::widgetBackground).withAlpha(0.85f));
     else
-        g.setColour(findColour(ThemeColors::widgetBackground));
+        g.setColour(findColour(ThemeColors::componentBackground));
     
     g.fillRoundedRectangle(2, 2, getWidth()-4, getHeight()-4, 6.0f);
     

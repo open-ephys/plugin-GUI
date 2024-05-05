@@ -41,6 +41,7 @@ GraphViewport::GraphViewport(GraphViewer* gv)
 {
     viewport = std::make_unique<Viewport>();
     viewport->setViewedComponent(gv, false);
+    viewport->setScrollBarThickness(12.0f);
     gv->setVisible(true);
     addAndMakeVisible(viewport.get());
 
@@ -334,7 +335,7 @@ void GraphViewer::paint (Graphics& g)
             linePath.lineTo(endPoint);
 
             g.setColour(pathColor);
-            PathStrokeType stroke1(10.0f);
+            PathStrokeType stroke1(3.5f);
             g.strokePath(linePath, stroke1);
 
             Colour ellipseColour = findColour(ThemeColors::defaultFill);
@@ -344,10 +345,13 @@ void GraphViewer::paint (Graphics& g)
                                                 startPoint.x, startPoint.y,
                                                 true);
 
-            g.setColour(ellipseColour);
-            g.drawEllipse(startPoint.x - 20.f, startPoint.y - 10.0f, 20.f, 20.f, 2.f);
+            
+            //g.setColour(ellipseColour);
+            //g.drawEllipse(startPoint.x - 20.f, startPoint.y - 10.0f, 20.f, 20.f, 2.f);
             g.setGradientFill(ellipseGradient);
-            g.fillEllipse (startPoint.x - 19.f, startPoint.y - 9.f, 18.f, 18.f);
+            g.fillEllipse (startPoint.x - 20.f, startPoint.y - 10.f, 20.f, 20.f);
+            g.setColour(Colours::black);
+            g.drawEllipse(startPoint.x - 20.f, startPoint.y - 10.0f, 20.f, 20.f, 1.5f);
 
             int level = rootProcessors.indexOf(nodeProcessor);
             static const String letters = "ABCDEFGHI";
@@ -406,14 +410,14 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
     Path linePath;
     float x1 = start.getX();
     float y1 = start.getY();
-    float x2 = end.getX();
+    float x2 = end.getX()-14.0f;
     float y2 = end.getY();
     
     linePath.startNewSubPath (x1, y1);
 
     if(availableNodes[node1]->getLevel() == availableNodes[node2]->getLevel())
     {    
-        linePath.lineTo(end.withX(x2 - 2.0f));
+        linePath.lineTo(end.withX(x2));
     }
     else
     {
@@ -442,13 +446,13 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
         stroke3.createStrokedPath(arrowPath, linePath);
         g.fillPath(arrowPath);
         
-        PathStrokeType stroke2 (2.0f);
-        Path arrowPath2;
-        stroke2.createStrokedPath(arrowPath2, linePath);
-        g.fillPath(arrowPath2);
+        //PathStrokeType stroke2 (2.0f);
+        //Path arrowPath2;
+        //stroke2.createStrokedPath(arrowPath2, linePath);
+        //g.fillPath(arrowPath2);
     }
     
-    g.drawArrow(Line<float>(x2 - 9.f, y2, x2 + 1.0f, y2), 0.0f, 10.f, 10.f);
+    g.drawArrow(Line<float>(x2, y2, x2 + 14.0f, y2), 3.5f, 10.0f, 14.f);
 }
 
 
@@ -639,9 +643,9 @@ int DataStreamInfo::getMaxHeight() const
 
 void DataStreamInfo::restorePanels()
 {
-    headerButton->setToggleState(node->streamInfoVisible[stream->getKey()], dontSendNotification);
-    parameterButton->setToggleState(node->streamParamsVisible[stream->getKey()], dontSendNotification);
-    buttonClicked(parameterButton);
+    //headerButton->setToggleState(node->streamInfoVisible[stream->getKey()], dontSendNotification);
+    //parameterButton->setToggleState(node->streamParamsVisible[stream->getKey()], dontSendNotification);
+    //buttonClicked(parameterButton);
 }
 
 

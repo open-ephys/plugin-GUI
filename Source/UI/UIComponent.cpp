@@ -342,7 +342,7 @@ void UIComponent::resized()
             
         } else {
             messageCenterEditor->expand();
-            messageCenterEditor->setBounds(6, 6,getWidth()-6,getHeight()-6);
+            messageCenterEditor->setBounds(6, 6, w-241, getHeight()-11);
         }
 	}
     

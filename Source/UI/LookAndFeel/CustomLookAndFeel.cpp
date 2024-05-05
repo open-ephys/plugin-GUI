@@ -109,12 +109,12 @@ void CustomLookAndFeel::initializeColors()
 
     themeColorsMap[MEDIUM] = {
         {ThemeColors::componentBackground, Colour(143, 143, 143)},
-        {ThemeColors::componentParentBackground, Colour(68, 68, 68)},
+        {ThemeColors::componentParentBackground, Colour(58, 58, 58)},
         {ThemeColors::windowBackground, Colour(40, 40, 40)},
         {ThemeColors::widgetBackground,Colour(190, 190, 190)},
         {ThemeColors::menuBackground, Colour(140, 140, 140)},
         {ThemeColors::menuHighlightText, Colours::black},
-        {ThemeColors::menuHighlightBackground, Colour(196, 155, 64)},
+        {ThemeColors::menuHighlightBackground, Colour(244, 148, 32)},
         {ThemeColors::outline, Colours::black},
         {ThemeColors::defaultText, Colours::black},
         {ThemeColors::defaultFill, Colour(112,112,112)},
@@ -132,7 +132,7 @@ void CustomLookAndFeel::initializeColors()
         {ThemeColors::menuHighlightText, Colour(20,20,20)},
         {ThemeColors::menuHighlightBackground, Colour(153,200,214)},
         {ThemeColors::outline, Colours::black},
-        {ThemeColors::defaultText, Colour(204,204,204)},
+        {ThemeColors::defaultText, Colour(224,224,224)},
         {ThemeColors::defaultFill, Colour(72,72,72)},
         {ThemeColors::highlightedText, Colour(240,240,240)},
         {ThemeColors::highlightedFill, Colour(230, 152, 63)},

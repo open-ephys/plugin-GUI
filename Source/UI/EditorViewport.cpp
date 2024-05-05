@@ -1271,7 +1271,7 @@ void SignalChainTabButton::paintButton(Graphics& g, bool isMouseOver, bool isBut
     else
         n = "-";
 
-    g.drawText(n,0,0,getWidth(),getHeight(),Justification::centred,true);
+    g.drawText(n,0,0,getWidth(),getHeight()-2,Justification::centred,true);
 }
 
 // SignalChainTabComponent
