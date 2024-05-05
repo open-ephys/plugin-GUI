@@ -22,35 +22,83 @@
  */
 
 #include "CustomArrowButton.h"
+#include "LookAndFeel/CustomLookAndFeel.h"
 
-
-CustomArrowButton::CustomArrowButton(const String& name, float direction)
-    : Button(name)
+CustomArrowButton::CustomArrowButton(float rotation, float width_) : ToggleButton(),
+    width(width_)
 {
-    path.addTriangle(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.5f);
-    path.applyTransform(AffineTransform::rotation(float_Pi * 2.0f * direction, 0.5f, 0.5f));
+    //openPath.addTriangle(-1f, -1f, 1f, -1.0f, 0.0f, 1.0f );
+    //openPath.applyTransform(AffineTransform::scale(2.2f, 2.2f));
+    //openPath.applyTransform(AffineTransform::translation(-5.f, -5.f));
+    //openPath.applyTransform(AffineTransform::rotation(rotation));
+    //openPath.applyTransform(AffineTransform::translation(5.f, 5.f));
+    //closedPath.addTriangle(1.5f, 5.0f, 7.0f, 2.2f, 7.0f, 7.8f);
+    //closedPath.applyTransform(AffineTransform::scale(2.2f, 2.2f));
+    //closedPath.applyTransform(AffineTransform::rotation(rotation));
+    
+    juce::Path trianglePath;
+            
+    // Define vertices of the triangle centered around zero
+    juce::Point<float> vertices[3];
+    vertices[0] = juce::Point<float>(0, 0.6);
+    vertices[1] = juce::Point<float>(0.5, -0.36);
+    vertices[2] = juce::Point<float>(-0.5, -0.36);
+    
+    //vertices[0] = juce::Point<float>(1.5, 5.0);
+    //vertices[1] = juce::Point<float>(7.0, 2.2);
+    //vertices[2] = juce::Point<float>(7.0, 7.8);
+    
+    trianglePath.startNewSubPath(vertices[0]);
+    trianglePath.lineTo(vertices[1]);
+    trianglePath.lineTo(vertices[2]);
+    trianglePath.closeSubPath();
+    
+    openPath = trianglePath.createPathWithRoundedCorners(0.2f);
+    openPath.applyTransform(AffineTransform::rotation(rotation));
+    
+    closedPath = Path(openPath);
+    closedPath.applyTransform(AffineTransform::rotation(MathConstants<float>::pi/2));
+    
+    openPath.applyTransform(AffineTransform::scale(width * 0.58f));
+    openPath.applyTransform(AffineTransform::translation(width/2, width/2));
+    
+    closedPath.applyTransform(AffineTransform::scale(width * 0.58f));
+    closedPath.applyTransform(AffineTransform::translation(width/2, width/2));
+    
+    backgroundColour = findColour(ThemeColors::componentBackground);
 }
 
-CustomArrowButton::~CustomArrowButton() {}
-
-void CustomArrowButton::paintButton(Graphics& g, bool /*isMouseOverButton*/, bool isButtonDown)
+void CustomArrowButton::setCustomBackground(bool useCustom, Colour colour)
 {
-
-    const float borderWidth = isEnabled() ? (isButtonDown ? 1.2f : 0.5f) : 0.3f;
-
-    juce::LookAndFeel_V1::drawGlassLozenge(g,
-                                           borderWidth, borderWidth,
-                                           getWidth() - borderWidth * 2.0f, getHeight() - borderWidth * 2.0f,
-                                           Colours::orange, borderWidth, -1.0f,
-                                           true, true, true, true);
-
-    if (isEnabled())
-    {
-        Path p(path);
-        p.scaleToFit(getWidth() * 0.25f, getHeight() * 0.25f,
-                     getWidth() * 0.5f, getHeight() * 0.5f, false);
-
-        g.setColour(Colours::darkgrey);
-        g.fillPath(p);
-    }
+    customBackground = useCustom;
+    backgroundColour = colour;
+    repaint();
 }
+
+void CustomArrowButton::paint(Graphics& g)
+{
+    Colour foregroundColour;
+    
+    if (customBackground)
+        foregroundColour = backgroundColour.darker(0.9f).withAlpha(0.5f);
+    else
+        foregroundColour = findColour(ThemeColors::defaultText).withAlpha(0.3f);
+    
+    if (isOver())
+        g.setColour(foregroundColour.brighter(0.4f));
+    else
+        g.setColour(foregroundColour);
+    
+    g.fillEllipse(0, 0, width, width);
+
+    if (customBackground)
+        g.setColour(backgroundColour);
+    else
+        g.setColour(findColour(ThemeColors::componentBackground));
+    
+    if (getToggleState())
+        g.fillPath(openPath);
+    else
+        g.fillPath(closedPath);
+}
+

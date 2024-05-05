@@ -69,8 +69,9 @@ UIComponent::UIComponent(MainWindow* mainWindow_,
 
 	LOGD("Created editor viewport.");
 
-	editorViewportButton = new EditorViewportButton(this);
-	addAndMakeVisible(editorViewportButton);
+	showHideEditorViewportButton = new ShowHideEditorViewportButton();
+    showHideEditorViewportButton->addListener(this);
+	addAndMakeVisible(showHideEditorViewportButton);
 
 	addAndMakeVisible(controlPanel);
     
@@ -184,6 +185,9 @@ void UIComponent::buttonClicked(Button* button)
         messageCenterIsCollapsed = !messageCenterIsCollapsed;
         
         resized();
+    } else if (button == showHideEditorViewportButton.get())
+    {
+        resized();
     }
 }
 
@@ -193,25 +197,25 @@ void UIComponent::resized()
 	int w = getWidth();
 	int h = getHeight();
 
-	if (editorViewportButton != nullptr)
+	if (showHideEditorViewportButton != nullptr)
 	{
-		editorViewportButton->setBounds(w-230, h-40, 225, 35);
+        showHideEditorViewportButton->setBounds(w-230, h-40, 225, 35);
 
-		if (h < 300 && editorViewportButton->isOpen())
-			editorViewportButton->toggleState();
+		//if (h < 300 && showHideEditorViewportButton->getToggleState())
+        //    showHideEditorViewportButton->toggleState();
 
-		if (h < 200)
-			editorViewportButton->setBounds(w-230,h-40+200-h,225,35);
+		//if (h < 200)
+        //    showHideEditorViewportButton->setBounds(w-230,h-40+200-h,225,35);
 	}
 
 	if (signalChainTabComponent != nullptr)
 	{
-		if (editorViewportButton->isOpen() && !signalChainTabComponent->isVisible())
+		if (showHideEditorViewportButton->getToggleState() && !signalChainTabComponent->isVisible())
         {
             signalChainTabComponent->setVisible(true);
         }
 			
-		else if (!editorViewportButton->isOpen() && signalChainTabComponent->isVisible())
+		else if (!showHideEditorViewportButton->getToggleState() && signalChainTabComponent->isVisible())
         {
             signalChainTabComponent->setVisible(false);
         }
@@ -279,7 +283,7 @@ void UIComponent::resized()
 			
 			if (processorList->isOpen())
 			{
-				if (editorViewportButton->isOpen())
+				if (showHideEditorViewportButton->getToggleState())
 					processorListViewport.setBounds(5, 5, 195, h - 210);
 				else
 					processorListViewport.setBounds(5, 5, 195, h - 50);
@@ -313,7 +317,7 @@ void UIComponent::resized()
 
 		top = controlPanel->getHeight()+8;
 
-		if (editorViewportButton->isOpen())
+		if (showHideEditorViewportButton->getToggleState())
 			height = h - top - 205;
 		else
 			height = h - top - 45;
@@ -358,7 +362,7 @@ void UIComponent::resized()
 		processorList->setVisible(false);
 		messageCenterEditor->setVisible(false);
 		controlPanel->setVisible(false);
-		editorViewportButton->setVisible(false);
+		showHideEditorViewportButton->setVisible(false);
 	}
 
 }
@@ -665,7 +669,7 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 		case toggleSignalChain:
 			result.setInfo("Signal Chain", "Show/hide Signal Chain.", "General", 0);
 			result.addDefaultKeypress('S', ModifierKeys::shiftModifier);
-			result.setTicked(editorViewportButton->isOpen());
+			result.setTicked(showHideEditorViewportButton->getToggleState());
 			break;
 
 		case toggleFileInfo:
@@ -981,7 +985,7 @@ bool UIComponent::perform(const InvocationInfo& info)
             break;
             
 		case toggleSignalChain:
-			editorViewportButton->toggleState();
+			showHideEditorViewportButton->setToggleState(!showHideEditorViewportButton->getToggleState(), sendNotification);
 			break;
 
 		case resizeWindow:
@@ -1059,7 +1063,7 @@ void UIComponent::saveStateToXml(XmlElement* xml)
 {
 	XmlElement* uiComponentState = xml->createNewChildElement("UICOMPONENT");
 	uiComponentState->setAttribute("isProcessorListOpen",processorList->isOpen());
-	uiComponentState->setAttribute("isEditorViewportOpen",editorViewportButton->isOpen());
+	uiComponentState->setAttribute("isEditorViewportOpen", showHideEditorViewportButton->getToggleState());
 }
 
 void UIComponent::loadStateFromXml(XmlElement* xml)
@@ -1075,10 +1079,7 @@ void UIComponent::loadStateFromXml(XmlElement* xml)
             processorList->toggleState();
         }
 
-        if (!isEditorViewportOpen)
-        {
-            editorViewportButton->toggleState();
-        }
+        showHideEditorViewportButton->setToggleState(isEditorViewportOpen, sendNotification);
 
 	}
 }
@@ -1115,65 +1116,35 @@ Component* UIComponent::findComponentByIDRecursive(Component* parent, const Stri
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-EditorViewportButton::EditorViewportButton(UIComponent* ui) : UI(ui)
+ShowHideEditorViewportButton::ShowHideEditorViewportButton() : ToggleButton()
 {
-	open = true;
-
 	buttonFont = Font("CP Mono", "Light", 25);
+    setTooltip("Show/hide signal chain");
+    
+    arrow = std::make_unique<CustomArrowButton>(MathConstants<float>::pi/2);
+    
+    arrow->setBounds(195,7,22,22);
+    arrow->addListener(this);
+    addAndMakeVisible(arrow.get());
 
 }
 
-EditorViewportButton::~EditorViewportButton()
-{
 
+void ShowHideEditorViewportButton::buttonClicked(Button* button)
+{
+    setToggleState(!getToggleState(), sendNotification);
 }
 
 
-void EditorViewportButton::paint(Graphics& g)
+void ShowHideEditorViewportButton::paint(Graphics& g)
 {
 
-	g.fillAll(findColour(ThemeColors::componentBackground));
+    g.fillAll(findColour(ThemeColors::componentBackground));
 
 	g.setColour(findColour(ThemeColors::defaultText));
 	g.setFont(buttonFont);
 	g.drawText("SIGNAL CHAIN", 10, 0, getWidth(), getHeight(), Justification::left, false);
 
-	Path p;
-
-	float h = getHeight();
-	float w = getWidth()-5;
-
-	if (open)
-	{
-		p.addTriangle(w-h+0.3f*h, 0.7f*h,
-				w-h+0.5f*h, 0.3f*h,
-				w-h+0.7f*h, 0.7f*h);
-	}
-	else
-	{
-		p.addTriangle(w-h+0.3f*h, 0.5f*h,
-				w-h+0.7f*h, 0.3f*h,
-				w-h+0.7f*h, 0.7f*h);
-	}
-
-	PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);
-
-	g.strokePath(p, pst);
-
-}
-
-
-void EditorViewportButton::mouseDown(const MouseEvent& e)
-{
-	open = !open;
-	UI->childComponentChanged();
-	repaint();
-
-}
-
-void EditorViewportButton::toggleState()
-{
-	open = !open;
-	UI->childComponentChanged();
-	repaint();
+    arrow->setToggleState(!getToggleState(), dontSendNotification);
+        
 }

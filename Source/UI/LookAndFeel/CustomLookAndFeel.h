@@ -133,8 +133,6 @@ public:
     void drawPointer (Graphics&, float x, float y, float diameter,
                       const Colour&, int direction) noexcept;
 
-    Button* createSliderButton(Slider& s, bool	isIncrement);
-
     // ======== custom combo box methods: =============================
 
     void drawComboBox(Graphics& g, int width, int height,

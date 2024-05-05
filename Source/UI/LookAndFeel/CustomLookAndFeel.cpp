@@ -22,7 +22,6 @@
 */
 
 #include "CustomLookAndFeel.h"
-#include "../CustomArrowButton.h"
 
 #include "../../Utils/Utils.h"
 
@@ -125,7 +124,7 @@ void CustomLookAndFeel::initializeColors()
     };
 
     themeColorsMap[DARK] = {
-        {ThemeColors::componentBackground, Colour(40, 40, 40)},
+        {ThemeColors::componentBackground, Colour(45, 45, 45)},
         {ThemeColors::componentParentBackground, Colour(30, 30, 30).darker(0.3f)},
         {ThemeColors::windowBackground, Colour(24,24,24)},
         {ThemeColors::widgetBackground, Colour(40, 40, 40).darker()},
@@ -653,12 +652,6 @@ void CustomLookAndFeel::drawPointer (Graphics& g, const float x, const float y, 
     g.setColour (colour);
     g.fillPath (p);
 }
-
-Button* CustomLookAndFeel::createSliderButton(Slider& s, bool isIncrement)
-{
-    return new CustomArrowButton(String(), isIncrement ? 0 : 0.5);
-}
-
 
 /// ------ combo box ---------------///
 

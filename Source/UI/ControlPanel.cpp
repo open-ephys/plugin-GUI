@@ -347,53 +347,6 @@ void Clock::mouseDown(const MouseEvent& e)
 	}
 }
 
-ControlPanelButton::ControlPanelButton(ControlPanel* cp_)
-    : cp(cp_),
-      open(false)
-{
-    openPath.addTriangle(2.2f, 3.0f, 7.8f, 3.0f,  5.0f, 8.5f );
-    openPath.applyTransform(AffineTransform::scale(2.2f, 2.2f));
-    closedPath.addTriangle(1.5f, 5.0f, 7.0f, 2.2f, 7.0f, 7.8f);
-    closedPath.applyTransform(AffineTransform::scale(2.2f, 2.2f));
-
-    setTooltip("Show/hide recording options");
-}
-
-void ControlPanelButton::paint(Graphics& g)
-{
-    g.setColour(findColour(ThemeColors::defaultFill));
-    
-    g.fillEllipse(0, 0, getWidth(), getHeight());
-
-    g.setColour(findColour(ThemeColors::componentBackground));
-    
-    if (open)
-        g.fillPath(openPath);
-    else
-        g.fillPath(closedPath);
-}
-
-
-void ControlPanelButton::mouseDown(const MouseEvent& e)
-{
-    open = !open;
-    cp->openState(open);
-    repaint();
-
-}
-
-void ControlPanelButton::toggleState()
-{
-    open = !open;
-    repaint();
-}
-
-void ControlPanelButton::setState(bool b)
-{
-    open = b;
-    repaint();
-}
-
 ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_, bool isConsoleApp_)
     : graph(graph_), audio(audio_), isConsoleApp(isConsoleApp_), initialize(true), open(false), lastEngineIndex(-1), forceRecording(false)
 {
@@ -448,7 +401,9 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_, bool 
     clock = std::make_unique<Clock>();
     cpuMeter = std::make_unique<CPUMeter>();
     diskMeter = std::make_unique<DiskSpaceMeter>();
-    controlPanelButton = std::make_unique<ControlPanelButton>(this);
+    showHideRecordingOptionsButton = std::make_unique<CustomArrowButton>();
+    showHideRecordingOptionsButton->addListener(this);
+    showHideRecordingOptionsButton->setTooltip("Show/hide recording options");
     filenameConfigWindow = std::make_unique<FilenameConfigWindow>(filenameFields);
     
     if (!isConsoleApp)
@@ -463,7 +418,7 @@ ControlPanel::ControlPanel(ProcessorGraph* graph_, AudioComponent* audio_, bool 
         addAndMakeVisible(clock.get());
         addAndMakeVisible(cpuMeter.get());
         addAndMakeVisible(diskMeter.get());
-        addAndMakeVisible(controlPanelButton.get());
+        addAndMakeVisible(showHideRecordingOptionsButton.get());
         addAndMakeVisible(filenameText.get());
 
         refreshMeters();
@@ -836,9 +791,9 @@ void ControlPanel::resized()
 
 
     if (open)
-        controlPanelButton->setBounds (w - 28, getHeight() - 5 - h * 2 + 10, h - 10, h - 10);
+        showHideRecordingOptionsButton->setBounds (w - 28, getHeight() - 5 - h * 2 + 10, h - 10, h - 10);
     else
-        controlPanelButton->setBounds (w - 28, getHeight() - 5 - h + 10, h - 10, h - 10);
+        showHideRecordingOptionsButton->setBounds (w - 28, getHeight() - 5 - h + 10, h - 10, h - 10);
 
     createPaths();
 
@@ -878,7 +833,7 @@ void ControlPanel::openState(bool os)
 {
     open = os;
 
-    controlPanelButton->setState(os);
+    showHideRecordingOptionsButton->setToggleState(os, dontSendNotification);
 
     if (!isConsoleApp)
         AccessClass::getUIComponent()->childComponentChanged();
@@ -905,6 +860,7 @@ void ControlPanel::startRecording()
     
     recordButton->getNormalImage()->replaceColour(findColour(ThemeColors::defaultText), Colours::yellow);
     recordButton->getOverImage()->replaceColour(findColour(ThemeColors::defaultText), Colours::yellow);
+    showHideRecordingOptionsButton->setCustomBackground(true, Colour(255,0,0));
 
     if (!newDirectoryButton->getEnabledState()) // new directory is required
     {
@@ -939,6 +895,7 @@ void ControlPanel::stopRecording()
 
     recordButton->getNormalImage()->replaceColour(Colours::yellow, findColour(ThemeColors::defaultText));
     recordButton->getOverImage()->replaceColour(Colours::yellow, findColour(ThemeColors::defaultText));
+    showHideRecordingOptionsButton->setCustomBackground(false, findColour(ThemeColors::windowBackground));
 
     recordButton->setToggleState(false, dontSendNotification);
 
@@ -971,6 +928,13 @@ void ControlPanel::updateColors()
 
 void ControlPanel::buttonClicked(Button* button)
 {
+    
+    if (button == showHideRecordingOptionsButton.get())
+    {
+        openState(button->getToggleState());
+        repaint();
+        return;
+    }
 
     if (button == filenameText.get() && !getRecordingState())
     {
@@ -1173,7 +1137,7 @@ void ControlPanel::toggleState()
 {
     open = !open;
 
-    controlPanelButton->toggleState();
+    showHideRecordingOptionsButton->setToggleState(open, dontSendNotification);
     AccessClass::getUIComponent()->childComponentChanged();
 }
 
