@@ -73,8 +73,6 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
         addAndMakeVisible(streamSelector.get());
     }
 
-    getBackgroundGradient();
-
     backgroundColor = Colour(10, 10, 10);
 }
 
@@ -315,10 +313,6 @@ void GenericEditor::refreshColors()
     else
         backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::FILTER_COLOR);
     
-    // LOGD("background color is ", backgroundColor.toString());
-    
-    getBackgroundGradient();
-
     // loop though all parameter editors and update their parameter's color
     for (auto ed : parameterEditors)
     {
@@ -528,7 +522,7 @@ void GenericEditor::paint(Graphics& g)
         g.fillPath (topBottomRoundedEdge);
         
         // Paint body
-        g.setGradientFill (backgroundGradient);
+        g.setGradientFill (getBackgroundGradient());
         Path mainBody;
         mainBody.addRectangle (1, 23, getWidth() - 2, getHeight() - 30);
         g.fillPath (mainBody);
@@ -541,7 +535,6 @@ void GenericEditor::paint(Graphics& g)
     // draw title
     if (!isCollapsed)
     {
-        //TODO: This color should be set by the current theme
         g.setColour(isEnabled ? Colours::white : findColour(ThemeColors::defaultText).withAlpha(0.5f));
         g.setFont( Font("Mono", "Plain", 12) );
         g.drawText (String(nodeId), 10, 6, 30, 15, Justification::left, false);
@@ -1096,10 +1089,9 @@ void GenericEditor::setBackgroundColor(Colour c)
 
 ColourGradient GenericEditor::getBackgroundGradient()
 {
-    backgroundGradient = ColourGradient(findColour(ThemeColors::componentBackground), 0.0f, 0.0f,
-                                        findColour(ThemeColors::componentBackground), 0.0f, 120.0f, false);
-    // backgroundGradient.addColour(0.2f, findColour(ThemeColors::componentBackground).darker(0.4f));
-    
+    backgroundGradient = ColourGradient(findColour(ThemeColors::componentBackground).darker(0.1f), 0.0f, 0.0f,
+                                        findColour(ThemeColors::componentBackground).brighter(0.2f), 0.0f, 120.0f, false);
+
     return backgroundGradient;
 }
 
