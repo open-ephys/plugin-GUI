@@ -225,6 +225,7 @@ void Clock::drawTime(Graphics& g)
     int m;
     int s;
     int h;
+    
 
     if (isRecording)
     {
@@ -261,8 +262,10 @@ void Clock::drawTime(Graphics& g)
         timeString += h;
         timeString += ":";
         
-        if (m < 10) timeString += "0";
-        timeString += m;
+        int minutes = m - h * 60;
+        
+        if (minutes < 10) timeString += "0";
+        timeString += minutes;
         timeString += ":";
 
         if (s < 10) timeString += "0";
