@@ -293,6 +293,7 @@ void GenericEditor::addCustomParameterEditor(ParameterEditor* ed, int xPos_, int
     parameterEditors.add(ed);
     addAndMakeVisible(ed);
     ed->setBounds(xPos_, yPos_, ed->getWidth(), ed->getHeight());
+    ed->toBack();
 }
 
 
