@@ -326,15 +326,21 @@ public:
 
     /** Sets viewport bounds*/
     void resized() override;
+    
+    /** Called when look and feel is updated */
+    void lookAndFeelChanged() override;
 
+private:
     /** Scroll area*/
     std::unique_ptr<Viewport> viewport;
 
     /** Holds the Open Ephys application version*/
     String currentVersionText;
 
-    /** Logo to display*/
+    /** Logos to display*/
     Image bw_logo;
+    Image color_logo;
+    Image* current_logo;
 };
 
 /**

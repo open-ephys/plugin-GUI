@@ -49,6 +49,7 @@ enum ThemeColors
     widgetBackground,
     menuBackground,
     menuHighlightText,
+    menuHighlightBackground,
     outline,
     defaultText,
     defaultFill,

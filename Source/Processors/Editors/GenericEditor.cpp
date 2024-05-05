@@ -817,9 +817,9 @@ DrawerButton::~DrawerButton()
 void DrawerButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (isMouseOver)
-        g.setColour(Colour(210,210,210));
+        g.setColour(findColour(ThemeColors::defaultFill).brighter(0.3f));
     else
-        g.setColour(Colour(110, 110, 110));
+        g.setColour(findColour(ThemeColors::defaultFill));
 
     g.drawVerticalLine(3, 0.0f, getHeight());
     g.drawVerticalLine(5, 0.0f, getHeight());

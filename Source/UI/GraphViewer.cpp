@@ -48,6 +48,9 @@ GraphViewport::GraphViewport(GraphViewer* gv)
     currentVersionText = "GUI version " + app->getApplicationVersion();
 
     bw_logo = ImageCache::getFromMemory(BinaryData::bw_logo72_png, BinaryData::bw_logo72_pngSize);
+    color_logo = ImageCache::getFromMemory(BinaryData::color_logo72_png, BinaryData::color_logo72_pngSize);
+    
+    current_logo = &bw_logo;
 
 }
 
@@ -55,7 +58,8 @@ void GraphViewport::paint(Graphics& g)
 {
     g.fillAll(findColour(ThemeColors::componentParentBackground));
     g.setOpacity(0.6f);
-    g.drawImageAt(bw_logo, getWidth() - 175, getHeight() - 115);
+    
+    g.drawImageAt(*current_logo, getWidth() - 175, getHeight() - 115);
 
     g.setOpacity(1.0f);
     g.setColour(Colours::grey);
@@ -67,6 +71,14 @@ void GraphViewport::paint(Graphics& g)
 void GraphViewport::resized()
 {
     viewport->setBounds(0, 0, getWidth(), getHeight());
+}
+
+void GraphViewport::lookAndFeelChanged()
+{
+    //if (findColour(ThemeColors::highlightedFill) == Colour(138, 193, 232)) // light mode
+    //    current_logo = &color_logo;
+    //else
+    //    current_logo = &bw_logo;
 }
 
 GraphViewer::GraphViewer()
@@ -326,7 +338,7 @@ void GraphViewer::paint (Graphics& g)
             g.strokePath(linePath, stroke1);
 
             Colour ellipseColour = findColour(ThemeColors::defaultFill);
-            ColourGradient ellipseGradient = ColourGradient(pathColor.brighter(),
+            ColourGradient ellipseGradient = ColourGradient(pathColor.brighter(0.8f),
                                                 startPoint.x - 10.0f, startPoint.y,
                                                 pathColor,
                                                 startPoint.x, startPoint.y,
@@ -342,7 +354,7 @@ void GraphViewer::paint (Graphics& g)
 
             g.setColour(findColour(ThemeColors::defaultText));
             g.setFont(Font("Silkscreen", "Regular", 14));
-            g.drawText (String::charToString(letters[level]), startPoint.x - 20, startPoint.y - 10, 20, 20, Justification::centred, true);
+            g.drawText (String::charToString(letters[level]), startPoint.x - 20, startPoint.y - 10, 20, 18, Justification::centred, true);
 
         }
 
@@ -430,7 +442,6 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
         stroke3.createStrokedPath(arrowPath, linePath);
         g.fillPath(arrowPath);
         
-        g.setColour (Colours::grey);
         PathStrokeType stroke2 (2.0f);
         Path arrowPath2;
         stroke2.createStrokedPath(arrowPath2, linePath);

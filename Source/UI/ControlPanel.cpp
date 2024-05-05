@@ -64,13 +64,13 @@ void PlayButton::updateImages()
     p.applyTransform(AffineTransform::scale(0.8f));
     p.applyTransform(AffineTransform::translation(2,2));
     normal.setPath(p);
-    normal.setFill(findColour(ThemeColors::defaultFill));
+    normal.setFill(findColour(ThemeColors::defaultText));
     normal.setStrokeThickness(0.0f);
 
     over.setPath(p);
-    over.setFill(findColour(ThemeColors::defaultFill));
+    over.setFill(findColour(ThemeColors::defaultText));
     over.setStrokeThickness(2.0f);
-    over.setStrokeFill(findColour(ThemeColors::defaultFill));
+    over.setStrokeFill(findColour(ThemeColors::defaultText));
     
     down.setPath(p);
     down.setFill(Colours::white);
@@ -101,13 +101,13 @@ void RecordButton::updateImages()
     p.applyTransform(AffineTransform::scale(0.8f));
     p.applyTransform(AffineTransform::translation(2,2));
     normal.setPath(p);
-    normal.setFill(findColour(ThemeColors::defaultFill));
+    normal.setFill(findColour(ThemeColors::defaultText));
     normal.setStrokeThickness(0.0f);
 
     over.setPath(p);
-    over.setFill(findColour(ThemeColors::defaultFill));
+    over.setFill(findColour(ThemeColors::defaultText));
     over.setStrokeThickness(2.0f);
-    over.setStrokeFill(findColour(ThemeColors::defaultFill));
+    over.setStrokeFill(findColour(ThemeColors::defaultText));
     
     down.setPath(p);
     down.setFill(Colours::white);
@@ -556,9 +556,9 @@ void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
 
             if (!isConsoleApp)
             {
-                playButton->getNormalImage()->replaceColour(findColour(ThemeColors::defaultFill), findColour(ThemeColors::highlightedFill));
-                playButton->getOverImage()->replaceColour(findColour(ThemeColors::defaultFill),
-                                                          findColour(ThemeColors::highlightedFill));
+                playButton->getNormalImage()->replaceColour(findColour(ThemeColors::defaultText), Colours::yellow);
+                playButton->getOverImage()->replaceColour(findColour(ThemeColors::defaultText),
+                                                          Colours::yellow);
   
                 audioEditor->disable();
                 
@@ -589,8 +589,8 @@ void ControlPanel::stopAcquisition()
 
     if (!isConsoleApp)
     {
-        playButton->getNormalImage()->replaceColour(findColour(ThemeColors::highlightedFill), findColour(ThemeColors::defaultFill));
-        playButton->getOverImage()->replaceColour(findColour(ThemeColors::highlightedFill), findColour(ThemeColors::defaultFill));
+        playButton->getNormalImage()->replaceColour(Colours::yellow, findColour(ThemeColors::defaultText));
+        playButton->getOverImage()->replaceColour(Colours::yellow, findColour(ThemeColors::defaultText));
         
         refreshMeters();
 
@@ -903,8 +903,8 @@ void ControlPanel::startRecording()
 
     // filenameText->setColour(Label::textColourId, Colours::black);
     
-    recordButton->getNormalImage()->replaceColour(findColour(ThemeColors::defaultFill), findColour(ThemeColors::highlightedFill));
-    recordButton->getOverImage()->replaceColour(findColour(ThemeColors::defaultFill), findColour(ThemeColors::highlightedFill));
+    recordButton->getNormalImage()->replaceColour(findColour(ThemeColors::defaultText), Colours::yellow);
+    recordButton->getOverImage()->replaceColour(findColour(ThemeColors::defaultText), Colours::yellow);
 
     if (!newDirectoryButton->getEnabledState()) // new directory is required
     {
@@ -937,8 +937,8 @@ void ControlPanel::stopRecording()
     clock->stopRecording();
     newDirectoryButton->setEnabledState(true);
 
-    recordButton->getNormalImage()->replaceColour(findColour(ThemeColors::highlightedFill), findColour(ThemeColors::defaultFill));
-    recordButton->getOverImage()->replaceColour(findColour(ThemeColors::highlightedFill), findColour(ThemeColors::defaultFill));
+    recordButton->getNormalImage()->replaceColour(Colours::yellow, findColour(ThemeColors::defaultText));
+    recordButton->getOverImage()->replaceColour(Colours::yellow, findColour(ThemeColors::defaultText));
 
     recordButton->setToggleState(false, dontSendNotification);
 

@@ -98,6 +98,8 @@ CustomLookAndFeel::~CustomLookAndFeel() {}
 
 void CustomLookAndFeel::initializeColors()
 {
+    // Processor colors are consistent across all themes, but
+    // can be customized by right-clicking on the processor list
     setColour(ProcessorColor::IDs::FILTER_COLOR, Colour(0, 160, 225));
     setColour(ProcessorColor::IDs::SINK_COLOR, Colour(0, 166, 81));
     setColour(ProcessorColor::IDs::SOURCE_COLOR, Colour(241, 90, 41));
@@ -107,16 +109,17 @@ void CustomLookAndFeel::initializeColors()
     setColour(ProcessorColor::IDs::SYNC_COLOR, Colour(255,165,0));
 
     themeColorsMap[MEDIUM] = {
-        {ThemeColors::componentBackground, Colour(175, 175, 175)},
-        {ThemeColors::componentParentBackground, Colour(100, 100, 100)},
+        {ThemeColors::componentBackground, Colour(143, 143, 143)},
+        {ThemeColors::componentParentBackground, Colour(68, 68, 68)},
         {ThemeColors::windowBackground, Colour(40, 40, 40)},
-        {ThemeColors::widgetBackground,Colour(175, 175, 175).brighter(0.6f)},
-        {ThemeColors::menuBackground, Colour(150, 150, 150)},
-        {ThemeColors::menuHighlightText, Colours::yellow},
+        {ThemeColors::widgetBackground,Colour(190, 190, 190)},
+        {ThemeColors::menuBackground, Colour(140, 140, 140)},
+        {ThemeColors::menuHighlightText, Colours::black},
+        {ThemeColors::menuHighlightBackground, Colour(196, 155, 64)},
         {ThemeColors::outline, Colours::black},
         {ThemeColors::defaultText, Colours::black},
-        {ThemeColors::defaultFill, Colour(175, 175, 175).darker()},
-        {ThemeColors::highlightedText, Colours::yellow},
+        {ThemeColors::defaultFill, Colour(112,112,112)},
+        {ThemeColors::highlightedText, Colours::black},
         {ThemeColors::highlightedFill, Colour(244, 148, 32)},
         {ThemeColors::dropShadowColor, Colours::black.withAlpha(0.5f)}
     };
@@ -124,30 +127,32 @@ void CustomLookAndFeel::initializeColors()
     themeColorsMap[DARK] = {
         {ThemeColors::componentBackground, Colour(40, 40, 40)},
         {ThemeColors::componentParentBackground, Colour(30, 30, 30).darker(0.3f)},
-        {ThemeColors::windowBackground, Colour(30, 30, 30).darker(0.8f)},
+        {ThemeColors::windowBackground, Colour(24,24,24)},
         {ThemeColors::widgetBackground, Colour(40, 40, 40).darker()},
         {ThemeColors::menuBackground, Colour(30, 30, 30)},
-        {ThemeColors::menuHighlightText, Colours::yellow},
+        {ThemeColors::menuHighlightText, Colour(20,20,20)},
+        {ThemeColors::menuHighlightBackground, Colour(153,200,214)},
         {ThemeColors::outline, Colours::black},
-        {ThemeColors::defaultText, Colours::whitesmoke},
-        {ThemeColors::defaultFill, Colour(40, 40, 40).brighter()},
-        {ThemeColors::highlightedText, Colours::yellow},
-        {ThemeColors::highlightedFill, Colour(244, 148, 32)},
+        {ThemeColors::defaultText, Colour(204,204,204)},
+        {ThemeColors::defaultFill, Colour(72,72,72)},
+        {ThemeColors::highlightedText, Colour(240,240,240)},
+        {ThemeColors::highlightedFill, Colour(230, 152, 63)},
         {ThemeColors::dropShadowColor, Colours::black.withAlpha(0.75f)}
     };
 
     themeColorsMap[LIGHT] = {
         {ThemeColors::componentBackground, Colour(225, 225, 225)},
         {ThemeColors::componentParentBackground, Colour(225, 225, 225).darker()},
-        {ThemeColors::windowBackground, Colour(225, 225, 225).darker(0.25f)},
+        {ThemeColors::windowBackground, Colour(176,176,176)},
         {ThemeColors::widgetBackground, Colour(225, 225, 225).brighter(0.6f)},
         {ThemeColors::menuBackground, Colour(225, 225, 225)},
-        {ThemeColors::menuHighlightText, Colour(244, 148, 32)},
+        {ThemeColors::menuHighlightText, Colours::black},
+        {ThemeColors::menuHighlightBackground, Colour(138, 193, 232)},
         {ThemeColors::outline, Colours::black},
         {ThemeColors::defaultText, Colours::black},
         {ThemeColors::defaultFill, Colour(110, 110, 110)},
-        {ThemeColors::highlightedText, Colour(244, 148, 32)},
-        {ThemeColors::highlightedFill, Colour(244, 148, 32)},
+        {ThemeColors::highlightedText, Colours::black},
+        {ThemeColors::highlightedFill, Colour(138, 193, 232)},
         {ThemeColors::dropShadowColor, Colours::black.withAlpha(0.4f)}
     };
 
@@ -198,7 +203,7 @@ void CustomLookAndFeel::setTheme(ColorTheme theme)
     setColour(PopupMenu::textColourId, currentThemeColors[ThemeColors::defaultText]);
     setColour(PopupMenu::headerTextColourId, currentThemeColors[ThemeColors::defaultText]);
     setColour(PopupMenu::highlightedTextColourId, currentThemeColors[ThemeColors::menuHighlightText]);
-    setColour(PopupMenu::highlightedBackgroundColourId, currentThemeColors[ThemeColors::menuBackground].brighter());
+    setColour(PopupMenu::highlightedBackgroundColourId, currentThemeColors[ThemeColors::menuHighlightBackground]);
 
     setColour(ComboBox::buttonColourId, currentThemeColors[ThemeColors::defaultText]);
     setColour(ComboBox::outlineColourId, currentThemeColors[ThemeColors::outline]);
