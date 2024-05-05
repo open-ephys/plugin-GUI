@@ -371,7 +371,7 @@ void GenericEditor::resized()
             {
                 streamSelector->setBounds(desiredWidth, 29, 
                                           streamSelector->getDesiredWidth(), 
-                                          getHeight() - 35);
+                                          getHeight() - 38);
                 streamSelector->setVisible(true);
             }
             else {

@@ -339,7 +339,7 @@ void StreamSelector::setStreamEnabledState(uint16 streamId, bool isEnabled)
 
 void StreamSelector::resized()
 {
-    viewport->setBounds(5, 20, getWidth() - 10, getHeight() - 20);
+    viewport->setBounds(5, 20, getWidth() - 10, getHeight() - 30);
 
     viewedComponent->setBounds(0, 0, streams.size() * streamInfoViewWidth, getHeight() - 20);
     
@@ -461,7 +461,7 @@ void StreamSelector::paint(Graphics& g)
         Colours::darkgrey.withAlpha(0.25f), 0.0f, 30.0f, false));
     g.fillRoundedRectangle(3, 24, getWidth() - 5, getHeight() - 26, 5.0f);
 
-    g.setColour(Colour(25, 25, 25));
+    g.setColour(findColour(ThemeColors::componentParentBackground));
     g.drawRoundedRectangle(3, 24, getWidth() - 5, getHeight() - 26, 5.0f, 0.5f);
 }
 
@@ -645,11 +645,10 @@ void StreamTableModel::update(Array<StreamInfoView*> dataStreams_, int viewedStr
 void StreamTableModel::paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected)
 {
     
-
     if (rowNumber % 2 == 0)
-        g.fillAll(Colour(50, 50, 50));
+        g.fillAll(owner->editor->findColour(ThemeColors::componentBackground));
     else
-        g.fillAll(Colour(70, 70, 70));
+        g.fillAll(owner->editor->findColour(ThemeColors::componentBackground).darker(0.25f));
 
     if (rowIsSelected)
     {
@@ -667,12 +666,12 @@ void StreamTableModel::paintCell(Graphics& g, int rowNumber, int columnId, int w
 
     if (columnId == StreamTableModel::Columns::PROCESSOR_ID)
     {
-        g.setColour(Colours::white);
+        g.setColour(owner->editor->findColour(ThemeColors::defaultText));
         g.drawText(String(streams[rowNumber]->getStreamSourceNodeId()), 4, 0, width, height, Justification::centredLeft);
     }
     else if (columnId == StreamTableModel::Columns::NAME)
     {
-        g.setColour(Colours::white);
+        g.setColour(owner->editor->findColour(ThemeColors::defaultText));
         g.drawText(String(streams[rowNumber]->getStreamName()), 4, 0, width, height, Justification::centredLeft);
     }
 }
@@ -770,25 +769,6 @@ void StreamSelectorTable::buttonClicked(Button* button)
             = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(table),
                 button->getScreenBounds(),
                 nullptr);
-
-        //Rectangle screenBounds1 = getScreenBounds();
-       // screenBounds1.setLeft(screenBounds1.getTopLeft().x - 18);
-
-        //if (streams.size() == 1)
-       // {
-       //     screenBounds1.setTop(screenBounds1.getTopLeft().y - 18);
-       // }
-       //// else {
-       //     screenBounds1.setTop(screenBounds1.getTopLeft().y + 2);
-       // }
-
-       
-
-        //Rectangle screenBounds2 = getScreenBounds();
-        //screenBounds2.setLeft(screenBounds1.getTopLeft().x - 20);
-        //screenBounds2.setTop(screenBounds1.getTopLeft().y - 20);
-
-       // myBox.updatePosition(button->getScreenBounds(), screenBounds1);
 
         myBox.setDismissalMouseClicksAreAlwaysConsumed(true);
         myBox.addComponentListener(this);
@@ -968,10 +948,10 @@ void StreamSelectorTable::paint(Graphics& g)
 {
 
     
-    g.setColour(Colours::darkgrey);
+    g.setColour(editor->findColour(ThemeColors::widgetBackground));
     g.fillRect(0, 20, getWidth()-5, getHeight() - 21);
     g.fillRoundedRectangle(0, 0, getWidth() - 5, getHeight() - 40, 5.0f);
-    g.setColour(Colours::lightgrey);
+    g.setColour(editor->findColour(ThemeColors::defaultText));
     g.setFont(12);
     g.drawText(" SELECT DATA STREAM: ", Rectangle<float>(150.0f, 20.0f), Justification::left);
    

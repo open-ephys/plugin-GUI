@@ -460,6 +460,8 @@ void EditorViewport::refreshEditors()
     }
     
     signalChainTabComponent->resized();
+    
+    repaint();
 }
 
 void EditorViewport::moveSelection(const KeyPress& key)

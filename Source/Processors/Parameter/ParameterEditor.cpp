@@ -1063,8 +1063,8 @@ void PathParameterEditor::updateView()
         }
         else
         {
-            button->setColour(TextButton::textColourOnId, Colours::black);
-            button->setColour(TextButton::textColourOffId, Colours::black);
+            button->setColour(TextButton::textColourOnId, findColour(ThemeColors::defaultText));
+            button->setColour(TextButton::textColourOffId, findColour(ThemeColors::defaultText));
         }
         //Alternatively:
         //button->setButtonText(File(param->getValueAsString()).getFileName());
