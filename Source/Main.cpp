@@ -92,16 +92,21 @@ public:
                 if (param.equalsIgnoreCase("--headless"))
                     isConsoleApp = true;
                 
-                else
+                else if (File::createLegalFileName(param).equalsIgnoreCase(param))
                 {
                     File localPath(File::getCurrentWorkingDirectory().getChildFile(param));
-                    File globalPath(param);
                     
                     if (localPath.existsAsFile())
+                    {
                         fileToLoad = localPath;
+                        break;
+                    }
                     
-                    if (globalPath.existsAsFile())
-                        fileToLoad = globalPath;
+                    //File globalPath(param);
+                    
+                    //if (globalPath.existsAsFile())
+                    //    fileToLoad = globalPath;
+
                     
                 }
             }
