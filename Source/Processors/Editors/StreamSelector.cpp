@@ -70,6 +70,7 @@ void StreamInfoView::setDelayMonitor(DelayMonitor* monitor)
     {
         LOGD(streamName, " UPDATING DELAY MONITOR to ", monitor);
         delayMonitor = monitor;
+        delayMonitor->setLookAndFeel(&editor->getLookAndFeel());
     }
     
 }
@@ -80,6 +81,7 @@ void StreamInfoView::setTTLMonitor(TTLMonitor* monitor)
     {
         LOGD(streamName, " UPDATING TTL MONITOR to ", monitor);
         ttlMonitor = monitor;
+        delayMonitor->setLookAndFeel(&editor->getLookAndFeel());
     }
     
 }
@@ -341,7 +343,7 @@ void StreamSelector::resized()
 {
     viewport->setBounds(5, 20, getWidth() - 10, getHeight() - 30);
 
-    viewedComponent->setBounds(0, 0, streams.size() * streamInfoViewWidth, getHeight() - 20);
+    viewedComponent->setBounds(0, 0, streams.size() * streamInfoViewWidth, getHeight() - 30);
     
     leftScrollButton->setBounds(2, 2, 18, 18);
     rightScrollButton->setBounds(getWidth() - 20, 2, 18, 18);
@@ -666,11 +668,13 @@ void StreamTableModel::paintCell(Graphics& g, int rowNumber, int columnId, int w
 
     if (columnId == StreamTableModel::Columns::PROCESSOR_ID)
     {
+        g.setFont(12);
         g.setColour(owner->editor->findColour(ThemeColors::defaultText));
         g.drawText(String(streams[rowNumber]->getStreamSourceNodeId()), 4, 0, width, height, Justification::centredLeft);
     }
     else if (columnId == StreamTableModel::Columns::NAME)
     {
+        g.setFont(12);
         g.setColour(owner->editor->findColour(ThemeColors::defaultText));
         g.drawText(String(streams[rowNumber]->getStreamName()), 4, 0, width, height, Justification::centredLeft);
     }
