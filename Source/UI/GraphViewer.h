@@ -81,7 +81,7 @@ private:
 
     std::unique_ptr<ConcertinaPanel> parameterPanel;
     std::unique_ptr<Component> streamParameterEditorComponent;
-    DataStreamButton* parameterButton;
+    DataStreamButton* parameterButton = nullptr;
     
     OwnedArray<ParameterEditor> parameterEditors;
 

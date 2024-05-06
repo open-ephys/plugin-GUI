@@ -643,9 +643,17 @@ int DataStreamInfo::getMaxHeight() const
 
 void DataStreamInfo::restorePanels()
 {
-    //headerButton->setToggleState(node->streamInfoVisible[stream->getKey()], dontSendNotification);
-    //parameterButton->setToggleState(node->streamParamsVisible[stream->getKey()], dontSendNotification);
-    //buttonClicked(parameterButton);
+    headerButton->setToggleState(node->streamInfoVisible[stream->getKey()], dontSendNotification);
+
+    if (parameterButton != nullptr)
+    {
+        parameterButton->setToggleState(node->streamParamsVisible[stream->getKey()], dontSendNotification);
+        buttonClicked(parameterButton);
+    }
+    else
+    {
+        node->setDataStreamPanelSize(this, heightInPixels);
+    }
 }
 
 
