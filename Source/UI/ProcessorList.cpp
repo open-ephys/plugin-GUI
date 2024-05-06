@@ -95,6 +95,7 @@ bool ProcessorList::isOpen()
 
 void ProcessorList::paint(Graphics& g)
 {
+    g.fillAll(Colours::black);
 	drawItems(g);
 }
 
@@ -104,7 +105,7 @@ void ProcessorList::drawItems(Graphics& g)
 	totalHeight = yBuffer + itemHeight;
 
 	category = baseItem->getName();
-
+    
 	drawItem(g, baseItem.get());
 
 	if (baseItem->isOpen())
@@ -134,6 +135,7 @@ void ProcessorList::drawItems(Graphics& g)
 	if (isOpen())
 		setSize(getWidth(),totalHeight);
 
+    
 }
 
 void ProcessorList::drawItem(Graphics& g, ProcessorListItem* item)

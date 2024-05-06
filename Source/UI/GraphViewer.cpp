@@ -63,10 +63,10 @@ void GraphViewport::paint(Graphics& g)
     g.drawImageAt(*current_logo, getWidth() - 175, getHeight() - 115);
 
     g.setOpacity(1.0f);
-    g.setColour(Colours::grey);
+    g.setColour(findColour(ThemeColors::componentBackground).brighter(0.3f));
 
-    g.setFont(Font("Silkscreen", "Regular", 14));
-    g.drawFittedText(currentVersionText, 40, 40, getWidth() - 65, getHeight() - 60, Justification::bottomRight, 100);
+    g.setFont(Font("Silkscreen", "Regular", 15));
+    g.drawFittedText(currentVersionText, 40, 40, getWidth() - 72, getHeight() - 60, Justification::bottomRight, 100);
 }
 
 void GraphViewport::resized()

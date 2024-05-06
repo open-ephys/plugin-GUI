@@ -71,6 +71,7 @@ UIComponent::UIComponent(MainWindow* mainWindow_,
 
 	showHideEditorViewportButton = new ShowHideEditorViewportButton();
     showHideEditorViewportButton->addListener(this);
+    showHideEditorViewportButton->setToggleState(true, dontSendNotification);
 	addAndMakeVisible(showHideEditorViewportButton);
 
 	addAndMakeVisible(controlPanel);
