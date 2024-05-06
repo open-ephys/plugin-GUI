@@ -1436,7 +1436,10 @@ void LfpDisplayOptions::loadParameters(XmlElement* xml)
             if (canvasSplit->displayBuffer != nullptr)
                 canvasSplit->displayBuffer->removeDisplay(canvasSplit->splitID);
 
-            int streamId = processor->getDataStream(streamKey)->getStreamId();
+            int streamId = 0;
+            
+            if (auto stream = processor->getDataStream(streamKey))
+                streamId = stream->getStreamId();
 
             if (processor->displayBufferMap.find(streamId) == processor->displayBufferMap.end())
                 canvasSplit->displayBuffer = processor->getDisplayBuffers().getFirst();   
