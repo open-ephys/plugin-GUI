@@ -106,6 +106,7 @@ void ProcessorList::drawItems(Graphics& g)
 
 	category = baseItem->getName();
     
+	g.setOrigin(0, yBuffer);
 	drawItem(g, baseItem.get());
 
 	if (baseItem->isOpen())
@@ -130,11 +131,10 @@ void ProcessorList::drawItems(Graphics& g)
 				}
 			}
 		}
-	}
 
-	if (isOpen())
+		totalHeight += yBuffer;
 		setSize(getWidth(),totalHeight);
-
+	}
     
 }
 
@@ -146,9 +146,9 @@ void ProcessorList::drawItem(Graphics& g, ProcessorListItem* item)
 	g.setColour(c);
     
 	if (item->hasSubItems())
-		g.fillRect(1.0, 0.0, getWidth()-2, itemHeight);
+		g.fillRect(1, 0, getWidth()-2, itemHeight);
 	else
-		g.fillRect(1.0, 10.0, getWidth()-2, subItemHeight);
+		g.fillRect(1, 10, getWidth()-2, subItemHeight);
 
 	drawItemName(g,item);
 }
