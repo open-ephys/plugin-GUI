@@ -313,16 +313,6 @@ private:
 
 };
 
-
-class CustomTableLookAndFeel : public LookAndFeel_V4
-{
-public:
-    CustomTableLookAndFeel();
-    
-    void drawCallOutBoxBackground(CallOutBox& box, Graphics& g,
-        const Path& path, Image& cachedImage) override { }
-};
-
 /**
 
 Allows the user to browse through the available DataStreams within a given plugin
@@ -421,7 +411,6 @@ private:
     std::unique_ptr<TableListBox> streamTable;
 	std::unique_ptr<ExpanderButton> expanderButton;
     std::unique_ptr<ShadowGradient> shadowGradient;
-    std::unique_ptr<CustomTableLookAndFeel> customTableLookAndFeel;
 
     OwnedArray<StreamInfoView> streams;
 

@@ -648,14 +648,14 @@ void StreamTableModel::paintRowBackground(Graphics& g, int rowNumber, int width,
 {
     
     if (rowNumber % 2 == 0)
-        g.fillAll(owner->editor->findColour(ThemeColors::componentBackground));
+        g.fillAll(owner->findColour(ThemeColors::componentBackground));
     else
-        g.fillAll(owner->editor->findColour(ThemeColors::componentBackground).darker(0.25f));
+        g.fillAll(owner->findColour(ThemeColors::componentBackground).darker(0.25f));
 
     if (rowIsSelected)
     {
         g.setColour(Colours::yellow);
-        g.drawRect(0, 0, width, height, 1);
+        g.drawRect(0, 0, width, height, 2);
         g.fillEllipse(5, 7, 6, 6);
     }
 
@@ -678,14 +678,20 @@ void StreamTableModel::paintCell(Graphics& g, int rowNumber, int columnId, int w
         g.setColour(owner->editor->findColour(ThemeColors::defaultText));
         g.drawText(String(streams[rowNumber]->getStreamName()), 4, 0, width, height, Justification::centredLeft);
     }
+    else if (columnId == StreamTableModel::Columns::NUM_CHANNELS)
+    {
+        g.setFont(12);
+        g.setColour(owner->editor->findColour(ThemeColors::defaultText));
+        g.drawText(String(streams[rowNumber]->getStream()->getChannelCount()), 4, 0, width, height, Justification::centredLeft);
+    }
+    else if (columnId == StreamTableModel::Columns::SAMPLE_RATE)
+    {
+        g.setFont(12);
+        g.setColour(owner->editor->findColour(ThemeColors::defaultText));
+        g.drawText(String(streams[rowNumber]->getStream()->getSampleRate()), 4, 0, width, height, Justification::centredLeft);
+    }
 }
 
-
-CustomTableLookAndFeel::CustomTableLookAndFeel()
-{
-    // Set the colors for the scrollbars
-    setColour(ScrollBar::thumbColourId, Colours::grey); // Color of the scrollbar thumb
-}
 
 
 StreamSelectorTable::StreamSelectorTable(GenericEditor* ed_) :
@@ -700,20 +706,14 @@ StreamSelectorTable::StreamSelectorTable(GenericEditor* ed_) :
     tableModel->table = streamTable.get();
 
     addAndMakeVisible(streamTable.get());
-    streamTable->setBounds(2, 18, 231, 80);
-
-    customTableLookAndFeel = std::make_unique<CustomTableLookAndFeel>();
-    setLookAndFeel(customTableLookAndFeel.get());
+    streamTable->setBounds(2, 20, 232, 70);
+    streamTable->getViewport()->setScrollBarsShown(true, false, true, false);
+    streamTable->getViewport()->setScrollBarThickness(10);
 
     expanderButton = std::make_unique<ExpanderButton>();
-    //addAndMakeVisible(expanderButton.get());
+    addAndMakeVisible(expanderButton.get());
     expanderButton->setBounds(222, 4, 15, 15);
     expanderButton->addListener(this);
-
-    shadowGradient = std::make_unique<ShadowGradient>();
-    addAndMakeVisible(shadowGradient.get());
-    shadowGradient->setBounds(2, 18, 231, 80);
-    shadowGradient->setInterceptsMouseClicks(false, false);
 
 }
 
@@ -724,24 +724,20 @@ TableListBox* StreamSelectorTable::createTableView(bool expanded)
     table->setHeader(std::make_unique<TableHeaderComponent>());
 
     table->getHeader().addColumn(" ", StreamTableModel::Columns::SELECTED, 12, 12, 12, TableHeaderComponent::notResizableOrSortable);
-    table->getHeader().addColumn("Name", StreamTableModel::Columns::NAME, 94, 94, 94, TableHeaderComponent::notResizableOrSortable);
+    table->getHeader().addColumn("NAME", StreamTableModel::Columns::NAME, 94, 94, 94, TableHeaderComponent::notResizableOrSortable);
     table->getHeader().addColumn("DELAY", StreamTableModel::Columns::DELAY, 50, 50, 50, TableHeaderComponent::notResizableOrSortable);
     table->getHeader().addColumn("TTL", StreamTableModel::Columns::TTL_LINE_STATES, 60, 60, 60, TableHeaderComponent::notResizableOrSortable);
 
     if (expanded)
     {
         table->getHeader().addColumn("ID", StreamTableModel::Columns::PROCESSOR_ID, 30, 30, 30, TableHeaderComponent::notResizableOrSortable);
-        table->getHeader().addColumn("# CH", StreamTableModel::Columns::NUM_CHANNELS, 20, 20, 20, TableHeaderComponent::notResizableOrSortable);
+        table->getHeader().addColumn("# CH", StreamTableModel::Columns::NUM_CHANNELS, 30, 30, 30, TableHeaderComponent::notResizableOrSortable);
         table->getHeader().addColumn("Hz", StreamTableModel::Columns::SAMPLE_RATE, 40, 40, 40, TableHeaderComponent::notResizableOrSortable);
-        table->getHeader().addColumn("ENABLE", StreamTableModel::Columns::ENABLED, 15, 15, 15, TableHeaderComponent::notResizableOrSortable);
+        table->getHeader().addColumn("", StreamTableModel::Columns::ENABLED, 15, 15, 15, TableHeaderComponent::notResizableOrSortable);
     }
 
-    table->getHeader().setColour(TableHeaderComponent::ColourIds::backgroundColourId, Colour(240, 240, 240));
-    table->getHeader().setColour(TableHeaderComponent::ColourIds::highlightColourId, Colour(240, 240, 240));
-    table->getHeader().setColour(TableHeaderComponent::ColourIds::textColourId, Colour(20, 20, 20));
-
     if (expanded)
-        table->setHeaderHeight(20);
+        table->setHeaderHeight(24);
     else
         table->setHeaderHeight(0);
 
@@ -754,7 +750,6 @@ TableListBox* StreamSelectorTable::createTableView(bool expanded)
 
 StreamSelectorTable::~StreamSelectorTable()
 {
-    setLookAndFeel(nullptr);
 }
 
 void StreamSelectorTable::buttonClicked(Button* button)
@@ -764,10 +759,9 @@ void StreamSelectorTable::buttonClicked(Button* button)
         LOGD("EXPANDER BUTTON CLICKED ");
 
         auto* table = createTableView(true);
-        table->setBounds(0, 0, 356, streams.size() * 20 + 20);
+        table->setBounds(0, 0, 331, streams.size() * 20 + 24);
         table->selectRow(viewedStreamIndex);
         tableModel->table = table;
-        table->setLookAndFeel(customTableLookAndFeel.get());
 
         CallOutBox& myBox
             = CallOutBox::launchAsynchronously(std::unique_ptr<Component>(table),
@@ -950,14 +944,15 @@ void StreamSelectorTable::setViewedIndex(int i)
 
 void StreamSelectorTable::paint(Graphics& g)
 {
-
-    
-    g.setColour(editor->findColour(ThemeColors::widgetBackground));
-    g.fillRect(0, 20, getWidth()-5, getHeight() - 21);
-    g.fillRoundedRectangle(0, 0, getWidth() - 5, getHeight() - 40, 5.0f);
-    g.setColour(editor->findColour(ThemeColors::defaultText));
+    g.setColour(findColour(ThemeColors::widgetBackground));
+    g.fillRoundedRectangle(1.0f, 1.0f, (float)getWidth() - 6.0f, (float)getHeight() - 2.0f, 5.0f);
+    g.setColour(findColour(ThemeColors::defaultText));
     g.setFont(12);
     g.drawText(" SELECT DATA STREAM: ", Rectangle<float>(150.0f, 20.0f), Justification::left);
+
+    g.setColour(findColour(ThemeColors::outline).withAlpha(0.8f));
+    g.drawRoundedRectangle(1.0f, 1.0f, (float)getWidth() - 6.0f, (float)getHeight() - 2.0f, 5.0f, 1.0f);
+    g.fillRect(1.0f, 19.0f, (float)getWidth() - 6.0f, 1.0f);
    
 }
 
@@ -1080,9 +1075,9 @@ ExpanderButton::ExpanderButton() :
 void ExpanderButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (isMouseOver)
-        g.setColour(Colours::white);
+        g.setColour(findColour(ThemeColors::defaultText).withAlpha(0.6f));
     else
-        g.setColour(Colours::lightgrey);
+        g.setColour(findColour(ThemeColors::defaultText));
 
     g.strokePath(iconPath, PathStrokeType(1.5f));
 }
