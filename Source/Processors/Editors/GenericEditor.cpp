@@ -1090,8 +1090,8 @@ void GenericEditor::setBackgroundColor(Colour c)
 
 ColourGradient GenericEditor::getBackgroundGradient()
 {
-    backgroundGradient = ColourGradient(findColour(ThemeColors::componentBackground).darker(0.1f), 0.0f, 0.0f,
-                                        findColour(ThemeColors::componentBackground).brighter(0.2f), 0.0f, 120.0f, false);
+    backgroundGradient = ColourGradient::vertical(findColour(ThemeColors::componentBackground).darker(0.1f), 0.0f, 
+                                                  findColour(ThemeColors::componentBackground).brighter(0.1f), 120.0f);
 
     return backgroundGradient;
 }
