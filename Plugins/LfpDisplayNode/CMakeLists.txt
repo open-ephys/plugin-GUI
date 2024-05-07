@@ -58,23 +58,9 @@ add_sources(${PLUGIN_NAME}
 	ColourSchemes/LightBackgroundColourScheme.h
 	)
 
-if (CMAKE_CONFIGURATION_TYPES)
-	# Multi-configuration
-	set(GUI_TEST_BIN_COMMON_DIR ${GUI_BASE_DIR}/Build/TestBin/common)
-else()
-	set(GUI_TEST_BIN_COMMON_DIR ${GUI_BASE_DIR}/Build/${CMAKE_BUILD_TYPE}/TestBin/common)
-endif()
-set(GUI_TEST_HELPERS_DIR ${GUI_BASE_DIR}/TestHelpers)
-
 if(BUILD_TESTS)
     copy_sources(${PLUGIN_NAME} ${PLUGIN_NAME}_testable)
     add_subdirectory(Tests)
-	target_include_directories(${PLUGIN_NAME}_tests PRIVATE ${GUI_TEST_HELPERS_DIR}/include)
-
-	if(MSVC)
-		add_custom_command(TARGET ${PLUGIN_NAME}_tests POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:gui_testable_source> $<TARGET_FILE_DIR:${PLUGIN_NAME}_tests>)
-		add_custom_command(TARGET ${PLUGIN_NAME}_tests POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:test_helpers> $<TARGET_FILE_DIR:${PLUGIN_NAME}_tests>)	
-	endif()
 endif()
 	
 #optional: create IDE groups

@@ -1,7 +1,7 @@
 #Open Ephys GUI main build file
 cmake_minimum_required(VERSION 3.15)
 
-set(GUI_VERSION 0.6.7)
+set(GUI_VERSION 0.7.0)
 
 string(REGEX MATCHALL "[0-9]+" VERSION_LIST ${GUI_VERSION})
 set(GUI_VERSION_HEX "0x")
@@ -94,10 +94,10 @@ if(BUILD_TESTS)
 	target_include_directories(gui_testable_source PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules)
 	target_compile_features(gui_testable_source PUBLIC cxx_auto_type cxx_generalized_initializers cxx_std_17)
 
-	set(BIN_TESTS_DIR ${CMAKE_BINARY_DIR}/TestBin)
+	set(BIN_TESTS_DIR ${CMAKE_CURRENT_BINARY_DIR}/TestBin)
 
-	set_target_properties( gui_testable_source PROPERTIES RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR}/TestBin/common )
-	set_target_properties( gui_testable_source PROPERTIES LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR}/TestBin/common )
+	set_target_properties( gui_testable_source PROPERTIES RUNTIME_OUTPUT_DIRECTORY  ${BIN_TESTS_DIR}/common )
+	set_target_properties( gui_testable_source PROPERTIES LIBRARY_OUTPUT_DIRECTORY  ${BIN_TESTS_DIR}/common )
 
 	add_custom_command(TARGET gui_testable_source POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_TESTS_DIR}"
