@@ -27,21 +27,6 @@
 
 #include <stdio.h>
 
-ScrubDrawerButton::ScrubDrawerButton(const String &name) : DrawerButton(name) {}
-
-ScrubDrawerButton::~ScrubDrawerButton() {}
-
-void ScrubDrawerButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
-{
-	g.setColour(Colour(110, 110, 110));
-	if (isMouseOver)
-		g.setColour(Colour(210, 210, 210));
-
-	g.drawVerticalLine(3, 0.0f, getHeight());
-	g.drawVerticalLine(5, 0.0f, getHeight());
-	g.drawVerticalLine(7, 0.0f, getHeight());
-}
-
 FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     : GenericEditor (parentNode)
     , fileReader   (static_cast<FileReader*> (parentNode))
@@ -56,7 +41,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     scrubberInterface->setBounds(0, 0, 420, 140);
     addChildComponent(scrubberInterface);
 
-    scrubDrawerButton = new ScrubDrawerButton(getNameAndId() + " Scrub Drawer Button");
+    scrubDrawerButton = new DrawerButton(getNameAndId() + " Scrub Drawer Button");
 	scrubDrawerButton->setBounds(4, 40, 10, 78);
     scrubDrawerButton->setToggleState(false, dontSendNotification);
 	scrubDrawerButton->addListener(this);

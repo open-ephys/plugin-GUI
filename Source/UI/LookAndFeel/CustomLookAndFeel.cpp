@@ -133,7 +133,7 @@ void CustomLookAndFeel::initializeColors()
         {ThemeColors::menuHighlightBackground, Colour(153,200,214)},
         {ThemeColors::outline, Colours::black},
         {ThemeColors::defaultText, Colour(224,224,224)},
-        {ThemeColors::defaultFill, Colour(72,72,72)},
+        {ThemeColors::defaultFill, Colour(80,80,80)},
         {ThemeColors::highlightedText, Colour(240,240,240)},
         {ThemeColors::highlightedFill, Colour(230, 152, 63)},
         {ThemeColors::dropShadowColor, Colours::black.withAlpha(0.75f)}

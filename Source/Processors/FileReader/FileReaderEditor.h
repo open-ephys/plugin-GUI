@@ -44,15 +44,6 @@ class FileSource;
 
 */
 
-class ScrubDrawerButton : public DrawerButton
-{
-public:
-	ScrubDrawerButton(const String& name);
-	~ScrubDrawerButton();
-private:
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
-};
-
 class FileReaderEditor  : public GenericEditor
                         , public FileDragAndDropTarget
                         , public Button::Listener
@@ -101,7 +92,7 @@ public:
 private:
     void clearEditor();
 
-    ScopedPointer<ScrubDrawerButton>    scrubDrawerButton;
+    ScopedPointer<DrawerButton>    scrubDrawerButton;
     ScopedPointer<ScrubberInterface>    scrubberInterface;
 
     FileReader* fileReader;
