@@ -36,11 +36,7 @@ protected:
     }
 
     void TearDown() override {
-        // Swallow errors
         std::error_code ec;
-        std::filesystem::remove_all(parent_recording_dir, ec);
-    }
-
     AudioBuffer<float> CreateBuffer(float starting_value, float step, int num_channels, int num_samples) {
         AudioBuffer<float> input_buffer(num_channels, num_samples);
 

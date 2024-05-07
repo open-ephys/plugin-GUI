@@ -8,18 +8,21 @@
 #include <ModelApplication.h>
 #include <TestFixtures.h>
 
-class ArduinoOutputTests : public ::testing::Test  {
+class ArduinoOutputTests : public ProcessorTest {
 protected:
-    ArduinoOutputTests() {
+    ArduinoOutputTests() : ProcessorTest(1, 150) {
     }
 
     ~ArduinoOutputTests() override {
     }
 
     void SetUp() override {
+        ProcessorTest::SetUp();
     }
 
     void TearDown() override {
+        ProcessorTest::TearDown();
+
     }
 
 };

@@ -25,14 +25,15 @@ if(BUILD_TESTS)
 
 	FetchContent_MakeAvailable(googletest)
 	enable_testing()
-
+	
+	add_library(${PLUGIN_NAME}_testable SHARED)
+	
 	add_executable(
 			${PLUGIN_NAME}_tests
 	)
 	target_compile_features(${PLUGIN_NAME}_tests PRIVATE cxx_std_17)
-else()
-	add_dependencies(${PLUGIN_NAME} open-ephys)
 endif()
+add_dependencies(${PLUGIN_NAME} open-ephys)
 
 target_include_directories(${PLUGIN_NAME} PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules ${PLUGIN_HEADER_PATH})
 target_compile_features(${PLUGIN_NAME} PUBLIC cxx_auto_type cxx_generalized_initializers)
@@ -73,24 +74,36 @@ elseif(APPLE)
 endif()
 
 if(BUILD_TESTS)
-	add_dependencies(${PLUGIN_NAME}_tests ${PLUGIN_NAME} gui_testable_source test_helpers)
-	target_link_libraries(${PLUGIN_NAME}_tests PRIVATE ${PLUGIN_NAME} gtest_main test_helpers PUBLIC gui_testable_source)
+	
+	if(MSVC)
+ 		target_compile_options(${PLUGIN_NAME}_testable PRIVATE /sdl- /W0)
+	endif()
+	add_dependencies(${PLUGIN_NAME}_testable ${PLUGIN_NAME} gui_testable_source)	
+	get_target_property(SRC_FILES ${PLUGIN_NAME} SOURCES)
+	target_sources(${PLUGIN_NAME}_testable PRIVATE ${SRC_FILES})
+	target_link_libraries(${PLUGIN_NAME}_testable PRIVATE gui_testable_source)
+	target_include_directories(${PLUGIN_NAME}_testable PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules ${PLUGIN_HEADER_PATH})
+	
+	add_dependencies(${PLUGIN_NAME}_tests ${PLUGIN_NAME}_testable gui_testable_source test_helpers)
+	target_link_libraries(${PLUGIN_NAME}_tests PRIVATE ${PLUGIN_NAME}_testable gtest_main test_helpers PUBLIC gui_testable_source)
 	target_include_directories(${PLUGIN_NAME}_tests PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules ${PLUGIN_HEADER_PATH} ${TEST_HELPERS_DIRECTORY}/include ${GUI_BASE_DIR}/Source)
+	
 	add_test(NAME ${PLUGIN_NAME}_tests  COMMAND ${PLUGIN_NAME}_tests)
 
 	get_target_property(PLUGIN_BASES gui_testable_source SOURCES)
 	source_group("Plugin Base Classes" FILES ${PLUGIN_BASES})
 endif()
-
 #output folders
 if(BUILD_TESTS)
- 	set_property(TARGET ${PLUGIN_NAME}_tests PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
- 	#set_property(TARGET ${PLUGIN_NAME}_testable PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
- 	#set_property(TARGET ${PLUGIN_NAME}_testable PROPERTY LIBRARY_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
+	#target_compile_options(${PLUGIN_NAME}_testable PUBILC "/MT$<$<CONFIG:Debug>:d>") 
+	set_property(TARGET ${PLUGIN_NAME}_tests PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
+ 	set_property(TARGET ${PLUGIN_NAME}_testable PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
+ 	set_property(TARGET ${PLUGIN_NAME}_testable PROPERTY LIBRARY_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
 
  	add_custom_command(TARGET ${PLUGIN_NAME}_tests POST_BUILD
  				COMMAND ${CMAKE_COMMAND} -E copy_directory ${BIN_TESTS_DIR}/common ${BIN_TESTS_DIR}/${PLUGIN_NAME})
- endif()
+endif()
+
 
 set_property(TARGET ${PLUGIN_NAME} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})
 set_property(TARGET ${PLUGIN_NAME} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${BIN_PLUGIN_DIR})

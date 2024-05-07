@@ -20,15 +20,8 @@ message(FATAL_ERROR "Please run cmake inside the Build folder to build the binar
 endif()
 
 project(open-ephys-GUI)
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-	set(LINUX 1)
-	if(NOT CMAKE_BUILD_TYPE)
-		set(CMAKE_BUILD_TYPE Debug)
-	endif()
-endif()
 include(HelperFunctions.cmake)
 
-set(BASE_BUILD_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Build)
 set(JUCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/JuceLibraryCode)
 set(RESOURCES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Resources)
 set(PLUGINS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Plugins)

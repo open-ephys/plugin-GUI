@@ -31,12 +31,15 @@ DataBuffer::DataBuffer (int chans, int size)
     sampleNumberBuffer.malloc (size);
     timestampBuffer.malloc (size);
     eventCodeBuffer.malloc (size);
+
+    // UG3 Specific
     timestampSampleBuffer.malloc (size);
 
 	lastSampleNumber = 0;
     lastTimestamp = -1.0;
 }
 
+DataBuffer::~DataBuffer(){}
 
 DataBuffer::~DataBuffer()
 {
@@ -61,6 +64,8 @@ void DataBuffer::resize (int chans, int size)
     sampleNumberBuffer.malloc (size);
     timestampBuffer.malloc (size);
     eventCodeBuffer.malloc (size);
+
+    // UG3 Specific
     timestampSampleBuffer.malloc (size);
 
     lastSampleNumber = 0;
@@ -106,6 +111,8 @@ int DataBuffer::addToBuffer (float* data,
                 sampleNumberBuffer[si[i] + blkIdx + k] = sampleNumbers[idx + k];
                 timestampBuffer[si[i] + blkIdx + k] = timestamps[idx + k];
                 eventCodeBuffer[si[i] + blkIdx + k] = eventCodes[idx + k];
+
+                // UG3 Specific
                 timestampSampleBuffer[si[i] + blkIdx + k] = timestampSampleIndex;
             }
             idx     += cSize;
@@ -156,6 +163,8 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
         memcpy (blockSampleNumber, sampleNumberBuffer + startIndex1, 8);
         memcpy (blockTimestamp, timestampBuffer + startIndex1, 8);
         memcpy (eventCodes, eventCodeBuffer + startIndex1, blockSize1 * 8);
+
+        // UG3 Specific
         memcpy (timestampSampleIndex, timestampSampleBuffer + startIndex1, sizeof(std::optional<int64>));
     }
     else

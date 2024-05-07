@@ -340,7 +340,6 @@ TEST_F(LfpDisplayNodeTests, DataIntegrityTest) {
     WriteBlock(input_buffer);
 
     tester->stopAcquisition();
-
 }
 
 

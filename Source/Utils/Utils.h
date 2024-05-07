@@ -21,10 +21,10 @@ protected:
 
 	OELogger() { }
 public:
-	static OELogger& instance()
+	static OELogger& GetInstance(const std::string& log_file = "activity.log")
 	{
-		static OELogger lg;
-		return lg;
+		static OELogger instance(log_file);
+		return instance;
 	}
 
 	OELogger(OELogger const&) = delete;
@@ -64,12 +64,18 @@ public:
 		// Each time the GUI is launched, a new error log is generated.
 		// In case of a crash, the most recent file is appended with a datestring
 		logFile.open(filePath, std::ios::out | std::ios::app);
-		time_t now = time(0);
-		logFile << "[open-ephys] Session start time: " << ctime(&now);
 	}
 
 private:
+	OELogger(const std::string& log_file) : log_file(log_file)
+	{
+		if (!logFileExists)
+			createLogFile(log_file);
+		logFileExists = true;
+	}
 	std::mutex mt;
+	std::string log_file;
+	bool logFileExists = false;
 };
 
 /* Expose the Logger instance to plugins */

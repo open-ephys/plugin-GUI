@@ -30,3 +30,4 @@ recording methods, like the spike recording subsystem.
 */
 
 #include "../../Source/Processors/RecordNode/RecordEngine.h"
+#include "../../Source/TestableExport.h"

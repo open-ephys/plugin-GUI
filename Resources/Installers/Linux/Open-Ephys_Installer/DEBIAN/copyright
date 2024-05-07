@@ -3,7 +3,7 @@ Upstream-Name: Open Ephys Plugin GUI
 Source: https://github.com/open-ephys/plugin-GUI/
 
 Files: *
-Copyright: 2022 Open Ephys <info@open-ephys.com>
+Copyright: 2023 Open Ephys <info@open-ephys.com>
 License: GPL-3+
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

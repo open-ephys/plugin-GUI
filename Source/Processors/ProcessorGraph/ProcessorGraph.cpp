@@ -156,6 +156,7 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
     LOGD("New source: ", newSource->getName());
     if (newDest != nullptr)
     LOGD("New dest: ", newDest->getName());
+    LOGD("Move downstream: ", moveDownstream);
 
     processor->setSourceNode(nullptr);
     processor->setDestNode(nullptr);
@@ -216,6 +217,7 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
             newDest->setSourceNode(processor);
         } else {
             processor->setDestNode(nullptr);
+            updateSettings(newDest);
         }
     }
 
@@ -223,9 +225,20 @@ void ProcessorGraph::moveProcessor(GenericProcessor* processor,
         checkForNewRootNodes(processor, false, true);
 
     if (moveDownstream) // processor is further down the signal chain, its original dest may have changed
-        updateSettings(originalDest);
+    {
+        //LOGD("MOVE: Updating settings for ", originalDest->getNodeId());
+        if (originalDest != nullptr)
+            updateSettings(originalDest);
+        else
+            updateSettings(processor);
+    }
+        
     else // processor is upstream of its original dest, so we can just update that
+    {
+        //LOGD("MOVE: Updating settings for ", processor->getNodeId());
         updateSettings(processor);
+    }
+        
 }
 
 GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& description,
@@ -269,7 +282,7 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
             id = currentNodeId++;
         }
 
-         // identifier within processor graph
+        // identifier within processor graph
         processor->setNodeId(id);
         processor->registerParameters();
         Node* n = addNode(std::move(processor), NodeID(id)); // have to add it so it can be deleted by the graph
@@ -1896,9 +1909,17 @@ void ProcessorGraph::setRecordState(bool isRecording)
             GenericProcessor* p = (GenericProcessor*) node->getProcessor();
 
             if (isRecording)
+            {
                 p->startRecording();
+                if (p->getEditor() != nullptr)
+                    p->getEditor()->startRecording();
+            }
             else
+            {
                 p->stopRecording();
+                if (p->getEditor() != nullptr)
+                    p->getEditor()->stopRecording();
+            }
         }
     }
 

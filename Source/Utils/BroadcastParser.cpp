@@ -52,4 +52,3 @@ bool BroadcastParser::getPayloadForCommand(String expectedPlugin, String expecte
     payload = BroadcastPayload(command,  jsonMessage -> getProperty("payload").getDynamicObject());
     return true;
 }
-

@@ -156,5 +156,22 @@ private:
 
 };
 
+//As part of the headless changes from the juce7-development branch:
+//MainWindow no longer directly derives from DocumentWindow and instead owns a
+//DocumentWindow object. The default closeButtonPressed implementation returns
+//an Exception by default. This wrapper implements the original closeButtonPressed() method from
+//when MainWindow derived from DocumentWindow
+class DocumentWindowWrapper : public DocumentWindow {
+public:
+    DocumentWindowWrapper (const String& name,
+    Colour backgroundColour,
+    int requiredButtons,
+    bool addToDesktop = true) : DocumentWindow(name, backgroundColour, requiredButtons, addToDesktop){}
+     
+    void closeButtonPressed(){
+        JUCEApplication::getInstance()->systemRequestedQuit();
+    }
+};
+
 
 #endif  // __MAINWINDOW_H_BA75E17__

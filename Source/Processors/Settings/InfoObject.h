@@ -290,6 +290,10 @@ public :
 	/** Returns the name of this channel's stream */
 	String getStreamName() const;
 
+	const DataStream* getStreamPointer() const {
+		return stream;
+	}
+
     /** Set's this channel's DataStream and adds it to the stream by default*/
     virtual void setDataStream(DataStream* ds, bool addToStream = true);
 

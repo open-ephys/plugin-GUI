@@ -171,6 +171,12 @@ public:
 
     /** Swaps the backbuffer to the front and flags the background readerthread to update the new backbuffer */
     void switchBuffer();
+    
+    /** Save File Reader parameters */
+    void saveCustomParametersToXml(XmlElement*) override;
+
+    /** Load File Reader parameters */
+    void loadCustomParametersFromXml(XmlElement*) override;
 
     /** Returns a pointer to the ScrubberInterface */
     ScrubberInterface* getScrubberInterface();

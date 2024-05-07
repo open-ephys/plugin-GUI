@@ -348,6 +348,20 @@ namespace CoreServices
 			return directory;
 		}
 
+        File getRecordingRootDirectory(int nodeId)
+        {
+
+            File directory;
+
+            for (auto* node : getProcessorGraph()->getRecordNodes())
+            {
+                if (node->getNodeId() == nodeId)
+                    directory = node->getRootDirectory();
+            }
+
+            return directory;
+        }
+
 		float getFreeSpaceAvailable(int nodeId)
 		{
 
@@ -414,7 +428,7 @@ namespace CoreServices
 			for (auto* node : getProcessorGraph()->getRecordNodes())
 			{
 				if (node->getNodeId() == nodeId)
-					node->createNewDirectory();
+					node->createNewDirectory(true);
 			}
 		}
     

@@ -196,6 +196,12 @@ private:
 	Array<int> channelStates;
 	Array<int> selectedButtons;
 	Array<int> activeChannels;
+
+	int buttonSize;
+	int width;
+	int height;
+	int nRows;
+	int nColumns;
 };
 
 

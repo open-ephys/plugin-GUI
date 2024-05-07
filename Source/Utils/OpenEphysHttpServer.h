@@ -30,12 +30,18 @@
 #include "../Processors/ProcessorGraph/ProcessorGraphActions.h"
 
 #include <sstream>
+
+#ifdef OPENEPHYS_INCLUDE_HTTPLIB
 #include "httplib.h"
+#else
+#include <httplib.h>
+#endif
 #include "json.hpp"
 
 #include "../MainWindow.h"
 #include "../AccessClass.h"
 #include "../UI/ProcessorList.h"
+#include "../UI/EditorViewport.h"
 
 #include "Utils.h"
 
@@ -92,6 +98,7 @@ using json = nlohmann::json;
  * All endpoints are JSON endpoints. The PUT endpoint expects two parameters: "channel" (an integer), and "value",
  * which should have a type matching the type of the parameter.
  */
+
 class OpenEphysHttpServer : juce::Thread {
 public:
 
@@ -914,6 +921,32 @@ public:
             
 
             });
+
+        svr_->Get("/api/undo", [this](const httplib::Request& req, httplib::Response& res) {
+            std::string message_str;
+            LOGD( "Received undo request" );
+
+            json ret;
+            res.set_content(ret.dump(), "application/json");
+            res.status = 400;
+
+            const MessageManagerLock mml;
+            AccessClass::getEditorViewport()->undo();
+
+            });
+
+        svr_->Get("/api/redo", [this](const httplib::Request& req, httplib::Response& res) {
+            std::string message_str;
+            LOGD( "Received redo request" );
+
+            json ret;
+            res.set_content(ret.dump(), "application/json");
+            res.status = 400;
+
+            const MessageManagerLock mml;
+            AccessClass::getEditorViewport()->redo();
+
+            });
                    
         LOGC("Beginning HTTP server on port ", PORT);
         svr_->listen("0.0.0.0", PORT);
@@ -1014,8 +1047,11 @@ private:
         (*ret)["experiment_number"] = CoreServices::RecordNode::getExperimentNumber(nodeId);
 
         (*ret)["recording_number"] = CoreServices::RecordNode::getRecordingNumber(nodeId);
-        
+
         (*ret)["is_synchronized"] = CoreServices::RecordNode::isSynchronized(nodeId);
+
+        (*ret)["root_directory"] = CoreServices::RecordNode::getRecordingRootDirectory(nodeId)
+            .getFullPathName().toStdString();
     }
 
     inline static void status_to_json(const ProcessorGraph* graph, json* ret) 
@@ -1053,7 +1089,7 @@ private:
             parameters_json->push_back(parameter_json);
         }
     }
-    
+
     inline static void stream_to_json(GenericProcessor* processor, const DataStream* stream, json* stream_json)
     {
         (*stream_json)["name"] = stream->getName().toStdString();

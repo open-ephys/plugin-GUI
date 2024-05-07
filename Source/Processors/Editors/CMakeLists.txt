@@ -24,5 +24,3 @@ add_sources(open-ephys
 )
 
 #add nested directories
-
-

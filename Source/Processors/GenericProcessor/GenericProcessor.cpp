@@ -562,13 +562,39 @@ void GenericProcessor::clearSettings()
 {
 
     LOGDD("Clearing settings for ", getName());
+
+    Array<DataStream*> dataStreamsToKeep;
+
+    // NB: continuous, spike, and event channels retain a reference to their parent DataStream object,
+    // and so we need to ensure that if we're deleting any DataStream objects, that we also delete any
+    // channels that reference those datastreams. Presumingly, the DataStream and channel objects will
+    // likely be constructed properly in subsequent execution of updateSettings().
+    Array<const DataStream*> dataStreamsDeleted;
+    for (auto obj : dataStreams)
+    {
+
+        if (!obj->isLocal())
+        {
+            savedDataStreamParameters.add(new ParameterCollection());
+            savedDataStreamParameters.getLast()->copyParametersFrom(obj);
+            dataStreamsDeleted.add(obj);
+            delete obj;
+        }
+        else {
+
+            dataStreamsToKeep.add(obj);
+        }
+
+    }
+
+    dataStreams.clearQuick(false);
+    dataStreams.addArray(dataStreamsToKeep);
     
     Array<ContinuousChannel*> continuousChannelsToKeep;
     
     for (auto obj : continuousChannels)
     {
-        //std::cout << obj->getName() << std::endl;
-        if (!obj->isLocal())
+        if (!obj->isLocal() || dataStreamsDeleted.indexOf(obj->getStreamPointer()) != -1)
             delete obj;
         else
             continuousChannelsToKeep.add(obj);
@@ -582,10 +608,12 @@ void GenericProcessor::clearSettings()
     for (auto obj : eventChannels)
     {
 
-        if (!obj->isLocal())
+        if (!obj->isLocal() || dataStreamsDeleted.indexOf(obj->getStreamPointer()) != -1) {
             delete obj;
-        else
+        }
+        else {
             eventChannelsToKeep.add(obj);
+        }
     }
     
     eventChannels.clearQuick(false);
@@ -595,7 +623,7 @@ void GenericProcessor::clearSettings()
     
     for (auto obj : spikeChannels)
     {
-        if (!obj->isLocal())
+        if (!obj->isLocal() || dataStreamsDeleted.indexOf(obj->getStreamPointer()) != -1)
             delete obj;
         else
             spikeChannelsToKeep.add(obj);            
@@ -645,6 +673,7 @@ void GenericProcessor::clearSettings()
     syncStreamIds.clear();
 	numSamplesInBlock.clear();
 	processStartTimes.clear();
+    referenceSamplesForBlock.clear();
 
 }
 
@@ -994,7 +1023,7 @@ void GenericProcessor::update()
         updateSettings(); // only for Merger
     }
 
-	updateChannelIndexMaps();
+    updateChannelIndexMaps();
 
     LOGD("    Copied upstream settings in ", MS_FROM_START, " milliseconds");
 
@@ -1291,6 +1320,17 @@ std::optional<std::pair<int64, double>> GenericProcessor::getReferenceSampleForB
     }
 }
 
+std::optional<std::pair<int64, double>> GenericProcessor::getReferenceSampleForBlock(uint16 streamId){
+    if(referenceSamplesForBlock.find(streamId) != referenceSamplesForBlock.end()) {
+        return referenceSamplesForBlock.at(streamId);
+    }
+    else {
+        return std::nullopt;
+    }
+}
+
+
+
 void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
                                               double timestamp,
                                               uint32 nSamples,
@@ -1313,10 +1353,36 @@ void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
 	m_currentMidiBuffer->addEvent(data, dataSize, 0);
 
 	//since the processor generating the timestamp won't get the event, add it to the map
-    startTimestampsForBlock[streamId] = timestamp;
     startSamplesForBlock[streamId] = sampleNumber;
     syncStreamIds[streamId] = syncStreamId;
 	processStartTimes[streamId] = m_initialProcessTime;
+    startTimestampsForBlock[streamId] = timestamp;
+
+}
+
+void GenericProcessor::setReferenceSample(uint16 streamId,
+                        double timestamp,
+                        int64 sampleIndex)
+{
+    //Check last referenceSample and return if this sample is equal
+    if(referenceSamplesForBlock.find(streamId) != referenceSamplesForBlock.end()) {
+        std::optional<std::pair<int64, double>> lastReferenceSample = referenceSamplesForBlock.at(streamId);
+        if(lastReferenceSample.has_value()) {
+            if(sampleIndex == lastReferenceSample.value().first && timestamp == lastReferenceSample.value().second) {
+                return;
+            }
+        }
+    }
+
+    HeapBlock<char> data;
+    size_t dataSize = SystemEvent::fillReferenceSampleEvent(data,
+        this,
+        streamId,
+        sampleIndex,
+        timestamp);
+    
+    m_currentMidiBuffer->addEvent(data, dataSize, 0);
+    referenceSamplesForBlock[streamId] = {sampleIndex, timestamp};
 
 }
 
@@ -1368,7 +1434,7 @@ int GenericProcessor::processEventBuffer()
 
 	if (m_currentMidiBuffer->getNumEvents() > 0)
 	{
-        
+        std::map<uint16, std::optional<std::pair<int64, double>>> newReferenceSamples;
         for (const auto meta : *m_currentMidiBuffer)
         {
             const uint8* dataptr = meta.data;
@@ -1385,6 +1451,7 @@ int GenericProcessor::processEventBuffer()
 				uint32 nSamples = *reinterpret_cast<const uint32*>(dataptr + 24);
 				int64 initialTicks = *reinterpret_cast<const int64*>(dataptr + 28);
 
+
                // if (startSamplesForBlock[sourceStreamId] > startSample)
                 //    std::cout << "GET: " << getNodeId() << " " << sourceStreamId << " " << startSamplesForBlock[sourceStreamId] << " " << startSample << std::endl;
 				
@@ -1393,6 +1460,7 @@ int GenericProcessor::processEventBuffer()
 				syncStreamIds[sourceStreamId] = syncStreamId;
                 numSamplesInBlock[sourceStreamId] = nSamples;
 				processStartTimes[sourceStreamId] = initialTicks;
+
 					
 			}
             else if (static_cast<Event::Type> (*dataptr) == Event::Type::PROCESSOR_EVENT
@@ -1413,8 +1481,31 @@ int GenericProcessor::processEventBuffer()
                 TextEventPtr textEvent = TextEvent::deserialize(dataptr, getMessageChannel());
 
                 handleBroadcastMessage(textEvent->getText());
+            } else if (static_cast<Event::Type> (*dataptr) == Event::Type::SYSTEM_EVENT
+                && static_cast<SystemEvent::Type>(*(dataptr + 1) == SystemEvent::Type::REFERENCE_SAMPLE))
+            {
+                uint16 sourceProcessorId = *reinterpret_cast<const uint16*>(dataptr + 2);
+                uint16 sourceStreamId = *reinterpret_cast<const uint16*>(dataptr + 4);
+                uint32 sourceChannelIndex = *reinterpret_cast<const uint16*>(dataptr + 6);
+                
+                int64 sampleIndex = *reinterpret_cast<const int64*>(dataptr + 8);
+                double sampleTimestamp = *reinterpret_cast<const double*>(dataptr + 16);
+                newReferenceSamples[sourceStreamId] = {sampleIndex, sampleTimestamp};
             }
 		}
+        
+        //Add all new reference samples for block, set all others to nullopt
+        for(auto ds : getDataStreams()) {
+            std::optional<std::pair<int64, double>> newReferenceSample;
+            if(newReferenceSamples.find(ds->getStreamId()) != newReferenceSamples.end()) {
+                newReferenceSample = newReferenceSamples.at(ds->getStreamId());
+            }
+            else {
+                newReferenceSample = std::nullopt;
+            }
+            referenceSamplesForBlock[ds->getStreamId()] = newReferenceSample;
+        }
+
 	}
 
 	return numRead;
@@ -1481,8 +1572,8 @@ int GenericProcessor::checkForEvents(bool checkForSpikes)
 void GenericProcessor::addEvent(const Event* event, int sampleNum)
 {
 	size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
-	
-	HeapBlock<char> buffer(size);
+
+    HeapBlock<char> buffer(size);
 
 	event->serialize(buffer, size);
 

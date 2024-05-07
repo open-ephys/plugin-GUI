@@ -356,7 +356,7 @@ MoveProcessor::~MoveProcessor()
    
 bool MoveProcessor::perform()
 {
-    LOGDD("Peforming MOVE for processor ", nodeId);
+    LOGD("Peforming MOVE for processor ", nodeId);
     
     GenericProcessor* processor = processorGraph->getProcessorWithNodeId(nodeId);
     
@@ -375,7 +375,7 @@ bool MoveProcessor::perform()
 bool MoveProcessor::undo()
 {
 
-    LOGDD("Undoing MOVE for processor ", nodeId);
+    LOGD("Undoing MOVE for processor ", nodeId);
 
     GenericProcessor* processor = processorGraph->getProcessorWithNodeId(nodeId);
     

@@ -62,10 +62,10 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
     if (activityLog.exists())
         activityLog.deleteFile();
 	
-	OELogger::instance().createLogFile(activityLog.getFullPathName().toStdString());
+	OELogger::GetInstance(activityLog.getFullPathName().toStdString());
 
-	std::cout << "Session Start Time: " << Time::getCurrentTime().toString(true, true, true, true) << std::endl;
-	std::cout << std::endl;
+	LOGC("Session Start Time: ", Time::getCurrentTime().toString(true, true, true, true));
+
 	LOGC("Open Ephys GUI v", JUCEApplication::getInstance()->getApplicationVersion(), " (Plugin API v", PLUGIN_API_VER, ")");
 	LOGC(SystemStats::getJUCEVersion());
 	LOGC("Operating System: ", SystemStats::getOperatingSystemName());

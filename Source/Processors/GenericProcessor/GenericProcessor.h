@@ -51,6 +51,7 @@
 #include <map>
 #include <unordered_map>
 #include <limits>
+#include <optional>
 
 class EditorViewport;
 class DataViewport;
@@ -580,6 +581,12 @@ protected:
     
     /** Used to get the current timestamp for a given stream.*/
     double getFirstTimestampForBlock(uint16 streamId) const;
+    
+    /** Used to get the sample index for the current timestamp for a given stream*/
+    int64 getTimestampSampleIndexForBlock(uint16 streamId) const;
+    
+    std::optional<std::pair<int64, double>> getReferenceSampleForBlock(uint16 streamId);
+
 
     std::optional<std::pair<int64, double>> getReferenceSampleForBlock(uint16 streamId);
 
@@ -593,6 +600,11 @@ protected:
     void setReferenceSample(uint16 streamId,
         double timestamp,
         int64 sampleIndex);
+    
+    void setReferenceSample(uint16 streamId,
+                            double timestamp,
+                            int64 sampleIndex);
+    
     
     // --------------------------------------------
     //     CHANNEL INDEXING
@@ -740,6 +752,10 @@ private:
 
     /** Map between stream IDs and start time of process callbacks. */
     std::map<uint16, int64> processStartTimes;
+    
+    
+    /** Map between stream IDs and  reference samples */
+    std::map<uint16, std::optional<std::pair<int64, double>>> referenceSamplesForBlock;
 
     /** Map between stream IDs and  reference samples */
     std::map<uint16, std::optional<std::pair<int64, double>>> referenceSamplesForBlock;

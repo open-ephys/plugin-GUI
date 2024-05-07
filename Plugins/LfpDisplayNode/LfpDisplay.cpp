@@ -317,7 +317,7 @@ void LfpDisplay::resized()
         
         disp->setBounds(canvasSplit->leftmargin,
                         totalHeight-(disp->getChannelOverlap()*canvasSplit->channelOverlapFactor)/2,
-                        getWidth()- canvasSplit->leftmargin,
+                        getWidth() - canvasSplit->leftmargin,
                         disp->getChannelHeight()+(disp->getChannelOverlap()*canvasSplit->channelOverlapFactor));
         
 
@@ -325,7 +325,7 @@ void LfpDisplay::resized()
 
         info->setBounds(2,
                         totalHeight-disp->getChannelHeight() + (disp->getChannelOverlap()*canvasSplit->channelOverlapFactor)/4.0,
-                        canvasSplit->leftmargin -2,
+                        canvasSplit->leftmargin,
                         disp->getChannelHeight());
         
         totalHeight += disp->getChannelHeight();
@@ -361,7 +361,6 @@ void LfpDisplay::resized()
 
 void LfpDisplay::paint(Graphics& g)
 {
-    
     g.drawImageAt(lfpChannelBitmap, canvasSplit->leftmargin, 0);
     
 }

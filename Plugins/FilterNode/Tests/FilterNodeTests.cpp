@@ -18,7 +18,6 @@
 #include <ModelApplication.h>
 #include <TestFixtures.h>
 
-
 class FilterNodeTests :  public ::testing::Test {
 protected:
     void SetUp() override {
@@ -185,4 +184,3 @@ TEST_F(FilterNodeTests, Test_SignalAbovePassband) {
         ASSERT_GE(amp_diff, 0.95 * input_amplitude);
     }
 }
-

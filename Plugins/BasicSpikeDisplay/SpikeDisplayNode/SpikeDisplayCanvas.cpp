@@ -133,17 +133,27 @@ void SpikeDisplayCanvas::updateSettings()
 
         std::string cacheKey = processor->getSpikeChannel(i)->getIdentifier().toStdString();
 
-        if (cache && cache->hasCachedDisplaySettings(cacheKey))
+        if (cache)
         {
-
-            spikeDisplay->setMonitorStateForPlot(i, cache->isMonitored(cacheKey));
-
-            for (int j = 0; j < processor->getNumberOfChannelsForElectrode(i); j++)
+            //TODO: Should be able to call spikeChannel->getStreamIndex() here...
+            int streamIdx = 0;
+            for (auto& stream : processor->getDataStreams())
             {
-                spikeDisplay->setThresholdForWaveAxis(i,j,cache->getThreshold(cacheKey,j));
-                spikeDisplay->setRangeForWaveAxis(i,j,cache->getRange(cacheKey, j));
+                if (stream->getStreamId() == processor->getSpikeChannel(i)->getStreamId())
+                    break;
+                streamIdx++;
             }
 
+            if (cache->hasCachedDisplaySettings(cacheKey))
+            {
+                LOGD("SpikeDisplayCanvas::update: found exact key for ", cacheKey);
+                applyCachedDisplaySettings(i, cacheKey);
+            }
+            else if (cache->findSimilarKey(cacheKey, streamIdx).size() > 0)
+            {
+                LOGD("SpikeDisplayCanvas::update: found similar key for ", cacheKey);
+                applyCachedDisplaySettings(i, cache->findSimilarKey(cacheKey, streamIdx));
+            }
         }
 
     }
@@ -228,6 +238,10 @@ void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
             continue;
 
         spikePlotIdx++;
+
+        const SpikeChannel* spikeChannel = processor->getSpikeChannel(i);
+
+        const uint16 streamId = spikeChannel->getStreamId();
 
         XmlElement* plotNode = xmlNode->createNewChildElement("PLOT");
 

@@ -26,6 +26,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
+#include <optional>
 
 /**
     Manages reading and writing data to a circular buffer.
@@ -54,6 +55,8 @@ public:
         @param numItems Total number of samples per channel.
         @param chunkSize Number of consecutive samples per channel per chunk.
         1 by default. Typically 1 or numItems.
+        @param timstampSampleIndex the sample index associated with timestamps[0]. 0 by default.
+        Should be the absolute sample index from a DataThread
 
         @return The number of items actually written. May be less than numItems if
         the buffer doesn't have space.
@@ -90,6 +93,8 @@ private:
     HeapBlock<int64> sampleNumberBuffer;
     HeapBlock<double> timestampBuffer;
     HeapBlock<uint64> eventCodeBuffer;
+
+    // UG3 Specific
     HeapBlock<std::optional<int64>> timestampSampleBuffer;
 
 	int64 lastSampleNumber;

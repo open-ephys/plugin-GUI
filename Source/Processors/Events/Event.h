@@ -222,6 +222,7 @@ public:
 		// Special text event sent by Source Processors at the start of recording
 		TIMESTAMP_SYNC_TEXT = 3,
 
+		// UG3 Specific
 		// Indicates reference sample information for each incoming data buffer
 		REFERENCE_SAMPLE = 4
 
@@ -237,6 +238,7 @@ public:
 		int64 processStartTime,
 		uint16 syncStreamId = 0);
 
+	// UG3 Specific
 	static size_t fillReferenceSampleEvent(HeapBlock<char>& data,
 		const GenericProcessor* proc,
 		uint16 streamId,

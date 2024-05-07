@@ -342,6 +342,10 @@ void SourceNode::process(AudioBuffer<float>& buffer)
                                timestamp,
                                nSamples,
                                dataStreams[streamIdx]->getStreamId());
+        
+        if(timestampSampleIndex.has_value()) {
+            setReferenceSample(dataStreams[streamIdx]->getStreamId(), timestamp, timestampSampleIndex.value());
+        }
 
         if (timestampSampleIndex.has_value())
         {

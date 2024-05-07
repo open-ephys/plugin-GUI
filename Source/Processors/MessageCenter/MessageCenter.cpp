@@ -29,7 +29,6 @@
 
 #include "../Events/Event.h"
 
-#define MAX_MSG_LENGTH 512
 //---------------------------------------------------------------------
 
 MessageCenter::MessageCenter() :
@@ -139,8 +138,6 @@ void MessageCenter::process(AudioBuffer<float>& buffer)
 
         String eventString = messageToBroadcast;
 
-		eventString = eventString.dropLastCharacters(eventString.length() - MAX_MSG_LENGTH);
-        
         int64 ts = CoreServices::getGlobalTimestamp();
 
 		TextEventPtr event = TextEvent::createTextEvent(eventChannels[0],

@@ -638,7 +638,9 @@ void FileReader::process(AudioBuffer<float>& buffer)
                                 samplesNeededPerBuffer);
     }
 
-    setTimestampAndSamples(totalSamplesAcquired, -1.0, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this
+    setTimestampAndSamples(totalSamplesAcquired, Time::currentTimeMillis()/1e3, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this
+    
+    setReferenceSample(dataStreams[0]->getStreamId(), Time::currentTimeMillis()/1e3, totalSamplesAcquired);
 
     int64 start = totalSamplesAcquired;
 
@@ -671,9 +673,9 @@ void FileReader::addEventsInRange(int64 start, int64 stop)
     { 
 
         juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount * (stopSample - startSample);
-        String msg = events.text[i];
-        if (!msg.isEmpty())
+        if (events.text.size() && !events.text[i].isEmpty())
         {
+            String msg = events.text[i];
             LOGD("Broadcasting message: ", msg, " at timestamp: ", absoluteCurrentTimestamp, " channel: ", events.channels[i]);
             broadcastMessage(msg);
         }
