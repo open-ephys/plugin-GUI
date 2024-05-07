@@ -163,18 +163,6 @@ void ArduinoOutput::process (AudioBuffer<float>& buffer)
     checkForEvents ();
 }
 
-
-void ArduinoOutput::parameterValueChanged(Parameter* parameter)
-{
-    if (parameter->getName() == "gate_line")
-    {
-		if (int(parameter->getValue()) == 0)
-			gateIsOpen = true;
-		else
-			gateIsOpen = false;
-    }
-}
-
 void ArduinoOutput::handleTTLEvent(TTLEventPtr event)
 {
 

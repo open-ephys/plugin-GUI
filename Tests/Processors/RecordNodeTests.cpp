@@ -13,7 +13,7 @@
 #include <filesystem>
 #include <algorithm>
 
-class RecordNodeTests :  public ::testing::Test {
+class RecordNodeTests : public ::testing::Test {
 protected:
     void SetUp() override {
         num_channels = 8;
@@ -35,8 +35,10 @@ protected:
         processor = tester->CreateProcessor<RecordNode>(Plugin::Processor::RECORD_NODE);
     }
 
-    void TearDown() override {
+    void TearDown() override
+    {
         std::error_code ec;
+    }
     AudioBuffer<float> CreateBuffer(float starting_value, float step, int num_channels, int num_samples) {
         AudioBuffer<float> input_buffer(num_channels, num_samples);
 
@@ -206,6 +208,7 @@ protected:
         return (std::numeric_limits<int16_t>::max)();
     }
 
+protected:
     RecordNode *processor;
     int num_channels;
     float bitVolts_ = 1.0;

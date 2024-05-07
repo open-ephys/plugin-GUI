@@ -587,9 +587,6 @@ protected:
     
     std::optional<std::pair<int64, double>> getReferenceSampleForBlock(uint16 streamId);
 
-
-    std::optional<std::pair<int64, double>> getReferenceSampleForBlock(uint16 streamId);
-
 	/** Used to set the timestamp for a given buffer, for a given DataStream. */
 	void setTimestampAndSamples(int64 startSampleForBlock,
                                 double startTimestampForBlock,
@@ -600,11 +597,6 @@ protected:
     void setReferenceSample(uint16 streamId,
         double timestamp,
         int64 sampleIndex);
-    
-    void setReferenceSample(uint16 streamId,
-                            double timestamp,
-                            int64 sampleIndex);
-    
     
     // --------------------------------------------
     //     CHANNEL INDEXING
@@ -754,9 +746,6 @@ private:
     std::map<uint16, int64> processStartTimes;
     
     
-    /** Map between stream IDs and  reference samples */
-    std::map<uint16, std::optional<std::pair<int64, double>>> referenceSamplesForBlock;
-
     /** Map between stream IDs and  reference samples */
     std::map<uint16, std::optional<std::pair<int64, double>>> referenceSamplesForBlock;
 

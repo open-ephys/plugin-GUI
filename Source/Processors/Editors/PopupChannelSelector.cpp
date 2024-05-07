@@ -60,7 +60,7 @@ void ChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown
 	g.setColour(Colour(0,0,0));
     g.fillRoundedRectangle(0.0f, 0.0f, getWidth(), getHeight(), 0.001*getWidth());
 
-    if (isMouseOver && parent->isEditable())
+    if (isMouseOver)
 	{
 		if (getToggleState())
 			g.setColour(parent->buttonColour.brighter());

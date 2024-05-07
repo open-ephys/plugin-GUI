@@ -41,10 +41,6 @@ DataBuffer::DataBuffer (int chans, int size)
 
 DataBuffer::~DataBuffer(){}
 
-DataBuffer::~DataBuffer()
-{
-}
-
 void DataBuffer::clear()
 {
     buffer.clear();

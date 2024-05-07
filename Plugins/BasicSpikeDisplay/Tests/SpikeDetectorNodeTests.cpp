@@ -8,20 +8,19 @@
 #include <ModelApplication.h>
 #include <TestFixtures.h>
 
-class SpikeDetectorNodeTests : public ProcessorTest {
+class SpikeDetectorNodeTests : public ::testing::Test {
 protected:
-    SpikeDetectorNodeTests() : ProcessorTest(1, 150) {
+    SpikeDetectorNodeTests() {
     }
 
-    ~SpikeDetectorNodeTests() override {
+    ~SpikeDetectorNodeTests() {
     }
 
     void SetUp() override {
-        ProcessorTest::SetUp();
+
     }
 
     void TearDown() override {
-        ProcessorTest::TearDown();
 
     }
 

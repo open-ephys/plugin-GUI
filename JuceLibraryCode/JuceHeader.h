@@ -27,6 +27,7 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_gui_extra/juce_gui_extra.h>
 #include <juce_opengl/juce_opengl.h>
+#include <juce_osc/juce_osc.h>
 #include <juce_video/juce_video.h>
 
 #include "BinaryData.h"
@@ -42,7 +43,7 @@ namespace ProjectInfo
 {
     const char* const  projectName    = "open-ephys";
     const char* const  companyName    = "Open Ephys";
-    const char* const  versionString  = "0.6.4";
-    const int          versionNumber  = 0x0604;
+    const char* const  versionString  = "0.7.0";
+    const int          versionNumber  = 0x07;
 }
 #endif

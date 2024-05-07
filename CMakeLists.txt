@@ -1,7 +1,7 @@
 #Open Ephys GUI main build file
 cmake_minimum_required(VERSION 3.15)
 
-set(GUI_VERSION 0.7.0)
+set(GUI_VERSION 0.6.7)
 
 string(REGEX MATCHALL "[0-9]+" VERSION_LIST ${GUI_VERSION})
 set(GUI_VERSION_HEX "0x")
@@ -13,8 +13,13 @@ endforeach()
 string(REPLACE "." "," GUI_VERSION_COMMA ${GUI_VERSION})
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version" FORCE)
-set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "Build architecture for Mac OS X" FORCE)
-set(CMAKE_OSX_SYSROOT "")
+set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "Build architecture for Mac OS X" FORCE)
+
+# Switching this flag to OFF (i.e. NOT blanking CMAKE_OSX_ROOT) is required for some Mac users to find stdlib files
+set(ERASE_CMAKE_OSX_SYSROOT ON CACHE BOOL "Whether to set the CMAKE_OSX_SYSROOT to blank")
+if (ERASE_CMAKE_OSX_SYSROOT)
+	set(CMAKE_OSX_SYSROOT "")
+endif()
 if ((NOT ${CMAKE_CURRENT_BINARY_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR}/Build ) AND (NOT OE_DONT_CHECK_BUILD_PATH))
 message(FATAL_ERROR "Please run cmake inside the Build folder to build the binaries in the predefined paths.\nSet the OE_DONT_CHECK_BUILD_PATH cmake variable to TRUE to disable this error")
 endif()
@@ -27,9 +32,6 @@ set(RESOURCES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Resources)
 set(PLUGINS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Plugins)
 set(SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Source)
 set(TEST_HELPERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/TestHelpers)
-
-configure_file(${JUCE_DIRECTORY}/JuceHeader.h.in ${JUCE_DIRECTORY}/JuceHeader.h)
-configure_file(${RESOURCES_DIRECTORY}/Build-files/resources.rc.in ${RESOURCES_DIRECTORY}/Build-files/resources.rc)
 
 #global properties
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
@@ -85,8 +87,8 @@ target_compile_features(open-ephys PUBLIC cxx_auto_type cxx_generalized_initiali
 if(BUILD_TESTS)
 	add_definitions(-DBUILD_TESTS)
 	add_library(gui_testable_source SHARED ${JUCE_SOURCE})
+	set_property(TARGET gui_testable_source APPEND PROPERTY COMPILE_DEFINITIONS "JUCE_API=__declspec(dllexport)")
 	if(MSVC)
-		set_property(TARGET gui_testable_source APPEND PROPERTY COMPILE_DEFINITIONS "JUCE_API=__declspec(dllexport)")
 		target_compile_options(gui_testable_source PRIVATE /sdl- /nologo /MP /W0 /bigobj)
 	endif()
 	target_include_directories(gui_testable_source PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY}/modules)
@@ -208,8 +210,8 @@ elseif(LINUX)
 	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS
 		"-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/shared'")
 
-	target_compile_options(open-ephys PRIVATE -fPIC -rdynamic -fvisibility=hidden)
-	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${BASE_BUILD_DIRECTORY}/${CMAKE_BUILD_TYPE})
+	target_compile_options(open-ephys PRIVATE -fPIC -rdynamic -fvisibility=hidden -Wno-free-nonheap-object)
+	set_property(TARGET open-ephys PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
     if(BUILD_TESTS)
             target_include_directories(gui_testable_source PRIVATE
                 /usr/include
@@ -238,23 +240,15 @@ elseif(APPLE)
 	target_link_libraries(open-ephys
 		"-framework Accelerate"
 		"-framework AudioToolbox"
-		"-framework AVKit"
-		"-framework AVFoundation"
 		"-framework Carbon"
 		"-framework Cocoa"
 		"-framework CoreAudio"
-		"-framework CoreAudioKit"
-		"-framework CoreMedia"
 		"-framework CoreMIDI"
 		"-framework DiscRecording"
-		"-framework Foundation"
 		"-framework IOKit"
-		"-framework Metal"
-		"-framework MetalKit"
 		"-framework OpenGL"
 		"-framework QTKit"
 		"-framework QuartzCore"
-		"-framework Security"
 		"-framework WebKit"
 	)
 if(BUILD_TESTS)

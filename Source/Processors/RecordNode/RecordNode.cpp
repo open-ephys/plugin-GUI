@@ -18,9 +18,9 @@ using namespace std::chrono;
 
 EventMonitor::EventMonitor()
 	: receivedEvents(0),
-	  receivedSpikes(0),
-      bufferedEvents(0),
-      bufferedSpikes(0)
+	receivedSpikes(0),
+	bufferedEvents(0),
+	bufferedSpikes(0)
 {
 }
 
@@ -201,8 +201,8 @@ String RecordNode::handleConfigMessage(String msg)
 
 	const MessageManagerLock mml;
 
-    StringArray tokens;
-    tokens.addTokens (msg, "=", "\"");
+	StringArray tokens;
+	tokens.addTokens(msg, "=", "\"");
 
 	LOGD(tokens[0]);
 
@@ -211,7 +211,7 @@ String RecordNode::handleConfigMessage(String msg)
 		if (tokens.size() == 2)
 		{
 			RecordNodeEditor* ed = static_cast<RecordNodeEditor*> (getEditor());
-			
+
 			int engineIndex = tokens[1].getIntValue();
 
 			int numEngines = ((CategoricalParameter*)getParameter("engine"))->getCategories().size();
@@ -222,10 +222,11 @@ String RecordNode::handleConfigMessage(String msg)
 				getParameter("engine")->setNextValue(engineIndex);
 				return "Record Node: updated record engine to " + ((CategoricalParameter*)getParameter("engine"))->getCategories()[engineIndex];
 			}
-			else {
+			else
+			{
 				return "Record Node: invalid engine index (max = " + String(numEngines - 1) + ")";
 			}
-			
+
 		}
 		else
 		{
@@ -243,7 +244,7 @@ String RecordNode::handleConfigMessage(String msg)
 
 		if (tokens.size() >= 3)
 		{
-			
+
 			int streamIndex = tokens[1].getIntValue();
 			uint16 streamId;
 			//std::vector<bool> channelStates;
@@ -256,10 +257,11 @@ String RecordNode::handleConfigMessage(String msg)
 				streamId = dataStreams[streamIndex]->getStreamId();
 				channelCount = dataStreams[streamIndex]->getChannelCount();
 			}
-			else {
+			else
+			{
 				return "Record Node: Invalid stream index; max = " + String(dataStreams.size() - 1);
 			}
-			
+
 			if (tokens[2] == "NONE")
 			{
 				//select no channels
@@ -275,7 +277,7 @@ String RecordNode::handleConfigMessage(String msg)
 			}
 			else
 			{
-				
+
 				Array<int> channels;
 
 				for (int i = 2; i < tokens.size(); i++)
@@ -303,36 +305,36 @@ String RecordNode::handleConfigMessage(String msg)
 		}
 	}
 
-    return "Record Node received config: " + msg;
+	return "Record Node received config: " + msg;
 }
 
 void RecordNode::handleBroadcastMessage(String msg)
 {
 
-    if (recordEvents && isRecording)
-    {
+	if (recordEvents && isRecording)
+	{
 
 		String streamKey = synchronizer.mainStreamKey;
 
 		DataStream* mainStream = getDataStream(streamKey);
 
-        int64 messageSampleNumber = getFirstSampleNumberForBlock(mainStream->getStreamId());
+		int64 messageSampleNumber = getFirstSampleNumberForBlock(mainStream->getStreamId());
 
-        TextEventPtr event = TextEvent::createTextEvent(getMessageChannel(), messageSampleNumber, msg);
+		TextEventPtr event = TextEvent::createTextEvent(getMessageChannel(), messageSampleNumber, msg);
 
-        double ts = synchronizer.convertSampleNumberToTimestamp(synchronizer.mainStreamKey, messageSampleNumber);
+		double ts = synchronizer.convertSampleNumberToTimestamp(synchronizer.mainStreamKey, messageSampleNumber);
 
-        event->setTimestampInSeconds(ts);
+		event->setTimestampInSeconds(ts);
 
-        size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
+		size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
 
-        HeapBlock<char> buffer(size);
+		HeapBlock<char> buffer(size);
 
-        event->serialize(buffer, size);
+		event->serialize(buffer, size);
 
-        eventQueue->addEvent(EventPacket(buffer, size), messageSampleNumber, -1);
+		eventQueue->addEvent(EventPacket(buffer, size), messageSampleNumber, -1);
 
-    }
+	}
 
 
 }
@@ -357,21 +359,23 @@ void RecordNode::setEngine(String id)
 	for (auto engine : availableEngines)
 	{
 		if (engine->getName().equalsIgnoreCase(id))
-        {
-            if (recordEngine.get() != nullptr)
-            {
-                if (recordEngine->getEngineId() != id)
-                {
-                    recordEngine.reset(engine->instantiateEngine());
+		{
+			if (recordEngine.get() != nullptr)
+			{
+				if (recordEngine->getEngineId() != id)
+				{
+					recordEngine.reset(engine->instantiateEngine());
 
-                    if (recordThread != nullptr)
-                        recordThread->setEngine(recordEngine.get());
-                }
-            } else {
-                recordEngine.reset(engine->instantiateEngine());
-            }
+					if (recordThread != nullptr)
+						recordThread->setEngine(recordEngine.get());
+				}
+			}
+			else
+			{
+				recordEngine.reset(engine->instantiateEngine());
+			}
 
-        }
+		}
 	}
 }
 
@@ -397,16 +401,10 @@ void RecordNode::setDataDirectory(File directory)
 	dataDirectory = directory;
 	newDirectoryNeeded = true;
 
-	createNewDirectory();
-
 	checkDiskSpace();
 }
 
-File RecordNode::getRootDirectory() const {
-    return rootFolder;
-}
-
-void RecordNode::createNewDirectory(bool resetCounters)
+void RecordNode::createNewDirectory()
 {
 
 	LOGD("CREATE NEW DIRECTORY");
@@ -418,25 +416,22 @@ void RecordNode::createNewDirectory(bool resetCounters)
 	File recordingDirectory = rootFolder;
 	int index = 0;
 
-	while (resetCounters && recordingDirectory.exists())
+	while (recordingDirectory.exists())
 	{
 		index += 1;
 		recordingDirectory = File(rootFolder.getFullPathName() + " (" + String(index) + ")");
 	}
 
 	rootFolder = File(recordingDirectory.getFullPathName()
-			   + File::getSeparatorString()
-			   + getName()
-			   + " " + String(getNodeId()));
+		+ File::getSeparatorString()
+		+ getName()
+		+ " " + String(getNodeId()));
 
 	newDirectoryNeeded = false;
 
-	if (resetCounters)
-	{
-		recordingNumber = 0;
-		experimentNumber = 1;
-		LOGD("RecordNode::createNewDirectory(): experimentNumber = 1");
-	}
+	recordingNumber = 0;
+	experimentNumber = 1;
+	LOGD("RecordNode::createNewDirectory(): experimentNumber = 1");
 	settingsNeeded = true;
 
 }
@@ -449,10 +444,10 @@ String RecordNode::generateDateString() const
 
 	String datestring;
 
-    int day = calendar.getDayOfMonth();
+	int day = calendar.getDayOfMonth();
 
-    if (day < 10)
-        datestring += "0";
+	if (day < 10)
+		datestring += "0";
 
 	datestring += String(day);
 	datestring += "-";
@@ -466,17 +461,17 @@ String RecordNode::generateDateString() const
 	mins = calendar.getMinutes();
 	secs = calendar.getSeconds();
 
-    if (hrs < 10)
-        datestring += "0";
+	if (hrs < 10)
+		datestring += "0";
 
 	datestring += hrs;
-    datestring += ":";
+	datestring += ":";
 
 	if (mins < 10)
 		datestring += "0";
 
 	datestring += mins;
-    datestring += ":";
+	datestring += ":";
 
 	if (secs < 0)
 		datestring += "0";
@@ -509,7 +504,7 @@ AudioProcessorEditor* RecordNode::createEditor()
 }
 
 // called by RecordEngine when saving the signal chain
-const String &RecordNode::getLastSettingsXml() const
+const String& RecordNode::getLastSettingsXml() const
 {
 	return lastSettingsText;
 }
@@ -534,7 +529,7 @@ void RecordNode::updateChannelStates(uint16 streamId, std::vector<bool> channelS
 		}
 	}
 
-    //CoreServices::updateSignalChain(getEditor());
+	//CoreServices::updateSignalChain(getEditor());
 }
 
 
@@ -565,7 +560,8 @@ void RecordNode::updateSettings()
 
 
 	// get rid of unused IDs
-	for (auto it = recordContinuousChannels.begin(); it != recordContinuousChannels.end(); ) {
+	for (auto it = recordContinuousChannels.begin(); it != recordContinuousChannels.end(); )
+	{
 		if (!activeStreamIds.contains(it->first))
 			it = recordContinuousChannels.erase(it);
 		else
@@ -597,19 +593,19 @@ void RecordNode::updateSettings()
 bool RecordNode::isSynchronized()
 {
 
-    if (dataStreams.size() == 1) // no need to sync only one DataStream
-        return true;
+	if (dataStreams.size() == 1) // no need to sync only one DataStream
+		return true;
 
-    for (auto stream : dataStreams)
-    {
+	for (auto stream : dataStreams)
+	{
 
-        SyncStatus status = synchronizer.getStatus(stream->getKey());
+		SyncStatus status = synchronizer.getStatus(stream->getKey());
 
-        if (status != SYNCED)
-            return false;
-    }
+		if (status != SYNCED)
+			return false;
+	}
 
-    return true;
+	return true;
 }
 
 // called by GenericProcessor::enableProcessor
@@ -619,37 +615,39 @@ bool RecordNode::startAcquisition()
 	recordEvents = ((BooleanParameter*)getParameter("events"))->getBoolValue();
 	recordSpikes = ((BooleanParameter*)getParameter("spikes"))->getBoolValue();
 
-    synchronizer.startAcquisition();
+	synchronizer.startAcquisition();
 
-    if (eventChannels.size() == 0 || eventChannels.getLast()->getSourceNodeName() != "Message Center")
-    {
-        eventChannels.add(new EventChannel(*messageChannel));
-        eventChannels.getLast()->addProcessor(this);
-        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamKey), false);
-    }
-    
-    return true;
+	if (eventChannels.size() == 0 || eventChannels.getLast()->getSourceNodeName() != "Message Center")
+	{
+		eventChannels.add(new EventChannel(*messageChannel));
+		eventChannels.getLast()->addProcessor(this);
+		eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamKey), false);
+	}
+
+	return true;
 
 }
 
 bool RecordNode::stopAcquisition()
 {
 
-    synchronizer.stopAcquisition();
+	synchronizer.stopAcquisition();
 
-    if (hasRecorded) {
-        // stopRecording() signals the thread to exit, but we should wait here until the thread actually gracefully
-        // exits before we reset some of its needed data (e.g. eventQueue, spikeQueue, etc.)
-        if (recordThread) {
-            recordThread->waitForThreadToExit(1000);
-        }
-    }
+	if (hasRecorded)
+	{
+		// stopRecording() signals the thread to exit, but we should wait here until the thread actually gracefully
+		// exits before we reset some of its needed data (e.g. eventQueue, spikeQueue, etc.)
+		if (recordThread)
+		{
+			recordThread->waitForThreadToExit(1000);
+		}
+	}
 
 	// Remove message channel
-    if (eventChannels.size() > 0 && eventChannels.getLast()->getSourceNodeName() == "Message Center")
-    {
-        eventChannels.removeLast();
-    }
+	if (eventChannels.size() > 0 && eventChannels.getLast()->getSourceNodeName() == "Message Center")
+	{
+		eventChannels.removeLast();
+	}
 
 	eventMonitor->displayStatus();
 
@@ -677,22 +675,22 @@ void RecordNode::startRecording()
 	Array<int> chanProcessorMap;
 	Array<int> chanOrderinProc;
 	OwnedArray<RecordProcessorInfo> procInfo;
-    
-    // in case recording starts before acquisition:
-    if (eventChannels.size() == 0 || eventChannels.getLast()->getSourceNodeName() != "Message Center")
-    {
-        eventChannels.add(new EventChannel(*messageChannel));
-        eventChannels.getLast()->addProcessor(this);
-        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamKey), false);
-    }
+
+	// in case recording starts before acquisition:
+	if (eventChannels.size() == 0 || eventChannels.getLast()->getSourceNodeName() != "Message Center")
+	{
+		eventChannels.add(new EventChannel(*messageChannel));
+		eventChannels.getLast()->addProcessor(this);
+		eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamKey), false);
+	}
 
 	int lastSourceNodeId = -1;
 
 	int channelIndexInRecordNode = 0;
-    int channelIndexInStream = 0;
+	int channelIndexInStream = 0;
 
 	channelMap.clear();
-    localChannelMap.clear();
+	localChannelMap.clear();
 
 	timestampChannelMap.clear();
 
@@ -706,7 +704,7 @@ void RecordNode::startRecording()
 
 		if (stream->getSourceNodeId() != lastSourceNodeId)
 		{
-            channelIndexInStream = 0;
+			channelIndexInStream = 0;
 			lastSourceNodeId = stream->getSourceNodeId();
 		}
 
@@ -715,7 +713,7 @@ void RecordNode::startRecording()
 			if (channelRecordState)
 			{
 				channelMap.add(channelIndexInRecordNode);
-                localChannelMap.add(channelIndexInStream++);
+				localChannelMap.add(channelIndexInStream++);
 				timestampChannelMap.add(streamIndex);
 			}
 
@@ -760,12 +758,12 @@ void RecordNode::startRecording()
 	if (settingsNeeded)
 	{
 		String settingsFileName = rootFolder.getFullPathName() + File::getSeparatorString() + "settings" + ((experimentNumber > 1) ? "_" + String(experimentNumber) : String()) + ".xml";
-        
-        //std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
-        
+
+		//std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
+
 		//AccessClass::getProcessorGraph()->saveToXml(File(settingsFileName), lastSettingsText);
-		
-        settingsNeeded = false;
+
+		settingsNeeded = false;
 	}
 }
 
@@ -816,7 +814,7 @@ void RecordNode::handleTTLEvent(TTLEventPtr event)
 		size_t size = event->getChannelInfo()->getDataSize() + event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
 
 		HeapBlock<char> buffer(size);
-        event->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(streamKey, sampleNumber));
+		event->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(streamKey, sampleNumber));
 		event->serialize(buffer, size);
 
 		eventQueue->addEvent(EventPacket(buffer, size), sampleNumber);
@@ -833,13 +831,13 @@ void RecordNode::handleEvent(const EventChannel* eventInfo, const EventPacket& p
 	if (recordEvents && isRecording)
 	{
 
-	    int64 sampleNumber = Event::getSampleNumber(packet);
+		int64 sampleNumber = Event::getSampleNumber(packet);
 
 		int eventIndex = getIndexOfMatchingChannel(eventInfo);
 
 		String streamKey = getDataStream(eventInfo->getStreamId())->getKey();
 
-        Event::setTimestampInSeconds(packet, synchronizer.convertSampleNumberToTimestamp(streamKey, sampleNumber));
+		Event::setTimestampInSeconds(packet, synchronizer.convertSampleNumberToTimestamp(streamKey, sampleNumber));
 
 		eventQueue->addEvent(packet, sampleNumber, eventIndex);
 
@@ -856,8 +854,8 @@ void RecordNode::handleSpike(SpikePtr spike)
 	if (recordSpikes)
 	{
 		String streamKey = getDataStream(spike->getStreamId())->getKey();
-        spike->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(streamKey,
-                                                                    spike->getSampleNumber()));
+		spike->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(streamKey,
+			spike->getSampleNumber()));
 		writeSpike(spike, spike->getChannelInfo());
 		eventMonitor->bufferedSpikes++;
 	}
@@ -867,9 +865,9 @@ void RecordNode::handleSpike(SpikePtr spike)
 
 void RecordNode::handleTimestampSyncTexts(const EventPacket& packet)
 {
-    int64 sampleNumber = Event::getSampleNumber(packet);
+	int64 sampleNumber = Event::getSampleNumber(packet);
 
-    eventQueue->addEvent(packet, sampleNumber, -1);
+	eventQueue->addEvent(packet, sampleNumber, -1);
 }
 
 void RecordNode::process(AudioBuffer<float>& buffer)
@@ -890,13 +888,13 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 			HeapBlock<char> data;
 
 			size_t dataSize =
-                SystemEvent::fillTimestampSyncTextData(
-                     data,
-                     this,
-                     0,
-                     CoreServices::getSoftwareTimestamp(),
-                     -1.0,
-                     true);
+				SystemEvent::fillTimestampSyncTextData(
+					data,
+					this,
+					0,
+					CoreServices::getSoftwareTimestamp(),
+					-1.0,
+					true);
 
 			handleTimestampSyncTexts(EventPacket(data, dataSize));
 
@@ -931,7 +929,7 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 			const uint16 streamId = stream->getStreamId();
 			const String streamKey = stream->getKey();
 
-            uint32 numSamples = getNumSamplesInBlock(streamId);
+			uint32 numSamples = getNumSamplesInBlock(streamId);
 
 			int64 sampleNumber = getFirstSampleNumberForBlock(streamId);
 
@@ -1000,18 +998,18 @@ void RecordNode::process(AudioBuffer<float>& buffer)
 }
 
 // called in RecordNode::handleSpike
-void RecordNode::writeSpike(const Spike *spike, const SpikeChannel *spikeElectrode)
+void RecordNode::writeSpike(const Spike* spike, const SpikeChannel* spikeElectrode)
 {
 
-    int electrodeIndex = getIndexOfMatchingChannel(spikeElectrode);
+	int electrodeIndex = getIndexOfMatchingChannel(spikeElectrode);
 
-    if (electrodeIndex >= 0)
-        spikeQueue->addEvent(*spike, spike->getSampleNumber(), electrodeIndex);
+	if (electrodeIndex >= 0)
+		spikeQueue->addEvent(*spike, spike->getSampleNumber(), electrodeIndex);
 
 }
 
 // FileNameComponent listener
-void RecordNode::filenameComponentChanged(FilenameComponent *fnc)
+void RecordNode::filenameComponentChanged(FilenameComponent* fnc)
 {
 
 	dataDirectory = fnc->getCurrentFile();
@@ -1031,30 +1029,30 @@ float RecordNode::getFreeSpaceKilobytes() const
 
 int RecordNode::getTotalRecordedStreams()
 {
-    int numStreams = 0;
+	int numStreams = 0;
 
-    for (auto stream : dataStreams)
-    {
-        for (auto ch : stream->getContinuousChannels())
-        {
-            if (ch->isRecorded)
-            {
-                numStreams++;
-                break;
-            }
-        }
-    }
+	for (auto stream : dataStreams)
+	{
+		for (auto ch : stream->getContinuousChannels())
+		{
+			if (ch->isRecorded)
+			{
+				numStreams++;
+				break;
+			}
+		}
+	}
 
-    return numStreams;
+	return numStreams;
 }
 
 void RecordNode::saveCustomParametersToXml(XmlElement* xml)
 {
 	if (!headlessMode)
-    {
-        RecordNodeEditor* recordNodeEditor = (RecordNodeEditor*) getEditor();
-        xml->setAttribute("fifoMonitorsVisible", recordNodeEditor->fifoDrawerButton->getToggleState());
-    }
+	{
+		RecordNodeEditor* recordNodeEditor = (RecordNodeEditor*)getEditor();
+		xml->setAttribute("fifoMonitorsVisible", recordNodeEditor->fifoDrawerButton->getToggleState());
+	}
 }
 
 void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
@@ -1070,6 +1068,7 @@ void RecordNode::loadCustomParametersFromXml(XmlElement* xml)
 	}
 }
 
+// UG3 Specific
 void RecordNode::overrideRecordEngine(RecordEngineManager* engine)
 {
 	if (recordEngine.get() != nullptr)

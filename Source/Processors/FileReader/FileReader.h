@@ -180,12 +180,6 @@ public:
 
     /** Returns a pointer to the ScrubberInterface */
     ScrubberInterface* getScrubberInterface();
-    
-    /** Save File Reader parameters */
-    void saveCustomParametersToXml(XmlElement*) override;
-
-    /** Load File Reader parameters */
-    void loadCustomParametersFromXml(XmlElement*) override;
 
 private:
 

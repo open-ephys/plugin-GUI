@@ -30,42 +30,44 @@
 
 
 MainDocumentWindow::MainDocumentWindow()
-    : DocumentWindow(JUCEApplication::getInstance()->getApplicationName(),
-                     Colour(Colours::black),
-                     DocumentWindow::allButtons)
+	: DocumentWindow(JUCEApplication::getInstance()->getApplicationName(),
+		Colour(Colours::black),
+		DocumentWindow::allButtons)
 {
-    
+
 }
 
 MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
-    isConsoleApp(isConsoleApp_)
+	isConsoleApp(isConsoleApp_)
 {
-    
-    if (!isConsoleApp)
-    {
-        documentWindow = std::make_unique<MainDocumentWindow>();
-        
-        documentWindow->setResizable(true,      // isResizable
-                                     false);   // useBottomCornerRisizer -- doesn't work very well
-    } else {
-        LOGC("Running in headless mode.");
-    }
-    
-    configsDir = CoreServices::getSavedStateDirectory();
-	if(!configsDir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
+
+	if (!isConsoleApp)
+	{
+		documentWindow = std::make_unique<MainDocumentWindow>();
+
+		documentWindow->setResizable(true,      // isResizable
+			false);   // useBottomCornerRisizer -- doesn't work very well
+	}
+	else
+	{
+		LOGC("Running in headless mode.");
+	}
+
+	configsDir = CoreServices::getSavedStateDirectory();
+	if (!configsDir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
 		configsDir = configsDir.getChildFile("configs-api" + String(PLUGIN_API_VER));
-	
-	if(!configsDir.isDirectory())
+
+	if (!configsDir.isDirectory())
 		configsDir.createDirectory();
 
-    File activityLog = configsDir.getChildFile("activity.log");
-    if (activityLog.exists())
-        activityLog.deleteFile();
-	
-	OELogger::GetInstance(activityLog.getFullPathName().toStdString());
+	File activityLog = configsDir.getChildFile("activity.log");
+	if (activityLog.exists())
+		activityLog.deleteFile();
 
-	LOGC("Session Start Time: ", Time::getCurrentTime().toString(true, true, true, true));
+	OELogger::instance().createLogFile(activityLog.getFullPathName().toStdString());
 
+	std::cout << "Session Start Time: " << Time::getCurrentTime().toString(true, true, true, true) << std::endl;
+	std::cout << std::endl;
 	LOGC("Open Ephys GUI v", JUCEApplication::getInstance()->getApplicationVersion(), " (Plugin API v", PLUGIN_API_VER, ")");
 	LOGC(SystemStats::getJUCEVersion());
 	LOGC("Operating System: ", SystemStats::getOperatingSystemName());
@@ -82,70 +84,70 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 
 	LOGD("Creating processor graph...");
 	processorGraph = std::make_unique<ProcessorGraph>(isConsoleApp);
-	
+
 	LOGD("Creating audio component...");
 	audioComponent = std::make_unique<AudioComponent>();
-	
+
 	LOGD("Connecting audio component to processor graph...");
 	audioComponent->connectToProcessorGraph(processorGraph.get());
-    
-    LOGD("Creating control panel...");
-    controlPanel = std::make_unique<ControlPanel>(processorGraph.get(), audioComponent.get(), isConsoleApp);
 
-    if (!isConsoleApp)
-    {
-        LOGD("Creating UI component...");
-        documentWindow->setContentOwned(new UIComponent(this, processorGraph.get(), audioComponent.get(), controlPanel.get()), true);
+	LOGD("Creating control panel...");
+	controlPanel = std::make_unique<ControlPanel>(processorGraph.get(), audioComponent.get(), isConsoleApp);
 
-        UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
-        
-    #if JUCE_MAC
-        MenuBarModel::setMacMainMenu(ui);
-        documentWindow->setMenuBar(0);
-    #else
-        documentWindow->setMenuBar(ui);
-        documentWindow->getMenuBarComponent()->setName("MainMenu");
-    #endif
+	if (!isConsoleApp)
+	{
+		LOGD("Creating UI component...");
+		documentWindow->setContentOwned(new UIComponent(this, processorGraph.get(), audioComponent.get(), controlPanel.get()), true);
 
-        commandManager.registerAllCommandsForTarget(ui);
-        commandManager.registerAllCommandsForTarget(JUCEApplication::getInstance());
+		UIComponent* ui = (UIComponent*)documentWindow->getContentComponent();
 
-        ui->setApplicationCommandManagerToWatch(&commandManager);
+#if JUCE_MAC
+		MenuBarModel::setMacMainMenu(ui);
+		documentWindow->setMenuBar(0);
+#else
+		documentWindow->setMenuBar(ui);
+		documentWindow->getMenuBarComponent()->setName("MainMenu");
+#endif
 
-        documentWindow->addKeyListener(commandManager.getKeyMappings());
+		commandManager.registerAllCommandsForTarget(ui);
+		commandManager.registerAllCommandsForTarget(JUCEApplication::getInstance());
 
-        LOGD("Loading window bounds.");
-        loadWindowBounds();
-        documentWindow->setUsingNativeTitleBar(true);
-        documentWindow->addToDesktop(documentWindow->getDesktopWindowStyleFlags());  // prevents the maximize
-                                                                                // button from randomly disappearing
-        documentWindow->setVisible(true);
+		ui->setApplicationCommandManagerToWatch(&commandManager);
 
-        // Constraining the window's size doesn't seem to work:
-        documentWindow->setResizeLimits(500, 500, 10000, 10000);
-        
-        // Set main window icon to display
-        #ifdef __APPLE__
-            File iconDir = File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/Resources");
-        #else
-            File iconDir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
-            Image windowIcon = ImageFileFormat::loadFrom(iconDir.getChildFile("icon-small.png"));
-            if (auto peer = documentWindow->getPeer())
-                peer->setIcon(windowIcon);
-        #endif
+		documentWindow->addKeyListener(commandManager.getKeyMappings());
+
+		LOGD("Loading window bounds.");
+		loadWindowBounds();
+		documentWindow->setUsingNativeTitleBar(true);
+		documentWindow->addToDesktop(documentWindow->getDesktopWindowStyleFlags());  // prevents the maximize
+		// button from randomly disappearing
+		documentWindow->setVisible(true);
+
+		// Constraining the window's size doesn't seem to work:
+		documentWindow->setResizeLimits(500, 500, 10000, 10000);
+
+		// Set main window icon to display
+#ifdef __APPLE__
+		File iconDir = File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/Resources");
+#else
+		File iconDir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
+		Image windowIcon = ImageFileFormat::loadFrom(iconDir.getChildFile("icon-small.png"));
+		if (auto peer = documentWindow->getPeer())
+			peer->setIcon(windowIcon);
+#endif
 
 		popupManager = std::make_unique<PopupManager>();
-    }
-    
-    controlPanel->updateRecordEngineList();
+	}
 
-    processorGraph->updateBufferSize(); // needs to happen after processorGraph gets the right pointers
+	controlPanel->updateRecordEngineList();
+
+	processorGraph->updateBufferSize(); // needs to happen after processorGraph gets the right pointers
 
 	// Load a specific state of the GUI (custom, default, last-saved, or recovery config)
-    if (!fileToLoad.getFullPathName().isEmpty())
-    {
-        loadProcessorGraph(fileToLoad);
-    }
+	if (!fileToLoad.getFullPathName().isEmpty())
+	{
+		loadProcessorGraph(fileToLoad);
+	}
 	else if (openDefaultConfigWindow)
 	{
 		if (defaultConfigWindow == nullptr)
@@ -162,57 +164,59 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 
 			if (compareConfigFiles(lastConfig, recoveryConfig))
 			{
-                loadProcessorGraph(lastConfig);
+				loadProcessorGraph(lastConfig);
 			}
 			else
 			{
-                
-                int loadRecovery = 1;
-                
-                if (!isConsoleApp)
-                {
-                    LOGD("Detected difference between recoveryConfig and lastConfig; displaying alert window...");
-                    loadRecovery = AlertWindow::showYesNoCancelBox(AlertWindow::WarningIcon, "Reloading Settings",
-                                                                    "It looks like the GUI crashed during your last run, "
-                                                                    "causing the configured settings to not save properly. "
-                                                                    "Which configuration do you want to load?",
-                                                                    "Recovery Config", "Last Config", "Empty Signal Chain");
-                }
-				
+
+				int loadRecovery = 1;
+
+				if (!isConsoleApp)
+				{
+					LOGD("Detected difference between recoveryConfig and lastConfig; displaying alert window...");
+					loadRecovery = AlertWindow::showYesNoCancelBox(AlertWindow::WarningIcon, "Reloading Settings",
+						"It looks like the GUI crashed during your last run, "
+						"causing the configured settings to not save properly. "
+						"Which configuration do you want to load?",
+						"Recovery Config", "Last Config", "Empty Signal Chain");
+				}
+
 				if (loadRecovery == 1)
 				{
 					LOGA("User chose OK, loading recoveryConfig...");
-                    loadProcessorGraph(recoveryConfig);
+					loadProcessorGraph(recoveryConfig);
 				}
-				else if(loadRecovery == 2)
+				else if (loadRecovery == 2)
 				{
 					LOGA("User chose cancel, loading lastConfig...");
-                    loadProcessorGraph(lastConfig);
+					loadProcessorGraph(lastConfig);
 				}
-					
+
 			}
 		}
 	}
 
 	if (!isConsoleApp)
-    {
-		UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
+	{
+		UIComponent* ui = (UIComponent*)documentWindow->getContentComponent();
 		ui->addInfoTab();
 		ui->addGraphTab();
 	}
 
 	http_server_thread = std::make_unique<OpenEphysHttpServer>(processorGraph.get());
 
-	if (shouldEnableHttpServer) {
+	if (shouldEnableHttpServer)
+	{
 		enableHttpServer();
 	}
-	else {
+	else
+	{
 		disableHttpServer();
 	}
 
 #ifdef NDEBUG
-	if(automaticVersionChecking)
-		LatestVersionCheckerAndUpdater::getInstance()->checkForNewVersion (true, this);
+	if (automaticVersionChecking)
+		LatestVersionCheckerAndUpdater::getInstance()->checkForNewVersion(true, this);
 #endif
 
 	Process::setPriority(Process::HighPriority);
@@ -227,41 +231,44 @@ MainWindow::~MainWindow()
 		audioComponent->endCallbacks();
 		processorGraph->stopAcquisition();
 	}
-    
+
 	audioComponent->disconnectProcessorGraph();
-    
-    AccessClass::shutdownBroadcaster();
-    
-    if (!isConsoleApp)
-    {
-        saveWindowBounds();
-        UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
-        ui->disableDataViewport();
-        
-        documentWindow->setMenuBar(0);
 
-    #if JUCE_MAC
-        MenuBarModel::setMacMainMenu(0);
-    #endif
-    }
-    
-    File lastConfig = configsDir.getChildFile("lastConfig.xml");
-    File recoveryConfig = configsDir.getChildFile("recoveryConfig.xml");
-    saveProcessorGraph(lastConfig);
-    saveProcessorGraph(recoveryConfig);
+	AccessClass::shutdownBroadcaster();
 
-	if (http_server_thread) {
-        disableHttpServer();
-    }
+	if (!isConsoleApp)
+	{
+		saveWindowBounds();
+		UIComponent* ui = (UIComponent*)documentWindow->getContentComponent();
+		ui->disableDataViewport();
+
+		documentWindow->setMenuBar(0);
+
+#if JUCE_MAC
+		MenuBarModel::setMacMainMenu(0);
+#endif
+	}
+
+	File lastConfig = configsDir.getChildFile("lastConfig.xml");
+	File recoveryConfig = configsDir.getChildFile("recoveryConfig.xml");
+	saveProcessorGraph(lastConfig);
+	saveProcessorGraph(recoveryConfig);
+
+	if (http_server_thread)
+	{
+		disableHttpServer();
+	}
 
 }
 
-void MainWindow::enableHttpServer() {
-    http_server_thread->start();
+void MainWindow::enableHttpServer()
+{
+	http_server_thread->start();
 }
 
-void MainWindow::disableHttpServer() {
-    http_server_thread->stop();
+void MainWindow::disableHttpServer()
+{
+	http_server_thread->stop();
 }
 
 void MainDocumentWindow::closeButtonPressed()
@@ -287,23 +294,23 @@ void MainWindow::handleCrash(void* input)
 {
 
 	String backtrace = SystemStats::getStackBacktrace();
-    LOGD("\n", backtrace);
-    std::flush(std::cout);
-    
+	LOGD("\n", backtrace);
+	std::flush(std::cout);
+
 	File crashLogDir = CoreServices::getSavedStateDirectory();
-	if(!crashLogDir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
+	if (!crashLogDir.getFullPathName().contains("plugin-GUI" + File::getSeparatorString() + "Build"))
 		crashLogDir = crashLogDir.getChildFile("configs-api" + String(PLUGIN_API_VER));
 
-    File activityLog = crashLogDir.getChildFile("activity.log");
+	File activityLog = crashLogDir.getChildFile("activity.log");
 	String dt = AccessClass::getControlPanel()->generateDatetimeFromFormat("MM-DD-YYYY_HH_MM_SS");
 	File crashLog = crashLogDir.getChildFile("activity_" + dt + ".log");
-    
-    if (activityLog.exists())
-    {
-        
-        activityLog.copyFileTo(File(crashLog));
-        activityLog.deleteFile();
-    }
+
+	if (activityLog.exists())
+	{
+
+		activityLog.copyFileTo(File(crashLog));
+		activityLog.deleteFile();
+	}
 
 	String recoveryFileLocation = crashLogDir.getChildFile("recoveryConfig.xml").getFullPathName();
 
@@ -314,39 +321,39 @@ void MainWindow::handleCrash(void* input)
 		+ "\n\n"
 		+ crashLog.getFullPathName()
 	);
-    
+
 }
 
 void MainWindow::saveProcessorGraph(const File& file)
 {
-    std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
-    
-    processorGraph->saveToXml(xml.get());
-    
-    String message;
+	std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
 
-    if (! xml->writeTo(file))
-        message = "Couldn't write to file ";
-    else
-        message = "Saved configuration as ";
+	processorGraph->saveToXml(xml.get());
 
-    message += file.getFileName();
-    
-    LOGC(message);
+	String message;
+
+	if (!xml->writeTo(file))
+		message = "Couldn't write to file ";
+	else
+		message = "Saved configuration as ";
+
+	message += file.getFileName();
+
+	LOGC(message);
 }
 
 void MainWindow::loadProcessorGraph(const File& file)
 {
-    XmlDocument doc(file);
-    std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
-    
-    if (xml == 0 || ! xml->hasTagName("SETTINGS"))
-    {
-        LOGC("Not a valid configuration file.");
-        return;
-    }
-    
-    processorGraph->loadFromXml(xml.get());
+	XmlDocument doc(file);
+	std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
+
+	if (xml == 0 || !xml->hasTagName("SETTINGS"))
+	{
+		LOGC("Not a valid configuration file.");
+		return;
+	}
+
+	processorGraph->loadFromXml(xml.get());
 }
 
 void MainWindow::saveWindowBounds()
@@ -363,17 +370,17 @@ void MainWindow::saveWindowBounds()
 	xml->setAttribute("automaticVersionChecking", automaticVersionChecking);
 
 	XmlElement* bounds = new XmlElement("BOUNDS");
-	bounds->setAttribute("x",documentWindow->getScreenX());
-	bounds->setAttribute("y",documentWindow->getScreenY());
-	bounds->setAttribute("w",documentWindow->getContentComponent()->getWidth());
-	bounds->setAttribute("h",documentWindow->getContentComponent()->getHeight());
+	bounds->setAttribute("x", documentWindow->getScreenX());
+	bounds->setAttribute("y", documentWindow->getScreenY());
+	bounds->setAttribute("w", documentWindow->getContentComponent()->getWidth());
+	bounds->setAttribute("h", documentWindow->getContentComponent()->getHeight());
 	bounds->setAttribute("fullscreen", documentWindow->isFullScreen());
 
 	xml->addChildElement(bounds);
 
 	XmlElement* recentDirectories = new XmlElement("RECENTDIRECTORYNAMES");
 
-	UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
+	UIComponent* ui = (UIComponent*)documentWindow->getContentComponent();
 
 	StringArray dirs = ui->getRecentlyUsedFilenames();
 
@@ -393,7 +400,7 @@ void MainWindow::saveWindowBounds()
 
 	String error;
 
-	if (! xml->writeTo(file))
+	if (!xml->writeTo(file))
 		error = "Couldn't write to file";
 
 	delete xml;
@@ -401,7 +408,7 @@ void MainWindow::saveWindowBounds()
 
 void MainWindow::loadWindowBounds()
 {
-    
+
 	File file = configsDir.getChildFile("windowState.xml");
 
 	if (!file.exists())
@@ -410,11 +417,11 @@ void MainWindow::loadWindowBounds()
 	XmlDocument doc(file);
 	std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
 
-	if (xml == 0 || ! xml->hasTagName("MAINWINDOW"))
+	if (xml == 0 || !xml->hasTagName("MAINWINDOW"))
 	{
 
 		LOGDD("File not found.");
-        documentWindow->centreWithSize(1200, 800);
+		documentWindow->centreWithSize(1200, 800);
 
 	}
 	else
@@ -442,7 +449,7 @@ void MainWindow::loadWindowBounds()
 
 				LOGD("Loading Window Bounds: ", windowBoundsString);
 				documentWindow->restoreWindowStateFromString(windowBoundsString);
-				
+
 			}
 			else if (e->hasTagName("RECENTDIRECTORYNAMES"))
 			{
@@ -458,7 +465,7 @@ void MainWindow::loadWindowBounds()
 					}
 				}
 
-				UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
+				UIComponent* ui = (UIComponent*)documentWindow->getContentComponent();
 				ui->setRecentlyUsedFilenames(filenames);
 
 			}
@@ -476,7 +483,7 @@ void MainWindow::loadWindowBounds()
 
 void MainWindow::centreWithSize(int x, int y)
 {
-    documentWindow->centreWithSize(x, y);
+	documentWindow->centreWithSize(x, y);
 }
 
 
@@ -484,11 +491,11 @@ bool MainWindow::compareConfigFiles(File file1, File file2)
 {
 	XmlDocument lcDoc(file1);
 	XmlDocument rcDoc(file2);
-	
-	std::unique_ptr<XmlElement> lcXml (lcDoc.getDocumentElement());
-	std::unique_ptr<XmlElement> rcXml (rcDoc.getDocumentElement());
 
-	if(rcXml == 0 || ! rcXml->hasTagName("SETTINGS"))
+	std::unique_ptr<XmlElement> lcXml(lcDoc.getDocumentElement());
+	std::unique_ptr<XmlElement> rcXml(rcDoc.getDocumentElement());
+
+	if (rcXml == 0 || !rcXml->hasTagName("SETTINGS"))
 	{
 		LOGD("Recovery config is invalid. Loading lastConfig.xml");
 		return true;
@@ -503,16 +510,16 @@ bool MainWindow::compareConfigFiles(File file1, File file2)
 	auto lcSig = lcXml->getChildByName("SIGNALCHAIN");
 	auto rcSig = rcXml->getChildByName("SIGNALCHAIN");
 
-	if(lcSig == nullptr)
+	if (lcSig == nullptr)
 	{
-		if(rcSig != nullptr)
+		if (rcSig != nullptr)
 			return false;
 	}
 	else
 	{
-		if(rcSig != nullptr)
+		if (rcSig != nullptr)
 		{
-			if(!lcSig->isEquivalentTo(rcSig, false))
+			if (!lcSig->isEquivalentTo(rcSig, false))
 				return false;
 		}
 	}
@@ -520,7 +527,7 @@ bool MainWindow::compareConfigFiles(File file1, File file2)
 	auto lcAudio = lcXml->getChildByName("AUDIO");
 	auto rcAudio = rcXml->getChildByName("AUDIO");
 
-	if(!lcAudio->isEquivalentTo(rcAudio, false))
+	if (!lcAudio->isEquivalentTo(rcAudio, false))
 		return false;
 
 	return true;

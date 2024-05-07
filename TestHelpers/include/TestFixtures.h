@@ -1,7 +1,6 @@
 #ifndef TESTFIXTURES_H
 #define TESTFIXTURES_H
 
-#include "gtest/gtest.h"
 #include "../Processors/FakeSourceNode.h"
 
 #include <juce_audio_processors/juce_audio_processors.h>

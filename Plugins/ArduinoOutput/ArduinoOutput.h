@@ -53,9 +53,6 @@ public:
     /** Searches for events and triggers the Arduino output when appropriate. */
     void process (AudioBuffer<float>& buffer) override;
 
-    /** Handle changes to gate line. */
-    void parameterValueChanged(Parameter* parameter) override;
-
     /** Convenient interface for responding to incoming events. */
     void handleTTLEvent (TTLEventPtr event) override;
 

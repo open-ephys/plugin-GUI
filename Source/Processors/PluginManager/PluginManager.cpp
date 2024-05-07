@@ -261,7 +261,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 #endif
 
 	if (!handle) {
-		ERROR_MSG("Failed to load plugin DLL: " + GetLastError());
+		ERROR_MSG("Failed to load plugin DLL");
 		closeHandle(handle);
 		return -1;
 	}

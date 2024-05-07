@@ -1308,18 +1308,6 @@ double GenericProcessor::getFirstTimestampForBlock(uint16 streamId) const
     return startTimestampsForBlock.at(streamId);
 }
 
-std::optional<std::pair<int64, double>> GenericProcessor::getReferenceSampleForBlock(uint16 streamId)
-{
-    if (referenceSamplesForBlock.find(streamId) != referenceSamplesForBlock.end())
-    {
-        return referenceSamplesForBlock.at(streamId);
-    }
-    else
-    {
-        return std::nullopt;
-    }
-}
-
 std::optional<std::pair<int64, double>> GenericProcessor::getReferenceSampleForBlock(uint16 streamId){
     if(referenceSamplesForBlock.find(streamId) != referenceSamplesForBlock.end()) {
         return referenceSamplesForBlock.at(streamId);
@@ -1360,6 +1348,7 @@ void GenericProcessor::setTimestampAndSamples(int64 sampleNumber,
 
 }
 
+// UG3 Specific
 void GenericProcessor::setReferenceSample(uint16 streamId,
                         double timestamp,
                         int64 sampleIndex)
@@ -1383,35 +1372,6 @@ void GenericProcessor::setReferenceSample(uint16 streamId,
     
     m_currentMidiBuffer->addEvent(data, dataSize, 0);
     referenceSamplesForBlock[streamId] = {sampleIndex, timestamp};
-
-}
-
-void GenericProcessor::setReferenceSample(uint16 streamId,
-    double timestamp,
-    int64 sampleIndex)
-{
-    //Check last referenceSample and return if this sample is equal
-    if (referenceSamplesForBlock.find(streamId) != referenceSamplesForBlock.end())
-    {
-        std::optional<std::pair<int64, double>> lastReferenceSample = referenceSamplesForBlock.at(streamId);
-        if (lastReferenceSample.has_value())
-        {
-            if (sampleIndex == lastReferenceSample.value().first && timestamp == lastReferenceSample.value().second)
-            {
-                return;
-            }
-        }
-    }
-
-    HeapBlock<char> data;
-    size_t dataSize = SystemEvent::fillReferenceSampleEvent(data,
-        this,
-        streamId,
-        sampleIndex,
-        timestamp);
-
-    m_currentMidiBuffer->addEvent(data, dataSize, 0);
-    referenceSamplesForBlock[streamId] = { sampleIndex, timestamp };
 
 }
 

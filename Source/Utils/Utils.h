@@ -15,16 +15,16 @@
 class OELogger
 {
 
-std::ofstream logFile;
+	std::ofstream logFile;
 
 protected:
 
-	OELogger() { }
+	OELogger() {}
 public:
-	static OELogger& GetInstance(const std::string& log_file = "activity.log")
+	static OELogger& instance()
 	{
-		static OELogger instance(log_file);
-		return instance;
+		static OELogger lg;
+		return lg;
 	}
 
 	OELogger(OELogger const&) = delete;
@@ -34,7 +34,7 @@ public:
 	void LOGConsole(Args&& ...args)
 	{
 		std::lock_guard<std::mutex> lock(mt);
-		
+
 		(std::cout << ... << args);
 		std::cout << std::endl;
 
@@ -64,22 +64,16 @@ public:
 		// Each time the GUI is launched, a new error log is generated.
 		// In case of a crash, the most recent file is appended with a datestring
 		logFile.open(filePath, std::ios::out | std::ios::app);
+		time_t now = time(0);
+		logFile << "[open-ephys] Session start time: " << ctime(&now);
 	}
 
 private:
-	OELogger(const std::string& log_file) : log_file(log_file)
-	{
-		if (!logFileExists)
-			createLogFile(log_file);
-		logFileExists = true;
-	}
 	std::mutex mt;
-	std::string log_file;
-	bool logFileExists = false;
 };
 
 /* Expose the Logger instance to plugins */
-extern "C" PLUGIN_API OELogger& getOELogger();
+extern "C" PLUGIN_API OELogger & getOELogger();
 
 /* Log Action -- taken by user */
 #define LOGA(...) \
@@ -125,7 +119,7 @@ struct func_timer
 {
 	template <typename F, typename... Args>
 	static Time duration(F&& f, Args... args)
-	{	
+	{
 		auto start = Clock::now();
 		invoke(std::forward<F>(f), std::forward<Args>(args)...);
 		auto end = Clock::now();
@@ -140,18 +134,22 @@ struct func_timer
 // From: http://www.lonecpluspluscoder.com/2015/08/13/an-elegant-way-to-extract-keys-from-a-c-map/
 
 template<typename TK, typename TV>
-std::vector<TK> extract_keys(std::map<TK, TV> const& input_map) {
+std::vector<TK> extract_keys(std::map<TK, TV> const& input_map)
+{
 	std::vector<TK> retval;
-	for (auto const& element : input_map) {
+	for (auto const& element : input_map)
+	{
 		retval.push_back(element.first);
 	}
 	return retval;
 }
 
 template<typename TK, typename TV>
-std::vector<TV> extract_values(std::map<TK, TV> const& input_map) {
+std::vector<TV> extract_values(std::map<TK, TV> const& input_map)
+{
 	std::vector<TV> retval;
-	for (auto const& element : input_map) {
+	for (auto const& element : input_map)
+	{
 		retval.push_back(element.second);
 	}
 	return retval;
