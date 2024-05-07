@@ -1063,8 +1063,9 @@ void PathParameterEditor::updateView()
         }
         else
         {
-            button->setColour(TextButton::textColourOnId, findColour(ThemeColors::defaultText));
-            button->setColour(TextButton::textColourOffId, findColour(ThemeColors::defaultText));
+            // Remove the red color if it was previously set 
+            button->removeColour(TextButton::textColourOnId);
+            button->removeColour(TextButton::textColourOffId);
         }
         //Alternatively:
         //button->setButtonText(File(param->getValueAsString()).getFileName());
