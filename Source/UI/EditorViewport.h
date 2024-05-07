@@ -219,10 +219,11 @@ public:
     
     Array<GenericEditor*> editorArray;
 
+    bool somethingIsBeingDraggedOver;
+
 private:
 
     String message;
-    bool somethingIsBeingDraggedOver;
 
     GenericEditor* lastEditor;
     GenericEditor* lastEditorClicked;
@@ -317,8 +318,11 @@ public:
     void resized();
     
     /** Draws the background of the EditorViewport. */
-    void paint(Graphics& g);
-    
+    void paint(Graphics& g) override;
+
+    /** Draws the outline of the EditorViewport. */
+    void paintOverChildren(Graphics& g) override;
+
     /** Called when one of the buttons the EditorViewport listens to has been clicked.*/
     void buttonClicked(Button* button);
 
@@ -333,24 +337,16 @@ public:
 
 private:
 
-    /** Draws the SignalChainTabButton.*/
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
-
-    /** Called when a mouse click occurs inside a SignalChainTabButton.*/
-    void clicked();
-
     int numberOfTabs;
     int selectedTab;
     int topTab;
-
-    Font buttonFont;
     
-    Array<SignalChainTabButton*> signalChainTabButtonArray;
+    OwnedArray<SignalChainTabButton> signalChainTabButtonArray;
     
-    SignalChainScrollButton* upButton;
-    SignalChainScrollButton* downButton;
+    std::unique_ptr<SignalChainScrollButton> upButton;
+    std::unique_ptr<SignalChainScrollButton> downButton;
     
-    Viewport* viewport;
+    std::unique_ptr<Viewport> viewport;
     EditorViewport* editorViewport;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SignalChainTabComponent);

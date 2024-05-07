@@ -256,6 +256,7 @@ MainWindow::~MainWindow()
         ui->disableDataViewport();
 
 		documentWindow->setLookAndFeel(nullptr);
+		documentWindow->removeKeyListener(commandManager.getKeyMappings());
         
         documentWindow->setMenuBar(0);
 

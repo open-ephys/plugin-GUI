@@ -77,17 +77,6 @@ void EditorViewport::paint(Graphics& g)
     g.setColour(findColour(ThemeColors::componentParentBackground));
     g.fillRoundedRectangle(1, 1, getWidth()-2, getHeight()-14, 5.0f);
 
-    if (somethingIsBeingDraggedOver)
-    {
-        g.setColour(Colours::yellow);
-    }
-    else
-    {
-        g.setColour(findColour(ThemeColors::outline).withAlpha(0.5f));
-    }
-
-    g.drawRoundedRectangle(1, 1, getWidth()-2, getHeight() - 14, 5.0f, 2.0f);
-
     // Draw drop shadow for each editor
     for (int i = 0; i < editorArray.size(); i++)
     {
@@ -1280,31 +1269,31 @@ SignalChainTabComponent::SignalChainTabComponent()
 {
     topTab = 0;
     
-    upButton = new SignalChainScrollButton(UP);
-    downButton = new SignalChainScrollButton(DOWN);
+    upButton = std::make_unique<SignalChainScrollButton>(UP);
+    downButton = std::make_unique<SignalChainScrollButton>(DOWN);
 
     upButton->addListener(this);
     downButton->addListener(this);
     
-    addAndMakeVisible(upButton);
-    addAndMakeVisible(downButton);
+    addAndMakeVisible(upButton.get());
+    addAndMakeVisible(downButton.get());
 
-    viewport = new Viewport();
+    viewport = std::make_unique<Viewport>();
     viewport->setScrollBarsShown(false, true);
     viewport->setScrollBarThickness(12);
-    addAndMakeVisible(viewport);
+    addAndMakeVisible(viewport.get());
 
     for (int i = 0; i < 8; i++)
     {
         SignalChainTabButton* button = new SignalChainTabButton(i);
         signalChainTabButtonArray.add(button);
-        addChildComponent(button);
+        addChildComponent(signalChainTabButtonArray.getLast());
     }
 }
 
 SignalChainTabComponent::~SignalChainTabComponent()
 {
-    deleteAllChildren();
+
 }
 
 void SignalChainTabComponent::setEditorViewport(EditorViewport* ev)
@@ -1335,6 +1324,20 @@ void SignalChainTabComponent::paint(Graphics& g)
                       TAB_SIZE-12,
                       1.0);
     }
+}
+
+void SignalChainTabComponent::paintOverChildren(Graphics& g)
+{
+    if (editorViewport->somethingIsBeingDraggedOver)
+    {
+        g.setColour(Colours::yellow);
+    }
+    else
+    {
+        g.setColour(findColour(ThemeColors::outline).withAlpha(0.5f));
+    }
+
+    g.drawRoundedRectangle(TAB_SIZE + 1, 1, getWidth()-TAB_SIZE-2, getHeight() - 14, 5.0f, 2.0f);
 }
 
 
@@ -1396,14 +1399,14 @@ void SignalChainTabComponent::refreshTabs(int numberOfTabs_, int selectedTab_, b
 
 void SignalChainTabComponent::buttonClicked(Button* button)
 {
-    if (button == upButton)
+    if (button == upButton.get())
     {
         LOGDD("Up button pressed.");
 
         if (topTab > 0)
             topTab -= 1;
     }
-    else if (button == downButton)
+    else if (button == downButton.get())
     {
         LOGDD("Down button pressed.");
         
