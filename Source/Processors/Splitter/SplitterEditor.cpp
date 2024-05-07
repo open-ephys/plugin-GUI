@@ -67,18 +67,6 @@ SplitterEditor::SplitterEditor(GenericProcessor* parentNode)
     pipelineSelectorB->setToggleState(false, dontSendNotification);
     addAndMakeVisible(pipelineSelectorB.get());
 
-    streamSelectorA = std::make_unique<StreamSelector>(this);
-    streamSelectorA->setBounds(100, 25, streamSelectorA->getDesiredWidth(), 95);
-    addAndMakeVisible(streamSelectorA.get());
-
-    streamSelectorB = std::make_unique<StreamSelector>(this);
-    streamSelectorB->setBounds(100, 25, streamSelectorB->getDesiredWidth(), 95);
-    addChildComponent(streamSelectorB.get());
-    streamSelectorB->setVisible(false);
-
-    drawerWidth = streamSelectorA->getDesiredWidth() + 20;
-
-    
 }
 
 SplitterEditor::~SplitterEditor()
@@ -103,9 +91,6 @@ void SplitterEditor::switchDest(int dest)
     {
         pipelineSelectorA->setToggleState(true, dontSendNotification);
         pipelineSelectorB->setToggleState(false, dontSendNotification);
-        
-        streamSelectorA->setVisible(true);
-        streamSelectorB->setVisible(false);
 
         Splitter* processor = (Splitter*) getProcessor();
         processor->switchIO(0);
@@ -115,9 +100,6 @@ void SplitterEditor::switchDest(int dest)
     {
         pipelineSelectorB->setToggleState(true, dontSendNotification);
         pipelineSelectorA->setToggleState(false, dontSendNotification);
-
-        streamSelectorB->setVisible(true);
-        streamSelectorA->setVisible(false);
 
         Splitter* processor = (Splitter*) getProcessor();
         processor->switchIO(1);
@@ -188,68 +170,11 @@ void SplitterEditor::switchDest()
     {
         pipelineSelectorA->setToggleState(true, dontSendNotification);
         pipelineSelectorB->setToggleState(false, dontSendNotification);
-
-        streamSelectorA->setVisible(true);
-        streamSelectorB->setVisible(false);
-
     }
     else if (path == 1)
     {
         pipelineSelectorB->setToggleState(true,dontSendNotification);
         pipelineSelectorA->setToggleState(false, dontSendNotification);
-
-        streamSelectorA->setVisible(false);
-        streamSelectorB->setVisible(true);
-
     }
     
-}
-
-
-bool SplitterEditor::checkStream(const DataStream* stream, Splitter::Output output)
-{
-
-    std::cout << "Splitter checking stream " << stream->getStreamId() << " for output " << output << std::endl;
-
-    // buttons already exist:
-    if (output == Splitter::Output::OUTPUT_A)
-    {
-        return streamSelectorA->checkStream(stream);
-    }
-    else {
-        return streamSelectorB->checkStream(stream);
-    }
-
-}
-
-
-void SplitterEditor::streamEnabledStateChanged(uint16 streamId, bool isEnabled, bool isLoading)
-{
-
-    if (streamSelectorA->isVisible())
-        streamSelectorA->setStreamEnabledState(streamId, isEnabled);
-    else
-        streamSelectorB->setStreamEnabledState(streamId, isEnabled);
-
-    if (!isLoading)
-        CoreServices::updateSignalChain(this);
-}
-
-void SplitterEditor::updateSettings()
-{
-
-    std::cout << "Splitter editor updating settings" << std::endl;
-
-    streamSelectorA->beginUpdate();
-    streamSelectorB->beginUpdate();
-
-    for (auto stream : getProcessor()->getDataStreams())
-    {
-        streamSelectorA->add(stream);
-        streamSelectorB->add(stream);
-    }
-
-    streamSelectorA->finishedUpdate();
-    streamSelectorB->finishedUpdate();
-
 }

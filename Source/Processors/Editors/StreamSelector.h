@@ -42,215 +42,9 @@ class DelayMonitor;
 class UtilityButton;
 
 class ExpanderButton;
-class ShadowGradient;
-
-class StreamScrollButton;
-class StreamNameButton;
 class StreamEnableButton;
 
 class StreamSelectorTable;
-
-/**
- 
- Displays information about a particular stream.
- 
- Lives inside the StreamSelector component.
- 
- */
-
-class PLUGIN_API StreamInfoView : public Component,
-    public Button::Listener
-{
-public:
-    
-    /** Constructor */
-    StreamInfoView(const DataStream* stream, GenericEditor* editor, bool isEnabled);
-    
-    /** Destructor*/
-    ~StreamInfoView() { }
-
-    /** Returns the streamId associated with this view*/
-    uint16 getStreamId() const;
-
-    /** Returns the stream name associated with this view*/
-    String getStreamName() const;
-
-    /** Returns the stream source node ID associated with this view*/
-    int getStreamSourceNodeId() const;
-
-    /** Returns a pointer to the original DataStream*/
-    const DataStream* getStream() { return stream; }
-
-    /** Returns true if this stream is enabled*/
-    bool getEnabledState() const;
-
-    /** Enables or disables this stream*/
-    void setEnabled(bool state);
-
-    /** Returns a pointer to the TTLMonitor for this view*/
-    TTLMonitor* getTTLMonitor() { return ttlMonitor; }
-    
-    /** Returns a pointer to the DelayMonitor for this view*/
-    DelayMonitor* getDelayMonitor() { return delayMonitor; }
-
-    /** Sets the DelayMonitor for this view*/
-    void setDelayMonitor(DelayMonitor* delayMonitor);
-
-    /** Returns a pointer to the TTL Monitor for this view*/
-    void setTTLMonitor(TTLMonitor* ttlMonitor);
-
-    /** Renders the StreamInfoView*/
-    void paint(Graphics& g);
-    
-    /** Sets the location of the sub-components*/
-    void resized();
-
-    /** Called before new streams are added*/
-    void beginUpdate();
-    
-    /** Updates the DataStream object referenced by this view */
-    void update(const DataStream* stream);
-    
-    /** Updates the info displayed for the underlying stream*/
-    void updateInfoString();
-
-    /** Starts animations on TTLMonitor and DelayMonitor */
-    void startAcquisition();
-
-    /** Stops animations on TTLMonitor and DelayMonitor */
-    void stopAcquisition();
-
-    /** Called when enable button is clicked */
-    void buttonClicked(Button* button);
-
-    /** Set to 'true' after update, if stream still exists*/
-    bool streamIsStillNeeded;
-
-    uint16 streamId;
-
-private:
-
-    const DataStream* stream;
-
-    bool isEnabled;
-
-    String infoString;
-    String enabledString;
-
-    GenericEditor* editor;
-
-    String streamName;
-    int sourceNodeId;
-
-    bool acquisitionIsActive;
-
-    std::unique_ptr<StreamEnableButton> enableButton;
-    TTLMonitor* ttlMonitor;
-    DelayMonitor* delayMonitor;
-};
-
-/**
-
-Allows the user to browse through the available DataStreams within a given plugin
-
-Lives inside the GenericEditor
-
-*/
-class PLUGIN_API StreamSelector : public Component,
-    public Timer,
-    public Button::Listener
-{
-public:
-    
-    /** Constructor*/
-    StreamSelector(GenericEditor* editor);
-    
-    /** Destructor*/
-    ~StreamSelector() { }
-
-    /** Adds a new DataStream*/
-    void add(const DataStream*);
-    
-    /** Removes a DataStream*/
-    void remove(StreamInfoView*);
-
-    /** Informs the GenericEditor about the component width*/
-    int getDesiredWidth() { return 140; }
-
-    /** Sets the location of the viewport and its sub-components*/
-    void resized();
-    
-    /** Returns a pointer to the currently viewed stream*/
-    const DataStream* getCurrentStream();
-
-    /** Returns true if a given stream is enabled*/
-    bool checkStream(const DataStream* stream);
-
-    /** Renders the component*/
-    void paint(Graphics& g);
-
-    /** Called when stream browser buttons are clicked*/
-    void buttonClicked(Button* button);
-
-    /** Returns a pointer to the TTLMonitor for a given DataStream*/
-    TTLMonitor* getTTLMonitor(const DataStream* stream);
-
-    /** Returns a pointer to the DelayMonitor for a given DataStream*/
-    DelayMonitor* getDelayMonitor(const DataStream* stream);
-
-    /** Returns a pointer to the StreamInfoView for a given DataStream*/
-    StreamInfoView* getStreamInfoView(const DataStream* stream);
-
-    /** Starts TTLMonitor and DelayMonitor animations*/
-    void startAcquisition();
-
-    /** Stops TTLMonitor and DelayMonitor animations*/
-    void stopAcquisition();
-
-    /** Begins TTLMonitor and DelayMonitor animations*/
-    void timerCallback();
-
-    /** Used for scrolling animations*/
-    void beginUpdate();
-    
-    /** Signals that all streams have been copied, and returns ID of selected stream*/
-    uint16 finishedUpdate();
-
-    /** Returns the total number of streams for this plugin*/
-    int getNumStreams() { return streams.size(); }
-    
-    /** Returns the index of the stream that's currently in view*/
-    int getViewedIndex();
-    
-    /** Sets the stream that's currently in view*/
-    void setViewedIndex(int i);
-
-    /** Used to enable and disable a given stream*/
-    void setStreamEnabledState(uint16 streamId, bool isEnabled);
-
-private:
-
-    std::unique_ptr<Viewport> viewport;
-    std::unique_ptr<Component> viewedComponent;
-
-    std::unique_ptr<StreamScrollButton> leftScrollButton;
-    std::unique_ptr<StreamScrollButton> rightScrollButton;
-    std::unique_ptr<StreamNameButton> streamSelectorButton;
-
-    OwnedArray<StreamInfoView> streams;
-
-    std::map<uint16, bool> streamStates;
-
-    int streamInfoViewWidth;
-    int streamInfoViewHeight;
-
-    SmoothedValue<float, ValueSmoothingTypes::Linear> scrollOffset;
-
-    int viewedStreamIndex;
-
-    GenericEditor* editor;
-
-};
 
 
 /**
@@ -290,7 +84,7 @@ public:
     int getNumRows() override;
 
     /** Updates the underlying StreamInfoView objects */
-    void update(Array<StreamInfoView*> dataStreams, int viewedStreamIndex);
+    void update(Array<const DataStream*> dataStreams, int viewedStreamIndex);
 
     /** Determines row colors */
     void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
@@ -298,11 +92,21 @@ public:
     /** Paints the columns*/
     void paintCell(Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
 
+    /** Returns the tooltip for a particular cell*/
+    String getCellTooltip (int rowNumber, int columnId) override;
+
+    /** Returns the delay monitor for the stream*/
+    DelayMonitor* getDelayMonitor(const String& streamKey) { return delayMonitors[streamKey]; }
+
+    /** Returns the TTL monitor for the stream*/
+    TTLMonitor* getTTLMonitor(const String& streamKey) { return ttlMonitors[streamKey]; }
     
     TableListBox* table;
 private:
 
-    Array<StreamInfoView*> streams;
+    Array<const DataStream*> streams;
+    std::map<String, DelayMonitor*> delayMonitors;
+    std::map<String, TTLMonitor*> ttlMonitors;
 
     StreamSelectorTable* owner;
 
@@ -340,7 +144,7 @@ public:
     void add(const DataStream*);
 
     /** Removes a DataStream*/
-    void remove(StreamInfoView*);
+    void remove(const DataStream*);
 
     /** Informs the GenericEditor about the component width*/
     int getDesiredWidth();
@@ -356,9 +160,6 @@ public:
 
     /** Renders the component*/
     void paint(Graphics& g);
-
-    /** Returns a pointer to the StreamInfoView for a given DataStream*/
-    StreamInfoView* getStreamInfoView(const DataStream* stream);
 
     /** Returns a pointer to the TTLMonitor for a given DataStream*/
     TTLMonitor* getTTLMonitor(const DataStream* stream);
@@ -410,9 +211,8 @@ private:
     std::unique_ptr<StreamTableModel> tableModel;
     std::unique_ptr<TableListBox> streamTable;
 	std::unique_ptr<ExpanderButton> expanderButton;
-    std::unique_ptr<ShadowGradient> shadowGradient;
 
-    OwnedArray<StreamInfoView> streams;
+    Array<const DataStream*> streams;
 
     std::map<uint16, bool> streamStates;
 
@@ -421,22 +221,6 @@ private:
 
     int counter = 0;
 
-};
-
-/**
-  Draws a gradient shadow over the table
-*/
-class ShadowGradient : public Component
-{
-public:
-
-    /** Constructor*/
-    ShadowGradient() { }
-
-private:
-
-    /** Renders the shadow*/
-    void paint(Graphics& g);
 };
 
 
@@ -464,55 +248,6 @@ private:
     bool isEnabled;
 
     Path iconPath;
-};
-
-/**
-  Arrow buttons used to select different streams
-*/
-class StreamScrollButton : public Button
-{
-public:
-    
-    /** Constructor*/
-    StreamScrollButton(const String& name);
-    
-    /** Destructor*/
-    ~StreamScrollButton() { }
-
-    /** Enables/disables the button*/
-    void setEnabledState(bool isEnabled_) { isEnabled = isEnabled_; }
-
-private:
-    
-    /** Renders the button*/
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
-
-    bool isEnabled;
-};
-
-
-/**
-  Displays the name of the current stream
-*/
-class StreamNameButton : public Button
-{
-public:
-    
-    /** Constructor*/
-    StreamNameButton(const String& name);
-    
-    /** Destructor*/
-    ~StreamNameButton() { }
-
-    /** Enables/disables the button*/
-    void setEnabledState(bool isEnabled_) { isEnabled = isEnabled_;  }
-
-private:
-    
-    /** Renders the button*/
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
-
-    bool isEnabled;
 };
 
 /**
