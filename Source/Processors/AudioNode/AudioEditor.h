@@ -149,7 +149,12 @@ public:
     void loadStateFromXml   (XmlElement* xml);
 
     /** Gets AudioConfigurationWindow state */
-    bool isAudioConfigurationWindowVisible() { return audioConfigurationWindow != nullptr; };
+    bool isAudioConfigurationWindowVisible() 
+    { 
+
+
+        return audioConfigurationWindow != nullptr; 
+    };
 
 private:
 

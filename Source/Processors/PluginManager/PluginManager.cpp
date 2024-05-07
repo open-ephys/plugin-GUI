@@ -205,7 +205,8 @@ void PluginManager::loadPlugins(const File &pluginPath) {
 	for (int i = 0; i < foundDLLs.size(); i++)
 	{
 		LOGD("Loading Plugin: ", foundDLLs[i].getFileNameWithoutExtension(), "... ");
-		
+		LOGD("Path: ", foundDLLs[i].getFullPathName());
+
 		int res = loadPlugin(foundDLLs[i].getFullPathName());
 		
 		if (res < 0)
@@ -262,7 +263,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 #endif
 
 	if (!handle) {
-		ERROR_MSG("Failed to load plugin DLL.");
+		ERROR_MSG("Failed to load plugin DLL: " + GetLastError());
 		closeHandle(handle);
 		return -1;
 	}

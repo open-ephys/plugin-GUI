@@ -18,6 +18,10 @@ if(MSVC)
 endif()
 
 if(BUILD_TESTS)
+	if(MSVC)
+		target_link_libraries(${PLUGIN_NAME}_testable PUBLIC Winmm.lib)
+	endif()
+    copy_sources(${PLUGIN_NAME} ${PLUGIN_NAME}_testable)
     add_subdirectory(Tests)
 endif()
 #optional: create IDE groups

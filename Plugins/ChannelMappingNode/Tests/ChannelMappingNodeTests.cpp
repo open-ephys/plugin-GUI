@@ -19,7 +19,7 @@ protected:
             sample_rate_,
             1.0,
         }));
-        processor = tester->Create<ChannelMappingNode>(Plugin::Processor::FILTER);
+        processor = tester->CreateProcessor<ChannelMappingNode>(Plugin::Processor::FILTER);
         ASSERT_EQ(processor->getNumDataStreams(), 1);
         stream_id = processor->getDataStreams()[0]->getStreamId();
 

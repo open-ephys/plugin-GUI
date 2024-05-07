@@ -2,6 +2,8 @@
 #define TESTFIXTURES_H
 
 #include "gtest/gtest.h"
+#include "../Processors/FakeSourceNode.h"
+
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <Processors/ProcessorGraph/ProcessorGraph.h>
 #include <Processors/SourceNode/SourceNode.h>
@@ -70,7 +72,7 @@ public:
             juce::AudioProcessorGraph::NodeID(source_node_id));
 
         // Create the source node, and place it in the graph
-        auto sn = (GenericProcessor*) n->getProcessor();
+        auto sn = (GenericProcessor*)n->getProcessor();
         sn->setHeadlessMode(true);
         sn->initialize(false);
         sn->setDestNode(nullptr);
@@ -78,13 +80,12 @@ public:
         control_panel->updateRecordEngineList();
 
         // Refresh everything
-        processor_graph->updateSettings(sn, false);
-    	
-        control_panel ->updateColors();
+        processor_graph->updateSettings(sn);
 
+        control_panel->updateColors();
 	}
 
-    ~ProcessorTester() {
+    virtual ~ProcessorTester() {
         control_panel = nullptr;
         processor_graph = nullptr;
         audio_component = nullptr;
@@ -107,7 +108,7 @@ public:
         typename T,
         class... Args,
         typename std::enable_if<std::is_base_of<GenericProcessor, T>::value>::type * = nullptr>
-    T *Create(Plugin::Processor::Type processorType, Args &&...args) {
+    T *CreateProcessor(Plugin::Processor::Type processorType, Args &&...args) {
         T *ptr = new T(std::forward<Args>(args)...);
         ptr->setProcessorType(processorType);
         ptr->setHeadlessMode(true);
@@ -128,14 +129,14 @@ public:
         source_node->setDestNode(ptr);
 
         // Refresh everything
-        processor_graph->updateSettings(ptr, false);
+        processor_graph->updateSettings(ptr);
         return (T *) processor_graph->getProcessorWithNodeId(node_id);
     }
 
-    void startAcquisition(bool startRecording) {
+    void startAcquisition(bool startRecording, bool forceRecording = false) {
         if (startRecording) {
             // Do it this way to ensure the GUI elements (which apparently control logic) are set properly
-            control_panel->setRecordingState(true, false);
+            control_panel->setRecordingState(true, forceRecording);
         } else {
             control_panel->startAcquisition(false);
         }
@@ -164,7 +165,7 @@ public:
     }
 
     GenericProcessor* getSourceNode() {
-        return (GenericProcessor*)processor_graph->getProcessorWithNodeId(source_node_id);
+        return processor_graph->getProcessorWithNodeId(source_node_id);
     }
     AudioBuffer<float> ProcessBlock(
         GenericProcessor *processor,
@@ -204,7 +205,12 @@ public:
         return output_buffer;
     }
 
-private:
+    void updateSourceNodeSettings()
+    {
+        processor_graph->updateSettings(getSourceNode());
+    }
+
+protected:
     int source_node_id; // should dynamically retrieve the processor if needed, since it apparently gets re-allocated
 
     std::unique_ptr<AudioComponent> audio_component;
@@ -216,5 +222,23 @@ private:
     std::unique_ptr<CustomLookAndFeel> custom_look_and_feel;
 };
 
+class DataThreadTester : public ProcessorTester
+{
+public:
+    DataThreadTester(TestSourceNodeBuilder source_node_builder) : 
+        ProcessorTester(source_node_builder)
+    {}
+
+    template<
+        typename T,
+        class... Args,
+        typename std::enable_if<std::is_base_of<DataThread, T>::value>::type* = nullptr>
+    T* CreateDataThread(Args &&...args)
+    {
+        T* ptr = new T((SourceNode*)getSourceNode(), std::forward<Args>(args)...);
+        
+        return ptr;
+    }
+};
 
 #endif
