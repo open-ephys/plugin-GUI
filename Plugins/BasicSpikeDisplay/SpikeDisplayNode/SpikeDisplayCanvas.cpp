@@ -258,20 +258,15 @@ void SpikeDisplayCanvas::saveCustomParametersToXml(XmlElement* xml)
 
 void SpikeDisplayCanvas::loadCustomParametersFromXml(XmlElement* xml)
 {
-    for (auto* editorNode : xml->getChildIterator())
-    {
-        if (editorNode->hasTagName("CUSTOM_PARAMETERS"))
-        {
 
-            for (auto* xmlNode : editorNode->getChildIterator())
-            {
-                if (xmlNode->hasTagName("SPIKEDISPLAY"))
-                {
-                    loadSpikeDisplaySettingsFromXml(xmlNode);
-                }
-            }
+    for (auto* xmlNode : xml->getChildIterator())
+    {
+        if (xmlNode->hasTagName("SPIKEDISPLAY"))
+        {
+            loadSpikeDisplaySettingsFromXml(xmlNode);
         }
     }
+
 }
 
 void SpikeDisplayCanvas::loadSpikeDisplaySettingsFromXml(XmlElement* xmlNode)
