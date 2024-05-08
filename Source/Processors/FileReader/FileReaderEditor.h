@@ -92,8 +92,8 @@ public:
 private:
     void clearEditor();
 
-    ScopedPointer<DrawerButton>    scrubDrawerButton;
-    ScopedPointer<ScrubberInterface>    scrubberInterface;
+    std::unique_ptr<DrawerButton>    scrubDrawerButton;
+    std::unique_ptr<ScrubberInterface>    scrubberInterface;
 
     FileReader* fileReader;
     unsigned int recTotalTime;

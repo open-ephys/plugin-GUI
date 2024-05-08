@@ -38,8 +38,13 @@ public:
 
     virtual void timerCallback() = 0;
 
+    void setStartStopTimes(int start, int stop) { startMs = start; stopMs = stop; }
+
 protected:
     FileReader* fileReader;
+
+    int startMs = 0;
+    int stopMs = 0;
 
     void paint(Graphics& g) override = 0;
     void mouseDown(const MouseEvent& event) override = 0;
@@ -124,16 +129,16 @@ public:
     ScrubberInterface(FileReader* reader);
     ~ScrubberInterface() override {};
 
-    ScopedPointer<Label> zoomStartTimeLabel;
-    ScopedPointer<Label> zoomMiddleTimeLabel;
-    ScopedPointer<Label> zoomEndTimeLabel;
-    ScopedPointer<Label> fullStartTimeLabel;
-    ScopedPointer<Label> fullEndTimeLabel;
+    std::unique_ptr<Label> zoomStartTimeLabel;
+    std::unique_ptr<Label> zoomMiddleTimeLabel;
+    std::unique_ptr<Label> zoomEndTimeLabel;
+    std::unique_ptr<Label> fullStartTimeLabel;
+    std::unique_ptr<Label> fullEndTimeLabel;
 
-    ScopedPointer<Timeline> fullTimeline;
-    ScopedPointer<Timeline> zoomTimeline;
+    std::unique_ptr<Timeline> fullTimeline;
+    std::unique_ptr<Timeline> zoomTimeline;
 
-    ScopedPointer<PlaybackButton> playbackButton;
+    std::unique_ptr<PlaybackButton> playbackButton;
 
     void buttonClicked (Button* button) override;
     void paintOverChildren(Graphics& g) override;

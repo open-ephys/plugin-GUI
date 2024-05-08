@@ -186,9 +186,6 @@ private:
     /** Checks for changes in the audio device settings */
     void checkAudioDevice();
 
-    /** Currently only support one event channel per stream */
-    ScopedPointer<EventChannel> eventChannel;
-
     /** Generates any events found within the current continuous buffer interval */
     void addEventsInRange(int64 start, int64 stop);
 

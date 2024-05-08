@@ -1247,9 +1247,9 @@ TimeParameter::TimeParameter(ParameterOwner* owner,
         displayName,
         description,
         defaultValue,
-        deactivateDuringAcquisition),
-        timeValue(new TimeParameter::TimeValue(defaultValue))
+        deactivateDuringAcquisition)
 {
+    timeValue = std::make_shared<TimeValue>(defaultValue);
     timeValue->setMinTimeInMilliseconds(0);
 }
 

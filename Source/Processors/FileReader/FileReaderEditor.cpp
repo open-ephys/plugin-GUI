@@ -37,16 +37,16 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
 {
     desiredWidth = 280;
 
-    scrubberInterface = new ScrubberInterface(fileReader);
+    scrubberInterface = std::make_unique<ScrubberInterface>(fileReader);
     scrubberInterface->setBounds(0, 0, 420, 140);
-    addChildComponent(scrubberInterface);
+    addChildComponent(scrubberInterface.get());
 
-    scrubDrawerButton = new DrawerButton(getNameAndId() + " Scrub Drawer Button");
+    scrubDrawerButton = std::make_unique<DrawerButton>(getNameAndId() + " Scrub Drawer Button");
 	scrubDrawerButton->setBounds(4, 40, 10, 78);
     scrubDrawerButton->setToggleState(false, dontSendNotification);
 	scrubDrawerButton->addListener(this);
     scrubDrawerButton->setEnabled(false);
-	addAndMakeVisible(scrubDrawerButton);
+	addAndMakeVisible(scrubDrawerButton.get());
 
     addPathParameterEditor (Parameter::PROCESSOR_SCOPE, "selected_file", 24, 29);
     addSelectedStreamParameterEditor (Parameter::PROCESSOR_SCOPE, "active_stream", 24, 54);
@@ -69,7 +69,7 @@ FileReaderEditor::~FileReaderEditor()
 
 void FileReaderEditor::buttonClicked (Button* button)
 {
-    if (button == scrubDrawerButton)
+    if (button == scrubDrawerButton.get())
         showScrubInterface(!scrubInterfaceVisible);
 }
 
@@ -111,7 +111,7 @@ void FileReaderEditor::enableScrubDrawer(bool enable)
 
 ScrubberInterface* FileReaderEditor::getScrubberInterface()
 {
-    return scrubberInterface;
+    return scrubberInterface.get();
 }
 
 void FileReaderEditor::showScrubInterface(bool show)
