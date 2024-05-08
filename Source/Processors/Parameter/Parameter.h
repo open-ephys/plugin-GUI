@@ -964,7 +964,7 @@ public:
 
         void setTimeFromString(String time) {
             StringArray tokens;
-            tokens.addTokens(time, ":", "\"");
+            tokens.addTokens(time, ":", "");
             hour = tokens[0].getIntValue();
             minute = tokens[1].getIntValue();
             second = tokens[2].getDoubleValue();
@@ -1001,7 +1001,7 @@ public:
         int maxTimeInMilliseconds;
     };
 
-    TimeValue* getTimeValue() { return timeValue; }
+    TimeValue* getTimeValue() { return timeValue.get(); }
 
     class ChangeValue : public UndoableAction
     {
@@ -1030,7 +1030,7 @@ public:
 
 private:
 
-    TimeValue* timeValue;
+    std::shared_ptr<TimeValue> timeValue;
 
 };
 

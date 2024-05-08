@@ -26,15 +26,12 @@ void FullTimeline::paint(Graphics& g)
 	g.fillRect(borderThickness, borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
 
     /* Draw a colored vertical bar for each event */
-    TimeParameter::TimeValue* start = ((TimeParameter*)fileReader->getParameter("start_time"))->getTimeValue();
-    TimeParameter::TimeValue* stop  = ((TimeParameter*)fileReader->getParameter("end_time"))->getTimeValue();
-    TimeParameter::TimeValue* duration = new TimeParameter::TimeValue(stop->getTimeInMilliseconds() - start->getTimeInMilliseconds());
 
     float sampleRate = fileReader->getCurrentSampleRate();
-    int64 totalSamples = duration->getTimeInMilliseconds() / 1000.0f * sampleRate;
+    int64 totalSamples = (stopMs - startMs) / 1000.0f * sampleRate;
 
-    int64 startSample = start->getTimeInMilliseconds() / 1000.0f * sampleRate;
-    int64 stopSample = stop->getTimeInMilliseconds() / 1000.0f * sampleRate;
+    int64 startSample = startMs / 1000.0f * sampleRate;
+    int64 stopSample = stopMs / 1000.0f * sampleRate;
 
     std::map<int, bool> eventMap; //keeps track of events that would get rendered at the same timeline position
 
@@ -87,12 +84,8 @@ void FullTimeline::setIntervalPosition(int pos)
 
     intervalStartPosition = pos;
 
-    TimeParameter::TimeValue* start = ((TimeParameter*)fileReader->getParameter("start_time"))->getTimeValue();
-    TimeParameter::TimeValue* stop  = ((TimeParameter*)fileReader->getParameter("end_time"))->getTimeValue();
-    TimeParameter::TimeValue* duration = new TimeParameter::TimeValue(stop->getTimeInMilliseconds() - start->getTimeInMilliseconds());
-
     float sampleRate = fileReader->getCurrentSampleRate();
-    int64 totalSamples = duration->getTimeInMilliseconds() / 1000.0f * sampleRate;
+    int64 totalSamples = (stopMs - startMs) / 1000.0f * sampleRate;
     float totalTimeInSeconds = float(totalSamples) / sampleRate;
 
     intervalWidth = 30.0f / totalTimeInSeconds * float(getWidth());
@@ -107,11 +100,7 @@ void FullTimeline::setIntervalPosition(int pos)
 
 int FullTimeline::getIntervalDurationInSeconds()
 {
-    TimeParameter::TimeValue* start = ((TimeParameter*)fileReader->getParameter("start_time"))->getTimeValue();
-    TimeParameter::TimeValue* stop  = ((TimeParameter*)fileReader->getParameter("end_time"))->getTimeValue();
-    TimeParameter::TimeValue* duration = new TimeParameter::TimeValue(stop->getTimeInMilliseconds() - start->getTimeInMilliseconds());
-
-    return duration->getTimeInMilliseconds() / 1000.0f;
+    return ((stopMs - startMs) / 1000.0f);
 }
 
 void FullTimeline::mouseDown(const MouseEvent& event) 
@@ -171,20 +160,15 @@ void ZoomTimeline::paint(Graphics& g)
 	g.setColour(Colours::white);
 	g.fillRect(borderThickness, tickHeight + borderThickness, this->getWidth() - 2*borderThickness, this->getHeight() - 2*borderThickness - tickHeight);
 
-    /* Draw all events within this 30-second interval */
-    TimeParameter::TimeValue* start = ((TimeParameter*)fileReader->getParameter("start_time"))->getTimeValue();
-    TimeParameter::TimeValue* stop  = ((TimeParameter*)fileReader->getParameter("end_time"))->getTimeValue();
-    TimeParameter::TimeValue* duration = new TimeParameter::TimeValue(stop->getTimeInMilliseconds() - start->getTimeInMilliseconds());
-
     float sampleRate = fileReader->getCurrentSampleRate();
-    int64 totalSamples = duration->getTimeInMilliseconds() / 1000.0f * sampleRate;
+    int64 totalSamples = (stopMs - startMs) / 1000.0f * sampleRate;
     int64 intervalSamples = 30 * sampleRate;
 
     int intervalStartPos = fileReader->getScrubberInterface()->getFullTimelineStartPosition();
 
     int64 offset = float(intervalStartPos) / float(getWidth()) * totalSamples;
 
-    int64 startSampleNumber = float(start->getTimeInMilliseconds()) / 1000.0f * sampleRate + offset;
+    int64 startSampleNumber = float(startMs) / 1000.0f * sampleRate + offset;
     int64 stopSampleNumber = startSampleNumber + intervalSamples;
 
     for (auto info : fileReader->getActiveEventInfo()) 
@@ -375,49 +359,41 @@ ScrubberInterface::ScrubberInterface(FileReader* fileReader_) {
 
     int scrubInterfaceWidth = 420;
 
-    zoomStartTimeLabel = new Label("ZoomStartTime", "00:00:00.000");
+    zoomStartTimeLabel = std::make_unique<Label>("ZoomStartTime", "00:00:00.000");
     zoomStartTimeLabel->setBounds(0,30,100,10);
-    addChildComponent(zoomStartTimeLabel);
-    addAndMakeVisible(zoomStartTimeLabel);
+    addAndMakeVisible(zoomStartTimeLabel.get());
 
-    zoomMiddleTimeLabel = new Label("ZoomMidTime", "00:00:15.000");
+    zoomMiddleTimeLabel = std::make_unique<Label>("ZoomMidTime", "00:00:15.000");
     zoomMiddleTimeLabel->setBounds(0.39*scrubInterfaceWidth,30,100,10);
-    addChildComponent(zoomMiddleTimeLabel);
-    addAndMakeVisible(zoomMiddleTimeLabel);
+    addAndMakeVisible(zoomMiddleTimeLabel.get());
 
-    zoomEndTimeLabel = new Label("ZoomEndTime", "00:00:30.000");
+    zoomEndTimeLabel = std::make_unique<Label>("ZoomEndTime", "00:00:30.000");
     zoomEndTimeLabel->setBounds(0.75*scrubInterfaceWidth,30,100,10);
-    addChildComponent(zoomEndTimeLabel);
-    addAndMakeVisible(zoomEndTimeLabel);
+    addAndMakeVisible(zoomEndTimeLabel.get());
 
-    fullStartTimeLabel = new Label("FullStartTime", "00:00:00.000");
+    fullStartTimeLabel = std::make_unique<Label>("FullStartTime", "00:00:00.000");
     fullStartTimeLabel->setBounds(0,100,100,10);
-    addChildComponent(fullStartTimeLabel);
-    addAndMakeVisible(fullStartTimeLabel);
+    addAndMakeVisible(fullStartTimeLabel.get());
 
-    fullEndTimeLabel = new Label("FullEndTime", "00:00:00.000");
+    fullEndTimeLabel = std::make_unique<Label>("FullEndTime", "00:00:00.000");
     fullEndTimeLabel->setBounds(0.75*scrubInterfaceWidth,100,100,10);
-    addChildComponent(fullEndTimeLabel);
-    addAndMakeVisible(fullEndTimeLabel);
+    addAndMakeVisible(fullEndTimeLabel.get());
 
     int padding = 30;
-    zoomTimeline = new ZoomTimeline(fileReader);
+    zoomTimeline = std::make_unique<ZoomTimeline>(fileReader);
     zoomTimeline->setBounds(padding, 46, scrubInterfaceWidth - 2*padding, 20);
-    addChildComponent(zoomTimeline);
-    addAndMakeVisible(zoomTimeline);
+    addAndMakeVisible(zoomTimeline.get());
 
-    fullTimeline = new FullTimeline(fileReader);
+    fullTimeline = std::make_unique<FullTimeline>(fileReader);
     fullTimeline->setBounds(padding, 76, scrubInterfaceWidth - 2*padding, 20);
-    addChildComponent(fullTimeline);
-    addAndMakeVisible(fullTimeline);
+    addAndMakeVisible(fullTimeline.get());
 
     int buttonSize = 24;
-    playbackButton = new PlaybackButton(fileReader);
+    playbackButton = std::make_unique<PlaybackButton>(fileReader);
     playbackButton->setState(true);
     playbackButton->setBounds(scrubInterfaceWidth / 2 - buttonSize / 2, 103, buttonSize, buttonSize);
     playbackButton->addListener(this);
-    addChildComponent(playbackButton);
-    addAndMakeVisible(playbackButton);
+    addAndMakeVisible(playbackButton.get());
 
     setVisible(false);
 
@@ -488,7 +464,12 @@ void ScrubberInterface::update()
     TimeParameter* stop  = static_cast<TimeParameter*>(fileReader->getParameter("end_time"));
     fullEndTimeLabel->setText(stop->getTimeValue()->toString(), juce::sendNotificationAsync);
 
-    int duration = stop->getTimeValue()->getTimeInMilliseconds() - start->getTimeValue()->getTimeInMilliseconds();
+    int startMs = start->getTimeValue()->getTimeInMilliseconds();
+    int stopMs = stop->getTimeValue()->getTimeInMilliseconds();
+    int duration =  stopMs - startMs;
+
+    fullTimeline->setStartStopTimes(startMs, stopMs);
+    zoomTimeline->setStartStopTimes(startMs, stopMs);
 
     FileReaderEditor* e = static_cast<FileReaderEditor*>(fileReader->getEditor());
 
@@ -508,24 +489,24 @@ void ScrubberInterface::update()
 void ScrubberInterface::updateZoomTimeLabels()
 {
 
-    TimeParameter::TimeValue* start = ((TimeParameter*)fileReader->getParameter("start_time"))->getTimeValue();
-    TimeParameter::TimeValue* stop  = ((TimeParameter*)fileReader->getParameter("end_time"))->getTimeValue();
+    int start = ((TimeParameter*)fileReader->getParameter("start_time"))->getTimeValue()->getTimeInMilliseconds();
+    int stop  = ((TimeParameter*)fileReader->getParameter("end_time"))->getTimeValue()->getTimeInMilliseconds();
 
-    TimeParameter::TimeValue* duration = new TimeParameter::TimeValue(stop->getTimeInMilliseconds() - start->getTimeInMilliseconds());
+    int duration = (stop - start);
 
     int startPos = fullTimeline->getStartInterval();
     float frac = float(startPos) / float(fullTimeline->getWidth());
 
     for (int i = 0; i < 3; i++) {
 
-        TimeParameter::TimeValue* time = new TimeParameter::TimeValue(start->getTimeInMilliseconds() + frac * duration->getTimeInMilliseconds() + 15000.0f * i);
+        TimeParameter::TimeValue time = TimeParameter::TimeValue(start + frac * duration + 15000.0f * i);
 
         if (i == 0)
-            zoomStartTimeLabel->setText(time->toString(), juce::sendNotificationAsync);
+            zoomStartTimeLabel->setText(time.toString(), juce::sendNotificationAsync);
         else if (i == 1)
-            zoomMiddleTimeLabel->setText(time->toString(), juce::sendNotificationAsync);
+            zoomMiddleTimeLabel->setText(time.toString(), juce::sendNotificationAsync);
         else
-            zoomEndTimeLabel->setText(time->toString(), juce::sendNotificationAsync);
+            zoomEndTimeLabel->setText(time.toString(), juce::sendNotificationAsync);
 
     }
 
