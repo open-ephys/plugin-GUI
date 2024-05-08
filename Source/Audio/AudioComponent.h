@@ -84,8 +84,23 @@ public:
     /** Returns the buffer size (in samples) currently being used.*/
     int getBufferSize();
 
+    /** Sets the buffer size (in samples) to be used.*/
+    void setBufferSize(int bufferSize);
+
     /** Returns the buffer size (in ms) currently being used.*/
     int getBufferSizeMs();
+
+    /** Returns the sample rate currently being used.*/
+    int getSampleRate();
+
+    /** Sets the sample rate to be used.*/
+    void setSampleRate(int sampleRate);
+
+    /** Returns the device type */
+    String getDeviceType();
+
+    /** Sets the device type */
+    void setDeviceType(String deviceType);
 
     /** Saves all audio settings that can be loaded to an XML element */
     void saveStateToXml(XmlElement* parent);

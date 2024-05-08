@@ -134,12 +134,50 @@ int AudioComponent::getBufferSize()
     return setup.bufferSize;
 }
 
+void AudioComponent::setBufferSize(int bufferSize)
+{
+    AudioDeviceManager::AudioDeviceSetup setup;
+    deviceManager.getAudioDeviceSetup(setup);
+
+    setup.bufferSize = bufferSize;
+
+    deviceManager.setAudioDeviceSetup(setup, true);
+}
+
 int AudioComponent::getBufferSizeMs()
 {
     AudioDeviceManager::AudioDeviceSetup setup;
     deviceManager.getAudioDeviceSetup(setup);
 
     return int(float(setup.bufferSize)/setup.sampleRate*1000);
+}
+
+int AudioComponent::getSampleRate()
+{
+    AudioDeviceManager::AudioDeviceSetup setup;
+    deviceManager.getAudioDeviceSetup(setup);
+
+    return setup.sampleRate;
+}
+
+void AudioComponent::setSampleRate(int sampleRate)
+{
+    AudioDeviceManager::AudioDeviceSetup setup;
+    deviceManager.getAudioDeviceSetup(setup);
+
+    setup.sampleRate = sampleRate;
+
+    deviceManager.setAudioDeviceSetup(setup, true);
+}
+
+String AudioComponent::getDeviceType()
+{
+    return deviceManager.getCurrentAudioDeviceType();
+}
+
+void AudioComponent::setDeviceType(String deviceType)
+{
+    deviceManager.setCurrentAudioDeviceType(deviceType, true);
 }
 
 void AudioComponent::connectToProcessorGraph(AudioProcessorGraph* processorGraph)

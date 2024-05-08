@@ -146,6 +146,42 @@ public:
             res.set_content(ret.dump(), "application/json");
             });
 
+        svr_->Put("/api/audio", [this](const httplib::Request& req, httplib::Response& res)
+            {
+                json request_json;
+
+                LOGD("Received PUT request at /api/audio with content: ", req.body);
+
+                try
+                {
+                    LOGD("Trying to decode request");
+                    request_json = json::parse(req.body);
+                    LOGD("Successfully parsed body");
+                }
+                catch (json::exception& e)
+                {
+                    LOGD("Could not parse input.");
+                    res.set_content(e.what(), "text/plain");
+                    res.status = 400;
+                    return;
+                }
+
+                try {
+                    int buffer_size = request_json["buffer_size"];
+                    LOGD("Found 'buffer_size': ", buffer_size);
+                    const MessageManagerLock mml;
+                    AccessClass::getAudioComponent()->setBufferSize(buffer_size);
+                    graph_->updateBufferSize();
+                }
+                catch (json::exception& e) {
+                    LOGD("'buffer_size' not specified'");
+                }
+
+                json ret;
+                audio_info_to_json(graph_, &ret);
+                res.set_content(ret.dump(), "application/json");
+            });
+
         svr_->Get("/api/recording", [this](const httplib::Request&, httplib::Response& res) {
             json ret;
             recording_info_to_json(graph_, &ret);
@@ -974,6 +1010,17 @@ private:
         }
         return "";*/
         return "";
+    }
+
+    inline static void audio_info_to_json(const ProcessorGraph* graph, json* ret)
+    {
+
+        (*ret)["device"] = AccessClass::getAudioComponent()->getDeviceType().toStdString();
+
+        (*ret)["sample_rate"] = AccessClass::getAudioComponent()->getSampleRate();
+
+        (*ret)["buffer_size"] = AccessClass::getAudioComponent()->getBufferSize();
+
     }
 
     inline static void recording_info_to_json(const ProcessorGraph* graph, json* ret)
