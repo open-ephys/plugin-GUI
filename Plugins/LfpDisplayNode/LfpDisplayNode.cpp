@@ -278,7 +278,8 @@ void LfpDisplayNode::handleTTLEvent(TTLEventPtr event)
 
 void LfpDisplayNode::initializeEventChannels()
 {
-    latestCurrentTrigger.insertMultiple(0, -1, 3); // reset to -1
+    for (int i = 0; i < 3; i++)
+        latestCurrentTrigger.set(i, -1); // reset to -1
 
     for (auto displayBuffer : displayBuffers)
     {
