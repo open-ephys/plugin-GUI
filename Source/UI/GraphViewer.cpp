@@ -41,6 +41,7 @@ GraphViewport::GraphViewport(GraphViewer* gv)
 {
     viewport = std::make_unique<Viewport>();
     viewport->setViewedComponent(gv, false);
+    viewport->setScrollBarThickness(12.0f);
     gv->setVisible(true);
     addAndMakeVisible(viewport.get());
 
@@ -48,25 +49,37 @@ GraphViewport::GraphViewport(GraphViewer* gv)
     currentVersionText = "GUI version " + app->getApplicationVersion();
 
     bw_logo = ImageCache::getFromMemory(BinaryData::bw_logo72_png, BinaryData::bw_logo72_pngSize);
+    color_logo = ImageCache::getFromMemory(BinaryData::color_logo72_png, BinaryData::color_logo72_pngSize);
+    
+    current_logo = &bw_logo;
 
 }
 
 void GraphViewport::paint(Graphics& g)
 {
-    g.fillAll(findColour(ThemeColors::graphViewerBackgroundColorId));
+    g.fillAll(findColour(ThemeColors::componentParentBackground));
     g.setOpacity(0.6f);
-    g.drawImageAt(bw_logo, getWidth() - 175, getHeight() - 115);
+    
+    g.drawImageAt(*current_logo, getWidth() - 175, getHeight() - 115);
 
     g.setOpacity(1.0f);
-    g.setColour(Colours::grey);
+    g.setColour(findColour(ThemeColors::componentBackground).brighter(0.3f));
 
-    g.setFont(Font("Silkscreen", "Regular", 14));
-    g.drawFittedText(currentVersionText, 40, 40, getWidth() - 65, getHeight() - 60, Justification::bottomRight, 100);
+    g.setFont(Font("Silkscreen", "Regular", 15));
+    g.drawFittedText(currentVersionText, 40, 40, getWidth() - 72, getHeight() - 60, Justification::bottomRight, 100);
 }
 
 void GraphViewport::resized()
 {
     viewport->setBounds(0, 0, getWidth(), getHeight());
+}
+
+void GraphViewport::lookAndFeelChanged()
+{
+    //if (findColour(ThemeColors::highlightedFill) == Colour(138, 193, 232)) // light mode
+    //    current_logo = &color_logo;
+    //else
+    //    current_logo = &bw_logo;
 }
 
 GraphViewer::GraphViewer()
@@ -305,6 +318,8 @@ void GraphViewer::paint (Graphics& g)
     // Draw connections
     const int numAvailableNodes = availableNodes.size();
 
+    Colour pathColor = findColour(ThemeColors::defaultFill);
+
     for (int i = 0; i < numAvailableNodes; ++i)
     {
         if(rootProcessors.contains(availableNodes[i]->getProcessor()))
@@ -319,36 +334,31 @@ void GraphViewer::paint (Graphics& g)
             linePath.startNewSubPath(startPoint);
             linePath.lineTo(endPoint);
 
-            g.setColour(Colour(30, 30, 30));
-            PathStrokeType stroke1(10.0f);
+            g.setColour(pathColor);
+            PathStrokeType stroke1(3.5f);
             g.strokePath(linePath, stroke1);
 
-            g.setColour(Colour(90, 90, 90));
-            PathStrokeType stroke2(7.5f);
-            g.strokePath(linePath, stroke2);
-
-            g.setColour(Colour(150, 150, 150));
-            PathStrokeType stroke3(4.5f);
-            g.strokePath(linePath, stroke3);
-
-            Colour ellipseColour = Colour(30,30,30);
-            ColourGradient ellipseGradient = ColourGradient(Colours::lightgrey,
+            Colour ellipseColour = findColour(ThemeColors::defaultFill);
+            ColourGradient ellipseGradient = ColourGradient(pathColor.brighter(0.8f),
                                                 startPoint.x - 10.0f, startPoint.y,
-                                                Colours::grey,
+                                                pathColor,
                                                 startPoint.x, startPoint.y,
                                                 true);
 
-            g.setColour(ellipseColour);
-            g.drawEllipse(startPoint.x - 20.f, startPoint.y - 10.0f, 20.f, 20.f, 2.f);
+            
+            //g.setColour(ellipseColour);
+            //g.drawEllipse(startPoint.x - 20.f, startPoint.y - 10.0f, 20.f, 20.f, 2.f);
             g.setGradientFill(ellipseGradient);
-            g.fillEllipse (startPoint.x - 19.f, startPoint.y - 9.f, 18.f, 18.f);
+            g.fillEllipse (startPoint.x - 20.f, startPoint.y - 10.f, 20.f, 20.f);
+            g.setColour(Colours::black);
+            g.drawEllipse(startPoint.x - 20.f, startPoint.y - 10.0f, 20.f, 20.f, 1.5f);
 
             int level = rootProcessors.indexOf(nodeProcessor);
             static const String letters = "ABCDEFGHI";
 
-            g.setColour(Colours::black);
+            g.setColour(findColour(ThemeColors::defaultText));
             g.setFont(Font("Silkscreen", "Regular", 14));
-            g.drawText (String::charToString(letters[level]), startPoint.x - 20, startPoint.y - 10, 20, 20, Justification::centred, true);
+            g.drawText (String::charToString(letters[level]), startPoint.x - 20, startPoint.y - 10, 20, 18, Justification::centred, true);
 
         }
 
@@ -374,7 +384,20 @@ void GraphViewer::paint (Graphics& g)
                     connectNodes (i, indexOfDest, g);
             }
         }
+
+        if (availableNodes[i]->getProcessor()->isEmpty())
+            continue;
+        
+        // Draw drop shadow for node
+        DropShadow(findColour(ThemeColors::dropShadowColor), 10, Point<int>(2, 8))
+            .drawForRectangle(g, availableNodes[i]->getBounds().reduced(1));
     }
+}
+
+
+void GraphViewer::paintOverChildren (Graphics& g)
+{
+    
 }
 
 
@@ -387,14 +410,14 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
     Path linePath;
     float x1 = start.getX();
     float y1 = start.getY();
-    float x2 = end.getX();
+    float x2 = end.getX()-14.0f;
     float y2 = end.getY();
     
     linePath.startNewSubPath (x1, y1);
 
-    if(availableNodes[node1]->getHorzShift() == availableNodes[node2]->getHorzShift())
+    if(availableNodes[node1]->getLevel() == availableNodes[node2]->getLevel())
     {    
-        linePath.lineTo(end);
+        linePath.lineTo(end.withX(x2));
     }
     else
     {
@@ -407,7 +430,7 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
     
     if (availableNodes[node1]->getProcessor()->isEmpty())
     {
-        g.setColour(Colour(150, 150, 150));
+        g.setColour(findColour(ThemeColors::defaultFill));
         Path dashedLinePath;
         PathStrokeType stroke3(2.0f);
         const float dashLengths[2] = { 5.0f, 5.0f };
@@ -417,20 +440,19 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
     }
     else
     {
-        g.setColour (Colour(30,30,30));
+        g.setColour (findColour(ThemeColors::defaultFill));
         PathStrokeType stroke3 (3.5f);
         Path arrowPath;
         stroke3.createStrokedPath(arrowPath, linePath);
         g.fillPath(arrowPath);
         
-        g.setColour (Colours::grey);
-        PathStrokeType stroke2 (2.0f);
-        Path arrowPath2;
-        stroke2.createStrokedPath(arrowPath2, linePath);
-        g.fillPath(arrowPath2);
+        //PathStrokeType stroke2 (2.0f);
+        //Path arrowPath2;
+        //stroke2.createStrokedPath(arrowPath2, linePath);
+        //g.fillPath(arrowPath2);
     }
     
-    g.drawArrow(Line<float>(x2 - 9.f, y2, x2 + 1.0f, y2), 0.0f, 10.f, 10.f);
+    g.drawArrow(Line<float>(x2, y2, x2 + 14.0f, y2), 3.5f, 10.0f, 14.f);
 }
 
 
@@ -549,11 +571,9 @@ DataStreamInfo::~DataStreamInfo()
 void DataStreamInfo::paint(Graphics& g)
 {
     g.setFont(Font("Fira Sans", "SemiBold", 14));
-    g.setColour(Colour(30, 30, 30));
-    g.drawRect(0, 0, getWidth(), getHeight(), 1);
-    g.setColour(Colours::white.darker());
-    g.fillRect(1, 0, getWidth() - 2, getHeight() - 1);
-    g.fillRect(1, 0, 24, getHeight() - 1);
+
+    g.fillAll(findColour(ThemeColors::componentBackground));
+    // g.fillRect(1, 0, 24, getHeight() - 1);
 
     int numEventChannels = stream->getEventChannels().size();
     int numSpikeChannels = stream->getSpikeChannels().size();
@@ -561,7 +581,7 @@ void DataStreamInfo::paint(Graphics& g)
     String ttlText = numEventChannels == 1 ? "TTL Channel" : "TTL Channels";
     String spikeText = numSpikeChannels == 1 ? "Spike Channel" : "Spike Channels";
 
-    g.setColour(Colours::black);
+    g.setColour(findColour(ThemeColors::defaultText));
     g.drawText("@ " + String(stream->getSampleRate()) + " Hz", 30, 0, getWidth() - 30, 20, Justification::left);
     g.drawText(ttlText, 30, 20, getWidth() - 30, 20, Justification::left);
     g.drawText(spikeText, 30, 40, getWidth() - 30, 20, Justification::left);
@@ -624,8 +644,16 @@ int DataStreamInfo::getMaxHeight() const
 void DataStreamInfo::restorePanels()
 {
     headerButton->setToggleState(node->streamInfoVisible[stream->getKey()], dontSendNotification);
-    parameterButton->setToggleState(node->streamParamsVisible[stream->getKey()], dontSendNotification);
-    buttonClicked(parameterButton);
+
+    if (parameterButton != nullptr)
+    {
+        parameterButton->setToggleState(node->streamParamsVisible[stream->getKey()], dontSendNotification);
+        buttonClicked(parameterButton);
+    }
+    else
+    {
+        node->setDataStreamPanelSize(this, heightInPixels);
+    }
 }
 
 
@@ -668,10 +696,7 @@ ProcessorParameterComponent::~ProcessorParameterComponent()
 
 void ProcessorParameterComponent::paint(Graphics& g)
 {
-    g.setColour(Colour(30, 30, 30));
-    g.drawRect(0, 0, getWidth(), getHeight(), 1);
-    g.setColour(Colours::white.darker());
-    g.fillRect(1, 0, getWidth() - 2, getHeight() - 1);
+    g.fillAll(findColour(ThemeColors::componentBackground));
 }
 
 void ProcessorParameterComponent::updateView()
@@ -714,20 +739,20 @@ int DataStreamButton::getDesiredHeight() const
 void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
 {
 
-    g.setColour(Colour(30, 30, 30));
-    g.fillAll();
-
-    g.setColour(Colours::lightgrey);
-    g.fillRect(1, 0, 24, getHeight() - 1);
+    g.setColour(findColour(ThemeColors::componentBackground));
+    g.fillRect(0, 0, 25, getHeight());
 
     if(getButtonText().equalsIgnoreCase("Parameters"))
         g.setColour(editor->getBackgroundColor().withSaturation(0.5f).withAlpha(0.7f));
     else
         g.setColour(editor->getBackgroundColor().withAlpha(0.5f));
 
-    g.fillRect(25, 0, getWidth() - 26, getHeight() - 1);
+    g.fillRect(25, 0, getWidth() - 25, getHeight());
 
-    g.setColour(Colour(30, 30, 30));
+    g.setColour(findColour(ThemeColors::outline));
+    g.drawRect(0, 0, getWidth(), getHeight(), 1);
+
+    g.setColour(findColour(ThemeColors::defaultText));
 
     if (getToggleState())
         g.fillPath(pathOpen);
@@ -765,9 +790,9 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
         infoPanel->setMaximumPanelSize(processorParamComponent.get(), 
                                        processorParamComponent->heightInPixels);
 
-        processorParamHeader = std::make_unique<Component>(processor->getName() + " Header");
+        processorParamHeader = new Component(processor->getName() + " Header");
         processorParamHeader->setBounds(0, 0, processorParamComponent->getWidth(), 20);
-        infoPanel->setCustomPanelHeader(processorParamComponent.get(), processorParamHeader.get(), false);
+        infoPanel->setCustomPanelHeader(processorParamComponent.get(), processorParamHeader, true);
         processorParamHeader->removeMouseListener(processorParamHeader->getParentComponent());
 
         // Add data stream info panel and buttons
@@ -801,7 +826,7 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
     previousHeight = 0;
     verticalOffset = 0;
 
-    nodeDropShadower.setOwner(this);
+    // nodeDropShadower.setOwner(this);
 }
 
 
@@ -1098,9 +1123,9 @@ void GraphNode::updateStreamInfo()
         infoPanel->setMaximumPanelSize(processorParamComponent.get(), 
                                        processorParamComponent->heightInPixels);
 
-        processorParamHeader.reset(new Component(processor->getName() + " Header"));
+        processorParamHeader = new Component(processor->getName() + " Header");
         processorParamHeader->setBounds(0, 0, processorParamComponent->getWidth(), 20);
-        infoPanel->setCustomPanelHeader(processorParamComponent.get(), processorParamHeader.get(), false);
+        infoPanel->setCustomPanelHeader(processorParamComponent.get(), processorParamHeader, true);
         processorParamHeader->removeMouseListener(processorParamHeader->getParentComponent());
 
         // recreate data stream info panels and buttons and add them to infoPanel
@@ -1213,23 +1238,21 @@ void GraphNode::paint (Graphics& g)
 
     if(processor->isEmpty())
     {
-        g.setColour(Colour(150, 150, 150));
+        g.setColour(findColour(ThemeColors::defaultFill));
         g.drawRoundedRectangle(1, 1, getWidth() - 2, 18, 5.0f, 2.0f);
         
+        g.setColour(findColour(ThemeColors::defaultText));
         g.drawFittedText("No Source", 10, 0,
             getWidth() - 10, 20, Justification::centredLeft, 1);
     }
     else
     {
-        g.setColour(Colour(30, 30, 30));
-        g.fillRect(0, 0, getWidth(), 20);
-
-        g.setColour(Colours::lightgrey);
-        g.fillRect(1, 1, 24, 18);
+        g.setColour(findColour(ThemeColors::componentBackground));
+        g.fillRect(0, 0, 25, 20);
         g.setColour(editor->getBackgroundColor());
-        g.fillRect(25, 1, getWidth() - 26, 18);
+        g.fillRect(25, 0, getWidth() - 25, 20);
 
-        g.setColour (Colours::black); // : editor->getBackgroundColor());
+        g.setColour (findColour(ThemeColors::defaultText)); // : editor->getBackgroundColor());
         g.drawText (String(nodeId), 1, 0, 23, 20, Justification::centred, true);
         g.setColour(Colours::white); // : editor->getBackgroundColor());
         g.drawText(getName(), 29, 0, getWidth() - 29, 20, Justification::left, true);
@@ -1241,22 +1264,20 @@ void GraphNode::paintOverChildren(Graphics& g)
     if (processor->isEmpty())
         return;
     
+    Path fakeRoundedCorners;
+    juce::Rectangle<float> bounds = {0, 0, (float)getWidth(), (float)getHeight()};
+
+    const float cornerSize = 5.0f; //desired corner size
+    fakeRoundedCorners.addRectangle(bounds); //What you start with
+    fakeRoundedCorners.setUsingNonZeroWinding(false); //The secret sauce
+    fakeRoundedCorners.addRoundedRectangle(bounds.reduced(1.0f), cornerSize); //subtract this shape
+
+    g.setColour(findColour(ThemeColors::componentParentBackground));
+    g.fillPath(fakeRoundedCorners);
+
     if (isMouseOver)
     {
         g.setColour(Colours::yellow);
         g.drawRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 5.0f, 2.0f);
-    }
-    else
-    {
-        Path fakeRoundedCorners;
-        juce::Rectangle<float> bounds = {0, 0, (float)getWidth(), (float)getHeight()};
-
-        const float cornerSize = 5.0f; //desired corner size
-        fakeRoundedCorners.addRectangle(bounds); //What you start with
-        fakeRoundedCorners.setUsingNonZeroWinding(false); //The secret sauce
-        fakeRoundedCorners.addRoundedRectangle(bounds.reduced(1.0f), cornerSize); //subtract this shape
-
-        g.setColour(findColour(ThemeColors::graphViewerBackgroundColorId));
-        g.fillPath(fakeRoundedCorners);
     }
 }

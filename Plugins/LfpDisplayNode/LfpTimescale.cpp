@@ -57,11 +57,16 @@ void LfpTimescale::paint(Graphics& g)
         if (canvasSplit->getSelectedState())
             g.setColour(Colour(25, 25, 25));
         else
-            g.setColour(Colour(200, 200, 200));
+            g.setColour(findColour(ThemeColors::defaultText));
             
     }
     else
-        g.setColour(Colour(100, 100, 100));
+    {
+        if (canvasSplit->getSelectedState())
+            g.setColour(Colour(25, 25, 25).withAlpha(0.5f));
+        else
+            g.setColour(findColour(ThemeColors::defaultText).withAlpha(0.5f));
+    }
 
     const String timeScaleUnitLabel = (timebase >= 2) ? ("s") : ("ms");
 
@@ -83,11 +88,10 @@ void LfpTimescale::paint(Graphics& g)
         {
             float lineHeight;
 
-            g.drawLine(xLoc,
-                0,
-                xLoc,
-                timescaleHeight,
-                2.0f);
+            g.fillRect(xLoc,
+                0.0f,
+                2.0f,
+                (float)timescaleHeight);
 
             g.drawText(labels[i] + " " + timeScaleUnitLabel,
                 xLoc + 10,
@@ -126,7 +130,7 @@ void LfpTimescale::setPausedState(bool isPaused_)
     else {
         lfpDisplay->pause(true);
         isPaused = true;
-        startTimer(100);
+        startTimer(20);
     }
 
     repaint();

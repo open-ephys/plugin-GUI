@@ -112,10 +112,11 @@ void SpikePlot::setId(std::string id)
 void SpikePlot::paint(Graphics& g)
 {
     
-    g.setColour(Colours::white);
+    g.setColour(findColour(ThemeColors::outline));
     g.drawRect(0, 0, getWidth(), getHeight());
 
     g.setFont(font);
+    g.setColour(findColour(ThemeColors::defaultText));
     g.drawText(name, 10, 0, 200, 20, Justification::left, false);
 
 }
@@ -693,7 +694,8 @@ void WaveAxes::drawThresholdSlider(Graphics& g)
         h = getHeight()*(0.5f + displayThresholdLevel/range);
 
     g.setColour(thresholdColour);
-    g.drawLine(0, h, getWidth(), h);
+    g.fillRect(0.0f, h, (float)getWidth(), 1.0f);
+    // g.drawLine(0, h, getWidth(), h);
 
     g.drawText(String(int(displayThresholdLevel)),2,h,25,10,Justification::left, false);
 
@@ -704,6 +706,7 @@ void WaveAxes::drawThresholdSlider(Graphics& g)
         h = getHeight()*(0.5f + detectorThresholdLevel/range);
 
     g.setColour(Colours::orange);
+    g.fillRect(0.0f, h, (float)getWidth(), 1.0f);
     g.drawLine(0, h, getWidth(), h);
 }
 
@@ -718,9 +721,9 @@ void WaveAxes::drawWaveformGrid(Graphics& g)
     for (float y = -range/2; y < range/2; y += 25.0f)
     {
         if (y == 0)
-            g.drawLine(0,h/2 + y/range*h, w, h/2+ y/range*h,2.0f);
+            g.fillRect(0.0f,h/2 + y/range*h, w, 1.0f);
         else
-            g.drawLine(0,h/2 + y/range*h, w, h/2+ y/range*h);
+            g.fillRect(0.0f,h/2 + y/range*h, w, 1.0f);
     }
 
 }
@@ -898,7 +901,7 @@ void WaveAxes::setDisplayThreshold(float threshold)
 ProjectionAxes::ProjectionAxes(SpikeDisplayCanvas* canvas, Projection proj_) : GenericAxes(canvas, PROJECTION_AXES), imageDim(500),
     rangeX(250), rangeY(250), spikesReceivedSinceLastRedraw(0), proj(proj_)
 {
-    projectionImage = Image(Image::RGB, imageDim, imageDim, true);
+    projectionImage = Image(Image::RGB, imageDim, imageDim, true, SoftwareImageType());
 
     clear();
 

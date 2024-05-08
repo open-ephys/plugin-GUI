@@ -31,10 +31,17 @@
 
 MainDocumentWindow::MainDocumentWindow()
 	: DocumentWindow(JUCEApplication::getInstance()->getApplicationName(),
-		Colour(Colours::black),
-		DocumentWindow::allButtons)
+		Colour(25, 25, 25),
+		DocumentWindow::allButtons,
+		false)
 {
-
+#ifdef __APPLE__
+	File iconDir = File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/Resources");
+#else
+	File iconDir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
+#endif
+	Image titleBarIcon = ImageCache::getFromFile(iconDir.getChildFile("icon-small.png"));
+	setIcon(titleBarIcon);
 }
 
 MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
@@ -43,10 +50,16 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 
 	if (!isConsoleApp)
 	{
+		customLookAndFeel = std::make_unique<CustomLookAndFeel>();
+		LookAndFeel::setDefaultLookAndFeel(customLookAndFeel.get());
+
 		documentWindow = std::make_unique<MainDocumentWindow>();
 
 		documentWindow->setResizable(true,      // isResizable
 			false);   // useBottomCornerRisizer -- doesn't work very well
+
+		documentWindow->setLookAndFeel(customLookAndFeel.get());
+
 	}
 	else
 	{
@@ -97,7 +110,7 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 	if (!isConsoleApp)
 	{
 		LOGD("Creating UI component...");
-		documentWindow->setContentOwned(new UIComponent(this, processorGraph.get(), audioComponent.get(), controlPanel.get()), true);
+		documentWindow->setContentOwned(new UIComponent(this, processorGraph.get(), audioComponent.get(), controlPanel.get(), customLookAndFeel.get()), true);
 
 		UIComponent* ui = (UIComponent*)documentWindow->getContentComponent();
 
@@ -109,6 +122,7 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 		documentWindow->getMenuBarComponent()->setName("MainMenu");
 #endif
 
+
 		commandManager.registerAllCommandsForTarget(ui);
 		commandManager.registerAllCommandsForTarget(JUCEApplication::getInstance());
 
@@ -118,18 +132,21 @@ MainWindow::MainWindow(const File& fileToLoad, bool isConsoleApp_) :
 
 		LOGD("Loading window bounds.");
 		loadWindowBounds();
+
+		// Use native title bar on Mac and Linux
 		documentWindow->setUsingNativeTitleBar(true);
+
 		documentWindow->addToDesktop(documentWindow->getDesktopWindowStyleFlags());  // prevents the maximize
 		// button from randomly disappearing
 		documentWindow->setVisible(true);
 
 		// Constraining the window's size doesn't seem to work:
-		documentWindow->setResizeLimits(500, 500, 10000, 10000);
+		documentWindow->setResizeLimits(800, 600, 10000, 10000);
+
+		ui->setTheme(currentTheme);
 
 		// Set main window icon to display
-#ifdef __APPLE__
-		File iconDir = File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/Resources");
-#else
+#ifdef JUCE_LINUX
 		File iconDir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
 		Image windowIcon = ImageFileFormat::loadFrom(iconDir.getChildFile("icon-small.png"));
 		if (auto peer = documentWindow->getPeer())
@@ -242,6 +259,9 @@ MainWindow::~MainWindow()
 		UIComponent* ui = (UIComponent*)documentWindow->getContentComponent();
 		ui->disableDataViewport();
 
+		documentWindow->setLookAndFeel(nullptr);
+		documentWindow->removeKeyListener(commandManager.getKeyMappings());
+
 		documentWindow->setMenuBar(0);
 
 #if JUCE_MAC
@@ -269,6 +289,20 @@ void MainWindow::enableHttpServer()
 void MainWindow::disableHttpServer()
 {
 	http_server_thread->stop();
+}
+
+void MainWindow::repaint()
+{
+	if (!isConsoleApp)
+	{
+		documentWindow->repaint();
+
+		if (auto menuBarComp = documentWindow->getMenuBarComponent())
+			menuBarComp->repaint();
+
+		Colour c = documentWindow->getLookAndFeel().findColour(ResizableWindow::backgroundColourId);
+		documentWindow->setBackgroundColour(c);
+	}
 }
 
 void MainDocumentWindow::closeButtonPressed()
@@ -368,6 +402,7 @@ void MainWindow::saveWindowBounds()
 	xml->setAttribute("shouldReloadOnStartup", shouldReloadOnStartup);
 	xml->setAttribute("shouldEnableHttpServer", shouldEnableHttpServer);
 	xml->setAttribute("automaticVersionChecking", automaticVersionChecking);
+	xml->setAttribute("colorTheme", (int)currentTheme);
 
 	XmlElement* bounds = new XmlElement("BOUNDS");
 	bounds->setAttribute("x", documentWindow->getScreenX());
@@ -476,6 +511,8 @@ void MainWindow::loadWindowBounds()
 			}
 
 		}
+
+		currentTheme = (ColorTheme)xml->getIntAttribute("colorTheme", ColorTheme::MEDIUM);
 
 	}
 }

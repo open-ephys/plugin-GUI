@@ -81,7 +81,7 @@ private:
 
     std::unique_ptr<ConcertinaPanel> parameterPanel;
     std::unique_ptr<Component> streamParameterEditorComponent;
-    DataStreamButton* parameterButton;
+    DataStreamButton* parameterButton = nullptr;
     
     OwnedArray<ParameterEditor> parameterEditors;
 
@@ -289,9 +289,7 @@ private:
     Array<DataStreamInfo*> dataStreamInfos;
 
     std::unique_ptr<ProcessorParameterComponent> processorParamComponent;
-    std::unique_ptr<Component> processorParamHeader;
-
-    DropShadower nodeDropShadower { DropShadow(Colours::black.withAlpha(0.85f), 10, {2,10}) };
+    Component* processorParamHeader;
     
     bool isMouseOver;
     int horzShift;
@@ -328,15 +326,21 @@ public:
 
     /** Sets viewport bounds*/
     void resized() override;
+    
+    /** Called when look and feel is updated */
+    void lookAndFeelChanged() override;
 
+private:
     /** Scroll area*/
     std::unique_ptr<Viewport> viewport;
 
     /** Holds the Open Ephys application version*/
     String currentVersionText;
 
-    /** Logo to display*/
+    /** Logos to display*/
     Image bw_logo;
+    Image color_logo;
+    Image* current_logo;
 };
 
 /**
@@ -360,6 +364,9 @@ public:
     
     /** Draws the GraphViewer.*/
     void paint (Graphics& g)    override;
+
+    /** Draws the drop shadows for nodes.*/
+    void paintOverChildren (Graphics& g) override;
 
     /** Resizes the component, based on the bottom-most node*/
     void updateBoundaries();

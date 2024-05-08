@@ -43,8 +43,6 @@ EditableTextCustomComponent::EditableTextCustomComponent
 {
     label = std::make_unique<Label>(param->getKey(), param->getValueAsString());
     label->setEditable(false, !acquisitionIsActive, false);
-    label->setColour(Label::textColourId, Colours::white);
-    label->setColour(Label::textWhenEditingColourId, Colours::yellow);
     label->addListener(this);
     addAndMakeVisible(label.get());
 }
@@ -96,12 +94,11 @@ PopupThresholdComponent::PopupThresholdComponent(SpikeDetectorTableModel* table_
     std_thresholds(std_thresholds_)
 {
     
-    const int sliderWidth = 18;
+    const int sliderWidth = 20;
 
     label = std::make_unique<Label>("Label", "Type:");
     label->setBounds(5,5,55,15);
     label->setEditable(false);
-    label->setColour(Label::textColourId, Colours::grey);
     addAndMakeVisible(label.get());
     
     absButton = std::make_unique<UtilityButton>("uV", Font("Fira Code", "Regular", 10));
@@ -128,7 +125,7 @@ PopupThresholdComponent::PopupThresholdComponent(SpikeDetectorTableModel* table_
     createSliders();
     
     lockButton = std::make_unique<UtilityButton>("LOCK", Font("Fira Code", "Regular", 10));
-    lockButton->setBounds(68+sliderWidth*numChannels,50,42,20);
+    lockButton->setBounds(72+sliderWidth*numChannels,50,42,20);
     lockButton->setClickingTogglesState(true);
     
     if (numChannels > 1)
@@ -148,7 +145,7 @@ PopupThresholdComponent::PopupThresholdComponent(SpikeDetectorTableModel* table_
 void PopupThresholdComponent::createSliders()
 {
     
-    const int sliderWidth = 18;
+    const int sliderWidth = 20;
     
     sliders.clear();
     
@@ -158,16 +155,13 @@ void PopupThresholdComponent::createSliders()
         Slider* slider = new Slider("SLIDER" + String(i+1));
         slider->setSliderStyle(Slider::LinearBarVertical);
         slider->setTextBoxStyle(Slider::NoTextBox, false, sliderWidth, 10);
-        slider->setColour(Slider::textBoxTextColourId, Colours::white);
-        slider->setColour(Slider::backgroundColourId, Colours::darkgrey);
-        slider->setColour(Slider::trackColourId, Colours::blue);
         slider->setChangeNotificationOnlyOnRelease(true);
         
         switch (thresholdType)
         {
             case ABS:
                 slider->setRange(25, 200, 1);
-                slider->setValue(-abs_thresholds[i]->getFloatValue(), dontSendNotification);
+                slider->setValue(std::abs(abs_thresholds[i]->getFloatValue()), dontSendNotification);
                 break;
                 
             case STD:
@@ -181,15 +175,13 @@ void PopupThresholdComponent::createSliders()
                 break;
         }
         slider->addListener(this);
-        slider->setSize(sliderWidth, 100);
+        slider->setSize(sliderWidth - 2, 100);
+        slider->setTopLeftPosition(60 + sliderWidth*i, 10);
         
         if (thresholdType == ABS)
         {
-            slider->setCentrePosition(0, 0);
-            slider->setTransform(AffineTransform::rotation(M_PI)
-                                    .translated(60 + (sliderWidth)*i + sliderWidth/2 - i, 60));
-        } else {
-            slider->setTopLeftPosition(60 + sliderWidth*i - i, 10);
+            slider->setTransform(AffineTransform::rotation(M_PI, 
+                slider->getX() + slider->getWidth()/2, slider->getY() + slider->getHeight()/2));
         }
         
         sliders.add(slider);
@@ -352,7 +344,7 @@ void ThresholdSelectorCustomComponent::paint(Graphics& g)
     
     thresholdString = thresholdString.substring(0, thresholdString.length()-1);
     
-    g.setColour(Colours::white);
+    g.setColour(findColour(ThemeColors::defaultText));
     g.setFont(12);
     g.drawText(thresholdString, 0, 0, getWidth(), getHeight(), Justification::centredLeft);
 }
@@ -380,7 +372,6 @@ ChannelSelectorCustomComponent::ChannelSelectorCustomComponent(int rowNumber, Se
     : ParameterEditor(channels_), channels(channels_), acquisitionIsActive(acquisitionIsActive_)
 {
     label = std::make_unique<Label>(param->getKey());
-    label->setColour(Label::textColourId, Colours::white);
     addAndMakeVisible(label.get());
 
     label->setEditable(false, false, false);
@@ -491,7 +482,7 @@ void DeleteButtonCustomComponent::paint(Graphics& g)
 
     g.fillEllipse(7, 7, width - 14, height - 14);
     g.setColour(Colours::white);
-    g.drawLine(9, height / 2, getWidth() - 9, height / 2, 3.0);
+    g.fillRect(9, (height / 2) - 2, width - 19, 3);
     
     
 }
@@ -702,7 +693,6 @@ Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber,
                                                         acquisitionIsActive);
         }
             
-        textLabel->setColour(Label::textColourId, Colours::white);
         textLabel->setParameter((StringParameter*)spikeChannels[rowNumber]->getParameter("name"));
         textLabel->setRowAndColumn(rowNumber, columnId);
         
@@ -720,7 +710,6 @@ Component* SpikeDetectorTableModel::refreshComponentForCell(int rowNumber,
                 acquisitionIsActive);
         }
 
-        channelsLabel->setColour(Label::textColourId, Colours::white);
         channelsLabel->setParameter((SelectedChannelsParameter*)spikeChannels[rowNumber]->getParameter("local_channels"));
         channelsLabel->setRowAndColumn(rowNumber, columnId);
         
@@ -818,25 +807,28 @@ void SpikeDetectorTableModel::update(Array<SpikeChannel*> spikeChannels_)
 
 void SpikeDetectorTableModel::paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected)
 {
+    if (rowNumber >= spikeChannels.size())
+        return;
+
     if (rowIsSelected)
     {
         if (rowNumber % 2 == 0)
-            g.fillAll(Colour(100, 100, 100));
+            g.fillAll(owner->findColour(ThemeColors::componentBackground));
         else
-            g.fillAll(Colour(80, 80, 80));
+            g.fillAll(owner->findColour(ThemeColors::componentBackground).darker(0.25f));
+
+        g.setColour(owner->findColour(ThemeColors::highlightedFill));
+        g.drawRoundedRectangle(2, 2, width - 4, height - 4, 5, 2);
 
         return;
     }
 
-    if (rowNumber >= spikeChannels.size())
-        return;
-
     if (spikeChannels[rowNumber]->isValid())
     {
         if (rowNumber % 2 == 0)
-            g.fillAll(Colour(50, 50, 50));
+            g.fillAll(owner->findColour(ThemeColors::componentBackground));
         else
-            g.fillAll(Colour(30, 30, 30));
+            g.fillAll(owner->findColour(ThemeColors::componentBackground).darker(0.25f));
         
         return;
     }
@@ -852,7 +844,7 @@ void SpikeDetectorTableModel::paintCell(Graphics& g, int rowNumber, int columnId
 {
     if (columnId == SpikeDetectorTableModel::Columns::INDEX)
     {
-        g.setColour(Colours::white);
+        g.setColour(owner->findColour(ThemeColors::defaultText));
         g.drawText(String(rowNumber + 1), 4, 0, width, height, Justification::centred);
     }
     else if (columnId == SpikeDetectorTableModel::Columns::TYPE)
@@ -900,7 +892,6 @@ SpikeChannelGenerator::SpikeChannelGenerator(SpikeDetectorEditor* editor_,
     spikeChannelCountLabel->addListener(this);
     spikeChannelCountLabel->setJustificationType(Justification::right);
     spikeChannelCountLabel->setBounds(120, 5, 35, 20);
-    spikeChannelCountLabel->setColour(Label::textColourId, Colours::lightgrey);
     addAndMakeVisible(spikeChannelCountLabel.get());
 
     spikeChannelTypeSelector = std::make_unique<ComboBox>("Spike Channel Type");
@@ -1057,9 +1048,9 @@ void SpikeChannelGenerator::channelStateChanged(Array<int> selectedChannels)
 
 void SpikeChannelGenerator::paint(Graphics& g)
 {
-    g.setColour(Colours::darkgrey);
+    g.setColour(findColour(ThemeColors::widgetBackground));
     g.fillRoundedRectangle(0, 0, getWidth(), getHeight(), 4.0f);
-    g.setColour(Colours::lightgrey);
+    g.setColour(findColour(ThemeColors::defaultText));
     g.drawText("ADD ELECTRODES: ", 17, 6, 120, 19, Justification::left, false);
 }
 
@@ -1090,10 +1081,6 @@ PopupConfigurationWindow::PopupConfigurationWindow(SpikeDetectorEditor* editor_,
     electrodeTable->getHeader().addColumn("Thresholds", SpikeDetectorTableModel::Columns::THRESHOLD, 120, 120, 120, TableHeaderComponent::notResizableOrSortable);
     electrodeTable->getHeader().addColumn("Waveform", SpikeDetectorTableModel::Columns::WAVEFORM, 60, 60, 60, TableHeaderComponent::notResizableOrSortable);
     electrodeTable->getHeader().addColumn(" ", SpikeDetectorTableModel::Columns::DELETE, 30, 30, 30, TableHeaderComponent::notResizableOrSortable);
-
-    electrodeTable->getHeader().setColour(TableHeaderComponent::ColourIds::backgroundColourId, Colour(240, 240, 240));
-    electrodeTable->getHeader().setColour(TableHeaderComponent::ColourIds::highlightColourId, Colour(50, 240, 240));
-    electrodeTable->getHeader().setColour(TableHeaderComponent::ColourIds::textColourId, Colour(40, 40, 40));
 
     electrodeTable->setHeaderHeight(30);
     electrodeTable->setRowHeight(30);

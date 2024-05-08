@@ -41,7 +41,7 @@ ShowHideOptionsButton::~ShowHideOptionsButton()
 
 void ShowHideOptionsButton::paintButton(Graphics& g, bool, bool) 
 {   
-    g.setColour(Colours::white);
+    g.setColour(findColour(ThemeColors::defaultText));
 
     Path p;
 

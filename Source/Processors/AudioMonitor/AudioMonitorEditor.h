@@ -56,13 +56,17 @@ public:
     void buttonClicked(Button* label);
 
     /** Ensures button state aligns with underlying parameter*/
-    virtual void updateView() override;
+    void updateView() override;
+
+    void paint(Graphics& g) override;
 
     /** Sets component layout*/
-    virtual void resized();
+    void resized() override;
 
 private:
-    ScopedPointer<ImageButton> muteButton;
+    std::unique_ptr<ImageButton> muteButton;
+
+    Image offimage, onimage;
 };
 
 

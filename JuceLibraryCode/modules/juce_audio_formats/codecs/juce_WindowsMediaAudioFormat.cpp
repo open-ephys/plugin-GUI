@@ -1,24 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE framework.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
+   JUCE is an open source framework subject to commercial or open source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
 
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   Or:
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -29,23 +38,23 @@ namespace juce
 namespace WindowsMediaCodec
 {
 
-class JuceIStream   : public ComBaseClassHelper<IStream>
+class JuceIStream final : public ComBaseClassHelper<IStream>
 {
 public:
     JuceIStream (InputStream& in) noexcept
-        : ComBaseClassHelper (0), source (in)
+        : source (in)
     {
     }
 
-    JUCE_COMRESULT Commit (DWORD)                        { return S_OK; }
-    JUCE_COMRESULT Write (const void*, ULONG, ULONG*)    { return E_NOTIMPL; }
-    JUCE_COMRESULT Clone (IStream**)                     { return E_NOTIMPL; }
-    JUCE_COMRESULT SetSize (ULARGE_INTEGER)              { return E_NOTIMPL; }
-    JUCE_COMRESULT Revert()                              { return E_NOTIMPL; }
-    JUCE_COMRESULT LockRegion (ULARGE_INTEGER, ULARGE_INTEGER, DWORD)    { return E_NOTIMPL; }
-    JUCE_COMRESULT UnlockRegion (ULARGE_INTEGER, ULARGE_INTEGER, DWORD)  { return E_NOTIMPL; }
+    JUCE_COMRESULT Commit (DWORD)                                        override { return S_OK; }
+    JUCE_COMRESULT Write (const void*, ULONG, ULONG*)                    override { return E_NOTIMPL; }
+    JUCE_COMRESULT Clone (IStream**)                                     override { return E_NOTIMPL; }
+    JUCE_COMRESULT SetSize (ULARGE_INTEGER)                              override { return E_NOTIMPL; }
+    JUCE_COMRESULT Revert()                                              override { return E_NOTIMPL; }
+    JUCE_COMRESULT LockRegion (ULARGE_INTEGER, ULARGE_INTEGER, DWORD)    override { return E_NOTIMPL; }
+    JUCE_COMRESULT UnlockRegion (ULARGE_INTEGER, ULARGE_INTEGER, DWORD)  override { return E_NOTIMPL; }
 
-    JUCE_COMRESULT Read (void* dest, ULONG numBytes, ULONG* bytesRead)
+    JUCE_COMRESULT Read (void* dest, ULONG numBytes, ULONG* bytesRead) override
     {
         auto numRead = source.read (dest, (size_t) numBytes);
 
@@ -55,7 +64,7 @@ public:
         return (numRead == (int) numBytes) ? S_OK : S_FALSE;
     }
 
-    JUCE_COMRESULT Seek (LARGE_INTEGER position, DWORD origin, ULARGE_INTEGER* resultPosition)
+    JUCE_COMRESULT Seek (LARGE_INTEGER position, DWORD origin, ULARGE_INTEGER* resultPosition) override
     {
         auto newPos = (int64) position.QuadPart;
 
@@ -80,7 +89,7 @@ public:
     }
 
     JUCE_COMRESULT CopyTo (IStream* destStream, ULARGE_INTEGER numBytesToDo,
-                           ULARGE_INTEGER* bytesRead, ULARGE_INTEGER* bytesWritten)
+                           ULARGE_INTEGER* bytesRead, ULARGE_INTEGER* bytesWritten) override
     {
         uint64 totalCopied = 0;
         auto numBytes = (int64) numBytesToDo.QuadPart;
@@ -105,7 +114,7 @@ public:
         return S_OK;
     }
 
-    JUCE_COMRESULT Stat (STATSTG* stat, DWORD)
+    JUCE_COMRESULT Stat (STATSTG* stat, DWORD) override
     {
         if (stat == nullptr)
             return STG_E_INVALIDPOINTER;
@@ -127,7 +136,7 @@ static const char* wmFormatName = "Windows Media";
 static const char* const extensions[] = { ".mp3", ".wmv", ".asf", ".wm", ".wma", nullptr };
 
 //==============================================================================
-class WMAudioReader   : public AudioFormatReader
+class WMAudioReader final : public AudioFormatReader
 {
 public:
     WMAudioReader (InputStream* const input_)
@@ -144,7 +153,7 @@ public:
             HRESULT hr = wmCreateSyncReader (nullptr, WMT_RIGHT_PLAYBACK, wmSyncReader.resetAndGetPointerAddress());
 
             if (SUCCEEDED (hr))
-                hr = wmSyncReader->OpenStream (new JuceIStream (*input));
+                hr = wmSyncReader->OpenStream (becomeComSmartPtrOwner (new JuceIStream (*input)));
 
             if (SUCCEEDED (hr))
             {
@@ -319,7 +328,7 @@ WindowsMediaAudioFormat::WindowsMediaAudioFormat()
 {
 }
 
-WindowsMediaAudioFormat::~WindowsMediaAudioFormat() {}
+WindowsMediaAudioFormat::~WindowsMediaAudioFormat() = default;
 
 Array<int> WindowsMediaAudioFormat::getPossibleSampleRates()    { return {}; }
 Array<int> WindowsMediaAudioFormat::getPossibleBitDepths()      { return {}; }

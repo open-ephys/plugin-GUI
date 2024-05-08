@@ -42,14 +42,14 @@ void CloseTabButton::paintButton(Graphics& g, bool isMouseOverButton, bool isBut
     int xoffset = (getWidth() - 14) /2 ;
     int yoffset = (getHeight() - 14) /2 ;
     
-    g.setColour(Colours::white.withAlpha(0.25f));
+    g.setColour(findColour(ThemeColors::defaultText).withAlpha(0.25f));
     
     if (isMouseOverButton)
     {
         g.fillRoundedRectangle(xoffset, yoffset, 14, 14, 4.0f);
     }
     
-    g.setColour(Colours::white);
+    g.setColour(findColour(ThemeColors::defaultText));
     
     Path path;
     path.addLineSegment(Line<float>(2, 2, 8, 8), 0.0f);
@@ -153,6 +153,7 @@ void CustomTabButton::paintButton(Graphics& g,
                                   bool isMouseDown)
 {
     
+    getTabbedButtonBar().setTabBackgroundColour(getIndex(), findColour(ThemeColors::componentBackground));
     
     getLookAndFeel().drawTabButton(*this, g, isMouseOver, isMouseDown);
     
@@ -177,7 +178,7 @@ DraggableTabComponent::DraggableTabComponent(DataViewport* parent_) :
 {
     setTabBarDepth(28);
     setOutline(0);
-    setIndent(8); // gap to leave around the edge
+    setIndent(5); // gap to leave around the edge
                   // of the content component
 
 }
@@ -334,26 +335,29 @@ void DraggableTabComponent::paint(Graphics& g)
     
     if (isDraggingOver)
     {
-        g.setColour(Colour(100,100,100));
+        g.setColour(findColour(ThemeColors::highlightedFill).withAlpha(0.5f));
         
-        g.fillAll();
+        g.fillRect(getTabbedButtonBar().getBounds());
     }
 
     if (o == TabbedButtonBar::TabsAtTop)
-        y += 32;
+        y += 28;
     else if (o == TabbedButtonBar::TabsAtBottom)
-        b -= 32;
+        b -= 28;
     else if (o == TabbedButtonBar::TabsAtLeft)
-        x += 32;
+        x += 28;
     else if (o == TabbedButtonBar::TabsAtRight)
-        r -= 32;
+        r -= 28;
 
-    g.setColour(Colour(58,58,58));
-    g.fillRoundedRectangle(x,y,r-x,b-y,5.0f);
-    g.fillRect(x,y,r-20,b-y);
-    g.fillRect(x,20,r-x,b-20);
+    Rectangle<float> bounds(x, y, r-x, b-y);
+
+    g.setColour(findColour(ThemeColors::componentBackground));
+    g.fillRoundedRectangle(bounds.reduced(1.0f), 5.0f);
+
+    g.setColour(findColour(
+        isDraggingOver ? ThemeColors::highlightedFill : ThemeColors::outline).withAlpha(0.5f));
+    g.drawRoundedRectangle(bounds.reduced(1.0f), 5.0f, 2.0f);
     
-
 }
 
 
@@ -376,10 +380,11 @@ AddTabbedComponentButton::AddTabbedComponentButton()
 : Button("Add Tabbed Component")
 {
     
-    path.addRoundedRectangle(3, 3, 14, 14, 3.0f);
-    path.addLineSegment(Line<float>(7, 3, 7, 17), 0.0f);
-    path.addLineSegment(Line<float>(12, 8, 12, 12), 0.0f);
-    path.addLineSegment(Line<float>(10, 10, 14, 10), 0.0f);
+    path.addRoundedRectangle(1, 1, 18, 18, 3.0f);
+    path.addLineSegment(Line<float>(9, 1, 9, 18), 0.0f);
+    path.addTriangle(12, 7, 12, 13, 17, 10);
+    // path.addLineSegment(Line<float>(12, 8, 12, 12), 0.0f);
+    // path.addLineSegment(Line<float>(10, 10, 14, 10), 0.0f);
     
 }
 
@@ -389,13 +394,13 @@ void AddTabbedComponentButton::paintButton(Graphics& g, bool isMouseOverButton, 
 
     if (isMouseOverButton)
     {
-        g.setColour(Colours::white.withAlpha(0.25f));
+        g.setColour(findColour(ThemeColors::defaultFill).withAlpha(0.25f));
         g.fillRoundedRectangle(0, 0, 20, 20, 5.0f);
         
         
     }
     
-    g.setColour(Colour(150,150,150));
+    g.setColour(findColour(ThemeColors::defaultText).withAlpha(0.7f));
     g.strokePath(path, PathStrokeType(1.0f));
     
 }
@@ -425,7 +430,7 @@ void DataViewport::resized()
         draggableTabComponents[i]->setBounds(width * i, 0, width, getHeight());
     }
     
-    addTabbedComponentButton->setBounds(getWidth() - 26, getHeight() - 26, 20, 20);
+    addTabbedComponentButton->setBounds(getWidth() - 24, getHeight() - 26, 20, 20);
     addTabbedComponentButton->toFront(false);
     
     if (draggableTabComponents[activeTabbedComponent]->getNumTabs() > 1 && activeTabbedComponent < 2)

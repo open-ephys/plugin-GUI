@@ -29,15 +29,15 @@ static const Colour COLOUR_ACCENT  (Colour::fromRGB (3, 169, 244));
 MonitorMuteButton::MonitorMuteButton(Parameter* param) : ParameterEditor(param)
 {
 
-    muteButton = new ImageButton("Mute Button");
+    muteButton = std::make_unique<ImageButton>("Mute Button");
 
-    Image offimage = ImageCache::getFromMemory  (BinaryData::muteoff_png, BinaryData::muteoff_pngSize);
-    Image onimage  = ImageCache::getFromMemory  (BinaryData::muteon_png,  BinaryData::muteon_pngSize);
+    offimage = ImageCache::getFromMemory  (BinaryData::muteoff_png, BinaryData::muteoff_pngSize);
+    onimage  = ImageCache::getFromMemory  (BinaryData::muteon_png,  BinaryData::muteon_pngSize);
 
     muteButton->setImages (false, true, true,
-               offimage, 1.0f, Colours::black,
-               offimage, 1.0f, Colours::black.withAlpha (0.0f),
-               onimage,  1.0f, Colours::darkgrey);
+               offimage, 1.0f, findColour(ThemeColors::defaultText),
+               offimage, 0.5f, findColour(ThemeColors::defaultText).withAlpha(0.5f),
+               onimage,  0.7f, findColour(ThemeColors::defaultText).withAlpha(0.7f));
 
     muteButton->setClickingTogglesState (true);
 
@@ -46,7 +46,7 @@ MonitorMuteButton::MonitorMuteButton(Parameter* param) : ParameterEditor(param)
     muteButton->addListener(this);
     muteButton->setToggleState(false, dontSendNotification);
 
-    addAndMakeVisible(muteButton);
+    addAndMakeVisible(muteButton.get());
 
     setBounds(0, 0, 20, 20);
 }
@@ -62,6 +62,14 @@ void MonitorMuteButton::updateView()
         muteButton->setToggleState(param->getValue(), dontSendNotification);
 }
 
+void MonitorMuteButton::paint(Graphics& g)
+{
+     muteButton->setImages (false, true, true,
+               offimage, 1.0f, findColour(ThemeColors::defaultText),
+               offimage, 0.5f, findColour(ThemeColors::defaultText).withAlpha(0.5f),
+               onimage,  0.7f, findColour(ThemeColors::defaultText).withAlpha(0.7f));
+}
+
 void MonitorMuteButton::resized()
 {
 
@@ -75,26 +83,17 @@ AudioOutputSelector::AudioOutputSelector(Parameter* param) : ParameterEditor(par
     leftButton = new TextButton("Left", "Output to left channel only");
     leftButton->setClickingTogglesState(true);
     leftButton->setToggleState(false, dontSendNotification);
-    leftButton->setColour(TextButton::buttonColourId, Colour(0x0));
-    leftButton->setColour(TextButton::buttonOnColourId, Colour(0x0));
-    leftButton->setColour(TextButton::textColourOffId, COLOUR_PRIMARY);
-    leftButton->setColour(TextButton::textColourOnId, COLOUR_ACCENT);
+
     
     rightButton = new TextButton("Right", "Output to right channel only");
     rightButton->setClickingTogglesState(true);
     rightButton->setToggleState(false, dontSendNotification);
-    rightButton->setColour(TextButton::buttonColourId, Colour(0x0));
-    rightButton->setColour(TextButton::buttonOnColourId, Colour(0x0));
-    rightButton->setColour(TextButton::textColourOffId, COLOUR_PRIMARY);
-    rightButton->setColour(TextButton::textColourOnId, COLOUR_ACCENT);
+
     
     bothButton = new TextButton("Both", "Output to both channels");
     bothButton->setClickingTogglesState(true);
     bothButton->setToggleState(false, dontSendNotification);
-    bothButton->setColour(TextButton::buttonColourId, Colour(0x0));
-    bothButton->setColour(TextButton::buttonOnColourId, Colour(0x0));
-    bothButton->setColour(TextButton::textColourOffId, COLOUR_PRIMARY);
-    bothButton->setColour(TextButton::textColourOnId, COLOUR_ACCENT);
+
 
     outputChannelButtonManager = std::make_unique<LinearButtonGroupManager>();
     outputChannelButtonManager->addButton(leftButton);
@@ -103,9 +102,6 @@ AudioOutputSelector::AudioOutputSelector(Parameter* param) : ParameterEditor(par
     outputChannelButtonManager->setRadioButtonMode(true);
     outputChannelButtonManager->setButtonListener(this);
     outputChannelButtonManager->setButtonsLookAndFeel(m_materialButtonLookAndFeel.get());
-    outputChannelButtonManager->setColour(ButtonGroupManager::backgroundColourId, Colours::white);
-    outputChannelButtonManager->setColour(ButtonGroupManager::outlineColourId, Colour(0x0));
-    outputChannelButtonManager->setColour(LinearButtonGroupManager::accentColourId, COLOUR_ACCENT);
     outputChannelButtonManager->setSelectedButtonIndex(1);
     bothButton->setToggleState(true, dontSendNotification);
     addAndMakeVisible(outputChannelButtonManager.get());

@@ -73,8 +73,6 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
         addAndMakeVisible(streamSelector.get());
     }
 
-    getBackgroundGradient();
-
     backgroundColor = Colour(10, 10, 10);
 }
 
@@ -295,6 +293,7 @@ void GenericEditor::addCustomParameterEditor(ParameterEditor* ed, int xPos_, int
     parameterEditors.add(ed);
     addAndMakeVisible(ed);
     ed->setBounds(xPos_, yPos_, ed->getWidth(), ed->getHeight());
+    ed->toBack();
 }
 
 
@@ -315,10 +314,6 @@ void GenericEditor::refreshColors()
     else
         backgroundColor = getLookAndFeel().findColour(ProcessorColor::IDs::FILTER_COLOR);
     
-    // LOGD("background color is ", backgroundColor.toString());
-    
-    getBackgroundGradient();
-
     // loop though all parameter editors and update their parameter's color
     for (auto ed : parameterEditors)
     {
@@ -377,7 +372,7 @@ void GenericEditor::resized()
             {
                 streamSelector->setBounds(desiredWidth, 29, 
                                           streamSelector->getDesiredWidth(), 
-                                          getHeight() - 35);
+                                          95);
                 streamSelector->setVisible(true);
             }
             else {
@@ -509,34 +504,29 @@ void GenericEditor::editorStopAcquisition()
 
 void GenericEditor::paint(Graphics& g)
 {
-
+   
     if (isEnabled)
         g.setColour (backgroundColor);
     else
-        g.setColour (Colours::lightgrey);
+        g.setColour (findColour(ThemeColors::widgetBackground));
 
     if (! isCollapsed)
     {
-        // Paint titlebar
-        Path topRoundedEdge;
-        topRoundedEdge.addRoundedRectangle (1, 1,
-                                              getWidth() - 2, 23, 
+        // Paint titlebar and bottom edge
+        Path topBottomRoundedEdge;
+        topBottomRoundedEdge.addRoundedRectangle (1, 1,
+                                              getWidth() - 2, getHeight() - 2, 
                                               5.0f, 5.0f, 
                                               true, true, 
-                                              false, false);
-
-        g.fillPath (topRoundedEdge);
-        
-        // Paint body
-        g.setGradientFill (backgroundGradient);
-        Path bottomRoundedEdge;
-        bottomRoundedEdge.addRoundedRectangle (1, 23,
-                                              getWidth() - 2, getHeight() - 24, 
-                                              5.0f, 5.0f, 
-                                              false, false, 
                                               true, true);
 
-        g.fillPath (bottomRoundedEdge);
+        g.fillPath (topBottomRoundedEdge);
+        
+        // Paint body
+        g.setGradientFill (getBackgroundGradient());
+        Path mainBody;
+        mainBody.addRectangle (1, 23, getWidth() - 2, getHeight() - 30);
+        g.fillPath (mainBody);
     }
     else
     {
@@ -546,8 +536,7 @@ void GenericEditor::paint(Graphics& g)
     // draw title
     if (!isCollapsed)
     {
-        //TODO: This color should be set by the current theme
-        g.setColour(isEnabled ? Colours::white : Colours::black);
+        g.setColour(isEnabled ? Colours::white : findColour(ThemeColors::defaultText).withAlpha(0.5f));
         g.setFont( Font("Mono", "Plain", 12) );
         g.drawText (String(nodeId), 10, 6, 30, 15, Justification::left, false);
         g.setFont (Font("CP Mono", "Plain", 16));
@@ -556,7 +545,7 @@ void GenericEditor::paint(Graphics& g)
     else
     {
         g.addTransform(AffineTransform::rotation(-M_PI/2.0));
-        g.setColour(isEnabled ? Colours::white : Colours::black);
+        g.setColour(isEnabled ? Colours::white : findColour(ThemeColors::defaultText).withAlpha(0.5f));
         g.setFont (Font("CP Mono", "Plain", 14));
         g.drawText (displayName.toUpperCase(), - getHeight() + 6, 5, 500, 15, Justification::left, false);
         g.addTransform(AffineTransform::rotation(M_PI/2.0));
@@ -822,9 +811,9 @@ DrawerButton::~DrawerButton()
 void DrawerButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (isMouseOver)
-        g.setColour(Colour(210,210,210));
+        g.setColour(findColour(ThemeColors::defaultFill).withAlpha(0.5f));
     else
-        g.setColour(Colour(110, 110, 110));
+        g.setColour(findColour(ThemeColors::defaultFill));
 
     g.drawVerticalLine(3, 0.0f, getHeight());
     g.drawVerticalLine(5, 0.0f, getHeight());
@@ -872,41 +861,6 @@ void UtilityButton::setEnabledState(bool state)
 
     isEnabled = state;
 
-    if (state)
-    {
-        selectedGrad = ColourGradient(Colour(240,179,12),0.0,0.0,
-                                      Colour(207,160,33),0.0, 20.0f,
-                                      false);
-        selectedOverGrad = ColourGradient(Colour(209,162,33),0.0, 5.0f,
-                                          Colour(190,150,25),0.0, 0.0f,
-                                          false);
-        neutralGrad = ColourGradient(Colour(220,220,220),0.0,0.0,
-                                     Colour(170,170,170),0.0, 20.0f,
-                                     false);
-        neutralOverGrad = ColourGradient(Colour(180,180,180),0.0,5.0f,
-                                         Colour(150,150,150),0.0, 0.0,
-                                         false);
-        fontColor = Colours::darkgrey;
-
-    }
-    else
-    {
-
-        selectedGrad = ColourGradient(Colour(240,240,240),0.0,0.0,
-                                      Colour(200,200,200),0.0, 20.0f,
-                                      false);
-        selectedOverGrad = ColourGradient(Colour(240,240,240),0.0,0.0,
-                                          Colour(200,200,200),0.0, 20.0f,
-                                          false);
-        neutralGrad = ColourGradient(Colour(240,240,240),0.0,0.0,
-                                     Colour(200,200,200),0.0, 20.0f,
-                                     false);
-        neutralOverGrad = ColourGradient(Colour(240,240,240),0.0,0.0,
-                                         Colour(200,200,200),0.0, 20.0f,
-                                         false);
-        fontColor = Colours::white;
-    }
-
     repaint();
 }
 
@@ -918,72 +872,35 @@ void UtilityButton::setRadius(float r)
 void UtilityButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
 
-    g.setColour(Colours::grey);
-    g.fillPath(outlinePath);
-
     if (getToggleState())
     {
-        if (isMouseOver)
-            g.setGradientFill(selectedOverGrad);
-        else
-            g.setGradientFill(selectedGrad);
+        g.setColour(findColour(ThemeColors::highlightedFill));
     }
     else
     {
-        if (isMouseOver)
-            g.setGradientFill(neutralOverGrad);
-        else
-            g.setGradientFill(neutralGrad);
+        g.setColour(findColour(ThemeColors::widgetBackground));
     }
 
-    AffineTransform a = AffineTransform::scale(0.98f, 0.94f, float(getWidth())/2.0f,
-                                               float(getHeight())/2.0f);
-    g.fillPath(outlinePath, a);
+    g.fillPath(outlinePath);
+
+    if (isMouseOver || !isEnabled)
+        g.setColour(findColour(ThemeColors::outline).withAlpha(0.4f));
+    else
+        g.setColour(findColour(ThemeColors::outline));
+
+    g.strokePath(outlinePath, PathStrokeType(1.0f));
 
 
     //int stringWidth = font.getStringWidth(getName());
 
     g.setFont(font);
 
-    g.setColour(fontColor);
-    g.drawFittedText(label,0,0,getWidth(),getHeight(),Justification::centred,2, 1.0f);
+    if (isEnabled || !isButtonDown)
+        g.setColour(findColour(ThemeColors::defaultText));
+    else
+        g.setColour(findColour(ThemeColors::defaultText).withAlpha(0.4f));
 
-    //g.drawSingleLineText(getName(), getWidth()/2 - stringWidth/2, 12);
-
-    // if (getToggleState() == true)
-    //       g.setColour(Colours::orange);
-    //   else
-    //       g.setColour(Colours::darkgrey);
-
-    //   if (isMouseOver)
-    //       g.setColour(Colours::white);
-
-    //   g.fillRect(0,0,getWidth(),getHeight());
-
-    //   font.setHeight(10);
-    //   g.setFont(font);
-    //   g.setColour(Colours::black);
-
-    //   g.drawRect(0,0,getWidth(),getHeight(),1.0);
-
-    //g.drawText(getName(),0,0,getWidth(),getHeight(),Justification::centred,true);
-    // if (isButtonDown)
-    // {
-    //     g.setColour(Colours::white);
-    // }
-
-    // int thickness = 1;
-    // int offset = 3;
-
-    // g.fillRect(getWidth()/2-thickness,
-    //            offset,
-    //            thickness*2,
-    //            getHeight()-offset*2);
-
-    // g.fillRect(offset,
-    //            getHeight()/2-thickness,
-    //            getWidth()-offset*2,
-    //            thickness*2);
+    g.drawFittedText(label,0,0,getWidth(),getHeight(),Justification::centred,2,1.0f);
 }
 
 void UtilityButton::resized()
@@ -991,52 +908,8 @@ void UtilityButton::resized()
 
     outlinePath.clear();
 
-    if (roundUL)
-    {
-        outlinePath.startNewSubPath(radius, 0);
-    }
-    else
-    {
-        outlinePath.startNewSubPath(0, 0);
-    }
-
-    if (roundUR)
-    {
-        outlinePath.lineTo(getWidth()-radius, 0);
-        outlinePath.addArc(getWidth()-radius*2, 0, radius*2, radius*2, 0, 0.5*double_Pi);
-    }
-    else
-    {
-        outlinePath.lineTo(getWidth(), 0);
-    }
-
-    if (roundLR)
-    {
-        outlinePath.lineTo(getWidth(), getHeight()-radius);
-        outlinePath.addArc(getWidth()-radius*2, getHeight()-radius*2, radius*2, radius*2, 0.5*double_Pi, double_Pi);
-    }
-    else
-    {
-        outlinePath.lineTo(getWidth(), getHeight());
-    }
-
-    if (roundLL)
-    {
-        outlinePath.lineTo(radius, getHeight());
-        outlinePath.addArc(0, getHeight()-radius*2, radius*2, radius*2, double_Pi, 1.5*double_Pi);
-    }
-    else
-    {
-        outlinePath.lineTo(0, getHeight());
-    }
-
-    if (roundUL)
-    {
-        outlinePath.lineTo(0, radius);
-        outlinePath.addArc(0, 0, radius*2, radius*2, 1.5*double_Pi, 2.0*double_Pi);
-    }
-
-    outlinePath.closeSubPath();
+    outlinePath.addRoundedRectangle(1.0f, 1.0f, (float)getWidth() - 2.0f, (float)getHeight() - 2.0f, 
+                                    radius, radius, roundUL, roundUR, roundLL, roundLR);
 
 }
 
@@ -1217,10 +1090,9 @@ void GenericEditor::setBackgroundColor(Colour c)
 
 ColourGradient GenericEditor::getBackgroundGradient()
 {
-    backgroundGradient = ColourGradient(findColour(ThemeColors::editorGradientColorId1), 0.0f, 0.0f,
-                                        findColour(ThemeColors::editorGradientColorId2), 0.0f, 120.0f, false);
-    backgroundGradient.addColour(0.2f, findColour(ThemeColors::editorGradientColorId3));
-    
+    backgroundGradient = ColourGradient::vertical(findColour(ThemeColors::componentBackground).darker(0.1f), 0.0f, 
+                                                  findColour(ThemeColors::componentBackground).brighter(0.1f), 120.0f);
+
     return backgroundGradient;
 }
 
@@ -1558,10 +1430,10 @@ LevelMonitor::~LevelMonitor() {}
 
 void LevelMonitor::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-	g.setColour(Colours::grey);
-	g.fillRoundedRectangle(0, 0, this->getWidth(), this->getHeight(), 4);
-	g.setColour(Colours::lightslategrey);
-	g.fillRoundedRectangle(2, 2, this->getWidth() - 4, this->getHeight() - 4, 2);
+	g.setColour(findColour(ThemeColors::outline));
+	g.drawRoundedRectangle(1, 1, this->getWidth() - 2, this->getHeight() - 2, 3, 1);
+	g.setColour(findColour(ThemeColors::widgetBackground));
+	g.fillRoundedRectangle(1, 1, this->getWidth() - 2, this->getHeight() - 2, 3);
 
 	if (fillPercentage < 0.7)
 		g.setColour(Colours::yellow);

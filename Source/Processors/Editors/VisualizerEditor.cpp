@@ -184,23 +184,32 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
         {
             editor->makeNewWindow();
 
-            editor->dataWindow->setContentNonOwned (editor->canvas.get(), false);
+            editor->dataWindow->setContentNonOwned (editor->canvas.get(), true);
             editor->dataWindow->setVisible (true);
             editor->dataWindow->addListener (editor);
+
+            // Set the rendering engine for the window
+            auto editorPeer = editor->getPeer();
+            if (auto peer = editor->canvas->getPeer())
+            {
+                auto editorPeer = editor->getPeer();
+                if (editorPeer)
+                    peer->setCurrentRenderingEngine(editorPeer->getCurrentRenderingEngine());
+            }
         }
         else
         {
-            editor->dataWindow->setVisible (editor->windowSelector->getToggleState());
-
             if (editor->windowSelector->getToggleState())
             {
-                editor->dataWindow->setContentNonOwned (editor->canvas.get(), false);
-                editor->canvas->setBounds (0, 0, editor->canvas->getParentWidth(), editor->canvas->getParentHeight());
+                editor->dataWindow->setContentNonOwned (editor->canvas.get(), true);
+                // editor->canvas->setBounds (0, 0, editor->canvas->getParentWidth(), editor->canvas->getParentHeight());
             }
             else
             {
                 editor->dataWindow->setContentNonOwned (0, false);
             }
+
+            editor->dataWindow->setVisible (editor->windowSelector->getToggleState());
         }
     }
     else if (button == editor->tabSelector.get())
@@ -348,6 +357,9 @@ void VisualizerEditor::loadCustomParametersFromXml (XmlElement* xml)
 void VisualizerEditor::makeNewWindow()
 {
     dataWindow = std::make_unique<DataWindow> (windowSelector.get(), tabText);
+    dataWindow->setLookAndFeel(&getLookAndFeel());
+    dataWindow->setBackgroundColour (findColour (ThemeColors::windowBackground));
+
 }
 
 

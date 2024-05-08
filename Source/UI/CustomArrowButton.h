@@ -27,31 +27,33 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 /**
- Customized version of the ArrowButton with an added OpenEphys LookAndFeel.
+ Arrow button used to open/close components
 
  @see ArrowButton
  */
-class CustomArrowButton  : public Button
+class CustomArrowButton : public ToggleButton
 {
 public:
-    /** Creates an CustomArrowButton.
+    
+    /** Constructor*/
+    CustomArrowButton(float rotation = 0.0f, float width = 22.0f);
+    
+    /** Destructor*/
+    ~CustomArrowButton() { }
 
-     @param name        the name to give the button
-     @param direction   the direction the arrow should points to (0.0 = right, 0.25 = down, 0.5 = left and 0.75 = up)
-     */
-    CustomArrowButton(const String& name, float direction);
-
-    /** Destructor. */
-    ~CustomArrowButton();
-
-    /** @internal */
-    void paintButton(Graphics&, bool isMouseOverButton, bool isButtonDown);
+    /** Draws the button. */
+    void paint(Graphics& g) override;
+    
+    /** Sets the background colour (colour of center of arrow)  */
+    void setCustomBackground(bool useCustomBackground, Colour colour);
 
 private:
-    Path path;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CustomArrowButton)
+    Path openPath, closedPath;
+    Colour backgroundColour;
+    float width;
+    bool customBackground = false;
+
 };
-
 
 #endif   // __CUSTOMARROWBUTTON__

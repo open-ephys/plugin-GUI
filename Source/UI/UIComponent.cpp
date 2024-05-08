@@ -40,20 +40,20 @@
 UIComponent::UIComponent(MainWindow* mainWindow_,
                          ProcessorGraph* processorGraph_,
                          AudioComponent* audioComponent_,
-                         ControlPanel* controlPanel_)
+                         ControlPanel* controlPanel_,
+						 CustomLookAndFeel* customLookAndFeel_)
 : mainWindow(mainWindow_),
   processorGraph(processorGraph_),
   audio(audioComponent_),
-  controlPanel(controlPanel_)
+  controlPanel(controlPanel_),
+  customLookAndFeel(customLookAndFeel_)
 {
-    
-    setLookAndFeel(&customLookAndFeel);
-    
+        
 	messageCenterEditor = (MessageCenterEditor*) processorGraph->getMessageCenter()->createEditor();
 	LOGD("Created message center editor.");
 
-	infoLabel = new InfoLabel();
-	LOGD("Created info label.");
+	// infoLabel = new InfoLabel();
+	// LOGD("Created info label.");
 
 	graphViewer = new GraphViewer();
 	LOGD("Created graph viewer.");
@@ -69,8 +69,10 @@ UIComponent::UIComponent(MainWindow* mainWindow_,
 
 	LOGD("Created editor viewport.");
 
-	editorViewportButton = new EditorViewportButton(this);
-	addAndMakeVisible(editorViewportButton);
+	showHideEditorViewportButton = new ShowHideEditorViewportButton();
+    showHideEditorViewportButton->addListener(this);
+    showHideEditorViewportButton->setToggleState(true, dontSendNotification);
+	addAndMakeVisible(showHideEditorViewportButton);
 
 	addAndMakeVisible(controlPanel);
     
@@ -108,7 +110,7 @@ UIComponent::~UIComponent()
 		delete pluginInstaller;
 	}
     
-    setLookAndFeel(nullptr);
+    // setLookAndFeel(nullptr);
 }
 
 /** Returns a pointer to the EditorViewport. */
@@ -184,6 +186,9 @@ void UIComponent::buttonClicked(Button* button)
         messageCenterIsCollapsed = !messageCenterIsCollapsed;
         
         resized();
+    } else if (button == showHideEditorViewportButton.get())
+    {
+        resized();
     }
 }
 
@@ -193,25 +198,25 @@ void UIComponent::resized()
 	int w = getWidth();
 	int h = getHeight();
 
-	if (editorViewportButton != nullptr)
+	if (showHideEditorViewportButton != nullptr)
 	{
-		editorViewportButton->setBounds(w-230, h-40, 225, 35);
+        showHideEditorViewportButton->setBounds(w-230, h-40, 225, 35);
 
-		if (h < 300 && editorViewportButton->isOpen())
-			editorViewportButton->toggleState();
+		//if (h < 300 && showHideEditorViewportButton->getToggleState())
+        //    showHideEditorViewportButton->toggleState();
 
-		if (h < 200)
-			editorViewportButton->setBounds(w-230,h-40+200-h,225,35);
+		//if (h < 200)
+        //    showHideEditorViewportButton->setBounds(w-230,h-40+200-h,225,35);
 	}
 
 	if (signalChainTabComponent != nullptr)
 	{
-		if (editorViewportButton->isOpen() && !signalChainTabComponent->isVisible())
+		if (showHideEditorViewportButton->getToggleState() && !signalChainTabComponent->isVisible())
         {
             signalChainTabComponent->setVisible(true);
         }
 			
-		else if (!editorViewportButton->isOpen() && signalChainTabComponent->isVisible())
+		else if (!showHideEditorViewportButton->getToggleState() && signalChainTabComponent->isVisible())
         {
             signalChainTabComponent->setVisible(false);
         }
@@ -279,7 +284,7 @@ void UIComponent::resized()
 			
 			if (processorList->isOpen())
 			{
-				if (editorViewportButton->isOpen())
+				if (showHideEditorViewportButton->getToggleState())
 					processorListViewport.setBounds(5, 5, 195, h - 210);
 				else
 					processorListViewport.setBounds(5, 5, 195, h - 50);
@@ -313,7 +318,7 @@ void UIComponent::resized()
 
 		top = controlPanel->getHeight()+8;
 
-		if (editorViewportButton->isOpen())
+		if (showHideEditorViewportButton->getToggleState())
 			height = h - top - 205;
 		else
 			height = h - top - 45;
@@ -338,7 +343,7 @@ void UIComponent::resized()
             
         } else {
             messageCenterEditor->expand();
-            messageCenterEditor->setBounds(6,h-getHeight()+5,getWidth(),getHeight());
+            messageCenterEditor->setBounds(6, 6, w-241, getHeight()-11);
         }
 	}
     
@@ -358,7 +363,7 @@ void UIComponent::resized()
 		processorList->setVisible(false);
 		messageCenterEditor->setVisible(false);
 		controlPanel->setVisible(false);
-		editorViewportButton->setVisible(false);
+		showHideEditorViewportButton->setVisible(false);
 	}
 
 }
@@ -381,29 +386,32 @@ void UIComponent::childComponentChanged()
 
 void UIComponent::setTheme(ColorTheme t)
 {
-    customLookAndFeel.setTheme(t);
-    
-    theme = t;
-    
-    repaint();
+    customLookAndFeel->setTheme(t);
+        
+    mainWindow->currentTheme = t;
+	mainWindow->repaint();
     
     controlPanel->updateColors();
+
+	messageCenterButton.updateColors();
     
     getProcessorGraph()->refreshColors();
+
+	processorList->repaint();
 }
 
 ColorTheme UIComponent::getTheme()
 {
-    return theme;
+    return mainWindow->currentTheme;
 }
 
 void UIComponent::addInfoTab()
 {
-	if (!infoTabIsOpen)
-	{
-		dataViewport->addTab("Info", infoLabel, 0);
-		infoTabIsOpen = true;
-	}
+	// if (!infoTabIsOpen)
+	// {
+	// 	dataViewport->addTab("Info", infoLabel, 0);
+	// 	infoTabIsOpen = true;
+	// }
 }
 
 void UIComponent::addGraphTab()
@@ -476,8 +484,9 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
 		clockMenu.addCommandItem(commandManager, setClockModeHHMMSS);
         
         PopupMenu themeMenu;
-        themeMenu.addCommandItem(commandManager, setColorTheme1);
-        themeMenu.addCommandItem(commandManager, setColorTheme2);
+        themeMenu.addCommandItem(commandManager, setColorThemeLight);
+        themeMenu.addCommandItem(commandManager, setColorThemeMedium);
+        themeMenu.addCommandItem(commandManager, setColorThemeDark);
 
 		menu.addCommandItem(commandManager, toggleProcessorList);
 		menu.addCommandItem(commandManager, toggleSignalChain);
@@ -489,6 +498,14 @@ PopupMenu UIComponent::getMenuForIndex(int menuIndex, const String& menuName)
         menu.addSeparator();
         menu.addSubMenu("Theme", themeMenu);
 		menu.addSeparator();
+
+#if JUCE_WINDOWS
+		PopupMenu rendererMenu;
+		rendererMenu.addCommandItem(commandManager, setSoftwareRenderer);
+		rendererMenu.addCommandItem(commandManager, setDirect2DRenderer);
+		menu.addSubMenu("Renderer", rendererMenu);
+		menu.addSeparator();
+#endif
 		menu.addCommandItem(commandManager, resizeWindow);
 
 	}
@@ -545,8 +562,11 @@ void UIComponent::getAllCommands(Array <CommandID>& commands)
 		resizeWindow,
 		openPluginInstaller,
 		openDefaultConfigWindow,
-        setColorTheme1,
-        setColorTheme2
+        setColorThemeLight,
+        setColorThemeMedium,
+		setColorThemeDark,
+		setSoftwareRenderer,
+        setDirect2DRenderer
 	};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -557,6 +577,13 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 {
 
 	bool acquisitionStarted = getAudioComponent()->callbacksAreActive();
+
+	int renderer = 0;
+
+	if (auto peer = getPeer())
+	{
+		renderer = peer->getCurrentRenderingEngine();
+	}
 
 	switch (commandID)
 	{
@@ -643,7 +670,7 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 		case toggleSignalChain:
 			result.setInfo("Signal Chain", "Show/hide Signal Chain.", "General", 0);
 			result.addDefaultKeypress('S', ModifierKeys::shiftModifier);
-			result.setTicked(editorViewportButton->isOpen());
+			result.setTicked(showHideEditorViewportButton->getToggleState());
 			break;
 
 		case toggleFileInfo:
@@ -674,15 +701,20 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 			result.setTicked(controlPanel->clock->getMode() == Clock::HHMMSS);
 			break;
             
-        case setColorTheme1:
-            result.setInfo("Theme 1", "Set color theme 1.", "General", 0);
-            result.setTicked(getTheme() == ColorTheme::THEME1);
+        case setColorThemeLight:
+            result.setInfo("Light", "Set color theme Light.", "General", 0);
+            result.setTicked(getTheme() == ColorTheme::LIGHT);
             break;
 
-        case setColorTheme2:
-            result.setInfo("Theme 2", "Set color theme 2.", "General", 0);
-            result.setTicked(getTheme() == ColorTheme::THEME2);
+        case setColorThemeMedium:
+            result.setInfo("Medium", "Set color theme default.", "General", 0);
+            result.setTicked(getTheme() == ColorTheme::MEDIUM);
             break;
+		
+		case setColorThemeDark:
+			result.setInfo("Dark", "Set color theme dark.", "General", 0);
+			result.setTicked(getTheme() == ColorTheme::DARK);
+			break;
 
 		case openPluginInstaller:
 			result.setInfo("Plugin Installer", "Launch the plugin installer.", "General", 0);
@@ -706,6 +738,16 @@ void UIComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& re
 
 		case resizeWindow:
 			result.setInfo("Reset window bounds", "Reset window bounds", "General", 0);
+			break;
+		
+		case setSoftwareRenderer:
+			result.setInfo("Software (CPU)", "Use the software renderer.", "General", 0);
+			result.setTicked(renderer == 0);
+			break;
+		
+		case setDirect2DRenderer:
+			result.setInfo("Direct2D (GPU)", "Use the Direct2D renderer.", "General", 0);
+			result.setTicked(renderer == 1);
 			break;
 
 		default:
@@ -944,7 +986,7 @@ bool UIComponent::perform(const InvocationInfo& info)
             break;
             
 		case toggleSignalChain:
-			editorViewportButton->toggleState();
+			showHideEditorViewportButton->setToggleState(!showHideEditorViewportButton->getToggleState(), sendNotification);
 			break;
 
 		case resizeWindow:
@@ -959,13 +1001,37 @@ bool UIComponent::perform(const InvocationInfo& info)
 			controlPanel->clock->setMode(Clock::HHMMSS);
 			break;
             
-        case setColorTheme1:
-            setTheme(ColorTheme::THEME1);
+        case setColorThemeLight:
+            setTheme(ColorTheme::LIGHT);
             break;
 
-        case setColorTheme2:
-            setTheme(ColorTheme::THEME2);
+		case setColorThemeMedium:
+			setTheme(ColorTheme::MEDIUM);
+			break;
+
+        case setColorThemeDark:
+            setTheme(ColorTheme::DARK);
             break;
+		
+		case setSoftwareRenderer:
+			{
+				if (auto peer = getPeer())
+				{
+					peer->setCurrentRenderingEngine(0);
+					repaint();
+				}
+				break;
+			}
+		
+		case setDirect2DRenderer:
+			{
+				if (auto peer = getPeer())
+				{
+					peer->setCurrentRenderingEngine(1);
+					repaint();
+				}
+				break;
+			}
 
 		case openPluginInstaller:
 			{
@@ -998,8 +1064,7 @@ void UIComponent::saveStateToXml(XmlElement* xml)
 {
 	XmlElement* uiComponentState = xml->createNewChildElement("UICOMPONENT");
 	uiComponentState->setAttribute("isProcessorListOpen",processorList->isOpen());
-	uiComponentState->setAttribute("isEditorViewportOpen",editorViewportButton->isOpen());
-    uiComponentState->setAttribute("colorTheme", (int) getTheme());
+	uiComponentState->setAttribute("isEditorViewportOpen", showHideEditorViewportButton->getToggleState());
 }
 
 void UIComponent::loadStateFromXml(XmlElement* xml)
@@ -1015,12 +1080,7 @@ void UIComponent::loadStateFromXml(XmlElement* xml)
             processorList->toggleState();
         }
 
-        if (!isEditorViewportOpen)
-        {
-            editorViewportButton->toggleState();
-        }
-        
-        setTheme((ColorTheme) xmlNode->getIntAttribute("colorTheme", ColorTheme::THEME1));
+        showHideEditorViewportButton->setToggleState(isEditorViewportOpen, sendNotification);
 
 	}
 }
@@ -1057,67 +1117,35 @@ Component* UIComponent::findComponentByIDRecursive(Component* parent, const Stri
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-EditorViewportButton::EditorViewportButton(UIComponent* ui) : UI(ui)
+ShowHideEditorViewportButton::ShowHideEditorViewportButton() : ToggleButton()
 {
-	open = true;
-
 	buttonFont = Font("CP Mono", "Light", 25);
+    setTooltip("Show/hide signal chain");
+    
+    arrow = std::make_unique<CustomArrowButton>(MathConstants<float>::pi/2);
+    
+    arrow->setBounds(195,7,22,22);
+    arrow->addListener(this);
+    addAndMakeVisible(arrow.get());
 
 }
 
-EditorViewportButton::~EditorViewportButton()
-{
 
+void ShowHideEditorViewportButton::buttonClicked(Button* button)
+{
+    setToggleState(!getToggleState(), sendNotification);
 }
 
 
-void EditorViewportButton::paint(Graphics& g)
+void ShowHideEditorViewportButton::paint(Graphics& g)
 {
 
-	g.fillAll(Colour(58,58,58));
+    g.fillAll(findColour(ThemeColors::componentBackground));
 
-	g.setColour(Colours::white);
+	g.setColour(findColour(ThemeColors::defaultText));
 	g.setFont(buttonFont);
 	g.drawText("SIGNAL CHAIN", 10, 0, getWidth(), getHeight(), Justification::left, false);
 
-	g.setColour(Colours::white);
-
-	Path p;
-
-	float h = getHeight();
-	float w = getWidth()-5;
-
-	if (open)
-	{
-		p.addTriangle(w-h+0.3f*h, 0.7f*h,
-				w-h+0.5f*h, 0.3f*h,
-				w-h+0.7f*h, 0.7f*h);
-	}
-	else
-	{
-		p.addTriangle(w-h+0.3f*h, 0.5f*h,
-				w-h+0.7f*h, 0.3f*h,
-				w-h+0.7f*h, 0.7f*h);
-	}
-
-	PathStrokeType pst = PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded);
-
-	g.strokePath(p, pst);
-
-}
-
-
-void EditorViewportButton::mouseDown(const MouseEvent& e)
-{
-	open = !open;
-	UI->childComponentChanged();
-	repaint();
-
-}
-
-void EditorViewportButton::toggleState()
-{
-	open = !open;
-	UI->childComponentChanged();
-	repaint();
+    arrow->setToggleState(!getToggleState(), dontSendNotification);
+        
 }

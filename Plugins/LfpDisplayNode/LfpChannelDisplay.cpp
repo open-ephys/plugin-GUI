@@ -60,6 +60,7 @@ LfpChannelDisplay::LfpChannelDisplay(LfpDisplaySplitter* c, LfpDisplay* d, LfpDi
     , drawMethod(false)
     , isHidden(false)
     , ifrom(0), ito(0)
+    , ifrom_local(0), ito_local(0)
 {
 
     name = String(channelNumber+1); // default is to make the channelNumber the name
@@ -121,7 +122,7 @@ void LfpChannelDisplay::pxPaint()
         return; // return early if THIS display is not enabled
     }
 
-    Image::BitmapData bdLfpChannelBitmap(display->lfpChannelBitmap, 0,0, display->lfpChannelBitmap.getWidth(), display->lfpChannelBitmap.getHeight());
+    Image::BitmapData bdLfpChannelBitmap(display->lfpChannelBitmap, Image::BitmapData::readWrite);
     
     int center = getHeight()/2;
 
@@ -375,7 +376,7 @@ void LfpChannelDisplay::pxPaintHistory(int playhead, int rightEdge, int maxScree
         return; // return early if THIS display is not enabled
     }
 
-    Image::BitmapData bdLfpChannelBitmap(display->lfpChannelBitmap, 0, 0, display->lfpChannelBitmap.getWidth(), display->lfpChannelBitmap.getHeight());
+    Image::BitmapData bdLfpChannelBitmap(display->lfpChannelBitmap, Image::BitmapData::readWrite);
 
     int center = getHeight() / 2;
 

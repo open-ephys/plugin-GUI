@@ -26,11 +26,7 @@
 #include <algorithm>
 
 #include "../../Utils/Utils.h"
-
-
-static const Colour COLOUR_DIVIDER (Colours::black.withAlpha (0.12f));
-static const Colour COLOUR_BORDER  (Colour::fromRGB (189, 189, 189));
-static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
+#include "../../UI/LookAndFeel/CustomLookAndFeel.h"
 
 
 static bool inline areEqualValues (float p1, float p2)
@@ -47,38 +43,7 @@ LinearButtonGroupManager::LinearButtonGroupManager()
     , m_currentButtonLineX  (0.f)
     , m_animationStepX      (0.f)
 {
-    setColour (accentColourId,      Colours::white);
-    setColour (dividersColourId,    COLOUR_DIVIDER);
-}
 
-
-void LinearButtonGroupManager::paintOverChildren (Graphics& g)
-{
-    const int height = getHeight();
-
-    // Draw dividers between buttons
-    if (m_isShowDividers)
-    {
-        g.setColour (findColour (dividersColourId));
-
-        const int dividerOffsetY = 5;
-        const int numDividers    = m_buttons.size() - 1;
-
-        for (int i = 0; i < numDividers; ++i)
-        {
-            int dividerX = m_buttons[i]->getRight();
-            g.drawVerticalLine (dividerX, dividerOffsetY, height - dividerOffsetY);
-        }
-    }
-
-    // Draw line which displays current selected button
-    g.setColour (findColour (accentColourId));
-    if (m_isRadioButtonMode)
-    {
-        const int lineWidth  = m_buttons[m_selectedButtonIdx]->getBounds().getWidth();
-        const int lineHeight = 3;
-        g.fillRect ( (int)m_currentButtonLineX + 1, height - lineHeight - 1, lineWidth - 2, lineHeight);
-    }
 }
 
 void LinearButtonGroupManager::setSelectedButtonIndex(int index)
@@ -128,6 +93,36 @@ void LinearButtonGroupManager::buttonClicked (Button* buttonThatWasClicked)
 
         startTimer (30);
     }
+}
+
+
+void LinearButtonGroupManager::addButton (Button* newButton, bool useDefaultLookAndFeel)
+{
+    newButton->addListener (this);
+
+    if (useDefaultLookAndFeel)
+        newButton->setLookAndFeel (m_buttonsLookAndFeel);
+
+    m_componentProxyHandler->addAndMakeVisible (newButton);
+
+    if (m_buttons.size() >= 1)
+    {    
+        if (m_buttons.getLast()->isConnectedOnLeft())
+            m_buttons.getLast()->setConnectedEdges(Button::ConnectedOnRight | Button::ConnectedOnLeft);
+        else
+            m_buttons.getLast()->setConnectedEdges(Button::ConnectedOnRight);
+
+        newButton->setConnectedEdges(Button::ConnectedOnLeft);
+    }
+
+    m_buttons.add (newButton);
+
+    if (m_isRadioButtonMode)
+    {
+        newButton->setRadioGroupId (1);
+    }
+
+    resized();
 }
 
 

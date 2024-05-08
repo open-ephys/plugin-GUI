@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "../../Utils/Utils.h"
+#include "../../UI/LookAndFeel/CustomLookAndFeel.h"
 
 
 ChannelButton::ChannelButton(int _id, PopupChannelSelector* _parent) : 
@@ -57,7 +58,7 @@ void ChannelButton::mouseUp(const MouseEvent &event)
 void ChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
 
-	g.setColour(Colour(0,0,0));
+	g.setColour(findColour(ThemeColors::outline));
     g.fillRoundedRectangle(0.0f, 0.0f, getWidth(), getHeight(), 0.001*getWidth());
 
     if (isMouseOver)
@@ -65,19 +66,19 @@ void ChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown
 		if (getToggleState())
 			g.setColour(parent->buttonColour.brighter());
 		else
-			g.setColour(Colour(210, 210, 210));
+			g.setColour(findColour(ThemeColors::widgetBackground).contrasting(0.3f));
 	}
 	else 
 	{
 		if (getToggleState())
 			g.setColour(parent->buttonColour);
 		else
-			g.setColour(Colour(110, 110, 110));
+			g.setColour(findColour(ThemeColors::widgetBackground));
 	}
 	g.fillRoundedRectangle(1,1,getWidth()-2,getHeight()-2,0.001*getWidth());
 
     //Draw text string in middle of button
-	g.setColour(Colour(255,255,255));
+	g.setColour(findColour(ThemeColors::defaultText));
 	g.setFont(10);
 	g.drawText (String(id+1), 0,0, getWidth(), getHeight(), Justification::centred); 
 
@@ -90,23 +91,26 @@ SelectButton::SelectButton(const String& name) : Button(name) {
 
 void SelectButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
-    g.setColour(Colour(0,0,0));
+    g.setColour(findColour(ThemeColors::outline));
     g.fillRoundedRectangle (0.0f, 0.0f, getWidth(), getHeight(), 0.001*getWidth());
 
     if (isMouseOver)
     {
-        g.setColour(Colour(220, 220, 220));
+        if (getToggleState())
+            g.setColour(findColour(ThemeColors::highlightedFill).withAlpha(0.5f));
+        else
+            g.setColour(findColour(ThemeColors::widgetBackground).contrasting(0.3f));
     }
     else
     {
         if (getToggleState())
-            g.setColour(Colour(200, 200, 200));
+            g.setColour(findColour(ThemeColors::highlightedFill));
         else
-            g.setColour(Colour(110, 110, 110));
+            g.setColour(findColour(ThemeColors::widgetBackground));
     }
     g.fillRoundedRectangle(0.0f, 0.0f, getWidth(), getHeight(), 0.01*getWidth());
     
-	g.setColour(Colour(255,255,255));
+	g.setColour(findColour(ThemeColors::defaultText));
 	g.setFont(12);
 	g.drawText (String(getName()), 0, 0, getWidth(), getHeight(), Justification::centred);
 }

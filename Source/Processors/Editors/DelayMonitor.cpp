@@ -22,6 +22,7 @@
 */
 
 #include "DelayMonitor.h"
+#include "../../UI/LookAndFeel/CustomLookAndFeel.h"
 
 
 DelayMonitor::DelayMonitor() : 
@@ -74,7 +75,7 @@ void DelayMonitor::timerCallback()
 void DelayMonitor::paint(Graphics& g)
 {
 
-    g.setColour(colour);
+    g.setColour(findColour(ThemeColors::defaultText));
     g.setFont(font);
     g.drawText(String(delay, 2) + " ms", 0, 0, 60, 20, Justification::centredLeft);
 

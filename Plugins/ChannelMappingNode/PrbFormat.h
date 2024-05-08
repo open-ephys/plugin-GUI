@@ -55,7 +55,7 @@ public:
 
         info.setProperty("0", nestedObj);
 
-        info.writeAsJSON(outputStream, 2, false, 3);
+        info.writeAsJSON(outputStream, JSON::FormatOptions{}.withIndentLevel(2).withSpacing(JSON::Spacing::multiLine).withMaxDecimalPlaces(3));
         
     }
 

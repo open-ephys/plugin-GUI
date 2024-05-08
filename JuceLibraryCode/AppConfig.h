@@ -16,7 +16,7 @@
 //==============================================================================
 // [BEGIN_USER_CODE_SECTION]
 
-// (You can add your own code in this section, and the Introjucer will not overwrite it)
+// (You can add your own code in this section, and the Projucer will not overwrite it)
 
 // [END_USER_CODE_SECTION]
 
@@ -233,10 +233,6 @@
  //#define JUCE_USE_COREIMAGE_LOADER 1
 #endif
 
-#ifndef    JUCE_USE_DIRECTWRITE
- //#define JUCE_USE_DIRECTWRITE 1
-#endif
-
 #ifndef    JUCE_DISABLE_COREGRAPHICS_FONT_SMOOTHING
  //#define JUCE_DISABLE_COREGRAPHICS_FONT_SMOOTHING 0
 #endif
@@ -291,7 +287,7 @@
 // juce_video flags:
 
 #ifndef    JUCE_USE_CAMERA
- //#define JUCE_USE_CAMERA 0
+ #define   JUCE_USE_CAMERA 1
 #endif
 
 #ifndef    JUCE_SYNC_VIDEO_VOLUME_WITH_OS_MEDIA_VOLUME

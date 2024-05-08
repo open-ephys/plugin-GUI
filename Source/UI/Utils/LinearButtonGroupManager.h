@@ -45,30 +45,16 @@ public:
     /** Constructor */
     LinearButtonGroupManager();
 
-    //==============================================================================
-    /** A set of colour IDs to use to change the colour of various aspects of the button.
-
-        These constants can be used either via the Component::setColour(), or LookAndFeel::setColour()
-        methods.
-
-        @see Component::setColour, Component::findColour, LookAndFeel::setColour, LookAndFeel::findColour
-    */
-    enum ColourIds
-    {
-        accentColourId                  = 0x1000110,  /**< The colour used as colour of underline which displays
-                                                           current selected button. */
-        dividersColourId                = 0x1000111   /**< The colour used to draw dividers between buttons. */
-    };
-
-
     // Component methods
     // ===========================================================
-    void paintOverChildren  (Graphics& g)   override;
     void resized()                          override;
 
     // Button::Listener methods
     // ===========================================================
     void buttonClicked (Button* buttonThatWasClicked) override;
+
+    // ===========================================================
+    void addButton (Button* newButton, bool useDefaultLookAndFeel = true) override;
 
     /** Sets whether dividers between buttons will be visible or not */
     void setShowDividers (bool isShow);

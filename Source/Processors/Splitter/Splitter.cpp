@@ -60,20 +60,10 @@ void Splitter::updateSettings()
 
         for (auto stream : sourceNode->getStreamsForDestNode(this))
         {
-            if (checkStream(stream, OUTPUT_A))
-                streamsForPathA.add(stream);
-
-            if (checkStream(stream, OUTPUT_B))
-                streamsForPathB.add(stream);
+            streamsForPathA.add(stream);
+            streamsForPathB.add(stream);
         }
     }
-}
-
-bool Splitter::checkStream(const DataStream* stream, Splitter::Output output)
-{
-    SplitterEditor* ed = (SplitterEditor*)getEditor();
-
-    return ed->checkStream(stream, output);
 }
 
 void Splitter::setPathToProcessor(GenericProcessor* p)

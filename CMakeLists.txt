@@ -66,6 +66,7 @@ set(JUCE_SOURCE
     ${JUCE_DIRECTORY}/include_juce_data_structures.${JUCE_FILES_EXTENSION}
     ${JUCE_DIRECTORY}/include_juce_events.${JUCE_FILES_EXTENSION}
     ${JUCE_DIRECTORY}/include_juce_graphics.${JUCE_FILES_EXTENSION}
+	${JUCE_DIRECTORY}/include_juce_graphics_Harfbuzz.cpp
     ${JUCE_DIRECTORY}/include_juce_gui_basics.${JUCE_FILES_EXTENSION}
     ${JUCE_DIRECTORY}/include_juce_gui_extra.${JUCE_FILES_EXTENSION}
     ${JUCE_DIRECTORY}/include_juce_opengl.${JUCE_FILES_EXTENSION}
@@ -197,6 +198,7 @@ elseif(LINUX)
 	endif()
 	find_package(CURL REQUIRED)
 	find_package(PkgConfig REQUIRED)
+	find_package(Fontconfig REQUIRED)
 	pkg_check_modules(WEBKIT2GTK REQUIRED webkit2gtk-4.0)
 	# pkg_check_modules(GTK REQUIRED gtk+-3.0)
 
@@ -206,7 +208,7 @@ elseif(LINUX)
 		${CURL_INCLUDE_DIRS}
 		${WEBKIT2GTK_INCLUDE_DIRS}
 	)
-	target_link_libraries(open-ephys GL X11 Xext Xinerama asound dl freetype pthread rt ${CURL_LIBRARIES} ${WEBKIT2GTK_LIBRARIES})
+	target_link_libraries(open-ephys GL X11 Xext Xinerama asound dl freetype pthread rt ${Fontconfig_LIBRARIES} ${CURL_LIBRARIES} ${WEBKIT2GTK_LIBRARIES})
 	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS
 		"-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/shared'")
 
@@ -219,7 +221,7 @@ elseif(LINUX)
                 ${CURL_INCLUDE_DIRS}
                 ${WEBKIT2GTK_INCLUDE_DIRS}
             )
-            target_link_libraries(gui_testable_source GL X11 Xext Xinerama asound dl freetype pthread rt ${CURL_LIBRARIES} ${WEBKIT2GTK_LIBRARIES})
+            target_link_libraries(gui_testable_source GL X11 Xext Xinerama asound dl freetype pthread rt ${Fontconfig_LIBRARIES} ${CURL_LIBRARIES} ${WEBKIT2GTK_LIBRARIES})
             set_property(TARGET gui_testable_source APPEND_STRING PROPERTY LINK_FLAGS
                 "-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/shared'")
 

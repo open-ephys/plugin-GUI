@@ -51,10 +51,12 @@ public:
     ~EventDisplayInterface();
 
     /** Renders the background */
-    void paint(Graphics& g);
+    void paintOverChildren(Graphics& g);
 
     /** Responds to button presses */
     void buttonClicked(Button* button);
+
+    void resized() override;
 
     /** Checks whether events should be displayed for this channel*/
     void checkEnabledState();

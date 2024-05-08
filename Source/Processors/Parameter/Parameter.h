@@ -358,6 +358,7 @@ public:
 
         var originalValue;
         var newValue;
+        bool logChange = false;
     };
 
     void logValueChange();

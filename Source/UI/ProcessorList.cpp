@@ -95,6 +95,7 @@ bool ProcessorList::isOpen()
 
 void ProcessorList::paint(Graphics& g)
 {
+    g.fillAll(Colours::black);
 	drawItems(g);
 }
 
@@ -104,7 +105,8 @@ void ProcessorList::drawItems(Graphics& g)
 	totalHeight = yBuffer + itemHeight;
 
 	category = baseItem->getName();
-
+    
+	g.setOrigin(0, yBuffer);
 	drawItem(g, baseItem.get());
 
 	if (baseItem->isOpen())
@@ -129,11 +131,11 @@ void ProcessorList::drawItems(Graphics& g)
 				}
 			}
 		}
-	}
 
-	if (isOpen())
+		totalHeight += yBuffer;
 		setSize(getWidth(),totalHeight);
-
+	}
+    
 }
 
 void ProcessorList::drawItem(Graphics& g, ProcessorListItem* item)
@@ -144,9 +146,9 @@ void ProcessorList::drawItem(Graphics& g, ProcessorListItem* item)
 	g.setColour(c);
     
 	if (item->hasSubItems())
-		g.fillRect(1.0, 0.0, getWidth()-2, itemHeight);
+		g.fillRect(1, 0, getWidth()-2, itemHeight);
 	else
-		g.fillRect(1.0, 10.0, getWidth()-2, subItemHeight);
+		g.fillRect(1, 10, getWidth()-2, subItemHeight);
 
 	drawItemName(g,item);
 }
@@ -154,7 +156,11 @@ void ProcessorList::drawItem(Graphics& g, ProcessorListItem* item)
 void ProcessorList::drawItemName(Graphics& g, ProcessorListItem* item)
 {
     
-	g.setColour(Colours::white);
+	if (item->getName().equalsIgnoreCase("Processors"))
+		g.setColour(findColour(ThemeColors::defaultText));
+	else
+		g.setColour(Colours::white);
+
 	g.setFont(listFontPlain);
 
 	float offsetX, offsetY;
@@ -193,7 +199,7 @@ void ProcessorList::drawItemName(Graphics& g, ProcessorListItem* item)
         {
             g.drawText(">", offsetX - 15, 5, getWidth()-9, itemHeight, Justification::left, false);
         }
-        g.drawText(name, offsetX, 5, maxWidth, itemHeight, Justification::left, false);
+        g.drawText(name, offsetX, 5, maxWidth + offsetX, itemHeight, Justification::left, false);
 
 	}
 	else
@@ -554,6 +560,10 @@ void ProcessorList::loadStateFromXml(XmlElement* xml)
 			{
                 
                 int ID = colorNode->getIntAttribute("ID");
+
+				// Ignore the processor color
+				if (ID == ProcessorColor::IDs::PROCESSOR_COLOR)
+					continue;
                 
 				getLookAndFeel().setColour(ID,
 						Colour(

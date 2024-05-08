@@ -50,13 +50,13 @@ void TTLBitDisplay::setState(bool state_)
 void TTLBitDisplay::paint(Graphics& g)
 {
 
-    g.setColour(Colours::black);
+    g.setColour(findColour(ThemeColors::outline));
     g.fillRect(0, 0, getWidth(), getHeight());
 
     if (state)
         g.setColour(colour);
     else
-        g.setColour(Colours::darkgrey);
+        g.setColour(findColour(ThemeColors::widgetBackground));
 
     g.fillRect(1, 1, getWidth()-2, getHeight()-2);
 

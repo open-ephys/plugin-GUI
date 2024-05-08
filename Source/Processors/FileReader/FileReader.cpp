@@ -538,7 +538,7 @@ void FileReader::checkAudioDevice()
     AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
     AudioDeviceManager::AudioDeviceSetup ads;
     adm.getAudioDeviceSetup(ads);
-    if (ads.sampleRate != m_sysSampleRate)
+    if (ads.sampleRate != m_sysSampleRate || ads.bufferSize != m_bufferSize)
     {
         m_sysSampleRate = ads.sampleRate;
 

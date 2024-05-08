@@ -41,24 +41,28 @@ namespace ProcessorColor {
     };
 }
 
-namespace ThemeColors {
-    enum Colors
-    {
-        controlPanelBackgroundColorId,
-        controlPanelButtonColorId,
-        controlPanelButtonOnColorId,
-        graphViewerBackgroundColorId,
-        editorViewportBackgroundColorId,
-        editorGradientColorId1,
-        editorGradientColorId2,
-        editorGradientColorId3
-    };
-}
+enum ThemeColors
+{
+    componentBackground = 0x9001,
+    componentParentBackground,
+    windowBackground,
+    widgetBackground,
+    menuBackground,
+    menuHighlightText,
+    menuHighlightBackground,
+    outline,
+    defaultText,
+    defaultFill,
+    highlightedText,
+    highlightedFill,
+    dropShadowColor
+};
 
 enum ColorTheme
 {
-    THEME1,
-    THEME2
+    LIGHT,
+    MEDIUM,
+    DARK
 };
 
 /**
@@ -81,6 +85,8 @@ public:
 
     /** Destructor */
     ~CustomLookAndFeel();
+
+    std::map<ColorTheme, std::map<ThemeColors, Colour>> themeColorsMap;
     
     /** Set color theme*/
     void setTheme(ColorTheme theme);
@@ -109,48 +115,23 @@ public:
                        bool isMouseDown);
     
     // ======== custom tooltip methods: ============================
-    juce::Rectangle<int> getTooltipBounds(const String &tipText, Point<int> screenPos, juce::Rectangle<int> parentArea) override;
+    // juce::Rectangle<int> getTooltipBounds(const String &tipText, Point<int> screenPos, juce::Rectangle<int> parentArea) override;
     
-    void drawTooltip(Graphics &, const String &text, int width, int height) override;
+    // void drawTooltip(Graphics &, const String &text, int width, int height) override;
 
-    TextLayout layoutTooltipText(const String& text, Colour colour);
+    // TextLayout layoutTooltipText(const String& text, Colour colour);
 
     // ======== custom slider methods: =============================
 
-    void drawLinearSliderThumb(Graphics& g,
-                               int x, int y,
-                               int width, int height,
-                               float sliderPos,
-                               float minSliderPos,
-                               float maxSliderPos,
-                               const Slider::SliderStyle style,
-                               Slider& slider);
-
-    void drawLinearSliderBackground(Graphics& g,
-                                    int x, int y,
-                                    int width, int height,
-                                    float /*sliderPos*/,
-                                    float /*minSliderPos*/,
-                                    float /*maxSliderPos*/,
-                                    const Slider::SliderStyle /*style*/,
-                                    Slider& slider);
+    void drawLinearSlider (Graphics&, int x, int y, int width, int height,
+                           float sliderPos, float minSliderPos, float maxSliderPos,
+                           Slider::SliderStyle, Slider&) override;
 
 
     int getSliderThumbRadius(Slider& slider);
 
-    void drawSliderKnob(Graphics& g,
-                        const float x, const float y,
-                        const float diameter,
-                        const Colour& colour,
-                        const float outlineThickness) throw();
-
-    void drawGlassPointer(Graphics& g,
-                          const float x, const float y,
-                          const float diameter,
-                          const Colour& colour, const float outlineThickness,
-                          const int direction) throw();
-
-    Button* createSliderButton(Slider& s, bool	isIncrement);
+    void drawPointer (Graphics&, float x, float y, float diameter,
+                      const Colour&, int direction) noexcept;
 
     // ======== custom combo box methods: =============================
 
@@ -204,7 +185,7 @@ public:
 
     // ========= custom document window methods: ===========================
     Button* createDocumentWindowButton (int) override;
-
+    void positionDocumentWindowButtons (DocumentWindow&, int, int, int, int, Button*, Button*, Button*, bool) override;
     void drawDocumentWindowTitleBar (DocumentWindow&, Graphics&, int, int, int, int, const Image*, bool) override;
 
     // ========= custom Alert Window methods: ===========================
@@ -227,7 +208,17 @@ public:
 
     void createTabButtonShape (TabBarButton&, Path&,  bool isMouseOver, bool isMouseDown) override;
     void fillTabButtonShape (TabBarButton&, Graphics&, const Path&, bool isMouseOver, bool isMouseDown) override;
+
+    // ======== custom CallOutBox method: ================================
+    void drawCallOutBoxBackground (CallOutBox&, Graphics&, const Path&, Image&) override;
     
+    // ======== custom TableHeaderComponent methods: ================================
+    void drawTableHeaderBackground (Graphics&, TableHeaderComponent&) override;
+
+    // ======== custom Resizable Component methods: ================================
+    void drawResizableFrame (Graphics&, int w, int h, const BorderSize<int>&) override;
+    void fillResizableWindowBackground (Graphics&, int w, int h, const BorderSize<int>&, ResizableWindow&) override;
+    void drawResizableWindowBorder (Graphics&, int w, int h, const BorderSize<int>& border, ResizableWindow&) override;
 
 private:
 
@@ -260,9 +251,9 @@ private:
         ostrich,
         silkscreen;
     
-    MemoryInputStream silkscreenStream;
-
     Font getCommonMenuFont();
+
+    void initializeColors();
 };
 
 

@@ -22,13 +22,9 @@
 */
 
 #include "ButtonGroupManager.h"
+#include "../LookAndFeel/CustomLookAndFeel.h"
 
 #include <algorithm>
-
-
-static const Colour COLOUR_DIVIDER (Colours::black.withAlpha (0.12f));
-static const Colour COLOUR_BORDER  (Colour::fromRGB (189, 189, 189));
-static const Colour COLOUR_PRIMARY (Colours::black.withAlpha (0.87f));
 
 
 ButtonGroupManager::ButtonGroupManager()
@@ -37,10 +33,6 @@ ButtonGroupManager::ButtonGroupManager()
     , m_buttonsLookAndFeel      (nullptr)
     , m_componentProxyHandler   (new Component)
 {
-    setColour (backgroundColourId,  Colour (0x0));
-    setColour (outlineColourId,     COLOUR_BORDER);
-
-
     addAndMakeVisible (m_buttonsViewport);
     m_buttonsViewport.setViewedComponent (m_componentProxyHandler, false);
     m_buttonsViewport.setScrollBarsShown (false, false, true, false);
@@ -50,21 +42,6 @@ ButtonGroupManager::ButtonGroupManager()
 ButtonGroupManager::~ButtonGroupManager()
 {
     m_buttons.clear();
-}
-
-
-void ButtonGroupManager::paint (Graphics& g)
-{
-    auto floatLocalBounds = getLocalBounds().toFloat();
-    const float cornerSize = 3.f;
-
-    // Fill background
-    g.setColour (findColour (backgroundColourId));
-    g.fillRoundedRectangle (floatLocalBounds.reduced (1, 1), cornerSize);
-
-    // Draw border
-    g.setColour (findColour (outlineColourId));
-    g.drawRoundedRectangle (floatLocalBounds, cornerSize, 1.f);
 }
 
 

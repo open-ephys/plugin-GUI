@@ -88,9 +88,6 @@ public:
 
     /** Return the streams to be sent to the selected destination node*/
     Array<const DataStream*> getStreamsForDestNode(GenericProcessor* destNode) override;
-
-    /** Checks whether or not a particular stream should be sent down a particular path */
-    bool checkStream(const DataStream* stream, Output output);
     
     /** Display the path that leads to a particular processor*/
     void setPathToProcessor(GenericProcessor* processor);

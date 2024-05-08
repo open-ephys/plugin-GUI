@@ -27,7 +27,6 @@
 #endif
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainWindow.h"
-#include "UI/LookAndFeel/CustomLookAndFeel.h"
 
 #include <stdio.h>
 #include <fstream>
@@ -81,9 +80,6 @@ public:
 
         SystemStats::setApplicationCrashHandler(handleCrash);
 
-        customLookAndFeel = std::make_unique<CustomLookAndFeel>();
-        LookAndFeel::setDefaultLookAndFeel(customLookAndFeel.get());
-
         // Parse parameters
         if (!parameters.isEmpty())
         {
@@ -96,16 +92,21 @@ public:
                 if (param.equalsIgnoreCase("--headless"))
                     isConsoleApp = true;
                 
-                else
+                else if (File::createLegalFileName(param).equalsIgnoreCase(param))
                 {
                     File localPath(File::getCurrentWorkingDirectory().getChildFile(param));
-                    File globalPath(param);
                     
                     if (localPath.existsAsFile())
+                    {
                         fileToLoad = localPath;
+                        break;
+                    }
                     
-                    if (globalPath.existsAsFile())
-                        fileToLoad = globalPath;
+                    //File globalPath(param);
+                    
+                    //if (globalPath.existsAsFile())
+                    //    fileToLoad = globalPath;
+
                     
                 }
             }
@@ -180,7 +181,6 @@ public:
 
 private:
     std::unique_ptr <MainWindow> mainWindow;
-    std::unique_ptr <CustomLookAndFeel> customLookAndFeel;
     std::ofstream console_out;
 };
 

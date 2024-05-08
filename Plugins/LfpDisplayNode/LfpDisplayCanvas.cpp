@@ -598,7 +598,8 @@ bool LfpDisplayCanvas::keyPressed(const KeyPress& key)
     {
         for (auto split : displaySplits)
         {
-            split->handleSpaceKeyPauseEvent();
+            if (split->getSelectedState() || selectedLayout == SINGLE)
+                split->handleSpaceKeyPauseEvent();
         }
         
         return true;
@@ -775,6 +776,9 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
 String LfpDisplaySplitter::getStreamKey()
 {
+    if (processor->getDataStreams().size() == 0)
+        return "";
+        
     DataStream* stream = processor->getDataStream(selectedStreamId);
     return stream->getKey();
 }
@@ -863,7 +867,7 @@ void LfpDisplaySplitter::beginAnimation()
 
     }    
 
-    startTimer(50);
+    startTimer(20);
 
     reachedEnd = true;
 }
@@ -1650,7 +1654,7 @@ void LfpDisplaySplitter::setDrawableStream(uint16 sp)
 {
    
     selectedStreamId = sp;
-    displayBuffer = processor->displayBufferMap[processor->getDataStream(sp)->getKey()];
+    displayBuffer = processor->displayBufferMap[processor->getDataStream(sp)->getStreamId()];
 
     updateSettings();
 }
@@ -1680,23 +1684,14 @@ void LfpDisplaySplitter::paint(Graphics& g)
     //}
 
     Colour borderColour;
-    ColourGradient timelineColour;
 
     if (isSelected)
     {
         borderColour = Colour(252, 210, 0);
-
-        timelineColour = ColourGradient(Colour(252, 210, 0), 0, 0,
-            Colour(173, 145, 3), 0, 30,
-            false);
     }
     else {
 
-        borderColour = Colour(40, 40, 40);
-
-        timelineColour = ColourGradient(Colour(50, 50, 50), 0, 0,
-            Colour(25, 25, 25), 0, 30,
-            false);
+        borderColour = Colour(findColour(ThemeColors::componentParentBackground));
     }
 
     g.setColour(borderColour);
@@ -1706,7 +1701,6 @@ void LfpDisplaySplitter::paint(Graphics& g)
     else
         g.drawRect(0, 0, getWidth(), getHeight() - 55, 2);
     
-    g.setGradientFill(timelineColour);
     g.fillRect(2, 2, getWidth()-4, 28);
 
 }

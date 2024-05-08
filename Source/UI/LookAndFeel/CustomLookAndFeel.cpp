@@ -22,7 +22,6 @@
 */
 
 #include "CustomLookAndFeel.h"
-#include "../CustomArrowButton.h"
 
 #include "../../Utils/Utils.h"
 
@@ -33,9 +32,8 @@ CustomLookAndFeel::CustomLookAndFeel() :
     // to them whenever they're used).
 
 
-    silkscreenStream(BinaryData::silkscreenserialized,
-        BinaryData::silkscreenserializedSize,
-        false),
+    silkscreen(Typeface::createSystemTypefaceFor(BinaryData::SilkscreenRegular_ttf,
+        BinaryData::SilkscreenRegular_ttfSize)),
 
     cpmonoExtraLight(Typeface::createSystemTypefaceFor(BinaryData::CPMonoExtraLight_otf,
         BinaryData::CPMonoExtraLight_otfSize)),
@@ -77,115 +75,184 @@ CustomLookAndFeel::CustomLookAndFeel() :
 
     nimbusSans(Typeface::createSystemTypefaceFor(BinaryData::NimbusSans_otf,
         BinaryData::NimbusSans_otfSize)),
-    nordic(Typeface::createSystemTypefaceFor(BinaryData::Nordic_ttf,
-        BinaryData::Nordic_ttfSize)),
-    ostrich(Typeface::createSystemTypefaceFor(BinaryData::Ostrich_ttf,
-        BinaryData::Ostrich_ttfSize)),
+    nordic(Typeface::createSystemTypefaceFor(BinaryData::nordic_ttf,
+        BinaryData::nordic_ttfSize)),
+    ostrich(Typeface::createSystemTypefaceFor(BinaryData::ostrich_ttf,
+        BinaryData::ostrich_ttfSize)),
     bebasNeue(Typeface::createSystemTypefaceFor(BinaryData::BebasNeue_otf,
         BinaryData::BebasNeue_otfSize))
 
 
 {
 
-    silkscreen = new CustomTypeface(silkscreenStream);
+    // silkscreen = new CustomTypeface(silkscreenStream);
 
-    setTheme(THEME1);
+    initializeColors();
+
+    setTheme(MEDIUM);
     
 }
 
 CustomLookAndFeel::~CustomLookAndFeel() {}
 
+void CustomLookAndFeel::initializeColors()
+{
+    // Processor colors are consistent across all themes, but
+    // can be customized by right-clicking on the processor list
+    setColour(ProcessorColor::IDs::FILTER_COLOR, Colour(0, 160, 225));
+    setColour(ProcessorColor::IDs::SINK_COLOR, Colour(0, 166, 81));
+    setColour(ProcessorColor::IDs::SOURCE_COLOR, Colour(241, 90, 41));
+    setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(90, 110, 110));
+    setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(255, 0, 0));
+    setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(0,0,0));
+    setColour(ProcessorColor::IDs::SYNC_COLOR, Colour(255,165,0));
+
+    themeColorsMap[MEDIUM] = {
+        {ThemeColors::componentBackground, Colour(143, 143, 143)},
+        {ThemeColors::componentParentBackground, Colour(58, 58, 58)},
+        {ThemeColors::windowBackground, Colour(40, 40, 40)},
+        {ThemeColors::widgetBackground,Colour(190, 190, 190)},
+        {ThemeColors::menuBackground, Colour(140, 140, 140)},
+        {ThemeColors::menuHighlightText, Colours::black},
+        {ThemeColors::menuHighlightBackground, Colour(244, 148, 32)},
+        {ThemeColors::outline, Colours::black},
+        {ThemeColors::defaultText, Colours::black},
+        {ThemeColors::defaultFill, Colour(112,112,112)},
+        {ThemeColors::highlightedText, Colours::black},
+        {ThemeColors::highlightedFill, Colour(244, 148, 32)},
+        {ThemeColors::dropShadowColor, Colours::black.withAlpha(0.5f)}
+    };
+
+    themeColorsMap[DARK] = {
+        {ThemeColors::componentBackground, Colour(45, 45, 45)},
+        {ThemeColors::componentParentBackground, Colour(30, 30, 30).darker(0.3f)},
+        {ThemeColors::windowBackground, Colour(24,24,24)},
+        {ThemeColors::widgetBackground, Colour(40, 40, 40).darker()},
+        {ThemeColors::menuBackground, Colour(30, 30, 30)},
+        {ThemeColors::menuHighlightText, Colour(20,20,20)},
+        {ThemeColors::menuHighlightBackground, Colour(153,200,214)},
+        {ThemeColors::outline, Colours::black},
+        {ThemeColors::defaultText, Colour(224,224,224)},
+        {ThemeColors::defaultFill, Colour(80,80,80)},
+        {ThemeColors::highlightedText, Colour(240,240,240)},
+        {ThemeColors::highlightedFill, Colour(230, 152, 63)},
+        {ThemeColors::dropShadowColor, Colours::black.withAlpha(0.75f)}
+    };
+
+    themeColorsMap[LIGHT] = {
+        {ThemeColors::componentBackground, Colour(225, 225, 225)},
+        {ThemeColors::componentParentBackground, Colour(225, 225, 225).darker()},
+        {ThemeColors::windowBackground, Colour(176,176,176)},
+        {ThemeColors::widgetBackground, Colour(225, 225, 225).brighter(0.6f)},
+        {ThemeColors::menuBackground, Colour(225, 225, 225)},
+        {ThemeColors::menuHighlightText, Colours::black},
+        {ThemeColors::menuHighlightBackground, Colour(138, 193, 232)},
+        {ThemeColors::outline, Colours::black},
+        {ThemeColors::defaultText, Colours::black},
+        {ThemeColors::defaultFill, Colour(110, 110, 110)},
+        {ThemeColors::highlightedText, Colours::black},
+        {ThemeColors::highlightedFill, Colour(138, 193, 232)},
+        {ThemeColors::dropShadowColor, Colours::black.withAlpha(0.4f)}
+    };
+
+}
+
 void CustomLookAndFeel::setTheme(ColorTheme theme)
 {
-    
-    if (theme == THEME1)
+    auto currentThemeColors = themeColorsMap[theme];
+
+    for (const auto& [colorId, color] : currentThemeColors)
     {
-        setColour(ProcessorColor::IDs::PROCESSOR_COLOR, Colour(59, 59, 59));
-        setColour(ProcessorColor::IDs::FILTER_COLOR, Colour(0, 174, 239));
-        setColour(ProcessorColor::IDs::SINK_COLOR, Colour(0, 166, 81));
-        setColour(ProcessorColor::IDs::SOURCE_COLOR, Colour(241, 90, 41));
-        setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(147, 149, 152));
-        setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(255, 0, 0));
-        setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(0,0,0));
-        setColour(ProcessorColor::IDs::SYNC_COLOR, Colour(255,165,0));
-        setColour(Label::backgroundColourId, Colours::whitesmoke.withAlpha(0.0f));
-        setColour(TextEditor::highlightColourId, Colours::whitesmoke);
-        setColour(ScrollBar::thumbColourId, Colours::darkgrey);
-        
-        setColour(ComboBox::backgroundColourId, Colours::lightgrey);
-        setColour(ComboBox::focusedOutlineColourId, Colours::darkred);
-        setColour(ComboBox::arrowColourId, Colour(10,10,10));
-        
-        setColour(TextButton::buttonColourId, Colours::lightgrey);
-        
-        setColour(ThemeColors::controlPanelBackgroundColorId, Colour(51,51,51));
-        setColour(ThemeColors::controlPanelButtonColorId, Colour(180,180,180));
-        setColour(ThemeColors::controlPanelButtonOnColorId, Colours::yellow);
-        setColour(ThemeColors::graphViewerBackgroundColorId, Colour(20,20,20));
-        setColour(ThemeColors::editorViewportBackgroundColorId, Colour(20,20,20));
-        
-        setColour(ThemeColors::editorGradientColorId1, Colour(190,190,190));
-        setColour(ThemeColors::editorGradientColorId2, Colour(185,185,185));
-        setColour(ThemeColors::editorGradientColorId3, Colour(155,155,155));
-        
-        setColour(PopupMenu::backgroundColourId, Colours::darkgrey);
-        setColour(PopupMenu::textColourId, Colours::white);
-        setColour(PopupMenu::highlightedBackgroundColourId, Colours::grey);
-        setColour(PopupMenu::highlightedTextColourId, Colours::yellow);
-        
-        setColour(TooltipWindow::backgroundColourId, Colours::white);
-        setColour(TooltipWindow::outlineColourId, Colours::black);
-        setColour(TooltipWindow::textColourId, Colours::black);
-        
-        setColour(TabbedButtonBar::tabOutlineColourId, Colours::black);
-        setColour(TabbedButtonBar::tabTextColourId, Colours::white);
-        setColour(TabbedButtonBar::frontOutlineColourId , Colours::black);
-        setColour(TabbedButtonBar::frontTextColourId , Colours::white);
-    }
-    else if (theme == THEME2)
-    {
-        setColour(ProcessorColor::IDs::PROCESSOR_COLOR, Colour(21, 21, 21));
-        setColour(ProcessorColor::IDs::FILTER_COLOR, Colour(21, 21, 21));
-        setColour(ProcessorColor::IDs::SINK_COLOR, Colour(21, 21, 21));
-        setColour(ProcessorColor::IDs::SOURCE_COLOR, Colour(21, 21, 21));
-        setColour(ProcessorColor::IDs::UTILITY_COLOR, Colour(21, 21, 21));
-        setColour(ProcessorColor::IDs::RECORD_COLOR, Colour(21, 21, 21));
-        setColour(ProcessorColor::IDs::AUDIO_COLOR, Colour(21, 21, 21));
-        
-        setColour(Label::backgroundColourId, Colours::whitesmoke);
-        setColour(TextEditor::highlightColourId, Colours::salmon.withAlpha(0.2f));
-        setColour(ScrollBar::thumbColourId, Colours::whitesmoke.withAlpha(0.25f));
-        
-        setColour(ComboBox::backgroundColourId, Colours::lightseagreen);
-        setColour(ComboBox::focusedOutlineColourId, Colours::yellow);
-        setColour(ComboBox::arrowColourId, Colours::darkcyan);
-        
-        setColour(TextButton::buttonColourId, Colours::lightsteelblue);
-        
-        setColour(ThemeColors::controlPanelBackgroundColorId, Colours::lightskyblue);
-        setColour(ThemeColors::controlPanelButtonColorId, Colour(50,50,50));
-        setColour(ThemeColors::controlPanelButtonOnColorId, Colours::springgreen);
-        setColour(ThemeColors::graphViewerBackgroundColorId, Colour(35,35,35));
-        setColour(ThemeColors::editorViewportBackgroundColorId, Colour(35,35,35));
-        
-        setColour(ThemeColors::editorGradientColorId1, Colour(25,25,25));
-        setColour(ThemeColors::editorGradientColorId2, Colour(40,40,40));
-        setColour(ThemeColors::editorGradientColorId3, Colour(90,155,155));
-        
-        setColour(PopupMenu::backgroundColourId, Colours::white);
-        setColour(PopupMenu::textColourId, Colours::grey);
-        setColour(PopupMenu::highlightedBackgroundColourId, Colours::darkgrey);
-        setColour(PopupMenu::highlightedTextColourId, Colours::lightskyblue);
-        
-        setColour(TooltipWindow::backgroundColourId, Colours::white);
-        setColour(TooltipWindow::outlineColourId, Colours::black);
-        setColour(TooltipWindow::textColourId, Colours::turquoise);
-        
-        setColour(TabbedButtonBar::tabOutlineColourId, Colours::black);
-        setColour(TabbedButtonBar::tabTextColourId, Colours::white);
-        setColour(TabbedButtonBar::frontOutlineColourId , Colours::black);
-        setColour(TabbedButtonBar::frontTextColourId , Colours::white);
-    }
+        setColour(colorId, color);
+    } 
+
+    const Colour transparent = Colour(0x00000000);
+
+    setColour(ProcessorColor::IDs::PROCESSOR_COLOR, currentThemeColors[ThemeColors::componentBackground]);
+
+    setColour(TextButton::buttonColourId, currentThemeColors[ThemeColors::widgetBackground]);
+    setColour(TextButton::buttonOnColourId, currentThemeColors[ThemeColors::highlightedFill]);
+    setColour(TextButton::textColourOnId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(TextButton::textColourOffId, currentThemeColors[ThemeColors::defaultText]);
+
+    setColour(ToggleButton::textColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(ToggleButton::tickColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(ToggleButton::tickDisabledColourId, currentThemeColors[ThemeColors::defaultText].withAlpha(0.5f));
+
+    setColour(TextEditor::backgroundColourId, currentThemeColors[ThemeColors::widgetBackground]);
+    setColour(TextEditor::textColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(TextEditor::highlightColourId, currentThemeColors[ThemeColors::widgetBackground].contrasting(0.5f).withAlpha(0.4f));
+    setColour(TextEditor::highlightedTextColourId, currentThemeColors[ThemeColors::highlightedText]);
+    setColour(TextEditor::outlineColourId, currentThemeColors[ThemeColors::outline]);
+    setColour(TextEditor::focusedOutlineColourId, currentThemeColors[ThemeColors::outline]);
+    setColour(TextEditor::shadowColourId, transparent);
+
+    setColour(CaretComponent::caretColourId, currentThemeColors[ThemeColors::defaultText]);
+
+    setColour(Label::backgroundColourId, transparent);
+    setColour(Label::textColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(Label::outlineColourId, transparent);
+    setColour(Label::textWhenEditingColourId, currentThemeColors[ThemeColors::defaultText]);
+
+    setColour(ScrollBar::backgroundColourId, transparent);
+    setColour(ScrollBar::thumbColourId, currentThemeColors[ThemeColors::defaultFill]);
+    setColour(ScrollBar::trackColourId, transparent);
+
+    setColour(PopupMenu::backgroundColourId, currentThemeColors[ThemeColors::menuBackground]);
+    setColour(PopupMenu::textColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(PopupMenu::headerTextColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(PopupMenu::highlightedTextColourId, currentThemeColors[ThemeColors::menuHighlightText]);
+    setColour(PopupMenu::highlightedBackgroundColourId, currentThemeColors[ThemeColors::menuHighlightBackground]);
+
+    setColour(ComboBox::buttonColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(ComboBox::outlineColourId, currentThemeColors[ThemeColors::outline]);
+    setColour(ComboBox::textColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(ComboBox::backgroundColourId, currentThemeColors[ThemeColors::widgetBackground]);
+    setColour(ComboBox::arrowColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(ComboBox::focusedOutlineColourId, currentThemeColors[ThemeColors::highlightedFill]);
+
+    setColour(ListBox::backgroundColourId, currentThemeColors[ThemeColors::widgetBackground]);
+    setColour(ListBox::outlineColourId, currentThemeColors[ThemeColors::outline]);
+    setColour(ListBox::textColourId, currentThemeColors[ThemeColors::defaultText]);
+
+    setColour(Slider::backgroundColourId, currentThemeColors[ThemeColors::widgetBackground]);
+    setColour(Slider::thumbColourId, currentThemeColors[ThemeColors::defaultFill]);
+    setColour(Slider::trackColourId, currentThemeColors[ThemeColors::highlightedFill]);
+    setColour(Slider::rotarySliderFillColourId, currentThemeColors[ThemeColors::highlightedFill]);
+    setColour(Slider::rotarySliderOutlineColourId, currentThemeColors[ThemeColors::widgetBackground]);
+    setColour(Slider::textBoxTextColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(Slider::textBoxBackgroundColourId, transparent);
+    setColour(Slider::textBoxHighlightColourId, currentThemeColors[ThemeColors::defaultFill].withAlpha(0.4f));
+    setColour(Slider::textBoxOutlineColourId, currentThemeColors[ThemeColors::outline]);
+
+    setColour(ResizableWindow::backgroundColourId, currentThemeColors[ThemeColors::componentBackground]);
+
+    setColour(DocumentWindow::textColourId, currentThemeColors[ThemeColors::defaultText]);
+
+    setColour(AlertWindow::backgroundColourId, currentThemeColors[ThemeColors::componentBackground]);
+    setColour(AlertWindow::textColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(AlertWindow::outlineColourId, currentThemeColors[ThemeColors::outline]);
+
+    setColour(ProgressBar::backgroundColourId, currentThemeColors[ThemeColors::widgetBackground]);
+    setColour(ProgressBar::foregroundColourId, currentThemeColors[ThemeColors::highlightedFill]);
+
+    setColour(TooltipWindow::backgroundColourId, currentThemeColors[ThemeColors::widgetBackground]);
+    setColour(TooltipWindow::textColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(TooltipWindow::outlineColourId, currentThemeColors[ThemeColors::outline]);
+
+    setColour(TabbedComponent::backgroundColourId, transparent);
+    setColour(TabbedComponent::outlineColourId, transparent);
+    setColour(TabbedButtonBar::tabOutlineColourId, currentThemeColors[ThemeColors::outline].withAlpha(0.5f));
+    setColour(TabbedButtonBar::tabTextColourId, currentThemeColors[ThemeColors::defaultText].withAlpha(0.75f));
+    setColour(TabbedButtonBar::frontOutlineColourId , currentThemeColors[ThemeColors::outline]);
+    setColour(TabbedButtonBar::frontTextColourId , currentThemeColors[ThemeColors::defaultText]);
+
+    setColour(ResizableWindow::backgroundColourId, currentThemeColors[ThemeColors::windowBackground]);
+
+    setColour(TableHeaderComponent::backgroundColourId, currentThemeColors[ThemeColors::widgetBackground]);
+    setColour(TableHeaderComponent::textColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour(TableHeaderComponent::outlineColourId, currentThemeColors[ThemeColors::outline]);
+    setColour(TableHeaderComponent::highlightColourId, currentThemeColors[ThemeColors::highlightedFill]);
 }
 
 //==============================================================================
@@ -311,7 +378,11 @@ Typeface::Ptr CustomLookAndFeel::getTypefaceForFont(const Font& font)
     }
     else   // default
     {
-        return firaCodeRetina;
+        #ifdef JUCE_MAC
+         return firaCodeRetina;
+        #else
+         return firaCodeRegular;
+        #endif
     }
 
 }
@@ -352,9 +423,9 @@ void CustomLookAndFeel::drawScrollbarButton(Graphics& g,
                       width * 0.7f, height * w2);
 
     if (isButtonDown)
-        g.setColour(Colours::white);
+        g.setColour(findColour(ScrollBar::thumbColourId).contrasting (0.2f));
     else
-        g.setColour(Colours::darkgrey);
+        g.setColour(findColour(ScrollBar::thumbColourId));
 
     g.fillPath(p);
 
@@ -379,7 +450,7 @@ void CustomLookAndFeel::drawScrollbar(Graphics& g,
     Path thumbPath;
 
     const float slotIndent = jmin(width, height) > 15 ? 1.0f : 0.0f;
-    const float thumbIndent = slotIndent + 4.0f;
+    const float thumbIndent = slotIndent + 3.0f;
     const float thumbIndentx2 = thumbIndent * 2.0f;
 
     if (isScrollbarVertical)
@@ -413,242 +484,174 @@ void CustomLookAndFeel::drawScrollbar(Graphics& g,
 // TOOLTIP METHODS :
 //==================================================================
 
-TextLayout CustomLookAndFeel::layoutTooltipText (const String& text, Colour colour)
-{
-    const float tooltipFontSize = 13.0f;
-    const int maxToolTipWidth = 400;
+// TextLayout CustomLookAndFeel::layoutTooltipText (const String& text, Colour colour)
+// {
+//     const float tooltipFontSize = 13.0f;
+//     const int maxToolTipWidth = 400;
 
-    AttributedString s;
-    s.setJustification (Justification::centredTop);
-    s.append (text, Font (tooltipFontSize, Font::bold), colour);
+//     AttributedString s;
+//     s.setJustification (Justification::centredTop);
+//     s.append (text, Font (tooltipFontSize, Font::bold), colour);
 
-    TextLayout tl;
-    tl.createLayoutWithBalancedLineLengths (s, (float) maxToolTipWidth);
-    return tl;
-}
+//     TextLayout tl;
+//     tl.createLayoutWithBalancedLineLengths (s, (float) maxToolTipWidth);
+//     return tl;
+// }
 
-Rectangle<int> CustomLookAndFeel::getTooltipBounds(const String &tipText, Point<int> screenPos, Rectangle<int> parentArea)
-{
-    const TextLayout tl (layoutTooltipText (tipText, Colours::black));
+// Rectangle<int> CustomLookAndFeel::getTooltipBounds(const String &tipText, Point<int> screenPos, Rectangle<int> parentArea)
+// {
+//     const TextLayout tl (layoutTooltipText (tipText, Colours::black));
 
-        auto w = (int) (tl.getWidth() + 14.0f);
-        auto h = (int) (tl.getHeight() + 4.0f);
+//         auto w = (int) (tl.getWidth() + 14.0f);
+//         auto h = (int) (tl.getHeight() + 4.0f);
 
-        return Rectangle<int> (screenPos.x > parentArea.getCentreX() ? screenPos.x - (w + 5) : screenPos.x + 10,
-                               screenPos.y > parentArea.getCentreY() ? screenPos.y - (h + 3)  : screenPos.y + 3,
-                               w, h)
-                 .constrainedWithin (parentArea);
-}
+//         return Rectangle<int> (screenPos.x > parentArea.getCentreX() ? screenPos.x - (w + 5) : screenPos.x + 10,
+//                                screenPos.y > parentArea.getCentreY() ? screenPos.y - (h + 3)  : screenPos.y + 3,
+//                                w, h)
+//                  .constrainedWithin (parentArea);
+// }
 
-void CustomLookAndFeel::drawTooltip(Graphics &g, const String &text, int width, int height)
-{
-    g.fillAll (findColour (TooltipWindow::backgroundColourId));
+// void CustomLookAndFeel::drawTooltip(Graphics &g, const String &text, int width, int height)
+// {
+//     g.fillAll (findColour (TooltipWindow::backgroundColourId));
 
-   #if ! JUCE_MAC // The mac windows already have a non-optional 1 pix outline, so don't double it here..
-    g.setColour (findColour (TooltipWindow::outlineColourId));
-    g.drawRect (0, 0, width, height, 1);
-   #endif
+//    #if ! JUCE_MAC // The mac windows already have a non-optional 1 pix outline, so don't double it here..
+//     g.setColour (findColour (TooltipWindow::outlineColourId));
+//     g.drawRect (0, 0, width, height, 1);
+//    #endif
 
-    layoutTooltipText (text, findColour (TooltipWindow::textColourId))
-        .draw (g, Rectangle<float> ((float) width, (float) height));
-}
+//     layoutTooltipText (text, findColour (TooltipWindow::textColourId))
+//         .draw (g, Rectangle<float> ((float) width, (float) height));
+// }
 
 //==================================================================
 // SLIDER METHODS :
 //==================================================================
 
 
-void CustomLookAndFeel::drawLinearSliderThumb(Graphics& g,
-                                              int x, int y,
-                                              int width, int height,
-                                              float sliderPos,
-                                              float minSliderPos,
-                                              float maxSliderPos,
-                                              const Slider::SliderStyle style,
-                                              Slider& slider)
+void CustomLookAndFeel::drawLinearSlider (Graphics& g, int x, int y, int width, int height,
+                                       float sliderPos,
+                                       float minSliderPos,
+                                       float maxSliderPos,
+                                       const Slider::SliderStyle style, Slider& slider)
 {
-    const float sliderRadius = (float)(getSliderThumbRadius(slider) - 2);
-
-    Colour knobColour(Colours::darkgrey); //LookAndFeelHelpers::createBaseColour (slider.findColour (Slider::thumbColourId),
-    //                                      slider.hasKeyboardFocus (false) && slider.isEnabled(),
-    //                                      slider.isMouseOverOrDragging() && slider.isEnabled(),
-    //                                      slider.isMouseButtonDown() && slider.isEnabled()));
-
-    const float outlineThickness = slider.isEnabled() ? 2.0f : 0.5f;
-
-    if (style == Slider::LinearHorizontal || style == Slider::LinearVertical)
+    if (slider.isBar())
     {
-        float kx, ky;
+        g.setColour(slider.findColour(Slider::backgroundColourId));
+        g.fillRect(x, y, width, height);
+        
+        g.setColour (slider.findColour (Slider::trackColourId));
+        g.fillRect (slider.isHorizontal() ? Rectangle<float> (static_cast<float> (x), (float) y + 0.5f, sliderPos - (float) x, (float) height - 1.0f)
+                                          : Rectangle<float> ((float) x + 0.5f, sliderPos, (float) width - 1.0f, (float) y + ((float) height - sliderPos)));
 
-        if (style == Slider::LinearVertical)
+        drawLinearSliderOutline (g, x, y, width, height, style, slider);
+    }
+    else
+    {
+        auto isTwoVal   = (style == Slider::SliderStyle::TwoValueVertical   || style == Slider::SliderStyle::TwoValueHorizontal);
+        auto isThreeVal = (style == Slider::SliderStyle::ThreeValueVertical || style == Slider::SliderStyle::ThreeValueHorizontal);
+
+        auto trackWidth = jmin (6.0f, slider.isHorizontal() ? (float) height * 0.25f : (float) width * 0.25f);
+
+        Point<float> startPoint (slider.isHorizontal() ? (float) x : (float) x + (float) width * 0.5f,
+                                 slider.isHorizontal() ? (float) y + (float) height * 0.5f : (float) (height + y));
+
+        Point<float> endPoint (slider.isHorizontal() ? (float) (width + x) : startPoint.x,
+                               slider.isHorizontal() ? startPoint.y : (float) y);
+
+        Path backgroundTrack;
+        backgroundTrack.startNewSubPath (startPoint);
+        backgroundTrack.lineTo (endPoint);
+        g.setColour (slider.findColour (Slider::backgroundColourId));
+        g.strokePath (backgroundTrack, { trackWidth, PathStrokeType::curved, PathStrokeType::rounded });
+
+        Path valueTrack;
+        Point<float> minPoint, maxPoint, thumbPoint;
+
+        if (isTwoVal || isThreeVal)
         {
-            kx = x + width * 0.5f;
-            ky = sliderPos;
+            minPoint = { slider.isHorizontal() ? minSliderPos : (float) width * 0.5f,
+                         slider.isHorizontal() ? (float) height * 0.5f : minSliderPos };
+
+            if (isThreeVal)
+                thumbPoint = { slider.isHorizontal() ? sliderPos : (float) width * 0.5f,
+                               slider.isHorizontal() ? (float) height * 0.5f : sliderPos };
+
+            maxPoint = { slider.isHorizontal() ? maxSliderPos : (float) width * 0.5f,
+                         slider.isHorizontal() ? (float) height * 0.5f : maxSliderPos };
         }
         else
         {
-            kx = sliderPos;
-            ky = y + height * 0.5f;
+            auto kx = slider.isHorizontal() ? sliderPos : ((float) x + (float) width * 0.5f);
+            auto ky = slider.isHorizontal() ? ((float) y + (float) height * 0.5f) : sliderPos;
+
+            minPoint = startPoint;
+            maxPoint = { kx, ky };
         }
 
-        drawSliderKnob(g,
-                       kx - sliderRadius,
-                       ky - sliderRadius,
-                       sliderRadius * 2.0f,
-                       knobColour, outlineThickness);
-    }
-    else
-    {
-        if (style == Slider::ThreeValueVertical)
+        auto thumbWidth = getSliderThumbRadius (slider);
+
+        valueTrack.startNewSubPath (minPoint);
+        valueTrack.lineTo (isThreeVal ? thumbPoint : maxPoint);
+        g.setColour (slider.findColour (Slider::trackColourId));
+        g.strokePath (valueTrack, { trackWidth, PathStrokeType::curved, PathStrokeType::rounded });
+
+        if (! isTwoVal)
         {
-            drawSliderKnob(g, x + width * 0.5f - sliderRadius,
-                           sliderPos - sliderRadius,
-                           sliderRadius * 2.0f,
-                           knobColour, outlineThickness);
-        }
-        else if (style == Slider::ThreeValueHorizontal)
-        {
-            drawSliderKnob(g,sliderPos - sliderRadius,
-                           y + height * 0.5f - sliderRadius,
-                           sliderRadius * 2.0f,
-                           knobColour, outlineThickness);
+            g.setColour (slider.findColour (Slider::thumbColourId));
+            g.fillEllipse (Rectangle<float> (static_cast<float> (thumbWidth), static_cast<float> (thumbWidth)).withCentre (isThreeVal ? thumbPoint : maxPoint));
         }
 
-        if (style == Slider::TwoValueVertical || style == Slider::ThreeValueVertical)
+        if (isTwoVal || isThreeVal)
         {
-            const float sr = jmin(sliderRadius, width * 0.4f);
+            auto sr = jmin (trackWidth, (slider.isHorizontal() ? (float) height : (float) width) * 0.4f);
+            auto pointerColour = slider.findColour (Slider::thumbColourId);
 
-            drawGlassPointer(g, jmax(0.0f, x + width * 0.5f - sliderRadius * 2.0f),
-                             minSliderPos - sliderRadius,
-                             sliderRadius * 2.0f, knobColour, outlineThickness, 1);
+            if (slider.isHorizontal())
+            {
+                drawPointer (g, minSliderPos - sr,
+                             jmax (0.0f, (float) y + (float) height * 0.5f - trackWidth * 2.0f),
+                             trackWidth * 2.0f, pointerColour, 2);
 
-            drawGlassPointer(g, jmin(x + width - sliderRadius * 2.0f, x + width * 0.5f), maxSliderPos - sr,
-                             sliderRadius * 2.0f, knobColour, outlineThickness, 3);
-        }
-        else if (style == Slider::TwoValueHorizontal || style == Slider::ThreeValueHorizontal)
-        {
-            const float sr = jmin(sliderRadius, height * 0.4f);
+                drawPointer (g, maxSliderPos - trackWidth,
+                             jmin ((float) (y + height) - trackWidth * 2.0f, (float) y + (float) height * 0.5f),
+                             trackWidth * 2.0f, pointerColour, 4);
+            }
+            else
+            {
+                drawPointer (g, jmax (0.0f, (float) x + (float) width * 0.5f - trackWidth * 2.0f),
+                             minSliderPos - trackWidth,
+                             trackWidth * 2.0f, pointerColour, 1);
 
-            drawGlassPointer(g, minSliderPos - sr,
-                             jmax(0.0f, y + height * 0.5f - sliderRadius * 2.0f),
-                             sliderRadius * 2.0f, knobColour, outlineThickness, 2);
-
-            drawGlassPointer(g, maxSliderPos - sliderRadius,
-                             jmin(y + height - sliderRadius * 2.0f, y + height * 0.5f),
-                             sliderRadius * 2.0f, knobColour, outlineThickness, 4);
+                drawPointer (g, jmin ((float) (x + width) - trackWidth * 2.0f, (float) x + (float) width * 0.5f), maxSliderPos - sr,
+                             trackWidth * 2.0f, pointerColour, 3);
+            }
         }
     }
-}
-
-void CustomLookAndFeel::drawLinearSliderBackground(Graphics& g,
-                                                   int x, int y,
-                                                   int width, int height,
-                                                   float sliderPos,
-                                                   float minSliderPos,
-                                                   float maxSliderPos,
-                                                   const Slider::SliderStyle /*style*/,
-                                                   Slider& slider)
-{
-    const float sliderRadius = (float)(getSliderThumbRadius(slider) - 2);
-
-    Path indent;
-    // Path backgroundPath;
-
-    if (slider.isHorizontal())
-    {
-        const float iy = y + height * 0.5f - sliderRadius * 0.5f;
-        const float ih = sliderRadius;
-
-        indent.addRoundedRectangle(x - sliderRadius * 0.5f, iy,
-                                   width + sliderRadius, ih,
-                                   5.0f);
-    }
-    else
-    {
-        const float ix = x + width * 0.5f - sliderRadius * 0.5f;
-        const float iw = sliderRadius;
-        indent.addRoundedRectangle(ix, y - sliderRadius * 0.5f,
-                                   iw, height + sliderRadius,
-                                   5.0f);
-    }
-
-    g.setColour(Colours::darkgrey);
-    g.strokePath(indent, PathStrokeType(0.5f));
 }
 
 int CustomLookAndFeel::getSliderThumbRadius(Slider& slider)
 {
-    return jmin(7,
-                slider.getHeight() / 2,
-                slider.getWidth() / 2) + 2;
+    return jmin (12, slider.isHorizontal() ? static_cast<int> ((float) slider.getHeight() * 0.5f)
+                                           : static_cast<int> ((float) slider.getWidth()  * 0.5f));
 }
 
-void CustomLookAndFeel::drawSliderKnob(Graphics& g,
-                                       const float x, const float y,
-                                       const float diameter,
-                                       const Colour& colour,
-                                       const float outlineThickness) throw()
+void CustomLookAndFeel::drawPointer (Graphics& g, const float x, const float y, const float diameter,
+                                  const Colour& colour, const int direction) noexcept
 {
-    if (diameter <= outlineThickness)
-        return;
-
-    g.setColour(Colours::darkgrey);
-
-    g.fillEllipse(x, y, diameter, diameter);
-
-    g.setColour(Colours::black);
-    g.drawEllipse(x, y, diameter, diameter, outlineThickness);
-}
-
-void CustomLookAndFeel::drawGlassPointer(Graphics& g,
-                                         const float x, const float y,
-                                         const float diameter,
-                                         const Colour& colour, const float outlineThickness,
-                                         const int direction) throw()
-{
-    if (diameter <= outlineThickness)
-        return;
-
     Path p;
-    p.startNewSubPath(x + diameter * 0.5f, y);
-    p.lineTo(x + diameter, y + diameter * 0.6f);
-    p.lineTo(x + diameter, y + diameter);
-    p.lineTo(x, y + diameter);
-    p.lineTo(x, y + diameter * 0.6f);
+    p.startNewSubPath (x + diameter * 0.5f, y);
+    p.lineTo (x + diameter, y + diameter * 0.6f);
+    p.lineTo (x + diameter, y + diameter);
+    p.lineTo (x, y + diameter);
+    p.lineTo (x, y + diameter * 0.6f);
     p.closeSubPath();
 
-    p.applyTransform(AffineTransform::rotation(direction * (float_Pi * 0.5f), x + diameter * 0.5f, y + diameter * 0.5f));
-
-    {
-        ColourGradient cg(Colours::white.overlaidWith(colour.withMultipliedAlpha(0.3f)), 0, y,
-                          Colours::white.overlaidWith(colour.withMultipliedAlpha(0.3f)), 0, y + diameter, false);
-
-        cg.addColour(0.4, Colours::white.overlaidWith(colour));
-
-        g.setGradientFill(cg);
-        g.fillPath(p);
-    }
-
-    ColourGradient cg(Colours::transparentBlack,
-                      x + diameter * 0.5f, y + diameter * 0.5f,
-                      Colours::black.withAlpha(0.5f * outlineThickness * colour.getFloatAlpha()),
-                      x - diameter * 0.2f, y + diameter * 0.5f, true);
-
-    cg.addColour(0.5, Colours::transparentBlack);
-    cg.addColour(0.7, Colours::black.withAlpha(0.07f * outlineThickness));
-
-    g.setGradientFill(cg);
-    g.fillPath(p);
-
-    g.setColour(Colours::black.withAlpha(0.5f * colour.getFloatAlpha()));
-    g.strokePath(p, PathStrokeType(outlineThickness));
+    p.applyTransform (AffineTransform::rotation ((float) direction * MathConstants<float>::halfPi,
+                                                 x + diameter * 0.5f, y + diameter * 0.5f));
+    g.setColour (colour);
+    g.fillPath (p);
 }
-
-Button* CustomLookAndFeel::createSliderButton(Slider& s, bool isIncrement)
-{
-    return new CustomArrowButton(String(), isIncrement ? 0 : 0.5);
-}
-
 
 /// ------ combo box ---------------///
 
@@ -691,6 +694,8 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
     g.setColour(Colours::black);
     g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.0f);
 
+    box.colourChanged();
+
 }
 
 Font CustomLookAndFeel::getComboBoxFont (ComboBox& box)
@@ -729,20 +734,20 @@ Font CustomLookAndFeel::getPopupMenuFont()
 void CustomLookAndFeel::drawMenuBarBackground (Graphics& g, int width, int height,
                                             bool, MenuBarComponent& menuBar)
 {
-    const Colour colour (58, 58, 58);
+    const Colour colour (findColour(ThemeColors::menuBackground));
 
-    Rectangle<int> r (width, height);
+    Rectangle<int> r (1, 0, width - 2, height);
 
     g.setColour (colour.contrasting (0.15f));
     g.fillRect  (r.removeFromTop (1));
     g.fillRect  (r.removeFromBottom (1));
 
-    g.setGradientFill (ColourGradient (colour, 0, 0, colour.darker (0.08f), 0, (float) height, false));
+    g.setGradientFill (ColourGradient::vertical (colour, 0, colour.darker (0.2f), (float) height));
     g.fillRect (r);
 
     if(menuBar.getName().equalsIgnoreCase("MainMenu"))
     {
-        g.setColour(Colours::lightgrey);
+        g.setColour(findColour(ThemeColors::defaultText));
         String ver = "v" + String(ProjectInfo::versionString);
         g.setFont(getCommonMenuFont());
         int verStrWidth = getCommonMenuFont().getStringWidth(ver);
@@ -766,13 +771,13 @@ void CustomLookAndFeel::drawButtonBackground (Graphics& g,
                                               bool isMouseOverButton, bool isButtonDown)
 {
     auto cornerSize = 3.0f;
-    auto bounds = button.getLocalBounds().toFloat();
+    auto bounds = button.getLocalBounds().toFloat().reduced (0.5f, 0.5f);
 
-    auto baseColour = backgroundColour.withMultipliedSaturation (button.hasKeyboardFocus (true) ? 1.3f : 0.9f)
-                                      .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.35f);
+    auto baseColour = backgroundColour.withMultipliedSaturation (button.hasKeyboardFocus (true) ? 1.3f : 1.0f)
+                                      .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.5f);
 
     if (isButtonDown || isMouseOverButton)
-        baseColour = baseColour.contrasting (isButtonDown ? 0.35f : 0.05f);
+        baseColour = baseColour.contrasting (isButtonDown ? 0.2f : 0.05f);
 
     g.setColour (baseColour);
 
@@ -793,24 +798,17 @@ void CustomLookAndFeel::drawButtonBackground (Graphics& g,
                                   ! (flatOnRight || flatOnBottom));
 
         g.fillPath (path);
-        g.setColour(findColour(ComboBox::outlineColourId));
+
+        g.setColour (button.findColour (ComboBox::outlineColourId));
         g.strokePath (path, PathStrokeType (1.0f));
     }
     else
     {
         g.fillRoundedRectangle (bounds, cornerSize);
-    }
 
-    g.setColour(Colours::black);
-    g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.0f);
-
-    /*
-    if (button.hasKeyboardFocus(false))
-    {
-        g.setColour(Colours::white);
-        g.drawRoundedRectangle(bounds.reduced(0.5f, 0.5f), cornerSize, 1.5f);
+        g.setColour (button.findColour (ComboBox::outlineColourId));
+        g.drawRoundedRectangle (bounds, cornerSize, 1.0f);
     }
-    */
 }
 
 
@@ -849,7 +847,7 @@ Font CustomLookAndFeel::getTextButtonFont (TextButton&, int buttonHeight)
 
 Font CustomLookAndFeel::getCommonMenuFont()
 {
-    return Font ("Fira Sans", "Regular", 20.f);
+    return Font ("Fira Sans", "Regular", 18.f);
 }
 
 //==================================================================
@@ -959,9 +957,9 @@ public:
 
     void paintButton (Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
     {
-        auto background = Colours::darkgrey;
+        auto background = findColour(ThemeColors::widgetBackground);
 
-        g.fillAll (background);
+        // g.fillAll (background);
 
         g.setColour ((! isEnabled() || shouldDrawButtonAsDown) ? colour.withAlpha (0.6f)
                                                      : colour);
@@ -999,7 +997,7 @@ Button* CustomLookAndFeel::createDocumentWindowButton (int buttonType)
         shape.addLineSegment ({ 0.0f, 0.0f, 1.0f, 1.0f }, crossThickness);
         shape.addLineSegment ({ 1.0f, 0.0f, 0.0f, 1.0f }, crossThickness);
 
-        return new CustomDocumentWindowButton ("close", Colours::white, shape, shape);
+        return new CustomDocumentWindowButton ("close", Colour (0xff9A131D), shape, shape);
     }
 
     if (buttonType == DocumentWindow::minimiseButton)
@@ -1011,8 +1009,9 @@ Button* CustomLookAndFeel::createDocumentWindowButton (int buttonType)
 
     if (buttonType == DocumentWindow::maximiseButton)
     {
-        shape.addLineSegment ({ 0.5f, 0.0f, 0.5f, 1.0f }, crossThickness);
-        shape.addLineSegment ({ 0.0f, 0.5f, 1.0f, 0.5f }, crossThickness);
+        shape.addRectangle (0.0f, 0.0f, 1.0f, 1.0f);
+        PathStrokeType (crossThickness).createStrokedPath (shape, shape);
+        
 
         Path fullscreenShape;
         fullscreenShape.startNewSubPath (45.0f, 100.0f);
@@ -1031,6 +1030,38 @@ Button* CustomLookAndFeel::createDocumentWindowButton (int buttonType)
 }
 
 
+void CustomLookAndFeel::positionDocumentWindowButtons (DocumentWindow&,
+                                                    int titleBarX, int titleBarY,
+                                                    int titleBarW, int titleBarH,
+                                                    Button* minimiseButton,
+                                                    Button* maximiseButton,
+                                                    Button* closeButton,
+                                                    bool positionTitleBarButtonsOnLeft)
+{
+    auto buttonW = static_cast<int> (titleBarH * 1.2);
+
+    auto x = positionTitleBarButtonsOnLeft ? titleBarX
+                                           : titleBarX + titleBarW - buttonW;
+
+    if (closeButton != nullptr)
+    {
+        closeButton->setBounds (x, titleBarY, buttonW, titleBarH);
+        x += positionTitleBarButtonsOnLeft ? buttonW : -buttonW;
+    }
+
+    if (positionTitleBarButtonsOnLeft)
+        std::swap (minimiseButton, maximiseButton);
+
+    if (maximiseButton != nullptr)
+    {
+        maximiseButton->setBounds (x, titleBarY, buttonW, titleBarH);
+        x += positionTitleBarButtonsOnLeft ? buttonW : -buttonW;
+    }
+
+    if (minimiseButton != nullptr)
+        minimiseButton->setBounds (x, titleBarY, buttonW, titleBarH);
+}
+
 void CustomLookAndFeel::drawDocumentWindowTitleBar (DocumentWindow& window, Graphics& g,
                                                  int w, int h, int titleSpaceX, int titleSpaceW,
                                                  const Image* icon, bool drawTitleTextOnLeft)
@@ -1040,10 +1071,10 @@ void CustomLookAndFeel::drawDocumentWindowTitleBar (DocumentWindow& window, Grap
 
     auto isActive = window.isActiveWindow();
 
-    g.setColour (Colours::darkgrey);
+    g.setColour (findColour (ThemeColors::componentParentBackground));
     g.fillAll();
 
-    Font font ((float) h * 0.65f, Font::plain);
+    Font font (withDefaultMetrics(FontOptions("Fira Sans", "Bold", (float) h * 0.65f)));
     g.setFont (font);
 
     auto textW = font.getStringWidth (window.getName());
@@ -1091,7 +1122,7 @@ Font CustomLookAndFeel::getAlertWindowFont()           { return { "Fira Sans", "
 
 int CustomLookAndFeel::getTabButtonOverlap (int tabDepth)
 {
-    return 0;
+    return 1;
 }
 
 int CustomLookAndFeel::getTabButtonSpaceAroundImage()
@@ -1212,7 +1243,7 @@ void CustomLookAndFeel::fillTabButtonShape (TabBarButton& button, Graphics& g, c
     const bool isFrontTab = button.isFrontTab();
 
     g.setColour (isFrontTab ? tabBackground
-                            : tabBackground.withMultipliedAlpha (0.9f));
+                            : tabBackground.withMultipliedAlpha (0.75f));
 
     g.fillPath (path);
 
@@ -1284,7 +1315,7 @@ void CustomLookAndFeel::drawTabButton (TabBarButton& button, Graphics& g, bool i
     tabShape.applyTransform (AffineTransform::translation ((float) activeArea.getX(),
                                                            (float) activeArea.getY()));
 
-    DropShadow (Colours::black.withAlpha (0.5f), 2, Point<int> (0, 1)).drawForPath (g, tabShape);
+    DropShadow (findColour(ThemeColors::dropShadowColor), 8, Point<int> (0, 0)).drawForPath (g, tabShape);
 
     fillTabButtonShape (button, g, tabShape, isMouseOver, isMouseDown);
     drawTabButtonText (button, g, isMouseOver, isMouseDown);
@@ -1332,8 +1363,65 @@ void CustomLookAndFeel::drawTabAreaBehindFrontButton (TabbedButtonBar& bar, Grap
     }
 
     g.setGradientFill (gradient);
-    g.fillRect (shadowRect.expanded (2, 2));
+    g.fillRect (shadowRect);
+}
 
-    g.setColour (Colour (0x80000000));
-    g.fillRect (line);
+
+void CustomLookAndFeel::drawCallOutBoxBackground (CallOutBox& box, Graphics& g,
+                                               const Path& path, Image& cachedImage)
+{
+    if (cachedImage.isNull())
+    {
+        cachedImage = { Image::ARGB, box.getWidth(), box.getHeight(), true };
+        Graphics g2 (cachedImage);
+
+        DropShadow (Colours::black.withAlpha (0.7f), 8, { 0, 2 }).drawForPath (g2, path);
+    }
+
+    g.setColour (Colours::black);
+    g.drawImageAt (cachedImage, 0, 0);
+
+    g.setColour (findColour(ThemeColors::componentParentBackground).withAlpha (0.9f));
+    g.fillPath (path);
+
+    g.setColour (findColour(ThemeColors::outline).withAlpha (0.8f));
+    g.strokePath (path, PathStrokeType (2.0f));
+}
+
+
+void CustomLookAndFeel::drawTableHeaderBackground (Graphics& g, TableHeaderComponent& header)
+{
+    auto r = header.getLocalBounds();
+    auto outlineColour = header.findColour (TableHeaderComponent::outlineColourId);
+
+    g.setColour (outlineColour);
+    g.fillRect (r.removeFromBottom (1));
+
+    g.setColour (header.findColour (TableHeaderComponent::backgroundColourId));
+    g.fillRect (r);
+
+    g.setColour (outlineColour);
+
+    for (int i = header.getNumColumns (true); --i >= 0;)
+        g.fillRect (header.getColumnPosition (i).removeFromRight (1));
+}
+
+void CustomLookAndFeel::drawResizableFrame (Graphics& g, int w, int h, const BorderSize<int>& border)
+{
+
+}
+
+void CustomLookAndFeel::fillResizableWindowBackground (Graphics& g, int /*w*/, int /*h*/,
+                                                    const BorderSize<int>& /*border*/, ResizableWindow& window)
+{
+    g.setColour (window.getBackgroundColour());
+    g.fillRect (window.getLocalBounds().toFloat());
+}
+
+void CustomLookAndFeel::drawResizableWindowBorder(juce::Graphics& g, int w, int h,
+                               const juce::BorderSize< int >& border,
+                               juce::ResizableWindow& window)
+{
+    g.setColour (findColour (ThemeColors::outline).withAlpha (0.5f));
+    g.drawRect (window.getLocalBounds().toFloat());
 }

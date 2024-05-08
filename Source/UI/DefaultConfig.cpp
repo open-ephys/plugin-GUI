@@ -69,12 +69,11 @@ void DefaultConfigWindow::launchWindow()
 
 DefaultConfigComponent::DefaultConfigComponent()
 {
-	configFont = Font("FiraSans", 18, Font::plain);
+	configFont = FontOptions{"Fira Sans", "Regular", 18.0f};
 
 	configLabel = std::make_unique<Label>("Configurations");
 	String labelText;
 	labelText << "Please select a default configuration from the list below to get started:" << newLine;
-	configLabel->setColour(Label::textColourId, Colours::white);
 	configLabel->setFont(configFont);
 	configLabel->setText(labelText, dontSendNotification);
 	configLabel->setJustificationType(Justification::centred);
@@ -91,9 +90,9 @@ DefaultConfigComponent::DefaultConfigComponent()
 	File acqIconFile = iconsDir.getChildFile("acq_board_icon.png");
 	Image acqBoardIcon = ImageFileFormat::loadFrom(acqIconFile);
 	acqBoardButton->setImages(false, true, true, 
-							  acqBoardIcon, 1.0f, Colour(), 
-							  acqBoardIcon, 1.0f, Colours::grey.withAlpha(0.5f),
-							  acqBoardIcon, 1.0f, Colours::aliceblue.withAlpha(0.5f));
+							  acqBoardIcon, 1.0f, findColour(ThemeColors::defaultFill), 
+							  acqBoardIcon, 1.0f, findColour(ThemeColors::defaultFill).withAlpha(0.5f),
+							  acqBoardIcon, 1.0f, findColour(ThemeColors::defaultFill).withAlpha(0.5f));
 	
 	acqBoardButton->setClickingTogglesState(true);
 	acqBoardButton->setTooltip("Acquire data from an Open Ephys Acquisition Board");
@@ -102,7 +101,6 @@ DefaultConfigComponent::DefaultConfigComponent()
 	addAndMakeVisible(acqBoardButton.get());
 
 	acqBoardLabel = std::make_unique<Label>("Acq. Board Label");
-	acqBoardLabel->setColour(Label::textColourId, Colours::white);
 	acqBoardLabel->setFont(configFont);
 	acqBoardLabel->setText("Acq. Board", dontSendNotification);
 	acqBoardLabel->setJustificationType(Justification::centred);
@@ -113,9 +111,9 @@ DefaultConfigComponent::DefaultConfigComponent()
 	File fRIconFile = iconsDir.getChildFile("file_reader_icon.png");
 	Image fRIcon = ImageFileFormat::loadFrom(fRIconFile);
 	fileReaderButton->setImages(false, true, true, 
-							  fRIcon, 1.0f, Colour(), 
-							  fRIcon, 1.0f, Colours::grey.withAlpha(0.5f),
-							  fRIcon, 1.0f, Colours::aliceblue.withAlpha(0.5f));
+							  fRIcon, 1.0f, findColour(ThemeColors::defaultFill), 
+							  fRIcon, 1.0f, findColour(ThemeColors::defaultFill).withAlpha(0.5f),
+							  fRIcon, 1.0f, findColour(ThemeColors::defaultFill).withAlpha(0.5f));
 	
 	fileReaderButton->setClickingTogglesState(true);
 	fileReaderButton->setTooltip("Read data from a file");
@@ -125,7 +123,6 @@ DefaultConfigComponent::DefaultConfigComponent()
 	addAndMakeVisible(fileReaderButton.get());
 
 	fileReaderLabel = std::make_unique<Label>("File Reader Label");
-	fileReaderLabel->setColour(Label::textColourId, Colours::white);
 	fileReaderLabel->setFont(configFont);
 	fileReaderLabel->setText("File Reader", dontSendNotification);
 	fileReaderLabel->setJustificationType(Justification::centred);
@@ -137,9 +134,9 @@ DefaultConfigComponent::DefaultConfigComponent()
 	File npxIconFile = iconsDir.getChildFile("neuropixels_icon.png");
 	Image npxIcon = ImageFileFormat::loadFrom(npxIconFile);
 	neuropixelsButton->setImages(false, true, true, 
-							  npxIcon, 1.0f, Colour(), 
-							  npxIcon, 1.0f, Colours::grey.withAlpha(0.5f),
-							  npxIcon, 1.0f, Colours::aliceblue.withAlpha(0.5f));
+							  npxIcon, 1.0f, findColour(ThemeColors::defaultFill), 
+							  npxIcon, 1.0f, findColour(ThemeColors::defaultFill).withAlpha(0.5f),
+							  npxIcon, 1.0f, findColour(ThemeColors::defaultFill).withAlpha(0.5f));
 	
 	neuropixelsButton->setClickingTogglesState(true);
 	neuropixelsButton->addListener(this);
@@ -147,7 +144,6 @@ DefaultConfigComponent::DefaultConfigComponent()
 	addAndMakeVisible(neuropixelsButton.get());
 
 	neuropixelsLabel = std::make_unique<Label>("Npx Label");
-	neuropixelsLabel->setColour(Label::textColourId, Colours::white);
 	neuropixelsLabel->setFont(configFont);
 	neuropixelsLabel->setText("Neuropixels", dontSendNotification);
 	neuropixelsLabel->setJustificationType(Justification::centred);
@@ -163,7 +159,7 @@ DefaultConfigComponent::DefaultConfigComponent()
 
 	goButton = std::make_unique<TextButton>("Default Config Selector - Load Button");
 	goButton->setButtonText("Load");
-	goButton->setColour(TextButton::buttonColourId, Colours::lightgreen);
+	goButton->setColour(TextButton::buttonColourId, findColour(ThemeColors::highlightedFill));
 	goButton->addListener(this);
 	addAndMakeVisible(goButton.get());
 
@@ -176,18 +172,18 @@ DefaultConfigComponent::~DefaultConfigComponent()
 
 void DefaultConfigComponent::paint(Graphics& g)
 {
-	g.fillAll (Colours::darkgrey);
-	g.setColour(Colour::fromRGB(110, 110, 110));
+	g.fillAll (findColour(ThemeColors::componentParentBackground));
+	g.setColour(findColour(ThemeColors::componentBackground));
 	g.fillRect(10, 0, getWidth() - 20, getHeight() - 10);
 
-	g.setColour(Colours::lightgreen);
+	g.setColour(findColour(ThemeColors::highlightedFill));
 
 	if(acqBoardButton->getToggleState())
-		g.drawRoundedRectangle(acqBoardButton->getBounds().expanded(5).toFloat(), 3.0f, 1.0f);
+		g.drawRoundedRectangle(acqBoardButton->getBounds().expanded(5).toFloat(), 5.0f, 1.0f);
 	else if(fileReaderButton->getToggleState())
-		g.drawRoundedRectangle(fileReaderButton->getBounds().expanded(5).toFloat(), 3.0f, 1.0f);
+		g.drawRoundedRectangle(fileReaderButton->getBounds().expanded(5).toFloat(), 5.0f, 1.0f);
 	else
-		g.drawRoundedRectangle(neuropixelsButton->getBounds().expanded(5).toFloat(), 3.0f, 1.0f);
+		g.drawRoundedRectangle(neuropixelsButton->getBounds().expanded(5).toFloat(), 5.0f, 1.0f);
 }
 
 void DefaultConfigComponent::resized()

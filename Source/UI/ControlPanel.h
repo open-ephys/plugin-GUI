@@ -31,6 +31,7 @@
 #include "../Processors/RecordNode/RecordNode.h"
 #include "../Processors/RecordNode/RecordEngine.h"
 #include "LookAndFeel/CustomLookAndFeel.h"
+#include "CustomArrowButton.h"
 #include "../AccessClass.h"
 #include "../Processors/Editors/GenericEditor.h" // for UtilityButton
 #include "FilenameConfigWindow.h"
@@ -268,55 +269,6 @@ private:
 
 };
 
-/**
-
-  Used to show and hide the file browser within the ControlPanel.
-
-  The ControlPanel contains a JUCE FilenameComponent used to change the
-  data directory. When not in use, this component can be hidden using
-  the ControlPanelButton.
-
-  @see ControlPanel
-
-*/
-
-class ControlPanelButton : public Component, public SettableTooltipClient
-{
-public:
-    
-    /** Constructor*/
-    ControlPanelButton(ControlPanel* cp_);
-    
-    /** Destructor*/
-    ~ControlPanelButton() { }
-
-    /** Returns the open/closed state of the ControlPanelButton.*/
-    bool isOpen()
-    {
-        return open;
-    }
-
-    /** Toggles the open/closed state of the ControlPanelButton.*/
-    void toggleState();
-
-    /** Sets the open/closed state of the ControlPanelButton.*/
-    void setState(bool);
-
-    /** Draws the button. */
-    void paint(Graphics& g);
-
-    /** Responds to mouse clicks within the button. */
-    void mouseDown(const MouseEvent& e);
-
-private:
-
-    ControlPanel* cp;
-    
-    Path openPath, closedPath;
-
-    bool open;
-
-};
 
 class UtilityButton;
 
@@ -502,7 +454,7 @@ private:
     std::unique_ptr<DiskSpaceMeter> diskMeter;
     std::unique_ptr<FilenameComponent> filenameComponent;
     std::unique_ptr<UtilityButton> newDirectoryButton;
-    std::unique_ptr<ControlPanelButton> controlPanelButton;
+    std::unique_ptr<CustomArrowButton> showHideRecordingOptionsButton;
     std::unique_ptr<RecordButton> recordButton;
     std::unique_ptr<ComboBox> recordSelector;
 

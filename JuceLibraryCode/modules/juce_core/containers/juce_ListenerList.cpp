@@ -1,21 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE framework.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
+   JUCE is an open source framework subject to commercial or open source
    licensing.
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
+
+   Or:
+
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -25,7 +37,7 @@ namespace juce
 
 #if JUCE_UNIT_TESTS
 
-class ListenerListTests  : public UnitTest
+class ListenerListTests final : public UnitTest
 {
 public:
     //==============================================================================
@@ -299,6 +311,147 @@ public:
 
                 expect (test.wereAllNonRemovedListenersCalled (numCalls));
             }
+        }
+
+        beginTest ("Deleting the listener list from a callback");
+        {
+            struct Listener
+            {
+                std::function<void()> onCallback;
+                void notify() { onCallback(); }
+            };
+
+            auto listeners = std::make_unique<juce::ListenerList<Listener>>();
+
+            const auto callback = [&]
+            {
+                expect (listeners != nullptr);
+                listeners.reset();
+            };
+
+            Listener listener1 { callback };
+            Listener listener2 { callback };
+
+            listeners->add (&listener1);
+            listeners->add (&listener2);
+
+            listeners->call (&Listener::notify);
+
+            expect (listeners == nullptr);
+        }
+
+        beginTest ("Using a BailOutChecker");
+        {
+            struct Listener
+            {
+                std::function<void()> onCallback;
+                void notify() { onCallback(); }
+            };
+
+            ListenerList<Listener> listeners;
+
+            bool listener1Called = false;
+            bool listener2Called = false;
+            bool listener3Called = false;
+
+            Listener listener1 { [&]{ listener1Called = true; } };
+            Listener listener2 { [&]{ listener2Called = true; } };
+            Listener listener3 { [&]{ listener3Called = true; } };
+
+            listeners.add (&listener1);
+            listeners.add (&listener2);
+            listeners.add (&listener3);
+
+            struct BailOutChecker
+            {
+                bool& bailOutBool;
+                bool shouldBailOut() const { return bailOutBool; }
+            };
+
+            BailOutChecker bailOutChecker { listener2Called };
+            listeners.callChecked (bailOutChecker, &Listener::notify);
+
+            expect (  listener1Called);
+            expect (  listener2Called);
+            expect (! listener3Called);
+        }
+
+        beginTest ("Using a critical section");
+        {
+            struct Listener
+            {
+                std::function<void()> onCallback;
+                void notify() { onCallback(); }
+            };
+
+            struct TestCriticalSection
+            {
+                TestCriticalSection()  { isAlive() = true; }
+                ~TestCriticalSection() { isAlive() = false; }
+
+                static void enter() noexcept { numOutOfScopeCalls() += isAlive() ? 0 : 1; }
+                static void exit() noexcept  { numOutOfScopeCalls() += isAlive() ? 0 : 1; }
+
+                static bool tryEnter() noexcept
+                {
+                    numOutOfScopeCalls() += isAlive() ? 0 : 1;
+                    return true;
+                }
+
+                using ScopedLockType = GenericScopedLock<TestCriticalSection>;
+
+                static bool& isAlive()
+                {
+                    static bool inScope = false;
+                    return inScope;
+                }
+
+                static int& numOutOfScopeCalls()
+                {
+                    static int numOutOfScopeCalls = 0;
+                    return numOutOfScopeCalls;
+                }
+            };
+
+            auto listeners = std::make_unique<juce::ListenerList<Listener, Array<Listener*, TestCriticalSection>>>();
+
+            const auto callback = [&]{ listeners.reset(); };
+
+            Listener listener { callback };
+
+            listeners->add (&listener);
+            listeners->call (&Listener::notify);
+
+            expect (listeners == nullptr);
+            expect (TestCriticalSection::numOutOfScopeCalls() == 0);
+        }
+
+        beginTest ("Adding a listener during a callback when one has already been removed");
+        {
+            struct Listener{};
+
+            ListenerList<Listener> listeners;
+            expect (listeners.size() == 0);
+
+            Listener listener;
+            listeners.add (&listener);
+            expect (listeners.size() == 1);
+
+            bool listenerCalled = false;
+
+            listeners.call ([&] (auto& l)
+            {
+                listeners.remove (&l);
+                expect (listeners.size() == 0);
+
+                listeners.add (&l);
+                expect (listeners.size() == 1);
+
+                listenerCalled = true;
+            });
+
+            expect (listenerCalled);
+            expect (listeners.size() == 1);
         }
     }
 

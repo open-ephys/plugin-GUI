@@ -31,11 +31,12 @@
 #include "../Processors/MessageCenter/MessageCenterEditor.h"
 #include "DefaultConfig.h"
 #include "LookAndFeel/CustomLookAndFeel.h"
+#include "CustomArrowButton.h"
 
 class MainWindow;
 class ProcessorList;
 class ControlPanel;
-class EditorViewportButton;
+class ShowHideEditorViewportButton;
 class ProcessorGraph;
 class AudioComponent;
 class GraphViewer;
@@ -75,7 +76,8 @@ public:
     UIComponent(MainWindow* mainWindow_,
                 ProcessorGraph* pgraph,
                 AudioComponent* audio,
-                ControlPanel* controlPanel);
+                ControlPanel* controlPanel,
+                CustomLookAndFeel* customLookAndFeel);
 
     /** Destructor */
     ~UIComponent();
@@ -182,7 +184,7 @@ private:
 
     ScopedPointer<DataViewport> dataViewport;
     ScopedPointer<SignalChainTabComponent> signalChainTabComponent;
-    ScopedPointer<EditorViewportButton> editorViewportButton;
+    ScopedPointer<ShowHideEditorViewportButton> showHideEditorViewportButton;
     ScopedPointer<ProcessorList> processorList;
     ScopedPointer<InfoLabel> infoLabel;
     ScopedPointer<GraphViewer> graphViewer;
@@ -253,18 +255,19 @@ private:
         loadPluginSettings      = 0x3001,
         savePluginSettings      = 0x3002,
         lockSignalChain         = 0x5001,
-        setColorTheme1          = 0x6111,
-        setColorTheme2          = 0x6112
+        setColorThemeLight      = 0x6111,
+        setColorThemeMedium    = 0x6112,
+        setColorThemeDark       = 0x6113,
+        setSoftwareRenderer     = 0x7001,
+        setDirect2DRenderer     = 0x7002
         
     };
 
     File currentConfigFile;
     
     bool messageCenterIsCollapsed = true;
-    
-    ColorTheme theme = THEME1;
-    
-    CustomLookAndFeel customLookAndFeel;
+        
+    CustomLookAndFeel* customLookAndFeel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UIComponent);
 
@@ -278,33 +281,27 @@ private:
 
 */
 
-class EditorViewportButton : public Component
+class ShowHideEditorViewportButton : public ToggleButton,
+    public Button::Listener
 {
 public:
-    EditorViewportButton(UIComponent* ui);
-    ~EditorViewportButton();
-
-    /** Returns the open/closed state of the button. */
-    bool isOpen()
-    {
-        return open;
-    }
+    
+    /** Constructor */
+    ShowHideEditorViewportButton();
+    
+    /** Destructor */
+    ~ShowHideEditorViewportButton() { }
 
     /** Draws the button. */
-    void paint(Graphics& g);
-
-    /** Switches the open/closed state of the button. */
-    void toggleState();
-
-    /** Called when a mouse click begins inside the boundaries of the button. Used
-    to toggle the button's open/closed state. */
-    void mouseDown(const MouseEvent& e);
+    void paint(Graphics& g) override;
+    
+    /** Listens for clicks on sub-component */
+    void buttonClicked(Button* button);
 
 private:
 
-    UIComponent* UI;
-    bool open;
-
+    std::unique_ptr<CustomArrowButton> arrow;
+    
     Font buttonFont;
 
 };

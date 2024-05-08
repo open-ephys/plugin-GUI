@@ -169,8 +169,11 @@ Array<ParameterEditor*> ParameterOwner::createDefaultEditor()
         }
         case Parameter::BOOLEAN_PARAM:
         {
-            ToggleParameterEditor* booleanParameterEditor = new ToggleParameterEditor(parameter);
-            editors.add(booleanParameterEditor);
+            if (parameter->getName() != "enable_stream")
+            {
+                ToggleParameterEditor* booleanParameterEditor = new ToggleParameterEditor(parameter);
+                editors.add(booleanParameterEditor);
+            }
             break;
         }
         case Parameter::CATEGORICAL_PARAM:
