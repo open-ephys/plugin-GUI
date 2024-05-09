@@ -136,6 +136,12 @@ int AudioComponent::getBufferSize()
 
 void AudioComponent::setBufferSize(int bufferSize)
 {
+    if (callbacksAreActive())
+    {
+        CoreServices::sendStatusMessage("Cannot set buffer size while acquisition is active.");
+        return;
+    }
+
     AudioDeviceManager::AudioDeviceSetup setup;
     deviceManager.getAudioDeviceSetup(setup);
 
@@ -164,6 +170,12 @@ int AudioComponent::getSampleRate()
 
 void AudioComponent::setSampleRate(int sampleRate)
 {
+    if (callbacksAreActive())
+    {
+        CoreServices::sendStatusMessage("Cannot set sample rate while acquisition is active.");
+        return;
+    }
+
     AudioDeviceManager::AudioDeviceSetup setup;
     deviceManager.getAudioDeviceSetup(setup);
 
@@ -181,6 +193,12 @@ String AudioComponent::getDeviceType()
 
 void AudioComponent::setDeviceType(String deviceType)
 {
+    if (callbacksAreActive())
+    {
+        CoreServices::sendStatusMessage("Cannot set device type while acquisition is active.");
+        return;
+    }
+
     deviceManager.setCurrentAudioDeviceType(deviceType, true);
 
     CoreServices::sendStatusMessage("Set device type to " + String(deviceManager.getCurrentDeviceTypeObject()->getTypeName()));
