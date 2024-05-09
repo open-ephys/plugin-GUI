@@ -816,26 +816,24 @@ void CustomLookAndFeel::drawButtonText (Graphics& g,
                                         TextButton& button,
                                         bool isMouseOverButton, bool isButtonDown)
 {
-    auto textColour = button.getToggleState()
-                        ? button.findColour (TextButton::textColourOnId)
-                        : button.findColour (TextButton::textColourOffId);
-
-    g.setColour (textColour.withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f));
-
-    g.setFont(Font("Fira Sans", "Regular", button.getHeight() * 0.75f));
+    Font font (getTextButtonFont (button, button.getHeight()));
+    g.setFont (font);
+    g.setColour (button.findColour (button.getToggleState() ? TextButton::textColourOnId
+                                                            : TextButton::textColourOffId)
+                       .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.5f));
 
     const int yIndent = jmin (4, button.proportionOfHeight (0.3f));
     const int cornerSize = jmin (button.getHeight(), button.getWidth()) / 2;
 
-    const int fontHeight = roundToInt (button.getHeight());
-    const int leftIndent  = jmin (fontHeight, 2 + cornerSize / 2);
-    const int rightIndent = jmin (fontHeight, 2 + cornerSize / 2);
+    const int fontHeight = roundToInt (font.getHeight() * 0.65f);
+    const int leftIndent  = jmin (fontHeight, 2 + cornerSize / (button.isConnectedOnLeft() ? 4 : 2));
+    const int rightIndent = jmin (fontHeight, 2 + cornerSize / (button.isConnectedOnRight() ? 4 : 2));
     const int textWidth = button.getWidth() - leftIndent - rightIndent;
 
     if (textWidth > 0)
         g.drawFittedText (button.getButtonText(),
                           leftIndent, yIndent, textWidth, button.getHeight() - yIndent * 2,
-                          Justification::centred, 1);
+                          Justification::centred, 1, 0.95f);
 }
 
 Font CustomLookAndFeel::getTextButtonFont (TextButton&, int buttonHeight)

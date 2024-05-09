@@ -53,6 +53,8 @@ public:
 
     /** Destructor */
     ~FilenameEditorButton() {}
+
+    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
 
@@ -436,12 +438,6 @@ private:
 
     /** Informs the Control Panel that recording has stopped.*/
     void stopRecording();
-
-    /** Generates prepend string for recording directory */
-    String generatePrepend(String format);
-
-    /** Generates append string for recording directory */
-    String generateAppend(String format);
 
     /** Generates the next recording directory based on field settings **/
     String generateFilenameFromFields(bool usePlaceholderText);

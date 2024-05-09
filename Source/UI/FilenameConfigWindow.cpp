@@ -163,36 +163,12 @@ String FilenameFieldComponent::getNextValue(bool usePlaceholderText)
                     return value;
                 }
                 else {
-                    Time calendar = Time::getCurrentTime();
-
-                    Array<int> t;
-                    t.add(calendar.getYear());
-                    t.add(calendar.getMonth() + 1); // January = 0 
-                    t.add(calendar.getDayOfMonth());
-                    t.add(calendar.getHours());
-                    t.add(calendar.getMinutes());
-                    t.add(calendar.getSeconds());
-
-                    String datestring = "";
-
-                    for (int n = 0; n < t.size(); n++)
-                    {
-                        if (t[n] < 10)
-                            datestring += "0";
-
-                        datestring += t[n];
-
-                        if (n == 2)
-                            datestring += "_";
-                        else if (n < 5)
-                            datestring += "-";
-                    }
-
-                    value = datestring;
+                    value = Time::getCurrentTime().formatted("%Y-%m-%d_%H-%M-%S");
+                    valueLabel->setText(value, dontSendNotification);
+                    return value;
                 }
 
-                valueLabel->setText(value, dontSendNotification);
-                return value;
+                
             }
             else {
 

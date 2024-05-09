@@ -42,6 +42,34 @@ FilenameEditorButton::FilenameEditorButton()
     setTooltip("Edit the recording filename");
 }
 
+void FilenameEditorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+    auto& lf = getLookAndFeel();
+
+    lf.drawButtonBackground (g, *this,
+                             findColour (getToggleState() ? buttonOnColourId : buttonColourId),
+                             isMouseOver, isButtonDown);
+    
+    
+    Font font (lf.getTextButtonFont (*this, getHeight()));
+    Colour textColour = findColour (getToggleState() ? textColourOnId : textColourOffId)
+                       .withMultipliedAlpha (isEnabled() ? 1.0f : 0.5f);
+
+    const int yIndent = jmin (4, proportionOfHeight (0.3f));
+    const int cornerSize = jmin (getHeight(), getWidth()) / 2;
+
+    const int fontHeight = roundToInt (font.getHeight() * 0.65f);
+    const int leftIndent  = jmin (fontHeight, 2 + cornerSize / (isConnectedOnLeft() ? 4 : 2));
+    const int rightIndent = jmin (fontHeight, 2 + cornerSize / (isConnectedOnRight() ? 4 : 2));
+    const int textWidth = getWidth() - leftIndent - rightIndent;
+
+    AttributedString attrStr;
+    attrStr.setJustification (Justification::centred);
+    attrStr.append (getButtonText(), font, textColour);
+    attrStr.draw(g, juce::Rectangle<float>(leftIndent, yIndent, textWidth, getHeight() - yIndent * 2));
+        
+}
+
 PlayButton::PlayButton()
     : DrawableButton("Play Button", DrawableButton::ImageRaw)
 {
@@ -1393,88 +1421,6 @@ String ControlPanel::generateFilenameFromFields(bool usePlaceholderText)
     filenameText->setButtonText(filename);
 
     return filename;
-
-
-        /*if (field->state == FilenameFieldComponent::State::NONE)
-
-            continue; //don't add to the filename
-
-        else if (field->state == FilenameFieldComponent::State::CUSTOM)
-        {
-            filename += field->value; //Add filename field exactly as entered in popup window
-            //checkForExistingFilename = true; 
-        }
-        else //FilenameFieldComponent::State::AUTO
-        {
-
-            if (usePlaceholderText)
-            {
-                filename += field->get
-                continue;
-            }
-
-            switch (field->type)
-            {
-
-                case FilenameFieldComponent::Type::PREPEND:
-
-                    filename += generatePrepend(field->value);
-                    break;
-
-                case FilenameFieldComponent::Type::MAIN:
-
-                    filename += generateDatetimeFromFormat(field->value);
-                    break;
-
-                case FilenameFieldComponent::Type::APPEND:
-
-                    filename += generateAppend(field->value);
-                    break;       
-                
-                default:
-                    break;
-
-            }
-
-        }
-
-    }*/
-
-    // Disallow overwrite of an existing data directory
-    /*if (!usePlaceholderText && checkForExistingFilename && getRecordingParentDirectory().getChildFile(filename).exists())
-    {
-
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-            TRANS("Recording Directory Name Conflict"),
-            TRANS("The current custom recording directory name already exists and "
-                    "would overwrite existing data. ")
-                + newLine
-                + TRANS ("Please change the directory name: \"XYZ\"")
-                .replace ("XYZ", filename),
-            TRANS ("OK"),
-            filenameText.get(),
-            ModalCallbackFunction::create (forceFilenameEditor, this));
-
-        return filename;
-    }
-
-    // Disallow both Prepend and Append fields to have state AUTO
-    if (filenameFields[0]->state == FilenameFieldComponent::State::AUTO &&  filenameFields[2]->state == FilenameFieldComponent::State::AUTO)
-    {
-
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-            TRANS("Recording Directory Name Conflict"),
-            TRANS("Auto mode cannot be enabled for both Prepend and Append fields simultaneously")
-                + newLine
-                + TRANS ("Please fix to continue"),
-            TRANS ("OK"),
-            filenameText.get(),
-            ModalCallbackFunction::create (forceFilenameEditor, this));
-
-        return filename;
-    }*/
-
-    //if (updateControlPanel)
     
 }
 
@@ -1511,85 +1457,5 @@ String ControlPanel::generateDatetimeFromFormat(String format)
     }
 
     return datestring;
-
-}
-
-String ControlPanel::generatePrepend(String format)
-{
-
-    if (filenameFields[1]->state == FilenameFieldComponent::State::CUSTOM)
-    {
-        int maxIdx = 0;
-
-        for (DirectoryEntry entry : RangedDirectoryIterator (getRecordingDirectoryName(), false, "*", 1))
-        {
-            if (entry.getFile().getFileName().contains(filenameFields[1]->value) > 0)
-            {
-                int idx;
-                try
-                {
-                    idx = std::stoi(entry.getFile().getFileName().substring(0,3).toStdString());
-                    if (idx > maxIdx)
-                        maxIdx = idx;
-                }
-                catch(const std::exception& e)
-                {
-                    idx = 999;
-                }
-
-            }
-        }
-
-        if (!maxIdx) return format;
-
-        String prependText = String(maxIdx + 1);
-        for (int i = 0; i < 4 - prependText.length(); i++)
-            prependText = "0" + prependText;
-
-        return prependText + "_";
-        
-    }
-
-    return format;
-
-}
-
-String ControlPanel::generateAppend(String format)
-{
-    
-    if (filenameFields[1]->state == FilenameFieldComponent::State::CUSTOM)
-    {
-        int maxIdx = 0;
-        for (DirectoryEntry entry : RangedDirectoryIterator (getRecordingDirectoryName(), false, "*", 1))
-        {
-            if (entry.getFile().getFileName().indexOfWholeWordIgnoreCase(filenameFields[1]->value) == 0)
-            {
-                int idx;
-                try
-                {
-                    String fn = entry.getFile().getFileName();
-                    idx = std::stoi(entry.getFile().getFileName().substring(fn.length()-3,fn.length()).toStdString());
-                    if (idx > maxIdx)
-                        maxIdx = idx;
-                }
-                catch(const std::exception& e)
-                {
-                    idx = 999;
-                }
-
-            }
-        }
-
-        if (!maxIdx) return format;
-
-        String appendText = String(maxIdx + 1);
-        for (int i = 0; i < 4 - appendText.length(); i++)
-            appendText = "0" + appendText;
-
-        return "_" + appendText;
-        
-    }
-
-    return format;
 
 }
