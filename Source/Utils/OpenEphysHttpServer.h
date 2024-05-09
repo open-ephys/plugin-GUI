@@ -146,6 +146,12 @@ public:
             res.set_content(ret.dump(), "application/json");
             });
 
+        svr_->Get("/api/audio", [this](const httplib::Request&, httplib::Response& res) {
+            json ret;
+            audio_info_to_json(graph_, &ret);
+            res.set_content(ret.dump(), "application/json");
+            });
+
         svr_->Put("/api/audio", [this](const httplib::Request& req, httplib::Response& res)
             {
                 json request_json;
