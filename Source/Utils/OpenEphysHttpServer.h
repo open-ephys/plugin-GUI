@@ -177,6 +177,16 @@ public:
                     LOGD("'buffer_size' not specified'");
                 }
 
+                try {
+                    int sample_rate = request_json["sample_rate"];
+                    LOGD("Found 'sample_rate': ", sample_rate);
+                    const MessageManagerLock mml;
+                    AccessClass::getAudioComponent()->setSampleRate(sample_rate);
+                }
+                catch (json::exception& e) {
+                    LOGD("'sample_rate' not specified'");
+                }
+
                 json ret;
                 audio_info_to_json(graph_, &ret);
                 res.set_content(ret.dump(), "application/json");

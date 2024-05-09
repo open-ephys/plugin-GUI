@@ -27,7 +27,7 @@
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include <stdio.h>
 
-
+#include "../CoreServices.h"
 #include "../Utils/Utils.h"
 
 AudioComponent::AudioComponent() : isPlaying(false)
@@ -142,6 +142,8 @@ void AudioComponent::setBufferSize(int bufferSize)
     setup.bufferSize = bufferSize;
 
     deviceManager.setAudioDeviceSetup(setup, true);
+
+    CoreServices::sendStatusMessage("Set buffer size to " + String(deviceManager.getAudioDeviceSetup().bufferSize) + " samples.");
 }
 
 int AudioComponent::getBufferSizeMs()
@@ -168,6 +170,8 @@ void AudioComponent::setSampleRate(int sampleRate)
     setup.sampleRate = sampleRate;
 
     deviceManager.setAudioDeviceSetup(setup, true);
+
+    CoreServices::sendStatusMessage("Set sample rate to " + String(deviceManager.getAudioDeviceSetup().sampleRate) + " Hz.");
 }
 
 String AudioComponent::getDeviceType()
