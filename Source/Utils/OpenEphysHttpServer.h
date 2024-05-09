@@ -167,6 +167,16 @@ public:
                 }
 
                 try {
+                    int sample_rate = request_json["sample_rate"];
+                    LOGD("Found 'sample_rate': ", sample_rate);
+                    const MessageManagerLock mml;
+                    AccessClass::getAudioComponent()->setSampleRate(sample_rate);
+                }
+                catch (json::exception& e) {
+                    LOGD("'sample_rate' not specified'");
+                }
+
+                try {
                     int buffer_size = request_json["buffer_size"];
                     LOGD("Found 'buffer_size': ", buffer_size);
                     const MessageManagerLock mml;
@@ -178,13 +188,13 @@ public:
                 }
 
                 try {
-                    int sample_rate = request_json["sample_rate"];
-                    LOGD("Found 'sample_rate': ", sample_rate);
+                    std::string device_type = request_json["device_type"];
+                    LOGD("Found 'device_type': ", device_type);
                     const MessageManagerLock mml;
-                    AccessClass::getAudioComponent()->setSampleRate(sample_rate);
+                    AccessClass::getAudioComponent()->setDeviceType(String(device_type));
                 }
                 catch (json::exception& e) {
-                    LOGD("'sample_rate' not specified'");
+                    LOGD("'device_type' not specified'");
                 }
 
                 json ret;
@@ -1025,11 +1035,11 @@ private:
     inline static void audio_info_to_json(const ProcessorGraph* graph, json* ret)
     {
 
-        (*ret)["device"] = AccessClass::getAudioComponent()->getDeviceType().toStdString();
-
         (*ret)["sample_rate"] = AccessClass::getAudioComponent()->getSampleRate();
 
         (*ret)["buffer_size"] = AccessClass::getAudioComponent()->getBufferSize();
+
+        (*ret)["device_type"] = AccessClass::getAudioComponent()->getDeviceType().toStdString();
 
     }
 

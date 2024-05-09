@@ -182,6 +182,8 @@ String AudioComponent::getDeviceType()
 void AudioComponent::setDeviceType(String deviceType)
 {
     deviceManager.setCurrentAudioDeviceType(deviceType, true);
+
+    CoreServices::sendStatusMessage("Set device type to " + String(deviceManager.getCurrentDeviceTypeObject()->getTypeName()));
 }
 
 void AudioComponent::connectToProcessorGraph(AudioProcessorGraph* processorGraph)
@@ -346,5 +348,5 @@ void AudioComponent::loadStateFromXml(XmlElement* parent)
         LOGE("Buffer size out of range.");
     }
 
-    std::cout << deviceManager.setAudioDeviceSetup(setup, true) << std::endl;
+    LOGC(deviceManager.setAudioDeviceSetup(setup, true));
 }
