@@ -173,15 +173,8 @@ void InfoLabel::resized()
          tabButtons[i]->setBounds(40 + 130 * i, 20, 90, 40);
     
     viewport->setBounds(20, 80, getWidth()-20, getHeight() - 80);
-
-    int componentWidth = viewport->getWidth() - 40;
-
-    if (viewport->getWidth() - 40 < 800)
-        componentWidth = 800;
-    else if (viewport->getWidth() - 40 > 2000)
-        componentWidth = 2000;
     
-    viewedComponent->setBounds(0, 20, componentWidth, viewport->getHeight() - 20);
+    viewedComponent->setBounds(0, 20, viewport->getWidth() - 40, viewport->getHeight() - 20);
     viewedComponent->resizeForText();
 
 }
@@ -1143,29 +1136,29 @@ void InfoLabel::createHyperlinks() {
         hyperlink.positionX = Range<int>(45, 345);
         hyperlink.positionY = Range<int> (40, 200);
 
-        hyperlinks.add(hyperlink);
+        // hyperlinks.add(hyperlink);
 
-        hyperlink.url = "https://open-ephys.github.io/gui-docs/User-Manual/index.html";
-        hyperlink.positionX = Range<int>(375, 610);
-        hyperlink.positionY = Range<int>(410, 480);
+        // hyperlink.url = "https://open-ephys.github.io/gui-docs/User-Manual/index.html";
+        // hyperlink.positionX = Range<int>(375, 610);
+        // hyperlink.positionY = Range<int>(410, 480);
 
-        hyperlinks.add(hyperlink);
+        // hyperlinks.add(hyperlink);
 
-        hyperlink.url = "https://github.com/open-ephys/plugin-GUI";
-        hyperlink.positionX = Range<int>(130, 385);
-        hyperlink.positionY = Range<int>(500, 580);
+        // hyperlink.url = "https://github.com/open-ephys/plugin-GUI";
+        // hyperlink.positionX = Range<int>(130, 385);
+        // hyperlink.positionY = Range<int>(500, 580);
 
-        hyperlinks.add(hyperlink);
+        // hyperlinks.add(hyperlink);
 
-        hyperlink.url = "https://iopscience.iop.org/article/10.1088/1741-2552/aa5eea/meta";
-        hyperlink.positionX = Range<int>(15, 635);
-        hyperlink.positionY = Range<int>(650, 675);
+        // hyperlink.url = "https://iopscience.iop.org/article/10.1088/1741-2552/aa5eea/meta";
+        // hyperlink.positionX = Range<int>(15, 635);
+        // hyperlink.positionY = Range<int>(650, 675);
 
-        hyperlinks.add(hyperlink);
+        // hyperlinks.add(hyperlink);
 
-        hyperlink.url = "https://github.com/open-ephys/plugin-GUI/issues";
-        hyperlink.positionX = Range<int>(450, 750);
-        hyperlink.positionY = Range<int>(775, 840);
+        // hyperlink.url = "https://github.com/open-ephys/plugin-GUI/issues";
+        // hyperlink.positionX = Range<int>(450, 750);
+        // hyperlink.positionY = Range<int>(775, 840);
 
         hyperlinks.add(hyperlink);
     }
