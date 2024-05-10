@@ -2,6 +2,7 @@ include(../ComponentRules.cmake)
 add_sources(${COMPONENT_NAME}_tests
 		RecordNodeTests.cpp
 		ProcessorGraphTests.cpp
+		DataBufferTests.cpp
 )
 target_include_directories(
 		${COMPONENT_NAME}_tests
