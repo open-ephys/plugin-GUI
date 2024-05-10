@@ -26,7 +26,6 @@
 
 #include <list>
 #include <string>
-#include <cstring>
 #include <sys/types.h>
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "OpenEphysPlugin.h"
@@ -35,7 +34,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #elif defined(__APPLE__)
-namespace CF {
+namespace CF
+{
 #include <CoreFoundation/CFBundle.h>
 }
 #endif
@@ -45,7 +45,7 @@ struct LoadedLibInfo : public Plugin::LibraryInfo
 #ifdef _WIN32
 	HINSTANCE handle;
 #elif defined(__APPLE__)
-    CF::CFBundleRef handle;
+	CF::CFBundleRef handle;
 #else
 	void* handle;
 #endif
@@ -55,23 +55,18 @@ template<class T>
 struct LoadedPluginInfo : public T
 {
 	int libIndex;
-
-	// Setter function to modify the libIndex
-	void setLibIndex(int index)
-	{
-		libIndex = index;
-	}
 };
 
 
 class GenericProcessor;
 
 /**
-* 
+*
 	Retrieves information about available plugins
 
  */
-class PluginManager {
+class PluginManager
+{
 
 public:
 
@@ -85,7 +80,7 @@ public:
 	void loadAllPlugins();
 
 	/** Loads plugins in a particular directory */
-    void loadPlugins(const File &pluginPath);
+	void loadPlugins(const File& pluginPath);
 
 	/** Loads a plugin at a particular path*/
 	int loadPlugin(const String&);
@@ -104,7 +99,7 @@ public:
 
 	/** Returns the total number of record engine plugins*/
 	int getNumRecordEngines() const;
-	
+
 	/** Returns the total number of file source plugins*/
 	int getNumFileSources() const;
 
@@ -154,7 +149,7 @@ private:
 	template<class T>
 	bool findPlugin(String name, String libName, const Array<LoadedPluginInfo<T>>& pluginArray, T& pluginInfo) const;
 
-	/* Making the info structures have a constructor complicates the DLL interface. 
+	/* Making the info structures have a constructor complicates the DLL interface.
 	It's easier to just add some static methods to create empty structures for when the calls fail*/
 	static Plugin::ProcessorInfo getEmptyProcessorInfo();
 	static Plugin::DataThreadInfo getEmptyDatathreadInfo();

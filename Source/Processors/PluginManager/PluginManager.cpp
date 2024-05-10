@@ -35,60 +35,62 @@
 #include "../../Utils/Utils.h"
 
 
-static inline void closeHandle(decltype(LoadedLibInfo::handle) handle) {
-	if (handle) {
+static inline void closeHandle(decltype(LoadedLibInfo::handle) handle)
+{
+	if (handle)
+	{
 #ifdef _WIN32
 		FreeLibrary(handle);
 #elif defined(__APPLE__)
-		CF::CFBundleUnloadExecutable(handle);
-		CF::CFRelease(handle);
+		CFRelease(handle);
 #else
-		if (dlclose(handle) != 0) {
-			LOGE("Failed to close handle");
-		}
+		dlclose(handle);
 #endif
 	}
 }
 
 
-static void errorMsg(const char *file, int line, const char *msg) {
-    
+static void errorMsg(const char* file, int line, const char* msg)
+{
+
 #ifdef _WIN32
-    // DWORD ret = GetLastError();
+	// DWORD ret = GetLastError();
 
-    LPVOID lpMsgBuf;
-    DWORD dw = GetLastError(); 
+	LPVOID lpMsgBuf;
+	DWORD dw = GetLastError();
 
-    if (dw) {
+	if (dw)
+	{
 
-        FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-        FORMAT_MESSAGE_FROM_SYSTEM |
-        FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL,
-        dw,
-        0,
-        (LPTSTR) &lpMsgBuf,
-        0, NULL );
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			FORMAT_MESSAGE_FROM_SYSTEM |
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			dw,
+			0,
+			(LPTSTR)&lpMsgBuf,
+			0, NULL);
 
-        LOGE(msg, " Error code ", dw, ": ", (LPTSTR)lpMsgBuf);
-    }
-    LocalFree(lpMsgBuf);
+		LOGE(msg, " Error code ", dw, ": ", (LPTSTR)lpMsgBuf);
+	}
+	LocalFree(lpMsgBuf);
 
 #elif defined(__APPLE__)
-    // Any additional error messages are logged directly by the system
-    // and are not available to the application
+	// Any additional error messages are logged directly by the system
+	// and are not available to the application
 #else
-    const char *error = dlerror();
-    if (error) {
-        //fprintf(stderr, ": %s", error);
+	const char* error = dlerror();
+	if (error)
+	{
+		//fprintf(stderr, ": %s", error);
 		std::string errorString(error);
 		int lastDelimIndex = errorString.find_last_of("/");
 		int sizeOfString = errorString.size();
 		LOGE(errorString.substr(lastDelimIndex + 1, sizeOfString));
-    }
+	}
 #endif
-    
+
 }
 
 #define ERROR_MSG(msg) errorMsg(__FILE__, __LINE__, msg)
@@ -102,31 +104,43 @@ PluginManager::PluginManager()
 
 	//Shared directory at the same level as executable
 	File sharedPath = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("shared");
+	//Shared directory managed by Plugin Installer at C:/ProgramData
+	File installSharedPath = File::getSpecialLocation(File::commonApplicationDataDirectory)
+		.getChildFile("Open Ephys")
+		.getChildFile("shared-api" + String(PLUGIN_API_VER));
 
-	/*
-	* NOTE: the logic supporting finding plugins and other DLLs in directories outside of this
-	* application bundle has been removed. This likely means the "Plugin Installer" won't work properly,
-	* but for the purposes of UG3 this shouldn't matter. This was done since our packaging method copies
-	* all plugins into this shared/ folder, and needs to work in a portable fashion.
-	*/
-	SetDllDirectory(sharedPath.getFullPathName().toUTF8());
+	if (appDir.contains("plugin-GUI\\Build\\"))
+	{
+		SetDllDirectory(sharedPath.getFullPathName().toUTF8());
+	}
+	else
+	{
+		if (!installSharedPath.isDirectory())
+		{
+			LOGD("Copying shared dependencies to ", installSharedPath.getFullPathName());
+			sharedPath.copyDirectoryTo(installSharedPath);
+		}
+		SetDllDirectory(installSharedPath.getFullPathName().toUTF8());
+	}
 
 #elif __linux__
 	File installSharedPath = File::getSpecialLocation(File::userApplicationDataDirectory)
-							.getChildFile("open-ephys")
-							.getChildFile("shared-api" + String(PLUGIN_API_VER));
-							
-	if (!installSharedPath.isDirectory()) {
-        installSharedPath.createDirectory();
-    }
+		.getChildFile("open-ephys")
+		.getChildFile("shared-api" + String(PLUGIN_API_VER));
+
+	if (!installSharedPath.isDirectory())
+	{
+		installSharedPath.createDirectory();
+	}
 #else
 	File installSharedPath = File::getSpecialLocation(File::userApplicationDataDirectory)
-							.getChildFile("Application Support/open-ephys")
-							.getChildFile("shared-api" + String(PLUGIN_API_VER));
-							
-	if (!installSharedPath.isDirectory()) {
-        installSharedPath.createDirectory();
-    }
+		.getChildFile("Application Support/open-ephys")
+		.getChildFile("shared-api" + String(PLUGIN_API_VER));
+
+	if (!installSharedPath.isDirectory())
+	{
+		installSharedPath.createDirectory();
+	}
 #endif
 }
 
@@ -137,60 +151,65 @@ PluginManager::~PluginManager()
 
 void PluginManager::loadAllPlugins()
 {
-    Array<File> paths;
-    
+	Array<File> paths;
+
 #ifdef __APPLE__
-    paths.add(File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/PlugIns"));
-    paths.add(File::getSpecialLocation(File::userApplicationDataDirectory)
-		 	 .getChildFile("Application Support/open-ephys")
-			 .getChildFile("plugins-api" + String(PLUGIN_API_VER))
-			 );
+	paths.add(File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/PlugIns"));
+	paths.add(File::getSpecialLocation(File::userApplicationDataDirectory)
+		.getChildFile("Application Support/open-ephys")
+		.getChildFile("plugins-api" + String(PLUGIN_API_VER))
+	);
 #elif _WIN32
 	paths.add(File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("plugins"));
 
-    String appDir = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
-    if(!appDir.contains("plugin-GUI\\Build\\"))
+	String appDir = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
+	if (!appDir.contains("plugin-GUI\\Build\\"))
 	{
-	    paths.add(File::getSpecialLocation(File::commonApplicationDataDirectory)
-			 	 .getChildFile("Open Ephys")
-				 .getChildFile("plugins-api" + String(PLUGIN_API_VER))
-				 );
+		paths.add(File::getSpecialLocation(File::commonApplicationDataDirectory)
+			.getChildFile("Open Ephys")
+			.getChildFile("plugins-api" + String(PLUGIN_API_VER))
+		);
 	}
 #else
 	paths.add(File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("plugins"));
 
-    String appDir = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
-    if(!appDir.contains("plugin-GUI/Build/"))
+	String appDir = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
+	if (!appDir.contains("plugin-GUI/Build/"))
 	{
-	    paths.add(File::getSpecialLocation(File::userApplicationDataDirectory)
-				 .getChildFile("open-ephys")
-				 .getChildFile("plugins-api" + String(PLUGIN_API_VER)));
-	}	
+		paths.add(File::getSpecialLocation(File::userApplicationDataDirectory)
+			.getChildFile("open-ephys")
+			.getChildFile("plugins-api" + String(PLUGIN_API_VER)));
+	}
 #endif
 
-    for (auto &pluginPath : paths) {
-        if (!pluginPath.isDirectory()) {
+	for (auto& pluginPath : paths)
+	{
+		if (!pluginPath.isDirectory())
+		{
 			LOGD("Plugin path not found: ", pluginPath.getFullPathName(), "\nCreating new plugins directory...");
 			pluginPath.createDirectory();
-        } else {
-            loadPlugins(pluginPath);
-        }
-    }
+		}
+		else
+		{
+			loadPlugins(pluginPath);
+		}
+	}
 }
 
-void PluginManager::loadPlugins(const File &pluginPath) {
-    Array<File> foundDLLs;
-    
+void PluginManager::loadPlugins(const File& pluginPath)
+{
+	Array<File> foundDLLs;
+
 #ifdef _WIN32
-    String pluginExt("*.dll");
+	String pluginExt("*.dll");
 #elif defined(__APPLE__)
-    String pluginExt("*.bundle");
+	String pluginExt("*.bundle");
 #else
-    String pluginExt("*.so");
+	String pluginExt("*.so");
 #endif
-    
+
 #ifdef __APPLE__
-    pluginPath.findChildFiles(foundDLLs, File::findDirectories, false, pluginExt);
+	pluginPath.findChildFiles(foundDLLs, File::findDirectories, false, pluginExt);
 #else
 	pluginPath.findChildFiles(foundDLLs, File::findFiles, true, pluginExt);
 #endif
@@ -198,10 +217,9 @@ void PluginManager::loadPlugins(const File &pluginPath) {
 	for (int i = 0; i < foundDLLs.size(); i++)
 	{
 		LOGD("Loading Plugin: ", foundDLLs[i].getFileNameWithoutExtension(), "... ");
-		LOGD("Path: ", foundDLLs[i].getFullPathName());
 
 		int res = loadPlugin(foundDLLs[i].getFullPathName());
-		
+
 		if (res < 0)
 		{
 			LOGE(foundDLLs[i].getFileName(), " Load FAILED");
@@ -221,34 +239,30 @@ void PluginManager::loadPlugins(const File &pluginPath) {
 	 and works inside the same POSIX thread as the GUI.
  */
 
-int PluginManager::loadPlugin(const String& pluginLoc) {
-
-#ifdef _WIN32
-	HINSTANCE handle;
-	const wchar_t* processorLocLPCWSTR = pluginLoc.toWideCharPointer();
-	handle = LoadLibraryW(processorLocLPCWSTR);
-#elif defined(__APPLE__)
-	CF::CFStringRef processorLocCFString = pluginLoc.toCFString();
-	CF::CFURLRef bundleURL = CF::CFURLCreateWithFileSystemPath(CF::kCFAllocatorDefault, 
-															   processorLocCFString,
-															   CF::kCFURLPOSIXPathStyle,
-															   true);
-															   
-	assert(bundleURL);
-	CF::CFBundleRef handle = CF::CFBundleCreate(CF::kCFAllocatorDefault, bundleURL);
-	CF::CFRelease(bundleURL);
-	CF::CFRelease(processorLocCFString);
-#else
-	// Clear errors
-	dlerror();
-
+int PluginManager::loadPlugin(const String& pluginLoc)
+{
 	/*
 	Load in the selected processor. This takes the
 	dynamic object (.so) and copies it into RAM
 	Dynamic linker requires a C-style string, so we
 	we have to convert first.
 	*/
-	const char* processorLocCString = pluginLoc.toRawUTF8();
+	const char* processorLocCString = static_cast<const char*>(pluginLoc.toUTF8());
+
+#ifdef _WIN32
+	HINSTANCE handle;
+	handle = LoadLibrary(processorLocCString);
+#elif defined(__APPLE__)
+	CF::CFURLRef bundleURL = CF::CFURLCreateFromFileSystemRepresentation(CF::kCFAllocatorDefault,
+		reinterpret_cast<const CF::UInt8*>(processorLocCString),
+		strlen(processorLocCString),
+		true);
+	assert(bundleURL);
+	CF::CFBundleRef handle = CF::CFBundleCreate(CF::kCFAllocatorDefault, bundleURL);
+	CFRelease(bundleURL);
+#else
+	// Clear errors
+	dlerror();
 
 	/*
 	Changing this to resolve all variables immediately upon loading.
@@ -256,12 +270,13 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 	processor stability and to ensure that it doesn't crash due
 	to memory mishaps.
 	*/
-	void *handle = 0;
-	handle = dlopen(processorLocCString,RTLD_GLOBAL|RTLD_NOW);
+	void* handle = 0;
+	handle = dlopen(processorLocCString, RTLD_GLOBAL | RTLD_NOW);
 #endif
 
-	if (!handle) {
-		ERROR_MSG("Failed to load plugin DLL");
+	if (!handle)
+	{
+		ERROR_MSG("Failed to load plugin DLL.");
 		closeHandle(handle);
 		return -1;
 	}
@@ -270,9 +285,9 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 #ifdef _WIN32
 	infoFunction = (LibraryInfoFunction)GetProcAddress(handle, "getLibInfo");
 #elif defined(__APPLE__)
-    infoFunction = (LibraryInfoFunction)CFBundleGetFunctionPointerForName(handle, CFSTR("getLibInfo"));
+	infoFunction = (LibraryInfoFunction)CFBundleGetFunctionPointerForName(handle, CFSTR("getLibInfo"));
 #else
-    dlerror();
+	dlerror();
 	infoFunction = (LibraryInfoFunction)(dlsym(handle, "getLibInfo"));
 #endif
 
@@ -297,20 +312,20 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 #ifdef _WIN32
 	piFunction = (PluginInfoFunction)GetProcAddress(handle, "getPluginInfo");
 #elif defined(__APPLE__)
-    piFunction = (PluginInfoFunction)CFBundleGetFunctionPointerForName(handle, CFSTR("getPluginInfo"));
+	piFunction = (PluginInfoFunction)CFBundleGetFunctionPointerForName(handle, CFSTR("getPluginInfo"));
 #else
-    dlerror();
+	dlerror();
 	piFunction = (PluginInfoFunction)(dlsym(handle, "getPluginInfo"));
 #endif
 
 	if (!piFunction)
 	{
-        ERROR_MSG("Failed to load function 'getPluginInfo'.");
+		ERROR_MSG("Failed to load function 'getPluginInfo'.");
 		closeHandle(handle);
 		return -1;
 	}
 
-	LoadedLibInfo lib{};
+	LoadedLibInfo lib;
 	lib.apiVersion = libInfo.apiVersion;
 	lib.name = libInfo.name;
 	lib.libVersion = libInfo.libVersion;
@@ -333,9 +348,10 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			info.creator = pInfo.processor.creator;
 			info.name = pInfo.processor.name;
 			info.type = pInfo.processor.type;
-			info.libIndex = libArray.size()-1;
-			processorPlugins.add(info);
-
+			info.libIndex = libArray.size() - 1;
+			Plugin::ProcessorInfo pi = getProcessorInfo(String::fromUTF8(info.name));
+			if (pi.name == nullptr)
+				processorPlugins.add(info);
 			break;
 		}
 		case Plugin::RECORD_ENGINE:
@@ -345,8 +361,9 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			info.creator = pInfo.recordEngine.creator;
 			info.name = pInfo.recordEngine.name;
 			info.libIndex = libArray.size() - 1;
-			recordEnginePlugins.add(info);
-			
+			Plugin::RecordEngineInfo rei = getRecordEngineInfo(String::fromUTF8(info.name));
+			if (rei.name == nullptr)
+				recordEnginePlugins.add(info);
 			break;
 		}
 		case Plugin::DATA_THREAD:
@@ -356,8 +373,9 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			info.creator = pInfo.dataThread.creator;
 			info.name = pInfo.dataThread.name;
 			info.libIndex = libArray.size() - 1;
-			dataThreadPlugins.add(info);
-			
+			Plugin::DataThreadInfo dti = getDataThreadInfo(String::fromUTF8(info.name));
+			if (dti.name == nullptr)
+				dataThreadPlugins.add(info);
 			break;
 		}
 		case Plugin::FILE_SOURCE:
@@ -368,8 +386,9 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 			info.name = pInfo.fileSource.name;
 			info.extensions = pInfo.fileSource.extensions;
 			info.libIndex = libArray.size();
-			fileSourcePlugins.add(info);
-			
+			Plugin::FileSourceInfo fsi = getFileSourceInfo(String::fromUTF8(info.name));
+			if (fsi.name == nullptr)
+				fileSourcePlugins.add(info);
 			break;
 		}
 		default:
@@ -422,7 +441,7 @@ Plugin::RecordEngineInfo PluginManager::getRecordEngineInfo(int index) const
 {
 	if (index < recordEnginePlugins.size())
 		return recordEnginePlugins[index];
-	else 
+	else
 		return getEmptyRecordengineInfo();
 }
 
@@ -478,21 +497,21 @@ String PluginManager::getLibraryVersion(int index) const
 		return libArray[index].libVersion;
 }
 
-int PluginManager::getLibraryIndexFromPlugin (Plugin::Type type, int index)
+int PluginManager::getLibraryIndexFromPlugin(Plugin::Type type, int index)
 {
-    switch (type)
-    {
-        case Plugin::PROCESSOR:
-            return processorPlugins[index].libIndex;
-        case Plugin::RECORD_ENGINE:
-            return recordEnginePlugins[index].libIndex;
-        case Plugin::DATA_THREAD:
-            return dataThreadPlugins[index].libIndex;
-        case Plugin::FILE_SOURCE:
-            return fileSourcePlugins[index].libIndex;
-        default:
-            return -1;
-    }
+	switch (type)
+	{
+	case Plugin::PROCESSOR:
+		return processorPlugins[index].libIndex;
+	case Plugin::RECORD_ENGINE:
+		return recordEnginePlugins[index].libIndex;
+	case Plugin::DATA_THREAD:
+		return dataThreadPlugins[index].libIndex;
+	case Plugin::FILE_SOURCE:
+		return fileSourcePlugins[index].libIndex;
+	default:
+		return -1;
+	}
 }
 
 Plugin::ProcessorInfo PluginManager::getEmptyProcessorInfo()
@@ -534,10 +553,8 @@ bool PluginManager::findPlugin(String name, String libName, const Array<LoadedPl
 	for (int i = 0; i < pluginArray.size(); i++)
 	{
 		String pName = String(pluginArray[i].name);
-		LOGC("********** PluginArray[", i, "]: ", pName);
-		if (pName.equalsIgnoreCase(name))
+		if (pName == name)
 		{
-			LOGC ("Found plugin: ", name, " in pluginArray");
 			if ((libName.isEmpty()) || (libName == String(libArray[pluginArray[i].libIndex].name)))
 			{
 				pluginInfo = pluginArray[i];
@@ -561,7 +578,7 @@ bool PluginManager::removePlugin(String libName)
 		}
 	}
 
-	if(indexToRemove == -1)
+	if (indexToRemove == -1)
 		return true;
 
 	LoadedLibInfo lib = libArray[indexToRemove];
@@ -570,15 +587,15 @@ bool PluginManager::removePlugin(String libName)
 #ifdef _WIN32
 	piFunction = (PluginInfoFunction)GetProcAddress(lib.handle, "getPluginInfo");
 #elif defined(__APPLE__)
-    piFunction = (PluginInfoFunction)CFBundleGetFunctionPointerForName(lib.handle, CFSTR("getPluginInfo"));
+	piFunction = (PluginInfoFunction)CFBundleGetFunctionPointerForName(lib.handle, CFSTR("getPluginInfo"));
 #else
-    dlerror();
+	dlerror();
 	piFunction = (PluginInfoFunction)(dlsym(lib.handle, "getPluginInfo"));
 #endif
 
 	if (!piFunction)
 	{
-        ERROR_MSG("Failed to load function 'getPluginInfo'");
+		ERROR_MSG("Failed to load function 'getPluginInfo'");
 		closeHandle(lib.handle);
 		return -1;
 	}
@@ -588,92 +605,79 @@ bool PluginManager::removePlugin(String libName)
 	{
 		if (piFunction(i, &pInfo)) //if somehow there are fewer plugins than stated, stop removing
 			break;
-
-		int pluginIndex = -1;
 		switch (pInfo.type)
 		{
-			case Plugin::PROCESSOR:
+		case Plugin::PROCESSOR:
+		{
+			LOGD("Removing processor plugin");
+			for (int j = 0; j < processorPlugins.size(); j++)
 			{
-				LOGD("Removing processor plugin: ", pInfo.processor.name);
-				for(int j = 0; j < processorPlugins.size(); j++)
+				if (processorPlugins[j].name == pInfo.processor.name)
 				{
-					if(processorPlugins[j].name == pInfo.processor.name)
-						pluginIndex = j;
-					
-					if (processorPlugins[j].libIndex > indexToRemove)
-						processorPlugins[j].setLibIndex(processorPlugins[j].libIndex - 1);
+					processorPlugins.remove(j);
+					break;
 				}
-				if(pluginIndex != -1)
-					processorPlugins.remove(pluginIndex);
-
-				break;
 			}
-			case Plugin::RECORD_ENGINE:
+			break;
+		}
+		case Plugin::RECORD_ENGINE:
+		{
+			LOGD("Removing record engine plugin");
+			for (int j = 0; j < recordEnginePlugins.size(); j++)
 			{
-				LOGD("Removing record engine plugin: ", pInfo.recordEngine.name);
-				for(int j = 0; j < recordEnginePlugins.size(); j++)
+				if (recordEnginePlugins[j].name == pInfo.recordEngine.name)
 				{
-					if(recordEnginePlugins[j].name == pInfo.recordEngine.name)
-						pluginIndex = j;
-					
-					if (recordEnginePlugins[j].libIndex > indexToRemove)
-						recordEnginePlugins[j].setLibIndex(recordEnginePlugins[j].libIndex - 1);
+					recordEnginePlugins.remove(j);
+					break;
 				}
-				if(pluginIndex != -1)
-					recordEnginePlugins.remove(pluginIndex);
-
-				break;
 			}
-			case Plugin::DATA_THREAD:
+			break;
+		}
+		case Plugin::DATA_THREAD:
+		{
+			LOGD("Adding data thread plugin");
+			for (int j = 0; j < dataThreadPlugins.size(); j++)
 			{
-				LOGD("Removing data thread plugin: ", pInfo.dataThread.name);
-				for(int j = 0; j < dataThreadPlugins.size(); j++)
+				if (dataThreadPlugins[j].name == pInfo.dataThread.name)
 				{
-					if(dataThreadPlugins[j].name == pInfo.dataThread.name)
-						pluginIndex = j;
-					
-					if (dataThreadPlugins[j].libIndex > indexToRemove)
-						dataThreadPlugins[j].setLibIndex(dataThreadPlugins[j].libIndex - 1);
+					dataThreadPlugins.remove(j);
+					break;
 				}
-				if(pluginIndex != -1)
-					dataThreadPlugins.remove(pluginIndex);
-
-				break;
 			}
-			case Plugin::FILE_SOURCE:
+			break;
+		}
+		case Plugin::FILE_SOURCE:
+		{
+			LOGD("Adding file source plugin");
+			for (int j = 0; j < fileSourcePlugins.size(); j++)
 			{
-				LOGD("Removing file source plugin: ", pInfo.fileSource.name);
-				for(int j = 0; j < fileSourcePlugins.size(); j++)
+				if (fileSourcePlugins[j].name == pInfo.fileSource.name)
 				{
-					if(fileSourcePlugins[j].name == pInfo.fileSource.name)
-						pluginIndex = j;
-					
-					if (fileSourcePlugins[j].libIndex > indexToRemove)
-						fileSourcePlugins[j].setLibIndex(fileSourcePlugins[j].libIndex - 1);
+					fileSourcePlugins.remove(j);
+					break;
 				}
-				if(pluginIndex != -1)
-					fileSourcePlugins.remove(pluginIndex);
-
-				break;
 			}
-			default:
-			{
-				LOGE("Invalid plugin");
-				break;
-			}
+			break;
+		}
+		default:
+		{
+			LOGE("Inavlid plugin");
+			break;
+		}
 		}
 	}
 
-	closeHandle(lib.handle);
 	libArray.remove(indexToRemove);
 	return true;
 }
 
 #if 0
-PluginManager::Plugin::Plugin() {
+PluginManager::Plugin::Plugin()
+{
 }
 
-PluginManager::Plugin::~Plugin() {
+PluginManager::Plugin::~Plugin()
+{
 }
 
 /*
@@ -682,26 +686,30 @@ PluginManager::Plugin::~Plugin() {
  */
 
 
-void PluginManager::Manager::unloadPlugin(PluginManager::Plugin *processor) {
-	if (!processor) {
+void PluginManager::Manager::unloadPlugin(PluginManager::Plugin* processor)
+{
+	if (!processor)
+	{
 		ERROR_MSG("PluginManager::unloadPlugin: Invalid processor");
 		return;
 	}
 #ifdef _WIN32
 	HINSTANCE handle;
 #elif defined(__APPLE__)
-    CFBundleRef handle;
+	CFBundleRef handle;
 #else
-	void *handle = 0;
+	void* handle = 0;
 #endif
 	handle = processor->processorHandle;
 	closeHandle(handle);
 	removeListPlugin(processor);
 }
 
-void PluginManager::Manager::insertListPlugin(PluginManager::Plugin *processor) {
+void PluginManager::Manager::insertListPlugin(PluginManager::Plugin* processor)
+{
 	LOGD("Size of list before is: ", pluginList.size());
-	if(!processor) {
+	if (!processor)
+	{
 		ERROR_MSG("PluginManager::insertListPlugin: Invalid processor.");
 		return;
 	}
@@ -710,9 +718,11 @@ void PluginManager::Manager::insertListPlugin(PluginManager::Plugin *processor) 
 	LOGD("Size of list after is: ", pluginList.size());
 }
 
-void PluginManager::Manager::removeListPlugin(PluginManager::Plugin *processor) {	
+void PluginManager::Manager::removeListPlugin(PluginManager::Plugin* processor)
+{
 	LOGD("Size of list before is: ", pluginList.size());
-	if(!processor) {
+	if (!processor)
+	{
 		ERROR_MSG("PluginManager::removeListPlugin: Invalid processor.");
 		return;
 	}
@@ -720,31 +730,36 @@ void PluginManager::Manager::removeListPlugin(PluginManager::Plugin *processor) 
 	LOGD("Size of list after is: ", pluginList.size());
 }
 
-void PluginManager::Manager::removeAllPlugins() {
+void PluginManager::Manager::removeAllPlugins()
+{
 #ifdef _WIN32
 	HINSTANCE handle;
 #elif defined(__APPLE__)
-    CFBundleRef handle;
+	CFBundleRef handle;
 #else
-	void *handle;
+	void* handle;
 #endif
-	for(std::list<PluginManager::Plugin *>::iterator i = pluginList.begin(); i != pluginList.end(); i = pluginList.begin()) {
+	for (std::list<PluginManager::Plugin*>::iterator i = pluginList.begin(); i != pluginList.end(); i = pluginList.begin())
+	{
 		LOGD("Size of list before all is: ", pluginList.size());
 		handle = (*i)->processorHandle;
 		removeListPlugin(*i);
-		delete *i;
+		delete* i;
 		closeHandle(handle);
 		LOGD("Size of list after all is: ", pluginList.size());
 	}
 }
 
-PluginManager::Manager *PluginManager::Manager::instance = 0;
-PluginManager::Manager *PluginManager::Manager::getInstance() {
-	if (instance) {
+PluginManager::Manager* PluginManager::Manager::instance = 0;
+PluginManager::Manager* PluginManager::Manager::getInstance()
+{
+	if (instance)
+	{
 		return instance;
 	}
 
-	if (!instance) {
+	if (!instance)
+	{
 		static Manager manager;
 		instance = &manager;
 	}
