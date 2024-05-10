@@ -2204,13 +2204,6 @@ void ProcessorGraph::loadFromXml(XmlElement* xml)
             AccessClass::getAudioComponent()->loadStateFromXml(element);
             AccessClass::getControlPanel()->loadStateFromXml(xml);  // load the control panel settings after the audio settings
         }
-        else if (element->hasTagName("EDITORVIEWPORT"))
-        {
-            
-            if (!isConsoleApp)
-                AccessClass::getEditorViewport()->loadEditorViewportSettingsFromXml(element);
-            
-        }
 
     }
 
@@ -2218,6 +2211,10 @@ void ProcessorGraph::loadFromXml(XmlElement* xml)
 
     if (!isConsoleApp)
     {
+        auto editorViewportXml = xml->getChildByName("EDITORVIEWPORT");
+        if (editorViewportXml != nullptr)
+            AccessClass::getEditorViewport()->loadEditorViewportSettingsFromXml(editorViewportXml);
+        
         refreshColors(); // refresh editor colors
         AccessClass::getDataViewport()->loadStateFromXml(xml);
 

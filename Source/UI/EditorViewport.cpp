@@ -1454,36 +1454,21 @@ const String EditorViewport::saveState(File fileToUse, String* xmlText)
 void EditorViewport::saveEditorViewportSettingsToXml(XmlElement* xml)
 {
     XmlElement* editorViewportSettings = new XmlElement("EDITORVIEWPORT");
+    editorViewportSettings->setAttribute("selectedTab", signalChainTabComponent->getSelectedTab());
     editorViewportSettings->setAttribute("scroll", signalChainTabComponent->getScrollOffset());
-    
-    for (auto editor : editorArray)
-    {
-        if(editor->getProcessor()->isEmpty())
-            continue;
-            
-        XmlElement* visibleEditorXml = new XmlElement(editor->getName().replaceCharacters(" ()","___").toUpperCase());
-        visibleEditorXml->setAttribute("ID", editor->getProcessor()->getNodeId());
-        editorViewportSettings->addChildElement(visibleEditorXml);
-    }
     
     xml->addChildElement(editorViewportSettings);
 }
 
 void EditorViewport::loadEditorViewportSettingsFromXml(XmlElement* element)
 {
-    for (auto editor : editorArray)
-    {
-        editor->setVisible(false);
-    }
-    editorArray.clear();
-    
-    for (auto* visibleEditor : element->getChildIterator())
-    {
-        int nodeId = visibleEditor->getIntAttribute("ID");
-        editorArray.add(AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeId)->getEditor());
-    }
-    
-    refreshEditors();
+    auto* pg = AccessClass::getProcessorGraph();
+
+    int numRootNodes = pg->getRootNodes().size();
+    int selectedTab = element->getIntAttribute("selectedTab", 0);
+
+    if (numRootNodes > 0 && selectedTab <= numRootNodes)
+        pg->viewSignalChain(selectedTab);
     
     int scrollOffset = element->getIntAttribute("scroll", 0);
     

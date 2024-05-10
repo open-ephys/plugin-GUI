@@ -335,10 +335,13 @@ public:
     int getScrollOffset();
     void setScrollOffset(int offset);
 
+    // Returns the currently selected tab
+    int getSelectedTab() { return selectedTab; }
+
 private:
 
-    int numberOfTabs;
-    int selectedTab;
+    int numberOfTabs = 0;
+    int selectedTab = -1;
     int topTab;
     
     OwnedArray<SignalChainTabButton> signalChainTabButtonArray;
