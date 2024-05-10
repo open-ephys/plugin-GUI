@@ -52,8 +52,8 @@ UIComponent::UIComponent(MainWindow* mainWindow_,
 	messageCenterEditor = (MessageCenterEditor*) processorGraph->getMessageCenter()->createEditor();
 	LOGD("Created message center editor.");
 
-	// infoLabel = new InfoLabel();
-	// LOGD("Created info label.");
+	infoLabel = new InfoLabel();
+	LOGD("Created info label.");
 
 	graphViewer = new GraphViewer();
 	LOGD("Created graph viewer.");
@@ -394,6 +394,8 @@ void UIComponent::setTheme(ColorTheme t)
     controlPanel->updateColors();
 
 	messageCenterButton.updateColors();
+
+	infoLabel->updateColors();
     
     getProcessorGraph()->refreshColors();
 
@@ -407,11 +409,11 @@ ColorTheme UIComponent::getTheme()
 
 void UIComponent::addInfoTab()
 {
-	// if (!infoTabIsOpen)
-	// {
-	// 	dataViewport->addTab("Info", infoLabel, 0);
-	// 	infoTabIsOpen = true;
-	// }
+	if (!infoTabIsOpen)
+	{
+		dataViewport->addTab("Info", infoLabel, 0);
+		infoTabIsOpen = true;
+	}
 }
 
 void UIComponent::addGraphTab()

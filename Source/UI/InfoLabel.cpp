@@ -32,24 +32,65 @@ InfoLabelTabButton::InfoLabelTabButton(const String& name) : Button(name)
 void InfoLabelTabButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     
-    g.setColour(Colours::lightgrey);
+    g.setColour(findColour(ThemeColors::defaultText));
 
-    g.setFont(Font("Nimbus Sans", 20, Font::plain));
+    g.setFont(FontOptions {"Nimbus Sans", "Regular",  20.0f});
     g.drawText(getName(), 0, 0, getWidth(), getHeight(), Justification::centred);
 
     if (isMouseOver)
-        g.setColour(Colours::yellow);
+        g.setColour(findColour(ThemeColors::defaultFill));
     
     if (getToggleState())
-        g.setColour(Colours::orange);
+        g.setColour(findColour(ThemeColors::highlightedFill));
 
     g.fillRect(0, getHeight() - 3, getWidth(), 3);
 
 }
 
+
+TextComponent::TextComponent()
+{
+    setOpaque(false);
+    color_logo = Drawable::createFromImageData(BinaryData::color_logo72_png, BinaryData::color_logo72_pngSize);
+    color_logo->setDrawableTransform(AffineTransform::translation(50.0f, 50.0f));
+
+    addAndMakeVisible(color_logo.get());
+}
+
+void TextComponent::paint(Graphics& g)
+{
+    if(infoText.getText().isEmpty())
+        return;
+
+    int topPadding = color_logo->isVisible() ? 250 : 20;
+
+    infoTextLayout.draw(g, Rectangle<float>(0, topPadding, getWidth(), infoTextLayout.getHeight()));
+}
+
+void TextComponent::resizeForText()
+{
+    // int width = parent->getWidth() - 20;
+    infoTextLayout.createLayout(infoText, getWidth());
+
+    if (color_logo->isVisible())
+    {
+        setSize(getWidth(), infoTextLayout.getHeight() + 320);
+    }
+    else
+    {
+        setSize(getWidth(), infoTextLayout.getHeight() + 80);
+    }
+}
+
+void TextComponent::setAttributedString(const AttributedString& text, bool isLogoVisible)
+{
+    infoText = text;
+    color_logo->setVisible(isLogoVisible);
+}
+
+
 InfoLabel::InfoLabel()
 {
-    color_logo = Drawable::createFromImageData(BinaryData::color_logo72_png, BinaryData::color_logo72_pngSize);
 
     StringArray names = { "About", "Authors", "License" };
 
@@ -62,36 +103,40 @@ InfoLabel::InfoLabel()
     }
 
     viewport = std::make_unique<Viewport>();
+    viewport->setScrollBarsShown(true, true);
+    viewport->setScrollBarThickness(12);
     addAndMakeVisible(viewport.get());
 
-    viewedComponent = std::make_unique<Component>();
+    viewedComponent = std::make_unique<TextComponent>();
     viewport->setViewedComponent(viewedComponent.get(), false);
-    viewport->setScrollBarsShown(true, false);
 
-    textEditor.reset(new TextEditor());
-    textEditor->setScrollbarsShown(true);
-    textEditor->setMultiLine(true, true);
-    textEditor->setReadOnly(true);
-    textEditor->setPopupMenuEnabled(false);
-    textEditor->setLineSpacing(1.1f);
-    textEditor->setIndents(5, 20);
-    textEditor->setScrollbarsShown(false);
-    textEditor->setColour(TextEditor::ColourIds::outlineColourId, Colour(0).withAlpha(0.0f));
-    textEditor->setColour(TextEditor::ColourIds::focusedOutlineColourId, Colour(0).withAlpha(0.0f));
-    textEditor->setColour(TextEditor::ColourIds::backgroundColourId, Colour(0).withAlpha(0.0f));
-    textEditor->setColour(TextEditor::ColourIds::shadowColourId, Colour(0).withAlpha(0.0f));
-    textEditor->setColour(TextEditor::ColourIds::textColourId, Colours::antiquewhite);
-    textEditor->setColour(TextEditor::ColourIds::highlightColourId, Colours::white);
+    aboutText.setLineSpacing(1.1f);
+    aboutText.setJustification(Justification::centredLeft);
+    aboutText.setWordWrap(AttributedString::WordWrap::byWord);
+    aboutText.setColour(findColour(ThemeColors::defaultText));
 
-    tabButtons.getFirst()->setToggleState(true, sendNotification);
+    authorsText.setLineSpacing(1.1f);
+    authorsText.setJustification(Justification::centredLeft);
+    authorsText.setWordWrap(AttributedString::WordWrap::byWord);
+    authorsText.setColour(findColour(ThemeColors::defaultText));
+
+    licenseText.setLineSpacing(1.1f);
+    licenseText.setJustification(Justification::centredLeft);
+    licenseText.setWordWrap(AttributedString::WordWrap::byWord);
+    licenseText.setColour(findColour(ThemeColors::defaultText));
 
     addMouseListener(this, true);
+    setInterceptsMouseClicks(true, false);
 
-    viewedComponent->addChildComponent(color_logo.get());
-    viewedComponent->addChildComponent(textEditor.get());
+    viewedComponent->setBufferedToImage(true);
+
     viewedComponent->setVisible(true);
-    color_logo->setVisible(true);
-    textEditor->setVisible(true);
+
+    setAboutText();
+    setAuthorsText();
+    setLicenseText();
+
+    tabButtons.getFirst()->setToggleState(true, sendNotification);
 
 }
 
@@ -103,76 +148,76 @@ InfoLabel::~InfoLabel()
 void InfoLabel::buttonClicked(Button* button)
 
 {
-    if (button->getName().equalsIgnoreCase("about"))
+    if (button->getName().equalsIgnoreCase("About"))
     {
-        setAboutText();
+        viewedComponent->setAttributedString(aboutText, true);
     }
-    else if (button->getName().equalsIgnoreCase("authors"))
+    else if (button->getName().equalsIgnoreCase("Authors"))
     {
-        setAuthorsText();
+        viewedComponent->setAttributedString(authorsText);
     }
-    else if (button->getName().equalsIgnoreCase("license"))
+    else if (button->getName().equalsIgnoreCase("License"))
     {
-        setLicenseText();
+        viewedComponent->setAttributedString(licenseText);
     }
 
+    createHyperlinks();
+
     resized();
-    repaint();
 }
 
 void InfoLabel::resized()
 {
-    viewport->setBounds(20, 65, getWidth()-20, getHeight() - 63);
-
-    if (tabButtons.getFirst()->getToggleState())
-    {
-        viewedComponent->setBounds(0, 0, getWidth() - 40, textEditor->getTextHeight() + 340);
-        textEditor->setBounds(0, 280, getWidth() - 60, textEditor->getTextHeight() + 20);
-    }
-        
-    else
-    {
-        viewedComponent->setBounds(0, 0, getWidth() - 40, textEditor->getTextHeight() + 40);
-        textEditor->setBounds(0, 0, getWidth() - 60, textEditor->getTextHeight() + 20);
-    }
-
-    color_logo->setBounds(0, 0, 288, 144);
-
+    
     for (int i = 0; i < tabButtons.size(); i++)
          tabButtons[i]->setBounds(40 + 130 * i, 20, 90, 40);
-
-    if (tabButtons.getFirst()->getToggleState())
-        color_logo->setVisible(true);
-    else
-        color_logo->setVisible(false);
     
+    viewport->setBounds(20, 80, getWidth()-20, getHeight() - 80);
+
+    int componentWidth = viewport->getWidth() - 40;
+
+    if (viewport->getWidth() - 40 < 800)
+        componentWidth = 800;
+    else if (viewport->getWidth() - 40 > 2000)
+        componentWidth = 2000;
+    
+    viewedComponent->setBounds(0, 20, componentWidth, viewport->getHeight() - 20);
+    viewedComponent->resizeForText();
+
 }
 
 
 void InfoLabel::paint(Graphics& g)
 {
-    g.fillAll(Colour(20,20,20));
+    g.fillAll(findColour(ThemeColors::componentBackground));
+}
 
-    color_logo->setBounds(50, 90, 381, 180);
+void InfoLabel::updateColors()
+{
+    aboutText.setColour(findColour(ThemeColors::defaultText));
+    authorsText.setColour(findColour(ThemeColors::defaultText));
+    licenseText.setColour(findColour(ThemeColors::defaultText));
+
+    for (auto tabBtn : tabButtons)
+        if (tabBtn->getToggleState())
+            buttonClicked(tabBtn);
 }
 
 void InfoLabel::mouseMove(const MouseEvent& originalEvent)
 {
+    const MouseEvent& event = originalEvent.getEventRelativeTo(viewedComponent.get());
 
-    const MouseEvent& event = originalEvent.getEventRelativeTo(textEditor.get());
-
-    int i = textEditor->getTextIndexAt(event.x, event.y);
-
-    if (textEditor->getMouseCursor() != MouseCursor::NormalCursor)
+    if (viewedComponent->getMouseCursor() != MouseCursor::NormalCursor)
     {
-        textEditor->setMouseCursor(MouseCursor::NormalCursor);
+        viewedComponent->setMouseCursor(MouseCursor::NormalCursor);
     }
 
     for (auto link : hyperlinks)
     {
-        if (link.position.contains(i))
+        if (link.positionX.contains(event.x)
+            && link.positionY.contains(event.y))
         {
-            textEditor->setMouseCursor(MouseCursor::PointingHandCursor);
+            viewedComponent->setMouseCursor(MouseCursor::PointingHandCursor);
             break;
         }
     }
@@ -181,15 +226,13 @@ void InfoLabel::mouseMove(const MouseEvent& originalEvent)
 
 void InfoLabel::mouseUp(const MouseEvent& originalEvent)
 {
-    const MouseEvent& event = originalEvent.getEventRelativeTo(textEditor.get());
-
-    int i = textEditor->getTextIndexAt(event.x, event.y);
-
+    const MouseEvent& event = originalEvent.getEventRelativeTo(viewedComponent.get());
 
     for (auto link : hyperlinks)
     {
 
-        if (link.position.contains(i))
+        if (link.positionX.contains(event.x)
+            && link.positionY.contains(event.y))
         {
             URL url(link.url);
             url.launchInDefaultBrowser();
@@ -201,6 +244,7 @@ void InfoLabel::mouseUp(const MouseEvent& originalEvent)
 void InfoLabel::setAboutText()
 {
 
+    
     String infoString = 
         "The Open Ephys GUI is free, collaboratively "
         "developed, open-source software for scientific research. It includes " 
@@ -215,109 +259,55 @@ void InfoLabel::setAboutText()
         "safe environment before using it to collect real data.\n\n\n"
         ;
 
-    textEditor->clear();
-    textEditor->setFont(Font("Nimbus Sans", 20, Font::plain));
-    textEditor->insertTextAtCaret("Welcome to the Open Ephys GUI!\n\n");
-    textEditor->setFont(Font("Nimbus Sans", 16, Font::plain));
-    textEditor->insertTextAtCaret(infoString);
+    aboutText.clear();
+    
+    aboutText.append("Welcome to the Open Ephys GUI!\n\n", FontOptions {"Nimbus Sans", "Regular",  20.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 20, Font::plain));
-    textEditor->insertTextAtCaret("Documentation\n\n");
-    textEditor->setFont(Font("Nimbus Sans", 16, Font::plain));
-    textEditor->insertTextAtCaret("The Open Ephys GUI User Manual can be found at: ");
+    aboutText.append(infoString, FontOptions {"Nimbus Sans", "Regular",  16.0f});
 
-    textEditor->setFont(Font("Fira Code", 16, Font::plain));
-    textEditor->insertTextAtCaret("open-ephys.github.io/gui-docs \n\n\n");
 
-    textEditor->setFont(Font("Nimbus Sans", 20, Font::plain));
-    textEditor->insertTextAtCaret("Source Code\n\n");
-    textEditor->setFont(Font("Nimbus Sans", 16, Font::plain));
-    textEditor->insertTextAtCaret("GitHub repository: ");
+    aboutText.append("Documentation\n\n", FontOptions {"Nimbus Sans", "Regular",  20.0f});
+    aboutText.append("The Open Ephys GUI User Manual can be found at: ", FontOptions {"Nimbus Sans", "Regular",  16.0f});
 
-    textEditor->setFont(Font("Fira Code", 16, Font::plain));
-    textEditor->insertTextAtCaret("github.com/open-ephys/plugin-GUI \n\n\n");
+    aboutText.append("open-ephys.github.io/gui-docs\n\n\n", FontOptions {"Fira Code", "Regular",  16.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 20, Font::plain));
-    textEditor->insertTextAtCaret("Publications\n\n");
-    textEditor->setFont(Font("Nimbus Sans", 16, Font::plain));
-    textEditor->insertTextAtCaret("Any publications based on data collected with this software should "
+    aboutText.append("Source Code\n\n", FontOptions {"Nimbus Sans", "Regular",  20.0f});
+    aboutText.append("GitHub repository: ", FontOptions {"Nimbus Sans", "Regular",  16.0f});
+
+    aboutText.append("github.com/open-ephys/plugin-GUI\n\n\n", FontOptions {"Fira Code", "Regular",  16.0f});
+
+    aboutText.append("Publications\n\n", FontOptions {"Nimbus Sans", "Regular",  20.0f});
+    aboutText.append("Any publications based on data collected with this software should "
         "cite the following article: \n\n"
         "   Open Ephys : an open-source, plugin-based platform for "
         "multichannel electrophysiology.\n\n"
 
         "Citations remain essential for measuring the impact of scientific "
         "software, so be sure to include references to any open-source tools "
-        "that you use in your research! \n\n\n");
+        "that you use in your research! \n\n\n", FontOptions {"Nimbus Sans", "Regular",  16.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 20, Font::plain));
-    textEditor->insertTextAtCaret("Contact\n\n");
-    textEditor->setFont(Font("Nimbus Sans", 16, Font::plain));
-    textEditor->insertTextAtCaret("For questions, email ");
+    aboutText.append("Contact\n\n", FontOptions {"Nimbus Sans", "Regular",  20.0f});
+    aboutText.append("For questions, email ", FontOptions {"Nimbus Sans", "Regular",  16.0f});
 
-    textEditor->setFont(Font("Fira Code", 16, Font::plain));
-    textEditor->insertTextAtCaret("support@open-ephys.org");
+    aboutText.append("support@open-ephys.org", FontOptions {"Fira Code", "Regular",  16.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 16, Font::plain));
-    textEditor->insertTextAtCaret(" or post an issue at ");
-    textEditor->setFont(Font("Fira Code", 16, Font::plain));
-
-    textEditor->insertTextAtCaret("github.com/open-ephys/plugin-GUI/Issues");
-    
-    textEditor->setCaretPosition(0);
-    textEditor->scrollEditorToPositionCaret(0, 0);
-
-    hyperlinks.clear();
-
-    hyperlink.url = "https://open-ephys.org/gui";
-    hyperlink.position.setStart(16);
-    hyperlink.position.setEnd(30);
-
-    hyperlinks.add(hyperlink);
-
-    hyperlink.url = "https://open-ephys.github.io/gui-docs/User-Manual/index.html";
-    hyperlink.position.setStart(780);
-    hyperlink.position.setEnd(809);
-
-    hyperlinks.add(hyperlink);
-
-    hyperlink.url = "https://github.com/open-ephys/plugin-GUI";
-    hyperlink.position.setStart(845);
-    hyperlink.position.setEnd(877);
-
-    hyperlinks.add(hyperlink);
-
-    hyperlink.url = "https://iopscience.iop.org/article/10.1088/1741-2552/aa5eea/meta";
-    hyperlink.position.setStart(995);
-    hyperlink.position.setEnd(1080);
-
-    hyperlinks.add(hyperlink);
-
-    hyperlink.url = "https://github.com/open-ephys/plugin-GUI/issues";
-    hyperlink.position.setStart(1325);
-    hyperlink.position.setEnd(1363);
-
-    hyperlinks.add(hyperlink);
+    aboutText.append(" or post an issue at ", FontOptions {"Nimbus Sans", "Regular",  16.0f});
+    aboutText.append("github.com/open-ephys/plugin-GUI/Issues", FontOptions {"Fira Code", "Regular",  16.0f});
 }
 
 void InfoLabel::setAuthorsText()
 {
-    textEditor->clear();
+    authorsText.clear();
 
-    textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-    textEditor->insertTextAtCaret("Core development team\n\n");
-    textEditor->setFont(Font("Nimbus Sans", 16, Font::plain));
+    authorsText.append("Core development team\n\n", FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-    String coreDevString = "Josh Siegle\n"
+    authorsText.append("Josh Siegle\n"
         "Aaron Cuevas Lopez\n"
         "Jakob Voigts\n"
         "Pavel Kulik\n"
-        "Anjal Doshi\n\n";
+        "Anjal Doshi\n\n", FontOptions {"Nimbus Sans", "Regular",  16.0f});
 
-    textEditor->insertTextAtCaret(coreDevString);
-
-    textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-    textEditor->insertTextAtCaret("Other contributors\n\n");
-    textEditor->setFont(Font("Nimbus Sans", 16, Font::plain));
+    authorsText.append("Other contributors\n\n", FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
     String otherDevString = "Kirill Abramov\n"
         "Ben Acland\n"
@@ -357,32 +347,26 @@ void InfoLabel::setAuthorsText()
         "Daniel Wagenaar\n"
         "@whitepine\n\n";
 
-    textEditor->insertTextAtCaret(otherDevString);
-    textEditor->setCaretPosition(0);
-    textEditor->scrollEditorToPositionCaret(0, 0);
-
-    hyperlinks.clear();
+    authorsText.append(otherDevString, FontOptions {"Nimbus Sans", "Regular",  16.0f});
 
 }
 
 void InfoLabel::setLicenseText()
 {
-    textEditor->clear();
-    textEditor->setFont(Font("Nimbus Sans", 24, Font::plain));
-    textEditor->insertTextAtCaret("\nGNU GENERAL PUBLIC LICENSE\n");
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret("Version 3, 29 June 2007\n\n\n");
-    textEditor->insertTextAtCaret("Copyright (c) 2007 Free Software Foundation, Inc. "
+    licenseText.clear();
+
+    licenseText.append("GNU GENERAL PUBLIC LICENSE\n\n", FontOptions {"Nimbus Sans", "Regular",  24.0f});
+    licenseText.append("Version 3, 29 June 2007\n\n\n", FontOptions {"Nimbus Sans", "Regular",  15.0f});
+
+    licenseText.append("Copyright (c) 2007 Free Software Foundation, Inc. "
         "<https://fsf.org/>\n\n\n");
-    textEditor->insertTextAtCaret(
-        "Everyone is permitted to copy and distribute verbatim copies of this "
+    
+    licenseText.append("Everyone is permitted to copy and distribute verbatim copies of this "
         "license document, but changing it is not allowed.\n\n\n");
 
-    textEditor->setFont(Font("Nimbus Sans", 20, Font::plain));
-    textEditor->insertTextAtCaret("Preamble\n\n");
+    licenseText.append("Preamble\n\n", FontOptions {"Nimbus Sans", "Regular",  20.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
         "The GNU General Public License is a free, copyleft license for "
         "software and other kinds of works.\n\n"
 
@@ -438,23 +422,20 @@ void InfoLabel::setLicenseText()
         "to protect the freedom of users.\n\n"
 
         "Finally, every program is threatened constantly by software patents. "
-        "States should not allow patents to restrict developmentand use of "
+        "States should not allow patents to restrict development and use of "
         "software on general-purpose computers, but in those that do, we wish "
         "to avoid the special danger that patents applied to a free program "
         "could make it effectively proprietary. To prevent this, the GPL "
         "assures that patents cannot be used to render the program non-free.\n\n"
 
         "The precise terms and conditions for copying, distribution and "
-        "modification follow.\n\n\n");
+        "modification follow.\n\n\n", FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 20, Font::plain));
-    textEditor->insertTextAtCaret("TERMS AND CONDITIONS\n\n");
+    licenseText.append("TERMS AND CONDITIONS\n\n", FontOptions {"Nimbus Sans", "Regular",  20.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-    textEditor->insertTextAtCaret("0. Definitions.\n\n");
+    licenseText.append("0. Definitions.\n\n", FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
             "\"This License\" refers to version 3 of the GNU General "
             "Public License.\n\n"
 
@@ -495,13 +476,11 @@ void InfoLabel::setLicenseText()
             "that licensees may convey the work under this License, and how to "
             "view a copy of this License. If the interface presents a list of "
             "user commands or options, such as a menu, a prominent item in the "
-            "list meets this criterion.\n\n");
+            "list meets this criterion.\n\n", FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-        textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-        textEditor->insertTextAtCaret("1. Source Code.\n\n");
+    licenseText.append("1. Source Code.\n\n", FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-        textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-        textEditor->insertTextAtCaret(
+        licenseText.append(
 
             "The \"source code\" for a work means the preferred form of "
             "the work for making modifications to it. \"Object code\" "
@@ -544,13 +523,11 @@ void InfoLabel::setLicenseText()
             "Source. \n\n"
 
             "The Corresponding Source for a work in source code form is that same "
-            "work. \n\n");
+            "work. \n\n", FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-        textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-        textEditor->insertTextAtCaret("2. Basic Permissions.\n\n");
+        licenseText.append("2. Basic Permissions.\n\n", FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-        textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-        textEditor->insertTextAtCaret(
+        licenseText.append(
 
             "All rights granted under this License are granted for the term of "
             "copyright on the Program, and are irrevocable provided the stated "
@@ -575,51 +552,49 @@ void InfoLabel::setLicenseText()
 
             "Conveying under any other circumstances is permitted solely under "
             "the conditions stated below. Sublicensing is not allowed; section 10 "
-            "makes it unnecessary.\n\n");
+            "makes it unnecessary.\n\n", FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-            textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-            textEditor->insertTextAtCaret("3. Protecting Users' Legal Rights From Anti-Circumvention Law.\n\n");
+        licenseText.append("3. Protecting Users' Legal Rights From Anti-Circumvention Law.\n\n", 
+            FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-            textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-            textEditor->insertTextAtCaret(
+        licenseText.append(
 
-                "No covered work shall be deemed part of an effective technological "
-                "measure under any applicable law fulfilling obligations under "
-                "article 11 of the WIPO copyright treaty adopted on 20 December 1996, "
-                "or similar laws prohibiting or restricting circumvention of such "
-                "measures.\n\n"
+            "No covered work shall be deemed part of an effective technological "
+            "measure under any applicable law fulfilling obligations under "
+            "article 11 of the WIPO copyright treaty adopted on 20 December 1996, "
+            "or similar laws prohibiting or restricting circumvention of such "
+            "measures.\n\n"
 
-                "When you convey a covered work, you waive any legal power to forbid "
-                "circumvention of technological measures to the extent such "
-                "circumvention is effected by exercising rights under this License "
-                "with respect to the covered work, and you disclaim any intention to "
-                "limit operation or modification of the work as a means of enforcing, "
-                "against the work's users, your or third parties' legal rights to "
-                "forbid circumvention of technological measures.\n\n");
+            "When you convey a covered work, you waive any legal power to forbid "
+            "circumvention of technological measures to the extent such "
+            "circumvention is effected by exercising rights under this License "
+            "with respect to the covered work, and you disclaim any intention to "
+            "limit operation or modification of the work as a means of enforcing, "
+            "against the work's users, your or third parties' legal rights to "
+            "forbid circumvention of technological measures.\n\n", 
+            FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-            textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-            textEditor->insertTextAtCaret("4. Conveying Verbatim Copies.\n\n");
+        licenseText.append("4. Conveying Verbatim Copies.\n\n", 
+            FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-            textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-            textEditor->insertTextAtCaret(
+        licenseText.append(
 
-                "You may convey verbatim copies of the Program's source code as you "
-                "receive it, in any medium, provided that you conspicuously and "
-                "appropriately publish on each copy an appropriate copyright notice; "
-                "keep intact all notices stating that this License and any "
-                "non-permissive terms added in accord with section 7 apply to the "
-                "code; keep intact all notices of the absence of any warranty; and "
-                "give all recipients a copy of this License along with the Program. "
+            "You may convey verbatim copies of the Program's source code as you "
+            "receive it, in any medium, provided that you conspicuously and "
+            "appropriately publish on each copy an appropriate copyright notice; "
+            "keep intact all notices stating that this License and any "
+            "non-permissive terms added in accord with section 7 apply to the "
+            "code; keep intact all notices of the absence of any warranty; and "
+            "give all recipients a copy of this License along with the Program. "
 
-                "You may charge any price or no price for each copy that you convey, "
-                "and you may offer support or warranty protection for a fee.\n\n"
-            );
+            "You may charge any price or no price for each copy that you convey, "
+            "and you may offer support or warranty protection for a fee.\n\n", 
+            FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-        textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-    textEditor->insertTextAtCaret("5. Conveying Modified Source Versions.\n\n");
+        licenseText.append("5. Conveying Modified Source Versions.\n\n", 
+            FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
 
         "You may convey a work based on the Program, or the modifications to "
         "produce it from the Program, in the form of source code under the "
@@ -655,189 +630,185 @@ void InfoLabel::setLicenseText()
         "copyright are not used to limit the access or legal rights of the "
         "compilation's users beyond what the individual works permit. "
         "Inclusion of a covered work in an aggregate does not cause this "
-        "License to apply to the other parts of the aggregate.\n\n"
+        "License to apply to the other parts of the aggregate.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-    );
- 
-        textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-        textEditor->insertTextAtCaret("6. Conveying Non - Source Forms.\n\n");
+    licenseText.append("6. Conveying Non-Source Forms.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-        textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-        textEditor->insertTextAtCaret(
-            "You may convey a covered work in object code form under the terms of "
-            "sections 4 and 5, provided that you also convey the machine-readable "
-            "Corresponding Source under the terms of this License, in one of "
-            "these ways:\n\n"
+    licenseText.append(
+        "You may convey a covered work in object code form under the terms of "
+        "sections 4 and 5, provided that you also convey the machine-readable "
+        "Corresponding Source under the terms of this License, in one of "
+        "these ways:\n\n"
 
-            "a) Convey the object code in, or embodied in, a physical product "
-            "(including a physical distribution medium), accompanied by the "
-            "Corresponding Source fixed on a durable physical medium customarily "
-            "used for software interchange.\n\n"
+        "a) Convey the object code in, or embodied in, a physical product "
+        "(including a physical distribution medium), accompanied by the "
+        "Corresponding Source fixed on a durable physical medium customarily "
+        "used for software interchange.\n\n"
 
-            "b) Convey the object code in, or embodied in, a physical product "
-            "(including a physical distribution medium), accompanied by a written "
-            "offer, valid for at least three yearsand valid for as long as you "
-            "offer spare parts or customer support for that product model, to "
-            "give anyone who possesses the object code either (1) a copy of the "
-            "Corresponding Source for all the software in the product that is "
-            "covered by this License, on a durable physical medium customarily "
-            "used for software interchange, for a price no more than your "
-            "reasonable cost of physically performing this conveying of source, "
-            "or (2) access to copy the Corresponding Source from a network server "
-            "at no charge.\n\n"
+        "b) Convey the object code in, or embodied in, a physical product "
+        "(including a physical distribution medium), accompanied by a written "
+        "offer, valid for at least three years and valid for as long as you "
+        "offer spare parts or customer support for that product model, to "
+        "give anyone who possesses the object code either (1) a copy of the "
+        "Corresponding Source for all the software in the product that is "
+        "covered by this License, on a durable physical medium customarily "
+        "used for software interchange, for a price no more than your "
+        "reasonable cost of physically performing this conveying of source, "
+        "or (2) access to copy the Corresponding Source from a network server "
+        "at no charge.\n\n"
 
-            "c) Convey individual copies of the object code with a copy of the "
-            "written offer to provide the Corresponding Source.This alternative "
-            "is allowed only occasionally and noncommercially, and only if you "
-            "received the object code with such an offer, in accord with "
-            "subsection 6b.\n\n"
+        "c) Convey individual copies of the object code with a copy of the "
+        "written offer to provide the Corresponding Source.This alternative "
+        "is allowed only occasionally and noncommercially, and only if you "
+        "received the object code with such an offer, in accord with "
+        "subsection 6b.\n\n"
 
-            "d) Convey the object code by offering access from a designated place "
-            "(gratis or for a charge), and offer equivalent access to the "
-            "Corresponding Source in the same way through the same place at no "
-            "further charge. You need not require recipients to copy the "
-            "Corresponding Source along with the object code. If the place to "
-            "the object code is a network server, the Corresponding Source "
-            "may be on a different server(operated by you or a third party) that "
-            "supports equivalent copying facilities, provided you maintain clear "
-            "directions next to the object code saying where to find the "
-            "Corresponding Source. Regardless of what server hosts the "
-            "Corresponding Source, you remain obligated to ensure that it is "
-            "available for as long as needed to satisfy these requirements.\n\n"
+        "d) Convey the object code by offering access from a designated place "
+        "(gratis or for a charge), and offer equivalent access to the "
+        "Corresponding Source in the same way through the same place at no "
+        "further charge. You need not require recipients to copy the "
+        "Corresponding Source along with the object code. If the place to "
+        "the object code is a network server, the Corresponding Source "
+        "may be on a different server(operated by you or a third party) that "
+        "supports equivalent copying facilities, provided you maintain clear "
+        "directions next to the object code saying where to find the "
+        "Corresponding Source. Regardless of what server hosts the "
+        "Corresponding Source, you remain obligated to ensure that it is "
+        "available for as long as needed to satisfy these requirements.\n\n"
 
-            "e) Convey the object code using peer-to-peer transmission, provided "
-            "you inform other peers where the object codeand Corresponding "
-            "Source of the work are being offered to the general public at no "
-            "charge under subsection 6d.\n\n"
+        "e) Convey the object code using peer-to-peer transmission, provided "
+        "you inform other peers where the object code and Corresponding "
+        "Source of the work are being offered to the general public at no "
+        "charge under subsection 6d.\n\n"
 
-            "A separable portion of the object code, whose source code is "
-            "excluded from the Corresponding Source as a System Library, need not "
-            "be included in conveying the object code work.\n\n"
+        "A separable portion of the object code, whose source code is "
+        "excluded from the Corresponding Source as a System Library, need not "
+        "be included in conveying the object code work.\n\n"
 
-            " A \" User Product\" is either(1) a\" consumer "
-            "product\", which means any tangible personal property which is "
-            "normally used for personal, family, or household purposes, or (2) "
-            "anything designed or sold for incorporation into a dwelling.In "
-            "determining whether a product is a consumer product, doubtful cases "
-            "shall be resolved in favor of coverage.For a particular product "
-            "received by a particular user, \"normally used\" refers to "
-            "a typical or common use of that class of product, regardless of the "
-            "status of the particular user or of the way in which the particular "
-            "user actually uses, or expects or is expected to use, the product. A "
-            "product is a consumer product regardless of whether the product has "
-            "substantial commercial, industrial or non - consumer uses, unless such "
-            " uses represent the only significant mode of use of the product.\n\n"
+        " A \" User Product\" is either(1) a\" consumer "
+        "product\", which means any tangible personal property which is "
+        "normally used for personal, family, or household purposes, or (2) "
+        "anything designed or sold for incorporation into a dwelling.In "
+        "determining whether a product is a consumer product, doubtful cases "
+        "shall be resolved in favor of coverage.For a particular product "
+        "received by a particular user, \"normally used\" refers to "
+        "a typical or common use of that class of product, regardless of the "
+        "status of the particular user or of the way in which the particular "
+        "user actually uses, or expects or is expected to use, the product. A "
+        "product is a consumer product regardless of whether the product has "
+        "substantial commercial, industrial or non - consumer uses, unless such "
+        " uses represent the only significant mode of use of the product.\n\n"
 
-            "\"Installation Information\" for a User Product means any "
-            "methods, procedures, authorization keys, or other information "
-            "required to install and execute modified versions of a covered work "
-            "in that User Product from a modified version of its Corresponding "
-            "Source. The information must suffice to ensure that the continued "
-            "functioning of the modified object code is in no case prevented or "
-            "interfered with solely because modification has been made.\n\n"
+        "\"Installation Information\" for a User Product means any "
+        "methods, procedures, authorization keys, or other information "
+        "required to install and execute modified versions of a covered work "
+        "in that User Product from a modified version of its Corresponding "
+        "Source. The information must suffice to ensure that the continued "
+        "functioning of the modified object code is in no case prevented or "
+        "interfered with solely because modification has been made.\n\n"
 
-            "If you convey an object code work under this section in, or with, or "
-            "specifically for use in, a User Product, and the conveying occurs as "
-            "part of a transaction in which the right of possessionand use of "
-            "the User Product is transferred to the recipient in perpetuity or "
-            "for a fixed term(regardless of how the transaction is "
-            "characterized), the Corresponding Source conveyed under this section "
-            "must be accompanied by the Installation Information. But this "
-            "requirement does not apply if neither you nor any third party "
-            "retains the ability to install modified object code on the User "
-            "Product (for example, the work has been installed in ROM).\n\n"
+        "If you convey an object code work under this section in, or with, or "
+        "specifically for use in, a User Product, and the conveying occurs as "
+        "part of a transaction in which the right of possession and use of "
+        "the User Product is transferred to the recipient in perpetuity or "
+        "for a fixed term(regardless of how the transaction is "
+        "characterized), the Corresponding Source conveyed under this section "
+        "must be accompanied by the Installation Information. But this "
+        "requirement does not apply if neither you nor any third party "
+        "retains the ability to install modified object code on the User "
+        "Product (for example, the work has been installed in ROM).\n\n"
 
-            "The requirement to provide Installation Information does not include "
-            "a requirement to continue to provide support service, warranty, or "
-            "updates for a work that has been modified or installed by the "
-            "recipient, or for the User Product in which it has been modified or "
-            "installed. Access to a network may be denied when the modification "
-            "itself materially and adversely affects the operation of the network "
-            "or violates the rules and protocols for communication across the "
-            "network.\n\n"
- 
-            "Corresponding Source conveyed, and Installation Information "
-            "provided, in accord with this section must be in a format that is "
-            "publicly documented (and with an implementation available to the "
-            "public in source code form), and must require no special password or "
-            "key for unpacking, reading or copying.\n\n");
+        "The requirement to provide Installation Information does not include "
+        "a requirement to continue to provide support service, warranty, or "
+        "updates for a work that has been modified or installed by the "
+        "recipient, or for the User Product in which it has been modified or "
+        "installed. Access to a network may be denied when the modification "
+        "itself materially and adversely affects the operation of the network "
+        "or violates the rules and protocols for communication across the "
+        "network.\n\n"
 
-        textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-        textEditor->insertTextAtCaret("7. Additional Terms\n\n");
+        "Corresponding Source conveyed, and Installation Information "
+        "provided, in accord with this section must be in a format that is "
+        "publicly documented (and with an implementation available to the "
+        "public in source code form), and must require no special password or "
+        "key for unpacking, reading or copying.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-        textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-        textEditor->insertTextAtCaret(
+    licenseText.append("7. Additional Terms\n\n", FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-            "\"Additional permissions\" are terms that supplement the "
-            "terms of this License by making exceptions from one or more of its "
-            "conditions. Additional permissions that are applicable to the entire "
-            "Program shall be treated as though they were included in this "
-            "License, to the extent that they are valid under applicable law. If "
-            "additional permissions apply only to part of the Program, that part "
-            "may be used separately under those permissions, but the entire "
-            "Program remains governed by this License without regard to the "
-            "additional permissions.\n\n"
+    licenseText.append(
 
-            "When you convey a copy of a covered work, you may at your option "
-            "remove any additional permissions from that copy, or from any part "
-            "of it. (Additional permissions may be written to require their own "
-            "removal in certain cases when you modify the work.) You may place "
-            "additional permissions on material, added by you to a covered work, "
-            "for which you have or can give appropriate copyright permission.\n\n"
+        "\"Additional permissions\" are terms that supplement the "
+        "terms of this License by making exceptions from one or more of its "
+        "conditions. Additional permissions that are applicable to the entire "
+        "Program shall be treated as though they were included in this "
+        "License, to the extent that they are valid under applicable law. If "
+        "additional permissions apply only to part of the Program, that part "
+        "may be used separately under those permissions, but the entire "
+        "Program remains governed by this License without regard to the "
+        "additional permissions.\n\n"
 
-            "Notwithstanding any other provision of this License, for material "
-            "you add to a covered work, you may(if authorized by the copyright "
-            "holders of that material) supplement the terms of this License with "
-            "terms:\n\n"
+        "When you convey a copy of a covered work, you may at your option "
+        "remove any additional permissions from that copy, or from any part "
+        "of it. (Additional permissions may be written to require their own "
+        "removal in certain cases when you modify the work.) You may place "
+        "additional permissions on material, added by you to a covered work, "
+        "for which you have or can give appropriate copyright permission.\n\n"
 
-            "a) Disclaiming warranty or limiting liability differently from the "
-            "terms of sections 15 and 16 of this License; or\n\n"
+        "Notwithstanding any other provision of this License, for material "
+        "you add to a covered work, you may(if authorized by the copyright "
+        "holders of that material) supplement the terms of this License with "
+        "terms:\n\n"
 
-            "b) Requiring preservation of specified reasonable legal notices or "
-            "author attributions in that material or in the Appropriate Legal "
-            "Notices displayed by works containing it; or\n\n"
+        "a) Disclaiming warranty or limiting liability differently from the "
+        "terms of sections 15 and 16 of this License; or\n\n"
 
-            "c) Prohibiting misrepresentation of the origin of that material, or "
-            "requiring that modified versions of such material be marked in "
-            "reasonable ways as different from the original version; or\n\n"
+        "b) Requiring preservation of specified reasonable legal notices or "
+        "author attributions in that material or in the Appropriate Legal "
+        "Notices displayed by works containing it; or\n\n"
 
-            "d) Limiting the use for publicity purposes of names of licensors or "
-            "authors of the material; or\n\n"
+        "c) Prohibiting misrepresentation of the origin of that material, or "
+        "requiring that modified versions of such material be marked in "
+        "reasonable ways as different from the original version; or\n\n"
 
-            "e) Declining to grant rights under trademark law for use of some "
-            "trade names, trademarks, or service marks; or\n\n"
+        "d) Limiting the use for publicity purposes of names of licensors or "
+        "authors of the material; or\n\n"
 
-            "f) Requiring indemnification of licensorsand authors of that "
-            "material by anyone who conveys the material(or modified versions of "
-            "it) with contractual assumptions of liability to the recipient, for "
-            "any liability that these contractual assumptions directly impose on "
-            "those licensors and authors.\n\n"
+        "e) Declining to grant rights under trademark law for use of some "
+        "trade names, trademarks, or service marks; or\n\n"
 
-            "All other non - permissive additional terms are considered "
-            "\"further restrictions\" within the meaning of section 10. "
-            "If the Program as you received it, or any part of it, contains a "
-            "notice stating that it is governed by this License along with a term "
-            "that is a further restriction, you may remove that term. If a "
-            "license document contains a further restriction but permits "
-            "relicensing or conveying under this License, you may add to a "
-            "covered work material governed by the terms of that license "
-            "document, provided that the further restriction does not survive "
-            "such relicensing or conveying.\n\n"
+        "f) Requiring indemnification of licensors and authors of that "
+        "material by anyone who conveys the material(or modified versions of "
+        "it) with contractual assumptions of liability to the recipient, for "
+        "any liability that these contractual assumptions directly impose on "
+        "those licensors and authors.\n\n"
 
-            "If you add terms to a covered work in accord with this section, you "
-            "must place, in the relevant source files, a statement of the "
-            "additional terms that apply to those files, or a notice indicating "
-            "where to find the applicable terms.\n\n"
+        "All other non - permissive additional terms are considered "
+        "\"further restrictions\" within the meaning of section 10. "
+        "If the Program as you received it, or any part of it, contains a "
+        "notice stating that it is governed by this License along with a term "
+        "that is a further restriction, you may remove that term. If a "
+        "license document contains a further restriction but permits "
+        "relicensing or conveying under this License, you may add to a "
+        "covered work material governed by the terms of that license "
+        "document, provided that the further restriction does not survive "
+        "such relicensing or conveying.\n\n"
 
-            "Additional terms, permissive or non - permissive, may be stated in the "
-            "form of a separately written license, or stated as exceptions; the "
-            "above requirements apply either way.\n\n");
+        "If you add terms to a covered work in accord with this section, you "
+        "must place, in the relevant source files, a statement of the "
+        "additional terms that apply to those files, or a notice indicating "
+        "where to find the applicable terms.\n\n"
 
-    textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-    textEditor->insertTextAtCaret("8. Termination.\n\n");
+        "Additional terms, permissive or non - permissive, may be stated in the "
+        "form of a separately written license, or stated as exceptions; the "
+        "above requirements apply either way.\n\n", 
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append("8. Termination.\n\n", FontOptions {"Nimbus Sans", "Regular",  18.0f});
+
+    licenseText.append(
 
         "You may not propagate or modify a covered work except as expressly "
         "provided under this License. Any attempt otherwise to propagate or "
@@ -863,13 +834,13 @@ void InfoLabel::setLicenseText()
         "licenses of parties who have received copies or rights from you "
         "under this License. If your rights have been terminated and not "
         "permanently reinstated, you do not qualify to receive new licenses "
-        "for the same material under section 10.\n\n");
+        "for the same material under section 10.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-            textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-    textEditor->insertTextAtCaret("9. Acceptance Not Required for Having Copies.\n\n");
+    licenseText.append("9. Acceptance Not Required for Having Copies.\n\n", 
+        FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
 
         "You are not required to accept this License in order to receive or "
         "run a copy of the Program. Ancillary propagation of a covered work "
@@ -878,13 +849,13 @@ void InfoLabel::setLicenseText()
         "nothing other than this License grants you permission to propagate "
         "or modify any covered work. These actions infringe copyright if you "
         "do not accept this License. Therefore, by modifying or propagating a "
-        "covered work, you indicate your acceptance of this License to do so.\n\n");
+        "covered work, you indicate your acceptance of this License to do so.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-                textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-    textEditor->insertTextAtCaret("10. Automatic Licensing of Downstream Recipients.\n\n");
+    licenseText.append("10. Automatic Licensing of Downstream Recipients.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
         "Each time you convey a covered work, the recipient automatically "
         "receives a license from the original licensors, to run, modify and "
         "propagate that work, subject to this License. You are not "
@@ -909,13 +880,12 @@ void InfoLabel::setLicenseText()
         "litigation (including a cross-claim or counterclaim in a lawsuit) "
         "alleging that any patent claim is infringed by making, using, "
         "selling, offering for sale, or importing the Program or any portion "
-        "of it.\n\n");
+        "of it.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-        textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-    textEditor->insertTextAtCaret("11. Patents.\n\n");
+    licenseText.append("11. Patents.\n\n", FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
         "A \"contributor\" is a copyright holder who authorizes use "
         "under this License of the Program or a work on which the Program is "
         "based.The work thus licensed is called the contributor's "
@@ -933,7 +903,7 @@ void InfoLabel::setLicenseText()
 
         "Each contributor grants you a non-exclusive, worldwide, royalty-free "
         "patent license under the contributor's essential patent claims, to "
-        "make, use, sell, offer for sale, importand otherwise run, modify "
+        "make, use, sell, offer for sale, import and otherwise run, modify "
         "and propagate the contents of its contributor version. "
 
         "In the following three paragraphs, a \"patent license\" is "
@@ -978,36 +948,36 @@ void InfoLabel::setLicenseText()
         "grants, to any of the parties who would receive the covered work "
         "from you, a discriminatory patent license (a) in connection with "
         "copies of the covered work conveyed by you(or copies made from "
-        "those copies), or (b) primarily forand in connection with specific "
+        "those copies), or (b) primarily for and in connection with specific "
         "products or compilations that contain the covered work, unless you "
         "entered into that arrangement, or that patent license was granted, "
         "prior to 28 March 2007.\n\n"
 
         "Nothing in this License shall be construed as excluding or limiting "
         "any implied license or other defenses to infringement that may "
-        "otherwise be available to you under applicable patent law.\n\n");
+        "otherwise be available to you under applicable patent law.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-     textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-    textEditor->insertTextAtCaret("12. No Surrender of Others' Freedom.\n\n");
+    licenseText.append("12. No Surrender of Others' Freedom.\n\n", 
+        FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
         "If conditions are imposed on you (whether by court order, agreement "
         "or otherwise) that contradict the conditions of this License, they "
         "do not excuse you from the conditions of this License.If you cannot "
         "convey a covered work so as to satisfy simultaneously your "
-        "obligations under this Licenseand any other pertinent obligations, "
+        "obligations under this License and any other pertinent obligations, "
         "then as a consequence you may not convey it at all. For example, if "
         "you agree to terms that obligate you to collect a royalty for "
         "further conveying from those to whom you convey the Program, the "
         "only way you could satisfy both those terms and this License would "
-        "be to refrain entirely from conveying the Program.\n\n");
+        "be to refrain entirely from conveying the Program.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-    textEditor->insertTextAtCaret("13. Use with the GNU Affero General Public License.\n\n");
+    licenseText.append("13. Use with the GNU Affero General Public License.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
         "Notwithstanding any other provision of this License, you have "
         "permission to link or combine any covered work with a work licensed "
         "under version 3 of the GNU Affero General Public License into a "
@@ -1015,13 +985,13 @@ void InfoLabel::setLicenseText()
         "this License will continue to apply to the part which is the covered "
         "work, but the special requirements of the GNU Affero General Public "
         "License, section 13, concerning interaction through a network will "
-        "apply to the combination as such.\n\n");
+        "apply to the combination as such.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-    textEditor->insertTextAtCaret("14. Revised Versions of this License.\n\n");
+    licenseText.append("14. Revised Versions of this License.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
         "The Free Software Foundation may publish revised and/or new versions "
         "of the GNU General Public License from time to time. Such new "
         "versions will be similar in spirit to the present version, but may "
@@ -1030,7 +1000,7 @@ void InfoLabel::setLicenseText()
         "Each version is given a distinguishing version number. If the "
         "Program specifies that a certain numbered version of the GNU General "
         "Public License \"or any later version\" applies to it, you "
-        "have the option of following the termsand conditions either of that "
+        "have the option of following the terms and conditions either of that "
         "numbered version or of any later version published by the Free "
         "Software Foundation. If the Program does not specify a version "
         "number of the GNU General Public License, you may choose any version "
@@ -1044,13 +1014,13 @@ void InfoLabel::setLicenseText()
         "Later license versions may give you additional or different "
         "permissions.However, no additional obligations are imposed on any "
         "author or copyright holder as a result of your choosing to follow a "
-        "later version.\n\n");
+        "later version.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-    textEditor->insertTextAtCaret("15. Disclaimer of Warranty.\n\n");
+    licenseText.append("15. Disclaimer of Warranty.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
         "THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY "
         "APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE "
         "COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM \"AS "
@@ -1059,14 +1029,13 @@ void InfoLabel::setLicenseText()
         "MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE "
         "RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. "
         "SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL "
-        "NECESSARY SERVICING, REPAIR OR CORRECTION.\n\n"
-    );
+        "NECESSARY SERVICING, REPAIR OR CORRECTION.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
     
-    textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-    textEditor->insertTextAtCaret("16. Limitation of Liability.\n\n");
+    licenseText.append("16. Limitation of Liability.\n\n", 
+        FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
 
         "IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN "
         "WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES "
@@ -1077,15 +1046,13 @@ void InfoLabel::setLicenseText()
         "INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE "
         "OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF SUCH "
         "HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH "
-        "DAMAGES.\n\n"
-    
-    );
+        "DAMAGES.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 18, Font::plain));
-    textEditor->insertTextAtCaret("17. Interpretation of Sections 15 and 16.\n\n");
+    licenseText.append("17. Interpretation of Sections 15 and 16.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  18.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
 
         "If the disclaimer of warranty and limitation of liability provided "
         "above cannot be given local legal effect according to their terms, "
@@ -1094,13 +1061,13 @@ void InfoLabel::setLicenseText()
         "with the Program, unless a warranty or assumption of liability "
         "accompanies a copy of the Program in return for a fee. \n\n"
 
-        "END OF TERMS AND CONDITIONS\n\n");
+        "END OF TERMS AND CONDITIONS\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 20, Font::plain));
-    textEditor->insertTextAtCaret("How to Apply These Terms to Your New Programs\n\n");
+    licenseText.append("How to Apply These Terms to Your New Programs\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  20.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
         "If you develop a new program, and you want it to be of the greatest "
         "possible use to the public, the best way to achieve this is to make "
         "it free software which everyone can redistribute and change under "
@@ -1109,11 +1076,11 @@ void InfoLabel::setLicenseText()
         "To do so, attach the following notices to the program. It is safest "
         "to attach them to the start of each source file to most effectively "
         "state the exclusion of warranty; and each file should have at least "
-        "the \"copyright\" lineand a pointer to where the full "
-        "notice is found.\n\n");
+        "the \"copyright\" line and a pointer to where the full "
+        "notice is found.\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-    textEditor->setFont(Font("Fira Code", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
         "<one line to give the program's name and a brief idea of what it does.>\n\n"
 
         "Copyright (C) <year>;  <name of author>; This program is free software : "
@@ -1126,25 +1093,25 @@ void InfoLabel::setLicenseText()
         "See the GNU General Public License for more details.\n\n"
 
         "You should have received a copy of the GNU General Public License along with this program. "
-        "If not, see <https://www.gnu.org/licenses/>\n\n");
+        "If not, see <https://www.gnu.org/licenses/>\n\n",
+        FontOptions {"Fira Code", "Regular",  15.0f});
 
-    textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
         "Also add information on how to contact you by electronic and paper "
         "mail.\n\n"
 
         "If the program does terminal interaction, make it output a short "
-        "notice like this when it starts in an interactive mode:\n\n");
+        "notice like this when it starts in an interactive mode:\n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-    textEditor->setFont(Font("Fira Code", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
         "<program> Copyright (C) <year> <name of author>\n\n"
 
         "This program comes with ABSOLUTELY NO WARRANTY; for details type 'show w'. "
-        "This is free software, and you are welcome to redistribute it under certain conditions; type 'show c' for details\n\n");
+        "This is free software, and you are welcome to redistribute it under certain conditions; type 'show c' for details\n\n",
+        FontOptions {"Fira Code", "Regular",  15.0f});
 
-   textEditor->setFont(Font("Nimbus Sans", 15, Font::plain));
-    textEditor->insertTextAtCaret(
+    licenseText.append(
         "The hypothetical commands 'show w' and 'show c' should show the "
         "appropriate parts of the General Public License.Of course, your "
         "program's commands might be different; for a GUI interface, you "
@@ -1153,7 +1120,7 @@ void InfoLabel::setLicenseText()
         "You should also get your employer(if you work as a programmer) or "
         "school, if any, to sign a \"copyright disclaimer\" for the "
         "program, if necessary.For more information on this, and how to "
-        "applyand follow the GNU GPL, see https://www.gnu.org/licenses/ \n\n"
+        "apply and follow the GNU GPL, see https://www.gnu.org/licenses/ \n\n"
 
         "The GNU General Public License does not permit incorporating your "
         "program into proprietary programs.If your program is a subroutine "
@@ -1161,11 +1128,46 @@ void InfoLabel::setLicenseText()
         "proprietary applications with the library.If this is what you want "
         "to do, use the GNU Lesser General Public License instead of this "
         "License. But first, please read "
-        "https://www.gnu.org/licenses/why-not-lgpl.html \n\n");
+        "https://www.gnu.org/licenses/why-not-lgpl.html \n\n",
+        FontOptions {"Nimbus Sans", "Regular",  15.0f});
 
-    textEditor->setCaretPosition(0);
-    textEditor->scrollEditorToPositionCaret(0, 0);
+}
+
+void InfoLabel::createHyperlinks() {
 
     hyperlinks.clear();
+
+    if (tabButtons.getFirst()->getToggleState()) 
+    {
+        hyperlink.url = "https://open-ephys.org/gui";
+        hyperlink.positionX = Range<int>(45, 345);
+        hyperlink.positionY = Range<int> (40, 200);
+
+        hyperlinks.add(hyperlink);
+
+        hyperlink.url = "https://open-ephys.github.io/gui-docs/User-Manual/index.html";
+        hyperlink.positionX = Range<int>(375, 610);
+        hyperlink.positionY = Range<int>(410, 480);
+
+        hyperlinks.add(hyperlink);
+
+        hyperlink.url = "https://github.com/open-ephys/plugin-GUI";
+        hyperlink.positionX = Range<int>(130, 385);
+        hyperlink.positionY = Range<int>(500, 580);
+
+        hyperlinks.add(hyperlink);
+
+        hyperlink.url = "https://iopscience.iop.org/article/10.1088/1741-2552/aa5eea/meta";
+        hyperlink.positionX = Range<int>(15, 635);
+        hyperlink.positionY = Range<int>(650, 675);
+
+        hyperlinks.add(hyperlink);
+
+        hyperlink.url = "https://github.com/open-ephys/plugin-GUI/issues";
+        hyperlink.positionX = Range<int>(450, 750);
+        hyperlink.positionY = Range<int>(775, 840);
+
+        hyperlinks.add(hyperlink);
+    }
 
 }

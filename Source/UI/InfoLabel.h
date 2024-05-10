@@ -50,6 +50,41 @@ private:
 };
 
 
+/*
+    
+      Displays the text of the Info tab.
+        
+      @see InfoLabelTabButton, InfoLabel
+    
+    
+*/
+class TextComponent : public Component
+{
+public:
+    /** Constructor */
+    TextComponent();
+
+    /** Destructor */
+    ~TextComponent() { }
+
+    /** Custom rendering function */
+    void paint(Graphics& g) override;
+
+    /** Resizes the text field */
+    void resizeForText();
+
+    /** Sets the text to be displayed */
+    void setAttributedString(const AttributedString& infoText, bool isLogo = false);
+
+private:
+    AttributedString infoText;
+    TextLayout infoTextLayout;
+
+    std::unique_ptr<Drawable> color_logo;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TextComponent);
+};
+
 /**
 
   Displays info about the GUI.
@@ -78,6 +113,9 @@ public:
     void refresh() { }
     void refreshState() { }
 
+    /** Updates the colors of the text field */
+    void updateColors();
+
     /** Resizes text field*/
     void resized();
 
@@ -101,20 +139,25 @@ private:
     /** Opens links in a browser window */
     void mouseUp(const MouseEvent& mouse);
 
-    std::unique_ptr<TextEditor> textEditor;
+    /** Creates hyperlinks in the text */
+    void createHyperlinks();
+
     OwnedArray<InfoLabelTabButton> tabButtons;
+    AttributedString aboutText;
+    AttributedString authorsText;
+    AttributedString licenseText;
 
     struct Hyperlink
     {
-        String url;
-        Range<int> position;
+        String url = "";
+        Range<int> positionX = Range<int>(0, 0);
+        Range<int> positionY = Range<int>(0, 0);
     } hyperlink;
 
     Array<Hyperlink> hyperlinks;
 
-    std::unique_ptr<Drawable> color_logo;
     std::unique_ptr<Viewport> viewport;
-    std::unique_ptr<Component> viewedComponent;
+    std::unique_ptr<TextComponent> viewedComponent;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(InfoLabel);
