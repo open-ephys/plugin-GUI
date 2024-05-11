@@ -85,7 +85,6 @@ void GraphViewport::lookAndFeelChanged()
 GraphViewer::GraphViewer()
 {
     setBufferedToImage(true);
-    setRepaintsOnMouseActivity(false);
     graphViewport = std::make_unique<GraphViewport>(this);
 }
 
@@ -742,15 +741,12 @@ void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
     g.setColour(findColour(ThemeColors::componentBackground));
     g.fillRect(0, 0, 25, getHeight());
 
-    if(getButtonText().equalsIgnoreCase("Parameters"))
-        g.setColour(editor->getBackgroundColor().withSaturation(0.5f).withAlpha(0.7f));
-    else
-        g.setColour(editor->getBackgroundColor().withAlpha(0.5f));
+    g.setColour(editor->getBackgroundColor().withAlpha(0.5f));
 
     g.fillRect(25, 0, getWidth() - 25, getHeight());
 
     g.setColour(findColour(ThemeColors::outline));
-    g.drawRect(0, 0, getWidth(), getHeight(), 1);
+    g.fillRect(0, 0, getWidth(), 1);
 
     g.setColour(findColour(ThemeColors::defaultText));
 
@@ -1234,6 +1230,7 @@ String GraphNode::getInfoString()
 
 void GraphNode::paint (Graphics& g)
 {   
+    g.fillAll(findColour(ThemeColors::componentParentBackground));
     g.setFont(Font("Fira Code", "SemiBold", 14));
 
     if(processor->isEmpty())
@@ -1270,7 +1267,7 @@ void GraphNode::paintOverChildren(Graphics& g)
     const float cornerSize = 5.0f; //desired corner size
     fakeRoundedCorners.addRectangle(bounds); //What you start with
     fakeRoundedCorners.setUsingNonZeroWinding(false); //The secret sauce
-    fakeRoundedCorners.addRoundedRectangle(bounds.reduced(1.0f), cornerSize); //subtract this shape
+    fakeRoundedCorners.addRoundedRectangle(bounds, cornerSize); //subtract this shape
 
     g.setColour(findColour(ThemeColors::componentParentBackground));
     g.fillPath(fakeRoundedCorners);
