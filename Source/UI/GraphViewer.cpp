@@ -523,7 +523,7 @@ DataStreamInfo::DataStreamInfo(DataStream* stream_, GenericEditor* editor, Graph
 
     int yPos = pEditors.size() > 0 ? 5 : 0;
     const int rowWidthPixels = 170;
-    const int rowHeightPixels = 20;
+    const int rowHeightPixels = 18;
 
     for (auto paramEditor : pEditors)
     {
@@ -569,10 +569,10 @@ DataStreamInfo::~DataStreamInfo()
 
 void DataStreamInfo::paint(Graphics& g)
 {
-    g.setFont(Font("Inter", "Medium", 14));
-
+   
     g.fillAll(findColour(ThemeColors::componentBackground));
-    // g.fillRect(1, 0, 24, getHeight() - 1);
+	g.setColour(findColour(ThemeColors::outline));
+    g.fillRect(25, 0, 1, 60);
 
     int numEventChannels = stream->getEventChannels().size();
     int numSpikeChannels = stream->getSpikeChannels().size();
@@ -580,14 +580,16 @@ void DataStreamInfo::paint(Graphics& g)
     String ttlText = numEventChannels == 1 ? "TTL Channel" : "TTL Channels";
     String spikeText = numSpikeChannels == 1 ? "Spike Channel" : "Spike Channels";
 
+    g.setFont(Font("Inter", "Medium", 14));
     g.setColour(findColour(ThemeColors::defaultText));
     g.drawText("@ " + String(stream->getSampleRate()) + " Hz", 30, 0, getWidth() - 30, 20, Justification::left);
     g.drawText(ttlText, 30, 20, getWidth() - 30, 20, Justification::left);
     g.drawText(spikeText, 30, 40, getWidth() - 30, 20, Justification::left);
 
-    g.drawText(String(stream->getChannelCount()), 0, 0, 25, 20, Justification::centred);
-    g.drawText(String(numEventChannels), 0, 20, 25, 20, Justification::centred);
-    g.drawText(String(numSpikeChannels), 0, 40, 25, 20, Justification::centred);
+    g.setFont(Font("Fira Mono", "Medium", 14));
+    g.drawText(String(stream->getChannelCount()), 2, 1, 25, 20, Justification::centred);
+    g.drawText(String(numEventChannels), 2, 21, 25, 20, Justification::centred);
+    g.drawText(String(numSpikeChannels), 2, 41, 25, 20, Justification::centred);
 
 }
 
@@ -666,7 +668,7 @@ ProcessorParameterComponent::ProcessorParameterComponent(GenericProcessor* p)
 
     int yPos = editors.size() > 0 ? 5 : 0;
     const int rowWidthPixels = 170;
-    const int rowHeightPixels = 20;
+    const int rowHeightPixels = 18;
 
     for (auto editor : editors)
     {
@@ -746,7 +748,9 @@ void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
     g.fillRect(25, 0, getWidth() - 25, getHeight());
 
     g.setColour(findColour(ThemeColors::outline));
+    g.fillRect(25, 0, 1, getHeight());
     g.fillRect(0, 0, getWidth(), 1);
+    g.fillRect(0, getHeight()-1, getWidth(), 1);
 
     g.setColour(findColour(ThemeColors::defaultText));
 
@@ -756,6 +760,7 @@ void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
         g.fillPath(pathClosed);
 
     g.setColour(Colours::white);
+    g.setFont(Font("Inter", "Medium", 14));
     g.drawText(getButtonText(), 30, 0, getWidth()-30, 20, Justification::left);
 
 }
@@ -1250,6 +1255,11 @@ void GraphNode::paint (Graphics& g)
         g.fillRect(0, 0, 25, 20);
         g.setColour(editor->getBackgroundColor());
         g.fillRect(25, 0, getWidth() - 25, 20);
+        g.setColour(findColour(ThemeColors::outline));
+        g.fillRect(25, 0, 1, getHeight());
+
+        if (processorInfoVisible)
+            g.fillRect(0, 19, getWidth(), 1);
 
         g.setColour (findColour(ThemeColors::defaultText)); // : editor->getBackgroundColor());
         g.drawText (String(nodeId), 1, 1, 23, 20, Justification::centred, true);

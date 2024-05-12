@@ -208,7 +208,7 @@ class PLUGIN_API TextBoxParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    TextBoxParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+    TextBoxParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
     virtual ~TextBoxParameterEditor() { }
@@ -251,7 +251,7 @@ class PLUGIN_API ToggleParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    ToggleParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+    ToggleParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
     virtual ~ToggleParameterEditor() { }
@@ -282,7 +282,7 @@ class PLUGIN_API ComboBoxParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    ComboBoxParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+    ComboBoxParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
     virtual ~ComboBoxParameterEditor() { }
@@ -357,7 +357,7 @@ class PLUGIN_API BoundedValueParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    BoundedValueParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+    BoundedValueParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
     virtual ~BoundedValueParameterEditor() { }
@@ -391,7 +391,7 @@ class PLUGIN_API SelectedChannelsParameterEditor :
 public:
 
     /** Constructor */
-    SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+    SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
     virtual ~SelectedChannelsParameterEditor() { }
@@ -421,7 +421,7 @@ class PLUGIN_API SelectedStreamParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    SelectedStreamParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+    SelectedStreamParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
     virtual ~SelectedStreamParameterEditor() { }
@@ -454,7 +454,7 @@ class PLUGIN_API MaskChannelsParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+    MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
     virtual ~MaskChannelsParameterEditor() { }
@@ -540,7 +540,7 @@ public:
     TtlLineParameterEditor(Parameter* param,
                            Parameter* syncParam = nullptr,
                            int rowHeightPixels = 18,
-                           int rowWidthPixels = 160);
+                           int rowWidthPixels = 170);
 
     /** Destructor */
     virtual ~TtlLineParameterEditor() { }
@@ -573,7 +573,7 @@ class PLUGIN_API PathParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    PathParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+    PathParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
     virtual ~PathParameterEditor() { }
@@ -597,7 +597,7 @@ class PLUGIN_API TimeParameterEditor : public ParameterEditor,
 public:
 
     /** Constructor */
-    TimeParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+    TimeParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
     virtual ~TimeParameterEditor() { }

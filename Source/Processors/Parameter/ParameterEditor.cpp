@@ -39,7 +39,7 @@ void ParameterEditor::updateBounds()
     Rectangle<int> bounds = getBounds();
     int finalWidth = bounds.getWidth();
     int finalHeight = bounds.getHeight();
-    int gap = finalWidth < 180 ? 2 : 5;
+    int gap = finalWidth < 180 ? 4 : 4;
 
     switch (layout)
     {
@@ -148,7 +148,8 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPi
     addAndMakeVisible(valueTextBox.get());
 
     setBounds(0, 0, width, rowHeightPixels);
-    label->setBounds(width / 2, 0, getWidth() - 50, rowHeightPixels);
+
+    label->setBounds(width / 2 + 4, 0, width / 2, rowHeightPixels);
     valueTextBox->setBounds(0, 0, width/2, rowHeightPixels);
 
     editor = (Component*)valueTextBox.get();
@@ -242,9 +243,10 @@ ToggleParameterEditor:: ToggleParameterEditor(Parameter* param, int rowHeightPix
 
     int width = rowWidthPixels;
 
-    label->setBounds(width / 2, 0, width / 2, rowHeightPixels);
-    toggleButton->setBounds(0, 0, width / 2, rowHeightPixels);
     setBounds(0, 0, width, rowHeightPixels);
+    label->setBounds(width / 2 + 4, 0, width / 2, rowHeightPixels);
+    toggleButton->setBounds(0, 0, width / 2, rowHeightPixels);
+    
 
     editor = (Component*)toggleButton.get();
 }
@@ -319,7 +321,8 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param, int rowHeight
     int width = rowWidthPixels;
 
     setBounds(0, 0, width, rowHeightPixels);
-    label->setBounds(width / 2, 0, width/2, rowHeightPixels);
+
+    label->setBounds(width / 2 + 4, 0, width/2, rowHeightPixels);
     valueComboBox->setBounds(0, 0, width/2, rowHeightPixels);
 
     editor = (Component*)valueComboBox.get();
@@ -502,7 +505,7 @@ BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int r
     labelTextChanged(valueEditor.get());
     addAndMakeVisible(valueEditor.get());
 
-    label->setBounds(rowWidthPixels / 2, 0, rowWidthPixels / 2, rowHeightPixels);
+    label->setBounds(rowWidthPixels / 2 + 4, 0, rowWidthPixels / 2, rowHeightPixels);
     valueEditor->setBounds(0, 0, rowWidthPixels/2, rowHeightPixels);
 
     setBounds(0, 0, rowWidthPixels, rowHeightPixels);
@@ -590,7 +593,7 @@ SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* para
     addAndMakeVisible(label.get());
 
     setBounds(0, 0, rowWidthPixels, rowHeightPixels);
-    label->setBounds(rowWidthPixels / 2, 0, rowWidthPixels / 2, rowHeightPixels);
+    label->setBounds(rowWidthPixels / 2 + 4, 0, rowWidthPixels / 2, rowHeightPixels);
     button->setBounds(0, 0, rowWidthPixels/2, rowHeightPixels);
 
     editor = (Component*)button.get();
@@ -684,7 +687,7 @@ MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param, int r
     int width = rowWidthPixels;
 
     setBounds(0, 0, width, rowHeightPixels);
-    label->setBounds(width / 2, 0, getWidth() - 50, rowHeightPixels);
+    label->setBounds(width / 2 + 4, 0, width / 2, rowHeightPixels);
     button->setBounds(0, 0, width/2, rowHeightPixels);
 
     editor = (Component*)button.get();
@@ -893,7 +896,7 @@ TtlLineParameterEditor::TtlLineParameterEditor(Parameter* param,
         addAndMakeVisible(label.get());
 
         setBounds(0, 0, rowWidthPixels, rowHeightPixels);
-        label->setBounds(rowWidthPixels / 2, 0, rowWidthPixels / 2, rowHeightPixels);
+        label->setBounds(rowWidthPixels / 2 + 4, 0, rowWidthPixels / 2, rowHeightPixels);
         textButton->setBounds(0, 0, rowWidthPixels/2, rowHeightPixels);
 
         editor = (Component*)textButton.get();
@@ -1013,7 +1016,7 @@ PathParameterEditor::PathParameterEditor(Parameter* param, int rowHeightPixels, 
 
     int width = rowWidthPixels;
 
-    label->setBounds(width / 2, 0, getWidth() - 50, rowHeightPixels);
+    label->setBounds(width / 2 + 4, 0, width / 2, rowHeightPixels);
     button->setBounds(0, 0, width/2, rowHeightPixels);
 
     editor = (Component*)button.get();
@@ -1122,7 +1125,7 @@ SelectedStreamParameterEditor::SelectedStreamParameterEditor(Parameter* param, i
     int width = rowWidthPixels;
 
     setBounds(0, 0, width, rowHeightPixels);
-    label->setBounds(width / 2, 0, width / 2, rowHeightPixels);
+    label->setBounds(width / 2 + 4, 0, width / 2, rowHeightPixels);
     valueComboBox->setBounds(0, 0, width / 2, rowHeightPixels);
 
     editor = (Component*)valueComboBox.get();
@@ -1186,7 +1189,7 @@ TimeParameterEditor::TimeParameterEditor(Parameter* param, int rowHeightPixels, 
     int width = rowWidthPixels;
 
     setBounds(0, 0, width, rowHeightPixels);
-    label->setBounds(width / 2, 0, width / 2, rowHeightPixels);
+    label->setBounds(width / 2 + 4, 0, width / 2, rowHeightPixels);
     button->setBounds(0, 0, width / 2, rowHeightPixels);
 
     editor = (Component*)button.get();

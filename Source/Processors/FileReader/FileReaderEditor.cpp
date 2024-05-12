@@ -35,7 +35,7 @@ FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
     , scrubInterfaceVisible (false)
     , scrubInterfaceAvailable(false)
 {
-    desiredWidth = 280;
+    desiredWidth = 250;
 
     scrubberInterface = std::make_unique<ScrubberInterface>(fileReader);
     scrubberInterface->setBounds(0, 0, 420, 140);
