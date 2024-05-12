@@ -76,7 +76,7 @@ enum ColorTheme
 
 */
 
-class TESTABLE CustomLookAndFeel : public LookAndFeel_V2
+class TESTABLE CustomLookAndFeel : public LookAndFeel_V4
 {
 public:
 
