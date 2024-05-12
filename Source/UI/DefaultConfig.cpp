@@ -56,7 +56,7 @@ void DefaultConfigWindow::launchWindow()
 	options.content->setSize (area.getWidth(), area.getHeight());
 
 	options.dialogTitle                   = "Load a Default Configuration";
-    options.dialogBackgroundColour        = Colours::darkgrey;
+    options.dialogBackgroundColour        = configComponent->findColour(ThemeColors::componentBackground);
 	options.escapeKeyTriggersCloseButton  = true;
 	options.useNativeTitleBar             = false;
 	options.resizable 					  = false;
@@ -91,8 +91,8 @@ DefaultConfigComponent::DefaultConfigComponent()
 	Image acqBoardIcon = ImageFileFormat::loadFrom(acqIconFile);
 	acqBoardButton->setImages(false, true, true, 
 							  acqBoardIcon, 1.0f, findColour(ThemeColors::defaultFill), 
-							  acqBoardIcon, 1.0f, findColour(ThemeColors::defaultFill).withAlpha(0.5f),
-							  acqBoardIcon, 1.0f, findColour(ThemeColors::defaultFill).withAlpha(0.5f));
+							  acqBoardIcon, 1.0f, findColour(ThemeColors::highlightedFill),
+							  acqBoardIcon, 1.0f, findColour(ThemeColors::highlightedFill));
 	
 	acqBoardButton->setClickingTogglesState(true);
 	acqBoardButton->setTooltip("Acquire data from an Open Ephys Acquisition Board");
@@ -112,8 +112,8 @@ DefaultConfigComponent::DefaultConfigComponent()
 	Image fRIcon = ImageFileFormat::loadFrom(fRIconFile);
 	fileReaderButton->setImages(false, true, true, 
 							  fRIcon, 1.0f, findColour(ThemeColors::defaultFill), 
-							  fRIcon, 1.0f, findColour(ThemeColors::defaultFill).withAlpha(0.5f),
-							  fRIcon, 1.0f, findColour(ThemeColors::defaultFill).withAlpha(0.5f));
+							  fRIcon, 1.0f, findColour(ThemeColors::highlightedFill),
+							  fRIcon, 1.0f, findColour(ThemeColors::highlightedFill));
 	
 	fileReaderButton->setClickingTogglesState(true);
 	fileReaderButton->setTooltip("Read data from a file");
@@ -135,8 +135,8 @@ DefaultConfigComponent::DefaultConfigComponent()
 	Image npxIcon = ImageFileFormat::loadFrom(npxIconFile);
 	neuropixelsButton->setImages(false, true, true, 
 							  npxIcon, 1.0f, findColour(ThemeColors::defaultFill), 
-							  npxIcon, 1.0f, findColour(ThemeColors::defaultFill).withAlpha(0.5f),
-							  npxIcon, 1.0f, findColour(ThemeColors::defaultFill).withAlpha(0.5f));
+							  npxIcon, 1.0f, findColour(ThemeColors::highlightedFill),
+							  npxIcon, 1.0f, findColour(ThemeColors::highlightedFill));
 	
 	neuropixelsButton->setClickingTogglesState(true);
 	neuropixelsButton->addListener(this);
