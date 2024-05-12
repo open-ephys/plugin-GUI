@@ -3,6 +3,10 @@ add_sources(${COMPONENT_NAME}_tests
 		RecordNodeTests.cpp
 		ProcessorGraphTests.cpp
 		DataBufferTests.cpp
+		EventChannelTests.cpp
+		ContinuousChannelTests.cpp
+		PluginManagerTests.cpp
+		SourceNodeTests.cpp
 )
 target_include_directories(
 		${COMPONENT_NAME}_tests
