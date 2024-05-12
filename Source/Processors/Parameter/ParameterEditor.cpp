@@ -125,7 +125,7 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPi
         || param->getType() == Parameter::STRING_PARAM);
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-    Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+    Font labelFont = Font("Inter", "Regular", int(0.75*rowHeightPixels));
     int width = rowWidthPixels;
     label->setFont(labelFont);
     addAndMakeVisible(label.get());
@@ -210,7 +210,7 @@ void CustomToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsH
     g.drawRoundedRectangle(getLocalBounds().toFloat(), 3.0f, 1.0f);
 
     // Set the text font
-    g.setFont(Font("Fira Sans", "Regular", int(0.75*getHeight())));
+    g.setFont(Font("Inter", "Regular", int(0.75*getHeight())));
     g.setColour(findColour(ThemeColors::defaultText));
 
     // Set the text based on the button state
@@ -230,7 +230,7 @@ ToggleParameterEditor:: ToggleParameterEditor(Parameter* param, int rowHeightPix
     jassert(param->getType() == Parameter::BOOLEAN_PARAM);
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-    label->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
+    label->setFont(Font("Inter", "Regular", int(0.75*rowHeightPixels)));
     addAndMakeVisible(label.get());
 
     toggleButton = std::make_unique<CustomToggleButton>();
@@ -277,7 +277,7 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param, int rowHeight
         || param->getType() == Parameter::INT_PARAM);
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName()); // == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-    label->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
+    label->setFont(Font("Inter", "Regular", int(0.75*rowHeightPixels)));
     addAndMakeVisible(label.get());
 
     valueComboBox = std::make_unique<ComboBox>();
@@ -479,7 +479,7 @@ BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int r
         || param->getType() == Parameter::INT_PARAM);
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-    Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+    Font labelFont = Font("Inter", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
     addAndMakeVisible(label.get());
 
@@ -495,7 +495,7 @@ BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int r
         valueEditor->setText(String(p->getIntValue()), dontSendNotification);
     }
     valueEditor->setName(param->getKey());
-    valueEditor->setFont(Font("Fira Sans", "Regular", int(0.75*rowHeightPixels)));
+    valueEditor->setFont(Font("Inter", "Regular", int(0.75*rowHeightPixels)));
     valueEditor->setJustificationType(Justification::centred);
     valueEditor->addListener(this);
     valueEditor->setTooltip(param->getDescription());
@@ -584,7 +584,7 @@ SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* para
     addAndMakeVisible(button.get());
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-    Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+    Font labelFont = Font("Inter", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
     label->setJustificationType(Justification::left);
     addAndMakeVisible(label.get());
@@ -676,7 +676,7 @@ MaskChannelsParameterEditor::MaskChannelsParameterEditor(Parameter* param, int r
     addAndMakeVisible(button.get());
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-    Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+    Font labelFont = Font("Inter", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
     label->setJustificationType(Justification::left);
     addAndMakeVisible(label.get());
@@ -887,7 +887,7 @@ TtlLineParameterEditor::TtlLineParameterEditor(Parameter* param,
         addAndMakeVisible(textButton.get());
 
         label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-        Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+        Font labelFont = Font("Inter", "Regular", int(0.75*rowHeightPixels));
         label->setFont(labelFont);
         label->setJustificationType(Justification::left);
         addAndMakeVisible(label.get());
@@ -1006,7 +1006,7 @@ PathParameterEditor::PathParameterEditor(Parameter* param, int rowHeightPixels, 
     addAndMakeVisible(button.get());
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName());// == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-    Font labelFont = Font("Arial", "Regular", int(0.75*rowHeightPixels));
+    Font labelFont = Font("Inter", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
     label->setJustificationType(Justification::left);
     addAndMakeVisible(label.get());
@@ -1086,7 +1086,7 @@ SelectedStreamParameterEditor::SelectedStreamParameterEditor(Parameter* param, i
         || param->getType() == Parameter::INT_PARAM);
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-    label->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
+    label->setFont(Font("Inter", "Regular", int(0.75*rowHeightPixels)));
     addAndMakeVisible(label.get());
 
     valueComboBox = std::make_unique<ComboBox>();
@@ -1173,7 +1173,7 @@ TimeParameterEditor::TimeParameterEditor(Parameter* param, int rowHeightPixels, 
     jassert(param->getType() == Parameter::TIME_PARAM);
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-    label->setFont(Font("Arial", "Regular", int(0.75*rowHeightPixels)));
+    label->setFont(Font("Inter", "Regular", int(0.75*rowHeightPixels)));
     addAndMakeVisible(label.get());
 
     button = std::make_unique<TextButton>(param->getValueAsString());

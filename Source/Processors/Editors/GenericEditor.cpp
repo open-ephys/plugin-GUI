@@ -537,10 +537,10 @@ void GenericEditor::paint(Graphics& g)
     if (!isCollapsed)
     {
         g.setColour(isEnabled ? Colours::white : findColour(ThemeColors::defaultText).withAlpha(0.5f));
-        g.setFont( Font("Mono", "Plain", 12) );
-        g.drawText (String(nodeId), 10, 6, 30, 15, Justification::left, false);
+        g.setFont( Font("Fira Mono", "Plain", 13) );
+        g.drawText (String(nodeId), 8, 5, 30, 15, Justification::left, false);
         g.setFont (Font("CP Mono", "Plain", 16));
-        g.drawText (displayName.toUpperCase(), 35, 5, 500, 15, Justification::left, false);
+        g.drawText (displayName.toUpperCase(), 35, 4, 500, 15, Justification::left, false);
     }
     else
     {

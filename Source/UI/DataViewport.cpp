@@ -383,8 +383,6 @@ AddTabbedComponentButton::AddTabbedComponentButton()
     path.addRoundedRectangle(1, 1, 18, 18, 3.0f);
     path.addLineSegment(Line<float>(9, 1, 9, 18), 0.0f);
     path.addTriangle(12, 7, 12, 13, 17, 10);
-    // path.addLineSegment(Line<float>(12, 8, 12, 12), 0.0f);
-    // path.addLineSegment(Line<float>(10, 10, 14, 10), 0.0f);
     
 }
 
@@ -394,13 +392,14 @@ void AddTabbedComponentButton::paintButton(Graphics& g, bool isMouseOverButton, 
 
     if (isMouseOverButton)
     {
-        g.setColour(findColour(ThemeColors::defaultFill).withAlpha(0.25f));
-        g.fillRoundedRectangle(0, 0, 20, 20, 5.0f);
-        
+        g.setColour(findColour(ThemeColors::componentBackground).brighter(0.4f));
         
     }
+    else {
+        g.setColour(findColour(ThemeColors::componentBackground).brighter(0.2f));
+    }
     
-    g.setColour(findColour(ThemeColors::defaultText).withAlpha(0.7f));
+    
     g.strokePath(path, PathStrokeType(1.0f));
     
 }

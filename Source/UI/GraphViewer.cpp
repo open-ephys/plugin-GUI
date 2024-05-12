@@ -569,7 +569,7 @@ DataStreamInfo::~DataStreamInfo()
 
 void DataStreamInfo::paint(Graphics& g)
 {
-    g.setFont(Font("Fira Sans", "SemiBold", 14));
+    g.setFont(Font("Inter", "Medium", 14));
 
     g.fillAll(findColour(ThemeColors::componentBackground));
     // g.fillRect(1, 0, 24, getHeight() - 1);
@@ -1231,7 +1231,9 @@ String GraphNode::getInfoString()
 void GraphNode::paint (Graphics& g)
 {   
     g.fillAll(findColour(ThemeColors::componentParentBackground));
-    g.setFont(Font("Fira Code", "SemiBold", 14));
+    //g.setFont(Font("Inter", "Medium", 14));
+
+    g.setFont(Font("Fira Mono", "Plain", 13));
 
     if(processor->isEmpty())
     {
@@ -1250,9 +1252,10 @@ void GraphNode::paint (Graphics& g)
         g.fillRect(25, 0, getWidth() - 25, 20);
 
         g.setColour (findColour(ThemeColors::defaultText)); // : editor->getBackgroundColor());
-        g.drawText (String(nodeId), 1, 0, 23, 20, Justification::centred, true);
+        g.drawText (String(nodeId), 1, 1, 23, 20, Justification::centred, true);
         g.setColour(Colours::white); // : editor->getBackgroundColor());
-        g.drawText(getName(), 29, 0, getWidth() - 29, 20, Justification::left, true);
+        g.setFont(Font("CP Mono", "Plain", 15));
+        g.drawText(getName().toUpperCase(), 30, 1, getWidth() - 30, 20, Justification::left, true);
     }
 }
 

@@ -35,6 +35,9 @@ CustomLookAndFeel::CustomLookAndFeel() :
     silkscreen(Typeface::createSystemTypefaceFor(BinaryData::SilkscreenRegular_ttf,
         BinaryData::SilkscreenRegular_ttfSize)),
 
+    nimbusSans(Typeface::createSystemTypefaceFor(BinaryData::NimbusSans_otf,
+        BinaryData::NimbusSans_otfSize)),
+
     cpmonoExtraLight(Typeface::createSystemTypefaceFor(BinaryData::CPMonoExtraLight_otf,
         BinaryData::CPMonoExtraLight_otfSize)),
     cpmonoLight(Typeface::createSystemTypefaceFor(BinaryData::CPMonoLight_otf,
@@ -63,29 +66,18 @@ CustomLookAndFeel::CustomLookAndFeel() :
         BinaryData::FiraSansRegular_ttfSize)),
     firaSansSemiBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansSemiBold_ttf,
         BinaryData::FiraSansSemiBold_ttfSize)),
-    firaSansExtraBold(Typeface::createSystemTypefaceFor(BinaryData::FiraSansExtraBold_ttf,
-        BinaryData::FiraSansExtraBold_ttfSize)),
-
-    misoRegular(Typeface::createSystemTypefaceFor(BinaryData::MisoRegular_ttf,
-        BinaryData::MisoRegular_ttfSize)),
-    misoLight(Typeface::createSystemTypefaceFor(BinaryData::MisoLight_ttf,
-        BinaryData::MisoLight_ttfSize)),
-    misoBold(Typeface::createSystemTypefaceFor(BinaryData::MisoBold_ttf,
-        BinaryData::MisoBold_ttfSize)),
-
-    nimbusSans(Typeface::createSystemTypefaceFor(BinaryData::NimbusSans_otf,
-        BinaryData::NimbusSans_otfSize)),
-    nordic(Typeface::createSystemTypefaceFor(BinaryData::nordic_ttf,
-        BinaryData::nordic_ttfSize)),
-    ostrich(Typeface::createSystemTypefaceFor(BinaryData::ostrich_ttf,
-        BinaryData::ostrich_ttfSize)),
-    bebasNeue(Typeface::createSystemTypefaceFor(BinaryData::BebasNeue_otf,
-        BinaryData::BebasNeue_otfSize))
-
-
+   
+    interBold(Typeface::createSystemTypefaceFor(BinaryData::InterBold_ttf,
+        BinaryData::InterBold_ttfSize)),
+    interLight(Typeface::createSystemTypefaceFor(BinaryData::InterLight_ttf,
+        BinaryData::InterLight_ttfSize)),
+    interMedium(Typeface::createSystemTypefaceFor(BinaryData::InterMedium_ttf,
+        BinaryData::InterMedium_ttfSize)),
+    interRegular(Typeface::createSystemTypefaceFor(BinaryData::InterRegular_ttf,
+        BinaryData::InterRegular_ttfSize)),
+    interSemiBold(Typeface::createSystemTypefaceFor(BinaryData::InterSemiBold_ttf,
+        BinaryData::InterSemiBold_ttfSize))
 {
-
-    // silkscreen = new CustomTypeface(silkscreenStream);
 
     initializeColors();
 
@@ -330,51 +322,43 @@ Typeface::Ptr CustomLookAndFeel::getTypefaceForFont(const Font& font)
         {
             return firaSansSemiBold;
         }
-        else if (typefaceStyle.equalsIgnoreCase("Extra Bold"))
-        {
-            return firaSansExtraBold;
-        }
         else {
             return firaSansSemiBold; // default weight
         }
-    }
-    else if (typefaceName.equalsIgnoreCase("Miso"))
-    {
-        if (typefaceStyle.equalsIgnoreCase("Regular"))
-        {
-            return misoRegular;
-        }
-        else if (typefaceStyle.equalsIgnoreCase("Bold"))
-        {
-            return misoBold;
-        }
-        else if (typefaceStyle.equalsIgnoreCase("Light"))
-        {
-            return misoLight;
-        }
-        else {
-            return misoRegular; // default weight
-        }
-    }
-    else if (typefaceName.equalsIgnoreCase("Nimbus Sans"))
-    {
-        return nimbusSans;
     }
     else if (typefaceName.equalsIgnoreCase("Silkscreen"))
     {
         return silkscreen;
     }
-    else if (typefaceName.equalsIgnoreCase("Ostrich"))
+    else if (typefaceName.equalsIgnoreCase("Nimbus Sans"))
     {
-        return ostrich;
+        return nimbusSans;
     }
-    else if (typefaceName.equalsIgnoreCase("Bebas Neue"))
+    else if (typefaceName.equalsIgnoreCase("Inter"))
     {
-        return bebasNeue;
-    }
-    else if (typefaceName.equalsIgnoreCase("Nordic"))
-    {
-        return nordic;
+        if (typefaceStyle.equalsIgnoreCase("Bold"))
+        {
+            return interBold;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("Light"))
+        {
+            return interLight;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("Medium"))
+        {
+            return interMedium;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("Regular"))
+        {
+            return interRegular;
+        }
+        else if (typefaceStyle.equalsIgnoreCase("Semi Bold"))
+        {
+            return interSemiBold;
+        }
+        else {
+            return interRegular; // default weight
+        }
     }
     else   // default
     {
@@ -700,7 +684,7 @@ void CustomLookAndFeel::drawComboBox(Graphics& g, int width, int height,
 
 Font CustomLookAndFeel::getComboBoxFont (ComboBox& box)
 {
-    return Font("Fira Sans", "Regular", box.getHeight() * 0.75);
+    return Font("Inter", "Regular", box.getHeight() * 0.75);
 }
 
 void CustomLookAndFeel::positionComboBoxText (juce::ComboBox& box, juce::Label& label)
@@ -757,7 +741,7 @@ void CustomLookAndFeel::drawMenuBarBackground (Graphics& g, int width, int heigh
 
 Font CustomLookAndFeel::getMenuBarFont (MenuBarComponent& menuBar, int /*itemIndex*/, const String& /*itemText*/)
 {
-    return Font(getCommonMenuFont().getTypefaceName(), "SemiBold", menuBar.getHeight() * 0.7f);
+    return Font(getCommonMenuFont().getTypefaceName(), "Medium", menuBar.getHeight() * 0.65f);
 }
 
 //==================================================================
@@ -838,14 +822,14 @@ void CustomLookAndFeel::drawButtonText (Graphics& g,
 
 Font CustomLookAndFeel::getTextButtonFont (TextButton&, int buttonHeight)
 {
-    return Font(getCommonMenuFont().getTypefaceName(), "Regular", buttonHeight * 0.65f);
+    return Font(getCommonMenuFont().getTypefaceName(), "Medium", buttonHeight * 0.65f);
 }
 
 // ============ Common Font for Menus ================
 
 Font CustomLookAndFeel::getCommonMenuFont()
 {
-    return Font ("Fira Sans", "Regular", 18.f);
+    return Font ("Inter", "Regular", 17.f);
 }
 
 //==================================================================
@@ -1109,9 +1093,9 @@ void CustomLookAndFeel::drawDocumentWindowTitleBar (DocumentWindow& window, Grap
     g.drawText (window.getName(), textX, 0, textW, h, Justification::centredLeft, true);
 }
 
-Font CustomLookAndFeel::getAlertWindowTitleFont()      { return { "Fira Sans", "SemiBold", 20.f }; }
-Font CustomLookAndFeel::getAlertWindowMessageFont()    { return { "Fira Sans", "Regular", 18.f }; }
-Font CustomLookAndFeel::getAlertWindowFont()           { return { "Fira Sans", "Regular", 16.f }; }
+Font CustomLookAndFeel::getAlertWindowTitleFont()      { return { "Inter", "Bold", 20.f }; }
+Font CustomLookAndFeel::getAlertWindowMessageFont()    { return { "Inter", "Medium", 18.f }; }
+Font CustomLookAndFeel::getAlertWindowFont()           { return { "Inter", "Medium", 16.f }; }
 
 
 //==================================================================
@@ -1254,7 +1238,7 @@ void CustomLookAndFeel::fillTabButtonShape (TabBarButton& button, Graphics& g, c
 
 Font CustomLookAndFeel::getTabButtonFont (TabBarButton&, float height)
 {
-    return Font("Fira Sans", "Regular", height * 0.7);
+    return Font("Inter", "Medium", height * 0.65);
 }
 
 void CustomLookAndFeel::drawTabButtonText (TabBarButton& button, Graphics& g, bool isMouseOver, bool isMouseDown)

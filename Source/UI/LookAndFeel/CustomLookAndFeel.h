@@ -223,13 +223,12 @@ public:
 private:
 
     Typeface::Ptr
-        bebasNeue,
 
         cpmonoExtraLight,
         cpmonoLight,
         cpmonoPlain,
         cpmonoBold,
-        
+
         firaCodeLight,
         firaCodeMedium,
         firaCodeRetina,
@@ -240,16 +239,17 @@ private:
         firaSansExtraLight,
         firaSansRegular,
         firaSansSemiBold,
-        firaSansExtraBold,
 
-        misoRegular,
-        misoLight,
-        misoBold,
+        silkscreen,
 
         nimbusSans,
-        nordic,
-        ostrich,
-        silkscreen;
+
+        interBold,
+        interLight,
+        interMedium,
+        interRegular,
+        interSemiBold;
+    
     
     Font getCommonMenuFont();
 
