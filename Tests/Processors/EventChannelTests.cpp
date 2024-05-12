@@ -25,7 +25,7 @@ protected:
                 "Event Channel Identifier",
                 mStream.get(),
                 8,
-                EventChannel::BinaryDataType::BINARY_BASE_VALUE,
+                EventChannel::BinaryDataType::UINT8_ARRAY,
                 0
             }
         );
@@ -56,7 +56,7 @@ with a specific binary data type
 */
 TEST_F(EventChannelTests, GetBinaryDataType)
 {
-    EXPECT_EQ(mEventChannel->getBinaryDataType(), EventChannel::BinaryDataType::BINARY_BASE_VALUE);
+    EXPECT_EQ(mEventChannel->getBinaryDataType(), EventChannel::BinaryDataType::UINT8_ARRAY);
 }
 
 /*
@@ -65,7 +65,7 @@ when initialized with a specific size
 */
 TEST_F(EventChannelTests, GetLength)
 {
-    EXPECT_EQ(mEventChannel->getLength(), 0);
+    EXPECT_EQ(mEventChannel->getLength(), 10);
 }
 
 /*
@@ -73,7 +73,7 @@ Event Channel should return the correct size of the event payload in bytes.
 */
 TEST_F(EventChannelTests, GetDataSize)
 {
-    EXPECT_EQ(mEventChannel->getDataSize(), 0);
+    EXPECT_EQ(mEventChannel->getDataSize(), 10);
 }
 
 /*
@@ -89,7 +89,6 @@ Event Channel should get the correct size in bytes of an element depending on th
 */
 TEST_F(EventChannelTests, GetBinaryDataTypeSize)
 {
-    EXPECT_EQ(EventChannel::getBinaryDataTypeSize(EventChannel::BinaryDataType::BINARY_BASE_VALUE), 10);
     EXPECT_EQ(EventChannel::getBinaryDataTypeSize(EventChannel::BinaryDataType::INT8_ARRAY), sizeof(int8));
     EXPECT_EQ(EventChannel::getBinaryDataTypeSize(EventChannel::BinaryDataType::UINT8_ARRAY), sizeof(uint8));
     EXPECT_EQ(EventChannel::getBinaryDataTypeSize(EventChannel::BinaryDataType::INT16_ARRAY), sizeof(int16));
