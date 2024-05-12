@@ -23,63 +23,35 @@
 
 #include "EditorViewportButtons.h"
 
-SignalChainScrollButton::SignalChainScrollButton(int d)
-    : DrawableButton("Signal Chain Scroll Button " + String(d), DrawableButton::ImageFitted)
+#include "LookAndFeel/CustomLookAndFeel.h"
+
+SignalChainScrollButton::SignalChainScrollButton(int direction)
+    : TextButton("Signal Chain Scroll Button " + String(direction))
 {
-
-    direction = d;
-
-    DrawablePath normal;
-
-    Path p;
 
     if (direction == DOWN)
     {
-        p.addTriangle(0.0f, 0.0f, 9.0f, 20.0f, 18.0f, 0.0f);
+        path.addTriangle(0.0f, 0.0f, 9.0f, 20.0f, 18.0f, 0.0f);
     }
     else
     {
-        p.addTriangle(0.0f, 20.0f, 9.0f, 0.0f, 18.0f, 20.0f);
+        path.addTriangle(0.0f, 20.0f, 9.0f, 0.0f, 18.0f, 20.0f);
     }
 
-    inactive.setPath(p);
-    inactive.setFill(Colours::black);
-    inactive.setStrokeFill(Colours::grey);
-    inactive.setStrokeThickness(1.0f);
-
-    activeNormal.setPath(p);
-    activeNormal.setFill(Colours::grey);
-    activeNormal.setStrokeFill(Colours::grey);
-    activeNormal.setStrokeThickness(1.0f);
-
-    activeOver.setPath(p);
-    activeOver.setFill(Colours::grey);
-    activeOver.setStrokeFill(Colours::grey);
-    activeOver.setStrokeThickness(3.0f);
-
-    activeDown.setPath(p);
-    activeDown.setFill(Colours::white);
-    activeDown.setStrokeFill(Colours::white);
-    activeDown.setStrokeThickness(3.0f);
-
-    setImages(&inactive, &inactive, &inactive);
-    //setBackgroundColours(Colours::black, Colours::black);
     setClickingTogglesState(false);
 
 }
 
 void SignalChainScrollButton::setActive(bool state)
 {
-
     isActive = state;
+}
 
-    if (state == true)
-    {
-        setImages(&activeNormal, &activeOver, &activeDown);
-    }
-    else
-    {
-        setImages(&inactive, &inactive, &inactive);
-    }
+void SignalChainScrollButton::paintButton(Graphics& g, bool isMouseOverButton, bool isButtonDown)
+{
 
+	g.setColour(findColour(ThemeColors::defaultFill));
+    path.scaleToFit(0, 0, getWidth(), getHeight(), true);
+
+    g.strokePath(path, PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded));
 }

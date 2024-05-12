@@ -398,7 +398,7 @@ int EditorViewport::getDesiredWidth()
         desiredWidth += editor->getTotalWidth() + BORDER_SIZE;
     }
     
-    return desiredWidth;
+    return desiredWidth + BORDER_SIZE;
 }
 
 void EditorViewport::refreshEditors()
@@ -1328,16 +1328,43 @@ void SignalChainTabComponent::paint(Graphics& g)
 
 void SignalChainTabComponent::paintOverChildren(Graphics& g)
 {
+
+    Path leftCornerPath;
+    leftCornerPath.startNewSubPath(0, 0);
+    leftCornerPath.lineTo(0, 20);
+    leftCornerPath.quadraticTo(-3, -3, 20, 0);
+    leftCornerPath.closeSubPath();
+    leftCornerPath.applyTransform(AffineTransform::translation(TAB_SIZE, 0));
+
+    g.setColour(findColour(ThemeColors::windowBackground));
+    g.fillPath(leftCornerPath);
+
+    leftCornerPath.applyTransform(AffineTransform::verticalFlip(getHeight() - 12));
+    g.fillPath(leftCornerPath);
+
+    Path rightCornerPath;
+    rightCornerPath.startNewSubPath(0, 0);
+    rightCornerPath.lineTo(0, 20);
+    rightCornerPath.quadraticTo(3, 3, -18, 0);
+    rightCornerPath.closeSubPath();
+    rightCornerPath.applyTransform(AffineTransform::translation(getWidth(), 0));
+
+    g.fillPath(rightCornerPath);
+
+    rightCornerPath.applyTransform(AffineTransform::verticalFlip(getHeight() - 12));
+    g.fillPath(rightCornerPath);
+
+    
     if (editorViewport->somethingIsBeingDraggedOver)
     {
         g.setColour(Colours::yellow);
     }
     else
     {
-        g.setColour(findColour(ThemeColors::outline).withAlpha(0.5f));
+		g.setColour(findColour(ThemeColors::outline).withAlpha(0.5f));
     }
 
-    g.drawRoundedRectangle(TAB_SIZE + 1, 1, getWidth()-TAB_SIZE-2, getHeight() - 14, 5.0f, 2.0f);
+    g.drawRoundedRectangle(TAB_SIZE + 1, 1, getWidth()-TAB_SIZE-2, getHeight() - 14, 10.0f, 2.0f);
 }
 
 
@@ -1346,10 +1373,8 @@ void SignalChainTabComponent::resized()
 
     int scrollOffset = getScrollOffset();
     
-    int b = 2; // border
-
-    downButton->setBounds(b, getHeight()-25-b, TAB_SIZE-b, 15);
-    upButton->setBounds(b, b, TAB_SIZE-b, 15);
+    downButton->setBounds(10, getHeight()-25, 12, 12);
+    upButton->setBounds(10, 4, 12, 12);
 
     viewport->setBounds(TAB_SIZE, 0, getWidth()-TAB_SIZE, getHeight());
     

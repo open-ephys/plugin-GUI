@@ -36,7 +36,7 @@
 
 */
 
-class SignalChainScrollButton : public DrawableButton
+class SignalChainScrollButton : public TextButton
 {
 public:
     
@@ -49,12 +49,14 @@ public:
     /** Sets whether the button can be used*/
     void setActive(bool);
 
+    /** Renders the button*/
+	void paintButton(Graphics& g, bool isMouseOverButton, bool isButtonDown) override;
+
     enum type {UP, DOWN};
 
 private:
     bool isActive;
-    int direction;
-    DrawablePath inactive, activeNormal, activeOver, activeDown;
+    Path path; // inactive, activeNormal, activeOver, activeDown;
 };
 
 
