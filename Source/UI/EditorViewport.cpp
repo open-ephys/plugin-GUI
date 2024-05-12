@@ -1361,7 +1361,7 @@ void SignalChainTabComponent::paintOverChildren(Graphics& g)
     }
     else
     {
-		g.setColour(findColour(ThemeColors::outline).withAlpha(0.5f));
+		g.setColour(findColour(ThemeColors::defaultFill));
     }
 
     g.drawRoundedRectangle(TAB_SIZE + 1, 1, getWidth()-TAB_SIZE-2, getHeight() - 14, 10.0f, 2.0f);
