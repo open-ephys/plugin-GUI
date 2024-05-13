@@ -588,9 +588,9 @@ void DataStreamInfo::paint(Graphics& g)
     g.drawText(spikeText, 30, 40, getWidth() - 30, 20, Justification::left);
 
     g.setFont(Font("Fira Code", "Medium", 14));
-    g.drawText(String(stream->getChannelCount()), 2, 1, 25, 20, Justification::centred);
-    g.drawText(String(numEventChannels), 2, 21, 25, 20, Justification::centred);
-    g.drawText(String(numSpikeChannels), 2, 41, 25, 20, Justification::centred);
+    g.drawFittedText(String(stream->getChannelCount()), 1, 1, 23, 20, Justification::centred, 1, 0.75f);
+    g.drawFittedText(String(numEventChannels), 1, 21, 23, 20, Justification::centred, 1, 0.75f);
+    g.drawFittedText(String(numSpikeChannels), 1, 41, 23, 20, Justification::centred, 1, 0.75f);
 
 }
 
@@ -753,7 +753,9 @@ void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
     g.setColour(findColour(ThemeColors::outline));
     g.fillRect(25, 0, 1, getHeight());
     g.fillRect(0, 0, getWidth(), 1);
-    g.fillRect(0, getHeight()-1, getWidth(), 1);
+
+    if (getToggleState())
+        g.fillRect(0, getHeight()-1, getWidth(), 1);
 
     g.setColour(findColour(ThemeColors::defaultText));
 
