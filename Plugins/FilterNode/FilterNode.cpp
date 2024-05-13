@@ -21,6 +21,7 @@
 */
 
 #include <stdio.h>
+#include <thread>
 
 #include "FilterNode.h"
 #include "FilterEditor.h"
@@ -47,7 +48,6 @@ void BandpassFilterSettings::createFilters(int numChannels, float sampleRate_, d
 
 void BandpassFilterSettings::updateFilters(double lowCut, double highCut)
 {
-    //LOGD("Setting low cut to ", lowCut, " and hi cut to ", highCut);
     for (int n = 0; n < filters.size(); n++)
     {
         setFilterParameters(lowCut, highCut, n);
@@ -65,6 +65,28 @@ void BandpassFilterSettings::setFilterParameters(double lowCut, double highCut, 
     filters[channel]->setParams(params);
 }
 
+FilterJob::FilterJob(String name, Array<Dsp::Filter*> filters_, Array<float*> channelPointers_, int numSamples_)
+    : ThreadPoolJob(name),
+      filters(filters_),
+      channelPointers(channelPointers_),
+      numSamples(numSamples_),
+      numChannels(channelPointers_.size())
+{
+
+}
+
+ThreadPoolJob::JobStatus FilterJob::runJob()
+{
+    for (int i = 0; i < numChannels; i++)
+    {
+        float* ptr = channelPointers[i];
+        filters[i]->process(numSamples, &ptr);
+    }
+        
+
+    return ThreadPoolJob::jobHasFinished;
+}
+
 
 FilterNode::FilterNode(bool headless)
     : GenericProcessor  ("Bandpass Filter", headless)
@@ -73,9 +95,11 @@ FilterNode::FilterNode(bool headless)
     addFloatParameter(Parameter::STREAM_SCOPE, "low_cut", "Low cut", "Filter low cut", "Hz", 100, 0.1, 600, 1.0, false);
     addFloatParameter(Parameter::STREAM_SCOPE, "high_cut", "High cut", "Filter high cut", "Hz", 5000, 0.1, 6000, 1.0, false);
     addMaskChannelsParameter(Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to filter for this stream");
-    addCategoricalParameter(Parameter::STREAM_SCOPE, "threads", "Threads", "Number of threads to use", { "1", "8", "16", "32"}, 3);
 
-    LOGD("[FilterNode]", " Created FilterNode");
+    Array<String> numThreads { "2", "4", "8", "16", "32", "64"};
+    addCategoricalParameter(Parameter::STREAM_SCOPE, "threads", "Threads", "Number of threads to use", numThreads, 1, true);
+
+    threadPool = std::make_unique<ThreadPool>(4);
 
 }
 
@@ -163,9 +187,7 @@ void FilterNode::updateSettings()
 void FilterNode::parameterValueChanged(Parameter* param)
 {
     
-    //LOGD("Changing parameter: ", param->getName());
     uint16 currentStream = param->getStreamId();
-    //LOGD("Stream name: ", getDataStream(currentStream)->getName());
 
     if (param->getName().equalsIgnoreCase("low_cut"))
     {
@@ -196,37 +218,82 @@ void FilterNode::parameterValueChanged(Parameter* param)
             (*getDataStream(currentStream))["high_cut"]
         );
     }
+    else if (param->getName().equalsIgnoreCase("Threads"))
+    {
+        if (threadPool->getNumJobs() > 0)
+        {
+            param->restorePreviousValue();
+            return;
+        }
+
+        int numThreads = param->getValueAsString().getIntValue();
+        threadPool.reset(new ThreadPool(numThreads));
+    }
+
+}
+
+bool FilterNode::startAcquisition()
+{
+    LOGD ("Bandpass Filter starting with ", threadPool->getNumThreads(), " threads");
+    return true;
+}
+
+bool FilterNode::stopAcquisition()
+{
+    return threadPool->removeAllJobs(true, 1000);
 }
 
 
 void FilterNode::process (AudioBuffer<float>& buffer)
 {
 
-    //LOGD("FilterNode::process()");
-    
     for (auto stream : getDataStreams())
     {
-        //LOGD("STREAM: ", stream->getName());
+
         if ((*stream)["enable_stream"])
         {
-            //LOGD("ENABLED");
             BandpassFilterSettings* streamSettings = settings[stream->getStreamId()];
             
             const uint16 streamId = stream->getStreamId();
             const uint32 numSamples = getNumSamplesInBlock(streamId);
 
+            int i = 0;
+            Array<float*> channelPointers;
+            Array<Dsp::Filter*> filters;
+
             for (auto localChannelIndex : *((*stream)["channels"].getArray()))
             {
                 int globalChannelIndex = getGlobalChannelIndex(stream->getStreamId(), (int) localChannelIndex);
 
-                float* ptr = buffer.getWritePointer(globalChannelIndex);
+                channelPointers.add(buffer.getWritePointer(globalChannelIndex));
+                filters.add(streamSettings->filters[localChannelIndex]);
+                i++;
 
-                streamSettings->filters[localChannelIndex]->process(numSamples, &ptr);
+                if (i % CHANNELS_PER_THREAD == 0)
+                {
+                    String jobName = String(streamId) + "_" + String(i++);
 
+                    FilterJob* job = new FilterJob(jobName, filters, channelPointers, numSamples);
+
+                    threadPool->addJob(job, true);
+
+                    channelPointers.clear();
+                    filters.clear();
+                }
             }
-        } //else {
-            //LOGD("NOT ENABLED");
-        //}
+
+            if (channelPointers.size() > 0)
+            {
+                String jobName = String(streamId) + "_" + String(i++);
+
+                FilterJob* job = new FilterJob(jobName, filters, channelPointers, numSamples);
+
+                threadPool->addJob(job, true);
+            }
+        }
     }
+
+    while (threadPool->getNumJobs() > 0)
+        std::this_thread::sleep_for(std::chrono::microseconds(50));
 }
 

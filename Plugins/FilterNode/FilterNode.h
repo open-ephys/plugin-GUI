@@ -27,6 +27,8 @@
 
 #include <DspLib.h>
 
+#define CHANNELS_PER_THREAD 32
+
 
 /** Holds settings for one stream's filters*/
 
@@ -53,6 +55,22 @@ public:
     /** Sets filter parameters for one channel*/
     void setFilterParameters(double lowCut, double highCut, int channel);
 
+};
+
+/** Allows multi-threaded filtering */
+class FilterJob : public ThreadPoolJob
+{
+public:
+    FilterJob(String name, Array<Dsp::Filter*> filters, Array<float*> channelPointer, int numSamples);
+
+    JobStatus runJob();
+
+private:
+
+    Array<Dsp::Filter*> filters;
+    Array<float*> channelPointers;
+    int numSamples;
+    int numChannels;
 };
 
 /**
@@ -84,11 +102,15 @@ public:
     /** Called when upstream settings are changed.*/
     void updateSettings() override;
 
+    bool startAcquisition() override;
+
+    bool stopAcquisition() override;
+
 private:
 
     StreamSettings<BandpassFilterSettings> settings;
 
-    void setFilterParameters (double, double, int);
+    std::unique_ptr<ThreadPool> threadPool;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FilterNode);
 };
