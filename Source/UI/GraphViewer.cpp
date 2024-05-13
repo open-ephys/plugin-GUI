@@ -90,8 +90,8 @@ GraphViewer::GraphViewer()
 
 void GraphViewer::updateBoundaries()
 {
-    int maxHeight = 0;
-    int maxWidth = 0;
+    int maxHeight = graphViewport->getHeight() - 32;
+    int maxWidth = graphViewport->getWidth() - 32;
 
     for (auto node : availableNodes)
     {
@@ -489,7 +489,8 @@ void GraphViewer::loadStateFromXml (XmlElement* xml)
         {
             if (node->getProcessor()->getNodeId() == nodeXml->getIntAttribute("id"))
             {
-                node->processorInfoVisible = nodeXml->getBoolAttribute("isProcessorInfoVisible");
+                if (node->getProcessor()->numParameters() > 0)
+                    node->processorInfoVisible = nodeXml->getBoolAttribute("isProcessorInfoVisible");
                 
                 for (auto streamXml : nodeXml->getChildIterator())
                 {
@@ -586,7 +587,7 @@ void DataStreamInfo::paint(Graphics& g)
     g.drawText(ttlText, 30, 20, getWidth() - 30, 20, Justification::left);
     g.drawText(spikeText, 30, 40, getWidth() - 30, 20, Justification::left);
 
-    g.setFont(Font("Fira Mono", "Medium", 14));
+    g.setFont(Font("Fira Code", "Medium", 14));
     g.drawText(String(stream->getChannelCount()), 2, 1, 25, 20, Justification::centred);
     g.drawText(String(numEventChannels), 2, 21, 25, 20, Justification::centred);
     g.drawText(String(numSpikeChannels), 2, 41, 25, 20, Justification::centred);
@@ -653,7 +654,9 @@ void DataStreamInfo::restorePanels()
     }
     else
     {
+        node->updateBoundaries();
         node->setDataStreamPanelSize(this, heightInPixels);
+        node->updateGraphView();
     }
 }
 
@@ -937,12 +940,14 @@ void GraphNode::mouseDoubleClick (const MouseEvent& m)
                 break;
             }
         }
+        
+        if (processorParamComponent->heightInPixels > 0)
+        {
+            if (processorInfoVisible)
+                makeVisible = false;
 
-        if (processorInfoVisible)
-            makeVisible = false;
-        
-        
-        processorInfoVisible = makeVisible;
+            processorInfoVisible = makeVisible;
+        }
 
         for (auto& it : streamInfoVisible)
         {
@@ -1238,7 +1243,7 @@ void GraphNode::paint (Graphics& g)
     g.fillAll(findColour(ThemeColors::componentParentBackground));
     //g.setFont(Font("Inter", "Medium", 14));
 
-    g.setFont(Font("Fira Mono", "Plain", 13));
+    g.setFont(Font("Fira Code", "Regular", 13));
 
     if(processor->isEmpty())
     {
