@@ -755,8 +755,9 @@ LfpDisplaySplitter::LfpDisplaySplitter(LfpDisplayNode* node,
 
     viewport->setViewedComponent(lfpDisplay.get(), false);
     viewport->setScrollBarsShown(true, false);
-
-    scrollBarThickness = viewport->getScrollBarThickness();
+    
+    scrollBarThickness = 15;
+    viewport->setScrollBarThickness(scrollBarThickness);
 
     addAndMakeVisible(timescale.get());
     addAndMakeVisible(viewport.get());
@@ -1028,7 +1029,6 @@ void LfpDisplaySplitter::updateSettings()
     isLoading = false;
         
     syncDisplay(); // sets lastBitmapIndex to 0
-    syncDisplayBuffer(); // sets displayBufferIndex to 0
 
     isUpdating = false;
 
@@ -1136,7 +1136,7 @@ void LfpDisplaySplitter::syncDisplay()
 
     lfpDisplay->sync();
 
-    //syncDisplayBuffer();
+    syncDisplayBuffer();
 
 }
 
@@ -1555,7 +1555,6 @@ void LfpDisplaySplitter::setTimebase(float t)
     }
 
     syncDisplay();
-    syncDisplayBuffer();
     refreshScreenBuffer();
 
     reachedEnd = true;
