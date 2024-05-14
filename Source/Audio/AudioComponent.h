@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -44,12 +44,11 @@
 
 class TESTABLE AudioComponent
 {
-
 public:
     /** Constructor. Finds the audio component (if there is one), and sets the
     default sample rate and buffer size.*/
     AudioComponent();
-    
+
     /** Destructor. Ends the audio callbacks if they are active.*/
     ~AudioComponent();
 
@@ -61,7 +60,7 @@ public:
 
     /** Connects the AudioComponent to the ProcessorGraph (crucial for any sort of
     data acquisition; done at startup).*/
-    void connectToProcessorGraph(AudioProcessorGraph* processorGraph);
+    void connectToProcessorGraph (AudioProcessorGraph* processorGraph);
 
     /** Disconnects the AudioComponent to the ProcessorGraph (only done when the application
     is about to close).*/
@@ -69,7 +68,7 @@ public:
 
     /** Returns true if the audio callbacks are active, false otherwise.*/
     bool callbacksAreActive();
-    
+
     /** Checks whether a device is available*/
     bool checkForDevice();
 
@@ -85,7 +84,7 @@ public:
     int getBufferSize();
 
     /** Sets the buffer size (in samples) to be used.*/
-    void setBufferSize(int bufferSize);
+    void setBufferSize (int bufferSize);
 
     /** Returns the buffer size (in ms) currently being used.*/
     int getBufferSizeMs();
@@ -94,40 +93,28 @@ public:
     int getSampleRate();
 
     /** Sets the sample rate to be used.*/
-    void setSampleRate(int sampleRate);
+    void setSampleRate (int sampleRate);
 
     /** Returns the device type */
     String getDeviceType();
 
     /** Sets the device type */
-    void setDeviceType(String deviceType);
+    void setDeviceType (String deviceType);
 
     /** Saves all audio settings that can be loaded to an XML element */
-    void saveStateToXml(XmlElement* parent);
+    void saveStateToXml (XmlElement* parent);
 
     /** Loads all possible settings from an XML element */
-    void loadStateFromXml(XmlElement* parent);
+    void loadStateFromXml (XmlElement* parent);
 
     AudioDeviceManager deviceManager;
 
 private:
-
     bool isPlaying;
 
     std::unique_ptr<AudioProcessorPlayer> graphPlayer;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioComponent);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioComponent);
 };
 
-
-
-
-
-
-
-
-
-
 #endif
-

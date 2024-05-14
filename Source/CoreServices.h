@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -43,26 +43,26 @@ namespace CoreServices
 * For example, if a plugin adds a new EventChannel, updateSignalChain() must
 * be called in order for downstream plugins to register this change.
 */
-PLUGIN_API void updateSignalChain(GenericProcessor* source);
-PLUGIN_API void updateSignalChain(GenericEditor* source);
+PLUGIN_API void updateSignalChain (GenericProcessor* source);
+PLUGIN_API void updateSignalChain (GenericEditor* source);
 
 /** Saves the recoveryConfig.xml settings file*/
 PLUGIN_API void saveRecoveryConfig();
 
 /** Loads signal chain from a given path*/
-PLUGIN_API void loadSignalChain(String path);
+PLUGIN_API void loadSignalChain (String path);
 
 /** Returns true if the GUI is acquiring data */
 PLUGIN_API bool getAcquisitionStatus();
 
 /** Activates or deactivates data acquisition */
-PLUGIN_API void setAcquisitionStatus(bool enable);
+PLUGIN_API void setAcquisitionStatus (bool enable);
 
 /** Returns true is the GUI is recording */
 PLUGIN_API bool getRecordingStatus();
 
 /** Activates or deactivates recording for all Record Nodes */
-PLUGIN_API void setRecordingStatus(bool enable);
+PLUGIN_API void setRecordingStatus (bool enable);
 
 /** Sends a status message that appears in the GUI's MessageCenter.
 * These messages are meant to notify the user about a status change,
@@ -70,7 +70,7 @@ PLUGIN_API void setRecordingStatus(bool enable);
 * To send a message that's written to disk (while acquisition + recording are active),
 * use GenericProcessor::broadcastMessage()
 */
-PLUGIN_API void sendStatusMessage(const String& text);
+PLUGIN_API void sendStatusMessage (const String& text);
 
 /** Sends a status message that appears in the GUI's MessageCenter.
 * These messages are meant to notify the user about a status change,
@@ -78,11 +78,11 @@ PLUGIN_API void sendStatusMessage(const String& text);
 * To send a message that's written to disk (while acquisition + recording are active),
 * use GenericProcessor::broadcastMessage()
 */
-PLUGIN_API void sendStatusMessage(const char* text);
+PLUGIN_API void sendStatusMessage (const char* text);
 
 /** Highlights a plugin's editor in the EditorViewport, without updating the signal chain.
 * It will also make the editor visible if it's not currently seen by the user.*/
-PLUGIN_API void highlightEditor(GenericEditor* ed);
+PLUGIN_API void highlightEditor (GenericEditor* ed);
 
 /** Returns the latest "global" timestamp, which can be used to assign
 * timestamps to events not associated with a data stream, such as MessageCenter
@@ -103,7 +103,7 @@ PLUGIN_API juce::int64 getSoftwareTimestamp();
 PLUGIN_API float getSoftwareSampleRate();
 
 /** Sets new default recording directory. This will only affect new Record Nodes */
-PLUGIN_API void setRecordingParentDirectory(String dir);
+PLUGIN_API void setRecordingParentDirectory (String dir);
 
 /** Returns the default recording directory.*/
 PLUGIN_API File getRecordingParentDirectory();
@@ -112,7 +112,7 @@ PLUGIN_API File getRecordingParentDirectory();
 PLUGIN_API String getRecordingDirectoryBaseText();
 
 /** Sets new basename for the recording directory (does not affect prepend/append text) */
-PLUGIN_API void setRecordingDirectoryBaseText(String text);
+PLUGIN_API void setRecordingDirectoryBaseText (String text);
 
 /** Returns the full name of the current recording directory (empty string if none has started) */
 PLUGIN_API String getRecordingDirectoryName();
@@ -128,10 +128,10 @@ PLUGIN_API String getRecordingDirectoryPrependText();
 PLUGIN_API String getRecordingDirectoryAppendText();
 
 /** Set the text to be prepended to the name of newly created recording directories. */
-PLUGIN_API void setRecordingDirectoryPrependText(String text);
+PLUGIN_API void setRecordingDirectoryPrependText (String text);
 
 /** Set the text to be appended to the name of newly reated recording directories. */
-PLUGIN_API void setRecordingDirectoryAppendText(String text);
+PLUGIN_API void setRecordingDirectoryAppendText (String text);
 
 /** Get array of available record engines */
 PLUGIN_API std::vector<RecordEngineManager*> getAvailableRecordEngines();
@@ -142,7 +142,7 @@ PLUGIN_API String getDefaultRecordEngineId();
 /** Sets a specific RecordEngine to be used based on its id. 
 * Returns true if there is an engine with the specified ID and it's possible to
 * change the current engine or false otherwise. */
-PLUGIN_API bool setDefaultRecordEngine(String id);
+PLUGIN_API bool setDefaultRecordEngine (String id);
 
 /** Returns an array of IDs for Record Nodes currently in the signal chain*/
 PLUGIN_API Array<int> getAvailableRecordNodeIds();
@@ -152,54 +152,52 @@ PLUGIN_API bool allRecordNodesAreSynchronized();
 
 namespace RecordNode
 {
-/** Sets the recording directory for a specific Record Node, based on its numeric ID.
+    /** Sets the recording directory for a specific Record Node, based on its numeric ID.
 * If applyToAll=true, the nodeId is ignored, and the setting is applied to all Record Nodes
 * in the signal chain. */
-PLUGIN_API void setRecordingDirectory(String dir, int nodeId, bool applyToAll=false);
+    PLUGIN_API void setRecordingDirectory (String dir, int nodeId, bool applyToAll = false);
 
-/** Returns the recording directory for a specific Record Node */
-PLUGIN_API File getRecordingDirectory(int nodeId);
+    /** Returns the recording directory for a specific Record Node */
+    PLUGIN_API File getRecordingDirectory (int nodeId);
 
-/** Returns the free space available (in kB) for a Record Node's directory */
-PLUGIN_API float getFreeSpaceAvailable(int nodeId);
+    /** Returns the free space available (in kB) for a Record Node's directory */
+    PLUGIN_API float getFreeSpaceAvailable (int nodeId);
 
-/** Sets the RecordEngine for a specific Record Nodes.
+    /** Sets the RecordEngine for a specific Record Nodes.
 * If applyToAll=true, the nodeId is ignored, and the setting is applied to all Record Nodes
 * in the signal chain. */
-PLUGIN_API void setRecordEngine(String id, int nodeId, bool applyToAll = false);
+    PLUGIN_API void setRecordEngine (String id, int nodeId, bool applyToAll = false);
 
-/** Returns the active RecordEngine for a specific Record Node*/
-PLUGIN_API String getRecordEngineId(int nodeId);
+    /** Returns the active RecordEngine for a specific Record Node*/
+    PLUGIN_API String getRecordEngineId (int nodeId);
 
-/** Returns the recording number for a specific Record Node (number of times recording 
+    /** Returns the recording number for a specific Record Node (number of times recording 
 * was stopped and re-started).*/
-PLUGIN_API int getRecordingNumber(int nodeId);
+    PLUGIN_API int getRecordingNumber (int nodeId);
 
-/** Returns the experiment number for a specific Record Node (number of times acquisition
+    /** Returns the experiment number for a specific Record Node (number of times acquisition
 * was stopped and re-started).*/
-PLUGIN_API int getExperimentNumber(int nodeId);
+    PLUGIN_API int getExperimentNumber (int nodeId);
 
-/** Instructs a specific Record Node to creates new directory the next time recording is started.*/
-PLUGIN_API void createNewRecordingDirectory(int nodeId);
+    /** Instructs a specific Record Node to creates new directory the next time recording is started.*/
+    PLUGIN_API void createNewRecordingDirectory (int nodeId);
 
-/** Checks whether incoming data streams are synchronized .*/
-PLUGIN_API bool isSynchronized(int nodeId);
+    /** Checks whether incoming data streams are synchronized .*/
+    PLUGIN_API bool isSynchronized (int nodeId);
 
-// FUNCTIONS BELOW ARE NOT YET IMPLEMENTED: 
+    // FUNCTIONS BELOW ARE NOT YET IMPLEMENTED:
 
-/** Toggles recording for a specific Record Node.*/
-//PLUGIN_API void setRecordingStatus(int nodeId, bool status);
+    /** Toggles recording for a specific Record Node.*/
+    //PLUGIN_API void setRecordingStatus(int nodeId, bool status);
 
-/** Gets the recording status for a specific Record Node.*/
-//PLUGIN_API bool getRecordingStatus(int nodeId);
+    /** Gets the recording status for a specific Record Node.*/
+    //PLUGIN_API bool getRecordingStatus(int nodeId);
 
-
-
-};
+}; // namespace RecordNode
 
 /** Returns data for an application resource (stored in BinaryData object) */
 //PLUGIN_API const char* getApplicationResource(const char* name, int& size);
-    
+
 /** Gets the default directory for user-initiated file saving/loading */
 PLUGIN_API File getDefaultUserSaveDirectory();
 
@@ -215,17 +213,13 @@ PLUGIN_API UndoManager* getUndoManager();
 /** Gets the GUI's popup manager */
 PLUGIN_API PopupManager* getPopupManager();
 
-
 namespace PluginInstaller
 {
     /** Installs or updates a specific plugin with a specific version number.
     * If version number is not specified, it will install the latest version */
-    PLUGIN_API bool installPlugin(String plugin, String version = String());
-}
+    PLUGIN_API bool installPlugin (String plugin, String version = String());
+} // namespace PluginInstaller
 
-};
+}; // namespace CoreServices
 
-
-
-
-#endif  // CORESERVICES_H_INCLUDED
+#endif // CORESERVICES_H_INCLUDED

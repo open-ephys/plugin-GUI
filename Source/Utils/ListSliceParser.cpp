@@ -1,29 +1,28 @@
 /*
-------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-This file is part of the Open Ephys GUI
-Copyright (C) 2013 Open Ephys
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2024 Open Ephys
 
-------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
 #include "ListSliceParser.h"
 #include <vector>
-
 
 int ListSliceParser::convertStringToInteger (String s)
 {
@@ -37,31 +36,30 @@ int ListSliceParser::convertStringToInteger (String s)
             k++;
         }
     }
-    if (k>7)
+    if (k > 7)
     {
         return 1000000;
     }
     ar[k] = '\0';
-    k = atoi(ar);
+    k = atoi (ar);
     return k;
 }
 
-
-Array<int> ListSliceParser::parseStringIntoRange(String textBoxInfo, int rangeValue)
+Array<int> ListSliceParser::parseStringIntoRange (String textBoxInfo, int rangeValue)
 {
     String s = ",";
     s += textBoxInfo;
     Array<int> finalList, separator, rangeseparator;
     int i, j, a, b, k, openb, closeb, otherchar, x, y;
     s += ",";
-    for (i = 0; i < s.length(); i++)      //split string by ' , ' or ' ; '
+    for (i = 0; i < s.length(); i++) //split string by ' , ' or ' ; '
     {
         if (s[i] == ';' || s[i] == ',')
         {
-            separator.add(i);
+            separator.add (i);
         }
     }
-    for (i = 0; i < separator.size() - 1; i++)  // split ranges by ' : ' or ' - '
+    for (i = 0; i < separator.size() - 1; i++) // split ranges by ' : ' or ' - '
     {
         j = k = separator[i] + 1;
         openb = closeb = otherchar = 0;
@@ -70,9 +68,9 @@ Array<int> ListSliceParser::parseStringIntoRange(String textBoxInfo, int rangeVa
         {
             if (s[j] == '-' || s[j] == ':')
             {
-                rangeseparator.add(j);
+                rangeseparator.add (j);
             }
-            else if (((int)s[j] == 32))
+            else if (((int) s[j] == 32))
             {
                 continue;
             }
@@ -84,28 +82,27 @@ Array<int> ListSliceParser::parseStringIntoRange(String textBoxInfo, int rangeVa
             {
                 closeb++;
             }
-            else if ((int)s[j] > 57 || (int)s[j] < 48)
+            else if ((int) s[j] > 57 || (int) s[j] < 48)
             {
                 otherchar++;
             }
         }
 
-        if (openb != closeb || openb > 1 || closeb > 1 || otherchar > 0)  //Invalid input
+        if (openb != closeb || openb > 1 || closeb > 1 || otherchar > 0) //Invalid input
         {
             continue;
         }
 
-
-        for (x = separator[i] + 1; x < separator[i + 1]; x++)       //trim whitespace and brackets from front
+        for (x = separator[i] + 1; x < separator[i + 1]; x++) //trim whitespace and brackets from front
         {
-            if (((int)s[x] >= 48 && (int)s[x] <= 57) || s[x] == ':' || s[x] == '-')
+            if (((int) s[x] >= 48 && (int) s[x] <= 57) || s[x] == ':' || s[x] == '-')
             {
                 break;
             }
         }
-        for (y = separator[i + 1] - 1; y > separator[i]; y--)       //trim whitespace and brackets from end
+        for (y = separator[i + 1] - 1; y > separator[i]; y--) //trim whitespace and brackets from end
         {
-            if (((int)s[y] >= 48 && (int)s[y] <= 57) || s[y] == ':' || s[y] == '-')
+            if (((int) s[y] >= 48 && (int) s[y] <= 57) || s[y] == ':' || s[y] == '-')
             {
                 break;
             }
@@ -115,17 +112,16 @@ Array<int> ListSliceParser::parseStringIntoRange(String textBoxInfo, int rangeVa
             continue;
         }
 
-
-        if (rangeseparator.size() == 0)   //syntax of form - x or [x]
+        if (rangeseparator.size() == 0) //syntax of form - x or [x]
         {
             a = convertStringToInteger (s.substring (x, y + 1));
-            if (a == 0 || a>rangeValue)
+            if (a == 0 || a > rangeValue)
             {
                 continue;
             }
-            finalList.add(a - 1);
-            finalList.add(a - 1);
-            finalList.add(1);
+            finalList.add (a - 1);
+            finalList.add (a - 1);
+            finalList.add (1);
         }
         else if (rangeseparator.size() == 1) // syntax of type - x-y or [x-y]
         {
@@ -143,11 +139,11 @@ Array<int> ListSliceParser::parseStringIntoRange(String textBoxInfo, int rangeVa
             {
                 continue;
             }
-            finalList.add(a - 1);
-            finalList.add(b - 1);
-            finalList.add(1);
+            finalList.add (a - 1);
+            finalList.add (b - 1);
+            finalList.add (1);
         }
-        else if (rangeseparator.size() == 2)   // syntax of type [x:y:z] or x-y-z
+        else if (rangeseparator.size() == 2) // syntax of type [x:y:z] or x-y-z
         {
             a = convertStringToInteger (s.substring (x, rangeseparator[0] + 1));
             k = convertStringToInteger (s.substring (rangeseparator[0] + 1, rangeseparator[1]));
@@ -169,9 +165,9 @@ Array<int> ListSliceParser::parseStringIntoRange(String textBoxInfo, int rangeVa
             {
                 continue;
             }
-            finalList.add(a - 1);
-            finalList.add(b - 1);
-            finalList.add(k);
+            finalList.add (a - 1);
+            finalList.add (b - 1);
+            finalList.add (k);
         }
     }
     return finalList;

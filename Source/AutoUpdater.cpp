@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2023 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
     This program is free software: you can redistribute it and/or modify
@@ -26,14 +26,13 @@
 #include "CoreServices.h"
 #include "MainWindow.h"
 #ifdef _WIN32
-#include <windows.h>
 #include <shellapi.h>
+#include <windows.h>
 #endif
 
 //==============================================================================
 LatestVersionCheckerAndUpdater::LatestVersionCheckerAndUpdater()
-    : Thread ("VersionChecker")
-    , mainWindow(nullptr)
+    : Thread ("VersionChecker"), mainWindow (nullptr)
 {
 }
 
@@ -49,18 +48,18 @@ void LatestVersionCheckerAndUpdater::checkForNewVersion (bool background, MainWi
     {
         backgroundCheck = background;
         mainWindow = mw;
-        startThread ();
+        startThread();
     }
 }
 
 //==============================================================================
 void LatestVersionCheckerAndUpdater::run()
 {
-    LOGC("Checking for a newer version of the GUI...");
+    LOGC ("Checking for a newer version of the GUI...");
     URL latestVersionURL ("https://api.github.com/repos/open-ephys/plugin-GUI/releases/latest");
 
     std::unique_ptr<InputStream> inStream (latestVersionURL.createInputStream (URL::InputStreamOptions (URL::ParameterHandling::inAddress)
-                                                                                 .withConnectionTimeoutMs (5000)));
+                                                                                   .withConnectionTimeoutMs (5000)));
     const String commErr = "Failed to communicate with the Open Ephys update server.\n"
                            "Please try again in a few minutes.\n\n"
                            "If this problem persists you can download the latest version of Open Ephys GUI from open-ephys.org/gui";
@@ -110,11 +109,10 @@ void LatestVersionCheckerAndUpdater::run()
         {
             parsedAssets.push_back ({ assetJson->getProperty ("name").toString(),
                                       assetJson->getProperty ("url").toString(),
-                                      (int)assetJson->getProperty("size")});
+                                      (int) assetJson->getProperty ("size") });
             jassert (parsedAssets.back().name.isNotEmpty());
             jassert (parsedAssets.back().url.isNotEmpty());
             jassert (parsedAssets.back().size != 0);
-
         }
         else
         {
@@ -122,10 +120,9 @@ void LatestVersionCheckerAndUpdater::run()
         }
     }
 
-    String latestVer = versionString.substring(1);
+    String latestVer = versionString.substring (1);
 
-
-    if (latestVer.compareNatural(CoreServices::getGUIVersion()) <= 0)
+    if (latestVer.compareNatural (CoreServices::getGUIVersion()) <= 0)
     {
         if (! backgroundCheck)
             AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
@@ -136,36 +133,36 @@ void LatestVersionCheckerAndUpdater::run()
 
     auto osString = []
     {
-       #if JUCE_MAC
+#if JUCE_MAC
         return "mac";
-       #elif JUCE_WINDOWS
+#elif JUCE_WINDOWS
         return "windows";
-       #elif JUCE_LINUX
+#elif JUCE_LINUX
         return "linux";
-       #else
+#else
         jassertfalse;
         return "Unknown";
-       #endif
+#endif
     }();
 
     String requiredFilename ("open-ephys-" + versionString + "-" + osString + ".zip");
 
 #if JUCE_WINDOWS
-    File exeDir = File::getSpecialLocation(File::SpecialLocationType::currentExecutableFile).getParentDirectory();
-    if(exeDir.findChildFiles(File::findFiles, false, "unins*").size() > 0)
+    File exeDir = File::getSpecialLocation (File::SpecialLocationType::currentExecutableFile).getParentDirectory();
+    if (exeDir.findChildFiles (File::findFiles, false, "unins*").size() > 0)
     {
         requiredFilename = "Install-Open-Ephys-GUI-" + versionString + ".exe";
     }
-#elif JUCE_LINUX 
-    File exeDir = File::getSpecialLocation(File::SpecialLocationType::currentExecutableFile).getParentDirectory();
-    if(exeDir.getFullPathName().contains("/usr/local/bin"))
+#elif JUCE_LINUX
+    File exeDir = File::getSpecialLocation (File::SpecialLocationType::currentExecutableFile).getParentDirectory();
+    if (exeDir.getFullPathName().contains ("/usr/local/bin"))
     {
         requiredFilename = "open-ephys-gui-" + versionString + ".deb";
     }
 #elif JUCE_MAC
-    File exeDir = File::getSpecialLocation(File::SpecialLocationType::currentApplicationFile).getParentDirectory();
-    File globalAppDir = File::getSpecialLocation(File::SpecialLocationType::globalApplicationsDirectory);
-    if(exeDir.getFullPathName().contains(globalAppDir.getFullPathName()))
+    File exeDir = File::getSpecialLocation (File::SpecialLocationType::currentApplicationFile).getParentDirectory();
+    File globalAppDir = File::getSpecialLocation (File::SpecialLocationType::globalApplicationsDirectory);
+    if (exeDir.getFullPathName().contains (globalAppDir.getFullPathName()))
     {
         requiredFilename = "Open_Ephys_GUI_" + versionString + ".dmg";
     }
@@ -175,11 +172,8 @@ void LatestVersionCheckerAndUpdater::run()
     {
         if (asset.name == requiredFilename)
         {
-
             MessageManager::callAsync ([this, versionString, releaseNotes, asset]
-            {
-                askUserAboutNewVersion (versionString, releaseNotes, asset);
-            });
+                                       { askUserAboutNewVersion (versionString, releaseNotes, asset); });
 
             return;
         }
@@ -192,20 +186,20 @@ void LatestVersionCheckerAndUpdater::run()
 }
 
 //==============================================================================
-class UpdateDialog  : public Component
+class UpdateDialog : public Component
 {
 public:
     UpdateDialog (const String& newVersion, const String& releaseNotes, bool automaticVerCheck)
     {
         titleLabel.setText ("Open Ephys GUI version " + newVersion, dontSendNotification);
-        titleLabel.setFont (Font("Fira Sans", "SemiBold", 18.0f));
+        titleLabel.setFont (Font ("Fira Sans", "SemiBold", 18.0f));
         titleLabel.setJustificationType (Justification::centred);
         addAndMakeVisible (titleLabel);
 
         contentLabel.setText ("A newer version of Open Ephys GUI is available - would you like to download it?", dontSendNotification);
-        contentLabel.setFont (Font("Fira Sans", "Regular", 16.0f));
+        contentLabel.setFont (Font ("Fira Sans", "Regular", 16.0f));
         contentLabel.setJustificationType (Justification::topLeft);
-        contentLabel.setMinimumHorizontalScale(1.0);
+        contentLabel.setMinimumHorizontalScale (1.0);
         addAndMakeVisible (contentLabel);
 
         releaseNotesEditor.setMultiLine (true);
@@ -214,26 +208,27 @@ public:
         addAndMakeVisible (releaseNotesEditor);
 
         addAndMakeVisible (downloadButton);
-        downloadButton.onClick = [this] { exitModalStateWithResult (1); };
+        downloadButton.onClick = [this]
+        { exitModalStateWithResult (1); };
 
         addAndMakeVisible (cancelButton);
         cancelButton.onClick = [this]
         {
-            if(dontAskAgainButton.getToggleState())
+            if (dontAskAgainButton.getToggleState())
                 exitModalStateWithResult (-1);
             else
-                exitModalStateWithResult(0);
+                exitModalStateWithResult (0);
         };
 
-        dontAskAgainButton.setToggleState (!automaticVerCheck, dontSendNotification);
+        dontAskAgainButton.setToggleState (! automaticVerCheck, dontSendNotification);
         addAndMakeVisible (dontAskAgainButton);
 
 #if JUCE_MAC
-    	File iconDir = File::getSpecialLocation(File::currentApplicationFile).getChildFile("Contents/Resources");
+        File iconDir = File::getSpecialLocation (File::currentApplicationFile).getChildFile ("Contents/Resources");
 #else
-		File iconDir = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory();
+        File iconDir = File::getSpecialLocation (File::currentApplicationFile).getParentDirectory();
 #endif
-        juceIcon = Drawable::createFromImageFile(iconDir.getChildFile("icon-small.png"));
+        juceIcon = Drawable::createFromImageFile (iconDir.getChildFile ("icon-small.png"));
         lookAndFeelChanged();
 
         setSize (640, 480);
@@ -244,7 +239,7 @@ public:
         auto b = getLocalBounds().reduced (10);
 
         auto topSlice = b.removeFromTop (juceIconBounds.getHeight())
-                         .withTrimmedLeft (juceIconBounds.getWidth());
+                            .withTrimmedLeft (juceIconBounds.getWidth());
 
         titleLabel.setBounds (topSlice.removeFromTop (25));
         topSlice.removeFromTop (5);
@@ -264,8 +259,7 @@ public:
         g.fillAll (Colours::lightgrey);
 
         if (juceIcon != nullptr)
-            juceIcon->drawWithin (g, juceIconBounds.toFloat(),
-                                  RectanglePlacement::stretchToFit, 1.0f);
+            juceIcon->drawWithin (g, juceIconBounds.toFloat(), RectanglePlacement::stretchToFit, 1.0f);
     }
 
     static std::unique_ptr<DialogWindow> launchDialog (const String& newVersionString,
@@ -292,7 +286,7 @@ private:
     void lookAndFeelChanged() override
     {
         cancelButton.setColour (TextButton::buttonColourId, Colours::crimson);
-        releaseNotesEditor.applyFontToAllText (Font("Fira Sans", "Regular", 16.0f));
+        releaseNotesEditor.applyFontToAllText (Font ("Fira Sans", "Regular", 16.0f));
     }
 
     void setParentWindow (DialogWindow* parent)
@@ -319,16 +313,16 @@ private:
 void LatestVersionCheckerAndUpdater::askUserForLocationToDownload (const Asset& asset)
 {
     FileChooser chooser ("Please select the location into which you would like to download the new version",
-                         { File::getSpecialLocation(File::userDesktopDirectory) },
+                         { File::getSpecialLocation (File::userDesktopDirectory) },
                          "*");
 
     if (chooser.browseForDirectory())
     {
         auto targetFolder = chooser.getResult();
-        if (targetFolder == File{})
+        if (targetFolder == File {})
             return;
 
-        File targetFile = targetFolder.getChildFile(asset.name).getNonexistentSibling();
+        File targetFile = targetFolder.getChildFile (asset.name).getNonexistentSibling();
 
         downloadAndInstall (asset, targetFile);
     }
@@ -354,22 +348,23 @@ void LatestVersionCheckerAndUpdater::askUserAboutNewVersion (const String& newVe
                                                                 else if(result == 0)
                                                                     mainWindow->automaticVersionChecking = true;
 
-                                                                dialogWindow.reset();
-                                                            }));
+                                                                dialogWindow.reset(); }));
     }
 }
 
 //==============================================================================
-class DownloadThread   : private ThreadWithProgressWindow
+class DownloadThread : private ThreadWithProgressWindow
 {
 public:
-    DownloadThread  (const LatestVersionCheckerAndUpdater::Asset& a,
-                     const File& t,
-                     std::function<void()>&& cb)
+    DownloadThread (const LatestVersionCheckerAndUpdater::Asset& a,
+                    const File& t,
+                    std::function<void()>&& cb)
         : ThreadWithProgressWindow ("Downloading New Version", true, true),
-          asset (a), targetFile (t), completionCallback (std::move (cb))
+          asset (a),
+          targetFile (t),
+          completionCallback (std::move (cb))
     {
-        launchThread ();
+        launchThread();
     }
 
 private:
@@ -382,8 +377,8 @@ private:
         if (result.failed())
         {
             AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                                "Downloading Failed",
-                                                result.getErrorMessage());
+                                              "Downloading Failed",
+                                              result.getErrorMessage());
         }
         else
         {
@@ -401,11 +396,11 @@ private:
         StringPairArray responseHeaders;
 
         auto inStream = downloadUrl.createInputStream (URL::InputStreamOptions (URL::ParameterHandling::inAddress)
-                                                        .withExtraHeaders ("Accept: application/octet-stream")
-                                                        .withConnectionTimeoutMs (5000)
-                                                        .withResponseHeaders (&responseHeaders)
-                                                        .withStatusCode (&statusCode)
-                                                        .withNumRedirectsToFollow (1));
+                                                           .withExtraHeaders ("Accept: application/octet-stream")
+                                                           .withConnectionTimeoutMs (5000)
+                                                           .withResponseHeaders (&responseHeaders)
+                                                           .withStatusCode (&statusCode)
+                                                           .withNumRedirectsToFollow (1));
 
         if (inStream != nullptr && statusCode == 200)
         {
@@ -419,20 +414,18 @@ private:
                 if (threadShouldExit())
                     return Result::fail ("Cancelled");
 
-
-
-                auto written = out->writeFromInputStream(*inStream, 8192);
+                auto written = out->writeFromInputStream (*inStream, 8192);
 
                 if (written == 0)
                     break;
 
                 total += written;
 
-                setProgress((double)total / (double)asset.size);
+                setProgress ((double) total / (double) asset.size);
 
-                setStatusMessage ("Downloading... " 
+                setStatusMessage ("Downloading... "
                                   + File::descriptionOfSizeInBytes (total)
-                                  + " / " 
+                                  + " / "
                                   + File::descriptionOfSizeInBytes (asset.size));
             }
 
@@ -450,76 +443,67 @@ private:
 
 static void runInstaller (const File& targetFile)
 {
-    bool runInstaller = AlertWindow::showOkCancelBox(AlertWindow::WarningIcon,
-                                    "Quit Open Ephys GUI?",
-                                    "To run the installer, the current instance of GUI needs to be closed."
-                                    "\nAre you sure you want to continue?",
-                                    "Yes", "No");
-    
-    if(runInstaller)
+    bool runInstaller = AlertWindow::showOkCancelBox (AlertWindow::WarningIcon,
+                                                      "Quit Open Ephys GUI?",
+                                                      "To run the installer, the current instance of GUI needs to be closed."
+                                                      "\nAre you sure you want to continue?",
+                                                      "Yes",
+                                                      "No");
+
+    if (runInstaller)
     {
-    #if JUCE_WINDOWS
+#if JUCE_WINDOWS
         if (targetFile.existsAsFile())
         {
-            auto returnCode = ShellExecute(NULL, (LPCSTR)"runas", targetFile.getFullPathName().toRawUTF8(), NULL, NULL, SW_SHOW);
+            auto returnCode = ShellExecute (NULL, (LPCSTR) "runas", targetFile.getFullPathName().toRawUTF8(), NULL, NULL, SW_SHOW);
 
-            if((int)returnCode > 31)
+            if ((int) returnCode > 31)
                 JUCEApplication::getInstance()->systemRequestedQuit();
             else
-                LOGE("Failed to run the installer: ", GetLastError());
+                LOGE ("Failed to run the installer: ", GetLastError());
         }
-    #endif
+#endif
     }
 }
 
 void LatestVersionCheckerAndUpdater::downloadAndInstall (const Asset& asset, const File& targetFile)
 {
 #if JUCE_WINDOWS
-    File exeDir = File::getSpecialLocation(
-    File::SpecialLocationType::currentExecutableFile).getParentDirectory();
+    File exeDir = File::getSpecialLocation (
+                      File::SpecialLocationType::currentExecutableFile)
+                      .getParentDirectory();
 
-    if(exeDir.findChildFiles(File::findFiles, false, "unins*").size() > 0)
+    if (exeDir.findChildFiles (File::findFiles, false, "unins*").size() > 0)
     {
-        downloader.reset (new DownloadThread (asset, targetFile,
-                                                [this, targetFile]
-                                                {
-                                                    downloader.reset();
-                                                    runInstaller(targetFile);
-
-                                                }));
+        downloader.reset (new DownloadThread (asset, targetFile, [this, targetFile]
+                                              {
+                                                  downloader.reset();
+                                                  runInstaller (targetFile);
+                                              }));
     }
     else
 #endif
     {
         String msgBoxString = String();
 
-        if(targetFile.getFileExtension().equalsIgnoreCase(".zip"))
+        if (targetFile.getFileExtension().equalsIgnoreCase (".zip"))
         {
-            msgBoxString = "Please extract the zip file located at: \n" + 
-                            targetFile.getFullPathName().quoted() +
-                            "\nto your desired location and then run the updated version from there. "
-                            "You can also overwrite the current installation after quitting the current instance.";
-
+            msgBoxString = "Please extract the zip file located at: \n" + targetFile.getFullPathName().quoted() + "\nto your desired location and then run the updated version from there. "
+                                                                                                                  "You can also overwrite the current installation after quitting the current instance.";
         }
         else
         {
-            msgBoxString = "Please quit the GUI first, then launch the installer file located at: \n" + 
-                            targetFile.getFullPathName().quoted() +
-                            "\nand follow the steps to finish updating the GUI.";
+            msgBoxString = "Please quit the GUI first, then launch the installer file located at: \n" + targetFile.getFullPathName().quoted() + "\nand follow the steps to finish updating the GUI.";
         }
-        
-        
-        downloader.reset (new DownloadThread (asset, targetFile,
-                                                [this, msgBoxString]
-                                                {
-                                                    downloader.reset();
 
-                                                    AlertWindow::showMessageBoxAsync
-                                                        (AlertWindow::InfoIcon,
-                                                         "Download successful!",
-                                                         msgBoxString);
-                                
-                                                }));
+        downloader.reset (new DownloadThread (asset, targetFile, [this, msgBoxString]
+                                              {
+                                                  downloader.reset();
+
+                                                  AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
+                                                                                    "Download successful!",
+                                                                                    msgBoxString);
+                                              }));
     }
 }
 

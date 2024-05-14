@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,14 +25,14 @@
 #define __MAINWINDOW_H_BA75E17__
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "UI/UIComponent.h"
-#include "UI/ControlPanel.h"
 #include "Audio/AudioComponent.h"
 #include "Processors/ProcessorGraph/ProcessorGraph.h"
-#include "UI/DefaultConfig.h"
 #include "UI/ControlPanel.h"
-#include "Utils/OpenEphysHttpServer.h"
+#include "UI/DefaultConfig.h"
 #include "UI/LookAndFeel/CustomLookAndFeel.h"
+#include "UI/UIComponent.h"
+#include "Utils/OpenEphysHttpServer.h"
+
 
 class OpenEphysHttpServer;
 
@@ -42,13 +42,12 @@ class OpenEphysHttpServer;
 class MainDocumentWindow : public DocumentWindow
 {
 public:
-    
     /** Constructor */
     MainDocumentWindow();
-    
+
     /** Destructor */
-    virtual ~MainDocumentWindow() { }
-    
+    virtual ~MainDocumentWindow() {}
+
     /** Called when the user hits the close button of the MainWindow. This destroys
         the MainWindow and closes the application. */
     void closeButtonPressed();
@@ -67,10 +66,9 @@ public:
 class MainWindow
 {
 public:
-
     /** Initializes the MainWindow, creates the AudioComponent, ProcessorGraph,
         and UIComponent, and sets the window boundaries. */
-    MainWindow(const File& fileToLoad = File(), bool isConsoleApp = false);
+    MainWindow (const File& fileToLoad = File(), bool isConsoleApp = false);
 
     /** Destroys the AudioComponent, ProcessorGraph, and UIComponent, and saves the window boundaries. */
     ~MainWindow();
@@ -92,19 +90,19 @@ public:
     bool automaticVersionChecking;
 
     /** Ends the process() callbacks and disables all processors.*/
-	void shutDownGUI();
+    void shutDownGUI();
 
     /** Called when the GUI crashes unexpectedly.*/
-    static void handleCrash(void *);
+    static void handleCrash (void*);
 
     /** Start thread which listens to remote commands to control the GUI */
     void enableHttpServer();
 
     /** Stop thread which listens to remote commands to control the GUI */
     void disableHttpServer();
-    
+
     /** Sets the size of the Main Window */
-    void centreWithSize(int, int);
+    void centreWithSize (int, int);
 
     /** Repaints the main window and all of it's components*/
     void repaint();
@@ -112,12 +110,11 @@ public:
     ColorTheme currentTheme = ColorTheme::MEDIUM;
 
 private:
-    
     /** Saves the processor graph to a file*/
-    void saveProcessorGraph(const File& file);
+    void saveProcessorGraph (const File& file);
 
     /** Loads  the processor graph from a file*/
-    void loadProcessorGraph(const File& file);
+    void loadProcessorGraph (const File& file);
 
     /** Saves the MainWindow's boundaries into the file "windowState.xml", located in the directory
         from which the GUI is run. */
@@ -129,7 +126,7 @@ private:
 
     /** Checks whether the signal chains of both the config files (lastConfig.xml & recoveryConfig.xml) 
      *  match or not. */
-    bool compareConfigFiles(File file1, File file2);
+    bool compareConfigFiles (File file1, File file2);
 
     /** API respective configs directory */
     File configsDir;
@@ -137,32 +134,31 @@ private:
     /** A pointer to the DocumentWindow (only instantiated if running in GUI mode). */
     std::unique_ptr<MainDocumentWindow> documentWindow;
 
-    std::unique_ptr <CustomLookAndFeel> customLookAndFeel;
+    /** A pointer to the CustomLookAndFeel object (only instantiated if running in GUI mode). */
+    std::unique_ptr<CustomLookAndFeel> customLookAndFeel;
 
     /** A pointer to the application's PopupManager (owned by the MainWindow). */
     std::unique_ptr<PopupManager> popupManager;
-    
+
     /** A pointer to the application's AudioComponent (owned by the MainWindow). */
     std::unique_ptr<AudioComponent> audioComponent;
 
     /** A pointer to the application's ProcessorGraph (owned by the MainWindow). */
     std::unique_ptr<ProcessorGraph> processorGraph;
-    
+
     /** A pointer to the application's ControlPanel (owned by the MainWindow). */
     std::unique_ptr<ControlPanel> controlPanel;
-    
+
     /** A weak reference to default config window. */
     std::unique_ptr<DefaultConfigWindow> defaultConfigWindow;
 
     /** A pointer to the application's HttpServer (owned by the MainWindow). */
     std::unique_ptr<OpenEphysHttpServer> http_server_thread;
-    
+
     /** Set to true if the application is running in console mode */
     bool isConsoleApp;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
 };
 
-
-#endif  // __MAINWINDOW_H_BA75E17__
+#endif // __MAINWINDOW_H_BA75E17__
