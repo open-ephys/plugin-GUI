@@ -1,8 +1,16 @@
 include(../ComponentRules.cmake)
 add_sources(${COMPONENT_NAME}_tests
+		EventChannelTests.cpp
+		ContinuousChannelTests.cpp
+		DataBufferTests.cpp
+		PluginManagerTests.cpp
+		SourceNodeTests.cpp
 		RecordNodeTests.cpp
 		ProcessorGraphTests.cpp
-		DataBufferTests.cpp
+		EventTests.cpp
+		DataThreadTests.cpp
+		EventTests.cpp
+		GenericProcessorTests.cpp
 )
 target_include_directories(
 		${COMPONENT_NAME}_tests

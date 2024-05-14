@@ -22,7 +22,7 @@ TEST(PluginManagerTest, PluginLoading)
 The Plugin Manager will first load a Plugin DLL. 
 A Plugin Description will be passed to the Plugin Manager, 
 which will output an instance of the Processor by 
-locating the associated Library Info object containing the Processor’s constructor.
+locating the associated Library Info object containing the Processorï¿½s constructor.
 */
 TEST(PluginManagerTest, PluginCreation)
 {
