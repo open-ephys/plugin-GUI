@@ -2,27 +2,30 @@
 #include "../../Source/UI/DataViewport.h"
 #include "../../Source/UI/InfoLabel.h"
 
-class DataViewportTests : public ::testing::Test {
+class DataViewportTests : public ::testing::Test
+{
 protected:
-    void SetUp() override {
+    void SetUp() override
+    {
         MessageManager::getInstance();
-        
+
         customLookAndFeel = std::make_unique<CustomLookAndFeel>();
         LookAndFeel::setDefaultLookAndFeel(customLookAndFeel.get());
 
         // Holds a lock for the test; necessary to prevent a bunch of assertion failures in debug
         lock = std::make_unique<MessageManagerLock>();
         viewport = std::make_unique<DataViewport>();
-        
-        
+
+
     }
 
-    void TearDown() override {
-        
+    void TearDown() override
+    {
+
         viewport = nullptr;
         lock.reset();
-        
-        
+
+
         DeletedAtShutdown::deleteAll();
         MessageManager::deleteInstance();
 
@@ -30,12 +33,11 @@ protected:
 
     std::unique_ptr<DataViewport> viewport;
     std::unique_ptr<MessageManagerLock> lock;
-    
+
     std::unique_ptr<CustomLookAndFeel> customLookAndFeel;
 
 };
 
-//TODO: Fix this shit
 TEST_F(DataViewportTests, TestAddTabsAndSwitchTabs) {
     auto info_label = std::make_unique<InfoLabel>();
     int node_id = 0;
