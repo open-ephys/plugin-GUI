@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -21,15 +21,17 @@
 
 */
 #ifdef _WIN32
-#include <winsock2.h>
 #include <Windows.h>
+#include <winsock2.h>
+
 #define _MAIN
 #endif
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MainWindow.h"
 
-#include <stdio.h>
 #include <fstream>
+#include <stdio.h>
+
 
 /**
 
@@ -45,73 +47,68 @@
 class OpenEphysApplication : public JUCEApplication
 {
 public:
-
     OpenEphysApplication() {}
 
     ~OpenEphysApplication() {}
 
-    void initialise(const String& commandLine)
+    void initialise (const String& commandLine)
     {
-
         std::cout << commandLine << std::endl;
 
         StringArray parameters;
-        parameters.addTokens(commandLine, " ", "\"");
+        parameters.addTokens (commandLine, " ", "\"");
         parameters.removeEmptyStrings();
 
 #ifdef _WIN32
 
         if (AllocConsole())
         {
-            freopen("CONOUT$", "w", stdout);
-            freopen("CONOUT$", "w", stderr);
-            console_out = std::ofstream("CONOUT$");
-            std::cout.rdbuf(console_out.rdbuf());
-            std::cerr.rdbuf(console_out.rdbuf());
+            freopen ("CONOUT$", "w", stdout);
+            freopen ("CONOUT$", "w", stderr);
+            console_out = std::ofstream ("CONOUT$");
+            std::cout.rdbuf (console_out.rdbuf());
+            std::cerr.rdbuf (console_out.rdbuf());
             SMALL_RECT windowSize = { 0, 0, 85 - 1, 35 - 1 };
-            COORD bufferSize = { 85 , 9999 };
-            HANDLE wHnd = GetStdHandle(STD_OUTPUT_HANDLE);
-            SetConsoleTitle("Open Ephys GUI ::: Console");
-            SetConsoleWindowInfo(wHnd, true, &windowSize);
-            SetConsoleScreenBufferSize(wHnd, bufferSize);
+            COORD bufferSize = { 85, 9999 };
+            HANDLE wHnd = GetStdHandle (STD_OUTPUT_HANDLE);
+            SetConsoleTitle ("Open Ephys GUI ::: Console");
+            SetConsoleWindowInfo (wHnd, true, &windowSize);
+            SetConsoleScreenBufferSize (wHnd, bufferSize);
         }
 
 #endif
 
-        SystemStats::setApplicationCrashHandler(handleCrash);
+        SystemStats::setApplicationCrashHandler (handleCrash);
 
         // Parse parameters
-        if (!parameters.isEmpty())
+        if (! parameters.isEmpty())
         {
-            
             bool isConsoleApp = false;
             File fileToLoad;
-            
+
             for (auto param : parameters)
             {
-                if (param.equalsIgnoreCase("--headless"))
+                if (param.equalsIgnoreCase ("--headless"))
                     isConsoleApp = true;
-                
-                else if (File::createLegalFileName(param).equalsIgnoreCase(param))
+
+                else if (File::createLegalFileName (param).equalsIgnoreCase (param))
                 {
-                    File localPath(File::getCurrentWorkingDirectory().getChildFile(param));
-                    
+                    File localPath (File::getCurrentWorkingDirectory().getChildFile (param));
+
                     if (localPath.existsAsFile())
                     {
                         fileToLoad = localPath;
                         break;
                     }
-                    
+
                     //File globalPath(param);
-                    
+
                     //if (globalPath.existsAsFile())
                     //    fileToLoad = globalPath;
-
-                    
                 }
             }
-            
-            mainWindow = std::make_unique<MainWindow>(fileToLoad, isConsoleApp);
+
+            mainWindow = std::make_unique<MainWindow> (fileToLoad, isConsoleApp);
         }
         else
         {
@@ -119,11 +116,11 @@ public:
         }
     }
 
-    void shutdown() { }
+    void shutdown() {}
 
-    static void handleCrash(void* input)
+    static void handleCrash (void* input)
     {
-        MainWindow::handleCrash(input);
+        MainWindow::handleCrash (input);
     }
 
     void systemRequestedQuit()
@@ -132,27 +129,27 @@ public:
 
         if (CoreServices::getAcquisitionStatus())
         {
-            
             String message;
-            
+
             if (CoreServices::getRecordingStatus())
             {
-                AlertWindow::showMessageBox(AlertWindow::WarningIcon,
-                                            "Cannot quit while recording is active.",
-                                            "Please stop recording before closing the GUI.",
-                                            "OK");
+                AlertWindow::showMessageBox (AlertWindow::WarningIcon,
+                                             "Cannot quit while recording is active.",
+                                             "Please stop recording before closing the GUI.",
+                                             "OK");
                 shouldQuit = false;
-            } else {
-                shouldQuit = AlertWindow::showOkCancelBox(AlertWindow::WarningIcon,
-                    "Are you sure you want to quit?",
-                    "The GUI is still acquiring data.",
-                    "Yes",
-                    "No");
             }
-
+            else
+            {
+                shouldQuit = AlertWindow::showOkCancelBox (AlertWindow::WarningIcon,
+                                                           "Are you sure you want to quit?",
+                                                           "The GUI is still acquiring data.",
+                                                           "Yes",
+                                                           "No");
+            }
         }
 
-        if(shouldQuit)
+        if (shouldQuit)
         {
             mainWindow->shutDownGUI();
             quit();
@@ -174,16 +171,15 @@ public:
         return true;
     }
 
-    
-
-    void anotherInstanceStarted(const String& commandLine)
-    {}
+    void anotherInstanceStarted (const String& commandLine)
+    {
+    }
 
 private:
-    std::unique_ptr <MainWindow> mainWindow;
+    std::unique_ptr<MainWindow> mainWindow;
     std::ofstream console_out;
 };
 
 //==============================================================================
 // This macro generates the main() routine that starts the app.
-START_JUCE_APPLICATION(OpenEphysApplication)
+START_JUCE_APPLICATION (OpenEphysApplication)
