@@ -67,6 +67,7 @@ public:
                      uint64* eventCodes,
                      int numItems,
                      int chunkSize=1,
+                     // UG3 Specific
                      std::optional<int64> timestampSampleIndex = std::nullopt);
 
     /** Returns the number of samples currently available in the buffer.*/
@@ -78,6 +79,7 @@ public:
                            double* timestamps,
                            uint64* eventCodes,
                            int maxSize,
+                           // UG3 Specific
                            std::optional<int64>* timestampSampleIndex,
                            int dstStartChannel = 0,
                            int numChannels = -1);
