@@ -7,6 +7,10 @@ add_sources(${COMPONENT_NAME}_tests
 		SourceNodeTests.cpp
 		RecordNodeTests.cpp
 		ProcessorGraphTests.cpp
+		EventTests.cpp
+		DataThreadTests.cpp
+		EventTests.cpp
+		GenericProcessorTests.cpp
 )
 target_include_directories(
 		${COMPONENT_NAME}_tests
