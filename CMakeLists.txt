@@ -340,4 +340,7 @@ add_subdirectory(Plugins)
 if(BUILD_TESTS)
 add_subdirectory(TestHelpers)
 add_subdirectory(Tests)
+
+set(RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Resources)
+file(COPY ${RESOURCE_DIR}/Test DESTINATION ${CMAKE_BINARY_DIR}/plugin-GUI/Tests/Resources)
 endif()

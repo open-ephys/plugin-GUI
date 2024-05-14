@@ -11,6 +11,7 @@ add_sources(${COMPONENT_NAME}_tests
 		DataThreadTests.cpp
 		EventTests.cpp
 		GenericProcessorTests.cpp
+		../../Source/Processors/PluginManager/PluginManager.cpp
 )
 target_include_directories(
 		${COMPONENT_NAME}_tests

@@ -1,7 +1,6 @@
 #include "gtest/gtest.h"
 
 #include <ProcessorHeaders.h>
-#include <TestFixtures.h>
 
 class FakeProcessor : public GenericProcessor
 {
