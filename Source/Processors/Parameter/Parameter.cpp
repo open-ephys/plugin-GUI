@@ -1183,7 +1183,9 @@ void SelectedStreamParameter::setNextValue(var newValue_, bool undoable)
 {
     if (newValue_ == currentValue) return;
 
-    if (newValue_.isInt())
+    if (newValue_.isInt() 
+        && (int)newValue_ >= 0 
+        && (int)newValue_ < streamNames.size())
     {
 
         newValue = newValue_;
@@ -1204,17 +1206,34 @@ void SelectedStreamParameter::setStreamNames(Array<String> streamNames_)
 {
     streamNames = streamNames_;
 
+    newValue = currentValue;
+
     if (streamNames.size() > 0 && (int)currentValue >= streamNames.size())
-        currentValue = streamNames.size() - 1;
+        newValue = streamNames.size() - 1;
     else if (streamNames.size() == 0)
-        currentValue = -1;
+        newValue = -1;
     else if ((int)currentValue == -1)
-        currentValue = 0;
+        newValue = 0;
+
+    if (newValue != currentValue)
+    {
+        getOwner()->parameterChangeRequest(this);
+        valueChanged();
+        logValueChange();
+    }
 }
 
 int SelectedStreamParameter::getSelectedIndex()
 {
     return (int)currentValue;
+}
+
+String SelectedStreamParameter::getValueAsString()
+{
+    if ((int)currentValue == -1 || streamNames.size() == 0)
+        return String();
+    else
+        return streamNames[(int)currentValue];
 }
 
 void SelectedStreamParameter::toXml(XmlElement* xml)

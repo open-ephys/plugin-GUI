@@ -53,7 +53,7 @@ void Visualizer::update()
                 Array<String> streamNames;
                 for (auto stream : processor->getDataStreams())
                 {
-                    streamNames.add(stream->getName());
+                    streamNames.add(stream->getKey());
                 }
                 SelectedStreamParameter* p = (SelectedStreamParameter*)param;
                 p->setStreamNames(streamNames);
