@@ -867,6 +867,14 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                 
                 m.addItem(6, "Save image...", true);
 
+                Plugin::Type type = editorArray[i]->getProcessor()->getPluginType();
+                if (type != Plugin::Type::BUILT_IN && type != Plugin::Type::INVALID)
+                {
+                    m.addSeparator();
+                    String pluginVer = editorArray[i]->getProcessor()->getLibVersion();
+                    m.addItem(7, "Plugin v" + pluginVer, false);
+                }
+
 
                 const int result = m.showMenu(PopupMenu::Options{}.withStandardItemHeight(20));
 
@@ -931,7 +939,8 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     
                     File picturesDirectory = File::getSpecialLocation(File::SpecialLocationType::userPicturesDirectory);
                     
-                    File outputFile = picturesDirectory.getChildFile(editorArray[i]->getNameAndId() + ".png");
+                    String editorName = editorArray[i]->getName() + "_" + String(editorArray[i]->getProcessor()->getNodeId());
+                    File outputFile = picturesDirectory.getNonexistentChildFile(editorName, ".png");
                     
                     juce::Rectangle<int> bounds = juce::Rectangle<int>(3, 3, editorArray[i]->getWidth()-6, editorArray[i]->getHeight()-6);
                     
