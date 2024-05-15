@@ -22,8 +22,8 @@
 */
 
 #ifdef _WIN32
-#include <Windows.h>
 #include <winsock2.h>
+#include <Windows.h>
 
 #define _MAIN
 #endif
