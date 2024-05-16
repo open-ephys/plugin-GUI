@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2021 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,17 +25,17 @@
 #define __EDITORVIEWPORT_H_80260F3F__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../Processors/Editors/GenericEditor.h"
-#include "../Processors/Splitter/SplitterEditor.h"
-#include "../Processors/Splitter/Splitter.h"
 #include "../Processors/Merger/MergerEditor.h"
+#include "../Processors/ProcessorGraph/ProcessorGraph.h"
+#include "../Processors/Splitter/Splitter.h"
+#include "../Processors/Splitter/SplitterEditor.h"
 
 #include "../Processors/PluginManager/OpenEphysPlugin.h"
 
 #include "ControlPanel.h"
-#include "UIComponent.h"
 #include "DataViewport.h"
+#include "UIComponent.h"
 
 class GenericEditor;
 class SignalChainTabButton;
@@ -63,104 +63,103 @@ class AddProcessor;
 
 */
 
-class EditorViewport  : public Component,
-    public DragAndDropTarget,
-    public Label::Listener
+class EditorViewport : public Component,
+                       public DragAndDropTarget,
+                       public Label::Listener
 {
 public:
-
     /** Constructor. Adds the buttons for browsing through the signal chains.*/
-    EditorViewport(SignalChainTabComponent*);
+    EditorViewport (SignalChainTabComponent*);
 
     /** Destructor. */
     ~EditorViewport();
 
     /** Highlights the given editor. */
-    void highlightEditor(GenericEditor* editor);
+    void highlightEditor (GenericEditor* editor);
 
     /** Ensures that the user can see the requested editor & its visualizer (if any). */
-    void makeEditorVisible(GenericEditor* editor, bool updateSettings = false);
+    void makeEditorVisible (GenericEditor* editor, bool updateSettings = false);
 
     /** Updates the boundaries and visibility of all the editors in the signal chain. */
     void refreshEditors();
-    
+
     /** Removes all processors from the signal chain(s).*/
     void clearSignalChain();
 
     /** Determines whether or not the EditorViewport should respond to
     the component that is currently being dragged. */
-    bool isInterestedInDragSource(const SourceDetails& dragSourceDetails);
+    bool isInterestedInDragSource (const SourceDetails& dragSourceDetails);
 
     /** Called when a dragged item (usually a name from the ProcessorList) enters the
        boundaries of the EditorViewport. Causes the background of the EditorViewport to change color.*/
-    void itemDragEnter(const SourceDetails& dragSourceDetails);
+    void itemDragEnter (const SourceDetails& dragSourceDetails);
 
     /** Called when a dragged item (usually a name from the ProcessorList) moves within the
        boundaries of the EditorViewport. Causes existing editors (if any) to shift their position
        to make room for the new processor that could be dropped.*/
-    void itemDragMove(const SourceDetails& dragSourceDetails);
+    void itemDragMove (const SourceDetails& dragSourceDetails);
 
     /** Called when a dragged item (usually a name from the ProcessorList) leaves the
        boundaries of the EditorViewport. Causes the background of the EditorViewport to change color.*/
-    void itemDragExit(const SourceDetails& dragSourceDetails);
+    void itemDragExit (const SourceDetails& dragSourceDetails);
 
     /** Called when a dragged item (usually a name from the ProcessorList) is released within the
        boundaries of the EditorViewport. Adds the dropped processor to the signal chain.*/
-    void itemDropped(const SourceDetails& dragSourceDetails);
+    void itemDropped (const SourceDetails& dragSourceDetails);
 
     /** Called when a mouse click begins within the EditorViewport. Usually used to select editors.*/
-    void mouseDown(const MouseEvent& e);
+    void mouseDown (const MouseEvent& e);
 
     /** Called when a mouse drag occurs within the EditorViewport. Usually used to move editors around in the signal chain.*/
-    void mouseDrag(const MouseEvent& e);
+    void mouseDrag (const MouseEvent& e);
 
     /** Called when a mouse click ends within the EditorViewport. Usually used to indicate that a moving editor has been dropped.*/
-    void mouseUp(const MouseEvent& e);
+    void mouseUp (const MouseEvent& e);
 
     /** Called when the mouse leaves the boundaries of the EditorViewport.*/
-    void mouseExit(const MouseEvent& e);
+    void mouseExit (const MouseEvent& e);
 
     /** Called when a key is pressed an the EditorViewport has keyboard focus.*/
-    bool keyPressed(const KeyPress& key);
+    bool keyPressed (const KeyPress& key);
 
     /** Changes which editor is selected, depending on the keypress (and modifier keys).*/
-    void moveSelection(const KeyPress& key);
+    void moveSelection (const KeyPress& key);
 
     /** Called when a label is changed.*/
-    void labelTextChanged(Label* label);
+    void labelTextChanged (Label* label);
 
     /** Save the current configuration as an XML file. */
-    const String saveState(File filename, String* xmlText = nullptr);
+    const String saveState (File filename, String* xmlText = nullptr);
 
-	/** Save the current configuration as an XML file. Reference wrapper*/
-	const String saveState(File filename, String& xmlText);
-    
+    /** Save the current configuration as an XML file. Reference wrapper*/
+    const String saveState (File filename, String& xmlText);
+
     /** Saves the viewport-specific settings (e.g. processor order) */
-    void saveEditorViewportSettingsToXml(XmlElement* xml);
-    
+    void saveEditorViewportSettingsToXml (XmlElement* xml);
+
     /** Save the current configuration as an XML file. Reference wrapper*/
     std::unique_ptr<XmlElement> createSettingsXml();
 
     /** Load a saved configuration from an XML file. */
-    const String loadState(File filename);
-    
+    const String loadState (File filename);
+
     /** Load a saved configuration from an XML object*/
-    const String loadStateFromXml(XmlElement* xml);
-    
+    const String loadStateFromXml (XmlElement* xml);
+
     /** Loads the viewport-specific settings (e.g. processor order) */
-    void loadEditorViewportSettingsFromXml(XmlElement* xml);
-    
+    void loadEditorViewportSettingsFromXml (XmlElement* xml);
+
     /** Load a saved plugin configuration from an XML file. */
-    const String loadPluginState(File filename, GenericEditor* selectedEditor = nullptr);
-    
+    const String loadPluginState (File filename, GenericEditor* selectedEditor = nullptr);
+
     /** Load a saved plugin configuration from an XML file. */
-    const String savePluginState(File filename, GenericEditor* selectedEditor = nullptr);
+    const String savePluginState (File filename, GenericEditor* selectedEditor = nullptr);
 
     /** Converts information about a given editor to XML. */
-    XmlElement* createNodeXml(GenericProcessor*, bool isStartOfSignalChain);
+    XmlElement* createNodeXml (GenericProcessor*, bool isStartOfSignalChain);
 
     /** Sets the parameters of a given processor via XML save files*/
-    void setParametersByXML(GenericProcessor*, XmlElement*);
+    void setParametersByXML (GenericProcessor*, XmlElement*);
 
     /** Returns a boolean indicating whether or not the signal chain is empty. */
     bool isSignalChainEmpty();
@@ -169,18 +168,18 @@ public:
     bool isSignalChainLocked() { return signalChainIsLocked; }
 
     /** Determines whether the signal chain can be edited */
-    void lockSignalChain(bool shouldLock);
+    void lockSignalChain (bool shouldLock);
 
     /** Updates visible editors (called after Processor Graph modifications)*/
-    void updateVisibleEditors(Array<GenericEditor*> visibleEditors,
-                              int numberOfTabs = 1,
-                              int selectedTab = 0);
+    void updateVisibleEditors (Array<GenericEditor*> visibleEditors,
+                               int numberOfTabs = 1,
+                               int selectedTab = 0);
 
     /** Removes an editor from the editor array after it's processor has been deleted*/
-    void removeEditor(GenericEditor* editor);
+    void removeEditor (GenericEditor* editor);
 
     /** Adds a processor to the signal chain, based on a Plugin description */
-    GenericProcessor* addProcessor(Plugin::Description desc, int insertionPt);
+    GenericProcessor* addProcessor (Plugin::Description desc, int insertionPt);
 
     /** Deletes all processors that are currently selected */
     void deleteSelectedProcessors();
@@ -189,40 +188,39 @@ public:
     void copySelectedEditors();
 
     /** Creates a new processor based on XML settings */
-    GenericProcessor* createProcessorAtInsertionPoint(XmlElement* processor, int insertionPt, bool ignoreNodeId);
+    GenericProcessor* createProcessorAtInsertionPoint (XmlElement* processor, int insertionPt, bool ignoreNodeId);
 
     /** Returns a plugin description from XML settings */
-    Plugin::Description getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId);
+    Plugin::Description getDescriptionFromXml (XmlElement* settings, bool ignoreNodeId);
 
     /** Changes the I/O path of a spliter or merger*/
-    void switchIO(GenericProcessor* processor, int path);
+    void switchIO (GenericProcessor* processor, int path);
 
     File currentFile;
-    
+
     /** Flag to check whether config is being loaded */
     bool loadingConfig;
-    
+
     /** Draws the EditorViewport background */
-    void paint(Graphics& g);
-    
+    void paint (Graphics& g);
+
     /** Returns the width of the viewport (for scrolling purposes) */
     int getDesiredWidth();
-    
+
     /** */
-    void copy(Array<XmlElement*>);
-    
+    void copy (Array<XmlElement*>);
+
     void paste();
-    
+
     bool editorIsSelected();
-    
+
     bool canPaste();
-    
+
     Array<GenericEditor*> editorArray;
 
     bool somethingIsBeingDraggedOver;
 
 private:
-
     String message;
 
     GenericEditor* lastEditor;
@@ -233,31 +231,28 @@ private:
 
     Font font;
     Image sourceDropImage;
-    
+
     int insertionPoint;
     bool componentWantsToMove;
     int indexOfMovingComponent;
-    
+
     // Keeps track of the processor type being dragged
     Plugin::Processor::Type dragProcType;
 
     SignalChainTabComponent* signalChainTabComponent;
 
     bool shiftDown;
-    
+
     OwnedArray<XmlElement> copyBuffer;
-    
+
     Label editorNamingLabel;
 
     bool signalChainIsLocked = false;
 
     OwnedArray<AddProcessor> orphanedActions;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EditorViewport);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EditorViewport);
 };
-
-
 
 /**
 
@@ -270,9 +265,8 @@ private:
 class SignalChainTabButton : public Button
 {
 public:
-
     /** Constructor */
-    SignalChainTabButton(int index);
+    SignalChainTabButton (int index);
 
     /** Destructor */
     ~SignalChainTabButton() {}
@@ -280,9 +274,8 @@ public:
     int offset;
 
 private:
-
     /** Draws the SignalChainTabButton.*/
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown);
 
     /** Called when a mouse click occurs inside a SignalChainTabButton.*/
     void clicked();
@@ -290,7 +283,6 @@ private:
     int num;
 
     Font buttonFont;
-
 };
 
 /**
@@ -306,54 +298,56 @@ private:
 */
 
 class SignalChainTabComponent : public Component,
-    public Button::Listener
+                                public Button::Listener
 {
 public:
     SignalChainTabComponent();
     ~SignalChainTabComponent();
-    
+
     /** Updates the boundaries and visibility of all the tabs in the signal chain. */
-    void refreshTabs(int, int, bool internal = false);
-    
+    void refreshTabs (int, int, bool internal = false);
+
     void resized();
-    
+
     /** Draws the background of the EditorViewport. */
-    void paint(Graphics& g) override;
+    void paint (Graphics& g) override;
 
     /** Draws the outline of the EditorViewport. */
-    void paintOverChildren(Graphics& g) override;
+    void paintOverChildren (Graphics& g) override;
 
     /** Called when one of the buttons the EditorViewport listens to has been clicked.*/
-    void buttonClicked(Button* button);
+    void buttonClicked (Button* button);
 
     int offset;
-    
-    void setEditorViewport(EditorViewport*);
-    
-    enum directions {UP, DOWN};
-    
+
+    void setEditorViewport (EditorViewport*);
+
+    enum directions
+    {
+        UP,
+        DOWN
+    };
+
     int getScrollOffset();
-    void setScrollOffset(int offset);
+    void setScrollOffset (int offset);
 
     // Returns the currently selected tab
     int getSelectedTab() { return selectedTab; }
 
 private:
-
     int numberOfTabs = 0;
     int selectedTab = -1;
     int topTab;
-    
+
     OwnedArray<SignalChainTabButton> signalChainTabButtonArray;
-    
+
     std::unique_ptr<SignalChainScrollButton> upButton;
     std::unique_ptr<SignalChainScrollButton> downButton;
-    
+
     std::unique_ptr<Viewport> viewport;
     EditorViewport* editorViewport;
-    
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SignalChainTabComponent);
 
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SignalChainTabComponent);
 };
 
-#endif  // __EDITORVIEWPORT_H_80260F3F__
+#endif // __EDITORVIEWPORT_H_80260F3F__

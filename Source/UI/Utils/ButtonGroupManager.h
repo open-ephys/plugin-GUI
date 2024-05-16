@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,8 +24,8 @@
 #ifndef BUTTONGROUPMANAGER_H_INCLUDED
 #define BUTTONGROUPMANAGER_H_INCLUDED
 
-#include <JuceHeader.h>
 #include "../../Processors/PluginManager/OpenEphysPlugin.h"
+#include <JuceHeader.h>
 
 /**
 
@@ -34,11 +34,9 @@
 
     @see LinearButtonGroupManager
 */
-class PLUGIN_API ButtonGroupManager : public Component
-                                    , public Button::Listener
+class PLUGIN_API ButtonGroupManager : public Component, public Button::Listener
 {
 public:
-
     /** Constructor */
     ButtonGroupManager();
 
@@ -47,7 +45,7 @@ public:
 
     // Component methods
     // ===========================================================
-    void colourChanged()        override;
+    void colourChanged() override;
 
     /** All component, that inherit ButtonGroupManager should override the resized() method
         in order to control buttons positioning inside it */
@@ -94,7 +92,6 @@ public:
     /** Sets the listener that will receive events from buttons */
     void setButtonListener (Button::Listener* newButtonListener);
 
-
 protected:
     /** Displays if radiobutton mode is used for each button */
     bool m_isRadioButtonMode;
@@ -119,6 +116,4 @@ protected:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ButtonGroupManager)
 };
 
-
-
-#endif  // BUTTONGROUPMANAGER_H_INCLUDED
+#endif // BUTTONGROUPMANAGER_H_INCLUDED

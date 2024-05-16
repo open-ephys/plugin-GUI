@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,21 +24,19 @@
 #ifndef __FILENAMECONFIGWINDOW_H_F0BD2DD9__
 #define __FILENAMECONFIGWINDOW_H_F0BD2DD9__
 
-#include "../../JuceLibraryCode/JuceHeader.h" 
+#include "../../JuceLibraryCode/JuceHeader.h"
 
 /** 
 
     Used to specify the name of the recording directory
 
 */
-class FilenameFieldComponent : 
-    public Component,
-    public Label::Listener,
-    public Button::Listener
+class FilenameFieldComponent : public Component,
+                               public Label::Listener,
+                               public Button::Listener
 {
 public:
-
-    enum Type 
+    enum Type
     {
         PREPEND = 0,
         MAIN,
@@ -46,34 +44,34 @@ public:
     };
     const std::vector<std::string> types = { "Prepend", "Main", "Append" };
 
-	enum State
-	{
-		NONE = 0,
-		AUTO,
-		CUSTOM,
-	};
+    enum State
+    {
+        NONE = 0,
+        AUTO,
+        CUSTOM,
+    };
     const std::vector<std::string> states = { "None", "Auto", "Custom" };
 
     /** Constructor */
-    FilenameFieldComponent(int type, int state, String value);
+    FilenameFieldComponent (int type, int state, String value);
 
     /** Destructor */
     ~FilenameFieldComponent() {}
 
     /** Responds to changes in the file name labels*/
-    void labelTextChanged(Label* label);
+    void labelTextChanged (Label* label);
 
     /** Responds to changes in the state buttons*/
-    void buttonClicked(Button*);
+    void buttonClicked (Button*);
 
     /** Increment file index (for auto prepend/append text) */
     void incrementDirectoryIndex();
 
     /** Returns the next value for this field*/
-    String getNextValue(bool usePlaceholderText);
+    String getNextValue (bool usePlaceholderText);
 
     /** Validate filename field candidate */
-    String validate(String field);
+    String validate (String field);
 
     Type type;
     State state;
@@ -86,41 +84,34 @@ public:
     std::unique_ptr<Label> typeLabel;
     std::unique_ptr<Button> stateButton;
     std::unique_ptr<Label> valueLabel;
-
 };
-
 
 class FilenameConfigWindow : public Component
 {
-
 public:
-    
     /** Constructor */
-    FilenameConfigWindow(Array<std::shared_ptr<FilenameFieldComponent>> _fields) 
+    FilenameConfigWindow (Array<std::shared_ptr<FilenameFieldComponent>> _fields)
     {
-        setSize(360, 100);
+        setSize (360, 100);
 
         for (int i = 0; i < _fields.size(); i++)
         {
-            fields.add(_fields[i]);
-            fields.getLast()->setBounds(0,i*getHeight()/3,getWidth(),getHeight()/3);
-            addAndMakeVisible(fields.getLast().get());
+            fields.add (_fields[i]);
+            fields.getLast()->setBounds (0, i * getHeight() / 3, getWidth(), getHeight() / 3);
+            addAndMakeVisible (fields.getLast().get());
         }
-
     }
 
     /** Destructor */
     ~FilenameConfigWindow() {}
 
     /** Save settings. */
-    void saveStateToXml(XmlElement*);
+    void saveStateToXml (XmlElement*);
 
     /** Load settings. */
-    void loadStateFromXml(XmlElement*);
+    void loadStateFromXml (XmlElement*);
 
     Array<std::shared_ptr<FilenameFieldComponent>> fields;
-
 };
 
-
-#endif  // __SPIKEDETECTORCONFIGWINDOW_H_F0BD2DD9__
+#endif // __SPIKEDETECTORCONFIGWINDOW_H_F0BD2DD9__

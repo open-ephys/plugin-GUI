@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -23,47 +23,44 @@
 
 #include "EditorViewport.h"
 
-#include "GraphViewer.h"
-#include "EditorViewportButtons.h"
 #include "../AccessClass.h"
 #include "../Processors/MessageCenter/MessageCenterEditor.h"
-#include "ProcessorList.h"
+#include "../Processors/PluginManager/OpenEphysPlugin.h"
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../Processors/ProcessorGraph/ProcessorGraphActions.h"
-#include "../Processors/PluginManager/OpenEphysPlugin.h"
+#include "EditorViewportButtons.h"
+#include "GraphViewer.h"
+#include "ProcessorList.h"
 
 const int BORDER_SIZE = 6;
 const int TAB_SIZE = 30;
 
-EditorViewport::EditorViewport(SignalChainTabComponent* s_)
-    : message("Drag-and-drop some rows from the top-left box onto this component!"),
-      somethingIsBeingDraggedOver(false),
-      shiftDown(false),
-      lastEditorClicked(0),
-      selectionIndex(-1),
-      insertionPoint(0),
-      componentWantsToMove(false),
-      indexOfMovingComponent(-1),
-      loadingConfig(false),
-      signalChainTabComponent(s_),
-      dragProcType(Plugin::Processor::INVALID)
+EditorViewport::EditorViewport (SignalChainTabComponent* s_)
+    : message ("Drag-and-drop some rows from the top-left box onto this component!"),
+      somethingIsBeingDraggedOver (false),
+      shiftDown (false),
+      lastEditorClicked (0),
+      selectionIndex (-1),
+      insertionPoint (0),
+      componentWantsToMove (false),
+      indexOfMovingComponent (-1),
+      loadingConfig (false),
+      signalChainTabComponent (s_),
+      dragProcType (Plugin::Processor::INVALID)
 {
+    addMouseListener (this, true);
 
-    addMouseListener(this, true);
+    sourceDropImage = ImageCache::getFromMemory (BinaryData::SourceDrop_png,
+                                                 BinaryData::SourceDrop_pngSize);
 
-    sourceDropImage = ImageCache::getFromMemory(BinaryData::SourceDrop_png,
-                                                BinaryData::SourceDrop_pngSize);
+    sourceDropImage = sourceDropImage.rescaled (25, 135, Graphics::highResamplingQuality);
 
-    sourceDropImage = sourceDropImage.rescaled(25, 135,
-                                               Graphics::highResamplingQuality);
-    
-    signalChainTabComponent->setEditorViewport(this);
-    
-    editorNamingLabel.setEditable(true);
-    editorNamingLabel.setBounds(0,0,100,20);
-    editorNamingLabel.setColour(Label::textColourId, Colours::white);
-    editorNamingLabel.addListener(this);
+    signalChainTabComponent->setEditorViewport (this);
 
+    editorNamingLabel.setEditable (true);
+    editorNamingLabel.setBounds (0, 0, 100, 20);
+    editorNamingLabel.setColour (Label::textColourId, Colours::white);
+    editorNamingLabel.addListener (this);
 }
 
 EditorViewport::~EditorViewport()
@@ -71,11 +68,10 @@ EditorViewport::~EditorViewport()
     copyBuffer.clear();
 }
 
-void EditorViewport::paint(Graphics& g)
+void EditorViewport::paint (Graphics& g)
 {
-
-    g.setColour(findColour(ThemeColors::componentParentBackground));
-    g.fillRoundedRectangle(1, 1, getWidth()-2, getHeight()-14, 5.0f);
+    g.setColour (findColour (ThemeColors::componentParentBackground));
+    g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 14, 5.0f);
 
     // Draw drop shadow for each editor
     for (int i = 0; i < editorArray.size(); i++)
@@ -83,43 +79,40 @@ void EditorViewport::paint(Graphics& g)
         if (editorArray[i]->getProcessor()->isEmpty())
             continue;
 
-        DropShadow (findColour(ThemeColors::dropShadowColor), 10, Point<int> (4, 2))
-            .drawForRectangle (g, editorArray[i]->getBounds().reduced(1,1));
+        DropShadow (findColour (ThemeColors::dropShadowColor), 10, Point<int> (4, 2))
+            .drawForRectangle (g, editorArray[i]->getBounds().reduced (1, 1));
     }
-    
+
     if (somethingIsBeingDraggedOver)
     {
         if (insertionPoint == 1
             && editorArray[0]->getProcessor()->isEmpty()
             && dragProcType == Plugin::Processor::SOURCE)
             return;
-        
+
         float insertionX = 0;
 
         if (insertionPoint == 0)
         {
-            insertionX = (float)(BORDER_SIZE) * 2.5f;
+            insertionX = (float) (BORDER_SIZE) * 2.5f;
         }
         else if (insertionPoint > 0)
         {
             insertionX += editorArray[insertionPoint - 1]->getRight() + (BORDER_SIZE) * 1.5f;
         }
 
-        g.setColour(Colours::yellow);
-        g.fillRect(insertionX, (float) BORDER_SIZE + 5,
-                   3.0f, (float) (getHeight()- 3 * (BORDER_SIZE + 5)));
-
+        g.setColour (Colours::yellow);
+        g.fillRect (insertionX, (float) BORDER_SIZE + 5, 3.0f, (float) (getHeight() - 3 * (BORDER_SIZE + 5)));
     }
-    
 }
 
-bool EditorViewport::isInterestedInDragSource(const SourceDetails& dragSourceDetails)
+bool EditorViewport::isInterestedInDragSource (const SourceDetails& dragSourceDetails)
 {
-    if (!CoreServices::getAcquisitionStatus() && dragSourceDetails.description.toString().startsWith("Processors"))
+    if (! CoreServices::getAcquisitionStatus() && dragSourceDetails.description.toString().startsWith ("Processors"))
     {
         return false;
     }
-    else if (dragSourceDetails.description.toString().startsWith("EditorDrag"))
+    else if (dragSourceDetails.description.toString().startsWith ("EditorDrag"))
     {
         return false;
     }
@@ -127,27 +120,25 @@ bool EditorViewport::isInterestedInDragSource(const SourceDetails& dragSourceDet
     {
         return true;
     }
-
 }
 
-void EditorViewport::itemDragEnter(const SourceDetails& dragSourceDetails)
+void EditorViewport::itemDragEnter (const SourceDetails& dragSourceDetails)
 {
-    if (!CoreServices::getAcquisitionStatus())
+    if (! CoreServices::getAcquisitionStatus())
     {
         somethingIsBeingDraggedOver = true;
         repaint();
     }
 }
 
-void EditorViewport::itemDragMove(const SourceDetails& dragSourceDetails)
+void EditorViewport::itemDragMove (const SourceDetails& dragSourceDetails)
 {
-
     int x = dragSourceDetails.localPosition.getX();
 
-    if (!CoreServices::getAcquisitionStatus())
+    if (! CoreServices::getAcquisitionStatus())
     {
         Array<var>* descr = dragSourceDetails.description.getArray();
-        dragProcType = (Plugin::Processor::Type) int(descr->getUnchecked(4));
+        dragProcType = (Plugin::Processor::Type) int (descr->getUnchecked (4));
 
         bool foundInsertionPoint = false;
 
@@ -158,7 +149,7 @@ void EditorViewport::itemDragMove(const SourceDetails& dragSourceDetails)
         for (int n = 0; n < editorArray.size(); n++)
         {
             leftEdge = editorArray[n]->getX();
-            centerPoint = leftEdge + (editorArray[n]->getWidth())/2;
+            centerPoint = leftEdge + (editorArray[n]->getWidth()) / 2;
 
             if (x < centerPoint && x > lastCenterPoint)
             {
@@ -183,23 +174,23 @@ void EditorViewport::itemDragMove(const SourceDetails& dragSourceDetails)
             lastCenterPoint = centerPoint;
         }
 
-        if (!foundInsertionPoint)
+        if (! foundInsertionPoint)
         {
             insertionPoint = editorArray.size();
-            
+
             if (editorArray.size() > 0
                 && editorArray[0]->getProcessor()->isEmpty()
                 && editorArray[0]->getSelectionState())
                 editorArray[0]->deselect();
         }
-        
+
         repaint();
-        
+
         refreshEditors();
     }
 }
 
-void EditorViewport::itemDragExit(const SourceDetails& dragSourceDetails)
+void EditorViewport::itemDragExit (const SourceDetails& dragSourceDetails)
 {
     somethingIsBeingDraggedOver = false;
     dragProcType = Plugin::Processor::INVALID;
@@ -212,29 +203,27 @@ void EditorViewport::itemDragExit(const SourceDetails& dragSourceDetails)
     repaint();
 
     refreshEditors();
-
 }
 
-void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
+void EditorViewport::itemDropped (const SourceDetails& dragSourceDetails)
 {
-
-    if (!CoreServices::getAcquisitionStatus())
+    if (! CoreServices::getAcquisitionStatus())
     {
         Array<var>* descr = dragSourceDetails.description.getArray();
-        
+
         Plugin::Description description;
-        
-        description.fromProcessorList = descr->getUnchecked(0);
-        description.name = descr->getUnchecked(1);
-        description.index = descr->getUnchecked(2);
-        description.type = (Plugin::Type) int(descr->getUnchecked(3));
-        description.processorType = (Plugin::Processor::Type) int(descr->getUnchecked(4));
+
+        description.fromProcessorList = descr->getUnchecked (0);
+        description.name = descr->getUnchecked (1);
+        description.index = descr->getUnchecked (2);
+        description.type = (Plugin::Type) int (descr->getUnchecked (3));
+        description.processorType = (Plugin::Processor::Type) int (descr->getUnchecked (4));
         description.nodeId = 0;
 
-        LOGD("Item dropped at insertion point ", insertionPoint);
-        
-        addProcessor(description, insertionPoint);
-        
+        LOGD ("Item dropped at insertion point ", insertionPoint);
+
+        addProcessor (description, insertionPoint);
+
         insertionPoint = -1; // make sure all editors are left-justified
         indexOfMovingComponent = -1;
         somethingIsBeingDraggedOver = false;
@@ -244,109 +233,108 @@ void EditorViewport::itemDropped(const SourceDetails& dragSourceDetails)
             && editorArray[0]->getProcessor()->isEmpty()
             && editorArray[0]->getSelectionState())
             editorArray[0]->deselect();
-        
-        refreshEditors();
 
+        refreshEditors();
     }
 }
 
-GenericProcessor* EditorViewport::addProcessor(Plugin::Description description, int insertionPt)
+GenericProcessor* EditorViewport::addProcessor (Plugin::Description description, int insertionPt)
 {
-    
     GenericProcessor* source = nullptr;
     GenericProcessor* dest = nullptr;
 
     if (insertionPoint > 0)
     {
-        source = editorArray[insertionPoint-1]->getProcessor();
+        source = editorArray[insertionPoint - 1]->getProcessor();
     }
-    
+
     if (editorArray.size() > insertionPoint)
     {
         dest = editorArray[insertionPoint]->getProcessor();
     }
-    
-    AddProcessor* action = new AddProcessor(description, source, dest, loadingConfig);
-    
-    if (!loadingConfig)
+
+    AddProcessor* action = new AddProcessor (description, source, dest, loadingConfig);
+
+    if (! loadingConfig)
     {
         AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
-        AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
+        AccessClass::getProcessorGraph()->getUndoManager()->perform (action);
         return action->processor;
     }
     else
     {
         action->perform();
-        orphanedActions.add(action);
+        orphanedActions.add (action);
         return action->processor;
     }
-    
 }
 
 void EditorViewport::clearSignalChain()
 {
-
-    if (!CoreServices::getAcquisitionStatus() && !signalChainIsLocked)
+    if (! CoreServices::getAcquisitionStatus() && ! signalChainIsLocked)
     {
-        LOGD("Clearing signal chain.");
-        
+        LOGD ("Clearing signal chain.");
+
         AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
         ClearSignalChain* action = new ClearSignalChain();
-        AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
+        AccessClass::getProcessorGraph()->getUndoManager()->perform (action);
     }
     else
     {
-        CoreServices::sendStatusMessage("Cannot clear signal chain while acquisition is active.");
+        CoreServices::sendStatusMessage ("Cannot clear signal chain while acquisition is active.");
     }
 }
 
-void EditorViewport::lockSignalChain(bool shouldLock)
+void EditorViewport::lockSignalChain (bool shouldLock)
 {
     signalChainIsLocked = shouldLock;
 }
 
-void EditorViewport::makeEditorVisible(GenericEditor* editor,bool updateSettings)
+void EditorViewport::makeEditorVisible (GenericEditor* editor, bool updateSettings)
 {
-
-	if (updateSettings)
-        AccessClass::getProcessorGraph()->updateSettings(editor->getProcessor());
+    if (updateSettings)
+        AccessClass::getProcessorGraph()->updateSettings (editor->getProcessor());
     else
-        AccessClass::getProcessorGraph()->updateViews(editor->getProcessor());
-    
+        AccessClass::getProcessorGraph()->updateViews (editor->getProcessor());
+
     for (auto ed : editorArray)
     {
-        if (ed == editor )
+        if (ed == editor)
         {
             ed->select();
-        } else {
+        }
+        else
+        {
             ed->deselect();
         }
     }
 }
 
-void EditorViewport::highlightEditor(GenericEditor* editor)
+void EditorViewport::highlightEditor (GenericEditor* editor)
 {
     // Do not highlight if the editor is already selected
-    if(editor->getSelectionState())
+    if (editor->getSelectionState())
         return;
 
-    AccessClass::getProcessorGraph()->updateViews(editor->getProcessor());
+    AccessClass::getProcessorGraph()->updateViews (editor->getProcessor());
 
     Array<GenericProcessor*> processors = AccessClass::getProcessorGraph()->getListOfProcessors();
-    
+
     for (auto proc : processors)
     {
         auto ed = proc->getEditor();
-        if (ed == editor )
+        if (ed == editor)
         {
             ed->highlight();
-        } else {
+        }
+        else
+        {
             ed->deselect();
         }
     }
 }
 
-void EditorViewport::removeEditor(GenericEditor* editor)
+void EditorViewport::removeEditor (GenericEditor* editor)
 {
     int matchingIndex = -1;
 
@@ -357,53 +345,51 @@ void EditorViewport::removeEditor(GenericEditor* editor)
     }
 
     if (matchingIndex > -1)
-        editorArray.remove(matchingIndex);
+        editorArray.remove (matchingIndex);
 }
 
-void EditorViewport::updateVisibleEditors(Array<GenericEditor*> visibleEditors,
-                                          int numberOfTabs,
-                                          int selectedTab)
+void EditorViewport::updateVisibleEditors (Array<GenericEditor*> visibleEditors,
+                                           int numberOfTabs,
+                                           int selectedTab)
 {
-
     if (visibleEditors.size() > 0)
     {
         for (auto editor : editorArray)
         {
-            LOGD("Updating ", editor->getNameAndId());
-            editor->setVisible(false);
+            LOGD ("Updating ", editor->getNameAndId());
+            editor->setVisible (false);
         }
     }
 
     editorArray.clear();
-    
+
     for (auto editor : visibleEditors)
     {
-        editorArray.add(editor);
-        addChildComponent(editor);
-        editor->setVisible(true);
+        editorArray.add (editor);
+        addChildComponent (editor);
+        editor->setVisible (true);
         editor->refreshColors();
     }
-        
+
     refreshEditors();
-    signalChainTabComponent->refreshTabs(numberOfTabs, selectedTab);
+    signalChainTabComponent->refreshTabs (numberOfTabs, selectedTab);
     repaint();
 }
 
 int EditorViewport::getDesiredWidth()
 {
     int desiredWidth = 0;
-    
+
     for (auto editor : editorArray)
     {
         desiredWidth += editor->getTotalWidth() + BORDER_SIZE;
     }
-    
+
     return desiredWidth + BORDER_SIZE;
 }
 
 void EditorViewport::refreshEditors()
 {
-
     int lastBound = BORDER_SIZE;
 
     bool pastRightEdge = false;
@@ -413,7 +399,6 @@ void EditorViewport::refreshEditors()
 
     for (int n = 0; n < editorArray.size(); n++)
     {
-        
         GenericEditor* editor = editorArray[n];
 
         int componentWidth = editor->getTotalWidth();
@@ -426,7 +411,7 @@ void EditorViewport::refreshEditors()
 
         if (somethingIsBeingDraggedOver && n == insertionPoint)
         {
-            if (indexOfMovingComponent == -1 
+            if (indexOfMovingComponent == -1
                 && n == 1
                 && editorArray[0]->getProcessor()->isEmpty()
                 && dragProcType == Plugin::Processor::SOURCE)
@@ -434,38 +419,36 @@ void EditorViewport::refreshEditors()
                 // Do not move any processor
             }
             else if (indexOfMovingComponent == -1 // adding new processor
-                || (n != indexOfMovingComponent && n != indexOfMovingComponent + 1))
+                     || (n != indexOfMovingComponent && n != indexOfMovingComponent + 1))
             {
                 if (n == 0)
-                    lastBound += BORDER_SIZE*3;
+                    lastBound += BORDER_SIZE * 3;
                 else
-                    lastBound += BORDER_SIZE*2;
+                    lastBound += BORDER_SIZE * 2;
             }
         }
 
-        editor->setVisible(true);
-        editor->setBounds(lastBound, BORDER_SIZE, componentWidth, getHeight() - BORDER_SIZE*4);
+        editor->setVisible (true);
+        editor->setBounds (lastBound, BORDER_SIZE, componentWidth, getHeight() - BORDER_SIZE * 4);
         lastBound += (componentWidth + BORDER_SIZE);
     }
-    
+
     signalChainTabComponent->resized();
-    
+
     repaint();
 }
 
-void EditorViewport::moveSelection(const KeyPress& key)
+void EditorViewport::moveSelection (const KeyPress& key)
 {
-
     ModifierKeys mk = key.getModifiers();
 
     if (key.getKeyCode() == key.leftKey)
     {
-
-        if (mk.isShiftDown() 
-            && lastEditorClicked != nullptr 
-            && editorArray.contains(lastEditorClicked))
+        if (mk.isShiftDown()
+            && lastEditorClicked != nullptr
+            && editorArray.contains (lastEditorClicked))
         {
-            int primaryIndex = editorArray.indexOf(lastEditorClicked);
+            int primaryIndex = editorArray.indexOf (lastEditorClicked);
 
             // set new selection index
             if (selectionIndex == -1)
@@ -478,7 +461,7 @@ void EditorViewport::moveSelection(const KeyPress& key)
                 // if the selection index is already at the left edge, return
                 return;
             }
-            else if(selectionIndex <= primaryIndex) 
+            else if (selectionIndex <= primaryIndex)
             {
                 // if previous selection index is to the left of the primary index, decrement it
                 selectionIndex--;
@@ -486,7 +469,7 @@ void EditorViewport::moveSelection(const KeyPress& key)
 
             // if the editor at the new selection index is empty, skip it
             if (editorArray[selectionIndex]->getProcessor()->isEmpty())
-            {   
+            {
                 selectionIndex++;
                 return;
             }
@@ -506,11 +489,10 @@ void EditorViewport::moveSelection(const KeyPress& key)
 
             for (int i = 0; i < editorArray.size(); i++)
             {
-
                 if (editorArray[i]->getSelectionState() && i > 0)
                 {
-                    editorArray[i-1]->select();
-                    lastEditorClicked = editorArray[i-1];
+                    editorArray[i - 1]->select();
+                    lastEditorClicked = editorArray[i - 1];
                     editorArray[i]->deselect();
                 }
             }
@@ -518,12 +500,11 @@ void EditorViewport::moveSelection(const KeyPress& key)
     }
     else if (key.getKeyCode() == key.rightKey)
     {
-
-        if (mk.isShiftDown() 
+        if (mk.isShiftDown()
             && lastEditorClicked != nullptr
-            && editorArray.contains(lastEditorClicked))
+            && editorArray.contains (lastEditorClicked))
         {
-            int primaryIndex = editorArray.indexOf(lastEditorClicked);
+            int primaryIndex = editorArray.indexOf (lastEditorClicked);
 
             if (selectionIndex == -1)
             {
@@ -552,20 +533,17 @@ void EditorViewport::moveSelection(const KeyPress& key)
         }
         else
         {
-
             selectionIndex = -1;
 
             // bool stopSelection = false;
             int i = 0;
 
-            while (i < editorArray.size()-1)
+            while (i < editorArray.size() - 1)
             {
-
                 if (editorArray[i]->getSelectionState())
                 {
-
-                    lastEditorClicked = editorArray[i+1];
-                    editorArray[i+1]->select();
+                    lastEditorClicked = editorArray[i + 1];
+                    editorArray[i + 1]->select();
                     editorArray[i]->deselect();
                     i += 2;
                 }
@@ -579,46 +557,37 @@ void EditorViewport::moveSelection(const KeyPress& key)
     }
 }
 
-bool EditorViewport::keyPressed(const KeyPress& key)
+bool EditorViewport::keyPressed (const KeyPress& key)
 {
+    LOGDD ("Editor viewport received ", key.getKeyCode());
 
-    LOGDD("Editor viewport received ", key.getKeyCode());
-
-    if (!CoreServices::getAcquisitionStatus() && editorArray.size() > 0)
+    if (! CoreServices::getAcquisitionStatus() && editorArray.size() > 0)
     {
-
         ModifierKeys mk = key.getModifiers();
 
         if (key.getKeyCode() == key.deleteKey || key.getKeyCode() == key.backspaceKey)
         {
-
-            if (!mk.isAnyModifierKeyDown())
+            if (! mk.isAnyModifierKeyDown())
             {
-
                 deleteSelectedProcessors();
 
                 return true;
             }
-
         }
-        else if (key.getKeyCode() == key.leftKey ||
-                 key.getKeyCode() == key.rightKey)
+        else if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.rightKey)
         {
-
-            moveSelection(key);
+            moveSelection (key);
 
             return true;
-
         }
         else if (key.getKeyCode() == key.upKey)
         {
-
-            if(lastEditorClicked)
+            if (lastEditorClicked)
             {
                 if (lastEditorClicked->isMerger() || lastEditorClicked->isSplitter())
                 {
-                    lastEditorClicked->switchIO(0);
-                    AccessClass::getProcessorGraph()->updateViews(lastEditorClicked->getProcessor());
+                    lastEditorClicked->switchIO (0);
+                    AccessClass::getProcessorGraph()->updateViews (lastEditorClicked->getProcessor());
                     this->grabKeyboardFocus();
                 }
             }
@@ -627,17 +596,17 @@ bool EditorViewport::keyPressed(const KeyPress& key)
                 lastEditorClicked = editorArray.getFirst();
                 lastEditorClicked->select();
             }
-        
+
             return true;
         }
         else if (key.getKeyCode() == key.downKey)
         {
-            if(lastEditorClicked)
+            if (lastEditorClicked)
             {
                 if (lastEditorClicked->isMerger() || lastEditorClicked->isSplitter())
                 {
-                    lastEditorClicked->switchIO(1);
-                    AccessClass::getProcessorGraph()->updateViews(lastEditorClicked->getProcessor());
+                    lastEditorClicked->switchIO (1);
+                    AccessClass::getProcessorGraph()->updateViews (lastEditorClicked->getProcessor());
                     this->grabKeyboardFocus();
                 }
             }
@@ -651,48 +620,44 @@ bool EditorViewport::keyPressed(const KeyPress& key)
     }
 
     return false;
-
 }
 
-void EditorViewport::switchIO(GenericProcessor* processor, int path)
+void EditorViewport::switchIO (GenericProcessor* processor, int path)
 {
-    
     AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
-    
-    SwitchIO* switchIO = new SwitchIO(processor, path);
-    
-    AccessClass::getProcessorGraph()->getUndoManager()->perform(switchIO);
-}
 
+    SwitchIO* switchIO = new SwitchIO (processor, path);
+
+    AccessClass::getProcessorGraph()->getUndoManager()->perform (switchIO);
+}
 
 void EditorViewport::copySelectedEditors()
 {
+    LOGDD ("Editor viewport received copy signal");
 
-    LOGDD("Editor viewport received copy signal");
-
-    if (!CoreServices::getAcquisitionStatus())
+    if (! CoreServices::getAcquisitionStatus())
     {
-
         Array<XmlElement*> copyInfo;
 
         for (auto editor : editorArray)
         {
-            if (!editor->getProcessor()->isEmpty() && editor->getSelectionState())
-                copyInfo.add( AccessClass::getProcessorGraph()->createNodeXml(editor->getProcessor(), false) );
+            if (! editor->getProcessor()->isEmpty() && editor->getSelectionState())
+                copyInfo.add (AccessClass::getProcessorGraph()->createNodeXml (editor->getProcessor(), false));
         }
 
         if (copyInfo.size() > 0)
         {
-            copy(copyInfo);
-        } else {
-            CoreServices::sendStatusMessage("No processors selected.");
+            copy (copyInfo);
         }
-        
-    } else {
-        
-        CoreServices::sendStatusMessage("Cannot copy while acquisition is active.");
+        else
+        {
+            CoreServices::sendStatusMessage ("No processors selected.");
+        }
     }
-            
+    else
+    {
+        CoreServices::sendStatusMessage ("Cannot copy while acquisition is active.");
+    }
 }
 
 bool EditorViewport::editorIsSelected()
@@ -702,7 +667,7 @@ bool EditorViewport::editorIsSelected()
         if (editor->getSelectionState())
             return true;
     }
-    
+
     return false;
 }
 
@@ -714,22 +679,18 @@ bool EditorViewport::canPaste()
         return false;
 }
 
-
-void EditorViewport::copy(Array<XmlElement*> copyInfo)
+void EditorViewport::copy (Array<XmlElement*> copyInfo)
 {
-
     copyBuffer.clear();
-    copyBuffer.addArray(copyInfo);
-    
+    copyBuffer.addArray (copyInfo);
 }
 
 void EditorViewport::paste()
 {
-    LOGDD("Editor viewport received paste signal");
+    LOGDD ("Editor viewport received paste signal");
 
-    if (!CoreServices::getAcquisitionStatus())
+    if (! CoreServices::getAcquisitionStatus())
     {
-
         int insertionPoint;
         bool foundSelected = false;
 
@@ -741,30 +702,29 @@ void EditorViewport::paste()
                 foundSelected = true;
             }
         }
-        
-        LOGDD("Insertion point: ", insertionPoint);
+
+        LOGDD ("Insertion point: ", insertionPoint);
 
         if (foundSelected)
         {
-           
             Array<XmlElement*> processorInfo;
 
             for (auto xml : copyBuffer)
             {
-                for (auto* element : xml->getChildWithTagNameIterator("EDITOR"))
+                for (auto* element : xml->getChildWithTagNameIterator ("EDITOR"))
                 {
-                    for (auto* subelement : element->getChildWithTagNameIterator("WINDOW"))
+                    for (auto* subelement : element->getChildWithTagNameIterator ("WINDOW"))
                     {
-                        subelement->setAttribute("Active", 0);
-                        subelement->setAttribute("Index", -1);
+                        subelement->setAttribute ("Active", 0);
+                        subelement->setAttribute ("Index", -1);
                     }
-                    
-                    for (auto* subelement : element->getChildWithTagNameIterator("TAB"))
+
+                    for (auto* subelement : element->getChildWithTagNameIterator ("TAB"))
                     {
-                        subelement->setAttribute("Active", 0);
+                        subelement->setAttribute ("Active", 0);
                     }
                 }
-                processorInfo.add(xml);
+                processorInfo.add (xml);
             }
 
             AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
@@ -773,7 +733,7 @@ void EditorViewport::paste()
             GenericProcessor* dest = nullptr;
             if (insertionPoint > 0)
             {
-                source = editorArray[insertionPoint-1]->getProcessor();
+                source = editorArray[insertionPoint - 1]->getProcessor();
             }
 
             if (editorArray.size() > insertionPoint)
@@ -781,39 +741,37 @@ void EditorViewport::paste()
                 dest = editorArray[insertionPoint]->getProcessor();
             }
 
-            PasteProcessors* action = new PasteProcessors(processorInfo, insertionPoint, source, dest);
+            PasteProcessors* action = new PasteProcessors (processorInfo, insertionPoint, source, dest);
 
-            AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
-
-        } else {
-            CoreServices::sendStatusMessage("Select an insertion point to paste.");
+            AccessClass::getProcessorGraph()->getUndoManager()->perform (action);
         }
-        
-    } else {
-        
-        CoreServices::sendStatusMessage("Cannot paste while acquisition is active.");
+        else
+        {
+            CoreServices::sendStatusMessage ("Select an insertion point to paste.");
+        }
+    }
+    else
+    {
+        CoreServices::sendStatusMessage ("Cannot paste while acquisition is active.");
     }
 }
 
-void EditorViewport::labelTextChanged(Label* label)
+void EditorViewport::labelTextChanged (Label* label)
 {
-    editorToUpdate->setDisplayName(label->getText());
+    editorToUpdate->setDisplayName (label->getText());
 }
 
-void EditorViewport::mouseDown(const MouseEvent& e)
+void EditorViewport::mouseDown (const MouseEvent& e)
 {
-
     bool clickInEditor = false;
 
     for (int i = 0; i < editorArray.size(); i++)
     {
-
         if (e.eventComponent == editorArray[i])
         {
-
             if (editorArray[i]->getProcessor()->isEmpty())
                 return;
-                
+
             if (e.getNumberOfClicks() == 2) // double-clicks toggle collapse state
             {
                 if (editorArray[i]->getCollapsedState())
@@ -832,69 +790,66 @@ void EditorViewport::mouseDown(const MouseEvent& e)
 
             if (e.mods.isRightButtonDown())
             {
-
-                if (!editorArray[i]->getCollapsedState() && e.y > 22)
+                if (! editorArray[i]->getCollapsedState() && e.y > 22)
                     return;
 
                 if (editorArray[i]->isMerger() || editorArray[i]->isSplitter())
                     return;
 
                 PopupMenu m;
-                m.setLookAndFeel(&getLookAndFeel());
-                
+                m.setLookAndFeel (&getLookAndFeel());
+
                 if (editorArray[i]->getCollapsedState())
-                    m.addItem(3, "Uncollapse", true);
+                    m.addItem (3, "Uncollapse", true);
                 else
-                    m.addItem(3, "Collapse", true);
+                    m.addItem (3, "Collapse", true);
 
-                if (!CoreServices::getAcquisitionStatus() && !signalChainIsLocked)
-                    m.addItem(2, "Delete", true);
+                if (! CoreServices::getAcquisitionStatus() && ! signalChainIsLocked)
+                    m.addItem (2, "Delete", true);
                 else
-                    m.addItem(2, "Delete", false);
+                    m.addItem (2, "Delete", false);
 
-                m.addItem(1, "Rename", !signalChainIsLocked);
-                
+                m.addItem (1, "Rename", ! signalChainIsLocked);
+
                 m.addSeparator();
 
-                m.addItem(4, "Save settings...", true);
-                
-                if (!CoreServices::getAcquisitionStatus() && !signalChainIsLocked)
-                    m.addItem(5, "Load settings...", true);
+                m.addItem (4, "Save settings...", true);
+
+                if (! CoreServices::getAcquisitionStatus() && ! signalChainIsLocked)
+                    m.addItem (5, "Load settings...", true);
                 else
-                    m.addItem(5, "Load settings...", false);
-                
+                    m.addItem (5, "Load settings...", false);
+
                 m.addSeparator();
-                
-                m.addItem(6, "Save image...", true);
+
+                m.addItem (6, "Save image...", true);
 
                 Plugin::Type type = editorArray[i]->getProcessor()->getPluginType();
                 if (type != Plugin::Type::BUILT_IN && type != Plugin::Type::INVALID)
                 {
                     m.addSeparator();
                     String pluginVer = editorArray[i]->getProcessor()->getLibVersion();
-                    m.addItem(7, "Plugin v" + pluginVer, false);
+                    m.addItem (7, "Plugin v" + pluginVer, false);
                 }
 
-
-                const int result = m.showMenu(PopupMenu::Options{}.withStandardItemHeight(20));
+                const int result = m.showMenu (PopupMenu::Options {}.withStandardItemHeight (20));
 
                 if (result == 1)
                 {
-                    editorNamingLabel.setText("", dontSendNotification);
+                    editorNamingLabel.setText ("", dontSendNotification);
 
-                    juce::Rectangle<int> rect1 = juce::Rectangle<int>(editorArray[i]->getScreenX()+20,editorArray[i]->getScreenY()+11,1,1);
+                    juce::Rectangle<int> rect1 = juce::Rectangle<int> (editorArray[i]->getScreenX() + 20, editorArray[i]->getScreenY() + 11, 1, 1);
 
-                    CallOutBox callOut(editorNamingLabel, rect1, nullptr);
+                    CallOutBox callOut (editorNamingLabel, rect1, nullptr);
                     editorToUpdate = editorArray[i];
                     callOut.runModalLoop();
 
                     return;
-
                 }
                 else if (result == 2)
                 {
                     deleteSelectedProcessors();
-                    
+
                     return;
                 }
                 else if (result == 3)
@@ -902,63 +857,64 @@ void EditorViewport::mouseDown(const MouseEvent& e)
                     editorArray[i]->switchCollapsedState();
                     refreshEditors();
                     return;
-                    
-                } else if (result == 4)
+                }
+                else if (result == 4)
                 {
-                    FileChooser fc("Choose the file name...",
-                            CoreServices::getDefaultUserSaveDirectory(),
-                            "*",
-                            true);
+                    FileChooser fc ("Choose the file name...",
+                                    CoreServices::getDefaultUserSaveDirectory(),
+                                    "*",
+                                    true);
 
-                    if (fc.browseForFileToSave(true))
+                    if (fc.browseForFileToSave (true))
                     {
-                        savePluginState(fc.getResult(), editorArray[i]);
+                        savePluginState (fc.getResult(), editorArray[i]);
                     }
                     else
                     {
-                        CoreServices::sendStatusMessage("No file chosen.");
+                        CoreServices::sendStatusMessage ("No file chosen.");
                     }
-                } else if (result == 5)
+                }
+                else if (result == 5)
                 {
-                    FileChooser fc("Choose a settings file to load...",
-                            CoreServices::getDefaultUserSaveDirectory(),
-                            "*",
-                            true);
+                    FileChooser fc ("Choose a settings file to load...",
+                                    CoreServices::getDefaultUserSaveDirectory(),
+                                    "*",
+                                    true);
 
                     if (fc.browseForFileToOpen())
                     {
                         currentFile = fc.getResult();
-                        loadPluginState(currentFile, editorArray[i]);
+                        loadPluginState (currentFile, editorArray[i]);
                     }
                     else
                     {
-                        CoreServices::sendStatusMessage("No file selected.");
+                        CoreServices::sendStatusMessage ("No file selected.");
                     }
-                } else if (result == 6)
+                }
+                else if (result == 6)
                 {
-                    
-                    File picturesDirectory = File::getSpecialLocation(File::SpecialLocationType::userPicturesDirectory);
-                    
-                    String editorName = editorArray[i]->getName() + "_" + String(editorArray[i]->getProcessor()->getNodeId());
-                    File outputFile = picturesDirectory.getNonexistentChildFile(editorName, ".png");
-                    
-                    juce::Rectangle<int> bounds = juce::Rectangle<int>(3, 3, editorArray[i]->getWidth()-6, editorArray[i]->getHeight()-6);
-                    
-                    Image componentImage = editorArray[i]->createComponentSnapshot(
-                                                                                   bounds,
-                                            true, 1.5f);
-                    
+                    File picturesDirectory = File::getSpecialLocation (File::SpecialLocationType::userPicturesDirectory);
+
+                    String editorName = editorArray[i]->getName() + "_" + String (editorArray[i]->getProcessor()->getNodeId());
+                    File outputFile = picturesDirectory.getNonexistentChildFile (editorName, ".png");
+
+                    juce::Rectangle<int> bounds = juce::Rectangle<int> (3, 3, editorArray[i]->getWidth() - 6, editorArray[i]->getHeight() - 6);
+
+                    Image componentImage = editorArray[i]->createComponentSnapshot (
+                        bounds,
+                        true,
+                        1.5f);
+
                     FileOutputStream stream (outputFile);
                     PNGImageFormat pngWriter;
-                    pngWriter.writeImageToStream(componentImage, stream);
-                    
-                    CoreServices::sendStatusMessage("Saved image to " + outputFile.getFullPathName());
-                    
+                    pngWriter.writeImageToStream (componentImage, stream);
+
+                    CoreServices::sendStatusMessage ("Saved image to " + outputFile.getFullPathName());
                 }
             }
 
             // make sure uncollapsed editors don't accept clicks outside their title bar
-            if (!editorArray[i]->getCollapsedState() && e.y > 22)
+            if (! editorArray[i]->getCollapsedState() && e.y > 22)
                 return;
 
             clickInEditor = true;
@@ -966,26 +922,23 @@ void EditorViewport::mouseDown(const MouseEvent& e)
 
             if (e.mods.isShiftDown())
             {
-                if (editorArray.contains(lastEditorClicked))
+                if (editorArray.contains (lastEditorClicked))
                 {
-
-                    int index = editorArray.indexOf(lastEditorClicked);
+                    int index = editorArray.indexOf (lastEditorClicked);
 
                     if (index > i)
                     {
-                        for (int j = i+1; j <= index; j++)
+                        for (int j = i + 1; j <= index; j++)
                         {
                             editorArray[j]->select();
                         }
-
                     }
                     else
                     {
-                        for (int j = i-1; j >= index; j--)
+                        for (int j = i - 1; j >= index; j--)
                         {
                             editorArray[j]->select();
                         }
-
                     }
                 }
 
@@ -998,31 +951,26 @@ void EditorViewport::mouseDown(const MouseEvent& e)
         }
         else
         {
-
-            if (!e.mods.isCtrlDown() && !e.mods.isShiftDown())
+            if (! e.mods.isCtrlDown() && ! e.mods.isShiftDown())
                 editorArray[i]->deselect();
-
         }
     }
 
-    if (!clickInEditor)
+    if (! clickInEditor)
         lastEditorClicked = 0;
-
 }
 
-void EditorViewport::mouseDrag(const MouseEvent& e)
+void EditorViewport::mouseDrag (const MouseEvent& e)
 {
-
-    if (!signalChainIsLocked)
+    if (! signalChainIsLocked)
     {
-        if (editorArray.contains((GenericEditor*)e.originalComponent)
+        if (editorArray.contains ((GenericEditor*) e.originalComponent)
             && e.y < 15
-            && !CoreServices::getAcquisitionStatus()
+            && ! CoreServices::getAcquisitionStatus()
             && editorArray.size() > 1
-            && e.getDistanceFromDragStart() > 10
-            )
+            && e.getDistanceFromDragStart() > 10)
         {
-            indexOfMovingComponent = editorArray.indexOf((GenericEditor*)e.originalComponent);
+            indexOfMovingComponent = editorArray.indexOf ((GenericEditor*) e.originalComponent);
             dragProcType = editorArray[indexOfMovingComponent]->getProcessor()->getProcessorType();
             if (editorArray[indexOfMovingComponent]->getProcessor()->isEmpty())
             {
@@ -1034,12 +982,10 @@ void EditorViewport::mouseDrag(const MouseEvent& e)
             {
                 componentWantsToMove = true;
             }
-
         }
 
         if (componentWantsToMove)
         {
-
             somethingIsBeingDraggedOver = true;
 
             bool foundInsertionPoint = false;
@@ -1048,7 +994,7 @@ void EditorViewport::mouseDrag(const MouseEvent& e)
             int leftEdge;
             int centerPoint;
 
-            const MouseEvent event = e.getEventRelativeTo(this);
+            const MouseEvent event = e.getEventRelativeTo (this);
 
             for (int n = 0; n < editorArray.size(); n++)
             {
@@ -1057,7 +1003,7 @@ void EditorViewport::mouseDrag(const MouseEvent& e)
 
                 if (event.x < centerPoint && event.x > lastCenterPoint)
                 {
-                    if(editorArray[n]->getProcessor()->isSource() && !editorArray[indexOfMovingComponent]->getProcessor()->isSource())
+                    if (editorArray[n]->getProcessor()->isSource() && ! editorArray[indexOfMovingComponent]->getProcessor()->isSource())
                         return;
 
                     if (n == 0 && editorArray[0]->getProcessor()->isEmpty())
@@ -1074,7 +1020,7 @@ void EditorViewport::mouseDrag(const MouseEvent& e)
                 lastCenterPoint = centerPoint;
             }
 
-            if (!foundInsertionPoint && indexOfMovingComponent != editorArray.size() - 1)
+            if (! foundInsertionPoint && indexOfMovingComponent != editorArray.size() - 1)
             {
                 insertionPoint = editorArray.size();
             }
@@ -1083,77 +1029,75 @@ void EditorViewport::mouseDrag(const MouseEvent& e)
             repaint();
         }
     }
-
 }
 
-void EditorViewport::mouseUp(const MouseEvent& e)
+void EditorViewport::mouseUp (const MouseEvent& e)
 {
-    
     if (componentWantsToMove)
     {
-        
         somethingIsBeingDraggedOver = false;
         componentWantsToMove = false;
         dragProcType = Plugin::Processor::INVALID;
 
-        if (!getScreenBounds().contains(e.getScreenPosition()))
+        if (! getScreenBounds().contains (e.getScreenPosition()))
         {
             //AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
-            
-             //DeleteProcessor* action =
-             //       new DeleteProcessor(
-             //           editorArray[indexOfMovingComponent]->getProcessor(),
-              //          this);
-             
-             //AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
-            
+
+            //DeleteProcessor* action =
+            //       new DeleteProcessor(
+            //           editorArray[indexOfMovingComponent]->getProcessor(),
+            //          this);
+
+            //AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
+
             repaint();
-            
+
             refreshEditors();
         }
         else
         {
             if (indexOfMovingComponent != insertionPoint
-             && indexOfMovingComponent != insertionPoint - 1)
+                && indexOfMovingComponent != insertionPoint - 1)
             {
-                
                 GenericProcessor* newSource;
                 GenericProcessor* newDest;
-                
+
                 if (insertionPoint == editorArray.size())
                 {
                     newDest = nullptr;
                     newSource = editorArray.getLast()->getProcessor();
-                } else if (insertionPoint == 0)
+                }
+                else if (insertionPoint == 0)
                 {
                     newDest = editorArray.getFirst()->getProcessor();
                     newSource = nullptr;
-                } else {
-                    newSource = editorArray[insertionPoint-1]->getProcessor();
+                }
+                else
+                {
+                    newSource = editorArray[insertionPoint - 1]->getProcessor();
                     newDest = editorArray[insertionPoint]->getProcessor();
                 }
-                
+
                 AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
-               
-                MoveProcessor* action = new MoveProcessor(
-                                                          editorArray           [indexOfMovingComponent]->getProcessor(),
-                                                          newSource,
-                                                          newDest,
-                                                          insertionPoint > indexOfMovingComponent);
-                
-                AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
-                                                          
-            } else {
+
+                MoveProcessor* action = new MoveProcessor (
+                    editorArray[indexOfMovingComponent]->getProcessor(),
+                    newSource,
+                    newDest,
+                    insertionPoint > indexOfMovingComponent);
+
+                AccessClass::getProcessorGraph()->getUndoManager()->perform (action);
+            }
+            else
+            {
                 repaint();
             }
         }
     }
-
 }
 
-void EditorViewport::mouseExit(const MouseEvent& e)
+void EditorViewport::mouseExit (const MouseEvent& e)
 {
-
     if (componentWantsToMove)
     {
         somethingIsBeingDraggedOver = false;
@@ -1164,87 +1108,71 @@ void EditorViewport::mouseExit(const MouseEvent& e)
     }
 }
 
-
 bool EditorViewport::isSignalChainEmpty()
 {
-
     if (editorArray.size() == 0)
         return true;
     else
         return false;
-
 }
 
 ///////////////////////////////////////////////////////////////////
 ////////////////SIGNAL CHAIN TAB BUTTON///////////
 ///////////////////////////////////////////////////////////////////
 
-SignalChainTabButton::SignalChainTabButton(int index) : 
-    Button("Signal Chain Tab Button " + String(index)), 
-    num(index)
+SignalChainTabButton::SignalChainTabButton (int index) : Button ("Signal Chain Tab Button " + String (index)),
+                                                         num (index)
 {
-    setRadioGroupId(99);
-    setClickingTogglesState(true);
+    setRadioGroupId (99);
+    setClickingTogglesState (true);
 
-    buttonFont = Font("Silkscreen", 10, Font::plain);
-    buttonFont.setHeight(14);
+    buttonFont = Font ("Silkscreen", 10, Font::plain);
+    buttonFont.setHeight (14);
 
     offset = 0;
 }
-
 
 void SignalChainTabButton::clicked()
 {
     if (getToggleState())
     {
-        LOGDD("Tab button clicked: ", num);
-        
-        AccessClass::getProcessorGraph()->viewSignalChain(num);
+        LOGDD ("Tab button clicked: ", num);
+
+        AccessClass::getProcessorGraph()->viewSignalChain (num);
     }
 }
 
-void SignalChainTabButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+void SignalChainTabButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-
     ColourGradient grad1, grad2;
 
     if (getToggleState() == true)
     {
+        grad1 = ColourGradient (Colour (255, 136, 34), 0.0f, 0.0f, Colour (230, 193, 32), 0.0f, 20.0f, false);
 
-        grad1 = ColourGradient(Colour(255, 136, 34), 0.0f, 0.0f,
-                               Colour(230, 193, 32), 0.0f, 20.0f,
-                               false);
-
-        grad2 = ColourGradient(Colour(255, 136, 34), 0.0f, 20.0f,
-                               Colour(230, 193, 32), 0.0f, 0.0f,
-                               false);
+        grad2 = ColourGradient (Colour (255, 136, 34), 0.0f, 20.0f, Colour (230, 193, 32), 0.0f, 0.0f, false);
     }
     else
     {
-        grad2 = ColourGradient(Colour(80, 80, 80), 0.0f, 20.0f,
-                               Colour(120, 120, 120), 0.0f, 0.0f,
-                               false);
+        grad2 = ColourGradient (Colour (80, 80, 80), 0.0f, 20.0f, Colour (120, 120, 120), 0.0f, 0.0f, false);
 
-        grad1 =  ColourGradient(Colour(80, 80, 80), 0.0f, 0.0f,
-                                Colour(120, 120, 120), 0.0f, 20.0f,
-                                false);
+        grad1 = ColourGradient (Colour (80, 80, 80), 0.0f, 0.0f, Colour (120, 120, 120), 0.0f, 20.0f, false);
     }
 
     if (isMouseOver)
     {
-
-        grad1.multiplyOpacity(0.7f);
-        grad2.multiplyOpacity(0.7f);
+        grad1.multiplyOpacity (0.7f);
+        grad2.multiplyOpacity (0.7f);
     }
 
-    g.setGradientFill(grad2);
-    g.fillEllipse(0,0,getWidth(),getHeight());
+    g.setGradientFill (grad2);
+    g.fillEllipse (0, 0, getWidth(), getHeight());
 
-    g.setGradientFill(grad1);
-    g.fillEllipse(2,2,getWidth()-4,getHeight()-4);
+    g.setGradientFill (grad1);
+    g.fillEllipse (2, 2, getWidth() - 4, getHeight() - 4);
 
-    g.setFont(buttonFont);
-    g.setColour(Colours::black);
+    g.setFont (buttonFont);
+    g.setColour (Colours::black);
 
     String n;
 
@@ -1269,7 +1197,7 @@ void SignalChainTabButton::paintButton(Graphics& g, bool isMouseOver, bool isBut
     else
         n = "-";
 
-    g.drawText(n,0,0,getWidth(),getHeight()-2,Justification::centred,true);
+    g.drawText (n, 0, 0, getWidth(), getHeight() - 2, Justification::centred, true);
 }
 
 // SignalChainTabComponent
@@ -1277,38 +1205,37 @@ void SignalChainTabButton::paintButton(Graphics& g, bool isMouseOver, bool isBut
 SignalChainTabComponent::SignalChainTabComponent()
 {
     topTab = 0;
-    
-    upButton = std::make_unique<SignalChainScrollButton>(UP);
-    downButton = std::make_unique<SignalChainScrollButton>(DOWN);
 
-    upButton->addListener(this);
-    downButton->addListener(this);
-    
-    addAndMakeVisible(upButton.get());
-    addAndMakeVisible(downButton.get());
+    upButton = std::make_unique<SignalChainScrollButton> (UP);
+    downButton = std::make_unique<SignalChainScrollButton> (DOWN);
+
+    upButton->addListener (this);
+    downButton->addListener (this);
+
+    addAndMakeVisible (upButton.get());
+    addAndMakeVisible (downButton.get());
 
     viewport = std::make_unique<Viewport>();
-    viewport->setScrollBarsShown(false, true);
-    viewport->setScrollBarThickness(12);
-    addAndMakeVisible(viewport.get());
+    viewport->setScrollBarsShown (false, true);
+    viewport->setScrollBarThickness (12);
+    addAndMakeVisible (viewport.get());
 
     for (int i = 0; i < 8; i++)
     {
-        SignalChainTabButton* button = new SignalChainTabButton(i);
-        signalChainTabButtonArray.add(button);
-        addChildComponent(signalChainTabButtonArray.getLast());
+        SignalChainTabButton* button = new SignalChainTabButton (i);
+        signalChainTabButtonArray.add (button);
+        addChildComponent (signalChainTabButtonArray.getLast());
     }
 }
 
 SignalChainTabComponent::~SignalChainTabComponent()
 {
-
 }
 
-void SignalChainTabComponent::setEditorViewport(EditorViewport* ev)
+void SignalChainTabComponent::setEditorViewport (EditorViewport* ev)
 {
     editorViewport = ev;
-    viewport->setViewedComponent(ev, true);
+    viewport->setViewedComponent (ev, true);
 }
 
 int SignalChainTabComponent::getScrollOffset()
@@ -1316,205 +1243,199 @@ int SignalChainTabComponent::getScrollOffset()
     return viewport->getViewPositionX();
 }
 
-void SignalChainTabComponent::setScrollOffset(int offset)
+void SignalChainTabComponent::setScrollOffset (int offset)
 {
-    viewport->setViewPosition(offset, 0);
+    viewport->setViewPosition (offset, 0);
 }
 
-void SignalChainTabComponent::paint(Graphics& g)
+void SignalChainTabComponent::paint (Graphics& g)
 {
-    g.setColour(findColour(ThemeColors::defaultFill));
-    
+    g.setColour (findColour (ThemeColors::defaultFill));
+
     for (int n = 0; n < 4; n++)
     {
-        g.drawEllipse(7,
-                      (TAB_SIZE-2)*n+24,
-                      TAB_SIZE-12,
-                      TAB_SIZE-12,
-                      1.0);
+        g.drawEllipse (7,
+                       (TAB_SIZE - 2) * n + 24,
+                       TAB_SIZE - 12,
+                       TAB_SIZE - 12,
+                       1.0);
     }
 }
 
-void SignalChainTabComponent::paintOverChildren(Graphics& g)
+void SignalChainTabComponent::paintOverChildren (Graphics& g)
 {
-
     Path leftCornerPath;
-    leftCornerPath.startNewSubPath(0, 0);
-    leftCornerPath.lineTo(0, 20);
-    leftCornerPath.quadraticTo(-3, -3, 20, 0);
+    leftCornerPath.startNewSubPath (0, 0);
+    leftCornerPath.lineTo (0, 20);
+    leftCornerPath.quadraticTo (-3, -3, 20, 0);
     leftCornerPath.closeSubPath();
-    leftCornerPath.applyTransform(AffineTransform::translation(TAB_SIZE, 0));
+    leftCornerPath.applyTransform (AffineTransform::translation (TAB_SIZE, 0));
 
-    g.setColour(findColour(ThemeColors::windowBackground));
-    g.fillPath(leftCornerPath);
+    g.setColour (findColour (ThemeColors::windowBackground));
+    g.fillPath (leftCornerPath);
 
-    leftCornerPath.applyTransform(AffineTransform::verticalFlip(getHeight() - 12));
-    g.fillPath(leftCornerPath);
+    leftCornerPath.applyTransform (AffineTransform::verticalFlip (getHeight() - 12));
+    g.fillPath (leftCornerPath);
 
     Path rightCornerPath;
-    rightCornerPath.startNewSubPath(0, 0);
-    rightCornerPath.lineTo(0, 20);
-    rightCornerPath.quadraticTo(3, 3, -18, 0);
+    rightCornerPath.startNewSubPath (0, 0);
+    rightCornerPath.lineTo (0, 20);
+    rightCornerPath.quadraticTo (3, 3, -18, 0);
     rightCornerPath.closeSubPath();
-    rightCornerPath.applyTransform(AffineTransform::translation(getWidth(), 0));
+    rightCornerPath.applyTransform (AffineTransform::translation (getWidth(), 0));
 
-    g.fillPath(rightCornerPath);
+    g.fillPath (rightCornerPath);
 
-    rightCornerPath.applyTransform(AffineTransform::verticalFlip(getHeight() - 12));
-    g.fillPath(rightCornerPath);
+    rightCornerPath.applyTransform (AffineTransform::verticalFlip (getHeight() - 12));
+    g.fillPath (rightCornerPath);
 
-    
     if (editorViewport->somethingIsBeingDraggedOver)
     {
-        g.setColour(Colours::yellow);
+        g.setColour (Colours::yellow);
     }
     else
     {
-		g.setColour(findColour(ThemeColors::defaultFill));
+        g.setColour (findColour (ThemeColors::defaultFill));
     }
 
-    g.drawRoundedRectangle(TAB_SIZE + 1, 1, getWidth()-TAB_SIZE-2, getHeight() - 14, 10.0f, 2.0f);
+    g.drawRoundedRectangle (TAB_SIZE + 1, 1, getWidth() - TAB_SIZE - 2, getHeight() - 14, 10.0f, 2.0f);
 }
-
 
 void SignalChainTabComponent::resized()
 {
-
     int scrollOffset = getScrollOffset();
-    
-    downButton->setBounds(10, getHeight()-25, 12, 12);
-    upButton->setBounds(10, 4, 12, 12);
 
-    viewport->setBounds(TAB_SIZE, 0, getWidth()-TAB_SIZE, getHeight());
-    
-    int width = editorViewport->getDesiredWidth() < getWidth()-TAB_SIZE ? getWidth() -TAB_SIZE : editorViewport->getDesiredWidth();
-    editorViewport->setBounds(0, 0, width, getHeight());
-    
-    setScrollOffset(scrollOffset);
+    downButton->setBounds (10, getHeight() - 25, 12, 12);
+    upButton->setBounds (10, 4, 12, 12);
+
+    viewport->setBounds (TAB_SIZE, 0, getWidth() - TAB_SIZE, getHeight());
+
+    int width = editorViewport->getDesiredWidth() < getWidth() - TAB_SIZE ? getWidth() - TAB_SIZE : editorViewport->getDesiredWidth();
+    editorViewport->setBounds (0, 0, width, getHeight());
+
+    setScrollOffset (scrollOffset);
 }
 
-
-void SignalChainTabComponent::refreshTabs(int numberOfTabs_, int selectedTab_, bool internal)
+void SignalChainTabComponent::refreshTabs (int numberOfTabs_, int selectedTab_, bool internal)
 {
     numberOfTabs = numberOfTabs_;
     selectedTab = selectedTab_;
-    
-    if (!internal)
+
+    if (! internal)
     {
         if (topTab < (selectedTab - 3))
             topTab = selectedTab - 3;
         else if (topTab > selectedTab && selectedTab != -1)
             topTab = selectedTab;
     }
-    
+
     for (int i = 0; i < signalChainTabButtonArray.size(); i++)
     {
-        signalChainTabButtonArray[i]->setBounds(6,
-                                                (TAB_SIZE-2) * (i-topTab) + 23,
-                                                TAB_SIZE-10,
-                                                TAB_SIZE-10);
-        
+        signalChainTabButtonArray[i]->setBounds (6,
+                                                 (TAB_SIZE - 2) * (i - topTab) + 23,
+                                                 TAB_SIZE - 10,
+                                                 TAB_SIZE - 10);
+
         if (i < numberOfTabs && i >= topTab && i < topTab + 4)
         {
-            signalChainTabButtonArray[i]->setVisible(true);
-        } else {
-            signalChainTabButtonArray[i]->setVisible(false);
+            signalChainTabButtonArray[i]->setVisible (true);
         }
-        
+        else
+        {
+            signalChainTabButtonArray[i]->setVisible (false);
+        }
+
         if (i == selectedTab)
         {
-            signalChainTabButtonArray[i]->setToggleState(true, NotificationType::dontSendNotification);
-        } else {
-            signalChainTabButtonArray[i]->setToggleState(false, NotificationType::dontSendNotification);
+            signalChainTabButtonArray[i]->setToggleState (true, NotificationType::dontSendNotification);
+        }
+        else
+        {
+            signalChainTabButtonArray[i]->setToggleState (false, NotificationType::dontSendNotification);
         }
     }
-
 }
 
-void SignalChainTabComponent::buttonClicked(Button* button)
+void SignalChainTabComponent::buttonClicked (Button* button)
 {
     if (button == upButton.get())
     {
-        LOGDD("Up button pressed.");
+        LOGDD ("Up button pressed.");
 
         if (topTab > 0)
             topTab -= 1;
     }
     else if (button == downButton.get())
     {
-        LOGDD("Down button pressed.");
-        
+        LOGDD ("Down button pressed.");
+
         if (numberOfTabs > 4)
         {
-            if (topTab < (numberOfTabs-4))
+            if (topTab < (numberOfTabs - 4))
                 topTab += 1;
         }
     }
 
-    refreshTabs(numberOfTabs, selectedTab, true);
+    refreshTabs (numberOfTabs, selectedTab, true);
 }
 
 // LOADING AND SAVING
 
-const String EditorViewport::saveState(File fileToUse, String& xmlText)
+const String EditorViewport::saveState (File fileToUse, String& xmlText)
 {
-	return saveState(fileToUse, &xmlText);
+    return saveState (fileToUse, &xmlText);
 }
 
-const String EditorViewport::saveState(File fileToUse, String* xmlText)
+const String EditorViewport::saveState (File fileToUse, String* xmlText)
 {
-
     String error;
 
     currentFile = fileToUse;
-    
-    std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
-    
-    AccessClass::getProcessorGraph()->saveToXml(xml.get());
 
-    if (! xml->writeTo(currentFile))
+    std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement> ("SETTINGS");
+
+    AccessClass::getProcessorGraph()->saveToXml (xml.get());
+
+    if (! xml->writeTo (currentFile))
         error = "Couldn't write to file ";
     else
         error = "Saved configuration as ";
 
     error += currentFile.getFileName();
-    
-    LOGD("Editor viewport saved state.");
+
+    LOGD ("Editor viewport saved state.");
 
     return error;
-    
 }
 
-void EditorViewport::saveEditorViewportSettingsToXml(XmlElement* xml)
+void EditorViewport::saveEditorViewportSettingsToXml (XmlElement* xml)
 {
-    XmlElement* editorViewportSettings = new XmlElement("EDITORVIEWPORT");
-    editorViewportSettings->setAttribute("selectedTab", signalChainTabComponent->getSelectedTab());
-    editorViewportSettings->setAttribute("scroll", signalChainTabComponent->getScrollOffset());
-    
-    xml->addChildElement(editorViewportSettings);
+    XmlElement* editorViewportSettings = new XmlElement ("EDITORVIEWPORT");
+    editorViewportSettings->setAttribute ("selectedTab", signalChainTabComponent->getSelectedTab());
+    editorViewportSettings->setAttribute ("scroll", signalChainTabComponent->getScrollOffset());
+
+    xml->addChildElement (editorViewportSettings);
 }
 
-void EditorViewport::loadEditorViewportSettingsFromXml(XmlElement* element)
+void EditorViewport::loadEditorViewportSettingsFromXml (XmlElement* element)
 {
     auto* pg = AccessClass::getProcessorGraph();
 
     int numRootNodes = pg->getRootNodes().size();
-    int selectedTab = element->getIntAttribute("selectedTab", 0);
+    int selectedTab = element->getIntAttribute ("selectedTab", 0);
 
     if (numRootNodes > 0 && selectedTab <= numRootNodes)
-        pg->viewSignalChain(selectedTab);
-    
-    int scrollOffset = element->getIntAttribute("scroll", 0);
-    
-    signalChainTabComponent->setScrollOffset(scrollOffset);
+        pg->viewSignalChain (selectedTab);
+
+    int scrollOffset = element->getIntAttribute ("scroll", 0);
+
+    signalChainTabComponent->setScrollOffset (scrollOffset);
 }
 
-
-const String EditorViewport::loadPluginState(File fileToLoad, GenericEditor* selectedEditor)
+const String EditorViewport::loadPluginState (File fileToLoad, GenericEditor* selectedEditor)
 {
-
     int numSelected = 0;
-    
+
     if (selectedEditor == nullptr)
     {
         for (auto editor : editorArray)
@@ -1525,44 +1446,46 @@ const String EditorViewport::loadPluginState(File fileToLoad, GenericEditor* sel
                 numSelected++;
             }
         }
-    } else {
+    }
+    else
+    {
         numSelected = 1;
     }
-    
+
     if (numSelected == 0)
     {
-        return("No editors selected.");
-        
-    } else if (numSelected > 1)
+        return ("No editors selected.");
+    }
+    else if (numSelected > 1)
     {
-        return("Multiple editors selected.");
-        
-    } else {
-        
-        XmlDocument doc(fileToLoad);
+        return ("Multiple editors selected.");
+    }
+    else
+    {
+        XmlDocument doc (fileToLoad);
         std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
-        
-        if (xml == 0 || ! xml->hasTagName("PROCESSOR"))
+
+        if (xml == 0 || ! xml->hasTagName ("PROCESSOR"))
         {
-            LOGC("Not a valid file.");
+            LOGC ("Not a valid file.");
             return "Not a valid file.";
-        } else {
-            
+        }
+        else
+        {
             AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
-            
-            LoadPluginSettings* action = new LoadPluginSettings(selectedEditor->getProcessor(), xml.get());
-            AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
+
+            LoadPluginSettings* action = new LoadPluginSettings (selectedEditor->getProcessor(), xml.get());
+            AccessClass::getProcessorGraph()->getUndoManager()->perform (action);
         }
     }
-    
+
     return "Success";
 }
-    
-const String EditorViewport::savePluginState(File fileToSave, GenericEditor* selectedEditor)
+
+const String EditorViewport::savePluginState (File fileToSave, GenericEditor* selectedEditor)
 {
-    
     int numSelected = 0;
-    
+
     if (selectedEditor == nullptr)
     {
         for (auto editor : editorArray)
@@ -1573,24 +1496,27 @@ const String EditorViewport::savePluginState(File fileToSave, GenericEditor* sel
                 numSelected++;
             }
         }
-    } else {
+    }
+    else
+    {
         numSelected = 1;
     }
-    
+
     if (numSelected == 0)
     {
-        return("No editors selected.");
-        
-    } else if (numSelected > 1)
+        return ("No editors selected.");
+    }
+    else if (numSelected > 1)
     {
-        return("Multiple editors selected.");
-    } else {
-        
+        return ("Multiple editors selected.");
+    }
+    else
+    {
         String error;
-        
-        XmlElement* settings = AccessClass::getProcessorGraph()->createNodeXml(selectedEditor->getProcessor(), false);
-        
-        if (! settings->writeTo(fileToSave))
+
+        XmlElement* settings = AccessClass::getProcessorGraph()->createNodeXml (selectedEditor->getProcessor(), false);
+
+        if (! settings->writeTo (fileToSave))
             error = "Couldn't write to file ";
         else
             error = "Saved plugin settings to ";
@@ -1598,98 +1524,85 @@ const String EditorViewport::savePluginState(File fileToSave, GenericEditor* sel
         error += fileToSave.getFileName();
 
         delete settings;
-        
-        return error;
-        
-    }
 
+        return error;
+    }
 }
 
 std::unique_ptr<XmlElement> EditorViewport::createSettingsXml()
 {
-    std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
-    
-    AccessClass::getProcessorGraph()->saveToXml(xml.get());
-    
+    std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement> ("SETTINGS");
+
+    AccessClass::getProcessorGraph()->saveToXml (xml.get());
+
     return xml;
 }
 
-XmlElement* EditorViewport::createNodeXml(GenericProcessor* processor, bool isStartOfSignalChain)
+XmlElement* EditorViewport::createNodeXml (GenericProcessor* processor, bool isStartOfSignalChain)
 {
-    XmlElement* node = AccessClass::getProcessorGraph()->createNodeXml(processor, isStartOfSignalChain);
+    XmlElement* node = AccessClass::getProcessorGraph()->createNodeXml (processor, isStartOfSignalChain);
     return node;
 }
 
-
-const String EditorViewport::loadState(File fileToLoad)
+const String EditorViewport::loadState (File fileToLoad)
 {
-    
     currentFile = fileToLoad;
 
-    LOGC("Loading configuration from ", fileToLoad.getFullPathName());
-   
-    XmlDocument doc(currentFile);
+    LOGC ("Loading configuration from ", fileToLoad.getFullPathName());
+
+    XmlDocument doc (currentFile);
     std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
-    
-    if (xml == 0 || ! xml->hasTagName("SETTINGS"))
+
+    if (xml == 0 || ! xml->hasTagName ("SETTINGS"))
     {
-        LOGC("Not a valid configuration file.");
+        LOGC ("Not a valid configuration file.");
         return "Not a valid file.";
     }
 
     AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
-    
-    LoadSignalChain* action = new LoadSignalChain(xml);
-    AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
 
-    CoreServices::sendStatusMessage("Loaded " + fileToLoad.getFileName());
-    
+    LoadSignalChain* action = new LoadSignalChain (xml);
+    AccessClass::getProcessorGraph()->getUndoManager()->perform (action);
+
+    CoreServices::sendStatusMessage ("Loaded " + fileToLoad.getFileName());
+
     return "Loaded signal chain.";
-    
 }
 
-const String EditorViewport::loadStateFromXml(XmlElement* xml)
+const String EditorViewport::loadStateFromXml (XmlElement* xml)
 {
-    
-    AccessClass::getProcessorGraph()->loadFromXml(xml);
+    AccessClass::getProcessorGraph()->loadFromXml (xml);
     return String();
 }
 
 void EditorViewport::deleteSelectedProcessors()
 {
-
     if (signalChainIsLocked)
         return;
-    
+
     AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
 
-    Array<GenericEditor*> editors = Array(editorArray);
-    
+    Array<GenericEditor*> editors = Array (editorArray);
+
     for (auto editor : editors)
     {
-        if (!editor->getProcessor()->isEmpty() && editor->getSelectionState())
+        if (! editor->getProcessor()->isEmpty() && editor->getSelectionState())
         {
-            editorArray.remove(editorArray.indexOf(editor));
-            DeleteProcessor* action = new DeleteProcessor(editor->getProcessor());
-            AccessClass::getProcessorGraph()->getUndoManager()->perform(action);
+            editorArray.remove (editorArray.indexOf (editor));
+            DeleteProcessor* action = new DeleteProcessor (editor->getProcessor());
+            AccessClass::getProcessorGraph()->getUndoManager()->perform (action);
         }
     }
-
 }
 
-Plugin::Description EditorViewport::getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId)
+Plugin::Description EditorViewport::getDescriptionFromXml (XmlElement* settings, bool ignoreNodeId)
 {
-    
-    return AccessClass::getProcessorGraph()->getDescriptionFromXml(settings, ignoreNodeId);
-
+    return AccessClass::getProcessorGraph()->getDescriptionFromXml (settings, ignoreNodeId);
 }
 
-GenericProcessor* EditorViewport::createProcessorAtInsertionPoint(XmlElement* parametersAsXml,
-                                                                  int insertionPt,
-                                                                  bool ignoreNodeId)
+GenericProcessor* EditorViewport::createProcessorAtInsertionPoint (XmlElement* parametersAsXml,
+                                                                   int insertionPt,
+                                                                   bool ignoreNodeId)
 {
-    
-    return AccessClass::getProcessorGraph()->createProcessorAtInsertionPoint(parametersAsXml, insertionPt, ignoreNodeId);
-    
+    return AccessClass::getProcessorGraph()->createProcessorAtInsertionPoint (parametersAsXml, insertionPt, ignoreNodeId);
 }
-

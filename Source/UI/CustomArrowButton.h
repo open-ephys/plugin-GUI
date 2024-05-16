@@ -2,7 +2,7 @@
  ------------------------------------------------------------------
 
  This file is part of the Open Ephys GUI
- Copyright (C) 2014 Florian Franzen
+ Copyright (C) 2024 Florian Franzen
 
  ------------------------------------------------------------------
 
@@ -34,26 +34,23 @@
 class CustomArrowButton : public ToggleButton
 {
 public:
-    
     /** Constructor*/
-    CustomArrowButton(float rotation = 0.0f, float width = 22.0f);
-    
+    CustomArrowButton (float rotation = 0.0f, float width = 22.0f);
+
     /** Destructor*/
-    ~CustomArrowButton() { }
+    ~CustomArrowButton() {}
 
     /** Draws the button. */
-    void paint(Graphics& g) override;
-    
+    void paint (Graphics& g) override;
+
     /** Sets the background colour (colour of center of arrow)  */
-    void setCustomBackground(bool useCustomBackground, Colour colour);
+    void setCustomBackground (bool useCustomBackground, Colour colour);
 
 private:
-
     Path openPath, closedPath;
     Colour backgroundColour;
     float width;
     bool customBackground = false;
-
 };
 
-#endif   // __CUSTOMARROWBUTTON__
+#endif // __CUSTOMARROWBUTTON__

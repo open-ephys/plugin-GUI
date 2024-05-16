@@ -2,7 +2,7 @@
  ------------------------------------------------------------------
  
  This file is part of the Open Ephys GUI
- Copyright (C) 2016 Open Ephys
+ Copyright (C) 2024 Open Ephys
  
  ------------------------------------------------------------------
  
@@ -36,7 +36,6 @@ class GraphViewer;
 class GraphNode;
 class DataStreamButton;
 
-
 /**
  Represents a DataStream handled by a given processor.
 
@@ -44,27 +43,26 @@ class DataStreamButton;
 */
 
 class DataStreamInfo : public Component,
-    public Button::Listener
+                       public Button::Listener
 {
 public:
-
     /** Constructor */
-    DataStreamInfo(DataStream* stream, GenericEditor* editor, GraphNode* node);
+    DataStreamInfo (DataStream* stream, GenericEditor* editor, GraphNode* node);
 
     /** Destructor */
     ~DataStreamInfo();
 
     /** Paint component */
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
     /** To respond to clicks in the DataStreamPanel*/
-    void buttonClicked(Button* button) override;
+    void buttonClicked (Button* button) override;
 
     /** Returns height of the data stream editor */
-	int getDesiredHeight() const;
+    int getDesiredHeight() const;
 
     /** Returns max height of the data stream editor */
-	int getMaxHeight() const;
+    int getMaxHeight() const;
 
     /** Returns the stream key */
     String getStreamKey() const;
@@ -75,19 +73,17 @@ public:
     DataStreamButton* headerButton = nullptr;
 
 private:
-
     DataStream* stream;
     GraphNode* node;
 
     std::unique_ptr<ConcertinaPanel> parameterPanel;
     std::unique_ptr<Component> streamParameterEditorComponent;
     DataStreamButton* parameterButton = nullptr;
-    
+
     OwnedArray<ParameterEditor> parameterEditors;
 
     int heightInPixels;
     int editorHeight;
-
 };
 
 /* 
@@ -96,15 +92,14 @@ private:
 class ProcessorParameterComponent : public Component
 {
 public:
-
     /** Constructor */
-    ProcessorParameterComponent(GenericProcessor* processor);
+    ProcessorParameterComponent (GenericProcessor* processor);
 
     /** Destructor */
     ~ProcessorParameterComponent();
 
     /** Paint component */
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
     /** Called when the node needs to update the view of its parameter editors.*/
     void updateView();
@@ -112,15 +107,12 @@ public:
     int heightInPixels;
 
 private:
-
     GenericProcessor* processor;
 
     std::unique_ptr<Component> editorComponent;
-    
+
     OwnedArray<ParameterEditor> parameterEditors;
-
 };
-
 
 /**
  Represents a DataStream handled by a given processor.
@@ -131,28 +123,25 @@ private:
 class DataStreamButton : public Button
 {
 public:
-
     /** Constructor */
-    DataStreamButton(DataStreamInfo* info, GenericEditor* editor, const String& text);
+    DataStreamButton (DataStreamInfo* info, GenericEditor* editor, const String& text);
 
     /** Destructor */
     ~DataStreamButton();
 
     /** Returns height of the data stream editor */
-	int getDesiredHeight() const;
+    int getDesiredHeight() const;
 
     /** Paint component */
-    void paintButton(Graphics& g, bool isHighlighted, bool isDown);
+    void paintButton (Graphics& g, bool isHighlighted, bool isDown);
 
     DataStreamInfo* getDataStreamInfo() const { return info; }
 
 private:
-
     DataStreamInfo* info;
     Path pathOpen;
     Path pathClosed;
     GenericEditor* editor;
-
 };
 
 /**
@@ -162,40 +151,39 @@ private:
 */
 
 class GraphNode : public Component,
-    public Button::Listener
+                  public Button::Listener
 {
 public:
-    
     /** Constructor */
     GraphNode (GenericEditor* editor, GraphViewer* g);
-    
+
     /** Destructor */
     ~GraphNode();
-    
+
     /** Paint component */
-    void paint (Graphics& g)    override;
+    void paint (Graphics& g) override;
 
     /** Paint over children */
-    void paintOverChildren (Graphics& g)    override;
+    void paintOverChildren (Graphics& g) override;
 
     /** Behavior on start of mouse hover */
     void mouseEnter (const MouseEvent& event) override;
-    
+
     /** Behavior on end of mouse hover */
-    void mouseExit  (const MouseEvent& event) override;
-    
+    void mouseExit (const MouseEvent& event) override;
+
     /** Behavior on mouse click */
-    void mouseDown  (const MouseEvent& event) override;
+    void mouseDown (const MouseEvent& event) override;
 
     /** Behavior on mouse double click */
-    void mouseDoubleClick(const MouseEvent& event) override;
+    void mouseDoubleClick (const MouseEvent& event) override;
 
     /** Indicates whether node has an editor component */
     bool hasEditor (GenericEditor* editor) const;
 
     /** To respond to DataStreamButton clicks */
-    void buttonClicked(Button* button);
-    
+    void buttonClicked (Button* button);
+
     /** Returns location of component center point */
     juce::Point<float> getCenterPoint() const;
 
@@ -204,50 +192,50 @@ public:
 
     /** Returns location of component end point */
     juce::Point<float> getDestPoint() const;
-    
+
     /** Returns processor for the node*/
     GenericProcessor* getProcessor() const { return processor; }
 
     /** Returns editor of downstream node */
-    GenericEditor* getDest()    const;
-    
+    GenericEditor* getDest() const;
+
     /** Returns editor of upstream node */
-    GenericEditor* getSource()  const;
-    
+    GenericEditor* getSource() const;
+
     /** Returns array of editors for all connected nodes (splitter and merger only) */
     Array<GenericEditor*> getConnectedEditors() const;
-    
+
     /** Returns true if node is a splitter */
     bool isSplitter() const;
-    
+
     /** Returns true if node is a merger */
-    bool isMerger()   const;
-    
+    bool isMerger() const;
+
     /** Returns name of the underlying processor */
     const String getName() const;
-    
+
     /** Returns level (y-position) of node in graph display */
-    int getLevel()     const;
-    
+    int getLevel() const;
+
     /** Returns horizontal shift (x-position of node in graph display */
     int getHorzShift() const;
 
     /** Returns collapsed bottom of node in graph display */
     int getCollapsedBottom() const;
-    
+
     /** Sets the level (y-position) of node in graph display */
     void setLevel (int newLevel);
-    
+
     /** Sets the width of node in graph display */
     void setWidth (int newWidth);
-    
+
     /** Sets the horizontal shift (x-position of node in graph display) */
     void setHorzShift (int newHorizontalShift);
-    
+
     /** Not currently used (consider deleting) */
     //void switchIO (int path);
-    void verticalShift(int pixels);
-    
+    void verticalShift (int pixels);
+
     /** Adjusts the boundaries of this node, based on its inputs and outputs*/
     void updateBoundaries();
 
@@ -258,7 +246,7 @@ public:
     void updateGraphView();
 
     /* Sets DataStreamInfo panel size */
-    void setDataStreamPanelSize(Component* streamPanelComponent, int height);
+    void setDataStreamPanelSize (Component* streamPanelComponent, int height);
 
     /** Restores panel states */
     void restorePanels();
@@ -274,12 +262,11 @@ public:
 
     /** Stores stream parameter panel visibility state */
     std::map<String, bool> streamParamsVisible;
-    
+
 private:
     GenericEditor* editor;
     GenericProcessor* processor;
     GraphViewer* gv;
-    
 
     String getInfoString();
 
@@ -290,19 +277,18 @@ private:
 
     std::unique_ptr<ProcessorParameterComponent> processorParamComponent;
     Component* processorParamHeader;
-    
+
     bool isMouseOver;
     int horzShift;
     int vertShift;
     int nodeWidth;
-    
+
     int nodeId;
 
     int previousHeight;
 
     int verticalOffset;
 };
-
 
 /**
     Allows the GraphViewer to be scrolled
@@ -312,21 +298,21 @@ class GraphViewport : public Visualizer
 {
 public:
     /** Constructor */
-    GraphViewport(GraphViewer* gv);
+    GraphViewport (GraphViewer* gv);
 
     /** Destructor */
-    ~GraphViewport() { }
+    ~GraphViewport() {}
 
     /** Draws the Open Ephys Logo*/
-    void paint(Graphics& g) override;
+    void paint (Graphics& g) override;
 
     /** Visualizer virtual functions */
-    void refresh() { }
-    void refreshState() { }
+    void refresh() {}
+    void refreshState() {}
 
     /** Sets viewport bounds*/
     void resized() override;
-    
+
     /** Called when look and feel is updated */
     void lookAndFeelChanged() override;
 
@@ -355,53 +341,52 @@ private:
 class GraphViewer : public Component
 {
 public:
-    
     /** Constructor */
     GraphViewer();
-    
+
     /** Destructor */
-    ~GraphViewer() { }
-    
+    ~GraphViewer() {}
+
     /** Draws the GraphViewer.*/
-    void paint (Graphics& g)    override;
+    void paint (Graphics& g) override;
 
     /** Draws the drop shadows for nodes.*/
     void paintOverChildren (Graphics& g) override;
 
     /** Resizes the component, based on the bottom-most node*/
     void updateBoundaries();
-    
+
     /** Adds a graph node for a particular processor */
-    void updateNodes    (GenericProcessor* processor, Array<GenericProcessor*> rootProcessors);
-    
+    void updateNodes (GenericProcessor* processor, Array<GenericProcessor*> rootProcessors);
+
     /** Adds a graph node for a particular processor */
-    void addNode    (GenericEditor* editor, int level, int offset);
+    void addNode (GenericEditor* editor, int level, int offset);
 
     /** Sets a graph node to be removed during next update */
     void removeNode (GenericProcessor* processor);
-    
+
     /** Clears the graph */
     void removeAllNodes();
-    
+
     /** Returns the graph node for a particular processor editor */
     GraphNode* getNodeForEditor (GenericEditor* editor) const;
-    
-    int getIndexOfEditor(GenericEditor* editor) const;
-    
+
+    int getIndexOfEditor (GenericEditor* editor) const;
+
     /** Checks if a node exists for a given processor*/
-    bool nodeExists(GenericProcessor* processor);
+    bool nodeExists (GenericProcessor* processor);
 
     /** Returns a pointer to the top-level component */
     GraphViewport* getGraphViewport() { return graphViewport.get(); }
 
-    int getLevelStartY(int level) const;
+    int getLevelStartY (int level) const;
 
     /** Save settings. */
-    void saveStateToXml(XmlElement*);
+    void saveStateToXml (XmlElement*);
 
     /** Load settings. */
-    void loadStateFromXml(XmlElement*);
-    
+    void loadStateFromXml (XmlElement*);
+
 private:
     void connectNodes (int, int, Graphics&);
 
@@ -416,8 +401,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphViewer);
 };
 
-
-
-
-
-#endif  // __GRAPHVIEWER_H_4E971BF9__
+#endif // __GRAPHVIEWER_H_4E971BF9__

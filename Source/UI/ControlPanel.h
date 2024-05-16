@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,17 +25,17 @@
 #define __CONTROLPANEL_H_AD81E528__
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "../AccessClass.h"
 #include "../Audio/AudioComponent.h"
 #include "../Processors/AudioNode/AudioEditor.h"
-#include "../Processors/ProcessorGraph/ProcessorGraph.h"
-#include "../Processors/RecordNode/RecordNode.h"
-#include "../Processors/RecordNode/RecordEngine.h"
-#include "LookAndFeel/CustomLookAndFeel.h"
-#include "CustomArrowButton.h"
-#include "../AccessClass.h"
 #include "../Processors/Editors/GenericEditor.h" // for UtilityButton
-#include "FilenameConfigWindow.h"
+#include "../Processors/ProcessorGraph/ProcessorGraph.h"
+#include "../Processors/RecordNode/RecordEngine.h"
+#include "../Processors/RecordNode/RecordNode.h"
 #include "../TestableExport.h"
+#include "CustomArrowButton.h"
+#include "FilenameConfigWindow.h"
+#include "LookAndFeel/CustomLookAndFeel.h"
 #include <queue>
 
 /** 
@@ -47,16 +47,14 @@
 class FilenameEditorButton : public TextButton
 {
 public:
-
     /** Constructor */
     FilenameEditorButton();
 
     /** Destructor */
     ~FilenameEditorButton() {}
 
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
-
 
 /**
 
@@ -75,13 +73,12 @@ public:
 class PlayButton : public DrawableButton
 {
 public:
-    
     /** Constructor*/
     PlayButton();
-    
+
     /** Destructor*/
-    ~PlayButton() { }
-    
+    ~PlayButton() {}
+
     /** Re-makes images with new colors */
     void updateImages();
 };
@@ -104,13 +101,12 @@ public:
 class RecordButton : public DrawableButton
 {
 public:
-    
     /** Constructor*/
     RecordButton();
-    
+
     /** Destructor*/
-    ~RecordButton() { }
-    
+    ~RecordButton() {}
+
     /** Re-makes images with new colors */
     void updateImages();
 };
@@ -134,25 +130,22 @@ public:
 class CPUMeter : public Label
 {
 public:
-    
     /** Constructor*/
     CPUMeter();
-    
+
     /** Destructor*/
-    ~CPUMeter() { }
+    ~CPUMeter() {}
 
     /** Updates the load level displayed by the CPUMeter. Called by
          the ControlPanel. */
-    void updateCPU(float usage);
+    void updateCPU (float usage);
 
     /** Draws the CPUMeter. */
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
 private:
-
     Font font;
     float cpu;
-
 };
 
 /**
@@ -172,26 +165,23 @@ class DiskSpaceMeter : public Component,
                        public SettableTooltipClient
 {
 public:
-    
     /** Constructor*/
     DiskSpaceMeter();
-    
+
     /** Destructor*/
-    ~DiskSpaceMeter() { }
+    ~DiskSpaceMeter() {}
 
     /** Updates the free disk space displayed by the DiskSpaceMeter. Called by
     	the ControlPanel. */
-    void updateDiskSpace(float percent);
+    void updateDiskSpace (float percent);
 
     /** Draws the DiskSpaceMeter. */
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
 private:
-
     Font font;
 
     float diskFree;
-
 };
 
 /**
@@ -213,17 +203,17 @@ private:
 class Clock : public Component
 {
 public:
-
-    enum Mode {
+    enum Mode
+    {
         DEFAULT,
         HHMMSS
     };
-    
+
     /** Constructor*/
     Clock();
-    
+
     /** Destructor*/
-    ~Clock() { }
+    ~Clock() {}
 
     /** Starts the acquisition (yellow) clock.*/
     void start();
@@ -241,21 +231,20 @@ public:
     void resetRecordTime();
 
     /** Renders the clock.*/
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
     /** Sets the clock mode*/
-	void setMode(Mode m);
+    void setMode (Mode m);
 
     /** Gets the clock mode*/
     Mode getMode() { return mode; }
 
     /** Responds to right clicks*/
-    void mouseDown(const MouseEvent& e);
+    void mouseDown (const MouseEvent& e);
 
 private:
-
     /** Draws the current time.*/
-    void drawTime(Graphics& g);
+    void drawTime (Graphics& g);
 
     int64 lastTime;
 
@@ -268,9 +257,7 @@ private:
     Font clockFont;
 
     Mode mode;
-
 };
-
 
 class UtilityButton;
 
@@ -289,16 +276,16 @@ class UtilityButton;
 */
 
 class TESTABLE ControlPanel : public Component,
-    public Button::Listener,
-    public Timer,
-    public Label::Listener,
-    public ComboBox::Listener,
-    public ComponentListener
+                              public Button::Listener,
+                              public Timer,
+                              public Label::Listener,
+                              public ComboBox::Listener,
+                              public ComponentListener
 
 {
 public:
     /** Constructor */
-    ControlPanel(ProcessorGraph* graph, AudioComponent* audio, bool isConsoleApp);
+    ControlPanel (ProcessorGraph* graph, AudioComponent* audio, bool isConsoleApp);
 
     /** Destructor */
     ~ControlPanel();
@@ -308,7 +295,7 @@ public:
     void disableCallbacks();
 
     /** Sets whether or not the FilenameComponent is visible.*/
-    void openState(bool isOpen);
+    void openState (bool isOpen);
 
     /** Toggles the visibility of the FilenameComponent.*/
     void toggleState();
@@ -317,10 +304,10 @@ public:
     bool getAcquisitionState();
 
     /** Used to manually turn recording on and off.*/
-    void setAcquisitionState(bool state);
+    void setAcquisitionState (bool state);
 
     /** Called to start acquisition*/
-    void startAcquisition(bool startRecording = false);
+    void startAcquisition (bool startRecording = false);
 
     /** Called to end acquisition */
     void stopAcquisition();
@@ -333,10 +320,10 @@ public:
     }
 
     /** Notifies the control panel when the filename is updated */
-    void labelTextChanged(Label*);
+    void labelTextChanged (Label*);
 
     /** Used to manually turn recording on and off.*/
-    void setRecordingState(bool isRecording, bool force=false);
+    void setRecordingState (bool isRecording, bool force = false);
 
     /** Returns true if recording is active, false otherwise. */
     bool getRecordingState();
@@ -360,7 +347,7 @@ public:
         "Record Node <ID>" is based on the processor ID for each Record Node,
         and can't be changed manually.
     */
-    void setRecordingParentDirectory(String path);
+    void setRecordingParentDirectory (String path);
 
     /** Returns the current parent recording diretory*/
     File getRecordingParentDirectory();
@@ -370,7 +357,7 @@ public:
 
     /** Sets the base name of the recording directory (overrides the auto-generated text,
         but not prepend or append text)*/
-    void setRecordingDirectoryBaseText(String text);
+    void setRecordingDirectoryBaseText (String text);
 
     /** Gets the name of the current recording directory (including prepend and append text)
     
@@ -385,19 +372,19 @@ public:
     String getRecordingDirectoryPrependText();
 
     /** Manually sets the text to be prepended to the recording directory (overrides auto-generated text)*/
-    void setRecordingDirectoryPrependText(String text);
+    void setRecordingDirectoryPrependText (String text);
 
     /** Returns the append text used to generate the recording directory name */
     String getRecordingDirectoryAppendText();
 
     /** Manually sets the text to be appended to the recording directory (overrides auto-generated text)*/
-    void setRecordingDirectoryAppendText(String text);
+    void setRecordingDirectoryAppendText (String text);
 
     /** Save settings. */
-    void saveStateToXml(XmlElement*);
+    void saveStateToXml (XmlElement*);
 
     /** Load settings. */
-    void loadStateFromXml(XmlElement*);
+    void loadStateFromXml (XmlElement*);
 
     /** Returns a list of recently used directories for saving data. */
     Array<String> getRecentlyUsedFilenames();
@@ -409,7 +396,7 @@ public:
     void updateRecordEngineList();
 
     /** Selects a new record engine */
-    void setSelectedRecordEngine(int index);
+    void setSelectedRecordEngine (int index);
 
     /** Returns a list of available engines*/
     std::vector<RecordEngineManager*> getAvailableRecordEngines();
@@ -418,11 +405,11 @@ public:
     String getSelectedRecordEngineId();
 
     /** Sets the current record engine (will only apply to future Record Nodes) */
-	bool setSelectedRecordEngineId(String id);
+    bool setSelectedRecordEngineId (String id);
 
     /** Generates the current datetime based on the input formatting string */
-    String generateDatetimeFromFormat(String format);
-    
+    String generateDatetimeFromFormat (String format);
+
     /** Updates button colors when color theme changes */
     void updateColors();
 
@@ -432,7 +419,6 @@ public:
     std::unique_ptr<Clock> clock;
 
 private:
-
     /** Informs the Control Panel that recording has begun.*/
     void startRecording();
 
@@ -440,8 +426,8 @@ private:
     void stopRecording();
 
     /** Generates the next recording directory based on field settings **/
-    String generateFilenameFromFields(bool usePlaceholderText);
-    
+    String generateFilenameFromFields (bool usePlaceholderText);
+
     bool forceRecording;
 
     std::unique_ptr<PlayButton> playButton;
@@ -457,20 +443,20 @@ private:
     Array<std::shared_ptr<FilenameFieldComponent>> filenameFields;
 
     /* Popup window for editing recording filename fields */
-    void componentBeingDeleted(Component &component);
+    void componentBeingDeleted (Component& component);
 
     ProcessorGraph* graph;
     AudioComponent* audio;
     AudioEditor* audioEditor;
 
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
     void resized();
 
-    void paintButton(Graphics& g);
-    void buttonClicked(Button* button);
+    void paintButton (Graphics& g);
+    void buttonClicked (Button* button);
 
-    void comboBoxChanged(ComboBox* combo);
+    void comboBoxChanged (ComboBox* combo);
 
     bool initialize;
     bool isConsoleApp;
@@ -480,7 +466,7 @@ private:
     /** Updates the values displayed by the CPUMeter and DiskSpaceMeter.*/
     void refreshMeters();
 
-    bool keyPressed(const KeyPress& key);
+    bool keyPressed (const KeyPress& key);
 
     Font font;
 
@@ -496,8 +482,6 @@ private:
     OwnedArray<RecordEngineManager> recordEngines;
     std::unique_ptr<UtilityButton> recordOptionsButton;
     int lastEngineIndex;
-
 };
 
-
-#endif  // __CONTROLPANEL_H_AD81E528__
+#endif // __CONTROLPANEL_H_AD81E528__

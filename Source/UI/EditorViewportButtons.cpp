@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,33 +25,30 @@
 
 #include "LookAndFeel/CustomLookAndFeel.h"
 
-SignalChainScrollButton::SignalChainScrollButton(int direction)
-    : TextButton("Signal Chain Scroll Button " + String(direction))
+SignalChainScrollButton::SignalChainScrollButton (int direction)
+    : TextButton ("Signal Chain Scroll Button " + String (direction))
 {
-
     if (direction == DOWN)
     {
-        path.addTriangle(0.0f, 0.0f, 9.0f, 20.0f, 18.0f, 0.0f);
+        path.addTriangle (0.0f, 0.0f, 9.0f, 20.0f, 18.0f, 0.0f);
     }
     else
     {
-        path.addTriangle(0.0f, 20.0f, 9.0f, 0.0f, 18.0f, 20.0f);
+        path.addTriangle (0.0f, 20.0f, 9.0f, 0.0f, 18.0f, 20.0f);
     }
 
-    setClickingTogglesState(false);
-
+    setClickingTogglesState (false);
 }
 
-void SignalChainScrollButton::setActive(bool state)
+void SignalChainScrollButton::setActive (bool state)
 {
     isActive = state;
 }
 
-void SignalChainScrollButton::paintButton(Graphics& g, bool isMouseOverButton, bool isButtonDown)
+void SignalChainScrollButton::paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown)
 {
+    g.setColour (findColour (ThemeColors::defaultFill));
+    path.scaleToFit (0, 0, getWidth(), getHeight(), true);
 
-	g.setColour(findColour(ThemeColors::defaultFill));
-    path.scaleToFit(0, 0, getWidth(), getHeight(), true);
-
-    g.strokePath(path, PathStrokeType(1.0f, PathStrokeType::curved, PathStrokeType::rounded));
+    g.strokePath (path, PathStrokeType (1.0f, PathStrokeType::curved, PathStrokeType::rounded));
 }

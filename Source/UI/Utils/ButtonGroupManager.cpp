@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -26,45 +26,36 @@
 
 #include <algorithm>
 
-
 ButtonGroupManager::ButtonGroupManager()
-    : m_isRadioButtonMode       (true)
-    , m_buttonListener          (nullptr)
-    , m_buttonsLookAndFeel      (nullptr)
-    , m_componentProxyHandler   (new Component)
+    : m_isRadioButtonMode (true), m_buttonListener (nullptr), m_buttonsLookAndFeel (nullptr), m_componentProxyHandler (new Component)
 {
     addAndMakeVisible (m_buttonsViewport);
     m_buttonsViewport.setViewedComponent (m_componentProxyHandler, false);
     m_buttonsViewport.setScrollBarsShown (false, false, true, false);
 }
 
-
 ButtonGroupManager::~ButtonGroupManager()
 {
     m_buttons.clear();
 }
 
-
 void ButtonGroupManager::resized()
 {
-    const int width  = getWidth();
+    const int width = getWidth();
     const int height = getHeight();
 
     if (m_buttons.size())
-        m_componentProxyHandler->setBounds (0, 0, width, jmax (height,
-                                                               m_buttons[m_buttons.size() - 1]->getBounds().getBottom()));
+        m_componentProxyHandler->setBounds (0, 0, width, jmax (height, m_buttons[m_buttons.size() - 1]->getBounds().getBottom()));
     else
         m_componentProxyHandler->setBounds (0, 0, width, height);
 
     m_buttonsViewport.setBounds (0, 0, getWidth(), getHeight());
 }
 
-
 void ButtonGroupManager::colourChanged()
 {
     repaint();
 }
-
 
 void ButtonGroupManager::buttonClicked (Button* buttonThatWasClicked)
 {
@@ -72,12 +63,10 @@ void ButtonGroupManager::buttonClicked (Button* buttonThatWasClicked)
         m_buttonListener->buttonClicked (buttonThatWasClicked);
 }
 
-
 int ButtonGroupManager::getNumButtons() const
 {
     return m_buttons.size();
 }
-
 
 Button* ButtonGroupManager::getButtonAt (int index) const
 {
@@ -86,12 +75,10 @@ Button* ButtonGroupManager::getButtonAt (int index) const
     return m_buttons[index];
 }
 
-
 bool ButtonGroupManager::isRadioButtonMode() const
 {
     return m_isRadioButtonMode;
 }
-
 
 void ButtonGroupManager::addButton (Button* newButton, bool useDefaultLookAndFeel)
 {
@@ -111,7 +98,6 @@ void ButtonGroupManager::addButton (Button* newButton, bool useDefaultLookAndFee
     resized();
 }
 
-
 void ButtonGroupManager::removeButton (int index)
 {
     if (index < 0
@@ -124,18 +110,15 @@ void ButtonGroupManager::removeButton (int index)
     m_buttons.remove (index);
 }
 
-
 void ButtonGroupManager::removeAllButtons()
 {
     m_buttons.clear();
 }
 
-
 void ButtonGroupManager::clear()
 {
     removeAllButtons();
 }
-
 
 void ButtonGroupManager::setRadioButtonMode (bool isRadioButtonMode)
 {
@@ -144,23 +127,21 @@ void ButtonGroupManager::setRadioButtonMode (bool isRadioButtonMode)
     const int numButtons = m_buttons.size();
     for (int i = 0; i < numButtons; ++i)
     {
-        m_buttons[i]->setRadioGroupId ( (int)isRadioButtonMode);
+        m_buttons[i]->setRadioGroupId ((int) isRadioButtonMode);
     }
 
     repaint();
 }
-
 
 void ButtonGroupManager::setButtonsLookAndFeel (LookAndFeel* newButtonsLookAndFeel)
 {
     m_buttonsLookAndFeel = newButtonsLookAndFeel;
 
     std::for_each (m_buttons.begin(), m_buttons.end(), [this] (Button* button)
-                    { button->setLookAndFeel (m_buttonsLookAndFeel); });
+                   { button->setLookAndFeel (m_buttonsLookAndFeel); });
 
     repaint();
 }
-
 
 void ButtonGroupManager::setButtonListener (Button::Listener* newListener)
 {

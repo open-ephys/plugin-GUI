@@ -2,7 +2,7 @@
  ------------------------------------------------------------------
  
  This file is part of the Open Ephys GUI
- Copyright (C) 2014 Open Ephys
+ Copyright (C) 2024 Open Ephys
  
  ------------------------------------------------------------------
  
@@ -22,9 +22,9 @@
  */
 
 #include "GraphViewer.h"
+#include "../Processors/Merger/Merger.h"
 #include "../Processors/Splitter/Splitter.h"
 #include "../Processors/Splitter/SplitterEditor.h"
-#include "../Processors/Merger/Merger.h"
 #include "../Utils/Utils.h"
 
 #include "../Processors/Settings/DataStream.h"
@@ -37,41 +37,40 @@ const int NODE_HEIGHT = 50;
 const int X_BORDER_SIZE = 45;
 const int Y_BORDER_SIZE = 20;
 
-GraphViewport::GraphViewport(GraphViewer* gv)
+GraphViewport::GraphViewport (GraphViewer* gv)
 {
     viewport = std::make_unique<Viewport>();
-    viewport->setViewedComponent(gv, false);
-    viewport->setScrollBarThickness(12.0f);
-    gv->setVisible(true);
-    addAndMakeVisible(viewport.get());
+    viewport->setViewedComponent (gv, false);
+    viewport->setScrollBarThickness (12.0f);
+    gv->setVisible (true);
+    addAndMakeVisible (viewport.get());
 
     JUCEApplication* app = JUCEApplication::getInstance();
     currentVersionText = "GUI version " + app->getApplicationVersion();
 
-    bw_logo = ImageCache::getFromMemory(BinaryData::bw_logo72_png, BinaryData::bw_logo72_pngSize);
-    color_logo = ImageCache::getFromMemory(BinaryData::color_logo72_png, BinaryData::color_logo72_pngSize);
-    
-    current_logo = &bw_logo;
+    bw_logo = ImageCache::getFromMemory (BinaryData::bw_logo72_png, BinaryData::bw_logo72_pngSize);
+    color_logo = ImageCache::getFromMemory (BinaryData::color_logo72_png, BinaryData::color_logo72_pngSize);
 
+    current_logo = &bw_logo;
 }
 
-void GraphViewport::paint(Graphics& g)
+void GraphViewport::paint (Graphics& g)
 {
-    g.fillAll(findColour(ThemeColors::componentParentBackground));
-    g.setOpacity(0.6f);
-    
-    g.drawImageAt(*current_logo, getWidth() - 175, getHeight() - 115);
+    g.fillAll (findColour (ThemeColors::componentParentBackground));
+    g.setOpacity (0.6f);
 
-    g.setOpacity(1.0f);
-    g.setColour(findColour(ThemeColors::componentBackground).brighter(0.3f));
+    g.drawImageAt (*current_logo, getWidth() - 175, getHeight() - 115);
 
-    g.setFont(Font("Silkscreen", "Regular", 15));
-    g.drawFittedText(currentVersionText, 40, 40, getWidth() - 72, getHeight() - 60, Justification::bottomRight, 100);
+    g.setOpacity (1.0f);
+    g.setColour (findColour (ThemeColors::componentBackground).brighter (0.3f));
+
+    g.setFont (Font ("Silkscreen", "Regular", 15));
+    g.drawFittedText (currentVersionText, 40, 40, getWidth() - 72, getHeight() - 60, Justification::bottomRight, 100);
 }
 
 void GraphViewport::resized()
 {
-    viewport->setBounds(0, 0, getWidth(), getHeight());
+    viewport->setBounds (0, 0, getWidth(), getHeight());
 }
 
 void GraphViewport::lookAndFeelChanged()
@@ -84,8 +83,8 @@ void GraphViewport::lookAndFeelChanged()
 
 GraphViewer::GraphViewer()
 {
-    setBufferedToImage(true);
-    graphViewport = std::make_unique<GraphViewport>(this);
+    setBufferedToImage (true);
+    graphViewport = std::make_unique<GraphViewport> (this);
 }
 
 void GraphViewer::updateBoundaries()
@@ -102,24 +101,23 @@ void GraphViewer::updateBoundaries()
             maxWidth = node->getRight();
     }
 
-    setSize(maxWidth + 20, maxHeight + 20);
+    setSize (maxWidth + 20, maxHeight + 20);
 }
 
-
-void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcessor*> newRoots)
+void GraphViewer::updateNodes (GenericProcessor* processor, Array<GenericProcessor*> newRoots)
 {
     // Remove nodes that are not needed anymore
     Array<GraphNode*> nodesToDelete;
 
     for (auto node : availableNodes)
     {
-        if (!node->stillNeeded)
-            nodesToDelete.add(node);
+        if (! node->stillNeeded)
+            nodesToDelete.add (node);
     }
 
     for (auto node : nodesToDelete)
     {
-        availableNodes.removeObject(node, true);
+        availableNodes.removeObject (node, true);
     }
 
     rootProcessors = newRoots;
@@ -132,7 +130,7 @@ void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcesso
     for (auto processor : rootProcessors)
     {
         int horzShift = -1;
-        level = jmax(rootProcessors.indexOf(processor), level + 1);
+        level = jmax (rootProcessors.indexOf (processor), level + 1);
 
         while ((processor != nullptr) || (splitters.size() > 0))
         {
@@ -140,80 +138,79 @@ void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcesso
             {
                 horzShift++;
 
-                if(processor->isMerger())
+                if (processor->isMerger())
                 {
                     Merger* merger = (Merger*) processor;
-                    if (merger->getSourceNode(0) != nullptr)
+                    if (merger->getSourceNode (0) != nullptr)
                     {
-                        GraphNode* nodeA = getNodeForEditor(merger->getSourceNode(0)->getEditor());
-                        if(nodeA != nullptr)
+                        GraphNode* nodeA = getNodeForEditor (merger->getSourceNode (0)->getEditor());
+                        if (nodeA != nullptr)
                         {
                             level = nodeA->getLevel();
                             int horzShiftA = nodeA->getHorzShift();
                             int horzShiftB = 0;
 
-                            if(merger->getSourceNode(1) != nullptr)
+                            if (merger->getSourceNode (1) != nullptr)
                             {
-                                GraphNode* nodeB = getNodeForEditor(merger->getSourceNode(1)->getEditor());
-                                if(nodeB != nullptr)
+                                GraphNode* nodeB = getNodeForEditor (merger->getSourceNode (1)->getEditor());
+                                if (nodeB != nullptr)
                                     horzShiftB = nodeB->getHorzShift();
                             }
-                                
-                            horzShift = jmax(horzShiftA, horzShiftB) + 1;
+
+                            horzShift = jmax (horzShiftA, horzShiftB) + 1;
                         }
                     }
-                    else if(merger->getSourceNode(0) == nullptr && merger->getSourceNode(1) != nullptr)
+                    else if (merger->getSourceNode (0) == nullptr && merger->getSourceNode (1) != nullptr)
                     {
-                        GraphNode* mergerNode = getNodeForEditor(merger->getEditor());
-                        if(mergerNode != nullptr)
+                        GraphNode* mergerNode = getNodeForEditor (merger->getEditor());
+                        if (mergerNode != nullptr)
                             level = mergerNode->getLevel();
                     }
                 }
 
                 // Create or update node for processor
-                if (!nodeExists(processor))
+                if (! nodeExists (processor))
                 {
-                    addNode(processor->getEditor(), level, horzShift);
+                    addNode (processor->getEditor(), level, horzShift);
                 }
                 else // Node exists, updated necessary info
                 {
-                    GraphNode* node = getNodeForEditor(processor->getEditor());
+                    GraphNode* node = getNodeForEditor (processor->getEditor());
                     node->stillNeeded = true;
-                    node->setLevel(level);
-                    node->setHorzShift(horzShift);
+                    node->setLevel (level);
+                    node->setHorzShift (horzShift);
                     node->updateStreamInfo();
                     node->updateBoundaries();
                 }
 
-                int newY = getNodeForEditor(processor->getEditor())->getCollapsedBottom() + 35;
-                int nextLevel = getNodeForEditor(processor->getEditor())->getLevel() + 1;
-                if(levelStartY.count(nextLevel) == 0)
+                int newY = getNodeForEditor (processor->getEditor())->getCollapsedBottom() + 35;
+                int nextLevel = getNodeForEditor (processor->getEditor())->getLevel() + 1;
+                if (levelStartY.count (nextLevel) == 0)
                     levelStartY[nextLevel] = newY;
                 else
-                    levelStartY[nextLevel] = jmax(levelStartY[nextLevel], newY);
+                    levelStartY[nextLevel] = jmax (levelStartY[nextLevel], newY);
 
                 // Travel down the signal chain
                 if (processor->isSplitter())
                 {
-                    splitters.add((Splitter*) processor);
-                    processor = splitters.getLast()->getDestNode(0); // travel down chain 0 first
-                } else {
+                    splitters.add ((Splitter*) processor);
+                    processor = splitters.getLast()->getDestNode (0); // travel down chain 0 first
+                }
+                else
+                {
                     processor = processor->getDestNode();
                 }
             }
             else // processor is nullptr, look for splitters
             {
                 Splitter* splitter = splitters.getFirst();
-                processor = splitter->getDestNode(1); // then come back to chain 1
+                processor = splitter->getDestNode (1); // then come back to chain 1
 
-                GraphNode* gn = getNodeForEditor(splitter->getEditor());
+                GraphNode* gn = getNodeForEditor (splitter->getEditor());
                 horzShift = gn->getHorzShift();
-                
+
                 //check if 2 splitters are connected to 1 splitter
-                if(splitter->getDestNode(0) && 
-                   splitter->getDestNode(0)->isSplitter() &&
-                   processor &&
-                   processor->isSplitter())
+                if (splitter->getDestNode (0) && splitter->getDestNode (0)->isSplitter() && processor && processor->isSplitter())
                 {
                     level = gn->getLevel() + 2;
                 }
@@ -222,22 +219,20 @@ void GraphViewer::updateNodes(GenericProcessor* processor, Array<GenericProcesso
                     level = gn->getLevel() + 1;
                 }
 
-                splitters.remove(0);
+                splitters.remove (0);
             }
         }
     }
 
     updateBoundaries();
     repaint();
-    
 }
 
-bool GraphViewer::nodeExists(GenericProcessor* p)
+bool GraphViewer::nodeExists (GenericProcessor* p)
 {
-
-    if (p != nullptr && getNodeForEditor(p->getEditor()) != nullptr)
+    if (p != nullptr && getNodeForEditor (p->getEditor()) != nullptr)
         return true;
-    
+
     return false;
 }
 
@@ -246,26 +241,25 @@ void GraphViewer::addNode (GenericEditor* editor, int level, int offset)
     GraphNode* gn = new GraphNode (editor, this);
     addAndMakeVisible (gn, 0);
     availableNodes.add (gn);
-    
+
     int thisNodeWidth = NODE_WIDTH;
 
     if (gn->getName().length() > 18)
     {
         thisNodeWidth += (gn->getName().length() - 18) * 10;
     }
-    
-    gn->setLevel(level);
-    gn->setHorzShift(offset);
-    gn->setWidth(thisNodeWidth);
-    gn->updateBoundaries();
 
+    gn->setLevel (level);
+    gn->setHorzShift (offset);
+    gn->setWidth (thisNodeWidth);
+    gn->updateBoundaries();
 }
 
-void GraphViewer::removeNode(GenericProcessor *p)
+void GraphViewer::removeNode (GenericProcessor* p)
 {
-    auto node = getNodeForEditor(p->getEditor());
+    auto node = getNodeForEditor (p->getEditor());
 
-    if(node != nullptr)
+    if (node != nullptr)
         node->stillNeeded = false;
 }
 
@@ -275,13 +269,12 @@ void GraphViewer::removeAllNodes()
     repaint();
 }
 
-
 int GraphViewer::getIndexOfEditor (GenericEditor* editor) const
 {
     int index = -1;
-    
+
     const int numAvailableNodes = availableNodes.size();
-    
+
     for (int i = 0; i < numAvailableNodes; ++i)
     {
         if (availableNodes[i]->hasEditor (editor))
@@ -289,25 +282,24 @@ int GraphViewer::getIndexOfEditor (GenericEditor* editor) const
             return i;
         }
     }
-    
+
     return index;
 }
-
 
 GraphNode* GraphViewer::getNodeForEditor (GenericEditor* editor) const
 {
     int indexOfEditor = getIndexOfEditor (editor);
-    
+
     if (indexOfEditor > -1)
         return availableNodes[indexOfEditor];
     else
         return nullptr;
 }
 
-int GraphViewer::getLevelStartY(int level) const
+int GraphViewer::getLevelStartY (int level) const
 {
-    if (levelStartY.count(level) > 0)
-        return levelStartY.at(level);
+    if (levelStartY.count (level) > 0)
+        return levelStartY.at (level);
     else
         return 0;
 }
@@ -317,48 +309,48 @@ void GraphViewer::paint (Graphics& g)
     // Draw connections
     const int numAvailableNodes = availableNodes.size();
 
-    Colour pathColor = findColour(ThemeColors::defaultFill);
+    Colour pathColor = findColour (ThemeColors::defaultFill);
 
     for (int i = 0; i < numAvailableNodes; ++i)
     {
-        if(rootProcessors.contains(availableNodes[i]->getProcessor()))
-        {   
+        if (rootProcessors.contains (availableNodes[i]->getProcessor()))
+        {
             auto nodeProcessor = availableNodes[i]->getProcessor();
             float endX;
 
-            Point<float> startPoint = Point<float>(X_BORDER_SIZE - 15, availableNodes[i]->getSrcPoint().y);
+            Point<float> startPoint = Point<float> (X_BORDER_SIZE - 15, availableNodes[i]->getSrcPoint().y);
             Point<float> endPoint = availableNodes[i]->getSrcPoint();
 
             Path linePath;
-            linePath.startNewSubPath(startPoint);
-            linePath.lineTo(endPoint);
+            linePath.startNewSubPath (startPoint);
+            linePath.lineTo (endPoint);
 
-            g.setColour(pathColor);
-            PathStrokeType stroke1(3.5f);
-            g.strokePath(linePath, stroke1);
+            g.setColour (pathColor);
+            PathStrokeType stroke1 (3.5f);
+            g.strokePath (linePath, stroke1);
 
-            Colour ellipseColour = findColour(ThemeColors::defaultFill);
-            ColourGradient ellipseGradient = ColourGradient(pathColor.brighter(0.8f),
-                                                startPoint.x - 10.0f, startPoint.y,
-                                                pathColor,
-                                                startPoint.x, startPoint.y,
-                                                true);
+            Colour ellipseColour = findColour (ThemeColors::defaultFill);
+            ColourGradient ellipseGradient = ColourGradient (pathColor.brighter (0.8f),
+                                                             startPoint.x - 10.0f,
+                                                             startPoint.y,
+                                                             pathColor,
+                                                             startPoint.x,
+                                                             startPoint.y,
+                                                             true);
 
-            
             //g.setColour(ellipseColour);
             //g.drawEllipse(startPoint.x - 20.f, startPoint.y - 10.0f, 20.f, 20.f, 2.f);
-            g.setGradientFill(ellipseGradient);
+            g.setGradientFill (ellipseGradient);
             g.fillEllipse (startPoint.x - 20.f, startPoint.y - 10.f, 20.f, 20.f);
-            g.setColour(Colours::black);
-            g.drawEllipse(startPoint.x - 20.f, startPoint.y - 10.0f, 20.f, 20.f, 1.5f);
+            g.setColour (Colours::black);
+            g.drawEllipse (startPoint.x - 20.f, startPoint.y - 10.0f, 20.f, 20.f, 1.5f);
 
-            int level = rootProcessors.indexOf(nodeProcessor);
+            int level = rootProcessors.indexOf (nodeProcessor);
             static const String letters = "ABCDEFGHI";
 
-            g.setColour(findColour(ThemeColors::defaultText));
-            g.setFont(Font("Silkscreen", "Regular", 14));
-            g.drawText (String::charToString(letters[level]), startPoint.x - 20, startPoint.y - 10, 20, 18, Justification::centred, true);
-
+            g.setColour (findColour (ThemeColors::defaultText));
+            g.setFont (Font ("Silkscreen", "Regular", 14));
+            g.drawText (String::charToString (letters[level]), startPoint.x - 20, startPoint.y - 10, 20, 18, Justification::centred, true);
         }
 
         if (! availableNodes[i]->isSplitter())
@@ -366,7 +358,7 @@ void GraphViewer::paint (Graphics& g)
             if (availableNodes[i]->getDest() != nullptr)
             {
                 int indexOfDest = getIndexOfEditor (availableNodes[i]->getDest());
-                
+
                 if (indexOfDest > -1)
                     connectNodes (i, indexOfDest, g);
             }
@@ -374,11 +366,11 @@ void GraphViewer::paint (Graphics& g)
         else
         {
             Array<GenericEditor*> editors = availableNodes[i]->getConnectedEditors();
-            
+
             for (int path = 0; path < 2; ++path)
             {
                 int indexOfDest = getIndexOfEditor (editors[path]);
-                
+
                 if (indexOfDest > -1)
                     connectNodes (i, indexOfDest, g);
             }
@@ -386,119 +378,110 @@ void GraphViewer::paint (Graphics& g)
 
         if (availableNodes[i]->getProcessor()->isEmpty())
             continue;
-        
+
         // Draw drop shadow for node
-        DropShadow(findColour(ThemeColors::dropShadowColor), 10, Point<int>(2, 8))
-            .drawForRectangle(g, availableNodes[i]->getBounds().reduced(1));
+        DropShadow (findColour (ThemeColors::dropShadowColor), 10, Point<int> (2, 8))
+            .drawForRectangle (g, availableNodes[i]->getBounds().reduced (1));
     }
 }
-
 
 void GraphViewer::paintOverChildren (Graphics& g)
 {
-    
 }
-
 
 void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
 {
-    
-    juce::Point<float> start  = availableNodes[node1]->getDestPoint();
-    juce::Point<float> end    = availableNodes[node2]->getSrcPoint();
-    
+    juce::Point<float> start = availableNodes[node1]->getDestPoint();
+    juce::Point<float> end = availableNodes[node2]->getSrcPoint();
+
     Path linePath;
     float x1 = start.getX();
     float y1 = start.getY();
-    float x2 = end.getX()-14.0f;
+    float x2 = end.getX() - 14.0f;
     float y2 = end.getY();
-    
+
     linePath.startNewSubPath (x1, y1);
 
-    if(availableNodes[node1]->getLevel() == availableNodes[node2]->getLevel())
-    {    
-        linePath.lineTo(end.withX(x2));
+    if (availableNodes[node1]->getLevel() == availableNodes[node2]->getLevel())
+    {
+        linePath.lineTo (end.withX (x2));
     }
     else
     {
-        
-        linePath.lineTo(x2 - X_BORDER_SIZE, y1);
-        linePath.cubicTo (x2, y1,
-                      x2 - X_BORDER_SIZE, y2,
-                      x2, y2);
+        linePath.lineTo (x2 - X_BORDER_SIZE, y1);
+        linePath.cubicTo (x2, y1, x2 - X_BORDER_SIZE, y2, x2, y2);
     }
-    
+
     if (availableNodes[node1]->getProcessor()->isEmpty())
     {
-        g.setColour(findColour(ThemeColors::defaultFill));
+        g.setColour (findColour (ThemeColors::defaultFill));
         Path dashedLinePath;
-        PathStrokeType stroke3(2.0f);
+        PathStrokeType stroke3 (2.0f);
         const float dashLengths[2] = { 5.0f, 5.0f };
-        stroke3.createDashedStroke(dashedLinePath, linePath, dashLengths, 2);
+        stroke3.createDashedStroke (dashedLinePath, linePath, dashLengths, 2);
 
-        g.fillPath(dashedLinePath);
+        g.fillPath (dashedLinePath);
     }
     else
     {
-        g.setColour (findColour(ThemeColors::defaultFill));
+        g.setColour (findColour (ThemeColors::defaultFill));
         PathStrokeType stroke3 (3.5f);
         Path arrowPath;
-        stroke3.createStrokedPath(arrowPath, linePath);
-        g.fillPath(arrowPath);
-        
+        stroke3.createStrokedPath (arrowPath, linePath);
+        g.fillPath (arrowPath);
+
         //PathStrokeType stroke2 (2.0f);
         //Path arrowPath2;
         //stroke2.createStrokedPath(arrowPath2, linePath);
         //g.fillPath(arrowPath2);
     }
-    
-    g.drawArrow(Line<float>(x2, y2, x2 + 14.0f, y2), 3.5f, 10.0f, 14.f);
-}
 
+    g.drawArrow (Line<float> (x2, y2, x2 + 14.0f, y2), 3.5f, 10.0f, 14.f);
+}
 
 void GraphViewer::saveStateToXml (XmlElement* xml)
 {
-    XmlElement* graphNodeStates = new XmlElement("GRAPHVIEWER");
+    XmlElement* graphNodeStates = new XmlElement ("GRAPHVIEWER");
 
     for (auto node : availableNodes)
     {
         XmlElement* nodeXml = new XmlElement ("NODE");
-        nodeXml->setAttribute("id", node->getProcessor()->getNodeId());
-        nodeXml->setAttribute("isProcessorInfoVisible", node->processorInfoVisible);
-        
+        nodeXml->setAttribute ("id", node->getProcessor()->getNodeId());
+        nodeXml->setAttribute ("isProcessorInfoVisible", node->processorInfoVisible);
+
         for (auto stream : node->streamInfoVisible)
         {
             XmlElement* streamXml = new XmlElement ("STREAM");
-            streamXml->setAttribute("key", stream.first);
-            streamXml->setAttribute("isStreamVisible", stream.second);
-            streamXml->setAttribute("isParamsVisible", node->streamParamsVisible[stream.first]);
-            nodeXml->addChildElement(streamXml);
+            streamXml->setAttribute ("key", stream.first);
+            streamXml->setAttribute ("isStreamVisible", stream.second);
+            streamXml->setAttribute ("isParamsVisible", node->streamParamsVisible[stream.first]);
+            nodeXml->addChildElement (streamXml);
         }
-        
+
         graphNodeStates->addChildElement (nodeXml);
     }
 
-    xml->addChildElement(graphNodeStates);
+    xml->addChildElement (graphNodeStates);
 }
 
-
 void GraphViewer::loadStateFromXml (XmlElement* xml)
-{    
+{
     for (auto* nodeXml : xml->getChildIterator())
     {
         for (auto node : availableNodes)
         {
-            if (node->getProcessor()->getNodeId() == nodeXml->getIntAttribute("id"))
+            if (node->getProcessor()->getNodeId() == nodeXml->getIntAttribute ("id"))
             {
                 if (node->getProcessor()->numParameters() > 0)
-                    node->processorInfoVisible = nodeXml->getBoolAttribute("isProcessorInfoVisible");
-                
+                    node->processorInfoVisible = nodeXml->getBoolAttribute ("isProcessorInfoVisible");
+
                 for (auto streamXml : nodeXml->getChildIterator())
                 {
-                    String streamKey = streamXml->getStringAttribute("key");
-                    if (streamKey.isNotEmpty() && node->streamInfoVisible.count(streamKey) > 0)
+                    String streamKey = streamXml->getStringAttribute ("key");
+                    if (streamKey.isNotEmpty() && node->streamInfoVisible.count (streamKey) > 0)
                     {
-                        node->streamInfoVisible[streamKey] = streamXml->getBoolAttribute("isStreamVisible");
-                        node->streamParamsVisible[streamKey] = streamXml->getBoolAttribute("isParamsVisible");
+                        node->streamInfoVisible[streamKey] = streamXml->getBoolAttribute ("isStreamVisible");
+                        node->streamParamsVisible[streamKey] = streamXml->getBoolAttribute ("isParamsVisible");
                     }
                 }
 
@@ -512,13 +495,10 @@ void GraphViewer::loadStateFromXml (XmlElement* xml)
 
 /// ------------------------------------------------------
 
-
-DataStreamInfo::DataStreamInfo(DataStream* stream_, GenericEditor* editor, GraphNode* node_)
-    :  stream(stream_)
-    ,  node(node_)
+DataStreamInfo::DataStreamInfo (DataStream* stream_, GenericEditor* editor, GraphNode* node_)
+    : stream (stream_), node (node_)
 {
-    
-    streamParameterEditorComponent = std::make_unique<Component>(stream->getName());
+    streamParameterEditorComponent = std::make_unique<Component> (stream->getName());
 
     auto pEditors = stream->createDefaultEditor();
 
@@ -529,51 +509,48 @@ DataStreamInfo::DataStreamInfo(DataStream* stream_, GenericEditor* editor, Graph
     for (auto paramEditor : pEditors)
     {
         // set parameter editor bounds
-        paramEditor->setBounds(5, yPos, rowWidthPixels, rowHeightPixels);
+        paramEditor->setBounds (5, yPos, rowWidthPixels, rowHeightPixels);
         paramEditor->updateView();
         yPos += rowHeightPixels + 5;
 
         //transfer ownership to DataStreamInfo
-        parameterEditors.add(paramEditor);
+        parameterEditors.add (paramEditor);
 
-        streamParameterEditorComponent->addAndMakeVisible(parameterEditors.getLast());
+        streamParameterEditorComponent->addAndMakeVisible (parameterEditors.getLast());
     }
-    
+
     editorHeight = yPos;
     heightInPixels = 60;
 
-    if(parameterEditors.size() > 0)
+    if (parameterEditors.size() > 0)
     {
         parameterPanel = std::make_unique<ConcertinaPanel>();
-        parameterPanel->addPanel(-1, streamParameterEditorComponent.get(), false);
-        parameterPanel->setMaximumPanelSize(streamParameterEditorComponent.get(),
-                                            editorHeight);
+        parameterPanel->addPanel (-1, streamParameterEditorComponent.get(), false);
+        parameterPanel->setMaximumPanelSize (streamParameterEditorComponent.get(),
+                                             editorHeight);
 
-        parameterButton = new DataStreamButton(this, editor, "Parameters");
-        parameterButton->addListener(this);
-        parameterPanel->setCustomPanelHeader(streamParameterEditorComponent.get(), parameterButton, true);
+        parameterButton = new DataStreamButton (this, editor, "Parameters");
+        parameterButton->addListener (this);
+        parameterPanel->setCustomPanelHeader (streamParameterEditorComponent.get(), parameterButton, true);
         // button->removeMouseListener(button->getParentComponent());
 
-        addAndMakeVisible(parameterPanel.get());
-        parameterPanel->addMouseListener(this, true);
-        parameterPanel->setBounds(0, 60, NODE_WIDTH, 20);
+        addAndMakeVisible (parameterPanel.get());
+        parameterPanel->addMouseListener (this, true);
+        parameterPanel->setBounds (0, 60, NODE_WIDTH, 20);
 
         heightInPixels += 20;
     }
-    
 }
 
 DataStreamInfo::~DataStreamInfo()
 {
-
 }
 
-void DataStreamInfo::paint(Graphics& g)
+void DataStreamInfo::paint (Graphics& g)
 {
-   
-    g.fillAll(findColour(ThemeColors::componentBackground));
-	g.setColour(findColour(ThemeColors::outline));
-    g.fillRect(25, 0, 1, 60);
+    g.fillAll (findColour (ThemeColors::componentBackground));
+    g.setColour (findColour (ThemeColors::outline));
+    g.fillRect (25, 0, 1, 60);
 
     int numEventChannels = stream->getEventChannels().size();
     int numSpikeChannels = stream->getSpikeChannels().size();
@@ -581,17 +558,16 @@ void DataStreamInfo::paint(Graphics& g)
     String ttlText = numEventChannels == 1 ? "TTL Channel" : "TTL Channels";
     String spikeText = numSpikeChannels == 1 ? "Spike Channel" : "Spike Channels";
 
-    g.setFont(Font("Inter", "Medium", 14));
-    g.setColour(findColour(ThemeColors::defaultText));
-    g.drawText("@ " + String(stream->getSampleRate()) + " Hz", 30, 0, getWidth() - 30, 20, Justification::left);
-    g.drawText(ttlText, 30, 20, getWidth() - 30, 20, Justification::left);
-    g.drawText(spikeText, 30, 40, getWidth() - 30, 20, Justification::left);
+    g.setFont (Font ("Inter", "Medium", 14));
+    g.setColour (findColour (ThemeColors::defaultText));
+    g.drawText ("@ " + String (stream->getSampleRate()) + " Hz", 30, 0, getWidth() - 30, 20, Justification::left);
+    g.drawText (ttlText, 30, 20, getWidth() - 30, 20, Justification::left);
+    g.drawText (spikeText, 30, 40, getWidth() - 30, 20, Justification::left);
 
-    g.setFont(Font("Fira Code", "Medium", 14));
-    g.drawFittedText(String(stream->getChannelCount()), 1, 1, 23, 20, Justification::centred, 1, 0.75f);
-    g.drawFittedText(String(numEventChannels), 1, 21, 23, 20, Justification::centred, 1, 0.75f);
-    g.drawFittedText(String(numSpikeChannels), 1, 41, 23, 20, Justification::centred, 1, 0.75f);
-
+    g.setFont (Font ("Fira Code", "Medium", 14));
+    g.drawFittedText (String (stream->getChannelCount()), 1, 1, 23, 20, Justification::centred, 1, 0.75f);
+    g.drawFittedText (String (numEventChannels), 1, 21, 23, 20, Justification::centred, 1, 0.75f);
+    g.drawFittedText (String (numSpikeChannels), 1, 41, 23, 20, Justification::centred, 1, 0.75f);
 }
 
 String DataStreamInfo::getStreamKey() const
@@ -599,9 +575,9 @@ String DataStreamInfo::getStreamKey() const
     return stream->getKey();
 }
 
-void DataStreamInfo::buttonClicked(Button* button)
+void DataStreamInfo::buttonClicked (Button* button)
 {
-    DataStreamButton* dsb = (DataStreamButton*)button;
+    DataStreamButton* dsb = (DataStreamButton*) button;
 
     if (dsb != parameterButton)
         return;
@@ -613,17 +589,17 @@ void DataStreamInfo::buttonClicked(Button* button)
     {
         heightInPixels = editorHeight + 80;
         node->updateBoundaries();
-        node->setDataStreamPanelSize(this, heightInPixels);
-        parameterPanel->setSize(NODE_WIDTH, editorHeight + 20);
-        parameterPanel->expandPanelFully(streamParameterEditorComponent.get(), false);
+        node->setDataStreamPanelSize (this, heightInPixels);
+        parameterPanel->setSize (NODE_WIDTH, editorHeight + 20);
+        parameterPanel->expandPanelFully (streamParameterEditorComponent.get(), false);
     }
     else
     {
         heightInPixels = 80;
         node->updateBoundaries();
-        node->setDataStreamPanelSize(this, heightInPixels);
-        parameterPanel->setSize(NODE_WIDTH, 20);
-        parameterPanel->setPanelSize(streamParameterEditorComponent.get(), 0, false);
+        node->setDataStreamPanelSize (this, heightInPixels);
+        parameterPanel->setSize (NODE_WIDTH, 20);
+        parameterPanel->setPanelSize (streamParameterEditorComponent.get(), 0, false);
     }
 
     node->streamParamsVisible[stream->getKey()] = btnState;
@@ -645,27 +621,25 @@ int DataStreamInfo::getMaxHeight() const
 
 void DataStreamInfo::restorePanels()
 {
-    headerButton->setToggleState(node->streamInfoVisible[stream->getKey()], dontSendNotification);
+    headerButton->setToggleState (node->streamInfoVisible[stream->getKey()], dontSendNotification);
 
     if (parameterButton != nullptr)
     {
-        parameterButton->setToggleState(node->streamParamsVisible[stream->getKey()], dontSendNotification);
-        buttonClicked(parameterButton);
+        parameterButton->setToggleState (node->streamParamsVisible[stream->getKey()], dontSendNotification);
+        buttonClicked (parameterButton);
     }
     else
     {
         node->updateBoundaries();
-        node->setDataStreamPanelSize(this, heightInPixels);
+        node->setDataStreamPanelSize (this, heightInPixels);
         node->updateGraphView();
     }
 }
 
-
-ProcessorParameterComponent::ProcessorParameterComponent(GenericProcessor* p)
-    :  processor(p)
+ProcessorParameterComponent::ProcessorParameterComponent (GenericProcessor* p)
+    : processor (p)
 {
-    
-    editorComponent = std::make_unique<Component>(processor->getName() + " Parameters");
+    editorComponent = std::make_unique<Component> (processor->getName() + " Parameters");
 
     auto editors = processor->createDefaultEditor();
 
@@ -676,31 +650,29 @@ ProcessorParameterComponent::ProcessorParameterComponent(GenericProcessor* p)
     for (auto editor : editors)
     {
         // set parameter editor bounds
-        editor->setBounds(5, yPos, rowWidthPixels, rowHeightPixels);
+        editor->setBounds (5, yPos, rowWidthPixels, rowHeightPixels);
         editor->updateView();
         yPos += rowHeightPixels + 5;
 
         //transfer ownership to DataStreamInfo
-        parameterEditors.add(editor);
+        parameterEditors.add (editor);
 
-        editorComponent->addAndMakeVisible(parameterEditors.getLast());
+        editorComponent->addAndMakeVisible (parameterEditors.getLast());
     }
 
-    editorComponent->setBounds(0, 0, rowWidthPixels, yPos);
-    addAndMakeVisible(editorComponent.get());
+    editorComponent->setBounds (0, 0, rowWidthPixels, yPos);
+    addAndMakeVisible (editorComponent.get());
 
     heightInPixels = editorComponent->getHeight();
-    
 }
 
 ProcessorParameterComponent::~ProcessorParameterComponent()
 {
-
 }
 
-void ProcessorParameterComponent::paint(Graphics& g)
+void ProcessorParameterComponent::paint (Graphics& g)
 {
-    g.fillAll(findColour(ThemeColors::componentBackground));
+    g.fillAll (findColour (ThemeColors::componentBackground));
 }
 
 void ProcessorParameterComponent::updateView()
@@ -711,28 +683,23 @@ void ProcessorParameterComponent::updateView()
     }
 }
 
-
-DataStreamButton::DataStreamButton(DataStreamInfo* info_, GenericEditor* editor_, const String& text)
-    : Button(text)
-    , editor(editor_)
-    , info(info_)
+DataStreamButton::DataStreamButton (DataStreamInfo* info_, GenericEditor* editor_, const String& text)
+    : Button (text), editor (editor_), info (info_)
 {
-    setClickingTogglesState(true);
-    setToggleState(false, dontSendNotification);
+    setClickingTogglesState (true);
+    setToggleState (false, dontSendNotification);
 
-    pathOpen.addTriangle(7.0f, 5.0f, 10.5f, 12.0f, 14.0f, 5.0f);
-    pathOpen.applyTransform(AffineTransform::scale(1.2f));
+    pathOpen.addTriangle (7.0f, 5.0f, 10.5f, 12.0f, 14.0f, 5.0f);
+    pathOpen.applyTransform (AffineTransform::scale (1.2f));
 
-    pathClosed.addTriangle(8.0f, 4.0f, 8.0f, 11.0f, 15.0f, 7.5f);
-    pathClosed.applyTransform(AffineTransform::scale(1.2f));
-    
+    pathClosed.addTriangle (8.0f, 4.0f, 8.0f, 11.0f, 15.0f, 7.5f);
+    pathClosed.applyTransform (AffineTransform::scale (1.2f));
+
     info->headerButton = this;
 }
 
-
 DataStreamButton::~DataStreamButton()
 {
-
 }
 
 int DataStreamButton::getDesiredHeight() const
@@ -740,94 +707,86 @@ int DataStreamButton::getDesiredHeight() const
     return info->getDesiredHeight();
 }
 
-void DataStreamButton::paintButton(Graphics& g, bool isHighlighted, bool isDown)
+void DataStreamButton::paintButton (Graphics& g, bool isHighlighted, bool isDown)
 {
+    g.setColour (findColour (ThemeColors::componentBackground));
+    g.fillRect (0, 0, 25, getHeight());
 
-    g.setColour(findColour(ThemeColors::componentBackground));
-    g.fillRect(0, 0, 25, getHeight());
+    g.setColour (editor->getBackgroundColor().withAlpha (0.5f));
 
-    g.setColour(editor->getBackgroundColor().withAlpha(0.5f));
+    g.fillRect (25, 0, getWidth() - 25, getHeight());
 
-    g.fillRect(25, 0, getWidth() - 25, getHeight());
-
-    g.setColour(findColour(ThemeColors::outline));
-    g.fillRect(25, 0, 1, getHeight());
-    g.fillRect(0, 0, getWidth(), 1);
-
-    if (getToggleState())
-        g.fillRect(0, getHeight()-1, getWidth(), 1);
-
-    g.setColour(findColour(ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColors::outline));
+    g.fillRect (25, 0, 1, getHeight());
+    g.fillRect (0, 0, getWidth(), 1);
 
     if (getToggleState())
-        g.fillPath(pathOpen);
+        g.fillRect (0, getHeight() - 1, getWidth(), 1);
+
+    g.setColour (findColour (ThemeColors::defaultText));
+
+    if (getToggleState())
+        g.fillPath (pathOpen);
     else
-        g.fillPath(pathClosed);
+        g.fillPath (pathClosed);
 
-    g.setColour(Colours::white);
-    g.setFont(Font("Inter", "Medium", 14));
-    g.drawText(getButtonText(), 30, 0, getWidth()-30, 20, Justification::left);
-
+    g.setColour (Colours::white);
+    g.setFont (Font ("Inter", "Medium", 14));
+    g.drawText (getButtonText(), 30, 0, getWidth() - 30, 20, Justification::left);
 }
 
 /// ------------------------------------------------------
 
 GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
-: editor        (ed)
-, processor     (ed->getProcessor())
-, gv            (g)
-, isMouseOver   (false)
-, stillNeeded   (true)
-, nodeWidth     (NODE_WIDTH)
+    : editor (ed), processor (ed->getProcessor()), gv (g), isMouseOver (false), stillNeeded (true), nodeWidth (NODE_WIDTH)
 {
     nodeId = processor->getNodeId();
     horzShift = 0;
     vertShift = 0;
     processorInfoVisible = false;
-    
-    infoPanel = std::make_unique<ConcertinaPanel> ();
-    
-    if (!processor->isMerger() && !processor->isSplitter() && !processor->isEmpty())
+
+    infoPanel = std::make_unique<ConcertinaPanel>();
+
+    if (! processor->isMerger() && ! processor->isSplitter() && ! processor->isEmpty())
     {
         // Add processor info panel
-        processorParamComponent = std::make_unique<ProcessorParameterComponent>(processor);
+        processorParamComponent = std::make_unique<ProcessorParameterComponent> (processor);
 
-        infoPanel->addPanel(-1, processorParamComponent.get(), false);
-        infoPanel->setMaximumPanelSize(processorParamComponent.get(), 
-                                       processorParamComponent->heightInPixels);
+        infoPanel->addPanel (-1, processorParamComponent.get(), false);
+        infoPanel->setMaximumPanelSize (processorParamComponent.get(),
+                                        processorParamComponent->heightInPixels);
 
-        processorParamHeader = new Component(processor->getName() + " Header");
-        processorParamHeader->setBounds(0, 0, processorParamComponent->getWidth(), 20);
-        infoPanel->setCustomPanelHeader(processorParamComponent.get(), processorParamHeader, true);
-        processorParamHeader->removeMouseListener(processorParamHeader->getParentComponent());
+        processorParamHeader = new Component (processor->getName() + " Header");
+        processorParamHeader->setBounds (0, 0, processorParamComponent->getWidth(), 20);
+        infoPanel->setCustomPanelHeader (processorParamComponent.get(), processorParamHeader, true);
+        processorParamHeader->removeMouseListener (processorParamHeader->getParentComponent());
 
         // Add data stream info panel and buttons
         for (auto stream : processor->getDataStreams())
         {
+            DataStreamInfo* info = new DataStreamInfo (processor->getDataStream (stream->getKey()), editor, this);
+            infoPanel->addPanel (-1, info, true);
+            infoPanel->setMaximumPanelSize (info, info->getMaxHeight());
+            dataStreamInfos.add (info);
 
-            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getKey()), editor, this);
-            infoPanel->addPanel(-1, info, true);
-            infoPanel->setMaximumPanelSize(info, info->getMaxHeight());
-            dataStreamInfos.add(info);
-
-            DataStreamButton* button = new DataStreamButton(info, editor, stream->getName());
-            button->addListener(this);
-            infoPanel->setCustomPanelHeader(info, button, true);
-            button->removeMouseListener(button->getParentComponent());
-            dataStreamButtons.add(button);
+            DataStreamButton* button = new DataStreamButton (info, editor, stream->getName());
+            button->addListener (this);
+            infoPanel->setCustomPanelHeader (info, button, true);
+            button->removeMouseListener (button->getParentComponent());
+            dataStreamButtons.add (button);
 
             streamInfoVisible[stream->getKey()] = false;
             streamParamsVisible[stream->getKey()] = false;
         }
 
-        addAndMakeVisible(infoPanel.get());
-        infoPanel->addMouseListener(this, true);
+        addAndMakeVisible (infoPanel.get());
+        infoPanel->addMouseListener (this, true);
     }
-   
-    setBounds(X_BORDER_SIZE + getHorzShift() * NODE_WIDTH,
-        Y_BORDER_SIZE + getLevel() * NODE_HEIGHT,
-        nodeWidth,
-        40);
+
+    setBounds (X_BORDER_SIZE + getHorzShift() * NODE_WIDTH,
+               Y_BORDER_SIZE + getLevel() * NODE_HEIGHT,
+               nodeWidth,
+               40);
 
     previousHeight = 0;
     verticalOffset = 0;
@@ -835,44 +794,36 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
     // nodeDropShadower.setOwner(this);
 }
 
-
 GraphNode::~GraphNode()
 {
 }
-
 
 int GraphNode::getLevel() const
 {
     return vertShift;
 }
 
-
 void GraphNode::setLevel (int level)
 {
     vertShift = level;
-    
 }
-
 
 int GraphNode::getHorzShift() const
 {
     return horzShift;
 }
 
-
 int GraphNode::getCollapsedBottom() const
 {
     return getPosition().getY() + 20 + (dataStreamButtons.size() * 20);
 }
 
-
 void GraphNode::setHorzShift (int shift)
 {
     horzShift = shift;
-    
 }
 
-void GraphNode::setWidth(int width)
+void GraphNode::setWidth (int width)
 {
     nodeWidth = width;
 }
@@ -880,57 +831,54 @@ void GraphNode::setWidth(int width)
 void GraphNode::mouseEnter (const MouseEvent& m)
 {
     isMouseOver = true;
-    
+
     repaint();
 }
-
 
 void GraphNode::mouseExit (const MouseEvent& m)
 {
     isMouseOver = false;
-    
+
     repaint();
 }
 
-
 void GraphNode::mouseDown (const MouseEvent& m)
-{    
-    AccessClass::getEditorViewport()->highlightEditor(editor);
+{
+    AccessClass::getEditorViewport()->highlightEditor (editor);
 
-    if (processor->isMerger() 
+    if (processor->isMerger()
         || processor->isSplitter()
         || processor->isEmpty()
         || processorParamComponent->heightInPixels == 0)
         return;
 
-    if (m.getEventRelativeTo(this).y < 20 && m.getEventRelativeTo(this).x > 24)
+    if (m.getEventRelativeTo (this).y < 20 && m.getEventRelativeTo (this).x > 24)
     {
         if (processorInfoVisible)
-        {    
+        {
             processorInfoVisible = false;
             updateBoundaries();
-            infoPanel->setPanelSize(processorParamComponent.get(), 0, false);
+            infoPanel->setPanelSize (processorParamComponent.get(), 0, false);
         }
         else
         {
             processorInfoVisible = true;
             updateBoundaries();
-            infoPanel->expandPanelFully(processorParamComponent.get(), false);
+            infoPanel->expandPanelFully (processorParamComponent.get(), false);
         }
 
         updateGraphView();
     }
 }
 
-
 void GraphNode::mouseDoubleClick (const MouseEvent& m)
 {
     // Expand/collapse all info panels on double click on node id
-    
+
     if (processor->isMerger() || processor->isSplitter() || processor->isEmpty())
         return;
 
-    if (m.getEventRelativeTo(this).y < 20 && m.getEventRelativeTo(this).x <= 24)
+    if (m.getEventRelativeTo (this).y < 20 && m.getEventRelativeTo (this).x <= 24)
     {
         bool makeVisible = true;
 
@@ -942,7 +890,7 @@ void GraphNode::mouseDoubleClick (const MouseEvent& m)
                 break;
             }
         }
-        
+
         if (processorParamComponent->heightInPixels > 0)
         {
             if (processorInfoVisible)
@@ -961,26 +909,24 @@ void GraphNode::mouseDoubleClick (const MouseEvent& m)
     }
 }
 
-void GraphNode::buttonClicked(Button* button)
+void GraphNode::buttonClicked (Button* button)
 {
-
     updateBoundaries();
 
-    DataStreamButton* dsb = (DataStreamButton*)button;
+    DataStreamButton* dsb = (DataStreamButton*) button;
 
     String streamKey = dsb->getDataStreamInfo()->getStreamKey();
     bool btnState = button->getToggleState();
 
     if (btnState)
-        infoPanel->setPanelSize(dsb->getDataStreamInfo(), dsb->getDesiredHeight() , false);
+        infoPanel->setPanelSize (dsb->getDataStreamInfo(), dsb->getDesiredHeight(), false);
     else
-        infoPanel->setPanelSize(dsb->getDataStreamInfo(), 0, false);
-    
+        infoPanel->setPanelSize (dsb->getDataStreamInfo(), 0, false);
+
     streamInfoVisible[streamKey] = btnState;
 
     updateGraphView();
 }
-
 
 bool GraphNode::hasEditor (GenericEditor* ed) const
 {
@@ -990,76 +936,67 @@ bool GraphNode::hasEditor (GenericEditor* ed) const
         return false;
 }
 
-
 bool GraphNode::isSplitter() const
 {
     return editor->isSplitter();
 }
-
 
 bool GraphNode::isMerger() const
 {
     return editor->isMerger();
 }
 
-
 GenericEditor* GraphNode::getDest() const
 {
     return editor->getDestEditor();
 }
 
-
 GenericEditor* GraphNode::getSource() const
 {
     GenericProcessor* sourceNode = editor->getProcessor()->getSourceNode();
-    
+
     if (sourceNode != nullptr)
         return sourceNode->getEditor();
     else
         return nullptr;
 }
 
-
 Array<GenericEditor*> GraphNode::getConnectedEditors() const
 {
     return editor->getConnectedEditors();
 }
-
 
 const String GraphNode::getName() const
 {
     return editor->getDisplayName();
 }
 
-
 juce::Point<float> GraphNode::getCenterPoint() const
 {
     juce::Point<float> center = juce::Point<float> (getX() + 11, getY() + 10);
-    
+
     return center;
 }
 
 juce::Point<float> GraphNode::getSrcPoint() const
 {
     juce::Point<float> center = juce::Point<float> (getX(), getY() + 10);
-    
+
     return center;
 }
 
 juce::Point<float> GraphNode::getDestPoint() const
 {
     juce::Point<float> center = juce::Point<float> (getRight(), getY() + 10);
-    
+
     return center;
 }
 
-
 void GraphNode::updateBoundaries()
 {
-
     int panelHeight = 20;
 
-    if (!processor->isMerger() && !processor->isSplitter() && !processor->isEmpty() && processorInfoVisible)
+    if (! processor->isMerger() && ! processor->isSplitter() && ! processor->isEmpty() && processorInfoVisible)
         panelHeight = processorParamComponent->heightInPixels + 20;
 
     for (auto dsb : dataStreamButtons)
@@ -1070,21 +1007,20 @@ void GraphNode::updateBoundaries()
             panelHeight += 20;
     }
 
-    infoPanel->setBounds(0, 0, NODE_WIDTH, panelHeight);
+    infoPanel->setBounds (0, 0, NODE_WIDTH, panelHeight);
 
-    int nodeY = gv->getLevelStartY(getLevel());
+    int nodeY = gv->getLevelStartY (getLevel());
     if (nodeY == 0)
-        setBounds(X_BORDER_SIZE + getHorzShift() * (NODE_WIDTH + X_BORDER_SIZE),
-            Y_BORDER_SIZE + getLevel() * (NODE_HEIGHT + 35),
-            nodeWidth,
-            panelHeight);
+        setBounds (X_BORDER_SIZE + getHorzShift() * (NODE_WIDTH + X_BORDER_SIZE),
+                   Y_BORDER_SIZE + getLevel() * (NODE_HEIGHT + 35),
+                   nodeWidth,
+                   panelHeight);
     else
-        setBounds(X_BORDER_SIZE + getHorzShift() * (NODE_WIDTH + X_BORDER_SIZE),
-            nodeY,
-            nodeWidth,
-            panelHeight);
+        setBounds (X_BORDER_SIZE + getHorzShift() * (NODE_WIDTH + X_BORDER_SIZE),
+                   nodeY,
+                   nodeWidth,
+                   panelHeight);
 }
-
 
 void GraphNode::updateGraphView()
 {
@@ -1092,20 +1028,18 @@ void GraphNode::updateGraphView()
     gv->repaint();
 }
 
-
-void GraphNode::setDataStreamPanelSize(Component* panelComponent, int height)
+void GraphNode::setDataStreamPanelSize (Component* panelComponent, int height)
 {
-    infoPanel->setPanelSize(panelComponent, height, false);
+    infoPanel->setPanelSize (panelComponent, height, false);
 }
-
 
 void GraphNode::updateStreamInfo()
 {
-    if (!processor->isMerger() && !processor->isSplitter() && !processor->isEmpty())
+    if (! processor->isMerger() && ! processor->isSplitter() && ! processor->isEmpty())
     {
-        LOGDD("Removing data stream info and buttons for node: ", processor->getName());
+        LOGDD ("Removing data stream info and buttons for node: ", processor->getName());
 
-        infoPanel.reset(new ConcertinaPanel());
+        infoPanel.reset (new ConcertinaPanel());
 
         dataStreamInfos.clear();
         dataStreamButtons.clear();
@@ -1114,10 +1048,10 @@ void GraphNode::updateStreamInfo()
         ** entires that dont belong to processors->getDataStreams() */
         for (auto it = streamInfoVisible.begin(); it != streamInfoVisible.end();)
         {
-            if (processor->getDataStream(it->first) == nullptr)
+            if (processor->getDataStream (it->first) == nullptr)
             {
-                streamParamsVisible.erase(it->first);
-                it = streamInfoVisible.erase(it);
+                streamParamsVisible.erase (it->first);
+                it = streamInfoVisible.erase (it);
             }
             else
                 ++it;
@@ -1127,174 +1061,165 @@ void GraphNode::updateStreamInfo()
         processorParamComponent->updateView();
 
         // add processor info panel
-        infoPanel->addPanel(-1, processorParamComponent.get(), false);
-        infoPanel->setMaximumPanelSize(processorParamComponent.get(), 
-                                       processorParamComponent->heightInPixels);
+        infoPanel->addPanel (-1, processorParamComponent.get(), false);
+        infoPanel->setMaximumPanelSize (processorParamComponent.get(),
+                                        processorParamComponent->heightInPixels);
 
-        processorParamHeader = new Component(processor->getName() + " Header");
-        processorParamHeader->setBounds(0, 0, processorParamComponent->getWidth(), 20);
-        infoPanel->setCustomPanelHeader(processorParamComponent.get(), processorParamHeader, true);
-        processorParamHeader->removeMouseListener(processorParamHeader->getParentComponent());
+        processorParamHeader = new Component (processor->getName() + " Header");
+        processorParamHeader->setBounds (0, 0, processorParamComponent->getWidth(), 20);
+        infoPanel->setCustomPanelHeader (processorParamComponent.get(), processorParamHeader, true);
+        processorParamHeader->removeMouseListener (processorParamHeader->getParentComponent());
 
         // recreate data stream info panels and buttons and add them to infoPanel
         for (auto stream : processor->getDataStreams())
         {
-            LOGDD("Adding data stream info and buttons for stream: ", stream->getName());
-            DataStreamInfo* info = new DataStreamInfo(processor->getDataStream(stream->getKey()), editor, this);
-            infoPanel->addPanel(-1, info, true);
-            infoPanel->setMaximumPanelSize(info, info->getMaxHeight());
-            dataStreamInfos.add(info);
+            LOGDD ("Adding data stream info and buttons for stream: ", stream->getName());
+            DataStreamInfo* info = new DataStreamInfo (processor->getDataStream (stream->getKey()), editor, this);
+            infoPanel->addPanel (-1, info, true);
+            infoPanel->setMaximumPanelSize (info, info->getMaxHeight());
+            dataStreamInfos.add (info);
 
-            DataStreamButton* button = new DataStreamButton(info, editor, stream->getName());
-            button->addListener(this);
-            infoPanel->setCustomPanelHeader(info, button, true);
-            button->removeMouseListener(button->getParentComponent()); // remove mouse listener from header component
-            dataStreamButtons.add(button);
+            DataStreamButton* button = new DataStreamButton (info, editor, stream->getName());
+            button->addListener (this);
+            infoPanel->setCustomPanelHeader (info, button, true);
+            button->removeMouseListener (button->getParentComponent()); // remove mouse listener from header component
+            dataStreamButtons.add (button);
 
-            if (streamInfoVisible.count(stream->getKey()) == 0)
+            if (streamInfoVisible.count (stream->getKey()) == 0)
             {
                 streamInfoVisible[stream->getKey()] = false;
                 streamParamsVisible[stream->getKey()] = false;
             }
-
         }
 
-        addAndMakeVisible(infoPanel.get());
-        infoPanel->addMouseListener(this, true);
+        addAndMakeVisible (infoPanel.get());
+        infoPanel->addMouseListener (this, true);
 
         restorePanels();
     }
 }
 
-
 void GraphNode::restorePanels()
 {
-    LOGDD("Restoring panels for graph node: ", editor->getNameAndId());
+    LOGDD ("Restoring panels for graph node: ", editor->getNameAndId());
 
     if (processor->isMerger() || processor->isSplitter() || processor->isEmpty())
         return;
-    
+
     updateBoundaries();
     if (processorInfoVisible)
-        infoPanel->expandPanelFully(processorParamComponent.get(), false);
+        infoPanel->expandPanelFully (processorParamComponent.get(), false);
     else
-        infoPanel->setPanelSize(processorParamComponent.get(), 0, false);
-    
+        infoPanel->setPanelSize (processorParamComponent.get(), 0, false);
+
     for (auto info : dataStreamInfos)
         info->restorePanels();
-
 }
 
-
-void GraphNode::verticalShift(int pixels)
+void GraphNode::verticalShift (int pixels)
 {
- 
-    setBounds(getX(), getY() + pixels, getWidth(), getHeight());
+    setBounds (getX(), getY() + pixels, getWidth(), getHeight());
 
-    if (!processor->isSplitter())
+    if (! processor->isSplitter())
     {
         if (processor->destNode != nullptr)
         {
-            GraphNode* node = gv->getNodeForEditor(processor->destNode->getEditor());
-            
+            GraphNode* node = gv->getNodeForEditor (processor->destNode->getEditor());
+
             if (node != nullptr)
-                node->verticalShift(pixels);
+                node->verticalShift (pixels);
         }
-            
     }
-    else {
-        SplitterEditor* editor = (SplitterEditor*)processor->getEditor();
+    else
+    {
+        SplitterEditor* editor = (SplitterEditor*) processor->getEditor();
 
         for (auto ed : editor->getConnectedEditors())
         {
-            GraphNode* node = gv->getNodeForEditor(ed);
-            
-            if (node != nullptr)
-                node->verticalShift(pixels);
-        }
+            GraphNode* node = gv->getNodeForEditor (ed);
 
+            if (node != nullptr)
+                node->verticalShift (pixels);
+        }
     }
 
     verticalOffset = pixels;
-
 }
 
 String GraphNode::getInfoString()
 {
     GenericProcessor* processor = (GenericProcessor*) editor->getProcessor();
-    
+
     int ch1 = processor->getTotalContinuousChannels();
     int ch2 = processor->getTotalEventChannels();
     int ch3 = processor->getTotalSpikeChannels();
-    
+
     String info = "Data channels: ";
-    info += String(ch1);
-    
+    info += String (ch1);
+
     info += "\nEvent channels: ";
-    info += String(ch2);
-    
+    info += String (ch2);
+
     info += "\nSpike channels: ";
-    info += String(ch3);
-    
+    info += String (ch3);
+
     return info;
 }
 
-
 void GraphNode::paint (Graphics& g)
-{   
-    g.fillAll(findColour(ThemeColors::componentParentBackground));
+{
+    g.fillAll (findColour (ThemeColors::componentParentBackground));
     //g.setFont(Font("Inter", "Medium", 14));
 
-    g.setFont(Font("Fira Code", "Regular", 13));
+    g.setFont (Font ("Fira Code", "Regular", 13));
 
-    if(processor->isEmpty())
+    if (processor->isEmpty())
     {
-        g.setColour(findColour(ThemeColors::defaultFill));
-        g.drawRoundedRectangle(1, 1, getWidth() - 2, 18, 5.0f, 2.0f);
-        
-        g.setColour(findColour(ThemeColors::defaultText));
-        g.drawFittedText("No Source", 10, 0,
-            getWidth() - 10, 20, Justification::centredLeft, 1);
+        g.setColour (findColour (ThemeColors::defaultFill));
+        g.drawRoundedRectangle (1, 1, getWidth() - 2, 18, 5.0f, 2.0f);
+
+        g.setColour (findColour (ThemeColors::defaultText));
+        g.drawFittedText ("No Source", 10, 0, getWidth() - 10, 20, Justification::centredLeft, 1);
     }
     else
     {
-        g.setColour(findColour(ThemeColors::componentBackground));
-        g.fillRect(0, 0, 25, 20);
-        g.setColour(editor->getBackgroundColor());
-        g.fillRect(25, 0, getWidth() - 25, 20);
-        g.setColour(findColour(ThemeColors::outline));
-        g.fillRect(25, 0, 1, getHeight());
+        g.setColour (findColour (ThemeColors::componentBackground));
+        g.fillRect (0, 0, 25, 20);
+        g.setColour (editor->getBackgroundColor());
+        g.fillRect (25, 0, getWidth() - 25, 20);
+        g.setColour (findColour (ThemeColors::outline));
+        g.fillRect (25, 0, 1, getHeight());
 
         if (processorInfoVisible)
-            g.fillRect(0, 19, getWidth(), 1);
+            g.fillRect (0, 19, getWidth(), 1);
 
-        g.setColour (findColour(ThemeColors::defaultText)); // : editor->getBackgroundColor());
-        g.drawText (String(nodeId), 1, 1, 23, 20, Justification::centred, true);
-        g.setColour(Colours::white); // : editor->getBackgroundColor());
-        g.setFont(Font("CP Mono", "Plain", 15));
-        g.drawText(getName().toUpperCase(), 30, 1, getWidth() - 30, 20, Justification::left, true);
+        g.setColour (findColour (ThemeColors::defaultText)); // : editor->getBackgroundColor());
+        g.drawText (String (nodeId), 1, 1, 23, 20, Justification::centred, true);
+        g.setColour (Colours::white); // : editor->getBackgroundColor());
+        g.setFont (Font ("CP Mono", "Plain", 15));
+        g.drawText (getName().toUpperCase(), 30, 1, getWidth() - 30, 20, Justification::left, true);
     }
 }
 
-void GraphNode::paintOverChildren(Graphics& g)
+void GraphNode::paintOverChildren (Graphics& g)
 {
     if (processor->isEmpty())
         return;
-    
+
     Path fakeRoundedCorners;
-    juce::Rectangle<float> bounds = {0, 0, (float)getWidth(), (float)getHeight()};
+    juce::Rectangle<float> bounds = { 0, 0, (float) getWidth(), (float) getHeight() };
 
     const float cornerSize = 5.0f; //desired corner size
-    fakeRoundedCorners.addRectangle(bounds); //What you start with
-    fakeRoundedCorners.setUsingNonZeroWinding(false); //The secret sauce
-    fakeRoundedCorners.addRoundedRectangle(bounds, cornerSize); //subtract this shape
+    fakeRoundedCorners.addRectangle (bounds); //What you start with
+    fakeRoundedCorners.setUsingNonZeroWinding (false); //The secret sauce
+    fakeRoundedCorners.addRoundedRectangle (bounds, cornerSize); //subtract this shape
 
-    g.setColour(findColour(ThemeColors::componentParentBackground));
-    g.fillPath(fakeRoundedCorners);
+    g.setColour (findColour (ThemeColors::componentParentBackground));
+    g.fillPath (fakeRoundedCorners);
 
     if (isMouseOver)
     {
-        g.setColour(Colours::yellow);
-        g.drawRoundedRectangle(1, 1, getWidth() - 2, getHeight() - 2, 5.0f, 2.0f);
+        g.setColour (Colours::yellow);
+        g.drawRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 5.0f, 2.0f);
     }
 }

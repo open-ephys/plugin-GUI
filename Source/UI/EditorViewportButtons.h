@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -39,26 +39,27 @@
 class SignalChainScrollButton : public TextButton
 {
 public:
-    
     /** Constructor*/
-    SignalChainScrollButton(int type);
-    
+    SignalChainScrollButton (int type);
+
     /** Destructor*/
-    ~SignalChainScrollButton() { }
+    ~SignalChainScrollButton() {}
 
     /** Sets whether the button can be used*/
-    void setActive(bool);
+    void setActive (bool);
 
     /** Renders the button*/
-	void paintButton(Graphics& g, bool isMouseOverButton, bool isButtonDown) override;
+    void paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown) override;
 
-    enum type {UP, DOWN};
+    enum type
+    {
+        UP,
+        DOWN
+    };
 
 private:
     bool isActive;
     Path path; // inactive, activeNormal, activeOver, activeDown;
 };
 
-
-
-#endif  // __EDITORVIEWPORTBUTTONS_H_2657C51D__
+#endif // __EDITORVIEWPORTBUTTONS_H_2657C51D__

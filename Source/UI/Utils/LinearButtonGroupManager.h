@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -26,7 +26,6 @@
 
 #include "ButtonGroupManager.h"
 
-
 /**
 
     This class provides possibility to store buttons with radiobutton behaviour in the single
@@ -37,17 +36,15 @@
     box-like component. (only horizontal mode available now)
 
 */
-class PLUGIN_API LinearButtonGroupManager : public ButtonGroupManager
-                                          , private Timer
+class PLUGIN_API LinearButtonGroupManager : public ButtonGroupManager, private Timer
 {
 public:
-
     /** Constructor */
     LinearButtonGroupManager();
 
     // Component methods
     // ===========================================================
-    void resized()                          override;
+    void resized() override;
 
     // Button::Listener methods
     // ===========================================================
@@ -58,9 +55,8 @@ public:
 
     /** Sets whether dividers between buttons will be visible or not */
     void setShowDividers (bool isShow);
-    
-    void setSelectedButtonIndex(int index);
 
+    void setSelectedButtonIndex (int index);
 
 private:
     // Timer methods
@@ -83,6 +79,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LinearButtonGroupManager)
 };
 
-
-
-#endif  // LINEARBUTTONGROUPMANAGER_H_INCLUDED
+#endif // LINEARBUTTONGROUPMANAGER_H_INCLUDED

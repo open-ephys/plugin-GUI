@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,7 +27,6 @@
 #include "../../Processors/PluginManager/OpenEphysPlugin.h"
 #include "ButtonGroupManager.h"
 
-
 /**
 
     This class provides possibility to store buttons in several rows having tile-structure.
@@ -39,7 +38,6 @@
 class PLUGIN_API TiledButtonGroupManager : public ButtonGroupManager
 {
 public:
-
     /** Constructor */
     TiledButtonGroupManager();
 
@@ -51,7 +49,7 @@ public:
     void resized() override;
 
     void mouseDown (const MouseEvent& e) override;
-    void mouseUp   (const MouseEvent& e) override;
+    void mouseUp (const MouseEvent& e) override;
     void mouseDrag (const MouseEvent& e) override;
     // ===========================================================
 
@@ -77,7 +75,6 @@ public:
     */
     void addButton (Button* newButton, bool useDefaultLookAndFeel = true) override;
 
-
 private:
     // Returns the index of button at given position.
     // If nothing found at this position - returns -1.
@@ -98,7 +95,5 @@ private:
     // ===========================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TiledButtonGroupManager)
 };
-
-
 
 #endif //TILEDBUTTONGROUPMANAGER_H_INCLUDED

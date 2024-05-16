@@ -1,9 +1,32 @@
+/*
+    ------------------------------------------------------------------
+
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2024 Open Ephys
+
+    ------------------------------------------------------------------
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 #ifndef PLUGININSTALLER_H_INCLUDED
 #define PLUGININSTALLER_H_INCLUDED
 
 #include "../../JuceLibraryCode/JuceHeader.h"
 
-#define WINDOW_TITLE "Plugin Installer" 
+#define WINDOW_TITLE "Plugin Installer"
 
 class MainWindow;
 class PluginInstallerComponent;
@@ -12,7 +35,7 @@ class PluginInstaller : public DocumentWindow
 {
 public:
     /** Creates and launches Plugin Installer window with its components */
-    PluginInstaller(MainWindow* mainWindow, bool loadComponents = true);
+    PluginInstaller (MainWindow* mainWindow, bool loadComponents = true);
 
     /** Destructor*/
     ~PluginInstaller();
@@ -25,10 +48,9 @@ public:
     ApplicationCommandManager commandManager;
 
     /** Access method to install a plugin directly without intercating with the Plugin Installer interface*/
-    void installPluginAndDependency(const String& plugin, String version);
+    void installPluginAndDependency (const String& plugin, String version);
 
 private:
-
     /* Pointer to the main window so we can keep in bounds */
     DocumentWindow* parent;
 
@@ -37,8 +59,7 @@ private:
 
     void createXmlFile();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginInstaller);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginInstaller);
 };
 
 /*
@@ -79,29 +100,27 @@ public:
     void resized() override;
 
     /** Called when any of the buttons inside this component is clicked that has a listener **/
-    void buttonClicked(Button* button) override;
+    void buttonClicked (Button* button) override;
 
-    void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
 
     /** Sets selected plugin's info obtained from bintray**/
-    void setPluginInfo(const SelectedPluginInfo& p, bool shouldUpdateUI = true);
+    void setPluginInfo (const SelectedPluginInfo& p, bool shouldUpdateUI = true);
 
     /** Sets the status message with custom string and makes is visible/hidden **/
-    void updateStatusMessage(const String& str, bool isVisible);
+    void updateStatusMessage (const String& str, bool isVisible);
 
     /** Make the selected plugin's info visible **/
-    void makeInfoVisible(bool isEnabled);
+    void makeInfoVisible (bool isEnabled);
 
     /** Called when the user hits the 'Download' button for a selected plugin **/
-    int downloadPlugin(const String& plugin, const String& version,
-                       bool isDependency);
-    
-    bool uninstallPlugin(const String& plugin);
-    
-    void setDownloadURL(const String& url);
+    int downloadPlugin (const String& plugin, const String& version, bool isDependency);
+
+    bool uninstallPlugin (const String& plugin);
+
+    void setDownloadURL (const String& url);
 
 private:
-
     int selectedPlugin;
     String downloadURL;
     Font infoFont, infoFontBold;
@@ -124,7 +143,7 @@ private:
 
     Label dependencyLabel;
     Label dependencyText;
-    
+
     Label statusLabel;
 
     TextButton downloadButton;
@@ -149,10 +168,9 @@ private:
 
     void run() override;
 
-    DropShadower infoCompDropShadower { DropShadow(Colours::black.withAlpha(0.5f), 6, {2,2}) };
+    DropShadower infoCompDropShadower { DropShadow (Colours::black.withAlpha (0.5f), 6, { 2, 2 }) };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginInfoComponent);
-
 };
 
 /**
@@ -163,7 +181,6 @@ class PluginListBoxComponent : public Component,
                                public Thread
 {
 public:
-
     PluginListBoxComponent();
 
     /* Raw list of plugins available for download */
@@ -174,27 +191,28 @@ public:
 
     int getNumRows() override;
 
-    void setNumRows(int num) { numRows = num; pluginList.updateContent(); }
+    void setNumRows (int num)
+    {
+        numRows = num;
+        pluginList.updateContent();
+    }
 
     // This is overloaded from TableListBoxModel, and should fill in the background of the whole row
-    void paintListBoxItem (int rowNumber, Graphics &g, 
-                           int width, int height, 
-                           bool rowIsSelected) override;
+    void paintListBoxItem (int rowNumber, Graphics& g, int width, int height, bool rowIsSelected) override;
 
     void resized() override;
 
     void returnKeyPressed (int lastRowSelected) override;
-    
-private:
 
+private:
     ListBox pluginList;
     Font listFont;
     int numRows;
     int maxTextWidth = 0;
-    
+
     var pluginData;
 
-    String lastPluginSelected; 
+    String lastPluginSelected;
     Array<String> pluginVersion;
 
     SelectedPluginInfo selectedPluginInfo;
@@ -204,16 +222,14 @@ private:
     void run() override;
 
     // Loads selected plugin's info from bintray
-    bool loadPluginInfo(const String& pluginName);
+    bool loadPluginInfo (const String& pluginName);
 
-    void listBoxItemClicked (int row, const MouseEvent &) override;
+    void listBoxItemClicked (int row, const MouseEvent&) override;
 
-    DropShadower listBoxDropShadower { DropShadow(Colours::black.withAlpha(0.5f), 6, {2,2}) };
+    DropShadower listBoxDropShadower { DropShadow (Colours::black.withAlpha (0.5f), 6, { 2, 2 }) };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginListBoxComponent);
-
 };
-
 
 /**
  *  Create a Component for handling the plugins table and info panel
@@ -225,18 +241,16 @@ class PluginInstallerComponent : public Component,
                                  public ThreadWithProgressWindow
 {
 public:
-
     PluginInstallerComponent();
 
     void paint (Graphics&) override;
     void resized() override;
 
-    void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
-    
-    void buttonClicked(Button* button) override;
- 
-private:
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
 
+    void buttonClicked (Button* button) override;
+
+private:
     PluginListBoxComponent pluginListAndInfo;
 
     StringArray allPlugins;
@@ -257,9 +271,8 @@ private:
     Font font;
 
     void run() override;
-    
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginInstallerComponent);
 
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginInstallerComponent);
 };
 
 #endif

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,7 +24,6 @@
 #ifndef __INFOLABEL_H_14DA9A62__
 #define __INFOLABEL_H_14DA9A62__
 
-
 #include "../../JuceLibraryCode/JuceHeader.h"
 
 #include "../Processors/Visualization/Visualizer.h"
@@ -41,14 +40,12 @@ class InfoLabelTabButton : public Button
 {
 public:
     /** Constructor*/
-    InfoLabelTabButton(const String& name);
+    InfoLabelTabButton (const String& name);
 
 private:
-
     /** Custom button rendering function*/
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown);
 };
-
 
 /*
     
@@ -65,16 +62,16 @@ public:
     TextComponent();
 
     /** Destructor */
-    ~TextComponent() { }
+    ~TextComponent() {}
 
     /** Custom rendering function */
-    void paint(Graphics& g) override;
+    void paint (Graphics& g) override;
 
     /** Resizes the text field */
     void resizeForText();
 
     /** Sets the text to be displayed */
-    void setAttributedString(const AttributedString& infoText, bool isLogo = false);
+    void setAttributedString (const AttributedString& infoText, bool isLogo = false);
 
 private:
     AttributedString infoText;
@@ -82,7 +79,7 @@ private:
 
     std::unique_ptr<Drawable> color_logo;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TextComponent);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TextComponent);
 };
 
 /**
@@ -96,7 +93,7 @@ private:
 */
 
 class TESTABLE InfoLabel : public Visualizer,
-    public Button::Listener
+                           public Button::Listener
 
 {
 public:
@@ -107,11 +104,11 @@ public:
     ~InfoLabel();
 
     /** Fills the background and draws a logo.*/
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
     /** Visualizer virtual functions */
-    void refresh() { }
-    void refreshState() { }
+    void refresh() {}
+    void refreshState() {}
 
     /** Updates the colors of the text field */
     void updateColors();
@@ -120,10 +117,9 @@ public:
     void resized();
 
     /** Called when tab buttons are pressed.*/
-    void buttonClicked(Button* button);
+    void buttonClicked (Button* button);
 
 private:
-
     /** Sets the "about" text*/
     void setAboutText();
 
@@ -134,10 +130,10 @@ private:
     void setLicenseText();
 
     /** Checks for mouse hovering over links */
-    void mouseMove(const MouseEvent& mouse);
+    void mouseMove (const MouseEvent& mouse);
 
     /** Opens links in a browser window */
-    void mouseUp(const MouseEvent& mouse);
+    void mouseUp (const MouseEvent& mouse);
 
     /** Creates hyperlinks in the text */
     void createHyperlinks();
@@ -150,8 +146,8 @@ private:
     struct Hyperlink
     {
         String url = "";
-        Range<int> positionX = Range<int>(0, 0);
-        Range<int> positionY = Range<int>(0, 0);
+        Range<int> positionX = Range<int> (0, 0);
+        Range<int> positionY = Range<int> (0, 0);
     } hyperlink;
 
     Array<Hyperlink> hyperlinks;
@@ -159,13 +155,7 @@ private:
     std::unique_ptr<Viewport> viewport;
     std::unique_ptr<TextComponent> viewedComponent;
 
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(InfoLabel);
-
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InfoLabel);
 };
 
-
-
-
-#endif  // __INFOLABEL_H_14DA9A62__
+#endif // __INFOLABEL_H_14DA9A62__
