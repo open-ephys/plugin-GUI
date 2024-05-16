@@ -386,10 +386,12 @@ void RecordNode::setDataDirectory (File directory)
     dataDirectory = directory;
     newDirectoryNeeded = true;
 
+    createNewDirectory();
+
     checkDiskSpace();
 }
 
-void RecordNode::createNewDirectory()
+void RecordNode::createNewDirectory (bool resetCounters)
 {
     LOGD ("CREATE NEW DIRECTORY");
 
@@ -400,7 +402,7 @@ void RecordNode::createNewDirectory()
     File recordingDirectory = rootFolder;
     int index = 0;
 
-    while (recordingDirectory.exists())
+    while (resetCounters && recordingDirectory.exists())
     {
         index += 1;
         recordingDirectory = File (rootFolder.getFullPathName() + " (" + String (index) + ")");
@@ -413,9 +415,13 @@ void RecordNode::createNewDirectory()
 
     newDirectoryNeeded = false;
 
-    recordingNumber = 0;
-    experimentNumber = 1;
-    LOGD ("RecordNode::createNewDirectory(): experimentNumber = 1");
+    if (resetCounters)
+    {
+        recordingNumber = 0;
+        experimentNumber = 1;
+        LOGD ("RecordNode::createNewDirectory(): experimentNumber = 1");
+    }
+
     settingsNeeded = true;
 }
 
