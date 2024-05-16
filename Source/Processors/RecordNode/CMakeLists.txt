@@ -19,4 +19,3 @@ add_sources(open-ephys
 
 #add nested directories
 add_subdirectory(BinaryFormat)
-add_subdirectory(taskflow)
