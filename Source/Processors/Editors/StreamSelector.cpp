@@ -401,7 +401,7 @@ void StreamSelectorTable::paint(Graphics& g)
     g.setColour(findColour(ThemeColors::widgetBackground));
     g.fillRoundedRectangle(1.0f, 1.0f, (float)getWidth() - 6.0f, (float)getHeight() - 2.0f, 5.0f);
     g.setColour(findColour(ThemeColors::defaultText));
-    g.setFont(Font("Inter", "Medium", 13));
+    g.setFont(FontOptions("Inter", "Medium", 13));
     g.drawText("   Available data streams: ", Rectangle<float>(150.0f, 20.0f), Justification::left);
 
     g.setColour(findColour(ThemeColors::outline).withAlpha(0.8f));

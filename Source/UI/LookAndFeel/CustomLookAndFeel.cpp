@@ -642,7 +642,7 @@ void CustomLookAndFeel::drawComboBox (Graphics& g, int width, int height, const 
 
 Font CustomLookAndFeel::getComboBoxFont (ComboBox& box)
 {
-    return Font ("Inter", "Regular", box.getHeight() * 0.75);
+    return FontOptions ("Inter", "Regular", box.getHeight() * 0.75);
 }
 
 void CustomLookAndFeel::positionComboBoxText (juce::ComboBox& box, juce::Label& label)

@@ -230,7 +230,7 @@ RecordToggleParameterEditor::RecordToggleParameterEditor(Parameter* param) : Par
 {
 
 	label = std::make_unique<Label>("Parameter name", param->getDisplayName());
-    label->setFont(Font("Small Text", 12.0f, Font::plain));
+    label->setFont(FontOptions("Small Text", 12.0f, Font::plain));
     addAndMakeVisible(label.get());
 
     toggleButton = std::make_unique<RecordToggleButton>(param->getDisplayName());//param->getDisplayName());

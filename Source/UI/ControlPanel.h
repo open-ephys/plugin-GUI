@@ -144,7 +144,7 @@ public:
     void paint (Graphics& g);
 
 private:
-    Font font;
+    FontOptions font;
     float cpu;
 };
 
@@ -179,7 +179,7 @@ public:
     void paint (Graphics& g);
 
 private:
-    Font font;
+    FontOptions font;
 
     float diskFree;
 };
@@ -467,8 +467,6 @@ private:
     void refreshMeters();
 
     bool keyPressed (const KeyPress& key);
-
-    Font font;
 
     bool open;
 

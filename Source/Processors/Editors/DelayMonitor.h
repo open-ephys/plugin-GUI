@@ -77,7 +77,6 @@ private:
     bool isEnabled;
     Colour colour;
     float delay;
-    Font font;
     bool canRepaint = true;
 };
 

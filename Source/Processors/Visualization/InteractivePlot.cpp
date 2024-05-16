@@ -46,24 +46,24 @@ InteractivePlot::InteractivePlot() :
 	addAndMakeVisible(drawComponent.get());
 
 	titleLabel = std::make_unique<Label>("Title Label", "Title");
-	titleLabel->setFont(Font("Fira Code", "Bold", 15.0f));
+	titleLabel->setFont(FontOptions("Fira Code", "Bold", 15.0f));
 	titleLabel->setColour(Label::textColourId, axisColour);
 	titleLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(titleLabel.get());
 
 	xLabel = std::make_unique<Label>("X-Axis Label", "X Label");
-	xLabel->setFont(Font("Fira Code", "Regular", 15.0f));
+	xLabel->setFont(FontOptions("Fira Code", "Regular", 15.0f));
 	xLabel->setColour(Label::textColourId, axisColour);
 	xLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(xLabel.get());
 
 	yLabel = std::make_unique<Label>("Y-Axis Label", "Y Label");
-	yLabel->setFont(Font("Fira Code", "Regular", 15.0f));
+	yLabel->setFont(FontOptions("Fira Code", "Regular", 15.0f));
 	yLabel->setColour(Label::textColourId, axisColour);
 	yLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(yLabel.get());
 
-	autoRescaleButton = std::make_unique<UtilityButton>("Rescale",Font("Default", 15, Font::plain));
+	autoRescaleButton = std::make_unique<UtilityButton>("Rescale",FontOptions("Default", 15, Font::plain));
 	autoRescaleButton ->addListener(this);
 	addAndMakeVisible(autoRescaleButton.get());
 
@@ -231,7 +231,7 @@ Axis::Axis()
       colour(Colours::white)
 {
 
-	font = Font("Default", 15, Font::plain);
+	font = FontOptions("Default", 15, Font::plain);
 
 }
 

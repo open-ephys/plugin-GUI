@@ -139,7 +139,7 @@ void RecordButton::updateImages()
 
 CPUMeter::CPUMeter() : Label ("CPU Meter", "0.0"), cpu (0.0f)
 {
-    font = Font ("Silkscreen", "Regular", 12);
+    font = FontOptions ("Silkscreen", "Regular", 12);
 
     setTooltip ("CPU usage");
 }
@@ -169,7 +169,7 @@ void CPUMeter::paint (Graphics& g)
 DiskSpaceMeter::DiskSpaceMeter()
 
 {
-    font = Font ("Silkscreen", "Regular", 12);
+    font = FontOptions ("Silkscreen", "Regular", 12);
 
     setTooltip ("Disk space available");
 }
@@ -398,13 +398,13 @@ ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool
     recordSelector->addListener (this);
     addChildComponent (recordSelector.get());
 
-    recordOptionsButton = std::make_unique<UtilityButton> ("R", Font ("Silkscreen", "Regular", 15));
+    recordOptionsButton = std::make_unique<UtilityButton> ("R", FontOptions ("Silkscreen", "Regular", 15));
     recordOptionsButton->setEnabledState (true);
     recordOptionsButton->addListener (this);
     recordOptionsButton->setTooltip ("Configure options for selected record engine");
     addChildComponent (recordOptionsButton.get());
 
-    newDirectoryButton = std::make_unique<UtilityButton> ("+", Font ("Silkscreen", "Regular", 15));
+    newDirectoryButton = std::make_unique<UtilityButton> ("+", FontOptions ("Silkscreen", "Regular", 15));
     newDirectoryButton->setEnabledState (false);
     newDirectoryButton->addListener (this);
     newDirectoryButton->setTooltip ("Start a new data directory");
@@ -420,7 +420,6 @@ ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool
 
     if (! isConsoleApp)
     {
-        font = Font ("Miso", "Regular", 13);
 
         audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
         addAndMakeVisible (audioEditor);

@@ -74,7 +74,7 @@ void AudioWindowButton::paintButton (Graphics& g, bool isMouseOver, bool isButto
 
     const bool isLatencyLabelVisible = getParentComponent()->getWidth() >= 450;
     auto textToDraw = isLatencyLabelVisible ? textString : textString.fromLastOccurrenceOf (":", false, true);
-    g.setFont (Font("Silkscreen", "Regular", 14));
+    g.setFont (FontOptions("Silkscreen", "Regular", 14));
     g.drawSingleLineText (textToDraw, 0, 15);
 }
 
@@ -249,7 +249,7 @@ void AudioEditor::paint (Graphics& g)
 {
     const int margin = getWidth() * 0.03;
     g.setColour (findColour(ThemeColors::defaultText));
-    g.setFont(Font("Silkscreen", "Regular", 14));
+    g.setFont(FontOptions("Silkscreen", "Regular", 14));
     g.drawSingleLineText ("GATE:", volumeSlider->getBounds().getRight() + margin, 20);
 
     muteButton->updateImages();

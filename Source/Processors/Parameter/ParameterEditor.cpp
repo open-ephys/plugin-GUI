@@ -125,7 +125,7 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPi
         || param->getType() == Parameter::STRING_PARAM);
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-    Font labelFont = Font("Inter", "Regular", int(0.75*rowHeightPixels));
+    Font labelFont = FontOptions("Inter", "Regular", int(0.75*rowHeightPixels));
     int width = rowWidthPixels;
     label->setFont(labelFont);
     addAndMakeVisible(label.get());
@@ -137,7 +137,7 @@ TextBoxParameterEditor::TextBoxParameterEditor(Parameter* param, int rowHeightPi
     else
         valueTextBox = std::make_unique<CustomTextBox>(param->getKey(), param->getValue().toString(), "");
 
-    valueTextBox->setFont(Font("CP Mono", "Plain", int(0.75*rowHeightPixels)));
+    valueTextBox->setFont(FontOptions("CP Mono", "Plain", int(0.75*rowHeightPixels)));
     valueTextBox->setName(param->getKey());
     // valueTextBox->setColour(Label::textColourId, Colours::black);
     // valueTextBox->setColour(Label::backgroundColourId, Colours::lightgrey);
@@ -211,7 +211,7 @@ void CustomToggleButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsH
     g.drawRoundedRectangle(getLocalBounds().toFloat(), 3.0f, 1.0f);
 
     // Set the text font
-    g.setFont(Font("Inter", "Regular", int(0.75*getHeight())));
+    g.setFont(FontOptions("Inter", "Regular", int(0.75*getHeight())));
     g.setColour(findColour(ThemeColors::defaultText));
 
     // Set the text based on the button state
@@ -231,7 +231,7 @@ ToggleParameterEditor:: ToggleParameterEditor(Parameter* param, int rowHeightPix
     jassert(param->getType() == Parameter::BOOLEAN_PARAM);
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-    label->setFont(Font("Inter", "Regular", int(0.75*rowHeightPixels)));
+    label->setFont(FontOptions("Inter", "Regular", int(0.75*rowHeightPixels)));
     addAndMakeVisible(label.get());
 
     toggleButton = std::make_unique<CustomToggleButton>();
@@ -279,7 +279,7 @@ ComboBoxParameterEditor::ComboBoxParameterEditor(Parameter* param, int rowHeight
         || param->getType() == Parameter::INT_PARAM);
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName()); // == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-    label->setFont(Font("Inter", "Regular", int(0.75*rowHeightPixels)));
+    label->setFont(FontOptions("Inter", "Regular", int(0.75*rowHeightPixels)));
     addAndMakeVisible(label.get());
 
     valueComboBox = std::make_unique<ComboBox>();
@@ -498,7 +498,7 @@ BoundedValueParameterEditor::BoundedValueParameterEditor(Parameter* param, int r
         valueEditor->setText(String(p->getIntValue()), dontSendNotification);
     }
     valueEditor->setName(param->getKey());
-    valueEditor->setFont(Font("Inter", "Regular", int(0.75*rowHeightPixels)));
+    valueEditor->setFont(FontOptions("Inter", "Regular", int(0.75*rowHeightPixels)));
     valueEditor->setJustificationType(Justification::centred);
     valueEditor->addListener(this);
     valueEditor->setTooltip(param->getDescription());
@@ -587,7 +587,7 @@ SelectedChannelsParameterEditor::SelectedChannelsParameterEditor(Parameter* para
     addAndMakeVisible(button.get());
 
     label = std::make_unique<Label>("Parameter name", param->getDisplayName() == "" ? param->getName().replace("_", " ") : param->getDisplayName());
-    Font labelFont = Font("Inter", "Regular", int(0.75*rowHeightPixels));
+    Font labelFont = FontOptions("Inter", "Regular", int(0.75*rowHeightPixels));
     label->setFont(labelFont);
     label->setJustificationType(Justification::left);
     addAndMakeVisible(label.get());

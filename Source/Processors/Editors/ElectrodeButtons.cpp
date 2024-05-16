@@ -100,7 +100,7 @@ ElectrodeEditorButton::~ElectrodeEditorButton() {}
 
 void ElectrodeEditorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    g.setFont(Font("Silkscreen", "Regular", 14));
+    g.setFont(FontOptions("Silkscreen", "Regular", 14));
 
     if (getToggleState() == true)
         g.setColour(Colours::darkgrey);
