@@ -32,8 +32,8 @@ https://github.com/numpy/numpy/blob/master/numpy/lib/format.py
 #ifndef NPYFILE_H
 #define NPYFILE_H
 
-#include "../RecordEngine.h"
 #include "../../../Utils/Utils.h"
+#include "../RecordEngine.h"
 
 #include "../../PluginManager/PluginClass.h"
 #include "../../Settings/Metadata.h"
@@ -46,27 +46,27 @@ https://github.com/numpy/numpy/blob/master/numpy/lib/format.py
 class PLUGIN_API NpyType
 {
 public:
-    
     /** Constructor 1*/
-    NpyType(String, BaseType, size_t);
-    
+    NpyType (String, BaseType, size_t);
+
     /** Constructor 2*/
-    NpyType(BaseType, size_t);
-    
+    NpyType (BaseType, size_t);
+
     /** Default constructor */
     NpyType();
-    
+
     /** Returns the name of this type */
     String getName() const;
-    
+
     /** Returns the type in numpy syntax */
     String getTypeString() const;
-    
+
     /** Returns the length (in bytes) of this type */
     int getTypeLength() const;
-    
+
     /** Returns the BaseType */
     BaseType getType() const;
+
 private:
     String name;
     BaseType type;
@@ -84,46 +84,44 @@ private:
 class PLUGIN_API NpyFile
 {
 public:
-    
     /** Constructor for an array of types */
-    NpyFile(String path, const Array<NpyType>& typeList);
-    
+    NpyFile (String path, const Array<NpyType>& typeList);
+
     /** Constructor for a 1-dimensional file with a single type */
-    NpyFile(String path, NpyType type, unsigned int dim = 1);
-    
+    NpyFile (String path, NpyType type, unsigned int dim = 1);
+
     /** Destructor */
     ~NpyFile();
-    
+
     /** Writes nSamples of data to the file  */
-    void writeData(const void* data, size_t nSamples);
-    
+    void writeData (const void* data, size_t nSamples);
+
     /** Increases the count of the number of records in the file (must match the number of samples written) */
-    void increaseRecordCount(int count = 1);
+    void increaseRecordCount (int count = 1);
+
 private:
-    
     /** Opens the file at a specified path */
-    bool openFile(String path);
-    
+    bool openFile (String path);
+
     /** Returns a string describing the underlying array shape */
     String getShapeString();
-    
+
     /** Writes the initial file header */
-    void writeHeader(const Array<NpyType>& typeList);
-    
+    void writeHeader (const Array<NpyType>& typeList);
+
     /** Updates the header with the total number of samples */
     void updateHeader();
-    
+
     std::unique_ptr<FileOutputStream> m_file;
     int64 m_headerLen;
-    bool m_okOpen{ false };
-    int64 m_recordCount{ 0 };
+    bool m_okOpen { false };
+    int64 m_recordCount { 0 };
     size_t m_shapePos;
     unsigned int m_dim1;
     unsigned int m_dim2;
 
     /** flush file buffer to disk and update the .npy header every this many records: */
-    const int recordBufferSize{ 1024 };
-
+    const int recordBufferSize { 1024 };
 };
 
 #endif
