@@ -546,8 +546,11 @@ void DataViewport::loadStateFromXml (XmlElement* xml)
                                 GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId (nodeId);
                                 if (processor != nullptr)
                                 {
-                                    VisualizerEditor* editor = (VisualizerEditor*) processor->getEditor();
-                                    editor->addTab();
+                                    if (processor->getEditor()->isVisualizerEditor())
+                                    {
+                                        VisualizerEditor* editor = (VisualizerEditor*) processor->getEditor();
+                                        editor->addTab();
+                                    }
                                 }
                             }
                         }
