@@ -126,17 +126,42 @@ public:
             }
 
             if (desired_mode == "RECORD" && !CoreServices::getRecordingStatus()) {
-                const MessageManagerLock mmLock;
-                CoreServices::setRecordingStatus(true);
+                std::promise<void> signalRecordingStarted;
+                std::future<void> signalRecordingStartedFuture = signalRecordingStarted.get_future();
+
+                MessageManager::callAsync([this, &signalRecordingStarted] {
+                    CoreServices::setRecordingStatus(true);
+                    signalRecordingStarted.set_value(); // Signal that recording has started
+                });
+
+                // Wait for recording to start
+                signalRecordingStartedFuture.wait();
             }
             else if (desired_mode == "ACQUIRE") {
-                const MessageManagerLock mmLock;
-                CoreServices::setRecordingStatus(false);
-                CoreServices::setAcquisitionStatus(true);
+                std::promise<void> signalAcquisitionStarted;
+                std::future<void> signalAcquisitionStartedFuture = signalAcquisitionStarted.get_future();
+
+                MessageManager::callAsync([this, &signalAcquisitionStarted] {
+                    CoreServices::setRecordingStatus(false);
+                    CoreServices::setAcquisitionStatus(true);
+                    signalAcquisitionStarted.set_value(); // Signal that acquisition has started
+                });
+
+                // Wait for acquisition to start
+                signalAcquisitionStartedFuture.wait();
             }
             else if (desired_mode == "IDLE") {
-                const MessageManagerLock mmLock;
-                CoreServices::setAcquisitionStatus(false);
+                std::promise<void> signalAcquisitionStopped;
+                std::future<void> signalAcquisitionStoppedFuture = signalAcquisitionStopped.get_future();
+
+                MessageManager::callAsync([this, &signalAcquisitionStopped] {
+                    CoreServices::setRecordingStatus(false);
+                    CoreServices::setAcquisitionStatus(false);
+                    signalAcquisitionStopped.set_value(); // Signal that acquisition has stopped
+                });
+
+                // Wait for acquisition to stop
+                signalAcquisitionStoppedFuture.wait();
             }
 
             json ret;
@@ -389,8 +414,16 @@ public:
                 return;
             }
 
-            const MessageManagerLock mml;
-            CoreServices::loadSignalChain(message_str);
+            std::promise<void> signalChainLoaded;
+            std::future<void> signalChainLoadedFuture = signalChainLoaded.get_future();
+
+            MessageManager::callAsync([message_str, &signalChainLoaded] {
+                CoreServices::loadSignalChain(message_str);
+                signalChainLoaded.set_value(); // Signal that loadSignalChain is finished
+            });
+
+            // Wait for loadSignalChain to finish
+            signalChainLoadedFuture.wait();
 
             json ret;
             status_to_json(graph_, &ret);
@@ -574,7 +607,17 @@ public:
                 return;
             }
 
-            String return_msg = graph_->sendConfigMessage(processor, String(message_str));
+            std::promise<void> processorConfigured;
+            std::future<void> processorConfiguredFuture = processorConfigured.get_future();
+
+            String return_msg;
+            MessageManager::callAsync([this, processor, message_str, &return_msg, &processorConfigured] {
+                return_msg = graph_->sendConfigMessage(processor, String(message_str));
+                processorConfigured.set_value(); // Signal that processor has received configuration message
+            });
+
+            // Wait for processor to parse config message
+            processorConfiguredFuture.wait();
              
             json ret;
             ret["info"] = return_msg.toStdString();
@@ -587,8 +630,16 @@ public:
 
             if (!CoreServices::getAcquisitionStatus())
             {
-                const MessageManagerLock mml;
-                graph_->clearSignalChain();
+                std::promise<void> signalChainCleared;
+                std::future<void> signalChainClearedFuture = signalChainCleared.get_future();
+
+                MessageManager::callAsync([this, &signalChainCleared] {
+                    graph_->clearSignalChain();
+                    signalChainCleared.set_value(); // Signal that loadSignalChain is finished
+                });
+
+                // Wait for loadSignalChain to finish
+                signalChainClearedFuture.wait();
                 return_msg = "Signal chain cleared successfully.";
             } else {
                 return_msg = "Cannot clear signal chain while acquisition is active!";
@@ -638,17 +689,21 @@ public:
             String return_msg;
             
             if (!CoreServices::getAcquisitionStatus())
-            {   
-                Array<GenericProcessor*> processorNodes;
+            {
                 String processorName = processor->getDisplayName();
 
-                processorNodes.add(processor);
+                std::promise<void> processorDeleted;
+                std::future<void> processorDeletedFuture = processorDeleted.get_future();
 
-                const MessageManagerLock mml;
+                MessageManager::callAsync([this, processor, &processorDeleted] {
+                    DeleteProcessor* action = new DeleteProcessor(processor);
+                    graph_->getUndoManager()->beginNewTransaction();
+                    graph_->getUndoManager()->perform(action);
+                    processorDeleted.set_value(); // Signal that processor has been deleted
+                });
 
-                DeleteProcessor* action = new DeleteProcessor(processor);
-                graph_->getUndoManager()->beginNewTransaction();
-                graph_->getUndoManager()->perform(action);
+                // Wait for processor to be deleted
+                processorDeletedFuture.wait();
 
                 return_msg = processorName + " [" +  String(procId) + "] deleted successfully";
             } else {
@@ -741,11 +796,18 @@ public:
                         destProcessor = sourceProcessor->getDestNode();
                 }
 
-                const MessageManagerLock mml;
+                std::promise <void> processorAdded;
+                std::future <void> processorAddedFuture = processorAdded.get_future();
 
-                AddProcessor* action = new AddProcessor(description, sourceProcessor, destProcessor, false);
-                graph_->getUndoManager()->beginNewTransaction();
-                graph_->getUndoManager()->perform(action);
+                MessageManager::callAsync([this, description, sourceProcessor, destProcessor, &processorAdded] {
+                    AddProcessor* action = new AddProcessor(description, sourceProcessor, destProcessor, false);
+                    graph_->getUndoManager()->beginNewTransaction();
+                    graph_->getUndoManager()->perform(action);
+                    processorAdded.set_value(); // Signal that processor has been added
+                });
+
+                // Wait for processor to be added
+                processorAddedFuture.wait();
 
                 return_msg = procName + " added successfully";
                 
@@ -764,9 +826,17 @@ public:
 
             if (!CoreServices::getAcquisitionStatus())
             {
-                const MessageManagerLock mml;
-                graph_->getUndoManager()->undo();
-                //TODO: Undo manager should return a message indicating if there was anything to undo
+                std::promise<void> undoCompleted;
+                std::future<void> undoCompletedFuture = undoCompleted.get_future();
+
+                MessageManager::callAsync([this, &undoCompleted] {
+                    graph_->getUndoManager()->undo();
+                    undoCompleted.set_value(); // Signal that undo is finished
+                });
+
+                // Wait for undo to finish
+                undoCompletedFuture.wait();
+
                 return_msg = "Undo operation completed successfully.";
             } else {
                 return_msg = "Undo operation was NOT successful!";
@@ -783,7 +853,17 @@ public:
 
             if (!CoreServices::getAcquisitionStatus())
             {
-                graph_->getUndoManager()->redo();
+                std::promise<void> redoCompleted;
+                std::future<void> redoCompletedFuture = redoCompleted.get_future();
+
+                MessageManager::callAsync([this, &redoCompleted] {
+                    graph_->getUndoManager()->redo();
+                    redoCompleted.set_value(); // Signal that redo is finished
+                });
+
+                // Wait for redo to finish
+                redoCompletedFuture.wait();
+
                 return_msg = "Redo operation completed successfully.";
             } else {
                 return_msg = "Redo operation was NOT successful!";
@@ -871,9 +951,17 @@ public:
                            return;
                        }
 
-                       const MessageManagerLock mml;
+                       std::promise<void> parameterChanged;
+                       std::future<void> parameterChangedFuture = parameterChanged.get_future();
 
-                       parameter->setNextValue (val);
+                       MessageManager::callAsync ([parameter, val, &parameterChanged]
+                                                  {
+                                                      parameter->setNextValue (val);
+                                                      parameterChanged.set_value(); // Signal that parameter has been changed
+                                                  });
+
+                       // Wait for parameter to be changed
+                       parameterChangedFuture.wait();
 
                        json ret;
                        parameter_to_json (parameter, &ret);
@@ -970,7 +1058,17 @@ public:
                            return;
                        }
 
-                       parameter->setNextValue (val);
+                       std::promise<void> parameterChanged;
+                       std::future<void> parameterChangedFuture = parameterChanged.get_future();
+
+                       MessageManager::callAsync ([parameter, val, &parameterChanged]
+                                                  {
+                                                      parameter->setNextValue (val);
+                                                      parameterChanged.set_value(); // Signal that parameter has been changed
+                                                  });
+
+                       // Wait for parameter to be changed
+                       parameterChangedFuture.wait();
 
                        json ret;
                        parameter_to_json (parameter, &ret);
@@ -1005,14 +1103,22 @@ public:
                            res.set_content (ret.dump(), "application/json");
                            res.status = 400;
 
-                           const MessageManagerLock mml;
-                           JUCEApplication::getInstance()->systemRequestedQuit();
+                            std::promise<void> signalQuit;
+                            std::future<void> signalQuitFuture = signalQuit.get_future();
+
+                            MessageManager::callAsync([this, &signalQuit] {
+                                JUCEApplication::getInstance()->systemRequestedQuit();
+                                signalQuit.set_value(); // Signal that window has been closed
+                            });
+
+                            // Wait for window to be closed
+                            signalQuitFuture.wait();
+
                        }
                        else
                        {
                            LOGD ("Unrecognized command");
-                       }
-                   });
+                       } });
 
         LOGC ("Beginning HTTP server on port ", PORT);
         svr_->listen ("0.0.0.0", PORT);
