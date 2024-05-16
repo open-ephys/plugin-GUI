@@ -103,7 +103,7 @@
               activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="Spike Detector" insertionPoint="1" pluginName="Spike Detector"
-               type="1" index="2" libraryName="Basic Spike Display" libraryVersion="0.1.0"
+               type="1" index="2" libraryName="Spike Detector" libraryVersion="0.1.0"
                processorType="1" nodeId="105">
       <PROCESSOR_PARAMETERS/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
@@ -171,7 +171,7 @@
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="Spike Viewer" insertionPoint="1" pluginName="Spike Viewer"
-               type="1" index="3" libraryName="Basic Spike Display" libraryVersion="0.1.0"
+               type="1" index="3" libraryName="Spike Viewer" libraryVersion="0.1.0"
                processorType="3" nodeId="107">
       <PROCESSOR_PARAMETERS/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
