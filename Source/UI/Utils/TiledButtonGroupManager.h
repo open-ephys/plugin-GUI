@@ -90,8 +90,6 @@ private:
     bool m_isDraggingMouseNow;
     bool m_isSelectButtonsByDragging;
 
-    ScopedPointer<LookAndFeel> m_materialButtonsLookAndFeel;
-
     // ===========================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TiledButtonGroupManager)
 };

@@ -25,7 +25,6 @@
 #include "../../Audio/AudioComponent.h"
 #include "../../AccessClass.h"
 #include "../../UI/EditorViewport.h"
-#include "../../UI/LookAndFeel/MaterialSliderLookAndFeel.h"
 #include "../../Utils/Utils.h"
 
 static const Colour COLOUR_SLIDER_TRACK         (Colour::fromRGB (92, 92, 92));

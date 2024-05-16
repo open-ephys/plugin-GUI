@@ -30,7 +30,6 @@
 #include "../Editors/PopupChannelSelector.h"
 #include "../Parameter/ParameterEditor.h"
 #include "../../Source/UI/Utils/LinearButtonGroupManager.h"
-#include "../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"
 #include "AudioMonitor.h"
 
 class AudioMonitor;
@@ -101,8 +100,6 @@ private:
     TextButton* leftButton;
     TextButton* rightButton;
     TextButton* bothButton;
-
-    std::shared_ptr<MaterialButtonLookAndFeel> m_materialButtonLookAndFeel;
 
 };
 

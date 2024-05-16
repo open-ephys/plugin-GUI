@@ -22,22 +22,19 @@
 */
 
 #include "TiledButtonGroupManager.h"
-#include "../LookAndFeel/MaterialButtonLookAndFeel.h"
 
 #include <algorithm>
 
 using namespace juce;
 
 TiledButtonGroupManager::TiledButtonGroupManager()
-    : m_buttonWidth (10), m_buttonHeight (10), m_minPaddingForButtons (5), m_firstSelectedButtonIdx (-1), m_lastSelectedButtonIdx (-1), m_isToggleOnMode (true), m_isDraggingMouseNow (false), m_isSelectButtonsByDragging (false), m_materialButtonsLookAndFeel (new MaterialButtonLookAndFeel)
+    : m_buttonWidth (10), m_buttonHeight (10), m_minPaddingForButtons (5), m_firstSelectedButtonIdx (-1), m_lastSelectedButtonIdx (-1), m_isToggleOnMode (true), m_isDraggingMouseNow (false), m_isSelectButtonsByDragging (false)
 {
     setRadioButtonMode (false);
-    setButtonsLookAndFeel (m_materialButtonsLookAndFeel);
 }
 
 TiledButtonGroupManager::~TiledButtonGroupManager()
 {
-    setButtonsLookAndFeel (nullptr);
 }
 
 void TiledButtonGroupManager::resized()

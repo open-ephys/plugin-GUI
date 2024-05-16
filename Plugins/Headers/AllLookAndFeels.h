@@ -21,7 +21,3 @@
 */
 
 #include "../../Source/UI/LookAndFeel/CustomLookAndFeel.h"
-#include "../../Source/UI/LookAndFeel/MaterialButtonLookAndFeel.h"
-#include "../../Source/UI/LookAndFeel/MaterialSliderLookAndFeel.h"
-#include "../../Source/UI/LookAndFeel/SquareLookAndFeel.h"
-#include "../../Source/UI/LookAndFeel/FlatRoundLookAndFeel.h"
