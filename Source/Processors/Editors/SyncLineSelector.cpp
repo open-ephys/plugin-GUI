@@ -63,7 +63,7 @@ void SyncChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
     else
         g.setColour(findColour(ThemeColors::defaultText));
 
-	g.setFont(10);
+	g.setFont(FontOptions("Inter", "Regular", 10.0f));
 	g.drawText (String(id), 0,0, getWidth(), getHeight(), Justification::centred); 
 
 }
@@ -77,9 +77,6 @@ SetPrimaryButton::~SetPrimaryButton() {}
 
 void SetPrimaryButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
-    g.setColour(findColour(ThemeColors::outline));
-    g.fillRoundedRectangle (0.0f, 0.0f, getWidth(), getHeight(), 0.001*getWidth());
-
     if (isMouseOver)
     {
         if (getToggleState())
@@ -94,10 +91,13 @@ void SetPrimaryButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonD
         else
             g.setColour(findColour(ThemeColors::widgetBackground));
     }
-    g.fillRoundedRectangle(0.0f, 0.0f, getWidth(), getHeight(), 0.01*getWidth());
+    g.fillRoundedRectangle(1.0f, 1.0f, (float)getWidth() - 2.0f, (float)getHeight() - 2.0f, 2.0f);
+
+    g.setColour(findColour(ThemeColors::outline));
+    g.drawRoundedRectangle (0.0f, 0.0f, (float)getWidth(), (float)getHeight(), 2.0f, 1.0f);
     
 	g.setColour(findColour(ThemeColors::defaultText));
-	g.setFont(12);
+	g.setFont(FontOptions("Inter", "Regular", 12.0f));
 	g.drawText (String(getName()), 0, 0, getWidth(), getHeight(), Justification::centred);
 }
 
