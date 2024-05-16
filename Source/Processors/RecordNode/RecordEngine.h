@@ -35,22 +35,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 
 //Handy macros for setParameter
-#define boolParameter(i,v) if ((parameter.id == i) && (parameter.type == EngineParameter::BOOL)) \
-        v = parameter.boolParam.value
-#define intParameter(i,v) if ((parameter.id == i) && (parameter.type == EngineParameter::INT)) \
-        v = parameter.intParam.value
-#define floatParameter(i,v) if ((parameter.id == i) && (parameter.type == EngineParameter::FLOAT)) \
-        v = parameter.floatParam.value
-#define strParameter(i,v) if ((parameter.id == i) && (parameter.type == EngineParameter::STR)) \
-        v = parameter.strParam.value
-#define multiParameter(i,v) if ((parameter.id == i) && (parameter.type == EngineParameter::MULTI)) \
-        v = parameter.multiParam.value
+#define boolParameter(i, v)                                               \
+    if ((parameter.id == i) && (parameter.type == EngineParameter::BOOL)) \
+    v = parameter.boolParam.value
+#define intParameter(i, v)                                               \
+    if ((parameter.id == i) && (parameter.type == EngineParameter::INT)) \
+    v = parameter.intParam.value
+#define floatParameter(i, v)                                               \
+    if ((parameter.id == i) && (parameter.type == EngineParameter::FLOAT)) \
+    v = parameter.floatParam.value
+#define strParameter(i, v)                                               \
+    if ((parameter.id == i) && (parameter.type == EngineParameter::STR)) \
+    v = parameter.strParam.value
+#define multiParameter(i, v)                                               \
+    if ((parameter.id == i) && (parameter.type == EngineParameter::MULTI)) \
+    v = parameter.multiParam.value
 
 struct RecordProcessorInfo
 {
-	int processorId;
-	String processorName;
-	Array<int> recordedChannels; //Indexes of the recorded channels. From 0-maxRecordChannels, not 0-totalChannels
+    int processorId;
+    String processorName;
+    Array<int> recordedChannels; //Indexes of the recorded channels. From 0-maxRecordChannels, not 0-totalChannels
 };
 
 struct EngineParameter;
@@ -58,87 +63,84 @@ struct EngineParameter;
 class RecordNode;
 class RecordEngineManager;
 
-
 class PLUGIN_API RecordEngine
 {
 public:
-
-	/** Constructor */
-	RecordEngine();
+    /** Constructor */
+    RecordEngine();
 
 #ifdef WIN32
-	/** Destructor */
-    virtual ~RecordEngine() { }
+    /** Destructor */
+    virtual ~RecordEngine() {}
 #else
-	/** Destructor */
-	virtual ~RecordEngine();
+    /** Destructor */
+    virtual ~RecordEngine();
 #endif
 
-	// ------------------------------------------------------------
-	//                  PURE VIRTUAL METHODS
-	//     (must be implemented by all Record Engines)
-	// ------------------------------------------------------------
+    // ------------------------------------------------------------
+    //                  PURE VIRTUAL METHODS
+    //     (must be implemented by all Record Engines)
+    // ------------------------------------------------------------
 
-	/** Returns the unique identifier of the Record Engine */
-	virtual String getEngineId() const = 0;
+    /** Returns the unique identifier of the Record Engine */
+    virtual String getEngineId() const = 0;
 
-	/** Called when recording starts to open all needed files */
-	virtual void openFiles(File rootFolder, int experimentNumber, int recordingNumber) = 0;
+    /** Called when recording starts to open all needed files */
+    virtual void openFiles (File rootFolder, int experimentNumber, int recordingNumber) = 0;
 
-	/** Called when recording stops to close all files and do all the necessary cleanup */
-	virtual void closeFiles() = 0;
+    /** Called when recording stops to close all files and do all the necessary cleanup */
+    virtual void closeFiles() = 0;
 
-	/** Write continuous data for a channel with synchronized float timestamps */
-	virtual void writeContinuousData(int writeChannel,
-					 int realChannel,
-					 const float* dataBuffer,
-					 const double* timestampBuffer,
-					 int size) = 0;
+    /** Write continuous data for a channel with synchronized float timestamps */
+    virtual void writeContinuousData (int writeChannel,
+                                      int realChannel,
+                                      const float* dataBuffer,
+                                      const double* timestampBuffer,
+                                      int size) = 0;
 
-	/** Write a single event to disk (TTL or TEXT) */
-	virtual void writeEvent(int eventChannel, const EventPacket& event) = 0;
+    /** Write a single event to disk (TTL or TEXT) */
+    virtual void writeEvent (int eventChannel, const EventPacket& event) = 0;
 
-	/** Write a spike to disk */
-	virtual void writeSpike(int electrodeIndex, const Spike* spike) = 0;
+    /** Write a spike to disk */
+    virtual void writeSpike (int electrodeIndex, const Spike* spike) = 0;
 
-	/** Handle the timestamp sync text messages*/
-	virtual void writeTimestampSyncText(uint64 streamId, int64 timestamp, float sourceSampleRate, String text) = 0;
+    /** Handle the timestamp sync text messages*/
+    virtual void writeTimestampSyncText (uint64 streamId, int64 timestamp, float sourceSampleRate, String text) = 0;
 
-	// ------------------------------------------------------------
-	//                   VIRTUAL METHODS
-	//       (can optionally be overriden by sub-classes)
-	// ------------------------------------------------------------
+    // ------------------------------------------------------------
+    //                   VIRTUAL METHODS
+    //       (can optionally be overriden by sub-classes)
+    // ------------------------------------------------------------
 
-	/** Called by configureEngine() */
-	virtual void setParameter(EngineParameter& parameter) { }
+    /** Called by configureEngine() */
+    virtual void setParameter (EngineParameter& parameter) {}
 
-	// ------------------------------------------------------------
-	//                    OTHER METHODS
-	// ------------------------------------------------------------
+    // ------------------------------------------------------------
+    //                    OTHER METHODS
+    // ------------------------------------------------------------
 
-	/** Sets the pointer to Record Node for this engine*/
-	void registerRecordNode(RecordNode* node);
+    /** Sets the pointer to Record Node for this engine*/
+    void registerRecordNode (RecordNode* node);
 
-	/** Sets the pointer to the RecordEngineManager (called by ControlPanel) */
-	void registerManager(RecordEngineManager* engineManager);
+    /** Sets the pointer to the RecordEngineManager (called by ControlPanel) */
+    void registerManager (RecordEngineManager* engineManager);
 
-	/** Sets RecordEngine parameters (if available) at the start of acquisition*/
-	void configureEngine();
+    /** Sets RecordEngine parameters (if available) at the start of acquisition*/
+    void configureEngine();
 
-	/** Called prior to opening files, to set the map between recorded channels and actual channel numbers */
-	void setChannelMap(const Array<int>& globalChannels, const Array<int>& localChannels);
+    /** Called prior to opening files, to set the map between recorded channels and actual channel numbers */
+    void setChannelMap (const Array<int>& globalChannels, const Array<int>& localChannels);
 
-	/** Called at the start of every write block */
-	void updateLatestSampleNumbers(const Array<int64>& sampleNumbers, int channel = -1);
+    /** Called at the start of every write block */
+    void updateLatestSampleNumbers (const Array<int64>& sampleNumbers, int channel = -1);
 
 protected:
+    // ------------------------------------------------------------
+    //    HELPFUL METHODS FOR GETTING INFO ABOUT INCOMING DATA
+    // ------------------------------------------------------------
 
-	// ------------------------------------------------------------
-	//    HELPFUL METHODS FOR GETTING INFO ABOUT INCOMING DATA
-	// ------------------------------------------------------------
-
-	/** Functions to access RecordNode arrays and utilities */
-	RecordNode* recordNode;
+    /** Functions to access RecordNode arrays and utilities */
+    RecordNode* recordNode;
 
     /** Gets the number of recorded data streams */
     int getNumRecordedDataStreams() const;
@@ -153,43 +155,42 @@ protected:
     int getNumRecordedSpikeChannels() const;
 
     /** Gets the specified DataStream pointer from the array stored in RecordNode*/
-    const DataStream* getDataStream(int index) const;
+    const DataStream* getDataStream (int index) const;
 
-	/** Gets the specified channel from the channel array stored in RecordNode */
-	const ContinuousChannel* getContinuousChannel(int index) const;
+    /** Gets the specified channel from the channel array stored in RecordNode */
+    const ContinuousChannel* getContinuousChannel (int index) const;
 
-	/** Gets the specified event channel from the channel array stored in RecordNode */
-	const EventChannel* getEventChannel(int index) const;
+    /** Gets the specified event channel from the channel array stored in RecordNode */
+    const EventChannel* getEventChannel (int index) const;
 
-	/** Gets the specified spike channel from the array stored in RecordNode */
-	const SpikeChannel* getSpikeChannel(int index) const;
+    /** Gets the specified spike channel from the array stored in RecordNode */
+    const SpikeChannel* getSpikeChannel (int index) const;
 
-	/** Generate a Matlab-compatible datestring */
-	String generateDateString() const;
+    /** Generate a Matlab-compatible datestring */
+    String generateDateString() const;
 
-	/** Gets the current block's first timestamp for a given recorded channel */
-	int64 getLatestSampleNumber(int channel) const;
-
-	/** Gets the a channel's global index from a recorded channel index */
-	int getGlobalIndex(int channel) const;
+    /** Gets the current block's first timestamp for a given recorded channel */
+    int64 getLatestSampleNumber (int channel) const;
 
     /** Gets the a channel's global index from a recorded channel index */
-    int getLocalIndex(int channel) const;
+    int getGlobalIndex (int channel) const;
 
-	/** Gets the last created settings.xml in text form. Should be called at file opening to get the latest version.
+    /** Gets the a channel's global index from a recorded channel index */
+    int getLocalIndex (int channel) const;
+
+    /** Gets the last created settings.xml in text form. Should be called at file opening to get the latest version.
 	Since the string will be large, returns a const reference. It should never be const_casted.
 	*/
-	const String& getLatestSettingsXml() const;
+    const String& getLatestSettingsXml() const;
 
 private:
-
-	Array<int64> sampleNumbers;
-	Array<int> globalChannelMap;
+    Array<int64> sampleNumbers;
+    Array<int> globalChannelMap;
     Array<int> localChannelMap;
 
-	RecordEngineManager* manager;
+    RecordEngineManager* manager;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordEngine);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordEngine);
 };
 
 typedef RecordEngine* (*EngineCreator)();
@@ -197,102 +198,106 @@ typedef RecordEngine* (*EngineCreator)();
 struct PLUGIN_API EngineParameter
 {
 public:
-	enum EngineParameterType { STR, INT, FLOAT, BOOL, MULTI };
+    enum EngineParameterType
+    {
+        STR,
+        INT,
+        FLOAT,
+        BOOL,
+        MULTI
+    };
 
-	EngineParameter(EngineParameterType paramType,
-		int paramId,
-		String paramName,
-		var defaultValue,
-		var min = 0,
-		var max = 100);
+    EngineParameter (EngineParameterType paramType,
+                     int paramId,
+                     String paramName,
+                     var defaultValue,
+                     var min = 0,
+                     var max = 100);
 
-	void restoreDefault();
+    void restoreDefault();
 
-	union
-	{
-		struct
-		{
-			int min;
-			int max;
-			int value;
-		} intParam;
+    union
+    {
+        struct
+        {
+            int min;
+            int max;
+            int value;
+        } intParam;
 
-		struct
-		{
-			float min;
-			float max;
-			float value;
-		} floatParam;
+        struct
+        {
+            float min;
+            float max;
+            float value;
+        } floatParam;
 
-		struct
-		{
-			bool value;
-		} boolParam;
+        struct
+        {
+            bool value;
+        } boolParam;
 
-		struct
-		{
-			int value;
-		} multiParam;
-	};
+        struct
+        {
+            int value;
+        } multiParam;
+    };
 
-	//Strings can't be inside an union. This means wasting a bit of memory, but adds more safety than using char*
-	struct
-	{
-		String value;
-	} strParam;
+    //Strings can't be inside an union. This means wasting a bit of memory, but adds more safety than using char*
+    struct
+    {
+        String value;
+    } strParam;
 
-	const EngineParameterType type;
-	const String name;
-	const int id;
-
+    const EngineParameterType type;
+    const String name;
+    const int id;
 
 private:
-	var def;
+    var def;
 };
-
 
 class EngineConfigWindow;
 class PLUGIN_API RecordEngineManager
 {
 public:
-	RecordEngineManager(String engineID, String engineName, EngineCreator creatorFunc);
-	~RecordEngineManager();
+    RecordEngineManager (String engineID, String engineName, EngineCreator creatorFunc);
+    ~RecordEngineManager();
 
-	void addParameter(EngineParameter* param);
+    void addParameter (EngineParameter* param);
 
-	RecordEngine* instantiateEngine();
-	void toggleConfigWindow();
-	bool isWindowOpen() const;
+    RecordEngine* instantiateEngine();
+    void toggleConfigWindow();
+    bool isWindowOpen() const;
 
-	void saveParametersToXml(XmlElement* xml);
-	void loadParametersFromXml(XmlElement* xml);
+    void saveParametersToXml (XmlElement* xml);
+    void loadParametersFromXml (XmlElement* xml);
 
-	EngineParameter& getParameter(int index);
-	int getNumParameters() const;
+    EngineParameter& getParameter (int index);
+    int getNumParameters() const;
 
-	String getID()   const;
-	String getName() const;
+    String getID() const;
+    String getName() const;
 
-	static int getNumOfBuiltInEngines();
-	static RecordEngineManager* createBuiltInEngineManager(int index);
-
+    static int getNumOfBuiltInEngines();
+    static RecordEngineManager* createBuiltInEngineManager (int index);
 
 private:
-	EngineCreator creator;
+    EngineCreator creator;
 
-	String id;
-	String name;
+    String id;
+    String name;
 
-	OwnedArray<EngineParameter> parameters;
-	ScopedPointer<EngineConfigWindow> window;
+    OwnedArray<EngineParameter> parameters;
+    ScopedPointer<EngineConfigWindow> window;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordEngineManager);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordEngineManager);
 };
 
-template<class T>
+template <class T>
 RecordEngine* engineFactory()
 {
-	return new T;
+    return new T;
 }
 
-#endif  // RECORDENGINE_H_INCLUDED
+#endif // RECORDENGINE_H_INCLUDED

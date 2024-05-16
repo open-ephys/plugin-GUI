@@ -24,9 +24,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __RECORDNODEEDITOR_H__
 #define __RECORDNODEEDITOR_H__
 
+#include "../../Utils/Utils.h"
 #include "../Editors/GenericEditor.h"
 #include "../Editors/PopupChannelSelector.h"
-#include "../../Utils/Utils.h"
 
 class RecordThread;
 class RecordNode;
@@ -34,64 +34,61 @@ class RecordNode;
 class StreamMonitor : public LevelMonitor
 {
 public:
+    /** Constructor */
+    StreamMonitor (RecordNode* rn, uint64 streamId);
 
-	/** Constructor */
-	StreamMonitor(RecordNode* rn, uint64 streamId);
+    /** Destructor */
+    ~StreamMonitor();
 
-	/** Destructor */
-	~StreamMonitor();
-
-	/** Updates the display */
-	void timerCallback() override;
+    /** Updates the display */
+    void timerCallback() override;
 
 private:
-	uint64 streamId;
+    uint64 streamId;
 };
 
 class DiskSpaceMonitor : public LevelMonitor
 {
 public:
+    /** Constructor */
+    DiskSpaceMonitor (RecordNode* rn);
 
-	/** Constructor */
-	DiskSpaceMonitor(RecordNode* rn);
+    /** Destructor */
+    ~DiskSpaceMonitor();
 
-	/** Destructor */
-	~DiskSpaceMonitor();
+    /** Updates the display */
+    void timerCallback() override;
 
-	/** Updates the display */
-	void timerCallback() override;
-
-	/** Resets timer */
-	void reset();
+    /** Resets timer */
+    void reset();
 
 private:
-	int64 lastFreeSpace;
-	float recordingTimeLeftInSeconds;
-	float dataRate;
+    int64 lastFreeSpace;
+    float recordingTimeLeftInSeconds;
+    float dataRate;
 };
 
 class RecordChannelsParameterEditor : public ParameterEditor,
-    public Button::Listener,
-	public PopupChannelSelector::Listener
+                                      public Button::Listener,
+                                      public PopupChannelSelector::Listener
 {
 public:
-
     /** Constructor */
-    RecordChannelsParameterEditor(RecordNode* rn, Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
+    RecordChannelsParameterEditor (RecordNode* rn, Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 160);
 
     /** Destructor */
-    virtual ~RecordChannelsParameterEditor() { }
+    virtual ~RecordChannelsParameterEditor() {}
 
     /** Displays the PopupChannelSelector*/
-    void buttonClicked(Button* label) override;
+    void buttonClicked (Button* label) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
-	Array<int> getSelectedChannels() override;
+    Array<int> getSelectedChannels() override;
 
     /** Responds to changes in the PopupChannelSelector*/
-    void channelStateChanged(Array<int> selectedChannels) override;
+    void channelStateChanged (Array<int> selectedChannels) override;
 
     /** Sets sub-component locations */
     virtual void resized() override;
@@ -99,9 +96,8 @@ public:
 private:
     std::unique_ptr<StreamMonitor> monitor;
 
-	RecordNode* recordNode;
+    RecordNode* recordNode;
 };
-
 
 /**
     
@@ -111,30 +107,28 @@ private:
 class RecordToggleButton : public CustomToggleButton
 {
 public:
-    
     /** Constructor */
-	RecordToggleButton(const String& name);
-    
+    RecordToggleButton (const String& name);
+
     /** Destructor */
-	~RecordToggleButton();
+    ~RecordToggleButton();
 
 private:
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
 class RecordToggleParameterEditor : public ParameterEditor,
-    public Button::Listener
+                                    public Button::Listener
 {
 public:
-
     /** Constructor */
-    RecordToggleParameterEditor(Parameter* param);
+    RecordToggleParameterEditor (Parameter* param);
 
     /** Destructor*/
-    ~RecordToggleParameterEditor() { }
+    ~RecordToggleParameterEditor() {}
 
     /** Respond to mute button clicks*/
-    void buttonClicked(Button* label);
+    void buttonClicked (Button* label);
 
     /** Ensures button state aligns with underlying parameter*/
     virtual void updateView() override;
@@ -143,7 +137,7 @@ public:
     virtual void resized();
 
 private:
-	std::unique_ptr<Label> label;
+    std::unique_ptr<Label> label;
     std::unique_ptr<CustomToggleButton> toggleButton;
 };
 
@@ -155,84 +149,80 @@ private:
 class FifoDrawerButton : public DrawerButton
 {
 public:
-    
     /** Constructor */
-	FifoDrawerButton(const String& name) : DrawerButton(name) { };
-    
+    FifoDrawerButton (const String& name) : DrawerButton (name) {};
+
     /** Destructor */
-	~FifoDrawerButton() {};
+    ~FifoDrawerButton() {};
+
 private:
-    
     /** Renders the button*/
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
 /**
     Custom editor for the RecordNode
  */
-class RecordNodeEditor : 
-	public GenericEditor,
-    public Timer,
-    public Button::Listener
+class RecordNodeEditor : public GenericEditor,
+                         public Timer,
+                         public Button::Listener
 {
 public:
+    /** Constructor */
+    RecordNodeEditor (RecordNode* parentNode);
 
-	/** Constructor */
-	RecordNodeEditor(RecordNode* parentNode);
+    /** Destructor*/
+    virtual ~RecordNodeEditor() {}
 
-	/** Destructor*/
-    virtual ~RecordNodeEditor() { }
+    /** Hides FIFO monitors when the editor is collapsed*/
+    void collapsedStateChanged() override;
 
-	/** Hides FIFO monitors when the editor is collapsed*/
-	void collapsedStateChanged() override;
+    /** Propagates new settings to FIFO Monitors */
+    void updateFifoMonitors();
 
-	/** Propagates new settings to FIFO Monitors */
-	void updateFifoMonitors();
+    /** Shows/hides FIFO Monitors*/
+    void showFifoMonitors (bool);
 
-	/** Shows/hides FIFO Monitors*/
-	void showFifoMonitors(bool);
+    /** Automatically opens the drawer to reveal FIFO Monitors */
+    void timerCallback();
 
-	/** Automatically opens the drawer to reveal FIFO Monitors */
-	void timerCallback();
-    
     /** Updates settings based on Record Node state*/
     void updateSettings() override;
 
-	/** Respond to button clicks*/
-	void buttonClicked(Button* button);
-    
+    /** Respond to button clicks*/
+    void buttonClicked (Button* button);
+
     /** Disables parameter changes */
     void startRecording() override;
-    
+
     /** Enables parameter changes */
     void stopRecording() override;
 
-	ScopedPointer<FifoDrawerButton> fifoDrawerButton;
+    ScopedPointer<FifoDrawerButton> fifoDrawerButton;
 
-	ScopedPointer<ComboBox> engineSelectCombo;
+    ScopedPointer<ComboBox> engineSelectCombo;
 
-	bool monitorsVisible;
-	int numDataStreams;
-    
+    bool monitorsVisible;
+    int numDataStreams;
+
 private:
-	RecordNode* recordNode;
+    RecordNode* recordNode;
 
-	OwnedArray<Label> streamLabels;
-	std::vector<ParameterEditor*> streamMonitors;
-	std::vector<ParameterEditor*> syncMonitors;
-	ScopedPointer<Label> diskSpaceLabel;
-	ScopedPointer<DiskSpaceMonitor> diskSpaceMonitor;
-	ScopedPointer<RecordToggleButton> recordToggleButton;
-	ScopedPointer<Label> engineSelectLabel;
-	ScopedPointer<Label> dataPathLabel;
-	ScopedPointer<Button> dataPathButton;
-	ScopedPointer<Label> recordEventsLabel;
-	ScopedPointer<RecordToggleButton> eventRecord;
-	ScopedPointer<Label> recordSpikesLabel;
-	ScopedPointer<RecordToggleButton> spikeRecord;
+    OwnedArray<Label> streamLabels;
+    std::vector<ParameterEditor*> streamMonitors;
+    std::vector<ParameterEditor*> syncMonitors;
+    ScopedPointer<Label> diskSpaceLabel;
+    ScopedPointer<DiskSpaceMonitor> diskSpaceMonitor;
+    ScopedPointer<RecordToggleButton> recordToggleButton;
+    ScopedPointer<Label> engineSelectLabel;
+    ScopedPointer<Label> dataPathLabel;
+    ScopedPointer<Button> dataPathButton;
+    ScopedPointer<Label> recordEventsLabel;
+    ScopedPointer<RecordToggleButton> eventRecord;
+    ScopedPointer<Label> recordSpikesLabel;
+    ScopedPointer<RecordToggleButton> spikeRecord;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNodeEditor);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNodeEditor);
 };
 
-#endif  // __RECORDNODEEDITOR_H__
+#endif // __RECORDNODEEDITOR_H__
