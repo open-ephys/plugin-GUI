@@ -21,7 +21,7 @@ class ContinuousChannelTests : public testing::Test
 protected:
     void SetUp() override
     {
-        mStream = new DataStream(
+        mStream = std::make_unique<DataStream>(
             DataStream::Settings{
                 "Data Stream",
                 "Data Stream Description",
@@ -37,7 +37,7 @@ protected:
                 "Continuous Channel Description",
                 "Continuous Channel Identifier",
                 0.0f,
-                mStream
+                mStream.get()
             }
         );
     }
@@ -49,7 +49,7 @@ protected:
 
 protected:
     std::unique_ptr<ContinuousChannel> mContinuousChannel;
-    DataStream* mStream;
+    std::unique_ptr<DataStream> mStream;
 };
 
 /*
