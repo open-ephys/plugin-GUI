@@ -21,46 +21,40 @@
 
 */
 
-#include "FileReader.h"
 #include "FileReaderEditor.h"
+#include "FileReader.h"
 #include "ScrubberInterface.h"
 
 #include <stdio.h>
 
 FileReaderEditor::FileReaderEditor (GenericProcessor* parentNode)
-    : GenericEditor (parentNode)
-    , fileReader   (static_cast<FileReader*> (parentNode))
-    , recTotalTime              (0)
-    , m_isFileDragAndDropActive (false)
-    , scrubInterfaceVisible (false)
-    , scrubInterfaceAvailable(false)
+    : GenericEditor (parentNode), fileReader (static_cast<FileReader*> (parentNode)), recTotalTime (0), m_isFileDragAndDropActive (false), scrubInterfaceVisible (false), scrubInterfaceAvailable (false)
 {
     desiredWidth = 250;
 
-    scrubberInterface = std::make_unique<ScrubberInterface>(fileReader);
-    scrubberInterface->setBounds(0, 0, 420, 140);
-    addChildComponent(scrubberInterface.get());
+    scrubberInterface = std::make_unique<ScrubberInterface> (fileReader);
+    scrubberInterface->setBounds (0, 0, 420, 140);
+    addChildComponent (scrubberInterface.get());
 
-    scrubDrawerButton = std::make_unique<DrawerButton>(getNameAndId() + " Scrub Drawer Button");
-	scrubDrawerButton->setBounds(4, 40, 10, 78);
-    scrubDrawerButton->setToggleState(false, dontSendNotification);
-	scrubDrawerButton->addListener(this);
-    scrubDrawerButton->setEnabled(false);
-	addAndMakeVisible(scrubDrawerButton.get());
+    scrubDrawerButton = std::make_unique<DrawerButton> (getNameAndId() + " Scrub Drawer Button");
+    scrubDrawerButton->setBounds (4, 40, 10, 78);
+    scrubDrawerButton->setToggleState (false, dontSendNotification);
+    scrubDrawerButton->addListener (this);
+    scrubDrawerButton->setEnabled (false);
+    addAndMakeVisible (scrubDrawerButton.get());
 
     addPathParameterEditor (Parameter::PROCESSOR_SCOPE, "selected_file", 24, 29);
     addSelectedStreamParameterEditor (Parameter::PROCESSOR_SCOPE, "active_stream", 24, 54);
     addTimeParameterEditor (Parameter::PROCESSOR_SCOPE, "start_time", 24, 79);
     addTimeParameterEditor (Parameter::PROCESSOR_SCOPE, "end_time", 24, 104);
 
-    for (auto& p : {"selected_file", "active_stream", "start_time", "end_time"})
+    for (auto& p : { "selected_file", "active_stream", "start_time", "end_time" })
     {
-        auto* ed = getParameterEditor(p);
-        ed->setBounds(ed->getX(), ed->getY(), desiredWidth, ed->getHeight());
+        auto* ed = getParameterEditor (p);
+        ed->setBounds (ed->getX(), ed->getY(), desiredWidth, ed->getHeight());
     }
 
     lastFilePath = CoreServices::getDefaultUserSaveDirectory();
-
 }
 
 FileReaderEditor::~FileReaderEditor()
@@ -70,18 +64,18 @@ FileReaderEditor::~FileReaderEditor()
 void FileReaderEditor::buttonClicked (Button* button)
 {
     if (button == scrubDrawerButton.get())
-        showScrubInterface(!scrubInterfaceVisible);
+        showScrubInterface (! scrubInterfaceVisible);
 }
 
 void FileReaderEditor::collapsedStateChanged()
 {
-    LOGD("Scrub interface visible: ", scrubInterfaceVisible);
-    LOGD("Scrub interface available: ", scrubInterfaceAvailable);
+    LOGD ("Scrub interface visible: ", scrubInterfaceVisible);
+    LOGD ("Scrub interface available: ", scrubInterfaceAvailable);
 
-    if (!getCollapsedState())
+    if (! getCollapsedState())
     {
-        scrubberInterface->setVisible(scrubInterfaceVisible);
-        scrubDrawerButton->setEnabled(scrubInterfaceAvailable);
+        scrubberInterface->setVisible (scrubInterfaceVisible);
+        scrubDrawerButton->setEnabled (scrubInterfaceAvailable);
     }
 }
 
@@ -95,17 +89,17 @@ void FileReaderEditor::paintOverChildren (Graphics& g)
     }
 
     if (scrubInterfaceVisible)
-        scrubberInterface->paintOverChildren(g);
-
+        scrubberInterface->paintOverChildren (g);
 }
 
-void FileReaderEditor::enableScrubDrawer(bool enable)
+void FileReaderEditor::enableScrubDrawer (bool enable)
 {
     scrubInterfaceAvailable = enable;
 
-    scrubDrawerButton->setEnabled(scrubInterfaceAvailable);
-    if (!scrubInterfaceAvailable) {
-        showScrubInterface(false);
+    scrubDrawerButton->setEnabled (scrubInterfaceAvailable);
+    if (! scrubInterfaceAvailable)
+    {
+        showScrubInterface (false);
     }
 }
 
@@ -114,45 +108,33 @@ ScrubberInterface* FileReaderEditor::getScrubberInterface()
     return scrubberInterface.get();
 }
 
-void FileReaderEditor::showScrubInterface(bool show)
+void FileReaderEditor::showScrubInterface (bool show)
 {
-
-    scrubberInterface->setVisible(show);
+    scrubberInterface->setVisible (show);
 
     int dX = scrubberInterface->getWidth();
 
-    if (scrubInterfaceVisible && !show)
+    if (scrubInterfaceVisible && ! show)
         dX = -dX;
-    else if (!scrubInterfaceVisible && !show)
-       return;
+    else if (! scrubInterfaceVisible && ! show)
+        return;
 
     desiredWidth += dX;
 
     /* Move all editor components to the right */
-    scrubDrawerButton->setBounds(
-        scrubDrawerButton->getX() + dX, scrubDrawerButton->getY(),
-        scrubDrawerButton->getWidth(), scrubDrawerButton->getHeight()
-    );
+    scrubDrawerButton->setBounds (
+        scrubDrawerButton->getX() + dX, scrubDrawerButton->getY(), scrubDrawerButton->getWidth(), scrubDrawerButton->getHeight());
 
-    for (auto& p : {"selected_file", "active_stream", "start_time", "end_time"})
+    for (auto& p : { "selected_file", "active_stream", "start_time", "end_time" })
     {
-        auto* ed = getParameterEditor(p);
-        ed->setBounds(ed->getX() + dX, ed->getY(), ed->getWidth(), ed->getHeight());
+        auto* ed = getParameterEditor (p);
+        ed->setBounds (ed->getX() + dX, ed->getY(), ed->getWidth(), ed->getHeight());
     }
 
-    CoreServices::highlightEditor(this);
+    CoreServices::highlightEditor (this);
     deselect();
 
     scrubInterfaceVisible = show;
-
-}
-
-void FileReaderEditor::saveCustomParametersToXml (XmlElement* xml)
-{
-}
-
-void FileReaderEditor::loadCustomParametersFromXml (XmlElement* xml)
-{
 }
 
 bool FileReaderEditor::isInterestedInFileDrag (const StringArray& files)
@@ -184,7 +166,7 @@ void FileReaderEditor::fileDragEnter (const StringArray& files, int x, int y)
 
 void FileReaderEditor::filesDropped (const StringArray& files, int x, int y)
 {
-    //TODO: Use parameter 
+    //TODO: Use parameter
     //setFile (files[0]);
 
     m_isFileDragAndDropActive = false;

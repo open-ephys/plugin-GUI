@@ -21,13 +21,12 @@
 
 */
 
-
 #ifndef __FILEREADEREDITOR_H_D6EC8B48__
 #define __FILEREADEREDITOR_H_D6EC8B48__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../Editors/GenericEditor.h"
 #include "../../Utils/Utils.h"
+#include "../Editors/GenericEditor.h"
 
 #include "ScrubberInterface.h"
 
@@ -44,12 +43,9 @@ class FileSource;
 
 */
 
-class FileReaderEditor  : public GenericEditor
-                        , public FileDragAndDropTarget
-                        , public Button::Listener
+class FileReaderEditor : public GenericEditor, public FileDragAndDropTarget, public Button::Listener
 {
 public:
-
     /** Constructor */
     FileReaderEditor (GenericProcessor* parentNode);
 
@@ -63,37 +59,31 @@ public:
     void collapsedStateChanged();
 
     /* Methods to handle file drag and drop onto editor */
-    bool isInterestedInFileDrag (const StringArray& files)  override;
-    void fileDragExit           (const StringArray& files)  override;
-    void filesDropped           (const StringArray& files, int x, int y)  override;
-    void fileDragEnter          (const StringArray& files, int x, int y)  override;
+    bool isInterestedInFileDrag (const StringArray& files) override;
+    void fileDragExit (const StringArray& files) override;
+    void filesDropped (const StringArray& files, int x, int y) override;
+    void fileDragEnter (const StringArray& files, int x, int y) override;
 
     /** Draws a border indicating a file is being dragged above the editor */
-    void paintOverChildren(Graphics& g) override;
+    void paintOverChildren (Graphics& g) override;
 
     /** Returns a pointer to the ScrubberInterface */
     ScrubberInterface* getScrubberInterface();
 
     /** Enables/disables the ScrubDrawerButton */
-    void enableScrubDrawer(bool enabled);
+    void enableScrubDrawer (bool enabled);
 
     /** Controls whether or not to show the file scrubbing interface */
-    void showScrubInterface(bool show);
+    void showScrubInterface (bool show);
 
     /** Called whenever the scrubbing interface sliders are adjusted */
     void updatePlaybackTimes();
 
-    /** Save File Reader parameters */
-    void saveCustomParametersToXml(XmlElement*) override;
-
-    /** Load File Reader parameters */
-    void loadCustomParametersFromXml(XmlElement*) override;
-
 private:
     void clearEditor();
 
-    std::unique_ptr<DrawerButton>    scrubDrawerButton;
-    std::unique_ptr<ScrubberInterface>    scrubberInterface;
+    std::unique_ptr<DrawerButton> scrubDrawerButton;
+    std::unique_ptr<ScrubberInterface> scrubberInterface;
 
     FileReader* fileReader;
     unsigned int recTotalTime;
@@ -104,7 +94,7 @@ private:
 
     File lastFilePath;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReaderEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileReaderEditor);
 };
 
-#endif  // __FILEREADEREDITOR_H_D6EC8B48__
+#endif // __FILEREADEREDITOR_H_D6EC8B48__

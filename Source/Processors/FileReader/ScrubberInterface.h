@@ -9,27 +9,24 @@
 class PlaybackButton : public Button
 {
 public:
-    PlaybackButton(FileReader* reader)
-        : juce::Button("PlaybackButton")
-        , fileReader(reader)
-        , isActive(true) {}
+    PlaybackButton (FileReader* reader)
+        : juce::Button ("PlaybackButton"), fileReader (reader), isActive (true) {}
     ~PlaybackButton() {};
 
     bool getState();
-    void setState(bool isActive);
+    void setState (bool isActive);
 
 private:
     FileReader* fileReader;
     bool isActive;
 
-    void paintButton(Graphics &g, bool isMouseOver, bool isButtonDown) override;
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
-
 
 class Timeline : public Component, public Timer
 {
 public:
-    Timeline(FileReader* reader) : fileReader(reader) {}
+    Timeline (FileReader* reader) : fileReader (reader) {}
     virtual ~Timeline() {}
 
     virtual int getStartInterval() = 0;
@@ -38,7 +35,11 @@ public:
 
     virtual void timerCallback() = 0;
 
-    void setStartStopTimes(int start, int stop) { startMs = start; stopMs = stop; }
+    void setStartStopTimes (int start, int stop)
+    {
+        startMs = start;
+        stopMs = stop;
+    }
 
 protected:
     FileReader* fileReader;
@@ -46,29 +47,27 @@ protected:
     int startMs = 0;
     int stopMs = 0;
 
-    void paint(Graphics& g) override = 0;
-    void mouseDown(const MouseEvent& event) override = 0;
-    void mouseDrag(const MouseEvent& event) override = 0;
-    void mouseUp(const MouseEvent& event) override = 0;
+    void paint (Graphics& g) override = 0;
+    void mouseDown (const MouseEvent& event) override = 0;
+    void mouseDrag (const MouseEvent& event) override = 0;
+    void mouseUp (const MouseEvent& event) override = 0;
 };
-
 
 class FullTimeline : public Timeline
 {
 public:
-    FullTimeline(FileReader* fr)
-        : Timeline(fr)
-        , intervalStartPosition(0)
+    FullTimeline (FileReader* fr)
+        : Timeline (fr), intervalStartPosition (0)
     {
-        startTimer(50);
+        startTimer (50);
     }
     ~FullTimeline() override {};
 
     int getStartInterval() { return intervalStartPosition; }
     int getIntervalWidth() { return intervalWidth; }
     int getIntervalDurationInSeconds();
-    
-    void setIntervalPosition(int pos);
+
+    void setIntervalPosition (int pos);
 
     void timerCallback() override { repaint(); };
 
@@ -77,10 +76,10 @@ private:
     int intervalWidth;
     bool intervalIsSelected;
 
-    void paint(Graphics& g) override;
-    void mouseDown(const MouseEvent& event) override;
-    void mouseDrag(const MouseEvent& event) override;
-    void mouseUp(const MouseEvent& event) override;
+    void paint (Graphics& g) override;
+    void mouseDown (const MouseEvent& event) override;
+    void mouseDrag (const MouseEvent& event) override;
+    void mouseUp (const MouseEvent& event) override;
 
     bool leftSliderIsSelected;
 };
@@ -88,14 +87,14 @@ private:
 class ZoomTimeline : public Timeline
 {
 public:
-    ZoomTimeline(FileReader* fr)
-        :   Timeline(fr),
-            sliderWidth(8),
-            widthInSeconds(30),
-            leftSliderPosition(0),
-            rightSliderPosition(110)
+    ZoomTimeline (FileReader* fr)
+        : Timeline (fr),
+          sliderWidth (8),
+          widthInSeconds (30),
+          leftSliderPosition (0),
+          rightSliderPosition (110)
     {
-        startTimer(50);
+        startTimer (50);
     }
     ~ZoomTimeline() override {};
 
@@ -112,21 +111,20 @@ private:
     float rightSliderPosition;
     float lastDragXPosition;
 
-    void paint(Graphics& g) override;
-    void mouseDown(const MouseEvent& event) override;
-    void mouseDrag(const MouseEvent& event) override;
-    void mouseUp(const MouseEvent& event) override;
+    void paint (Graphics& g) override;
+    void mouseDown (const MouseEvent& event) override;
+    void mouseDrag (const MouseEvent& event) override;
+    void mouseUp (const MouseEvent& event) override;
 
     bool leftSliderIsSelected;
     bool rightSliderIsSelected;
     bool playbackRegionIsSelected;
 };
 
-
 class ScrubberInterface : public Component, public Button::Listener
 {
 public:
-    ScrubberInterface(FileReader* reader);
+    ScrubberInterface (FileReader* reader);
     ~ScrubberInterface() override {};
 
     std::unique_ptr<Label> zoomStartTimeLabel;
@@ -138,10 +136,10 @@ public:
     std::unique_ptr<Timeline> fullTimeline;
     std::unique_ptr<Timeline> zoomTimeline;
 
-    std::unique_ptr<PlaybackButton> playbackButton;
+    //std::unique_ptr<PlaybackButton> playbackButton; //deprecated
 
     void buttonClicked (Button* button) override;
-    void paintOverChildren(Graphics& g) override;
+    void paintOverChildren (Graphics& g) override;
     void updatePlaybackTimes();
     void updateZoomTimeLabels();
     int getFullTimelineStartPosition();
@@ -152,5 +150,4 @@ private:
     FileReader* fileReader;
 };
 
-
-#endif  // __SCRUBBERINTERFACE_H_D6EC8B48__
+#endif // __SCRUBBERINTERFACE_H_D6EC8B48__

@@ -24,55 +24,54 @@
 #include "FileReader.h"
 #include "FileReaderEditor.h"
 
-#include <stdio.h>
 #include "../../AccessClass.h"
 #include "../../Audio/AudioComponent.h"
 #include "../PluginManager/PluginManager.h"
 #include "BinaryFileSource/BinaryFileSource.h"
+#include <stdio.h>
 
-#include "../Settings/DeviceInfo.h"
 #include "../Settings/DataStream.h"
+#include "../Settings/DeviceInfo.h"
 
 #include "../Events/Event.h"
 
-FileReader::FileReader() : GenericProcessor ("File Reader")
-    , Thread ("filereader_Async_Reader")
-    , totalSamplesAcquired      (0)
-    , currentSampleRate         (0)
-    , currentNumChannels        (0)
-    , currentSample             (0)
-    , currentNumTotalSamples    (0)
-    , startSample               (0)
-    , stopSample                (0)
-    , loopCount                 (0)
-    , bufferCacheWindow         (0)
-    , m_shouldFillBackBuffer    (false)
-	, m_bufferSize              (1024)
-	, m_sysSampleRate           (44100)
-    , playbackActive            (true)
-    , gotNewFile                (true)
-    , loopPlayback              (true)
+FileReader::FileReader() : GenericProcessor ("File Reader"),
+                           Thread ("filereader_Async_Reader"),
+                           playbackSamplePos (0),
+                           currentSampleRate (0),
+                           currentNumChannels (0),
+                           currentSample (0),
+                           currentNumTotalSamples (0),
+                           startSample (0),
+                           stopSample (0),
+                           loopCount (0),
+                           bufferCacheWindow (0),
+                           m_shouldFillBackBuffer (false),
+                           m_bufferSize (1024),
+                           m_sysSampleRate (44100),
+                           playbackActive (true),
+                           gotNewFile (true),
+                           loopPlayback (true)
 {
-
     /* Add built-in file source (Binary Format) */
     supportedExtensions.set ("oebin", 1);
 
-	/* Load any plugin file sources */
+    /* Load any plugin file sources */
     const int numFileSources = AccessClass::getPluginManager()->getNumFileSources();
 
-    LOGD("Found ", numFileSources, " File Source plugins.");
+    LOGD ("Found ", numFileSources, " File Source plugins.");
 
     for (int i = 0; i < numFileSources; ++i)
     {
         Plugin::FileSourceInfo info = AccessClass::getPluginManager()->getFileSourceInfo (i);
 
-        LOGD("Plugin ", i + 1, ": ", info.name, " (", info.extensions, ")");
+        LOGD ("Plugin ", i + 1, ": ", info.name, " (", info.extensions, ")");
 
         StringArray extensions;
         extensions.addTokens (info.extensions, ";", "\"");
 
         const int numExtensions = extensions.size();
-        
+
         for (int j = 0; j < numExtensions; ++j)
         {
             supportedExtensions.set (extensions[j].toLowerCase(), i + 2);
@@ -87,10 +86,9 @@ FileReader::FileReader() : GenericProcessor ("File Reader")
         "00000x003",
         "Open Ephys"
     };
-    devices.add(new DeviceInfo(settings));
+    devices.add (new DeviceInfo (settings));
 
     isEnabled = false;
-
 }
 
 FileReader::~FileReader()
@@ -101,55 +99,55 @@ FileReader::~FileReader()
 
 void FileReader::registerParameters()
 {
-    addPathParameter(Parameter::PROCESSOR_SCOPE, "selected_file", "Selected File", "File to load data from", "default", getSupportedExtensions(), false);
-    addSelectedStreamParameter(Parameter::PROCESSOR_SCOPE, "active_stream", "Active Stream", "Currently active stream", {}, 0);
-    addTimeParameter(Parameter::PROCESSOR_SCOPE, "start_time", "Start Time", "Time to start playback", "00:00:00");
-    addTimeParameter(Parameter::PROCESSOR_SCOPE, "end_time", "Stop Time", "Time to end playback", "00:00:00");
+    addPathParameter (Parameter::PROCESSOR_SCOPE, "selected_file", "Selected File", "File to load data from", "default", getSupportedExtensions(), false);
+    addSelectedStreamParameter (Parameter::PROCESSOR_SCOPE, "active_stream", "Active Stream", "Currently active stream", {}, 0);
+    addTimeParameter (Parameter::PROCESSOR_SCOPE, "start_time", "Start Time", "Time to start playback", "00:00:00");
+    addTimeParameter (Parameter::PROCESSOR_SCOPE, "end_time", "Stop Time", "Time to end playback", "00:00:00");
 }
 
-void FileReader::parameterValueChanged(Parameter* p)
+void FileReader::parameterValueChanged (Parameter* p)
 {
     if (p->getName() == "selected_file")
     {
         //Check if file exists and is supported
-        setFile(p->getValue());
+        setFile (p->getValue());
     }
     else if (p->getName() == "active_stream")
     {
         bool resetPlayback = false;
-        setActiveStream(p->getValue(), resetPlayback);
+        setActiveStream (p->getValue(), resetPlayback);
     }
     else if (p->getName() == "start_time")
     {
-        TimeParameter* tp = static_cast<TimeParameter*>(p);
-        startSample = millisecondsToSamples(tp->getTimeValue()->getTimeInMilliseconds());
+        TimeParameter* tp = static_cast<TimeParameter*> (p);
+        startSample = millisecondsToSamples (tp->getTimeValue()->getTimeInMilliseconds());
 
-        TimeParameter* endTime = static_cast<TimeParameter*>(getParameter("end_time"));
-        endTime->getTimeValue()->setMinTimeInMilliseconds(samplesToMilliseconds (startSample + 1));
+        TimeParameter* endTime = static_cast<TimeParameter*> (getParameter ("end_time"));
+        endTime->getTimeValue()->setMinTimeInMilliseconds (samplesToMilliseconds (startSample + 1));
     }
     else if (p->getName() == "end_time")
     {
-        TimeParameter* tp = static_cast<TimeParameter*>(p);
-        stopSample = millisecondsToSamples(tp->getTimeValue()->getTimeInMilliseconds());
+        TimeParameter* tp = static_cast<TimeParameter*> (p);
+        stopSample = millisecondsToSamples (tp->getTimeValue()->getTimeInMilliseconds());
         if (input != nullptr && stopSample == startSample)
         {
             stopSample = input->getActiveNumSamples();
-            String newTime = TimeParameter::TimeValue(1000 * stopSample / input->getActiveSampleRate()).toString();
-            p->setNextValue(newTime, false);
+            String newTime = TimeParameter::TimeValue (1000 * stopSample / input->getActiveSampleRate()).toString();
+            p->setNextValue (newTime, false);
         }
-        TimeParameter* startTime = static_cast<TimeParameter*>(getParameter("start_time"));
-        startTime->getTimeValue()->setMaxTimeInMilliseconds(samplesToMilliseconds (stopSample - 1));
+        TimeParameter* startTime = static_cast<TimeParameter*> (getParameter ("start_time"));
+        startTime->getTimeValue()->setMaxTimeInMilliseconds (samplesToMilliseconds (stopSample - 1));
     }
 
     currentNumTotalSamples = stopSample - startSample;
 
-    if (!headlessMode)
+    if (! headlessMode)
     {
         if ((stopSample - startSample) / currentSampleRate >= 30.0f)
-            static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer(true);
+            static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer (true);
         else
-            static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer(false);
-        
+            static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer (false);
+
         if (input != nullptr)
         {
             getScrubberInterface()->updatePlaybackTimes();
@@ -160,75 +158,72 @@ void FileReader::parameterValueChanged(Parameter* p)
 
 AudioProcessorEditor* FileReader::createEditor()
 {
-    editor = std::make_unique<FileReaderEditor>(this);  
+    editor = std::make_unique<FileReaderEditor> (this);
 
     return editor.get();
 }
 
-void FileReader::initialize(bool signalChainIsLoading)
+void FileReader::initialize (bool signalChainIsLoading)
 {
-
     if (signalChainIsLoading)
         return;
 
     if (isEnabled)
         return;
 
-    File executable = File::getSpecialLocation(File::currentApplicationFile);
+    File executable = File::getSpecialLocation (File::currentApplicationFile);
 #ifdef __APPLE__
-    defaultFile = executable.getChildFile("Contents/Resources/resources").getChildFile("structure.oebin");
+    defaultFile = executable.getChildFile ("Contents/Resources/resources").getChildFile ("structure.oebin");
 #else
-    defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
+    defaultFile = executable.getParentDirectory().getChildFile ("resources").getChildFile ("structure.oebin");
 #endif
 
     if (defaultFile.exists())
-        setFile(defaultFile.getFullPathName(), false);
+        setFile (defaultFile.getFullPathName(), false);
 }
 
 bool FileReader::setFile (String fullpath, bool shouldUpdateSignalChain)
 {
-    
-    if (fullpath.equalsIgnoreCase("default"))
+    if (fullpath.equalsIgnoreCase ("default"))
     {
-        File executable = File::getSpecialLocation(File::currentApplicationFile);
-        
+        File executable = File::getSpecialLocation (File::currentApplicationFile);
+
 #ifdef __APPLE__
-        File defaultFile = executable.getChildFile("Contents/Resources/resources").getChildFile("structure.oebin");
+        File defaultFile = executable.getChildFile ("Contents/Resources/resources").getChildFile ("structure.oebin");
 #else
-        File defaultFile = executable.getParentDirectory().getChildFile("resources").getChildFile("structure.oebin");
+        File defaultFile = executable.getParentDirectory().getChildFile ("resources").getChildFile ("structure.oebin");
 #endif
-        
+
         if (defaultFile.exists())
         {
             fullpath = defaultFile.getFullPathName();
         }
     }
-    
-    File file(fullpath);
-    
+
+    File file (fullpath);
+
     String ext = file.getFileExtension().toLowerCase().substring (1);
     const int index = supportedExtensions[ext];
     const bool isExtensionSupported = index >= 0;
 
     if (isExtensionSupported)
     {
-		const int numPluginFileSources = AccessClass::getPluginManager()->getNumFileSources();
+        const int numPluginFileSources = AccessClass::getPluginManager()->getNumFileSources();
 
-		if (index > 1)
-		{
-			Plugin::FileSourceInfo sourceInfo = AccessClass::getPluginManager()->getFileSourceInfo(index - 2);
-			input.reset(sourceInfo.creator());
-		}
-		else
-		{
-			input.reset(createBuiltInFileSource(0));
-		}
-		if (!input)
-		{
-			LOGE("Error creating file source for extension ", ext);
-			return false;
-		}
-
+        if (index > 1)
+        {
+            Plugin::FileSourceInfo sourceInfo = AccessClass::getPluginManager()->getFileSourceInfo (index - 2);
+            input.reset (sourceInfo.creator());
+        }
+        else
+        {
+            input.reset (createBuiltInFileSource (0));
+        }
+        if (! input)
+        {
+            LOGE ("Error creating file source for extension ", ext);
+            return false;
+        }
     }
     else
     {
@@ -260,20 +255,19 @@ bool FileReader::setFile (String fullpath, bool shouldUpdateSignalChain)
 
     Array<String> streamNames;
     for (int i = 0; i < input->getNumRecords(); ++i)
-        streamNames.add(input->getRecordName(i));
-    
-    SelectedStreamParameter* activeStreamParam = (SelectedStreamParameter*)getParameter("active_stream");
-    activeStreamParam->setStreamNames(streamNames);
-    activeStreamParam->setNextValue(0, false);
-    parameterValueChanged(activeStreamParam);
+        streamNames.add (input->getRecordName (i));
+
+    SelectedStreamParameter* activeStreamParam = (SelectedStreamParameter*) getParameter ("active_stream");
+    activeStreamParam->setStreamNames (streamNames);
+    activeStreamParam->setNextValue (0, false);
+    parameterValueChanged (activeStreamParam);
 
     return true;
-
 }
 
 void FileReader::togglePlayback()
 {
-    playbackActive = !playbackActive;
+    playbackActive = ! playbackActive;
 }
 
 bool FileReader::playbackIsActive()
@@ -301,24 +295,22 @@ float FileReader::getDefaultSampleRate() const
 
 bool FileReader::startAcquisition()
 {
-
-    if (!isEnabled)
+    if (! isEnabled)
         return false;
 
     checkAudioDevice();
 
     /* Start asynchronous file reading thread */
-	startThread(); 
+    startThread();
 
-	return true;
+    return true;
 }
 
 bool FileReader::stopAcquisition()
 {
+    stopThread (500);
 
-	stopThread(500);
-    
-	return true;
+    return true;
 }
 
 bool FileReader::isFileSupported (const String& fileName) const
@@ -331,24 +323,26 @@ bool FileReader::isFileSupported (const String& fileName) const
 
 void FileReader::setActiveStream (int index, bool reset)
 {
-
-    //Resets the stream to the beginning if reset flag is true 
+    //Resets the stream to the beginning if reset flag is true
     //If reset true, this means sample rate / num channels / num samples could all have changed
 
-    if (!input) { return; }
+    if (! input)
+    {
+        return;
+    }
 
     //TODO: Change to setActiveStream
     input->setActiveRecord (index);
 
-    currentNumChannels      = input->getActiveNumChannels();
-    currentNumTotalSamples  = input->getActiveNumSamples();
-    currentSampleRate       = input->getActiveSampleRate();
+    currentNumChannels = input->getActiveNumChannels();
+    currentNumTotalSamples = input->getActiveNumSamples();
+    currentSampleRate = input->getActiveSampleRate();
 
-    TimeParameter* startTime = static_cast<TimeParameter*>(getParameter("start_time"));
-    startTime->getTimeValue()->setMaxTimeInMilliseconds(samplesToMilliseconds (currentNumTotalSamples));
+    TimeParameter* startTime = static_cast<TimeParameter*> (getParameter ("start_time"));
+    startTime->getTimeValue()->setMaxTimeInMilliseconds (samplesToMilliseconds (currentNumTotalSamples));
 
-    TimeParameter* endTime = static_cast<TimeParameter*>(getParameter("end_time"));
-    endTime->getTimeValue()->setMaxTimeInMilliseconds(samplesToMilliseconds (currentNumTotalSamples));
+    TimeParameter* endTime = static_cast<TimeParameter*> (getParameter ("end_time"));
+    endTime->getTimeValue()->setMaxTimeInMilliseconds (samplesToMilliseconds (currentNumTotalSamples));
 
     //Check if currentSample is within bounds of new stream
     if (currentSample > currentNumTotalSamples)
@@ -362,22 +356,21 @@ void FileReader::setActiveStream (int index, bool reset)
         bufferCacheWindow = 0;
         loopCount = 0;
 
-        startTime->getTimeValue()->setTimeFromMilliseconds(0);
-        startTime->setNextValue(startTime->getTimeValue()->toString(), false);
+        startTime->getTimeValue()->setTimeFromMilliseconds (0);
+        startTime->setNextValue (startTime->getTimeValue()->toString(), false);
 
-        endTime->getTimeValue()->setTimeFromMilliseconds(samplesToMilliseconds (currentNumTotalSamples));
-        endTime->setNextValue(endTime->getTimeValue()->toString(), false);
+        endTime->getTimeValue()->setTimeFromMilliseconds (samplesToMilliseconds (currentNumTotalSamples));
+        endTime->setNextValue (endTime->getTimeValue()->toString(), false);
     }
 
     channelInfo.clear();
     for (int i = 0; i < currentNumChannels; ++i)
-           channelInfo.add (input->getChannelInfo (index, i));
-	
-    input->seekTo(startSample);
-    
+        channelInfo.add (input->getChannelInfo (index, i));
+
+    input->seekTo (startSample);
+
     updateSettings();
     CoreServices::updateSignalChain (this);
-   
 }
 
 int64 FileReader::getCurrentSample()
@@ -385,25 +378,24 @@ int64 FileReader::getCurrentSample()
     return currentSample;
 }
 
-void FileReader::setPlaybackStart(int64 startSample)
+void FileReader::setPlaybackStart (int64 startSample)
 {
     this->startSample = startSample;
-    this->totalSamplesAcquired = startSample;
+    this->playbackSamplePos = startSample;
 
     /* Reset stream to start of playback */
-    input->seekTo(startSample);
+    input->seekTo (startSample);
     currentSample = startSample;
 
     /* Pre-fills the front buffer with a blocking read */
-    readAndFillBufferCache(bufferA);
+    readAndFillBufferCache (bufferA);
 
     readBuffer = &bufferB;
     bufferCacheWindow = 0;
-    m_shouldFillBackBuffer.set(false);
-    
+    m_shouldFillBackBuffer.set (false);
 }
 
-void FileReader::setPlaybackStop(int64 stopSample)
+void FileReader::setPlaybackStop (int64 stopSample)
 {
     this->stopSample = stopSample;
 }
@@ -418,34 +410,32 @@ String FileReader::getFile() const
 
 void FileReader::updateSettings()
 {
+    LOGD ("File Reader updating custom settings.");
 
-    LOGD("File Reader updating custom settings.");
-
-    if (!input)
+    if (! input)
     {
-        LOGD("No input, returning.");
+        LOGD ("No input, returning.");
         isEnabled = false;
         return;
     }
 
     if (true)
     {
-
-        LOGD("File Reader got new file.");
+        LOGD ("File Reader got new file.");
 
         dataStreams.clear();
         continuousChannels.clear();
         eventChannels.clear();
 
-        String streamName = input->getRecordName(input->getActiveRecord());
+        String streamName = input->getRecordName (input->getActiveRecord());
 
-         /* Only use the original stream name (FileReader-100.example_data -> example_data) */
+        /* Only use the original stream name (FileReader-100.example_data -> example_data) */
         StringArray tokens;
-        tokens.addTokens (input->getRecordName(input->getActiveRecord()), ".");
-        if ( tokens.size() )
-            streamName = tokens[tokens.size()-1];
+        tokens.addTokens (input->getRecordName (input->getActiveRecord()), ".");
+        if (tokens.size())
+            streamName = tokens[tokens.size() - 1];
 
-        DataStream::Settings streamSettings{
+        DataStream::Settings streamSettings {
 
             streamName,
             "A description of the File Reader Stream",
@@ -454,15 +444,14 @@ void FileReader::updateSettings()
 
         };
 
-        LOGD("File Reader adding data stream.");
+        LOGD ("File Reader adding data stream.");
 
-        dataStreams.add(new DataStream(streamSettings));
-        dataStreams.getLast()->addProcessor(this);
+        dataStreams.add (new DataStream (streamSettings));
+        dataStreams.getLast()->addProcessor (this);
 
         for (int i = 0; i < currentNumChannels; i++)
         {
-            ContinuousChannel::Settings channelSettings
-            {
+            ContinuousChannel::Settings channelSettings {
                 ContinuousChannel::Type::ELECTRODE,
                 channelInfo[i].name,
                 "description",
@@ -471,13 +460,13 @@ void FileReader::updateSettings()
                 dataStreams.getLast()
             };
 
-            continuousChannels.add(new ContinuousChannel(channelSettings));
-            continuousChannels.getLast()->addProcessor(this);
+            continuousChannels.add (new ContinuousChannel (channelSettings));
+            continuousChannels.getLast()->addProcessor (this);
         }
 
         EventChannel* events;
 
-        EventChannel::Settings eventSettings{
+        EventChannel::Settings eventSettings {
             EventChannel::Type::TTL,
             "All TTL events",
             "All TTL events loaded for the current input data source",
@@ -486,50 +475,50 @@ void FileReader::updateSettings()
         };
 
         //FIXME: Should add an event channel for each event channel detected in the current file source
-        events = new EventChannel(eventSettings);
+        events = new EventChannel (eventSettings);
         String id = "sourceevent";
-        events->setIdentifier(id);
-        events->addProcessor(this);
-        eventChannels.add(events);
+        events->setIdentifier (id);
+        events->addProcessor (this);
+        eventChannels.add (events);
 
         gotNewFile = false;
-
     }
-    else {
-        LOGD("File Reader has no new file...not updating.");
+    else
+    {
+        LOGD ("File Reader has no new file...not updating.");
     }
 
     isEnabled = true;
 
     /* Set the timestamp to start of playback and reset loop counter */
-    totalSamplesAcquired = startSample;
+    playbackSamplePos = startSample;
     loopCount = 0;
 
     /* Setup internal buffer based on audio device settings */
     AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
     AudioDeviceManager::AudioDeviceSetup ads;
-    adm.getAudioDeviceSetup(ads);
+    adm.getAudioDeviceSetup (ads);
     m_sysSampleRate = ads.sampleRate;
     m_bufferSize = ads.bufferSize;
-    if (m_bufferSize == 0) m_bufferSize = 1024;
-    m_samplesPerBuffer.set(m_bufferSize * (getDefaultSampleRate() / m_sysSampleRate));
+    if (m_bufferSize == 0)
+        m_bufferSize = 1024;
+    m_samplesPerBuffer.set (m_bufferSize * (getDefaultSampleRate() / m_sysSampleRate));
 
-    bufferA.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
-    bufferB.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
+    bufferA.malloc (currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
+    bufferB.malloc (currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
 
     /* Reset stream to start of playback */
-    input->seekTo(startSample);
+    input->seekTo (startSample);
     currentSample = startSample;
 
     /* Pre-fills the front buffer with a blocking read */
-    readAndFillBufferCache(bufferA);
+    readAndFillBufferCache (bufferA);
 
     readBuffer = &bufferB;
     bufferCacheWindow = 0;
-    m_shouldFillBackBuffer.set(false);
+    m_shouldFillBackBuffer.set (false);
 
-    LOGD("File Reader finished updating custom settings.");
-
+    LOGD ("File Reader finished updating custom settings.");
 }
 
 void FileReader::checkAudioDevice()
@@ -537,28 +526,29 @@ void FileReader::checkAudioDevice()
     /* Setup internal buffer based on audio device settings */
     AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
     AudioDeviceManager::AudioDeviceSetup ads;
-    adm.getAudioDeviceSetup(ads);
+    adm.getAudioDeviceSetup (ads);
     if (ads.sampleRate != m_sysSampleRate || ads.bufferSize != m_bufferSize)
     {
         m_sysSampleRate = ads.sampleRate;
 
         m_bufferSize = ads.bufferSize;
-        if (m_bufferSize == 0) m_bufferSize = 1024;
-        m_samplesPerBuffer.set(m_bufferSize * (getDefaultSampleRate() / m_sysSampleRate));
+        if (m_bufferSize == 0)
+            m_bufferSize = 1024;
+        m_samplesPerBuffer.set (m_bufferSize * (getDefaultSampleRate() / m_sysSampleRate));
 
-        bufferA.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
-        bufferB.malloc(currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
+        bufferA.malloc (currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
+        bufferB.malloc (currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
 
         /* Reset stream to start of playback */
-        input->seekTo(startSample);
+        input->seekTo (startSample);
         currentSample = startSample;
 
         /* Pre-fills the front buffer with a blocking read */
-        readAndFillBufferCache(bufferA);
+        readAndFillBufferCache (bufferA);
 
         readBuffer = &bufferB;
         bufferCacheWindow = 0;
-        m_shouldFillBackBuffer.set(false);
+        m_shouldFillBackBuffer.set (false);
     }
 }
 
@@ -577,7 +567,7 @@ Array<EventInfo> FileReader::getActiveEventInfo()
     return input->getEventInfo();
 }
 
-String FileReader::handleConfigMessage(String msg)
+String FileReader::handleConfigMessage (String msg)
 {
     //TODO: Needs update to use new parameters
 
@@ -604,23 +594,22 @@ String FileReader::handleConfigMessage(String msg)
     return "File Reader received config: " + msg;
 }
 
-void FileReader::process(AudioBuffer<float>& buffer)
+void FileReader::process (AudioBuffer<float>& buffer)
 {
-
     bool switchNeeded = false;
 
     int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
 
-    if (!playbackActive && totalSamplesAcquired + samplesNeededPerBuffer > stopSample)
+    if (! playbackActive && playbackSamplePos + samplesNeededPerBuffer > stopSample)
     {
-        samplesNeededPerBuffer = stopSample - totalSamplesAcquired;
+        samplesNeededPerBuffer = stopSample - playbackSamplePos;
         switchNeeded = true;
     }
     else
-        m_samplesPerBuffer.set(samplesNeededPerBuffer);
+        m_samplesPerBuffer.set (samplesNeededPerBuffer);
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
-    
+
     // if cache window id == 0, we need to read and cache BUFFER_WINDOW_CACHE_SIZE more buffer windows
     if (bufferCacheWindow == 0)
     {
@@ -628,27 +617,27 @@ void FileReader::process(AudioBuffer<float>& buffer)
     }
 
     //std::cout << "Reading " << samplesNeededPerBuffer << " samples. " << std::endl;
-    
+
     for (int i = 0; i < currentNumChannels; ++i)
     {
         // offset readBuffer index by current cache window count * buffer window size * num channels
         input->processChannelData (*readBuffer + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow),
-                                buffer.getWritePointer (i, 0),
-                                i,
-                                samplesNeededPerBuffer);
+                                   buffer.getWritePointer (i, 0),
+                                   i,
+                                   samplesNeededPerBuffer);
     }
 
-    setTimestampAndSamples(totalSamplesAcquired, -1.0, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this
+    setTimestampAndSamples (playbackSamplePos, -1.0, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this
 
-    int64 start = totalSamplesAcquired;
+    int64 start = playbackSamplePos;
 
-    totalSamplesAcquired += samplesNeededPerBuffer;
+    playbackSamplePos += samplesNeededPerBuffer;
 
-    //LOGD("Total samples acquired: ", totalSamplesAcquired);
+    //LOGD("Total samples acquired: ", playbackSamplePos);
 
-    int64 stop = totalSamplesAcquired;
+    int64 stop = playbackSamplePos;
 
-    addEventsInRange(start, stop);
+    addEventsInRange (start, stop);
 
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
@@ -656,33 +645,30 @@ void FileReader::process(AudioBuffer<float>& buffer)
     if (switchNeeded)
     {
         bufferCacheWindow = 0;
-        this->stopThread(100);
+        this->stopThread (100);
     }
-
 }
 
-void FileReader::addEventsInRange(int64 start, int64 stop)
+void FileReader::addEventsInRange (int64 start, int64 stop)
 {
-
     EventInfo events;
-    input->processEventData(events, start, stop);
+    input->processEventData (events, start, stop);
 
-    for (int i = 0; i < events.channels.size(); i++) 
-    { 
-
+    for (int i = 0; i < events.channels.size(); i++)
+    {
         juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount * (stopSample - startSample);
-        if (events.text.size() && !events.text[i].isEmpty())
+        if (events.text.size() && ! events.text[i].isEmpty())
         {
             String msg = events.text[i];
-            LOGD("Broadcasting message: ", msg, " at timestamp: ", absoluteCurrentTimestamp, " channel: ", events.channels[i]);
-            broadcastMessage(msg);
+            LOGD ("Broadcasting message: ", msg, " at timestamp: ", absoluteCurrentTimestamp, " channel: ", events.channels[i]);
+            broadcastMessage (msg);
         }
         else
         {
             uint8 ttlBit = events.channels[i];
             bool state = events.channelStates[i] > 0;
-            TTLEventPtr event = TTLEvent::createTTLEvent(eventChannels[0], events.timestamps[i], ttlBit, state);
-            addEvent(event, absoluteCurrentTimestamp); 
+            TTLEventPtr event = TTLEvent::createTTLEvent (eventChannels[0], events.timestamps[i], ttlBit, state);
+            addEvent (event, absoluteCurrentTimestamp);
         }
     }
 }
@@ -703,8 +689,8 @@ void FileReader::switchBuffer()
         readBuffer = &bufferB;
     else
         readBuffer = &bufferA;
-    
-    m_shouldFillBackBuffer.set(true);
+
+    m_shouldFillBackBuffer.set (true);
     notify();
 }
 
@@ -715,109 +701,107 @@ HeapBlock<int16>* FileReader::getFrontBuffer()
 
 HeapBlock<int16>* FileReader::getBackBuffer()
 {
-    if (readBuffer == &bufferA) return &bufferB;
-    
+    if (readBuffer == &bufferA)
+        return &bufferB;
+
     return &bufferA;
 }
 
 void FileReader::run()
 {
-    while (!threadShouldExit())
+    while (! threadShouldExit())
     {
-        if (m_shouldFillBackBuffer.compareAndSetBool(false, true))
+        if (m_shouldFillBackBuffer.compareAndSetBool (false, true))
         {
-            readAndFillBufferCache(*getBackBuffer());
+            readAndFillBufferCache (*getBackBuffer());
         }
-        
-        wait(30);
+
+        wait (30);
     }
 }
 
-void FileReader::readAndFillBufferCache(HeapBlock<int16> &cacheBuffer)
+void FileReader::readAndFillBufferCache (HeapBlock<int16>& cacheBuffer)
 {
-
     const int samplesNeededPerBuffer = m_samplesPerBuffer.get();
     const int samplesNeeded = samplesNeededPerBuffer * BUFFER_WINDOW_CACHE_SIZE;
-    
+
     int samplesRead = 0;
-    
+
     // should only loop if reached end of file and resuming from start
     while (samplesRead < samplesNeeded)
     {
-
         int samplesToRead = samplesNeeded - samplesRead;
-        
+
         // if reached end of file stream
-        if ( (currentSample + samplesToRead) > stopSample)
+        if ((currentSample + samplesToRead) > stopSample)
         {
             samplesToRead = stopSample - currentSample;
             if (samplesToRead > 0)
                 input->readData (cacheBuffer + samplesRead * currentNumChannels, samplesToRead);
-            
+
             // reset stream to beginning
             input->seekTo (startSample);
             currentSample = startSample;
-
         }
         else // else read the block needed
         {
             input->readData (cacheBuffer + samplesRead * currentNumChannels, samplesToRead);
-            
+
             currentSample += samplesToRead;
         }
-        
+
         samplesRead += samplesToRead;
 
         //LOGD("CURRENT SAMPLE: ", currentSample, " samplesRead: ", samplesRead, " samplesNeeded: ", samplesNeeded);
 
-        if (samplesRead < 0) return;
-
+        if (samplesRead < 0)
+            return;
     }
 }
 
 StringArray FileReader::getSupportedExtensions() const
 {
-	StringArray extensions;
-	HashMap<String, int>::Iterator i(supportedExtensions);
-	while (i.next())
-	{
-		extensions.add(i.getKey());
-	}
-	return extensions;
+    StringArray extensions;
+    HashMap<String, int>::Iterator i (supportedExtensions);
+    while (i.next())
+    {
+        extensions.add (i.getKey());
+    }
+    return extensions;
 }
 
-String FileReader::getBuiltInFileSourceExtensions(int index) const
+String FileReader::getBuiltInFileSourceExtensions (int index) const
 {
-	switch (index)
-	{
-	case 0: //Binary
-		return "oebin";
-	default:
-		return "";
-	}
+    switch (index)
+    {
+        case 0: //Binary
+            return "oebin";
+        default:
+            return "";
+    }
 }
 
-FileSource* FileReader::createBuiltInFileSource(int index) const
+FileSource* FileReader::createBuiltInFileSource (int index) const
 {
-	switch (index)
-	{
-	case 0:
-		return new BinarySource::BinaryFileSource();
-	default:
-		return nullptr;
-	}
+    switch (index)
+    {
+        case 0:
+            return new BinarySource::BinaryFileSource();
+        default:
+            return nullptr;
+    }
 }
 
 ScrubberInterface* FileReader::getScrubberInterface()
 {
-    return ((FileReaderEditor*)getEditor())->getScrubberInterface();
+    return ((FileReaderEditor*) getEditor())->getScrubberInterface();
 }
 
 void FileReader::saveCustomParametersToXml (XmlElement* xml)
 {
     XmlElement* childNode = xml->createNewChildElement ("SCRUBBERINTERFACE");
 
-    if(headlessMode)
+    if (headlessMode)
         childNode->setAttribute ("show", "false");
     else
         childNode->setAttribute ("show", getScrubberInterface()->isVisible() ? "true" : "false");
@@ -827,9 +811,9 @@ void FileReader::loadCustomParametersFromXml (XmlElement* xml)
 {
     for (auto* element : xml->getChildIterator())
     {
-        if (element->hasTagName ("SCRUBBERINTERFACE") && !headlessMode)
+        if (element->hasTagName ("SCRUBBERINTERFACE") && ! headlessMode)
         {
-            static_cast<FileReaderEditor*>(getEditor())->showScrubInterface(element->getBoolAttribute ("show"));
+            static_cast<FileReaderEditor*> (getEditor())->showScrubInterface (element->getBoolAttribute ("show"));
         }
     }
 }

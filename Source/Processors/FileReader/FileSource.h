@@ -25,8 +25,8 @@
 #define FILESOURCE_H_INCLUDED
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../PluginManager/OpenEphysPlugin.h"
 #include "../../Utils/Utils.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 
 struct RecordedChannelInfo
 {
@@ -53,7 +53,6 @@ struct EventInfo
 class PLUGIN_API FileSource
 {
 public:
-
     /** Constructor */
     FileSource();
 
@@ -61,31 +60,31 @@ public:
     virtual ~FileSource();
 
     // ------------------------------------------------------------
-    //                  PURE VIRTUAL METHODS 
+    //                  PURE VIRTUAL METHODS
     //        (must be implemented by all File Sources)
     // ------------------------------------------------------------
-    
+
     /** Attempt to open the file, and return true if successful */
-    virtual bool open(File file) = 0;
+    virtual bool open (File file) = 0;
 
     /** Fill the infoArray and eventInfoArray with the relevant information for all recordings*/
     virtual void fillRecordInfo() = 0;
 
     /** Update the recording to be read in */
-    virtual void updateActiveRecord(int index) = 0;
+    virtual void updateActiveRecord (int index) = 0;
 
     /** Seek to a specific sample number within the active recording */
-    virtual void seekTo(int64 sample) = 0;
+    virtual void seekTo (int64 sample) = 0;
 
     /** Read in nSamples of int16 data into a temporary buffer; return the number of samples actually read */
-    virtual int readData(int16* buffer, int nSamples) = 0;
+    virtual int readData (int16* buffer, int nSamples) = 0;
 
     /** Convert nSamples of data from int16 to float */
-    virtual void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 nSamples) = 0;
+    virtual void processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 nSamples) = 0;
 
     /** Add info about events occurring within a sample range */
-    virtual void processEventData(EventInfo& info, int64 startTimestamp, int64 stopTimestamp) = 0;
-    
+    virtual void processEventData (EventInfo& info, int64 startTimestamp, int64 stopTimestamp) = 0;
+
     // ------------------------------------------------------------
     //                   VIRTUAL METHOD
     //       (can optionally be overriden by sub-classes)
@@ -99,44 +98,44 @@ public:
     //                (used by File Reader)
     // ------------------------------------------------------------
 
-    /** Returns the number of available recordings in the file */
-    int getNumRecords()     const;
+    /** Returns the number of available recorded streams in the recording */
+    int getNumRecords() const;
 
-    /** Returns the index of the recording that is currently being read in*/
-    int getActiveRecord()   const;
+    /** Returns the index of the recorded stream that is currently being read in*/
+    int getActiveRecord() const;
 
-    /** Returns the name of a recording, by index. */
+    /** Returns the name of a recorded stream, by index. */
     String getRecordName (int index) const;
 
-    /** Returns the sample rate of a recording, by index */
-    float getRecordSampleRate   (int index) const;
+    /** Returns the sample rate of a recorded stream, by index */
+    float getRecordSampleRate (int index) const;
 
-    /** Returns the number of channels in a recording, by index */
-    int getRecordNumChannels    (int index) const;
+    /** Returns the number of channels in a recorded stream, by index */
+    int getRecordNumChannels (int index) const;
 
-    /** Returns the number of samples in a recording, by index */
-    int64 getRecordNumSamples   (int index) const;
+    /** Returns the number of samples per channel in a recorded stream, by index */
+    int64 getRecordNumSamples (int index) const;
 
-    /** Returns the sample rate of the recording that's currently being read in*/
+    /** Returns the sample rate of the recorded stream that's currently being read in*/
     float getActiveSampleRate() const;
 
-    /** Returns the number of channels of the recording that's currently being read in */
-    int getActiveNumChannels()  const;
+    /** Returns the number of channels of the recorded stream that's currently being read in */
+    int getActiveNumChannels() const;
 
-    /** Returns the number of samples in the recording that's currently being read in*/
+    /** Returns the number of samples per channel of the recorded stream that's currently being read in*/
     int64 getActiveNumSamples() const;
 
-    /** Returns channel info for one channel within a recording */
+    /** Returns channel info for one channel within a recorded stream */
     RecordedChannelInfo getChannelInfo (int recordIndex, int channel) const;
 
-    /** Sets the recording to be read in */
+    /** Sets the recorded stream to be read in */
     void setActiveRecord (int index);
 
     /** Opens the file -- calls open() */
     bool openFile (File file);
 
     /** Returns true if file is currently open */
-    bool isFileOpened()  const;
+    bool isFileOpened() const;
 
     /** Returns the full name of the file */
     String getFileName() const;
@@ -148,7 +147,6 @@ public:
     int64 loopCount;
 
 protected:
-
     /** Holds the name of the current stream */
     String currentStream;
 
@@ -172,9 +170,7 @@ protected:
     String filename;
 
 private:
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileSource);
 };
 
-
-#endif  // FILESOURCE_H_INCLUDED
+#endif // FILESOURCE_H_INCLUDED
