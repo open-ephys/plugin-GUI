@@ -1181,18 +1181,6 @@ private:
         }
     }
 
-    inline static String getCurrentDataDir (const ProcessorGraph* graph)
-    {
-        /* if (graph->getRecordNode()) {
-            auto path = graph->getRecordNode()->getDataDirectory().getFullPathName();
-            if (!path.isEmpty()) {
-                return path.toStdString();
-            }
-        }
-        return "";*/
-        return "";
-    }
-
     inline static void audio_info_to_json (const ProcessorGraph* graph, json* ret)
     {
         (*ret)["sample_rate"] = AccessClass::getAudioComponent()->getSampleRate();
