@@ -287,6 +287,43 @@ private:
 
 /**
 
+  Allows the user to scroll through signal chains when
+  there are more than can fit within the boundaries of the
+  EditorViewport.
+
+  @see EditorViewport.
+
+*/
+
+class SignalChainScrollButton : public TextButton
+{
+public:
+    /** Constructor*/
+    SignalChainScrollButton (int type);
+
+    /** Destructor*/
+    ~SignalChainScrollButton() {}
+
+    /** Sets whether the button can be used*/
+    void setActive (bool);
+
+    /** Renders the button*/
+    void paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown) override;
+
+    enum type
+    {
+        UP,
+        DOWN
+    };
+
+private:
+    bool isActive;
+    Path path; // inactive, activeNormal, activeOver, activeDown;
+};
+
+
+/**
+
   Allows the user to navigate between multiple parallel signal chains.
 
   Each SignalChainTabButton sits on the left-hand side of the EditorViewport

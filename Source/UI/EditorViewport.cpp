@@ -28,7 +28,6 @@
 #include "../Processors/PluginManager/OpenEphysPlugin.h"
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../Processors/ProcessorGraph/ProcessorGraphActions.h"
-#include "EditorViewportButtons.h"
 #include "GraphViewer.h"
 #include "ProcessorList.h"
 
@@ -1200,7 +1199,34 @@ void SignalChainTabButton::paintButton (Graphics& g, bool isMouseOver, bool isBu
     g.drawText (n, 0, 0, getWidth(), getHeight() - 2, Justification::centred, true);
 }
 
-// SignalChainTabComponent
+SignalChainScrollButton::SignalChainScrollButton (int direction)
+    : TextButton ("Signal Chain Scroll Button " + String (direction))
+{
+    if (direction == DOWN)
+    {
+        path.addTriangle (0.0f, 0.0f, 9.0f, 20.0f, 18.0f, 0.0f);
+    }
+    else
+    {
+        path.addTriangle (0.0f, 20.0f, 9.0f, 0.0f, 18.0f, 20.0f);
+    }
+
+    setClickingTogglesState (false);
+}
+
+void SignalChainScrollButton::setActive (bool state)
+{
+    isActive = state;
+}
+
+void SignalChainScrollButton::paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown)
+{
+    g.setColour (findColour (ThemeColors::defaultFill));
+    path.scaleToFit (0, 0, getWidth(), getHeight(), true);
+
+    g.strokePath (path, PathStrokeType (1.0f, PathStrokeType::curved, PathStrokeType::rounded));
+}
+
 
 SignalChainTabComponent::SignalChainTabComponent()
 {
