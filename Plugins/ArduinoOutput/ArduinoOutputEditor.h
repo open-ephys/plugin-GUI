@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,9 +24,8 @@
 #ifndef __ARDUINOOUTPUTEDITOR_H_28EB4CC9__
 #define __ARDUINOOUTPUTEDITOR_H_28EB4CC9__
 
-
-#include <EditorHeaders.h>
 #include "ArduinoOutput.h"
+#include <EditorHeaders.h>
 #include <SerialLib.h>
 
 /**
@@ -42,15 +41,13 @@ class ArduinoOutputEditor : public GenericEditor
 {
 public:
     /** Constructor*/
-    ArduinoOutputEditor(GenericProcessor* parentNode);
+    ArduinoOutputEditor (GenericProcessor* parentNode);
 
     /** Destructor*/
     ~ArduinoOutputEditor() {}
 
 private:
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ArduinoOutputEditor);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArduinoOutputEditor);
 };
 
-#endif  // __ARDUINOOUTPUTEDITOR_H_28EB4CC9__
+#endif // __ARDUINOOUTPUTEDITOR_H_28EB4CC9__

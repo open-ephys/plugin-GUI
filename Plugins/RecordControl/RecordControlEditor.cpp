@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,12 +25,12 @@
 #include "RecordControl.h"
 #include <stdio.h>
 
-RecordControlEditor::RecordControlEditor(GenericProcessor* parentNode)
-    : GenericEditor(parentNode)
+RecordControlEditor::RecordControlEditor (GenericProcessor* parentNode)
+    : GenericEditor (parentNode)
 {
     desiredWidth = 200;
 
-    addComboBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "trigger_type", 15, 30);
-    addComboBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "edge", 15, 74);
-    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "trigger_line", 110, 74);
+    addComboBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "trigger_type", 15, 30);
+    addComboBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "edge", 15, 74);
+    addComboBoxParameterEditor (Parameter::STREAM_SCOPE, "trigger_line", 110, 74);
 }

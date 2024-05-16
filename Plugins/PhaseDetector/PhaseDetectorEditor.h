@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -20,7 +20,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
 
 #ifndef __PHASEDETECTOREDITOR_H_136829C6__
 #define __PHASEDETECTOREDITOR_H_136829C6__
@@ -43,15 +42,13 @@ class PhaseDetectorEditor : public GenericEditor
 {
 public:
     /** Constructor*/
-    PhaseDetectorEditor(GenericProcessor* parentNode);
+    PhaseDetectorEditor (GenericProcessor* parentNode);
 
     /** Destructor*/
-    virtual ~PhaseDetectorEditor() { }
+    virtual ~PhaseDetectorEditor() {}
 
 private:
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhaseDetectorEditor);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhaseDetectorEditor);
 };
 
 class DetectorInterface : public ParameterEditor,
@@ -59,26 +56,24 @@ class DetectorInterface : public ParameterEditor,
 {
 public:
     /** Constructor*/
-    DetectorInterface(Parameter* param);
+    DetectorInterface (Parameter* param);
 
     /** Destructor */
-    ~DetectorInterface() { }
+    ~DetectorInterface() {}
 
     /** Renders the interface*/
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
     /** Respond to button presses*/
-    void buttonClicked(Button*);
+    void buttonClicked (Button*);
 
     /** Updates the view*/
     void updateView();
 
 private:
-
     Path sineWave;
 
     OwnedArray<ElectrodeButton> phaseButtons;
-
 };
 
-#endif  // __PHASEDETECTOREDITOR_H_136829C6__
+#endif // __PHASEDETECTOREDITOR_H_136829C6__

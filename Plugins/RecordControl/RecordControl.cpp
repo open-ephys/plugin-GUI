@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,38 +18,36 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
 
+*/
 
 #include "RecordControl.h"
 
 RecordControl::RecordControl()
-    : GenericProcessor  ("Record Control")
+    : GenericProcessor ("Record Control")
 {
+    addCategoricalParameter (Parameter::PROCESSOR_SCOPE,
+                             "trigger_type",
+                             "Trigger type",
+                             "Determines whether recording state is set or toggled by an incoming event",
+                             { "Edge set", "Edge toggle" },
+                             0);
 
-    addCategoricalParameter(Parameter::PROCESSOR_SCOPE,
-                            "trigger_type",
-                            "Trigger type",
-                            "Determines whether recording state is set or toggled by an incoming event",
-                            { "Edge set", "Edge toggle" },
-                            0);
+    addCategoricalParameter (Parameter::PROCESSOR_SCOPE,
+                             "edge",
+                             "Edge",
+                             "Determines whether recording state is changed by rising or falling events",
+                             { "Rising", "Falling" },
+                             0);
 
-    addCategoricalParameter(Parameter::PROCESSOR_SCOPE,
-                            "edge",
-                            "Edge",
-                            "Determines whether recording state is changed by rising or falling events",
-                            { "Rising", "Falling" },
-                            0);
-
-    addIntParameter(Parameter::STREAM_SCOPE,
-                    "trigger_line",
-                    "Trigger line",
-                    "The TTL line that triggers a change in recording state",
-                    1,
-                    1,
-                    16);
+    addIntParameter (Parameter::STREAM_SCOPE,
+                     "trigger_line",
+                     "Trigger line",
+                     "The TTL line that triggers a change in recording state",
+                     1,
+                     1,
+                     16);
 }
-
 
 AudioProcessorEditor* RecordControl::createEditor()
 {
@@ -57,40 +55,34 @@ AudioProcessorEditor* RecordControl::createEditor()
     return editor.get();
 }
 
-
 void RecordControl::process (AudioSampleBuffer& buffer)
 {
     checkForEvents();
 }
 
-
 void RecordControl::handleTTLEvent (TTLEventPtr event)
 {
+    DataStream* stream = getDataStream (event->getStreamId());
 
-    DataStream* stream = getDataStream(event->getStreamId());
-
-	if (event->getLine() == ( int((*stream)["trigger_line"]) - 1))
-	{
-		if (int(getParameter("trigger_type")->getValue()) == 0) // edge set
-		{
-			if (event->getState() == bool(getParameter("edge")->getValue()))
-			{
-				CoreServices::setRecordingStatus(false);
-			}
-			else
-			{
-				CoreServices::setRecordingStatus(true);
-			}
-		}
-		else // edge toggle
-		{
-            if (event->getState() != bool(getParameter("edge")->getValue()))
+    if (event->getLine() == (int ((*stream)["trigger_line"]) - 1))
+    {
+        if (int (getParameter ("trigger_type")->getValue()) == 0) // edge set
+        {
+            if (event->getState() == bool (getParameter ("edge")->getValue()))
             {
-                CoreServices::setRecordingStatus(!CoreServices::getRecordingStatus());
+                CoreServices::setRecordingStatus (false);
             }
-		}
-	}
-   
+            else
+            {
+                CoreServices::setRecordingStatus (true);
+            }
+        }
+        else // edge toggle
+        {
+            if (event->getState() != bool (getParameter ("edge")->getValue()))
+            {
+                CoreServices::setRecordingStatus (! CoreServices::getRecordingStatus());
+            }
+        }
+    }
 }
-
-

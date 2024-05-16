@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,15 +24,14 @@
 #include "ArduinoOutputEditor.h"
 #include <stdio.h>
 
-
-ArduinoOutputEditor::ArduinoOutputEditor(GenericProcessor* parentNode)
-    : GenericEditor(parentNode)
+ArduinoOutputEditor::ArduinoOutputEditor (GenericProcessor* parentNode)
+    : GenericEditor (parentNode)
 
 {
     desiredWidth = 200;
-    
-    addComboBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "device", 10, 29);
-    addComboBoxParameterEditor(Parameter::PROCESSOR_SCOPE, "output_pin", 10, 54);
-    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "input_line", 10, 79);
-    addComboBoxParameterEditor(Parameter::STREAM_SCOPE, "gate_line", 10, 104);
+
+    addComboBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "device", 10, 29);
+    addComboBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "output_pin", 10, 54);
+    addComboBoxParameterEditor (Parameter::STREAM_SCOPE, "input_line", 10, 79);
+    addComboBoxParameterEditor (Parameter::STREAM_SCOPE, "gate_line", 10, 104);
 }

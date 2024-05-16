@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -38,16 +38,13 @@ class RecordControlEditor : public GenericEditor
 {
 public:
     /** Constructor*/
-    RecordControlEditor(GenericProcessor* parentNode);
+    RecordControlEditor (GenericProcessor* parentNode);
 
     /** Destructor*/
-    ~RecordControlEditor() { }
+    ~RecordControlEditor() {}
 
 private:
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordControlEditor);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordControlEditor);
 };
-
 
 #endif
