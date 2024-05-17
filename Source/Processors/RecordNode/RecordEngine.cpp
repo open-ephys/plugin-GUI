@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RecordNode.h"
 
 #include "BinaryFormat/BinaryRecording.h"
-#include "EngineConfigWindow.h"
 
 RecordEngine::RecordEngine()
     : manager (nullptr), recordNode (nullptr)
@@ -35,7 +34,6 @@ RecordEngine::RecordEngine()
 #ifndef WIN32
 RecordEngine::~RecordEngine()
 {
-    //std::cout << "Calling RecordEngine destructor" << std::endl;
 }
 #endif
 
@@ -212,7 +210,7 @@ void EngineParameter::restoreDefault()
 }
 
 RecordEngineManager::RecordEngineManager (String engineID, String engineName, EngineCreator creatorFunc)
-    : creator (creatorFunc), id (engineID), name (engineName), window (nullptr)
+    : creator (creatorFunc), id (engineID), name (engineName)
 {
 }
 
@@ -246,12 +244,8 @@ RecordEngine* RecordEngineManager::instantiateEngine()
 {
     if (creator)
     {
-        LOGDD ("Got creator");
         return creator();
     }
-
-    //Built-in engines
-    LOGD ("Got:", id);
 
     if (id == "BINARY")
     {
@@ -279,28 +273,6 @@ String RecordEngineManager::getName() const
 String RecordEngineManager::getID() const
 {
     return id;
-}
-
-bool RecordEngineManager::isWindowOpen() const
-{
-    return false;
-    //return window ? true : false;
-}
-
-void RecordEngineManager::toggleConfigWindow()
-{
-    if (window)
-    {
-        window->saveParameters();
-        window->setVisible (false);
-        window = nullptr;
-    }
-
-    else
-    {
-        window = new EngineConfigWindow (this);
-        window->setVisible (true);
-    }
 }
 
 void RecordEngineManager::saveParametersToXml (XmlElement* xml)

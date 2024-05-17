@@ -500,9 +500,6 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
 
     if (graph->isReady()) // check that all processors are enabled
     {
-        if (recordEngines[recordSelector->getSelectedId() - 1]->isWindowOpen())
-            recordEngines[recordSelector->getSelectedId() - 1]->toggleConfigWindow();
-
         graph->updateConnections();
 
         if (audio->beginCallbacks()) // starts acquisition callbacks
@@ -1021,8 +1018,6 @@ void ControlPanel::buttonClicked (Button* button)
         int id = recordSelector->getSelectedId() - 1;
         if (id < 0)
             return;
-
-        recordEngines[id]->toggleConfigWindow();
     }
 }
 

@@ -4,8 +4,6 @@
 add_sources(open-ephys 
 	DataQueue.cpp
 	DataQueue.h
-	EngineConfigWindow.cpp
-	EngineConfigWindow.h
 	EventQueue.h
 	RecordEngine.cpp
 	RecordEngine.h

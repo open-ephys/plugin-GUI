@@ -267,8 +267,6 @@ public:
     void addParameter (EngineParameter* param);
 
     RecordEngine* instantiateEngine();
-    void toggleConfigWindow();
-    bool isWindowOpen() const;
 
     void saveParametersToXml (XmlElement* xml);
     void loadParametersFromXml (XmlElement* xml);
@@ -289,7 +287,6 @@ private:
     String name;
 
     OwnedArray<EngineParameter> parameters;
-    ScopedPointer<EngineConfigWindow> window;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordEngineManager);
 };
