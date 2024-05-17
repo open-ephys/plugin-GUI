@@ -47,13 +47,11 @@ public:
 
     /** Add an array of floats to the buffer.
 
-        @param data The data.
+        @param data The data in channel-major order. Length is `numItems` * numChans.
         @param sampleNumbers  Array of sample numbers (integers). Same length as numItems.
         @param timestamps  Array of timestamps (in seconds) (double). Same length as numItems.
         @param eventCodes Array of event codes. Same length as numItems.
         @param numItems Total number of samples per channel.
-        @param chunkSize Number of consecutive samples per channel per chunk.
-        1 by default. Typically 1 or numItems.
 
         @return The number of items actually written. May be less than numItems if
         the buffer doesn't have space.
@@ -62,8 +60,7 @@ public:
                      int64* sampleNumbers,
                      double* timestamps,
                      uint64* eventCodes,
-                     int numItems,
-                     int chunkSize=1);
+                     int numItems);
 
     /** Returns the number of samples currently available in the buffer.*/
     int getNumSamples() const;
