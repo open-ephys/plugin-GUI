@@ -256,6 +256,8 @@ private:
     File dataDirectory;
     File rootFolder;
 
+    int engineIndex;
+
     int experimentNumber;
     int recordingNumber;
 

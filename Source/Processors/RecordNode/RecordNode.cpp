@@ -85,16 +85,15 @@ void RecordNode::registerParameters()
 {
     String defaultRecordDirectory = CoreServices::getRecordingParentDirectory().getFullPathName();
     addPathParameter (Parameter::PROCESSOR_SCOPE, "directory", "Directory", "Path to write data to", defaultRecordDirectory, {}, true);
-    addCategoricalParameter (Parameter::PROCESSOR_SCOPE, "engine", "Engine", "Recording data format", {}, 0, true);
-    addBooleanParameter (Parameter::PROCESSOR_SCOPE, "events", "Record Events", "Toggle saving events coming into this node", true);
-    addBooleanParameter (Parameter::PROCESSOR_SCOPE, "spikes", "Record Spikes", "Toggle saving spikes coming into this node", true);
 
     Array<String> recordEngines;
     std::vector<RecordEngineManager*> engines = getAvailableRecordEngines();
     for (int i = 0; i < engines.size(); i++)
         recordEngines.add (engines[i]->getName());
-    CategoricalParameter* engineParam = (CategoricalParameter*) getParameter ("engine");
-    engineParam->setCategories (recordEngines);
+    addCategoricalParameter (Parameter::PROCESSOR_SCOPE, "engine", "Engine", "Recording data format", recordEngines, engineIndex, true);
+
+    addBooleanParameter (Parameter::PROCESSOR_SCOPE, "events", "Record Events", "Toggle saving events coming into this node", true);
+    addBooleanParameter (Parameter::PROCESSOR_SCOPE, "spikes", "Record Spikes", "Toggle saving spikes coming into this node", true);
 
     addMaskChannelsParameter (Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to record from", true);
     addTtlLineParameter (Parameter::STREAM_SCOPE, "sync_line", "Sync Line", "Event line to use for sync signal", 8, true, false, true);
@@ -342,9 +341,11 @@ void RecordNode::setEngine (String id)
 {
     availableEngines = getAvailableRecordEngines();
 
+    int foundIndex = 0;
+
     for (auto engine : availableEngines)
     {
-        if (engine->getName().equalsIgnoreCase (id))
+        if (engine->getID().equalsIgnoreCase (id))
         {
             if (recordEngine.get() != nullptr)
             {
@@ -360,7 +361,9 @@ void RecordNode::setEngine (String id)
             {
                 recordEngine.reset (engine->instantiateEngine());
             }
+            engineIndex = foundIndex;
         }
+        foundIndex += 1;
     }
 }
 
