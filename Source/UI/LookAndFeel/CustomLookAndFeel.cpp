@@ -777,14 +777,14 @@ void CustomLookAndFeel::drawButtonText (Graphics& g,
 
 Font CustomLookAndFeel::getTextButtonFont (TextButton&, int buttonHeight)
 {
-    return Font (getCommonMenuFont().getTypefaceName(), "Medium", buttonHeight * 0.65f);
+    return FontOptions (getCommonMenuFont().getTypefaceName(), "Medium", buttonHeight * 0.65f);
 }
 
 // ============ Common Font for Menus ================
 
 Font CustomLookAndFeel::getCommonMenuFont()
 {
-    return Font ("Inter", "Regular", 17.f);
+    return FontOptions ("Inter", "Regular", 18.f);
 }
 
 //==================================================================
@@ -1030,9 +1030,10 @@ void CustomLookAndFeel::drawDocumentWindowTitleBar (DocumentWindow& window, Grap
     g.drawText (window.getName(), textX, 0, textW, h, Justification::centredLeft, true);
 }
 
-Font CustomLookAndFeel::getAlertWindowTitleFont() { return { "Inter", "Bold", 20.f }; }
-Font CustomLookAndFeel::getAlertWindowMessageFont() { return { "Inter", "Medium", 18.f }; }
-Font CustomLookAndFeel::getAlertWindowFont() { return { "Inter", "Medium", 16.f }; }
+int CustomLookAndFeel::getAlertWindowButtonHeight() { return 30; }
+Font CustomLookAndFeel::getAlertWindowTitleFont() { return FontOptions { "Inter", "Bold", 20.f }; }
+Font CustomLookAndFeel::getAlertWindowMessageFont() { return FontOptions { "Inter", "Medium", 18.f }; }
+Font CustomLookAndFeel::getAlertWindowFont() { return FontOptions { "Inter", "Medium", 16.f }; }
 
 //==================================================================
 // TAB BUTTON METHODS :
@@ -1188,7 +1189,7 @@ void CustomLookAndFeel::fillTabButtonShape (TabBarButton& button, Graphics& g, c
 
 Font CustomLookAndFeel::getTabButtonFont (TabBarButton&, float height)
 {
-    return Font ("Inter", "Medium", height * 0.65);
+    return FontOptions ("Inter", "Medium", height * 0.65);
 }
 
 void CustomLookAndFeel::drawTabButtonText (TabBarButton& button, Graphics& g, bool isMouseOver, bool isMouseDown)

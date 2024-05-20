@@ -181,6 +181,7 @@ public:
     void drawDocumentWindowTitleBar (DocumentWindow&, Graphics&, int, int, int, int, const Image*, bool) override;
 
     // ========= custom Alert Window methods: ===========================
+    int getAlertWindowButtonHeight() override;
     Font getAlertWindowTitleFont() override;
     Font getAlertWindowMessageFont() override;
     Font getAlertWindowFont() override;
