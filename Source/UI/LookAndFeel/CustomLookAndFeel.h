@@ -208,6 +208,8 @@ public:
     // ======== custom TableHeaderComponent methods: ================================
     void drawTableHeaderBackground (Graphics&, TableHeaderComponent&) override;
 
+    void drawTableHeaderColumn (Graphics&, TableHeaderComponent&, const String& columnName, int columnId, int width, int height, bool isMouseOver, bool isMouseDown, int columnFlags) override;
+
     // ======== custom Resizable Component methods: ================================
     void drawResizableFrame (Graphics&, int w, int h, const BorderSize<int>&) override;
     void fillResizableWindowBackground (Graphics&, int w, int h, const BorderSize<int>&, ResizableWindow&) override;

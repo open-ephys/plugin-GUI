@@ -35,10 +35,9 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode)
 {
     desiredWidth = 220;
 
-    configureButton = std::make_unique<UtilityButton> ("configure", titleFont);
+    configureButton = std::make_unique<UtilityButton> ("CONFIGURE", FontOptions (13.0f));
     configureButton->setComponentID ("config_spikes");
     configureButton->addListener (this);
-    configureButton->setRadius (3.0f);
     configureButton->setBounds (70, 60, 80, 30);
     addAndMakeVisible (configureButton.get());
 }

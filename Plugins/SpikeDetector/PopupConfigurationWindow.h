@@ -53,7 +53,7 @@ public:
 
     void resized() override
     {
-        label->setBounds (2, 2, getWidth() - 4, getHeight() - 4);
+        label->setBounds (2, 0, getWidth() - 4, getHeight());
     }
 
     int row;
@@ -117,7 +117,7 @@ public:
 
     void resized() override
     {
-        label->setBounds (2, 2, getWidth() - 4, getHeight() - 4);
+        label->setBounds (2, 0, getWidth() - 4, getHeight());
     }
 
     int row;
