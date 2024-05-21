@@ -372,9 +372,6 @@ auto legacyArgs (Args&&... args)
     if (result.getName().isEmpty())
         result = result.withName (Font::getDefaultSansSerifFontName());
 
-    if (result.getPointHeight() > 0.0f)
-        result = result.withHeight (result.getPointHeight());
-
     return result;
 }
 
@@ -747,7 +744,7 @@ float Font::getHeight() const noexcept
     return height > 0.0f ? height : font->getPointHeight() / getHeightToPointsFactor();
 }
 
-float Font::getDescent() const              { return font->getHeight() - getAscent(); }
+float Font::getDescent() const              { return getHeight() - getAscent(); }
 
 float Font::getHeightInPoints() const
 {
