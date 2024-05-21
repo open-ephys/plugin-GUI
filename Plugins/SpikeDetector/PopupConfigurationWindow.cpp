@@ -396,7 +396,7 @@ void ChannelSelectorCustomComponent::updateView()
     if (param == nullptr)
         return;
 
-    String s = "[" + channels->getValueAsString() + "]";
+    String s = "[" + param->getValueAsString() + "]";
 
     label->setText (s, dontSendNotification);
 }
