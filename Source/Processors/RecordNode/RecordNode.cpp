@@ -896,14 +896,15 @@ void RecordNode::process (AudioBuffer<float>& buffer)
 
         if (fifoAlmostFull)
         {
-            AlertWindow::showMessageBoxAsync (AlertWindow::AlertIconType::WarningIcon,
-                                              "Record Buffer Warning",
-                                              "The recording buffer has reached capacity. Stopping recording to prevent data corruption. \n\n"
-                                              "To address the issue, you can try reducing the number of simultaneously recorded channels or "
-                                              "using multiple Record Nodes to distribute data writing across more than one drive.",
-                                              "OK");
-
             CoreServices::setRecordingStatus (false);
+
+            MessageManager::callAsync ([this]
+                                       { AlertWindow::showMessageBoxAsync (AlertWindow::AlertIconType::WarningIcon,
+                                                                           "Record Buffer Warning",
+                                                                           "The recording buffer has reached capacity. Stopping recording to prevent data corruption. \n\n"
+                                                                           "To address the issue, you can try reducing the number of simultaneously recorded channels or "
+                                                                           "using multiple Record Nodes to distribute data writing across more than one drive.",
+                                                                           "OK"); });
         }
 
         if (! setFirstBlock)
