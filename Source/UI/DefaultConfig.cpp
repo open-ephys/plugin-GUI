@@ -67,12 +67,12 @@ void DefaultConfigWindow::launchWindow()
 
 DefaultConfigComponent::DefaultConfigComponent()
 {
-    configFont = FontOptions { "Fira Sans", "Regular", 18.0f };
+    configFont = FontOptions { "Inter", "Regular", 18.0f };
 
     configLabel = std::make_unique<Label> ("Configurations");
     String labelText;
     labelText << "Please select a default configuration from the list below to get started:" << newLine;
-    //configLabel->setFont(configFont);
+    configLabel->setFont (configFont);
     configLabel->setText (labelText, dontSendNotification);
     configLabel->setJustificationType (Justification::centred);
     addAndMakeVisible (configLabel.get());
@@ -96,7 +96,7 @@ DefaultConfigComponent::DefaultConfigComponent()
     addAndMakeVisible (acqBoardButton.get());
 
     acqBoardLabel = std::make_unique<Label> ("Acq. Board Label");
-    //acqBoardLabel->setFont(configFont);
+    acqBoardLabel->setFont (configFont);
     acqBoardLabel->setText ("Acq. Board", dontSendNotification);
     acqBoardLabel->setJustificationType (Justification::centred);
     addAndMakeVisible (acqBoardLabel.get());
@@ -114,7 +114,7 @@ DefaultConfigComponent::DefaultConfigComponent()
     addAndMakeVisible (fileReaderButton.get());
 
     fileReaderLabel = std::make_unique<Label> ("File Reader Label");
-    //fileReaderLabel->setFont(configFont);
+    fileReaderLabel->setFont (configFont);
     fileReaderLabel->setText ("File Reader", dontSendNotification);
     fileReaderLabel->setJustificationType (Justification::centred);
     addAndMakeVisible (fileReaderLabel.get());
@@ -130,7 +130,7 @@ DefaultConfigComponent::DefaultConfigComponent()
     addAndMakeVisible (neuropixelsButton.get());
 
     neuropixelsLabel = std::make_unique<Label> ("Npx Label");
-    //neuropixelsLabel->setFont(configFont);
+    neuropixelsLabel->setFont (configFont);
     neuropixelsLabel->setText ("Neuropixels", dontSendNotification);
     neuropixelsLabel->setJustificationType (Justification::centred);
     addAndMakeVisible (neuropixelsLabel.get());

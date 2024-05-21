@@ -994,7 +994,7 @@ void CustomLookAndFeel::drawDocumentWindowTitleBar (DocumentWindow& window, Grap
     g.setColour (findColour (ThemeColors::componentParentBackground));
     g.fillAll();
 
-    Font font (withDefaultMetrics (FontOptions ("Fira Sans", "Bold", (float) h * 0.65f)));
+    Font font (withDefaultMetrics (FontOptions ("Inter", "Bold", (float) h * 0.65f)));
     g.setFont (font);
 
     auto textW = font.getStringWidth (window.getName());
