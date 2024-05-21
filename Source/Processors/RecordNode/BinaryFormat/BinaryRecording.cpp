@@ -314,7 +314,7 @@ void BinaryRecording::openFiles (File rootFolder, int experimentNumber, int reco
     Result res = syncFile.create();
     if (res.failed())
     {
-        LOGE("Error creating sync text file: ", res.getErrorMessage());
+        LOGE ("Error creating sync text file: ", res.getErrorMessage());
     }
     else
     {
@@ -532,7 +532,7 @@ void BinaryRecording::writeContinuousData (int writeChannel,
     /* If our internal buffer is too small to hold the data... */
     if (size > m_bufferSize) //shouldn't happen, but if does, this prevents crash...
     {
-        LOGE("BinaryRecording::writeContinuousData: Write buffer overrun, resizing from: ", m_bufferSize, " to: ", size);
+        LOGE ("BinaryRecording::writeContinuousData: Write buffer overrun, resizing from: ", m_bufferSize, " to: ", size);
         m_scaledBuffer.malloc (size);
         m_intBuffer.malloc (size);
         m_sampleNumberBuffer.malloc (size);
@@ -634,7 +634,7 @@ void BinaryRecording::writeSpike (int electrodeIndex, const Spike* spike)
 
     if (totalSamples > m_bufferSize) //Shouldn't happen, and if it happens it'll be slow, but better this than crashing. Will be reset on file close and reset.
     {
-        LOGE("BinaryRecording::writeSpike: Write buffer overrun, resizing to ", totalSamples);
+        LOGE ("BinaryRecording::writeSpike: Write buffer overrun, resizing to ", totalSamples);
         m_bufferSize = totalSamples;
         m_scaledBuffer.malloc (totalSamples);
         m_intBuffer.malloc (totalSamples);
