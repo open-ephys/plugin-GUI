@@ -441,6 +441,7 @@ class PopupConfigurationWindow : public PopupComponent,
 public:
     /** Constructor */
     PopupConfigurationWindow (SpikeDetectorEditor* editor,
+                              UtilityButton* anchor,
                               Array<SpikeChannel*> spikeChannels,
                               bool acquisitionIsActive);
 

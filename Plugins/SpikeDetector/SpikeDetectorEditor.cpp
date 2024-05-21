@@ -56,9 +56,9 @@ void SpikeDetectorEditor::buttonClicked (Button* button)
         SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
         Array<SpikeChannel*> spikeChannels = processor->getSpikeChannelsForStream (getCurrentStream());
-        //std::cout << spikeChannels.size() << " spike channels found." << std::endl;
 
         currentConfigWindow = new PopupConfigurationWindow (this,
+                                                            configureButton.get(),
                                                             spikeChannels,
                                                             acquisitionIsActive);
 
@@ -99,9 +99,6 @@ void SpikeDetectorEditor::removeSpikeChannels (PopupConfigurationWindow* window,
     DataStream* stream = processor->getDataStream (getCurrentStream());
 
     RemoveSpikeChannels* action = new RemoveSpikeChannels (processor, stream, spikeChannelsToRemove, indeces);
-
-    // Now called in perform
-    //CoreServices::updateSignalChain(this);
 
     CoreServices::getUndoManager()->beginNewTransaction ("removeSpikeChannels");
     CoreServices::getUndoManager()->perform ((UndoableAction*) action);

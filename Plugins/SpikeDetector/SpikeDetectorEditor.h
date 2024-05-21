@@ -71,9 +71,8 @@ public:
     /** Update configuration window */
     void updateConfigurationWindow();
 
-    std::unique_ptr<UtilityButton> configureButton;
-
 private:
+    std::unique_ptr<UtilityButton> configureButton;
     PopupConfigurationWindow* currentConfigWindow;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDetectorEditor);

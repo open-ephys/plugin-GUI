@@ -1016,9 +1016,10 @@ void SpikeChannelGenerator::paint (Graphics& g)
 }
 
 PopupConfigurationWindow::PopupConfigurationWindow (SpikeDetectorEditor* editor_,
+                                                    UtilityButton* anchor,
                                                     Array<SpikeChannel*> spikeChannels,
                                                     bool acquisitionIsActive)
-    : PopupComponent (editor_->configureButton.get()), editor (editor_)
+    : PopupComponent (anchor), editor (editor_)
 {
     //tableHeader.reset(new TableHeaderComponent());
 
