@@ -177,7 +177,8 @@ void RecordNode::checkDiskSpace()
         msg += "\n\n";
         msg += "Recording may fail. Please free up space or change the recording directory.";
 
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "WARNING", msg);
+        MessageManager::callAsync ([msg]
+                                   { AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "WARNING", msg); });
     }
 }
 
