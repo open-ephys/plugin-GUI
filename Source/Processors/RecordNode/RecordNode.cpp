@@ -117,8 +117,8 @@ void RecordNode::parameterValueChanged (Parameter* p)
     }
     else if (p->getName() == "engine")
     {
-        LOGD ("Parameter changed: engine");
-        setEngine (((CategoricalParameter*) p)->getSelectedString());
+        int selectedIdx = ((CategoricalParameter*) p)->getSelectedIndex();
+        setEngine (getAvailableRecordEngines()[selectedIdx]->getID());
         createNewDirectory();
     }
     else if (p->getName() == "events")
