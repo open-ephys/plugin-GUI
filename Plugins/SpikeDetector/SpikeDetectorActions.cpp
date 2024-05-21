@@ -75,6 +75,7 @@ bool AddSpikeChannels::perform()
         addedSpikeChannels.add (spikeChannel->getIdentifier());
     }
     spikeDetector->registerUndoableAction (spikeDetector->getNodeId(), this);
+    CoreServices::sendStatusMessage ("Added " + String (count) + " " + SpikeChannel::getDescriptionFromType (type) + (count > 1 ? "s" : ""));
     CoreServices::updateSignalChain (spikeDetector);
 
     return true;
@@ -96,6 +97,7 @@ bool AddSpikeChannels::undo()
     for (int i = 0; i < count; i++)
         spikeDetector->removeSpikeChannel (addedSpikeChannels[i]);
     CoreServices::updateSignalChain (spikeDetector);
+    CoreServices::sendStatusMessage ("Removed " + String (count) + " " + SpikeChannel::getDescriptionFromType (type) + (count > 1 ? "s" : ""));
     return true;
 }
 
@@ -165,6 +167,7 @@ bool RemoveSpikeChannels::perform()
     for (auto spikeChannel : spikeChannelsToRemove)
         spikeDetector->removeSpikeChannel (spikeChannel);
     spikeDetector->registerUndoableAction (spikeDetector->getNodeId(), this);
+    CoreServices::sendStatusMessage ("Removed " + String (spikeChannelsToRemove.size()) + " spike channel" + (spikeChannelsToRemove.size() > 1 ? "s" : ""));
     CoreServices::updateSignalChain (spikeDetector);
 
     return true;
@@ -207,6 +210,7 @@ bool RemoveSpikeChannels::undo()
         }
         idx++;
     }
+    CoreServices::sendStatusMessage ("Restored " + String (idx) + " spike channel" + (idx > 1 ? "s" : ""));
     CoreServices::updateSignalChain (spikeDetector);
     return true;
 }
