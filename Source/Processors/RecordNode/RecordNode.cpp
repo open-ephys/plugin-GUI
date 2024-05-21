@@ -493,30 +493,6 @@ AudioProcessorEditor* RecordNode::createEditor()
     return editor.get();
 }
 
-// called by RecordEngine when saving the signal chain
-const String& RecordNode::getLastSettingsXml() const
-{
-    return lastSettingsText;
-}
-
-// Called when deleting FifoMonitor
-void RecordNode::updateChannelStates (uint16 streamId, std::vector<bool> channelStates)
-{
-    recordContinuousChannels[streamId] = channelStates;
-    for (auto stream : dataStreams)
-    {
-        if (stream->getStreamId() == streamId)
-        {
-            int ch = 0;
-            for (auto channel : stream->getContinuousChannels())
-            {
-                channel->isRecorded = channelStates[ch++];
-            }
-            break;
-        }
-    }
-}
-
 // called by GenericProcessor::update()
 void RecordNode::updateSettings()
 {

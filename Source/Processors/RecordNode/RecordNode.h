@@ -137,9 +137,6 @@ public:
     /* Returns the "recording" count (number of times that recording was stopped and re-started)*/
     int getRecordingNumber() const;
 
-    /** Updates the channels to record for a given stream */
-    void updateChannelStates (uint16 streamId, std::vector<bool> enabled);
-
     /** Copies incoming data to the record buffer, if recording is active*/
     void process (AudioBuffer<float>& buffer) override;
 
@@ -169,9 +166,6 @@ public:
 
     /** Returns true if this Record Node is writing data*/
     bool getRecordingStatus() const;
-
-    /** Get the last settings.xml in string form. Since the string will be large, returns a const ref.*/
-    const String& getLastSettingsXml() const;
 
     /** Called by handleEvent() */
     void writeSpike (const Spike* spike, const SpikeChannel* spikeElectrode);

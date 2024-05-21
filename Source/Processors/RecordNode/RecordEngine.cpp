@@ -131,11 +131,6 @@ int RecordEngine::getNumRecordedSpikeChannels() const
     return recordNode->getTotalSpikeChannels();
 }
 
-const String& RecordEngine::getLatestSettingsXml() const
-{
-    return recordNode->getLastSettingsXml();
-}
-
 void RecordEngine::configureEngine()
 {
     if (! manager)
