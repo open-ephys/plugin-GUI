@@ -399,6 +399,9 @@ void ChannelSelectorCustomComponent::updateView()
     String s = "[" + param->getValueAsString() + "]";
 
     label->setText (s, dontSendNotification);
+
+    if (auto parent = getParentComponent())
+        parent->repaint();
 }
 
 void WaveformSelectorCustomComponent::mouseDown (const juce::MouseEvent& event)
