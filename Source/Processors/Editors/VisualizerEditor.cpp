@@ -308,8 +308,6 @@ void VisualizerEditor::loadCustomParametersFromXml (XmlElement* xml)
                 */
                 checkForCanvas();
 
-                tabSelector->setToggleState(true, dontSendNotification);
-
                 break;
             }
         }
@@ -404,6 +402,9 @@ void VisualizerEditor::tabWasClosed()
 
 void VisualizerEditor::addTab()
 {
+    if (isOpenInTab)
+        return;
+    
     LOGD("CREATING CANVAS");
     checkForCanvas();
     
