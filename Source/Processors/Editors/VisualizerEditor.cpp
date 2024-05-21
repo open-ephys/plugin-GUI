@@ -410,7 +410,8 @@ void VisualizerEditor::addTab()
     LOGD("ADDING TAB");
     AccessClass::getDataViewport()->addTab(tabText, canvas.get(), nodeId);
     
-    //tabSelector->setToggleState (true, dontSendNotification);
+    if (!tabSelector->getToggleState())
+        tabSelector->setToggleState (true, dontSendNotification);
 
     isOpenInTab = true;
 }

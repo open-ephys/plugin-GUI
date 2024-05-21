@@ -40,6 +40,7 @@
 #include "../../UI/EditorViewport.h"
 #include "../../UI/GraphViewer.h"
 #include "../../UI/ProcessorList.h"
+#include "../Editors/VisualizerEditor.h"
 
 #include "../ProcessorManager/ProcessorManager.h"
 #include "../PluginManager/PluginManager.h"
@@ -412,6 +413,12 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
     if (!signalChainIsLoading)
     {
         updateSettings(addedProc);
+
+        if (!isConsoleApp && addedProc->getEditor()->isVisualizerEditor())
+        {
+            VisualizerEditor* editor = (VisualizerEditor*) addedProc->getEditor();
+            editor->addTab();
+        }
 
     } else {
         updateViews(addedProc);
