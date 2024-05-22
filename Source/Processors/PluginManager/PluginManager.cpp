@@ -102,23 +102,24 @@ PluginManager::PluginManager()
 
 	//Shared directory at the same level as executable
 	File sharedPath = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("shared");
-	//Shared directory managed by Plugin Installer at C:/ProgramData
-	File installSharedPath = File::getSpecialLocation(File::commonApplicationDataDirectory)
+	
+	//Shared directory managed by Plugin Installer at %LOCALAPPDATA%
+	File installSharedPath = File::getSpecialLocation(File::windowsLocalAppData)
 							.getChildFile("Open Ephys")
 							.getChildFile("shared-api" + String(PLUGIN_API_VER));
 
-	if(appDir.contains("plugin-GUI\\Build\\"))
-	{
-		SetDllDirectory(sharedPath.getFullPathName().toRawUTF8());
-	}
-	else
+	// Add executable level shared directory to DLL search path
+	AddDllDirectory(sharedPath.getFullPathName().toWideCharPointer());
+	
+	// Add LOCALAPPDATA level shared directory to DLL search path
+	if(!appDir.contains("plugin-GUI\\Build\\"))
     {
 		if (!installSharedPath.isDirectory())
         {
-			LOGD("Copying shared dependencies to ", installSharedPath.getFullPathName());
-            sharedPath.copyDirectoryTo(installSharedPath);
+			LOGD("Creating shared directory at ", installSharedPath.getFullPathName());
+            installSharedPath.createDirectory();
         }
-        SetDllDirectory(installSharedPath.getFullPathName().toRawUTF8());
+        AddDllDirectory(installSharedPath.getFullPathName().toWideCharPointer());
     }
 
 #elif __linux__
@@ -161,7 +162,7 @@ void PluginManager::loadAllPlugins()
     String appDir = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
     if(!appDir.contains("plugin-GUI\\Build\\"))
 	{
-	    paths.add(File::getSpecialLocation(File::commonApplicationDataDirectory)
+	    paths.add(File::getSpecialLocation(File::windowsLocalAppData)
 			 	 .getChildFile("Open Ephys")
 				 .getChildFile("plugins-api" + String(PLUGIN_API_VER))
 				 );
@@ -235,7 +236,7 @@ int PluginManager::loadPlugin(const String& pluginLoc) {
 #ifdef _WIN32
 	HINSTANCE handle;
 	const wchar_t* processorLocLPCWSTR = pluginLoc.toWideCharPointer();
-	handle = LoadLibraryW(processorLocLPCWSTR);
+	handle = LoadLibraryExW(processorLocLPCWSTR, NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
 #elif defined(__APPLE__)
 	CF::CFStringRef processorLocCFString = pluginLoc.toCFString();
 	CF::CFURLRef bundleURL = CF::CFURLCreateWithFileSystemPath(CF::kCFAllocatorDefault, 

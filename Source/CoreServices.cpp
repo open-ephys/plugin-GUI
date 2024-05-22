@@ -408,7 +408,7 @@ File getSavedStateDirectory()
     if (appDir.contains ("plugin-GUI\\Build\\"))
         dir = File::getSpecialLocation (File::currentApplicationFile).getParentDirectory();
     else
-        dir = File::getSpecialLocation (File::commonApplicationDataDirectory).getChildFile ("Open Ephys");
+        dir = File::getSpecialLocation (File::windowsLocalAppData).getChildFile ("Open Ephys");
 #else
     String appDir = File::getSpecialLocation (File::currentApplicationFile).getFullPathName();
     File dir;
