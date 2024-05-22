@@ -194,7 +194,7 @@ void CustomLookAndFeel::setTheme (ColorTheme theme)
     setColour (ComboBox::arrowColourId, currentThemeColors[ThemeColors::defaultText]);
     setColour (ComboBox::focusedOutlineColourId, currentThemeColors[ThemeColors::highlightedFill]);
 
-    setColour (ListBox::backgroundColourId, currentThemeColors[ThemeColors::widgetBackground]);
+    setColour (ListBox::backgroundColourId, currentThemeColors[ThemeColors::componentBackground]);
     setColour (ListBox::outlineColourId, currentThemeColors[ThemeColors::outline]);
     setColour (ListBox::textColourId, currentThemeColors[ThemeColors::defaultText]);
 
@@ -793,13 +793,13 @@ Font CustomLookAndFeel::getCommonMenuFont()
 
 void CustomLookAndFeel::drawToggleButton (Graphics& g, ToggleButton& button, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
-    auto fontSize = jmin (18.0f, button.getHeight() * 0.75f);
-    auto tickWidth = fontSize;
+    auto fontSize = jmin (18.0f, (float) button.getHeight() * 0.75f);
+    auto tickWidth = fontSize * 1.1f;
 
     drawTickBox (g, button, 4.0f, (button.getHeight() - tickWidth) * 0.5f, tickWidth, tickWidth, button.getToggleState(), button.isEnabled(), shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
 
     g.setColour (button.findColour (ToggleButton::textColourId));
-    g.setFont (fontSize);
+    g.setFont (FontOptions ("Inter", "Regular", fontSize));
 
     if (! button.isEnabled())
         g.setOpacity (0.5f);

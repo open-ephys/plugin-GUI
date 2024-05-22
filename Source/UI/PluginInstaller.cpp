@@ -283,7 +283,7 @@ void PluginInstaller::installPluginAndDependency (const String& plugin, String v
 PluginInstallerComponent::PluginInstallerComponent() : ThreadWithProgressWindow ("Plugin Installer", false, false),
                                                        checkForUpdates (false)
 {
-    font = Font ("Fira Sans", "Regular", 18.0f);
+    font = FontOptions ("Inter", "Regular", 18.0f);
     setSize (getWidth() - 10, getHeight() - 10);
 
     addAndMakeVisible (pluginListAndInfo);
@@ -293,7 +293,6 @@ PluginInstallerComponent::PluginInstallerComponent() : ThreadWithProgressWindow 
     this->run();
 
     addAndMakeVisible (sortingLabel);
-    sortingLabel.setColour (Label::textColourId, Colours::white);
     sortingLabel.setFont (font);
     sortingLabel.setText ("Sort By:", dontSendNotification);
 
@@ -305,14 +304,11 @@ PluginInstallerComponent::PluginInstallerComponent() : ThreadWithProgressWindow 
     sortByMenu.addListener (this);
 
     addAndMakeVisible (viewLabel);
-    viewLabel.setColour (Label::textColourId, Colours::white);
     viewLabel.setFont (font);
     viewLabel.setText ("View:", dontSendNotification);
 
     addAndMakeVisible (allButton);
     allButton.setButtonText ("All");
-    allButton.setColour (ToggleButton::textColourId, Colours::white);
-    allButton.setColour (ToggleButton::tickDisabledColourId, Colours::lightgrey);
     allButton.setRadioGroupId (101, dontSendNotification);
     allButton.addListener (this);
     allButton.setToggleState (true, dontSendNotification);
@@ -320,57 +316,45 @@ PluginInstallerComponent::PluginInstallerComponent() : ThreadWithProgressWindow 
     addAndMakeVisible (installedButton);
     installedButton.setButtonText ("Installed");
     installedButton.setClickingTogglesState (true);
-    installedButton.setColour (ToggleButton::textColourId, Colours::white);
-    installedButton.setColour (ToggleButton::tickDisabledColourId, Colours::lightgrey);
     installedButton.setRadioGroupId (101, dontSendNotification);
     installedButton.addListener (this);
 
     addAndMakeVisible (updatesButton);
     updatesButton.setButtonText ("Fetch Updates");
     updatesButton.changeWidthToFitText();
-    updatesButton.setColour (TextButton::buttonColourId, Colours::lightgrey);
     updatesButton.addListener (this);
 
     addAndMakeVisible (typeLabel);
-    typeLabel.setColour (Label::textColourId, Colours::white);
     typeLabel.setFont (font);
     typeLabel.setText ("Type:", dontSendNotification);
 
     addAndMakeVisible (filterType);
     filterType.setButtonText ("Filter");
-    filterType.setColour (ToggleButton::textColourId, Colours::white);
-    filterType.setColour (ToggleButton::tickDisabledColourId, Colours::lightgrey);
     filterType.addListener (this);
     filterType.setToggleState (true, dontSendNotification);
 
     addAndMakeVisible (sourceType);
     sourceType.setButtonText ("Source");
-    sourceType.setColour (ToggleButton::textColourId, Colours::white);
-    sourceType.setColour (ToggleButton::tickDisabledColourId, Colours::lightgrey);
     sourceType.addListener (this);
     sourceType.setToggleState (true, dontSendNotification);
 
     addAndMakeVisible (sinkType);
     sinkType.setButtonText ("Sink");
-    sinkType.setColour (ToggleButton::textColourId, Colours::white);
-    sinkType.setColour (ToggleButton::tickDisabledColourId, Colours::lightgrey);
     sinkType.addListener (this);
     sinkType.setToggleState (true, dontSendNotification);
 
     addAndMakeVisible (otherType);
     otherType.setButtonText ("Other");
-    otherType.setColour (ToggleButton::textColourId, Colours::white);
-    otherType.setColour (ToggleButton::tickDisabledColourId, Colours::lightgrey);
     otherType.addListener (this);
     otherType.setToggleState (true, dontSendNotification);
 }
 
 void PluginInstallerComponent::paint (Graphics& g)
 {
-    g.fillAll (Colours::darkgrey);
-    g.setColour (Colour::fromRGB (110, 110, 110));
-    g.fillRect (190, 5, 3, 38);
-    g.fillRect (410, 5, 3, 38);
+    g.fillAll (findColour (ThemeColors::componentBackground).darker());
+    g.setColour (findColour (ThemeColors::defaultFill).withAlpha (0.5f));
+    g.fillRect (195, 5, 2, 38);
+    g.fillRect (405, 5, 2, 38);
 }
 
 void PluginInstallerComponent::resized()
@@ -378,17 +362,17 @@ void PluginInstallerComponent::resized()
     sortingLabel.setBounds (20, 10, 70, 30);
     sortByMenu.setBounds (90, 10, 90, 30);
 
-    viewLabel.setBounds (200, 10, 45, 30);
-    allButton.setBounds (245, 11, 55, 28);
-    installedButton.setBounds (300, 11, 105, 28);
+    viewLabel.setBounds (200, 10, 50, 30);
+    allButton.setBounds (250, 11, 55, 28);
+    installedButton.setBounds (305, 11, 105, 28);
 
-    typeLabel.setBounds (415, 11, 45, 28);
+    typeLabel.setBounds (410, 11, 50, 28);
     sourceType.setBounds (460, 11, 80, 28);
-    filterType.setBounds (540, 11, 80, 28);
-    sinkType.setBounds (620, 11, 70, 28);
-    otherType.setBounds (690, 11, 75, 28);
+    filterType.setBounds (540, 11, 70, 28);
+    sinkType.setBounds (610, 11, 65, 28);
+    otherType.setBounds (675, 11, 75, 28);
 
-    updatesButton.setBounds (getWidth() - 125, 11, 105, 28);
+    updatesButton.setBounds (getWidth() - 140, 11, 120, 28);
 
     pluginListAndInfo.setBounds (10, 40, getWidth() - 10, getHeight() - 40);
 }
@@ -580,7 +564,7 @@ void PluginInstallerComponent::buttonClicked (Button* button)
 
 PluginListBoxComponent::PluginListBoxComponent() : Thread ("Plugin List"), maxTextWidth (0)
 {
-    listFont = Font ("Fira Code", "SemiBold", 22.0f);
+    listFont = FontOptions ("Inter", "Semi Bold", 22.0f);
 
     // Set progress window text and background colors
     //auto window = this->getAlertWindow();
@@ -592,9 +576,9 @@ PluginListBoxComponent::PluginListBoxComponent() : Thread ("Plugin List"), maxTe
 
     addAndMakeVisible (pluginList);
     pluginList.setModel (this);
-    pluginList.setColour (ListBox::backgroundColourId, Colour::fromRGB (50, 50, 50));
     pluginList.setRowHeight (35);
     pluginList.setMouseMoveSelectsRows (true);
+    pluginList.getViewport()->setScrollBarThickness (10.0f);
 
     listBoxDropShadower.setOwner (&pluginList);
 
@@ -610,18 +594,19 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics& g, int w
 {
     if (rowIsSelected)
     {
-        g.fillAll (Colour::fromRGB (100, 100, 100));
-        g.setColour (Colour::fromRGB (50, 50, 50));
+        g.fillAll (findColour (ThemeColors::componentParentBackground).withAlpha (0.5f));
+        g.setColour (findColour (ThemeColors::defaultText));
     }
     else
     {
-        g.fillAll (Colour::fromRGB (50, 50, 50));
-        g.setColour (Colours::white);
+        g.fillAll (findColour (ThemeColors::componentBackground));
+        g.setColour (findColour (ThemeColors::defaultText).withAlpha (0.8f));
     }
 
     if (rowNumber == pluginArray.indexOf (lastPluginSelected, true, 0))
     {
-        g.setColour (Colours::yellow);
+        g.fillAll (findColour (ThemeColors::menuHighlightBackground));
+        g.setColour (findColour (ThemeColors::menuHighlightText));
     }
 
     g.setFont (listFont);
@@ -842,31 +827,26 @@ PluginInfoComponent::PluginInfoComponent() : ThreadWithProgressWindow ("Plugin I
 {
     infoCompDropShadower.setOwner (this);
 
-    infoFont = Font ("Fira Code", "Regular", 20.0f);
-    infoFontBold = Font ("Fira Code", "SemiBold", 20.0f);
+    infoFont = FontOptions ("Inter", "Regular", 20.0f);
+    infoFontBold = FontOptions ("Inter", "Semi Bold", 20.0f);
 
     addChildComponent (pluginNameLabel);
     pluginNameLabel.setFont (infoFontBold);
-    pluginNameLabel.setColour (Label::textColourId, Colours::white);
     pluginNameLabel.setText ("Name: ", dontSendNotification);
 
     addChildComponent (pluginNameText);
     pluginNameText.setFont (infoFont);
-    pluginNameText.setColour (Label::textColourId, Colours::white);
 
     addChildComponent (developersLabel);
     developersLabel.setFont (infoFontBold);
-    developersLabel.setColour (Label::textColourId, Colours::white);
     developersLabel.setText ("Developers: ", dontSendNotification);
 
     addChildComponent (developersText);
     developersText.setFont (infoFont);
-    developersText.setColour (Label::textColourId, Colours::white);
     developersText.setMinimumHorizontalScale (1.0f);
 
     addChildComponent (versionLabel);
     versionLabel.setFont (infoFontBold);
-    versionLabel.setColour (Label::textColourId, Colours::white);
     versionLabel.setText ("Version: ", dontSendNotification);
 
     addChildComponent (versionMenu);
@@ -876,76 +856,64 @@ PluginInfoComponent::PluginInfoComponent() : ThreadWithProgressWindow ("Plugin I
 
     addChildComponent (installedVerLabel);
     installedVerLabel.setFont (infoFontBold);
-    installedVerLabel.setColour (Label::textColourId, Colours::white);
     installedVerLabel.setText ("Installed: ", dontSendNotification);
 
     addChildComponent (installedVerText);
     installedVerText.setFont (infoFont);
-    installedVerText.setColour (Label::textColourId, Colours::white);
     installedVerText.setMinimumHorizontalScale (1.0f);
 
     addChildComponent (lastUpdatedLabel);
     lastUpdatedLabel.setFont (infoFontBold);
-    lastUpdatedLabel.setColour (Label::textColourId, Colours::white);
     lastUpdatedLabel.setText ("Last Updated: ", dontSendNotification);
 
     addChildComponent (lastUpdatedText);
     lastUpdatedText.setFont (infoFont);
-    lastUpdatedText.setColour (Label::textColourId, Colours::white);
 
     addChildComponent (descriptionLabel);
     descriptionLabel.setFont (infoFontBold);
-    descriptionLabel.setColour (Label::textColourId, Colours::white);
     descriptionLabel.setText ("Description: ", dontSendNotification);
 
     addChildComponent (descriptionText);
     descriptionText.setFont (infoFont);
-    descriptionText.setColour (Label::textColourId, Colours::white);
     descriptionText.setJustificationType (Justification::topLeft);
     descriptionText.setMinimumHorizontalScale (1.0f);
 
     addChildComponent (dependencyLabel);
     dependencyLabel.setFont (infoFontBold);
-    dependencyLabel.setColour (Label::textColourId, Colours::white);
     dependencyLabel.setText ("Dependencies: ", dontSendNotification);
 
     addChildComponent (dependencyText);
     dependencyText.setFont (infoFont);
-    dependencyText.setColour (Label::textColourId, Colours::white);
 
     addChildComponent (downloadButton);
     downloadButton.setButtonText ("Install");
-    downloadButton.setColour (TextButton::buttonColourId, Colours::skyblue);
     downloadButton.addListener (this);
 
     addChildComponent (uninstallButton);
     uninstallButton.setButtonText ("Uninstall");
-    uninstallButton.setColour (TextButton::buttonColourId, Colours::crimson);
     uninstallButton.addListener (this);
 
     addChildComponent (documentationButton);
     documentationButton.setButtonText ("Documentation");
-    documentationButton.setColour (TextButton::buttonColourId, Colours::lightgrey);
     documentationButton.addListener (this);
 
     addAndMakeVisible (statusLabel);
     statusLabel.setFont (infoFont);
-    statusLabel.setColour (Label::textColourId, Colours::white);
     statusLabel.setText ("Please select a plugin from the list on the left...", dontSendNotification);
 }
 
 void PluginInfoComponent::paint (Graphics& g)
 {
-    g.fillAll (Colour::fromRGB (50, 50, 50));
+    g.fillAll (findColour (ThemeColors::componentBackground));
 }
 
 void PluginInfoComponent::resized()
 {
     pluginNameLabel.setBounds (10, 30, 140, 30);
-    pluginNameText.setBounds (145, 30, getWidth() - 10, 30);
+    pluginNameText.setBounds (145, 30, getWidth() - 150, 30);
 
     developersLabel.setBounds (10, 60, 140, 30);
-    developersText.setBounds (145, 60, getWidth() - 130, 30);
+    developersText.setBounds (145, 60, getWidth() - 150, 30);
 
     versionLabel.setBounds (10, 90, 140, 30);
     versionMenu.setBounds (150, 90, 110, 26);
@@ -954,13 +922,13 @@ void PluginInfoComponent::resized()
     installedVerText.setBounds (145, versionLabel.getBottom(), 110, 30);
 
     lastUpdatedLabel.setBounds (10, installedVerLabel.getBottom(), 140, 30);
-    lastUpdatedText.setBounds (145, installedVerLabel.getBottom(), getWidth() - 10, 30);
+    lastUpdatedText.setBounds (145, installedVerLabel.getBottom(), getWidth() - 150, 30);
 
     descriptionLabel.setBounds (10, lastUpdatedLabel.getBottom(), 140, 30);
     descriptionText.setBounds (145, lastUpdatedLabel.getBottom() + 5, getWidth() - 150, 75);
 
     dependencyLabel.setBounds (10, descriptionText.getBottom() + 5, 140, 30);
-    dependencyText.setBounds (145, dependencyLabel.getY(), getWidth() - 10, 30);
+    dependencyText.setBounds (145, dependencyLabel.getY(), getWidth() - 150, 30);
 
     downloadButton.setBounds (getWidth() - (getWidth() * 0.25) - 20, getHeight() - 60, getWidth() * 0.25, 30);
     uninstallButton.setBounds (getWidth() - (2 * (getWidth() * 0.25)) - 30, getHeight() - 60, getWidth() * 0.25, 30);
