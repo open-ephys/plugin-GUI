@@ -9,7 +9,6 @@ add_sources(${COMPONENT_NAME}_tests
 		ProcessorGraphTests.cpp
 		EventTests.cpp
 		DataThreadTests.cpp
-		EventTests.cpp
 		GenericProcessorTests.cpp
 		../../Source/Processors/PluginManager/PluginManager.cpp
 )
