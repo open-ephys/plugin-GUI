@@ -105,6 +105,8 @@ public:
     /** Destructor */
     ~FilenameConfigWindow() {}
 
+    void paint (Graphics& g) override;
+
     /** Save settings. */
     void saveStateToXml (XmlElement*);
 

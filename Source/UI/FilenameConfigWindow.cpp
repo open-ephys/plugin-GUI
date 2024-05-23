@@ -22,6 +22,7 @@
 */
 
 #include "FilenameConfigWindow.h"
+#include "LookAndFeel/CustomLookAndFeel.h"
 #include <stdio.h>
 
 FilenameFieldComponent::FilenameFieldComponent (int type_, int state_, String value_)
@@ -32,13 +33,13 @@ FilenameFieldComponent::FilenameFieldComponent (int type_, int state_, String va
       newDirectoryNeeded (true)
 {
     typeLabel = std::make_unique<Label> ("Type", types[type_] + ":");
-    typeLabel->setColour (Label::textColourId, Colours::white);
-    typeLabel->setBounds (0, 0, 80, 32);
+    typeLabel->setFont (FontOptions ("Inter", "Medium", 18.0f));
+    typeLabel->setBounds (2, 0, 80, 32);
     addAndMakeVisible (typeLabel.get());
 
     stateButton = std::make_unique<TextButton> ("State");
     stateButton->setButtonText (states[state_]);
-    stateButton->setBounds (85, 0, 80, 32);
+    stateButton->setBounds (85, 1, 80, 30);
     stateButton->addListener (this);
     addAndMakeVisible (stateButton.get());
 
@@ -52,11 +53,11 @@ FilenameFieldComponent::FilenameFieldComponent (int type_, int state_, String va
         valueLabel->setEditable (false);
     }
 
-    valueLabel->setBounds (170, 0, 230, 32);
+    valueLabel->setBounds (170, 1, 188, 30);
     valueLabel->addListener (this);
     valueLabel->setColour (
-        Label::ColourIds::backgroundColourId,
-        state == FilenameFieldComponent::State::CUSTOM ? Colours::white : Colours::grey);
+        Label::outlineColourId,
+        state == FilenameFieldComponent::State::CUSTOM ? findColour (ThemeColors::outline) : findColour (ThemeColors::outline).withAlpha (0.25f));
     addAndMakeVisible (valueLabel.get());
 
     if (type == FilenameFieldComponent::Type::MAIN)
@@ -124,7 +125,7 @@ String FilenameFieldComponent::getNextValue (bool usePlaceholderText)
         if (state == FilenameFieldComponent::State::CUSTOM)
         {
             valueLabel->setEditable (true);
-            valueLabel->setColour (Label::ColourIds::backgroundColourId, Colours::white);
+            valueLabel->setColour (Label::outlineColourId, findColour (ThemeColors::outline));
             valueLabel->setText (value, dontSendNotification);
 
             return value;
@@ -133,7 +134,7 @@ String FilenameFieldComponent::getNextValue (bool usePlaceholderText)
         if (state == FilenameFieldComponent::State::NONE)
         {
             valueLabel->setEditable (false);
-            valueLabel->setColour (Label::ColourIds::backgroundColourId, Colours::grey);
+            valueLabel->setColour (Label::outlineColourId, findColour (ThemeColors::outline).withAlpha (0.25f));
             valueLabel->setText ("", dontSendNotification);
 
             value = "";
@@ -144,7 +145,7 @@ String FilenameFieldComponent::getNextValue (bool usePlaceholderText)
         if (state == FilenameFieldComponent::State::AUTO)
         {
             valueLabel->setEditable (false);
-            valueLabel->setColour (Label::ColourIds::backgroundColourId, Colours::grey);
+            valueLabel->setColour (Label::outlineColourId, findColour (ThemeColors::outline).withAlpha (0.25f));
 
             if (type == FilenameFieldComponent::Type::MAIN)
             {
@@ -157,7 +158,9 @@ String FilenameFieldComponent::getNextValue (bool usePlaceholderText)
                 else
                 {
                     value = Time::getCurrentTime().formatted ("%Y-%m-%d_%H-%M-%S");
-                    valueLabel->setText (value, dontSendNotification);
+                    // TODO: update the valueLabel with the new value.
+                    // Waiting for the JUCE team to fix the text rendering bug.
+                    valueLabel->setText ("YYYY-MM-DD_HH-MM-SS", dontSendNotification);
                     return value;
                 }
             }
@@ -200,7 +203,7 @@ void FilenameFieldComponent::buttonClicked (Button* button)
     stateButton->setButtonText (states[state]);
 
     valueLabel->setEditable (false);
-    valueLabel->setColour (Label::ColourIds::backgroundColourId, Colours::grey);
+    valueLabel->setColour (Label::outlineColourId, findColour (ThemeColors::outline).withAlpha (0.25f));
 
     if (state == FilenameFieldComponent::State::NONE)
     {
@@ -212,7 +215,7 @@ void FilenameFieldComponent::buttonClicked (Button* button)
     {
         value = savedValue;
         valueLabel->setEditable (true);
-        valueLabel->setColour (Label::ColourIds::backgroundColourId, Colours::white);
+        valueLabel->setColour (Label::outlineColourId, findColour (ThemeColors::outline));
         valueLabel->setText (value, sendNotification);
     }
     else //AUTO
@@ -220,6 +223,11 @@ void FilenameFieldComponent::buttonClicked (Button* button)
         newDirectoryNeeded = true;
         getNextValue (true);
     }
+}
+
+void FilenameConfigWindow::paint (Graphics& g)
+{
+    g.fillAll (findColour (ThemeColors::componentBackground));
 }
 
 void FilenameConfigWindow::saveStateToXml (XmlElement* xml)
@@ -269,7 +277,7 @@ void FilenameConfigWindow::loadStateFromXml (XmlElement* xml)
                 if (fields[type]->state == FilenameFieldComponent::State::CUSTOM)
                 {
                     fields[type]->valueLabel->setEditable (true, sendNotification);
-                    fields[type]->valueLabel->setColour (Label::ColourIds::backgroundColourId, Colours::white);
+                    fields[type]->valueLabel->setColour (Label::outlineColourId, findColour (ThemeColors::outline));
                 }
             }
         }
