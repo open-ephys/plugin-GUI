@@ -50,11 +50,12 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
       timescale (timescale_),
       processor (processor_),
       selectedChannelType (ContinuousChannel::Type::ELECTRODE),
-      labelFont ("Fira Sans", "Regular", 13.0f),
+      labelFont (FontOptions (13.0f)),
       labelColour (100, 100, 100),
       medianOffsetOnForSpikeRaster (false),
       ttlWordString ("NONE")
 {
+    setBufferedToImage (true);
     // MAIN OPTIONS
 
     // Timebase
@@ -123,7 +124,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     typeNames.add ("DATA");
 
     UtilityButton* tbut;
-    tbut = new UtilityButton ("DATA", Font ("Silkscreen", "Regular", 9));
+    tbut = new UtilityButton ("DATA", FontOptions ("Silkscreen", "Plain", 12.0f));
     tbut->setEnabledState (true);
     tbut->setCorners (false, false, false, false);
     tbut->addListener (this);
@@ -149,7 +150,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     rangeUnits.add ("mV");
     typeNames.add ("AUX");
 
-    tbut = new UtilityButton ("AUX", Font ("Silkscreen", "Regular", 9));
+    tbut = new UtilityButton ("AUX", FontOptions ("Silkscreen", "Plain", 12.0f));
     tbut->setEnabledState (true);
     tbut->setCorners (false, false, false, false);
     tbut->addListener (this);
@@ -174,7 +175,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     rangeUnits.add ("V");
     typeNames.add ("ADC");
 
-    tbut = new UtilityButton ("ADC", Font ("Silkscreen", "Regular", 9));
+    tbut = new UtilityButton ("ADC", FontOptions ("Silkscreen", "Plain", 12.0f));
     tbut->setEnabledState (true);
     tbut->setCorners (false, false, false, false);
     tbut->addListener (this);
@@ -211,7 +212,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     startTimer (250);
 
     // Pause button
-    pauseButton = std::make_unique<UtilityButton> ("Pause", Font ("Default", "Plain", 15));
+    pauseButton = std::make_unique<UtilityButton> ("Pause", FontOptions (15.0f));
     pauseButton->setRadius (5.0f);
     pauseButton->setEnabledState (true);
     pauseButton->setCorners (true, true, true, true);
@@ -447,17 +448,17 @@ void LfpDisplayOptions::resized()
     // MAIN OPTIONS
     timebaseSelection->setBounds (8, getHeight() - 30, 90, height);
     spreadSelection->setBounds (timebaseSelection->getRight() + 20, getHeight() - 30, 90, height);
-    rangeSelection->setBounds (spreadSelection->getRight() + 20, getHeight() - 30, 90, height);
+    rangeSelection->setBounds (spreadSelection->getRight() + 25, getHeight() - 30, 90, height);
 
-    int bh = 36 / typeButtons.size();
+    int bh = 39 / typeButtons.size();
     for (int i = 0; i < typeButtons.size(); i++)
     {
-        typeButtons[i]->setBounds (rangeSelection->getRight() + 5, getHeight() - 40 + i * bh, 50, bh);
+        typeButtons[i]->setBounds (rangeSelection->getRight() + 5, getHeight() - 44 + i * bh, 50, bh);
     }
 
     for (int i = 0; i < 8; i++)
     {
-        eventDisplayInterfaces[i]->setBounds (typeButtons[0]->getRight() + 90 + (floor (i / 2) * 20),
+        eventDisplayInterfaces[i]->setBounds (typeButtons[0]->getRight() + 80 + (floor (i / 2) * 20),
                                               getHeight() - 45 + (i % 2) * 20,
                                               20,
                                               20); // arrange event channel buttons in two rows
@@ -555,7 +556,7 @@ void LfpDisplayOptions::paint (Graphics& g)
     ttlWordLabel->setColour (Label::outlineColourId, findColour (ThemeColors::outline));
 
     g.fillAll (findColour (ThemeColors::componentBackground));
-    g.setFont (Font ("Default", 20, Font::plain));
+    g.setFont (FontOptions ("Inter", "Medium", 18.0f));
 
     g.setColour (findColour (ThemeColors::defaultText));
 
@@ -576,7 +577,7 @@ void LfpDisplayOptions::paint (Graphics& g)
         }
     }
 
-    g.setFont (Font ("Fira Sans", 16, Font::plain));
+    g.setFont (FontOptions ("Inter", "Regular", 16.0f));
 
     g.drawText ("Timebase (s)", timebaseSelection->getX(), timebaseSelection->getY() - 22, 300, 20, Justification::left, false);
     g.drawText ("Chan height (px)", spreadSelection->getX(), spreadSelection->getY() - 22, 300, 20, Justification::left, false);
@@ -1429,18 +1430,9 @@ void LfpDisplayOptions::loadParameters (XmlElement* xml)
             start = Time::getHighResolutionTicks();
 
             // RANGE
-            Array<String> ranges;
+            StringArray ranges;
             String rangeString = xmlNode->getStringAttribute ("Range");
-            int lastComma = 0;
-            int nextComma = rangeString.indexOf (",");
-
-            while (nextComma != -1)
-            {
-                ranges.add (rangeString.substring (lastComma, nextComma));
-                lastComma = nextComma + 1;
-                nextComma = rangeString.indexOf (lastComma, ",");
-                //std::cout << ranges.getLast() << std::endl;
-            }
+            ranges.addTokens (rangeString, ",", "\"");
 
             selectedVoltageRangeValues[0] = ranges[0];
             selectedVoltageRangeValues[1] = ranges[1];
