@@ -98,21 +98,21 @@ PopupThresholdComponent::PopupThresholdComponent (SpikeDetectorTableModel* table
     label->setEditable (false);
     addAndMakeVisible (label.get());
 
-    absButton = std::make_unique<UtilityButton> ("uV", FontOptions ("Fira Code", "Regular", 10));
+    absButton = std::make_unique<UtilityButton> ("uV", FontOptions ("Fira Code", "Regular", 12.0f));
     absButton->setBounds (7, 25, 40, 25);
     absButton->setTooltip ("Detection threshold = microvolt value");
     absButton->setToggleState (type == ThresholderType::ABS, dontSendNotification);
     absButton->addListener (this);
     addAndMakeVisible (absButton.get());
 
-    stdButton = std::make_unique<UtilityButton> ("STD", FontOptions ("Fira Code", "Regular", 10));
+    stdButton = std::make_unique<UtilityButton> ("STD", FontOptions ("Fira Code", "Regular", 12.0f));
     stdButton->setBounds (7, 55, 40, 25);
     stdButton->setTooltip ("Detection threshold = multiple of the channel's standard deviation");
     stdButton->setToggleState (type == ThresholderType::STD, dontSendNotification);
     stdButton->addListener (this);
     addAndMakeVisible (stdButton.get());
 
-    dynButton = std::make_unique<UtilityButton> ("MED", FontOptions ("Fira Code", "Regular", 10));
+    dynButton = std::make_unique<UtilityButton> ("MED", FontOptions ("Fira Code", "Regular", 12.0f));
     dynButton->setBounds (7, 85, 40, 25);
     dynButton->setTooltip ("Detection threshold = multiple of the median of the channel's absolute value");
     dynButton->setToggleState (type == ThresholderType::DYN, dontSendNotification);
@@ -121,7 +121,7 @@ PopupThresholdComponent::PopupThresholdComponent (SpikeDetectorTableModel* table
 
     createSliders();
 
-    lockButton = std::make_unique<UtilityButton> ("LOCK", FontOptions ("Fira Code", "Regular", 10));
+    lockButton = std::make_unique<UtilityButton> ("LOCK", FontOptions ("Fira Code", "Regular", 12.0f));
     lockButton->setBounds (72 + sliderWidth * numChannels, 50, 42, 20);
     lockButton->setClickingTogglesState (true);
 

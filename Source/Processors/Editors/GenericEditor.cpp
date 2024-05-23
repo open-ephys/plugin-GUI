@@ -832,8 +832,6 @@ UtilityButton::UtilityButton(String label_, Font font_) :
 
     radius = 5.0f;
 
-    font.setHeight(12.0f);
-
     setEnabledState(true);
 
 }

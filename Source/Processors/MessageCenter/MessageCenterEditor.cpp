@@ -60,7 +60,7 @@ MessageCenterEditor::MessageCenterEditor(MessageCenter* owner) :
     //addAndMakeVisible(incomingMessageLog);
     //addAndMakeVisible(outgoingMessageLog);
 
-    sendMessageButton = new UtilityButton("Save", FontOptions("Small Text", 0, Font::plain));
+    sendMessageButton = new UtilityButton("Save", FontOptions(12.0f));
     sendMessageButton->addListener(this);
     sendMessageButton->setTooltip("Send a message to be saved by the record node");
     addAndMakeVisible(sendMessageButton);
