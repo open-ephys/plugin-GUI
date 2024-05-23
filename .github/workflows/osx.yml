@@ -36,62 +36,19 @@ jobs:
 #    - name: test
 #      run: cd build && ctest
     - name: deploy_dev
-      if: github.ref == 'refs/heads/development'
+      if: github.ref == 'refs/heads/development-juce8'
       env:
         artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
       run: |
-        zipfile=open-ephys-latest-mac-dev.zip
+        zipfile=open-ephys-v1.0.0-dev-mac.zip
         cd Build/Release
         mkdir open-ephys
         mv open-ephys.app/ open-ephys
         zip -r $zipfile open-ephys
         user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Dev/mac/$zipfile"
-        brew install create-dmg && create-dmg \
-          --volname "Open-Ephys Installer" \
-          --volicon "open-ephys/open-ephys.app/Contents/Resources/Icon.icns" \
-          --background "open-ephys/open-ephys.app/Contents/Resources/dmg_background.png" \
-          --window-pos 300 0 \
-          --window-size 688 416 \
-          --icon-size 128 \
-          --icon "open-ephys.app" 200 190 \
-          --hide-extension "Open-Ephys.app" \
-          --app-drop-link 500 188 \
-          "Open-Ephys-Installer.dmg" \
-          "open-ephys/"
-        installer=Open_Ephys_GUI_latest-dev.dmg
-        mv -v Open-Ephys-Installer.dmg $installer
-        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Dev-Installer/mac/$installer"
-    - name: deploy_test
-      if: github.ref == 'refs/heads/testing'
-      env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
-      run: |
-        gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
-        zipfile=open-ephys-${gui_ver}-mac-beta.zip
-        cd Build/Release
-        mkdir open-ephys
-        mv open-ephys.app/ open-ephys
-        zip -r $zipfile open-ephys
-        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Test/mac/$zipfile"
-        brew install create-dmg && create-dmg \
-          --volname "Open-Ephys Installer" \
-          --volicon "open-ephys/open-ephys.app/Contents/Resources/Icon.icns" \
-          --background "open-ephys/open-ephys.app/Contents/Resources/dmg_background.png" \
-          --window-pos 300 0 \
-          --window-size 688 416 \
-          --icon-size 128 \
-          --icon "open-ephys.app" 200 190 \
-          --hide-extension "Open-Ephys.app" \
-          --app-drop-link 500 188 \
-          "Open-Ephys-Installer.dmg" \
-          "open-ephys/"
-        installer=Open_Ephys_GUI_${gui_ver}-beta.dmg
-        mv -v Open-Ephys-Installer.dmg $installer
-        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Test-Installer/mac/$installer"
-    - name: deploy_release
-      if: github.ref == 'refs/heads/main'
+        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/1.0.0-dev/mac/$zipfile"
+    - name: deploy_preview
+      if: github.ref_type == 'tag'
       env:
         artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
       run: |
@@ -102,19 +59,4 @@ jobs:
         mv open-ephys.app/ open-ephys
         zip -r $zipfile open-ephys
         user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Release/mac/$zipfile"
-        brew install create-dmg && create-dmg \
-          --volname "Open-Ephys Installer" \
-          --volicon "open-ephys/open-ephys.app/Contents/Resources/Icon.icns" \
-          --background "open-ephys/open-ephys.app/Contents/Resources/dmg_background.png" \
-          --window-pos 300 0 \
-          --window-size 688 416 \
-          --icon-size 128 \
-          --icon "open-ephys.app" 200 190 \
-          --hide-extension "Open-Ephys.app" \
-          --app-drop-link 500 188 \
-          "Open-Ephys-Installer.dmg" \
-          "open-ephys/"
-        installer=Open_Ephys_GUI_${gui_ver}.dmg
-        mv -v Open-Ephys-Installer.dmg $installer
-        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Release-Installer/mac/$installer"
+        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/1.0.0-pre/mac/$zipfile"
