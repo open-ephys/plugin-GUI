@@ -52,8 +52,6 @@ public:
 
     /** Destructor */
     ~FilenameEditorButton() {}
-
-    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
 /**

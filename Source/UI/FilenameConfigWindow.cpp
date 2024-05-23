@@ -158,9 +158,7 @@ String FilenameFieldComponent::getNextValue (bool usePlaceholderText)
                 else
                 {
                     value = Time::getCurrentTime().formatted ("%Y-%m-%d_%H-%M-%S");
-                    // TODO: update the valueLabel with the new value.
-                    // Waiting for the JUCE team to fix the text rendering bug.
-                    valueLabel->setText ("YYYY-MM-DD_HH-MM-SS", dontSendNotification);
+                    valueLabel->setText (value, dontSendNotification);
                     return value;
                 }
             }

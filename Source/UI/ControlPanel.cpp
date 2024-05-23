@@ -41,30 +41,6 @@ FilenameEditorButton::FilenameEditorButton()
     setTooltip ("Edit the recording filename");
 }
 
-void FilenameEditorButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
-{
-    auto& lf = getLookAndFeel();
-
-    lf.drawButtonBackground (g, *this, findColour (getToggleState() ? buttonOnColourId : buttonColourId), isMouseOver, isButtonDown);
-
-    Font font (lf.getTextButtonFont (*this, getHeight()));
-    Colour textColour = findColour (getToggleState() ? textColourOnId : textColourOffId)
-                            .withMultipliedAlpha (isEnabled() ? 1.0f : 0.5f);
-
-    const int yIndent = jmin (4, proportionOfHeight (0.3f));
-    const int cornerSize = jmin (getHeight(), getWidth()) / 2;
-
-    const int fontHeight = roundToInt (font.getHeight() * 0.65f);
-    const int leftIndent = jmin (fontHeight, 2 + cornerSize / (isConnectedOnLeft() ? 4 : 2));
-    const int rightIndent = jmin (fontHeight, 2 + cornerSize / (isConnectedOnRight() ? 4 : 2));
-    const int textWidth = getWidth() - leftIndent - rightIndent;
-
-    AttributedString attrStr;
-    attrStr.setJustification (Justification::centred);
-    attrStr.append (getButtonText(), font, textColour);
-    attrStr.draw (g, juce::Rectangle<float> (leftIndent, yIndent, textWidth, getHeight() - yIndent * 2));
-}
-
 PlayButton::PlayButton()
     : DrawableButton ("Play Button", DrawableButton::ImageRaw)
 {
@@ -420,7 +396,6 @@ ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool
 
     if (! isConsoleApp)
     {
-
         audioEditor = (AudioEditor*) graph->getAudioNode()->createEditor();
         addAndMakeVisible (audioEditor);
 
