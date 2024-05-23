@@ -33,15 +33,16 @@ SpikeDisplayEditor::SpikeDisplayEditor (GenericProcessor* parentNode)
 
 {
     scaleLabel = std::make_unique<Label> ("Display size: ", "Display size:");
+    scaleLabel->setFont (FontOptions ("Inter", "Medium", 16.0f));
     scaleLabel->setBounds (50, 40, 100, 25);
     addAndMakeVisible (scaleLabel.get());
 
-    scaleDownBtn = std::make_unique<UtilityButton> ("-", Font ("Small Text", 30, Font::plain));
+    scaleDownBtn = std::make_unique<UtilityButton> ("-", FontOptions (16.0f));
     scaleDownBtn->setBounds (65, 75, 25, 25);
     scaleDownBtn->addListener (this);
     addAndMakeVisible (scaleDownBtn.get());
 
-    scaleUpBtn = std::make_unique<UtilityButton> ("+", Font ("Small Text", 30, Font::plain));
+    scaleUpBtn = std::make_unique<UtilityButton> ("+", FontOptions (16.0f));
     scaleUpBtn->setBounds (100, 75, 25, 25);
     scaleUpBtn->addListener (this);
     addAndMakeVisible (scaleUpBtn.get());

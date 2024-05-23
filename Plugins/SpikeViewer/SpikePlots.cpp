@@ -38,7 +38,7 @@ SpikePlot::SpikePlot (SpikeDisplayCanvas* sdc,
                                                  name (name_),
                                                  identifier (identifier_)
 {
-    font = Font ("Default", 15, Font::plain);
+    font = FontOptions ("Inter", "Medium", 16.0f);
 
     switch (p)
     {
@@ -76,7 +76,7 @@ SpikePlot::SpikePlot (SpikeDisplayCanvas* sdc,
 
     for (int i = 0; i < nChannels; i++)
     {
-        UtilityButton* rangeButton = new UtilityButton ("250", Font ("Small Text", 10, Font::plain));
+        UtilityButton* rangeButton = new UtilityButton ("250", FontOptions (12.0f));
         rangeButton->setRadius (3.0f);
         rangeButton->addListener (this);
         addAndMakeVisible (rangeButton);
@@ -85,7 +85,7 @@ SpikePlot::SpikePlot (SpikeDisplayCanvas* sdc,
         setDisplayThresholdForChannel (i, 0);
     }
 
-    monitorButton = std::make_unique<UtilityButton> ("MON", Font ("Small Text", 8, Font::plain));
+    monitorButton = std::make_unique<UtilityButton> ("MON", FontOptions (12.0f));
     monitorButton->setTooltip ("Monitor this electrode (requires an Audio Monitor in the signal chain)");
     monitorButton->addListener (this);
     addAndMakeVisible (monitorButton.get());
@@ -444,7 +444,7 @@ GenericAxes::GenericAxes (SpikeDisplayCanvas* canvas, SpikePlotType type_) : can
     xlims[0] = 0;
     xlims[1] = 1;
 
-    font = Font ("Default", 12, Font::plain);
+    font = FontOptions (12.0f);
 
     colours.add (Colour (255, 224, 93));
     colours.add (Colour (255, 178, 99));
@@ -544,7 +544,7 @@ WaveAxes::WaveAxes (SpikeDisplayCanvas* canvas, int electrodeIndex, int channel_
 
     thresholdColour = Colours::red;
 
-    font = Font ("Small Text", 10, Font::plain);
+    font = FontOptions (12.0f);
 
     for (int n = 0; n < bufferSize; n++)
     {
@@ -673,7 +673,8 @@ void WaveAxes::drawThresholdSlider (Graphics& g)
     g.fillRect (0.0f, h, (float) getWidth(), 1.0f);
     // g.drawLine(0, h, getWidth(), h);
 
-    g.drawText (String (int (displayThresholdLevel)), 2, h, 25, 10, Justification::left, false);
+    g.setFont (font);
+    g.drawText (String (int (displayThresholdLevel)), 2, h + 2, 25, 12, Justification::left, false);
 
     // draw detector threshold (not editable)
     if (! spikesInverted)
