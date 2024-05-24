@@ -32,7 +32,7 @@ jobs:
     - name: build
       run: |
         cd Build 
-        xcodebuild -project open-ephys-GUI.xcodeproj -scheme ALL_BUILD -configuration Release 
+        xcodebuild -configuration Release 
 #    - name: test
 #      run: cd build && ctest
     - name: deploy_dev
