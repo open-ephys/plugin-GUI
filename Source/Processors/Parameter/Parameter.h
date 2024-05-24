@@ -657,7 +657,7 @@ public:
     int getSelectedIndex();
 
     /** Gets the value as a string**/
-    virtual String getValueAsString() override { return streamNames[currentValue]; };
+    String getValueAsString() override;
 
     /** Gets the value change description */
     virtual String getChangeDescription();

@@ -1,9 +1,25 @@
-//
-//  BroadcastParser.hpp
-//  open-ephys-GUI
-//
-//  Created by Allen Munk on 4/28/23.
-//
+/*
+    ------------------------------------------------------------------
+
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2024 Open Ephys
+
+    ------------------------------------------------------------------
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
 
 #ifndef BroadcastParser_h
 #define BroadcastParser_h
@@ -14,11 +30,9 @@
 #include "../Processors/PluginManager/OpenEphysPlugin.h"
 #include "BroadcastPayload.h"
 
-
-class PLUGIN_API BroadcastParser {
+class PLUGIN_API BroadcastParser
+{
 public:
-
-
     /**
     * Builds a message String that can be passed to other Processors using GenericProcessor::broadcastMessage() or 
     * GenericProcessor::sendConfigMessage(). This message String can then be parsed by BroadcastParser::getPayloadForCommand
@@ -28,8 +42,8 @@ public:
     * @param payload Map of parameters and their values to be sent to the destination Plugin
     * @returns The constructed message String. This string formats the parameters as a flat JSON string
     */
-    static String build(String destPlugin, String command, std::map<String, var> payload);
-    
+    static String build (String destPlugin, String command, std::map<String, var> payload);
+
     /**
     * Deconstructs a message String. Checks the message for an expected destination plugin and an expected command. If
     * the message String's destination and command match the expected parameters then a payload can be extracted.
@@ -41,14 +55,9 @@ public:
     * match the message string
     * @returns if true then the expected parameters match and the payload is valid
     */
-    static bool getPayloadForCommand(String expectedPlugin, String expectedCommand, String msg, BroadcastPayload& payload);
-    
+    static bool getPayloadForCommand (String expectedPlugin, String expectedCommand, String msg, BroadcastPayload& payload);
 
 private:
-  
-
-    
-    
 };
 
 #endif /* BroadcastParser_h */

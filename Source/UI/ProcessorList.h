@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -28,7 +28,6 @@
 #include "../AccessClass.h"
 #include "../Processors/PluginManager/OpenEphysPlugin.h"
 
-
 class ProcessorListItem;
 class UIComponent;
 
@@ -48,16 +47,15 @@ class UIComponent;
 */
 
 class ProcessorList : public Component,
-    public DragAndDropContainer,
-    public ChangeListener,
-    public Timer
+                      public DragAndDropContainer,
+                      public ChangeListener,
+                      public Timer
 
 {
 public:
-
     /** Constructor**/
-    ProcessorList(Viewport* v);
-    
+    ProcessorList (Viewport* v);
+
     /** Destructor*/
     ~ProcessorList() {}
 
@@ -65,37 +63,37 @@ public:
     void toggleState();
 
     /** Called when the user requests a colour change using a ColourSelector.*/
-    void changeListenerCallback(ChangeBroadcaster* source);
+    void changeListenerCallback (ChangeBroadcaster* source);
 
     /** Returns the open/closed state of the ProcessorList.*/
     bool isOpen();
 
     /** Draws the ProcessorList. */
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
     /** Gets the colors of the different types of processors.*/
     Array<Colour> getColours();
 
     /** Sets the colors of the different types of processors.*/
-    void setColours(Array<Colour>);
+    void setColours (Array<Colour>);
 
     /** Saves the ProcessorList state. */
-    void saveStateToXml(XmlElement*);
+    void saveStateToXml (XmlElement*);
 
     /** Loads the ProcessorList state. */
-    void loadStateFromXml(XmlElement*);
+    void loadStateFromXml (XmlElement*);
 
-	/** Fill item list **/
-	void fillItemList();
+    /** Fill item list **/
+    void fillItemList();
 
     /** Get list of processors **/
     Array<String> getItemList();
 
-    Plugin::Description getItemDescriptionfromList(const String& processorName);
+    Plugin::Description getItemDescriptionfromList (const String& processorName);
 
     /** Set component bounds */
     void resized();
-    
+
     /** Used to animate list item location */
     void timerCallback();
 
@@ -104,21 +102,20 @@ public:
     int getTotalHeight();
 
 private:
-
     /** The main method for drawing the ProcessorList.*/
-    void drawItems(Graphics& g);
+    void drawItems (Graphics& g);
 
     /** Draws a single item within the ProcessorList.*/
-    void drawItem(Graphics& g, ProcessorListItem*);
+    void drawItem (Graphics& g, ProcessorListItem*);
 
     /** Draws the name of a single item within the ProcessorList.*/
-    void drawItemName(Graphics& g, ProcessorListItem*);
+    void drawItemName (Graphics& g, ProcessorListItem*);
 
     /** Returns the ProcessorListItem that sits at a given y coordinate.*/
-    ProcessorListItem* getListItemForYPos(int y);
+    ProcessorListItem* getListItemForYPos (int y);
 
     /** Sets the appropriate viewport for drawing.*/
-    void setViewport(Graphics& g, bool);
+    void setViewport (Graphics& g, bool);
 
     int currentColor;
 
@@ -132,30 +129,29 @@ private:
     String category;
 
     /** Called when the mouse moves within the boundaries of the ProcessorList.*/
-    void mouseMove(const MouseEvent& e);
-    
+    void mouseMove (const MouseEvent& e);
+
     /** Called when the mouse exits the boundaries of the ProcessorList.*/
-    void mouseExit(const MouseEvent& e);
-    
+    void mouseExit (const MouseEvent& e);
+
     /** Called when a mouse click begins within the boundaries of the ProcessorList.*/
-    void mouseDown(const MouseEvent& e);
+    void mouseDown (const MouseEvent& e);
 
     /** Called when a mouse drag occurs within the boundaries of the ProcessorList.*/
-    void mouseDrag(const MouseEvent& e);
+    void mouseDrag (const MouseEvent& e);
 
     /** The base item in the list.*/
     std::unique_ptr<ProcessorListItem> baseItem;
 
     Font listFontLight;
     Font listFontPlain;
-    
+
     ProcessorListItem* hoverItem;
     int maximumNameOffset;
 
     Viewport* viewport;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProcessorList);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorList);
 };
 
 /**
@@ -175,28 +171,28 @@ class ProcessorListItem : public Component
 {
 public:
     /** Constructor*/
-    ProcessorListItem(const String& name,
-                      int processorId = -1,
-                      Plugin::Type type = Plugin::INVALID,
-                      Plugin::Processor::Type processorType = Plugin::Processor::INVALID);
-    
+    ProcessorListItem (const String& name,
+                       int processorId = -1,
+                       Plugin::Type type = Plugin::INVALID,
+                       Plugin::Processor::Type processorType = Plugin::Processor::INVALID);
+
     /** Destructor*/
-    ~ProcessorListItem() { }
+    ~ProcessorListItem() {}
 
     /** Returns the number of sub-items for a given ProcessorListItem. */
     int getNumSubItems();
 
     /** Returns the sub-item for a given index. */
-    ProcessorListItem* getSubItem(int index);
+    ProcessorListItem* getSubItem (int index);
 
     /** Clears all the sub-items owned by the ProcessorListItem. */
     void clearSubItems();
 
     /** Adds a sub-item. */
-    void addSubItem(ProcessorListItem* newItem);
+    void addSubItem (ProcessorListItem* newItem);
 
     /** Removes a sub-item with a given index. */
-    void removeSubItem(int index);
+    void removeSubItem (int index);
 
     /** Returns true if a ProcessorListItem has sub-items, false otherwise. */
     bool hasSubItems();
@@ -205,12 +201,12 @@ public:
     bool isOpen();
 
     /** Sets the open/closed state of a ProcessorListItem with sub-items. */
-    void setOpen(bool);
+    void setOpen (bool);
 
     /** Toggles the open/closed state of a ProcessorListItem with sub-items. */
     void reverseOpenState()
     {
-        open = !open;
+        open = ! open;
     }
 
     /** Returns true if a ProcessorListItem has been selected by the user, false otherwise. */
@@ -220,7 +216,7 @@ public:
     }
 
     /** Sets selection state of a ProcessorListItem. */
-    void setSelected(bool b)
+    void setSelected (bool b)
     {
         selected = b;
     }
@@ -232,18 +228,18 @@ public:
     const String& getParentName();
 
     /** Sets the name of the parent of a ProcessorListItem. */
-    void setParentName(const String& name);
+    void setParentName (const String& name);
 
     /** Determines the color of the ProcessorListItem (based on enumerator defined in setParentName() method). */
     int colorId;
 
-	const int index;
+    const int index;
 
     const Plugin::Type pluginType;
-    
-	const Plugin::Processor::Type processorType;
-private:
 
+    const Plugin::Processor::Type processorType;
+
+private:
     bool selected;
     bool open;
     const String name;
@@ -251,8 +247,6 @@ private:
 
     /** An array of all the sub-items (if any) that belong to this ProcessorListItem. */
     OwnedArray<ProcessorListItem> subItems;
-
 };
 
-
-#endif  // __PROCESSORLIST_H_C3A661E9__
+#endif // __PROCESSORLIST_H_C3A661E9__

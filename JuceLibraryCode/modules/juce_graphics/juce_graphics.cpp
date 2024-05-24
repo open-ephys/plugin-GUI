@@ -148,14 +148,12 @@
 #include "fonts/juce_FunctionPointerDestructor.h"
 #include "native/juce_EventTracing.h"
 
-#include "unicode/juce_UnicodeScript.h"
-#include "unicode/juce_Unicode.h"
+#include "unicode/juce_UnicodeGenerated.cpp"
 #include "unicode/juce_UnicodeUtils.cpp"
 #include "unicode/juce_UnicodeLine.cpp"
 #include "unicode/juce_UnicodeScript.cpp"
 #include "unicode/juce_UnicodeBrackets.cpp"
 #include "unicode/juce_UnicodeBidi.cpp"
-#include "unicode/juce_UnicodeGrapheme.cpp"
 #include "unicode/juce_Unicode.cpp"
 #include "colour/juce_Colour.cpp"
 #include "colour/juce_ColourGradient.cpp"
@@ -191,6 +189,7 @@
 #include "effects/juce_GlowEffect.cpp"
 
 #if JUCE_UNIT_TESTS
+ #include "geometry/juce_Parallelogram_test.cpp"
  #include "geometry/juce_Rectangle_test.cpp"
 #endif
 

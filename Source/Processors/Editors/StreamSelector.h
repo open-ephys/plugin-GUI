@@ -95,18 +95,13 @@ public:
     /** Returns the tooltip for a particular cell*/
     String getCellTooltip (int rowNumber, int columnId) override;
 
-    /** Returns the delay monitor for the stream*/
-    DelayMonitor* getDelayMonitor(const String& streamKey) { return delayMonitors[streamKey]; }
-
-    /** Returns the TTL monitor for the stream*/
-    TTLMonitor* getTTLMonitor(const String& streamKey) { return ttlMonitors[streamKey]; }
+    /** Called whenever the list is scrolled; tells the editor to update the monitors*/
+    void listWasScrolled() override;
     
     TableListBox* table;
 private:
 
     Array<const DataStream*> streams;
-    std::map<String, DelayMonitor*> delayMonitors;
-    std::map<String, TTLMonitor*> ttlMonitors;
 
     StreamSelectorTable* owner;
 

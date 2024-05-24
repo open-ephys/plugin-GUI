@@ -59,7 +59,7 @@ GenericEditor::GenericEditor(GenericProcessor* owner) : AudioProcessorEditor(own
 
     nodeId = owner->getNodeId();
 
-    titleFont = Font("CP Mono", "Plain", 14);
+    titleFont = FontOptions("CP Mono", "Plain", 14);
 
     drawerButton = std::make_unique<DrawerButton>(getNameAndId() + " Drawer Button");
     drawerButton->addListener(&drawerButtonListener);
@@ -537,16 +537,16 @@ void GenericEditor::paint(Graphics& g)
     if (!isCollapsed)
     {
         g.setColour(isEnabled ? Colours::white : findColour(ThemeColors::defaultText).withAlpha(0.5f));
-        g.setFont( Font("Mono", "Plain", 12) );
-        g.drawText (String(nodeId), 10, 6, 30, 15, Justification::left, false);
-        g.setFont (Font("CP Mono", "Plain", 16));
-        g.drawText (displayName.toUpperCase(), 35, 5, 500, 15, Justification::left, false);
+        g.setFont(FontOptions("Fira Mono", "Plain", 13));
+        g.drawText (String(nodeId), 8, 5, 30, 15, Justification::left, false);
+        g.setFont (FontOptions("CP Mono", "Plain", 16));
+        g.drawText (displayName.toUpperCase(), 35, 4, 500, 15, Justification::left, false);
     }
     else
     {
         g.addTransform(AffineTransform::rotation(-M_PI/2.0));
         g.setColour(isEnabled ? Colours::white : findColour(ThemeColors::defaultText).withAlpha(0.5f));
-        g.setFont (Font("CP Mono", "Plain", 14));
+        g.setFont (FontOptions("CP Mono", "Plain", 14));
         g.drawText (displayName.toUpperCase(), - getHeight() + 6, 5, 500, 15, Justification::left, false);
         g.addTransform(AffineTransform::rotation(M_PI/2.0));
     }
@@ -831,8 +831,6 @@ UtilityButton::UtilityButton(String label_, Font font_) :
     roundLR = true;
 
     radius = 5.0f;
-
-    font.setHeight(12.0f);
 
     setEnabledState(true);
 

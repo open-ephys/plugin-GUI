@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,21 +24,22 @@
 #ifndef __CUSTOMLOOKANDFEEL_H_6B021009__
 #define __CUSTOMLOOKANDFEEL_H_6B021009__
 
-#include <JuceHeader.h>
 #include "../../TestableExport.h"
+#include <JuceHeader.h>
 
-namespace ProcessorColor {
-    enum IDs
-    {
-        PROCESSOR_COLOR = 801,
-        FILTER_COLOR = 802,
-        SINK_COLOR = 803,
-        SOURCE_COLOR = 804,
-        UTILITY_COLOR = 805,
-        RECORD_COLOR = 806,
-        AUDIO_COLOR = 807,
-        SYNC_COLOR = 808
-    };
+namespace ProcessorColor
+{
+enum IDs
+{
+    PROCESSOR_COLOR = 801,
+    FILTER_COLOR = 802,
+    SINK_COLOR = 803,
+    SOURCE_COLOR = 804,
+    UTILITY_COLOR = 805,
+    RECORD_COLOR = 806,
+    AUDIO_COLOR = 807,
+    SYNC_COLOR = 808
+};
 }
 
 enum ThemeColors
@@ -76,10 +77,9 @@ enum ColorTheme
 
 */
 
-class TESTABLE CustomLookAndFeel : public LookAndFeel_V2
+class TESTABLE CustomLookAndFeel : public LookAndFeel_V4
 {
 public:
-
     /** Constructor */
     CustomLookAndFeel();
 
@@ -87,60 +87,55 @@ public:
     ~CustomLookAndFeel();
 
     std::map<ColorTheme, std::map<ThemeColors, Colour>> themeColorsMap;
-    
+
     /** Set color theme*/
-    void setTheme(ColorTheme theme);
+    void setTheme (ColorTheme theme);
 
     // ======== custom typeface getter: =============================
-    Typeface::Ptr getTypefaceForFont(const Font& font);
+    Typeface::Ptr getTypefaceForFont (const Font& font);
 
     // ======== custom scroll bar methods: =============================
 
-    void drawScrollbarButton(Graphics& g,
-                             ScrollBar& scrollbar,
-                             int width, int height,
-                             int buttonDirection,
-                             bool isScrollBarVertical,
-                             bool isMouseOverButton,
-                             bool isButtonDown);
+    void drawScrollbarButton (Graphics& g,
+                              ScrollBar& scrollbar,
+                              int width,
+                              int height,
+                              int buttonDirection,
+                              bool isScrollBarVertical,
+                              bool isMouseOverButton,
+                              bool isButtonDown);
 
-    void drawScrollbar(Graphics& g,
-                       ScrollBar& scrollbar,
-                       int x, int y,
-                       int width, int height,
-                       bool isScrollbarVertical,
-                       int thumbStartPosition,
-                       int thumbSize,
-                       bool isMouseOver,
-                       bool isMouseDown);
-    
+    void drawScrollbar (Graphics& g,
+                        ScrollBar& scrollbar,
+                        int x,
+                        int y,
+                        int width,
+                        int height,
+                        bool isScrollbarVertical,
+                        int thumbStartPosition,
+                        int thumbSize,
+                        bool isMouseOver,
+                        bool isMouseDown);
+
     // ======== custom tooltip methods: ============================
     // juce::Rectangle<int> getTooltipBounds(const String &tipText, Point<int> screenPos, juce::Rectangle<int> parentArea) override;
-    
+
     // void drawTooltip(Graphics &, const String &text, int width, int height) override;
 
     // TextLayout layoutTooltipText(const String& text, Colour colour);
 
     // ======== custom slider methods: =============================
 
-    void drawLinearSlider (Graphics&, int x, int y, int width, int height,
-                           float sliderPos, float minSliderPos, float maxSliderPos,
-                           Slider::SliderStyle, Slider&) override;
+    void drawLinearSlider (Graphics&, int x, int y, int width, int height, float sliderPos, float minSliderPos, float maxSliderPos, Slider::SliderStyle, Slider&) override;
 
+    int getSliderThumbRadius (Slider& slider);
 
-    int getSliderThumbRadius(Slider& slider);
-
-    void drawPointer (Graphics&, float x, float y, float diameter,
-                      const Colour&, int direction) noexcept;
+    void drawPointer (Graphics&, float x, float y, float diameter, const Colour&, int direction) noexcept;
 
     // ======== custom combo box methods: =============================
 
-    void drawComboBox(Graphics& g, int width, int height,
-                      const bool isButtonDown,
-                      int buttonX, int buttonY,
-                      int buttonW, int buttonH,
-                      ComboBox& box);
-    
+    void drawComboBox (Graphics& g, int width, int height, const bool isButtonDown, int buttonX, int buttonY, int buttonW, int buttonH, ComboBox& box);
+
     Font getComboBoxFont (ComboBox& box) override;
 
     void positionComboBoxText (juce::ComboBox& box, juce::Label& label) override;
@@ -148,7 +143,7 @@ public:
     // ========= custom popup menu & menu bar methods: ===========================
 
     void drawPopupMenuBackground (Graphics&, int width, int height);
-        
+
     Font getPopupMenuFont() override;
 
     void drawMenuBarBackground (Graphics&, int width, int height, bool isMouseOverBar, MenuBarComponent&) override;
@@ -160,28 +155,25 @@ public:
     void drawButtonBackground (Graphics& g,
                                Button& button,
                                const Colour& backgroundColour,
-                               bool isMouseOverButton, bool isButtonDown) override;
+                               bool isMouseOverButton,
+                               bool isButtonDown) override;
 
     void drawButtonText (Graphics& g,
                          TextButton& button,
-                         bool isMouseOverButton, bool isButtonDown) override;
+                         bool isMouseOverButton,
+                         bool isButtonDown) override;
 
     Font getTextButtonFont (TextButton&, int buttonHeight) override;
 
     // ========= custom toggle button methods: ===========================
-    void drawToggleButton (Graphics&, ToggleButton&,
-                           bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
-    
-    void drawTickBox (Graphics&, Component&,
-                      float x, float y, float w, float h,
-                      bool ticked, bool isEnabled,
-                      bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
-    
+    void drawToggleButton (Graphics&, ToggleButton&, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+
+    void drawTickBox (Graphics&, Component&, float x, float y, float w, float h, bool ticked, bool isEnabled, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+
     Path getTickShape (float height) override;
 
     // ========= custom progress bar methods: ===========================
-    void drawProgressBar (Graphics&, ProgressBar&, int width, int height, 
-                          double progress, const String& textToShow) override;
+    void drawProgressBar (Graphics&, ProgressBar&, int width, int height, double progress, const String& textToShow) override;
 
     // ========= custom document window methods: ===========================
     Button* createDocumentWindowButton (int) override;
@@ -189,12 +181,13 @@ public:
     void drawDocumentWindowTitleBar (DocumentWindow&, Graphics&, int, int, int, int, const Image*, bool) override;
 
     // ========= custom Alert Window methods: ===========================
+    int getAlertWindowButtonHeight() override;
     Font getAlertWindowTitleFont() override;
     Font getAlertWindowMessageFont() override;
     Font getAlertWindowFont() override;
-    
+
     // ======== custom TabButton methods: ================================
-    
+
     int getTabButtonSpaceAroundImage() override;
     int getTabButtonOverlap (int tabDepth) override;
     int getTabButtonBestWidth (TabBarButton&, int tabDepth) override;
@@ -206,14 +199,16 @@ public:
     void drawTabbedButtonBarBackground (TabbedButtonBar&, Graphics&) override;
     void drawTabAreaBehindFrontButton (TabbedButtonBar&, Graphics&, int w, int h) override;
 
-    void createTabButtonShape (TabBarButton&, Path&,  bool isMouseOver, bool isMouseDown) override;
+    void createTabButtonShape (TabBarButton&, Path&, bool isMouseOver, bool isMouseDown) override;
     void fillTabButtonShape (TabBarButton&, Graphics&, const Path&, bool isMouseOver, bool isMouseDown) override;
 
     // ======== custom CallOutBox method: ================================
     void drawCallOutBoxBackground (CallOutBox&, Graphics&, const Path&, Image&) override;
-    
+
     // ======== custom TableHeaderComponent methods: ================================
     void drawTableHeaderBackground (Graphics&, TableHeaderComponent&) override;
+
+    void drawTableHeaderColumn (Graphics&, TableHeaderComponent&, const String& columnName, int columnId, int width, int height, bool isMouseOver, bool isMouseDown, int columnFlags) override;
 
     // ======== custom Resizable Component methods: ================================
     void drawResizableFrame (Graphics&, int w, int h, const BorderSize<int>&) override;
@@ -221,15 +216,13 @@ public:
     void drawResizableWindowBorder (Graphics&, int w, int h, const BorderSize<int>& border, ResizableWindow&) override;
 
 private:
-
     Typeface::Ptr
-        bebasNeue,
 
         cpmonoExtraLight,
         cpmonoLight,
         cpmonoPlain,
         cpmonoBold,
-        
+
         firaCodeLight,
         firaCodeMedium,
         firaCodeRetina,
@@ -240,21 +233,20 @@ private:
         firaSansExtraLight,
         firaSansRegular,
         firaSansSemiBold,
-        firaSansExtraBold,
 
-        misoRegular,
-        misoLight,
-        misoBold,
+        silkscreen,
 
         nimbusSans,
-        nordic,
-        ostrich,
-        silkscreen;
-    
+
+        interBold,
+        interLight,
+        interMedium,
+        interRegular,
+        interSemiBold;
+
     Font getCommonMenuFont();
 
     void initializeColors();
 };
 
-
-#endif  // __CUSTOMLOOKANDFEEL_H_6B021009__
+#endif // __CUSTOMLOOKANDFEEL_H_6B021009__

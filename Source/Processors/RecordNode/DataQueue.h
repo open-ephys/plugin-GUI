@@ -24,17 +24,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DATAQUEUE_H_INCLUDED
 #define DATAQUEUE_H_INCLUDED
 
-#include <JuceHeader.h>
 #include "../../Utils/Utils.h"
+#include <JuceHeader.h>
 
 class Synchronizer;
 
 struct CircularBufferIndexes
 {
-	int index1;
-	int size1;
-	int index2;
-	int size2;
+    int index1;
+    int size1;
+    int index2;
+    int size2;
 };
 
 /**
@@ -45,76 +45,73 @@ struct CircularBufferIndexes
 class DataQueue
 {
 public:
+    /** Constructor */
+    DataQueue (int blockSize, int nBlocks);
 
-	/** Constructor */
-	DataQueue(int blockSize, int nBlocks);
+    /** Destructor */
+    ~DataQueue();
 
-	/** Destructor */
-	~DataQueue();
+    /// -----------  NOT THREAD SAFE  -------------- //
+    /** Sets the number of continuous channel buffers needed */
+    void setChannelCount (int nChans);
 
-	/// -----------  NOT THREAD SAFE  -------------- //
-	/** Sets the number of continuous channel buffers needed */
-	void setChannelCount(int nChans);
+    /** Sets the number of timestamp buffers needed */
+    void setTimestampStreamCount (int nStreams);
 
-	/** Sets the number of timestamp buffers needed */
-	void setTimestampStreamCount(int nStreams);
+    /** Changes the number of blocks in the queue */
+    void resize (int nBlocks);
 
-	/** Changes the number of blocks in the queue */
-	void resize(int nBlocks);
+    /** Returns an array of sample numbers for a given block*/
+    void getSampleNumbersForBlock (int idx, Array<int64>& sampleNumbers) const;
 
-	/** Returns an array of sample numbers for a given block*/
-	void getSampleNumbersForBlock(int idx, Array<int64>& sampleNumbers) const;
+    /// -----------  THREAD SAFE  -------------- //
 
-	/// -----------  THREAD SAFE  -------------- //
+    /** Writes an array of data for one channel */
+    float writeChannel (const AudioBuffer<float>& buffer, int srcChannel, int destChannel, int nSamples, int64 sampleNumbers);
 
-	/** Writes an array of data for one channel */
-	float writeChannel(const AudioBuffer<float>& buffer, int srcChannel, int destChannel, int nSamples, int64 sampleNumbers);
+    /** Writes an array of timestamps for one stream */
+    float writeSynchronizedTimestamps (double start, double step, int destChannel, int64 nSamples);
 
-	/** Writes an array of timestamps for one stream */
-	float writeSynchronizedTimestamps(double start, double step, int destChannel, int64 nSamples);
+    /** Start reading data for one channel */
+    bool startRead (Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int64>& sampleNumbers, int nMax);
 
-	/** Start reading data for one channel */
-	bool startRead(Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int64>& sampleNumbers, int nMax);
+    /** Called when data read is finished */
+    void stopRead();
 
-	/** Called when data read is finished */
-	void stopRead();
+    /** Returns a reference to the continuous data buffer */
+    const AudioBuffer<float>& getContinuousDataBufferReference() const;
 
-	/** Returns a reference to the continuous data buffer */
-	const AudioBuffer<float>& getContinuousDataBufferReference() const;
+    /** Returns a reference to the timestamp buffer */
+    const SynchronizedTimestampBuffer& getTimestampBufferReference() const;
 
-	/** Returns a reference to the timestamp buffer */
-	const SynchronizedTimestampBuffer& getTimestampBufferReference() const;
-
-	/** Returns the current block size*/
-	int getBlockSize();
+    /** Returns the current block size*/
+    int getBlockSize();
 
 private:
+    /** Fills the sample number buffer for a given channel */
+    void fillSampleNumbers (int channel, int index, int size, int64 sampleNumbers);
 
-	/** Fills the sample number buffer for a given channel */
-	void fillSampleNumbers(int channel, int index, int size, int64 sampleNumbers);
+    int lastIdx;
 
-	int lastIdx;
+    OwnedArray<AbstractFifo> m_fifos;
+    OwnedArray<AbstractFifo> m_FTSFifos;
 
-	OwnedArray<AbstractFifo> m_fifos;
-	OwnedArray<AbstractFifo> m_FTSFifos;
+    AudioSampleBuffer m_buffer;
+    SynchronizedTimestampBuffer m_FTSBuffer;
 
-	AudioSampleBuffer m_buffer;
-	SynchronizedTimestampBuffer m_FTSBuffer;
+    Array<int> m_readSamples;
+    Array<int> m_readFTSSamples;
+    OwnedArray<Array<int64>> m_sampleNumbers;
+    Array<int64> m_lastReadSampleNumbers;
 
-	Array<int> m_readSamples;
-	Array<int> m_readFTSSamples;
-	OwnedArray<Array<int64>> m_sampleNumbers;
-	Array<int64> m_lastReadSampleNumbers;
+    int m_numChans;
+    int m_numFTSChans;
+    int m_blockSize;
+    bool m_readInProgress;
+    int m_numBlocks;
+    int m_maxSize;
 
-	int m_numChans;
-	int m_numFTSChans;
-	int m_blockSize;
-	bool m_readInProgress;
-	int m_numBlocks;
-	int m_maxSize;
-
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DataQueue);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataQueue);
 };
 
-
-#endif  // DATAQUEUE_H_INCLUDED
+#endif // DATAQUEUE_H_INCLUDED

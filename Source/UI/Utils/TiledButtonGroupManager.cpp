@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -22,32 +22,20 @@
 */
 
 #include "TiledButtonGroupManager.h"
-#include "../LookAndFeel/MaterialButtonLookAndFeel.h"
 
 #include <algorithm>
 
 using namespace juce;
 
 TiledButtonGroupManager::TiledButtonGroupManager()
-    : m_buttonWidth                 (10)
-    , m_buttonHeight                (10)
-    , m_minPaddingForButtons        (5)
-    , m_firstSelectedButtonIdx      (-1)
-    , m_lastSelectedButtonIdx       (-1)
-    , m_isToggleOnMode              (true)
-    , m_isDraggingMouseNow          (false)
-    , m_isSelectButtonsByDragging   (false)
-    , m_materialButtonsLookAndFeel  (new MaterialButtonLookAndFeel)
+    : m_buttonWidth (10), m_buttonHeight (10), m_minPaddingForButtons (5), m_firstSelectedButtonIdx (-1), m_lastSelectedButtonIdx (-1), m_isToggleOnMode (true), m_isDraggingMouseNow (false), m_isSelectButtonsByDragging (false)
 {
     setRadioButtonMode (false);
-    setButtonsLookAndFeel (m_materialButtonsLookAndFeel);
 }
 
 TiledButtonGroupManager::~TiledButtonGroupManager()
 {
-    setButtonsLookAndFeel(nullptr);
 }
-
 
 void TiledButtonGroupManager::resized()
 {
@@ -69,7 +57,7 @@ void TiledButtonGroupManager::resized()
         m_buttons[i]->setBounds (buttonBounds);
 
         // Go to the next row
-        if ( (i + 1) % numButtonsInTheRow == 0)
+        if ((i + 1) % numButtonsInTheRow == 0)
         {
             buttonBounds.setX (0);
             buttonBounds.translate (0, m_buttonHeight + padding);
@@ -82,20 +70,17 @@ void TiledButtonGroupManager::resized()
     }
 }
 
-
 void TiledButtonGroupManager::mouseDown (const MouseEvent& e)
 {
 }
-
 
 void TiledButtonGroupManager::mouseUp (const MouseEvent& e)
 {
     m_isDraggingMouseNow = false;
 
     m_firstSelectedButtonIdx = -1;
-    m_lastSelectedButtonIdx  = -1;
+    m_lastSelectedButtonIdx = -1;
 }
-
 
 void TiledButtonGroupManager::mouseDrag (const MouseEvent& e)
 {
@@ -118,7 +103,6 @@ void TiledButtonGroupManager::mouseDrag (const MouseEvent& e)
         m_firstSelectedButtonIdx = currentButtonIdx;
     }
 
-
     if (currentButtonIdx != -1
         && currentButtonIdx != m_lastSelectedButtonIdx)
     {
@@ -126,7 +110,7 @@ void TiledButtonGroupManager::mouseDrag (const MouseEvent& e)
 
         // Get the indices of range which we should to select (get FROM index and TO index)
         const int fromIndex = jmin (m_firstSelectedButtonIdx, m_lastSelectedButtonIdx);
-        const int toIndex   = jmax (m_firstSelectedButtonIdx, m_lastSelectedButtonIdx);
+        const int toIndex = jmax (m_firstSelectedButtonIdx, m_lastSelectedButtonIdx);
 
         for (int i = fromIndex; i <= toIndex; ++i)
         {
@@ -137,7 +121,6 @@ void TiledButtonGroupManager::mouseDrag (const MouseEvent& e)
         }
     }
 }
-
 
 void TiledButtonGroupManager::buttonClicked (Button* buttonThatWasClicked)
 {
@@ -158,7 +141,6 @@ void TiledButtonGroupManager::buttonClicked (Button* buttonThatWasClicked)
     ButtonGroupManager::buttonClicked (buttonThatWasClicked);
 }
 
-
 void TiledButtonGroupManager::addButton (Button* newButton, bool useDefaultLookAndFeel)
 {
     ButtonGroupManager::addButton (newButton, useDefaultLookAndFeel);
@@ -167,10 +149,8 @@ void TiledButtonGroupManager::addButton (Button* newButton, bool useDefaultLookA
     newButton->addMouseListener (this, false);
 }
 
-
 int TiledButtonGroupManager::getIndexOfButtonAtPosition (juce::Point<int> position) const
 {
-
     const int numButtons = m_buttons.size();
     const int viewPositionX = m_buttonsViewport.getViewPositionX();
     const int viewPositionY = m_buttonsViewport.getViewPositionY();
@@ -186,30 +166,26 @@ int TiledButtonGroupManager::getIndexOfButtonAtPosition (juce::Point<int> positi
     return -1;
 }
 
-
 bool TiledButtonGroupManager::isFastSelectionModeEnabled() const
 {
     return m_isSelectButtonsByDragging;
 }
-
 
 void TiledButtonGroupManager::setFastSelectionModeEnabled (bool isFastSelectionMode)
 {
     m_isSelectButtonsByDragging = isFastSelectionMode;
 }
 
-
 void TiledButtonGroupManager::setButtonSize (int buttonWidth, int buttonHeight)
 {
-    m_buttonWidth  = buttonWidth;
+    m_buttonWidth = buttonWidth;
     m_buttonHeight = buttonHeight;
 
-    std::for_each (m_buttons.begin(), m_buttons.end(),
-                   [=] (Button* button) { button->setSize (buttonWidth, buttonHeight); });
+    std::for_each (m_buttons.begin(), m_buttons.end(), [=] (Button* button)
+                   { button->setSize (buttonWidth, buttonHeight); });
 
     resized();
 }
-
 
 void TiledButtonGroupManager::setMinPaddingBetweenButtons (int minPadding)
 {

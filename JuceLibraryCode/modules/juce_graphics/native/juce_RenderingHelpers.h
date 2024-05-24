@@ -2061,16 +2061,6 @@ public:
         return clip != nullptr;
     }
 
-    static Rectangle<int> getLargestIntegerWithin (Rectangle<float> r)
-    {
-        auto x1 = (int) std::ceil (r.getX());
-        auto y1 = (int) std::ceil (r.getY());
-        auto x2 = (int) std::floor (r.getRight());
-        auto y2 = (int) std::floor (r.getBottom());
-
-        return { x1, y1, x2 - x1, y2 - y1 };
-    }
-
     bool excludeClipRectangle (Rectangle<int> r)
     {
         if (clip != nullptr)
@@ -2079,11 +2069,11 @@ public:
 
             if (transform.isOnlyTranslated)
             {
-                clip = clip->excludeClipRectangle (getLargestIntegerWithin (transform.translated (r.toFloat())));
+                clip = clip->excludeClipRectangle (transform.translated (r.toFloat()).getLargestIntegerWithin());
             }
             else if (! transform.isRotated)
             {
-                clip = clip->excludeClipRectangle (getLargestIntegerWithin (transform.boundsAfterTransform (r.toFloat())));
+                clip = clip->excludeClipRectangle (transform.boundsAfterTransform (r.toFloat()).getLargestIntegerWithin());
             }
             else
             {
@@ -2190,6 +2180,9 @@ public:
 
     void fillRect (Rectangle<int> r, bool replaceContents)
     {
+        if (r.isEmpty())
+            return;
+
         if (clip != nullptr)
         {
             if (transform.isOnlyTranslated)
@@ -2211,6 +2204,9 @@ public:
 
     void fillRect (Rectangle<float> r)
     {
+        if (r.isEmpty())
+            return;
+
         if (clip != nullptr)
         {
             if (transform.isOnlyTranslated)

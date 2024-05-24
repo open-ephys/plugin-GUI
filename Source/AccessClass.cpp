@@ -1,23 +1,23 @@
 /*
-   ------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-   This file is part of the Open Ephys GUI
-   Copyright (C) 2014 Open Ephys
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2024 Open Ephys
 
-   ------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -33,56 +33,57 @@ namespace AccessClass
 namespace
 {
 
-UIComponent* ui = nullptr;
-EditorViewport* ev = nullptr;
-ProcessorList* pl = nullptr;
-DataViewport* dv = nullptr;
-ProcessorGraph* pg = nullptr;
-ControlPanel* cp = nullptr;
-MessageCenter* mc = nullptr;
-AudioComponent* ac = nullptr;
-GraphViewer* gv = nullptr;
-PluginManager* pm = nullptr;
-std::unique_ptr<ActionBroadcaster> bc;
-}
+    UIComponent* ui = nullptr;
+    EditorViewport* ev = nullptr;
+    ProcessorList* pl = nullptr;
+    DataViewport* dv = nullptr;
+    ProcessorGraph* pg = nullptr;
+    ControlPanel* cp = nullptr;
+    MessageCenter* mc = nullptr;
+    AudioComponent* ac = nullptr;
+    GraphViewer* gv = nullptr;
+    PluginManager* pm = nullptr;
+    std::unique_ptr<ActionBroadcaster> bc;
+} // namespace
 
-void setUIComponent(UIComponent* ui_)
+void setUIComponent (UIComponent* ui_)
 {
-    if (ui != nullptr) return;
+    if (ui != nullptr)
+        return;
     ui = ui_;
 
     ev = ui->getEditorViewport();
     dv = ui->getDataViewport();
     pl = ui->getProcessorList();
     gv = ui->getGraphViewer();
-    
 }
 
-void setProcessorGraph(ProcessorGraph* pg_)
+void setProcessorGraph (ProcessorGraph* pg_)
 {
-    if (pg != nullptr) return;
-        pg = pg_;
+    if (pg != nullptr)
+        return;
+    pg = pg_;
 
     pm = pg->getPluginManager();
     mc = pg->getMessageCenter();
-    
+
     bc = std::make_unique<ActionBroadcaster>();
-    bc->addActionListener(mc);
+    bc->addActionListener (mc);
 }
 
-void setAudioComponent(AudioComponent* ac_)
+void setAudioComponent (AudioComponent* ac_)
 {
-    if (ac != nullptr) return;
+    if (ac != nullptr)
+        return;
     ac = ac_;
 }
 
-void setControlPanel(ControlPanel* cp_)
+void setControlPanel (ControlPanel* cp_)
 {
-    if (cp != nullptr) return;
+    if (cp != nullptr)
+        return;
     cp = cp_;
 }
-
-
 
 void shutdownBroadcaster()
 {
@@ -158,7 +159,8 @@ UndoManager* getUndoManager()
     return pg->getUndoManager();
 }
 
-void clearAccessClassStateForTesting() {
+void clearAccessClassStateForTesting()
+{
     ui = nullptr;
     ev = nullptr;
     pl = nullptr;
@@ -172,20 +174,22 @@ void clearAccessClassStateForTesting() {
     bc.reset();
 }
 
-MidiBuffer* ExternalProcessorAccessor::getMidiBuffer(GenericProcessor* proc)
+MidiBuffer* ExternalProcessorAccessor::getMidiBuffer (GenericProcessor* proc)
 {
-	return proc->m_currentMidiBuffer;
+    return proc->m_currentMidiBuffer;
 }
 
-
-void ExternalProcessorAccessor::injectNumSamples(GenericProcessor *proc, uint16_t dataStream, uint32_t numSamples) {
+void ExternalProcessorAccessor::injectNumSamples (GenericProcessor* proc, uint16_t dataStream, uint32_t numSamples)
+{
     proc->numSamplesInBlock[dataStream] = numSamples;
 }
 
 //**Set the MessageCenter for testing only**//
-void setMessageCenter(MessageCenter * mc_){
-    if(pg != nullptr) return;
+void setMessageCenter (MessageCenter* mc_)
+{
+    if (pg != nullptr)
+        return;
     mc = mc_;
 }
 
-}
+} // namespace AccessClass

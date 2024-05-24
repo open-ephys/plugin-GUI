@@ -1153,7 +1153,7 @@ public:
     /** Returns the current component effect.
         @see setComponentEffect
     */
-    ImageEffectFilter* getComponentEffect() const noexcept              { return effect; }
+    ImageEffectFilter* getComponentEffect() const noexcept;
 
     //==============================================================================
     /** Finds the appropriate look-and-feel to use for this component.
@@ -2344,7 +2344,7 @@ public:
         ComponentType* operator->() const noexcept            { return getComponent(); }
 
         /** If the component is valid, this deletes it and sets this pointer to null. */
-        void deleteAndZero()                                  { delete getComponent(); }
+        void deleteAndZero()                                  { delete std::exchange (weakRef, nullptr); }
 
         bool operator== (ComponentType* component) const noexcept   { return weakRef == component; }
         bool operator!= (ComponentType* component) const noexcept   { return weakRef != component; }
@@ -2582,7 +2582,9 @@ private:
     Array<Component*> childComponentList;
     WeakReference<LookAndFeel> lookAndFeel;
     MouseCursor cursor;
-    ImageEffectFilter* effect = nullptr;
+
+    class EffectState;
+    std::unique_ptr<EffectState> effectState;
     std::unique_ptr<CachedComponentImage> cachedImage;
 
     class MouseListenerList;

@@ -86,34 +86,25 @@ int DataBuffer::addToBuffer (float* data,
     int si[2] = { startIndex1, startIndex2 };
     int cSize = 0;
     int idx = 0;
-    int blkIdx;
-        
+
+    // for each of the dest blocks we can write to...
     for (int i = 0; bs[i] != 0; ++i)
-    {                                // for each of the dest blocks we can write to...
-        blkIdx = 0;
-        for (int j = 0; j < bs[i]; j+= chunkSize) 
-        {                     // for each chunk...
-            cSize = chunkSize <= bs[i] - j ? chunkSize : bs[i] - j;     // figure our how much you can write
-            for (int chan = 0; chan < numChans; ++chan)         // write that much, per channel
-            {
-                buffer.copyFrom (chan,                           // (int destChannel)
-                                 si[i] + j,                      // (int destStartSample)
-                                 data + (idx * numChans) + chan, // (const float* source)
-                                 cSize);                         // (int num samples)
-            }
-
-            for (int k = 0; k < cSize; ++k)
-            {
-                sampleNumberBuffer[si[i] + blkIdx + k] = sampleNumbers[idx + k];
-                timestampBuffer[si[i] + blkIdx + k] = timestamps[idx + k];
-                eventCodeBuffer[si[i] + blkIdx + k] = eventCodes[idx + k];
-
-                // UG3 Specific
-                timestampSampleBuffer[si[i] + blkIdx + k] = timestampSampleIndex;
-            }
-            idx     += cSize;
-            blkIdx  += cSize;
+    {                                
+        cSize = bs[i];
+        for (int chan = 0; chan < numChans; ++chan)         // write that much, per channel
+        {
+            buffer.copyFrom (chan,                           // (int destChannel)
+                             si[i],                          // (int destStartSample)
+                             data + (chan * numItems) + idx, // (const float* source)
+                             cSize);                         // (int num samples)
         }
+
+        memcpy (sampleNumberBuffer + si[i], sampleNumbers + idx, (size_t)cSize * sizeof(int64));
+        memcpy (timestampBuffer + si[i], timestamps + idx, (size_t)cSize * sizeof(double));
+        memcpy (eventCodeBuffer + si[i], eventCodes + idx, (size_t)cSize * sizeof(uint64));
+        memcpy (timestampSampleBuffer + si[i], &timestampSampleIndex, (size_t)cSize * sizeof(std::optional<int64>));
+        
+        idx += cSize;
     }
 
     // finish write

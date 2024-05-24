@@ -308,8 +308,6 @@ void VisualizerEditor::loadCustomParametersFromXml (XmlElement* xml)
                 */
                 checkForCanvas();
 
-                tabSelector->setToggleState(true, dontSendNotification);
-
                 break;
             }
         }
@@ -404,13 +402,17 @@ void VisualizerEditor::tabWasClosed()
 
 void VisualizerEditor::addTab()
 {
+    if (isOpenInTab)
+        return;
+    
     LOGD("CREATING CANVAS");
     checkForCanvas();
     
     LOGD("ADDING TAB");
     AccessClass::getDataViewport()->addTab(tabText, canvas.get(), nodeId);
     
-    //tabSelector->setToggleState (true, dontSendNotification);
+    if (!tabSelector->getToggleState())
+        tabSelector->setToggleState (true, dontSendNotification);
 
     isOpenInTab = true;
 }

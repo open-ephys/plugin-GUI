@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,11 +24,8 @@
 #ifndef __ACCESSCLASS_H_CE1DC2DE__
 #define __ACCESSCLASS_H_CE1DC2DE__
 
-
-
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "TestableExport.h"
-
 
 class UIComponent;
 class EditorViewport;
@@ -42,24 +39,21 @@ class GraphViewer;
 class PluginManager;
 class GenericProcessor;
 
-
-
 namespace AccessClass
 {
 
-
 /** Sets the object's UIComponent and copies all the necessary pointers 
  * from the UIComponent. */
-void setUIComponent(UIComponent*);
+void setUIComponent (UIComponent*);
 
 /** Sets the object's ProcessorGraph */
-void setProcessorGraph(ProcessorGraph*);
+void setProcessorGraph (ProcessorGraph*);
 
 /** Sets the object's AudioComponent */
-void setAudioComponent(AudioComponent*);
+void setAudioComponent (AudioComponent*);
 
 /** Sets the object's ControlPanel */
-void setControlPanel(ControlPanel*);
+void setControlPanel (ControlPanel*);
 
 /** Returns a pointer to the application's EditorViewport. */
 EditorViewport* getEditorViewport();
@@ -94,14 +88,10 @@ PluginManager* getPluginManager();
 /** Returns a pointer to the application's UndoManager */
 UndoManager* getUndoManager();
 
-/** Returns a pointer to the application's ParameterManager */
-// TODO: ParameterManager* getParameterManager();
-
 /** Returns a pointer to the application's ActionBroadcaster */
 ActionBroadcaster* getBroadcaster();
 
-void TESTABLE setMessageCenter(MessageCenter * mc_);
-
+void TESTABLE setMessageCenter (MessageCenter* mc_);
 
 /** Clears all of the global state in AccessClass. Only for use in testing. */
 void TESTABLE clearAccessClassStateForTesting();
@@ -115,14 +105,11 @@ void shutdownBroadcaster();
 
 class TESTABLE ExternalProcessorAccessor
 {
-
 public:
-
-	static MidiBuffer* getMidiBuffer(GenericProcessor* proc);
-    static void injectNumSamples(GenericProcessor* proc, uint16_t dataStream, uint32_t numSamples);
+    static MidiBuffer* getMidiBuffer (GenericProcessor* proc);
+    static void injectNumSamples (GenericProcessor* proc, uint16_t dataStream, uint32_t numSamples);
 };
 
-};
+}; // namespace AccessClass
 
-
-#endif  // __ACCESSCLASS_H_CE1DC2DE__
+#endif // __ACCESSCLASS_H_CE1DC2DE__

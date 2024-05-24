@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,17 +24,17 @@
 #ifndef __PROCESSORGRAPHHTTPSERVER_H_124F8B50__
 #define __PROCESSORGRAPHHTTPSERVER_H_124F8B50__
 
-#include "../Processors/Parameter/Parameter.h"
 #include "../Processors/GenericProcessor/GenericProcessor.h"
-#include "../Processors/ProcessorManager/ProcessorManager.h"
+#include "../Processors/Parameter/Parameter.h"
 #include "../Processors/ProcessorGraph/ProcessorGraphActions.h"
+#include "../Processors/ProcessorManager/ProcessorManager.h"
 
-#include <sstream>
 #include "httplib.h"
 #include "json.hpp"
+#include <sstream>
 
-#include "../MainWindow.h"
 #include "../AccessClass.h"
+#include "../MainWindow.h"
 #include "../UI/ProcessorList.h"
 
 #include "Utils.h"
@@ -42,7 +42,6 @@
 using json = nlohmann::json;
 
 #define PORT 37497
-
 
 /**
  * HTTP server thread for controlling Processor Parameters via an HTTP API. This starts an HTTP server on port 37497
@@ -95,75 +94,150 @@ using json = nlohmann::json;
 class OpenEphysHttpServer : juce::Thread
 {
 public:
-
-    explicit OpenEphysHttpServer(ProcessorGraph* graph) :
-        graph_(graph),
-        juce::Thread("HttpServer") {}
+    explicit OpenEphysHttpServer (ProcessorGraph* graph) : graph_ (graph),
+                                                           juce::Thread ("HttpServer") {}
 
     void run() override
     {
+        svr_->Get ("/api/status", [this] (const httplib::Request&, httplib::Response& res)
+                   {
+            json ret;
+            status_to_json(graph_, &ret);
+            res.set_content(ret.dump(), "application/json"); });
 
-        svr_->Get("/api/status", [this](const httplib::Request&, httplib::Response& res)
-            {
-                json ret;
-                status_to_json(graph_, &ret);
-                res.set_content(ret.dump(), "application/json");
-            });
+        svr_->Put ("/api/status", [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+            std::string desired_mode;
 
-        svr_->Put("/api/status", [this](const httplib::Request& req, httplib::Response& res)
-            {
-                std::string desired_mode;
+            LOGD("Received PUT request with content: ", req.body);
+            try {
+                LOGD("Trying to decode request");
+                json request_json;
+                request_json = json::parse(req.body);
+                LOGD("Successfully parsed body");
+                desired_mode = request_json["mode"];
+                LOGD("Found 'mode': ", desired_mode);
+            }
+            catch (json::exception& e) {
+                LOGD("Hit exception: ", String(e.what()));
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
 
-                LOGD("Received PUT request with content: ", req.body);
+            if (desired_mode == "RECORD" && !CoreServices::getRecordingStatus()) {
+                std::promise<void> signalRecordingStarted;
+                std::future<void> signalRecordingStartedFuture = signalRecordingStarted.get_future();
+
+                MessageManager::callAsync([this, &signalRecordingStarted] {
+                    CoreServices::setRecordingStatus(true);
+                    signalRecordingStarted.set_value(); // Signal that recording has started
+                });
+
+                // Wait for recording to start
+                signalRecordingStartedFuture.wait();
+            }
+            else if (desired_mode == "ACQUIRE") {
+                std::promise<void> signalAcquisitionStarted;
+                std::future<void> signalAcquisitionStartedFuture = signalAcquisitionStarted.get_future();
+
+                MessageManager::callAsync([this, &signalAcquisitionStarted] {
+                    CoreServices::setRecordingStatus(false);
+                    CoreServices::setAcquisitionStatus(true);
+                    signalAcquisitionStarted.set_value(); // Signal that acquisition has started
+                });
+
+                // Wait for acquisition to start
+                signalAcquisitionStartedFuture.wait();
+            }
+            else if (desired_mode == "IDLE") {
+                std::promise<void> signalAcquisitionStopped;
+                std::future<void> signalAcquisitionStoppedFuture = signalAcquisitionStopped.get_future();
+
+                MessageManager::callAsync([this, &signalAcquisitionStopped] {
+                    CoreServices::setRecordingStatus(false);
+                    CoreServices::setAcquisitionStatus(false);
+                    signalAcquisitionStopped.set_value(); // Signal that acquisition has stopped
+                });
+
+                // Wait for acquisition to stop
+                signalAcquisitionStoppedFuture.wait();
+            }
+
+            json ret;
+            status_to_json(graph_, &ret);
+            res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Get ("/api/audio", [this] (const httplib::Request&, httplib::Response& res)
+                   {
+            json ret;
+            audio_info_to_json(graph_, &ret);
+            res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Put ("/api/audio", [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+                json request_json;
+
+                LOGD("Received PUT request at /api/audio with content: ", req.body);
+
                 try
                 {
                     LOGD("Trying to decode request");
-                    json request_json;
                     request_json = json::parse(req.body);
                     LOGD("Successfully parsed body");
-                    desired_mode = request_json["mode"];
-                    LOGD("Found 'mode': ", desired_mode);
                 }
                 catch (json::exception& e)
                 {
-                    LOGD("Hit exception: ", String(e.what()));
+                    LOGD("Could not parse input.");
                     res.set_content(e.what(), "text/plain");
                     res.status = 400;
                     return;
                 }
 
-                if (desired_mode == "RECORD" && !CoreServices::getRecordingStatus())
-                {
-                    const MessageManagerLock mmLock;
-                    CoreServices::setRecordingStatus(true);
+                try {
+                    int sample_rate = request_json["sample_rate"];
+                    LOGD("Found 'sample_rate': ", sample_rate);
+                    const MessageManagerLock mml;
+                    AccessClass::getAudioComponent()->setSampleRate(sample_rate);
                 }
-                else if (desired_mode == "ACQUIRE")
-                {
-                    const MessageManagerLock mmLock;
-                    CoreServices::setRecordingStatus(false);
-                    CoreServices::setAcquisitionStatus(true);
+                catch (json::exception& e) {
+                    LOGD("'sample_rate' not specified'");
                 }
-                else if (desired_mode == "IDLE")
-                {
-                    const MessageManagerLock mmLock;
-                    CoreServices::setAcquisitionStatus(false);
+
+                try {
+                    int buffer_size = request_json["buffer_size"];
+                    LOGD("Found 'buffer_size': ", buffer_size);
+                    const MessageManagerLock mml;
+                    AccessClass::getAudioComponent()->setBufferSize(buffer_size);
+                    graph_->updateBufferSize();
+                }
+                catch (json::exception& e) {
+                    LOGD("'buffer_size' not specified'");
+                }
+
+                try {
+                    std::string device_type = request_json["device_type"];
+                    LOGD("Found 'device_type': ", device_type);
+                    const MessageManagerLock mml;
+                    AccessClass::getAudioComponent()->setDeviceType(String(device_type));
+                }
+                catch (json::exception& e) {
+                    LOGD("'device_type' not specified'");
                 }
 
                 json ret;
-                status_to_json(graph_, &ret);
-                res.set_content(ret.dump(), "application/json");
-            });
+                audio_info_to_json(graph_, &ret);
+                res.set_content(ret.dump(), "application/json"); });
 
-        svr_->Get("/api/recording", [this](const httplib::Request&, httplib::Response& res)
-            {
-                json ret;
-                recording_info_to_json(graph_, &ret);
-                res.set_content(ret.dump(), "application/json");
-            });
+        svr_->Get ("/api/recording", [this] (const httplib::Request&, httplib::Response& res)
+                   {
+            json ret;
+            recording_info_to_json(graph_, &ret);
+            res.set_content(ret.dump(), "application/json"); });
 
-        svr_->Put("/api/recording", [this](const httplib::Request& req, httplib::Response& res)
-            {
-
+        svr_->Put ("/api/recording", [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+                
                 json request_json;
 
                 LOGD("Received PUT request at /api/recording with content: ", req.body);
@@ -257,11 +331,10 @@ public:
 
                 json ret;
                 recording_info_to_json(graph_, &ret);
-                res.set_content(ret.dump(), "application/json");
-            });
+                res.set_content(ret.dump(), "application/json"); });
 
-        svr_->Put("/api/recording/([0-9]+)", [this](const httplib::Request& req, httplib::Response& res)
-            {
+        svr_->Put ("/api/recording/([0-9]+)", [this] (const httplib::Request& req, httplib::Response& res)
+                   {
 
                 json request_json;
 
@@ -309,8 +382,26 @@ public:
 
                 json ret;
                 recording_info_to_json(graph_, &ret);
-                res.set_content(ret.dump(), "application/json");
-            });
+                res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Put ("/api/message", [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+            std::string message_str;
+            LOGD("Received PUT request");
+            try {
+                LOGD( "Trying to decode" );
+                json request_json;
+                request_json = json::parse(req.body);
+                LOGD( "Parsed" );
+                message_str = request_json["text"];
+                LOGD( "Message string: ", message_str );
+            }
+            catch (json::exception& e) {
+                LOGD( "Hit exception" );
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
 
         svr_->Put("/api/message", [this](const httplib::Request& req, httplib::Response& res)
             {
@@ -333,46 +424,36 @@ public:
                     return;
                 }
 
-                graph_->broadcastMessage(String(message_str));
+            json ret;
+            status_to_json(graph_, &ret);
+            res.set_content(ret.dump(), "application/json"); });
 
-                json ret;
-                status_to_json(graph_, &ret);
-                res.set_content(ret.dump(), "application/json");
-            });
-
-        svr_->Put("/api/load", [this](const httplib::Request& req, httplib::Response& res)
-            {
+        svr_->Put ("/api/load", [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+            
+            std::string message_str;
+            LOGD("Received PUT request");
 
                 std::string message_str;
                 LOGD("Received PUT request");
 
-                try
-                {
-                    LOGD("Trying to decode");
-                    json request_json;
-                    request_json = json::parse(req.body);
-                    LOGD("Parsed");
-                    message_str = request_json["path"];
-                    LOGD("Message string: ", message_str);
-                }
-                catch (json::exception& e)
-                {
-                    LOGD("Hit exception");
-                    res.set_content(e.what(), "text/plain");
-                    res.status = 400;
-                    return;
-                }
+            std::promise<void> signalChainLoaded;
+            std::future<void> signalChainLoadedFuture = signalChainLoaded.get_future();
 
-                const MessageManagerLock mml;
+            MessageManager::callAsync([message_str, &signalChainLoaded] {
                 CoreServices::loadSignalChain(message_str);
-
-                json ret;
-                status_to_json(graph_, &ret);
-                res.set_content(ret.dump(), "application/json");
+                signalChainLoaded.set_value(); // Signal that loadSignalChain is finished
             });
 
-        svr_->Get("/api/processors/list", [this](const httplib::Request&, httplib::Response& res)
-            {
+            // Wait for loadSignalChain to finish
+            signalChainLoadedFuture.wait();
+
+            json ret;
+            status_to_json(graph_, &ret);
+            res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Get ("/api/processors/list", [this] (const httplib::Request&, httplib::Response& res)
+                   {
 
                 auto listOfProc = ProcessorManager::getAvailableProcessors();
 
@@ -386,8 +467,11 @@ public:
                 json ret;
                 ret["processors"] = processors_json;
 
-                res.set_content(ret.dump(), "application/json");
-            });
+            res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Get ("/api/processors", [this] (const httplib::Request&, httplib::Response& res)
+                   {
+            Array<GenericProcessor*> processors = graph_->getListOfProcessors();
 
         svr_->Get("/api/processors", [this](const httplib::Request&, httplib::Response& res)
             {
@@ -419,70 +503,308 @@ public:
                 res.set_content(processor_json.dump(), "application/json");
             });
 
-        svr_->Get(R"(/api/processors/([0-9]+)/parameters)", [this](const httplib::Request& req, httplib::Response& res)
-            {
-                auto processor = find_processor(req.matches[1]);
-                if (processor == nullptr)
-                {
-                    res.status = 404;
-                    return;
-                }
-                std::vector<json> parameters_json;
-                parameters_to_json(processor, &parameters_json);
-                json ret;
-                ret["parameters"] = parameters_json;
-                res.set_content(ret.dump(), "application/json");
+            res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Get (R"(/api/processors/([0-9]+))", [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+            auto processor = find_processor(req.matches[1]);
+            if (processor == nullptr) {
+                res.status = 404;
+                return;
+            }
+            json processor_json;
+            processor_to_json(processor, &processor_json);
+            res.set_content(processor_json.dump(), "application/json"); });
+
+        svr_->Get (R"(/api/processors/([0-9]+)/parameters)", [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+            auto processor = find_processor(req.matches[1]);
+            if (processor == nullptr) {
+                res.status = 404;
+                return;
+            }
+            std::vector<json> parameters_json;
+            parameters_to_json(processor, &parameters_json);
+            json ret;
+            ret["parameters"] = parameters_json;
+            res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Get (R"(/api/processors/([0-9]+)/parameters/([A-Za-z0-9_\.\-]+))",
+                   [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+                       auto processor = find_processor (req.matches[1]);
+                       if (processor == nullptr)
+                       {
+                           res.status = 404;
+                           return;
+                       }
+
+                       auto parameter = find_parameter (processor, req.matches[2]);
+                       if (parameter == nullptr)
+                       {
+                           res.status = 404;
+                           return;
+                       }
+
+                       json ret;
+                       parameter_to_json (parameter, &ret);
+                       res.set_content (ret.dump(), "application/json");
+                   });
+
+        svr_->Get (R"(/api/processors/([0-9]+)/streams/([0-9]+))",
+                   [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+                       auto processor = find_processor (req.matches[1]);
+                       if (processor == nullptr)
+                       {
+                           res.status = 404;
+                           return;
+                       }
+
+                       auto stream = find_stream (processor, req.matches[2]);
+                       if (stream == nullptr)
+                       {
+                           res.status = 404;
+                           return;
+                       }
+
+                       json ret;
+                       stream_to_json (processor, stream, &ret);
+                       res.set_content (ret.dump(), "application/json");
+                   });
+
+        svr_->Get (R"(/api/processors/([0-9]+)/streams/([0-9]+)/parameters)",
+                   [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+                       auto processor = find_processor (req.matches[1]);
+                       if (processor == nullptr)
+                       {
+                           res.status = 404;
+                           return;
+                       }
+
+                       auto stream = find_stream (processor, req.matches[2]);
+                       if (stream == nullptr)
+                       {
+                           res.status = 404;
+                           return;
+                       }
+
+                       json ret;
+
+                       std::vector<json> parameters_json;
+                       parameters_to_json (processor, stream->getStreamId(), &parameters_json);
+                       ret["parameters"] = parameters_json;
+                       res.set_content (ret.dump(), "application/json");
+                   });
+
+        svr_->Get (R"(/api/processors/([0-9]+)/streams/([0-9]+)/parameters/([A-Za-z0-9_\.\-]+))",
+                   [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+                       auto processor = find_processor (req.matches[1]);
+                       if (processor == nullptr)
+                       {
+                           res.status = 404;
+                           return;
+                       }
+
+                       auto stream = find_stream (processor, req.matches[2]);
+                       if (stream == nullptr)
+                       {
+                           res.status = 404;
+                           return;
+                       }
+
+                       auto parameter = find_parameter (processor, stream->getStreamId(), req.matches[3]);
+                       if (parameter == nullptr)
+                       {
+                           res.status = 404;
+                           return;
+                       }
+
+                       json ret;
+                       parameter_to_json (parameter, &ret);
+                       res.set_content (ret.dump(), "application/json");
+                   });
+
+        svr_->Put ("/api/processors/([0-9]+)/config", [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+            std::string message_str;
+            LOGD( "Received PUT request" );
+            auto processor = find_processor(req.matches[1]);
+            if (processor == nullptr) {
+                LOGD( "Could not find processor" );
+                res.status = 404;
+                return;
+            }
+            try {
+                LOGD( "Trying to decode" );
+                json request_json;
+                request_json = json::parse(req.body);
+                LOGD( "Parsed" );
+                message_str = request_json["text"];
+                LOGD( "Message string: ", message_str );
+            }
+            catch (json::exception& e) {
+                LOGD( "Hit exception" );
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
+
+            std::promise<void> processorConfigured;
+            std::future<void> processorConfiguredFuture = processorConfigured.get_future();
+
+            String return_msg;
+            MessageManager::callAsync([this, processor, message_str, &return_msg, &processorConfigured] {
+                return_msg = graph_->sendConfigMessage(processor, String(message_str));
+                processorConfigured.set_value(); // Signal that processor has received configuration message
             });
 
-        svr_->Get(R"(/api/processors/([0-9]+)/parameters/([A-Za-z0-9_\.\-]+))",
-            [this](const httplib::Request& req, httplib::Response& res)
+            // Wait for processor to parse config message
+            processorConfiguredFuture.wait();
+             
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Get ("/api/processors/clear", [this] (const httplib::Request&, httplib::Response& res)
+                   {
+
+            String return_msg;
+
+            if (!CoreServices::getAcquisitionStatus())
             {
-                auto processor = find_processor(req.matches[1]);
-                if (processor == nullptr)
-                {
-                    res.status = 404;
-                    return;
-                }
+                std::promise<void> signalChainCleared;
+                std::future<void> signalChainClearedFuture = signalChainCleared.get_future();
 
-                auto parameter = find_parameter(processor, req.matches[2]);
-                if (parameter == nullptr)
-                {
-                    res.status = 404;
-                    return;
-                }
+                MessageManager::callAsync([this, &signalChainCleared] {
+                    graph_->clearSignalChain();
+                    signalChainCleared.set_value(); // Signal that loadSignalChain is finished
+                });
 
-                json ret;
-                parameter_to_json(parameter, &ret);
-                res.set_content(ret.dump(), "application/json");
-            });
+                // Wait for loadSignalChain to finish
+                signalChainClearedFuture.wait();
+                return_msg = "Signal chain cleared successfully.";
+            } else {
+                return_msg = "Cannot clear signal chain while acquisition is active!";
+            }
 
-        svr_->Get(R"(/api/processors/([0-9]+)/streams/([0-9]+))",
-            [this](const httplib::Request& req, httplib::Response& res)
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Put ("/api/processors/delete", [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+
+            LOGD( "Received PUT request" );
+            
+            json request_json;
+            try {
+                LOGD( "Trying to decode" );
+                request_json = json::parse(req.body);
+                LOGD( "Parsed" );
+            }
+            catch (json::exception& e) {
+                LOGD( "Hit exception" );
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
+            
+            int procId;
+            if (!request_json.contains("id")) {
+                LOGD( "No 'id' element found." );
+                res.set_content("Request must contain processor id.", "text/plain");
+                res.status = 400;
+                return;
+            }
+            else {
+                procId = request_json["id"];
+                LOGD( "Found a processor id." );
+            }
+
+            auto processor = find_processor(String(procId).toStdString());
+            if (processor == nullptr) {
+                LOGD( "Could not find processor" );
+                res.status = 404;
+                return;
+            }
+
+            String return_msg;
+            
+            if (!CoreServices::getAcquisitionStatus())
             {
-                auto processor = find_processor(req.matches[1]);
-                if (processor == nullptr)
-                {
-                    res.status = 404;
-                    return;
-                }
+                String processorName = processor->getDisplayName();
 
-                auto stream = find_stream(processor, req.matches[2]);
-                if (stream == nullptr)
-                {
-                    res.status = 404;
-                    return;
-                }
+                std::promise<void> processorDeleted;
+                std::future<void> processorDeletedFuture = processorDeleted.get_future();
 
-                json ret;
-                stream_to_json(processor, stream, &ret);
-                res.set_content(ret.dump(), "application/json");
-            });
+                MessageManager::callAsync([this, processor, &processorDeleted] {
+                    DeleteProcessor* action = new DeleteProcessor(processor);
+                    graph_->getUndoManager()->beginNewTransaction();
+                    graph_->getUndoManager()->perform(action);
+                    processorDeleted.set_value(); // Signal that processor has been deleted
+                });
 
-        svr_->Get(R"(/api/processors/([0-9]+)/streams/([0-9]+)/parameters)",
-            [this](const httplib::Request& req, httplib::Response& res)
+                // Wait for processor to be deleted
+                processorDeletedFuture.wait();
+
+                return_msg = processorName + " [" +  String(procId) + "] deleted successfully";
+            } else {
+                return_msg = "Cannot delete processors while acquisition is active.";
+            }
+             
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Put ("/api/processors/add", [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+
+            LOGD( "Received PUT request" );
+            
+            json request_json;
+            try {
+                LOGD( "Trying to decode" );
+                request_json = json::parse(req.body);
+                LOGD( "Parsed" );
+            }
+            catch (json::exception& e) {
+                LOGD( "Hit exception" );
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
+            
+            std::string procName;
+            if (!request_json.contains("name")) {
+                LOGD( "No 'name' element found." );
+                res.set_content("Request must contain processor name.", "text/plain");
+                res.status = 400;
+                return;
+            }
+            else {
+                procName = request_json["name"];
+                LOGD( "Found processor name: ", procName);
+            }
+
+            int sourceNodeId = 0;
+            int destNodeId = 0;
+
+            if(request_json.contains("source_id"))
+                sourceNodeId = request_json["source_id"];
+            else if (request_json.contains("dest_id"))
+                destNodeId = request_json["dest_id"];
+
+            LOGD( "Found a source/dest node id." );
+
+            
+            auto listOfProc = ProcessorManager::getAvailableProcessors();
+            bool foundProcessor = false;
+            for(auto p : listOfProc)
             {
-                auto processor = find_processor(req.matches[1]);
-                if (processor == nullptr)
+                if(p.equalsIgnoreCase(String(procName)))
                 {
                     res.status = 404;
                     return;
@@ -583,459 +905,335 @@ public:
                     return_msg = "Cannot clear signal chain while acquisition is active!";
                 }
 
-                json ret;
-                ret["info"] = return_msg.toStdString();
-                res.set_content(ret.dump(), "application/json");
-            });
+                std::promise <void> processorAdded;
+                std::future <void> processorAddedFuture = processorAdded.get_future();
 
-        svr_->Put("/api/processors/delete", [this](const httplib::Request& req, httplib::Response& res)
-            {
-
-                LOGD("Received PUT request");
-
-                json request_json;
-                try
-                {
-                    LOGD("Trying to decode");
-                    request_json = json::parse(req.body);
-                    LOGD("Parsed");
-                }
-                catch (json::exception& e)
-                {
-                    LOGD("Hit exception");
-                    res.set_content(e.what(), "text/plain");
-                    res.status = 400;
-                    return;
-                }
-
-                int procId;
-                if (!request_json.contains("id"))
-                {
-                    LOGD("No 'id' element found.");
-                    res.set_content("Request must contain processor id.", "text/plain");
-                    res.status = 400;
-                    return;
-                }
-                else
-                {
-                    procId = request_json["id"];
-                    LOGD("Found a processor id.");
-                }
-
-                auto processor = find_processor(String(procId).toStdString());
-                if (processor == nullptr)
-                {
-                    LOGD("Could not find processor");
-                    res.status = 404;
-                    return;
-                }
-
-                String return_msg;
-
-                if (!CoreServices::getAcquisitionStatus())
-                {
-                    Array<GenericProcessor*> processorNodes;
-                    String processorName = processor->getDisplayName();
-
-                    processorNodes.add(processor);
-
-                    const MessageManagerLock mml;
-
-                    DeleteProcessor* action = new DeleteProcessor(processor);
-                    graph_->getUndoManager()->beginNewTransaction();
-                    graph_->getUndoManager()->perform(action);
-
-                    return_msg = processorName + " [" + String(procId) + "] deleted successfully";
-                }
-                else
-                {
-                    return_msg = "Cannot delete processors while acquisition is active.";
-                }
-
-                json ret;
-                ret["info"] = return_msg.toStdString();
-                res.set_content(ret.dump(), "application/json");
-            });
-
-
-        svr_->Put("/api/processors/add", [this](const httplib::Request& req, httplib::Response& res)
-            {
-
-                LOGD("Received PUT request");
-
-                json request_json;
-                try
-                {
-                    LOGD("Trying to decode");
-                    request_json = json::parse(req.body);
-                    LOGD("Parsed");
-                }
-                catch (json::exception& e)
-                {
-                    LOGD("Hit exception");
-                    res.set_content(e.what(), "text/plain");
-                    res.status = 400;
-                    return;
-                }
-
-                std::string procName;
-                if (!request_json.contains("name"))
-                {
-                    LOGD("No 'name' element found.");
-                    res.set_content("Request must contain processor name.", "text/plain");
-                    res.status = 400;
-                    return;
-                }
-                else
-                {
-                    procName = request_json["name"];
-                    LOGD("Found processor name: ", procName);
-                }
-
-                int sourceNodeId = 0;
-                int destNodeId = 0;
-
-                if (request_json.contains("source_id"))
-                    sourceNodeId = request_json["source_id"];
-                else if (request_json.contains("dest_id"))
-                    destNodeId = request_json["dest_id"];
-
-                LOGD("Found a source/dest node id.");
-
-
-                auto listOfProc = ProcessorManager::getAvailableProcessors();
-                bool foundProcessor = false;
-                for (auto p : listOfProc)
-                {
-                    if (p.equalsIgnoreCase(String(procName)))
-                    {
-                        foundProcessor = true;
-                        break;
-                    }
-                }
-
-                if (!foundProcessor)
-                {
-                    LOGD("Could not find processor in the Processor List");
-                    res.status = 404;
-                    return;
-                }
-
-                String return_msg;
-
-                if (!CoreServices::getAcquisitionStatus())
-                {
-                    auto description = ProcessorManager::getPluginDescription(procName);
-
-                    GenericProcessor* sourceProcessor = nullptr;
-                    GenericProcessor* destProcessor = nullptr;
-
-                    if (sourceNodeId == 0)
-                    {
-                        destProcessor = graph_->getProcessorWithNodeId(destNodeId);
-
-                        if (destProcessor != nullptr)
-                            sourceProcessor = destProcessor->getSourceNode();
-                    }
-                    else
-                    {
-                        sourceProcessor = graph_->getProcessorWithNodeId(sourceNodeId);
-
-                        if (sourceProcessor != nullptr)
-                            destProcessor = sourceProcessor->getDestNode();
-                    }
-
-                    const MessageManagerLock mml;
-
+                MessageManager::callAsync([this, description, sourceProcessor, destProcessor, &processorAdded] {
                     AddProcessor* action = new AddProcessor(description, sourceProcessor, destProcessor, false);
                     graph_->getUndoManager()->beginNewTransaction();
                     graph_->getUndoManager()->perform(action);
+                    processorAdded.set_value(); // Signal that processor has been added
+                });
 
-                    return_msg = procName + " added successfully";
+                // Wait for processor to be added
+                processorAddedFuture.wait();
 
-                }
-                else
-                {
-                    return_msg = "Cannot add processors while acquisition is active.";
-                }
+                return_msg = procName + " added successfully";
+                
+            } else {
+                return_msg = "Cannot add processors while acquisition is active.";
+            }
+             
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json"); });
 
-                json ret;
-                ret["info"] = return_msg.toStdString();
-                res.set_content(ret.dump(), "application/json");
-            });
+        svr_->Get ("/api/undo", [this] (const httplib::Request&, httplib::Response& res)
+                   {
 
-        svr_->Get("/api/undo", [this](const httplib::Request&, httplib::Response& res)
+            String return_msg;
+
+            if (!CoreServices::getAcquisitionStatus())
             {
+                std::promise<void> undoCompleted;
+                std::future<void> undoCompletedFuture = undoCompleted.get_future();
 
-                String return_msg;
-
-                if (!CoreServices::getAcquisitionStatus())
-                {
-                    const MessageManagerLock mml;
+                MessageManager::callAsync([this, &undoCompleted] {
                     graph_->getUndoManager()->undo();
-                    //TODO: Undo manager should return a message indicating if there was anything to undo
-                    return_msg = "Undo operation completed successfully.";
-                }
-                else
-                {
-                    return_msg = "Undo operation was NOT successful!";
-                }
+                    undoCompleted.set_value(); // Signal that undo is finished
+                });
 
-                json ret;
-                ret["info"] = return_msg.toStdString();
-                res.set_content(ret.dump(), "application/json");
-            });
+                // Wait for undo to finish
+                undoCompletedFuture.wait();
 
-        svr_->Get("/api/redo", [this](const httplib::Request&, httplib::Response& res)
+                return_msg = "Undo operation completed successfully.";
+            } else {
+                return_msg = "Undo operation was NOT successful!";
+            }
+
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Get ("/api/redo", [this] (const httplib::Request&, httplib::Response& res)
+                   {
+
+        svr_->Put("/api/processors/add", [this](const httplib::Request& req, httplib::Response& res)
             {
+                std::promise<void> redoCompleted;
+                std::future<void> redoCompletedFuture = redoCompleted.get_future();
 
-                String return_msg;
-
-                if (!CoreServices::getAcquisitionStatus())
-                {
+                MessageManager::callAsync([this, &redoCompleted] {
                     graph_->getUndoManager()->redo();
-                    return_msg = "Redo operation completed successfully.";
-                }
-                else
-                {
-                    return_msg = "Redo operation was NOT successful!";
-                }
+                    redoCompleted.set_value(); // Signal that redo is finished
+                });
 
-                json ret;
-                ret["info"] = return_msg.toStdString();
-                res.set_content(ret.dump(), "application/json");
-            });
+                // Wait for redo to finish
+                redoCompletedFuture.wait();
 
-        svr_->Put(R"(/api/processors/([0-9]+)/parameters/([A-Za-z0-9_\.\-]+))",
-            [this](const httplib::Request& req, httplib::Response& res)
-            {
-                auto processor = find_processor(req.matches[1]);
-                if (processor == nullptr)
-                {
-                    res.status = 404;
-                    return;
-                }
+                return_msg = "Redo operation completed successfully.";
+            } else {
+                return_msg = "Redo operation was NOT successful!";
+            }
 
-                auto parameter = find_parameter(processor, req.matches[2]);
+            json ret;
+            ret["info"] = return_msg.toStdString();
+            res.set_content(ret.dump(), "application/json"); });
 
-                if (parameter == nullptr)
-                {
-                    res.status = 404;
-                    return;
-                }
-                else
-                {
-                    LOGD("Found parameter: ", parameter->getName());
-                }
+        svr_->Put (R"(/api/processors/([0-9]+)/parameters/([A-Za-z0-9_\.\-]+))",
+                   [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+                       auto processor = find_processor (req.matches[1]);
+                       if (processor == nullptr)
+                       {
+                           res.status = 404;
+                           return;
+                       }
 
-                if (parameter->shouldDeactivateDuringAcquisition()
-                    && CoreServices::getAcquisitionStatus())
-                {
-                    res.set_content("Cannot change this parameter while acquisition is active.", "text/plain");
-                    res.status = 400;
-                    return;
-                }
+                       auto parameter = find_parameter (processor, req.matches[2]);
 
-                json request_json;
-                try
-                {
-                    request_json = json::parse(req.body);
-                }
-                catch (json::exception& e)
-                {
-                    LOGD("Failed to parse request body.");
-                    res.set_content(e.what(), "text/plain");
-                    res.status = 400;
-                    return;
-                }
+                       if (parameter == nullptr)
+                       {
+                           res.status = 404;
+                           return;
+                       }
+                       else
+                       {
+                           LOGD ("Found parameter: ", parameter->getName());
+                       }
 
-                if (!request_json.contains("value"))
-                {
-                    LOGD("No 'value' element found.");
-                    res.set_content("Request must contain value.", "text/plain");
-                    res.status = 400;
-                    return;
-                }
-                else
-                {
-                    LOGD("Found a value.");
-                }
+                       if (parameter->shouldDeactivateDuringAcquisition()
+                           && CoreServices::getAcquisitionStatus())
+                       {
+                           res.set_content ("Cannot change this parameter while acquisition is active.", "text/plain");
+                           res.status = 400;
+                           return;
+                       }
 
-                var val;
+                       json request_json;
+                       try
+                       {
+                           request_json = json::parse (req.body);
+                       }
+                       catch (json::exception& e)
+                       {
+                           LOGD ("Failed to parse request body.");
+                           res.set_content (e.what(), "text/plain");
+                           res.status = 400;
+                           return;
+                       }
 
-                try
-                {
-                    auto value = request_json["value"];
-                    val = json_to_var(value);
-                }
-                catch (json::exception& e)
-                {
-                    res.set_content(e.what(), "text/plain");
-                    res.status = 400;
-                    return;
-                }
+                       if (! request_json.contains ("value"))
+                       {
+                           LOGD ("No 'value' element found.");
+                           res.set_content ("Request must contain value.", "text/plain");
+                           res.status = 400;
+                           return;
+                       }
+                       else
+                       {
+                           LOGD ("Found a value.");
+                       }
 
-                //LOGD( "Got value: " << String(val) );
+                       var val;
 
-                if (val.isUndefined())
-                {
-                    res.set_content("Request value could not be converted.", "text/plain");
-                    res.status = 400;
-                    return;
-                }
+                       try
+                       {
+                           auto value = request_json["value"];
+                           val = json_to_var (value);
+                       }
+                       catch (json::exception& e)
+                       {
+                           res.set_content (e.what(), "text/plain");
+                           res.status = 400;
+                           return;
+                       }
 
-                const MessageManagerLock mml;
+                       //LOGD( "Got value: " << String(val) );
 
-                parameter->setNextValue(val);
+                       if (val.isUndefined())
+                       {
+                           res.set_content ("Request value could not be converted.", "text/plain");
+                           res.status = 400;
+                           return;
+                       }
 
-                json ret;
-                parameter_to_json(parameter, &ret);
-                res.set_content(ret.dump(), "application/json");
-            });
+                       std::promise<void> parameterChanged;
+                       std::future<void> parameterChangedFuture = parameterChanged.get_future();
 
-        svr_->Put(R"(/api/processors/([0-9]+)/streams/([0-9]+)/parameters/([A-Za-z0-9_\.\-]+))",
-            [this](const httplib::Request& req, httplib::Response& res)
-            {
-                auto processor = find_processor(req.matches[1]);
-                if (processor == nullptr)
-                {
-                    res.status = 404;
-                    return;
-                }
+                       MessageManager::callAsync ([parameter, val, &parameterChanged]
+                                                  {
+                                                      parameter->setNextValue (val);
+                                                      parameterChanged.set_value(); // Signal that parameter has been changed
+                                                  });
 
-                auto stream = find_stream(processor, req.matches[2]);
+                       // Wait for parameter to be changed
+                       parameterChangedFuture.wait();
 
-                if (stream == nullptr)
-                {
-                    res.status = 404;
-                    return;
-                }
-                else
-                {
-                    LOGD("Found stream: ", stream->getName());
-                }
+                       json ret;
+                       parameter_to_json (parameter, &ret);
+                       res.set_content (ret.dump(), "application/json");
+                   });
 
-                auto parameter = find_parameter(processor, stream->getStreamId(), req.matches[3]);
+        svr_->Put (R"(/api/processors/([0-9]+)/streams/([0-9]+)/parameters/([A-Za-z0-9_\.\-]+))",
+                   [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+                       auto processor = find_processor (req.matches[1]);
+                       if (processor == nullptr)
+                       {
+                           res.status = 404;
+                           return;
+                       }
 
-                if (parameter == nullptr)
-                {
-                    res.status = 404;
-                    return;
-                }
-                else
-                {
-                    LOGD("Found parameter: ", parameter->getName());
-                }
+                       auto stream = find_stream (processor, req.matches[2]);
 
-                if (parameter->shouldDeactivateDuringAcquisition()
-                    && CoreServices::getAcquisitionStatus())
-                {
-                    res.set_content("Cannot change this parameter while acquisition is active.", "text/plain");
-                    res.status = 400;
-                    return;
-                }
+                       if (stream == nullptr)
+                       {
+                           res.status = 404;
+                           return;
+                       }
+                       else
+                       {
+                           LOGD ("Found stream: ", stream->getName());
+                       }
 
-                json request_json;
-                try
-                {
-                    request_json = json::parse(req.body);
-                }
-                catch (json::exception& e)
-                {
-                    LOGD("Failed to parse request body.");
-                    res.set_content(e.what(), "text/plain");
-                    res.status = 400;
-                    return;
-                }
+                       auto parameter = find_parameter (processor, stream->getStreamId(), req.matches[3]);
 
-                if (!request_json.contains("value"))
-                {
-                    LOGD("No 'value' element found.");
-                    res.set_content("Request must contain value.", "text/plain");
-                    res.status = 400;
-                    return;
-                }
-                else
-                {
-                    LOGD("Found a value.");
-                }
+                       if (parameter == nullptr)
+                       {
+                           res.status = 404;
+                           return;
+                       }
+                       else
+                       {
+                           LOGD ("Found parameter: ", parameter->getName());
+                       }
 
-                var val;
+                       if (parameter->shouldDeactivateDuringAcquisition()
+                           && CoreServices::getAcquisitionStatus())
+                       {
+                           res.set_content ("Cannot change this parameter while acquisition is active.", "text/plain");
+                           res.status = 400;
+                           return;
+                       }
 
-                try
-                {
-                    auto value = request_json["value"];
-                    val = json_to_var(value);
-                }
-                catch (json::exception& e)
-                {
-                    res.set_content(e.what(), "text/plain");
-                    res.status = 400;
-                    return;
-                }
+                       json request_json;
+                       try
+                       {
+                           request_json = json::parse (req.body);
+                       }
+                       catch (json::exception& e)
+                       {
+                           LOGD ("Failed to parse request body.");
+                           res.set_content (e.what(), "text/plain");
+                           res.status = 400;
+                           return;
+                       }
 
-                //LOGD( "Got value: " << String(val) );
+                       if (! request_json.contains ("value"))
+                       {
+                           LOGD ("No 'value' element found.");
+                           res.set_content ("Request must contain value.", "text/plain");
+                           res.status = 400;
+                           return;
+                       }
+                       else
+                       {
+                           LOGD ("Found a value.");
+                       }
 
-                if (val.isUndefined())
-                {
-                    res.set_content("Request value could not be converted.", "text/plain");
-                    res.status = 400;
-                    return;
-                }
+                       var val;
 
-                parameter->setNextValue(val);
+                       try
+                       {
+                           auto value = request_json["value"];
+                           val = json_to_var (value);
+                       }
+                       catch (json::exception& e)
+                       {
+                           res.set_content (e.what(), "text/plain");
+                           res.status = 400;
+                           return;
+                       }
 
-                json ret;
-                parameter_to_json(parameter, &ret);
-                res.set_content(ret.dump(), "application/json");
-            });
+                       //LOGD( "Got value: " << String(val) );
 
-        svr_->Put("/api/window", [this](const httplib::Request& req, httplib::Response& res)
-            {
-                std::string message_str;
-                LOGD("Received PUT WINDOW request");
+                       if (val.isUndefined())
+                       {
+                           res.set_content ("Request value could not be converted.", "text/plain");
+                           res.status = 400;
+                           return;
+                       }
 
-                try
-                {
-                    LOGD("Trying to decode");
-                    json request_json;
-                    request_json = json::parse(req.body);
-                    LOGD("Parsed");
-                    message_str = request_json["command"];
-                    LOGD("Message string: ", message_str);
-                }
-                catch (json::exception& e)
-                {
-                    LOGD("Hit exception");
-                    res.set_content(e.what(), "text/plain");
-                    res.status = 400;
-                    return;
-                }
+                       std::promise<void> parameterChanged;
+                       std::future<void> parameterChangedFuture = parameterChanged.get_future();
 
-                if (String(message_str).equalsIgnoreCase("quit"))
-                {
-                    json ret;
-                    res.set_content(ret.dump(), "application/json");
-                    res.status = 400;
+                       MessageManager::callAsync ([parameter, val, &parameterChanged]
+                                                  {
+                                                      parameter->setNextValue (val);
+                                                      parameterChanged.set_value(); // Signal that parameter has been changed
+                                                  });
 
-                    const MessageManagerLock mml;
-                    JUCEApplication::getInstance()->systemRequestedQuit();
-                }
-                else
-                {
-                    LOGD("Unrecognized command");
-                }
+                       // Wait for parameter to be changed
+                       parameterChangedFuture.wait();
 
+                       json ret;
+                       parameter_to_json (parameter, &ret);
+                       res.set_content (ret.dump(), "application/json");
+                   });
 
-            });
+        svr_->Put ("/api/window", [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+                       std::string message_str;
+                       LOGD ("Received PUT WINDOW request");
 
-        LOGC("Beginning HTTP server on port ", PORT);
-        svr_->listen("0.0.0.0", PORT);
+                       try
+                       {
+                           LOGD ("Trying to decode");
+                           json request_json;
+                           request_json = json::parse (req.body);
+                           LOGD ("Parsed");
+                           message_str = request_json["command"];
+                           LOGD ("Message string: ", message_str);
+                       }
+                       catch (json::exception& e)
+                       {
+                           LOGD ("Hit exception");
+                           res.set_content (e.what(), "text/plain");
+                           res.status = 400;
+                           return;
+                       }
+
+                       if (String (message_str).equalsIgnoreCase ("quit"))
+                       {
+                           json ret;
+                           res.set_content (ret.dump(), "application/json");
+                           res.status = 400;
+
+                            std::promise<void> signalQuit;
+                            std::future<void> signalQuitFuture = signalQuit.get_future();
+
+                            MessageManager::callAsync([this, &signalQuit] {
+                                JUCEApplication::getInstance()->systemRequestedQuit();
+                                signalQuit.set_value(); // Signal that window has been closed
+                            });
+
+                            // Wait for window to be closed
+                            signalQuitFuture.wait();
+
+                       }
+                       else
+                       {
+                           LOGD ("Unrecognized command");
+                       } });
+
+        LOGC ("Beginning HTTP server on port ", PORT);
+        svr_->listen ("0.0.0.0", PORT);
     }
 
     void start()
     {
-        if (!svr_)
+        if (! svr_)
         {
             svr_ = std::make_unique<httplib::Server>();
         }
@@ -1046,10 +1244,10 @@ public:
     {
         if (svr_)
         {
-            LOGC("Shutting down HTTP server");
+            LOGC ("Shutting down HTTP server");
             svr_->stop();
         }
-        stopThread(5000);
+        stopThread (5000);
     }
 
 private:
@@ -1057,32 +1255,32 @@ private:
     MainWindow* main_;
     ProcessorGraph* graph_;
 
-    var json_to_var(const json& value)
+    var json_to_var (const json& value)
     {
         if (value.is_number_integer())
         {
-            return var(value.get<int>());
+            return var (value.get<int>());
         }
         else if (value.is_number_float())
         {
-            return var(value.get<double>());
+            return var (value.get<double>());
         }
         else if (value.is_boolean())
         {
-            return var(value.get<bool>());
+            return var (value.get<bool>());
         }
         else if (value.is_string())
         {
-            return var(value.get<std::string>());
+            return var (value.get<std::string>());
         }
         else if (value.is_array())
         {
             juce::Array<var> vars;
             for (auto& element : value)
             {
-                vars.add(element.get<double>());
+                vars.add (element.get<double>());
             }
-            return var(vars);
+            return var (vars);
         }
         else
         {
@@ -1090,22 +1288,17 @@ private:
         }
     }
 
-    inline static String getCurrentDataDir(const ProcessorGraph* graph)
+    inline static void audio_info_to_json (const ProcessorGraph* graph, json* ret)
     {
+        (*ret)["sample_rate"] = AccessClass::getAudioComponent()->getSampleRate();
 
-        /* if (graph->getRecordNode()) {
-             auto path = graph->getRecordNode()->getDataDirectory().getFullPathName();
-             if (!path.isEmpty()) {
-                 return path.toStdString();
-             }
-         }
-         return "";*/
-        return "";
+        (*ret)["buffer_size"] = AccessClass::getAudioComponent()->getBufferSize();
+
+        (*ret)["device_type"] = AccessClass::getAudioComponent()->getDeviceType().toStdString();
     }
 
-    inline static void recording_info_to_json(const ProcessorGraph* graph, json* ret)
+    inline static void recording_info_to_json (const ProcessorGraph* graph, json* ret)
     {
-
         (*ret)["parent_directory"] = CoreServices::getRecordingParentDirectory().getFullPathName().toStdString();
 
         (*ret)["base_text"] = CoreServices::getRecordingDirectoryBaseText().toStdString();
@@ -1121,31 +1314,29 @@ private:
         for (int nodeId : CoreServices::getAvailableRecordNodeIds())
         {
             json record_node_json;
-            record_node_to_json(nodeId, &record_node_json);
-            record_nodes_json.push_back(record_node_json);
+            record_node_to_json (nodeId, &record_node_json);
+            record_nodes_json.push_back (record_node_json);
         }
 
         (*ret)["record_nodes"] = record_nodes_json;
-
     }
 
-    inline static void record_node_to_json(int nodeId, json* ret)
+    inline static void record_node_to_json (int nodeId, json* ret)
     {
-
         (*ret)["node_id"] = nodeId;
 
-        (*ret)["parent_directory"] = CoreServices::RecordNode::getRecordingDirectory(nodeId).getFullPathName().toStdString();
+        (*ret)["parent_directory"] = CoreServices::RecordNode::getRecordingDirectory (nodeId).getFullPathName().toStdString();
 
-        (*ret)["record_engine"] = CoreServices::RecordNode::getRecordEngineId(nodeId).toStdString();
+        (*ret)["record_engine"] = CoreServices::RecordNode::getRecordEngineId (nodeId).toStdString();
 
-        (*ret)["experiment_number"] = CoreServices::RecordNode::getExperimentNumber(nodeId);
+        (*ret)["experiment_number"] = CoreServices::RecordNode::getExperimentNumber (nodeId);
 
-        (*ret)["recording_number"] = CoreServices::RecordNode::getRecordingNumber(nodeId);
+        (*ret)["recording_number"] = CoreServices::RecordNode::getRecordingNumber (nodeId);
 
-        (*ret)["is_synchronized"] = CoreServices::RecordNode::isSynchronized(nodeId);
+        (*ret)["is_synchronized"] = CoreServices::RecordNode::isSynchronized (nodeId);
     }
 
-    inline static void status_to_json(const ProcessorGraph* graph, json* ret)
+    inline static void status_to_json (const ProcessorGraph* graph, json* ret)
     {
         if (CoreServices::getRecordingStatus())
         {
@@ -1161,34 +1352,34 @@ private:
         }
     }
 
-    inline static void parameter_to_json(Parameter* parameter, json* parameter_json)
+    inline static void parameter_to_json (Parameter* parameter, json* parameter_json)
     {
         (*parameter_json)["name"] = parameter->getName().toStdString();
         (*parameter_json)["type"] = parameter->getParameterTypeString().toStdString();
         (*parameter_json)["value"] = parameter->getValueAsString().toStdString();
     }
 
-    inline static void parameters_to_json(GenericProcessor* processor, std::vector<json>* parameters_json)
+    inline static void parameters_to_json (GenericProcessor* processor, std::vector<json>* parameters_json)
     {
         for (const auto& parameter : processor->getParameters())
         {
             json parameter_json;
-            parameter_to_json(parameter, &parameter_json);
-            parameters_json->push_back(parameter_json);
+            parameter_to_json (parameter, &parameter_json);
+            parameters_json->push_back (parameter_json);
         }
     }
 
-    inline static void parameters_to_json(GenericProcessor* processor, uint16 streamId, std::vector<json>* parameters_json)
+    inline static void parameters_to_json (GenericProcessor* processor, uint16 streamId, std::vector<json>* parameters_json)
     {
-        for (const auto& parameter : processor->getParameters(streamId))
+        for (const auto& parameter : processor->getParameters (streamId))
         {
             json parameter_json;
-            parameter_to_json(parameter, &parameter_json);
-            parameters_json->push_back(parameter_json);
+            parameter_to_json (parameter, &parameter_json);
+            parameters_json->push_back (parameter_json);
         }
     }
 
-    inline static void stream_to_json(GenericProcessor* processor, const DataStream* stream, json* stream_json)
+    inline static void stream_to_json (GenericProcessor* processor, const DataStream* stream, json* stream_json)
     {
         (*stream_json)["name"] = stream->getName().toStdString();
         (*stream_json)["source_id"] = stream->getSourceNodeId();
@@ -1196,18 +1387,17 @@ private:
         (*stream_json)["channel_count"] = stream->getChannelCount();
 
         std::vector<json> parameters_json;
-        parameters_to_json(processor, stream->getStreamId(), &parameters_json);
+        parameters_to_json (processor, stream->getStreamId(), &parameters_json);
         (*stream_json)["parameters"] = parameters_json;
-
     }
 
-    inline static void processor_to_json(GenericProcessor* processor, json* processor_json)
+    inline static void processor_to_json (GenericProcessor* processor, json* processor_json)
     {
         (*processor_json)["id"] = processor->getNodeId();
         (*processor_json)["name"] = processor->getName().toStdString();
 
         std::vector<json> parameters_json;
-        parameters_to_json(processor, &parameters_json);
+        parameters_to_json (processor, &parameters_json);
         (*processor_json)["parameters"] = parameters_json;
 
         std::vector<json> streams_json;
@@ -1215,8 +1405,8 @@ private:
         for (auto stream : processor->getDataStreams())
         {
             json stream_json;
-            stream_to_json(processor, stream, &stream_json);
-            streams_json.push_back(stream_json);
+            stream_to_json (processor, stream, &stream_json);
+            streams_json.push_back (stream_json);
         }
 
         (*processor_json)["streams"] = streams_json;
@@ -1231,10 +1421,10 @@ private:
         }
     }
 
-    inline GenericProcessor* find_processor(const std::string& id_string)
+    inline GenericProcessor* find_processor (const std::string& id_string)
     {
-        int processor_id = juce::String(id_string).getIntValue();
-        LOGD("Searching for processor with ID ", processor_id);
+        int processor_id = juce::String (id_string).getIntValue();
+        LOGD ("Searching for processor with ID ", processor_id);
 
         auto processors = graph_->getListOfProcessors();
         for (const auto& processor : processors)
@@ -1248,9 +1438,9 @@ private:
         return nullptr;
     }
 
-    inline const DataStream* find_stream(GenericProcessor* p, const std::string& id_string)
+    inline const DataStream* find_stream (GenericProcessor* p, const std::string& id_string)
     {
-        int stream_index = juce::String(id_string).getIntValue();
+        int stream_index = juce::String (id_string).getIntValue();
 
         if (stream_index < 0)
             return nullptr;
@@ -1261,9 +1451,9 @@ private:
         return nullptr;
     }
 
-    static inline Parameter* find_parameter(GenericProcessor* processor, const std::string& parameter_name)
+    static inline Parameter* find_parameter (GenericProcessor* processor, const std::string& parameter_name)
     {
-        Parameter* parameter = processor->getParameter(juce::String(parameter_name));
+        Parameter* parameter = processor->getParameter (juce::String (parameter_name));
 
         if (parameter != nullptr)
         {
@@ -1273,9 +1463,9 @@ private:
         return nullptr;
     }
 
-    static inline Parameter* find_parameter(GenericProcessor* processor, uint16 streamId, const std::string& parameter_name)
+    static inline Parameter* find_parameter (GenericProcessor* processor, uint16 streamId, const std::string& parameter_name)
     {
-        Parameter* parameter = processor->getDataStream(streamId)->getParameter(parameter_name);
+        Parameter* parameter = processor->getDataStream (streamId)->getParameter (parameter_name);
 
         if (parameter != nullptr)
         {
@@ -1286,4 +1476,4 @@ private:
     }
 };
 
-#endif  // __PROCESSORGRAPHHTTPSERVER_H_124F8B50__
+#endif // __PROCESSORGRAPHHTTPSERVER_H_124F8B50__

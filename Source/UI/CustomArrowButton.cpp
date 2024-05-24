@@ -2,7 +2,7 @@
  ------------------------------------------------------------------
 
  This file is part of the Open Ephys GUI
- Copyright (C) 2014 Florian Franzen
+ Copyright (C) 2024 Florian Franzen
 
  ------------------------------------------------------------------
 
@@ -24,8 +24,8 @@
 #include "CustomArrowButton.h"
 #include "LookAndFeel/CustomLookAndFeel.h"
 
-CustomArrowButton::CustomArrowButton(float rotation, float width_) : ToggleButton(),
-    width(width_)
+CustomArrowButton::CustomArrowButton (float rotation, float width_) : ToggleButton(),
+                                                                      width (width_)
 {
     //openPath.addTriangle(-1f, -1f, 1f, -1.0f, 0.0f, 1.0f );
     //openPath.applyTransform(AffineTransform::scale(2.2f, 2.2f));
@@ -35,70 +35,69 @@ CustomArrowButton::CustomArrowButton(float rotation, float width_) : ToggleButto
     //closedPath.addTriangle(1.5f, 5.0f, 7.0f, 2.2f, 7.0f, 7.8f);
     //closedPath.applyTransform(AffineTransform::scale(2.2f, 2.2f));
     //closedPath.applyTransform(AffineTransform::rotation(rotation));
-    
+
     juce::Path trianglePath;
-            
+
     // Define vertices of the triangle centered around zero
     juce::Point<float> vertices[3];
-    vertices[0] = juce::Point<float>(0, 0.6);
-    vertices[1] = juce::Point<float>(0.5, -0.36);
-    vertices[2] = juce::Point<float>(-0.5, -0.36);
-    
+    vertices[0] = juce::Point<float> (0, 0.6);
+    vertices[1] = juce::Point<float> (0.5, -0.36);
+    vertices[2] = juce::Point<float> (-0.5, -0.36);
+
     //vertices[0] = juce::Point<float>(1.5, 5.0);
     //vertices[1] = juce::Point<float>(7.0, 2.2);
     //vertices[2] = juce::Point<float>(7.0, 7.8);
-    
-    trianglePath.startNewSubPath(vertices[0]);
-    trianglePath.lineTo(vertices[1]);
-    trianglePath.lineTo(vertices[2]);
+
+    trianglePath.startNewSubPath (vertices[0]);
+    trianglePath.lineTo (vertices[1]);
+    trianglePath.lineTo (vertices[2]);
     trianglePath.closeSubPath();
-    
-    openPath = trianglePath.createPathWithRoundedCorners(0.2f);
-    openPath.applyTransform(AffineTransform::rotation(rotation));
-    
-    closedPath = Path(openPath);
-    closedPath.applyTransform(AffineTransform::rotation(MathConstants<float>::pi/2));
-    
-    openPath.applyTransform(AffineTransform::scale(width * 0.58f));
-    openPath.applyTransform(AffineTransform::translation(width/2, width/2));
-    
-    closedPath.applyTransform(AffineTransform::scale(width * 0.58f));
-    closedPath.applyTransform(AffineTransform::translation(width/2, width/2));
-    
-    backgroundColour = findColour(ThemeColors::componentBackground);
+
+    openPath = trianglePath.createPathWithRoundedCorners (0.2f);
+    openPath.applyTransform (AffineTransform::rotation (rotation));
+
+    closedPath = Path (openPath);
+    closedPath.applyTransform (AffineTransform::rotation (MathConstants<float>::pi / 2));
+
+    openPath.applyTransform (AffineTransform::scale (width * 0.58f));
+    openPath.applyTransform (AffineTransform::translation (width / 2, width / 2));
+
+    closedPath.applyTransform (AffineTransform::scale (width * 0.58f));
+    closedPath.applyTransform (AffineTransform::translation (width / 2, width / 2));
+
+    backgroundColour = findColour (ThemeColors::componentBackground);
 }
 
-void CustomArrowButton::setCustomBackground(bool useCustom, Colour colour)
+void CustomArrowButton::setCustomBackground (bool useCustom, Colour colour)
 {
     customBackground = useCustom;
     backgroundColour = colour;
     repaint();
 }
 
-void CustomArrowButton::paint(Graphics& g)
+void CustomArrowButton::paint (Graphics& g)
 {
     Colour foregroundColour;
-    
+
     if (customBackground)
-        foregroundColour = backgroundColour.darker(0.9f).withAlpha(0.5f);
+        foregroundColour = backgroundColour.darker (0.9f).withAlpha (0.5f);
     else
-        foregroundColour = findColour(ThemeColors::defaultText).withAlpha(0.3f);
-    
+        foregroundColour = findColour (ThemeColors::defaultText).withAlpha (0.3f);
+
     if (isOver())
-        g.setColour(foregroundColour.brighter(0.4f));
+        g.setColour (foregroundColour.brighter (0.4f));
     else
-        g.setColour(foregroundColour);
-    
-    g.fillEllipse(0, 0, width, width);
+        g.setColour (foregroundColour);
+
+    g.fillEllipse (0, 0, width, width);
 
     if (customBackground)
-        g.setColour(backgroundColour);
+        g.setColour (backgroundColour);
     else
-        g.setColour(findColour(ThemeColors::componentBackground));
-    
-    if (getToggleState())
-        g.fillPath(openPath);
-    else
-        g.fillPath(closedPath);
-}
+        g.setColour (findColour (ThemeColors::componentBackground));
 
+    if (getToggleState())
+        g.fillPath (openPath);
+    else
+        g.fillPath (closedPath);
+}

@@ -279,6 +279,9 @@ public:
     /** Returns the total width of the editor in it's current state. */
     virtual int getTotalWidth();
 
+    /* Returns true if it's a VisualizerEditor. */
+    virtual bool isVisualizerEditor() { return false; }
+
 protected:
     /** A pointer to the button that opens the drawer for the ChannelSelector. */
     std::unique_ptr<DrawerButton> drawerButton;

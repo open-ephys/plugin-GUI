@@ -78,8 +78,8 @@ void ChannelButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown
 	g.fillRoundedRectangle(1,1,getWidth()-2,getHeight()-2,0.001*getWidth());
 
     //Draw text string in middle of button
-	g.setColour(findColour(ThemeColors::defaultText));
-	g.setFont(10);
+	g.setColour(getToggleState() ? Colours::white : findColour(ThemeColors::defaultText));
+	g.setFont(FontOptions("Inter", "Medium", 10.0f));
 	g.drawText (String(id+1), 0,0, getWidth(), getHeight(), Justification::centred); 
 
 }
@@ -91,9 +91,6 @@ SelectButton::SelectButton(const String& name) : Button(name) {
 
 void SelectButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
 {
-    g.setColour(findColour(ThemeColors::outline));
-    g.fillRoundedRectangle (0.0f, 0.0f, getWidth(), getHeight(), 0.001*getWidth());
-
     if (isMouseOver)
     {
         if (getToggleState())
@@ -108,10 +105,13 @@ void SelectButton::paintButton(Graphics &g, bool isMouseOver, bool isButtonDown)
         else
             g.setColour(findColour(ThemeColors::widgetBackground));
     }
-    g.fillRoundedRectangle(0.0f, 0.0f, getWidth(), getHeight(), 0.01*getWidth());
+    g.fillRoundedRectangle(1.0f, 1.0f, (float)getWidth() - 2.0f, (float)getHeight() - 2.0f, 2.0f);
+
+    g.setColour(findColour(ThemeColors::outline));
+    g.drawRoundedRectangle (0.0f, 0.0f, (float)getWidth(), (float)getHeight(), 2.0f, 1.0f);
     
 	g.setColour(findColour(ThemeColors::defaultText));
-	g.setFont(12);
+	g.setFont(FontOptions("Inter", "Regular", 12.0f));
 	g.drawText (String(getName()), 0, 0, getWidth(), getHeight(), Justification::centred);
 }
 
@@ -206,7 +206,7 @@ PopupChannelSelector::PopupChannelSelector(Component* parent, PopupChannelSelect
             addChildAndSetID(selectButtons.getLast(),"ALL");
 
             //Add Range Editor
-            rangeEditor = std::make_unique<RangeEditor>("Range", Font("Small Text", 12, Font::plain));
+            rangeEditor = std::make_unique<RangeEditor>("Range", FontOptions(12.0f));
             rangeEditor->setBounds(0.75*width, height, 0.25*width, width / nColumns);
             rangeEditor->addListener(this);
             addChildAndSetID(rangeEditor.get(),"RANGE_EDITOR");

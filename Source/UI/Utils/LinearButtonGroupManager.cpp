@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -25,9 +25,8 @@
 
 #include <algorithm>
 
-#include "../../Utils/Utils.h"
 #include "../../UI/LookAndFeel/CustomLookAndFeel.h"
-
+#include "../../Utils/Utils.h"
 
 static bool inline areEqualValues (float p1, float p2)
 {
@@ -35,22 +34,16 @@ static bool inline areEqualValues (float p1, float p2)
     return fabs (p2 - p1) < epsilon;
 }
 
-
 LinearButtonGroupManager::LinearButtonGroupManager()
-    : m_isShowDividers      (true)
-    , m_selectedButtonIdx   (0)
-    , m_desiredButtonLineX  (0.f)
-    , m_currentButtonLineX  (0.f)
-    , m_animationStepX      (0.f)
+    : m_isShowDividers (true), m_selectedButtonIdx (0), m_desiredButtonLineX (0.f), m_currentButtonLineX (0.f), m_animationStepX (0.f)
 {
-
 }
 
-void LinearButtonGroupManager::setSelectedButtonIndex(int index)
+void LinearButtonGroupManager::setSelectedButtonIndex (int index)
 {
     m_selectedButtonIdx = index;
     m_currentButtonLineX = m_buttons[index]->getBounds().getX();
-    
+
     repaint();
 }
 
@@ -58,8 +51,8 @@ void LinearButtonGroupManager::resized()
 {
     ButtonGroupManager::resized();
 
-    const int width     = getWidth();
-    const int height    = getHeight();
+    const int width = getWidth();
+    const int height = getHeight();
 
     const int numButtons = m_buttons.size();
     const int buttonWidth = numButtons != 0
@@ -76,7 +69,6 @@ void LinearButtonGroupManager::resized()
     }
 }
 
-
 void LinearButtonGroupManager::buttonClicked (Button* buttonThatWasClicked)
 {
     ButtonGroupManager::buttonClicked (buttonThatWasClicked);
@@ -85,7 +77,7 @@ void LinearButtonGroupManager::buttonClicked (Button* buttonThatWasClicked)
     {
         stopTimer();
         m_desiredButtonLineX = buttonThatWasClicked->getBounds().getX();
-        m_selectedButtonIdx  = m_buttons.indexOf (static_cast<Button*> (buttonThatWasClicked));
+        m_selectedButtonIdx = m_buttons.indexOf (static_cast<Button*> (buttonThatWasClicked));
 
         const float numAnimationSteps = 10.f;
         m_animationStepX = (m_desiredButtonLineX - m_currentButtonLineX) / numAnimationSteps;
@@ -94,7 +86,6 @@ void LinearButtonGroupManager::buttonClicked (Button* buttonThatWasClicked)
         startTimer (30);
     }
 }
-
 
 void LinearButtonGroupManager::addButton (Button* newButton, bool useDefaultLookAndFeel)
 {
@@ -106,13 +97,13 @@ void LinearButtonGroupManager::addButton (Button* newButton, bool useDefaultLook
     m_componentProxyHandler->addAndMakeVisible (newButton);
 
     if (m_buttons.size() >= 1)
-    {    
+    {
         if (m_buttons.getLast()->isConnectedOnLeft())
-            m_buttons.getLast()->setConnectedEdges(Button::ConnectedOnRight | Button::ConnectedOnLeft);
+            m_buttons.getLast()->setConnectedEdges (Button::ConnectedOnRight | Button::ConnectedOnLeft);
         else
-            m_buttons.getLast()->setConnectedEdges(Button::ConnectedOnRight);
+            m_buttons.getLast()->setConnectedEdges (Button::ConnectedOnRight);
 
-        newButton->setConnectedEdges(Button::ConnectedOnLeft);
+        newButton->setConnectedEdges (Button::ConnectedOnLeft);
     }
 
     m_buttons.add (newButton);
@@ -124,7 +115,6 @@ void LinearButtonGroupManager::addButton (Button* newButton, bool useDefaultLook
 
     resized();
 }
-
 
 void LinearButtonGroupManager::timerCallback()
 {
@@ -144,7 +134,6 @@ void LinearButtonGroupManager::timerCallback()
 
     repaint();
 }
-
 
 void LinearButtonGroupManager::setShowDividers (bool isShow)
 {

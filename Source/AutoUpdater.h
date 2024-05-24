@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2023 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
     This program is free software: you can redistribute it and/or modify
@@ -32,14 +32,13 @@ class DownloadThread;
 /** 
 	Helper class to check for new versions of the application and download them.
 */
-class LatestVersionCheckerAndUpdater   : public DeletedAtShutdown,
-                                         private Thread
+class LatestVersionCheckerAndUpdater : public DeletedAtShutdown,
+                                       private Thread
 {
 public:
-
     /** Constructor */
     LatestVersionCheckerAndUpdater();
-    
+
     /** Destructor */
     ~LatestVersionCheckerAndUpdater() override;
 
@@ -57,7 +56,6 @@ public:
     JUCE_DECLARE_SINGLETON_SINGLETHREADED_MINIMAL (LatestVersionCheckerAndUpdater)
 
 private:
-    
     /** Download new version in background thread */
     void run() override;
 

@@ -35,16 +35,17 @@
 #include "../../Utils/Utils.h"
 
 
-static inline void closeHandle(decltype(LoadedLibInfo::handle) handle)
-{
-	if (handle)
-	{
+static inline void closeHandle(decltype(LoadedLibInfo::handle) handle) {
+	if (handle) {
 #ifdef _WIN32
 		FreeLibrary(handle);
 #elif defined(__APPLE__)
-		CFRelease(handle);
+		CF::CFBundleUnloadExecutable(handle);
+		CF::CFRelease(handle);
 #else
-		dlclose(handle);
+		if (dlclose(handle) != 0) {
+			LOGE("Failed to close handle");
+		}
 #endif
 	}
 }
@@ -177,10 +178,10 @@ void PluginManager::loadAllPlugins()
 	String appDir = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
 	if (!appDir.contains("plugin-GUI\\Build\\"))
 	{
-		paths.add(File::getSpecialLocation(File::commonApplicationDataDirectory)
-			.getChildFile("Open Ephys")
-			.getChildFile("plugins-api" + String(PLUGIN_API_VER))
-		);
+	    paths.add(File::getSpecialLocation(File::windowsLocalAppData)
+			 	 .getChildFile("Open Ephys")
+				 .getChildFile("plugins-api" + String(PLUGIN_API_VER))
+				 );
 	}
 #else
 	paths.add(File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getChildFile("plugins"));
@@ -251,30 +252,34 @@ void PluginManager::loadPlugins(const File& pluginPath)
 	 and works inside the same POSIX thread as the GUI.
  */
 
-int PluginManager::loadPlugin(const String& pluginLoc)
-{
+int PluginManager::loadPlugin(const String& pluginLoc) {
+
+#ifdef _WIN32
+	HINSTANCE handle;
+	const wchar_t* processorLocLPCWSTR = pluginLoc.toWideCharPointer();
+	handle = LoadLibraryExW(processorLocLPCWSTR, NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+#elif defined(__APPLE__)
+	CF::CFStringRef processorLocCFString = pluginLoc.toCFString();
+	CF::CFURLRef bundleURL = CF::CFURLCreateWithFileSystemPath(CF::kCFAllocatorDefault, 
+															   processorLocCFString,
+															   CF::kCFURLPOSIXPathStyle,
+															   true);
+															   
+	assert(bundleURL);
+	CF::CFBundleRef handle = CF::CFBundleCreate(CF::kCFAllocatorDefault, bundleURL);
+	CF::CFRelease(bundleURL);
+	CF::CFRelease(processorLocCFString);
+#else
+	// Clear errors
+	dlerror();
+
 	/*
 	Load in the selected processor. This takes the
 	dynamic object (.so) and copies it into RAM
 	Dynamic linker requires a C-style string, so we
 	we have to convert first.
 	*/
-	const char* processorLocCString = static_cast<const char*>(pluginLoc.toUTF8());
-
-#ifdef _WIN32
-	HINSTANCE handle;
-	handle = LoadLibrary(processorLocCString);
-#elif defined(__APPLE__)
-	CF::CFURLRef bundleURL = CF::CFURLCreateFromFileSystemRepresentation(CF::kCFAllocatorDefault,
-		reinterpret_cast<const CF::UInt8*>(processorLocCString),
-		strlen(processorLocCString),
-		true);
-	assert(bundleURL);
-	CF::CFBundleRef handle = CF::CFBundleCreate(CF::kCFAllocatorDefault, bundleURL);
-	CFRelease(bundleURL);
-#else
-	// Clear errors
-	dlerror();
+	const char* processorLocCString = pluginLoc.toRawUTF8();
 
 	/*
 	Changing this to resolve all variables immediately upon loading.
@@ -337,7 +342,7 @@ int PluginManager::loadPlugin(const String& pluginLoc)
 		return -1;
 	}
 
-	LoadedLibInfo lib;
+	LoadedLibInfo lib{};
 	lib.apiVersion = libInfo.apiVersion;
 	lib.name = libInfo.name;
 	lib.libVersion = libInfo.libVersion;
@@ -360,10 +365,9 @@ int PluginManager::loadPlugin(const String& pluginLoc)
 			info.creator = pInfo.processor.creator;
 			info.name = pInfo.processor.name;
 			info.type = pInfo.processor.type;
-			info.libIndex = libArray.size() - 1;
-			Plugin::ProcessorInfo pi = getProcessorInfo(String::fromUTF8(info.name));
-			if (pi.name == nullptr)
-				processorPlugins.add(info);
+			info.libIndex = libArray.size()-1;
+			processorPlugins.add(info);
+
 			break;
 		}
 		case Plugin::RECORD_ENGINE:
@@ -373,9 +377,8 @@ int PluginManager::loadPlugin(const String& pluginLoc)
 			info.creator = pInfo.recordEngine.creator;
 			info.name = pInfo.recordEngine.name;
 			info.libIndex = libArray.size() - 1;
-			Plugin::RecordEngineInfo rei = getRecordEngineInfo(String::fromUTF8(info.name));
-			if (rei.name == nullptr)
-				recordEnginePlugins.add(info);
+			recordEnginePlugins.add(info);
+			
 			break;
 		}
 		case Plugin::DATA_THREAD:
@@ -385,9 +388,8 @@ int PluginManager::loadPlugin(const String& pluginLoc)
 			info.creator = pInfo.dataThread.creator;
 			info.name = pInfo.dataThread.name;
 			info.libIndex = libArray.size() - 1;
-			Plugin::DataThreadInfo dti = getDataThreadInfo(String::fromUTF8(info.name));
-			if (dti.name == nullptr)
-				dataThreadPlugins.add(info);
+			dataThreadPlugins.add(info);
+			
 			break;
 		}
 		case Plugin::FILE_SOURCE:
@@ -398,9 +400,8 @@ int PluginManager::loadPlugin(const String& pluginLoc)
 			info.name = pInfo.fileSource.name;
 			info.extensions = pInfo.fileSource.extensions;
 			info.libIndex = libArray.size();
-			Plugin::FileSourceInfo fsi = getFileSourceInfo(String::fromUTF8(info.name));
-			if (fsi.name == nullptr)
-				fileSourcePlugins.add(info);
+			fileSourcePlugins.add(info);
+			
 			break;
 		}
 		default:
@@ -565,7 +566,7 @@ bool PluginManager::findPlugin(String name, String libName, const Array<LoadedPl
 	for (int i = 0; i < pluginArray.size(); i++)
 	{
 		String pName = String(pluginArray[i].name);
-		if (pName == name)
+		if (pName.equalsIgnoreCase(name))
 		{
 			if ((libName.isEmpty()) || (libName == String(libArray[pluginArray[i].libIndex].name)))
 			{
@@ -617,6 +618,8 @@ bool PluginManager::removePlugin(String libName)
 	{
 		if (piFunction(i, &pInfo)) //if somehow there are fewer plugins than stated, stop removing
 			break;
+
+		int pluginIndex = -1;
 		switch (pInfo.type)
 		{
 		case Plugin::PROCESSOR:
@@ -624,11 +627,19 @@ bool PluginManager::removePlugin(String libName)
 			LOGD("Removing processor plugin");
 			for (int j = 0; j < processorPlugins.size(); j++)
 			{
-				if (processorPlugins[j].name == pInfo.processor.name)
+				LOGD("Removing processor plugin: ", pInfo.processor.name);
+				for(int j = 0; j < processorPlugins.size(); j++)
 				{
-					processorPlugins.remove(j);
-					break;
+					if(processorPlugins[j].name == pInfo.processor.name)
+						pluginIndex = j;
+					
+					if (processorPlugins[j].libIndex > indexToRemove)
+						processorPlugins[j].setLibIndex(processorPlugins[j].libIndex - 1);
 				}
+				if(pluginIndex != -1)
+					processorPlugins.remove(pluginIndex);
+
+				break;
 			}
 			break;
 		}
@@ -637,11 +648,19 @@ bool PluginManager::removePlugin(String libName)
 			LOGD("Removing record engine plugin");
 			for (int j = 0; j < recordEnginePlugins.size(); j++)
 			{
-				if (recordEnginePlugins[j].name == pInfo.recordEngine.name)
+				LOGD("Removing record engine plugin: ", pInfo.recordEngine.name);
+				for(int j = 0; j < recordEnginePlugins.size(); j++)
 				{
-					recordEnginePlugins.remove(j);
-					break;
+					if(recordEnginePlugins[j].name == pInfo.recordEngine.name)
+						pluginIndex = j;
+					
+					if (recordEnginePlugins[j].libIndex > indexToRemove)
+						recordEnginePlugins[j].setLibIndex(recordEnginePlugins[j].libIndex - 1);
 				}
+				if(pluginIndex != -1)
+					recordEnginePlugins.remove(pluginIndex);
+
+				break;
 			}
 			break;
 		}
@@ -650,11 +669,19 @@ bool PluginManager::removePlugin(String libName)
 			LOGD("Adding data thread plugin");
 			for (int j = 0; j < dataThreadPlugins.size(); j++)
 			{
-				if (dataThreadPlugins[j].name == pInfo.dataThread.name)
+				LOGD("Removing data thread plugin: ", pInfo.dataThread.name);
+				for(int j = 0; j < dataThreadPlugins.size(); j++)
 				{
-					dataThreadPlugins.remove(j);
-					break;
+					if(dataThreadPlugins[j].name == pInfo.dataThread.name)
+						pluginIndex = j;
+					
+					if (dataThreadPlugins[j].libIndex > indexToRemove)
+						dataThreadPlugins[j].setLibIndex(dataThreadPlugins[j].libIndex - 1);
 				}
+				if(pluginIndex != -1)
+					dataThreadPlugins.remove(pluginIndex);
+
+				break;
 			}
 			break;
 		}
@@ -663,11 +690,24 @@ bool PluginManager::removePlugin(String libName)
 			LOGD("Adding file source plugin");
 			for (int j = 0; j < fileSourcePlugins.size(); j++)
 			{
-				if (fileSourcePlugins[j].name == pInfo.fileSource.name)
+				LOGD("Removing file source plugin: ", pInfo.fileSource.name);
+				for(int j = 0; j < fileSourcePlugins.size(); j++)
 				{
-					fileSourcePlugins.remove(j);
-					break;
+					if(fileSourcePlugins[j].name == pInfo.fileSource.name)
+						pluginIndex = j;
+					
+					if (fileSourcePlugins[j].libIndex > indexToRemove)
+						fileSourcePlugins[j].setLibIndex(fileSourcePlugins[j].libIndex - 1);
 				}
+				if(pluginIndex != -1)
+					fileSourcePlugins.remove(pluginIndex);
+
+				break;
+			}
+			default:
+			{
+				LOGE("Invalid plugin");
+				break;
 			}
 			break;
 		}
@@ -679,6 +719,7 @@ bool PluginManager::removePlugin(String libName)
 		}
 	}
 
+	closeHandle(lib.handle);
 	libArray.remove(indexToRemove);
 	return true;
 }

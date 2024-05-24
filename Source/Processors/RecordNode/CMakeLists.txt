@@ -4,8 +4,6 @@
 add_sources(open-ephys 
 	DataQueue.cpp
 	DataQueue.h
-	EngineConfigWindow.cpp
-	EngineConfigWindow.h
 	EventQueue.h
 	RecordEngine.cpp
 	RecordEngine.h
@@ -19,4 +17,3 @@ add_sources(open-ephys
 
 #add nested directories
 add_subdirectory(BinaryFormat)
-add_subdirectory(taskflow)

@@ -1,19 +1,26 @@
 #Open Ephys GUI main build file
 cmake_minimum_required(VERSION 3.15)
 
-set(GUI_VERSION 0.7.0)
+set(GUI_VERSION 1.0.0-dev)
 
 string(REGEX MATCHALL "[0-9]+" VERSION_LIST ${GUI_VERSION})
-set(GUI_VERSION_HEX "0x")
-foreach(_v ${VERSION_LIST})
-	if (NOT ${_v} STREQUAL "0")
-		string(APPEND GUI_VERSION_HEX "0${_v}")
-	endif()
-endforeach()
-string(REPLACE "." "," GUI_VERSION_COMMA ${GUI_VERSION})
+list(LENGTH VERSION_LIST num_version_components)
+
+if(num_version_components LESS 3)
+	message(FATAL_ERROR "Version number must follow semantic versioning format: MAJOR.MINOR.PATCH[-PRERELEASE]")
+endif()
+
+list(GET VERSION_LIST 0 version_major)
+list(GET VERSION_LIST 1 version_minor)
+list(GET VERSION_LIST 2 version_patch)
+
+math(EXPR hex "(${version_major} << 16) + (${version_minor} << 8) + ${version_patch}" OUTPUT_FORMAT HEXADECIMAL)
+set(GUI_VERSION_HEX "${hex}")
+
+list(JOIN VERSION_LIST "," GUI_VERSION_COMMA)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version" FORCE)
-set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "Build architecture for Mac OS X" FORCE)
+set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD)" CACHE STRING "Build architecture for Mac OS X" FORCE)
 set(CMAKE_OSX_SYSROOT "")
 if ((NOT ${CMAKE_CURRENT_BINARY_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR}/Build ) AND (NOT OE_DONT_CHECK_BUILD_PATH))
 message(FATAL_ERROR "Please run cmake inside the Build folder to build the binaries in the predefined paths.\nSet the OE_DONT_CHECK_BUILD_PATH cmake variable to TRUE to disable this error")

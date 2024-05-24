@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -28,12 +28,19 @@
 
 enum PhaseType
 {
-    NO_PHASE = 0, RISING_POS, FALLING_POS, FALLING_NEG, RISING_NEG
+    NO_PHASE = 0,
+    RISING_POS,
+    FALLING_POS,
+    FALLING_NEG,
+    RISING_NEG
 };
 
 enum DetectorType
 {
-    PEAK = 0, FALLING_ZERO, TROUGH, RISING_ZERO
+    PEAK = 0,
+    FALLING_ZERO,
+    TROUGH,
+    RISING_ZERO
 };
 
 /** Holds settings for one stream's phase detector*/
@@ -44,13 +51,13 @@ public:
     PhaseDetectorSettings();
 
     /** Destructor*/
-    ~PhaseDetectorSettings() { }
+    ~PhaseDetectorSettings() {}
 
     /** Creates an event for a particular stream*/
-    TTLEventPtr createEvent(int64 sample_number, bool state);
-    
+    TTLEventPtr createEvent (int64 sample_number, bool state);
+
     /** Clears the output bit*/
-    TTLEventPtr clearOutputLine(int64 sample_number);
+    TTLEventPtr clearOutputLine (int64 sample_number);
 
     int samplesSinceTrigger;
 
@@ -58,7 +65,7 @@ public:
 
     bool isActive;
     bool wasTriggered;
-    
+
     bool outputLineChanged;
     int lastOutputLine;
 
@@ -88,7 +95,7 @@ public:
     PhaseDetector();
 
     /** Destructor*/
-    ~PhaseDetector() { }
+    ~PhaseDetector() {}
 
     /** Registers parameters with the processor */
     void registerParameters() override;
@@ -103,7 +110,7 @@ public:
     void updateSettings() override;
 
     /** Called when a parameter is updated*/
-    void parameterValueChanged(Parameter* param) override;
+    void parameterValueChanged (Parameter* param) override;
 
 private:
     /** Called whenever a new TTL event arrives*/
@@ -114,4 +121,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhaseDetector);
 };
 
-#endif  // __PHASEDETECTOR_H_F411F29D__
+#endif // __PHASEDETECTOR_H_F411F29D__

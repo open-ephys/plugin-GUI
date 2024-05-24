@@ -239,6 +239,11 @@ bool AffineTransform::isOnlyTranslation() const noexcept
         && exactlyEqual (mat11, 1.0f);
 }
 
+bool AffineTransform::isOnlyTranslationOrScale() const noexcept
+{
+    return exactlyEqual (mat01, 0.0f) && exactlyEqual (mat10, 0.0f);
+}
+
 float AffineTransform::getDeterminant() const noexcept
 {
     return (mat00 * mat11) - (mat01 * mat10);
@@ -273,6 +278,24 @@ public:
                                              .followedBy (AffineTransform::scale (scale2));
 
             expect (approximatelyEqual (std::sqrt (std::abs (transform.getDeterminant())), scale1 * scale2));
+        }
+
+        beginTest ("fromTargetPoints");
+        {
+            const Point a (0.0f, 0.0f);
+            const Point b (1.0f, 0.0f);
+            const Point c (0.0f, 1.0f);
+            const Point translation (1.0f, 1.0f);
+            const auto transform = AffineTransform::fromTargetPoints (a, a + translation,
+                                                                      b, b + translation,
+                                                                      c, c + translation);
+            expect (exactlyEqual (transform.mat00, 1.0f));
+            expect (exactlyEqual (transform.mat01, 0.0f));
+            expect (exactlyEqual (transform.mat02, translation.x));
+
+            expect (exactlyEqual (transform.mat10, 0.0f));
+            expect (exactlyEqual (transform.mat11, 1.0f));
+            expect (exactlyEqual (transform.mat12, translation.y));
         }
     }
 };

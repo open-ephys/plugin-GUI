@@ -23,69 +23,54 @@
 
 #include "FileSource.h"
 
-
-FileSource::FileSource() 
-    : fileOpened    (false)
-    , numRecords    (0)
-    , activeRecord  (-1)
-    , filename      ("")
-    , loopCount     (0)
+FileSource::FileSource()
+    : fileOpened (false), numRecords (0), activeRecord (-1), filename (""), loopCount (0)
 {
 }
-
 
 FileSource::~FileSource()
 {
 }
-
 
 int FileSource::getNumRecords() const
 {
     return numRecords;
 }
 
-
 String FileSource::getRecordName (int index) const
 {
     return infoArray[index].name;
 }
-
 
 int FileSource::getRecordNumChannels (int index) const
 {
     return infoArray[index].channels.size();
 }
 
-
 int FileSource::getActiveNumChannels() const
 {
     return getRecordNumChannels (activeRecord.get());
 }
-
 
 float FileSource::getRecordSampleRate (int index) const
 {
     return infoArray[index].sampleRate;
 }
 
-
 float FileSource::getActiveSampleRate() const
 {
     return getRecordSampleRate (activeRecord.get());
 }
-
 
 int64 FileSource::getRecordNumSamples (int index) const
 {
     return infoArray[index].numSamples;
 }
 
-
 int64 FileSource::getActiveNumSamples() const
 {
     return getRecordNumSamples (activeRecord.get());
 }
-
 
 int FileSource::getActiveRecord() const
 {
@@ -97,31 +82,26 @@ const EventInfo& FileSource::getEventInfo()
     return eventInfoMap[currentStream];
 }
 
-
 RecordedChannelInfo FileSource::getChannelInfo (int recordIndex, int channel) const
 {
     return infoArray[recordIndex].channels[channel];
 }
 
-
 void FileSource::setActiveRecord (int index)
 {
-    activeRecord.set(index);
-    updateActiveRecord(index);
+    activeRecord.set (index);
+    updateActiveRecord (index);
 }
-
 
 bool FileSource::isFileOpened() const
 {
     return fileOpened;
 }
 
-
 String FileSource::getFileName() const
 {
     return filename;
 }
-
 
 bool FileSource::openFile (File file)
 {
@@ -145,4 +125,3 @@ bool FileSource::isReady()
 {
     return true;
 }
-

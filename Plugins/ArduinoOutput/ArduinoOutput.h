@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,8 +24,8 @@
 #ifndef __ARDUINOOUTPUT_H_F7BDA585__
 #define __ARDUINOOUTPUT_H_F7BDA585__
 
-#include <SerialLib.h>
 #include <ProcessorHeaders.h>
+#include <SerialLib.h>
 
 #include "serial/ofArduino.h"
 
@@ -40,7 +40,6 @@
 class ArduinoOutput : public GenericProcessor
 {
 public:
-
     /** Constructor */
     ArduinoOutput();
 
@@ -48,7 +47,7 @@ public:
     ~ArduinoOutput();
 
     /** Called whenever a parameter's value is changed */
-    void parameterValueChanged(Parameter* param) override;
+    void parameterValueChanged (Parameter* param) override;
 
     /** Searches for events and triggers the Arduino output when appropriate. */
     void process (AudioBuffer<float>& buffer) override;
@@ -71,17 +70,10 @@ public:
     /** Tries to connect to an Arduino on a given port*/
     void setDevice (String deviceString);
 
-    /** Saves the connected device*/
-    void saveCustomParametersToXml(XmlElement* parentElement) override;
-
-    /** Loads the connected device*/
-    void loadCustomParametersFromXml(XmlElement* xml) override;
-
 private:
-
     /** Opens the serial connection to the Arduino. */
     ofSerial serial;
-    
+
     /** An open-frameworks Arduino object. */
     ofArduino arduino;
 
@@ -93,7 +85,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ArduinoOutput);
 };
 
-
-
-
-#endif  // __ARDUINOOUTPUT_H_F7BDA585__
+#endif // __ARDUINOOUTPUT_H_F7BDA585__

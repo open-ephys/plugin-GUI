@@ -117,6 +117,9 @@ public:
     /** Calls Visualizer's endAnimation() method */
     virtual void disable();
 
+    /** Returns true if it is a VisualizerEditor */
+    bool isVisualizerEditor() override final { return true; }
+
     // ------------------------------------------------------------
     //                     OTHER METHODS
     // ------------------------------------------------------------

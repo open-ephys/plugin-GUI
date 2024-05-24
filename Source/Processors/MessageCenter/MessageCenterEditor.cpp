@@ -60,7 +60,7 @@ MessageCenterEditor::MessageCenterEditor(MessageCenter* owner) :
     //addAndMakeVisible(incomingMessageLog);
     //addAndMakeVisible(outgoingMessageLog);
 
-    sendMessageButton = new UtilityButton("Save", Font("Small Text", 0, Font::plain));
+    sendMessageButton = new UtilityButton("Save", FontOptions(12.0f));
     sendMessageButton->addListener(this);
     sendMessageButton->setTooltip("Send a message to be saved by the record node");
     addAndMakeVisible(sendMessageButton);
@@ -321,7 +321,7 @@ MessageLabel::MessageLabel(const String& componentName, const String& labelText)
     : Label(componentName,labelText)
 {
     setJustificationType(Justification::bottomLeft);
-    setFont(Font("CP Mono", "Plain", 16));
+    setFont(FontOptions("CP Mono", "Plain", 16));
     setBorderSize(BorderSize<int>(0, 7, 2, 0));
     setMinimumHorizontalScale (1.0f);
     

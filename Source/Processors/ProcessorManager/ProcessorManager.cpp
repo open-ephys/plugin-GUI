@@ -310,14 +310,27 @@ namespace ProcessorManager
                     
                     if (description.name.equalsIgnoreCase(info.name))
                     {
-                        int libIndex = pm->getLibraryIndexFromPlugin(Plugin::PROCESSOR, i);
-                        
-                        if (description.libName.equalsIgnoreCase(pm->getLibraryName(libIndex)))
+                        /* Special case for Spike Detector and Spike Viewer.
+                        ** Skips library name match to allow loading configs from v0.6.x. */
+                        if (description.name.equalsIgnoreCase("Spike Detector")
+                            || description.name.equalsIgnoreCase("Spike Viewer"))
                         {
                             proc = info.creator();
                             proc->setPluginData(Plugin::PROCESSOR, i);
                             proc->setProcessorType(description.processorType);
                             return std::unique_ptr<GenericProcessor>(proc);
+                        }
+                        else
+                        {
+                            int libIndex = pm->getLibraryIndexFromPlugin(Plugin::PROCESSOR, i);
+                            
+                            if (description.libName.equalsIgnoreCase(pm->getLibraryName(libIndex)))
+                            {
+                                proc = info.creator();
+                                proc->setPluginData(Plugin::PROCESSOR, i);
+                                proc->setProcessorType(description.processorType);
+                                return std::unique_ptr<GenericProcessor>(proc);
+                            }
                         }
                     }
                 }
@@ -340,15 +353,6 @@ namespace ProcessorManager
                 }
             }
         } // if (description.index > -1)
-        else if (description.index == -1)
-        {
-            proc = new PlaceholderProcessor(description.name,
-                                            description.libName,
-                                            description.libVersion);
-            proc->setPluginData(Plugin::INVALID, -1);
-            proc->setProcessorType(description.processorType);
-            return std::unique_ptr<GenericProcessor>(proc);
-        }
         else if (description.index == -2)
         {
             proc = new EmptyProcessor();
@@ -356,6 +360,14 @@ namespace ProcessorManager
             proc->setProcessorType(Plugin::Processor::EMPTY);
             return std::unique_ptr<GenericProcessor>(proc);
         }
+
+        // If we get here, we couldn't find the processor in Plugin Manager.
+        // Create a placeholder processor.
+        proc = new PlaceholderProcessor(description.name,
+                                        description.libName,
+                                        description.libVersion);
+        proc->setPluginData(Plugin::INVALID, -1);
+        proc->setProcessorType(description.processorType);
         
         return std::unique_ptr<GenericProcessor>(proc);
 

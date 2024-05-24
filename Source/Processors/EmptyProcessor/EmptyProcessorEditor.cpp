@@ -47,7 +47,7 @@ void EmptyProcessorEditor::paint(Graphics& g)
     g.drawRoundedRectangle(2, 2, getWidth() - 4, getHeight() - 4, 5.0f, 2.0f);
     g.drawHorizontalLine(23, 2, getWidth() - 2);
     
-    g.setFont( Font("CP Mono", "Plain", 16.0f) );
+    g.setFont( FontOptions("CP Mono", "Plain", 16.0f) );
     g.drawFittedText("NO SOURCE", 10, 6, getWidth() - 12, 16, Justification::centredLeft, 1);
 
 }

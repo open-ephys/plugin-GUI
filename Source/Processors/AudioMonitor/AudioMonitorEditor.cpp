@@ -101,7 +101,6 @@ AudioOutputSelector::AudioOutputSelector(Parameter* param) : ParameterEditor(par
     outputChannelButtonManager->addButton(rightButton);
     outputChannelButtonManager->setRadioButtonMode(true);
     outputChannelButtonManager->setButtonListener(this);
-    outputChannelButtonManager->setButtonsLookAndFeel(m_materialButtonLookAndFeel.get());
     outputChannelButtonManager->setSelectedButtonIndex(1);
     bothButton->setToggleState(true, dontSendNotification);
     addAndMakeVisible(outputChannelButtonManager.get());

@@ -1,4 +1,4 @@
-#Open Ephys GUI direcroty-speciric file
+#Open Ephys GUI directory-specific file
 
 add_sources(open-ephys
 	OpenEphysHttpServer.h

@@ -64,8 +64,6 @@ Component* StreamTableModel::refreshComponentForCell(int rowNumber,
             delayMonitor = new DelayMonitor();
         }
 
-        delayMonitors[streams[rowNumber]->getKey()] = delayMonitor;
-
         return  delayMonitor;
     }
     else if (columnId == StreamTableModel::Columns::TTL_LINE_STATES)
@@ -77,8 +75,6 @@ Component* StreamTableModel::refreshComponentForCell(int rowNumber,
         {
             ttlMonitor = new TTLMonitor(8, 8);
         }
-
-        ttlMonitors[streams[rowNumber]->getKey()] = ttlMonitor;
 
         return  ttlMonitor;
     }
@@ -97,14 +93,6 @@ void StreamTableModel::update(Array<const DataStream*> dataStreams_, int viewedS
 {
 
     streams = dataStreams_;
-
-    delayMonitors.clear();
-    ttlMonitors.clear();
-    for (auto stream : streams)
-    {
-        delayMonitors[stream->getKey()] = nullptr;
-        ttlMonitors[stream->getKey()] = nullptr;
-    }
 
     viewedStreamIndex = viewedStreamIndex_;
 
@@ -172,6 +160,11 @@ String StreamTableModel::getCellTooltip(int rowNumber, int columnId)
     }
 
     return String();
+}
+
+void StreamTableModel::listWasScrolled()
+{
+    owner->editor->updateDelayAndTTLMonitors();
 }
 
 
@@ -320,12 +313,14 @@ bool StreamSelectorTable::checkStream(const DataStream* streamToCheck)
 
 TTLMonitor* StreamSelectorTable::getTTLMonitor(const DataStream* stream)
 {
-    return tableModel->getTTLMonitor(stream->getKey());
+    TableListBox* currentTable = tableModel->table;
+    return dynamic_cast<TTLMonitor*>(currentTable->getCellComponent(StreamTableModel::Columns::TTL_LINE_STATES, streams.indexOf(stream)));
 }
 
 DelayMonitor* StreamSelectorTable::getDelayMonitor(const DataStream* stream)
 {
-    return tableModel->getDelayMonitor(stream->getKey());
+    TableListBox* currentTable = tableModel->table;
+    return dynamic_cast<DelayMonitor*>(currentTable->getCellComponent(StreamTableModel::Columns::DELAY, streams.indexOf(stream)));
 }
 
 void StreamSelectorTable::startAcquisition()
@@ -343,7 +338,7 @@ void StreamSelectorTable::timerCallback()
 
     for (auto stream : streams)
     {
-        TTLMonitor* ttlMonitor = tableModel->getTTLMonitor(stream->getKey());
+        TTLMonitor* ttlMonitor = getTTLMonitor(stream);
 
         if (ttlMonitor != nullptr)
             ttlMonitor->repaint(); // postCommandMessage(0);
@@ -357,7 +352,7 @@ void StreamSelectorTable::timerCallback()
 
         for (auto stream : streams)
         {
-            DelayMonitor* delayMonitor = tableModel->getDelayMonitor(stream->getKey());
+            DelayMonitor* delayMonitor = getDelayMonitor(stream);
 
             if (delayMonitor != nullptr)
                 delayMonitor->repaint(); // postCommandMessage(0);
@@ -401,8 +396,8 @@ void StreamSelectorTable::paint(Graphics& g)
     g.setColour(findColour(ThemeColors::widgetBackground));
     g.fillRoundedRectangle(1.0f, 1.0f, (float)getWidth() - 6.0f, (float)getHeight() - 2.0f, 5.0f);
     g.setColour(findColour(ThemeColors::defaultText));
-    g.setFont(12);
-    g.drawText(" SELECT DATA STREAM: ", Rectangle<float>(150.0f, 20.0f), Justification::left);
+    g.setFont(FontOptions("Inter", "Medium", 13));
+    g.drawText("   Available data streams: ", Rectangle<float>(150.0f, 20.0f), Justification::left);
 
     g.setColour(findColour(ThemeColors::outline).withAlpha(0.8f));
     g.drawRoundedRectangle(1.0f, 1.0f, (float)getWidth() - 6.0f, (float)getHeight() - 2.0f, 5.0f, 1.0f);

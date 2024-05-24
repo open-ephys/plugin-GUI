@@ -24,8 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BINARYFILESOURCE_H_INCLUDED
 #define BINARYFILESOURCE_H_INCLUDED
 
-#include "../FileSource.h"
 #include "../../../Utils/Utils.h"
+#include "../FileSource.h"
 
 /** 
 	
@@ -38,57 +38,54 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 namespace BinarySource
 {
-	class BinaryFileSource : public FileSource
-	{
-	public:
+class BinaryFileSource : public FileSource
+{
+public:
+    /** Constructor */
+    BinaryFileSource();
 
-		/** Constructor */
-		BinaryFileSource();
+    /** Destructor */
+    ~BinaryFileSource() {}
 
-		/** Destructor */
-		~BinaryFileSource() { }
+    /** Attempt to open file and return true if successful */
+    bool open (File file) override;
 
-		/** Attempt to open file and return true if successful */
-		bool open(File file) override;
+    /** Sets the index of the active recording*/
+    void updateActiveRecord (int index) override;
 
-		/** Sets the index of the active recording*/
-		void updateActiveRecord(int index) override;
+    /** Fills in metadata about the available channels */
+    void fillRecordInfo() override;
 
-		/** Fills in metadata about the available channels */
-		void fillRecordInfo() override;
+    /** Seek to a specific sample number within the active recording*/
+    void seekTo (int64 sample) override;
 
-		/** Seek to a specific sample number within the active recording*/
-		void seekTo(int64 sample) override;
+    /** Read in nSamples of continuous data into a buffer */
+    int readData (int16* buffer, int nSamples) override;
 
-		/** Read in nSamples of continuous data into a buffer */
-		int readData(int16* buffer, int nSamples) override;
+    /** Convert nSamples of data from int16 to float */
+    void processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 numSamples) override;
 
-		/** Convert nSamples of data from int16 to float */
-		void processChannelData(int16* inBuffer, float* outBuffer, int channel, int64 numSamples) override;
+    /** Add info about events occurring within a sample range */
+    void processEventData (EventInfo& info, int64 startTimestamp, int64 stopTimestamp) override;
 
-		/** Add info about events occurring within a sample range */
-		void processEventData(EventInfo &info, int64 startTimestamp, int64 stopTimestamp) override;
+    int64 loopCount;
 
-		int64 loopCount;
+private:
+    int numActiveChannels;
+    Array<float> bitVolts;
 
-	private:
-		
-		int numActiveChannels;
-		Array<float> bitVolts;
+    std::unique_ptr<MemoryMappedFile> m_dataFile;
+    var m_jsonData;
+    Array<File> m_dataFileArray;
 
-		std::unique_ptr<MemoryMappedFile> m_dataFile;
-		var m_jsonData;
-		Array<File> m_dataFileArray;
+    File m_rootPath;
+    int64 m_samplePos;
 
-		File m_rootPath;
-		int64 m_samplePos;
+    const unsigned int EVENT_HEADER_SIZE_IN_BYTES = 128;
+    const unsigned int BYTES_PER_EVENT = 2;
 
-		const unsigned int EVENT_HEADER_SIZE_IN_BYTES = 128;
-		const unsigned int BYTES_PER_EVENT = 2;
-
-		bool hasEventData;
-		
-	};
-}
+    bool hasEventData;
+};
+} // namespace BinarySource
 
 #endif

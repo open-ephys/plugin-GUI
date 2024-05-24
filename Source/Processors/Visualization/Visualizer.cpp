@@ -53,7 +53,7 @@ void Visualizer::update()
                 Array<String> streamNames;
                 for (auto stream : processor->getDataStreams())
                 {
-                    streamNames.add(stream->getName());
+                    streamNames.add(stream->getKey());
                 }
                 SelectedStreamParameter* p = (SelectedStreamParameter*)param;
                 p->setStreamNames(streamNames);
@@ -370,5 +370,9 @@ void Visualizer::loadFromXml(XmlElement* xml)
         }
     }
     
-    loadCustomParametersFromXml(xml->getChildByName("CUSTOM_PARAMETERS"));
+    auto* customParams = xml->getChildByName("CUSTOM_PARAMETERS");
+
+    if (customParams != nullptr)
+        loadCustomParametersFromXml(customParams);
+
 }

@@ -192,7 +192,8 @@ private:
     /** Flag if a new file has been loaded */
     bool gotNewFile;
 
-    int64 totalSamplesAcquired;
+    /** Total number of samples played back since most recent start of acquisition */
+    int64 playbackSamplePos;
 
     float currentSampleRate;
     int currentNumChannels;
