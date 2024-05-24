@@ -151,12 +151,15 @@ PLUGIN_API Array<int> getAvailableRecordNodeIds();
 /** Returns true if all record nodes are in a "synchronized" state*/
 PLUGIN_API bool allRecordNodesAreSynchronized();
 
+// UG3 Specific
 /** Returns a pointer to a processor based off Id, returns nullptr if not found*/
 PLUGIN_API  GenericProcessor* getProcessorById(uint16_t nodeId);
 
+// UG3 Specific
 /** Returns a pointer to a processor based off name, returns nullptr if not found*/
 PLUGIN_API  GenericProcessor* getProcessorByName(String processorName, bool onlySearchSources = false);
 
+// UG3 Specific
 PLUGIN_API  std::vector<int> getPredecessorProcessorIds(GenericProcessor* node);
 
 namespace RecordNode

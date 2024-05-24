@@ -160,7 +160,7 @@ protected:
             sample_rate_,
             bitVolts_ }));
 
-        processor = tester->Create<LfpViewer::LfpDisplayNode> (Plugin::Processor::SINK);
+        processor = tester->CreateProcessor<LfpViewer::LfpDisplayNode> (Plugin::Processor::SINK);
 
         width = 0;
         height = 0;

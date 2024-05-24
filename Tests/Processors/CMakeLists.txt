@@ -9,8 +9,9 @@ add_sources(${COMPONENT_NAME}_tests
 		ProcessorGraphTests.cpp
 		EventTests.cpp
 		DataThreadTests.cpp
-		EventTests.cpp
 		GenericProcessorTests.cpp
+		MidiBufferTests.cpp
+		../../Source/Processors/PluginManager/PluginManager.cpp
 )
 target_include_directories(
 		${COMPONENT_NAME}_tests

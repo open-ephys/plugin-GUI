@@ -25,16 +25,24 @@
 #define BroadcastPayload_h
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+// UG3 Specific
+#include "../Processors/PluginManager/OpenEphysPlugin.h"
 #include <climits>
 #include <map>
-class BroadcastPayload
+class PLUGIN_API BroadcastPayload
 {
 public:
+    // UG3 Specific
+    BroadcastPayload();
+
     BroadcastPayload (String command, DynamicObject::Ptr payload);
 
     String getCommandName() const;
 
     bool getIntField (String name, int& value, int lowerBound = INT_MAX, int upperBound = INT_MIN);
+
+    // UG3 Specific
+    const DynamicObject::Ptr getPayload() const;
 
 private:
     String _commandName;

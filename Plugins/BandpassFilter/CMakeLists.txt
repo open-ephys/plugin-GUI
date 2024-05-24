@@ -12,5 +12,6 @@ add_sources(${PLUGIN_NAME}
 	BandpassFilterEditor.h
 	)
 if(BUILD_TESTS)
+	copy_sources(${PLUGIN_NAME} ${PLUGIN_NAME}_testable)
     add_subdirectory(Tests)
 endif()

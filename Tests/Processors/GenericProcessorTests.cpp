@@ -26,7 +26,7 @@ public:
         }
     }
 
-    void VerifyDataStreams(const FakeSourceNodeParams& params)
+    void VerifyDataStreams(const FakeSourceNodeParams& params) const
     {
         EXPECT_EQ(dataStreams.size(), params.streams);
         EXPECT_EQ(dataStreams.getFirst()->getChannelCount(), params.channels);
@@ -37,7 +37,7 @@ public:
             EXPECT_EQ(dataStreams.getFirst()->getName(), "FakeSourceNode" + String(i));
     }
 
-    void VerifyContinuousChannels(const FakeSourceNodeParams& params)
+    void VerifyContinuousChannels(const FakeSourceNodeParams& params) const
     {
         EXPECT_EQ(continuousChannels.size(), params.streams);
 
@@ -51,7 +51,7 @@ public:
         }
     }
 
-    void VerityEventChannels(const FakeSourceNodeParams& params)
+    void VerityEventChannels(const FakeSourceNodeParams& params) const
     {
         EXPECT_EQ(eventChannels.size(), params.streams);
 

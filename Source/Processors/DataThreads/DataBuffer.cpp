@@ -75,7 +75,7 @@ int DataBuffer::addToBuffer (float* data,
                              double* timestamps,
                              uint64* eventCodes,
                              int numItems,
-                             int chunkSize,
+                             // UG3 Specific
                              std::optional<int64> timestampSampleIndex)
 {
     int startIndex1, blockSize1, startIndex2, blockSize2;
@@ -102,6 +102,8 @@ int DataBuffer::addToBuffer (float* data,
         memcpy (sampleNumberBuffer + si[i], sampleNumbers + idx, (size_t)cSize * sizeof(int64));
         memcpy (timestampBuffer + si[i], timestamps + idx, (size_t)cSize * sizeof(double));
         memcpy (eventCodeBuffer + si[i], eventCodes + idx, (size_t)cSize * sizeof(uint64));
+
+        // UG3 Specific
         memcpy (timestampSampleBuffer + si[i], &timestampSampleIndex, (size_t)cSize * sizeof(std::optional<int64>));
         
         idx += cSize;
@@ -122,6 +124,7 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
                                    double* blockTimestamp,
                                    uint64* eventCodes,
                                    int maxSize,
+                                   // UG3 Specific      
                                    std::optional<int64>* timestampSampleIndex,
                                    int dstStartChannel,
                                    int numChannels)

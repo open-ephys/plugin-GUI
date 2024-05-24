@@ -23,15 +23,17 @@
 
 #include "BroadcastPayload.h"
 
+// UG3 Specific
 BroadcastPayload::BroadcastPayload() : _commandName("") {}
-BroadcastPayload::BroadcastPayload(const String& command, DynamicObject::Ptr payload) : _commandName(command), _payload(payload) {}
+
+BroadcastPayload::BroadcastPayload(String command, DynamicObject::Ptr payload) : _commandName(command), _payload(payload) {}
 
 String BroadcastPayload::getCommandName() const
 {
     return _commandName;
 }
 
-bool BroadcastPayload::getIntField(const String& name, int& value, int lowerBound, int upperBound)
+bool BroadcastPayload::getIntField(String name, int& value, int lowerBound, int upperBound)
 {
     if (!_payload->hasProperty(name) || !_payload->getProperty(name).isInt())
         return false;
@@ -42,6 +44,7 @@ bool BroadcastPayload::getIntField(const String& name, int& value, int lowerBoun
     return true;
 }
 
+// UG3 Specific
 const DynamicObject::Ptr BroadcastPayload::getPayload() const
 {
     return _payload;

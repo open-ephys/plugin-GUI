@@ -48,17 +48,17 @@ using json = nlohmann::json;
  * (== "EPHYS" on a phone keypad) and allows remote manipulation of parameters of processors currently in the graph.
  *
  * The API is "RESTful", such that the resource URLs are:
- *
- * - GET /api/status :
+ * 
+ * - GET /api/status : 
  *          returns a JSON string with the GUI's current mode (IDLE, ACQUIRE, RECORD)
- *
- * - PUT /api/status :
+ * 
+ * - PUT /api/status : 
  *          sets the GUI's mode, e.g.: {"mode" : "ACQUIRE"}
- *
+ * 
  * - PUT /api/message :
  *          sends a broadcast message to all processors, e.g.: {"text" : "Message content"}
  *          only works while acquisition is active
- *
+ * 
  * - GET /api/recording :
  *          returns a JSON string with the following information:
  *          - default recording directory ("directory")
@@ -67,13 +67,13 @@ using json = nlohmann::json;
  *          - default directory name string
  *          - available Record Nodes
  *          - directory, format, experiment #, and recording #, for each Record Node
- *
+ * 
  * - PUT /api/recording :
  *          used to set the default recording options
- *
+ * 
  * - PUT /api/recording/<processor_id> :
  *          used to set the options for a given Record Node
- *
+ * 
  * - GET /api/processors :
  * - GET /api/processors/<processor_id>
  * - GET /api/processors/<processor_id>/parameters
@@ -242,90 +242,78 @@ public:
 
                 LOGD("Received PUT request at /api/recording with content: ", req.body);
 
-                try
+                try 
                 {
                     LOGD("Trying to decode request");
                     request_json = json::parse(req.body);
                     LOGD("Successfully parsed body");
                 }
-                catch (json::exception& e)
+                catch (json::exception& e) 
                 {
                     LOGD("Could not parse input.");
                     res.set_content(e.what(), "text/plain");
                     res.status = 400;
                     return;
                 }
-
-                try
-                {
+               
+                try {
                     std::string parent_directory = request_json["parent_directory"];
                     LOGD("Found 'parent_directory': ", parent_directory);
                     const MessageManagerLock mml;
                     CoreServices::setRecordingParentDirectory(String(parent_directory));
                 }
-                catch (json::exception& e)
-                {
+                catch (json::exception& e) {
                     LOGD("'parent_directory' not specified'");
                 }
 
-                try
-                {
+                try {
                     std::string prepend_text = request_json["prepend_text"];
                     LOGD("Found 'prepend_text': ", prepend_text);
                     const MessageManagerLock mml;
                     CoreServices::setRecordingDirectoryPrependText(String(prepend_text));
                 }
-                catch (json::exception& e)
-                {
+                catch (json::exception& e) {
                     LOGD("'prepend_text' not specified'");
                 }
 
-                try
-                {
+                try {
                     std::string base_text = request_json["base_text"];
                     LOGD("Found 'base_text': ", base_text);
                     const MessageManagerLock mml;
                     CoreServices::setRecordingDirectoryBaseText(String(base_text));
                 }
-                catch (json::exception& e)
-                {
+                catch (json::exception& e) {
                     LOGD("'base_text' not specified'");
                 }
 
-                try
-                {
+                try {
                     std::string append_text = request_json["append_text"];
                     LOGD("Found 'append_text': ", append_text);
                     const MessageManagerLock mml;
                     CoreServices::setRecordingDirectoryAppendText(String(append_text));
                 }
-                catch (json::exception& e)
-                {
+                catch (json::exception& e) {
                     LOGD("'append_text' not specified'");
                 }
 
-                try
-                {
+                try {
                     std::string default_record_engine = request_json["default_record_engine"];
                     LOGD("Found 'default_record_engine': ", default_record_engine);
                     const MessageManagerLock mml;
                     CoreServices::setDefaultRecordEngine(String(default_record_engine));
                 }
-                catch (json::exception& e)
-                {
+                catch (json::exception& e) {
                     LOGD("'default_record_engine' not specified'");
                 }
 
-                try
-                {
+                try {
                     std::string start_new_directory = request_json["start_new_directory"];
                     LOGD("Found 'start_new_directory': ", start_new_directory);
                     const MessageManagerLock mml;
                     if (start_new_directory == "true")
                         CoreServices::createNewRecordingDirectory();
                 }
-                catch (json::exception& e)
-                {
+                catch (json::exception& e) {
                     LOGD("'start_new_directory' not specified'");
                 }
 
@@ -356,30 +344,26 @@ public:
                     return;
                 }
 
-                try
-                {
+                try {
                     std::string parent_directory = request_json["parent_directory"];
                     LOGD("Found 'parent_directory': ", parent_directory);
                     const MessageManagerLock mml;
                     CoreServices::RecordNode::setRecordingDirectory(String(parent_directory), id);
                 }
-                catch (json::exception& e)
-                {
+                catch (json::exception& e) {
                     LOGD("'parent_directory' not specified'");
                 }
 
-                try
-                {
+                try {
                     std::string record_engine = request_json["record_engine"];
                     LOGD("Found 'record_engine': ", record_engine);
                     const MessageManagerLock mml;
                     CoreServices::RecordNode::setRecordEngine(String(record_engine), id);
                 }
-                catch (json::exception& e)
-                {
+                catch (json::exception& e) {
                     LOGD("'record_engine' not specified'");
                 }
-
+                
                 json ret;
                 recording_info_to_json(graph_, &ret);
                 res.set_content(ret.dump(), "application/json"); });
@@ -403,26 +387,7 @@ public:
                 return;
             }
 
-        svr_->Put("/api/message", [this](const httplib::Request& req, httplib::Response& res)
-            {
-                std::string message_str;
-                LOGD("Received PUT request");
-                try
-                {
-                    LOGD("Trying to decode");
-                    json request_json;
-                    request_json = json::parse(req.body);
-                    LOGD("Parsed");
-                    message_str = request_json["text"];
-                    LOGD("Message string: ", message_str);
-                }
-                catch (json::exception& e)
-                {
-                    LOGD("Hit exception");
-                    res.set_content(e.what(), "text/plain");
-                    res.status = 400;
-                    return;
-                }
+            graph_->broadcastMessage(String(message_str));
 
             json ret;
             status_to_json(graph_, &ret);
@@ -434,8 +399,20 @@ public:
             std::string message_str;
             LOGD("Received PUT request");
 
-                std::string message_str;
-                LOGD("Received PUT request");
+            try {
+                LOGD("Trying to decode");
+                json request_json;
+                request_json = json::parse(req.body);
+                LOGD("Parsed");
+                message_str = request_json["path"];
+                LOGD("Message string: ", message_str);
+            }
+            catch (json::exception& e) {
+                LOGD("Hit exception");
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
 
             std::promise<void> signalChainLoaded;
             std::future<void> signalChainLoadedFuture = signalChainLoaded.get_future();
@@ -455,17 +432,16 @@ public:
         svr_->Get ("/api/processors/list", [this] (const httplib::Request&, httplib::Response& res)
                    {
 
-                auto listOfProc = ProcessorManager::getAvailableProcessors();
+            auto listOfProc = ProcessorManager::getAvailableProcessors();
 
-                std::vector<json> processors_json;
-                for (const auto& p : listOfProc)
-                {
-                    json processor_json;
-                    processor_json["name"] = p.toStdString();
-                    processors_json.push_back(processor_json);
-                }
-                json ret;
-                ret["processors"] = processors_json;
+            std::vector<json> processors_json;
+            for(const auto& p : listOfProc) {
+                json processor_json;
+                processor_json["name"] = p.toStdString();
+                processors_json.push_back(processor_json);
+            }
+            json ret;
+            ret["processors"] = processors_json;
 
             res.set_content(ret.dump(), "application/json"); });
 
@@ -473,35 +449,14 @@ public:
                    {
             Array<GenericProcessor*> processors = graph_->getListOfProcessors();
 
-        svr_->Get("/api/processors", [this](const httplib::Request&, httplib::Response& res)
-            {
-                Array<GenericProcessor*> processors = graph_->getListOfProcessors();
-
-                std::vector<json> processors_json;
-                for (const auto& processor : processors)
-                {
-                    json processor_json;
-                    processor_to_json(processor, &processor_json);
-                    processors_json.push_back(processor_json);
-                }
-                json ret;
-                ret["processors"] = processors_json;
-
-                res.set_content(ret.dump(), "application/json");
-            });
-
-        svr_->Get(R"(/api/processors/([0-9]+))", [this](const httplib::Request& req, httplib::Response& res)
-            {
-                auto processor = find_processor(req.matches[1]);
-                if (processor == nullptr)
-                {
-                    res.status = 404;
-                    return;
-                }
+            std::vector<json> processors_json;
+            for (const auto& processor : processors) {
                 json processor_json;
                 processor_to_json(processor, &processor_json);
-                res.set_content(processor_json.dump(), "application/json");
-            });
+                processors_json.push_back(processor_json);
+            }
+            json ret;
+            ret["processors"] = processors_json;
 
             res.set_content(ret.dump(), "application/json"); });
 
@@ -806,103 +761,39 @@ public:
             {
                 if(p.equalsIgnoreCase(String(procName)))
                 {
-                    res.status = 404;
-                    return;
+                    foundProcessor = true;
+                    break;
                 }
+            }
 
-                auto stream = find_stream(processor, req.matches[2]);
-                if (stream == nullptr)
-                {
-                    res.status = 404;
-                    return;
-                }
+            if (!foundProcessor) {
+                LOGD( "Could not find processor in the Processor List" );
+                res.status = 404;
+                return;
+            }
 
-                json ret;
-
-                std::vector<json> parameters_json;
-                parameters_to_json(processor, stream->getStreamId(), &parameters_json);
-                ret["parameters"] = parameters_json;
-                res.set_content(ret.dump(), "application/json");
-            });
-
-        svr_->Get(R"(/api/processors/([0-9]+)/streams/([0-9]+)/parameters/([A-Za-z0-9_\.\-]+))",
-            [this](const httplib::Request& req, httplib::Response& res)
+            String return_msg;
+            
+            if (!CoreServices::getAcquisitionStatus())
             {
-                auto processor = find_processor(req.matches[1]);
-                if (processor == nullptr)
+                auto description = ProcessorManager::getPluginDescription(procName);
+
+                GenericProcessor* sourceProcessor = nullptr;
+                GenericProcessor* destProcessor = nullptr;
+                
+                if (sourceNodeId == 0)
                 {
-                    res.status = 404;
-                    return;
-                }
-
-                auto stream = find_stream(processor, req.matches[2]);
-                if (stream == nullptr)
-                {
-                    res.status = 404;
-                    return;
-                }
-
-                auto parameter = find_parameter(processor, stream->getStreamId(), req.matches[3]);
-                if (parameter == nullptr)
-                {
-                    res.status = 404;
-                    return;
-                }
-
-                json ret;
-                parameter_to_json(parameter, &ret);
-                res.set_content(ret.dump(), "application/json");
-            });
-
-        svr_->Put("/api/processors/([0-9]+)/config", [this](const httplib::Request& req, httplib::Response& res)
-            {
-                std::string message_str;
-                LOGD("Received PUT request");
-                auto processor = find_processor(req.matches[1]);
-                if (processor == nullptr)
-                {
-                    LOGD("Could not find processor");
-                    res.status = 404;
-                    return;
-                }
-                try
-                {
-                    LOGD("Trying to decode");
-                    json request_json;
-                    request_json = json::parse(req.body);
-                    LOGD("Parsed");
-                    message_str = request_json["text"];
-                    LOGD("Message string: ", message_str);
-                }
-                catch (json::exception& e)
-                {
-                    LOGD("Hit exception");
-                    res.set_content(e.what(), "text/plain");
-                    res.status = 400;
-                    return;
-                }
-
-                String return_msg = graph_->sendConfigMessage(processor, String(message_str));
-
-                json ret;
-                ret["info"] = return_msg.toStdString();
-                res.set_content(ret.dump(), "application/json");
-            });
-
-        svr_->Get("/api/processors/clear", [this](const httplib::Request&, httplib::Response& res)
-            {
-
-                String return_msg;
-
-                if (!CoreServices::getAcquisitionStatus())
-                {
-                    const MessageManagerLock mml;
-                    graph_->clearSignalChain();
-                    return_msg = "Signal chain cleared successfully.";
+                    destProcessor = graph_->getProcessorWithNodeId(destNodeId);
+                    
+                    if (destProcessor != nullptr)
+                        sourceProcessor = destProcessor->getSourceNode();
                 }
                 else
                 {
-                    return_msg = "Cannot clear signal chain while acquisition is active!";
+                    sourceProcessor = graph_->getProcessorWithNodeId(sourceNodeId);
+                    
+                    if (sourceProcessor != nullptr)
+                        destProcessor = sourceProcessor->getDestNode();
                 }
 
                 std::promise <void> processorAdded;
@@ -958,7 +849,9 @@ public:
         svr_->Get ("/api/redo", [this] (const httplib::Request&, httplib::Response& res)
                    {
 
-        svr_->Put("/api/processors/add", [this](const httplib::Request& req, httplib::Response& res)
+            String return_msg;
+
+            if (!CoreServices::getAcquisitionStatus())
             {
                 std::promise<void> redoCompleted;
                 std::future<void> redoCompletedFuture = redoCompleted.get_future();
