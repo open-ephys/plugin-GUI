@@ -39,11 +39,61 @@ jobs:
       if: github.ref == 'refs/heads/development-juce8'
       env:
         artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        MACOS_CERTIFICATE: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+        MACOS_CERTIFICATE_PWD: ${{ secrets.BUILD_CERTIFICATE_PWD }}
+        MACOS_CERTIFICATE_NAME: ${{ secrets.BUILD_CERTIFICATE_NAME }}
+        MACOS_CI_KEYCHAIN_PWD: ${{ secrets.PROD_MACOS_CI_KEYCHAIN_PWD }}
+        PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_APPLE_ID }}
+        PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_TEAM_ID }}
+        PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.PROD_MACOS_NOTARIZATION_PWD }}
       run: |
-        zipfile=open-ephys-v1.0.0-dev-mac.zip
         cd Build/Release
         mkdir open-ephys
         mv open-ephys.app/ open-ephys
+
+        # Turn our base64-encoded certificate back to a regular .p12 file
+        echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
+
+        # We need to create a new keychain, otherwise using the certificate will prompt
+        # with a UI dialog asking for the certificate password, which we can't
+        # use in a headless CI environment
+        security create-keychain -p $MACOS_CI_KEYCHAIN_PWD build.keychain
+        security default-keychain -s build.keychain
+        security unlock-keychain -p $MACOS_CI_KEYCHAIN_PWD build.keychain
+        security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_CI_KEYCHAIN_PWD build.keychain
+        /usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" -v open-ephys/open-ephys.app --deep --strict --timestamp --options=runtime
+
+        /usr/bin/codesign -dv --verbose=4 open-ephys/open-ephys.app
+
+        # Store the notarization credentials so that we can prevent a UI password dialog from blocking the CI
+
+        echo "Create keychain profile"
+        xcrun notarytool store-credentials "notarytool-profile" --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" --password "$PROD_MACOS_NOTARIZATION_PWD"
+
+        # We can't notarize an app bundle directly, but we need to compress it as an archive.
+        # Therefore, we create a zip file containing our app bundle, so that we can send it to the
+        # notarization service
+
+        echo "Creating temp notarization archive"
+        /usr/bin/ditto -c -k --keepParent open-ephys/open-ephys.app open-ephys.zip
+
+        # Here we send the notarization request to the Apple's Notarization service, waiting for the result.
+        # This typically takes a few seconds inside a CI environment, but it might take more depending on the App
+        # characteristics. Visit the Notarization docs for more information and strategies on how to optimize it if
+        # you're curious
+
+        echo "Notarize app"
+        xcrun notarytool submit "open-ephys.zip" --keychain-profile "notarytool-profile" --wait
+
+        # Finally, we need to "attach the staple" to our executable, which will allow our app to be
+        # validated by macOS even when an internet connection is not available.
+        echo "Attach staple"
+        rm -r open-ephys/*
+        unzip open-ephys.zip -d open-ephys
+        xcrun stapler staple open-ephys/open-ephys.app
+
+        zipfile=open-ephys-v1.0.0-dev-mac.zip
         zip -r $zipfile open-ephys
         user_info="X-JFrog-Art-Api:$artifactoryApiKey"
         curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/1.0.0-dev/mac/$zipfile"
