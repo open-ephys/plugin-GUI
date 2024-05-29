@@ -40,7 +40,7 @@
 #include "../Events/Event.h"
 #include "../Events/Spike.h"
 
-#include "../MessageCenter/MessageCenterEditor.h"
+#include "../MessageCenter/MessageCenter.h"
 
 #include <exception>
 

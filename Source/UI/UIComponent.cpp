@@ -29,6 +29,7 @@
 #include "../AutoUpdater.h"
 #include "../MainWindow.h"
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
+#include "../Processors/MessageCenter/MessageCenter.h"
 #include "ControlPanel.h"
 #include "DataViewport.h"
 #include "EditorViewport.h"
@@ -483,6 +484,7 @@ PopupMenu UIComponent::getMenuForIndex (int menuIndex, const String& menuName)
         menu.addCommandItem (commandManager, toggleFileInfo);
         menu.addCommandItem (commandManager, toggleInfoTab);
         menu.addCommandItem (commandManager, toggleGraphViewer);
+        menu.addCommandItem (commandManager, showMessageWindow);
         menu.addSeparator();
         menu.addSubMenu ("Clock mode", clockMenu);
         menu.addSeparator();
@@ -542,6 +544,7 @@ void UIComponent::getAllCommands (Array<CommandID>& commands)
                               toggleFileInfo,
                               toggleInfoTab,
                               toggleGraphViewer,
+                              showMessageWindow,
                               setClockModeDefault,
                               setClockModeHHMMSS,
                               showHelp,
@@ -673,6 +676,13 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
             result.setInfo ("Graph Viewer", "Show/hide Graph Viewer.", "General", 0);
             result.addDefaultKeypress ('G', ModifierKeys::shiftModifier);
             result.setTicked (graphViewerIsOpen);
+            break;
+
+        case showMessageWindow:
+            result.setInfo ("Message Window", "Show Message Window (only available while recording).", "General", 0);
+            result.addDefaultKeypress ('M', ModifierKeys::shiftModifier);
+            result.setActive (CoreServices::getRecordingStatus());
+            result.setTicked (false);
             break;
 
         case setClockModeDefault:
@@ -959,6 +969,11 @@ bool UIComponent::perform (const InvocationInfo& info)
                 dataViewport->addTab ("Graph", graphViewer->getGraphViewport(), 1);
                 graphViewerIsOpen = true;
             }
+
+            break;
+
+        case showMessageWindow:
+            messageWindow = std::make_unique<MessageWindow>();
 
             break;
 

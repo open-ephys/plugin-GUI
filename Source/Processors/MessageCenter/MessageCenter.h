@@ -2,7 +2,7 @@
     -----------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -29,8 +29,7 @@
 #include <stdio.h>
 
 #include "../GenericProcessor/GenericProcessor.h"
-
-class MessageCenterEditor;
+#include "MessageCenterEditor.h"
 
 /**
 
@@ -57,16 +56,13 @@ public:
     ~MessageCenter() { }
 
     /** Handle incoming data and decide which files and events to write to disk. */
-    void process(AudioSampleBuffer& buffer) override;
+    void process(AudioBuffer<float>& buffer) override;
 
     /** Called when new events arrive. */
     void setParameter(int parameterIndex, float newValue) override;
 
     /** Creates the MessageCenterEditor (located in the UI component). */
     AudioProcessorEditor* createEditor() override;
-
-    /** A pointer to the Message Center editor. */
-    ScopedPointer<MessageCenterEditor> messageCenterEditor;
 
     /** Returns a pointer to the Message Center event channel*/
     const EventChannel* getMessageChannel();
@@ -85,6 +81,15 @@ public:
 
     
 private:
+
+    /** A pointer to the Message Center editor. */
+    ScopedPointer<MessageCenterEditor> messageCenterEditor;
+
+    struct Message
+    {
+        String message;
+        
+    };
 
     bool newEventAvailable;
     

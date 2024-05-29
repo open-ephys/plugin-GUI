@@ -6,10 +6,13 @@ add_sources(open-ephys
 	ControlPanel.h
 	CustomArrowButton.cpp
 	CustomArrowButton.h
+	MessageCenterButton.h
 	DataViewport.cpp
 	DataViewport.h
 	DefaultConfig.cpp
 	DefaultConfig.h
+	MessageWindow.cpp
+	MessageWindow.h
 	EditorViewport.cpp
 	EditorViewport.h
 	FilenameConfigWindow.cpp

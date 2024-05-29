@@ -30,7 +30,7 @@
 
 #include "../Settings/ConfigurationObject.h"
 
-#include "../MessageCenter/MessageCenterEditor.h"
+#include "../MessageCenter/MessageCenter.h"
 
 
 Merger::Merger()

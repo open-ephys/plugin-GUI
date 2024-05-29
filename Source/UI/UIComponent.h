@@ -29,6 +29,7 @@
 #include "../Processors/MessageCenter/MessageCenterEditor.h"
 #include "CustomArrowButton.h"
 #include "DefaultConfig.h"
+#include "MessageWindow.h"
 #include "LookAndFeel/CustomLookAndFeel.h"
 #include "MessageCenterButton.h"
 #include "PluginInstaller.h"
@@ -112,7 +113,7 @@ public:
 
     /** Called by the MessageCenterButton */
     void buttonClicked (Button* button);
-
+    
     /** Stops the callbacks to the ProcessorGraph which drive data acquisition. */
     void disableCallbacks();
 
@@ -196,6 +197,7 @@ private:
     WeakReference<PluginInstaller> pluginInstaller;
 
     std::unique_ptr<DefaultConfigWindow> defaultConfigWindow;
+    std::unique_ptr<MessageWindow> messageWindow;
 
     std::unique_ptr<PopupManager> popupManager;
 
@@ -239,6 +241,7 @@ private:
         toggleFileInfo = 0x2010,
         toggleInfoTab = 0x2011,
         toggleGraphViewer = 0x2012,
+        showMessageWindow = 0x2013,
         setClockModeDefault = 0x2111,
         setClockModeHHMMSS = 0x2112,
         toggleHttpServer = 0x4001,

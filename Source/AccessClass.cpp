@@ -23,7 +23,7 @@
 
 #include "AccessClass.h"
 #include "Processors/GenericProcessor/GenericProcessor.h"
-#include "Processors/MessageCenter/MessageCenterEditor.h"
+#include "Processors/MessageCenter/MessageCenter.h"
 #include "Processors/ProcessorGraph/ProcessorGraph.h"
 
 #include "UI/UIComponent.h"
