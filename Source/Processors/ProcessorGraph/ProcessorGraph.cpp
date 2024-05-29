@@ -378,8 +378,6 @@ GenericProcessor* ProcessorGraph::createProcessor(Plugin::Description& descripti
                         GenericProcessor* emptyProc = destNode->getSourceNode();
                         emptyProc->setDestNode(addedProc);
                         addedProc->setSourceNode(emptyProc);
-
-                        shouldCheckForNewRootNodes = false;
                     }
                     // if it's not behind a source node, connect them
                     addedProc->setDestNode(destNode);
@@ -553,7 +551,7 @@ bool ProcessorGraph::checkForNewRootNodes(GenericProcessor* processor,
     {
         if (processor->getSourceNode() != nullptr && processor->getSourceNode()->isEmpty())
         {
-            if (processor->getDestNode() != nullptr)
+            if (processor->getDestNode() != nullptr && processor->getDestNode()->getSourceNode() == nullptr)
             {
                 GenericProcessor* emptyProc = processor->getSourceNode();
                 emptyProc->setDestNode(processor->getDestNode());
@@ -1657,7 +1655,9 @@ void ProcessorGraph::removeProcessor(GenericProcessor* processor)
             Merger* merger = (Merger*) processor;
 
             GenericProcessor* sourceA = merger->getSourceNode(0);
+            sourceA->isEmpty() ? sourceA = nullptr : sourceA;
             GenericProcessor* sourceB = merger->getSourceNode(1);
+            sourceB->isEmpty() ? sourceB = nullptr : sourceB;
 
             if (sourceA != nullptr && sourceB == nullptr)
             {
