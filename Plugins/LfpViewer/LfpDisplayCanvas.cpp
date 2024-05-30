@@ -969,6 +969,11 @@ void LfpDisplaySplitter::updateSettings()
         lfpDisplay->channelInfo[i]->updateType (displayBuffer->channelMetadata[i].type);
 
         lfpDisplay->updateRange (i);
+
+        if (i == 0)
+        {
+            options->setSelectedType (displayBuffer->channelMetadata[i].type);
+        }
     }
 
     lfpDisplay->rebuildDrawableChannelsList(); // calls setColors(), which calls refresh
