@@ -1268,10 +1268,10 @@ void CustomLookAndFeel::drawTabbedButtonBarBackground (TabbedButtonBar&, Graphic
 
 void CustomLookAndFeel::drawTabAreaBehindFrontButton (TabbedButtonBar& bar, Graphics& g, const int w, const int h)
 {
-    auto shadowSize = 0.2f;
+    const float shadowSize = 0.15f;
 
     Rectangle<int> shadowRect, line;
-    ColourGradient gradient (Colours::black.withAlpha (bar.isEnabled() ? 0.25f : 0.15f), 0, 0, Colours::transparentBlack, 0, 0, false);
+    ColourGradient gradient (Colours::black.withAlpha (bar.isEnabled() ? 0.15f : 0.08f), 0, 0, Colours::transparentBlack, 0, 0, false);
 
     switch (bar.getOrientation())
     {
@@ -1306,7 +1306,7 @@ void CustomLookAndFeel::drawTabAreaBehindFrontButton (TabbedButtonBar& bar, Grap
     }
 
     g.setGradientFill (gradient);
-    g.fillRect (shadowRect);
+    g.fillRect (shadowRect.expanded (2, 2));
 }
 
 void CustomLookAndFeel::drawCallOutBoxBackground (CallOutBox& box, Graphics& g, const Path& path, Image& cachedImage)
