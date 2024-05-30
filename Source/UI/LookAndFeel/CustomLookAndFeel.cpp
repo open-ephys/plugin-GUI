@@ -610,13 +610,24 @@ void CustomLookAndFeel::drawPointer (Graphics& g, const float x, const float y, 
 void CustomLookAndFeel::drawComboBox (Graphics& g, int width, int height, const bool isButtonDown, int buttonX, int buttonY, int buttonW, int buttonH, ComboBox& box)
 {
     auto cornerSize = box.findParentComponentOfClass<ChoicePropertyComponent>() != nullptr ? 0.0f : 3.0f;
+    bool flatonRight = box.findParentComponentOfClass<FilenameComponent>() != nullptr;
     Rectangle<int> boxBounds (0, 0, width, height);
     auto bounds = boxBounds.toFloat();
 
     auto baseColour = findColour (ComboBox::backgroundColourId).withMultipliedSaturation (box.hasKeyboardFocus (true) ? 1.3f : 0.9f).withMultipliedAlpha (box.isEnabled() ? 1.0f : 0.35f);
 
     g.setColour (baseColour);
-    g.fillRoundedRectangle (bounds, cornerSize);
+
+    if (flatonRight)
+    {
+        Path path;
+        path.addRoundedRectangle (bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), cornerSize, cornerSize, true, false, true, false);
+        g.fillPath (path);
+    }
+    else
+    {
+        g.fillRoundedRectangle (bounds, cornerSize);
+    }
 
     if (box.isPopupActive() || box.hasKeyboardFocus (false))
     {
@@ -635,7 +646,18 @@ void CustomLookAndFeel::drawComboBox (Graphics& g, int width, int height, const 
     g.fillPath (path);
 
     g.setColour (Colours::black);
-    g.drawRoundedRectangle (bounds.reduced (0.5f, 0.5f), cornerSize, 1.0f);
+    bounds.reduce (0.5f, 0.5f);
+
+    if (flatonRight)
+    {
+        Path path;
+        path.addRoundedRectangle (bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), cornerSize, cornerSize, true, false, true, false);
+        g.strokePath (path, PathStrokeType (1.0f));
+    }
+    else
+    {
+        g.drawRoundedRectangle (bounds, cornerSize, 1.0f);
+    }
 
     box.colourChanged();
 }
