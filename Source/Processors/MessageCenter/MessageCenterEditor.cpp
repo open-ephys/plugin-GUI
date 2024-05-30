@@ -212,7 +212,7 @@ void MessageCenterEditor::paint (Graphics& g)
 
     if (isExpanded)
     {
-        g.setFont (Font ("CP Mono", "Bold", 80));
+        g.setFont (FontOptions ("CP Mono", "Bold", 80));
         g.setColour (findColour (ThemeColors::defaultFill).withAlpha (0.25f));
         g.drawText ("INCOMING", 4, 25, getWidth() / 2 - 11, getHeight() - 60, Justification::centred);
         g.drawText ("OUTGOING", getWidth() / 2 + 26, 25, getWidth() / 2 - 34, getHeight() - 60, Justification::centred);

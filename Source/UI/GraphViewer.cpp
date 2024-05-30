@@ -349,7 +349,7 @@ void GraphViewer::paint (Graphics& g)
             static const String letters = "ABCDEFGHI";
 
             g.setColour (findColour (ThemeColors::defaultText));
-            g.setFont (Font ("Silkscreen", "Regular", 14));
+            g.setFont (FontOptions ("Silkscreen", "Regular", 14));
             g.drawText (String::charToString (letters[level]), startPoint.x - 20, startPoint.y - 10, 20, 18, Justification::centred, true);
         }
 
@@ -558,13 +558,13 @@ void DataStreamInfo::paint (Graphics& g)
     String ttlText = numEventChannels == 1 ? "TTL Channel" : "TTL Channels";
     String spikeText = numSpikeChannels == 1 ? "Spike Channel" : "Spike Channels";
 
-    g.setFont (Font ("Inter", "Medium", 14));
+    g.setFont (FontOptions ("Inter", "Medium", 14.0f));
     g.setColour (findColour (ThemeColors::defaultText));
     g.drawText ("@ " + String (stream->getSampleRate()) + " Hz", 30, 0, getWidth() - 30, 20, Justification::left);
     g.drawText (ttlText, 30, 20, getWidth() - 30, 20, Justification::left);
     g.drawText (spikeText, 30, 40, getWidth() - 30, 20, Justification::left);
 
-    g.setFont (Font ("Fira Code", "Medium", 14));
+    g.setFont (FontOptions ("Fira Code", "Medium", 14.0f));
     g.drawFittedText (String (stream->getChannelCount()), 1, 1, 23, 20, Justification::centred, 1, 0.75f);
     g.drawFittedText (String (numEventChannels), 1, 21, 23, 20, Justification::centred, 1, 0.75f);
     g.drawFittedText (String (numSpikeChannels), 1, 41, 23, 20, Justification::centred, 1, 0.75f);
@@ -731,7 +731,7 @@ void DataStreamButton::paintButton (Graphics& g, bool isHighlighted, bool isDown
         g.fillPath (pathClosed);
 
     g.setColour (Colours::white);
-    g.setFont (Font ("Inter", "Medium", 14));
+    g.setFont (FontOptions ("Inter", "Medium", 14.0f));
     g.drawText (getButtonText(), 30, 0, getWidth() - 30, 20, Justification::left);
 }
 
@@ -1171,7 +1171,7 @@ void GraphNode::paint (Graphics& g)
     g.fillAll (findColour (ThemeColors::componentParentBackground));
     //g.setFont(Font("Inter", "Medium", 14));
 
-    g.setFont (Font ("Fira Code", "Regular", 13));
+    g.setFont (FontOptions ("Fira Code", "Regular", 13.0f));
 
     if (processor->isEmpty())
     {
@@ -1196,7 +1196,7 @@ void GraphNode::paint (Graphics& g)
         g.setColour (findColour (ThemeColors::defaultText)); // : editor->getBackgroundColor());
         g.drawText (String (nodeId), 1, 1, 23, 20, Justification::centred, true);
         g.setColour (Colours::white); // : editor->getBackgroundColor());
-        g.setFont (Font ("CP Mono", "Plain", 15));
+        g.setFont (FontOptions ("CP Mono", "Plain", 15.0f));
         g.drawText (getName().toUpperCase(), 30, 1, getWidth() - 30, 20, Justification::left, true);
     }
 }

@@ -222,7 +222,7 @@ void RecordToggleButton::paintButton (Graphics& g, bool isMouseOver, bool isButt
 RecordToggleParameterEditor::RecordToggleParameterEditor (Parameter* param) : ParameterEditor (param)
 {
     label = std::make_unique<Label> ("Parameter name", param->getDisplayName());
-    label->setFont (FontOptions ("Small Text", 12.0f, Font::plain));
+    label->setFont (FontOptions ("Inter", "Regular", 13.0f));
     addAndMakeVisible (label.get());
 
     toggleButton = std::make_unique<RecordToggleButton> (param->getDisplayName()); //param->getDisplayName());

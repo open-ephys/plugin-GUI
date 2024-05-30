@@ -63,7 +63,7 @@ InteractivePlot::InteractivePlot() :
 	yLabel->setJustificationType(Justification::centred);
 	addAndMakeVisible(yLabel.get());
 
-	autoRescaleButton = std::make_unique<UtilityButton>("Rescale",FontOptions("Default", 15, Font::plain));
+	autoRescaleButton = std::make_unique<UtilityButton>("Rescale",FontOptions(15.0f));
 	autoRescaleButton ->addListener(this);
 	addAndMakeVisible(autoRescaleButton.get());
 
@@ -231,7 +231,7 @@ Axis::Axis()
       colour(Colours::white)
 {
 
-	font = FontOptions("Default", 15, Font::plain);
+	font = FontOptions(15.0f);
 
 }
 

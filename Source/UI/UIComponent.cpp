@@ -1111,7 +1111,7 @@ Component* UIComponent::findComponentByIDRecursive (Component* parent, const Str
 
 ShowHideEditorViewportButton::ShowHideEditorViewportButton() : ToggleButton()
 {
-    buttonFont = Font ("CP Mono", "Light", 25);
+    buttonFont = FontOptions ("CP Mono", "Light", 25);
     setTooltip ("Show/hide signal chain");
 
     arrow = std::make_unique<CustomArrowButton> (MathConstants<float>::pi / 2);

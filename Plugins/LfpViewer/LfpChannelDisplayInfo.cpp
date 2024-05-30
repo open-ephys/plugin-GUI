@@ -49,7 +49,7 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo (LfpDisplaySplitter* canvas_, LfpDi
       y (-1.0f),
       isSingleChannel (false)
 {
-    enableButton = std::make_unique<UtilityButton> ("", Font ("Small Text", 13, Font::plain));
+    enableButton = std::make_unique<UtilityButton> ("", FontOptions (13.0f));
     enableButton->setRadius (5.0f);
 
     enableButton->setEnabledState (true);
@@ -226,11 +226,11 @@ void LfpChannelDisplayInfo::paint (Graphics& g)
 
     if (getChannelTypeStringVisibility())
     {
-        g.setFont (Font ("Small Text", 13, Font::plain));
+        g.setFont (FontOptions (13.0f));
         g.drawText (typeStr, 5, center + 10, 41, 10, Justification::centred, false);
     }
 
-    g.setFont (Font ("Small Text", 11, Font::plain));
+    g.setFont (FontOptions (11.0f));
 
     if (isSingleChannel)
     {

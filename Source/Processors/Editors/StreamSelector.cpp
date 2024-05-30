@@ -125,25 +125,25 @@ void StreamTableModel::paintCell(Graphics& g, int rowNumber, int columnId, int w
 
     if (columnId == StreamTableModel::Columns::PROCESSOR_ID)
     {
-        g.setFont(12);
+        g.setFont (FontOptions (12.0f));
         g.setColour(owner->editor->findColour(ThemeColors::defaultText));
         g.drawText(String(streams[rowNumber]->getSourceNodeId()), 2, 0, width - 4, height, Justification::centredLeft);
     }
     else if (columnId == StreamTableModel::Columns::NAME)
     {
-        g.setFont(12);
+        g.setFont (FontOptions (12.0f));
         g.setColour(owner->editor->findColour(ThemeColors::defaultText));
         g.drawText(String(streams[rowNumber]->getName()), 2, 0, width - 5, height, Justification::centredLeft);
     }
     else if (columnId == StreamTableModel::Columns::NUM_CHANNELS)
     {
-        g.setFont(12);
+        g.setFont (FontOptions (12.0f));
         g.setColour(owner->editor->findColour(ThemeColors::defaultText));
         g.drawText(String(streams[rowNumber]->getChannelCount()), 2, 0, width - 4, height, Justification::centredLeft);
     }
     else if (columnId == StreamTableModel::Columns::SAMPLE_RATE)
     {
-        g.setFont(12);
+        g.setFont (FontOptions (12.0f));
         g.setColour(owner->editor->findColour(ThemeColors::defaultText));
         g.drawText(String(streams[rowNumber]->getSampleRate()), 2, 0, width - 4, height, Justification::centredLeft);
     }

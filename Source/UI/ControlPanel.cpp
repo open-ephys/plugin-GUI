@@ -181,7 +181,7 @@ Clock::Clock() : isRunning (false),
                  isRecording (false),
                  mode (DEFAULT)
 {
-    clockFont = Font ("CP Mono", "Light", 30);
+    clockFont = FontOptions ("CP Mono", "Light", 30.0f);
     clockFont.setHorizontalScale (0.95f);
 
     totalTime = 0;
