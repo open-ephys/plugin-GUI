@@ -876,13 +876,9 @@ void CustomLookAndFeel::drawProgressBar (Graphics& g, ProgressBar& progressBar, 
 
             if (progress >= 0.0f && progress <= 1.0f)
             {
-                Path p;
-                p.addRoundedRectangle (barBounds, 5.0f);
-                g.reduceClipRegion (p);
-
-                barBounds.setWidth (barBounds.getWidth() * (float) progress);
+                auto fillBounds = barBounds.withWidth (barBounds.getWidth() * (float) progress);
                 g.setColour (foreground);
-                g.fillRoundedRectangle (barBounds, 5.0f);
+                g.fillRoundedRectangle (fillBounds, 5.0f);
             }
             else
             {
@@ -912,7 +908,7 @@ void CustomLookAndFeel::drawProgressBar (Graphics& g, ProgressBar& progressBar, 
             if (textToShow.isNotEmpty())
             {
                 g.setColour (Colour::contrasting (background, foreground));
-                g.setFont ((float) height * 0.6f);
+                g.setFont (FontOptions ("Inter", "Regular", (float) height * 0.6f));
 
                 g.drawText (textToShow, 0, 0, width, height, Justification::centred, false);
             }
