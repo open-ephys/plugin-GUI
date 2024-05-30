@@ -840,28 +840,70 @@ Path CustomLookAndFeel::getTickShape (float height)
 
 void CustomLookAndFeel::drawProgressBar (Graphics& g, ProgressBar& progressBar, int width, int height, double progress, const String& textToShow)
 {
-    auto background = Colour (Colours::lightgrey);
-    auto foreground = Colour (Colours::yellow);
-
-    auto barBounds = progressBar.getLocalBounds().toFloat();
-
-    g.setColour (background);
-    g.fillRoundedRectangle (barBounds, progressBar.getHeight() * 0.15f);
-
-    Path p;
-    p.addRoundedRectangle (barBounds, progressBar.getHeight() * 0.15f);
-    g.reduceClipRegion (p);
-
-    barBounds.setWidth (barBounds.getWidth() * (float) progress);
-    g.setColour (foreground);
-    g.fillRoundedRectangle (barBounds, progressBar.getHeight() * 0.15f);
-
-    if (textToShow.isNotEmpty())
+    switch (progressBar.getResolvedStyle())
     {
-        g.setColour (Colours::black);
-        g.setFont (height * 0.7f);
+        case ProgressBar::Style::linear:
+        {
+            auto background = progressBar.findColour (ProgressBar::backgroundColourId);
+            auto foreground = progressBar.findColour (ProgressBar::foregroundColourId);
 
-        g.drawText (textToShow, 0, 0, width, height, Justification::centred, false);
+            auto barBounds = progressBar.getLocalBounds().toFloat().reduced (1.0f);
+
+            g.setColour (background);
+            g.fillRoundedRectangle (barBounds, 5.0f);
+
+            if (progress >= 0.0f && progress <= 1.0f)
+            {
+                Path p;
+                p.addRoundedRectangle (barBounds, 5.0f);
+                g.reduceClipRegion (p);
+
+                barBounds.setWidth (barBounds.getWidth() * (float) progress);
+                g.setColour (foreground);
+                g.fillRoundedRectangle (barBounds, 5.0f);
+            }
+            else
+            {
+                // spinning bar..
+                g.setColour (background);
+
+                auto stripeWidth = height * 2;
+                auto position = static_cast<int> (Time::getMillisecondCounter() / 15) % stripeWidth;
+
+                Path p;
+
+                for (auto x = static_cast<float> (-position); x < (float) (width + stripeWidth); x += (float) stripeWidth)
+                    p.addQuadrilateral (x, 0.0f, x + (float) stripeWidth * 0.5f, 0.0f, x, static_cast<float> (height), x - (float) stripeWidth * 0.5f, static_cast<float> (height));
+
+                Image im (Image::ARGB, width, height, true);
+
+                {
+                    Graphics g2 (im);
+                    g2.setColour (foreground);
+                    g2.fillRoundedRectangle (barBounds, 5.0f);
+                }
+
+                g.setTiledImageFill (im, 0, 0, 0.85f);
+                g.fillPath (p);
+            }
+
+            if (textToShow.isNotEmpty())
+            {
+                g.setColour (Colour::contrasting (background, foreground));
+                g.setFont ((float) height * 0.6f);
+
+                g.drawText (textToShow, 0, 0, width, height, Justification::centred, false);
+            }
+
+            g.setColour (findColour (ThemeColors::outline));
+            g.drawRoundedRectangle (barBounds, 5.0f, 1.0f);
+
+            break;
+        }
+
+        case ProgressBar::Style::circular:
+            LookAndFeel_V4::drawProgressBar (g, progressBar, width, height, progress, textToShow);
+            break;
     }
 }
 
