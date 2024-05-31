@@ -53,16 +53,16 @@ class DiskMonitor : public LevelMonitor, public DiskSpaceListener
 {
 public:
     /** Constructor */
-    DiskMonitor (RecordNode *rn);
+    DiskMonitor (RecordNode* rn);
 
     /** Destructor */
     ~DiskMonitor();
 
-    /** Updates the display */ //TODO: Potentially unused 
+    /** Updates the display */ //TODO: Potentially unused
     void timerCallback() override;
 
     /** Update data rate */
-    void update(float dataRate, int64 bytesFree, float timeLeft) override;
+    void update (float dataRate, int64 bytesFree, float timeLeft) override;
 
     /** Updates disk remaining disk space */
     void updateDiskSpace (float percentage) override;
@@ -209,12 +209,7 @@ public:
     /** Enables parameter changes */
     void stopRecording() override {};
 
-    ScopedPointer<FifoDrawerButton> fifoDrawerButton;
-
-    ScopedPointer<ComboBox> engineSelectCombo;
-
-    bool monitorsVisible;
-    int numDataStreams;
+    std::unique_ptr<FifoDrawerButton> fifoDrawerButton;
 
 private:
     RecordNode* recordNode;
@@ -222,16 +217,7 @@ private:
     OwnedArray<Label> streamLabels;
     std::vector<ParameterEditor*> streamMonitors;
     std::vector<ParameterEditor*> syncMonitors;
-    ScopedPointer<Label> diskSpaceLabel;
-    ScopedPointer<DiskMonitor> diskSpaceMonitor;
-    ScopedPointer<RecordToggleButton> recordToggleButton;
-    ScopedPointer<Label> engineSelectLabel;
-    ScopedPointer<Label> dataPathLabel;
-    ScopedPointer<Button> dataPathButton;
-    ScopedPointer<Label> recordEventsLabel;
-    ScopedPointer<RecordToggleButton> eventRecord;
-    ScopedPointer<Label> recordSpikesLabel;
-    ScopedPointer<RecordToggleButton> spikeRecord;
+    std::unique_ptr<DiskMonitor> diskMonitor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNodeEditor);
 };

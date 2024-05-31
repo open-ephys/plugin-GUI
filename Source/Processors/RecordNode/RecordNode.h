@@ -202,8 +202,6 @@ public:
     int64 samplesWritten;
     String lastSettingsText;
 
-    int numDataStreams;
-
     Array<uint16> activeStreamIds;
 
     std::map<uint16, float> fifoUsage;

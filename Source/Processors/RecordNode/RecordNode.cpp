@@ -50,8 +50,7 @@ RecordNode::RecordNode()
       recordingNumber (0), // 0-based indexing
       isRecording (false),
       hasRecorded (false),
-      settingsNeeded (false),
-      numDataStreams (0)
+      settingsNeeded (false)
 {
     //Get the current audio device's buffer size and use as data queue block size
     AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
@@ -74,8 +73,7 @@ RecordNode::RecordNode()
 
     eventMonitor = new EventMonitor();
 
-    diskSpaceChecker = new DiskSpaceChecker(this);
-
+    diskSpaceChecker = new DiskSpaceChecker (this);
 }
 
 RecordNode::~RecordNode()
@@ -187,7 +185,7 @@ void RecordNode::checkDiskSpace()
         else
         {
             MessageManager::callAsync ([msg]
-                                    { AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "WARNING", msg); });
+                                       { AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "WARNING", msg); });
         }
     }
 }
@@ -226,7 +224,6 @@ String RecordNode::handleConfigMessage (String msg)
 
             if (engineIndex >= 0 && engineIndex < numEngines)
             {
-                //ed->engineSelectCombo->setSelectedItemIndex(engineIndex, sendNotification);
                 getParameter ("engine")->setNextValue (engineIndex);
                 return "Record Node: updated record engine to " + ((CategoricalParameter*) getParameter ("engine"))->getCategories()[engineIndex];
             }
@@ -918,12 +915,12 @@ void RecordNode::process (AudioBuffer<float>& buffer)
             else
             {
                 MessageManager::callAsync ([this]
-                                        { AlertWindow::showMessageBoxAsync (AlertWindow::AlertIconType::WarningIcon,
-                                                                            "Record Buffer Warning",
-                                                                            "The recording buffer has reached capacity. Stopping recording to prevent data corruption. \n\n"
-                                                                            "To address the issue, you can try reducing the number of simultaneously recorded channels or "
-                                                                            "using multiple Record Nodes to distribute data writing across more than one drive.",
-                                                                            "OK"); });
+                                           { AlertWindow::showMessageBoxAsync (AlertWindow::AlertIconType::WarningIcon,
+                                                                               "Record Buffer Warning",
+                                                                               "The recording buffer has reached capacity. Stopping recording to prevent data corruption. \n\n"
+                                                                               "To address the issue, you can try reducing the number of simultaneously recorded channels or "
+                                                                               "using multiple Record Nodes to distribute data writing across more than one drive.",
+                                                                               "OK"); });
             }
         }
 

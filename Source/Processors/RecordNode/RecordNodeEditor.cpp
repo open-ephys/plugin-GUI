@@ -55,15 +55,16 @@ DiskMonitor::DiskMonitor (RecordNode* rn)
 
 DiskMonitor::~DiskMonitor() {}
 
-void DiskMonitor::update(float dataRate, int64 bytesFree, float timeLeft)
+void DiskMonitor::update (float dataRate, int64 bytesFree, float timeLeft)
 {
-    if (((RecordNode*) processor)->recordThread->isThreadRunning()) {
+    if (((RecordNode*) processor)->recordThread->isThreadRunning())
+    {
         String msg = String (bytesFree / pow (2, 30)) + " GB available\n";
         msg += String (int (timeLeft / 60.0f)) + " minutes remaining\n";
         msg += "Data rate: " + String (dataRate * 1000 / pow (2, 20), 2) + " MB/s";
         setTooltip (msg);
-    } 
-    else 
+    }
+    else
     {
         setTooltip (String (bytesFree / pow (2, 30)) + " GB available");
     }
@@ -226,22 +227,20 @@ void RecordToggleParameterEditor::resized()
 }
 
 RecordNodeEditor::RecordNodeEditor (RecordNode* parentNode)
-    : GenericEditor (parentNode),
-      monitorsVisible (false),
-      numDataStreams (0)
+    : GenericEditor (parentNode)
 {
     desiredWidth = 165;
 
     recordNode = parentNode;
 
-    fifoDrawerButton = new FifoDrawerButton (getNameAndId() + " Fifo Drawer Button");
+    fifoDrawerButton = std::make_unique<FifoDrawerButton> (getNameAndId() + " Fifo Drawer Button");
     fifoDrawerButton->setBounds (4, 40, 10, 78);
     fifoDrawerButton->addListener (this);
-    addAndMakeVisible (fifoDrawerButton);
+    addAndMakeVisible (fifoDrawerButton.get());
 
-    diskSpaceMonitor = new DiskMonitor (recordNode);
-    diskSpaceMonitor->setBounds (18, 33, 15, 92);
-    addAndMakeVisible (diskSpaceMonitor);
+    diskMonitor = std::make_unique<DiskMonitor> (recordNode);
+    diskMonitor->setBounds (18, 33, 15, 92);
+    addAndMakeVisible (diskMonitor.get());
 
     addPathParameterEditor (Parameter::PROCESSOR_SCOPE, "directory", 42, 32);
     addComboBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "engine", 42, 57);
@@ -324,9 +323,9 @@ void RecordNodeEditor::collapsedStateChanged()
     else
     {
         for (auto monitor : streamMonitors)
-            monitor->setVisible (monitorsVisible);
+            monitor->setVisible (fifoDrawerButton.get()->getToggleState());
         for (auto monitor : syncMonitors)
-            monitor->setVisible (monitorsVisible);
+            monitor->setVisible (fifoDrawerButton.get()->getToggleState());
     }
 }
 
@@ -338,7 +337,7 @@ void RecordNodeEditor::updateSettings()
 
 void RecordNodeEditor::buttonClicked (Button* button)
 {
-    if (button == fifoDrawerButton)
+    if (button == fifoDrawerButton.get())
     {
         showFifoMonitors (button->getToggleState());
     }
@@ -346,16 +345,14 @@ void RecordNodeEditor::buttonClicked (Button* button)
 
 void RecordNodeEditor::showFifoMonitors (bool show)
 {
-    numDataStreams = recordNode->getNumDataStreams();
-
-    int dX = 20 * (numDataStreams + 1);
+    int dX = 20 * (recordNode->getNumDataStreams() + 1);
     dX = show ? dX : 0;
 
     fifoDrawerButton->setBounds (
         4 + dX, fifoDrawerButton->getY(), fifoDrawerButton->getWidth(), fifoDrawerButton->getHeight());
 
-    diskSpaceMonitor->setBounds (
-        18 + dX, diskSpaceMonitor->getY(), diskSpaceMonitor->getWidth(), diskSpaceMonitor->getHeight());
+    diskMonitor->setBounds (
+        18 + dX, diskMonitor->getY(), diskMonitor->getWidth(), diskMonitor->getHeight());
 
     for (auto& p : { "directory", "engine", "events", "spikes" })
     {
