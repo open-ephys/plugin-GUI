@@ -467,7 +467,7 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
         return;
     }
 
-    if (audioEditor->isAudioConfigurationWindowVisible())
+    if (!isConsoleApp && audioEditor->isAudioConfigurationWindowVisible())
     {
         audioEditor->disable();
         audioEditor->enable();
