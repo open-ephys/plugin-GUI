@@ -73,6 +73,9 @@ RecordNode::RecordNode()
     recordThread = std::make_unique<RecordThread> (this, recordEngine.get());
 
     eventMonitor = new EventMonitor();
+
+    diskSpaceChecker = new DiskSpaceChecker(this);
+
 }
 
 RecordNode::~RecordNode()
@@ -177,8 +180,15 @@ void RecordNode::checkDiskSpace()
         msg += "\n\n";
         msg += "Recording may fail. Please free up space or change the recording directory.";
 
-        MessageManager::callAsync ([msg]
-                                   { AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "WARNING", msg); });
+        if (headlessMode) // headless mode
+        {
+            LOGC (msg);
+        }
+        else
+        {
+            MessageManager::callAsync ([msg]
+                                    { AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "WARNING", msg); });
+        }
     }
 }
 
@@ -899,13 +909,22 @@ void RecordNode::process (AudioBuffer<float>& buffer)
         {
             CoreServices::setRecordingStatus (false);
 
-            MessageManager::callAsync ([this]
-                                       { AlertWindow::showMessageBoxAsync (AlertWindow::AlertIconType::WarningIcon,
-                                                                           "Record Buffer Warning",
-                                                                           "The recording buffer has reached capacity. Stopping recording to prevent data corruption. \n\n"
-                                                                           "To address the issue, you can try reducing the number of simultaneously recorded channels or "
-                                                                           "using multiple Record Nodes to distribute data writing across more than one drive.",
-                                                                           "OK"); });
+            if (headlessMode)
+            {
+                LOGC ("Record Buffer Warning: The recording buffer has reached capacity. Stopping recording to prevent data corruption.\n\n \
+                        To address the issue, you can try reducing the number of simultaneously recorded channels or \
+                        using multiple Record Nodes to distribute data writing across more than one drive.");
+            }
+            else
+            {
+                MessageManager::callAsync ([this]
+                                        { AlertWindow::showMessageBoxAsync (AlertWindow::AlertIconType::WarningIcon,
+                                                                            "Record Buffer Warning",
+                                                                            "The recording buffer has reached capacity. Stopping recording to prevent data corruption. \n\n"
+                                                                            "To address the issue, you can try reducing the number of simultaneously recorded channels or "
+                                                                            "using multiple Record Nodes to distribute data writing across more than one drive.",
+                                                                            "OK"); });
+            }
         }
 
         if (! setFirstBlock)

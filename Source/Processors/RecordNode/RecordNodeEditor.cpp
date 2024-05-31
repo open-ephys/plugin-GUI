@@ -43,82 +43,51 @@ void StreamMonitor::timerCallback()
         setFillPercentage (0.0);
 }
 
-DiskSpaceMonitor::DiskSpaceMonitor (RecordNode* rn)
+DiskMonitor::DiskMonitor (RecordNode* rn)
     : LevelMonitor (rn),
       lastFreeSpace (0.0),
       recordingTimeLeftInSeconds (0),
       dataRate (0.0)
 {
+    rn->getDiskSpaceChecker()->addListener (this);
     startTimerHz (1);
 }
 
-DiskSpaceMonitor::~DiskSpaceMonitor() {}
+DiskMonitor::~DiskMonitor() {}
 
-void DiskSpaceMonitor::reset()
+void DiskMonitor::update(float dataRate, int64 bytesFree, float timeLeft)
 {
-    lastUpdateTime = Time::getMillisecondCounterHiRes();
-    lastFreeSpace = ((RecordNode*) processor)->getDataDirectory().getBytesFreeOnVolume();
-}
-
-void DiskSpaceMonitor::timerCallback()
-{
-    RecordNode* recordNode = (RecordNode*) processor;
-
-    if (! recordNode->getParameter ("directory")->isValid())
-    {
-        setFillPercentage (95.0);
-        setTooltip ("Invalid directory");
-
-        recordNode->getParameter ("directory")->valueChanged();
-        return;
-    }
-
-    recordNode->getParameter ("directory")->valueChanged();
-
-    int64 bytesFree = recordNode->getDataDirectory().getBytesFreeOnVolume();
-    int64 volumeSize = recordNode->getDataDirectory().getVolumeTotalSize();
-
-    float ratio = float (bytesFree) / float (volumeSize);
-    if (ratio > 0)
-        setFillPercentage (1.0f - ratio);
-
-    float currentTime = Time::getMillisecondCounterHiRes();
-
-    if (recordNode->getRecordingStatus())
-    {
-        // Update data rate and recording time left every 30 seconds
-        if (currentTime - lastUpdateTime > 5000.0f)
-        {
-            dataRate = (lastFreeSpace - bytesFree) / (currentTime - lastUpdateTime); //bytes/ms
-            lastUpdateTime = currentTime;
-            lastFreeSpace = bytesFree;
-
-            recordingTimeLeftInSeconds = bytesFree / dataRate / 1000.0f;
-
-            // Stop recording and show warning when less than 5 minutes of disk space left
-            if (dataRate > 0.0f && recordingTimeLeftInSeconds < (60.0f * 5.0f))
-            {
-                CoreServices::setRecordingStatus (false);
-                String msg = "Recording stopped. Less than 5 minutes of disk space remaining.";
-                AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "WARNING", msg);
-            }
-
-            if (dataRate > 0.0f)
-            {
-                String msg = String (bytesFree / pow (2, 30)) + " GB available\n";
-                msg += String (int (recordingTimeLeftInSeconds / 60.0f)) + " minutes remaining\n";
-                msg += "Data rate: " + String (dataRate * 1000 / pow (2, 20), 2) + " MB/s";
-                setTooltip (msg);
-
-                LOGD ("Data rate: ", dataRate, " bytes/ms");
-            }
-        }
-    }
-    else
+    if (((RecordNode*) processor)->recordThread->isThreadRunning()) {
+        String msg = String (bytesFree / pow (2, 30)) + " GB available\n";
+        msg += String (int (timeLeft / 60.0f)) + " minutes remaining\n";
+        msg += "Data rate: " + String (dataRate * 1000 / pow (2, 20), 2) + " MB/s";
+        setTooltip (msg);
+    } 
+    else 
     {
         setTooltip (String (bytesFree / pow (2, 30)) + " GB available");
     }
+}
 
+void DiskMonitor::updateDiskSpace (float percentage)
+{
+    setFillPercentage (1.0f - percentage);
+}
+
+void DiskMonitor::directoryInvalid()
+{
+    setFillPercentage (95.0);
+    setTooltip ("Invalid directory");
+}
+
+void DiskMonitor::lowDiskSpace()
+{
+    String msg = "Recording stopped. Less than 5 minutes of disk space remaining.";
+    AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "WARNING", msg);
+}
+
+void DiskMonitor::timerCallback()
+{
     repaint();
 }
 
@@ -270,7 +239,7 @@ RecordNodeEditor::RecordNodeEditor (RecordNode* parentNode)
     fifoDrawerButton->addListener (this);
     addAndMakeVisible (fifoDrawerButton);
 
-    diskSpaceMonitor = new DiskSpaceMonitor (recordNode);
+    diskSpaceMonitor = new DiskMonitor (recordNode);
     diskSpaceMonitor->setBounds (18, 33, 15, 92);
     addAndMakeVisible (diskSpaceMonitor);
 
@@ -295,15 +264,6 @@ void RecordNodeEditor::timerCallback()
 {
     fifoDrawerButton->triggerClick();
     stopTimer();
-}
-
-void RecordNodeEditor::startRecording()
-{
-    diskSpaceMonitor->reset();
-}
-
-void RecordNodeEditor::stopRecording()
-{
 }
 
 void RecordNodeEditor::updateFifoMonitors()

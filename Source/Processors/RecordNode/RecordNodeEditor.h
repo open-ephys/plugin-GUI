@@ -28,6 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../Editors/GenericEditor.h"
 #include "../Editors/PopupChannelSelector.h"
 
+#include "DiskMonitor/DiskSpaceListener.h"
+
 class RecordThread;
 class RecordNode;
 
@@ -47,20 +49,29 @@ private:
     uint64 streamId;
 };
 
-class DiskSpaceMonitor : public LevelMonitor
+class DiskMonitor : public LevelMonitor, public DiskSpaceListener
 {
 public:
     /** Constructor */
-    DiskSpaceMonitor (RecordNode* rn);
+    DiskMonitor (RecordNode *rn);
 
     /** Destructor */
-    ~DiskSpaceMonitor();
+    ~DiskMonitor();
 
-    /** Updates the display */
+    /** Updates the display */ //TODO: Potentially unused 
     void timerCallback() override;
 
-    /** Resets timer */
-    void reset();
+    /** Update data rate */
+    void update(float dataRate, int64 bytesFree, float timeLeft) override;
+
+    /** Updates disk remaining disk space */
+    void updateDiskSpace (float percentage) override;
+
+    /** Responds to invalid directory */
+    void directoryInvalid() override;
+
+    /** Responds to low disk space */
+    void lowDiskSpace() override;
 
 private:
     int64 lastFreeSpace;
@@ -193,10 +204,10 @@ public:
     void buttonClicked (Button* button);
 
     /** Disables parameter changes */
-    void startRecording() override;
+    void startRecording() override {};
 
     /** Enables parameter changes */
-    void stopRecording() override;
+    void stopRecording() override {};
 
     ScopedPointer<FifoDrawerButton> fifoDrawerButton;
 
@@ -212,7 +223,7 @@ private:
     std::vector<ParameterEditor*> streamMonitors;
     std::vector<ParameterEditor*> syncMonitors;
     ScopedPointer<Label> diskSpaceLabel;
-    ScopedPointer<DiskSpaceMonitor> diskSpaceMonitor;
+    ScopedPointer<DiskMonitor> diskSpaceMonitor;
     ScopedPointer<RecordToggleButton> recordToggleButton;
     ScopedPointer<Label> engineSelectLabel;
     ScopedPointer<Label> dataPathLabel;

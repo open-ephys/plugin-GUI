@@ -17,6 +17,8 @@
 #include "RecordNodeEditor.h"
 #include "RecordThread.h"
 
+#include "DiskMonitor/DiskSpaceChecker.h"
+
 #define WRITE_BLOCK_LENGTH 1024
 #define DATA_BUFFER_NBLOCKS 300
 #define EVENT_BUFFER_NEVENTS 200000
@@ -208,6 +210,8 @@ public:
 
     ScopedPointer<EventMonitor> eventMonitor;
 
+    ScopedPointer<DiskSpaceChecker> diskSpaceChecker;
+
     Array<int> channelMap; //Map from record channel index to source channel index
     Array<int> localChannelMap; // Map from record channel index to recorded index within stream
     Array<int> timestampChannelMap; // Map from recorded channel index to recorded source processor idx
@@ -224,6 +228,8 @@ public:
 
     /** Load parameters*/
     void loadCustomParametersFromXml (XmlElement* xml);
+
+    DiskSpaceChecker* getDiskSpaceChecker() { return diskSpaceChecker.get(); }
 
 private:
     /** Handles other types of events (text, sync texts, etc.) */
