@@ -134,7 +134,6 @@ PopupChannelSelector::PopupChannelSelector(Component* parent, PopupChannelSelect
     editable(true),
     maxSelectable(-1)
 {
-
     int nColumns;
 
     if (nChannels <= 512)
@@ -145,12 +144,16 @@ PopupChannelSelector::PopupChannelSelector(Component* parent, PopupChannelSelect
     {
         nColumns = 32;
     }
+    else if (nChannels <= 2048)
+    {
+        nColumns = 64;
+    }
     else
     {
         nColumns = 64;
     }
-    int width = 23 * nColumns;
 
+    int width = 23 * nColumns;
     int nRows = nChannels / nColumns + (int)(!(nChannels % nColumns == 0));
     int buttonSize = width / nColumns;
     int height = buttonSize * nRows;
@@ -160,71 +163,87 @@ PopupChannelSelector::PopupChannelSelector(Component* parent, PopupChannelSelect
 
     buttonColour = Colours::azure;
 
-	for (int i = 0; i < nRows; i++)
-	{
-		for (int j = 0; j < nColumns; j++)
-		{
-            if (nColumns*i+j < nChannels)
+    auto contentComponent = std::make_unique<Component>();
+    for (int i = 0; i < nRows; i++)
+    {
+        for (int j = 0; j < nColumns; j++)
+        {
+            if (nColumns * i + j < nChannels)
             {
-                channelButtons.add(new ChannelButton(nColumns*i+j, this));
-                channelButtons.getLast()->setBounds(width/nColumns*j, height/nRows*i, buttonSize, buttonSize);
-                channelButtons.getLast()->setToggleState(channelStates[nColumns * i + j], NotificationType::dontSendNotification);
-                channelButtons.getLast()->addListener(this);
-                addChildAndSetID(channelButtons.getLast(), String(nColumns*i+j));
+                auto* button = new ChannelButton(nColumns * i + j, this);
+                button->setBounds(width / nColumns * j, height / nRows * i, buttonSize, buttonSize);
+                button->setToggleState(channelStates[nColumns * i + j], NotificationType::dontSendNotification);
+                button->addListener(this);
+                contentComponent->addAndMakeVisible(button);
 
-                if(channelStates[nColumns * i + j])
+                if (channelStates[nColumns * i + j])
+                    activeChannels.add(nColumns * i + j);
 
-                    activeChannels.add(nColumns*i+j);
-
+                channelButtons.add(button);
             }
-			
-		}
-	}
+        }
+    }
 
     if (editable)
     {
+        // Add "SELECT ALL" button
+        auto* selectAllButton = new SelectButton("ALL");
+        selectAllButton->setBounds(0, height, 0.25 * width, width / nColumns);
+        selectAllButton->addListener(this);
+        contentComponent->addAndMakeVisible(selectAllButton);
+        selectButtons.add(selectAllButton);
 
-        //Add "SELECT ALL" button
-        selectButtons.add(new SelectButton("ALL"));
-        selectButtons.getLast()->setBounds(0, height, 0.25*width, width / nColumns);
-        selectButtons.getLast()->addListener(this);
-        addChildAndSetID(selectButtons.getLast(),"ALL");
+        // Add "SELECT NONE" button
+        auto* selectNoneButton = new SelectButton("NONE");
+        selectNoneButton->setBounds(0.25 * width, height, 0.25 * width, width / nColumns);
+        selectNoneButton->addListener(this);
+        contentComponent->addAndMakeVisible(selectNoneButton);
+        selectButtons.add(selectNoneButton);
 
-        //Add "SELECT NONE" button
-        selectButtons.add(new SelectButton("NONE"));
-        selectButtons.getLast()->setBounds(0.25*width, height, 0.25*width, width / nColumns);
-        selectButtons.getLast()->addListener(this);
-        addChildAndSetID(selectButtons.getLast(),"ALL");
-        
         if (nChannels > 8)
         {
+            // Add "SELECT RANGE" button
+            auto* selectRangeButton = new SelectButton("RANGE");
+            selectRangeButton->setBounds(0.5 * width, height, 0.25 * width, width / nColumns);
+            selectRangeButton->addListener(this);
+            contentComponent->addAndMakeVisible(selectRangeButton);
+            selectButtons.add(selectRangeButton);
 
-            //Add "SELECT RANGE" button
-            selectButtons.add(new SelectButton("RANGE"));
-            selectButtons.getLast()->setBounds(0.5*width, height, 0.25*width, width / nColumns);
-            selectButtons.getLast()->addListener(this);
-            addChildAndSetID(selectButtons.getLast(),"ALL");
-
-            //Add Range Editor
+            // Add Range Editor
             rangeEditor = std::make_unique<RangeEditor>("Range", FontOptions(12.0f));
-            rangeEditor->setBounds(0.75*width, height, 0.25*width, width / nColumns);
+            rangeEditor->setBounds(0.75 * width, height, 0.25 * width, width / nColumns);
             rangeEditor->addListener(this);
-            addChildAndSetID(rangeEditor.get(),"RANGE_EDITOR");
-            
+            contentComponent->addAndMakeVisible(rangeEditor.get());
         }
-
     }
-    
-    if (nChannels <= 8)
-        width /= 2;
 
-    if (editable)
-	    setSize (width, height + buttonSize);
+    contentComponent->setSize(width, height + (editable ? buttonSize : 0));
+
+    int scrollBarThickness = 15;
+
+    viewport = std::make_unique<Viewport>();
+    viewport->setViewedComponent(contentComponent.release(), true);
+    viewport->setScrollBarsShown (true, false);
+    viewport->setScrollBarThickness (scrollBarThickness);
+
+    addAndMakeVisible(viewport.get());
+
+    if (nChannels > 2048)
+    {
+        viewport->setSize(width + scrollBarThickness, buttonSize * 32);
+    }
     else
-        setSize(width, height);
-    
-	setColour(ColourSelector::backgroundColourId, Colours::transparentBlack);
+    {
+        viewport->setSize(width, height + (editable ? buttonSize : 0));
+    }
 
+    setSize(viewport->getWidth(), viewport->getHeight());
+    setColour(ColourSelector::backgroundColourId, Colours::transparentBlack);
+}
+
+void PopupChannelSelector::resized()
+{
+    viewport->setBounds(getLocalBounds());
 }
 
 void PopupChannelSelector::updatePopup()
