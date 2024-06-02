@@ -52,10 +52,10 @@ void MessageWindow::launch()
     messageWindowComponent = new MessageWindowComponent();
     options.content.setOwned (messageWindowComponent);
 
-    juce::Rectangle<int> area (0, 0, 450, 120);
+    juce::Rectangle<int> area (0, 0, 450, 193);
     options.content->setSize (area.getWidth(), area.getHeight());
 
-    options.dialogTitle = "Save Message";
+    options.dialogTitle = "Message Window";
     options.dialogBackgroundColour = messageWindowComponent->findColour (ThemeColors::componentBackground);
     options.escapeKeyTriggersCloseButton = true;
     options.useNativeTitleBar = false;
@@ -71,14 +71,15 @@ MessageWindowComponent::MessageWindowComponent()
 
     resetTime();
 
-    timestampLabel->setJustificationType (Justification::centred);
+    timestampLabel->setJustificationType (Justification::left);
     addAndMakeVisible (timestampLabel.get());
 
     timestampResetButton = std::make_unique<TextButton> ("Reset Timestamp Button");
     timestampResetButton->setButtonText ("Reset");
     timestampResetButton->setColour (TextButton::buttonColourId, findColour (ThemeColors::highlightedFill));
     timestampResetButton->addListener (this);
-    addAndMakeVisible (timestampResetButton.get());
+    if (CoreServices::getRecordingStatus())
+       addAndMakeVisible (timestampResetButton.get());
 
     messageLabel = std::make_unique<Label> ("Message");
     messageLabel->setFont (FontOptions { "Inter", "Regular", 18.0f });
@@ -91,9 +92,11 @@ MessageWindowComponent::MessageWindowComponent()
     addAndMakeVisible (messageLabel.get());
 
     sendMessageButton = std::make_unique<TextButton> ("Send Message Button");
-    sendMessageButton->setButtonText ("Save");
+    sendMessageButton->setButtonText ("Send");
     sendMessageButton->setColour (TextButton::buttonColourId, findColour (ThemeColors::highlightedFill));
+    sendMessageButton->setColour (TextButton::textColourOnId, Colours::black);
     sendMessageButton->addListener (this);
+    sendMessageButton->setEnabled (CoreServices::getAcquisitionStatus());
     addAndMakeVisible (sendMessageButton.get());
 
     Array<String>& savedMessages = AccessClass::getMessageCenter()->getSavedMessages();
@@ -109,7 +112,6 @@ MessageWindowComponent::MessageWindowComponent()
 
     clearSavedMessagesButton = std::make_unique<TextButton> ("Clear Saved Messages");
     clearSavedMessagesButton->setButtonText ("Clear");
-    clearSavedMessagesButton->setColour (TextButton::buttonColourId, findColour (ThemeColors::highlightedFill));
     clearSavedMessagesButton->addListener (this);
     addAndMakeVisible (clearSavedMessagesButton.get());
 }
@@ -122,7 +124,7 @@ void MessageWindowComponent::resetTime()
 {
     if (! CoreServices::getRecordingStatus())
     {
-        timestampLabel->setText ("Start Recording to Save a Message", dontSendNotification);
+        timestampLabel->setText ("Start recording to save a message.", dontSendNotification);
         timestampLabel->setColour (Label::textColourId, Colours::red);
     }
     else
@@ -141,7 +143,7 @@ String MessageWindowComponent::createTimeString (float milliseconds)
     int s = floor ((milliseconds - m * 60000.0) / 1000.0);
     int ms = milliseconds - m * 60000 - s * 1000;
 
-    String timeString = "";
+    String timeString = "Time of message: ";
 
     if (h < 10)
         timeString += "0";
@@ -178,20 +180,41 @@ void MessageWindowComponent::paint (Graphics& g)
     g.setColour (findColour (ThemeColors::componentBackground));
     g.fillRect (10, 0, getWidth() - 20, getHeight() - 10);
 
+    g.setColour (findColour (ThemeColors::defaultText));
+    g.setFont (FontOptions { "Inter", "Regular", 14.0f });
+    g.drawMultiLineText ("This window is used to broadcast messages " 
+                         "to all processors in the signal chain. "
+                         "Messages will only be saved if recording is active.",
+                          20, 20, getWidth() - 40);
+
+    g.drawSingleLineText ("Enter message here: ",
+                         20,
+                         93);
+
+    g.drawSingleLineText ("Load a saved message: ",
+                          20,
+                          143);
+
     g.setColour (findColour (ThemeColors::outline).withAlpha (0.5f));
     g.drawRect (messageLabel->getBounds());
 }
 
 void MessageWindowComponent::resized()
 {
-    timestampLabel->setBounds (15, 20, getWidth() - 90, 20);
-    timestampResetButton->setBounds (getWidth() - 65, 20, 45, 20);
+    int yoffset = 47;
+    
+    timestampLabel->setBounds (15, yoffset, getWidth() - 95, 20);
+    timestampResetButton->setBounds (getWidth() - 65, yoffset, 45, 20);
 
-    messageLabel->setBounds (15, 50, getWidth() - 90, 20);
-    sendMessageButton->setBounds (getWidth() - 65, 50, 45, 20);
+    yoffset += 56;
 
-    savedMessageSelector->setBounds (15, 80, getWidth() - 90, 20);
-    clearSavedMessagesButton->setBounds (getWidth() - 65, 80, 45, 20);
+    messageLabel->setBounds (20, yoffset, getWidth() - 95, 20);
+    sendMessageButton->setBounds (getWidth() - 65, yoffset, 45, 20);
+
+    yoffset += 50;
+
+    savedMessageSelector->setBounds (20, yoffset, getWidth() - 95, 20);
+    clearSavedMessagesButton->setBounds (getWidth() - 65, yoffset, 45, 20);
 }
 
 void MessageWindowComponent::buttonClicked (Button* button)

@@ -54,13 +54,24 @@ MessageCenterEditor::MessageCenterEditor (MessageCenter* owner) : AudioProcessor
     addAndMakeVisible (incomingMessageViewport.get());
     addAndMakeVisible (outgoingMessageViewport.get());
 
-    sendMessageButton = std::make_unique<UtilityButton> ("Save", FontOptions (12.0f));
+    sendMessageButton = std::make_unique<TextButton> ("Send Message Button");
+    sendMessageButton->setButtonText ("Send");
     sendMessageButton->addListener (this);
-    sendMessageButton->setTooltip ("Send a message to be saved by the record node");
+    sendMessageButton->setEnabled (false);
     addAndMakeVisible (sendMessageButton.get());
 }
 
 MessageCenterEditor::~MessageCenterEditor() {}
+
+void MessageCenterEditor::startAcquisition()
+{
+    sendMessageButton->setEnabled (true);
+}
+
+void MessageCenterEditor::stopAcquisition()
+{
+    sendMessageButton->setEnabled (false);
+}
 
 void MessageCenterEditor::buttonClicked (Button* button)
 {
@@ -232,6 +243,9 @@ void MessageCenterEditor::paint (Graphics& g)
 
     g.setColour (findColour (ThemeColors::outline).withAlpha (0.5f));
     g.drawRect (getWidth() / 2 + 26, getHeight() - 25, getWidth() / 2 - 80, 20);
+
+    sendMessageButton->setColour (TextButton::buttonColourId, findColour (ThemeColors::highlightedFill));
+    
 }
 
 void MessageCenterEditor::resized()

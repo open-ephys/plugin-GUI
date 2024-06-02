@@ -81,6 +81,22 @@ AudioProcessorEditor* MessageCenter::createEditor()
     return messageCenterEditor;
 }
 
+bool MessageCenter::startAcquisition()
+{
+    if (messageCenterEditor != nullptr)
+        messageCenterEditor->startAcquisition();
+
+    return true;
+}
+
+bool MessageCenter::stopAcquisition()
+{
+    if (messageCenterEditor != nullptr)
+        messageCenterEditor->stopAcquisition();
+
+    return true;
+}
+
 const EventChannel* MessageCenter::getMessageChannel()
 {
     if (eventChannels.size() > 0)

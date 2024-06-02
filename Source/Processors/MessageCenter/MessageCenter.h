@@ -64,6 +64,12 @@ public:
     /** Creates the MessageCenterEditor (located in the UI component). */
     AudioProcessorEditor* createEditor() override;
 
+     /** Enables the "send" button */
+    bool startAcquisition() override;
+
+    /** Disables the "send" button */
+    bool stopAcquisition() override;
+
     /** Returns a pointer to the Message Center event channel*/
     const EventChannel* getMessageChannel();
 

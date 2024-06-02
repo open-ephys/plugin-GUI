@@ -117,6 +117,12 @@ public:
     /** Collapses the editor */
     void collapse();
 
+    /** Enables the "send" button */
+    void startAcquisition();
+
+    /** Disables the "send" button */
+    void stopAcquisition();
+
     /** Adds an incoming message (from a processor) */
     void addIncomingMessage (const String& message);
 
