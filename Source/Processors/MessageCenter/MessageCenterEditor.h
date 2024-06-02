@@ -94,6 +94,7 @@ private:
 
 class MessageCenterEditor : public AudioProcessorEditor,
                             public Button::Listener,
+                            public Label::Listener,
                             public Timer
 
 {
@@ -116,11 +117,11 @@ public:
     /** Collapses the editor */
     void collapse();
 
-    /** Adds a message to the editor */
-    void addMessage (const String& message);
+    /** Adds an incoming message (from a processor) */
+    void addIncomingMessage (const String& message);
 
-    /** Gets the outgoing message text */
-    String getOutgoingMessage();
+    /** Adds an outgoing message (from the user) */
+    void addOutgoingMessage (const String& message, const int64 systemTime);
 
     /** Pointer to the MessageCenter */
     MessageCenter* messageCenter;
@@ -128,6 +129,12 @@ public:
 private:
     /** Button callback */
     void buttonClicked (Button* button) override;
+
+    /** Label callback */
+    void labelTextChanged (Label* label) override { }
+
+    /** Label callback */
+    void editorShown (Label* label, TextEditor& editor) override;
 
     /** Timer callback*/
     void timerCallback() override;
@@ -159,8 +166,6 @@ private:
 
     bool firstMessageReceived = false;
     bool isExpanded = false;
-
-    String outgoingMessage;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MessageCenterEditor);
 };

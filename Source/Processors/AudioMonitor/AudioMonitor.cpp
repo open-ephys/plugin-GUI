@@ -239,7 +239,7 @@ void AudioMonitor::updateFilter(int i, uint16 streamId)
 
 }
 
-void AudioMonitor::handleBroadcastMessage(String msg)
+void AudioMonitor::handleBroadcastMessage(const String& msg, const int64 messageTimeMilliseconds)
 {
 
     LOGD("Audio Monitor received message: ", msg);

@@ -35,6 +35,7 @@ MessageCenterEditor::MessageCenterEditor (MessageCenter* owner) : AudioProcessor
     incomingMessageDisplayArea = std::make_unique<MessageLabel> ("Message Display Area", "No new messages");
     editableMessageDisplayArea = std::make_unique<MessageLabel> ("Message Display Area", "Type a new message here.");
     editableMessageDisplayArea->setEditable (true);
+    editableMessageDisplayArea->addListener (this);
 
     incomingMessageViewport = std::make_unique<Viewport> ("Incoming message viewport.");
     outgoingMessageViewport = std::make_unique<Viewport> ("Outgoing message viewport.");
@@ -63,16 +64,19 @@ MessageCenterEditor::~MessageCenterEditor() {}
 
 void MessageCenterEditor::buttonClicked (Button* button)
 {
-    outgoingMessage = editableMessageDisplayArea->getText();
 
-    messageCenter->setParameter (1, 1);
-
-    outgoingMessageLog->addMessage (new MessageLabel ("message", outgoingMessage));
-    outgoingBackground = Colour (244, 208, 80);
-
-    resized();
-    startTimer (75);
+    if (editableMessageDisplayArea->getText().length() > 0)
+    {
+        addOutgoingMessage (editableMessageDisplayArea->getText(), CoreServices::getSystemTime());
+    }
+   
 }
+
+void MessageCenterEditor::editorShown (Label* label, TextEditor& textEditor)
+{
+    textEditor.setInputRestrictions (490);
+}
+
 
 void MessageCenterEditor::timerCallback()
 {
@@ -124,7 +128,7 @@ void MessageCenterEditor::timerCallback()
         stopTimer();
 }
 
-void MessageCenterEditor::addMessage (const String& message)
+void MessageCenterEditor::addIncomingMessage (const String& message)
 {
     if (firstMessageReceived)
         incomingMessageLog->addMessage (new MessageLabel ("message",
@@ -139,9 +143,17 @@ void MessageCenterEditor::addMessage (const String& message)
     resized();
 }
 
-String MessageCenterEditor::getOutgoingMessage()
+void MessageCenterEditor::addOutgoingMessage( const String& message, const int64 systemTime)
 {
-    return outgoingMessage;
+    messageCenter->broadcastMessage (message, systemTime);
+    messageCenter->addSavedMessage (message);
+    editableMessageDisplayArea->setText (message, dontSendNotification);
+
+    outgoingMessageLog->addMessage (new MessageLabel ("message", message));
+    outgoingBackground = Colour (244, 208, 80);
+
+    resized();
+    startTimer (75);
 }
 
 void MessageCenterEditor::expand()

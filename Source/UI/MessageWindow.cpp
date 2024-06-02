@@ -67,30 +67,109 @@ void MessageWindow::launch()
 MessageWindowComponent::MessageWindowComponent()
 {
     timestampLabel = std::make_unique<Label> ("Timestamp");
-    String labelText;
-    int64 ts = CoreServices::getGlobalTimestamp();
-    labelText << String(ts) << " <-- message time:" << newLine;
     timestampLabel->setFont (FontOptions { "Inter", "Regular", 18.0f });
-    timestampLabel->setText (labelText, dontSendNotification);
+
+    resetTime();
+
     timestampLabel->setJustificationType (Justification::centred);
     addAndMakeVisible (timestampLabel.get());
 
+    timestampResetButton = std::make_unique<TextButton> ("Reset Timestamp Button");
+    timestampResetButton->setButtonText ("Reset");
+    timestampResetButton->setColour (TextButton::buttonColourId, findColour (ThemeColors::highlightedFill));
+    timestampResetButton->addListener (this);
+    addAndMakeVisible (timestampResetButton.get());
+
     messageLabel = std::make_unique<Label> ("Message");
     messageLabel->setFont (FontOptions { "Inter", "Regular", 18.0f });
-    messageLabel->setColour (Label::backgroundColourId, findColour (ThemeColors::componentParentBackground));
-    messageLabel->setJustificationType (Justification::centred);
+    messageLabel->setColour (Label::backgroundColourId, findColour (ThemeColors::componentBackground));
+    messageLabel->setColour (Label::outlineColourId, findColour (ThemeColors::componentParentBackground));
+    messageLabel->setColour (Label::outlineWhenEditingColourId, findColour (ThemeColors::menuHighlightBackground));
+    messageLabel->setJustificationType (Justification::left);
     messageLabel->setEditable (true);
+    messageLabel->addListener (this);
     addAndMakeVisible (messageLabel.get());
-    
-    sendMessageButton = std::make_unique<TextButton> ("Default Config Selector - Load Button");
+
+    sendMessageButton = std::make_unique<TextButton> ("Send Message Button");
     sendMessageButton->setButtonText ("Save");
     sendMessageButton->setColour (TextButton::buttonColourId, findColour (ThemeColors::highlightedFill));
     sendMessageButton->addListener (this);
     addAndMakeVisible (sendMessageButton.get());
+
+    Array<String>& savedMessages = AccessClass::getMessageCenter()->getSavedMessages();
+
+    savedMessageSelector = std::make_unique<ComboBox> ("Saved Messages");
+
+    for (auto message : savedMessages)
+    {
+        savedMessageSelector->addItem (message, savedMessageSelector->getNumItems() + 1);
+    }
+    savedMessageSelector->addListener (this);
+    addAndMakeVisible (savedMessageSelector.get());
+
+    clearSavedMessagesButton = std::make_unique<TextButton> ("Clear Saved Messages");
+    clearSavedMessagesButton->setButtonText ("Clear");
+    clearSavedMessagesButton->setColour (TextButton::buttonColourId, findColour (ThemeColors::highlightedFill));
+    clearSavedMessagesButton->addListener (this);
+    addAndMakeVisible (clearSavedMessagesButton.get());
 }
 
 MessageWindowComponent::~MessageWindowComponent()
 {
+}
+
+void MessageWindowComponent::resetTime()
+{
+    if (! CoreServices::getRecordingStatus())
+    {
+        timestampLabel->setText ("Start Recording to Save a Message", dontSendNotification);
+        timestampLabel->setColour (Label::textColourId, Colours::red);
+    }
+    else
+    {
+        timestampLabel->setText (createTimeString (CoreServices::getRecordingTime()), dontSendNotification);
+        timestampLabel->setColour (Label::textColourId, findColour (ThemeColors::defaultText));
+    }
+
+    messageTimeMillis = CoreServices::getSystemTime();
+}
+
+String MessageWindowComponent::createTimeString (float milliseconds)
+{
+    int h = floor (milliseconds / 3600000.0);
+    int m = floor (milliseconds / 60000.0);
+    int s = floor ((milliseconds - m * 60000.0) / 1000.0);
+    int ms = milliseconds - m * 60000 - s * 1000;
+
+    String timeString = "";
+
+    if (h < 10)
+        timeString += "0";
+    timeString += h;
+    timeString += ":";
+
+    int minutes = m - h * 60;
+
+    if (minutes < 10)
+        timeString += "0";
+    timeString += minutes;
+    timeString += ":";
+
+    if (s < 10)
+        timeString += "0";
+    timeString += s;
+
+    timeString += ".";
+
+    if (ms < 100)
+        timeString += "0";
+
+    if (ms < 10)
+        timeString += "0";
+
+    timeString += ms;
+
+    return timeString;
 }
 
 void MessageWindowComponent::paint (Graphics& g)
@@ -99,22 +178,52 @@ void MessageWindowComponent::paint (Graphics& g)
     g.setColour (findColour (ThemeColors::componentBackground));
     g.fillRect (10, 0, getWidth() - 20, getHeight() - 10);
 
+    g.setColour (findColour (ThemeColors::outline).withAlpha (0.5f));
+    g.drawRect (messageLabel->getBounds());
 }
 
 void MessageWindowComponent::resized()
 {
-    timestampLabel->setBounds (10, 20, getWidth() - 20, 20);
+    timestampLabel->setBounds (15, 20, getWidth() - 90, 20);
+    timestampResetButton->setBounds (getWidth() - 65, 20, 45, 20);
 
-    messageLabel->setBounds (10, 50, getWidth() - 20, 20);
+    messageLabel->setBounds (15, 50, getWidth() - 90, 20);
+    sendMessageButton->setBounds (getWidth() - 65, 50, 45, 20);
 
-    sendMessageButton->setBounds (10, 80, getWidth() - 20, 20);
+    savedMessageSelector->setBounds (15, 80, getWidth() - 90, 20);
+    clearSavedMessagesButton->setBounds (getWidth() - 65, 80, 45, 20);
 }
 
 void MessageWindowComponent::buttonClicked (Button* button)
 {
     if (button == sendMessageButton.get())
     {
-        AccessClass::getMessageCenter()->broadcastMessage (messageLabel->getText());
+        if (messageLabel->getText().length() > 0)
+        {
+            AccessClass::getMessageCenter()->addOutgoingMessage (messageLabel->getText(), messageTimeMillis);
+        }
+       
     }
-        
+    else if (button == timestampResetButton.get())
+    {
+        resetTime();
+    }
+    else if (button == clearSavedMessagesButton.get())
+    {
+        AccessClass::getMessageCenter()->clearSavedMessages();
+        savedMessageSelector->clear();
+    }
+}
+
+void MessageWindowComponent::editorShown (Label*, TextEditor& editor)
+{
+    editor.setInputRestrictions (490);
+}
+
+void MessageWindowComponent::comboBoxChanged (ComboBox* comboBox)
+{
+    if (comboBox == savedMessageSelector.get())
+    {
+        messageLabel->setText (savedMessageSelector->getText(), dontSendNotification);
+    }
 }

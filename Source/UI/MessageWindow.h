@@ -37,7 +37,9 @@ class UIComponent;
 
 */
 class MessageWindowComponent : public Component,
-                               public Button::Listener
+                               public Button::Listener,
+                               public Label::Listener,
+                               public ComboBox::Listener
 {
 public:
     /** Constructor */
@@ -55,10 +57,32 @@ public:
     /** Responds to button clicks*/
     void buttonClicked (Button*) override;
 
+    /** Responds to label text changes */
+    void labelTextChanged (Label*) override {}
+
+    /** Called when label changes to a TextEditor */
+    void editorShown (Label*, TextEditor&) override;
+
+    /** Called a new item is selected from the ComboBox */
+    void comboBoxChanged (ComboBox*) override;
+
 private:
+    /** Converts time in milliseconds to HH:MM:SS format */
+    String createTimeString (float timeMilliseconds);
+
+    /** Resets time of next message */
+    void resetTime();
+
     std::unique_ptr<Label> timestampLabel;
+    std::unique_ptr<TextButton> timestampResetButton;
+
     std::unique_ptr<Label> messageLabel;
     std::unique_ptr<TextButton> sendMessageButton;
+
+    std::unique_ptr<ComboBox> savedMessageSelector;
+    std::unique_ptr<TextButton> clearSavedMessagesButton;
+
+    int64 messageTimeMillis;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MessageWindowComponent);
 };

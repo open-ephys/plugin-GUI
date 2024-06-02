@@ -83,7 +83,7 @@ public:
     void process (AudioBuffer<float>& buffer) override;
 
     /** Makes it possible to set the selected file remotely */
-    String handleConfigMessage(String msg) override;
+    String handleConfigMessage(const String& msg) override;
 
     /** Allows parameters to change during acquisition (no longer used) */
     // void setParameter (int parameterIndex, float newValue) override;

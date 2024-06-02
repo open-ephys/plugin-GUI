@@ -190,7 +190,7 @@ void RecordNode::checkDiskSpace()
     }
 }
 
-String RecordNode::handleConfigMessage (String msg)
+String RecordNode::handleConfigMessage (const String& msg)
 {
     /*
 	Available messages:
@@ -308,7 +308,7 @@ String RecordNode::handleConfigMessage (String msg)
     return "Record Node received config: " + msg;
 }
 
-void RecordNode::handleBroadcastMessage (String msg)
+void RecordNode::handleBroadcastMessage (const String& msg, const int64 messageSystemTime)
 {
     if (recordEvents && isRecording)
     {
@@ -316,7 +316,10 @@ void RecordNode::handleBroadcastMessage (String msg)
 
         DataStream* mainStream = getDataStream (streamKey);
 
-        int64 messageSampleNumber = getFirstSampleNumberForBlock (mainStream->getStreamId());
+        int64 offsetMilliseconds = Time::currentTimeMillis() - messageSystemTime;
+
+        int64 messageSampleNumber = getFirstSampleNumberForBlock (mainStream->getStreamId()) 
+            - int64(offsetMilliseconds * mainStream->getSampleRate() / 1000.0f);
 
         TextEventPtr event = TextEvent::createTextEvent (getMessageChannel(), messageSampleNumber, msg);
 
@@ -828,7 +831,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
                     data,
                     this,
                     0,
-                    CoreServices::getSoftwareTimestamp(),
+                    CoreServices::getSystemTime(),
                     -1.0,
                     true);
 

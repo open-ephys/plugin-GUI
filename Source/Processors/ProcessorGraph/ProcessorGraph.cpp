@@ -1950,14 +1950,14 @@ MessageCenter* ProcessorGraph::getMessageCenter()
 int64 ProcessorGraph::getGlobalTimestamp() const
 {
 
-    return CoreServices::getSoftwareTimestamp();
+    return CoreServices::getSystemTime();
 
 }
 
 float ProcessorGraph::getGlobalSampleRate() const
 {
 
-    return CoreServices::getSoftwareSampleRate();
+    return 1000.0f;
 
 }
 
@@ -2087,6 +2087,10 @@ void ProcessorGraph::saveToXml(XmlElement* xml)
     AccessClass::getAudioComponent()->saveStateToXml(audioSettings);
     xml->addChildElement(audioSettings);
 
+    XmlElement* messageSettings = new XmlElement ("MESSAGES");
+    AccessClass::getMessageCenter()->saveStateToXml (messageSettings);
+    xml->addChildElement (messageSettings);
+
     //Resets Save Order for processors, allowing them to be saved again without omitting themselves from the order.
     int allProcessorSize = allProcessors.size();
     for (int i = 0; i < allProcessorSize; i++)
@@ -2210,6 +2214,10 @@ void ProcessorGraph::loadFromXml(XmlElement* xml)
         {
             AccessClass::getAudioComponent()->loadStateFromXml(element);
             AccessClass::getControlPanel()->loadStateFromXml(xml);  // load the control panel settings after the audio settings
+        }
+        else if (element->hasTagName ("MESSAGES"))
+        {
+            AccessClass::getMessageCenter()->loadStateFromXml (element);
         }
 
     }

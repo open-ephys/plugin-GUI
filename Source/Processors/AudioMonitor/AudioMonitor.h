@@ -76,7 +76,7 @@ public:
     void updateFilter(int i, uint16 streamId);
     
     /** Allows other processors to configure the Audio Monitor during acquisition*/
-    void handleBroadcastMessage(String message) override;
+    void handleBroadcastMessage(const String& message, const int64 messageTimeMillis) override;
 
     /** Sets the selected stream and updates the filter parameters*/
     void setSelectedStream(uint16 streamId);

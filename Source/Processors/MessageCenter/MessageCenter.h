@@ -24,8 +24,9 @@
 #ifndef __MESSAGECENTER_H_2695FC38__
 #define __MESSAGECENTER_H_2695FC38__
 
-#include "../../TestableExport.h"
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../../TestableExport.h"
+#include <queue>
 #include <stdio.h>
 
 #include "../GenericProcessor/GenericProcessor.h"
@@ -44,22 +45,21 @@
 */
 
 class TESTABLE MessageCenter : public GenericProcessor,
-    public ActionListener
+                               public ActionListener
 
 {
 public:
-
     /** Constructor */
     MessageCenter();
 
     /** Destructor */
-    ~MessageCenter() { }
+    ~MessageCenter() {}
 
     /** Handle incoming data and decide which files and events to write to disk. */
-    void process(AudioBuffer<float>& buffer) override;
+    void process (AudioBuffer<float>& buffer) override;
 
     /** Called when new events arrive. */
-    void setParameter(int parameterIndex, float newValue) override;
+    void setParameter (int parameterIndex, float newValue) override;
 
     /** Creates the MessageCenterEditor (located in the UI component). */
     AudioProcessorEditor* createEditor() override;
@@ -71,36 +71,58 @@ public:
     DataStream* getMessageStream();
 
     /** Creates the Message Center event channel*/
-	void addSpecialProcessorChannels();
-    
+    void addSpecialProcessorChannels();
+
     /** Called when a new message is received. */
-    void actionListenerCallback(const String& message);
-    
+    void actionListenerCallback (const String& message);
+
     /** Sends a broadcast message to all processors */
-    void broadcastMessage(String msg);
+    void broadcastMessage (const String& msg);
 
-    
+    /** Sends a broadcast message to all processors for a specified system time */
+    void broadcastMessage (const String& msg, const int64 systemTimeMilliseconds);
+
+    /** Sends a broadcast message and adds it to the editor */
+    void addOutgoingMessage (const String& msg, const int64 systemTimeMilliseconds);
+
+    /** Saves a message for later use */
+    void addSavedMessage (const String& msg);
+
+    /** Clears all saved messages */
+    void clearSavedMessages ();
+
+    /** Returns messages that have been sent previously */
+    Array<String>& getSavedMessages ();
+
+    /** Stores saved messages in settings file */
+    void saveStateToXml (XmlElement* xml);
+
+    /** Loads saved messages from settings file */
+    void loadStateFromXml (XmlElement* xml);
+
+
 private:
-
     /** A pointer to the Message Center editor. */
     ScopedPointer<MessageCenterEditor> messageCenterEditor;
 
+    /** Holds a message string, plus the system time at
+    which the message was created */
     struct Message
     {
         String message;
-        
+        int64 systemTimeMilliseconds;
     };
 
+    /** Holds incoming messages */
+    std::queue<Message> messageQueue;
+
     bool newEventAvailable;
-    
-    String messageToBroadcast;
 
     ScopedPointer<EventChannel> eventChannel;
+    
+    Array<String> savedMessages;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MessageCenter);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MessageCenter);
 };
 
-
-
-#endif  // __MESSAGECENTER_H_2695FC38__
+#endif // __MESSAGECENTER_H_2695FC38__

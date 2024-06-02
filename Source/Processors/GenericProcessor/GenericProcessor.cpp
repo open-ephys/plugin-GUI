@@ -1251,7 +1251,7 @@ void GenericProcessor::updateChannelIndexMaps()
         latencyMeter->update(getDataStreams());
 }
 
-String GenericProcessor::handleConfigMessage(String msg)
+String GenericProcessor::handleConfigMessage(const String& msg)
 {
 	return "";
 }
@@ -1372,7 +1372,7 @@ int GenericProcessor::processEventBuffer()
 
                 TextEventPtr textEvent = TextEvent::deserialize(dataptr, getMessageChannel());
 
-                handleBroadcastMessage(textEvent->getText());
+                handleBroadcastMessage (textEvent->getText(), textEvent->getSampleNumber());
             }
 		}
 	}

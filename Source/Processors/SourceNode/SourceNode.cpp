@@ -293,23 +293,23 @@ void SourceNode::connectionLost()
     startTimer(sourceCheckInterval); // timer to check for re-established connection
 }
 
-String SourceNode::handleConfigMessage(String msg)
+String SourceNode::handleConfigMessage(const String& msg)
 {
     return dataThread->handleConfigMessage(msg);
 }
 
-void SourceNode::handleBroadcastMessage(String msg)
+void SourceNode::handleBroadcastMessage (const String& msg, const int64 messageTimeMilliseconds)
 {
-    dataThread->handleBroadcastMessage(msg);
+    dataThread->handleBroadcastMessage (msg, messageTimeMilliseconds);
 }
 
 
-void SourceNode::broadcastDataThreadMessage(String msg)
+void SourceNode::broadcastDataThreadMessage(const String& msg)
 {
     broadcastMessage(msg);
 }
 
-void SourceNode::sendDataThreadConfigMessage(GenericProcessor* destProcessor, String msg) {
+void SourceNode::sendDataThreadConfigMessage(GenericProcessor* destProcessor, const String& msg) {
     sendConfigMessage(destProcessor, msg);
 }
 

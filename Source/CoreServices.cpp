@@ -115,29 +115,14 @@ void highlightEditor (GenericEditor* ed)
     getEditorViewport()->makeEditorVisible (ed);
 }
 
-juce::int64 getGlobalTimestamp()
-{
-    return getProcessorGraph()->getGlobalTimestamp();
-}
-
-String getGlobalTimestampSource()
-{
-    return getProcessorGraph()->getGlobalTimestampSource();
-}
-
-float getGlobalSampleRate()
-{
-    return getProcessorGraph()->getGlobalSampleRate();
-}
-
-juce::int64 getSoftwareTimestamp()
+juce::int64 getSystemTime()
 {
     return Time::currentTimeMillis();
 }
 
-float getSoftwareSampleRate()
+juce::int64 getRecordingTime()
 {
-    return 1000.0f;
+    return getControlPanel()->getRecordingTime();
 }
 
 void setRecordingParentDirectory (String dir)

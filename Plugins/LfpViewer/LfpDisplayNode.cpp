@@ -330,7 +330,7 @@ bool LfpDisplayNode::getIntField (DynamicObject::Ptr payload, String name, int& 
     return true;
 }
 
-void LfpDisplayNode::handleBroadcastMessage (String msg)
+void LfpDisplayNode::handleBroadcastMessage (const String& msg, const int64 messageTimeMillis)
 {
     var parsedMessage = JSON::parse (msg);
     if (! parsedMessage.isObject())

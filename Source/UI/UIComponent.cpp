@@ -679,9 +679,8 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
             break;
 
         case showMessageWindow:
-            result.setInfo ("Message Window", "Show Message Window (only available while recording).", "General", 0);
+            result.setInfo ("Message Window", "Show Message Window.", "General", 0);
             result.addDefaultKeypress ('M', ModifierKeys::shiftModifier);
-            result.setActive (CoreServices::getRecordingStatus());
             result.setTicked (false);
             break;
 

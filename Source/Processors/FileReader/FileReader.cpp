@@ -567,7 +567,7 @@ Array<EventInfo> FileReader::getActiveEventInfo()
     return input->getEventInfo();
 }
 
-String FileReader::handleConfigMessage (String msg)
+String FileReader::handleConfigMessage (const String& msg)
 {
     //TODO: Needs update to use new parameters
 

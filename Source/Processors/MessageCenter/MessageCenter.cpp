@@ -22,48 +22,43 @@
 */
 
 #include "MessageCenter.h"
-#include "MessageCenterEditor.h"
-#include "../ProcessorGraph/ProcessorGraph.h"
 #include "../../AccessClass.h"
 #include "../../Utils/Utils.h"
+#include "../ProcessorGraph/ProcessorGraph.h"
+#include "MessageCenterEditor.h"
 
 #include "../Events/Event.h"
 
 #define MAX_MSG_LENGTH 512
 //---------------------------------------------------------------------
 
-MessageCenter::MessageCenter() :
-    GenericProcessor("Message Center"), 
-    newEventAvailable(false)
+MessageCenter::MessageCenter() : GenericProcessor ("Message Center"),
+                                 newEventAvailable (false)
 {
-
-    setPlayConfigDetails(0, // number of inputs
-                         0, // number of outputs
-                         44100.0, // sampleRate
-                         128);    // blockSize
+    setPlayConfigDetails (0, // number of inputs
+                          0, // number of outputs
+                          44100.0, // sampleRate
+                          128); // blockSize
 
     eventChannel = nullptr;
-
 }
 
-
-void MessageCenter::addSpecialProcessorChannels() 
+void MessageCenter::addSpecialProcessorChannels()
 {
-
     if (dataStreams.size() == 0)
     {
-        DataStream::Settings settings{
-        "MessageCenter stream",
-        "Description",
-        "messagecenter.stream",
+        DataStream::Settings settings {
+            "MessageCenter stream",
+            "Description",
+            "messagecenter.stream",
 
-        1000.0f
+            1000.0f
         };
 
-        dataStreams.add(new DataStream(settings));
-        dataStreams.getLast()->addProcessor(this);
+        dataStreams.add (new DataStream (settings));
+        dataStreams.getLast()->addProcessor (this);
 
-        EventChannel::Settings eventSettings{
+        EventChannel::Settings eventSettings {
             EventChannel::Type::TEXT,
             "Messages",
             "Broadcasts messages from the MessageCenter",
@@ -72,21 +67,18 @@ void MessageCenter::addSpecialProcessorChannels()
             dataStreams.getLast()
         };
 
-        eventChannels.add(new EventChannel(eventSettings));
-        eventChannels.getLast()->addProcessor(this);
+        eventChannels.add (new EventChannel (eventSettings));
+        eventChannels.getLast()->addProcessor (this);
 
         updateChannelIndexMaps();
     }
-    
 }
 
 AudioProcessorEditor* MessageCenter::createEditor()
 {
-
-    messageCenterEditor = new MessageCenterEditor(this);
+    messageCenterEditor = new MessageCenterEditor (this);
 
     return messageCenterEditor;
-
 }
 
 const EventChannel* MessageCenter::getMessageChannel()
@@ -105,53 +97,110 @@ DataStream* MessageCenter::getMessageStream()
     return nullptr;
 }
 
-void MessageCenter::setParameter(int parameterIndex, float newValue)
+void MessageCenter::setParameter (int parameterIndex, float newValue)
 {
     if (parameterIndex == 1)
     {
         newEventAvailable = true;
     }
-
 }
 
-void MessageCenter::actionListenerCallback(const String& message)
+void MessageCenter::actionListenerCallback (const String& message)
 {
-    
     if (messageCenterEditor != nullptr)
-        messageCenterEditor->addMessage(message);
+        messageCenterEditor->addIncomingMessage (message);
     else
-        LOGC(message);
-    
+        LOGC (message);
 }
 
-void MessageCenter::broadcastMessage(String msg)
+void MessageCenter::broadcastMessage (const String& msg)
 {
-    messageToBroadcast = msg;
-    
-    setParameter(1, 1);
+    broadcastMessage (msg, CoreServices::getSystemTime());
 }
 
-void MessageCenter::process(AudioBuffer<float>& buffer)
+void MessageCenter::broadcastMessage (const String& msg, const int64 systemTimeMilliseconds)
 {
-    
-    if (newEventAvailable)
+    Message newMessage { msg, systemTimeMilliseconds };
+    messageQueue.push (newMessage);
+
+    setParameter (1, 1);
+}
+
+void MessageCenter::addOutgoingMessage (const String& msg, const int64 systemTimeMilliseconds)
+{
+    messageCenterEditor->addOutgoingMessage (msg, systemTimeMilliseconds);
+}
+
+void MessageCenter::addSavedMessage (const String& msg)
+{
+    bool foundMatch = false;
+
+    for (auto message : savedMessages)
     {
-
-        String eventString = messageToBroadcast;
-
-		eventString = eventString.dropLastCharacters(eventString.length() - MAX_MSG_LENGTH);
-        
-        int64 ts = CoreServices::getGlobalTimestamp();
-
-		TextEventPtr event = TextEvent::createTextEvent(eventChannels[0],
-                                                        ts,
-                                                        eventString);
-
-		addEvent(event, 0);
-
-        //std::cout << "Message Center added " << eventString << " with timestamp " <<  ts << std::endl;
-
-        newEventAvailable = false;
+        if (message == msg)
+        {
+            foundMatch = true;
+            break;
+        }
     }
 
+    if (! foundMatch)
+    {
+        savedMessages.add (msg);
+    }
+}
+
+void MessageCenter::clearSavedMessages()
+{
+    savedMessages.clear();
+}
+
+Array<String>& MessageCenter::getSavedMessages()
+{
+    return savedMessages;
+}
+
+void MessageCenter::saveStateToXml (XmlElement* parent)
+{
+    for (auto message : savedMessages)
+    {
+        XmlElement* messageXml = new XmlElement ("MSG");
+        messageXml->setAttribute ("String", message);
+        parent->addChildElement (messageXml);
+    }
+}
+
+void MessageCenter::loadStateFromXml (XmlElement* parent)
+{
+    for (auto* child : parent->getChildIterator())
+    {
+        savedMessages.add (child->getStringAttribute ("String"));
+    }
+}
+
+void MessageCenter::process (AudioBuffer<float>& buffer)
+{
+    if (newEventAvailable)
+    {
+        while (! messageQueue.empty())
+        {
+            Message message = messageQueue.front();
+
+            String eventString = message.message;
+
+            eventString.dropLastCharacters (eventString.length() - MAX_MSG_LENGTH);
+
+            TextEventPtr event = TextEvent::createTextEvent (eventChannels[0],
+                                                             message.systemTimeMilliseconds,
+                                                             eventString);
+
+            addEvent (event, 0);
+
+            messageQueue.pop();
+
+            LOGC ("Message Center sending message: ", eventString);
+
+            newEventAvailable = false;
+        }
+    }
 }

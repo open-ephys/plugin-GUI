@@ -95,10 +95,10 @@ public:
     void parameterValueChanged (Parameter* p) override;
 
     /** Allow configuration via OpenEphysHttpServer */
-    String handleConfigMessage (String msg) override;
+    String handleConfigMessage (const String& msg) override;
 
     /** Writes TEXT messages sent from the MessageCenter to disk */
-    void handleBroadcastMessage (String msg) override;
+    void handleBroadcastMessage (const String& msg, const int64 messageSystemTime) override;
 
     /** Update DataQueue block size when Audio Settings buffer size changes */
     void updateBlockSize (int newBlockSize);

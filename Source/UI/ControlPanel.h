@@ -226,7 +226,10 @@ public:
     void stopRecording();
 
     /** Sets the cumulative recording time to zero.*/
-    void resetRecordTime();
+    void resetRecordingTime();
+
+    /** Gets the current recording time */
+    int64 getRecordingTime() const;
 
     /** Renders the clock.*/
     void paint (Graphics& g);
@@ -246,15 +249,15 @@ private:
 
     int64 lastTime;
 
-    int64 totalTime;
-    int64 totalRecordTime;
+    int64 totalTime = 0;
+    int64 totalRecordingTime = 0;
 
-    bool isRunning;
-    bool isRecording;
+    bool isRunning = false;
+    bool isRecording = false;
 
     Font clockFont;
 
-    Mode mode;
+    Mode mode = DEFAULT;
 };
 
 class UtilityButton;
@@ -325,6 +328,9 @@ public:
 
     /** Returns true if recording is active, false otherwise. */
     bool getRecordingState();
+
+    /** Returns the current time in the recording (in milliseconds) */
+    int64 getRecordingTime() const;
 
     /** Sets the parent recording directory.
 

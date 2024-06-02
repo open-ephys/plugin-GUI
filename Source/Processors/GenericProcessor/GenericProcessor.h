@@ -598,10 +598,10 @@ protected:
     // --------------------------------------------
 
     /** Handles a configuration message sent to this processor, while acquisition is not active.*/
-    virtual String handleConfigMessage(String msg);
+    virtual String handleConfigMessage(const String& msg);
     
-    /** Handles a configuration message sent to this processor, while acquisition is not active.*/
-    virtual void handleBroadcastMessage(String msg) { }
+    /** Handles broadcast message sent to all processors, while acquisition is active.*/
+    virtual void handleBroadcastMessage(const String& msg, const int64 systemTimeMillis) { }
 
 	/** Can be called by processors that need to respond to incoming events.
 	Set respondToSpikes to true if the processor should also search for spikes*/
