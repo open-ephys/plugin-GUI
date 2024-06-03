@@ -2331,7 +2331,8 @@ GenericProcessor* ProcessorGraph::createProcessorAtInsertionPoint(XmlElement* pa
                                                       dest,
                                                       isLoadingSignalChain);
     
-    processor->parametersAsXml = parametersAsXml;
+    if (processor->getPluginType() != Plugin::Type::INVALID)
+        processor->parametersAsXml = parametersAsXml;
     
     return processor;
 }
