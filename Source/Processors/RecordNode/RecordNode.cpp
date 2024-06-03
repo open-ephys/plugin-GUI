@@ -73,7 +73,7 @@ RecordNode::RecordNode()
 
     eventMonitor = new EventMonitor();
 
-    diskSpaceChecker = new DiskSpaceChecker (this);
+    diskSpaceChecker = std::make_unique<DiskSpaceChecker> (this);
 }
 
 RecordNode::~RecordNode()

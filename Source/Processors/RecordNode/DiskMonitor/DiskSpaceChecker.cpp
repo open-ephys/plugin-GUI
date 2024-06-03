@@ -11,7 +11,9 @@ DiskSpaceChecker::DiskSpaceChecker(RecordNode* rn)
     startTimerHz (1);
 }
 
-DiskSpaceChecker::~DiskSpaceChecker() {}
+DiskSpaceChecker::~DiskSpaceChecker() {
+    listeners.clear();
+}
 
 void DiskSpaceChecker::reset()
 {

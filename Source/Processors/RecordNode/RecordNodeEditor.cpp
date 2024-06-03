@@ -53,7 +53,10 @@ DiskMonitor::DiskMonitor (RecordNode* rn)
     startTimerHz (1);
 }
 
-DiskMonitor::~DiskMonitor() {}
+DiskMonitor::~DiskMonitor() {
+    if (((RecordNode*) processor)->getDiskSpaceChecker() != nullptr)
+        ((RecordNode*) processor)->getDiskSpaceChecker()->removeListener (this);
+}
 
 void DiskMonitor::update (float dataRate, int64 bytesFree, float timeLeft)
 {
