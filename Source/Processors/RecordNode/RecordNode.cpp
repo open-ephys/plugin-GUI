@@ -104,7 +104,7 @@ void RecordNode::initialize (bool signalChainIsLoading)
     if (! signalChainIsLoading)
         checkDiskSpace();
 
-    createNewDirectory();
+    CoreServices::createNewRecordingDirectory();
 }
 
 void RecordNode::parameterValueChanged (Parameter* p)
