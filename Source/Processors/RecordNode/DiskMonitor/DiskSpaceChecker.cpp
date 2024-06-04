@@ -53,7 +53,7 @@ void DiskSpaceChecker::checkDirectoryAndDiskSpace() {
 
     float ratio = float (bytesFree) / float (volumeSize);
     if (ratio > 0)
-        notifyDiskSpaceRemaining (1.0f - ratio);
+        notifyDiskSpaceRemaining (ratio);
 
     float currentTime = Time::getMillisecondCounterHiRes();
 
