@@ -307,7 +307,7 @@ AudioConfigurationWindow::AudioConfigurationWindow (AudioDeviceManager& adm, Aud
          false, // showChannelsAsStereoPairs
          false); // hideAdvancedOptionsWithButton
 
-    adsc->setBounds (0, 0, 450, 440);
+    adsc->setBounds (10, 0, 500, 440);
     adsc->setItemHeight(20);
 
     setContentOwned (adsc, true);

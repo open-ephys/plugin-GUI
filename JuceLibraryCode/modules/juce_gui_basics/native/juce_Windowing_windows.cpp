@@ -2454,6 +2454,10 @@ private:
                 // annoyingly, windows won't let you have a min/max button without a close button
                 jassert ((styleFlags & (windowHasMinimiseButton | windowHasMaximiseButton)) == 0);
             }
+            else
+            {
+                type |= WS_SYSMENU;
+            }
         }
         else if (parentToAddTo != nullptr)
         {
@@ -2473,7 +2477,7 @@ private:
             }
 
             if ((styleFlags & windowIsResizable) != 0)
-                type |= WS_THICKFRAME | WS_SYSMENU;
+                type |= WS_THICKFRAME;
         }
 
         // Don't set WS_EX_TRANSPARENT here; setting that flag hides OpenGL child windows
@@ -2486,13 +2490,13 @@ private:
                                L"", type, 0, 0, 0, 0, parentToAddTo, nullptr,
                                (HINSTANCE) Process::getCurrentModuleInstanceHandle(), nullptr);
 
-        if (! hasTitleBar() && parentToAddTo == nullptr)
-        {
-            // Disable rounded corners on Windows 11 for custom windows with no titlebar,
-            // because window borders look weird when they get rounded away.
-            const auto pref = DWMWCP_DONOTROUND;
-            DwmSetWindowAttribute (hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &pref, sizeof (pref));
-        }
+        // if (! hasTitleBar() && parentToAddTo == nullptr)
+        // {
+        //     // Disable rounded corners on Windows 11 for custom windows with no titlebar,
+        //     // because window borders look weird when they get rounded away.
+        //     const auto pref = DWMWCP_DONOTROUND;
+        //     DwmSetWindowAttribute (hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &pref, sizeof (pref));
+        // }
 
        #if JUCE_DEBUG
         // The DPI-awareness context of this window and JUCE's hidden message window are different.
