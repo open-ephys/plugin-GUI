@@ -11,7 +11,9 @@ DiskSpaceChecker::DiskSpaceChecker(RecordNode* rn)
     startTimerHz (1);
 }
 
-DiskSpaceChecker::~DiskSpaceChecker() {}
+DiskSpaceChecker::~DiskSpaceChecker() {
+    listeners.clear();
+}
 
 void DiskSpaceChecker::reset()
 {
@@ -51,7 +53,7 @@ void DiskSpaceChecker::checkDirectoryAndDiskSpace() {
 
     float ratio = float (bytesFree) / float (volumeSize);
     if (ratio > 0)
-        notifyDiskSpaceRemaining (1.0f - ratio);
+        notifyDiskSpaceRemaining (ratio);
 
     float currentTime = Time::getMillisecondCounterHiRes();
 

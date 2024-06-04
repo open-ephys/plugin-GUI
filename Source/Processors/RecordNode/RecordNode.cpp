@@ -73,7 +73,7 @@ RecordNode::RecordNode()
 
     eventMonitor = new EventMonitor();
 
-    diskSpaceChecker = new DiskSpaceChecker (this);
+    diskSpaceChecker = std::make_unique<DiskSpaceChecker> (this);
 }
 
 RecordNode::~RecordNode()
@@ -104,7 +104,7 @@ void RecordNode::initialize (bool signalChainIsLoading)
     if (! signalChainIsLoading)
         checkDiskSpace();
 
-    createNewDirectory();
+    CoreServices::createNewRecordingDirectory();
 }
 
 void RecordNode::parameterValueChanged (Parameter* p)

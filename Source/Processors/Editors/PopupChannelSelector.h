@@ -167,7 +167,11 @@ public:
 
 	void updatePopup() override;
 
+	void resized() override;
+
 private:
+
+	std::unique_ptr<Viewport> viewport;
 	Listener* listener;
 
 	/** Methods for parsing range strings*/

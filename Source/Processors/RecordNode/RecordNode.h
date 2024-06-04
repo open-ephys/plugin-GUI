@@ -208,7 +208,7 @@ public:
 
     ScopedPointer<EventMonitor> eventMonitor;
 
-    ScopedPointer<DiskSpaceChecker> diskSpaceChecker;
+    std::unique_ptr<DiskSpaceChecker> diskSpaceChecker;
 
     Array<int> channelMap; //Map from record channel index to source channel index
     Array<int> localChannelMap; // Map from record channel index to recorded index within stream
