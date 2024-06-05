@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -20,14 +20,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef __AUDIOEDITOR_H_9D6F1FC3__
 #define __AUDIOEDITOR_H_9D6F1FC3__
 
-
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../../Utils/Utils.h"
 #include "AudioNode.h"
 #include <stdio.h>
-#include "../../Utils/Utils.h"
 
 class AudioNode;
 class AudioComponent;
@@ -41,22 +41,18 @@ class AudioComponent;
 class MuteButton : public ImageButton
 {
 public:
-
     /** Constructor */
     MuteButton();
 
     /** Destructor */
-    ~MuteButton() { }
+    ~MuteButton() {}
 
     /** Updates the button's images */
     void updateImages();
-  
+
 private:
-
     Image onimage, offimage;
-
 };
-
 
 /**
   Used to show and hide the AudioConfigurationWindow.
@@ -67,23 +63,21 @@ private:
 class AudioWindowButton : public Button
 {
 public:
-
     /** Constructor */
     AudioWindowButton();
 
     /** Destructor */
-    ~AudioWindowButton() { }
+    ~AudioWindowButton() {}
 
     /** Renders the button */
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 
     /** Sets the latency string*/
-    void setText(const String& newText);
+    void setText (const String& newText);
 
 private:
     String textString;
 };
-
 
 /**
   Allows the user to access audio output settings.
@@ -94,21 +88,19 @@ private:
 class AudioConfigurationWindow : public DocumentWindow
 {
 public:
-
     /** Constructor */
     AudioConfigurationWindow (AudioDeviceManager& adm, AudioWindowButton* b);
 
     /** Destructor */
-    ~AudioConfigurationWindow() { }
+    ~AudioConfigurationWindow() {}
 
     /** Draws the background*/
-    void paint (Graphics& g)    override;
+    void paint (Graphics& g) override;
 
     /** Doesn't do anything currently*/
-    void resized()              override;
+    void resized() override;
 
 private:
-
     /** Saves settings to the recovery config and hides the window*/
     void closeButtonPressed();
 
@@ -121,13 +113,9 @@ private:
   @see AudioNode
 
 */
-class AudioEditor : public AudioProcessorEditor
-                  , public Button::Listener
-                  , public Slider::Listener
-                  , public ComponentListener
+class AudioEditor : public AudioProcessorEditor, public Button::Listener, public Slider::Listener, public ComponentListener
 {
 public:
-
     /** Constructor */
     AudioEditor (AudioNode* owner);
 
@@ -135,10 +123,10 @@ public:
     ~AudioEditor();
 
     /** Draws the "gate" label */
-    void paint (Graphics& g)                override;
+    void paint (Graphics& g) override;
 
     /** Sets sub-component locations*/
-    void resized()                          override;
+    void resized() override;
 
     /** Changes the latency label*/
     void updateBufferSizeText();
@@ -150,16 +138,15 @@ public:
     void disable();
 
     /** Saves settings*/
-    void saveStateToXml     (XmlElement* xml);
+    void saveStateToXml (XmlElement* xml);
 
     /** Loads settings*/
-    void loadStateFromXml   (XmlElement* xml);
+    void loadStateFromXml (XmlElement* xml);
 
     /** Gets AudioConfigurationWindow state */
     bool isAudioConfigurationWindowVisible() { return audioConfigurationWindow != nullptr; };
 
 private:
-
     /** Responds to button presses*/
     void buttonClicked (Button* buttonThatWasClicked) override;
 
@@ -167,14 +154,14 @@ private:
     void sliderValueChanged (Slider* slider) override;
 
     /** Responds to configuration window closing*/
-    void componentVisibilityChanged(Component& component) override;
+    void componentVisibilityChanged (Component& component) override;
 
     float lastValue;
 
     bool isEnabled;
 
-    ScopedPointer<MuteButton>           muteButton;
-    ScopedPointer<AudioWindowButton>    audioWindowButton;
+    ScopedPointer<MuteButton> muteButton;
+    ScopedPointer<AudioWindowButton> audioWindowButton;
 
     ScopedPointer<AudioConfigurationWindow> audioConfigurationWindow;
 
@@ -184,5 +171,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioEditor);
 };
 
-
-#endif  // __AUDIOEDITOR_H_9D6F1FC3__
+#endif // __AUDIOEDITOR_H_9D6F1FC3__

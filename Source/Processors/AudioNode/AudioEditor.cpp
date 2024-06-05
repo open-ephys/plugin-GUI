@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -22,24 +22,21 @@
 */
 
 #include "AudioEditor.h"
-#include "../../Audio/AudioComponent.h"
 #include "../../AccessClass.h"
+#include "../../Audio/AudioComponent.h"
 #include "../../UI/EditorViewport.h"
 #include "../../Utils/Utils.h"
 
-static const Colour COLOUR_SLIDER_TRACK         (Colour::fromRGB (92, 92, 92));
-static const Colour COLOUR_SLIDER_TRACK_FILL    (Colour::fromRGB (255, 255, 255));
+static const Colour COLOUR_SLIDER_TRACK (Colour::fromRGB (92, 92, 92));
+static const Colour COLOUR_SLIDER_TRACK_FILL (Colour::fromRGB (255, 255, 255));
 
 MuteButton::MuteButton()
     : ImageButton ("MuteButton")
 {
-    offimage = ImageCache::getFromMemory  (BinaryData::muteoff_png, BinaryData::muteoff_pngSize);
-    onimage  = ImageCache::getFromMemory  (BinaryData::muteon_png,  BinaryData::muteon_pngSize);
+    offimage = ImageCache::getFromMemory (BinaryData::muteoff_png, BinaryData::muteoff_pngSize);
+    onimage = ImageCache::getFromMemory (BinaryData::muteon_png, BinaryData::muteon_pngSize);
 
-    setImages (false, true, true,
-               offimage, 1.0f, findColour(ThemeColors::defaultText),
-               offimage, 0.5f, findColour(ThemeColors::defaultText).withAlpha(0.5f),
-               onimage,  0.7f, findColour(ThemeColors::defaultText).withAlpha(0.7f));
+    setImages (false, true, true, offimage, 1.0f, findColour (ThemeColors::defaultText), offimage, 0.5f, findColour (ThemeColors::defaultText).withAlpha (0.5f), onimage, 0.7f, findColour (ThemeColors::defaultText).withAlpha (0.7f));
 
     setClickingTogglesState (true);
 
@@ -48,12 +45,8 @@ MuteButton::MuteButton()
 
 void MuteButton::updateImages()
 {
-    setImages (false, true, true,
-               offimage, 1.0f, findColour(ThemeColors::defaultText),
-               offimage, 0.5f, findColour(ThemeColors::defaultText).withAlpha(0.5f),
-               onimage,  0.7f, findColour(ThemeColors::defaultText).withAlpha(0.7f));
+    setImages (false, true, true, offimage, 1.0f, findColour (ThemeColors::defaultText), offimage, 0.5f, findColour (ThemeColors::defaultText).withAlpha (0.5f), onimage, 0.7f, findColour (ThemeColors::defaultText).withAlpha (0.7f));
 }
-
 
 AudioWindowButton::AudioWindowButton()
     : Button ("AudioWindowButton")
@@ -64,20 +57,18 @@ AudioWindowButton::AudioWindowButton()
     setTooltip ("Change the buffer size");
 }
 
-
 void AudioWindowButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (getToggleState())
-        g.setColour (findColour(ThemeColors::highlightedFill));
+        g.setColour (findColour (ThemeColors::highlightedFill));
     else
-        g.setColour (findColour(ThemeColors::defaultText));
+        g.setColour (findColour (ThemeColors::defaultText));
 
     const bool isLatencyLabelVisible = getParentComponent()->getWidth() >= 450;
     auto textToDraw = isLatencyLabelVisible ? textString : textString.fromLastOccurrenceOf (":", false, true);
-    g.setFont (FontOptions("Silkscreen", "Regular", 14));
+    g.setFont (FontOptions ("Silkscreen", "Regular", 14));
     g.drawSingleLineText (textToDraw, 0, 15);
 }
-
 
 void AudioWindowButton::setText (const String& newText)
 {
@@ -85,12 +76,8 @@ void AudioWindowButton::setText (const String& newText)
     repaint();
 }
 
-
 AudioEditor::AudioEditor (AudioNode* owner)
-    : AudioProcessorEditor (owner)
-    , lastValue                 (1.0f)
-    , isEnabled                 (true)
-    , audioConfigurationWindow  (nullptr)
+    : AudioProcessorEditor (owner), lastValue (1.0f), isEnabled (true), audioConfigurationWindow (nullptr)
 {
     muteButton = new MuteButton();
     muteButton->addListener (this);
@@ -105,51 +92,50 @@ AudioEditor::AudioEditor (AudioNode* owner)
     volumeSlider = new Slider ("Volume Slider");
     volumeSlider->setSliderStyle (Slider::LinearHorizontal);
     volumeSlider->setTextBoxStyle (Slider::NoTextBox,
-                                   false, 0, 0);
+                                   false,
+                                   0,
+                                   0);
     volumeSlider->setRange (0, 100, 1);
     volumeSlider->addListener (this);
-    volumeSlider->setValue(50);
+    volumeSlider->setValue (50);
     addAndMakeVisible (volumeSlider);
 
     noiseGateSlider = new Slider ("Noise Gate Slider");
     volumeSlider->setSliderStyle (Slider::LinearHorizontal);
     noiseGateSlider->setTextBoxStyle (Slider::NoTextBox,
-                                      false, 0, 0);
-    noiseGateSlider->setRange (0,100,1);
+                                      false,
+                                      0,
+                                      0);
+    noiseGateSlider->setRange (0, 100, 1);
     noiseGateSlider->addListener (this);
     addAndMakeVisible (noiseGateSlider);
-
 }
-
 
 AudioEditor::~AudioEditor()
 {
-
 }
-
 
 void AudioEditor::resized()
 {
-    const int width          = getWidth();
-    const int height         = getHeight();
+    const int width = getWidth();
+    const int height = getHeight();
 
     // Since width of the label on button is always the same, we should reserve it.
     const bool isLatencyLabelVisible = width >= 450;
     const int audioWindowButtonWidth = isLatencyLabelVisible ? 110 : 60;
-    const int gateLabelWidth         = 45;
+    const int gateLabelWidth = 45;
 
     const int availableWidth = width - audioWindowButtonWidth - gateLabelWidth;
-    const int sliderWidth    = availableWidth * 0.4;
-    const int sliderHeight   = height - 6;
-    const int sliderY        = (height - sliderHeight) / 2;
-    const int margin         = availableWidth * 0.03;
+    const int sliderWidth = availableWidth * 0.4;
+    const int sliderHeight = height - 6;
+    const int sliderY = (height - sliderHeight) / 2;
+    const int margin = availableWidth * 0.03;
 
-    muteButton->setBounds           (margin, 5, 20, 20);
-    volumeSlider->setBounds         (margin + 30, sliderY, sliderWidth, sliderHeight);
-    noiseGateSlider->setBounds      (volumeSlider->getRight() + margin + gateLabelWidth, sliderY, sliderWidth, sliderHeight);
-    audioWindowButton->setBounds    (width - audioWindowButtonWidth + 2, 5, audioWindowButtonWidth, height);
+    muteButton->setBounds (margin, 5, 20, 20);
+    volumeSlider->setBounds (margin + 30, sliderY, sliderWidth, sliderHeight);
+    noiseGateSlider->setBounds (volumeSlider->getRight() + margin + gateLabelWidth, sliderY, sliderWidth, sliderHeight);
+    audioWindowButton->setBounds (width - audioWindowButtonWidth + 2, 5, audioWindowButtonWidth, height);
 }
-
 
 void AudioEditor::updateBufferSizeText()
 {
@@ -159,13 +145,11 @@ void AudioEditor::updateBufferSizeText()
     audioWindowButton->setText (t);
 }
 
-
 void AudioEditor::enable()
 {
     isEnabled = true;
     audioWindowButton->setClickingTogglesState (true);
 }
-
 
 void AudioEditor::disable()
 {
@@ -180,25 +164,23 @@ void AudioEditor::disable()
     audioWindowButton->setClickingTogglesState (false);
 }
 
-
 void AudioEditor::buttonClicked (Button* button)
 {
     if (button == muteButton)
     {
-        
         AudioNode* audioNode = (AudioNode*) getAudioProcessor();
-        
+
         if (muteButton->getToggleState())
         {
             lastValue = volumeSlider->getValue();
-            
+
             audioNode->setParameter (1, 0.0f);
-            LOGD("Mute on.");
+            LOGD ("Mute on.");
         }
         else
         {
-            audioNode->setParameter (1,lastValue);
-            LOGD("Mute off.");
+            audioNode->setParameter (1, lastValue);
+            LOGD ("Mute off.");
         }
     }
     else if (button == audioWindowButton && isEnabled)
@@ -209,11 +191,11 @@ void AudioEditor::buttonClicked (Button* button)
             {
                 audioConfigurationWindow = new AudioConfigurationWindow (AccessClass::getAudioComponent()->deviceManager,
                                                                          audioWindowButton);
-                audioConfigurationWindow->addComponentListener(this);
+                audioConfigurationWindow->addComponentListener (this);
             }
 
             AccessClass::getAudioComponent()->restartDevice();
-            audioConfigurationWindow->setLookAndFeel(&getLookAndFeel());
+            audioConfigurationWindow->setLookAndFeel (&getLookAndFeel());
             audioConfigurationWindow->setVisible (true);
         }
         else
@@ -221,24 +203,21 @@ void AudioEditor::buttonClicked (Button* button)
             audioConfigurationWindow->setVisible (false);
         }
     }
-
 }
-
 
 void AudioEditor::sliderValueChanged (Slider* slider)
 {
-    
     AudioNode* audioNode = (AudioNode*) getAudioProcessor();
-    
+
     if (slider == volumeSlider)
         audioNode->setParameter (1, slider->getValue());
     else if (slider == noiseGateSlider)
         audioNode->setParameter (2, slider->getValue());
 }
 
-void AudioEditor::componentVisibilityChanged(Component& component)
+void AudioEditor::componentVisibilityChanged (Component& component)
 {
-    if (component.getName() == audioConfigurationWindow->getName() && !component.isVisible())
+    if (component.getName() == audioConfigurationWindow->getName() && ! component.isVisible())
     {
         updateBufferSizeText();
         AccessClass::getAudioComponent()->stopDevice();
@@ -248,22 +227,20 @@ void AudioEditor::componentVisibilityChanged(Component& component)
 void AudioEditor::paint (Graphics& g)
 {
     const int margin = getWidth() * 0.03;
-    g.setColour (findColour(ThemeColors::defaultText));
-    g.setFont(FontOptions("Silkscreen", "Regular", 14));
+    g.setColour (findColour (ThemeColors::defaultText));
+    g.setFont (FontOptions ("Silkscreen", "Regular", 14));
     g.drawSingleLineText ("GATE:", volumeSlider->getBounds().getRight() + margin, 20);
 
     muteButton->updateImages();
 }
 
-
 void AudioEditor::saveStateToXml (XmlElement* xml)
 {
     XmlElement* audioEditorState = xml->createNewChildElement ("AUDIOEDITOR");
-    audioEditorState->setAttribute ("isMuted",   muteButton->getToggleState());
-    audioEditorState->setAttribute ("volume",    volumeSlider->getValue());
+    audioEditorState->setAttribute ("isMuted", muteButton->getToggleState());
+    audioEditorState->setAttribute ("volume", volumeSlider->getValue());
     audioEditorState->setAttribute ("noiseGate", noiseGateSlider->getValue());
 }
-
 
 void AudioEditor::loadStateFromXml (XmlElement* xml)
 {
@@ -271,8 +248,8 @@ void AudioEditor::loadStateFromXml (XmlElement* xml)
     {
         if (xmlNode->hasTagName ("AUDIOEDITOR"))
         {
-            muteButton->setToggleState  (xmlNode->getBoolAttribute ("isMuted", false), dontSendNotification);
-            volumeSlider->setValue    (xmlNode->getDoubleAttribute ("volume",    0.0f), NotificationType::sendNotification);
+            muteButton->setToggleState (xmlNode->getBoolAttribute ("isMuted", false), dontSendNotification);
+            volumeSlider->setValue (xmlNode->getDoubleAttribute ("volume", 0.0f), NotificationType::sendNotification);
             noiseGateSlider->setValue (xmlNode->getDoubleAttribute ("noiseGate", 0.0f), NotificationType::sendNotification);
         }
     }
@@ -280,57 +257,51 @@ void AudioEditor::loadStateFromXml (XmlElement* xml)
     updateBufferSizeText();
 }
 
-
 AudioConfigurationWindow::AudioConfigurationWindow (AudioDeviceManager& adm, AudioWindowButton* cButton)
     : DocumentWindow ("Audio Settings",
                       Colours::red,
-                      DocumentWindow::closeButton)
-    , controlButton (cButton)
+                      DocumentWindow::closeButton),
+      controlButton (cButton)
 
 {
-    centreWithSize (360,500);
+    centreWithSize (360, 500);
 
     setUsingNativeTitleBar (true);
 
-    setResizable (false,false);
+    setResizable (false, false);
 
-    LOGDD("Audio CPU usage:", adm.getCpuUsage());
+    LOGDD ("Audio CPU usage:", adm.getCpuUsage());
 
-    AudioDeviceSelectorComponent* adsc = new AudioDeviceSelectorComponent
-        (adm,
-         0, // minAudioInputChannels
-         0, // maxAudioInputChannels
-         0, // minAudioOutputChannels
-         2, // maxAudioOutputChannels
-         false, // showMidiInputOptions
-         false, // showMidiOutputSelector
-         false, // showChannelsAsStereoPairs
-         false); // hideAdvancedOptionsWithButton
+    AudioDeviceSelectorComponent* adsc = new AudioDeviceSelectorComponent (adm,
+                                                                           0, // minAudioInputChannels
+                                                                           0, // maxAudioInputChannels
+                                                                           0, // minAudioOutputChannels
+                                                                           2, // maxAudioOutputChannels
+                                                                           false, // showMidiInputOptions
+                                                                           false, // showMidiOutputSelector
+                                                                           false, // showChannelsAsStereoPairs
+                                                                           false); // hideAdvancedOptionsWithButton
 
     adsc->setBounds (10, 0, 500, 440);
-    adsc->setItemHeight(20);
+    adsc->setItemHeight (20);
 
     setContentOwned (adsc, true);
     setVisible (false);
 }
 
-
 void AudioConfigurationWindow::closeButtonPressed()
 {
-    
     CoreServices::saveRecoveryConfig();
 
     controlButton->setToggleState (false, dontSendNotification);
     setVisible (false);
 }
 
-
 void AudioConfigurationWindow::resized()
 {
 }
 
-
 void AudioConfigurationWindow::paint (Graphics& g)
 {
-    g.fillAll (findColour(ThemeColors::componentBackground));
+    g.fillAll (findColour (ThemeColors::componentBackground));
 }

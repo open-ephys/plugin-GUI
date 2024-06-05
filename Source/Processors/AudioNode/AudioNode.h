@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,36 +24,33 @@
 #ifndef __AUDIONODE_H_AF61F3C5__
 #define __AUDIONODE_H_AF61F3C5__
 
-
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include <stdio.h>
 
+#include "../Dsp/Dsp.h"
 #include "../GenericProcessor/GenericProcessor.h"
 #include "AudioEditor.h"
-#include "../Dsp/Dsp.h"
-
 
 class AudioEditor;
 
 class Expander
 {
 public:
-  Expander();
-  void setThreshold(float);
-  void setRatio(float);
-  void setAttack(float);
-  void setRelease(float);
-  void reset();
+    Expander();
+    void setThreshold (float);
+    void setRatio (float);
+    void setAttack (float);
+    void setRelease (float);
+    void reset();
 
-  void process(float* sampleData, int numSamples);
+    void process (float* sampleData, int numSamples);
 
 private:
-    float   threshold;
-    float   attack, release, envelope_decay;
-    float   output;
-    float   transfer_A, transfer_B;
-    float   env, gain;
-
+    float threshold;
+    float attack, release, envelope_decay;
+    float output;
+    float transfer_A, transfer_B;
+    float env, gain;
 };
 
 /**
@@ -73,20 +70,19 @@ private:
 class AudioNode : public GenericProcessor
 {
 public:
-
     /** Constructor */
     AudioNode();
 
     /** Destructor */
-    ~AudioNode() { }
+    ~AudioNode() {}
 
     /** Handle incoming data and decide which channels to monitor
     */
-    void process(AudioBuffer<float>& buffer) override;
+    void process (AudioBuffer<float>& buffer) override;
 
     /** Used to change audio monitoring parameters (such as channels to monitor and volume) while acquisition is active.
     */
-    void setParameter(int parameterIndex, float newValue) override;
+    void setParameter (int parameterIndex, float newValue) override;
 
     /** Creates the AudioEditor (located in the ControlPanel). */
     AudioProcessorEditor* createEditor() override;
@@ -95,22 +91,21 @@ public:
     void resetConnections() override;
 
     /** Establishes a connection between a channel of a GenericProcessor and the AudioNode. */
-    void addInputChannel(GenericProcessor* source, int chan);
+    void addInputChannel (GenericProcessor* source, int chan);
 
-	/** Updates the audio buffer size*/
-	void updatePlaybackBuffer();
+    /** Updates the audio buffer size*/
+    void updatePlaybackBuffer();
 
     /** Called when the audio output buffer size is changed*/
     void updateBufferSize();
 
     // expand # of inputs for each connected processor
-    void registerProcessor(const GenericProcessor* sourceNode);
+    void registerProcessor (const GenericProcessor* sourceNode);
 
     /** A pointer to the AudioNode's editor. */
     std::unique_ptr<AudioEditor> audioEditor;
 
 private:
-
     Array<int> leftChan;
     Array<int> rightChan;
     float volume;
@@ -120,12 +115,7 @@ private:
 
     int connectedProcessors;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioNode);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioNode);
 };
 
-
-
-
-
-#endif  // __AUDIONODE_H_AF61F3C5__
+#endif // __AUDIONODE_H_AF61F3C5__
