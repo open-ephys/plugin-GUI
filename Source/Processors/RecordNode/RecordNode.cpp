@@ -174,7 +174,7 @@ void RecordNode::checkDiskSpace()
         msg += "\n\n";
         msg += "Less than " + String (int (diskSpaceWarningThreshold)) + " GB of disk space available in:\n";
         msg += "\n";
-        msg += "\t" + String (dataDirectory.getFullPathName());
+        msg += String (dataDirectory.getFullPathName());
         msg += "\n\n";
         msg += "Recording may fail. Please free up space or change the recording directory.";
 
