@@ -60,7 +60,9 @@ void DefaultConfigWindow::launchWindow()
     options.useNativeTitleBar = false;
     options.resizable = false;
 
-    configWindow = options.launchAsync();
+    auto* window = options.launchAsync();
+    window->setAlwaysOnTop (true);
+    configWindow = window;
 }
 
 //-----------------------------------------------------------------------

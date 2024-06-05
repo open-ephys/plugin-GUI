@@ -164,8 +164,7 @@ DraggableTabComponent::DraggableTabComponent (DataViewport* parent_) : TabbedCom
 {
     setTabBarDepth (28);
     setOutline (0);
-    setIndent (5); // gap to leave around the edge
-        // of the content component
+    setIndent (5); // gap to leave around the edge of the content component
 }
 
 bool DraggableTabComponent::isInterestedInDragSource (const juce::DragAndDropTarget::SourceDetails& dragSourceDetails)
@@ -306,13 +305,6 @@ void DraggableTabComponent::paint (Graphics& g)
     int r = getWidth();
     int b = getHeight();
 
-    if (isDraggingOver)
-    {
-        g.setColour (findColour (ThemeColors::highlightedFill).withAlpha (0.5f));
-
-        g.fillRect (getTabbedButtonBar().getBounds());
-    }
-
     if (o == TabbedButtonBar::TabsAtTop)
         y += 28;
     else if (o == TabbedButtonBar::TabsAtBottom)
@@ -323,6 +315,16 @@ void DraggableTabComponent::paint (Graphics& g)
         r -= 28;
 
     Rectangle<float> bounds (x, y, r - x, b - y);
+    
+    g.setColour (Colours::black.withAlpha (getTabbedButtonBar().isEnabled() ? 0.15f : 0.08f));
+    g.fillRect (bounds.withTrimmedLeft(10.0f));
+
+    if (isDraggingOver)
+    {
+        g.setColour (findColour (ThemeColors::highlightedFill).withAlpha (0.5f));
+
+        g.fillRect (getTabbedButtonBar().getBounds());
+    }
 
     g.setColour (findColour (ThemeColors::componentBackground));
     g.fillRoundedRectangle (bounds.reduced (1.0f), 5.0f);

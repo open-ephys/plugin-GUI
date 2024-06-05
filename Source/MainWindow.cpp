@@ -192,7 +192,8 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
                                                                                                                     "Which configuration do you want to load?",
                                                                     "Recovery Config",
                                                                     "Last Config",
-                                                                    "Empty Signal Chain");
+                                                                    "Empty Signal Chain",
+                                                                    documentWindow->getContentComponent());
                 }
 
                 if (loadRecovery == 1)
