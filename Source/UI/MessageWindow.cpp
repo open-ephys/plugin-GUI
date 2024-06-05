@@ -61,7 +61,9 @@ void MessageWindow::launch()
     options.useNativeTitleBar = false;
     options.resizable = false;
 
-    messageWindow = options.launchAsync();
+    auto* window = options.launchAsync();
+    window->setAlwaysOnTop (true);
+    messageWindow = window;
 }
 
 MessageWindowComponent::MessageWindowComponent()
@@ -79,7 +81,7 @@ MessageWindowComponent::MessageWindowComponent()
     timestampResetButton->setColour (TextButton::buttonColourId, findColour (ThemeColors::highlightedFill));
     timestampResetButton->addListener (this);
     if (CoreServices::getRecordingStatus())
-       addAndMakeVisible (timestampResetButton.get());
+        addAndMakeVisible (timestampResetButton.get());
 
     messageLabel = std::make_unique<Label> ("Message");
     messageLabel->setFont (FontOptions { "Inter", "Regular", 18.0f });
@@ -182,14 +184,16 @@ void MessageWindowComponent::paint (Graphics& g)
 
     g.setColour (findColour (ThemeColors::defaultText));
     g.setFont (FontOptions { "Inter", "Regular", 14.0f });
-    g.drawMultiLineText ("This window is used to broadcast messages " 
+    g.drawMultiLineText ("This window is used to broadcast messages "
                          "to all processors in the signal chain. "
                          "Messages will only be saved if recording is active.",
-                          20, 20, getWidth() - 40);
+                         20,
+                         20,
+                         getWidth() - 40);
 
     g.drawSingleLineText ("Enter message here: ",
-                         20,
-                         93);
+                          20,
+                          93);
 
     g.drawSingleLineText ("Load a saved message: ",
                           20,
@@ -202,7 +206,7 @@ void MessageWindowComponent::paint (Graphics& g)
 void MessageWindowComponent::resized()
 {
     int yoffset = 47;
-    
+
     timestampLabel->setBounds (15, yoffset, getWidth() - 95, 20);
     timestampResetButton->setBounds (getWidth() - 65, yoffset, 45, 20);
 
@@ -225,7 +229,6 @@ void MessageWindowComponent::buttonClicked (Button* button)
         {
             AccessClass::getMessageCenter()->addOutgoingMessage (messageLabel->getText(), messageTimeMillis);
         }
-       
     }
     else if (button == timestampResetButton.get())
     {
