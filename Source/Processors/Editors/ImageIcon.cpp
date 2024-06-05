@@ -23,9 +23,8 @@
 
 #include "ImageIcon.h"
 
-void ImageIcon::setOpacity(float o)
+void ImageIcon::setOpacity (float o)
 {
     opacity = o;
     repaint();
-
 }

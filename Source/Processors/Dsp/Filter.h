@@ -64,7 +64,7 @@ public:
 
     virtual int getNumParams() const = 0;
 
-    virtual ParamInfo getParamInfo(int index) const = 0;
+    virtual ParamInfo getParamInfo (int index) const = 0;
 
     Params getDefaultParams() const;
 
@@ -73,45 +73,45 @@ public:
         return m_params;
     }
 
-    double getParam(int paramIndex) const
+    double getParam (int paramIndex) const
     {
-        assert(paramIndex >= 0 && paramIndex <= getNumParams());
+        assert (paramIndex >= 0 && paramIndex <= getNumParams());
         return m_params[paramIndex];
     }
 
-    void setParam(int paramIndex, double nativeValue)
+    void setParam (int paramIndex, double nativeValue)
     {
-        assert(paramIndex >= 0 && paramIndex <= getNumParams());
+        assert (paramIndex >= 0 && paramIndex <= getNumParams());
         m_params[paramIndex] = nativeValue;
-        doSetParams(m_params);
+        doSetParams (m_params);
     }
 
-    int findParamId(int paramId);
+    int findParamId (int paramId);
 
-    void setParamById(int paramId, double nativeValue);
+    void setParamById (int paramId, double nativeValue);
 
-    void setParams(const Params& parameters)
+    void setParams (const Params& parameters)
     {
         m_params = parameters;
-        doSetParams(parameters);
+        doSetParams (parameters);
     }
 
     // This makes a best-effort to pick up the values
     // of matching parameters from another set. It uses
     // the ParamID information to make the match.
-    void copyParamsFrom(Dsp::Filter const* other);
+    void copyParamsFrom (Dsp::Filter const* other);
 
     virtual std::vector<PoleZeroPair> getPoleZeros() const = 0;
 
-    virtual complex_t response(double normalizedFrequency) const = 0;
+    virtual complex_t response (double normalizedFrequency) const = 0;
 
     virtual int getNumChannels() = 0;
     virtual void reset() = 0;
-    virtual void process(int numSamples, float* const* arrayOfChannels) = 0;
-    virtual void process(int numSamples, double* const* arrayOfChannels) = 0;
+    virtual void process (int numSamples, float* const* arrayOfChannels) = 0;
+    virtual void process (int numSamples, double* const* arrayOfChannels) = 0;
 
 protected:
-    virtual void doSetParams(const Params& parameters) = 0;
+    virtual void doSetParams (const Params& parameters) = 0;
 
 private:
     Params m_params;
@@ -153,7 +153,7 @@ public:
         return m_design.getDefaultParams();
     }
 
-    ParamInfo getParamInfo(int index) const
+    ParamInfo getParamInfo (int index) const
     {
         switch (index)
         {
@@ -183,27 +183,25 @@ public:
         return m_design.getPoleZeros();
     }
 
-    complex_t response(double normalizedFrequency) const
+    complex_t response (double normalizedFrequency) const
     {
-        return m_design.response(normalizedFrequency);
+        return m_design.response (normalizedFrequency);
     }
 
 protected:
-    void doSetParams(const Params& parameters)
+    void doSetParams (const Params& parameters)
     {
-        m_design.setParams(parameters);
+        m_design.setParams (parameters);
     }
 
 protected:
     DesignClass m_design;
 };
 
-
-
 template <class DesignClass,
-         int Channels = 0,
-         class StateType = DirectFormII>
-class FilterDesign : public FilterDesignBase <DesignClass>
+          int Channels = 0,
+          class StateType = DirectFormII>
+class FilterDesign : public FilterDesignBase<DesignClass>
 {
 public:
     FilterDesign()
@@ -220,21 +218,20 @@ public:
         m_state.reset();
     }
 
-    void process(int numSamples, float* const* arrayOfChannels)
+    void process (int numSamples, float* const* arrayOfChannels)
     {
-        m_state.process(numSamples, arrayOfChannels,
-                        FilterDesignBase<DesignClass>::m_design);
+        m_state.process (numSamples, arrayOfChannels, FilterDesignBase<DesignClass>::m_design);
     }
 
-    void process(int numSamples, double* const* arrayOfChannels)
+    void process (int numSamples, double* const* arrayOfChannels)
     {
-        m_state.process(numSamples, arrayOfChannels,
-                        FilterDesignBase<DesignClass>::m_design);
+        m_state.process (numSamples, arrayOfChannels, FilterDesignBase<DesignClass>::m_design);
     }
 
 protected:
-    ChannelsState <Channels,
-                  typename DesignClass::template State <StateType> > m_state;
+    ChannelsState<Channels,
+                  typename DesignClass::template State<StateType>>
+        m_state;
 };
 
 //------------------------------------------------------------------------------
@@ -247,8 +244,8 @@ protected:
  *
  */
 template <class FilterClass,
-         int Channels = 0,
-         class StateType = DirectFormII>
+          int Channels = 0,
+          class StateType = DirectFormII>
 class SimpleFilter : public FilterClass
 {
 public:
@@ -263,16 +260,17 @@ public:
     }
 
     template <typename Sample>
-    void process(int numSamples, Sample* const* arrayOfChannels)
+    void process (int numSamples, Sample* const* arrayOfChannels)
     {
-        m_state.process(numSamples, arrayOfChannels, *((FilterClass*)this));
+        m_state.process (numSamples, arrayOfChannels, *((FilterClass*) this));
     }
 
 protected:
-    ChannelsState <Channels,
-                  typename FilterClass::template State <StateType> > m_state;
+    ChannelsState<Channels,
+                  typename FilterClass::template State<StateType>>
+        m_state;
 };
 
-}
+} // namespace Dsp
 
 #endif

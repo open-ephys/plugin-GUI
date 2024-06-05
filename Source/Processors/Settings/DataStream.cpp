@@ -23,24 +23,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DataStream.h"
 
+#include "../GenericProcessor/GenericProcessor.h"
 #include "ContinuousChannel.h"
 #include "EventChannel.h"
 #include "SpikeChannel.h"
-#include "../GenericProcessor/GenericProcessor.h"
 
 uint16 DataStream::nextId = 10000;
 
-DataStream::DataStream(DataStream::Settings settings) 
-	: InfoObject(InfoObject::Type::DATASTREAM_INFO),
-	ParameterOwner(ParameterOwner::Type::DATASTREAM),
-	m_sample_rate(settings.sample_rate),
-	device(nullptr)
+DataStream::DataStream (DataStream::Settings settings)
+    : InfoObject (InfoObject::Type::DATASTREAM_INFO),
+      ParameterOwner (ParameterOwner::Type::DATASTREAM),
+      m_sample_rate (settings.sample_rate),
+      device (nullptr)
 {
-	setName(settings.name);
-	setDescription(settings.description);
-	setIdentifier(settings.identifier);
+    setName (settings.name);
+    setDescription (settings.description);
+    setIdentifier (settings.identifier);
 
-	streamId = nextId++;
+    streamId = nextId++;
 }
 
 DataStream::~DataStream()
@@ -49,81 +49,79 @@ DataStream::~DataStream()
 
 void DataStream::clearChannels()
 {
-	continuousChannels.clear();
-	spikeChannels.clear();
-	eventChannels.clear();
+    continuousChannels.clear();
+    spikeChannels.clear();
+    eventChannels.clear();
 }
 
 void DataStream::clearContinuousChannels()
 {
-	continuousChannels.clear();
+    continuousChannels.clear();
 }
 
-void DataStream::addChannel(InfoObject* channel)
+void DataStream::addChannel (InfoObject* channel)
 {
-	if (channel->getType() == InfoObject::Type::CONTINUOUS_CHANNEL)
-	{
-		continuousChannels.add((ContinuousChannel*)channel);
-		continuousChannels.getLast()->setLocalIndex(continuousChannels.size() - 1);
+    if (channel->getType() == InfoObject::Type::CONTINUOUS_CHANNEL)
+    {
+        continuousChannels.add ((ContinuousChannel*) channel);
+        continuousChannels.getLast()->setLocalIndex (continuousChannels.size() - 1);
         //continuousChannels.getLast()->setDataStream(this);
-	}
+    }
 
-	else if (channel->getType() == InfoObject::Type::EVENT_CHANNEL)
-	{
-		eventChannels.add((EventChannel*)channel);
-		eventChannels.getLast()->setLocalIndex(eventChannels.size() - 1);
+    else if (channel->getType() == InfoObject::Type::EVENT_CHANNEL)
+    {
+        eventChannels.add ((EventChannel*) channel);
+        eventChannels.getLast()->setLocalIndex (eventChannels.size() - 1);
         //eventChannels.getLast()->setDataStream(this);
-	}
+    }
 
-	else if (channel->getType() == InfoObject::Type::SPIKE_CHANNEL)
-	{
-		spikeChannels.add((SpikeChannel*)channel);
-		spikeChannels.getLast()->setLocalIndex(spikeChannels.size() - 1);
+    else if (channel->getType() == InfoObject::Type::SPIKE_CHANNEL)
+    {
+        spikeChannels.add ((SpikeChannel*) channel);
+        spikeChannels.getLast()->setLocalIndex (spikeChannels.size() - 1);
         //spikeChannels.getLast()->setDataStream(this);
-	}
-		
+    }
 }
 
 float DataStream::getSampleRate() const
 {
-	return m_sample_rate;
+    return m_sample_rate;
 }
 
 int DataStream::getChannelCount() const
 {
-	return continuousChannels.size();
+    return continuousChannels.size();
 }
 
 uint16 DataStream::getStreamId() const
 {
-	return streamId;
+    return streamId;
 }
 
 bool DataStream::hasDevice() const
 {
-	if (device != nullptr)
-		return true;
-	else
-		return false;
+    if (device != nullptr)
+        return true;
+    else
+        return false;
 }
 
 Array<ContinuousChannel*> DataStream::getContinuousChannels() const
 {
-	return continuousChannels;
+    return continuousChannels;
 }
 
 Array<EventChannel*> DataStream::getEventChannels() const
 {
-	return eventChannels;
+    return eventChannels;
 }
 
 Array<SpikeChannel*> DataStream::getSpikeChannels() const
 {
-	return spikeChannels;
+    return spikeChannels;
 }
 
-
-void DataStream::parameterChangeRequest(Parameter* param)
+void DataStream::parameterChangeRequest (Parameter* param)
 {
-	processorChain.getLast()->parameterChangeRequest(param);
+    processorChain.getLast()->parameterChangeRequest (param);
 }

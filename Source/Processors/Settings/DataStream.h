@@ -27,8 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
-#include "InfoObject.h"
 #include "../Parameter/ParameterOwner.h"
+#include "InfoObject.h"
 
 class GenericProcessor;
 class DeviceInfo;
@@ -67,81 +67,78 @@ class SpikeChannel;
 * streams, each stream should be given a unique name.
 * 
 */
-class PLUGIN_API DataStream :
-	public InfoObject,
-	public ParameterOwner
+class PLUGIN_API DataStream : public InfoObject,
+                              public ParameterOwner
 {
 public:
+    static uint16 nextId;
 
-	static uint16 nextId;
+    struct Settings
+    {
+        String name;
+        String description;
+        String identifier;
 
-	struct Settings {
+        float sample_rate;
+    };
 
-		String name;
-		String description;
-		String identifier;
+    /** Constructor */
+    DataStream (Settings settings);
 
-		float sample_rate;
-	};
+    /** Destructor */
+    virtual ~DataStream();
 
-	/** Constructor */
-	DataStream(Settings settings);
-
-	/** Destructor */
-	virtual ~DataStream();
-
-	/** Sets the channel counts to 0.
+    /** Sets the channel counts to 0.
 	*   Used by processors that need to re-arrange or remove
 	*   channels within a DataStream.
 	*/
-	void clearChannels();
+    void clearChannels();
 
-	/** Same as above, but for continuous channels only
+    /** Same as above, but for continuous channels only
 	*/
-	void clearContinuousChannels();
+    void clearContinuousChannels();
 
-	/** Adds a spike, continuous, or event channel to the DataStream. 
+    /** Adds a spike, continuous, or event channel to the DataStream. 
 	* Sets the channel's localIndex.
 	*/
-	void addChannel(InfoObject* channel);
+    void addChannel (InfoObject* channel);
 
-	/** Returns the sample rate for this stream. */
-	float getSampleRate() const;
+    /** Returns the sample rate for this stream. */
+    float getSampleRate() const;
 
-	/** Returns the number of continuous channels in this stream. */
-	int getChannelCount() const;
+    /** Returns the number of continuous channels in this stream. */
+    int getChannelCount() const;
 
-	/** Returns the unique ID for this stream*/
-	uint16 getStreamId() const;
+    /** Returns the unique ID for this stream*/
+    uint16 getStreamId() const;
 
-	/** Returns a unique String for this stream */
-	String getKey() const { return String(getSourceNodeId()) + "|" + getName(); }
+    /** Returns a unique String for this stream */
+    String getKey() const { return String (getSourceNodeId()) + "|" + getName(); }
 
-	/** Returns true if this DataStream has a device associated with it.*/
-	bool hasDevice() const;
+    /** Returns true if this DataStream has a device associated with it.*/
+    bool hasDevice() const;
 
-	/** Gets all of the continuous channels for this stream.*/
-	Array<ContinuousChannel*> getContinuousChannels() const;
+    /** Gets all of the continuous channels for this stream.*/
+    Array<ContinuousChannel*> getContinuousChannels() const;
 
-	/** Gets all of the event channels for this stream.*/
-	Array<EventChannel*> getEventChannels() const;
+    /** Gets all of the event channels for this stream.*/
+    Array<EventChannel*> getEventChannels() const;
 
-	/** Gets all of the spike channels for this stream.*/
-	Array<SpikeChannel*> getSpikeChannels() const;
+    /** Gets all of the spike channels for this stream.*/
+    Array<SpikeChannel*> getSpikeChannels() const;
 
-	void parameterChangeRequest(Parameter*) override;
+    void parameterChangeRequest (Parameter*) override;
 
-	DeviceInfo* device;
+    DeviceInfo* device;
 
 private:
+    Array<ContinuousChannel*> continuousChannels;
+    Array<EventChannel*> eventChannels;
+    Array<SpikeChannel*> spikeChannels;
 
-	Array<ContinuousChannel*> continuousChannels;
-	Array<EventChannel*> eventChannels;
-	Array<SpikeChannel*> spikeChannels;
+    float m_sample_rate;
 
-	float m_sample_rate;
-
-	uint16 streamId;
+    uint16 streamId;
 };
 
 /** Template class that simplifies the process of
@@ -168,44 +165,38 @@ private:
 template <class T>
 class StreamSettings
 {
-
 public:
+    StreamSettings<T>() {}
 
-	StreamSettings<T>() { }
+    ~StreamSettings<T>() {}
 
-	~StreamSettings<T>() { }
+    void update (Array<const DataStream*> streams)
+    {
+        Array<uint16> currentStreamIds;
 
-	void update(Array<const DataStream*> streams)
-	{
+        for (auto stream : streams)
+        {
+            currentStreamIds.add (stream->getStreamId());
 
-		Array<uint16> currentStreamIds;
+            if (! settingsMap.contains (stream->getStreamId()))
+            {
+                settingsArray.add (new T());
+                settingsMap.set (stream->getStreamId(), settingsArray.getLast());
+            }
+        }
+    }
 
-		for (auto stream : streams)
-		{
-			currentStreamIds.add(stream->getStreamId());
+    T* operator[] (uint16 streamId)
+    {
+        if (settingsMap.contains (streamId))
+            return settingsMap[streamId];
 
-			if (!settingsMap.contains(stream->getStreamId()))
-			{
-				settingsArray.add(new T());
-				settingsMap.set(stream->getStreamId(), settingsArray.getLast());
-			}
-		}
-	}
-	
-	T* operator [](uint16 streamId)
-	{
-		if (settingsMap.contains(streamId))
-			return settingsMap[streamId];
-
-		return nullptr;
-	}
+        return nullptr;
+    }
 
 private:
-	HashMap<uint16, T*> settingsMap;
-	OwnedArray<T> settingsArray;
+    HashMap<uint16, T*> settingsMap;
+    OwnedArray<T> settingsArray;
 };
-
-
-
 
 #endif

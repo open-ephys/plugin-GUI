@@ -24,9 +24,9 @@
 #define __VISUALIZEREDITOR_H_17E6D78C__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "GenericEditor.h"
 #include "../Visualization/DataWindow.h"
 #include "../Visualization/Visualizer.h"
+#include "GenericEditor.h"
 
 class DataWindow;
 class Visualizer;
@@ -40,15 +40,13 @@ class Visualizer;
 class PLUGIN_API SelectorButton : public Button
 {
 public:
-
     /** Constructor */
     SelectorButton (const String& buttonName);
 
     /** Destructor */
-    ~SelectorButton() { }
+    ~SelectorButton() {}
 
 private:
-
     /** Renders the button*/
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 
@@ -58,7 +56,6 @@ private:
     /** Returns true if it's a tab button*/
     bool isOpenTabButton() const;
 };
-
 
 /**
     Base class for creating editors with visualizers (large graphical displays
@@ -70,8 +67,7 @@ private:
     @see GenericEditor, Visualizer
 
 */
-class PLUGIN_API VisualizerEditor : public GenericEditor
-                                  , public DataWindow::Listener
+class PLUGIN_API VisualizerEditor : public GenericEditor, public DataWindow::Listener
 {
 public:
     /** Constructor 
@@ -84,7 +80,7 @@ public:
     ~VisualizerEditor();
 
     // ------------------------------------------------------------
-    //                  PURE VIRTUAL METHOD 
+    //                  PURE VIRTUAL METHOD
     //     (must be implemented by all VisualizerEditors)
     // ------------------------------------------------------------
 
@@ -92,19 +88,19 @@ public:
     virtual Visualizer* createNewCanvas() = 0;
 
     // ------------------------------------------------------------
-    //                   VIRTUAL METHODS 
+    //                   VIRTUAL METHODS
     //       (can optionally be overriden by sub-classes)
     // ------------------------------------------------------------
 
     /** Use this method to save custom editor parameters */
-    virtual void saveVisualizerEditorParameters(XmlElement* xml) { }
+    virtual void saveVisualizerEditorParameters (XmlElement* xml) {}
 
     /** Use this method to load custom editor parameters */
-    virtual void loadVisualizerEditorParameters(XmlElement* xml) { }
+    virtual void loadVisualizerEditorParameters (XmlElement* xml) {}
 
     /** Called when the Visualizer window is closed */
-    virtual void windowClosed() override { }
-    
+    virtual void windowClosed() override {}
+
     /** Called after tab has been closed. */
     void tabWasClosed();
 
@@ -123,7 +119,7 @@ public:
     // ------------------------------------------------------------
     //                     OTHER METHODS
     // ------------------------------------------------------------
-    
+
     /** Returns a pointer to the visualizer (used by the DataViewport) */
     Component* getVisualizerComponent();
 
@@ -197,15 +193,15 @@ protected:
     /** So that we can override buttonClick. That's not possible if these are private. */
     std::unique_ptr<SelectorButton> windowSelector;
     std::unique_ptr<SelectorButton> tabSelector;
-    
+
 private:
-    
     /** Custom class for responding to button clicks */
     class ButtonResponder : public Button::Listener
     {
     public:
-        ButtonResponder(VisualizerEditor* editor_) : editor(editor_) { }
-        void buttonClicked(Button* button);
+        ButtonResponder (VisualizerEditor* editor_) : editor (editor_) {}
+        void buttonClicked (Button* button);
+
     private:
         VisualizerEditor* editor;
     };
@@ -216,19 +212,17 @@ private:
 
     // Some constants
 
-	//C++11 constexpr keyword is not implemented in Visual Studio prior 2015
+    //C++11 constexpr keyword is not implemented in Visual Studio prior 2015
 #if defined _MSC_VER && _MSC_VER <= 1800
-	const char* EDITOR_TAG_TAB     = "TAB";
-	const char* EDITOR_TAG_WINDOW  = "WINDOW";
+    const char* EDITOR_TAG_TAB = "TAB";
+    const char* EDITOR_TAG_WINDOW = "WINDOW";
 #else
-    static constexpr const char* EDITOR_TAG_TAB     = "TAB";
-    static constexpr const char* EDITOR_TAG_WINDOW  = "WINDOW";
+    static constexpr const char* EDITOR_TAG_TAB = "TAB";
+    static constexpr const char* EDITOR_TAG_WINDOW = "WINDOW";
 #endif
 
     // ========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VisualizerEditor);
 };
 
-
-
-#endif  // __VISUALIZEREDITOR_H_17E6D78C__
+#endif // __VISUALIZEREDITOR_H_17E6D78C__

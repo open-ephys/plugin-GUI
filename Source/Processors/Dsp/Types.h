@@ -49,21 +49,21 @@ struct ComplexPair : complex_pair_t
     {
     }
 
-    explicit ComplexPair(const complex_t& c1)
+    explicit ComplexPair (const complex_t& c1)
         : complex_pair_t (c1, 0.)
     {
-        assert(isReal());
+        assert (isReal());
     }
 
-    ComplexPair(const complex_t& c1,
-                const complex_t& c2)
+    ComplexPair (const complex_t& c1,
+                 const complex_t& c2)
         : complex_pair_t (c1, c2)
     {
     }
 
     bool isConjugate() const
     {
-        return second == std::conj(first);
+        return second == std::conj (first);
     }
 
     bool isReal() const
@@ -76,16 +76,14 @@ struct ComplexPair : complex_pair_t
     bool isMatchedPair() const
     {
         if (first.imag() != 0)
-            return second == std::conj(first);
+            return second == std::conj (first);
         else
-            return second.imag() == 0 &&
-                   second.real() != 0 &&
-                   first.real() != 0;
+            return second.imag() == 0 && second.real() != 0 && first.real() != 0;
     }
 
     bool is_nan() const
     {
-        return Dsp::is_nan(first) || Dsp::is_nan(second);
+        return Dsp::is_nan (first) || Dsp::is_nan (second);
     }
 };
 
@@ -95,19 +93,17 @@ struct PoleZeroPair
     ComplexPair poles;
     ComplexPair zeros;
 
-    PoleZeroPair() { }
+    PoleZeroPair() {}
 
     // single pole/zero
-    PoleZeroPair(const complex_t& p, const complex_t& z)
-        : poles(p), zeros(z)
+    PoleZeroPair (const complex_t& p, const complex_t& z)
+        : poles (p), zeros (z)
     {
     }
 
     // pole/zero pair
-    PoleZeroPair(const complex_t& p1, const complex_t& z1,
-                 const complex_t& p2, const complex_t& z2)
-        : poles(p1, p2)
-        , zeros(z1, z2)
+    PoleZeroPair (const complex_t& p1, const complex_t& z1, const complex_t& p2, const complex_t& z2)
+        : poles (p1, p2), zeros (z1, z2)
     {
     }
 
@@ -135,6 +131,6 @@ enum Kind
     kindOther
 };
 
-}
+} // namespace Dsp
 
 #endif

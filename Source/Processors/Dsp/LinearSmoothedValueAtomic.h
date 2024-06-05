@@ -47,7 +47,7 @@
 */
 
 //==============================================================================
-template<typename FloatType>
+template <typename FloatType>
 class LinearSmoothedValueAtomic
 {
 public:
@@ -72,7 +72,6 @@ public:
     /** Compute the next value. */
     FloatType getNextValue() noexcept;
 
-
 private:
     //==========================================================================
     std::atomic<FloatType> target;
@@ -85,30 +84,19 @@ private:
     int stepsToTarget;
 };
 
-
 template <typename FloatType>
 LinearSmoothedValueAtomic<FloatType>::LinearSmoothedValueAtomic() noexcept
-    : target        (0)
-    , currentValue  (0)
-    , step          (0)
-    , countdown     (0)
-    , stepsToTarget (0)
+    : target (0), currentValue (0), step (0), countdown (0), stepsToTarget (0)
 {
 }
-
 
 template <typename FloatType>
 LinearSmoothedValueAtomic<FloatType>::LinearSmoothedValueAtomic (FloatType initialValue) noexcept
-    : target        (initialValue)
-    , currentValue  (initialValue)
-    , step          (0)
-    , countdown     (0)
-    , stepsToTarget (0)
+    : target (initialValue), currentValue (initialValue), step (0), countdown (0), stepsToTarget (0)
 {
 }
 
-
-template<typename FloatType>
+template <typename FloatType>
 void LinearSmoothedValueAtomic<FloatType>::reset (double sampleRate, double rampLengthInSeconds) noexcept
 {
     jassert (sampleRate > 0 && rampLengthInSeconds >= 0);
@@ -117,15 +105,13 @@ void LinearSmoothedValueAtomic<FloatType>::reset (double sampleRate, double ramp
     countdown = 0;
 }
 
-
-template<typename FloatType>
+template <typename FloatType>
 void LinearSmoothedValueAtomic<FloatType>::setValue (FloatType newValue) noexcept
 {
     target.store (newValue);
 }
 
-
-template<typename FloatType>
+template <typename FloatType>
 void LinearSmoothedValueAtomic<FloatType>::updateTarget() noexcept
 {
     FloatType newTarget = target.load();
@@ -141,8 +127,7 @@ void LinearSmoothedValueAtomic<FloatType>::updateTarget() noexcept
     }
 }
 
-
-template<typename FloatType>
+template <typename FloatType>
 FloatType LinearSmoothedValueAtomic<FloatType>::getNextValue() noexcept
 {
     if (countdown <= 0)
@@ -153,5 +138,4 @@ FloatType LinearSmoothedValueAtomic<FloatType>::getNextValue() noexcept
     return currentValue;
 }
 
-
-#endif   // JUCE_LINEARSMOOTHEDVALUEATOMIC_H_INCLUDED
+#endif // JUCE_LINEARSMOOTHEDVALUEATOMIC_H_INCLUDED

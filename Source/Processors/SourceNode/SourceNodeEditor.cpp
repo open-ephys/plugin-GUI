@@ -21,15 +21,13 @@
 
 */
 
-
 #include "SourceNodeEditor.h"
+#include "../../Utils/Utils.h"
 #include "../SourceNode/SourceNode.h"
 #include <stdio.h>
-#include "../../Utils/Utils.h"
 
-
-SourceNodeEditor::SourceNodeEditor(GenericProcessor* parentNode)
-    : GenericEditor(parentNode)
+SourceNodeEditor::SourceNodeEditor (GenericProcessor* parentNode)
+    : GenericEditor (parentNode)
 
 {
     desiredWidth = 170;

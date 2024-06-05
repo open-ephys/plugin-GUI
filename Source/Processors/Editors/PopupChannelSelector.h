@@ -25,11 +25,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ___POPUPCHANNELSELECTOR_H_E47DE5C__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../../UI/PopupComponent.h"
 #include "../../Utils/Utils.h"
 #include "../PluginManager/OpenEphysPlugin.h"
-#include "../../UI/PopupComponent.h"
 
-enum Select { ALL, NONE, RANGE };
+enum Select
+{
+    ALL,
+    NONE,
+    RANGE
+};
 
 class PopupChannelSelector;
 
@@ -41,27 +46,26 @@ class PopupChannelSelector;
 class PLUGIN_API ChannelButton : public Button
 {
 public:
+    /** Constructor */
+    ChannelButton (int id, PopupChannelSelector* parent);
 
-	/** Constructor */
-	ChannelButton(int id, PopupChannelSelector* parent);
+    /** Destructor */
+    ~ChannelButton() {}
 
-	/** Destructor */
-	~ChannelButton() { }
+    /** Returns the channel id */
+    int getId() { return id; };
 
-	/** Returns the channel id */
-	int getId() { return id; };
 private:
+    /** Mouse-related callbacks*/
+    void mouseDown (const MouseEvent& event) override;
+    void mouseDrag (const MouseEvent& event) override;
+    void mouseUp (const MouseEvent& event) override;
 
-	/** Mouse-related callbacks*/
-	void mouseDown(const MouseEvent& event) override;
-	void mouseDrag(const MouseEvent& event) override;
-	void mouseUp(const MouseEvent& event) override;
-
-	int id;
-	PopupChannelSelector* parent;
-	int width;
-	int height;
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+    int id;
+    PopupChannelSelector* parent;
+    int width;
+    int height;
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
 /**
@@ -72,16 +76,15 @@ private:
 class PLUGIN_API SelectButton : public Button
 {
 public:
+    /** Constructor */
+    SelectButton (const String& name);
 
-	/** Constructor */
-	SelectButton(const String& name);
+    /** Destructor */
+    ~SelectButton() {}
 
-	/** Destructor */
-	~SelectButton() { }
 private:
-
-	/** Draws the button*/
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+    /** Draws the button*/
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
 /**
@@ -96,14 +99,12 @@ private:
 class PLUGIN_API RangeEditor : public TextEditor
 {
 public:
+    /** Constructor */
+    RangeEditor (const String& name, const Font& font);
 
-	/** Constructor */
-	RangeEditor(const String& name, const Font& font);
-
-	/** Destructor*/
-	~RangeEditor() { }
+    /** Destructor*/
+    ~RangeEditor() {}
 };
-
 
 /**
 * 
@@ -115,93 +116,88 @@ public:
 	- The color of the buttons (setChannelButtonColour)
 
 */
-class PLUGIN_API PopupChannelSelector :
-	public PopupComponent,
-	public Button::Listener,
-	public TextEditor::Listener
+class PLUGIN_API PopupChannelSelector : public PopupComponent,
+                                        public Button::Listener,
+                                        public TextEditor::Listener
 {
 public:
+    class Listener
+    {
+    public:
+        virtual ~Listener() {}
+        virtual Array<int> getSelectedChannels() = 0;
+        virtual void channelStateChanged (Array<int> selectedChannels) = 0;
+    };
 
-	class Listener
-	{
-	public:
-		virtual ~Listener() { }
-		virtual Array<int> getSelectedChannels() = 0;
-		virtual void channelStateChanged(Array<int> selectedChannels) = 0;
-	};
+    /** Constructor */
+    PopupChannelSelector (Component* parent, Listener* listener, std::vector<bool> channelStates);
 
-	/** Constructor */
-	PopupChannelSelector(Component* parent, Listener* listener, std::vector<bool> channelStates);
+    /** Destructor */
+    ~PopupChannelSelector() {}
 
-	/** Destructor */
-	~PopupChannelSelector() { }
+    /** Sets the maximum number of channels that can be selected at once*/
+    void setMaximumSelectableChannels (int num);
 
-	/** Sets the maximum number of channels that can be selected at once*/
-	void setMaximumSelectableChannels(int num);
+    /** Sets the color of the channel buttons*/
+    void setChannelButtonColour (Colour c);
 
-	/** Sets the color of the channel buttons*/
-	void setChannelButtonColour(Colour c);
+    /** Mouse-related callbacks*/
+    void mouseMove (const MouseEvent& event);
+    void mouseDown (const MouseEvent& event);
+    void mouseDrag (const MouseEvent& event);
+    void mouseUp (const MouseEvent& event);
 
-	/** Mouse-related callbacks*/
-	void mouseMove(const MouseEvent& event);
-	void mouseDown(const MouseEvent& event);
-	void mouseDrag(const MouseEvent& event);
-	void mouseUp(const MouseEvent& event);
+    /** Respond to button clicks*/
+    void buttonClicked (Button*);
 
-	/** Respond to button clicks*/
-	void buttonClicked(Button*);
+    /** Checks whether shift key is down*/
+    void modifierKeysChanged (const ModifierKeys& modifiers);
 
-	/** Checks whether shift key is down*/
-	void modifierKeysChanged(const ModifierKeys& modifiers);
+    /** Returns a pointer to the button with a given id*/
+    ChannelButton* getButtonForId (int btnId);
 
-	/** Returns a pointer to the button with a given id*/
-	ChannelButton* getButtonForId(int btnId);
+    bool firstButtonSelectedState;
 
-	bool firstButtonSelectedState;
+    juce::Point<int> startDragCoords;
 
-	juce::Point<int> startDragCoords;
+    Colour buttonColour;
 
-	Colour buttonColour;
+    OwnedArray<ChannelButton> channelButtons;
 
-	OwnedArray<ChannelButton> channelButtons;
+    void updatePopup() override;
 
-	void updatePopup() override;
-
-	void resized() override;
+    void resized() override;
 
 private:
+    std::unique_ptr<Viewport> viewport;
+    Listener* listener;
 
-	std::unique_ptr<Viewport> viewport;
-	Listener* listener;
+    /** Methods for parsing range strings*/
+    int convertStringToInteger (String s);
+    Array<int> parseStringIntoRange (int rangeValue);
 
-	/** Methods for parsing range strings*/
-	int convertStringToInteger(String s);
-	Array<int> parseStringIntoRange(int rangeValue);
+    void textEditorReturnKeyPressed (TextEditor&);
+    void updateRangeString();
+    void parseRangeString();
 
-	void textEditorReturnKeyPressed(TextEditor&);
-	void updateRangeString();
-	void parseRangeString();
+    OwnedArray<SelectButton> selectButtons;
+    std::unique_ptr<RangeEditor> rangeEditor;
 
-	OwnedArray<SelectButton> selectButtons;
-	std::unique_ptr<RangeEditor> rangeEditor;
+    bool editable;
+    bool isDragging;
+    bool mouseDragged;
+    bool shiftKeyDown;
 
-	bool editable;
-	bool isDragging;
-	bool mouseDragged;
-	bool shiftKeyDown;
+    juce::Rectangle<int> dragBox;
 
-	juce::Rectangle<int> dragBox;
+    int nChannels;
+    int maxSelectable;
 
-	int nChannels;
-	int maxSelectable;
+    String rangeString;
 
-	String rangeString;
-
-	Array<int> channelStates;
-	Array<int> selectedButtons;
-	Array<int> activeChannels;
+    Array<int> channelStates;
+    Array<int> selectedButtons;
+    Array<int> activeChannels;
 };
 
-
-
-#endif  // ___POPUPCHANNELSELECTOR_H_E47DE5C__
+#endif // ___POPUPCHANNELSELECTOR_H_E47DE5C__

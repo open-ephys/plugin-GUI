@@ -75,7 +75,7 @@ public:
     /** Updates the Record Engine for this thread*/
     void setEngine (RecordEngine* engine);
 
-	/** Pointer to the RecordNode */
+    /** Pointer to the RecordNode */
     RecordNode* recordNode;
 
 private:

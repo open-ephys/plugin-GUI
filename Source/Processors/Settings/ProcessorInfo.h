@@ -29,34 +29,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "InfoObject.h"
 
-
 class PLUGIN_API ProcessorInfoObject : public InfoObject
 {
 public:
+    /** Constructor */
+    ProcessorInfoObject (GenericProcessor* processor);
 
-	/** Constructor */
-	ProcessorInfoObject(GenericProcessor* processor);
-
-	/** Destructor */
+    /** Destructor */
     virtual ~ProcessorInfoObject();
 
-	/** Gets the ID of the processor */
-	int getNodeId() const;
+    /** Gets the ID of the processor */
+    int getNodeId() const;
 
-	/** Gets the processor type of the node which created this object */
-	String getType() const;
+    /** Gets the processor type of the node which created this object */
+    String getType() const;
 
-	/** Gets the name of the processor which created this object */
-	String getName() const;
- 
+    /** Gets the name of the processor which created this object */
+    String getName() const;
+
 private:
+    ProcessorInfoObject() = delete;
 
-	ProcessorInfoObject() = delete;
-
-	int m_nodeId;
-	String m_type;
-	String m_name;
+    int m_nodeId;
+    String m_type;
+    String m_name;
 };
-
 
 #endif

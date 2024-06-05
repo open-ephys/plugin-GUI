@@ -32,39 +32,36 @@
 class PLUGIN_API PluginClass
 {
 public:
-    
     /** Constructor */
-	PluginClass();
-    
+    PluginClass();
+
     /** Destructor*/
-	~PluginClass();
-    
+    ~PluginClass();
+
     /** Sets the pluginType*/
-	void setPluginData(Plugin::Type type, int index);
-    
+    void setPluginData (Plugin::Type type, int index);
+
     /** Returns the library name of this plugin*/
-	String getLibName() const;
-    
+    String getLibName() const;
+
     /** Returns the name of this plugin*/
-	String getPluginName() const;
-    
+    String getPluginName() const;
+
     /** Returns the library version*/
-	String getLibVersion() const;
-    
+    String getLibVersion() const;
+
     /** Returns the type of this plugin*/
-	Plugin::Type getPluginType() const;
-    
+    Plugin::Type getPluginType() const;
+
     /** Returns the index of this plugin*/
-	int getIndex() const;
-    
+    int getIndex() const;
+
 private:
-	String libName;
-	String pluginName;
-	Plugin::Type pluginType;
-	String libVersion;
-	int pluginIndex;
+    String libName;
+    String pluginName;
+    Plugin::Type pluginType;
+    String libVersion;
+    int pluginIndex;
 };
 
-
-
-#endif  // PLUGINCLASS_H_INCLUDED
+#endif // PLUGINCLASS_H_INCLUDED

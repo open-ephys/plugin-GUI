@@ -24,8 +24,6 @@
 #include <EditorHeaders.h>
 //[/Headers]
 
-
-
 //==============================================================================
 /**
                                                                     //[Comments]
@@ -34,7 +32,7 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class CONTENTCOMPONENTCLASSNAME: public Component
+class CONTENTCOMPONENTCLASSNAME : public Component
 {
 public:
     //==============================================================================
@@ -48,8 +46,6 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
 
-
-
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
@@ -61,7 +57,6 @@ private:
 
     //==============================================================================
 
-
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CONTENTCOMPONENTCLASSNAME)
 };
@@ -69,4 +64,4 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // HEADERGUARD
+#endif // HEADERGUARD

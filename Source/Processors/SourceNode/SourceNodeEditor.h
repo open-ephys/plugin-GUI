@@ -41,20 +41,14 @@ class SourceNodeEditor : public GenericEditor
 
 {
 public:
-
     /** Constructor */
-    SourceNodeEditor(GenericProcessor* parentNode);
+    SourceNodeEditor (GenericProcessor* parentNode);
 
     /** Destructor */
-    virtual ~SourceNodeEditor() { }
+    virtual ~SourceNodeEditor() {}
 
 private:
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SourceNodeEditor);
-    
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceNodeEditor);
 };
 
-
-
-#endif  // __SOURCENODEEDITOR_H_A1B19E1E__
+#endif // __SOURCENODEEDITOR_H_A1B19E1E__

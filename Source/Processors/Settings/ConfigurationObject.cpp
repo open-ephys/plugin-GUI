@@ -23,22 +23,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ConfigurationObject.h"
 
-ConfigurationObject::ConfigurationObject(ProcessorInfoObject* source,
-	String name_, 
-	String description_)
-	: InfoObject(InfoObject::Type::CONFIGURATION_OBJECT),
-	m_source(source)
+ConfigurationObject::ConfigurationObject (ProcessorInfoObject* source,
+                                          String name_,
+                                          String description_)
+    : InfoObject (InfoObject::Type::CONFIGURATION_OBJECT),
+      m_source (source)
 {
-	setName(name_);
-	setDescription(description_);
+    setName (name_);
+    setDescription (description_);
 }
 
 ConfigurationObject::~ConfigurationObject()
 {
-
 }
 
 const ProcessorInfoObject* ConfigurationObject::getSource() const
 {
-	return m_source;
+    return m_source;
 }

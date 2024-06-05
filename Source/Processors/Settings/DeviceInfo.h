@@ -36,31 +36,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	the particular kind of Neuropixels probe used for acquisition.
 
 */
-class PLUGIN_API DeviceInfo :
-	public InfoObject
+class PLUGIN_API DeviceInfo : public InfoObject
 {
 public:
+    friend class GenericProcessor;
 
-	friend class GenericProcessor;
+    struct Settings
+    {
+        String name = "name";
+        String description = "description";
+        String identifier = "default-device";
 
-	struct Settings {
-		String name = "name";
-		String description = "description";
-		String identifier = "default-device";
+        String serial_number = "0000000";
+        String manufacturer = "Open Ephys";
+    };
 
-		String serial_number = "0000000";
-		String manufacturer = "Open Ephys";
-	};
+    /** Constructor */
+    DeviceInfo (Settings settings);
 
-	/** Constructor */
-	DeviceInfo(Settings settings);
+    /** Destructor */
+    virtual ~DeviceInfo();
 
-	/** Destructor */
-	virtual ~DeviceInfo();
-
-	const String manufacturer;
-	const String serial_number;
-	
+    const String manufacturer;
+    const String serial_number;
 };
 
 #endif

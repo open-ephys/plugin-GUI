@@ -25,10 +25,10 @@
 #define __SOURCENODE_H_DCE798F1__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include <stdio.h>
+#include "../../UI/UIComponent.h"
 #include "../DataThreads/DataThread.h"
 #include "../GenericProcessor/GenericProcessor.h"
-#include "../../UI/UIComponent.h"
+#include <stdio.h>
 
 #include "../Events/Event.h"
 
@@ -37,8 +37,7 @@
 
   @see GenericProcessor, SourceNodeEditor, DataThread
 */
-class PLUGIN_API SourceNode : public GenericProcessor
-                            , public Timer
+class PLUGIN_API SourceNode : public GenericProcessor, public Timer
 {
 public:
     /* Constructor */
@@ -57,20 +56,20 @@ public:
     void process (AudioBuffer<float>& buffer) override;
 
     /* Passes TEXT event messages to the DataThread, via handleMessage() */
-    void handleBroadcastMessage(const String& msg, const int64 messageTimeMilliseconds) override;
+    void handleBroadcastMessage (const String& msg, const int64 messageTimeMilliseconds) override;
 
     /* Passes configuration messages to the DataThread, via handleConfigMessage() */
-    String handleConfigMessage(const String &msg) override;
+    String handleConfigMessage (const String& msg) override;
 
     /* Broadcasts a message from the DataThread to all other processors*/
-    void broadcastDataThreadMessage(const String& msg);
-    
+    void broadcastDataThreadMessage (const String& msg);
+
     /* Sends a config message from the DataThread to another processor while
      acquisition is paused. Should only be used by a SourceNode's DataThread*/
-    void sendDataThreadConfigMessage(GenericProcessor* destProcessor, const String& msg);
+    void sendDataThreadConfigMessage (GenericProcessor* destProcessor, const String& msg);
 
     /* Gets the sample rate for a particular subprocessor*/
-    float getSampleRate(int subProcessorIdx = 0) const override;
+    float getSampleRate (int subProcessorIdx = 0) const override;
 
     /* Gets the default sample rate*/
     float getDefaultSampleRate() const override;
@@ -78,14 +77,14 @@ public:
     /* Allows the DataThread to update the signal chain*/
     void requestSignalChainUpdate();
 
-	/* Registers this processor as a timestamp generator*/
-	bool generatesTimestamps() const override;
+    /* Registers this processor as a timestamp generator*/
+    bool generatesTimestamps() const override;
 
     /* Starts the DataThread*/
-    bool startAcquisition()   override;
+    bool startAcquisition() override;
 
     /* Stops the DataThread*/
-    bool stopAcquisition()  override;
+    bool stopAcquisition() override;
 
     /* Returns true if the DataThread found the source hardware*/
     bool isSourcePresent() const;
@@ -94,19 +93,18 @@ public:
     void connectionLost();
 
     /* Returns a pointer to the DataThread*/
-	DataThread* getThread() const;
+    DataThread* getThread() const;
 
     /* Enables editor after a connection to the data source is re-established*/
     bool tryEnablingEditor();
 
     /** Passes initialize command to the DataThread*/
-    void initialize(bool signalChainIsLoading) override;
+    void initialize (bool signalChainIsLoading) override;
 
     /** Called when a parameter value is updated, to allow plugin-specific responses*/
-    void parameterValueChanged(Parameter*) override;
-    
-private:
+    void parameterValueChanged (Parameter*) override;
 
+private:
     /* Periodically checks for a connection to the data source.*/
     void timerCallback() override;
 
@@ -130,11 +128,10 @@ private:
     double timestamp = -1.0;
 
     OwnedArray<MemoryBlock> eventCodeBuffers;
-	Array<uint64> eventStates;
-	Array<EventChannel*> ttlChannels;
+    Array<uint64> eventStates;
+    Array<EventChannel*> ttlChannels;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceNode);
 };
 
-
-#endif  // __SOURCENODE_H_DCE798F1__
+#endif // __SOURCENODE_H_DCE798F1__

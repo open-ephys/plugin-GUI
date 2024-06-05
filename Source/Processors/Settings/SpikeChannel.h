@@ -25,175 +25,170 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SPIKECHANNEL_H_INCLUDED
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../PluginManager/OpenEphysPlugin.h"
-#include "Metadata.h"
-#include "InfoObject.h"
 #include "../Parameter/ParameterOwner.h"
+#include "../PluginManager/OpenEphysPlugin.h"
+#include "InfoObject.h"
+#include "Metadata.h"
 
 class ContinuousChannel;
 
 class PLUGIN_API Thresholder
 {
 public:
-    Thresholder() { }
-    virtual ~Thresholder() { }
-    
-    virtual void setThreshold(int channel, float threshold) = 0;
-    
-    virtual float getThreshold(int channel) = 0;
-    
+    Thresholder() {}
+    virtual ~Thresholder() {}
+
+    virtual void setThreshold (int channel, float threshold) = 0;
+
+    virtual float getThreshold (int channel) = 0;
+
     virtual Array<float>& getThresholds() = 0;
-    
-    virtual bool checkSample(int channel, float sample) = 0;
+
+    virtual bool checkSample (int channel, float sample) = 0;
 };
 
-class PLUGIN_API SpikeChannel : 
-	public ChannelInfoObject,
-	public MetadataEventObject,
-	public ParameterOwner
+class PLUGIN_API SpikeChannel : public ChannelInfoObject,
+                                public MetadataEventObject,
+                                public ParameterOwner
 {
 public:
-	enum Type
-	{
-		SINGLE = 1,
-		STEREOTRODE,
-		TETRODE,
-		INVALID = 100
-	};
+    enum Type
+    {
+        SINGLE = 1,
+        STEREOTRODE,
+        TETRODE,
+        INVALID = 100
+    };
 
-	struct Settings {
+    struct Settings
+    {
+        Type type;
 
-		Type type;
+        String name;
+        String description;
+        String identifier;
 
-		String name;
-		String description;
-		String identifier;
-        
-		Array<int> localChannelIndexes;
+        Array<int> localChannelIndexes;
 
-		unsigned int numPrePeakSamples = 8;
-		unsigned int numPostPeakSamples = 32;
-        
+        unsigned int numPrePeakSamples = 8;
+        unsigned int numPostPeakSamples = 32;
+
         bool sendFullWaveform = true;
+    };
 
-	};
-
-	/** Default constructor 
+    /** Default constructor 
 		@param settings - the settings for this channel
 	*/
-	SpikeChannel(Settings settings);
+    SpikeChannel (Settings settings);
 
-	/* Destructor*/
-	virtual ~SpikeChannel();
-    
+    /* Destructor*/
+    virtual ~SpikeChannel();
+
     /** Copy constructor*/
-    SpikeChannel(const SpikeChannel& spikeChannel);
-    
-    /** Sets the DataStream for this spike channel, which sets the global channel indexes (if available)*/
-    void setDataStream(DataStream* dataStream, bool addToStream = true) override;
+    SpikeChannel (const SpikeChannel& spikeChannel);
 
-	/* Get the channel type (SINGLE, STEREOTRODE, TETRODE) */
-	Type getChannelType() const;
-    
+    /** Sets the DataStream for this spike channel, which sets the global channel indexes (if available)*/
+    void setDataStream (DataStream* dataStream, bool addToStream = true) override;
+
+    /* Get the channel type (SINGLE, STEREOTRODE, TETRODE) */
+    Type getChannelType() const;
+
     /** Returns true if all continuous channels are available in the incoming stream */
     bool isValid() const;
 
-	/** Returns an array with info about the channels from which the spikes originate */
-	const Array<const ContinuousChannel*>& getSourceChannels() const;
-    
-	/** Sets the source channels from which the spikes originate */
-    void setSourceChannels(Array<const ContinuousChannel*>& sourceChannels);
+    /** Returns an array with info about the channels from which the spikes originate */
+    const Array<const ContinuousChannel*>& getSourceChannels() const;
 
-	/** Gets the number of pre peak samples */
-	unsigned int getPrePeakSamples() const;
+    /** Sets the source channels from which the spikes originate */
+    void setSourceChannels (Array<const ContinuousChannel*>& sourceChannels);
 
-	/** Gets the number of post peak samples */
-	unsigned int getPostPeakSamples() const;
+    /** Gets the number of pre peak samples */
+    unsigned int getPrePeakSamples() const;
 
-	/** Gets the total number of samples */
-	unsigned int getTotalSamples() const;
+    /** Gets the number of post peak samples */
+    unsigned int getPostPeakSamples() const;
 
-	/** Gets the number of channels associated with the electrode type */
-	unsigned int getNumChannels() const;
+    /** Gets the total number of samples */
+    unsigned int getTotalSamples() const;
 
-	/** Gets the bitVolt value of one of the source channels*/
-	float getChannelBitVolts(int chan) const;
+    /** Gets the number of channels associated with the electrode type */
+    unsigned int getNumChannels() const;
 
-	/** Gets the total size in bytes for a spike object */
-	size_t getDataSize() const;
+    /** Gets the bitVolt value of one of the source channels*/
+    float getChannelBitVolts (int chan) const;
 
-	/** Gets the size in bytes of one channel of the spike object*/
-	size_t getChannelDataSize() const;
-    
+    /** Gets the total size in bytes for a spike object */
+    size_t getDataSize() const;
+
+    /** Gets the size in bytes of one channel of the spike object*/
+    size_t getChannelDataSize() const;
+
     /** Determines whether a particular continuous channel is used to detect spikes*/
-    bool detectSpikesOnChannel(int chan) const;
-    
+    bool detectSpikesOnChannel (int chan) const;
+
     /** Holds the current sample index for this electrode*/
     int currentSampleIndex;
-    
+
     /** Holds the current sample index for this electrode*/
     int lastBufferIndex;
 
     /** Determines whether this electrode should use the overflow buffer*/
     bool useOverflowBuffer;
-    
+
     /** Used to check whether a spike should be triggered */
     std::unique_ptr<Thresholder> thresholder;
-    
+
     /** Resets state after acquisition*/
     void reset();
-    
+
     /** Holds the global channel index for each continuous channel*/
     Array<int> globalChannelIndexes;
-    
+
     /** Holds the local channel index for each continuous channel*/
     Array<int> localChannelIndexes;
-    
+
     /** Find similar stream*/
-    DataStream* findSimilarStream(OwnedArray<DataStream>& streams);
-    
+    DataStream* findSimilarStream (OwnedArray<DataStream>& streams);
+
     /** Determines whether channel sends the full waveform, or just the peak sample*/
     bool sendFullWaveform;
 
-	/** Gets the eletrode start channel */
-	int getStartChannel() const { return localChannelIndexes[0]; };
+    /** Gets the eletrode start channel */
+    int getStartChannel() const { return localChannelIndexes[0]; };
 
-	// ====== STATIC METHODS ========= //
+    // ====== STATIC METHODS ========= //
 
-	/** Gets the number of channels associated with a specific electrode type */
-	static unsigned int getNumChannels(Type type);
+    /** Gets the number of channels associated with a specific electrode type */
+    static unsigned int getNumChannels (Type type);
 
-	/** Gets the electrode type from a specific number of channels*/
-	static Type typeFromNumChannels(unsigned int nChannels);
+    /** Gets the electrode type from a specific number of channels*/
+    static Type typeFromNumChannels (unsigned int nChannels);
 
-	/** Generates a default channel name to use*/
-	static String getDefaultChannelPrefix(Type channelType);
+    /** Generates a default channel name to use*/
+    static String getDefaultChannelPrefix (Type channelType);
 
-	/** Generates a default channel name to use*/
-	static String getDescriptionFromType(Type channelType);
+    /** Generates a default channel name to use*/
+    static String getDescriptionFromType (Type channelType);
 
-	/** Generates a default channel name to use*/
-	static String getIdentifierFromType(Type channelType);
+    /** Generates a default channel name to use*/
+    static String getIdentifierFromType (Type channelType);
 
-	/** Initiates parameter value update */
-	void parameterChangeRequest(Parameter*) override;
+    /** Initiates parameter value update */
+    void parameterChangeRequest (Parameter*) override;
 
 protected:
+    const Type type;
 
-	const Type type;
+    Array<const ContinuousChannel*> sourceChannels;
+    Array<bool> channelIsEnabled;
 
-	Array<const ContinuousChannel*> sourceChannels;
-	Array<bool> channelIsEnabled;
-
-	unsigned int numPreSamples;
-	unsigned int numPostSamples;
-    
+    unsigned int numPreSamples;
+    unsigned int numPostSamples;
 
     uint16 lastStreamId;
     String lastStreamName;
     float lastStreamSampleRate;
     int lastStreamChannelCount;
-
 };
 
 #endif

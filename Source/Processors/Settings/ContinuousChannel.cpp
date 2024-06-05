@@ -24,46 +24,43 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ContinuousChannel.h"
 #include "DataStream.h"
 
-ContinuousChannel::ContinuousChannel(ContinuousChannel::Settings settings) :
-	ChannelInfoObject(InfoObject::Type::CONTINUOUS_CHANNEL, settings.stream),
-	ParameterOwner(ParameterOwner::Type::CONTINUOUS_CHANNEL),
-	m_type(settings.type)
+ContinuousChannel::ContinuousChannel (ContinuousChannel::Settings settings) : ChannelInfoObject (InfoObject::Type::CONTINUOUS_CHANNEL, settings.stream),
+                                                                              ParameterOwner (ParameterOwner::Type::CONTINUOUS_CHANNEL),
+                                                                              m_type (settings.type)
 {
-	setName(settings.name);
-	setDescription(settings.description);
-	setBitVolts(settings.bitVolts);
+    setName (settings.name);
+    setDescription (settings.description);
+    setBitVolts (settings.bitVolts);
 }
-
 
 ContinuousChannel::~ContinuousChannel()
 {
 }
 
-void ContinuousChannel::setBitVolts(float bitVolts)
+void ContinuousChannel::setBitVolts (float bitVolts)
 {
-	m_bitVolts = bitVolts;
+    m_bitVolts = bitVolts;
 }
 
 float ContinuousChannel::getBitVolts() const
 {
-	return m_bitVolts;
+    return m_bitVolts;
 }
 
-void ContinuousChannel::setUnits(String unit)
+void ContinuousChannel::setUnits (String unit)
 {
-	m_units = unit;
+    m_units = unit;
 }
 
 String ContinuousChannel::getUnits() const
 {
-	return m_units;
+    return m_units;
 }
 
 const ContinuousChannel::Type ContinuousChannel::getChannelType() const
 {
-	return m_type;
+    return m_type;
 }
-
 
 /*bool DataChannel::checkEqual(const InfoObjectCommon& other, bool similar) const
 {

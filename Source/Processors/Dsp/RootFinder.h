@@ -52,7 +52,7 @@ class RootFinderBase
 public:
     struct Array
     {
-        Array(int max, complex_t* values)
+        Array (int max, complex_t* values)
         // : m_max (max)
         // , m_values (values)
         {
@@ -68,13 +68,13 @@ public:
     // The input coefficients are set using coef()[].
     // The solutions are placed in roots.
     //
-    void solve(int degree,
-               bool polish = true,
-               bool doSort = true);
+    void solve (int degree,
+                bool polish = true,
+                bool doSort = true);
 
     // Evaluates the polynomial at x
-    complex_t eval(int degree,
-                   const complex_t& x);
+    complex_t eval (int degree,
+                    const complex_t& x);
 
     // Direct access to the input coefficient array of size degree+1.
     complex_t* coef()
@@ -89,42 +89,42 @@ public:
     }
 
     // sort the roots by descending imaginary part
-    void sort(int degree);
+    void sort (int degree);
 
 private:
     // Improves x as a root using Laguerre's method.
     // The input coefficient array has degree+1 elements.
-    void laguerre(int degree,
-                  complex_t a[],
-                  complex_t& x,
-                  int& its);
+    void laguerre (int degree,
+                   complex_t a[],
+                   complex_t& x,
+                   int& its);
 
 protected:
     int m_maxdegree;
-    complex_t* m_a;		// input coefficients (m_maxdegree+1 elements)
-    complex_t* m_ad;	// copy of deflating coefficients
+    complex_t* m_a; // input coefficients (m_maxdegree+1 elements)
+    complex_t* m_ad; // copy of deflating coefficients
     complex_t* m_root; // array of roots (maxdegree elements)
 };
 
 //------------------------------------------------------------------------------
 
-template<int maxdegree>
+template <int maxdegree>
 struct RootFinder : RootFinderBase
 {
     RootFinder()
     {
         m_maxdegree = maxdegree;
-        m_a  = m_a0;
+        m_a = m_a0;
         m_ad = m_ad0;
         m_root = m_r;
     }
 
 private:
-    complex_t m_a0 [maxdegree+1];
-    complex_t m_ad0[maxdegree+1];
-    complex_t m_r  [maxdegree];
+    complex_t m_a0[maxdegree + 1];
+    complex_t m_ad0[maxdegree + 1];
+    complex_t m_r[maxdegree];
 };
 
-}
+} // namespace Dsp
 
 #endif

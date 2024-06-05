@@ -25,8 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PARAMETEROWNER_H_INCLUDED
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "ParameterCollection.h"
 #include "Parameter.h"
+#include "ParameterCollection.h"
 #include "ParameterEditor.h"
 
 class ParameterCollection;
@@ -40,101 +40,97 @@ class ParameterCollection;
 */
 class PLUGIN_API ParameterOwner
 {
-
 public:
-	/** Destructor */
+    /** Destructor */
     virtual ~ParameterOwner();
 
     /** Custom copy constructor -- set isLocal to false and don't copy parameters*/
-    ParameterOwner(const ParameterOwner& other);
+    ParameterOwner (const ParameterOwner& other);
 
-	/** ParameterOwner::Type*/
-	enum Type
-	{
-		// A channel that's sampled at regular intervals
-		CONTINUOUS_CHANNEL,
+    /** ParameterOwner::Type*/
+    enum Type
+    {
+        // A channel that's sampled at regular intervals
+        CONTINUOUS_CHANNEL,
 
-		// A channel that sends events at arbitrary times
-		EVENT_CHANNEL,
+        // A channel that sends events at arbitrary times
+        EVENT_CHANNEL,
 
-		// A channel that sends spike events
-		SPIKE_CHANNEL,
+        // A channel that sends spike events
+        SPIKE_CHANNEL,
 
-		// A collection of synchronously sampled continuous channels
-		DATASTREAM,
+        // A collection of synchronously sampled continuous channels
+        DATASTREAM,
 
-		// Processor, Visualizer, or any other global parameter owners
-		OTHER
-	};
+        // Processor, Visualizer, or any other global parameter owners
+        OTHER
+    };
 
     // --------------------------------------------
     //     PARAMETERS
     // --------------------------------------------
 
     /** Adds a parameter to this object**/
-    void addParameter(Parameter* p);
+    void addParameter (Parameter* p);
 
     /** Returns a pointer to a parameter with a given name**/
-    Parameter* getParameter(String name) const;
+    Parameter* getParameter (String name) const;
 
-	/** Returns true if an object has a parameter with a given name**/
-	bool hasParameter(String name) const { return parameters.contains(name); }
+    /** Returns true if an object has a parameter with a given name**/
+    bool hasParameter (String name) const { return parameters.contains (name); }
 
     /** Returns a pointer to a parameter with a given name**/
     Array<Parameter*> getParameters() { return parameters.getParameters(); }
 
-	/** Returns a pointer to a parameter with a given name**/
-	Array<String> getParameterNames() const;
+    /** Returns a pointer to a parameter with a given name**/
+    Array<String> getParameterNames() const;
 
-	/*Bracket operator returns the value of a parameter*/
-    var operator [](String name) const;
+    /*Bracket operator returns the value of a parameter*/
+    var operator[] (String name) const;
 
     /** Copies parameters from another ParameterOwner and clears the original ParameterCollection*/
-    void copyParameters(ParameterOwner* object);
+    void copyParameters (ParameterOwner* object);
 
     /** Returns the number of parameters for this object*/
     int numParameters() const { return parameters.size(); }
 
-	/** Set parameter color */
-	void setColor(String name, Colour color) { parameterColors[name] = color; };
+    /** Set parameter color */
+    void setColor (String name, Colour color) { parameterColors[name] = color; };
 
-	/** Get parameter color */
-	Colour getColor(String name) { return parameterColors[name]; };
+    /** Get parameter color */
+    Colour getColor (String name) { return parameterColors[name]; };
 
-	// --------------------------------------------
-	//     PARAMETER CHANGE NOTIFICATION
-	// --------------------------------------------
+    // --------------------------------------------
+    //     PARAMETER CHANGE NOTIFICATION
+    // --------------------------------------------
 
-	/** Initiates parameter value update */
-    virtual void parameterChangeRequest(Parameter*) { }
+    /** Initiates parameter value update */
+    virtual void parameterChangeRequest (Parameter*) {}
 
     /** Called when a parameter value is updated, to allow plugin-specific responses*/
-    virtual void parameterValueChanged(Parameter*) { }
+    virtual void parameterValueChanged (Parameter*) {}
 
-	/** Creates a simple editor for modifying this object's parameters */
-	virtual Array<ParameterEditor*> createDefaultEditor();
-	
+    /** Creates a simple editor for modifying this object's parameters */
+    virtual Array<ParameterEditor*> createDefaultEditor();
 
-	// --------------------------------------------
-	//    OTHER METHODS
-	// --------------------------------------------
-	
-	/** Returns the type of the ParameterOwner*/
-	const Type getType() const;
+    // --------------------------------------------
+    //    OTHER METHODS
+    // --------------------------------------------
 
-	/** Holds the parameters for this object */
+    /** Returns the type of the ParameterOwner*/
+    const Type getType() const;
+
+    /** Holds the parameters for this object */
     ParameterCollection parameters;
 
-
 protected:
-	/** Constructor*/
-	ParameterOwner(Type type);
+    /** Constructor*/
+    ParameterOwner (Type type);
 
 private:
+    const Type m_type;
 
-	const Type m_type;
-
-	std::map<String, Colour> parameterColors;
+    std::map<String, Colour> parameterColors;
 };
 
 #endif

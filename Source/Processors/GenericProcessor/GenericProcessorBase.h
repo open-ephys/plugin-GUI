@@ -28,7 +28,6 @@
 
 #include "../PluginManager/PluginClass.h"
 
-
 /**
     Base class for GenericProcessor - implements some required Juce Methods
 */
@@ -125,11 +124,9 @@ public:
     bool silenceInProducesSilenceOut() const override;
 
 private:
-
     const String m_name;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericProcessorBase);
 };
 
-
-#endif  // __GENERICPROCESSORBASE_H_1F469DAF__
+#endif // __GENERICPROCESSORBASE_H_1F469DAF__

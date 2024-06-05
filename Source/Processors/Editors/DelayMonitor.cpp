@@ -24,39 +24,37 @@
 #include "DelayMonitor.h"
 #include "../../UI/LookAndFeel/CustomLookAndFeel.h"
 
-
-DelayMonitor::DelayMonitor() : 
-    delay(0.0f), 
-    isEnabled(true), 
-    colour(Colours::white)
+DelayMonitor::DelayMonitor() : delay (0.0f),
+                               isEnabled (true),
+                               colour (Colours::white)
 {
-    setInterceptsMouseClicks(false, false);
+    setInterceptsMouseClicks (false, false);
 }
 
 DelayMonitor::~DelayMonitor()
 {
 }
 
-void DelayMonitor::setDelay(float delayMs)
+void DelayMonitor::setDelay (float delayMs)
 {
     delay = delayMs;
 }
 
-void DelayMonitor::setEnabled(bool state)
+void DelayMonitor::setEnabled (bool state)
 {
     isEnabled = state;
-    
+
     if (isEnabled)
         colour = Colours::white;
     else
         colour = Colours::grey;
-    
+
     repaint();
 }
 
 void DelayMonitor::startAcquisition()
 {
-    startTimer(500);
+    startTimer (500);
 }
 
 void DelayMonitor::stopAcquisition()
@@ -69,17 +67,14 @@ void DelayMonitor::timerCallback()
     repaint();
 }
 
-void DelayMonitor::paint(Graphics& g)
+void DelayMonitor::paint (Graphics& g)
 {
-
-    g.setColour(findColour(ThemeColors::defaultText));
-    g.setFont(FontOptions("Fira Sans", "SemiBold", 12));
-    g.drawText(String(delay, 2) + " ms", 0, 0, 60, 20, Justification::centredLeft);
-
+    g.setColour (findColour (ThemeColors::defaultText));
+    g.setFont (FontOptions ("Fira Sans", "SemiBold", 12));
+    g.drawText (String (delay, 2) + " ms", 0, 0, 60, 20, Justification::centredLeft);
 }
 
-
-void DelayMonitor::handleCommandMessage(int commandId)
+void DelayMonitor::handleCommandMessage (int commandId)
 {
-    repaint();   
+    repaint();
 }

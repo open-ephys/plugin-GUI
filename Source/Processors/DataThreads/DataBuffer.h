@@ -26,7 +26,6 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
-
 /**
     Manages reading and writing data to a circular buffer.
 
@@ -35,7 +34,6 @@
 class PLUGIN_API DataBuffer
 {
 public:
-
     /** Constructor */
     DataBuffer (int chans, int size);
 
@@ -77,7 +75,6 @@ public:
     /** Resizes the data buffer */
     void resize (int chans, int size);
 
-
 private:
     AbstractFifo abstractFifo;
     AudioBuffer<float> buffer;
@@ -86,7 +83,7 @@ private:
     HeapBlock<double> timestampBuffer;
     HeapBlock<uint64> eventCodeBuffer;
 
-	int64 lastSampleNumber;
+    int64 lastSampleNumber;
     double lastTimestamp;
 
     int numChans;
@@ -94,5 +91,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataBuffer);
 };
 
-
-#endif  // __DATABUFFER_H_11C6C591__
+#endif // __DATABUFFER_H_11C6C591__

@@ -22,30 +22,30 @@
  */
 
 #include "PluginClass.h"
-#include "PluginManager.h"
 #include "../../AccessClass.h"
 #include "../ProcessorManager/ProcessorManager.h"
+#include "PluginManager.h"
 
 #include "../../Utils/Utils.h"
 
-extern "C" PLUGIN_API OELogger& getOELogger() {
+extern "C" PLUGIN_API OELogger& getOELogger()
+{
     return OELogger::instance();
 }
 
 PluginClass::PluginClass()
 {
-	libName = String();
-	pluginName = String();
-	libVersion = String();
+    libName = String();
+    pluginName = String();
+    libVersion = String();
     pluginType = Plugin::INVALID;
 }
 
 PluginClass::~PluginClass()
 {
-
 }
 
-void PluginClass::setPluginData(Plugin::Type type, int index)
+void PluginClass::setPluginData (Plugin::Type type, int index)
 {
     PluginManager* pm = AccessClass::getPluginManager();
     String name;
@@ -55,35 +55,35 @@ void PluginClass::setPluginData(Plugin::Type type, int index)
     {
         case Plugin::PROCESSOR:
         {
-            Plugin::ProcessorInfo i = pm->getProcessorInfo(index);
+            Plugin::ProcessorInfo i = pm->getProcessorInfo (index);
             name = i.name;
             break;
         }
 
         case Plugin::RECORD_ENGINE:
         {
-            Plugin::RecordEngineInfo i = pm->getRecordEngineInfo(index);
+            Plugin::RecordEngineInfo i = pm->getRecordEngineInfo (index);
             name = i.name;
             break;
         }
 
         case Plugin::DATA_THREAD:
         {
-            Plugin::DataThreadInfo i = pm->getDataThreadInfo(index);
+            Plugin::DataThreadInfo i = pm->getDataThreadInfo (index);
             name = i.name;
             break;
         }
 
         case Plugin::FILE_SOURCE:
         {
-            Plugin::FileSourceInfo i = pm->getFileSourceInfo(index);
+            Plugin::FileSourceInfo i = pm->getFileSourceInfo (index);
             name = i.name;
             break;
         }
 
         case Plugin::INVALID:
         {
-            Plugin::Description description = ProcessorManager::getPluginDescription(Plugin::BUILT_IN, index);
+            Plugin::Description description = ProcessorManager::getPluginDescription (Plugin::BUILT_IN, index);
             name = description.name;
             break;
         }
@@ -91,33 +91,33 @@ void PluginClass::setPluginData(Plugin::Type type, int index)
         default:
             return;
     }
-    
+
     pluginName = name;
-    libName = pm->getLibraryName(pm->getLibraryIndexFromPlugin(type, index));
-    libVersion = pm->getLibraryVersion(pm->getLibraryIndexFromPlugin(type, index));
+    libName = pm->getLibraryName (pm->getLibraryIndexFromPlugin (type, index));
+    libVersion = pm->getLibraryVersion (pm->getLibraryIndexFromPlugin (type, index));
 }
 
 String PluginClass::getLibName() const
 {
-	return libName;
+    return libName;
 }
 
 String PluginClass::getPluginName() const
 {
-	return pluginName;
+    return pluginName;
 }
 
 String PluginClass::getLibVersion() const
 {
-	return libVersion;
+    return libVersion;
 }
 
 Plugin::Type PluginClass::getPluginType() const
 {
-	return pluginType;
+    return pluginType;
 }
 
 int PluginClass::getIndex() const
 {
-	return pluginIndex;
+    return pluginIndex;
 }

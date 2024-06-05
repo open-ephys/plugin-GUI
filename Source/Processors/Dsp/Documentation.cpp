@@ -292,9 +292,9 @@ Filter family namespaces
 // This is the only include you need
 #include "Dsp.h"
 
-#include <sstream>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <sstream>
 
 namespace
 {
@@ -311,72 +311,68 @@ void UsageExamples()
     // and apply it to the audio data
     {
         // "1024" is the number of samples over which to fade parameter changes
-        Dsp::Filter* f = new Dsp::SmoothedFilterDesign
-        <Dsp::RBJ::Design::LowPass, 2> (1024);
+        Dsp::Filter* f = new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 2> (1024);
         Dsp::Params params;
         params[0] = 44100; // sample rate
         params[1] = 4000; // cutoff frequency
         params[2] = 1.25; // Q
-        f->setParams(params);
-        f->process(numSamples, audioData);
+        f->setParams (params);
+        f->process (numSamples, audioData);
     }
 
     // set up a 2-channel RBJ High Pass with parameter smoothing,
     // but bypass virtual function overhead
     {
         // the difference here is that we don't go through a pointer.
-        Dsp::SmoothedFilterDesign <Dsp::RBJ::Design::LowPass, 2> f(1024);
+        Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 2> f (1024);
         Dsp::Params params;
         params[0] = 44100; // sample rate
         params[1] = 4000; // cutoff frequency
         params[2] = 1.25; // Q
-        f.setParams(params);
-        f.process(numSamples, audioData);
+        f.setParams (params);
+        f.process (numSamples, audioData);
     }
 
     // create a 2-channel Butterworth Band Pass of order 4,
     // with parameter smoothing and apply it to the audio data.
     // Output samples are generated using Direct Form II realization.
     {
-        Dsp::Filter* f = new Dsp::SmoothedFilterDesign
-        <Dsp::Butterworth::Design::BandPass <4>, 2, Dsp::DirectFormII> (1024);
+        Dsp::Filter* f = new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::BandPass<4>, 2, Dsp::DirectFormII> (1024);
         Dsp::Params params;
         params[0] = 44100; // sample rate
         params[1] = 4; // order
         params[2] = 4000; // center frequency
         params[3] = 880; // band width
-        f->setParams(params);
-        f->process(numSamples, audioData);
+        f->setParams (params);
+        f->process (numSamples, audioData);
     }
 
     // create a 2-channel Inverse Chebyshev Low Shelf of order 5
     // and passband ripple 0.1dB, without parameter smoothing and apply it.
     {
-        Dsp::Filter* f = new Dsp::FilterDesign
-        <Dsp::ChebyshevII::Design::LowShelf <5>, 2>;
+        Dsp::Filter* f = new Dsp::FilterDesign<Dsp::ChebyshevII::Design::LowShelf<5>, 2>;
         Dsp::Params params;
         params[0] = 44100; // sample rate
         params[1] = 5; // order
         params[2] = 4000; // corner frequency
         params[3] = 6; // shelf gain
         params[4] = 0.1; // passband ripple
-        f->setParams(params);
-        f->process(numSamples, audioData);
+        f->setParams (params);
+        f->process (numSamples, audioData);
     }
 
     // create an abstract Butterworth High Pass of order 4.
     // This one can't process channels, it can only be used for analysis
     // (i.e. extract poles and zeros).
     {
-        Dsp::Filter* f = new Dsp::FilterDesign
-        <Dsp::Butterworth::Design::HighPass <4> >;
+        Dsp::Filter* f = new Dsp::FilterDesign<Dsp::Butterworth::Design::HighPass<4>>;
         Dsp::Params params;
         params[0] = 44100; // sample rate
         params[1] = 4; // order
         params[2] = 4000; // cutoff frequency
-        f->setParams(params);
+        f->setParams (params);
         // this will cause a runtime assertion
-        f->process(numSamples, audioData);
+        f->process (numSamples, audioData);
     }
 
     // Use the simple filter API to create a Chebyshev Band Stop of order 3
@@ -385,23 +381,23 @@ void UsageExamples()
     {
         // Note we use the raw filter instead of the one
         // from the Design namespace.
-        Dsp::SimpleFilter <Dsp::ChebyshevI::BandStop <3>, 2> f;
-        f.setup(3,     // order
-                44100,// sample rate
-                4000, // center frequency
-                880,  // band width
-                1);   // ripple dB
-        f.process(numSamples, audioData);
+        Dsp::SimpleFilter<Dsp::ChebyshevI::BandStop<3>, 2> f;
+        f.setup (3, // order
+                 44100, // sample rate
+                 4000, // center frequency
+                 880, // band width
+                 1); // ripple dB
+        f.process (numSamples, audioData);
     }
 
     // Set up a filter, extract the coefficients and print them to standard
     // output. Note that this filter is not capable of processing samples,
     // as it has no state. It only has coefficients.
     {
-        Dsp::SimpleFilter <Dsp::RBJ::LowPass> f;
-        f.setup(44100,  // sample rate Hz
-                440, // cutoff frequency Hz
-                1); // "Q" (resonance)
+        Dsp::SimpleFilter<Dsp::RBJ::LowPass> f;
+        f.setup (44100, // sample rate Hz
+                 440, // cutoff frequency Hz
+                 1); // "Q" (resonance)
 
         std::ostringstream os;
 
@@ -422,10 +418,10 @@ void UsageExamples()
     {
         // This is basically like eating uncooked food
         Dsp::RBJ::LowPass f;
-        f.setup(44100, 440, 1);
+        f.setup (44100, 440, 1);
 
         // calculate response at frequency 440 Hz
-        Dsp::complex_t response = f.response(440./44100);
+        Dsp::complex_t response = f.response (440. / 44100);
 
         std::ostringstream os;
 
@@ -436,8 +432,8 @@ void UsageExamples()
 
     // Extract coefficients from a Cascade
     {
-        Dsp::SimpleFilter <Dsp::Butterworth::HighPass <3> > f;
-        f.setup(3, 44100, 2000);
+        Dsp::SimpleFilter<Dsp::Butterworth::HighPass<3>> f;
+        f.setup (3, 44100, 2000);
 
         std::ostringstream os;
 
@@ -453,11 +449,10 @@ void UsageExamples()
            << "a2[1] = " << f[1].getA2() << "\n"
            << "b0[1] = " << f[1].getB0() << "\n"
            << "b1[1] = " << f[1].getB1() << "\n"
-           << "b2[1] = " << f[1].getB2() << "\n"
-           ;
+           << "b2[1] = " << f[1].getB2() << "\n";
 
         std::cout << os.str();
     }
 }
 
-}
+} // namespace

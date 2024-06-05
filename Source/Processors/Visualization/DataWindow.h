@@ -37,24 +37,23 @@
 class DataWindow : public DocumentWindow
 {
 public:
-
     /** Constructor */
-    DataWindow(Button* button, String name);
+    DataWindow (Button* button, String name);
 
     /** Destructor */
     ~DataWindow();
-    
+
     /** Called when window close button is pressed. */
     void closeButtonPressed();
-    
+
     class Listener
     {
     public:
         /** Destructor. */
-        virtual ~Listener()  {}
+        virtual ~Listener() {}
 
         /** Called when the window is closed. */
-        virtual void windowClosed () = 0;
+        virtual void windowClosed() = 0;
     };
 
     /**
@@ -70,11 +69,10 @@ public:
     void removeListener (Listener* listener);
 
 private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DataWindow);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataWindow);
 
     Button* controlButton;
     ListenerList<Listener> closeWindowListeners;
 };
 
-
-#endif  // __DATAWINDOW_H_FDDAB8D0__
+#endif // __DATAWINDOW_H_FDDAB8D0__

@@ -318,8 +318,8 @@ void RecordNode::handleBroadcastMessage (const String& msg, const int64 messageS
 
         int64 offsetMilliseconds = Time::currentTimeMillis() - messageSystemTime;
 
-        int64 messageSampleNumber = getFirstSampleNumberForBlock (mainStream->getStreamId()) 
-            - int64(offsetMilliseconds * mainStream->getSampleRate() / 1000.0f);
+        int64 messageSampleNumber = getFirstSampleNumberForBlock (mainStream->getStreamId())
+                                    - int64 (offsetMilliseconds * mainStream->getSampleRate() / 1000.0f);
 
         TextEventPtr event = TextEvent::createTextEvent (getMessageChannel(), messageSampleNumber, msg);
 

@@ -22,20 +22,16 @@
 
 #include "DataBuffer.h"
 
-
 DataBuffer::DataBuffer (int chans, int size)
-    : abstractFifo  (size)
-    , buffer        (chans, size)
-    , numChans      (chans)
+    : abstractFifo (size), buffer (chans, size), numChans (chans)
 {
     sampleNumberBuffer.malloc (size);
     timestampBuffer.malloc (size);
     eventCodeBuffer.malloc (size);
 
-	lastSampleNumber = 0;
+    lastSampleNumber = 0;
     lastTimestamp = -1.0;
 }
-
 
 DataBuffer::~DataBuffer()
 {
@@ -45,17 +41,16 @@ void DataBuffer::clear()
 {
     buffer.clear();
     abstractFifo.reset();
-    
+
     lastSampleNumber = 0;
     lastTimestamp = -1.0;
 }
-
 
 void DataBuffer::resize (int chans, int size)
 {
     buffer.setSize (chans, size);
 
-	abstractFifo.setTotalSize(size);
+    abstractFifo.setTotalSize (size);
 
     sampleNumberBuffer.malloc (size);
     timestampBuffer.malloc (size);
@@ -84,20 +79,20 @@ int DataBuffer::addToBuffer (float* data,
 
     // for each of the dest blocks we can write to...
     for (int i = 0; bs[i] != 0; ++i)
-    {                                
+    {
         cSize = bs[i];
-        for (int chan = 0; chan < numChans; ++chan)         // write that much, per channel
+        for (int chan = 0; chan < numChans; ++chan) // write that much, per channel
         {
-            buffer.copyFrom (chan,                           // (int destChannel)
-                             si[i],                          // (int destStartSample)
+            buffer.copyFrom (chan, // (int destChannel)
+                             si[i], // (int destStartSample)
                              data + (chan * numItems) + idx, // (const float* source)
-                             cSize);                         // (int num samples)
+                             cSize); // (int num samples)
         }
 
-        memcpy (sampleNumberBuffer + si[i], sampleNumbers + idx, (size_t)cSize * sizeof(int64));
-        memcpy (timestampBuffer + si[i], timestamps + idx, (size_t)cSize * sizeof(double));
-        memcpy (eventCodeBuffer + si[i], eventCodes + idx, (size_t)cSize * sizeof(uint64));
-        
+        memcpy (sampleNumberBuffer + si[i], sampleNumbers + idx, (size_t) cSize * sizeof (int64));
+        memcpy (timestampBuffer + si[i], timestamps + idx, (size_t) cSize * sizeof (double));
+        memcpy (eventCodeBuffer + si[i], eventCodes + idx, (size_t) cSize * sizeof (uint64));
+
         idx += cSize;
     }
 
@@ -107,9 +102,7 @@ int DataBuffer::addToBuffer (float* data,
     return idx;
 }
 
-
 int DataBuffer::getNumSamples() const { return abstractFifo.getNumReady(); }
-
 
 int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
                                    int64* blockSampleNumber,
@@ -126,18 +119,18 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
     int startIndex1, blockSize1, startIndex2, blockSize2;
     abstractFifo.prepareToRead (numItems, startIndex1, blockSize1, startIndex2, blockSize2);
 
-	int channelsToCopy = numChannels < 0 ? data.getNumChannels() : numChannels;
+    int channelsToCopy = numChannels < 0 ? data.getNumChannels() : numChannels;
 
     if (blockSize1 > 0)
     {
         for (int chan = 0; chan < channelsToCopy; ++chan)
         {
-            data.copyFrom (dstStartChannel+chan,            // destChan
-                           0,               // destStartSample
-                           buffer,          // source
-                           chan,            // sourceChannel
-                           startIndex1,     // sourceStartSample
-                           blockSize1);     // numSamples
+            data.copyFrom (dstStartChannel + chan, // destChan
+                           0, // destStartSample
+                           buffer, // source
+                           chan, // sourceChannel
+                           startIndex1, // sourceStartSample
+                           blockSize1); // numSamples
         }
 
         memcpy (blockSampleNumber, sampleNumberBuffer + startIndex1, 8);
@@ -146,34 +139,33 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
     }
     else
     {
-       // std::cout << "NO SAMPLES" << std::endl;
-		memcpy(blockSampleNumber, &lastSampleNumber, 8);
-        memcpy(blockTimestamp, &lastTimestamp, 8);
+        // std::cout << "NO SAMPLES" << std::endl;
+        memcpy (blockSampleNumber, &lastSampleNumber, 8);
+        memcpy (blockTimestamp, &lastTimestamp, 8);
     }
 
     if (blockSize2 > 0)
     {
         for (int chan = 0; chan < channelsToCopy; ++chan)
         {
-            data.copyFrom (dstStartChannel+chan,            // destChan
-                           blockSize1,      // destStartSample
-                           buffer,          // source
-                           chan,            // sourceChannel
-                           startIndex2,     // sourceStartSample
-                           blockSize2);     // numSamples
+            data.copyFrom (dstStartChannel + chan, // destChan
+                           blockSize1, // destStartSample
+                           buffer, // source
+                           chan, // sourceChannel
+                           startIndex2, // sourceStartSample
+                           blockSize2); // numSamples
         }
         memcpy (eventCodes + blockSize1, eventCodeBuffer + startIndex2, blockSize2 * 8);
     }
 
-   // std::cout << "START SAMPLE FOR READ: " << *blockSampleNumber << std::endl;
-    
+    // std::cout << "START SAMPLE FOR READ: " << *blockSampleNumber << std::endl;
+
     if (numItems > 0)
     {
-
         lastSampleNumber = *blockSampleNumber;
         lastTimestamp = *blockTimestamp;
 
-       // std::cout << "Updating last sample number: " << lastSampleNumber << std::endl;
+        // std::cout << "Updating last sample number: " << lastSampleNumber << std::endl;
     }
 
     abstractFifo.finishedRead (numItems);

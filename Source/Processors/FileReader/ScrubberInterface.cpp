@@ -423,7 +423,7 @@ void ScrubberInterface::paintOverChildren (Graphics& g)
 
 void ScrubberInterface::buttonClicked (Button* button)
 {
-    //playbackButton->setState (! playbackButton->getState()); //depracated 
+    //playbackButton->setState (! playbackButton->getState()); //depracated
     updatePlaybackTimes();
     fileReader->togglePlayback();
 }

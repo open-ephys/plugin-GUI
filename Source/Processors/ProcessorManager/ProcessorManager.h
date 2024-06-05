@@ -34,26 +34,24 @@
 namespace ProcessorManager
 {
 
-    /** Returns the types of plugins that can generate processors*/
-    Array<Plugin::Type> getAvailablePluginTypes();
+/** Returns the types of plugins that can generate processors*/
+Array<Plugin::Type> getAvailablePluginTypes();
 
-    /** Returns the number of processors available for a given plugin type*/
-	int getNumProcessorsForPluginType(Plugin::Type type);
-	
-    /** Returns info about a plugin at a particular index*/
-    Plugin::Description getPluginDescription(Plugin::Type type, int index);
+/** Returns the number of processors available for a given plugin type*/
+int getNumProcessorsForPluginType (Plugin::Type type);
 
-	/** Returns info about a plugin with a particular name*/
-	Plugin::Description getPluginDescription(String name);
+/** Returns info about a plugin at a particular index*/
+Plugin::Description getPluginDescription (Plugin::Type type, int index);
 
-    /** Creates a new processor from its description*/
-    std::unique_ptr<GenericProcessor> createProcessor(Plugin::Description description);
+/** Returns info about a plugin with a particular name*/
+Plugin::Description getPluginDescription (String name);
 
-	/** Returns an array of strings of available processor */
-	Array<String> getAvailableProcessors();
+/** Creates a new processor from its description*/
+std::unique_ptr<GenericProcessor> createProcessor (Plugin::Description description);
 
-};
+/** Returns an array of strings of available processor */
+Array<String> getAvailableProcessors();
 
+}; // namespace ProcessorManager
 
-
-#endif  // PROCESSORMANAGER_H_INCLUDED
+#endif // PROCESSORMANAGER_H_INCLUDED

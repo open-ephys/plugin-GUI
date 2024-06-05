@@ -40,24 +40,23 @@ class ProcessorInfoObject;
 class PLUGIN_API ConfigurationObject : public InfoObject
 {
 public:
-	/**Default constructor
+    /**Default constructor
 	@param source - The processor from which this object originates
 	@param name - The name of this object
 	@param description (optional) - The description field for this object
 	*/
-	ConfigurationObject(ProcessorInfoObject* source, String name, String description = "");
+    ConfigurationObject (ProcessorInfoObject* source, String name, String description = "");
 
-	/** Destructor */
+    /** Destructor */
     virtual ~ConfigurationObject();
 
-	/** Returns the info about the processor that created this object*/
-	const ProcessorInfoObject* getSource() const;
+    /** Returns the info about the processor that created this object*/
+    const ProcessorInfoObject* getSource() const;
 
 private:
+    const ProcessorInfoObject* m_source;
 
-	const ProcessorInfoObject* m_source;
-
-	JUCE_LEAK_DETECTOR(ConfigurationObject);
+    JUCE_LEAK_DETECTOR (ConfigurationObject);
 };
 
 #endif

@@ -38,9 +38,8 @@
 class PLUGIN_API ImageIcon : public Component
 {
 public:
-
     /** Constructor */
-    ImageIcon(Image& image_)
+    ImageIcon (Image& image_)
     {
         image = image_;
         opacity = 1.0;
@@ -50,25 +49,23 @@ public:
     ~ImageIcon() {}
 
     /** Sets the opacity of the image*/
-    void setOpacity(float);
+    void setOpacity (float);
 
 private:
-
     /** Renders the image within the component*/
-    void paint(Graphics& g)
+    void paint (Graphics& g)
     {
-        g.setOpacity(opacity);
-        g.drawImageWithin(image, // image&
-                          0, // destX
-                          0, // destY
-                          getWidth(), // destWidth
-                          getHeight(), // destHeight
-                          RectanglePlacement::xLeft);
+        g.setOpacity (opacity);
+        g.drawImageWithin (image, // image&
+                           0, // destX
+                           0, // destY
+                           getWidth(), // destWidth
+                           getHeight(), // destHeight
+                           RectanglePlacement::xLeft);
     }
 
     Image image;
     float opacity;
-
 };
 
-#endif  // __IMAGEICON_H_ED764AE7__
+#endif // __IMAGEICON_H_ED764AE7__

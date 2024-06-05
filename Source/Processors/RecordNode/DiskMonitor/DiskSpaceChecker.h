@@ -3,8 +3,8 @@
 
 #include "../../../../JuceLibraryCode/JuceHeader.h"
 #include "DiskSpaceListener.h"
-#include <vector>
 #include <mutex>
+#include <vector>
 
 class RecordNode;
 
@@ -12,7 +12,7 @@ class DiskSpaceChecker : public Timer
 {
 public:
     /* Constructor */
-    DiskSpaceChecker(RecordNode* rn);
+    DiskSpaceChecker (RecordNode* rn);
 
     /* Destructor */
     ~DiskSpaceChecker();
@@ -24,23 +24,21 @@ public:
     void timerCallback() override;
 
     /* Adds a listener */
-    void addListener(DiskSpaceListener* listener);
+    void addListener (DiskSpaceListener* listener);
 
     /* Removes a listener */
-    void removeListener(DiskSpaceListener* listener);
+    void removeListener (DiskSpaceListener* listener);
 
     void checkDiskSpace();
 
 protected:
-
     void checkDirectoryAndDiskSpace();
-    void update(float dataRate, int64 bytesFree, float timeLeft);
-    void notifyDiskSpaceRemaining(float percentage);
+    void update (float dataRate, int64 bytesFree, float timeLeft);
+    void notifyDiskSpaceRemaining (float percentage);
     void notifyDirectoryInvalid();
     void notifyLowDiskSpace();
 
 private:
-
     RecordNode* recordNode;
 
     float lastUpdateTime;

@@ -7,8 +7,8 @@ class DiskSpaceListener
 {
 public:
     virtual ~DiskSpaceListener() = default;
-    virtual void update(float dataRate, int64 bytesFree, float timeLeft) = 0;
-    virtual void updateDiskSpace(float percentage) = 0;
+    virtual void update (float dataRate, int64 bytesFree, float timeLeft) = 0;
+    virtual void updateDiskSpace (float percentage) = 0;
     virtual void directoryInvalid() = 0;
     virtual void lowDiskSpace() = 0;
 };

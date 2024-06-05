@@ -23,8 +23,8 @@
 #ifndef __PARAMETERCOLLECTION_H_62922AE5__
 #define __PARAMETERCOLLECTION_H_62922AE5__
 
-#include <JuceHeader.h>
 #include "../PluginManager/OpenEphysPlugin.h"
+#include <JuceHeader.h>
 
 class ParameterOwner;
 
@@ -39,19 +39,18 @@ class Parameter;
 class PLUGIN_API ParameterCollection
 {
 public:
-
     /** Constructor */
-    ParameterCollection() { }
-    
+    ParameterCollection() {}
+
     /** Initializes parameters from an InfoObject */
-    ParameterCollection(ParameterOwner* pOwner);
-    
+    ParameterCollection (ParameterOwner* pOwner);
+
     /** Destructor */
     virtual ~ParameterCollection();
-    
+
     /** Adds a new parameter to the collection */
-    void addParameter(Parameter*);
-    
+    void addParameter (Parameter*);
+
     /** Returns pointers to all parameters in the collection */
     Array<Parameter*> getParameters();
 
@@ -59,30 +58,31 @@ public:
     Array<String> getParameterNames() const;
 
     /** Copies parameter values to an InfoObject with existing Parameters */
-    void copyParameterValuesTo(ParameterOwner* pOwner);
-    
+    void copyParameterValuesTo (ParameterOwner* pOwner);
+
     /** Copies parameters to an InfoObject */
-    void copyParametersTo(ParameterOwner* pOwner);
-    
+    void copyParametersTo (ParameterOwner* pOwner);
+
     /** Copies parameters from an InfoObject */
-    void copyParametersFrom(ParameterOwner* pOwner);
-    
+    void copyParametersFrom (ParameterOwner* pOwner);
+
     /** Overload indexing operator */
-    Parameter* operator [](String name) const {return parameterMap.at(name) ;}
-    
+    Parameter* operator[] (String name) const { return parameterMap.at (name); }
+
     /** Overload indexing operator */
-    Parameter*& operator [](String name) {return parameterMap[name];}
+    Parameter*& operator[] (String name) { return parameterMap[name]; }
 
     /** Returns true if a parameter with a given name exists */
-    bool contains(String name) const { return parameterMap.find(name) != parameterMap.end(); }
-    
+    bool contains (String name) const { return parameterMap.find (name) != parameterMap.end(); }
+
     /** Returns the total number of parameters in this collection*/
-    int size() const {return parameters.size(); }
-    
+    int size() const { return parameters.size(); }
+
     /** Removes all parameters from the collection*/
     void clear();
 
-    struct Owner {
+    struct Owner
+    {
         String name = "None";
         uint16 streamId = 0;
         int sourceNodeId = 0;
@@ -92,14 +92,11 @@ public:
     };
 
     Owner owner;
-    
+
 private:
-    
     OwnedArray<Parameter> parameters;
-    
+
     std::map<String, Parameter*> parameterMap;
 };
-    
-    
 
 #endif /* __PARAMETERCOLLECTION_H_62922AE5__ */

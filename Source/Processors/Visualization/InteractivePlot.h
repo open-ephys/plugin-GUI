@@ -25,36 +25,44 @@
 #define __INTERACTIVE_PLOT_H
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "Visualizer.h"
 #include "../Editors/GenericEditor.h"
+#include "Visualizer.h"
 
 #include <list>
-#include <vector>
 #include <queue>
+#include <vector>
 
 #ifndef MAX
-#define MAX(x,y)((x)>(y))?(x):(y)
-#endif 
-
-#ifndef MIN
-#define MIN(x,y)((x)<(y))?(x):(y)
+#define MAX(x, y) ((x) > (y)) ? (x) : (y)
 #endif
 
-enum class PLUGIN_API InteractivePlotMode { ON = 1, OFF = 2 };
+#ifndef MIN
+#define MIN(x, y) ((x) < (y)) ? (x) : (y)
+#endif
 
-enum PLUGIN_API PlotType { LINE, SCATTER, BAR, FILLED };
+enum class PLUGIN_API InteractivePlotMode
+{
+    ON = 1,
+    OFF = 2
+};
+
+enum PLUGIN_API PlotType
+{
+    LINE,
+    SCATTER,
+    BAR,
+    FILLED
+};
 
 struct PLUGIN_API XYRange
 {
-	float xmin, xmax, ymin, ymax;
+    float xmin, xmax, ymin, ymax;
 
-	void print()
-	{
-		std::cout << xmin << " " << xmax << " " << ymin << " " << ymax << std::endl;
-	}
-
+    void print()
+    {
+        std::cout << xmin << " " << xmax << " " << ymin << " " << ymax << std::endl;
+    }
 };
-
 
 /** 
 
@@ -64,46 +72,42 @@ struct PLUGIN_API XYRange
 class XYLine
 {
 public:
+    /** Creates a line from vectors of x and y values */
+    XYLine (std::vector<float> x, std::vector<float> y);
 
-	/** Creates a line from vectors of x and y values */
-	XYLine(std::vector<float> x, std::vector<float> y);
+    /** Sets the colour of the line*/
+    void setColour (Colour c);
 
-	/** Sets the colour of the line*/
-	void setColour(Colour c);
+    /** Sets the colour of the line*/
+    void setOpacity (float opacity);
 
-	/** Sets the colour of the line*/
-	void setOpacity(float opacity);
+    /** Sets the plot type*/
+    void setType (PlotType type);
 
-	/** Sets the plot type*/
-	void setType(PlotType type);
+    /** Sets the width of the line, bar, or dot */
+    void setWidth (float width);
 
-	/** Sets the width of the line, bar, or dot */
-	void setWidth(float width);
+    /** Returns the X and Y min/max for this line*/
+    XYRange getBounds();
 
-	/** Returns the X and Y min/max for this line*/
-	XYRange getBounds();
-
-	/** Renders the line. Stretches Y such that ymin->0 and ymax->plotHeight 
+    /** Renders the line. Stretches Y such that ymin->0 and ymax->plotHeight 
 	    and only display points between [xmin and xmax] */
-	void draw(Graphics &g, XYRange& range, int width, int height);
+    void draw (Graphics& g, XYRange& range, int width, int height);
 
-	/** The x values */
-	std::vector<float> x;
+    /** The x values */
+    std::vector<float> x;
 
-	/** The x values */
-	std::vector<float> y;
+    /** The x values */
+    std::vector<float> y;
 
 private:
-
-	/** The parameters of this line */
-	Colour colour;
-	float width;
-	PlotType type;
-	float opacity;
-	XYRange range;
+    /** The parameters of this line */
+    Colour colour;
+    float width;
+    PlotType type;
+    float opacity;
+    XYRange range;
 };
-
-
 
 /**
 
@@ -113,58 +117,55 @@ private:
 class Axis : public Component
 {
 public:
+    /** Constructor */
+    Axis();
 
-	/** Constructor */
-	Axis();
+    /** Destructor */
+    ~Axis() {}
 
-	/** Destructor */
-	~Axis() { }
+    /** Sets the min / max range, and number of ticks between them */
+    void setRange (float minvalue, float maxvalue, int numTicks = 10);
 
-	/** Sets the min / max range, and number of ticks between them */
-	void setRange(float minvalue, float maxvalue, int numTicks = 10);
+    /** Set tick locations and labels */
+    void setTicks (std::vector<float> ticks_, std::vector<String> labels);
 
-	/** Set tick locations and labels */
-	void setTicks(std::vector<float> ticks_, std::vector<String> labels);
+    /** Get the tick locations */
+    void getTicks (std::vector<float>& tickLocations, std::vector<float>& tickValues);
 
-	/** Get the tick locations */
-	void getTicks(std::vector<float>& tickLocations, std::vector<float>& tickValues);
-	
-	/** Set font height */
-	void setFontHeight(int height);
-	
-	/** Set the color of the ticks and labels */
-	void setAxisColour(Colour c);
-	
-	/** Sets whether the axis should be inverted */
-	void setInverted(bool state);
+    /** Set font height */
+    void setFontHeight (int height);
 
-	bool axisIsInverted;
+    /** Set the color of the ticks and labels */
+    void setAxisColour (Colour c);
+
+    /** Sets whether the axis should be inverted */
+    void setInverted (bool state);
+
+    bool axisIsInverted;
 
 protected:
+    /** Computes the tick locations */
+    void determineTickLocations (float min, float max, int numTicks);
 
-	/** Computes the tick locations */
-	void determineTickLocations(float min, float max, int numTicks);
+    /** Computes linearly spaced values between min and max point */
+    std::vector<float> linspace (float min, float max, int numticks);
 
-	/** Computes linearly spaced values between min and max point */
-	std::vector<float> linspace(float min, float max, int numticks);
+    /** Location of tick marks */
+    std::vector<float> ticks;
 
-	/** Location of tick marks */
-	std::vector<float> ticks;
+    /** Value of tick marks */
+    std::vector<float> tickValues;
 
-	/** Value of tick marks */
-	std::vector<float> tickValues;
+    /** Labels for tick marks */
+    std::vector<String> tickLabels;
 
-	/** Labels for tick marks */
-	std::vector<String> tickLabels;
+    float min, max;
 
-	float min, max;
+    Colour colour;
+    Font font;
 
-	Colour colour;
-	Font font;
-
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Axis);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Axis);
 };
-
 
 /**
 
@@ -174,12 +175,11 @@ protected:
 class XAxis : public Axis
 {
 public:
+    /** Constructor */
+    XAxis() {}
 
-	/** Constructor */
-	XAxis() { }
-
-	/** Renders the axis */
-	void paint(Graphics& g);
+    /** Renders the axis */
+    void paint (Graphics& g);
 };
 
 /**
@@ -190,14 +190,12 @@ public:
 class YAxis : public Axis
 {
 public:
+    /** Constructor */
+    YAxis() {}
 
-	/** Constructor */
-	YAxis() { }
-
-	/** Renders the axis */
-	void paint(Graphics& g);
+    /** Renders the axis */
+    void paint (Graphics& g);
 };
-
 
 /**
 
@@ -208,78 +206,76 @@ public:
 class PLUGIN_API DrawComponent : public Component
 {
 public:
+    /** Constructor */
+    DrawComponent (Axis* x, Axis* y);
 
-	/** Constructor */
-	DrawComponent(Axis* x, Axis* y);
+    /** Destructor */
+    ~DrawComponent() {}
 
-	/** Destructor */
-	~DrawComponent() { }
+    /** Adds a line to be drawn */
+    void add (XYLine* line);
 
-	/** Adds a line to be drawn */
-	void add(XYLine* line);
+    /** Clears all lines */
+    void clear();
 
-	/** Clears all lines */
-	void clear();
+    /** Sets zoom / pan */
+    void setMode (InteractivePlotMode m);
 
-	/** Sets zoom / pan */
-	void setMode(InteractivePlotMode m);
+    /** Sets the current displayed range */
+    void setRange (XYRange& range);
 
-	/** Sets the current displayed range */
-	void setRange(XYRange& range);
+    /** Sets the limits on the displayable range */
+    void setLimit (XYRange& range);
 
-	/** Sets the limits on the displayable range */
-	void setLimit(XYRange& range);
+    /** Sets the tick locations for the X and Y axes*/
+    void setTickMarks (std::vector<float> xtick, std::vector<float> ytick);
 
-	/** Sets the tick locations for the X and Y axes*/
-	void setTickMarks(std::vector<float> xtick, std::vector<float> ytick);
+    /** Rescales plot to full extent of available lines */
+    void rescale();
 
-	/** Rescales plot to full extent of available lines */
-	void rescale();
+    /** Sets whether grid is visible*/
+    void showGrid (bool state);
 
-	/** Sets whether grid is visible*/
-	void showGrid(bool state);
+    /** Sets the background colour*/
+    void setBackgroundColour (Colour c);
 
-	/** Sets the background colour*/
-	void setBackgroundColour(Colour c);
+    /** Sets the grid colour*/
+    void setGridColour (Colour c);
 
-	/** Sets the grid colour*/
-	void setGridColour(Colour c);
-
-	/** Gets the current range values */
-	void getRange(XYRange& range);
+    /** Gets the current range values */
+    void getRange (XYRange& range);
 
 private:
+    /** The lines to be drawn */
+    OwnedArray<XYLine> lines;
 
-	/** The lines to be drawn */
-	OwnedArray<XYLine> lines;
+    /** Mouse listeners */
+    void mouseDown (const juce::MouseEvent& event);
+    void mouseDrag (const juce::MouseEvent& event);
+    void mouseWheelMove (const MouseEvent& event, const MouseWheelDetails& wheel);
 
-	/** Mouse listeners */
-	void mouseDown(const juce::MouseEvent& event);
-	void mouseDrag(const juce::MouseEvent& event);
-	void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
+    //std::vector<float> computeSamplePositions(int subsample);
+    std::list<XYRange> rangeMemory;
 
-	//std::vector<float> computeSamplePositions(int subsample);
-	std::list<XYRange> rangeMemory;
+    InteractivePlotMode mode;
 
-	InteractivePlotMode mode;
+    std::vector<float> xticks, yticks, xtickvalues, ytickvalues;
 
-	std::vector<float> xticks, yticks, xtickvalues, ytickvalues;
+    void drawGrid (Graphics& g);
 
-	void drawGrid(Graphics& g);
+    void paint (Graphics& g);
 
-	void paint(Graphics& g);
+    XYRange range, limit, originalRange;
 
-	XYRange range, limit, originalRange;
+    Colour backgroundColour, gridColour;
 
-	Colour backgroundColour, gridColour;
+    Axis* xAxis;
+    Axis* yAxis;
+    bool gridIsVisible;
 
-	Axis* xAxis;
-	Axis* yAxis;
-	bool gridIsVisible;
+    bool firstLine;
 
-	bool firstLine;
-
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DrawComponent);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DrawComponent);
 };
 
 /**
@@ -288,93 +284,90 @@ private:
 
 */
 
-class PLUGIN_API InteractivePlot : 
-	public Component, 
-	public Button::Listener
+class PLUGIN_API InteractivePlot : public Component,
+                                   public Button::Listener
 {
 public:
+    /** Constructor */
+    InteractivePlot();
 
-	/** Constructor */
-	InteractivePlot();
+    /** Destructor */
+    ~InteractivePlot() {}
 
-	/** Destructor */
-    ~InteractivePlot() { }
+    /** Adds a line based on X and Y values */
+    void plot (std::vector<float> x,
+               std::vector<float> y,
+               Colour c = Colours::white,
+               float width = 1.0f,
+               float opacity = 1.0f,
+               PlotType type = PlotType::LINE);
 
-	/** Adds a line based on X and Y values */
-	void plot(std::vector<float> x, 
-			  std::vector<float> y, 
-			  Colour c = Colours::white,
-			  float width = 1.0f,
-			  float opacity = 1.0f,
-			  PlotType type = PlotType::LINE);
+    /** Clears all lines from the plot */
+    void clear();
 
-	/** Clears all lines from the plot */
-	void clear();
+    /** Draws the plot */
+    void show();
 
-	/** Draws the plot */
-	void show();
+    /** Adds a title to the plot */
+    void title (String t);
 
-	/** Adds a title to the plot */
-	void title(String t);
+    /** Sets the x-axis label */
+    void xlabel (String label);
 
-	/** Sets the x-axis label */
-	void xlabel(String label);
-	
-	/** Sets the y-axis label */
-	void ylabel(String label);
+    /** Sets the y-axis label */
+    void ylabel (String label);
 
-	/** Set whether the plot is interactive */
-	void setInteractive(InteractivePlotMode mode);
+    /** Set whether the plot is interactive */
+    void setInteractive (InteractivePlotMode mode);
 
-	/** Sets whether x-axis is visible */
-	void showXAxis(bool state);
+    /** Sets whether x-axis is visible */
+    void showXAxis (bool state);
 
-	/** Sets whether y-axis is visible */
-	void showYAxis(bool state);
+    /** Sets whether y-axis is visible */
+    void showYAxis (bool state);
 
-	/** Sets whether grid is visible */
-	void showGrid(bool state);
+    /** Sets whether grid is visible */
+    void showGrid (bool state);
 
-	/** Sets the background colour */
-	void setBackgroundColour(Colour c);
+    /** Sets the background colour */
+    void setBackgroundColour (Colour c);
 
-	/** Sets the background colour */
-	void setGridColour(Colour c);
+    /** Sets the background colour */
+    void setGridColour (Colour c);
 
-	/** Sets the background colour */
-	void setAxisColour(Colour c);
+    /** Sets the background colour */
+    void setAxisColour (Colour c);
 
-	/** Sets range of both axes*/
-	void setRange(XYRange& range);
+    /** Sets range of both axes*/
+    void setRange (XYRange& range);
 
-	/** Copies the current range values*/
-	void getRange(XYRange& range);
+    /** Copies the current range values*/
+    void getRange (XYRange& range);
 
-	/** Called when size of plot is changed */
-	void resized();
+    /** Called when size of plot is changed */
+    void resized();
 
 private:
+    /** Respond to button clicks */
+    void buttonClicked (Button* btn);
 
-	/** Respond to button clicks */
-	void buttonClicked(Button* btn);
+    Font font;
+    juce::Colour backgroundColour;
+    juce::Colour axisColour;
+    juce::Colour gridColour;
 
-	Font font;
-	juce::Colour backgroundColour;
-	juce::Colour axisColour;
-	juce::Colour gridColour;
+    bool controlButtonsVisible, gridIsVisible;
 
-	bool controlButtonsVisible, gridIsVisible;
-	
-	std::unique_ptr<UtilityButton> autoRescaleButton;
-	
-	std::unique_ptr<Label> titleLabel;
-	std::unique_ptr<Label> xLabel;
-	std::unique_ptr<Label> yLabel;
-	std::unique_ptr<XAxis> xAxis;
-	std::unique_ptr<YAxis> yAxis;
-	std::unique_ptr<DrawComponent> drawComponent;
-	
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(InteractivePlot);
+    std::unique_ptr<UtilityButton> autoRescaleButton;
+
+    std::unique_ptr<Label> titleLabel;
+    std::unique_ptr<Label> xLabel;
+    std::unique_ptr<Label> yLabel;
+    std::unique_ptr<XAxis> xAxis;
+    std::unique_ptr<YAxis> yAxis;
+    std::unique_ptr<DrawComponent> drawComponent;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InteractivePlot);
 };
 
 #endif // __INTERACTIVE_PLOT_H

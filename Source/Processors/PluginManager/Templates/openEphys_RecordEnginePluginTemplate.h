@@ -25,7 +25,6 @@
 
 #include <RecordingLib.h>
 
-
 class PROCESSORCLASSNAME : public RecordEngine
 {
 public:
@@ -37,22 +36,21 @@ public:
     void openFiles (File rootFolder, int experimentNumber, int recordingNumber) override;
     void closeFiles() override;
 
-    void writeData  (int writeChannel, int realChannel, const float* buffer, int size)  override;
-    void writeEvent (int eventType, const MidiMessage& event, int64 timestamp)          override;
-    void writeSpike (int electrodeIndex, const SpikeObject& spike, int64 timestamp)     override;
+    void writeData (int writeChannel, int realChannel, const float* buffer, int size) override;
+    void writeEvent (int eventType, const MidiMessage& event, int64 timestamp) override;
+    void writeSpike (int electrodeIndex, const SpikeObject& spike, int64 timestamp) override;
 
-    void addChannel         (int index, const Channel* chan)            override;
-    void addSpikeElectrode  (int index, const SpikeRecordInfo* elec)    override;
+    void addChannel (int index, const Channel* chan) override;
+    void addSpikeElectrode (int index, const SpikeRecordInfo* elec) override;
 
-    void registerProcessor  (const GenericProcessor* processor) override;
+    void registerProcessor (const GenericProcessor* processor) override;
 
-    void resetChannels()    override;
+    void resetChannels() override;
     void startAcquisition() override;
 
     void endChannelBlock (bool lastBlock) override;
 
     static RecordEngineManager* getEngineManager();
-
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PROCESSORCLASSNAME);

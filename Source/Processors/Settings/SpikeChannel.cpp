@@ -25,115 +25,109 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../GenericProcessor/GenericProcessor.h"
 
-SpikeChannel::SpikeChannel(SpikeChannel::Settings settings)
-	: ChannelInfoObject(InfoObject::Type::SPIKE_CHANNEL, nullptr),
-	ParameterOwner(ParameterOwner::Type::SPIKE_CHANNEL),
-	type(settings.type),
-    localChannelIndexes(settings.localChannelIndexes),
-	numPreSamples(settings.numPrePeakSamples),
-	numPostSamples(settings.numPostPeakSamples),
-    sendFullWaveform(settings.sendFullWaveform),
-    currentSampleIndex(0),
-    lastBufferIndex(0),
-    useOverflowBuffer(false)
+SpikeChannel::SpikeChannel (SpikeChannel::Settings settings)
+    : ChannelInfoObject (InfoObject::Type::SPIKE_CHANNEL, nullptr),
+      ParameterOwner (ParameterOwner::Type::SPIKE_CHANNEL),
+      type (settings.type),
+      localChannelIndexes (settings.localChannelIndexes),
+      numPreSamples (settings.numPrePeakSamples),
+      numPostSamples (settings.numPostPeakSamples),
+      sendFullWaveform (settings.sendFullWaveform),
+      currentSampleIndex (0),
+      lastBufferIndex (0),
+      useOverflowBuffer (false)
 {
-	setName(settings.name);
-	setDescription(settings.description);
-	setIdentifier(settings.identifier);
+    setName (settings.name);
+    setDescription (settings.description);
+    setIdentifier (settings.identifier);
 }
 
+SpikeChannel::~SpikeChannel() {}
 
-SpikeChannel::~SpikeChannel() { }
-
-SpikeChannel::SpikeChannel(const SpikeChannel& other)
- : ChannelInfoObject(other),
-	 ParameterOwner(ParameterOwner::Type::SPIKE_CHANNEL),
-     type(other.type),
-     localChannelIndexes(other.localChannelIndexes),
-     numPreSamples(other.getPrePeakSamples()),
-     numPostSamples(other.getPostPeakSamples()),
-     sendFullWaveform(other.sendFullWaveform),
-     currentSampleIndex(0),
-     lastBufferIndex(0),
-     useOverflowBuffer(false),
-     lastStreamId(other.lastStreamId),
-     lastStreamName(other.lastStreamName),
-     lastStreamSampleRate(other.lastStreamSampleRate),
-     lastStreamChannelCount(other.lastStreamChannelCount)
+SpikeChannel::SpikeChannel (const SpikeChannel& other)
+    : ChannelInfoObject (other),
+      ParameterOwner (ParameterOwner::Type::SPIKE_CHANNEL),
+      type (other.type),
+      localChannelIndexes (other.localChannelIndexes),
+      numPreSamples (other.getPrePeakSamples()),
+      numPostSamples (other.getPostPeakSamples()),
+      sendFullWaveform (other.sendFullWaveform),
+      currentSampleIndex (0),
+      lastBufferIndex (0),
+      useOverflowBuffer (false),
+      lastStreamId (other.lastStreamId),
+      lastStreamName (other.lastStreamName),
+      lastStreamSampleRate (other.lastStreamSampleRate),
+      lastStreamChannelCount (other.lastStreamChannelCount)
 {
-    setName(other.getName());
-    setDescription(other.getDescription());
-    setIdentifier(other.getIdentifier());
+    setName (other.getName());
+    setDescription (other.getDescription());
+    setIdentifier (other.getIdentifier());
 }
 
-
-void SpikeChannel::setDataStream(DataStream* dataStream, bool addToStream)
+void SpikeChannel::setDataStream (DataStream* dataStream, bool addToStream)
 {
     stream = dataStream;
-    
+
     channelIsEnabled.clear();
-    
+
     Array<const ContinuousChannel*> newSourceChannels;
-    
+
     Array<ContinuousChannel*> availableChannels;
-    
+
     //std::cout << "Setting data stream to " << dataStream->getName() << " (" << dataStream->getStreamId() << ")" << std::endl;
     //std::cout << "Num local channels in SpikeChannel: " << localChannelIndexes.size() << std::endl;
-    
-    
+
     if (dataStream != nullptr)
     {
         availableChannels = dataStream->getContinuousChannels();
         //std::cout << "Num local channels in dataStream: " << dataStream->getChannelCount() << std::endl;
     } //else {
-      //  std::cout << "Num local channels in dataStream: 0" << std::endl;
-   // }
-        
-    
+    //  std::cout << "Num local channels in dataStream: 0" << std::endl;
+    // }
+
     for (int i = 0; i < getNumChannels(); i++)
     {
         if (i >= localChannelIndexes.size())
         {
             //std::cout << "Adding continuous channel NULL (not enough available)" << std::endl;
-            channelIsEnabled.add(false);
-            newSourceChannels.add(nullptr);
+            channelIsEnabled.add (false);
+            newSourceChannels.add (nullptr);
             continue;
         }
-            
+
         if (localChannelIndexes[i] < availableChannels.size())
         {
             //std::cout << "Adding continuous channel " << availableChannels[localChannelIndexes[i]]->getName() << std::endl;
-            newSourceChannels.add(availableChannels[localChannelIndexes[i]]);
-            channelIsEnabled.add(true);
+            newSourceChannels.add (availableChannels[localChannelIndexes[i]]);
+            channelIsEnabled.add (true);
             continue;
         }
-        
+
         //std::cout << "Adding continuous channel NULL (no data stream)" << std::endl;
-        channelIsEnabled.add(false);
-        newSourceChannels.add(nullptr);
+        channelIsEnabled.add (false);
+        newSourceChannels.add (nullptr);
     }
-    
-    setSourceChannels(newSourceChannels);
-    
+
+    setSourceChannels (newSourceChannels);
+
     if (dataStream != nullptr)
     {
         lastStreamId = dataStream->getStreamId();
         lastStreamName = dataStream->getName();
         lastStreamSampleRate = dataStream->getSampleRate();
         lastStreamChannelCount = dataStream->getChannelCount();
-        
+
         if (addToStream)
         {
             //std::cout << "Data stream adding spike channel" << std::endl;
-            dataStream->addChannel(this);
+            dataStream->addChannel (this);
         }
-            
     }
-
 }
 
 /** Find similar stream*/
-DataStream* SpikeChannel::findSimilarStream(OwnedArray<DataStream>& streams)
+DataStream* SpikeChannel::findSimilarStream (OwnedArray<DataStream>& streams)
 {
     for (auto stream : streams)
     {
@@ -141,26 +135,25 @@ DataStream* SpikeChannel::findSimilarStream(OwnedArray<DataStream>& streams)
         if (stream->getStreamId() == lastStreamId)
             return stream;
     }
-    
+
     for (auto stream : streams)
-   {
-       if (stream->getName() == lastStreamName)
-           return stream;
-   }
-    
+    {
+        if (stream->getName() == lastStreamName)
+            return stream;
+    }
+
     for (auto stream : streams)
     {
         if (stream->getSampleRate() == lastStreamSampleRate)
             return stream;
     }
-    
+
     return nullptr;
 }
 
-
 SpikeChannel::Type SpikeChannel::getChannelType() const
 {
-	return type;
+    return type;
 }
 
 bool SpikeChannel::isValid() const
@@ -170,44 +163,40 @@ bool SpikeChannel::isValid() const
         if (ch == nullptr)
             return false;
     }
-    
+
     return true;
 }
 
-
 const Array<const ContinuousChannel*>& SpikeChannel::getSourceChannels() const
 {
-	return sourceChannels;
+    return sourceChannels;
 }
 
-void SpikeChannel::setSourceChannels(Array<const ContinuousChannel*>& newChannels)
+void SpikeChannel::setSourceChannels (Array<const ContinuousChannel*>& newChannels)
 {
-
-	//jassert(newChannels.size() == sourceChannels.size());
+    //jassert(newChannels.size() == sourceChannels.size());
 
     //std::cout << "SETTING SOURCE CHANNELS: " << newChannels.size() << std::endl;
 
-	sourceChannels.clear();
+    sourceChannels.clear();
     globalChannelIndexes.clear();
 
-	for (int i = 0; i < newChannels.size(); i++)
-	{
-		sourceChannels.add(newChannels[i]);
+    for (int i = 0; i < newChannels.size(); i++)
+    {
+        sourceChannels.add (newChannels[i]);
         //std::cout << "Spike channel adding source channel: " << newChannels[i] << std::endl;
-        
+
         if (newChannels[i] != nullptr)
-            globalChannelIndexes.add(newChannels[i]->getGlobalIndex());
+            globalChannelIndexes.add (newChannels[i]->getGlobalIndex());
         else
-            globalChannelIndexes.add(-1);
+            globalChannelIndexes.add (-1);
 
         //std::cout << " >>> Global index: " << globalChannelIndexes[i] << std::endl;
-	}
-    
+    }
 }
 
-bool SpikeChannel::detectSpikesOnChannel(int chan) const
+bool SpikeChannel::detectSpikesOnChannel (int chan) const
 {
-    
     if (chan >= 0 && chan < getNumChannels())
         return channelIsEnabled[chan];
     else
@@ -221,11 +210,9 @@ void SpikeChannel::reset()
     useOverflowBuffer = false;
 }
 
-void SpikeChannel::parameterChangeRequest(Parameter* param)
+void SpikeChannel::parameterChangeRequest (Parameter* param)
 {
-	processorChain.getLast()->parameterChangeRequest(param);
-
-	
+    processorChain.getLast()->parameterChangeRequest (param);
 }
 
 /*SpikeChannel::ThresholdType SpikeChannel::getThresholdType() const
@@ -296,12 +283,12 @@ void SpikeChannel::setNumSamples(unsigned int preSamples, unsigned int postSampl
 
 unsigned int SpikeChannel::getPrePeakSamples() const
 {
-	return numPreSamples;
+    return numPreSamples;
 }
 
 unsigned int SpikeChannel::getPostPeakSamples() const
 {
-	return numPostSamples;
+    return numPostSamples;
 }
 
 unsigned int SpikeChannel::getTotalSamples() const
@@ -314,95 +301,101 @@ unsigned int SpikeChannel::getTotalSamples() const
 
 unsigned int SpikeChannel::getNumChannels() const
 {
-	return getNumChannels(type);
+    return getNumChannels (type);
 }
 
-unsigned int SpikeChannel::getNumChannels(SpikeChannel::Type type)
+unsigned int SpikeChannel::getNumChannels (SpikeChannel::Type type)
 {
-	switch (type)
-	{
-	case SINGLE: return 1;
-	case STEREOTRODE: return 2;
-	case TETRODE: return 4;
-	default: return 0;
-	}
+    switch (type)
+    {
+        case SINGLE:
+            return 1;
+        case STEREOTRODE:
+            return 2;
+        case TETRODE:
+            return 4;
+        default:
+            return 0;
+    }
 }
 
-SpikeChannel::Type SpikeChannel::typeFromNumChannels(unsigned int nChannels)
+SpikeChannel::Type SpikeChannel::typeFromNumChannels (unsigned int nChannels)
 {
-	switch (nChannels)
-	{
-	case 1: return SINGLE;
-	case 2: return STEREOTRODE;
-	case 4: return TETRODE;
-	default: return INVALID;
-	}
+    switch (nChannels)
+    {
+        case 1:
+            return SINGLE;
+        case 2:
+            return STEREOTRODE;
+        case 4:
+            return TETRODE;
+        default:
+            return INVALID;
+    }
 }
 
 size_t SpikeChannel::getDataSize() const
 {
-	return getTotalSamples() * getNumChannels() * sizeof(float);
+    return getTotalSamples() * getNumChannels() * sizeof (float);
 }
 
 size_t SpikeChannel::getChannelDataSize() const
 {
-	return getTotalSamples()*sizeof(float);
+    return getTotalSamples() * sizeof (float);
 }
 
-float SpikeChannel::getChannelBitVolts(int index) const
+float SpikeChannel::getChannelBitVolts (int index) const
 {
-	if (index < 0 || index >= sourceChannels.size())
-		return 1.0f;
-	else
-		return sourceChannels[index]->getBitVolts();
+    if (index < 0 || index >= sourceChannels.size())
+        return 1.0f;
+    else
+        return sourceChannels[index]->getBitVolts();
 }
 
-
-String SpikeChannel::getDefaultChannelPrefix(SpikeChannel::Type channelType)
+String SpikeChannel::getDefaultChannelPrefix (SpikeChannel::Type channelType)
 {
-	switch (channelType)
-	{
-	case SpikeChannel::Type::SINGLE:
-		return "Electrode ";
-	case SpikeChannel::Type::STEREOTRODE:
-		return "Stereotrode ";
-	case SpikeChannel::Type::TETRODE:
-		return "Tetrode ";
-	default:
-		return "Spike Channel ";
-	}
+    switch (channelType)
+    {
+        case SpikeChannel::Type::SINGLE:
+            return "Electrode ";
+        case SpikeChannel::Type::STEREOTRODE:
+            return "Stereotrode ";
+        case SpikeChannel::Type::TETRODE:
+            return "Tetrode ";
+        default:
+            return "Spike Channel ";
+    }
 }
 
-String SpikeChannel::getDescriptionFromType(SpikeChannel::Type channelType)
+String SpikeChannel::getDescriptionFromType (SpikeChannel::Type channelType)
 {
-	switch (channelType)
-	{
-	case SpikeChannel::Type::SINGLE:
-		return "Single electrode";
-	case SpikeChannel::Type::STEREOTRODE:
-		return "Stereotrode";
-	case SpikeChannel::Type::TETRODE:
-		return "Tetrode";
-	default:
-		return "Unknown";
-	}
+    switch (channelType)
+    {
+        case SpikeChannel::Type::SINGLE:
+            return "Single electrode";
+        case SpikeChannel::Type::STEREOTRODE:
+            return "Stereotrode";
+        case SpikeChannel::Type::TETRODE:
+            return "Tetrode";
+        default:
+            return "Unknown";
+    }
 }
 
-String SpikeChannel::getIdentifierFromType(SpikeChannel::Type channelType)
+String SpikeChannel::getIdentifierFromType (SpikeChannel::Type channelType)
 {
-	switch (channelType)
-	{
-	case SpikeChannel::Type::SINGLE:
-		return "spikechannel.singleelectrode";
-	case SpikeChannel::Type::STEREOTRODE:
-		return "spikechannel.stereotrode";
-	case SpikeChannel::Type::TETRODE:
-		return "spikechannel.tetrode";
-	default:
-		return "spikechannel.unknown";
-	}
+    switch (channelType)
+    {
+        case SpikeChannel::Type::SINGLE:
+            return "spikechannel.singleelectrode";
+        case SpikeChannel::Type::STEREOTRODE:
+            return "spikechannel.stereotrode";
+        case SpikeChannel::Type::TETRODE:
+            return "spikechannel.tetrode";
+        default:
+            return "spikechannel.unknown";
+    }
 }
-
 
 /*bool SpikeChannel::checkEqual(const InfoObjectCommon& other, bool similar) const
 {

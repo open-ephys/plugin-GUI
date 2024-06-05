@@ -46,23 +46,21 @@ class StreamEnableButton;
 
 class StreamSelectorTable;
 
-
 /**
 *   TableListBoxModel for selecting streams
 */
 class StreamTableModel : public TableListBoxModel
 {
-
 public:
-
     /** Constructor */
-    StreamTableModel(StreamSelectorTable* owner);
+    StreamTableModel (StreamSelectorTable* owner);
 
     /** Destructor */
-    ~StreamTableModel() { }
+    ~StreamTableModel() {}
 
     /** Column types*/
-    enum Columns {
+    enum Columns
+    {
         SELECTED = 1,
         PROCESSOR_ID,
         NAME,
@@ -74,33 +72,32 @@ public:
     };
 
     /** Callback when a cell is clicked (not a sub-component) */
-    void cellClicked(int rowNumber, int columnId, const MouseEvent& event) override;
+    void cellClicked (int rowNumber, int columnId, const MouseEvent& event) override;
 
     /** Called whenever a cell needs to be updated; creates custom components inside each cell*/
-    Component* refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected,
-        Component* existingComponentToUpdate) override;
+    Component* refreshComponentForCell (int rowNumber, int columnId, bool isRowSelected, Component* existingComponentToUpdate) override;
 
     /** Returns the number of rows in the table */
     int getNumRows() override;
 
     /** Updates the underlying StreamInfoView objects */
-    void update(Array<const DataStream*> dataStreams, int viewedStreamIndex);
+    void update (Array<const DataStream*> dataStreams, int viewedStreamIndex);
 
     /** Determines row colors */
-    void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
+    void paintRowBackground (Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
 
     /** Paints the columns*/
-    void paintCell(Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
+    void paintCell (Graphics&, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
 
     /** Returns the tooltip for a particular cell*/
     String getCellTooltip (int rowNumber, int columnId) override;
 
     /** Called whenever the list is scrolled; tells the editor to update the monitors*/
     void listWasScrolled() override;
-    
-    TableListBox* table;
-private:
 
+    TableListBox* table;
+
+private:
     Array<const DataStream*> streams;
 
     StreamSelectorTable* owner;
@@ -109,7 +106,6 @@ private:
     bool isShuttingDown = false;
 
     bool acquisitionIsActive;
-
 };
 
 /**
@@ -120,26 +116,25 @@ Lives inside the GenericEditor
 
 */
 class PLUGIN_API StreamSelectorTable : public Component,
-    public Button::Listener,
-    public Timer,
-    public ComponentListener
+                                       public Button::Listener,
+                                       public Timer,
+                                       public ComponentListener
 {
 public:
-
     /** Constructor*/
-    StreamSelectorTable(GenericEditor* editor);
+    StreamSelectorTable (GenericEditor* editor);
 
     /** Destructor*/
     virtual ~StreamSelectorTable();
 
     /** Responds to button clicks */
-	void buttonClicked(Button* button) override;
+    void buttonClicked (Button* button) override;
 
     /** Adds a new DataStream*/
-    void add(const DataStream*);
+    void add (const DataStream*);
 
     /** Removes a DataStream*/
-    void remove(const DataStream*);
+    void remove (const DataStream*);
 
     /** Informs the GenericEditor about the component width*/
     int getDesiredWidth();
@@ -151,16 +146,16 @@ public:
     const DataStream* getCurrentStream();
 
     /** Returns true if a given stream is enabled*/
-    bool checkStream(const DataStream* stream);
+    bool checkStream (const DataStream* stream);
 
     /** Renders the component*/
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
     /** Returns a pointer to the TTLMonitor for a given DataStream*/
-    TTLMonitor* getTTLMonitor(const DataStream* stream);
+    TTLMonitor* getTTLMonitor (const DataStream* stream);
 
     /** Returns a pointer to the DelayMonitor for a given DataStream*/
-    DelayMonitor* getDelayMonitor(const DataStream* stream);
+    DelayMonitor* getDelayMonitor (const DataStream* stream);
 
     /** Starts TTLMonitor and DelayMonitor animations*/
     void startAcquisition();
@@ -181,13 +176,13 @@ public:
     int getViewedIndex();
 
     /** Sets the stream that's currently in view*/
-    void setViewedIndex(int i);
+    void setViewedIndex (int i);
 
     /** Used to enable and disable a given stream*/
-    void setStreamEnabledState(uint16 streamId, bool isEnabled);
+    void setStreamEnabledState (uint16 streamId, bool isEnabled);
 
     /** Called when popup window is deleted */
-    void componentBeingDeleted(Component& component) override;
+    void componentBeingDeleted (Component& component) override;
 
     /** Pointer to editor */
     GenericEditor* editor;
@@ -196,16 +191,15 @@ public:
     int viewedStreamIndex;
 
 private:
-
     /** Renders delay & TTL monitors */
     void timerCallback();
 
     /** Creates a new table view */
-    TableListBox* createTableView(bool expanded = false);
+    TableListBox* createTableView (bool expanded = false);
 
     std::unique_ptr<StreamTableModel> tableModel;
     std::unique_ptr<TableListBox> streamTable;
-	std::unique_ptr<ExpanderButton> expanderButton;
+    std::unique_ptr<ExpanderButton> expanderButton;
 
     Array<const DataStream*> streams;
 
@@ -215,9 +209,7 @@ private:
     int streamInfoViewHeight;
 
     int counter = 0;
-
 };
-
 
 /**
   Button to show expanded view of stream info table
@@ -225,20 +217,18 @@ private:
 class ExpanderButton : public Button
 {
 public:
-
     /** Constructor*/
     ExpanderButton();
 
     /** Destructor*/
-    ~ExpanderButton() { }
+    ~ExpanderButton() {}
 
     /** Enables/disables the button*/
-    void setEnabledState(bool isEnabled_) { isEnabled = isEnabled_; }
+    void setEnabledState (bool isEnabled_) { isEnabled = isEnabled_; }
 
 private:
-
     /** Renders the button*/
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 
     bool isEnabled;
 
@@ -251,22 +241,20 @@ private:
 class StreamEnableButton : public Button
 {
 public:
-    
     /** Constructor*/
-    StreamEnableButton(const String& name);
-    
+    StreamEnableButton (const String& name);
+
     /** Destructor*/
-    ~StreamEnableButton() { }
+    ~StreamEnableButton() {}
 
     /** Enables/disables the button*/
-    void setEnabledState(bool isEnabled_) { isEnabled = isEnabled_; }
+    void setEnabledState (bool isEnabled_) { isEnabled = isEnabled_; }
 
 private:
-    
     /** Renders the button*/
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 
     bool isEnabled;
 };
 
-#endif  // __STREAMSELECTOR_H_BDCEE716__
+#endif // __STREAMSELECTOR_H_BDCEE716__

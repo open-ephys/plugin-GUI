@@ -25,29 +25,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ___POPUPTIMEEDITOR_H_E47DE5C__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../PluginManager/OpenEphysPlugin.h"
 #include "../../Utils/Utils.h"
+#include "../Parameter/Parameter.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 
 #include <regex>
 
-class TimeParameter;
 /*
     A popup editor for time parameters
 */
-class PLUGIN_API PopupTimeEditor :
-    public Component,
-    public TextEditor::Listener
+class PLUGIN_API PopupTimeEditor : public Component,
+                                   public TextEditor::Listener
 {
 public:
-
     class CustomTextEditor : public TextEditor
     {
     public:
-        CustomTextEditor(PopupTimeEditor* popupEditor) : popupEditor(popupEditor) {
-            setJustification(Justification::centred); 
+        CustomTextEditor (PopupTimeEditor* popupEditor) : popupEditor (popupEditor)
+        {
+            setJustification (Justification::centred);
         }
 
-        bool keyPressed(const KeyPress& key) override
+        bool keyPressed (const KeyPress& key) override
         {
             if (key == KeyPress::escapeKey)
             {
@@ -55,73 +54,71 @@ public:
                 return true;
             }
 
-            return TextEditor::keyPressed(key);
+            return TextEditor::keyPressed (key);
         }
 
     private:
         PopupTimeEditor* popupEditor;
     };
 
-    PopupTimeEditor(TimeParameter* p_) : p(p_),
-        hourEditor(this),
-        minuteEditor(this),
-        secondEditor(this)
+    PopupTimeEditor (TimeParameter* p_) : p (p_),
+                                          hourEditor (this),
+                                          minuteEditor (this),
+                                          secondEditor (this)
     {
+        hourLabel.setText ("H", dontSendNotification);
+        hourLabel.setJustificationType (Justification::centred);
+        addAndMakeVisible (hourLabel);
 
-        hourLabel.setText("H", dontSendNotification);
-        hourLabel.setJustificationType(Justification::centred);
-        addAndMakeVisible(hourLabel);
+        minuteLabel.setText ("M", dontSendNotification);
+        minuteLabel.setJustificationType (Justification::centred);
+        addAndMakeVisible (minuteLabel);
 
-        minuteLabel.setText("M", dontSendNotification);
-        minuteLabel.setJustificationType(Justification::centred);
-        addAndMakeVisible(minuteLabel);
-
-        secondLabel.setText("S", dontSendNotification);
-        secondLabel.setJustificationType(Justification::centred);
-        addAndMakeVisible(secondLabel);
+        secondLabel.setText ("S", dontSendNotification);
+        secondLabel.setJustificationType (Justification::centred);
+        addAndMakeVisible (secondLabel);
 
         int hour = p->getTimeValue()->getHours();
-        hourEditor.setInputRestrictions(2, "0123456789");
-        hourEditor.setText(String(hour));
-        hourEditor.addListener(this);
-        addAndMakeVisible(hourEditor);
+        hourEditor.setInputRestrictions (2, "0123456789");
+        hourEditor.setText (String (hour));
+        hourEditor.addListener (this);
+        addAndMakeVisible (hourEditor);
 
         int minute = p->getTimeValue()->getMinutes();
-        minuteEditor.setInputRestrictions(2, "0123456789");
-        minuteEditor.setText(String(minute));
-        minuteEditor.addListener(this);
-        addAndMakeVisible(minuteEditor);
+        minuteEditor.setInputRestrictions (2, "0123456789");
+        minuteEditor.setText (String (minute));
+        minuteEditor.addListener (this);
+        addAndMakeVisible (minuteEditor);
 
         double second = p->getTimeValue()->getSeconds();
-        secondEditor.setInputRestrictions(6, "0123456789.");
-        secondEditor.setText(String(second));
-        secondEditor.addListener(this);
-        addAndMakeVisible(secondEditor);
+        secondEditor.setInputRestrictions (6, "0123456789.");
+        secondEditor.setText (String (second));
+        secondEditor.addListener (this);
+        addAndMakeVisible (secondEditor);
 
-        setSize(115, 35);
+        setSize (115, 35);
     }
 
     virtual ~PopupTimeEditor()
     {
         //Validate entries and update parameter only if valid
         TimeParameter::TimeValue* tv = p->getTimeValue();
-        TimeParameter::TimeValue* newTv = new TimeParameter::TimeValue(
+        TimeParameter::TimeValue* newTv = new TimeParameter::TimeValue (
             hourEditor.getText().getIntValue(),
             minuteEditor.getText().getIntValue(),
-            secondEditor.getText().getDoubleValue()
-        );
+            secondEditor.getText().getDoubleValue());
         int t1 = newTv->getTimeInMilliseconds();
         int t2 = p->getTimeValue()->getMaxTimeInMilliseconds();
         if (newTv->getTimeInMilliseconds() < p->getTimeValue()->getMaxTimeInMilliseconds()
             && newTv->getTimeInMilliseconds() > p->getTimeValue()->getMinTimeInMilliseconds())
-            p->setNextValue(newTv->toString(),true);
+            p->setNextValue (newTv->toString(), true);
     }
 
     void resized() override
     {
-        auto area = getLocalBounds().reduced(1);
-        auto editorArea = area.removeFromTop(20);
-        auto labelArea = area.removeFromTop(22);  // Area for the labels
+        auto area = getLocalBounds().reduced (1);
+        auto editorArea = area.removeFromTop (20);
+        auto labelArea = area.removeFromTop (22); // Area for the labels
         int padding = 2;
 
         int editorWidth = 30;
@@ -129,12 +126,12 @@ public:
         int labelWidth = 30;
         int labelHeight = 20;
 
-        hourEditor.setBounds(editorArea.removeFromLeft(editorWidth).reduced(padding));
-        hourLabel.setBounds(labelArea.removeFromLeft(labelWidth).withSizeKeepingCentre(labelWidth, labelHeight));
-        minuteEditor.setBounds(editorArea.removeFromLeft(editorWidth).reduced(padding));
-        minuteLabel.setBounds(labelArea.removeFromLeft(labelWidth).withSizeKeepingCentre(labelWidth, labelHeight));
-        secondEditor.setBounds(editorArea.removeFromLeft(2*editorWidth).reduced(padding));
-        secondLabel.setBounds(labelArea.removeFromLeft(2*labelWidth).withSizeKeepingCentre(labelWidth, labelHeight));
+        hourEditor.setBounds (editorArea.removeFromLeft (editorWidth).reduced (padding));
+        hourLabel.setBounds (labelArea.removeFromLeft (labelWidth).withSizeKeepingCentre (labelWidth, labelHeight));
+        minuteEditor.setBounds (editorArea.removeFromLeft (editorWidth).reduced (padding));
+        minuteLabel.setBounds (labelArea.removeFromLeft (labelWidth).withSizeKeepingCentre (labelWidth, labelHeight));
+        secondEditor.setBounds (editorArea.removeFromLeft (2 * editorWidth).reduced (padding));
+        secondLabel.setBounds (labelArea.removeFromLeft (2 * labelWidth).withSizeKeepingCentre (labelWidth, labelHeight));
     }
 
     void closePopup()
@@ -144,7 +141,7 @@ public:
         {
             if (parent->isCurrentlyModal())
             {
-                parent->exitModalState(0);
+                parent->exitModalState (0);
                 break;
             }
             parent = parent->getParentComponent();
@@ -152,26 +149,25 @@ public:
     }
 
 private:
-
-    void textEditorTextChanged(TextEditor& editor) override
+    void textEditorTextChanged (TextEditor& editor) override
     {
-        if (&editor == &hourEditor) {} //TODO: Validate
-        else if (&editor == &minuteEditor) {} //TODO: Validate
+        if (&editor == &hourEditor)
+        {
+        } //TODO: Validate
+        else if (&editor == &minuteEditor)
+        {
+        } //TODO: Validate
         else if (&editor == &secondEditor)
         {
             String text = secondEditor.getText();
 
             StringArray split;
-            split.addTokens(text, ".", "\"");
-            if ((split.size() > 2) || 
-                (split[0].length() > 2) || 
-                ((split.size() > 1) && (split[1].length() > 3)) || 
-                ((split.size() == 1) && (text.length() > 2)))
+            split.addTokens (text, ".", "\"");
+            if ((split.size() > 2) || (split[0].length() > 2) || ((split.size() > 1) && (split[1].length() > 3)) || ((split.size() == 1) && (text.length() > 2)))
             {
-                editor.setText(String(p->getTimeValue()->getSeconds()));
+                editor.setText (String (p->getTimeValue()->getSeconds()));
             }
         }
-            
     }
 
     Label hourLabel;
@@ -183,7 +179,6 @@ private:
     CustomTextEditor secondEditor;
 
     TimeParameter* p;
-
 };
 
-#endif  // ___POPUPTIMEEDITOR_H_E47DE5C__
+#endif // ___POPUPTIMEEDITOR_H_E47DE5C__

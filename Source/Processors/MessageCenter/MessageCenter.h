@@ -64,7 +64,7 @@ public:
     /** Creates the MessageCenterEditor (located in the UI component). */
     AudioProcessorEditor* createEditor() override;
 
-     /** Enables the "send" button */
+    /** Enables the "send" button */
     bool startAcquisition() override;
 
     /** Disables the "send" button */
@@ -95,17 +95,16 @@ public:
     void addSavedMessage (const String& msg);
 
     /** Clears all saved messages */
-    void clearSavedMessages ();
+    void clearSavedMessages();
 
     /** Returns messages that have been sent previously */
-    Array<String>& getSavedMessages ();
+    Array<String>& getSavedMessages();
 
     /** Stores saved messages in settings file */
     void saveStateToXml (XmlElement* xml);
 
     /** Loads saved messages from settings file */
     void loadStateFromXml (XmlElement* xml);
-
 
 private:
     /** A pointer to the Message Center editor. */
@@ -125,7 +124,7 @@ private:
     bool newEventAvailable;
 
     ScopedPointer<EventChannel> eventChannel;
-    
+
     Array<String> savedMessages;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MessageCenter);

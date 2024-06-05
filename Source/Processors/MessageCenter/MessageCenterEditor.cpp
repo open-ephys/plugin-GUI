@@ -75,19 +75,16 @@ void MessageCenterEditor::stopAcquisition()
 
 void MessageCenterEditor::buttonClicked (Button* button)
 {
-
     if (editableMessageDisplayArea->getText().length() > 0)
     {
         addOutgoingMessage (editableMessageDisplayArea->getText(), CoreServices::getSystemTime());
     }
-   
 }
 
 void MessageCenterEditor::editorShown (Label* label, TextEditor& textEditor)
 {
     textEditor.setInputRestrictions (490);
 }
-
 
 void MessageCenterEditor::timerCallback()
 {
@@ -154,7 +151,7 @@ void MessageCenterEditor::addIncomingMessage (const String& message)
     resized();
 }
 
-void MessageCenterEditor::addOutgoingMessage( const String& message, const int64 systemTime)
+void MessageCenterEditor::addOutgoingMessage (const String& message, const int64 systemTime)
 {
     messageCenter->broadcastMessage (message, systemTime);
     messageCenter->addSavedMessage (message);
@@ -245,7 +242,6 @@ void MessageCenterEditor::paint (Graphics& g)
     g.drawRect (getWidth() / 2 + 26, getHeight() - 25, getWidth() / 2 - 80, 20);
 
     sendMessageButton->setColour (TextButton::buttonColourId, findColour (ThemeColors::highlightedFill));
-    
 }
 
 void MessageCenterEditor::resized()

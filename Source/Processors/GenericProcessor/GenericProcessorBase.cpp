@@ -22,7 +22,7 @@
 	*/
 #include "GenericProcessorBase.h"
 
-GenericProcessorBase::GenericProcessorBase(const String& name) : m_name(name) {}
+GenericProcessorBase::GenericProcessorBase (const String& name) : m_name (name) {}
 
 GenericProcessorBase::~GenericProcessorBase() {}
 
@@ -30,52 +30,52 @@ const String GenericProcessorBase::getName() const { return m_name; }
 
 bool GenericProcessorBase::hasEditor() const { return true; }
 
-void GenericProcessorBase::prepareToPlay(double sampleRate, int maximumExpectedSamplesPerBlock) {}
+void GenericProcessorBase::prepareToPlay (double sampleRate, int maximumExpectedSamplesPerBlock) {}
 
 void GenericProcessorBase::releaseResources() {}
 
 void GenericProcessorBase::reset() {}
 
-void GenericProcessorBase::setCurrentProgramStateInformation(const void* data, int sizeInBytes) {}
+void GenericProcessorBase::setCurrentProgramStateInformation (const void* data, int sizeInBytes) {}
 
-void GenericProcessorBase::setStateInformation(const void* data, int sizeInBytes) {}
+void GenericProcessorBase::setStateInformation (const void* data, int sizeInBytes) {}
 
-void GenericProcessorBase::getCurrentProgramStateInformation(MemoryBlock& destData) {}
+void GenericProcessorBase::getCurrentProgramStateInformation (MemoryBlock& destData) {}
 
-void GenericProcessorBase::getStateInformation(MemoryBlock& destData) {}
+void GenericProcessorBase::getStateInformation (MemoryBlock& destData) {}
 
-void GenericProcessorBase::changeProgramName(int index, const String& newName) {}
+void GenericProcessorBase::changeProgramName (int index, const String& newName) {}
 
-void GenericProcessorBase::setCurrentProgram(int index) {}
+void GenericProcessorBase::setCurrentProgram (int index) {}
 
-const String GenericProcessorBase::getProgramName(int index)   { return ""; }
+const String GenericProcessorBase::getProgramName (int index) { return ""; }
 
 int GenericProcessorBase::getCurrentChannel() const { return 0; }
 
-const String GenericProcessorBase::getParameterName(int parameterIndex) { return ""; }
+const String GenericProcessorBase::getParameterName (int parameterIndex) { return ""; }
 
-const String GenericProcessorBase::getParameterText(int parameterIndex) { return ""; }
+const String GenericProcessorBase::getParameterText (int parameterIndex) { return ""; }
 
-float GenericProcessorBase::getParameter(int parameterIndex) { return 0.0f;}
+float GenericProcessorBase::getParameter (int parameterIndex) { return 0.0f; }
 
-bool GenericProcessorBase::isInputChannelStereoPair(int index) const { return true; }
+bool GenericProcessorBase::isInputChannelStereoPair (int index) const { return true; }
 
-bool GenericProcessorBase::isOutputChannelStereoPair(int index) const { return true; }
+bool GenericProcessorBase::isOutputChannelStereoPair (int index) const { return true; }
 
-bool GenericProcessorBase::acceptsMidi() const  { return true; }
+bool GenericProcessorBase::acceptsMidi() const { return true; }
 
 bool GenericProcessorBase::producesMidi() const { return true; }
 
-bool GenericProcessorBase::silenceInProducesSilenceOut() const  { return false; }
+bool GenericProcessorBase::silenceInProducesSilenceOut() const { return false; }
 
-bool GenericProcessorBase::isParameterAutomatable(int parameterIndex) const { return false; }
+bool GenericProcessorBase::isParameterAutomatable (int parameterIndex) const { return false; }
 
-bool GenericProcessorBase::isMetaParameter(int parameterIndex) const { return false; }
+bool GenericProcessorBase::isMetaParameter (int parameterIndex) const { return false; }
 
-int GenericProcessorBase::getNumParameters() { return 0;}
+int GenericProcessorBase::getNumParameters() { return 0; }
 
-int GenericProcessorBase::getNumPrograms() {return 0;}
+int GenericProcessorBase::getNumPrograms() { return 0; }
 
-int GenericProcessorBase::getCurrentProgram() {	return 0;}
+int GenericProcessorBase::getCurrentProgram() { return 0; }
 
-double GenericProcessorBase::getTailLengthSeconds() const {	return 0.0f;}
+double GenericProcessorBase::getTailLengthSeconds() const { return 0.0f; }

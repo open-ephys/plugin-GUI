@@ -137,7 +137,7 @@ private:
     void buttonClicked (Button* button) override;
 
     /** Label callback */
-    void labelTextChanged (Label* label) override { }
+    void labelTextChanged (Label* label) override {}
 
     /** Label callback */
     void editorShown (Label* label, TextEditor& editor) override;

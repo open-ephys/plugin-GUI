@@ -25,39 +25,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../GenericProcessor/GenericProcessor.h"
 
-ProcessorInfoObject::ProcessorInfoObject(GenericProcessor* processor) 
-	: InfoObject(InfoObject::Type::PROCESSOR_INFO)
+ProcessorInfoObject::ProcessorInfoObject (GenericProcessor* processor)
+    : InfoObject (InfoObject::Type::PROCESSOR_INFO)
 {
-	m_nodeId = processor->getNodeId();
-	m_name = processor->getDisplayName();
+    m_nodeId = processor->getNodeId();
+    m_name = processor->getDisplayName();
 
-	if (processor->isSource())
-		m_type = "Source";
-	else if (processor->isFilter())
-		m_type = "Filter";
-	else if (processor->isSink())
-		m_type = "Sink";
-	else if (processor->isRecordNode())
-		m_type = "RecordNode";
-	
+    if (processor->isSource())
+        m_type = "Source";
+    else if (processor->isFilter())
+        m_type = "Filter";
+    else if (processor->isSink())
+        m_type = "Sink";
+    else if (processor->isRecordNode())
+        m_type = "RecordNode";
 }
 
 ProcessorInfoObject::~ProcessorInfoObject()
 {
-
 }
 
 int ProcessorInfoObject::getNodeId() const
 {
-	return m_nodeId;
+    return m_nodeId;
 }
 
 String ProcessorInfoObject::getType() const
 {
-	return m_type;
+    return m_type;
 }
 
 String ProcessorInfoObject::getName() const
 {
-	return m_name;
+    return m_name;
 }

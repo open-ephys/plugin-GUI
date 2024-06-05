@@ -23,53 +23,53 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ParameterEditorOwner.h"
 
-
 //ParameterEditorOwner
-ParameterEditorOwner::ParameterEditorOwner(Component* ownerComponent_)
-    : ownerComponent(ownerComponent_)
+ParameterEditorOwner::ParameterEditorOwner (Component* ownerComponent_)
+    : ownerComponent (ownerComponent_)
 {
 }
 
 ParameterEditorOwner::~ParameterEditorOwner()
-{}
-
-ParameterEditorOwner::ParameterEditorOwner(const ParameterEditorOwner& other)
 {
 }
 
-void ParameterEditorOwner::addParameterEditor(ParameterEditor* p, int xPos, int yPos)
+ParameterEditorOwner::ParameterEditorOwner (const ParameterEditorOwner& other)
 {
-    parameterEditors.add(p);
-    ownerComponent->addAndMakeVisible(p);
-    p->setBounds(xPos, yPos, p->getWidth(), p->getHeight());
+}
+
+void ParameterEditorOwner::addParameterEditor (ParameterEditor* p, int xPos, int yPos)
+{
+    parameterEditors.add (p);
+    ownerComponent->addAndMakeVisible (p);
+    p->setBounds (xPos, yPos, p->getWidth(), p->getHeight());
 }
 
 Array<ParameterEditor*> ParameterEditorOwner::getParameterEditors()
 {
     Array<ParameterEditor*> editors;
 
-    for(auto editor :  parameterEditors)
-        editors.add(editor);
-    
+    for (auto editor : parameterEditors)
+        editors.add (editor);
+
     return editors;
 }
 
-ParameterEditor* ParameterEditorOwner::getParameterEditor(String name) const
+ParameterEditor* ParameterEditorOwner::getParameterEditor (String name) const
 {
-    for(auto editor :  parameterEditors)
+    for (auto editor : parameterEditors)
     {
-        if(editor->getParameterName().compare(name) == 0)
+        if (editor->getParameterName().compare (name) == 0)
             return editor;
     }
 
     return nullptr;
 }
 
-bool ParameterEditorOwner::hasParameterEditor(String name) const
+bool ParameterEditorOwner::hasParameterEditor (String name) const
 {
-    for(auto editor :  parameterEditors)
+    for (auto editor : parameterEditors)
     {
-        if(editor->getParameterName().compare(name) == 0)
+        if (editor->getParameterName().compare (name) == 0)
             return true;
     }
 

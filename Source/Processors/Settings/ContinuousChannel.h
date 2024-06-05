@@ -25,92 +25,87 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define CONTINUOUSCHANNEL_H_INCLUDED
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../Parameter/ParameterOwner.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 #include "InfoObject.h"
-#include "../Parameter/ParameterOwner.h"
 
 class DataStream;
 
-class PLUGIN_API ContinuousChannel :
-	public ChannelInfoObject,
-	public ParameterOwner
+class PLUGIN_API ContinuousChannel : public ChannelInfoObject,
+                                     public ParameterOwner
 {
 public:
+    enum Type
+    {
+        ELECTRODE = 0,
+        AUX = 1,
+        ADC = 2,
+        INVALID = 100
+    };
 
-	enum Type
-	{
-		ELECTRODE = 0,
-		AUX = 1,
-		ADC = 2,
-		INVALID = 100
-	};
+    struct InputRange
+    {
+        float min = -5000.0f;
+        float max = +5000.0f;
+    };
 
-	struct InputRange
-	{
-		float min = -5000.0f;
-		float max = +5000.0f;
-	};
+    struct Impedance
+    {
+        float magnitude = -1.0f;
+        float phase = -1.0f;
+        bool measured = false;
+    };
 
-	struct Impedance
-	{
-		float magnitude = -1.0f;
-		float phase = -1.0f;
-		bool measured = false;
-	};
+    struct Settings
+    {
+        Type type;
 
-	struct Settings
-	{
-		Type type; 
+        String name;
+        String description;
+        String identifier;
 
-		String name;
-		String description;
-		String identifier;
-		
-		float bitVolts;
+        float bitVolts;
 
-		DataStream* stream;
-	};
+        DataStream* stream;
+    };
 
-	InputRange inputRange;
-	Impedance impedance;
+    InputRange inputRange;
+    Impedance impedance;
 
-	//--------- CONSTRUCTOR / DESTRUCTOR --------//
+    //--------- CONSTRUCTOR / DESTRUCTOR --------//
 
-	/** Default constructor for creating continuous channels from scratch.
+    /** Default constructor for creating continuous channels from scratch.
 		@param settings - the settings for this channel
 	*/
-	ContinuousChannel(Settings settings);
+    ContinuousChannel (Settings settings);
 
-	virtual ~ContinuousChannel();
+    virtual ~ContinuousChannel();
 
-	//--------- DATA GET / SET METHODS --------//
+    //--------- DATA GET / SET METHODS --------//
 
-	/** Sets the bitVolts value for this channel. */
-	void setBitVolts(float bitVolts);
+    /** Sets the bitVolts value for this channel. */
+    void setBitVolts (float bitVolts);
 
-	/** Returns the bitVolts value for this channel. */
-	float getBitVolts() const;
+    /** Returns the bitVolts value for this channel. */
+    float getBitVolts() const;
 
-	/** Sets the unit string */
-	void setUnits(String unit);
-	
-	/** Gets the data units*/
-	String getUnits() const;
+    /** Sets the unit string */
+    void setUnits (String unit);
 
-	/** Returns the type of this channel */
-	const Type getChannelType() const;
+    /** Gets the data units*/
+    String getUnits() const;
+
+    /** Returns the type of this channel */
+    const Type getChannelType() const;
 
 private:
+    const Type m_type;
 
-	const Type m_type;
-	
-	float m_bitVolts;
-	
-	String m_units;
+    float m_bitVolts;
 
-	int local_index;
+    String m_units;
 
+    int local_index;
 };
-
 
 #endif

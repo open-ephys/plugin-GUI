@@ -24,17 +24,17 @@
 #define __DATATHREAD_H_C454F4DB__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include <stdio.h>
-#include "DataBuffer.h"
 #include "../GenericProcessor/GenericProcessor.h"
+#include "DataBuffer.h"
+#include <stdio.h>
 
-#include "../Settings/DataStream.h"
-#include "../Settings/EventChannel.h"
-#include "../Settings/ContinuousChannel.h"
-#include "../Settings/SpikeChannel.h"
 #include "../Settings/ConfigurationObject.h"
+#include "../Settings/ContinuousChannel.h"
+#include "../Settings/DataStream.h"
 #include "../Settings/DeviceInfo.h"
+#include "../Settings/EventChannel.h"
 #include "../Settings/InfoObject.h"
+#include "../Settings/SpikeChannel.h"
 
 class SourceNode;
 
@@ -52,7 +52,6 @@ class SourceNode;
 class PLUGIN_API DataThread : public Thread
 {
 public:
-
     /** Constructor */
     DataThread (SourceNode* sn);
 
@@ -77,12 +76,12 @@ public:
     virtual bool stopAcquisition() = 0;
 
     /* Passes the processor's info objects to DataThread, to allow them to be configured */
-    virtual void updateSettings(OwnedArray<ContinuousChannel>* continuousChannels,
-        OwnedArray<EventChannel>* eventChannels,
-        OwnedArray<SpikeChannel>* spikeChannels,
-        OwnedArray<DataStream>* sourceStreams,
-        OwnedArray<DeviceInfo>* devices,
-        OwnedArray<ConfigurationObject>* configurationObjects) = 0;
+    virtual void updateSettings (OwnedArray<ContinuousChannel>* continuousChannels,
+                                 OwnedArray<EventChannel>* eventChannels,
+                                 OwnedArray<SpikeChannel>* spikeChannels,
+                                 OwnedArray<DataStream>* sourceStreams,
+                                 OwnedArray<DeviceInfo>* devices,
+                                 OwnedArray<ConfigurationObject>* configurationObjects) = 0;
 
     // ---------------------
     // VIRTUAL METHODS
@@ -92,23 +91,23 @@ public:
     virtual void registerParameters() {};
 
     /** Called when the chain updates, to add, remove or resize the sourceBuffers' DataBuffers as needed*/
-    virtual void resizeBuffers() { }
+    virtual void resizeBuffers() {}
 
     /** Create the DataThread custom editor, if any*/
-    virtual std::unique_ptr<GenericEditor> createEditor(SourceNode* sn);
+    virtual std::unique_ptr<GenericEditor> createEditor (SourceNode* sn);
 
     /** Allows the DataThread plugin to respond to broadcast messages sent by other processors
           during acquisition */
-    virtual void handleBroadcastMessage(const String& msg, const int64 messageTimeMilliseconds) { }
+    virtual void handleBroadcastMessage (const String& msg, const int64 messageTimeMilliseconds) {}
 
     // ** Allows the DataThread plugin to handle a config message while acquisition is NOT active. */
-    virtual String handleConfigMessage(const String& msg) { return ""; }
+    virtual String handleConfigMessage (const String& msg) { return ""; }
 
     /** Allows the DataThread to set its default state, depending on whether the signal chain is loading */
-    virtual void initialize(bool signalChainIsLoading) { }
+    virtual void initialize (bool signalChainIsLoading) {}
 
     /** Called when a parameter value is updated, to allow plugin-specific responses */
-    virtual void parameterValueChanged(Parameter*) { }
+    virtual void parameterValueChanged (Parameter*) {}
 
     // ---------------------
     // NON-VIRTUAL METHODS
@@ -118,140 +117,137 @@ public:
     void run() override;
 
     /** Returns the address of the DataBuffer that the input source will fill.*/
-    DataBuffer* getBufferAddress(int streamIdx) const;
+    DataBuffer* getBufferAddress (int streamIdx) const;
 
     /** Adds a boolean parameter, which will later be accessed by name*/
-    void addBooleanParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        bool defaultValue,
-        bool deactivateDuringAcquisition = false);
+    void addBooleanParameter (Parameter::ParameterScope scope,
+                              const String& name,
+                              const String& displayName,
+                              const String& description,
+                              bool defaultValue,
+                              bool deactivateDuringAcquisition = false);
 
     /** Adds an integer parameter, which will later be accessed by name*/
-    void addIntParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        int defaultValue,
-        int minValue,
-        int maxValue,
-        bool deactivateDuringAcquisition = false);
-    
+    void addIntParameter (Parameter::ParameterScope scope,
+                          const String& name,
+                          const String& displayName,
+                          const String& description,
+                          int defaultValue,
+                          int minValue,
+                          int maxValue,
+                          bool deactivateDuringAcquisition = false);
+
     /** Adds a string parameter, which will later be accessed by name*/
-    void addStringParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        String defaultValue,
-        bool deactivateDuringAcquisition = false);
+    void addStringParameter (Parameter::ParameterScope scope,
+                             const String& name,
+                             const String& displayName,
+                             const String& description,
+                             String defaultValue,
+                             bool deactivateDuringAcquisition = false);
 
     /** Adds an float parameter, which will later be accessed by name*/
-    void addFloatParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        const String& unit,
-        float defaultValue,
-        float minValue,
-        float maxValue,
-        float stepSize,
-        bool deactivateDuringAcquisition = false);
+    void addFloatParameter (Parameter::ParameterScope scope,
+                            const String& name,
+                            const String& displayName,
+                            const String& description,
+                            const String& unit,
+                            float defaultValue,
+                            float minValue,
+                            float maxValue,
+                            float stepSize,
+                            bool deactivateDuringAcquisition = false);
 
     /** Adds a selected channels parameter, which will later be accessed by name*/
-    void addSelectedChannelsParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        int maxSelectedChannels = std::numeric_limits<int>::max(),
-        bool deactivateDuringAcquisition = false);
-    
+    void addSelectedChannelsParameter (Parameter::ParameterScope scope,
+                                       const String& name,
+                                       const String& displayName,
+                                       const String& description,
+                                       int maxSelectedChannels = std::numeric_limits<int>::max(),
+                                       bool deactivateDuringAcquisition = false);
+
     /** Adds a mask channels parameter, which will later be accessed by name*/
-    void addMaskChannelsParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        bool deactivateDuringAcquisition = false);
+    void addMaskChannelsParameter (Parameter::ParameterScope scope,
+                                   const String& name,
+                                   const String& displayName,
+                                   const String& description,
+                                   bool deactivateDuringAcquisition = false);
 
     /** Adds a categorical parameter, which will later be accessed by name*/
-    void addCategoricalParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        Array<String> categories,
-        int defaultIndex,
-        bool deactivateDuringAcquisition = false);
+    void addCategoricalParameter (Parameter::ParameterScope scope,
+                                  const String& name,
+                                  const String& displayName,
+                                  const String& description,
+                                  Array<String> categories,
+                                  int defaultIndex,
+                                  bool deactivateDuringAcquisition = false);
 
     /** Adds a path parameter which holds a path to a folder or file */
-    void addPathParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        const String& defaultValue,
-        const StringArray& validFileExtensions,
-        bool isDirectory,
-        bool deactivateDuringAcquisition = true);
+    void addPathParameter (Parameter::ParameterScope scope,
+                           const String& name,
+                           const String& displayName,
+                           const String& description,
+                           const String& defaultValue,
+                           const StringArray& validFileExtensions,
+                           bool isDirectory,
+                           bool deactivateDuringAcquisition = true);
 
     /** Adds a selected stream parameter which holds the currentlu selected stream */
-    void addSelectedStreamParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        Array<String> streamNames,
-        const int defaultIndex,
-        bool deactivateDuringAcquisition = true);
+    void addSelectedStreamParameter (Parameter::ParameterScope scope,
+                                     const String& name,
+                                     const String& displayName,
+                                     const String& description,
+                                     Array<String> streamNames,
+                                     const int defaultIndex,
+                                     bool deactivateDuringAcquisition = true);
 
     /** Adds a time parameter with microsecond precision in the form HH:MM:SS.sss */
-    void addTimeParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        const String& defaultValue = "00:00:00",
-        bool deactivateDuringAcquisition = true);
+    void addTimeParameter (Parameter::ParameterScope scope,
+                           const String& name,
+                           const String& displayName,
+                           const String& description,
+                           const String& defaultValue = "00:00:00",
+                           bool deactivateDuringAcquisition = true);
 
     /** Adds a notification parameter that notifies parameter value changed */
-    void addNotificationParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        bool deactivateDuringAcquisition = false);
+    void addNotificationParameter (Parameter::ParameterScope scope,
+                                   const String& name,
+                                   const String& displayName,
+                                   const String& description,
+                                   bool deactivateDuringAcquisition = false);
 
     /** Adds a parameter that allows the user to select a TTL Line
      * @param maxAvailableLines The number of TTL lines available for selection
      * @param syncMode Set to true if the ttl line will be used for synchronization
      * @param canSelectNone Set to true if the user can select no TTL line (cant be used with syncMode = true)
      */
-    void addTtlLineParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        int maxAvailableLines = 8,
-        bool syncMode = false,
-        bool canSelectNone = false,
-        bool deactivateDuringAcquisition = false);
+    void addTtlLineParameter (Parameter::ParameterScope scope,
+                              const String& name,
+                              const String& displayName,
+                              const String& description,
+                              int maxAvailableLines = 8,
+                              bool syncMode = false,
+                              bool canSelectNone = false,
+                              bool deactivateDuringAcquisition = false);
 
     /** Returns a pointer to a parameter with a given name**/
-    Parameter* getParameter(String name) const;
+    Parameter* getParameter (String name) const;
 
-	/** Returns true if an object has a parameter with a given name**/
-	bool hasParameter(String name) const;
+    /** Returns true if an object has a parameter with a given name**/
+    bool hasParameter (String name) const;
 
     /** Returns a pointer to a parameter with a given name**/
     Array<Parameter*> getParameters();
 
 protected:
-
     // ** Allows the DataThread to broadcast a message other plugins */
-    void broadcastMessage(String msg);
+    void broadcastMessage (String msg);
 
     SourceNode* sn;
 
-	OwnedArray<DataBuffer> sourceBuffers;
+    OwnedArray<DataBuffer> sourceBuffers;
 
 private:
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataThread);
 };
 
-
-#endif  // __DATATHREAD_H_C454F4DB__
+#endif // __DATATHREAD_H_C454F4DB__

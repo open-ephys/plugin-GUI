@@ -41,7 +41,7 @@ THE SOFTWARE.
 //
 
 #ifdef _MSC_VER
-#  pragma warning (disable: 4100)
+#pragma warning(disable : 4100)
 #endif
 
 //#include <assert.h>
@@ -52,8 +52,8 @@ THE SOFTWARE.
 #include <cmath>
 #include <complex>
 #include <cstring>
-#include <string>
 #include <limits>
+#include <string>
 #include <vector>
 
 #ifdef _MSC_VER

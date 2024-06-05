@@ -28,15 +28,14 @@
 
 #include "PluginIDs.h"
 
-
 #ifdef _WIN32
-    #ifdef OEPLUGIN
-        #define PLUGIN_API __declspec(dllimport)
+#ifdef OEPLUGIN
+#define PLUGIN_API __declspec (dllimport)
 #else
-    #define PLUGIN_API __declspec(dllexport)
+#define PLUGIN_API __declspec (dllexport)
 #endif
 #else
-    #define PLUGIN_API __attribute__((visibility("default")))
+#define PLUGIN_API __attribute__ ((visibility ("default")))
 #endif
 
 struct ProcessorInfo;
@@ -50,168 +49,180 @@ class FileSource;
 
 #define PLUGIN_API_VER 9
 
-typedef GenericProcessor*(*ProcessorCreator)();
-typedef DataThread*(*DataThreadCreator)(SourceNode*);
-typedef RecordEngineManager*(*EngineManagerCreator)();
-typedef FileSource*(*FileSourceCreator)();
+typedef GenericProcessor* (*ProcessorCreator)();
+typedef DataThread* (*DataThreadCreator) (SourceNode*);
+typedef RecordEngineManager* (*EngineManagerCreator)();
+typedef FileSource* (*FileSourceCreator)();
 
 namespace Plugin
 {
-    /** High-level plugin type
+/** High-level plugin type
      */
-    enum Type
-    {
-        /** Compiled with the host application*/
-        BUILT_IN = 0
-        
-        /** GenericProcessor plugin, can be dragged into the signal chain*/
-        , PROCESSOR = 1
-        
-        /** RecordEngine, can be used by the RecordNode*/
-        , RECORD_ENGINE = 2
-        
-        /** FileSource plugin, can be used by the FileReader*/
-        , FILE_SOURCE = 3
-        
-        /** DataThread, nested inside a SourceNode*/
-        , DATA_THREAD = 4
-        
-        /** Invalid plugin type*/
-        , INVALID = -1
-    };
+enum Type
+{
+    /** Compiled with the host application*/
+    BUILT_IN = 0
 
-    namespace Processor
-    {
-        /** If the high-level type is PLUGIN_TYPE_PROCESSOR,
-            this specifies the type of processor to create
-         */
-        enum Type
-        {
-            /** Modifies incoming data*/
-            FILTER = 1
-            
-            /** Generates data*/
-            , SOURCE = 2
-            
-            /** Sends data outside the signal chain (but does not modify it)*/
-            , SINK = 3
+    /** GenericProcessor plugin, can be dragged into the signal chain*/
+    ,
+    PROCESSOR = 1
 
-            /** Splits the incoming data down two paths*/
-            , SPLITTER = 4
-            
-            /** Merges two sets of data streams*/
-            , MERGER = 5
-            
-            /** Sends the incoming data to the computer's audio output*/
-            , AUDIO_MONITOR = 6
-            
-            /** Other utilities (such as Record Control)*/
-            , UTILITY = 7
-            
-            /** Writes incoming data to disk*/
-            , RECORD_NODE = 8
-            
-            /** Not a valid processor type*/
-            , INVALID = -1
+    /** RecordEngine, can be used by the RecordNode*/
+    ,
+    RECORD_ENGINE = 2
 
-			/** An empty source processor*/
-            , EMPTY = -2
-        };
-    }
-    
-    struct Description {
-        
-        bool fromProcessorList = false;
-        int index = -1;
-        String name = "Default";
-        String libName = "DefaultLibrary";
-        String libVersion = "0.0.0";
-        
-        // built-in, processor, record engine, etc.
-        Type type = Plugin::INVALID;
-        
-        // source, sink, filter, etc.
-        Processor::Type processorType = Plugin::Processor::INVALID;
+    /** FileSource plugin, can be used by the FileReader*/
+    ,
+    FILE_SOURCE = 3
 
-        int nodeId = -1;
-    };
+    /** DataThread, nested inside a SourceNode*/
+    ,
+    DATA_THREAD = 4
 
-	struct ProcessorInfo
-	{
-		const char* name;
-		ProcessorCreator creator;
-		Processor::Type type;
-	};
-
-	struct DataThreadInfo
-	{
-		const char* name;
-		DataThreadCreator creator;
-	};
-
-	struct RecordEngineInfo
-	{
-		const char* name;
-		EngineManagerCreator creator;
-	};
-
-	struct FileSourceInfo
-	{
-		const char* name;
-		FileSourceCreator creator;
-		const char* extensions; //Semicolon separated list of extensions. Eg: "txt;dat;info;kwd"
-	};
-
-	struct LibraryInfo
-	{
-		const char* name;
-		const char* libVersion;
-		int apiVersion;
-		int numPlugins;
-	};
-
-	struct PluginInfo
-	{
-		Type type;
-		union
-		{
-			ProcessorInfo processor;
-			DataThreadInfo dataThread;
-			RecordEngineInfo recordEngine;
-			FileSourceInfo fileSource;
-		};
-	};
-
-	template<class T>
-	GenericProcessor* createProcessor()
-	{
-		return new T;
-	}
-
-	template<class T>
-	DataThread* createDataThread(SourceNode* sn)
-	{
-		return new T(sn);
-	}
-
-	template<class T>
-	RecordEngineManager* createRecordEngine()
-	{
-		return T::getEngineManager();
-	}
-
-	template<class T>
-	FileSource* createFileSource()
-	{
-		return new T;
-	}
-
+    /** Invalid plugin type*/
+    ,
+    INVALID = -1
 };
 
-typedef void(*LibraryInfoFunction)(Plugin::LibraryInfo*);
+namespace Processor
+{
+    /** If the high-level type is PLUGIN_TYPE_PROCESSOR,
+            this specifies the type of processor to create
+         */
+    enum Type
+    {
+        /** Modifies incoming data*/
+        FILTER = 1
 
-typedef int(*PluginInfoFunction)(int, Plugin::PluginInfo*);
+        /** Generates data*/
+        ,
+        SOURCE = 2
 
+        /** Sends data outside the signal chain (but does not modify it)*/
+        ,
+        SINK = 3
 
+        /** Splits the incoming data down two paths*/
+        ,
+        SPLITTER = 4
 
-#endif  // OPENEPHYSPLUGIN_H_INCLUDED
+        /** Merges two sets of data streams*/
+        ,
+        MERGER = 5
+
+        /** Sends the incoming data to the computer's audio output*/
+        ,
+        AUDIO_MONITOR = 6
+
+        /** Other utilities (such as Record Control)*/
+        ,
+        UTILITY = 7
+
+        /** Writes incoming data to disk*/
+        ,
+        RECORD_NODE = 8
+
+        /** Not a valid processor type*/
+        ,
+        INVALID = -1
+
+        /** An empty source processor*/
+        ,
+        EMPTY = -2
+    };
+} // namespace Processor
+
+struct Description
+{
+    bool fromProcessorList = false;
+    int index = -1;
+    String name = "Default";
+    String libName = "DefaultLibrary";
+    String libVersion = "0.0.0";
+
+    // built-in, processor, record engine, etc.
+    Type type = Plugin::INVALID;
+
+    // source, sink, filter, etc.
+    Processor::Type processorType = Plugin::Processor::INVALID;
+
+    int nodeId = -1;
+};
+
+struct ProcessorInfo
+{
+    const char* name;
+    ProcessorCreator creator;
+    Processor::Type type;
+};
+
+struct DataThreadInfo
+{
+    const char* name;
+    DataThreadCreator creator;
+};
+
+struct RecordEngineInfo
+{
+    const char* name;
+    EngineManagerCreator creator;
+};
+
+struct FileSourceInfo
+{
+    const char* name;
+    FileSourceCreator creator;
+    const char* extensions; //Semicolon separated list of extensions. Eg: "txt;dat;info;kwd"
+};
+
+struct LibraryInfo
+{
+    const char* name;
+    const char* libVersion;
+    int apiVersion;
+    int numPlugins;
+};
+
+struct PluginInfo
+{
+    Type type;
+    union
+    {
+        ProcessorInfo processor;
+        DataThreadInfo dataThread;
+        RecordEngineInfo recordEngine;
+        FileSourceInfo fileSource;
+    };
+};
+
+template <class T>
+GenericProcessor* createProcessor()
+{
+    return new T;
+}
+
+template <class T>
+DataThread* createDataThread (SourceNode* sn)
+{
+    return new T (sn);
+}
+
+template <class T>
+RecordEngineManager* createRecordEngine()
+{
+    return T::getEngineManager();
+}
+
+template <class T>
+FileSource* createFileSource()
+{
+    return new T;
+}
+
+}; // namespace Plugin
+
+typedef void (*LibraryInfoFunction) (Plugin::LibraryInfo*);
+
+typedef int (*PluginInfoFunction) (int, Plugin::PluginInfo*);
+
+#endif // OPENEPHYSPLUGIN_H_INCLUDED

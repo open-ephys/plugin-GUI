@@ -24,41 +24,34 @@
 
 PROCESSORHEADERS
 
-
 PROCESSORCLASSNAME::PROCESSORCLASSNAME (SourceNode* sn)
     : DataThread (sn)
 {
 }
 
-
 PROCESSORCLASSNAME::~PROCESSORCLASSNAME()
 {
 }
 
+int PROCESSORCLASSNAME::getNumHeadstageOutputs() const { return 2; }
 
-int PROCESSORCLASSNAME::getNumHeadstageOutputs()         const   { return 2; }
-
-float PROCESSORCLASSNAME::getSampleRate()                const   { return 44100.f; }
-float PROCESSORCLASSNAME::getBitVolts (Channel* channel) const   { return 0.f; }
-
+float PROCESSORCLASSNAME::getSampleRate() const { return 44100.f; }
+float PROCESSORCLASSNAME::getBitVolts (Channel* channel) const { return 0.f; }
 
 bool PROCESSORCLASSNAME::foundInputSource()
 {
     return true;
 }
 
-
 bool PROCESSORCLASSNAME::startAcquisition()
 {
     return true;
 }
 
-
 bool PROCESSORCLASSNAME::stopAcquisition()
 {
     return true;
 }
-
 
 bool PROCESSORCLASSNAME::updateBuffer()
 {

@@ -25,94 +25,81 @@
 #include "AudioMonitorEditor.h"
 #include <stdio.h>
 
-
 AudioMonitor::AudioMonitor()
     : GenericProcessor ("Audio Monitor"),
-      destBufferSampleRate(44100.0f),
-      estimatedSamples(1024)
+      destBufferSampleRate (44100.0f),
+      estimatedSamples (1024)
 {
-
     tempBuffer = std::make_unique<AudioSampleBuffer>();
 
     for (int i = 0; i < MAX_CHANNELS; i++)
     {
-        
-        bandpassfilters.add (new Dsp::SmoothedFilterDesign
-                         <Dsp::Butterworth::Design::BandPass    // design type
-                         <2>,                                   // order
-                         1,                                     // number of channels (must be const)
-                         Dsp::DirectFormII> (1));               // realization
-        
+        bandpassfilters.add (new Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::BandPass // design type
+                                                           <2>, // order
+                                                           1, // number of channels (must be const)
+                                                           Dsp::DirectFormII> (1)); // realization
+
         antialiasingfilters.add (new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (1024));
     }
-
 }
-
 
 void AudioMonitor::registerParameters()
 {
-    addBooleanParameter(
+    addBooleanParameter (
         Parameter::PROCESSOR_SCOPE,
         "mute_audio",
         "Mute audio",
         "Mute audio for this Audio Monitor",
-        false
-    );
-    
-    addCategoricalParameter(
+        false);
+
+    addCategoricalParameter (
         Parameter::PROCESSOR_SCOPE,
         "audio_output",
         "Audio output",
         "Select L/R or both",
         { "LEFT", "BOTH", "RIGHT" },
-        1
-    );
-    
-    addSelectedChannelsParameter(
+        1);
+
+    addSelectedChannelsParameter (
         Parameter::STREAM_SCOPE,
         "channels",
         "Channels",
         "Channels to monitor",
-        4
-    );
+        4);
 
-    addCategoricalParameter(
+    addCategoricalParameter (
         Parameter::STREAM_SCOPE,
         "spike_channel",
         "Spike Channel",
         "Select the spike channel. This will automatically select relevant channels to monitor.",
         { "No spike channel" },
-        0
-    );
+        0);
 }
-
 
 AudioProcessorEditor* AudioMonitor::createEditor()
 {
-    editor = std::make_unique<AudioMonitorEditor>(this);
+    editor = std::make_unique<AudioMonitorEditor> (this);
 
     return editor.get();
 }
 
-
 void AudioMonitor::updateSettings()
 {
     updatePlaybackBuffer();
-    
+
     for (auto stream : dataStreams)
     {
         Array<String> spikeChannelNames;
-        spikeChannelNames.add("No spike channel");
+        spikeChannelNames.add ("No spike channel");
         for (auto spikeChan : stream->getSpikeChannels())
-            spikeChannelNames.add(spikeChan->getName());
-        
-        CategoricalParameter* spikeChanParam = (CategoricalParameter*)stream->getParameter("spike_channel");
-        spikeChanParam->setCategories(spikeChannelNames);
-        
-        parameterValueChanged(stream->getParameter("spike_channel"));
+            spikeChannelNames.add (spikeChan->getName());
+
+        CategoricalParameter* spikeChanParam = (CategoricalParameter*) stream->getParameter ("spike_channel");
+        spikeChanParam->setCategories (spikeChannelNames);
+
+        parameterValueChanged (stream->getParameter ("spike_channel"));
     }
 }
-
 
 void AudioMonitor::resetConnections()
 {
@@ -121,156 +108,141 @@ void AudioMonitor::resetConnections()
     updatePlaybackBuffer();
 }
 
-
 void AudioMonitor::updatePlaybackBuffer()
 {
-	setPlayConfigDetails(getNumInputs(), getNumOutputs() + 2, 44100.0, 128);
+    setPlayConfigDetails (getNumInputs(), getNumOutputs() + 2, 44100.0, 128);
 }
 
-
-void AudioMonitor::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
+void AudioMonitor::prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock)
 {
-
-	destBufferSampleRate = sampleRate_;
+    destBufferSampleRate = sampleRate_;
     estimatedSamples = estimatedSamplesPerBlock;
     recreateBuffers();
-
 }
-
 
 void AudioMonitor::recreateBuffers()
 {
-	numSamplesExpected.clear();
+    numSamplesExpected.clear();
     sourceBufferSampleRate.clear();
-    
+
     ratio.clear();
-    
+
     for (int i = 0; i < getNumInputs(); i++)
     {
-        numSamplesExpected.emplace(i,
-                                   continuousChannels[i]->getSampleRate()
-                                   / destBufferSampleRate
-                                   * estimatedSamples);
-        
-        sourceBufferSampleRate.emplace(i, continuousChannels[i]->getSampleRate());
-        
-        ratio.emplace(i, sourceBufferSampleRate[i]/destBufferSampleRate);
-        
+        numSamplesExpected.emplace (i,
+                                    continuousChannels[i]->getSampleRate()
+                                        / destBufferSampleRate
+                                        * estimatedSamples);
+
+        sourceBufferSampleRate.emplace (i, continuousChannels[i]->getSampleRate());
+
+        ratio.emplace (i, sourceBufferSampleRate[i] / destBufferSampleRate);
     }
 
     samplesInBackupBuffer.clear();
     samplesInOverflowBuffer.clear();
-    
+
     bufferA.clear();
     bufferB.clear();
     bufferSwap.clear();
-    
+
     for (int i = 0; i < MAX_CHANNELS; i++)
     {
+        samplesInBackupBuffer.emplace (i, 0.0f);
+        samplesInOverflowBuffer.emplace (i, 0.0f);
 
-        samplesInBackupBuffer.emplace(i, 0.0f);
-        samplesInOverflowBuffer.emplace(i, 0.0f);
-
-        bufferA.emplace(i, std::make_unique<AudioBuffer<float>>(1,44100));
-        bufferB.emplace(i, std::make_unique<AudioBuffer<float>>(1,44100));
-        bufferSwap.emplace(i, false);
-
+        bufferA.emplace (i, std::make_unique<AudioBuffer<float>> (1, 44100));
+        bufferB.emplace (i, std::make_unique<AudioBuffer<float>> (1, 44100));
+        bufferSwap.emplace (i, false);
     }
 
-    tempBuffer->setSize(1, 4096);
+    tempBuffer->setSize (1, 4096);
 }
 
-
-void AudioMonitor::parameterValueChanged(Parameter* param)
+void AudioMonitor::parameterValueChanged (Parameter* param)
 {
-    if (param->getName().equalsIgnoreCase("spike_channel"))
+    if (param->getName().equalsIgnoreCase ("spike_channel"))
     {
-        
-        DataStream* stream = getDataStream(param->getStreamId());
-        
-        int selectedIndex = (int)param->getValue();
+        DataStream* stream = getDataStream (param->getStreamId());
 
-        Parameter* chansParam = stream->getParameter("channels");
-        
+        int selectedIndex = (int) param->getValue();
+
+        Parameter* chansParam = stream->getParameter ("channels");
+
         if (selectedIndex > 0)
         {
-
             Array<int> selectedChannels = stream->getSpikeChannels()[selectedIndex - 1]->localChannelIndexes;
 
             Array<var> inds;
 
             for (int ch : selectedChannels)
             {
-                inds.add(ch);
+                inds.add (ch);
             }
 
             chansParam->currentValue = inds;
         }
-        else {
+        else
+        {
             chansParam->currentValue = Array<var>();
         }
-        
+
         chansParam->valueChanged();
     }
 }
 
-
-void AudioMonitor::updateFilter(int i, uint16 streamId)
+void AudioMonitor::updateFilter (int i, uint16 streamId)
 {
-
     Dsp::Params params1;
-    params1[0] = getDataStream(streamId)->getSampleRate(); // sample rate
-    params1[1] = 2;                          // order
-    params1[2] = (7000 + 100) / 2;     // center frequency
-    params1[3] = 7000 - 100;           // bandwidth
+    params1[0] = getDataStream (streamId)->getSampleRate(); // sample rate
+    params1[1] = 2; // order
+    params1[2] = (7000 + 100) / 2; // center frequency
+    params1[3] = 7000 - 100; // bandwidth
 
     bandpassfilters[i]->setParams (params1);
-    
+
     double cutoffFreq = destBufferSampleRate / 2; // upsample
 
-    double sampleFreq = destBufferSampleRate;  // upsample
+    double sampleFreq = destBufferSampleRate; // upsample
 
     Dsp::Params params2;
     params2[0] = sampleFreq; // sample rate
     params2[1] = cutoffFreq; // cutoff frequency
     params2[2] = 1.25; //Q //
 
-    antialiasingfilters[i]->setParams(params2);
-
+    antialiasingfilters[i]->setParams (params2);
 }
 
-void AudioMonitor::handleBroadcastMessage(const String& msg, const int64 messageTimeMilliseconds)
+void AudioMonitor::handleBroadcastMessage (const String& msg, const int64 messageTimeMilliseconds)
 {
+    LOGD ("Audio Monitor received message: ", msg);
 
-    LOGD("Audio Monitor received message: ", msg);
-    
-    StringArray parts = StringArray::fromTokens(msg, " ", "");
+    StringArray parts = StringArray::fromTokens (msg, " ", "");
 
-    if (parts[0].equalsIgnoreCase("AUDIO"))
+    if (parts[0].equalsIgnoreCase ("AUDIO"))
     {
         if (parts.size() > 1)
         {
             String command = parts[1];
 
-            if (command.equalsIgnoreCase("SELECT"))
+            if (command.equalsIgnoreCase ("SELECT"))
             {
                 if (parts.size() >= 4)
                 {
                     uint16 streamId = parts[2].getIntValue();
-                    
-                    DataStream* stream = getDataStream(streamId);
-                    
+
+                    DataStream* stream = getDataStream (streamId);
+
                     if (stream != nullptr)
                     {
-                        
                         int localChannel = parts[3].getIntValue() - 1;
-                        
+
                         if (localChannel >= 0 && localChannel < stream->getContinuousChannels().size())
                         {
                             Array<var> ch;
-                            ch.add(localChannel);
-                            
-                            stream->getParameter("channels")->setNextValue(ch);
+                            ch.add (localChannel);
+
+                            stream->getParameter ("channels")->setNextValue (ch);
                         }
                     }
                 }
@@ -279,54 +251,47 @@ void AudioMonitor::handleBroadcastMessage(const String& msg, const int64 message
     }
 }
 
-
-void AudioMonitor::setSelectedStream(uint16 streamId)
+void AudioMonitor::setSelectedStream (uint16 streamId)
 {
     selectedStream = streamId;
 
     for (int i = 0; i < MAX_CHANNELS; i++)
     {
-        updateFilter(i, selectedStream);
+        updateFilter (i, selectedStream);
     }
 }
 
-
 void AudioMonitor::process (AudioBuffer<float>& buffer)
 {
-    
     int valuesNeeded = buffer.getNumSamples(); // samples needed to fill the complete buffer
-    
+
     int totalBufferChannels = buffer.getNumChannels();
 
     // clear the left and right channels (last two channels)
-    buffer.clear(totalBufferChannels - 2, 0, buffer.getNumSamples());
-    buffer.clear(totalBufferChannels - 1, 0, buffer.getNumSamples());
+    buffer.clear (totalBufferChannels - 2, 0, buffer.getNumSamples());
+    buffer.clear (totalBufferChannels - 1, 0, buffer.getNumSamples());
 
-    if (!getParameter("mute_audio")->getValue())
+    if (! getParameter ("mute_audio")->getValue())
     {
-
         for (auto stream : dataStreams)
         {
-            
             if (stream->getStreamId() == selectedStream
                 && (*stream)["enable_stream"])
             {
-                
                 AudioSampleBuffer* overflowBuffer;
                 AudioSampleBuffer* backupBuffer;
 
-                Array<var>* activeChannels = stream->getParameter("channels")->getValue().getArray();
+                Array<var>* activeChannels = stream->getParameter ("channels")->getValue().getArray();
 
                 for (int i = 0; i < activeChannels->size(); i++)
                 {
+                    int localIndex = (int) activeChannels->getReference (i);
 
-                    int localIndex = (int) activeChannels->getReference(i);
-                    
-                    int globalIndex = getDataStream(selectedStream)->getContinuousChannels()[localIndex]->getGlobalIndex();
-                    
+                    int globalIndex = getDataStream (selectedStream)->getContinuousChannels()[localIndex]->getGlobalIndex();
+
                     tempBuffer->clear();
 
-                    if (!bufferSwap[i])
+                    if (! bufferSwap[i])
                     {
                         overflowBuffer = bufferA[i].get();
                         backupBuffer = bufferB[i].get();
@@ -351,106 +316,96 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                     // 1. copy overflow buffer
 
                     double samplesToCopyFromOverflowBuffer =
-                        ((samplesInOverflowBuffer[i] <= numSamplesExpected[globalIndex]) ?
-                            samplesInOverflowBuffer[i] :
-                            numSamplesExpected[globalIndex]);
+                        ((samplesInOverflowBuffer[i] <= numSamplesExpected[globalIndex]) ? samplesInOverflowBuffer[i] : numSamplesExpected[globalIndex]);
 
                     // LOGD("Number of samples to copy: ", samplesToCopyFromOverflowBuffer);
-                    
+
                     //std::cout << "Copying from overflow buffer: " << samplesToCopyFromOverflowBuffer << std::endl;
 
                     if (samplesToCopyFromOverflowBuffer > 0) // need to re-add samples from backup buffer
                     {
-
-                        tempBuffer->addFrom(0,    // destination channel
-                            0,                // destination start sample
-                            *overflowBuffer,  // source
-                            0,                // source channel
-                            0,                // source start sample
-                            (int) samplesToCopyFromOverflowBuffer,    // number of samples
-                            1.0f              // gain to apply
+                        tempBuffer->addFrom (0, // destination channel
+                                             0, // destination start sample
+                                             *overflowBuffer, // source
+                                             0, // source channel
+                                             0, // source start sample
+                                             (int) samplesToCopyFromOverflowBuffer, // number of samples
+                                             1.0f // gain to apply
                         );
 
                         double leftoverSamples = samplesInOverflowBuffer[i] - samplesToCopyFromOverflowBuffer;
-                        
+
                         //std::cout << "Copying to backup buffer: " << leftoverSamples << std::endl;
 
                         if (leftoverSamples > 0) // move remaining samples to the backup buffer
                         {
-
-                            backupBuffer->addFrom(0, // destination channel
-                                0,                     // destination start sample
-                                *overflowBuffer,       // source
-                                0,                     // source channel
-                                (int) samplesToCopyFromOverflowBuffer,         // source start sample
-                                (int) leftoverSamples,       // number of samples
-                                1.0f                   // gain to apply
+                            backupBuffer->addFrom (0, // destination channel
+                                                   0, // destination start sample
+                                                   *overflowBuffer, // source
+                                                   0, // source channel
+                                                   (int) samplesToCopyFromOverflowBuffer, // source start sample
+                                                   (int) leftoverSamples, // number of samples
+                                                   1.0f // gain to apply
                             );
                         }
 
                         samplesInBackupBuffer[i] = leftoverSamples;
                     }
-                    
-                    double remainingSamples = double(numSamplesExpected[globalIndex]) - samplesToCopyFromOverflowBuffer;
 
-                    double samplesAvailable = double(getNumSamplesInBlock(selectedStream));
-                    
+                    double remainingSamples = double (numSamplesExpected[globalIndex]) - samplesToCopyFromOverflowBuffer;
+
+                    double samplesAvailable = double (getNumSamplesInBlock (selectedStream));
+
                     //std::cout << "Remaining samples: " << remainingSamples << std::endl;
                     //std::cout << "Samples available: " << samplesAvailable << std::endl;
 
-                    double samplesToCopyFromIncomingBuffer = ((remainingSamples <= samplesAvailable) ?
-                        remainingSamples :
-                        samplesAvailable);
-                    
+                    double samplesToCopyFromIncomingBuffer = ((remainingSamples <= samplesAvailable) ? remainingSamples : samplesAvailable);
+
                     //std::cout << "Copying from incoming buffer: " << samplesToCopyFromIncomingBuffer << std::endl;
 
                     if (samplesToCopyFromIncomingBuffer > 0)
                     {
-
-                        tempBuffer->addFrom(0,                  // destination channel
-                            (int) samplesToCopyFromOverflowBuffer,    // destination start sample
-                            buffer,                             // source
-                            globalIndex,                        // source channel
-                            0,                                  // source start sample
-                            (int) samplesToCopyFromIncomingBuffer,    //  number of samples
-                            1.0f                                // gain to apply
+                        tempBuffer->addFrom (0, // destination channel
+                                             (int) samplesToCopyFromOverflowBuffer, // destination start sample
+                                             buffer, // source
+                                             globalIndex, // source channel
+                                             0, // source start sample
+                                             (int) samplesToCopyFromIncomingBuffer, //  number of samples
+                                             1.0f // gain to apply
                         );
-
                     }
 
                     orphanedSamples = samplesAvailable - samplesToCopyFromIncomingBuffer;
-                    
+
                     //std::cout << "Orphaned samples: " << orphanedSamples << std::endl;
 
                     if (orphanedSamples > 0 && (samplesInBackupBuffer[i] + orphanedSamples < backupBuffer->getNumSamples()))
                     {
-
-                        backupBuffer->addFrom(0,          // destination channel
-                            samplesInBackupBuffer[i],     // destination start sample
-                            buffer,                       // source
-                            globalIndex,                  // source channel
-                            (int) remainingSamples,             // source start sample
-                            (int) orphanedSamples,              //  number of samples
-                            1.0f                          // gain to apply
+                        backupBuffer->addFrom (0, // destination channel
+                                               samplesInBackupBuffer[i], // destination start sample
+                                               buffer, // source
+                                               globalIndex, // source channel
+                                               (int) remainingSamples, // source start sample
+                                               (int) orphanedSamples, //  number of samples
+                                               1.0f // gain to apply
                         );
 
                         samplesInBackupBuffer[i] = samplesInBackupBuffer[i] + orphanedSamples;
-
                     }
-                    
+
                     //std::cout << "Total copied: " << samplesToCopyFromOverflowBuffer + samplesToCopyFromIncomingBuffer << std::endl;
 
                     // now that our tempBuffer is ready, we can filter it and copy it into the
                     // original buffer
-                    float* ptr = tempBuffer->getWritePointer(0);
-                    
-                    int totalCopied = int(samplesToCopyFromOverflowBuffer + samplesToCopyFromIncomingBuffer);
-                    
+                    float* ptr = tempBuffer->getWritePointer (0);
+
+                    int totalCopied = int (samplesToCopyFromOverflowBuffer + samplesToCopyFromIncomingBuffer);
+
                     if (totalCopied == 0)
                         continue;
-                    
-                    bandpassfilters[i]->process(totalCopied, &ptr);
-                    
+
+                    bandpassfilters[i]->process (totalCopied, &ptr);
+
                     /*if (i == 0)
                     {
                         std::cout << "np.array([";
@@ -472,10 +427,10 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
 
                     double destBufferPos;
                     int targetChannel;
-                    
+
                     //std::cout << "Ratio: " << ratio[globalIndex] << std::endl;
 
-                    if (int(getParameter("audio_output")->getValue()) == 0 || int(getParameter("audio_output")->getValue()) == 1)
+                    if (int (getParameter ("audio_output")->getValue()) == 0 || int (getParameter ("audio_output")->getValue()) == 1)
                         targetChannel = totalBufferChannels - 2;
                     else
                         targetChannel = totalBufferChannels - 1;
@@ -486,24 +441,24 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                         float alpha = (float) subSampleOffset;
                         float invAlpha = 1.0f - alpha;
 
-                        buffer.addFrom(targetChannel,    // destChannel
-                            destBufferPos,               // destSampleOffset
-                            *tempBuffer,                 // source
-                            0,                           // sourceChannel
-                            sourceBufferPos,             // sourceSampleOffset
-                            1,                           // number of samples
-                            invAlpha);                   // gain to apply to source
-                        
-                        buffer.addFrom(targetChannel,    // destChannel
-                            destBufferPos,               // destSampleOffset
-                            *tempBuffer,                 // source
-                            0,                           // sourceChannel
-                            nextPos,                     // sourceSampleOffset
-                            1,                           // number of samples
-                            alpha);                      // gain to apply to source
+                        buffer.addFrom (targetChannel, // destChannel
+                                        destBufferPos, // destSampleOffset
+                                        *tempBuffer, // source
+                                        0, // sourceChannel
+                                        sourceBufferPos, // sourceSampleOffset
+                                        1, // number of samples
+                                        invAlpha); // gain to apply to source
+
+                        buffer.addFrom (targetChannel, // destChannel
+                                        destBufferPos, // destSampleOffset
+                                        *tempBuffer, // source
+                                        0, // sourceChannel
+                                        nextPos, // sourceSampleOffset
+                                        1, // number of samples
+                                        alpha); // gain to apply to source
 
                         subSampleOffset += ratio[globalIndex];
-                        
+
                         while (subSampleOffset >= 1.0)
                         {
                             //if (++sourceBufferPos >= sourceBufferSize)
@@ -511,23 +466,23 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
 
                             ++sourceBufferPos;
                             nextPos = (sourceBufferPos + 1); //% sourceBufferSize;
-                            
+
                             if (nextPos >= sourceBufferSize)
                                 nextPos = sourceBufferPos;
-                            
+
                             subSampleOffset -= 1.0;
                         }
                     }
-                    
+
                     //std::cout << "Source buffer pos: " << sourceBufferPos << std::endl;
-                    
+
                     //std::cout << "After upsampling: " << valuesNeeded << std::endl;
-                    
+
                     //std::cout << std::endl;
 
                     //ptr = buffer.getWritePointer(targetChannel);
                     //antialiasingfilters[i]->process(destBufferPos, &ptr);
-                    
+
                     /*if (i == 0)
                     {
                         std::cout << "np.array([";
@@ -540,24 +495,23 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                         std::cout << std::endl;
                         std::cout << "------------- " << std::endl;
                     }*/
-                    
+
                 } // end cycling through channels
 
-                if (int(getParameter("audio_output")->getValue()) == 1)
+                if (int (getParameter ("audio_output")->getValue()) == 1)
                 {
                     // copy the signal into the right channel
-                    buffer.addFrom(totalBufferChannels - 1,    // destChannel
-                        0,                                     // destSampleOffset
-                        buffer,                                // source
-                        totalBufferChannels - 2,               // sourceChannel
-                        0,                                     // sourceSampleOffset
-                        valuesNeeded,                          // number of samples
-                        1.0);                                  // gain to apply to source
-
+                    buffer.addFrom (totalBufferChannels - 1, // destChannel
+                                    0, // destSampleOffset
+                                    buffer, // source
+                                    totalBufferChannels - 2, // sourceChannel
+                                    0, // sourceSampleOffset
+                                    valuesNeeded, // number of samples
+                                    1.0); // gain to apply to source
                 }
-                
+
             } // stream is selected
-        
+
         } // loop through streams
 
     } // not muted

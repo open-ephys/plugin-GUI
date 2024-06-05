@@ -24,7 +24,6 @@
 #ifndef __MERGEREDITOR_H_33F644A8__
 #define __MERGEREDITOR_H_33F644A8__
 
-
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
 
@@ -41,19 +40,18 @@ class DataStream;
 */
 
 class MergerEditor : public GenericEditor,
-    public Button::Listener
+                     public Button::Listener
 
 {
 public:
-    
     /** Constructor*/
-    MergerEditor(GenericProcessor* parentNode);
-    
+    MergerEditor (GenericProcessor* parentNode);
+
     /** Destructor*/
-    virtual ~MergerEditor() { }
+    virtual ~MergerEditor() {}
 
     /** Called whenever the pathway selector button or stream selector button is pressed.*/
-    void buttonClicked(Button* button);
+    void buttonClicked (Button* button);
 
     /** Disables stream selector buttons*/
     void startAcquisition();
@@ -62,19 +60,19 @@ public:
     void stopAcquisition();
 
     /** Changes the active pathway to 0 or 1 */
-    void switchSource(int, bool notify = true);
-    
+    void switchSource (int, bool notify = true);
+
     /** Swaps the active pathway*/
     void switchSource();
 
     /** Changes the active pathway to 0 or 1, and selects the editor */
-    void switchIO(int);
-    
+    void switchIO (int);
+
     /** Called for mouse events in the editor's title bar */
-    void mouseDown(const MouseEvent& event);
+    void mouseDown (const MouseEvent& event);
 
     /** Returns the pathway (0 or 1) for a particular editor*/
-    int getPathForEditor(GenericEditor* editor);
+    int getPathForEditor (GenericEditor* editor);
 
     /** Returns an array of the editors that feed into the merger*/
     Array<GenericEditor*> getConnectedEditors();
@@ -82,19 +80,14 @@ public:
     /** Remove unused buttons */
     void updateSettings() override;
 
-
 private:
-    
-    String getNameString(GenericProcessor*);
+    String getNameString (GenericProcessor*);
     Array<GenericProcessor*> getSelectableProcessors();
-    
+
     std::unique_ptr<ImageButton> pipelineSelectorA;
     std::unique_ptr<ImageButton> pipelineSelectorB;
 
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MergerEditor);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MergerEditor);
 };
 
-
-#endif  // __MERGEREDITOR_H_33F644A8__
+#endif // __MERGEREDITOR_H_33F644A8__

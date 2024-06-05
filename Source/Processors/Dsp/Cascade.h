@@ -36,8 +36,8 @@ THE SOFTWARE.
 #ifndef DSPFILTERS_CASCADE_H
 #define DSPFILTERS_CASCADE_H
 
-#include "Common.h"
 #include "Biquad.h"
+#include "Common.h"
 #include "Filter.h"
 #include "Layout.h"
 #include "MathSupplement.h"
@@ -59,24 +59,24 @@ public:
     {
     public:
         template <typename Sample>
-        inline Sample process(const Sample in, const Cascade& c)
+        inline Sample process (const Sample in, const Cascade& c)
         {
             double out = in;
             StateType* state = m_stateArray;
             Biquad const* stage = c.m_stageArray;
             const double vsa = ac();
             int i = c.m_numStages - 1;
-            out = (state++)->process1(out, *stage++, vsa);
+            out = (state++)->process1 (out, *stage++, vsa);
             for (; --i >= 0;)
-                out = (state++)->process1(out, *stage++, 0);
+                out = (state++)->process1 (out, *stage++, 0);
             //for (int i = c.m_numStages; --i >= 0; ++state, ++stage)
             //  out = state->process1 (out, *stage, vsa);
-            return static_cast<Sample>(out);
+            return static_cast<Sample> (out);
         }
 
     protected:
-        StateBase(StateType* stateArray)
-            : m_stateArray(stateArray)
+        StateBase (StateType* stateArray)
+            : m_stateArray (stateArray)
         {
         }
 
@@ -90,9 +90,8 @@ public:
 
     struct Storage
     {
-        Storage(int maxStages_, Stage* stageArray_)
-            : maxStages(maxStages_)
-            , stageArray(stageArray_)
+        Storage (int maxStages_, Stage* stageArray_)
+            : maxStages (maxStages_), stageArray (stageArray_)
         {
         }
 
@@ -105,25 +104,25 @@ public:
         return m_numStages;
     }
 
-    const Stage& operator[](int index)
+    const Stage& operator[] (int index)
     {
-        assert(index >= 0 && index <= m_numStages);
+        assert (index >= 0 && index <= m_numStages);
         return m_stageArray[index];
     }
 
 public:
     // Calculate filter response at the given normalized frequency.
-    complex_t response(double normalizedFrequency) const;
+    complex_t response (double normalizedFrequency) const;
 
     std::vector<PoleZeroPair> getPoleZeros() const;
 
     // Process a block of samples in the given form
     template <class StateType, typename Sample>
-    void process(int numSamples, Sample* dest, StateType& state) const
+    void process (int numSamples, Sample* dest, StateType& state) const
     {
         while (--numSamples >= 0)
         {
-            *dest = state.process(*dest, *this);
+            *dest = state.process (*dest, *this);
             dest++;
         }
     }
@@ -131,10 +130,10 @@ public:
 protected:
     Cascade();
 
-    void setCascadeStorage(const Storage& storage);
+    void setCascadeStorage (const Storage& storage);
 
-    void applyScale(double scale);
-    void setLayout(const LayoutBase& proto);
+    void applyScale (double scale);
+    void setLayout (const LayoutBase& proto);
 
 private:
     int m_numStages;
@@ -150,12 +149,12 @@ class CascadeStages
 {
 public:
     template <class StateType>
-    class State : public Cascade::StateBase <StateType>
+    class State : public Cascade::StateBase<StateType>
     {
     public:
-        State() : Cascade::StateBase <StateType> (m_states)
+        State() : Cascade::StateBase<StateType> (m_states)
         {
-            Cascade::StateBase <StateType>::m_stateArray = m_states;
+            Cascade::StateBase<StateType>::m_stateArray = m_states;
             reset();
         }
 
@@ -173,13 +172,13 @@ public:
     /*@Internal*/
     Cascade::Storage getCascadeStorage()
     {
-        return Cascade::Storage(MaxStages, m_stages);
+        return Cascade::Storage (MaxStages, m_stages);
     }
 
 private:
     Cascade::Stage m_stages[MaxStages];
 };
 
-}
+} // namespace Dsp
 
 #endif

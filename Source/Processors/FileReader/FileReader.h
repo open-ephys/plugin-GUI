@@ -21,10 +21,8 @@
 
 */
 
-
 #ifndef __FILEREADER_H_B327D3D2__
 #define __FILEREADER_H_B327D3D2__
-
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
@@ -33,30 +31,29 @@
 
 #include "../../Utils/Utils.h"
 
-
 #define BUFFER_WINDOW_CACHE_SIZE 10
 
 class ScrubberInterface;
 
- /** Assigns a unique color to each event channel */
- //TODO: This should ultimately be added to PLUGIN_API / customizable via themes
+/** Assigns a unique color to each event channel */
+//TODO: This should ultimately be added to PLUGIN_API / customizable via themes
 static const Array<Colour> eventChannelColours = {
-    Colour(224, 185, 36),
-    Colour(214, 210, 182),
-    Colour(243, 119, 33),
-    Colour(186, 157, 168),
-    Colour(237, 37, 36),
-    Colour(179, 122, 79),
-    Colour(217, 46, 171),
-    Colour(217, 139, 196),
-    Colour(101, 31, 255),
-    Colour(141, 111, 181),
-    Colour(48, 117, 255),
-    Colour(184, 198, 224),
-    Colour(116, 227, 156),
-    Colour(150, 158, 155),
-    Colour(82, 173, 0),
-    Colour(125, 99, 32)
+    Colour (224, 185, 36),
+    Colour (214, 210, 182),
+    Colour (243, 119, 33),
+    Colour (186, 157, 168),
+    Colour (237, 37, 36),
+    Colour (179, 122, 79),
+    Colour (217, 46, 171),
+    Colour (217, 139, 196),
+    Colour (101, 31, 255),
+    Colour (141, 111, 181),
+    Colour (48, 117, 255),
+    Colour (184, 198, 224),
+    Colour (116, 227, 156),
+    Colour (150, 158, 155),
+    Colour (82, 173, 0),
+    Colour (125, 99, 32)
 };
 
 /**
@@ -64,12 +61,10 @@ static const Array<Colour> eventChannelColours = {
 
   @see GenericProcessor
 */
-class FileReader : 
-    public GenericProcessor,
-    private Thread
+class FileReader : public GenericProcessor,
+                   private Thread
 {
 public:
-
     /** Constructor */
     FileReader();
 
@@ -83,11 +78,11 @@ public:
     void process (AudioBuffer<float>& buffer) override;
 
     /** Makes it possible to set the selected file remotely */
-    String handleConfigMessage(const String& msg) override;
+    String handleConfigMessage (const String& msg) override;
 
     /** Allows parameters to change during acquisition (no longer used) */
     // void setParameter (int parameterIndex, float newValue) override;
-    void parameterValueChanged(Parameter* p) override;
+    void parameterValueChanged (Parameter* p) override;
 
     /** Creates the editor */
     AudioProcessorEditor* createEditor() override;
@@ -102,13 +97,13 @@ public:
     void updateSettings() override;
 
     /* Called at start of acquisition */
-	bool startAcquisition() override;
+    bool startAcquisition() override;
 
     /* Called at end of acquisition */
-	bool stopAcquisition() override;
+    bool stopAcquisition() override;
 
     /* Load default example data */
-    void initialize(bool signalChainIsLoading) override;
+    void initialize (bool signalChainIsLoading) override;
 
     /* Set the current file */
     bool setFile (String fullpath, bool shouldUpdateSignalChain = true);
@@ -120,7 +115,7 @@ public:
     bool isFileSupported (const String& filename) const;
 
     /* Returns a list of file formats supported by the GUI */
-	StringArray getSupportedExtensions() const;
+    StringArray getSupportedExtensions() const;
 
     /** Sets the current stream to read data from */
     void setActiveStream (int index, bool resetPlayback = false);
@@ -143,13 +138,13 @@ public:
     int64 getCurrentSample();
 
     /** Sets the sample number to start playback from */
-    void setPlaybackStart(int64 startSampleNumber);
+    void setPlaybackStart (int64 startSampleNumber);
 
     /** Returns the sample number where playback starts */
     int64 getPlaybackStart();
 
     /** Sets the sample number to stop playback */
-    void setPlaybackStop(int64 stopSampleNumber);
+    void setPlaybackStop (int64 stopSampleNumber);
 
     /** Returns the sample number where playback stops */
     int64 getPlaybackStop();
@@ -174,20 +169,19 @@ public:
 
     /** Returns a pointer to the ScrubberInterface */
     ScrubberInterface* getScrubberInterface();
-    
+
     /** Save File Reader parameters */
-    void saveCustomParametersToXml(XmlElement*) override;
+    void saveCustomParametersToXml (XmlElement*) override;
 
     /** Load File Reader parameters */
-    void loadCustomParametersFromXml(XmlElement*) override;
+    void loadCustomParametersFromXml (XmlElement*) override;
 
 private:
-
     /** Checks for changes in the audio device settings */
     void checkAudioDevice();
 
     /** Generates any events found within the current continuous buffer interval */
-    void addEventsInRange(int64 start, int64 stop);
+    void addEventsInRange (int64 start, int64 stop);
 
     /** Flag if a new file has been loaded */
     bool gotNewFile;
@@ -209,41 +203,40 @@ private:
     std::unique_ptr<FileSource> input;
 
     /* Pointer to current front buffer */
-    HeapBlock<int16> * readBuffer;      
+    HeapBlock<int16>* readBuffer;
     HeapBlock<int16> bufferA;
     HeapBlock<int16> bufferB;
 
     HashMap<String, int> supportedExtensions;
-    
+
     Atomic<int> m_shouldFillBackBuffer;
     Atomic<int> m_samplesPerBuffer;
 
-	unsigned int m_bufferSize;
-	float m_sysSampleRate;
-    
+    unsigned int m_bufferSize;
+    float m_sysSampleRate;
+
     HeapBlock<int16>* getFrontBuffer();
     HeapBlock<int16>* getBackBuffer();
-    
+
     /** Executes the background thread task */
     void run() override;
-    
-    /** Reads a chunk of the file that fills an entire buffer cache. */
-    void readAndFillBufferCache(HeapBlock<int16> &cacheBuffer);
 
-	/** Returns the number of included file sources */
-	int getNumBuiltInFileSources() const { return 1; }
+    /** Reads a chunk of the file that fills an entire buffer cache. */
+    void readAndFillBufferCache (HeapBlock<int16>& cacheBuffer);
+
+    /** Returns the number of included file sources */
+    int getNumBuiltInFileSources() const { return 1; }
 
     /** Returns the extension for a given file source */
-	String getBuiltInFileSourceExtensions(int index) const;
+    String getBuiltInFileSourceExtensions (int index) const;
 
     /** Returns a new FileSource object for a given file source */
-	FileSource* createBuiltInFileSource(int index) const;
+    FileSource* createBuiltInFileSource (int index) const;
 
     /** Holds a path to the default file */
     File defaultFile;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FileReader);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileReader);
 };
 
-
-#endif  // __FILEREADER_H_B327D3D2__
+#endif // __FILEREADER_H_B327D3D2__

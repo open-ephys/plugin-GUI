@@ -36,44 +36,41 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 class PLUGIN_API ParameterEditorOwner
 {
-
 public:
-	/** Destructor */
+    /** Destructor */
     virtual ~ParameterEditorOwner();
 
     /** Custom copy constructor*/
-    ParameterEditorOwner(const ParameterEditorOwner& other);
+    ParameterEditorOwner (const ParameterEditorOwner& other);
 
     // --------------------------------------------
     //     PARAMETERS
     // --------------------------------------------
 
     /** Adds a parameter editor to this object**/
-    void addParameterEditor(ParameterEditor* p, int xPos, int yPos);
+    void addParameterEditor (ParameterEditor* p, int xPos, int yPos);
 
     /** Returns a pointer to a parameter editor with a given name**/
-    ParameterEditor* getParameterEditor(String name) const;
+    ParameterEditor* getParameterEditor (String name) const;
 
-	/** Returns true if an object has a parameter editor with a given name**/
-	bool hasParameterEditor(String name) const;
+    /** Returns true if an object has a parameter editor with a given name**/
+    bool hasParameterEditor (String name) const;
 
     /** Returns array of pointers to all parameter editors **/
     Array<ParameterEditor*> getParameterEditors();
 
     /** Returns the number of parameter editors for this object*/
     int numParameterEditors() const { return parameterEditors.size(); }
-    
+
     Component* getComponent() const { return ownerComponent; }
 
 protected:
-	/** Constructor*/
-	ParameterEditorOwner(Component* ownerComponent);
+    /** Constructor*/
+    ParameterEditorOwner (Component* ownerComponent);
 
 private:
-
     Component* ownerComponent;
-	OwnedArray<ParameterEditor> parameterEditors;
-
+    OwnedArray<ParameterEditor> parameterEditors;
 };
 
 #endif

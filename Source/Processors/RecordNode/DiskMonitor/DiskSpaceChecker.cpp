@@ -1,8 +1,8 @@
 #include "DiskSpaceChecker.h"
 #include "../RecordNode.h"
 
-DiskSpaceChecker::DiskSpaceChecker(RecordNode* rn)
-    : recordNode(rn),
+DiskSpaceChecker::DiskSpaceChecker (RecordNode* rn)
+    : recordNode (rn),
       lastUpdateTime (0),
       lastFreeSpace (0),
       dataRate (0),
@@ -11,7 +11,8 @@ DiskSpaceChecker::DiskSpaceChecker(RecordNode* rn)
     startTimerHz (1);
 }
 
-DiskSpaceChecker::~DiskSpaceChecker() {
+DiskSpaceChecker::~DiskSpaceChecker()
+{
     listeners.clear();
 }
 
@@ -21,16 +22,16 @@ void DiskSpaceChecker::reset()
     lastFreeSpace = recordNode->getDataDirectory().getBytesFreeOnVolume();
 }
 
-void DiskSpaceChecker::addListener(DiskSpaceListener* listener)
+void DiskSpaceChecker::addListener (DiskSpaceListener* listener)
 {
-    std::lock_guard<std::mutex> lock(listenerMutex);
-    listeners.push_back(listener);
+    std::lock_guard<std::mutex> lock (listenerMutex);
+    listeners.push_back (listener);
 }
 
-void DiskSpaceChecker::removeListener(DiskSpaceListener* listener)
+void DiskSpaceChecker::removeListener (DiskSpaceListener* listener)
 {
-    std::lock_guard<std::mutex> lock(listenerMutex);
-    listeners.erase(std::remove(listeners.begin(), listeners.end(), listener), listeners.end());
+    std::lock_guard<std::mutex> lock (listenerMutex);
+    listeners.erase (std::remove (listeners.begin(), listeners.end(), listener), listeners.end());
 }
 
 void DiskSpaceChecker::timerCallback()
@@ -38,9 +39,9 @@ void DiskSpaceChecker::timerCallback()
     checkDirectoryAndDiskSpace();
 }
 
-void DiskSpaceChecker::checkDirectoryAndDiskSpace() {
-
-    if (!recordNode->getParameter("directory")->isValid())
+void DiskSpaceChecker::checkDirectoryAndDiskSpace()
+{
+    if (! recordNode->getParameter ("directory")->isValid())
     {
         notifyDirectoryInvalid();
         return;
@@ -77,63 +78,66 @@ void DiskSpaceChecker::checkDirectoryAndDiskSpace() {
 
             if (dataRate > 0.0f)
             {
-                update(dataRate, bytesFree, recordingTimeLeftInSeconds);
+                update (dataRate, bytesFree, recordingTimeLeftInSeconds);
             }
         }
     }
-    else 
+    else
     {
         lastUpdateTime = currentTime;
         lastFreeSpace = bytesFree;
-        update(0, bytesFree, 0);
+        update (0, bytesFree, 0);
     }
-
 }
 
-void DiskSpaceChecker::update(float dataRate, int64 bytesFree, float timeLeft)
+void DiskSpaceChecker::update (float dataRate, int64 bytesFree, float timeLeft)
 {
-    std::lock_guard<std::mutex> lock(listenerMutex);
+    std::lock_guard<std::mutex> lock (listenerMutex);
     for (auto listener : listeners)
     {
         if (listener != nullptr)
         {
-            juce::MessageManager::callAsync([listener, dataRate, bytesFree, timeLeft]() { listener->update(dataRate, bytesFree, timeLeft); });
+            juce::MessageManager::callAsync ([listener, dataRate, bytesFree, timeLeft]()
+                                             { listener->update (dataRate, bytesFree, timeLeft); });
         }
     }
 }
 
-void DiskSpaceChecker::notifyDiskSpaceRemaining(float percentage)
+void DiskSpaceChecker::notifyDiskSpaceRemaining (float percentage)
 {
-    std::lock_guard<std::mutex> lock(listenerMutex);
+    std::lock_guard<std::mutex> lock (listenerMutex);
     for (auto listener : listeners)
     {
         if (listener != nullptr)
         {
-            juce::MessageManager::callAsync([listener, percentage]() { listener->updateDiskSpace(percentage); });
+            juce::MessageManager::callAsync ([listener, percentage]()
+                                             { listener->updateDiskSpace (percentage); });
         }
     }
 }
 
 void DiskSpaceChecker::notifyDirectoryInvalid()
 {
-    std::lock_guard<std::mutex> lock(listenerMutex);
+    std::lock_guard<std::mutex> lock (listenerMutex);
     for (auto listener : listeners)
     {
         if (listener != nullptr)
         {
-            juce::MessageManager::callAsync([listener]() { listener->directoryInvalid(); });
+            juce::MessageManager::callAsync ([listener]()
+                                             { listener->directoryInvalid(); });
         }
     }
 }
 
 void DiskSpaceChecker::notifyLowDiskSpace()
 {
-    std::lock_guard<std::mutex> lock(listenerMutex);
+    std::lock_guard<std::mutex> lock (listenerMutex);
     for (auto listener : listeners)
     {
         if (listener != nullptr)
         {
-            juce::MessageManager::callAsync([listener]() { listener->lowDiskSpace(); });
+            juce::MessageManager::callAsync ([listener]()
+                                             { listener->lowDiskSpace(); });
         }
     }
 }

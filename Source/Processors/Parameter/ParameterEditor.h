@@ -25,11 +25,11 @@
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
-#include "Parameter.h"
 #include "../Editors/PopupChannelSelector.h"
-#include "../Editors/SyncLineSelector.h"
 #include "../Editors/PopupTimeEditor.h"
+#include "../Editors/SyncLineSelector.h"
 #include "../Synchronizer/Synchronizer.h"
+#include "Parameter.h"
 
 #include "../../UI/LookAndFeel/CustomLookAndFeel.h"
 
@@ -39,53 +39,52 @@
     All custom ParameterEditors must inherit from this class.
 */
 class PLUGIN_API ParameterEditor : public Component,
-                        public Parameter::Listener
+                                   public Parameter::Listener
 {
 public:
-
     /** Constructor */
-    ParameterEditor(Parameter* param_) : param(param_), name(param_->getName()) 
+    ParameterEditor (Parameter* param_) : param (param_), name (param_->getName())
     {
-        if (param->getKey().compare("UNKNOWN") != 0)
-            param->addListener(this);
-        
+        if (param->getKey().compare ("UNKNOWN") != 0)
+            param->addListener (this);
+
         layout = Layout::nameOnRight;
 
         m_updateOnSelectedStreamChanged = true;
     }
 
     /** Destructor */
-    virtual ~ParameterEditor() { 
-    
-        if(param != nullptr)
-            param->removeListener(this);
-    
+    virtual ~ParameterEditor()
+    {
+        if (param != nullptr)
+            param->removeListener (this);
     }
 
     /** Used to specify layout */
-    enum Layout {
+    enum Layout
+    {
         nameOnTop,
         nameOnBottom,
         nameOnLeft,
         nameOnRight,
         nameHidden
     };
-    
+
     /** Sets the layout for this editor */
-    void setLayout(Layout layout);
+    void setLayout (Layout layout);
 
     /** Implements Parameter::Listener */
-    void parameterChanged(Parameter* param)
+    void parameterChanged (Parameter* param)
     {
         const MessageManagerLock mml;
-        
+
         updateView();
     }
 
     /** Implements Parameter::Listener */
-    void removeParameter(Parameter* param_)
+    void removeParameter (Parameter* param_)
     {
-        if(param == param_)
+        if (param == param_)
         {
             const MessageManagerLock mml;
 
@@ -98,24 +97,24 @@ public:
     virtual void updateView() = 0;
 
     /** Sets the parameter corresponding to this editor*/
-    void setParameter(Parameter* newParam)
+    void setParameter (Parameter* newParam)
     {
-        if(param != nullptr)
-            param->removeListener(this);
+        if (param != nullptr)
+            param->removeListener (this);
 
-        if(newParam != nullptr)
+        if (newParam != nullptr)
         {
-            newParam->addListener(this);
-            setEnabled(newParam->isEnabled());
+            newParam->addListener (this);
+            setEnabled (newParam->isEnabled());
         }
 
         param = newParam;
         updateView();
     }
 
-    void parameterEnabled(bool isParamEnabled) override
+    void parameterEnabled (bool isParamEnabled) override
     {
-        setEnabled(isParamEnabled);
+        setEnabled (isParamEnabled);
     }
 
     /** Returns true if this editor should be disabled during acquisition*/
@@ -136,7 +135,8 @@ public:
     /** Disables editor updates when the selected stream has changes 
      * @see RecordNode Sync Line editors
     */
-    void disableUpdateOnSelectedStreamChanged() {
+    void disableUpdateOnSelectedStreamChanged()
+    {
         m_updateOnSelectedStreamChanged = false;
     }
 
@@ -151,7 +151,7 @@ public:
 
 protected:
     Parameter* param;
-    
+
     String name;
 
     std::unique_ptr<Label> label = nullptr;
@@ -165,20 +165,17 @@ protected:
     bool m_updateOnSelectedStreamChanged;
 };
 
-
 /** 
     An editable label that only accepts specific characters
 */
 class PLUGIN_API CustomTextBox : public Label
 {
 public:
-
     /** Constructor */
-    CustomTextBox(const String& name, const String& text, const String& allowedCharacters, const String& units = "") 
-        : Label(name, text),
-          allowedChars(allowedCharacters),
-          units(units)
-    {};
+    CustomTextBox (const String& name, const String& text, const String& allowedCharacters, const String& units = "")
+        : Label (name, text),
+          allowedChars (allowedCharacters),
+          units (units) {};
 
     /** Destructor */
     ~CustomTextBox() {};
@@ -186,7 +183,7 @@ public:
     /** Creates the editor component */
     TextEditor* createEditorComponent() override;
 
-    void paint(Graphics& g) override;
+    void paint (Graphics& g) override;
 
 private:
     String allowedChars;
@@ -195,7 +192,6 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomTextBox)
 };
 
-
 /** 
     Allows parameters to be changed via text box.
 
@@ -203,22 +199,21 @@ private:
 
 */
 class PLUGIN_API TextBoxParameterEditor : public ParameterEditor,
-    public Label::Listener
+                                          public Label::Listener
 {
 public:
-
     /** Constructor */
-    TextBoxParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
+    TextBoxParameterEditor (Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
-    virtual ~TextBoxParameterEditor() { }
+    virtual ~TextBoxParameterEditor() {}
 
     /** Called when the text box contents are changed*/
-    void labelTextChanged(Label* label) override;
+    void labelTextChanged (Label* label) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
-    
+
     /** Returns a pointer to the value label, for customization */
     Label* getValueLabel() { return valueTextBox.get(); }
 
@@ -229,12 +224,11 @@ private:
     std::unique_ptr<CustomTextBox> valueTextBox;
 };
 
-
 class PLUGIN_API CustomToggleButton : public ToggleButton
 {
 public:
-    CustomToggleButton() : ToggleButton("") {}
-    ~CustomToggleButton() { }
+    CustomToggleButton() : ToggleButton ("") {}
+    ~CustomToggleButton() {}
 
     void paintButton (Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 };
@@ -246,18 +240,17 @@ public:
 
 */
 class PLUGIN_API ToggleParameterEditor : public ParameterEditor,
-    public Button::Listener
+                                         public Button::Listener
 {
 public:
-
     /** Constructor */
-    ToggleParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
+    ToggleParameterEditor (Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
-    virtual ~ToggleParameterEditor() { }
+    virtual ~ToggleParameterEditor() {}
 
     /** Responds to checkbox clicks */
-    void buttonClicked(Button* label) override;
+    void buttonClicked (Button* label) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
@@ -269,7 +262,6 @@ private:
     std::unique_ptr<CustomToggleButton> toggleButton;
 };
 
-
 /**
     Allows parameters to be changed via combo box.
 
@@ -277,18 +269,17 @@ private:
 
 */
 class PLUGIN_API ComboBoxParameterEditor : public ParameterEditor,
-    public ComboBox::Listener
+                                           public ComboBox::Listener
 {
 public:
-
     /** Constructor */
-    ComboBoxParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
+    ComboBoxParameterEditor (Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
-    virtual ~ComboBoxParameterEditor() { }
+    virtual ~ComboBoxParameterEditor() {}
 
     /** Responds to combo box clicks */
-    void comboBoxChanged(ComboBox* comboBox) override;
+    void comboBoxChanged (ComboBox* comboBox) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
@@ -302,22 +293,22 @@ private:
     int offset;
 };
 
-
 class PLUGIN_API BoundedValueEditor : public Label
 {
 public:
-
     /** Constructor (float) */
-    BoundedValueEditor(float min, float max, float step, String units_ = "")
-        : Label("",""), minValue(double(min)), maxValue(double(max)), stepSize(double(step)), units(units_) {
-            setEditable(true, true, false);
-        }
+    BoundedValueEditor (float min, float max, float step, String units_ = "")
+        : Label ("", ""), minValue (double (min)), maxValue (double (max)), stepSize (double (step)), units (units_)
+    {
+        setEditable (true, true, false);
+    }
 
     /** Constructor (int) */
-    BoundedValueEditor(int min, int max, int step, String units_ = "")
-        : Label("",""), minValue(double(min)), maxValue(double(max)), stepSize(double(step)), units(units_) {
-            setEditable(true, true, false);
-        }
+    BoundedValueEditor (int min, int max, int step, String units_ = "")
+        : Label ("", ""), minValue (double (min)), maxValue (double (max)), stepSize (double (step)), units (units_)
+    {
+        setEditable (true, true, false);
+    }
 
     /** Destructor */
     ~BoundedValueEditor() {};
@@ -326,12 +317,11 @@ public:
     TextEditor* createEditorComponent() override;
 
     /** Mouse event handlers */
-    void mouseDrag(const MouseEvent& event) override;
+    void mouseDrag (const MouseEvent& event) override;
 
     void mouseUp (const MouseEvent&) override;
-    
-private:
 
+private:
     void paint (Graphics& g) override;
 
     bool mouseWasDragged = false;
@@ -352,25 +342,23 @@ private:
 
 */
 class PLUGIN_API BoundedValueParameterEditor : public ParameterEditor,
-    public Label::Listener
+                                               public Label::Listener
 {
 public:
-
     /** Constructor */
-    BoundedValueParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
+    BoundedValueParameterEditor (Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
-    virtual ~BoundedValueParameterEditor() { }
-    
+    virtual ~BoundedValueParameterEditor() {}
+
     /** Responds to label value changes */
-    void labelTextChanged(Label* label) override;
+    void labelTextChanged (Label* label) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
     /** Sets sub-component locations */
     virtual void resized() override;
-
 
 private:
     std::unique_ptr<BoundedValueEditor> valueEditor;
@@ -383,21 +371,19 @@ private:
     and makes it possible to select them by clicking.
 
 */
-class PLUGIN_API SelectedChannelsParameterEditor : 
-    public ParameterEditor,
-    public Button::Listener,
-    public PopupChannelSelector::Listener
+class PLUGIN_API SelectedChannelsParameterEditor : public ParameterEditor,
+                                                   public Button::Listener,
+                                                   public PopupChannelSelector::Listener
 {
 public:
-
     /** Constructor */
-    SelectedChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
+    SelectedChannelsParameterEditor (Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
-    virtual ~SelectedChannelsParameterEditor() { }
+    virtual ~SelectedChannelsParameterEditor() {}
 
     /** Displays the PopupChannelSelector*/
-    void buttonClicked(Button* label) override;
+    void buttonClicked (Button* label) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
@@ -406,7 +392,7 @@ public:
     Array<int> getSelectedChannels() override;
 
     /** Responds to changes in the PopupChannelSelector*/
-    void channelStateChanged(Array<int> selectedChannels) override;
+    void channelStateChanged (Array<int> selectedChannels) override;
 
     /** Sets sub-component locations */
     virtual void resized() override;
@@ -416,18 +402,17 @@ private:
 };
 
 class PLUGIN_API SelectedStreamParameterEditor : public ParameterEditor,
-    public ComboBox::Listener
+                                                 public ComboBox::Listener
 {
 public:
-
     /** Constructor */
-    SelectedStreamParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
+    SelectedStreamParameterEditor (Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
-    virtual ~SelectedStreamParameterEditor() { }
+    virtual ~SelectedStreamParameterEditor() {}
 
     /** Responds to combo box clicks */
-    void comboBoxChanged(ComboBox* comboBox) override;
+    void comboBoxChanged (ComboBox* comboBox) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
@@ -437,7 +422,6 @@ public:
 
 private:
     std::unique_ptr<ComboBox> valueComboBox;
-
 };
 
 /**
@@ -448,19 +432,18 @@ private:
 
 */
 class PLUGIN_API MaskChannelsParameterEditor : public ParameterEditor,
-    public Button::Listener,
-    public PopupChannelSelector::Listener
+                                               public Button::Listener,
+                                               public PopupChannelSelector::Listener
 {
 public:
-
     /** Constructor */
-    MaskChannelsParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
+    MaskChannelsParameterEditor (Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
-    virtual ~MaskChannelsParameterEditor() { }
+    virtual ~MaskChannelsParameterEditor() {}
 
     /** Displays the PopupChannelSelector*/
-    void buttonClicked(Button* label) override;
+    void buttonClicked (Button* label) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
@@ -469,7 +452,7 @@ public:
     Array<int> getSelectedChannels() override;
 
     /** Responds to changes in the PopupChannelSelector*/
-    void channelStateChanged(Array<int> selectedChannels) override;
+    void channelStateChanged (Array<int> selectedChannels) override;
 
     /** Sets sub-component locations */
     virtual void resized() override;
@@ -478,48 +461,43 @@ private:
     std::unique_ptr<Button> button;
 };
 
-
 /**
     
     Button for selecting a sync line for a particular data stream
     Shows the synchronization status of the stream as well as whether 
     it is the main stream or not
  */
-class PLUGIN_API SyncControlButton :
-    public Button,
-    public Timer
+class PLUGIN_API SyncControlButton : public Button,
+                                     public Timer
 {
 public:
-    
     /** Constructor */
-    SyncControlButton(SynchronizingProcessor* node,
-                      const String& name,
-                      String streamKey,
-                      int ttlLineCount = 8);
-    
+    SyncControlButton (SynchronizingProcessor* node,
+                       const String& name,
+                       String streamKey,
+                       int ttlLineCount = 8);
+
     /** Destructor */
     ~SyncControlButton();
 
     /** Creates the sync selection interface */
     //void mouseUp(const MouseEvent &event) override;
-    
+
     String streamKey;
     bool isPrimary;
     int ttlLineCount;
 
 private:
-    
     /** Checks whether the underlying stream is synchronized */
     void timerCallback();
-    
+
     /** Renders the button */
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
-    
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
     /** Called when popup selection interface is closed */
     //void componentBeingDeleted(Component &component);
-    
-    SynchronizingProcessor* node;
 
+    SynchronizingProcessor* node;
 };
 
 /**
@@ -529,30 +507,28 @@ private:
     and makes it possible to select them by clicking.
 
 */
-class PLUGIN_API TtlLineParameterEditor : 
-    public ParameterEditor,
-    public Button::Listener,
-    public SyncLineSelector::Listener
+class PLUGIN_API TtlLineParameterEditor : public ParameterEditor,
+                                          public Button::Listener,
+                                          public SyncLineSelector::Listener
 {
 public:
-
     /** Constructor */
-    TtlLineParameterEditor(Parameter* param,
-                           Parameter* syncParam = nullptr,
-                           int rowHeightPixels = 18,
-                           int rowWidthPixels = 170);
+    TtlLineParameterEditor (Parameter* param,
+                            Parameter* syncParam = nullptr,
+                            int rowHeightPixels = 18,
+                            int rowWidthPixels = 170);
 
     /** Destructor */
-    virtual ~TtlLineParameterEditor() { }
+    virtual ~TtlLineParameterEditor() {}
 
     /** Displays the PopupChannelSelector*/
-    void buttonClicked(Button* label) override;
+    void buttonClicked (Button* label) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
 
     /** Responds to changes in the SyncLineSelector */
-    void selectedLineChanged(int selectedLine) override;
+    void selectedLineChanged (int selectedLine) override;
 
     /** Sets parameter's stream as primary */
     void primaryStreamChanged() override;
@@ -566,20 +542,18 @@ private:
     Parameter* syncParam;
 };
 
-
 class PLUGIN_API PathParameterEditor : public ParameterEditor,
-    public Button::Listener
+                                       public Button::Listener
 {
 public:
-
     /** Constructor */
-    PathParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
+    PathParameterEditor (Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
-    virtual ~PathParameterEditor() { }
+    virtual ~PathParameterEditor() {}
 
     /** Displays the PopupChannelSelector*/
-    void buttonClicked(Button* label) override;
+    void buttonClicked (Button* label) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
@@ -592,18 +566,18 @@ private:
 };
 
 class PLUGIN_API TimeParameterEditor : public ParameterEditor,
-    public Button::Listener, public Timer
+                                       public Button::Listener,
+                                       public Timer
 {
 public:
-
     /** Constructor */
-    TimeParameterEditor(Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
+    TimeParameterEditor (Parameter* param, int rowHeightPixels = 18, int rowWidthPixels = 170);
 
     /** Destructor */
-    virtual ~TimeParameterEditor() { }
+    virtual ~TimeParameterEditor() {}
 
     /** Displays the PopupChannelSelector*/
-    void buttonClicked(Button* label) override;
+    void buttonClicked (Button* label) override;
 
     /** Must ensure that editor state matches underlying parameter */
     virtual void updateView() override;
@@ -612,11 +586,10 @@ public:
     virtual void resized() override;
 
 private:
-
     void timerCallback() override;
 
     std::unique_ptr<TextButton> button;
     std::unique_ptr<PopupTimeEditor> timeEditor;
 };
 
-#endif  // __PARAMETEREDITOR_H_44537DA9__
+#endif // __PARAMETEREDITOR_H_44537DA9__

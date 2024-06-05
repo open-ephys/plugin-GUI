@@ -25,8 +25,8 @@
 #define __PROCESSORGRAPH_H_124F8B50__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../PluginManager/OpenEphysPlugin.h"
 #include "../../TestableExport.h"
+#include "../PluginManager/OpenEphysPlugin.h"
 class GenericProcessor;
 class GenericEditor;
 class RecordNode;
@@ -35,7 +35,8 @@ class MessageCenter;
 class SignalChainTabButton;
 class PluginManager;
 class ProcessorAction;
-struct ChannelKey {
+struct ChannelKey
+{
     int inputNodeId;
     int inputIndex;
     int outputNodeId;
@@ -43,8 +44,8 @@ struct ChannelKey {
 
     bool operator< (const ChannelKey& key) const
     {
-        return std::tie(inputNodeId, inputIndex, outputNodeId, outputIndex)
-            < std::tie(key.inputNodeId, key.inputIndex, key.outputNodeId, key.outputIndex);
+        return std::tie (inputNodeId, inputIndex, outputNodeId, outputIndex)
+               < std::tie (key.inputNodeId, key.inputIndex, key.outputNodeId, key.outputIndex);
     }
 };
 
@@ -62,11 +63,9 @@ struct ChannelKey {
        AudioNode, Configuration, MessageCenter
 */
 
-class TESTABLE ProcessorGraph    : public AudioProcessorGraph
-                        , public ChangeListener
+class TESTABLE ProcessorGraph : public AudioProcessorGraph, public ChangeListener
 {
 public:
-
     /* IDs for default processors*/
     enum nodeIds
     {
@@ -76,57 +75,56 @@ public:
     };
 
     /* Constructor*/
-    ProcessorGraph(bool isConsoleApp);
+    ProcessorGraph (bool isConsoleApp);
 
     /* Destructor */
     ~ProcessorGraph();
 
     /* Creates a new processor.*/
-    GenericProcessor* createProcessor(Plugin::Description& description,
-                         GenericProcessor* sourceNode = nullptr,
-                         GenericProcessor* destNode = nullptr,
-                         bool signalChainIsLoading=false);
+    GenericProcessor* createProcessor (Plugin::Description& description,
+                                       GenericProcessor* sourceNode = nullptr,
+                                       GenericProcessor* destNode = nullptr,
+                                       bool signalChainIsLoading = false);
 
     /* Determines which processor to create, based on the description provided*/
-    std::unique_ptr<GenericProcessor> createProcessorFromDescription(Plugin::Description& description);
-    
+    std::unique_ptr<GenericProcessor> createProcessorFromDescription (Plugin::Description& description);
+
     /* Checks whether an action has create the need for new 'root' processors (first in signal chain)*/
-    bool checkForNewRootNodes(GenericProcessor* processor,
-                              bool processorBeingAdded = true,
-                              bool processorBeingMoved = false);
-    
+    bool checkForNewRootNodes (GenericProcessor* processor,
+                               bool processorBeingAdded = true,
+                               bool processorBeingMoved = false);
+
     /* Moves a processor to a new location in the signal chain. */
-    void moveProcessor(GenericProcessor*, GenericProcessor* newSource = nullptr, GenericProcessor* newDest = nullptr,
-                       bool moveDownstream = true);
+    void moveProcessor (GenericProcessor*, GenericProcessor* newSource = nullptr, GenericProcessor* newDest = nullptr, bool moveDownstream = true);
 
     /* Remove a processor from the signal chain*/
-    void removeProcessor(GenericProcessor* processor);
+    void removeProcessor (GenericProcessor* processor);
 
-    void connectMergerSource(GenericProcessor* merger, GenericProcessor* sourceNode, int mergerPath);
+    void connectMergerSource (GenericProcessor* merger, GenericProcessor* sourceNode, int mergerPath);
 
     /* Returns pointers to all of the processors in the signal chain*/
     Array<GenericProcessor*> getListOfProcessors();
-    
+
     /* Finds a processor based on its ID*/
-    GenericProcessor* getProcessorWithNodeId(int nodeId);
-    
+    GenericProcessor* getProcessorWithNodeId (int nodeId);
+
     /* Returns all of the 'root nodes' (first processors in signal chain)*/
-    Array<GenericProcessor*> getRootNodes() {return rootNodes;}
-    
+    Array<GenericProcessor*> getRootNodes() { return rootNodes; }
+
     /* Returns a list of processor editors that are currently visible*/
-    Array<GenericEditor*> getVisibleEditors(GenericProcessor* processor);
+    Array<GenericEditor*> getVisibleEditors (GenericProcessor* processor);
 
     /* Updates the settings of all processors downstream of the specified processor*/
-    void updateSettings(GenericProcessor* processor, bool signalChainIsLoading = false);
+    void updateSettings (GenericProcessor* processor, bool signalChainIsLoading = false);
 
     /* Updates the views (EditorViewport and GraphView) of all processors downstream of the specified processor*/
-    void updateViews(GenericProcessor* processor, bool updateGraphViewer = false);
+    void updateViews (GenericProcessor* processor, bool updateGraphViewer = false);
 
     /* Clears the signal chain.*/
     void clearSignalChain();
 
     /* Removes the specified processors.*/
-    void deleteNodes(Array<GenericProcessor*> nodesToDelete);
+    void deleteNodes (Array<GenericProcessor*> nodesToDelete);
 
     /* Checks if all processors are enabled*/
     bool isReady();
@@ -135,7 +133,7 @@ public:
     void updateConnections();
 
     /* Connects two processors if not already connected*/
-    void reconnectProcessors(int srcNodeId, int destNodeId);
+    void reconnectProcessors (int srcNodeId, int destNodeId);
 
     /* Calls startAcquisition() for all processors*/
     void startAcquisition();
@@ -151,36 +149,36 @@ public:
 
     /* Returns a pointer to the MessageCenter processor*/
     MessageCenter* getMessageCenter();
-    
+
     /* Returns true if the signal chain has ast least one RecordNode*/
     bool hasRecordNode();
 
     /* Broadcasts a message to all processors during acquisition*/
-    void broadcastMessage(String msg);
+    void broadcastMessage (String msg);
 
     /* Sends a configuration message to a particular processor, while acquisition is paused*/
-    String sendConfigMessage(GenericProcessor* processor, String msg);
+    String sendConfigMessage (GenericProcessor* processor, String msg);
 
     /* Returns true if there's an equivalent processor in the signal chain*/
-    bool processorWithSameNameExists(const String& name);
+    bool processorWithSameNameExists (const String& name);
 
     /* Respond to a change event*/
-    void changeListenerCallback(ChangeBroadcaster* source);
+    void changeListenerCallback (ChangeBroadcaster* source);
 
     /** Loops through processors and restores parameters, if they're available. */
     void restoreParameters();
 
     /** Returns a list of all undoable actions for a particular processor ID */
-    std::vector<ProcessorAction*> getUndoableActions(int nodeId);
+    std::vector<ProcessorAction*> getUndoableActions (int nodeId);
 
     /** Loops through any undoable actions for the processor ID and restores the pointer to the processor */
-    void updateUndoableActions(int nodeId);
-    
+    void updateUndoableActions (int nodeId);
+
     /* Updates the buffer size used for the process() callbacks*/
     void updateBufferSize();
 
     /* Turns recording on (true) and off (false)*/
-    void setRecordState(bool);
+    void setRecordState (bool);
 
     /* Applies new colors to processors in the signal chain*/
     void refreshColors();
@@ -189,7 +187,7 @@ public:
     void createDefaultNodes();
 
     /* Makes a particular branch of the signal chain visible, without updating any settings */
-    void viewSignalChain(int index);
+    void viewSignalChain (int index);
 
     /** Returns software time, independent of any processor timestamps */
     int64 getGlobalTimestamp() const;
@@ -201,66 +199,65 @@ public:
     String getGlobalTimestampSource() const;
 
     /** Returns the stream ID for a particular node/channel combination */
-    static int getStreamIdForChannel(Node& node, int channel);
+    static int getStreamIdForChannel (Node& node, int channel);
 
     /** Re-implementation of JUCE AudioProcessorGraph method that allows faster signal chain rendering */
-    static bool isBufferNeededLater(int inputNodeId, int inputIndex, int outputNodeId, int outputIndex, bool* isValid);
+    static bool isBufferNeededLater (int inputNodeId, int inputIndex, int outputNodeId, int outputIndex, bool* isValid);
 
     /** Updates the map containing about connections between processors (for isBufferNeededLater) */
-    static void updateBufferMap(int inputNodeId, int inputIndex, int outputNodeId, int outputIndex, bool isNeededLater);
-    
+    static void updateBufferMap (int inputNodeId, int inputIndex, int outputNodeId, int outputIndex, bool isNeededLater);
+
     /** Stores information about connections between processors */
-    static std::map< ChannelKey, bool> bufferLookupMap;
-    
+    static std::map<ChannelKey, bool> bufferLookupMap;
+
     /** Returns true if all record nodes are synchronized */
     bool allRecordNodesAreSynchronized();
-    
+
     /** Saves processor graph to XML */
-    void saveToXml(XmlElement* xml);
-    
+    void saveToXml (XmlElement* xml);
+
     /** Converts information about a given processor to XML. */
-    XmlElement* createNodeXml(GenericProcessor*, bool isStartOfSignalChain);
-    
+    XmlElement* createNodeXml (GenericProcessor*, bool isStartOfSignalChain);
+
     /** Converts XML parameters into a new GenericProcessor object */
-    GenericProcessor* createProcessorAtInsertionPoint(XmlElement* parametersAsXml,
-                                                int insertionPt,
-                                                      bool ignoreNodeId);
+    GenericProcessor* createProcessorAtInsertionPoint (XmlElement* parametersAsXml,
+                                                       int insertionPt,
+                                                       bool ignoreNodeId);
 
     /** Loads processor graph to XML */
-    void loadFromXml(XmlElement* xml);
-    
+    void loadFromXml (XmlElement* xml);
+
     /** Returns a plugin description from XML settings */
-    Plugin::Description getDescriptionFromXml(XmlElement* settings, bool ignoreNodeId);
+    Plugin::Description getDescriptionFromXml (XmlElement* settings, bool ignoreNodeId);
 
     /** Creates an EmptyProcessor source for the given destination processor */
-    void createEmptyProcessor(GenericProcessor* destProcessor, int rootIndex = -1, bool replaceRoot = false);
-    
+    void createEmptyProcessor (GenericProcessor* destProcessor, int rootIndex = -1, bool replaceRoot = false);
+
     /** Returns a pointer to the Plugin Manager object */
     PluginManager* getPluginManager();
 
     UndoManager* getUndoManager() noexcept { return undoManager.get(); }
 
 private:
-
     /* Disconnect all processors*/
     void clearConnections();
 
     /* Connect a source processor and a destination processor*/
-    void connectProcessors(GenericProcessor* source, 
-        GenericProcessor* dest,
-        bool connectContinuous, 
-        bool connectEvents);
+    void connectProcessors (GenericProcessor* source,
+                            GenericProcessor* dest,
+                            bool connectContinuous,
+                            bool connectEvents);
 
     /* Connect a processor to the AudioNode*/
-    void connectAudioMonitorToAudioNode(GenericProcessor* source);
+    void connectAudioMonitorToAudioNode (GenericProcessor* source);
 
     /* Connect a processor to the MessageCenter*/
-    void connectProcessorToMessageCenter(GenericProcessor* source);
-    
+    void connectProcessorToMessageCenter (GenericProcessor* source);
+
     Array<GenericProcessor*> rootNodes;
-    
+
     Array<GenericProcessor*> processorArray;
-    
+
     std::unique_ptr<PluginManager> pluginManager;
 
     std::unique_ptr<UndoManager> undoManager;
@@ -270,13 +267,10 @@ private:
     int currentNodeId;
 
     bool isLoadingSignalChain;
-    
-    bool isConsoleApp;
-    
-    int insertionPoint;
 
+    bool isConsoleApp;
+
+    int insertionPoint;
 };
 
-
-
-#endif  // __PROCESSORGRAPH_H_124F8B50__
+#endif // __PROCESSORGRAPH_H_124F8B50__

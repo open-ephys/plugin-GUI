@@ -29,8 +29,8 @@
 #include "../PluginManager/OpenEphysPlugin.h"
 
 #include "../Parameter/ParameterEditor.h"
-#include "StreamSelector.h"
 #include "DelayMonitor.h"
+#include "StreamSelector.h"
 #include "TTLMonitor.h"
 
 class GenericProcessor;
@@ -48,10 +48,9 @@ class UtilityButton;
 
     @see GenericProcessor, EditorViewport
 */
-class PLUGIN_API GenericEditor  : public AudioProcessorEditor
+class PLUGIN_API GenericEditor : public AudioProcessorEditor
 {
 public:
-
     /** Constructor. */
     GenericEditor (GenericProcessor* owner);
 
@@ -77,7 +76,6 @@ public:
     // =====================================================================
     // =====================================================================
 
-
     /** Toggles the editor's selection state.*/
     void switchSelectedState();
 
@@ -102,20 +100,20 @@ public:
     /** Called just prior to the start of acquisition, to allow the editor to prepare.*/
     void editorStartAcquisition();
 
-	/** Called just prior to the start of acquisition, to allow custom commands. */
-	virtual void startAcquisition() { }
+    /** Called just prior to the start of acquisition, to allow custom commands. */
+    virtual void startAcquisition() {}
 
     /** Called after the end of acquisition.*/
     void editorStopAcquisition();
 
-	/** Called after the end of acquisition, to allow custom commands .*/
-	virtual void stopAcquisition() { }
-    
+    /** Called after the end of acquisition, to allow custom commands .*/
+    virtual void stopAcquisition() {}
+
     /** Called at the start of a recording, to allow any components to be disabled  **/
-    virtual void startRecording() { }
+    virtual void startRecording() {}
 
     /** Called at the end of a recording, to allow any components to be enabled **/
-    virtual void stopRecording() { }
+    virtual void stopRecording() {}
 
     /** Returns the name of the editor.*/
     String getName();
@@ -124,7 +122,7 @@ public:
     void updateName();
 
     /** Updates name on title bar. */
-    void setDisplayName(const String& string);
+    void setDisplayName (const String& string);
 
     /** Get name on title bar. */
     String getDisplayName();
@@ -132,8 +130,8 @@ public:
     /** Returns a string containing the editor name and underlying processor ID. */
     String getNameAndId();
 
-	/** Returns a custom channel number for the Channel Selector buttons. Useful for channel mappers */
-	virtual int getChannelDisplayNumber(int chan) const;
+    /** Returns a custom channel number for the Channel Selector buttons. Useful for channel mappers */
+    virtual int getChannelDisplayNumber (int chan) const;
 
     /** Determines how wide the editor will be drawn. */
     int desiredWidth;
@@ -142,13 +140,13 @@ public:
     int nodeId;
 
     /** Sets the number of the editor's associated tab in the DataViewport. */
-    virtual void tabNumber(int t);
+    virtual void tabNumber (int t);
 
     /** Returns the number of the editor's associated tab in the DataViewport. */
     int tabNumber();
 
     /** Required for MergerEditor only.*/
-    virtual void switchSource(int);
+    virtual void switchSource (int);
 
     /** Required for MergerEditor only.*/
     virtual void switchSource();
@@ -173,7 +171,7 @@ public:
 
     /** Used by GraphViewer */
     bool isUtility();
-    
+
     /** Used by VisualizerEditor to bring the editor's tab to the foreground.*/
     virtual void editorWasClicked();
 
@@ -187,13 +185,13 @@ public:
     void refreshColors();
 
     /** Called when an editor's processor updates its settings (mainly to update channel count).*/
-    void update(bool isEnabled);
+    void update (bool isEnabled);
 
     /** Allows other UI elements to use background color of editor. */
     Colour getBackgroundColor();
 
     /** Changes the background color of this editor. */
-    void setBackgroundColor(Colour colour);
+    void setBackgroundColor (Colour colour);
 
     /** Allows other elements to use background gradient of editor. */
     ColourGradient getBackgroundGradient();
@@ -209,9 +207,9 @@ public:
 
     /** Allows an editor to update the settings of its visualizer (such as channel count and sample rate).*/
     virtual void updateVisualizer();
-    
+
     /** Returns the parameter editor for a given parameter name*/
-    ParameterEditor* getParameterEditor(const String& parameterName);
+    ParameterEditor* getParameterEditor (const String& parameterName);
 
     /** An array of pointers to ParameterEditors created based on the Parameters of an editor's underlying processor. */
     OwnedArray<ParameterEditor> parameterEditors;
@@ -236,12 +234,12 @@ public:
 
     /** Checks to see whether or not an editor is collapsed */
     bool getCollapsedState();
-    
+
     /**  Sets the collapsed state for the editor*/
     void switchCollapsedState();
 
     /**  Sets the collapsed state for the editor*/
-    void setCollapsedState(bool);
+    void setCollapsedState (bool);
 
     /**  Notifies the editor that the collapsed state changed, for non-standard function. */
     virtual void collapsedStateChanged();
@@ -256,10 +254,10 @@ public:
     virtual Array<GenericEditor*> getConnectedEditors();
 
     /** Changes the state of the TTLMonitor */
-    void setTTLState(uint16 streamId, int bit, bool state);
+    void setTTLState (uint16 streamId, int bit, bool state);
 
     /** Notify editor about changes in the StreamSelector */
-    void updateSelectedStream(uint16 streamId);
+    void updateSelectedStream (uint16 streamId);
 
     /** Get the ID of the stream that's currently selected.*/
     uint16 getCurrentStream() { return selectedStream; }
@@ -271,10 +269,10 @@ public:
     virtual void selectedStreamHasChanged();
 
     /** Notifies editor that the selected stream has changed.*/
-    virtual void streamEnabledStateChanged(uint16 streamId, bool enabledState, bool isLoading = false);
+    virtual void streamEnabledStateChanged (uint16 streamId, bool enabledState, bool isLoading = false);
 
     /** Updates the mean latency for a particular data stream (called by LatencyMeter class)*/
-    void setMeanLatencyMs(uint16 streamId, float latencyMs);
+    void setMeanLatencyMs (uint16 streamId, float latencyMs);
 
     /** Returns the total width of the editor in it's current state. */
     virtual int getTotalWidth();
@@ -296,40 +294,40 @@ protected:
     void addTextBoxParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a check box editor for a parameter of a given name. */
-    void addToggleParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+    void addToggleParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a bounded value editor for a parameter of a given name. */
-    void addBoundedValueParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+    void addBoundedValueParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a combo box editor for a parameter of a given name. */
-    void addComboBoxParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+    void addComboBoxParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a selected channels editor for a parameter of a given name. */
-    void addSelectedChannelsParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
-    
+    void addSelectedChannelsParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+
     /** Adds a mask channels editor for a parameter of a given name. */
-    void addMaskChannelsParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+    void addMaskChannelsParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a path browser editor for a parameter of a given name. */
-    void addPathParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+    void addPathParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a selected stream editor for a parameter of a given name. */
-    void addSelectedStreamParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+    void addSelectedStreamParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a time editor for a paramater of a given name. */
-    void addTimeParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+    void addTimeParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a ttl line editor for a parameter of a given name. */
-    void addTtlLineParameterEditor(Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
+    void addTtlLineParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a sync line editor for a parameter of a given name. 
      * @param syncLineParam is the parameter that will be updated when the sync line is changed
      * @param syncStreamParam is the parameter that will be updated when the main sync stream is changed
     */
-    void addSyncLineParameterEditor(TtlLineParameter* syncLineParam, SelectedStreamParameter* syncStreamParam, int xPos, int yPos);
+    void addSyncLineParameterEditor (TtlLineParameter* syncLineParam, SelectedStreamParameter* syncStreamParam, int xPos, int yPos);
 
     /** Adds a custom editor for a parameter of a given name. */
-    void addCustomParameterEditor(ParameterEditor* editor, int xPos, int yPos);
+    void addCustomParameterEditor (ParameterEditor* editor, int xPos, int yPos);
 
     /** A pointer to the editor's StreamSelector. */
     std::unique_ptr<StreamSelectorTable> streamSelector;
@@ -337,14 +335,13 @@ protected:
     /** Holds the value of the stream that's currently visible*/
     uint16 selectedStream;
 
-
 private:
-
     class ButtonResponder : public Button::Listener
     {
     public:
-        ButtonResponder(GenericEditor* editor_) : editor(editor_) { }
-        void buttonClicked(Button* button);
+        ButtonResponder (GenericEditor* editor_) : editor (editor_) {}
+        void buttonClicked (Button* button);
+
     private:
         GenericEditor* editor;
     };
@@ -373,7 +370,6 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericEditor);
 };
 
-
 /**
   Used to show and hide the StreamSelector.
 
@@ -385,19 +381,16 @@ private:
 class PLUGIN_API DrawerButton : public Button
 {
 public:
-
     /** Constructor */
     DrawerButton (const String& name);
-    
+
     /** Destructor */
     ~DrawerButton();
 
 private:
-    
     /** Render the button */
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
-
 
 /**
   A button that displays a triangle facing up or down.
@@ -418,7 +411,6 @@ private:
     int direction;
 };
 
-
 /**
   A button that displays a "load" icon.
 
@@ -427,10 +419,9 @@ private:
 class PLUGIN_API LoadButton : public ImageButton
 {
 public:
-    LoadButton(const String& name);
+    LoadButton (const String& name);
     ~LoadButton();
 };
-
 
 /**
   A button that displays a "save" icon.
@@ -440,10 +431,9 @@ public:
 class PLUGIN_API SaveButton : public ImageButton
 {
 public:
-    SaveButton(const String& name);
+    SaveButton (const String& name);
     ~SaveButton();
 };
-
 
 /**
   A button that displays text.
@@ -456,15 +446,14 @@ public:
     UtilityButton (String label_, Font font_);
     ~UtilityButton();
 
-    void setCorners(bool UL, bool UR, bool LL, bool LR);
-    void setRadius(float r);
+    void setCorners (bool UL, bool UR, bool LL, bool LR);
+    void setRadius (float r);
 
     void setEnabledState (bool);
     bool getEnabledState();
 
     void setLabel (String label);
     String getLabel();
-
 
 private:
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
@@ -478,9 +467,9 @@ private:
 
     bool isEnabled;
 
-    void resized() override;;
+    void resized() override;
+    ;
 };
-
 
 class PLUGIN_API ColorButton : public Button
 {
@@ -501,7 +490,6 @@ public:
 
     void setShowEnabled (bool state);
 
-
 private:
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 
@@ -513,7 +501,6 @@ private:
     bool showEnabledStatus;
     bool isEnabled;
 };
-
 
 /**
   Used to change the spike detection threshold.
@@ -529,7 +516,6 @@ public:
     void setActive (bool);
 
     void setValues (Array<double>);
-
 
 private:
     void paint (Graphics& g) override;
@@ -549,38 +535,35 @@ private:
   @see SpikeDetectorEditor
 */
 class PLUGIN_API LevelMonitor : public Timer,
-	public Button
+                                public Button
 {
 public:
+    /** Constructor */
+    LevelMonitor (GenericProcessor*);
 
-	/** Constructor */
-	LevelMonitor(GenericProcessor*);
-
-	/** Detructor */
-	~LevelMonitor();
+    /** Detructor */
+    ~LevelMonitor();
 
     /** Set update freq */
-    void setUpdateFreq(int freq) { updateFreq = freq; };
+    void setUpdateFreq (int freq) { updateFreq = freq; };
 
-	/** Sets fill amount */
-	void setFillPercentage(float percentage);
+    /** Sets fill amount */
+    void setFillPercentage (float percentage);
 
-	/** Draws the button */
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+    /** Draws the button */
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 
-	/** Updates the display */
-	virtual void timerCallback() = 0;
+    /** Updates the display */
+    virtual void timerCallback() = 0;
 
 protected:
+    GenericProcessor* processor;
 
-	GenericProcessor* processor;
+    int updateFreq;
 
-	int updateFreq;
-
-	float fillPercentage;
-	float lastUpdateTime;
-	bool stateChangeSinceLastUpdate;
-
+    float fillPercentage;
+    float lastUpdateTime;
+    bool stateChangeSinceLastUpdate;
 };
 
-#endif  // __GENERICEDITOR_H_DD406E71__
+#endif // __GENERICEDITOR_H_DD406E71__

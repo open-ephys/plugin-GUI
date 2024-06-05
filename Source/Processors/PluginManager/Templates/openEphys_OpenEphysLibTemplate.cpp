@@ -20,15 +20,15 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <PluginInfo.h>
 #include "PROCESSORCLASSNAME.h"
+#include <PluginInfo.h>
 #include <string>
 
 #ifdef _WIN32
-    #include <Windows.h>
-    #define EXPORT __declspec(dllexport)
+#include <Windows.h>
+#define EXPORT __declspec (dllexport)
 #else
-    #define EXPORT __attribute__((visibility("default")))
+#define EXPORT __attribute__ ((visibility ("default")))
 #endif
 
 using namespace Plugin;
@@ -40,7 +40,7 @@ extern "C" EXPORT void getLibInfo (Plugin::LibraryInfo* info)
     /* API version, defined by the GUI source. 
        Should not be changed to ensure it is always equal to the one used in the latest codebase.
        The GUI refueses to load plugins with mismatched API versions */
-    info->apiVersion = PLUGIN_API_VER; 
+    info->apiVersion = PLUGIN_API_VER;
 
     //Name of the Library, used only for information
     info->name = "PLUGINLIBRARYNAME";
@@ -68,8 +68,8 @@ extern "C" EXPORT int getPluginInfo (int index, Plugin::PluginInfo* info)
 
             //Class factory pointer. Replace "ExampleProcessor" with the name of your class.
             info->LIBPLUGININFOTYPE.creator = &(Plugin::LIBPLUGINCREATEFUNCTION<PROCESSORCLASSNAME>);
-        break;
-        /**
+            break;
+            /**
           Examples for other plugin types
 
           For a RecordEngine, which provides formats for recording data
@@ -95,15 +95,15 @@ extern "C" EXPORT int getPluginInfo (int index, Plugin::PluginInfo* info)
 
         default:
             return -1;
-        break;
+            break;
     }
     return 0;
 }
 
 #ifdef _WIN32
 BOOL WINAPI DllMain (IN HINSTANCE hDllHandle,
-                     IN DWORD     nReason,
-                     IN LPVOID    Reserved)
+                     IN DWORD nReason,
+                     IN LPVOID Reserved)
 {
     return TRUE;
 }

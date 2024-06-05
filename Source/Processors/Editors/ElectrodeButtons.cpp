@@ -23,90 +23,86 @@
 
 #include "ElectrodeButtons.h"
 
-ElectrodeButton::ElectrodeButton(int chan_, Colour defaultColour_) :
-    Button("Electrode"),
-    chan(chan_),
-    defaultColour(defaultColour_)
-    
+ElectrodeButton::ElectrodeButton (int chan_, Colour defaultColour_) : Button ("Electrode"),
+                                                                      chan (chan_),
+                                                                      defaultColour (defaultColour_)
+
 {
-	setClickingTogglesState(true);
-	setToggleState(true, dontSendNotification);
-	setButtonText(String(chan_));
+    setClickingTogglesState (true);
+    setToggleState (true, dontSendNotification);
+    setButtonText (String (chan_));
 }
 
 ElectrodeButton::~ElectrodeButton() {}
 
 int ElectrodeButton::getChannelNum()
 {
-	return chan;
+    return chan;
 }
 
-void ElectrodeButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+void ElectrodeButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (getToggleState() == true)
-        g.setColour(defaultColour);
+        g.setColour (defaultColour);
     else
-        g.setColour(Colours::darkgrey);
+        g.setColour (Colours::darkgrey);
 
     if (isMouseOver)
-        g.setColour(Colours::white);
+        g.setColour (Colours::white);
 
-    if (!isEnabled())
-        g.setColour(Colours::black);
+    if (! isEnabled())
+        g.setColour (Colours::black);
 
-    g.fillRect(0,0,getWidth(),getHeight());
+    g.fillRect (0, 0, getWidth(), getHeight());
 
-    g.setColour(Colours::black);
+    g.setColour (Colours::black);
 
-    g.drawRect(0,0,getWidth(),getHeight(),1.0);
+    g.drawRect (0, 0, getWidth(), getHeight(), 1.0);
 
-    if (!isEnabled())
+    if (! isEnabled())
     {
-        g.setColour(Colours::grey);
+        g.setColour (Colours::grey);
     }
 
     if (chan < 100)
-        g.setFont(10.f);
+        g.setFont (10.f);
     else
-        g.setFont(8.f);
+        g.setFont (8.f);
 
     if (chan >= 0)
-        g.drawText(getButtonText(),
-                   0,
-                   0,
-                   getWidth(),
-                   getHeight(),
-                   Justification::centred,
-                   true);
+        g.drawText (getButtonText(),
+                    0,
+                    0,
+                    getWidth(),
+                    getHeight(),
+                    Justification::centred,
+                    true);
 }
 
-void ElectrodeButton::setChannelNum(int i)
+void ElectrodeButton::setChannelNum (int i)
 {
     chan = i;
 
-    setButtonText(String(chan));
-
+    setButtonText (String (chan));
 }
 
-ElectrodeEditorButton::ElectrodeEditorButton(const String& name_) : 
-    Button("Electrode Editor"),
-    name(name_)
+ElectrodeEditorButton::ElectrodeEditorButton (const String& name_) : Button ("Electrode Editor"),
+                                                                     name (name_)
 {
-	if (name.equalsIgnoreCase("edit") || name.equalsIgnoreCase("monitor"))
-		setClickingTogglesState(true);
+    if (name.equalsIgnoreCase ("edit") || name.equalsIgnoreCase ("monitor"))
+        setClickingTogglesState (true);
 }
 
 ElectrodeEditorButton::~ElectrodeEditorButton() {}
 
-void ElectrodeEditorButton::paintButton(Graphics& g, bool isMouseOver, bool isButtonDown)
+void ElectrodeEditorButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    g.setFont(FontOptions("Silkscreen", "Regular", 14));
+    g.setFont (FontOptions ("Silkscreen", "Regular", 14));
 
     if (getToggleState() == true)
-        g.setColour(Colours::darkgrey);
+        g.setColour (Colours::darkgrey);
     else
-        g.setColour(Colours::lightgrey);
+        g.setColour (Colours::lightgrey);
 
-    g.drawText(name,0,0,getWidth(),getHeight(),Justification::left,true);
+    g.drawText (name, 0, 0, getWidth(), getHeight(), Justification::left, true);
 }
-

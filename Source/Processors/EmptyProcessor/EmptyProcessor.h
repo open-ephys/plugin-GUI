@@ -24,8 +24,8 @@
 #ifndef EMPTYPROCESSOR_H_INCLUDED
 #define EMPTYPROCESSOR_H_INCLUDED
 
-#include <JuceHeader.h>
 #include "../GenericProcessor/GenericProcessor.h"
+#include <JuceHeader.h>
 
 /** 
 * Creates an empty processor in signal chains without any source.
@@ -36,9 +36,8 @@
 class EmptyProcessor : public GenericProcessor
 {
 public:
-
     /** Constructor*/
-    EmptyProcessor ();
+    EmptyProcessor();
 
     /** Destructor*/
     ~EmptyProcessor();
@@ -50,16 +49,13 @@ public:
     bool startAcquisition() override;
 
     /** Empty method */
-    void process (AudioBuffer<float>& continuousBuffer) override { }
+    void process (AudioBuffer<float>& continuousBuffer) override {}
 
     /** Set isEnabled to 'false', since this plugin will not work in the signal chain*/
     void updateSettings() override;
 
 private:
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EmptyProcessor);
 };
 
-
-
-#endif  // EMPTYPROCESSOR_H_INCLUDED
+#endif // EMPTYPROCESSOR_H_INCLUDED

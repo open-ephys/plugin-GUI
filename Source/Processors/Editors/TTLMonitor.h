@@ -40,26 +40,24 @@ class GenericEditor;
 class PLUGIN_API TTLBitDisplay : public Component
 {
 public:
-
     /** Constructor */
-    TTLBitDisplay(Colour colour, String tooltipString);
+    TTLBitDisplay (Colour colour, String tooltipString);
 
     /** Destructor */
-    ~TTLBitDisplay() { }
+    ~TTLBitDisplay() {}
 
     /** Enables tooltip hover strings*/
     String getTooltip();
 
     /** Turns a bit display on or off*/
-    void setState(bool state);
+    void setState (bool state);
 
     /** Renders the state of a single bit*/
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
     bool changedSinceLastRedraw;
 
 private:
-
     Colour colour;
     String tooltipString;
     bool state;
@@ -73,25 +71,24 @@ private:
 
 */
 class PLUGIN_API TTLMonitor : public Component,
-    public Timer
+                              public Timer
 {
 public:
-
     /** Constructor */
-    TTLMonitor(int bitSize = 12, int maxBits = 10);
+    TTLMonitor (int bitSize = 12, int maxBits = 10);
 
     /** Destructor */
-	~TTLMonitor() { }
+    ~TTLMonitor() {}
 
     /** Updates settings based on incoming event channels (not used) */
-	int updateSettings(Array<EventChannel*> eventChannels);
+    int updateSettings (Array<EventChannel*> eventChannels);
 
     /** Sets the state of a particular line */
-    void setState(int line, bool state);
+    void setState (int line, bool state);
 
     /** Places the bit squares */
     void resized();
-    
+
     /** Starts rendering timer*/
     void startAcquisition();
 
@@ -102,11 +99,10 @@ public:
     void timerCallback();
 
     /** Sends repaint command asynchronously */
-    void handleCommandMessage(int commandId);
+    void handleCommandMessage (int commandId);
 
 private:
-
-    Array<Colour> colours; 
+    Array<Colour> colours;
 
     OwnedArray<TTLBitDisplay> displays;
 
@@ -114,4 +110,4 @@ private:
     const int bitSize;
 };
 
-#endif  // __TTLMONITOR_H_BDCEE716__
+#endif // __TTLMONITOR_H_BDCEE716__

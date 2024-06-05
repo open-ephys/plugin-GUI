@@ -24,18 +24,14 @@
 #include "EmptyProcessor.h"
 #include "EmptyProcessorEditor.h"
 
-
-EmptyProcessor::EmptyProcessor ()
+EmptyProcessor::EmptyProcessor()
     : GenericProcessor ("Empty Processor")
 {
-
 }
-
 
 EmptyProcessor::~EmptyProcessor()
 {
 }
-
 
 void EmptyProcessor::updateSettings()
 {
@@ -47,7 +43,6 @@ AudioProcessorEditor* EmptyProcessor::createEditor()
     editor = std::make_unique<EmptyProcessorEditor> (this);
     return editor.get();
 }
-
 
 bool EmptyProcessor::startAcquisition()
 {

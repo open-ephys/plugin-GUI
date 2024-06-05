@@ -28,29 +28,29 @@
 
 #include "GenericProcessorBase.h"
 
-#include "../Parameter/Parameter.h"
-#include "../Parameter/ParameterOwner.h"
 #include "../../CoreServices.h"
-#include "../PluginManager/PluginClass.h"
 #include "../../Processors/Dsp/LinearSmoothedValueAtomic.h"
 #include "../../Processors/PluginManager/PluginIDs.h"
+#include "../Parameter/Parameter.h"
+#include "../Parameter/ParameterOwner.h"
+#include "../PluginManager/PluginClass.h"
 
 #include "../Settings/ContinuousChannel.h"
-#include "../Settings/EventChannel.h"
-#include "../Settings/SpikeChannel.h"
 #include "../Settings/DataStream.h"
+#include "../Settings/EventChannel.h"
 #include "../Settings/InfoObject.h"
+#include "../Settings/SpikeChannel.h"
 
 #include "../Events/Event.h"
 #include "../Events/Spike.h"
 
 #include "../Actions/ProcessorAction.h"
 
-#include <time.h>
-#include <stdio.h>
-#include <map>
-#include <unordered_map>
 #include <limits>
+#include <map>
+#include <stdio.h>
+#include <time.h>
+#include <unordered_map>
 
 class EditorViewport;
 class DataViewport;
@@ -72,7 +72,7 @@ using namespace Plugin;
 
 namespace AccessClass
 {
-	class ExternalProcessorAccessor;
+class ExternalProcessorAccessor;
 };
 
 /**
@@ -83,11 +83,9 @@ namespace AccessClass
 
     @see ProcessorGraph, GenericEditor, SourceNode, FilterNode, LfpDisplayNode
 */
-class PLUGIN_API GenericProcessor   : public GenericProcessorBase
-                                    , public PluginClass
-                                    , public ParameterOwner
+class PLUGIN_API GenericProcessor : public GenericProcessorBase, public PluginClass, public ParameterOwner
 {
-	friend AccessClass::ExternalProcessorAccessor;
+    friend AccessClass::ExternalProcessorAccessor;
     friend class RecordEngine;
     friend class MessageCenter;
     friend class ProcessorGraph;
@@ -119,7 +117,7 @@ public:
     /** Allows parameters to change while acquisition is active. If the user wants
     to change ANY variables that are used within the process() method, this must
     be done through setParameter(). */
-    virtual void setParameter(int parameterIndex, float newValue) override;
+    virtual void setParameter (int parameterIndex, float newValue) override;
 
     // --------------------------------------------
     //    QUERYING INFO ABOUT THIS PROCESSOR
@@ -141,13 +139,13 @@ public:
     GenericEditor* getEditor() const;
 
     /** Returns the sample rate for a given data stream.*/
-    virtual float getSampleRate(int streamIndex) const;
+    virtual float getSampleRate (int streamIndex) const;
 
     /** Returns the default sample rate, in case a processor has no source (or is itself a source).*/
     virtual float getDefaultSampleRate() const;
 
     /** Returns the name of processor */
-	const String getName() const;
+    const String getName() const;
 
     /** Returns the total number of inputs to a processor.*/
     int getNumInputs() const;
@@ -158,8 +156,8 @@ public:
     /** Returns the total number of data streams handled by this processor.*/
     int getNumDataStreams() const;
 
-	/** Returns the number of outputs from a specific data stream.*/
-	int getNumOutputsForStream(int streamIndex) const;
+    /** Returns the number of outputs from a specific data stream.*/
+    int getNumOutputsForStream (int streamIndex) const;
 
     /** Returns the unique integer ID for a processor. */
     int getNodeId() const;
@@ -182,13 +180,13 @@ public:
     // --------------------------------------------
 
     /** Returns the next available continuous channel (and increments the channel if the input is set to 'true'). */
-    virtual int getNextChannel(bool increment);
+    virtual int getNextChannel (bool increment);
 
     /** Resets all inter-processor connections prior to the start of data acquisition.*/
     virtual void resetConnections();
 
     /** Sets the current channel (for purposes of updating parameters).*/
-    virtual void setCurrentChannel(int chan);
+    virtual void setCurrentChannel (int chan);
 
     /** Sets the input or output of a splitter or merger.*/
     virtual void switchIO (int);
@@ -229,7 +227,7 @@ public:
     /** Returns true if a processor is a merger, false otherwise.*/
     bool isMerger() const;
 
-     /** Returns true if a processor is a audio monitor, false otherwise.*/
+    /** Returns true if a processor is a audio monitor, false otherwise.*/
     bool isAudioMonitor() const;
 
     /** Returns true if a processor is a utility (non-merger or splitter), false otherwise.*/
@@ -263,10 +261,10 @@ public:
     virtual bool stopAcquisition();
 
     /** Called from whenever recording has started. */
-    virtual void startRecording() { }
+    virtual void startRecording() {}
 
     /** Called from whenever recording has stopped. */
-    virtual void stopRecording() { }
+    virtual void stopRecording() {}
 
     /** Indicates whether a source node is connected to a processor (used for mergers).*/
     virtual bool stillHasSource() const { return true; }
@@ -280,136 +278,136 @@ public:
     using ParameterOwner::getParameters;
 
     /** Adds a boolean parameter, which will later be accessed by name*/
-    void addBooleanParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        bool defaultValue,
-        bool deactivateDuringAcquisition = false);
+    void addBooleanParameter (Parameter::ParameterScope scope,
+                              const String& name,
+                              const String& displayName,
+                              const String& description,
+                              bool defaultValue,
+                              bool deactivateDuringAcquisition = false);
 
     /** Adds an integer parameter, which will later be accessed by name*/
-    void addIntParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        int defaultValue,
-        int minValue,
-        int maxValue,
-        bool deactivateDuringAcquisition = false);
-    
+    void addIntParameter (Parameter::ParameterScope scope,
+                          const String& name,
+                          const String& displayName,
+                          const String& description,
+                          int defaultValue,
+                          int minValue,
+                          int maxValue,
+                          bool deactivateDuringAcquisition = false);
+
     /** Adds a string parameter, which will later be accessed by name*/
-    void addStringParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        String defaultValue,
-        bool deactivateDuringAcquisition = false);
+    void addStringParameter (Parameter::ParameterScope scope,
+                             const String& name,
+                             const String& displayName,
+                             const String& description,
+                             String defaultValue,
+                             bool deactivateDuringAcquisition = false);
 
     /** Adds an float parameter, which will later be accessed by name*/
-    void addFloatParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        const String& unit,
-        float defaultValue,
-        float minValue,
-        float maxValue,
-        float stepSize,
-        bool deactivateDuringAcquisition = false);
+    void addFloatParameter (Parameter::ParameterScope scope,
+                            const String& name,
+                            const String& displayName,
+                            const String& description,
+                            const String& unit,
+                            float defaultValue,
+                            float minValue,
+                            float maxValue,
+                            float stepSize,
+                            bool deactivateDuringAcquisition = false);
 
     /** Adds a selected channels parameter, which will later be accessed by name*/
-    void addSelectedChannelsParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        int maxSelectedChannels = std::numeric_limits<int>::max(),
-        bool deactivateDuringAcquisition = false);
-    
+    void addSelectedChannelsParameter (Parameter::ParameterScope scope,
+                                       const String& name,
+                                       const String& displayName,
+                                       const String& description,
+                                       int maxSelectedChannels = std::numeric_limits<int>::max(),
+                                       bool deactivateDuringAcquisition = false);
+
     /** Adds a mask channels parameter, which will later be accessed by name*/
-    void addMaskChannelsParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        bool deactivateDuringAcquisition = false);
+    void addMaskChannelsParameter (Parameter::ParameterScope scope,
+                                   const String& name,
+                                   const String& displayName,
+                                   const String& description,
+                                   bool deactivateDuringAcquisition = false);
 
     /** Adds a categorical parameter, which will later be accessed by name*/
-    void addCategoricalParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        Array<String> categories,
-        int defaultIndex,
-        bool deactivateDuringAcquisition = false);
+    void addCategoricalParameter (Parameter::ParameterScope scope,
+                                  const String& name,
+                                  const String& displayName,
+                                  const String& description,
+                                  Array<String> categories,
+                                  int defaultIndex,
+                                  bool deactivateDuringAcquisition = false);
 
     /** Adds a path parameter which holds a path to a folder or file */
-    void addPathParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        const String& defaultValue,
-        const StringArray& validFileExtensions,
-        bool isDirectory,
-        bool deactivateDuringAcquisition = true);
+    void addPathParameter (Parameter::ParameterScope scope,
+                           const String& name,
+                           const String& displayName,
+                           const String& description,
+                           const String& defaultValue,
+                           const StringArray& validFileExtensions,
+                           bool isDirectory,
+                           bool deactivateDuringAcquisition = true);
 
     /** Adds a selected stream parameter which holds the currentlu selected stream */
-    void addSelectedStreamParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        Array<String> streamNames,
-        const int defaultIndex,
-        bool deactivateDuringAcquisition = true);
+    void addSelectedStreamParameter (Parameter::ParameterScope scope,
+                                     const String& name,
+                                     const String& displayName,
+                                     const String& description,
+                                     Array<String> streamNames,
+                                     const int defaultIndex,
+                                     bool deactivateDuringAcquisition = true);
 
     /** Adds a time parameter with microsecond precision in the form HH:MM:SS.sss */
-    void addTimeParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        const String& defaultValue = "00:00:00",
-        bool deactivateDuringAcquisition = true);
+    void addTimeParameter (Parameter::ParameterScope scope,
+                           const String& name,
+                           const String& displayName,
+                           const String& description,
+                           const String& defaultValue = "00:00:00",
+                           bool deactivateDuringAcquisition = true);
 
     /** Adds a path parameter which holds a path to a folder or file */
-    void addNotificationParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        bool deactivateDuringAcquisition = true);
-    
+    void addNotificationParameter (Parameter::ParameterScope scope,
+                                   const String& name,
+                                   const String& displayName,
+                                   const String& description,
+                                   bool deactivateDuringAcquisition = true);
+
     /** Adds a parameter that allows the user to select a TTL Line
      * @param maxAvailableLines The number of TTL lines available for selection
      * @param syncMode Set to true if the ttl line will be used for synchronization
      * @param canSelectNone Set to true if the user can select no TTL line (cant be used with syncMode = true)
      */
-    void addTtlLineParameter(Parameter::ParameterScope scope,
-        const String& name,
-        const String& displayName,
-        const String& description,
-        int maxAvailableLines = 8,
-        bool syncMode = false,
-        bool canSelectNone = false,
-        bool deactivateDuringAcquisition = false);
+    void addTtlLineParameter (Parameter::ParameterScope scope,
+                              const String& name,
+                              const String& displayName,
+                              const String& description,
+                              int maxAvailableLines = 8,
+                              bool syncMode = false,
+                              bool canSelectNone = false,
+                              bool deactivateDuringAcquisition = false);
 
     /** Returns a pointer to a parameter created inside this processor
         Includes processor, stream, & channel scoped parameters
     */
 
     /** Returns a pointer to a Parameter object for a given stream (0 = no stream)*/
-    Parameter* getStreamParameter(const String& parameterName);
-    
+    Parameter* getStreamParameter (const String& parameterName);
+
     /** Returns a list of parameters for a given stream within this processor*/
-    Array<Parameter*> getParameters(uint16 streamId);
-    
+    Array<Parameter*> getParameters (uint16 streamId);
+
     /** Returns a list of parameters for a given event channel within this processor*/
-    Array<Parameter*> getParameters(EventChannel* channelInfo);
-    
+    Array<Parameter*> getParameters (EventChannel* channelInfo);
+
     /** Returns a list of parameters for a given continuous channel within this processor*/
-    Array<Parameter*> getParameters(ContinuousChannel* channelInfo);
-    
+    Array<Parameter*> getParameters (ContinuousChannel* channelInfo);
+
     /** Returns a list of parameters for a given spike channel within this processor*/
-    Array<Parameter*> getParameters(SpikeChannel* channelInfo);
+    Array<Parameter*> getParameters (SpikeChannel* channelInfo);
 
     /** Initiates parameter value update */
-    void parameterChangeRequest(Parameter*) override;
+    void parameterChangeRequest (Parameter*) override;
 
     /** Called when a parameter value is updated, to allow plugin-specific responses*/
     // virtual void parameterValueChanged(Parameter*) { }
@@ -446,7 +444,7 @@ public:
         performing unnecessary steps before it receives information
         about its previous settings.
     */
-    virtual void initialize(bool signalChainIsLoading) { }
+    virtual void initialize (bool signalChainIsLoading) {}
 
     /** Method for updating settings, called by ProcessorGraph.*/
     void update();
@@ -461,16 +459,15 @@ public:
     /** Load generic settings from XML (called by all processors). */
     void loadFromXml();
 
-
     // --------------------------------------------
-   //     SAVING + LOADING SETTINGS
-   // --------------------------------------------
+    //     SAVING + LOADING SETTINGS
+    // --------------------------------------------
 
-   /** Saving custom settings to XML. */
-    virtual void saveCustomParametersToXml(XmlElement* parentElement);
+    /** Saving custom settings to XML. */
+    virtual void saveCustomParametersToXml (XmlElement* parentElement);
 
     /** Load custom settings from XML*/
-    virtual void loadCustomParametersFromXml(XmlElement* customParamsXml);
+    virtual void loadCustomParametersFromXml (XmlElement* customParamsXml);
 
     /** Holds loaded parameters */
     XmlElement* parametersAsXml;
@@ -479,93 +476,91 @@ public:
     //     ACCESSING CHANNEL INFO OBJECTS
     // --------------------------------------------
 
-    const ContinuousChannel* getContinuousChannel(int globalIndex) const;
+    const ContinuousChannel* getContinuousChannel (int globalIndex) const;
 
-    int getIndexOfMatchingChannel(const ContinuousChannel* channel) const;
+    int getIndexOfMatchingChannel (const ContinuousChannel* channel) const;
 
-    int getIndexOfMatchingChannel(const EventChannel* channel) const;
+    int getIndexOfMatchingChannel (const EventChannel* channel) const;
 
-    int getIndexOfMatchingChannel(const SpikeChannel* channel) const;
+    int getIndexOfMatchingChannel (const SpikeChannel* channel) const;
 
-    const EventChannel* getEventChannel(int globalIndex) const;
+    const EventChannel* getEventChannel (int globalIndex) const;
 
-    const SpikeChannel* getSpikeChannel(int globalIndex) const;
+    const SpikeChannel* getSpikeChannel (int globalIndex) const;
 
-	const ContinuousChannel* getContinuousChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const;
+    const ContinuousChannel* getContinuousChannel (uint16 processorId, uint16 streamId, uint16 localIndex) const;
 
-	const EventChannel* getEventChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const;
+    const EventChannel* getEventChannel (uint16 processorId, uint16 streamId, uint16 localIndex) const;
 
     const EventChannel* getMessageChannel() const;
 
-	const SpikeChannel* getSpikeChannel(uint16 processorId, uint16 streamId, uint16 localIndex) const;
+    const SpikeChannel* getSpikeChannel (uint16 processorId, uint16 streamId, uint16 localIndex) const;
 
-    DataStream* getDataStream(uint16 streamId) const;
+    DataStream* getDataStream (uint16 streamId) const;
 
-    DataStream* getDataStream(String streamKey) const;
+    DataStream* getDataStream (String streamKey) const;
 
-    uint16 findSimilarStream(int sourceNodeId, String name, float sample_rate, bool sourceNodeIdMustMatch = false);
+    uint16 findSimilarStream (int sourceNodeId, String name, float sample_rate, bool sourceNodeIdMustMatch = false);
 
-    virtual Array<const DataStream*> getStreamsForDestNode(GenericProcessor* processor);
+    virtual Array<const DataStream*> getStreamsForDestNode (GenericProcessor* processor);
 
     Array<const DataStream*> getDataStreams() const;
 
-	const ConfigurationObject* getConfigurationObject(int index) const;
+    const ConfigurationObject* getConfigurationObject (int index) const;
 
-	int getTotalContinuousChannels() const;
-	
-	int getTotalEventChannels() const;
+    int getTotalContinuousChannels() const;
 
-	int getTotalSpikeChannels() const;
+    int getTotalEventChannels() const;
 
-	int getTotalConfigurationObjects() const;
+    int getTotalSpikeChannels() const;
+
+    int getTotalConfigurationObjects() const;
 
     Plugin::Processor::Type getProcessorType() const;
-    
+
     String getProcessorTypeString() const;
-    
-    static Plugin::Processor::Type typeFromString(String typeName);
+
+    static Plugin::Processor::Type typeFromString (String typeName);
 
     String getDisplayName() { return m_name; }
 
-    void updateDisplayName(String name);
+    void updateDisplayName (String name);
 
-	class PLUGIN_API DefaultEventInfo
-	{
-	public:
-		DefaultEventInfo();
-		DefaultEventInfo(EventChannel::Type type, unsigned int nChans, unsigned int length, float SampleRate);
-		EventChannel::Type type{ EventChannel::INVALID };
-		unsigned int nChannels{ 0 };
-		unsigned int length{ 0 };
-		float sampleRate{ 44100 };
-		String name;
-		String description;
-		String identifier;
-	};
+    class PLUGIN_API DefaultEventInfo
+    {
+    public:
+        DefaultEventInfo();
+        DefaultEventInfo (EventChannel::Type type, unsigned int nChans, unsigned int length, float SampleRate);
+        EventChannel::Type type { EventChannel::INVALID };
+        unsigned int nChannels { 0 };
+        unsigned int length { 0 };
+        float sampleRate { 44100 };
+        String name;
+        String description;
+        String identifier;
+    };
 
     /** Determines whether the processor is ready to start acquisition
         If set to false, the editor will be greyed out
     */
     bool isEnabled;
-    
+
     /** Pointer to the processor's editor. */
     std::unique_ptr<GenericEditor> editor;
-    
-    
+
     /** Sets whether processor will have behaviour like Source, Sink, Splitter, Utility or Merge */
     void setProcessorType (Plugin::Processor::Type processorType);
-    
+
     /** Sets whether the processor is operating in headless mode */
-    void setHeadlessMode(bool mode) { headlessMode = mode; }
+    void setHeadlessMode (bool mode) { headlessMode = mode; }
 
     /** Registers a custom undoable action associated with this processor */
-    static void registerUndoableAction(int nodeId, ProcessorAction* action) { undoableActions[nodeId].push_back(action); }
+    static void registerUndoableAction (int nodeId, ProcessorAction* action) { undoableActions[nodeId].push_back (action); }
 
     /** Returns a list of undoable actions for a given processor ID */
-    static std::vector<ProcessorAction*> getUndoableActions(int nodeId) { return undoableActions[nodeId]; }
+    static std::vector<ProcessorAction*> getUndoableActions (int nodeId) { return undoableActions[nodeId]; }
 
 protected:
-
     static std::map<int, std::vector<ProcessorAction*>> undoableActions;
 
     // --------------------------------------------
@@ -573,97 +568,96 @@ protected:
     // --------------------------------------------
 
     /** Used to get the number of samples available in a current block, for a given stream */
-    uint32 getNumSamplesInBlock(uint16 streamId) const;
+    uint32 getNumSamplesInBlock (uint16 streamId) const;
 
     /** Used to get the current sample number for a given stream */
-    int64 getFirstSampleNumberForBlock(uint16 streamId) const;
-    
-    /** Used to get the current timestamp for a given stream.*/
-    double getFirstTimestampForBlock(uint16 streamId) const;
+    int64 getFirstSampleNumberForBlock (uint16 streamId) const;
 
-	/** Used to set the timestamp for a given buffer, for a given DataStream. */
-	void setTimestampAndSamples(int64 startSampleForBlock,
-                                double startTimestampForBlock,
-                                uint32 nSamples,
-                                uint16 streamId,
-                                uint16 syncStreamId = 0);
-    
+    /** Used to get the current timestamp for a given stream.*/
+    double getFirstTimestampForBlock (uint16 streamId) const;
+
+    /** Used to set the timestamp for a given buffer, for a given DataStream. */
+    void setTimestampAndSamples (int64 startSampleForBlock,
+                                 double startTimestampForBlock,
+                                 uint32 nSamples,
+                                 uint16 streamId,
+                                 uint16 syncStreamId = 0);
+
     // --------------------------------------------
     //     CHANNEL INDEXING
     // --------------------------------------------
-    int getGlobalChannelIndex(uint16 streamId, int localIndex) const;
+    int getGlobalChannelIndex (uint16 streamId, int localIndex) const;
 
     // --------------------------------------------
     //     HANDLING EVENTS AND MESSAGES
     // --------------------------------------------
 
     /** Handles a configuration message sent to this processor, while acquisition is not active.*/
-    virtual String handleConfigMessage(const String& msg);
-    
+    virtual String handleConfigMessage (const String& msg);
+
     /** Handles broadcast message sent to all processors, while acquisition is active.*/
-    virtual void handleBroadcastMessage(const String& msg, const int64 systemTimeMillis) { }
+    virtual void handleBroadcastMessage (const String& msg, const int64 systemTimeMillis) {}
 
-	/** Can be called by processors that need to respond to incoming events.
+    /** Can be called by processors that need to respond to incoming events.
 	Set respondToSpikes to true if the processor should also search for spikes*/
-	virtual int checkForEvents(bool respondToSpikes = false);
+    virtual int checkForEvents (bool respondToSpikes = false);
 
-	/** Allows processors to respond to incoming TTL events; called by checkForEvents() */
-	virtual void handleTTLEvent(TTLEventPtr event) { }
+    /** Allows processors to respond to incoming TTL events; called by checkForEvents() */
+    virtual void handleTTLEvent (TTLEventPtr event) {}
 
-	/** Allows processors to respond to incoming spikes; called by checkForEvents(true) */
-	virtual void handleSpike(SpikePtr spike) { }
+    /** Allows processors to respond to incoming spikes; called by checkForEvents(true) */
+    virtual void handleSpike (SpikePtr spike) {}
 
-	/** Returns info about the default events a specific subprocessor generates.
+    /** Returns info about the default events a specific subprocessor generates.
 	Called by createEventChannels(). It is not needed to implement if createEventChannels() is overriden */
-	virtual void getDefaultEventInfo(Array<DefaultEventInfo>& events, int subProcessorIdx = 0) const;
-
+    virtual void getDefaultEventInfo (Array<DefaultEventInfo>& events, int subProcessorIdx = 0) const;
 
     // --------------------------------------------
     //     ADDING SPIKES AND EVENTS
     // --------------------------------------------
 
     /** Add an event (usually a TTLEventPtr) to the processing buffer */
-    void addEvent(const Event* event, int sampleNum);
+    void addEvent (const Event* event, int sampleNum);
 
     /** Sends a TEXT event to all other processors, via the MessageCenter, while acquisition is active.
         If recording is active, this message will be recorded */
-    void broadcastMessage(String msg);
-    
+    void broadcastMessage (String msg);
+
     /** Sends a message String to another processor node in the ProcessorGraph while acqusition
         not active */
-    void sendConfigMessage(GenericProcessor* destination, String message);
+    void sendConfigMessage (GenericProcessor* destination, String message);
 
     /** Add a Spike event to the outgoing buffer */
-    void addSpike(const Spike* event);
+    void addSpike (const Spike* event);
 
     /// OPTIONAL HELPER FUNCTIONS ///
 
     /** Create a simple TTL event channel with 8 lines on the first incoming data stream
         -- Must be called during updateSettings() --
     */
-    void addTTLChannel(String name);
+    void addTTLChannel (String name);
 
     /** Flip the state of one of the TTL lines 
         -- Must be called during the process() method --
      */
-    void flipTTLState(int sampleIndex, int lineIndex);
+    void flipTTLState (int sampleIndex, int lineIndex);
 
     /** Set the state of one of the TTL lines
         -- Must be called during the process() method --
      */
-    void setTTLState(int sampleIndex, int lineIndex, bool state);
+    void setTTLState (int sampleIndex, int lineIndex, bool state);
 
     /** Get the state of one of the TTL lines
         -- Must be called during the process() method --
      */
-    bool getTTLState(int lineIndex);
+    bool getTTLState (int lineIndex);
 
     // --------------------------------------------
     //     UPDATING SETTINGS
     // --------------------------------------------
 
-	/** Custom method for updating settings, called automatically by update() after creating the info objects.*/
-	virtual void updateSettings() { }
+    /** Custom method for updating settings, called automatically by update() after creating the info objects.*/
+    virtual void updateSettings() {}
 
     /** Holds information about continuous channels handled by this processor */
     OwnedArray<ContinuousChannel> continuousChannels;
@@ -681,16 +675,16 @@ protected:
     OwnedArray<DataStream> dataStreams;
 
     /** Copies DataStream settings from a source processor*/
-    int copyDataStreamSettings(const DataStream*, int continuousChannelGlobalIndex);
+    int copyDataStreamSettings (const DataStream*, int continuousChannelGlobalIndex);
 
     /** Finds the parameters that most likely belong to this stream */
-    int findMatchingStreamParameters(DataStream* stream);
-    
+    int findMatchingStreamParameters (DataStream* stream);
+
     /** Sets whether or not a given stream is enabled*/
-    void setStreamEnabled(uint16 streamId, bool isEnabled);
+    void setStreamEnabled (uint16 streamId, bool isEnabled);
 
     /** Updates the data channel map objects*/
-	void updateChannelIndexMaps();
+    void updateChannelIndexMaps();
 
     // /** Holds info about this processor.*/
     // std::unique_ptr<ProcessorInfoObject> processorInfo;
@@ -704,28 +698,25 @@ protected:
     /** An array of stream- and schannel-scoped parameters for this processor.*/
     OwnedArray<Parameter> dataStreamParameters;
 
-    
     /** An array of parameter collections from deleted dataStreams*/
     OwnedArray<ParameterCollection> savedDataStreamParameters;
 
     /** Holds a pointer to the event channel for sending messages**/
     std::unique_ptr<EventChannel> messageChannel;
-    
+
     /** Set to true if GUI is running in headless mode*/
     bool headlessMode;
-    
-private:
 
-    
+private:
     /** Clears the settings arrays.*/
     void clearSettings();
 
     /** Map between stream IDs and buffer sample counts. */
-	std::map<uint16, uint32> numSamplesInBlock;
+    std::map<uint16, uint32> numSamplesInBlock;
 
     /** Map between stream IDs and buffer timestamps. */
-	std::map<uint16, double> startTimestampsForBlock;
-    
+    std::map<uint16, double> startTimestampsForBlock;
+
     /** Map between stream IDs and buffer timestamps. */
     std::map<uint16, int64> startSamplesForBlock;
 
@@ -736,17 +727,17 @@ private:
     std::map<uint16, int64> processStartTimes;
 
     /** First software timestamp of process() callback. */
-	juce::int64 m_initialProcessTime;
+    juce::int64 m_initialProcessTime;
 
     /** Built-in method for creating continuous channels. */
-	void createDataChannelsByType(ContinuousChannel::Type type);
+    void createDataChannelsByType (ContinuousChannel::Type type);
 
-	/** Each processor has a unique integer ID that can be used to identify it.*/
-	int nodeId;
+    /** Each processor has a unique integer ID that can be used to identify it.*/
+    int nodeId;
 
     /** Automatically extracts the number of samples in the buffer, then
     calls the process(), where custom actions take place.*/
-    void processBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages) override;
+    void processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages) override;
 
     /** Extracts sample counts and timestamps from the MidiBuffer. */
     int processEventBuffer();
@@ -762,25 +753,28 @@ private:
 
     bool m_paramsWereLoaded;
 
-	std::map<int,bool> m_needsToSendTimestampMessages;
+    std::map<int, bool> m_needsToSendTimestampMessages;
 
-	MidiBuffer* m_currentMidiBuffer;
+    MidiBuffer* m_currentMidiBuffer;
     MidiBuffer messageCenterBuffer;
 
-    typedef std::unordered_map<uint16, 
-        std::unordered_map<uint16, 
-        std::unordered_map<uint16, 
-        ContinuousChannel*>>> ContinuousChannelIndexMap;
+    typedef std::unordered_map<uint16,
+                               std::unordered_map<uint16,
+                                                  std::unordered_map<uint16,
+                                                                     ContinuousChannel*>>>
+        ContinuousChannelIndexMap;
 
     typedef std::unordered_map<uint16,
-        std::unordered_map<uint16,
-        std::unordered_map<uint16,
-        EventChannel*>>> EventChannelIndexMap;
+                               std::unordered_map<uint16,
+                                                  std::unordered_map<uint16,
+                                                                     EventChannel*>>>
+        EventChannelIndexMap;
 
     typedef std::unordered_map<uint16,
-        std::unordered_map<uint16,
-        std::unordered_map<uint16,
-        SpikeChannel*>>> SpikeChannelIndexMap;
+                               std::unordered_map<uint16,
+                                                  std::unordered_map<uint16,
+                                                                     SpikeChannel*>>>
+        SpikeChannelIndexMap;
 
     typedef std::unordered_map<uint16, DataStream*> DataStreamMap;
 
@@ -797,7 +791,6 @@ private:
 
     bool wasConnected;
 
-
     std::unique_ptr<LatencyMeter> latencyMeter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericProcessor);
@@ -810,15 +803,14 @@ private:
 class LatencyMeter
 {
 public:
-
     /** Constructor */
-    LatencyMeter(GenericProcessor* processor);
+    LatencyMeter (GenericProcessor* processor);
 
     /** Sets the latest latency values for each data stream */
-    void setLatestLatency(std::map<uint16, juce::int64>& processStartTimes);
+    void setLatestLatency (std::map<uint16, juce::int64>& processStartTimes);
 
     /** Updates the available data streams */
-    void update(Array<const DataStream*>);
+    void update (Array<const DataStream*>);
 
 private:
     int counter;
@@ -827,5 +819,4 @@ private:
     GenericProcessor* processor;
 };
 
-
-#endif  // __GENERICPROCESSOR_H_1F469DAF__
+#endif // __GENERICPROCESSOR_H_1F469DAF__

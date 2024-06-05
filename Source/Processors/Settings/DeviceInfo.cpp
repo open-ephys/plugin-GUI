@@ -23,20 +23,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DeviceInfo.h"
 
-
-DeviceInfo::DeviceInfo(Settings settings) : 
-	InfoObject(InfoObject::Type::DEVICE_INFO),
-	serial_number(settings.serial_number),
-	manufacturer(settings.manufacturer)
+DeviceInfo::DeviceInfo (Settings settings) : InfoObject (InfoObject::Type::DEVICE_INFO),
+                                             serial_number (settings.serial_number),
+                                             manufacturer (settings.manufacturer)
 {
-
-	setName(settings.name);
-	setDescription(settings.description);
-	setIdentifier(settings.identifier);
+    setName (settings.name);
+    setDescription (settings.description);
+    setIdentifier (settings.identifier);
 }
-
 
 DeviceInfo::~DeviceInfo()
 {
-
 }

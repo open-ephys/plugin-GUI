@@ -36,8 +36,8 @@ THE SOFTWARE.
 #ifndef DSPFILTERS_BUTTERWORTH_H
 #define DSPFILTERS_BUTTERWORTH_H
 
-#include "Common.h"
 #include "Cascade.h"
+#include "Common.h"
 #include "Design.h"
 #include "Filter.h"
 #include "PoleFilter.h"
@@ -53,429 +53,425 @@ namespace Dsp
 namespace Butterworth
 {
 
-// Half-band analog prototypes (s-plane)
+    // Half-band analog prototypes (s-plane)
 
-class PLUGIN_API AnalogLowPass : public LayoutBase
-{
-public:
-    AnalogLowPass();
-
-    void design(const int numPoles);
-
-private:
-    int m_numPoles;
-};
-
-//------------------------------------------------------------------------------
-
-class PLUGIN_API AnalogLowShelf : public LayoutBase
-{
-public:
-    AnalogLowShelf();
-
-    void design(int numPoles, double gainDb);
-
-private:
-    int m_numPoles;
-    double m_gainDb;
-};
-
-//------------------------------------------------------------------------------
-
-// Factored implementations to reduce template instantiations
-
-struct PLUGIN_API LowPassBase : PoleFilterBase <AnalogLowPass>
-{
-    void setup(int order,
-               double sampleRate,
-               double cutoffFrequency);
-};
-
-struct PLUGIN_API HighPassBase : PoleFilterBase <AnalogLowPass>
-{
-    void setup(int order,
-               double sampleRate,
-               double cutoffFrequency);
-};
-
-struct PLUGIN_API BandPassBase : PoleFilterBase <AnalogLowPass>
-{
-    void setup(int order,
-               double sampleRate,
-               double centerFrequency,
-               double widthFrequency);
-};
-
-struct PLUGIN_API BandStopBase : PoleFilterBase <AnalogLowPass>
-{
-    void setup(int order,
-               double sampleRate,
-               double centerFrequency,
-               double widthFrequency);
-};
-
-struct PLUGIN_API LowShelfBase : PoleFilterBase <AnalogLowShelf>
-{
-    void setup(int order,
-               double sampleRate,
-               double cutoffFrequency,
-               double gainDb);
-};
-
-struct PLUGIN_API HighShelfBase : PoleFilterBase <AnalogLowShelf>
-{
-    void setup(int order,
-               double sampleRate,
-               double cutoffFrequency,
-               double gainDb);
-};
-
-struct PLUGIN_API BandShelfBase : PoleFilterBase <AnalogLowShelf>
-{
-    void setup(int order,
-               double sampleRate,
-               double centerFrequency,
-               double widthFrequency,
-               double gainDb);
-};
-
-//------------------------------------------------------------------------------
-
-//
-// Raw filters
-//
-
-template <int MaxOrder>
-struct LowPass : PoleFilter <LowPassBase, MaxOrder>
-{
-};
-
-template <int MaxOrder>
-struct HighPass : PoleFilter <HighPassBase, MaxOrder>
-{
-};
-
-template <int MaxOrder>
-struct BandPass : PoleFilter <BandPassBase, MaxOrder, MaxOrder * 2>
-{
-};
-
-template <int MaxOrder>
-struct BandStop : PoleFilter <BandStopBase, MaxOrder, MaxOrder * 2>
-{
-};
-
-template <int MaxOrder>
-struct LowShelf : PoleFilter <LowShelfBase, MaxOrder>
-{
-};
-
-template <int MaxOrder>
-struct HighShelf : PoleFilter <HighShelfBase, MaxOrder>
-{
-};
-
-template <int MaxOrder>
-struct BandShelf : PoleFilter <BandShelfBase, MaxOrder, MaxOrder * 2>
-{
-};
-
-//------------------------------------------------------------------------------
-
-//
-// Gui-friendly Design layer
-//
-
-namespace Design
-{
-
-struct TypeIBase : DesignBase
-{
-    enum
+    class PLUGIN_API AnalogLowPass : public LayoutBase
     {
-        NumParams = 3
+    public:
+        AnalogLowPass();
+
+        void design (const int numPoles);
+
+    private:
+        int m_numPoles;
     };
 
-    static int getNumParams()
-    {
-        return 3;
-    }
+    //------------------------------------------------------------------------------
 
-    static const ParamInfo getParamInfo_2()
+    class PLUGIN_API AnalogLowShelf : public LayoutBase
     {
-        return ParamInfo::defaultCutoffFrequencyParam();
-    }
-};
+    public:
+        AnalogLowShelf();
 
-template <class FilterClass>
-struct TypeI : TypeIBase, FilterClass
-{
-    void setParams(const Params& params)
-    {
-        FilterClass::setup(int(params[1]), params[0], params[2]);
-    }
-};
+        void design (int numPoles, double gainDb);
 
-struct TypeIIBase : DesignBase
-{
-    enum
-    {
-        NumParams = 4
+    private:
+        int m_numPoles;
+        double m_gainDb;
     };
 
-    static int getNumParams()
-    {
-        return 4;
-    }
+    //------------------------------------------------------------------------------
 
-    static const ParamInfo getParamInfo_2()
-    {
-        return ParamInfo::defaultCenterFrequencyParam();
-    }
+    // Factored implementations to reduce template instantiations
 
-    static const ParamInfo getParamInfo_3()
+    struct PLUGIN_API LowPassBase : PoleFilterBase<AnalogLowPass>
     {
-        return ParamInfo::defaultBandwidthHzParam();
-    }
-};
-
-template <class FilterClass>
-struct TypeII : TypeIIBase, FilterClass
-{
-    void setParams(const Params& params)
-    {
-        FilterClass::setup(int(params[1]), params[0], params[2], params[3]);
-    }
-};
-
-struct TypeIIIBase : DesignBase
-{
-    enum
-    {
-        NumParams = 4
+        void setup (int order,
+                    double sampleRate,
+                    double cutoffFrequency);
     };
 
-    static int getNumParams()
+    struct PLUGIN_API HighPassBase : PoleFilterBase<AnalogLowPass>
     {
-        return 4;
-    }
-
-    static const ParamInfo getParamInfo_2()
-    {
-        return ParamInfo::defaultCutoffFrequencyParam();
-    }
-
-    static const ParamInfo getParamInfo_3()
-    {
-        return ParamInfo::defaultGainParam();
-    }
-};
-
-template <class FilterClass>
-struct TypeIII : TypeIIIBase, FilterClass
-{
-    void setParams(const Params& params)
-    {
-        FilterClass::setup(int(params[1]),
-                           params[0],
-                           params[2],
-                           params[3]);
-    }
-};
-
-struct TypeIVBase : DesignBase
-{
-    enum
-    {
-        NumParams = 5
+        void setup (int order,
+                    double sampleRate,
+                    double cutoffFrequency);
     };
 
-    static int getNumParams()
+    struct PLUGIN_API BandPassBase : PoleFilterBase<AnalogLowPass>
     {
-        return 5;
-    }
+        void setup (int order,
+                    double sampleRate,
+                    double centerFrequency,
+                    double widthFrequency);
+    };
 
-    static const ParamInfo getParamInfo_2()
+    struct PLUGIN_API BandStopBase : PoleFilterBase<AnalogLowPass>
     {
-        return ParamInfo::defaultCenterFrequencyParam();
-    }
+        void setup (int order,
+                    double sampleRate,
+                    double centerFrequency,
+                    double widthFrequency);
+    };
 
-    static const ParamInfo getParamInfo_3()
+    struct PLUGIN_API LowShelfBase : PoleFilterBase<AnalogLowShelf>
     {
-        return ParamInfo::defaultBandwidthHzParam();
-    }
+        void setup (int order,
+                    double sampleRate,
+                    double cutoffFrequency,
+                    double gainDb);
+    };
 
-    static const ParamInfo getParamInfo_4()
+    struct PLUGIN_API HighShelfBase : PoleFilterBase<AnalogLowShelf>
     {
-        return ParamInfo::defaultGainParam();
-    }
-};
+        void setup (int order,
+                    double sampleRate,
+                    double cutoffFrequency,
+                    double gainDb);
+    };
 
-template <class FilterClass>
-struct TypeIV : TypeIVBase, FilterClass
-{
-    void setParams(const Params& params)
+    struct PLUGIN_API BandShelfBase : PoleFilterBase<AnalogLowShelf>
     {
-        FilterClass::setup(int(params[1]), params[0], params[2], params[3], params[4]);
-    }
-};
+        void setup (int order,
+                    double sampleRate,
+                    double centerFrequency,
+                    double widthFrequency,
+                    double gainDb);
+    };
 
-// Factored kind and name
+    //------------------------------------------------------------------------------
 
-struct LowPassDescription
-{
-    static Kind getKind()
+    //
+    // Raw filters
+    //
+
+    template <int MaxOrder>
+    struct LowPass : PoleFilter<LowPassBase, MaxOrder>
     {
-        return kindLowPass;
-    }
-    static const char* getName()
+    };
+
+    template <int MaxOrder>
+    struct HighPass : PoleFilter<HighPassBase, MaxOrder>
     {
-        return "Butterworth Low Pass";
-    }
-};
+    };
 
-struct HighPassDescription
-{
-    static Kind getKind()
+    template <int MaxOrder>
+    struct BandPass : PoleFilter<BandPassBase, MaxOrder, MaxOrder * 2>
     {
-        return kindHighPass;
-    }
-    static const char* getName()
+    };
+
+    template <int MaxOrder>
+    struct BandStop : PoleFilter<BandStopBase, MaxOrder, MaxOrder * 2>
     {
-        return "Butterworth High Pass";
-    }
-};
+    };
 
-struct BandPassDescription
-{
-    static Kind getKind()
+    template <int MaxOrder>
+    struct LowShelf : PoleFilter<LowShelfBase, MaxOrder>
     {
-        return kindHighPass;
-    }
-    static const char* getName()
+    };
+
+    template <int MaxOrder>
+    struct HighShelf : PoleFilter<HighShelfBase, MaxOrder>
     {
-        return "Butterworth Band Pass";
-    }
-};
+    };
 
-struct BandStopDescription
-{
-    static Kind getKind()
+    template <int MaxOrder>
+    struct BandShelf : PoleFilter<BandShelfBase, MaxOrder, MaxOrder * 2>
     {
-        return kindHighPass;
-    }
-    static const char* getName()
+    };
+
+    //------------------------------------------------------------------------------
+
+    //
+    // Gui-friendly Design layer
+    //
+
+    namespace Design
     {
-        return "Butterworth Band Stop";
-    }
-};
 
-struct LowShelfDescription
-{
-    static Kind getKind()
-    {
-        return kindLowShelf;
-    }
-    static const char* getName()
-    {
-        return "Butterworth Low Shelf";
-    }
-};
+        struct TypeIBase : DesignBase
+        {
+            enum
+            {
+                NumParams = 3
+            };
 
-struct HighShelfDescription
-{
-    static Kind getKind()
-    {
-        return kindHighShelf;
-    }
-    static const char* getName()
-    {
-        return "Butterworth High Shelf";
-    }
-};
+            static int getNumParams()
+            {
+                return 3;
+            }
 
-struct BandShelfDescription
-{
-    static Kind getKind()
-    {
-        return kindBandShelf;
-    }
-    static const char* getName()
-    {
-        return "Butterworth Band Shelf";
-    }
-};
+            static const ParamInfo getParamInfo_2()
+            {
+                return ParamInfo::defaultCutoffFrequencyParam();
+            }
+        };
 
-// This glues on the Order parameter
-template <int MaxOrder,
-         template <class> class TypeClass,
-         template <int> class FilterClass>
-struct OrderBase : TypeClass <FilterClass <MaxOrder> >
-{
-    const ParamInfo getParamInfo_1() const
-    {
-        return ParamInfo(idOrder, "Order", "Order",
-                         1, MaxOrder, 2,
-                         &ParamInfo::Int_toControlValue,
-                         &ParamInfo::Int_toNativeValue,
-                         &ParamInfo::Int_toString);
+        template <class FilterClass>
+        struct TypeI : TypeIBase, FilterClass
+        {
+            void setParams (const Params& params)
+            {
+                FilterClass::setup (int (params[1]), params[0], params[2]);
+            }
+        };
 
-    }
-};
+        struct TypeIIBase : DesignBase
+        {
+            enum
+            {
+                NumParams = 4
+            };
 
-//------------------------------------------------------------------------------
+            static int getNumParams()
+            {
+                return 4;
+            }
 
-//
-// Design filters
-//
+            static const ParamInfo getParamInfo_2()
+            {
+                return ParamInfo::defaultCenterFrequencyParam();
+            }
 
-template <int MaxOrder>
-struct LowPass : OrderBase <MaxOrder, TypeI, Butterworth::LowPass>,
-        LowPassDescription
-{
-};
+            static const ParamInfo getParamInfo_3()
+            {
+                return ParamInfo::defaultBandwidthHzParam();
+            }
+        };
 
-template <int MaxOrder>
-struct HighPass : OrderBase <MaxOrder, TypeI, Butterworth::HighPass>,
-        HighPassDescription
-{
-};
+        template <class FilterClass>
+        struct TypeII : TypeIIBase, FilterClass
+        {
+            void setParams (const Params& params)
+            {
+                FilterClass::setup (int (params[1]), params[0], params[2], params[3]);
+            }
+        };
 
-template <int MaxOrder>
-struct BandPass : OrderBase <MaxOrder, TypeII, Butterworth::BandPass>,
-        BandPassDescription
-{
-};
+        struct TypeIIIBase : DesignBase
+        {
+            enum
+            {
+                NumParams = 4
+            };
 
-template <int MaxOrder>
-struct BandStop : OrderBase <MaxOrder, TypeII, Butterworth::BandStop>,
-        BandStopDescription
-{
-};
+            static int getNumParams()
+            {
+                return 4;
+            }
 
-template <int MaxOrder>
-struct LowShelf : OrderBase <MaxOrder, TypeIII, Butterworth::LowShelf>,
-        LowShelfDescription
-{
-};
+            static const ParamInfo getParamInfo_2()
+            {
+                return ParamInfo::defaultCutoffFrequencyParam();
+            }
 
-template <int MaxOrder>
-struct HighShelf : OrderBase <MaxOrder, TypeIII, Butterworth::HighShelf>,
-        HighShelfDescription
-{
-};
+            static const ParamInfo getParamInfo_3()
+            {
+                return ParamInfo::defaultGainParam();
+            }
+        };
 
-template <int MaxOrder>
-struct BandShelf : OrderBase <MaxOrder, TypeIV, Butterworth::BandShelf>,
-        BandShelfDescription
-{
-};
+        template <class FilterClass>
+        struct TypeIII : TypeIIIBase, FilterClass
+        {
+            void setParams (const Params& params)
+            {
+                FilterClass::setup (int (params[1]),
+                                    params[0],
+                                    params[2],
+                                    params[3]);
+            }
+        };
 
-}
+        struct TypeIVBase : DesignBase
+        {
+            enum
+            {
+                NumParams = 5
+            };
 
-}
+            static int getNumParams()
+            {
+                return 5;
+            }
 
-}
+            static const ParamInfo getParamInfo_2()
+            {
+                return ParamInfo::defaultCenterFrequencyParam();
+            }
+
+            static const ParamInfo getParamInfo_3()
+            {
+                return ParamInfo::defaultBandwidthHzParam();
+            }
+
+            static const ParamInfo getParamInfo_4()
+            {
+                return ParamInfo::defaultGainParam();
+            }
+        };
+
+        template <class FilterClass>
+        struct TypeIV : TypeIVBase, FilterClass
+        {
+            void setParams (const Params& params)
+            {
+                FilterClass::setup (int (params[1]), params[0], params[2], params[3], params[4]);
+            }
+        };
+
+        // Factored kind and name
+
+        struct LowPassDescription
+        {
+            static Kind getKind()
+            {
+                return kindLowPass;
+            }
+            static const char* getName()
+            {
+                return "Butterworth Low Pass";
+            }
+        };
+
+        struct HighPassDescription
+        {
+            static Kind getKind()
+            {
+                return kindHighPass;
+            }
+            static const char* getName()
+            {
+                return "Butterworth High Pass";
+            }
+        };
+
+        struct BandPassDescription
+        {
+            static Kind getKind()
+            {
+                return kindHighPass;
+            }
+            static const char* getName()
+            {
+                return "Butterworth Band Pass";
+            }
+        };
+
+        struct BandStopDescription
+        {
+            static Kind getKind()
+            {
+                return kindHighPass;
+            }
+            static const char* getName()
+            {
+                return "Butterworth Band Stop";
+            }
+        };
+
+        struct LowShelfDescription
+        {
+            static Kind getKind()
+            {
+                return kindLowShelf;
+            }
+            static const char* getName()
+            {
+                return "Butterworth Low Shelf";
+            }
+        };
+
+        struct HighShelfDescription
+        {
+            static Kind getKind()
+            {
+                return kindHighShelf;
+            }
+            static const char* getName()
+            {
+                return "Butterworth High Shelf";
+            }
+        };
+
+        struct BandShelfDescription
+        {
+            static Kind getKind()
+            {
+                return kindBandShelf;
+            }
+            static const char* getName()
+            {
+                return "Butterworth Band Shelf";
+            }
+        };
+
+        // This glues on the Order parameter
+        template <int MaxOrder,
+                  template <class>
+                  class TypeClass,
+                  template <int>
+                  class FilterClass>
+        struct OrderBase : TypeClass<FilterClass<MaxOrder>>
+        {
+            const ParamInfo getParamInfo_1() const
+            {
+                return ParamInfo (idOrder, "Order", "Order", 1, MaxOrder, 2, &ParamInfo::Int_toControlValue, &ParamInfo::Int_toNativeValue, &ParamInfo::Int_toString);
+            }
+        };
+
+        //------------------------------------------------------------------------------
+
+        //
+        // Design filters
+        //
+
+        template <int MaxOrder>
+        struct LowPass : OrderBase<MaxOrder, TypeI, Butterworth::LowPass>,
+                         LowPassDescription
+        {
+        };
+
+        template <int MaxOrder>
+        struct HighPass : OrderBase<MaxOrder, TypeI, Butterworth::HighPass>,
+                          HighPassDescription
+        {
+        };
+
+        template <int MaxOrder>
+        struct BandPass : OrderBase<MaxOrder, TypeII, Butterworth::BandPass>,
+                          BandPassDescription
+        {
+        };
+
+        template <int MaxOrder>
+        struct BandStop : OrderBase<MaxOrder, TypeII, Butterworth::BandStop>,
+                          BandStopDescription
+        {
+        };
+
+        template <int MaxOrder>
+        struct LowShelf : OrderBase<MaxOrder, TypeIII, Butterworth::LowShelf>,
+                          LowShelfDescription
+        {
+        };
+
+        template <int MaxOrder>
+        struct HighShelf : OrderBase<MaxOrder, TypeIII, Butterworth::HighShelf>,
+                           HighShelfDescription
+        {
+        };
+
+        template <int MaxOrder>
+        struct BandShelf : OrderBase<MaxOrder, TypeIV, Butterworth::BandShelf>,
+                           BandShelfDescription
+        {
+        };
+
+    } // namespace Design
+
+} // namespace Butterworth
+
+} // namespace Dsp
 
 #endif
-

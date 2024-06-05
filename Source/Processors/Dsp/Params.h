@@ -89,12 +89,12 @@ struct Params
             value[i] = 0;
     }
 
-    double& operator[](int index)
+    double& operator[] (int index)
     {
         return value[index];
     }
 
-    const double& operator[](int index) const
+    const double& operator[] (int index) const
     {
         return value[index];
     }
@@ -109,31 +109,23 @@ struct Params
 class PLUGIN_API ParamInfo
 {
 public:
-    typedef double(ParamInfo::*toControlValue_t)(double) const;
-    typedef double(ParamInfo::*toNativeValue_t)(double) const;
-    typedef std::string(ParamInfo::*toString_t)(double) const;
+    typedef double (ParamInfo::*toControlValue_t) (double) const;
+    typedef double (ParamInfo::*toNativeValue_t) (double) const;
+    typedef std::string (ParamInfo::*toString_t) (double) const;
 
     // dont use this one
-    ParamInfo();  // throws std::logic_error
+    ParamInfo(); // throws std::logic_error
 
-    ParamInfo(ParamID id,
-              const char* szLabel,
-              const char* szName,
-              double arg1,
-              double arg2,
-              double defaultNativeValue,
-              toControlValue_t toControlValue_proc,
-              toNativeValue_t toNativeValue_proc,
-              toString_t toString_proc)
-        : m_id(id)
-        , m_szLabel(szLabel)
-        , m_szName(szName)
-        , m_arg1(arg1)
-        , m_arg2(arg2)
-        , m_defaultNativeValue(defaultNativeValue)
-        , m_toControlValue(toControlValue_proc)
-        , m_toNativeValue(toNativeValue_proc)
-        , m_toString(toString_proc)
+    ParamInfo (ParamID id,
+               const char* szLabel,
+               const char* szName,
+               double arg1,
+               double arg2,
+               double defaultNativeValue,
+               toControlValue_t toControlValue_proc,
+               toNativeValue_t toNativeValue_proc,
+               toString_t toString_proc)
+        : m_id (id), m_szLabel (szLabel), m_szName (szName), m_arg1 (arg1), m_arg2 (arg2), m_defaultNativeValue (defaultNativeValue), m_toControlValue (toControlValue_proc), m_toNativeValue (toNativeValue_proc), m_toString (toString_proc)
     {
     }
 
@@ -163,48 +155,48 @@ public:
     //
     // Control value is always in the range [0..1]
     //
-    double toControlValue(double nativeValue) const
+    double toControlValue (double nativeValue) const
     {
-        return (this->*m_toControlValue)(nativeValue);
+        return (this->*m_toControlValue) (nativeValue);
     }
 
     //
     // Native value is in filter-specific units. For example,
     // cutoff frequency would probably be in Hertz.
     //
-    double toNativeValue(double controlValue) const
+    double toNativeValue (double controlValue) const
     {
-        return (this->*m_toNativeValue)(controlValue);
+        return (this->*m_toNativeValue) (controlValue);
     }
 
-    std::string toString(double nativeValue) const
+    std::string toString (double nativeValue) const
     {
-        return (this->*m_toString)(nativeValue);
+        return (this->*m_toString) (nativeValue);
     }
 
-    double clamp(double nativeValue) const;
+    double clamp (double nativeValue) const;
 
     //
     // These routines are used as function pointers when
     // constructing the various ParamInfo used by filters
     //
 
-    double Int_toControlValue(double nativeValue) const;
-    double Int_toNativeValue(double controlValue) const;
+    double Int_toControlValue (double nativeValue) const;
+    double Int_toNativeValue (double controlValue) const;
 
-    double Real_toControlValue(double nativeValue) const;
-    double Real_toNativeValue(double controlValue) const;
+    double Real_toControlValue (double nativeValue) const;
+    double Real_toNativeValue (double controlValue) const;
 
-    double Log_toControlValue(double nativeValue) const;
-    double Log_toNativeValue(double controlValue) const;
+    double Log_toControlValue (double nativeValue) const;
+    double Log_toNativeValue (double controlValue) const;
 
-    double Pow2_toControlValue(double nativeValue) const;
-    double Pow2_toNativeValue(double controlValue) const;
+    double Pow2_toControlValue (double nativeValue) const;
+    double Pow2_toNativeValue (double controlValue) const;
 
-    std::string Int_toString(double nativeValue) const;
-    std::string Hz_toString(double nativeValue) const;
-    std::string Real_toString(double nativeValue) const;
-    std::string Db_toString(double nativeValue) const;
+    std::string Int_toString (double nativeValue) const;
+    std::string Hz_toString (double nativeValue) const;
+    std::string Real_toString (double nativeValue) const;
+    std::string Db_toString (double nativeValue) const;
 
     //
     // Creates the specified ParamInfo
@@ -240,6 +232,6 @@ private:
     toString_t m_toString;
 };
 
-}
+} // namespace Dsp
 
 #endif

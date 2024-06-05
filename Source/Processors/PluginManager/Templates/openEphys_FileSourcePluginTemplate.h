@@ -25,7 +25,6 @@
 
 #include <FileSourceHeaders.h>
 
-
 class PROCESSORCLASSNAME : public FileSource
 {
 public:
@@ -40,12 +39,10 @@ public:
 
     bool isReady() override;
 
-
 private:
     bool Open (File file) override;
     void fillRecordInfo() override;
     void updateActiveRecord() override;
 };
-
 
 #endif // HEADERGUARD

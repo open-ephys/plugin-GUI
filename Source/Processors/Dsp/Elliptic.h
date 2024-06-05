@@ -36,8 +36,8 @@ THE SOFTWARE.
 #ifndef DSPFILTERS_ELLIPTIC_H
 #define DSPFILTERS_ELLIPTIC_H
 
-#include "Common.h"
 #include "Cascade.h"
+#include "Common.h"
 #include "Design.h"
 #include "Filter.h"
 #include "PoleFilter.h"
@@ -53,31 +53,31 @@ namespace Dsp
 namespace Elliptic
 {
 
-// Solves for Jacobi elliptics
-class PLUGIN_API Solver
-{
-public:
-    static double ellipticK(double k);
-};
+    // Solves for Jacobi elliptics
+    class PLUGIN_API Solver
+    {
+    public:
+        static double ellipticK (double k);
+    };
 
-// Half-band analog prototype (s-plane)
+    // Half-band analog prototype (s-plane)
 
-class PLUGIN_API AnalogLowPass : public LayoutBase
-{
-public:
-    AnalogLowPass();
+    class PLUGIN_API AnalogLowPass : public LayoutBase
+    {
+    public:
+        AnalogLowPass();
 
-    void design(const int numPoles,
-                double rippleDb,
-                double rolloff);
+        void design (const int numPoles,
+                     double rippleDb,
+                     double rolloff);
 
-private:
-    void prodpoly(int sn);
-    void calcfz2(int i);
-    void calcfz();
-    void calcqz();
-    double findfact(int t);
-    double calcsn(double u);
+    private:
+        void prodpoly (int sn);
+        void calcfz2 (int i);
+        void calcfz();
+        void calcqz();
+        double findfact (int t);
+        double calcsn (double u);
 
 #if 0
     template<int n>
@@ -94,293 +94,289 @@ private:
 #else
 #endif
 
-    double m_p0;
-    double m_q;
-    double m_K;
-    double m_Kprime;
-    double m_e;
-    int m_nin;
-    int m_m;
-    int m_n2;
-    int m_em;
-    double m_zeros[100];
-    double m_c1[100];
-    double m_b1[100];
-    double m_a1[100];
-    double m_d1[100];
-    double m_q1[100];
-    double m_z1[100];
-    double m_f1[100];
-    double m_s1[100];
-    double m_p [100];
-    double m_zw1[100];
-    double m_zf1[100];
-    double m_zq1[100];
-    double m_rootR[100];
-    double m_rootI[100];
+        double m_p0;
+        double m_q;
+        double m_K;
+        double m_Kprime;
+        double m_e;
+        int m_nin;
+        int m_m;
+        int m_n2;
+        int m_em;
+        double m_zeros[100];
+        double m_c1[100];
+        double m_b1[100];
+        double m_a1[100];
+        double m_d1[100];
+        double m_q1[100];
+        double m_z1[100];
+        double m_f1[100];
+        double m_s1[100];
+        double m_p[100];
+        double m_zw1[100];
+        double m_zf1[100];
+        double m_zq1[100];
+        double m_rootR[100];
+        double m_rootI[100];
 
-    int m_numPoles;
-    double m_rippleDb;
-    double m_rolloff;
-};
-
-//------------------------------------------------------------------------------
-
-// Factored implementations to reduce template instantiations
-
-struct PLUGIN_API LowPassBase : PoleFilterBase <AnalogLowPass>
-{
-    void setup(int order,
-               double sampleRate,
-               double cutoffFrequency,
-               double rippleDb,
-               double rolloff);
-};
-
-struct PLUGIN_API HighPassBase : PoleFilterBase <AnalogLowPass>
-{
-    void setup(int order,
-               double sampleRate,
-               double cutoffFrequency,
-               double rippleDb,
-               double rolloff);
-};
-
-struct PLUGIN_API BandPassBase : PoleFilterBase <AnalogLowPass>
-{
-    void setup(int order,
-               double sampleRate,
-               double centerFrequency,
-               double widthFrequency,
-               double rippleDb,
-               double rolloff);
-};
-
-struct PLUGIN_API BandStopBase : PoleFilterBase <AnalogLowPass>
-{
-    void setup(int order,
-               double sampleRate,
-               double centerFrequency,
-               double widthFrequency,
-               double rippleDb,
-               double rolloff);
-};
-
-//------------------------------------------------------------------------------
-
-//
-// Raw filters
-//
-
-template <int MaxOrder>
-struct LowPass : PoleFilter <LowPassBase, MaxOrder>
-{
-};
-
-template <int MaxOrder>
-struct HighPass : PoleFilter <HighPassBase, MaxOrder>
-{
-};
-
-template <int MaxOrder>
-struct BandPass : PoleFilter <BandPassBase, MaxOrder, MaxOrder*2>
-{
-};
-
-template <int MaxOrder>
-struct BandStop : PoleFilter <BandStopBase, MaxOrder, MaxOrder*2>
-{
-};
-
-//------------------------------------------------------------------------------
-
-//
-// Gui-friendly Design layer
-//
-
-namespace Design
-{
-
-struct TypeIBase : DesignBase
-{
-    enum
-    {
-        NumParams = 5
+        int m_numPoles;
+        double m_rippleDb;
+        double m_rolloff;
     };
 
-    static int getNumParams()
-    {
-        return 5;
-    }
+    //------------------------------------------------------------------------------
 
-    static const ParamInfo getParamInfo_2()
-    {
-        return ParamInfo::defaultCutoffFrequencyParam();
-    }
+    // Factored implementations to reduce template instantiations
 
-    static const ParamInfo getParamInfo_3()
+    struct PLUGIN_API LowPassBase : PoleFilterBase<AnalogLowPass>
     {
-        return ParamInfo::defaultRippleDbParam();
-    }
-
-    static const ParamInfo getParamInfo_4()
-    {
-        return ParamInfo::defaultRolloffParam();
-    }
-};
-
-template <class FilterClass>
-struct TypeI : TypeIBase, FilterClass
-{
-    void setParams(const Params& params)
-    {
-        FilterClass::setup(int(params[1]), params[0], params[2], params[3], params[4]);
-    }
-};
-
-struct TypeIIBase : DesignBase
-{
-    enum
-    {
-        NumParams = 6
+        void setup (int order,
+                    double sampleRate,
+                    double cutoffFrequency,
+                    double rippleDb,
+                    double rolloff);
     };
 
-    static int getNumParams()
+    struct PLUGIN_API HighPassBase : PoleFilterBase<AnalogLowPass>
     {
-        return 6;
-    }
+        void setup (int order,
+                    double sampleRate,
+                    double cutoffFrequency,
+                    double rippleDb,
+                    double rolloff);
+    };
 
-    static const ParamInfo getParamInfo_2()
+    struct PLUGIN_API BandPassBase : PoleFilterBase<AnalogLowPass>
     {
-        return ParamInfo::defaultCenterFrequencyParam();
-    }
+        void setup (int order,
+                    double sampleRate,
+                    double centerFrequency,
+                    double widthFrequency,
+                    double rippleDb,
+                    double rolloff);
+    };
 
-    static const ParamInfo getParamInfo_3()
+    struct PLUGIN_API BandStopBase : PoleFilterBase<AnalogLowPass>
     {
-        return ParamInfo::defaultBandwidthHzParam();
-    }
+        void setup (int order,
+                    double sampleRate,
+                    double centerFrequency,
+                    double widthFrequency,
+                    double rippleDb,
+                    double rolloff);
+    };
 
-    static const ParamInfo getParamInfo_4()
+    //------------------------------------------------------------------------------
+
+    //
+    // Raw filters
+    //
+
+    template <int MaxOrder>
+    struct LowPass : PoleFilter<LowPassBase, MaxOrder>
     {
-        return ParamInfo::defaultRippleDbParam();
-    }
+    };
 
-    static const ParamInfo getParamInfo_5()
+    template <int MaxOrder>
+    struct HighPass : PoleFilter<HighPassBase, MaxOrder>
     {
-        return ParamInfo::defaultRolloffParam();
-    }
-};
+    };
 
-template <class FilterClass>
-struct TypeII : TypeIIBase, FilterClass
-{
-    void setParams(const Params& params)
+    template <int MaxOrder>
+    struct BandPass : PoleFilter<BandPassBase, MaxOrder, MaxOrder * 2>
     {
-        FilterClass::setup(int(params[1]), params[0], params[2], params[3], params[4], params[5]);
-    }
-};
+    };
 
-// Factored kind and name
-
-struct LowPassDescription
-{
-    static Kind getKind()
+    template <int MaxOrder>
+    struct BandStop : PoleFilter<BandStopBase, MaxOrder, MaxOrder * 2>
     {
-        return kindLowPass;
-    }
-    static const char* getName()
+    };
+
+    //------------------------------------------------------------------------------
+
+    //
+    // Gui-friendly Design layer
+    //
+
+    namespace Design
     {
-        return "Elliptic Low Pass";
-    }
-};
 
-struct HighPassDescription
-{
-    static Kind getKind()
-    {
-        return kindHighPass;
-    }
-    static const char* getName()
-    {
-        return "Elliptic High Pass";
-    }
-};
+        struct TypeIBase : DesignBase
+        {
+            enum
+            {
+                NumParams = 5
+            };
 
-struct BandPassDescription
-{
-    static Kind getKind()
-    {
-        return kindHighPass;
-    }
-    static const char* getName()
-    {
-        return "Elliptic Band Pass";
-    }
-};
+            static int getNumParams()
+            {
+                return 5;
+            }
 
-struct BandStopDescription
-{
-    static Kind getKind()
-    {
-        return kindHighPass;
-    }
-    static const char* getName()
-    {
-        return "Elliptic Band Stop";
-    }
-};
+            static const ParamInfo getParamInfo_2()
+            {
+                return ParamInfo::defaultCutoffFrequencyParam();
+            }
 
-// This glues on the Order parameter
-template <int MaxOrder,
-         template <class> class TypeClass,
-         template <int> class FilterClass>
-struct OrderBase : TypeClass <FilterClass <MaxOrder> >
-{
-    const ParamInfo getParamInfo_1() const
-    {
-        return ParamInfo(idOrder, "Order", "Order",
-                         1, MaxOrder, 2,
-                         &ParamInfo::Int_toControlValue,
-                         &ParamInfo::Int_toNativeValue,
-                         &ParamInfo::Int_toString);
+            static const ParamInfo getParamInfo_3()
+            {
+                return ParamInfo::defaultRippleDbParam();
+            }
 
-    }
-};
-//------------------------------------------------------------------------------
+            static const ParamInfo getParamInfo_4()
+            {
+                return ParamInfo::defaultRolloffParam();
+            }
+        };
 
-//
-// Design filters
-//
+        template <class FilterClass>
+        struct TypeI : TypeIBase, FilterClass
+        {
+            void setParams (const Params& params)
+            {
+                FilterClass::setup (int (params[1]), params[0], params[2], params[3], params[4]);
+            }
+        };
 
-template <int MaxOrder>
-struct LowPass : OrderBase <MaxOrder, TypeI, Elliptic::LowPass>,
-        LowPassDescription
-{
-};
+        struct TypeIIBase : DesignBase
+        {
+            enum
+            {
+                NumParams = 6
+            };
 
-template <int MaxOrder>
-struct HighPass : OrderBase <MaxOrder, TypeI, Elliptic::HighPass>,
-        HighPassDescription
-{
-};
+            static int getNumParams()
+            {
+                return 6;
+            }
 
-template <int MaxOrder>
-struct BandPass : OrderBase <MaxOrder, TypeII, Elliptic::BandPass>,
-        BandPassDescription
-{
-};
+            static const ParamInfo getParamInfo_2()
+            {
+                return ParamInfo::defaultCenterFrequencyParam();
+            }
 
-template <int MaxOrder>
-struct BandStop : OrderBase <MaxOrder, TypeII, Elliptic::BandStop>,
-        BandStopDescription
-{
-};
+            static const ParamInfo getParamInfo_3()
+            {
+                return ParamInfo::defaultBandwidthHzParam();
+            }
 
-}
+            static const ParamInfo getParamInfo_4()
+            {
+                return ParamInfo::defaultRippleDbParam();
+            }
 
-}
+            static const ParamInfo getParamInfo_5()
+            {
+                return ParamInfo::defaultRolloffParam();
+            }
+        };
 
-}
+        template <class FilterClass>
+        struct TypeII : TypeIIBase, FilterClass
+        {
+            void setParams (const Params& params)
+            {
+                FilterClass::setup (int (params[1]), params[0], params[2], params[3], params[4], params[5]);
+            }
+        };
+
+        // Factored kind and name
+
+        struct LowPassDescription
+        {
+            static Kind getKind()
+            {
+                return kindLowPass;
+            }
+            static const char* getName()
+            {
+                return "Elliptic Low Pass";
+            }
+        };
+
+        struct HighPassDescription
+        {
+            static Kind getKind()
+            {
+                return kindHighPass;
+            }
+            static const char* getName()
+            {
+                return "Elliptic High Pass";
+            }
+        };
+
+        struct BandPassDescription
+        {
+            static Kind getKind()
+            {
+                return kindHighPass;
+            }
+            static const char* getName()
+            {
+                return "Elliptic Band Pass";
+            }
+        };
+
+        struct BandStopDescription
+        {
+            static Kind getKind()
+            {
+                return kindHighPass;
+            }
+            static const char* getName()
+            {
+                return "Elliptic Band Stop";
+            }
+        };
+
+        // This glues on the Order parameter
+        template <int MaxOrder,
+                  template <class>
+                  class TypeClass,
+                  template <int>
+                  class FilterClass>
+        struct OrderBase : TypeClass<FilterClass<MaxOrder>>
+        {
+            const ParamInfo getParamInfo_1() const
+            {
+                return ParamInfo (idOrder, "Order", "Order", 1, MaxOrder, 2, &ParamInfo::Int_toControlValue, &ParamInfo::Int_toNativeValue, &ParamInfo::Int_toString);
+            }
+        };
+        //------------------------------------------------------------------------------
+
+        //
+        // Design filters
+        //
+
+        template <int MaxOrder>
+        struct LowPass : OrderBase<MaxOrder, TypeI, Elliptic::LowPass>,
+                         LowPassDescription
+        {
+        };
+
+        template <int MaxOrder>
+        struct HighPass : OrderBase<MaxOrder, TypeI, Elliptic::HighPass>,
+                          HighPassDescription
+        {
+        };
+
+        template <int MaxOrder>
+        struct BandPass : OrderBase<MaxOrder, TypeII, Elliptic::BandPass>,
+                          BandPassDescription
+        {
+        };
+
+        template <int MaxOrder>
+        struct BandStop : OrderBase<MaxOrder, TypeII, Elliptic::BandStop>,
+                          BandStopDescription
+        {
+        };
+
+    } // namespace Design
+
+} // namespace Elliptic
+
+} // namespace Dsp
 
 #endif
-

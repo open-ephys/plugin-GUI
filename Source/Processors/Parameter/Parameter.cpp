@@ -20,7 +20,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "Parameter.h"
 #include "../../AccessClass.h"
 #include "../../UI/EditorViewport.h"
@@ -34,7 +33,6 @@ std::map<std::string, Parameter*> Parameter::parameterMap;
 
 String Parameter::getParameterTypeString() const
 {
-
     if (m_parameterType == BOOLEAN_PARAM)
         return "Boolean";
     else if (m_parameterType == CATEGORICAL_PARAM)
@@ -80,31 +78,31 @@ String Parameter::getParameterTypeString() const
 uint16 Parameter::getStreamId()
 {
     if (parameterOwner->getType() == ParameterOwner::DATASTREAM)
-        return ((DataStream*)parameterOwner)->getStreamId();
-    
+        return ((DataStream*) parameterOwner)->getStreamId();
+
     if (parameterOwner->getType() == ParameterOwner::SPIKE_CHANNEL)
-        return ((SpikeChannel*)parameterOwner)->getStreamId();
-    
+        return ((SpikeChannel*) parameterOwner)->getStreamId();
+
     if (parameterOwner->getType() == ParameterOwner::CONTINUOUS_CHANNEL)
-        return ((ContinuousChannel*)parameterOwner)->getStreamId();
-        
+        return ((ContinuousChannel*) parameterOwner)->getStreamId();
+
     if (parameterOwner->getType() == ParameterOwner::EVENT_CHANNEL)
-        return ((EventChannel*)parameterOwner)->getStreamId();
-    
+        return ((EventChannel*) parameterOwner)->getStreamId();
+
     return 0;
-        
 }
 
-Colour Parameter::getColor() 
+Colour Parameter::getColor()
 {
-    return parameterOwner->getColor(m_name);
+    return parameterOwner->getColor (m_name);
 }
 
-void Parameter::setOwner(ParameterOwner* parameterOwner_)
+void Parameter::setOwner (ParameterOwner* parameterOwner_)
 {
     parameterOwner = parameterOwner_;
 
-    if (parameterOwner == nullptr) return;
+    if (parameterOwner == nullptr)
+        return;
 
     String key;
     if (getScope() == ParameterScope::GLOBAL_SCOPE)
@@ -113,55 +111,55 @@ void Parameter::setOwner(ParameterOwner* parameterOwner_)
     }
     else if (getScope() == ParameterScope::STREAM_SCOPE)
     {
-        auto stream = (DataStream*)parameterOwner;
-        key = stream->getKey() + "|" + String(stream->getNodeId()) + "|" + getName();
+        auto stream = (DataStream*) parameterOwner;
+        key = stream->getKey() + "|" + String (stream->getNodeId()) + "|" + getName();
     }
     else if (getScope() == ParameterScope::PROCESSOR_SCOPE)
     {
-        auto processor = (GenericProcessor*)parameterOwner;
-        key = String(processor->getNodeId()) + "|" + this->getName();
+        auto processor = (GenericProcessor*) parameterOwner;
+        key = String (processor->getNodeId()) + "|" + this->getName();
     }
     else if (getScope() == ParameterScope::VISUALIZER_SCOPE)
     {
-        auto visualizer = (Visualizer*)parameterOwner;
-        key = "v" + String(visualizer->getProcessor()->getNodeId()) + "|" + this->getName();
+        auto visualizer = (Visualizer*) parameterOwner;
+        key = "v" + String (visualizer->getProcessor()->getNodeId()) + "|" + this->getName();
     }
     else if (getScope() == ParameterScope::SPIKE_CHANNEL_SCOPE)
     {
-        auto channel = (SpikeChannel*)parameterOwner;
-        key = String(channel->getNodeId()) + "_" + channel->getName() + "_" + this->getName();
+        auto channel = (SpikeChannel*) parameterOwner;
+        key = String (channel->getNodeId()) + "_" + channel->getName() + "_" + this->getName();
     }
 
-    this->setKey(key.toStdString());
+    this->setKey (key.toStdString());
 
-    LOGD("$$$ Registered Parameter : ", key);
+    LOGD ("$$$ Registered Parameter : ", key);
 
-    Parameter::registerParameter(this);
+    Parameter::registerParameter (this);
 }
 
-void Parameter::setEnabled(bool enabled)
+void Parameter::setEnabled (bool enabled)
 {
     isEnabledFlag = enabled;
 
     for (auto listener : parameterListeners)
     {
-        listener->parameterEnabled(isEnabledFlag);
+        listener->parameterEnabled (isEnabledFlag);
     }
 }
 
-void Parameter::addListener(Parameter::Listener* listener)
+void Parameter::addListener (Parameter::Listener* listener)
 {
-    if (!parameterListeners.contains(listener))
+    if (! parameterListeners.contains (listener))
     {
-        parameterListeners.add(listener);
+        parameterListeners.add (listener);
     }
 }
 
-void Parameter::removeListener(Parameter::Listener* listener)
+void Parameter::removeListener (Parameter::Listener* listener)
 {
-    if (parameterListeners.contains(listener))
+    if (parameterListeners.contains (listener))
     {
-        parameterListeners.removeAllInstancesOf(listener);
+        parameterListeners.removeAllInstancesOf (listener);
     }
 }
 
@@ -169,59 +167,58 @@ void Parameter::valueChanged()
 {
     for (auto listener : parameterListeners)
     {
-		listener->parameterChanged(this);
+        listener->parameterChanged (this);
     }
-
 }
 
 void Parameter::logValueChange()
 {
     if (getScope() == ParameterScope::GLOBAL_SCOPE)
     {
-        CoreServices::sendStatusMessage("Set " + getDisplayName() + ": " + getChangeDescription());
+        CoreServices::sendStatusMessage ("Set " + getDisplayName() + ": " + getChangeDescription());
     }
     else if (getScope() == ParameterScope::PROCESSOR_SCOPE)
     {
-        auto processor = (GenericProcessor*)getOwner();
-        CoreServices::sendStatusMessage("Set " + processor->getName() + " " + getDisplayName() + ": " + getChangeDescription());
+        auto processor = (GenericProcessor*) getOwner();
+        CoreServices::sendStatusMessage ("Set " + processor->getName() + " " + getDisplayName() + ": " + getChangeDescription());
     }
     else if (getScope() == ParameterScope::STREAM_SCOPE)
     {
         //Get the processor that owns the stream
-        auto stream = (DataStream*)getOwner();
+        auto stream = (DataStream*) getOwner();
         int nodeID = stream->getNodeId();
-        GenericProcessor* proc = AccessClass::getProcessorGraph()->getProcessorWithNodeId(nodeID);
+        GenericProcessor* proc = AccessClass::getProcessorGraph()->getProcessorWithNodeId (nodeID);
         String procKey = proc->getName();
 
         //Get stream source key
-        int firstDelimPos = String(getKey()).indexOfChar('|');
-        int secondDelimPos = String(getKey()).indexOfChar(firstDelimPos + 1, '|');
-        String srcKey = String(getKey()).substring(0, secondDelimPos + 1);
-        CoreServices::sendStatusMessage("Set " + procKey + " " + getDisplayName() + ": " + getChangeDescription());
+        int firstDelimPos = String (getKey()).indexOfChar ('|');
+        int secondDelimPos = String (getKey()).indexOfChar (firstDelimPos + 1, '|');
+        String srcKey = String (getKey()).substring (0, secondDelimPos + 1);
+        CoreServices::sendStatusMessage ("Set " + procKey + " " + getDisplayName() + ": " + getChangeDescription());
     }
     else if (getScope() == ParameterScope::VISUALIZER_SCOPE)
     {
-        auto visualizer = (Visualizer*)getOwner();
+        auto visualizer = (Visualizer*) getOwner();
         auto processor = visualizer->getProcessor();
-        CoreServices::sendStatusMessage("Set " + visualizer->getName() + " " + getDisplayName() + ": " + getChangeDescription());
+        CoreServices::sendStatusMessage ("Set " + visualizer->getName() + " " + getDisplayName() + ": " + getChangeDescription());
     }
     else if (getScope() == ParameterScope::SPIKE_CHANNEL_SCOPE)
     {
         //Get spike source node ID
-        auto channel = (SpikeChannel*)getOwner();
-        int firstDelimPos = String(channel->getIdentifier()).indexOfChar('|');
-        int secondDelimPos = String(channel->getIdentifier()).indexOfChar(firstDelimPos + 1, '|');
-        int thirdDelimPos = String(channel->getIdentifier()).indexOfChar(secondDelimPos + 1, '|');
+        auto channel = (SpikeChannel*) getOwner();
+        int firstDelimPos = String (channel->getIdentifier()).indexOfChar ('|');
+        int secondDelimPos = String (channel->getIdentifier()).indexOfChar (firstDelimPos + 1, '|');
+        int thirdDelimPos = String (channel->getIdentifier()).indexOfChar (secondDelimPos + 1, '|');
 
-        String srcKey = String(channel->getIdentifier()).substring(secondDelimPos + 1, thirdDelimPos + 1);
-        String streamKey = String(channel->getIdentifier()).substring(0, secondDelimPos + 1);
+        String srcKey = String (channel->getIdentifier()).substring (secondDelimPos + 1, thirdDelimPos + 1);
+        String streamKey = String (channel->getIdentifier()).substring (0, secondDelimPos + 1);
 
-        CoreServices::sendStatusMessage("Set " + channel->getName() + " " + getDisplayName() + ": " + getChangeDescription());
+        CoreServices::sendStatusMessage ("Set " + channel->getName() + " " + getDisplayName() + ": " + getChangeDescription());
     }
 }
 
-Parameter::ChangeValue::ChangeValue(std::string key_, var newValue_)
-    : key(key_), newValue(newValue_)
+Parameter::ChangeValue::ChangeValue (std::string key_, var newValue_)
+    : key (key_), newValue (newValue_)
 {
     Parameter* p = Parameter::parameterMap[key_];
 
@@ -232,73 +229,70 @@ bool Parameter::ChangeValue::perform()
 {
     Parameter* p = Parameter::parameterMap[key];
 
-    if (!p->isEnabled())
+    if (! p->isEnabled())
         return false;
-    
+
     p->newValue = newValue;
-    p->getOwner()->parameterChangeRequest(p);
-    
+    p->getOwner()->parameterChangeRequest (p);
+
     p->valueChanged();
 
     p->logValueChange();
-    
+
     return true;
 }
-
 
 bool Parameter::ChangeValue::undo()
 {
     Parameter* p = Parameter::parameterMap[key];
 
     p->newValue = originalValue;
-    p->getOwner()->parameterChangeRequest(p);
+    p->getOwner()->parameterChangeRequest (p);
 
     p->valueChanged();
 
     p->logValueChange();
-    
+
     return true;
 }
 
-BooleanParameter::BooleanParameter(ParameterOwner* owner,
-    ParameterScope scope,
-    const String& name,
-    const String& displayName,
-    const String& description,
-    bool defaultValue,
-    bool deactivateDuringAcquisition)
-    : Parameter(owner,
-                ParameterType::BOOLEAN_PARAM,
-                scope,
-                name,
-                displayName,
-                description,
-                defaultValue,
-                deactivateDuringAcquisition)
+BooleanParameter::BooleanParameter (ParameterOwner* owner,
+                                    ParameterScope scope,
+                                    const String& name,
+                                    const String& displayName,
+                                    const String& description,
+                                    bool defaultValue,
+                                    bool deactivateDuringAcquisition)
+    : Parameter (owner,
+                 ParameterType::BOOLEAN_PARAM,
+                 scope,
+                 name,
+                 displayName,
+                 description,
+                 defaultValue,
+                 deactivateDuringAcquisition)
 {
-
 }
 
-void BooleanParameter::setNextValue(var newValue_, bool undoable)
+void BooleanParameter::setNextValue (var newValue_, bool undoable)
 {
-
-    if (newValue_ == currentValue) return;
+    if (newValue_ == currentValue)
+        return;
 
     if (newValue_.isBool())
     {
         newValue = newValue_;
     }
 
-    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+    ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
     AccessClass::getUndoManager()->beginNewTransaction();
-    AccessClass::getUndoManager()->perform(action);
-
+    AccessClass::getUndoManager()->perform (action);
 }
 
 bool BooleanParameter::getBoolValue()
 {
-    return (bool)currentValue;
+    return (bool) currentValue;
 }
 
 String BooleanParameter::getValueAsString()
@@ -306,7 +300,9 @@ String BooleanParameter::getValueAsString()
     if ((bool) currentValue)
     {
         return "true";
-    } else {
+    }
+    else
+    {
         return "false";
     }
 }
@@ -316,53 +312,52 @@ String BooleanParameter::getChangeDescription()
     return getValueAsString();
 }
 
-void BooleanParameter::toXml(XmlElement* xml) 
+void BooleanParameter::toXml (XmlElement* xml)
 {
-    xml->setAttribute(getName(), (bool) currentValue);
+    xml->setAttribute (getName(), (bool) currentValue);
 }
 
-void BooleanParameter::fromXml(XmlElement* xml)
+void BooleanParameter::fromXml (XmlElement* xml)
 {
-    currentValue = xml->getBoolAttribute(getName(), defaultValue);
+    currentValue = xml->getBoolAttribute (getName(), defaultValue);
 }
 
-CategoricalParameter::CategoricalParameter(ParameterOwner* owner,
-    ParameterScope scope,
-    const String& name,
-    const String& displayName,
-    const String& description,
-    Array<String> categories_,
-    int defaultIndex,
-    bool deactivateDuringAcquisition)
-    : Parameter(owner,
-        ParameterType::CATEGORICAL_PARAM,
-        scope,
-        name,
-        displayName,
-        description,
-        defaultIndex,
-        deactivateDuringAcquisition),
-    categories(categories_)
+CategoricalParameter::CategoricalParameter (ParameterOwner* owner,
+                                            ParameterScope scope,
+                                            const String& name,
+                                            const String& displayName,
+                                            const String& description,
+                                            Array<String> categories_,
+                                            int defaultIndex,
+                                            bool deactivateDuringAcquisition)
+    : Parameter (owner,
+                 ParameterType::CATEGORICAL_PARAM,
+                 scope,
+                 name,
+                 displayName,
+                 description,
+                 defaultIndex,
+                 deactivateDuringAcquisition),
+      categories (categories_)
 {
-
 }
 
-void CategoricalParameter::setNextValue(var newValue_, bool undoable)
+void CategoricalParameter::setNextValue (var newValue_, bool undoable)
 {
-    if (newValue_ == currentValue) return;
+    if (newValue_ == currentValue)
+        return;
 
     newValue = (int) newValue_;
-    
-    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
-    
-    AccessClass::getUndoManager()->beginNewTransaction();
-    AccessClass::getUndoManager()->perform(action);   
 
+    ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
+
+    AccessClass::getUndoManager()->beginNewTransaction();
+    AccessClass::getUndoManager()->perform (action);
 }
 
 int CategoricalParameter::getSelectedIndex()
 {
-    return (int)currentValue;
+    return (int) currentValue;
 }
 
 String CategoricalParameter::getSelectedString()
@@ -385,56 +380,54 @@ const Array<String>& CategoricalParameter::getCategories()
     return categories;
 }
 
-
-void CategoricalParameter::setCategories(Array<String> categories_)
+void CategoricalParameter::setCategories (Array<String> categories_)
 {
     categories = categories_;
 
-    if (categories.size() > 0 && (int)currentValue >= categories.size())
+    if (categories.size() > 0 && (int) currentValue >= categories.size())
     {
         currentValue = categories.size() - 1;
         valueChanged();
     }
 }
 
-void CategoricalParameter::toXml(XmlElement* xml)
+void CategoricalParameter::toXml (XmlElement* xml)
 {
-    xml->setAttribute(getName(), (int)currentValue);
+    xml->setAttribute (getName(), (int) currentValue);
 }
 
-void CategoricalParameter::fromXml(XmlElement* xml)
+void CategoricalParameter::fromXml (XmlElement* xml)
 {
-    int xmlValue = xml->getIntAttribute(getName(), defaultValue);
-    currentValue = xmlValue < categories.size() ? (var)xmlValue : defaultValue;
+    int xmlValue = xml->getIntAttribute (getName(), defaultValue);
+    currentValue = xmlValue < categories.size() ? (var) xmlValue : defaultValue;
 }
 
-IntParameter::IntParameter(ParameterOwner* owner,
-    ParameterScope scope,
-    const String& name,
-    const String& displayName,
-    const String& description,
-    int defaultValue_,
-    int minValue_,
-    int maxValue_,
-    bool deactivateDuringAcquisition)
-    : Parameter(owner,
-        ParameterType::INT_PARAM,
-        scope,
-        name,
-        displayName,
-        description,
-        defaultValue_,
-        deactivateDuringAcquisition),
-    maxValue(maxValue_),
-    minValue(minValue_)
+IntParameter::IntParameter (ParameterOwner* owner,
+                            ParameterScope scope,
+                            const String& name,
+                            const String& displayName,
+                            const String& description,
+                            int defaultValue_,
+                            int minValue_,
+                            int maxValue_,
+                            bool deactivateDuringAcquisition)
+    : Parameter (owner,
+                 ParameterType::INT_PARAM,
+                 scope,
+                 name,
+                 displayName,
+                 description,
+                 defaultValue_,
+                 deactivateDuringAcquisition),
+      maxValue (maxValue_),
+      minValue (minValue_)
 {
-
 }
 
-void IntParameter::setNextValue(var newValue_, bool undoable)
+void IntParameter::setNextValue (var newValue_, bool undoable)
 {
-
-    if (newValue_ == currentValue) return;
+    if (newValue_ == currentValue)
+        return;
 
     int value = (int) newValue_;
 
@@ -445,20 +438,20 @@ void IntParameter::setNextValue(var newValue_, bool undoable)
     else
         newValue = value;
 
-    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
-    
+    ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
+
     AccessClass::getUndoManager()->beginNewTransaction();
-    AccessClass::getUndoManager()->perform(action);
+    AccessClass::getUndoManager()->perform (action);
 }
 
 int IntParameter::getIntValue()
 {
-    return int(currentValue);
+    return int (currentValue);
 }
 
 String IntParameter::getValueAsString()
 {
-    return String(getIntValue());
+    return String (getIntValue());
 }
 
 String IntParameter::getChangeDescription()
@@ -466,14 +459,14 @@ String IntParameter::getChangeDescription()
     return getValueAsString();
 }
 
-void IntParameter::toXml(XmlElement* xml)
+void IntParameter::toXml (XmlElement* xml)
 {
-    xml->setAttribute(getName(), (int) currentValue);
+    xml->setAttribute (getName(), (int) currentValue);
 }
 
-void IntParameter::fromXml(XmlElement* xml)
+void IntParameter::fromXml (XmlElement* xml)
 {
-    int xmlValue = xml->getIntAttribute(getName(), defaultValue);
+    int xmlValue = xml->getIntAttribute (getName(), defaultValue);
 
     if (xmlValue < minValue || xmlValue > maxValue)
         currentValue = defaultValue;
@@ -481,36 +474,35 @@ void IntParameter::fromXml(XmlElement* xml)
         currentValue = xmlValue;
 }
 
-StringParameter::StringParameter(ParameterOwner* owner,
-    ParameterScope scope,
-    const String& name,
-    const String& displayName,
-    const String& description,
-    String defaultValue_,
-    bool deactivateDuringAcquisition)
-    : Parameter(owner,
-        ParameterType::INT_PARAM,
-        scope,
-        name,
-        displayName,
-        description,
-        defaultValue_,
-        deactivateDuringAcquisition)
+StringParameter::StringParameter (ParameterOwner* owner,
+                                  ParameterScope scope,
+                                  const String& name,
+                                  const String& displayName,
+                                  const String& description,
+                                  String defaultValue_,
+                                  bool deactivateDuringAcquisition)
+    : Parameter (owner,
+                 ParameterType::INT_PARAM,
+                 scope,
+                 name,
+                 displayName,
+                 description,
+                 defaultValue_,
+                 deactivateDuringAcquisition)
 {
-
 }
 
-void StringParameter::setNextValue(var newValue_, bool undoable)
+void StringParameter::setNextValue (var newValue_, bool undoable)
 {
-
-    if (newValue_ == currentValue) return;
+    if (newValue_ == currentValue)
+        return;
 
     newValue = newValue_.toString();
 
-    ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
-    
+    ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
+
     AccessClass::getUndoManager()->beginNewTransaction();
-    AccessClass::getUndoManager()->perform(action);
+    AccessClass::getUndoManager()->perform (action);
 }
 
 String StringParameter::getStringValue()
@@ -528,45 +520,43 @@ String StringParameter::getChangeDescription()
     return getValueAsString();
 }
 
-void StringParameter::toXml(XmlElement* xml)
+void StringParameter::toXml (XmlElement* xml)
 {
-    xml->setAttribute(getName(), currentValue.toString());
+    xml->setAttribute (getName(), currentValue.toString());
 }
 
-void StringParameter::fromXml(XmlElement* xml)
+void StringParameter::fromXml (XmlElement* xml)
 {
-    currentValue = xml->getStringAttribute(getName(), defaultValue);
+    currentValue = xml->getStringAttribute (getName(), defaultValue);
 }
 
-
-FloatParameter::FloatParameter(ParameterOwner* owner,
-    ParameterScope scope,
-    const String& name,
-    const String& displayName,
-    const String& description,
-    const String& unit_,
-    float defaultValue_,
-    float minValue_,
-    float maxValue_,
-    float stepSize_,
-    bool deactivateDuringAcquisition)
-    : Parameter(owner,
-        ParameterType::FLOAT_PARAM,
-        scope,
-        name,
-        displayName,
-        description,
-        defaultValue_,
-        deactivateDuringAcquisition),
-    maxValue(maxValue_),
-    minValue(minValue_),
-    stepSize(stepSize_),
-    unit(unit_)
+FloatParameter::FloatParameter (ParameterOwner* owner,
+                                ParameterScope scope,
+                                const String& name,
+                                const String& displayName,
+                                const String& description,
+                                const String& unit_,
+                                float defaultValue_,
+                                float minValue_,
+                                float maxValue_,
+                                float stepSize_,
+                                bool deactivateDuringAcquisition)
+    : Parameter (owner,
+                 ParameterType::FLOAT_PARAM,
+                 scope,
+                 name,
+                 displayName,
+                 description,
+                 defaultValue_,
+                 deactivateDuringAcquisition),
+      maxValue (maxValue_),
+      minValue (minValue_),
+      stepSize (stepSize_),
+      unit (unit_)
 {
-
 }
 
-void FloatParameter::setNextValue(var newValue_, bool undoable)
+void FloatParameter::setNextValue (var newValue_, bool undoable)
 {
     if (newValue_.isDouble())
     {
@@ -578,30 +568,25 @@ void FloatParameter::setNextValue(var newValue_, bool undoable)
             newValue = maxValue;
         else
             newValue = value;
-
     }
 
     if (currentValue != newValue)
     {
-    
-        ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+        ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
         AccessClass::getUndoManager()->beginNewTransaction();
-        AccessClass::getUndoManager()->perform(action);
-
+        AccessClass::getUndoManager()->perform (action);
     }
-    
 }
-
 
 float FloatParameter::getFloatValue()
 {
-    return float(currentValue);
+    return float (currentValue);
 }
 
 String FloatParameter::getValueAsString()
 {
-    return String(getFloatValue()) + " " + unit;
+    return String (getFloatValue()) + " " + unit;
 }
 
 String FloatParameter::getChangeDescription()
@@ -609,14 +594,14 @@ String FloatParameter::getChangeDescription()
     return getValueAsString();
 }
 
-void FloatParameter::toXml(XmlElement* xml)
+void FloatParameter::toXml (XmlElement* xml)
 {
-    xml->setAttribute(getName(), (float)currentValue);
+    xml->setAttribute (getName(), (float) currentValue);
 }
 
-void FloatParameter::fromXml(XmlElement* xml)
+void FloatParameter::fromXml (XmlElement* xml)
 {
-    float xmlValue = (float)xml->getDoubleAttribute(getName(), defaultValue);
+    float xmlValue = (float) xml->getDoubleAttribute (getName(), defaultValue);
 
     if (xmlValue < minValue || xmlValue > maxValue)
         currentValue = defaultValue;
@@ -624,31 +609,31 @@ void FloatParameter::fromXml(XmlElement* xml)
         currentValue = xmlValue;
 }
 
-SelectedChannelsParameter::SelectedChannelsParameter(ParameterOwner* owner,
-    ParameterScope scope,
-    const String& name,
-    const String& displayName,
-    const String& description,
-    Array<var> defaultValue_,
-    int maxSelectableChannels_,
-    bool deactivateDuringAcquisition)
-    : Parameter(owner,
-        ParameterType::SELECTED_CHANNELS_PARAM,
-        scope,
-        name,
-        displayName,
-        description,
-        defaultValue_,
-        deactivateDuringAcquisition),
-    maxSelectableChannels(maxSelectableChannels_),
-    channelCount(0)
+SelectedChannelsParameter::SelectedChannelsParameter (ParameterOwner* owner,
+                                                      ParameterScope scope,
+                                                      const String& name,
+                                                      const String& displayName,
+                                                      const String& description,
+                                                      Array<var> defaultValue_,
+                                                      int maxSelectableChannels_,
+                                                      bool deactivateDuringAcquisition)
+    : Parameter (owner,
+                 ParameterType::SELECTED_CHANNELS_PARAM,
+                 scope,
+                 name,
+                 displayName,
+                 description,
+                 defaultValue_,
+                 deactivateDuringAcquisition),
+      maxSelectableChannels (maxSelectableChannels_),
+      channelCount (0)
 {
     if (defaultValue_.size() == 0)
     {
         //Set default selected to the first maxSelectableChannels channels
         Array<var> values;
         for (int i = 0; i < maxSelectableChannels; i++)
-            values.add(i);
+            values.add (i);
         currentValue = values;
     }
     else
@@ -657,21 +642,20 @@ SelectedChannelsParameter::SelectedChannelsParameter(ParameterOwner* owner,
     }
 }
 
-void SelectedChannelsParameter::setNextValue(var newValue_, bool undoable)
+void SelectedChannelsParameter::setNextValue (var newValue_, bool undoable)
 {
-
-    if (newValue_ == currentValue) return;
+    if (newValue_ == currentValue)
+        return;
 
     if (newValue_.getArray()->size() <= maxSelectableChannels)
     {
         newValue = newValue_;
     }
 
-    Parameter::ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+    Parameter::ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
     AccessClass::getUndoManager()->beginNewTransaction();
-    AccessClass::getUndoManager()->perform(action);
-
+    AccessClass::getUndoManager()->perform (action);
 }
 
 std::vector<bool> SelectedChannelsParameter::getChannelStates()
@@ -680,15 +664,14 @@ std::vector<bool> SelectedChannelsParameter::getChannelStates()
 
     for (int i = 0; i < channelCount; i++)
     {
-        if (currentValue.getArray()->contains(i))
-            states.push_back(true);
+        if (currentValue.getArray()->contains (i))
+            states.push_back (true);
         else
-            states.push_back(false);
+            states.push_back (false);
     }
 
     return states;
 }
-
 
 Array<int> SelectedChannelsParameter::getArrayValue()
 {
@@ -696,7 +679,7 @@ Array<int> SelectedChannelsParameter::getArrayValue()
 
     for (int i = 0; i < currentValue.getArray()->size(); i++)
     {
-        out.add(currentValue[i]);
+        out.add (currentValue[i]);
     }
 
     return out;
@@ -713,13 +696,13 @@ String SelectedChannelsParameter::getChangeDescription()
     Array<int> prev;
     for (int i = 0; i < previousValue.getArray()->size(); i++)
     {
-        prev.add(previousValue[i]);
+        prev.add (previousValue[i]);
     }
 
     Array<int> curr;
     for (int i = 0; i < currentValue.getArray()->size(); i++)
     {
-        curr.add(currentValue[i]);
+        curr.add (currentValue[i]);
     }
 
     //find how many values different from prev to curr
@@ -727,12 +710,13 @@ String SelectedChannelsParameter::getChangeDescription()
 
     for (int i = 0; i < curr.size(); i++)
     {
-        if (!prev.contains(curr[i]))
+        if (! prev.contains (curr[i]))
             diff++;
     }
-    
-    for (int i = 0; i < prev.size(); i++) {
-        if (!curr.contains(prev[i]))
+
+    for (int i = 0; i < prev.size(); i++)
+    {
+        if (! curr.contains (prev[i]))
             diff++;
     }
 
@@ -742,41 +726,36 @@ String SelectedChannelsParameter::getChangeDescription()
         return "changed 1";
     else
         return "changed selection";
-
-
 }
 
-void SelectedChannelsParameter::toXml(XmlElement* xml)
+void SelectedChannelsParameter::toXml (XmlElement* xml)
 {
-    xml->setAttribute(getName(), selectedChannelsToString());
+    xml->setAttribute (getName(), selectedChannelsToString());
 }
 
-void SelectedChannelsParameter::fromXml(XmlElement* xml)
+void SelectedChannelsParameter::fromXml (XmlElement* xml)
 {
-    if (xml->hasAttribute(getName()))
-        currentValue = parseSelectedString(xml->getStringAttribute(getName(), ""));
-    
+    if (xml->hasAttribute (getName()))
+        currentValue = parseSelectedString (xml->getStringAttribute (getName(), ""));
+
     //std::cout << "Loading selected channels parameter at " << this << std::endl;
 }
 
-
 String SelectedChannelsParameter::selectedChannelsToString()
 {
-
     String result = "";
 
     for (int i = 0; i < currentValue.getArray()->size(); i++)
     {
-        result += String(int(currentValue[i]) + 1) + ",";
+        result += String (int (currentValue[i]) + 1) + ",";
     }
 
-    return result.substring(0, result.length() - 1);
+    return result.substring (0, result.length() - 1);
 }
 
-Array<var> SelectedChannelsParameter::parseSelectedString(const String& input)
+Array<var> SelectedChannelsParameter::parseSelectedString (const String& input)
 {
-
-    StringArray channels = StringArray::fromTokens(input, ",", "");
+    StringArray channels = StringArray::fromTokens (input, ",", "");
 
     Array<var> selectedChannels;
 
@@ -784,61 +763,60 @@ Array<var> SelectedChannelsParameter::parseSelectedString(const String& input)
     {
         int ch = channels[i].getIntValue() - 1;
 
-        selectedChannels.add(ch);
+        selectedChannels.add (ch);
     }
 
     return selectedChannels;
 }
 
-void SelectedChannelsParameter::setChannelCount(int count)
+void SelectedChannelsParameter::setChannelCount (int count)
 {
     channelCount = count;
-    
-    LOGDD("SelectedChannelsParameter: Setting selected channels count to ", count, " at ", getName());
+
+    LOGDD ("SelectedChannelsParameter: Setting selected channels count to ", count, " at ", getName());
 }
 
-MaskChannelsParameter::MaskChannelsParameter(ParameterOwner* owner,
-    ParameterScope scope,
-    const String& name,
-    const String& displayName,
-    const String& description,
-    bool deactivateDuringAcquisition)
-    : Parameter(owner,
-        ParameterType::MASK_CHANNELS_PARAM,
-        scope,
-        name,
-        displayName,
-        description,
-        Array<var>(),
-        deactivateDuringAcquisition),
-    channelCount(0)
+MaskChannelsParameter::MaskChannelsParameter (ParameterOwner* owner,
+                                              ParameterScope scope,
+                                              const String& name,
+                                              const String& displayName,
+                                              const String& description,
+                                              bool deactivateDuringAcquisition)
+    : Parameter (owner,
+                 ParameterType::MASK_CHANNELS_PARAM,
+                 scope,
+                 name,
+                 displayName,
+                 description,
+                 Array<var>(),
+                 deactivateDuringAcquisition),
+      channelCount (0)
 {
-
 }
 
-void MaskChannelsParameter::setNextValue(var newValue_, bool undoable)
+void MaskChannelsParameter::setNextValue (var newValue_, bool undoable)
 {
-
     Array<var> values;
 
     String result = "";
     for (int i = 0; i < channelCount; i++)
     {
-        if (newValue_.getArray()->contains(i))
-            values.add(i);
+        if (newValue_.getArray()->contains (i))
+            values.add (i);
         else
-            result += String(i + 1) + ",";
+            result += String (i + 1) + ",";
     }
-    result = result.substring(0, result.length() - 1);
+    result = result.substring (0, result.length() - 1);
 
-    if (result == maskChannelsToString()) return;
+    if (result == maskChannelsToString())
+        return;
 
     newValue = values;
 
-    Parameter::ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+    Parameter::ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
     AccessClass::getUndoManager()->beginNewTransaction();
-    AccessClass::getUndoManager()->perform(action);
+    AccessClass::getUndoManager()->perform (action);
 }
 
 std::vector<bool> MaskChannelsParameter::getChannelStates()
@@ -847,15 +825,14 @@ std::vector<bool> MaskChannelsParameter::getChannelStates()
 
     for (int i = 0; i < channelCount; i++)
     {
-        if (currentValue.getArray()->contains(i))
-            states.push_back(true);
+        if (currentValue.getArray()->contains (i))
+            states.push_back (true);
         else
-            states.push_back(false);
+            states.push_back (false);
     }
 
     return states;
 }
-
 
 Array<int> MaskChannelsParameter::getArrayValue()
 {
@@ -863,7 +840,7 @@ Array<int> MaskChannelsParameter::getArrayValue()
 
     for (int i = 0; i < currentValue.getArray()->size(); i++)
     {
-        out.add(currentValue[i]);
+        out.add (currentValue[i]);
     }
 
     return out;
@@ -880,13 +857,13 @@ String MaskChannelsParameter::getChangeDescription()
     Array<int> prev;
     for (int i = 0; i < previousValue.getArray()->size(); i++)
     {
-        prev.add(previousValue[i]);
+        prev.add (previousValue[i]);
     }
 
     Array<int> curr;
     for (int i = 0; i < currentValue.getArray()->size(); i++)
     {
-        curr.add(currentValue[i]);
+        curr.add (currentValue[i]);
     }
 
     //find how many values different from prev to curr
@@ -894,12 +871,13 @@ String MaskChannelsParameter::getChangeDescription()
 
     for (int i = 0; i < curr.size(); i++)
     {
-        if (!prev.contains(curr[i]))
+        if (! prev.contains (curr[i]))
             diff++;
     }
-    
-    for (int i = 0; i < prev.size(); i++) {
-        if (!curr.contains(prev[i]))
+
+    for (int i = 0; i < prev.size(); i++)
+    {
+        if (! curr.contains (prev[i]))
             diff++;
     }
 
@@ -908,39 +886,36 @@ String MaskChannelsParameter::getChangeDescription()
     else if (diff == 1)
         return "changed 1";
     else
-        return "changed " + String(diff);
-
+        return "changed " + String (diff);
 }
 
-void MaskChannelsParameter::toXml(XmlElement* xml)
+void MaskChannelsParameter::toXml (XmlElement* xml)
 {
-    xml->setAttribute(getName(), maskChannelsToString());
+    xml->setAttribute (getName(), maskChannelsToString());
 }
 
-void MaskChannelsParameter::fromXml(XmlElement* xml)
+void MaskChannelsParameter::fromXml (XmlElement* xml)
 {
-    if (xml->hasAttribute(getName()))
-        currentValue = parseMaskString(xml->getStringAttribute(getName(), ""));
+    if (xml->hasAttribute (getName()))
+        currentValue = parseMaskString (xml->getStringAttribute (getName(), ""));
 }
 
 String MaskChannelsParameter::maskChannelsToString()
 {
-
     String result = "";
 
     for (int i = 0; i < channelCount; i++)
     {
-        if (!currentValue.getArray()->contains(var(i)))
-            result += String(i + 1) + ",";
+        if (! currentValue.getArray()->contains (var (i)))
+            result += String (i + 1) + ",";
     }
 
-    return result.substring(0, result.length() - 1);
+    return result.substring (0, result.length() - 1);
 }
 
-Array<var> MaskChannelsParameter::parseMaskString(const String& input)
+Array<var> MaskChannelsParameter::parseMaskString (const String& input)
 {
-
-    StringArray channels = StringArray::fromTokens(input, ",", "");
+    StringArray channels = StringArray::fromTokens (input, ",", "");
 
     Array<var> maskChannels;
 
@@ -948,107 +923,102 @@ Array<var> MaskChannelsParameter::parseMaskString(const String& input)
     {
         int ch = channels[i].getIntValue() - 1;
 
-        maskChannels.add(ch);
+        maskChannels.add (ch);
     }
 
     Array<var> selectedChannels;
 
     for (int i = 0; i < channelCount; i++)
     {
-        if (!maskChannels.contains(var(i)))
-            selectedChannels.add(i);
+        if (! maskChannels.contains (var (i)))
+            selectedChannels.add (i);
     }
 
     return selectedChannels;
 }
 
-
-void MaskChannelsParameter::setChannelCount(int count)
+void MaskChannelsParameter::setChannelCount (int count)
 {
-    
     Array<var> values;
-    
+
     if (channelCount < count)
     {
         for (int i = 0; i < channelCount; i++)
         {
-            if (currentValue.getArray()->contains(i))
-                values.add(i);
+            if (currentValue.getArray()->contains (i))
+                values.add (i);
         }
         for (int i = channelCount; i < count; i++)
         {
-            values.add(i);
+            values.add (i);
         }
     }
     else if (channelCount > count)
     {
         for (int i = 0; i < count; i++)
         {
-            if (currentValue.getArray()->contains(i))
-                values.add(i);
+            if (currentValue.getArray()->contains (i))
+                values.add (i);
         }
-            
     }
     else
     {
         return;
     }
-    
+
     currentValue = values;
     channelCount = count;
 }
 
-
-TtlLineParameter::TtlLineParameter(ParameterOwner* owner,
-    ParameterScope scope,
-    const String& name,
-    const String& displayName,
-    const String& description,
-    int maxAvailableLines_,
-    bool syncMode_,
-    bool canSelectNone_,
-    bool deactivateDuringAcquisition)
-    : Parameter(owner,
-        ParameterType::TTL_LINE_PARAM,
-        scope,
-        name,
-        displayName,
-        description,
-        0,
-        deactivateDuringAcquisition),
-    lineCount(maxAvailableLines_),
-    syncMode(syncMode_),
-    selectNone(canSelectNone_)
+TtlLineParameter::TtlLineParameter (ParameterOwner* owner,
+                                    ParameterScope scope,
+                                    const String& name,
+                                    const String& displayName,
+                                    const String& description,
+                                    int maxAvailableLines_,
+                                    bool syncMode_,
+                                    bool canSelectNone_,
+                                    bool deactivateDuringAcquisition)
+    : Parameter (owner,
+                 ParameterType::TTL_LINE_PARAM,
+                 scope,
+                 name,
+                 displayName,
+                 description,
+                 0,
+                 deactivateDuringAcquisition),
+      lineCount (maxAvailableLines_),
+      syncMode (syncMode_),
+      selectNone (canSelectNone_)
 {
-    jassert((lineCount >= 0 && lineCount < 256));
-    jassert(scope == ParameterScope::STREAM_SCOPE);
-    
+    jassert ((lineCount >= 0 && lineCount < 256));
+    jassert (scope == ParameterScope::STREAM_SCOPE);
+
     // Can't have both sync mode and select none
     if (syncMode && selectNone)
         jassertfalse;
 }
 
-void TtlLineParameter::setNextValue(var newValue_, bool undoable)
+void TtlLineParameter::setNextValue (var newValue_, bool undoable)
 {
+    if (newValue_ == currentValue)
+        return;
 
-    if (newValue_ == currentValue) return;
-
-    if (((int)newValue_ < lineCount && (int)newValue_ >= 0) 
-        || (!syncMode && (int)newValue_ == -1)) // -1 is a valid value for non-sync mode
+    if (((int) newValue_ < lineCount && (int) newValue_ >= 0)
+        || (! syncMode && (int) newValue_ == -1)) // -1 is a valid value for non-sync mode
     {
         newValue = newValue_;
-    
-        ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+
+        ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
         AccessClass::getUndoManager()->beginNewTransaction();
-        AccessClass::getUndoManager()->perform(action);
+        AccessClass::getUndoManager()->perform (action);
     }
-
 }
 
 int TtlLineParameter::getSelectedLine()
 {
-    return (int)currentValue;
+    return (int) currentValue;
 }
 
 String TtlLineParameter::getValueAsString()
@@ -1061,81 +1031,81 @@ String TtlLineParameter::getChangeDescription()
     return currentValue.toString();
 }
 
-void TtlLineParameter::toXml(XmlElement* xml)
+void TtlLineParameter::toXml (XmlElement* xml)
 {
-    xml->setAttribute(getName(), (int)currentValue);
+    xml->setAttribute (getName(), (int) currentValue);
 }
 
-void TtlLineParameter::fromXml(XmlElement* xml)
+void TtlLineParameter::fromXml (XmlElement* xml)
 {
-    if (xml->hasAttribute(getName()))
-        currentValue = xml->getIntAttribute(getName(), defaultValue);
-    
+    if (xml->hasAttribute (getName()))
+        currentValue = xml->getIntAttribute (getName(), defaultValue);
+
     //std::cout << "Loading selected channels parameter at " << this << std::endl;
 }
 
-
-PathParameter::PathParameter(ParameterOwner* owner,
-    ParameterScope scope,
-    const String& name,
-    const String& displayName,
-    const String& description,
-    const String& defaultValue,
-    const StringArray& fileExtensions_,
-    bool isDirectory_,
-    bool deactivateDuringAcquisition)
-    : Parameter(owner,
-        ParameterType::PATH_PARAM,
-        scope,
-        name,
-        displayName,
-        description,
-        defaultValue,
-        deactivateDuringAcquisition),
-    filePatternsAllowed(fileExtensions_),
-    isDirectory(isDirectory_)
+PathParameter::PathParameter (ParameterOwner* owner,
+                              ParameterScope scope,
+                              const String& name,
+                              const String& displayName,
+                              const String& description,
+                              const String& defaultValue,
+                              const StringArray& fileExtensions_,
+                              bool isDirectory_,
+                              bool deactivateDuringAcquisition)
+    : Parameter (owner,
+                 ParameterType::PATH_PARAM,
+                 scope,
+                 name,
+                 displayName,
+                 description,
+                 defaultValue,
+                 deactivateDuringAcquisition),
+      filePatternsAllowed (fileExtensions_),
+      isDirectory (isDirectory_)
 {
     currentValue = defaultValue;
 }
 
-void PathParameter::setNextValue(var newValue_, bool undoable)
+void PathParameter::setNextValue (var newValue_, bool undoable)
 {
-    if (newValue_ == currentValue) return;
+    if (newValue_ == currentValue)
+        return;
 
     if (newValue_.isString())
     {
-        if (!isDirectory && File(newValue_.toString()).existsAsFile())
+        if (! isDirectory && File (newValue_.toString()).existsAsFile())
         {
             newValue = newValue_;
         }
-        else if (isDirectory && File(newValue_.toString()).exists())
+        else if (isDirectory && File (newValue_.toString()).exists())
         {
             newValue = newValue_;
         }
 
-        ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+        ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
         AccessClass::getUndoManager()->beginNewTransaction();
-        AccessClass::getUndoManager()->perform(action);
+        AccessClass::getUndoManager()->perform (action);
     }
     else
     {
-        LOGE("Invalid file path");
+        LOGE ("Invalid file path");
     }
-
 }
 
 bool PathParameter::isValid()
 {
-    if (currentValue.toString() == "default") {
+    if (currentValue.toString() == "default")
+    {
         currentValue = defaultValue;
         return true;
     }
-    else if (!isDirectory && File(currentValue.toString()).existsAsFile())
+    else if (! isDirectory && File (currentValue.toString()).existsAsFile())
     {
         return true;
     }
-    else if (isDirectory && File(currentValue.toString()).exists())
+    else if (isDirectory && File (currentValue.toString()).exists())
     {
         return true;
     }
@@ -1143,14 +1113,14 @@ bool PathParameter::isValid()
     return false;
 }
 
-void PathParameter::toXml(XmlElement* xml)
+void PathParameter::toXml (XmlElement* xml)
 {
-    xml->setAttribute(getName(), currentValue.toString());
+    xml->setAttribute (getName(), currentValue.toString());
 }
 
-void PathParameter::fromXml(XmlElement* xml)
+void PathParameter::fromXml (XmlElement* xml)
 {
-    currentValue = xml->getStringAttribute(getName(), defaultValue);
+    currentValue = xml->getStringAttribute (getName(), defaultValue);
 }
 
 String PathParameter::getChangeDescription()
@@ -1158,66 +1128,64 @@ String PathParameter::getChangeDescription()
     return currentValue.toString();
 }
 
-SelectedStreamParameter::SelectedStreamParameter(ParameterOwner* owner,
-    ParameterScope scope,
-    const String& name,
-    const String& displayName,
-    const String& description,
-    Array<String> streamNames_,
-    int defaultIndex,
-    bool deactivateDuringAcquisition)
-    : Parameter(owner,
-        ParameterType::SELECTED_STREAM_PARAM,
-        scope,
-        name,
-        displayName,
-        description,
-        defaultIndex,
-        deactivateDuringAcquisition),
-    streamNames(streamNames_)
+SelectedStreamParameter::SelectedStreamParameter (ParameterOwner* owner,
+                                                  ParameterScope scope,
+                                                  const String& name,
+                                                  const String& displayName,
+                                                  const String& description,
+                                                  Array<String> streamNames_,
+                                                  int defaultIndex,
+                                                  bool deactivateDuringAcquisition)
+    : Parameter (owner,
+                 ParameterType::SELECTED_STREAM_PARAM,
+                 scope,
+                 name,
+                 displayName,
+                 description,
+                 defaultIndex,
+                 deactivateDuringAcquisition),
+      streamNames (streamNames_)
 {
 }
 
-
-void SelectedStreamParameter::setNextValue(var newValue_, bool undoable)
+void SelectedStreamParameter::setNextValue (var newValue_, bool undoable)
 {
-    if (newValue_ == currentValue) return;
+    if (newValue_ == currentValue)
+        return;
 
-    if (newValue_.isInt() 
-        && (int)newValue_ >= 0 
-        && (int)newValue_ < streamNames.size())
+    if (newValue_.isInt()
+        && (int) newValue_ >= 0
+        && (int) newValue_ < streamNames.size())
     {
-
         newValue = newValue_;
 
-        ChangeValue* action = new Parameter::ChangeValue(getKey(), newValue);
+        ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
         AccessClass::getUndoManager()->beginNewTransaction();
-        AccessClass::getUndoManager()->perform(action);        
+        AccessClass::getUndoManager()->perform (action);
     }
     else
     {
-        LOGE("Invalid stream name: ", newValue_.toString());
+        LOGE ("Invalid stream name: ", newValue_.toString());
     }
-
 }
 
-void SelectedStreamParameter::setStreamNames(Array<String> streamNames_)
+void SelectedStreamParameter::setStreamNames (Array<String> streamNames_)
 {
     streamNames = streamNames_;
 
     newValue = currentValue;
 
-    if (streamNames.size() > 0 && (int)currentValue >= streamNames.size())
+    if (streamNames.size() > 0 && (int) currentValue >= streamNames.size())
         newValue = streamNames.size() - 1;
     else if (streamNames.size() == 0)
         newValue = -1;
-    else if ((int)currentValue == -1)
+    else if ((int) currentValue == -1)
         newValue = 0;
 
     if (newValue != currentValue)
     {
-        getOwner()->parameterChangeRequest(this);
+        getOwner()->parameterChangeRequest (this);
         valueChanged();
         logValueChange();
     }
@@ -1225,94 +1193,91 @@ void SelectedStreamParameter::setStreamNames(Array<String> streamNames_)
 
 int SelectedStreamParameter::getSelectedIndex()
 {
-    return (int)currentValue;
+    return (int) currentValue;
 }
 
 String SelectedStreamParameter::getValueAsString()
 {
-    if ((int)currentValue == -1 || streamNames.size() == 0)
+    if ((int) currentValue == -1 || streamNames.size() == 0)
         return String();
     else
-        return streamNames[(int)currentValue];
+        return streamNames[(int) currentValue];
 }
 
-void SelectedStreamParameter::toXml(XmlElement* xml)
+void SelectedStreamParameter::toXml (XmlElement* xml)
 {
-    xml->setAttribute(getName(), (int)currentValue);
+    xml->setAttribute (getName(), (int) currentValue);
 }
 
-void SelectedStreamParameter::fromXml(XmlElement* xml)
+void SelectedStreamParameter::fromXml (XmlElement* xml)
 {
-    int loadValue = xml->getIntAttribute(getName(), defaultValue);
-    currentValue = loadValue < streamNames.size() ? (var)loadValue : defaultValue;
+    int loadValue = xml->getIntAttribute (getName(), defaultValue);
+    currentValue = loadValue < streamNames.size() ? (var) loadValue : defaultValue;
 }
 
 String SelectedStreamParameter::getChangeDescription()
 {
-    return streamNames[(int)currentValue];
+    return streamNames[(int) currentValue];
 }
 
-TimeParameter::TimeParameter(ParameterOwner* owner,
-    ParameterScope scope,
-    const String& name,
-    const String& displayName,
-    const String& description,
-    const String& defaultValue,
-    bool deactivateDuringAcquisition)
-    : Parameter(owner,
-        ParameterType::TIME_PARAM,
-        scope,
-        name,
-        displayName,
-        description,
-        defaultValue,
-        deactivateDuringAcquisition)
+TimeParameter::TimeParameter (ParameterOwner* owner,
+                              ParameterScope scope,
+                              const String& name,
+                              const String& displayName,
+                              const String& description,
+                              const String& defaultValue,
+                              bool deactivateDuringAcquisition)
+    : Parameter (owner,
+                 ParameterType::TIME_PARAM,
+                 scope,
+                 name,
+                 displayName,
+                 description,
+                 defaultValue,
+                 deactivateDuringAcquisition)
 {
-    timeValue = std::make_shared<TimeValue>(defaultValue);
-    timeValue->setMinTimeInMilliseconds(0);
+    timeValue = std::make_shared<TimeValue> (defaultValue);
+    timeValue->setMinTimeInMilliseconds (0);
 }
 
-void TimeParameter::setNextValue(var newValue_, bool undoable)
+void TimeParameter::setNextValue (var newValue_, bool undoable)
 {
-
-    if (newValue_.toString() == currentValue.toString()) return;
+    if (newValue_.toString() == currentValue.toString())
+        return;
 
     if (newValue_.isString())
     {
-
         newValue = newValue_;
 
         if (undoable)
         {
-            ChangeValue* action = new TimeParameter::ChangeValue(getKey(), newValue);
+            ChangeValue* action = new TimeParameter::ChangeValue (getKey(), newValue);
 
             AccessClass::getUndoManager()->beginNewTransaction();
-            AccessClass::getUndoManager()->perform(action);
-
+            AccessClass::getUndoManager()->perform (action);
         }
         else
         {
             currentValue = newValue;
-            timeValue->setTimeFromString(currentValue.toString());
+            timeValue->setTimeFromString (currentValue.toString());
             valueChanged();
         }
-
     }
 }
 
-void TimeParameter::toXml(XmlElement* xml)
+void TimeParameter::toXml (XmlElement* xml)
 {
-    xml->setAttribute(getName(), currentValue.toString());
+    xml->setAttribute (getName(), currentValue.toString());
 }
 
-void TimeParameter::fromXml(XmlElement* xml)
+void TimeParameter::fromXml (XmlElement* xml)
 {
-    currentValue = xml->getStringAttribute(getName(), defaultValue);
-    timeValue->setTimeFromString(currentValue.toString());
+    currentValue = xml->getStringAttribute (getName(), defaultValue);
+    timeValue->setTimeFromString (currentValue.toString());
 }
 
-TimeParameter::ChangeValue::ChangeValue(std::string key_, var newValue_)
-    : key(key_), newValue(newValue_)
+TimeParameter::ChangeValue::ChangeValue (std::string key_, var newValue_)
+    : key (key_), newValue (newValue_)
 {
     Parameter* p = Parameter::parameterMap[key_];
     originalValue = p->currentValue;
@@ -1320,11 +1285,11 @@ TimeParameter::ChangeValue::ChangeValue(std::string key_, var newValue_)
 
 bool TimeParameter::ChangeValue::perform()
 {
-    TimeParameter* p = (TimeParameter*)Parameter::parameterMap[key];
-    p->getTimeValue()->setTimeFromString(newValue.toString());
+    TimeParameter* p = (TimeParameter*) Parameter::parameterMap[key];
+    p->getTimeValue()->setTimeFromString (newValue.toString());
 
     p->newValue = newValue;
-    p->getOwner()->parameterChangeRequest(p);
+    p->getOwner()->parameterChangeRequest (p);
 
     p->valueChanged();
 
@@ -1335,11 +1300,11 @@ bool TimeParameter::ChangeValue::perform()
 
 bool TimeParameter::ChangeValue::undo()
 {
-    TimeParameter* p = (TimeParameter*)Parameter::parameterMap[key];
-    p->getTimeValue()->setTimeFromString(originalValue.toString());
+    TimeParameter* p = (TimeParameter*) Parameter::parameterMap[key];
+    p->getTimeValue()->setTimeFromString (originalValue.toString());
 
     p->newValue = originalValue;
-    p->getOwner()->parameterChangeRequest(p);
+    p->getOwner()->parameterChangeRequest (p);
 
     p->valueChanged();
 
@@ -1353,30 +1318,29 @@ String TimeParameter::getChangeDescription()
     return getValueAsString();
 }
 
-NotificationParameter::NotificationParameter(ParameterOwner* owner,
-    ParameterScope scope,
-    const String& name,
-    const String& displayName,
-    const String& description,
-    bool deactivateDuringAcquisition)
-    : Parameter(owner,
-                ParameterType::NOTIFICATION_PARAM,
-                scope,
-                name,
-                displayName,
-                description,
-                false,
-                deactivateDuringAcquisition)
+NotificationParameter::NotificationParameter (ParameterOwner* owner,
+                                              ParameterScope scope,
+                                              const String& name,
+                                              const String& displayName,
+                                              const String& description,
+                                              bool deactivateDuringAcquisition)
+    : Parameter (owner,
+                 ParameterType::NOTIFICATION_PARAM,
+                 scope,
+                 name,
+                 displayName,
+                 description,
+                 false,
+                 deactivateDuringAcquisition)
 {
-
 }
 
 void NotificationParameter::triggerNotification()
 {
-    setNextValue(true, true);
+    setNextValue (true, true);
 }
 
-void NotificationParameter::setNextValue(var newValue_, bool undoable)
+void NotificationParameter::setNextValue (var newValue_, bool undoable)
 {
-    getOwner()->parameterValueChanged(this);
+    getOwner()->parameterValueChanged (this);
 }

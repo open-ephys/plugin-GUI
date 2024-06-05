@@ -34,104 +34,97 @@ class SyncLineSelector;
 Allows the user to select the TTL line to use for synchronization
 
 */
-class PLUGIN_API SyncChannelButton : public Button	
+class PLUGIN_API SyncChannelButton : public Button
 {
 public:
+    /** Constructor */
+    SyncChannelButton (int id, SyncLineSelector* parent);
 
-	/** Constructor */
-	SyncChannelButton(int id, SyncLineSelector* parent);
+    /** Destructor */
+    ~SyncChannelButton();
 
-	/** Destructor */
-	~SyncChannelButton();
-
-	/** Returns the ID for this button's stream*/
+    /** Returns the ID for this button's stream*/
     int getId() { return id; };
 
 private:
-
-	int id; 
-	SyncLineSelector* parent;
+    int id;
+    SyncLineSelector* parent;
     int width;
     int height;
-	Colour btnColor;
+    Colour btnColor;
 
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
-class PLUGIN_API SetPrimaryButton : public Button	
+class PLUGIN_API SetPrimaryButton : public Button
 {
 public:
+    /** Constructor */
+    SetPrimaryButton (const String& name);
 
-	/** Constructor */
-	SetPrimaryButton(const String& name);
-
-	/** Destructor */
-	~SetPrimaryButton();
+    /** Destructor */
+    ~SetPrimaryButton();
 
 private:
-	/** Renders the button*/
-	void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown) override;
+    /** Renders the button*/
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
-
-class PLUGIN_API SyncLineSelector : 
-	public Component,
-	public Button::Listener
+class PLUGIN_API SyncLineSelector : public Component,
+                                    public Button::Listener
 {
 public:
+    class Listener
+    {
+    public:
+        virtual ~Listener() {}
 
-	class Listener
-	{
-	public:
-		virtual ~Listener() { }
+        // Called when the selected sync line changes
+        virtual void selectedLineChanged (int selectedLine) = 0;
 
-		// Called when the selected sync line changes
-		virtual void selectedLineChanged(int selectedLine) = 0;
+        // Called when the user sets the primary stream for synchronization
+        virtual void primaryStreamChanged() = 0;
+    };
 
-		// Called when the user sets the primary stream for synchronization
-		virtual void primaryStreamChanged() = 0;
-	};
+    /** Constructor */
+    SyncLineSelector (Listener* listener, int numChans, int selectedLine, bool isPrimary, bool canSelectNone = false);
+    //SyncLineSelector(int nChans, int selectedChannelIdx, bool isPrimary);
 
-	/** Constructor */
-	SyncLineSelector(Listener* listener, int numChans, int selectedLine, bool isPrimary, bool canSelectNone = false);
-	//SyncLineSelector(int nChans, int selectedChannelIdx, bool isPrimary);
+    /** Destructor */
+    ~SyncLineSelector();
 
-	/** Destructor */
-	~SyncLineSelector();
+    int getSelectedChannel() { return selectedLine; }
 
-	int getSelectedChannel() { return selectedLine; }
+    /** Mouse listener methods*/
+    void mouseDown (const MouseEvent& event);
+    void mouseMove (const MouseEvent& event);
+    void mouseUp (const MouseEvent& event);
 
-	/** Mouse listener methods*/
-	void mouseDown(const MouseEvent &event);
-	void mouseMove(const MouseEvent &event);
-	void mouseUp(const MouseEvent &event);
+    /** Responds to button clicks*/
+    void buttonClicked (Button*);
 
-	/** Responds to button clicks*/
-	void buttonClicked(Button*);
+    int nChannels;
+    bool isPrimary;
 
-	int nChannels;
-	bool isPrimary;
-    
     bool detectedChange;
 
-	int buttonSize;
-	int nRows;
+    int buttonSize;
+    int nRows;
 
-	int width;
-	int height;
+    int width;
+    int height;
 
-	OwnedArray<SyncChannelButton> buttons;
+    OwnedArray<SyncChannelButton> buttons;
 
-	Array<Colour> lineColors;
+    Array<Colour> lineColors;
 
 private:
-	
-	Listener* listener;
+    Listener* listener;
 
     ScopedPointer<SetPrimaryButton> setPrimaryStreamButton;
-    
-	int selectedLine = 0;
-	bool canSelectNone = false;
+
+    int selectedLine = 0;
+    bool canSelectNone = false;
 };
 
 #endif // SYNCCHANNEL_SELECTOR_H_INCLUDED

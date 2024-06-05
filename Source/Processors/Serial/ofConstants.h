@@ -11,9 +11,9 @@
 // 		helpful:
 // 		http://www.ogre3d.org/docs/api/html/OgrePlatform_8h-source.html
 
-#if defined( __WIN32__ ) || defined( _WIN32 )
+#if defined(__WIN32__) || defined(_WIN32)
 #define TARGET_WIN32
-#elif defined( __APPLE_CC__)
+#elif defined(__APPLE_CC__)
 #include <TargetConditionals.h>
 
 #if (TARGET_OS_IPHONE_SIMULATOR) || (TARGET_OS_IPHONE) || (TARGET_IPHONE)
@@ -22,7 +22,7 @@
 #else
 #define TARGET_OSX
 #endif
-#elif defined (ANDROID)
+#elif defined(ANDROID)
 #define TARGET_ANDROID
 #define TARGET_OPENGLES
 #else
@@ -30,13 +30,12 @@
 #endif
 //-------------------------------
 
-
 // then the the platform specific includes:
 #ifdef TARGET_WIN32
 //this is for TryEnterCriticalSection
 //http://www.zeroc.com/forums/help-center/351-ice-1-2-tryentercriticalsection-problem.html
 #ifndef _WIN32_WINNT
-#   define _WIN32_WINNT 0x400
+#define _WIN32_WINNT 0x400
 #endif
 #define WIN32_LEAN_AND_MEAN
 
@@ -49,19 +48,19 @@
 // #define GLEW_STATIC
 #define __WINDOWS_DS__
 #define __WINDOWS_MM__
-#if (_MSC_VER)       // microsoft visual studio
+#if (_MSC_VER) // microsoft visual studio
 #include <stdint.h>
-#pragma warning(disable : 4068)     // unknown pragmas
-#pragma warning(disable : 4101)     // unreferenced local variable
-#pragma	warning(disable : 4312)		// type cast conversion (in qt vp)
-#pragma warning(disable : 4311)		// type cast pointer truncation (qt vp)
-#pragma warning(disable : 4018)		// signed/unsigned mismatch (since vector.size() is a size_t)
-#pragma warning(disable : 4267)		// conversion from size_t to Size warning... possible loss of data
-#pragma warning(disable : 4800)		// 'Boolean' : forcing value to bool 'true' or 'false'
-#pragma warning(disable : 4099)		// for debug, PDB 'vc80.pdb' was not found with...
+#pragma warning(disable : 4068) // unknown pragmas
+#pragma warning(disable : 4101) // unreferenced local variable
+#pragma warning(disable : 4312) // type cast conversion (in qt vp)
+#pragma warning(disable : 4311) // type cast pointer truncation (qt vp)
+#pragma warning(disable : 4018) // signed/unsigned mismatch (since vector.size() is a size_t)
+#pragma warning(disable : 4267) // conversion from size_t to Size warning... possible loss of data
+#pragma warning(disable : 4800) // 'Boolean' : forcing value to bool 'true' or 'false'
+#pragma warning(disable : 4099) // for debug, PDB 'vc80.pdb' was not found with...
 #endif
 
-#define TARGET_LITTLE_ENDIAN			// intel cpu
+#define TARGET_LITTLE_ENDIAN // intel cpu
 
 // #define WIN32_HIGH_RES_TIMING
 
@@ -85,7 +84,7 @@
 #include <unistd.h>
 
 #if defined(__LITTLE_ENDIAN__)
-#define TARGET_LITTLE_ENDIAN		// intel cpu
+#define TARGET_LITTLE_ENDIAN // intel cpu
 #endif
 #endif
 
@@ -98,19 +97,17 @@
 // for 99% of the linux folks that are on intel
 // everyone one else will have RGB / BGR issues.
 //#if defined(__LITTLE_ENDIAN__)
-#define TARGET_LITTLE_ENDIAN		// intel cpu
+#define TARGET_LITTLE_ENDIAN // intel cpu
 //#endif
 
 // some things for serial compilation:
-#define B14400	14400
-#define B28800	28800
-
+#define B14400 14400
+#define B28800 28800
 
 #endif
 
-
 #ifdef TARGET_OF_IPHONE
-#define TARGET_LITTLE_ENDIAN		// arm cpu	
+#define TARGET_LITTLE_ENDIAN // arm cpu
 #endif
 
 #ifdef TARGET_ANDROID
@@ -119,28 +116,25 @@
 #define TARGET_LITTLE_ENDIAN
 #endif
 
-
 #ifndef __MWERKS__
 #include <cstdlib>
-#define OF_EXIT_APP(val)		std::exit(val);
+#define OF_EXIT_APP(val) std::exit (val);
 #else
-#define OF_EXIT_APP(val)		std::exit(val);
+#define OF_EXIT_APP(val) std::exit (val);
 #endif
 
-
-
 // core: ---------------------------
-#include <cstdio>
-#include <cstdarg>
-#include <cmath>
-#include <ctime>
-#include <cstdlib>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <cstring>
-#include <sstream>  //for ostringsream
-#include <iomanip>  //for setprecision
-#include <fstream>
 #include <algorithm>
+#include <cmath>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <fstream>
+#include <iomanip> //for setprecision
+#include <iostream>
+#include <sstream> //for ostringsream
+#include <string>
+#include <vector>
 using namespace std;

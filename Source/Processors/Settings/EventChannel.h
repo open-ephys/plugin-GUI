@@ -25,10 +25,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define EVENTCHANNEL_H_INCLUDED
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../PluginManager/OpenEphysPlugin.h"
-#include "Metadata.h"
-#include "InfoObject.h"
 #include "../Parameter/ParameterOwner.h"
+#include "../PluginManager/OpenEphysPlugin.h"
+#include "InfoObject.h"
+#include "Metadata.h"
 
 /**
 *
@@ -40,134 +40,129 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 * The EventChannel class is part of the Open Ephys Plugin API
 *
 */
-class PLUGIN_API EventChannel : 
-	public ChannelInfoObject,
-	public MetadataEventObject,
-	public ParameterOwner
+class PLUGIN_API EventChannel : public ChannelInfoObject,
+                                public MetadataEventObject,
+                                public ParameterOwner
 {
 public:
-
-	/**
+    /**
 	* Supported EventChannel types
 	*
 	* These determine the type of events the EventChannel can transmit
 	*/
-	enum Type
-	{
-		// Most common - used for tracking the status of up to 256 TTL bits
-		TTL = 3,
+    enum Type
+    {
+        // Most common - used for tracking the status of up to 256 TTL bits
+        TTL = 3,
 
-		// Used by the MessageCenter to broadcast messages to all processors;
-		// not commonly used by plugins
-		TEXT = 5,
+        // Used by the MessageCenter to broadcast messages to all processors;
+        // not commonly used by plugins
+        TEXT = 5,
 
-		// Used to send custom events as binary blobs (not commonly used)
-		CUSTOM = 7,
+        // Used to send custom events as binary blobs (not commonly used)
+        CUSTOM = 7,
 
-		//For error checking
-		INVALID = 100,
-	};
+        //For error checking
+        INVALID = 100,
+    };
 
-	/**
+    /**
 	* Supported data types for Event payload
 	*
 	* These should be treated by the RecordEngines as simple binary blobs when writing to disk
 	*/
-	enum BinaryDataType
-	{
-		BINARY_BASE_VALUE = 10,
-		CHAR_ARRAY,
-		INT8_ARRAY,
-		UINT8_ARRAY,
-		INT16_ARRAY,
-		UINT16_ARRAY,
-		INT32_ARRAY,
-		UINT32_ARRAY,
-		INT64_ARRAY,
-		UINT64_ARRAY,
-		FLOAT_ARRAY,
-		DOUBLE_ARRAY,
-	};
+    enum BinaryDataType
+    {
+        BINARY_BASE_VALUE = 10,
+        CHAR_ARRAY,
+        INT8_ARRAY,
+        UINT8_ARRAY,
+        INT16_ARRAY,
+        UINT16_ARRAY,
+        INT32_ARRAY,
+        UINT32_ARRAY,
+        INT64_ARRAY,
+        UINT64_ARRAY,
+        FLOAT_ARRAY,
+        DOUBLE_ARRAY,
+    };
 
-	/* Settings required to initialize an EventChannel*/
-	struct Settings
-	{
-		Type type;
+    /* Settings required to initialize an EventChannel*/
+    struct Settings
+    {
+        Type type;
 
-		String name;
-		String description;
-		String identifier;
+        String name;
+        String description;
+        String identifier;
 
-		DataStream* stream;
+        DataStream* stream;
 
-		int maxTTLBits = 8;
+        int maxTTLBits = 8;
 
-		BinaryDataType customDataType = BINARY_BASE_VALUE;
-		int customDataLength = 0;
+        BinaryDataType customDataType = BINARY_BASE_VALUE;
+        int customDataLength = 0;
+    };
 
-	};
-
-	/** Default constructor
+    /** Default constructor
 	@param settings - The settings for this channel.
 	*/
-	EventChannel(Settings settings);
+    EventChannel (Settings settings);
 
-	/* Destructor */
-	virtual ~EventChannel();
+    /* Destructor */
+    virtual ~EventChannel();
 
-	/* Get the EventChannel type (TTL, TEXT, or CUSTOM) */
-	const Type getType() const;
+    /* Get the EventChannel type (TTL, TEXT, or CUSTOM) */
+    const Type getType() const;
 
-	/* Get the EventChannel binary data type (INT8, INT32, etc.) */
-	const BinaryDataType getBinaryDataType() const;
+    /* Get the EventChannel binary data type (INT8, INT32, etc.) */
+    const BinaryDataType getBinaryDataType() const;
 
-	/** Gets the size of the event payload
+    /** Gets the size of the event payload
 		-For TTL, it returns the number of bytes used to track bit status
 		-For message events, the number of characters
 		-For custom events, the number of elements in the typed array.
 	*/
-	unsigned int getLength() const;
+    unsigned int getLength() const;
 
-	/** Gets the size of the event payload in bytes*/
-	size_t getDataSize() const;
+    /** Gets the size of the event payload in bytes*/
+    size_t getDataSize() const;
 
-	/** Gets the size of the event payload in bytes*/
-	int getMaxTTLBits() const;
+    /** Gets the size of the event payload in bytes*/
+    int getMaxTTLBits() const;
 
-	/** Gets the size in bytes of an element depending of the type*/
-	static size_t getBinaryDataTypeSize(BinaryDataType type);
+    /** Gets the size in bytes of an element depending of the type*/
+    static size_t getBinaryDataTypeSize (BinaryDataType type);
 
-	/** Handy method to get an equivalent metadata value type for the main event data*/
-	static BaseType getEquivalentMetadataType(const EventChannel& ev);
+    /** Handy method to get an equivalent metadata value type for the main event data*/
+    static BaseType getEquivalentMetadataType (const EventChannel& ev);
 
-	/** Handy method to get an equivalent metadata value type for the main event data*/
-	BaseType getEquivalentMetadataType() const;
+    /** Handy method to get an equivalent metadata value type for the main event data*/
+    BaseType getEquivalentMetadataType() const;
 
-	/** Sets the label for a particular line (for TTL events)*/
-	void setLineLabel(int line, String label);
+    /** Sets the label for a particular line (for TTL events)*/
+    void setLineLabel (int line, String label);
 
-	/** Sets the label for a particular line (for TTL events)*/
-	String getLineLabel(int line) const;
+    /** Sets the label for a particular line (for TTL events)*/
+    String getLineLabel (int line) const;
 
-	/** Set the state of a TTL line (used for tracking TTL word states)*/
-	void setLineState(int line, bool state);
+    /** Set the state of a TTL line (used for tracking TTL word states)*/
+    void setLineState (int line, bool state);
 
-	/** Returns the current 64-bit TTL word for this channel */
-	uint64 getTTLWord() const;
+    /** Returns the current 64-bit TTL word for this channel */
+    uint64 getTTLWord() const;
 
 private:
+    const Type m_type;
+    BinaryDataType m_binaryDataType;
+    size_t m_dataSize;
+    unsigned int m_length;
+    unsigned int m_maxTTLBits;
+    uint64 m_TTLWord;
 
-	const Type m_type;
-	BinaryDataType m_binaryDataType;
-	size_t m_dataSize;
-	unsigned int m_length;
-	unsigned int m_maxTTLBits;
-	uint64 m_TTLWord;
+    Array<String> lineLabels;
 
-	Array<String> lineLabels;
-
-	JUCE_LEAK_DETECTOR(EventChannel);
+    JUCE_LEAK_DETECTOR (EventChannel);
 };
-
 
 #endif
