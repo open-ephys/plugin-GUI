@@ -417,6 +417,9 @@ bool ClearSignalChain::undo()
 
     processorGraph->loadFromXml (settings.get());
 
+    for (auto& p : processorGraph->getListOfProcessors())
+        processorGraph->updateUndoableActions (p->getNodeId());
+
     return true;
 }
 
@@ -455,6 +458,9 @@ bool LoadSignalChain::undo()
     LOGDD ("Undoing load signal chain.");
 
     processorGraph->loadFromXml (oldSettings.get());
+
+    for (auto& p : processorGraph->getListOfProcessors())
+        processorGraph->updateUndoableActions (p->getNodeId());
 
     return true;
 }
