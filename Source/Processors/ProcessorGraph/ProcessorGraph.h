@@ -34,7 +34,7 @@ class AudioNode;
 class MessageCenter;
 class SignalChainTabButton;
 class PluginManager;
-class OpenEphysAction;
+class ProcessorAction;
 struct ChannelKey {
     int inputNodeId;
     int inputIndex;
@@ -171,7 +171,7 @@ public:
     void restoreParameters();
 
     /** Returns a list of all undoable actions for a particular processor ID */
-    std::vector<OpenEphysAction*> getUndoableActions(int nodeId);
+    std::vector<ProcessorAction*> getUndoableActions(int nodeId);
 
     /** Loops through any undoable actions for the processor ID and restores the pointer to the processor */
     void updateUndoableActions(int nodeId);

@@ -36,7 +36,7 @@
     Undo: removes the spike channel from the
     spike detector.
 */
-class AddSpikeChannels : public OpenEphysAction
+class AddSpikeChannels : public ProcessorAction
 {
 public:
     /** Constructor*/
@@ -72,7 +72,7 @@ private:
     int count;
 };
 
-class RemoveSpikeChannels : public OpenEphysAction
+class RemoveSpikeChannels : public ProcessorAction
 {
 public:
     /** Constructor*/

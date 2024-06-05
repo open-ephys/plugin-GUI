@@ -44,7 +44,7 @@
 #include "../Events/Event.h"
 #include "../Events/Spike.h"
 
-#include "../Actions/OpenEphysAction.h"
+#include "../Actions/ProcessorAction.h"
 
 #include <time.h>
 #include <stdio.h>
@@ -559,14 +559,14 @@ public:
     void setHeadlessMode(bool mode) { headlessMode = mode; }
 
     /** Registers a custom undoable action associated with this processor */
-    static void registerUndoableAction(int nodeId, OpenEphysAction* action) { undoableActions[nodeId].push_back(action); }
+    static void registerUndoableAction(int nodeId, ProcessorAction* action) { undoableActions[nodeId].push_back(action); }
 
     /** Returns a list of undoable actions for a given processor ID */
-    static std::vector<OpenEphysAction*> getUndoableActions(int nodeId) { return undoableActions[nodeId]; }
+    static std::vector<ProcessorAction*> getUndoableActions(int nodeId) { return undoableActions[nodeId]; }
 
 protected:
 
-    static std::map<int, std::vector<OpenEphysAction*>> undoableActions;
+    static std::map<int, std::vector<ProcessorAction*>> undoableActions;
 
     // --------------------------------------------
     //     SAMPLES + TIMESTAMPS

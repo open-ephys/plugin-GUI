@@ -2,6 +2,6 @@
 
 #add files in this folder
 add_sources(open-ephys 
-	OpenEphysAction.cpp
-	OpenEphysAction.h
+	ProcessorAction.cpp
+	ProcessorAction.h
 )

@@ -30,7 +30,7 @@ AddSpikeChannels::AddSpikeChannels (SpikeDetector* processor_,
                                     SpikeChannel::Type type_,
                                     int count_, //adds multiple channels at once
                                     Array<int> startChannels_,
-                                    int nextAvailableChannel_) : OpenEphysAction ("AddSpikeChannels"),
+                                    int nextAvailableChannel_) : ProcessorAction ("AddSpikeChannels"),
                                                                  spikeDetector (processor_),
                                                                  streamKey (stream_->getKey()),
                                                                  type (type_),
@@ -110,7 +110,7 @@ void AddSpikeChannels::restoreOwner (GenericProcessor* owner)
 RemoveSpikeChannels::RemoveSpikeChannels (SpikeDetector* processor_,
                                           DataStream* stream_,
                                           Array<SpikeChannel*> spikeChannelsToRemove_,
-                                          Array<int> indeces_) : OpenEphysAction ("RemoveSpikeChannels"),
+                                          Array<int> indeces_) : ProcessorAction ("RemoveSpikeChannels"),
                                                                  spikeDetector (processor_),
                                                                  indeces (indeces_),
                                                                  streamKey (stream_->getKey())

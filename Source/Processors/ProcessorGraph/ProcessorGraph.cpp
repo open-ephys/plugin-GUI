@@ -1138,7 +1138,7 @@ void ProcessorGraph::restoreParameters()
 
 }
 
-std::vector<OpenEphysAction*> ProcessorGraph::getUndoableActions(int nodeId)
+std::vector<ProcessorAction*> ProcessorGraph::getUndoableActions(int nodeId)
 {
     return GenericProcessor::getUndoableActions(nodeId);
 }
