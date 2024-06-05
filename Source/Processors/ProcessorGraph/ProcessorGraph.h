@@ -84,7 +84,8 @@ public:
     GenericProcessor* createProcessor (Plugin::Description& description,
                                        GenericProcessor* sourceNode = nullptr,
                                        GenericProcessor* destNode = nullptr,
-                                       bool signalChainIsLoading = false);
+                                       bool signalChainIsLoading = false,
+                                       bool undoingDelete = false);
 
     /* Determines which processor to create, based on the description provided*/
     std::unique_ptr<GenericProcessor> createProcessorFromDescription (Plugin::Description& description);

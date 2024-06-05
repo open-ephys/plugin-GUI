@@ -228,7 +228,8 @@ void ProcessorGraph::moveProcessor (GenericProcessor* processor,
 GenericProcessor* ProcessorGraph::createProcessor (Plugin::Description& description,
                                                    GenericProcessor* sourceNode,
                                                    GenericProcessor* destNode,
-                                                   bool signalChainIsLoading)
+                                                   bool signalChainIsLoading,
+                                                   bool undoingDelete)
 {
     std::unique_ptr<GenericProcessor> processor = nullptr;
     GenericProcessor* addedProc = nullptr;
@@ -281,7 +282,7 @@ GenericProcessor* ProcessorGraph::createProcessor (Plugin::Description& descript
             GenericEditor* editor = (GenericEditor*) addedProc->createEditor();
         }
 
-        if (! signalChainIsLoading)
+        if (! signalChainIsLoading && ! undoingDelete)
         {
             addedProc->initialize (false);
         }

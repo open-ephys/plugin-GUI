@@ -273,7 +273,8 @@ bool DeleteProcessor::undo()
     processor = processorGraph->createProcessor (description,
                                                  sourceProcessor,
                                                  destProcessor,
-                                                 false);
+                                                 false,
+                                                 true);
     processor->parametersAsXml = settings.get();
 
     if (processor->isMerger())
