@@ -349,5 +349,10 @@ void AudioComponent::loadStateFromXml (XmlElement* parent)
         LOGE ("Buffer size out of range.");
     }
 
-    LOGC (deviceManager.setAudioDeviceSetup (setup, true));
+    String error = deviceManager.setAudioDeviceSetup (setup, true);
+
+    if (! error.isEmpty())
+    {
+        LOGE ("Error loading audio device setup: " + error);
+    }
 }
