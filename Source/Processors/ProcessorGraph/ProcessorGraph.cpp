@@ -1717,7 +1717,7 @@ bool ProcessorGraph::isReady()
                 if (! param->isValid())
                 {
                     CoreServices::sendStatusMessage ("Parameter " + param->getKey() + " is not valid.");
-                    AccessClass::getUIComponent()->disableCallbacks();
+                    AccessClass::getControlPanel()->disableCallbacks();
                     return false;
                 }
             }
@@ -1731,7 +1731,7 @@ bool ProcessorGraph::isReady()
     if (getNumNodes() < 4)
     {
         LOGD ("Not enough processors in signal chain to acquire data");
-        AccessClass::getUIComponent()->disableCallbacks();
+        AccessClass::getControlPanel()->disableCallbacks();
         return false;
     }
 
@@ -1763,7 +1763,7 @@ bool ProcessorGraph::isReady()
 
         if (NWBCounter > 1)
         {
-            AccessClass::getUIComponent()->disableCallbacks();
+            AccessClass::getControlPanel()->disableCallbacks();
 
             AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
                                               "WARNING",
