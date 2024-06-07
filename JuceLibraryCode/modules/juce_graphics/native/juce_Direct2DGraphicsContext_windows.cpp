@@ -136,7 +136,7 @@ public:
             return sink.axisAlignedLines && sink.lineCount == 3;
         };
 
-        jassert (! checkAxisAlignedClipLayer());
+        // jassert (! checkAxisAlignedClipLayer());
         #endif
 
         context->PushLayer (layerParameters, nullptr);

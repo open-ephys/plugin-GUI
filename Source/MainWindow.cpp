@@ -47,11 +47,11 @@ MainDocumentWindow::MainDocumentWindow()
 
 MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleApp (isConsoleApp_)
 {
+    customLookAndFeel = std::make_unique<CustomLookAndFeel>();
+    LookAndFeel::setDefaultLookAndFeel (customLookAndFeel.get());
+
     if (! isConsoleApp)
     {
-        customLookAndFeel = std::make_unique<CustomLookAndFeel>();
-        LookAndFeel::setDefaultLookAndFeel (customLookAndFeel.get());
-
         documentWindow = std::make_unique<MainDocumentWindow>();
 
         documentWindow->setResizable (true, // isResizable
