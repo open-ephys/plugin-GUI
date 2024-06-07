@@ -107,6 +107,9 @@ public:
     /** Allows the DataThread to set its default state, depending on whether the signal chain is loading */
     virtual void initialize (bool signalChainIsLoading) {}
 
+    /** Returns true if the DataThread is ready to start acquisition */
+    virtual bool isReady() { return true; }
+
     /** Called when a parameter value is updated, to allow plugin-specific responses */
     virtual void parameterValueChanged (Parameter*) {}
 

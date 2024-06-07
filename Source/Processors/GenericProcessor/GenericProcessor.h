@@ -239,6 +239,9 @@ public:
     /** Returns true if a processor is an Empty processor, false otherwise. */
     bool isEmpty() const;
 
+    /** Returns true if a processor is ready to acquire or process data */
+    virtual bool isReady() { return true; }
+
     /** Returns true if a processor is able to send its output to a given processor.
 
         Ideally, this should always return true, but there may be special cases

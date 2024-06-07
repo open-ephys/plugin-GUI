@@ -101,6 +101,15 @@ void SourceNode::initialize (bool signalChainIsLoading)
     dataThread->initialize (signalChainIsLoading);
 }
 
+bool SourceNode::isReady()
+{
+    if (dataThread != nullptr)
+    {
+        dataThread->isReady();
+    }
+    return false;
+}
+
 void SourceNode::registerParameters()
 {
     dataThread->registerParameters();
