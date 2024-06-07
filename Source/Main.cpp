@@ -33,6 +33,27 @@
 #include <fstream>
 #include <stdio.h>
 
+/**
+ * This function is called when the console window is closed.
+ * Handles the CTRL+C, CTRL+BREAK, and console close button  events.
+*/
+#ifdef _WIN32
+BOOL WINAPI ConsoleHandler (DWORD CEvent)
+{
+    switch (CEvent)
+    {
+        case CTRL_C_EVENT:
+        case CTRL_BREAK_EVENT:
+            JUCEApplication::getInstance()->systemRequestedQuit();
+            return TRUE;
+        case CTRL_CLOSE_EVENT:
+            JUCEApplication::getInstance()->quit();
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+#endif
 
 /**
 
@@ -75,6 +96,16 @@ public:
             SetConsoleTitle ("Open Ephys GUI ::: Console");
             SetConsoleWindowInfo (wHnd, true, &windowSize);
             SetConsoleScreenBufferSize (wHnd, bufferSize);
+        }
+
+        SetConsoleCtrlHandler (ConsoleHandler, TRUE);
+
+        if (HWND hwnd = GetConsoleWindow())
+        {
+            if (HMENU hMenu = GetSystemMenu (hwnd, FALSE))
+            {
+                EnableMenuItem (hMenu, SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+            }
         }
 
 #endif
