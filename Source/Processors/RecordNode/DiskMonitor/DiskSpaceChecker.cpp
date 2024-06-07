@@ -53,6 +53,9 @@ void DiskSpaceChecker::addListener (DiskSpaceListener* listener)
 
 void DiskSpaceChecker::removeListener (DiskSpaceListener* listener)
 {
+    if (listeners.empty())
+        return;
+
     std::lock_guard<std::mutex> lock (listenerMutex);
     listeners.erase (std::remove (listeners.begin(), listeners.end(), listener), listeners.end());
 }

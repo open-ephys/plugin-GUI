@@ -76,7 +76,7 @@ GenericEditor::GenericEditor (GenericProcessor* owner) : AudioProcessorEditor (o
 
 GenericEditor::~GenericEditor()
 {
-    LOGD ("GenericEditor::destructor");
+    LOGD (getNameAndId(), "::destructor");
 
     streamSelector.reset();
 }
