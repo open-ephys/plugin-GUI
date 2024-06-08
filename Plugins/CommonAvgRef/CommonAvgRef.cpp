@@ -34,6 +34,14 @@ CARSettings::CARSettings()
 CommonAverageRef::CommonAverageRef()
     : GenericProcessor ("Common Avg Ref")
 {
+}
+
+CommonAverageRef::~CommonAverageRef()
+{
+}
+
+void CommonAverageRef::registerParameters()
+{
     addMaskChannelsParameter (Parameter::STREAM_SCOPE,
                               "affected",
                               "Affected",
@@ -53,10 +61,6 @@ CommonAverageRef::CommonAverageRef()
                        0.0f,
                        100.0f,
                        1.0f);
-}
-
-CommonAverageRef::~CommonAverageRef()
-{
 }
 
 AudioProcessorEditor* CommonAverageRef::createEditor()

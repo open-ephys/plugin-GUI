@@ -58,6 +58,9 @@ public:
     /** The class destructor, used to deallocate memory. */
     ~CommonAverageRef();
 
+    /** Registers the parameters for a given processor */
+    void registerParameters() override;
+
     /** Called every time a new data buffer is available. */
     void process (AudioBuffer<float>& buffer) override;
 

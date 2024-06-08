@@ -46,6 +46,9 @@ public:
     /** Destructor */
     ~ArduinoOutput();
 
+    /** Registers the parameters for a given processor */
+    void registerParameters() override;
+
     /** Called whenever a parameter's value is changed */
     void parameterValueChanged (Parameter* param) override;
 

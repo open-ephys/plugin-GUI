@@ -88,6 +88,9 @@ public:
     /** The class destructor, used to deallocate memory. */
     ~BandpassFilter() {}
 
+    /** Registers the parameters for a given processor */
+    void registerParameters() override;
+
     /** Creates the FilterEditor. */
     AudioProcessorEditor* createEditor() override;
 
