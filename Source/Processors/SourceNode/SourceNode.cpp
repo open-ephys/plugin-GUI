@@ -105,7 +105,7 @@ bool SourceNode::isReady()
 {
     if (dataThread != nullptr)
     {
-        dataThread->isReady();
+        return dataThread->isReady();
     }
     return false;
 }
