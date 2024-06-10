@@ -63,6 +63,7 @@ void DefaultConfigWindow::launchWindow()
     auto* window = options.launchAsync();
     window->setAlwaysOnTop (true);
     configWindow = window;
+    ((DefaultConfigComponent*) window->getContentComponent())->configWindow = window;
 }
 
 //-----------------------------------------------------------------------
@@ -239,15 +240,15 @@ void DefaultConfigComponent::buttonClicked (Button* button)
 #endif
 
         // Hide the config window
-        if (DialogWindow* dw = this->findParentComponentOfClass<DialogWindow>())
-            dw->setVisible (false);
+        if (configWindow != nullptr)
+            configWindow->setVisible (false);
 
         // Load the config file
         AccessClass::getUIComponent()->getEditorViewport()->loadState (configFile);
 
         // Close config window after loading the config file
-        if (DialogWindow* dw = this->findParentComponentOfClass<DialogWindow>())
-            dw->exitModalState (0);
+        if (configWindow != nullptr)
+            configWindow->exitModalState (0);
     }
     else if (button->getRadioGroupId() == 101)
     {
