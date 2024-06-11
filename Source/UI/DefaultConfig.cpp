@@ -240,7 +240,7 @@ void DefaultConfigComponent::buttonClicked (Button* button)
 
         // Hide the config window
         if (DialogWindow* dw = this->findParentComponentOfClass<DialogWindow>())
-            dw->setVisible (false);
+            dw->centreAroundComponent (AccessClass::getUIComponent(), 1, 1);
 
         // Load the config file
         AccessClass::getUIComponent()->getEditorViewport()->loadState (configFile);
