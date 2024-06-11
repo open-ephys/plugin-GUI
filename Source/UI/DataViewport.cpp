@@ -165,6 +165,18 @@ DraggableTabComponent::DraggableTabComponent (DataViewport* parent_) : TabbedCom
     setTabBarDepth (28);
     setOutline (0);
     setIndent (5); // gap to leave around the edge of the content component
+
+    Path closeButtonPath;
+    closeButtonPath.addLineSegment (Line<float> (0, 0, 12, 12), 1.0f);
+    closeButtonPath.addLineSegment (Line<float> (0, 12, 12, 0), 1.0f);
+
+    closeButton = std::make_unique<ShapeButton> ("X", Colours::black, Colours::black, Colours::black);
+    closeButton->setShape (closeButtonPath, false, false, false);
+    closeButton->addListener (this);
+    addAndMakeVisible (closeButton.get());
+
+    if (dataViewport->getNumTabbedComponents() == 0)
+        closeButton->setVisible (false);
 }
 
 bool DraggableTabComponent::isInterestedInDragSource (const juce::DragAndDropTarget::SourceDetails& dragSourceDetails)
@@ -221,6 +233,8 @@ void DraggableTabComponent::addNewTab (String name, Component* component, int no
     addTab (name, Colours::darkgrey, component, false, tabNodeIds.size() - 1);
 
     setCurrentTabIndex (tabNodeIds.size() - 1);
+
+    closeButton->setVisible (false);
 }
 
 bool DraggableTabComponent::removeTabForNodeId (int nodeId, bool sendNotification)
@@ -236,6 +250,9 @@ bool DraggableTabComponent::removeTabForNodeId (int nodeId, bool sendNotificatio
         removeTab (index);
         tabNodeIds.remove (index);
         setCurrentTabIndex (tabNodeIds.size() - 1);
+
+        if (dataViewport->getNumTabbedComponents() == 1 && getNumTabs() == 0)
+            closeButton->setVisible (false);
 
         if (sendNotification)
         {
@@ -315,9 +332,9 @@ void DraggableTabComponent::paint (Graphics& g)
         r -= 28;
 
     Rectangle<float> bounds (x, y, r - x, b - y);
-    
+
     g.setColour (Colours::black.withAlpha (getTabbedButtonBar().isEnabled() ? 0.15f : 0.08f));
-    g.fillRect (bounds.withTrimmedLeft(10.0f));
+    g.fillRect (bounds.withTrimmedLeft (10.0f));
 
     if (isDraggingOver)
     {
@@ -333,6 +350,29 @@ void DraggableTabComponent::paint (Graphics& g)
                      isDraggingOver ? ThemeColors::highlightedFill : ThemeColors::outline)
                      .withAlpha (0.5f));
     g.drawRoundedRectangle (bounds.reduced (1.0f), 5.0f, 2.0f);
+
+    if (getNumTabs() == 0)
+    {
+        closeButton->setColours (findColour (ThemeColors::defaultText),
+                                 findColour (ThemeColors::defaultText).withAlpha (0.5f),
+                                 findColour (ThemeColors::highlightedText));
+
+        g.setColour (findColour (ThemeColors::defaultText).withAlpha (0.5f));
+        g.setFont (FontOptions ("Inter", "Medium", 20.0f));
+
+        String text = dataViewport->getNumTabbedComponents() == 1 ? "Open a new tab to show here" : "Drag a tab here or open a new tab";
+        g.drawFittedText (text, getLocalBounds(), Justification::centred, 2);
+    }
+}
+
+void DraggableTabComponent::resized()
+{
+    TabbedComponent::resized();
+
+    if (getWidth() > 50 && getHeight() > 25)
+    {
+        closeButton->setBounds (getWidth() - 50, 8, 15, 15);
+    }
 }
 
 void DraggableTabComponent::currentTabChanged (int newIndex, const String& newTabName)
@@ -348,6 +388,14 @@ void DraggableTabComponent::currentTabChanged (int newIndex, const String& newTa
     }
 }
 
+void DraggableTabComponent::buttonClicked (Button* button)
+{
+    if (button == closeButton.get())
+    {
+        dataViewport->removeTabbedComponent (this);
+    }
+}
+
 AddTabbedComponentButton::AddTabbedComponentButton()
     : Button ("Add Tabbed Component")
 {
@@ -358,13 +406,15 @@ AddTabbedComponentButton::AddTabbedComponentButton()
 
 void AddTabbedComponentButton::paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown)
 {
+    Colour btnColour = findColour (ThemeColors::windowBackground).contrasting (0.5f);
+
     if (isMouseOverButton)
     {
-        g.setColour (findColour (ThemeColors::componentBackground).brighter (0.4f));
+        g.setColour (btnColour.withAlpha (0.5f));
     }
     else
     {
-        g.setColour (findColour (ThemeColors::componentBackground).brighter (0.2f));
+        g.setColour (btnColour);
     }
 
     g.strokePath (path, PathStrokeType (1.0f));
@@ -476,6 +526,19 @@ Component* DataViewport::getContentComponentForNodeId (int nodeId)
 Component* DataViewport::getActiveTabContentComponent()
 {
     return draggableTabComponents.getFirst()->getCurrentContentComponent();
+}
+
+void DataViewport::removeTabbedComponent (DraggableTabComponent* draggableTabComponent)
+{
+    if (draggableTabComponents.size() > 1 && draggableTabComponent->getNumTabs() == 0)
+    {
+        draggableTabComponents.removeObject (draggableTabComponent);
+
+        if (activeTabbedComponent > draggableTabComponents.size() - 1)
+            activeTabbedComponent--;
+
+        resized();
+    }
 }
 
 void DataViewport::saveStateToXml (XmlElement* xml)
