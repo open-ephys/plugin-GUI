@@ -53,8 +53,6 @@ public:
     /** Responds to button clicks*/
     void buttonClicked (Button*) override;
 
-    WeakReference<Component> configWindow;
-
 private:
     std::unique_ptr<Label> configLabel;
     std::unique_ptr<ComboBox> configSelector;
