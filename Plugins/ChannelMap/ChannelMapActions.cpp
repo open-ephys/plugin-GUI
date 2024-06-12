@@ -164,10 +164,10 @@ void EnableChannelAction::restoreOwner (GenericProcessor* owner)
 
 ResetStreamAction::ResetStreamAction (ChannelMap* processor_,
                                       DataStream* stream) : ProcessorAction ("ResetStream"),
-                                                                    processor (processor_),
-                                                                    streamKey (stream->getKey()),
-                                                                    channelOrder (processor->getChannelOrder (stream->getStreamId())),
-                                                                    channelStates (processor->getChannelEnabledState (stream->getStreamId()))
+                                                            processor (processor_),
+                                                            streamKey (stream->getKey()),
+                                                            channelOrder (processor->getChannelOrder (stream->getStreamId())),
+                                                            channelStates (processor->getChannelEnabledState (stream->getStreamId()))
 {
     settings = nullptr;
 }

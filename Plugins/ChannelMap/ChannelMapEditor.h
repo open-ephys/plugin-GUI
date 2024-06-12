@@ -35,19 +35,19 @@
 */
 
 class ChannelMapEditor : public GenericEditor,
-    public DragAndDropContainer,
-    public Button::Listener
+                         public DragAndDropContainer,
+                         public Button::Listener
 
 {
 public:
     /** Constructor*/
-    ChannelMapEditor(GenericProcessor* parentNode);
+    ChannelMapEditor (GenericProcessor* parentNode);
 
     /** Destructor*/
     virtual ~ChannelMapEditor();
 
     // Called when an electrode button is clicked
-    void buttonClicked(Button* button) override;
+    void buttonClicked (Button* button) override;
 
     /** Called when the signal chain is updated*/
     void updateSettings() override;
@@ -62,26 +62,25 @@ public:
     void stopAcquisition() override;
 
     /** Mouse actions */
-    void mouseDrag(const MouseEvent& e) override;
-    void mouseUp(const MouseEvent& e) override;
-    void mouseDown(const MouseEvent& e) override;
+    void mouseDrag (const MouseEvent& e) override;
+    void mouseUp (const MouseEvent& e) override;
+    void mouseDown (const MouseEvent& e) override;
 
     /** Called when the editor is collapsed or re-opened*/
     void collapsedStateChanged() override;
 
 private:
-    
     /** Load settings from .prb JSON */
-    void loadPrbFile(File& file);
+    void loadPrbFile (File& file);
 
     /** Write settings to .prb JSON */
-    void writePrbFile(File& file);
+    void writePrbFile (File& file);
 
     /** Updates the electrode button number and location*/
     void refreshElectrodeButtons();
 
     OwnedArray<ElectrodeButton> electrodeButtons;
-   
+
     std::unique_ptr<LoadButton> loadButton;
     std::unique_ptr<SaveButton> saveButton;
     std::unique_ptr<Viewport> electrodeButtonViewport;
@@ -100,11 +99,7 @@ private:
     int lastHoverButton;
     bool isConfigured;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChannelMapEditor);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelMapEditor);
 };
 
-
-
-
-#endif  // __CHANNELMAPEDITOR_H_73D0AB34__
+#endif // __CHANNELMAPEDITOR_H_73D0AB34__

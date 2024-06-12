@@ -36,7 +36,6 @@
 class PrbFormat
 {
 public:
-
     /** Write file from settings */
     static void write (File filename, ChannelMapSettings* settings)
     {
