@@ -647,9 +647,20 @@ void SelectedChannelsParameter::setNextValue (var newValue_, bool undoable)
     if (newValue_ == currentValue)
         return;
 
-    if (newValue_.getArray()->size() <= maxSelectableChannels)
+    int arraySize = newValue_.getArray()->size();
+    if (arraySize <= maxSelectableChannels && arraySize <= channelCount)
     {
+        for (int i = 0; i < arraySize; i++)
+        {
+            if ((int) newValue_[i] < 0 || (int) newValue_[i] >= channelCount)
+                return;
+        }
+
         newValue = newValue_;
+    }
+    else
+    {
+        return;
     }
 
     Parameter::ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
@@ -769,11 +780,25 @@ Array<var> SelectedChannelsParameter::parseSelectedString (const String& input)
     return selectedChannels;
 }
 
-void SelectedChannelsParameter::setChannelCount (int count)
+void SelectedChannelsParameter::setChannelCount (int newCount)
 {
-    channelCount = count;
+    if (channelCount > newCount)
+    {
+        Array<var> values;
+        for (int i = 0; i < currentValue.getArray()->size(); i++)
+        {
+            if ((int) currentValue[i] < newCount)
+            {
+                values.add (currentValue[i]);
+            }
+        }
 
-    LOGDD ("SelectedChannelsParameter: Setting selected channels count to ", count, " at ", getName());
+        currentValue = values;
+    }
+
+    channelCount = newCount;
+
+    LOGDD ("SelectedChannelsParameter: Setting selected channels count to ", newCount, " at ", getName());
 }
 
 MaskChannelsParameter::MaskChannelsParameter (ParameterOwner* owner,
