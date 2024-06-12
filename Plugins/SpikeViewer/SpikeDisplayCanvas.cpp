@@ -78,10 +78,10 @@ SpikeDisplayCanvas::SpikeDisplayCanvas (SpikeDisplayNode* processor_) : Visualiz
     thresholdCoordinator = std::make_unique<SpikeThresholdCoordinator>();
     spikeDisplay->registerThresholdCoordinator (thresholdCoordinator.get());
 
+    scrollBarThickness = 15;
     viewport->setViewedComponent (spikeDisplay.get(), false);
     viewport->setScrollBarsShown (true, false);
-
-    scrollBarThickness = viewport->getScrollBarThickness();
+    viewport->setScrollBarThickness (scrollBarThickness);
 
     clearButton = std::make_unique<UtilityButton> ("Clear Plots", FontOptions ("Inter", "Regular", 14.0f));
     clearButton->setRadius (3.0f);
