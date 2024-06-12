@@ -56,4 +56,61 @@ private:
     Array<int> nextChannelOrder;
 };
 
+class EnableChannelAction : public ProcessorAction
+{
+public:
+    /** Constructor*/
+    EnableChannelAction (ChannelMap* processor,
+                         DataStream* stream,
+                         int channel,
+                         bool wasEnabled);
+
+    /** Destructor */
+    ~EnableChannelAction();
+
+    void restoreOwner (GenericProcessor* processor) override;
+
+    /** Perform the action*/
+    bool perform();
+
+    /** Undo the action*/
+    bool undo();
+
+    XmlElement* settings;
+
+private:
+    ChannelMap* processor;
+    String streamKey;
+    int channel;
+    bool wasEnabled;
+};
+
+class ResetStreamAction : public ProcessorAction
+{
+public:
+    /** Constructor*/
+    ResetStreamAction (ChannelMap* processor,
+                       DataStream* stream);
+
+    /** Destructor */
+    ~ResetStreamAction();
+
+    void restoreOwner (GenericProcessor* processor) override;
+
+    /** Perform the action*/
+    bool perform();
+
+    /** Undo the action*/
+    bool undo();
+
+    XmlElement* settings;
+
+private:
+    ChannelMap* processor;
+    String streamKey;
+
+    Array<int> channelOrder;
+    Array<bool> channelStates;
+};
+
 #endif /* ChannelMapActions_h */

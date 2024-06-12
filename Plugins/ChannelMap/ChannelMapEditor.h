@@ -26,8 +26,6 @@
 
 #include <EditorHeaders.h>
 
-#define NUM_REFERENCES 4
-
 /**
 
   User interface for the Channel Map processor.

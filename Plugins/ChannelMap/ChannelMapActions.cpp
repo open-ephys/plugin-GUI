@@ -92,3 +92,144 @@ void MapChannelsAction::restoreOwner (GenericProcessor* owner)
 {
     processor = (ChannelMap*) owner;
 }
+
+EnableChannelAction::EnableChannelAction (ChannelMap* processor_,
+                                          DataStream* stream,
+                                          int channel_,
+                                          bool wasEnabled_) : ProcessorAction ("EnableChannel"),
+                                                              processor (processor_),
+                                                              streamKey (stream->getKey()),
+                                                              channel (channel_),
+                                                              wasEnabled (wasEnabled_)
+{
+    settings = nullptr;
+}
+
+EnableChannelAction::~EnableChannelAction()
+{
+    if (settings != nullptr)
+        delete settings;
+}
+
+bool EnableChannelAction::perform()
+{
+    uint16 streamId = 0;
+    for (auto stream : processor->getDataStreams())
+    {
+        if (stream->getKey() == streamKey)
+        {
+            streamId = stream->getStreamId();
+            break;
+        }
+    }
+    if (streamId == 0)
+        return false;
+
+    processor->setChannelEnabled (streamId, channel, ! wasEnabled);
+
+    processor->registerUndoableAction (processor->getNodeId(), this);
+
+    CoreServices::updateSignalChain (processor);
+
+    return true;
+}
+
+bool EnableChannelAction::undo()
+{
+    uint16 streamId = 0;
+    for (auto stream : processor->getDataStreams())
+    {
+        if (stream->getKey() == streamKey)
+        {
+            streamId = stream->getStreamId();
+            break;
+        }
+    }
+    if (streamId == 0)
+        return false;
+
+    processor->setChannelEnabled (streamId, channel, wasEnabled);
+
+    processor->registerUndoableAction (processor->getNodeId(), this);
+
+    CoreServices::updateSignalChain (processor);
+
+    return true;
+}
+
+void EnableChannelAction::restoreOwner (GenericProcessor* owner)
+{
+    processor = (ChannelMap*) owner;
+}
+
+ResetStreamAction::ResetStreamAction (ChannelMap* processor_,
+                                      DataStream* stream) : ProcessorAction ("ResetStream"),
+                                                                    processor (processor_),
+                                                                    streamKey (stream->getKey()),
+                                                                    channelOrder (processor->getChannelOrder (stream->getStreamId())),
+                                                                    channelStates (processor->getChannelEnabledState (stream->getStreamId()))
+{
+    settings = nullptr;
+}
+
+ResetStreamAction::~ResetStreamAction()
+{
+    if (settings != nullptr)
+        delete settings;
+}
+
+bool ResetStreamAction::perform()
+{
+    uint16 streamId = 0;
+    for (auto stream : processor->getDataStreams())
+    {
+        if (stream->getKey() == streamKey)
+        {
+            streamId = stream->getStreamId();
+            break;
+        }
+    }
+    if (streamId == 0)
+        return false;
+
+    processor->resetStream (streamId);
+
+    processor->registerUndoableAction (processor->getNodeId(), this);
+
+    CoreServices::updateSignalChain (processor);
+
+    return true;
+}
+
+bool ResetStreamAction::undo()
+{
+    uint16 streamId = 0;
+
+    for (auto stream : processor->getDataStreams())
+    {
+        if (stream->getKey() == streamKey)
+        {
+            streamId = stream->getStreamId();
+            break;
+        }
+    }
+
+    if (streamId == 0)
+        return false;
+
+    processor->setChannelOrder (streamId, channelOrder);
+
+    for (int i = 0; i < channelStates.size(); i++)
+    {
+        processor->setChannelEnabled (streamId, i, channelStates[i]);
+    }
+
+    CoreServices::updateSignalChain (processor);
+
+    return true;
+}
+
+void ResetStreamAction::restoreOwner (GenericProcessor* owner)
+{
+    processor = (ChannelMap*) owner;
+}
