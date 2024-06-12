@@ -361,7 +361,7 @@ void DraggableTabComponent::paint (Graphics& g)
         g.setFont (FontOptions ("Inter", "Medium", 20.0f));
 
         String text = dataViewport->getNumTabbedComponents() == 1 ? "Open a new tab to show here" : "Drag a tab here or open a new tab";
-        g.drawFittedText (text, getLocalBounds(), Justification::centred, 2);
+        g.drawFittedText (text, bounds.toNearestInt(), Justification::centred, 2);
     }
 }
 
@@ -371,7 +371,7 @@ void DraggableTabComponent::resized()
 
     if (getWidth() > 50 && getHeight() > 25)
     {
-        closeButton->setBounds (getWidth() - 50, 8, 15, 15);
+        closeButton->setBounds (getWidth() - 48, 8, 12, 12);
     }
 }
 
