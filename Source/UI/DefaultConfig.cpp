@@ -268,7 +268,7 @@ bool DefaultConfigComponent::keyPressed (const KeyPress& key, Component* origina
             fileReaderButton->setToggleState (true, sendNotification);
             acqBoardButton->setToggleState (false, sendNotification);
         }
-        else if (fileReaderButton->getToggleState())
+        else if (fileReaderButton->getToggleState() && neuropixelsButton->isEnabled())
         {
             neuropixelsButton->setToggleState (true, sendNotification);
             fileReaderButton->setToggleState (false, sendNotification);
