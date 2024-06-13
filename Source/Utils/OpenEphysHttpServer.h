@@ -1249,7 +1249,7 @@ private:
     {
         (*parameter_json)["name"] = parameter->getName().toStdString();
         (*parameter_json)["type"] = parameter->getParameterTypeString().toStdString();
-        (*parameter_json)["value"] = parameter->getValueAsString().toStdString();
+        (*parameter_json)["value"] = parameter->getValue().toString().toStdString();
     }
 
     inline static void parameters_to_json (GenericProcessor* processor, std::vector<json>* parameters_json)
