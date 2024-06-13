@@ -28,7 +28,6 @@
 // TODO <Kirill A> replace this including by using more versatile method
 #include "../../Processors/DataThreads/DataThread.h"
 
-
 class SourceNode;
 
 /**
@@ -51,14 +50,12 @@ public:
 
     bool foundInputSource() override;
     bool startAcquisition() override;
-    bool stopAcquisition()  override;
-
+    bool stopAcquisition() override;
 
 private:
     bool updateBuffer() override;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PROCESSORCLASSNAME);
 };
-
 
 #endif // HEADERGUARD

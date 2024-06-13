@@ -29,16 +29,20 @@
 ArduinoOutput::ArduinoOutput()
     : GenericProcessor ("Arduino Output"), gateIsOpen (true), deviceSelected (false)
 {
-    addCategoricalParameter (Parameter::PROCESSOR_SCOPE, "device", "Device", "The Arduino device to use", getDevices(), 0, true);
-    addIntParameter (Parameter::PROCESSOR_SCOPE, "output_pin", "Output pin", "The Arduino pin to use", 13, 0, 13);
-    addIntParameter (Parameter::STREAM_SCOPE, "input_line", "Input line", "The TTL line for triggering output", 1, 1, 16);
-    addIntParameter (Parameter::STREAM_SCOPE, "gate_line", "Gate line", "The TTL line for gating the output", 0, 0, 16);
 }
 
 ArduinoOutput::~ArduinoOutput()
 {
     if (arduino.isInitialized())
         arduino.disconnect();
+}
+
+void ArduinoOutput::registerParameters()
+{
+    addCategoricalParameter (Parameter::PROCESSOR_SCOPE, "device", "Device", "The Arduino device to use", getDevices(), 0, true);
+    addIntParameter (Parameter::PROCESSOR_SCOPE, "output_pin", "Output pin", "The Arduino pin to use", 13, 0, 13);
+    addIntParameter (Parameter::STREAM_SCOPE, "input_line", "Input line", "The TTL line for triggering output", 1, 1, 16);
+    addIntParameter (Parameter::STREAM_SCOPE, "gate_line", "Gate line", "The TTL line for gating the output", 0, 0, 16);
 }
 
 AudioProcessorEditor* ArduinoOutput::createEditor()

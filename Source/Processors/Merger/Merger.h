@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -29,7 +29,6 @@
 
 #include <stdio.h>
 
-
 /**
 
   Allows the user to merge two signal chains.
@@ -45,45 +44,44 @@
 class Merger : public GenericProcessor
 {
 public:
-
     /** Constructor*/
     Merger();
 
     /** Destructor */
-    ~Merger() { }
+    ~Merger() {}
 
     /** Create the Merger's custom editor */
     AudioProcessorEditor* createEditor();
 
     /** Nothing happens here, because Mergers are not part of the ProcessorGraph. */
-    void process(AudioSampleBuffer& buffer) override {}
+    void process (AudioSampleBuffer& buffer) override {}
 
     /** Selects which input streams are connected to the output. */
     void updateSettings() override;
 
     /** Called during updateSettings(), once for each input processor*/
-    int addSettingsFromSourceNode(GenericProcessor* sn, int globalIndex);
+    int addSettingsFromSourceNode (GenericProcessor* sn, int globalIndex);
 
     /** Set the currently displayed path (0 or 1) */
-    void switchIO(int) override;
+    void switchIO (int) override;
 
     /** Get the currently displayed path (0 or 1) */
-    int getPath() { return activePath;}
+    int getPath() { return activePath; }
 
     /** Switch the currently displayed path */
     void switchIO() override;
-    
+
     /** An upstream processor was deleted -- reorganize sources if necessary*/
     void lostInput();
 
     /** Switches the currently viewed path to a particular input processor*/
-    int switchToSourceNode(GenericProcessor* sn);
+    int switchToSourceNode (GenericProcessor* sn);
 
     /** Sets the source node for the currently selected path*/
-    void setMergerSourceNode(GenericProcessor* sn) override;
+    void setMergerSourceNode (GenericProcessor* sn) override;
 
     /** Returns the source node for a particular path (0 or 1)*/
-    GenericProcessor* getSourceNode(int);
+    GenericProcessor* getSourceNode (int);
 
     /** Called while loading the signal chain */
     void restoreConnections();
@@ -92,16 +90,16 @@ public:
     bool stillHasSource() const override;
 
     /** Saves Merger parameters to XML file*/
-    void saveCustomParametersToXml(XmlElement* parentElement) override;
+    void saveCustomParametersToXml (XmlElement* parentElement) override;
 
     /** Loads Merger parameters from XML file*/
-    void loadCustomParametersFromXml(XmlElement* xml) override;
+    void loadCustomParametersFromXml (XmlElement* xml) override;
 
     /** Returns true if the Merger transmits continuous data for a particular source node*/
-    bool sendContinuousForSource(GenericProcessor* sn);
+    bool sendContinuousForSource (GenericProcessor* sn);
 
     /** Returns true if the Merger transmits event data for a particular source node*/
-    bool sendEventsForSource(GenericProcessor* sn);
+    bool sendEventsForSource (GenericProcessor* sn);
 
     bool mergeEventsA, mergeContinuousA, mergeEventsB, mergeContinuousB;
 
@@ -109,14 +107,9 @@ public:
     GenericProcessor* sourceNodeB;
 
 private:
-
     int activePath;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Merger);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Merger);
 };
 
-
-
-
-#endif  // __MERGER_H_ED548E77__
+#endif // __MERGER_H_ED548E77__

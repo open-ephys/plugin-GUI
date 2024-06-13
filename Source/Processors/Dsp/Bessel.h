@@ -36,8 +36,8 @@ THE SOFTWARE.
 #ifndef DSPFILTERS_BESSEL_H
 #define DSPFILTERS_BESSEL_H
 
-#include "Common.h"
 #include "Cascade.h"
+#include "Common.h"
 #include "Design.h"
 #include "Filter.h"
 #include "PoleFilter.h"
@@ -54,464 +54,461 @@ namespace Dsp
 namespace Bessel
 {
 
-// A Workspace is necessary to find roots
+    // A Workspace is necessary to find roots
 
-struct PLUGIN_API WorkspaceBase
-{
-    WorkspaceBase(RootFinderBase* rootsBase)
-        : roots(*rootsBase)
+    struct PLUGIN_API WorkspaceBase
     {
-    }
+        WorkspaceBase (RootFinderBase* rootsBase)
+            : roots (*rootsBase)
+        {
+        }
 
-    RootFinderBase& roots;
+        RootFinderBase& roots;
 
-private:
-    WorkspaceBase(WorkspaceBase&);
-    WorkspaceBase& operator= (WorkspaceBase&);
-};
-
-template <int MaxOrder>
-struct Workspace : WorkspaceBase
-{
-    Workspace()
-        : WorkspaceBase(&m_roots)
-    {
-    }
-
-private:
-    RootFinder <MaxOrder> m_roots;
-};
-
-//------------------------------------------------------------------------------
-
-// Half-band analog prototypes (s-plane)
-
-class PLUGIN_API AnalogLowPass : public LayoutBase
-{
-public:
-    AnalogLowPass();
-
-    void design(const int numPoles,
-                WorkspaceBase* w);
-
-private:
-    int m_numPoles;
-};
-
-//------------------------------------------------------------------------------
-
-class PLUGIN_API AnalogLowShelf : public LayoutBase
-{
-public:
-    AnalogLowShelf();
-
-    void design(int numPoles,
-                double gainDb,
-                WorkspaceBase* w);
-
-private:
-    int m_numPoles;
-    double m_gainDb;
-};
-
-//------------------------------------------------------------------------------
-
-// Factored implementations to reduce template instantiations
-
-struct PLUGIN_API LowPassBase : PoleFilterBase <AnalogLowPass>
-{
-    void setup(int order,
-               double sampleRate,
-               double cutoffFrequency,
-               WorkspaceBase* w);
-};
-
-struct PLUGIN_API HighPassBase : PoleFilterBase <AnalogLowPass>
-{
-    void setup(int order,
-               double sampleRate,
-               double cutoffFrequency,
-               WorkspaceBase* w);
-};
-
-struct PLUGIN_API BandPassBase : PoleFilterBase <AnalogLowPass>
-{
-    void setup(int order,
-               double sampleRate,
-               double centerFrequency,
-               double widthFrequency,
-               WorkspaceBase* w);
-};
-
-struct PLUGIN_API BandStopBase : PoleFilterBase <AnalogLowPass>
-{
-    void setup(int order,
-               double sampleRate,
-               double centerFrequency,
-               double widthFrequency,
-               WorkspaceBase* w);
-};
-
-struct PLUGIN_API LowShelfBase : PoleFilterBase <AnalogLowShelf>
-{
-    void setup(int order,
-               double sampleRate,
-               double cutoffFrequency,
-               double gainDb,
-               WorkspaceBase* w);
-};
-
-//------------------------------------------------------------------------------
-
-//
-// Raw filters
-//
-
-template <int MaxOrder>
-struct LowPass : PoleFilter <LowPassBase, MaxOrder>
-{
-    void setup(int order,
-               double sampleRate,
-               double cutoffFrequency)
-    {
-        Workspace <MaxOrder> w;
-        LowPassBase::setup(order,
-                           sampleRate,
-                           cutoffFrequency,
-                           &w);
-    }
-};
-
-template <int MaxOrder>
-struct HighPass : PoleFilter <HighPassBase, MaxOrder>
-{
-    void setup(int order,
-               double sampleRate,
-               double cutoffFrequency)
-    {
-        Workspace <MaxOrder> w;
-        HighPassBase::setup(order,
-                            sampleRate,
-                            cutoffFrequency,
-                            &w);
-    }
-};
-
-template <int MaxOrder>
-struct BandPass : PoleFilter <BandPassBase, MaxOrder, MaxOrder * 2>
-{
-    void setup(int order,
-               double sampleRate,
-               double centerFrequency,
-               double widthFrequency)
-    {
-        Workspace <MaxOrder> w;
-        BandPassBase::setup(order,
-                            sampleRate,
-                            centerFrequency,
-                            widthFrequency,
-                            &w);
-    }
-};
-
-template <int MaxOrder>
-struct BandStop : PoleFilter <BandStopBase, MaxOrder, MaxOrder * 2>
-{
-    void setup(int order,
-               double sampleRate,
-               double centerFrequency,
-               double widthFrequency)
-    {
-        Workspace <MaxOrder> w;
-        BandStopBase::setup(order,
-                            sampleRate,
-                            centerFrequency,
-                            widthFrequency,
-                            &w);
-    }
-};
-
-template <int MaxOrder>
-struct LowShelf : PoleFilter <LowShelfBase, MaxOrder, MaxOrder * 2>
-{
-    void setup(int order,
-               double sampleRate,
-               double cutoffFrequency,
-               double gainDb)
-    {
-        Workspace <MaxOrder> w;
-        LowShelfBase::setup(order,
-                            sampleRate,
-                            cutoffFrequency,
-                            gainDb,
-                            &w);
-    }
-};
-
-//------------------------------------------------------------------------------
-
-//
-// Gui-friendly Design layer
-//
-
-namespace Design
-{
-
-struct TypeIBase : DesignBase
-{
-    enum
-    {
-        NumParams = 3
+    private:
+        WorkspaceBase (WorkspaceBase&);
+        WorkspaceBase& operator= (WorkspaceBase&);
     };
 
-    static int getNumParams()
+    template <int MaxOrder>
+    struct Workspace : WorkspaceBase
     {
-        return 3;
-    }
+        Workspace()
+            : WorkspaceBase (&m_roots)
+        {
+        }
 
-    static const ParamInfo getParamInfo_2()
-    {
-        return ParamInfo::defaultCutoffFrequencyParam();
-    }
-};
-
-template <class FilterClass>
-struct TypeI : TypeIBase, FilterClass
-{
-    void setParams(const Params& params)
-    {
-        FilterClass::setup(int(params[1]), params[0], params[2]);
-    }
-};
-
-struct TypeIIBase : DesignBase
-{
-    enum
-    {
-        NumParams = 4
+    private:
+        RootFinder<MaxOrder> m_roots;
     };
 
-    static int getNumParams()
-    {
-        return 4;
-    }
+    //------------------------------------------------------------------------------
 
-    static const ParamInfo getParamInfo_2()
-    {
-        return ParamInfo::defaultCenterFrequencyParam();
-    }
+    // Half-band analog prototypes (s-plane)
 
-    static const ParamInfo getParamInfo_3()
+    class PLUGIN_API AnalogLowPass : public LayoutBase
     {
-        return ParamInfo::defaultBandwidthHzParam();
-    }
-};
+    public:
+        AnalogLowPass();
 
-template <class FilterClass>
-struct TypeII : TypeIIBase, FilterClass
-{
-    void setParams(const Params& params)
-    {
-        FilterClass::setup(int(params[1]), params[0], params[2], params[3]);
-    }
-};
+        void design (const int numPoles,
+                     WorkspaceBase* w);
 
-struct TypeIIIBase : DesignBase
-{
-    enum
-    {
-        NumParams = 4
+    private:
+        int m_numPoles;
     };
 
-    static int getNumParams()
-    {
-        return 4;
-    }
+    //------------------------------------------------------------------------------
 
-    static const ParamInfo getParamInfo_2()
+    class PLUGIN_API AnalogLowShelf : public LayoutBase
     {
-        return ParamInfo::defaultCutoffFrequencyParam();
-    }
+    public:
+        AnalogLowShelf();
 
-    static const ParamInfo getParamInfo_3()
-    {
-        return ParamInfo::defaultGainParam();
-    }
-};
+        void design (int numPoles,
+                     double gainDb,
+                     WorkspaceBase* w);
 
-template <class FilterClass>
-struct TypeIII : TypeIIIBase, FilterClass
-{
-    void setParams(const Params& params)
-    {
-        FilterClass::setup(int(params[1]),
-                           params[0],
-                           params[2],
-                           params[3]);
-    }
-};
-
-struct TypeIVBase : DesignBase
-{
-    enum
-    {
-        NumParams = 5
+    private:
+        int m_numPoles;
+        double m_gainDb;
     };
 
-    static int getNumParams()
+    //------------------------------------------------------------------------------
+
+    // Factored implementations to reduce template instantiations
+
+    struct PLUGIN_API LowPassBase : PoleFilterBase<AnalogLowPass>
     {
-        return 5;
-    }
+        void setup (int order,
+                    double sampleRate,
+                    double cutoffFrequency,
+                    WorkspaceBase* w);
+    };
 
-    static const ParamInfo getParamInfo_2()
+    struct PLUGIN_API HighPassBase : PoleFilterBase<AnalogLowPass>
     {
-        return ParamInfo::defaultCenterFrequencyParam();
-    }
+        void setup (int order,
+                    double sampleRate,
+                    double cutoffFrequency,
+                    WorkspaceBase* w);
+    };
 
-    static const ParamInfo getParamInfo_3()
+    struct PLUGIN_API BandPassBase : PoleFilterBase<AnalogLowPass>
     {
-        return ParamInfo::defaultBandwidthHzParam();
-    }
+        void setup (int order,
+                    double sampleRate,
+                    double centerFrequency,
+                    double widthFrequency,
+                    WorkspaceBase* w);
+    };
 
-    static const ParamInfo getParamInfo_4()
+    struct PLUGIN_API BandStopBase : PoleFilterBase<AnalogLowPass>
     {
-        return ParamInfo::defaultGainParam();
-    }
-};
+        void setup (int order,
+                    double sampleRate,
+                    double centerFrequency,
+                    double widthFrequency,
+                    WorkspaceBase* w);
+    };
 
-template <class FilterClass>
-struct TypeIV : TypeIVBase, FilterClass
-{
-    void setParams(const Params& params)
+    struct PLUGIN_API LowShelfBase : PoleFilterBase<AnalogLowShelf>
     {
-        FilterClass::setup(int(params[1]), params[0], params[2], params[3], params[4]);
-    }
-};
+        void setup (int order,
+                    double sampleRate,
+                    double cutoffFrequency,
+                    double gainDb,
+                    WorkspaceBase* w);
+    };
 
-// Factored kind and name
+    //------------------------------------------------------------------------------
 
-struct LowPassDescription
-{
-    static Kind getKind()
+    //
+    // Raw filters
+    //
+
+    template <int MaxOrder>
+    struct LowPass : PoleFilter<LowPassBase, MaxOrder>
     {
-        return kindLowPass;
-    }
-    static const char* getName()
+        void setup (int order,
+                    double sampleRate,
+                    double cutoffFrequency)
+        {
+            Workspace<MaxOrder> w;
+            LowPassBase::setup (order,
+                                sampleRate,
+                                cutoffFrequency,
+                                &w);
+        }
+    };
+
+    template <int MaxOrder>
+    struct HighPass : PoleFilter<HighPassBase, MaxOrder>
     {
-        return "Bessel Low Pass";
-    }
-};
+        void setup (int order,
+                    double sampleRate,
+                    double cutoffFrequency)
+        {
+            Workspace<MaxOrder> w;
+            HighPassBase::setup (order,
+                                 sampleRate,
+                                 cutoffFrequency,
+                                 &w);
+        }
+    };
 
-struct HighPassDescription
-{
-    static Kind getKind()
+    template <int MaxOrder>
+    struct BandPass : PoleFilter<BandPassBase, MaxOrder, MaxOrder * 2>
     {
-        return kindHighPass;
-    }
-    static const char* getName()
+        void setup (int order,
+                    double sampleRate,
+                    double centerFrequency,
+                    double widthFrequency)
+        {
+            Workspace<MaxOrder> w;
+            BandPassBase::setup (order,
+                                 sampleRate,
+                                 centerFrequency,
+                                 widthFrequency,
+                                 &w);
+        }
+    };
+
+    template <int MaxOrder>
+    struct BandStop : PoleFilter<BandStopBase, MaxOrder, MaxOrder * 2>
     {
-        return "Bessel High Pass";
-    }
-};
+        void setup (int order,
+                    double sampleRate,
+                    double centerFrequency,
+                    double widthFrequency)
+        {
+            Workspace<MaxOrder> w;
+            BandStopBase::setup (order,
+                                 sampleRate,
+                                 centerFrequency,
+                                 widthFrequency,
+                                 &w);
+        }
+    };
 
-struct BandPassDescription
-{
-    static Kind getKind()
+    template <int MaxOrder>
+    struct LowShelf : PoleFilter<LowShelfBase, MaxOrder, MaxOrder * 2>
     {
-        return kindHighPass;
-    }
-    static const char* getName()
+        void setup (int order,
+                    double sampleRate,
+                    double cutoffFrequency,
+                    double gainDb)
+        {
+            Workspace<MaxOrder> w;
+            LowShelfBase::setup (order,
+                                 sampleRate,
+                                 cutoffFrequency,
+                                 gainDb,
+                                 &w);
+        }
+    };
+
+    //------------------------------------------------------------------------------
+
+    //
+    // Gui-friendly Design layer
+    //
+
+    namespace Design
     {
-        return "Bessel Band Pass";
-    }
-};
 
-struct BandStopDescription
-{
-    static Kind getKind()
-    {
-        return kindHighPass;
-    }
-    static const char* getName()
-    {
-        return "Bessel Band Stop";
-    }
-};
+        struct TypeIBase : DesignBase
+        {
+            enum
+            {
+                NumParams = 3
+            };
 
-struct LowShelfDescription
-{
-    static Kind getKind()
-    {
-        return kindLowShelf;
-    }
-    static const char* getName()
-    {
-        return "Bessel Low Shelf";
-    }
-};
+            static int getNumParams()
+            {
+                return 3;
+            }
 
-// This glues on the Order parameter
-template <int MaxOrder,
-         template <class> class TypeClass,
-         template <int> class FilterClass>
-struct OrderBase : TypeClass <FilterClass <MaxOrder> >
-{
-    const ParamInfo getParamInfo_1() const
-    {
-        return ParamInfo(idOrder, "Order", "Order",
-                         1, MaxOrder, 2,
-                         &ParamInfo::Int_toControlValue,
-                         &ParamInfo::Int_toNativeValue,
-                         &ParamInfo::Int_toString);
+            static const ParamInfo getParamInfo_2()
+            {
+                return ParamInfo::defaultCutoffFrequencyParam();
+            }
+        };
 
-    }
-};
+        template <class FilterClass>
+        struct TypeI : TypeIBase, FilterClass
+        {
+            void setParams (const Params& params)
+            {
+                FilterClass::setup (int (params[1]), params[0], params[2]);
+            }
+        };
 
-//------------------------------------------------------------------------------
+        struct TypeIIBase : DesignBase
+        {
+            enum
+            {
+                NumParams = 4
+            };
 
-//
-// Gui-friendly Design layer
-//
+            static int getNumParams()
+            {
+                return 4;
+            }
 
-template <int MaxOrder>
-struct LowPass : OrderBase <MaxOrder, TypeI, Bessel::LowPass>,
-        LowPassDescription
-{
-};
+            static const ParamInfo getParamInfo_2()
+            {
+                return ParamInfo::defaultCenterFrequencyParam();
+            }
 
-template <int MaxOrder>
-struct HighPass : OrderBase <MaxOrder, TypeI, Bessel::HighPass>,
-        HighPassDescription
-{
-};
+            static const ParamInfo getParamInfo_3()
+            {
+                return ParamInfo::defaultBandwidthHzParam();
+            }
+        };
 
-template <int MaxOrder>
-struct BandPass : OrderBase <MaxOrder, TypeII, Bessel::BandPass>,
-        BandPassDescription
-{
-};
+        template <class FilterClass>
+        struct TypeII : TypeIIBase, FilterClass
+        {
+            void setParams (const Params& params)
+            {
+                FilterClass::setup (int (params[1]), params[0], params[2], params[3]);
+            }
+        };
 
-template <int MaxOrder>
-struct BandStop : OrderBase <MaxOrder, TypeII, Bessel::BandStop>,
-        BandStopDescription
-{
-};
+        struct TypeIIIBase : DesignBase
+        {
+            enum
+            {
+                NumParams = 4
+            };
 
-/*
+            static int getNumParams()
+            {
+                return 4;
+            }
+
+            static const ParamInfo getParamInfo_2()
+            {
+                return ParamInfo::defaultCutoffFrequencyParam();
+            }
+
+            static const ParamInfo getParamInfo_3()
+            {
+                return ParamInfo::defaultGainParam();
+            }
+        };
+
+        template <class FilterClass>
+        struct TypeIII : TypeIIIBase, FilterClass
+        {
+            void setParams (const Params& params)
+            {
+                FilterClass::setup (int (params[1]),
+                                    params[0],
+                                    params[2],
+                                    params[3]);
+            }
+        };
+
+        struct TypeIVBase : DesignBase
+        {
+            enum
+            {
+                NumParams = 5
+            };
+
+            static int getNumParams()
+            {
+                return 5;
+            }
+
+            static const ParamInfo getParamInfo_2()
+            {
+                return ParamInfo::defaultCenterFrequencyParam();
+            }
+
+            static const ParamInfo getParamInfo_3()
+            {
+                return ParamInfo::defaultBandwidthHzParam();
+            }
+
+            static const ParamInfo getParamInfo_4()
+            {
+                return ParamInfo::defaultGainParam();
+            }
+        };
+
+        template <class FilterClass>
+        struct TypeIV : TypeIVBase, FilterClass
+        {
+            void setParams (const Params& params)
+            {
+                FilterClass::setup (int (params[1]), params[0], params[2], params[3], params[4]);
+            }
+        };
+
+        // Factored kind and name
+
+        struct LowPassDescription
+        {
+            static Kind getKind()
+            {
+                return kindLowPass;
+            }
+            static const char* getName()
+            {
+                return "Bessel Low Pass";
+            }
+        };
+
+        struct HighPassDescription
+        {
+            static Kind getKind()
+            {
+                return kindHighPass;
+            }
+            static const char* getName()
+            {
+                return "Bessel High Pass";
+            }
+        };
+
+        struct BandPassDescription
+        {
+            static Kind getKind()
+            {
+                return kindHighPass;
+            }
+            static const char* getName()
+            {
+                return "Bessel Band Pass";
+            }
+        };
+
+        struct BandStopDescription
+        {
+            static Kind getKind()
+            {
+                return kindHighPass;
+            }
+            static const char* getName()
+            {
+                return "Bessel Band Stop";
+            }
+        };
+
+        struct LowShelfDescription
+        {
+            static Kind getKind()
+            {
+                return kindLowShelf;
+            }
+            static const char* getName()
+            {
+                return "Bessel Low Shelf";
+            }
+        };
+
+        // This glues on the Order parameter
+        template <int MaxOrder,
+                  template <class>
+                  class TypeClass,
+                  template <int>
+                  class FilterClass>
+        struct OrderBase : TypeClass<FilterClass<MaxOrder>>
+        {
+            const ParamInfo getParamInfo_1() const
+            {
+                return ParamInfo (idOrder, "Order", "Order", 1, MaxOrder, 2, &ParamInfo::Int_toControlValue, &ParamInfo::Int_toNativeValue, &ParamInfo::Int_toString);
+            }
+        };
+
+        //------------------------------------------------------------------------------
+
+        //
+        // Gui-friendly Design layer
+        //
+
+        template <int MaxOrder>
+        struct LowPass : OrderBase<MaxOrder, TypeI, Bessel::LowPass>,
+                         LowPassDescription
+        {
+        };
+
+        template <int MaxOrder>
+        struct HighPass : OrderBase<MaxOrder, TypeI, Bessel::HighPass>,
+                          HighPassDescription
+        {
+        };
+
+        template <int MaxOrder>
+        struct BandPass : OrderBase<MaxOrder, TypeII, Bessel::BandPass>,
+                          BandPassDescription
+        {
+        };
+
+        template <int MaxOrder>
+        struct BandStop : OrderBase<MaxOrder, TypeII, Bessel::BandStop>,
+                          BandStopDescription
+        {
+        };
+
+        /*
  * NOT IMPLEMENTED
  *
  */
-template <int MaxOrder>
-struct LowShelf : OrderBase <MaxOrder, TypeIII, Bessel::LowShelf>,
-        LowShelfDescription
-{
-};
+        template <int MaxOrder>
+        struct LowShelf : OrderBase<MaxOrder, TypeIII, Bessel::LowShelf>,
+                          LowShelfDescription
+        {
+        };
 
-}
+    } // namespace Design
 
-}
+} // namespace Bessel
 
-}
+} // namespace Dsp
 
 #endif
 

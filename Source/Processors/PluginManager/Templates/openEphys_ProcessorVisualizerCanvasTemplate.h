@@ -23,11 +23,11 @@
 #ifndef HEADERGUARD
 #define HEADERGUARD
 
-#include <VisualizerEditorHeaders.h>
 #include <AllLookAndFeels.h>
+#include <VisualizerEditorHeaders.h>
 
-#include "PROCESSORCLASSNAME.h"
 #include "CONTENTCOMPONENTCLASSNAME.h"
+#include "PROCESSORCLASSNAME.h"
 
 /**
     Class for displaying data in any subclasses of VisualizerEditor either in the tab or separate window.
@@ -79,6 +79,5 @@ private:
     // ========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EDITORCANVASCLASSNAME);
 };
-
 
 #endif // HEADERGUARD

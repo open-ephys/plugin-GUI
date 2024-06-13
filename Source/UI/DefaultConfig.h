@@ -35,7 +35,8 @@ class MainWindow;
 
 */
 class DefaultConfigComponent : public Component,
-                               public Button::Listener
+                               public Button::Listener,
+                               public KeyListener
 {
 public:
     /** Constructor */
@@ -52,6 +53,9 @@ public:
 
     /** Responds to button clicks*/
     void buttonClicked (Button*) override;
+
+    /** Responds to key presses*/
+    bool keyPressed (const KeyPress& key, Component* originatingComponent) override;
 
 private:
     std::unique_ptr<Label> configLabel;

@@ -1,3 +1,26 @@
+/*
+    ------------------------------------------------------------------
+
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2024 Open Ephys
+
+    ------------------------------------------------------------------
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 #include "RecordNode.h"
 
 #include "../../AccessClass.h"
@@ -50,8 +73,7 @@ RecordNode::RecordNode()
       recordingNumber (0), // 0-based indexing
       isRecording (false),
       hasRecorded (false),
-      settingsNeeded (false),
-      numDataStreams (0)
+      settingsNeeded (false)
 {
     //Get the current audio device's buffer size and use as data queue block size
     AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
@@ -73,6 +95,8 @@ RecordNode::RecordNode()
     recordThread = std::make_unique<RecordThread> (this, recordEngine.get());
 
     eventMonitor = new EventMonitor();
+
+    diskSpaceChecker = std::make_unique<DiskSpaceChecker> (this);
 }
 
 RecordNode::~RecordNode()
@@ -103,7 +127,7 @@ void RecordNode::initialize (bool signalChainIsLoading)
     if (! signalChainIsLoading)
         checkDiskSpace();
 
-    createNewDirectory();
+    CoreServices::createNewRecordingDirectory();
 }
 
 void RecordNode::parameterValueChanged (Parameter* p)
@@ -173,16 +197,23 @@ void RecordNode::checkDiskSpace()
         msg += "\n\n";
         msg += "Less than " + String (int (diskSpaceWarningThreshold)) + " GB of disk space available in:\n";
         msg += "\n";
-        msg += "\t" + String (dataDirectory.getFullPathName());
+        msg += String (dataDirectory.getFullPathName());
         msg += "\n\n";
         msg += "Recording may fail. Please free up space or change the recording directory.";
 
-        MessageManager::callAsync ([msg]
-                                   { AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "WARNING", msg); });
+        if (headlessMode) // headless mode
+        {
+            LOGC (msg);
+        }
+        else
+        {
+            MessageManager::callAsync ([msg]
+                                       { AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "WARNING", msg); });
+        }
     }
 }
 
-String RecordNode::handleConfigMessage (String msg)
+String RecordNode::handleConfigMessage (const String& msg)
 {
     /*
 	Available messages:
@@ -216,7 +247,6 @@ String RecordNode::handleConfigMessage (String msg)
 
             if (engineIndex >= 0 && engineIndex < numEngines)
             {
-                //ed->engineSelectCombo->setSelectedItemIndex(engineIndex, sendNotification);
                 getParameter ("engine")->setNextValue (engineIndex);
                 return "Record Node: updated record engine to " + ((CategoricalParameter*) getParameter ("engine"))->getCategories()[engineIndex];
             }
@@ -301,7 +331,7 @@ String RecordNode::handleConfigMessage (String msg)
 	return "Record Node received config: " + msg;
 }
 
-void RecordNode::handleBroadcastMessage (String msg)
+void RecordNode::handleBroadcastMessage (const String& msg, const int64 messageSystemTime)
 {
     if (recordEvents && isRecording)
     {
@@ -309,7 +339,10 @@ void RecordNode::handleBroadcastMessage (String msg)
 
         DataStream* mainStream = getDataStream (streamKey);
 
-        int64 messageSampleNumber = getFirstSampleNumberForBlock (mainStream->getStreamId());
+        int64 offsetMilliseconds = Time::currentTimeMillis() - messageSystemTime;
+
+        int64 messageSampleNumber = getFirstSampleNumberForBlock (mainStream->getStreamId())
+                                    - int64 (offsetMilliseconds * mainStream->getSampleRate() / 1000.0f);
 
         TextEventPtr event = TextEvent::createTextEvent (getMessageChannel(), messageSampleNumber, msg);
 
@@ -821,7 +854,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
                     data,
                     this,
                     0,
-                    CoreServices::getSoftwareTimestamp(),
+                    CoreServices::getSystemTime(),
                     -1.0,
                     true);
 
@@ -899,13 +932,22 @@ void RecordNode::process (AudioBuffer<float>& buffer)
         {
             CoreServices::setRecordingStatus (false);
 
-            MessageManager::callAsync ([this]
-                                       { AlertWindow::showMessageBoxAsync (AlertWindow::AlertIconType::WarningIcon,
-                                                                           "Record Buffer Warning",
-                                                                           "The recording buffer has reached capacity. Stopping recording to prevent data corruption. \n\n"
-                                                                           "To address the issue, you can try reducing the number of simultaneously recorded channels or "
-                                                                           "using multiple Record Nodes to distribute data writing across more than one drive.",
-                                                                           "OK"); });
+            if (headlessMode)
+            {
+                LOGC ("Record Buffer Warning: The recording buffer has reached capacity. Stopping recording to prevent data corruption.\n\n \
+                        To address the issue, you can try reducing the number of simultaneously recorded channels or \
+                        using multiple Record Nodes to distribute data writing across more than one drive.");
+            }
+            else
+            {
+                MessageManager::callAsync ([this]
+                                           { AlertWindow::showMessageBoxAsync (AlertWindow::AlertIconType::WarningIcon,
+                                                                               "Record Buffer Warning",
+                                                                               "The recording buffer has reached capacity. Stopping recording to prevent data corruption. \n\n"
+                                                                               "To address the issue, you can try reducing the number of simultaneously recorded channels or "
+                                                                               "using multiple Record Nodes to distribute data writing across more than one drive.",
+                                                                               "OK"); });
+            }
         }
 
         if (! setFirstBlock)

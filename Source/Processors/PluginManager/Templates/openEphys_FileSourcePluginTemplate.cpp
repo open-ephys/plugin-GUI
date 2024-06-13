@@ -25,48 +25,39 @@ PROCESSORHEADERS
 
 #include <CoreServicesHeader.h>
 
-
 PROCESSORCLASSNAME::PROCESSORCLASSNAME()
 {
 }
 
-
 PROCESSORCLASSNAME::~PROCESSORCLASSNAME()
 {
 }
-
 
 bool PROCESSORCLASSNAME::Open (File file)
 {
     return true;
 }
 
-
 void PROCESSORCLASSNAME::fillRecordInfo()
 {
 }
-
 
 void PROCESSORCLASSNAME::updateActiveRecord()
 {
 }
 
-
 void PROCESSORCLASSNAME::seekTo (int64 sample)
 {
 }
-
 
 int PROCESSORCLASSNAME::readData (int16* buffer, int nSamples)
 {
     return 0;
 }
 
-
 void PROCESSORCLASSNAME::processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 numSamples)
 {
 }
-
 
 bool PROCESSORCLASSNAME::isReady()
 {

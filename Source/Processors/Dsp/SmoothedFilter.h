@@ -49,34 +49,33 @@ namespace Dsp
  *
  */
 template <class DesignClass,
-         int Channels,
-         class StateType = DirectFormII>
+          int Channels,
+          class StateType = DirectFormII>
 class SmoothedFilterDesign
-    : public FilterDesign <DesignClass,
-      Channels,
-      StateType>
+    : public FilterDesign<DesignClass,
+                          Channels,
+                          StateType>
 {
 public:
-    typedef FilterDesign <DesignClass, Channels, StateType> filter_type_t;
+    typedef FilterDesign<DesignClass, Channels, StateType> filter_type_t;
 
-    SmoothedFilterDesign(int transitionSamples)
-        : m_transitionSamples(transitionSamples)
-        , m_remainingSamples(-1)  // first time flag
+    SmoothedFilterDesign (int transitionSamples)
+        : m_transitionSamples (transitionSamples), m_remainingSamples (-1) // first time flag
     {
     }
 
     // Process a block of samples.
     template <typename Sample>
-    void processBlock(int numSamples,
-                      Sample* const* destChannelArray)
+    void processBlock (int numSamples,
+                       Sample* const* destChannelArray)
     {
         const int numChannels = this->getNumChannels();
 
         // If this goes off it means setup() was never called
-        assert(m_remainingSamples >= 0);
+        assert (m_remainingSamples >= 0);
 
         // first handle any transition samples
-        int remainingSamples = (std::min<int>)(m_remainingSamples, numSamples);
+        int remainingSamples = std::min<int> (m_remainingSamples, numSamples);
 
         if (remainingSamples > 0)
         {
@@ -88,15 +87,15 @@ public:
 
             for (int n = 0; n < remainingSamples; ++n)
             {
-                for (int i = DesignClass::NumParams; --i >=0;)
+                for (int i = DesignClass::NumParams; --i >= 0;)
                     m_transitionParams[i] += dp[i];
 
-                m_transitionFilter.setParams(m_transitionParams);
+                m_transitionFilter.setParams (m_transitionParams);
 
                 for (int i = numChannels; --i >= 0;)
                 {
-                    Sample* dest = destChannelArray[i]+n;
-                    *dest = this->m_state[i].process(*dest, m_transitionFilter);
+                    Sample* dest = destChannelArray[i] + n;
+                    *dest = this->m_state[i].process (*dest, m_transitionFilter);
                 }
             }
 
@@ -111,24 +110,24 @@ public:
         {
             // no transition
             for (int i = 0; i < numChannels; ++i)
-                this->m_design.process(numSamples - remainingSamples,
-                                       destChannelArray[i] + remainingSamples,
-                                       this->m_state[i]);
+                this->m_design.process (numSamples - remainingSamples,
+                                        destChannelArray[i] + remainingSamples,
+                                        this->m_state[i]);
         }
     }
 
-    void process(int numSamples, float* const* arrayOfChannels)
+    void process (int numSamples, float* const* arrayOfChannels)
     {
-        processBlock(numSamples, arrayOfChannels);
+        processBlock (numSamples, arrayOfChannels);
     }
 
-    void process(int numSamples, double* const* arrayOfChannels)
+    void process (int numSamples, double* const* arrayOfChannels)
     {
-        processBlock(numSamples, arrayOfChannels);
+        processBlock (numSamples, arrayOfChannels);
     }
 
 protected:
-    void doSetParams(const Params& parameters)
+    void doSetParams (const Params& parameters)
     {
         if (m_remainingSamples >= 0)
         {
@@ -141,7 +140,7 @@ protected:
             m_transitionParams = parameters;
         }
 
-        filter_type_t::doSetParams(parameters);
+        filter_type_t::doSetParams (parameters);
     }
 
 protected:
@@ -149,9 +148,9 @@ protected:
     DesignClass m_transitionFilter;
     int m_transitionSamples;
 
-    int m_remainingSamples;        // remaining transition samples
+    int m_remainingSamples; // remaining transition samples
 };
 
-}
+} // namespace Dsp
 
 #endif

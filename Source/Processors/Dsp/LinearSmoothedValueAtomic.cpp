@@ -24,7 +24,6 @@
 
 #include "LinearSmoothedValueAtomic.h"
 
-
 // Explicit instantiations
 template class LinearSmoothedValueAtomic<float>;
 template class LinearSmoothedValueAtomic<double>;

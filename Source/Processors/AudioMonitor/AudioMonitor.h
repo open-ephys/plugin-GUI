@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -21,15 +21,13 @@
 
 */
 
-
 #ifndef __AUDIOMONITOR_H__
 #define __AUDIOMONITOR_H__
 
-
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
-#include "../GenericProcessor/GenericProcessor.h"
 #include "../Dsp/Dsp.h"
+#include "../GenericProcessor/GenericProcessor.h"
 
 #define MAX_CHANNELS 4
 
@@ -41,19 +39,18 @@
 class AudioMonitor : public GenericProcessor
 {
 public:
-    
     /** Constructor */
     AudioMonitor();
-    
+
     /** Destructor*/
-    ~AudioMonitor() { }
+    ~AudioMonitor() {}
 
     /** Add and register parameters*/
     void registerParameters() override;
 
     /** Re-samples, filters, and copies selected channels*/
     void process (AudioBuffer<float>& buffer) override;
-    
+
     /** Creates the custom UI for the AudioMonitor*/
     AudioProcessorEditor* createEditor() override;
 
@@ -61,31 +58,30 @@ public:
     void updateSettings() override;
 
     /** Updates the audio buffer size*/
-	void updatePlaybackBuffer();
+    void updatePlaybackBuffer();
 
     /** Updates the resampling ratio for each channel*/
-    void prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock) override;
-    
-    /** Called whenever a parameter's value is changed (called by GenericProcessor::setParameter())*/
-    void parameterValueChanged(Parameter* param) override;
+    void prepareToPlay (double sampleRate_, int estimatedSamplesPerBlock) override;
 
-     /** Resets the connections prior to a new round of data acquisition. */
+    /** Called whenever a parameter's value is changed (called by GenericProcessor::setParameter())*/
+    void parameterValueChanged (Parameter* param) override;
+
+    /** Resets the connections prior to a new round of data acquisition. */
     void resetConnections() override;
 
     /** Updates the bandpass filter parameters, given the currently monitored stream*/
-    void updateFilter(int i, uint16 streamId);
-    
+    void updateFilter (int i, uint16 streamId);
+
     /** Allows other processors to configure the Audio Monitor during acquisition*/
-    void handleBroadcastMessage(String message) override;
+    void handleBroadcastMessage (const String& message, const int64 messageTimeMillis) override;
 
     /** Sets the selected stream and updates the filter parameters*/
-    void setSelectedStream(uint16 streamId);
+    void setSelectedStream (uint16 streamId);
 
 private:
-    
     /** Re-sets the copy buffers prior to acquisition*/
     void recreateBuffers();
-    
+
     std::map<int, std::unique_ptr<AudioBuffer<float>>> bufferA;
     std::map<int, std::unique_ptr<AudioBuffer<float>>> bufferB;
 
@@ -94,27 +90,26 @@ private:
     std::map<int, double> samplesInOverflowBuffer;
     std::map<int, double> sourceBufferSampleRate;
     std::map<int, bool> bufferSwap;
-    
+
     std::map<int, double> numSamplesExpected;
     std::map<int, double> ratio;
-    
+
     double destBufferSampleRate;
     double estimatedSamples;
 
     /** 4 bandpass filters (1 per selected channel)*/
     OwnedArray<Dsp::Filter> bandpassfilters;
-    
+
     /** 4 antialiasing filters (1 per selected channel)*/
     OwnedArray<Dsp::Filter> antialiasingfilters;
 
     /** Holds the data for one channel, before it's copied to the output*/
     std::unique_ptr<AudioBuffer<float>> tempBuffer;
-    
+
     /** Only one stream can be monitored at a time*/
     uint16 selectedStream;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioMonitor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioMonitor);
 };
 
-
-#endif  // __AUDIOMONITOR_H__
+#endif // __AUDIOMONITOR_H__

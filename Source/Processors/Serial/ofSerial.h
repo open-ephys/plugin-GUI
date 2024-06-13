@@ -7,15 +7,15 @@
 #include "ofConstants.h"
 //#include "ofTypes.h"
 
-#if defined( TARGET_OSX ) || defined( TARGET_LINUX ) || defined (TARGET_ANDROID)
+#if defined(TARGET_OSX) || defined(TARGET_LINUX) || defined(TARGET_ANDROID)
 #include <termios.h>
 #else
-#include <winbase.h>
-#include <tchar.h>
 #include <iostream>
-#include <string.h>
-#include <setupapi.h>
 #include <regstr.h>
+#include <setupapi.h>
+#include <string.h>
+#include <tchar.h>
+#include <winbase.h>
 #define MAX_SERIAL_PORTS 256
 #include <winioctl.h>
 #ifdef __MINGW32__
@@ -25,8 +25,8 @@
 #endif
 
 #include "../PluginManager/OpenEphysPlugin.h"
-#define OF_SERIAL_NO_DATA   -2
-#define OF_SERIAL_ERROR     -1
+#define OF_SERIAL_NO_DATA -2
+#define OF_SERIAL_ERROR -1
 // notes below
 
 class PLUGIN_API ofSerialDeviceInfo
@@ -34,8 +34,7 @@ class PLUGIN_API ofSerialDeviceInfo
     friend class ofSerial;
 
 public:
-
-    ofSerialDeviceInfo(string devicePathIn, string deviceNameIn, int deviceIDIn)
+    ofSerialDeviceInfo (string devicePathIn, string deviceNameIn, int deviceIDIn)
     {
         devicePath = devicePathIn;
         deviceName = deviceNameIn;
@@ -71,71 +70,61 @@ protected:
     //TODO: other stuff for serial ?
 };
 
-
-
 //----------------------------------------------------------------------
 class PLUGIN_API ofSerial
 {
-
 public:
     ofSerial();
     virtual ~ofSerial();
 
-    void            listDevices();
+    void listDevices();
 
     //old method - deprecated
-    void            enumerateDevices();
+    void enumerateDevices();
 
-    vector <ofSerialDeviceInfo> getDeviceList();
+    vector<ofSerialDeviceInfo> getDeviceList();
 
-    void            close();
-    bool            setup();    // use default port, baud (0,9600)
-    bool            setup(string portName, int baudrate);
-    bool            setup(int deviceNumber, int baudrate);
+    void close();
+    bool setup(); // use default port, baud (0,9600)
+    bool setup (string portName, int baudrate);
+    bool setup (int deviceNumber, int baudrate);
 
+    int readBytes (unsigned char* buffer, int length);
+    int writeBytes (unsigned char* buffer, int length);
+    bool writeByte (unsigned char singleByte);
+    int readByte(); // returns -1 on no read or error...
+    void flush (bool flushIn = true, bool flushOut = true);
+    int available();
 
-    int             readBytes(unsigned char* buffer, int length);
-    int             writeBytes(unsigned char* buffer, int length);
-    bool            writeByte(unsigned char singleByte);
-    int             readByte();  // returns -1 on no read or error...
-    void            flush(bool flushIn = true, bool flushOut = true);
-    int             available();
-
-    void            drain();
-
-
+    void drain();
 
 protected:
-    void            buildDeviceList();
+    void buildDeviceList();
 
-    string              deviceType;
-    vector <ofSerialDeviceInfo> devices;
+    string deviceType;
+    vector<ofSerialDeviceInfo> devices;
 
     bool bHaveEnumeratedDevices;
 
-    bool    bInited;
+    bool bInited;
 
 #ifdef TARGET_WIN32
 
-    char**        portNamesShort;//[MAX_SERIAL_PORTS];
-    char**        portNamesFriendly; ///[MAX_SERIAL_PORTS];
-    HANDLE      hComm;      // the handle to the serial port pc
-    int         nPorts;
-    bool        bPortsEnumerated;
-    void        enumerateWin32Ports();
-    COMMTIMEOUTS    oldTimeout; // we alter this, so keep a record
+    char** portNamesShort; //[MAX_SERIAL_PORTS];
+    char** portNamesFriendly; ///[MAX_SERIAL_PORTS];
+    HANDLE hComm; // the handle to the serial port pc
+    int nPorts;
+    bool bPortsEnumerated;
+    void enumerateWin32Ports();
+    COMMTIMEOUTS oldTimeout; // we alter this, so keep a record
 
 #else
-    int         fd;         // the handle to the serial port mac
-    struct  termios oldoptions;
+    int fd; // the handle to the serial port mac
+    struct termios oldoptions;
 #endif
-
 };
 
 //----------------------------------------------------------------------
-
-
-
 
 // this serial code contains small portions of the following code-examples:
 // ---------------------------------------------------
@@ -175,4 +164,3 @@ protected:
 // if has evolved ways of dealing with blocking
 // and non-blocking instances)
 // ----------------------------
-

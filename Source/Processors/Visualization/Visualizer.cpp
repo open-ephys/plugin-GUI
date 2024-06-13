@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -23,26 +23,21 @@
 
 #include "Visualizer.h"
 
-Visualizer::Visualizer(GenericProcessor* parentProcessor)
-    : ParameterOwner(ParameterOwner::Type::OTHER)
-    , ParameterEditorOwner(this)
-    , processor(parentProcessor)
+Visualizer::Visualizer (GenericProcessor* parentProcessor)
+    : ParameterOwner (ParameterOwner::Type::OTHER), ParameterEditorOwner (this), processor (parentProcessor)
 {
-
 }
 
 Visualizer::~Visualizer()
 {
-    
 }
 
 void Visualizer::update()
 {
-
     if (processor != nullptr)
     {
-        LOGDD(processor->getEditor()->getNameAndId(), " visualizer updating parameter editors");
-        
+        LOGDD (processor->getEditor()->getNameAndId(), " visualizer updating parameter editors");
+
         auto streamId = processor->getEditor()->getCurrentStream();
         bool streamAvailable = streamId > 0 ? true : false;
 
@@ -53,22 +48,22 @@ void Visualizer::update()
                 Array<String> streamNames;
                 for (auto stream : processor->getDataStreams())
                 {
-                    streamNames.add(stream->getKey());
+                    streamNames.add (stream->getKey());
                 }
-                SelectedStreamParameter* p = (SelectedStreamParameter*)param;
-                p->setStreamNames(streamNames);
-                parameterValueChanged(p);
+                SelectedStreamParameter* p = (SelectedStreamParameter*) param;
+                p->setStreamNames (streamNames);
+                parameterValueChanged (p);
             }
         }
-        
+
         allParamEditors.clear();
-        
+
         // Add the visualizer's parameter editors
-        allParamEditors.addArray(getParameterEditors());
+        allParamEditors.addArray (getParameterEditors());
 
         // Add the parameter editors of all the parameter editor owners for this visualizer
-        for(auto editorOwner : parameterEditorOwners)
-            allParamEditors.addArray(editorOwner->getParameterEditors());
+        for (auto editorOwner : parameterEditorOwners)
+            allParamEditors.addArray (editorOwner->getParameterEditors());
 
         for (auto ed : allParamEditors)
         {
@@ -76,13 +71,13 @@ void Visualizer::update()
 
             if (streamAvailable)
             {
-            //LOGD("Stream scope");
-                auto stream = processor->getDataStream(streamId);
-                
-                if (stream->hasParameter(parameterName))
+                //LOGD("Stream scope");
+                auto stream = processor->getDataStream (streamId);
+
+                if (stream->hasParameter (parameterName))
                 {
-                    Parameter* streamParam = stream->getParameter(parameterName);
-                    ed->setParameter(streamParam);
+                    Parameter* streamParam = stream->getParameter (parameterName);
+                    ed->setParameter (streamParam);
                 }
                 else
                 {
@@ -92,10 +87,10 @@ void Visualizer::update()
             else
             {
                 //LOGD("Stream not available");
-                if (!processor->hasParameter(parameterName) || !hasParameter(parameterName))
-                    ed->setParameter(nullptr);
+                if (! processor->hasParameter (parameterName) || ! hasParameter (parameterName))
+                    ed->setParameter (nullptr);
             }
-            
+
             ed->updateView();
         }
     }
@@ -105,274 +100,257 @@ void Visualizer::update()
 
 void Visualizer::startCallbacks()
 {
-    startTimer(1/float(refreshRate)*1000.0f);
+    startTimer (1 / float (refreshRate) * 1000.0f);
 
-    for (auto ed: allParamEditors)
+    for (auto ed : allParamEditors)
     {
         if (ed->shouldDeactivateDuringAcquisition())
-            ed->setEnabled(false);
+            ed->setEnabled (false);
     }
 }
 
 void Visualizer::stopCallbacks()
 {
-	stopTimer();
+    stopTimer();
 
     for (auto ed : allParamEditors)
     {
         if (ed->shouldDeactivateDuringAcquisition())
-            ed->setEnabled(true);
+            ed->setEnabled (true);
     }
 }
 
 void Visualizer::timerCallback()
 {
-	refresh();
+    refresh();
 }
 
-void Visualizer::addBooleanParameter(const String& name,
-    const String& displayName,
-	const String& description,
-	bool defaultValue,
-	bool deactivateDuringAcquisition)
+void Visualizer::addBooleanParameter (const String& name,
+                                      const String& displayName,
+                                      const String& description,
+                                      bool defaultValue,
+                                      bool deactivateDuringAcquisition)
 {
-
-	BooleanParameter* p = new BooleanParameter(
-		nullptr, 
-		Parameter::VISUALIZER_SCOPE,
-		name, 
+    BooleanParameter* p = new BooleanParameter (
+        nullptr,
+        Parameter::VISUALIZER_SCOPE,
+        name,
         displayName,
-		description, 
-		defaultValue, 
-		deactivateDuringAcquisition);
+        description,
+        defaultValue,
+        deactivateDuringAcquisition);
 
-	addParameter(p);
-
+    addParameter (p);
 }
 
-void Visualizer::addCategoricalParameter(const String& name,
-    const String& displayName,
-	const String& description,
-	Array<String> categories,
-	int defaultIndex,
-	bool deactivateDuringAcquisition)
+void Visualizer::addCategoricalParameter (const String& name,
+                                          const String& displayName,
+                                          const String& description,
+                                          Array<String> categories,
+                                          int defaultIndex,
+                                          bool deactivateDuringAcquisition)
 {
-
-	CategoricalParameter* p = new CategoricalParameter(
-		nullptr, 
-		Parameter::VISUALIZER_SCOPE,
-		name, 
+    CategoricalParameter* p = new CategoricalParameter (
+        nullptr,
+        Parameter::VISUALIZER_SCOPE,
+        name,
         displayName,
-		description, 
-		categories, 
-		defaultIndex, 
-		deactivateDuringAcquisition);
+        description,
+        categories,
+        defaultIndex,
+        deactivateDuringAcquisition);
 
-	addParameter(p);
-
+    addParameter (p);
 }
 
-void Visualizer::addIntParameter(const String& name,
-    const String& displayName,
-    const String& description,
-	int defaultValue,
-	int minValue,
-	int maxValue,
-	bool deactivateDuringAcquisition)
+void Visualizer::addIntParameter (const String& name,
+                                  const String& displayName,
+                                  const String& description,
+                                  int defaultValue,
+                                  int minValue,
+                                  int maxValue,
+                                  bool deactivateDuringAcquisition)
 {
+    IntParameter* p =
+        new IntParameter (nullptr,
+                          Parameter::VISUALIZER_SCOPE,
+                          name,
+                          displayName,
+                          description,
+                          defaultValue,
+                          minValue,
+                          maxValue,
+                          deactivateDuringAcquisition);
 
-	IntParameter* p = 
-		new IntParameter(nullptr, 
-			Parameter::VISUALIZER_SCOPE,
-			name, 
-            displayName,
-			description, 
-			defaultValue, 
-			minValue, 
-			maxValue, 
-			deactivateDuringAcquisition);
-
-	addParameter(p);
-
+    addParameter (p);
 }
 
-void Visualizer::addStringParameter(const String& name,
-    const String& displayName,
-    const String& description,
-    String defaultValue,
-    bool deactivateDuringAcquisition)
+void Visualizer::addStringParameter (const String& name,
+                                     const String& displayName,
+                                     const String& description,
+                                     String defaultValue,
+                                     bool deactivateDuringAcquisition)
 {
     StringParameter* p =
-        new StringParameter(nullptr,
-            Parameter::VISUALIZER_SCOPE,
-            name,
-            displayName,
-            description,
-            defaultValue,
-            deactivateDuringAcquisition);
+        new StringParameter (nullptr,
+                             Parameter::VISUALIZER_SCOPE,
+                             name,
+                             displayName,
+                             description,
+                             defaultValue,
+                             deactivateDuringAcquisition);
 
-    addParameter(p);
-
+    addParameter (p);
 }
 
-void Visualizer::addFloatParameter(
+void Visualizer::addFloatParameter (
     const String& name,
     const String& displayName,
     const String& description,
     const String& unit,
-	float defaultValue,
-	float minValue,
-	float maxValue,
-	float stepSize,
-	bool deactivateDuringAcquisition)
+    float defaultValue,
+    float minValue,
+    float maxValue,
+    float stepSize,
+    bool deactivateDuringAcquisition)
 {
+    FloatParameter* p =
+        new FloatParameter (nullptr,
+                            Parameter::VISUALIZER_SCOPE,
+                            name,
+                            displayName,
+                            description,
+                            unit,
+                            defaultValue,
+                            minValue,
+                            maxValue,
+                            stepSize,
+                            deactivateDuringAcquisition);
 
-	FloatParameter* p =
-		new FloatParameter(nullptr,
-			Parameter::VISUALIZER_SCOPE,
-			name,
-            displayName,
-			description,
-            unit,
-			defaultValue,
-			minValue,
-			maxValue,
-			stepSize,
-			deactivateDuringAcquisition);
-
-	addParameter(p);
-
+    addParameter (p);
 }
 
-void Visualizer::addMaskChannelsParameter(
+void Visualizer::addMaskChannelsParameter (
     const String& name,
     const String& displayName,
     const String& description,
-	bool deactivateDuringAcquisition)
+    bool deactivateDuringAcquisition)
 {
+    Array<var> defaultValue;
 
-	Array<var> defaultValue;
+    MaskChannelsParameter* p =
+        new MaskChannelsParameter (nullptr,
+                                   Parameter::VISUALIZER_SCOPE,
+                                   name,
+                                   displayName,
+                                   description,
+                                   deactivateDuringAcquisition);
 
-	MaskChannelsParameter* p =
-		new MaskChannelsParameter(nullptr,
-			Parameter::VISUALIZER_SCOPE,
-			name,
-            displayName,
-			description,
-			deactivateDuringAcquisition);
-
-	addParameter(p);
-
+    addParameter (p);
 }
 
-void Visualizer::addSelectedChannelsParameter(
+void Visualizer::addSelectedChannelsParameter (
     const String& name,
     const String& displayName,
     const String& description,
     int maxSelectedChannels,
     bool deactivateDuringAcquisition)
 {
-
     Array<var> defaultValue;
 
     SelectedChannelsParameter* p =
-        new SelectedChannelsParameter(nullptr,
-            Parameter::VISUALIZER_SCOPE,
-            name,
-            displayName,
-            description,
-            defaultValue,
-            maxSelectedChannels,
-            deactivateDuringAcquisition);
+        new SelectedChannelsParameter (nullptr,
+                                       Parameter::VISUALIZER_SCOPE,
+                                       name,
+                                       displayName,
+                                       description,
+                                       defaultValue,
+                                       maxSelectedChannels,
+                                       deactivateDuringAcquisition);
 
-    addParameter(p);
+    addParameter (p);
 }
 
-void Visualizer::addSelectedStreamParameter(const String& name,
-    const String& displayName,
-    const String& description,
-    Array<String> streamNames,
-    const int defaultIndex,
-    bool deactivateDuringAcquisition)
+void Visualizer::addSelectedStreamParameter (const String& name,
+                                             const String& displayName,
+                                             const String& description,
+                                             Array<String> streamNames,
+                                             const int defaultIndex,
+                                             bool deactivateDuringAcquisition)
 {
-
-    SelectedStreamParameter* p = new SelectedStreamParameter(
-        nullptr, 
+    SelectedStreamParameter* p = new SelectedStreamParameter (
+        nullptr,
         Parameter::VISUALIZER_SCOPE,
-        name, 
+        name,
         displayName,
         description,
-        streamNames, 
-        defaultIndex, 
+        streamNames,
+        defaultIndex,
         deactivateDuringAcquisition);
 
-    addParameter(p);
-
+    addParameter (p);
 }
 
-void Visualizer::addNotificationParameter(const String& name,
-    const String& displayName,
-	const String& description,
-	bool deactivateDuringAcquisition)
+void Visualizer::addNotificationParameter (const String& name,
+                                           const String& displayName,
+                                           const String& description,
+                                           bool deactivateDuringAcquisition)
 {
-
-	NotificationParameter* p = new NotificationParameter(
-		nullptr, 
-		Parameter::VISUALIZER_SCOPE,
-		name, 
+    NotificationParameter* p = new NotificationParameter (
+        nullptr,
+        Parameter::VISUALIZER_SCOPE,
+        name,
         displayName,
-		description, 
-		deactivateDuringAcquisition);
+        description,
+        deactivateDuringAcquisition);
 
-	addParameter(p);
-
+    addParameter (p);
 }
-void Visualizer::parameterChangeRequest(Parameter* param)
+void Visualizer::parameterChangeRequest (Parameter* param)
 {
-	param->updateValue();
-    parameterValueChanged(param);
+    param->updateValue();
+    parameterValueChanged (param);
 }
 
-void Visualizer::addParameterEditorOwner(ParameterEditorOwner* editorOwner)
+void Visualizer::addParameterEditorOwner (ParameterEditorOwner* editorOwner)
 {
-    parameterEditorOwners.add(editorOwner);
-    addAndMakeVisible(editorOwner->getComponent());
+    parameterEditorOwners.add (editorOwner);
+    addAndMakeVisible (editorOwner->getComponent());
 }
 
-void Visualizer::saveToXml(XmlElement* xml)
-{    
-    XmlElement* paramsXml = xml->createNewChildElement("VISUALIZER_PARAMETERS");
-    
+void Visualizer::saveToXml (XmlElement* xml)
+{
+    XmlElement* paramsXml = xml->createNewChildElement ("VISUALIZER_PARAMETERS");
+
     for (auto param : getParameters())
     {
-        param->toXml(paramsXml);
+        param->toXml (paramsXml);
     }
 
-	saveCustomParametersToXml(xml->createNewChildElement("CUSTOM_PARAMETERS"));
+    saveCustomParametersToXml (xml->createNewChildElement ("CUSTOM_PARAMETERS"));
 }
 
-void Visualizer::loadFromXml(XmlElement* xml)
-{    
-    XmlElement* visParams = xml->getChildByName("VISUALIZER_PARAMETERS");
+void Visualizer::loadFromXml (XmlElement* xml)
+{
+    XmlElement* visParams = xml->getChildByName ("VISUALIZER_PARAMETERS");
 
     if (visParams != nullptr)
     {
         for (int i = 0; i < visParams->getNumAttributes(); i++)
         {
-            auto param = getParameter(visParams->getAttributeName(i));
+            auto param = getParameter (visParams->getAttributeName (i));
 
-            if(param != nullptr)
+            if (param != nullptr)
             {
-                param->fromXml(visParams);
+                param->fromXml (visParams);
                 param->valueChanged();
-                parameterValueChanged(param);
+                parameterValueChanged (param);
             }
         }
     }
-    
-    auto* customParams = xml->getChildByName("CUSTOM_PARAMETERS");
+
+    auto* customParams = xml->getChildByName ("CUSTOM_PARAMETERS");
 
     if (customParams != nullptr)
-        loadCustomParametersFromXml(customParams);
-
+        loadCustomParametersFromXml (customParams);
 }

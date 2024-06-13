@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2020 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,6 +18,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 */
 
 #ifndef __PARAMETER_HELPERS__
@@ -26,7 +27,7 @@
 #include <JuceHeader.h>
 
 /** Returns the string reporesentation of an array. */
-template<typename ValueType>
+template <typename ValueType>
 static String convertArrayToString (const Array<ValueType>& sourceArray)
 {
     // Allow to convert only the arrays which store arithmetic types
@@ -37,7 +38,7 @@ static String convertArrayToString (const Array<ValueType>& sourceArray)
     //}
 
     String stringRepr;
-    for (auto value: sourceArray)
+    for (auto value : sourceArray)
         stringRepr += value.toString() + ",";
 
     // Some hardcode - remove last coma at the end of the string
@@ -46,26 +47,25 @@ static String convertArrayToString (const Array<ValueType>& sourceArray)
     return stringRepr;
 }
 
-
 /** Creates and returns the array created from given string. Could be dangerous. */
 template <typename ValueType>
 static Array<var> createArrayFromString (const String& arrayString, const String& breakCharacters, const String& quoteCharacters = String())
 {
     // Allow to convert only the arrays which store arithmetic types
     if (! std::is_arithmetic<ValueType>::value)
-       return Array<var> {};
+        return Array<var> {};
 
     StringArray valuesStr;
     valuesStr.addTokens (arrayString, breakCharacters, quoteCharacters);
 
-    const bool isBool   = std::is_same<ValueType, bool>::value;
-    const bool isInt    = std::is_same<ValueType, int>::value;
-    const bool isLong   = std::is_same<ValueType, long>::value;
-    const bool isFloat  = std::is_same<ValueType, float>::value;
+    const bool isBool = std::is_same<ValueType, bool>::value;
+    const bool isInt = std::is_same<ValueType, int>::value;
+    const bool isLong = std::is_same<ValueType, long>::value;
+    const bool isFloat = std::is_same<ValueType, float>::value;
     const bool isDouble = std::is_same<ValueType, double>::value;
 
     Array<var> resultArray;
-    for (const auto& line: valuesStr)
+    for (const auto& line : valuesStr)
     {
         if (isBool)
             resultArray.add (line.getFloatValue());

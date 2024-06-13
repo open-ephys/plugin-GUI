@@ -79,7 +79,7 @@ int ResizableWindow::getDesktopWindowStyleFlags() const
 {
     int styleFlags = TopLevelWindow::getDesktopWindowStyleFlags();
 
-    if (isResizable() && (styleFlags & ComponentPeer::windowHasTitleBar) != 0)
+    if (isResizable())
         styleFlags |= ComponentPeer::windowIsResizable;
 
     return styleFlags;
@@ -160,7 +160,7 @@ void ResizableWindow::setContentComponentSize (int width, int height)
              height + border.getTopAndBottom());
 }
 
-BorderSize<int> ResizableWindow::getBorderThickness()
+BorderSize<int> ResizableWindow::getBorderThickness() const
 {
     if (isUsingNativeTitleBar() || isKioskMode())
         return {};
@@ -168,7 +168,7 @@ BorderSize<int> ResizableWindow::getBorderThickness()
     return BorderSize<int> ((resizableBorder != nullptr && ! isFullScreen()) ? 4 : 1);
 }
 
-BorderSize<int> ResizableWindow::getContentComponentBorder()
+BorderSize<int> ResizableWindow::getContentComponentBorder() const
 {
     return getBorderThickness();
 }
@@ -254,6 +254,8 @@ void ResizableWindow::activeWindowStatusChanged()
 void ResizableWindow::setResizable (const bool shouldBeResizable,
                                     const bool useBottomRightCornerResizer)
 {
+    resizable = shouldBeResizable;
+
     if (shouldBeResizable)
     {
         if (useBottomRightCornerResizer)
@@ -271,7 +273,7 @@ void ResizableWindow::setResizable (const bool shouldBeResizable,
         {
             resizableCorner.reset();
 
-            if (resizableBorder == nullptr)
+            if (resizableBorder == nullptr && (! isOnDesktop() || ! Desktop::getInstance().supportsBorderlessNonClientResize()))
             {
                 resizableBorder.reset (new ResizableBorderComponent (this, constrainer));
                 Component::addChildComponent (resizableBorder.get());
@@ -284,7 +286,7 @@ void ResizableWindow::setResizable (const bool shouldBeResizable,
         resizableBorder.reset();
     }
 
-    if (isUsingNativeTitleBar())
+    if (isOnDesktop())
         recreateDesktopWindow();
 
     childBoundsChanged (contentComponent);
@@ -293,8 +295,7 @@ void ResizableWindow::setResizable (const bool shouldBeResizable,
 
 bool ResizableWindow::isResizable() const noexcept
 {
-    return resizableCorner != nullptr
-        || resizableBorder != nullptr;
+    return resizable;
 }
 
 void ResizableWindow::setResizeLimits (int newMinimumWidth,

@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2022 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -21,36 +21,31 @@
 
 */
 
-
 #ifndef __EVENTTRANSLATOREDITOR_H_D6EC8B48__
 #define __EVENTTRANSLATOREDITOR_H_D6EC8B48__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
-#include "../Editors/GenericEditor.h"
 #include "../../Utils/Utils.h"
+#include "../Editors/GenericEditor.h"
 
 #include "../RecordNode/RecordNodeEditor.h"
 
 class EventTranslator;
 
-
-class EventTranslatorEditor  : public GenericEditor
+class EventTranslatorEditor : public GenericEditor
 {
 public:
-
     /** Constructor */
     EventTranslatorEditor (GenericProcessor* parentNode);
 
     /** Destructor */
     virtual ~EventTranslatorEditor();
-    
+
     /** Updates settings when signal chain is updated */
     void updateSettings() override;
 
 private:
-   
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EventTranslatorEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EventTranslatorEditor);
 };
 
-
-#endif  // __EVENTTRANSLATOREDITOR_H_D6EC8B48__
+#endif // __EVENTTRANSLATOREDITOR_H_D6EC8B48__

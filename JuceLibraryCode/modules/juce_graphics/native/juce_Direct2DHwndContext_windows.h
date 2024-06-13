@@ -45,8 +45,8 @@ public:
     void handleShowWindow();
     void setWindowAlpha (float alpha);
 
-    void startResizing();
-    void finishResizing();
+    void setResizing (bool);
+    bool getResizing() const;
     void setSize (int width, int height);
     void updateSize();
 

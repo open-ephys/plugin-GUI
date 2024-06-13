@@ -25,7 +25,6 @@
 
 static const int EDITOR_DESIRED_WIDTH = 150;
 
-
 EDITORCLASSNAME::EDITORCLASSNAME (GenericProcessor* parentNode, bool useDefaultParameterEditors = true)
     : GenericEditor (parentNode, useDefaultParameterEditors)
 {
@@ -40,7 +39,6 @@ EDITORCLASSNAME::EDITORCLASSNAME (GenericProcessor* parentNode, bool useDefaultP
 
     //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_END]
 
-
     ////Most used buttons are UtilityButton, which shows a simple button with text and ElectrodeButton, which is an on-off button which displays a channel.
     //exampleButton = new UtilityButton ("Button text", Font ("Default", 15, Font::plain));
     //exampleButton->setBounds (10, 30, 50, 50); //Set position and size (X, Y, XSize, YSize)
@@ -50,11 +48,9 @@ EDITORCLASSNAME::EDITORCLASSNAME (GenericProcessor* parentNode, bool useDefaultP
     //addAndMakeVisible (exampleButton);
 }
 
-
 EDITORCLASSNAME::~EDITORCLASSNAME()
 {
 }
-
 
 void EDITORCLASSNAME::resized()
 {
@@ -66,16 +62,14 @@ void EDITORCLASSNAME::resized()
     const int xPosInitial = 2;
     const int yPosIntiial = 23;
     const int contentWidth = (isMerger() || isSplitter() || isUtility())
-                                    ? getWidth() - xPosInitial * 2
-                                    : channelSelector->isVisible()
-                                        ? channelSelector->getX() - xPosInitial * 2 - 5
-                                        : drawerButton->getX() - xPosInitial * 2;
-    content.setBounds (xPosInitial, yPosIntiial,
-                       contentWidth, getHeight() - yPosIntiial - 7);
+                                 ? getWidth() - xPosInitial * 2
+                             : channelSelector->isVisible()
+                                 ? channelSelector->getX() - xPosInitial * 2 - 5
+                                 : drawerButton->getX() - xPosInitial * 2;
+    content.setBounds (xPosInitial, yPosIntiial, contentWidth, getHeight() - yPosIntiial - 7);
 
     //[OPENEPHYS_EDITOR_PRE_RESIZE_SECTION_END]
 }
-
 
 /**
     The listener method that reacts to the button click. The same method is called for all buttons
@@ -99,7 +93,6 @@ void EDITORCLASSNAME::buttonEvent (Button* button)
     //    }
     //}
 }
-
 
 /**
     The listener method that reacts to the changes of the particular slider of the editor.

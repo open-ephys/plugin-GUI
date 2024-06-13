@@ -177,15 +177,10 @@ void DiskSpaceMeter::paint (Graphics& g)
     g.drawSingleLineText ("DF", 75, 12);
 }
 
-Clock::Clock() : isRunning (false),
-                 isRecording (false),
-                 mode (DEFAULT)
+Clock::Clock() 
 {
-    clockFont = Font ("CP Mono", "Light", 30);
+    clockFont = FontOptions ("CP Mono", "Light", 30.0f);
     clockFont.setHorizontalScale (0.95f);
-
-    totalTime = 0;
-    totalRecordTime = 0;
 }
 
 void Clock::paint (Graphics& g)
@@ -203,7 +198,7 @@ void Clock::drawTime (Graphics& g)
 
         if (isRecording)
         {
-            totalRecordTime += diff;
+            totalRecordingTime += diff;
         }
 
         lastTime = Time::currentTimeMillis();
@@ -216,9 +211,9 @@ void Clock::drawTime (Graphics& g)
     if (isRecording)
     {
         g.setColour (Colours::black);
-        h = floor (totalRecordTime / 3600000.0f);
-        m = floor (totalRecordTime / 60000.0);
-        s = floor ((totalRecordTime - m * 60000.0) / 1000.0);
+        h = floor (totalRecordingTime / 3600000.0f);
+        m = floor (totalRecordingTime / 60000.0);
+        s = floor ((totalRecordingTime - m * 60000.0) / 1000.0);
     }
     else
     {
@@ -273,9 +268,14 @@ void Clock::start()
     }
 }
 
-void Clock::resetRecordTime()
+void Clock::resetRecordingTime()
 {
-    totalRecordTime = 0;
+    totalRecordingTime = 0;
+}
+
+int64 Clock::getRecordingTime() const
+{
+    return totalRecordingTime;
 }
 
 void Clock::startRecording()
@@ -431,6 +431,11 @@ bool ControlPanel::getRecordingState()
     return recordButton->getToggleState();
 }
 
+int64 ControlPanel::getRecordingTime() const
+{
+    return clock->getRecordingTime();
+}
+
 void ControlPanel::setRecordingParentDirectory (String path)
 {
     File newFile (path);
@@ -467,7 +472,7 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
         return;
     }
 
-    if (audioEditor->isAudioConfigurationWindowVisible())
+    if (!isConsoleApp && audioEditor->isAudioConfigurationWindowVisible())
     {
         audioEditor->disable();
         audioEditor->enable();
@@ -815,7 +820,7 @@ void ControlPanel::labelTextChanged (Label* label)
         node->newDirectoryNeeded = true;
     }
     newDirectoryButton->setEnabledState (false);
-    clock->resetRecordTime();
+    clock->resetRecordingTime();
 
     // filenameText->setColour(Label::textColourId, Colours::grey);
 }
@@ -920,7 +925,7 @@ void ControlPanel::buttonClicked (Button* button)
         && newDirectoryButton->getEnabledState())
     {
         newDirectoryButton->setEnabledState (false);
-        clock->resetRecordTime();
+        clock->resetRecordingTime();
 
         // filenameText->setColour(Label::textColourId, Colours::grey);
 
@@ -1017,7 +1022,7 @@ void ControlPanel::setSelectedRecordEngine (int index)
     re->registerManager (recordEngines[index]);
 
     newDirectoryButton->setEnabledState (false);
-    clock->resetRecordTime();
+    clock->resetRecordingTime();
 
     // filenameText->setColour(Label::textColourId, Colours::grey);
     lastEngineIndex = index;

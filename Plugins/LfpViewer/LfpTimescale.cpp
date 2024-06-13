@@ -36,7 +36,7 @@ using namespace LfpViewer;
 LfpTimescale::LfpTimescale (LfpDisplaySplitter* c, LfpDisplay* lfpDisplay)
     : canvasSplit (c), lfpDisplay (lfpDisplay), offset (0.0f), isPaused (false)
 {
-    font = Font ("Default", 16, Font::plain);
+    font = FontOptions ("Fira Code", "Medium", 16.0f);
 
     setWantsKeyboardFocus (true);
 }

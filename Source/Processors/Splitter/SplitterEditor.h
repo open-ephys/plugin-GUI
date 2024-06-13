@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,7 +24,6 @@
 #ifndef __SPLITTEREDITOR_H_33F644A8__
 #define __SPLITTEREDITOR_H_33F644A8__
 
-
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../Editors/GenericEditor.h"
 #include "Splitter.h"
@@ -38,42 +37,38 @@
 */
 
 class SplitterEditor : public GenericEditor,
-    public Button::Listener
+                       public Button::Listener
 {
 public:
-    
     /** Constructor */
-    SplitterEditor(GenericProcessor* parentNode);
+    SplitterEditor (GenericProcessor* parentNode);
 
     /** Destructor */
     virtual ~SplitterEditor();
 
     /** Respond to clicks on path buttons */
-    void buttonClicked(Button* button);
+    void buttonClicked (Button* button);
 
     /** Switch to dest path 0 or 1*/
-    void switchDest(int);
+    void switchDest (int);
 
     /** Switch to the opposite dest path */
     void switchDest();
 
     /** Alias for switchDest */
-    void switchIO(int i);
+    void switchIO (int i);
 
     /** Returns the path that leads to a given editor (0 or 1) */
-    int getPathForEditor(GenericEditor* editor);
+    int getPathForEditor (GenericEditor* editor);
 
     /** Returns all the editors directly downstream of this splitter */
     Array<GenericEditor*> getConnectedEditors();
 
 private:
-
     std::unique_ptr<ImageButton> pipelineSelectorA;
     std::unique_ptr<ImageButton> pipelineSelectorB;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SplitterEditor);
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SplitterEditor);
 };
 
-
-#endif  // __SPLITTEREDITOR_H_33F644A8__
+#endif // __SPLITTEREDITOR_H_33F644A8__

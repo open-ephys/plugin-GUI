@@ -57,10 +57,10 @@ public:
     void process (AudioBuffer<float>& buffer) override;
 
     /* Passes TEXT event messages to the DataThread, via handleMessage() */
-    void handleBroadcastMessage(String msg) override;
+    void handleBroadcastMessage (const String& msg, const int64 systemTimeMillis) override;
 
     /* Passes configuration messages to the DataThread, via handleConfigMessage() */
-    String handleConfigMessage(String msg) override;
+    String handleConfigMessage(const String& msg) override;
 
     /* Broadcasts a message from the DataThread to all other processors*/
     void broadcastDataThreadMessage(String msg);

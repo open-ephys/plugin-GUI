@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -27,7 +27,6 @@
 #include <JuceHeader.h>
 
 #include "../PluginManager/PluginClass.h"
-
 
 /**
     Base class for GenericProcessor - implements some required Juce Methods
@@ -125,11 +124,9 @@ public:
     bool silenceInProducesSilenceOut() const override;
 
 private:
-
     const String m_name;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericProcessorBase);
 };
 
-
-#endif  // __GENERICPROCESSORBASE_H_1F469DAF__
+#endif // __GENERICPROCESSORBASE_H_1F469DAF__

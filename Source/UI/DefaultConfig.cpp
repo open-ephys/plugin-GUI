@@ -60,7 +60,10 @@ void DefaultConfigWindow::launchWindow()
     options.useNativeTitleBar = false;
     options.resizable = false;
 
-    configWindow = options.launchAsync();
+    auto* window = options.launchAsync();
+    window->setAlwaysOnTop (true);
+    window->addKeyListener ((DefaultConfigComponent*) window->getContentComponent());
+    configWindow = window;
 }
 
 //-----------------------------------------------------------------------
@@ -238,17 +241,61 @@ void DefaultConfigComponent::buttonClicked (Button* button)
 
         // Hide the config window
         if (DialogWindow* dw = this->findParentComponentOfClass<DialogWindow>())
+        {
+            dw->removeKeyListener (this);
             dw->setVisible (false);
+        }
 
         // Load the config file
         AccessClass::getUIComponent()->getEditorViewport()->loadState (configFile);
 
         // Close config window after loading the config file
-        if (DialogWindow* dw = this->findParentComponentOfClass<DialogWindow>())
-            dw->exitModalState (0);
+        ModalComponentManager::getInstance()->cancelAllModalComponents();
     }
     else if (button->getRadioGroupId() == 101)
     {
         this->repaint();
+    }
+}
+
+bool DefaultConfigComponent::keyPressed (const KeyPress& key, Component* originatingComponent)
+{
+    // Handle left/tab key presses to move left 
+    if (key == KeyPress::rightKey || key == KeyPress::tabKey)
+    {
+        if (acqBoardButton->getToggleState())
+        {
+            fileReaderButton->setToggleState (true, sendNotification);
+            acqBoardButton->setToggleState (false, sendNotification);
+        }
+        else if (fileReaderButton->getToggleState() && neuropixelsButton->isEnabled())
+        {
+            neuropixelsButton->setToggleState (true, sendNotification);
+            fileReaderButton->setToggleState (false, sendNotification);
+        }
+
+        return true;
+    }
+    // Handle right/shift+tab key presses to move right
+    else if (key == KeyPress::leftKey || key == KeyPress(KeyPress::tabKey, ModifierKeys::shiftModifier, 0))
+    {
+        if (neuropixelsButton->getToggleState())
+        {
+            fileReaderButton->setToggleState (true, sendNotification);
+            neuropixelsButton->setToggleState (false, sendNotification);
+        }
+        else if (fileReaderButton->getToggleState())
+        {
+            acqBoardButton->setToggleState (true, sendNotification);
+            fileReaderButton->setToggleState (false, sendNotification);
+        }
+
+        return true;
+    }
+    // Handle return key presses to trigger the load button
+    else if (key == KeyPress::returnKey)
+    {
+        goButton->triggerClick();
+        return true;
     }
 }

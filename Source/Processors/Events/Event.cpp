@@ -1,23 +1,23 @@
 /*
-------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-This file is part of the Open Ephys GUI
-Copyright (C) 2014 Open Ephys
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2024 Open Ephys
 
-------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -29,196 +29,193 @@ EventBase::~EventBase() {}
 
 Event::Type EventBase::getBaseType() const
 {
-	return m_baseType;
+    return m_baseType;
 }
 
-Event::Type EventBase::getBaseType(const EventPacket& packet)
+Event::Type EventBase::getBaseType (const EventPacket& packet)
 {
-	const uint8* data = packet.getRawData();
+    const uint8* data = packet.getRawData();
 
-	return static_cast<Event::Type> (*data);
+    return static_cast<Event::Type> (*data);
 }
 
-Event::Type EventBase::getBaseType(const uint8* data)
+Event::Type EventBase::getBaseType (const uint8* data)
 {
-	return static_cast<Event::Type> (*data);
+    return static_cast<Event::Type> (*data);
 }
 
 uint16 EventBase::getProcessorId() const
 {
-	return m_sourceProcessorId;
+    return m_sourceProcessorId;
 }
 
-uint16 EventBase::getProcessorId(const EventPacket& packet)
+uint16 EventBase::getProcessorId (const EventPacket& packet)
 {
-	const uint8* data = packet.getRawData();
+    const uint8* data = packet.getRawData();
 
-	return *reinterpret_cast<const uint16*>(data + 2);
+    return *reinterpret_cast<const uint16*> (data + 2);
 }
 
-uint16 EventBase::getProcessorId(const uint8* data)
+uint16 EventBase::getProcessorId (const uint8* data)
 {
-	return *reinterpret_cast<const uint16*>(data + 2);
+    return *reinterpret_cast<const uint16*> (data + 2);
 }
 
 uint16 EventBase::getStreamId() const
 {
-	return m_sourceStreamId;
+    return m_sourceStreamId;
 }
 
-uint16 EventBase::getStreamId(const EventPacket& packet)
+uint16 EventBase::getStreamId (const EventPacket& packet)
 {
-	const uint8* data = packet.getRawData();
+    const uint8* data = packet.getRawData();
 
-	return *reinterpret_cast<const uint16*>(data + 4);
+    return *reinterpret_cast<const uint16*> (data + 4);
 }
 
-
-uint16 EventBase::getStreamId(const uint8* data)
+uint16 EventBase::getStreamId (const uint8* data)
 {
-	return *reinterpret_cast<const uint16*>(data + 4);
+    return *reinterpret_cast<const uint16*> (data + 4);
 }
 
 uint16 EventBase::getChannelIndex() const
 {
-	return m_sourceChannelIndex;
+    return m_sourceChannelIndex;
 }
 
-uint16 EventBase::getChannelIndex(const EventPacket& packet)
+uint16 EventBase::getChannelIndex (const EventPacket& packet)
 {
-	const uint8* data = packet.getRawData();
+    const uint8* data = packet.getRawData();
 
-	return *reinterpret_cast<const uint16*>(data + 6);
+    return *reinterpret_cast<const uint16*> (data + 6);
 }
 
-uint16 EventBase::getChannelIndex(const uint8* data)
+uint16 EventBase::getChannelIndex (const uint8* data)
 {
-	return *reinterpret_cast<const uint16*>(data + 6);
+    return *reinterpret_cast<const uint16*> (data + 6);
 }
-
 
 int64 EventBase::getSampleNumber() const
 {
     return m_sampleNumber;
 }
 
-int64 EventBase::getSampleNumber(const EventPacket& packet)
+int64 EventBase::getSampleNumber (const EventPacket& packet)
 {
     const uint8* data = packet.getRawData();
 
-    return *reinterpret_cast<const int64*>(data + 8);
+    return *reinterpret_cast<const int64*> (data + 8);
 }
 
-void EventBase::setTimestampInSeconds(double timestamp)
+void EventBase::setTimestampInSeconds (double timestamp)
 {
     m_timestamp = timestamp;
 }
 
-void EventBase::setTimestampInSeconds(const EventPacket& packet, double timestamp)
+void EventBase::setTimestampInSeconds (const EventPacket& packet, double timestamp)
 {
-    uint8* modifiableBuffer = const_cast<uint8*>(packet.getRawData());
+    uint8* modifiableBuffer = const_cast<uint8*> (packet.getRawData());
 
-    *(reinterpret_cast<double*>(modifiableBuffer + 16)) = timestamp;
-    
+    *(reinterpret_cast<double*> (modifiableBuffer + 16)) = timestamp;
 }
 
 double EventBase::getTimestampInSeconds() const
 {
-	return m_timestamp;
+    return m_timestamp;
 }
 
-double EventBase::getTimestampInSeconds(const EventPacket& packet)
+double EventBase::getTimestampInSeconds (const EventPacket& packet)
 {
-	const uint8* data = packet.getRawData();
+    const uint8* data = packet.getRawData();
 
-	return *reinterpret_cast<const double*>(data + 16);
+    return *reinterpret_cast<const double*> (data + 16);
 }
 
-EventBase::EventBase(Event::Type type, 
-	int64 sampleNumber,
-    double timestamp,
-	uint16 processorId, 
-	uint16 streamId, 
-	uint16 channelIndex) : 
-	m_baseType(type),
-    m_sampleNumber(sampleNumber),
-	m_timestamp(timestamp), 
-	m_sourceProcessorId(processorId), 
-	m_sourceStreamId(streamId), 
-	m_sourceChannelIndex(channelIndex) {}
+EventBase::EventBase (Event::Type type,
+                      int64 sampleNumber,
+                      double timestamp,
+                      uint16 processorId,
+                      uint16 streamId,
+                      uint16 channelIndex) : m_baseType (type),
+                                             m_sampleNumber (sampleNumber),
+                                             m_timestamp (timestamp),
+                                             m_sourceProcessorId (processorId),
+                                             m_sourceStreamId (streamId),
+                                             m_sourceChannelIndex (channelIndex) {}
 
-
-EventBasePtr EventBase::deserialize(const EventPacket& packet, const GenericProcessor* processor)
+EventBasePtr EventBase::deserialize (const EventPacket& packet, const GenericProcessor* processor)
 {
-	if (!processor) return nullptr;
+    if (! processor)
+        return nullptr;
 
-	const uint8* data = packet.getRawData();
+    const uint8* data = packet.getRawData();
 
-	const Type type = static_cast<Type>(*data);
-	const uint16 processorId = static_cast<uint16>(*(data + 2));
-	const uint16 streamId = static_cast<uint16>(*(data + 4));
-	const uint16 channelIndex = static_cast<uint16>(*(data + 6));
+    const Type type = static_cast<Type> (*data);
+    const uint16 processorId = static_cast<uint16> (*(data + 2));
+    const uint16 streamId = static_cast<uint16> (*(data + 4));
+    const uint16 channelIndex = static_cast<uint16> (*(data + 6));
 
-	switch (type)
-	{
-	case PROCESSOR_EVENT:
-	{		
-		const EventChannel* eventChannel = processor->getEventChannel(processorId, streamId, channelIndex);
-		return Event::deserialize(packet, eventChannel).release();
-	}
-	case SPIKE_EVENT:
-	{
-		const SpikeChannel* spikeChannel = processor->getSpikeChannel(processorId, streamId, channelIndex);
-		return Spike::deserialize(packet, spikeChannel).release();
-	}
-	default:
-		return nullptr;
-		break;
-	}
+    switch (type)
+    {
+        case PROCESSOR_EVENT:
+        {
+            const EventChannel* eventChannel = processor->getEventChannel (processorId, streamId, channelIndex);
+            return Event::deserialize (packet, eventChannel).release();
+        }
+        case SPIKE_EVENT:
+        {
+            const SpikeChannel* spikeChannel = processor->getSpikeChannel (processorId, streamId, channelIndex);
+            return Spike::deserialize (packet, spikeChannel).release();
+        }
+        default:
+            return nullptr;
+            break;
+    }
 }
 
-bool EventBase::compareMetadata(const MetadataEventObject* channelInfo, const MetadataValueArray& metaData)
+bool EventBase::compareMetadata (const MetadataEventObject* channelInfo, const MetadataValueArray& metaData)
 {
-	int metaDataSize = metaData.size();
+    int metaDataSize = metaData.size();
 
-	if (metaDataSize != channelInfo->getEventMetadataCount()) return false;
+    if (metaDataSize != channelInfo->getEventMetadataCount())
+        return false;
 
-	for (int i = 0; i < metaDataSize; i++)
-	{
-		if (!metaData[i]->isOfType(channelInfo->getEventMetadataDescriptor(i))) return false;
-	}
-	return true;
+    for (int i = 0; i < metaDataSize; i++)
+    {
+        if (! metaData[i]->isOfType (channelInfo->getEventMetadataDescriptor (i)))
+            return false;
+    }
+    return true;
 }
 
-
-SystemEvent::Type SystemEvent::getSystemEventType(const EventPacket& msg)
+SystemEvent::Type SystemEvent::getSystemEventType (const EventPacket& msg)
 {
-	const uint8* data = msg.getRawData();
+    const uint8* data = msg.getRawData();
 
-	return static_cast<Type>(*(data + 1));
+    return static_cast<Type> (*(data + 1));
 }
 
-size_t SystemEvent::fillTimestampAndSamplesData(HeapBlock<char>& data, 
-	const GenericProcessor* proc, 
-	uint16 streamId, 
-	int64 startSampleForBlock,
-    double startTimestampForBlock,
-	uint32 nSamplesInBlock,
-	int64 processStartTime,
-	uint16 syncStreamId)
+size_t SystemEvent::fillTimestampAndSamplesData (HeapBlock<char>& data,
+                                                 const GenericProcessor* proc,
+                                                 uint16 streamId,
+                                                 int64 startSampleForBlock,
+                                                 double startTimestampForBlock,
+                                                 uint32 nSamplesInBlock,
+                                                 int64 processStartTime,
+                                                 uint16 syncStreamId)
 {
-	const int eventSize = EVENT_BASE_SIZE + 4 + 8;
-	data.malloc(eventSize);
-	data[0] = SYSTEM_EVENT;													 // 1 byte
-	data[1] = TIMESTAMP_AND_SAMPLES;										 // 1 byte
-	*reinterpret_cast<uint16*>(data.getData() + 2) = proc->getNodeId();		 // 2 bytes
-	*reinterpret_cast<uint16*>(data.getData() + 4) = streamId;				 // 2 bytes
-	*reinterpret_cast<uint16*>(data.getData() + 6) = syncStreamId;			 // 2 bytes
-	*reinterpret_cast<int64*>(data.getData() + 8) = startSampleForBlock;     // 8 bytes
-    *reinterpret_cast<double*>(data.getData() + 16) = startTimestampForBlock;// 8 bytes
-	*reinterpret_cast<uint32*>(data.getData() + EVENT_BASE_SIZE) = nSamplesInBlock;		 // 8 bytes
-	*reinterpret_cast<int64*>(data.getData() + EVENT_BASE_SIZE + 4) = processStartTime; // 8 bytes
-	return eventSize;
+    const int eventSize = EVENT_BASE_SIZE + 4 + 8;
+    data.malloc (eventSize);
+    data[0] = SYSTEM_EVENT; // 1 byte
+    data[1] = TIMESTAMP_AND_SAMPLES; // 1 byte
+    *reinterpret_cast<uint16*> (data.getData() + 2) = proc->getNodeId(); // 2 bytes
+    *reinterpret_cast<uint16*> (data.getData() + 4) = streamId; // 2 bytes
+    *reinterpret_cast<uint16*> (data.getData() + 6) = syncStreamId; // 2 bytes
+    *reinterpret_cast<int64*> (data.getData() + 8) = startSampleForBlock; // 8 bytes
+    *reinterpret_cast<double*> (data.getData() + 16) = startTimestampForBlock; // 8 bytes
+    *reinterpret_cast<uint32*> (data.getData() + EVENT_BASE_SIZE) = nSamplesInBlock; // 8 bytes
+    *reinterpret_cast<int64*> (data.getData() + EVENT_BASE_SIZE + 4) = processStartTime; // 8 bytes
+    return eventSize;
 }
 
 // UG3 Specific
@@ -247,501 +244,501 @@ size_t SystemEvent::fillTimestampSyncTextData(
 	uint16 streamId, 
 	int64 startSample,
     double startTimestamp,
-	bool softwareTime)
+    bool softwareTime)
 {
-	String eventString;
-	if (softwareTime)
-	{
-		eventString = "Software Time (milliseconds since midnight Jan 1st 1970 UTC)";
-	}
-	else
-	{
-		eventString = "Start Time for " 
-			+ proc->getName()
-			+ " ("
-			+ String(proc->getNodeId())
-			+ ") - "
-			+ String(proc->getDataStream(streamId)->getName())
-			+ " @ "
-			+ String(proc->getSampleRate(streamId))
-			+ " Hz";
-	}
-	size_t textSize = eventString.getNumBytesAsUTF8();
-	size_t dataSize = EVENT_BASE_SIZE + 1 + textSize;
-	data.allocate(dataSize, true);
-	data[0] = SYSTEM_EVENT;
-	data[1] = TIMESTAMP_SYNC_TEXT;
-	*reinterpret_cast<uint16*>(data.getData() + 2) = proc->getNodeId();
-	*reinterpret_cast<uint16*>(data.getData() + 4) = streamId;
-	*reinterpret_cast<int64*>(data.getData() + 8) = startSample;
-    *reinterpret_cast<double*>(data.getData() + 16) = startTimestamp;
-	memcpy(data.getData() + EVENT_BASE_SIZE, eventString.toUTF8(), textSize);
-	return dataSize;
+    String eventString;
+    if (softwareTime)
+    {
+        eventString = "Software Time (milliseconds since midnight Jan 1st 1970 UTC)";
+    }
+    else
+    {
+        eventString = "Start Time for "
+                      + proc->getName()
+                      + " ("
+                      + String (proc->getNodeId())
+                      + ") - "
+                      + String (proc->getDataStream (streamId)->getName())
+                      + " @ "
+                      + String (proc->getSampleRate (streamId))
+                      + " Hz";
+    }
+    size_t textSize = eventString.getNumBytesAsUTF8();
+    size_t dataSize = EVENT_BASE_SIZE + 1 + textSize;
+    data.allocate (dataSize, true);
+    data[0] = SYSTEM_EVENT;
+    data[1] = TIMESTAMP_SYNC_TEXT;
+    *reinterpret_cast<uint16*> (data.getData() + 2) = proc->getNodeId();
+    *reinterpret_cast<uint16*> (data.getData() + 4) = streamId;
+    *reinterpret_cast<int64*> (data.getData() + 8) = startSample;
+    *reinterpret_cast<double*> (data.getData() + 16) = startTimestamp;
+    memcpy (data.getData() + EVENT_BASE_SIZE, eventString.toUTF8(), textSize);
+    return dataSize;
 }
 
-uint32 SystemEvent::getNumSamples(const EventPacket& packet)
+uint32 SystemEvent::getNumSamples (const EventPacket& packet)
 {
-	if (getBaseType(packet) != SYSTEM_EVENT && getSystemEventType(packet) != TIMESTAMP_AND_SAMPLES)
-		return 0;
+    if (getBaseType (packet) != SYSTEM_EVENT && getSystemEventType (packet) != TIMESTAMP_AND_SAMPLES)
+        return 0;
 
-	return *reinterpret_cast<const uint32*>(packet.getRawData() + EVENT_BASE_SIZE);
+    return *reinterpret_cast<const uint32*> (packet.getRawData() + EVENT_BASE_SIZE);
 }
 
-int64 SystemEvent::getHiResTicks(const EventPacket& packet)
+int64 SystemEvent::getHiResTicks (const EventPacket& packet)
 {
-	if (getBaseType(packet) != SYSTEM_EVENT && getSystemEventType(packet) != TIMESTAMP_AND_SAMPLES)
-		return 0;
+    if (getBaseType (packet) != SYSTEM_EVENT && getSystemEventType (packet) != TIMESTAMP_AND_SAMPLES)
+        return 0;
 
-	return *reinterpret_cast<const int64*>(packet.getRawData() + EVENT_BASE_SIZE + 4);
+    return *reinterpret_cast<const int64*> (packet.getRawData() + EVENT_BASE_SIZE + 4);
 }
 
-String SystemEvent::getSyncText(const EventPacket& packet)
+String SystemEvent::getSyncText (const EventPacket& packet)
 {
-	if (getBaseType(packet) != SYSTEM_EVENT && getSystemEventType(packet) != TIMESTAMP_SYNC_TEXT)
-		return String();
+    if (getBaseType (packet) != SYSTEM_EVENT && getSystemEventType (packet) != TIMESTAMP_SYNC_TEXT)
+        return String();
 
-	const char* data = reinterpret_cast<const char*>(packet.getRawData());
+    const char* data = reinterpret_cast<const char*> (packet.getRawData());
 
-	return String::fromUTF8(data + EVENT_BASE_SIZE, packet.getRawDataSize() - (EVENT_BASE_SIZE + 1));
+    return String::fromUTF8 (data + EVENT_BASE_SIZE, packet.getRawDataSize() - (EVENT_BASE_SIZE + 1));
 }
 
 uint16 SystemEvent::getSyncStreamId() const
 {
-	return m_sourceChannelIndex;
+    return m_sourceChannelIndex;
 }
 
-uint16 SystemEvent::getSyncStreamId(const EventPacket& packet)
+uint16 SystemEvent::getSyncStreamId (const EventPacket& packet)
 {
-	const uint8* data = packet.getRawData();
+    const uint8* data = packet.getRawData();
 
-	return *reinterpret_cast<const uint16*>(data + 6);
+    return *reinterpret_cast<const uint16*> (data + 6);
 }
 
-uint16 SystemEvent::getSyncStreamId(const uint8* data)
+uint16 SystemEvent::getSyncStreamId (const uint8* data)
 {
-	return *reinterpret_cast<const uint16*>(data + 6);
+    return *reinterpret_cast<const uint16*> (data + 6);
 }
 
-Event::Event(const Event& other)
-	: EventBase(other),
-	m_channelInfo(other.m_channelInfo),
-	m_eventType(other.m_eventType)
+Event::Event (const Event& other)
+    : EventBase (other),
+      m_channelInfo (other.m_channelInfo),
+      m_eventType (other.m_eventType)
 {
-	size_t size = other.m_channelInfo->getDataSize();
-	m_data.malloc(size);
-	memcpy(m_data.getData(), other.m_data.getData(), size);
+    size_t size = other.m_channelInfo->getDataSize();
+    m_data.malloc (size);
+    memcpy (m_data.getData(), other.m_data.getData(), size);
 }
 
 EventChannel::Type Event::getEventType() const
 {
-	return m_eventType;
+    return m_eventType;
 }
 
 const EventChannel* Event::getChannelInfo() const
 {
-	return m_channelInfo;
+    return m_channelInfo;
 }
 
-EventChannel::Type Event::getEventType(const EventPacket& packet)
+EventChannel::Type Event::getEventType (const EventPacket& packet)
 {
-	const uint8* data = packet.getRawData();
+    const uint8* data = packet.getRawData();
 
-	return static_cast<EventChannel::Type>(*(data + 1));
+    return static_cast<EventChannel::Type> (*(data + 1));
 }
 
-Event::Event(const EventChannel* channelInfo, int64 sampleNumber, double timestamp)
-	: EventBase(PROCESSOR_EVENT, 
-		sampleNumber,
-        timestamp,
-		channelInfo->getSourceNodeId(), 
-		channelInfo->getStreamId(), 
-		channelInfo->getLocalIndex()),
-	m_channelInfo(channelInfo),
-	m_eventType(channelInfo->getType())
-{}
+Event::Event (const EventChannel* channelInfo, int64 sampleNumber, double timestamp)
+    : EventBase (PROCESSOR_EVENT,
+                 sampleNumber,
+                 timestamp,
+                 channelInfo->getSourceNodeId(),
+                 channelInfo->getStreamId(),
+                 channelInfo->getLocalIndex()),
+      m_channelInfo (channelInfo),
+      m_eventType (channelInfo->getType())
+{
+}
 
 Event::~Event() {}
 
-EventPtr Event::deserialize(const EventPacket& packet, const EventChannel* eventChannel)
+EventPtr Event::deserialize (const EventPacket& packet, const EventChannel* eventChannel)
 {
-	EventChannel::Type type = eventChannel->getType();
-	
-	if (type == EventChannel::TTL)
-		return TTLEvent::deserialize(packet, eventChannel).release();
-	else if (type == EventChannel::TEXT)
-		return TextEvent::deserialize(packet, eventChannel).release();
-	else if (type >= int(EventChannel::INT8_ARRAY) && type <= int(EventChannel::DOUBLE_ARRAY))
-		return BinaryEvent::deserialize(packet, eventChannel).release();
-	else return nullptr;
+    EventChannel::Type type = eventChannel->getType();
+
+    if (type == EventChannel::TTL)
+        return TTLEvent::deserialize (packet, eventChannel).release();
+    else if (type == EventChannel::TEXT)
+        return TextEvent::deserialize (packet, eventChannel).release();
+    else if (type >= int (EventChannel::INT8_ARRAY) && type <= int (EventChannel::DOUBLE_ARRAY))
+        return BinaryEvent::deserialize (packet, eventChannel).release();
+    else
+        return nullptr;
 }
 
-
-bool Event::serializeHeader(EventChannel::Type type, char* buffer, size_t dstSize) const
+bool Event::serializeHeader (EventChannel::Type type, char* buffer, size_t dstSize) const
 {
-	size_t dataSize = m_channelInfo->getDataSize();
-	size_t eventSize = dataSize + EVENT_BASE_SIZE;
-	size_t totalSize = eventSize + m_channelInfo->getTotalEventMetadataSize();
-	if (totalSize < dstSize)
-	{
-		jassertfalse;
-		return false;
-	}
+    size_t dataSize = m_channelInfo->getDataSize();
+    size_t eventSize = dataSize + EVENT_BASE_SIZE;
+    size_t totalSize = eventSize + m_channelInfo->getTotalEventMetadataSize();
+    if (totalSize < dstSize)
+    {
+        jassertfalse;
+        return false;
+    }
 
-	*(buffer + 0) = PROCESSOR_EVENT;
-	*(buffer + 1) = static_cast<char>(type);
-	*(reinterpret_cast<uint16*>(buffer + 2)) = m_channelInfo->getSourceNodeId();
-	*(reinterpret_cast<uint16*>(buffer + 4)) = m_channelInfo->getStreamId();
-	*(reinterpret_cast<uint16*>(buffer + 6)) = m_channelInfo->getLocalIndex();
-	*(reinterpret_cast<juce::int64*>(buffer + 8)) = m_sampleNumber;
-    *(reinterpret_cast<double*>(buffer + 16)) = m_timestamp;
-	return true;
+    *(buffer + 0) = PROCESSOR_EVENT;
+    *(buffer + 1) = static_cast<char> (type);
+    *(reinterpret_cast<uint16*> (buffer + 2)) = m_channelInfo->getSourceNodeId();
+    *(reinterpret_cast<uint16*> (buffer + 4)) = m_channelInfo->getStreamId();
+    *(reinterpret_cast<uint16*> (buffer + 6)) = m_channelInfo->getLocalIndex();
+    *(reinterpret_cast<juce::int64*> (buffer + 8)) = m_sampleNumber;
+    *(reinterpret_cast<double*> (buffer + 16)) = m_timestamp;
+    return true;
 }
 
-bool Event::createChecks(const EventChannel* channelInfo, EventChannel::Type eventType)
+bool Event::createChecks (const EventChannel* channelInfo, EventChannel::Type eventType)
 {
-	if (!channelInfo) return false;
-	if (channelInfo->getType() != eventType) return false;
-	if (channelInfo->getEventMetadataCount() != 0) return false;
-	return true;
+    if (! channelInfo)
+        return false;
+    if (channelInfo->getType() != eventType)
+        return false;
+    if (channelInfo->getEventMetadataCount() != 0)
+        return false;
+    return true;
 }
 
-bool Event::createChecks(const EventChannel* channelInfo, EventChannel::Type eventType, const MetadataValueArray& metaData)
+bool Event::createChecks (const EventChannel* channelInfo, EventChannel::Type eventType, const MetadataValueArray& metaData)
 {
-	if (!channelInfo) return false;
-	if (channelInfo->getType() != eventType) return false;
-	if (!compareMetadata(channelInfo, metaData)) return false;
-	return true;
+    if (! channelInfo)
+        return false;
+    if (channelInfo->getType() != eventType)
+        return false;
+    if (! compareMetadata (channelInfo, metaData))
+        return false;
+    return true;
 }
 
 const void* Event::getRawDataPointer() const
 {
-	return m_data.getData();
+    return m_data.getData();
 }
 
-TTLEvent::TTLEvent(const TTLEvent& other)
-	: Event(other)
+TTLEvent::TTLEvent (const TTLEvent& other)
+    : Event (other)
 {
 }
 
-TTLEvent::TTLEvent(const EventChannel* channelInfo,
-                   int64 sampleNumber,
-                   const void* eventData,
-                   double timestamp)
-	: Event(channelInfo, sampleNumber, timestamp)
+TTLEvent::TTLEvent (const EventChannel* channelInfo,
+                    int64 sampleNumber,
+                    const void* eventData,
+                    double timestamp)
+    : Event (channelInfo, sampleNumber, timestamp)
 {
-	size_t size = m_channelInfo->getDataSize();
-	m_data.malloc(size);
-	memcpy(m_data.getData(), eventData, size);
+    size_t size = m_channelInfo->getDataSize();
+    m_data.malloc (size);
+    memcpy (m_data.getData(), eventData, size);
 }
 
 TTLEvent::~TTLEvent() {}
 
 bool TTLEvent::getState() const
 {
-	uint8 state_byte = m_data[1];
+    uint8 state_byte = m_data[1];
 
-	return state_byte == 1;
+    return state_byte == 1;
 }
 
-bool TTLEvent::getState(const EventPacket& packet)
+bool TTLEvent::getState (const EventPacket& packet)
 {
-	uint8 state_byte = *reinterpret_cast<const uint8*>(packet.getRawData() + EVENT_BASE_SIZE + 1);
+    uint8 state_byte = *reinterpret_cast<const uint8*> (packet.getRawData() + EVENT_BASE_SIZE + 1);
 
-	return state_byte == 1;
+    return state_byte == 1;
 }
 
 uint8 TTLEvent::getLine() const
 {
-	return m_data[0];
+    return m_data[0];
 }
 
-uint8 TTLEvent::getLine(const EventPacket& packet)
+uint8 TTLEvent::getLine (const EventPacket& packet)
 {
-	return *reinterpret_cast<const uint8*>(packet.getRawData() + EVENT_BASE_SIZE);
+    return *reinterpret_cast<const uint8*> (packet.getRawData() + EVENT_BASE_SIZE);
 }
 
 uint64 TTLEvent::getWord() const
 {
-	return *(reinterpret_cast<const uint64*>(m_data + 2));
+    return *(reinterpret_cast<const uint64*> (m_data + 2));
 }
 
-void TTLEvent::serialize(void* dstBuffer, size_t dstSize) const
+void TTLEvent::serialize (void* dstBuffer, size_t dstSize) const
 {
-	char* buffer = static_cast<char*>(dstBuffer);
-	if (!serializeHeader(EventChannel::TTL, buffer, dstSize))
-		return;
-	
-	size_t dataSize = m_channelInfo->getDataSize();
-	size_t eventSize = dataSize + EVENT_BASE_SIZE;
-	memcpy((buffer + EVENT_BASE_SIZE), m_data.getData(), dataSize);
-	serializeMetadata(buffer + eventSize);
+    char* buffer = static_cast<char*> (dstBuffer);
+    if (! serializeHeader (EventChannel::TTL, buffer, dstSize))
+        return;
+
+    size_t dataSize = m_channelInfo->getDataSize();
+    size_t eventSize = dataSize + EVENT_BASE_SIZE;
+    memcpy ((buffer + EVENT_BASE_SIZE), m_data.getData(), dataSize);
+    serializeMetadata (buffer + eventSize);
 }
 
-TTLEventPtr TTLEvent::createTTLEvent(EventChannel* channelInfo,
-	int64 sampleNumber,
-	uint8 line,
-	bool state)
+TTLEventPtr TTLEvent::createTTLEvent (EventChannel* channelInfo,
+                                      int64 sampleNumber,
+                                      uint8 line,
+                                      bool state)
 {
-	uint8 data[10];
+    uint8 data[10];
 
-	data[0] = line;
-	data[1] = state;
+    data[0] = line;
+    data[1] = state;
 
-	channelInfo->setLineState(line, state);
-	*reinterpret_cast<uint64*>(data + 2) = channelInfo->getTTLWord();
+    channelInfo->setLineState (line, state);
+    *reinterpret_cast<uint64*> (data + 2) = channelInfo->getTTLWord();
 
-	return new TTLEvent(channelInfo, sampleNumber, data);
+    return new TTLEvent (channelInfo, sampleNumber, data);
 }
 
-TTLEventPtr TTLEvent::createTTLEvent(const EventChannel* channelInfo, 
-                                     int64 sampleNumber,
-                                     uint8 line,
-                                     bool state,
-                                     uint64 word)
+TTLEventPtr TTLEvent::createTTLEvent (const EventChannel* channelInfo,
+                                      int64 sampleNumber,
+                                      uint8 line,
+                                      bool state,
+                                      uint64 word)
 {
-	uint8 data[10];
+    uint8 data[10];
 
-	data[0] = line;
-	data[1] = state;
-	*reinterpret_cast<uint64*>(data + 2) = word;
-	
-	return new TTLEvent(channelInfo, sampleNumber, data);
+    data[0] = line;
+    data[1] = state;
+    *reinterpret_cast<uint64*> (data + 2) = word;
+
+    return new TTLEvent (channelInfo, sampleNumber, data);
 }
 
-TTLEventPtr TTLEvent::createTTLEvent(EventChannel* channelInfo, 
-                                     int64 sampleNumber,
-                                     uint8 line,
-                                     bool state,
-                                     const MetadataValueArray& metaData)
+TTLEventPtr TTLEvent::createTTLEvent (EventChannel* channelInfo,
+                                      int64 sampleNumber,
+                                      uint8 line,
+                                      bool state,
+                                      const MetadataValueArray& metaData)
 {
+    uint8 data[10];
 
-	uint8 data[10];
+    data[0] = line;
+    data[1] = state;
+    channelInfo->setLineState (line, state);
+    *reinterpret_cast<uint64*> (data + 2) = channelInfo->getTTLWord();
 
-	data[0] = line;
-	data[1] = state;
-	channelInfo->setLineState(line, state);
-	*reinterpret_cast<uint64*>(data + 2) = channelInfo->getTTLWord();
+    TTLEventPtr event = new TTLEvent (channelInfo, sampleNumber, data);
 
-	TTLEventPtr event = new TTLEvent(channelInfo, sampleNumber, data);
-	
-	event->m_metaDataValues.addArray(metaData);
+    event->m_metaDataValues.addArray (metaData);
 
-	return event;
+    return event;
 }
 
-TTLEventPtr TTLEvent::deserialize(const uint8* buffer, const EventChannel* channelInfo)
+TTLEventPtr TTLEvent::deserialize (const uint8* buffer, const EventChannel* channelInfo)
 {
+    size_t dataSize = channelInfo->getDataSize();
+    size_t metaDataSize = channelInfo->getTotalEventMetadataSize();
 
-	size_t dataSize = channelInfo->getDataSize();
-	size_t metaDataSize = channelInfo->getTotalEventMetadataSize();
+    if (static_cast<Event::Type> (*(buffer + 0)) != PROCESSOR_EVENT)
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	if (static_cast<Event::Type>(*(buffer + 0)) != PROCESSOR_EVENT)
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    if (channelInfo->getType() != EventChannel::TTL)
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	if (channelInfo->getType() != EventChannel::TTL)
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    if (static_cast<EventChannel::Type> (*(buffer + 1)) != EventChannel::TTL)
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	if (static_cast<EventChannel::Type>(*(buffer + 1)) != EventChannel::TTL) {
-		jassertfalse;
-		return nullptr;
-	}
+    if (*reinterpret_cast<const uint16*> (buffer + 2) != channelInfo->getSourceNodeId())
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	if (*reinterpret_cast<const uint16*>(buffer + 2) != channelInfo->getSourceNodeId())
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    if (*reinterpret_cast<const uint16*> (buffer + 4) != channelInfo->getStreamId())
+    {
+        uint16 left = *reinterpret_cast<const uint16*> (buffer + 4);
+        uint16 right = channelInfo->getStreamId();
+        jassertfalse;
+        return nullptr;
+    }
 
-	if (*reinterpret_cast<const uint16*>(buffer + 4) != channelInfo->getStreamId())
-	{
+    if (*reinterpret_cast<const uint16*> (buffer + 6) != channelInfo->getLocalIndex())
+    {
+        uint16 left = *reinterpret_cast<const uint16*> (buffer + 6);
+        uint16 right = channelInfo->getLocalIndex();
+        jassertfalse;
+        return nullptr;
+    }
 
-		uint16 left = *reinterpret_cast<const uint16*>(buffer + 4);
-		uint16 right = channelInfo->getStreamId();
-		jassertfalse;
-		return nullptr;
-	}
+    int64 sampleNumber = *(reinterpret_cast<const int64*> (buffer + 8));
 
-	if (*reinterpret_cast<const uint16*>(buffer + 6) != channelInfo->getLocalIndex())
-	{
-		uint16 left = *reinterpret_cast<const uint16*>(buffer + 6);
-		uint16 right = channelInfo->getLocalIndex();
-		jassertfalse;
-		return nullptr;
-	}
+    double timestamp = *(reinterpret_cast<const double*> (buffer + 16));
 
-	int64 sampleNumber = *(reinterpret_cast<const int64*>(buffer + 8));
-    
-    double timestamp = *(reinterpret_cast<const double*>(buffer + 16));
+    ScopedPointer<TTLEvent> event = new TTLEvent (channelInfo,
+                                                  sampleNumber,
+                                                  (buffer + EVENT_BASE_SIZE),
+                                                  timestamp);
 
-	ScopedPointer<TTLEvent> event = new TTLEvent(channelInfo,
-                                                 sampleNumber,
-                                                 (buffer + EVENT_BASE_SIZE),
-                                                 timestamp);
+    bool ret = true;
+    if (metaDataSize > 0)
+        ret = event->deserializeMetadata (channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
 
-	bool ret = true;
-	if (metaDataSize > 0)
-		ret = event->deserializeMetadata(channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
-
-	if (ret)
-		return event.release();
-	else
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    if (ret)
+        return event.release();
+    else
+    {
+        jassertfalse;
+        return nullptr;
+    }
 }
 
-TTLEventPtr TTLEvent::deserialize(const EventPacket& packet, const EventChannel* channelInfo)
+TTLEventPtr TTLEvent::deserialize (const EventPacket& packet, const EventChannel* channelInfo)
 {
-	
-	return deserialize(packet.getRawData(), channelInfo);
-	
+    return deserialize (packet.getRawData(), channelInfo);
 }
 
-TextEvent::TextEvent(const EventChannel* channelInfo, int64 sampleNumber, const String& text, double timestamp)
-	: Event(channelInfo, sampleNumber, timestamp)
+TextEvent::TextEvent (const EventChannel* channelInfo, int64 sampleNumber, const String& text, double timestamp)
+    : Event (channelInfo, sampleNumber, timestamp)
 {
-	m_data.calloc(channelInfo->getDataSize());
-	text.copyToUTF8(m_data.getData(), channelInfo->getDataSize());
+    m_data.calloc (channelInfo->getDataSize());
+    text.copyToUTF8 (m_data.getData(), channelInfo->getDataSize());
 }
 
 TextEvent::~TextEvent() {}
 
-TextEvent::TextEvent(const TextEvent& other)
-	: Event(other)
+TextEvent::TextEvent (const TextEvent& other)
+    : Event (other)
 {
 }
 
 String TextEvent::getText() const
 {
-	return String(m_data.getData(), m_channelInfo->getLength());
+    return String (m_data.getData(), m_channelInfo->getLength());
 }
 
-void TextEvent::serialize(void* destinationBuffer, size_t bufferSize) const
+void TextEvent::serialize (void* destinationBuffer, size_t bufferSize) const
 {
-	char* buffer = static_cast<char*>(destinationBuffer);
+    char* buffer = static_cast<char*> (destinationBuffer);
 
-	if (!serializeHeader(EventChannel::TEXT, buffer, bufferSize))
-		return;
+    if (! serializeHeader (EventChannel::TEXT, buffer, bufferSize))
+        return;
 
-	size_t dataSize = m_channelInfo->getDataSize();
-	size_t eventSize = dataSize + EVENT_BASE_SIZE;
+    size_t dataSize = m_channelInfo->getDataSize();
+    size_t eventSize = dataSize + EVENT_BASE_SIZE;
 
-	memcpy((buffer + EVENT_BASE_SIZE), m_data, dataSize);
+    memcpy ((buffer + EVENT_BASE_SIZE), m_data, dataSize);
 
-	serializeMetadata(buffer + eventSize);
+    serializeMetadata (buffer + eventSize);
 }
 
-TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo, 
-	int64 sampleNumber,
-	const String& text)
+TextEventPtr TextEvent::createTextEvent (const EventChannel* channelInfo,
+                                         int64 sampleNumber,
+                                         const String& text)
 {
+    if (text.getNumBytesAsUTF8() > channelInfo->getDataSize())
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	if (text.getNumBytesAsUTF8() > channelInfo->getDataSize())
-	{
-		jassertfalse;
-		return nullptr;
-	}
-
-	return new TextEvent(channelInfo, sampleNumber, text);
+    return new TextEvent (channelInfo, sampleNumber, text);
 }
 
-TextEventPtr TextEvent::createTextEvent(const EventChannel* channelInfo, 
-	int64 sampleNumber,
-	const String& text, 
-	const MetadataValueArray& metaData)
+TextEventPtr TextEvent::createTextEvent (const EventChannel* channelInfo,
+                                         int64 sampleNumber,
+                                         const String& text,
+                                         const MetadataValueArray& metaData)
 {
-	if (text.getNumBytesAsUTF8() > channelInfo->getDataSize())
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    if (text.getNumBytesAsUTF8() > channelInfo->getDataSize())
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	TextEvent* event = new TextEvent(channelInfo, sampleNumber, text);
-	
-	event->m_metaDataValues.addArray(metaData);
-	return event;
+    TextEvent* event = new TextEvent (channelInfo, sampleNumber, text);
+
+    event->m_metaDataValues.addArray (metaData);
+    return event;
 }
 
-TextEventPtr TextEvent::deserialize(const uint8* buffer, const EventChannel* channelInfo)
+TextEventPtr TextEvent::deserialize (const uint8* buffer, const EventChannel* channelInfo)
 {
-	size_t dataSize = channelInfo->getDataSize();
-	size_t metaDataSize = channelInfo->getTotalEventMetadataSize();
+    size_t dataSize = channelInfo->getDataSize();
+    size_t metaDataSize = channelInfo->getTotalEventMetadataSize();
 
-	if (static_cast<Event::Type> (*(buffer + 0)) != PROCESSOR_EVENT)
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    if (static_cast<Event::Type> (*(buffer + 0)) != PROCESSOR_EVENT)
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	if (channelInfo->getType() != EventChannel::TEXT)
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    if (channelInfo->getType() != EventChannel::TEXT)
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	if (static_cast<EventChannel::Type>(*(buffer + 1)) != EventChannel::TEXT) {
-		jassertfalse;
-		return nullptr;
-	}
+    if (static_cast<EventChannel::Type> (*(buffer + 1)) != EventChannel::TEXT)
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	if (*reinterpret_cast<const uint16*>(buffer + 2) != channelInfo->getSourceNodeId())
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    if (*reinterpret_cast<const uint16*> (buffer + 2) != channelInfo->getSourceNodeId())
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	int64 sampleNumber = *(reinterpret_cast<const int64*>(buffer + 8));
-    double timestamp = *(reinterpret_cast<const double*>(buffer + 16));
-	uint16 channel = *(reinterpret_cast<const uint16*>(buffer + EVENT_BASE_SIZE));
-	String text = String::fromUTF8(reinterpret_cast<const char*>(buffer + EVENT_BASE_SIZE), dataSize);
+    int64 sampleNumber = *(reinterpret_cast<const int64*> (buffer + 8));
+    double timestamp = *(reinterpret_cast<const double*> (buffer + 16));
+    uint16 channel = *(reinterpret_cast<const uint16*> (buffer + EVENT_BASE_SIZE));
+    String text = String::fromUTF8 (reinterpret_cast<const char*> (buffer + EVENT_BASE_SIZE), dataSize);
 
-	ScopedPointer<TextEvent> event = new TextEvent(channelInfo, sampleNumber, text, timestamp);
+    ScopedPointer<TextEvent> event = new TextEvent (channelInfo, sampleNumber, text, timestamp);
 
-	bool ret = true;
+    bool ret = true;
 
-	if (metaDataSize > 0)
-		ret = event->deserializeMetadata(channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
+    if (metaDataSize > 0)
+        ret = event->deserializeMetadata (channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
 
-	if (ret)
-		return event.release();
-	else
-	{
-		jassertfalse;
-		return nullptr;
-	}
-
+    if (ret)
+        return event.release();
+    else
+    {
+        jassertfalse;
+        return nullptr;
+    }
 }
 
-TextEventPtr TextEvent::deserialize(const EventPacket& packet, const EventChannel* channelInfo)
+TextEventPtr TextEvent::deserialize (const EventPacket& packet, const EventChannel* channelInfo)
 {
-
-	return deserialize(packet.getRawData(), channelInfo);
-
+    return deserialize (packet.getRawData(), channelInfo);
 }
 
-BinaryEvent::BinaryEvent(const EventChannel* channelInfo, 
-                         int64 sampleNumber,
-                         const void* data,
-                         EventChannel::BinaryDataType type,
-                         double timestamp)
-	: Event(channelInfo, sampleNumber, timestamp),
-	m_type(type)
+BinaryEvent::BinaryEvent (const EventChannel* channelInfo,
+                          int64 sampleNumber,
+                          const void* data,
+                          EventChannel::BinaryDataType type,
+                          double timestamp)
+    : Event (channelInfo, sampleNumber, timestamp),
+      m_type (type)
 {
-	size_t size = m_channelInfo->getDataSize();
-	m_data.malloc(size);
-	memcpy(m_data.getData(), data, size);
+    size_t size = m_channelInfo->getDataSize();
+    m_data.malloc (size);
+    memcpy (m_data.getData(), data, size);
 }
 
-BinaryEvent::BinaryEvent(const BinaryEvent& other)
-	:Event(other),
-	m_type(other.m_type)
+BinaryEvent::BinaryEvent (const BinaryEvent& other)
+    : Event (other),
+      m_type (other.m_type)
 {
 }
 
@@ -749,170 +746,180 @@ BinaryEvent::~BinaryEvent() {}
 
 const void* BinaryEvent::getBinaryDataPointer() const
 {
-	return m_data.getData();
+    return m_data.getData();
 }
 
 EventChannel::BinaryDataType BinaryEvent::getBinaryType() const
 {
-	return m_type;
+    return m_type;
 }
 
-template<typename T>
+template <typename T>
 EventChannel::BinaryDataType BinaryEvent::getType()
 {
-	if (std::is_same<int8, T>::value) return EventChannel::INT8_ARRAY;
-	if (std::is_same<uint8, T>::value) return EventChannel::UINT8_ARRAY;
-	if (std::is_same<int16, T>::value) return EventChannel::INT16_ARRAY;
-	if (std::is_same<uint16, T>::value) return EventChannel::UINT16_ARRAY;
-	if (std::is_same<int32, T>::value) return EventChannel::INT32_ARRAY;
-	if (std::is_same<uint32, T>::value) return EventChannel::UINT32_ARRAY;
-	if (std::is_same<juce::int64, T>::value) return EventChannel::INT64_ARRAY;
-	if (std::is_same<juce::uint64, T>::value) return EventChannel::UINT64_ARRAY;
-	if (std::is_same<float, T>::value) return EventChannel::FLOAT_ARRAY;
-	if (std::is_same<double, T>::value) return EventChannel::DOUBLE_ARRAY;
+    if (std::is_same<int8, T>::value)
+        return EventChannel::INT8_ARRAY;
+    if (std::is_same<uint8, T>::value)
+        return EventChannel::UINT8_ARRAY;
+    if (std::is_same<int16, T>::value)
+        return EventChannel::INT16_ARRAY;
+    if (std::is_same<uint16, T>::value)
+        return EventChannel::UINT16_ARRAY;
+    if (std::is_same<int32, T>::value)
+        return EventChannel::INT32_ARRAY;
+    if (std::is_same<uint32, T>::value)
+        return EventChannel::UINT32_ARRAY;
+    if (std::is_same<juce::int64, T>::value)
+        return EventChannel::INT64_ARRAY;
+    if (std::is_same<juce::uint64, T>::value)
+        return EventChannel::UINT64_ARRAY;
+    if (std::is_same<float, T>::value)
+        return EventChannel::FLOAT_ARRAY;
+    if (std::is_same<double, T>::value)
+        return EventChannel::DOUBLE_ARRAY;
 
-	return EventChannel::BINARY_BASE_VALUE;
+    return EventChannel::BINARY_BASE_VALUE;
 }
 
-void BinaryEvent::serialize(void* dstBuffer, size_t dstSize) const
+void BinaryEvent::serialize (void* dstBuffer, size_t dstSize) const
 {
-	char* buffer = static_cast<char*>(dstBuffer);
-	if (!serializeHeader(m_channelInfo->getType(), buffer, dstSize))
-		return;
-	
-	size_t dataSize = m_channelInfo->getDataSize();
-	size_t eventSize = dataSize + EVENT_BASE_SIZE;
-	memcpy((buffer + EVENT_BASE_SIZE), m_data.getData(), dataSize);
-	serializeMetadata(buffer + eventSize);
+    char* buffer = static_cast<char*> (dstBuffer);
+    if (! serializeHeader (m_channelInfo->getType(), buffer, dstSize))
+        return;
+
+    size_t dataSize = m_channelInfo->getDataSize();
+    size_t eventSize = dataSize + EVENT_BASE_SIZE;
+    memcpy ((buffer + EVENT_BASE_SIZE), m_data.getData(), dataSize);
+    serializeMetadata (buffer + eventSize);
 }
 
-template<typename T>
-BinaryEventPtr BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, 
-	int64 sampleNumber,
-	const T* data, 
-	int dataSize)
+template <typename T>
+BinaryEventPtr BinaryEvent::createBinaryEvent (const EventChannel* channelInfo,
+                                               int64 sampleNumber,
+                                               const T* data,
+                                               int dataSize)
 {
-	EventChannel::BinaryDataType type = getType<T>();
+    EventChannel::BinaryDataType type = getType<T>();
 
-	if (dataSize < channelInfo->getDataSize())
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    if (dataSize < channelInfo->getDataSize())
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	return new BinaryEvent(channelInfo, sampleNumber, data, type);
+    return new BinaryEvent (channelInfo, sampleNumber, data, type);
 }
 
-template<typename T>
-BinaryEventPtr BinaryEvent::createBinaryEvent(const EventChannel* channelInfo, 
-	int64 sampleNumber,
-	const T* data, 
-	int dataSize, 
-	const MetadataValueArray& metaData)
+template <typename T>
+BinaryEventPtr BinaryEvent::createBinaryEvent (const EventChannel* channelInfo,
+                                               int64 sampleNumber,
+                                               const T* data,
+                                               int dataSize,
+                                               const MetadataValueArray& metaData)
 {
-	EventChannel::BinaryDataType type = getType<T>();
+    EventChannel::BinaryDataType type = getType<T>();
 
-	if (dataSize < channelInfo->getDataSize())
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    if (dataSize < channelInfo->getDataSize())
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	BinaryEvent* event = new BinaryEvent(channelInfo, sampleNumber, data, type);
-	event->m_metaDataValues.addArray(metaData);
-	return event;
+    BinaryEvent* event = new BinaryEvent (channelInfo, sampleNumber, data, type);
+    event->m_metaDataValues.addArray (metaData);
+    return event;
 }
 
-BinaryEventPtr BinaryEvent::deserialize(const EventPacket& packet, const EventChannel* channelInfo)
+BinaryEventPtr BinaryEvent::deserialize (const EventPacket& packet, const EventChannel* channelInfo)
 {
-	size_t totalSize = packet.getRawDataSize();
-	size_t dataSize = channelInfo->getDataSize();
-	size_t metaDataSize = channelInfo->getTotalEventMetadataSize();
+    size_t totalSize = packet.getRawDataSize();
+    size_t dataSize = channelInfo->getDataSize();
+    size_t metaDataSize = channelInfo->getTotalEventMetadataSize();
 
-	if (totalSize != (dataSize + EVENT_BASE_SIZE + metaDataSize))
-	{
-		jassertfalse;
-		return nullptr;
-	}
-	const uint8* buffer = packet.getRawData();
+    if (totalSize != (dataSize + EVENT_BASE_SIZE + metaDataSize))
+    {
+        jassertfalse;
+        return nullptr;
+    }
+    const uint8* buffer = packet.getRawData();
 
-	if (static_cast<Event::Type>(*(buffer + 0)&0x7F) != PROCESSOR_EVENT)
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    if (static_cast<Event::Type> (*(buffer + 0) & 0x7F) != PROCESSOR_EVENT)
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	if (   int(channelInfo->getType()) < int(EventChannel::BINARY_BASE_VALUE)
-        || channelInfo->getType() >= EventChannel::INVALID   )
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    if (int (channelInfo->getType()) < int (EventChannel::BINARY_BASE_VALUE)
+        || channelInfo->getType() >= EventChannel::INVALID)
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	const EventChannel::Type type = static_cast<const EventChannel::Type>(*(buffer + 1));
-	if (type != channelInfo->getType())
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    const EventChannel::Type type = static_cast<const EventChannel::Type> (*(buffer + 1));
+    if (type != channelInfo->getType())
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	if (*reinterpret_cast<const uint16*>(buffer + 2) != channelInfo->getSourceNodeId())
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    if (*reinterpret_cast<const uint16*> (buffer + 2) != channelInfo->getSourceNodeId())
+    {
+        jassertfalse;
+        return nullptr;
+    }
 
-	if (*reinterpret_cast<const uint16*>(buffer + 4) != channelInfo->getStreamId())
-	{
-		jassertfalse;
-		return nullptr;
-	}
-	if (*reinterpret_cast<const uint16*>(buffer + 6) != channelInfo->getLocalIndex())
-	{
-		jassertfalse;
-		return nullptr;
-	}
-	int64 sampleNumber = *(reinterpret_cast<const int64*>(buffer + 8));
-    double timestamp = *(reinterpret_cast<const double*>(buffer + 16));
+    if (*reinterpret_cast<const uint16*> (buffer + 4) != channelInfo->getStreamId())
+    {
+        jassertfalse;
+        return nullptr;
+    }
+    if (*reinterpret_cast<const uint16*> (buffer + 6) != channelInfo->getLocalIndex())
+    {
+        jassertfalse;
+        return nullptr;
+    }
+    int64 sampleNumber = *(reinterpret_cast<const int64*> (buffer + 8));
+    double timestamp = *(reinterpret_cast<const double*> (buffer + 16));
 
-	ScopedPointer<BinaryEvent> event = new BinaryEvent(channelInfo, 
-                                                       sampleNumber,
-                                                       (buffer + EVENT_BASE_SIZE),
-                                                       channelInfo->getBinaryDataType(),
-                                                       timestamp);
+    ScopedPointer<BinaryEvent> event = new BinaryEvent (channelInfo,
+                                                        sampleNumber,
+                                                        (buffer + EVENT_BASE_SIZE),
+                                                        channelInfo->getBinaryDataType(),
+                                                        timestamp);
 
-	bool ret = true;
-	if (metaDataSize > 0)
-		ret = event->deserializeMetadata(channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
+    bool ret = true;
+    if (metaDataSize > 0)
+        ret = event->deserializeMetadata (channelInfo, (buffer + EVENT_BASE_SIZE + dataSize), metaDataSize);
 
-	if (ret)
-		return event.release();
-	else
-	{
-		jassertfalse;
-		return nullptr;
-	}
+    if (ret)
+        return event.release();
+    else
+    {
+        jassertfalse;
+        return nullptr;
+    }
 }
 
 //Template definitions
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int8>(const EventChannel*, juce::int64, const int8* data, int);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, juce::int64, const uint8* data, int);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int16>(const EventChannel*, juce::int64, const int16* data, int);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, juce::int64, const uint16* data, int);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int32>(const EventChannel*, juce::int64, const int32* data, int);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, juce::int64, const uint32* data, int);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<juce::int64>(const EventChannel*, juce::int64, const juce::int64* data, int);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<juce::uint64>(const EventChannel*, juce::int64, const juce::uint64* data, int);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<float>(const EventChannel*, juce::int64, const float* data, int);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<double>(const EventChannel*, juce::int64, const double* data, int);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int8> (const EventChannel*, juce::int64, const int8* data, int);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint8> (const EventChannel*, juce::int64, const uint8* data, int);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int16> (const EventChannel*, juce::int64, const int16* data, int);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint16> (const EventChannel*, juce::int64, const uint16* data, int);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int32> (const EventChannel*, juce::int64, const int32* data, int);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint32> (const EventChannel*, juce::int64, const uint32* data, int);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<juce::int64> (const EventChannel*, juce::int64, const juce::int64* data, int);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<juce::uint64> (const EventChannel*, juce::int64, const juce::uint64* data, int);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<float> (const EventChannel*, juce::int64, const float* data, int);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<double> (const EventChannel*, juce::int64, const double* data, int);
 
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int8>(const EventChannel*, juce::int64, const int8* data, int, const MetadataValueArray&);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint8>(const EventChannel*, juce::int64, const uint8* data, int, const MetadataValueArray&);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int16>(const EventChannel*, juce::int64, const int16* data, int, const MetadataValueArray&);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint16>(const EventChannel*, juce::int64, const uint16* data, int, const MetadataValueArray&);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int32>(const EventChannel*, juce::int64, const int32* data, int, const MetadataValueArray&);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint32>(const EventChannel*, juce::int64, const uint32* data, int, const MetadataValueArray&);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<juce::int64>(const EventChannel*, juce::int64, const juce::int64* data, int, const MetadataValueArray&);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<juce::uint64>(const EventChannel*, juce::int64, const juce::uint64* data, int, const MetadataValueArray&);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<float>(const EventChannel*, juce::int64, const float* data, int, const MetadataValueArray&);
-template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<double>(const EventChannel*, juce::int64, const double* data, int, const MetadataValueArray&);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int8> (const EventChannel*, juce::int64, const int8* data, int, const MetadataValueArray&);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint8> (const EventChannel*, juce::int64, const uint8* data, int, const MetadataValueArray&);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int16> (const EventChannel*, juce::int64, const int16* data, int, const MetadataValueArray&);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint16> (const EventChannel*, juce::int64, const uint16* data, int, const MetadataValueArray&);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<int32> (const EventChannel*, juce::int64, const int32* data, int, const MetadataValueArray&);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<uint32> (const EventChannel*, juce::int64, const uint32* data, int, const MetadataValueArray&);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<juce::int64> (const EventChannel*, juce::int64, const juce::int64* data, int, const MetadataValueArray&);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<juce::uint64> (const EventChannel*, juce::int64, const juce::uint64* data, int, const MetadataValueArray&);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<float> (const EventChannel*, juce::int64, const float* data, int, const MetadataValueArray&);
+template PLUGIN_API BinaryEventPtr BinaryEvent::createBinaryEvent<double> (const EventChannel*, juce::int64, const double* data, int, const MetadataValueArray&);

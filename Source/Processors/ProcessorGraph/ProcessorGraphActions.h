@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2021 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -35,45 +35,40 @@
 */
 class AddProcessor : public UndoableAction
 {
-    
 public:
-
     /** Constructor*/
-    AddProcessor(Plugin::Description description,
-                 GenericProcessor* source,
-                 GenericProcessor* dest,
-                 bool signalChainIsLoading = false);
- 
+    AddProcessor (Plugin::Description description,
+                  GenericProcessor* source,
+                  GenericProcessor* dest,
+                  bool signalChainIsLoading = false);
+
     /** Destructor */
     ~AddProcessor();
-    
+
     /** Perform the action*/
     bool perform();
 
     /** Undo the action*/
     bool undo();
-    
-    GenericProcessor* processor;
-    
-    XmlElement* settings;
-    
-private:
 
+    GenericProcessor* processor;
+
+    XmlElement* settings;
+
+private:
     int sourceNodeId;
     int destNodeId;
 
     bool signalChainIsLoading;
-    
+
     int nodeId;
 
     int mergerPath;
-    
+
     Plugin::Description description;
 
-    ProcessorGraph *processorGraph;
-
+    ProcessorGraph* processorGraph;
 };
-
 
 /**
     Adds a processor to the signal chain,
@@ -84,14 +79,12 @@ private:
 */
 class PasteProcessors : public UndoableAction
 {
-
 public:
-
     /** Constructor*/
-    PasteProcessors(Array<XmlElement*> copyBuffer,
-        int insertionPoint,
-        GenericProcessor* source,
-        GenericProcessor* dest);
+    PasteProcessors (Array<XmlElement*> copyBuffer,
+                     int insertionPoint,
+                     GenericProcessor* source,
+                     GenericProcessor* dest);
 
     /** Destructor */
     ~PasteProcessors();
@@ -102,25 +95,21 @@ public:
     /** Undo the action*/
     bool undo();
 
-    
 private:
-
     Array<XmlElement*> copyBuffer;
 
     Array<int> nodeIds;
 
     // source node id of the first processor in the copy buffer
-    int sourceNodeId; 
-    
+    int sourceNodeId;
+
     // destination node id of the last processor in the copy buffer
-    int destNodeId; 
+    int destNodeId;
 
     int insertionPoint;
 
     ProcessorGraph* processorGraph;
-
 };
-
 
 /**
     Deletes a processor to the signal chain,
@@ -130,36 +119,31 @@ private:
 */
 class DeleteProcessor : public UndoableAction
 {
-    
 public:
-
     /** Constructor */
-    DeleteProcessor(GenericProcessor* p);
- 
+    DeleteProcessor (GenericProcessor* p);
+
     /** Destructor */
     ~DeleteProcessor();
-    
+
     /** Perform the action*/
     bool perform();
 
     /** Undo the action*/
     bool undo();
-    
-private:
 
+private:
     GenericProcessor* processor;
-    
+
     int sourceNodeId;
     int destNodeId;
     int nodeId;
     int mergerPath;
-    
+
     std::unique_ptr<XmlElement> settings;
-    
+
     ProcessorGraph* processorGraph;
-
 };
-
 
 /**
     Moves a processor to a new location in the signal chain
@@ -169,39 +153,35 @@ private:
 */
 class MoveProcessor : public UndoableAction
 {
-    
 public:
-
     /** Constructor */
-    MoveProcessor(GenericProcessor* p,
-                  GenericProcessor* source,
-                  GenericProcessor* dest,
-                  bool moveDownstream);
- 
+    MoveProcessor (GenericProcessor* p,
+                   GenericProcessor* source,
+                   GenericProcessor* dest,
+                   bool moveDownstream);
+
     /** Destructor */
     ~MoveProcessor();
-    
+
     /** Perform the action*/
     bool perform();
 
     /** Undo the action*/
     bool undo();
-    
-private:
 
+private:
     int nodeId;
-    
+
     int originalSourceNodeId;
     int originalDestNodeId;
     int newSourceNodeId;
     int newDestNodeId;
-    
+
     int originalDestNodeDestNodeId;
-    
+
     bool moveDownstream;
 
     ProcessorGraph* processorGraph;
-    
 };
 
 /**
@@ -213,27 +193,23 @@ private:
 */
 class ClearSignalChain : public UndoableAction
 {
-    
 public:
-
     /** Constructor */
     ClearSignalChain();
- 
+
     /** Destructor */
     ~ClearSignalChain();
-    
+
     /** Perform the action*/
     bool perform();
 
     /** Undo the action*/
     bool undo();
-    
+
 private:
-    
     std::unique_ptr<XmlElement> settings;
 
     ProcessorGraph* processorGraph;
-
 };
 
 /**
@@ -243,31 +219,28 @@ private:
 */
 class LoadSignalChain : public UndoableAction
 {
-    
 public:
     /** Constructor */
-    LoadSignalChain(std::unique_ptr<XmlElement>& newSettings);
- 
+    LoadSignalChain (std::unique_ptr<XmlElement>& newSettings);
+
     /** Destructor */
     ~LoadSignalChain();
-    
+
     /** Perform the action*/
     bool perform();
 
     /** Undo the action*/
     bool undo();
-    
+
     const String getError();
-    
+
 private:
-    
     std::unique_ptr<XmlElement> oldSettings;
     std::unique_ptr<XmlElement> newSettings;
-    
+
     String error;
 
     ProcessorGraph* processorGraph;
-
 };
 
 /**
@@ -277,32 +250,29 @@ private:
 */
 class LoadPluginSettings : public UndoableAction
 {
-    
 public:
     /** Constructor */
-    LoadPluginSettings(GenericProcessor* processor, XmlElement* newSettings);
- 
+    LoadPluginSettings (GenericProcessor* processor, XmlElement* newSettings);
+
     /** Destructor */
     ~LoadPluginSettings();
-    
+
     /** Perform the action*/
     bool perform();
 
     /** Undo the action*/
     bool undo();
-    
+
     const String getError();
-    
+
 private:
-    
     XmlElement* oldSettings;
     XmlElement* newSettings;
-    
+
     String error;
 
     ProcessorGraph* processorGraph;
     int processorId;
-
 };
 
 /**
@@ -314,14 +284,13 @@ private:
 */
 class SwitchIO : public UndoableAction
 {
-    
 public:
     /** Constructor */
-    SwitchIO(GenericProcessor* processor, int path);
- 
+    SwitchIO (GenericProcessor* processor, int path);
+
     /** Destructor */
     ~SwitchIO();
-    
+
     /** Perform the action*/
     bool perform();
 
@@ -329,14 +298,12 @@ public:
     bool undo();
 
 private:
-
     ProcessorGraph* processorGraph;
     GenericProcessor* processor;
-    
-    int processorId;
-    
-    int originalPath;
 
+    int processorId;
+
+    int originalPath;
 };
 
 #endif /* ProcessorGraphActions_h */

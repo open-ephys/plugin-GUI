@@ -59,15 +59,15 @@ public:
     struct State : StateType, private DenormalPrevention
     {
         template <typename Sample>
-        inline Sample process(const Sample in, const BiquadBase& b)
+        inline Sample process (const Sample in, const BiquadBase& b)
         {
-            return static_cast<Sample>(StateType::process1(in, b, ac()));
+            return static_cast<Sample> (StateType::process1 (in, b, ac()));
         }
     };
 
 public:
     // Calculate filter response at the given normalized frequency.
-    complex_t response(double normalizedFrequency) const;
+    complex_t response (double normalizedFrequency) const;
 
     std::vector<PoleZeroPair> getPoleZeros() const;
 
@@ -77,32 +77,32 @@ public:
     }
     double getA1() const
     {
-        return m_a1*m_a0;
+        return m_a1 * m_a0;
     }
     double getA2() const
     {
-        return m_a2*m_a0;
+        return m_a2 * m_a0;
     }
     double getB0() const
     {
-        return m_b0*m_a0;
+        return m_b0 * m_a0;
     }
     double getB1() const
     {
-        return m_b1*m_a0;
+        return m_b1 * m_a0;
     }
     double getB2() const
     {
-        return m_b2*m_a0;
+        return m_b2 * m_a0;
     }
 
     // Process a block of samples in the given form
     template <class StateType, typename Sample>
-    void process(int numSamples, Sample* dest, StateType& state) const
+    void process (int numSamples, Sample* dest, StateType& state) const
     {
         while (--numSamples >= 0)
         {
-            *dest = state.process(*dest, *this);
+            *dest = state.process (*dest, *this);
             dest++;
         }
     }
@@ -112,28 +112,25 @@ protected:
     // These are protected so you can't mess with RBJ biquads
     //
 
-    void setCoefficients(double a0, double a1, double a2,
-                         double b0, double b1, double b2);
+    void setCoefficients (double a0, double a1, double a2, double b0, double b1, double b2);
 
-    void setOnePole(complex_t pole, complex_t zero);
+    void setOnePole (complex_t pole, complex_t zero);
 
-    void setTwoPole(complex_t pole1, complex_t zero1,
-                    complex_t pole2, complex_t zero2);
+    void setTwoPole (complex_t pole1, complex_t zero1, complex_t pole2, complex_t zero2);
 
-    void setPoleZeroPair(const PoleZeroPair& pair)
+    void setPoleZeroPair (const PoleZeroPair& pair)
     {
         if (pair.isSinglePole())
-            setOnePole(pair.poles.first, pair.zeros.first);
+            setOnePole (pair.poles.first, pair.zeros.first);
         else
-            setTwoPole(pair.poles.first, pair.zeros.first,
-                       pair.poles.second, pair.zeros.second);
+            setTwoPole (pair.poles.first, pair.zeros.first, pair.poles.second, pair.zeros.second);
     }
 
-    void setPoleZeroForm(const BiquadPoleState& bps);
+    void setPoleZeroForm (const BiquadPoleState& bps);
 
     void setIdentity();
 
-    void applyScale(double scale);
+    void applyScale (double scale);
 
 public:
     double m_a0;
@@ -150,9 +147,9 @@ public:
 // values so that the coefficients can be reconstructed precisely.
 struct PLUGIN_API BiquadPoleState : PoleZeroPair
 {
-    BiquadPoleState() { }
+    BiquadPoleState() {}
 
-    explicit BiquadPoleState(const BiquadBase& s);
+    explicit BiquadPoleState (const BiquadBase& s);
 
     double gain;
 };
@@ -163,7 +160,7 @@ class PLUGIN_API Biquad : public BiquadBase
 public:
     Biquad();
 
-    explicit Biquad(const BiquadPoleState& bps);
+    explicit Biquad (const BiquadPoleState& bps);
 
 public:
     // Process a block of samples, interpolating from the old section's coefficients
@@ -171,10 +168,10 @@ public:
     // parameter changes.
 
     template <class StateType, typename Sample>
-    void smoothProcess1(int numSamples,
-                        Sample* dest,
-                        StateType& state,
-                        Biquad sectionPrev) const
+    void smoothProcess1 (int numSamples,
+                         Sample* dest,
+                         StateType& state,
+                         Biquad sectionPrev) const
     {
         double t = 1. / numSamples;
         double da1 = (m_a1 - sectionPrev.m_a1) * t;
@@ -191,7 +188,7 @@ public:
             sectionPrev.m_b1 += db1;
             sectionPrev.m_b2 += db2;
 
-            *dest++ = state.process(*dest, sectionPrev);
+            *dest++ = state.process (*dest, sectionPrev);
         }
     }
 
@@ -199,16 +196,16 @@ public:
     // to this section's pole/zeros, over numSamples. The interpolation is done
     // in the z-plane using polar coordinates.
     template <class StateType, typename Sample>
-    void smoothProcess2(int numSamples,
-                        Sample* dest,
-                        StateType& state,
-                        BiquadPoleState zPrev) const
+    void smoothProcess2 (int numSamples,
+                         Sample* dest,
+                         StateType& state,
+                         BiquadPoleState zPrev) const
     {
-        BiquadPoleState z(*this);
+        BiquadPoleState z (*this);
         double t = 1. / numSamples;
-        complex_t dp0 = (z.poles.first  - zPrev.poles.first) * t;
+        complex_t dp0 = (z.poles.first - zPrev.poles.first) * t;
         complex_t dp1 = (z.poles.second - zPrev.poles.second) * t;
-        complex_t dz0 = (z.zeros.first  - zPrev.zeros.first) * t;
+        complex_t dz0 = (z.zeros.first - zPrev.zeros.first) * t;
         complex_t dz1 = (z.zeros.second - zPrev.zeros.second) * t;
         double dg = (z.gain - zPrev.gain) * t;
 
@@ -220,35 +217,34 @@ public:
             zPrev.zeros.second += dz1;
             zPrev.gain += dg;
 
-            *dest++ = state.process(*dest, Biquad(zPrev));
+            *dest++ = state.process (*dest, Biquad (zPrev));
         }
     }
 
 public:
     // Export these as public
 
-    void setOnePole(complex_t pole, complex_t zero)
+    void setOnePole (complex_t pole, complex_t zero)
     {
-        BiquadBase::setOnePole(pole, zero);
+        BiquadBase::setOnePole (pole, zero);
     }
 
-    void setTwoPole(complex_t pole1, complex_t zero1,
-                    complex_t pole2, complex_t zero2)
+    void setTwoPole (complex_t pole1, complex_t zero1, complex_t pole2, complex_t zero2)
     {
-        BiquadBase::setTwoPole(pole1, zero1, pole2, zero2);
+        BiquadBase::setTwoPole (pole1, zero1, pole2, zero2);
     }
 
-    void setPoleZeroPair(const PoleZeroPair& pair)
+    void setPoleZeroPair (const PoleZeroPair& pair)
     {
-        BiquadBase::setPoleZeroPair(pair);
+        BiquadBase::setPoleZeroPair (pair);
     }
 
-    void applyScale(double scale)
+    void applyScale (double scale)
     {
-        BiquadBase::applyScale(scale);
+        BiquadBase::applyScale (scale);
     }
 };
 
-}
+} // namespace Dsp
 
 #endif

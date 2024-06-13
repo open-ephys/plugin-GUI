@@ -42,8 +42,8 @@ ProcessorList::ProcessorList (Viewport* v) : viewport (v),
                                              hoverItem (nullptr),
                                              maximumNameOffset (0)
 {
-    listFontLight = Font ("CP Mono", "Light", 25);
-    listFontPlain = Font ("CP Mono", "Plain", 20);
+    listFontLight = FontOptions ("CP Mono", "Light", 25);
+    listFontPlain = FontOptions ("CP Mono", "Plain", 20);
 
     ProcessorListItem* sources = new ProcessorListItem ("Sources");
     ProcessorListItem* filters = new ProcessorListItem ("Filters");
@@ -440,7 +440,7 @@ void ProcessorList::mouseDrag (const MouseEvent& e)
                         g.setColour (getLookAndFeel().findColour (listItem->colorId));
                         g.fillAll();
                         g.setColour (Colours::white);
-                        g.setFont (14);
+                        g.setFont (FontOptions (14.0f));
                         g.drawSingleLineText (listItem->getName(), 10, 12);
 
                         dragImage.multiplyAllAlphas (0.6f);

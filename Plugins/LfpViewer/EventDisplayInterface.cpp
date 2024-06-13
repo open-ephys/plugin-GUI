@@ -34,7 +34,7 @@ EventDisplayInterface::EventDisplayInterface (LfpDisplay* display_, LfpDisplaySp
 {
     channelNumber = chNum;
 
-    chButton = std::make_unique<UtilityButton> (String (channelNumber + 1), Font ("Small Text", 13, Font::plain));
+    chButton = std::make_unique<UtilityButton> (String (channelNumber + 1), FontOptions (13.0f));
     chButton->setRadius (5.0f);
     chButton->setEnabledState (true);
     chButton->addListener (this);

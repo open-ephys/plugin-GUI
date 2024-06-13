@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,6 +18,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 */
 
 #ifndef __DATABUFFER_H_11C6C591__
@@ -26,6 +27,7 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
+// UG3 Specific
 #include <optional>
 
 /**
@@ -36,7 +38,6 @@
 class PLUGIN_API DataBuffer
 {
 public:
-
     /** Constructor */
     DataBuffer (int chans, int size);
 
@@ -84,7 +85,6 @@ public:
     /** Resizes the data buffer */
     void resize (int chans, int size);
 
-
 private:
     AbstractFifo abstractFifo;
     AudioBuffer<float> buffer;
@@ -104,5 +104,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataBuffer);
 };
 
-
-#endif  // __DATABUFFER_H_11C6C591__
+#endif // __DATABUFFER_H_11C6C591__

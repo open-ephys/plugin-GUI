@@ -1,23 +1,23 @@
 /*
-------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-This file is part of the Open Ephys GUI
-Copyright (C) 2014 Open Ephys
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2024 Open Ephys
 
-------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -43,87 +43,62 @@ void StreamMonitor::timerCallback()
         setFillPercentage (0.0);
 }
 
-DiskSpaceMonitor::DiskSpaceMonitor (RecordNode* rn)
+DiskMonitor::DiskMonitor (RecordNode* rn)
     : LevelMonitor (rn),
       lastFreeSpace (0.0),
       recordingTimeLeftInSeconds (0),
       dataRate (0.0)
 {
+    rn->getDiskSpaceChecker()->addListener (this);
     startTimerHz (1);
 }
 
-DiskSpaceMonitor::~DiskSpaceMonitor() {}
-
-void DiskSpaceMonitor::reset()
+DiskMonitor::~DiskMonitor()
 {
-    lastUpdateTime = Time::getMillisecondCounterHiRes();
-    lastFreeSpace = ((RecordNode*) processor)->getDataDirectory().getBytesFreeOnVolume();
+    if (((RecordNode*) processor)->getDiskSpaceChecker() != nullptr)
+        ((RecordNode*) processor)->getDiskSpaceChecker()->removeListener (this);
 }
 
-void DiskSpaceMonitor::timerCallback()
+void DiskMonitor::update (float dataRate, int64 bytesFree, float timeLeft)
 {
-    RecordNode* recordNode = (RecordNode*) processor;
-
-    if (! recordNode->getParameter ("directory")->isValid())
+    if (((RecordNode*) processor)->recordThread->isThreadRunning())
     {
-        setFillPercentage (95.0);
-        setTooltip ("Invalid directory");
-
-        recordNode->getParameter ("directory")->valueChanged();
-        return;
-    }
-
-    recordNode->getParameter ("directory")->valueChanged();
-
-    int64 bytesFree = recordNode->getDataDirectory().getBytesFreeOnVolume();
-    int64 volumeSize = recordNode->getDataDirectory().getVolumeTotalSize();
-
-    float ratio = float (bytesFree) / float (volumeSize);
-    if (ratio > 0)
-        setFillPercentage (1.0f - ratio);
-
-    float currentTime = Time::getMillisecondCounterHiRes();
-
-    if (recordNode->getRecordingStatus())
-    {
-        // Update data rate and recording time left every 30 seconds
-        if (currentTime - lastUpdateTime > 5000.0f)
-        {
-            dataRate = (lastFreeSpace - bytesFree) / (currentTime - lastUpdateTime); //bytes/ms
-            lastUpdateTime = currentTime;
-            lastFreeSpace = bytesFree;
-
-            recordingTimeLeftInSeconds = bytesFree / dataRate / 1000.0f;
-
-            // Stop recording and show warning when less than 5 minutes of disk space left
-            if (dataRate > 0.0f && recordingTimeLeftInSeconds < (60.0f * 5.0f))
-            {
-                CoreServices::setRecordingStatus (false);
-                String msg = "Recording stopped. Less than 5 minutes of disk space remaining.";
-                AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "WARNING", msg);
-            }
-
-            if (dataRate > 0.0f)
-            {
-                String msg = String (bytesFree / pow (2, 30)) + " GB available\n";
-                msg += String (int (recordingTimeLeftInSeconds / 60.0f)) + " minutes remaining\n";
-                msg += "Data rate: " + String (dataRate * 1000 / pow (2, 20), 2) + " MB/s";
-                setTooltip (msg);
-
-                LOGD ("Data rate: ", dataRate, " bytes/ms");
-            }
-        }
+        String msg = String (bytesFree / pow (2, 30)) + " GB available\n";
+        msg += String (int (timeLeft / 60.0f)) + " minutes remaining\n";
+        msg += "Data rate: " + String (dataRate * 1000 / pow (2, 20), 2) + " MB/s";
+        setTooltip (msg);
     }
     else
     {
         setTooltip (String (bytesFree / pow (2, 30)) + " GB available");
     }
+}
 
+void DiskMonitor::updateDiskSpace (float percentage)
+{
+    setFillPercentage (1.0f - percentage);
+}
+
+void DiskMonitor::directoryInvalid()
+{
+    setFillPercentage (95.0);
+    setTooltip ("Invalid directory");
+}
+
+void DiskMonitor::lowDiskSpace()
+{
+    String msg = "Recording stopped. Less than 5 minutes of disk space remaining.";
+    AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "WARNING", msg);
+}
+
+void DiskMonitor::timerCallback()
+{
     repaint();
 }
 
 RecordChannelsParameterEditor::RecordChannelsParameterEditor (RecordNode* rn, Parameter* param, int rowHeightPixels, int rowWidthPixels)
-    : ParameterEditor (param), recordNode (rn)
+    : ParameterEditor (param),
+      recordNode (rn)
 {
     int numChannels = ((MaskChannelsParameter*) param)->getChannelStates().size();
     int selected = 0;
@@ -222,7 +197,7 @@ void RecordToggleButton::paintButton (Graphics& g, bool isMouseOver, bool isButt
 RecordToggleParameterEditor::RecordToggleParameterEditor (Parameter* param) : ParameterEditor (param)
 {
     label = std::make_unique<Label> ("Parameter name", param->getDisplayName());
-    label->setFont (FontOptions ("Small Text", 12.0f, Font::plain));
+    label->setFont (FontOptions ("Inter", "Regular", 13.0f));
     addAndMakeVisible (label.get());
 
     toggleButton = std::make_unique<RecordToggleButton> (param->getDisplayName()); //param->getDisplayName());
@@ -257,22 +232,20 @@ void RecordToggleParameterEditor::resized()
 }
 
 RecordNodeEditor::RecordNodeEditor (RecordNode* parentNode)
-    : GenericEditor (parentNode),
-      monitorsVisible (false),
-      numDataStreams (0)
+    : GenericEditor (parentNode)
 {
     desiredWidth = 165;
 
     recordNode = parentNode;
 
-    fifoDrawerButton = new FifoDrawerButton (getNameAndId() + " Fifo Drawer Button");
+    fifoDrawerButton = std::make_unique<FifoDrawerButton> (getNameAndId() + " Fifo Drawer Button");
     fifoDrawerButton->setBounds (4, 40, 10, 78);
     fifoDrawerButton->addListener (this);
-    addAndMakeVisible (fifoDrawerButton);
+    addAndMakeVisible (fifoDrawerButton.get());
 
-    diskSpaceMonitor = new DiskSpaceMonitor (recordNode);
-    diskSpaceMonitor->setBounds (18, 33, 15, 92);
-    addAndMakeVisible (diskSpaceMonitor);
+    diskMonitor = std::make_unique<DiskMonitor> (recordNode);
+    diskMonitor->setBounds (18, 33, 15, 92);
+    addAndMakeVisible (diskMonitor.get());
 
     addPathParameterEditor (Parameter::PROCESSOR_SCOPE, "directory", 42, 32);
     addComboBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "engine", 42, 57);
@@ -295,15 +268,6 @@ void RecordNodeEditor::timerCallback()
 {
     fifoDrawerButton->triggerClick();
     stopTimer();
-}
-
-void RecordNodeEditor::startRecording()
-{
-    diskSpaceMonitor->reset();
-}
-
-void RecordNodeEditor::stopRecording()
-{
 }
 
 void RecordNodeEditor::updateFifoMonitors()
@@ -364,9 +328,9 @@ void RecordNodeEditor::collapsedStateChanged()
     else
     {
         for (auto monitor : streamMonitors)
-            monitor->setVisible (monitorsVisible);
+            monitor->setVisible (fifoDrawerButton.get()->getToggleState());
         for (auto monitor : syncMonitors)
-            monitor->setVisible (monitorsVisible);
+            monitor->setVisible (fifoDrawerButton.get()->getToggleState());
     }
 }
 
@@ -378,7 +342,7 @@ void RecordNodeEditor::updateSettings()
 
 void RecordNodeEditor::buttonClicked (Button* button)
 {
-    if (button == fifoDrawerButton)
+    if (button == fifoDrawerButton.get())
     {
         showFifoMonitors (button->getToggleState());
     }
@@ -386,16 +350,14 @@ void RecordNodeEditor::buttonClicked (Button* button)
 
 void RecordNodeEditor::showFifoMonitors (bool show)
 {
-    numDataStreams = recordNode->getNumDataStreams();
-
-    int dX = 20 * (numDataStreams + 1);
+    int dX = 20 * (recordNode->getNumDataStreams() + 1);
     dX = show ? dX : 0;
 
     fifoDrawerButton->setBounds (
         4 + dX, fifoDrawerButton->getY(), fifoDrawerButton->getWidth(), fifoDrawerButton->getHeight());
 
-    diskSpaceMonitor->setBounds (
-        18 + dX, diskSpaceMonitor->getY(), diskSpaceMonitor->getWidth(), diskSpaceMonitor->getHeight());
+    diskMonitor->setBounds (
+        18 + dX, diskMonitor->getY(), diskMonitor->getWidth(), diskMonitor->getHeight());
 
     for (auto& p : { "directory", "engine", "events", "spikes" })
     {

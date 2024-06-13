@@ -112,7 +112,8 @@ private:
 */
 
 class DraggableTabComponent : public TabbedComponent,
-                              public DragAndDropTarget
+                              public DragAndDropTarget,
+                              public Button::Listener
 {
 public:
     /** Constructor */
@@ -123,6 +124,9 @@ public:
 
     /** Paint**/
     void paint (Graphics& g);
+
+    /** Resizes the component */
+    void resized() override;
 
     /** Determines whether a dragged component will affect this one  */
     bool isInterestedInDragSource (const DragAndDropTarget::SourceDetails& dragSourceDetails);
@@ -166,6 +170,9 @@ public:
     /** Gets the content component for a particular nodeId */
     Component* getContentComponentForNodeId (int nodeId);
 
+    /** Called when close button is clicked **/
+    void buttonClicked (Button* button) override;
+
     /** Parent component*/
     DataViewport* dataViewport;
 
@@ -178,6 +185,8 @@ private:
 
     /** True when shutdown is happening */
     bool shutdown = false;
+
+    std::unique_ptr<ShapeButton> closeButton;
 };
 
 /**
@@ -253,6 +262,12 @@ public:
 
     /** Returns the current content component */
     Component* getActiveTabContentComponent();
+
+    /** Returns the total number of tabbed components */
+    int getNumTabbedComponents() const { return draggableTabComponents.size(); }
+
+    /** Removes an empty TabbedComponent */
+    void removeTabbedComponent (DraggableTabComponent* draggableTabComponent);
 
 private:
     /** Maps original tab indices to their location within the DataViewport. */

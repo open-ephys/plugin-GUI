@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -23,9 +23,8 @@
 
 #include "ImageIcon.h"
 
-void ImageIcon::setOpacity(float o)
+void ImageIcon::setOpacity (float o)
 {
     opacity = o;
     repaint();
-
 }

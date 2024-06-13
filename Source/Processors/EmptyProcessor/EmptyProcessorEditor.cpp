@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -23,31 +23,26 @@
 
 #include "EmptyProcessorEditor.h"
 
-EmptyProcessorEditor::EmptyProcessorEditor(GenericProcessor* parentNode)
-	: GenericEditor(parentNode)
+EmptyProcessorEditor::EmptyProcessorEditor (GenericProcessor* parentNode)
+    : GenericEditor (parentNode)
 {
-
-    drawerButton->setVisible(false);
-
+    drawerButton->setVisible (false);
 }
 
 EmptyProcessorEditor::~EmptyProcessorEditor()
 {
-
 }
 
-
-void EmptyProcessorEditor::paint(Graphics& g)
+void EmptyProcessorEditor::paint (Graphics& g)
 {
     if (getSelectionState())
-        g.setColour(Colours::yellow);
+        g.setColour (Colours::yellow);
     else
-        g.setColour(findColour(ThemeColors::componentBackground));
+        g.setColour (findColour (ThemeColors::componentBackground));
 
-    g.drawRoundedRectangle(2, 2, getWidth() - 4, getHeight() - 4, 5.0f, 2.0f);
-    g.drawHorizontalLine(23, 2, getWidth() - 2);
-    
-    g.setFont( FontOptions("CP Mono", "Plain", 16.0f) );
-    g.drawFittedText("NO SOURCE", 10, 6, getWidth() - 12, 16, Justification::centredLeft, 1);
+    g.drawRoundedRectangle (2, 2, getWidth() - 4, getHeight() - 4, 5.0f, 2.0f);
+    g.drawHorizontalLine (23, 2, getWidth() - 2);
 
+    g.setFont (FontOptions ("CP Mono", "Plain", 16.0f));
+    g.drawFittedText ("NO SOURCE", 10, 6, getWidth() - 12, 16, Justification::centredLeft, 1);
 }

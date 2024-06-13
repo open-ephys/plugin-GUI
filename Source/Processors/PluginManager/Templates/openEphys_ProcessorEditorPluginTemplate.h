@@ -23,10 +23,9 @@
 #ifndef HEADERGUARD
 #define HEADERGUARD
 
-#include <EditorHeaders.h>
-#include <AllLookAndFeels.h>
 #include "CONTENTCOMPONENTCLASSNAME.h"
-
+#include <AllLookAndFeels.h>
+#include <EditorHeaders.h>
 
 /**
     This class serves as a template for creating new editors.
@@ -37,7 +36,7 @@
 
     @see GenericEditor
 */
-class EDITORCLASSNAME : public GenericEditor    //Generic Editor adds listeners for buttons and sliders.
+class EDITORCLASSNAME : public GenericEditor //Generic Editor adds listeners for buttons and sliders.
                         //Other possible JUCE controls can be added and listened by inheriting from the appropiate XXX:Listener class
                         //See JUCE documentation to find other available controls.
 {
@@ -74,7 +73,6 @@ public:
       */
     //void updateSettings();
 
-
 private:
     // This component contains all components and graphics that were added using Projucer.
     // It's bounds initially the same bounds as the gray workspace (but only till the drawerButton for X)
@@ -88,7 +86,6 @@ private:
     */
     //Always use JUCE RAII classes instead of pure pointers.
     //ScopedPointer<Button> exampleButton;
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EDITORCLASSNAME);
 };

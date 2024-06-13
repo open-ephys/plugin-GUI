@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -30,23 +30,21 @@
 class PlaceholderProcessorEditor : public GenericEditor
 {
 public:
-
     /** Constructor */
-	PlaceholderProcessorEditor(GenericProcessor* parentNode, String pName, String lName, String lVer);
+    PlaceholderProcessorEditor (GenericProcessor* parentNode, String pName, String lName, String lVer);
 
     /** Destructor */
-	~PlaceholderProcessorEditor();
+    ~PlaceholderProcessorEditor();
 
 private:
-	const String processorName;
-	const String libName;
-	const String libVersion;
-	ScopedPointer<Label> nameLabel;
-	ScopedPointer<Label> libLabel;
-	ScopedPointer<Label> notfoundLabel;
+    const String processorName;
+    const String libName;
+    const String libVersion;
+    ScopedPointer<Label> nameLabel;
+    ScopedPointer<Label> libLabel;
+    ScopedPointer<Label> notfoundLabel;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlaceholderProcessorEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlaceholderProcessorEditor);
 };
 
-
-#endif  // PLACEHOLDERPROCESSOREDITOR_H_INCLUDED
+#endif // PLACEHOLDERPROCESSOREDITOR_H_INCLUDED

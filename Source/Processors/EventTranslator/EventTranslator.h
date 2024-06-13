@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2022 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -21,10 +21,8 @@
 
 */
 
-
 #ifndef __EVENTTRANSLATOR_H_B327D3D2__
 #define __EVENTTRANSLATOR_H_B327D3D2__
-
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 
@@ -39,10 +37,10 @@ public:
     EventTranslatorSettings();
 
     /** Destructor*/
-    ~EventTranslatorSettings() { }
+    ~EventTranslatorSettings() {}
 
     /** Creates an event for a particular stream*/
-    TTLEventPtr createEvent(int64 sample_number, double timestamp, int line, bool state);
+    TTLEventPtr createEvent (int64 sample_number, double timestamp, int line, bool state);
 
     EventChannel* eventChannel;
 };
@@ -52,12 +50,10 @@ public:
 
   @see GenericProcessor
 */
-class EventTranslator :
-    public GenericProcessor,
-    public SynchronizingProcessor
+class EventTranslator : public GenericProcessor,
+                        public SynchronizingProcessor
 {
 public:
-
     /** Constructor */
     EventTranslator();
 
@@ -71,28 +67,26 @@ public:
     AudioProcessorEditor* createEditor() override;
 
     /** Register parameters */
-	void registerParameters() override;
-    
+    void registerParameters() override;
+
     /** Updates the EventTranslator settings*/
     void updateSettings() override;
 
-    void parameterValueChanged(Parameter* parameter) override;
-    
+    void parameterValueChanged (Parameter* parameter) override;
+
     /** Informs synchronizer about acquisition start */
     bool startAcquisition() override;
-    
+
     /** Informs synchronizer about acquisition start */
     bool stopAcquisition() override;
 
 private:
-    
     /** Called whenever a new TTL event arrives*/
     void handleTTLEvent (TTLEventPtr event) override;
-    
+
     StreamSettings<EventTranslatorSettings> settings;
-    
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EventTranslator);
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EventTranslator);
 };
 
-
-#endif  // __EVENTTRANSLATOR_H_B327D3D2__
+#endif // __EVENTTRANSLATOR_H_B327D3D2__

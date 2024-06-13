@@ -1,39 +1,37 @@
 /*
-------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-This file is part of the Open Ephys GUI
-Copyright (C) 2022 Open Ephys
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2024 Open Ephys
 
-------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
 #ifndef SYNCHRONIZER_H_INCLUDED
 #define SYNCHRONIZER_H_INCLUDED
 
-#include <chrono>
-#include <math.h>
 #include <algorithm>
-#include <memory>
+#include <chrono>
 #include <map>
+#include <math.h>
+#include <memory>
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../../Utils/Utils.h"
-
-
 
 /**
  *
@@ -43,18 +41,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class SyncStream
 {
 public:
-
     /** Constructor */
-    SyncStream(String streamKey, float expectedSampleRate);
+    SyncStream (String streamKey, float expectedSampleRate);
 
     /** Resets stream parameters before acquisition */
     void reset();
 
     /** Adds a sync event with a particular sample number*/
-    void addEvent(int64 sampleNumber);
+    void addEvent (int64 sampleNumber);
 
     /** Sets the main clock time for the last event */
-    void setMainTime(float time);
+    void setMainTime (float time);
 
     /** Opens sync window (when event is received on any sync line) */
     void openSyncWindow();
@@ -107,13 +104,13 @@ public:
 
     /** true if the stream is in active use */
     bool isActive;
-
 };
 
-enum PLUGIN_API SyncStatus {
-    OFF,        //Synchronizer is not running
-    SYNCING,    //Synchronizer is attempting to sync
-    SYNCED      //Signal has been synchronized
+enum PLUGIN_API SyncStatus
+{
+    OFF, //Synchronizer is not running
+    SYNCING, //Synchronizer is attempting to sync
+    SYNCED //Signal has been synchronized
 };
 
 /**
@@ -136,18 +133,17 @@ enum PLUGIN_API SyncStatus {
 class PLUGIN_API Synchronizer : public HighResolutionTimer
 {
 public:
-
     /** Constructor*/
     Synchronizer();
 
     /** Destructor */
-    ~Synchronizer() { }
+    ~Synchronizer() {}
 
     /** Converts an int64 sample number to a double timestamp */
-    double convertSampleNumberToTimestamp(String streamKey, int64 sampleNumber);
-    
+    double convertSampleNumberToTimestamp (String streamKey, int64 sampleNumber);
+
     /** Converts a double timestamp to an int64 sample number */
-    int64 convertTimestampToSampleNumber(String streamKey, double timestamp);
+    int64 convertTimestampToSampleNumber (String streamKey, double timestamp);
 
     /** Resets all values when acquisition is re-started */
     void reset();
@@ -157,32 +153,32 @@ public:
 
     /** Adds a new data stream with an expected sample rate
      *  If the stream already exists, */
-    void addDataStream(String streamKey, float expectedSampleRate);
+    void addDataStream (String streamKey, float expectedSampleRate);
 
     /** Checks if there is only one stream */
     void finishedUpdate();
 
     /** Sets the ID of the main data stream */
-    void setMainDataStream(String streamKey);
+    void setMainDataStream (String streamKey);
 
     /** Sets the TTL line to use for synchronization (0-based indexing)*/
-    void setSyncLine(String streamKey, int line);
+    void setSyncLine (String streamKey, int line);
 
     /** Returns the TTL line to use for synchronization (0-based indexing)*/
-    int getSyncLine(String streamKey);
+    int getSyncLine (String streamKey);
 
     /** Returns true if a stream is synchronized */
-    bool isStreamSynced(String streamKey);
+    bool isStreamSynced (String streamKey);
 
     /** Returns the status (OFF / SYNCING / SYNCED) of a given stream*/
-    SyncStatus getStatus(String streamKey);
+    SyncStatus getStatus (String streamKey);
 
     /** Checks an event for a stream ID / line combination */
-    void addEvent(String streamKey, int ttlLine, int64 sampleNumber);
-    
+    void addEvent (String streamKey, int ttlLine, int64 sampleNumber);
+
     /** Signals start of acquisition */
     void startAcquisition();
-    
+
     /** Signals start of acquisition */
     void stopAcquisition();
 
@@ -196,7 +192,6 @@ public:
     //bool isAvailable() { return mainStreamKey.length() > 0; };
 
 private:
-
     int eventCount = 0;
 
     float syncWindowLengthMs;
@@ -222,17 +217,17 @@ class PLUGIN_API SynchronizingProcessor
 {
 public:
     /** Sets the main data stream to use for synchronization */
-    void setMainDataStream(String streamKey);
+    void setMainDataStream (String streamKey);
 
     /** Returns true if a stream ID matches the one to use for sychronization*/
-    bool isMainDataStream(String streamKey);
+    bool isMainDataStream (String streamKey);
 
     /** Sets the TTL line to use for synchronization*/
-    void setSyncLine(String streamKey, int line);
+    void setSyncLine (String streamKey, int line);
 
     /** Returns the TTL line to use for synchronization*/
-    int getSyncLine(String streamKey);
-    
+    int getSyncLine (String streamKey);
+
     /** The synchronizer for this processor */
     Synchronizer synchronizer;
 };

@@ -36,9 +36,9 @@ THE SOFTWARE.
 #ifndef DSPFILTERS_POLEFILTER_H
 #define DSPFILTERS_POLEFILTER_H
 
+#include "Cascade.h"
 #include "Common.h"
 #include "MathSupplement.h"
-#include "Cascade.h"
 
 namespace Dsp
 {
@@ -75,7 +75,7 @@ public:
         std::vector<PoleZeroPair> vpz;
         const int pairs = (m_digitalProto.getNumPoles() + 1) / 2;
         for (int i = 0; i < pairs; ++i)
-            vpz.push_back(m_digitalProto[i]);
+            vpz.push_back (m_digitalProto[i]);
         return vpz;
     }
 #endif
@@ -90,10 +90,10 @@ template <class AnalogPrototype>
 class PoleFilterBase : public PoleFilterBase2
 {
 protected:
-    void setPrototypeStorage(const LayoutBase& analogStorage,
-                             const LayoutBase& digitalStorage)
+    void setPrototypeStorage (const LayoutBase& analogStorage,
+                              const LayoutBase& digitalStorage)
     {
-        m_analogProto.setStorage(analogStorage);
+        m_analogProto.setStorage (analogStorage);
         m_digitalProto = digitalStorage;
     }
 
@@ -105,22 +105,21 @@ protected:
 
 // Storage for pole filters
 template <class BaseClass,
-         int MaxAnalogPoles,
-         int MaxDigitalPoles = MaxAnalogPoles>
-struct PoleFilter : BaseClass
-, CascadeStages <(MaxDigitalPoles + 1) / 2>
+          int MaxAnalogPoles,
+          int MaxDigitalPoles = MaxAnalogPoles>
+struct PoleFilter : BaseClass, CascadeStages<(MaxDigitalPoles + 1) / 2>
 {
     PoleFilter()
-{
-    // This glues together the factored base classes
-    // with the templatized storage classes.
-    BaseClass::setCascadeStorage(this->getCascadeStorage());
-    BaseClass::setPrototypeStorage(m_analogStorage, m_digitalStorage);
-}
+    {
+        // This glues together the factored base classes
+        // with the templatized storage classes.
+        BaseClass::setCascadeStorage (this->getCascadeStorage());
+        BaseClass::setPrototypeStorage (m_analogStorage, m_digitalStorage);
+    }
 
 private:
-Layout <MaxAnalogPoles> m_analogStorage;
-Layout <MaxDigitalPoles> m_digitalStorage;
+    Layout<MaxAnalogPoles> m_analogStorage;
+    Layout<MaxDigitalPoles> m_digitalStorage;
 };
 
 //------------------------------------------------------------------------------
@@ -140,12 +139,12 @@ Layout <MaxDigitalPoles> m_digitalStorage;
 class PLUGIN_API LowPassTransform
 {
 public:
-    LowPassTransform(double fc,
-                     LayoutBase& digital,
-                     LayoutBase const& analog);
+    LowPassTransform (double fc,
+                      LayoutBase& digital,
+                      LayoutBase const& analog);
 
 private:
-    complex_t transform(complex_t c);
+    complex_t transform (complex_t c);
 
     double f;
 };
@@ -156,12 +155,12 @@ private:
 class PLUGIN_API HighPassTransform
 {
 public:
-    HighPassTransform(double fc,
-                      LayoutBase& digital,
-                      LayoutBase const& analog);
+    HighPassTransform (double fc,
+                       LayoutBase& digital,
+                       LayoutBase const& analog);
 
 private:
-    complex_t transform(complex_t c);
+    complex_t transform (complex_t c);
 
     double f;
 };
@@ -171,15 +170,14 @@ private:
 // low pass to band pass transform
 class PLUGIN_API BandPassTransform
 {
-
 public:
-    BandPassTransform(double fc,
-                      double fw,
-                      LayoutBase& digital,
-                      LayoutBase const& analog);
+    BandPassTransform (double fc,
+                       double fw,
+                       LayoutBase& digital,
+                       LayoutBase const& analog);
 
 private:
-    ComplexPair transform(complex_t c);
+    ComplexPair transform (complex_t c);
 
     double wc;
     double wc2;
@@ -197,13 +195,13 @@ private:
 class PLUGIN_API BandStopTransform
 {
 public:
-    BandStopTransform(double fc,
-                      double fw,
-                      LayoutBase& digital,
-                      LayoutBase const& analog);
+    BandStopTransform (double fc,
+                       double fw,
+                       LayoutBase& digital,
+                       LayoutBase const& analog);
 
 private:
-    ComplexPair transform(complex_t c);
+    ComplexPair transform (complex_t c);
 
     double wc;
     double wc2;
@@ -213,6 +211,6 @@ private:
     double b2;
 };
 
-}
+} // namespace Dsp
 
 #endif

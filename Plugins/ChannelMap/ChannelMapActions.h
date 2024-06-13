@@ -28,7 +28,7 @@
 
 #include "ChannelMap.h"
 
-class MapChannelsAction : public OpenEphysAction
+class MapChannelsAction : public ProcessorAction
 {
 public:
     /** Constructor*/

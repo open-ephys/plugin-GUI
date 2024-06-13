@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -567,7 +567,7 @@ Array<EventInfo> FileReader::getActiveEventInfo()
     return input->getEventInfo();
 }
 
-String FileReader::handleConfigMessage (String msg)
+String FileReader::handleConfigMessage (const String& msg)
 {
     //TODO: Needs update to use new parameters
 

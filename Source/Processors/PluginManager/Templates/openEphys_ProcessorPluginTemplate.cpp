@@ -21,14 +21,12 @@
 
 */
 
-
 #include <stdio.h>
 
 PROCESSORHEADERS
 
 //If the processor uses a custom editor, it needs its header to instantiate it
 //#include "ExampleEditor.h"
-
 
 PROCESSORCLASSNAME::PROCESSORCLASSNAME()
     : GenericProcessor ("PLUGINGUINAME") //, threshold(200.0), state(true)
@@ -44,11 +42,9 @@ PROCESSORCLASSNAME::PROCESSORCLASSNAME()
     //parameters.add(Parameter("thresh", 0.0, 500.0, 200.0, 0));
 }
 
-
 PROCESSORCLASSNAME::~PROCESSORCLASSNAME()
 {
 }
-
 
 /**
   If the processor uses a custom editor, this method must be present.
@@ -57,11 +53,10 @@ AudioProcessorEditor* PROCESSORCLASSNAME::createEditor()
 {
     editor = new EDITORCLASSNAME (this, true);
 
-LOGDD("Creating editor.");
+    LOGDD ("Creating editor.");
 
     return editor;
 }
-
 
 void PROCESSORCLASSNAME::setParameter (int parameterIndex, float newValue)
 {
@@ -75,7 +70,6 @@ void PROCESSORCLASSNAME::setParameter (int parameterIndex, float newValue)
 
     //LOGDD(float(p[0]));
 }
-
 
 void PROCESSORCLASSNAME::process (AudioSampleBuffer& buffer)
 {
@@ -130,7 +124,6 @@ void PROCESSORCLASSNAME::process (AudioSampleBuffer& buffer)
     */
 }
 
-
 void PROCESSORCLASSNAME::saveCustomParametersToXml (XmlElement* parentElement)
 {
     XmlElement* mainNode = parentElement->createNewChildElement ("PROCESSORCLASSNAME");
@@ -142,20 +135,19 @@ void PROCESSORCLASSNAME::saveCustomParametersToXml (XmlElement* parentElement)
     {
         XmlElement* parameterNode = mainNode->createNewChildElement ("Parameter");
 
-        auto parameter = getParameterObject(i);
+        auto parameter = getParameterObject (i);
         parameterNode->setAttribute ("name", parameter->getName());
         parameterNode->setAttribute ("type", parameter->getParameterTypeString());
 
         auto parameterValue = getParameterVar (i, currentChannel);
 
         if (parameter->isBoolean())
-            parameterNode->setAttribute ("value", (int)parameterValue);
+            parameterNode->setAttribute ("value", (int) parameterValue);
         else if (parameter->isContinuous() || parameter->isDiscrete() || parameter->isNumerical())
-            parameterNode->setAttribute ("value", (double)parameterValue);
+            parameterNode->setAttribute ("value", (double) parameterValue);
     }
     //[OPENEPHYS_PARAMETERS_SAVE_SECTION_END]
 }
-
 
 void PROCESSORCLASSNAME::loadCustomParametersFromXml()
 {

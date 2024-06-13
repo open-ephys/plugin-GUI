@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -21,15 +21,14 @@
 
 */
 
-
 #ifndef __AUDIOMONITOREDITOR_H__
 #define __AUDIOMONITOREDITOR_H__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../../Source/UI/Utils/LinearButtonGroupManager.h"
 #include "../Editors/GenericEditor.h"
 #include "../Editors/PopupChannelSelector.h"
 #include "../Parameter/ParameterEditor.h"
-#include "../../Source/UI/Utils/LinearButtonGroupManager.h"
 #include "AudioMonitor.h"
 
 class AudioMonitor;
@@ -41,23 +40,22 @@ class AudioMonitor;
 
 */
 class MonitorMuteButton : public ParameterEditor,
-    public Button::Listener
+                          public Button::Listener
 {
 public:
-
     /** Constructor */
-    MonitorMuteButton(Parameter* param);
+    MonitorMuteButton (Parameter* param);
 
     /** Destructor*/
-    ~MonitorMuteButton() { }
+    ~MonitorMuteButton() {}
 
     /** Respond to mute button clicks*/
-    void buttonClicked(Button* label);
+    void buttonClicked (Button* label);
 
     /** Ensures button state aligns with underlying parameter*/
     void updateView() override;
 
-    void paint(Graphics& g) override;
+    void paint (Graphics& g) override;
 
     /** Sets component layout*/
     void resized() override;
@@ -68,7 +66,6 @@ private:
     Image offimage, onimage;
 };
 
-
 /**
   Toggles Left / Right / Both audio output
 
@@ -76,18 +73,17 @@ private:
 
 */
 class AudioOutputSelector : public ParameterEditor,
-    public Button::Listener
+                            public Button::Listener
 {
 public:
-
     /** Constructor */
-    AudioOutputSelector(Parameter* param);
+    AudioOutputSelector (Parameter* param);
 
     /** Destructor */
-    ~AudioOutputSelector() { }
+    ~AudioOutputSelector() {}
 
     /** Responds to button clicks*/
-    void buttonClicked(Button* label);
+    void buttonClicked (Button* label);
 
     /** Ensures button state aligns with underlying parameter*/
     virtual void updateView() override;
@@ -100,7 +96,6 @@ private:
     TextButton* leftButton;
     TextButton* rightButton;
     TextButton* bothButton;
-
 };
 
 /**
@@ -114,21 +109,18 @@ class AudioMonitorEditor : public GenericEditor
 public:
     /** Constructor */
     AudioMonitorEditor (GenericProcessor* parentNode);
-    
+
     /** Destructor */
-    virtual ~AudioMonitorEditor() { }
+    virtual ~AudioMonitorEditor() {}
 
     /** Update filters when selected stream changes*/
     void selectedStreamHasChanged() override;
 
 private:
-
     /** Pointer to the AudioMonitor object*/
     AudioMonitor* audioMonitor;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioMonitorEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioMonitorEditor);
 };
 
-
-
-#endif  // __AUDIOMONITOREDITOR_H__
+#endif // __AUDIOMONITOREDITOR_H__

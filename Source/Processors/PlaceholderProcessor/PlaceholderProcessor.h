@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -36,11 +36,10 @@
 class PlaceholderProcessor : public GenericProcessor
 {
 public:
-
     /** Constructor*/
-    PlaceholderProcessor (String pluginName, 
-        String libraryName, 
-        String libraryVersion);
+    PlaceholderProcessor (String pluginName,
+                          String libraryName,
+                          String libraryVersion);
 
     /** Destructor*/
     ~PlaceholderProcessor();
@@ -52,13 +51,12 @@ public:
     bool startAcquisition() override;
 
     /** Empty method */
-    void process (AudioBuffer<float>& continuousBuffer) override { }
+    void process (AudioBuffer<float>& continuousBuffer) override {}
 
     /** Set isEnabled to 'false', since this plugin will not work in the signal chain*/
     void updateSettings() override;
 
 private:
-
     const String m_libName;
 
     const String m_libVersion;
@@ -66,6 +64,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlaceholderProcessor);
 };
 
-
-
-#endif  // PLACEHOLDERPROCESSOR_H_INCLUDED
+#endif // PLACEHOLDERPROCESSOR_H_INCLUDED

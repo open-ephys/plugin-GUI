@@ -33,8 +33,8 @@ THE SOFTWARE.
 
 *******************************************************************************/
 
-#include "Common.h"
 #include "State.h"
+#include "Common.h"
 
 namespace Dsp
 {

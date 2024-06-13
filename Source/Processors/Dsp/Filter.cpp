@@ -33,8 +33,8 @@ THE SOFTWARE.
 
 *******************************************************************************/
 
-#include "Common.h"
 #include "Filter.h"
+#include "Common.h"
 
 namespace Dsp
 {
@@ -46,7 +46,7 @@ Params Filter::getDefaultParams() const
     params.clear();
 
     for (int i = 0; i < getNumParams(); ++i)
-        params[i] = getParamInfo(i).getDefaultValue();
+        params[i] = getParamInfo (i).getDefaultValue();
 
     return params;
 }
@@ -55,13 +55,13 @@ Filter::~Filter()
 {
 }
 
-int Filter::findParamId(int paramId)
+int Filter::findParamId (int paramId)
 {
     int index = -1;
 
     for (int i = getNumParams(); --i >= 0;)
     {
-        if (getParamInfo(i).getId() == paramId)
+        if (getParamInfo (i).getId() == paramId)
         {
             index = i;
             break;
@@ -71,21 +71,21 @@ int Filter::findParamId(int paramId)
     return index;
 }
 
-void Filter::setParamById(int paramId, double nativeValue)
+void Filter::setParamById (int paramId, double nativeValue)
 {
     for (int i = getNumParams(); --i >= 0;)
     {
-        if (getParamInfo(i).getId() == paramId)
+        if (getParamInfo (i).getId() == paramId)
         {
-            setParam(i, nativeValue);
+            setParam (i, nativeValue);
             return;
         }
     }
 
-    assert(0);
+    assert (0);
 }
 
-void Filter::copyParamsFrom(Dsp::Filter const* other)
+void Filter::copyParamsFrom (Dsp::Filter const* other)
 {
     // first, set reasonable defaults
     m_params = getDefaultParams();
@@ -95,24 +95,24 @@ void Filter::copyParamsFrom(Dsp::Filter const* other)
         // now loop
         for (int i = 0; i < getNumParams(); ++i)
         {
-            const ParamInfo& paramInfo = getParamInfo(i);
+            const ParamInfo& paramInfo = getParamInfo (i);
 
             // find a match
             for (int j = 0; j < other->getNumParams(); ++j)
             {
-                const ParamInfo& otherParamInfo = other->getParamInfo(j);
+                const ParamInfo& otherParamInfo = other->getParamInfo (j);
 
                 if (paramInfo.getId() == otherParamInfo.getId())
                 {
                     // match!
-                    m_params [i] = paramInfo.clamp(other->getParam(j));
+                    m_params[i] = paramInfo.clamp (other->getParam (j));
                     break;
                 }
             }
         }
     }
 
-    doSetParams(m_params);
+    doSetParams (m_params);
 }
 
-}
+} // namespace Dsp

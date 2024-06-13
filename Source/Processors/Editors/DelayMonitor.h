@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -39,12 +39,10 @@ class GenericEditor;
     the most time to complete their work.
 
 */
-class PLUGIN_API DelayMonitor : 
-    public Component,
-    public Timer
+class PLUGIN_API DelayMonitor : public Component,
+                                public Timer
 {
 public:
-
     /** Constructor */
     DelayMonitor();
 
@@ -52,13 +50,13 @@ public:
     ~DelayMonitor();
 
     /** Sets the most recent delay (in ms)*/
-    void setDelay(float delayMs);
-    
+    void setDelay (float delayMs);
+
     /** Enable or disable this component*/
-    void setEnabled(bool isEnabled);
+    void setEnabled (bool isEnabled);
 
     /** Render the delay*/
-    void paint(Graphics& g);
+    void paint (Graphics& g);
 
     /** Calls 'repaint' to display the latest delay*/
     void timerCallback();
@@ -70,16 +68,13 @@ public:
     void stopAcquisition();
 
     /** Sends repaint command asynchronously */
-    void handleCommandMessage(int commandId);
+    void handleCommandMessage (int commandId);
 
 private:
-    
     bool isEnabled;
     Colour colour;
     float delay;
     bool canRepaint = true;
 };
 
-
-
-#endif  // __DELAYMONITOR_H_BDCEE716__
+#endif // __DELAYMONITOR_H_BDCEE716__

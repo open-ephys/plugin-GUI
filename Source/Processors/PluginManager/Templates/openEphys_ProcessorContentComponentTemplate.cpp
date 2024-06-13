@@ -22,20 +22,17 @@
 
 #include "CONTENTCOMPONENTCLASSNAME.h"
 
-
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-CONTENTCOMPONENTCLASSNAME::CONTENTCOMPONENTCLASSNAME ()
+CONTENTCOMPONENTCLASSNAME::CONTENTCOMPONENTCLASSNAME()
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-
     //[UserPreSize]
     //[/UserPreSize]
-
 
     //[Constructor] You can add your own custom stuff here..
     //[/Constructor]
@@ -45,8 +42,6 @@ CONTENTCOMPONENTCLASSNAME::~CONTENTCOMPONENTCLASSNAME()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
-
-
 
     //[Destructor]. You can add your own custom destruction code here..
     //[/Destructor]
@@ -71,11 +66,8 @@ void CONTENTCOMPONENTCLASSNAME::resized()
     //[/UserResized]
 }
 
-
-
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 //[/MiscUserCode]
-
 
 //==============================================================================
 #if 0
@@ -96,7 +88,6 @@ BEGIN_JUCER_METADATA
 END_JUCER_METADATA
 */
 #endif
-
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]

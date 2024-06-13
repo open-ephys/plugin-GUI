@@ -23,10 +23,9 @@
 #ifndef HEADERGUARD
 #define HEADERGUARD
 
-#include <VisualizerEditorHeaders.h>
-#include <AllLookAndFeels.h>
 #include "CONTENTCOMPONENTCLASSNAME.h"
-
+#include <AllLookAndFeels.h>
+#include <VisualizerEditorHeaders.h>
 
 /**
     This class serves as a template for creating new editors.
@@ -75,7 +74,6 @@ public:
       */
     //void updateSettings();
 
-
 private:
     // This component contains all components and graphics that were added using Projucer.
     // It's bounds initially the same bounds as the gray workspace (but only till the drawerButton for X)
@@ -89,7 +87,6 @@ private:
     */
     //Always use JUCE RAII classes instead of pure pointers.
     //ScopedPointer<Button> exampleButton;
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EDITORCLASSNAME);
 };

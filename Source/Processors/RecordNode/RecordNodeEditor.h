@@ -1,23 +1,23 @@
 /*
-------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-This file is part of the Open Ephys GUI
-Copyright (C) 2019 Open Ephys
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2024 Open Ephys
 
-------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -27,6 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../../Utils/Utils.h"
 #include "../Editors/GenericEditor.h"
 #include "../Editors/PopupChannelSelector.h"
+
+#include "DiskMonitor/DiskSpaceListener.h"
 
 class RecordThread;
 class RecordNode;
@@ -47,20 +49,29 @@ private:
     uint64 streamId;
 };
 
-class DiskSpaceMonitor : public LevelMonitor
+class DiskMonitor : public LevelMonitor, public DiskSpaceListener
 {
 public:
     /** Constructor */
-    DiskSpaceMonitor (RecordNode* rn);
+    DiskMonitor (RecordNode* rn);
 
     /** Destructor */
-    ~DiskSpaceMonitor();
+    ~DiskMonitor();
 
-    /** Updates the display */
+    /** Updates the display */ //TODO: Potentially unused
     void timerCallback() override;
 
-    /** Resets timer */
-    void reset();
+    /** Update data rate */
+    void update (float dataRate, int64 bytesFree, float timeLeft) override;
+
+    /** Updates disk remaining disk space */
+    void updateDiskSpace (float percentage) override;
+
+    /** Responds to invalid directory */
+    void directoryInvalid() override;
+
+    /** Responds to low disk space */
+    void lowDiskSpace() override;
 
 private:
     int64 lastFreeSpace;
@@ -193,17 +204,12 @@ public:
     void buttonClicked (Button* button);
 
     /** Disables parameter changes */
-    void startRecording() override;
+    void startRecording() override {};
 
     /** Enables parameter changes */
-    void stopRecording() override;
+    void stopRecording() override {};
 
-    ScopedPointer<FifoDrawerButton> fifoDrawerButton;
-
-    ScopedPointer<ComboBox> engineSelectCombo;
-
-    bool monitorsVisible;
-    int numDataStreams;
+    std::unique_ptr<FifoDrawerButton> fifoDrawerButton;
 
 private:
     RecordNode* recordNode;
@@ -211,16 +217,7 @@ private:
     OwnedArray<Label> streamLabels;
     std::vector<ParameterEditor*> streamMonitors;
     std::vector<ParameterEditor*> syncMonitors;
-    ScopedPointer<Label> diskSpaceLabel;
-    ScopedPointer<DiskSpaceMonitor> diskSpaceMonitor;
-    ScopedPointer<RecordToggleButton> recordToggleButton;
-    ScopedPointer<Label> engineSelectLabel;
-    ScopedPointer<Label> dataPathLabel;
-    ScopedPointer<Button> dataPathButton;
-    ScopedPointer<Label> recordEventsLabel;
-    ScopedPointer<RecordToggleButton> eventRecord;
-    ScopedPointer<Label> recordSpikesLabel;
-    ScopedPointer<RecordToggleButton> spikeRecord;
+    std::unique_ptr<DiskMonitor> diskMonitor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNodeEditor);
 };

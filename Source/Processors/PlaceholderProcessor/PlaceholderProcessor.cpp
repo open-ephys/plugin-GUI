@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2016 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,22 +24,16 @@
 #include "PlaceholderProcessor.h"
 #include "PlaceholderProcessorEditor.h"
 
-
-PlaceholderProcessor::PlaceholderProcessor (String pluginName, 
-    String libraryName, 
-    String libraryVersion)
-    : GenericProcessor      (pluginName)
-    , m_libName             (libraryName)
-    , m_libVersion          (libraryVersion)
+PlaceholderProcessor::PlaceholderProcessor (String pluginName,
+                                            String libraryName,
+                                            String libraryVersion)
+    : GenericProcessor (pluginName), m_libName (libraryName), m_libVersion (libraryVersion)
 {
-
 }
-
 
 PlaceholderProcessor::~PlaceholderProcessor()
 {
 }
-
 
 void PlaceholderProcessor::updateSettings()
 {
@@ -51,7 +45,6 @@ AudioProcessorEditor* PlaceholderProcessor::createEditor()
     editor = std::make_unique<PlaceholderProcessorEditor> (this, getName(), m_libName, m_libVersion);
     return editor.get();
 }
-
 
 bool PlaceholderProcessor::startAcquisition()
 {

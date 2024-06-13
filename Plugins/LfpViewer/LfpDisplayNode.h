@@ -103,7 +103,7 @@ public:
     bool getIntField (DynamicObject::Ptr payload, String name, int& value, int lowerBound = INT32_MAX, int upperBound = INT32_MIN);
 
     /** Handles messages from other processors during acquisition*/
-    void handleBroadcastMessage (String msg) override;
+    void handleBroadcastMessage (const String& msg, const int64 messageTimeMillis) override;
 
     bool getHeadlessMode() const
     {

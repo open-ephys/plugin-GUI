@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -21,15 +21,13 @@
 
 */
 
-
 #include "SourceNodeEditor.h"
+#include "../../Utils/Utils.h"
 #include "../SourceNode/SourceNode.h"
 #include <stdio.h>
-#include "../../Utils/Utils.h"
 
-
-SourceNodeEditor::SourceNodeEditor(GenericProcessor* parentNode)
-    : GenericEditor(parentNode)
+SourceNodeEditor::SourceNodeEditor (GenericProcessor* parentNode)
+    : GenericEditor (parentNode)
 
 {
     desiredWidth = 170;

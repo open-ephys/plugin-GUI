@@ -48,7 +48,7 @@ LfpChannelDisplay::LfpChannelDisplay (LfpDisplaySplitter* c, LfpDisplay* d, LfpD
 
     channelHeightFloat = (float) channelHeight;
 
-    channelFont = Font ("Default", channelHeight * 0.6, Font::plain);
+    channelFont = FontOptions (channelHeight * 0.6);
 
     lineColour = Colour (255, 255, 255);
 

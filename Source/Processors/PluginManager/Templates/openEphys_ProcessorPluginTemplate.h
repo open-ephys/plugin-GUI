@@ -91,7 +91,6 @@ public:
     //void updateSettings();
 
 private:
-
     // private members and methods go here
     //
     // e.g.:
@@ -102,5 +101,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PROCESSORCLASSNAME);
 };
 
-
-#endif  // HEADERGUARD
+#endif // HEADERGUARD

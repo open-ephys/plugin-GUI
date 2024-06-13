@@ -81,6 +81,6 @@ struct DesignBase
     }
 };
 
-}
+} // namespace Dsp
 
 #endif

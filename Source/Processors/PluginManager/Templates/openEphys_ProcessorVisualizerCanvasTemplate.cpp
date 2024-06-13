@@ -23,7 +23,6 @@
 #include "EDITORCANVASCLASSNAME.h"
 #include "PROCESSORCLASSNAME.h"
 
-
 EDITORCANVASCLASSNAME::EDITORCANVASCLASSNAME (PROCESSORCLASSNAME* procesor)
 {
     // Open Ephys Plugin Generator will insert generated code for editor here. Don't edit this section.
@@ -36,49 +35,40 @@ EDITORCANVASCLASSNAME::EDITORCANVASCLASSNAME (PROCESSORCLASSNAME* procesor)
     //[OPENEPHYS_EDITOR_PRE_CONSTRUCTOR_SECTION_END]
 }
 
-
 EDITORCANVASCLASSNAME::~EDITORCANVASCLASSNAME()
 {
 }
-
 
 void EDITORCANVASCLASSNAME::resized()
 {
     content.setBounds (getLocalBounds());
 }
 
-
 void EDITORCANVASCLASSNAME::refreshState()
 {
 }
-
 
 void EDITORCANVASCLASSNAME::update()
 {
 }
 
-
 void EDITORCANVASCLASSNAME::refresh()
 {
 }
-
 
 void EDITORCANVASCLASSNAME::beginAnimation()
 {
     startCallbacks();
 }
 
-
 void EDITORCANVASCLASSNAME::endAnimation()
 {
     stopCallbacks();
 }
 
-
 void EDITORCANVASCLASSNAME::setParameter (int parameter, float newValue)
 {
 }
-
 
 void EDITORCANVASCLASSNAME::setParameter (int parameter, int val1, int val2, float newValue)
 {

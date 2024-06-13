@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2013 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -39,24 +39,24 @@ class PLUGIN_API ElectrodeButton : public Button
 {
 public:
     /** Constructor*/
-	ElectrodeButton(int chan_, Colour defaultColour = Colours::orange);
+    ElectrodeButton (int chan_, Colour defaultColour = Colours::orange);
 
     /** Destructor*/
-	~ElectrodeButton();
+    ~ElectrodeButton();
 
     /** Returns the channel number*/
-	int getChannelNum();
+    int getChannelNum();
 
     /** Updates the channel number*/
-    void setChannelNum(int i);
+    void setChannelNum (int i);
 
 private:
     /** Draws the button.*/
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown);
 
     /** Holds the button's channel number (should be 1-based indexing)*/
     int chan;
-    
+
     Colour defaultColour;
 };
 
@@ -71,20 +71,17 @@ class PLUGIN_API ElectrodeEditorButton : public Button
 {
 public:
     /** Constructor*/
-	ElectrodeEditorButton(const String& name_);
-	
+    ElectrodeEditorButton (const String& name_);
+
     /** Destructor*/
     ~ElectrodeEditorButton();
-private:
 
+private:
     /** Draws the button*/
-    void paintButton(Graphics& g, bool isMouseOver, bool isButtonDown);
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown);
 
     /** Holds the button's name*/
     const String name;
-
 };
 
-
-
-#endif  // __ELECTRODEBUTTONS_H_BDCEE716__
+#endif // __ELECTRODEBUTTONS_H_BDCEE716__

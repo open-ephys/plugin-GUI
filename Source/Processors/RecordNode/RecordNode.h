@@ -1,4 +1,26 @@
-//This prevents include loops. We recommend changing the macro to a name suitable for your plugin
+/*
+    ------------------------------------------------------------------
+
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2024 Open Ephys
+
+    ------------------------------------------------------------------
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 #ifndef RECORDNODE_H_DEFINED
 #define RECORDNODE_H_DEFINED
 
@@ -16,6 +38,8 @@
 #include "DataQueue.h"
 #include "RecordNodeEditor.h"
 #include "RecordThread.h"
+
+#include "DiskMonitor/DiskSpaceChecker.h"
 
 #define WRITE_BLOCK_LENGTH 1024
 #define DATA_BUFFER_NBLOCKS 300
@@ -80,8 +104,8 @@ public:
      */
     RecordNode();
 
-	/** Destructor */
-	~RecordNode();
+    /** Destructor */
+    ~RecordNode();
 
     /** Register parameters */
     void registerParameters() override;
@@ -93,10 +117,10 @@ public:
     void parameterValueChanged (Parameter* p) override;
 
     /** Allow configuration via OpenEphysHttpServer */
-    String handleConfigMessage (String msg) override;
+    String handleConfigMessage (const String& msg) override;
 
     /** Writes TEXT messages sent from the MessageCenter to disk */
-    void handleBroadcastMessage (String msg) override;
+    void handleBroadcastMessage (const String& msg, const int64 messageSystemTime) override;
 
     /** Update DataQueue block size when Audio Settings buffer size changes */
     void updateBlockSize (int newBlockSize);
@@ -200,34 +224,36 @@ public:
     int64 samplesWritten;
     String lastSettingsText;
 
-    int numDataStreams;
-
     Array<uint16> activeStreamIds;
 
     std::map<uint16, float> fifoUsage;
 
     ScopedPointer<EventMonitor> eventMonitor;
 
-	Array<int> channelMap; //Map from record channel index to source channel index
-	Array<int> localChannelMap; // Map from record channel index to recorded index within stream
-	Array<int> timestampChannelMap; // Map from recorded channel index to recorded source processor idx
+    std::unique_ptr<DiskSpaceChecker> diskSpaceChecker;
 
-	bool isSyncReady;
+    Array<int> channelMap; //Map from record channel index to source channel index
+    Array<int> localChannelMap; // Map from record channel index to recorded index within stream
+    Array<int> timestampChannelMap; // Map from recorded channel index to recorded source processor idx
 
-	OwnedArray<RecordEngine> previousEngines;
+    bool isSyncReady;
 
-	const int getEventChannelIndex(EventChannel*);
-	const int getSpikeChannelIndex(SpikeChannel*);
+    OwnedArray<RecordEngine> previousEngines;
 
-	/** Save parameters*/
-	void saveCustomParametersToXml(XmlElement* xml);
+    const int getEventChannelIndex (EventChannel*);
+    const int getSpikeChannelIndex (SpikeChannel*);
 
-	/** Load parameters*/
-	void loadCustomParametersFromXml(XmlElement* xml);
+    /** Save parameters*/
+    void saveCustomParametersToXml (XmlElement* xml);
 
-	// UG3 Specific
-	/*sets record engine to parameter pointer; only for testing*/
-	void overrideRecordEngine(RecordEngineManager* engine);
+    /** Load parameters*/
+    void loadCustomParametersFromXml (XmlElement* xml);
+
+    DiskSpaceChecker* getDiskSpaceChecker() { return diskSpaceChecker.get(); }
+
+    // UG3 Specific
+    /*sets record engine to parameter pointer; only for testing*/
+    void overrideRecordEngine (RecordEngineManager* engine);
 
 private:
     /** Handles other types of events (text, sync texts, etc.) */
@@ -263,7 +289,7 @@ private:
     std::unique_ptr<EventMsgQueue> eventQueue;
     std::unique_ptr<SpikeMsgQueue> spikeQueue;
 
-	int spikeElectrodeIndex;
+    int spikeElectrodeIndex;
 
     Array<bool> validBlocks;
     std::atomic<bool> setFirstBlock;

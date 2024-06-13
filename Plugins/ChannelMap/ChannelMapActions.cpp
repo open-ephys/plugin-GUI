@@ -27,7 +27,7 @@
 
 MapChannelsAction::MapChannelsAction (ChannelMap* processor_,
                                       DataStream* stream,
-                                      Array<int> newMap) : OpenEphysAction ("MapChannels"),
+                                      Array<int> newMap) : ProcessorAction ("MapChannels"),
                                                            processor (processor_),
                                                            streamKey (stream->getKey()),
                                                            prevChannelOrder (processor->getChannelOrder (stream->getStreamId())),

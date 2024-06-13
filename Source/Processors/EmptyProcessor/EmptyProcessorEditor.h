@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -24,26 +24,23 @@
 #ifndef EMPTYPROCESSOREDITOR_H_INCLUDED
 #define EMPTYPROCESSOREDITOR_H_INCLUDED
 
-#include <JuceHeader.h>
 #include "../Editors/GenericEditor.h"
+#include <JuceHeader.h>
 
 class EmptyProcessorEditor : public GenericEditor
 {
 public:
-
     /** Constructor */
-	EmptyProcessorEditor(GenericProcessor* parentNode);
+    EmptyProcessorEditor (GenericProcessor* parentNode);
 
     /** Destructor */
-	~EmptyProcessorEditor();
+    ~EmptyProcessorEditor();
 
     /** Draws the editor's background.*/
     void paint (Graphics& g) override;
 
 private:
-
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EmptyProcessorEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EmptyProcessorEditor);
 };
 
-
-#endif  // EMPTYPROCESSOREDITOR_H_INCLUDED
+#endif // EMPTYPROCESSOREDITOR_H_INCLUDED

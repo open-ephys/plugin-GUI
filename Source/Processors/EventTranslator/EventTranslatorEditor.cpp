@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2022 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -26,46 +26,40 @@
 
 #include <stdio.h>
 
-
 EventTranslatorEditor::EventTranslatorEditor (GenericProcessor* parentNode)
     : GenericEditor (parentNode)
 {
-
     desiredWidth = 170;
-
 }
 
 EventTranslatorEditor::~EventTranslatorEditor()
 {
 }
 
-
 void EventTranslatorEditor::updateSettings()
 {
-    
     EventTranslator* proc = (EventTranslator*) getProcessor();
-    
+
     int streamCount = 0;
 
     Array<ParameterEditor*> toRemove;
     for (auto ed : parameterEditors)
         if (ed->getParameterName() == "sync_line")
-            toRemove.add(ed);
-    
+            toRemove.add (ed);
+
     for (int i = 0; i < toRemove.size(); i++)
-        parameterEditors.removeObject(toRemove[i]);
-    
+        parameterEditors.removeObject (toRemove[i]);
+
     toRemove.clear();
-    
+
     for (auto stream : proc->getDataStreams())
     {
-        
         const uint16 streamId = stream->getStreamId();
-        
+
         int column = streamCount % 5;
         int row = streamCount / 5;
-        
-        const Array<EventChannel*> eventChannels = proc->getDataStream(streamId)->getEventChannels();
+
+        const Array<EventChannel*> eventChannels = proc->getDataStream (streamId)->getEventChannels();
 
         int numLines;
 
@@ -74,19 +68,18 @@ void EventTranslatorEditor::updateSettings()
         else
             numLines = 1;
 
-		TtlLineParameter* syncLineParam = (TtlLineParameter*)proc->getDataStream(streamId)->getParameter("sync_line");
-        syncLineParam->setMaxAvailableLines(numLines);
+        TtlLineParameter* syncLineParam = (TtlLineParameter*) proc->getDataStream (streamId)->getParameter ("sync_line");
+        syncLineParam->setMaxAvailableLines (numLines);
 
-		Parameter* mainSyncParam = proc->getParameter("main_sync");
-        
-		// Add a sync line parameter editor for each stream
-        addSyncLineParameterEditor(syncLineParam, (SelectedStreamParameter*)mainSyncParam, 18 + column * 25, 30 + row * 25);
-		ParameterEditor* syncEditor = parameterEditors.getLast();
-        syncEditor->setSize(18, 18);
-        syncEditor->getEditor()->setSize(18, 18);
+        Parameter* mainSyncParam = proc->getParameter ("main_sync");
+
+        // Add a sync line parameter editor for each stream
+        addSyncLineParameterEditor (syncLineParam, (SelectedStreamParameter*) mainSyncParam, 18 + column * 25, 30 + row * 25);
+        ParameterEditor* syncEditor = parameterEditors.getLast();
+        syncEditor->setSize (18, 18);
+        syncEditor->getEditor()->setSize (18, 18);
         syncEditor->disableUpdateOnSelectedStreamChanged();
 
         streamCount++;
     }
-    
 }

@@ -36,8 +36,8 @@ THE SOFTWARE.
 #ifndef DSPFILTERS_STATE_H
 #define DSPFILTERS_STATE_H
 
-#include "Common.h"
 #include "Biquad.h"
+#include "Common.h"
 
 #include <stdexcept>
 
@@ -77,19 +77,19 @@ public:
     }
 
     template <typename Sample>
-    inline Sample process1(const Sample in,
-                           const BiquadBase& s,
-                           const double vsa) // very small amount
+    inline Sample process1 (const Sample in,
+                            const BiquadBase& s,
+                            const double vsa) // very small amount
     {
-        double out = s.m_b0*in + s.m_b1*m_x1 + s.m_b2*m_x2
-                     - s.m_a1*m_y1 - s.m_a2*m_y2
+        double out = s.m_b0 * in + s.m_b1 * m_x1 + s.m_b2 * m_x2
+                     - s.m_a1 * m_y1 - s.m_a2 * m_y2
                      + vsa;
         m_x2 = m_x1;
         m_y2 = m_y1;
         m_x1 = in;
         m_y1 = out;
 
-        return static_cast<Sample>(out);
+        return static_cast<Sample> (out);
     }
 
 protected:
@@ -125,17 +125,17 @@ public:
     }
 
     template <typename Sample>
-    Sample process1(const Sample in,
-                    const BiquadBase& s,
-                    const double vsa)
+    Sample process1 (const Sample in,
+                     const BiquadBase& s,
+                     const double vsa)
     {
-        double w   = in - s.m_a1*m_v1 - s.m_a2*m_v2 + vsa;
-        double out =      s.m_b0*w    + s.m_b1*m_v1 + s.m_b2*m_v2;
+        double w = in - s.m_a1 * m_v1 - s.m_a2 * m_v2 + vsa;
+        double out = s.m_b0 * w + s.m_b1 * m_v1 + s.m_b2 * m_v2;
 
         m_v2 = m_v1;
         m_v1 = w;
 
-        return static_cast<Sample>(out);
+        return static_cast<Sample> (out);
     }
 
 private:
@@ -177,26 +177,26 @@ public:
     }
 
     template <typename Sample>
-    inline Sample process1(const Sample in,
-                           const BiquadBase& s,
-                           const double vsa)
+    inline Sample process1 (const Sample in,
+                            const BiquadBase& s,
+                            const double vsa)
     {
         double out;
 
         // can be: in += m_s1_1;
         m_v = in + m_s1_1;
-        out = s.m_b0*m_v + m_s3_1;
-        m_s1 = m_s2_1 - s.m_a1*m_v;
-        m_s2 = -s.m_a2*m_v;
-        m_s3 = s.m_b1*m_v + m_s4_1;
-        m_s4 = s.m_b2*m_v;
+        out = s.m_b0 * m_v + m_s3_1;
+        m_s1 = m_s2_1 - s.m_a1 * m_v;
+        m_s2 = -s.m_a2 * m_v;
+        m_s3 = s.m_b1 * m_v + m_s4_1;
+        m_s4 = s.m_b2 * m_v;
 
         m_s4_1 = m_s4;
         m_s3_1 = m_s3;
         m_s2_1 = m_s2;
         m_s1_1 = m_s1;
 
-        return static_cast<Sample>(out);
+        return static_cast<Sample> (out);
     }
 
 private:
@@ -230,19 +230,19 @@ public:
     }
 
     template <typename Sample>
-    inline Sample process1(const Sample in,
-                           const BiquadBase& s,
-                           const double vsa)
+    inline Sample process1 (const Sample in,
+                            const BiquadBase& s,
+                            const double vsa)
     {
         double out;
 
-        out = m_s1_1 + s.m_b0*in + vsa;
-        m_s1 = m_s2_1 + s.m_b1*in - s.m_a1*out;
-        m_s2 = s.m_b2*in - s.m_a2*out;
+        out = m_s1_1 + s.m_b0 * in + vsa;
+        m_s1 = m_s2_1 + s.m_b1 * in - s.m_a1 * out;
+        m_s2 = s.m_b2 * in - s.m_a2 * out;
         m_s1_1 = m_s1;
         m_s2_1 = m_s2;
 
-        return static_cast<Sample>(out);
+        return static_cast<Sample> (out);
     }
 
 private:
@@ -274,19 +274,19 @@ public:
             m_state[i].reset();
     }
 
-    StateType& operator[](int index)
+    StateType& operator[] (int index)
     {
-        assert(index >= 0 && index < Channels);
+        assert (index >= 0 && index < Channels);
         return m_state[index];
     }
 
     template <class Filter, typename Sample>
-    void process(int numSamples,
-                 Sample* const* arrayOfChannels,
-                 Filter& filter)
+    void process (int numSamples,
+                  Sample* const* arrayOfChannels,
+                  Filter& filter)
     {
         for (int i = 0; i < Channels; ++i)
-            filter.process(numSamples, arrayOfChannels[i], m_state[i]);
+            filter.process (numSamples, arrayOfChannels[i], m_state[i]);
     }
 
 private:
@@ -295,7 +295,7 @@ private:
 
 // Empty state, can't process anything
 template <class StateType>
-class ChannelsState <0, StateType>
+class ChannelsState<0, StateType>
 {
 public:
     const int getNumChannels() const
@@ -305,20 +305,20 @@ public:
 
     void reset()
     {
-        throw std::logic_error("attempt to reset empty ChannelState");
+        throw std::logic_error ("attempt to reset empty ChannelState");
     }
 
     template <class FilterDesign, typename Sample>
-    void process(int numSamples,
-                 Sample* const* arrayOfChannels,
-                 FilterDesign& filter)
+    void process (int numSamples,
+                  Sample* const* arrayOfChannels,
+                  FilterDesign& filter)
     {
-        throw std::logic_error("attempt to process empty ChannelState");
+        throw std::logic_error ("attempt to process empty ChannelState");
     }
 };
 
 //------------------------------------------------------------------------------
 
-}
+} // namespace Dsp
 
 #endif

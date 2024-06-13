@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2014 Open Ephys
+    Copyright (C) 2024 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -30,96 +30,91 @@
 #include "../Settings/DataStream.h"
 
 Splitter::Splitter()
-    : GenericProcessor("Splitter"),
-      destNodeA(nullptr), destNodeB(nullptr), activePath(0)
+    : GenericProcessor ("Splitter"),
+      destNodeA (nullptr),
+      destNodeB (nullptr),
+      activePath (0)
 {
     sendSampleCount = false;
 }
 
 Splitter::~Splitter()
 {
-
 }
 
 AudioProcessorEditor* Splitter::createEditor()
 {
-    editor = std::make_unique<SplitterEditor>(this);
+    editor = std::make_unique<SplitterEditor> (this);
     return editor.get();
 }
 
 void Splitter::updateSettings()
 {
-
     streamsForPathA.clear();
     streamsForPathB.clear();
 
-    if (sourceNode != nullptr && !headlessMode)
+    if (sourceNode != nullptr && ! headlessMode)
     {
         // figure out which streams to send
-        SplitterEditor* editor = (SplitterEditor*)getEditor();
+        SplitterEditor* editor = (SplitterEditor*) getEditor();
 
-        for (auto stream : sourceNode->getStreamsForDestNode(this))
+        for (auto stream : sourceNode->getStreamsForDestNode (this))
         {
-            streamsForPathA.add(stream);
-            streamsForPathB.add(stream);
+            streamsForPathA.add (stream);
+            streamsForPathB.add (stream);
         }
     }
 }
 
-void Splitter::setPathToProcessor(GenericProcessor* p)
+void Splitter::setPathToProcessor (GenericProcessor* p)
 {
-
     if (destNodeA == p)
     {
-        switchIO(0);
-
+        switchIO (0);
     }
     else if (destNodeB == p)
     {
-        switchIO(1);
+        switchIO (1);
     }
 }
 
-void Splitter::setSplitterDestNode(GenericProcessor* dn)
+void Splitter::setSplitterDestNode (GenericProcessor* dn)
 {
     destNode = dn;
 
     if (activePath == 0)
     {
-        LOGDD("Setting destination node A.");
+        LOGDD ("Setting destination node A.");
         destNodeA = dn;
     }
     else
     {
         destNodeB = dn;
-        LOGDD("Setting destination node B.");
-
+        LOGDD ("Setting destination node B.");
     }
 }
 
-void Splitter::switchIO(int destNum)
+void Splitter::switchIO (int destNum)
 {
-
-    LOGDD("Switching to dest number ", destNum);
+    LOGDD ("Switching to dest number ", destNum);
 
     activePath = destNum;
 
     if (destNum == 0)
     {
         destNode = destNodeA;
-        LOGDD("   Dest node: ", getDestNode(0));
+        LOGDD ("   Dest node: ", getDestNode (0));
     }
     else
     {
         destNode = destNodeB;
-        LOGDD("   Dest node: ", getDestNode(1));
+        LOGDD ("   Dest node: ", getDestNode (1));
     }
 }
 
 void Splitter::switchIO()
 {
-
-    LOGDD("Splitter switching source.");
+    LOGDD ("Splitter switching source.");
 
     if (activePath == 0)
     {
@@ -131,7 +126,6 @@ void Splitter::switchIO()
         activePath = 0;
         destNode = destNodeA;
     }
-    
 }
 
 int Splitter::getPath()
@@ -139,48 +133,47 @@ int Splitter::getPath()
     return activePath;
 }
 
-GenericProcessor* Splitter::getDestNode(int path)
+GenericProcessor* Splitter::getDestNode (int path)
 {
     if (path == 0)
     {
         return destNodeA;
-    } else {
+    }
+    else
+    {
         return destNodeB;
     }
 }
 
-Array<const DataStream*> Splitter::getStreamsForDestNode(GenericProcessor* node)
+Array<const DataStream*> Splitter::getStreamsForDestNode (GenericProcessor* node)
 {
     Array<const DataStream*> outputStreams;
 
     if (node == destNodeA)
     {
         for (auto stream : streamsForPathA)
-            outputStreams.add(stream);
+            outputStreams.add (stream);
     }
     else if (node == destNodeB)
     {
         for (auto stream : streamsForPathB)
-            outputStreams.add(stream);
+            outputStreams.add (stream);
     }
 
     return outputStreams;
 }
 
-void Splitter::saveCustomParametersToXml(XmlElement* parentElement)
+void Splitter::saveCustomParametersToXml (XmlElement* parentElement)
 {
-    parentElement->setAttribute("activePath", activePath);
-
+    parentElement->setAttribute ("activePath", activePath);
 }
 
-void Splitter::loadCustomParametersFromXml(XmlElement* xml)
+void Splitter::loadCustomParametersFromXml (XmlElement* xml)
 {
- 
-    if (!headlessMode)
+    if (! headlessMode)
     {
         SplitterEditor* se = (SplitterEditor*) getEditor();
-        
-        se->switchDest(xml->getIntAttribute("activePath", 0));
+
+        se->switchDest (xml->getIntAttribute ("activePath", 0));
     }
-    
 }

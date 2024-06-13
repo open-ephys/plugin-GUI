@@ -84,23 +84,11 @@ PLUGIN_API void sendStatusMessage (const char* text);
 * It will also make the editor visible if it's not currently seen by the user.*/
 PLUGIN_API void highlightEditor (GenericEditor* ed);
 
-/** Returns the latest "global" timestamp, which can be used to assign
-* timestamps to events not associated with a data stream, such as MessageCenter
-* events. The user can select whether the global timestamp comes from
-* particular Source processor, or from software.*/
-PLUGIN_API juce::int64 getGlobalTimestamp();
+/** Returns the number of milliseconds shown in the recording clock */
+PLUGIN_API juce::int64 getRecordingTime();
 
-/** Gets the sample rate of the global timestamp clock.*/
-PLUGIN_API float getGlobalSampleRate();
-
-/** Gets the name of the data stream (or software clock) that generates global timestamps. */
-PLUGIN_API String getGlobalTimestampSource();
-
-/** Gets the software timestamp (milliseconds since midnight Jan 1st 1970 UTC)*/
-PLUGIN_API juce::int64 getSoftwareTimestamp();
-
-/** Gets the ticker frequency of the software timestamp clock (1000 Hz)*/
-PLUGIN_API float getSoftwareSampleRate();
+/** Returns the number of milliseconds since midnight Jan 1st 1970 UTC */
+PLUGIN_API juce::int64 getSystemTime();
 
 /** Sets new default recording directory. This will only affect new Record Nodes */
 PLUGIN_API void setRecordingParentDirectory (String dir);

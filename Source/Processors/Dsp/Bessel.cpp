@@ -33,8 +33,8 @@ THE SOFTWARE.
 
 *******************************************************************************/
 
-#include "Common.h"
 #include "Bessel.h"
+#include "Common.h"
 #include "RootFinder.h"
 
 namespace Dsp
@@ -43,184 +43,182 @@ namespace Dsp
 namespace Bessel
 {
 
-// returns fact(n) = n!
-static double fact(int n)
-{
-    if (n == 0)
-        return 1;
-
-    double y = n;
-    for (double m = n; --m;)
-        y *= m;
-
-    return y;
-}
-
-// returns the k-th zero based coefficient of the reverse bessel polynomial of degree n
-static double reversebessel(int k, int n)
-{
-    return fact(2 * n - k) /
-           ((fact(n - k) * fact(k)) * pow(2., n - k));
-}
-
-//------------------------------------------------------------------------------
-
-AnalogLowPass::AnalogLowPass()
-    : m_numPoles(-1)
-{
-    setNormal(0, 1);
-}
-
-void AnalogLowPass::design(int numPoles,
-                           WorkspaceBase* w)
-{
-    if (m_numPoles != numPoles)
+    // returns fact(n) = n!
+    static double fact (int n)
     {
-        m_numPoles = numPoles;
+        if (n == 0)
+            return 1;
 
-        reset();
+        double y = n;
+        for (double m = n; --m;)
+            y *= m;
 
-        RootFinderBase& solver(w->roots);
-        for (int i = 0; i < numPoles + 1; ++i)
-            solver.coef()[i] = reversebessel(i, numPoles);
-        solver.solve(numPoles);
-
-        const int pairs = numPoles / 2;
-        for (int i = 0; i < pairs; ++i)
-        {
-            complex_t c = solver.root()[i];
-            addPoleZeroConjugatePairs(c, infinity());
-        }
-
-        if (numPoles & 1)
-            add(solver.root()[pairs].real(), infinity());
+        return y;
     }
-}
 
-//------------------------------------------------------------------------------
-
-AnalogLowShelf::AnalogLowShelf()
-    : m_numPoles(-1)
-{
-    setNormal(doublePi, 1);
-}
-
-void AnalogLowShelf::design(int numPoles,
-                            double gainDb,
-                            WorkspaceBase* w)
-{
-    if (m_numPoles != numPoles ||
-        m_gainDb != gainDb)
+    // returns the k-th zero based coefficient of the reverse bessel polynomial of degree n
+    static double reversebessel (int k, int n)
     {
-        m_numPoles = numPoles;
-        m_gainDb = gainDb;
-
-        reset();
-
-        const double G = pow(10., gainDb / 20) - 1;
-
-        RootFinderBase& poles(w->roots);
-        for (int i = 0; i < numPoles + 1; ++i)
-            poles.coef()[i] = reversebessel(i, numPoles);
-        poles.solve(numPoles);
-
-        RootFinder<50> zeros;
-        for (int i = 0; i < numPoles + 1; ++i)
-            zeros.coef()[i] = reversebessel(i, numPoles);
-        double a0 = reversebessel(0, numPoles);
-        zeros.coef()[0] += G * a0;
-        zeros.solve(numPoles);
-
-        const int pairs = numPoles / 2;
-        for (int i = 0; i < pairs; ++i)
-        {
-            complex_t p = poles.root()[i];
-            complex_t z = zeros.root()[i];
-            addPoleZeroConjugatePairs(p, z);
-        }
-
-        if (numPoles & 1)
-            add(poles.root()[pairs].real(), zeros.root()[pairs].real());
+        return fact (2 * n - k) / ((fact (n - k) * fact (k)) * pow (2., n - k));
     }
-}
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-void LowPassBase::setup(int order,
-                        double sampleRate,
-                        double cutoffFrequency,
-                        WorkspaceBase* w)
-{
-    m_analogProto.design(order, w);
+    AnalogLowPass::AnalogLowPass()
+        : m_numPoles (-1)
+    {
+        setNormal (0, 1);
+    }
 
-    LowPassTransform(cutoffFrequency / sampleRate,
-                     m_digitalProto,
-                     m_analogProto);
+    void AnalogLowPass::design (int numPoles,
+                                WorkspaceBase* w)
+    {
+        if (m_numPoles != numPoles)
+        {
+            m_numPoles = numPoles;
 
-    Cascade::setLayout(m_digitalProto);
-}
+            reset();
 
-void HighPassBase::setup(int order,
-                         double sampleRate,
-                         double cutoffFrequency,
-                         WorkspaceBase* w)
-{
-    m_analogProto.design(order, w);
+            RootFinderBase& solver (w->roots);
+            for (int i = 0; i < numPoles + 1; ++i)
+                solver.coef()[i] = reversebessel (i, numPoles);
+            solver.solve (numPoles);
 
-    HighPassTransform(cutoffFrequency / sampleRate,
-                      m_digitalProto,
-                      m_analogProto);
+            const int pairs = numPoles / 2;
+            for (int i = 0; i < pairs; ++i)
+            {
+                complex_t c = solver.root()[i];
+                addPoleZeroConjugatePairs (c, infinity());
+            }
 
-    Cascade::setLayout(m_digitalProto);
-}
+            if (numPoles & 1)
+                add (solver.root()[pairs].real(), infinity());
+        }
+    }
 
-void BandPassBase::setup(int order,
-                         double sampleRate,
-                         double centerFrequency,
-                         double widthFrequency,
-                         WorkspaceBase* w)
-{
-    m_analogProto.design(order, w);
+    //------------------------------------------------------------------------------
 
-    BandPassTransform(centerFrequency / sampleRate,
-                      widthFrequency / sampleRate,
-                      m_digitalProto,
-                      m_analogProto);
+    AnalogLowShelf::AnalogLowShelf()
+        : m_numPoles (-1)
+    {
+        setNormal (doublePi, 1);
+    }
 
-    Cascade::setLayout(m_digitalProto);
-}
+    void AnalogLowShelf::design (int numPoles,
+                                 double gainDb,
+                                 WorkspaceBase* w)
+    {
+        if (m_numPoles != numPoles || m_gainDb != gainDb)
+        {
+            m_numPoles = numPoles;
+            m_gainDb = gainDb;
 
-void BandStopBase::setup(int order,
-                         double sampleRate,
-                         double centerFrequency,
-                         double widthFrequency,
-                         WorkspaceBase* w)
-{
-    m_analogProto.design(order, w);
+            reset();
 
-    BandStopTransform(centerFrequency / sampleRate,
-                      widthFrequency / sampleRate,
-                      m_digitalProto,
-                      m_analogProto);
+            const double G = pow (10., gainDb / 20) - 1;
 
-    Cascade::setLayout(m_digitalProto);
-}
+            RootFinderBase& poles (w->roots);
+            for (int i = 0; i < numPoles + 1; ++i)
+                poles.coef()[i] = reversebessel (i, numPoles);
+            poles.solve (numPoles);
 
-void LowShelfBase::setup(int order,
-                         double sampleRate,
-                         double cutoffFrequency,
-                         double gainDb,
-                         WorkspaceBase* w)
-{
-    m_analogProto.design(order, gainDb, w);
+            RootFinder<50> zeros;
+            for (int i = 0; i < numPoles + 1; ++i)
+                zeros.coef()[i] = reversebessel (i, numPoles);
+            double a0 = reversebessel (0, numPoles);
+            zeros.coef()[0] += G * a0;
+            zeros.solve (numPoles);
 
-    LowPassTransform(cutoffFrequency / sampleRate,
-                     m_digitalProto,
-                     m_analogProto);
+            const int pairs = numPoles / 2;
+            for (int i = 0; i < pairs; ++i)
+            {
+                complex_t p = poles.root()[i];
+                complex_t z = zeros.root()[i];
+                addPoleZeroConjugatePairs (p, z);
+            }
 
-    Cascade::setLayout(m_digitalProto);
-}
+            if (numPoles & 1)
+                add (poles.root()[pairs].real(), zeros.root()[pairs].real());
+        }
+    }
 
-}
+    //------------------------------------------------------------------------------
 
-}
+    void LowPassBase::setup (int order,
+                             double sampleRate,
+                             double cutoffFrequency,
+                             WorkspaceBase* w)
+    {
+        m_analogProto.design (order, w);
+
+        LowPassTransform (cutoffFrequency / sampleRate,
+                          m_digitalProto,
+                          m_analogProto);
+
+        Cascade::setLayout (m_digitalProto);
+    }
+
+    void HighPassBase::setup (int order,
+                              double sampleRate,
+                              double cutoffFrequency,
+                              WorkspaceBase* w)
+    {
+        m_analogProto.design (order, w);
+
+        HighPassTransform (cutoffFrequency / sampleRate,
+                           m_digitalProto,
+                           m_analogProto);
+
+        Cascade::setLayout (m_digitalProto);
+    }
+
+    void BandPassBase::setup (int order,
+                              double sampleRate,
+                              double centerFrequency,
+                              double widthFrequency,
+                              WorkspaceBase* w)
+    {
+        m_analogProto.design (order, w);
+
+        BandPassTransform (centerFrequency / sampleRate,
+                           widthFrequency / sampleRate,
+                           m_digitalProto,
+                           m_analogProto);
+
+        Cascade::setLayout (m_digitalProto);
+    }
+
+    void BandStopBase::setup (int order,
+                              double sampleRate,
+                              double centerFrequency,
+                              double widthFrequency,
+                              WorkspaceBase* w)
+    {
+        m_analogProto.design (order, w);
+
+        BandStopTransform (centerFrequency / sampleRate,
+                           widthFrequency / sampleRate,
+                           m_digitalProto,
+                           m_analogProto);
+
+        Cascade::setLayout (m_digitalProto);
+    }
+
+    void LowShelfBase::setup (int order,
+                              double sampleRate,
+                              double cutoffFrequency,
+                              double gainDb,
+                              WorkspaceBase* w)
+    {
+        m_analogProto.design (order, gainDb, w);
+
+        LowPassTransform (cutoffFrequency / sampleRate,
+                          m_digitalProto,
+                          m_analogProto);
+
+        Cascade::setLayout (m_digitalProto);
+    }
+
+} // namespace Bessel
+
+} // namespace Dsp

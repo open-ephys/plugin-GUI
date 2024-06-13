@@ -76,7 +76,7 @@ jobs:
         # notarization service
 
         echo "Creating temp notarization archive"
-        /usr/bin/ditto -c -k --keepParent open-ephys/open-ephys.app open-ephys.zip
+        /usr/bin/ditto -c -k --sequesterRsrc --keepParent open-ephys/open-ephys.app open-ephys.zip
 
         # Here we send the notarization request to the Apple's Notarization service, waiting for the result.
         # This typically takes a few seconds inside a CI environment, but it might take more depending on the App
@@ -90,11 +90,11 @@ jobs:
         # validated by macOS even when an internet connection is not available.
         echo "Attach staple"
         rm -r open-ephys/*
-        unzip open-ephys.zip -d open-ephys
+        /usr/bin/ditto -x -k open-ephys.zip open-ephys
         xcrun stapler staple open-ephys/open-ephys.app
 
         zipfile=open-ephys-v1.0.0-dev-mac.zip
-        zip -r $zipfile open-ephys
+        /usr/bin/ditto -c -k --sequesterRsrc --keepParent open-ephys $zipfile
         user_info="X-JFrog-Art-Api:$artifactoryApiKey"
         curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/1.0.0-dev/mac/$zipfile"
     - name: deploy_preview
