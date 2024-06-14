@@ -86,7 +86,7 @@ AudioComponent::AudioComponent() : isPlaying (false)
     LOGC ("Audio device name: ", devName);
 
     AudioDeviceManager::AudioDeviceSetup setup;
-    deviceManager.getAudioDeviceSetup (setup);
+    setup = deviceManager.getAudioDeviceSetup();
 
     setup.bufferSize = 1024; /// larger buffer = fewer empty blocks, but longer latencies
     setup.useDefaultInputChannels = false;
@@ -215,14 +215,14 @@ bool AudioComponent::callbacksAreActive()
 
 bool AudioComponent::checkForDevice()
 {
-    return true;
+    if (deviceManager.getCurrentAudioDevice() == nullptr)
+    {
+        AudioDeviceManager::AudioDeviceSetup ads = deviceManager.getAudioDeviceSetup();
+        if (ads.outputDeviceName.isEmpty() && ads.inputDeviceName.isEmpty())
+            return false;
+    }
 
-    //if (deviceManager.getCurrentAudioDevice() != nullptr)
-    //{
-    //   return true;
-    //} else {
-    //  return false;
-    //}
+    return true;
 }
 
 bool AudioComponent::restartDevice()
@@ -331,7 +331,7 @@ void AudioComponent::loadStateFromXml (XmlElement* parent)
     }
 
     AudioDeviceManager::AudioDeviceSetup setup;
-    deviceManager.getAudioDeviceSetup (setup);
+    setup = deviceManager.getAudioDeviceSetup();
 
     double sampleRate = parent->getDoubleAttribute ("sampleRate");
     if (sampleRate > 0)

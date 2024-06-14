@@ -177,7 +177,7 @@ void DiskSpaceMeter::paint (Graphics& g)
     g.drawSingleLineText ("DF", 75, 12);
 }
 
-Clock::Clock() 
+Clock::Clock()
 {
     clockFont = FontOptions ("CP Mono", "Light", 30.0f);
     clockFont.setHorizontalScale (0.95f);
@@ -461,18 +461,27 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
 {
     if (! audio->checkForDevice())
     {
-        String titleMessage = String ("No audio device found");
-        String contentMessage = String ("An active audio device is required to process data. ") + String ("Try restarting the GUI to regain control of the system audio.");
-        AlertWindow::showMessageBox (AlertWindow::InfoIcon,
-                                     titleMessage,
-                                     contentMessage);
-
         playButton->setToggleState (false, dontSendNotification);
+        recordButton->setToggleState (false, dontSendNotification);
+
+        String errorMsg = "No output device found. Unable to start acquisition!";
+        LOGE (errorMsg);
+
+        if (! isConsoleApp)
+        {
+            errorMsg += "\n\nAn active audio output device is required to process data. "
+                        "Try changing the audio device type in the audio configuration window (click on the \"Latency\" button in the Control Panel) "
+                        "and ensure there is an output device selected.";
+
+            AlertWindow::showMessageBox (AlertWindow::WarningIcon,
+                                         "Acquisition Error!",
+                                         errorMsg);
+        }
 
         return;
     }
 
-    if (!isConsoleApp && audioEditor->isAudioConfigurationWindowVisible())
+    if (! isConsoleApp && audioEditor->isAudioConfigurationWindowVisible())
     {
         audioEditor->disable();
         audioEditor->enable();
