@@ -291,11 +291,17 @@ void MainWindow::repaint()
     {
         documentWindow->repaint();
 
+        auto windowBounds = documentWindow->getBounds();
+
+        documentWindow->setBounds (windowBounds.reduced (1));
+
         if (auto menuBarComp = documentWindow->getMenuBarComponent())
             menuBarComp->repaint();
 
         Colour c = documentWindow->getLookAndFeel().findColour (ResizableWindow::backgroundColourId);
         documentWindow->setBackgroundColour (c);
+
+        documentWindow->setBounds (windowBounds);
     }
 }
 
