@@ -86,13 +86,6 @@ ThreadPoolJob::JobStatus FilterJob::runJob()
 BandpassFilter::BandpassFilter (bool headless)
     : GenericProcessor ("Bandpass Filter", headless)
 {
-    addFloatParameter (Parameter::STREAM_SCOPE, "low_cut", "Low cut", "Filter low cut", "Hz", 100, 0.1, 600, 1.0, false);
-    addFloatParameter (Parameter::STREAM_SCOPE, "high_cut", "High cut", "Filter high cut", "Hz", 5000, 0.1, 6000, 1.0, false);
-    addMaskChannelsParameter (Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to filter for this stream");
-
-    Array<String> numThreads { "2", "4", "8", "16", "32", "64" };
-    addCategoricalParameter (Parameter::STREAM_SCOPE, "threads", "Threads", "Number of threads to use", numThreads, 1, true);
-
     threadPool = std::make_unique<ThreadPool> (4);
 }
 
