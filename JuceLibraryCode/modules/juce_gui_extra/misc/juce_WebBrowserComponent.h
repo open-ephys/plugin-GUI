@@ -212,6 +212,43 @@ public:
             Colour backgroundColour;
         };
 
+        /** Options specific to the WkWebView backend used on Apple systems. These options will be
+            ignored on non-Apple platforms.
+        */
+        class AppleWkWebView
+        {
+        public:
+            /** Specifies whether the WebView is allowed to access siblings of files specified with
+                the file:// URL scheme.
+
+                Allowing this is a potential security vulnerability if you don't have full control
+                over the file that you are opening.
+            */
+            [[nodiscard]] AppleWkWebView withAllowAccessToEnclosingDirectory (bool x) const
+            {
+                return withMember (*this, &AppleWkWebView::allowAccessToEnclosingDirectory, x);
+            }
+
+            /** If this options is specified, the underlying WebView will return NO from its
+                acceptsFirstMouse method.
+
+                This disables the click-through behaviour, meaning that clicking a previously
+                unfocused application window only makes the window focused, but will not pass on the
+                click to whichever control inside the WebView is under the mouse.
+            */
+            [[nodiscard]] AppleWkWebView withDisabledAcceptsFirstMouse() const
+            {
+                return withMember (*this, &AppleWkWebView::acceptsFirstMouse, false);
+            }
+
+            auto getAllowAccessToEnclosingDirectory() const { return allowAccessToEnclosingDirectory; }
+            auto getAcceptsFirstMouse() const { return acceptsFirstMouse; }
+
+        private:
+            bool allowAccessToEnclosingDirectory = false;
+            bool acceptsFirstMouse = true;
+        };
+
         /** Specifies options that apply to the Windows implementation when the WebView2 feature is
             enabled.
 
@@ -220,6 +257,13 @@ public:
         [[nodiscard]] Options withWinWebView2Options (const WinWebView2& winWebView2Options) const
         {
             return withMember (*this, &Options::winWebView2, winWebView2Options);
+        }
+
+        /** Specifies options that influence the WebBrowserComponent's behaviour on Apple systems.
+        */
+        [[nodiscard]] Options withAppleWkWebViewOptions (const AppleWkWebView& appleWkWebViewOptions) const
+        {
+            return withMember (*this, &Options::appleWkWebView, appleWkWebViewOptions);
         }
 
         /** Enables native integration features for the code running inside the WebBrowserComponent.
@@ -342,6 +386,7 @@ public:
         auto        keepsPageLoadedWhenBrowserIsHidden() const noexcept  { return keepPageLoadedWhenBrowserIsHidden; }
         auto        getUserAgent() const                                 { return userAgent; }
         auto        getWinWebView2BackendOptions() const                 { return winWebView2; }
+        auto        getAppleWkWebViewOptions() const                     { return appleWkWebView; }
         auto        getNativeIntegrationsEnabled() const                 { return enableNativeIntegration; }
         const auto& getNativeFunctions() const                           { return nativeFunctions; }
         const auto& getEventListeners() const                            { return eventListeners; }
@@ -357,6 +402,7 @@ public:
         bool enableNativeIntegration = false;
         String userAgent;
         WinWebView2 winWebView2;
+        AppleWkWebView appleWkWebView;
         std::map<Identifier, NativeFunction> nativeFunctions;
         std::vector<std::pair<Identifier, NativeEventListener>> eventListeners;
         StringArray userScripts;
@@ -436,8 +482,10 @@ public:
     class EvaluationResult
     {
     public:
+        /** A simple error type class. */
         struct Error
         {
+            /** Error type. */
             enum class Type
             {
                 /** Error occurring for a reason unknown to us. */

@@ -202,7 +202,7 @@ struct WebViewKeyEquivalentResponder final : public ObjCClass<WebViewClass>
 {
     using Base = ObjCClass<WebViewClass>;
 
-    WebViewKeyEquivalentResponder()
+    explicit WebViewKeyEquivalentResponder (bool acceptsFirstMouse)
         : Base ("WebViewKeyEquivalentResponder_")
     {
         this->template addIvar<LastFocusChange*> (lastFocusChangeMemberName);
@@ -282,6 +282,9 @@ struct WebViewKeyEquivalentResponder final : public ObjCClass<WebViewClass>
 
                             return result;
                          });
+
+        if (acceptsFirstMouse)
+            this->addMethod (@selector (acceptsFirstMouse:), [] (id, SEL, NSEvent*) { return YES; });
 
         this->registerClass();
     }
@@ -680,7 +683,7 @@ class WebBrowserComponent::Impl::Platform::WebViewImpl  : public WebBrowserCompo
 public:
     WebViewImpl (WebBrowserComponent::Impl& implIn, const String& userAgent) : browser (implIn.owner)
     {
-        static WebViewKeyEquivalentResponder<WebView> webviewClass;
+        static WebViewKeyEquivalentResponder<WebView> webviewClass { false };
 
         webView.reset ([webviewClass.createInstance() initWithFrame: NSMakeRect (0, 0, 100.0f, 100.0f)
                                                           frameName: nsEmptyString()
@@ -818,7 +821,9 @@ public:
           delegateConnector (implIn.owner,
                              [this] (const auto& m) { owner.handleNativeEvent (m); },
                              [this] (const auto& r) { return owner.handleResourceRequest (r); },
-                             browserOptions)
+                             browserOptions),
+          allowAccessToEnclosingDirectory (browserOptions.getAppleWkWebViewOptions()
+                                                         .getAllowAccessToEnclosingDirectory())
     {
         ObjCObjectHandle<WKWebViewConfiguration*> config { [WKWebViewConfiguration new] };
         id preferences = [config.get() preferences];
@@ -861,7 +866,19 @@ public:
        #endif
 
        #if JUCE_MAC
-        static WebViewKeyEquivalentResponder<WKWebView> webviewClass;
+        auto& webviewClass = [&]() -> auto&
+        {
+            if (browserOptions.getAppleWkWebViewOptions().getAcceptsFirstMouse())
+            {
+                static WebViewKeyEquivalentResponder<WKWebView> juceWebviewClass { true };
+                return juceWebviewClass;
+            }
+            else
+            {
+                static WebViewKeyEquivalentResponder<WKWebView> juceWebviewClass { false };
+                return juceWebviewClass;
+            }
+        }();
 
         webView.reset ([webviewClass.createInstance() initWithFrame: NSMakeRect (0, 0, 100.0f, 100.0f)
                                                       configuration: config.get()]);
@@ -987,8 +1004,23 @@ public:
         {
             auto file = URL (url).getLocalFile();
 
-            if (NSURL* nsUrl = [NSURL fileURLWithPath: juceStringToNS (file.getFullPathName())])
-                [webView.get() loadFileURL: appendParametersToFileURL (url, nsUrl) allowingReadAccessToURL: nsUrl];
+            NSURL* nsUrl = [NSURL fileURLWithPath: juceStringToNS (file.getFullPathName())];
+
+            auto* accessPath = [&]
+            {
+                if (! allowAccessToEnclosingDirectory)
+                    return nsUrl;
+
+                auto* parentUrl = [NSURL fileURLWithPath: juceStringToNS (file.getParentDirectory().getFullPathName())];
+
+                if (parentUrl == nullptr)
+                    return nsUrl;
+
+                return parentUrl;
+            }();
+
+            if (nsUrl != nullptr)
+                [webView.get() loadFileURL: appendParametersToFileURL (url, nsUrl) allowingReadAccessToURL: accessPath];
         }
         else if (NSMutableURLRequest* request = getRequestForURL (url, headers, postData))
         {
@@ -1061,6 +1093,7 @@ public:
 private:
     WebBrowserComponent::Impl& owner;
     DelegateConnector delegateConnector;
+    bool allowAccessToEnclosingDirectory = false;
     LastFocusChange lastFocusChange;
     ObjCObjectHandle<WKWebView*> webView;
     ObjCObjectHandle<id> webViewDelegate;

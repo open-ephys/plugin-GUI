@@ -314,7 +314,7 @@ auto DocumentWindow::findControlAtPoint (Point<float> pt) const -> WindowControl
     constexpr auto topResizerSize = 4;
     const auto topResizerArea = getLocalBounds().withHeight (topResizerSize).toFloat();
 
-    if (topResizerArea.contains (pt) && isResizable())
+    if (topResizerArea.contains (pt))
     {
         if (pt.x <= topResizerArea.getX() + topResizerSize)
             return WindowControlKind::sizeTopLeft;
@@ -324,6 +324,10 @@ auto DocumentWindow::findControlAtPoint (Point<float> pt) const -> WindowControl
 
         return WindowControlKind::sizeTop;
     }
+
+    for (const auto& c : getChildren())
+        if (c->contains (c->getLocalPoint (this, pt)))
+            return WindowControlKind::client;
 
     return WindowControlKind::caption;
 }

@@ -73,10 +73,7 @@ namespace juce
     guaranteed that no more listeners will be called.
 
     By default a ListenerList is not thread safe. If thread-safety is required,
-    you can provide a thread-safe Array type as the second type parameter e.g.
-    @code
-    using ThreadSafeList = ListenerList<MyListenerType, Array<MyListenerType*, CriticalSection>>;
-    @endcode
+    use the ThreadSafeListenerList type.
 
     When calling listeners the iteration can be escaped early by using a
     "BailOutChecker". A BailOutChecker is a type that has a public member function
@@ -87,8 +84,8 @@ namespace juce
 
     @tags{Core}
 */
-template <class ListenerClass,
-          class ArrayType = Array<ListenerClass*>>
+template <typename ListenerClass,
+          typename ArrayType = Array<ListenerClass*>>
 class ListenerList
 {
 public:
@@ -111,6 +108,8 @@ public:
     */
     void add (ListenerClass* listenerToAdd)
     {
+        initialiseIfNeeded();
+
         if (listenerToAdd != nullptr)
             listeners->addIfNotAlreadyThere (listenerToAdd);
         else
@@ -126,6 +125,9 @@ public:
     void remove (ListenerClass* listenerToRemove)
     {
         jassert (listenerToRemove != nullptr); // Listeners can't be null pointers!
+
+        if (! initialised())
+            return;
 
         const ScopedLockType lock (listeners->getLock());
 
@@ -154,10 +156,10 @@ public:
     }
 
     /** Returns the number of registered listeners. */
-    int size() const noexcept                                { return listeners->size(); }
+    int size() const noexcept                                { return ! initialised() ? 0 : listeners->size(); }
 
     /** Returns true if no listeners are registered, false otherwise. */
-    bool isEmpty() const noexcept                            { return listeners->isEmpty(); }
+    bool isEmpty() const noexcept                            { return ! initialised() || listeners->isEmpty(); }
 
     /** Clears the list.
 
@@ -166,7 +168,10 @@ public:
     */
     void clear()
     {
-        const ScopedLockType lock (listeners->getLock());
+        if (! initialised())
+            return;
+
+        const ScopedLockType lock { listeners->getLock() };
 
         listeners->clear();
 
@@ -175,7 +180,11 @@ public:
     }
 
     /** Returns true if the specified listener has been added to the list. */
-    bool contains (ListenerClass* listener) const noexcept   { return listeners->contains (listener); }
+    bool contains (ListenerClass* listener) const noexcept
+    {
+        return initialised()
+            && listeners->contains (listener);
+    }
 
     /** Returns the raw array of listeners.
 
@@ -186,7 +195,11 @@ public:
 
         @see add, remove, clear, contains
     */
-    const ArrayType& getListeners() const noexcept           { return *listeners; }
+    const ArrayType& getListeners() const noexcept
+    {
+        const_cast<ListenerList*> (this)->initialiseIfNeeded();
+        return *listeners;
+    }
 
     //==============================================================================
     /** Calls an invokable object for each listener in the list. */
@@ -234,6 +247,9 @@ public:
                                const BailOutCheckerType& bailOutChecker,
                                Callback&& callback)
     {
+        if (! initialised())
+            return;
+
         const auto localListeners = listeners;
         const ScopedLockType lock { localListeners->getLock() };
 
@@ -339,7 +355,7 @@ private:
 
     //==============================================================================
     using SharedListeners = std::shared_ptr<ArrayType>;
-    const SharedListeners listeners = std::make_shared<ArrayType>();
+    SharedListeners listeners;
 
     struct Iterator
     {
@@ -349,10 +365,49 @@ private:
 
     using SafeIterators = std::vector<Iterator*>;
     using SharedIterators = std::shared_ptr<SafeIterators>;
-    const SharedIterators iterators = std::make_shared<SafeIterators>();
+    SharedIterators iterators;
+
+    enum class State
+    {
+        uninitialised,
+        initialising,
+        initialised
+    };
+
+    std::atomic<State> state { State::uninitialised };
+
+    inline bool initialised() const noexcept { return state == State::initialised; }
+
+    inline void initialiseIfNeeded() noexcept
+    {
+        if (initialised())
+            return;
+
+        auto expected = State::uninitialised;
+
+        if (state.compare_exchange_strong (expected, State::initialising))
+        {
+            listeners = std::make_shared<ArrayType>();
+            iterators = std::make_shared<SafeIterators>();
+            state = State::initialised;
+            return;
+        }
+
+        while (! initialised())
+            std::this_thread::yield();
+    }
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE (ListenerList)
 };
+
+//==============================================================================
+/**
+    A thread safe version of the ListenerList class.
+
+    @see ListenerList
+*/
+template <typename ListenerClass>
+using ThreadSafeListenerList = ListenerList<ListenerClass, Array<ListenerClass*, CriticalSection>>;
 
 } // namespace juce

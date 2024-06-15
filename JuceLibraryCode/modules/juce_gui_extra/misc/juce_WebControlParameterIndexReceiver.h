@@ -32,43 +32,45 @@
   ==============================================================================
 */
 
-#ifndef DOXYGEN
-
 namespace juce
 {
 
-struct TypefaceFileAndIndex
-{
-    File file;
-    int index{};
+#if JUCE_WEB_BROWSER || DOXYGEN
 
-    auto tie() const { return std::tuple (file, index); }
+/** This is a helper class for implementing AudioProcessorEditor::getControlParameterIndex with GUIs
+    using a WebBrowserComponent.
 
-    bool operator< (const TypefaceFileAndIndex& other) const { return tie() < other.tie(); }
-};
+    Create an instance of this class and attach it to the WebBrowserComponent by using
+    WebBrowserComponent::Options::withOptionsFrom.
 
-class TypefaceFileCache : public DeletedAtShutdown
+    In your frontend code you can use the ControlParameterIndexUpdater class, that emits
+    controlParameterIndexChanged events based on the mouse movement, and control parameter index
+    annotations attached to DOM elements.
+
+    @tags{GUI}
+*/
+class JUCE_API  WebControlParameterIndexReceiver : public OptionsBuilder<WebBrowserComponent::Options>
 {
 public:
-    ~TypefaceFileCache() override
-    {
-        clearSingletonInstance();
-    }
+    /*  Returns the control parameter index last reported by the WebBrowserComponent GUI to be
+        active.
+    */
+    int getControlParameterIndex() const { return controlParameterIndex; }
 
-    template <typename Fn>
-    Typeface::Ptr get (const TypefaceFileAndIndex& key, Fn&& getTypeface)
+    //==============================================================================
+    WebBrowserComponent::Options buildOptions (const WebBrowserComponent::Options& initialOptions) override
     {
-        return cachedTypefaces.get (key, std::forward<Fn> (getTypeface));
+        return initialOptions.withEventListener ("__juce__controlParameterIndexChanged",
+                                                 [this] (auto newIndex)
+                                                 {
+                                                     controlParameterIndex = (int) newIndex;
+                                                 });
     }
-
-    JUCE_DECLARE_SINGLETON_SINGLETHREADED_MINIMAL (TypefaceFileCache)
 
 private:
-    LruCache<TypefaceFileAndIndex, Typeface::Ptr> cachedTypefaces;
+    int controlParameterIndex = -1;
 };
 
-JUCE_IMPLEMENT_SINGLETON (TypefaceFileCache)
-
-} // namespace juce
-
 #endif
+
+}

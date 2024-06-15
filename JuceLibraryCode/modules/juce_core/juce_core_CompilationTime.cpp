@@ -32,43 +32,10 @@
   ==============================================================================
 */
 
-#ifndef DOXYGEN
-
 namespace juce
 {
 
-struct TypefaceFileAndIndex
-{
-    File file;
-    int index{};
+const char* juce_compilationDate = __DATE__;
+const char* juce_compilationTime = __TIME__;
 
-    auto tie() const { return std::tuple (file, index); }
-
-    bool operator< (const TypefaceFileAndIndex& other) const { return tie() < other.tie(); }
-};
-
-class TypefaceFileCache : public DeletedAtShutdown
-{
-public:
-    ~TypefaceFileCache() override
-    {
-        clearSingletonInstance();
-    }
-
-    template <typename Fn>
-    Typeface::Ptr get (const TypefaceFileAndIndex& key, Fn&& getTypeface)
-    {
-        return cachedTypefaces.get (key, std::forward<Fn> (getTypeface));
-    }
-
-    JUCE_DECLARE_SINGLETON_SINGLETHREADED_MINIMAL (TypefaceFileCache)
-
-private:
-    LruCache<TypefaceFileAndIndex, Typeface::Ptr> cachedTypefaces;
-};
-
-JUCE_IMPLEMENT_SINGLETON (TypefaceFileCache)
-
-} // namespace juce
-
-#endif
+}
