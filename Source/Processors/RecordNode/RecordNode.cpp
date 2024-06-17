@@ -737,9 +737,11 @@ void RecordNode::startRecording()
     {
         String settingsFileName = rootFolder.getFullPathName() + File::getSeparatorString() + "settings" + ((experimentNumber > 1) ? "_" + String (experimentNumber) : String()) + ".xml";
 
-        //std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
+        std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
 
-        //AccessClass::getProcessorGraph()->saveToXml(File(settingsFileName), lastSettingsText);
+        AccessClass::getProcessorGraph()->saveToXml(xml.get());
+
+        xml->writeToFile(settingsFileName, "");
 
         settingsNeeded = false;
     }
