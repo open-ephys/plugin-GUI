@@ -29,37 +29,37 @@
 SyncChannelButton::SyncChannelButton (int _id, SyncLineSelector* _parent)
     : Button (String (_id)), id (_id), parent (_parent)
 {
-    btnColor = parent->lineColors[(id - 1) % parent->lineColors.size()];
+    btnColour = parent->lineColours[(id - 1) % parent->lineColours.size()];
 }
 
 SyncChannelButton::~SyncChannelButton() {}
 
 void SyncChannelButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    g.setColour (findColour (ThemeColors::outline));
+    g.setColour (findColour (ThemeColours::outline));
     g.fillRoundedRectangle (0.0f, 0.0f, getWidth(), getHeight(), 0.001 * getWidth());
 
     if (isMouseOver)
     {
         if (getToggleState())
-            g.setColour (btnColor.brighter());
+            g.setColour (btnColour.brighter());
         else
-            g.setColour (findColour (ThemeColors::widgetBackground).contrasting (0.3f));
+            g.setColour (findColour (ThemeColours::widgetBackground).contrasting (0.3f));
     }
     else
     {
         if (getToggleState())
-            g.setColour (btnColor);
+            g.setColour (btnColour);
         else
-            g.setColour (findColour (ThemeColors::widgetBackground));
+            g.setColour (findColour (ThemeColours::widgetBackground));
     }
     g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 0.001 * getWidth());
 
     //Draw text string in middle of button
     if (getToggleState())
-        g.setColour (btnColor.contrasting());
+        g.setColour (btnColour.contrasting());
     else
-        g.setColour (findColour (ThemeColors::defaultText));
+        g.setColour (findColour (ThemeColours::defaultText));
 
     g.setFont (FontOptions ("Inter", "Regular", 10.0f));
     g.drawText (String (id), 0, 0, getWidth(), getHeight(), Justification::centred);
@@ -76,23 +76,23 @@ void SetPrimaryButton::paintButton (Graphics& g, bool isMouseOver, bool isButton
     if (isMouseOver)
     {
         if (getToggleState())
-            g.setColour (findColour (ThemeColors::highlightedFill).withAlpha (0.5f));
+            g.setColour (findColour (ThemeColours::highlightedFill).withAlpha (0.5f));
         else
-            g.setColour (findColour (ThemeColors::widgetBackground).contrasting (0.3f));
+            g.setColour (findColour (ThemeColours::widgetBackground).contrasting (0.3f));
     }
     else
     {
         if (getToggleState())
-            g.setColour (findColour (ThemeColors::highlightedFill));
+            g.setColour (findColour (ThemeColours::highlightedFill));
         else
-            g.setColour (findColour (ThemeColors::widgetBackground));
+            g.setColour (findColour (ThemeColours::widgetBackground));
     }
     g.fillRoundedRectangle (1.0f, 1.0f, (float) getWidth() - 2.0f, (float) getHeight() - 2.0f, 2.0f);
 
-    g.setColour (findColour (ThemeColors::outline));
+    g.setColour (findColour (ThemeColours::outline));
     g.drawRoundedRectangle (0.0f, 0.0f, (float) getWidth(), (float) getHeight(), 2.0f, 1.0f);
 
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
     g.setFont (FontOptions ("Inter", "Regular", 12.0f));
     g.drawText (String (getName()), 0, 0, getWidth(), getHeight(), Justification::centred);
 }
@@ -106,14 +106,14 @@ SyncLineSelector::SyncLineSelector (SyncLineSelector::Listener* listener_, int n
       selectedLine (selectedLine_),
       canSelectNone (canSelectNone_)
 {
-    lineColors.add (Colour (224, 185, 36));
-    lineColors.add (Colour (243, 119, 33));
-    lineColors.add (Colour (237, 37, 36));
-    lineColors.add (Colour (217, 46, 171));
-    lineColors.add (Colour (101, 31, 255));
-    lineColors.add (Colour (48, 117, 255));
-    lineColors.add (Colour (116, 227, 156));
-    lineColors.add (Colour (82, 173, 0));
+    lineColours.add (Colour (224, 185, 36));
+    lineColours.add (Colour (243, 119, 33));
+    lineColours.add (Colour (237, 37, 36));
+    lineColours.add (Colour (217, 46, 171));
+    lineColours.add (Colour (101, 31, 255));
+    lineColours.add (Colour (48, 117, 255));
+    lineColours.add (Colour (116, 227, 156));
+    lineColours.add (Colour (82, 173, 0));
 
     width = 368; //can use any multiples of 16 here for dynamic resizing
 

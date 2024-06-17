@@ -47,7 +47,7 @@ void FullTimeline::paint (Graphics& g)
     g.setColour (Colours::white);
     g.fillRect (borderThickness, borderThickness, this->getWidth() - 2 * borderThickness, this->getHeight() - 2 * borderThickness - tickHeight);
 
-    /* Draw a colored vertical bar for each event */
+    /* Draw a coloured vertical bar for each event */
 
     float sampleRate = fileReader->getCurrentSampleRate();
     int64 totalSamples = (stopMs - startMs) / 1000.0f * sampleRate;

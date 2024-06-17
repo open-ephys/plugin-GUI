@@ -57,7 +57,7 @@ FilenameFieldComponent::FilenameFieldComponent (int type_, int state_, String va
     valueLabel->addListener (this);
     valueLabel->setColour (
         Label::outlineColourId,
-        state == FilenameFieldComponent::State::CUSTOM ? findColour (ThemeColors::outline) : findColour (ThemeColors::outline).withAlpha (0.25f));
+        state == FilenameFieldComponent::State::CUSTOM ? findColour (ThemeColours::outline) : findColour (ThemeColours::outline).withAlpha (0.25f));
     addAndMakeVisible (valueLabel.get());
 
     if (type == FilenameFieldComponent::Type::MAIN)
@@ -125,7 +125,7 @@ String FilenameFieldComponent::getNextValue (bool usePlaceholderText)
         if (state == FilenameFieldComponent::State::CUSTOM)
         {
             valueLabel->setEditable (true);
-            valueLabel->setColour (Label::outlineColourId, findColour (ThemeColors::outline));
+            valueLabel->setColour (Label::outlineColourId, findColour (ThemeColours::outline));
             valueLabel->setText (value, dontSendNotification);
 
             return value;
@@ -134,7 +134,7 @@ String FilenameFieldComponent::getNextValue (bool usePlaceholderText)
         if (state == FilenameFieldComponent::State::NONE)
         {
             valueLabel->setEditable (false);
-            valueLabel->setColour (Label::outlineColourId, findColour (ThemeColors::outline).withAlpha (0.25f));
+            valueLabel->setColour (Label::outlineColourId, findColour (ThemeColours::outline).withAlpha (0.25f));
             valueLabel->setText ("", dontSendNotification);
 
             value = "";
@@ -145,7 +145,7 @@ String FilenameFieldComponent::getNextValue (bool usePlaceholderText)
         if (state == FilenameFieldComponent::State::AUTO)
         {
             valueLabel->setEditable (false);
-            valueLabel->setColour (Label::outlineColourId, findColour (ThemeColors::outline).withAlpha (0.25f));
+            valueLabel->setColour (Label::outlineColourId, findColour (ThemeColours::outline).withAlpha (0.25f));
 
             if (type == FilenameFieldComponent::Type::MAIN)
             {
@@ -201,7 +201,7 @@ void FilenameFieldComponent::buttonClicked (Button* button)
     stateButton->setButtonText (states[state]);
 
     valueLabel->setEditable (false);
-    valueLabel->setColour (Label::outlineColourId, findColour (ThemeColors::outline).withAlpha (0.25f));
+    valueLabel->setColour (Label::outlineColourId, findColour (ThemeColours::outline).withAlpha (0.25f));
 
     if (state == FilenameFieldComponent::State::NONE)
     {
@@ -213,7 +213,7 @@ void FilenameFieldComponent::buttonClicked (Button* button)
     {
         value = savedValue;
         valueLabel->setEditable (true);
-        valueLabel->setColour (Label::outlineColourId, findColour (ThemeColors::outline));
+        valueLabel->setColour (Label::outlineColourId, findColour (ThemeColours::outline));
         valueLabel->setText (value, sendNotification);
     }
     else //AUTO
@@ -225,7 +225,7 @@ void FilenameFieldComponent::buttonClicked (Button* button)
 
 void FilenameConfigWindow::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::componentBackground));
+    g.fillAll (findColour (ThemeColours::componentBackground));
 }
 
 void FilenameConfigWindow::saveStateToXml (XmlElement* xml)
@@ -275,7 +275,7 @@ void FilenameConfigWindow::loadStateFromXml (XmlElement* xml)
                 if (fields[type]->state == FilenameFieldComponent::State::CUSTOM)
                 {
                     fields[type]->valueLabel->setEditable (true, sendNotification);
-                    fields[type]->valueLabel->setColour (Label::outlineColourId, findColour (ThemeColors::outline));
+                    fields[type]->valueLabel->setColour (Label::outlineColourId, findColour (ThemeColours::outline));
                 }
             }
         }

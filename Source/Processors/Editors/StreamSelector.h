@@ -83,7 +83,7 @@ public:
     /** Updates the underlying StreamInfoView objects */
     void update (Array<const DataStream*> dataStreams, int viewedStreamIndex);
 
-    /** Determines row colors */
+    /** Determines row colours */
     void paintRowBackground (Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
 
     /** Paints the columns*/

@@ -221,9 +221,9 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     pauseButton->setToggleState (false, sendNotification);
     addAndMakeVisible (pauseButton.get());
 
-    // Color scheme
+    // Colour scheme
     Array<String> colourSchemeNames = lfpDisplay->getColourSchemeNameArray();
-    colourSchemeOptionSelection = std::make_unique<ComboBox> ("colorSchemeOptionSelection");
+    colourSchemeOptionSelection = std::make_unique<ComboBox> ("colourSchemeOptionSelection");
     for (int i = 0; i < colourSchemeNames.size(); i++)
         colourSchemeOptionSelection->addItem (colourSchemeNames[i], i + 1);
     colourSchemeOptionSelection->setEditableText (false);
@@ -231,19 +231,19 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     colourSchemeOptionSelection->setSelectedId (1, dontSendNotification);
     addAndMakeVisible (colourSchemeOptionSelection.get());
 
-    // Color grouping
-    colorGroupings.add ("1");
-    colorGroupings.add ("2");
-    colorGroupings.add ("4");
-    colorGroupings.add ("8");
-    colorGroupings.add ("16");
+    // Colour grouping
+    colourGroupings.add ("1");
+    colourGroupings.add ("2");
+    colourGroupings.add ("4");
+    colourGroupings.add ("8");
+    colourGroupings.add ("16");
 
-    colorGroupingSelection = std::make_unique<ComboBox> ("Color Grouping");
-    for (int i = 0; i < colorGroupings.size(); i++)
-        colorGroupingSelection->addItem (colorGroupings[i], i + 1);
-    colorGroupingSelection->setSelectedId (1, sendNotification);
-    colorGroupingSelection->addListener (this);
-    addAndMakeVisible (colorGroupingSelection.get());
+    colourGroupingSelection = std::make_unique<ComboBox> ("Colour Grouping");
+    for (int i = 0; i < colourGroupings.size(); i++)
+        colourGroupingSelection->addItem (colourGroupings[i], i + 1);
+    colourGroupingSelection->setSelectedId (1, sendNotification);
+    colourGroupingSelection->addListener (this);
+    addAndMakeVisible (colourGroupingSelection.get());
 
     // THRESHOLDS SECTION
     sectionTitles.add ("THRESHOLDS");
@@ -474,7 +474,7 @@ void LfpDisplayOptions::resized()
                                             180,
                                             height);
 
-    colorGroupingSelection->setBounds (colourSchemeOptionSelection->getRight() + 15, getHeight() - 30, 55, height);
+    colourGroupingSelection->setBounds (colourSchemeOptionSelection->getRight() + 15, getHeight() - 30, 55, height);
 
     int startHeight = 167;
     int verticalSpacing = 29;
@@ -553,12 +553,12 @@ void LfpDisplayOptions::paint (Graphics& g)
     int row1 = 55;
     int row2 = 110;
 
-    ttlWordLabel->setColour (Label::outlineColourId, findColour (ThemeColors::outline));
+    ttlWordLabel->setColour (Label::outlineColourId, findColour (ThemeColours::outline));
 
-    g.fillAll (findColour (ThemeColors::componentBackground));
+    g.fillAll (findColour (ThemeColours::componentBackground));
     g.setFont (FontOptions ("Inter", "Medium", 18.0f));
 
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
 
     if (getHeight() > 150)
     {
@@ -588,8 +588,8 @@ void LfpDisplayOptions::paint (Graphics& g)
 
     g.drawText ("TTL word:", ttlWordLabel->getX(), ttlWordLabel->getY() - 22, 70, 20, Justification::left, false);
 
-    g.drawText ("Color scheme", colourSchemeOptionSelection->getX(), colourSchemeOptionSelection->getY() - 22, 300, 20, Justification::left, false);
-    g.drawText ("Color grouping", colorGroupingSelection->getX(), colorGroupingSelection->getY() - 22, 300, 20, Justification::left, false);
+    g.drawText ("Colour scheme", colourSchemeOptionSelection->getX(), colourSchemeOptionSelection->getY() - 22, 300, 20, Justification::left, false);
+    g.drawText ("Colour grouping", colourGroupingSelection->getX(), colourGroupingSelection->getY() - 22, 300, 20, Justification::left, false);
 
     g.drawText ("Spike raster:",
                 10,
@@ -687,7 +687,7 @@ void LfpDisplayOptions::paint (Graphics& g)
     
     g.drawText("Sat. Warning",225,getHeight()-row2,300,20,Justification::left, false);
 
-    g.drawText("Color grouping",365,getHeight()-row2,300,20,Justification::left, false);
+    g.drawText("Colour grouping",365,getHeight()-row2,300,20,Justification::left, false);
 
     g.drawText("Event disp.",375,getHeight()-row1,300,20,Justification::left, false);
     g.drawText("Trigger",475,getHeight()-row1,300,20,Justification::left, false);
@@ -1084,7 +1084,7 @@ void LfpDisplayOptions::comboBoxChanged (ComboBox* cb)
     {
         lfpDisplay->setActiveColourSchemeIdx (cb->getSelectedId() - 1);
 
-        lfpDisplay->setColors();
+        lfpDisplay->setColours();
         canvasSplit->redraw();
     }
     else if (cb == timebaseSelection.get())
@@ -1270,10 +1270,10 @@ void LfpDisplayOptions::comboBoxChanged (ComboBox* cb)
         lfpDisplay->setChannelHeight (lfpDisplay->getChannelHeight());
         canvasSplit->redraw();
     }
-    else if (cb == colorGroupingSelection.get())
+    else if (cb == colourGroupingSelection.get())
     {
-        // set color grouping here
-        lfpDisplay->setColorGrouping (colorGroupings[cb->getSelectedId() - 1].getIntValue()); // so that channel colors get re-assigned
+        // set colour grouping here
+        lfpDisplay->setColourGrouping (colourGroupings[cb->getSelectedId() - 1].getIntValue()); // so that channel colours get re-assigned
         canvasSplit->redraw();
     }
     else if (cb == triggerSourceSelection.get())
@@ -1345,7 +1345,7 @@ void LfpDisplayOptions::saveParameters (XmlElement* xml)
     xmlNode->setAttribute ("Timebase", timebaseSelection->getText());
     xmlNode->setAttribute ("Spread", spreadSelection->getText());
     xmlNode->setAttribute ("colourScheme", colourSchemeOptionSelection->getSelectedId());
-    xmlNode->setAttribute ("colorGrouping", colorGroupingSelection->getSelectedId());
+    xmlNode->setAttribute ("colourGrouping", colourGroupingSelection->getSelectedId());
 
     xmlNode->setAttribute ("spikeRaster", spikeRasterSelection->getText());
     xmlNode->setAttribute ("clipWarning", clipWarningSelection->getSelectedId());
@@ -1463,8 +1463,8 @@ void LfpDisplayOptions::loadParameters (XmlElement* xml)
             colourSchemeOptionSelection->setSelectedId (xmlNode->getIntAttribute ("colourScheme"), dontSendNotification);
 
             // COLOUR GROUPING
-            colorGroupingSelection->setSelectedId (xmlNode->getIntAttribute ("colorGrouping"), dontSendNotification);
-            lfpDisplay->setColorGrouping (colorGroupings[colorGroupingSelection->getSelectedId() - 1].getIntValue());
+            colourGroupingSelection->setSelectedId (xmlNode->getIntAttribute ("colourGrouping", 1), dontSendNotification);
+            lfpDisplay->setColourGrouping (colourGroupings[colourGroupingSelection->getSelectedId() - 1].getIntValue());
 
             // SPIKE RASTER
             String spikeRasterThresh = xmlNode->getStringAttribute ("spikeRaster", "OFF");
@@ -1580,7 +1580,7 @@ void LfpDisplayOptions::loadParameters (XmlElement* xml)
 
             lfpDisplay->setSingleChannelView (xmlNode->getIntAttribute ("singleChannelView", -1));
 
-            lfpDisplay->setColors();
+            lfpDisplay->setColours();
             canvasSplit->redraw();
 
             lfpDisplay->restoreViewPosition();

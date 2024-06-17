@@ -49,20 +49,20 @@ GraphViewport::GraphViewport (GraphViewer* gv)
     currentVersionText = "GUI version " + app->getApplicationVersion();
 
     bw_logo = ImageCache::getFromMemory (BinaryData::bw_logo72_png, BinaryData::bw_logo72_pngSize);
-    color_logo = ImageCache::getFromMemory (BinaryData::color_logo72_png, BinaryData::color_logo72_pngSize);
+    colour_logo = ImageCache::getFromMemory (BinaryData::color_logo72_png, BinaryData::color_logo72_pngSize);
 
     current_logo = &bw_logo;
 }
 
 void GraphViewport::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::componentParentBackground));
+    g.fillAll (findColour (ThemeColours::componentParentBackground));
     g.setOpacity (0.6f);
 
     g.drawImageAt (*current_logo, getWidth() - 175, getHeight() - 115);
 
     g.setOpacity (1.0f);
-    g.setColour (findColour (ThemeColors::componentBackground).brighter (0.3f));
+    g.setColour (findColour (ThemeColours::componentBackground).brighter (0.3f));
 
     g.setFont (FontOptions ("Silkscreen", "Regular", 15));
     g.drawFittedText (currentVersionText, 40, 40, getWidth() - 72, getHeight() - 60, Justification::bottomRight, 100);
@@ -75,8 +75,8 @@ void GraphViewport::resized()
 
 void GraphViewport::lookAndFeelChanged()
 {
-    //if (findColour(ThemeColors::highlightedFill) == Colour(138, 193, 232)) // light mode
-    //    current_logo = &color_logo;
+    //if (findColour(ThemeColours::highlightedFill) == Colour(138, 193, 232)) // light mode
+    //    current_logo = &colour_logo;
     //else
     //    current_logo = &bw_logo;
 }
@@ -309,7 +309,7 @@ void GraphViewer::paint (Graphics& g)
     // Draw connections
     const int numAvailableNodes = availableNodes.size();
 
-    Colour pathColor = findColour (ThemeColors::defaultFill);
+    Colour pathColour = findColour (ThemeColours::defaultFill);
 
     for (int i = 0; i < numAvailableNodes; ++i)
     {
@@ -325,15 +325,15 @@ void GraphViewer::paint (Graphics& g)
             linePath.startNewSubPath (startPoint);
             linePath.lineTo (endPoint);
 
-            g.setColour (pathColor);
+            g.setColour (pathColour);
             PathStrokeType stroke1 (3.5f);
             g.strokePath (linePath, stroke1);
 
-            Colour ellipseColour = findColour (ThemeColors::defaultFill);
-            ColourGradient ellipseGradient = ColourGradient (pathColor.brighter (0.8f),
+            Colour ellipseColour = findColour (ThemeColours::defaultFill);
+            ColourGradient ellipseGradient = ColourGradient (pathColour.brighter (0.8f),
                                                              startPoint.x - 10.0f,
                                                              startPoint.y,
-                                                             pathColor,
+                                                             pathColour,
                                                              startPoint.x,
                                                              startPoint.y,
                                                              true);
@@ -348,7 +348,7 @@ void GraphViewer::paint (Graphics& g)
             int level = rootProcessors.indexOf (nodeProcessor);
             static const String letters = "ABCDEFGHI";
 
-            g.setColour (findColour (ThemeColors::defaultText));
+            g.setColour (findColour (ThemeColours::defaultText));
             g.setFont (FontOptions ("Silkscreen", "Regular", 14));
             g.drawText (String::charToString (letters[level]), startPoint.x - 20, startPoint.y - 10, 20, 18, Justification::centred, true);
         }
@@ -380,7 +380,7 @@ void GraphViewer::paint (Graphics& g)
             continue;
 
         // Draw drop shadow for node
-        DropShadow (findColour (ThemeColors::dropShadowColor), 10, Point<int> (2, 8))
+        DropShadow (findColour (ThemeColours::dropShadowColour), 10, Point<int> (2, 8))
             .drawForRectangle (g, availableNodes[i]->getBounds().reduced (1));
     }
 }
@@ -414,7 +414,7 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
 
     if (availableNodes[node1]->getProcessor()->isEmpty())
     {
-        g.setColour (findColour (ThemeColors::defaultFill));
+        g.setColour (findColour (ThemeColours::defaultFill));
         Path dashedLinePath;
         PathStrokeType stroke3 (2.0f);
         const float dashLengths[2] = { 5.0f, 5.0f };
@@ -424,7 +424,7 @@ void GraphViewer::connectNodes (int node1, int node2, Graphics& g)
     }
     else
     {
-        g.setColour (findColour (ThemeColors::defaultFill));
+        g.setColour (findColour (ThemeColours::defaultFill));
         PathStrokeType stroke3 (3.5f);
         Path arrowPath;
         stroke3.createStrokedPath (arrowPath, linePath);
@@ -548,8 +548,8 @@ DataStreamInfo::~DataStreamInfo()
 
 void DataStreamInfo::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::componentBackground));
-    g.setColour (findColour (ThemeColors::outline));
+    g.fillAll (findColour (ThemeColours::componentBackground));
+    g.setColour (findColour (ThemeColours::outline));
     g.fillRect (25, 0, 1, 60);
 
     int numEventChannels = stream->getEventChannels().size();
@@ -559,7 +559,7 @@ void DataStreamInfo::paint (Graphics& g)
     String spikeText = numSpikeChannels == 1 ? "Spike Channel" : "Spike Channels";
 
     g.setFont (FontOptions ("Inter", "Medium", 14.0f));
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
     g.drawText ("@ " + String (stream->getSampleRate()) + " Hz", 30, 0, getWidth() - 30, 20, Justification::left);
     g.drawText (ttlText, 30, 20, getWidth() - 30, 20, Justification::left);
     g.drawText (spikeText, 30, 40, getWidth() - 30, 20, Justification::left);
@@ -672,7 +672,7 @@ ProcessorParameterComponent::~ProcessorParameterComponent()
 
 void ProcessorParameterComponent::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::componentBackground));
+    g.fillAll (findColour (ThemeColours::componentBackground));
 }
 
 void ProcessorParameterComponent::updateView()
@@ -709,21 +709,21 @@ int DataStreamButton::getDesiredHeight() const
 
 void DataStreamButton::paintButton (Graphics& g, bool isHighlighted, bool isDown)
 {
-    g.setColour (findColour (ThemeColors::componentBackground));
+    g.setColour (findColour (ThemeColours::componentBackground));
     g.fillRect (0, 0, 25, getHeight());
 
-    g.setColour (editor->getBackgroundColor().withAlpha (0.5f));
+    g.setColour (editor->getBackgroundColour().withAlpha (0.5f));
 
     g.fillRect (25, 0, getWidth() - 25, getHeight());
 
-    g.setColour (findColour (ThemeColors::outline));
+    g.setColour (findColour (ThemeColours::outline));
     g.fillRect (25, 0, 1, getHeight());
     g.fillRect (0, 0, getWidth(), 1);
 
     if (getToggleState())
         g.fillRect (0, getHeight() - 1, getWidth(), 1);
 
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
 
     if (getToggleState())
         g.fillPath (pathOpen);
@@ -1168,34 +1168,34 @@ String GraphNode::getInfoString()
 
 void GraphNode::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::componentParentBackground));
+    g.fillAll (findColour (ThemeColours::componentParentBackground));
     //g.setFont(Font("Inter", "Medium", 14));
 
     g.setFont (FontOptions ("Fira Code", "Regular", 13.0f));
 
     if (processor->isEmpty())
     {
-        g.setColour (findColour (ThemeColors::defaultFill));
+        g.setColour (findColour (ThemeColours::defaultFill));
         g.drawRoundedRectangle (1, 1, getWidth() - 2, 18, 5.0f, 2.0f);
 
-        g.setColour (findColour (ThemeColors::defaultText));
+        g.setColour (findColour (ThemeColours::defaultText));
         g.drawFittedText ("No Source", 10, 0, getWidth() - 10, 20, Justification::centredLeft, 1);
     }
     else
     {
-        g.setColour (findColour (ThemeColors::componentBackground));
+        g.setColour (findColour (ThemeColours::componentBackground));
         g.fillRect (0, 0, 25, 20);
-        g.setColour (editor->getBackgroundColor());
+        g.setColour (editor->getBackgroundColour());
         g.fillRect (25, 0, getWidth() - 25, 20);
-        g.setColour (findColour (ThemeColors::outline));
+        g.setColour (findColour (ThemeColours::outline));
         g.fillRect (25, 0, 1, getHeight());
 
         if (processorInfoVisible)
             g.fillRect (0, 19, getWidth(), 1);
 
-        g.setColour (findColour (ThemeColors::defaultText)); // : editor->getBackgroundColor());
+        g.setColour (findColour (ThemeColours::defaultText)); // : editor->getBackgroundColour());
         g.drawText (String (nodeId), 1, 1, 23, 20, Justification::centred, true);
-        g.setColour (Colours::white); // : editor->getBackgroundColor());
+        g.setColour (Colours::white); // : editor->getBackgroundColour());
         g.setFont (FontOptions ("CP Mono", "Plain", 15.0f));
         g.drawText (getName().toUpperCase(), 30, 1, getWidth() - 30, 20, Justification::left, true);
     }
@@ -1214,7 +1214,7 @@ void GraphNode::paintOverChildren (Graphics& g)
     fakeRoundedCorners.setUsingNonZeroWinding (false); //The secret sauce
     fakeRoundedCorners.addRoundedRectangle (bounds, cornerSize); //subtract this shape
 
-    g.setColour (findColour (ThemeColors::componentParentBackground));
+    g.setColour (findColour (ThemeColours::componentParentBackground));
     g.fillPath (fakeRoundedCorners);
 
     if (isMouseOver)

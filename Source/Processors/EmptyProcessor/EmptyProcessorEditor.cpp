@@ -38,7 +38,7 @@ void EmptyProcessorEditor::paint (Graphics& g)
     if (getSelectionState())
         g.setColour (Colours::yellow);
     else
-        g.setColour (findColour (ThemeColors::componentBackground));
+        g.setColour (findColour (ThemeColours::componentBackground));
 
     g.drawRoundedRectangle (2, 2, getWidth() - 4, getHeight() - 4, 5.0f, 2.0f);
     g.drawHorizontalLine (23, 2, getWidth() - 2);

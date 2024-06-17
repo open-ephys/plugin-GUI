@@ -56,7 +56,7 @@ void MessageWindow::launch()
     options.content->setSize (area.getWidth(), area.getHeight());
 
     options.dialogTitle = "Message Window";
-    options.dialogBackgroundColour = messageWindowComponent->findColour (ThemeColors::componentBackground);
+    options.dialogBackgroundColour = messageWindowComponent->findColour (ThemeColours::componentBackground);
     options.escapeKeyTriggersCloseButton = true;
     options.useNativeTitleBar = false;
     options.resizable = false;
@@ -78,16 +78,16 @@ MessageWindowComponent::MessageWindowComponent()
 
     timestampResetButton = std::make_unique<TextButton> ("Reset Timestamp Button");
     timestampResetButton->setButtonText ("Reset");
-    timestampResetButton->setColour (TextButton::buttonColourId, findColour (ThemeColors::highlightedFill));
+    timestampResetButton->setColour (TextButton::buttonColourId, findColour (ThemeColours::highlightedFill));
     timestampResetButton->addListener (this);
     if (CoreServices::getRecordingStatus())
         addAndMakeVisible (timestampResetButton.get());
 
     messageLabel = std::make_unique<Label> ("Message");
     messageLabel->setFont (FontOptions { "Inter", "Regular", 18.0f });
-    messageLabel->setColour (Label::backgroundColourId, findColour (ThemeColors::componentBackground));
-    messageLabel->setColour (Label::outlineColourId, findColour (ThemeColors::componentParentBackground));
-    messageLabel->setColour (Label::outlineWhenEditingColourId, findColour (ThemeColors::menuHighlightBackground));
+    messageLabel->setColour (Label::backgroundColourId, findColour (ThemeColours::componentBackground));
+    messageLabel->setColour (Label::outlineColourId, findColour (ThemeColours::componentParentBackground));
+    messageLabel->setColour (Label::outlineWhenEditingColourId, findColour (ThemeColours::menuHighlightBackground));
     messageLabel->setJustificationType (Justification::left);
     messageLabel->setEditable (true);
     messageLabel->addListener (this);
@@ -95,7 +95,7 @@ MessageWindowComponent::MessageWindowComponent()
 
     sendMessageButton = std::make_unique<TextButton> ("Send Message Button");
     sendMessageButton->setButtonText ("Send");
-    sendMessageButton->setColour (TextButton::buttonColourId, findColour (ThemeColors::highlightedFill));
+    sendMessageButton->setColour (TextButton::buttonColourId, findColour (ThemeColours::highlightedFill));
     sendMessageButton->setColour (TextButton::textColourOnId, Colours::black);
     sendMessageButton->addListener (this);
     sendMessageButton->setEnabled (CoreServices::getAcquisitionStatus());
@@ -132,7 +132,7 @@ void MessageWindowComponent::resetTime()
     else
     {
         timestampLabel->setText (createTimeString (CoreServices::getRecordingTime()), dontSendNotification);
-        timestampLabel->setColour (Label::textColourId, findColour (ThemeColors::defaultText));
+        timestampLabel->setColour (Label::textColourId, findColour (ThemeColours::defaultText));
     }
 
     messageTimeMillis = CoreServices::getSystemTime();
@@ -178,11 +178,11 @@ String MessageWindowComponent::createTimeString (float milliseconds)
 
 void MessageWindowComponent::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::componentParentBackground));
-    g.setColour (findColour (ThemeColors::componentBackground));
+    g.fillAll (findColour (ThemeColours::componentParentBackground));
+    g.setColour (findColour (ThemeColours::componentBackground));
     g.fillRect (10, 0, getWidth() - 20, getHeight() - 10);
 
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
     g.setFont (FontOptions { "Inter", "Regular", 14.0f });
     g.drawMultiLineText ("This window is used to broadcast messages "
                          "to all processors in the signal chain. "
@@ -199,7 +199,7 @@ void MessageWindowComponent::paint (Graphics& g)
                           20,
                           143);
 
-    g.setColour (findColour (ThemeColors::outline).withAlpha (0.5f));
+    g.setColour (findColour (ThemeColours::outline).withAlpha (0.5f));
     g.drawRect (messageLabel->getBounds());
 }
 

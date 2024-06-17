@@ -288,8 +288,8 @@ public:
     /** Returns true if the parameter is enabled */
     bool isEnabled() { return isEnabledFlag; }
 
-    /** Returns the color any visualization of this parameter should use */
-    Colour getColor();
+    /** Returns the colour any visualization of this parameter should use */
+    Colour getColour();
 
     /** Set the type of the parameter editor used for this parameter 
      * Used by the GenericEditor to set which parameter editor to use when creating default editors 

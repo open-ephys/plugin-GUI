@@ -52,14 +52,14 @@ void LfpTimescale::paint (Graphics& g)
         if (canvasSplit->getSelectedState())
             g.setColour (Colour (25, 25, 25));
         else
-            g.setColour (findColour (ThemeColors::defaultText));
+            g.setColour (findColour (ThemeColours::defaultText));
     }
     else
     {
         if (canvasSplit->getSelectedState())
             g.setColour (Colour (25, 25, 25).withAlpha (0.5f));
         else
-            g.setColour (findColour (ThemeColors::defaultText).withAlpha (0.5f));
+            g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
     }
 
     const String timeScaleUnitLabel = (timebase >= 2) ? ("s") : ("ms");

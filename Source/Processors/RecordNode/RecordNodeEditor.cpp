@@ -158,7 +158,7 @@ void RecordChannelsParameterEditor::buttonClicked (Button* label)
 
     auto* channelSelector = new PopupChannelSelector (label, this, channelStates);
 
-    channelSelector->setChannelButtonColour (param->getColor());
+    channelSelector->setChannelButtonColour (param->getColour());
 
     CoreServices::getPopupManager()->showPopup (std::unique_ptr<PopupComponent> (channelSelector), monitor.get());
 }
@@ -183,7 +183,7 @@ void RecordToggleButton::paintButton (Graphics& g, bool isMouseOver, bool isButt
     g.fillRoundedRectangle (0, 0, getWidth(), getHeight(), 0.2 * getWidth());
 
     if (! getToggleState())
-        g.setColour (findColour (ThemeColors::widgetBackground));
+        g.setColour (findColour (ThemeColours::widgetBackground));
     else
         g.setColour (Colour (255, 0, 0));
 
@@ -297,7 +297,7 @@ void RecordNodeEditor::updateFifoMonitors()
 
         // Add a recording channel selector for each stream
         Parameter* channels = recordNode->getDataStream (streamId)->getParameter ("channels");
-        recordNode->getDataStream (streamId)->setColor ("channels", getLookAndFeel().findColour (ProcessorColor::IDs::RECORD_COLOR));
+        recordNode->getDataStream (streamId)->setColour ("channels", getLookAndFeel().findColour (ProcessorColour::IDs::RECORD_COLOUR));
         addCustomParameterEditor (new RecordChannelsParameterEditor (recordNode, channels), 18 + streamCount * 20, 32);
         parameterEditors.getLast()->setVisible (! getCollapsedState());
         parameterEditors.getLast()->disableUpdateOnSelectedStreamChanged();

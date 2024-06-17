@@ -107,7 +107,7 @@ public:
     /** Caches a new channel height without updating the channels */
     void cacheNewChannelHeight (int r);
 
-    /** Gets a pointer to the current color scheme */
+    /** Gets a pointer to the current colour scheme */
     ChannelColourScheme* getColourSchemePtr();
 
     /** Sets whether the input should be inverted */
@@ -137,19 +137,19 @@ public:
     /** Set the amount of channels to skip (hide) between each that is displayed */
     void setChannelDisplaySkipAmount (int skipAmt);
 
-    /** Updates colors across channels */
-    void setColors();
+    /** Updates colours across channels */
+    void setColours();
 
-    /** Sets the index of the selected color scheme */
+    /** Sets the index of the selected colour scheme */
     void setActiveColourSchemeIdx (int index);
 
-    /** Gets the index of the selected color scheme */
+    /** Gets the index of the selected colour scheme */
     int getActiveColourSchemeIdx();
 
-    /** Returns the number of available color schemes*/
+    /** Returns the number of available colour schemes*/
     int getNumColourSchemes();
 
-    /** Returns the names of the available color schemes*/
+    /** Returns the names of the available colour schemes*/
     Array<String> getColourSchemeNameArray();
 
     /** Sets whether events are displayed for a particular ttl line*/
@@ -158,11 +158,11 @@ public:
     /** Returns whether events are displayed for a particular ttl line */
     bool getEventDisplayState (int ttlLine);
 
-    /** Returns the number of adjacent channels of each color */
-    int getColorGrouping();
+    /** Returns the number of adjacent channels of each colour */
+    int getColourGrouping();
 
-    /** Sets the number of adjacent channels of each color */
-    void setColorGrouping (int i);
+    /** Sets the number of adjacent channels of each colour */
+    void setColourGrouping (int i);
 
     /** Sets whether a particular channel is enabled */
     void setEnabledState (bool state, int chan, bool updateSavedChans = true);
@@ -245,10 +245,10 @@ public:
     /** Returns a const pointer to the internally managed plotter method class */
     LfpBitmapPlotter* const getPlotterPtr() const;
 
-    /** Current background color (based on the selected color scheme)*/
+    /** Current background colour (based on the selected colour scheme)*/
     Colour backgroundColour;
 
-    /** Array of channel colors (based on the selected color scheme*/
+    /** Array of channel colours (based on the selected colour scheme*/
     Array<Colour> channelColours;
 
     /** All available channels (even ones that are not drawn) */
@@ -302,7 +302,7 @@ private:
     int pausePoint;
     int lastFillFrom;
     bool canRefresh;
-    bool colorSchemeChanged = false;
+    bool colourSchemeChanged = false;
 
     float timeOffset = 0.0f;
     bool timeOffsetChanged;
@@ -321,7 +321,7 @@ private:
 
     int totalHeight;
 
-    int colorGrouping;
+    int colourGrouping;
 
     bool channelsReversed;
     bool channelsOrderedByDepth;

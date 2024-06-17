@@ -75,7 +75,7 @@ LfpDisplay::LfpDisplay (LfpDisplaySplitter* c, Viewport* v)
 
     activeColourScheme = 0;
     totalHeight = 0;
-    colorGrouping = 1;
+    colourGrouping = 1;
 
     //hand-built palette (used for event channels)
     channelColours.add (Colour (224, 185, 36));
@@ -123,16 +123,16 @@ int LfpDisplay::getNumChannels()
     return numChans;
 }
 
-int LfpDisplay::getColorGrouping()
+int LfpDisplay::getColourGrouping()
 {
-    return colorGrouping;
+    return colourGrouping;
 }
 
-void LfpDisplay::setColorGrouping (int i)
+void LfpDisplay::setColourGrouping (int i)
 {
-    colorGrouping = i;
+    colourGrouping = i;
     getColourSchemePtr()->setColourGrouping (i);
-    setColors(); // so that channel colors get re-assigned
+    setColours(); // so that channel colours get re-assigned
 }
 
 ChannelColourScheme* LfpDisplay::getColourSchemePtr()
@@ -203,7 +203,7 @@ void LfpDisplay::setNumChannels (int newChannelCount)
     numChans = newChannelCount;
 }
 
-void LfpDisplay::setColors()
+void LfpDisplay::setColours()
 {
     if (drawableChannels.size() == 0)
         return;
@@ -230,7 +230,7 @@ void LfpDisplay::setColors()
     else
     {
         canvasSplit->fullredraw = true;
-        colorSchemeChanged = true;
+        colourSchemeChanged = true;
 
         refresh();
     }
@@ -466,9 +466,9 @@ void LfpDisplay::refresh()
 
         repaint();
 
-        /* if (colorSchemeChanged)
+        /* if (colourSchemeChanged)
         {
-            colorSchemeChanged = false;
+            colourSchemeChanged = false;
             lastBitmapIndex += totalPixelsToFill;
             lastBitmapIndex %= totalXPixels;
         }*/
@@ -898,7 +898,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
 
                 viewport->setViewPosition (0, 0);
 
-                setColors();
+                setColours();
 
                 // this guards against an exception where the editor sets the drawable samplerate
                 // before the lfpDisplay is fully initialized
@@ -1034,7 +1034,7 @@ void LfpDisplay::rebuildDrawableChannelsList()
         canvasSplit->resizeToChannels();
     }
 
-    setColors();
+    setColours();
 
     resized();
 

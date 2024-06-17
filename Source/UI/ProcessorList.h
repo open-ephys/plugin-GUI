@@ -71,10 +71,10 @@ public:
     /** Draws the ProcessorList. */
     void paint (Graphics& g);
 
-    /** Gets the colors of the different types of processors.*/
+    /** Gets the colours of the different types of processors.*/
     Array<Colour> getColours();
 
-    /** Sets the colors of the different types of processors.*/
+    /** Sets the colours of the different types of processors.*/
     void setColours (Array<Colour>);
 
     /** Saves the ProcessorList state. */
@@ -117,7 +117,7 @@ private:
     /** Sets the appropriate viewport for drawing.*/
     void setViewport (Graphics& g, bool);
 
-    int currentColor;
+    int currentColour;
 
     /** Deselects all items within the ProcessorList.*/
     void clearSelectionState();
@@ -230,8 +230,8 @@ public:
     /** Sets the name of the parent of a ProcessorListItem. */
     void setParentName (const String& name);
 
-    /** Determines the color of the ProcessorListItem (based on enumerator defined in setParentName() method). */
-    int colorId;
+    /** Determines the colour of the ProcessorListItem (based on enumerator defined in setParentName() method). */
+    int colourId;
 
     const int index;
 

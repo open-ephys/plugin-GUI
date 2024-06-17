@@ -72,170 +72,170 @@ CustomLookAndFeel::CustomLookAndFeel()
       interSemiBold (Typeface::createSystemTypefaceFor (BinaryData::InterSemiBold_ttf,
                                                         BinaryData::InterSemiBold_ttfSize))
 {
-    initializeColors();
+    initializeColours();
 
     setTheme (MEDIUM);
 }
 
 CustomLookAndFeel::~CustomLookAndFeel() {}
 
-void CustomLookAndFeel::initializeColors()
+void CustomLookAndFeel::initializeColours()
 {
-    // Processor colors are consistent across all themes, but
+    // Processor colours are consistent across all themes, but
     // can be customized by right-clicking on the processor list
-    setColour (ProcessorColor::IDs::FILTER_COLOR, Colour (0, 160, 225));
-    setColour (ProcessorColor::IDs::SINK_COLOR, Colour (0, 166, 81));
-    setColour (ProcessorColor::IDs::SOURCE_COLOR, Colour (241, 90, 41));
-    setColour (ProcessorColor::IDs::UTILITY_COLOR, Colour (90, 110, 110));
-    setColour (ProcessorColor::IDs::RECORD_COLOR, Colour (255, 0, 0));
-    setColour (ProcessorColor::IDs::AUDIO_COLOR, Colour (0, 0, 0));
-    setColour (ProcessorColor::IDs::SYNC_COLOR, Colour (255, 165, 0));
+    setColour (ProcessorColour::IDs::FILTER_COLOUR, Colour (0, 160, 225));
+    setColour (ProcessorColour::IDs::SINK_COLOUR, Colour (0, 166, 81));
+    setColour (ProcessorColour::IDs::SOURCE_COLOUR, Colour (241, 90, 41));
+    setColour (ProcessorColour::IDs::UTILITY_COLOUR, Colour (90, 110, 110));
+    setColour (ProcessorColour::IDs::RECORD_COLOUR, Colour (255, 0, 0));
+    setColour (ProcessorColour::IDs::AUDIO_COLOUR, Colour (0, 0, 0));
+    setColour (ProcessorColour::IDs::SYNC_COLOUR, Colour (255, 165, 0));
 
-    themeColorsMap[MEDIUM] = {
-        { ThemeColors::componentBackground, Colour (143, 143, 143) },
-        { ThemeColors::componentParentBackground, Colour (58, 58, 58) },
-        { ThemeColors::windowBackground, Colour (40, 40, 40) },
-        { ThemeColors::widgetBackground, Colour (190, 190, 190) },
-        { ThemeColors::menuBackground, Colour (140, 140, 140) },
-        { ThemeColors::menuHighlightText, Colours::black },
-        { ThemeColors::menuHighlightBackground, Colour (244, 148, 32) },
-        { ThemeColors::outline, Colours::black },
-        { ThemeColors::defaultText, Colours::black },
-        { ThemeColors::defaultFill, Colour (112, 112, 112) },
-        { ThemeColors::highlightedText, Colours::black },
-        { ThemeColors::highlightedFill, Colour (244, 148, 32) },
-        { ThemeColors::dropShadowColor, Colours::black.withAlpha (0.5f) }
+    themeColoursMap[MEDIUM] = {
+        { ThemeColours::componentBackground, Colour (143, 143, 143) },
+        { ThemeColours::componentParentBackground, Colour (58, 58, 58) },
+        { ThemeColours::windowBackground, Colour (40, 40, 40) },
+        { ThemeColours::widgetBackground, Colour (190, 190, 190) },
+        { ThemeColours::menuBackground, Colour (140, 140, 140) },
+        { ThemeColours::menuHighlightText, Colours::black },
+        { ThemeColours::menuHighlightBackground, Colour (244, 148, 32) },
+        { ThemeColours::outline, Colours::black },
+        { ThemeColours::defaultText, Colours::black },
+        { ThemeColours::defaultFill, Colour (112, 112, 112) },
+        { ThemeColours::highlightedText, Colours::black },
+        { ThemeColours::highlightedFill, Colour (244, 148, 32) },
+        { ThemeColours::dropShadowColour, Colours::black.withAlpha (0.5f) }
     };
 
-    themeColorsMap[DARK] = {
-        { ThemeColors::componentBackground, Colour (45, 45, 45) },
-        { ThemeColors::componentParentBackground, Colour (30, 30, 30).darker (0.3f) },
-        { ThemeColors::windowBackground, Colour (24, 24, 24) },
-        { ThemeColors::widgetBackground, Colour (40, 40, 40).darker() },
-        { ThemeColors::menuBackground, Colour (30, 30, 30) },
-        { ThemeColors::menuHighlightText, Colour (20, 20, 20) },
-        { ThemeColors::menuHighlightBackground, Colour (153, 200, 214) },
-        { ThemeColors::outline, Colours::black },
-        { ThemeColors::defaultText, Colour (224, 224, 224) },
-        { ThemeColors::defaultFill, Colour (80, 80, 80) },
-        { ThemeColors::highlightedText, Colour (240, 240, 240) },
-        { ThemeColors::highlightedFill, Colour (230, 152, 63) },
-        { ThemeColors::dropShadowColor, Colours::black.withAlpha (0.75f) }
+    themeColoursMap[DARK] = {
+        { ThemeColours::componentBackground, Colour (45, 45, 45) },
+        { ThemeColours::componentParentBackground, Colour (30, 30, 30).darker (0.3f) },
+        { ThemeColours::windowBackground, Colour (24, 24, 24) },
+        { ThemeColours::widgetBackground, Colour (40, 40, 40).darker() },
+        { ThemeColours::menuBackground, Colour (30, 30, 30) },
+        { ThemeColours::menuHighlightText, Colour (20, 20, 20) },
+        { ThemeColours::menuHighlightBackground, Colour (153, 200, 214) },
+        { ThemeColours::outline, Colours::black },
+        { ThemeColours::defaultText, Colour (224, 224, 224) },
+        { ThemeColours::defaultFill, Colour (80, 80, 80) },
+        { ThemeColours::highlightedText, Colour (240, 240, 240) },
+        { ThemeColours::highlightedFill, Colour (230, 152, 63) },
+        { ThemeColours::dropShadowColour, Colours::black.withAlpha (0.75f) }
     };
 
-    themeColorsMap[LIGHT] = {
-        { ThemeColors::componentBackground, Colour (225, 225, 225) },
-        { ThemeColors::componentParentBackground, Colour (225, 225, 225).darker() },
-        { ThemeColors::windowBackground, Colour (176, 176, 176) },
-        { ThemeColors::widgetBackground, Colour (225, 225, 225).brighter (0.6f) },
-        { ThemeColors::menuBackground, Colour (225, 225, 225) },
-        { ThemeColors::menuHighlightText, Colours::black },
-        { ThemeColors::menuHighlightBackground, Colour (138, 193, 232) },
-        { ThemeColors::outline, Colours::black },
-        { ThemeColors::defaultText, Colours::black },
-        { ThemeColors::defaultFill, Colour (110, 110, 110) },
-        { ThemeColors::highlightedText, Colours::black },
-        { ThemeColors::highlightedFill, Colour (138, 193, 232) },
-        { ThemeColors::dropShadowColor, Colours::black.withAlpha (0.4f) }
+    themeColoursMap[LIGHT] = {
+        { ThemeColours::componentBackground, Colour (225, 225, 225) },
+        { ThemeColours::componentParentBackground, Colour (225, 225, 225).darker() },
+        { ThemeColours::windowBackground, Colour (176, 176, 176) },
+        { ThemeColours::widgetBackground, Colour (225, 225, 225).brighter (0.6f) },
+        { ThemeColours::menuBackground, Colour (225, 225, 225) },
+        { ThemeColours::menuHighlightText, Colours::black },
+        { ThemeColours::menuHighlightBackground, Colour (138, 193, 232) },
+        { ThemeColours::outline, Colours::black },
+        { ThemeColours::defaultText, Colours::black },
+        { ThemeColours::defaultFill, Colour (110, 110, 110) },
+        { ThemeColours::highlightedText, Colours::black },
+        { ThemeColours::highlightedFill, Colour (138, 193, 232) },
+        { ThemeColours::dropShadowColour, Colours::black.withAlpha (0.4f) }
     };
 }
 
-void CustomLookAndFeel::setTheme (ColorTheme theme)
+void CustomLookAndFeel::setTheme (ColourTheme theme)
 {
-    auto currentThemeColors = themeColorsMap[theme];
+    auto currentThemeColours = themeColoursMap[theme];
 
-    for (const auto& [colorId, color] : currentThemeColors)
+    for (const auto& [colourId, colour] : currentThemeColours)
     {
-        setColour (colorId, color);
+        setColour (colourId, colour);
     }
 
     const Colour transparent = Colour (0x00000000);
 
-    setColour (ProcessorColor::IDs::PROCESSOR_COLOR, currentThemeColors[ThemeColors::componentBackground]);
+    setColour (ProcessorColour::IDs::PROCESSOR_COLOUR, currentThemeColours[ThemeColours::componentBackground]);
 
-    setColour (TextButton::buttonColourId, currentThemeColors[ThemeColors::widgetBackground]);
-    setColour (TextButton::buttonOnColourId, currentThemeColors[ThemeColors::highlightedFill]);
-    setColour (TextButton::textColourOnId, currentThemeColors[ThemeColors::defaultText]);
-    setColour (TextButton::textColourOffId, currentThemeColors[ThemeColors::defaultText]);
+    setColour (TextButton::buttonColourId, currentThemeColours[ThemeColours::widgetBackground]);
+    setColour (TextButton::buttonOnColourId, currentThemeColours[ThemeColours::highlightedFill]);
+    setColour (TextButton::textColourOnId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (TextButton::textColourOffId, currentThemeColours[ThemeColours::defaultText]);
 
-    setColour (ToggleButton::textColourId, currentThemeColors[ThemeColors::defaultText]);
-    setColour (ToggleButton::tickColourId, currentThemeColors[ThemeColors::defaultText]);
-    setColour (ToggleButton::tickDisabledColourId, currentThemeColors[ThemeColors::defaultText].withAlpha (0.5f));
+    setColour (ToggleButton::textColourId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (ToggleButton::tickColourId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (ToggleButton::tickDisabledColourId, currentThemeColours[ThemeColours::defaultText].withAlpha (0.5f));
 
-    setColour (TextEditor::backgroundColourId, currentThemeColors[ThemeColors::widgetBackground]);
-    setColour (TextEditor::textColourId, currentThemeColors[ThemeColors::defaultText]);
-    setColour (TextEditor::highlightColourId, currentThemeColors[ThemeColors::widgetBackground].contrasting (0.5f).withAlpha (0.4f));
-    setColour (TextEditor::highlightedTextColourId, currentThemeColors[ThemeColors::highlightedText]);
-    setColour (TextEditor::outlineColourId, currentThemeColors[ThemeColors::outline]);
-    setColour (TextEditor::focusedOutlineColourId, currentThemeColors[ThemeColors::outline]);
+    setColour (TextEditor::backgroundColourId, currentThemeColours[ThemeColours::widgetBackground]);
+    setColour (TextEditor::textColourId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (TextEditor::highlightColourId, currentThemeColours[ThemeColours::widgetBackground].contrasting (0.5f).withAlpha (0.4f));
+    setColour (TextEditor::highlightedTextColourId, currentThemeColours[ThemeColours::highlightedText]);
+    setColour (TextEditor::outlineColourId, currentThemeColours[ThemeColours::outline]);
+    setColour (TextEditor::focusedOutlineColourId, currentThemeColours[ThemeColours::outline]);
     setColour (TextEditor::shadowColourId, transparent);
 
-    setColour (CaretComponent::caretColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour (CaretComponent::caretColourId, currentThemeColours[ThemeColours::defaultText]);
 
     setColour (Label::backgroundColourId, transparent);
-    setColour (Label::textColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour (Label::textColourId, currentThemeColours[ThemeColours::defaultText]);
     setColour (Label::outlineColourId, transparent);
-    setColour (Label::textWhenEditingColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour (Label::textWhenEditingColourId, currentThemeColours[ThemeColours::defaultText]);
 
     setColour (ScrollBar::backgroundColourId, transparent);
-    setColour (ScrollBar::thumbColourId, currentThemeColors[ThemeColors::defaultFill]);
+    setColour (ScrollBar::thumbColourId, currentThemeColours[ThemeColours::defaultFill]);
     setColour (ScrollBar::trackColourId, transparent);
 
-    setColour (PopupMenu::backgroundColourId, currentThemeColors[ThemeColors::menuBackground]);
-    setColour (PopupMenu::textColourId, currentThemeColors[ThemeColors::defaultText]);
-    setColour (PopupMenu::headerTextColourId, currentThemeColors[ThemeColors::defaultText]);
-    setColour (PopupMenu::highlightedTextColourId, currentThemeColors[ThemeColors::menuHighlightText]);
-    setColour (PopupMenu::highlightedBackgroundColourId, currentThemeColors[ThemeColors::menuHighlightBackground]);
+    setColour (PopupMenu::backgroundColourId, currentThemeColours[ThemeColours::menuBackground]);
+    setColour (PopupMenu::textColourId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (PopupMenu::headerTextColourId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (PopupMenu::highlightedTextColourId, currentThemeColours[ThemeColours::menuHighlightText]);
+    setColour (PopupMenu::highlightedBackgroundColourId, currentThemeColours[ThemeColours::menuHighlightBackground]);
 
-    setColour (ComboBox::buttonColourId, currentThemeColors[ThemeColors::defaultText]);
-    setColour (ComboBox::outlineColourId, currentThemeColors[ThemeColors::outline]);
-    setColour (ComboBox::textColourId, currentThemeColors[ThemeColors::defaultText]);
-    setColour (ComboBox::backgroundColourId, currentThemeColors[ThemeColors::widgetBackground]);
-    setColour (ComboBox::arrowColourId, currentThemeColors[ThemeColors::defaultText]);
-    setColour (ComboBox::focusedOutlineColourId, currentThemeColors[ThemeColors::highlightedFill]);
+    setColour (ComboBox::buttonColourId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (ComboBox::outlineColourId, currentThemeColours[ThemeColours::outline]);
+    setColour (ComboBox::textColourId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (ComboBox::backgroundColourId, currentThemeColours[ThemeColours::widgetBackground]);
+    setColour (ComboBox::arrowColourId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (ComboBox::focusedOutlineColourId, currentThemeColours[ThemeColours::highlightedFill]);
 
-    setColour (ListBox::backgroundColourId, currentThemeColors[ThemeColors::componentBackground]);
-    setColour (ListBox::outlineColourId, currentThemeColors[ThemeColors::outline]);
-    setColour (ListBox::textColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour (ListBox::backgroundColourId, currentThemeColours[ThemeColours::componentBackground]);
+    setColour (ListBox::outlineColourId, currentThemeColours[ThemeColours::outline]);
+    setColour (ListBox::textColourId, currentThemeColours[ThemeColours::defaultText]);
 
-    setColour (Slider::backgroundColourId, currentThemeColors[ThemeColors::widgetBackground]);
-    setColour (Slider::thumbColourId, currentThemeColors[ThemeColors::defaultFill]);
-    setColour (Slider::trackColourId, currentThemeColors[ThemeColors::highlightedFill]);
-    setColour (Slider::rotarySliderFillColourId, currentThemeColors[ThemeColors::highlightedFill]);
-    setColour (Slider::rotarySliderOutlineColourId, currentThemeColors[ThemeColors::widgetBackground]);
-    setColour (Slider::textBoxTextColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour (Slider::backgroundColourId, currentThemeColours[ThemeColours::widgetBackground]);
+    setColour (Slider::thumbColourId, currentThemeColours[ThemeColours::defaultFill]);
+    setColour (Slider::trackColourId, currentThemeColours[ThemeColours::highlightedFill]);
+    setColour (Slider::rotarySliderFillColourId, currentThemeColours[ThemeColours::highlightedFill]);
+    setColour (Slider::rotarySliderOutlineColourId, currentThemeColours[ThemeColours::widgetBackground]);
+    setColour (Slider::textBoxTextColourId, currentThemeColours[ThemeColours::defaultText]);
     setColour (Slider::textBoxBackgroundColourId, transparent);
-    setColour (Slider::textBoxHighlightColourId, currentThemeColors[ThemeColors::defaultFill].withAlpha (0.4f));
-    setColour (Slider::textBoxOutlineColourId, currentThemeColors[ThemeColors::outline]);
+    setColour (Slider::textBoxHighlightColourId, currentThemeColours[ThemeColours::defaultFill].withAlpha (0.4f));
+    setColour (Slider::textBoxOutlineColourId, currentThemeColours[ThemeColours::outline]);
 
-    setColour (ResizableWindow::backgroundColourId, currentThemeColors[ThemeColors::componentBackground]);
+    setColour (ResizableWindow::backgroundColourId, currentThemeColours[ThemeColours::componentBackground]);
 
-    setColour (DocumentWindow::textColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour (DocumentWindow::textColourId, currentThemeColours[ThemeColours::defaultText]);
 
-    setColour (AlertWindow::backgroundColourId, currentThemeColors[ThemeColors::componentBackground]);
-    setColour (AlertWindow::textColourId, currentThemeColors[ThemeColors::defaultText]);
-    setColour (AlertWindow::outlineColourId, currentThemeColors[ThemeColors::outline]);
+    setColour (AlertWindow::backgroundColourId, currentThemeColours[ThemeColours::componentBackground]);
+    setColour (AlertWindow::textColourId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (AlertWindow::outlineColourId, currentThemeColours[ThemeColours::outline]);
 
-    setColour (ProgressBar::backgroundColourId, currentThemeColors[ThemeColors::widgetBackground]);
-    setColour (ProgressBar::foregroundColourId, currentThemeColors[ThemeColors::highlightedFill]);
+    setColour (ProgressBar::backgroundColourId, currentThemeColours[ThemeColours::widgetBackground]);
+    setColour (ProgressBar::foregroundColourId, currentThemeColours[ThemeColours::highlightedFill]);
 
-    setColour (TooltipWindow::backgroundColourId, currentThemeColors[ThemeColors::widgetBackground]);
-    setColour (TooltipWindow::textColourId, currentThemeColors[ThemeColors::defaultText]);
-    setColour (TooltipWindow::outlineColourId, currentThemeColors[ThemeColors::outline]);
+    setColour (TooltipWindow::backgroundColourId, currentThemeColours[ThemeColours::widgetBackground]);
+    setColour (TooltipWindow::textColourId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (TooltipWindow::outlineColourId, currentThemeColours[ThemeColours::outline]);
 
     setColour (TabbedComponent::backgroundColourId, transparent);
     setColour (TabbedComponent::outlineColourId, transparent);
-    setColour (TabbedButtonBar::tabOutlineColourId, currentThemeColors[ThemeColors::outline].withAlpha (0.5f));
-    setColour (TabbedButtonBar::tabTextColourId, currentThemeColors[ThemeColors::defaultText].withAlpha (0.75f));
-    setColour (TabbedButtonBar::frontOutlineColourId, currentThemeColors[ThemeColors::outline]);
-    setColour (TabbedButtonBar::frontTextColourId, currentThemeColors[ThemeColors::defaultText]);
+    setColour (TabbedButtonBar::tabOutlineColourId, currentThemeColours[ThemeColours::outline].withAlpha (0.5f));
+    setColour (TabbedButtonBar::tabTextColourId, currentThemeColours[ThemeColours::defaultText].withAlpha (0.75f));
+    setColour (TabbedButtonBar::frontOutlineColourId, currentThemeColours[ThemeColours::outline]);
+    setColour (TabbedButtonBar::frontTextColourId, currentThemeColours[ThemeColours::defaultText]);
 
-    setColour (ResizableWindow::backgroundColourId, currentThemeColors[ThemeColors::windowBackground]);
+    setColour (ResizableWindow::backgroundColourId, currentThemeColours[ThemeColours::windowBackground]);
 
-    setColour (TableHeaderComponent::backgroundColourId, currentThemeColors[ThemeColors::widgetBackground]);
-    setColour (TableHeaderComponent::textColourId, currentThemeColors[ThemeColors::defaultText]);
-    setColour (TableHeaderComponent::outlineColourId, currentThemeColors[ThemeColors::outline]);
-    setColour (TableHeaderComponent::highlightColourId, currentThemeColors[ThemeColors::highlightedFill]);
+    setColour (TableHeaderComponent::backgroundColourId, currentThemeColours[ThemeColours::widgetBackground]);
+    setColour (TableHeaderComponent::textColourId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (TableHeaderComponent::outlineColourId, currentThemeColours[ThemeColours::outline]);
+    setColour (TableHeaderComponent::highlightColourId, currentThemeColours[ThemeColours::highlightedFill]);
 }
 
 //==============================================================================
@@ -696,7 +696,7 @@ Font CustomLookAndFeel::getPopupMenuFont()
 
 void CustomLookAndFeel::drawMenuBarBackground (Graphics& g, int width, int height, bool, MenuBarComponent& menuBar)
 {
-    const Colour colour (findColour (ThemeColors::menuBackground));
+    const Colour colour (findColour (ThemeColours::menuBackground));
 
     Rectangle<int> r (1, 0, width - 2, height);
 
@@ -709,7 +709,7 @@ void CustomLookAndFeel::drawMenuBarBackground (Graphics& g, int width, int heigh
 
     if (menuBar.getName().equalsIgnoreCase ("MainMenu"))
     {
-        g.setColour (findColour (ThemeColors::defaultText));
+        g.setColour (findColour (ThemeColours::defaultText));
         String ver = "v" + String (ProjectInfo::versionString);
         g.setFont (getCommonMenuFont());
         int verStrWidth = getCommonMenuFont().getStringWidth (ver);
@@ -913,7 +913,7 @@ void CustomLookAndFeel::drawProgressBar (Graphics& g, ProgressBar& progressBar, 
                 g.drawText (textToShow, 0, 0, width, height, Justification::centred, false);
             }
 
-            g.setColour (findColour (ThemeColors::outline));
+            g.setColour (findColour (ThemeColours::outline));
             g.drawRoundedRectangle (barBounds, 5.0f, 1.0f);
 
             break;
@@ -939,7 +939,7 @@ public:
 
     void paintButton (Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
     {
-        auto background = findColour (ThemeColors::widgetBackground);
+        auto background = findColour (ThemeColours::widgetBackground);
 
         // g.fillAll (background);
 
@@ -1051,7 +1051,7 @@ void CustomLookAndFeel::drawDocumentWindowTitleBar (DocumentWindow& window, Grap
 
     auto isActive = window.isActiveWindow();
 
-    g.setColour (findColour (ThemeColors::componentParentBackground));
+    g.setColour (findColour (ThemeColours::componentParentBackground));
     g.fillAll();
 
     Font font (withDefaultMetrics (FontOptions ("Inter", "Bold", (float) h * 0.65f)));
@@ -1318,7 +1318,7 @@ void CustomLookAndFeel::drawTabButton (TabBarButton& button, Graphics& g, bool i
     tabShape.applyTransform (AffineTransform::translation ((float) activeArea.getX(),
                                                            (float) activeArea.getY()));
 
-    DropShadow (findColour (ThemeColors::dropShadowColor), 8, Point<int> (0, 0)).drawForPath (g, tabShape);
+    DropShadow (findColour (ThemeColours::dropShadowColour), 8, Point<int> (0, 0)).drawForPath (g, tabShape);
 
     fillTabButtonShape (button, g, tabShape, isMouseOver, isMouseDown);
     drawTabButtonText (button, g, isMouseOver, isMouseDown);
@@ -1382,10 +1382,10 @@ void CustomLookAndFeel::drawCallOutBoxBackground (CallOutBox& box, Graphics& g, 
     g.setColour (Colours::black);
     g.drawImageAt (cachedImage, 0, 0);
 
-    g.setColour (findColour (ThemeColors::componentParentBackground).withAlpha (0.9f));
+    g.setColour (findColour (ThemeColours::componentParentBackground).withAlpha (0.9f));
     g.fillPath (path);
 
-    g.setColour (findColour (ThemeColors::outline).withAlpha (0.8f));
+    g.setColour (findColour (ThemeColours::outline).withAlpha (0.8f));
     g.strokePath (path, PathStrokeType (2.0f));
 }
 
@@ -1444,6 +1444,6 @@ void CustomLookAndFeel::fillResizableWindowBackground (Graphics& g, int /*w*/, i
 
 void CustomLookAndFeel::drawResizableWindowBorder (juce::Graphics& g, int w, int h, const juce::BorderSize<int>& border, juce::ResizableWindow& window)
 {
-    g.setColour (findColour (ThemeColors::outline).withAlpha (0.5f));
+    g.setColour (findColour (ThemeColours::outline).withAlpha (0.5f));
     g.drawRect (window.getLocalBounds().toFloat());
 }

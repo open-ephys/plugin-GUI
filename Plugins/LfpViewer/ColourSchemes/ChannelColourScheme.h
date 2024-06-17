@@ -34,7 +34,7 @@ namespace LfpViewer
 #pragma mark - LfpChannelColourScheme -
 
 /**
- Interface for a color scheme object
+ Interface for a colour scheme object
  */
 class ChannelColourScheme
 {
@@ -48,19 +48,19 @@ public:
     /** Destructor */
     virtual ~ChannelColourScheme() {}
 
-    /** Returns the color for a given channel index */
+    /** Returns the colour for a given channel index */
     virtual const Colour getColourForIndex (int index) const = 0;
 
-    /** Returns the background color*/
+    /** Returns the background colour*/
     virtual const Colour getBackgroundColour() const = 0;
 
     /** Returns the name of the colour scheme */
     String getName() { return name; }
 
-    /** Sets the number of consecutive grouped colors */
+    /** Sets the number of consecutive grouped colours */
     void setColourGrouping (int grouping);
 
-    /** Returns the numbers of consecutive grouped colors*/
+    /** Returns the numbers of consecutive grouped colours*/
     int getColourGrouping();
 
 protected:

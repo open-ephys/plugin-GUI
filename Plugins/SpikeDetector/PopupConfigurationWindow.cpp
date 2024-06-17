@@ -334,7 +334,7 @@ void ThresholdSelectorCustomComponent::paint (Graphics& g)
 
     thresholdString = thresholdString.substring (0, thresholdString.length() - 1);
 
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
     g.setFont (FontOptions ("Inter", "Regular", 14.0f));
     g.drawFittedText (thresholdString, 4, 0, getWidth() - 8, getHeight(), Justification::centredLeft, 1, 0.75f);
 }
@@ -784,11 +784,11 @@ void SpikeDetectorTableModel::paintRowBackground (Graphics& g, int rowNumber, in
     if (rowIsSelected)
     {
         if (rowNumber % 2 == 0)
-            g.fillAll (owner->findColour (ThemeColors::componentBackground));
+            g.fillAll (owner->findColour (ThemeColours::componentBackground));
         else
-            g.fillAll (owner->findColour (ThemeColors::componentBackground).darker (0.25f));
+            g.fillAll (owner->findColour (ThemeColours::componentBackground).darker (0.25f));
 
-        g.setColour (owner->findColour (ThemeColors::highlightedFill));
+        g.setColour (owner->findColour (ThemeColours::highlightedFill));
         g.drawRoundedRectangle (2, 2, width - 4, height - 4, 5, 2);
 
         return;
@@ -797,9 +797,9 @@ void SpikeDetectorTableModel::paintRowBackground (Graphics& g, int rowNumber, in
     if (spikeChannels[rowNumber]->isValid())
     {
         if (rowNumber % 2 == 0)
-            g.fillAll (owner->findColour (ThemeColors::componentBackground));
+            g.fillAll (owner->findColour (ThemeColours::componentBackground));
         else
-            g.fillAll (owner->findColour (ThemeColors::componentBackground).darker (0.25f));
+            g.fillAll (owner->findColour (ThemeColours::componentBackground).darker (0.25f));
 
         return;
     }
@@ -816,7 +816,7 @@ void SpikeDetectorTableModel::paintCell (Graphics& g, int rowNumber, int columnI
 
     if (columnId == SpikeDetectorTableModel::Columns::INDEX)
     {
-        g.setColour (owner->findColour (ThemeColors::defaultText));
+        g.setColour (owner->findColour (ThemeColours::defaultText));
         g.drawText (String (rowNumber + 1), 4, 0, width, height, Justification::centred);
     }
     else if (columnId == SpikeDetectorTableModel::Columns::TYPE)
@@ -1008,9 +1008,9 @@ void SpikeChannelGenerator::channelStateChanged (Array<int> selectedChannels)
 
 void SpikeChannelGenerator::paint (Graphics& g)
 {
-    g.setColour (findColour (ThemeColors::widgetBackground));
+    g.setColour (findColour (ThemeColours::widgetBackground));
     g.fillRoundedRectangle (0, 0, getWidth(), getHeight(), 4.0f);
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
     g.setFont (FontOptions ("Inter", "Regular", 14.0f));
     g.drawText ("ADD ELECTRODES: ", 17, 6, 120, 19, Justification::left, false);
 }

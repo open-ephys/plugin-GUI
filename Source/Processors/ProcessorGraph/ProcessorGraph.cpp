@@ -1013,15 +1013,15 @@ void ProcessorGraph::clearSignalChain()
 
 void ProcessorGraph::changeListenerCallback (ChangeBroadcaster* source)
 {
-    refreshColors();
+    refreshColours();
 }
 
-void ProcessorGraph::refreshColors()
+void ProcessorGraph::refreshColours()
 {
     for (auto p : getListOfProcessors())
     {
         GenericEditor* e = (GenericEditor*) p->getEditor();
-        e->refreshColors();
+        e->refreshColours();
     }
 
     AccessClass::getGraphViewer()->repaint();
@@ -2065,7 +2065,7 @@ void ProcessorGraph::loadFromXml (XmlElement* xml)
         MouseCursor::showWaitCursor();
 
         AccessClass::getUIComponent()->loadStateFromXml (xml); // load the UI settings first
-        AccessClass::getProcessorList()->loadStateFromXml (xml); // load the processor list settings (may override theme colors)
+        AccessClass::getProcessorList()->loadStateFromXml (xml); // load the processor list settings (may override theme colours)
     }
 
     clearSignalChain();
@@ -2156,7 +2156,7 @@ void ProcessorGraph::loadFromXml (XmlElement* xml)
         if (editorViewportXml != nullptr)
             AccessClass::getEditorViewport()->loadEditorViewportSettingsFromXml (editorViewportXml);
 
-        refreshColors(); // refresh editor colors
+        refreshColours(); // refresh editor colours
         AccessClass::getDataViewport()->loadStateFromXml (xml);
 
         // load the graph viewer settings

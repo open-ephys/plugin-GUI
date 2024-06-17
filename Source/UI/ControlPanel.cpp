@@ -61,13 +61,13 @@ void PlayButton::updateImages()
     p.applyTransform (AffineTransform::scale (0.8f));
     p.applyTransform (AffineTransform::translation (2, 2));
     normal.setPath (p);
-    normal.setFill (findColour (ThemeColors::defaultText));
+    normal.setFill (findColour (ThemeColours::defaultText));
     normal.setStrokeThickness (0.0f);
 
     over.setPath (p);
-    over.setFill (findColour (ThemeColors::defaultText));
+    over.setFill (findColour (ThemeColours::defaultText));
     over.setStrokeThickness (2.0f);
-    over.setStrokeFill (findColour (ThemeColors::defaultText));
+    over.setStrokeFill (findColour (ThemeColours::defaultText));
 
     down.setPath (p);
     down.setFill (Colours::white);
@@ -97,13 +97,13 @@ void RecordButton::updateImages()
     p.applyTransform (AffineTransform::scale (0.8f));
     p.applyTransform (AffineTransform::translation (2, 2));
     normal.setPath (p);
-    normal.setFill (findColour (ThemeColors::defaultText));
+    normal.setFill (findColour (ThemeColours::defaultText));
     normal.setStrokeThickness (0.0f);
 
     over.setPath (p);
-    over.setFill (findColour (ThemeColors::defaultText));
+    over.setFill (findColour (ThemeColours::defaultText));
     over.setStrokeThickness (2.0f);
-    over.setStrokeFill (findColour (ThemeColors::defaultText));
+    over.setStrokeFill (findColour (ThemeColours::defaultText));
 
     down.setPath (p);
     down.setFill (Colours::white);
@@ -129,15 +129,15 @@ void CPUMeter::updateCPU (float usage)
 
 void CPUMeter::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::widgetBackground));
+    g.fillAll (findColour (ThemeColours::widgetBackground));
 
     g.setColour (Colours::yellow);
     g.fillRect (0.0f, 0.0f, getWidth() * cpu, float (getHeight()));
 
-    g.setColour (findColour (ThemeColors::outline));
+    g.setColour (findColour (ThemeColours::outline));
     g.drawRect (0, 0, getWidth(), getHeight(), 1);
 
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
     g.setFont (font);
     g.drawSingleLineText ("CPU", 65, 12);
 }
@@ -159,9 +159,9 @@ void DiskSpaceMeter::updateDiskSpace (float percent)
 
 void DiskSpaceMeter::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::widgetBackground));
+    g.fillAll (findColour (ThemeColours::widgetBackground));
 
-    g.setColour (findColour (ThemeColors::defaultFill));
+    g.setColour (findColour (ThemeColours::defaultFill));
     if (diskFree > 0)
     {
         if (diskFree > 1.0)
@@ -169,10 +169,10 @@ void DiskSpaceMeter::paint (Graphics& g)
         g.fillRect (0.0f, 0.0f, getWidth() * diskFree, float (getHeight()));
     }
 
-    g.setColour (findColour (ThemeColors::outline));
+    g.setColour (findColour (ThemeColours::outline));
     g.drawRect (0, 0, getWidth(), getHeight(), 1);
 
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
     g.setFont (font);
     g.drawSingleLineText ("DF", 75, 12);
 }
@@ -218,9 +218,9 @@ void Clock::drawTime (Graphics& g)
     else
     {
         if (isRunning)
-            g.setColour (findColour (ThemeColors::highlightedText));
+            g.setColour (findColour (ThemeColours::highlightedText));
         else
-            g.setColour (findColour (ThemeColors::defaultText));
+            g.setColour (findColour (ThemeColours::defaultText));
 
         h = floor (totalTime / 3600000.0f);
         m = floor (totalTime / 60000.0);
@@ -501,8 +501,8 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
 
             if (! isConsoleApp)
             {
-                playButton->getNormalImage()->replaceColour (findColour (ThemeColors::defaultText), Colours::yellow);
-                playButton->getOverImage()->replaceColour (findColour (ThemeColors::defaultText),
+                playButton->getNormalImage()->replaceColour (findColour (ThemeColours::defaultText), Colours::yellow);
+                playButton->getOverImage()->replaceColour (findColour (ThemeColours::defaultText),
                                                            Colours::yellow);
 
                 audioEditor->disable();
@@ -534,8 +534,8 @@ void ControlPanel::stopAcquisition()
 
     if (! isConsoleApp)
     {
-        playButton->getNormalImage()->replaceColour (Colours::yellow, findColour (ThemeColors::defaultText));
-        playButton->getOverImage()->replaceColour (Colours::yellow, findColour (ThemeColors::defaultText));
+        playButton->getNormalImage()->replaceColour (Colours::yellow, findColour (ThemeColours::defaultText));
+        playButton->getOverImage()->replaceColour (Colours::yellow, findColour (ThemeColours::defaultText));
 
         refreshMeters();
 
@@ -658,7 +658,7 @@ void ControlPanel::createPaths()
 void ControlPanel::paint (Graphics& g)
 {
     if (! recordButton->getToggleState())
-        g.setColour (findColour (ThemeColors::componentBackground));
+        g.setColour (findColour (ThemeColours::componentBackground));
     else
         g.setColour (Colour (255, 0, 0));
 
@@ -667,7 +667,7 @@ void ControlPanel::paint (Graphics& g)
     if (open)
     {
         createPaths();
-        g.setColour (findColour (ThemeColors::windowBackground));
+        g.setColour (findColour (ThemeColours::windowBackground));
         g.fillPath (p1);
         g.fillPath (p2);
     }
@@ -840,8 +840,8 @@ void ControlPanel::startRecording()
 
     // filenameText->setColour(Label::textColourId, Colours::black);
 
-    recordButton->getNormalImage()->replaceColour (findColour (ThemeColors::defaultText), Colours::yellow);
-    recordButton->getOverImage()->replaceColour (findColour (ThemeColors::defaultText), Colours::yellow);
+    recordButton->getNormalImage()->replaceColour (findColour (ThemeColours::defaultText), Colours::yellow);
+    recordButton->getOverImage()->replaceColour (findColour (ThemeColours::defaultText), Colours::yellow);
     showHideRecordingOptionsButton->setCustomBackground (true, Colour (255, 0, 0));
 
     if (! newDirectoryButton->getEnabledState()) // new directory is required
@@ -873,9 +873,9 @@ void ControlPanel::stopRecording()
     clock->stopRecording();
     newDirectoryButton->setEnabledState (true);
 
-    recordButton->getNormalImage()->replaceColour (Colours::yellow, findColour (ThemeColors::defaultText));
-    recordButton->getOverImage()->replaceColour (Colours::yellow, findColour (ThemeColors::defaultText));
-    showHideRecordingOptionsButton->setCustomBackground (false, findColour (ThemeColors::windowBackground));
+    recordButton->getNormalImage()->replaceColour (Colours::yellow, findColour (ThemeColours::defaultText));
+    recordButton->getOverImage()->replaceColour (Colours::yellow, findColour (ThemeColours::defaultText));
+    showHideRecordingOptionsButton->setCustomBackground (false, findColour (ThemeColours::windowBackground));
 
     recordButton->setToggleState (false, dontSendNotification);
 
@@ -897,7 +897,7 @@ void ControlPanel::componentBeingDeleted (Component& component)
     component.removeComponentListener (this);
 }
 
-void ControlPanel::updateColors()
+void ControlPanel::updateColours()
 {
     if (getAcquisitionState())
         return;

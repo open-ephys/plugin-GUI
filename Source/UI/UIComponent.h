@@ -152,11 +152,11 @@ public:
     /** Load settings. */
     void loadStateFromXml (XmlElement*);
 
-    /** Get current color theme*/
-    ColorTheme getTheme();
+    /** Get current colour theme*/
+    ColourTheme getTheme();
 
-    /** Set current color theme*/
-    void setTheme (ColorTheme);
+    /** Set current colour theme*/
+    void setTheme (ColourTheme);
 
     /** Get list of recently used recording directories*/
     Array<String> getRecentlyUsedFilenames();
@@ -255,9 +255,9 @@ private:
         loadPluginSettings = 0x3001,
         savePluginSettings = 0x3002,
         lockSignalChain = 0x5001,
-        setColorThemeLight = 0x6111,
-        setColorThemeMedium = 0x6112,
-        setColorThemeDark = 0x6113,
+        setColourThemeLight = 0x6111,
+        setColourThemeMedium = 0x6112,
+        setColourThemeDark = 0x6113,
         setSoftwareRenderer = 0x7001,
         setDirect2DRenderer = 0x7002
 

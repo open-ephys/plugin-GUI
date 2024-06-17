@@ -40,7 +40,7 @@ ShowHideOptionsButton::~ShowHideOptionsButton()
 
 void ShowHideOptionsButton::paintButton (Graphics& g, bool, bool)
 {
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
 
     Path p;
 

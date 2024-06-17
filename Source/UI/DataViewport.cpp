@@ -41,14 +41,14 @@ void CloseTabButton::paintButton (Graphics& g, bool isMouseOverButton, bool isBu
     int xoffset = (getWidth() - 14) / 2;
     int yoffset = (getHeight() - 14) / 2;
 
-    g.setColour (findColour (ThemeColors::defaultText).withAlpha (0.25f));
+    g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.25f));
 
     if (isMouseOverButton)
     {
         g.fillRoundedRectangle (xoffset, yoffset, 14, 14, 4.0f);
     }
 
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
 
     Path path;
     path.addLineSegment (Line<float> (2, 2, 8, 8), 0.0f);
@@ -142,7 +142,7 @@ void CustomTabButton::paintButton (Graphics& g,
                                    bool isMouseOver,
                                    bool isMouseDown)
 {
-    getTabbedButtonBar().setTabBackgroundColour (getIndex(), findColour (ThemeColors::componentBackground));
+    getTabbedButtonBar().setTabBackgroundColour (getIndex(), findColour (ThemeColours::componentBackground));
 
     getLookAndFeel().drawTabButton (*this, g, isMouseOver, isMouseDown);
 
@@ -338,26 +338,26 @@ void DraggableTabComponent::paint (Graphics& g)
 
     if (isDraggingOver)
     {
-        g.setColour (findColour (ThemeColors::highlightedFill).withAlpha (0.5f));
+        g.setColour (findColour (ThemeColours::highlightedFill).withAlpha (0.5f));
 
         g.fillRect (getTabbedButtonBar().getBounds());
     }
 
-    g.setColour (findColour (ThemeColors::componentBackground));
+    g.setColour (findColour (ThemeColours::componentBackground));
     g.fillRoundedRectangle (bounds.reduced (1.0f), 5.0f);
 
     g.setColour (findColour (
-                     isDraggingOver ? ThemeColors::highlightedFill : ThemeColors::outline)
+                     isDraggingOver ? ThemeColours::highlightedFill : ThemeColours::outline)
                      .withAlpha (0.5f));
     g.drawRoundedRectangle (bounds.reduced (1.0f), 5.0f, 2.0f);
 
     if (getNumTabs() == 0)
     {
-        closeButton->setColours (findColour (ThemeColors::defaultText),
-                                 findColour (ThemeColors::defaultText).withAlpha (0.5f),
-                                 findColour (ThemeColors::highlightedText));
+        closeButton->setColours (findColour (ThemeColours::defaultText),
+                                 findColour (ThemeColours::defaultText).withAlpha (0.5f),
+                                 findColour (ThemeColours::highlightedText));
 
-        g.setColour (findColour (ThemeColors::defaultText).withAlpha (0.5f));
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
         g.setFont (FontOptions ("Inter", "Medium", 20.0f));
 
         String text = dataViewport->getNumTabbedComponents() == 1 ? "Open a new tab to show here" : "Drag a tab here or open a new tab";
@@ -406,7 +406,7 @@ AddTabbedComponentButton::AddTabbedComponentButton()
 
 void AddTabbedComponentButton::paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown)
 {
-    Colour btnColour = findColour (ThemeColors::windowBackground).contrasting (0.5f);
+    Colour btnColour = findColour (ThemeColours::windowBackground).contrasting (0.5f);
 
     if (isMouseOverButton)
     {

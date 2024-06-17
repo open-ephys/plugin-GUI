@@ -181,17 +181,17 @@ public:
     /** Selects all the channels in the input array.*/
     void selectChannels (Array<int>);
 
-    /** Refreshes an editor's background colors when the user selects new ones with the ColourSelector.*/
-    void refreshColors();
+    /** Refreshes an editor's background colours when the user selects new ones with the ColourSelector.*/
+    void refreshColours();
 
     /** Called when an editor's processor updates its settings (mainly to update channel count).*/
     void update (bool isEnabled);
 
-    /** Allows other UI elements to use background color of editor. */
-    Colour getBackgroundColor();
+    /** Allows other UI elements to use background colour of editor. */
+    Colour getBackgroundColour();
 
-    /** Changes the background color of this editor. */
-    void setBackgroundColor (Colour colour);
+    /** Changes the background colour of this editor. */
+    void setBackgroundColour (Colour colour);
 
     /** Allows other elements to use background gradient of editor. */
     ColourGradient getBackgroundGradient();
@@ -348,8 +348,8 @@ private:
 
     ButtonResponder drawerButtonListener;
 
-    /** Stores the editor's background color. */
-    Colour backgroundColor;
+    /** Stores the editor's background colour. */
+    Colour backgroundColour;
 
     /** Stores the editor's background gradient. */
     ColourGradient backgroundGradient;
@@ -471,16 +471,16 @@ private:
     ;
 };
 
-class PLUGIN_API ColorButton : public Button
+class PLUGIN_API ColourButton : public Button
 {
 public:
-    ColorButton (String label_, Font font_);
-    ~ColorButton();
+    ColourButton (String label_, Font font_);
+    ~ColourButton();
 
     void setEnabledState (bool);
     bool getEnabledState();
 
-    void setColors (Colour foreground, Colour background);
+    void setColours (Colour foreground, Colour background);
     void setLabel (String label);
     String getLabel();
 
@@ -497,7 +497,7 @@ private:
     bool vert;
     String label;
     Font font;
-    Colour fontColor, backgroundColor;
+    Colour fontColour, backgroundColour;
     bool showEnabledStatus;
     bool isEnabled;
 };

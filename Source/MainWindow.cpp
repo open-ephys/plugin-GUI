@@ -395,7 +395,7 @@ void MainWindow::saveWindowBounds()
     xml->setAttribute ("shouldReloadOnStartup", shouldReloadOnStartup);
     xml->setAttribute ("shouldEnableHttpServer", shouldEnableHttpServer);
     xml->setAttribute ("automaticVersionChecking", automaticVersionChecking);
-    xml->setAttribute ("colorTheme", (int) currentTheme);
+    xml->setAttribute ("colourTheme", (int) currentTheme);
 
     XmlElement* bounds = new XmlElement ("BOUNDS");
     bounds->setAttribute ("x", documentWindow->getScreenX());
@@ -494,7 +494,7 @@ void MainWindow::loadWindowBounds()
             }
         }
 
-        currentTheme = (ColorTheme) xml->getIntAttribute ("colorTheme", ColorTheme::MEDIUM);
+        currentTheme = (ColourTheme) xml->getIntAttribute ("colourTheme", ColourTheme::MEDIUM);
     }
 }
 

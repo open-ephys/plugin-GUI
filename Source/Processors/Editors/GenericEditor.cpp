@@ -71,7 +71,7 @@ GenericEditor::GenericEditor (GenericProcessor* owner) : AudioProcessorEditor (o
         addAndMakeVisible (streamSelector.get());
     }
 
-    backgroundColor = Colour (10, 10, 10);
+    backgroundColour = Colour (10, 10, 10);
 }
 
 GenericEditor::~GenericEditor()
@@ -284,22 +284,22 @@ void GenericEditor::addCustomParameterEditor (ParameterEditor* ed, int xPos_, in
     ed->toBack();
 }
 
-void GenericEditor::refreshColors()
+void GenericEditor::refreshColours()
 {
-    // LOGD(getNameAndId(), " refreshing colors.");
+    // LOGD(getNameAndId(), " refreshing colours.");
 
     if (getProcessor()->isSource())
-        backgroundColor = getLookAndFeel().findColour (ProcessorColor::IDs::SOURCE_COLOR);
+        backgroundColour = getLookAndFeel().findColour (ProcessorColour::IDs::SOURCE_COLOUR);
     else if (getProcessor()->isSink())
-        backgroundColor = getLookAndFeel().findColour (ProcessorColor::IDs::SINK_COLOR);
+        backgroundColour = getLookAndFeel().findColour (ProcessorColour::IDs::SINK_COLOUR);
     else if (getProcessor()->isSplitter() || getProcessor()->isMerger() || getProcessor()->isAudioMonitor() || getProcessor()->isUtility())
-        backgroundColor = getLookAndFeel().findColour (ProcessorColor::IDs::UTILITY_COLOR);
+        backgroundColour = getLookAndFeel().findColour (ProcessorColour::IDs::UTILITY_COLOUR);
     else if (getProcessor()->isRecordNode())
-        backgroundColor = getLookAndFeel().findColour (ProcessorColor::IDs::RECORD_COLOR);
+        backgroundColour = getLookAndFeel().findColour (ProcessorColour::IDs::RECORD_COLOUR);
     else
-        backgroundColor = getLookAndFeel().findColour (ProcessorColor::IDs::FILTER_COLOR);
+        backgroundColour = getLookAndFeel().findColour (ProcessorColour::IDs::FILTER_COLOUR);
 
-    // loop though all parameter editors and update their parameter's color
+    // loop though all parameter editors and update their parameter's colour
     for (auto ed : parameterEditors)
     {
         const String parameterName = ed->getParameterName();
@@ -309,7 +309,7 @@ void GenericEditor::refreshColors()
             Parameter* procParam = getProcessor()->getParameter (parameterName);
 
             if (procParam->getType() == Parameter::ParameterType::SELECTED_CHANNELS_PARAM || procParam->getType() == Parameter::ParameterType::MASK_CHANNELS_PARAM)
-                getProcessor()->setColor (parameterName, backgroundColor);
+                getProcessor()->setColour (parameterName, backgroundColour);
         }
         else if (selectedStream > 0)
         {
@@ -321,7 +321,7 @@ void GenericEditor::refreshColors()
 
                 if (streamParam->getType() == Parameter::ParameterType::SELECTED_CHANNELS_PARAM || streamParam->getType() == Parameter::ParameterType::MASK_CHANNELS_PARAM)
                     for (auto stream : getProcessor()->getDataStreams())
-                        getProcessor()->getDataStream (stream->getStreamId())->setColor (parameterName, backgroundColor);
+                        getProcessor()->getDataStream (stream->getStreamId())->setColour (parameterName, backgroundColour);
             }
         }
     }
@@ -475,9 +475,9 @@ void GenericEditor::editorStopAcquisition()
 void GenericEditor::paint (Graphics& g)
 {
     if (isEnabled)
-        g.setColour (backgroundColor);
+        g.setColour (backgroundColour);
     else
-        g.setColour (findColour (ThemeColors::widgetBackground));
+        g.setColour (findColour (ThemeColours::widgetBackground));
 
     if (! isCollapsed)
     {
@@ -501,7 +501,7 @@ void GenericEditor::paint (Graphics& g)
     // draw title
     if (! isCollapsed)
     {
-        g.setColour (isEnabled ? Colours::white : findColour (ThemeColors::defaultText).withAlpha (0.5f));
+        g.setColour (isEnabled ? Colours::white : findColour (ThemeColours::defaultText).withAlpha (0.5f));
         g.setFont (FontOptions ("Fira Mono", "Plain", 13));
         g.drawText (String (nodeId), 8, 5, 30, 15, Justification::left, false);
         g.setFont (FontOptions ("CP Mono", "Plain", 16));
@@ -510,7 +510,7 @@ void GenericEditor::paint (Graphics& g)
     else
     {
         g.addTransform (AffineTransform::rotation (-M_PI / 2.0));
-        g.setColour (isEnabled ? Colours::white : findColour (ThemeColors::defaultText).withAlpha (0.5f));
+        g.setColour (isEnabled ? Colours::white : findColour (ThemeColours::defaultText).withAlpha (0.5f));
         g.setFont (FontOptions ("CP Mono", "Plain", 14));
         g.drawText (displayName.toUpperCase(), -getHeight() + 6, 5, 500, 15, Justification::left, false);
         g.addTransform (AffineTransform::rotation (M_PI / 2.0));
@@ -758,9 +758,9 @@ DrawerButton::~DrawerButton()
 void DrawerButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (isMouseOver)
-        g.setColour (findColour (ThemeColors::defaultFill).withAlpha (0.5f));
+        g.setColour (findColour (ThemeColours::defaultFill).withAlpha (0.5f));
     else
-        g.setColour (findColour (ThemeColors::defaultFill));
+        g.setColour (findColour (ThemeColours::defaultFill));
 
     g.drawVerticalLine (3, 0.0f, getHeight());
     g.drawVerticalLine (5, 0.0f, getHeight());
@@ -812,19 +812,19 @@ void UtilityButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDow
 {
     if (getToggleState())
     {
-        g.setColour (findColour (ThemeColors::highlightedFill));
+        g.setColour (findColour (ThemeColours::highlightedFill));
     }
     else
     {
-        g.setColour (findColour (ThemeColors::widgetBackground));
+        g.setColour (findColour (ThemeColours::widgetBackground));
     }
 
     g.fillPath (outlinePath);
 
     if (isMouseOver || ! isEnabled)
-        g.setColour (findColour (ThemeColors::outline).withAlpha (0.4f));
+        g.setColour (findColour (ThemeColours::outline).withAlpha (0.4f));
     else
-        g.setColour (findColour (ThemeColors::outline));
+        g.setColour (findColour (ThemeColours::outline));
 
     g.strokePath (outlinePath, PathStrokeType (1.0f));
 
@@ -833,9 +833,9 @@ void UtilityButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDow
     g.setFont (font);
 
     if (isEnabled || ! isButtonDown)
-        g.setColour (findColour (ThemeColors::defaultText));
+        g.setColour (findColour (ThemeColours::defaultText));
     else
-        g.setColour (findColour (ThemeColors::defaultText).withAlpha (0.4f));
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.4f));
 
     g.drawFittedText (label, 0, 0, getWidth(), getHeight(), Justification::centred, 2, 1.0f);
 }
@@ -994,24 +994,24 @@ int GenericEditor::getPathForEditor (GenericEditor* editor)
 
 void GenericEditor::editorWasClicked() {}
 
-Colour GenericEditor::getBackgroundColor()
+Colour GenericEditor::getBackgroundColour()
 {
     if (isEnabled)
-        return backgroundColor;
+        return backgroundColour;
     else
         return Colours::grey;
 }
 
-void GenericEditor::setBackgroundColor (Colour c)
+void GenericEditor::setBackgroundColour (Colour c)
 {
-    backgroundColor = c;
+    backgroundColour = c;
 
     repaint();
 }
 
 ColourGradient GenericEditor::getBackgroundGradient()
 {
-    backgroundGradient = ColourGradient::vertical (findColour (ThemeColors::componentBackground).darker (0.1f), 0.0f, findColour (ThemeColors::componentBackground).brighter (0.1f), 120.0f);
+    backgroundGradient = ColourGradient::vertical (findColour (ThemeColours::componentBackground).darker (0.1f), 0.0f, findColour (ThemeColours::componentBackground).brighter (0.1f), 120.0f);
 
     return backgroundGradient;
 }
@@ -1122,63 +1122,63 @@ void GenericEditor::streamEnabledStateChanged (uint16 streamId, bool isEnabled, 
 }
 
 /***************************/
-ColorButton::ColorButton (String label_, Font font_) : Button (label_), label (label_), font (font_)
+ColourButton::ColourButton (String label_, Font font_) : Button (label_), label (label_), font (font_)
 {
     userDefinedData = -1;
-    fontColor = juce::Colours::white;
-    backgroundColor = juce::Colours::darkgrey;
+    fontColour = juce::Colours::white;
+    backgroundColour = juce::Colours::darkgrey;
     vert = false;
     setEnabledState (true);
     showEnabledStatus = false;
 }
 
-ColorButton::~ColorButton()
+ColourButton::~ColourButton()
 {
 }
 
-bool ColorButton::getEnabledState()
+bool ColourButton::getEnabledState()
 {
     return isEnabled;
 }
 
-void ColorButton::setShowEnabled (bool state)
+void ColourButton::setShowEnabled (bool state)
 {
     showEnabledStatus = state;
     repaint();
 }
 
-void ColorButton::setEnabledState (bool state)
+void ColourButton::setEnabledState (bool state)
 {
     isEnabled = state;
 
     repaint();
 }
 
-void ColorButton::setUserDefinedData (int d)
+void ColourButton::setUserDefinedData (int d)
 {
     userDefinedData = d;
 }
-int ColorButton::getUserDefinedData()
+int ColourButton::getUserDefinedData()
 {
     return userDefinedData;
 }
 
-void ColorButton::setVerticalOrientation (bool state)
+void ColourButton::setVerticalOrientation (bool state)
 {
     vert = state;
     repaint();
 }
 
-void ColorButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
+void ColourButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (isEnabled)
     {
-        g.fillAll (backgroundColor);
+        g.fillAll (backgroundColour);
     }
     else
     {
         int fac = 3;
-        g.fillAll (Colour::fromRGB (backgroundColor.getRed() / fac, backgroundColor.getGreen() / fac, backgroundColor.getBlue() / fac));
+        g.fillAll (Colour::fromRGB (backgroundColour.getRed() / fac, backgroundColour.getGreen() / fac, backgroundColour.getBlue() / fac));
     }
 
     if (isMouseOver)
@@ -1188,7 +1188,7 @@ void ColorButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
     }
 
     g.setFont (font);
-    g.setColour (fontColor);
+    g.setColour (fontColour);
 
     if (vert)
     {
@@ -1210,18 +1210,18 @@ void ColorButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
     }
 }
 
-String ColorButton::getLabel()
+String ColourButton::getLabel()
 {
     return label;
 }
 
-void ColorButton::setColors (Colour foreground, Colour background)
+void ColourButton::setColours (Colour foreground, Colour background)
 {
-    fontColor = foreground;
-    backgroundColor = background;
+    fontColour = foreground;
+    backgroundColour = background;
 }
 
-void ColorButton::setLabel (String label_)
+void ColourButton::setLabel (String label_)
 {
     label = label_;
     repaint();
@@ -1327,9 +1327,9 @@ LevelMonitor::~LevelMonitor() {}
 
 void LevelMonitor::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    g.setColour (findColour (ThemeColors::outline));
+    g.setColour (findColour (ThemeColours::outline));
     g.drawRoundedRectangle (1, 1, this->getWidth() - 2, this->getHeight() - 2, 3, 1);
-    g.setColour (findColour (ThemeColors::widgetBackground));
+    g.setColour (findColour (ThemeColours::widgetBackground));
     g.fillRoundedRectangle (1, 1, this->getWidth() - 2, this->getHeight() - 2, 3);
 
     if (fillPercentage < 0.7)

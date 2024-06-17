@@ -91,12 +91,12 @@ public:
         
     }
 
-    void updateColors()
+    void updateColours()
     {
-        expanded.setStrokeFill(findColour(ThemeColors::defaultFill));
-        expandedOver.setStrokeFill(findColour(ThemeColors::defaultFill));
-        collapsed.setStrokeFill(findColour(ThemeColors::defaultFill));
-        collapsedOver.setStrokeFill(findColour(ThemeColors::defaultFill));
+        expanded.setStrokeFill(findColour(ThemeColours::defaultFill));
+        expandedOver.setStrokeFill(findColour(ThemeColours::defaultFill));
+        collapsed.setStrokeFill(findColour(ThemeColours::defaultFill));
+        collapsedOver.setStrokeFill(findColour(ThemeColours::defaultFill));
 
         repaint();
     }

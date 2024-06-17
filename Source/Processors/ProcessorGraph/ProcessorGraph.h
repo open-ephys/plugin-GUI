@@ -181,8 +181,8 @@ public:
     /* Turns recording on (true) and off (false)*/
     void setRecordState (bool);
 
-    /* Applies new colors to processors in the signal chain*/
-    void refreshColors();
+    /* Applies new colours to processors in the signal chain*/
+    void refreshColours();
 
     /* Creates the nodes that exist in every signal chain (AudioNode, MessageCenter) */
     void createDefaultNodes();

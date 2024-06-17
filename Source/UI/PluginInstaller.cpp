@@ -351,8 +351,8 @@ PluginInstallerComponent::PluginInstallerComponent() : ThreadWithProgressWindow 
 
 void PluginInstallerComponent::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::componentBackground).darker());
-    g.setColour (findColour (ThemeColors::defaultFill).withAlpha (0.5f));
+    g.fillAll (findColour (ThemeColours::componentBackground).darker());
+    g.setColour (findColour (ThemeColours::defaultFill).withAlpha (0.5f));
     g.fillRect (195, 5, 2, 38);
     g.fillRect (405, 5, 2, 38);
 }
@@ -566,7 +566,7 @@ PluginListBoxComponent::PluginListBoxComponent() : Thread ("Plugin List"), maxTe
 {
     listFont = FontOptions ("Inter", "Semi Bold", 22.0f);
 
-    // Set progress window text and background colors
+    // Set progress window text and background colours
     //auto window = this->getAlertWindow();
     //window->setColour(AlertWindow::textColourId, Colours::white);
     //window->setColour(AlertWindow::backgroundColourId, Colour::fromRGB(50, 50, 50));
@@ -594,19 +594,19 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics& g, int w
 {
     if (rowIsSelected)
     {
-        g.fillAll (findColour (ThemeColors::componentParentBackground).withAlpha (0.5f));
-        g.setColour (findColour (ThemeColors::defaultText));
+        g.fillAll (findColour (ThemeColours::componentParentBackground).withAlpha (0.5f));
+        g.setColour (findColour (ThemeColours::defaultText));
     }
     else
     {
-        g.fillAll (findColour (ThemeColors::componentBackground));
-        g.setColour (findColour (ThemeColors::defaultText).withAlpha (0.8f));
+        g.fillAll (findColour (ThemeColours::componentBackground));
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.8f));
     }
 
     if (rowNumber == pluginArray.indexOf (lastPluginSelected, true, 0))
     {
-        g.fillAll (findColour (ThemeColors::menuHighlightBackground));
-        g.setColour (findColour (ThemeColors::menuHighlightText));
+        g.fillAll (findColour (ThemeColours::menuHighlightBackground));
+        g.setColour (findColour (ThemeColours::menuHighlightText));
     }
 
     g.setFont (listFont);
@@ -904,7 +904,7 @@ PluginInfoComponent::PluginInfoComponent() : ThreadWithProgressWindow ("Plugin I
 
 void PluginInfoComponent::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::componentBackground));
+    g.fillAll (findColour (ThemeColours::componentBackground));
 }
 
 void PluginInfoComponent::resized()

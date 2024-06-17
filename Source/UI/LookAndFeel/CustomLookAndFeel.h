@@ -27,22 +27,22 @@
 #include "../../TestableExport.h"
 #include <JuceHeader.h>
 
-namespace ProcessorColor
+namespace ProcessorColour
 {
 enum IDs
 {
-    PROCESSOR_COLOR = 801,
-    FILTER_COLOR = 802,
-    SINK_COLOR = 803,
-    SOURCE_COLOR = 804,
-    UTILITY_COLOR = 805,
-    RECORD_COLOR = 806,
-    AUDIO_COLOR = 807,
-    SYNC_COLOR = 808
+    PROCESSOR_COLOUR = 801,
+    FILTER_COLOUR = 802,
+    SINK_COLOUR = 803,
+    SOURCE_COLOUR = 804,
+    UTILITY_COLOUR = 805,
+    RECORD_COLOUR = 806,
+    AUDIO_COLOUR = 807,
+    SYNC_COLOUR = 808
 };
 }
 
-enum ThemeColors
+enum ThemeColours
 {
     componentBackground = 0x9001,
     componentParentBackground,
@@ -56,10 +56,10 @@ enum ThemeColors
     defaultFill,
     highlightedText,
     highlightedFill,
-    dropShadowColor
+    dropShadowColour
 };
 
-enum ColorTheme
+enum ColourTheme
 {
     LIGHT,
     MEDIUM,
@@ -86,10 +86,10 @@ public:
     /** Destructor */
     ~CustomLookAndFeel();
 
-    std::map<ColorTheme, std::map<ThemeColors, Colour>> themeColorsMap;
+    std::map<ColourTheme, std::map<ThemeColours, Colour>> themeColoursMap;
 
-    /** Set color theme*/
-    void setTheme (ColorTheme theme);
+    /** Set colour theme*/
+    void setTheme (ColourTheme theme);
 
     // ======== custom typeface getter: =============================
     Typeface::Ptr getTypefaceForFont (const Font& font);
@@ -246,7 +246,7 @@ private:
 
     Font getCommonMenuFont();
 
-    void initializeColors();
+    void initializeColours();
 };
 
 #endif // __CUSTOMLOOKANDFEEL_H_6B021009__

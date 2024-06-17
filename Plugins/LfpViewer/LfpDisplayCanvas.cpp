@@ -599,14 +599,14 @@ bool LfpDisplayCanvas::getChannelBitmapBounds (int splitIndex, int& x, int& y, i
     return true;
 }
 
-bool LfpDisplayCanvas::getChannelColors (int splitIndex, Array<Colour>& channelColors, Colour& backgroundColor)
+bool LfpDisplayCanvas::getChannelColours (int splitIndex, Array<Colour>& channelColours, Colour& backgroundColour)
 {
     if (splitIndex >= displaySplits.size())
     {
         return false;
     }
-    channelColors = displaySplits[splitIndex]->lfpDisplay->channelColours;
-    backgroundColor = displaySplits[splitIndex]->lfpDisplay->getColourSchemePtr()->getBackgroundColour();
+    channelColours = displaySplits[splitIndex]->lfpDisplay->channelColours;
+    backgroundColour = displaySplits[splitIndex]->lfpDisplay->getColourSchemePtr()->getBackgroundColour();
     return true;
 }
 
@@ -976,7 +976,7 @@ void LfpDisplaySplitter::updateSettings()
         }
     }
 
-    lfpDisplay->rebuildDrawableChannelsList(); // calls setColors(), which calls refresh
+    lfpDisplay->rebuildDrawableChannelsList(); // calls setColours(), which calls refresh
 
     isLoading = false;
 
@@ -984,7 +984,7 @@ void LfpDisplaySplitter::updateSettings()
 
     isUpdating = false;
 
-    //lfpDisplay->setColors(); // calls refresh
+    //lfpDisplay->setColours(); // calls refresh
 
     resized();
 
@@ -1591,7 +1591,7 @@ void LfpDisplaySplitter::redraw()
 
 void LfpDisplaySplitter::paint (Graphics& g)
 {
-    g.setColour (lfpDisplay->getColourSchemePtr()->getBackgroundColour()); //background color
+    g.setColour (lfpDisplay->getColourSchemePtr()->getBackgroundColour()); //background colour
     g.fillRect (0, 0, getWidth(), getHeight());
 
     //g.setColour(Colours::darkgrey);
@@ -1608,7 +1608,7 @@ void LfpDisplaySplitter::paint (Graphics& g)
     }
     else
     {
-        borderColour = Colour (findColour (ThemeColors::componentParentBackground));
+        borderColour = Colour (findColour (ThemeColours::componentParentBackground));
     }
 
     g.setColour (borderColour);

@@ -347,7 +347,7 @@ public:
     /** Updates the underlying SpikeChannel objects */
     void update (Array<SpikeChannel*> spikeChannels);
 
-    /** Determines row colors */
+    /** Determines row colours */
     void paintRowBackground (Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
 
     /** Changes waveform type when multiple rows are selected */

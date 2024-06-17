@@ -117,14 +117,14 @@ void SupersampledBitmapPlotter::plot (Image::BitmapData& bdLfpChannelBitmap, Lfp
                 a = 0.0f;
             };
 
-            //Colour gradedColor = lineColour.withMultipliedBrightness(2.0f).interpolatedWith(lineColour.withMultipliedSaturation(0.6f).withMultipliedBrightness(0.3f),1-a) ;
-            Colour gradedColor = pInfo.lineColourBright.interpolatedWith (pInfo.lineColourDark, 1 - a);
-            //Colour gradedColor =  Colour(0,255,0);
+            //Colour gradedColour = lineColour.withMultipliedBrightness(2.0f).interpolatedWith(lineColour.withMultipliedSaturation(0.6f).withMultipliedBrightness(0.3f),1-a) ;
+            Colour gradedColour = pInfo.lineColourBright.interpolatedWith (pInfo.lineColourDark, 1 - a);
+            //Colour gradedColour =  Colour(0,255,0);
 
             int ploty = pInfo.from + s + pInfo.y;
             if (ploty > 0 && ploty < display->lfpChannelBitmap.getHeight())
             {
-                bdLfpChannelBitmap.setPixelColour (pInfo.samp, pInfo.from + s + pInfo.y, gradedColor);
+                bdLfpChannelBitmap.setPixelColour (pInfo.samp, pInfo.from + s + pInfo.y, gradedColour);
             }
         }
     }

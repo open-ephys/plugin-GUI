@@ -325,7 +325,7 @@ private:
 
     /** Logos to display*/
     Image bw_logo;
-    Image color_logo;
+    Image colour_logo;
     Image* current_logo;
 };
 

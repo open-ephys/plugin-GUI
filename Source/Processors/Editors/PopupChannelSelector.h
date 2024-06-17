@@ -113,7 +113,7 @@ public:
 
 	A plugin can specify:
 	- The maximum number of selectable channels (setMaximumSelectableChannels)
-	- The color of the buttons (setChannelButtonColour)
+	- The colour of the buttons (setChannelButtonColour)
 
 */
 class PLUGIN_API PopupChannelSelector : public PopupComponent,
@@ -138,7 +138,7 @@ public:
     /** Sets the maximum number of channels that can be selected at once*/
     void setMaximumSelectableChannels (int num);
 
-    /** Sets the color of the channel buttons*/
+    /** Sets the colour of the channel buttons*/
     void setChannelButtonColour (Colour c);
 
     /** Mouse-related callbacks*/

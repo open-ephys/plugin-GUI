@@ -94,9 +94,9 @@ void StreamTableModel::update (Array<const DataStream*> dataStreams_, int viewed
 void StreamTableModel::paintRowBackground (Graphics& g, int rowNumber, int width, int height, bool rowIsSelected)
 {
     if (rowNumber % 2 == 0)
-        g.fillAll (owner->findColour (ThemeColors::componentBackground));
+        g.fillAll (owner->findColour (ThemeColours::componentBackground));
     else
-        g.fillAll (owner->findColour (ThemeColors::componentBackground).darker (0.25f));
+        g.fillAll (owner->findColour (ThemeColours::componentBackground).darker (0.25f));
 
     if (rowIsSelected)
     {
@@ -114,25 +114,25 @@ void StreamTableModel::paintCell (Graphics& g, int rowNumber, int columnId, int 
     if (columnId == StreamTableModel::Columns::PROCESSOR_ID)
     {
         g.setFont (FontOptions (12.0f));
-        g.setColour (owner->editor->findColour (ThemeColors::defaultText));
+        g.setColour (owner->editor->findColour (ThemeColours::defaultText));
         g.drawText (String (streams[rowNumber]->getSourceNodeId()), 2, 0, width - 4, height, Justification::centredLeft);
     }
     else if (columnId == StreamTableModel::Columns::NAME)
     {
         g.setFont (FontOptions (12.0f));
-        g.setColour (owner->editor->findColour (ThemeColors::defaultText));
+        g.setColour (owner->editor->findColour (ThemeColours::defaultText));
         g.drawText (String (streams[rowNumber]->getName()), 2, 0, width - 5, height, Justification::centredLeft);
     }
     else if (columnId == StreamTableModel::Columns::NUM_CHANNELS)
     {
         g.setFont (FontOptions (12.0f));
-        g.setColour (owner->editor->findColour (ThemeColors::defaultText));
+        g.setColour (owner->editor->findColour (ThemeColours::defaultText));
         g.drawText (String (streams[rowNumber]->getChannelCount()), 2, 0, width - 4, height, Justification::centredLeft);
     }
     else if (columnId == StreamTableModel::Columns::SAMPLE_RATE)
     {
         g.setFont (FontOptions (12.0f));
-        g.setColour (owner->editor->findColour (ThemeColors::defaultText));
+        g.setColour (owner->editor->findColour (ThemeColours::defaultText));
         g.drawText (String (streams[rowNumber]->getSampleRate()), 2, 0, width - 4, height, Justification::centredLeft);
     }
 }
@@ -361,13 +361,13 @@ void StreamSelectorTable::setViewedIndex (int i)
 
 void StreamSelectorTable::paint (Graphics& g)
 {
-    g.setColour (findColour (ThemeColors::widgetBackground));
+    g.setColour (findColour (ThemeColours::widgetBackground));
     g.fillRoundedRectangle (1.0f, 1.0f, (float) getWidth() - 6.0f, (float) getHeight() - 2.0f, 5.0f);
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
     g.setFont (FontOptions ("Inter", "Medium", 13));
     g.drawText ("   Available data streams: ", Rectangle<float> (150.0f, 20.0f), Justification::left);
 
-    g.setColour (findColour (ThemeColors::outline).withAlpha (0.8f));
+    g.setColour (findColour (ThemeColours::outline).withAlpha (0.8f));
     g.drawRoundedRectangle (1.0f, 1.0f, (float) getWidth() - 6.0f, (float) getHeight() - 2.0f, 5.0f, 1.0f);
     g.fillRect (1.0f, 19.0f, (float) getWidth() - 6.0f, 1.0f);
 }
@@ -474,9 +474,9 @@ ExpanderButton::ExpanderButton() : Button ("Expander"),
 void ExpanderButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (isMouseOver)
-        g.setColour (findColour (ThemeColors::defaultText).withAlpha (0.6f));
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.6f));
     else
-        g.setColour (findColour (ThemeColors::defaultText));
+        g.setColour (findColour (ThemeColours::defaultText));
 
     g.strokePath (iconPath, PathStrokeType (1.5f));
 }

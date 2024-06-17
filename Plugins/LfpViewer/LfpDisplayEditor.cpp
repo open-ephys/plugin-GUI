@@ -40,16 +40,16 @@ LayoutButton::~LayoutButton()
 void LayoutButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (getToggleState())
-        g.setColour (findColour (ThemeColors::highlightedFill));
+        g.setColour (findColour (ThemeColours::highlightedFill));
     else
-        g.setColour (findColour (ThemeColors::widgetBackground));
+        g.setColour (findColour (ThemeColours::widgetBackground));
 
     g.fillRoundedRectangle (0, 0, getWidth(), getHeight(), 3);
 
     if (getToggleState())
         g.setColour (Colours::black.withAlpha (isMouseOver ? 0.6f : 1.0f));
     else
-        g.setColour (findColour (ThemeColors::defaultText).withAlpha (isMouseOver ? 0.6f : 1.0f));
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (isMouseOver ? 0.6f : 1.0f));
 
     juce::Path path;
 

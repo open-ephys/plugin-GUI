@@ -86,7 +86,7 @@ TextEditor* CustomTextBox::createEditorComponent()
 void CustomTextBox::paint (juce::Graphics& g)
 {
     // Fill the background with a rounded rectangle
-    g.setColour (findColour (ThemeColors::widgetBackground));
+    g.setColour (findColour (ThemeColours::widgetBackground));
     g.fillRoundedRectangle (getLocalBounds().toFloat().reduced (0.5f, 0.5f), 3.0f);
 
     // Draw the text with units
@@ -103,11 +103,11 @@ void CustomTextBox::paint (juce::Graphics& g)
         String valueWithUnits = units.isEmpty() ? getText() : getText() + " " + units;
         g.drawFittedText (valueWithUnits, textArea, getJustificationType(), jmax (1, (int) ((float) textArea.getHeight() / font.getHeight())), getMinimumHorizontalScale());
 
-        g.setColour (findColour (ThemeColors::outline).withMultipliedAlpha (alpha));
+        g.setColour (findColour (ThemeColours::outline).withMultipliedAlpha (alpha));
     }
     else if (isEnabled())
     {
-        g.setColour (findColour (ThemeColors::outline));
+        g.setColour (findColour (ThemeColours::outline));
     }
 
     // Draw a rounded rectangle border
@@ -186,28 +186,28 @@ void TextBoxParameterEditor::resized()
 
 void CustomToggleButton::paintButton (juce::Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
-    // Set the color based on the button state
+    // Set the colour based on the button state
     if (getToggleState())
     {
-        g.setColour (findColour (ThemeColors::highlightedFill));
+        g.setColour (findColour (ThemeColours::highlightedFill));
     }
     else
     {
-        g.setColour (findColour (ThemeColors::defaultFill));
+        g.setColour (findColour (ThemeColours::defaultFill));
     }
 
     // Draw a rounded rectangle
     g.fillRoundedRectangle (getLocalBounds().toFloat(), 3.0f);
 
-    // Set the text color
-    g.setColour (findColour (ThemeColors::outline));
+    // Set the text colour
+    g.setColour (findColour (ThemeColours::outline));
 
     // Draw a rounded rectangle border
     g.drawRoundedRectangle (getLocalBounds().toFloat(), 3.0f, 1.0f);
 
     // Set the text font
     g.setFont (FontOptions ("Inter", "Regular", int (0.75 * getHeight())));
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
 
     // Set the text based on the button state
     if (getToggleState())
@@ -388,16 +388,16 @@ void BoundedValueEditor::paint (juce::Graphics& g)
     // Get the label's value as a percentage
     float value = getText().getFloatValue();
 
-    // Calculate the width of the colored area based on the value
-    int coloredWidth = static_cast<int> (getWidth() * (value - minValue) / (maxValue - minValue));
+    // Calculate the width of the coloured area based on the value
+    int colouredWidth = static_cast<int> (getWidth() * (value - minValue) / (maxValue - minValue));
 
-    // Fill the colored area
-    g.setColour (getLookAndFeel().findColour (ProcessorColor::IDs::FILTER_COLOR));
-    g.fillRect (1, 1, coloredWidth > 3 ? coloredWidth - 2 : 2, getHeight() - 2);
+    // Fill the coloured area
+    g.setColour (getLookAndFeel().findColour (ProcessorColour::IDs::FILTER_COLOUR));
+    g.fillRect (1, 1, colouredWidth > 3 ? colouredWidth - 2 : 2, getHeight() - 2);
 
-    // Fill the rest of the background with another color
+    // Fill the rest of the background with another colour
     g.setColour (getLookAndFeel().findColour (TextEditor::backgroundColourId));
-    g.fillRect (coloredWidth > 0 ? coloredWidth : 1, 1, getWidth() - coloredWidth > 1 ? getWidth() - coloredWidth - 1 : 1, getHeight() - 2);
+    g.fillRect (colouredWidth > 0 ? colouredWidth : 1, 1, getWidth() - colouredWidth > 1 ? getWidth() - colouredWidth - 1 : 1, getHeight() - 2);
 
     // Draw the text with units
     if (! isBeingEdited())
@@ -413,11 +413,11 @@ void BoundedValueEditor::paint (juce::Graphics& g)
         String valueWithUnits = units.isEmpty() ? getText() : getText() + " " + units;
         g.drawFittedText (valueWithUnits, textArea, getJustificationType(), jmax (1, (int) ((float) textArea.getHeight() / font.getHeight())), getMinimumHorizontalScale());
 
-        g.setColour (findColour (ThemeColors::outline).withMultipliedAlpha (alpha));
+        g.setColour (findColour (ThemeColours::outline).withMultipliedAlpha (alpha));
     }
     else if (isEnabled())
     {
-        g.setColour (findColour (ThemeColors::outline));
+        g.setColour (findColour (ThemeColours::outline));
     }
 
     // Draw a rounded rectangle border
@@ -607,7 +607,7 @@ void SelectedChannelsParameterEditor::buttonClicked (Button* button_)
 
     auto* channelSelector = new PopupChannelSelector (button.get(), this, p->getChannelStates());
 
-    channelSelector->setChannelButtonColour (param->getColor());
+    channelSelector->setChannelButtonColour (param->getColour());
 
     channelSelector->setMaximumSelectableChannels (p->getMaxSelectableChannels());
 
@@ -702,7 +702,7 @@ void MaskChannelsParameterEditor::buttonClicked (Button* button_)
 
     auto* channelSelector = new PopupChannelSelector (button.get(), this, channelStates);
 
-    channelSelector->setChannelButtonColour (param->getColor());
+    channelSelector->setChannelButtonColour (param->getColour());
 
     CoreServices::getPopupManager()->showPopup (std::unique_ptr<Component> (channelSelector), button.get());
 
@@ -1035,7 +1035,7 @@ void PathParameterEditor::updateView()
         }
         else
         {
-            // Remove the red color if it was previously set
+            // Remove the red colour if it was previously set
             button->removeColour (TextButton::textColourOnId);
             button->removeColour (TextButton::textColourOffId);
         }

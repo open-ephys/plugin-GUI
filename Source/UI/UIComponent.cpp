@@ -378,25 +378,25 @@ void UIComponent::childComponentChanged()
     resized();
 }
 
-void UIComponent::setTheme (ColorTheme t)
+void UIComponent::setTheme (ColourTheme t)
 {
     customLookAndFeel->setTheme (t);
 
     mainWindow->currentTheme = t;
     mainWindow->repaint();
 
-    controlPanel->updateColors();
+    controlPanel->updateColours();
 
-    messageCenterButton.updateColors();
+    messageCenterButton.updateColours();
 
-    infoLabel->updateColors();
+    infoLabel->updateColours();
 
-    getProcessorGraph()->refreshColors();
+    getProcessorGraph()->refreshColours();
 
     processorList->repaint();
 }
 
-ColorTheme UIComponent::getTheme()
+ColourTheme UIComponent::getTheme()
 {
     return mainWindow->currentTheme;
 }
@@ -475,9 +475,9 @@ PopupMenu UIComponent::getMenuForIndex (int menuIndex, const String& menuName)
         clockMenu.addCommandItem (commandManager, setClockModeHHMMSS);
 
         PopupMenu themeMenu;
-        themeMenu.addCommandItem (commandManager, setColorThemeLight);
-        themeMenu.addCommandItem (commandManager, setColorThemeMedium);
-        themeMenu.addCommandItem (commandManager, setColorThemeDark);
+        themeMenu.addCommandItem (commandManager, setColourThemeLight);
+        themeMenu.addCommandItem (commandManager, setColourThemeMedium);
+        themeMenu.addCommandItem (commandManager, setColourThemeDark);
 
         menu.addCommandItem (commandManager, toggleProcessorList);
         menu.addCommandItem (commandManager, toggleSignalChain);
@@ -552,9 +552,9 @@ void UIComponent::getAllCommands (Array<CommandID>& commands)
                               resizeWindow,
                               openPluginInstaller,
                               openDefaultConfigWindow,
-                              setColorThemeLight,
-                              setColorThemeMedium,
-                              setColorThemeDark,
+                              setColourThemeLight,
+                              setColourThemeMedium,
+                              setColourThemeDark,
                               setSoftwareRenderer,
                               setDirect2DRenderer };
 
@@ -694,19 +694,19 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
             result.setTicked (controlPanel->clock->getMode() == Clock::HHMMSS);
             break;
 
-        case setColorThemeLight:
-            result.setInfo ("Light", "Set color theme Light.", "General", 0);
-            result.setTicked (getTheme() == ColorTheme::LIGHT);
+        case setColourThemeLight:
+            result.setInfo ("Light", "Set colour theme Light.", "General", 0);
+            result.setTicked (getTheme() == ColourTheme::LIGHT);
             break;
 
-        case setColorThemeMedium:
-            result.setInfo ("Medium", "Set color theme default.", "General", 0);
-            result.setTicked (getTheme() == ColorTheme::MEDIUM);
+        case setColourThemeMedium:
+            result.setInfo ("Medium", "Set colour theme default.", "General", 0);
+            result.setTicked (getTheme() == ColourTheme::MEDIUM);
             break;
 
-        case setColorThemeDark:
-            result.setInfo ("Dark", "Set color theme dark.", "General", 0);
-            result.setTicked (getTheme() == ColorTheme::DARK);
+        case setColourThemeDark:
+            result.setInfo ("Dark", "Set colour theme dark.", "General", 0);
+            result.setTicked (getTheme() == ColourTheme::DARK);
             break;
 
         case openPluginInstaller:
@@ -992,16 +992,16 @@ bool UIComponent::perform (const InvocationInfo& info)
             controlPanel->clock->setMode (Clock::HHMMSS);
             break;
 
-        case setColorThemeLight:
-            setTheme (ColorTheme::LIGHT);
+        case setColourThemeLight:
+            setTheme (ColourTheme::LIGHT);
             break;
 
-        case setColorThemeMedium:
-            setTheme (ColorTheme::MEDIUM);
+        case setColourThemeMedium:
+            setTheme (ColourTheme::MEDIUM);
             break;
 
-        case setColorThemeDark:
-            setTheme (ColorTheme::DARK);
+        case setColourThemeDark:
+            setTheme (ColourTheme::DARK);
             break;
 
         case setSoftwareRenderer:
@@ -1127,9 +1127,9 @@ void ShowHideEditorViewportButton::buttonClicked (Button* button)
 
 void ShowHideEditorViewportButton::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::componentBackground));
+    g.fillAll (findColour (ThemeColours::componentBackground));
 
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
     g.setFont (buttonFont);
     g.drawText ("SIGNAL CHAIN", 10, 0, getWidth(), getHeight(), Justification::left, false);
 

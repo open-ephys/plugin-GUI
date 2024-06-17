@@ -31,16 +31,16 @@ InfoLabelTabButton::InfoLabelTabButton (const String& name) : Button (name)
 
 void InfoLabelTabButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
 
     g.setFont (FontOptions { "Nimbus Sans", "Regular", 20.0f });
     g.drawText (getName(), 0, 0, getWidth(), getHeight(), Justification::centred);
 
     if (isMouseOver)
-        g.setColour (findColour (ThemeColors::defaultFill));
+        g.setColour (findColour (ThemeColours::defaultFill));
 
     if (getToggleState())
-        g.setColour (findColour (ThemeColors::highlightedFill));
+        g.setColour (findColour (ThemeColours::highlightedFill));
 
     g.fillRect (0, getHeight() - 3, getWidth(), 3);
 }
@@ -48,10 +48,10 @@ void InfoLabelTabButton::paintButton (Graphics& g, bool isMouseOver, bool isButt
 TextComponent::TextComponent()
 {
     setOpaque (false);
-    color_logo = Drawable::createFromImageData (BinaryData::color_logo72_png, BinaryData::color_logo72_pngSize);
-    color_logo->setDrawableTransform (AffineTransform::translation (50.0f, 50.0f));
+    colour_logo = Drawable::createFromImageData (BinaryData::color_logo72_png, BinaryData::color_logo72_pngSize);
+    colour_logo->setDrawableTransform (AffineTransform::translation (50.0f, 50.0f));
 
-    addAndMakeVisible (color_logo.get());
+    addAndMakeVisible (colour_logo.get());
 }
 
 void TextComponent::paint (Graphics& g)
@@ -59,7 +59,7 @@ void TextComponent::paint (Graphics& g)
     if (infoText.getText().isEmpty())
         return;
 
-    int topPadding = color_logo->isVisible() ? 250 : 20;
+    int topPadding = colour_logo->isVisible() ? 250 : 20;
 
     infoTextLayout.draw (g, Rectangle<float> (0, topPadding, getWidth(), infoTextLayout.getHeight()));
 }
@@ -69,7 +69,7 @@ void TextComponent::resizeForText()
     // int width = parent->getWidth() - 20;
     infoTextLayout.createLayout (infoText, getWidth());
 
-    if (color_logo->isVisible())
+    if (colour_logo->isVisible())
     {
         setSize (getWidth(), infoTextLayout.getHeight() + 320);
     }
@@ -82,7 +82,7 @@ void TextComponent::resizeForText()
 void TextComponent::setAttributedString (const AttributedString& text, bool isLogoVisible)
 {
     infoText = text;
-    color_logo->setVisible (isLogoVisible);
+    colour_logo->setVisible (isLogoVisible);
 }
 
 InfoLabel::InfoLabel()
@@ -108,17 +108,17 @@ InfoLabel::InfoLabel()
     aboutText.setLineSpacing (1.1f);
     aboutText.setJustification (Justification::centredLeft);
     aboutText.setWordWrap (AttributedString::WordWrap::byWord);
-    aboutText.setColour (findColour (ThemeColors::defaultText));
+    aboutText.setColour (findColour (ThemeColours::defaultText));
 
     authorsText.setLineSpacing (1.1f);
     authorsText.setJustification (Justification::centredLeft);
     authorsText.setWordWrap (AttributedString::WordWrap::byWord);
-    authorsText.setColour (findColour (ThemeColors::defaultText));
+    authorsText.setColour (findColour (ThemeColours::defaultText));
 
     licenseText.setLineSpacing (1.1f);
     licenseText.setJustification (Justification::centredLeft);
     licenseText.setWordWrap (AttributedString::WordWrap::byWord);
-    licenseText.setColour (findColour (ThemeColors::defaultText));
+    licenseText.setColour (findColour (ThemeColours::defaultText));
 
     addMouseListener (this, true);
     setInterceptsMouseClicks (true, false);
@@ -172,14 +172,14 @@ void InfoLabel::resized()
 
 void InfoLabel::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::componentBackground));
+    g.fillAll (findColour (ThemeColours::componentBackground));
 }
 
-void InfoLabel::updateColors()
+void InfoLabel::updateColours()
 {
-    aboutText.setColour (findColour (ThemeColors::defaultText));
-    authorsText.setColour (findColour (ThemeColors::defaultText));
-    licenseText.setColour (findColour (ThemeColors::defaultText));
+    aboutText.setColour (findColour (ThemeColours::defaultText));
+    authorsText.setColour (findColour (ThemeColours::defaultText));
+    licenseText.setColour (findColour (ThemeColours::defaultText));
 
     for (auto tabBtn : tabButtons)
         if (tabBtn->getToggleState())

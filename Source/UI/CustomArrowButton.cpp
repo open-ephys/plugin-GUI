@@ -65,7 +65,7 @@ CustomArrowButton::CustomArrowButton (float rotation, float width_) : ToggleButt
     closedPath.applyTransform (AffineTransform::scale (width * 0.58f));
     closedPath.applyTransform (AffineTransform::translation (width / 2, width / 2));
 
-    backgroundColour = findColour (ThemeColors::componentBackground);
+    backgroundColour = findColour (ThemeColours::componentBackground);
 }
 
 void CustomArrowButton::setCustomBackground (bool useCustom, Colour colour)
@@ -82,7 +82,7 @@ void CustomArrowButton::paint (Graphics& g)
     if (customBackground)
         foregroundColour = backgroundColour.darker (0.9f).withAlpha (0.5f);
     else
-        foregroundColour = findColour (ThemeColors::defaultText).withAlpha (0.3f);
+        foregroundColour = findColour (ThemeColours::defaultText).withAlpha (0.3f);
 
     if (isOver())
         g.setColour (foregroundColour.brighter (0.4f));
@@ -94,7 +94,7 @@ void CustomArrowButton::paint (Graphics& g)
     if (customBackground)
         g.setColour (backgroundColour);
     else
-        g.setColour (findColour (ThemeColors::componentBackground));
+        g.setColour (findColour (ThemeColours::componentBackground));
 
     if (getToggleState())
         g.fillPath (openPath);

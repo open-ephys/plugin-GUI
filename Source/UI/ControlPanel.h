@@ -77,7 +77,7 @@ public:
     /** Destructor*/
     ~PlayButton() {}
 
-    /** Re-makes images with new colors */
+    /** Re-makes images with new colours */
     void updateImages();
 };
 
@@ -105,7 +105,7 @@ public:
     /** Destructor*/
     ~RecordButton() {}
 
-    /** Re-makes images with new colors */
+    /** Re-makes images with new colours */
     void updateImages();
 };
 
@@ -414,8 +414,8 @@ public:
     /** Generates the current datetime based on the input formatting string */
     String generateDatetimeFromFormat (String format);
 
-    /** Updates button colors when color theme changes */
-    void updateColors();
+    /** Updates button colours when colour theme changes */
+    void updateColours();
 
     std::unique_ptr<FilenameEditorButton> filenameText;
     std::unique_ptr<FilenameConfigWindow> filenameConfigWindow;

@@ -36,7 +36,7 @@ MuteButton::MuteButton()
     offimage = ImageCache::getFromMemory (BinaryData::muteoff_png, BinaryData::muteoff_pngSize);
     onimage = ImageCache::getFromMemory (BinaryData::muteon_png, BinaryData::muteon_pngSize);
 
-    setImages (false, true, true, offimage, 1.0f, findColour (ThemeColors::defaultText), offimage, 0.5f, findColour (ThemeColors::defaultText).withAlpha (0.5f), onimage, 0.7f, findColour (ThemeColors::defaultText).withAlpha (0.7f));
+    setImages (false, true, true, offimage, 1.0f, findColour (ThemeColours::defaultText), offimage, 0.5f, findColour (ThemeColours::defaultText).withAlpha (0.5f), onimage, 0.7f, findColour (ThemeColours::defaultText).withAlpha (0.7f));
 
     setClickingTogglesState (true);
 
@@ -45,7 +45,7 @@ MuteButton::MuteButton()
 
 void MuteButton::updateImages()
 {
-    setImages (false, true, true, offimage, 1.0f, findColour (ThemeColors::defaultText), offimage, 0.5f, findColour (ThemeColors::defaultText).withAlpha (0.5f), onimage, 0.7f, findColour (ThemeColors::defaultText).withAlpha (0.7f));
+    setImages (false, true, true, offimage, 1.0f, findColour (ThemeColours::defaultText), offimage, 0.5f, findColour (ThemeColours::defaultText).withAlpha (0.5f), onimage, 0.7f, findColour (ThemeColours::defaultText).withAlpha (0.7f));
 }
 
 AudioWindowButton::AudioWindowButton()
@@ -60,9 +60,9 @@ AudioWindowButton::AudioWindowButton()
 void AudioWindowButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     if (getToggleState())
-        g.setColour (findColour (ThemeColors::highlightedFill));
+        g.setColour (findColour (ThemeColours::highlightedFill));
     else
-        g.setColour (findColour (ThemeColors::defaultText));
+        g.setColour (findColour (ThemeColours::defaultText));
 
     const bool isLatencyLabelVisible = getParentComponent()->getWidth() >= 450;
     auto textToDraw = isLatencyLabelVisible ? textString : textString.fromLastOccurrenceOf (":", false, true);
@@ -227,7 +227,7 @@ void AudioEditor::componentVisibilityChanged (Component& component)
 void AudioEditor::paint (Graphics& g)
 {
     const int margin = getWidth() * 0.03;
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
     g.setFont (FontOptions ("Silkscreen", "Regular", 14));
     g.drawSingleLineText ("GATE:", volumeSlider->getBounds().getRight() + margin, 20);
 
@@ -303,5 +303,5 @@ void AudioConfigurationWindow::resized()
 
 void AudioConfigurationWindow::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::componentBackground));
+    g.fillAll (findColour (ThemeColours::componentBackground));
 }

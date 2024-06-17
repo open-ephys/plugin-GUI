@@ -30,7 +30,7 @@ MessageCenterEditor::MessageCenterEditor (MessageCenter* owner) : AudioProcessor
                                                                   messageCenter (owner),
                                                                   incomingBackground (Colours::black.withAlpha (0.0f)),
                                                                   outgoingBackground (Colours::black.withAlpha (0.0f)),
-                                                                  backgroundColor (Colours::grey.withAlpha (0.0f))
+                                                                  backgroundColour (Colours::grey.withAlpha (0.0f))
 {
     incomingMessageDisplayArea = std::make_unique<MessageLabel> ("Message Display Area", "No new messages");
     editableMessageDisplayArea = std::make_unique<MessageLabel> ("Message Display Area", "Type a new message here.");
@@ -92,7 +92,7 @@ void MessageCenterEditor::timerCallback()
 
     float incomingAlpha = incomingBackground.getFloatAlpha();
     float outgoingAlpha = outgoingBackground.getFloatAlpha();
-    float backgroundAlpha = backgroundColor.getFloatAlpha();
+    float backgroundAlpha = backgroundColour.getFloatAlpha();
 
     if (incomingAlpha > 0)
     {
@@ -125,7 +125,7 @@ void MessageCenterEditor::timerCallback()
         if (backgroundAlpha < 0)
             backgroundAlpha = 0;
 
-        backgroundColor = backgroundColor.withAlpha (backgroundAlpha);
+        backgroundColour = backgroundColour.withAlpha (backgroundAlpha);
 
         shouldRepaint = true;
     }
@@ -171,7 +171,7 @@ void MessageCenterEditor::expand()
     {
         isExpanded = true;
 
-        backgroundColor = findColour (ThemeColors::widgetBackground);
+        backgroundColour = findColour (ThemeColours::widgetBackground);
 
         resized();
 
@@ -185,7 +185,7 @@ void MessageCenterEditor::collapse()
     {
         isExpanded = false;
 
-        backgroundColor = findColour (ThemeColors::componentBackground);
+        backgroundColour = findColour (ThemeColours::componentBackground);
 
         resized();
 
@@ -195,21 +195,21 @@ void MessageCenterEditor::collapse()
 
 void MessageCenterEditor::paint (Graphics& g)
 {
-    g.setColour (findColour (ThemeColors::outline).withAlpha (0.5f)); // edge color
+    g.setColour (findColour (ThemeColours::outline).withAlpha (0.5f)); // edge colour
 
     g.drawRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 6.0f, 2.0f);
 
     if (isExpanded)
-        g.setColour (findColour (ThemeColors::widgetBackground).withAlpha (0.85f));
+        g.setColour (findColour (ThemeColours::widgetBackground).withAlpha (0.85f));
     else
-        g.setColour (findColour (ThemeColors::componentBackground));
+        g.setColour (findColour (ThemeColours::componentBackground));
 
     g.fillRoundedRectangle (2, 2, getWidth() - 4, getHeight() - 4, 6.0f);
 
-    g.setColour (backgroundColor);
+    g.setColour (backgroundColour);
     g.fillRoundedRectangle (2, 2, getWidth() - 4, getHeight() - 4, 6.0f);
 
-    g.setColour (findColour (ThemeColors::outline).withAlpha (0.5f)); // dividing line
+    g.setColour (findColour (ThemeColours::outline).withAlpha (0.5f)); // dividing line
 
     if (isExpanded)
         g.fillRect (getWidth() / 2 + 9, 10, 2, getHeight() - 30);
@@ -233,15 +233,15 @@ void MessageCenterEditor::paint (Graphics& g)
     if (isExpanded)
     {
         g.setFont (FontOptions ("CP Mono", "Bold", 80));
-        g.setColour (findColour (ThemeColors::defaultFill).withAlpha (0.25f));
+        g.setColour (findColour (ThemeColours::defaultFill).withAlpha (0.25f));
         g.drawText ("INCOMING", 4, 25, getWidth() / 2 - 11, getHeight() - 60, Justification::centred);
         g.drawText ("OUTGOING", getWidth() / 2 + 26, 25, getWidth() / 2 - 34, getHeight() - 60, Justification::centred);
     }
 
-    g.setColour (findColour (ThemeColors::outline).withAlpha (0.5f));
+    g.setColour (findColour (ThemeColours::outline).withAlpha (0.5f));
     g.drawRect (getWidth() / 2 + 26, getHeight() - 25, getWidth() / 2 - 80, 20);
 
-    sendMessageButton->setColour (TextButton::buttonColourId, findColour (ThemeColors::highlightedFill));
+    sendMessageButton->setColour (TextButton::buttonColourId, findColour (ThemeColours::highlightedFill));
 }
 
 void MessageCenterEditor::resized()

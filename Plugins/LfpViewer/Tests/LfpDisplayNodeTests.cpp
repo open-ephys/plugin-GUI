@@ -72,13 +72,13 @@ public:
     }
 
     /*Constructs the trace information from internal buffers into an Image object*/
-    Image getImage (int width, int height, Array<Colour> channelColors, Colour backgroundColor, Colour midlineColor, int scaleFactor)
+    Image getImage (int width, int height, Array<Colour> channelColours, Colour backgroundColour, Colour midlineColour, int scaleFactor)
     {
         Image expectedImage (Image::ARGB, width, height, true);
 
-        //Fill image with background color
+        //Fill image with background colour
         Graphics g (expectedImage);
-        g.fillAll (backgroundColor);
+        g.fillAll (backgroundColour);
         int heightPerChannel = height / numChannels;
         float samplesPerPixel = (float) numSamplesInView / (float) width;
 
@@ -87,7 +87,7 @@ public:
         {
             for (int x = 0; x < width; x++)
             {
-                expectedImage.setPixelAt (x, channelIndex * heightPerChannel + heightPerChannel / 2, midlineColor);
+                expectedImage.setPixelAt (x, channelIndex * heightPerChannel + heightPerChannel / 2, midlineColour);
             }
         }
 
@@ -112,14 +112,14 @@ public:
                 int yWritePixel = channelMidline - amplitude;
                 if (yWritePixel >= 0 && yWritePixel < height)
                 {
-                    expectedImage.setPixelAt (xWritePixel, yWritePixel, channelColors[channelIndex]);
+                    expectedImage.setPixelAt (xWritePixel, yWritePixel, channelColours[channelIndex]);
                     if (xWritePixel != 0)
                     {
                         //Need to fill in gaps if  difference between y pixels
                         int currentY = lastPixelY;
                         while (currentY != yWritePixel)
                         {
-                            expectedImage.setPixelAt (xWritePixel, currentY, channelColors[channelIndex]);
+                            expectedImage.setPixelAt (xWritePixel, currentY, channelColours[channelIndex]);
                             currentY = yWritePixel > currentY ? currentY + 1 : currentY - 1;
                         }
                     }
@@ -132,7 +132,7 @@ public:
         int playbackXPixel = int (std::ceil (float (lastSampleWritten) / float (samplesPerPixel))) % width + 1;
         for (int playbackYPixel = 0; playbackYPixel < height; playbackYPixel += 2)
         {
-            expectedImage.setPixelAt (playbackXPixel, playbackYPixel, backgroundColor);
+            expectedImage.setPixelAt (playbackXPixel, playbackYPixel, backgroundColour);
             expectedImage.setPixelAt (playbackXPixel, playbackYPixel + 1, Colours::yellow);
         }
 
@@ -231,8 +231,8 @@ protected:
     void SetExpectedImageParameters (LfpViewer::LfpDisplayCanvas* canvas)
     {
         canvas->getChannelBitmapBounds (0, x, y, width, height);
-        canvas->getChannelColors (0, channelColors, backgroundColour);
-        ASSERT_EQ (channelColors.size(), num_channels);
+        canvas->getChannelColours (0, channelColours, backgroundColour);
+        ASSERT_EQ (channelColours.size(), num_channels);
     }
 
     /*Compares 2 Image objects and returns the number of different pixels*/
@@ -296,7 +296,7 @@ protected:
     Colour backgroundColour;
     Colour playheadColour;
 
-    Array<Colour> channelColors;
+    Array<Colour> channelColours;
 
     int width;
     int height;
@@ -332,7 +332,7 @@ TEST_F (LfpDisplayNodeTests, VisualIntegrityTest)
     expected.addToBuffer (input_buffer);
     canvas->refreshState();
     Image canvas_image = canvas->createComponentSnapshot (canvasSnapshot);
-    Image expected_image = expected.getImage (width, height, channelColors, backgroundColour, midlineColour, 125);
+    Image expected_image = expected.getImage (width, height, channelColours, backgroundColour, midlineColour, 125);
     int missCount = GetImageDifferencePixelCount (expected_image, canvas_image);
     ASSERT_LE (missCount / (width * height), 0.01f);
 
@@ -343,7 +343,7 @@ TEST_F (LfpDisplayNodeTests, VisualIntegrityTest)
     canvas->refreshState();
 
     canvas_image = canvas->createComponentSnapshot (canvasSnapshot);
-    expected_image = expected.getImage (width, height, channelColors, backgroundColour, midlineColour, 125);
+    expected_image = expected.getImage (width, height, channelColours, backgroundColour, midlineColour, 125);
     missCount = GetImageDifferencePixelCount (expected_image, canvas_image);
     ASSERT_LE (float (missCount) / float (width * height), 0.01f);
 
@@ -354,7 +354,7 @@ TEST_F (LfpDisplayNodeTests, VisualIntegrityTest)
     canvas->refreshState();
 
     canvas_image = canvas->createComponentSnapshot (canvasSnapshot);
-    expected_image = expected.getImage (width, height, channelColors, backgroundColour, midlineColour, 125);
+    expected_image = expected.getImage (width, height, channelColours, backgroundColour, midlineColour, 125);
     missCount = GetImageDifferencePixelCount (expected_image, canvas_image);
     ASSERT_LE (float (missCount) / float (width * height), 0.01f);
 
@@ -367,7 +367,7 @@ TEST_F (LfpDisplayNodeTests, VisualIntegrityTest)
     canvasSnapshot.setBounds (x, y, width, height);
 
     canvas_image = canvas->createComponentSnapshot (canvasSnapshot);
-    expected_image = expected.getImage (width, height, channelColors, backgroundColour, midlineColour, 250);
+    expected_image = expected.getImage (width, height, channelColours, backgroundColour, midlineColour, 250);
     missCount = GetImageDifferencePixelCount (expected_image, canvas_image);
     ASSERT_LE (float (missCount) / float (width * height), 0.01f);
 

@@ -91,7 +91,7 @@ public:
     bool isInterestedInDragSource (const SourceDetails& dragSourceDetails);
 
     /** Called when a dragged item (usually a name from the ProcessorList) enters the
-       boundaries of the EditorViewport. Causes the background of the EditorViewport to change color.*/
+       boundaries of the EditorViewport. Causes the background of the EditorViewport to change colour.*/
     void itemDragEnter (const SourceDetails& dragSourceDetails);
 
     /** Called when a dragged item (usually a name from the ProcessorList) moves within the
@@ -100,7 +100,7 @@ public:
     void itemDragMove (const SourceDetails& dragSourceDetails);
 
     /** Called when a dragged item (usually a name from the ProcessorList) leaves the
-       boundaries of the EditorViewport. Causes the background of the EditorViewport to change color.*/
+       boundaries of the EditorViewport. Causes the background of the EditorViewport to change colour.*/
     void itemDragExit (const SourceDetails& dragSourceDetails);
 
     /** Called when a dragged item (usually a name from the ProcessorList) is released within the

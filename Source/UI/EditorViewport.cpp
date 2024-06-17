@@ -69,7 +69,7 @@ EditorViewport::~EditorViewport()
 
 void EditorViewport::paint (Graphics& g)
 {
-    g.setColour (findColour (ThemeColors::componentParentBackground));
+    g.setColour (findColour (ThemeColours::componentParentBackground));
     g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 14, 5.0f);
 
     // Draw drop shadow for each editor
@@ -78,7 +78,7 @@ void EditorViewport::paint (Graphics& g)
         if (editorArray[i]->getProcessor()->isEmpty())
             continue;
 
-        DropShadow (findColour (ThemeColors::dropShadowColor), 10, Point<int> (4, 2))
+        DropShadow (findColour (ThemeColours::dropShadowColour), 10, Point<int> (4, 2))
             .drawForRectangle (g, editorArray[i]->getBounds().reduced (1, 1));
     }
 
@@ -367,7 +367,7 @@ void EditorViewport::updateVisibleEditors (Array<GenericEditor*> visibleEditors,
         editorArray.add (editor);
         addChildComponent (editor);
         editor->setVisible (true);
-        editor->refreshColors();
+        editor->refreshColours();
     }
 
     refreshEditors();
@@ -1221,7 +1221,7 @@ void SignalChainScrollButton::setActive (bool state)
 
 void SignalChainScrollButton::paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown)
 {
-    g.setColour (findColour (ThemeColors::defaultFill));
+    g.setColour (findColour (ThemeColours::defaultFill));
     path.scaleToFit (0, 0, getWidth(), getHeight(), true);
 
     g.strokePath (path, PathStrokeType (1.0f, PathStrokeType::curved, PathStrokeType::rounded));
@@ -1276,7 +1276,7 @@ void SignalChainTabComponent::setScrollOffset (int offset)
 
 void SignalChainTabComponent::paint (Graphics& g)
 {
-    g.setColour (findColour (ThemeColors::defaultFill));
+    g.setColour (findColour (ThemeColours::defaultFill));
 
     for (int n = 0; n < 4; n++)
     {
@@ -1297,7 +1297,7 @@ void SignalChainTabComponent::paintOverChildren (Graphics& g)
     leftCornerPath.closeSubPath();
     leftCornerPath.applyTransform (AffineTransform::translation (TAB_SIZE, 0));
 
-    g.setColour (findColour (ThemeColors::windowBackground));
+    g.setColour (findColour (ThemeColours::windowBackground));
     g.fillPath (leftCornerPath);
 
     leftCornerPath.applyTransform (AffineTransform::verticalFlip (getHeight() - 12));
@@ -1321,7 +1321,7 @@ void SignalChainTabComponent::paintOverChildren (Graphics& g)
     }
     else
     {
-        g.setColour (findColour (ThemeColors::defaultFill));
+        g.setColour (findColour (ThemeColours::defaultFill));
     }
 
     g.drawRoundedRectangle (TAB_SIZE + 1, 1, getWidth() - TAB_SIZE - 2, getHeight() - 14, 10.0f, 2.0f);

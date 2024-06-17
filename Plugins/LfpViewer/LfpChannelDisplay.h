@@ -92,7 +92,7 @@ public:
     /** Sets whether or not the channel is recorded by an upstream Record Node*/
     void setRecorded (bool);
 
-    /** Sets the color for this channel's trace */
+    /** Sets the colour for this channel's trace */
     void setColour (Colour c);
 
     /** Sets the height for this channel */

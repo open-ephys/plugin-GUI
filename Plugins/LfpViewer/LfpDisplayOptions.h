@@ -191,7 +191,7 @@ private:
     std::unique_ptr<Label> ttlWordLabel;
     std::unique_ptr<UtilityButton> pauseButton;
     std::unique_ptr<ComboBox> colourSchemeOptionSelection;
-    std::unique_ptr<ComboBox> colorGroupingSelection;
+    std::unique_ptr<ComboBox> colourGroupingSelection;
 
     std::unique_ptr<ShowHideOptionsButton> showHideOptionsButton;
 
@@ -218,7 +218,7 @@ private:
     Array<String> voltageRanges[CHANNEL_TYPES];
     Array<String> timebases;
     Array<String> spreads; // option for vertical spacing between channels
-    Array<String> colorGroupings; // option for coloring every N channels the same
+    Array<String> colourGroupings; // option for colouring every N channels the same
     Array<String> triggerSources; // option for trigger source event channel
     Array<String> overlaps; //
     Array<String> saturationThresholds; //default values for when different amplifiers saturate

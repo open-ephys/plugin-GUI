@@ -43,10 +43,10 @@ public:
     /** Destructor */
     virtual ~DefaultColourScheme() {}
 
-    /** Returns color at a given channel index */
+    /** Returns colour at a given channel index */
     virtual const Colour getColourForIndex (int index) const override;
 
-    /** Returns the background color*/
+    /** Returns the background colour*/
     virtual const Colour getBackgroundColour() const override;
 
 private:

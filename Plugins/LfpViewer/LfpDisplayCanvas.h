@@ -123,7 +123,7 @@ public:
 #if BUILD_TESTS
     bool getChannelBitmapBounds (int splitIndex, int& x, int& y, int& width, int& height);
 
-    bool getChannelColors (int splitIndex, Array<Colour>& channelColors, Colour& backgroundColor);
+    bool getChannelColours (int splitIndex, Array<Colour>& channelColours, Colour& backgroundColour);
 
     bool setChannelHeight (int splitIndex, int height);
 

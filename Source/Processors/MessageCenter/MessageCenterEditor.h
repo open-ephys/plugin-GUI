@@ -168,7 +168,7 @@ private:
 
     Colour incomingBackground;
     Colour outgoingBackground;
-    Colour backgroundColor;
+    Colour backgroundColour;
 
     bool firstMessageReceived = false;
     bool isExpanded = false;

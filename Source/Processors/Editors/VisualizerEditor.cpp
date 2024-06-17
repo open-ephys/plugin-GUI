@@ -327,7 +327,7 @@ void VisualizerEditor::makeNewWindow()
 {
     dataWindow = std::make_unique<DataWindow> (windowSelector.get(), tabText);
     dataWindow->setLookAndFeel (&getLookAndFeel());
-    dataWindow->setBackgroundColour (findColour (ThemeColors::windowBackground));
+    dataWindow->setBackgroundColour (findColour (ThemeColours::windowBackground));
 }
 
 /* static method */

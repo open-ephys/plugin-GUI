@@ -208,13 +208,13 @@ void LfpChannelDisplay::pxPaint()
                 if (rawEventState & (1 << ev_ch)) // events are  represented by a bit code, so we have to extract the individual bits with a mask
                 {
                     //                        std::cout << "Drawing event." << std::endl;
-                    const Colour currentcolor = display->channelColours[ev_ch * 2];
+                    const Colour currentcolour = display->channelColours[ev_ch * 2];
 
                     for (int k = jfrom_wholechannel; k <= jto_wholechannel; k++) // draw line
                     {
                         bdLfpChannelBitmap.setPixelColour (i,
                                                            k,
-                                                           bdLfpChannelBitmap.getPixelColour (i, k).interpolatedWith (currentcolor, 0.3f));
+                                                           bdLfpChannelBitmap.getPixelColour (i, k).interpolatedWith (currentcolour, 0.3f));
                     }
                 }
             }
@@ -511,13 +511,13 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
                 if (rawEventState & (1 << ev_ch)) // events are  represented by a bit code, so we have to extract the individual bits with a mask
                 {
                     //                        std::cout << "Drawing event." << std::endl;
-                    const Colour currentcolor = display->channelColours[ev_ch * 2];
+                    const Colour currentcolour = display->channelColours[ev_ch * 2];
 
                     for (int k = jfrom_wholechannel; k <= jto_wholechannel; k++) // draw line
                     {
                         bdLfpChannelBitmap.setPixelColour (i,
                                                            k,
-                                                           bdLfpChannelBitmap.getPixelColour (i, k).interpolatedWith (currentcolor, 0.3f));
+                                                           bdLfpChannelBitmap.getPixelColour (i, k).interpolatedWith (currentcolour, 0.3f));
                     }
                 }
             }
@@ -701,13 +701,13 @@ void LfpChannelDisplay::drawEventOverlay (int x, int yfrom, int yto, Image::Bitm
             if (rawEventState & (1 << ev_ch)) // events are  represented by a bit code, so we have to extract the individual bits with a mask
             {
                 //                        std::cout << "Drawing event." << std::endl;
-                const Colour currentcolor = display->channelColours[ev_ch * 2];
+                const Colour currentcolour = display->channelColours[ev_ch * 2];
 
                 for (int k = yfrom; k <= yto; k++) // draw line
                 {
                     image->setPixelColour (x,
                                            k,
-                                           image->getPixelColour (x, k).interpolatedWith (currentcolor, 0.3f));
+                                           image->getPixelColour (x, k).interpolatedWith (currentcolour, 0.3f));
                 }
             }
         }

@@ -135,7 +135,7 @@ public:
     /** Set font height */
     void setFontHeight (int height);
 
-    /** Set the color of the ticks and labels */
+    /** Set the colour of the ticks and labels */
     void setAxisColour (Colour c);
 
     /** Sets whether the axis should be inverted */

@@ -42,9 +42,9 @@ class MetadataEvent;
  
     Specifies the name, description, and contents of a metadata field
     Each field can contain a specified number of values of a particular data type
-    e.g. a color field could be represented as:
+    e.g. a colour field could be represented as:
         
-        MetadataDescriptor( MetadataType::UINT8, 3, "color", "The color of this event", "metadata.color");
+        MetadataDescriptor( MetadataType::UINT8, 3, "colour", "The colour of this event", "metadata.colour");
  
     A timestamp (in seconds) could be represented as:
  

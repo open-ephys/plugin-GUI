@@ -77,7 +77,7 @@ private:
     AttributedString infoText;
     TextLayout infoTextLayout;
 
-    std::unique_ptr<Drawable> color_logo;
+    std::unique_ptr<Drawable> colour_logo;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TextComponent);
 };
@@ -110,8 +110,8 @@ public:
     void refresh() {}
     void refreshState() {}
 
-    /** Updates the colors of the text field */
-    void updateColors();
+    /** Updates the colours of the text field */
+    void updateColours();
 
     /** Resizes text field*/
     void resized();

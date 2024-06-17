@@ -55,7 +55,7 @@ void DefaultConfigWindow::launchWindow()
     options.content->setSize (area.getWidth(), area.getHeight());
 
     options.dialogTitle = "Load a Default Configuration";
-    options.dialogBackgroundColour = configComponent->findColour (ThemeColors::componentBackground);
+    options.dialogBackgroundColour = configComponent->findColour (ThemeColours::componentBackground);
     options.escapeKeyTriggersCloseButton = true;
     options.useNativeTitleBar = false;
     options.resizable = false;
@@ -90,7 +90,7 @@ DefaultConfigComponent::DefaultConfigComponent()
     acqBoardButton = std::make_unique<ImageButton> ("Default Config Selector - Acquisition Board");
     File acqIconFile = iconsDir.getChildFile ("acq_board_icon.png");
     Image acqBoardIcon = ImageFileFormat::loadFrom (acqIconFile);
-    acqBoardButton->setImages (false, true, true, acqBoardIcon, 1.0f, findColour (ThemeColors::defaultFill), acqBoardIcon, 1.0f, findColour (ThemeColors::highlightedFill), acqBoardIcon, 1.0f, findColour (ThemeColors::highlightedFill));
+    acqBoardButton->setImages (false, true, true, acqBoardIcon, 1.0f, findColour (ThemeColours::defaultFill), acqBoardIcon, 1.0f, findColour (ThemeColours::highlightedFill), acqBoardIcon, 1.0f, findColour (ThemeColours::highlightedFill));
 
     acqBoardButton->setClickingTogglesState (true);
     acqBoardButton->setTooltip ("Acquire data from an Open Ephys Acquisition Board");
@@ -107,7 +107,7 @@ DefaultConfigComponent::DefaultConfigComponent()
     fileReaderButton = std::make_unique<ImageButton> ("Default Config Selector - File Reader");
     File fRIconFile = iconsDir.getChildFile ("file_reader_icon.png");
     Image fRIcon = ImageFileFormat::loadFrom (fRIconFile);
-    fileReaderButton->setImages (false, true, true, fRIcon, 1.0f, findColour (ThemeColors::defaultFill), fRIcon, 1.0f, findColour (ThemeColors::highlightedFill), fRIcon, 1.0f, findColour (ThemeColors::highlightedFill));
+    fileReaderButton->setImages (false, true, true, fRIcon, 1.0f, findColour (ThemeColours::defaultFill), fRIcon, 1.0f, findColour (ThemeColours::highlightedFill), fRIcon, 1.0f, findColour (ThemeColours::highlightedFill));
 
     fileReaderButton->setClickingTogglesState (true);
     fileReaderButton->setTooltip ("Read data from a file");
@@ -125,7 +125,7 @@ DefaultConfigComponent::DefaultConfigComponent()
     neuropixelsButton = std::make_unique<ImageButton> ("Default Config Selector - Neuropixels-PXI");
     File npxIconFile = iconsDir.getChildFile ("neuropixels_icon.png");
     Image npxIcon = ImageFileFormat::loadFrom (npxIconFile);
-    neuropixelsButton->setImages (false, true, true, npxIcon, 1.0f, findColour (ThemeColors::defaultFill), npxIcon, 1.0f, findColour (ThemeColors::highlightedFill), npxIcon, 1.0f, findColour (ThemeColors::highlightedFill));
+    neuropixelsButton->setImages (false, true, true, npxIcon, 1.0f, findColour (ThemeColours::defaultFill), npxIcon, 1.0f, findColour (ThemeColours::highlightedFill), npxIcon, 1.0f, findColour (ThemeColours::highlightedFill));
 
     neuropixelsButton->setClickingTogglesState (true);
     neuropixelsButton->addListener (this);
@@ -148,7 +148,7 @@ DefaultConfigComponent::DefaultConfigComponent()
 
     goButton = std::make_unique<TextButton> ("Default Config Selector - Load Button");
     goButton->setButtonText ("Load");
-    goButton->setColour (TextButton::buttonColourId, findColour (ThemeColors::highlightedFill));
+    goButton->setColour (TextButton::buttonColourId, findColour (ThemeColours::highlightedFill));
     goButton->addListener (this);
     addAndMakeVisible (goButton.get());
 }
@@ -159,11 +159,11 @@ DefaultConfigComponent::~DefaultConfigComponent()
 
 void DefaultConfigComponent::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::componentParentBackground));
-    g.setColour (findColour (ThemeColors::componentBackground));
+    g.fillAll (findColour (ThemeColours::componentParentBackground));
+    g.setColour (findColour (ThemeColours::componentBackground));
     g.fillRect (10, 0, getWidth() - 20, getHeight() - 10);
 
-    g.setColour (findColour (ThemeColors::highlightedFill));
+    g.setColour (findColour (ThemeColours::highlightedFill));
 
     if (acqBoardButton->getToggleState())
         g.drawRoundedRectangle (acqBoardButton->getBounds().expanded (5).toFloat(), 5.0f, 1.0f);

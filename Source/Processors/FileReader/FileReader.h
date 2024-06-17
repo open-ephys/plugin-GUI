@@ -35,7 +35,7 @@
 
 class ScrubberInterface;
 
-/** Assigns a unique color to each event channel */
+/** Assigns a unique colour to each event channel */
 //TODO: This should ultimately be added to PLUGIN_API / customizable via themes
 static const Array<Colour> eventChannelColours = {
     Colour (224, 185, 36),

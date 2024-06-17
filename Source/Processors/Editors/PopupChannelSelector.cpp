@@ -55,7 +55,7 @@ void ChannelButton::mouseUp (const MouseEvent& event)
 
 void ChannelButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    g.setColour (findColour (ThemeColors::outline));
+    g.setColour (findColour (ThemeColours::outline));
     g.fillRoundedRectangle (0.0f, 0.0f, getWidth(), getHeight(), 0.001 * getWidth());
 
     if (isMouseOver)
@@ -63,19 +63,19 @@ void ChannelButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDow
         if (getToggleState())
             g.setColour (parent->buttonColour.brighter());
         else
-            g.setColour (findColour (ThemeColors::widgetBackground).contrasting (0.3f));
+            g.setColour (findColour (ThemeColours::widgetBackground).contrasting (0.3f));
     }
     else
     {
         if (getToggleState())
             g.setColour (parent->buttonColour);
         else
-            g.setColour (findColour (ThemeColors::widgetBackground));
+            g.setColour (findColour (ThemeColours::widgetBackground));
     }
     g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 0.001 * getWidth());
 
     //Draw text string in middle of button
-    g.setColour (getToggleState() ? Colours::white : findColour (ThemeColors::defaultText));
+    g.setColour (getToggleState() ? Colours::white : findColour (ThemeColours::defaultText));
     g.setFont (FontOptions ("Inter", "Medium", 10.0f));
     g.drawText (String (id + 1), 0, 0, getWidth(), getHeight(), Justification::centred);
 }
@@ -90,23 +90,23 @@ void SelectButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown
     if (isMouseOver)
     {
         if (getToggleState())
-            g.setColour (findColour (ThemeColors::highlightedFill).withAlpha (0.5f));
+            g.setColour (findColour (ThemeColours::highlightedFill).withAlpha (0.5f));
         else
-            g.setColour (findColour (ThemeColors::widgetBackground).contrasting (0.3f));
+            g.setColour (findColour (ThemeColours::widgetBackground).contrasting (0.3f));
     }
     else
     {
         if (getToggleState())
-            g.setColour (findColour (ThemeColors::highlightedFill));
+            g.setColour (findColour (ThemeColours::highlightedFill));
         else
-            g.setColour (findColour (ThemeColors::widgetBackground));
+            g.setColour (findColour (ThemeColours::widgetBackground));
     }
     g.fillRoundedRectangle (1.0f, 1.0f, (float) getWidth() - 2.0f, (float) getHeight() - 2.0f, 2.0f);
 
-    g.setColour (findColour (ThemeColors::outline));
+    g.setColour (findColour (ThemeColours::outline));
     g.drawRoundedRectangle (0.0f, 0.0f, (float) getWidth(), (float) getHeight(), 2.0f, 1.0f);
 
-    g.setColour (findColour (ThemeColors::defaultText));
+    g.setColour (findColour (ThemeColours::defaultText));
     g.setFont (FontOptions ("Inter", "Regular", 12.0f));
     g.drawText (String (getName()), 0, 0, getWidth(), getHeight(), Justification::centred);
 }

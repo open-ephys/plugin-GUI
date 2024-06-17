@@ -163,7 +163,7 @@ void SpikeDisplayCanvas::resized()
 
 void SpikeDisplayCanvas::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColors::componentParentBackground));
+    g.fillAll (findColour (ThemeColours::componentParentBackground));
 }
 
 void SpikeDisplayCanvas::refresh()

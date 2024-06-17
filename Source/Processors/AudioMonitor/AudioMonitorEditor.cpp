@@ -33,7 +33,7 @@ MonitorMuteButton::MonitorMuteButton (Parameter* param) : ParameterEditor (param
     offimage = ImageCache::getFromMemory (BinaryData::muteoff_png, BinaryData::muteoff_pngSize);
     onimage = ImageCache::getFromMemory (BinaryData::muteon_png, BinaryData::muteon_pngSize);
 
-    muteButton->setImages (false, true, true, offimage, 1.0f, findColour (ThemeColors::defaultText), offimage, 0.5f, findColour (ThemeColors::defaultText).withAlpha (0.5f), onimage, 0.7f, findColour (ThemeColors::defaultText).withAlpha (0.7f));
+    muteButton->setImages (false, true, true, offimage, 1.0f, findColour (ThemeColours::defaultText), offimage, 0.5f, findColour (ThemeColours::defaultText).withAlpha (0.5f), onimage, 0.7f, findColour (ThemeColours::defaultText).withAlpha (0.7f));
 
     muteButton->setClickingTogglesState (true);
 
@@ -60,7 +60,7 @@ void MonitorMuteButton::updateView()
 
 void MonitorMuteButton::paint (Graphics& g)
 {
-    muteButton->setImages (false, true, true, offimage, 1.0f, findColour (ThemeColors::defaultText), offimage, 0.5f, findColour (ThemeColors::defaultText).withAlpha (0.5f), onimage, 0.7f, findColour (ThemeColors::defaultText).withAlpha (0.7f));
+    muteButton->setImages (false, true, true, offimage, 1.0f, findColour (ThemeColours::defaultText), offimage, 0.5f, findColour (ThemeColours::defaultText).withAlpha (0.5f), onimage, 0.7f, findColour (ThemeColours::defaultText).withAlpha (0.7f));
 }
 
 void MonitorMuteButton::resized()

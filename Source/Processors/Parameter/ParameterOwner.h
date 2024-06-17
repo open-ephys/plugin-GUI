@@ -94,11 +94,11 @@ public:
     /** Returns the number of parameters for this object*/
     int numParameters() const { return parameters.size(); }
 
-    /** Set parameter color */
-    void setColor (String name, Colour color) { parameterColors[name] = color; };
+    /** Set parameter colour */
+    void setColour (String name, Colour colour) { parameterColours[name] = colour; };
 
-    /** Get parameter color */
-    Colour getColor (String name) { return parameterColors[name]; };
+    /** Get parameter colour */
+    Colour getColour (String name) { return parameterColours[name]; };
 
     // --------------------------------------------
     //     PARAMETER CHANGE NOTIFICATION
@@ -130,7 +130,7 @@ protected:
 private:
     const Type m_type;
 
-    std::map<String, Colour> parameterColors;
+    std::map<String, Colour> parameterColours;
 };
 
 #endif
