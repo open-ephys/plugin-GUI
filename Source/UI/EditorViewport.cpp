@@ -58,7 +58,7 @@ EditorViewport::EditorViewport (SignalChainTabComponent* s_)
 
     editorNamingLabel.setEditable (true);
     editorNamingLabel.setBounds (0, 0, 100, 20);
-    editorNamingLabel.setColour (Label::textColourId, Colours::white);
+    editorNamingLabel.setFont (FontOptions ("Inter", "Regular", 16.0f));
     editorNamingLabel.addListener (this);
 }
 
@@ -757,7 +757,17 @@ void EditorViewport::paste()
 
 void EditorViewport::labelTextChanged (Label* label)
 {
-    editorToUpdate->setDisplayName (label->getText());
+    if (label == &editorNamingLabel && label->getText().isNotEmpty())
+    {
+        editorToUpdate->setDisplayName (label->getText());
+
+        if (auto parentComp = editorNamingLabel.getParentComponent())
+            parentComp->exitModalState (0);
+    }
+    else
+    {
+        editorNamingLabel.setText (editorToUpdate->getDisplayName(), dontSendNotification);
+    }
 }
 
 void EditorViewport::mouseDown (const MouseEvent& e)
@@ -794,6 +804,8 @@ void EditorViewport::mouseDown (const MouseEvent& e)
 
                 if (editorArray[i]->isMerger() || editorArray[i]->isSplitter())
                     return;
+
+                editorArray[i]->highlight();
 
                 PopupMenu m;
                 m.setLookAndFeel (&getLookAndFeel());
@@ -835,13 +847,19 @@ void EditorViewport::mouseDown (const MouseEvent& e)
 
                 if (result == 1)
                 {
-                    editorNamingLabel.setText ("", dontSendNotification);
+                    editorToUpdate = editorArray[i];
+                    editorNamingLabel.setText (editorToUpdate->getDisplayName(), dontSendNotification);
 
-                    juce::Rectangle<int> rect1 = juce::Rectangle<int> (editorArray[i]->getScreenX() + 20, editorArray[i]->getScreenY() + 11, 1, 1);
+                    int nameWidth = editorNamingLabel.getFont().getStringWidth (editorNamingLabel.getText()) + 10;
+                    editorNamingLabel.setSize (nameWidth > 100 ? nameWidth : 100, 20);
+                    editorNamingLabel.setColour (Label::backgroundColourId, findColour (ThemeColours::widgetBackground));
+                    editorNamingLabel.showEditor();
+
+                    juce::Rectangle<int> rect1 = juce::Rectangle<int> (editorToUpdate->getScreenX() + 40, editorToUpdate->getScreenY() + 18, 1, 1);
 
                     CallOutBox callOut (editorNamingLabel, rect1, nullptr);
-                    editorToUpdate = editorArray[i];
                     callOut.runModalLoop();
+                    callOut.setDismissalMouseClicksAreAlwaysConsumed (true);
 
                     return;
                 }
@@ -1226,7 +1244,6 @@ void SignalChainScrollButton::paintButton (Graphics& g, bool isMouseOverButton, 
 
     g.strokePath (path, PathStrokeType (1.0f, PathStrokeType::curved, PathStrokeType::rounded));
 }
-
 
 SignalChainTabComponent::SignalChainTabComponent()
 {
