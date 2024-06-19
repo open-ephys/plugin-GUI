@@ -65,7 +65,7 @@ void GraphViewport::paint (Graphics& g)
     g.setColour (findColour (ThemeColours::componentBackground).brighter (0.3f));
 
     g.setFont (FontOptions ("Silkscreen", "Regular", 15));
-    g.drawFittedText (currentVersionText, 40, 40, getWidth() - 72, getHeight() - 60, Justification::bottomRight, 100);
+    g.drawFittedText (currentVersionText, getWidth() - 197, getHeight()-30, 197, 15, Justification::centred, 1);
 }
 
 void GraphViewport::resized()
