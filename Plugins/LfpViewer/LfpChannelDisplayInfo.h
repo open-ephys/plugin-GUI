@@ -43,7 +43,8 @@ namespace LfpViewer
     associated LfpChannelDisplay waveform on or off.
  */
 class LfpChannelDisplayInfo : public LfpChannelDisplay,
-                              public Button::Listener
+                              public Button::Listener,
+                              public TooltipClient
 {
     friend class LfpDisplay;
 
@@ -113,6 +114,8 @@ private:
     /** Get/set whether channel number is hidden */
     void setChannelNumberIsHidden (bool shouldBeHidden);
     bool isChannelNumberHidden();
+
+    String getTooltip() override;
 };
 
 }; // namespace LfpViewer

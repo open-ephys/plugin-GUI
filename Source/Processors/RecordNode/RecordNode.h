@@ -251,6 +251,9 @@ public:
 
     DiskSpaceChecker* getDiskSpaceChecker() { return diskSpaceChecker.get(); }
 
+    /*sets record engine to parameter pointer; only for testing*/
+    void overrideRecordEngine (RecordEngineManager* engine);
+
 private:
     /** Handles other types of events (text, sync texts, etc.) */
     void handleEvent (const EventChannel* channel, const EventPacket& eventPacket);

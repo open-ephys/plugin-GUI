@@ -314,6 +314,7 @@ void SourceNode::process (AudioBuffer<float>& buffer)
                                                                    &timestamp,
                                                                    static_cast<uint64*> (eventCodeBuffers[streamIdx]->getData()),
                                                                    buffer.getNumSamples(),
+                                                                   &timestampSampleIndex,
                                                                    copiedChannels,
                                                                    channelsToCopy);
 

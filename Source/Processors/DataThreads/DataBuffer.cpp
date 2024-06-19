@@ -29,6 +29,7 @@ DataBuffer::DataBuffer (int chans, int size)
     sampleNumberBuffer.malloc (size);
     timestampBuffer.malloc (size);
     eventCodeBuffer.malloc (size);
+    timestampSampleBuffer.malloc (size);
 
     lastSampleNumber = 0;
     lastTimestamp = -1.0;
@@ -56,6 +57,7 @@ void DataBuffer::resize (int chans, int size)
     sampleNumberBuffer.malloc (size);
     timestampBuffer.malloc (size);
     eventCodeBuffer.malloc (size);
+    timestampSampleBuffer.malloc (size);
 
     lastSampleNumber = 0;
     lastTimestamp = -1.0;
@@ -67,7 +69,8 @@ int DataBuffer::addToBuffer (float* data,
                              int64* sampleNumbers,
                              double* timestamps,
                              uint64* eventCodes,
-                             int numItems)
+                             int numItems,
+                             std::optional<int64> timestampSampleIndex)
 {
     int startIndex1, blockSize1, startIndex2, blockSize2;
 
@@ -93,6 +96,7 @@ int DataBuffer::addToBuffer (float* data,
         memcpy (sampleNumberBuffer + si[i], sampleNumbers + idx, (size_t) cSize * sizeof (int64));
         memcpy (timestampBuffer + si[i], timestamps + idx, (size_t) cSize * sizeof (double));
         memcpy (eventCodeBuffer + si[i], eventCodes + idx, (size_t) cSize * sizeof (uint64));
+        memcpy (timestampSampleBuffer + si[i], &timestampSampleIndex, (size_t) cSize * sizeof (std::optional<int64>));
 
         idx += cSize;
     }
@@ -110,6 +114,7 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
                                    double* blockTimestamp,
                                    uint64* eventCodes,
                                    int maxSize,
+                                   std::optional<int64>* timestampSampleIndex,
                                    int dstStartChannel,
                                    int numChannels)
 {
@@ -137,6 +142,7 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
         memcpy (blockSampleNumber, sampleNumberBuffer + startIndex1, 8);
         memcpy (blockTimestamp, timestampBuffer + startIndex1, 8);
         memcpy (eventCodes, eventCodeBuffer + startIndex1, blockSize1 * 8);
+        memcpy (timestampSampleIndex, timestampSampleBuffer + startIndex1, sizeof (std::optional<int64>));
     }
     else
     {

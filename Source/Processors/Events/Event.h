@@ -217,8 +217,10 @@ public:
         PARAMETER_CHANGE = 2,
 
         // Special text event sent by Source Processors at the start of recording
-        TIMESTAMP_SYNC_TEXT = 3
+        TIMESTAMP_SYNC_TEXT = 3,
 
+        // Indicates reference sample information for each incoming data buffer
+        REFERENCE_SAMPLE = 4
     };
 
     /* Create a TIMESTAMP_AND_SAMPLES event (used by processors that update timestamps) */
@@ -238,6 +240,12 @@ public:
                                              int64 startSample,
                                              double startTimestamp,
                                              bool softwareTime = false);
+
+    static size_t fillReferenceSampleEvent (HeapBlock<char>& data,
+                                            const GenericProcessor* proc,
+                                            uint16 streamId,
+                                            int64 referenceSampleIndex,
+                                            double referenceSampleTimestamp);
 
     /* Get the SystemEvent type from an EventPacket object */
     static Type getSystemEventType (const EventPacket& msg);

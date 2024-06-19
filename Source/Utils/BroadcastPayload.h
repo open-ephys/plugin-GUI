@@ -25,16 +25,21 @@
 #define BroadcastPayload_h
 
 #include "../../JuceLibraryCode/JuceHeader.h"
+#include "../Processors/PluginManager/OpenEphysPlugin.h"
 #include <climits>
 #include <map>
-class BroadcastPayload
+class PLUGIN_API BroadcastPayload
 {
 public:
+    BroadcastPayload();
+
     BroadcastPayload (String command, DynamicObject::Ptr payload);
 
     String getCommandName() const;
 
     bool getIntField (String name, int& value, int lowerBound = INT_MAX, int upperBound = INT_MIN);
+
+    const DynamicObject::Ptr getPayload() const;
 
 private:
     String _commandName;

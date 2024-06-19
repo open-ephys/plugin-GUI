@@ -1027,3 +1027,20 @@ void RecordNode::loadCustomParametersFromXml (XmlElement* xml)
         }
     }
 }
+
+void RecordNode::overrideRecordEngine (RecordEngineManager* engine)
+{
+    if (recordEngine.get() != nullptr)
+    {
+        recordEngine.reset (engine->instantiateEngine());
+
+        if (recordThread != nullptr)
+        {
+            recordThread->setEngine (recordEngine.get());
+        }
+    }
+    else
+    {
+        recordEngine.reset (engine->instantiateEngine());
+    }
+}
