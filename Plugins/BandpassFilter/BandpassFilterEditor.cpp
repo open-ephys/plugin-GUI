@@ -30,5 +30,5 @@ BandpassFilterEditor::BandpassFilterEditor (GenericProcessor* parentNode) : Gene
     addBoundedValueParameterEditor (Parameter::STREAM_SCOPE, "low_cut", 15, 29);
     addBoundedValueParameterEditor (Parameter::STREAM_SCOPE, "high_cut", 15, 54);
     addMaskChannelsParameterEditor (Parameter::STREAM_SCOPE, "channels", 15, 79);
-    addComboBoxParameterEditor (Parameter::STREAM_SCOPE, "threads", 15, 104);
+    addComboBoxParameterEditor (Parameter::PROCESSOR_SCOPE, "threads", 15, 104);
 }

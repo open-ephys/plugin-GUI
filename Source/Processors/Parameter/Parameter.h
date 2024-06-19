@@ -294,7 +294,7 @@ public:
     /** Set the type of the parameter editor used for this parameter 
      * Used by the GenericEditor to set which parameter editor to use when creating default editors 
     */
-    void setParmeterEditorType (ParameterEditorType editorType)
+    void setParameterEditorType (ParameterEditorType editorType)
     {
         m_editorType = editorType;
     }

@@ -118,7 +118,7 @@ void GenericEditor::addTextBoxParameterEditor (Parameter::ParameterScope scope,
     else
         param = getProcessor()->getStreamParameter (parameterName);
 
-    param->setParmeterEditorType (Parameter::ParameterEditorType::TEXTBOX_EDITOR);
+    param->setParameterEditorType (Parameter::ParameterEditorType::TEXTBOX_EDITOR);
 
     addCustomParameterEditor (new TextBoxParameterEditor (param), xPos_, yPos_);
 }
@@ -135,7 +135,7 @@ void GenericEditor::addToggleParameterEditor (Parameter::ParameterScope scope,
     else
         param = getProcessor()->getStreamParameter (parameterName);
 
-    param->setParmeterEditorType (Parameter::ParameterEditorType::TOGGLE_EDITOR);
+    param->setParameterEditorType (Parameter::ParameterEditorType::TOGGLE_EDITOR);
 
     addCustomParameterEditor (new ToggleParameterEditor (param), xPos_, yPos_);
 }
@@ -152,7 +152,7 @@ void GenericEditor::addBoundedValueParameterEditor (Parameter::ParameterScope sc
     else
         param = getProcessor()->getStreamParameter (parameterName);
 
-    param->setParmeterEditorType (Parameter::ParameterEditorType::BOUNDED_VALUE_EDITOR);
+    param->setParameterEditorType (Parameter::ParameterEditorType::BOUNDED_VALUE_EDITOR);
 
     addCustomParameterEditor (new BoundedValueParameterEditor (param), xPos_, yPos_);
 }
@@ -169,7 +169,7 @@ void GenericEditor::addComboBoxParameterEditor (Parameter::ParameterScope scope,
     else
         param = getProcessor()->getStreamParameter (parameterName);
 
-    param->setParmeterEditorType (Parameter::ParameterEditorType::COMBOBOX_EDITOR);
+    param->setParameterEditorType (Parameter::ParameterEditorType::COMBOBOX_EDITOR);
 
     addCustomParameterEditor (new ComboBoxParameterEditor (param), xPos_, yPos_);
 }
@@ -186,7 +186,7 @@ void GenericEditor::addSelectedChannelsParameterEditor (Parameter::ParameterScop
     else
         param = getProcessor()->getStreamParameter (parameterName);
 
-    param->setParmeterEditorType (Parameter::ParameterEditorType::SELECTED_CHANNELS_EDITOR);
+    param->setParameterEditorType (Parameter::ParameterEditorType::SELECTED_CHANNELS_EDITOR);
 
     addCustomParameterEditor (new SelectedChannelsParameterEditor (param), xPos_, yPos_);
 }
@@ -203,7 +203,7 @@ void GenericEditor::addMaskChannelsParameterEditor (Parameter::ParameterScope sc
     else
         param = getProcessor()->getStreamParameter (parameterName);
 
-    param->setParmeterEditorType (Parameter::ParameterEditorType::MASK_CHANNELS_EDITOR);
+    param->setParameterEditorType (Parameter::ParameterEditorType::MASK_CHANNELS_EDITOR);
 
     addCustomParameterEditor (new MaskChannelsParameterEditor (param), xPos_, yPos_);
 }
@@ -220,7 +220,7 @@ void GenericEditor::addPathParameterEditor (Parameter::ParameterScope scope,
     else
         param = getProcessor()->getStreamParameter (parameterName);
 
-    param->setParmeterEditorType (Parameter::ParameterEditorType::PATH_EDITOR);
+    param->setParameterEditorType (Parameter::ParameterEditorType::PATH_EDITOR);
 
     addCustomParameterEditor (new PathParameterEditor (param), xPos_, yPos_);
 }
@@ -232,7 +232,7 @@ void GenericEditor::addSelectedStreamParameterEditor (Parameter::ParameterScope 
 {
     Parameter* param = getProcessor()->getParameter (parameterName);
 
-    param->setParmeterEditorType (Parameter::ParameterEditorType::SELECTED_STREAM_EDITOR);
+    param->setParameterEditorType (Parameter::ParameterEditorType::SELECTED_STREAM_EDITOR);
 
     addCustomParameterEditor (new SelectedStreamParameterEditor (param), xPos_, yPos_);
 }
@@ -249,7 +249,7 @@ void GenericEditor::addTimeParameterEditor (Parameter::ParameterScope scope,
     else
         param = getProcessor()->getStreamParameter (parameterName);
 
-    param->setParmeterEditorType (Parameter::ParameterEditorType::TIME_EDITOR);
+    param->setParameterEditorType (Parameter::ParameterEditorType::TIME_EDITOR);
 
     addCustomParameterEditor (new TimeParameterEditor (param), xPos_, yPos_);
 }
@@ -262,7 +262,7 @@ void GenericEditor::addTtlLineParameterEditor (Parameter::ParameterScope scope,
     jassert (scope == Parameter::ParameterScope::STREAM_SCOPE);
 
     Parameter* param = getProcessor()->getStreamParameter (parameterName);
-    param->setParmeterEditorType (Parameter::ParameterEditorType::TTL_LINE_EDITOR);
+    param->setParameterEditorType (Parameter::ParameterEditorType::TTL_LINE_EDITOR);
 
     addCustomParameterEditor (new TtlLineParameterEditor (param), xPos_, yPos_);
 }
@@ -272,7 +272,7 @@ void GenericEditor::addSyncLineParameterEditor (TtlLineParameter* ttlParam,
                                                 int xPos_,
                                                 int yPos_)
 {
-    ttlParam->setParmeterEditorType (Parameter::ParameterEditorType::TTL_LINE_EDITOR);
+    ttlParam->setParameterEditorType (Parameter::ParameterEditorType::TTL_LINE_EDITOR);
     addCustomParameterEditor (new TtlLineParameterEditor (ttlParam, syncStreamParam), xPos_, yPos_);
 }
 
