@@ -2043,7 +2043,7 @@ XmlElement* ProcessorGraph::createNodeXml (GenericProcessor* processor, bool isS
         xml->setAttribute ("insertionPoint", 0);
     else
         xml->setAttribute ("insertionPoint", 1);
-    xml->setAttribute ("pluginName", processor->getName());
+    xml->setAttribute ("pluginName", processor->getPluginName());
     xml->setAttribute ("type", (int) (processor->getPluginType()));
     xml->setAttribute ("index", processor->getIndex());
     xml->setAttribute ("libraryName", processor->getLibName());

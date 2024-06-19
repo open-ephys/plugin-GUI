@@ -81,6 +81,13 @@ void PluginClass::setPluginData (Plugin::Type type, int index)
             break;
         }
 
+        case Plugin::BUILT_IN:
+        {
+            Plugin::Description description = ProcessorManager::getPluginDescription (Plugin::BUILT_IN, index);
+            name = description.name;
+            break;
+        }
+
         case Plugin::INVALID:
         {
             Plugin::Description description = ProcessorManager::getPluginDescription (Plugin::BUILT_IN, index);
