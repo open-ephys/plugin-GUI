@@ -78,7 +78,7 @@ public:
     ~PlayButton() {}
 
     /** Re-makes images with new colours */
-    void updateImages();
+    void updateImages(bool acquisitionIsActive);
 };
 
 /**
@@ -106,7 +106,7 @@ public:
     ~RecordButton() {}
 
     /** Re-makes images with new colours */
-    void updateImages();
+    void updateImages(bool recordingIsActive);
 };
 
 /**

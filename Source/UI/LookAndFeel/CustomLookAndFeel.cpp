@@ -94,8 +94,10 @@ void CustomLookAndFeel::initializeColours()
     themeColoursMap[MEDIUM] = {
         { ThemeColours::componentBackground, Colour (143, 143, 143) },
         { ThemeColours::componentParentBackground, Colour (58, 58, 58) },
-        { ThemeColours::windowBackground, Colour (40, 40, 40) },
+        { ThemeColours::windowBackground, Colour (15, 15, 15) },
         { ThemeColours::widgetBackground, Colour (190, 190, 190) },
+        { ThemeColours::controlPanelBackground, Colour (50, 50, 50) },
+        { ThemeColours::controlPanelText, Colour (220, 220, 220) },
         { ThemeColours::menuBackground, Colour (140, 140, 140) },
         { ThemeColours::menuHighlightText, Colours::black },
         { ThemeColours::menuHighlightBackground, Colour (244, 148, 32) },
@@ -112,6 +114,8 @@ void CustomLookAndFeel::initializeColours()
         { ThemeColours::componentParentBackground, Colour (30, 30, 30).darker (0.3f) },
         { ThemeColours::windowBackground, Colour (24, 24, 24) },
         { ThemeColours::widgetBackground, Colour (40, 40, 40).darker() },
+        { ThemeColours::controlPanelBackground, Colour (45, 45, 45) },
+        { ThemeColours::controlPanelText, Colour (224, 224, 224) },
         { ThemeColours::menuBackground, Colour (30, 30, 30) },
         { ThemeColours::menuHighlightText, Colour (20, 20, 20) },
         { ThemeColours::menuHighlightBackground, Colour (153, 200, 214) },
@@ -128,6 +132,8 @@ void CustomLookAndFeel::initializeColours()
         { ThemeColours::componentParentBackground, Colour (225, 225, 225).darker() },
         { ThemeColours::windowBackground, Colour (176, 176, 176) },
         { ThemeColours::widgetBackground, Colour (225, 225, 225).brighter (0.6f) },
+        { ThemeColours::controlPanelBackground, Colour (225, 225, 225) },
+        { ThemeColours::controlPanelText, Colours::black },
         { ThemeColours::menuBackground, Colour (225, 225, 225) },
         { ThemeColours::menuHighlightText, Colours::black },
         { ThemeColours::menuHighlightBackground, Colour (138, 193, 232) },
@@ -151,7 +157,7 @@ void CustomLookAndFeel::setTheme (ColourTheme theme)
 
     const Colour transparent = Colour (0x00000000);
 
-    setColour (ProcessorColour::IDs::PROCESSOR_COLOUR, currentThemeColours[ThemeColours::componentBackground]);
+    setColour (ProcessorColour::IDs::PROCESSOR_COLOUR, currentThemeColours[ThemeColours::controlPanelBackground]);
 
     setColour (TextButton::buttonColourId, currentThemeColours[ThemeColours::widgetBackground]);
     setColour (TextButton::buttonOnColourId, currentThemeColours[ThemeColours::highlightedFill]);

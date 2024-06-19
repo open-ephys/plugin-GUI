@@ -199,12 +199,6 @@ void UIComponent::resized()
     if (showHideEditorViewportButton != nullptr)
     {
         showHideEditorViewportButton->setBounds (w - 230, h - 40, 225, 35);
-
-        //if (h < 300 && showHideEditorViewportButton->getToggleState())
-        //    showHideEditorViewportButton->toggleState();
-
-        //if (h < 200)
-        //    showHideEditorViewportButton->setBounds(w-230,h-40+200-h,225,35);
     }
 
     if (signalChainTabComponent != nullptr)
@@ -1127,9 +1121,9 @@ void ShowHideEditorViewportButton::buttonClicked (Button* button)
 
 void ShowHideEditorViewportButton::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColours::componentBackground));
+    g.fillAll (findColour (ThemeColours::controlPanelBackground));
 
-    g.setColour (findColour (ThemeColours::defaultText));
+    g.setColour (findColour (ThemeColours::controlPanelText));
     g.setFont (buttonFont);
     g.drawText ("SIGNAL CHAIN", 10, 0, getWidth(), getHeight(), Justification::left, false);
 

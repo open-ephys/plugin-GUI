@@ -27,14 +27,6 @@
 CustomArrowButton::CustomArrowButton (float rotation, float width_) : ToggleButton(),
                                                                       width (width_)
 {
-    //openPath.addTriangle(-1f, -1f, 1f, -1.0f, 0.0f, 1.0f );
-    //openPath.applyTransform(AffineTransform::scale(2.2f, 2.2f));
-    //openPath.applyTransform(AffineTransform::translation(-5.f, -5.f));
-    //openPath.applyTransform(AffineTransform::rotation(rotation));
-    //openPath.applyTransform(AffineTransform::translation(5.f, 5.f));
-    //closedPath.addTriangle(1.5f, 5.0f, 7.0f, 2.2f, 7.0f, 7.8f);
-    //closedPath.applyTransform(AffineTransform::scale(2.2f, 2.2f));
-    //closedPath.applyTransform(AffineTransform::rotation(rotation));
 
     juce::Path trianglePath;
 
@@ -43,10 +35,6 @@ CustomArrowButton::CustomArrowButton (float rotation, float width_) : ToggleButt
     vertices[0] = juce::Point<float> (0, 0.6);
     vertices[1] = juce::Point<float> (0.5, -0.36);
     vertices[2] = juce::Point<float> (-0.5, -0.36);
-
-    //vertices[0] = juce::Point<float>(1.5, 5.0);
-    //vertices[1] = juce::Point<float>(7.0, 2.2);
-    //vertices[2] = juce::Point<float>(7.0, 7.8);
 
     trianglePath.startNewSubPath (vertices[0]);
     trianglePath.lineTo (vertices[1]);
@@ -82,7 +70,7 @@ void CustomArrowButton::paint (Graphics& g)
     if (customBackground)
         foregroundColour = backgroundColour.darker (0.9f).withAlpha (0.5f);
     else
-        foregroundColour = findColour (ThemeColours::defaultText).withAlpha (0.3f);
+        foregroundColour = findColour (ThemeColours::controlPanelText).withAlpha (0.3f);
 
     if (isOver())
         g.setColour (foregroundColour.brighter (0.4f));
@@ -94,7 +82,7 @@ void CustomArrowButton::paint (Graphics& g)
     if (customBackground)
         g.setColour (backgroundColour);
     else
-        g.setColour (findColour (ThemeColours::componentBackground));
+        g.setColour (findColour (ThemeColours::controlPanelBackground));
 
     if (getToggleState())
         g.fillPath (openPath);

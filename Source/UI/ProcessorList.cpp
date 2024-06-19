@@ -143,7 +143,7 @@ void ProcessorList::drawItem (Graphics& g, ProcessorListItem* item)
 void ProcessorList::drawItemName (Graphics& g, ProcessorListItem* item)
 {
     if (item->getName().equalsIgnoreCase ("Processors"))
-        g.setColour (findColour (ThemeColours::defaultText));
+        g.setColour (findColour (ThemeColours::controlPanelText));
     else
         g.setColour (Colours::white);
 

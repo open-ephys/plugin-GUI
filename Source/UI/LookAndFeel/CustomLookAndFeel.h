@@ -48,6 +48,8 @@ enum ThemeColours
     componentParentBackground,
     windowBackground,
     widgetBackground,
+    controlPanelBackground,
+    controlPanelText,
     menuBackground,
     menuHighlightText,
     menuHighlightBackground,
