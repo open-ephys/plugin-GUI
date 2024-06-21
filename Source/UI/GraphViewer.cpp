@@ -266,6 +266,7 @@ void GraphViewer::removeNode (GenericProcessor* p)
 void GraphViewer::removeAllNodes()
 {
     availableNodes.clear();
+    updateBoundaries();
     repaint();
 }
 

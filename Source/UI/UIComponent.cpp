@@ -89,7 +89,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_,
 
     processorList->setVisible (true);
     processorList->setBounds (0, 0, 195, processorList->getTotalHeight());
-    LOGD ("Created filter list.");
+    LOGD ("Created processor list.");
 
     setBounds (0, 0, 500, 400);
 

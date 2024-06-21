@@ -112,7 +112,7 @@ void CustomLookAndFeel::initializeColours()
     themeColoursMap[DARK] = {
         { ThemeColours::componentBackground, Colour (45, 45, 45) },
         { ThemeColours::componentParentBackground, Colour (30, 30, 30).darker (0.3f) },
-        { ThemeColours::windowBackground, Colour (24, 24, 24) },
+        { ThemeColours::windowBackground, Colour (15, 15, 15) },
         { ThemeColours::widgetBackground, Colour (40, 40, 40).darker() },
         { ThemeColours::controlPanelBackground, Colour (45, 45, 45) },
         { ThemeColours::controlPanelText, Colour (224, 224, 224) },
