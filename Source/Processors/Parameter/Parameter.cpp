@@ -782,7 +782,7 @@ Array<var> SelectedChannelsParameter::parseSelectedString (const String& input)
 
 void SelectedChannelsParameter::setChannelCount (int newCount)
 {
-    if (channelCount > newCount)
+    if (channelCount > newCount && parameterOwner->getType() != ParameterOwner::SPIKE_CHANNEL)
     {
         Array<var> values;
         for (int i = 0; i < currentValue.getArray()->size(); i++)
