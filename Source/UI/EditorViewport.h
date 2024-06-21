@@ -321,7 +321,6 @@ private:
     Path path; // inactive, activeNormal, activeOver, activeDown;
 };
 
-
 /**
 
   Allows the user to navigate between multiple parallel signal chains.
@@ -358,6 +357,8 @@ public:
     int offset;
 
     void setEditorViewport (EditorViewport*);
+
+    Viewport* getViewport() { return viewport.get(); }
 
     enum directions
     {

@@ -126,16 +126,20 @@ void EditorViewport::itemDragEnter (const SourceDetails& dragSourceDetails)
     if (! CoreServices::getAcquisitionStatus())
     {
         somethingIsBeingDraggedOver = true;
+        beginDragAutoRepeat (20);
         repaint();
     }
 }
 
 void EditorViewport::itemDragMove (const SourceDetails& dragSourceDetails)
 {
-    int x = dragSourceDetails.localPosition.getX();
+    const int x = dragSourceDetails.localPosition.getX();
 
     if (! CoreServices::getAcquisitionStatus())
     {
+        const auto mousePos = signalChainTabComponent->getViewport()->getMouseXYRelative();
+        signalChainTabComponent->getViewport()->autoScroll (mousePos.getX(), mousePos.getY(), 40, 10);
+
         Array<var>* descr = dragSourceDetails.description.getArray();
         dragProcType = (Plugin::Processor::Type) int (descr->getUnchecked (4));
 
@@ -193,6 +197,8 @@ void EditorViewport::itemDragExit (const SourceDetails& dragSourceDetails)
 {
     somethingIsBeingDraggedOver = false;
     dragProcType = Plugin::Processor::INVALID;
+
+    beginDragAutoRepeat (0);
 
     if (editorArray.size() > 0
         && editorArray[0]->getProcessor()->isEmpty()
@@ -383,6 +389,9 @@ int EditorViewport::getDesiredWidth()
     {
         desiredWidth += editor->getTotalWidth() + BORDER_SIZE;
     }
+
+    if (somethingIsBeingDraggedOver && insertionPoint == editorArray.size())
+        desiredWidth += 2 * BORDER_SIZE;
 
     return desiredWidth + BORDER_SIZE;
 }
@@ -1259,7 +1268,7 @@ SignalChainTabComponent::SignalChainTabComponent()
     addAndMakeVisible (downButton.get());
 
     viewport = std::make_unique<Viewport>();
-    viewport->setScrollBarsShown (false, true);
+    viewport->setScrollBarsShown (false, true, false, true);
     viewport->setScrollBarThickness (12);
     addAndMakeVisible (viewport.get());
 
