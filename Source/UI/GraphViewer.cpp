@@ -65,7 +65,7 @@ void GraphViewport::paint (Graphics& g)
     g.setColour (findColour (ThemeColours::componentBackground).brighter (0.3f));
 
     g.setFont (FontOptions ("Silkscreen", "Regular", 15));
-    g.drawFittedText (currentVersionText, getWidth() - 197, getHeight()-30, 197, 15, Justification::centred, 1);
+    g.drawFittedText (currentVersionText, getWidth() - 197, getHeight() - 30, 197, 15, Justification::centred, 1);
 }
 
 void GraphViewport::resized()
@@ -376,13 +376,6 @@ void GraphViewer::paint (Graphics& g)
                     connectNodes (i, indexOfDest, g);
             }
         }
-
-        if (availableNodes[i]->getProcessor()->isEmpty())
-            continue;
-
-        // Draw drop shadow for node
-        DropShadow (findColour (ThemeColours::dropShadowColour), 10, Point<int> (2, 8))
-            .drawForRectangle (g, availableNodes[i]->getBounds().reduced (1));
     }
 }
 
@@ -792,7 +785,8 @@ GraphNode::GraphNode (GenericEditor* ed, GraphViewer* g)
     previousHeight = 0;
     verticalOffset = 0;
 
-    // nodeDropShadower.setOwner(this);
+    if (! processor->isEmpty())
+        nodeDropShadower.setOwner (this);
 }
 
 GraphNode::~GraphNode()

@@ -278,6 +278,8 @@ private:
     std::unique_ptr<ProcessorParameterComponent> processorParamComponent;
     Component* processorParamHeader;
 
+    DropShadower nodeDropShadower { DropShadow (findColour (ThemeColours::dropShadowColour), 10, Point<int> (0, 8)) };
+
     bool isMouseOver;
     int horzShift;
     int vertShift;
