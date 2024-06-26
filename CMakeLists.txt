@@ -248,8 +248,8 @@ elseif(APPLE)
 		MACOSX_BUNDLE_INFO_PLIST "${RESOURCES_DIRECTORY}/Build-files/Info.plist.in"
 		MACOSX_BUNDLE TRUE
 		)
-	target_compile_options(open-ephys PRIVATE -fPIC -Wpartial-availability -Wno-inconsistent-missing-override -rdynamic)
-	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS "-fPIC -rdynamic")
+	target_compile_options(open-ephys PRIVATE -fPIC -Wpartial-availability -Wno-inconsistent-missing-override)
+	target_link_options(open-ephys PRIVATE -rdynamic)
 	target_link_libraries(open-ephys dl)
 	target_link_libraries(open-ephys
 		"-framework Accelerate"
