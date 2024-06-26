@@ -1584,25 +1584,16 @@ float LfpDisplaySplitter::getStd(int chan)
     // use 0.1s of sample to compute Mean and Std
     float totalPoints = 0.1 * sampleRate;
 
-    //LOGD("DisplayBufferIndex ", displayBufferIndex[chan], " - ", totalPoints, " points required");
-
-    // avoid crash if no signal
-    //if ((displayBufferIndex[chan] - totalPoints) <= 0) {
-    //    LOGD("\tReturning ", 0);
-    //    return 0;
-    //}
-
     for (int samp = displayBufferIndex[chan] - totalPoints; samp < displayBufferIndex[chan]; samp += 1)
     {
         float value = 0;
 
-        if (samp >= 0)
+        if (samp >= 0) // read the beginning of the buffer
             value = *displayBuffer->getReadPointer(chan, samp);
-        else
+        else // read the end of the buffer if negative index
             value = *displayBuffer->getReadPointer(chan, displayBuffer->getNumSamples() - samp);
 
         std += pow((value - mean),2);
-        //LOGD("\tval ", *displayBuffer->getReadPointer(chan, samp));
         numPts++;
     }
     LOGD("\tReturning ", sqrt(std / numPts));
