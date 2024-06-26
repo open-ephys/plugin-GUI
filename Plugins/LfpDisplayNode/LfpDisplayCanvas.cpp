@@ -1560,8 +1560,6 @@ float LfpDisplaySplitter::getMean(int chan)
     
     for (int samp = displayBufferIndex[chan] - totalPoints; samp < displayBufferIndex[chan]; samp += 1)
     {
-        float sample = 0;
-
         if (samp >= 0) // read the beginning of the buffer
             sample = *displayBuffer->getReadPointer(chan, samp);
         else // read the end of the buffer if negative index
@@ -1579,6 +1577,7 @@ float LfpDisplaySplitter::getMean(int chan)
 float LfpDisplaySplitter::getStd(int chan)
 {
     float std = 0.0f;
+    float sample = 0.0f;
 
     float mean = getMean(chan);
     float numPts = 1;
@@ -1588,8 +1587,6 @@ float LfpDisplaySplitter::getStd(int chan)
 
     for (int samp = displayBufferIndex[chan] - totalPoints; samp < displayBufferIndex[chan]; samp += 1)
     {
-        float sample = 0;
-
         if (samp >= 0) // read the beginning of the buffer
             sample = *displayBuffer->getReadPointer(chan, samp);
         else // read the end of the buffer if negative index
@@ -1598,7 +1595,6 @@ float LfpDisplaySplitter::getStd(int chan)
         std += pow((sample - mean),2);
         numPts++;
     }
-    LOGD("\tReturning ", sqrt(std / numPts));
 
     return sqrt(std / numPts);
 
