@@ -166,7 +166,7 @@ void CustomLookAndFeel::setTheme (ColourTheme theme)
 
     setColour (ToggleButton::textColourId, currentThemeColours[ThemeColours::defaultText]);
     setColour (ToggleButton::tickColourId, currentThemeColours[ThemeColours::defaultText]);
-    setColour (ToggleButton::tickDisabledColourId, currentThemeColours[ThemeColours::defaultText].withAlpha (0.5f));
+    setColour (ToggleButton::tickDisabledColourId, currentThemeColours[ThemeColours::widgetBackground]);
 
     setColour (TextEditor::backgroundColourId, currentThemeColours[ThemeColours::widgetBackground]);
     setColour (TextEditor::textColourId, currentThemeColours[ThemeColours::defaultText]);
@@ -846,6 +846,9 @@ void CustomLookAndFeel::drawTickBox (Graphics& g, Component& component, float x,
 
     g.setColour (component.findColour (ToggleButton::tickDisabledColourId));
     g.fillRoundedRectangle (tickBounds.reduced (0.5f, 0.5f), 3.0f);
+
+    g.setColour (findColour (ThemeColours::outline));
+    g.drawRoundedRectangle (tickBounds.reduced (0.5f, 0.5f), 3.0f, 1.0f);
 
     if (ticked)
     {
