@@ -63,14 +63,12 @@ static inline File getSharedDirectory()
 static String osType = String ("");
 StringArray updatablePlugins;
 
-PluginInstaller::PluginInstaller (MainWindow* mainWindow, bool loadComponents)
+PluginInstaller::PluginInstaller (bool loadComponents)
     : DocumentWindow (WINDOW_TITLE,
                       Colour (Colours::black),
                       DocumentWindow::closeButton)
 {
     MouseCursor::showWaitCursor();
-    parent = (DocumentWindow*) mainWindow;
-
     // Identify the OS on which the GUI is running
     SystemStats::OperatingSystemType os = SystemStats::getOperatingSystemType();
 
@@ -85,12 +83,7 @@ PluginInstaller::PluginInstaller (MainWindow* mainWindow, bool loadComponents)
 
     if (loadComponents)
     {
-        int x = parent->getX();
-        int y = parent->getY();
-        int w = parent->getWidth();
-        int h = parent->getHeight();
-
-        centreWithSize (900, 480);
+        setSize (910, 480);
         setUsingNativeTitleBar (true);
         setContentOwned (new PluginInstallerComponent(), false);
         setVisible (true);
@@ -823,7 +816,7 @@ void PluginListBoxComponent::returnKeyPressed (int lastRowSelected)
 
 /* ================================== Plugin Information Component ================================== */
 
-PluginInfoComponent::PluginInfoComponent() : ThreadWithProgressWindow ("Plugin Installer", false, false)
+PluginInfoComponent::PluginInfoComponent() : ThreadWithProgressWindow ("Plugin Installer", true, false)
 {
     infoCompDropShadower.setOwner (this);
 
@@ -941,6 +934,12 @@ void PluginInfoComponent::buttonClicked (Button* button)
 {
     if (button == &downloadButton)
     {
+        if (auto* alertWindow = this->getAlertWindow())
+        {
+            if (auto parent = button->getTopLevelComponent())
+                alertWindow->setCentrePosition (parent->getScreenBounds().getCentre());
+        }
+
         this->runThread();
     }
     else if (button == &uninstallButton)
@@ -972,13 +971,23 @@ void PluginInfoComponent::setDownloadURL (const String& url)
     downloadURL = url;
 }
 
+void PluginInfoComponent::showAlertOnMessageThread (MessageBoxIconType iconType, const String& title, const String& message)
+{
+    MessageManager::callAsync ([iconType, title, message]()
+                               { AlertWindow::showMessageBoxAsync (iconType, title, message); });
+}
+
 void PluginInfoComponent::run()
 {
+    setProgress (-1.0);
+
     // Check if plugin already present in signal chain
     bool pluginInUse = false;
+    String nameInUse;
     if (pInfo.type == "RecordEngine" && AccessClass::getProcessorGraph()->hasRecordNode())
     {
         pluginInUse = true;
+        nameInUse = "Record Node";
     }
     else
     {
@@ -988,6 +997,7 @@ void PluginInfoComponent::run()
             if (p->getLibName().equalsIgnoreCase (pInfo.displayName))
             {
                 pluginInUse = true;
+                nameInUse = pInfo.displayName;
                 break;
             }
         }
@@ -995,9 +1005,9 @@ void PluginInfoComponent::run()
 
     if (pluginInUse)
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                          "[Plugin Installer] " + pInfo.displayName,
-                                          pInfo.displayName + " is already in use. Please remove all instances of it from the signal chain and try again.");
+        showAlertOnMessageThread (AlertWindow::WarningIcon,
+                                  "[Plugin Installer] " + pInfo.displayName,
+                                  nameInUse + " is already in use. Please remove all instances of it from the signal chain and try again.");
 
         LOGE ("Error.. Plugin already in use. Please remove it from the signal chain and try again.");
         return;
@@ -1006,9 +1016,9 @@ void PluginInfoComponent::run()
     // Remove older version of the plugin if present
     if (! AccessClass::getPluginManager()->removePlugin (pInfo.displayName))
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                          "[Plugin Installer] ERROR",
-                                          "Unable to remove current installed version of " + pInfo.displayName + "... Plugin update failed.");
+        showAlertOnMessageThread (AlertWindow::WarningIcon,
+                                  "[Plugin Installer] ERROR",
+                                  "Unable to remove current installed version of " + pInfo.displayName + "... Plugin update failed.");
 
         LOGE ("Unable to remove current installed version of " + pInfo.displayName + "... Plugin update failed.");
         return;
@@ -1028,39 +1038,39 @@ void PluginInfoComponent::run()
         }
         else if (retCode == 2)
         {
-            AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                              "[Plugin Installer] " + pInfo.dependencies[i],
-                                              "Could not install dependency: " + pInfo.dependencies[i]
-                                                  + ". Please contact the developers.");
+            showAlertOnMessageThread (AlertWindow::WarningIcon,
+                                      "[Plugin Installer] " + pInfo.dependencies[i],
+                                      "Could not install dependency: " + pInfo.dependencies[i]
+                                          + ". Please contact the developers.");
 
             LOGE ("Download Failed!!");
             return;
         }
         else if (retCode == ZIP_NOTFOUND)
         {
-            AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                              "[Plugin Installer] " + pInfo.dependencies[i],
-                                              "Could not find the ZIP file for " + pInfo.dependencies[i]
-                                                  + ". Please contact the developers.");
+            showAlertOnMessageThread (AlertWindow::WarningIcon,
+                                      "[Plugin Installer] " + pInfo.dependencies[i],
+                                      "Could not find the ZIP file for " + pInfo.dependencies[i]
+                                          + ". Please contact the developers.");
 
             LOGE ("Download Failed!!");
             return;
         }
         else if (retCode == HTTP_ERR)
         {
-            AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                              "[Plugin Installer] " + pInfo.dependencies[i],
-                                              "HTTP request failed!!\nPlease check your internet connection...");
+            showAlertOnMessageThread (AlertWindow::WarningIcon,
+                                      "[Plugin Installer] " + pInfo.dependencies[i],
+                                      "HTTP request failed!!\nPlease check your internet connection...");
 
             LOGE ("HTTP request failed!! Please check your internet connection...");
             return;
         }
         else
         {
-            AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                              "[Plugin Installer] " + pInfo.dependencies[i],
-                                              "An unknown error occured while installing dependencies for " + pInfo.displayName
-                                                  + ". Please contact the developers.");
+            showAlertOnMessageThread (AlertWindow::WarningIcon,
+                                      "[Plugin Installer] " + pInfo.dependencies[i],
+                                      "An unknown error occured while installing dependencies for " + pInfo.displayName
+                                          + ". Please contact the developers.");
 
             LOGE ("Download Failed!!");
             return;
@@ -1075,9 +1085,9 @@ void PluginInfoComponent::run()
 
     if (dlReturnCode == SUCCESS)
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
-                                          "[Plugin Installer] " + pInfo.displayName,
-                                          pInfo.displayName + " Installed Successfully");
+        showAlertOnMessageThread (AlertWindow::InfoIcon,
+                                  "[Plugin Installer] " + pInfo.displayName,
+                                  pInfo.displayName + " Installed Successfully");
 
         LOGC ("Download Successfull!!");
 
@@ -1095,52 +1105,52 @@ void PluginInfoComponent::run()
     }
     else if (dlReturnCode == ZIP_NOTFOUND)
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                          "[Plugin Installer] " + pInfo.displayName,
-                                          "Could not find the ZIP file for " + pInfo.displayName
-                                              + ". Please contact the developers.");
+        showAlertOnMessageThread (AlertWindow::WarningIcon,
+                                  "[Plugin Installer] " + pInfo.displayName,
+                                  "Could not find the ZIP file for " + pInfo.displayName
+                                      + ". Please contact the developers.");
 
         LOGE ("Download Failed!!");
     }
     else if (dlReturnCode == UNCMP_ERR)
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                          "[Plugin Installer] " + pInfo.displayName,
-                                          "Could not uncompress the ZIP file. Please try again.");
+        showAlertOnMessageThread (AlertWindow::WarningIcon,
+                                  "[Plugin Installer] " + pInfo.displayName,
+                                  "Could not uncompress the ZIP file. Please try again.");
 
         LOGE ("Download Failed!!");
     }
     else if (dlReturnCode == XML_MISSING)
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                          "[Plugin Installer] " + pInfo.displayName,
-                                          "Unable to locate installedPlugins.xml \n Please restart Plugin Installer and try again.");
+        showAlertOnMessageThread (AlertWindow::WarningIcon,
+                                  "[Plugin Installer] " + pInfo.displayName,
+                                  "Unable to locate installedPlugins.xml \n Please restart Plugin Installer and try again.");
 
         LOGE ("XML File Missing!!");
     }
     else if (dlReturnCode == VER_EXISTS_ERR)
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                          "[Plugin Installer] " + pInfo.displayName,
-                                          pInfo.displayName + " v" + pInfo.selectedVersion
-                                              + " already exists. Please download another version.");
+        showAlertOnMessageThread (AlertWindow::WarningIcon,
+                                  "[Plugin Installer] " + pInfo.displayName,
+                                  pInfo.displayName + " v" + pInfo.selectedVersion
+                                      + " already exists. Please download another version.");
 
         LOGE ("Download Failed!!");
     }
     else if (dlReturnCode == XML_WRITE_ERR)
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                          "[Plugin Installer] " + pInfo.displayName,
-                                          "Unable to write to installedPlugins.xml \n Please try again.");
+        showAlertOnMessageThread (AlertWindow::WarningIcon,
+                                  "[Plugin Installer] " + pInfo.displayName,
+                                  "Unable to write to installedPlugins.xml \n Please try again.");
 
         LOGE ("Writing to XML Failed!!");
     }
     else if (dlReturnCode == LOAD_ERR)
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                          "[Plugin Installer] " + pInfo.displayName,
-                                          "Unable to load " + pInfo.displayName
-                                              + " in the Processor List.\nLook at console output for more details.");
+        showAlertOnMessageThread (AlertWindow::WarningIcon,
+                                  "[Plugin Installer] " + pInfo.displayName,
+                                  "Unable to load " + pInfo.displayName
+                                      + " in the Processor List.\nLook at console output for more details.");
 
         LOGE ("Loading Plugin Failed!!");
 
@@ -1158,9 +1168,9 @@ void PluginInfoComponent::run()
     }
     else if (dlReturnCode == HTTP_ERR)
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                          "[Plugin Installer] " + pInfo.displayName,
-                                          "HTTP request failed!!\nPlease check your internet connection...");
+        showAlertOnMessageThread (AlertWindow::WarningIcon,
+                                  "[Plugin Installer] " + pInfo.displayName,
+                                  "HTTP request failed!!\nPlease check your internet connection...");
 
         LOGE ("HTTP request failed!! Please check your internet connection...");
     }

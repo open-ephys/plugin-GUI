@@ -35,7 +35,7 @@ class PluginInstaller : public DocumentWindow
 {
 public:
     /** Creates and launches Plugin Installer window with its components */
-    PluginInstaller (MainWindow* mainWindow, bool loadComponents = true);
+    PluginInstaller (bool loadComponents = true);
 
     /** Destructor*/
     ~PluginInstaller();
@@ -51,9 +51,6 @@ public:
     void installPluginAndDependency (const String& plugin, String version);
 
 private:
-    /* Pointer to the main window so we can keep in bounds */
-    DocumentWindow* parent;
-
     WeakReference<PluginInstaller>::Master masterReference;
     friend class WeakReference<PluginInstaller>;
 
@@ -167,6 +164,8 @@ private:
     };
 
     void run() override;
+
+    void showAlertOnMessageThread (MessageBoxIconType iconType, const String& title, const String& message);
 
     DropShadower infoCompDropShadower { DropShadow (Colours::black.withAlpha (0.5f), 6, { 2, 2 }) };
 
