@@ -602,7 +602,7 @@ void FileReader::process (AudioBuffer<float>& buffer)
 
     if (! playbackActive && playbackSamplePos + samplesNeededPerBuffer > stopSample)
     {
-        samplesNeededPerBuffer = stopSample - playbackSamplePos;
+        samplesNeededPerBuffer = int(stopSample - playbackSamplePos);
         switchNeeded = true;
     }
     else
@@ -656,7 +656,7 @@ void FileReader::addEventsInRange (int64 start, int64 stop)
 
     for (int i = 0; i < events.channels.size(); i++)
     {
-        juce::int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount * (stopSample - startSample);
+        int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount * (stopSample - startSample);
         if (events.text.size() && ! events.text[i].isEmpty())
         {
             String msg = events.text[i];
@@ -668,7 +668,7 @@ void FileReader::addEventsInRange (int64 start, int64 stop)
             uint8 ttlBit = events.channels[i];
             bool state = events.channelStates[i] > 0;
             TTLEventPtr event = TTLEvent::createTTLEvent (eventChannels[0], events.timestamps[i], ttlBit, state);
-            addEvent (event, absoluteCurrentTimestamp);
+            addEvent (event, int(absoluteCurrentTimestamp));
         }
     }
 }
@@ -735,7 +735,7 @@ void FileReader::readAndFillBufferCache (HeapBlock<int16>& cacheBuffer)
         // if reached end of file stream
         if ((currentSample + samplesToRead) > stopSample)
         {
-            samplesToRead = stopSample - currentSample;
+            samplesToRead = int(stopSample - currentSample);
             if (samplesToRead > 0)
                 input->readData (cacheBuffer + samplesRead * currentNumChannels, samplesToRead);
 

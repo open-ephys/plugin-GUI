@@ -47,7 +47,7 @@ public:
 
     void showPopup (std::unique_ptr<Component> popupComponent, Component* anchor);
 
-    int getPopupStackSize() { return popupStack.size(); }
+    int getPopupStackSize() { return int(popupStack.size()); }
 
     String getActivePopup() { return popupStack.back(); }
 

@@ -553,7 +553,7 @@ void MetadataEvent::serializeMetadata (void* dstBuffer) const
     }
 }
 
-bool MetadataEvent::deserializeMetadata (const MetadataEventObject* info, const void* srcBuffer, int size)
+bool MetadataEvent::deserializeMetadata (const MetadataEventObject* info, const void* srcBuffer, size_t size)
 {
     MetadataValueArray metaData;
     int nMetadata = info->getEventMetadataCount();

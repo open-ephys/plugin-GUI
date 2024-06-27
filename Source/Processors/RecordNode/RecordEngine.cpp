@@ -75,7 +75,7 @@ String RecordEngine::generateDateString() const
     return recordNode->generateDateString();
 }
 
-void RecordEngine::updateLatestSampleNumbers (const Array<int64>& num, int channel)
+void RecordEngine::updateLatestSampleNumbers (const Array<int>& num, int channel)
 {
     if (channel < 0)
         sampleNumbers = num;
@@ -96,7 +96,7 @@ void RecordEngine::setChannelMap (const Array<int>& globalChans,
         localChannelMap.add (chan);
 }
 
-int64 RecordEngine::getLatestSampleNumber (int channel) const
+int RecordEngine::getLatestSampleNumber (int channel) const
 {
     return sampleNumbers[channel];
 }

@@ -559,7 +559,7 @@ void BinaryRecording::writeContinuousData (int writeChannel,
     /* If is first channel in subprocessor */
     if (m_channelIndexes[writeChannel] == 0)
     {
-        int64 baseSampleNumber = getLatestSampleNumber (writeChannel);
+        int baseSampleNumber = getLatestSampleNumber (writeChannel);
 
         for (int i = 0; i < size; i++)
             /* Generate int sample number */

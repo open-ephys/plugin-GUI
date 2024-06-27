@@ -100,7 +100,7 @@ void RecordThread::run()
     //1-Open Files
     m_cleanExit = false;
     closeEarly = false;
-    Array<int64> sampleNumbers;
+    Array<int> sampleNumbers;
 
     m_engine->openFiles (m_rootFolder, m_experimentNumber, m_recordingNumber);
 
@@ -148,7 +148,7 @@ void RecordThread::writeData (const AudioBuffer<float>& dataBuffer,
                               int maxSpikes,
                               bool lastBlock)
 {
-    Array<int64> sampleNumbers;
+    Array<int> sampleNumbers;
     Array<CircularBufferIndexes> dataBufferIdxs;
     Array<CircularBufferIndexes> timestampBufferIdxs;
     m_dataQueue->startRead (dataBufferIdxs, timestampBufferIdxs, sampleNumbers, maxSamples);

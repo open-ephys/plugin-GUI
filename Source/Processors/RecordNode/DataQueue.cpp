@@ -72,7 +72,7 @@ void DataQueue::setChannelCount (int nChans)
     {
         m_fifos.add (new AbstractFifo (m_maxSize));
         m_readSamples.add (0);
-        m_sampleNumbers.add (new Array<int64>());
+        m_sampleNumbers.add (new Array<int>());
         m_sampleNumbers.getLast()->insertMultiple (0, 0, m_numBlocks);
         m_lastReadSampleNumbers.add (0);
     }
@@ -107,12 +107,12 @@ void DataQueue::resize (int nBlocks)
     m_FTSBuffer.setSize (m_numFTSChans, size);
 }
 
-void DataQueue::fillSampleNumbers (int channel, int index, int size, int64 sampleNumber)
+void DataQueue::fillSampleNumbers (int channel, int index, int size, int sampleNumber)
 {
     //Search for the next block start.
     int blockMod = index % m_blockSize;
     int blockIdx = index / m_blockSize;
-    int64 startSampleNumber;
+    uint64 startSampleNumber;
     int blockStartPos;
 
     if (blockMod == 0) //block starts here
@@ -129,19 +129,19 @@ void DataQueue::fillSampleNumbers (int channel, int index, int size, int64 sampl
 
     //check that the block is in range
 
-    int64 latestSampleNumber;
+    uint64 latestSampleNumber;
 
     for (int i = 0; i < size; i += m_blockSize)
     {
         if ((blockStartPos + i) < (index + size))
         {
             latestSampleNumber = startSampleNumber + (i * m_blockSize);
-            m_sampleNumbers[channel]->set (blockIdx, latestSampleNumber);
+            m_sampleNumbers[channel]->set (blockIdx, int(latestSampleNumber));
         }
     }
 }
 
-float DataQueue::writeSynchronizedTimestamps (double start, double step, int destChannel, int64 nSamples)
+float DataQueue::writeSynchronizedTimestamps (double start, double step, int destChannel, int nSamples)
 {
     int index1, size1, index2, size2;
 
@@ -174,7 +174,7 @@ float DataQueue::writeChannel (const AudioBuffer<float>& buffer,
                                int srcChannel,
                                int destChannel,
                                int nSamples,
-                               int64 sampleNumber)
+                               int sampleNumber)
 {
     int index1, size1, index2, size2;
     m_fifos[destChannel]->prepareToWrite (nSamples, index1, size1, index2, size2);
@@ -230,7 +230,7 @@ const SynchronizedTimestampBuffer& DataQueue::getTimestampBufferReference() cons
 
 bool DataQueue::startRead (Array<CircularBufferIndexes>& dataIndexes,
                            Array<CircularBufferIndexes>& ftsIndexes,
-                           Array<int64>& sampleNumbers,
+                           Array<int>& sampleNumbers,
                            int nMax)
 {
     //This should never happen, but it never hurts to be on the safe side.
@@ -256,7 +256,7 @@ bool DataQueue::startRead (Array<CircularBufferIndexes>& dataIndexes,
         int blockDiff = (blockMod == 0) ? 0 : (m_blockSize - blockMod);
 
         //If the next sample number block is within the data we're reading, include the translated sample number in the output
-        int64 sampleNum;
+        int sampleNum;
 
         if (blockDiff < (idx.size1 + idx.size2))
         {
@@ -307,7 +307,7 @@ void DataQueue::stopRead()
     m_readInProgress = false;
 }
 
-void DataQueue::getSampleNumbersForBlock (int idx, Array<int64>& sampleNumbers) const
+void DataQueue::getSampleNumbersForBlock (int idx, Array<int>& sampleNumbers) const
 {
     sampleNumbers.clear();
     for (int chan = 0; chan < m_numChans; ++chan)

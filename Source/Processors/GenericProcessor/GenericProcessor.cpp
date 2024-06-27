@@ -1219,7 +1219,7 @@ void GenericProcessor::setTimestampAndSamples (int64 sampleNumber,
                                                                 m_initialProcessTime,
                                                                 syncStreamId);
 
-    m_currentMidiBuffer->addEvent (data, dataSize, 0);
+    m_currentMidiBuffer->addEvent (data, int(dataSize), 0);
 
     //since the processor generating the timestamp won't get the event, add it to the map
     startTimestampsForBlock[streamId] = timestamp;
@@ -1358,7 +1358,7 @@ void GenericProcessor::addEvent (const Event* event, int sampleNum)
 
     event->serialize (buffer, size);
 
-    m_currentMidiBuffer->addEvent (buffer, size, sampleNum >= 0 ? sampleNum : 0);
+    m_currentMidiBuffer->addEvent (buffer, int(size), sampleNum >= 0 ? sampleNum : 0);
 
     if (event->getBaseType() == Event::Type::PROCESSOR_EVENT)
     {
@@ -1463,7 +1463,7 @@ void GenericProcessor::addSpike (const Spike* spike)
 
     spike->serialize (buffer, size);
 
-    m_currentMidiBuffer->addEvent (buffer, size, 0);
+    m_currentMidiBuffer->addEvent (buffer, int(size), 0);
 }
 
 void GenericProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& eventBuffer)
@@ -2103,7 +2103,7 @@ void LatencyMeter::setLatestLatency (std::map<uint16, juce::int64>& processStart
 
         while (it != processStartTimes.end())
         {
-            latencies[it->first].set (counter % 5, currentTime - it->second);
+            latencies[it->first].set (counter % 5, int(currentTime - it->second));
             it++;
         }
 

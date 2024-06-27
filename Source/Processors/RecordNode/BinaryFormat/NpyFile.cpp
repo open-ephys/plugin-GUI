@@ -108,7 +108,7 @@ void NpyFile::writeHeader (const Array<NpyType>& typeList)
     String magicStr = "NUMPY";
     uint16 ver = 0x0001;
     // magic = magic number + magic string + magic version
-    int magicLen = sizeof (uint8) + magicStr.getNumBytesAsUTF8() + sizeof (uint16);
+    int magicLen = int( sizeof (uint8) + magicStr.getNumBytesAsUTF8() + sizeof (uint16));
     int nbytesAlign = 64; // header should use an integer multiple of this many bytes
 
     bool multiValue = typeList.size() > 1;
@@ -251,7 +251,7 @@ int NpyType::getTypeLength() const
     if (type == BaseType::CHAR)
         return 1;
     else
-        return length;
+        return int(length);
 }
 
 String NpyType::getName() const

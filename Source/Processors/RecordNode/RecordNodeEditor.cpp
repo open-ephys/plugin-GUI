@@ -99,7 +99,7 @@ void DiskMonitor::timerCallback()
 RecordChannelsParameterEditor::RecordChannelsParameterEditor (RecordNode* rn, Parameter* param, int rowHeightPixels, int rowWidthPixels)
     : ParameterEditor (param), recordNode (rn)
 {
-    int numChannels = ((MaskChannelsParameter*) param)->getChannelStates().size();
+    int numChannels = int(((MaskChannelsParameter*) param)->getChannelStates().size());
     int selected = 0;
     for (auto chan : ((MaskChannelsParameter*) param)->getChannelStates())
         if (chan)

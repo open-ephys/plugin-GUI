@@ -559,7 +559,7 @@ SelectedChannelsParameterEditor::SelectedChannelsParameterEditor (Parameter* par
     jassert (param->getType() == Parameter::SELECTED_CHANNELS_PARAM);
 
     int selectedChannels = ((SelectedChannelsParameter*) param)->getArrayValue().size();
-    int numChannels = ((SelectedChannelsParameter*) param)->getChannelStates().size();
+    size_t numChannels = ((SelectedChannelsParameter*) param)->getChannelStates().size();
 
     button = std::make_unique<TextButton> (String (selectedChannels) + "/" + String (numChannels));
     button->setName (param->getKey());
@@ -628,7 +628,7 @@ void SelectedChannelsParameterEditor::updateView()
     else
     {
         button->setEnabled (true);
-        int numChannels = ((SelectedChannelsParameter*) param)->getChannelStates().size();
+        int numChannels = int(((SelectedChannelsParameter*) param)->getChannelStates().size());
         int selected = 0;
         for (auto chan : ((SelectedChannelsParameter*) param)->getChannelStates())
             if (chan)
@@ -646,7 +646,7 @@ MaskChannelsParameterEditor::MaskChannelsParameterEditor (Parameter* param, int 
 {
     jassert (param->getType() == Parameter::MASK_CHANNELS_PARAM);
 
-    int numChannels = ((MaskChannelsParameter*) param)->getChannelStates().size();
+    int numChannels = int(((MaskChannelsParameter*) param)->getChannelStates().size());
     int selected = 0;
     for (auto chan : ((MaskChannelsParameter*) param)->getChannelStates())
         if (chan)
@@ -722,7 +722,7 @@ void MaskChannelsParameterEditor::updateView()
     else
     {
         button->setEnabled (true);
-        int numChannels = ((MaskChannelsParameter*) param)->getChannelStates().size();
+        int numChannels = int(((MaskChannelsParameter*) param)->getChannelStates().size());
         int selected = 0;
         for (auto chan : ((MaskChannelsParameter*) param)->getChannelStates())
             if (chan)

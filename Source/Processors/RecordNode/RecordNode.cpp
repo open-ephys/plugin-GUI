@@ -356,7 +356,7 @@ void RecordNode::handleBroadcastMessage (const String& msg, const int64 messageS
 
         event->serialize (buffer, size);
 
-        eventQueue->addEvent (EventPacket (buffer, size), messageSampleNumber, -1);
+        eventQueue->addEvent (EventPacket (buffer, int(size)), messageSampleNumber, -1);
     }
 }
 
@@ -793,7 +793,7 @@ void RecordNode::handleTTLEvent (TTLEventPtr event)
         event->setTimestampInSeconds (synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber));
         event->serialize (buffer, size);
 
-        eventQueue->addEvent (EventPacket (buffer, size), sampleNumber);
+        eventQueue->addEvent (EventPacket (buffer, int(size)), sampleNumber);
 
         eventMonitor->bufferedEvents++;
     }
@@ -860,7 +860,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
                     -1.0,
                     true);
 
-            handleTimestampSyncTexts (EventPacket (data, dataSize));
+            handleTimestampSyncTexts (EventPacket (data, int(dataSize)));
 
             for (auto stream : getDataStreams())
             {
@@ -875,7 +875,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
 
                 size_t dataSize = SystemEvent::fillTimestampSyncTextData (data, src, streamId, firstSampleNumberInBlock, -1.0, false);
 
-                handleTimestampSyncTexts (EventPacket (data, dataSize));
+                handleTimestampSyncTexts (EventPacket (data, int(dataSize)));
             }
         }
 
@@ -919,7 +919,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
                                                  channelMap[channelIndex],
                                                  channelIndex,
                                                  numSamples,
-                                                 sampleNumber);
+                                                 int(sampleNumber));
                     }
                 }
             }
