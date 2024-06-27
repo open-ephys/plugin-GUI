@@ -741,7 +741,7 @@ void RecordNode::startRecording()
 
         AccessClass::getProcessorGraph()->saveToXml(xml.get());
 
-        xml->writeToFile(settingsFileName, "");
+        xml->writeTo(settingsFileName);
 
         settingsNeeded = false;
     }
