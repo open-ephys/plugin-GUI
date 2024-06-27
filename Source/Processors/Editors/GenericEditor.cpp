@@ -1244,7 +1244,7 @@ void ThresholdSlider::paint (Graphics& g)
     ColourGradient grad = ColourGradient (Colour (40, 40, 40), 0.0f, 0.0f, Colour (80, 80, 80), 0.0, 40.0f, false);
 
     Path p;
-    p.addPieSegment (3, 3, getWidth() - 6, getHeight() - 6, 5 * double_Pi / 4 - 0.2, 5 * double_Pi / 4 + 3 * double_Pi / 2 + 0.2, 0.5);
+    p.addPieSegment (3, 3, getWidth() - 6, getHeight() - 6, 5 * MathConstants<double>::pi / 4 - 0.2, 5 * MathConstants<double>::pi / 4 + 3 * MathConstants<double>::pi / 2 + 0.2, 0.5);
 
     g.setGradientFill (grad);
     g.fillPath (p);
@@ -1291,11 +1291,11 @@ Path ThresholdSlider::makeRotaryPath (double min, double max, double val)
     if (val > 0)
     {
         start = 0;
-        range = (val) / (1.3 * max) * double_Pi;
+        range = (val) / (1.3 * max) * MathConstants<double>::pi;
     }
     if (val < 0)
     {
-        start = -(val) / (1.3 * min) * double_Pi;
+        start = -(val) / (1.3 * min) * MathConstants<double>::pi;
         range = 0;
     }
     p.addPieSegment (6, 6, getWidth() - 12, getHeight() - 12, start, range, 0.65);
