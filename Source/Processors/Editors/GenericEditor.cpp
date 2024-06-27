@@ -767,7 +767,7 @@ void DrawerButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown
     g.drawVerticalLine (7, 0.0f, getHeight());
 }
 
-UtilityButton::UtilityButton (String label_, Font font_) : Button (label_), label (label_), font (font_)
+UtilityButton::UtilityButton (String label_, FontOptions font_) : Button (label_), label (label_), font (font_)
 {
     roundUL = true;
     roundUR = true;
@@ -1122,7 +1122,7 @@ void GenericEditor::streamEnabledStateChanged (uint16 streamId, bool isEnabled, 
 }
 
 /***************************/
-ColourButton::ColourButton (String label_, Font font_) : Button (label_), label (label_), font (font_)
+ColourButton::ColourButton (String label_, FontOptions font_) : Button (label_), label (label_), font (font_)
 {
     userDefinedData = -1;
     fontColour = juce::Colours::white;
@@ -1227,7 +1227,7 @@ void ColourButton::setLabel (String label_)
     repaint();
 }
 
-ThresholdSlider::ThresholdSlider (Font f) : Slider ("name"), font (f)
+ThresholdSlider::ThresholdSlider (FontOptions f) : Slider ("name"), font (f)
 {
     setSliderStyle (Slider::Rotary);
     setRange (-400, 400.0f, 10.0f);
@@ -1272,9 +1272,9 @@ void ThresholdSlider::paint (Graphics& g)
         }
     }
 
-    font.setHeight (9.0);
+    font = font.withHeight (9.0);
     g.setFont (font);
-    int stringWidth = font.getStringWidth (valueString);
+    int stringWidth = g.getCurrentFont().getStringWidth (valueString);
 
     g.setFont (font);
 

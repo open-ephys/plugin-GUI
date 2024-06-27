@@ -320,7 +320,7 @@ void Axis::setTicks (std::vector<float> ticks_, std::vector<String> tickLabels_)
 
 void Axis::setFontHeight (int height)
 {
-    font.setHeight (height);
+    font = font.withHeight(height);
 }
 
 void Axis::setAxisColour (Colour c)

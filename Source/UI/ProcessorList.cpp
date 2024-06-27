@@ -162,7 +162,7 @@ void ProcessorList::drawItemName (Graphics& g, ProcessorListItem* item)
 
         if (item == hoverItem)
         {
-            maxWidth = listFontPlain.getStringWidthFloat (name);
+            maxWidth = Font( listFontPlain).getStringWidthFloat (name);
 
             if (maxWidth + 25 < getWidth() - scrollbarOffset)
             {

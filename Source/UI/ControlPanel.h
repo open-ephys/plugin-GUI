@@ -255,7 +255,7 @@ private:
     bool isRunning = false;
     bool isRecording = false;
 
-    Font clockFont;
+    FontOptions clockFont;
 
     Mode mode = DEFAULT;
 };

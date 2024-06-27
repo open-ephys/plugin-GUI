@@ -666,8 +666,8 @@ void PluginListBoxComponent::run()
             pluginName = pluginData[i].getProperty ("name", var()).toString();
             label = pluginData[i].getProperty ("type", "NULL").toString();
             dispName = pluginData[i].getProperty ("display_name", "NULL").toString();
-
-            pluginTextWidth = listFont.getStringWidth (dispName);
+            
+            pluginTextWidth = Font ( listFont ).getStringWidth (dispName);
             if (pluginTextWidth > maxTextWidth)
                 maxTextWidth = pluginTextWidth;
 

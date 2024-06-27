@@ -215,7 +215,7 @@ public:
     OwnedArray<ParameterEditor> parameterEditors;
 
     /** Stores the font used to display the editor's name. */
-    Font titleFont;
+    FontOptions titleFont;
 
     /** True if data acquisition has begun. */
     bool acquisitionIsActive;
@@ -443,7 +443,7 @@ public:
 class PLUGIN_API UtilityButton : public Button
 {
 public:
-    UtilityButton (String label_, Font font_);
+    UtilityButton (String label_, FontOptions font_);
     ~UtilityButton();
 
     void setCorners (bool UL, bool UR, bool LL, bool LR);
@@ -459,7 +459,7 @@ private:
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 
     String label;
-    Font font;
+    FontOptions font;
     bool roundUL, roundUR, roundLL, roundLR;
     float radius;
     Path outlinePath;
@@ -474,7 +474,7 @@ private:
 class PLUGIN_API ColourButton : public Button
 {
 public:
-    ColourButton (String label_, Font font_);
+    ColourButton (String label_, FontOptions font_);
     ~ColourButton();
 
     void setEnabledState (bool);
@@ -496,7 +496,7 @@ private:
     int userDefinedData;
     bool vert;
     String label;
-    Font font;
+    FontOptions font;
     Colour fontColour, backgroundColour;
     bool showEnabledStatus;
     bool isEnabled;
@@ -510,7 +510,7 @@ private:
 class PLUGIN_API ThresholdSlider : public Slider
 {
 public:
-    ThresholdSlider (Font f);
+    ThresholdSlider (FontOptions f);
     ~ThresholdSlider();
 
     void setActive (bool);
@@ -522,7 +522,7 @@ private:
 
     Path makeRotaryPath (double, double, double);
 
-    Font font;
+    FontOptions font;
 
     bool isActive;
 

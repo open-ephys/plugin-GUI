@@ -229,7 +229,7 @@ private:
 
     int selectionIndex;
 
-    Font font;
+    FontOptions font;
     Image sourceDropImage;
 
     int insertionPoint;
@@ -282,7 +282,7 @@ private:
 
     int num;
 
-    Font buttonFont;
+    FontOptions buttonFont;
 };
 
 /**

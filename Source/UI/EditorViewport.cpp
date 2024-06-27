@@ -1157,8 +1157,7 @@ SignalChainTabButton::SignalChainTabButton (int index) : Button ("Signal Chain T
     setRadioGroupId (99);
     setClickingTogglesState (true);
 
-    buttonFont = FontOptions ("Silkscreen", 10, Font::plain);
-    buttonFont.setHeight (14);
+    buttonFont = FontOptions ("Silkscreen", 10, Font::plain).withHeight (14);
 
     offset = 0;
 }

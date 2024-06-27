@@ -725,7 +725,7 @@ void CustomLookAndFeel::drawMenuBarBackground (Graphics& g, int width, int heigh
 
 Font CustomLookAndFeel::getMenuBarFont (MenuBarComponent& menuBar, int /*itemIndex*/, const String& /*itemText*/)
 {
-    return Font (getCommonMenuFont().getTypefaceName(), "Medium", menuBar.getHeight() * 0.65f);
+    return Font ( FontOptions ( getCommonMenuFont().getTypefaceName(), "Medium", menuBar.getHeight() * 0.65f));
 }
 
 //==================================================================
@@ -1120,7 +1120,7 @@ int CustomLookAndFeel::getTabButtonSpaceAroundImage()
 
 int CustomLookAndFeel::getTabButtonBestWidth (TabBarButton& button, int tabDepth)
 {
-    int width = Font ((float) tabDepth * 0.7f).getStringWidth (button.getButtonText().trim())
+    int width = Font ( FontOptions( (float) tabDepth * 0.7f)).getStringWidth (button.getButtonText().trim())
                 + getTabButtonOverlap (tabDepth) * 2 + 15;
 
     if (auto* extraComponent = button.getExtraComponent())

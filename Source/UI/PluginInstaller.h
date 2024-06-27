@@ -120,7 +120,7 @@ public:
 private:
     int selectedPlugin;
     String downloadURL;
-    Font infoFont, infoFontBold;
+    FontOptions infoFont, infoFontBold;
 
     Label pluginNameLabel;
     Label pluginNameText;
@@ -205,7 +205,7 @@ public:
 
 private:
     ListBox pluginList;
-    Font listFont;
+    FontOptions listFont;
     int numRows;
     int maxTextWidth = 0;
 
@@ -267,7 +267,7 @@ private:
     Label typeLabel;
     ToggleButton filterType, sourceType, sinkType, otherType;
 
-    Font font;
+    FontOptions font;
 
     void run() override;
 

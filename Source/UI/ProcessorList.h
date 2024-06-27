@@ -143,8 +143,8 @@ private:
     /** The base item in the list.*/
     std::unique_ptr<ProcessorListItem> baseItem;
 
-    Font listFontLight;
-    Font listFontPlain;
+    FontOptions listFontLight;
+    FontOptions listFontPlain;
 
     ProcessorListItem* hoverItem;
     int maximumNameOffset;

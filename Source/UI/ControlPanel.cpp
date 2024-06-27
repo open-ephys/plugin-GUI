@@ -184,7 +184,6 @@ void DiskSpaceMeter::paint (Graphics& g)
 Clock::Clock()
 {
     clockFont = FontOptions ("CP Mono", "Light", 30.0f);
-    clockFont.setHorizontalScale (0.95f);
 }
 
 void Clock::paint (Graphics& g)

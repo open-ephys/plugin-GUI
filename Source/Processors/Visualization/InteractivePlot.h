@@ -162,7 +162,7 @@ protected:
     float min, max;
 
     Colour colour;
-    Font font;
+    FontOptions font;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Axis);
 };
@@ -351,7 +351,7 @@ private:
     /** Respond to button clicks */
     void buttonClicked (Button* btn);
 
-    Font font;
+    FontOptions font;
     juce::Colour backgroundColour;
     juce::Colour axisColour;
     juce::Colour gridColour;
