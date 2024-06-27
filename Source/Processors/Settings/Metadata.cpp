@@ -581,6 +581,9 @@ MetadataEventLock::MetadataEventLock() {}
 //2-To define a fixed set of types that can be used, instead of a general instantiation. Trying to use this with other types
 //will throuw a linker error.
 
+//Explicit instantiation of 'getValue<void>' that occurs after an explicit specialization has no effect
+//template PLUGIN_API void MetadataValue::getValue<void> (void*) const;
+
 template PLUGIN_API void MetadataValue::setValue<char> (char);
 template PLUGIN_API void MetadataValue::setValue<int8> (int8);
 template PLUGIN_API void MetadataValue::setValue<uint8> (uint8);
@@ -654,8 +657,6 @@ template PLUGIN_API void MetadataValue::getValue<float> (Array<float>&) const;
 template PLUGIN_API void MetadataValue::getValue<double> (Array<double>&) const;
 
 /// Compiler warning: Explicit instantiation of `getValue<void>` that occurs after an explicit specialization has no effect
-template PLUGIN_API void MetadataValue::getValue<void> (void*) const;
-
 //Helper function to compare identifier strings
 bool compareIdentifierStrings (const String& identifier, const String& compareWith)
 {
