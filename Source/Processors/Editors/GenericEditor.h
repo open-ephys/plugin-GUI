@@ -554,7 +554,7 @@ public:
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 
     /** Updates the display */
-    virtual void timerCallback() = 0;
+    void timerCallback() override = 0;
 
 protected:
     GenericProcessor* processor;
