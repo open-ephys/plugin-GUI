@@ -77,9 +77,7 @@ public:
     /** Implements Parameter::Listener */
     void parameterChanged (Parameter* param) override
     {
-        const MessageManagerLock mml;
-
-        updateView();
+       MessageManager::callAsync ([this] { this->updateView(); });
     }
 
     /** Implements Parameter::Listener */
@@ -110,6 +108,8 @@ public:
         }
 
         param = newParam;
+
+        const MessageManagerLock mml;
         updateView();
     }
 
