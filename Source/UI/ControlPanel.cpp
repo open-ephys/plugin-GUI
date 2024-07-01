@@ -1193,7 +1193,7 @@ String ControlPanel::getRecordingDirectoryName()
 
 void ControlPanel::createNewRecordingDirectory()
 {
-    buttonClicked (newDirectoryButton.get());
+    MessageManager::callAsync ([this] { buttonClicked (newDirectoryButton.get()); });
 }
 
 String ControlPanel::getRecordingDirectoryPrependText()
@@ -1335,7 +1335,7 @@ String ControlPanel::generateFilenameFromFields (bool usePlaceholderText)
         filename += field->getNextValue (usePlaceholderText);
     }
 
-    filenameText->setButtonText (filename);
+    MessageManager::callAsync ([this, filename] { filenameText->setButtonText (filename); });
 
     return filename;
 }
