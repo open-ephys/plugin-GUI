@@ -432,18 +432,18 @@ void ProcessorList::mouseDrag (const MouseEvent& e)
 
                     if (dragContainer != 0)
                     {
-                        Image dragImage (Image::ARGB, 100, 15, true);
+                        ScaledImage dragImage (Image(Image::ARGB, 100, 15, true));
 
                         LOGA ("Processor List - ", listItem->getName(), " drag start.");
 
-                        Graphics g (dragImage);
+                        Graphics g (dragImage.getImage());
                         g.setColour (getLookAndFeel().findColour (listItem->colourId));
                         g.fillAll();
                         g.setColour (Colours::white);
                         g.setFont (FontOptions (14.0f));
                         g.drawSingleLineText (listItem->getName(), 10, 12);
 
-                        dragImage.multiplyAllAlphas (0.6f);
+                        dragImage.getImage().multiplyAllAlphas (0.6f);
 
                         juce::Point<int> imageOffset (20, 10);
 
