@@ -34,10 +34,11 @@
 */
 
 // BEGIN SECTION A
-
+/*
 #ifndef JUCE_DISPLAY_SPLASH_SCREEN
  #define JUCE_DISPLAY_SPLASH_SCREEN 0
 #endif
+*/
 
 // END SECTION A
 
