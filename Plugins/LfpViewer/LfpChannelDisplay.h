@@ -193,7 +193,7 @@ protected:
     float depth;
     bool isRecorded;
 
-    Font channelFont;
+    FontOptions channelFont;
 
     Colour lineColour;
 

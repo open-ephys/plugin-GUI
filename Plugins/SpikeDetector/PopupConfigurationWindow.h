@@ -159,10 +159,10 @@ public:
     void createSliders();
 
     /** Responds to slider value changes */
-    void sliderValueChanged (Slider* slider);
+    void sliderValueChanged (Slider* slider) override;
 
     /** Responds to button clicks */
-    void buttonClicked (Button* button);
+    void buttonClicked (Button* button) override;
 
     /** Updates the view */
     void updatePopup() override { repaint(); }
@@ -466,7 +466,7 @@ public:
     std::unique_ptr<TableListBox> electrodeTable;
 
     /** Listens for viewport scrolling */
-    void scrollBarMoved (ScrollBar* scrollBar, double newRangeStart);
+    void scrollBarMoved (ScrollBar* scrollBar, double newRangeStart) override;
 
 private:
     SpikeDetectorEditor* editor;

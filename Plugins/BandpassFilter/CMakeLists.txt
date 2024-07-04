@@ -11,6 +11,11 @@ add_sources(${PLUGIN_NAME}
 	BandpassFilterEditor.cpp
 	BandpassFilterEditor.h
 	)
+
+if(APPLE)
+	set_target_properties(${PLUGIN_NAME} PROPERTIES XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "org.open-ephys.plugin.BandpassFilter")
+endif()
+
 if(BUILD_TESTS)
     add_subdirectory(Tests)
 endif()

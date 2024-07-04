@@ -52,10 +52,10 @@ public:
     ~EventDisplayInterface();
 
     /** Renders the background */
-    void paintOverChildren (Graphics& g);
+    void paintOverChildren (Graphics& g) override;
 
     /** Responds to button presses */
-    void buttonClicked (Button* button);
+    void buttonClicked (Button* button) override;
 
     void resized() override;
 

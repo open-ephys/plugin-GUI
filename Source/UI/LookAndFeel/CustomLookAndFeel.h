@@ -94,7 +94,7 @@ public:
     void setTheme (ColourTheme theme);
 
     // ======== custom typeface getter: =============================
-    Typeface::Ptr getTypefaceForFont (const Font& font);
+    Typeface::Ptr getTypefaceForFont (const Font& font) override;
 
     // ======== custom scroll bar methods: =============================
 
@@ -105,7 +105,7 @@ public:
                               int buttonDirection,
                               bool isScrollBarVertical,
                               bool isMouseOverButton,
-                              bool isButtonDown);
+                              bool isButtonDown) override;
 
     void drawScrollbar (Graphics& g,
                         ScrollBar& scrollbar,
@@ -117,7 +117,7 @@ public:
                         int thumbStartPosition,
                         int thumbSize,
                         bool isMouseOver,
-                        bool isMouseDown);
+                        bool isMouseDown) override;
 
     // ======== custom tooltip methods: ============================
     // juce::Rectangle<int> getTooltipBounds(const String &tipText, Point<int> screenPos, juce::Rectangle<int> parentArea) override;
@@ -130,13 +130,13 @@ public:
 
     void drawLinearSlider (Graphics&, int x, int y, int width, int height, float sliderPos, float minSliderPos, float maxSliderPos, Slider::SliderStyle, Slider&) override;
 
-    int getSliderThumbRadius (Slider& slider);
+    int getSliderThumbRadius (Slider& slider) override;
 
     void drawPointer (Graphics&, float x, float y, float diameter, const Colour&, int direction) noexcept;
 
     // ======== custom combo box methods: =============================
 
-    void drawComboBox (Graphics& g, int width, int height, const bool isButtonDown, int buttonX, int buttonY, int buttonW, int buttonH, ComboBox& box);
+    void drawComboBox (Graphics& g, int width, int height, const bool isButtonDown, int buttonX, int buttonY, int buttonW, int buttonH, ComboBox& box) override;
 
     Font getComboBoxFont (ComboBox& box) override;
 
@@ -144,7 +144,7 @@ public:
 
     // ========= custom popup menu & menu bar methods: ===========================
 
-    void drawPopupMenuBackground (Graphics&, int width, int height);
+    void drawPopupMenuBackground (Graphics&, int width, int height) override;
 
     Font getPopupMenuFont() override;
 

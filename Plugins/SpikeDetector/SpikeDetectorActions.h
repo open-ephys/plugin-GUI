@@ -53,10 +53,10 @@ public:
     void restoreOwner (GenericProcessor* processor) override;
 
     /** Perform the action*/
-    bool perform();
+    bool perform() override;
 
     /** Undo the action*/
-    bool undo();
+    bool undo() override;
 
     XmlElement* settings;
 
@@ -87,10 +87,10 @@ public:
     void restoreOwner (GenericProcessor* processor) override;
 
     /** Perform the action*/
-    bool perform();
+    bool perform() override;
 
     /** Undo the action*/
-    bool undo();
+    bool undo() override;
 
     std::unique_ptr<XmlElement> settings;
 

@@ -75,7 +75,7 @@ public:
     void setLayout (Layout layout);
 
     /** Implements Parameter::Listener */
-    void parameterChanged (Parameter* param)
+    void parameterChanged (Parameter* param) override
     {
         const MessageManagerLock mml;
 
@@ -83,7 +83,7 @@ public:
     }
 
     /** Implements Parameter::Listener */
-    void removeParameter (Parameter* param_)
+    void removeParameter (Parameter* param_) override
     {
         if (param == param_)
         {
@@ -490,7 +490,7 @@ public:
 
 private:
     /** Checks whether the underlying stream is synchronized */
-    void timerCallback();
+    void timerCallback() override;
 
     /** Renders the button */
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;

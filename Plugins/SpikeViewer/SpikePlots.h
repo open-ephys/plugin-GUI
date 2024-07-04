@@ -179,7 +179,7 @@ private:
     void updateAxesPositions();
 
     String name;
-    Font font;
+    FontOptions font;
 
     CriticalSection spikeArrayLock;
 
@@ -228,7 +228,7 @@ protected:
 
     const SpikePlotType type;
 
-    Font font;
+    FontOptions font;
 
     Array<Colour> colours;
 
@@ -310,7 +310,7 @@ private:
 
     int spikesReceivedSinceLastRedraw;
 
-    Font font;
+    FontOptions font;
 
     OwnedArray<Spike> spikeBuffer;
 

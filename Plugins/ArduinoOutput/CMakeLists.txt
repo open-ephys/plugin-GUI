@@ -15,6 +15,8 @@ add_sources(${PLUGIN_NAME}
 	)
 if(MSVC)
 	target_link_libraries(${PLUGIN_NAME} Winmm.lib)
+elseif(APPLE)
+	set_target_properties(${PLUGIN_NAME} PROPERTIES XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "org.open-ephys.plugin.ArduinoOutput")
 endif()
 
 if(BUILD_TESTS)

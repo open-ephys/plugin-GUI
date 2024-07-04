@@ -173,10 +173,10 @@ public:
     void setPlotScaleFactor (float scale);
 
     /** Saves display parameters */
-    void saveCustomParametersToXml (XmlElement* xml);
+    void saveCustomParametersToXml (XmlElement* xml) override;
 
     /** Loads display parameters */
-    void loadCustomParametersFromXml (XmlElement* xml);
+    void loadCustomParametersFromXml (XmlElement* xml) override;
 
     /** Loads spike plot settings */
     void loadSpikeDisplaySettingsFromXml (XmlElement* xml);

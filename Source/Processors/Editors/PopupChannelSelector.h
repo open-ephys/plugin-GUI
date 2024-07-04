@@ -142,16 +142,16 @@ public:
     void setChannelButtonColour (Colour c);
 
     /** Mouse-related callbacks*/
-    void mouseMove (const MouseEvent& event);
-    void mouseDown (const MouseEvent& event);
-    void mouseDrag (const MouseEvent& event);
-    void mouseUp (const MouseEvent& event);
+    void mouseMove (const MouseEvent& event) override;
+    void mouseDown (const MouseEvent& event) override;
+    void mouseDrag (const MouseEvent& event) override;
+    void mouseUp (const MouseEvent& event) override;
 
     /** Respond to button clicks*/
-    void buttonClicked (Button*);
+    void buttonClicked (Button*) override;
 
     /** Checks whether shift key is down*/
-    void modifierKeysChanged (const ModifierKeys& modifiers);
+    void modifierKeysChanged (const ModifierKeys& modifiers) override;
 
     /** Returns a pointer to the button with a given id*/
     ChannelButton* getButtonForId (int btnId);
@@ -176,7 +176,7 @@ private:
     int convertStringToInteger (String s);
     Array<int> parseStringIntoRange (int rangeValue);
 
-    void textEditorReturnKeyPressed (TextEditor&);
+    void textEditorReturnKeyPressed (TextEditor&) override;
     void updateRangeString();
     void parseRangeString();
 

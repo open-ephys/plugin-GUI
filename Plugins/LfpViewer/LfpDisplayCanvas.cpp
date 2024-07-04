@@ -1113,7 +1113,7 @@ void LfpDisplaySplitter::updateScreenBuffer()
         // std::cout << "Update screen buffer" << std::endl;
 
         int triggerTime = triggerChannel >= 0
-                              ? processor->getLatestTriggerTime (splitID)
+                              ? int(processor->getLatestTriggerTime (splitID))
                               : -1;
 
         int maxSamples = screenBufferWidth;

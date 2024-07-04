@@ -12,6 +12,10 @@ add_sources(${PLUGIN_NAME}
 	RecordControlEditor.h
 	)
 
+if(APPLE)
+	set_target_properties(${PLUGIN_NAME} PROPERTIES XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "org.open-ephys.plugin.RecordControl")
+endif()
+
 if(BUILD_TESTS)
     add_subdirectory(Tests)
 endif()

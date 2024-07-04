@@ -140,7 +140,7 @@ public:
     int getDesiredWidth();
 
     /** Sets the location of the viewport and its sub-components*/
-    void resized();
+    void resized() override;
 
     /** Returns a pointer to the currently viewed stream*/
     const DataStream* getCurrentStream();
@@ -149,7 +149,7 @@ public:
     bool checkStream (const DataStream* stream);
 
     /** Renders the component*/
-    void paint (Graphics& g);
+    void paint (Graphics& g) override;
 
     /** Returns a pointer to the TTLMonitor for a given DataStream*/
     TTLMonitor* getTTLMonitor (const DataStream* stream);
@@ -192,7 +192,7 @@ public:
 
 private:
     /** Renders delay & TTL monitors */
-    void timerCallback();
+    void timerCallback() override;
 
     /** Creates a new table view */
     TableListBox* createTableView (bool expanded = false);
