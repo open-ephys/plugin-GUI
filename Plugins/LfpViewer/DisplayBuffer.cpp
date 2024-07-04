@@ -23,12 +23,12 @@
 
 #include "DisplayBuffer.h"
 
-namespace LfpViewer {
+namespace LfpViewer
+{
 
 #define BUFFER_LENGTH_S 1.0f
 
-DisplayBuffer::DisplayBuffer(int id_, String name_, float sampleRate_) : 
-    id(id_), name(name_), sampleRate(sampleRate_), isNeeded(true)
+DisplayBuffer::DisplayBuffer (int id_, String name_, float sampleRate_) : id (id_), name (name_), sampleRate (sampleRate_), isNeeded (true)
 {
     previousSize = 0;
     numChannels = 0;
@@ -58,12 +58,12 @@ void DisplayBuffer::prepareToUpdate()
     isNeeded = false;
 }
 
-void DisplayBuffer::addChannel(
-    String name, 
-    int channelNum, 
-    ContinuousChannel::Type type, 
+void DisplayBuffer::addChannel (
+    String name,
+    int channelNum,
+    ContinuousChannel::Type type,
     bool isRecorded,
-    int group, 
+    int group,
     float ypos,
     String description,
     String structure)
@@ -78,7 +78,7 @@ void DisplayBuffer::addChannel(
     metadata.isRecorded = isRecorded;
     metadata.description = description;
 
-    channelMetadata.add(metadata);
+    channelMetadata.add (metadata);
     channelMap[channelNum] = numChannels;
     numChannels++;
 
@@ -89,41 +89,36 @@ void DisplayBuffer::addChannel(
 
 void DisplayBuffer::update()
 {
-            
     if (numChannels != previousSize)
-        setSize(numChannels + 1, int(sampleRate * BUFFER_LENGTH_S));
+        setSize (numChannels + 1, int (sampleRate * BUFFER_LENGTH_S));
 
     clear();
 
     displayBufferIndices.clear();
 
     for (int i = 0; i <= numChannels; i++)
-        displayBufferIndices.set(i, 0);
+        displayBufferIndices.set (i, 0);
 }
 
 void DisplayBuffer::resetIndices()
 {
     for (int i = 0; i <= numChannels; i++)
-        displayBufferIndices.set(i, 0);
+        displayBufferIndices.set (i, 0);
 }
 
-void DisplayBuffer::addDisplay(int splitID)
+void DisplayBuffer::addDisplay (int splitID)
 {
-
-    if (!displays.contains(splitID))
-            displays.add(splitID);
-
+    if (! displays.contains (splitID))
+        displays.add (splitID);
 }
 
-void DisplayBuffer::removeDisplay(int splitID)
+void DisplayBuffer::removeDisplay (int splitID)
 {
-        
-    if (displays.contains(splitID))
-        displays.remove(displays.indexOf(splitID));
-
+    if (displays.contains (splitID))
+        displays.remove (displays.indexOf (splitID));
 }
 
-void DisplayBuffer::initializeEventChannel(int nSamples)
+void DisplayBuffer::initializeEventChannel (int nSamples)
 {
     if (displays.size() == 0)
         return;
@@ -132,40 +127,38 @@ void DisplayBuffer::initializeEventChannel(int nSamples)
 
     if (nSamples < samplesLeft)
     {
-
-        copyFrom(numChannels,                   // destChannel
-            displayBufferIndices[numChannels],  // destStartSample
-            arrayOfOnes,                        // source
-            nSamples,                           // numSamples
-            float(ttlState));                   // gain
+        copyFrom (numChannels, // destChannel
+                  displayBufferIndices[numChannels], // destStartSample
+                  arrayOfOnes, // source
+                  nSamples, // numSamples
+                  float (ttlState)); // gain
     }
     else
     {
         int extraSamples = nSamples - samplesLeft;
 
-        copyFrom(numChannels,                   // destChannel
-            displayBufferIndices[numChannels],  // destStartSample
-            arrayOfOnes,                        // source
-            samplesLeft,                        // numSamples
-            float(ttlState));                   // gain
+        copyFrom (numChannels, // destChannel
+                  displayBufferIndices[numChannels], // destStartSample
+                  arrayOfOnes, // source
+                  samplesLeft, // numSamples
+                  float (ttlState)); // gain
 
-        copyFrom(numChannels,                   // destChannel
-            0,                                  // destStartSample
-            arrayOfOnes,                        // source
-            extraSamples,                       // numSamples
-            float(ttlState));                   // gain
+        copyFrom (numChannels, // destChannel
+                  0, // destStartSample
+                  arrayOfOnes, // source
+                  extraSamples, // numSamples
+                  float (ttlState)); // gain
     }
 }
 
-void DisplayBuffer::finalizeEventChannel(int nSamples)
+void DisplayBuffer::finalizeEventChannel (int nSamples)
 {
-
     if (displays.size() == 0)
         return;
 
     const int index = displayBufferIndices[numChannels];
     const int samplesLeft = getNumSamples() - index;
-   
+
     int newIdx = 0;
 
     if (nSamples < samplesLeft)
@@ -176,13 +169,12 @@ void DisplayBuffer::finalizeEventChannel(int nSamples)
     {
         newIdx = nSamples - samplesLeft;
     }
-        
-    displayBufferIndices.set(numChannels, newIdx);
+
+    displayBufferIndices.set (numChannels, newIdx);
 }
 
-void DisplayBuffer::addEvent(int eventTime, int eventChannel, int eventId, int numSourceSamples)
+void DisplayBuffer::addEvent (int eventTime, int eventChannel, int eventId, int numSourceSamples)
 {
-
     if (displays.size() == 0)
         return;
 
@@ -197,37 +189,38 @@ void DisplayBuffer::addEvent(int eventTime, int eventChannel, int eventId, int n
     {
         ttlState |= (1LL << eventChannel);
     }
-    else {
+    else
+    {
         ttlState &= ~(1LL << eventChannel);
     }
 
     if (nSamples < samplesLeft)
     {
-        copyFrom(numChannels,                     // destChannel
-            index,                                // destStartSample
-            arrayOfOnes,                          // source
-            nSamples,                             // numSamples
-            float(ttlState));                     // gain
+        copyFrom (numChannels, // destChannel
+                  index, // destStartSample
+                  arrayOfOnes, // source
+                  nSamples, // numSamples
+                  float (ttlState)); // gain
     }
     else
     {
         int extraSamples = nSamples - samplesLeft;
 
-        copyFrom(numChannels,                     // destChannel
-            index,                                // destStartSample
-            arrayOfOnes,                          // source
-            samplesLeft,                          // numSamples
-            float(ttlState));                     // gain
+        copyFrom (numChannels, // destChannel
+                  index, // destStartSample
+                  arrayOfOnes, // source
+                  samplesLeft, // numSamples
+                  float (ttlState)); // gain
 
-        copyFrom(numChannels,                     // destChannel
-            0,                                    // destStartSample
-            arrayOfOnes,                          // source
-            extraSamples,                         // numSamples
-            float(ttlState));                     // gain
+        copyFrom (numChannels, // destChannel
+                  0, // destStartSample
+                  arrayOfOnes, // source
+                  extraSamples, // numSamples
+                  float (ttlState)); // gain
     }
 }
 
-void DisplayBuffer::addData(AudioBuffer<float>& buffer, int chan, int nSamples)
+void DisplayBuffer::addData (AudioBuffer<float>& buffer, int chan, int nSamples)
 {
     if (displays.size() == 0)
         return;
@@ -236,46 +229,44 @@ void DisplayBuffer::addData(AudioBuffer<float>& buffer, int chan, int nSamples)
     int channelIndex = channelMap[chan];
 
     const int samplesLeft = getNumSamples() - displayBufferIndices[channelMap[chan]];
-    
+
     int newIndex;
-        
+
     if (nSamples < samplesLeft)
     {
-        copyFrom(channelMap[chan],                   // destChannel
-            displayBufferIndices[channelMap[chan]],  // destStartSample
-            buffer,                                  // source
-            chan,                                    // source channel
-            0,                                       // source start sample
-            nSamples);                               // numSamples
+        copyFrom (channelMap[chan], // destChannel
+                  displayBufferIndices[channelMap[chan]], // destStartSample
+                  buffer, // source
+                  chan, // source channel
+                  0, // source start sample
+                  nSamples); // numSamples
 
         int lastIndex = displayBufferIndices[channelMap[chan]];
 
         newIndex = lastIndex + nSamples;
-            
     }
     else
     {
         const int extraSamples = nSamples - samplesLeft;
 
-        copyFrom(channelMap[chan],                   // destChannel
-            displayBufferIndices[channelMap[chan]],  // destStartSample
-            buffer,                                  // source
-            chan,                                    // source channel
-            0,                                       // source start sample
-            samplesLeft);                            // numSamples
+        copyFrom (channelMap[chan], // destChannel
+                  displayBufferIndices[channelMap[chan]], // destStartSample
+                  buffer, // source
+                  chan, // source channel
+                  0, // source start sample
+                  samplesLeft); // numSamples
 
-        copyFrom(channelMap[chan],                   // destChannel
-            0,                                       // destStartSample
-            buffer,                                  // source
-            chan,                                    // source channel
-            samplesLeft,                             // source start sample
-            extraSamples);                           // numSamples
+        copyFrom (channelMap[chan], // destChannel
+                  0, // destStartSample
+                  buffer, // source
+                  chan, // source channel
+                  samplesLeft, // source start sample
+                  extraSamples); // numSamples
 
         newIndex = extraSamples;
     }
 
-    displayBufferIndices.set(channelMap[chan], newIndex);
-
+    displayBufferIndices.set (channelMap[chan], newIndex);
 }
 
-};
+}; // namespace LfpViewer

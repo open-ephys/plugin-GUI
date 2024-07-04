@@ -26,26 +26,27 @@
 #include "gtest/gtest.h"
 
 #include "../SpikeDetector.h"
-#include <ProcessorHeaders.h>
-#include <ModelProcessors.h>
 #include <ModelApplication.h>
+#include <ModelProcessors.h>
+#include <ProcessorHeaders.h>
 #include <TestFixtures.h>
 
-class SpikeDetectorTests : public ::testing::Test  {
+class SpikeDetectorTests : public ::testing::Test
+{
 protected:
-    SpikeDetectorTests() {
+    SpikeDetectorTests()
+    {
     }
 
-    ~ SpikeDetectorTests() override {
+    ~SpikeDetectorTests() override
+    {
     }
 
-    void SetUp() override {
+    void SetUp() override
+    {
     }
 
-    void TearDown() override {
-
+    void TearDown() override
+    {
     }
-
 };
-
-

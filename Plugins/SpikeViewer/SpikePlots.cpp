@@ -502,19 +502,19 @@ void GenericAxes::makeLabel (int val, int gain, bool convert, char* s)
         if (abs (val) > 1e6)
         {
             //val = val/(1e6);
-            snprintf (s, sizeof(s), "%.2fV", volt);
+            snprintf (s, sizeof (s), "%.2fV", volt);
         }
         else if (abs (val) > 1e3)
         {
             //val = val/(1e3);
-            snprintf (s, sizeof(s), "%.2fmV", volt);
+            snprintf (s, sizeof (s), "%.2fmV", volt);
         }
         else
-            snprintf (s, sizeof(s), "%.2fuV", volt);
+            snprintf (s, sizeof (s), "%.2fuV", volt);
     }
     else
     {
-        snprintf (s, sizeof(s), "%d", (int) val);
+        snprintf (s, sizeof (s), "%d", (int) val);
     }
 }
 
@@ -615,7 +615,7 @@ void WaveAxes::plotSpike (const Spike* s, Graphics& g)
     // sample based upon which channel is getting plotted
     int sampIdx = nSamples * channel;
 
-    int dataSize = int( s->getChannelInfo()->getDataSize() );
+    int dataSize = int (s->getChannelInfo()->getDataSize());
 
     // prevent crashes when acquisition is not active,
     // or immediately after acquisition starts

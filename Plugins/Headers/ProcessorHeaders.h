@@ -27,9 +27,9 @@ Should be included in the source files which declare a processor class.
 */
 
 #include "../../JuceLibraryCode/JuceHeader.h"
-#include "../../Source/Processors/GenericProcessor/GenericProcessor.h"
 #include "../../Source/Processors/Events/Event.h"
 #include "../../Source/Processors/Events/Spike.h"
+#include "../../Source/Processors/GenericProcessor/GenericProcessor.h"
 #include "../../Source/TestableExport.h"
 #include "../../Source/Utils/BroadcastParser.h"
 #include "DspLib.h"

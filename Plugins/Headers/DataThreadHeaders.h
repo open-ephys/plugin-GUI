@@ -30,6 +30,3 @@ data from external hardware.
 #include "../../Source/Processors/DataThreads/DataThread.h"
 #include "../../Source/Processors/SourceNode/SourceNode.h"
 #include "../../Source/Utils/BroadcastParser.h"
-
-
-

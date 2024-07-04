@@ -16,7 +16,9 @@ add_sources(
   PrbFormat.h)
 
 if(APPLE)
-  set_target_properties(${PLUGIN_NAME} PROPERTIES XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "org.open-ephys.plugin.ChannelMap")
+  set_target_properties(
+    ${PLUGIN_NAME} PROPERTIES XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER
+                              "org.open-ephys.plugin.ChannelMap")
 endif()
 
 if(BUILD_TESTS)

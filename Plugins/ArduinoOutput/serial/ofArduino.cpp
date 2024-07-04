@@ -466,10 +466,10 @@ bool ofArduino::isInitialized()
 
 // ------------------------------ private functions
 
-void ofArduino::processData(unsigned char inputData)
+void ofArduino::processData (unsigned char inputData)
 {
     char msg[100];
-    snprintf(msg, sizeof(msg), "Received Byte: %i", inputData);
+    snprintf (msg, sizeof (msg), "Received Byte: %i", inputData);
     //Logger::get("Application").information(msg);
 
     // we have command data

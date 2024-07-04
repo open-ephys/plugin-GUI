@@ -223,7 +223,7 @@ void LfpDisplayNode::handleTTLEvent (TTLEventPtr event)
     const int eventChannel = event->getLine();
     const uint16 eventStreamId = event->getChannelInfo()->getStreamId();
     const int eventSourceNodeId = event->getChannelInfo()->getSourceNodeId();
-    const int eventTime = int(event->getSampleNumber() - getFirstSampleNumberForBlock (eventStreamId));
+    const int eventTime = int (event->getSampleNumber() - getFirstSampleNumberForBlock (eventStreamId));
 
     //LOGD("LFP Viewer received: ", eventSourceNodeId, " ", eventId, " ", event->getSampleNumber(), " ", getFirstSampleNumberForBlock(eventStreamId));
 
