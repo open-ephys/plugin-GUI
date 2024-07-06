@@ -98,21 +98,21 @@ PopupThresholdComponent::PopupThresholdComponent (SpikeDetectorTableModel* table
     label->setEditable (false);
     addAndMakeVisible (label.get());
 
-    absButton = std::make_unique<UtilityButton> ("uV", FontOptions ("Fira Code", "Regular", 12.0f));
+    absButton = std::make_unique<UtilityButton> ("uV");
     absButton->setBounds (7, 25, 40, 25);
     absButton->setTooltip ("Detection threshold = microvolt value");
     absButton->setToggleState (type == ThresholderType::ABS, dontSendNotification);
     absButton->addListener (this);
     addAndMakeVisible (absButton.get());
 
-    stdButton = std::make_unique<UtilityButton> ("STD", FontOptions ("Fira Code", "Regular", 12.0f));
+    stdButton = std::make_unique<UtilityButton> ("STD");
     stdButton->setBounds (7, 55, 40, 25);
     stdButton->setTooltip ("Detection threshold = multiple of the channel's standard deviation");
     stdButton->setToggleState (type == ThresholderType::STD, dontSendNotification);
     stdButton->addListener (this);
     addAndMakeVisible (stdButton.get());
 
-    dynButton = std::make_unique<UtilityButton> ("MED", FontOptions ("Fira Code", "Regular", 12.0f));
+    dynButton = std::make_unique<UtilityButton> ("MED");
     dynButton->setBounds (7, 85, 40, 25);
     dynButton->setTooltip ("Detection threshold = multiple of the median of the channel's absolute value");
     dynButton->setToggleState (type == ThresholderType::DYN, dontSendNotification);
@@ -121,7 +121,7 @@ PopupThresholdComponent::PopupThresholdComponent (SpikeDetectorTableModel* table
 
     createSliders();
 
-    lockButton = std::make_unique<UtilityButton> ("LOCK", FontOptions ("Fira Code", "Regular", 12.0f));
+    lockButton = std::make_unique<UtilityButton> ("LOCK");
     lockButton->setBounds (72 + sliderWidth * numChannels, 50, 42, 20);
     lockButton->setClickingTogglesState (true);
 
@@ -872,12 +872,12 @@ SpikeChannelGenerator::SpikeChannelGenerator (SpikeDetectorEditor* editor_,
     spikeChannelTypeSelector->setSelectedId (SpikeChannel::SINGLE);
     addAndMakeVisible (spikeChannelTypeSelector.get());
 
-    channelSelectorButton = std::make_unique<UtilityButton> ("Channels", FontOptions ("Inter", "Regular", 16.0f));
+    channelSelectorButton = std::make_unique<UtilityButton> ("Channels");
     channelSelectorButton->addListener (this);
     channelSelectorButton->setBounds (290, 5, 80, 20);
     addAndMakeVisible (channelSelectorButton.get());
 
-    plusButton = std::make_unique<UtilityButton> ("+", FontOptions ("Inter", "Regular", 16.0f));
+    plusButton = std::make_unique<UtilityButton> ("+");
     plusButton->addListener (this);
     plusButton->setBounds (380, 5, 20, 20);
     addAndMakeVisible (plusButton.get());

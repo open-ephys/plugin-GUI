@@ -76,7 +76,7 @@ SpikePlot::SpikePlot (SpikeDisplayCanvas* sdc,
 
     for (int i = 0; i < nChannels; i++)
     {
-        UtilityButton* rangeButton = new UtilityButton ("250", FontOptions (12.0f));
+        UtilityButton* rangeButton = new UtilityButton ("250");
         rangeButton->setRadius (3.0f);
         rangeButton->addListener (this);
         addAndMakeVisible (rangeButton);
@@ -85,7 +85,7 @@ SpikePlot::SpikePlot (SpikeDisplayCanvas* sdc,
         setDisplayThresholdForChannel (i, 0);
     }
 
-    monitorButton = std::make_unique<UtilityButton> ("MON", FontOptions (12.0f));
+    monitorButton = std::make_unique<UtilityButton> ("MON");
     monitorButton->setTooltip ("Monitor this electrode (requires an Audio Monitor in the signal chain)");
     monitorButton->addListener (this);
     addAndMakeVisible (monitorButton.get());

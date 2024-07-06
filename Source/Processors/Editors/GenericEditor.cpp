@@ -767,8 +767,10 @@ void DrawerButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown
     g.drawVerticalLine (7, 0.0f, getHeight());
 }
 
-UtilityButton::UtilityButton (String label_, FontOptions font_) : Button (label_), label (label_), font (font_)
+UtilityButton::UtilityButton (String label_) : Button (label_), label (label_), isUsingCustomFont (false)
 {
+    font = FontOptions ("Fira Code", "Regular", 14.0f);
+
     roundUL = true;
     roundUR = true;
     roundLL = true;
@@ -837,13 +839,15 @@ void UtilityButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDow
     else
         g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.4f));
 
-    g.drawFittedText (label, 0, 0, getWidth(), getHeight(), Justification::centred, 2, 1.0f);
+    g.drawFittedText (label, 1, 1, getWidth() - 2, getHeight() - 2, Justification::centred, 2, 1.0f);
 }
 
 void UtilityButton::resized()
 {
-    outlinePath.clear();
+    if (! isUsingCustomFont)
+        font = font.withHeight (getHeight() * 0.65f);
 
+    outlinePath.clear();
     outlinePath.addRoundedRectangle (1.0f, 1.0f, (float) getWidth() - 2.0f, (float) getHeight() - 2.0f, radius, radius, roundUL, roundUR, roundLL, roundLR);
 }
 
@@ -856,6 +860,16 @@ void UtilityButton::setLabel (String label_)
 {
     label = label_;
     repaint();
+}
+
+void UtilityButton::setFont (const FontOptions& newFont)
+{
+    if (font != newFont)
+    {
+        font = newFont;
+        isUsingCustomFont = true;
+        repaint();
+    }
 }
 
 TriangleButton::TriangleButton (int direction_) : Button ("Arrow")

@@ -34,7 +34,7 @@ EventDisplayInterface::EventDisplayInterface (LfpDisplay* display_, LfpDisplaySp
 {
     channelNumber = chNum;
 
-    chButton = std::make_unique<UtilityButton> (String (channelNumber + 1), FontOptions (13.0f));
+    chButton = std::make_unique<UtilityButton> (String (channelNumber + 1));
     chButton->setRadius (5.0f);
     chButton->setEnabledState (true);
     chButton->addListener (this);
@@ -65,6 +65,8 @@ void EventDisplayInterface::buttonClicked (Button* button)
         display->setEventDisplayState (channelNumber, true);
     }
 
+    chButton->setEnabledState (! isEnabled);
+
     repaint();
 }
 
@@ -81,5 +83,5 @@ void EventDisplayInterface::paintOverChildren (Graphics& g)
 
 void EventDisplayInterface::resized()
 {
-    chButton->setBounds (1, 1, getWidth() - 2, getHeight() - 2);
+    chButton->setBounds (0, 0, getWidth(), getHeight());
 }

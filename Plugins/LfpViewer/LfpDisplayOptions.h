@@ -174,7 +174,6 @@ private:
     LfpTimescale* timescale;
     LfpDisplayNode* processor;
 
-    FontOptions labelFont;
     Colour labelColour;
 
     String ttlWordString;

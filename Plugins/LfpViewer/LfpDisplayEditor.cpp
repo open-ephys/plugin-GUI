@@ -124,7 +124,7 @@ LfpDisplayEditor::LfpDisplayEditor (GenericProcessor* parentNode)
     threeHoriDisplay->addListener (this);
     addAndMakeVisible (threeHoriDisplay.get());
 
-    syncButton = std::make_unique<UtilityButton> ("SYNC DISPLAYS", FontOptions (13.0f));
+    syncButton = std::make_unique<UtilityButton> ("SYNC DISPLAYS");
     syncButton->addListener (this);
     addAndMakeVisible (syncButton.get());
 }

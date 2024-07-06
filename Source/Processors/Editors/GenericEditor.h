@@ -443,7 +443,7 @@ public:
 class PLUGIN_API UtilityButton : public Button
 {
 public:
-    UtilityButton (String label_, FontOptions font_);
+    UtilityButton (String label_);
     ~UtilityButton();
 
     void setCorners (bool UL, bool UR, bool LL, bool LR);
@@ -454,6 +454,8 @@ public:
 
     void setLabel (String label);
     String getLabel();
+
+    void setFont (const FontOptions& font);
 
 private:
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
@@ -466,6 +468,7 @@ private:
     Path fillPath;
 
     bool isEnabled;
+    bool isUsingCustomFont;
 
     void resized() override;
     ;

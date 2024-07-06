@@ -49,7 +49,7 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo (LfpDisplaySplitter* canvas_, LfpDi
       y (-1.0f),
       isSingleChannel (false)
 {
-    enableButton = std::make_unique<UtilityButton> ("", FontOptions (13.0f));
+    enableButton = std::make_unique<UtilityButton> ("");
     enableButton->setRadius (5.0f);
 
     enableButton->setEnabledState (true);
