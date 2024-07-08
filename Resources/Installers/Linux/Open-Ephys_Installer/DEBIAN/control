@@ -1,5 +1,5 @@
 Package: open-ephys
-Version: 1.0.0-dev
+Version: 1.0.0-alpha.1
 Architecture: amd64
 Installed-Size: 18644
 Section: science
