@@ -69,11 +69,22 @@ ProcessorList::ProcessorList (Viewport* v) : viewport (v),
             baseItem->getSubItem (n)->getSubItem (m)->setParentName (category);
         }
     }
+
+    openArrowPath.addTriangle (5, 10, 0, 0, 10, 0);
+    closedArrowPath.addTriangle (10, 10, 0, 5, 10, 0);
+
+    arrowButton = std::make_unique<CustomArrowButton> (0.0f, 20.0f);
+    arrowButton->setToggleState (true, dontSendNotification);
+    arrowButton->setClickingTogglesState (false);
+    arrowButton->setInterceptsMouseClicks (false, false);
+    addAndMakeVisible (arrowButton.get());
 }
 
 void ProcessorList::resized()
 {
     setBounds (0, 0, 195, getTotalHeight());
+
+    arrowButton->setBounds (getWidth() - 25, (itemHeight / 2) - 10, 20, 20);
 }
 
 void ProcessorList::timerCallback()
@@ -162,7 +173,7 @@ void ProcessorList::drawItemName (Graphics& g, ProcessorListItem* item)
 
         if (item == hoverItem)
         {
-            maxWidth = Font( listFontPlain).getStringWidthFloat (name);
+            maxWidth = Font (listFontPlain).getStringWidthFloat (name);
 
             if (maxWidth + 25 < getWidth() - scrollbarOffset)
             {
@@ -195,6 +206,18 @@ void ProcessorList::drawItemName (Graphics& g, ProcessorListItem* item)
 
         g.setFont (listFontLight);
         g.drawText (name, offsetX, 0, getWidth(), itemHeight, Justification::left, false);
+
+        if (! item->getName().equalsIgnoreCase ("Processors"))
+        {
+            if (item->isOpen())
+            {
+                g.fillPath (openArrowPath, AffineTransform::translation (getWidth() - 20, itemHeight / 2 - 5));
+            }
+            else
+            {
+                g.fillPath (closedArrowPath, AffineTransform::translation (getWidth() - 20, itemHeight / 2 - 5));
+            }
+        }
     }
 }
 
@@ -280,6 +303,8 @@ void ProcessorList::toggleState()
 {
     ProcessorListItem* fli = getListItemForYPos (0);
     fli->reverseOpenState();
+    LOGC ("Processor List - Toggling state of ", fli->getName());
+    arrowButton->setToggleState (fli->isOpen(), dontSendNotification);
     AccessClass::getUIComponent()->childComponentChanged();
     repaint();
 }
@@ -366,14 +391,8 @@ void ProcessorList::mouseDown (const MouseEvent& e)
 
         if (listItem == baseItem.get())
         {
-            if (listItem->isOpen())
-            {
-                AccessClass::getUIComponent()->childComponentChanged();
-            }
-            else
-            {
-                AccessClass::getUIComponent()->childComponentChanged();
-            }
+            arrowButton->setToggleState (listItem->isOpen(), dontSendNotification);
+            AccessClass::getUIComponent()->childComponentChanged();
         }
     }
 
@@ -432,7 +451,7 @@ void ProcessorList::mouseDrag (const MouseEvent& e)
 
                     if (dragContainer != 0)
                     {
-                        ScaledImage dragImage (Image(Image::ARGB, 100, 15, true));
+                        ScaledImage dragImage (Image (Image::ARGB, 100, 15, true));
 
                         LOGA ("Processor List - ", listItem->getName(), " drag start.");
 
