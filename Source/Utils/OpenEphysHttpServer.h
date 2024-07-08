@@ -168,10 +168,17 @@ public:
             status_to_json(graph_, &ret);
             res.set_content(ret.dump(), "application/json"); });
 
+
+        svr_->Get ("/api/audio/devices", [this] (const httplib::Request&, httplib::Response& res)
+                   {
+            json ret;
+            audio_devices_to_json(&ret);
+            res.set_content(ret.dump(), "application/json"); });
+
         svr_->Get ("/api/audio", [this] (const httplib::Request&, httplib::Response& res)
                    {
             json ret;
-            audio_info_to_json(graph_, &ret);
+            audio_info_to_json(&ret);
             res.set_content(ret.dump(), "application/json"); });
 
         svr_->Put ("/api/audio", [this] (const httplib::Request& req, httplib::Response& res)
@@ -226,7 +233,7 @@ public:
                 }
 
                 json ret;
-                audio_info_to_json(graph_, &ret);
+                audio_info_to_json(&ret);
                 res.set_content(ret.dump(), "application/json"); });
 
         svr_->Get ("/api/recording", [this] (const httplib::Request&, httplib::Response& res)
@@ -1181,7 +1188,29 @@ private:
         }
     }
 
-    inline static void audio_info_to_json (const ProcessorGraph* graph, json* ret)
+    inline static void audio_devices_to_json(json* ret)
+    {
+        json devices_json;
+
+        const OwnedArray<AudioIODeviceType>& types = AccessClass::getAudioComponent()->deviceManager.getAvailableDeviceTypes();
+
+        for (int i = 0; i < types.size(); i++)
+        {
+            std::string type_name = types[i]->getTypeName().toStdString();
+            std::vector<std::string> device_names;
+
+            for (int j = 0; j < types[i]->getDeviceNames().size(); j++)
+            {
+                device_names.push_back(types[i]->getDeviceNames()[j].toStdString());
+            }
+
+            devices_json[type_name] = device_names;
+        }
+
+        (*ret)["devices"] = devices_json;
+    }
+
+    inline static void audio_info_to_json (json* ret)
     {
         (*ret)["sample_rate"] = AccessClass::getAudioComponent()->getSampleRate();
 
