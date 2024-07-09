@@ -221,6 +221,16 @@ void AudioComponent::setDeviceType (String deviceType)
     CoreServices::sendStatusMessage ("Set device type to " + String (deviceManager.getCurrentDeviceTypeObject()->getTypeName()));
 }
 
+Array<double> AudioComponent::getAvailableSampleRates()
+{
+    return deviceManager.getCurrentAudioDevice()->getAvailableSampleRates();
+}
+
+Array<int> AudioComponent::getAvailableBufferSizes()
+{
+    return deviceManager.getCurrentAudioDevice()->getAvailableBufferSizes();
+}
+
 void AudioComponent::connectToProcessorGraph (AudioProcessorGraph* processorGraph)
 {
     graphPlayer->setProcessor (processorGraph);

@@ -1229,6 +1229,30 @@ private:
         (*ret)["sample_rate"] = AccessClass::getAudioComponent()->getSampleRate();
 
         (*ret)["buffer_size"] = AccessClass::getAudioComponent()->getBufferSize();
+
+        json sample_rates_json;
+        sample_rates_to_json(AccessClass::getAudioComponent()->getAvailableSampleRates(), &sample_rates_json);
+        (*ret)["available_sample_rates"] = sample_rates_json;
+
+        json buffer_sizes_json;
+        buffer_sizes_to_json(AccessClass::getAudioComponent()->getAvailableBufferSizes(), &buffer_sizes_json);
+        (*ret)["available_buffer_sizes"] = buffer_sizes_json;
+    }
+
+    inline static void sample_rates_to_json(const Array<double> sample_rates, json* ret)
+    {
+        for (int i = 0; i < sample_rates.size(); i++)
+        {
+            (*ret)[i] = sample_rates[i];
+        }
+    }
+
+    inline static void buffer_sizes_to_json(const Array<int> buffer_sizes, json* ret)
+    {
+        for (int i = 0; i < buffer_sizes.size(); i++)
+        {
+            (*ret)[i] = buffer_sizes[i];
+        }
     }
 
     inline static void recording_info_to_json (const ProcessorGraph* graph, json* ret)
