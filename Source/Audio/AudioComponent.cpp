@@ -180,6 +180,29 @@ void AudioComponent::setSampleRate (int sampleRate)
     CoreServices::sendStatusMessage ("Set sample rate to " + String (deviceManager.getAudioDeviceSetup().sampleRate) + " Hz.");
 }
 
+String AudioComponent::getDeviceName()
+{
+    return deviceManager.getAudioDeviceSetup().outputDeviceName;
+}
+
+void AudioComponent::setDeviceName (String deviceName)
+{
+    if (callbacksAreActive())
+    {
+        CoreServices::sendStatusMessage ("Cannot set device name while acquisition is active.");
+        return;
+    }
+
+    AudioDeviceManager::AudioDeviceSetup setup;
+    deviceManager.getAudioDeviceSetup (setup);
+
+    setup.outputDeviceName = deviceName;
+
+    deviceManager.setAudioDeviceSetup (setup, true);
+
+    CoreServices::sendStatusMessage ("Set device name to " + deviceName);
+}
+
 String AudioComponent::getDeviceType()
 {
     return deviceManager.getCurrentAudioDeviceType();

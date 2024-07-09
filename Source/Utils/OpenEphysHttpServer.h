@@ -175,10 +175,10 @@ public:
             audio_devices_to_json(&ret);
             res.set_content(ret.dump(), "application/json"); });
 
-        svr_->Get ("/api/audio", [this] (const httplib::Request&, httplib::Response& res)
+        svr_->Get ("/api/audio/device", [this] (const httplib::Request&, httplib::Response& res)
                    {
             json ret;
-            audio_info_to_json(&ret);
+            audio_device_info_to_json(&ret);
             res.set_content(ret.dump(), "application/json"); });
 
         svr_->Put ("/api/audio", [this] (const httplib::Request& req, httplib::Response& res)
@@ -202,6 +202,26 @@ public:
                 }
 
                 try {
+                    std::string device_type = request_json["device_type"];
+                    LOGD("Found 'device_type': ", device_type);
+                    const MessageManagerLock mml;
+                    AccessClass::getAudioComponent()->setDeviceType(String(device_type));
+                }
+                catch (json::exception& e) {
+                    LOGD("'device_type' not specified'");
+                }
+
+                try {
+                    std::string device_name = request_json["device_name"];
+                    LOGD("Found 'device_name': ", device_name);
+                    const MessageManagerLock mml;
+                    AccessClass::getAudioComponent()->setDeviceName(String(device_name));
+                }
+                catch (json::exception& e) {
+                    LOGD("'device_name' not specified'");
+                }
+
+                try {
                     int sample_rate = request_json["sample_rate"];
                     LOGD("Found 'sample_rate': ", sample_rate);
                     const MessageManagerLock mml;
@@ -222,18 +242,8 @@ public:
                     LOGD("'buffer_size' not specified'");
                 }
 
-                try {
-                    std::string device_type = request_json["device_type"];
-                    LOGD("Found 'device_type': ", device_type);
-                    const MessageManagerLock mml;
-                    AccessClass::getAudioComponent()->setDeviceType(String(device_type));
-                }
-                catch (json::exception& e) {
-                    LOGD("'device_type' not specified'");
-                }
-
                 json ret;
-                audio_info_to_json(&ret);
+                audio_device_info_to_json(&ret);
                 res.set_content(ret.dump(), "application/json"); });
 
         svr_->Get ("/api/recording", [this] (const httplib::Request&, httplib::Response& res)
@@ -1210,13 +1220,15 @@ private:
         (*ret)["devices"] = devices_json;
     }
 
-    inline static void audio_info_to_json (json* ret)
+    inline static void audio_device_info_to_json (json* ret)
     {
+        (*ret)["device_type"] = AccessClass::getAudioComponent()->getDeviceType().toStdString();
+
+        (*ret)["device_name"] = AccessClass::getAudioComponent()->getDeviceName().toStdString();
+
         (*ret)["sample_rate"] = AccessClass::getAudioComponent()->getSampleRate();
 
         (*ret)["buffer_size"] = AccessClass::getAudioComponent()->getBufferSize();
-
-        (*ret)["device_type"] = AccessClass::getAudioComponent()->getDeviceType().toStdString();
     }
 
     inline static void recording_info_to_json (const ProcessorGraph* graph, json* ret)

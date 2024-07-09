@@ -101,6 +101,12 @@ public:
     /** Sets the device type */
     void setDeviceType (String deviceType);
 
+    /** Sets the device name */
+    void setDeviceName (String deviceName);
+
+    /** Return the device name */
+    String getDeviceName();
+
     /** Saves all audio settings that can be loaded to an XML element */
     void saveStateToXml (XmlElement* parent);
 
