@@ -49,6 +49,9 @@ using json = nlohmann::json;
  *
  * The API is "RESTful", such that the resource URLs are:
  * 
+ * - GET /api/config :
+ *          returns an XML string with the current configuration of the GUI
+ *
  * - GET /api/status : 
  *          returns a JSON string with the GUI's current mode (IDLE, ACQUIRE, RECORD)
  * 
@@ -99,6 +102,15 @@ public:
 
     void run() override
     {
+        svr_->Get ("/api/config", [this] (const httplib::Request&, httplib::Response& res)
+                   {
+            std::unique_ptr<XmlElement> xmlElement = std::make_unique<XmlElement> ("SETTINGS");
+            graph_->saveToXml (xmlElement.get());
+
+            json ret;
+            ret["info"] = xmlElement.get()->toString().toStdString();
+            res.set_content(ret.dump(), "application/json"); });
+
         svr_->Get ("/api/status", [this] (const httplib::Request&, httplib::Response& res)
                    {
             json ret;
