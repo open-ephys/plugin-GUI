@@ -446,6 +446,68 @@ public:
             status_to_json(graph_, &ret);
             res.set_content(ret.dump(), "application/json"); });
 
+        svr_->Put ("/api/save", [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+            std::string message_str;
+            LOGD("Received PUT request");
+
+            try {
+                LOGD("Trying to decode");
+                json request_json;
+                request_json = json::parse(req.body);
+                LOGD("Parsed");
+                message_str = request_json["filepath"];
+                LOGD("Message string: ", message_str);
+            }
+            catch (json::exception& e) {
+                LOGD("Hit exception");
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
+
+            File writePath = File (message_str);
+
+            if ( writePath.existsAsFile())
+            {
+                LOGE("[HTTPServer] Failed to save configuration, file already exists at path: ", writePath.getFullPathName());
+                json ret;
+                ret["info"] = "File already exists at path: " + writePath.getFullPathName().toStdString();
+                res.set_content(ret.dump(), "application/json");
+                return;
+            }
+
+            std::promise<void> signalChainSaved;
+            std::future<void> signalChainSavedFuture = signalChainSaved.get_future();
+
+            String xml;
+
+            MessageManager::callAsync([this, message_str, writePath, &signalChainSaved, &xml] {
+
+                std::unique_ptr<XmlElement> xmlElement = std::make_unique<XmlElement> ("SETTINGS");
+
+                graph_->saveToXml (xmlElement.get());
+
+                String message;
+
+                if (! xmlElement->writeTo ( writePath ))
+                    message = "Couldn't write to file ";
+                else
+                    message = "Saved configuration as ";
+
+                message += writePath.getFileName();
+
+                xml = xmlElement->toString();
+                signalChainSaved.set_value(); // Signal that saveSignalChain is finished
+            });
+
+            // Wait for saveSignalChain to finish
+            signalChainSavedFuture.wait();
+
+            json ret;
+            ret["info"] = xml.toStdString();
+            res.set_content(ret.dump(), "application/json"); });
+
         svr_->Get ("/api/processors/list", [this] (const httplib::Request&, httplib::Response& res)
                    {
 
