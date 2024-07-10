@@ -225,7 +225,6 @@ public:
             status_to_json(graph_, &ret);
             res.set_content(ret.dump(), "application/json"); });
 
-
         svr_->Get ("/api/audio/devices", [this] (const httplib::Request&, httplib::Response& res)
                    {
             json ret;
@@ -1213,15 +1212,12 @@ public:
 
         svr_->Put ("/api/quit", [this] (const httplib::Request& req, httplib::Response& res)
                    {
+                       MessageManager::callAsync ([this]
+                                                  { JUCEApplication::getInstance()->systemRequestedQuit(); });
 
-                    MessageManager::callAsync([this] {
-                        JUCEApplication::getInstance()->systemRequestedQuit();
-                    });
-
-                    json ret;
-                    ret["info"] = "Quitting application";
-                    res.set_content (ret.dump(), "application/json");
-
+                       json ret;
+                       ret["info"] = "Quitting application";
+                       res.set_content (ret.dump(), "application/json");
                    });
 
         LOGC ("Beginning HTTP server on port ", PORT);
@@ -1285,7 +1281,7 @@ private:
         }
     }
 
-    inline static void audio_devices_to_json(json* ret)
+    inline static void audio_devices_to_json (json* ret)
     {
         json devices_json;
 
@@ -1298,7 +1294,7 @@ private:
 
             for (int j = 0; j < types[i]->getDeviceNames().size(); j++)
             {
-                device_names.push_back(types[i]->getDeviceNames()[j].toStdString());
+                device_names.push_back (types[i]->getDeviceNames()[j].toStdString());
             }
 
             devices_json[type_name] = device_names;
@@ -1318,15 +1314,15 @@ private:
         (*ret)["buffer_size"] = AccessClass::getAudioComponent()->getBufferSize();
 
         json sample_rates_json;
-        sample_rates_to_json(AccessClass::getAudioComponent()->getAvailableSampleRates(), &sample_rates_json);
+        sample_rates_to_json (AccessClass::getAudioComponent()->getAvailableSampleRates(), &sample_rates_json);
         (*ret)["available_sample_rates"] = sample_rates_json;
 
         json buffer_sizes_json;
-        buffer_sizes_to_json(AccessClass::getAudioComponent()->getAvailableBufferSizes(), &buffer_sizes_json);
+        buffer_sizes_to_json (AccessClass::getAudioComponent()->getAvailableBufferSizes(), &buffer_sizes_json);
         (*ret)["available_buffer_sizes"] = buffer_sizes_json;
     }
 
-    inline static void sample_rates_to_json(const Array<double> sample_rates, json* ret)
+    inline static void sample_rates_to_json (const Array<double> sample_rates, json* ret)
     {
         for (int i = 0; i < sample_rates.size(); i++)
         {
@@ -1334,7 +1330,7 @@ private:
         }
     }
 
-    inline static void buffer_sizes_to_json(const Array<int> buffer_sizes, json* ret)
+    inline static void buffer_sizes_to_json (const Array<int> buffer_sizes, json* ret)
     {
         for (int i = 0; i < buffer_sizes.size(); i++)
         {
