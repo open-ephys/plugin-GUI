@@ -56,44 +56,89 @@ using json = nlohmann::json;
  *          returns a JSON string with the GUI's current mode (IDLE, ACQUIRE, RECORD)
  * 
  * - PUT /api/status : 
- *          sets the GUI's mode, e.g.: {"mode" : "ACQUIRE"}
+ *          sets the GUI's mode
+ *          e.g.: {"mode" : "ACQUIRE"}
  * 
+ * - GET /api/audio/devices :
+ *        returns a JSON string with the available audio devices
+ *
+ * - GET /api/audio/device :
+ *       returns a JSON string with the current audio device
+ *
+ * - PUT /api/audio :
+ *        sets the audio device
+ *        e.g.: {"device_type" : "input", "device_name" : "Microphone (Realtek High Definition Audio)", "sample_rate" : 44100, "buffer_size" : 512}
+ *
+ * - PUT /api/recording :
+ *         sets the default recording options
+ *         e.g.: {"parent_directory" : "C:/Users/username/Documents/OpenEphys", "prepend_text" : "Prepend", "base_text" : "Base", "append_text" : "Append", "default_record_engine" : "OpenEphys", "start_new_directory" : "true"}
+ *
+ * - PUT /api/recording/<processor_id> :
+ *        sets the options for a given Record Node
+ *        e.g.: {"parent_directory" : "C:/Users/username/Documents/OpenEphys", "record_engine" : "OpenEphys"}
+ *
  * - PUT /api/message :
  *          sends a broadcast message to all processors, e.g.: {"text" : "Message content"}
  *          only works while acquisition is active
- * 
- * - GET /api/recording :
- *          returns a JSON string with the following information:
- *          - default recording directory ("directory")
- *          - default data format ("format")
- *          - default directory name prepend + append text
- *          - default directory name string
- *          - available Record Nodes
- *          - directory, format, experiment #, and recording #, for each Record Node
- * 
- * - PUT /api/recording :
- *          used to set the default recording options
- * 
- * - PUT /api/recording/<processor_id> :
- *          used to set the options for a given Record Node
- * 
- * - GET /api/processors :
- * - GET /api/processors/<processor_id>
- * - GET /api/processors/<processor_id>/parameters
- * - GET /api/processors/<processor_id>/parameters/<parameter_name>
- * - PUT /api/processors/<processor_id>/parameters/<parameter_name>
- * - GET /api/processors/<processor_id>/streams/<stream_index>
- * - GET /api/processors/<processor_id>/streams/<stream_index>/parameters
- * - GET /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name>
- * - PUT /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name>
- * - PUT /api/processors/<processor_id>/config
- * - PUT /api/processors/add
- * - PUT /api/processors/delete
- * - PUT /api/window
  *
- * All endpoints are JSON endpoints. The PUT endpoint expects two parameters: "channel" (an integer), and "value",
- * which should have a type matching the type of the parameter.
+ * - PUT /api/load :
+ *         loads a new signal chain from a file, e.g.: {"path" : "C:/Users/username/Documents/OpenEphys/chain.xml"}
+ *
+ * - PUT /api/save :
+ *          saves the current signal chain to a file, e.g.: {"filepath" : "C:/Users/username/Documents/OpenEphys/chain.xml"}
+ *
+ * - GET /api/processors/list :
+ *          returns a JSON string with the available processors
+ *
+ * - GET /api/processors :
+ *          returns a JSON string with the processors currently in the graph
+ *
+ * - GET /api/processors/<processor_id> :
+ *         returns a JSON string with the processor's parameters
+ *
+ * - GET /api/processors/<processor_id>/parameters :
+ *          returns a JSON string with the processor's parameters
+ *
+ * - GET /api/processors/<processor_id>/parameters/<parameter_name> :
+ *          returns a JSON string with the parameter's value
+ *
+ * - GET /api/processors/<processor_id>/streams/<stream_index> :
+ *          returns a JSON string with the stream's info and parameters
+ *
+ * - GET /api/processors/<processor_id>/streams/<stream_index>/parameters :
+ *          returns a JSON string with the stream's parameters
+ *
+ * - GET /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name>
+ *         returns a JSON string with the stream's parameter value
+ *
+ * - PUT /api/processors/<processor_id>/config :
+ *          sends a configuration message to a processor, e.g.: {"text" : "Message content"}
+ *
+ * - GET /api/processors/clear :
+ *         clears the signal chain
+ *
+ * - PUT /api/processors/delete :
+ *         deletes a processor, e.g.: {"id" : 101}
+ *
+ * - PUT /api/processors/add :
+ *          adds a processor, e.g.: {"name" : "ProcessorName", "source_id" : 100 }
+ *
+ * - PUT /api/undo :
+ *          undoes the last action
+ *
+ * - PUT /api/redo :
+ *          redoes the last action
+ *
+ * - PUT /api/processors/<processor_id>/parameters/<parameter_name> :
+ *          sets a parameter's value, e.g.: {"value" : 0.5}
+ *
+ * - PUT /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name> :
+ *          sets a stream's parameter value, e.g.: {"value" : 0.5}
+ *
+ * - PUT /api/quit:
+ *          quits the application
  */
+
 class OpenEphysHttpServer : juce::Thread
 {
 public:
@@ -1166,50 +1211,18 @@ public:
                        res.set_content (ret.dump(), "application/json");
                    });
 
-        svr_->Put ("/api/window", [this] (const httplib::Request& req, httplib::Response& res)
+        svr_->Put ("/api/quit", [this] (const httplib::Request& req, httplib::Response& res)
                    {
-                       std::string message_str;
-                       LOGD ("Received PUT WINDOW request");
 
-                       try
-                       {
-                           LOGD ("Trying to decode");
-                           json request_json;
-                           request_json = json::parse (req.body);
-                           LOGD ("Parsed");
-                           message_str = request_json["command"];
-                           LOGD ("Message string: ", message_str);
-                       }
-                       catch (json::exception& e)
-                       {
-                           LOGD ("Hit exception");
-                           res.set_content (e.what(), "text/plain");
-                           res.status = 400;
-                           return;
-                       }
+                    MessageManager::callAsync([this] {
+                        JUCEApplication::getInstance()->systemRequestedQuit();
+                    });
 
-                       if (String (message_str).equalsIgnoreCase ("quit"))
-                       {
-                           json ret;
-                           res.set_content (ret.dump(), "application/json");
-                           res.status = 400;
+                    json ret;
+                    ret["info"] = "Quitting application";
+                    res.set_content (ret.dump(), "application/json");
 
-                            std::promise<void> signalQuit;
-                            std::future<void> signalQuitFuture = signalQuit.get_future();
-
-                            MessageManager::callAsync([this, &signalQuit] {
-                                JUCEApplication::getInstance()->systemRequestedQuit();
-                                signalQuit.set_value(); // Signal that window has been closed
-                            });
-
-                            // Wait for window to be closed
-                            signalQuitFuture.wait();
-
-                       }
-                       else
-                       {
-                           LOGD ("Unrecognized command");
-                       } });
+                   });
 
         LOGC ("Beginning HTTP server on port ", PORT);
         svr_->listen ("0.0.0.0", PORT);
