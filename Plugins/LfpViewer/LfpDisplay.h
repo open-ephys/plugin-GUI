@@ -60,13 +60,13 @@ public:
     Image lfpChannelBitmap;
 
     /** Draws the full channel image */
-    void paint (Graphics& g);
+    void paint (Graphics& g) override;
 
     /** Updates the channel image from the screen buffer*/
     void refresh();
 
     /** Updates the size and location of individual channels*/
-    void resized();
+    void resized() override;
 
     /** Updates the number of displayed channels */
     void setNumChannels (int numChannels);
@@ -84,10 +84,10 @@ public:
     void reactivateChannels();
 
     /** Selects channels / switches to single channel mode on double click*/
-    void mouseDown (const MouseEvent& event);
+    void mouseDown (const MouseEvent& event) override;
 
     /** Scrolls the display*/
-    void mouseWheelMove (const MouseEvent& event, const MouseWheelDetails& wheel);
+    void mouseWheelMove (const MouseEvent& event, const MouseWheelDetails& wheel) override;
 
     /** Sets the display range for a particular channel type*/
     void setRange (float range, ContinuousChannel::Type type);

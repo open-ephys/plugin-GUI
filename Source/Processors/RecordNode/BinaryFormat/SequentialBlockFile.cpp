@@ -96,15 +96,15 @@ bool SequentialBlockFile::writeChannel (uint64 startPos, int channel, int16* dat
         return false;
     }
     int writtenSamples = 0;
-    int startIdx = startPos - m_memBlocks[bIndex]->getOffset();
-    int startMemPos = startIdx * m_nChannels;
+    uint64 startIdx = startPos - m_memBlocks[bIndex]->getOffset();
+    uint64 startMemPos = startIdx * m_nChannels;
     int dataIdx = 0;
     int lastBlockIdx = m_memBlocks.size() - 1;
 
     while (writtenSamples < nSamples)
     {
         int16* blockPtr = m_memBlocks[bIndex]->getData();
-        int samplesToWrite = jmin ((nSamples - writtenSamples), (m_samplesPerBlock - startIdx));
+        int samplesToWrite = jmin ((nSamples - writtenSamples), (m_samplesPerBlock - int(startIdx)));
 
         for (int i = 0; i < samplesToWrite; i++)
         {
@@ -151,7 +151,7 @@ void SequentialBlockFile::allocateBlocks (uint64 startIndex, int numSamples)
     uint64 lastOffset = m_memBlocks.getLast()->getOffset();
     uint64 maxAddr = lastOffset + m_samplesPerBlock - 1;
     uint64 newSpaceNeeded = numSamples - (maxAddr - startIndex);
-    int newBlocks = (newSpaceNeeded + m_samplesPerBlock - 1) / m_samplesPerBlock; //Fast ceiling division
+    uint64 newBlocks = (newSpaceNeeded + m_samplesPerBlock - 1) / m_samplesPerBlock; //Fast ceiling division
 
     for (int i = 0; i < newBlocks; i++)
     {

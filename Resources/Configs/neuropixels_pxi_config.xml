@@ -275,19 +275,19 @@
         <VISUALIZER_PARAMETERS/>
         <CUSTOM_PARAMETERS>
           <LFPDISPLAY0 SubprocessorID="10001" Range="250,2000,10.0" Timebase="2.0" Spread="40"
-                      colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
+                      colourScheme="1" colourGrouping="1" spikeRaster="OFF" clipWarning="1"
                       satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
                       showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
                       trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
                       ScrollX="0" ScrollY="0"/>
           <LFPDISPLAY1 SubprocessorID="10002" Range="250,2000,10.0" Timebase="2.0" Spread="40"
-                      colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
+                      colourScheme="1" colourGrouping="1" spikeRaster="OFF" clipWarning="1"
                       satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
                       showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
                       trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
                       ScrollX="0" ScrollY="0"/>
           <LFPDISPLAY2 SubprocessorID="10002" Range="250,2000,10.0" Timebase="2.0" Spread="40"
-                      colourScheme="1" colorGrouping="1" spikeRaster="OFF" clipWarning="1"
+                      colourScheme="1" colourGrouping="1" spikeRaster="OFF" clipWarning="1"
                       satWarning="1" reverseOrder="0" sortByDepth="0" channelSkip="1"
                       showChannelNum="0" subtractOffset="0" isInverted="0" triggerSource="1"
                       trialAvg="0" singleChannelView="-1" EventButtonState="255" ChannelDisplayState="111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
@@ -328,7 +328,7 @@
     <COLOR ID="804" R="241" G="90" B="41"/>
     <COLOR ID="802" R="0" G="174" B="239"/>
     <COLOR ID="803" R="0" G="166" B="81"/>
-    <COLOR ID="805" R="147" G="149" B="152"/>
+    <COLOR ID="805" R="90" G="110" B="110"/>
     <COLOR ID="806" R="255" G="0" B="0"/>
     <COLOR ID="807" R="0" G="0" B="0"/>
   </PROCESSORLIST>

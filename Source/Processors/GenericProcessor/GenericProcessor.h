@@ -145,7 +145,7 @@ public:
     virtual float getDefaultSampleRate() const;
 
     /** Returns the name of processor */
-    const String getName() const;
+    const String getName() const override;
 
     /** Returns the total number of inputs to a processor.*/
     int getNumInputs() const;

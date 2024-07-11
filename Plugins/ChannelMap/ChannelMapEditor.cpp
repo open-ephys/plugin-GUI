@@ -317,7 +317,7 @@ void ChannelMapEditor::mouseDrag (const MouseEvent& e)
 
                 dragImage.multiplyAllAlphas (0.6f);
 
-                startDragging (dragDescription, this, dragImage, false);
+                startDragging (dragDescription, this, ScaledImage (dragImage), false);
                 button->setVisible (false);
                 initialDraggedButton = electrodeButtons.indexOf (button);
                 lastHoverButton = initialDraggedButton;

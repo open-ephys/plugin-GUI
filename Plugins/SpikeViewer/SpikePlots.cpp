@@ -76,7 +76,7 @@ SpikePlot::SpikePlot (SpikeDisplayCanvas* sdc,
 
     for (int i = 0; i < nChannels; i++)
     {
-        UtilityButton* rangeButton = new UtilityButton ("250", FontOptions (12.0f));
+        UtilityButton* rangeButton = new UtilityButton ("250");
         rangeButton->setRadius (3.0f);
         rangeButton->addListener (this);
         addAndMakeVisible (rangeButton);
@@ -85,7 +85,7 @@ SpikePlot::SpikePlot (SpikeDisplayCanvas* sdc,
         setDisplayThresholdForChannel (i, 0);
     }
 
-    monitorButton = std::make_unique<UtilityButton> ("MON", FontOptions (12.0f));
+    monitorButton = std::make_unique<UtilityButton> ("MON");
     monitorButton->setTooltip ("Monitor this electrode (requires an Audio Monitor in the signal chain)");
     monitorButton->addListener (this);
     addAndMakeVisible (monitorButton.get());
@@ -502,19 +502,19 @@ void GenericAxes::makeLabel (int val, int gain, bool convert, char* s)
         if (abs (val) > 1e6)
         {
             //val = val/(1e6);
-            sprintf (s, "%.2fV", volt);
+            snprintf (s, sizeof (s), "%.2fV", volt);
         }
         else if (abs (val) > 1e3)
         {
             //val = val/(1e3);
-            sprintf (s, "%.2fmV", volt);
+            snprintf (s, sizeof (s), "%.2fmV", volt);
         }
         else
-            sprintf (s, "%.2fuV", volt);
+            snprintf (s, sizeof (s), "%.2fuV", volt);
     }
     else
     {
-        sprintf (s, "%d", (int) val);
+        snprintf (s, sizeof (s), "%d", (int) val);
     }
 }
 
@@ -615,7 +615,7 @@ void WaveAxes::plotSpike (const Spike* s, Graphics& g)
     // sample based upon which channel is getting plotted
     int sampIdx = nSamples * channel;
 
-    int dataSize = s->getChannelInfo()->getDataSize();
+    int dataSize = int (s->getChannelInfo()->getDataSize());
 
     // prevent crashes when acquisition is not active,
     // or immediately after acquisition starts

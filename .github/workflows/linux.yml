@@ -45,16 +45,27 @@ jobs:
         curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/1.0.0-dev/linux/$zipfile"
       shell: bash
     - name: deploy_preview
-      if: github.ref_type == 'tag'
+      if: github.ref_type == 'refs/heads/testing-juce8'
       env:
         artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
       run: |
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
+
         cd Build
         cp -r Release open-ephys
         cp ../LICENSE open-ephys
-        zipfile=open-ephys-${gui_ver}-linux.zip
+        zipfile=open-ephys-v1.0.0-alpha.1-linux.zip
         zip -r $zipfile open-ephys
         user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/1.0.0-pre/linux/$zipfile"
+        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/1.0.0-alpha/linux/$zipfile"
+
+        cd ../Resources/Installers/Linux/Open-Ephys_Installer
+        mkdir -p usr/local/bin/open-ephys-gui
+        cp -r ../../../../Build/Release/* usr/local/bin/open-ephys-gui
+        cp ../../../Scripts/40-open-ephys.rules usr/local/bin/open-ephys-gui
+        cd ..
+        dpkg-deb --build Open-Ephys_Installer
+        installer=open-ephys-gui-v1.0.0-alpha.1.deb
+        mv -v Open-Ephys_Installer.deb $installer
+        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/1.0.0-alpha/linux/$installer"
       shell: bash

@@ -50,7 +50,6 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
       timescale (timescale_),
       processor (processor_),
       selectedChannelType (ContinuousChannel::Type::ELECTRODE),
-      labelFont (FontOptions (13.0f)),
       labelColour (100, 100, 100),
       medianOffsetOnForSpikeRaster (false),
       ttlWordString ("NONE")
@@ -124,7 +123,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     typeNames.add ("DATA");
 
     UtilityButton* tbut;
-    tbut = new UtilityButton ("DATA", FontOptions ("Silkscreen", "Plain", 12.0f));
+    tbut = new UtilityButton ("DATA");
     tbut->setEnabledState (true);
     tbut->setCorners (false, false, false, false);
     tbut->addListener (this);
@@ -150,7 +149,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     rangeUnits.add ("mV");
     typeNames.add ("AUX");
 
-    tbut = new UtilityButton ("AUX", FontOptions ("Silkscreen", "Plain", 12.0f));
+    tbut = new UtilityButton ("AUX");
     tbut->setEnabledState (true);
     tbut->setCorners (false, false, false, false);
     tbut->addListener (this);
@@ -175,7 +174,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     rangeUnits.add ("V");
     typeNames.add ("ADC");
 
-    tbut = new UtilityButton ("ADC", FontOptions ("Silkscreen", "Plain", 12.0f));
+    tbut = new UtilityButton ("ADC");
     tbut->setEnabledState (true);
     tbut->setCorners (false, false, false, false);
     tbut->addListener (this);
@@ -184,6 +183,9 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     tbut->setToggleState (false, dontSendNotification);
     addAndMakeVisible (tbut);
     typeButtons.add (tbut);
+
+    for (auto* typeButton : typeButtons)
+        typeButton->setFont (FontOptions ("Silkscreen", "Plain", 12.0f));
 
     selectedVoltageRangeValues[ContinuousChannel::Type::ELECTRODE] = voltageRanges[ContinuousChannel::Type::ELECTRODE][selectedVoltageRange[ContinuousChannel::Type::ELECTRODE] - 1];
     selectedVoltageRangeValues[ContinuousChannel::Type::AUX] = voltageRanges[ContinuousChannel::Type::AUX][selectedVoltageRange[ContinuousChannel::Type::AUX] - 1];
@@ -212,7 +214,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     startTimer (250);
 
     // Pause button
-    pauseButton = std::make_unique<UtilityButton> ("Pause", FontOptions (15.0f));
+    pauseButton = std::make_unique<UtilityButton> ("Pause");
     pauseButton->setRadius (5.0f);
     pauseButton->setEnabledState (true);
     pauseButton->setCorners (true, true, true, true);
@@ -293,7 +295,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     sectionTitles.add ("CHANNELS");
 
     // Reverse order
-    reverseChannelsDisplayButton = std::make_unique<UtilityButton> ("OFF", labelFont);
+    reverseChannelsDisplayButton = std::make_unique<UtilityButton> ("OFF");
     reverseChannelsDisplayButton->setRadius (5.0f);
     reverseChannelsDisplayButton->setEnabledState (true);
     reverseChannelsDisplayButton->setCorners (true, true, true, true);
@@ -303,7 +305,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     addAndMakeVisible (reverseChannelsDisplayButton.get());
 
     // Sort by depth
-    sortByDepthButton = std::make_unique<UtilityButton> ("OFF", labelFont);
+    sortByDepthButton = std::make_unique<UtilityButton> ("OFF");
     sortByDepthButton->setRadius (5.0f);
     sortByDepthButton->setEnabledState (true);
     sortByDepthButton->setCorners (true, true, true, true);
@@ -332,7 +334,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     addAndMakeVisible (channelDisplaySkipSelection.get());
 
     // Show channel number button
-    showChannelNumberButton = std::make_unique<UtilityButton> ("OFF", labelFont);
+    showChannelNumberButton = std::make_unique<UtilityButton> ("OFF");
     showChannelNumberButton->setRadius (5.0f);
     showChannelNumberButton->setEnabledState (true);
     showChannelNumberButton->setCorners (true, true, true, true);
@@ -345,7 +347,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     sectionTitles.add ("SIGNALS");
 
     // invert signal
-    invertInputButton = std::make_unique<UtilityButton> ("OFF", labelFont);
+    invertInputButton = std::make_unique<UtilityButton> ("OFF");
     invertInputButton->setRadius (5.0f);
     invertInputButton->setEnabledState (true);
     invertInputButton->setCorners (true, true, true, true);
@@ -355,7 +357,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     addAndMakeVisible (invertInputButton.get());
 
     // subtract offset
-    medianOffsetPlottingButton = std::make_unique<UtilityButton> ("OFF", labelFont);
+    medianOffsetPlottingButton = std::make_unique<UtilityButton> ("OFF");
     medianOffsetPlottingButton->setRadius (5.0f);
     medianOffsetPlottingButton->setEnabledState (true);
     medianOffsetPlottingButton->setCorners (true, true, true, true);
@@ -381,7 +383,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     addAndMakeVisible (triggerSourceSelection.get());
 
     // average signal
-    averageSignalButton = std::make_unique<UtilityButton> ("OFF", labelFont);
+    averageSignalButton = std::make_unique<UtilityButton> ("OFF");
     averageSignalButton->setRadius (5.0f);
     averageSignalButton->setEnabledState (true);
     averageSignalButton->setCorners (true, true, true, true);
@@ -391,7 +393,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     addAndMakeVisible (averageSignalButton.get());
 
     // reset triggered display
-    resetButton = std::make_unique<UtilityButton> ("RESET", labelFont);
+    resetButton = std::make_unique<UtilityButton> ("RESET");
     resetButton->setRadius (5.0f);
     resetButton->setEnabledState (true);
     resetButton->setCorners (true, true, true, true);
@@ -453,7 +455,7 @@ void LfpDisplayOptions::resized()
     int bh = 39 / typeButtons.size();
     for (int i = 0; i < typeButtons.size(); i++)
     {
-        typeButtons[i]->setBounds (rangeSelection->getRight() + 5, getHeight() - 44 + i * bh, 50, bh);
+        typeButtons[i]->setBounds (rangeSelection->getRight() + 5, getHeight() - 42 + i * bh, 50, bh);
     }
 
     for (int i = 0; i < 8; i++)

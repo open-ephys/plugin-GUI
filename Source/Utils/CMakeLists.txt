@@ -1,17 +1,15 @@
-#Open Ephys GUI directory-specific file
+# Open Ephys GUI directory-specific file
 
-#add files in this folder
-add_sources(open-ephys 
-	OpenEphysHttpServer.h
-	ListSliceParser.h
-	ListSliceParser.cpp
-	BroadcastParser.h
-	BroadcastParser.cpp
-	BroadcastPayload.h
-	BroadcastPayload.cpp
-	Utils.h
-)
+# add files in this folder
+add_sources(
+  open-ephys
+  OpenEphysHttpServer.h
+  ListSliceParser.h
+  ListSliceParser.cpp
+  BroadcastParser.h
+  BroadcastParser.cpp
+  BroadcastPayload.h
+  BroadcastPayload.cpp
+  Utils.h)
 
-#add nested directories
-
-
+# add nested directories

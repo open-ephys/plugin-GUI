@@ -201,7 +201,7 @@ void BinaryFileSource::fillRecordInfo()
                 continue;
             }
 
-            int nEvents = (sampleNumbersFile.getSize() - EVENT_HEADER_SIZE_IN_BYTES) / 8;
+            int64 nEvents = (sampleNumbersFile.getSize() - EVENT_HEADER_SIZE_IN_BYTES) / 8;
 
             if (streamName.contains ("TTL"))
             {
@@ -269,9 +269,9 @@ void BinaryFileSource::fillRecordInfo()
 
 void BinaryFileSource::processEventData (EventInfo& eventInfo, int64 start, int64 stop)
 {
-    int local_start = start % getActiveNumSamples();
-    int local_stop = stop % getActiveNumSamples();
-    int loop_count = start / getActiveNumSamples();
+    int64 local_start = start % getActiveNumSamples();
+    int64 local_stop = stop % getActiveNumSamples();
+    int64 loop_count = start / getActiveNumSamples();
 
     std::vector<String> includeStreams = { currentStream, "MessageCenter" };
 
@@ -332,7 +332,7 @@ int BinaryFileSource::readData (int16* buffer, int nSamples)
 
     memcpy (buffer, data, samplesToRead * numActiveChannels * sizeof (int16));
     m_samplePos += samplesToRead;
-    return samplesToRead;
+    return int(samplesToRead);
 }
 
 void BinaryFileSource::processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 numSamples)

@@ -27,6 +27,7 @@
 #include "../../JuceLibraryCode/JuceHeader.h"
 #include "../AccessClass.h"
 #include "../Processors/PluginManager/OpenEphysPlugin.h"
+#include "CustomArrowButton.h"
 
 class ProcessorListItem;
 class UIComponent;
@@ -143,13 +144,17 @@ private:
     /** The base item in the list.*/
     std::unique_ptr<ProcessorListItem> baseItem;
 
-    Font listFontLight;
-    Font listFontPlain;
+    FontOptions listFontLight;
+    FontOptions listFontPlain;
 
     ProcessorListItem* hoverItem;
     int maximumNameOffset;
 
     Viewport* viewport;
+
+    std::unique_ptr<CustomArrowButton> arrowButton;
+    Path openArrowPath;
+    Path closedArrowPath;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorList);
 };

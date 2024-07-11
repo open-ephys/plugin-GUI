@@ -299,7 +299,7 @@ public:
 private:
     std::unique_ptr<CustomArrowButton> arrow;
 
-    Font buttonFont;
+    FontOptions buttonFont;
 };
 
 #endif // __UICOMPONENT_H_D97C73CF__

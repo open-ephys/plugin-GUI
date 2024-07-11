@@ -28,8 +28,8 @@
 #include "../Audio/AudioComponent.h"
 #include "../AutoUpdater.h"
 #include "../MainWindow.h"
-#include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "../Processors/MessageCenter/MessageCenter.h"
+#include "../Processors/ProcessorGraph/ProcessorGraph.h"
 #include "ControlPanel.h"
 #include "DataViewport.h"
 #include "EditorViewport.h"
@@ -89,7 +89,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_,
 
     processorList->setVisible (true);
     processorList->setBounds (0, 0, 195, processorList->getTotalHeight());
-    LOGD ("Created filter list.");
+    LOGD ("Created processor list.");
 
     setBounds (0, 0, 500, 400);
 
@@ -165,7 +165,7 @@ PluginInstaller* UIComponent::getPluginInstaller()
 {
     if (pluginInstaller == nullptr)
     {
-        pluginInstaller = new PluginInstaller (this->mainWindow, false);
+        pluginInstaller = new PluginInstaller (false);
     }
     return pluginInstaller;
 }
@@ -1022,10 +1022,11 @@ bool UIComponent::perform (const InvocationInfo& info)
         {
             if (pluginInstaller == nullptr)
             {
-                pluginInstaller = new PluginInstaller (this->mainWindow);
+                pluginInstaller = new PluginInstaller();
             }
             pluginInstaller->setVisible (true);
             pluginInstaller->toFront (true);
+            pluginInstaller->setCentrePosition (this->getScreenBounds().getCentre());
             break;
         }
 

@@ -229,7 +229,7 @@ private:
 
     int selectionIndex;
 
-    Font font;
+    FontOptions font;
     Image sourceDropImage;
 
     int insertionPoint;
@@ -282,7 +282,7 @@ private:
 
     int num;
 
-    Font buttonFont;
+    FontOptions buttonFont;
 };
 
 /**
@@ -321,7 +321,6 @@ private:
     Path path; // inactive, activeNormal, activeOver, activeDown;
 };
 
-
 /**
 
   Allows the user to navigate between multiple parallel signal chains.
@@ -358,6 +357,8 @@ public:
     int offset;
 
     void setEditorViewport (EditorViewport*);
+
+    Viewport* getViewport() { return viewport.get(); }
 
     enum directions
     {

@@ -517,7 +517,7 @@ int ofSerial::writeBytes (unsigned char* buffer, int length)
 
     //---------------------------------------------
 #if defined(TARGET_OSX) || defined(TARGET_LINUX)
-    int numWritten = write (fd, buffer, length);
+    int numWritten = int( write (fd, buffer, length));
     if (numWritten <= 0)
     {
         if (errno == EAGAIN)
@@ -559,7 +559,7 @@ int ofSerial::readBytes (unsigned char* buffer, int length)
 
     //---------------------------------------------
 #if defined(TARGET_OSX) || defined(TARGET_LINUX)
-    int nRead = read (fd, buffer, length);
+    int nRead = int (read (fd, buffer, length));
     if (nRead < 0)
     {
         if (errno == EAGAIN)
@@ -600,7 +600,7 @@ bool ofSerial::writeByte (unsigned char singleByte)
     //---------------------------------------------
 #if defined(TARGET_OSX) || defined(TARGET_LINUX)
     int numWritten = 0;
-    numWritten = write (fd, tmpByte, 1);
+    numWritten = int( write (fd, tmpByte, 1));
     if (numWritten <= 0)
     {
         if (errno == EAGAIN)
@@ -645,7 +645,7 @@ int ofSerial::readByte()
 
     //---------------------------------------------
 #if defined(TARGET_OSX) || defined(TARGET_LINUX)
-    int nRead = read (fd, tmpByte, 1);
+    int nRead = int( read (fd, tmpByte, 1));
     if (nRead < 0)
     {
         if (errno == EAGAIN)

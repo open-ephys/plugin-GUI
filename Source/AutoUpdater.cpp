@@ -192,12 +192,12 @@ public:
     UpdateDialog (const String& newVersion, const String& releaseNotes, bool automaticVerCheck)
     {
         titleLabel.setText ("Open Ephys GUI version " + newVersion, dontSendNotification);
-        titleLabel.setFont (Font ("Fira Sans", "SemiBold", 18.0f));
+        titleLabel.setFont (FontOptions ("Fira Sans", "SemiBold", 18.0f));
         titleLabel.setJustificationType (Justification::centred);
         addAndMakeVisible (titleLabel);
 
         contentLabel.setText ("A newer version of Open Ephys GUI is available - would you like to download it?", dontSendNotification);
-        contentLabel.setFont (Font ("Fira Sans", "Regular", 16.0f));
+        contentLabel.setFont (FontOptions ("Fira Sans", "Regular", 16.0f));
         contentLabel.setJustificationType (Justification::topLeft);
         contentLabel.setMinimumHorizontalScale (1.0);
         addAndMakeVisible (contentLabel);
@@ -286,7 +286,7 @@ private:
     void lookAndFeelChanged() override
     {
         cancelButton.setColour (TextButton::buttonColourId, Colours::crimson);
-        releaseNotesEditor.applyFontToAllText (Font ("Fira Sans", "Regular", 16.0f));
+        releaseNotesEditor.applyFontToAllText (FontOptions ("Fira Sans", "Regular", 16.0f));
     }
 
     void setParentWindow (DialogWindow* parent)

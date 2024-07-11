@@ -34,12 +34,12 @@ class SpikePlot;
 
   @see GenericProcessor, SpikeDisplayEditor, SpikeDisplayCanvas
 */
-class SpikeDisplayNode :  public GenericProcessor
+class SpikeDisplayNode : public GenericProcessor
 {
 public:
     /** Constructor*/
     SpikeDisplayNode();
-    
+
     /** Destructor*/
     ~SpikeDisplayNode() {}
 
@@ -50,19 +50,19 @@ public:
     void process (AudioBuffer<float>& buffer) override;
 
     /** Informs the SpikeDisplayNode when a redraw is needed*/
-    void setParameter(int, float) override;
+    void setParameter (int, float) override;
 
     /** Called for each incoming spike*/
-	void handleSpike(SpikePtr spike) override;
+    void handleSpike (SpikePtr spike) override;
 
     /** Creates a display for each incoming spike channel*/
     void updateSettings() override;
 
     /** Starts animation*/
-    bool startAcquisition()   override;
+    bool startAcquisition() override;
 
     /** Stops animation*/
-    bool stopAcquisition()  override;
+    bool stopAcquisition() override;
 
     /** Returns the name of an electrode for a given index*/
     String getNameForElectrode (int i) const;
@@ -80,7 +80,6 @@ public:
     void removeSpikePlots();
 
 private:
-    
     struct Electrode
     {
         String name;
@@ -105,5 +104,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpikeDisplayNode);
 };
 
-
-#endif  // SPIKEDISPLAYNODE_H_
+#endif // SPIKEDISPLAYNODE_H_

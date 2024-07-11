@@ -62,18 +62,18 @@ public:
     void resize (int nBlocks);
 
     /** Returns an array of sample numbers for a given block*/
-    void getSampleNumbersForBlock (int idx, Array<int64>& sampleNumbers) const;
+    void getSampleNumbersForBlock (int idx, Array<int>& sampleNumbers) const;
 
     /// -----------  THREAD SAFE  -------------- //
 
     /** Writes an array of data for one channel */
-    float writeChannel (const AudioBuffer<float>& buffer, int srcChannel, int destChannel, int nSamples, int64 sampleNumbers);
+    float writeChannel (const AudioBuffer<float>& buffer, int srcChannel, int destChannel, int nSamples, int sampleNumbers);
 
     /** Writes an array of timestamps for one stream */
-    float writeSynchronizedTimestamps (double start, double step, int destChannel, int64 nSamples);
+    float writeSynchronizedTimestamps (double start, double step, int destChannel, int nSamples);
 
     /** Start reading data for one channel */
-    bool startRead (Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int64>& sampleNumbers, int nMax);
+    bool startRead (Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int>& sampleNumbers, int nMax);
 
     /** Called when data read is finished */
     void stopRead();
@@ -89,7 +89,7 @@ public:
 
 private:
     /** Fills the sample number buffer for a given channel */
-    void fillSampleNumbers (int channel, int index, int size, int64 sampleNumbers);
+    void fillSampleNumbers (int channel, int index, int size, int sampleNumbers);
 
     int lastIdx;
 
@@ -101,8 +101,8 @@ private:
 
     Array<int> m_readSamples;
     Array<int> m_readFTSSamples;
-    OwnedArray<Array<int64>> m_sampleNumbers;
-    Array<int64> m_lastReadSampleNumbers;
+    OwnedArray<Array<int>> m_sampleNumbers;
+    Array<int> m_lastReadSampleNumbers;
 
     int m_numChans;
     int m_numFTSChans;

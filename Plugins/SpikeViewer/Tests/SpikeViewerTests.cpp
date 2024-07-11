@@ -3,26 +3,27 @@
 #include "gtest/gtest.h"
 
 #include "../SpikeDisplayNode.h"
-#include <ProcessorHeaders.h>
-#include <ModelProcessors.h>
 #include <ModelApplication.h>
+#include <ModelProcessors.h>
+#include <ProcessorHeaders.h>
 #include <TestFixtures.h>
 
-class SpikeViewerTests : public ::testing::Test  {
+class SpikeViewerTests : public ::testing::Test
+{
 protected:
-    SpikeViewerTests() {
+    SpikeViewerTests()
+    {
     }
 
-    ~SpikeViewerTests() override {
+    ~SpikeViewerTests() override
+    {
     }
 
-    void SetUp() override {
+    void SetUp() override
+    {
     }
 
-    void TearDown() override {
-
+    void TearDown() override
+    {
     }
-
 };
-
-

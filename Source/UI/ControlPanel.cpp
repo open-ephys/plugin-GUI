@@ -49,10 +49,10 @@ PlayButton::PlayButton()
     setClickingTogglesState (true);
     setTooltip ("Start/stop acquisition");
 
-    updateImages(false);
+    updateImages (false);
 }
 
-void PlayButton::updateImages(bool acquisitionIsActive)
+void PlayButton::updateImages (bool acquisitionIsActive)
 {
     DrawablePath normal, over, down;
 
@@ -87,10 +87,10 @@ RecordButton::RecordButton()
     setClickingTogglesState (true);
     setTooltip ("Start/stop writing to disk");
 
-    updateImages(false);
+    updateImages (false);
 }
 
-void RecordButton::updateImages(bool recordingIsActive)
+void RecordButton::updateImages (bool recordingIsActive)
 {
     DrawablePath normal, over, down;
 
@@ -184,7 +184,6 @@ void DiskSpaceMeter::paint (Graphics& g)
 Clock::Clock()
 {
     clockFont = FontOptions ("CP Mono", "Light", 30.0f);
-    clockFont.setHorizontalScale (0.95f);
 }
 
 void Clock::paint (Graphics& g)
@@ -224,7 +223,7 @@ void Clock::drawTime (Graphics& g)
         if (isRunning)
             g.setColour (findColour (ThemeColours::controlPanelText));
         else
-            g.setColour (findColour (ThemeColours::controlPanelText).withAlpha(0.8f));
+            g.setColour (findColour (ThemeColours::controlPanelText).withAlpha (0.8f));
 
         h = floor (totalTime / 3600000.0f);
         m = floor (totalTime / 60000.0);
@@ -378,13 +377,14 @@ ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool
     recordSelector->addListener (this);
     addChildComponent (recordSelector.get());
 
-    recordOptionsButton = std::make_unique<UtilityButton> ("R", FontOptions ("Silkscreen", "Regular", 15));
+    recordOptionsButton = std::make_unique<UtilityButton> ("R");
     recordOptionsButton->setEnabledState (true);
     recordOptionsButton->addListener (this);
     recordOptionsButton->setTooltip ("Configure options for selected record engine");
     addChildComponent (recordOptionsButton.get());
 
-    newDirectoryButton = std::make_unique<UtilityButton> ("+", FontOptions ("Silkscreen", "Regular", 15));
+    newDirectoryButton = std::make_unique<UtilityButton> ("+");
+    newDirectoryButton->setFont (FontOptions ("Silkscreen", "Regular", 15));
     newDirectoryButton->setEnabledState (false);
     newDirectoryButton->addListener (this);
     newDirectoryButton->setTooltip ("Start a new data directory");
@@ -505,7 +505,7 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
 
             if (! isConsoleApp)
             {
-                playButton->updateImages(true);
+                playButton->updateImages (true);
 
                 audioEditor->disable();
 
@@ -658,7 +658,7 @@ void ControlPanel::createPaths()
 
 void ControlPanel::paint (Graphics& g)
 {
-    if (!getRecordingState())
+    if (! getRecordingState())
         g.setColour (findColour (ThemeColours::controlPanelBackground));
     else
         g.setColour (Colour (255, 0, 0));
@@ -900,7 +900,7 @@ void ControlPanel::componentBeingDeleted (Component& component)
 void ControlPanel::updateColours()
 {
     playButton->updateImages (getAcquisitionState());
-    recordButton->updateImages(getRecordingState());
+    recordButton->updateImages (getRecordingState());
 }
 
 void ControlPanel::buttonClicked (Button* button)
@@ -1193,7 +1193,7 @@ String ControlPanel::getRecordingDirectoryName()
 
 void ControlPanel::createNewRecordingDirectory()
 {
-    buttonClicked (newDirectoryButton.get());
+    MessageManager::callAsync ([this] { buttonClicked (newDirectoryButton.get()); });
 }
 
 String ControlPanel::getRecordingDirectoryPrependText()
@@ -1335,7 +1335,7 @@ String ControlPanel::generateFilenameFromFields (bool usePlaceholderText)
         filename += field->getNextValue (usePlaceholderText);
     }
 
-    filenameText->setButtonText (filename);
+    MessageManager::callAsync ([this, filename] { filenameText->setButtonText (filename); });
 
     return filename;
 }

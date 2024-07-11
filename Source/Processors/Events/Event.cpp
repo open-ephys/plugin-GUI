@@ -699,7 +699,7 @@ TextEventPtr TextEvent::deserialize (const uint8* buffer, const EventChannel* ch
     int64 sampleNumber = *(reinterpret_cast<const int64*> (buffer + 8));
     double timestamp = *(reinterpret_cast<const double*> (buffer + 16));
     uint16 channel = *(reinterpret_cast<const uint16*> (buffer + EVENT_BASE_SIZE));
-    String text = String::fromUTF8 (reinterpret_cast<const char*> (buffer + EVENT_BASE_SIZE), dataSize);
+    String text = String::fromUTF8 (reinterpret_cast<const char*> (buffer + EVENT_BASE_SIZE), int(dataSize));
 
     ScopedPointer<TextEvent> event = new TextEvent (channelInfo, sampleNumber, text, timestamp);
 

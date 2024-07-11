@@ -112,7 +112,7 @@ void CustomLookAndFeel::initializeColours()
     themeColoursMap[DARK] = {
         { ThemeColours::componentBackground, Colour (45, 45, 45) },
         { ThemeColours::componentParentBackground, Colour (30, 30, 30).darker (0.3f) },
-        { ThemeColours::windowBackground, Colour (24, 24, 24) },
+        { ThemeColours::windowBackground, Colour (15, 15, 15) },
         { ThemeColours::widgetBackground, Colour (40, 40, 40).darker() },
         { ThemeColours::controlPanelBackground, Colour (45, 45, 45) },
         { ThemeColours::controlPanelText, Colour (224, 224, 224) },
@@ -166,7 +166,7 @@ void CustomLookAndFeel::setTheme (ColourTheme theme)
 
     setColour (ToggleButton::textColourId, currentThemeColours[ThemeColours::defaultText]);
     setColour (ToggleButton::tickColourId, currentThemeColours[ThemeColours::defaultText]);
-    setColour (ToggleButton::tickDisabledColourId, currentThemeColours[ThemeColours::defaultText].withAlpha (0.5f));
+    setColour (ToggleButton::tickDisabledColourId, currentThemeColours[ThemeColours::widgetBackground]);
 
     setColour (TextEditor::backgroundColourId, currentThemeColours[ThemeColours::widgetBackground]);
     setColour (TextEditor::textColourId, currentThemeColours[ThemeColours::defaultText]);
@@ -725,7 +725,7 @@ void CustomLookAndFeel::drawMenuBarBackground (Graphics& g, int width, int heigh
 
 Font CustomLookAndFeel::getMenuBarFont (MenuBarComponent& menuBar, int /*itemIndex*/, const String& /*itemText*/)
 {
-    return Font (getCommonMenuFont().getTypefaceName(), "Medium", menuBar.getHeight() * 0.65f);
+    return Font ( FontOptions ( getCommonMenuFont().getTypefaceName(), "Medium", menuBar.getHeight() * 0.65f));
 }
 
 //==================================================================
@@ -846,6 +846,9 @@ void CustomLookAndFeel::drawTickBox (Graphics& g, Component& component, float x,
 
     g.setColour (component.findColour (ToggleButton::tickDisabledColourId));
     g.fillRoundedRectangle (tickBounds.reduced (0.5f, 0.5f), 3.0f);
+
+    g.setColour (findColour (ThemeColours::outline));
+    g.drawRoundedRectangle (tickBounds.reduced (0.5f, 0.5f), 3.0f, 1.0f);
 
     if (ticked)
     {
@@ -1117,7 +1120,7 @@ int CustomLookAndFeel::getTabButtonSpaceAroundImage()
 
 int CustomLookAndFeel::getTabButtonBestWidth (TabBarButton& button, int tabDepth)
 {
-    int width = Font ((float) tabDepth * 0.7f).getStringWidth (button.getButtonText().trim())
+    int width = Font ( FontOptions( (float) tabDepth * 0.7f)).getStringWidth (button.getButtonText().trim())
                 + getTabButtonOverlap (tabDepth) * 2 + 15;
 
     if (auto* extraComponent = button.getExtraComponent())

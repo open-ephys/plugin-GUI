@@ -417,7 +417,7 @@ public:
     virtual String getValueAsString() override;
 
     /** Gets the value change description */
-    virtual String getChangeDescription();
+    virtual String getChangeDescription() override;
 
     /** Saves the parameter to an XML Element*/
     virtual void toXml (XmlElement*) override;
@@ -458,7 +458,7 @@ public:
     virtual String getValueAsString() override;
 
     /** Gets the value change description */
-    virtual String getChangeDescription();
+    virtual String getChangeDescription() override;
 
     /** Updates the categories*/
     void setCategories (Array<String> categories);
@@ -506,7 +506,7 @@ public:
     virtual String getValueAsString() override;
 
     /** Gets the value change description */
-    virtual String getChangeDescription();
+    virtual String getChangeDescription() override;
 
     int getMinValue() { return minValue; }
 
@@ -550,7 +550,7 @@ public:
     virtual String getValueAsString() override;
 
     /** Gets the value change description */
-    virtual String getChangeDescription();
+    virtual String getChangeDescription() override;
 
     /** Saves the parameter to an XML Element*/
     virtual void toXml (XmlElement*) override;
@@ -594,7 +594,7 @@ public:
     virtual String getValueAsString() override;
 
     /** Gets the value change description */
-    virtual String getChangeDescription();
+    virtual String getChangeDescription() override;
 
     /** Gets the minimum value for this parameter*/
     float getMinValue() { return minValue; }
@@ -656,7 +656,7 @@ public:
     String getValueAsString() override;
 
     /** Gets the value change description */
-    virtual String getChangeDescription();
+    virtual String getChangeDescription() override;
 
     /** Saves the parameter to an XML Element*/
     virtual void toXml (XmlElement*) override;
@@ -719,7 +719,7 @@ public:
     virtual String getValueAsString() override;
 
     /** Gets the value change description */
-    virtual String getChangeDescription();
+    virtual String getChangeDescription() override;
 
     /** Sets the total number of available channels in this stream*/
     void setChannelCount (int count);
@@ -773,7 +773,7 @@ public:
     virtual String getValueAsString() override;
 
     /** Gets the value change description */
-    virtual String getChangeDescription();
+    virtual String getChangeDescription() override;
 
     /** Sets the total number of available channels in this stream*/
     void setChannelCount (int count);
@@ -836,7 +836,7 @@ public:
     String getValueAsString() override;
 
     /** Gets the value change description */
-    virtual String getChangeDescription();
+    virtual String getChangeDescription() override;
 
     /** Saves the parameter to an XML Element*/
     void toXml (XmlElement*) override;
@@ -880,7 +880,7 @@ public:
     virtual String getValueAsString() override { return currentValue.toString(); };
 
     /** Gets the value change description */
-    virtual String getChangeDescription();
+    virtual String getChangeDescription() override;
 
     /** Saves the parameter to an XML Element*/
     virtual void toXml (XmlElement*) override;
@@ -926,7 +926,7 @@ public:
     virtual String getValueAsString() override { return currentValue.toString(); }
 
     /** Gets the value change description */
-    virtual String getChangeDescription();
+    virtual String getChangeDescription() override;
 
     /** Saves the parameter to an XML Element*/
     virtual void toXml (XmlElement*) override;

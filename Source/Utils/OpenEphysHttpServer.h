@@ -49,48 +49,99 @@ using json = nlohmann::json;
  *
  * The API is "RESTful", such that the resource URLs are:
  * 
+ * - GET /api/config :
+ *          returns an XML string with the current configuration of the GUI
+ *
  * - GET /api/status : 
  *          returns a JSON string with the GUI's current mode (IDLE, ACQUIRE, RECORD)
  * 
  * - PUT /api/status : 
- *          sets the GUI's mode, e.g.: {"mode" : "ACQUIRE"}
+ *          sets the GUI's mode
+ *          e.g.: {"mode" : "ACQUIRE"}
  * 
+ * - GET /api/cpu :
+ *         returns a JSON string with the average proportion of available CPU being spent inside the audio callbacks
+ *
+ * - GET /api/audio/devices :
+ *        returns a JSON string with the available audio devices
+ *
+ * - GET /api/audio/device :
+ *       returns a JSON string with the current audio device
+ *
+ * - PUT /api/audio :
+ *        sets the audio device
+ *        e.g.: {"device_type" : "input", "device_name" : "Microphone (Realtek High Definition Audio)", "sample_rate" : 44100, "buffer_size" : 512}
+ *
+ * - PUT /api/recording :
+ *         sets the default recording options
+ *         e.g.: {"parent_directory" : "C:/Users/username/Documents/OpenEphys", "prepend_text" : "Prepend", "base_text" : "Base", "append_text" : "Append", "default_record_engine" : "OpenEphys", "start_new_directory" : "true"}
+ *
+ * - PUT /api/recording/<processor_id> :
+ *        sets the options for a given Record Node
+ *        e.g.: {"parent_directory" : "C:/Users/username/Documents/OpenEphys", "record_engine" : "OpenEphys"}
+ *
  * - PUT /api/message :
  *          sends a broadcast message to all processors, e.g.: {"text" : "Message content"}
  *          only works while acquisition is active
- * 
- * - GET /api/recording :
- *          returns a JSON string with the following information:
- *          - default recording directory ("directory")
- *          - default data format ("format")
- *          - default directory name prepend + append text
- *          - default directory name string
- *          - available Record Nodes
- *          - directory, format, experiment #, and recording #, for each Record Node
- * 
- * - PUT /api/recording :
- *          used to set the default recording options
- * 
- * - PUT /api/recording/<processor_id> :
- *          used to set the options for a given Record Node
- * 
- * - GET /api/processors :
- * - GET /api/processors/<processor_id>
- * - GET /api/processors/<processor_id>/parameters
- * - GET /api/processors/<processor_id>/parameters/<parameter_name>
- * - PUT /api/processors/<processor_id>/parameters/<parameter_name>
- * - GET /api/processors/<processor_id>/streams/<stream_index>
- * - GET /api/processors/<processor_id>/streams/<stream_index>/parameters
- * - GET /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name>
- * - PUT /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name>
- * - PUT /api/processors/<processor_id>/config
- * - PUT /api/processors/add
- * - PUT /api/processors/delete
- * - PUT /api/window
  *
- * All endpoints are JSON endpoints. The PUT endpoint expects two parameters: "channel" (an integer), and "value",
- * which should have a type matching the type of the parameter.
+ * - PUT /api/load :
+ *         loads a new signal chain from a file, e.g.: {"path" : "C:/Users/username/Documents/OpenEphys/chain.xml"}
+ *
+ * - PUT /api/save :
+ *          saves the current signal chain to a file, e.g.: {"filepath" : "C:/Users/username/Documents/OpenEphys/chain.xml"}
+ *
+ * - GET /api/processors/list :
+ *          returns a JSON string with the available processors
+ *
+ * - GET /api/processors :
+ *          returns a JSON string with the processors currently in the graph
+ *
+ * - GET /api/processors/<processor_id> :
+ *         returns a JSON string with the processor's parameters
+ *
+ * - GET /api/processors/<processor_id>/parameters :
+ *          returns a JSON string with the processor's parameters
+ *
+ * - GET /api/processors/<processor_id>/parameters/<parameter_name> :
+ *          returns a JSON string with the parameter's value
+ *
+ * - GET /api/processors/<processor_id>/streams/<stream_index> :
+ *          returns a JSON string with the stream's info and parameters
+ *
+ * - GET /api/processors/<processor_id>/streams/<stream_index>/parameters :
+ *          returns a JSON string with the stream's parameters
+ *
+ * - GET /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name>
+ *         returns a JSON string with the stream's parameter value
+ *
+ * - PUT /api/processors/<processor_id>/config :
+ *          sends a configuration message to a processor, e.g.: {"text" : "Message content"}
+ *
+ * - GET /api/processors/clear :
+ *         clears the signal chain
+ *
+ * - PUT /api/processors/delete :
+ *         deletes a processor, e.g.: {"id" : 101}
+ *
+ * - PUT /api/processors/add :
+ *          adds a processor, e.g.: {"name" : "ProcessorName", "source_id" : 100 }
+ *
+ * - PUT /api/undo :
+ *          undoes the last action
+ *
+ * - PUT /api/redo :
+ *          redoes the last action
+ *
+ * - PUT /api/processors/<processor_id>/parameters/<parameter_name> :
+ *          sets a parameter's value, e.g.: {"value" : 0.5}
+ *
+ * - PUT /api/processors/<processor_id>/streams/<stream_index>/parameters/<parameter_name> :
+ *          sets a stream's parameter value, e.g.: {"value" : 0.5}
+ *
+ * - PUT /api/quit:
+ *          quits the application
  */
+
 class OpenEphysHttpServer : juce::Thread
 {
 public:
@@ -99,6 +150,15 @@ public:
 
     void run() override
     {
+        svr_->Get ("/api/config", [this] (const httplib::Request&, httplib::Response& res)
+                   {
+            std::unique_ptr<XmlElement> xmlElement = std::make_unique<XmlElement> ("SETTINGS");
+            graph_->saveToXml (xmlElement.get());
+
+            json ret;
+            ret["info"] = xmlElement.get()->toString().toStdString();
+            res.set_content(ret.dump(), "application/json"); });
+
         svr_->Get ("/api/status", [this] (const httplib::Request&, httplib::Response& res)
                    {
             json ret;
@@ -168,10 +228,22 @@ public:
             status_to_json(graph_, &ret);
             res.set_content(ret.dump(), "application/json"); });
 
-        svr_->Get ("/api/audio", [this] (const httplib::Request&, httplib::Response& res)
+        svr_->Get ("/api/cpu", [this] (const httplib::Request&, httplib::Response& res)
                    {
             json ret;
-            audio_info_to_json(graph_, &ret);
+            ret["usage"] = AccessClass::getAudioComponent()->deviceManager.getCpuUsage();
+            res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Get ("/api/audio/devices", [this] (const httplib::Request&, httplib::Response& res)
+                   {
+            json ret;
+            audio_devices_to_json(&ret);
+            res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Get ("/api/audio/device", [this] (const httplib::Request&, httplib::Response& res)
+                   {
+            json ret;
+            audio_device_info_to_json(&ret);
             res.set_content(ret.dump(), "application/json"); });
 
         svr_->Put ("/api/audio", [this] (const httplib::Request& req, httplib::Response& res)
@@ -195,6 +267,26 @@ public:
                 }
 
                 try {
+                    std::string device_type = request_json["device_type"];
+                    LOGD("Found 'device_type': ", device_type);
+                    const MessageManagerLock mml;
+                    AccessClass::getAudioComponent()->setDeviceType(String(device_type));
+                }
+                catch (json::exception& e) {
+                    LOGD("'device_type' not specified'");
+                }
+
+                try {
+                    std::string device_name = request_json["device_name"];
+                    LOGD("Found 'device_name': ", device_name);
+                    const MessageManagerLock mml;
+                    AccessClass::getAudioComponent()->setDeviceName(String(device_name));
+                }
+                catch (json::exception& e) {
+                    LOGD("'device_name' not specified'");
+                }
+
+                try {
                     int sample_rate = request_json["sample_rate"];
                     LOGD("Found 'sample_rate': ", sample_rate);
                     const MessageManagerLock mml;
@@ -215,18 +307,8 @@ public:
                     LOGD("'buffer_size' not specified'");
                 }
 
-                try {
-                    std::string device_type = request_json["device_type"];
-                    LOGD("Found 'device_type': ", device_type);
-                    const MessageManagerLock mml;
-                    AccessClass::getAudioComponent()->setDeviceType(String(device_type));
-                }
-                catch (json::exception& e) {
-                    LOGD("'device_type' not specified'");
-                }
-
                 json ret;
-                audio_info_to_json(graph_, &ret);
+                audio_device_info_to_json(&ret);
                 res.set_content(ret.dump(), "application/json"); });
 
         svr_->Get ("/api/recording", [this] (const httplib::Request&, httplib::Response& res)
@@ -427,6 +509,68 @@ public:
 
             json ret;
             status_to_json(graph_, &ret);
+            res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Put ("/api/save", [this] (const httplib::Request& req, httplib::Response& res)
+                   {
+            std::string message_str;
+            LOGD("Received PUT request");
+
+            try {
+                LOGD("Trying to decode");
+                json request_json;
+                request_json = json::parse(req.body);
+                LOGD("Parsed");
+                message_str = request_json["filepath"];
+                LOGD("Message string: ", message_str);
+            }
+            catch (json::exception& e) {
+                LOGD("Hit exception");
+                res.set_content(e.what(), "text/plain");
+                res.status = 400;
+                return;
+            }
+
+            File writePath = File (message_str);
+
+            if ( writePath.existsAsFile())
+            {
+                LOGE("[HTTPServer] Failed to save configuration, file already exists at path: ", writePath.getFullPathName());
+                json ret;
+                ret["info"] = "File already exists at path: " + writePath.getFullPathName().toStdString();
+                res.set_content(ret.dump(), "application/json");
+                return;
+            }
+
+            std::promise<void> signalChainSaved;
+            std::future<void> signalChainSavedFuture = signalChainSaved.get_future();
+
+            String xml;
+
+            MessageManager::callAsync([this, message_str, writePath, &signalChainSaved, &xml] {
+
+                std::unique_ptr<XmlElement> xmlElement = std::make_unique<XmlElement> ("SETTINGS");
+
+                graph_->saveToXml (xmlElement.get());
+
+                String message;
+
+                if (! xmlElement->writeTo ( writePath ))
+                    message = "Couldn't write to file ";
+                else
+                    message = "Saved configuration as ";
+
+                message += writePath.getFileName();
+
+                xml = xmlElement->toString();
+                signalChainSaved.set_value(); // Signal that saveSignalChain is finished
+            });
+
+            // Wait for saveSignalChain to finish
+            signalChainSavedFuture.wait();
+
+            json ret;
+            ret["info"] = xml.toStdString();
             res.set_content(ret.dump(), "application/json"); });
 
         svr_->Get ("/api/processors/list", [this] (const httplib::Request&, httplib::Response& res)
@@ -1075,50 +1219,15 @@ public:
                        res.set_content (ret.dump(), "application/json");
                    });
 
-        svr_->Put ("/api/window", [this] (const httplib::Request& req, httplib::Response& res)
+        svr_->Put ("/api/quit", [this] (const httplib::Request& req, httplib::Response& res)
                    {
-                       std::string message_str;
-                       LOGD ("Received PUT WINDOW request");
+                       MessageManager::callAsync ([this]
+                                                  { JUCEApplication::getInstance()->systemRequestedQuit(); });
 
-                       try
-                       {
-                           LOGD ("Trying to decode");
-                           json request_json;
-                           request_json = json::parse (req.body);
-                           LOGD ("Parsed");
-                           message_str = request_json["command"];
-                           LOGD ("Message string: ", message_str);
-                       }
-                       catch (json::exception& e)
-                       {
-                           LOGD ("Hit exception");
-                           res.set_content (e.what(), "text/plain");
-                           res.status = 400;
-                           return;
-                       }
-
-                       if (String (message_str).equalsIgnoreCase ("quit"))
-                       {
-                           json ret;
-                           res.set_content (ret.dump(), "application/json");
-                           res.status = 400;
-
-                            std::promise<void> signalQuit;
-                            std::future<void> signalQuitFuture = signalQuit.get_future();
-
-                            MessageManager::callAsync([this, &signalQuit] {
-                                JUCEApplication::getInstance()->systemRequestedQuit();
-                                signalQuit.set_value(); // Signal that window has been closed
-                            });
-
-                            // Wait for window to be closed
-                            signalQuitFuture.wait();
-
-                       }
-                       else
-                       {
-                           LOGD ("Unrecognized command");
-                       } });
+                       json ret;
+                       ret["info"] = "Quitting application";
+                       res.set_content (ret.dump(), "application/json");
+                   });
 
         LOGC ("Beginning HTTP server on port ", PORT);
         svr_->listen ("0.0.0.0", PORT);
@@ -1181,13 +1290,61 @@ private:
         }
     }
 
-    inline static void audio_info_to_json (const ProcessorGraph* graph, json* ret)
+    inline static void audio_devices_to_json (json* ret)
     {
+        json devices_json;
+
+        const OwnedArray<AudioIODeviceType>& types = AccessClass::getAudioComponent()->deviceManager.getAvailableDeviceTypes();
+
+        for (int i = 0; i < types.size(); i++)
+        {
+            std::string type_name = types[i]->getTypeName().toStdString();
+            std::vector<std::string> device_names;
+
+            for (int j = 0; j < types[i]->getDeviceNames().size(); j++)
+            {
+                device_names.push_back (types[i]->getDeviceNames()[j].toStdString());
+            }
+
+            devices_json[type_name] = device_names;
+        }
+
+        (*ret)["devices"] = devices_json;
+    }
+
+    inline static void audio_device_info_to_json (json* ret)
+    {
+        (*ret)["device_type"] = AccessClass::getAudioComponent()->getDeviceType().toStdString();
+
+        (*ret)["device_name"] = AccessClass::getAudioComponent()->getDeviceName().toStdString();
+
         (*ret)["sample_rate"] = AccessClass::getAudioComponent()->getSampleRate();
 
         (*ret)["buffer_size"] = AccessClass::getAudioComponent()->getBufferSize();
 
-        (*ret)["device_type"] = AccessClass::getAudioComponent()->getDeviceType().toStdString();
+        json sample_rates_json;
+        sample_rates_to_json (AccessClass::getAudioComponent()->getAvailableSampleRates(), &sample_rates_json);
+        (*ret)["available_sample_rates"] = sample_rates_json;
+
+        json buffer_sizes_json;
+        buffer_sizes_to_json (AccessClass::getAudioComponent()->getAvailableBufferSizes(), &buffer_sizes_json);
+        (*ret)["available_buffer_sizes"] = buffer_sizes_json;
+    }
+
+    inline static void sample_rates_to_json (const Array<double> sample_rates, json* ret)
+    {
+        for (int i = 0; i < sample_rates.size(); i++)
+        {
+            (*ret)[i] = sample_rates[i];
+        }
+    }
+
+    inline static void buffer_sizes_to_json (const Array<int> buffer_sizes, json* ret)
+    {
+        for (int i = 0; i < buffer_sizes.size(); i++)
+        {
+            (*ret)[i] = buffer_sizes[i];
+        }
     }
 
     inline static void recording_info_to_json (const ProcessorGraph* graph, json* ret)

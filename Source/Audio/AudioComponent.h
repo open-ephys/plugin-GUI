@@ -101,6 +101,18 @@ public:
     /** Sets the device type */
     void setDeviceType (String deviceType);
 
+    /** Sets the device name */
+    void setDeviceName (String deviceName);
+
+    /** Return the device name */
+    String getDeviceName();
+
+    /** Gets the available sample rates for the current device */
+    Array<double> getAvailableSampleRates();
+
+    /** Gets the available buffer sizes for the current device */
+    Array<int> getAvailableBufferSizes();
+
     /** Saves all audio settings that can be loaded to an XML element */
     void saveStateToXml (XmlElement* parent);
 

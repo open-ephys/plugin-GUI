@@ -83,18 +83,18 @@ SpikeDisplayCanvas::SpikeDisplayCanvas (SpikeDisplayNode* processor_) : Visualiz
     viewport->setScrollBarsShown (true, false);
     viewport->setScrollBarThickness (scrollBarThickness);
 
-    clearButton = std::make_unique<UtilityButton> ("Clear Plots", FontOptions ("Inter", "Regular", 14.0f));
+    clearButton = std::make_unique<UtilityButton> ("Clear Plots");
     clearButton->setRadius (3.0f);
     clearButton->addListener (this);
     addAndMakeVisible (clearButton.get());
 
-    lockThresholdsButton = std::make_unique<UtilityButton> ("Lock Thresholds", FontOptions ("Inter", "Regular", 14.0f));
+    lockThresholdsButton = std::make_unique<UtilityButton> ("Lock Thresholds");
     lockThresholdsButton->setRadius (3.0f);
     lockThresholdsButton->addListener (this);
     lockThresholdsButton->setClickingTogglesState (true);
     addAndMakeVisible (lockThresholdsButton.get());
 
-    invertSpikesButton = std::make_unique<UtilityButton> ("Invert Spikes", FontOptions ("Inter", "Regular", 14.0f));
+    invertSpikesButton = std::make_unique<UtilityButton> ("Invert Spikes");
     invertSpikesButton->setRadius (3.0f);
     invertSpikesButton->addListener (this);
     invertSpikesButton->setClickingTogglesState (true);

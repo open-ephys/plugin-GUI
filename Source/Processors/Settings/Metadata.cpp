@@ -553,7 +553,7 @@ void MetadataEvent::serializeMetadata (void* dstBuffer) const
     }
 }
 
-bool MetadataEvent::deserializeMetadata (const MetadataEventObject* info, const void* srcBuffer, int size)
+bool MetadataEvent::deserializeMetadata (const MetadataEventObject* info, const void* srcBuffer, size_t size)
 {
     MetadataValueArray metaData;
     int nMetadata = info->getEventMetadataCount();
@@ -653,8 +653,9 @@ template PLUGIN_API void MetadataValue::getValue<uint64> (Array<uint64>&) const;
 template PLUGIN_API void MetadataValue::getValue<float> (Array<float>&) const;
 template PLUGIN_API void MetadataValue::getValue<double> (Array<double>&) const;
 
-/// Compiler warning: Explicit instantiation of `getValue<void>` that occurs after an explicit specialization has no effect
+#ifdef _WIN32
 template PLUGIN_API void MetadataValue::getValue<void> (void*) const;
+#endif
 
 //Helper function to compare identifier strings
 bool compareIdentifierStrings (const String& identifier, const String& compareWith)

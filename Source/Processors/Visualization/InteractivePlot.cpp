@@ -62,7 +62,7 @@ InteractivePlot::InteractivePlot() : backgroundColour (Colours::darkgrey),
     yLabel->setJustificationType (Justification::centred);
     addAndMakeVisible (yLabel.get());
 
-    autoRescaleButton = std::make_unique<UtilityButton> ("Rescale", FontOptions (15.0f));
+    autoRescaleButton = std::make_unique<UtilityButton> ("Rescale");
     autoRescaleButton->addListener (this);
     addAndMakeVisible (autoRescaleButton.get());
 }
@@ -320,7 +320,7 @@ void Axis::setTicks (std::vector<float> ticks_, std::vector<String> tickLabels_)
 
 void Axis::setFontHeight (int height)
 {
-    font.setHeight (height);
+    font = font.withHeight(height);
 }
 
 void Axis::setAxisColour (Colour c)

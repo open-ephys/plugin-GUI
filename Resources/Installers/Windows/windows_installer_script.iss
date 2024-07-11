@@ -1,7 +1,7 @@
 [Setup]
 AppName=Open Ephys
-AppVersion=1.0.0-dev
-AppVerName=Open Ephys 1.0.0-dev
+AppVersion=1.0.0-apha.1
+AppVerName=Open Ephys 1.0.0-alpha.1
 AppCopyright=Copyright (C) 2010-2024, Open Ephys & Contributors
 AppPublisher=open-ephys.org
 AppPublisherURL=https://open-ephys.org/gui

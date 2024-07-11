@@ -126,16 +126,20 @@ void EditorViewport::itemDragEnter (const SourceDetails& dragSourceDetails)
     if (! CoreServices::getAcquisitionStatus())
     {
         somethingIsBeingDraggedOver = true;
+        beginDragAutoRepeat (20);
         repaint();
     }
 }
 
 void EditorViewport::itemDragMove (const SourceDetails& dragSourceDetails)
 {
-    int x = dragSourceDetails.localPosition.getX();
+    const int x = dragSourceDetails.localPosition.getX();
 
     if (! CoreServices::getAcquisitionStatus())
     {
+        const auto mousePos = signalChainTabComponent->getViewport()->getMouseXYRelative();
+        signalChainTabComponent->getViewport()->autoScroll (mousePos.getX(), mousePos.getY(), 40, 10);
+
         Array<var>* descr = dragSourceDetails.description.getArray();
         dragProcType = (Plugin::Processor::Type) int (descr->getUnchecked (4));
 
@@ -193,6 +197,8 @@ void EditorViewport::itemDragExit (const SourceDetails& dragSourceDetails)
 {
     somethingIsBeingDraggedOver = false;
     dragProcType = Plugin::Processor::INVALID;
+
+    beginDragAutoRepeat (0);
 
     if (editorArray.size() > 0
         && editorArray[0]->getProcessor()->isEmpty()
@@ -383,6 +389,9 @@ int EditorViewport::getDesiredWidth()
     {
         desiredWidth += editor->getTotalWidth() + BORDER_SIZE;
     }
+
+    if (somethingIsBeingDraggedOver && insertionPoint == editorArray.size())
+        desiredWidth += 2 * BORDER_SIZE;
 
     return desiredWidth + BORDER_SIZE;
 }
@@ -963,6 +972,8 @@ void EditorViewport::mouseDown (const MouseEvent& e)
                 break;
             }
 
+            beginDragAutoRepeat (20);
+
             lastEditorClicked = editorArray[i];
             selectionIndex = -1;
         }
@@ -1012,6 +1023,9 @@ void EditorViewport::mouseDrag (const MouseEvent& e)
             int centerPoint;
 
             const MouseEvent event = e.getEventRelativeTo (this);
+
+            const auto mousePos = signalChainTabComponent->getViewport()->getMouseXYRelative();
+            signalChainTabComponent->getViewport()->autoScroll (mousePos.getX(), mousePos.getY(), 40, 10);
 
             for (int n = 0; n < editorArray.size(); n++)
             {
@@ -1143,8 +1157,7 @@ SignalChainTabButton::SignalChainTabButton (int index) : Button ("Signal Chain T
     setRadioGroupId (99);
     setClickingTogglesState (true);
 
-    buttonFont = FontOptions ("Silkscreen", 10, Font::plain);
-    buttonFont.setHeight (14);
+    buttonFont = FontOptions ("Silkscreen", 10, Font::plain).withHeight (14);
 
     offset = 0;
 }
@@ -1259,7 +1272,7 @@ SignalChainTabComponent::SignalChainTabComponent()
     addAndMakeVisible (downButton.get());
 
     viewport = std::make_unique<Viewport>();
-    viewport->setScrollBarsShown (false, true);
+    viewport->setScrollBarsShown (false, true, false, true);
     viewport->setScrollBarThickness (12);
     addAndMakeVisible (viewport.get());
 

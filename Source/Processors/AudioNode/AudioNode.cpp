@@ -53,7 +53,7 @@ void AudioNode::registerProcessor (const GenericProcessor* sourceNode)
 void AudioNode::updateBufferSize()
 {
     if (audioEditor != nullptr)
-        audioEditor->updateBufferSizeText();
+       MessageManager::callAsync ([this] { audioEditor->updateBufferSizeText(); });
 }
 
 void AudioNode::addInputChannel (GenericProcessor* sourceNode, int chan)

@@ -86,7 +86,7 @@ private:
 
     bool isPaused;
 
-    Font font;
+    FontOptions font;
 
     Array<String> labels;
     Array<bool> isMajor;

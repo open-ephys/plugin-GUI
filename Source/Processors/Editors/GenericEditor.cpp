@@ -767,8 +767,10 @@ void DrawerButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown
     g.drawVerticalLine (7, 0.0f, getHeight());
 }
 
-UtilityButton::UtilityButton (String label_, Font font_) : Button (label_), label (label_), font (font_)
+UtilityButton::UtilityButton (String label_) : Button (label_), label (label_), isUsingCustomFont (false)
 {
+    font = FontOptions ("Fira Code", "Regular", 14.0f);
+
     roundUL = true;
     roundUR = true;
     roundLL = true;
@@ -837,13 +839,15 @@ void UtilityButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDow
     else
         g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.4f));
 
-    g.drawFittedText (label, 0, 0, getWidth(), getHeight(), Justification::centred, 2, 1.0f);
+    g.drawFittedText (label, 1, 1, getWidth() - 2, getHeight() - 2, Justification::centred, 2, 1.0f);
 }
 
 void UtilityButton::resized()
 {
-    outlinePath.clear();
+    if (! isUsingCustomFont)
+        font = font.withHeight (getHeight() * 0.65f);
 
+    outlinePath.clear();
     outlinePath.addRoundedRectangle (1.0f, 1.0f, (float) getWidth() - 2.0f, (float) getHeight() - 2.0f, radius, radius, roundUL, roundUR, roundLL, roundLR);
 }
 
@@ -856,6 +860,16 @@ void UtilityButton::setLabel (String label_)
 {
     label = label_;
     repaint();
+}
+
+void UtilityButton::setFont (const FontOptions& newFont)
+{
+    if (font != newFont)
+    {
+        font = newFont;
+        isUsingCustomFont = true;
+        repaint();
+    }
 }
 
 TriangleButton::TriangleButton (int direction_) : Button ("Arrow")
@@ -1122,7 +1136,7 @@ void GenericEditor::streamEnabledStateChanged (uint16 streamId, bool isEnabled, 
 }
 
 /***************************/
-ColourButton::ColourButton (String label_, Font font_) : Button (label_), label (label_), font (font_)
+ColourButton::ColourButton (String label_, FontOptions font_) : Button (label_), label (label_), font (font_)
 {
     userDefinedData = -1;
     fontColour = juce::Colours::white;
@@ -1227,7 +1241,7 @@ void ColourButton::setLabel (String label_)
     repaint();
 }
 
-ThresholdSlider::ThresholdSlider (Font f) : Slider ("name"), font (f)
+ThresholdSlider::ThresholdSlider (FontOptions f) : Slider ("name"), font (f)
 {
     setSliderStyle (Slider::Rotary);
     setRange (-400, 400.0f, 10.0f);
@@ -1244,7 +1258,7 @@ void ThresholdSlider::paint (Graphics& g)
     ColourGradient grad = ColourGradient (Colour (40, 40, 40), 0.0f, 0.0f, Colour (80, 80, 80), 0.0, 40.0f, false);
 
     Path p;
-    p.addPieSegment (3, 3, getWidth() - 6, getHeight() - 6, 5 * double_Pi / 4 - 0.2, 5 * double_Pi / 4 + 3 * double_Pi / 2 + 0.2, 0.5);
+    p.addPieSegment (3, 3, getWidth() - 6, getHeight() - 6, 5 * MathConstants<double>::pi / 4 - 0.2, 5 * MathConstants<double>::pi / 4 + 3 * MathConstants<double>::pi / 2 + 0.2, 0.5);
 
     g.setGradientFill (grad);
     g.fillPath (p);
@@ -1272,9 +1286,9 @@ void ThresholdSlider::paint (Graphics& g)
         }
     }
 
-    font.setHeight (9.0);
+    font = font.withHeight (9.0);
     g.setFont (font);
-    int stringWidth = font.getStringWidth (valueString);
+    int stringWidth = g.getCurrentFont().getStringWidth (valueString);
 
     g.setFont (font);
 
@@ -1291,11 +1305,11 @@ Path ThresholdSlider::makeRotaryPath (double min, double max, double val)
     if (val > 0)
     {
         start = 0;
-        range = (val) / (1.3 * max) * double_Pi;
+        range = (val) / (1.3 * max) * MathConstants<double>::pi;
     }
     if (val < 0)
     {
-        start = -(val) / (1.3 * min) * double_Pi;
+        start = -(val) / (1.3 * min) * MathConstants<double>::pi;
         range = 0;
     }
     p.addPieSegment (6, 6, getWidth() - 12, getHeight() - 12, start, range, 0.65);

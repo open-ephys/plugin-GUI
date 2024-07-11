@@ -117,7 +117,7 @@ RangeEditor::RangeEditor (const String& name, const Font& font) : TextEditor (na
 }
 
 PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelector::Listener* listener_, std::vector<bool> channelStates)
-    : PopupComponent (parent), listener (listener_), nChannels (channelStates.size()), mouseDragged (false), startDragCoords (0, 0), shiftKeyDown (false), firstButtonSelectedState (false), isDragging (false), editable (true), maxSelectable (-1)
+    : PopupComponent (parent), listener (listener_), nChannels (int(channelStates.size())), mouseDragged (false), startDragCoords (0, 0), shiftKeyDown (false), firstButtonSelectedState (false), isDragging (false), editable (true), maxSelectable (-1)
 {
     int nColumns;
 

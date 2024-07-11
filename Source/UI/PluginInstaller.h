@@ -35,7 +35,7 @@ class PluginInstaller : public DocumentWindow
 {
 public:
     /** Creates and launches Plugin Installer window with its components */
-    PluginInstaller (MainWindow* mainWindow, bool loadComponents = true);
+    PluginInstaller (bool loadComponents = true);
 
     /** Destructor*/
     ~PluginInstaller();
@@ -51,9 +51,6 @@ public:
     void installPluginAndDependency (const String& plugin, String version);
 
 private:
-    /* Pointer to the main window so we can keep in bounds */
-    DocumentWindow* parent;
-
     WeakReference<PluginInstaller>::Master masterReference;
     friend class WeakReference<PluginInstaller>;
 
@@ -123,7 +120,7 @@ public:
 private:
     int selectedPlugin;
     String downloadURL;
-    Font infoFont, infoFontBold;
+    FontOptions infoFont, infoFontBold;
 
     Label pluginNameLabel;
     Label pluginNameText;
@@ -168,6 +165,8 @@ private:
 
     void run() override;
 
+    void showAlertOnMessageThread (MessageBoxIconType iconType, const String& title, const String& message);
+
     DropShadower infoCompDropShadower { DropShadow (Colours::black.withAlpha (0.5f), 6, { 2, 2 }) };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginInfoComponent);
@@ -206,7 +205,7 @@ public:
 
 private:
     ListBox pluginList;
-    Font listFont;
+    FontOptions listFont;
     int numRows;
     int maxTextWidth = 0;
 
@@ -268,7 +267,7 @@ private:
     Label typeLabel;
     ToggleButton filterType, sourceType, sinkType, otherType;
 
-    Font font;
+    FontOptions font;
 
     void run() override;
 

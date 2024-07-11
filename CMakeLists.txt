@@ -243,13 +243,12 @@ elseif(APPLE)
 	set_target_properties(open-ephys PROPERTIES
 		MACOSX_BUNDLE_NAME open-ephys
 		MACOSX_BUNDLE_VERSION ${GUI_VERSION}
-		MACOSX_BUNDLE_GUI_IDENTIFIER "org.open-ephys.gui"
 		MACOSX_BUNDLE_ICON_FILE "Icon.icns"
 		MACOSX_BUNDLE_INFO_PLIST "${RESOURCES_DIRECTORY}/Build-files/Info.plist.in"
 		MACOSX_BUNDLE TRUE
 		)
-	target_compile_options(open-ephys PRIVATE -fPIC -Wpartial-availability -Wno-inconsistent-missing-override -rdynamic)
-	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS "-fPIC -rdynamic")
+	target_compile_options(open-ephys PRIVATE -fPIC -Wpartial-availability -Wno-inconsistent-missing-override)
+	target_link_options(open-ephys PRIVATE -rdynamic)
 	target_link_libraries(open-ephys dl)
 	target_link_libraries(open-ephys
 		"-framework Accelerate"
@@ -268,7 +267,6 @@ elseif(APPLE)
 		"-framework Metal"
 		"-framework MetalKit"
 		"-framework OpenGL"
-		"-framework QTKit"
 		"-framework QuartzCore"
 		"-framework Security"
 		"-framework WebKit"
@@ -291,7 +289,6 @@ if(BUILD_TESTS)
         "-framework Metal"
         "-framework MetalKit"
         "-framework OpenGL"
-        "-framework QTKit"
         "-framework QuartzCore"
         "-framework Security"
         "-framework WebKit"
@@ -303,6 +300,7 @@ endif()
 		XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf
 		XCODE_ATTRIBUTE_GCC_INLINES_ARE_PRIVATE_EXTERN YES
 		XCODE_ATTRIBUTE_CLANG_LINK_OBJC_RUNTIME NO
+		XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "org.open-ephys.gui"
 		)
 
 		set(MAC_RESOURCE_FILES

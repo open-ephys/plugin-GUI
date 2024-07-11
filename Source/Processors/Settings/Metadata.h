@@ -369,7 +369,7 @@ protected:
     void serializeMetadata (void* dstBuffer) const;
 
     /** Copies metadata from a byte buffer */
-    bool deserializeMetadata (const MetadataEventObject* info, const void* srcBuffer, int size);
+    bool deserializeMetadata (const MetadataEventObject* info, const void* srcBuffer, size_t size);
 
     /** Constructor */
     MetadataEvent();
