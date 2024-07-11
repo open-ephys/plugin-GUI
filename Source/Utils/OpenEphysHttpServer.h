@@ -59,6 +59,9 @@ using json = nlohmann::json;
  *          sets the GUI's mode
  *          e.g.: {"mode" : "ACQUIRE"}
  * 
+ * - GET /api/cpu :
+ *         returns a JSON string with the average proportion of available CPU being spent inside the audio callbacks
+ *
  * - GET /api/audio/devices :
  *        returns a JSON string with the available audio devices
  *
@@ -223,6 +226,12 @@ public:
 
             json ret;
             status_to_json(graph_, &ret);
+            res.set_content(ret.dump(), "application/json"); });
+
+        svr_->Get ("/api/cpu", [this] (const httplib::Request&, httplib::Response& res)
+                   {
+            json ret;
+            ret["usage"] = AccessClass::getAudioComponent()->deviceManager.getCpuUsage();
             res.set_content(ret.dump(), "application/json"); });
 
         svr_->Get ("/api/audio/devices", [this] (const httplib::Request&, httplib::Response& res)
