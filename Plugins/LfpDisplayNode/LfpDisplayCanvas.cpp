@@ -1548,7 +1548,25 @@ uint16 LfpDisplaySplitter::getChannelStreamId(int channel)
     return processor->getContinuousChannel(channel)->getStreamId();
 }
 
-float LfpDisplaySplitter::getMean(int chan)
+float LfpDisplaySplitter::getScreenBufferMean(int chan)
+{
+    float total = 0.0f;
+    float numPts = 0;
+
+    float sample = 0.0f;
+    for (int samp = 0; samp < (lfpDisplay->getWidth() - leftmargin); samp += 10)
+    {
+        sample = *screenBufferMean->getReadPointer(chan, samp);
+        total += sample;
+        numPts++;
+    }
+
+    //std::cout << sample << std::endl;
+
+    return total / numPts;
+}
+
+float LfpDisplaySplitter::getDisplayBufferMean(int chan)
 {
     float total = 0.0f;
     float numPts = 0;
@@ -1579,7 +1597,7 @@ float LfpDisplaySplitter::getStd(int chan)
     float std = 0.0f;
     float sample = 0.0f;
 
-    float mean = getMean(chan);
+    float mean = getDisplayBufferMean(chan);
     float numPts = 1;
 
     // use 0.1s of sample to compute Mean and Std
