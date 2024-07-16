@@ -32,7 +32,7 @@ protected:
 
         // Set this before creating the record node
         tester->setRecordingParentDirectory(parent_recording_dir.string());
-        processor = tester->Create<RecordNode>(Plugin::Processor::RECORD_NODE);
+        processor = tester->CreateProcessor<RecordNode>(Plugin::Processor::RECORD_NODE);
     }
 
     void TearDown() override {
