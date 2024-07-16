@@ -820,7 +820,7 @@ void RecordNode::handleSpike (SpikePtr spike)
 {
     eventMonitor->receivedSpikes++;
 
-    if (recordSpikes)
+    if (recordSpikes && isRecording)
     {
         String streamKey = getDataStream (spike->getStreamId())->getKey();
         spike->setTimestampInSeconds (synchronizer.convertSampleNumberToTimestamp (streamKey,
