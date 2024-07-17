@@ -1477,8 +1477,7 @@ void GenericProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& eve
 
     process (buffer);
 
-    if (! headlessMode)
-        latencyMeter->setLatestLatency (processStartTimes);
+    latencyMeter->setLatestLatency (processStartTimes, headlessMode);
 }
 
 Array<const EventChannel*> GenericProcessor::getEventChannels()
@@ -2085,49 +2084,62 @@ LatencyMeter::LatencyMeter (GenericProcessor* processor_)
 {
 }
 
-void LatencyMeter::update (Array<const DataStream*> dataStreams)
+void LatencyMeter::update(const Array<const DataStream*>& dataStreams)
 {
+    std::lock_guard<std::mutex> lock(latencyMutex); // Lock to ensure thread-safe modification
     latencies.clear();
 
     for (auto dataStream : dataStreams)
-        latencies[dataStream->getStreamId()].insertMultiple (0, 0, 5);
+    {
+        uint16 streamId = dataStream->getStreamId();
+        latencies[streamId] = std::vector<int>(10, 0); // Initialize with 10 zeros
+    }
 }
 
-void LatencyMeter::setLatestLatency (std::map<uint16, juce::int64>& processStartTimes)
+void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartTimes, bool headlessMode)
 {
     if (counter % 10 == 0) // update latency estimate every 10 process blocks
     {
-        std::map<uint16, juce::int64>::iterator it = processStartTimes.begin();
+        auto currentTime = juce::Time::getHighResolutionTicks();
 
-        int64 currentTime = Time::getHighResolutionTicks();
-
-        while (it != processStartTimes.end())
+        for (auto& entry : processStartTimes)
         {
-            latencies[it->first].set (counter % 5, int(currentTime - it->second));
-            it++;
+            latencies[entry.first].emplace_back(static_cast<int>(currentTime - entry.second));
+            if (latencies[entry.first].size() > 10)
+                latencies[entry.first].erase(latencies[entry.first].begin()); // Keep the size to 10
         }
 
         if (counter % 50 == 0) // compute mean latency every 50 process blocks
         {
-            std::map<uint16, juce::int64>::iterator it = processStartTimes.begin();
-
-            while (it != processStartTimes.end())
+            for (auto& entry : processStartTimes)
             {
                 float totalLatency = 0.0f;
 
-                for (int i = 0; i < 10; i++)
-                    totalLatency += float (latencies[it->first][i]);
+                for (auto latency : latencies[entry.first])
+                    totalLatency += static_cast<float>(latency);
 
-                totalLatency = totalLatency
-                               / float (Time::getHighResolutionTicksPerSecond())
-                               * 1000.0f;
+                totalLatency = (totalLatency / 10.0f) / static_cast<float>(juce::Time::getHighResolutionTicksPerSecond()) * 1000.0f;
 
-                processor->getEditor()->setMeanLatencyMs (it->first, totalLatency);
+                if (!headlessMode)
+                    processor->getEditor()->setMeanLatencyMs(entry.first, totalLatency);
 
-                it++;
+                // Store the latest total latency in a thread-safe manner
+                {
+                    std::lock_guard<std::mutex> lock(latencyMutex);
+                    latestLatencies[entry.first] = totalLatency;
+                }
             }
         }
     }
 
     counter++;
+}
+
+float LatencyMeter::getLatestLatency(uint16 key)
+{
+    std::lock_guard<std::mutex> lock(latencyMutex);
+    auto it = latestLatencies.find(key);
+    if (it != latestLatencies.end())
+        return it->second;
+    return 0.0f;
 }

@@ -810,16 +810,22 @@ public:
     LatencyMeter (GenericProcessor* processor);
 
     /** Sets the latest latency values for each data stream */
-    void setLatestLatency (std::map<uint16, juce::int64>& processStartTimes);
+    void setLatestLatency (std::map<uint16, juce::int64>& processStartTimes, bool headlessMode);
+
+    /** Returns the latest latency values for each data stream */
+    float getLatestLatency (uint16 streamId);
 
     /** Updates the available data streams */
-    void update (Array<const DataStream*>);
+    void update(const Array<const DataStream*>& dataStreams);
 
 private:
     int counter;
 
-    std::map<uint16, Array<int>> latencies;
+    std::map<uint16, std::vector<int>> latencies;
+    std::map<uint16, float> latestLatencies;
     GenericProcessor* processor;
+
+    std::mutex latencyMutex;
 };
 
 #endif // __GENERICPROCESSOR_H_1F469DAF__
