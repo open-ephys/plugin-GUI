@@ -81,7 +81,7 @@ void DiskMonitor::updateDiskSpace (float percentage)
 
 void DiskMonitor::directoryInvalid()
 {
-    setFillPercentage (95.0);
+    setFillPercentage (1.0);
     setTooltip ("Invalid directory");
 }
 
