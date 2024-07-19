@@ -263,8 +263,11 @@ public:
     /** Gets the event channel state for a particular sample */
     const float getEventState(int samp);
 
-    /** Returns the mean of a given channel */
-    float getMean(int chan);
+    /** Returns the mean of a given channel, computed from the screen buffer */
+    float getScreenBufferMean(int chan);
+
+    /** Returns the mean of a given channel, computed from the display buffer */
+    float getDisplayBufferMean(int chan);
 
     /** Returns the standard deviation of a given channnel*/
     float getStd(int chan);

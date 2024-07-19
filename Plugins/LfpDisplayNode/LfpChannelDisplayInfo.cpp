@@ -247,7 +247,7 @@ void LfpChannelDisplayInfo::paint(Graphics& g)
 
         g.setColour(Colours::grey);
         g.drawText(String(canvasSplit->getStd(chan)), 5, center+110,41,10,Justification::centred,false);
-        g.drawText(String(canvasSplit->getMean(chan)), 5, center+60,41,10,Justification::centred,false);
+        g.drawText(String(canvasSplit->getDisplayBufferMean(chan)), 5, center+60,41,10,Justification::centred,false);
         
         if (x > 0)
         {
