@@ -997,7 +997,14 @@ void ProcessorGraph::clearSignalChain()
         std::unique_ptr<GenericEditor> editor;
         editor.swap (processor->editor);
         editor.reset();
+
         Node::Ptr node = removeNode (nodeId);
+
+        // Decrement reference count for the node
+        // Ensures processor destructor gets called
+        while (node->getReferenceCount() > 1)
+            node->decReferenceCount();
+
         node.reset();
     }
 
@@ -1696,6 +1703,12 @@ void ProcessorGraph::removeProcessor (GenericProcessor* processor)
     }
 
     Node::Ptr node = removeNode (nodeId);
+
+    // Decrement reference count for the node
+    // Ensures processor destructor gets called
+    while (node->getReferenceCount() > 1)
+        node->decReferenceCount();
+
     node.reset();
 }
 
