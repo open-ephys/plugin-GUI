@@ -361,6 +361,9 @@ public:
     /** Adds a graph node for a particular processor */
     void updateNodes (GenericProcessor* processor, Array<GenericProcessor*> rootProcessors);
 
+    /** Re-calculates and updates y positions for all nodes */
+    void updateYPositions();
+
     /** Adds a graph node for a particular processor */
     void addNode (GenericEditor* editor, int level, int offset);
 
@@ -395,6 +398,8 @@ private:
     OwnedArray<GraphNode> availableNodes;
 
     Array<GenericProcessor*> rootProcessors;
+
+    std::map<int, Array<GraphNode*>> nodesByLevel;
 
     std::map<int, int> levelStartY;
 

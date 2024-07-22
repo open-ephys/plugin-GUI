@@ -104,7 +104,28 @@ void GraphViewer::updateBoundaries()
     setSize (maxWidth + 20, maxHeight + 20);
 }
 
-void GraphViewer::updateNodes (GenericProcessor* processor, Array<GenericProcessor*> newRoots)
+void GraphViewer::updateYPositions()
+{
+    levelStartY.clear();
+
+    for (const auto& levelNodesPair : nodesByLevel)
+    {
+        int currentLevel = levelNodesPair.first;
+        int nextLevel = currentLevel + 1;
+
+        // Calculate the starting point for the next level
+        // from the lowest point of the current level
+        for (auto node : levelNodesPair.second)
+            levelStartY[nextLevel] = jmax (levelStartY[nextLevel], node->getBottom() + 35);
+
+        // Update the positions of the next level
+        if (nodesByLevel.count (nextLevel) > 0)
+            for (auto node : nodesByLevel[nextLevel])
+                node->updateBoundaries();
+    }
+}
+
+void GraphViewer::updateNodes (GenericProcessor* processor_, Array<GenericProcessor*> newRoots)
 {
     // Remove nodes that are not needed anymore
     Array<GraphNode*> nodesToDelete;
@@ -126,6 +147,7 @@ void GraphViewer::updateNodes (GenericProcessor* processor, Array<GenericProcess
 
     int level = -1;
     levelStartY.clear();
+    nodesByLevel.clear();
 
     for (auto processor : rootProcessors)
     {
@@ -183,12 +205,7 @@ void GraphViewer::updateNodes (GenericProcessor* processor, Array<GenericProcess
                     node->updateBoundaries();
                 }
 
-                int newY = getNodeForEditor (processor->getEditor())->getCollapsedBottom() + 35;
-                int nextLevel = getNodeForEditor (processor->getEditor())->getLevel() + 1;
-                if (levelStartY.count (nextLevel) == 0)
-                    levelStartY[nextLevel] = newY;
-                else
-                    levelStartY[nextLevel] = jmax (levelStartY[nextLevel], newY);
+                nodesByLevel[level].add (getNodeForEditor (processor->getEditor()));
 
                 // Travel down the signal chain
                 if (processor->isSplitter())
@@ -224,6 +241,7 @@ void GraphViewer::updateNodes (GenericProcessor* processor, Array<GenericProcess
         }
     }
 
+    updateYPositions();
     updateBoundaries();
     repaint();
 }
@@ -617,15 +635,19 @@ void DataStreamInfo::restorePanels()
 {
     headerButton->setToggleState (node->streamInfoVisible[stream->getKey()], dontSendNotification);
 
-    if (parameterButton != nullptr)
+    if (parameterButton != nullptr && node->streamParamsVisible[stream->getKey()])
     {
-        parameterButton->setToggleState (node->streamParamsVisible[stream->getKey()], dontSendNotification);
-        buttonClicked (parameterButton);
+        parameterButton->setToggleState (node->streamParamsVisible[stream->getKey()], sendNotification);
     }
     else
     {
         node->updateBoundaries();
-        node->setDataStreamPanelSize (this, heightInPixels);
+
+        if (node->streamInfoVisible[stream->getKey()])
+            node->setDataStreamPanelSize (this, heightInPixels);
+        else
+            node->setDataStreamPanelSize (this, 0);
+
         node->updateGraphView();
     }
 }
@@ -1019,6 +1041,7 @@ void GraphNode::updateBoundaries()
 
 void GraphNode::updateGraphView()
 {
+    gv->updateYPositions();
     gv->updateBoundaries();
     gv->repaint();
 }
