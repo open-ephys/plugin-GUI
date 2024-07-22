@@ -226,15 +226,26 @@ void GraphViewer::updateNodes (GenericProcessor* processor_, Array<GenericProces
                 GraphNode* gn = getNodeForEditor (splitter->getEditor());
                 horzShift = gn->getHorzShift();
 
-                //check if 2 splitters are connected to 1 splitter
-                if (splitter->getDestNode (0) && splitter->getDestNode (0)->isSplitter() && processor && processor->isSplitter())
+                auto destA = splitter->getDestNode (0);
+                bool hasDownstreamSplitter = false;
+
+                while (destA != nullptr)
                 {
+                    if (destA->isSplitter())
+                    {
+                        hasDownstreamSplitter = true;
+                        break;
+                    }
+
+                    destA = destA->getDestNode();
+                }
+
+                // if a splitter has a downstream splitter in chain 0, increase the level by 2.
+                // If a it has a downstream processor, increase by 1.
+                if (hasDownstreamSplitter)
                     level = gn->getLevel() + 2;
-                }
-                else
-                {
+                else if (processor != nullptr)
                     level = gn->getLevel() + 1;
-                }
 
                 splitters.remove (0);
             }
