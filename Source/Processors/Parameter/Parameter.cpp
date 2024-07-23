@@ -482,7 +482,7 @@ StringParameter::StringParameter (ParameterOwner* owner,
                                   String defaultValue_,
                                   bool deactivateDuringAcquisition)
     : Parameter (owner,
-                 ParameterType::INT_PARAM,
+                 ParameterType::STRING_PARAM,
                  scope,
                  name,
                  displayName,
