@@ -3,14 +3,14 @@
 #include <ProcessorHeaders.h>
 #include <TestFixtures.h>
 
-class FakeGenericProcessor : public GenericProcessor
+class MockProcessor : public GenericProcessor
 {
 public:
-    FakeGenericProcessor() : 
-        GenericProcessor("FakeGenericProcessor") 
+    MockProcessor() : 
+        GenericProcessor("MockProcessor") 
     {}
 
-    ~FakeGenericProcessor() noexcept override = default;
+    ~MockProcessor() noexcept override = default;
 
     void process(AudioBuffer<float>& continuousBuffer) override
     {
@@ -70,7 +70,7 @@ protected:
     void SetUp() override
     {
         mProcessorTester = std::make_unique<ProcessorTester>(TestSourceNodeBuilder(FakeSourceNodeParams{}));
-        mProcessor = mProcessorTester->CreateProcessor<FakeGenericProcessor>(Plugin::Processor::Type::SINK);
+        mProcessor = mProcessorTester->CreateProcessor<MockProcessor>(Plugin::Processor::Type::SINK);
     }
 
     void TearDown() override
@@ -79,7 +79,7 @@ protected:
     }
 
 protected:
-    FakeGenericProcessor* mProcessor;
+    MockProcessor* mProcessor;
     std::unique_ptr<ProcessorTester> mProcessorTester;
     FakeSourceNodeParams mParams;
 };

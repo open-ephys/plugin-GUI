@@ -75,6 +75,7 @@ public:
         SourceNode* sn_temp = source_node_builder.buildSourceNode();
         source_node_id = next_processor_id_++;
         sn_temp->setNodeId (source_node_id);
+        sn_temp->registerParameters();
         juce::AudioProcessorGraph::Node* n = processor_graph->addNode (
             std::move (std::unique_ptr<AudioProcessor> (sn_temp)),
             juce::AudioProcessorGraph::NodeID (source_node_id));
@@ -125,6 +126,7 @@ public:
 
         int node_id = next_processor_id_++;
         ptr->setNodeId (node_id);
+        ptr->registerParameters();
         processor_graph->addNode (
             std::move (std::unique_ptr<AudioProcessor> (ptr)),
             juce::AudioProcessorGraph::NodeID (node_id));

@@ -3,11 +3,11 @@
 #include <ProcessorHeaders.h>
 #include <unordered_map>
 
-class FakeProcessor : public GenericProcessor
+class MockProcessor : public GenericProcessor
 {
 public:
-    FakeProcessor() :
-        GenericProcessor("FakeProcessor")
+    MockProcessor() :
+        GenericProcessor("MockProcessor")
     {}
 
     // Inherited via GenericProcessor
@@ -87,7 +87,7 @@ protected:
             }));
 
         // Add the processor to the EventChannels
-        mProcessor = std::make_unique<FakeProcessor>();
+        mProcessor = std::make_unique<MockProcessor>();
         mProcessor->setNodeId(mNodeId);
 
         for (const auto& channel : mEventChannel)
@@ -105,7 +105,7 @@ protected:
     {}
 
 protected:
-    std::unique_ptr<FakeProcessor> mProcessor;
+    std::unique_ptr<MockProcessor> mProcessor;
     std::unique_ptr<DataStream> mDataStream;
     std::unique_ptr<ContinuousChannel> mContinuousChannel;
     std::unordered_map<String, std::unique_ptr<EventChannel>> mEventChannel;

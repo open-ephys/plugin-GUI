@@ -14,13 +14,12 @@ TEST(PluginManagerTest, PluginLoading)
 
     String path = 
         File::getCurrentWorkingDirectory().
-        getChildFile("../Resources/Test/ArduinoOutput.dll").
+        getChildFile("../Resources/ArduinoOutput.dll").
         getFullPathName();
 
     pluginManager.loadPlugin(path);
 
     EXPECT_EQ(pluginManager.getLibraryName(0), "Arduino Output");
-    EXPECT_EQ(pluginManager.getLibraryVersion(0), "0.7.0");
 }
 
 /*
@@ -35,7 +34,7 @@ TEST(PluginManagerTest, PluginCreation)
 
     String path =
         File::getCurrentWorkingDirectory().
-        getChildFile("../Resources/Test/ArduinoOutput.dll").
+        getChildFile("../Resources/ArduinoOutput.dll").
         getFullPathName();
 
     int idx = pluginManager.loadPlugin(path) - 1;

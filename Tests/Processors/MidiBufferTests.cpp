@@ -2,11 +2,11 @@
 
 #include <ProcessorHeaders.h>
 
-class FakeProcessor : public GenericProcessor
+class MockProcessor : public GenericProcessor
 {
 public:
-    FakeProcessor() :
-        GenericProcessor("FakeProcessor")
+    MockProcessor() :
+        GenericProcessor("MockProcessor")
     {
     }
 
@@ -54,7 +54,7 @@ protected:
             });
 
         // Add the processor to the EventChannels
-        mProcessor = std::make_unique<FakeProcessor>();
+        mProcessor = std::make_unique<MockProcessor>();
         mProcessor->setNodeId(mNodeId);
 
         mEventChannel->addProcessor(mProcessor.get());
@@ -68,8 +68,8 @@ protected:
     }
 
 protected:
-    EventPtr mEvent;
-    std::unique_ptr<FakeProcessor> mProcessor;
+    TTLEventPtr mEvent;
+    std::unique_ptr<MockProcessor> mProcessor;
     std::unique_ptr<DataStream> mDataStream;
     std::unique_ptr<ContinuousChannel> mContinuousChannel;
     std::unique_ptr<EventChannel> mEventChannel;
@@ -83,13 +83,26 @@ This test verifies that multiple Metadata objects inserted into the Midi Buffer 
 */
 TEST_F(MidiBufferTests, ReadWrite)
 {
-    size_t size = mEvent->getChannelInfo()->getDataSize() +
-        mEvent->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
-    HeapBlock<uint8> buffer(size);
+    size_t size = mEvent->getChannelInfo()->getDataSize() + 
+        mEvent->getChannelInfo()->getTotalEventMetadataSize() + 
+        EVENT_BASE_SIZE;
+    HeapBlock<uint8> buffer (size);
 
-    EventPacket packet(buffer, size);
+    EventPacket packet (buffer, size);
 
     MidiBuffer midiBuffer;
-    midiBuffer.addEvent(packet, 0);
-    midiBuffer.addEvent(packet, 0);
+    
+    midiBuffer.addEvent (packet, 0);
+    midiBuffer.addEvent (packet, 0);
+
+    for(auto it = midiBuffer.begin(); it != midiBuffer.end(); ++it)
+    {
+        auto metaData = *it;
+
+        auto expectedMetaData = packet.getMetaEventData();
+        auto expectedMetaDataLength = packet.getMetaEventLength();
+        
+        EXPECT_EQ (metaData.numBytes, expectedMetaDataLength);
+        EXPECT_EQ (metaData.data, expectedMetaData);
+    }
 }

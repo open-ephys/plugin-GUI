@@ -131,7 +131,6 @@ This test verifies that given a Data Thread, the Source Node will perform this w
 */
 TEST_F(SourceNodeTests, DataAcquisition)
 {
-    GTEST_SKIP() << "Need to fix Audio Editor class as it is causing crashes in headless mode.";
     mTester->startAcquisition(false);
 
     int numSamples = 100;
