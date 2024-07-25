@@ -106,3 +106,71 @@ TEST_F(MidiBufferTests, ReadWrite)
         EXPECT_EQ (metaData.data, expectedMetaData);
     }
 }
+
+/*
+Clear the Midi Buffer and verify that the buffer is empty.
+*/
+TEST_F(MidiBufferTests, Clear)
+{
+    size_t size = mEvent->getChannelInfo()->getDataSize() + 
+        mEvent->getChannelInfo()->getTotalEventMetadataSize() + 
+        EVENT_BASE_SIZE;
+    HeapBlock<uint8> buffer (size);
+
+    EventPacket packet (buffer, size);
+
+    MidiBuffer midiBuffer;
+    
+    midiBuffer.addEvent (packet, 0);
+    midiBuffer.addEvent (packet, 0);
+
+    midiBuffer.clear();
+
+    EXPECT_TRUE(midiBuffer.isEmpty());
+}
+
+/*
+Adding an event to the Midi buffer should correctly increment the number of events in the buffer.
+*/ 
+TEST_F(MidiBufferTests, AddEvent)
+{
+    size_t size = mEvent->getChannelInfo()->getDataSize() + 
+        mEvent->getChannelInfo()->getTotalEventMetadataSize() + 
+        EVENT_BASE_SIZE;
+    HeapBlock<uint8> buffer (size);
+
+    EventPacket packet (buffer, size);
+
+    MidiBuffer midiBuffer;
+    
+    midiBuffer.addEvent (packet, 0);
+    midiBuffer.addEvent (packet, 0);
+
+    EXPECT_EQ(midiBuffer.getNumEvents(), 2);
+}
+
+/*
+Should be able to add events from another buffer to the Midi Buffer.
+*/
+TEST_F(MidiBufferTests, AddBuffer)
+{
+    size_t size = mEvent->getChannelInfo()->getDataSize() + 
+        mEvent->getChannelInfo()->getTotalEventMetadataSize() + 
+        EVENT_BASE_SIZE;
+    HeapBlock<uint8> buffer (size);
+
+    EventPacket packet (buffer, size);
+
+    MidiBuffer midiBuffer;
+    
+    midiBuffer.addEvent (packet, 0);
+    midiBuffer.addEvent (packet, 0);
+
+    MidiBuffer midiBuffer2;
+    midiBuffer2.addEvent (packet, 0);
+    midiBuffer2.addEvent (packet, 0);
+
+    midiBuffer.addEvents(midiBuffer2, 0, size, 0);
+
+    EXPECT_EQ(midiBuffer.getNumEvents(), 4);
+}
