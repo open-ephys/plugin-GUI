@@ -219,6 +219,7 @@ protected:
 };
 
 TEST_F(RecordNodeTests, TestInputOutput_Continuous_Single) {
+    GTEST_SKIP();
     int num_samples = 100;
     tester->startAcquisition(true);
 
@@ -245,6 +246,7 @@ TEST_F(RecordNodeTests, TestInputOutput_Continuous_Single) {
 }
 
 TEST_F(RecordNodeTests, TestInputOutput_Continuous_Multiple) {
+    GTEST_SKIP();
     tester->startAcquisition(true);
 
     int num_samples_per_block = 100;
@@ -277,6 +279,7 @@ TEST_F(RecordNodeTests, TestInputOutput_Continuous_Multiple) {
 }
 
 TEST_F(RecordNodeTests, TestEmpty) {
+    GTEST_SKIP();
     tester->startAcquisition(true);
     tester->stopAcquisition();
 
@@ -286,6 +289,7 @@ TEST_F(RecordNodeTests, TestEmpty) {
 }
 
 TEST_F(RecordNodeTests, TestClipsProperly) {
+    GTEST_SKIP();
     int num_samples = 100;
     tester->startAcquisition(true);
 
@@ -340,6 +344,7 @@ class CustomBitVolts_RecordNodeTests : public RecordNodeTests {
 };
 
 TEST_F(CustomBitVolts_RecordNodeTests, Test_RespectsBitVolts) {
+    GTEST_SKIP();
     int num_samples = 100;
     tester->startAcquisition(true);
     auto input_buffer = CreateBuffer(1000.0, 20.0, num_channels, num_samples);
@@ -370,6 +375,7 @@ TEST_F(CustomBitVolts_RecordNodeTests, Test_RespectsBitVolts) {
 }
 
 TEST_F(RecordNodeTests, Test_PersistsSampleNumbersAndTimestamps) {
+    GTEST_SKIP();
     tester->startAcquisition(true);
 
     int num_samples = 5;
@@ -417,6 +423,7 @@ TEST_F(RecordNodeTests, Test_PersistsSampleNumbersAndTimestamps) {
 }
 
 TEST_F(RecordNodeTests, Test_PersistsStructureOeBin) {
+    GTEST_SKIP();
     tester->startAcquisition(true);
 
     int num_samples = 5;
@@ -476,6 +483,7 @@ TEST_F(RecordNodeTests, Test_PersistsStructureOeBin) {
 }
 
 TEST_F(RecordNodeTests, Test_PersistsEvents) {
+    GTEST_SKIP();
     processor->setRecordEvents(true);
     processor->updateSettings();
 

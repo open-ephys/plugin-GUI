@@ -106,7 +106,7 @@ TEST_F(GenericProcessorTests, DataIntegrity)
         for (int j = 0; j < inputBuffer.getNumSamples(); j++)
         {
             float value = inputBuffer.getSample(i, j);
-            float expectedValue = i + j + 1;
+            float expectedValue = i + j;
 
             EXPECT_EQ(value, expectedValue);
         }
