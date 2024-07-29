@@ -66,7 +66,34 @@ class DeviceInfo;
 
 class Spike;
 
-class LatencyMeter;
+/** 
+    Measures the time elapsed between the start of each processing 
+    cycle and the end of a GenericProcessor's work.
+*/
+class LatencyMeter
+{
+public:
+    /** Constructor */
+    LatencyMeter (GenericProcessor* processor);
+
+    /** Sets the latest latency values for each data stream */
+    void setLatestLatency (std::map<uint16, juce::int64>& processStartTimes, bool headlessMode);
+
+    /** Returns the latest latency values for each data stream */
+    float getLatestLatency (uint16 streamId);
+
+    /** Updates the available data streams */
+    void update(const Array<const DataStream*>& dataStreams);
+
+private:
+    int counter;
+
+    std::map<uint16, std::vector<int>> latencies;
+    std::map<uint16, float> latestLatencies;
+    GenericProcessor* processor;
+
+    std::mutex latencyMutex;
+};
 
 using namespace Plugin;
 
@@ -563,6 +590,9 @@ public:
     /** Returns a list of undoable actions for a given processor ID */
     static std::vector<ProcessorAction*> getUndoableActions (int nodeId) { return undoableActions[nodeId]; }
 
+    /** Returns the most recent latency measurement for a given stream in this processor */
+    double getLatency (uint16 streamId) const { return latencyMeter->getLatestLatency (streamId); }
+
 protected:
     static std::map<int, std::vector<ProcessorAction*>> undoableActions;
 
@@ -797,35 +827,6 @@ private:
     std::unique_ptr<LatencyMeter> latencyMeter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericProcessor);
-};
-
-/** 
-    Measures the time elapsed between the start of each processing 
-    cycle and the end of a GenericProcessor's work.
-*/
-class LatencyMeter
-{
-public:
-    /** Constructor */
-    LatencyMeter (GenericProcessor* processor);
-
-    /** Sets the latest latency values for each data stream */
-    void setLatestLatency (std::map<uint16, juce::int64>& processStartTimes, bool headlessMode);
-
-    /** Returns the latest latency values for each data stream */
-    float getLatestLatency (uint16 streamId);
-
-    /** Updates the available data streams */
-    void update(const Array<const DataStream*>& dataStreams);
-
-private:
-    int counter;
-
-    std::map<uint16, std::vector<int>> latencies;
-    std::map<uint16, float> latestLatencies;
-    GenericProcessor* processor;
-
-    std::mutex latencyMutex;
 };
 
 #endif // __GENERICPROCESSOR_H_1F469DAF__

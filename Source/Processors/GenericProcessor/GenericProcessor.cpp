@@ -46,6 +46,72 @@
 
 #define MS_FROM_START Time::highResolutionTicksToSeconds (Time::getHighResolutionTicks() - start) * 1000
 
+LatencyMeter::LatencyMeter (GenericProcessor* processor_)
+    : processor (processor_),
+      counter (0)
+{
+}
+
+void LatencyMeter::update(const Array<const DataStream*>& dataStreams)
+{
+    std::lock_guard<std::mutex> lock(latencyMutex); // Lock to ensure thread-safe modification
+    latencies.clear();
+
+    for (auto dataStream : dataStreams)
+    {
+        uint16 streamId = dataStream->getStreamId();
+        latencies[streamId] = std::vector<int>(10, 0); // Initialize with 10 zeros
+    }
+}
+
+void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartTimes, bool headlessMode)
+{
+    if (counter % 10 == 0) // update latency estimate every 10 process blocks
+    {
+        auto currentTime = juce::Time::getHighResolutionTicks();
+
+        for (auto& entry : processStartTimes)
+        {
+            latencies[entry.first].emplace_back(static_cast<int>(currentTime - entry.second));
+            if (latencies[entry.first].size() > 10)
+                latencies[entry.first].erase(latencies[entry.first].begin()); // Keep the size to 10
+        }
+
+        if (counter % 50 == 0) // compute mean latency every 50 process blocks
+        {
+            for (auto& entry : processStartTimes)
+            {
+                float totalLatency = 0.0f;
+
+                for (auto latency : latencies[entry.first])
+                    totalLatency += static_cast<float>(latency);
+
+                totalLatency = (totalLatency / 10.0f) / static_cast<float>(juce::Time::getHighResolutionTicksPerSecond()) * 1000.0f;
+
+                if (!headlessMode)
+                    processor->getEditor()->setMeanLatencyMs(entry.first, totalLatency);
+
+                // Store the latest total latency in a thread-safe manner
+                {
+                    std::lock_guard<std::mutex> lock(latencyMutex);
+                    latestLatencies[entry.first] = totalLatency;
+                }
+            }
+        }
+    }
+
+    counter++;
+}
+
+float LatencyMeter::getLatestLatency(uint16 key)
+{
+    std::lock_guard<std::mutex> lock(latencyMutex);
+    auto it = latestLatencies.find(key);
+    if (it != latestLatencies.end())
+        return it->second;
+    return 0.0f;
+}
+
 const String GenericProcessor::m_unusedNameString ("xxx-UNUSED-OPEN-EPHYS-xxx");
 
 std::map<int, std::vector<ProcessorAction*>> GenericProcessor::undoableActions;
@@ -2076,70 +2142,4 @@ GenericProcessor::DefaultEventInfo::DefaultEventInfo()
       length (0),
       sampleRate (44100)
 {
-}
-
-LatencyMeter::LatencyMeter (GenericProcessor* processor_)
-    : processor (processor_),
-      counter (0)
-{
-}
-
-void LatencyMeter::update(const Array<const DataStream*>& dataStreams)
-{
-    std::lock_guard<std::mutex> lock(latencyMutex); // Lock to ensure thread-safe modification
-    latencies.clear();
-
-    for (auto dataStream : dataStreams)
-    {
-        uint16 streamId = dataStream->getStreamId();
-        latencies[streamId] = std::vector<int>(10, 0); // Initialize with 10 zeros
-    }
-}
-
-void LatencyMeter::setLatestLatency(std::map<uint16, juce::int64>& processStartTimes, bool headlessMode)
-{
-    if (counter % 10 == 0) // update latency estimate every 10 process blocks
-    {
-        auto currentTime = juce::Time::getHighResolutionTicks();
-
-        for (auto& entry : processStartTimes)
-        {
-            latencies[entry.first].emplace_back(static_cast<int>(currentTime - entry.second));
-            if (latencies[entry.first].size() > 10)
-                latencies[entry.first].erase(latencies[entry.first].begin()); // Keep the size to 10
-        }
-
-        if (counter % 50 == 0) // compute mean latency every 50 process blocks
-        {
-            for (auto& entry : processStartTimes)
-            {
-                float totalLatency = 0.0f;
-
-                for (auto latency : latencies[entry.first])
-                    totalLatency += static_cast<float>(latency);
-
-                totalLatency = (totalLatency / 10.0f) / static_cast<float>(juce::Time::getHighResolutionTicksPerSecond()) * 1000.0f;
-
-                if (!headlessMode)
-                    processor->getEditor()->setMeanLatencyMs(entry.first, totalLatency);
-
-                // Store the latest total latency in a thread-safe manner
-                {
-                    std::lock_guard<std::mutex> lock(latencyMutex);
-                    latestLatencies[entry.first] = totalLatency;
-                }
-            }
-        }
-    }
-
-    counter++;
-}
-
-float LatencyMeter::getLatestLatency(uint16 key)
-{
-    std::lock_guard<std::mutex> lock(latencyMutex);
-    auto it = latestLatencies.find(key);
-    if (it != latestLatencies.end())
-        return it->second;
-    return 0.0f;
 }
