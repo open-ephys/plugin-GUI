@@ -55,7 +55,17 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
       ttlWordString ("NONE")
 {
     setBufferedToImage (true);
+
+    FontOptions labelFont ("Inter", "Regular", 16.0f);
+
     // MAIN OPTIONS
+    mainOptionsHolder = std::make_unique<Viewport>();
+    mainOptionsHolder->setScrollBarsShown (false, true);
+    mainOptionsHolder->setScrollBarThickness (12);
+    addAndMakeVisible (mainOptionsHolder.get());
+
+    mainOptions = std::make_unique<Component> ("Main options");
+    mainOptionsHolder->setViewedComponent (mainOptions.get(), false);
 
     // Timebase
     timebases.add ("0.050");
@@ -78,7 +88,11 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     timebaseSelection->setSelectedId (selectedTimebase, sendNotification);
     timebaseSelection->setEditableText (true);
     timebaseSelection->addListener (this);
-    addAndMakeVisible (timebaseSelection.get());
+    mainOptions->addAndMakeVisible (timebaseSelection.get());
+
+    timebaseSelectionLabel = std::make_unique<Label> ("TimebaseLabel", "Timebase (s)");
+    timebaseSelectionLabel->setFont (labelFont);
+    mainOptions->addAndMakeVisible (timebaseSelectionLabel.get());
 
     // Channel height
     spreads.add ("6");
@@ -101,7 +115,11 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     spreadSelection->setSelectedId (selectedSpread, sendNotification);
     spreadSelection->addListener (this);
     spreadSelection->setEditableText (true);
-    addAndMakeVisible (spreadSelection.get());
+    mainOptions->addAndMakeVisible (spreadSelection.get());
+
+    spreadSelectionLabel = std::make_unique<Label> ("SpreadLabel", "Chan height (px)");
+    spreadSelectionLabel->setFont (labelFont);
+    mainOptions->addAndMakeVisible (spreadSelectionLabel.get());
 
     // Voltage range
     voltageRanges[ContinuousChannel::Type::ELECTRODE].add ("25");
@@ -130,7 +148,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     tbut->setClickingTogglesState (true);
     tbut->setRadioGroupId (100, dontSendNotification);
     tbut->setToggleState (true, dontSendNotification);
-    addAndMakeVisible (tbut);
+    mainOptions->addAndMakeVisible (tbut);
     typeButtons.add (tbut);
 
     //Ranges for AUX/accelerometer data
@@ -156,7 +174,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     tbut->setClickingTogglesState (true);
     tbut->setRadioGroupId (100, dontSendNotification);
     tbut->setToggleState (false, dontSendNotification);
-    addAndMakeVisible (tbut);
+    mainOptions->addAndMakeVisible (tbut);
     typeButtons.add (tbut);
 
     //Ranges for ADC data
@@ -181,7 +199,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     tbut->setClickingTogglesState (true);
     tbut->setRadioGroupId (100, dontSendNotification);
     tbut->setToggleState (false, dontSendNotification);
-    addAndMakeVisible (tbut);
+    mainOptions->addAndMakeVisible (tbut);
     typeButtons.add (tbut);
 
     for (auto* typeButton : typeButtons)
@@ -197,21 +215,40 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     rangeSelection->setSelectedId (selectedVoltageRange[ContinuousChannel::Type::ELECTRODE], sendNotification);
     rangeSelection->setEditableText (true);
     rangeSelection->addListener (this);
-    addAndMakeVisible (rangeSelection.get());
+    mainOptions->addAndMakeVisible (rangeSelection.get());
+
+    rangeSelectionLabel = std::make_unique<Label> ("VoltageRangeLabel", "Range (" + rangeUnits[selectedChannelType] + ")");
+    rangeSelectionLabel->setFont (labelFont);
+    rangeSelectionLabel->attachToComponent (rangeSelection.get(), false);
+    mainOptions->addAndMakeVisible (rangeSelectionLabel.get());
 
     // Event overlay
     for (int i = 0; i < 8; i++)
     {
         EventDisplayInterface* eventOptions = new EventDisplayInterface (lfpDisplay, canvasSplit, i);
         eventDisplayInterfaces.add (eventOptions);
-        addAndMakeVisible (eventOptions);
+        mainOptions->addAndMakeVisible (eventOptions);
         lfpDisplay->setEventDisplayState (i, true);
     }
 
+    overlayEventsLabel = std::make_unique<Label> ("OverlayEventsLabel");
+    String overlayEventsString;
+    overlayEventsString << "Overlay\nEvents";
+    overlayEventsLabel->setText (overlayEventsString, dontSendNotification);
+    overlayEventsLabel->setFont (labelFont);
+    overlayEventsLabel->setJustificationType (Justification::right);
+    mainOptions->addAndMakeVisible (overlayEventsLabel.get());
+
     // TTL Word
     ttlWordLabel = std::make_unique<Label> ("TTL word");
-    addAndMakeVisible (ttlWordLabel.get());
+    ttlWordLabel->setColour (Label::outlineColourId, findColour (ThemeColours::outline));
+    mainOptions->addAndMakeVisible (ttlWordLabel.get());
     startTimer (250);
+
+    ttlWordNameLabel = std::make_unique<Label> ("TTL word name", "TTL Word:");
+    ttlWordNameLabel->setFont (labelFont);
+    ttlWordNameLabel->attachToComponent (ttlWordLabel.get(), false);
+    mainOptions->addAndMakeVisible (ttlWordNameLabel.get());
 
     // Pause button
     pauseButton = std::make_unique<UtilityButton> ("Pause");
@@ -221,7 +258,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     pauseButton->addListener (this);
     pauseButton->setClickingTogglesState (true);
     pauseButton->setToggleState (false, sendNotification);
-    addAndMakeVisible (pauseButton.get());
+    mainOptions->addAndMakeVisible (pauseButton.get());
 
     // Colour scheme
     Array<String> colourSchemeNames = lfpDisplay->getColourSchemeNameArray();
@@ -231,7 +268,12 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     colourSchemeOptionSelection->setEditableText (false);
     colourSchemeOptionSelection->addListener (this);
     colourSchemeOptionSelection->setSelectedId (1, dontSendNotification);
-    addAndMakeVisible (colourSchemeOptionSelection.get());
+    mainOptions->addAndMakeVisible (colourSchemeOptionSelection.get());
+
+    colourSchemeOptionLabel = std::make_unique<Label> ("ColourSchemeLabel", "Colour scheme");
+    colourSchemeOptionLabel->setFont (labelFont);
+    colourSchemeOptionLabel->attachToComponent (colourSchemeOptionSelection.get(), false);
+    mainOptions->addAndMakeVisible (colourSchemeOptionLabel.get());
 
     // Colour grouping
     colourGroupings.add ("1");
@@ -245,10 +287,26 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
         colourGroupingSelection->addItem (colourGroupings[i], i + 1);
     colourGroupingSelection->setSelectedId (1, sendNotification);
     colourGroupingSelection->addListener (this);
-    addAndMakeVisible (colourGroupingSelection.get());
+    mainOptions->addAndMakeVisible (colourGroupingSelection.get());
+
+    colourGroupingLabel = std::make_unique<Label> ("ColourGroupingLabel", "Colour grouping");
+    colourGroupingLabel->setFont (labelFont);
+    mainOptions->addAndMakeVisible (colourGroupingLabel.get());
+
+    // MAIN OPTIONS
+    extendedOptionsHolder = std::make_unique<Viewport>();
+    extendedOptionsHolder->setScrollBarsShown (false, true);
+    extendedOptionsHolder->setScrollBarThickness (12);
+    addAndMakeVisible (extendedOptionsHolder.get());
+
+    extendedOptions = std::make_unique<Component> ("Main options");
+    extendedOptionsHolder->setViewedComponent (extendedOptions.get(), false);
 
     // THRESHOLDS SECTION
     sectionTitles.add ("THRESHOLDS");
+    thresholdsGroup = std::make_unique<GroupComponent> ("Thresholds");
+    thresholdsGroup->setText ("THRESHOLDS");
+    extendedOptions->addAndMakeVisible (thresholdsGroup.get());
 
     // Spike raster
     spikeRasterSelectionOptions = { "OFF", "-50", "-100", "-150", "-200", "-300", "-400", "-500" };
@@ -261,7 +319,12 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     spikeRasterSelection->setSelectedId (selectedSpikeRasterThreshold, dontSendNotification);
     spikeRasterSelection->setEditableText (true);
     spikeRasterSelection->addListener (this);
-    addAndMakeVisible (spikeRasterSelection.get());
+    extendedOptions->addAndMakeVisible (spikeRasterSelection.get());
+
+    spikeRasterabel = std::make_unique<Label> ("SpikeRasterLabel", "Spike raster: ");
+    spikeRasterabel->setFont (labelFont);
+    spikeRasterabel->attachToComponent (spikeRasterSelection.get(), true);
+    extendedOptions->addAndMakeVisible (spikeRasterabel.get());
 
     // Clip warning
     clipThresholds.add ("OFF");
@@ -273,7 +336,12 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     clipWarningSelection->setSelectedId (1, dontSendNotification);
     clipWarningSelection->addListener (this);
     clipWarningSelection->setEditableText (false);
-    addAndMakeVisible (clipWarningSelection.get());
+    extendedOptions->addAndMakeVisible (clipWarningSelection.get());
+
+    clipWarningLabel = std::make_unique<Label> ("ClipWarningLabel", "Clip warning:");
+    clipWarningLabel->setFont (labelFont);
+    clipWarningLabel->attachToComponent (clipWarningSelection.get(), true);
+    extendedOptions->addAndMakeVisible (clipWarningLabel.get());
 
     // Saturation warning
     saturationThresholds.add ("OFF");
@@ -289,10 +357,18 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     saturationWarningSelection->setSelectedId (1, dontSendNotification);
     saturationWarningSelection->addListener (this);
     saturationWarningSelection->setEditableText (false);
-    addAndMakeVisible (saturationWarningSelection.get());
+    extendedOptions->addAndMakeVisible (saturationWarningSelection.get());
+
+    saturationWarningLabel = std::make_unique<Label> ("SaturationWarningLabel", "Sat. warning:");
+    saturationWarningLabel->setFont (labelFont);
+    saturationWarningLabel->attachToComponent (saturationWarningSelection.get(), true);
+    extendedOptions->addAndMakeVisible (saturationWarningLabel.get());
 
     // CHANNELS SECTION
     sectionTitles.add ("CHANNELS");
+    channelsGroup = std::make_unique<GroupComponent> ("Channels");
+    channelsGroup->setText ("CHANNELS");
+    extendedOptions->addAndMakeVisible (channelsGroup.get());
 
     // Reverse order
     reverseChannelsDisplayButton = std::make_unique<UtilityButton> ("OFF");
@@ -302,7 +378,11 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     reverseChannelsDisplayButton->addListener (this);
     reverseChannelsDisplayButton->setClickingTogglesState (true);
     reverseChannelsDisplayButton->setToggleState (false, sendNotification);
-    addAndMakeVisible (reverseChannelsDisplayButton.get());
+    extendedOptions->addAndMakeVisible (reverseChannelsDisplayButton.get());
+
+    reverseChannelsLabel = std::make_unique<Label> ("ReverseChannelsLabel", "Reverse order:");
+    reverseChannelsLabel->setFont (labelFont);
+    extendedOptions->addAndMakeVisible (reverseChannelsLabel.get());
 
     // Sort by depth
     sortByDepthButton = std::make_unique<UtilityButton> ("OFF");
@@ -312,7 +392,11 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     sortByDepthButton->addListener (this);
     sortByDepthButton->setClickingTogglesState (true);
     sortByDepthButton->setToggleState (false, sendNotification);
-    addAndMakeVisible (sortByDepthButton.get());
+    extendedOptions->addAndMakeVisible (sortByDepthButton.get());
+
+    sortByDepthLabel = std::make_unique<Label> ("SortByDepthLabel", "Sort by depth:");
+    sortByDepthLabel->setFont (labelFont);
+    extendedOptions->addAndMakeVisible (sortByDepthLabel.get());
 
     // Channel skip
     channelDisplaySkipOptions.add ("None");
@@ -331,7 +415,11 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     channelDisplaySkipSelection->setSelectedId (selectedChannelDisplaySkip, sendNotification);
     channelDisplaySkipSelection->setEditableText (false);
     channelDisplaySkipSelection->addListener (this);
-    addAndMakeVisible (channelDisplaySkipSelection.get());
+    extendedOptions->addAndMakeVisible (channelDisplaySkipSelection.get());
+
+    channelDisplaySkipLabel = std::make_unique<Label> ("ChannelDisplaySkipLabel", "Skip:");
+    channelDisplaySkipLabel->setFont (labelFont);
+    extendedOptions->addAndMakeVisible (channelDisplaySkipLabel.get());
 
     // Show channel number button
     showChannelNumberButton = std::make_unique<UtilityButton> ("OFF");
@@ -341,10 +429,17 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     showChannelNumberButton->addListener (this);
     showChannelNumberButton->setClickingTogglesState (true);
     showChannelNumberButton->setToggleState (false, sendNotification);
-    addAndMakeVisible (showChannelNumberButton.get());
+    extendedOptions->addAndMakeVisible (showChannelNumberButton.get());
+
+    showChannelNumberLabel = std::make_unique<Label> ("ShowChannelNumberLabel", "Show number:");
+    showChannelNumberLabel->setFont (labelFont);
+    extendedOptions->addAndMakeVisible (showChannelNumberLabel.get());
 
     // SIGNAL PROCESSING SECTION
     sectionTitles.add ("SIGNALS");
+    signalProcessingGroup = std::make_unique<GroupComponent> ("Signal Processing");
+    signalProcessingGroup->setText ("SIGNALS");
+    extendedOptions->addAndMakeVisible (signalProcessingGroup.get());
 
     // invert signal
     invertInputButton = std::make_unique<UtilityButton> ("OFF");
@@ -354,7 +449,11 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     invertInputButton->addListener (this);
     invertInputButton->setClickingTogglesState (true);
     invertInputButton->setToggleState (false, sendNotification);
-    addAndMakeVisible (invertInputButton.get());
+    extendedOptions->addAndMakeVisible (invertInputButton.get());
+
+    invertInputLabel = std::make_unique<Label> ("InvertInputLabel", "Invert signal:");
+    invertInputLabel->setFont (labelFont);
+    extendedOptions->addAndMakeVisible (invertInputLabel.get());
 
     // subtract offset
     medianOffsetPlottingButton = std::make_unique<UtilityButton> ("OFF");
@@ -364,10 +463,18 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     medianOffsetPlottingButton->addListener (this);
     medianOffsetPlottingButton->setClickingTogglesState (true);
     medianOffsetPlottingButton->setToggleState (false, sendNotification);
-    addAndMakeVisible (medianOffsetPlottingButton.get());
+    extendedOptions->addAndMakeVisible (medianOffsetPlottingButton.get());
+
+    medianOffsetPlottingLabel = std::make_unique<Label> ("MedianOffsetPlottingLabel", "Subtract offset:");
+    medianOffsetPlottingLabel->setFont (labelFont);
+    extendedOptions->addAndMakeVisible (medianOffsetPlottingLabel.get());
 
     // TRIGGERED DISPLAY
     sectionTitles.add ("TRIGGERED DISPLAY");
+    triggeredDisplayGroup = std::make_unique<GroupComponent> ("Triggered Display");
+    triggeredDisplayGroup->setText ("TRIGGERED DISPLAY");
+    extendedOptions->addAndMakeVisible (triggeredDisplayGroup.get());
+
     // trigger channel selection
     triggerSources.add ("None");
     for (int k = 1; k <= 16; k++)
@@ -380,7 +487,11 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
         triggerSourceSelection->addItem (triggerSources[i], i + 1);
     triggerSourceSelection->setSelectedId (1, sendNotification);
     triggerSourceSelection->addListener (this);
-    addAndMakeVisible (triggerSourceSelection.get());
+    extendedOptions->addAndMakeVisible (triggerSourceSelection.get());
+
+    triggerSourceLabel = std::make_unique<Label> ("TriggerSourceLabel", "Trigger channel:");
+    triggerSourceLabel->setFont (labelFont);
+    extendedOptions->addAndMakeVisible (triggerSourceLabel.get());
 
     // average signal
     averageSignalButton = std::make_unique<UtilityButton> ("OFF");
@@ -390,7 +501,11 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     averageSignalButton->addListener (this);
     averageSignalButton->setClickingTogglesState (true);
     averageSignalButton->setToggleState (false, sendNotification);
-    addAndMakeVisible (averageSignalButton.get());
+    extendedOptions->addAndMakeVisible (averageSignalButton.get());
+
+    averageSignalLabel = std::make_unique<Label> ("AverageSignalLabel", "Trial averaging:");
+    averageSignalLabel->setFont (labelFont);
+    extendedOptions->addAndMakeVisible (averageSignalLabel.get());
 
     // reset triggered display
     resetButton = std::make_unique<UtilityButton> ("RESET");
@@ -400,7 +515,7 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     resetButton->addListener (this);
     resetButton->setClickingTogglesState (false);
     resetButton->setToggleState (false, sendNotification);
-    addChildComponent (resetButton.get());
+    extendedOptions->addChildComponent (resetButton.get());
 
     // init show/hide options button
     showHideOptionsButton = std::make_unique<ShowHideOptionsButton> (this);
@@ -448,263 +563,237 @@ void LfpDisplayOptions::resized()
     int height = 22;
 
     // MAIN OPTIONS
-    timebaseSelection->setBounds (8, getHeight() - 30, 90, height);
-    spreadSelection->setBounds (timebaseSelection->getRight() + 20, getHeight() - 30, 90, height);
-    rangeSelection->setBounds (spreadSelection->getRight() + 25, getHeight() - 30, 90, height);
+    mainOptionsHolder->setBounds (0, getHeight() - 60, getWidth() - 30, 60);
+
+    int mainOptionsWidth = (getWidth() - 30) < 1000 ? 1000 : (getWidth() - 30);
+    mainOptionsWidth = mainOptionsWidth > 1500 ? 1500 : mainOptionsWidth;
+    mainOptions->setBounds (0, 0, mainOptionsWidth, mainOptionsHolder->getHeight());
+
+    // FlexBox layout for main options
+    FlexBox mainOptionsBox;
+    mainOptionsBox.flexWrap = FlexBox::Wrap::noWrap;
+    mainOptionsBox.justifyContent = FlexBox::JustifyContent::spaceBetween;
+    mainOptionsBox.alignItems = FlexBox::AlignItems::center;
+
+    mainOptionsBox.items.add (FlexItem (90, 60)); // TIMEBASE
+    mainOptionsBox.items.add (FlexItem (110, 60)); // SPREAD
+    mainOptionsBox.items.add (FlexItem (145, 60)); // RANGE & TYPE
+    mainOptionsBox.items.add (FlexItem (145, 60)); // EVENT OVERLAY
+    mainOptionsBox.items.add (FlexItem (90, 60)); // TTL WORD
+    mainOptionsBox.items.add (FlexItem (70, 60)); // PAUSE
+    mainOptionsBox.items.add (FlexItem (160, 60)); // COLOUR SCHEME
+    mainOptionsBox.items.add (FlexItem (110, 60)); // COLOUR GROUPING
+
+    mainOptionsBox.performLayout (mainOptions->getLocalBounds().withTrimmedLeft (10));
+
+    int mainOptionsHeight = mainOptions->getHeight() + (mainOptionsHolder->canScrollHorizontally() ? 0 : 3);
+
+    timebaseSelection->setBounds (mainOptionsBox.items[0].currentBounds.getX(), mainOptionsHeight - 35, 90, height);
+    timebaseSelectionLabel->setBounds (timebaseSelection->getX(), mainOptionsHeight - 55, 90, 15);
+
+    spreadSelection->setBounds (mainOptionsBox.items[1].currentBounds.getX(), mainOptionsHeight - 35, 90, height);
+    spreadSelectionLabel->setBounds (spreadSelection->getX(), mainOptionsHeight - 55, 110, 15);
+
+    rangeSelection->setBounds (mainOptionsBox.items[2].currentBounds.getX(), mainOptionsHeight - 35, 90, height);
 
     int bh = 39 / typeButtons.size();
     for (int i = 0; i < typeButtons.size(); i++)
     {
-        typeButtons[i]->setBounds (rangeSelection->getRight() + 5, getHeight() - 42 + i * bh, 50, bh);
+        typeButtons[i]->setBounds (rangeSelection->getRight() + 5, mainOptionsHeight - 52 + i * bh, 50, bh);
     }
 
+    overlayEventsLabel->setBounds (mainOptionsBox.items[3].currentBounds.getX(), mainOptionsHeight - 50, 60, 35);
     for (int i = 0; i < 8; i++)
     {
-        eventDisplayInterfaces[i]->setBounds (typeButtons[0]->getRight() + 80 + (floor (i / 2) * 20),
-                                              getHeight() - 45 + (i % 2) * 20,
+        eventDisplayInterfaces[i]->setBounds (overlayEventsLabel->getRight() + 5 + (floor (i / 2) * 20),
+                                              mainOptionsHeight - 52 + (i % 2) * 20,
                                               20,
                                               20); // arrange event channel buttons in two rows
         eventDisplayInterfaces[i]->repaint();
     }
 
-    ttlWordLabel->setBounds (565, getHeight() - 30, 90, height);
+    ttlWordLabel->setBounds (mainOptionsBox.items[4].currentBounds.getX(), mainOptionsHeight - 35, 90, height);
 
-    pauseButton->setBounds (680, getHeight() - 40, 70, 30);
+    pauseButton->setBounds (mainOptionsBox.items[5].currentBounds.getX(), mainOptionsHeight - 45, 70, 30);
 
-    colourSchemeOptionSelection->setBounds (pauseButton->getRight() + 30,
-                                            getHeight() - 30,
-                                            180,
+    colourSchemeOptionSelection->setBounds (mainOptionsBox.items[6].currentBounds.getX(),
+                                            mainOptionsHeight - 35,
+                                            160,
                                             height);
 
-    colourGroupingSelection->setBounds (colourSchemeOptionSelection->getRight() + 15, getHeight() - 30, 55, height);
+    colourGroupingSelection->setBounds (mainOptionsBox.items[7].currentBounds.getX(), mainOptionsHeight - 35, 65, height);
+    colourGroupingLabel->setBounds (colourGroupingSelection->getX(), mainOptionsHeight - 55, 110, 15);
 
-    int startHeight = 167;
+    // EXTENDED OPTIONS
+    if (showHideOptionsButton->getToggleState())
+        extendedOptionsHolder->setBounds (0, 0, getWidth(), getHeight() - 60);
+    else
+        extendedOptionsHolder->setBounds (0, 0, getWidth(), 0);
+
+    int extendedWidth = getWidth() < 755 ? 755 : getWidth();
+    extendedWidth = extendedWidth > 1500 ? 1500 : extendedWidth;
+    extendedOptions->setBounds (0, 0, extendedWidth, extendedOptionsHolder->getHeight());
+
+    // FlexBox layout for extended options
+    FlexBox extendedOptionsBox;
+    extendedOptionsBox.flexWrap = FlexBox::Wrap::noWrap;
+    extendedOptionsBox.justifyContent = FlexBox::JustifyContent::spaceBetween;
+    extendedOptionsBox.alignItems = FlexBox::AlignItems::center;
+
+    extendedOptionsBox.items.add (FlexItem (185, getHeight() - 60)); // THRESHOLDS
+    extendedOptionsBox.items.add (FlexItem (185, getHeight() - 60)); // CHANNELS
+    extendedOptionsBox.items.add (FlexItem (185, getHeight() - 60)); // SIGNAL PROCESSING
+    extendedOptionsBox.items.add (FlexItem (190, getHeight() - 60)); // TRIGGERED DISPLAY
+
+    extendedOptionsBox.performLayout (extendedOptions->getLocalBounds().reduced (10, 0));
+
+    int startHeight = 22;
     int verticalSpacing = 29;
-    int xOffset = 200;
+    int sectionWidth = extendedWidth / 4;
+    int xOffset = 0;
+    int xLimit = 0;
 
     // THRESHOLDS
-    spikeRasterSelection->setBounds (96,
-                                     getHeight() - startHeight,
-                                     80,
+    xOffset = extendedOptionsBox.items[0].currentBounds.getX();
+    xLimit = extendedOptionsBox.items[0].currentBounds.getRight();
+    thresholdsGroup->setBounds (xOffset, 5, 185, 135);
+
+    spikeRasterSelection->setBounds (xLimit - 85,
+                                     startHeight,
+                                     75,
                                      height);
 
-    clipWarningSelection->setBounds (96,
-                                     getHeight() - startHeight + verticalSpacing,
-                                     80,
+    clipWarningSelection->setBounds (xLimit - 85,
+                                     startHeight + verticalSpacing,
+                                     75,
                                      height);
 
-    saturationWarningSelection->setBounds (96,
-                                           getHeight() - startHeight + verticalSpacing * 2,
-                                           80,
+    saturationWarningSelection->setBounds (xLimit - 85,
+                                           startHeight + verticalSpacing * 2,
+                                           75,
                                            height);
 
     // CHANNELS
+    xOffset = extendedOptionsBox.items[1].currentBounds.getX();
+    xLimit = extendedOptionsBox.items[1].currentBounds.getRight();
+    channelsGroup->setBounds (xOffset, 5, 185, 135);
 
-    reverseChannelsDisplayButton->setBounds (getWidth() / 4 + 107,
-                                             getHeight() - startHeight,
+    reverseChannelsDisplayButton->setBounds (xLimit - 45,
+                                             startHeight,
                                              35,
                                              height);
 
-    sortByDepthButton->setBounds (getWidth() / 4 + 102,
-                                  getHeight() - startHeight + verticalSpacing,
+    reverseChannelsLabel->setBounds (xOffset + 10,
+                                     startHeight,
+                                     100,
+                                     height);
+
+    sortByDepthButton->setBounds (xLimit - 45,
+                                  startHeight + verticalSpacing,
                                   35,
                                   height);
 
-    channelDisplaySkipSelection->setBounds (getWidth() / 4 + 47,
-                                            getHeight() - startHeight + verticalSpacing * 2,
-                                            80,
+    sortByDepthLabel->setBounds (xOffset + 10,
+                                 startHeight + verticalSpacing,
+                                 100,
+                                 height);
+
+    channelDisplaySkipSelection->setBounds (xLimit - 80,
+                                            startHeight + verticalSpacing * 2,
+                                            70,
                                             height);
 
-    showChannelNumberButton->setBounds (getWidth() / 4 + 102,
-                                        getHeight() - startHeight + +verticalSpacing * 3,
+    channelDisplaySkipLabel->setBounds (xOffset + 10,
+                                        startHeight + verticalSpacing * 2,
+                                        80,
+                                        height);
+
+    showChannelNumberButton->setBounds (xLimit - 45,
+                                        startHeight + +verticalSpacing * 3,
                                         35,
                                         height);
 
+    showChannelNumberLabel->setBounds (xOffset + 10,
+                                       startHeight + verticalSpacing * 3,
+                                       100,
+                                       height);
+
     // SIGNAL PROCESSING
-    invertInputButton->setBounds (getWidth() / 2 + 95,
-                                  getHeight() - startHeight,
+    xOffset = extendedOptionsBox.items[2].currentBounds.getX();
+    xLimit = extendedOptionsBox.items[2].currentBounds.getRight();
+    signalProcessingGroup->setBounds (xOffset, 5, 185, 135);
+
+    invertInputButton->setBounds (xLimit - 45,
+                                  startHeight,
                                   35,
                                   height);
 
-    medianOffsetPlottingButton->setBounds (getWidth() / 2 + 110,
-                                           getHeight() - startHeight + verticalSpacing,
+    invertInputLabel->setBounds (xOffset + 10,
+                                 startHeight,
+                                 120,
+                                 height);
+
+    medianOffsetPlottingButton->setBounds (xLimit - 45,
+                                           startHeight + verticalSpacing,
                                            35,
                                            height);
 
+    medianOffsetPlottingLabel->setBounds (xOffset + 10,
+                                          startHeight + verticalSpacing,
+                                          120,
+                                          height);
+
     //TRIGGERED DISPLAY
-    triggerSourceSelection->setBounds (getWidth() / 4 * 3 + 118,
-                                       getHeight() - startHeight,
-                                       80,
+    xOffset = extendedOptionsBox.items[3].currentBounds.getX();
+    xLimit = extendedOptionsBox.items[3].currentBounds.getRight();
+    triggeredDisplayGroup->setBounds (xOffset, 5, 190, 135);
+
+    triggerSourceSelection->setBounds (xLimit - 70,
+                                       startHeight,
+                                       60,
                                        height);
 
-    averageSignalButton->setBounds (getWidth() / 4 * 3 + 112,
-                                    getHeight() - startHeight + verticalSpacing,
+    triggerSourceLabel->setBounds (xOffset + 10,
+                                   startHeight,
+                                   105,
+                                   height);
+
+    averageSignalButton->setBounds (xLimit - 45,
+                                    startHeight + verticalSpacing,
                                     35,
                                     height);
 
-    resetButton->setBounds (getWidth() / 4 * 3 + 156,
-                            getHeight() - startHeight + verticalSpacing,
+    averageSignalLabel->setBounds (xOffset + 10,
+                                   startHeight + verticalSpacing,
+                                   120,
+                                   height);
+
+    resetButton->setBounds (xLimit - 60,
+                            startHeight + verticalSpacing * 2,
                             50,
                             height);
 
-    showHideOptionsButton->setBounds (getWidth() - 28, getHeight() - 28, 20, 20);
+    showHideOptionsButton->setBounds (getWidth() - 26, getHeight() - 40, 24, 24);
 }
 
 void LfpDisplayOptions::paint (Graphics& g)
 {
-    int row1 = 55;
-    int row2 = 110;
-
-    ttlWordLabel->setColour (Label::outlineColourId, findColour (ThemeColours::outline));
-
     g.fillAll (findColour (ThemeColours::componentBackground));
     g.setFont (FontOptions ("Inter", "Medium", 18.0f));
 
-    g.setColour (findColour (ThemeColours::defaultText));
+    DropShadow (findColour (ThemeColours::componentParentBackground).withAlpha (0.5f), 10, Point<int> (-2, 0))
+        .drawForRectangle (g, Rectangle<int> (getWidth() - 26, getHeight() - 60, 1, 60));
 
-    if (getHeight() > 150)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            if (i > 0)
-                g.drawLine (getWidth() / 4 * i, getHeight() - 200, getWidth() / 4 * i, 150);
+    g.setColour (findColour (ThemeColours::componentBackground));
+    g.fillRect (getWidth() - 26, getHeight() - 60, 26, 60);
 
-            g.drawText (sectionTitles[i],
-                        getWidth() / 4 * i + 10,
-                        7,
-                        300,
-                        20,
-                        Justification::left,
-                        false);
-        }
-    }
+    if (showHideOptionsButton->getToggleState())
+        g.fillRect (0, 0, getWidth(), 150);
 
-    g.setFont (FontOptions ("Inter", "Regular", 16.0f));
+    g.setColour (findColour (ThemeColours::componentParentBackground).withAlpha (0.75f));
 
-    g.drawText ("Timebase (s)", timebaseSelection->getX(), timebaseSelection->getY() - 22, 300, 20, Justification::left, false);
-    g.drawText ("Chan height (px)", spreadSelection->getX(), spreadSelection->getY() - 22, 300, 20, Justification::left, false);
-    g.drawText ("Range (" + rangeUnits[selectedChannelType] + ")", rangeSelection->getX(), rangeSelection->getY() - 22, 300, 20, Justification::left, false);
-
-    g.drawText ("Overlay", 350, getHeight() - 43, 100, 20, Justification::right, false);
-    g.drawText ("Events:", 350, getHeight() - 25, 100, 20, Justification::right, false);
-
-    g.drawText ("TTL word:", ttlWordLabel->getX(), ttlWordLabel->getY() - 22, 70, 20, Justification::left, false);
-
-    g.drawText ("Colour scheme", colourSchemeOptionSelection->getX(), colourSchemeOptionSelection->getY() - 22, 300, 20, Justification::left, false);
-    g.drawText ("Colour grouping", colourGroupingSelection->getX(), colourGroupingSelection->getY() - 22, 300, 20, Justification::left, false);
-
-    g.drawText ("Spike raster:",
-                10,
-                spikeRasterSelection->getY(),
-                100,
-                22,
-                Justification::left,
-                false);
-
-    g.drawText ("Clip warning:",
-                10,
-                clipWarningSelection->getY(),
-                150,
-                22,
-                Justification::left,
-                false);
-
-    g.drawText ("Sat. warning:",
-                10,
-                saturationWarningSelection->getY(),
-                150,
-                22,
-                Justification::left,
-                false);
-
-    g.drawText ("Reverse order:",
-                getWidth() / 4 + 10,
-                reverseChannelsDisplayButton->getY(),
-                100,
-                22,
-                Justification::left,
-                false);
-
-    g.drawText ("Sort by depth:",
-                getWidth() / 4 + 10,
-                sortByDepthButton->getY(),
-                150,
-                22,
-                Justification::left,
-                false);
-
-    g.drawText ("Skip:",
-                getWidth() / 4 + 10,
-                channelDisplaySkipSelection->getY(),
-                150,
-                22,
-                Justification::left,
-                false);
-
-    g.drawText ("Show number:",
-                getWidth() / 4 + 10,
-                showChannelNumberButton->getY(),
-                150,
-                22,
-                Justification::left,
-                false);
-
-    g.drawText ("Invert signal:",
-                getWidth() / 2 + 10,
-                invertInputButton->getY(),
-                150,
-                22,
-                Justification::left,
-                false);
-
-    g.drawText ("Subtract offset:",
-                getWidth() / 2 + 10,
-                medianOffsetPlottingButton->getY(),
-                150,
-                22,
-                Justification::left,
-                false);
-
-    g.drawText ("Trigger channel:",
-                getWidth() / 4 * 3 + 10,
-                triggerSourceSelection->getY(),
-                150,
-                22,
-                Justification::left,
-                false);
-
-    g.drawText ("Trial averaging:",
-                getWidth() / 4 * 3 + 10,
-                averageSignalButton->getY(),
-                150,
-                22,
-                Justification::left,
-                false);
-
-    /*g.drawText("Range("+ rangeUnits[selectedChannelType] +")",115,getHeight()-row1,300,20,Justification::left, false);
-    
-    g.drawText("Size(px)",5,getHeight()-row2,300,20,Justification::left, false);
-    g.drawText("Clip",100,getHeight()-row2,300,20,Justification::left, false);
-    g.drawText("Warn",168,getHeight()-row2,300,20,Justification::left, false);
-    
-    g.drawText("Sat. Warning",225,getHeight()-row2,300,20,Justification::left, false);
-
-    g.drawText("Colour grouping",365,getHeight()-row2,300,20,Justification::left, false);
-
-    g.drawText("Event disp.",375,getHeight()-row1,300,20,Justification::left, false);
-    g.drawText("Trigger",475,getHeight()-row1,300,20,Justification::left, false);
-
-    if(canvasSplit->drawClipWarning)
-    {
-        g.setColour(Colours::white);
-        g.fillRoundedRectangle(173,getHeight()-90-1,24,24,6.0f);
-    }
-    
-    if(canvasSplit->drawSaturationWarning)
-    {
-        g.setColour(Colours::red);
-        g.fillRoundedRectangle(323,getHeight()-90-1,24,24,6.0f);
-    }*/
+    if (showHideOptionsButton->getToggleState())
+        g.fillRect (0, getHeight() - 62, getWidth() - 26, 1);
 }
 
 int LfpDisplayOptions::getChannelHeight()
@@ -1319,6 +1408,8 @@ void LfpDisplayOptions::setSelectedType (ContinuousChannel::Type type, bool togg
     else
         rangeSelection->setText (selectedVoltageRangeValues[selectedChannelType], dontSendNotification);
 
+    rangeSelectionLabel->setText ("Range (" + rangeUnits[type] + ")", dontSendNotification);
+
     repaint (5, getHeight() - 55, 300, 100);
 
     if (toggleButton)
@@ -1333,6 +1424,11 @@ String LfpDisplayOptions::getTypeName (ContinuousChannel::Type type)
 int LfpDisplayOptions::getRangeStep (ContinuousChannel::Type type)
 {
     return rangeSteps[type];
+}
+
+void LfpDisplayOptions::setShowHideOptionsButtonState (bool state)
+{
+    showHideOptionsButton->setToggleState (state, dontSendNotification);
 }
 
 void LfpDisplayOptions::saveParameters (XmlElement* xml)

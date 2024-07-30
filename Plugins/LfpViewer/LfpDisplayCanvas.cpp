@@ -244,9 +244,9 @@ void LfpDisplayCanvas::resized()
     for (int i = 0; i < 3; i++)
     {
         if (optionsDrawerIsOpen)
-            displaySplits[i]->options->setBounds (0, getHeight() - 200, getWidth(), 200);
+            displaySplits[i]->options->setBounds (0, getHeight() - 210, getWidth(), 210);
         else
-            displaySplits[i]->options->setBounds (0, getHeight() - 55, getWidth(), 55);
+            displaySplits[i]->options->setBounds (0, getHeight() - 60, getWidth(), 60);
     }
 }
 
@@ -307,7 +307,7 @@ void LfpDisplayCanvas::select (LfpDisplaySplitter* splitter)
         }
     }
 
-    splitter->options->repaint();
+    splitter->options->resized();
 }
 
 void LfpDisplayCanvas::setLayout (SplitLayouts sl)
@@ -543,9 +543,11 @@ void LfpDisplayCanvas::toggleOptionsDrawer (bool isOpen)
     for (int i = 0; i < 3; i++)
     {
         if (optionsDrawerIsOpen)
-            displaySplits[i]->options->setBounds (0, getHeight() - 200, getWidth(), 200);
+            displaySplits[i]->options->setBounds (0, getHeight() - 210, getWidth(), 210);
         else
-            displaySplits[i]->options->setBounds (0, getHeight() - 55, getWidth(), 55);
+            displaySplits[i]->options->setBounds (0, getHeight() - 60, getWidth(), 60);
+
+        displaySplits[i]->options->setShowHideOptionsButtonState (optionsDrawerIsOpen);
     }
 }
 
@@ -747,11 +749,11 @@ void LfpDisplaySplitter::resized()
 {
     const int timescaleHeight = 30;
 
-    timescale->setBounds (leftmargin, 0, getWidth() - scrollBarThickness - leftmargin, getHeight());
+    timescale->setBounds (leftmargin, 0, getWidth() - scrollBarThickness - leftmargin, timescaleHeight);
 
     if (canvas->makeRoomForOptions (splitID))
     {
-        viewport->setBounds (0, timescaleHeight, getWidth(), getHeight() - 87);
+        viewport->setBounds (0, timescaleHeight, getWidth(), getHeight() - 92);
     }
     else
     {

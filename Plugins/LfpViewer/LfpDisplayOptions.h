@@ -136,6 +136,8 @@ public:
     /** Sets the state of the pause button and can enable / disable some options */
     void setPausedState (bool isPaused);
 
+    void setShowHideOptionsButtonState (bool showOptions);
+
     int selectedSpread;
     String selectedSpreadValue;
 
@@ -179,39 +181,87 @@ private:
     String ttlWordString;
 
     // Main options
+    std::unique_ptr<Component> mainOptions;
+    std::unique_ptr<Viewport> mainOptionsHolder;
+
     std::unique_ptr<ComboBox> timebaseSelection;
+    std::unique_ptr<Label> timebaseSelectionLabel;
+
     std::unique_ptr<ComboBox> spreadSelection;
+    std::unique_ptr<Label> spreadSelectionLabel;
+
     std::unique_ptr<ComboBox> rangeSelection;
+    std::unique_ptr<Label> rangeSelectionLabel;
+
     OwnedArray<UtilityButton> typeButtons;
 
     std::unique_ptr<ComboBox> overlapSelection; // what do we do with this?
 
     OwnedArray<EventDisplayInterface> eventDisplayInterfaces;
+    std::unique_ptr<Label> overlayEventsLabel;
+
     std::unique_ptr<Label> ttlWordLabel;
+    std::unique_ptr<Label> ttlWordNameLabel;
+
     std::unique_ptr<UtilityButton> pauseButton;
+
     std::unique_ptr<ComboBox> colourSchemeOptionSelection;
+    std::unique_ptr<Label> colourSchemeOptionLabel;
+
     std::unique_ptr<ComboBox> colourGroupingSelection;
+    std::unique_ptr<Label> colourGroupingLabel;
 
     std::unique_ptr<ShowHideOptionsButton> showHideOptionsButton;
 
+    // EXTENDED OPTIONS
+    std::unique_ptr<Component> extendedOptions;
+    std::unique_ptr<Viewport> extendedOptionsHolder;
+
     // THRESHOLDS SECTION
+    std::unique_ptr<GroupComponent> thresholdsGroup;
+
     std::unique_ptr<ComboBox> spikeRasterSelection;
+    std::unique_ptr<Label> spikeRasterabel;
+
     std::unique_ptr<ComboBox> saturationWarningSelection; // optionally raise hell if the actual data is saturating
+    std::unique_ptr<Label> saturationWarningLabel;
+
     std::unique_ptr<ComboBox> clipWarningSelection; // optinally draw (subtle) warning if data is clipped in display
+    std::unique_ptr<Label> clipWarningLabel;
 
     // CHANNELS SECTION
+    std::unique_ptr<GroupComponent> channelsGroup;
+
     std::unique_ptr<UtilityButton> reverseChannelsDisplayButton;
+    std::unique_ptr<Label> reverseChannelsLabel;
+
     std::unique_ptr<UtilityButton> sortByDepthButton;
+    std::unique_ptr<Label> sortByDepthLabel;
+
     std::unique_ptr<ComboBox> channelDisplaySkipSelection;
+    std::unique_ptr<Label> channelDisplaySkipLabel;
+
     std::unique_ptr<UtilityButton> showChannelNumberButton;
+    std::unique_ptr<Label> showChannelNumberLabel;
 
     // SIGNAL PROCESSING SECTION
+    std::unique_ptr<GroupComponent> signalProcessingGroup;
+
     std::unique_ptr<UtilityButton> medianOffsetPlottingButton;
+    std::unique_ptr<Label> medianOffsetPlottingLabel;
+
     std::unique_ptr<UtilityButton> invertInputButton;
+    std::unique_ptr<Label> invertInputLabel;
 
     // TRIGGERED DISPLAY SECTION
+    std::unique_ptr<GroupComponent> triggeredDisplayGroup;
+    
     std::unique_ptr<ComboBox> triggerSourceSelection;
+    std::unique_ptr<Label> triggerSourceLabel;
+
     std::unique_ptr<UtilityButton> averageSignalButton;
+    std::unique_ptr<Label> averageSignalLabel;
+
     std::unique_ptr<UtilityButton> resetButton;
 
     Array<String> voltageRanges[CHANNEL_TYPES];
