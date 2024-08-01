@@ -27,10 +27,6 @@ protected:
         mMessageCenter = std::make_unique<MessageCenter>();
     }
 
-    void TearDown() override
-    {
-    }
-
 protected:
     std::unique_ptr<MessageCenter> mMessageCenter;
 };

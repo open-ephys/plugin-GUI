@@ -87,11 +87,11 @@ protected:
             }));
 
         // Add the processor to the EventChannels
-        mProcessor = std::make_unique<MockProcessor>();
-        mProcessor->setNodeId(mNodeId);
+        processor = std::make_unique<MockProcessor>();
+        processor->setNodeId(mNodeId);
 
         for (const auto& channel : mEventChannel)
-            channel.second->addProcessor(mProcessor.get());
+            channel.second->addProcessor(processor.get());
 
         // Create Events
         mEvent = new FakeEvent(mEventChannel["Event"].get(), 0);
@@ -101,11 +101,8 @@ protected:
         mBinaryEvent = BinaryEvent::createBinaryEvent<float>(mEventChannel["Binary"].get(), 0, data, sizeof(data));
     }
 
-    void TearDown() override
-    {}
-
 protected:
-    std::unique_ptr<MockProcessor> mProcessor;
+    std::unique_ptr<MockProcessor> processor;
     std::unique_ptr<DataStream> mDataStream;
     std::unique_ptr<ContinuousChannel> mContinuousChannel;
     std::unordered_map<String, std::unique_ptr<EventChannel>> mEventChannel;

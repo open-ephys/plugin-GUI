@@ -54,22 +54,17 @@ protected:
             });
 
         // Add the processor to the EventChannels
-        mProcessor = std::make_unique<MockProcessor>();
-        mProcessor->setNodeId(mNodeId);
+        processor = std::make_unique<MockProcessor>();
+        processor->setNodeId(mNodeId);
 
-        mEventChannel->addProcessor(mProcessor.get());
+        mEventChannel->addProcessor(processor.get());
 
         mEvent = TTLEvent::createTTLEvent(mEventChannel.get(), 0, 0, true);
     }
 
-    void TearDown() override
-    {
-
-    }
-
 protected:
     TTLEventPtr mEvent;
-    std::unique_ptr<MockProcessor> mProcessor;
+    std::unique_ptr<MockProcessor> processor;
     std::unique_ptr<DataStream> mDataStream;
     std::unique_ptr<ContinuousChannel> mContinuousChannel;
     std::unique_ptr<EventChannel> mEventChannel;
@@ -103,7 +98,7 @@ TEST_F(MidiBufferTests, ReadWrite)
 
         auto expectedMetaData = packet.getMetaEventData();
         auto expectedMetaDataLength = packet.getMetaEventLength();
-        
+
         EXPECT_EQ (metaData.numBytes, expectedMetaDataLength);
         EXPECT_EQ (metaData.data, expectedMetaData);
     }

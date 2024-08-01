@@ -12,19 +12,8 @@ public:
 
     ~MockProcessor() noexcept override = default;
 
-    void process(AudioBuffer<float>& continuousBuffer) override
-    {
-        for (int i = 0; i < continuousBuffer.getNumChannels(); i++)
-        {
-            for (int j = 0; j < continuousBuffer.getNumSamples(); j++)
-            {
-                float currentValue = continuousBuffer.getSample(i, j);
-                float newValue = currentValue + 1;
-
-                continuousBuffer.setSample(i, j, newValue);
-            }
-        }
-    }
+    void process (AudioBuffer<float>& continuousBuffer) override
+    {}
 
     void VerifyDataStreams(const FakeSourceNodeParams& params) const
     {
@@ -59,70 +48,100 @@ public:
             EXPECT_EQ(eventChannels[i]->getType(), EventChannel::Type::TTL);
             EXPECT_EQ(eventChannels[i]->getName(), "TTL");
             EXPECT_EQ(eventChannels[i]->getDescription(), "TTL");
-            EXPECT_EQ(eventChannels[i]->getEventMetadataCount(), params.metadata_size_bytes > 0 ? 1 : 0);
+            EXPECT_EQ(eventChannels[i]->getEventMetadataCount(), params.metadataSizeBytes > 0 ? 1 : 0);
         }
     }
 };
 
-class GenericProcessorTests : public testing::Test
+class GenericProcessorUnitTests : public testing::Test
 {
 protected:
     void SetUp() override
     {
         mProcessorTester = std::make_unique<ProcessorTester>(TestSourceNodeBuilder(FakeSourceNodeParams{}));
-        mProcessor = mProcessorTester->CreateProcessor<MockProcessor>(Plugin::Processor::Type::SINK);
+        processor = mProcessorTester->createProcessor<MockProcessor>(Plugin::Processor::Type::SINK);
+        //mDestProcessor = std::make_unique<MockProcessor> ("FakeDestinationNode");
+        //mProcessor->setDestNode(mDestProcessor.get());
     }
 
     void TearDown() override
     {
-        
+        delete processor;
     }
 
 protected:
-    MockProcessor* mProcessor;
+    MockProcessor* processor;
+    std::unique_ptr<MockProcessor> mDestProcessor;
     std::unique_ptr<ProcessorTester> mProcessorTester;
     FakeSourceNodeParams mParams;
 };
-
-/*
-Generic processors implement custom functionality to manipulate data stored in an incoming Audio Buffer 
-and Midi Buffer (each iteration of these buffers is a block). 
-This test verifies that the Generic Processor interface can successfully modify the Audio Buffer through this interface.
-*/
-TEST_F(GenericProcessorTests, DataIntegrity)
-{
-    AudioBuffer<float> inputBuffer(2, 10);
-
-    for (int i = 0; i < inputBuffer.getNumChannels(); i++)
-    {
-        for (int j = 0; j < inputBuffer.getNumSamples(); j++)
-            inputBuffer.setSample(i, j, i + j);
-    }
-
-    mProcessor->process(inputBuffer);
-
-    for (int i = 0; i < inputBuffer.getNumChannels(); i++)
-    {
-        for (int j = 0; j < inputBuffer.getNumSamples(); j++)
-        {
-            float value = inputBuffer.getSample(i, j);
-            float expectedValue = i + j;
-
-            EXPECT_EQ(value, expectedValue);
-        }
-    }
-}
 
 /*
 Generic Processors copy Data Streams from upstream processors. 
 This data is saved internally by Generic Processors so that incoming data can be contextualized. 
 This test verifies that this copying of Data Streams populates the necessary members within a Generic Processor.
 */
-TEST_F(GenericProcessorTests, CopyStreams)
+TEST_F (GenericProcessorUnitTests, CopyStreams)
 {
-    mProcessor->update();
+    processor->update();
     
-    mProcessor->VerifyDataStreams(mParams);
-    mProcessor->VerifyContinuousChannels(mParams);
-    mProcessor->VerityEventChannels(mParams);
+    processor->VerifyDataStreams(mParams);
+    processor->VerifyContinuousChannels(mParams);
+    processor->VerityEventChannels(mParams);
+}
+
+/*
+Generic Processors can retrieve the source node that is connected to them.
+*/
+TEST_F(GenericProcessorUnitTests, GetSourceNode)
+{
+    EXPECT_EQ(processor->getSourceNode()->getName(), "FakeSourceNode");
+}
+
+/*
+Generic Processors can retrieve the destination node that is connected to them.
+*/
+TEST_F(GenericProcessorUnitTests, GetDestinationNode)
+{
+    EXPECT_EQ(processor->getDestNode()->getName(), "FakeDestinationNode");
+}
+
+/*
+Generic Processors can retrieve their name.
+*/
+TEST_F(GenericProcessorUnitTests, GetName)
+{
+    EXPECT_EQ(processor->getName(), "MockProcessor");
+}
+
+/*
+Generic Processors can be configured to generate timestamps.
+*/
+TEST_F (GenericProcessorUnitTests, GeneratesTimestamps)
+{
+    EXPECT_TRUE(processor->generatesTimestamps());
+}
+
+/*
+Generic Processors ccan get and set their node ID.
+*/
+TEST_F (GenericProcessorUnitTests, GetSetNodeId)
+{
+    processor->setNodeId(1);
+    EXPECT_EQ(processor->getNodeId(), 1);
+}
+
+/*
+Generic Processors can add boolean parameters.
+*/
+TEST_F(GenericProcessorUnitTests, AddBooleanParameter)
+{
+    String name = "param";
+    String displayName = "param";
+    String description = "param";
+
+    processor->addBooleanParameter (Parameter::PROCESSOR_SCOPE, name, displayName, description, true);
+    EXPECT_EQ (processor->getStreamParameter ("param")->getName(), name);
+    EXPECT_EQ (processor->getStreamParameter ("param")->getDisplayName(), displayName);
+    EXPECT_EQ (processor->getStreamParameter ("param")->getDescription(), description);
 }

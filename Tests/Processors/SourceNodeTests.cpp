@@ -52,16 +52,12 @@ class SourceNodeTests : public testing::Test
 protected:
     void SetUp() override
     {
-        mCurrentSampleIndex = 0;
-        mTester = std::make_unique<DataThreadTester>(TestSourceNodeBuilder(FakeSourceNodeParams{}));
-        mDataThread.reset(mTester->CreateDataThread<FakeDataThread>());
+        currentSampleIndex = 0;
+        tester = std::make_unique<DataThreadTester>(TestSourceNodeBuilder(FakeSourceNodeParams{}));
+        mDataThread.reset(tester->createDataThread<FakeDataThread>());
     }
 
-    void TearDown() override
-    {
-    }
-
-    AudioBuffer<float> CreateBuffer(float startingValue, float step, int numChannels, int numSamples)
+    AudioBuffer<float> createBuffer(float startingValue, float step, int numChannels, int numSamples)
     {
         AudioBuffer<float> inputBuffer(numChannels, numSamples);
 
@@ -80,10 +76,10 @@ protected:
         return inputBuffer;
     }
 
-    void WriteBlock(AudioBuffer<float>& buffer)
+    void writeBlock(AudioBuffer<float>& buffer)
     {
-        auto audioProcessor = (AudioProcessor*)mTester->getSourceNode();
-        auto dataStreams = mTester->getSourceNode()->getDataStreams();
+        auto audioProcessor = (AudioProcessor*)tester->getSourceNode();
+        auto dataStreams = tester->getSourceNode()->getDataStreams();
 
         ASSERT_EQ(dataStreams.size(), 1);
 
@@ -91,9 +87,9 @@ protected:
         HeapBlock<char> data;
         size_t dataSize = SystemEvent::fillTimestampAndSamplesData(
             data,
-            mTester->getSourceNode(),
+            tester->getSourceNode(),
             streamId,
-            mCurrentSampleIndex,
+            currentSampleIndex,
             0,
             buffer.getNumSamples(),
             0);
@@ -114,13 +110,13 @@ protected:
                 ASSERT_EQ(buffer.getSample(chidx, sampleIdx), originalBuffer.getSample(chidx, sampleIdx));
         }
 
-        mCurrentSampleIndex += buffer.getNumSamples();
+        currentSampleIndex += buffer.getNumSamples();
     }
 
 protected:
     std::unique_ptr<FakeDataThread> mDataThread;
-    std::unique_ptr<DataThreadTester> mTester;
-    int64_t mCurrentSampleIndex;
+    std::unique_ptr<DataThreadTester> tester;
+    int64_t currentSampleIndex;
 };
 
 /*
@@ -131,11 +127,11 @@ This test verifies that given a Data Thread, the Source Node will perform this w
 */
 TEST_F(SourceNodeTests, DataAcquisition)
 {
-    mTester->startAcquisition(false);
+    tester->startAcquisition(false);
 
     int numSamples = 100;
-    auto inputBuffer = CreateBuffer(1000.0, 20.0, 5, numSamples);
-    WriteBlock(inputBuffer);
+    auto inputBuffer = createBuffer(1000.0, 20.0, 5, numSamples);
+    writeBlock(inputBuffer);
 
-    mTester->stopAcquisition();
+    tester->stopAcquisition();
 }

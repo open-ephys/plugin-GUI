@@ -31,11 +31,6 @@ protected:
         );
     }
 
-    void TearDown() override
-    {
-
-    }
-
 protected:
     std::unique_ptr<EventChannel> mEventChannel;
     std::unique_ptr<DataStream> mStream;

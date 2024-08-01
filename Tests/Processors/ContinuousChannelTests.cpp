@@ -42,11 +42,6 @@ protected:
         );
     }
 
-    void TearDown() override
-    {
-
-    }
-
 protected:
     std::unique_ptr<ContinuousChannel> mContinuousChannel;
     std::unique_ptr<DataStream> mStream;

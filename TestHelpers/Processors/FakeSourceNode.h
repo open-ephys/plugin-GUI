@@ -11,7 +11,7 @@ struct FakeSourceNodeParams
     float sampleRate = 20000.0f;
     float bitVolts = 1.0f;
     int streams = 1;
-    uint32_t metadata_size_bytes = 0;
+    uint32_t metadataSizeBytes = 0;
 };
 
 class TESTABLE FakeSourceNode : public GenericProcessor
@@ -23,8 +23,8 @@ public:
     void setParams (const FakeSourceNodeParams& params);
 
 private:
-    FakeSourceNodeParams params_;
-    OwnedArray<DataStream> cached_datastreams_;
+    FakeSourceNodeParams params;
+    OwnedArray<DataStream> cachedDataStreams;
 };
 
 #endif
