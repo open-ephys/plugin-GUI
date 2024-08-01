@@ -30,7 +30,7 @@ protected:
             20000.0f
         };
 
-        mDataStream = std::make_unique<DataStream>(dataStreamSettings);
+        dataStream = std::make_unique<DataStream>(dataStreamSettings);
 
         // Create a ContinuousChannel and add it to the DataStream
         ContinuousChannel::Settings continuousChannelSettings{
@@ -39,37 +39,37 @@ protected:
             "0",
             "identifier",
             1.0f,
-            mDataStream.get()
+            dataStream.get()
         };
 
-        mContinuousChannel = std::make_unique<ContinuousChannel>(continuousChannelSettings);
-        mDataStream->addChannel(mContinuousChannel.get());
+        continuousChannel = std::make_unique<ContinuousChannel>(continuousChannelSettings);
+        dataStream->addChannel(continuousChannel.get());
 
         // Set the source node id for the data stream
-        mNodeId = 0;
-        mDataStream->setNodeId(mNodeId);
+        nodeId = 0;
+        dataStream->setNodeId(nodeId);
 
-        mEventChannel = std::make_unique<EventChannel>(EventChannel::Settings{
-                EventChannel::Type::TTL, "TTL", "Event", "identifier.ttl", mDataStream.get()
+        eventChannel = std::make_unique<EventChannel>(EventChannel::Settings{
+                EventChannel::Type::TTL, "TTL", "Event", "identifier.ttl", dataStream.get()
             });
 
         // Add the processor to the EventChannels
         processor = std::make_unique<MockProcessor>();
-        processor->setNodeId(mNodeId);
+        processor->setNodeId(nodeId);
 
-        mEventChannel->addProcessor(processor.get());
+        eventChannel->addProcessor(processor.get());
 
-        mEvent = TTLEvent::createTTLEvent(mEventChannel.get(), 0, 0, true);
+        event = TTLEvent::createTTLEvent(eventChannel.get(), 0, 0, true);
     }
 
 protected:
-    TTLEventPtr mEvent;
+    TTLEventPtr event;
     std::unique_ptr<MockProcessor> processor;
-    std::unique_ptr<DataStream> mDataStream;
-    std::unique_ptr<ContinuousChannel> mContinuousChannel;
-    std::unique_ptr<EventChannel> mEventChannel;
+    std::unique_ptr<DataStream> dataStream;
+    std::unique_ptr<ContinuousChannel> continuousChannel;
+    std::unique_ptr<EventChannel> eventChannel;
 
-    int mNodeId;
+    int nodeId;
 };
 
 /*
@@ -80,8 +80,8 @@ TEST_F(MidiBufferTests, ReadWrite)
 {
     GTEST_SKIP();
 
-    size_t size = mEvent->getChannelInfo()->getDataSize() + 
-        mEvent->getChannelInfo()->getTotalEventMetadataSize() + 
+    size_t size = event->getChannelInfo()->getDataSize() + 
+        event->getChannelInfo()->getTotalEventMetadataSize() + 
         EVENT_BASE_SIZE;
     HeapBlock<uint8> buffer (size);
 
@@ -109,8 +109,8 @@ Clear the Midi Buffer and verify that the buffer is empty.
 */
 TEST_F(MidiBufferTests, Clear)
 {
-    size_t size = mEvent->getChannelInfo()->getDataSize() + 
-        mEvent->getChannelInfo()->getTotalEventMetadataSize() + 
+    size_t size = event->getChannelInfo()->getDataSize() + 
+        event->getChannelInfo()->getTotalEventMetadataSize() + 
         EVENT_BASE_SIZE;
     HeapBlock<uint8> buffer (size);
 
@@ -131,8 +131,8 @@ Adding an event to the Midi buffer should correctly increment the number of even
 */ 
 TEST_F(MidiBufferTests, AddEvent)
 {
-    size_t size = mEvent->getChannelInfo()->getDataSize() + 
-        mEvent->getChannelInfo()->getTotalEventMetadataSize() + 
+    size_t size = event->getChannelInfo()->getDataSize() + 
+        event->getChannelInfo()->getTotalEventMetadataSize() + 
         EVENT_BASE_SIZE;
     HeapBlock<uint8> buffer (size);
 
@@ -151,8 +151,8 @@ Should be able to add events from another buffer to the Midi Buffer.
 */
 TEST_F(MidiBufferTests, AddBuffer)
 {
-    size_t size = mEvent->getChannelInfo()->getDataSize() + 
-        mEvent->getChannelInfo()->getTotalEventMetadataSize() + 
+    size_t size = event->getChannelInfo()->getDataSize() + 
+        event->getChannelInfo()->getTotalEventMetadataSize() + 
         EVENT_BASE_SIZE;
     HeapBlock<uint8> buffer (size);
 

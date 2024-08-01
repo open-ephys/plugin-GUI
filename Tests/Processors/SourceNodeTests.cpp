@@ -54,7 +54,7 @@ protected:
     {
         currentSampleIndex = 0;
         tester = std::make_unique<DataThreadTester>(TestSourceNodeBuilder(FakeSourceNodeParams{}));
-        mDataThread.reset(tester->createDataThread<FakeDataThread>());
+        dataThread.reset(tester->createDataThread<FakeDataThread>());
     }
 
     AudioBuffer<float> createBuffer(float startingValue, float step, int numChannels, int numSamples)
@@ -114,7 +114,7 @@ protected:
     }
 
 protected:
-    std::unique_ptr<FakeDataThread> mDataThread;
+    std::unique_ptr<FakeDataThread> dataThread;
     std::unique_ptr<DataThreadTester> tester;
     int64_t currentSampleIndex;
 };

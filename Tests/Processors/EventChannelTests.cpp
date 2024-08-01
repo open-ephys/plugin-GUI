@@ -8,7 +8,7 @@ class EventChannelTests : public testing::Test
 protected:
     void SetUp() override
     {
-        mStream = std::make_unique<DataStream>(
+        dataStream = std::make_unique<DataStream>(
             DataStream::Settings{
                 "Data Stream",
                 "Data Stream Description",
@@ -17,13 +17,13 @@ protected:
         );
 
         // Create an Event Channel
-        mEventChannel = std::make_unique<EventChannel>(
+        eventChannel = std::make_unique<EventChannel>(
             EventChannel::Settings{
                 EventChannel::Type::TTL,
                 "Event Channel",
                 "Event Channel Description",
                 "Event Channel Identifier",
-                mStream.get(),
+                dataStream.get(),
                 8,
                 EventChannel::BinaryDataType::UINT8_ARRAY,
                 0
@@ -32,8 +32,8 @@ protected:
     }
 
 protected:
-    std::unique_ptr<EventChannel> mEventChannel;
-    std::unique_ptr<DataStream> mStream;
+    std::unique_ptr<EventChannel> eventChannel;
+    std::unique_ptr<DataStream> dataStream;
 };
 
 /*
@@ -42,7 +42,7 @@ with a specific type
 */
 TEST_F(EventChannelTests, GetType)
 {
-    EXPECT_EQ(mEventChannel->getType(), EventChannel::Type::TTL);
+    EXPECT_EQ(eventChannel->getType(), EventChannel::Type::TTL);
 }
 
 /*
@@ -51,7 +51,7 @@ with a specific binary data type
 */
 TEST_F(EventChannelTests, GetBinaryDataType)
 {
-    EXPECT_EQ(mEventChannel->getBinaryDataType(), EventChannel::BinaryDataType::UINT8_ARRAY);
+    EXPECT_EQ(eventChannel->getBinaryDataType(), EventChannel::BinaryDataType::UINT8_ARRAY);
 }
 
 /*
@@ -60,7 +60,7 @@ when initialized with a specific size
 */
 TEST_F(EventChannelTests, GetLength)
 {
-    EXPECT_EQ(mEventChannel->getLength(), 10);
+    EXPECT_EQ(eventChannel->getLength(), 10);
 }
 
 /*
@@ -68,7 +68,7 @@ Event Channel should return the correct size of the event payload in bytes.
 */
 TEST_F(EventChannelTests, GetDataSize)
 {
-    EXPECT_EQ(mEventChannel->getDataSize(), 10);
+    EXPECT_EQ(eventChannel->getDataSize(), 10);
 }
 
 /*
@@ -76,7 +76,7 @@ Event Channel should return the correct TTL size.
 */
 TEST_F(EventChannelTests, GetTTLBits)
 {
-    EXPECT_EQ(mEventChannel->getMaxTTLBits(), 8);
+    EXPECT_EQ(eventChannel->getMaxTTLBits(), 8);
 }
 
 /*
@@ -101,7 +101,7 @@ TEST_F(EventChannelTests, GetBinaryDataTypeSize)
 */
 TEST_F(EventChannelTests, GetEquivalentMetadataType)
 {
-    EXPECT_EQ(EventChannel::getEquivalentMetadataType(*mEventChannel), MetadataDescriptor::UINT8);
+    EXPECT_EQ(EventChannel::getEquivalentMetadataType(*eventChannel), MetadataDescriptor::UINT8);
 }
 
 /*
@@ -109,7 +109,7 @@ TEST_F(EventChannelTests, GetEquivalentMetadataType)
 */
 TEST_F(EventChannelTests, GetEquivalentMetadataTypeConst)
 {
-    EXPECT_EQ(mEventChannel->getEquivalentMetadataType(), MetadataDescriptor::UINT8);
+    EXPECT_EQ(eventChannel->getEquivalentMetadataType(), MetadataDescriptor::UINT8);
 }
 
 /*
@@ -117,8 +117,8 @@ TEST_F(EventChannelTests, GetEquivalentMetadataTypeConst)
 */
 TEST_F(EventChannelTests, SetLineLabel)
 {
-    mEventChannel->setLineLabel(0, "Line 0");
-    EXPECT_EQ(mEventChannel->getLineLabel(0), "Line 0");
+    eventChannel->setLineLabel(0, "Line 0");
+    EXPECT_EQ(eventChannel->getLineLabel(0), "Line 0");
 }
 
 /*
@@ -126,8 +126,8 @@ TEST_F(EventChannelTests, SetLineLabel)
 */
 TEST_F(EventChannelTests, SetLineState)
 {
-    mEventChannel->setLineState(0, true);
-    EXPECT_EQ(mEventChannel->getTTLWord(), 1);
+    eventChannel->setLineState(0, true);
+    EXPECT_EQ(eventChannel->getTTLWord(), 1);
 }
 
 /*
@@ -135,5 +135,5 @@ TEST_F(EventChannelTests, SetLineState)
 */
 TEST_F(EventChannelTests, GetTTLWord)
 {
-    EXPECT_EQ(mEventChannel->getTTLWord(), 0);
+    EXPECT_EQ(eventChannel->getTTLWord(), 0);
 }

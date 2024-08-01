@@ -15,7 +15,7 @@ public:
     void process (AudioBuffer<float>& continuousBuffer) override
     {}
 
-    void VerifyDataStreams(const FakeSourceNodeParams& params) const
+    void verifyDataStreams(const FakeSourceNodeParams& params) const
     {
         EXPECT_EQ(dataStreams.size(), params.streams);
         EXPECT_EQ(dataStreams.getFirst()->getChannelCount(), params.channels);
@@ -26,7 +26,7 @@ public:
             EXPECT_EQ(dataStreams.getFirst()->getName(), "FakeSourceNode" + String(i));
     }
 
-    void VerifyContinuousChannels(const FakeSourceNodeParams& params) const
+    void verifyContinuousChannels(const FakeSourceNodeParams& params) const
     {
         EXPECT_EQ(continuousChannels.size(), params.streams);
 
@@ -39,7 +39,7 @@ public:
         }
     }
 
-    void VerityEventChannels(const FakeSourceNodeParams& params) const
+    void verifyEventChannels(const FakeSourceNodeParams& params) const
     {
         EXPECT_EQ(eventChannels.size(), params.streams);
 
@@ -58,8 +58,8 @@ class GenericProcessorUnitTests : public testing::Test
 protected:
     void SetUp() override
     {
-        mProcessorTester = std::make_unique<ProcessorTester>(TestSourceNodeBuilder(FakeSourceNodeParams{}));
-        processor = mProcessorTester->createProcessor<MockProcessor>(Plugin::Processor::Type::SINK);
+        tester = std::make_unique<ProcessorTester>(TestSourceNodeBuilder(FakeSourceNodeParams{}));
+        processor = tester->createProcessor<MockProcessor>(Plugin::Processor::Type::SINK);
         //mDestProcessor = std::make_unique<MockProcessor> ("FakeDestinationNode");
         //mProcessor->setDestNode(mDestProcessor.get());
     }
@@ -71,9 +71,9 @@ protected:
 
 protected:
     MockProcessor* processor;
-    std::unique_ptr<MockProcessor> mDestProcessor;
-    std::unique_ptr<ProcessorTester> mProcessorTester;
-    FakeSourceNodeParams mParams;
+    std::unique_ptr<MockProcessor> destProcessor;
+    std::unique_ptr<ProcessorTester> tester;
+    FakeSourceNodeParams params;
 };
 
 /*
@@ -85,9 +85,9 @@ TEST_F (GenericProcessorUnitTests, CopyStreams)
 {
     processor->update();
     
-    processor->VerifyDataStreams(mParams);
-    processor->VerifyContinuousChannels(mParams);
-    processor->VerityEventChannels(mParams);
+    processor->verifyDataStreams(params);
+    processor->verifyContinuousChannels(params);
+    processor->verifyEventChannels(params);
 }
 
 /*

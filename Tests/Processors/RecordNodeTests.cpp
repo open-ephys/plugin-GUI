@@ -13,7 +13,7 @@
 #include <filesystem>
 #include <algorithm>
 
-class RecordNodeTests :  public ::testing::Test {
+class RecordNodeTests :  public testing::Test {
 protected:
     void SetUp() override {
         numChannels = 8;

@@ -39,7 +39,7 @@ protected:
             20000.0f
         };
 
-        mDataStream = std::make_unique<DataStream>(dataStreamSettings);
+        dataStream = std::make_unique<DataStream>(dataStreamSettings);
 
         // Create a ContinuousChannel and add it to the DataStream
         ContinuousChannel::Settings continuousChannelSettings{
@@ -48,39 +48,39 @@ protected:
             "0",
             "identifier",
             1.0f,
-            mDataStream.get()
+            dataStream.get()
         };
 
-        mContinuousChannel = std::make_unique<ContinuousChannel>(continuousChannelSettings);
-        mDataStream->addChannel(mContinuousChannel.get());
+        continuousChannel = std::make_unique<ContinuousChannel>(continuousChannelSettings);
+        dataStream->addChannel(continuousChannel.get());
 
         // Set the source node id for the data stream
-        mNodeId = 0;
-        mDataStream->setNodeId(mNodeId);
+        nodeId = 0;
+        dataStream->setNodeId(nodeId);
 
         // Create two EventChannels and add them to the DataStream
-        mEventChannel.emplace("TTL", std::make_unique<EventChannel>(
+        eventChannel.emplace("TTL", std::make_unique<EventChannel>(
             EventChannel::Settings{
-                EventChannel::Type::TTL, "TTL", "Event", "identifier.ttl", mDataStream.get()
+                EventChannel::Type::TTL, "TTL", "Event", "identifier.ttl", dataStream.get()
             }));
-        mEventChannel.emplace("Text", std::make_unique<EventChannel>(
+        eventChannel.emplace("Text", std::make_unique<EventChannel>(
             EventChannel::Settings{
-                EventChannel::Type::TEXT, "Text", "Event", "identifier.text", mDataStream.get()
+                EventChannel::Type::TEXT, "Text", "Event", "identifier.text", dataStream.get()
             }));
-        mEventChannel.emplace("Event", std::make_unique<EventChannel>(
+        eventChannel.emplace("Event", std::make_unique<EventChannel>(
             EventChannel::Settings{
-                EventChannel::Type::TTL, "Event", "Event", "identifier.event", mDataStream.get()
+                EventChannel::Type::TTL, "Event", "Event", "identifier.event", dataStream.get()
             }));
 
         float data[] = { 0, 1, 2 ,3 };
 
-        mEventChannel.emplace("Binary", std::make_unique<EventChannel>(
+        eventChannel.emplace("Binary", std::make_unique<EventChannel>(
             EventChannel::Settings{
                 EventChannel::Type::CUSTOM, 
                 "Binary", 
                 "Event", 
                 "identifier.binary",
-                mDataStream.get(), 
+                dataStream.get(), 
                 8,
                 EventChannel::BinaryDataType::FLOAT_ARRAY, 
                 sizeof(data) / sizeof(data[0])
@@ -88,30 +88,30 @@ protected:
 
         // Add the processor to the EventChannels
         processor = std::make_unique<MockProcessor>();
-        processor->setNodeId(mNodeId);
+        processor->setNodeId(nodeId);
 
-        for (const auto& channel : mEventChannel)
+        for (const auto& channel : eventChannel)
             channel.second->addProcessor(processor.get());
 
         // Create Events
-        mEvent = new FakeEvent(mEventChannel["Event"].get(), 0);
-        mTTLEvent = TTLEvent::createTTLEvent(mEventChannel["TTL"].get(), 0, 0, true);
-        mTextEvent = TextEvent::createTextEvent(mEventChannel["Text"].get(), 0, "Text");
+        event = new FakeEvent(eventChannel["Event"].get(), 0);
+        mTTLEvent = TTLEvent::createTTLEvent(eventChannel["TTL"].get(), 0, 0, true);
+        mTextEvent = TextEvent::createTextEvent(eventChannel["Text"].get(), 0, "Text");
 
-        mBinaryEvent = BinaryEvent::createBinaryEvent<float>(mEventChannel["Binary"].get(), 0, data, sizeof(data));
+        mBinaryEvent = BinaryEvent::createBinaryEvent<float>(eventChannel["Binary"].get(), 0, data, sizeof(data));
     }
 
 protected:
     std::unique_ptr<MockProcessor> processor;
-    std::unique_ptr<DataStream> mDataStream;
-    std::unique_ptr<ContinuousChannel> mContinuousChannel;
-    std::unordered_map<String, std::unique_ptr<EventChannel>> mEventChannel;
-    EventPtr mEvent;
+    std::unique_ptr<DataStream> dataStream;
+    std::unique_ptr<ContinuousChannel> continuousChannel;
+    std::unordered_map<String, std::unique_ptr<EventChannel>> eventChannel;
+    EventPtr event;
     TTLEventPtr mTTLEvent;
     TextEventPtr mTextEvent;
     BinaryEventPtr mBinaryEvent;
 
-    int mNodeId;
+    int nodeId;
 };
 
 /*
@@ -119,7 +119,7 @@ Event should return the correct event type.
 */
 TEST_F(EventTests, GetEventType)
 {
-    EXPECT_EQ(mEvent->getEventType(), EventChannel::Type::TTL);
+    EXPECT_EQ(event->getEventType(), EventChannel::Type::TTL);
     EXPECT_EQ(mTTLEvent->getEventType(), EventChannel::Type::TTL);
     EXPECT_EQ(mTextEvent->getEventType(), EventChannel::Type::TEXT);
     EXPECT_EQ(mBinaryEvent->getEventType(), EventChannel::Type::CUSTOM);
@@ -130,10 +130,10 @@ Event should return the correct EventChannel info object.
 */
 TEST_F(EventTests, GetEventChannelInfo)
 {
-    EXPECT_EQ(mEvent->getChannelInfo(), mEventChannel["Event"].get());
-    EXPECT_EQ(mTTLEvent->getChannelInfo(), mEventChannel["TTL"].get());
-    EXPECT_EQ(mTextEvent->getChannelInfo(), mEventChannel["Text"].get());
-    EXPECT_EQ(mBinaryEvent->getChannelInfo(), mEventChannel["Binary"].get());
+    EXPECT_EQ(event->getChannelInfo(), eventChannel["Event"].get());
+    EXPECT_EQ(mTTLEvent->getChannelInfo(), eventChannel["TTL"].get());
+    EXPECT_EQ(mTextEvent->getChannelInfo(), eventChannel["Text"].get());
+    EXPECT_EQ(mBinaryEvent->getChannelInfo(), eventChannel["Binary"].get());
 }
 
 /*
