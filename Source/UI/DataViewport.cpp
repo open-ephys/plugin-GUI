@@ -92,14 +92,17 @@ void CustomTabButton::mouseExit (const MouseEvent& event)
 
 void CustomTabButton::mouseDrag (const MouseEvent& event)
 {
-    DragAndDropContainer* const dragContainer = DragAndDropContainer::findParentDragContainerFor (this);
+    if (event.mods.isLeftButtonDown())
+    {
+        DragAndDropContainer* const dragContainer = DragAndDropContainer::findParentDragContainerFor (this);
 
-    Array<var> dragData;
-    dragData.add ("Tab");
-    dragData.add (nodeId);
-    dragData.add (getName());
+        Array<var> dragData;
+        dragData.add ("Tab");
+        dragData.add (nodeId);
+        dragData.add (getName());
 
-    dragContainer->startDragging (dragData, this);
+        dragContainer->startDragging (dragData, this);
+    }
 }
 
 void CustomTabButton::itemDragEnter (const SourceDetails& dragSourceDetails)
@@ -394,6 +397,49 @@ void DraggableTabComponent::buttonClicked (Button* button)
     {
         dataViewport->removeTabbedComponent (this);
     }
+}
+
+void DraggableTabComponent::popupMenuClickOnTab (int tabIndex, const String& tabName)
+{
+    int nodeId = tabNodeIds[tabIndex];
+
+    // don't allow renaming of info or graph tabs
+    if (nodeId < 100)
+        return;
+
+    auto* tabButton = getTabbedButtonBar().getTabButton (tabIndex);
+
+    // create a label to edit the name
+    Label* editNameLabel = new Label ("EditName", tabName);
+    editNameLabel->setFont (FontOptions ("Inter", "Regular", 16.0f));
+    editNameLabel->setEditable (true, false, true);
+    editNameLabel->setSize (100, 20);
+    editNameLabel->setColour (Label::backgroundColourId, findColour (ThemeColours::widgetBackground));
+    editNameLabel->showEditor();
+
+    // set the text change callback
+    editNameLabel->onTextChange = [this, tabIndex, nodeId, editNameLabel]()
+    {
+        setTabName (tabIndex, editNameLabel->getText());
+
+        // update the tab text in the VisualizerEditor
+        GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId (nodeId);
+        if (processor != nullptr && processor->getEditor()->isVisualizerEditor())
+        {
+            VisualizerEditor* editor = (VisualizerEditor*) processor->getEditor();
+            editor->tabText = editNameLabel->getText();
+        }
+
+        // dismiss the callout box
+        if (auto* parent = editNameLabel->getParentComponent())
+            parent->exitModalState (0);
+    };
+
+    auto tabBounds = tabButton->getScreenBounds().withTrimmedBottom (tabButton->getHeight() / 2);
+
+    // launch the callout box at the tab button's center position
+    auto& editBox = CallOutBox::launchAsynchronously (std::unique_ptr<Component> (editNameLabel), tabBounds, nullptr);
+    editBox.setDismissalMouseClicksAreAlwaysConsumed (true);
 }
 
 AddTabbedComponentButton::AddTabbedComponentButton()
