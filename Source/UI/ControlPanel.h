@@ -432,6 +432,7 @@ private:
     /** Generates the next recording directory based on field settings **/
     String generateFilenameFromFields (bool usePlaceholderText);
 
+    bool hasRecorded;
     bool forceRecording;
 
     std::unique_ptr<PlayButton> playButton;
@@ -440,6 +441,7 @@ private:
     std::unique_ptr<DiskSpaceMeter> diskMeter;
     std::unique_ptr<FilenameComponent> filenameComponent;
     std::unique_ptr<UtilityButton> newDirectoryButton;
+    std::unique_ptr<UtilityButton> forceNewDirectoryButton;
     std::unique_ptr<CustomArrowButton> showHideRecordingOptionsButton;
     std::unique_ptr<RecordButton> recordButton;
     std::unique_ptr<ComboBox> recordSelector;
