@@ -321,8 +321,8 @@ protected:
     void addTtlLineParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a sync line editor for a parameter of a given name. 
-     * @param syncLineParam is the parameter that will be updated when the sync line is changed
-     * @param syncStreamParam is the parameter that will be updated when the main sync stream is changed
+     * @param syncLineParam is the TtlLineParameter that will be updated when the sync line is changed
+     * @param syncStreamParam is the SelectedStreamParameter that will be updated when the main sync stream is changed
     */
     void addSyncLineParameterEditor (TtlLineParameter* syncLineParam, SelectedStreamParameter* syncStreamParam, int xPos, int yPos);
 

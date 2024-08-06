@@ -81,7 +81,7 @@ public:
     int getNumRows() override;
 
     /** Updates the underlying StreamInfoView objects */
-    void update (Array<const DataStream*> dataStreams, int viewedStreamIndex);
+    void update (Array<const DataStream*> dataStreams);
 
     /** Determines row colours */
     void paintRowBackground (Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
@@ -102,7 +102,6 @@ private:
 
     StreamSelectorTable* owner;
 
-    int viewedStreamIndex = 0;
     bool isShuttingDown = false;
 
     bool acquisitionIsActive;
@@ -223,14 +222,9 @@ public:
     /** Destructor*/
     ~ExpanderButton() {}
 
-    /** Enables/disables the button*/
-    void setEnabledState (bool isEnabled_) { isEnabled = isEnabled_; }
-
 private:
     /** Renders the button*/
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
-
-    bool isEnabled;
 
     Path iconPath;
 };

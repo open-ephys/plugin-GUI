@@ -27,6 +27,7 @@
 #include "DelayMonitor.h"
 #include "GenericEditor.h"
 #include "TTLMonitor.h"
+#include "VisualizerEditor.h"
 
 #include "../Settings/DataStream.h"
 
@@ -40,7 +41,41 @@ void StreamTableModel::cellClicked (int rowNumber, int columnId, const MouseEven
     if (owner->viewedStreamIndex != rowNumber)
     {
         owner->viewedStreamIndex = rowNumber;
-        owner->editor->updateSelectedStream (streams[rowNumber]->getStreamId());
+
+        bool foundSelectedStreamParam = false;
+
+        for (auto param : owner->editor->getProcessor()->getParameters())
+        {
+            if (param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
+                && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
+            {
+                param->setNextValue (rowNumber);
+                foundSelectedStreamParam = true;
+                break;
+            }
+        }
+
+        if (owner->editor->isVisualizerEditor())
+        {
+            auto* visualizerEditor = dynamic_cast<VisualizerEditor*> (owner->editor);
+
+            if (visualizerEditor->canvas != nullptr)
+            {
+                for (auto param : visualizerEditor->canvas->getParameters())
+                {
+                    if (param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
+                        && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
+                    {
+                        param->setNextValue (rowNumber);
+                        foundSelectedStreamParam = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (! foundSelectedStreamParam)
+            owner->editor->updateSelectedStream (streams[rowNumber]->getStreamId());
     }
 }
 
@@ -82,12 +117,9 @@ int StreamTableModel::getNumRows()
     return streams.size(); // dataStreams.size();
 }
 
-void StreamTableModel::update (Array<const DataStream*> dataStreams_, int viewedStreamIndex_)
+void StreamTableModel::update (Array<const DataStream*> dataStreams_)
 {
     streams = dataStreams_;
-
-    viewedStreamIndex = viewedStreamIndex_;
-
     table->updateContent();
 }
 
@@ -245,7 +277,7 @@ void StreamSelectorTable::componentBeingDeleted (Component& component)
         newStreams.add (stream);
     }
 
-    tableModel->update (newStreams, viewedStreamIndex);
+    tableModel->update (newStreams);
 
     editor->updateDelayAndTTLMonitors();
 }
@@ -399,7 +431,7 @@ uint16 StreamSelectorTable::finishedUpdate()
         newStreams.add (stream);
     }
 
-    tableModel->update (newStreams, viewedStreamIndex);
+    tableModel->update (newStreams);
 
     if (streams.size() == 0)
     {
@@ -450,8 +482,7 @@ void StreamEnableButton::paintButton (Graphics& g, bool isMouseOver, bool isButt
     g.drawRect (0, 0, getWidth(), getHeight(), 1.0);
 }
 
-ExpanderButton::ExpanderButton() : Button ("Expander"),
-                                   isEnabled (true)
+ExpanderButton::ExpanderButton() : Button ("Expander")
 {
     const float height = 9.0f;
     const float width = 9.0f;
@@ -473,7 +504,7 @@ ExpanderButton::ExpanderButton() : Button ("Expander"),
 
 void ExpanderButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    if (isMouseOver)
+    if (isMouseOver || ! isEnabled())
         g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.6f));
     else
         g.setColour (findColour (ThemeColours::defaultText));

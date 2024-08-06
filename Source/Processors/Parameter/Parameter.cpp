@@ -1160,6 +1160,7 @@ SelectedStreamParameter::SelectedStreamParameter (ParameterOwner* owner,
                                                   const String& description,
                                                   Array<String> streamNames_,
                                                   int defaultIndex,
+                                                  bool syncWithStreamSelector_,
                                                   bool deactivateDuringAcquisition)
     : Parameter (owner,
                  ParameterType::SELECTED_STREAM_PARAM,
@@ -1169,7 +1170,8 @@ SelectedStreamParameter::SelectedStreamParameter (ParameterOwner* owner,
                  description,
                  defaultIndex,
                  deactivateDuringAcquisition),
-      streamNames (streamNames_)
+      streamNames (streamNames_),
+      syncWithStreamSelector (syncWithStreamSelector_)
 {
 }
 

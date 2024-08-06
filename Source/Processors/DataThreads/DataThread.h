@@ -202,6 +202,7 @@ public:
                                      const String& description,
                                      Array<String> streamNames,
                                      const int defaultIndex,
+                                     bool syncWithStreamSelector = false,
                                      bool deactivateDuringAcquisition = true);
 
     /** Adds a time parameter with microsecond precision in the form HH:MM:SS.sss */
