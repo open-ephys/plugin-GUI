@@ -907,20 +907,17 @@ void RecordNode::process (AudioBuffer<float>& buffer)
                     numSamples);
             }
 
-            for (auto channelRecordState : ((MaskChannelsParameter*) stream->getParameter ("channels"))->getChannelStates())
+            for (int i = 0; i < (*stream)["channels"].getArray()->size(); i++)
             {
-                if (channelRecordState)
-                {
-                    channelIndex++;
+                channelIndex++;
 
-                    if (numSamples > 0)
-                    {
-                        dataQueue->writeChannel (buffer,
-                                                 channelMap[channelIndex],
-                                                 channelIndex,
-                                                 numSamples,
-                                                 int(sampleNumber));
-                    }
+                if (numSamples > 0)
+                {
+                    dataQueue->writeChannel (buffer,
+                                            channelMap[channelIndex],
+                                            channelIndex,
+                                            numSamples,
+                                            int(sampleNumber));
                 }
             }
 
