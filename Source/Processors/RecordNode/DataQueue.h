@@ -99,10 +99,10 @@ private:
     AudioSampleBuffer m_buffer;
     SynchronizedTimestampBuffer m_FTSBuffer;
 
-    Array<int> m_readSamples;
-    Array<int> m_readFTSSamples;
-    OwnedArray<Array<int>> m_sampleNumbers;
-    Array<int> m_lastReadSampleNumbers;
+    std::vector<int> m_readSamples;
+    std::vector<int> m_readFTSSamples;
+    OwnedArray<std::vector<int>> m_sampleNumbers;
+    std::vector<int> m_lastReadSampleNumbers;
 
     int m_numChans;
     int m_numFTSChans;
