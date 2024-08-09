@@ -135,7 +135,6 @@ void DataQueue::fillSampleNumbers (int channel, int index, int size, int sampleN
     }
 
     //check that the block is in range
-
     uint64 latestSampleNumber;
 
     for (int i = 0; i < size; i += m_blockSize)
@@ -197,14 +196,6 @@ float DataQueue::writeChannel (const AudioBuffer<float>& buffer,
                        0,
                        size1);
 
-    //if (srcChannel == 0)
-    //{
-    //     std::cout << "DataQueue::writeChannel() : " << index1 << " " << size1 << " " << index2 << " " << size2 << std::endl;
-    // }
-
-    //if (srcChannel == 385)
-    //	std::cout << "DataQueue::writeChannel() : " << sampleNumber << std::endl;
-
     fillSampleNumbers (destChannel, index1, size1, sampleNumber);
 
     if (size2 > 0)
@@ -261,11 +252,6 @@ bool DataQueue::startRead (std::vector<CircularBufferIndexes>& dataBufferIdxs,
 
         m_fifos.getUnchecked (chan)->prepareToRead (samplesToRead, idx.index1, idx.size1, idx.index2, idx.size2);
         m_readSamples[chan] = idx.size1 + idx.size2;
-
-        //if (chan == 0)
-        // {
-        //	std::cout << "DataQueue::startRead() : " << idx.index1 << " " << idx.size1 << " " << idx.index2 << " " << idx.size2 << std::endl;
-        //}
 
         int blockMod = idx.index1 % m_blockSize;
         int blockDiff = (blockMod == 0) ? 0 : (m_blockSize - blockMod);
