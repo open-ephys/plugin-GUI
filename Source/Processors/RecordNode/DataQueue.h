@@ -73,7 +73,10 @@ public:
     float writeSynchronizedTimestamps (double start, double step, int destChannel, int nSamples);
 
     /** Start reading data for one channel */
-    bool startRead (Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int>& sampleNumbers, int nMax);
+    bool startRead (std::vector<CircularBufferIndexes>& dataBufferIdxs,
+                    std::vector<CircularBufferIndexes>& timestampBufferIdxs,
+                    Array<int>& sampleNumbers,
+                    int nMax);
 
     /** Called when data read is finished */
     void stopRead();
