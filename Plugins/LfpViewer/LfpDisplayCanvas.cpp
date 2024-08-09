@@ -738,7 +738,7 @@ LfpDisplaySplitter::LfpDisplaySplitter (LfpDisplayNode* node,
 
 String LfpDisplaySplitter::getStreamKey()
 {
-    if (processor->getDataStreams().size() == 0)
+    if (processor->getDataStreams().size() == 0 || selectedStreamId == 0)
         return "";
 
     DataStream* stream = processor->getDataStream (selectedStreamId);

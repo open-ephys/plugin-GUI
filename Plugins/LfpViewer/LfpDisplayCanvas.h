@@ -344,7 +344,7 @@ public:
     /** Send a message to audio monitor one channel */
     void monitorChannel (int channel);
 
-    uint16 selectedStreamId;
+    uint16 selectedStreamId = 0;
 
     void refreshScreenBuffer();
 
