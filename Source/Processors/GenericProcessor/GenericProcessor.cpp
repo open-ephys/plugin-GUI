@@ -609,18 +609,8 @@ void GenericProcessor::clearSettings()
     continuousChannels.clearQuick (false);
     continuousChannels.addArray (continuousChannelsToKeep);
 
-    Array<EventChannel*> eventChannelsToKeep;
-
-    for (auto obj : eventChannels)
-    {
-        if (! obj->isLocal())
-            delete obj;
-        else
-            eventChannelsToKeep.add (obj);
-    }
-
-    eventChannels.clearQuick (false);
-    eventChannels.addArray (eventChannelsToKeep);
+    // Clear all event channels. No need to keep local channels around.
+    eventChannels.clear();
 
     Array<SpikeChannel*> spikeChannelsToKeep;
 
