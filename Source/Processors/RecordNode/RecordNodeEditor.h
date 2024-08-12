@@ -45,8 +45,16 @@ public:
     /** Updates the display */
     void timerCallback() override;
 
+    /** Draws the monitor with custom text */
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
+    /** Updates the number of channels to be recorded */
+    void updateChannelCount (int selectedChans);
+
 private:
     uint64 streamId;
+    int selectedChannels;
+    int totalChannels;
 };
 
 class DiskMonitor : public LevelMonitor, public DiskSpaceListener

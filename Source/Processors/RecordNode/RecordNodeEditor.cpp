@@ -30,6 +30,9 @@ StreamMonitor::StreamMonitor (RecordNode* rn, uint64 id)
     : LevelMonitor (rn),
       streamId (id)
 {
+    selectedChannels = 0;
+    totalChannels = rn->getDataStream (streamId)->getChannelCount();
+
     startTimerHz (10);
 }
 
@@ -41,6 +44,37 @@ void StreamMonitor::timerCallback()
         setFillPercentage (((RecordNode*) processor)->fifoUsage[streamId]);
     else
         setFillPercentage (0.0);
+}
+
+void StreamMonitor::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+    // Draw the monitor
+    LevelMonitor::paintButton (g, isMouseOver, isButtonDown);
+
+    // Draw the channel count text
+    auto textArea = getLocalBounds().reduced (2);
+
+    auto t = AffineTransform::rotation (-MathConstants<float>::halfPi,
+                                        textArea.toFloat().getCentreX(),
+                                        textArea.toFloat().getCentreY());
+
+    auto newTextArea = textArea.toFloat().transformedBy (t);
+
+    g.addTransform (t);
+
+    if (selectedChannels == 0)
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
+    else
+        g.setColour (findColour (ThemeColours::defaultText));
+
+    g.setFont (FontOptions ("Inter", "Regular", 12.0f));
+    g.drawText (String (selectedChannels) + "/" + String (totalChannels), newTextArea, Justification::centred);
+}
+
+void StreamMonitor::updateChannelCount (int selected)
+{
+    selectedChannels = selected;
+    repaint();
 }
 
 DiskMonitor::DiskMonitor (RecordNode* rn)
@@ -99,7 +133,7 @@ void DiskMonitor::timerCallback()
 RecordChannelsParameterEditor::RecordChannelsParameterEditor (RecordNode* rn, Parameter* param, int rowHeightPixels, int rowWidthPixels)
     : ParameterEditor (param), recordNode (rn)
 {
-    int numChannels = int(((MaskChannelsParameter*) param)->getChannelStates().size());
+    int numChannels = int (((MaskChannelsParameter*) param)->getChannelStates().size());
     int selected = 0;
     for (auto chan : ((MaskChannelsParameter*) param)->getChannelStates())
         if (chan)
@@ -119,6 +153,8 @@ RecordChannelsParameterEditor::RecordChannelsParameterEditor (RecordNode* rn, Pa
     setBounds (0, 0, 15, 73);
 
     editor = monitor.get();
+
+    updateView();
 };
 
 void RecordChannelsParameterEditor::channelStateChanged (Array<int> newChannels)
@@ -165,7 +201,12 @@ void RecordChannelsParameterEditor::buttonClicked (Button* label)
 
 void RecordChannelsParameterEditor::updateView()
 {
-    /* Do nothing, handled by StreamMonitor timerCallback */
+    /* Update channel count in StreamMonitor */
+
+    if (param != nullptr)
+    {
+        monitor->updateChannelCount (param->currentValue.getArray()->size());
+    }
 }
 
 void RecordChannelsParameterEditor::resized()
