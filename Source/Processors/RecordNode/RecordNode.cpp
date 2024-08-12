@@ -356,7 +356,7 @@ void RecordNode::handleBroadcastMessage (const String& msg, const int64 messageS
 
         event->serialize (buffer, size);
 
-        eventQueue->addEvent (EventPacket (buffer, int(size)), messageSampleNumber, -1);
+        eventQueue->addEvent (EventPacket (buffer, int (size)), messageSampleNumber, -1);
     }
 }
 
@@ -737,11 +737,11 @@ void RecordNode::startRecording()
     {
         String settingsFileName = rootFolder.getFullPathName() + File::getSeparatorString() + "settings" + ((experimentNumber > 1) ? "_" + String (experimentNumber) : String()) + ".xml";
 
-        std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
+        std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement> ("SETTINGS");
 
-        AccessClass::getProcessorGraph()->saveToXml(xml.get());
+        AccessClass::getProcessorGraph()->saveToXml (xml.get());
 
-        xml->writeTo(settingsFileName);
+        xml->writeTo (settingsFileName);
 
         settingsNeeded = false;
     }
@@ -793,7 +793,7 @@ void RecordNode::handleTTLEvent (TTLEventPtr event)
         event->setTimestampInSeconds (synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber));
         event->serialize (buffer, size);
 
-        eventQueue->addEvent (EventPacket (buffer, int(size)), sampleNumber);
+        eventQueue->addEvent (EventPacket (buffer, int (size)), sampleNumber);
 
         eventMonitor->bufferedEvents++;
     }
@@ -860,7 +860,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
                     -1.0,
                     true);
 
-            handleTimestampSyncTexts (EventPacket (data, int(dataSize)));
+            handleTimestampSyncTexts (EventPacket (data, int (dataSize)));
 
             for (auto stream : getDataStreams())
             {
@@ -875,7 +875,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
 
                 size_t dataSize = SystemEvent::fillTimestampSyncTextData (data, src, streamId, firstSampleNumberInBlock, -1.0, false);
 
-                handleTimestampSyncTexts (EventPacket (data, int(dataSize)));
+                handleTimestampSyncTexts (EventPacket (data, int (dataSize)));
             }
         }
 
@@ -888,6 +888,11 @@ void RecordNode::process (AudioBuffer<float>& buffer)
         {
             streamIndex++;
 
+            int recordChanCount = (*stream)["channels"].getArray()->size();
+
+            if (recordChanCount == 0)
+                continue;
+
             const uint16 streamId = stream->getStreamId();
             const String streamKey = stream->getKey();
 
@@ -895,31 +900,35 @@ void RecordNode::process (AudioBuffer<float>& buffer)
 
             int64 sampleNumber = getFirstSampleNumberForBlock (streamId);
 
+            float totalFifoUsage = 0.0f;
+
             if (numSamples > 0)
             {
                 double first = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
                 double second = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber + 1);
 
-                fifoUsage[streamId] = dataQueue->writeSynchronizedTimestamps (
+                dataQueue->writeSynchronizedTimestamps (
                     first,
                     second - first,
                     streamIndex,
                     numSamples);
             }
 
-            for (int i = 0; i < (*stream)["channels"].getArray()->size(); i++)
+            for (int i = 0; i < recordChanCount; i++)
             {
                 channelIndex++;
 
                 if (numSamples > 0)
                 {
-                    dataQueue->writeChannel (buffer,
-                                            channelMap[channelIndex],
-                                            channelIndex,
-                                            numSamples,
-                                            int(sampleNumber));
+                    totalFifoUsage += dataQueue->writeChannel (buffer,
+                                                               channelMap[channelIndex],
+                                                               channelIndex,
+                                                               numSamples,
+                                                               int (sampleNumber));
                 }
             }
+
+            fifoUsage[streamId] = totalFifoUsage / recordChanCount;
 
             if (fifoUsage[streamId] > 0.9)
                 fifoAlmostFull = true;
