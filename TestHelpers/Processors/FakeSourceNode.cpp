@@ -1,11 +1,13 @@
 #include "FakeSourceNode.h"
 
 FakeSourceNode::FakeSourceNode (const FakeSourceNodeParams& params)
-    : GenericProcessor ("Fake Source Node", true),
+    : GenericProcessor ("FakeSourceNode", true),
       params (params)
 {
     setProcessorType (Plugin::Processor::Type::SOURCE);
 }
+
+FakeSourceNode::~FakeSourceNode() = default;
 
 void FakeSourceNode::updateSettings()
 {

@@ -18,6 +18,8 @@ class TESTABLE FakeSourceNode : public GenericProcessor
 {
 public:
     explicit FakeSourceNode (const FakeSourceNodeParams& params);
+    ~FakeSourceNode() override;
+
     void updateSettings() override;
     void process (AudioBuffer<float>& continuousBuffer) override;
     void setParams (const FakeSourceNodeParams& params);

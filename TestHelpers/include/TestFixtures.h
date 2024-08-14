@@ -8,6 +8,7 @@
 #include <Processors/SourceNode/SourceNode.h>
 #include <UI/ControlPanel.h>
 #include <juce_audio_processors/juce_audio_processors.h>
+#include <Processors/GenericProcessor/GenericProcessor.h>
 
 enum class TestSourceNodeType
 {
@@ -246,7 +247,7 @@ public:
         processorGraph->updateSettings (getSourceNode());
     }
 
-protected:
+public:
     int sourceNodeId; // should dynamically retrieve the processor if needed, since it apparently gets re-allocated
 
     std::unique_ptr<AudioComponent> audioComponent;

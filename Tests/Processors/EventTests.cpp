@@ -95,10 +95,9 @@ protected:
 
         // Create Events
         event = new FakeEvent(eventChannel["Event"].get(), 0);
-        mTTLEvent = TTLEvent::createTTLEvent(eventChannel["TTL"].get(), 0, 0, true);
-        mTextEvent = TextEvent::createTextEvent(eventChannel["Text"].get(), 0, "Text");
-
-        mBinaryEvent = BinaryEvent::createBinaryEvent<float>(eventChannel["Binary"].get(), 0, data, sizeof(data));
+        ttlEvent = TTLEvent::createTTLEvent(eventChannel["TTL"].get(), 0, 0, true);
+        textEvent = TextEvent::createTextEvent(eventChannel["Text"].get(), 0, "Text");
+        binaryEvent = BinaryEvent::createBinaryEvent<float>(eventChannel["Binary"].get(), 0, data, sizeof(data));
     }
 
 protected:
@@ -107,9 +106,9 @@ protected:
     std::unique_ptr<ContinuousChannel> continuousChannel;
     std::unordered_map<String, std::unique_ptr<EventChannel>> eventChannel;
     EventPtr event;
-    TTLEventPtr mTTLEvent;
-    TextEventPtr mTextEvent;
-    BinaryEventPtr mBinaryEvent;
+    TTLEventPtr ttlEvent;
+    TextEventPtr textEvent;
+    BinaryEventPtr binaryEvent;
 
     int nodeId;
 };
@@ -120,9 +119,9 @@ Event should return the correct event type.
 TEST_F(EventTests, GetEventType)
 {
     EXPECT_EQ(event->getEventType(), EventChannel::Type::TTL);
-    EXPECT_EQ(mTTLEvent->getEventType(), EventChannel::Type::TTL);
-    EXPECT_EQ(mTextEvent->getEventType(), EventChannel::Type::TEXT);
-    EXPECT_EQ(mBinaryEvent->getEventType(), EventChannel::Type::CUSTOM);
+    EXPECT_EQ(ttlEvent->getEventType(), EventChannel::Type::TTL);
+    EXPECT_EQ(textEvent->getEventType(), EventChannel::Type::TEXT);
+    EXPECT_EQ(binaryEvent->getEventType(), EventChannel::Type::CUSTOM);
 }
 
 /*
@@ -131,9 +130,9 @@ Event should return the correct EventChannel info object.
 TEST_F(EventTests, GetEventChannelInfo)
 {
     EXPECT_EQ(event->getChannelInfo(), eventChannel["Event"].get());
-    EXPECT_EQ(mTTLEvent->getChannelInfo(), eventChannel["TTL"].get());
-    EXPECT_EQ(mTextEvent->getChannelInfo(), eventChannel["Text"].get());
-    EXPECT_EQ(mBinaryEvent->getChannelInfo(), eventChannel["Binary"].get());
+    EXPECT_EQ(ttlEvent->getChannelInfo(), eventChannel["TTL"].get());
+    EXPECT_EQ(textEvent->getChannelInfo(), eventChannel["Text"].get());
+    EXPECT_EQ(binaryEvent->getChannelInfo(), eventChannel["Binary"].get());
 }
 
 /*
@@ -144,56 +143,56 @@ TEST_F(EventTests, SerializeDeserializeEvent)
     // TTLEvent
     {
         // Serialize the event
-        size_t size = mTTLEvent->getChannelInfo()->getDataSize() +
-            mTTLEvent->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
+        size_t size = ttlEvent->getChannelInfo()->getDataSize() +
+            ttlEvent->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
         HeapBlock<uint8> buffer(size);
 
-        mTTLEvent->serialize(buffer, size);
+        ttlEvent->serialize(buffer, size);
 
         {
             // Deserialize the event
-            auto deserializedEvent = TTLEvent::deserialize(buffer.getData(), mTTLEvent->getChannelInfo());
+            auto deserializedEvent = TTLEvent::deserialize(buffer.getData(), ttlEvent->getChannelInfo());
 
             // Check that the deserialized event is the same as the original event
-            EXPECT_EQ(mTTLEvent->getChannelInfo(), deserializedEvent->getChannelInfo());
+            EXPECT_EQ(ttlEvent->getChannelInfo(), deserializedEvent->getChannelInfo());
         }
 
         {
             EventPacket packet(buffer, size);
 
             // Deserialize the event
-            auto deserializedEvent = TTLEvent::deserialize(packet, mTTLEvent->getChannelInfo());
+            auto deserializedEvent = TTLEvent::deserialize(packet, ttlEvent->getChannelInfo());
 
             // Check that the deserialized event is the same as the original event
-            EXPECT_EQ(mTTLEvent->getChannelInfo(), deserializedEvent->getChannelInfo());
+            EXPECT_EQ(ttlEvent->getChannelInfo(), deserializedEvent->getChannelInfo());
         }
     }
 
     // TextEvent
     {
         // Serialize the event
-        size_t size = mTextEvent->getChannelInfo()->getDataSize() +
-            mTextEvent->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
+        size_t size = textEvent->getChannelInfo()->getDataSize() +
+            textEvent->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
         HeapBlock<uint8> buffer(size);
 
-        mTextEvent->serialize(buffer, size);
+        textEvent->serialize(buffer, size);
 
         {
             // Deserialize the event
-            auto deserializedEvent = TextEvent::deserialize(buffer.getData(), mTextEvent->getChannelInfo());
+            auto deserializedEvent = TextEvent::deserialize(buffer.getData(), textEvent->getChannelInfo());
 
             // Check that the deserialized event is the same as the original event
-            EXPECT_EQ(mTextEvent->getChannelInfo(), deserializedEvent->getChannelInfo());
+            EXPECT_EQ(textEvent->getChannelInfo(), deserializedEvent->getChannelInfo());
         }
 
         {
             EventPacket packet(buffer, size);
 
             // Deserialize the event
-            auto deserializedEvent = TextEvent::deserialize(packet, mTextEvent->getChannelInfo());
+            auto deserializedEvent = TextEvent::deserialize(packet, textEvent->getChannelInfo());
 
             // Check that the deserialized event is the same as the original event
-            EXPECT_EQ(mTextEvent->getChannelInfo(), deserializedEvent->getChannelInfo());
+            EXPECT_EQ(textEvent->getChannelInfo(), deserializedEvent->getChannelInfo());
         }
     }
 }
@@ -203,7 +202,7 @@ TTLEvent should return the correct state.
 */
 TEST_F(EventTests, GetState)
 {
-    EXPECT_EQ(mTTLEvent->getState(), true);
+    EXPECT_EQ(ttlEvent->getState(), true);
 }
 
 /*
@@ -211,7 +210,7 @@ TTLEvent should return the correct line.
 */
 TEST_F(EventTests, GetLine)
 {
-    EXPECT_EQ(mTTLEvent->getLine(), 0);
+    EXPECT_EQ(ttlEvent->getLine(), 0);
 }
 
 /*
@@ -219,7 +218,7 @@ TTLEvent should return the correct word.
 */
 TEST_F(EventTests, GetWord)
 {
-    EXPECT_EQ(mTTLEvent->getWord(), true);
+    EXPECT_EQ(ttlEvent->getWord(), true);
 }
 
 /*
@@ -227,7 +226,7 @@ TextEvent should return the correct text.
 */
 TEST_F(EventTests, GetText)
 {
-    EXPECT_EQ(mTextEvent->getText(), "Text");
+    EXPECT_EQ(textEvent->getText(), "Text");
 }
 
 /*
@@ -235,7 +234,7 @@ BinaryEvent should return the correct type.
 */
 TEST_F(EventTests, GetBinaryType)
 {
-    EXPECT_EQ(mBinaryEvent->getBinaryType(), EventChannel::BinaryDataType::FLOAT_ARRAY);
+    EXPECT_EQ(binaryEvent->getBinaryType(), EventChannel::BinaryDataType::FLOAT_ARRAY);
 }
 
 /*
@@ -243,7 +242,7 @@ BinaryEvent should return the correct data.
 */
 TEST_F(EventTests, GetBinaryDataPointer)
 {
-    const float* data = static_cast<const float*>(mBinaryEvent->getBinaryDataPointer());
+    const float* data = static_cast<const float*>(binaryEvent->getBinaryDataPointer());
 
     EXPECT_EQ(data[0], 0);
     EXPECT_EQ(data[1], 1);
