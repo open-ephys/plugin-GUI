@@ -450,8 +450,8 @@ void GenericEditor::editorStartAcquisition()
     }
 
     // Disable Visualizer parameters that should not be active during acquisition
-    if ( isVisualizerEditor() && ((VisualizerEditor*) this)->canvas != nullptr)
-    {    
+    if (isVisualizerEditor() && ((VisualizerEditor*) this)->canvas != nullptr)
+    {
         for (auto* param : ((VisualizerEditor*) this)->canvas->getParameters())
         {
             if (param->shouldDeactivateDuringAcquisition())
@@ -505,8 +505,8 @@ void GenericEditor::editorStopAcquisition()
     }
 
     // Disable Visualizer parameters that should not be active during acquisition
-    if ( isVisualizerEditor() && ((VisualizerEditor*) this)->canvas != nullptr)
-    {    
+    if (isVisualizerEditor() && ((VisualizerEditor*) this)->canvas != nullptr)
+    {
         for (auto* param : ((VisualizerEditor*) this)->canvas->getParameters())
         {
             if (param->shouldDeactivateDuringAcquisition())
@@ -1131,7 +1131,7 @@ void GenericEditor::updateSelectedStream (uint16 streamId)
     if (streamSelector != nullptr)
     {
         auto dataStreams = getProcessor()->getDataStreams();
-        
+
         for (int i = 0; i < dataStreams.size(); i++)
         {
             if (dataStreams[i]->getStreamId() == streamId)
