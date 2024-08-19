@@ -159,10 +159,11 @@ void EventTranslator::handleTTLEvent (TTLEventPtr event)
     const String eventStreamKey = getDataStream (eventStream)->getKey();
     const int ttlLine = event->getLine();
     const int64 sampleNumber = event->getSampleNumber();
+    const bool state = event->getState();
 
     if (synchronizer.getSyncLine (eventStreamKey) == ttlLine)
     {
-        synchronizer.addEvent (eventStreamKey, ttlLine, sampleNumber);
+        synchronizer.addEvent (eventStreamKey, ttlLine, sampleNumber, state);
 
         return;
     }

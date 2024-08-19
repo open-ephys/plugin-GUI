@@ -38,6 +38,8 @@
 class DataStream;
 class GenericEditor;
 class TTLMonitor;
+class SyncOffsetMonitor;
+class SyncTimeMonitor;
 class DelayMonitor;
 class UtilityButton;
 
@@ -68,7 +70,9 @@ public:
         SAMPLE_RATE,
         DELAY,
         TTL_LINE_STATES,
-        ENABLED
+        ENABLED,
+        START_TIME,
+        LATEST_SYNC
     };
 
     /** Callback when a cell is clicked (not a sub-component) */
@@ -150,6 +154,12 @@ public:
     /** Renders the component*/
     void paint (Graphics& g) override;
 
+    /** Returns a pointer to the SyncOffsetMonitor for a given DataStream*/
+    SyncOffsetMonitor* getSyncOffsetMonitor (const DataStream* stream);
+
+    /** Returns a pointer to the SyncTimeMonitor for a given DataStream*/
+    SyncTimeMonitor* getSyncTimeMonitor (const DataStream* stream);
+
     /** Returns a pointer to the TTLMonitor for a given DataStream*/
     TTLMonitor* getTTLMonitor (const DataStream* stream);
 
@@ -189,6 +199,9 @@ public:
     /** Index of the currently viewed stream */
     int viewedStreamIndex;
 
+    /** True if this table belongs to a Record Node */
+    bool isRecordNode = false;
+
 private:
     /** Renders delay & TTL monitors */
     void timerCallback() override;
@@ -208,6 +221,7 @@ private:
     int streamInfoViewHeight;
 
     int counter = 0;
+    
 };
 
 /**

@@ -92,7 +92,8 @@ public:
 */
 class TESTABLE RecordNode : public GenericProcessor,
                             public SynchronizingProcessor,
-                            public FilenameComponentListener
+                            public FilenameComponentListener,
+                            public Timer
 {
 public:
     /** Constructor
@@ -250,6 +251,12 @@ public:
     void loadCustomParametersFromXml (XmlElement* xml);
 
     DiskSpaceChecker* getDiskSpaceChecker() { return diskSpaceChecker.get(); }
+
+    /** Used to update sync monitors */
+    void timerCallback() override;
+
+    /** Actual sync monitor update -- can be called independently of timer*/
+    void updateSyncMonitors();
 
 private:
     /** Handles other types of events (text, sync texts, etc.) */

@@ -33,6 +33,97 @@
 class RecordThread;
 class RecordNode;
 
+
+/** 
+* 
+    Displays the time since the last sync pulse was received
+
+*/
+class SyncTimeMonitor : public Component,
+                                     public Timer
+{
+public:
+    /** Constructor */
+    SyncTimeMonitor();
+
+    /** Destructor */
+    ~SyncTimeMonitor();
+
+    /** Sets the most recent offset (in ms)*/
+    void setSyncTime (bool isSynchronized, float syncTimeSeconds);
+
+    /** Enable or disable this component*/
+    void setEnabled (bool isEnabled);
+
+    /** Render the offset*/
+    void paint (Graphics& g);
+
+    /** Calls 'repaint' to display the latest delay*/
+    void timerCallback();
+
+    /** Starts the 500 ms painting timer */
+    void startAcquisition();
+
+    /** Stops the timer*/
+    void stopAcquisition();
+
+    /** Sends repaint command asynchronously */
+    void handleCommandMessage (int commandId);
+
+private:
+    bool isEnabled;
+    bool isSynchronized;
+    Colour colour;
+    float lastSyncTime;
+    bool canRepaint = true;
+};
+
+
+/** 
+* 
+    Displays the offset between the start of each stream
+    and the main stream
+
+*/
+class SyncOffsetMonitor : public Component,
+                                public Timer
+{
+public:
+    /** Constructor */
+    SyncOffsetMonitor();
+
+    /** Destructor */
+    ~SyncOffsetMonitor();
+
+    /** Sets the most recent offset (in ms)*/
+    void setOffset (bool isSynchronized, float offsetMs);
+
+    /** Enable or disable this component*/
+    void setEnabled (bool isEnabled);
+
+    /** Render the offset*/
+    void paint (Graphics& g);
+
+    /** Calls 'repaint' to display the latest delay*/
+    void timerCallback();
+
+    /** Starts the 500 ms painting timer */
+    void startAcquisition();
+
+    /** Stops the timer*/
+    void stopAcquisition();
+
+    /** Sends repaint command asynchronously */
+    void handleCommandMessage (int commandId);
+
+private:
+    bool isEnabled;
+    bool isSynchronized;
+    Colour colour;
+    float offset;
+    bool canRepaint = true;
+};
+
 class StreamMonitor : public LevelMonitor
 {
 public:
@@ -196,6 +287,9 @@ public:
     /** Hides FIFO monitors when the editor is collapsed*/
     void collapsedStateChanged() override;
 
+    /** Propagates new settings to sync monitors */
+    void updateSyncMonitors();
+
     /** Propagates new settings to FIFO Monitors */
     void updateFifoMonitors();
 
@@ -217,6 +311,12 @@ public:
     /** Enables parameter changes */
     void stopRecording() override {};
 
+    /** Set start time for each stream */
+    void setStreamOffset (uint16 streamId, bool isSynchronized, float offsetMs);
+
+    /** Set the time of latest sync pulse */
+    void setLatestSyncTime (uint16 streamId, bool isSynchronized, float syncTimeSeconds);
+
     std::unique_ptr<FifoDrawerButton> fifoDrawerButton;
 
 private:
@@ -226,6 +326,9 @@ private:
     std::vector<ParameterEditor*> streamMonitors;
     std::vector<ParameterEditor*> syncMonitors;
     std::unique_ptr<DiskMonitor> diskMonitor;
+
+    std::map<uint16, SyncOffsetMonitor*> syncOffsetMonitors;
+    std::map<uint16, SyncTimeMonitor*> syncTimeMonitors;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNodeEditor);
 };

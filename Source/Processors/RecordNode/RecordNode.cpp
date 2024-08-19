@@ -607,6 +607,8 @@ bool RecordNode::startAcquisition()
         eventChannels.getLast()->setDataStream (getDataStream (synchronizer.mainStreamKey), false);
     }
 
+    startTimer (1000);
+
     return true;
 }
 
@@ -646,6 +648,8 @@ bool RecordNode::stopAcquisition()
 
     eventQueue->reset();
     spikeQueue->reset();
+
+    stopTimer();
 
     return true;
 }
@@ -783,7 +787,7 @@ void RecordNode::handleTTLEvent (TTLEventPtr event)
 
     String streamKey = getDataStream (event->getStreamId())->getKey();
 
-    synchronizer.addEvent (streamKey, event->getLine(), sampleNumber);
+    synchronizer.addEvent (streamKey, event->getLine(), sampleNumber, event->getState());
 
     if (recordEvents && isRecording)
     {
@@ -934,6 +938,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
                 fifoAlmostFull = true;
 
             samplesWritten += numSamples;
+
         }
 
         if (fifoAlmostFull)
@@ -980,6 +985,28 @@ void RecordNode::filenameComponentChanged (FilenameComponent* fnc)
 {
     dataDirectory = fnc->getCurrentFile();
     newDirectoryNeeded = true;
+}
+
+void RecordNode::timerCallback()
+{
+
+    updateSyncMonitors();
+    
+}
+
+void RecordNode::updateSyncMonitors()
+{
+    for (auto stream : dataStreams)
+    {
+        const uint16 streamId = stream->getStreamId();
+        const String streamKey = stream->getKey();
+
+        RecordNodeEditor* editor = (RecordNodeEditor*) getEditor();
+
+        editor->setStreamOffset (streamId, synchronizer.isStreamSynced (streamKey), synchronizer.getOffsetMs (streamKey));
+        editor->setLatestSyncTime (streamId, synchronizer.isStreamSynced (streamKey), synchronizer.getLatestSync (streamKey));
+
+    }
 }
 
 // not called?
