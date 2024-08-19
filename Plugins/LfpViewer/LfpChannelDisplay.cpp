@@ -224,7 +224,7 @@ void LfpChannelDisplay::pxPaint()
         double a = (canvasSplit->getYCoordMax (chan, index) / range * channelHeightFloat);
         double b = (canvasSplit->getYCoordMin (chan, index) / range * channelHeightFloat);
 
-        double mean = (canvasSplit->getMean (chan) / range * channelHeightFloat);
+        double mean = (canvasSplit->getScreenBufferMean (chan) / range * channelHeightFloat);
 
         if (drawWithOffsetCorrection)
         {
@@ -527,7 +527,7 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
         double a = (canvasSplit->getYCoordMax (chan, index) / range * channelHeightFloat);
         double b = (canvasSplit->getYCoordMin (chan, index) / range * channelHeightFloat);
 
-        double mean = (canvasSplit->getMean (chan) / range * channelHeightFloat);
+        double mean = (canvasSplit->getScreenBufferMean (chan) / range * channelHeightFloat);
 
         if (drawWithOffsetCorrection)
         {
