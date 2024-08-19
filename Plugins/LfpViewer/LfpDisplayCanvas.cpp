@@ -1529,16 +1529,15 @@ uint16 LfpDisplaySplitter::getChannelStreamId (int channel)
     return processor->getContinuousChannel (channel)->getStreamId();
 }
 
-float LfpDisplaySplitter::getMean (int chan)
+float LfpDisplaySplitter::getScreenBufferMean (int chan)
 {
     float total = 0.0f;
     float numPts = 0;
+    int sbi = screenBufferIndex[chan];
 
-    float sample = 0.0f;
     for (int samp = 0; samp < (lfpDisplay->getWidth() - leftmargin); samp += 10)
     {
-        sample = *screenBufferMean->getReadPointer (chan, samp);
-        total += sample;
+        total += screenBufferMean->getSample (chan, (sbi - samp + screenBufferWidth) % screenBufferWidth);
         numPts++;
     }
 
@@ -1547,20 +1546,34 @@ float LfpDisplaySplitter::getMean (int chan)
     return total / numPts;
 }
 
-float LfpDisplaySplitter::getStd (int chan)
+float LfpDisplaySplitter::getDisplayBufferMean (int chan)
 {
-    float std = 0.0f;
+    float total = 0.0f;
+    float numPts = 0;
+    int dbi = displayBufferIndex[chan];
 
-    float mean = getMean (chan);
-    float numPts = 1;
-
-    for (int samp = 0; samp < (lfpDisplay->getWidth() - leftmargin); samp += 10)
+    for (int i = 0; i < displayBufferSize / 2; i += 2)
     {
-        std += pow ((*screenBufferMean->getReadPointer (chan, samp) - mean), 2);
+        total += displayBuffer->getSample (chan, (dbi - i + displayBufferSize) % displayBufferSize);
         numPts++;
     }
 
-    return sqrt (std / numPts);
+    return total / numPts;
+}
+
+float LfpDisplaySplitter::getRMS (int chan)
+{
+    float rms = 0.0f;
+    float numPts = 0;
+    int dbi = displayBufferIndex[chan];
+
+    for (int i = 0; i < displayBufferSize / 2; i += 2)
+    {
+        rms += pow (displayBuffer->getSample (chan, (dbi - i + displayBufferSize) % displayBufferSize), 2);
+        numPts++;
+    }
+
+    return sqrt (rms / numPts);
 }
 
 bool LfpDisplaySplitter::getInputInvertedState()
@@ -1618,7 +1631,7 @@ void LfpDisplaySplitter::paint (Graphics& g)
     if (! canvas->makeRoomForOptions (splitID))
         g.drawRect (0, 0, getWidth(), getHeight(), 2);
     else
-        g.drawRect (0, 0, getWidth(), getHeight() - 55, 2);
+        g.drawRect (0, 0, getWidth(), getHeight() - 60, 2);
 
     g.fillRect (2, 2, getWidth() - 4, 28);
 }

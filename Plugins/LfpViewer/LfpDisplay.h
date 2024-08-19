@@ -293,6 +293,10 @@ public:
     /** x-index of display bitmap updated on previous refresh */
     int lastBitmapIndex;
 
+    /** total number of pixels filled in the display bitmap 
+     * (used to update RMS and Mean values in single channel display mode) */
+    int totalPixelsFilled;
+
 private:
     /** Used to throttle refresh speed when scrolling backwards */
     void timerCallback() override;
