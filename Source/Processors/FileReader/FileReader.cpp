@@ -490,7 +490,7 @@ void FileReader::updateSettings()
 
     isEnabled = true;
 
-    /* Set the timestamp to start of playback and reset loop counter */
+    /* Set the sample to start of playback and reset loop counter */
     playbackSamplePos = startSample;
     loopCount = 0;
 
@@ -666,19 +666,19 @@ void FileReader::addEventsInRange (int64 start, int64 stop)
 
     for (int i = 0; i < events.channels.size(); i++)
     {
-        int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount * (stopSample - startSample);
+        int64 absoluteCurrentSampleNumber = events.sampleNumbers[i] + loopCount * (stopSample - startSample);
         if (events.text.size() && ! events.text[i].isEmpty())
         {
             String msg = events.text[i];
-            LOGD ("Broadcasting message: ", msg, " at timestamp: ", absoluteCurrentTimestamp, " channel: ", events.channels[i]);
+            LOGD ("File read broadcasting message: ", msg, " at sample number: ", absoluteCurrentSampleNumber, " channel: ", events.channels[i]);
             broadcastMessage (msg);
         }
         else
         {
             uint8 ttlBit = events.channels[i];
             bool state = events.channelStates[i] > 0;
-            TTLEventPtr event = TTLEvent::createTTLEvent (eventChannels[0], events.timestamps[i], ttlBit, state);
-            addEvent (event, int(absoluteCurrentTimestamp));
+            TTLEventPtr event = TTLEvent::createTTLEvent (eventChannels[0], events.sampleNumbers[i], ttlBit, state);
+            addEvent (event, int (absoluteCurrentSampleNumber));
         }
     }
 }

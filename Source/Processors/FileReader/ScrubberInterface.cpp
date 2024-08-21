@@ -59,9 +59,9 @@ void FullTimeline::paint (Graphics& g)
 
     for (auto info : fileReader->getActiveEventInfo())
     {
-        for (int i = 0; i < info.timestamps.size(); i++)
+        for (int i = 0; i < info.sampleNumbers.size(); i++)
         {
-            int64 sampleNumber = info.timestamps[i]; //TODO: Update EventInfo object name timestamps -> sampleNumbers
+            int64 sampleNumber = info.sampleNumbers[i]; //TODO: Update EventInfo object name timestamps -> sampleNumbers
             int16 state = info.channelStates[i];
 
             if (state && sampleNumber >= startSample && sampleNumber <= stopSample)
@@ -193,9 +193,9 @@ void ZoomTimeline::paint (Graphics& g)
 
     for (auto info : fileReader->getActiveEventInfo())
     {
-        for (int i = 0; i < info.timestamps.size(); i++)
+        for (int i = 0; i < info.sampleNumbers.size(); i++)
         {
-            int64 sampleNumber = info.timestamps[i];
+            int64 sampleNumber = info.sampleNumbers[i];
             int16 state = info.channelStates[i];
 
             if (state && sampleNumber >= startSampleNumber && sampleNumber <= stopSampleNumber)
