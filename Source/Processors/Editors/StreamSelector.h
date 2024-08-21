@@ -38,8 +38,9 @@
 class DataStream;
 class GenericEditor;
 class TTLMonitor;
-class SyncOffsetMonitor;
-class SyncTimeMonitor;
+class SyncStartTimeMonitor;
+class LastSyncEventMonitor;
+class SyncAccuracyMonitor;
 class DelayMonitor;
 class UtilityButton;
 
@@ -72,7 +73,8 @@ public:
         TTL_LINE_STATES,
         ENABLED,
         START_TIME,
-        LATEST_SYNC
+        LATEST_SYNC,
+        SYNC_ACCURACY
     };
 
     /** Callback when a cell is clicked (not a sub-component) */
@@ -154,11 +156,14 @@ public:
     /** Renders the component*/
     void paint (Graphics& g) override;
 
-    /** Returns a pointer to the SyncOffsetMonitor for a given DataStream*/
-    SyncOffsetMonitor* getSyncOffsetMonitor (const DataStream* stream);
+    /** Returns a pointer to the SyncStartTimeMonitor for a given DataStream*/
+    SyncStartTimeMonitor* getSyncStartTimeMonitor (const DataStream* stream);
 
-    /** Returns a pointer to the SyncTimeMonitor for a given DataStream*/
-    SyncTimeMonitor* getSyncTimeMonitor (const DataStream* stream);
+    /** Returns a pointer to the LastSyncEventMonitor for a given DataStream*/
+    LastSyncEventMonitor* getlastSyncEventMonitor (const DataStream* stream);
+
+    /** Returns a pointer to the SyncAccuracyMonitor for a given DataStream*/
+    SyncAccuracyMonitor* getSyncAccuracyMonitor (const DataStream* stream);
 
     /** Returns a pointer to the TTLMonitor for a given DataStream*/
     TTLMonitor* getTTLMonitor (const DataStream* stream);

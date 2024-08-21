@@ -38,6 +38,10 @@ void SyncStream::reset (String mainStreamKey)
     pulses.clear();
     firstMatchingPulse = SyncPulse();
 
+    latestSyncSampleNumber = 0;
+    latestGlobalSyncTime = 0.0;
+    latestSyncMillis = -1;
+
     if (isMainStream)
     {
         actualSampleRate = expectedSampleRate;
@@ -90,23 +94,53 @@ void SyncStream::addEvent (int64 sampleNumber, bool state)
 
 double SyncStream::getLatestSyncTime()
 {
-    if (pulses.size() > 0)
+    //LOGD ("Getting latest sync time for stream ", streamKey, "...");
+    //LOGD ("Time::currentTimeMillis(): ", Time::currentTimeMillis());
+    //LOGD ("latestSyncMillis: ", latestSyncMillis);
+   
+
+    if (latestSyncMillis != -1)
     {
-        return double (Time::currentTimeMillis() - pulses[0].computerTimeMillis) / 1000.0f;
+       // LOGD ("Returning: ", double (Time::currentTimeMillis() - latestSyncMillis) / 1000.0f);
+        return double (Time::currentTimeMillis() - latestSyncMillis) / 1000.0f;
 	}
     else
     {
+       // LOGD ("Returning: ", -1);
 		return -1.0;
 	}
 }
 
+double SyncStream::getSyncAccuracy()
+{
+    if (pulses.size() > 0)
+    {
+
+        //LOGD ("Sync accuracy for stream ", streamKey);
+
+        //LOGD ("latestSyncSampleNumber: ", latestSyncSampleNumber);
+        //LOGD ("latestGlobalSyncTime: ", latestGlobalSyncTime);
+        //LOGD ("globalStartTime: ", globalStartTime);
+        //LOGD ("actualSampleRate: ", actualSampleRate);
+        double estimatedGlobalTime = latestSyncSampleNumber / actualSampleRate + globalStartTime;
+        //LOGD ("estimatedGlobalTime: ", estimatedGlobalTime);
+        //LOGD ("difference: ", latestGlobalSyncTime - estimatedGlobalTime);
+
+        return (estimatedGlobalTime - latestGlobalSyncTime) * 1000;
+    }
+    else
+    {
+        return 0.0;
+    }
+}
+
 void SyncStream::syncWith (const SyncStream* mainStream)
 {
-    LOGD ("Synchronizing ", streamKey, " with ", mainStream->streamKey, "...")
+    //LOGD ("Synchronizing ", streamKey, " with ", mainStream->streamKey, "...")
 
     if (mainStream->pulses.size() < 2 || pulses.size() < 2)
     {
-        LOGD ("Not enough pulses to synchronize.");
+        //LOGD ("Not enough pulses to synchronize.");
         return;
     }
 
@@ -133,7 +167,12 @@ void SyncStream::syncWith (const SyncStream* mainStream)
                             {
                                 pulse.matchingPulseIndex = index;
                                 pulse.globalTimestamp = mainPulse.localTimestamp;
-                                LOGD ("Pulse at ", pulse.localTimestamp, " matches with 4 main pulses after ", index);
+                                latestSyncSampleNumber = pulse.localSampleNumber;
+                                latestGlobalSyncTime = pulse.globalTimestamp;
+                                latestSyncMillis = pulse.computerTimeMillis;
+                                //LOGD ("Pulse at ", pulse.localTimestamp, " matches with 4 main pulses at ", index);
+                                //LOGD ("latestSyncSampleNumber: ", latestSyncSampleNumber, ", latestGlobalSyncTime: ", latestGlobalSyncTime);
+
 
                                 if (firstMatchingPulse.complete == false)
                                 {
@@ -141,7 +180,7 @@ void SyncStream::syncWith (const SyncStream* mainStream)
                                     firstMatchingPulse.globalTimestamp = mainPulse.localTimestamp;
                                     firstMatchingPulse.localSampleNumber = pulse.localSampleNumber;
                                     firstMatchingPulse.complete = true;
-                                    LOGD ("Time of first matching pulse: ", firstMatchingPulse.localTimestamp, " (local), ", firstMatchingPulse.globalTimestamp, " (global)");
+                                    //LOGD ("Time of first matching pulse: ", firstMatchingPulse.localTimestamp, " (local), ", firstMatchingPulse.globalTimestamp, " (global)");
                                 }
                             }
                         }
@@ -163,46 +202,51 @@ void SyncStream::syncWith (const SyncStream* mainStream)
         localIndex++;
     }
 
-    if (firstMatchingPulse.complete && (pulses[localIndex].localTimestamp - firstMatchingPulse.localTimestamp) > 1.0)
+    if (foundMatchingPulse)
     {
-        LOGD ("pulses[localIndex].localSampleNumber: ", pulses[localIndex].localSampleNumber, ", firstMatchingPulse.localSampleNumber: ", firstMatchingPulse.localSampleNumber);
-        LOGD ("pulses[localIndex].localTimestamp: ", pulses[localIndex].localTimestamp, ", firstMatchingPulse.localTimestamp: ", firstMatchingPulse.localTimestamp);
-        LOGD ("pulses[localIndex].globalTimestamp: ", pulses[localIndex].globalTimestamp, ", firstMatchingPulse.globalTimestamp: ", firstMatchingPulse.globalTimestamp);
-
-        float estimatedActualSampleRate = (pulses[localIndex].localSampleNumber - firstMatchingPulse.localSampleNumber) / (pulses[localIndex].globalTimestamp - firstMatchingPulse.globalTimestamp);
-
-        double estimatedGlobalStartTime = pulses[localIndex].globalTimestamp - pulses[localIndex].localSampleNumber / actualSampleRate;
-
-        if (std::abs (estimatedActualSampleRate - expectedSampleRate) / expectedSampleRate < 0.001)
+        if (firstMatchingPulse.complete && (pulses[localIndex].localTimestamp - firstMatchingPulse.localTimestamp) > 1.0)
         {
-            actualSampleRate = estimatedActualSampleRate;
+            //LOGD ("pulses[localIndex].localSampleNumber: ", pulses[localIndex].localSampleNumber, ", firstMatchingPulse.localSampleNumber: ", firstMatchingPulse.localSampleNumber);
+            //LOGD ("pulses[localIndex].localTimestamp: ", pulses[localIndex].localTimestamp, ", firstMatchingPulse.localTimestamp: ", firstMatchingPulse.localTimestamp);
+            //LOGD ("pulses[localIndex].globalTimestamp: ", pulses[localIndex].globalTimestamp, ", firstMatchingPulse.globalTimestamp: ", firstMatchingPulse.globalTimestamp);
 
-            if (std::abs (estimatedGlobalStartTime) < 0.1)
+            float estimatedActualSampleRate = (pulses[localIndex].localSampleNumber - firstMatchingPulse.localSampleNumber) / (pulses[localIndex].globalTimestamp - firstMatchingPulse.globalTimestamp);
+
+            double estimatedGlobalStartTime = pulses[localIndex].globalTimestamp - pulses[localIndex].localSampleNumber / actualSampleRate;
+
+            if (std::abs (estimatedActualSampleRate - expectedSampleRate) / expectedSampleRate < 0.001)
             {
-                if (! isSynchronized)
+                actualSampleRate = estimatedActualSampleRate;
 
+                if (std::abs (estimatedGlobalStartTime) < 0.1)
                 {
-                    globalStartTime = estimatedGlobalStartTime;
-                    isSynchronized = true;
+                    if (! isSynchronized)
+
+                    {
+                        globalStartTime = estimatedGlobalStartTime;
+                        isSynchronized = true;
+                    }
+                }
+                else
+                {
+                    //LOGD ("Estimated global start time of ", estimatedGlobalStartTime, " is out of bounds. Ignoring.")
                 }
             }
             else
             {
-                LOGD ("Estimated global start time of ", estimatedGlobalStartTime, " is out of bounds. Ignoring.")
+                //LOGD ("Estimated sample rate of ", estimatedActualSampleRate, " is out of bounds. Ignoring.");
+                return;
             }
+
+            //LOGD ("Stream ", streamKey, " synchronized with main stream. Sample rate: ", actualSampleRate, ", start time: ", globalStartTime);
         }
         else
         {
-            LOGD ("Estimated sample rate of ", estimatedActualSampleRate, " is out of bounds. Ignoring.");
-            return;
+            //LOGD ("At least 1 second must elapse before synchronization can be attempted.");
         }
+    }
 
-        LOGD ("Stream ", streamKey, " synchronized with main stream. Sample rate: ", actualSampleRate, ", start time: ", globalStartTime);
-    }
-    else
-    {
-        LOGD ("At least 1 second must elapse before synchronization can be attempted.");
-    }
+    
 }
 
 bool SyncStream::comparePulses (const SyncPulse& pulse1, const SyncPulse& pulse2)
@@ -320,6 +364,8 @@ void Synchronizer::addEvent (String streamKey,
                              int64 sampleNumber,
                              bool state)
 {
+    const ScopedLock sl (synchronizerLock);
+
     if (streamCount == 1 || sampleNumber < 1000)
         return;
 
@@ -355,16 +401,33 @@ int64 Synchronizer::convertTimestampToSampleNumber (String streamKey, double tim
     }
 }
 
-double Synchronizer::getOffsetMs(String streamKey)
+double Synchronizer::getStartTime (String streamKey)
 {
 	return streams[streamKey]->globalStartTime * 1000;
 }
 
-double Synchronizer::getLatestSync (String streamKey)
+double Synchronizer::getLastSyncEvent (String streamKey)
 {
     return streams[streamKey]->getLatestSyncTime();
 }
 
+double Synchronizer::getAccuracy (String streamKey)
+{
+
+    if(! streams[streamKey]->isSynchronized)
+		return 0.0;
+    else
+    {
+        if(streamKey == mainStreamKey)
+			return 0.0;
+        else
+        {
+            return streams[streamKey]->getSyncAccuracy();
+        }
+        
+    }
+
+}
 
 bool Synchronizer::isStreamSynced (String streamKey)
 {
@@ -384,6 +447,9 @@ SyncStatus Synchronizer::getStatus (String streamKey)
 
 void Synchronizer::hiResTimerCallback()
 {
+
+    const ScopedLock sl (synchronizerLock);
+
     for (auto [key, stream] : streams)
     {
         if (key != mainStreamKey)

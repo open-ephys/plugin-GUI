@@ -94,6 +94,9 @@ public:
     /** Returns time of latest sync pulse */
     double getLatestSyncTime();
 
+    /** Returns difference between actual and expected sync times */
+    double getSyncAccuracy();
+
     /** Synchronize this stream with another one */
     void syncWith (const SyncStream* mainStream);
 
@@ -139,6 +142,12 @@ public:
 
     /** Threshold of calling intervals equal */
     const double MAX_INTERVAL_DIFFERENCE_MS = 2;
+
+private:
+
+    int64 latestSyncSampleNumber = 0;
+    double latestGlobalSyncTime = 0.0;
+    int64 latestSyncMillis = -1;
 };
 
 enum PLUGIN_API SyncStatus
@@ -181,10 +190,13 @@ public:
     int64 convertTimestampToSampleNumber (String streamKey, double timestamp);
 
     /** Returns offset (relative start time) for stream in ms */
-    double getOffsetMs (String streamKey);
+    double getStartTime (String streamKey);
 
     /** Get latest sync time */
-    double getLatestSync (String streamKey);
+    double getLastSyncEvent (String streamKey);
+
+    /** Get the accuracy of synchronization (difference between expected and actual event time) */
+    double getAccuracy (String streamKey);
 
     /** Resets all values when acquisition is re-started */
     void reset();
@@ -234,6 +246,8 @@ private:
     bool acquisitionIsActive = false;
 
     void hiResTimerCallback();
+
+    CriticalSection synchronizerLock;
 
     std::map<String, SyncStream*> streams;
     OwnedArray<SyncStream> dataStreamObjects;

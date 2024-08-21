@@ -33,96 +33,92 @@
 class RecordThread;
 class RecordNode;
 
-
 /** 
 * 
-    Displays the time since the last sync pulse was received
+    Base class to display a metric related to synchronization
+    in the StreamSelector
+
+    Sub-classes override paint() to display the metric
 
 */
-class SyncTimeMonitor : public Component,
-                                     public Timer
+class SyncMonitor : public Component
 {
 public:
     /** Constructor */
-    SyncTimeMonitor();
+    SyncMonitor();
 
     /** Destructor */
-    ~SyncTimeMonitor();
+    ~SyncMonitor();
 
-    /** Sets the most recent offset (in ms)*/
-    void setSyncTime (bool isSynchronized, float syncTimeSeconds);
+    /** Sets the most recent sync metric */
+    void setSyncMetric (bool isSynchronized, float syncMetric);
 
     /** Enable or disable this component*/
     void setEnabled (bool isEnabled);
 
-    /** Render the offset*/
-    void paint (Graphics& g);
-
-    /** Calls 'repaint' to display the latest delay*/
-    void timerCallback();
-
-    /** Starts the 500 ms painting timer */
-    void startAcquisition();
-
-    /** Stops the timer*/
-    void stopAcquisition();
-
-    /** Sends repaint command asynchronously */
-    void handleCommandMessage (int commandId);
-
-private:
-    bool isEnabled;
-    bool isSynchronized;
-    Colour colour;
-    float lastSyncTime;
-    bool canRepaint = true;
+protected:
+    bool isEnabled = true;
+    bool isSynchronized = false;
+    float metric = 0.0f;
 };
-
 
 /** 
 * 
-    Displays the offset between the start of each stream
-    and the main stream
+    Displays the discrepancy between actual and expected
+    event times, given the current sync parameters
 
 */
-class SyncOffsetMonitor : public Component,
-                                public Timer
+class SyncAccuracyMonitor : public SyncMonitor
 {
 public:
     /** Constructor */
-    SyncOffsetMonitor();
+    SyncAccuracyMonitor() {}
 
     /** Destructor */
-    ~SyncOffsetMonitor();
+    ~SyncAccuracyMonitor() {}
 
-    /** Sets the most recent offset (in ms)*/
-    void setOffset (bool isSynchronized, float offsetMs);
-
-    /** Enable or disable this component*/
-    void setEnabled (bool isEnabled);
-
-    /** Render the offset*/
+    /** Paints the metric */
     void paint (Graphics& g);
-
-    /** Calls 'repaint' to display the latest delay*/
-    void timerCallback();
-
-    /** Starts the 500 ms painting timer */
-    void startAcquisition();
-
-    /** Stops the timer*/
-    void stopAcquisition();
-
-    /** Sends repaint command asynchronously */
-    void handleCommandMessage (int commandId);
-
-private:
-    bool isEnabled;
-    bool isSynchronized;
-    Colour colour;
-    float offset;
-    bool canRepaint = true;
 };
+
+/** 
+* 
+    Displays the approximate time since a last sync event 
+    was received
+
+*/
+class LastSyncEventMonitor : public SyncMonitor
+{
+public:
+    /** Constructor */
+    LastSyncEventMonitor() {}
+
+    /** Destructor */
+    ~LastSyncEventMonitor() {}
+
+    /** Paints the metric */
+    void paint (Graphics& g);
+};
+
+/** 
+* 
+    Displays the offset between stream start times
+
+*/
+class SyncStartTimeMonitor : public SyncMonitor
+{
+public:
+    /** Constructor */
+    SyncStartTimeMonitor() {}
+
+    /** Destructor */
+    ~SyncStartTimeMonitor() {}
+
+    /** Paints the metric */
+    void paint (Graphics& g);
+};
+
+
 
 class StreamMonitor : public LevelMonitor
 {
@@ -147,6 +143,7 @@ private:
     int selectedChannels;
     int totalChannels;
 };
+
 
 class DiskMonitor : public LevelMonitor, public DiskSpaceListener
 {
@@ -312,10 +309,13 @@ public:
     void stopRecording() override {};
 
     /** Set start time for each stream */
-    void setStreamOffset (uint16 streamId, bool isSynchronized, float offsetMs);
+    void setStreamStartTime (uint16 streamId, bool isSynchronized, float offsetMs);
 
     /** Set the time of latest sync pulse */
-    void setLatestSyncTime (uint16 streamId, bool isSynchronized, float syncTimeSeconds);
+    void setLastSyncEvent (uint16 streamId, bool isSynchronized, float syncTimeSeconds);
+
+     /** Set the synchronization accuracy metric for a particular stream */
+    void setSyncAccuracy (uint16 streamId, bool isSynchronized, float expectedMinusActual);
 
     std::unique_ptr<FifoDrawerButton> fifoDrawerButton;
 
@@ -327,8 +327,9 @@ private:
     std::vector<ParameterEditor*> syncMonitors;
     std::unique_ptr<DiskMonitor> diskMonitor;
 
-    std::map<uint16, SyncOffsetMonitor*> syncOffsetMonitors;
-    std::map<uint16, SyncTimeMonitor*> syncTimeMonitors;
+    std::map<uint16, SyncStartTimeMonitor*> syncStartTimeMonitors;
+    std::map<uint16, SyncAccuracyMonitor*> syncAccuracyMonitors;
+    std::map<uint16, LastSyncEventMonitor*> lastSyncEventMonitors;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNodeEditor);
 };

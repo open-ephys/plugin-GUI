@@ -26,148 +26,91 @@
 #include "RecordNode.h"
 #include <stdio.h>
 
-
-SyncTimeMonitor::SyncTimeMonitor() : lastSyncTime (0.0f),
-                                         isEnabled (true),
-                                         isSynchronized (false),
-                                         colour (Colours::white)
+SyncMonitor::SyncMonitor()
 {
     setInterceptsMouseClicks (false, false);
 }
 
-SyncTimeMonitor::~SyncTimeMonitor()
+SyncMonitor::~SyncMonitor()
 {
 }
 
-void SyncTimeMonitor::setSyncTime (bool isSynchronized_, float syncTimeSeconds)
+void SyncMonitor::setSyncMetric (bool isSynchronized_, float syncMetric_)
 {
     isSynchronized = isSynchronized_;
-    lastSyncTime = syncTimeSeconds;
+    metric = syncMetric_;
 }
 
-void SyncTimeMonitor::setEnabled (bool state)
+void SyncMonitor::setEnabled (bool state)
 {
     isEnabled = state;
 
-    if (isEnabled)
-        colour = Colours::white;
-    else
-        colour = Colours::grey;
-
     repaint();
 }
 
-void SyncTimeMonitor::startAcquisition()
+void LastSyncEventMonitor::paint (Graphics& g)
 {
-    startTimer (500);
-}
-
-void SyncTimeMonitor::stopAcquisition()
-{
-    stopTimer();
-}
-
-void SyncTimeMonitor::timerCallback()
-{
-    repaint();
-}
-
-void SyncTimeMonitor::paint (Graphics& g)
-{
-
     g.setFont (FontOptions ("Fira Sans", "SemiBold", 12));
 
-    if (isSynchronized && lastSyncTime != -1.0)
+    if (isSynchronized && metric != -1.0)
     {
-        if(lastSyncTime <= 60)
-            g.setColour (findColour (ThemeColours::defaultText));
-        else if(lastSyncTime > 60 && lastSyncTime < 60 * 5)
+        if (metric <= 60)
+        {
+            g.setColour (Colours::green);
+            g.drawText ("<1 min", 0, 0, 55, 20, Justification::centred);
+        }
+
+        else if (metric > 60 && metric < 60 * 5)
+        {
             g.setColour (Colours::orange);
-		else
-			g.setColour (Colours::red);
+            g.drawText (">1 min", 0, 0, 55, 20, Justification::centred);
+        }
 
-        g.drawText (String (lastSyncTime, 1) + " s", 0, 0, 60, 20, Justification::centredLeft);
+        else
+        {
+            g.setColour (Colours::red);
+            g.drawText (">5 min", 0, 0, 55, 20, Justification::centred);
+        }
     }
-
     else
     {
         g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
-        g.drawText ("--", 0, 0, 60, 20, Justification::centredLeft);
+        g.drawText ("--", 0, 0, 55, 20, Justification::centred);
     }
 }
 
-void SyncTimeMonitor::handleCommandMessage (int commandId)
+void SyncStartTimeMonitor::paint (Graphics& g)
 {
-    repaint();
-}
-
-SyncOffsetMonitor::SyncOffsetMonitor() : offset (0.0f),
-                               isEnabled (true),
-                               isSynchronized(false),
-                               colour (Colours::white)
-{
-    setInterceptsMouseClicks (false, false);
-}
-
-SyncOffsetMonitor::~SyncOffsetMonitor()
-{
-}
-
-void SyncOffsetMonitor::setOffset (bool isSynchronized_, float offsetMs)
-{
-    isSynchronized = isSynchronized_;
-    offset = offsetMs;
-}
-
-void SyncOffsetMonitor::setEnabled (bool state)
-{
-    isEnabled = state;
-
-    if (isEnabled)
-        colour = Colours::white;
-    else
-        colour = Colours::grey;
-
-    repaint();
-}
-
-void SyncOffsetMonitor::startAcquisition()
-{
-    startTimer (500);
-}
-
-void SyncOffsetMonitor::stopAcquisition()
-{
-    stopTimer();
-}
-
-void SyncOffsetMonitor::timerCallback()
-{
-    repaint();
-}
-
-void SyncOffsetMonitor::paint (Graphics& g)
-{
-
     g.setFont (FontOptions ("Fira Sans", "SemiBold", 12));
 
     if (isSynchronized)
     {
         g.setColour (findColour (ThemeColours::defaultText));
-        g.drawText (String (offset, 2) + " ms", 0, 0, 60, 20, Justification::centredLeft);
+        g.drawText (String (metric, 2) + " ms", 0, 0, 50, 20, Justification::centred);
     }
-        
+
     else
     {
         g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
-        g.drawText ("--", 0, 0, 60, 20, Justification::centredLeft);
+        g.drawText ("--", 0, 0, 50, 20, Justification::centred);
     }
-        
 }
 
-void SyncOffsetMonitor::handleCommandMessage (int commandId)
+void SyncAccuracyMonitor::paint (Graphics& g)
 {
-    repaint();
+    g.setFont (FontOptions ("Fira Sans", "SemiBold", 12));
+
+    if (isSynchronized)
+    {
+        g.setColour (findColour (ThemeColours::defaultText));
+        g.drawText (String (std::abs(metric), 3) + " ms", 0, 0, 55, 20, Justification::centred);
+    }
+
+    else
+    {
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
+        g.drawText ("--", 0, 0, 55, 20, Justification::centred);
+    }
 }
 
 StreamMonitor::StreamMonitor (RecordNode* rn, uint64 id)
@@ -275,7 +218,8 @@ void DiskMonitor::timerCallback()
 }
 
 RecordChannelsParameterEditor::RecordChannelsParameterEditor (RecordNode* rn, Parameter* param, int rowHeightPixels, int rowWidthPixels)
-    : ParameterEditor (param), recordNode (rn)
+    : ParameterEditor (param),
+      recordNode (rn)
 {
     int numChannels = int (((MaskChannelsParameter*) param)->getChannelStates().size());
     int selected = 0;
@@ -456,15 +400,14 @@ void RecordNodeEditor::timerCallback()
 
 void RecordNodeEditor::updateSyncMonitors()
 {
-
     for (auto stream : getProcessor()->getDataStreams())
     {
-        syncOffsetMonitors[stream->getStreamId()] = streamSelector->getSyncOffsetMonitor (stream);
-        syncTimeMonitors[stream->getStreamId()] = streamSelector->getSyncTimeMonitor (stream);
-
+        syncStartTimeMonitors[stream->getStreamId()] = streamSelector->getSyncStartTimeMonitor (stream);
+        syncAccuracyMonitors[stream->getStreamId()] = streamSelector->getSyncAccuracyMonitor (stream);
+        lastSyncEventMonitors[stream->getStreamId()] = streamSelector->getlastSyncEventMonitor (stream);
     }
 
-    if(recordNode != nullptr)
+    if (recordNode != nullptr)
         recordNode->updateSyncMonitors();
 }
 
@@ -547,24 +490,30 @@ void RecordNodeEditor::buttonClicked (Button* button)
     }
 }
 
-void RecordNodeEditor::setStreamOffset (uint16 streamId, bool isSynchronized, float offsetMs)
+void RecordNodeEditor::setStreamStartTime (uint16 streamId, bool isSynchronized, float offsetMs)
 {
-
-    if (syncOffsetMonitors.find (streamId) != syncOffsetMonitors.end())
+    if (syncStartTimeMonitors.find (streamId) != syncStartTimeMonitors.end())
     {
-        if (syncOffsetMonitors[streamId] != nullptr)
-            syncOffsetMonitors[streamId]->setOffset (isSynchronized, offsetMs);
+        if (syncStartTimeMonitors[streamId] != nullptr)
+            syncStartTimeMonitors[streamId]->setSyncMetric (isSynchronized, offsetMs);
     }
 }
 
-
-void RecordNodeEditor::setLatestSyncTime (uint16 streamId, bool isSynchronized, float syncTimeSeconds)
+void RecordNodeEditor::setLastSyncEvent (uint16 streamId, bool isSynchronized, float syncTimeSeconds)
 {
-
-    if (syncTimeMonitors.find (streamId) != syncTimeMonitors.end())
+    if (lastSyncEventMonitors.find (streamId) != lastSyncEventMonitors.end())
     {
-        if (syncTimeMonitors[streamId] != nullptr)
-            syncTimeMonitors[streamId]->setSyncTime (isSynchronized, syncTimeSeconds);
+        if (lastSyncEventMonitors[streamId] != nullptr)
+            lastSyncEventMonitors[streamId]->setSyncMetric (isSynchronized, syncTimeSeconds);
+    }
+}
+
+void RecordNodeEditor::setSyncAccuracy (uint16 streamId, bool isSynchronized, float syncAccuracy)
+{
+    if (syncAccuracyMonitors.find (streamId) != syncAccuracyMonitors.end())
+    {
+        if (syncAccuracyMonitors[streamId] != nullptr)
+            syncAccuracyMonitors[streamId]->setSyncMetric (isSynchronized, syncAccuracy);
     }
 }
 
