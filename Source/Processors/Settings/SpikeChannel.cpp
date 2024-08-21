@@ -75,22 +75,15 @@ void SpikeChannel::setDataStream (DataStream* dataStream, bool addToStream)
 
     Array<ContinuousChannel*> availableChannels;
 
-    //std::cout << "Setting data stream to " << dataStream->getName() << " (" << dataStream->getStreamId() << ")" << std::endl;
-    //std::cout << "Num local channels in SpikeChannel: " << localChannelIndexes.size() << std::endl;
-
     if (dataStream != nullptr)
     {
         availableChannels = dataStream->getContinuousChannels();
-        //std::cout << "Num local channels in dataStream: " << dataStream->getChannelCount() << std::endl;
-    } //else {
-    //  std::cout << "Num local channels in dataStream: 0" << std::endl;
-    // }
+    }
 
     for (int i = 0; i < getNumChannels(); i++)
     {
         if (i >= localChannelIndexes.size())
         {
-            //std::cout << "Adding continuous channel NULL (not enough available)" << std::endl;
             channelIsEnabled.add (false);
             newSourceChannels.add (nullptr);
             continue;
@@ -98,13 +91,11 @@ void SpikeChannel::setDataStream (DataStream* dataStream, bool addToStream)
 
         if (localChannelIndexes[i] < availableChannels.size())
         {
-            //std::cout << "Adding continuous channel " << availableChannels[localChannelIndexes[i]]->getName() << std::endl;
             newSourceChannels.add (availableChannels[localChannelIndexes[i]]);
             channelIsEnabled.add (true);
             continue;
         }
 
-        //std::cout << "Adding continuous channel NULL (no data stream)" << std::endl;
         channelIsEnabled.add (false);
         newSourceChannels.add (nullptr);
     }
@@ -120,7 +111,6 @@ void SpikeChannel::setDataStream (DataStream* dataStream, bool addToStream)
 
         if (addToStream)
         {
-            //std::cout << "Data stream adding spike channel" << std::endl;
             dataStream->addChannel (this);
         }
     }
@@ -174,24 +164,17 @@ const Array<const ContinuousChannel*>& SpikeChannel::getSourceChannels() const
 
 void SpikeChannel::setSourceChannels (Array<const ContinuousChannel*>& newChannels)
 {
-    //jassert(newChannels.size() == sourceChannels.size());
-
-    //std::cout << "SETTING SOURCE CHANNELS: " << newChannels.size() << std::endl;
-
     sourceChannels.clear();
     globalChannelIndexes.clear();
 
     for (int i = 0; i < newChannels.size(); i++)
     {
         sourceChannels.add (newChannels[i]);
-        //std::cout << "Spike channel adding source channel: " << newChannels[i] << std::endl;
 
         if (newChannels[i] != nullptr)
             globalChannelIndexes.add (newChannels[i]->getGlobalIndex());
         else
             globalChannelIndexes.add (-1);
-
-        //std::cout << " >>> Global index: " << globalChannelIndexes[i] << std::endl;
     }
 }
 
@@ -214,72 +197,6 @@ void SpikeChannel::parameterChangeRequest (Parameter* param)
 {
     processorChain.getLast()->parameterChangeRequest (param);
 }
-
-/*SpikeChannel::ThresholdType SpikeChannel::getThresholdType() const
-{
-	return thresholdType;
-}
-
-
-void SpikeChannel::setThresholdType(SpikeChannel::ThresholdType tType) 
-{
-	thresholdType = tType;
-}
-
-
-float SpikeChannel::getThreshold(int channelIndex) const
-{
-	if (channelIndex > -1 && channelIndex < thresholds.size())
-	{
-		return thresholds[channelIndex];
-	}
-	else {
-		return 0.0f;
-	}
-}
-
-void SpikeChannel::setThreshold(int channelIndex, float threshold)
-{
-	if (channelIndex > -1 && channelIndex < thresholds.size())
-	{
-		return thresholds.set(channelIndex, threshold);
-	}
-}
-
-bool SpikeChannel::sendsFullWaveform() const
-{
-	return sendFullWaveform;
-}
-
-void SpikeChannel::shouldSendFullWaveform(bool state)
-{
-	sendFullWaveform = state;
-}
-
-bool SpikeChannel::getSourceChannelState(int channelIndex) const
-{
-	if (channelIndex > -1 && channelIndex < detectSpikesOnChannel.size())
-	{
-		return detectSpikesOnChannel[channelIndex];
-	}
-	else {
-		return false;
-	}
-}
-
-void SpikeChannel::setSourceChannelState(int channelIndex, bool state)
-{
-	if (channelIndex > -1 && channelIndex < detectSpikesOnChannel.size())
-	{
-		return thresholds.set(channelIndex, state);
-	}
-}
-
-void SpikeChannel::setNumSamples(unsigned int preSamples, unsigned int postSamples)
-{
-	numPreSamples = preSamples;
-	numPostSamples = postSamples;
-}*/
 
 unsigned int SpikeChannel::getPrePeakSamples() const
 {
@@ -362,6 +279,8 @@ String SpikeChannel::getDefaultChannelPrefix (SpikeChannel::Type channelType)
             return "Stereotrode ";
         case SpikeChannel::Type::TETRODE:
             return "Tetrode ";
+        case SpikeChannel::Type::TEMPLATE:
+            return "Template ";
         default:
             return "Spike Channel ";
     }
@@ -377,6 +296,8 @@ String SpikeChannel::getDescriptionFromType (SpikeChannel::Type channelType)
             return "Stereotrode";
         case SpikeChannel::Type::TETRODE:
             return "Tetrode";
+        case SpikeChannel::Type::TEMPLATE:
+            return "Template";
         default:
             return "Unknown";
     }
@@ -392,28 +313,9 @@ String SpikeChannel::getIdentifierFromType (SpikeChannel::Type channelType)
             return "spikechannel.stereotrode";
         case SpikeChannel::Type::TETRODE:
             return "spikechannel.tetrode";
+        case SpikeChannel::Type::TEMPLATE:
+            return "spikechannel.template";
         default:
             return "spikechannel.unknown";
     }
 }
-
-/*bool SpikeChannel::checkEqual(const InfoObjectCommon& other, bool similar) const
-{
-	const SpikeChannel& o = dynamic_cast<const SpikeChannel&>(other);
-	if (m_type != o.m_type) return false;
-	if (m_numPostSamples != o.m_numPostSamples) return false;
-	if (m_numPreSamples != o.m_numPreSamples) return false;
-
-	int nChans = m_channelBitVolts.size();
-	if (nChans != o.m_channelBitVolts.size()) return false;
-	for (int i = 0; i < nChans; i++)
-	{
-		if (m_channelBitVolts[i] != o.m_channelBitVolts[i]) return false;
-	}
-
-	if (similar && !hasSimilarMetadata(o)) return false;
-	if (!similar && !hasSameMetadata(o)) return false;
-	if (similar && !hasSimilarEventMetadata(o)) return false;
-	if (!similar && !hasSameEventMetadata(o)) return false;
-	return true;
-}*/

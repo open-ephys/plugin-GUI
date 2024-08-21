@@ -57,6 +57,7 @@ public:
         SINGLE = 1,
         STEREOTRODE,
         TETRODE,
+        TEMPLATE,
         INVALID = 100
     };
 
