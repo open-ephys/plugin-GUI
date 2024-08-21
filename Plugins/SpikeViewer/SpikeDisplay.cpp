@@ -73,7 +73,7 @@ SpikePlot* SpikeDisplay::getSpikePlot (int index)
 
 void SpikeDisplay::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColours::componentBackground));
+    //g.fillAll (findColour (ThemeColours::componentBackground));
 }
 
 void SpikeDisplay::resized()
