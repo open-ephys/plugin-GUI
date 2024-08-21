@@ -63,7 +63,7 @@ public:
     int readData (float* buffer, int nSamples) override;
 
     /** Add info about events occurring within a sample range */
-    void processEventData (EventInfo& info, int64 startTimestamp, int64 stopTimestamp) override;
+    void processEventData (EventInfo& info, int64 fromSampleNumber, int64 toSampleNumber) override;
 
     int64 loopCount;
 

@@ -140,13 +140,13 @@ void BinaryFileSource::fillRecordInfo()
             MemoryBlock tsData;
             if (! (tsDataStream->readIntoMemoryBlock (tsData, maxSensibleFileSize)))
                 continue;
-            int64* startTimestamp = (int64*) tsData.getData() + EVENT_HEADER_SIZE_IN_BYTES / 8;
-            info.startTimestamp = *startTimestamp;
-            startSampleNumbers[streamName] = *startTimestamp;
+            int64* startSampleNumber = (int64*) tsData.getData() + EVENT_HEADER_SIZE_IN_BYTES / 8;
+            info.startSampleNumber = *startSampleNumber;
+            startSampleNumbers[streamName] = *startSampleNumber;
         }
         else
         {
-            info.startTimestamp = 0;
+            info.startSampleNumber = 0;
         }
 
         for (int c = 0; c < numChannels; c++)
@@ -220,7 +220,7 @@ void BinaryFileSource::fillRecordInfo()
                     eventInfo.channels.push_back (abs (*data));
                     eventInfo.channelStates.push_back (*data > 0);
                     int64* snData = static_cast<int64*> (sampleNumbersMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + j * sizeof (int64) / 8;
-                    eventInfo.timestamps.push_back (*snData - startSampleNumbers[streamName]);
+                    eventInfo.sampleNumbers.push_back (*snData - startSampleNumbers[streamName]);
                     eventInfo.text.push_back ("");
                 }
                 eventInfoMap[streamName] = eventInfo;
@@ -258,7 +258,7 @@ void BinaryFileSource::fillRecordInfo()
                     int64* snData = static_cast<int64*> (sampleNumbersMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + j * sizeof (int64) / 8;
                     // Use the first stream's start sample number for the MessageCenter
                     int64 startSampleNumber = startSampleNumbers.begin()->second;
-                    eventInfo.timestamps.push_back (*snData - startSampleNumber);
+                    eventInfo.sampleNumbers.push_back (*snData - startSampleNumber);
                     eventInfo.text.push_back (outString);
                 }
                 eventInfoMap[streamName] = eventInfo;
@@ -281,13 +281,13 @@ void BinaryFileSource::processEventData (EventInfo& eventInfo, int64 start, int6
 
         int i = 0;
 
-        while (i < info.timestamps.size())
+        while (i < info.sampleNumbers.size())
         {
-            if (info.timestamps[i] >= local_start && info.timestamps[i] < local_stop)
+            if (info.sampleNumbers[i] >= local_start && info.sampleNumbers[i] < local_stop)
             {
                 eventInfo.channels.push_back (info.channels[i] - 1);
                 eventInfo.channelStates.push_back ((info.channelStates[i]));
-                eventInfo.timestamps.push_back (info.timestamps[i] + loop_count * getActiveNumSamples());
+                eventInfo.sampleNumbers.push_back (info.sampleNumbers[i] + loop_count * getActiveNumSamples());
                 eventInfo.text.push_back (info.text[i]);
             }
             i++;
