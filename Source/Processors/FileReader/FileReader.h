@@ -203,9 +203,9 @@ private:
     std::unique_ptr<FileSource> input;
 
     /* Pointer to current front buffer */
-    HeapBlock<int16>* readBuffer;
-    HeapBlock<int16> bufferA;
-    HeapBlock<int16> bufferB;
+    HeapBlock<float>* readBuffer;
+    HeapBlock<float> bufferA;
+    HeapBlock<float> bufferB;
 
     HashMap<String, int> supportedExtensions;
 
@@ -215,14 +215,14 @@ private:
     unsigned int m_bufferSize;
     float m_sysSampleRate;
 
-    HeapBlock<int16>* getFrontBuffer();
-    HeapBlock<int16>* getBackBuffer();
+    HeapBlock<float>* getFrontBuffer();
+    HeapBlock<float>* getBackBuffer();
 
     /** Executes the background thread task */
     void run() override;
 
     /** Reads a chunk of the file that fills an entire buffer cache. */
-    void readAndFillBufferCache (HeapBlock<int16>& cacheBuffer);
+    void readAndFillBufferCache (HeapBlock<float>& cacheBuffer);
 
     /** Returns the number of included file sources */
     int getNumBuiltInFileSources() const { return 1; }

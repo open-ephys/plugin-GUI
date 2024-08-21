@@ -60,10 +60,7 @@ public:
     void seekTo (int64 sample) override;
 
     /** Read in nSamples of continuous data into a buffer */
-    int readData (int16* buffer, int nSamples) override;
-
-    /** Convert nSamples of data from int16 to float */
-    void processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 numSamples) override;
+    int readData (float* buffer, int nSamples) override;
 
     /** Add info about events occurring within a sample range */
     void processEventData (EventInfo& info, int64 startTimestamp, int64 stopTimestamp) override;

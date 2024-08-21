@@ -618,13 +618,23 @@ void FileReader::process (AudioBuffer<float>& buffer)
 
     //std::cout << "Reading " << samplesNeededPerBuffer << " samples. " << std::endl;
 
-    for (int i = 0; i < currentNumChannels; ++i)
+    const float* tempReadBuffer = readBuffer->getData() + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow);
+
+    for (int ch = 0; ch < currentNumChannels; ++ch)
     {
+        float* writeBuffer = buffer.getWritePointer (ch);
+
+        for (int sample = 0; sample < samplesNeededPerBuffer; sample++)
+        {
+            *(writeBuffer + sample) = *(tempReadBuffer + (currentNumChannels * sample) + ch);
+        }
+
+        // DEPRECATED:
         // offset readBuffer index by current cache window count * buffer window size * num channels
-        input->processChannelData (*readBuffer + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow),
-                                   buffer.getWritePointer (i, 0),
-                                   i,
-                                   samplesNeededPerBuffer);
+        //input->processChannelData (*readBuffer + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow),
+        //                           buffer.getWritePointer (i, 0),
+        //                           i,
+        //                           samplesNeededPerBuffer);
     }
 
     setTimestampAndSamples (playbackSamplePos, -1.0, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this
@@ -694,12 +704,12 @@ void FileReader::switchBuffer()
     notify();
 }
 
-HeapBlock<int16>* FileReader::getFrontBuffer()
+HeapBlock<float>* FileReader::getFrontBuffer()
 {
     return readBuffer;
 }
 
-HeapBlock<int16>* FileReader::getBackBuffer()
+HeapBlock<float>* FileReader::getBackBuffer()
 {
     if (readBuffer == &bufferA)
         return &bufferB;
@@ -720,7 +730,7 @@ void FileReader::run()
     }
 }
 
-void FileReader::readAndFillBufferCache (HeapBlock<int16>& cacheBuffer)
+void FileReader::readAndFillBufferCache (HeapBlock<float>& cacheBuffer)
 {
     const int samplesNeededPerBuffer = m_samplesPerBuffer.get();
     const int samplesNeeded = samplesNeededPerBuffer * BUFFER_WINDOW_CACHE_SIZE;

@@ -315,7 +315,7 @@ void BinaryFileSource::seekTo (int64 sample)
     m_samplePos = sample % getActiveNumSamples();
 }
 
-int BinaryFileSource::readData (int16* buffer, int nSamples)
+int BinaryFileSource::readData (float* buffer, int nSamples)
 {
     int64 samplesToRead;
 
@@ -330,12 +330,16 @@ int BinaryFileSource::readData (int16* buffer, int nSamples)
 
     int16* data = static_cast<int16*> (m_dataFile->getData()) + (m_samplePos * numActiveChannels);
 
-    memcpy (buffer, data, samplesToRead * numActiveChannels * sizeof (int16));
+    for (int i = 0; i < samplesToRead * numActiveChannels; i++)
+    {
+        *(buffer + i) = *(data + i) * bitVolts[i % numActiveChannels];
+    }
+
     m_samplePos += samplesToRead;
     return int(samplesToRead);
 }
 
-void BinaryFileSource::processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 numSamples)
+/* void BinaryFileSource::processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 numSamples)
 {
     if (! inBuffer)
         return; //TOFIX: inBuffer should never be null
@@ -344,4 +348,4 @@ void BinaryFileSource::processChannelData (int16* inBuffer, float* outBuffer, in
     {
         *(outBuffer + i) = *(inBuffer + (numActiveChannels * i) + channel) * bitVolts[channel];
     }
-}
+}*/

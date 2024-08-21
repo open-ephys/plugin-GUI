@@ -76,11 +76,13 @@ public:
     /** Seek to a specific sample number within the active recording */
     virtual void seekTo (int64 sample) = 0;
 
-    /** Read in nSamples of int16 data into a temporary buffer; return the number of samples actually read */
-    virtual int readData (int16* buffer, int nSamples) = 0;
+    /** Read in nSamples of float data into a temporary buffer; 
+    return the number of samples actually read 
+    
+    Buffer is structured as sample1_channel1, sample1_channel2, ... sample2_channel1, sample2_channel2, ...
 
-    /** Convert nSamples of data from int16 to float */
-    virtual void processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 nSamples) = 0;
+    */
+    virtual int readData (float* buffer, int nSamples) = 0;
 
     /** Add info about events occurring within a sample range */
     virtual void processEventData (EventInfo& info, int64 startTimestamp, int64 stopTimestamp) = 0;
