@@ -364,7 +364,6 @@ public:
     void setRecordingDirectoryBaseText (String text);
 
     /** Gets the name of the current recording directory (including prepend and append text)
-    
         Returns an empty string if recording has not been started yet.
     */
     String getRecordingDirectoryName();
@@ -417,9 +416,9 @@ public:
     /** Updates button colours when colour theme changes */
     void updateColours();
 
+    /** Pointers to owned components */
     std::unique_ptr<FilenameEditorButton> filenameText;
     std::unique_ptr<FilenameConfigWindow> filenameConfigWindow;
-
     std::unique_ptr<Clock> clock;
 
 private:
@@ -432,11 +431,32 @@ private:
     /** Generates the next recording directory based on field settings **/
     String generateFilenameFromFields (bool usePlaceholderText);
 
-    bool hasRecorded;
-    bool forceRecording;
+    /* Called by popup window for editing recording filename fields */
+    void componentBeingDeleted (Component& component);
 
+    /** Draws the control panel background */
+    void paint (Graphics& g);
+
+    /** Sets sub-component bounds */
+    void resized();
+
+    /** Respond to button clicks */
+    void buttonClicked (Button* button);
+
+    /** Respond to ComboBox changes */
+    void comboBoxChanged (ComboBox* combo);
+
+    /** Controls timing of meter animations */
+    void timerCallback();
+
+    /** Updates the values displayed by the CPUMeter and DiskSpaceMeter.*/
+    void refreshMeters();
+
+    /** Draws the boundaries around the FilenameComponent.*/
+    void createPaths();
+
+    /** Pointers to owned components */
     std::unique_ptr<PlayButton> playButton;
-
     std::unique_ptr<CPUMeter> cpuMeter;
     std::unique_ptr<DiskSpaceMeter> diskMeter;
     std::unique_ptr<FilenameComponent> filenameComponent;
@@ -445,47 +465,28 @@ private:
     std::unique_ptr<CustomArrowButton> showHideRecordingOptionsButton;
     std::unique_ptr<RecordButton> recordButton;
     std::unique_ptr<ComboBox> recordSelector;
-
     Array<std::shared_ptr<FilenameFieldComponent>> filenameFields;
+    OwnedArray<RecordEngineManager> recordEngines;
+    std::unique_ptr<UtilityButton> recordOptionsButton;
 
-    /* Popup window for editing recording filename fields */
-    void componentBeingDeleted (Component& component);
-
+    /** Pointers to non-owned components */
     ProcessorGraph* graph;
     AudioComponent* audio;
     AudioEditor* audioEditor;
 
-    void paint (Graphics& g);
-
-    void resized();
-
-    void paintButton (Graphics& g);
-    void buttonClicked (Button* button);
-
-    void comboBoxChanged (ComboBox* combo);
-
-    bool initialize;
+    /** Internal state variables */
+    bool initialize = true;
     bool isConsoleApp;
-
-    void timerCallback();
-
-    /** Updates the values displayed by the CPUMeter and DiskSpaceMeter.*/
-    void refreshMeters();
-
-    bool keyPressed (const KeyPress& key);
-
-    bool open;
+    bool open = false;
+    bool hasRecorded = false;
+    bool forceRecording = false;
+    int lastEngineIndex = -1;
 
     Path p1, p2;
 
-    /** Draws the boundaries around the FilenameComponent.*/
-    void createPaths();
-
     String recordingDirectoryName;
 
-    OwnedArray<RecordEngineManager> recordEngines;
-    std::unique_ptr<UtilityButton> recordOptionsButton;
-    int lastEngineIndex;
+    
 };
 
 #endif // __CONTROLPANEL_H_AD81E528__

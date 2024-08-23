@@ -340,7 +340,9 @@ void Clock::mouseDown (const MouseEvent& e)
 }
 
 ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool isConsoleApp_)
-    : graph (graph_), audio (audio_), isConsoleApp (isConsoleApp_), initialize (true), open (false), lastEngineIndex (-1), forceRecording (false), hasRecorded (false)
+    : graph (graph_), 
+      audio (audio_), 
+      isConsoleApp (isConsoleApp_)
 {
     AccessClass::setControlPanel (this);
 
@@ -638,10 +640,6 @@ bool ControlPanel::setSelectedRecordEngineId (String id)
 
 void ControlPanel::createPaths()
 {
-    /*  int w = getWidth() - 325;
-    if (w > 150)
-    w = 150;*/
-
     int w = getWidth() - 435;
     if (w > 22)
         w = 22;
@@ -717,12 +715,10 @@ void ControlPanel::resized()
     {
         case 2:
             meterComponentsY += offset1;
-            //meterComponentsWidth = w / 2 - meterComponentsMargin * 2 - 12;
             break;
 
         case 3:
             meterComponentsY += offset1 + offset2;
-            //meterComponentsWidth = w / 2 - meterComponentsMargin * 2 - 12;
             break;
 
         default:
@@ -800,12 +796,6 @@ void ControlPanel::resized()
         recordSelector->setBounds ((w - 435) > 40 ? 35 : w - 450, topBound, 125, h - 10);
         recordSelector->setVisible (true);
 
-        /* Record options no longer used */
-        /*
-        recordOptionsButton->setBounds ((w - 435) > 40 ? 140 : w - 350, topBound, h - 10, h - 10);
-        recordOptionsButton->setVisible (false);
-        */
-
         /* Shows the default root recording directory for new RecordNodes */
         filenameComponent->setBounds (165, topBound, w - 510, h - 10);
         filenameComponent->setVisible (true);
@@ -851,10 +841,8 @@ void ControlPanel::labelTextChanged (Label* label)
     {
         node->newDirectoryNeeded = true;
     }
-    //newDirectoryButton->setEnabledState (true);
-    clock->resetRecordingTime();
 
-    // filenameText->setColour(Label::textColourId, Colours::grey);
+    clock->resetRecordingTime();
 }
 
 void ControlPanel::startRecording()
@@ -883,8 +871,6 @@ void ControlPanel::startRecording()
         {
             CoreServices::RecordNode::createNewRecordingDirectory (recordNodeId);
         }
-
-        //std::cout << "Recording directory name: " << recordingDirectoryName << std::endl;
     }
 
     graph->setRecordState (true);
@@ -1129,13 +1115,6 @@ void ControlPanel::refreshMeters()
     }
 }
 
-bool ControlPanel::keyPressed (const KeyPress& key)
-{
-    LOGD ("Control panel received", key.getKeyCode());
-
-    return false;
-}
-
 void ControlPanel::toggleState()
 {
     open = ! open;
@@ -1374,7 +1353,6 @@ void ControlPanel::setRecordingDirectoryBaseText (String text)
 
 String ControlPanel::generateFilenameFromFields (bool usePlaceholderText)
 {
-    //bool checkForExistingFilename = false;
 
     String filename = "";
 
