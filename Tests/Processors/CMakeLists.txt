@@ -10,8 +10,14 @@ add_sources(${COMPONENT_NAME}_tests
 		EventTests.cpp
 		DataThreadTests.cpp
 		GenericProcessorTests.cpp
-		MidiBufferTests.cpp
 		MessageCenterTests.cpp
+		ChannelInfoObjectTests.cpp
+		InfoObjectTests.cpp
+		MetadataEventLockTests.cpp
+		MetadataEventObjectTests.cpp
+		MetadataEventTests.cpp
+		ParameterOwnerTests.cpp
+		PluginClassTests.cpp
 		../../Source/Processors/PluginManager/PluginManager.cpp
 )
 target_include_directories(

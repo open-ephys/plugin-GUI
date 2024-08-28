@@ -43,3 +43,47 @@ TEST(PluginManagerTest, PluginCreation)
     EXPECT_EQ(String(processorInfo.name), "Arduino Output");
     EXPECT_EQ(processorInfo.type, Plugin::Processor::SINK);
 }
+
+TEST(PluginManagerTest, loadAllPlugins)
+{
+    PluginManager pluginManager;
+
+    pluginManager.loadAllPlugins();
+
+    EXPECT_EQ(pluginManager.getNumProcessors(), 1);
+    EXPECT_EQ(pluginManager.getNumDataThreads(), 1);
+    EXPECT_EQ(pluginManager.getNumRecordEngines(), 1);
+    EXPECT_EQ(pluginManager.getNumFileSources(), 1);
+}
+
+TEST(PluginManagerTest, getLibraryIndexFromPlugin)
+{
+    PluginManager pluginManager;
+
+    String path =
+        File::getCurrentWorkingDirectory().
+        getChildFile("../Resources/ArduinoOutput.dll").
+        getFullPathName();
+
+    int idx = pluginManager.loadPlugin(path) - 1;
+    Plugin::Type type = Plugin::Type::PROCESSOR;
+
+    EXPECT_EQ(pluginManager.getLibraryIndexFromPlugin(type, idx), 0);
+}
+
+TEST(PluginManagerTest, removePlugin)
+{
+    PluginManager pluginManager;
+
+    String path =
+        File::getCurrentWorkingDirectory().
+        getChildFile("../Resources/ArduinoOutput.dll").
+        getFullPathName();
+
+    int idx = pluginManager.loadPlugin(path) - 1;
+    Plugin::ProcessorInfo processorInfo = pluginManager.getProcessorInfo(idx);
+
+    pluginManager.removePlugin(processorInfo.name);
+
+    EXPECT_EQ(pluginManager.getNumProcessors(), 0);
+}
