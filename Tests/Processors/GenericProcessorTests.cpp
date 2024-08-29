@@ -97,43 +97,43 @@ TEST_F (GenericProcessorTests, UnitTest_GetDestinationNode)
 {
     EXPECT_FALSE(processor->getDestNode());
 }
-//
-///*
-//Generic Processors can retrieve their name.
-//*/
-//TEST_F (GenericProcessorTests, UnitTest_GetName)
-//{
-//    EXPECT_EQ(processor->getName(), "MockProcessor");
-//}
-//
-///*
-//Generic Processors can be configured to generate timestamps.
-//*/
-//TEST_F (GenericProcessorTests, UnitTest_GeneratesTimestamps)
-//{
-//    EXPECT_TRUE(processor->generatesTimestamps());
-//}
-//
-///*
-//Generic Processors ccan get and set their node ID.
-//*/
-//TEST_F (GenericProcessorTests, UnitTest_GetSetNodeId)
-//{
-//    processor->setNodeId(1);
-//    EXPECT_EQ(processor->getNodeId(), 1);
-//}
-//
-///*
-//Generic Processors can add boolean parameters.
-//*/
-//TEST_F (GenericProcessorTests, UnitTest_AddBooleanParameter)
-//{
-//    String name = "param";
-//    String displayName = "param";
-//    String description = "param";
-//
-//    processor->addBooleanParameter (Parameter::PROCESSOR_SCOPE, name, displayName, description, true);
-//    EXPECT_EQ (processor->getStreamParameter ("param")->getName(), name);
-//    EXPECT_EQ (processor->getStreamParameter ("param")->getDisplayName(), displayName);
-//    EXPECT_EQ (processor->getStreamParameter ("param")->getDescription(), description);
-//}
+
+/*
+Generic Processors can retrieve their name.
+*/
+TEST_F (GenericProcessorTests, UnitTest_GetName)
+{
+    EXPECT_EQ(processor->getName(), "MockProcessor");
+}
+
+/*
+Generic Processors can be configured to generate timestamps.
+*/
+TEST_F (GenericProcessorTests, UnitTest_GeneratesTimestamps)
+{
+    EXPECT_TRUE(processor->generatesTimestamps());
+}
+
+/*
+Generic Processors ccan get and set their node ID.
+*/
+TEST_F (GenericProcessorTests, UnitTest_GetSetNodeId)
+{
+    processor->setNodeId(1);
+    EXPECT_EQ(processor->getNodeId(), 1);
+}
+
+/*
+Generic Processors can add boolean parameters.
+*/
+TEST_F (GenericProcessorTests, UnitTest_AddBooleanParameter)
+{
+    String name = "param";
+    String displayName = "param";
+    String description = "param";
+
+    processor->addBooleanParameter (Parameter::PROCESSOR_SCOPE, name, displayName, description, true);
+    EXPECT_EQ (processor->getStreamParameter ("param")->getName(), name);
+    EXPECT_EQ (processor->getStreamParameter ("param")->getDisplayName(), displayName);
+    EXPECT_EQ (processor->getStreamParameter ("param")->getDescription(), description);
+}

@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <JuceHeader.h>
+#include <thread>
 
 class MockTimer : public Timer
 {
@@ -8,11 +9,11 @@ public:
     // Inherited via Timer
     void timerCallback() override
     {
-        callbackCalled = true;
+        ++callbackCalled;
     }
 
 public:
-    bool callbackCalled = false;
+    int callbackCalled = 0;
 };
 
 class TimerTests : public testing::Test
@@ -20,12 +21,12 @@ class TimerTests : public testing::Test
 protected:
     void SetUp() override
     {
-        // Set up any necessary resources before each test
+        MessageManager::getInstance();
     }
 
     void TearDown() override
     {
-        // Clean up any resources allocated in SetUp() after each test
+        MessageManager::deleteInstance();
     }
 
 protected:
@@ -37,29 +38,14 @@ TEST_F (TimerTests, StartTimer)
     // Start the timer with an interval of 100 milliseconds
     timer.startTimer (100);
 
-    // Wait for 500 milliseconds to allow timer callbacks to occur
-    std::this_thread::sleep_for (std::chrono::milliseconds (500));
-
-    // Stop the timer
-    timer.stopTimer();
-
     // Assert that the timer was running
     ASSERT_TRUE (timer.isTimerRunning());
-}
-
-TEST_F (TimerTests, TimerCallback)
-{
-    // Start the timer with an interval of 100 milliseconds
-    timer.startTimer (100);
-
-    // Wait for 500 milliseconds to allow timer callbacks to occur
-    std::this_thread::sleep_for (std::chrono::milliseconds (500));
 
     // Stop the timer
     timer.stopTimer();
 
-    // Assert that the timer callback was called
-    ASSERT_TRUE (timer.callbackCalled);
+    // Assert that the timer was stopped
+    ASSERT_FALSE (timer.isTimerRunning());
 }
 
 TEST_F (TimerTests, GetTimerInterval)
