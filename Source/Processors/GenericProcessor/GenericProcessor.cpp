@@ -1327,8 +1327,8 @@ int GenericProcessor::processEventBuffer()
                 uint32 nSamples = *reinterpret_cast<const uint32*> (dataptr + 24);
                 int64 initialTicks = *reinterpret_cast<const int64*> (dataptr + 28);
 
-                // if (startSamplesForBlock[sourceStreamId] > startSample)
-                //    std::cout << "GET: " << getNodeId() << " " << sourceStreamId << " " << startSamplesForBlock[sourceStreamId] << " " << startSample << std::endl;
+                if (startSamplesForBlock[sourceStreamId] > startSample)
+                    std::cout << "GET: " << getNodeId() << " " << sourceStreamId << " " << startSamplesForBlock[sourceStreamId] << " " << startSample << std::endl;
 
                 startSamplesForBlock[sourceStreamId] = startSample;
                 startTimestampsForBlock[sourceStreamId] = startTimestamp;

@@ -507,31 +507,32 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
     {
         graph->updateConnections();
 
-        if (audio->beginCallbacks()) // starts acquisition callbacks
+        graph->startAcquisition(); // inform processors that acquisition will start
+
+        
+        if (recordingShouldAlsoStart)
         {
-            if (recordingShouldAlsoStart)
-            {
-                startRecording();
-                playButton->setToggleState (true, dontSendNotification);
-            }
-
-            if (! isConsoleApp)
-            {
-                playButton->updateImages (true);
-
-                audioEditor->disable();
-
-                clock->start(); // starts the clock
-
-                stopTimer();
-                startTimer (250); // refresh every 250 ms
-
-                recordSelector->setEnabled (false); // why is this outside the "if" statement?
-                recordOptionsButton->setEnabled (false);
-            }
-
-            graph->startAcquisition(); // start data flow
+            startRecording();
+            playButton->setToggleState (true, dontSendNotification);
         }
+
+        if (! isConsoleApp)
+        {
+            playButton->updateImages (true);
+
+            audioEditor->disable();
+
+            clock->start(); // starts the clock
+
+            stopTimer();
+            startTimer (250); // refresh every 250 ms
+
+            recordSelector->setEnabled (false); // why is this outside the "if" statement?
+            recordOptionsButton->setEnabled (false);
+        }
+        
+        audio->beginCallbacks(); // starts acquisition callbacks
+        
     }
 }
 

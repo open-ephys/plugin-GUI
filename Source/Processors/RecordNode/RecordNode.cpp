@@ -838,6 +838,8 @@ void RecordNode::handleTimestampSyncTexts (const EventPacket& packet)
 {
     int64 sampleNumber = Event::getSampleNumber (packet);
 
+    String syncText = SystemEvent::getSyncText (packet);
+
     eventQueue->addEvent (packet, sampleNumber, -1);
 }
 
@@ -871,6 +873,8 @@ void RecordNode::process (AudioBuffer<float>& buffer)
                 const uint16 streamId = stream->getStreamId();
 
                 int64 firstSampleNumberInBlock = getFirstSampleNumberForBlock (streamId);
+
+                //LOGD ("First sample number for stream ", streamId, ": ", firstSampleNumberInBlock);
 
                 MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer (this);
                 HeapBlock<char> data;
