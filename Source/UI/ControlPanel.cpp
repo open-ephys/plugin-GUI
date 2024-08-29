@@ -528,27 +528,26 @@ void ControlPanel::startAcquisition(bool recordingShouldAlsoStart)
 
         graph->updateConnections();
         
-        if (audio->beginCallbacks()) // starts acquisition callbacks
+        graph->startAcquisition(); // inform processors acquisition is starting
+        
+        if (recordingShouldAlsoStart)
         {
-            if (recordingShouldAlsoStart)
-            {
-                startRecording();
-                playButton->setToggleState(true, dontSendNotification);
-            }
-
-            playButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
-            
-            clock->start(); // starts the clock
-            audioEditor->disable();
-
-            stopTimer();
-            startTimer(250); // refresh every 250 ms
-
-            recordSelector->setEnabled(false); // why is this outside the "if" statement?
-            recordOptionsButton->setEnabled(false);
-            
-            graph->startAcquisition(); // start data flow
+            startRecording();
+            playButton->setToggleState(true, dontSendNotification);
         }
+
+        playButton->getNormalImage()->replaceColour(defaultButtonColour, Colours::yellow);
+            
+        clock->start(); // starts the clock
+        audioEditor->disable();
+
+        stopTimer();
+        startTimer(250); // refresh every 250 ms
+
+        recordSelector->setEnabled(false); // why is this outside the "if" statement?
+        recordOptionsButton->setEnabled(false);
+
+        audio->beginCallbacks();
     }
 }
 
