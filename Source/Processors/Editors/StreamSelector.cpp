@@ -24,9 +24,11 @@
 #include "StreamSelector.h"
 
 #include "../GenericProcessor/GenericProcessor.h"
+#include "../RecordNode/RecordNodeEditor.h"
 #include "DelayMonitor.h"
 #include "GenericEditor.h"
 #include "TTLMonitor.h"
+#include "VisualizerEditor.h"
 
 #include "../Settings/DataStream.h"
 
@@ -40,7 +42,41 @@ void StreamTableModel::cellClicked (int rowNumber, int columnId, const MouseEven
     if (owner->viewedStreamIndex != rowNumber)
     {
         owner->viewedStreamIndex = rowNumber;
-        owner->editor->updateSelectedStream (streams[rowNumber]->getStreamId());
+
+        bool foundSelectedStreamParam = false;
+
+        for (auto param : owner->editor->getProcessor()->getParameters())
+        {
+            if (param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
+                && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
+            {
+                param->setNextValue (rowNumber);
+                foundSelectedStreamParam = true;
+                break;
+            }
+        }
+
+        if (owner->editor->isVisualizerEditor())
+        {
+            auto* visualizerEditor = dynamic_cast<VisualizerEditor*> (owner->editor);
+
+            if (visualizerEditor->canvas != nullptr)
+            {
+                for (auto param : visualizerEditor->canvas->getParameters())
+                {
+                    if (param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
+                        && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
+                    {
+                        param->setNextValue (rowNumber);
+                        foundSelectedStreamParam = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (! foundSelectedStreamParam)
+            owner->editor->updateSelectedStream (streams[rowNumber]->getStreamId());
     }
 }
 
@@ -71,6 +107,39 @@ Component* StreamTableModel::refreshComponentForCell (int rowNumber,
 
         return ttlMonitor;
     }
+    else if (columnId == StreamTableModel::Columns::START_TIME)
+    {
+        auto* syncStartTimeMonitor = dynamic_cast<SyncStartTimeMonitor*> (existingComponentToUpdate);
+
+        if (syncStartTimeMonitor == nullptr)
+        {
+            syncStartTimeMonitor = new SyncStartTimeMonitor();
+        }
+
+        return syncStartTimeMonitor;
+    }
+    else if (columnId == StreamTableModel::Columns::LATEST_SYNC)
+    {
+        auto* lastSyncEventMonitor = dynamic_cast<LastSyncEventMonitor*> (existingComponentToUpdate);
+
+        if (lastSyncEventMonitor == nullptr)
+        {
+            lastSyncEventMonitor = new LastSyncEventMonitor();
+        }
+
+        return lastSyncEventMonitor;
+    }
+    else if (columnId == StreamTableModel::Columns::SYNC_ACCURACY)
+    {
+        auto* syncAccuracyMonitor = dynamic_cast<SyncAccuracyMonitor*> (existingComponentToUpdate);
+
+        if (syncAccuracyMonitor == nullptr)
+        {
+            syncAccuracyMonitor = new SyncAccuracyMonitor();
+        }
+
+        return syncAccuracyMonitor;
+    }
 
     jassert (existingComponentToUpdate == nullptr);
 
@@ -82,12 +151,9 @@ int StreamTableModel::getNumRows()
     return streams.size(); // dataStreams.size();
 }
 
-void StreamTableModel::update (Array<const DataStream*> dataStreams_, int viewedStreamIndex_)
+void StreamTableModel::update (Array<const DataStream*> dataStreams_)
 {
     streams = dataStreams_;
-
-    viewedStreamIndex = viewedStreamIndex_;
-
     table->updateContent();
 }
 
@@ -153,6 +219,12 @@ String StreamTableModel::getCellTooltip (int rowNumber, int columnId)
 void StreamTableModel::listWasScrolled()
 {
     owner->editor->updateDelayAndTTLMonitors();
+
+    //if (owner->isRecordNode)
+    //{
+    //    RecordNodeEditor* recNodeEditor = (RecordNodeEditor*) owner->editor;
+    //    recNodeEditor->updateSyncMonitors();
+    //}
 }
 
 StreamSelectorTable::StreamSelectorTable (GenericEditor* ed_) : editor (ed_),
@@ -160,6 +232,11 @@ StreamSelectorTable::StreamSelectorTable (GenericEditor* ed_) : editor (ed_),
                                                                 streamInfoViewHeight (80),
                                                                 viewedStreamIndex (0)
 {
+    isRecordNode = editor->getProcessor()->isRecordNode();
+
+    LOGD ("Creating stream selector table for editor: ", editor->getProcessor()->getName());
+    LOGD ("Is record node: ", isRecordNode);
+
     tableModel = std::make_unique<StreamTableModel> (this);
     streamTable.reset (createTableView());
     tableModel->table = streamTable.get();
@@ -191,7 +268,14 @@ TableListBox* StreamSelectorTable::createTableView (bool expanded)
         table->getHeader().addColumn ("ID", StreamTableModel::Columns::PROCESSOR_ID, 30, 30, 30, TableHeaderComponent::notResizableOrSortable);
         table->getHeader().addColumn ("# CH", StreamTableModel::Columns::NUM_CHANNELS, 30, 30, 30, TableHeaderComponent::notResizableOrSortable);
         table->getHeader().addColumn ("Hz", StreamTableModel::Columns::SAMPLE_RATE, 40, 40, 40, TableHeaderComponent::notResizableOrSortable);
-        table->getHeader().addColumn ("", StreamTableModel::Columns::ENABLED, 15, 15, 15, TableHeaderComponent::notResizableOrSortable);
+        //table->getHeader().addColumn ("", StreamTableModel::Columns::ENABLED, 15, 15, 15, TableHeaderComponent::notResizableOrSortable);
+
+        if (isRecordNode)
+        {
+            table->getHeader().addColumn ("Start", StreamTableModel::Columns::START_TIME, 50, 50, 50, TableHeaderComponent::notResizableOrSortable);
+            table->getHeader().addColumn ("Tolerance", StreamTableModel::Columns::SYNC_ACCURACY, 55, 50, 50, TableHeaderComponent::notResizableOrSortable);
+            table->getHeader().addColumn ("Latest Sync", StreamTableModel::Columns::LATEST_SYNC, 55, 60, 60, TableHeaderComponent::notResizableOrSortable);
+        }
     }
 
     if (expanded)
@@ -213,10 +297,14 @@ void StreamSelectorTable::buttonClicked (Button* button)
 {
     if (button == expanderButton.get())
     {
-        LOGD ("EXPANDER BUTTON CLICKED ");
-
         auto* table = createTableView (true);
-        table->setBounds (0, 0, 331, streams.size() * 20 + 24);
+
+        int width = 316;
+
+        if (isRecordNode)
+            width += 160;
+
+        table->setBounds (0, 0, width, streams.size() * 20 + 24);
         table->selectRow (viewedStreamIndex);
         tableModel->table = table;
 
@@ -228,13 +316,17 @@ void StreamSelectorTable::buttonClicked (Button* button)
         myBox.addComponentListener (this);
 
         editor->updateDelayAndTTLMonitors();
+
+        if (isRecordNode)
+        {
+            RecordNodeEditor* recNodeEditor = dynamic_cast<RecordNodeEditor*> (editor);
+            recNodeEditor->updateSyncMonitors();
+        }
     }
 }
 
 void StreamSelectorTable::componentBeingDeleted (Component& component)
 {
-    LOGD ("POPUP TABLE CLOSED");
-
     tableModel->table = streamTable.get();
     streamTable->selectRow (viewedStreamIndex);
 
@@ -245,9 +337,15 @@ void StreamSelectorTable::componentBeingDeleted (Component& component)
         newStreams.add (stream);
     }
 
-    tableModel->update (newStreams, viewedStreamIndex);
+    tableModel->update (newStreams);
 
     editor->updateDelayAndTTLMonitors();
+
+    if (isRecordNode)
+    {
+        RecordNodeEditor* recNodeEditor = dynamic_cast<RecordNodeEditor*> (editor);
+        recNodeEditor->updateSyncMonitors();
+    }
 }
 
 int StreamSelectorTable::getDesiredWidth()
@@ -286,6 +384,24 @@ bool StreamSelectorTable::checkStream (const DataStream* streamToCheck)
     }
 }
 
+SyncStartTimeMonitor* StreamSelectorTable::getSyncStartTimeMonitor (const DataStream* stream)
+{
+    TableListBox* currentTable = tableModel->table;
+    return dynamic_cast<SyncStartTimeMonitor*> (currentTable->getCellComponent (StreamTableModel::Columns::START_TIME, streams.indexOf (stream)));
+}
+
+LastSyncEventMonitor* StreamSelectorTable::getlastSyncEventMonitor (const DataStream* stream)
+{
+    TableListBox* currentTable = tableModel->table;
+    return dynamic_cast<LastSyncEventMonitor*> (currentTable->getCellComponent (StreamTableModel::Columns::LATEST_SYNC, streams.indexOf (stream)));
+}
+
+SyncAccuracyMonitor* StreamSelectorTable::getSyncAccuracyMonitor (const DataStream* stream)
+{
+    TableListBox* currentTable = tableModel->table;
+    return dynamic_cast<SyncAccuracyMonitor*> (currentTable->getCellComponent (StreamTableModel::Columns::SYNC_ACCURACY, streams.indexOf (stream)));
+}
+
 TTLMonitor* StreamSelectorTable::getTTLMonitor (const DataStream* stream)
 {
     TableListBox* currentTable = tableModel->table;
@@ -300,7 +416,7 @@ DelayMonitor* StreamSelectorTable::getDelayMonitor (const DataStream* stream)
 
 void StreamSelectorTable::startAcquisition()
 {
-    startTimer (50);
+    startTimer (20);
 }
 
 void StreamSelectorTable::stopAcquisition()
@@ -315,23 +431,42 @@ void StreamSelectorTable::timerCallback()
         TTLMonitor* ttlMonitor = getTTLMonitor (stream);
 
         if (ttlMonitor != nullptr)
-            ttlMonitor->repaint(); // postCommandMessage(0);
+            ttlMonitor->repaint();
     }
 
     counter++;
 
-    if (counter == 10)
+    if (counter % 10 == 0)
     {
-        counter = 0;
-
         for (auto stream : streams)
         {
             DelayMonitor* delayMonitor = getDelayMonitor (stream);
 
             if (delayMonitor != nullptr)
-                delayMonitor->repaint(); // postCommandMessage(0);
+                delayMonitor->repaint();
+
+            if (isRecordNode && counter % 20 == 0)
+            {
+                SyncStartTimeMonitor* syncStartTimeMonitor = getSyncStartTimeMonitor (stream);
+
+                if (syncStartTimeMonitor != nullptr)
+                    syncStartTimeMonitor->repaint();
+
+                LastSyncEventMonitor* lastSyncEventMonitor = getlastSyncEventMonitor (stream);
+
+                if (lastSyncEventMonitor != nullptr)
+                    lastSyncEventMonitor->repaint();
+
+                SyncAccuracyMonitor* syncAccuracyMonitor = getSyncAccuracyMonitor (stream);
+
+                if (syncAccuracyMonitor != nullptr)
+                    syncAccuracyMonitor->repaint();
+            }
         }
     }
+
+    if (counter > 20)
+        counter = 0;
 }
 
 void StreamSelectorTable::setStreamEnabledState (uint16 streamId, bool isEnabled)
@@ -399,7 +534,7 @@ uint16 StreamSelectorTable::finishedUpdate()
         newStreams.add (stream);
     }
 
-    tableModel->update (newStreams, viewedStreamIndex);
+    tableModel->update (newStreams);
 
     if (streams.size() == 0)
     {
@@ -430,7 +565,8 @@ void StreamSelectorTable::remove (const DataStream* stream)
         streams.remove (streams.indexOf (stream));
 }
 
-StreamEnableButton::StreamEnableButton (const String& name) : Button (name), isEnabled (true)
+StreamEnableButton::StreamEnableButton (const String& name) : Button (name),
+                                                              isEnabled (true)
 {
 }
 
@@ -450,8 +586,7 @@ void StreamEnableButton::paintButton (Graphics& g, bool isMouseOver, bool isButt
     g.drawRect (0, 0, getWidth(), getHeight(), 1.0);
 }
 
-ExpanderButton::ExpanderButton() : Button ("Expander"),
-                                   isEnabled (true)
+ExpanderButton::ExpanderButton() : Button ("Expander")
 {
     const float height = 9.0f;
     const float width = 9.0f;
@@ -473,7 +608,7 @@ ExpanderButton::ExpanderButton() : Button ("Expander"),
 
 void ExpanderButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    if (isMouseOver)
+    if (isMouseOver || ! isEnabled())
         g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.6f));
     else
         g.setColour (findColour (ThemeColours::defaultText));

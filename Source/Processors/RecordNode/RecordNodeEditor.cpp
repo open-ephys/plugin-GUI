@@ -26,10 +26,100 @@
 #include "RecordNode.h"
 #include <stdio.h>
 
+SyncMonitor::SyncMonitor()
+{
+    setInterceptsMouseClicks (false, false);
+}
+
+SyncMonitor::~SyncMonitor()
+{
+}
+
+void SyncMonitor::setSyncMetric (bool isSynchronized_, float syncMetric_)
+{
+    isSynchronized = isSynchronized_;
+    metric = syncMetric_;
+}
+
+void SyncMonitor::setEnabled (bool state)
+{
+    isEnabled = state;
+
+    repaint();
+}
+
+void LastSyncEventMonitor::paint (Graphics& g)
+{
+    g.setFont (FontOptions ("Fira Sans", "SemiBold", 12));
+
+    if (isSynchronized && metric != -1.0)
+    {
+        if (metric <= 60)
+        {
+            g.setColour (Colours::green);
+            g.drawText ("<1 min", 0, 0, 55, 20, Justification::centred);
+        }
+
+        else if (metric > 60 && metric < 60 * 5)
+        {
+            g.setColour (Colours::orange);
+            g.drawText (">1 min", 0, 0, 55, 20, Justification::centred);
+        }
+
+        else
+        {
+            g.setColour (Colours::red);
+            g.drawText (">5 min", 0, 0, 55, 20, Justification::centred);
+        }
+    }
+    else
+    {
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
+        g.drawText ("--", 0, 0, 55, 20, Justification::centred);
+    }
+}
+
+void SyncStartTimeMonitor::paint (Graphics& g)
+{
+    g.setFont (FontOptions ("Fira Sans", "SemiBold", 12));
+
+    if (isSynchronized)
+    {
+        g.setColour (findColour (ThemeColours::defaultText));
+        g.drawText (String (metric, 2) + " ms", 0, 0, 50, 20, Justification::centred);
+    }
+
+    else
+    {
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
+        g.drawText ("--", 0, 0, 50, 20, Justification::centred);
+    }
+}
+
+void SyncAccuracyMonitor::paint (Graphics& g)
+{
+    g.setFont (FontOptions ("Fira Sans", "SemiBold", 12));
+
+    if (isSynchronized)
+    {
+        g.setColour (findColour (ThemeColours::defaultText));
+        g.drawText (String (std::abs(metric), 3) + " ms", 0, 0, 55, 20, Justification::centred);
+    }
+
+    else
+    {
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
+        g.drawText ("--", 0, 0, 55, 20, Justification::centred);
+    }
+}
+
 StreamMonitor::StreamMonitor (RecordNode* rn, uint64 id)
     : LevelMonitor (rn),
       streamId (id)
 {
+    selectedChannels = 0;
+    totalChannels = rn->getDataStream (streamId)->getChannelCount();
+
     startTimerHz (10);
 }
 
@@ -41,6 +131,37 @@ void StreamMonitor::timerCallback()
         setFillPercentage (((RecordNode*) processor)->fifoUsage[streamId]);
     else
         setFillPercentage (0.0);
+}
+
+void StreamMonitor::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+    // Draw the monitor
+    LevelMonitor::paintButton (g, isMouseOver, isButtonDown);
+
+    // Draw the channel count text
+    auto textArea = getLocalBounds().reduced (2);
+
+    auto t = AffineTransform::rotation (-MathConstants<float>::halfPi,
+                                        textArea.toFloat().getCentreX(),
+                                        textArea.toFloat().getCentreY());
+
+    auto newTextArea = textArea.toFloat().transformedBy (t);
+
+    g.addTransform (t);
+
+    if (selectedChannels == 0)
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
+    else
+        g.setColour (findColour (ThemeColours::defaultText));
+
+    g.setFont (FontOptions ("Inter", "Regular", 12.0f));
+    g.drawText (String (selectedChannels) + "/" + String (totalChannels), newTextArea, Justification::centred);
+}
+
+void StreamMonitor::updateChannelCount (int selected)
+{
+    selectedChannels = selected;
+    repaint();
 }
 
 DiskMonitor::DiskMonitor (RecordNode* rn)
@@ -81,7 +202,7 @@ void DiskMonitor::updateDiskSpace (float percentage)
 
 void DiskMonitor::directoryInvalid()
 {
-    setFillPercentage (95.0);
+    setFillPercentage (1.0);
     setTooltip ("Invalid directory");
 }
 
@@ -97,9 +218,10 @@ void DiskMonitor::timerCallback()
 }
 
 RecordChannelsParameterEditor::RecordChannelsParameterEditor (RecordNode* rn, Parameter* param, int rowHeightPixels, int rowWidthPixels)
-    : ParameterEditor (param), recordNode (rn)
+    : ParameterEditor (param),
+      recordNode (rn)
 {
-    int numChannels = int(((MaskChannelsParameter*) param)->getChannelStates().size());
+    int numChannels = int (((MaskChannelsParameter*) param)->getChannelStates().size());
     int selected = 0;
     for (auto chan : ((MaskChannelsParameter*) param)->getChannelStates())
         if (chan)
@@ -119,6 +241,8 @@ RecordChannelsParameterEditor::RecordChannelsParameterEditor (RecordNode* rn, Pa
     setBounds (0, 0, 15, 73);
 
     editor = monitor.get();
+
+    updateView();
 };
 
 void RecordChannelsParameterEditor::channelStateChanged (Array<int> newChannels)
@@ -165,7 +289,12 @@ void RecordChannelsParameterEditor::buttonClicked (Button* label)
 
 void RecordChannelsParameterEditor::updateView()
 {
-    /* Do nothing, handled by StreamMonitor timerCallback */
+    /* Update channel count in StreamMonitor */
+
+    if (param != nullptr)
+    {
+        monitor->updateChannelCount (param->currentValue.getArray()->size());
+    }
 }
 
 void RecordChannelsParameterEditor::resized()
@@ -269,6 +398,19 @@ void RecordNodeEditor::timerCallback()
     stopTimer();
 }
 
+void RecordNodeEditor::updateSyncMonitors()
+{
+    for (auto stream : getProcessor()->getDataStreams())
+    {
+        syncStartTimeMonitors[stream->getStreamId()] = streamSelector->getSyncStartTimeMonitor (stream);
+        syncAccuracyMonitors[stream->getStreamId()] = streamSelector->getSyncAccuracyMonitor (stream);
+        lastSyncEventMonitors[stream->getStreamId()] = streamSelector->getlastSyncEventMonitor (stream);
+    }
+
+    if (recordNode != nullptr)
+        recordNode->updateSyncMonitors();
+}
+
 void RecordNodeEditor::updateFifoMonitors()
 {
     auto removeExistingMonitors = [this] (std::vector<ParameterEditor*>& monitors)
@@ -335,6 +477,7 @@ void RecordNodeEditor::collapsedStateChanged()
 
 void RecordNodeEditor::updateSettings()
 {
+    updateSyncMonitors();
     updateFifoMonitors();
     showFifoMonitors (fifoDrawerButton->getToggleState());
 }
@@ -344,6 +487,33 @@ void RecordNodeEditor::buttonClicked (Button* button)
     if (button == fifoDrawerButton.get())
     {
         showFifoMonitors (button->getToggleState());
+    }
+}
+
+void RecordNodeEditor::setStreamStartTime (uint16 streamId, bool isSynchronized, float offsetMs)
+{
+    if (syncStartTimeMonitors.find (streamId) != syncStartTimeMonitors.end())
+    {
+        if (syncStartTimeMonitors[streamId] != nullptr)
+            syncStartTimeMonitors[streamId]->setSyncMetric (isSynchronized, offsetMs);
+    }
+}
+
+void RecordNodeEditor::setLastSyncEvent (uint16 streamId, bool isSynchronized, float syncTimeSeconds)
+{
+    if (lastSyncEventMonitors.find (streamId) != lastSyncEventMonitors.end())
+    {
+        if (lastSyncEventMonitors[streamId] != nullptr)
+            lastSyncEventMonitors[streamId]->setSyncMetric (isSynchronized, syncTimeSeconds);
+    }
+}
+
+void RecordNodeEditor::setSyncAccuracy (uint16 streamId, bool isSynchronized, float syncAccuracy)
+{
+    if (syncAccuracyMonitors.find (streamId) != syncAccuracyMonitors.end())
+    {
+        if (syncAccuracyMonitors[streamId] != nullptr)
+            syncAccuracyMonitors[streamId]->setSyncMetric (isSynchronized, syncAccuracy);
     }
 }
 

@@ -73,7 +73,7 @@ SpikePlot* SpikeDisplay::getSpikePlot (int index)
 
 void SpikeDisplay::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColours::componentBackground));
+    //g.fillAll (findColour (ThemeColours::componentBackground));
 }
 
 void SpikeDisplay::resized()
@@ -249,6 +249,8 @@ bool SpikeDisplay::getMonitorStateForPlot (int plotNum)
 {
     if (spikePlots.size() > plotNum)
         return spikePlots[plotNum]->getMonitorState();
+    else
+        return false;
 }
 
 void SpikeDisplay::setMonitorStateForPlot (int plotNum, bool state)

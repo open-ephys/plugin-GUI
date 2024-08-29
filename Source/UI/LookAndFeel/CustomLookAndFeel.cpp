@@ -242,6 +242,9 @@ void CustomLookAndFeel::setTheme (ColourTheme theme)
     setColour (TableHeaderComponent::textColourId, currentThemeColours[ThemeColours::defaultText]);
     setColour (TableHeaderComponent::outlineColourId, currentThemeColours[ThemeColours::outline]);
     setColour (TableHeaderComponent::highlightColourId, currentThemeColours[ThemeColours::highlightedFill]);
+
+    setColour (GroupComponent::textColourId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (GroupComponent::outlineColourId, currentThemeColours[ThemeColours::defaultText].withAlpha (0.5f));
 }
 
 //==============================================================================

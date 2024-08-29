@@ -119,7 +119,7 @@ void RecordNode::registerParameters()
 
     addMaskChannelsParameter (Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to record from", true);
     addTtlLineParameter (Parameter::STREAM_SCOPE, "sync_line", "Sync Line", "Event line to use for sync signal", 8, true, false, true);
-    addSelectedStreamParameter (Parameter::PROCESSOR_SCOPE, "main_sync", "Main Sync Stream", "Use this stream as main sync", {}, 0, true);
+    addSelectedStreamParameter (Parameter::PROCESSOR_SCOPE, "main_sync", "Main Sync Stream", "Use this stream as main sync", {}, 0, false, true);
 }
 
 void RecordNode::initialize (bool signalChainIsLoading)
@@ -356,7 +356,7 @@ void RecordNode::handleBroadcastMessage (const String& msg, const int64 messageS
 
         event->serialize (buffer, size);
 
-        eventQueue->addEvent (EventPacket (buffer, int(size)), messageSampleNumber, -1);
+        eventQueue->addEvent (EventPacket (buffer, int (size)), messageSampleNumber, -1);
     }
 }
 
@@ -607,6 +607,8 @@ bool RecordNode::startAcquisition()
         eventChannels.getLast()->setDataStream (getDataStream (synchronizer.mainStreamKey), false);
     }
 
+    startTimer (1000);
+
     return true;
 }
 
@@ -646,6 +648,8 @@ bool RecordNode::stopAcquisition()
 
     eventQueue->reset();
     spikeQueue->reset();
+
+    stopTimer();
 
     return true;
 }
@@ -737,11 +741,11 @@ void RecordNode::startRecording()
     {
         String settingsFileName = rootFolder.getFullPathName() + File::getSeparatorString() + "settings" + ((experimentNumber > 1) ? "_" + String (experimentNumber) : String()) + ".xml";
 
-        std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement>("SETTINGS");
+        std::unique_ptr<XmlElement> xml = std::make_unique<XmlElement> ("SETTINGS");
 
-        AccessClass::getProcessorGraph()->saveToXml(xml.get());
+        AccessClass::getProcessorGraph()->saveToXml (xml.get());
 
-        xml->writeTo(settingsFileName);
+        xml->writeTo (settingsFileName);
 
         settingsNeeded = false;
     }
@@ -783,7 +787,7 @@ void RecordNode::handleTTLEvent (TTLEventPtr event)
 
     String streamKey = getDataStream (event->getStreamId())->getKey();
 
-    synchronizer.addEvent (streamKey, event->getLine(), sampleNumber);
+    synchronizer.addEvent (streamKey, event->getLine(), sampleNumber, event->getState());
 
     if (recordEvents && isRecording)
     {
@@ -793,7 +797,7 @@ void RecordNode::handleTTLEvent (TTLEventPtr event)
         event->setTimestampInSeconds (synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber));
         event->serialize (buffer, size);
 
-        eventQueue->addEvent (EventPacket (buffer, int(size)), sampleNumber);
+        eventQueue->addEvent (EventPacket (buffer, int (size)), sampleNumber);
 
         eventMonitor->bufferedEvents++;
     }
@@ -820,7 +824,7 @@ void RecordNode::handleSpike (SpikePtr spike)
 {
     eventMonitor->receivedSpikes++;
 
-    if (recordSpikes)
+    if (recordSpikes && isRecording)
     {
         String streamKey = getDataStream (spike->getStreamId())->getKey();
         spike->setTimestampInSeconds (synchronizer.convertSampleNumberToTimestamp (streamKey,
@@ -860,7 +864,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
                     -1.0,
                     true);
 
-            handleTimestampSyncTexts (EventPacket (data, int(dataSize)));
+            handleTimestampSyncTexts (EventPacket (data, int (dataSize)));
 
             for (auto stream : getDataStreams())
             {
@@ -875,7 +879,7 @@ void RecordNode::process (AudioBuffer<float>& buffer)
 
                 size_t dataSize = SystemEvent::fillTimestampSyncTextData (data, src, streamId, firstSampleNumberInBlock, -1.0, false);
 
-                handleTimestampSyncTexts (EventPacket (data, int(dataSize)));
+                handleTimestampSyncTexts (EventPacket (data, int (dataSize)));
             }
         }
 
@@ -888,6 +892,11 @@ void RecordNode::process (AudioBuffer<float>& buffer)
         {
             streamIndex++;
 
+            int recordChanCount = (*stream)["channels"].getArray()->size();
+
+            if (recordChanCount == 0)
+                continue;
+
             const uint16 streamId = stream->getStreamId();
             const String streamKey = stream->getKey();
 
@@ -895,39 +904,41 @@ void RecordNode::process (AudioBuffer<float>& buffer)
 
             int64 sampleNumber = getFirstSampleNumberForBlock (streamId);
 
+            float totalFifoUsage = 0.0f;
+
             if (numSamples > 0)
             {
                 double first = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
                 double second = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber + 1);
 
-                fifoUsage[streamId] = dataQueue->writeSynchronizedTimestamps (
+                dataQueue->writeSynchronizedTimestamps (
                     first,
                     second - first,
                     streamIndex,
                     numSamples);
             }
 
-            for (auto channelRecordState : ((MaskChannelsParameter*) stream->getParameter ("channels"))->getChannelStates())
+            for (int i = 0; i < recordChanCount; i++)
             {
-                if (channelRecordState)
-                {
-                    channelIndex++;
+                channelIndex++;
 
-                    if (numSamples > 0)
-                    {
-                        dataQueue->writeChannel (buffer,
-                                                 channelMap[channelIndex],
-                                                 channelIndex,
-                                                 numSamples,
-                                                 int(sampleNumber));
-                    }
+                if (numSamples > 0)
+                {
+                    totalFifoUsage += dataQueue->writeChannel (buffer,
+                                                               channelMap[channelIndex],
+                                                               channelIndex,
+                                                               numSamples,
+                                                               int (sampleNumber));
                 }
             }
+
+            fifoUsage[streamId] = totalFifoUsage / recordChanCount;
 
             if (fifoUsage[streamId] > 0.9)
                 fifoAlmostFull = true;
 
             samplesWritten += numSamples;
+
         }
 
         if (fifoAlmostFull)
@@ -974,6 +985,29 @@ void RecordNode::filenameComponentChanged (FilenameComponent* fnc)
 {
     dataDirectory = fnc->getCurrentFile();
     newDirectoryNeeded = true;
+}
+
+void RecordNode::timerCallback()
+{
+
+    updateSyncMonitors();
+    
+}
+
+void RecordNode::updateSyncMonitors()
+{
+    for (auto stream : dataStreams)
+    {
+        const uint16 streamId = stream->getStreamId();
+        const String streamKey = stream->getKey();
+
+        RecordNodeEditor* editor = (RecordNodeEditor*) getEditor();
+
+        editor->setStreamStartTime (streamId, synchronizer.isStreamSynced (streamKey), synchronizer.getStartTime (streamKey));
+        editor->setLastSyncEvent (streamId, synchronizer.isStreamSynced (streamKey), synchronizer.getLastSyncEvent (streamKey));
+        editor->setSyncAccuracy (streamId, synchronizer.isStreamSynced (streamKey), synchronizer.getAccuracy (streamKey));
+
+    }
 }
 
 // not called?

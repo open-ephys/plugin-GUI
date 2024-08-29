@@ -638,6 +638,7 @@ public:
                              const String& description,
                              Array<String> streamNames,
                              const int defaultIndex,
+                             bool syncWithStreamSelector = false,
                              bool deactivateDuringAcquisition = true);
 
     /** Sets the current value*/
@@ -651,6 +652,9 @@ public:
 
     /** Gets the value as an integer*/
     int getSelectedIndex();
+
+    // Returns true if the parameter should sync with GenericEditor's StreamSelector
+    bool shouldSyncWithStreamSelector() { return syncWithStreamSelector; }
 
     /** Gets the value as a string**/
     String getValueAsString() override;
@@ -667,6 +671,7 @@ public:
 private:
     Array<String> streamNames;
     int streamIndex;
+    bool syncWithStreamSelector;
 };
 
 /**

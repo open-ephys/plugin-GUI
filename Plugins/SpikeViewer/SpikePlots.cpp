@@ -108,11 +108,11 @@ void SpikePlot::setId (std::string id)
 
 void SpikePlot::paint (Graphics& g)
 {
-    g.setColour (findColour (ThemeColours::outline));
-    g.drawRect (0, 0, getWidth(), getHeight());
+    //g.setColour (findColour (ThemeColours::outline));
+    //g.drawRect (0, 0, getWidth(), getHeight());
 
     g.setFont (font);
-    g.setColour (findColour (ThemeColours::defaultText));
+    g.setColour (findColour (ThemeColours::controlPanelText));
     g.drawText (name, 10, 0, 200, 20, Justification::left, false);
 }
 

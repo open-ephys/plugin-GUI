@@ -452,7 +452,7 @@ bool ProcessorGraph::checkForNewRootNodes (GenericProcessor* processor,
                 {
                     LOGDD ("  Didn't find dest node in root nodes; adding a new root.");
 
-                    if (rootNodes.size() == 8)
+                    if (!isLoadingSignalChain && rootNodes.size() == 8)
                     {
                         AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "Signal chain error", "Maximum of 8 signal chains.");
                         return false;
@@ -488,7 +488,7 @@ bool ProcessorGraph::checkForNewRootNodes (GenericProcessor* processor,
             {
                 LOGDD ("  Has no dest node; adding.");
 
-                if (rootNodes.size() == 8)
+                if (!isLoadingSignalChain && rootNodes.size() == 8)
                 {
                     AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "Signal chain error", "Maximum of 8 signal chains.");
                     return false;
@@ -640,7 +640,7 @@ bool ProcessorGraph::checkForNewRootNodes (GenericProcessor* processor,
                             else
                             {
                                 while (sourceB->getSourceNode() != nullptr)
-                                    sourceB = sourceA->getSourceNode();
+                                    sourceB = sourceB->getSourceNode();
 
                                 createEmptyProcessor (p, rootNodes.indexOf (sourceB));
                             }
@@ -997,7 +997,14 @@ void ProcessorGraph::clearSignalChain()
         std::unique_ptr<GenericEditor> editor;
         editor.swap (processor->editor);
         editor.reset();
+
         Node::Ptr node = removeNode (nodeId);
+
+        // Decrement reference count for the node
+        // Ensures processor destructor gets called
+        while (node->getReferenceCount() > 1)
+            node->decReferenceCount();
+
         node.reset();
     }
 
@@ -1696,6 +1703,12 @@ void ProcessorGraph::removeProcessor (GenericProcessor* processor)
     }
 
     Node::Ptr node = removeNode (nodeId);
+
+    // Decrement reference count for the node
+    // Ensures processor destructor gets called
+    while (node->getReferenceCount() > 1)
+        node->decReferenceCount();
+
     node.reset();
 }
 

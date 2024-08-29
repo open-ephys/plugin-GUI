@@ -490,7 +490,7 @@ void FileReader::updateSettings()
 
     isEnabled = true;
 
-    /* Set the timestamp to start of playback and reset loop counter */
+    /* Set the sample to start of playback and reset loop counter */
     playbackSamplePos = startSample;
     loopCount = 0;
 
@@ -618,13 +618,23 @@ void FileReader::process (AudioBuffer<float>& buffer)
 
     //std::cout << "Reading " << samplesNeededPerBuffer << " samples. " << std::endl;
 
-    for (int i = 0; i < currentNumChannels; ++i)
+    const float* tempReadBuffer = readBuffer->getData() + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow);
+
+    for (int ch = 0; ch < currentNumChannels; ++ch)
     {
+        float* writeBuffer = buffer.getWritePointer (ch);
+
+        for (int sample = 0; sample < samplesNeededPerBuffer; sample++)
+        {
+            *(writeBuffer + sample) = *(tempReadBuffer + (currentNumChannels * sample) + ch);
+        }
+
+        // DEPRECATED:
         // offset readBuffer index by current cache window count * buffer window size * num channels
-        input->processChannelData (*readBuffer + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow),
-                                   buffer.getWritePointer (i, 0),
-                                   i,
-                                   samplesNeededPerBuffer);
+        //input->processChannelData (*readBuffer + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow),
+        //                           buffer.getWritePointer (i, 0),
+        //                           i,
+        //                           samplesNeededPerBuffer);
     }
 
     setTimestampAndSamples (playbackSamplePos, -1.0, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this
@@ -656,19 +666,19 @@ void FileReader::addEventsInRange (int64 start, int64 stop)
 
     for (int i = 0; i < events.channels.size(); i++)
     {
-        int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount * (stopSample - startSample);
+        int64 absoluteCurrentSampleNumber = events.sampleNumbers[i] + loopCount * (stopSample - startSample);
         if (events.text.size() && ! events.text[i].isEmpty())
         {
             String msg = events.text[i];
-            LOGD ("Broadcasting message: ", msg, " at timestamp: ", absoluteCurrentTimestamp, " channel: ", events.channels[i]);
+            LOGD ("File read broadcasting message: ", msg, " at sample number: ", absoluteCurrentSampleNumber, " channel: ", events.channels[i]);
             broadcastMessage (msg);
         }
         else
         {
             uint8 ttlBit = events.channels[i];
             bool state = events.channelStates[i] > 0;
-            TTLEventPtr event = TTLEvent::createTTLEvent (eventChannels[0], events.timestamps[i], ttlBit, state);
-            addEvent (event, int(absoluteCurrentTimestamp));
+            TTLEventPtr event = TTLEvent::createTTLEvent (eventChannels[0], events.sampleNumbers[i], ttlBit, state);
+            addEvent (event, int (absoluteCurrentSampleNumber));
         }
     }
 }
@@ -694,12 +704,12 @@ void FileReader::switchBuffer()
     notify();
 }
 
-HeapBlock<int16>* FileReader::getFrontBuffer()
+HeapBlock<float>* FileReader::getFrontBuffer()
 {
     return readBuffer;
 }
 
-HeapBlock<int16>* FileReader::getBackBuffer()
+HeapBlock<float>* FileReader::getBackBuffer()
 {
     if (readBuffer == &bufferA)
         return &bufferB;
@@ -720,7 +730,7 @@ void FileReader::run()
     }
 }
 
-void FileReader::readAndFillBufferCache (HeapBlock<int16>& cacheBuffer)
+void FileReader::readAndFillBufferCache (HeapBlock<float>& cacheBuffer)
 {
     const int samplesNeededPerBuffer = m_samplesPerBuffer.get();
     const int samplesNeeded = samplesNeededPerBuffer * BUFFER_WINDOW_CACHE_SIZE;

@@ -628,7 +628,7 @@ void SelectedChannelsParameterEditor::updateView()
     else
     {
         button->setEnabled (true);
-        int numChannels = int(((SelectedChannelsParameter*) param)->getChannelStates().size());
+        int numChannels = int (((SelectedChannelsParameter*) param)->getChannelStates().size());
         int selected = 0;
         for (auto chan : ((SelectedChannelsParameter*) param)->getChannelStates())
             if (chan)
@@ -646,7 +646,7 @@ MaskChannelsParameterEditor::MaskChannelsParameterEditor (Parameter* param, int 
 {
     jassert (param->getType() == Parameter::MASK_CHANNELS_PARAM);
 
-    int numChannels = int(((MaskChannelsParameter*) param)->getChannelStates().size());
+    int numChannels = int (((MaskChannelsParameter*) param)->getChannelStates().size());
     int selected = 0;
     for (auto chan : ((MaskChannelsParameter*) param)->getChannelStates())
         if (chan)
@@ -722,7 +722,7 @@ void MaskChannelsParameterEditor::updateView()
     else
     {
         button->setEnabled (true);
-        int numChannels = int(((MaskChannelsParameter*) param)->getChannelStates().size());
+        int numChannels = int (((MaskChannelsParameter*) param)->getChannelStates().size());
         int selected = 0;
         for (auto chan : ((MaskChannelsParameter*) param)->getChannelStates())
             if (chan)
@@ -834,7 +834,6 @@ TtlLineParameterEditor::TtlLineParameterEditor (Parameter* param,
 
     if (syncParam != nullptr)
     {
-        jassert (syncParam != nullptr);
         jassert (syncParam->getType() == Parameter::SELECTED_STREAM_PARAM);
         jassert (syncParam->getScope() == Parameter::ParameterScope::PROCESSOR_SCOPE);
 

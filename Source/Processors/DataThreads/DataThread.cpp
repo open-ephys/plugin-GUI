@@ -131,9 +131,10 @@ void DataThread::addSelectedStreamParameter (Parameter::ParameterScope scope,
                                              const String& description,
                                              Array<String> streamNames,
                                              const int defaultIndex,
+                                             bool syncWithStreamSelector,
                                              bool deactivateDuringAcquisition)
 {
-    sn->addSelectedStreamParameter (scope, name, displayName, description, streamNames, defaultIndex, deactivateDuringAcquisition);
+    sn->addSelectedStreamParameter (scope, name, displayName, description, streamNames, defaultIndex, syncWithStreamSelector, deactivateDuringAcquisition);
 }
 
 void DataThread::addTimeParameter (Parameter::ParameterScope scope,

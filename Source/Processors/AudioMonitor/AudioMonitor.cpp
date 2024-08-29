@@ -215,7 +215,7 @@ void AudioMonitor::updateFilter (int i, uint16 streamId)
 
 void AudioMonitor::handleBroadcastMessage (const String& msg, const int64 messageTimeMilliseconds)
 {
-    LOGD ("Audio Monitor received message: ", msg);
+    LOGC ("Audio Monitor received message: ", msg);
 
     StringArray parts = StringArray::fromTokens (msg, " ", "");
 
@@ -235,13 +235,23 @@ void AudioMonitor::handleBroadcastMessage (const String& msg, const int64 messag
 
                     if (stream != nullptr)
                     {
-                        int localChannel = parts[3].getIntValue() - 1;
+                        Array<var> ch;
+                        int channelCount = 0;
 
-                        if (localChannel >= 0 && localChannel < stream->getContinuousChannels().size())
+                        while (channelCount < (parts.size() - 3))
                         {
-                            Array<var> ch;
-                            ch.add (localChannel);
+                            int localChannel = parts[channelCount + 3].getIntValue() - 1;
 
+                            if (localChannel >= 0 && localChannel < stream->getContinuousChannels().size())
+                            {
+                                ch.add (localChannel);
+                            }
+
+                            channelCount++;
+                        }
+
+                        if (ch.size() > 0)
+                        {
                             stream->getParameter ("channels")->setNextValue (ch);
                         }
                     }

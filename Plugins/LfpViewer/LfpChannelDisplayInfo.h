@@ -76,6 +76,9 @@ public:
     /** Updates the position of this component*/
     void updateXY (float, float);
 
+    /** Updates the mean and RMS values of the channel */
+    void updateMeanAndRMS();
+
     /** Sets whether this channel is in single-channel mode */
     void setSingleChannelState (bool);
 
@@ -94,6 +97,9 @@ public:
 private:
     bool isSingleChannel;
     float x, y;
+
+    float rms;
+    float mean;
 
     int samplerate;
     int subProcessorIdx;

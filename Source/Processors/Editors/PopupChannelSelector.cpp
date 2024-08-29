@@ -117,11 +117,15 @@ RangeEditor::RangeEditor (const String& name, const Font& font) : TextEditor (na
 }
 
 PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelector::Listener* listener_, std::vector<bool> channelStates)
-    : PopupComponent (parent), listener (listener_), nChannels (int(channelStates.size())), mouseDragged (false), startDragCoords (0, 0), shiftKeyDown (false), firstButtonSelectedState (false), isDragging (false), editable (true), maxSelectable (-1)
+    : PopupComponent (parent), listener (listener_), nChannels (int (channelStates.size())), mouseDragged (false), startDragCoords (0, 0), shiftKeyDown (false), firstButtonSelectedState (false), isDragging (false), editable (true), maxSelectable (-1)
 {
     int nColumns;
 
-    if (nChannels <= 512)
+    if (nChannels <= 8)
+    {
+        nColumns = 8;
+    }
+    else if (nChannels <= 512)
     {
         nColumns = 16;
     }
@@ -171,16 +175,18 @@ PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelec
 
     if (editable)
     {
+        float widthScaling = nChannels > 8 ? 0.25 : 0.5;
+
         // Add "SELECT ALL" button
         auto* selectAllButton = new SelectButton ("ALL");
-        selectAllButton->setBounds (0, height, 0.25 * width, width / nColumns);
+        selectAllButton->setBounds (0, height, widthScaling * width, width / nColumns);
         selectAllButton->addListener (this);
         contentComponent->addAndMakeVisible (selectAllButton);
         selectButtons.add (selectAllButton);
 
         // Add "SELECT NONE" button
         auto* selectNoneButton = new SelectButton ("NONE");
-        selectNoneButton->setBounds (0.25 * width, height, 0.25 * width, width / nColumns);
+        selectNoneButton->setBounds (widthScaling * width, height, widthScaling * width, width / nColumns);
         selectNoneButton->addListener (this);
         contentComponent->addAndMakeVisible (selectNoneButton);
         selectButtons.add (selectNoneButton);

@@ -46,6 +46,72 @@
 
 #define MS_FROM_START Time::highResolutionTicksToSeconds (Time::getHighResolutionTicks() - start) * 1000
 
+LatencyMeter::LatencyMeter (GenericProcessor* processor_)
+    : processor (processor_),
+      counter (0)
+{
+}
+
+void LatencyMeter::update (const Array<const DataStream*>& dataStreams)
+{
+    std::lock_guard<std::mutex> lock (latencyMutex); // Lock to ensure thread-safe modification
+    latencies.clear();
+
+    for (auto dataStream : dataStreams)
+    {
+        uint16 streamId = dataStream->getStreamId();
+        latencies[streamId] = std::vector<int> (10, 0); // Initialize with 10 zeros
+    }
+}
+
+void LatencyMeter::setLatestLatency (std::map<uint16, juce::int64>& processStartTimes, bool headlessMode)
+{
+    if (counter % 10 == 0) // update latency estimate every 10 process blocks
+    {
+        auto currentTime = juce::Time::getHighResolutionTicks();
+
+        for (auto& entry : processStartTimes)
+        {
+            latencies[entry.first].emplace_back (static_cast<int> (currentTime - entry.second));
+            if (latencies[entry.first].size() > 10)
+                latencies[entry.first].erase (latencies[entry.first].begin()); // Keep the size to 10
+        }
+
+        if (counter % 50 == 0) // compute mean latency every 50 process blocks
+        {
+            for (auto& entry : processStartTimes)
+            {
+                float totalLatency = 0.0f;
+
+                for (auto latency : latencies[entry.first])
+                    totalLatency += static_cast<float> (latency);
+
+                totalLatency = (totalLatency / 10.0f) / static_cast<float> (juce::Time::getHighResolutionTicksPerSecond()) * 1000.0f;
+
+                if (! headlessMode)
+                    processor->getEditor()->setMeanLatencyMs (entry.first, totalLatency);
+
+                // Store the latest total latency in a thread-safe manner
+                {
+                    std::lock_guard<std::mutex> lock (latencyMutex);
+                    latestLatencies[entry.first] = totalLatency;
+                }
+            }
+        }
+    }
+
+    counter++;
+}
+
+float LatencyMeter::getLatestLatency (uint16 key)
+{
+    std::lock_guard<std::mutex> lock (latencyMutex);
+    auto it = latestLatencies.find (key);
+    if (it != latestLatencies.end())
+        return it->second;
+    return 0.0f;
+}
+
 const String GenericProcessor::m_unusedNameString ("xxx-UNUSED-OPEN-EPHYS-xxx");
 
 std::map<int, std::vector<ProcessorAction*>> GenericProcessor::undoableActions;
@@ -366,6 +432,7 @@ void GenericProcessor::addSelectedStreamParameter (
     const String& description,
     Array<String> streamNames,
     const int defaultIndex,
+    bool syncWithStreamSelector,
     bool deactivateDuringAcquisition)
 {
     SelectedStreamParameter* p =
@@ -376,6 +443,7 @@ void GenericProcessor::addSelectedStreamParameter (
                                      description,
                                      streamNames,
                                      defaultIndex,
+                                     syncWithStreamSelector,
                                      deactivateDuringAcquisition);
 
     if (scope == Parameter::PROCESSOR_SCOPE)
@@ -458,8 +526,14 @@ void GenericProcessor::parameterChangeRequest (Parameter* param)
 
     setParameter (-1, 0.0f);
 
-    if (! headlessMode)
-        getEditor()->updateView();
+    if (! headlessMode
+        && dataStreams.size() > 0
+        && param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
+        && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
+    {
+        uint16 streamId = dataStreams[param->getValue()]->getStreamId();
+        getEditor()->updateSelectedStream (streamId);
+    }
 }
 
 void GenericProcessor::setParameter (int parameterIndex, float newValue)
@@ -535,18 +609,8 @@ void GenericProcessor::clearSettings()
     continuousChannels.clearQuick (false);
     continuousChannels.addArray (continuousChannelsToKeep);
 
-    Array<EventChannel*> eventChannelsToKeep;
-
-    for (auto obj : eventChannels)
-    {
-        if (! obj->isLocal())
-            delete obj;
-        else
-            eventChannelsToKeep.add (obj);
-    }
-
-    eventChannels.clearQuick (false);
-    eventChannels.addArray (eventChannelsToKeep);
+    // Clear all event channels. No need to keep local channels around.
+    eventChannels.clear();
 
     Array<SpikeChannel*> spikeChannelsToKeep;
 
@@ -1219,7 +1283,7 @@ void GenericProcessor::setTimestampAndSamples (int64 sampleNumber,
                                                                 m_initialProcessTime,
                                                                 syncStreamId);
 
-    m_currentMidiBuffer->addEvent (data, int(dataSize), 0);
+    m_currentMidiBuffer->addEvent (data, int (dataSize), 0);
 
     //since the processor generating the timestamp won't get the event, add it to the map
     startTimestampsForBlock[streamId] = timestamp;
@@ -1398,7 +1462,7 @@ void GenericProcessor::addEvent (const Event* event, int sampleNum)
 
     event->serialize (buffer, size);
 
-    m_currentMidiBuffer->addEvent (buffer, int(size), sampleNum >= 0 ? sampleNum : 0);
+    m_currentMidiBuffer->addEvent (buffer, int (size), sampleNum >= 0 ? sampleNum : 0);
 
     if (event->getBaseType() == Event::Type::PROCESSOR_EVENT)
     {
@@ -1503,7 +1567,7 @@ void GenericProcessor::addSpike (const Spike* spike)
 
     spike->serialize (buffer, size);
 
-    m_currentMidiBuffer->addEvent (buffer, int(size), 0);
+    m_currentMidiBuffer->addEvent (buffer, int (size), 0);
 }
 
 void GenericProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& eventBuffer)
@@ -1517,8 +1581,7 @@ void GenericProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& eve
 
     process (buffer);
 
-    if (! headlessMode)
-        latencyMeter->setLatestLatency (processStartTimes);
+    latencyMeter->setLatestLatency (processStartTimes, headlessMode);
 }
 
 Array<const EventChannel*> GenericProcessor::getEventChannels()
@@ -2117,57 +2180,4 @@ GenericProcessor::DefaultEventInfo::DefaultEventInfo()
       length (0),
       sampleRate (44100)
 {
-}
-
-LatencyMeter::LatencyMeter (GenericProcessor* processor_)
-    : processor (processor_),
-      counter (0)
-{
-}
-
-void LatencyMeter::update (Array<const DataStream*> dataStreams)
-{
-    latencies.clear();
-
-    for (auto dataStream : dataStreams)
-        latencies[dataStream->getStreamId()].insertMultiple (0, 0, 5);
-}
-
-void LatencyMeter::setLatestLatency (std::map<uint16, juce::int64>& processStartTimes)
-{
-    if (counter % 10 == 0) // update latency estimate every 10 process blocks
-    {
-        std::map<uint16, juce::int64>::iterator it = processStartTimes.begin();
-
-        int64 currentTime = Time::getHighResolutionTicks();
-
-        while (it != processStartTimes.end())
-        {
-            latencies[it->first].set (counter % 5, int(currentTime - it->second));
-            it++;
-        }
-
-        if (counter % 50 == 0) // compute mean latency every 50 process blocks
-        {
-            std::map<uint16, juce::int64>::iterator it = processStartTimes.begin();
-
-            while (it != processStartTimes.end())
-            {
-                float totalLatency = 0.0f;
-
-                for (int i = 0; i < 10; i++)
-                    totalLatency += float (latencies[it->first][i]);
-
-                totalLatency = totalLatency
-                               / float (Time::getHighResolutionTicksPerSecond())
-                               * 1000.0f;
-
-                processor->getEditor()->setMeanLatencyMs (it->first, totalLatency);
-
-                it++;
-            }
-        }
-    }
-
-    counter++;
 }

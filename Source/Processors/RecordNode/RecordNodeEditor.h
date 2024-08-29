@@ -33,6 +33,93 @@
 class RecordThread;
 class RecordNode;
 
+/** 
+* 
+    Base class to display a metric related to synchronization
+    in the StreamSelector
+
+    Sub-classes override paint() to display the metric
+
+*/
+class SyncMonitor : public Component
+{
+public:
+    /** Constructor */
+    SyncMonitor();
+
+    /** Destructor */
+    ~SyncMonitor();
+
+    /** Sets the most recent sync metric */
+    void setSyncMetric (bool isSynchronized, float syncMetric);
+
+    /** Enable or disable this component*/
+    void setEnabled (bool isEnabled);
+
+protected:
+    bool isEnabled = true;
+    bool isSynchronized = false;
+    float metric = 0.0f;
+};
+
+/** 
+* 
+    Displays the discrepancy between actual and expected
+    event times, given the current sync parameters
+
+*/
+class SyncAccuracyMonitor : public SyncMonitor
+{
+public:
+    /** Constructor */
+    SyncAccuracyMonitor() {}
+
+    /** Destructor */
+    ~SyncAccuracyMonitor() {}
+
+    /** Paints the metric */
+    void paint (Graphics& g);
+};
+
+/** 
+* 
+    Displays the approximate time since a last sync event 
+    was received
+
+*/
+class LastSyncEventMonitor : public SyncMonitor
+{
+public:
+    /** Constructor */
+    LastSyncEventMonitor() {}
+
+    /** Destructor */
+    ~LastSyncEventMonitor() {}
+
+    /** Paints the metric */
+    void paint (Graphics& g);
+};
+
+/** 
+* 
+    Displays the offset between stream start times
+
+*/
+class SyncStartTimeMonitor : public SyncMonitor
+{
+public:
+    /** Constructor */
+    SyncStartTimeMonitor() {}
+
+    /** Destructor */
+    ~SyncStartTimeMonitor() {}
+
+    /** Paints the metric */
+    void paint (Graphics& g);
+};
+
+
+
 class StreamMonitor : public LevelMonitor
 {
 public:
@@ -45,9 +132,18 @@ public:
     /** Updates the display */
     void timerCallback() override;
 
+    /** Draws the monitor with custom text */
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
+    /** Updates the number of channels to be recorded */
+    void updateChannelCount (int selectedChans);
+
 private:
     uint64 streamId;
+    int selectedChannels;
+    int totalChannels;
 };
+
 
 class DiskMonitor : public LevelMonitor, public DiskSpaceListener
 {
@@ -188,6 +284,9 @@ public:
     /** Hides FIFO monitors when the editor is collapsed*/
     void collapsedStateChanged() override;
 
+    /** Propagates new settings to sync monitors */
+    void updateSyncMonitors();
+
     /** Propagates new settings to FIFO Monitors */
     void updateFifoMonitors();
 
@@ -209,6 +308,15 @@ public:
     /** Enables parameter changes */
     void stopRecording() override {};
 
+    /** Set start time for each stream */
+    void setStreamStartTime (uint16 streamId, bool isSynchronized, float offsetMs);
+
+    /** Set the time of latest sync pulse */
+    void setLastSyncEvent (uint16 streamId, bool isSynchronized, float syncTimeSeconds);
+
+     /** Set the synchronization accuracy metric for a particular stream */
+    void setSyncAccuracy (uint16 streamId, bool isSynchronized, float expectedMinusActual);
+
     std::unique_ptr<FifoDrawerButton> fifoDrawerButton;
 
 private:
@@ -218,6 +326,10 @@ private:
     std::vector<ParameterEditor*> streamMonitors;
     std::vector<ParameterEditor*> syncMonitors;
     std::unique_ptr<DiskMonitor> diskMonitor;
+
+    std::map<uint16, SyncStartTimeMonitor*> syncStartTimeMonitors;
+    std::map<uint16, SyncAccuracyMonitor*> syncAccuracyMonitors;
+    std::map<uint16, LastSyncEventMonitor*> lastSyncEventMonitors;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNodeEditor);
 };

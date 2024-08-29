@@ -43,6 +43,9 @@ jobs:
         cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
         cp -r ../Resources/DLLs/FTD3XXDriver_WHQLCertified_1.3.0.8_Installer.exe open-ephys
         cp ../LICENSE open-ephys
+        cp C:/Windows/System32/msvcp140.dll open-ephys
+        cp C:/Windows/System32/vcruntime140.dll open-ephys
+        cp C:/Windows/System32/vcruntime140_1.dll open-ephys
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-v1.0.0-dev-windows.zip
         powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
@@ -59,13 +62,18 @@ jobs:
         cp -r ../Resources/DLLs/FrontPanelUSB-DriverOnly-4.5.5.exe open-ephys
         cp -r ../Resources/DLLs/FTD3XXDriver_WHQLCertified_1.3.0.8_Installer.exe open-ephys
         cp ../LICENSE open-ephys
+        cp C:/Windows/System32/msvcp140.dll open-ephys
+        cp C:/Windows/System32/vcruntime140.dll open-ephys
+        cp C:/Windows/System32/vcruntime140_1.dll open-ephys
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-v1.0.0-alpha.1-windows.zip
         powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
         user_info="X-JFrog-Art-Api:$artifactoryApiKey"
         curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/1.0.0-alpha/windows/$zipfile"
 
-        cd ../Resources/Installers/Windows
+        cd open-ephys
+        rm -f msvcp140.dll vcruntime140.dll vcruntime140_1.dll
+        cd ../../Resources/Installers/Windows
         iscc "windows_installer_script.iss"
         installer=Install-Open-Ephys-GUI-v1.0.0-alpha.1.exe
         mv Open-Ephys_Installer.exe $installer
