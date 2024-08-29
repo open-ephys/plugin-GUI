@@ -62,6 +62,29 @@ enum SpikePlotType
 #define STEREO_PLOT 1002
 #define SINGLE_PLOT 1001
 
+/** 
+
+    Button to trigger audio monitoring for a given electrode
+
+*/
+
+class MonitorButton : public Button
+{
+public:
+    /** Constructor */
+    MonitorButton();
+
+    /** Destructor */
+    ~MonitorButton() {}
+
+    /** Renders button */
+    void paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown) override;
+
+ private:
+
+     std::unique_ptr<Drawable> headphoneIcon;
+};
+
 /**
 
   Class for drawing the waveforms and projections of incoming spikes
@@ -170,7 +193,7 @@ private:
     OwnedArray<WaveAxes> waveAxes;
     OwnedArray<UtilityButton> rangeButtons;
 
-    std::unique_ptr<UtilityButton> monitorButton;
+    std::unique_ptr<MonitorButton> monitorButton;
 
     Array<float> ranges;
 
