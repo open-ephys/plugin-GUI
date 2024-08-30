@@ -38,6 +38,27 @@
 #include "LookAndFeel/CustomLookAndFeel.h"
 #include <queue>
 
+/**
+
+    Locks the new directory button to force new directories for each recording.
+
+*/
+class ForceNewDirectoryButton : public Button
+{
+public:
+    /** Constructor */
+    ForceNewDirectoryButton();
+
+    /** Destructor */
+    ~ForceNewDirectoryButton() {}
+
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
+private:
+
+    std::unique_ptr<Drawable> forceNewDirectoryIcon;
+};
+
 /** 
 
     Allows the user to specify custom file names,
@@ -461,7 +482,7 @@ private:
     std::unique_ptr<DiskSpaceMeter> diskMeter;
     std::unique_ptr<FilenameComponent> filenameComponent;
     std::unique_ptr<UtilityButton> newDirectoryButton;
-    std::unique_ptr<UtilityButton> forceNewDirectoryButton;
+    std::unique_ptr<ForceNewDirectoryButton> forceNewDirectoryButton;
     std::unique_ptr<CustomArrowButton> showHideRecordingOptionsButton;
     std::unique_ptr<RecordButton> recordButton;
     std::unique_ptr<ComboBox> recordSelector;

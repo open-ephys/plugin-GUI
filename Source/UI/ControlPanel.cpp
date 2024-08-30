@@ -35,6 +35,41 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
 //const int SIZE_AUDIO_EDITOR_MIN_WIDTH = 250;
 
+ForceNewDirectoryButton::ForceNewDirectoryButton () : Button ("ForceNewDirectory")
+{
+    XmlDocument xmlDoc (R"(
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-lock" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+        <path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z" fill="currentColor" />
+        <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" fill="currentColor" />
+        <path d="M8 11v-4a4 4 0 1 1 8 0v4" fill="currentColor"/>
+        </svg>)");
+
+    forceNewDirectoryIcon = Drawable::createFromSVG (*xmlDoc.getDocumentElement().get());
+
+    setClickingTogglesState (true);
+
+}
+
+void ForceNewDirectoryButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+    Colour buttonColour;
+
+    if (getToggleState())
+        buttonColour = findColour (ThemeColours::highlightedFill);
+    else
+        buttonColour = findColour (ThemeColours::defaultText);
+
+    if (isMouseOver)
+        buttonColour = buttonColour.brighter (0.2f);
+
+    forceNewDirectoryIcon->replaceColour (Colours::black, buttonColour);
+
+    forceNewDirectoryIcon->drawWithin (g, getLocalBounds().toFloat(), RectanglePlacement::centred, 1.0f);
+
+    forceNewDirectoryIcon->replaceColour (buttonColour, Colours::black);
+}
+
 FilenameEditorButton::FilenameEditorButton()
     : TextButton ("Filename Editor")
 {
@@ -387,19 +422,17 @@ ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool
 
     newDirectoryButton = std::make_unique<UtilityButton> ("+");
     newDirectoryButton->setFont (FontOptions ("Silkscreen", "Regular", 15));
-    newDirectoryButton->setEnabledState (false);
+    newDirectoryButton->setEnabled (false);
     newDirectoryButton->addListener (this);
     newDirectoryButton->setTooltip ("Start a new data directory for next recording");
     newDirectoryButton->setToggleState (true, sendNotification);
     newDirectoryButton->setClickingTogglesState (true);
     addChildComponent (newDirectoryButton.get());
 
-    forceNewDirectoryButton = std::make_unique<UtilityButton> ("F");
-    forceNewDirectoryButton->setFont (FontOptions ("Silkscreen", "Regular", 15));
-    forceNewDirectoryButton->setEnabledState (true);
+    forceNewDirectoryButton = std::make_unique<ForceNewDirectoryButton> ();
+    forceNewDirectoryButton->setEnabled (true);
     forceNewDirectoryButton->addListener (this);
     forceNewDirectoryButton->setTooltip ("Force a new data directory for each recording");
-    forceNewDirectoryButton->setClickingTogglesState (true);
     addChildComponent (forceNewDirectoryButton.get());
 
     clock = std::make_unique<Clock>();
@@ -890,12 +923,12 @@ void ControlPanel::stopRecording()
     if (forceNewDirectoryButton->getToggleState())
     {
         newDirectoryButton->setToggleState (true, dontSendNotification);
-        newDirectoryButton->setEnabledState (false);
+        newDirectoryButton->setEnabled (false);
     }
     else
     {
         newDirectoryButton->setToggleState (false, dontSendNotification);
-        newDirectoryButton->setEnabledState (true);
+        newDirectoryButton->setEnabled (true);
     }
 
     recordButton->updateImages (false);
@@ -953,7 +986,7 @@ void ControlPanel::buttonClicked (Button* button)
 
     if (button == newDirectoryButton.get())
     {
-        //Setting the button state only takes affect on the next recording
+        //Setting the button state only takes effect on the next recording
         return;
     }
 
@@ -961,7 +994,11 @@ void ControlPanel::buttonClicked (Button* button)
     {
         if (button->getToggleState()) {
             newDirectoryButton->setToggleState (true, dontSendNotification);
-            newDirectoryButton->setEnabledState (false);
+            newDirectoryButton->setEnabled (false);
+        }
+        else
+        {
+            newDirectoryButton->setEnabled (true);
         }
         return;
     }
@@ -1055,7 +1092,7 @@ void ControlPanel::setSelectedRecordEngine (int index)
     re = recordEngines[index]->instantiateEngine();
     re->registerManager (recordEngines[index]);
 
-    newDirectoryButton->setEnabledState (false);
+    newDirectoryButton->setEnabled (false);
     clock->resetRecordingTime();
 
     lastEngineIndex = index;
