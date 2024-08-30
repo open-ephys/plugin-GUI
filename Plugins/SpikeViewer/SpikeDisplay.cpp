@@ -38,7 +38,7 @@ SpikeDisplay::SpikeDisplay (SpikeDisplayCanvas* sdc, Viewport* v) : canvas (sdc)
     grid.alignItems = Grid::AlignItems::start;
 
     //grid.templateColumns = Grid::TrackInfo (Grid::Fr (1)); // 1 fraction unit per column
-    grid.autoColumns = Grid::TrackInfo (Grid::Px(1)); // Automatically create columns with 1 fraction unit
+    //grid.autoColumns = Grid::TrackInfo (Grid::Px(1)); // Automatically create columns with 1 fraction unit
     //grid.autoRows = Grid::TrackInfo (Grid::Px (50)); // Automatically create rows with a fixed height
     grid.autoFlow = Grid::AutoFlow::column; // Flow items in column order, wrapping to the next row if needed
     grid.columnGap = Grid::Px (10); // Gap between columns

@@ -1292,46 +1292,6 @@ void GenericProcessor::setTimestampAndSamples (int64 sampleNumber,
     processStartTimes[streamId] = m_initialProcessTime;
 }
 
-std::optional<std::pair<int64, double>> GenericProcessor::getReferenceSampleForBlock (uint16 streamId)
-{
-    if (referenceSamplesForBlock.find (streamId) != referenceSamplesForBlock.end())
-    {
-        return referenceSamplesForBlock.at (streamId);
-    }
-    else
-    {
-        return std::nullopt;
-    }
-}
-
-void GenericProcessor::setReferenceSample (uint16 streamId,
-                                           double timestamp,
-                                           int64 sampleIndex)
-{
-    //Check last referenceSample and return if this sample is equal
-    if (referenceSamplesForBlock.find (streamId) != referenceSamplesForBlock.end())
-    {
-        std::optional<std::pair<int64, double>> lastReferenceSample = referenceSamplesForBlock.at (streamId);
-        if (lastReferenceSample.has_value())
-        {
-            if (sampleIndex == lastReferenceSample.value().first && timestamp == lastReferenceSample.value().second)
-            {
-                return;
-            }
-        }
-    }
-
-    HeapBlock<char> data;
-    size_t dataSize = SystemEvent::fillReferenceSampleEvent (data,
-                                                             this,
-                                                             streamId,
-                                                             sampleIndex,
-                                                             timestamp);
-
-    m_currentMidiBuffer->addEvent (data, dataSize, 0);
-    referenceSamplesForBlock[streamId] = { sampleIndex, timestamp };
-}
-
 int GenericProcessor::getGlobalChannelIndex (uint16 streamId, int localIndex) const
 {
     return getDataStream (streamId)->getContinuousChannels()[localIndex]->getGlobalIndex();

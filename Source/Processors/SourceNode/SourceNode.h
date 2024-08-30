@@ -129,7 +129,6 @@ private:
 
     int64 sampleNumber = 0;
     double timestamp = -1.0;
-    std::optional<int64> timestampSampleIndex;
 
     OwnedArray<MemoryBlock> eventCodeBuffers;
     Array<uint64> eventStates;

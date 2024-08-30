@@ -241,6 +241,7 @@ public:
                                              double startTimestamp,
                                              bool softwareTime = false);
 
+    /* Create a REFERENCE_SAMPLE event to indicate correspondence between timestamps and sample numbers */
     static size_t fillReferenceSampleEvent (HeapBlock<char>& data,
                                             const GenericProcessor* proc,
                                             uint16 streamId,
