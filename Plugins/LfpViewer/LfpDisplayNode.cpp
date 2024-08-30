@@ -318,72 +318,74 @@ void LfpDisplayNode::acknowledgeTrigger (int id)
     latestTrigger.set (id, -1);
 }
 
-bool LfpDisplayNode::getIntField (DynamicObject::Ptr payload, String name, int& value, int lowerBound, int upperBound)
-{
-    if (! payload->hasProperty (name) || ! payload->getProperty (name).isInt())
-        return false;
-    int tempVal = payload->getProperty (name);
-
-    if ((upperBound != INT32_MIN && tempVal > upperBound) || (lowerBound != INT32_MAX && tempVal < lowerBound))
-        return false;
-    value = tempVal;
-    return true;
-}
-
 void LfpDisplayNode::handleBroadcastMessage (const String& msg, const int64 messageTimeMillis)
 {
     var parsedMessage = JSON::parse (msg);
+
     if (! parsedMessage.isObject())
-        return;
-    DynamicObject::Ptr jsonMessage = parsedMessage.getDynamicObject();
-    if (jsonMessage == nullptr)
-        return;
-    String pluginName = jsonMessage->getProperty ("plugin");
-    if (pluginName != "LFPViewer")
     {
+        LOGC ("Failed to parse JSON message");
+
         return;
     }
+
+    DynamicObject::Ptr jsonMessage = parsedMessage.getDynamicObject();
+
+    if (jsonMessage == nullptr)
+    {
+        LOGC ("Json message did not map to dynamic object");
+
+        return;
+    }
+
+    String pluginName = jsonMessage->getProperty ("plugin");
+
+    if (pluginName != "LFPViewer")
+        return;
+
     String command = jsonMessage->getProperty ("command");
     DynamicObject::Ptr payload = jsonMessage->getProperty ("payload").getDynamicObject();
+
     if (command == "filter")
     {
         if (payload.get() == nullptr)
         {
             LOGD ("Tried to filter in LFPViewer, but could not find a payload");
+
             return;
         }
-        int split, start, rows, cols, colsPerRow, end;
-        if (! getIntField (payload, "split", split, 0, 2) || ! getIntField (payload, "start", start, 0))
-        {
-            LOGD ("Tried to filter in LFPViewer, but a valid split and start weren't provided");
+
+        if (! payload->hasProperty ("stream_id"))
             return;
-        }
-        Array<int> channelNames;
-        //If an end is specificed add channels from start to end
-        //Else calculate the rectangular selection based on rows and columns
-        if (getIntField (payload, "end", end, 0))
+
+        auto& p = payload->getProperty ("stream_id");
+
+        if (! p.isInt())
+            return;
+
+        auto filteredStreamId = p.operator int();
+
+        if (! payload->hasProperty ("local_channel_indices"))
+            return;
+
+        auto& filteredLocalChidxsVar = payload->getProperty ("local_channel_indices");
+
+        if (! filteredLocalChidxsVar.isArray())
+            return;
+
+        auto& filteredLocalChidxsV = *filteredLocalChidxsVar.getArray();
+        Array<int> filteredLocalChidxs;
+
+        for (const auto& chidx : filteredLocalChidxsV)
+            filteredLocalChidxs.add ((int) chidx);
+
+        for (auto& display : splitDisplays)
         {
-            for (int index = 0; index < (end - start); index++)
+            if (display->selectedStreamId == filteredStreamId)
             {
-                channelNames.add (start + index);
+                display->setFilteredChannels (filteredLocalChidxs);
+                display->shouldRebuildChannelList = true;
             }
         }
-        else
-        {
-            if (! getIntField (payload, "rows", rows, 0) || ! getIntField (payload, "cols", cols, 0) || ! getIntField (payload, "colsPerRow", colsPerRow, 0))
-            {
-                LOGD ("Tried to filter by rectangular selection in LFPViewer, but valid row/column/columnsPerRow counts weren't provided");
-                return;
-            }
-            for (int row = 0; row < rows; row++)
-            {
-                for (int col = 0; col < cols; col++)
-                {
-                    channelNames.add (start + col + row * colsPerRow);
-                }
-            }
-        }
-        splitDisplays[split]->setFilteredChannels (channelNames);
-        splitDisplays[split]->shouldRebuildChannelList = true;
     }
 }

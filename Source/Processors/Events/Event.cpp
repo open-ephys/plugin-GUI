@@ -256,6 +256,25 @@ size_t SystemEvent::fillTimestampSyncTextData (
     return dataSize;
 }
 
+size_t SystemEvent::fillReferenceSampleEvent (HeapBlock<char>& data,
+                                              const GenericProcessor* proc,
+                                              uint16 streamId,
+                                              int64 referenceSampleIndex,
+                                              double referenceSampleTimestamp)
+{
+    const int eventSize = EVENT_BASE_SIZE;
+    data.malloc (eventSize);
+    data[0] = SYSTEM_EVENT; // 1 byte
+    data[1] = REFERENCE_SAMPLE; // 1 byte
+    *reinterpret_cast<uint16*> (data.getData() + 2) = proc->getNodeId(); // 2 bytes
+    *reinterpret_cast<uint16*> (data.getData() + 4) = streamId; // 2 bytes
+    data[6] = 0; // 1 byte
+    data[7] = 0; // 1 byte
+    *reinterpret_cast<int64*> (data.getData() + 8) = referenceSampleIndex; // 8 bytes
+    *reinterpret_cast<double*> (data.getData() + 16) = referenceSampleTimestamp; // 8 bytes
+    return eventSize;
+}
+
 uint32 SystemEvent::getNumSamples (const EventPacket& packet)
 {
     if (getBaseType (packet) != SYSTEM_EVENT && getSystemEventType (packet) != TIMESTAMP_AND_SAMPLES)

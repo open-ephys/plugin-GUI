@@ -617,6 +617,12 @@ protected:
                                  uint16 streamId,
                                  uint16 syncStreamId = 0);
 
+    std::optional<std::pair<int64, double>> getReferenceSampleForBlock (uint16 streamId);
+
+    void setReferenceSample (uint16 streamId,
+                             double timestamp,
+                             int64 sampleIndex);
+
     // --------------------------------------------
     //     CHANNEL INDEXING
     // --------------------------------------------
@@ -762,6 +768,9 @@ private:
 
     /** First software timestamp of process() callback. */
     juce::int64 m_initialProcessTime;
+
+    /** Map between stream IDs and  reference samples */
+    std::map<uint16, std::optional<std::pair<int64, double>>> referenceSamplesForBlock;
 
     /** Built-in method for creating continuous channels. */
     void createDataChannelsByType (ContinuousChannel::Type type);

@@ -120,6 +120,8 @@ private:
 
     float scaleFactor = 1.0f;
 
+    Grid grid;
+
     SpikeThresholdCoordinator* thresholdCoordinator;
 };
 

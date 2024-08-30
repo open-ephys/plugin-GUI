@@ -32,6 +32,17 @@ SpikeDisplay::SpikeDisplay (SpikeDisplayCanvas* sdc, Viewport* v) : canvas (sdc)
                                                                     thresholdCoordinator (nullptr)
 {
     totalHeight = 1000;
+
+    grid.alignContent = Grid::AlignContent::start;
+    grid.justifyContent = Grid::JustifyContent::start;
+    grid.alignItems = Grid::AlignItems::start;
+
+    //grid.templateColumns = Grid::TrackInfo (Grid::Fr (1)); // 1 fraction unit per column
+    grid.autoColumns = Grid::TrackInfo (Grid::Px(1)); // Automatically create columns with 1 fraction unit
+    //grid.autoRows = Grid::TrackInfo (Grid::Px (50)); // Automatically create rows with a fixed height
+    grid.autoFlow = Grid::AutoFlow::column; // Flow items in column order, wrapping to the next row if needed
+    grid.columnGap = Grid::Px (10); // Gap between columns
+    grid.rowGap = Grid::Px (10); // Gap between rows
 }
 
 void SpikeDisplay::removePlots()
@@ -80,7 +91,23 @@ void SpikeDisplay::resized()
 {
     if (spikePlots.size() > 0)
     {
-        int w = getWidth();
+
+        Array<GridItem> items;
+
+        int height = 200 * scaleFactor;
+
+        for (auto spikePlot : spikePlots)
+        {
+            items.add (GridItem (spikePlot).withSize(height * spikePlot->aspectRatio, height));
+        }
+
+        grid.items = items;
+
+        LOGD ("Component bounds: ", getLocalBounds().toString());
+
+        grid.performLayout (Rectangle<int>(500,500));
+
+        /* int w = getWidth();
 
         int numColumns = 1;
         int column, row;
@@ -161,7 +188,7 @@ void SpikeDisplay::resized()
 
         totalHeight = (int) maxHeight;
 
-        setBounds (0, 0, getWidth(), totalHeight);
+        setBounds (0, 0, getWidth(), totalHeight);*/
     }
 }
 

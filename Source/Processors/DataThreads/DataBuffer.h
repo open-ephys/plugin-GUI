@@ -27,6 +27,8 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
+#include <optional>
+
 /**
     Manages reading and writing data to a circular buffer.
 
@@ -59,7 +61,8 @@ public:
                      int64* sampleNumbers,
                      double* timestamps,
                      uint64* eventCodes,
-                     int numItems);
+                     int numItems,
+                     std::optional<int64> timestampSampleIndex = std::nullopt);
 
     /** Returns the number of samples currently available in the buffer.*/
     int getNumSamples() const;
@@ -70,6 +73,7 @@ public:
                            double* timestamps,
                            uint64* eventCodes,
                            int maxSize,
+                           std::optional<int64>* timestampSampleIndex,
                            int dstStartChannel = 0,
                            int numChannels = -1);
 
@@ -83,6 +87,7 @@ private:
     HeapBlock<int64> sampleNumberBuffer;
     HeapBlock<double> timestampBuffer;
     HeapBlock<uint64> eventCodeBuffer;
+    HeapBlock<std::optional<int64>> timestampSampleBuffer;
 
     int64 lastSampleNumber;
     double lastTimestamp;

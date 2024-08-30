@@ -23,7 +23,10 @@
 
 #include "BroadcastPayload.h"
 
-BroadcastPayload::BroadcastPayload (String command, DynamicObject::Ptr payload) : _commandName (command), _payload (payload) {}
+
+BroadcastPayload::BroadcastPayload() : _commandName ("") {}
+
+BroadcastPayload::BroadcastPayload(String command, DynamicObject::Ptr payload) : _commandName(command), _payload(payload) {}
 
 String BroadcastPayload::getCommandName() const
 {
@@ -39,4 +42,9 @@ bool BroadcastPayload::getIntField (String name, int& value, int lowerBound, int
         return false;
     value = tempVal;
     return true;
+}
+
+const DynamicObject::Ptr BroadcastPayload::getPayload() const
+{
+    return _payload;
 }
