@@ -55,7 +55,7 @@ public:
     SpikePlot* addSpikePlot (int numChannels, int electrodeNum, String name, std::string identifier);
 
     /** Returns a spike plot based on index*/
-    SpikePlot* getSpikePlot (int index);
+    SpikePlot* getSpikePlot (int numChannels, int index);
 
     /** Renders gray background */
     void paint (Graphics& g);
@@ -114,15 +114,16 @@ private:
     SpikeDisplayCanvas* canvas;
     Viewport* viewport;
 
-    OwnedArray<SpikePlot> spikePlots;
+    OwnedArray<SpikePlot> singleElectrodePlots;
+    OwnedArray<SpikePlot> stereotrodePlots;
+    OwnedArray<SpikePlot> tetrodePlots;
+    Array<SpikePlot*> spikePlots;
 
     bool shouldInvert;
 
     float scaleFactor = 1.0f;
 
-    Grid singleElectrodeGrid;
-    Grid stereotrodeGrid;
-    Grid tetrodeGrid;
+    Grid grid;
 
     SpikeThresholdCoordinator* thresholdCoordinator;
 };
