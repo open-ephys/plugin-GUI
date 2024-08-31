@@ -152,7 +152,8 @@ void SpikeDisplayCanvas::resized()
 {
     viewport->setBounds (0, 0, getWidth(), getHeight() - 30); // leave space at bottom for buttons
 
-    spikeDisplay->setBounds (0, 0, getWidth() - scrollBarThickness, spikeDisplay->getTotalHeight());
+    spikeDisplay->setBounds (0, 0, getWidth() - scrollBarThickness * 2, 9999); // once to calculate the total height
+    spikeDisplay->setBounds (0, 0, getWidth() - scrollBarThickness * 2, spikeDisplay->getTotalHeight()); // again to set the height
 
     clearButton->setBounds (10, getHeight() - 25, 130, 20);
 

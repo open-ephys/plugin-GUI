@@ -26,6 +26,7 @@
 #include "SpikeDisplayCanvas.h"
 #include "SpikePlots.h"
 
+
 SpikeDisplay::SpikeDisplay (SpikeDisplayCanvas* sdc, Viewport* v) : canvas (sdc),
                                                                     viewport (v),
                                                                     shouldInvert (false),
@@ -33,16 +34,14 @@ SpikeDisplay::SpikeDisplay (SpikeDisplayCanvas* sdc, Viewport* v) : canvas (sdc)
 {
     totalHeight = 1000;
 
-    grid.alignContent = Grid::AlignContent::start;
-    grid.justifyContent = Grid::JustifyContent::start;
-    grid.alignItems = Grid::AlignItems::start;
-
-    //grid.templateColumns = Grid::TrackInfo (Grid::Fr (1)); // 1 fraction unit per column
-    //grid.autoColumns = Grid::TrackInfo (Grid::Px(1)); // Automatically create columns with 1 fraction unit
-    //grid.autoRows = Grid::TrackInfo (Grid::Px (50)); // Automatically create rows with a fixed height
-    grid.autoFlow = Grid::AutoFlow::column; // Flow items in column order, wrapping to the next row if needed
-    grid.columnGap = Grid::Px (10); // Gap between columns
-    grid.rowGap = Grid::Px (10); // Gap between rows
+    singleElectrodeGrid.alignContent = Grid::AlignContent::start;
+    singleElectrodeGrid.justifyContent = Grid::JustifyContent::start;
+    singleElectrodeGrid.alignItems = Grid::AlignItems::center;
+    singleElectrodeGrid.justifyItems = Grid::JustifyItems::start;
+    singleElectrodeGrid.autoFlow = Grid::AutoFlow::row;
+    
+    singleElectrodeGrid.columnGap = Grid::Px (5); // Gap between columns
+    singleElectrodeGrid.rowGap = Grid::Px (5); // Gap between rows
 }
 
 void SpikeDisplay::removePlots()
@@ -95,17 +94,32 @@ void SpikeDisplay::resized()
         Array<GridItem> items;
 
         int height = 200 * scaleFactor;
+        int width;
 
         for (auto spikePlot : spikePlots)
         {
-            items.add (GridItem (spikePlot).withSize(height * spikePlot->aspectRatio, height));
+            width = height * spikePlot->aspectRatio;
+            items.add (GridItem (spikePlot).withSize (width, height));
         }
 
-        grid.items = items;
+        singleElectrodeGrid.items = items;
 
-        LOGD ("Component bounds: ", getLocalBounds().toString());
+        //LOGD ("Component bounds: ", getLocalBounds().toString());
 
-        grid.performLayout (Rectangle<int>(500,500));
+        int columnWidth = width; // Desired width of each column
+        int numColumns = getWidth() / columnWidth;
+
+        singleElectrodeGrid.templateColumns.clear();
+        
+        for (int i = 0; i < numColumns; ++i)
+            singleElectrodeGrid.templateColumns.add (Grid::TrackInfo { Grid::Px { columnWidth } });
+
+        singleElectrodeGrid.templateRows = juce::Grid::TrackInfo (juce::Grid::Px (height)); // Fixed row height
+
+        singleElectrodeGrid.performLayout (getLocalBounds());
+        //LOGD ("Number of columns: ", singleElectrodeGrid.getNumberOfColumns());
+
+        totalHeight = spikePlots.getLast()->getBottom() + 20;
 
         /* int w = getWidth();
 
@@ -243,6 +257,11 @@ void SpikeDisplay::registerThresholdCoordinator (SpikeThresholdCoordinator* stc)
 int SpikeDisplay::getNumPlots()
 {
     return spikePlots.size();
+}
+
+int SpikeDisplay::getTotalHeight()
+{
+    return totalHeight;
 }
 
 int SpikeDisplay::getNumChannelsForPlot (int plotNum)

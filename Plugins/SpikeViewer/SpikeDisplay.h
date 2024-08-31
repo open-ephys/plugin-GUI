@@ -73,7 +73,7 @@ public:
     void invertSpikes (bool);
 
     /** Returns the total height of the component*/
-    int getTotalHeight() { return totalHeight; }
+    int getTotalHeight();
 
     /** Returns the total number of plots*/
     int getNumPlots();
@@ -120,7 +120,9 @@ private:
 
     float scaleFactor = 1.0f;
 
-    Grid grid;
+    Grid singleElectrodeGrid;
+    Grid stereotrodeGrid;
+    Grid tetrodeGrid;
 
     SpikeThresholdCoordinator* thresholdCoordinator;
 };
