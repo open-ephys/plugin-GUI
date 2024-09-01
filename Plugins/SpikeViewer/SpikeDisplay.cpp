@@ -121,6 +121,11 @@ void SpikeDisplay::resized()
         int columnHeight = 200 * scaleFactor;
         int columnWidth = columnHeight / singleElectrodePlots[0]->aspectRatio;
 
+        int numColumns = getWidth() / columnWidth;
+        numColumns = jmax (1, numColumns);
+        columnWidth = getWidth() / numColumns;
+        columnHeight = columnWidth * singleElectrodePlots[0]->aspectRatio;
+
         Array<GridItem> items;
         
         for (auto spikePlot : singleElectrodePlots)
@@ -129,9 +134,6 @@ void SpikeDisplay::resized()
         }
         
         grid.items = items;
-
-        int numColumns = getWidth() / columnWidth;
-
         grid.templateColumns.clear();
 
         for (int i = 0; i < numColumns; ++i)
@@ -140,7 +142,6 @@ void SpikeDisplay::resized()
         grid.templateRows = juce::Grid::TrackInfo (juce::Grid::Px (columnHeight)); // Fixed row height
 
         grid.performLayout (getLocalBounds().withY(totalHeight));
-        //LOGD ("Number of columns: ", singleElectrodeGrid.getNumberOfColumns());
 
         totalHeight = singleElectrodePlots.getLast()->getBottom() + 20;
     
@@ -150,8 +151,11 @@ void SpikeDisplay::resized()
     {
         int columnHeight = 200 * scaleFactor;
         int columnWidth = columnHeight / stereotrodePlots[0]->aspectRatio;
-
-       
+        
+        int numColumns = getWidth() / columnWidth;
+        numColumns = jmax (1, numColumns);
+        columnWidth = getWidth() / numColumns;
+        columnHeight = columnWidth * stereotrodePlots[0]->aspectRatio;
 
         Array<GridItem> items;
 
@@ -161,9 +165,6 @@ void SpikeDisplay::resized()
         }
 
         grid.items = items;
-
-        int numColumns = getWidth() / columnWidth;
-
         grid.templateColumns.clear();
 
         for (int i = 0; i < numColumns; ++i)
@@ -172,7 +173,6 @@ void SpikeDisplay::resized()
         grid.templateRows = juce::Grid::TrackInfo (juce::Grid::Px (columnHeight)); // Fixed row height
 
         grid.performLayout (getLocalBounds().withY(totalHeight));
-        //LOGD ("Number of columns: ", singleElectrodeGrid.getNumberOfColumns());
 
         totalHeight = stereotrodePlots.getLast()->getBottom() + 20;
     }
@@ -182,12 +182,11 @@ void SpikeDisplay::resized()
         int columnHeight = 400 * scaleFactor;
         int columnWidth = columnHeight / tetrodePlots[0]->aspectRatio;
 
-         if (columnWidth > getWidth() - 20)
-        {
-            columnWidth = getWidth() - 20;
-            columnHeight = columnWidth * tetrodePlots[0]->aspectRatio;
-        }
-            
+        int numColumns = getWidth() / columnWidth;
+        numColumns = jmax (1, numColumns);
+        columnWidth = getWidth() / numColumns;
+        columnHeight = columnWidth * tetrodePlots[0]->aspectRatio;
+
 
         Array<GridItem> items;
 
@@ -197,9 +196,6 @@ void SpikeDisplay::resized()
         }
 
         grid.items = items;
-
-        int numColumns = getWidth() / columnWidth;
-
         grid.templateColumns.clear();
 
         for (int i = 0; i < numColumns; ++i)
@@ -208,7 +204,6 @@ void SpikeDisplay::resized()
         grid.templateRows = juce::Grid::TrackInfo (juce::Grid::Px (columnHeight)); // Fixed row height
 
         grid.performLayout (getLocalBounds().withY (totalHeight));
-        //LOGD ("Number of columns: ", singleElectrodeGrid.getNumberOfColumns());
 
         totalHeight = tetrodePlots.getLast()->getBottom() + 20;
     }
