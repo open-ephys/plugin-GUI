@@ -249,6 +249,18 @@ void SpikeDisplay::setPlotScaleFactor (float scale)
     setBounds (0, 0, getWidth(), totalHeight);
 }
 
+void SpikeDisplay::setRange (int rangeInMicrovolts)
+{
+    for (auto plot : spikePlots)
+        plot->setRange (rangeInMicrovolts);
+}
+
+void SpikeDisplay::setHistorySize (int history)
+{
+    for (auto plot : spikePlots)
+        plot->setHistorySize (history);
+}
+
 void SpikeDisplay::registerThresholdCoordinator (SpikeThresholdCoordinator* stc)
 {
     thresholdCoordinator = stc;

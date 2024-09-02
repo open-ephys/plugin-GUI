@@ -108,6 +108,12 @@ public:
     /** Sets the size scaling for the sub-plots */
     void setPlotScaleFactor (float scale);
 
+    /** Sets the display range of the plot*/
+    void setRange (int rangeInMicrovolts);
+
+    /** Sets the number of spikes in the history buffer */
+    void setHistorySize (int size);
+
 private:
     int totalHeight;
 

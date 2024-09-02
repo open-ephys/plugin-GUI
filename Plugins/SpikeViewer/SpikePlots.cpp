@@ -79,7 +79,7 @@ SpikePlot::SpikePlot (SpikeDisplayCanvas* sdc,
         UtilityButton* rangeButton = new UtilityButton ("250");
         rangeButton->setRadius (3.0f);
         rangeButton->addListener (this);
-        addAndMakeVisible (rangeButton);
+        //addAndMakeVisible (rangeButton);
 
         rangeButtons.add (rangeButton);
         setDisplayThresholdForChannel (i, 0);
@@ -90,7 +90,7 @@ SpikePlot::SpikePlot (SpikeDisplayCanvas* sdc,
     monitorButton->addListener (this);
     addAndMakeVisible (monitorButton.get());
 
-    mostRecentSpikes.ensureStorageAllocated (bufferSize);
+    mostRecentSpikes.ensureStorageAllocated (MAX_BUFFER_SIZE);
 }
 
 SpikePlot::~SpikePlot()
@@ -237,7 +237,7 @@ void SpikePlot::resized()
     for (int i = 0; i < nProjAx; i++)
         projectionAxes[i]->setBounds (5 + (1 + i % nProjCols) * axesWidth, 20 + (i / nProjCols) * axesHeight, axesWidth, axesHeight);
 
-    monitorButton->setBounds (getWidth() - 40, 3, 35, 15);
+    monitorButton->setBounds (getWidth() - 30, 3, 35, 15);
 }
 
 void SpikePlot::resetAudioMonitorState()
@@ -371,6 +371,28 @@ void SpikePlot::setRangeForChannel (int i, float range)
     //std::cout << "Setting range to " << range << std::endl;
     waveAxes[i]->setRange (range);
     rangeButtons[i]->setLabel (String (int (range)));
+}
+
+void SpikePlot::setRange (int rangeInMicrovolts)
+{
+    for(int i = 0; i < waveAxes.size(); i++)
+    {
+        waveAxes[i]->setRange (rangeInMicrovolts);
+        rangeButtons[i]->setLabel (String (int (rangeInMicrovolts)));
+    }
+    //std::cout << "Setting range to " << range << std::endl;
+    
+    
+}
+
+
+void SpikePlot::setHistorySize (int history)
+{
+    for (int i = 0; i < waveAxes.size(); i++)
+    {
+        waveAxes[i]->setHistorySize (history);
+    }
+    //std::cout << "Setting range to " << range << std::endl;
 }
 
 bool SpikePlot::getMonitorState()
@@ -551,7 +573,7 @@ WaveAxes::WaveAxes (SpikeDisplayCanvas* canvas, int electrodeIndex, int channel_
 
     font = FontOptions (12.0f);
 
-    for (int n = 0; n < bufferSize; n++)
+    for (int n = 0; n < MAX_BUFFER_SIZE; n++)
     {
         spikeBuffer.add (nullptr);
     }
@@ -563,6 +585,15 @@ void WaveAxes::setRange (float r)
 
     repaint();
 }
+
+
+void WaveAxes::setHistorySize (int s)
+{
+    bufferSize = s;
+
+    repaint();
+}
+
 
 void WaveAxes::paint (Graphics& g)
 {

@@ -47,7 +47,6 @@ SpikeDisplayEditor::SpikeDisplayEditor (GenericProcessor* parentNode)
     scaleUpBtn->addListener (this);
     addAndMakeVisible (scaleUpBtn.get());
 
-    scaleFactors.add (0.5f);
     scaleFactors.add (0.6f);
     scaleFactors.add (0.7f);
     scaleFactors.add (0.8f);
@@ -57,7 +56,7 @@ SpikeDisplayEditor::SpikeDisplayEditor (GenericProcessor* parentNode)
     scaleFactors.add (1.3f);
     scaleFactors.add (1.5f);
 
-    selectedScaleFactor = 5;
+    selectedScaleFactor = 4;
 }
 
 Visualizer* SpikeDisplayEditor::createNewCanvas()
