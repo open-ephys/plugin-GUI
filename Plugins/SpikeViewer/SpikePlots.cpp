@@ -251,12 +251,12 @@ void SpikePlot::buttonClicked (Button* button)
     {
         bool shouldMonitor = button->getToggleState();
 
-        LOGD ("Button clicked: monitor audio: " + String (int(shouldMonitor)) + " electrode: " + String (electrodeNumber));
+        LOGD ("Button clicked: monitor audio: " + String (int (shouldMonitor)) + " electrode: " + String (electrodeNumber));
 
         canvas->resetAudioMonitorState();
         button->setToggleState (shouldMonitor, dontSendNotification);
 
-        if(shouldMonitor)
+        if (shouldMonitor)
             canvas->processor->setParameter (10, electrodeNumber);
         else
             canvas->processor->setParameter (10, -1);
@@ -375,16 +375,13 @@ void SpikePlot::setRangeForChannel (int i, float range)
 
 void SpikePlot::setRange (int rangeInMicrovolts)
 {
-    for(int i = 0; i < waveAxes.size(); i++)
+    for (int i = 0; i < waveAxes.size(); i++)
     {
         waveAxes[i]->setRange (rangeInMicrovolts);
         rangeButtons[i]->setLabel (String (int (rangeInMicrovolts)));
     }
     //std::cout << "Setting range to " << range << std::endl;
-    
-    
 }
-
 
 void SpikePlot::setHistorySize (int history)
 {
@@ -586,7 +583,6 @@ void WaveAxes::setRange (float r)
     repaint();
 }
 
-
 void WaveAxes::setHistorySize (int s)
 {
     bufferSize = s;
@@ -594,10 +590,9 @@ void WaveAxes::setHistorySize (int s)
     repaint();
 }
 
-
 void WaveAxes::paint (Graphics& g)
 {
-    g.setColour (Colours::black);
+    g.setColour (Colour (15, 15, 15));
     g.fillRect (0, 0, getWidth(), getHeight());
 
     // draw the grid lines for the waveforms
@@ -709,8 +704,12 @@ void WaveAxes::drawThresholdSlider (Graphics& g)
     g.fillRect (0.0f, h, (float) getWidth(), 1.0f);
     // g.drawLine(0, h, getWidth(), h);
 
-    g.setFont (font);
-    g.drawText (String (int (displayThresholdLevel)), 2, h + 2, 25, 12, Justification::left, false);
+    if (isOverThresholdSlider)
+    {
+        g.setFont (font);
+        g.drawText (String (int (displayThresholdLevel)), getWidth() - 25, h + 4, 22, 12, Justification::right, false);
+    }
+    
 
     // draw detector threshold (not editable)
     if (! spikesInverted)
@@ -736,6 +735,8 @@ void WaveAxes::drawWaveformGrid (Graphics& g)
         tick = 25.0f;
     else if (range >= 250 && range < 500)
         tick = 50.0f;
+    else if (range >= 500 && range < 1000)
+        tick = 100.0f;
     else
         tick = 250.0f;
 
@@ -745,13 +746,16 @@ void WaveAxes::drawWaveformGrid (Graphics& g)
     for (float y = -range / 2; y < range / 2; y += tick)
     {
         float yy = h / 2 + y / range * h;
-        
-        if (y == 0)
-            g.fillRect (0.0f, yy, w, 2.0f);
-        else
-            g.fillRect (0.0f, yy, w, 1.0f);
 
-        g.drawText (String (y, 0), Rectangle<float>(0, yy + 3, 40, 10), Justification::centredLeft);
+        if (y != -range / 2)
+        {
+            if (y == 0)
+                g.fillRect (0.0f, yy, w, 2.0f);
+            else
+                g.fillRect (0.0f, yy, w, 1.0f);
+        }
+
+        g.drawText (String (y, 0), Rectangle<float> (0, yy + 3, 40, 10), Justification::centredLeft);
     }
 }
 
@@ -1008,7 +1012,7 @@ void ProjectionAxes::calcWaveformPeakIdx (const Spike* s, int d1, int d2, int* i
 void ProjectionAxes::clear()
 {
     projectionImage.clear (Rectangle<int> (0, 0, projectionImage.getWidth(), projectionImage.getHeight()),
-                           Colours::black);
+                           Colour (15, 15, 15));
 
     repaint();
 }
@@ -1062,7 +1066,6 @@ void ProjectionAxes::n2ProjIdx (Projection proj, int* p1, int* p2)
 
 MonitorButton::MonitorButton() : Button ("Monitor")
 {
-
     XmlDocument xmlDoc (R"(
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-headphones-filled" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
           <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -1071,9 +1074,8 @@ MonitorButton::MonitorButton() : Button ("Monitor")
     )");
 
     headphoneIcon = Drawable::createFromSVG (*xmlDoc.getDocumentElement().get());
-    
+
     setClickingTogglesState (true);
-    
 }
 
 void MonitorButton::paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown)
@@ -1093,5 +1095,4 @@ void MonitorButton::paintButton (Graphics& g, bool isMouseOverButton, bool isBut
     headphoneIcon->drawWithin (g, getLocalBounds().toFloat(), RectanglePlacement::centred, 1.0f);
 
     headphoneIcon->replaceColour (buttonColour, Colours::black);
-    
 }
