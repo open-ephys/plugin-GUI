@@ -727,15 +727,31 @@ void WaveAxes::drawWaveformGrid (Graphics& g)
 {
     float h = getHeight();
     float w = getWidth();
+    float tick = 5.0f; // range = 50
+    float tickWidth = 10.0f;
+
+    if (range < 100)
+        tick = 10.0f;
+    else if (range >= 100 && range < 250)
+        tick = 25.0f;
+    else if (range >= 250 && range < 500)
+        tick = 50.0f;
+    else
+        tick = 250.0f;
 
     g.setColour (Colours::darkgrey);
+    g.setFont (10);
 
-    for (float y = -range / 2; y < range / 2; y += 25.0f)
+    for (float y = -range / 2; y < range / 2; y += tick)
     {
+        float yy = h / 2 + y / range * h;
+        
         if (y == 0)
-            g.fillRect (0.0f, h / 2 + y / range * h, w, 1.0f);
+            g.fillRect (0.0f, yy, w, 2.0f);
         else
-            g.fillRect (0.0f, h / 2 + y / range * h, w, 1.0f);
+            g.fillRect (0.0f, yy, w, 1.0f);
+
+        g.drawText (String (y, 0), Rectangle<float>(0, yy + 3, 40, 10), Justification::centredLeft);
     }
 }
 
