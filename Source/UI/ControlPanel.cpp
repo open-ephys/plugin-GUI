@@ -33,22 +33,61 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "LookAndFeel/CustomLookAndFeel.h"
 
 const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
-//const int SIZE_AUDIO_EDITOR_MIN_WIDTH = 250;
 
-ForceNewDirectoryButton::ForceNewDirectoryButton () : Button ("ForceNewDirectory")
+NewDirectoryButton::NewDirectoryButton() : Button ("NewDirectory")
+{
+    //XmlDocument xmlDoc (R"(
+    //    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24" 
+     //    fill="currentColor"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round" 
+      //   stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder-plus">
+       // <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v3.5" />
+        //<path d="M16 19h6" /><path d="M19 16v6" /></svg>)");
+
+    XmlDocument xmlDoc (R"(
+        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-folder"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 3a1 1 0 0 1 .608 .206l.1 .087l2.706 2.707h6.586a3 3 0 0 1 2.995 2.824l.005 .176v8a3 3 0 0 1 -2.824 2.995l-.176 .005h-14a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-11a3 3 0 0 1 2.824 -2.995l.176 -.005h4z" /></svg>)");
+
+    //XmlDocument xmlDoc (R"(
+    //   <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-lock"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 2a5 5 0 0 1 5 5v3a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-10a3 3 0 0 1 -3 -3v-6a3 3 0 0 1 3 -3v-3a5 5 0 0 1 5 -5m0 12a2 2 0 0 0 -1.995 1.85l-.005 .15a2 2 0 1 0 2 -2m0 -10a3 3 0 0 0 -3 3v3h6v-3a3 3 0 0 0 -3 -3" /></svg>)");
+
+    newDirectoryIcon = Drawable::createFromSVG (*xmlDoc.getDocumentElement().get());
+
+    newDirectoryIcon->replaceColour (Colours::black, Colours::black);
+
+    setClickingTogglesState (true);
+}
+
+void NewDirectoryButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
+{
+    Colour buttonColour;
+
+    if (getToggleState())
+        buttonColour = findColour (ThemeColours::highlightedFill);
+    else
+        buttonColour = findColour (ThemeColours::controlPanelBackground);
+
+    if (isMouseOver)
+        buttonColour = buttonColour.brighter (0.2f);
+
+    g.setColour (Colours::black);
+    g.fillRoundedRectangle (0, 0, getWidth(), getHeight(), 5);
+    g.setColour (buttonColour);
+    g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 3);
+    
+    g.setColour (Colours::black);
+    newDirectoryIcon->drawWithin (g, juce::Rectangle<float>(2,2.5,18,18), RectanglePlacement::centred, 1.0f);
+    g.setColour (buttonColour);
+    g.drawRect (10, 9, 2, 6);
+    g.drawRect (8, 11, 6, 2);
+}
+
+ForceNewDirectoryButton::ForceNewDirectoryButton() : Button ("ForceNewDirectory")
 {
     XmlDocument xmlDoc (R"(
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-lock" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="currentColor" stroke-linecap="round" stroke-linejoin="round">
-        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-        <path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z" fill="currentColor" />
-        <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" fill="currentColor" />
-        <path d="M8 11v-4a4 4 0 1 1 8 0v4" fill="currentColor"/>
-        </svg>)");
+       <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-lock"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 2a5 5 0 0 1 5 5v3a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-10a3 3 0 0 1 -3 -3v-6a3 3 0 0 1 3 -3v-3a5 5 0 0 1 5 -5m0 12a2 2 0 0 0 -1.995 1.85l-.005 .15a2 2 0 1 0 2 -2m0 -10a3 3 0 0 0 -3 3v3h6v-3a3 3 0 0 0 -3 -3" /></svg>)");
 
     forceNewDirectoryIcon = Drawable::createFromSVG (*xmlDoc.getDocumentElement().get());
 
     setClickingTogglesState (true);
-
 }
 
 void ForceNewDirectoryButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
@@ -58,7 +97,7 @@ void ForceNewDirectoryButton::paintButton (Graphics& g, bool isMouseOver, bool i
     if (getToggleState())
         buttonColour = findColour (ThemeColours::highlightedFill);
     else
-        buttonColour = findColour (ThemeColours::defaultText);
+        buttonColour = findColour (ThemeColours::controlPanelText);
 
     if (isMouseOver)
         buttonColour = buttonColour.brighter (0.2f);
@@ -152,7 +191,8 @@ void RecordButton::updateImages (bool recordingIsActive)
     setImages (&normal, &over, &down);
 }
 
-CPUMeter::CPUMeter() : Label ("CPU Meter", "0.0"), cpu (0.0f)
+CPUMeter::CPUMeter() : Label ("CPU Meter", "0.0"),
+                       cpu (0.0f)
 {
     font = FontOptions ("Silkscreen", "Regular", 14);
 
@@ -375,8 +415,8 @@ void Clock::mouseDown (const MouseEvent& e)
 }
 
 ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool isConsoleApp_)
-    : graph (graph_), 
-      audio (audio_), 
+    : graph (graph_),
+      audio (audio_),
       isConsoleApp (isConsoleApp_)
 {
     AccessClass::setControlPanel (this);
@@ -420,8 +460,7 @@ ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool
     recordOptionsButton->setTooltip ("Configure options for selected record engine");
     addChildComponent (recordOptionsButton.get());
 
-    newDirectoryButton = std::make_unique<UtilityButton> ("+");
-    newDirectoryButton->setFont (FontOptions ("Silkscreen", "Regular", 15));
+    newDirectoryButton = std::make_unique<NewDirectoryButton>();
     newDirectoryButton->setEnabled (false);
     newDirectoryButton->addListener (this);
     newDirectoryButton->setTooltip ("Start a new data directory for next recording");
@@ -429,7 +468,7 @@ ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool
     newDirectoryButton->setClickingTogglesState (true);
     addChildComponent (newDirectoryButton.get());
 
-    forceNewDirectoryButton = std::make_unique<ForceNewDirectoryButton> ();
+    forceNewDirectoryButton = std::make_unique<ForceNewDirectoryButton>();
     forceNewDirectoryButton->setEnabled (true);
     forceNewDirectoryButton->addListener (this);
     forceNewDirectoryButton->setTooltip ("Force a new data directory for each recording");
@@ -542,7 +581,6 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
 
         graph->startAcquisition(); // inform processors that acquisition will start
 
-        
         if (recordingShouldAlsoStart)
         {
             startRecording();
@@ -563,9 +601,8 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
             recordSelector->setEnabled (false); // why is this outside the "if" statement?
             recordOptionsButton->setEnabled (false);
         }
-        
+
         audio->beginCallbacks(); // starts acquisition callbacks
-        
     }
 }
 
@@ -950,7 +987,7 @@ void ControlPanel::componentBeingDeleted (Component& component)
     filenameText->setButtonText (generateFilenameFromFields (true));
 
     //TODO: Assumes any change in filename settings should start a new directory next recording
-    if (!newDirectoryButton->getToggleState())
+    if (! newDirectoryButton->getToggleState())
         newDirectoryButton->setToggleState (true, dontSendNotification);
 
     CoreServices::saveRecoveryConfig();
@@ -991,18 +1028,21 @@ void ControlPanel::buttonClicked (Button* button)
     if (button == newDirectoryButton.get())
     {
         //Setting the button state only takes effect on the next recording
+
         return;
     }
 
     if (button == forceNewDirectoryButton.get())
     {
-        if (button->getToggleState()) {
+        if (button->getToggleState())
+        {
             newDirectoryButton->setToggleState (true, dontSendNotification);
             newDirectoryButton->setEnabled (false);
         }
         else
         {
-            newDirectoryButton->setEnabled (true);
+            if (hasRecorded)
+                newDirectoryButton->setEnabled (true);
         }
         return;
     }
@@ -1262,7 +1302,8 @@ String ControlPanel::getRecordingDirectoryName()
 void ControlPanel::createNewRecordingDirectory()
 {
     //TODO: Remove depdendency on button states/callbacks
-    MessageManager::callAsync ([this] { buttonClicked (newDirectoryButton.get()); });
+    MessageManager::callAsync ([this]
+                               { buttonClicked (newDirectoryButton.get()); });
 }
 
 String ControlPanel::getRecordingDirectoryPrependText()
@@ -1395,7 +1436,6 @@ void ControlPanel::setRecordingDirectoryBaseText (String text)
 
 String ControlPanel::generateFilenameFromFields (bool usePlaceholderText)
 {
-
     String filename = "";
 
     for (auto& field : filenameFields) //loops in order through prepend, main, append
@@ -1403,7 +1443,8 @@ String ControlPanel::generateFilenameFromFields (bool usePlaceholderText)
         filename += field->getNextValue (usePlaceholderText);
     }
 
-    MessageManager::callAsync ([this, filename] { filenameText->setButtonText (filename); });
+    MessageManager::callAsync ([this, filename]
+                               { filenameText->setButtonText (filename); });
 
     return filename;
 }

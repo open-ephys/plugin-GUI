@@ -40,6 +40,27 @@
 
 /**
 
+    Triggers a new directory to be created at the start of each recording
+
+*/
+class NewDirectoryButton : public Button
+{
+public:
+    /** Constructor */
+    NewDirectoryButton();
+
+    /** Destructor */
+    ~NewDirectoryButton() {}
+
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
+private:
+    std::unique_ptr<Drawable> newDirectoryIcon;
+};
+
+
+/**
+
     Locks the new directory button to force new directories for each recording.
 
 */
@@ -481,7 +502,7 @@ private:
     std::unique_ptr<CPUMeter> cpuMeter;
     std::unique_ptr<DiskSpaceMeter> diskMeter;
     std::unique_ptr<FilenameComponent> filenameComponent;
-    std::unique_ptr<UtilityButton> newDirectoryButton;
+    std::unique_ptr<NewDirectoryButton> newDirectoryButton;
     std::unique_ptr<ForceNewDirectoryButton> forceNewDirectoryButton;
     std::unique_ptr<CustomArrowButton> showHideRecordingOptionsButton;
     std::unique_ptr<RecordButton> recordButton;
