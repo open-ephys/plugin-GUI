@@ -718,8 +718,10 @@ void ControlPanel::paint (Graphics& g)
 
 void ControlPanel::resized()
 {
+    LOGD ("Control panel: ", getBounds().toString());
+
     const int w = getWidth();
-    const int h = 32; //getHeight();
+    const int h = 32;
 
     // We have 3 possible layout schemes:
     // when there are 1, 2 or 3 rows within which our elements are placed.
@@ -819,6 +821,8 @@ void ControlPanel::resized()
         showHideRecordingOptionsButton->setBounds (w - 28, getHeight() - 5 - h * 2 + 10, h - 10, h - 10);
     else
         showHideRecordingOptionsButton->setBounds (w - 28, getHeight() - 5 - h + 10, h - 10, h - 10);
+
+    LOGD ("Options button: ", showHideRecordingOptionsButton->getBounds().toString());
 
     createPaths();
 
@@ -965,7 +969,7 @@ void ControlPanel::buttonClicked (Button* button)
     if (button == showHideRecordingOptionsButton.get())
     {
         openState (button->getToggleState());
-        repaint();
+        AccessClass::getUIComponent()->resized();
         return;
     }
 
