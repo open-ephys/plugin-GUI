@@ -78,9 +78,10 @@ void BinaryFileSource::fillRecordInfo()
     String sampleNumbersFilename;
     String channelStatesFilename;
 
+    int majorVersion = guiVersion.substring(0, 1).getIntValue();
     int minorVersion = guiVersion.substring (2, 3).getIntValue();
 
-    if (minorVersion < 6)
+    if (minorVersion < 6 && majorVersion == 0)
     {
         sampleNumbersFilename = "timestamps.npy";
         channelStatesFilename = "channel_states.npy";
@@ -208,8 +209,9 @@ void BinaryFileSource::fillRecordInfo()
                 LOGD ("TTL found");
 
                 File channelStatesFile = m_rootPath.getChildFile ("events").getChildFile (streamName).getChildFile (channelStatesFilename);
+                LOGD ("Channel States File: ", channelStatesFile.getFullPathName());
                 std::unique_ptr<MemoryMappedFile> channelStatesFileMap (new MemoryMappedFile (channelStatesFile, MemoryMappedFile::readOnly));
-
+                jassert (channelStatesFileMap.get() != nullptr);
                 streamName = streamName.substring (0, streamName.lastIndexOf ("/TTL"));
 
                 EventInfo eventInfo;
