@@ -147,7 +147,7 @@ public:
     struct TextFormat
     {
         /** Default constructor. */
-        TextFormat() = default;
+        TextFormat() {};
 
         String dtd;                        /**< If supplied, this DTD will be added to the document. */
         String customHeader;               /**< If supplied, this header will be used (and customEncoding & addDefaultHeader will be ignored). */
