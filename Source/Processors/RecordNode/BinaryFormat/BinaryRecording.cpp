@@ -329,7 +329,7 @@ void BinaryRecording::openFiles (File rootFolder, int experimentNumber, int reco
 
     FileOutputStream settingsFileStream (File (basepath + "structure.oebin"));
 
-    settingsJSON->writeAsJSON (settingsFileStream, JSON::FormatOptions {}.withIndentLevel (2).withSpacing (JSON::Spacing::multiLine).withMaxDecimalPlaces (3));
+    settingsJSON->writeAsJSON (settingsFileStream, JSON::FormatOptions {}.withIndentLevel (2).withSpacing (JSON::Spacing::multiLine).withMaxDecimalPlaces (10));
 
     
 }

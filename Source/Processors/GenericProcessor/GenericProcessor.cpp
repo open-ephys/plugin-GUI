@@ -549,8 +549,6 @@ int GenericProcessor::getNextChannel (bool increment)
 {
     int chan = nextAvailableChannel;
 
-    //LOGDD("Next channel: ", chan, ", num inputs: ", getNumInputs());
-
     if (increment)
         nextAvailableChannel++;
 
@@ -1779,31 +1777,6 @@ void GenericProcessor::saveToXml (XmlElement* xml)
         for (auto param : stream->getParameters())
             param->toXml (streamParamsXml);
 
-        /*for (auto eventChannel : stream->getEventChannels())
-        {
-            if (eventChannel->numParameters() > 0)
-            {
-                XmlElement* eventParamsXml = streamXml->createNewChildElement("EVENT_CHANNEL");
-                eventParamsXml->setAttribute("name",eventChannel->getName());
-                eventParamsXml->setAttribute("description", eventChannel->getDescription());
-                
-                for (auto param : eventChannel->getParameters())
-                    param->toXml(eventParamsXml);
-            }
-        }
-        
-        for (auto continuousChannel : stream->getContinuousChannels())
-        {
-            if (continuousChannel->numParameters() > 0)
-            {
-                XmlElement* continuousParamsXml = streamXml->createNewChildElement("CONTINUOUS_CHANNEL");
-                continuousParamsXml->setAttribute("name",continuousChannel->getName());
-                continuousParamsXml->setAttribute("description", continuousChannel->getDescription());
-                
-                for (auto param : continuousChannel->getParameters())
-                    param->toXml(continuousParamsXml);
-            }
-        }*/
     }
 
     saveCustomParametersToXml (xml->createNewChildElement ("CUSTOM_PARAMETERS"));
