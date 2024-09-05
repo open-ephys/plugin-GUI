@@ -208,6 +208,7 @@ int Merger::addSettingsFromSourceNode (GenericProcessor* sn, int continuousChann
 void Merger::updateSettings()
 {
     isEnabled = true;
+    bool sourceNodeAIsEmpty = false;
 
     int continuousChannelGlobalIndex = 0;
 
@@ -217,7 +218,15 @@ void Merger::updateSettings()
     {
         LOGD ("   Merger source A found.");
         continuousChannelGlobalIndex = addSettingsFromSourceNode (sourceNodeA, continuousChannelGlobalIndex);
-        isEnabled &= sourceNodeA->isEnabled;
+
+        if (! sourceNodeA->isEmpty())
+        {
+            isEnabled &= sourceNodeA->isEnabled;
+        }
+        else
+        {
+            sourceNodeAIsEmpty = true;
+        }
 
         if (sourceNodeA->getMessageChannel() != nullptr)
         {
@@ -235,7 +244,19 @@ void Merger::updateSettings()
     {
         LOGD ("   Merger source B found.");
         continuousChannelGlobalIndex = addSettingsFromSourceNode (sourceNodeB, continuousChannelGlobalIndex);
-        isEnabled &= sourceNodeB->isEnabled;
+
+        if (!sourceNodeB->isEmpty())
+        {
+            isEnabled &= sourceNodeB->isEnabled;
+        }
+        else
+        {
+            if (sourceNodeAIsEmpty)
+            {
+				isEnabled = false;
+			}
+        }
+            
 
         if (messageChannel == nullptr && sourceNodeB->getMessageChannel() != nullptr)
         {
