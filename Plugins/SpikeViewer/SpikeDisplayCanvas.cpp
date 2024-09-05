@@ -331,8 +331,8 @@ void SpikeDisplayCanvas::loadSpikeDisplaySettingsFromXml (XmlElement* xmlNode)
     spikeDisplay->invertSpikes (xmlNode->getBoolAttribute ("InvertSpikes"));
     invertSpikesButton->setToggleState (xmlNode->getBoolAttribute ("InvertSpikes"), dontSendNotification);
     lockThresholdsButton->setToggleState (xmlNode->getBoolAttribute ("LockThresholds"), sendNotification);
-    rangeSelection->setSelectedId (xmlNode->getIntAttribute ("Range"), dontSendNotification);
-    historySelection->setSelectedId (xmlNode->getIntAttribute ("History"), sendNotification);
+    rangeSelection->setSelectedId (xmlNode->getIntAttribute ("Range", ranges[2]), dontSendNotification);
+    historySelection->setSelectedId (xmlNode->getIntAttribute ("History", histories[1]), sendNotification);
 
     int plotIndex = -1;
 
