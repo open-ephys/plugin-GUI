@@ -594,6 +594,9 @@ public:
     /** Returns the most recent latency measurement for a given stream in this processor */
     double getLatency (uint16 streamId) const { return latencyMeter->getLatestLatency (streamId); }
 
+    /** Returns the plugin specific recording directory derived from the global recording path */
+    File getPluginRecordingDirectory();
+
 protected:
     static std::map<int, std::vector<ProcessorAction*>> undoableActions;
 

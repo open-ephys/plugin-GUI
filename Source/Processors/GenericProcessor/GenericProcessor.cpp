@@ -1749,6 +1749,17 @@ const EventChannel* GenericProcessor::getEventChannel (int globalIndex) const
         return nullptr;
 }
 
+File GenericProcessor::getPluginRecordingDirectory()
+{
+    return File (
+        CoreServices::getRecordingParentDirectory().getFullPathName() 
+        + File::getSeparatorString() 
+        + CoreServices::getRecordingDirectoryBaseText() 
+        + File::getSeparatorString() 
+        + getName() + " "
+        + String (getNodeId()));
+}
+
 void GenericProcessor::saveToXml (XmlElement* xml)
 {
     xml->setAttribute ("nodeId", nodeId);
@@ -1776,7 +1787,6 @@ void GenericProcessor::saveToXml (XmlElement* xml)
 
         for (auto param : stream->getParameters())
             param->toXml (streamParamsXml);
-
     }
 
     saveCustomParametersToXml (xml->createNewChildElement ("CUSTOM_PARAMETERS"));
