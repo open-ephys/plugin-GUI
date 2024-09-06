@@ -342,20 +342,12 @@ void SourceNode::process (AudioBuffer<float>& buffer)
                 //If there has been no change to the TTL word, avoid doing anything at all here
                 if (lastCode != currentCode)
                 {
-                    //Create a TTL event for each bit that has changed
-                    for (uint8 c = 0; c < maxTTLBits; ++c)
-                    {
-                        if (((currentCode >> c) & 0x01) != ((lastCode >> c) & 0x01))
-                        {
-                            TTLEventPtr event = TTLEvent::createTTLEvent (eventChannels[streamIdx],
+                    Array<TTLEventPtr> events = TTLEvent::createTTLEvent (eventChannels[streamIdx],
                                                                           sampleNumber + sample,
-                                                                          c,
-                                                                          (currentCode >> c) & 0x01,
                                                                           currentCode);
 
-                            addEvent (event, sample);
-                        }
-                    }
+                    for (auto& event : events)
+                        addEvent (event, sample);
 
                     lastCode = currentCode;
                 }
