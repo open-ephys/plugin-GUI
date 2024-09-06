@@ -409,11 +409,9 @@ public:
                                        bool state);
 
     /* Create a TTL event that specifies the full TTL word*/
-    static TTLEventPtr createTTLEvent (const EventChannel* channelInfo,
-                                       int64 sampleNumber,
-                                       uint8 line,
-                                       bool state,
-                                       uint64 word);
+    static Array<TTLEventPtr> createTTLEvent (EventChannel* channelInfo,
+                                              int64 sampleNumber,
+                                              uint64 word);
 
     /* Create a TTL event that includes metadata*/
     static TTLEventPtr createTTLEvent (EventChannel* channelInfo,

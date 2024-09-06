@@ -496,19 +496,34 @@ TTLEventPtr TTLEvent::createTTLEvent (EventChannel* channelInfo,
     return new TTLEvent (channelInfo, sampleNumber, data);
 }
 
-TTLEventPtr TTLEvent::createTTLEvent (const EventChannel* channelInfo,
-                                      int64 sampleNumber,
-                                      uint8 line,
-                                      bool state,
-                                      uint64 word)
+Array<TTLEventPtr> TTLEvent::createTTLEvent (EventChannel* channelInfo,
+                                             int64 sampleNumber,
+                                             uint64 word)
 {
-    uint8 data[10];
+    Array<TTLEventPtr> events;
 
-    data[0] = line;
-    data[1] = state;
-    *reinterpret_cast<uint64*> (data + 2) = word;
+    uint64 oldWord = channelInfo->getTTLWord();
 
-    return new TTLEvent (channelInfo, sampleNumber, data);
+    // check the bits that have changed since the last event and create a new event for each one
+    for (int i = 0; i < 64; i++)
+    {
+        uint64 mask = 1ULL << i;
+        if ((oldWord & mask) != (word & mask))
+        {
+            uint8 data[10];
+
+            data[0] = i;
+            data[1] = (word & mask) != 0;
+            *reinterpret_cast<uint64*> (data + 2) = word;
+
+            // set the channel's line state to update the TTL word
+            channelInfo->setLineState (i, data[1]);
+
+            events.add (new TTLEvent (channelInfo, sampleNumber, data));
+        }
+    }
+
+    return events;
 }
 
 TTLEventPtr TTLEvent::createTTLEvent (EventChannel* channelInfo,
@@ -699,7 +714,7 @@ TextEventPtr TextEvent::deserialize (const uint8* buffer, const EventChannel* ch
     int64 sampleNumber = *(reinterpret_cast<const int64*> (buffer + 8));
     double timestamp = *(reinterpret_cast<const double*> (buffer + 16));
     uint16 channel = *(reinterpret_cast<const uint16*> (buffer + EVENT_BASE_SIZE));
-    String text = String::fromUTF8 (reinterpret_cast<const char*> (buffer + EVENT_BASE_SIZE), int(dataSize));
+    String text = String::fromUTF8 (reinterpret_cast<const char*> (buffer + EVENT_BASE_SIZE), int (dataSize));
 
     ScopedPointer<TextEvent> event = new TextEvent (channelInfo, sampleNumber, text, timestamp);
 
