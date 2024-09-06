@@ -414,7 +414,7 @@ AlertWindow* LookAndFeel_V4::createAlertWindow (const String& title, const Strin
 void LookAndFeel_V4::drawAlertBox (Graphics& g, AlertWindow& alert,
                                    const Rectangle<int>& textArea, TextLayout& textLayout)
 {
-    auto cornerSize = 4.0f;
+    auto cornerSize = 0.0f;
 
     g.setColour (alert.findColour (AlertWindow::outlineColourId));
     g.drawRoundedRectangle (alert.getLocalBounds().toFloat(), cornerSize, 2.0f);
