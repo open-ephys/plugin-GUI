@@ -569,6 +569,29 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
         return;
     }
 
+
+    if (audio->getSampleRate() < 44100)
+    {
+        playButton->setToggleState (false, dontSendNotification);
+        recordButton->setToggleState (false, dontSendNotification);
+
+        String errorMsg = "Sample rate too low. Unable to start acquisition!";
+        LOGE (errorMsg);
+
+        if (! isConsoleApp)
+        {
+            errorMsg += "\n\nThe sample rate must be at least 44.1 kHz to process data. "
+                        "Try changing the sample rate in the audio configuration window (click on the \"Latency\" button in the Control Panel) "
+                        "to a value of 44.1 kHz or higher. If no such option is available, try changing the output device type.";
+
+            AlertWindow::showMessageBox (AlertWindow::WarningIcon,
+                                         "Acquisition Error!",
+                                         errorMsg);
+        }
+
+        return;
+    }
+
     if (! isConsoleApp && audioEditor->isAudioConfigurationWindowVisible())
     {
         audioEditor->disable();

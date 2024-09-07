@@ -51,7 +51,8 @@ FileReader::FileReader() : GenericProcessor ("File Reader"),
                            m_sysSampleRate (44100),
                            playbackActive (true),
                            gotNewFile (true),
-                           loopPlayback (true)
+                           loopPlayback (true),
+                           sampleRateWarningShown (false)
 {
     /* Add built-in file source (Binary Format) */
     supportedExtensions.set ("oebin", 1);
@@ -500,8 +501,32 @@ void FileReader::updateSettings()
     adm.getAudioDeviceSetup (ads);
     m_sysSampleRate = ads.sampleRate;
     m_bufferSize = ads.bufferSize;
+
+    if (m_sysSampleRate < 44100.0)
+    {
+        if (! sampleRateWarningShown)
+        {
+            LOGE ("File Reader: Sample rate is less than 44100 Hz. Disabling processor.");
+
+            if (! headlessMode)
+            {
+                AlertWindow::showMessageBox (AlertWindow::WarningIcon,
+                                             "[File Reader] Invalid Sample Rate",
+                                             "The sample rate of the audio device is less than 44.1 kHz. File Reader is disabled."
+                                             "\n\nTry adjusting the sample rate in the audio settings by clicking the 'Latency' button in the Control Panel "
+                                             "and setting it to 44.1 kHz or higher. After making this change, please remove and re-add the File Reader to the signal chain.");
+            }
+
+            sampleRateWarningShown = true;
+        }
+
+        isEnabled = false;
+        return;
+    }
+
     if (m_bufferSize == 0)
         m_bufferSize = 1024;
+
     m_samplesPerBuffer.set (m_bufferSize * (getDefaultSampleRate() / m_sysSampleRate));
 
     bufferA.malloc (currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
@@ -602,7 +627,7 @@ void FileReader::process (AudioBuffer<float>& buffer)
 
     if (! playbackActive && playbackSamplePos + samplesNeededPerBuffer > stopSample)
     {
-        samplesNeededPerBuffer = int(stopSample - playbackSamplePos);
+        samplesNeededPerBuffer = int (stopSample - playbackSamplePos);
         switchNeeded = true;
     }
     else
@@ -745,7 +770,7 @@ void FileReader::readAndFillBufferCache (HeapBlock<float>& cacheBuffer)
         // if reached end of file stream
         if ((currentSample + samplesToRead) > stopSample)
         {
-            samplesToRead = int(stopSample - currentSample);
+            samplesToRead = int (stopSample - currentSample);
             if (samplesToRead > 0)
                 input->readData (cacheBuffer + samplesRead * currentNumChannels, samplesToRead);
 
