@@ -127,7 +127,6 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
 
         documentWindow->addKeyListener (commandManager.getKeyMappings());
 
-        LOGD ("Loading window bounds.");
         loadWindowBounds();
 
         // Use native title bar on Mac and Linux

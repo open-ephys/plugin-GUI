@@ -814,8 +814,6 @@ void ControlPanel::paint (Graphics& g)
 
 void ControlPanel::resized()
 {
-    LOGD ("Control panel: ", getBounds().toString());
-
     const int w = getWidth();
     const int h = 32;
 
@@ -917,8 +915,6 @@ void ControlPanel::resized()
         showHideRecordingOptionsButton->setBounds (w - 28, getHeight() - 5 - h * 2 + 10, h - 10, h - 10);
     else
         showHideRecordingOptionsButton->setBounds (w - 28, getHeight() - 5 - h + 10, h - 10, h - 10);
-
-    LOGD ("Options button: ", showHideRecordingOptionsButton->getBounds().toString());
 
     createPaths();
 

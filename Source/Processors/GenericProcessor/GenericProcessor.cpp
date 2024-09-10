@@ -117,7 +117,23 @@ const String GenericProcessor::m_unusedNameString ("xxx-UNUSED-OPEN-EPHYS-xxx");
 std::map<int, std::vector<ProcessorAction*>> GenericProcessor::undoableActions;
 
 GenericProcessor::GenericProcessor (const String& name, bool headlessMode_)
-    : GenericProcessorBase (name), ParameterOwner (ParameterOwner::Type::OTHER), headlessMode (headlessMode_), sourceNode (nullptr), destNode (nullptr), isEnabled (true), wasConnected (false), nextAvailableChannel (0), saveOrder (-1), loadOrder (-1), currentChannel (-1), editor (nullptr), parametersAsXml (nullptr), ttlEventChannel (nullptr), sendSampleCount (true), m_name (name), m_paramsWereLoaded (false)
+    : GenericProcessorBase (name),
+      ParameterOwner (ParameterOwner::Type::OTHER),
+      headlessMode (headlessMode_),
+      sourceNode (nullptr),
+      destNode (nullptr),
+      isEnabled (true),
+      wasConnected (false),
+      nextAvailableChannel (0),
+      saveOrder (-1),
+      loadOrder (-1),
+      currentChannel (-1),
+      editor (nullptr),
+      parametersAsXml (nullptr),
+      ttlEventChannel (nullptr),
+      sendSampleCount (true),
+      m_name (name),
+      m_paramsWereLoaded (false)
 
 {
     latencyMeter = std::make_unique<LatencyMeter> (this);
@@ -597,7 +613,6 @@ void GenericProcessor::clearSettings()
 
     for (auto obj : continuousChannels)
     {
-        //std::cout << obj->getName() << std::endl;
         if (! obj->isLocal())
             delete obj;
         else
@@ -644,7 +659,6 @@ void GenericProcessor::clearSettings()
         {
             savedDataStreamParameters.add (new ParameterCollection());
 
-            //std::cout << "SAVING STREAM PARAMETERS" << std::endl;
             savedDataStreamParameters.getLast()->copyParametersFrom (obj);
 
             dataStreamsToDelete.add (obj);
@@ -670,8 +684,6 @@ void GenericProcessor::setStreamEnabled (uint16 streamId, bool isEnabled)
 
 int GenericProcessor::findMatchingStreamParameters (DataStream* stream)
 {
-    // LOGDD("Finding best matching saved parameters for ", stream->getName(), " (", stream->getNodeId(), ")");
-
     for (int i = 0; i < savedDataStreamParameters.size(); i++)
     {
         ParameterCollection* params = savedDataStreamParameters[i];
@@ -679,7 +691,6 @@ int GenericProcessor::findMatchingStreamParameters (DataStream* stream)
         // matching ID --> perfect match
         if (params->owner.streamId == stream->getStreamId())
         {
-            // std::cout << "Found matching ID: " << params->owner.streamId << std::endl;
             return i;
         }
     }
@@ -688,13 +699,9 @@ int GenericProcessor::findMatchingStreamParameters (DataStream* stream)
     {
         ParameterCollection* params = savedDataStreamParameters[i];
 
-        //std::cout << params->owner.name << std::endl;
-
         // matching name --> this is a good sign
         if (params->owner.name.equalsIgnoreCase (stream->getName()))
         {
-            //std::cout << "Found matching name." << std::endl;
-
             bool betterMatch = false;
 
             for (auto otherStream : dataStreams)
@@ -702,13 +709,11 @@ int GenericProcessor::findMatchingStreamParameters (DataStream* stream)
                 if (otherStream != stream && params->owner.streamId == otherStream->getStreamId())
                 {
                     betterMatch = true;
-                    // std::cout << "...but found another stream with matching ID" << std::endl;
                 }
             }
 
             if (! betterMatch)
             {
-                //std::cout << "And it's the best match." << std::endl;
                 return i;
             }
             else
@@ -720,16 +725,12 @@ int GenericProcessor::findMatchingStreamParameters (DataStream* stream)
     {
         ParameterCollection* params = savedDataStreamParameters[i];
 
-        //std::cout << params->owner.name << std::endl;
-
         if (! stream->hasDevice())
             continue;
 
         // matching name --> this is a good sign
         if (params->owner.deviceName.equalsIgnoreCase (stream->device->getName()))
         {
-            // std::cout << "Found matching device." << std::endl;
-
             bool betterMatch = false;
 
             for (auto otherStream : dataStreams)
@@ -737,13 +738,11 @@ int GenericProcessor::findMatchingStreamParameters (DataStream* stream)
                 if (otherStream != stream && params->owner.name.equalsIgnoreCase (otherStream->getName()))
                 {
                     betterMatch = true;
-                    // std::cout << "...but found another stream with matching name" << std::endl;
                 }
             }
 
             if (! betterMatch)
             {
-                //std::cout << "And it's the best match." << std::endl;
                 return i;
             }
             else
@@ -760,8 +759,6 @@ int GenericProcessor::findMatchingStreamParameters (DataStream* stream)
         // matching channels and sample rate --> this is pretty good
         if (params->owner.sample_rate == stream->getSampleRate() && params->owner.channel_count == stream->getChannelCount())
         {
-            // std::cout << "Found matching sample rate + channel count." << std::endl;
-
             bool betterMatch = false;
 
             for (auto otherStream : dataStreams)
@@ -769,13 +766,11 @@ int GenericProcessor::findMatchingStreamParameters (DataStream* stream)
                 if (otherStream != stream && otherStream->getName().equalsIgnoreCase (params->owner.name))
                 {
                     betterMatch = true;
-                    //std::cout << "...but found another stream with matching name" << std::endl;
                 }
             }
 
             if (! betterMatch)
             {
-                //std::cout << "And it's the best match." << std::endl;
                 return i;
             }
             else
@@ -790,8 +785,6 @@ int GenericProcessor::findMatchingStreamParameters (DataStream* stream)
         // only sample rate match --> still use it
         if (params->owner.sample_rate == stream->getSampleRate())
         {
-            //std::cout << "Found matching sample rate." << std::endl;
-
             bool betterMatch = false;
 
             for (auto otherStream : dataStreams)
@@ -799,13 +792,11 @@ int GenericProcessor::findMatchingStreamParameters (DataStream* stream)
                 if (otherStream != stream && params->owner.sample_rate == otherStream->getSampleRate() && params->owner.channel_count == otherStream->getChannelCount())
                 {
                     betterMatch = true;
-                    //std::cout << "...but found another stream with matching sample rate and channel count" << std::endl;
                 }
             }
 
             if (! betterMatch)
             {
-                //std::cout << "And it's the best match." << std::endl;
                 return i;
             }
             else
@@ -814,7 +805,6 @@ int GenericProcessor::findMatchingStreamParameters (DataStream* stream)
     }
 
     // no match found
-
     return -1;
 }
 
@@ -914,9 +904,6 @@ void GenericProcessor::update()
 
     clearSettings();
 
-    // processorInfo.reset();
-    // processorInfo = std::unique_ptr<ProcessorInfoObject>(new ProcessorInfoObject(this));
-
     if (! isMerger()) // only has one source
     {
         if (sourceNode != nullptr && ! sourceNode->isEmpty())
@@ -967,12 +954,9 @@ void GenericProcessor::update()
         }
         else if (! isEmpty())
         {
-            // connect first processor in signal chain to message center
-            // messageChannel.reset();
             const EventChannel* originalChannel = AccessClass::getMessageCenter()->getMessageChannel();
             EventChannel* newChannel = new EventChannel (*originalChannel);
             messageChannel.reset (newChannel);
-            // messageChannel = std::make_unique<EventChannel>(originalChannel);
             messageChannel->addProcessor (this);
             messageChannel->setDataStream (AccessClass::getMessageCenter()->getMessageStream());
 
@@ -1019,8 +1003,6 @@ void GenericProcessor::update()
 
         if (stream->numParameters() == 0)
         {
-            //std::cout << "No parameters found, adding..." << std::endl;
-
             for (auto param : dataStreamParameters)
             {
                 if (param->getType() == Parameter::BOOLEAN_PARAM)
@@ -1107,8 +1089,6 @@ void GenericProcessor::update()
                 }
             }
         }
-
-        // LOGC( "Stream ", stream->getStreamId(), " - ", stream->getName(), " num channels: ", stream->getChannelCount(), " num parameters: ", stream->numParameters());
 
         if (savedDataStreamParameters.size() > 0)
         {
@@ -1749,10 +1729,10 @@ const EventChannel* GenericProcessor::getEventChannel (int globalIndex) const
 File GenericProcessor::getPluginRecordingDirectory()
 {
     return File (
-        CoreServices::getRecordingParentDirectory().getFullPathName() 
-        + File::getSeparatorString() 
-        + CoreServices::getRecordingDirectoryBaseText() 
-        + File::getSeparatorString() 
+        CoreServices::getRecordingParentDirectory().getFullPathName()
+        + File::getSeparatorString()
+        + CoreServices::getRecordingDirectoryBaseText()
+        + File::getSeparatorString()
         + getName() + " "
         + String (getNodeId()));
 }
@@ -1958,18 +1938,6 @@ void GenericProcessor::loadFromXml()
                             continue;
 
                         parameterValueChanged (param);
-
-                        //LOGD("Stream: ", stream->getName());
-                        /*
-                        if (param->getName() == "enable_stream" && isFilter())
-                        {
-                            if(!headlessMode) {
-                                getEditor()->streamEnabledStateChanged(stream->getStreamId(),
-                                                                       (bool)param->getValue(),
-                                                                       true);
-                            }
-                        }
-                         */
                     }
 
                     savedDataStreamParameters.remove (index);

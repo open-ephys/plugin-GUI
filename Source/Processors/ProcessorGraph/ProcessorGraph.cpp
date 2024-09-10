@@ -762,8 +762,6 @@ void ProcessorGraph::updateViews (GenericProcessor* processor, bool updateGraphV
 
     if (processor != nullptr)
     {
-        LOGD ("Processor to view: ", processor->getName());
-
         if (processor->isSplitter() && ! isConsoleApp)
         {
             SplitterEditor* spEditor = (SplitterEditor*) processor->getEditor();
@@ -1024,55 +1022,6 @@ void ProcessorGraph::refreshColours()
     AccessClass::getGraphViewer()->repaint();
 }
 
-/* Set parameters based on XML.
-void ProcessorGraph::loadParametersFromXml(GenericProcessor* processor)
-{
-    // DEPRECATED
-    // Should probably do some error checking to make sure XML is valid, depending on how it treats errors (will likely just not update parameters, but error message could be nice.)
-    int numberParameters = processor->getNumParameters();
-    // Ditto channels. Not sure how to handle different channel sizes when variable sources (file reader etc. change). Maybe I should check number of channels vs source, but that requires hardcoding when source matters.
-    //int numChannels=(targetProcessor->channels).size();
-    //int numEventChannels=(targetProcessor->eventChannels).size();
-
-    // Sets channel in for loop
-    int currentChannel;
-
-    // What the parameter name to change is.
-    String parameterNameForXML;
-    String parameterValue;
-    float parameterFloat;
-
-    forEachXmlChildElementWithTagName(*processor->parametersAsXml,
-                                      channelXML,
-                                      "CHANNEL")
-    {
-        currentChannel=channelXML->getIntAttribute("name");
-
-LOGDD("currentChannel:", currentChannel);
-        // Sets channel to change parameter on
-        processor->setCurrentChannel(currentChannel-1);
-
-        forEachXmlChildElement(*channelXML, parameterXML)
-        {
-
-            for (int j = 0; j < numberParameters; ++j)
-            {
-                parameterNameForXML = processor->getParameterName(j);
-
-                if (parameterXML->getStringAttribute("name")==parameterNameForXML)
-                {
-                    parameterValue=parameterXML->getAllSubText();
-                    parameterFloat=parameterValue.getFloatValue();
-                    processor->setParameter(j, parameterFloat);
-                    // testGrab=targetProcessor->getParameterVar(j, currentChannel);
-LOGD("Channel:", currentChannel, "Parameter:", parameterNameForXML, "Intended Value:", parameterFloat);
-                }
-
-            }
-        }
-    }
-}*/
-
 void ProcessorGraph::broadcastMessage (String msg)
 {
     AccessClass::getMessageCenter()->broadcastMessage (msg);
@@ -1218,8 +1167,6 @@ bool ProcessorGraph::isBufferNeededLater (int inputNodeId,
                                           bool* isValid)
 
 {
-    //LOGG(inputNodeId, ":", inputIndex, " --> ", outputNodeId, ":", outputIndex);
-
     ChannelKey key;
     key.inputNodeId = inputNodeId;
     key.inputIndex = inputIndex;
