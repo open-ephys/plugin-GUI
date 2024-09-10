@@ -202,15 +202,6 @@ public:
     /** Returns the stream ID for a particular node/channel combination */
     static int getStreamIdForChannel (Node& node, int channel);
 
-    /** Re-implementation of JUCE AudioProcessorGraph method that allows faster signal chain rendering */
-    static bool isBufferNeededLater (int inputNodeId, int inputIndex, int outputNodeId, int outputIndex, bool* isValid);
-
-    /** Updates the map containing about connections between processors (for isBufferNeededLater) */
-    static void updateBufferMap (int inputNodeId, int inputIndex, int outputNodeId, int outputIndex, bool isNeededLater);
-
-    /** Stores information about connections between processors */
-    static std::map<ChannelKey, bool> bufferLookupMap;
-
     /** Returns true if all record nodes are synchronized */
     bool allRecordNodesAreSynchronized();
 

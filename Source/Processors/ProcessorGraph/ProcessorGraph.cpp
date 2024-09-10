@@ -47,8 +47,6 @@
 #include "../PluginManager/PluginManager.h"
 #include "../ProcessorManager/ProcessorManager.h"
 
-std::map<ChannelKey, bool> ProcessorGraph::bufferLookupMap;
-
 ProcessorGraph::ProcessorGraph (bool isConsoleApp_) : isConsoleApp (isConsoleApp_),
                                                       currentNodeId (100),
                                                       isLoadingSignalChain (false)
@@ -1145,47 +1143,6 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
     return allProcessors;
 }
 
-void ProcessorGraph::updateBufferMap (int inputNodeId,
-                                      int inputIndex,
-                                      int outputNodeId,
-                                      int outputIndex,
-                                      bool isNeededLater)
-{
-    ChannelKey key;
-    key.inputNodeId = inputNodeId;
-    key.inputIndex = inputIndex;
-    key.outputNodeId = outputNodeId;
-    key.outputIndex = outputIndex;
-
-    bufferLookupMap.insert (std::make_pair (key, isNeededLater));
-}
-
-bool ProcessorGraph::isBufferNeededLater (int inputNodeId,
-                                          int inputIndex,
-                                          int outputNodeId,
-                                          int outputIndex,
-                                          bool* isValid)
-
-{
-    ChannelKey key;
-    key.inputNodeId = inputNodeId;
-    key.inputIndex = inputIndex;
-    key.outputNodeId = outputNodeId;
-    key.outputIndex = outputIndex;
-
-    auto search = bufferLookupMap.find (key);
-
-    if (search != bufferLookupMap.end())
-    {
-        *isValid = true;
-        return bufferLookupMap[key];
-    }
-
-    *isValid = false;
-
-    return false;
-}
-
 int ProcessorGraph::getStreamIdForChannel (Node& node, int channel)
 {
     int nodeId = node.nodeID.uid;
@@ -1254,8 +1211,6 @@ void ProcessorGraph::clearConnections()
 
         addConnection (Connection (src, dest));
     }
-
-    bufferLookupMap.clear();
 }
 
 void ProcessorGraph::updateConnections()
