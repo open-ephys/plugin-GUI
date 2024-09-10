@@ -325,7 +325,7 @@ class UtilityButton;
 
   Provides general application controls along the top of the MainWindow.
 
-  Displays useful information and provides buttons to control acquistion and recording.
+  Displays useful information and provides buttons to control acquisition and recording.
 
   The ControlPanel contains the PlayButton, the RecordButton, the CPUMeter,
   the DiskSpaceMeter, the Clock, the AudioEditor, and a FilenameComponent for switching the
@@ -412,7 +412,7 @@ public:
     */
     void setRecordingParentDirectory (String path);
 
-    /** Returns the current parent recording diretory*/
+    /** Returns the current parent recording directory*/
     File getRecordingParentDirectory();
 
     /** Gets the base name of the recording directory */

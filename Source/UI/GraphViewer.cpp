@@ -1063,7 +1063,7 @@ void GraphNode::updateStreamInfo()
         dataStreamButtons.clear();
 
         /* iterate through the streamInfoVisible map and remove all 
-        ** entires that dont belong to processors->getDataStreams() */
+        ** entries that dont belong to processors->getDataStreams() */
         for (auto it = streamInfoVisible.begin(); it != streamInfoVisible.end();)
         {
             if (processor->getDataStream (it->first) == nullptr)

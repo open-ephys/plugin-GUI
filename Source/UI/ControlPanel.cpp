@@ -1358,7 +1358,7 @@ String ControlPanel::getRecordingDirectoryName()
 
 void ControlPanel::createNewRecordingDirectory()
 {
-    //TODO: Remove depdendency on button states/callbacks
+    //TODO: Remove dependency on button states/callbacks
     MessageManager::callAsync ([this]
                                { buttonClicked (newDirectoryButton.get()); });
 }

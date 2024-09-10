@@ -52,7 +52,7 @@ public:
     /** Registers the parameters for a given processor */
     void registerParameters() override;
 
-    /** Returns true if the processor is ready for acquistion */
+    /** Returns true if the processor is ready for acquisition */
     bool isReady() override;
 
     /* Copies samples from the DataThread's DataBuffer into the GUI's processing buffers. */

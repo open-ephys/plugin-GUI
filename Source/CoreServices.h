@@ -37,7 +37,7 @@ class PopupManager;
 
 namespace CoreServices
 {
-/** Issues a signal chain update; this should be called whenver a plugin's
+/** Issues a signal chain update; this should be called whenever a plugin's
 * are changed in a way that would affect downstream plugins.
 * 
 * For example, if a plugin adds a new EventChannel, updateSignalChain() must

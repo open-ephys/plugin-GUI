@@ -80,7 +80,7 @@ public:
 
     // ------------------------------------------------------------
     //                   VIRTUAL METHODS
-    //       (can optionally be overriden by sub-classes)
+    //       (can optionally be overridden by sub-classes)
     // ------------------------------------------------------------
 
     /** Called when data acquisition begins. 
@@ -209,7 +209,7 @@ protected:
 
     /** Adds a parameter that allows the user to select a TTL Line
      * @param maxAvailableLines The number of TTL lines available for selection
-     * @param canSelectNone Set to true if the user can select no TTL line (cant be used with syncMode = true)
+     * @param canSelectNone Set to true if the user can select no TTL line (can't be used with syncMode = true)
      */
     void addTtlLineParameter (const String& name,
                               const String& displayName,

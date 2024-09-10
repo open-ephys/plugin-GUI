@@ -89,7 +89,7 @@ public:
 
     // ------------------------------------------------------------
     //                   VIRTUAL METHODS
-    //       (can optionally be overriden by sub-classes)
+    //       (can optionally be overridden by sub-classes)
     // ------------------------------------------------------------
 
     /** Return false if file is not able to be opened */

@@ -407,7 +407,7 @@ public:
     /** Adds a parameter that allows the user to select a TTL Line
      * @param maxAvailableLines The number of TTL lines available for selection
      * @param syncMode Set to true if the ttl line will be used for synchronization
-     * @param canSelectNone Set to true if the user can select no TTL line (cant be used with syncMode = true)
+     * @param canSelectNone Set to true if the user can select no TTL line (can't be used with syncMode = true)
      */
     void addTtlLineParameter (Parameter::ParameterScope scope,
                               const String& name,
@@ -646,7 +646,7 @@ protected:
     virtual void handleSpike (SpikePtr spike) {}
 
     /** Returns info about the default events a specific subprocessor generates.
-	Called by createEventChannels(). It is not needed to implement if createEventChannels() is overriden */
+	Called by createEventChannels(). It is not needed to implement if createEventChannels() is overridden */
     virtual void getDefaultEventInfo (Array<DefaultEventInfo>& events, int subProcessorIdx = 0) const;
 
     // --------------------------------------------
@@ -660,7 +660,7 @@ protected:
         If recording is active, this message will be recorded */
     void broadcastMessage (String msg);
 
-    /** Sends a message String to another processor node in the ProcessorGraph while acqusition
+    /** Sends a message String to another processor node in the ProcessorGraph while acquisition
         not active */
     void sendConfigMessage (GenericProcessor* destination, String message);
 

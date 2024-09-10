@@ -69,7 +69,7 @@ public:
 
         This class controls ownership of buttons.
 
-        Can be overriden by other buttons to change behaviour of the way, how buttons are added,
+        Can be overridden by other buttons to change behaviour of the way, how buttons are added,
         e.g. use decorators for some buttons, etc.
     */
     virtual void addButton (Button* newButton, bool useDefaultLookAndFeel = true);
@@ -101,7 +101,7 @@ protected:
     /** Pointer to the LookAndFeel which will be used for each button */
     LookAndFeel* m_buttonsLookAndFeel;
 
-    /** Viewport whick will show appropriate buttons */
+    /** Viewport which will show appropriate buttons */
     Viewport m_buttonsViewport;
 
     /** We will instead all of our buttons to this component instead of current object

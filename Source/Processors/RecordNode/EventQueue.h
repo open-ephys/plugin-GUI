@@ -93,7 +93,7 @@ public:
         size1 = 0;
         m_fifo.prepareToWrite (1, pos1, size1, pos2, size2);
 
-        /* This means there is a buffer overrun. Instead of overwritting the existing data and risking a collision of both threads
+        /* This means there is a buffer overrun. Instead of overwriting the existing data and risking a collision of both threads
 			we just skip the incoming samples. TODO: use this to notify of the overrun and act consequently   */
         if (size1 > 0)
         {

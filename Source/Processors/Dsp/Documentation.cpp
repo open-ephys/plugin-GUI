@@ -45,7 +45,7 @@ code....until now."_
 ----
 Building on the work of cherished luminaries such as Sophocles Orfanidis, Andreas Antoniou, Martin Holters, and Udo Zolzer, this library harnesses the power of C++ templates to solve a useful problem in digital signal processing: the realization of multichannel IIR filters of arbitrary order and prescribed specifications with various properties such as Butterworth, Chebyshev, Elliptic, and Optimum-L (Legendre) responses. The library is provided under the MIT license and is therefore fully compatible with proprietary usage.
 
-Classes are designed as independent re-usable building blocks. Use some or all of the provided features, or extend the functionality by writing your own objects that plug into the robust framework. Only the code that you need will get linked into your application. Here's a list of features:
+Classes are designed as independent reusable building blocks. Use some or all of the provided features, or extend the functionality by writing your own objects that plug into the robust framework. Only the code that you need will get linked into your application. Here's a list of features:
 
 	* Exclusive focus on IIR filters instead of boring FIR filters
 	* Complete implementation of all "RBJ Biquad" Cookbook filter formulas
@@ -376,7 +376,7 @@ void UsageExamples()
     }
 
     // Use the simple filter API to create a Chebyshev Band Stop of order 3
-    // and 1dB ripple in the passband. The simle API has a smaller
+    // and 1dB ripple in the passband. The simple API has a smaller
     // footprint, but no introspection or smoothing.
     {
         // Note we use the raw filter instead of the one

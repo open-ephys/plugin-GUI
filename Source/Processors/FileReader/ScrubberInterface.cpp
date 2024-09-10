@@ -68,7 +68,7 @@ void FullTimeline::paint (Graphics& g)
             {
                 float timelinePos = (sampleNumber - startSample) / float (totalSamples) * getWidth();
 
-                //if timelinePos is already in eventMap, skip overlaying a new event to avoid bogging down the GUI whle scrubbing
+                //if timelinePos is already in eventMap, skip overlaying a new event to avoid bogging down the GUI while scrubbing
                 if (eventMap.find (timelinePos) != eventMap.end())
                     continue;
                 eventMap[timelinePos] = true;
@@ -399,7 +399,7 @@ ScrubberInterface::ScrubberInterface (FileReader* fileReader_)
     fullTimeline->setBounds (padding, 76, scrubInterfaceWidth - 2 * padding, 20);
     addAndMakeVisible (fullTimeline.get());
 
-    /* Depracate playback button
+    /* Deprecate playback button
     int buttonSize = 24;
     playbackButton = std::make_unique<PlaybackButton> (fileReader);
     playbackButton->setState (true);
@@ -446,7 +446,7 @@ void ScrubberInterface::paintOverChildren (Graphics& g)
 
 void ScrubberInterface::buttonClicked (Button* button)
 {
-    //playbackButton->setState (! playbackButton->getState()); //depracated
+    //playbackButton->setState (! playbackButton->getState()); //deprecated
     updatePlaybackTimes();
     fileReader->togglePlayback();
 }

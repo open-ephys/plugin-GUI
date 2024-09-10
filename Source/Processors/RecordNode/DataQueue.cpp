@@ -217,7 +217,7 @@ float DataQueue::writeChannel (const AudioBuffer<float>& buffer,
 /*
 We could copy the internal circular buffer to an external one, as DataBuffer does. This class
 is, however, intended for disk writing, which is one of the most CPU-critical systems. Just
-allowing the record subsytem to access the internal buffer is way faster, altough it has to be
+allowing the record subsystem to access the internal buffer is way faster, although it has to be
 done with special care and manually finish the read process.
 */
 

@@ -1841,7 +1841,7 @@ void ProcessorGraph::saveToXml (XmlElement* xml)
                     // add to list of splitters to come back to
                     splitPoints.add (processor);
 
-                    //keep track of all splitters and their inital states
+                    //keep track of all splitters and their initial states
                     allSplitters.add (processor);
                     Splitter* sp = (Splitter*) processor;
                     splitterStates.add (sp->getPath());

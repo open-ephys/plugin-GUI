@@ -193,9 +193,9 @@ void DataThread::run()
         {
             const MessageManagerLock mmLock (Thread::getCurrentThread());
 
-            LOGE ("Aquisition error...stopping thread.");
+            LOGE ("Acquisition error...stopping thread.");
             signalThreadShouldExit();
-            LOGE ("Notifying source node to stop acqusition.");
+            LOGE ("Notifying source node to stop acquisition.");
             sn->connectionLost();
         }
     }
