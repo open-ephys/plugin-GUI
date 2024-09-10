@@ -236,13 +236,9 @@ GenericProcessor* ProcessorGraph::createProcessor (Plugin::Description& descript
 
     if (sourceNode != nullptr)
         LOGDD ("Source node: ", sourceNode->getName());
-    //else
-    //   LOGD("No source node.");
 
     if (destNode != nullptr)
         LOGDD ("Dest node: ", destNode->getName());
-    //else
-    //    LOGD("No dest node.");
 
     try
     {
@@ -686,7 +682,6 @@ void ProcessorGraph::updateSettings (GenericProcessor* processor, bool signalCha
     // prevents calls from within processors from triggering full update during loading
     if (signalChainIsLoading != isLoadingSignalChain)
     {
-        //updateViews(processor);
         return;
     }
 
@@ -864,10 +859,6 @@ void ProcessorGraph::connectMergerSource (GenericProcessor* merger_, GenericProc
         rootNodes.remove (rootNodes.indexOf (merger->getSourceNode (path)));
         emptyProcessors.removeObject (merger->getSourceNode (path));
     }
-
-    // merger->switchIO(path);
-    // merger->setMergerSourceNode(sourceNode);
-    // sourceNode->setDestNode(merger);
 
     while (anotherSource->getSourceNode() != nullptr)
         anotherSource = anotherSource->getSourceNode();
@@ -1386,8 +1377,6 @@ void ProcessorGraph::connectProcessors (GenericProcessor* source, GenericProcess
         {
             cs.channelIndex = chan;
             cd.channelIndex = dest->getIndexOfMatchingChannel (source->getContinuousChannel (chan));
-
-            //LOGG("  Source channel: ", cs.channelIndex, ", Dest Channel: ", cd.channelIndex);
 
             if (cd.channelIndex > -1)
             {

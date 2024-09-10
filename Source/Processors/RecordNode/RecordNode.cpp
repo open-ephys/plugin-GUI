@@ -874,8 +874,6 @@ void RecordNode::process (AudioBuffer<float>& buffer)
 
                 int64 firstSampleNumberInBlock = getFirstSampleNumberForBlock (streamId);
 
-                //LOGD ("First sample number for stream ", streamId, ": ", firstSampleNumberInBlock);
-
                 MidiBuffer& eventBuffer = *AccessClass::ExternalProcessorAccessor::getMidiBuffer (this);
                 HeapBlock<char> data;
 

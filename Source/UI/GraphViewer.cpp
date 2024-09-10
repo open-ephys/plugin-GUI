@@ -49,9 +49,6 @@ GraphViewport::GraphViewport (GraphViewer* gv)
     currentVersionText = "GUI version " + app->getApplicationVersion();
 
     bw_logo = ImageCache::getFromMemory (BinaryData::bw_logo72_png, BinaryData::bw_logo72_pngSize);
-    colour_logo = ImageCache::getFromMemory (BinaryData::color_logo72_png, BinaryData::color_logo72_pngSize);
-
-    current_logo = &bw_logo;
 }
 
 void GraphViewport::paint (Graphics& g)
@@ -59,7 +56,7 @@ void GraphViewport::paint (Graphics& g)
     g.fillAll (findColour (ThemeColours::componentParentBackground));
     g.setOpacity (0.6f);
 
-    g.drawImageAt (*current_logo, getWidth() - 175, getHeight() - 115);
+    g.drawImageAt (bw_logo, getWidth() - 175, getHeight() - 115);
 
     g.setOpacity (1.0f);
     g.setColour (findColour (ThemeColours::componentBackground).brighter (0.3f));
@@ -71,14 +68,6 @@ void GraphViewport::paint (Graphics& g)
 void GraphViewport::resized()
 {
     viewport->setBounds (0, 0, getWidth(), getHeight());
-}
-
-void GraphViewport::lookAndFeelChanged()
-{
-    //if (findColour(ThemeColours::highlightedFill) == Colour(138, 193, 232)) // light mode
-    //    current_logo = &colour_logo;
-    //else
-    //    current_logo = &bw_logo;
 }
 
 GraphViewer::GraphViewer()
@@ -1198,7 +1187,6 @@ String GraphNode::getInfoString()
 void GraphNode::paint (Graphics& g)
 {
     g.fillAll (findColour (ThemeColours::componentParentBackground));
-    //g.setFont(Font("Inter", "Medium", 14));
 
     g.setFont (FontOptions ("Fira Code", "Regular", 13.0f));
 
@@ -1222,9 +1210,9 @@ void GraphNode::paint (Graphics& g)
         if (processorInfoVisible)
             g.fillRect (0, 19, getWidth(), 1);
 
-        g.setColour (findColour (ThemeColours::defaultText)); // : editor->getBackgroundColour());
+        g.setColour (findColour (ThemeColours::defaultText)); 
         g.drawText (String (nodeId), 1, 1, 23, 20, Justification::centred, true);
-        g.setColour (Colours::white); // : editor->getBackgroundColour());
+        g.setColour (Colours::white); 
         g.setFont (FontOptions ("CP Mono", "Plain", 15.0f));
         g.drawText (getName().toUpperCase(), 30, 1, getWidth() - 30, 20, Justification::left, true);
     }

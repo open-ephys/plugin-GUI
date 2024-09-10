@@ -133,8 +133,6 @@ void SourceNode::updateSettings()
 
         resizeBuffers();
 
-        //std::cout << " Source node num continuous channels: " << continuousChannels.size() << std::endl;
-
         for (int i = 0; i < continuousChannels.size(); i++)
             continuousChannels[i]->addProcessor (this);
 
@@ -200,18 +198,14 @@ bool SourceNode::tryEnablingEditor()
 {
     if (! isSourcePresent())
     {
-        //LOGD("No input source found.");
         return false;
     }
-
-    //LOGD("isEnabled = ", isEnabled, " (tryEnablingEditor)");
 
     if (isEnabled)
     {
         // If we're already enabled (e.g. if we're being called again
         // due to timerCallback()), then there's no need to go through
         // the editor again.
-        //LOGD("We're already enabled; returning.");
         return true;
     }
 
@@ -317,12 +311,7 @@ void SourceNode::process (AudioBuffer<float>& buffer)
                                                                    copiedChannels,
                                                                    channelsToCopy);
 
-        //std::cout << getNodeId() << " " << streamIdx << " " << nSamples << std::endl;
-
         copiedChannels += channelsToCopy;
-
-        //if (getFirstSampleNumberForBlock(dataStreams[streamIdx]->getStreamId()) > sampleNumber)
-        //    std::cout << "SET ERROR: " << getNodeId() << " " << dataStreams[streamIdx]->getStreamId() << std::endl;
 
         setTimestampAndSamples (sampleNumber,
                                 timestamp,
