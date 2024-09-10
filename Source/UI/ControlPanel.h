@@ -249,6 +249,12 @@ public:
         HHMMSS
     };
 
+    enum ReferenceTime
+    {
+        CUMULATIVE,
+        ACQUISITION_START
+    };
+
     /** Constructor*/
     Clock();
 
@@ -270,6 +276,9 @@ public:
     /** Sets the cumulative recording time to zero.*/
     void resetRecordingTime();
 
+    /** Sets the cumulative acquisition time to zero.*/
+    void resetAcquisitionTime();
+
     /** Gets the current recording time */
     int64 getRecordingTime() const;
 
@@ -282,6 +291,12 @@ public:
     /** Gets the clock mode*/
     Mode getMode() { return mode; }
 
+    /** Sets the clock reference time*/
+    void setReferenceTime (ReferenceTime t);
+
+    /** Gets the clock reference time */
+    ReferenceTime getReferenceTime() { return referenceTime; }
+
     /** Responds to right clicks*/
     void mouseDown (const MouseEvent& e);
 
@@ -293,6 +308,7 @@ private:
 
     int64 totalTime = 0;
     int64 totalRecordingTime = 0;
+    int64 latestAcquisitionTime = 0;
 
     bool isRunning = false;
     bool isRecording = false;
@@ -300,6 +316,7 @@ private:
     FontOptions clockFont;
 
     Mode mode = DEFAULT;
+    ReferenceTime referenceTime = CUMULATIVE;
 };
 
 class UtilityButton;

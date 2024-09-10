@@ -37,11 +37,11 @@ const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
 NewDirectoryButton::NewDirectoryButton() : Button ("NewDirectory")
 {
     //XmlDocument xmlDoc (R"(
-    //    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24" 
-     //    fill="currentColor"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round" 
-      //   stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder-plus">
-       // <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v3.5" />
-        //<path d="M16 19h6" /><path d="M19 16v6" /></svg>)");
+    //    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"
+    //    fill="currentColor"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"
+    //   stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder-plus">
+    // <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v3.5" />
+    //<path d="M16 19h6" /><path d="M19 16v6" /></svg>)");
 
     XmlDocument xmlDoc (R"(
         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-folder"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 3a1 1 0 0 1 .608 .206l.1 .087l2.706 2.707h6.586a3 3 0 0 1 2.995 2.824l.005 .176v8a3 3 0 0 1 -2.824 2.995l-.176 .005h-14a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-11a3 3 0 0 1 2.824 -2.995l.176 -.005h4z" /></svg>)");
@@ -72,9 +72,9 @@ void NewDirectoryButton::paintButton (Graphics& g, bool isMouseOver, bool isButt
     g.fillRoundedRectangle (0, 0, getWidth(), getHeight(), 5);
     g.setColour (buttonColour);
     g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 3);
-    
+
     g.setColour (Colours::black);
-    newDirectoryIcon->drawWithin (g, juce::Rectangle<float>(2,2.5,18,18), RectanglePlacement::centred, 1.0f);
+    newDirectoryIcon->drawWithin (g, juce::Rectangle<float> (2, 2.5, 18, 18), RectanglePlacement::centred, 1.0f);
     g.setColour (buttonColour);
     g.drawRect (10, 9, 2, 6);
     g.drawRect (8, 11, 6, 2);
@@ -273,6 +273,7 @@ void Clock::drawTime (Graphics& g)
         int64 now = Time::currentTimeMillis();
         int64 diff = now - lastTime;
         totalTime += diff;
+        latestAcquisitionTime += diff;
 
         if (isRecording)
         {
@@ -286,12 +287,27 @@ void Clock::drawTime (Graphics& g)
     int s;
     int h;
 
+    int64 timeToDraw;
+
+    if (referenceTime == ACQUISITION_START)
+    {
+        timeToDraw = latestAcquisitionTime;
+    }
+    else
+    {
+        if (isRecording)
+            timeToDraw = totalRecordingTime;
+        else
+            timeToDraw = totalTime;
+    }
+
+    h = floor (timeToDraw / 3600000.0f);
+    m = floor (timeToDraw / 60000.0);
+    s = floor ((timeToDraw - m * 60000.0) / 1000.0);
+
     if (isRecording)
     {
         g.setColour (Colours::black);
-        h = floor (totalRecordingTime / 3600000.0f);
-        m = floor (totalRecordingTime / 60000.0);
-        s = floor ((totalRecordingTime - m * 60000.0) / 1000.0);
     }
     else
     {
@@ -299,10 +315,6 @@ void Clock::drawTime (Graphics& g)
             g.setColour (findColour (ThemeColours::controlPanelText));
         else
             g.setColour (findColour (ThemeColours::controlPanelText).withAlpha (0.8f));
-
-        h = floor (totalTime / 3600000.0f);
-        m = floor (totalTime / 60000.0);
-        s = floor ((totalTime - m * 60000.0) / 1000.0);
     }
 
     String timeString = "";
@@ -344,6 +356,11 @@ void Clock::start()
         isRunning = true;
         lastTime = Time::currentTimeMillis();
     }
+}
+
+void Clock::resetAcquisitionTime()
+{
+    latestAcquisitionTime = 0;
 }
 
 void Clock::resetRecordingTime()
@@ -389,6 +406,13 @@ void Clock::setMode (Mode m)
     repaint();
 }
 
+void Clock::setReferenceTime (ReferenceTime t)
+{
+    referenceTime = t;
+
+    repaint();
+}
+
 void Clock::mouseDown (const MouseEvent& e)
 {
     if (e.mods.isRightButtonDown())
@@ -396,10 +420,13 @@ void Clock::mouseDown (const MouseEvent& e)
         PopupMenu m;
         m.setLookAndFeel (&getLookAndFeel());
 
-        m.addItem (1, "Clock mode", false);
-        m.addSeparator();
+        m.addItem (1, "Display mode", false);
         m.addItem (2, "Default", true, mode == DEFAULT);
         m.addItem (3, "HH:MM:SS", true, mode == HHMMSS);
+        m.addSeparator();
+        m.addItem (4, "Reference time", false);
+        m.addItem (5, "Cumulative", true, referenceTime == CUMULATIVE);
+        m.addItem (6, "Acquisition start", true, referenceTime == ACQUISITION_START);
 
         int result = m.showMenu (PopupMenu::Options {}.withStandardItemHeight (20));
 
@@ -411,6 +438,14 @@ void Clock::mouseDown (const MouseEvent& e)
         {
             setMode (HHMMSS);
         }
+        else if (result == 5)
+        {
+            setReferenceTime (CUMULATIVE);
+		}
+        else if (result == 6)
+        {
+            setReferenceTime (ACQUISITION_START);
+		}
     }
 }
 
@@ -569,7 +604,6 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
         return;
     }
 
-
     if (audio->getSampleRate() < 44100)
     {
         playButton->setToggleState (false, dontSendNotification);
@@ -625,7 +659,9 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
             recordOptionsButton->setEnabled (false);
         }
 
+        clock->resetAcquisitionTime();
         audio->beginCallbacks(); // starts acquisition callbacks
+        
     }
 }
 
@@ -1235,6 +1271,7 @@ void ControlPanel::saveStateToXml (XmlElement* xml)
     controlPanelState->setAttribute ("recordPath", filenameComponent->getCurrentFile().getFullPathName());
     controlPanelState->setAttribute ("recordEngine", recordEngines[recordSelector->getSelectedId() - 1]->getID());
     controlPanelState->setAttribute ("clockMode", (int) clock->getMode());
+    controlPanelState->setAttribute ("clockReferenceTime", (int) clock->getReferenceTime());
     controlPanelState->setAttribute ("forceNewDirectory", forceNewDirectoryButton->getToggleState());
 
     if (! isConsoleApp)
@@ -1267,6 +1304,7 @@ void ControlPanel::loadStateFromXml (XmlElement* xml)
             }
 
             clock->setMode ((Clock::Mode) xmlNode->getIntAttribute ("clockMode", Clock::Mode::DEFAULT));
+            clock->setReferenceTime ((Clock::ReferenceTime) xmlNode->getIntAttribute ("clockReferenceTime", Clock::ReferenceTime::CUMULATIVE));
 
             bool isOpen = xmlNode->getBoolAttribute ("isOpen");
             openState (isOpen);

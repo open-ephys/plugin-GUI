@@ -244,6 +244,8 @@ private:
         showMessageWindow = 0x2013,
         setClockModeDefault = 0x2111,
         setClockModeHHMMSS = 0x2112,
+        setClockReferenceTimeCumulative = 0x2113,
+        setClockReferenceTimeAcqStart = 0x2114,
         toggleHttpServer = 0x4001,
         showHelp = 0x2211,
         checkForUpdates = 0x2222,
