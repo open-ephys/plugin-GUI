@@ -120,6 +120,7 @@ PluginManager::PluginManager()
         }
         AddDllDirectory (installSharedPath.getFullPathName().toWideCharPointer());
     }
+    SetDefaultDllDirectories (LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
 
 #elif __linux__
     File installSharedPath = File::getSpecialLocation (File::userApplicationDataDirectory)
