@@ -219,7 +219,7 @@ protected:
 };
 
 TEST_F(RecordNodeTests, TestInputOutput_Continuous_Single) {
- /*   GTEST_SKIP();*/
+    GTEST_SKIP() << "Need headless mode support.";
     int numSamples = 100;
     tester->startAcquisition(true);
 
@@ -246,7 +246,7 @@ TEST_F(RecordNodeTests, TestInputOutput_Continuous_Single) {
 }
 
 TEST_F(RecordNodeTests, TestInputOutput_Continuous_Multiple) {
-    GTEST_SKIP();
+    GTEST_SKIP() << "Need headless mode support.";
     tester->startAcquisition(true);
 
     int numSamplesPerBlock = 100;
@@ -279,7 +279,7 @@ TEST_F(RecordNodeTests, TestInputOutput_Continuous_Multiple) {
 }
 
 TEST_F(RecordNodeTests, TestEmpty) {
-    GTEST_SKIP();
+    GTEST_SKIP() << "Need headless mode support.";
     tester->startAcquisition(true);
     tester->stopAcquisition();
 
@@ -289,7 +289,7 @@ TEST_F(RecordNodeTests, TestEmpty) {
 }
 
 TEST_F(RecordNodeTests, TestClipsProperly) {
-    GTEST_SKIP();
+    GTEST_SKIP() << "Need headless mode support.";
     int numSamples = 100;
     tester->startAcquisition(true);
 
@@ -344,7 +344,7 @@ class CustomBitVolts_RecordNodeTests : public RecordNodeTests {
 };
 
 TEST_F(CustomBitVolts_RecordNodeTests, Test_RespectsBitVolts) {
-    GTEST_SKIP();
+    GTEST_SKIP() << "Need headless mode support.";
     int numSamples = 100;
     tester->startAcquisition(true);
     auto inputBuffer = createBuffer(1000.0, 20.0, numChannels, numSamples);
@@ -375,7 +375,7 @@ TEST_F(CustomBitVolts_RecordNodeTests, Test_RespectsBitVolts) {
 }
 
 TEST_F(RecordNodeTests, Test_PersistsSampleNumbersAndTimestamps) {
-    GTEST_SKIP();
+    GTEST_SKIP() << "Need headless mode support.";
     tester->startAcquisition(true);
 
     int numSamples = 5;
@@ -423,7 +423,7 @@ TEST_F(RecordNodeTests, Test_PersistsSampleNumbersAndTimestamps) {
 }
 
 TEST_F(RecordNodeTests, Test_PersistsStructureOeBin) {
-    GTEST_SKIP();
+    GTEST_SKIP() << "Need headless mode support.";
     tester->startAcquisition(true);
 
     int numSamples = 5;
@@ -483,7 +483,7 @@ TEST_F(RecordNodeTests, Test_PersistsStructureOeBin) {
 }
 
 TEST_F(RecordNodeTests, Test_PersistsEvents) {
-    GTEST_SKIP();
+    GTEST_SKIP() << "Need headless mode support.";
     processor->setRecordEvents(true);
     processor->updateSettings();
 

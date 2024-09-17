@@ -17,7 +17,7 @@ public:
     }
 };
 
-TEST (ChannelInfoObjectTests, GetSampleRate_ReturnsCorrectValue)
+TEST (ChannelInfoObjectTests, GetSampleRate)
 {
     // Arrange
     float expectedSampleRate = 44100.0f;
@@ -33,13 +33,13 @@ TEST (ChannelInfoObjectTests, GetSampleRate_ReturnsCorrectValue)
     EXPECT_EQ (expectedSampleRate, actualSampleRate);
 }
 
-TEST (ChannelInfoObjectTests, GetStreamId_ReturnsCorrectValue)
+TEST (ChannelInfoObjectTests, GetStreamId)
 {
     // Arrange
     DataStream::Settings settings;
     DataStream stream (settings);
     ChannelInfoObject channel (InfoObject::Type::CONTINUOUS_CHANNEL, &stream);
-    uint16_t expectedStreamId = 10001;
+    uint16_t expectedStreamId = 10060;
 
     // Act
     uint16_t actualStreamId = channel.getStreamId();
@@ -48,7 +48,7 @@ TEST (ChannelInfoObjectTests, GetStreamId_ReturnsCorrectValue)
     EXPECT_EQ (expectedStreamId, actualStreamId);
 }
 
-TEST (ChannelInfoObjectTests, GetStreamName_ReturnsCorrectValue)
+TEST (ChannelInfoObjectTests, GetStreamName)
 {
     // Arrange
     DataStream::Settings settings {

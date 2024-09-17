@@ -78,7 +78,7 @@ This test verifies that multiple Metadata objects inserted into the Midi Buffer 
 */
 TEST_F(MidiBufferTests, ReadWrite)
 {
-    GTEST_SKIP();
+    GTEST_SKIP() << "Fix";
 
     size_t size = event->getChannelInfo()->getDataSize() + 
         event->getChannelInfo()->getTotalEventMetadataSize() + 

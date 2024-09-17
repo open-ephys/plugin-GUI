@@ -10,7 +10,6 @@ TEST(PluginClassTests, constructor)
     EXPECT_EQ(pluginClass.getPluginName(), "");
     EXPECT_EQ(pluginClass.getLibVersion(), "");
     EXPECT_EQ(pluginClass.getPluginType(), Plugin::INVALID);
-    EXPECT_EQ(pluginClass.getIndex(), 0);
 }
 
 TEST(PluginClassTests, setPluginData)

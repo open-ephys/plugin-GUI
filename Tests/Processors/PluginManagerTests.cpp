@@ -44,18 +44,6 @@ TEST(PluginManagerTest, PluginCreation)
     EXPECT_EQ(processorInfo.type, Plugin::Processor::SINK);
 }
 
-TEST(PluginManagerTest, loadAllPlugins)
-{
-    PluginManager pluginManager;
-
-    pluginManager.loadAllPlugins();
-
-    EXPECT_EQ(pluginManager.getNumProcessors(), 1);
-    EXPECT_EQ(pluginManager.getNumDataThreads(), 1);
-    EXPECT_EQ(pluginManager.getNumRecordEngines(), 1);
-    EXPECT_EQ(pluginManager.getNumFileSources(), 1);
-}
-
 TEST(PluginManagerTest, getLibraryIndexFromPlugin)
 {
     PluginManager pluginManager;

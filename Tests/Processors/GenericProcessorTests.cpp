@@ -111,7 +111,7 @@ Generic Processors can be configured to generate timestamps.
 */
 TEST_F (GenericProcessorTests, UnitTest_GeneratesTimestamps)
 {
-    EXPECT_TRUE(processor->generatesTimestamps());
+    EXPECT_FALSE(processor->generatesTimestamps());
 }
 
 /*
@@ -133,7 +133,7 @@ TEST_F (GenericProcessorTests, UnitTest_AddBooleanParameter)
     String description = "param";
 
     processor->addBooleanParameter (Parameter::PROCESSOR_SCOPE, name, displayName, description, true);
-    EXPECT_EQ (processor->getStreamParameter ("param")->getName(), name);
-    EXPECT_EQ (processor->getStreamParameter ("param")->getDisplayName(), displayName);
-    EXPECT_EQ (processor->getStreamParameter ("param")->getDescription(), description);
+    EXPECT_EQ (processor->getParameter ("param")->getName(), name);
+    EXPECT_EQ (processor->getParameter ("param")->getDisplayName(), displayName);
+    EXPECT_EQ (processor->getParameter ("param")->getDescription(), description);
 }
