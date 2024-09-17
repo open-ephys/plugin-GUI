@@ -1643,6 +1643,7 @@ public:
     {
         const SpinLock::ScopedLockType lock (mutex);
         mainThreadState = std::move (next);
+        audioThreadState.reset();
         isNew = true;
     }
 

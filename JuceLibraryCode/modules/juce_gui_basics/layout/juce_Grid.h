@@ -74,19 +74,51 @@ public:
     struct TrackInfo  final
     {
         /** Creates a track with auto dimension. */
-        TrackInfo() noexcept;
+        TrackInfo() noexcept : hasKeyword (true) {}
 
-        TrackInfo (Px sizeInPixels) noexcept;
-        TrackInfo (Fr fractionOfFreeSpace) noexcept;
+        TrackInfo (Px sizeInPixels) noexcept
+            : size (static_cast<float> (sizeInPixels.pixels)),
+              isFraction (false) {}
+        TrackInfo (Fr fractionOfFreeSpace) noexcept
+            : size ((float) fractionOfFreeSpace.fraction),
+              isFraction (true) {}
 
-        TrackInfo (Px sizeInPixels, const String& endLineNameToUse) noexcept;
-        TrackInfo (Fr fractionOfFreeSpace, const String& endLineNameToUse) noexcept;
+        TrackInfo (Px sizeInPixels, const String& endLineNameToUse) noexcept
+            : TrackInfo (sizeInPixels)
+        {
+            endLineName = endLineNameToUse;
+        }
 
-        TrackInfo (const String& startLineNameToUse, Px sizeInPixels) noexcept;
-        TrackInfo (const String& startLineNameToUse, Fr fractionOfFreeSpace) noexcept;
+        TrackInfo (Fr fractionOfFreeSpace, const String& endLineNameToUse) noexcept
+            : TrackInfo (fractionOfFreeSpace)
+        {
+            endLineName = endLineNameToUse;
+        }
 
-        TrackInfo (const String& startLineNameToUse, Px sizeInPixels, const String& endLineNameToUse) noexcept;
-        TrackInfo (const String& startLineNameToUse, Fr fractionOfFreeSpace, const String& endLineNameToUse) noexcept;
+        TrackInfo (const String& startLineNameToUse, Px sizeInPixels) noexcept
+            : TrackInfo (sizeInPixels)
+        {
+            startLineName = startLineNameToUse;
+        }
+
+        TrackInfo (const String& startLineNameToUse, Fr fractionOfFreeSpace) noexcept
+            : TrackInfo (fractionOfFreeSpace)
+        {
+            startLineName = startLineNameToUse;
+        }
+
+        TrackInfo (const String& startLineNameToUse, Px sizeInPixels, const String& endLineNameToUse) noexcept
+            : TrackInfo (startLineNameToUse, sizeInPixels)
+        {
+            endLineName = endLineNameToUse;
+        }
+
+        TrackInfo (const String& startLineNameToUse, Fr fractionOfFreeSpace, const String& endLineNameToUse) noexcept
+            : TrackInfo (startLineNameToUse, fractionOfFreeSpace)
+        {
+            endLineName = endLineNameToUse;
+        }
+
 
         bool isAuto() const noexcept { return hasKeyword; }
         bool isFractional() const noexcept { return isFraction; }

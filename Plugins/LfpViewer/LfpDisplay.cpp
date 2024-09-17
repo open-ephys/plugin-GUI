@@ -56,7 +56,16 @@ using namespace LfpViewer;
 // ---------------------------------------------------------------
 
 LfpDisplay::LfpDisplay (LfpDisplaySplitter* c, Viewport* v)
-    : singleChan (-1), canvasSplit (c), viewport (v), channelsReversed (false), channelsOrderedByDepth (false), displaySkipAmt (0), m_SpikeRasterPlottingFlag (false), lastBitmapIndex (0), lastFillFrom (-1)
+    : singleChan (-1),
+      canvasSplit (c),
+      viewport (v),
+      channelsReversed (false),
+      channelsOrderedByDepth (false),
+      displaySkipAmt (0),
+      m_SpikeRasterPlottingFlag (false),
+      lastBitmapIndex (0),
+      lastFillFrom (-1),
+      totalPixelsFilled (0)
 {
     perPixelPlotter = std::make_unique<PerPixelBitmapPlotter> (this);
     supersampledPlotter = std::make_unique<SupersampledBitmapPlotter> (this);
@@ -351,6 +360,7 @@ void LfpDisplay::sync()
     if (! displayIsPaused)
     {
         lastBitmapIndex = 0;
+        totalPixelsFilled = 0;
     }
 }
 
@@ -397,15 +407,15 @@ void LfpDisplay::refresh()
 
             lfpChannelBitmap.clear (Rectangle<int> (0, 0, totalXPixels, totalYPixels));
 
-            for (int i = 0; i < numChans; i++)
+            for (int i = 0; i < drawableChannels.size(); i++)
             {
-                int componentTop = channels[i]->getY();
-                int componentBottom = channels[i]->getHeight() + componentTop;
+                int componentTop = drawableChannels[i].channel->getY();
+                int componentBottom = drawableChannels[i].channel->getBottom();
 
                 if ((topBorder <= componentBottom && bottomBorder >= componentTop)) // only draw things that are visible
                 {
-                    channels[i]->pxPaintHistory (playhead, rightEdge, maxScreenBufferIndex);
-                    channelInfo[i]->repaint();
+                    drawableChannels[i].channel->pxPaintHistory (playhead, rightEdge, maxScreenBufferIndex);
+                    drawableChannels[i].channelInfo->repaint();
                 }
             }
 
@@ -450,15 +460,15 @@ void LfpDisplay::refresh()
 
         lfpChannelBitmap.clear (Rectangle<int> (0, 0, totalXPixels, totalYPixels));
 
-        for (int i = 0; i < numChans; i++)
+        for (int i = 0; i < drawableChannels.size(); i++)
         {
-            int componentTop = channels[i]->getY();
-            int componentBottom = channels[i]->getHeight() + componentTop;
+            int componentTop = drawableChannels[i].channel->getY();
+            int componentBottom = drawableChannels[i].channel->getBottom();
 
             if ((topBorder <= componentBottom && bottomBorder >= componentTop)) // only draw things that are visible
             {
-                channels[i]->pxPaintHistory (playhead, rightEdge, maxScreenBufferIndex);
-                channelInfo[i]->repaint();
+                drawableChannels[i].channel->pxPaintHistory (playhead, rightEdge, maxScreenBufferIndex);
+                drawableChannels[i].channelInfo->repaint();
             }
         }
 
@@ -518,22 +528,25 @@ void LfpDisplay::refresh()
         }
     }
 
-    for (int i = 0; i < numChans; i++)
+    for (int i = 0; i < drawableChannels.size(); i++)
     {
-        int componentTop = channels[i]->getY();
-        int componentBottom = channels[i]->getHeight() + componentTop;
+        int componentTop = drawableChannels[i].channel->getY();
+        int componentBottom = drawableChannels[i].channel->getBottom();
 
         if ((topBorder <= componentBottom && bottomBorder >= componentTop)) // only draw things that are visible
         {
-            channels[i]->pxPaint(); // draws to lfpChannelBitmap
+            drawableChannels[i].channel->pxPaint(); // draws to lfpChannelBitmap
         }
     }
 
     repaint();
 
-    if (fillfrom_local == 0 && singleChan != -1)
+    totalPixelsFilled += totalPixelsToFill;
+
+    if (totalPixelsFilled > (totalXPixels / (2 * canvasSplit->timebase)) && singleChan != -1)
     {
-        channelInfo[singleChan]->repaint();
+        channelInfo[singleChan]->updateMeanAndRMS();
+        totalPixelsFilled = 0;
     }
 
     lastBitmapIndex += totalPixelsToFill;

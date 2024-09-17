@@ -76,7 +76,7 @@ void EDITORCLASSNAME::resized()
 
 /**
     The listener method that reacts to the button click. The same method is called for all buttons
-    on the editor, so the button variable, which cointains a pointer to the button that called the method
+    on the editor, so the button variable, which contains a pointer to the button that called the method
     has to be checked to know which function to perform.
 */
 void EDITORCLASSNAME::buttonEvent (Button* button)

@@ -80,7 +80,7 @@ public:
 
     // ------------------------------------------------------------
     //                   VIRTUAL METHODS
-    //       (can optionally be overriden by sub-classes)
+    //       (can optionally be overridden by sub-classes)
     // ------------------------------------------------------------
 
     /** Called when data acquisition begins. 
@@ -198,6 +198,7 @@ protected:
                                      const String& description,
                                      Array<String> streamNames,
                                      const int defaultIndex,
+                                     bool syncWithStreamSelector = false,
                                      bool deactivateDuringAcquisition = true);
 
     /** Adds a boolean parameter, which will later be accessed by name*/
@@ -205,6 +206,17 @@ protected:
                                    const String& displayName,
                                    const String& description,
                                    bool deactivateDuringAcquisition = false);
+
+    /** Adds a parameter that allows the user to select a TTL Line
+     * @param maxAvailableLines The number of TTL lines available for selection
+     * @param canSelectNone Set to true if the user can select no TTL line (can't be used with syncMode = true)
+     */
+    void addTtlLineParameter (const String& name,
+                              const String& displayName,
+                              const String& description,
+                              int maxAvailableLines = 8,
+                              bool canSelectNone = false,
+                              bool deactivateDuringAcquisition = false);
 
 private:
     GenericProcessor* processor;

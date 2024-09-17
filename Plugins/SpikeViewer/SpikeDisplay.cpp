@@ -26,28 +26,41 @@
 #include "SpikeDisplayCanvas.h"
 #include "SpikePlots.h"
 
+
 SpikeDisplay::SpikeDisplay (SpikeDisplayCanvas* sdc, Viewport* v) : canvas (sdc),
                                                                     viewport (v),
                                                                     shouldInvert (false),
                                                                     thresholdCoordinator (nullptr)
 {
     totalHeight = 1000;
+
+    grid.alignContent = Grid::AlignContent::start;
+    grid.justifyContent = Grid::JustifyContent::center;
+    grid.alignItems = Grid::AlignItems::center;
+    grid.justifyItems = Grid::JustifyItems::center;
+    grid.autoFlow = Grid::AutoFlow::rowDense;
+    
+    grid.columnGap = Grid::Px (5); // Gap between columns
+    grid.rowGap = Grid::Px (5); // Gap between rows
+    
 }
 
 void SpikeDisplay::removePlots()
 {
+    singleElectrodePlots.clear();
+    stereotrodePlots.clear();
+    tetrodePlots.clear();
     spikePlots.clear();
 }
 
 void SpikeDisplay::clear()
 {
-    if (spikePlots.size() > 0)
+
+    for (auto spikePlot : spikePlots)
     {
-        for (int i = 0; i < spikePlots.size(); i++)
-        {
-            spikePlots[i]->clear();
-        }
+        spikePlot->clear();
     }
+
 }
 
 SpikePlot* SpikeDisplay::addSpikePlot (int numChannels, int electrodeNum, String name_, std::string identifier_)
@@ -55,7 +68,16 @@ SpikePlot* SpikeDisplay::addSpikePlot (int numChannels, int electrodeNum, String
     LOGD ("Adding spike plot for electrode: ", electrodeNum, " named: ", name_, " with ", numChannels, " channels");
 
     SpikePlot* spikePlot = new SpikePlot (canvas, electrodeNum, 1000 + numChannels, name_, identifier_);
+
+    if (numChannels == 1)
+        singleElectrodePlots.add (spikePlot);
+    else if (numChannels == 2)
+        stereotrodePlots.add (spikePlot);
+    else if (numChannels == 4)
+        tetrodePlots.add (spikePlot);
+
     spikePlots.add (spikePlot);
+    
     addAndMakeVisible (spikePlot);
     spikePlot->invertSpikes (shouldInvert);
     if (thresholdCoordinator)
@@ -63,105 +85,127 @@ SpikePlot* SpikeDisplay::addSpikePlot (int numChannels, int electrodeNum, String
         spikePlot->registerThresholdCoordinator (thresholdCoordinator);
     }
 
+    resized();
+    setBounds (0, 0, getWidth(), totalHeight);
+
     return spikePlot;
 }
 
-SpikePlot* SpikeDisplay::getSpikePlot (int index)
+SpikePlot* SpikeDisplay::getSpikePlot (int numChannels, int index)
 {
-    return spikePlots[index];
+
+    if (index < 0)
+        return nullptr;
+
+    if (numChannels == 1 && index < singleElectrodePlots.size())
+        return singleElectrodePlots[index];
+    else if (numChannels == 2 && index < stereotrodePlots.size())
+        return stereotrodePlots[index];
+    else if (numChannels == 4 && index < tetrodePlots.size())
+        return tetrodePlots[index];
+    
+    return nullptr;
 }
 
 void SpikeDisplay::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColours::componentBackground));
+    //g.fillAll (findColour (ThemeColours::componentBackground));
 }
 
 void SpikeDisplay::resized()
 {
-    if (spikePlots.size() > 0)
+    totalHeight = 0;
+    
+    if (singleElectrodePlots.size() > 0)
     {
-        int w = getWidth();
+        int columnHeight = 200 * scaleFactor;
+        int columnWidth = columnHeight / singleElectrodePlots[0]->aspectRatio;
 
-        int numColumns = 1;
-        int column, row;
+        int numColumns = getWidth() / columnWidth;
+        numColumns = jmax (1, numColumns);
+        columnWidth = getWidth() / numColumns;
+        columnHeight = columnWidth * singleElectrodePlots[0]->aspectRatio;
 
-        int stereotrodeStart = 0;
-        int tetrodeStart = 0;
-
-        int singlePlotIndex = -1;
-        int stereotrodePlotIndex = -1;
-        int tetrodePlotIndex = -1;
-        int index = -1;
-
-        float width = 0;
-        float height = 0;
-
-        float maxHeight = 0;
-
-        for (int i = 0; i < spikePlots.size(); i++)
+        Array<GridItem> items;
+        
+        for (auto spikePlot : singleElectrodePlots)
         {
-            if (spikePlots[i]->nChannels == 1)
-            {
-                index = ++singlePlotIndex;
-                numColumns = (int) jmax (w / spikePlots[i]->minWidth / scaleFactor, 1.0f);
-                width = jmin ((float) w / (float) numColumns, (float) getWidth());
-                height = width * spikePlots[i]->aspectRatio;
-            }
-            else if (spikePlots[i]->nChannels == 2)
-            {
-                index = ++stereotrodePlotIndex;
-                numColumns = (int) jmax (w / spikePlots[i]->minWidth / scaleFactor, 1.0f);
-                width = jmin ((float) w / (float) numColumns, (float) getWidth());
-                height = width * spikePlots[i]->aspectRatio;
-            }
-            else if (spikePlots[i]->nChannels == 4)
-            {
-                index = ++tetrodePlotIndex;
-                numColumns = (int) jmax (w / spikePlots[i]->minWidth / scaleFactor, 1.0f);
-                width = jmin ((float) w / (float) numColumns, (float) getWidth());
-                height = width * spikePlots[i]->aspectRatio;
-            }
+            items.add (GridItem (spikePlot).withSize (columnWidth, columnHeight));
+        }
+        
+        grid.items = items;
+        grid.templateColumns.clear();
 
-            column = index % numColumns;
+        for (int i = 0; i < numColumns; ++i)
+            grid.templateColumns.add (Grid::TrackInfo (Grid::Fr (1)));
 
-            row = index / numColumns;
+        grid.templateRows = juce::Grid::TrackInfo (juce::Grid::Px (columnHeight)); // Fixed row height
 
-            spikePlots[i]->setBounds (width * column, row * height, width, height);
+        grid.performLayout (getLocalBounds().withY(totalHeight));
 
-            maxHeight = jmax (maxHeight, row * height + height);
+        totalHeight = singleElectrodePlots.getLast()->getBottom() + 20;
+    
+    }
 
-            if (spikePlots[i]->nChannels == 1)
-            {
-                stereotrodeStart = (int) (height * (float (row) + 1));
-            }
-            else if (spikePlots[i]->nChannels == 2)
-            {
-                tetrodeStart = (int) (height * (float (row) + 1));
-            }
+    if (stereotrodePlots.size() > 0)
+    {
+        int columnHeight = 200 * scaleFactor;
+        int columnWidth = columnHeight / stereotrodePlots[0]->aspectRatio;
+        
+        int numColumns = getWidth() / columnWidth;
+        numColumns = jmax (1, numColumns);
+        columnWidth = getWidth() / numColumns;
+        columnHeight = columnWidth * stereotrodePlots[0]->aspectRatio;
+
+        Array<GridItem> items;
+
+        for (auto spikePlot : stereotrodePlots)
+        {
+            items.add (GridItem (spikePlot).withSize (columnWidth, columnHeight));
         }
 
-        for (int i = 0; i < spikePlots.size(); i++)
-        {
-            int x = spikePlots[i]->getX();
-            int y = spikePlots[i]->getY();
-            int w2 = spikePlots[i]->getWidth();
-            int h2 = spikePlots[i]->getHeight();
+        grid.items = items;
+        grid.templateColumns.clear();
 
-            if (spikePlots[i]->nChannels == 2)
-            {
-                spikePlots[i]->setBounds (x, y + stereotrodeStart, w2, h2);
-                maxHeight = jmax (maxHeight, (float) y + stereotrodeStart + h2);
-            }
-            else if (spikePlots[i]->nChannels == 4)
-            {
-                spikePlots[i]->setBounds (x, y + stereotrodeStart + tetrodeStart, w2, h2);
-                maxHeight = jmax (maxHeight, (float) y + stereotrodeStart + tetrodeStart + h2);
-            }
+        for (int i = 0; i < numColumns; ++i)
+            grid.templateColumns.add (Grid::TrackInfo (Grid::Fr (1)));
+
+        grid.templateRows = juce::Grid::TrackInfo (juce::Grid::Px (columnHeight)); // Fixed row height
+
+        grid.performLayout (getLocalBounds().withY(totalHeight));
+
+        totalHeight = stereotrodePlots.getLast()->getBottom() + 20;
+    }
+        
+    if (tetrodePlots.size() > 0)
+    {
+        int columnHeight = 400 * scaleFactor;
+        int columnWidth = columnHeight / tetrodePlots[0]->aspectRatio;
+
+        int numColumns = getWidth() / columnWidth;
+        numColumns = jmax (1, numColumns);
+        columnWidth = getWidth() / numColumns;
+        columnHeight = columnWidth * tetrodePlots[0]->aspectRatio;
+
+
+        Array<GridItem> items;
+
+        for (auto spikePlot : tetrodePlots)
+        {
+            items.add (GridItem (spikePlot).withSize (columnWidth, columnHeight));
         }
 
-        totalHeight = (int) maxHeight;
+        grid.items = items;
+        grid.templateColumns.clear();
 
-        setBounds (0, 0, getWidth(), totalHeight);
+        for (int i = 0; i < numColumns; ++i)
+            grid.templateColumns.add (Grid::TrackInfo (Grid::Fr (1)));
+
+        grid.templateRows = juce::Grid::TrackInfo (juce::Grid::Px (columnHeight)); // Fixed row height
+
+        grid.performLayout (getLocalBounds().withY (totalHeight));
+
+        totalHeight = tetrodePlots.getLast()->getBottom() + 20;
     }
 }
 
@@ -201,6 +245,20 @@ void SpikeDisplay::setPlotScaleFactor (float scale)
     scaleFactor = scale;
 
     resized();
+
+    setBounds (0, 0, getWidth(), totalHeight);
+}
+
+void SpikeDisplay::setRange (int rangeInMicrovolts)
+{
+    for (auto plot : spikePlots)
+        plot->setRange (rangeInMicrovolts);
+}
+
+void SpikeDisplay::setHistorySize (int history)
+{
+    for (auto plot : spikePlots)
+        plot->setHistorySize (history);
 }
 
 void SpikeDisplay::registerThresholdCoordinator (SpikeThresholdCoordinator* stc)
@@ -216,6 +274,11 @@ void SpikeDisplay::registerThresholdCoordinator (SpikeThresholdCoordinator* stc)
 int SpikeDisplay::getNumPlots()
 {
     return spikePlots.size();
+}
+
+int SpikeDisplay::getTotalHeight()
+{
+    return totalHeight;
 }
 
 int SpikeDisplay::getNumChannelsForPlot (int plotNum)
@@ -249,6 +312,8 @@ bool SpikeDisplay::getMonitorStateForPlot (int plotNum)
 {
     if (spikePlots.size() > plotNum)
         return spikePlots[plotNum]->getMonitorState();
+    else
+        return false;
 }
 
 void SpikeDisplay::setMonitorStateForPlot (int plotNum, bool state)

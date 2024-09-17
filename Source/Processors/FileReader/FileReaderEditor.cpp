@@ -166,8 +166,7 @@ void FileReaderEditor::fileDragEnter (const StringArray& files, int x, int y)
 
 void FileReaderEditor::filesDropped (const StringArray& files, int x, int y)
 {
-    //TODO: Use parameter
-    //setFile (files[0]);
+    fileReader->getParameter ("selected_file")->setNextValue (files[0]);
 
     m_isFileDragAndDropActive = false;
     repaint();

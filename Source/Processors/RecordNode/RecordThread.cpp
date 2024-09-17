@@ -95,6 +95,17 @@ void RecordThread::run()
     spikesReceived = 0;
     spikesWritten = 0;
 
+    sampleNumbers.clear();
+    dataBufferIdxs.clear();
+    timestampBufferIdxs.clear();
+
+    for (int chan = 0; chan < m_numChannels; ++chan)
+    {
+		sampleNumbers.add (0);
+		dataBufferIdxs.push_back (CircularBufferIndexes());
+        timestampBufferIdxs.push_back (CircularBufferIndexes());
+	}
+
     bool closeEarly = true;
 
     //1-Open Files
@@ -148,28 +159,32 @@ void RecordThread::writeData (const AudioBuffer<float>& dataBuffer,
                               int maxSpikes,
                               bool lastBlock)
 {
-    Array<int> sampleNumbers;
-    Array<CircularBufferIndexes> dataBufferIdxs;
-    Array<CircularBufferIndexes> timestampBufferIdxs;
-    m_dataQueue->startRead (dataBufferIdxs, timestampBufferIdxs, sampleNumbers, maxSamples);
-    m_engine->updateLatestSampleNumbers (sampleNumbers);
-
-    /* Copy data to record engine */
-    for (int chan = 0; chan < m_numChannels; ++chan)
+    
+    if (m_dataQueue->startRead(dataBufferIdxs, timestampBufferIdxs, sampleNumbers, maxSamples))
     {
-        if (dataBufferIdxs[chan].size1 > 0)
+        m_engine->updateLatestSampleNumbers (sampleNumbers);
+
+        /* Copy data to record engine */
+        for (int chan = 0; chan < m_numChannels; ++chan)
         {
-            const double* r = timestampBuffer.getReadPointer (m_timestampBufferChannelArray[chan],
-                                                              dataBufferIdxs[chan].index1);
 
-            m_engine->writeContinuousData (
-                chan, // write channel (index among all recorded channels)
-                m_channelArray[chan], // real channel (index within processor)
-                dataBuffer.getReadPointer (chan, dataBufferIdxs[chan].index1), // pointer to float
-                r, // pointer to float
-                dataBufferIdxs[chan].size1); // integer
+            if (dataBufferIdxs[chan].size1 > 0)
+            {
+                const double* r = timestampBuffer.getReadPointer (m_timestampBufferChannelArray[chan],
+                                                                  dataBufferIdxs[chan].index1);
 
-            /*if (chan == 0)
+                 //if (chan == 0)
+                  //  std::cout << "Writing " << dataBufferIdxs[chan].size1 << " samples for channel 0"
+                  //            << std::endl;
+
+                m_engine->writeContinuousData (
+                    chan, // write channel (index among all recorded channels)
+                    m_channelArray[chan], // real channel (index within processor)
+                    dataBuffer.getReadPointer (chan, dataBufferIdxs[chan].index1), // pointer to float
+                    r, // pointer to float
+                    dataBufferIdxs[chan].size1); // integer
+
+                /*if (chan == 0)
 			{
 
 				std::cout << chan << " " << m_channelArray[chan] <<
@@ -189,28 +204,29 @@ void RecordThread::writeData (const AudioBuffer<float>& dataBuffer,
 					<< *r << std::endl;
 			}*/
 
-            //samplesWritten += dataBufferIdxs[chan].size1;
+                //samplesWritten += dataBufferIdxs[chan].size1;
 
-            if (dataBufferIdxs[chan].size2 > 0)
-            {
-                sampleNumbers.set (chan, sampleNumbers[chan] + dataBufferIdxs[chan].size1);
+                if (dataBufferIdxs[chan].size2 > 0)
+                {
+                    sampleNumbers.set (chan, sampleNumbers[chan] + dataBufferIdxs[chan].size1);
 
-                m_engine->updateLatestSampleNumbers (sampleNumbers, chan);
+                    m_engine->updateLatestSampleNumbers (sampleNumbers, chan);
 
-                m_engine->writeContinuousData (
-                    chan, // write channel (index among all recorded channels)
-                    m_channelArray[chan], // real channel (index within processor)
-                    dataBuffer.getReadPointer (chan, dataBufferIdxs[chan].index2), // pointer to float
-                    timestampBuffer.getReadPointer (m_timestampBufferChannelArray[chan],
-                                                    dataBufferIdxs[chan].index2), // pointer to float
-                    dataBufferIdxs[chan].size2); // integer
+                    m_engine->writeContinuousData (
+                        chan, // write channel (index among all recorded channels)
+                        m_channelArray[chan], // real channel (index within processor)
+                        dataBuffer.getReadPointer (chan, dataBufferIdxs[chan].index2), // pointer to float
+                        timestampBuffer.getReadPointer (m_timestampBufferChannelArray[chan],
+                                                        dataBufferIdxs[chan].index2), // pointer to float
+                        dataBufferIdxs[chan].size2); // integer
 
-                //samplesWritten += dataBufferIdxs[chan].size2;
+                    //samplesWritten += dataBufferIdxs[chan].size2;
+                }
             }
         }
-    }
 
-    m_dataQueue->stopRead();
+        m_dataQueue->stopRead();
+    }
 
     std::vector<EventMessagePtr> events;
     int nEvents = m_eventQueue->getEvents (events, maxEvents);
@@ -221,6 +237,7 @@ void RecordThread::writeData (const AudioBuffer<float>& dataBuffer,
 
         if (SystemEvent::getBaseType (event) == EventBase::Type::SYSTEM_EVENT)
         {
+            
             String syncText = SystemEvent::getSyncText (event);
             m_engine->writeTimestampSyncText (SystemEvent::getStreamId (event), SystemEvent::getSampleNumber (event), 0.0f, SystemEvent::getSyncText (event));
         }

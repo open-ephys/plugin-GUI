@@ -56,7 +56,5 @@ void ShowHideOptionsButton::paintButton (Graphics& g, bool, bool)
         p.addTriangle (0.8f * w, 0.8f * h, 0.2f * w, 0.5f * h, 0.8f * w, 0.2f * h);
     }
 
-    PathStrokeType pst = PathStrokeType (1.0f, PathStrokeType::curved, PathStrokeType::rounded);
-
-    g.strokePath (p, pst);
+    g.fillPath (p.createPathWithRoundedCorners(3.0f));
 }

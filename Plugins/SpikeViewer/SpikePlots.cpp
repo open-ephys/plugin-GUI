@@ -79,18 +79,18 @@ SpikePlot::SpikePlot (SpikeDisplayCanvas* sdc,
         UtilityButton* rangeButton = new UtilityButton ("250");
         rangeButton->setRadius (3.0f);
         rangeButton->addListener (this);
-        addAndMakeVisible (rangeButton);
+        //addAndMakeVisible (rangeButton);
 
         rangeButtons.add (rangeButton);
         setDisplayThresholdForChannel (i, 0);
     }
 
-    monitorButton = std::make_unique<UtilityButton> ("MON");
+    monitorButton = std::make_unique<MonitorButton>();
     monitorButton->setTooltip ("Monitor this electrode (requires an Audio Monitor in the signal chain)");
     monitorButton->addListener (this);
     addAndMakeVisible (monitorButton.get());
 
-    mostRecentSpikes.ensureStorageAllocated (bufferSize);
+    mostRecentSpikes.ensureStorageAllocated (MAX_BUFFER_SIZE);
 }
 
 SpikePlot::~SpikePlot()
@@ -108,11 +108,8 @@ void SpikePlot::setId (std::string id)
 
 void SpikePlot::paint (Graphics& g)
 {
-    g.setColour (findColour (ThemeColours::outline));
-    g.drawRect (0, 0, getWidth(), getHeight());
-
     g.setFont (font);
-    g.setColour (findColour (ThemeColours::defaultText));
+    g.setColour (findColour (ThemeColours::controlPanelText));
     g.drawText (name, 10, 0, 200, 20, Justification::left, false);
 }
 
@@ -240,7 +237,7 @@ void SpikePlot::resized()
     for (int i = 0; i < nProjAx; i++)
         projectionAxes[i]->setBounds (5 + (1 + i % nProjCols) * axesWidth, 20 + (i / nProjCols) * axesHeight, axesWidth, axesHeight);
 
-    monitorButton->setBounds (getWidth() - 40, 3, 35, 15);
+    monitorButton->setBounds (getWidth() - 30, 3, 35, 15);
 }
 
 void SpikePlot::resetAudioMonitorState()
@@ -252,9 +249,17 @@ void SpikePlot::buttonClicked (Button* button)
 {
     if (button == monitorButton.get())
     {
+        bool shouldMonitor = button->getToggleState();
+
+        LOGD ("Button clicked: monitor audio: " + String (int (shouldMonitor)) + " electrode: " + String (electrodeNumber));
+
         canvas->resetAudioMonitorState();
-        button->setToggleState (true, dontSendNotification);
-        canvas->processor->setParameter (10, electrodeNumber);
+        button->setToggleState (shouldMonitor, dontSendNotification);
+
+        if (shouldMonitor)
+            canvas->processor->setParameter (10, electrodeNumber);
+        else
+            canvas->processor->setParameter (10, -1);
 
         return;
     }
@@ -366,6 +371,25 @@ void SpikePlot::setRangeForChannel (int i, float range)
     //std::cout << "Setting range to " << range << std::endl;
     waveAxes[i]->setRange (range);
     rangeButtons[i]->setLabel (String (int (range)));
+}
+
+void SpikePlot::setRange (int rangeInMicrovolts)
+{
+    for (int i = 0; i < waveAxes.size(); i++)
+    {
+        waveAxes[i]->setRange (rangeInMicrovolts);
+        rangeButtons[i]->setLabel (String (int (rangeInMicrovolts)));
+    }
+    //std::cout << "Setting range to " << range << std::endl;
+}
+
+void SpikePlot::setHistorySize (int history)
+{
+    for (int i = 0; i < waveAxes.size(); i++)
+    {
+        waveAxes[i]->setHistorySize (history);
+    }
+    //std::cout << "Setting range to " << range << std::endl;
 }
 
 bool SpikePlot::getMonitorState()
@@ -546,7 +570,7 @@ WaveAxes::WaveAxes (SpikeDisplayCanvas* canvas, int electrodeIndex, int channel_
 
     font = FontOptions (12.0f);
 
-    for (int n = 0; n < bufferSize; n++)
+    for (int n = 0; n < MAX_BUFFER_SIZE; n++)
     {
         spikeBuffer.add (nullptr);
     }
@@ -559,9 +583,16 @@ void WaveAxes::setRange (float r)
     repaint();
 }
 
+void WaveAxes::setHistorySize (int s)
+{
+    bufferSize = s;
+
+    repaint();
+}
+
 void WaveAxes::paint (Graphics& g)
 {
-    g.setColour (Colours::black);
+    g.setColour (Colour (15, 15, 15));
     g.fillRect (0, 0, getWidth(), getHeight());
 
     // draw the grid lines for the waveforms
@@ -673,8 +704,12 @@ void WaveAxes::drawThresholdSlider (Graphics& g)
     g.fillRect (0.0f, h, (float) getWidth(), 1.0f);
     // g.drawLine(0, h, getWidth(), h);
 
-    g.setFont (font);
-    g.drawText (String (int (displayThresholdLevel)), 2, h + 2, 25, 12, Justification::left, false);
+    if (isOverThresholdSlider)
+    {
+        g.setFont (font);
+        g.drawText (String (int (displayThresholdLevel)), getWidth() - 25, h + 4, 22, 12, Justification::right, false);
+    }
+    
 
     // draw detector threshold (not editable)
     if (! spikesInverted)
@@ -691,15 +726,36 @@ void WaveAxes::drawWaveformGrid (Graphics& g)
 {
     float h = getHeight();
     float w = getWidth();
+    float tick = 5.0f; // range = 50
+    float tickWidth = 10.0f;
+
+    if (range < 100)
+        tick = 10.0f;
+    else if (range >= 100 && range < 250)
+        tick = 25.0f;
+    else if (range >= 250 && range < 500)
+        tick = 50.0f;
+    else if (range >= 500 && range < 1000)
+        tick = 100.0f;
+    else
+        tick = 250.0f;
 
     g.setColour (Colours::darkgrey);
+    g.setFont (10);
 
-    for (float y = -range / 2; y < range / 2; y += 25.0f)
+    for (float y = -range / 2; y < range / 2; y += tick)
     {
-        if (y == 0)
-            g.fillRect (0.0f, h / 2 + y / range * h, w, 1.0f);
-        else
-            g.fillRect (0.0f, h / 2 + y / range * h, w, 1.0f);
+        float yy = h / 2 + y / range * h;
+
+        if (y != -range / 2)
+        {
+            if (y == 0)
+                g.fillRect (0.0f, yy, w, 2.0f);
+            else
+                g.fillRect (0.0f, yy, w, 1.0f);
+        }
+
+        g.drawText (String (y, 0), Rectangle<float> (0, yy + 3, 40, 10), Justification::centredLeft);
     }
 }
 
@@ -858,7 +914,12 @@ void WaveAxes::setDisplayThreshold (float threshold)
 
 // --------------------------------------------------
 
-ProjectionAxes::ProjectionAxes (SpikeDisplayCanvas* canvas, Projection proj_) : GenericAxes (canvas, PROJECTION_AXES), imageDim (500), rangeX (250), rangeY (250), spikesReceivedSinceLastRedraw (0), proj (proj_)
+ProjectionAxes::ProjectionAxes (SpikeDisplayCanvas* canvas, Projection proj_) : GenericAxes (canvas, PROJECTION_AXES),
+                                                                                imageDim (500),
+                                                                                rangeX (250),
+                                                                                rangeY (250),
+                                                                                spikesReceivedSinceLastRedraw (0),
+                                                                                proj (proj_)
 {
     projectionImage = Image (Image::RGB, imageDim, imageDim, true, SoftwareImageType());
 
@@ -951,7 +1012,7 @@ void ProjectionAxes::calcWaveformPeakIdx (const Spike* s, int d1, int d2, int* i
 void ProjectionAxes::clear()
 {
     projectionImage.clear (Rectangle<int> (0, 0, projectionImage.getWidth(), projectionImage.getHeight()),
-                           Colours::black);
+                           Colour (15, 15, 15));
 
     repaint();
 }
@@ -1002,3 +1063,36 @@ void ProjectionAxes::n2ProjIdx (Projection proj, int* p1, int* p2)
 }
 
 // --------------------------------------------------
+
+MonitorButton::MonitorButton() : Button ("Monitor")
+{
+    XmlDocument xmlDoc (R"(
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-headphones-filled" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <path d="M21 18a3 3 0 0 1 -2.824 2.995l-.176 .005h-1a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-3a3 3 0 0 1 2.824 -2.995l.176 -.005h1c.351 0 .688 .06 1 .171v-.171a7 7 0 0 0 -13.996 -.24l-.004 .24v.17c.25 -.088 .516 -.144 .791 -.163l.209 -.007h1a3 3 0 0 1 2.995 2.824l.005 .176v3a3 3 0 0 1 -2.824 2.995l-.176 .005h-1a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-6a9 9 0 0 1 17.996 -.265l.004 .265v6z" stroke-width="0" fill="currentColor" />
+        </svg>
+    )");
+
+    headphoneIcon = Drawable::createFromSVG (*xmlDoc.getDocumentElement().get());
+
+    setClickingTogglesState (true);
+}
+
+void MonitorButton::paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown)
+{
+    Colour buttonColour;
+
+    if (getToggleState())
+        buttonColour = findColour (ThemeColours::highlightedFill);
+    else
+        buttonColour = findColour (ThemeColours::defaultText);
+
+    if (isMouseOverButton)
+        buttonColour = buttonColour.brighter (0.2f);
+
+    headphoneIcon->replaceColour (Colours::black, buttonColour);
+
+    headphoneIcon->drawWithin (g, getLocalBounds().toFloat(), RectanglePlacement::centred, 1.0f);
+
+    headphoneIcon->replaceColour (buttonColour, Colours::black);
+}

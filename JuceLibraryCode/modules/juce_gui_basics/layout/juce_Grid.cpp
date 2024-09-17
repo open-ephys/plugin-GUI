@@ -1060,49 +1060,7 @@ struct Grid::Helpers
 };
 
 //==============================================================================
-Grid::TrackInfo::TrackInfo() noexcept : hasKeyword (true) {}
 
-Grid::TrackInfo::TrackInfo (Px sizeInPixels) noexcept
-    : size (static_cast<float> (sizeInPixels.pixels)), isFraction (false) {}
-
-Grid::TrackInfo::TrackInfo (Fr fractionOfFreeSpace) noexcept
-    : size ((float)fractionOfFreeSpace.fraction), isFraction (true) {}
-
-Grid::TrackInfo::TrackInfo (Px sizeInPixels, const String& endLineNameToUse) noexcept
-    : TrackInfo (sizeInPixels)
-{
-    endLineName = endLineNameToUse;
-}
-
-Grid::TrackInfo::TrackInfo (Fr fractionOfFreeSpace, const String& endLineNameToUse) noexcept
-    : TrackInfo (fractionOfFreeSpace)
-{
-    endLineName = endLineNameToUse;
-}
-
-Grid::TrackInfo::TrackInfo (const String& startLineNameToUse, Px sizeInPixels) noexcept
-    : TrackInfo (sizeInPixels)
-{
-    startLineName = startLineNameToUse;
-}
-
-Grid::TrackInfo::TrackInfo (const String& startLineNameToUse, Fr fractionOfFreeSpace) noexcept
-    : TrackInfo (fractionOfFreeSpace)
-{
-    startLineName = startLineNameToUse;
-}
-
-Grid::TrackInfo::TrackInfo (const String& startLineNameToUse, Px sizeInPixels, const String& endLineNameToUse) noexcept
-    : TrackInfo (startLineNameToUse, sizeInPixels)
-{
-    endLineName = endLineNameToUse;
-}
-
-Grid::TrackInfo::TrackInfo (const String& startLineNameToUse, Fr fractionOfFreeSpace, const String& endLineNameToUse) noexcept
-    : TrackInfo (startLineNameToUse, fractionOfFreeSpace)
-{
-    endLineName = endLineNameToUse;
-}
 
 float Grid::TrackInfo::getAbsoluteSize (float relativeFractionalUnit) const
 {

@@ -127,7 +127,6 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
 
         documentWindow->addKeyListener (commandManager.getKeyMappings());
 
-        LOGD ("Loading window bounds.");
         loadWindowBounds();
 
         // Use native title bar on Mac and Linux
@@ -400,8 +399,8 @@ void MainWindow::saveWindowBounds()
     XmlElement* bounds = new XmlElement ("BOUNDS");
     bounds->setAttribute ("x", documentWindow->getScreenX());
     bounds->setAttribute ("y", documentWindow->getScreenY());
-    bounds->setAttribute ("w", documentWindow->getContentComponent()->getWidth());
-    bounds->setAttribute ("h", documentWindow->getContentComponent()->getHeight());
+    bounds->setAttribute ("w", documentWindow->getWidth());
+    bounds->setAttribute ("h", documentWindow->getHeight());
     bounds->setAttribute ("fullscreen", documentWindow->isFullScreen());
 
     xml->addChildElement (bounds);

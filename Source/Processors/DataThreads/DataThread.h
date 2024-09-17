@@ -202,6 +202,7 @@ public:
                                      const String& description,
                                      Array<String> streamNames,
                                      const int defaultIndex,
+                                     bool syncWithStreamSelector = false,
                                      bool deactivateDuringAcquisition = true);
 
     /** Adds a time parameter with microsecond precision in the form HH:MM:SS.sss */
@@ -222,7 +223,7 @@ public:
     /** Adds a parameter that allows the user to select a TTL Line
      * @param maxAvailableLines The number of TTL lines available for selection
      * @param syncMode Set to true if the ttl line will be used for synchronization
-     * @param canSelectNone Set to true if the user can select no TTL line (cant be used with syncMode = true)
+     * @param canSelectNone Set to true if the user can select no TTL line (can't be used with syncMode = true)
      */
     void addTtlLineParameter (Parameter::ParameterScope scope,
                               const String& name,

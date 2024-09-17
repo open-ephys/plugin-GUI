@@ -37,7 +37,7 @@
     @see GenericEditor
 */
 class EDITORCLASSNAME : public GenericEditor //Generic Editor adds listeners for buttons and sliders.
-                        //Other possible JUCE controls can be added and listened by inheriting from the appropiate XXX:Listener class
+                        //Other possible JUCE controls can be added and listened by inheriting from the appropriate XXX:Listener class
                         //See JUCE documentation to find other available controls.
 {
 public:

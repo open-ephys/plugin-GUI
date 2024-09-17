@@ -414,7 +414,7 @@ AlertWindow* LookAndFeel_V4::createAlertWindow (const String& title, const Strin
 void LookAndFeel_V4::drawAlertBox (Graphics& g, AlertWindow& alert,
                                    const Rectangle<int>& textArea, TextLayout& textLayout)
 {
-    auto cornerSize = 4.0f;
+    auto cornerSize = 0.0f;
 
     g.setColour (alert.findColour (AlertWindow::outlineColourId));
     g.drawRoundedRectangle (alert.getLocalBounds().toFloat(), cornerSize, 2.0f);
@@ -1154,7 +1154,7 @@ Label* LookAndFeel_V4::createSliderTextBox (Slider& slider)
 void LookAndFeel_V4::drawTooltip (Graphics& g, const String& text, int width, int height)
 {
     Rectangle<int> bounds (width, height);
-    auto cornerSize = 5.0f;
+    auto cornerSize = 0.0f;
 
     g.setColour (findColour (TooltipWindow::backgroundColourId));
     g.fillRoundedRectangle (bounds.toFloat(), cornerSize);

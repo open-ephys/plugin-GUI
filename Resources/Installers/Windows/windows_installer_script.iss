@@ -1,12 +1,15 @@
 [Setup]
-AppName=Open Ephys
-AppVersion=1.0.0-apha.1
-AppVerName=Open Ephys 1.0.0-alpha.1
+AppId=Open Ephys
+AppName=Open Ephys GUI
+AppVersion=1.0.0-alpha.1
+AppVerName=Open Ephys GUI 1.0.0-alpha.1
 AppCopyright=Copyright (C) 2010-2024, Open Ephys & Contributors
 AppPublisher=open-ephys.org
 AppPublisherURL=https://open-ephys.org/gui
 DefaultDirName={autopf}\Open Ephys
-DefaultGroupName=Open Ephys
+DefaultGroupName=Open Ephys GUI
+DisableProgramGroupPage=yes
+UsePreviousGroup=no
 OutputBaseFilename=Open-Ephys_Installer
 OutputDir=.
 LicenseFile=..\..\..\LICENSE
@@ -29,14 +32,19 @@ Source: "..\..\DLLs\FTD3XXDriver_WHQLCertified_1.3.0.8_Installer.exe"; DestDir: 
 Source: "..\..\DLLs\FrontPanelUSB-DriverOnly-4.5.5.exe"; DestDir: {tmp}; Flags: deleteafterinstall; BeforeInstall: UpdateProgress(90);
 
 [Icons]
-Name: "{group}\Open Ephys"; Filename: "{app}\open-ephys.exe"
-Name: "{autodesktop}\Open Ephys"; Filename: "{app}\open-ephys.exe"; Tasks: desktopicon
-Name: "{autoprograms}\Open Ephys"; Filename: "{app}\open-ephys.exe"
+Name: "{autodesktop}\Open Ephys GUI"; Filename: "{app}\open-ephys.exe"; Tasks: desktopicon
+Name: "{autoprograms}\Open Ephys GUI"; Filename: "{app}\open-ephys.exe"
 
 [Run]
 Filename: "{tmp}\FTD3XXDriver_WHQLCertified_1.3.0.8_Installer.exe"; StatusMsg: "Installing FTDI D3XX driver..."; Tasks: install_usb1; Flags: skipifsilent
 Filename: "{tmp}\FrontPanelUSB-DriverOnly-4.5.5.exe"; StatusMsg: "Installing Front Panel USB driver..."; Tasks: install_usb2; Flags: skipifsilent
 Filename: "{app}\open-ephys.exe"; Description: "Launch Open Ephys GUI"; Flags: postinstall nowait skipifsilent
+
+[InstallDelete]
+Type: files; Name: "{app}\plugins\*.dll";
+Type: files; Name: "{autodesktop}\Open Ephys.lnk";
+Type: files; Name: "{autoprograms}\Open Ephys.lnk";
+Type: filesandordirs; Name: "{autoprograms}\Open Ephys";
 
 [Code]
 // types and variables
@@ -212,7 +220,7 @@ function InitializeSetup: Boolean;
 begin
 
   // https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist
-  if not IsMsiProductInstalled('{36F68A90-239C-34DF-B58C-64B30153CE35}', PackVersionComponents(14, 30, 30704, 0)) then begin
+  if not IsMsiProductInstalled('{36F68A90-239C-34DF-B58C-64B30153CE35}', PackVersionComponents(14, 40, 33810, 0)) then begin
     Dependency_Add('vcredist2022_x64.exe',
       '/passive /norestart',
       'Visual C++ 2015-2022 Redistributable (x64)',

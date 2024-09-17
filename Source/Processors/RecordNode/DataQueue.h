@@ -73,7 +73,10 @@ public:
     float writeSynchronizedTimestamps (double start, double step, int destChannel, int nSamples);
 
     /** Start reading data for one channel */
-    bool startRead (Array<CircularBufferIndexes>& dataIndexes, Array<CircularBufferIndexes>& ftsIndexes, Array<int>& sampleNumbers, int nMax);
+    bool startRead (std::vector<CircularBufferIndexes>& dataBufferIdxs,
+                    std::vector<CircularBufferIndexes>& timestampBufferIdxs,
+                    Array<int>& sampleNumbers,
+                    int nMax);
 
     /** Called when data read is finished */
     void stopRead();
@@ -99,10 +102,10 @@ private:
     AudioSampleBuffer m_buffer;
     SynchronizedTimestampBuffer m_FTSBuffer;
 
-    Array<int> m_readSamples;
-    Array<int> m_readFTSSamples;
-    OwnedArray<Array<int>> m_sampleNumbers;
-    Array<int> m_lastReadSampleNumbers;
+    std::vector<int> m_readSamples;
+    std::vector<int> m_readFTSSamples;
+    OwnedArray<std::vector<int>> m_sampleNumbers;
+    std::vector<int> m_lastReadSampleNumbers;
 
     int m_numChans;
     int m_numFTSChans;

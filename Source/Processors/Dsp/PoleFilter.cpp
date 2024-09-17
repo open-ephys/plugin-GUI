@@ -133,7 +133,7 @@ BandPassTransform::BandPassTransform (double fc,
                                       LayoutBase const& analog)
 {
     // handle degenerate cases efficiently
-    // THIS DOESNT WORK because the cascade states won't match
+    // THIS DOESN'T WORK because the cascade states won't match
 #if 0
     const double fw_2 = fw / 2;
     if (fc - fw_2 < 0)

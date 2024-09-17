@@ -51,7 +51,8 @@ FileReader::FileReader() : GenericProcessor ("File Reader"),
                            m_sysSampleRate (44100),
                            playbackActive (true),
                            gotNewFile (true),
-                           loopPlayback (true)
+                           loopPlayback (true),
+                           sampleRateWarningShown (false)
 {
     /* Add built-in file source (Binary Format) */
     supportedExtensions.set ("oebin", 1);
@@ -490,7 +491,7 @@ void FileReader::updateSettings()
 
     isEnabled = true;
 
-    /* Set the timestamp to start of playback and reset loop counter */
+    /* Set the sample to start of playback and reset loop counter */
     playbackSamplePos = startSample;
     loopCount = 0;
 
@@ -500,8 +501,32 @@ void FileReader::updateSettings()
     adm.getAudioDeviceSetup (ads);
     m_sysSampleRate = ads.sampleRate;
     m_bufferSize = ads.bufferSize;
+
+    if (m_sysSampleRate < 44100.0)
+    {
+        if (! sampleRateWarningShown)
+        {
+            LOGE ("File Reader: Sample rate is less than 44100 Hz. Disabling processor.");
+
+            if (! headlessMode)
+            {
+                AlertWindow::showMessageBox (AlertWindow::WarningIcon,
+                                             "[File Reader] Invalid Sample Rate",
+                                             "The sample rate of the audio device is less than 44.1 kHz. File Reader is disabled."
+                                             "\n\nTry adjusting the sample rate in the audio settings by clicking the 'Latency' button in the Control Panel "
+                                             "and setting it to 44.1 kHz or higher. After making this change, please remove and re-add the File Reader to the signal chain.");
+            }
+
+            sampleRateWarningShown = true;
+        }
+
+        isEnabled = false;
+        return;
+    }
+
     if (m_bufferSize == 0)
         m_bufferSize = 1024;
+
     m_samplesPerBuffer.set (m_bufferSize * (getDefaultSampleRate() / m_sysSampleRate));
 
     bufferA.malloc (currentNumChannels * m_bufferSize * BUFFER_WINDOW_CACHE_SIZE);
@@ -602,7 +627,7 @@ void FileReader::process (AudioBuffer<float>& buffer)
 
     if (! playbackActive && playbackSamplePos + samplesNeededPerBuffer > stopSample)
     {
-        samplesNeededPerBuffer = int(stopSample - playbackSamplePos);
+        samplesNeededPerBuffer = int (stopSample - playbackSamplePos);
         switchNeeded = true;
     }
     else
@@ -618,13 +643,23 @@ void FileReader::process (AudioBuffer<float>& buffer)
 
     //std::cout << "Reading " << samplesNeededPerBuffer << " samples. " << std::endl;
 
-    for (int i = 0; i < currentNumChannels; ++i)
+    const float* tempReadBuffer = readBuffer->getData() + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow);
+
+    for (int ch = 0; ch < currentNumChannels; ++ch)
     {
+        float* writeBuffer = buffer.getWritePointer (ch);
+
+        for (int sample = 0; sample < samplesNeededPerBuffer; sample++)
+        {
+            *(writeBuffer + sample) = *(tempReadBuffer + (currentNumChannels * sample) + ch);
+        }
+
+        // DEPRECATED:
         // offset readBuffer index by current cache window count * buffer window size * num channels
-        input->processChannelData (*readBuffer + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow),
-                                   buffer.getWritePointer (i, 0),
-                                   i,
-                                   samplesNeededPerBuffer);
+        //input->processChannelData (*readBuffer + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow),
+        //                           buffer.getWritePointer (i, 0),
+        //                           i,
+        //                           samplesNeededPerBuffer);
     }
 
     setTimestampAndSamples (playbackSamplePos, -1.0, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this
@@ -656,19 +691,19 @@ void FileReader::addEventsInRange (int64 start, int64 stop)
 
     for (int i = 0; i < events.channels.size(); i++)
     {
-        int64 absoluteCurrentTimestamp = events.timestamps[i] + loopCount * (stopSample - startSample);
+        int64 absoluteCurrentSampleNumber = events.sampleNumbers[i] + loopCount * (stopSample - startSample);
         if (events.text.size() && ! events.text[i].isEmpty())
         {
             String msg = events.text[i];
-            LOGD ("Broadcasting message: ", msg, " at timestamp: ", absoluteCurrentTimestamp, " channel: ", events.channels[i]);
+            LOGD ("File read broadcasting message: ", msg, " at sample number: ", absoluteCurrentSampleNumber, " channel: ", events.channels[i]);
             broadcastMessage (msg);
         }
         else
         {
             uint8 ttlBit = events.channels[i];
             bool state = events.channelStates[i] > 0;
-            TTLEventPtr event = TTLEvent::createTTLEvent (eventChannels[0], events.timestamps[i], ttlBit, state);
-            addEvent (event, int(absoluteCurrentTimestamp));
+            TTLEventPtr event = TTLEvent::createTTLEvent (eventChannels[0], events.sampleNumbers[i], ttlBit, state);
+            addEvent (event, int (absoluteCurrentSampleNumber));
         }
     }
 }
@@ -694,12 +729,12 @@ void FileReader::switchBuffer()
     notify();
 }
 
-HeapBlock<int16>* FileReader::getFrontBuffer()
+HeapBlock<float>* FileReader::getFrontBuffer()
 {
     return readBuffer;
 }
 
-HeapBlock<int16>* FileReader::getBackBuffer()
+HeapBlock<float>* FileReader::getBackBuffer()
 {
     if (readBuffer == &bufferA)
         return &bufferB;
@@ -720,7 +755,7 @@ void FileReader::run()
     }
 }
 
-void FileReader::readAndFillBufferCache (HeapBlock<int16>& cacheBuffer)
+void FileReader::readAndFillBufferCache (HeapBlock<float>& cacheBuffer)
 {
     const int samplesNeededPerBuffer = m_samplesPerBuffer.get();
     const int samplesNeeded = samplesNeededPerBuffer * BUFFER_WINDOW_CACHE_SIZE;
@@ -735,7 +770,7 @@ void FileReader::readAndFillBufferCache (HeapBlock<int16>& cacheBuffer)
         // if reached end of file stream
         if ((currentSample + samplesToRead) > stopSample)
         {
-            samplesToRead = int(stopSample - currentSample);
+            samplesToRead = int (stopSample - currentSample);
             if (samplesToRead > 0)
                 input->readData (cacheBuffer + samplesRead * currentNumChannels, samplesToRead);
 

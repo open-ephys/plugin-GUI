@@ -53,6 +53,7 @@ void DataQueue::setTimestampStreamCount (int nStreams)
     for (int i = 0; i < nStreams; ++i)
     {
         m_FTSFifos.add (new AbstractFifo (m_maxSize));
+        m_readFTSSamples.push_back (0);
     }
     m_FTSBuffer.setSize (nStreams, m_maxSize);
 }
@@ -71,10 +72,14 @@ void DataQueue::setChannelCount (int nChans)
     for (int i = 0; i < nChans; ++i)
     {
         m_fifos.add (new AbstractFifo (m_maxSize));
-        m_readSamples.add (0);
-        m_sampleNumbers.add (new Array<int>());
-        m_sampleNumbers.getLast()->insertMultiple (0, 0, m_numBlocks);
-        m_lastReadSampleNumbers.add (0);
+        m_readSamples.push_back (0);
+        m_sampleNumbers.add (new std::vector<int>());
+
+        for (int j = 0; j < m_numBlocks; j++)
+        {
+            m_sampleNumbers.getLast()->push_back (0);
+        }
+        m_lastReadSampleNumbers.push_back (0);
     }
     m_buffer.setSize (nChans, m_maxSize);
 }
@@ -92,14 +97,16 @@ void DataQueue::resize (int nBlocks)
     {
         m_fifos[i]->setTotalSize (size);
         m_fifos[i]->reset();
-        m_readSamples.set (i, 0);
+        m_readSamples[i] = 0;
         m_sampleNumbers[i]->resize (nBlocks);
-        m_lastReadSampleNumbers.set (i, 0);
+        m_lastReadSampleNumbers[i] = 0;
     }
+
+    m_readFTSSamples.clear();
 
     for (int i = 0; i < m_numFTSChans; ++i)
     {
-        m_readFTSSamples.set (i, 0);
+        m_readFTSSamples.push_back (0);
         m_FTSFifos[i]->setTotalSize (size);
         m_FTSFifos[i]->reset();
     }
@@ -128,7 +135,6 @@ void DataQueue::fillSampleNumbers (int channel, int index, int size, int sampleN
     }
 
     //check that the block is in range
-
     uint64 latestSampleNumber;
 
     for (int i = 0; i < size; i += m_blockSize)
@@ -136,7 +142,7 @@ void DataQueue::fillSampleNumbers (int channel, int index, int size, int sampleN
         if ((blockStartPos + i) < (index + size))
         {
             latestSampleNumber = startSampleNumber + (i * m_blockSize);
-            m_sampleNumbers[channel]->set (blockIdx, int(latestSampleNumber));
+            m_sampleNumbers[channel]->at (blockIdx) = int (latestSampleNumber);
         }
     }
 }
@@ -190,9 +196,6 @@ float DataQueue::writeChannel (const AudioBuffer<float>& buffer,
                        0,
                        size1);
 
-    //if (srcChannel == 385)
-    //	std::cout << "DataQueue::writeChannel() : " << sampleNumber << std::endl;
-
     fillSampleNumbers (destChannel, index1, size1, sampleNumber);
 
     if (size2 > 0)
@@ -214,7 +217,7 @@ float DataQueue::writeChannel (const AudioBuffer<float>& buffer,
 /*
 We could copy the internal circular buffer to an external one, as DataBuffer does. This class
 is, however, intended for disk writing, which is one of the most CPU-critical systems. Just
-allowing the record subsytem to access the internal buffer is way faster, altough it has to be
+allowing the record subsystem to access the internal buffer is way faster, although it has to be
 done with special care and manually finish the read process.
 */
 
@@ -228,8 +231,8 @@ const SynchronizedTimestampBuffer& DataQueue::getTimestampBufferReference() cons
     return m_FTSBuffer;
 }
 
-bool DataQueue::startRead (Array<CircularBufferIndexes>& dataIndexes,
-                           Array<CircularBufferIndexes>& ftsIndexes,
+bool DataQueue::startRead (std::vector<CircularBufferIndexes>& dataBufferIdxs,
+                           std::vector<CircularBufferIndexes>& timestampBufferIdxs,
                            Array<int>& sampleNumbers,
                            int nMax)
 {
@@ -238,19 +241,17 @@ bool DataQueue::startRead (Array<CircularBufferIndexes>& dataIndexes,
         return false;
 
     m_readInProgress = true;
-    dataIndexes.clear();
-    ftsIndexes.clear();
-    sampleNumbers.clear();
 
     for (int chan = 0; chan < m_numChans; ++chan)
     {
-        CircularBufferIndexes idx;
-        int readyToRead = m_fifos[chan]->getNumReady();
+        int readyToRead = m_fifos.getUnchecked (chan)->getNumReady();
+
         int samplesToRead = ((readyToRead > nMax) && (nMax > 0)) ? nMax : readyToRead;
 
-        m_fifos[chan]->prepareToRead (samplesToRead, idx.index1, idx.size1, idx.index2, idx.size2);
-        dataIndexes.add (idx);
-        m_readSamples.set (chan, idx.size1 + idx.size2);
+        CircularBufferIndexes& idx = dataBufferIdxs[chan];
+
+        m_fifos.getUnchecked (chan)->prepareToRead (samplesToRead, idx.index1, idx.size1, idx.index2, idx.size2);
+        m_readSamples[chan] = idx.size1 + idx.size2;
 
         int blockMod = idx.index1 % m_blockSize;
         int blockDiff = (blockMod == 0) ? 0 : (m_blockSize - blockMod);
@@ -261,7 +262,7 @@ bool DataQueue::startRead (Array<CircularBufferIndexes>& dataIndexes,
         if (blockDiff < (idx.size1 + idx.size2))
         {
             int blockIdx = ((idx.index1 + blockDiff) / m_blockSize) % m_numBlocks;
-            sampleNum = m_sampleNumbers[chan]->getUnchecked (blockIdx) - blockDiff;
+            sampleNum = m_sampleNumbers[chan]->at (blockIdx) - blockDiff;
         }
         //If not, copy the last sent again
         else
@@ -269,19 +270,18 @@ bool DataQueue::startRead (Array<CircularBufferIndexes>& dataIndexes,
             sampleNum = m_lastReadSampleNumbers[chan];
         }
 
-        sampleNumbers.add (sampleNum);
-        m_lastReadSampleNumbers.set (chan, sampleNum + idx.size1 + idx.size2);
+        sampleNumbers.set (chan, sampleNum); // expensive operation?
+        m_lastReadSampleNumbers[chan] = sampleNum + idx.size1 + idx.size2;
     }
 
     for (int chan = 0; chan < m_numFTSChans; ++chan)
     {
-        CircularBufferIndexes idx;
-        int readyToRead = m_FTSFifos[chan]->getNumReady();
+        CircularBufferIndexes& idx = timestampBufferIdxs[chan];
+        int readyToRead = m_FTSFifos.getUnchecked (chan)->getNumReady();
         int samplesToRead = ((readyToRead > nMax) && (nMax > 0)) ? nMax : readyToRead;
 
-        m_FTSFifos[chan]->prepareToRead (samplesToRead, idx.index1, idx.size1, idx.index2, idx.size2);
-        ftsIndexes.add (idx);
-        m_readFTSSamples.set (chan, idx.size1 + idx.size2);
+        m_FTSFifos.getUnchecked (chan)->prepareToRead (samplesToRead, idx.index1, idx.size1, idx.index2, idx.size2);
+        m_readFTSSamples[chan] = idx.size1 + idx.size2;
     }
 
     return true;
@@ -295,13 +295,13 @@ void DataQueue::stopRead()
     for (int i = 0; i < m_numChans; ++i)
     {
         m_fifos[i]->finishedRead (m_readSamples[i]);
-        m_readSamples.set (i, 0);
+        m_readSamples[i] = 0;
     }
 
     for (int i = 0; i < m_numFTSChans; ++i)
     {
         m_FTSFifos[i]->finishedRead (m_readFTSSamples[i]);
-        m_readFTSSamples.set (i, 0);
+        m_readFTSSamples[i] = 0;
     }
 
     m_readInProgress = false;

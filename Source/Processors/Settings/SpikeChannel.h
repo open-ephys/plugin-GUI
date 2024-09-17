@@ -57,6 +57,7 @@ public:
         SINGLE = 1,
         STEREOTRODE,
         TETRODE,
+        TEMPLATE,
         INVALID = 100
     };
 
@@ -153,7 +154,7 @@ public:
     /** Determines whether channel sends the full waveform, or just the peak sample*/
     bool sendFullWaveform;
 
-    /** Gets the eletrode start channel */
+    /** Gets the electrode start channel */
     int getStartChannel() const { return localChannelIndexes[0]; };
 
     // ====== STATIC METHODS ========= //

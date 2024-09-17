@@ -26,8 +26,6 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
-#include <optional>
-
 /**
     Manages reading and writing data to a circular buffer.
 
@@ -37,7 +35,7 @@ class PLUGIN_API DataBuffer
 {
 public:
     /** Constructor */
-    DataBuffer (int chans, int size);
+    DataBuffer(int chans, int size);
 
     /** Destructor */
     ~DataBuffer();
@@ -60,29 +58,28 @@ public:
         @return The number of items actually written. May be less than numItems if
         the buffer doesn't have space.
     */
-    int addToBuffer (float* data,
-                     int64* sampleNumbers,
-                     double* timestamps,
-                     uint64* eventCodes,
-                     int numItems,
-                     int chunkSize = 1,
-                     std::optional<int64> timestampSampleIndex = std::nullopt);
+    int addToBuffer(float* data,
+        int64* sampleNumbers,
+        double* timestamps,
+        uint64* eventCodes,
+        int numItems,
+        int chunkSize = 1,
+        std::optional<int64> timestampSampleIndex = std::nullopt);
 
     /** Returns the number of samples currently available in the buffer.*/
     int getNumSamples() const;
 
     /** Copies as many samples as possible from the DataBuffer to an AudioBuffer.*/
-    int readAllFromBuffer (AudioBuffer<float>& data,
-                           int64* sampleNumbers,
-                           double* timestamps,
-                           uint64* eventCodes,
-                           int maxSize,
-                           std::optional<int64>* timestampSampleIndex,
-                           int dstStartChannel = 0,
-                           int numChannels = -1);
+    int readAllFromBuffer(AudioBuffer<float>& data,
+        int64* sampleNumbers,
+        double* timestamps,
+        uint64* eventCodes,
+        int maxSize,
+        int dstStartChannel = 0,
+        int numChannels = -1);
 
     /** Resizes the data buffer */
-    void resize (int chans, int size);
+    void resize(int chans, int size);
 
 private:
     AbstractFifo abstractFifo;
@@ -98,7 +95,7 @@ private:
 
     int numChans;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DataBuffer);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DataBuffer);
 };
 
 #endif // __DATABUFFER_H_11C6C591__

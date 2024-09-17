@@ -270,11 +270,14 @@ public:
     /** Gets the event channel state for a particular sample */
     const float getEventState (int samp);
 
-    /** Returns the mean of a given channel */
-    float getMean (int chan);
+    /** Returns the screen buffer's mean of a given channel */
+    float getScreenBufferMean (int chan);
+
+    /** Returns the display buffer's mean of a given channel */
+    float getDisplayBufferMean (int chan);
 
     /** Returns the standard deviation of a given channnel*/
-    float getStd (int chan);
+    float getRMS (int chan);
 
     /** Sets the channel to use for display triggering */
     void setTriggerChannel (int);
@@ -344,7 +347,7 @@ public:
     /** Send a message to audio monitor one channel */
     void monitorChannel (int channel);
 
-    uint16 selectedStreamId;
+    uint16 selectedStreamId = 0;
 
     void refreshScreenBuffer();
 

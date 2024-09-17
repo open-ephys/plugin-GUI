@@ -78,9 +78,10 @@ void BinaryFileSource::fillRecordInfo()
     String sampleNumbersFilename;
     String channelStatesFilename;
 
+    int majorVersion = guiVersion.substring(0, 1).getIntValue();
     int minorVersion = guiVersion.substring (2, 3).getIntValue();
 
-    if (minorVersion < 6)
+    if (minorVersion < 6 && majorVersion == 0)
     {
         sampleNumbersFilename = "timestamps.npy";
         channelStatesFilename = "channel_states.npy";
@@ -140,13 +141,13 @@ void BinaryFileSource::fillRecordInfo()
             MemoryBlock tsData;
             if (! (tsDataStream->readIntoMemoryBlock (tsData, maxSensibleFileSize)))
                 continue;
-            int64* startTimestamp = (int64*) tsData.getData() + EVENT_HEADER_SIZE_IN_BYTES / 8;
-            info.startTimestamp = *startTimestamp;
-            startSampleNumbers[streamName] = *startTimestamp;
+            int64* startSampleNumber = (int64*) tsData.getData() + EVENT_HEADER_SIZE_IN_BYTES / 8;
+            info.startSampleNumber = *startSampleNumber;
+            startSampleNumbers[streamName] = *startSampleNumber;
         }
         else
         {
-            info.startTimestamp = 0;
+            info.startSampleNumber = 0;
         }
 
         for (int c = 0; c < numChannels; c++)
@@ -208,8 +209,9 @@ void BinaryFileSource::fillRecordInfo()
                 LOGD ("TTL found");
 
                 File channelStatesFile = m_rootPath.getChildFile ("events").getChildFile (streamName).getChildFile (channelStatesFilename);
+                LOGD ("Channel States File: ", channelStatesFile.getFullPathName());
                 std::unique_ptr<MemoryMappedFile> channelStatesFileMap (new MemoryMappedFile (channelStatesFile, MemoryMappedFile::readOnly));
-
+                jassert (channelStatesFileMap.get() != nullptr);
                 streamName = streamName.substring (0, streamName.lastIndexOf ("/TTL"));
 
                 EventInfo eventInfo;
@@ -220,7 +222,7 @@ void BinaryFileSource::fillRecordInfo()
                     eventInfo.channels.push_back (abs (*data));
                     eventInfo.channelStates.push_back (*data > 0);
                     int64* snData = static_cast<int64*> (sampleNumbersMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + j * sizeof (int64) / 8;
-                    eventInfo.timestamps.push_back (*snData - startSampleNumbers[streamName]);
+                    eventInfo.sampleNumbers.push_back (*snData - startSampleNumbers[streamName]);
                     eventInfo.text.push_back ("");
                 }
                 eventInfoMap[streamName] = eventInfo;
@@ -258,7 +260,7 @@ void BinaryFileSource::fillRecordInfo()
                     int64* snData = static_cast<int64*> (sampleNumbersMap->getData()) + (EVENT_HEADER_SIZE_IN_BYTES / 8) + j * sizeof (int64) / 8;
                     // Use the first stream's start sample number for the MessageCenter
                     int64 startSampleNumber = startSampleNumbers.begin()->second;
-                    eventInfo.timestamps.push_back (*snData - startSampleNumber);
+                    eventInfo.sampleNumbers.push_back (*snData - startSampleNumber);
                     eventInfo.text.push_back (outString);
                 }
                 eventInfoMap[streamName] = eventInfo;
@@ -281,13 +283,13 @@ void BinaryFileSource::processEventData (EventInfo& eventInfo, int64 start, int6
 
         int i = 0;
 
-        while (i < info.timestamps.size())
+        while (i < info.sampleNumbers.size())
         {
-            if (info.timestamps[i] >= local_start && info.timestamps[i] < local_stop)
+            if (info.sampleNumbers[i] >= local_start && info.sampleNumbers[i] < local_stop)
             {
                 eventInfo.channels.push_back (info.channels[i] - 1);
                 eventInfo.channelStates.push_back ((info.channelStates[i]));
-                eventInfo.timestamps.push_back (info.timestamps[i] + loop_count * getActiveNumSamples());
+                eventInfo.sampleNumbers.push_back (info.sampleNumbers[i] + loop_count * getActiveNumSamples());
                 eventInfo.text.push_back (info.text[i]);
             }
             i++;
@@ -315,7 +317,7 @@ void BinaryFileSource::seekTo (int64 sample)
     m_samplePos = sample % getActiveNumSamples();
 }
 
-int BinaryFileSource::readData (int16* buffer, int nSamples)
+int BinaryFileSource::readData (float* buffer, int nSamples)
 {
     int64 samplesToRead;
 
@@ -330,12 +332,16 @@ int BinaryFileSource::readData (int16* buffer, int nSamples)
 
     int16* data = static_cast<int16*> (m_dataFile->getData()) + (m_samplePos * numActiveChannels);
 
-    memcpy (buffer, data, samplesToRead * numActiveChannels * sizeof (int16));
+    for (int i = 0; i < samplesToRead * numActiveChannels; i++)
+    {
+        *(buffer + i) = *(data + i) * bitVolts[i % numActiveChannels];
+    }
+
     m_samplePos += samplesToRead;
     return int(samplesToRead);
 }
 
-void BinaryFileSource::processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 numSamples)
+/* void BinaryFileSource::processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 numSamples)
 {
     if (! inBuffer)
         return; //TOFIX: inBuffer should never be null
@@ -344,4 +350,4 @@ void BinaryFileSource::processChannelData (int16* inBuffer, float* outBuffer, in
     {
         *(outBuffer + i) = *(inBuffer + (numActiveChannels * i) + channel) * bitVolts[channel];
     }
-}
+}*/

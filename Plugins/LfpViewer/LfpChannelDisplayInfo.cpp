@@ -47,6 +47,8 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo (LfpDisplaySplitter* canvas_, LfpDi
     : LfpChannelDisplay (canvas_, display_, options_, ch),
       x (-1.0f),
       y (-1.0f),
+      rms (0.0f),
+      mean (0.0f),
       isSingleChannel (false)
 {
     enableButton = std::make_unique<UtilityButton> ("");
@@ -59,6 +61,12 @@ LfpChannelDisplayInfo::LfpChannelDisplayInfo (LfpDisplaySplitter* canvas_, LfpDi
     enableButton->setToggleState (true, dontSendNotification);
 
     addAndMakeVisible (enableButton.get());
+
+    String svgString = "M302.189 329.126H196.105l55.831 135.993c3.889 9.428-.555 19.999-9.444 23.999l-49.165 21.427c-9.165 \
+                       4-19.443-.571-23.332-9.714l-53.053-129.136-86.664 89.138C18.729 472.71 0 463.554 0 447.977V18.299C0 \
+                       1.899 19.921-6.096 30.277 5.443l284.412 292.542c11.472 11.179 3.007 31.141-12.5 31.141z";
+
+    pointerPath = Drawable::parseSVGPath (svgString);
 }
 
 void LfpChannelDisplayInfo::updateType (ContinuousChannel::Type type_)
@@ -213,11 +221,16 @@ void LfpChannelDisplayInfo::paint (Graphics& g)
                                                                                         : getName());
     bool isCentered = ! getEnabledButtonVisibility();
 
+    if (isSingleChannel)
+        g.setFont (FontOptions (16.0f).withStyle ("SemiBold"));
+    else
+        g.setFont (FontOptions (14.0f));
+
     g.drawText (channelString,
-                showChannelNumbers ? 6 : 2,
+                showChannelNumbers ? 6 : 3,
                 center - 4,
                 getWidth(),
-                10,
+                12,
                 isCentered ? Justification::centred : Justification::centredLeft,
                 false);
 
@@ -227,29 +240,25 @@ void LfpChannelDisplayInfo::paint (Graphics& g)
     if (getChannelTypeStringVisibility())
     {
         g.setFont (FontOptions (13.0f));
-        g.drawText (typeStr, 5, center + 10, 41, 10, Justification::centred, false);
+        g.drawText (typeStr, 5, center + 10, 50, 14, Justification::centred, false);
     }
-
-    g.setFont (FontOptions (11.0f));
 
     if (isSingleChannel)
     {
-        g.setColour (Colours::darkgrey);
-        g.drawText ("STD:", 5, center + 90, 41, 10, Justification::centred, false);
-        g.drawText ("MEAN:", 5, center + 40, 41, 10, Justification::centred, false);
-
-        if (x > 0)
-        {
-            g.drawText ("uV:", 5, center + 140, 41, 10, Justification::centred, false);
-        }
-
         g.setColour (Colours::grey);
-        g.drawText (String (canvasSplit->getStd (chan)), 5, center + 110, 41, 10, Justification::centred, false);
-        g.drawText (String (canvasSplit->getMean (chan)), 5, center + 60, 41, 10, Justification::centred, false);
+        g.setFont (FontOptions (13.0f));
+
+        g.drawText ("MEAN:", 5, center + 40, 50, 12, Justification::centred, false);
+        g.drawText (String (mean, 2), 5, center + 60, 50, 12, Justification::centred, false);
+
+        g.drawText (String (rms, 2), 5, center + 110, 50, 12, Justification::centred, false);
+        g.drawText ("RMS:", 5, center + 90, 50, 12, Justification::centred, false);
 
         if (x > 0)
         {
-            g.drawText (String (y), 5, center + 160, 41, 10, Justification::centred, false);
+            g.setColour (Colours::darkgrey);
+            g.fillPath (pointerPath, pointerPath.getTransformToScaleToFit (23, center + 140, 13, 13, true));
+            g.drawText (String (y, 2), 5, center + 160, 50, 10, Justification::centred, false);
         }
     }
 }
@@ -258,6 +267,14 @@ void LfpChannelDisplayInfo::updateXY (float x_, float y_)
 {
     x = x_;
     y = y_;
+}
+
+void LfpChannelDisplayInfo::updateMeanAndRMS()
+{
+    rms = canvasSplit->getRMS (chan);
+    mean = canvasSplit->getDisplayBufferMean (chan);
+
+    repaint();
 }
 
 void LfpChannelDisplayInfo::resized()

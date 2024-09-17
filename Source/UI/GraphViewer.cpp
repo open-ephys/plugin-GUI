@@ -49,9 +49,6 @@ GraphViewport::GraphViewport (GraphViewer* gv)
     currentVersionText = "GUI version " + app->getApplicationVersion();
 
     bw_logo = ImageCache::getFromMemory (BinaryData::bw_logo72_png, BinaryData::bw_logo72_pngSize);
-    colour_logo = ImageCache::getFromMemory (BinaryData::color_logo72_png, BinaryData::color_logo72_pngSize);
-
-    current_logo = &bw_logo;
 }
 
 void GraphViewport::paint (Graphics& g)
@@ -59,7 +56,7 @@ void GraphViewport::paint (Graphics& g)
     g.fillAll (findColour (ThemeColours::componentParentBackground));
     g.setOpacity (0.6f);
 
-    g.drawImageAt (*current_logo, getWidth() - 175, getHeight() - 115);
+    g.drawImageAt (bw_logo, getWidth() - 175, getHeight() - 115);
 
     g.setOpacity (1.0f);
     g.setColour (findColour (ThemeColours::componentBackground).brighter (0.3f));
@@ -71,14 +68,6 @@ void GraphViewport::paint (Graphics& g)
 void GraphViewport::resized()
 {
     viewport->setBounds (0, 0, getWidth(), getHeight());
-}
-
-void GraphViewport::lookAndFeelChanged()
-{
-    //if (findColour(ThemeColours::highlightedFill) == Colour(138, 193, 232)) // light mode
-    //    current_logo = &colour_logo;
-    //else
-    //    current_logo = &bw_logo;
 }
 
 GraphViewer::GraphViewer()
@@ -104,7 +93,28 @@ void GraphViewer::updateBoundaries()
     setSize (maxWidth + 20, maxHeight + 20);
 }
 
-void GraphViewer::updateNodes (GenericProcessor* processor, Array<GenericProcessor*> newRoots)
+void GraphViewer::updateYPositions()
+{
+    levelStartY.clear();
+
+    for (const auto& levelNodesPair : nodesByLevel)
+    {
+        int currentLevel = levelNodesPair.first;
+        int nextLevel = currentLevel + 1;
+
+        // Calculate the starting point for the next level
+        // from the lowest point of the current level
+        for (auto node : levelNodesPair.second)
+            levelStartY[nextLevel] = jmax (levelStartY[nextLevel], node->getBottom() + 35);
+
+        // Update the positions of the next level
+        if (nodesByLevel.count (nextLevel) > 0)
+            for (auto node : nodesByLevel[nextLevel])
+                node->updateBoundaries();
+    }
+}
+
+void GraphViewer::updateNodes (GenericProcessor* processor_, Array<GenericProcessor*> newRoots)
 {
     // Remove nodes that are not needed anymore
     Array<GraphNode*> nodesToDelete;
@@ -126,6 +136,7 @@ void GraphViewer::updateNodes (GenericProcessor* processor, Array<GenericProcess
 
     int level = -1;
     levelStartY.clear();
+    nodesByLevel.clear();
 
     for (auto processor : rootProcessors)
     {
@@ -183,12 +194,7 @@ void GraphViewer::updateNodes (GenericProcessor* processor, Array<GenericProcess
                     node->updateBoundaries();
                 }
 
-                int newY = getNodeForEditor (processor->getEditor())->getCollapsedBottom() + 35;
-                int nextLevel = getNodeForEditor (processor->getEditor())->getLevel() + 1;
-                if (levelStartY.count (nextLevel) == 0)
-                    levelStartY[nextLevel] = newY;
-                else
-                    levelStartY[nextLevel] = jmax (levelStartY[nextLevel], newY);
+                nodesByLevel[level].add (getNodeForEditor (processor->getEditor()));
 
                 // Travel down the signal chain
                 if (processor->isSplitter())
@@ -209,21 +215,33 @@ void GraphViewer::updateNodes (GenericProcessor* processor, Array<GenericProcess
                 GraphNode* gn = getNodeForEditor (splitter->getEditor());
                 horzShift = gn->getHorzShift();
 
-                //check if 2 splitters are connected to 1 splitter
-                if (splitter->getDestNode (0) && splitter->getDestNode (0)->isSplitter() && processor && processor->isSplitter())
+                auto destA = splitter->getDestNode (0);
+                bool hasDownstreamSplitter = false;
+
+                while (destA != nullptr)
                 {
+                    if (destA->isSplitter())
+                    {
+                        hasDownstreamSplitter = true;
+                        break;
+                    }
+
+                    destA = destA->getDestNode();
+                }
+
+                // if a splitter has a downstream splitter in chain 0, increase the level by 2.
+                // If a it has a downstream processor, increase by 1.
+                if (hasDownstreamSplitter)
                     level = gn->getLevel() + 2;
-                }
-                else
-                {
+                else if (processor != nullptr)
                     level = gn->getLevel() + 1;
-                }
 
                 splitters.remove (0);
             }
         }
     }
 
+    updateYPositions();
     updateBoundaries();
     repaint();
 }
@@ -617,15 +635,19 @@ void DataStreamInfo::restorePanels()
 {
     headerButton->setToggleState (node->streamInfoVisible[stream->getKey()], dontSendNotification);
 
-    if (parameterButton != nullptr)
+    if (parameterButton != nullptr && node->streamParamsVisible[stream->getKey()])
     {
-        parameterButton->setToggleState (node->streamParamsVisible[stream->getKey()], dontSendNotification);
-        buttonClicked (parameterButton);
+        parameterButton->setToggleState (node->streamParamsVisible[stream->getKey()], sendNotification);
     }
     else
     {
         node->updateBoundaries();
-        node->setDataStreamPanelSize (this, heightInPixels);
+
+        if (node->streamInfoVisible[stream->getKey()])
+            node->setDataStreamPanelSize (this, heightInPixels);
+        else
+            node->setDataStreamPanelSize (this, 0);
+
         node->updateGraphView();
     }
 }
@@ -1019,6 +1041,7 @@ void GraphNode::updateBoundaries()
 
 void GraphNode::updateGraphView()
 {
+    gv->updateYPositions();
     gv->updateBoundaries();
     gv->repaint();
 }
@@ -1040,7 +1063,7 @@ void GraphNode::updateStreamInfo()
         dataStreamButtons.clear();
 
         /* iterate through the streamInfoVisible map and remove all 
-        ** entires that dont belong to processors->getDataStreams() */
+        ** entries that dont belong to processors->getDataStreams() */
         for (auto it = streamInfoVisible.begin(); it != streamInfoVisible.end();)
         {
             if (processor->getDataStream (it->first) == nullptr)
@@ -1164,7 +1187,6 @@ String GraphNode::getInfoString()
 void GraphNode::paint (Graphics& g)
 {
     g.fillAll (findColour (ThemeColours::componentParentBackground));
-    //g.setFont(Font("Inter", "Medium", 14));
 
     g.setFont (FontOptions ("Fira Code", "Regular", 13.0f));
 
@@ -1188,9 +1210,9 @@ void GraphNode::paint (Graphics& g)
         if (processorInfoVisible)
             g.fillRect (0, 19, getWidth(), 1);
 
-        g.setColour (findColour (ThemeColours::defaultText)); // : editor->getBackgroundColour());
+        g.setColour (findColour (ThemeColours::defaultText)); 
         g.drawText (String (nodeId), 1, 1, 23, 20, Justification::centred, true);
-        g.setColour (Colours::white); // : editor->getBackgroundColour());
+        g.setColour (Colours::white); 
         g.setFont (FontOptions ("CP Mono", "Plain", 15.0f));
         g.drawText (getName().toUpperCase(), 30, 1, getWidth() - 30, 20, Justification::left, true);
     }

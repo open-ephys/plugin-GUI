@@ -101,23 +101,11 @@ void Visualizer::update()
 void Visualizer::startCallbacks()
 {
     startTimer (1 / float (refreshRate) * 1000.0f);
-
-    for (auto ed : allParamEditors)
-    {
-        if (ed->shouldDeactivateDuringAcquisition())
-            ed->setEnabled (false);
-    }
 }
 
 void Visualizer::stopCallbacks()
 {
     stopTimer();
-
-    for (auto ed : allParamEditors)
-    {
-        if (ed->shouldDeactivateDuringAcquisition())
-            ed->setEnabled (true);
-    }
 }
 
 void Visualizer::timerCallback()
@@ -276,6 +264,7 @@ void Visualizer::addSelectedStreamParameter (const String& name,
                                              const String& description,
                                              Array<String> streamNames,
                                              const int defaultIndex,
+                                             bool syncWithStreamSelector,
                                              bool deactivateDuringAcquisition)
 {
     SelectedStreamParameter* p = new SelectedStreamParameter (
@@ -286,6 +275,7 @@ void Visualizer::addSelectedStreamParameter (const String& name,
         description,
         streamNames,
         defaultIndex,
+        syncWithStreamSelector,
         deactivateDuringAcquisition);
 
     addParameter (p);
@@ -306,10 +296,42 @@ void Visualizer::addNotificationParameter (const String& name,
 
     addParameter (p);
 }
+
+void Visualizer::addTtlLineParameter (const String& name,
+                                      const String& displayName,
+                                      const String& description,
+                                      int maxTtlLines,
+                                      bool canSelectNone,
+                                      bool deactivateDuringAcquisition)
+{
+    TtlLineParameter* p = new TtlLineParameter (
+        nullptr,
+        Parameter::VISUALIZER_SCOPE,
+        name,
+        displayName,
+        description,
+        maxTtlLines,
+        false,
+        canSelectNone,
+        deactivateDuringAcquisition);
+
+    addParameter (p);
+}
+
 void Visualizer::parameterChangeRequest (Parameter* param)
 {
     param->updateValue();
     parameterValueChanged (param);
+
+    auto dataStreams = processor->getDataStreams();
+
+    if (dataStreams.size() > 0
+        && param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
+        && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
+    {
+        uint16 streamId = dataStreams[param->getValue()]->getStreamId();
+        processor->getEditor()->updateSelectedStream (streamId);
+    }
 }
 
 void Visualizer::addParameterEditorOwner (ParameterEditorOwner* editorOwner)

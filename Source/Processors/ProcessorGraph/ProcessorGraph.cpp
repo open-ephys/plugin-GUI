@@ -47,8 +47,6 @@
 #include "../PluginManager/PluginManager.h"
 #include "../ProcessorManager/ProcessorManager.h"
 
-std::map<ChannelKey, bool> ProcessorGraph::bufferLookupMap;
-
 ProcessorGraph::ProcessorGraph (bool isConsoleApp_) : isConsoleApp (isConsoleApp_),
                                                       currentNodeId (100),
                                                       isLoadingSignalChain (false)
@@ -238,13 +236,9 @@ GenericProcessor* ProcessorGraph::createProcessor (Plugin::Description& descript
 
     if (sourceNode != nullptr)
         LOGDD ("Source node: ", sourceNode->getName());
-    //else
-    //   LOGD("No source node.");
 
     if (destNode != nullptr)
         LOGDD ("Dest node: ", destNode->getName());
-    //else
-    //    LOGD("No dest node.");
 
     try
     {
@@ -452,7 +446,7 @@ bool ProcessorGraph::checkForNewRootNodes (GenericProcessor* processor,
                 {
                     LOGDD ("  Didn't find dest node in root nodes; adding a new root.");
 
-                    if (rootNodes.size() == 8)
+                    if (!isLoadingSignalChain && rootNodes.size() == 8)
                     {
                         AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "Signal chain error", "Maximum of 8 signal chains.");
                         return false;
@@ -488,7 +482,7 @@ bool ProcessorGraph::checkForNewRootNodes (GenericProcessor* processor,
             {
                 LOGDD ("  Has no dest node; adding.");
 
-                if (rootNodes.size() == 8)
+                if (!isLoadingSignalChain && rootNodes.size() == 8)
                 {
                     AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon, "Signal chain error", "Maximum of 8 signal chains.");
                     return false;
@@ -640,7 +634,7 @@ bool ProcessorGraph::checkForNewRootNodes (GenericProcessor* processor,
                             else
                             {
                                 while (sourceB->getSourceNode() != nullptr)
-                                    sourceB = sourceA->getSourceNode();
+                                    sourceB = sourceB->getSourceNode();
 
                                 createEmptyProcessor (p, rootNodes.indexOf (sourceB));
                             }
@@ -688,7 +682,6 @@ void ProcessorGraph::updateSettings (GenericProcessor* processor, bool signalCha
     // prevents calls from within processors from triggering full update during loading
     if (signalChainIsLoading != isLoadingSignalChain)
     {
-        //updateViews(processor);
         return;
     }
 
@@ -762,8 +755,6 @@ void ProcessorGraph::updateViews (GenericProcessor* processor, bool updateGraphV
 
     if (processor != nullptr)
     {
-        LOGD ("Processor to view: ", processor->getName());
-
         if (processor->isSplitter() && ! isConsoleApp)
         {
             SplitterEditor* spEditor = (SplitterEditor*) processor->getEditor();
@@ -868,10 +859,6 @@ void ProcessorGraph::connectMergerSource (GenericProcessor* merger_, GenericProc
         rootNodes.remove (rootNodes.indexOf (merger->getSourceNode (path)));
         emptyProcessors.removeObject (merger->getSourceNode (path));
     }
-
-    // merger->switchIO(path);
-    // merger->setMergerSourceNode(sourceNode);
-    // sourceNode->setDestNode(merger);
 
     while (anotherSource->getSourceNode() != nullptr)
         anotherSource = anotherSource->getSourceNode();
@@ -994,9 +981,6 @@ void ProcessorGraph::clearSignalChain()
     for (auto processor : getListOfProcessors())
     {
         NodeID nodeId = NodeID (processor->getNodeId());
-        std::unique_ptr<GenericEditor> editor;
-        editor.swap (processor->editor);
-        editor.reset();
         Node::Ptr node = removeNode (nodeId);
         node.reset();
     }
@@ -1026,55 +1010,6 @@ void ProcessorGraph::refreshColours()
 
     AccessClass::getGraphViewer()->repaint();
 }
-
-/* Set parameters based on XML.
-void ProcessorGraph::loadParametersFromXml(GenericProcessor* processor)
-{
-    // DEPRECATED
-    // Should probably do some error checking to make sure XML is valid, depending on how it treats errors (will likely just not update parameters, but error message could be nice.)
-    int numberParameters = processor->getNumParameters();
-    // Ditto channels. Not sure how to handle different channel sizes when variable sources (file reader etc. change). Maybe I should check number of channels vs source, but that requires hardcoding when source matters.
-    //int numChannels=(targetProcessor->channels).size();
-    //int numEventChannels=(targetProcessor->eventChannels).size();
-
-    // Sets channel in for loop
-    int currentChannel;
-
-    // What the parameter name to change is.
-    String parameterNameForXML;
-    String parameterValue;
-    float parameterFloat;
-
-    forEachXmlChildElementWithTagName(*processor->parametersAsXml,
-                                      channelXML,
-                                      "CHANNEL")
-    {
-        currentChannel=channelXML->getIntAttribute("name");
-
-LOGDD("currentChannel:", currentChannel);
-        // Sets channel to change parameter on
-        processor->setCurrentChannel(currentChannel-1);
-
-        forEachXmlChildElement(*channelXML, parameterXML)
-        {
-
-            for (int j = 0; j < numberParameters; ++j)
-            {
-                parameterNameForXML = processor->getParameterName(j);
-
-                if (parameterXML->getStringAttribute("name")==parameterNameForXML)
-                {
-                    parameterValue=parameterXML->getAllSubText();
-                    parameterFloat=parameterValue.getFloatValue();
-                    processor->setParameter(j, parameterFloat);
-                    // testGrab=targetProcessor->getParameterVar(j, currentChannel);
-LOGD("Channel:", currentChannel, "Parameter:", parameterNameForXML, "Intended Value:", parameterFloat);
-                }
-
-            }
-        }
-    }
-}*/
 
 void ProcessorGraph::broadcastMessage (String msg)
 {
@@ -1199,49 +1134,6 @@ Array<GenericProcessor*> ProcessorGraph::getListOfProcessors()
     return allProcessors;
 }
 
-void ProcessorGraph::updateBufferMap (int inputNodeId,
-                                      int inputIndex,
-                                      int outputNodeId,
-                                      int outputIndex,
-                                      bool isNeededLater)
-{
-    ChannelKey key;
-    key.inputNodeId = inputNodeId;
-    key.inputIndex = inputIndex;
-    key.outputNodeId = outputNodeId;
-    key.outputIndex = outputIndex;
-
-    bufferLookupMap.insert (std::make_pair (key, isNeededLater));
-}
-
-bool ProcessorGraph::isBufferNeededLater (int inputNodeId,
-                                          int inputIndex,
-                                          int outputNodeId,
-                                          int outputIndex,
-                                          bool* isValid)
-
-{
-    //LOGG(inputNodeId, ":", inputIndex, " --> ", outputNodeId, ":", outputIndex);
-
-    ChannelKey key;
-    key.inputNodeId = inputNodeId;
-    key.inputIndex = inputIndex;
-    key.outputNodeId = outputNodeId;
-    key.outputIndex = outputIndex;
-
-    auto search = bufferLookupMap.find (key);
-
-    if (search != bufferLookupMap.end())
-    {
-        *isValid = true;
-        return bufferLookupMap[key];
-    }
-
-    *isValid = false;
-
-    return false;
-}
-
 int ProcessorGraph::getStreamIdForChannel (Node& node, int channel)
 {
     int nodeId = node.nodeID.uid;
@@ -1310,8 +1202,6 @@ void ProcessorGraph::clearConnections()
 
         addConnection (Connection (src, dest));
     }
-
-    bufferLookupMap.clear();
 }
 
 void ProcessorGraph::updateConnections()
@@ -1487,8 +1377,6 @@ void ProcessorGraph::connectProcessors (GenericProcessor* source, GenericProcess
         {
             cs.channelIndex = chan;
             cd.channelIndex = dest->getIndexOfMatchingChannel (source->getContinuousChannel (chan));
-
-            //LOGG("  Source channel: ", cs.channelIndex, ", Dest Channel: ", cd.channelIndex);
 
             if (cd.channelIndex > -1)
             {
@@ -1688,11 +1576,6 @@ void ProcessorGraph::removeProcessor (GenericProcessor* processor)
         AccessClass::getGraphViewer()->removeNode (processor);
 
         AccessClass::getEditorViewport()->removeEditor (processor->editor.get());
-
-        //// need this to prevent editors from remaining after starting acquisition
-        std::unique_ptr<GenericEditor> editor;
-        editor.swap (processor->editor);
-        editor.reset();
     }
 
     Node::Ptr node = removeNode (nodeId);
@@ -1958,7 +1841,7 @@ void ProcessorGraph::saveToXml (XmlElement* xml)
                     // add to list of splitters to come back to
                     splitPoints.add (processor);
 
-                    //keep track of all splitters and their inital states
+                    //keep track of all splitters and their initial states
                     allSplitters.add (processor);
                     Splitter* sp = (Splitter*) processor;
                     splitterStates.add (sp->getPath());

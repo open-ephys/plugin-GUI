@@ -33,7 +33,7 @@ SplitterEditor::SplitterEditor (GenericProcessor* parentNode)
     : GenericEditor (parentNode)
 
 {
-    desiredWidth = 90;
+    desiredWidth = 95;
 
     pipelineSelectorA = std::make_unique<ImageButton> ("Pipeline A");
 

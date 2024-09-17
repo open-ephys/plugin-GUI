@@ -92,18 +92,28 @@ void SpikeDisplayNode::setParameter (int param, float val)
 {
     if (param == 10)
     {
-        SpikeChannel* chan = spikeChannels[int (val)];
-
         String msg = "AUDIO SELECT ";
-        msg += String (chan->getStreamId()) + " ";
-
-        for (auto ch : chan->localChannelIndexes)
+        
+        if (val >= 0 && val < spikeChannels.size())
         {
-            msg += String (ch) + " ";
+            SpikeChannel* chan = spikeChannels[int (val)];
+
+            msg += String (chan->getStreamId()) + " ";
+
+            for (auto ch : chan->localChannelIndexes)
+            {
+                msg += String (ch + 1) + " ";
+            }
+
+        }
+        else
+        {
+            msg += "NONE";
         }
 
         //std::cout << "MESSAGE: " << msg << std::endl;
         broadcastMessage (msg);
+        
     }
 }
 

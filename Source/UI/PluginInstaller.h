@@ -47,7 +47,7 @@ public:
         commands. */
     ApplicationCommandManager commandManager;
 
-    /** Access method to install a plugin directly without intercating with the Plugin Installer interface*/
+    /** Access method to install a plugin directly without interacting with the Plugin Installer interface*/
     void installPluginAndDependency (const String& plugin, String version);
 
 private:

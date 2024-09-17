@@ -33,6 +33,41 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../../Utils/Utils.h"
 
+/** 
+
+	Represents a single sync pulse
+
+*/
+struct SyncPulse
+{
+    /** The time (in seconds) since the start of acquisition
+        for the pulse's stream
+        */
+    double localTimestamp;
+
+    /** The sample number at which this event occurred */
+    int64 localSampleNumber;
+
+    /** The computer clock time at which this event was received 
+        by the synchronizer */
+    int64 computerTimeMillis;
+
+    /** Whether the whole pulse has completed (on/off sequence) */
+    bool complete = false;
+
+    /** Duration of the event in seconds */
+    double duration = -1.0;
+
+    /** Time between the start of this event and the start of the last event */
+    double interval = -1.0;
+
+    /** Index of matching pulse in main stream */
+    int matchingPulseIndex = -1;
+
+    /** Global timestamp of pulse (if known) */
+    double globalTimestamp = -1.0;
+};
+
 /**
  *
  * Represents an incoming data stream
@@ -45,19 +80,28 @@ public:
     SyncStream (String streamKey, float expectedSampleRate);
 
     /** Resets stream parameters before acquisition */
-    void reset();
+    void reset (String mainStreamKey);
 
-    /** Adds a sync event with a particular sample number*/
-    void addEvent (int64 sampleNumber);
+    /** True if this is the main stream */
+    bool isMainStream;
 
-    /** Sets the main clock time for the last event */
-    void setMainTime (float time);
+    /** Adds a sync event with a particular sample number and state*/
+    void addEvent (int64 sampleNumber, bool state);
 
-    /** Opens sync window (when event is received on any sync line) */
-    void openSyncWindow();
+    /** Global start time of this stream */
+    double globalStartTime;
 
-    /** Closes sync window (after a delay) */
-    void closeSyncWindow();
+    /** Returns time of latest sync pulse */
+    double getLatestSyncTime();
+
+    /** Returns difference between actual and expected sync times */
+    double getSyncAccuracy();
+
+    /** Synchronize this stream with another one */
+    void syncWith (const SyncStream* mainStream);
+
+    /** Compares pulses; returns true if a match is found */
+    bool comparePulses (const SyncPulse& pulse1, const SyncPulse& pulse2);
 
     /** Stated sample rate for this stream */
     float expectedSampleRate;
@@ -65,45 +109,45 @@ public:
     /** Computed sample rate for this stream */
     float actualSampleRate;
 
-    /** Sample index to which all future events are relative to*/
-    int64 startSample;
-
-    /** Sample index of most recent event */
-    int64 lastSample;
-
     /** TTL line to use for synchronization */
     int syncLine;
 
-    /** true if this stream is succesfully synchronized */
+    /** true if this stream is successfully synchronized */
     bool isSynchronized;
-
-    /** true if a sync event was received in the latest window*/
-    bool receivedEventInWindow;
-
-    /** true if a main stream sync event was received in the latest window*/
-    bool receivedMainTimeInWindow;
-
-    /** Stores the latest sample number until the sync window is closed*/
-    int64 tempSampleNum;
-
-    /** Stores the latest main time until the sync window is closed */
-    float tempMainTime;
-
-    /** Holds the main time of the start sample */
-    float startSampleMainTime = -1.0f;
-
-    /** Holds the main time of the last sample*/
-    float lastSampleMainTime = -1.0f;
-
-    /** If the sample rate changes by more than this amount,
-     * consider the stream desynchronized */
-    float sampleRateTolerance;
 
     /** Holds the unique key for this stream */
     String streamKey;
 
     /** true if the stream is in active use */
     bool isActive;
+
+    /** The sync pulses for this stream 
+    
+    The latest pulse is added to the beginning of the vector
+    Expired pulses are removed from the end
+    */
+	std::vector<SyncPulse> pulses;
+
+    /** First pulse matching the global stream */
+    SyncPulse firstMatchingPulse;
+
+    /** Determines the maximum size of the sync pulse buffer */
+    const int MAX_PULSES_IN_BUFFER = 10;
+
+    /** Threshold for calling pulses synchronous */
+    const int MAX_TIME_DIFFERENCE_MS = 50;
+
+    /** Threshold of calling durations equal */
+    const double MAX_DURATION_DIFFERENCE_MS = 2;
+
+    /** Threshold of calling intervals equal */
+    const double MAX_INTERVAL_DIFFERENCE_MS = 2;
+
+private:
+
+    int64 latestSyncSampleNumber = 0;
+    double latestGlobalSyncTime = 0.0;
+    int64 latestSyncMillis = -1;
 };
 
 enum PLUGIN_API SyncStatus
@@ -145,6 +189,15 @@ public:
     /** Converts a double timestamp to an int64 sample number */
     int64 convertTimestampToSampleNumber (String streamKey, double timestamp);
 
+    /** Returns offset (relative start time) for stream in ms */
+    double getStartTime (String streamKey);
+
+    /** Get latest sync time */
+    double getLastSyncEvent (String streamKey);
+
+    /** Get the accuracy of synchronization (difference between expected and actual event time) */
+    double getAccuracy (String streamKey);
+
     /** Resets all values when acquisition is re-started */
     void reset();
 
@@ -173,8 +226,8 @@ public:
     /** Returns the status (OFF / SYNCING / SYNCED) of a given stream*/
     SyncStatus getStatus (String streamKey);
 
-    /** Checks an event for a stream ID / line combination */
-    void addEvent (String streamKey, int ttlLine, int64 sampleNumber);
+    /** Adds an event for a stream ID / line combination */
+    void addEvent (String streamKey, int ttlLine, int64 sampleNumber, bool state);
 
     /** Signals start of acquisition */
     void startAcquisition();
@@ -186,26 +239,19 @@ public:
     String previousMainStreamKey = String();
 
     /** Total number of streams*/
-    int streamCount;
-
-    // Not used
-    //bool isAvailable() { return mainStreamKey.length() > 0; };
+    int streamCount = 0;
 
 private:
     int eventCount = 0;
-
-    float syncWindowLengthMs;
-    bool syncWindowIsOpen;
-    bool acquisitionIsActive;
+    bool acquisitionIsActive = false;
 
     void hiResTimerCallback();
 
-    bool firstMainSyncEvent;
+    CriticalSection synchronizerLock;
 
     std::map<String, SyncStream*> streams;
     OwnedArray<SyncStream> dataStreamObjects;
 
-    void openSyncWindow();
 };
 
 /**
@@ -219,7 +265,7 @@ public:
     /** Sets the main data stream to use for synchronization */
     void setMainDataStream (String streamKey);
 
-    /** Returns true if a stream ID matches the one to use for sychronization*/
+    /** Returns true if a stream ID matches the one to use for synchronization*/
     bool isMainDataStream (String streamKey);
 
     /** Sets the TTL line to use for synchronization*/
