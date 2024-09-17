@@ -109,6 +109,8 @@ private:
     bool channelTypeStringIsVisible;
     bool channelNumberHidden;
 
+    Path pointerPath;
+
     /** Get/set whether enabled button is visible*/
     void setEnabledButtonVisibility (bool shouldBeVisible);
     bool getEnabledButtonVisibility();

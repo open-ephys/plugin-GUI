@@ -38,6 +38,48 @@
 #include "LookAndFeel/CustomLookAndFeel.h"
 #include <queue>
 
+/**
+
+    Triggers a new directory to be created at the start of each recording
+
+*/
+class NewDirectoryButton : public Button
+{
+public:
+    /** Constructor */
+    NewDirectoryButton();
+
+    /** Destructor */
+    ~NewDirectoryButton() {}
+
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
+private:
+    std::unique_ptr<Drawable> newDirectoryIcon;
+};
+
+
+/**
+
+    Locks the new directory button to force new directories for each recording.
+
+*/
+class ForceNewDirectoryButton : public Button
+{
+public:
+    /** Constructor */
+    ForceNewDirectoryButton();
+
+    /** Destructor */
+    ~ForceNewDirectoryButton() {}
+
+    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
+private:
+
+    std::unique_ptr<Drawable> forceNewDirectoryIcon;
+};
+
 /** 
 
     Allows the user to specify custom file names,
@@ -207,6 +249,12 @@ public:
         HHMMSS
     };
 
+    enum ReferenceTime
+    {
+        CUMULATIVE,
+        ACQUISITION_START
+    };
+
     /** Constructor*/
     Clock();
 
@@ -228,6 +276,9 @@ public:
     /** Sets the cumulative recording time to zero.*/
     void resetRecordingTime();
 
+    /** Sets the cumulative acquisition time to zero.*/
+    void resetAcquisitionTime();
+
     /** Gets the current recording time */
     int64 getRecordingTime() const;
 
@@ -240,6 +291,12 @@ public:
     /** Gets the clock mode*/
     Mode getMode() { return mode; }
 
+    /** Sets the clock reference time*/
+    void setReferenceTime (ReferenceTime t);
+
+    /** Gets the clock reference time */
+    ReferenceTime getReferenceTime() { return referenceTime; }
+
     /** Responds to right clicks*/
     void mouseDown (const MouseEvent& e);
 
@@ -251,6 +308,7 @@ private:
 
     int64 totalTime = 0;
     int64 totalRecordingTime = 0;
+    int64 latestAcquisitionTime = 0;
 
     bool isRunning = false;
     bool isRecording = false;
@@ -258,6 +316,7 @@ private:
     FontOptions clockFont;
 
     Mode mode = DEFAULT;
+    ReferenceTime referenceTime = CUMULATIVE;
 };
 
 class UtilityButton;
@@ -266,7 +325,7 @@ class UtilityButton;
 
   Provides general application controls along the top of the MainWindow.
 
-  Displays useful information and provides buttons to control acquistion and recording.
+  Displays useful information and provides buttons to control acquisition and recording.
 
   The ControlPanel contains the PlayButton, the RecordButton, the CPUMeter,
   the DiskSpaceMeter, the Clock, the AudioEditor, and a FilenameComponent for switching the
@@ -353,7 +412,7 @@ public:
     */
     void setRecordingParentDirectory (String path);
 
-    /** Returns the current parent recording diretory*/
+    /** Returns the current parent recording directory*/
     File getRecordingParentDirectory();
 
     /** Gets the base name of the recording directory */
@@ -460,8 +519,8 @@ private:
     std::unique_ptr<CPUMeter> cpuMeter;
     std::unique_ptr<DiskSpaceMeter> diskMeter;
     std::unique_ptr<FilenameComponent> filenameComponent;
-    std::unique_ptr<UtilityButton> newDirectoryButton;
-    std::unique_ptr<UtilityButton> forceNewDirectoryButton;
+    std::unique_ptr<NewDirectoryButton> newDirectoryButton;
+    std::unique_ptr<ForceNewDirectoryButton> forceNewDirectoryButton;
     std::unique_ptr<CustomArrowButton> showHideRecordingOptionsButton;
     std::unique_ptr<RecordButton> recordButton;
     std::unique_ptr<ComboBox> recordSelector;

@@ -120,6 +120,7 @@ PluginManager::PluginManager()
         }
         AddDllDirectory (installSharedPath.getFullPathName().toWideCharPointer());
     }
+    SetDefaultDllDirectories (LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
 
 #elif __linux__
     File installSharedPath = File::getSpecialLocation (File::userApplicationDataDirectory)
@@ -229,7 +230,7 @@ void PluginManager::loadPlugins (const File& pluginPath)
 /*
 	 Takes the user-specified plugin and begins
 	 dynamic loading process. We want to ensure that
-	 no step is exectured without a checkpoint
+	 no step is executed without a checkpoint
 	 because dynamic loading calls for rellocation of RAM
 	 and works inside the same POSIX thread as the GUI.
  */

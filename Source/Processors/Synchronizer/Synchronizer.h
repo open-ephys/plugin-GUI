@@ -40,7 +40,7 @@
 */
 struct SyncPulse
 {
-    /** The time (in seconds) since the start of acquistion
+    /** The time (in seconds) since the start of acquisition
         for the pulse's stream
         */
     double localTimestamp;
@@ -112,7 +112,7 @@ public:
     /** TTL line to use for synchronization */
     int syncLine;
 
-    /** true if this stream is succesfully synchronized */
+    /** true if this stream is successfully synchronized */
     bool isSynchronized;
 
     /** Holds the unique key for this stream */
@@ -265,7 +265,7 @@ public:
     /** Sets the main data stream to use for synchronization */
     void setMainDataStream (String streamKey);
 
-    /** Returns true if a stream ID matches the one to use for sychronization*/
+    /** Returns true if a stream ID matches the one to use for synchronization*/
     bool isMainDataStream (String streamKey);
 
     /** Sets the TTL line to use for synchronization*/

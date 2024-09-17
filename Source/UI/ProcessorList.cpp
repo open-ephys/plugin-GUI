@@ -550,7 +550,6 @@ void ProcessorList::loadStateFromXml (XmlElement* xml)
                                                 colourNode->getIntAttribute ("G"),
                                                 colourNode->getIntAttribute ("B")));
 
-                LOGD ("Setting colour ID ", ID, " to ", getLookAndFeel().findColour (ID).toString());
             }
         }
     }

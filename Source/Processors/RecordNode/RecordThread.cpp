@@ -237,6 +237,7 @@ void RecordThread::writeData (const AudioBuffer<float>& dataBuffer,
 
         if (SystemEvent::getBaseType (event) == EventBase::Type::SYSTEM_EVENT)
         {
+            
             String syncText = SystemEvent::getSyncText (event);
             m_engine->writeTimestampSyncText (SystemEvent::getStreamId (event), SystemEvent::getSampleNumber (event), 0.0f, SystemEvent::getSyncText (event));
         }

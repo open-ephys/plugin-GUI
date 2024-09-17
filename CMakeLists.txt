@@ -241,11 +241,11 @@ elseif(LINUX)
     endif()
 elseif(APPLE)
 	set_target_properties(open-ephys PROPERTIES
-		MACOSX_BUNDLE_NAME open-ephys
+		MACOSX_BUNDLE TRUE
+		OUTPUT_NAME "Open Ephys GUI"
 		MACOSX_BUNDLE_VERSION ${GUI_VERSION}
 		MACOSX_BUNDLE_ICON_FILE "Icon.icns"
 		MACOSX_BUNDLE_INFO_PLIST "${RESOURCES_DIRECTORY}/Build-files/Info.plist.in"
-		MACOSX_BUNDLE TRUE
 		)
 	target_compile_options(open-ephys PRIVATE -fPIC -Wpartial-availability -Wno-inconsistent-missing-override)
 	target_link_options(open-ephys PRIVATE -rdynamic)
@@ -301,6 +301,7 @@ endif()
 		XCODE_ATTRIBUTE_GCC_INLINES_ARE_PRIVATE_EXTERN YES
 		XCODE_ATTRIBUTE_CLANG_LINK_OBJC_RUNTIME NO
 		XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "org.open-ephys.gui"
+		XCODE_ATTRIBUTE_EXECUTABLE_NAME "open-ephys"
 		)
 
 		set(MAC_RESOURCE_FILES

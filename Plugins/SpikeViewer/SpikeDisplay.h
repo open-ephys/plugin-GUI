@@ -55,7 +55,7 @@ public:
     SpikePlot* addSpikePlot (int numChannels, int electrodeNum, String name, std::string identifier);
 
     /** Returns a spike plot based on index*/
-    SpikePlot* getSpikePlot (int index);
+    SpikePlot* getSpikePlot (int numChannels, int index);
 
     /** Renders gray background */
     void paint (Graphics& g);
@@ -73,7 +73,7 @@ public:
     void invertSpikes (bool);
 
     /** Returns the total height of the component*/
-    int getTotalHeight() { return totalHeight; }
+    int getTotalHeight();
 
     /** Returns the total number of plots*/
     int getNumPlots();
@@ -108,17 +108,28 @@ public:
     /** Sets the size scaling for the sub-plots */
     void setPlotScaleFactor (float scale);
 
+    /** Sets the display range of the plot*/
+    void setRange (int rangeInMicrovolts);
+
+    /** Sets the number of spikes in the history buffer */
+    void setHistorySize (int size);
+
 private:
     int totalHeight;
 
     SpikeDisplayCanvas* canvas;
     Viewport* viewport;
 
-    OwnedArray<SpikePlot> spikePlots;
+    OwnedArray<SpikePlot> singleElectrodePlots;
+    OwnedArray<SpikePlot> stereotrodePlots;
+    OwnedArray<SpikePlot> tetrodePlots;
+    Array<SpikePlot*> spikePlots;
 
     bool shouldInvert;
 
     float scaleFactor = 1.0f;
+
+    Grid grid;
 
     SpikeThresholdCoordinator* thresholdCoordinator;
 };

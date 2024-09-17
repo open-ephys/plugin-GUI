@@ -314,7 +314,7 @@ protected:
     /** Adds a selected stream editor for a parameter of a given name. */
     void addSelectedStreamParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
-    /** Adds a time editor for a paramater of a given name. */
+    /** Adds a time editor for a parameter of a given name. */
     void addTimeParameterEditor (Parameter::ParameterScope scope, const String& name, int xPos, int yPos);
 
     /** Adds a ttl line editor for a parameter of a given name. */

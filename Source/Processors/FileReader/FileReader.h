@@ -186,6 +186,9 @@ private:
     /** Flag if a new file has been loaded */
     bool gotNewFile;
 
+    /** Flag if the invalid sample rate warning is shown */
+    bool sampleRateWarningShown;
+
     /** Total number of samples played back since most recent start of acquisition */
     int64 playbackSamplePos;
 

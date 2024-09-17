@@ -227,7 +227,20 @@ void AudioMonitor::handleBroadcastMessage (const String& msg, const int64 messag
 
             if (command.equalsIgnoreCase ("SELECT"))
             {
-                if (parts.size() >= 4)
+                if(parts.size() == 3)
+                {
+                    String command = parts[2];
+
+                    if (command.equalsIgnoreCase ("NONE"))
+                    {
+                        Array<var> ch;
+
+                        for (auto stream : getDataStreams())
+                            stream->getParameter ("channels")->setNextValue (ch);
+                        
+                    }
+                }
+                else if (parts.size() >= 4)
                 {
                     uint16 streamId = parts[2].getIntValue();
 

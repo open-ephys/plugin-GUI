@@ -670,7 +670,7 @@ loop:
             }
         }
         goto loop; // Yes, the dreaded goto statement. But the code
-        // here is faithful to Brent's orginal pseudocode.
+        // here is faithful to Brent's original pseudocode.
     }
     return fx;
 }

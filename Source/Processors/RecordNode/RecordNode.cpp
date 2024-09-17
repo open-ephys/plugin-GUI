@@ -838,6 +838,8 @@ void RecordNode::handleTimestampSyncTexts (const EventPacket& packet)
 {
     int64 sampleNumber = Event::getSampleNumber (packet);
 
+    String syncText = SystemEvent::getSyncText (packet);
+
     eventQueue->addEvent (packet, sampleNumber, -1);
 }
 
@@ -1059,22 +1061,5 @@ void RecordNode::loadCustomParametersFromXml (XmlElement* xml)
             if (! xml->getBoolAttribute ("fifoMonitorsVisible"))
                 recordNodeEditor->fifoDrawerButton->triggerClick();
         }
-    }
-}
-
-void RecordNode::overrideRecordEngine (RecordEngineManager* engine)
-{
-    if (recordEngine.get() != nullptr)
-    {
-        recordEngine.reset (engine->instantiateEngine());
-
-        if (recordThread != nullptr)
-        {
-            recordThread->setEngine (recordEngine.get());
-        }
-    }
-    else
-    {
-        recordEngine.reset (engine->instantiateEngine());
     }
 }
