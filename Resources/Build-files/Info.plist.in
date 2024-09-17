@@ -10,9 +10,9 @@
     <key>CFBundleIdentifier</key>
     <string>org.open-ephys.gui</string>
     <key>CFBundleName</key>
-    <string>open-ephys</string>
+    <string>Open Ephys GUI</string>
     <key>CFBundleDisplayName</key>
-    <string>open-ephys</string>
+    <string>Open Ephys GUI</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>
