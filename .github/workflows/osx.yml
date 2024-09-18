@@ -49,7 +49,7 @@ jobs:
       run: |
         cd Build/Release
         mkdir open-ephys
-        mv open-ephys.app/ open-ephys
+        mv Open\ Ephys\ GUI.app open-ephys
 
         # Turn our base64-encoded certificate back to a regular .p12 file
         echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
@@ -62,9 +62,9 @@ jobs:
         security unlock-keychain -p $MACOS_CI_KEYCHAIN_PWD build.keychain
         security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
         security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_CI_KEYCHAIN_PWD build.keychain
-        /usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" -v open-ephys/open-ephys.app --deep --strict --timestamp --options=runtime
+        /usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" -v open-ephys/Open\ Ephys\ GUI.app --deep --strict --timestamp --options=runtime
 
-        /usr/bin/codesign -dv --verbose=4 open-ephys/open-ephys.app
+        /usr/bin/codesign -dv --verbose=4 open-ephys/Open\ Ephys\ GUI.app
 
         # Store the notarization credentials so that we can prevent a UI password dialog from blocking the CI
 
@@ -76,7 +76,7 @@ jobs:
         # notarization service
 
         echo "Creating temp notarization archive"
-        /usr/bin/ditto -c -k --sequesterRsrc --keepParent open-ephys/open-ephys.app open-ephys.zip
+        /usr/bin/ditto -c -k --sequesterRsrc --keepParent open-ephys/Open\ Ephys\ GUI.app open-ephys.zip
 
         # Here we send the notarization request to the Apple's Notarization service, waiting for the result.
         # This typically takes a few seconds inside a CI environment, but it might take more depending on the App
@@ -91,7 +91,7 @@ jobs:
         echo "Attach staple"
         rm -r open-ephys/*
         /usr/bin/ditto -x -k open-ephys.zip open-ephys
-        xcrun stapler staple open-ephys/open-ephys.app
+        xcrun stapler staple open-ephys/Open\ Ephys\ GUI.app
 
         zipfile=open-ephys-v1.0.0-dev-mac.zip
         /usr/bin/ditto -c -k --sequesterRsrc --keepParent open-ephys $zipfile
@@ -111,7 +111,7 @@ jobs:
       run: |
         cd Build/Release
         mkdir open-ephys
-        mv open-ephys.app/ open-ephys
+        mv Open\ Ephys\ GUI.app open-ephys
 
         # Turn our base64-encoded certificate back to a regular .p12 file
         echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
@@ -124,9 +124,9 @@ jobs:
         security unlock-keychain -p $MACOS_CI_KEYCHAIN_PWD build.keychain
         security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
         security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_CI_KEYCHAIN_PWD build.keychain
-        /usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" -v open-ephys/open-ephys.app --deep --strict --timestamp --options=runtime
+        /usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" -v open-ephys/Open\ Ephys\ GUI.app --deep --strict --timestamp --options=runtime
 
-        /usr/bin/codesign -dv --verbose=4 open-ephys/open-ephys.app
+        /usr/bin/codesign -dv --verbose=4 open-ephys/Open\ Ephys\ GUI.app
 
         # Store the notarization credentials so that we can prevent a UI password dialog from blocking the CI
 
@@ -138,7 +138,7 @@ jobs:
         # notarization service
 
         echo "Creating temp notarization archive"
-        /usr/bin/ditto -c -k --sequesterRsrc --keepParent open-ephys/open-ephys.app open-ephys.zip
+        /usr/bin/ditto -c -k --sequesterRsrc --keepParent open-ephys/Open\ Ephys\ GUI.app open-ephys.zip
 
         # Here we send the notarization request to the Apple's Notarization service, waiting for the result.
         # This typically takes a few seconds inside a CI environment, but it might take more depending on the App
@@ -153,7 +153,7 @@ jobs:
         echo "Attach staple"
         rm -r open-ephys/*
         /usr/bin/ditto -x -k open-ephys.zip open-ephys
-        xcrun stapler staple open-ephys/open-ephys.app
+        xcrun stapler staple open-ephys/Open\ Ephys\ GUI.app
 
         zipfile=open-ephys-v1.0.0-alpha.1-mac.zip
         /usr/bin/ditto -c -k --sequesterRsrc --keepParent open-ephys $zipfile
@@ -163,13 +163,13 @@ jobs:
         # Create a DMG installer
         brew install create-dmg && create-dmg \
           --volname "Open-Ephys Installer" \
-          --volicon "open-ephys/open-ephys.app/Contents/Resources/Icon.icns" \
-          --background "open-ephys/open-ephys.app/Contents/Resources/dmg_background.png" \
+          --volicon "open-ephys/Open Ephys GUI.app/Contents/Resources/Icon.icns" \
+          --background "open-ephys/Open Ephys GUI.app/Contents/Resources/dmg_background.png" \
           --window-pos 300 0 \
           --window-size 688 416 \
           --icon-size 128 \
-          --icon "open-ephys.app" 200 190 \
-          --hide-extension "Open-Ephys.app" \
+          --icon "Open Ephys GUI.app" 200 190 \
+          --hide-extension "Open Ephys GUI.app" \
           --app-drop-link 500 188 \
           "Open-Ephys-Installer.dmg" \
           "open-ephys/"
