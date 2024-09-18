@@ -77,6 +77,7 @@ public:
 
 private:
     String textString;
+    Path latencySvgPath;
 };
 
 /**

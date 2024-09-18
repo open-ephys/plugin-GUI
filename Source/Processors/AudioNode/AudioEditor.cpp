@@ -36,10 +36,7 @@ MuteButton::MuteButton()
     offimage = ImageCache::getFromMemory (BinaryData::muteoff_png, BinaryData::muteoff_pngSize);
     onimage = ImageCache::getFromMemory (BinaryData::muteon_png, BinaryData::muteon_pngSize);
 
-    setImages (false, true, true, offimage, 1.0f, 
-        findColour (ThemeColours::controlPanelText), offimage, 0.5f, 
-        findColour (ThemeColours::controlPanelText).withAlpha (0.5f), onimage, 0.7f, 
-        findColour (ThemeColours::controlPanelText).withAlpha (0.7f));
+    setImages (false, true, true, offimage, 1.0f, findColour (ThemeColours::controlPanelText), offimage, 0.5f, findColour (ThemeColours::controlPanelText).withAlpha (0.5f), onimage, 0.7f, findColour (ThemeColours::controlPanelText).withAlpha (0.7f));
 
     setClickingTogglesState (true);
 
@@ -48,10 +45,7 @@ MuteButton::MuteButton()
 
 void MuteButton::updateImages()
 {
-    setImages (false, true, true, offimage, 1.0f, 
-        findColour (ThemeColours::controlPanelText), offimage, 0.5f, 
-        findColour (ThemeColours::controlPanelText).withAlpha (0.5f), onimage, 0.7f, 
-        findColour (ThemeColours::controlPanelText).withAlpha (0.7f));
+    setImages (false, true, true, offimage, 1.0f, findColour (ThemeColours::controlPanelText), offimage, 0.5f, findColour (ThemeColours::controlPanelText).withAlpha (0.5f), onimage, 0.7f, findColour (ThemeColours::controlPanelText).withAlpha (0.7f));
 }
 
 AudioWindowButton::AudioWindowButton()
@@ -61,19 +55,25 @@ AudioWindowButton::AudioWindowButton()
 
     textString = ":AUDIO";
     setTooltip ("Change the buffer size");
+
+    String svgPathString = "M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0 M12 7v5l3 3";
+
+    latencySvgPath = Drawable::parseSVGPath (svgPathString);
 }
 
 void AudioWindowButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    if (getToggleState())
-        g.setColour (Colours::yellow);
-    else
-        g.setColour (findColour (ThemeColours::controlPanelText));
+    float alpha = isMouseOver ? 0.6f : 1.0f;
 
-    const bool isLatencyLabelVisible = getParentComponent()->getWidth() >= 450;
-    auto textToDraw = isLatencyLabelVisible ? textString : textString.fromLastOccurrenceOf (":", false, true);
+    if (getToggleState())
+        g.setColour (Colours::yellow.withAlpha (alpha));
+    else
+        g.setColour (findColour (ThemeColours::controlPanelText).withAlpha (alpha));
+
+    g.strokePath (latencySvgPath, PathStrokeType (1.5f), latencySvgPath.getTransformToScaleToFit (5, 7, 14, 14, true));
+
     g.setFont (FontOptions ("Silkscreen", "Regular", 14));
-    g.drawSingleLineText (textToDraw, 0, 15);
+    g.drawFittedText (textString, 25, 0, getWidth() - 30, getHeight(), Justification::centredLeft, 1);
 }
 
 void AudioWindowButton::setText (const String& newText)
@@ -128,7 +128,7 @@ void AudioEditor::resized()
 
     // Since width of the label on button is always the same, we should reserve it.
     const bool isLatencyLabelVisible = width >= 450;
-    const int audioWindowButtonWidth = isLatencyLabelVisible ? 110 : 60;
+    const int audioWindowButtonWidth = 68;
     const int gateLabelWidth = 45;
 
     const int availableWidth = width - audioWindowButtonWidth - gateLabelWidth;
@@ -140,13 +140,13 @@ void AudioEditor::resized()
     muteButton->setBounds (margin, 5, 20, 20);
     volumeSlider->setBounds (margin + 30, sliderY, sliderWidth, sliderHeight);
     noiseGateSlider->setBounds (volumeSlider->getRight() + margin + gateLabelWidth, sliderY, sliderWidth, sliderHeight);
-    audioWindowButton->setBounds (width - audioWindowButtonWidth + 2, 5, audioWindowButtonWidth, height);
+    audioWindowButton->setBounds (width - audioWindowButtonWidth + 2, 2, audioWindowButtonWidth - 4, height - 4);
 }
 
 void AudioEditor::updateBufferSizeText()
 {
     String t = String (AccessClass::getAudioComponent()->getBufferSizeMs());
-    t = "Latency: " + t + " ms";
+    t = t + " ms";
 
     audioWindowButton->setText (t);
 }
