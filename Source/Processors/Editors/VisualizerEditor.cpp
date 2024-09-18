@@ -237,7 +237,6 @@ void VisualizerEditor::checkForCanvas()
 void VisualizerEditor::saveCustomParametersToXml (XmlElement* xml)
 {
     xml->setAttribute ("Type", "Visualizer");
-    xml->setAttribute ("tabText", tabText);
 
     XmlElement* tabButtonState = xml->createNewChildElement (EDITOR_TAG_TAB);
     tabButtonState->setAttribute ("Active", tabSelector->getToggleState());
@@ -268,8 +267,6 @@ void VisualizerEditor::saveCustomParametersToXml (XmlElement* xml)
 void VisualizerEditor::loadCustomParametersFromXml (XmlElement* xml)
 {
     bool canvasHidden = false;
-
-    tabText = xml->getStringAttribute ("tabText", tabText);
 
     for (auto* xmlNode : xml->getChildIterator())
     {

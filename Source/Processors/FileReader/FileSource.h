@@ -38,7 +38,7 @@ struct EventInfo
 {
     std::vector<int16> channels;
     std::vector<int16> channelStates;
-    std::vector<int64> sampleNumbers;
+    std::vector<int64> timestamps;
     std::vector<String> text;
 };
 
@@ -74,22 +74,20 @@ public:
     virtual void updateActiveRecord (int index) = 0;
 
     /** Seek to a specific sample number within the active recording */
-    virtual void seekTo (int64 sampleNumber) = 0;
+    virtual void seekTo (int64 sample) = 0;
 
-    /** Read in nSamples of float data into a temporary buffer; 
-    return the number of samples actually read 
-    
-    Buffer is structured as sample1_channel1, sample1_channel2, ... sample2_channel1, sample2_channel2, ...
+    /** Read in nSamples of int16 data into a temporary buffer; return the number of samples actually read */
+    virtual int readData (int16* buffer, int nSamples) = 0;
 
-    */
-    virtual int readData (float* buffer, int nSamples) = 0;
+    /** Convert nSamples of data from int16 to float */
+    virtual void processChannelData (int16* inBuffer, float* outBuffer, int channel, int64 nSamples) = 0;
 
     /** Add info about events occurring within a sample range */
-    virtual void processEventData (EventInfo& info, int64 fromSampleNumber, int64 toSampleNumber) = 0;
+    virtual void processEventData (EventInfo& info, int64 startTimestamp, int64 stopTimestamp) = 0;
 
     // ------------------------------------------------------------
-    //                   VIRTUAL METHODS
-    //       (can optionally be overridden by sub-classes)
+    //                   VIRTUAL METHOD
+    //       (can optionally be overriden by sub-classes)
     // ------------------------------------------------------------
 
     /** Return false if file is not able to be opened */
@@ -145,8 +143,8 @@ public:
     /** Get the event information for the current stream */
     const EventInfo& getEventInfo();
 
-    /** Keeps track of how many times the recording has looped */
-    int64 loopCount = 0;
+    /** Keep track of how many times the recording has looped */
+    int64 loopCount;
 
 protected:
     /** Holds the name of the current stream */
@@ -159,17 +157,17 @@ protected:
         Array<RecordedChannelInfo> channels;
         int64 numSamples;
         float sampleRate;
-        int64 startSampleNumber;
+        int64 startTimestamp;
     };
     Array<RecordInfo> infoArray;
 
     /** Holds information about event channels in a recording */
     std::map<String, EventInfo> eventInfoMap;
 
-    bool fileOpened = false;
-    int numRecords = 0;
-    Atomic<int> activeRecord = -1; // atomic to protect against threaded data race in FileReader
-    String filename = "";
+    bool fileOpened;
+    int numRecords;
+    Atomic<int> activeRecord; // atomic to protect against threaded data race in FileReader
+    String filename;
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileSource);

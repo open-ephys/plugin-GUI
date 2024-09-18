@@ -24,6 +24,7 @@
 #include "FileSource.h"
 
 FileSource::FileSource()
+    : fileOpened (false), numRecords (0), activeRecord (-1), filename (""), loopCount (0)
 {
 }
 

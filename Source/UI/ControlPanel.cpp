@@ -33,81 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "LookAndFeel/CustomLookAndFeel.h"
 
 const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
-
-NewDirectoryButton::NewDirectoryButton() : Button ("NewDirectory")
-{
-    //XmlDocument xmlDoc (R"(
-    //    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"
-    //    fill="currentColor"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"
-    //   stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder-plus">
-    // <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v3.5" />
-    //<path d="M16 19h6" /><path d="M19 16v6" /></svg>)");
-
-    XmlDocument xmlDoc (R"(
-        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-folder"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 3a1 1 0 0 1 .608 .206l.1 .087l2.706 2.707h6.586a3 3 0 0 1 2.995 2.824l.005 .176v8a3 3 0 0 1 -2.824 2.995l-.176 .005h-14a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-11a3 3 0 0 1 2.824 -2.995l.176 -.005h4z" /></svg>)");
-
-    //XmlDocument xmlDoc (R"(
-    //   <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-lock"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 2a5 5 0 0 1 5 5v3a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-10a3 3 0 0 1 -3 -3v-6a3 3 0 0 1 3 -3v-3a5 5 0 0 1 5 -5m0 12a2 2 0 0 0 -1.995 1.85l-.005 .15a2 2 0 1 0 2 -2m0 -10a3 3 0 0 0 -3 3v3h6v-3a3 3 0 0 0 -3 -3" /></svg>)");
-
-    newDirectoryIcon = Drawable::createFromSVG (*xmlDoc.getDocumentElement().get());
-
-    newDirectoryIcon->replaceColour (Colours::black, Colours::black);
-
-    setClickingTogglesState (true);
-}
-
-void NewDirectoryButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
-{
-    Colour buttonColour;
-
-    if (getToggleState())
-        buttonColour = findColour (ThemeColours::highlightedFill);
-    else
-        buttonColour = findColour (ThemeColours::controlPanelBackground);
-
-    if (isMouseOver)
-        buttonColour = buttonColour.brighter (0.2f);
-
-    g.setColour (Colours::black);
-    g.fillRoundedRectangle (0, 0, getWidth(), getHeight(), 5);
-    g.setColour (buttonColour);
-    g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 3);
-
-    g.setColour (Colours::black);
-    newDirectoryIcon->drawWithin (g, juce::Rectangle<float> (2, 2.5, 18, 18), RectanglePlacement::centred, 1.0f);
-    g.setColour (buttonColour);
-    g.drawRect (10, 9, 2, 6);
-    g.drawRect (8, 11, 6, 2);
-}
-
-ForceNewDirectoryButton::ForceNewDirectoryButton() : Button ("ForceNewDirectory")
-{
-    XmlDocument xmlDoc (R"(
-       <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-lock"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 2a5 5 0 0 1 5 5v3a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-10a3 3 0 0 1 -3 -3v-6a3 3 0 0 1 3 -3v-3a5 5 0 0 1 5 -5m0 12a2 2 0 0 0 -1.995 1.85l-.005 .15a2 2 0 1 0 2 -2m0 -10a3 3 0 0 0 -3 3v3h6v-3a3 3 0 0 0 -3 -3" /></svg>)");
-
-    forceNewDirectoryIcon = Drawable::createFromSVG (*xmlDoc.getDocumentElement().get());
-
-    setClickingTogglesState (true);
-}
-
-void ForceNewDirectoryButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
-{
-    Colour buttonColour;
-
-    if (getToggleState())
-        buttonColour = findColour (ThemeColours::highlightedFill);
-    else
-        buttonColour = findColour (ThemeColours::controlPanelText);
-
-    if (isMouseOver)
-        buttonColour = buttonColour.brighter (0.2f);
-
-    forceNewDirectoryIcon->replaceColour (Colours::black, buttonColour);
-
-    forceNewDirectoryIcon->drawWithin (g, getLocalBounds().toFloat(), RectanglePlacement::centred, 1.0f);
-
-    forceNewDirectoryIcon->replaceColour (buttonColour, Colours::black);
-}
+//const int SIZE_AUDIO_EDITOR_MIN_WIDTH = 250;
 
 FilenameEditorButton::FilenameEditorButton()
     : TextButton ("Filename Editor")
@@ -191,8 +117,7 @@ void RecordButton::updateImages (bool recordingIsActive)
     setImages (&normal, &over, &down);
 }
 
-CPUMeter::CPUMeter() : Label ("CPU Meter", "0.0"),
-                       cpu (0.0f)
+CPUMeter::CPUMeter() : Label ("CPU Meter", "0.0"), cpu (0.0f)
 {
     font = FontOptions ("Silkscreen", "Regular", 14);
 
@@ -273,7 +198,6 @@ void Clock::drawTime (Graphics& g)
         int64 now = Time::currentTimeMillis();
         int64 diff = now - lastTime;
         totalTime += diff;
-        latestAcquisitionTime += diff;
 
         if (isRecording)
         {
@@ -287,27 +211,12 @@ void Clock::drawTime (Graphics& g)
     int s;
     int h;
 
-    int64 timeToDraw;
-
-    if (referenceTime == ACQUISITION_START)
-    {
-        timeToDraw = latestAcquisitionTime;
-    }
-    else
-    {
-        if (isRecording)
-            timeToDraw = totalRecordingTime;
-        else
-            timeToDraw = totalTime;
-    }
-
-    h = floor (timeToDraw / 3600000.0f);
-    m = floor (timeToDraw / 60000.0);
-    s = floor ((timeToDraw - m * 60000.0) / 1000.0);
-
     if (isRecording)
     {
         g.setColour (Colours::black);
+        h = floor (totalRecordingTime / 3600000.0f);
+        m = floor (totalRecordingTime / 60000.0);
+        s = floor ((totalRecordingTime - m * 60000.0) / 1000.0);
     }
     else
     {
@@ -315,6 +224,10 @@ void Clock::drawTime (Graphics& g)
             g.setColour (findColour (ThemeColours::controlPanelText));
         else
             g.setColour (findColour (ThemeColours::controlPanelText).withAlpha (0.8f));
+
+        h = floor (totalTime / 3600000.0f);
+        m = floor (totalTime / 60000.0);
+        s = floor ((totalTime - m * 60000.0) / 1000.0);
     }
 
     String timeString = "";
@@ -356,11 +269,6 @@ void Clock::start()
         isRunning = true;
         lastTime = Time::currentTimeMillis();
     }
-}
-
-void Clock::resetAcquisitionTime()
-{
-    latestAcquisitionTime = 0;
 }
 
 void Clock::resetRecordingTime()
@@ -406,13 +314,6 @@ void Clock::setMode (Mode m)
     repaint();
 }
 
-void Clock::setReferenceTime (ReferenceTime t)
-{
-    referenceTime = t;
-
-    repaint();
-}
-
 void Clock::mouseDown (const MouseEvent& e)
 {
     if (e.mods.isRightButtonDown())
@@ -420,13 +321,10 @@ void Clock::mouseDown (const MouseEvent& e)
         PopupMenu m;
         m.setLookAndFeel (&getLookAndFeel());
 
-        m.addItem (1, "Display mode", false);
+        m.addItem (1, "Clock mode", false);
+        m.addSeparator();
         m.addItem (2, "Default", true, mode == DEFAULT);
         m.addItem (3, "HH:MM:SS", true, mode == HHMMSS);
-        m.addSeparator();
-        m.addItem (4, "Reference time", false);
-        m.addItem (5, "Cumulative", true, referenceTime == CUMULATIVE);
-        m.addItem (6, "Acquisition start", true, referenceTime == ACQUISITION_START);
 
         int result = m.showMenu (PopupMenu::Options {}.withStandardItemHeight (20));
 
@@ -438,21 +336,11 @@ void Clock::mouseDown (const MouseEvent& e)
         {
             setMode (HHMMSS);
         }
-        else if (result == 5)
-        {
-            setReferenceTime (CUMULATIVE);
-		}
-        else if (result == 6)
-        {
-            setReferenceTime (ACQUISITION_START);
-		}
     }
 }
 
 ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool isConsoleApp_)
-    : graph (graph_),
-      audio (audio_),
-      isConsoleApp (isConsoleApp_)
+    : graph (graph_), audio (audio_), isConsoleApp (isConsoleApp_), initialize (true), open (false), lastEngineIndex (-1), forceRecording (false)
 {
     AccessClass::setControlPanel (this);
 
@@ -495,19 +383,12 @@ ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool
     recordOptionsButton->setTooltip ("Configure options for selected record engine");
     addChildComponent (recordOptionsButton.get());
 
-    newDirectoryButton = std::make_unique<NewDirectoryButton>();
-    newDirectoryButton->setEnabled (false);
+    newDirectoryButton = std::make_unique<UtilityButton> ("+");
+    newDirectoryButton->setFont (FontOptions ("Silkscreen", "Regular", 15));
+    newDirectoryButton->setEnabledState (false);
     newDirectoryButton->addListener (this);
-    newDirectoryButton->setTooltip ("Start a new data directory for next recording");
-    newDirectoryButton->setToggleState (true, sendNotification);
-    newDirectoryButton->setClickingTogglesState (true);
+    newDirectoryButton->setTooltip ("Start a new data directory");
     addChildComponent (newDirectoryButton.get());
-
-    forceNewDirectoryButton = std::make_unique<ForceNewDirectoryButton>();
-    forceNewDirectoryButton->setEnabled (true);
-    forceNewDirectoryButton->addListener (this);
-    forceNewDirectoryButton->setTooltip ("Force a new data directory for each recording");
-    addChildComponent (forceNewDirectoryButton.get());
 
     clock = std::make_unique<Clock>();
     cpuMeter = std::make_unique<CPUMeter>();
@@ -604,28 +485,6 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
         return;
     }
 
-    if (audio->getSampleRate() < 44100)
-    {
-        playButton->setToggleState (false, dontSendNotification);
-        recordButton->setToggleState (false, dontSendNotification);
-
-        String errorMsg = "Sample rate too low. Unable to start acquisition!";
-        LOGE (errorMsg);
-
-        if (! isConsoleApp)
-        {
-            errorMsg += "\n\nThe sample rate must be at least 44.1 kHz to process data. "
-                        "Try changing the sample rate in the audio configuration window (click on the \"Latency\" button in the Control Panel) "
-                        "to a value of 44.1 kHz or higher. If no such option is available, try changing the output device type.";
-
-            AlertWindow::showMessageBox (AlertWindow::WarningIcon,
-                                         "Acquisition Error!",
-                                         errorMsg);
-        }
-
-        return;
-    }
-
     if (! isConsoleApp && audioEditor->isAudioConfigurationWindowVisible())
     {
         audioEditor->disable();
@@ -636,32 +495,31 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
     {
         graph->updateConnections();
 
-        graph->startAcquisition(); // inform processors that acquisition will start
-
-        if (recordingShouldAlsoStart)
+        if (audio->beginCallbacks()) // starts acquisition callbacks
         {
-            startRecording();
-            playButton->setToggleState (true, dontSendNotification);
+            if (recordingShouldAlsoStart)
+            {
+                startRecording();
+                playButton->setToggleState (true, dontSendNotification);
+            }
+
+            if (! isConsoleApp)
+            {
+                playButton->updateImages (true);
+
+                audioEditor->disable();
+
+                clock->start(); // starts the clock
+
+                stopTimer();
+                startTimer (250); // refresh every 250 ms
+
+                recordSelector->setEnabled (false); // why is this outside the "if" statement?
+                recordOptionsButton->setEnabled (false);
+            }
+
+            graph->startAcquisition(); // start data flow
         }
-
-        if (! isConsoleApp)
-        {
-            playButton->updateImages (true);
-
-            audioEditor->disable();
-
-            clock->start(); // starts the clock
-
-            stopTimer();
-            startTimer (250); // refresh every 250 ms
-
-            recordSelector->setEnabled (false); // why is this outside the "if" statement?
-            recordOptionsButton->setEnabled (false);
-        }
-
-        clock->resetAcquisitionTime();
-        audio->beginCallbacks(); // starts acquisition callbacks
-        
     }
 }
 
@@ -770,6 +628,10 @@ bool ControlPanel::setSelectedRecordEngineId (String id)
 
 void ControlPanel::createPaths()
 {
+    /*  int w = getWidth() - 325;
+    if (w > 150)
+    w = 150;*/
+
     int w = getWidth() - 435;
     if (w > 22)
         w = 22;
@@ -815,7 +677,7 @@ void ControlPanel::paint (Graphics& g)
 void ControlPanel::resized()
 {
     const int w = getWidth();
-    const int h = 32;
+    const int h = 32; //getHeight();
 
     // We have 3 possible layout schemes:
     // when there are 1, 2 or 3 rows within which our elements are placed.
@@ -845,10 +707,12 @@ void ControlPanel::resized()
     {
         case 2:
             meterComponentsY += offset1;
+            //meterComponentsWidth = w / 2 - meterComponentsMargin * 2 - 12;
             break;
 
         case 3:
             meterComponentsY += offset1 + offset2;
+            //meterComponentsWidth = w / 2 - meterComponentsMargin * 2 - 12;
             break;
 
         default:
@@ -922,31 +786,25 @@ void ControlPanel::resized()
     {
         int topBound = getHeight() - h + 10 - 5;
 
-        /* Record engine selector */
         recordSelector->setBounds ((w - 435) > 40 ? 35 : w - 450, topBound, 125, h - 10);
         recordSelector->setVisible (true);
 
-        /* Shows the default root recording directory for new RecordNodes */
-        filenameComponent->setBounds (165, topBound, w - 510, h - 10);
+        recordOptionsButton->setBounds ((w - 435) > 40 ? 140 : w - 350, topBound, h - 10, h - 10);
+        recordOptionsButton->setVisible (false);
+
+        filenameComponent->setBounds (165, topBound, w - 500, h - 10);
         filenameComponent->setVisible (true);
 
-        /* Shows the file name / format to be used for the next recording */
-        filenameText->setBounds (165 + w - 504, topBound, 280, h - 10);
-        filenameText->setVisible (true);
-
-        /* Toggle state determines whether a new root directory will be created for the next recording */
-        newDirectoryButton->setBounds (w - h - 22, topBound, h - 10, h - 10);
+        newDirectoryButton->setBounds (w - h + 4, topBound, h - 10, h - 10);
         newDirectoryButton->setVisible (true);
 
-        /* Toggle state determines whether new root directories will automatically be created for each recording */
-        forceNewDirectoryButton->setBounds (w - h + 4, topBound, h - 10, h - 10);
-        forceNewDirectoryButton->setVisible (true);
+        filenameText->setBounds (165 + w - 490, topBound, 280, h - 10);
+        filenameText->setVisible (true);
     }
     else
     {
         filenameComponent->setVisible (false);
         newDirectoryButton->setVisible (false);
-        forceNewDirectoryButton->setVisible (false);
         filenameText->setVisible (false);
         recordSelector->setVisible (false);
         recordOptionsButton->setVisible (false);
@@ -971,15 +829,14 @@ void ControlPanel::labelTextChanged (Label* label)
     {
         node->newDirectoryNeeded = true;
     }
-
+    newDirectoryButton->setEnabledState (false);
     clock->resetRecordingTime();
+
+    // filenameText->setColour(Label::textColourId, Colours::grey);
 }
 
 void ControlPanel::startRecording()
 {
-    if (newDirectoryButton->getToggleState())
-        clock->resetRecordingTime();
-
     clock->startRecording(); // turn on recording
 
     // filenameText->setColour(Label::textColourId, Colours::black);
@@ -988,7 +845,7 @@ void ControlPanel::startRecording()
 
     showHideRecordingOptionsButton->setCustomBackground (true, Colour (255, 0, 0));
 
-    if (newDirectoryButton->getToggleState()) // new directory is required
+    if (! newDirectoryButton->getEnabledState()) // new directory is required
     {
         for (auto& field : filenameFields)
         {
@@ -1001,6 +858,8 @@ void ControlPanel::startRecording()
         {
             CoreServices::RecordNode::createNewRecordingDirectory (recordNodeId);
         }
+
+        //std::cout << "Recording directory name: " << recordingDirectoryName << std::endl;
     }
 
     graph->setRecordState (true);
@@ -1010,22 +869,10 @@ void ControlPanel::startRecording()
 
 void ControlPanel::stopRecording()
 {
-    hasRecorded = true;
-
     graph->setRecordState (false); // turn off recording in processor graph
 
     clock->stopRecording();
-
-    if (forceNewDirectoryButton->getToggleState())
-    {
-        newDirectoryButton->setToggleState (true, dontSendNotification);
-        newDirectoryButton->setEnabled (false);
-    }
-    else
-    {
-        newDirectoryButton->setToggleState (false, dontSendNotification);
-        newDirectoryButton->setEnabled (true);
-    }
+    newDirectoryButton->setEnabledState (true);
 
     recordButton->updateImages (false);
     showHideRecordingOptionsButton->setCustomBackground (false, findColour (ThemeColours::windowBackground));
@@ -1042,8 +889,8 @@ void ControlPanel::componentBeingDeleted (Component& component)
     filenameText->setButtonText (generateFilenameFromFields (true));
 
     //TODO: Assumes any change in filename settings should start a new directory next recording
-    if (! newDirectoryButton->getToggleState())
-        newDirectoryButton->setToggleState (true, dontSendNotification);
+    if (newDirectoryButton->getEnabledState())
+        buttonClicked (newDirectoryButton.get());
 
     CoreServices::saveRecoveryConfig();
 
@@ -1061,7 +908,7 @@ void ControlPanel::buttonClicked (Button* button)
     if (button == showHideRecordingOptionsButton.get())
     {
         openState (button->getToggleState());
-        AccessClass::getUIComponent()->resized();
+        repaint();
         return;
     }
 
@@ -1080,25 +927,14 @@ void ControlPanel::buttonClicked (Button* button)
         return;
     }
 
-    if (button == newDirectoryButton.get())
+    if (button == newDirectoryButton.get()
+        && newDirectoryButton->getEnabledState())
     {
-        //Setting the button state only takes effect on the next recording
+        newDirectoryButton->setEnabledState (false);
+        clock->resetRecordingTime();
 
-        return;
-    }
+        // filenameText->setColour(Label::textColourId, Colours::grey);
 
-    if (button == forceNewDirectoryButton.get())
-    {
-        if (button->getToggleState())
-        {
-            newDirectoryButton->setToggleState (true, dontSendNotification);
-            newDirectoryButton->setEnabled (false);
-        }
-        else
-        {
-            if (hasRecorded)
-                newDirectoryButton->setEnabled (true);
-        }
         return;
     }
 
@@ -1191,7 +1027,7 @@ void ControlPanel::setSelectedRecordEngine (int index)
     re = recordEngines[index]->instantiateEngine();
     re->registerManager (recordEngines[index]);
 
-    newDirectoryButton->setEnabled (false);
+    newDirectoryButton->setEnabledState (false);
     clock->resetRecordingTime();
 
     lastEngineIndex = index;
@@ -1252,6 +1088,13 @@ void ControlPanel::refreshMeters()
     }
 }
 
+bool ControlPanel::keyPressed (const KeyPress& key)
+{
+    LOGD ("Control panel received", key.getKeyCode());
+
+    return false;
+}
+
 void ControlPanel::toggleState()
 {
     open = ! open;
@@ -1267,8 +1110,6 @@ void ControlPanel::saveStateToXml (XmlElement* xml)
     controlPanelState->setAttribute ("recordPath", filenameComponent->getCurrentFile().getFullPathName());
     controlPanelState->setAttribute ("recordEngine", recordEngines[recordSelector->getSelectedId() - 1]->getID());
     controlPanelState->setAttribute ("clockMode", (int) clock->getMode());
-    controlPanelState->setAttribute ("clockReferenceTime", (int) clock->getReferenceTime());
-    controlPanelState->setAttribute ("forceNewDirectory", forceNewDirectoryButton->getToggleState());
 
     if (! isConsoleApp)
         audioEditor->saveStateToXml (xml);
@@ -1300,15 +1141,9 @@ void ControlPanel::loadStateFromXml (XmlElement* xml)
             }
 
             clock->setMode ((Clock::Mode) xmlNode->getIntAttribute ("clockMode", Clock::Mode::DEFAULT));
-            clock->setReferenceTime ((Clock::ReferenceTime) xmlNode->getIntAttribute ("clockReferenceTime", Clock::ReferenceTime::CUMULATIVE));
 
             bool isOpen = xmlNode->getBoolAttribute ("isOpen");
             openState (isOpen);
-
-            if (xmlNode->getBoolAttribute ("forceNewDirectory"))
-                forceNewDirectoryButton->setToggleState (true, dontSendNotification);
-            else
-                forceNewDirectoryButton->setToggleState (false, dontSendNotification);
         }
         else if (xmlNode->hasTagName ("RECORDENGINES"))
         {
@@ -1358,9 +1193,7 @@ String ControlPanel::getRecordingDirectoryName()
 
 void ControlPanel::createNewRecordingDirectory()
 {
-    //TODO: Remove dependency on button states/callbacks
-    MessageManager::callAsync ([this]
-                               { buttonClicked (newDirectoryButton.get()); });
+    MessageManager::callAsync ([this] { buttonClicked (newDirectoryButton.get()); });
 }
 
 String ControlPanel::getRecordingDirectoryPrependText()
@@ -1493,6 +1326,8 @@ void ControlPanel::setRecordingDirectoryBaseText (String text)
 
 String ControlPanel::generateFilenameFromFields (bool usePlaceholderText)
 {
+    //bool checkForExistingFilename = false;
+
     String filename = "";
 
     for (auto& field : filenameFields) //loops in order through prepend, main, append
@@ -1500,8 +1335,7 @@ String ControlPanel::generateFilenameFromFields (bool usePlaceholderText)
         filename += field->getNextValue (usePlaceholderText);
     }
 
-    MessageManager::callAsync ([this, filename]
-                               { filenameText->setButtonText (filename); });
+    MessageManager::callAsync ([this, filename] { filenameText->setButtonText (filename); });
 
     return filename;
 }

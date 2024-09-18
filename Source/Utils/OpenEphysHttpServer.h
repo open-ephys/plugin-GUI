@@ -234,21 +234,6 @@ public:
             ret["usage"] = AccessClass::getAudioComponent()->deviceManager.getCpuUsage();
             res.set_content(ret.dump(), "application/json"); });
 
-        svr_->Get ("/api/latency", [this] (const httplib::Request&, httplib::Response& res)
-                   {
-            Array<GenericProcessor*> processors = graph_->getListOfProcessors();
-
-            std::vector<json> processor_latencies_json;
-            for (const auto& processor : processors) {
-                json processor_latency_json;
-                processor_latency_to_json(processor, &processor_latency_json);
-                processor_latencies_json.push_back(processor_latency_json);
-            }
-            json ret;
-            ret["processors"] = processor_latencies_json;
-
-            res.set_content(ret.dump(), "application/json"); });
-
         svr_->Get ("/api/audio/devices", [this] (const httplib::Request&, httplib::Response& res)
                    {
             json ret;
@@ -1484,25 +1469,6 @@ private:
         {
             (*processor_json)["predecessor"] = processor->getSourceNode()->getNodeId();
         }
-    }
-
-    inline static void processor_latency_to_json (GenericProcessor* processor, json* processor_json)
-    {
-        (*processor_json)["id"] = processor->getNodeId();
-        (*processor_json)["name"] = processor->getName().toStdString();
-
-        for (const auto& stream : processor->getDataStreams())
-        {
-            json stream_json;
-            stream_latency_to_json (processor, stream, &stream_json);
-            (*processor_json)["streams"].push_back(stream_json);
-        }
-    }
-
-    inline static void stream_latency_to_json (const GenericProcessor* processor, const DataStream* stream, json* stream_json)
-    {
-        (*stream_json)["name"] = stream->getName().toStdString();
-        (*stream_json)["latency"] = processor->getLatency(stream->getStreamId());
     }
 
     inline GenericProcessor* find_processor (const std::string& id_string)

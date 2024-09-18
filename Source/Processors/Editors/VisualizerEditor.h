@@ -90,7 +90,7 @@ public:
 
     // ------------------------------------------------------------
     //                   VIRTUAL METHODS
-    //       (can optionally be overridden by sub-classes)
+    //       (can optionally be overriden by sub-classes)
     // ------------------------------------------------------------
 
     /** Use this method to save custom editor parameters */

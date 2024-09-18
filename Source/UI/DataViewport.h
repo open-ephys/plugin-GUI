@@ -173,9 +173,6 @@ public:
     /** Called when close button is clicked **/
     void buttonClicked (Button* button) override;
 
-    /** Opens a popup editable label to rename tab */
-    void popupMenuClickOnTab (int tabIndex, const String& tabName);
-
     /** Parent component*/
     DataViewport* dataViewport;
 

@@ -62,29 +62,6 @@ enum SpikePlotType
 #define STEREO_PLOT 1002
 #define SINGLE_PLOT 1001
 
-/** 
-
-    Button to trigger audio monitoring for a given electrode
-
-*/
-
-class MonitorButton : public Button
-{
-public:
-    /** Constructor */
-    MonitorButton();
-
-    /** Destructor */
-    ~MonitorButton() {}
-
-    /** Renders button */
-    void paintButton (Graphics& g, bool isMouseOverButton, bool isButtonDown) override;
-
- private:
-
-     std::unique_ptr<Drawable> headphoneIcon;
-};
-
 /**
 
   Class for drawing the waveforms and projections of incoming spikes
@@ -142,12 +119,6 @@ public:
     void setDisplayThresholdForChannel (int axisNum, float threshold);
     void setDetectorThresholdForChannel (int, float);
 
-    /** Sets the range for all sub-plots */
-    void setRange (int rangeInMicrovolts);
-
-    /** Sets the spike history size for all sub-plots */
-    void setHistorySize (int history);
-
     /** Returns the range for a given channel*/
     float getRangeForChannel (int);
 
@@ -199,7 +170,7 @@ private:
     OwnedArray<WaveAxes> waveAxes;
     OwnedArray<UtilityButton> rangeButtons;
 
-    std::unique_ptr<MonitorButton> monitorButton;
+    std::unique_ptr<UtilityButton> monitorButton;
 
     Array<float> ranges;
 
@@ -297,9 +268,6 @@ public:
     void mouseMove (const MouseEvent& event);
     void mouseExit (const MouseEvent& event);
     void mouseDrag (const MouseEvent& event);
-
-    /** Sets the number of spikes in the history buffer */
-    void setHistorySize (int size);
 
     void setRange (float);
 

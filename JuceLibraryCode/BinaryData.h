@@ -80,10 +80,10 @@ namespace BinaryData
     const int           MergerA01_pngSize = 5609;
 
     extern const char*  MergerA02_png;
-    const int           MergerA02_pngSize = 3569;
+    const int           MergerA02_pngSize = 5712;
 
     extern const char*  MergerB01_png;
-    const int           MergerB01_pngSize = 3583;
+    const int           MergerB01_pngSize = 5818;
 
     extern const char*  MergerB02_png;
     const int           MergerB02_pngSize = 4832;
@@ -101,10 +101,10 @@ namespace BinaryData
     const int           PipelineA01_pngSize = 5396;
 
     extern const char*  PipelineA02_png;
-    const int           PipelineA02_pngSize = 3553;
+    const int           PipelineA02_pngSize = 6533;
 
     extern const char*  PipelineB01_png;
-    const int           PipelineB01_pngSize = 3563;
+    const int           PipelineB01_pngSize = 6205;
 
     extern const char*  PipelineB02_png;
     const int           PipelineB02_pngSize = 5390;

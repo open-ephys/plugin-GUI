@@ -186,9 +186,6 @@ private:
     /** Flag if a new file has been loaded */
     bool gotNewFile;
 
-    /** Flag if the invalid sample rate warning is shown */
-    bool sampleRateWarningShown;
-
     /** Total number of samples played back since most recent start of acquisition */
     int64 playbackSamplePos;
 
@@ -206,9 +203,9 @@ private:
     std::unique_ptr<FileSource> input;
 
     /* Pointer to current front buffer */
-    HeapBlock<float>* readBuffer;
-    HeapBlock<float> bufferA;
-    HeapBlock<float> bufferB;
+    HeapBlock<int16>* readBuffer;
+    HeapBlock<int16> bufferA;
+    HeapBlock<int16> bufferB;
 
     HashMap<String, int> supportedExtensions;
 
@@ -218,14 +215,14 @@ private:
     unsigned int m_bufferSize;
     float m_sysSampleRate;
 
-    HeapBlock<float>* getFrontBuffer();
-    HeapBlock<float>* getBackBuffer();
+    HeapBlock<int16>* getFrontBuffer();
+    HeapBlock<int16>* getBackBuffer();
 
     /** Executes the background thread task */
     void run() override;
 
     /** Reads a chunk of the file that fills an entire buffer cache. */
-    void readAndFillBufferCache (HeapBlock<float>& cacheBuffer);
+    void readAndFillBufferCache (HeapBlock<int16>& cacheBuffer);
 
     /** Returns the number of included file sources */
     int getNumBuiltInFileSources() const { return 1; }

@@ -52,7 +52,7 @@ public:
     /** Registers the parameters for a given processor */
     void registerParameters() override;
 
-    /** Returns true if the processor is ready for acquisition */
+    /** Returns true if the processor is ready for acquistion */
     bool isReady() override;
 
     /* Copies samples from the DataThread's DataBuffer into the GUI's processing buffers. */
@@ -129,6 +129,7 @@ private:
 
     int64 sampleNumber = 0;
     double timestamp = -1.0;
+    std::optional<int64> timestampSampleIndex;
 
     OwnedArray<MemoryBlock> eventCodeBuffers;
     Array<uint64> eventStates;

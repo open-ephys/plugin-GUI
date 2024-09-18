@@ -52,8 +52,8 @@
 #define CHANNELS_PER_THREAD 384
 
 /**
-    Class used internally by the RecordNode to count the number of incoming events
-    Primarily useful for debugging purposes
+	Class used internally by the RecordNode to count the number of incoming events
+	Primarily useful for debugging purposes
 */
 class EventMonitor
 {
@@ -84,16 +84,15 @@ public:
 };
 
 /**
-    A specialized processor that saves data from the signal chain
+	A specialized processor that saves data from the signal chain
 
-    Sends data to RecordEngines, which handle the file creation / disk writing
+	Sends data to RecordEngines, which handle the file creation / disk writing
 
-    @see: RecordThread, RecordEngine
+	@see: RecordThread, RecordEngine
 */
 class TESTABLE RecordNode : public GenericProcessor,
-    public SynchronizingProcessor,
-    public FilenameComponentListener,
-    public Timer
+                            public SynchronizingProcessor,
+                            public FilenameComponentListener
 {
 public:
     /** Constructor
@@ -112,19 +111,19 @@ public:
     void registerParameters() override;
 
     /** Initialize */
-    void initialize(bool signalChainIsLoading) override;
+    void initialize (bool signalChainIsLoading) override;
 
     /** Respond to parameter value changes */
-    void parameterValueChanged(Parameter* p) override;
+    void parameterValueChanged (Parameter* p) override;
 
     /** Allow configuration via OpenEphysHttpServer */
-    String handleConfigMessage(const String& msg) override;
+    String handleConfigMessage (const String& msg) override;
 
     /** Writes TEXT messages sent from the MessageCenter to disk */
-    void handleBroadcastMessage(const String& msg, const int64 messageSystemTime) override;
+    void handleBroadcastMessage (const String& msg, const int64 messageSystemTime) override;
 
     /** Update DataQueue block size when Audio Settings buffer size changes */
-    void updateBlockSize(int newBlockSize);
+    void updateBlockSize (int newBlockSize);
 
     /** Creates a custom editor */
     AudioProcessorEditor* createEditor() override;
@@ -148,10 +147,10 @@ public:
     String generateDirectoryName();
 
     /* Creates a new recording directory*/
-    void createNewDirectory(bool resetCounters = false);
+    void createNewDirectory (bool resetCounters = false);
 
     /* Callback for responding to changes in data-directory-related settings*/
-    void filenameComponentChanged(FilenameComponent*);
+    void filenameComponentChanged (FilenameComponent*);
 
     /* Generates a date string to be used in the directory name*/
     String generateDateString() const;
@@ -163,7 +162,7 @@ public:
     int getRecordingNumber() const;
 
     /** Copies incoming data to the record buffer, if recording is active*/
-    void process(AudioBuffer<float>& buffer) override;
+    void process (AudioBuffer<float>& buffer) override;
 
     /** Returns a vector of available record engines*/
     std::vector<RecordEngineManager*> getAvailableRecordEngines();
@@ -172,16 +171,16 @@ public:
     String getEngineId();
 
     /** Sets the engine ID for this record node */
-    void setEngine(String engineId);
+    void setEngine (String engineId);
 
     /** Turns event recording on or off*/
-    void setRecordEvents(bool);
+    void setRecordEvents (bool);
 
     /** Turns spike recording on or off*/
-    void setRecordSpikes(bool);
+    void setRecordSpikes (bool);
 
     /** Sets the parent directory for this Record Node (can be different from default directory) */
-    void setDataDirectory(File);
+    void setDataDirectory (File);
 
     /** Returns the parent directory for this Record Node (can be different from default directory) */
     File getDataDirectory();
@@ -193,7 +192,7 @@ public:
     bool getRecordingStatus() const;
 
     /** Called by handleEvent() */
-    void writeSpike(const Spike* spike, const SpikeChannel* spikeElectrode);
+    void writeSpike (const Spike* spike, const SpikeChannel* spikeElectrode);
 
     /** Called by the ControlPanel to determine the amount of space
       left in the current dataDirectory.
@@ -201,8 +200,8 @@ public:
     float getFreeSpace() const;
 
     /** Called by CoreServices to determine the amount of space
-        in kilobytes in the current dataDirectory.
-    */
+		in kilobytes in the current dataDirectory.
+	*/
     float getFreeSpaceKilobytes() const;
 
     /** Returns true if all streams within this Record Node are synchronized*/
@@ -241,37 +240,32 @@ public:
 
     OwnedArray<RecordEngine> previousEngines;
 
-    const int getEventChannelIndex(EventChannel*);
-    const int getSpikeChannelIndex(SpikeChannel*);
+    const int getEventChannelIndex (EventChannel*);
+    const int getSpikeChannelIndex (SpikeChannel*);
 
     /** Save parameters*/
-    void saveCustomParametersToXml(XmlElement* xml);
+    void saveCustomParametersToXml (XmlElement* xml);
 
     /** Load parameters*/
-    void loadCustomParametersFromXml(XmlElement* xml);
+    void loadCustomParametersFromXml (XmlElement* xml);
 
     DiskSpaceChecker* getDiskSpaceChecker() { return diskSpaceChecker.get(); }
 
     /*sets record engine to parameter pointer; only for testing*/
-    void overrideRecordEngine(RecordEngineManager* engine);
-    /** Used to update sync monitors */
-    void timerCallback() override;
-
-    /** Actual sync monitor update -- can be called independently of timer*/
-    void updateSyncMonitors();
+    void overrideRecordEngine (RecordEngineManager* engine);
 
 private:
     /** Handles other types of events (text, sync texts, etc.) */
-    void handleEvent(const EventChannel* channel, const EventPacket& eventPacket);
+    void handleEvent (const EventChannel* channel, const EventPacket& eventPacket);
 
     /** Forwards TTL events to the EventQueue */
-    void handleTTLEvent(TTLEventPtr event) override;
+    void handleTTLEvent (TTLEventPtr event) override;
 
     /** Writes incoming spikes to disk */
-    void handleSpike(SpikePtr spike) override;
+    void handleSpike (SpikePtr spike) override;
 
     /** Handles incoming timestamp sync messages */
-    virtual void handleTimestampSyncTexts(const EventPacket& packet);
+    virtual void handleTimestampSyncTexts (const EventPacket& packet);
 
     /**RecordEngines loaded**/
     OwnedArray<RecordEngine> engineArray;
@@ -304,7 +298,7 @@ private:
     HeapBlock<float> scaledBuffer;
     HeapBlock<int16> intBuffer;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RecordNode);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordNode);
 };
 
 #endif

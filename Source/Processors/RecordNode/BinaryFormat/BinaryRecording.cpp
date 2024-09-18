@@ -94,8 +94,6 @@ void BinaryRecording::openFiles (File rootFolder, int experimentNumber, int reco
 
         if (streamId != lastStreamId)
         {
-            wroteFirstSampleNumber[streamId] = false;
-            
             firstChannels.add (channelInfo);
             streamIndex++;
 
@@ -184,11 +182,13 @@ void BinaryRecording::openFiles (File rootFolder, int experimentNumber, int reco
         switch (chan->getType())
         {
             case EventChannel::TEXT:
+                LOGD ("Got text channel");
                 eventName = "MessageCenter" + File::getSeparatorString();
                 type = NpyType (BaseType::CHAR, chan->getLength());
                 dataFileName = "text";
                 break;
             case EventChannel::TTL:
+                LOGD ("Got TTL channel");
                 eventName = getProcessorString (chan);
                 if (ttlMap.count (eventName))
                     ttlMap[eventName]++;
@@ -199,6 +199,7 @@ void BinaryRecording::openFiles (File rootFolder, int experimentNumber, int reco
                 dataFileName = "states";
                 break;
             default:
+                LOGD ("Got BINARY group");
                 eventName = getProcessorString (chan);
                 eventName += "BINARY_group";
                 type = NpyType (chan->getEquivalentMetadataType(), chan->getLength());
@@ -329,9 +330,7 @@ void BinaryRecording::openFiles (File rootFolder, int experimentNumber, int reco
 
     FileOutputStream settingsFileStream (File (basepath + "structure.oebin"));
 
-    settingsJSON->writeAsJSON (settingsFileStream, JSON::FormatOptions {}.withIndentLevel (2).withSpacing (JSON::Spacing::multiLine).withMaxDecimalPlaces (10));
-
-    
+    settingsJSON->writeAsJSON (settingsFileStream, JSON::FormatOptions {}.withIndentLevel (2).withSpacing (JSON::Spacing::multiLine).withMaxDecimalPlaces (3));
 }
 
 std::unique_ptr<NpyFile> BinaryRecording::createEventMetadataFile (const MetadataEventObject* channel, String filename, DynamicObject* jsonFile)
@@ -562,14 +561,6 @@ void BinaryRecording::writeContinuousData (int writeChannel,
     {
         int baseSampleNumber = getLatestSampleNumber (writeChannel);
 
-        uint32 streamId = getContinuousChannel (realChannel)->getStreamId();
-
-        if (! wroteFirstSampleNumber[streamId] )
-        {
-            firstSampleNumber[streamId] = baseSampleNumber;
-            wroteFirstSampleNumber[streamId] = true;
-        }
-
         for (int i = 0; i < size; i++)
             /* Generate int sample number */
             m_sampleNumberBuffer[i] = baseSampleNumber + i;
@@ -675,17 +666,7 @@ void BinaryRecording::writeTimestampSyncText (uint64 streamId, int64 sampleNumbe
 {
     if (! m_syncTextFile)
         return;
-
-    String syncString = text + ": " + String (sampleNumber);
-    LOGD (syncString);
-
-    int64 fsn = firstSampleNumber[streamId];
-
-    if(streamId > 0)
-        jassert (fsn == sampleNumber);
-
-    m_syncTextFile->writeText (syncString + "\r\n", false, false, nullptr);
-    
+    m_syncTextFile->writeText (text + ": " + String (sampleNumber) + "\r\n", false, false, nullptr);
     m_syncTextFile->flush();
 }
 

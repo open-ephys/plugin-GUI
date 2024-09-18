@@ -482,7 +482,7 @@ StringParameter::StringParameter (ParameterOwner* owner,
                                   String defaultValue_,
                                   bool deactivateDuringAcquisition)
     : Parameter (owner,
-                 ParameterType::STRING_PARAM,
+                 ParameterType::INT_PARAM,
                  scope,
                  name,
                  displayName,
@@ -782,7 +782,7 @@ Array<var> SelectedChannelsParameter::parseSelectedString (const String& input)
 
 void SelectedChannelsParameter::setChannelCount (int newCount)
 {
-    if (newCount > 0 && channelCount > newCount)
+    if (channelCount > newCount && parameterOwner->getType() != ParameterOwner::SPIKE_CHANNEL)
     {
         Array<var> values;
         for (int i = 0; i < currentValue.getArray()->size(); i++)
@@ -1160,7 +1160,6 @@ SelectedStreamParameter::SelectedStreamParameter (ParameterOwner* owner,
                                                   const String& description,
                                                   Array<String> streamNames_,
                                                   int defaultIndex,
-                                                  bool syncWithStreamSelector_,
                                                   bool deactivateDuringAcquisition)
     : Parameter (owner,
                  ParameterType::SELECTED_STREAM_PARAM,
@@ -1170,8 +1169,7 @@ SelectedStreamParameter::SelectedStreamParameter (ParameterOwner* owner,
                  description,
                  defaultIndex,
                  deactivateDuringAcquisition),
-      streamNames (streamNames_),
-      syncWithStreamSelector (syncWithStreamSelector_)
+      streamNames (streamNames_)
 {
 }
 

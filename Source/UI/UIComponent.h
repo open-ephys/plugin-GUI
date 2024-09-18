@@ -179,10 +179,6 @@ public:
     /** Finds a child component based on a unique component ID */
     Component* findComponentByIDRecursive (Component* parent, const String& id);
 
-    /** Resizes all of components inside the UIComponent to fit the new boundaries
-    of the MainWindow, or to account for opening/closing events.*/
-    void resized();
-
 private:
     ScopedPointer<DataViewport> dataViewport;
     ScopedPointer<SignalChainTabComponent> signalChainTabComponent;
@@ -226,6 +222,10 @@ private:
     /** Pointer to the GUI's MessageCenterEditor. Owned by the MessageCenter. */
     MessageCenterEditor* messageCenterEditor;
 
+    /** Resizes all of components inside the UIComponent to fit the new boundaries
+    of the MainWindow, or to account for opening/closing events.*/
+    void resized();
+
     /** Contains codes for common user commands to which the application must react.*/
     enum CommandIDs
     {
@@ -244,8 +244,6 @@ private:
         showMessageWindow = 0x2013,
         setClockModeDefault = 0x2111,
         setClockModeHHMMSS = 0x2112,
-        setClockReferenceTimeCumulative = 0x2113,
-        setClockReferenceTimeAcqStart = 0x2114,
         toggleHttpServer = 0x4001,
         showHelp = 0x2211,
         checkForUpdates = 0x2222,

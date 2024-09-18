@@ -185,9 +185,6 @@ void DisplayBuffer::addEvent (int eventTime, int eventChannel, int eventId, int 
     const int samplesLeft = getNumSamples() - index;
     const int nSamples = numSourceSamples - eventTime;
 
-    if (index < 0)
-        return;
-
     if (eventId == 1)
     {
         ttlState |= (1LL << eventChannel);

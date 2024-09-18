@@ -72,74 +72,36 @@ SpikeDisplayCanvas::SpikeDisplayCanvas (SpikeDisplayNode* processor_) : Visualiz
 {
     refreshRate = 10; // Hz
 
-    FontOptions labelFont ("Inter", "Regular", 16.0f);
-
-    // SPIKE DISPLAY
     viewport = std::make_unique<Viewport>();
     spikeDisplay = std::make_unique<SpikeDisplay> (this, viewport.get());
+
+    thresholdCoordinator = std::make_unique<SpikeThresholdCoordinator>();
+    spikeDisplay->registerThresholdCoordinator (thresholdCoordinator.get());
 
     scrollBarThickness = 15;
     viewport->setViewedComponent (spikeDisplay.get(), false);
     viewport->setScrollBarsShown (true, false);
     viewport->setScrollBarThickness (scrollBarThickness);
-    addAndMakeVisible (viewport.get());
 
-    // MAIN OPTIONS
-    mainOptionsHolder = std::make_unique<Viewport>();
-    mainOptionsHolder->setScrollBarsShown (false, true);
-    mainOptionsHolder->setScrollBarThickness (12);
-    addAndMakeVisible (mainOptionsHolder.get());
-
-    mainOptions = std::make_unique<Component> ("Main options");
-    mainOptionsHolder->setViewedComponent (mainOptions.get(), false);
-
-    // Range selection
-    rangeSelection = std::make_unique<ComboBox> ("Range");
-    for (auto range : ranges)
-        rangeSelection->addItem (String (range) + " uV", range);
-    rangeSelection->setSelectedId (ranges[2], dontSendNotification);
-    rangeSelection->addListener (this);
-    mainOptions->addAndMakeVisible (rangeSelection.get());
-
-    rangeSelectionLabel = std::make_unique<Label> ("RangeSelectionLabel", "Range:");
-    rangeSelectionLabel->setFont (labelFont);
-    mainOptions->addAndMakeVisible (rangeSelectionLabel.get());
-
-    // History selection
-    historySelection = std::make_unique<ComboBox> ("History");
-    for (auto history : histories)
-        historySelection->addItem (String (history), history);
-    historySelection->setSelectedId (histories[1], dontSendNotification);
-    historySelection->addListener (this);
-    mainOptions->addAndMakeVisible (historySelection.get());
-
-    historySelectionLabel = std::make_unique<Label> ("HistorySelectionLabel", "Spike History:");
-    historySelectionLabel->setFont (labelFont);
-    mainOptions->addAndMakeVisible (historySelectionLabel.get());
-
-    // Threshold lock
-    thresholdCoordinator = std::make_unique<SpikeThresholdCoordinator>();
-    spikeDisplay->registerThresholdCoordinator (thresholdCoordinator.get());
+    clearButton = std::make_unique<UtilityButton> ("Clear Plots");
+    clearButton->setRadius (3.0f);
+    clearButton->addListener (this);
+    addAndMakeVisible (clearButton.get());
 
     lockThresholdsButton = std::make_unique<UtilityButton> ("Lock Thresholds");
     lockThresholdsButton->setRadius (3.0f);
     lockThresholdsButton->addListener (this);
     lockThresholdsButton->setClickingTogglesState (true);
-    mainOptions->addAndMakeVisible (lockThresholdsButton.get());
+    addAndMakeVisible (lockThresholdsButton.get());
 
-    // Clear button
-    clearButton = std::make_unique<UtilityButton> ("Clear Plots");
-    clearButton->setRadius (3.0f);
-    clearButton->addListener (this);
-    mainOptions->addAndMakeVisible (clearButton.get());
-
-    // Invert spikes
     invertSpikesButton = std::make_unique<UtilityButton> ("Invert Spikes");
     invertSpikesButton->setRadius (3.0f);
     invertSpikesButton->addListener (this);
     invertSpikesButton->setClickingTogglesState (true);
     invertSpikesButton->setToggleState (false, sendNotification);
-    mainOptions->addAndMakeVisible (invertSpikesButton.get());
+    addAndMakeVisible (invertSpikesButton.get());
+
+    addAndMakeVisible (viewport.get());
 
     updateSettings();
 
@@ -188,34 +150,20 @@ void SpikeDisplayCanvas::refreshState()
 
 void SpikeDisplayCanvas::resized()
 {
-    int optionsHeight = 35;
-    int border = 10;
-    
-    viewport->setBounds (0, 0, getWidth(), getHeight() - optionsHeight - 5); // leave space at bottom for buttons
+    viewport->setBounds (0, 0, getWidth(), getHeight() - 30); // leave space at bottom for buttons
 
-    spikeDisplay->setBounds (0, 0, getWidth() - scrollBarThickness, 9999); // once to calculate the total height
-    spikeDisplay->setBounds (0, 0, getWidth() - scrollBarThickness, spikeDisplay->getTotalHeight()); // again to set the height
+    spikeDisplay->setBounds (0, 0, getWidth() - scrollBarThickness, spikeDisplay->getTotalHeight());
 
-    mainOptionsHolder->setBounds (0, getHeight() - optionsHeight, getWidth(), optionsHeight);
+    clearButton->setBounds (10, getHeight() - 25, 130, 20);
 
-    rangeSelectionLabel->setBounds (10, 0, 55, 20);
-    rangeSelection->setBounds (rangeSelectionLabel->getRight() + border -10, 0, 90, 20);
+    lockThresholdsButton->setBounds (10 + 130 + 10, getHeight() - 25, 130, 20);
 
-    historySelectionLabel->setBounds (rangeSelection->getRight() + border, 0, 100, 20);
-    historySelection->setBounds (historySelectionLabel->getRight() + border - 10, 0, 80, 20);
-
-    clearButton->setBounds (historySelection->getRight() + border*2, 0, 130, 20);
-
-    lockThresholdsButton->setBounds (clearButton->getRight() + border, 0, 130, 20);
-
-    invertSpikesButton->setBounds (lockThresholdsButton->getRight()+border, 0, 130, 20);
-
-    mainOptions->setBounds (0, 0, invertSpikesButton->getRight(), optionsHeight);
+    invertSpikesButton->setBounds (10 + 130 + 10 + 130 + 10, getHeight() - 25, 130, 20);
 }
 
 void SpikeDisplayCanvas::paint (Graphics& g)
 {
-   g.fillAll (findColour (ThemeColours::componentParentBackground));
+    g.fillAll (findColour (ThemeColours::componentParentBackground));
 }
 
 void SpikeDisplayCanvas::refresh()
@@ -239,18 +187,6 @@ void SpikeDisplayCanvas::buttonClicked (Button* button)
     }
 }
 
-void SpikeDisplayCanvas::comboBoxChanged (ComboBox* comboBox)
-{
-    if (comboBox == historySelection.get())
-    {
-        spikeDisplay->setHistorySize ((int) historySelection->getSelectedId());
-    }
-    else if (comboBox == rangeSelection.get())
-    {
-        spikeDisplay->setRange ((int) rangeSelection->getSelectedId());
-    }
-}
-
 void SpikeDisplayCanvas::resetAudioMonitorState()
 {
     spikeDisplay->resetAudioMonitorState();
@@ -267,8 +203,6 @@ void SpikeDisplayCanvas::saveCustomParametersToXml (XmlElement* xml)
 
     xmlNode->setAttribute ("LockThresholds", lockThresholdsButton->getToggleState());
     xmlNode->setAttribute ("InvertSpikes", invertSpikesButton->getToggleState());
-    xmlNode->setAttribute ("Range", rangeSelection->getSelectedId());
-    xmlNode->setAttribute ("History", historySelection->getSelectedId());
 
     int spikePlotIdx = -1;
 
@@ -331,8 +265,6 @@ void SpikeDisplayCanvas::loadSpikeDisplaySettingsFromXml (XmlElement* xmlNode)
     spikeDisplay->invertSpikes (xmlNode->getBoolAttribute ("InvertSpikes"));
     invertSpikesButton->setToggleState (xmlNode->getBoolAttribute ("InvertSpikes"), dontSendNotification);
     lockThresholdsButton->setToggleState (xmlNode->getBoolAttribute ("LockThresholds"), sendNotification);
-    rangeSelection->setSelectedId (xmlNode->getIntAttribute ("Range", ranges[2]), dontSendNotification);
-    historySelection->setSelectedId (xmlNode->getIntAttribute ("History", histories[1]), sendNotification);
 
     int plotIndex = -1;
 

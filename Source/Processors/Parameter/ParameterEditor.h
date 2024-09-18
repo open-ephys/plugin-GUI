@@ -77,11 +77,7 @@ public:
     /** Implements Parameter::Listener */
     void parameterChanged (Parameter* param) override
     {
-        if (MessageManager::getInstance()->isThisTheMessageThread())
-            this->updateView();
-        else //called from HTTPServer thread
-            MessageManager::callAsync ([this]
-                                       { this->updateView(); });
+       MessageManager::callAsync ([this] { this->updateView(); });
     }
 
     /** Implements Parameter::Listener */

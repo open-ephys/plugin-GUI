@@ -121,23 +121,22 @@ public:
             for (auto param : parameters)
             {
                 if (param.equalsIgnoreCase ("--headless"))
-                {
                     isConsoleApp = true;
-                }
-                else if (fileToLoad.getFullPathName().isEmpty())
+
+                else if (File::createLegalFileName (param).equalsIgnoreCase (param))
                 {
                     File localPath (File::getCurrentWorkingDirectory().getChildFile (param));
 
                     if (localPath.existsAsFile())
                     {
                         fileToLoad = localPath;
-                        continue;
+                        break;
                     }
 
-                    File globalPath (param);
+                    //File globalPath(param);
 
-                    if (globalPath.existsAsFile())
-                        fileToLoad = globalPath;
+                    //if (globalPath.existsAsFile())
+                    //    fileToLoad = globalPath;
                 }
             }
 
