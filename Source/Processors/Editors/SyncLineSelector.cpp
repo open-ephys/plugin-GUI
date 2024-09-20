@@ -98,8 +98,9 @@ void SetPrimaryButton::paintButton (Graphics& g, bool isMouseOver, bool isButton
 }
 
 //SyncLineSelector::SyncLineSelector(int nChans, int selectedIdx, bool isPrimary_)
-SyncLineSelector::SyncLineSelector (SyncLineSelector::Listener* listener_, int numChans, int selectedLine_, bool isPrimary_, bool canSelectNone_)
-    : listener (listener_),
+SyncLineSelector::SyncLineSelector (Component* parent, SyncLineSelector::Listener* listener_, int numChans, int selectedLine_, bool isPrimary_, bool canSelectNone_)
+    : PopupComponent (parent),
+      listener (listener_),
       isPrimary (isPrimary_),
       nChannels (numChans),
       detectedChange (false),
@@ -202,4 +203,16 @@ void SyncLineSelector::buttonClicked (Button* button)
     }
 
     detectedChange = true;
+}
+
+void SyncLineSelector::updatePopup()
+{
+    selectedLine = listener->getSelectedLine();
+    for (int i = 0; i < buttons.size(); i++)
+    {
+        if (buttons[i]->getId() - 1 == selectedLine)
+            buttons[i]->setToggleState (true, NotificationType::dontSendNotification);
+        else
+            buttons[i]->setToggleState (false, NotificationType::dontSendNotification);
+    }
 }

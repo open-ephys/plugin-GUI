@@ -881,6 +881,14 @@ void TtlLineParameterEditor::selectedLineChanged (int newLine)
     updateView();
 }
 
+int TtlLineParameterEditor::getSelectedLine()
+{
+    if (param == nullptr)
+        return -1;
+    else
+        return ((TtlLineParameter*) param)->getSelectedLine();
+}
+
 void TtlLineParameterEditor::primaryStreamChanged()
 {
     if (syncParam == nullptr || syncParam->getType() != Parameter::SELECTED_STREAM_PARAM)
@@ -917,26 +925,24 @@ void TtlLineParameterEditor::buttonClicked (Button* button_)
     {
         DataStream* paramStream = (DataStream*) p->getOwner();
 
-        auto* syncSelector = new SyncLineSelector (this,
+        auto* syncSelector = new SyncLineSelector (button_,
+                                                   this,
                                                    p->getMaxAvailableLines(),
                                                    p->getSelectedLine(),
                                                    paramStream->getKey() == syncParam->getValueAsString());
 
-        CallOutBox& myBox = CallOutBox::launchAsynchronously (std::unique_ptr<Component> (syncSelector),
-                                                              editor->getScreenBounds(),
-                                                              nullptr);
+        CoreServices::getPopupManager()->showPopup (std::unique_ptr<Component> (syncSelector), editor);
     }
     else
     {
-        auto* lineSelector = new SyncLineSelector (this,
+        auto* lineSelector = new SyncLineSelector (button_,
+                                                   this,
                                                    p->getMaxAvailableLines(),
                                                    p->getSelectedLine(),
                                                    true,
                                                    p->canSelectNone());
 
-        CallOutBox& myBox = CallOutBox::launchAsynchronously (std::unique_ptr<Component> (lineSelector),
-                                                              editor->getScreenBounds(),
-                                                              nullptr);
+        CoreServices::getPopupManager()->showPopup (std::unique_ptr<Component> (lineSelector), editor);
     }
 }
 

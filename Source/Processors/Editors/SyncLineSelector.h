@@ -25,6 +25,7 @@
 #define SYNCCHANNEL_SELECTOR_H_INCLUDED
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../../UI/PopupComponent.h"
 #include "../../Utils/Utils.h"
 
 class SyncLineSelector;
@@ -70,7 +71,7 @@ private:
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
 };
 
-class PLUGIN_API SyncLineSelector : public Component,
+class PLUGIN_API SyncLineSelector : public PopupComponent,
                                     public Button::Listener
 {
 public:
@@ -82,13 +83,15 @@ public:
         // Called when the selected sync line changes
         virtual void selectedLineChanged (int selectedLine) = 0;
 
+        // Called when updating the popup
+        virtual int getSelectedLine() = 0;
+
         // Called when the user sets the primary stream for synchronization
         virtual void primaryStreamChanged() = 0;
     };
 
     /** Constructor */
-    SyncLineSelector (Listener* listener, int numChans, int selectedLine, bool isPrimary, bool canSelectNone = false);
-    //SyncLineSelector(int nChans, int selectedChannelIdx, bool isPrimary);
+    SyncLineSelector (Component* parent, Listener* listener, int numChans, int selectedLine, bool isPrimary, bool canSelectNone = false);
 
     /** Destructor */
     ~SyncLineSelector();
@@ -102,6 +105,9 @@ public:
 
     /** Responds to button clicks*/
     void buttonClicked (Button*);
+
+    /** Popup update triggered by PopupComponent when undoing/redoing */
+    void updatePopup() override;
 
     int nChannels;
     bool isPrimary;

@@ -535,6 +535,9 @@ public:
     /** Responds to changes in the SyncLineSelector */
     void selectedLineChanged (int selectedLine) override;
 
+    /** Returns the selected line */
+    int getSelectedLine() override;
+
     /** Sets parameter's stream as primary */
     void primaryStreamChanged() override;
 
