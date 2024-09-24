@@ -257,7 +257,7 @@ void ChannelMapEditor::mouseDown (const MouseEvent& e)
             {
                 EnableChannelAction* action = new EnableChannelAction (processor, processor->getDataStream (getCurrentStream()), buttonIndex, isActive);
 
-                CoreServices::getUndoManager()->beginNewTransaction();
+                CoreServices::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
                 CoreServices::getUndoManager()->perform ((UndoableAction*) action);
             }
             else if (result == 2)
@@ -274,7 +274,7 @@ void ChannelMapEditor::mouseDown (const MouseEvent& e)
                 {
                     ResetStreamAction* action = new ResetStreamAction (processor, processor->getDataStream (getCurrentStream()));
 
-                    CoreServices::getUndoManager()->beginNewTransaction();
+                    CoreServices::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
                     CoreServices::getUndoManager()->perform ((UndoableAction*) action);
                 }
             }
@@ -424,7 +424,7 @@ void ChannelMapEditor::mouseUp (const MouseEvent& e)
 
         MapChannelsAction* action = new MapChannelsAction ((ChannelMap*) getProcessor(), getProcessor()->getDataStream (getCurrentStream()), newChannelOrder);
 
-        CoreServices::getUndoManager()->beginNewTransaction();
+        CoreServices::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
         CoreServices::getUndoManager()->perform ((UndoableAction*) action);
     }
 }

@@ -856,7 +856,7 @@ public:
 
                 MessageManager::callAsync([this, processor, &processorDeleted] {
                     DeleteProcessor* action = new DeleteProcessor(processor);
-                    graph_->getUndoManager()->beginNewTransaction();
+                    graph_->getUndoManager()->beginNewTransaction("Disabled during acquisition");
                     graph_->getUndoManager()->perform(action);
                     processorDeleted.set_value(); // Signal that processor has been deleted
                 });
@@ -960,7 +960,7 @@ public:
 
                 MessageManager::callAsync([this, description, sourceProcessor, destProcessor, &processorAdded] {
                     AddProcessor* action = new AddProcessor(description, sourceProcessor, destProcessor, false);
-                    graph_->getUndoManager()->beginNewTransaction();
+                    graph_->getUndoManager()->beginNewTransaction("Disabled during acquisition");
                     graph_->getUndoManager()->perform(action);
                     processorAdded.set_value(); // Signal that processor has been added
                 });
@@ -983,13 +983,18 @@ public:
 
             String return_msg;
 
-            if (!CoreServices::getAcquisitionStatus())
+            auto* um = graph_->getUndoManager();
+
+            bool undoDisabled = CoreServices::getAcquisitionStatus() 
+                && um->getUndoDescription().contains ("Disabled during acquisition");
+
+            if (! undoDisabled && um->canUndo())
             {
                 std::promise<void> undoCompleted;
                 std::future<void> undoCompletedFuture = undoCompleted.get_future();
 
-                MessageManager::callAsync([this, &undoCompleted] {
-                    graph_->getUndoManager()->undo();
+                MessageManager::callAsync([um, &undoCompleted] {
+                    um->undo();
                     undoCompleted.set_value(); // Signal that undo is finished
                 });
 
@@ -1010,13 +1015,18 @@ public:
 
             String return_msg;
 
-            if (!CoreServices::getAcquisitionStatus())
+            auto* um = graph_->getUndoManager();
+
+            bool redoDisabled = CoreServices::getAcquisitionStatus() 
+                && um->getRedoDescription().contains ("Disabled during acquisition");
+
+            if (!redoDisabled && um->canRedo())
             {
                 std::promise<void> redoCompleted;
                 std::future<void> redoCompletedFuture = redoCompleted.get_future();
 
-                MessageManager::callAsync([this, &redoCompleted] {
-                    graph_->getUndoManager()->redo();
+                MessageManager::callAsync([um, &redoCompleted] {
+                    um->redo();
                     redoCompleted.set_value(); // Signal that redo is finished
                 });
 
@@ -1495,14 +1505,14 @@ private:
         {
             json stream_json;
             stream_latency_to_json (processor, stream, &stream_json);
-            (*processor_json)["streams"].push_back(stream_json);
+            (*processor_json)["streams"].push_back (stream_json);
         }
     }
 
     inline static void stream_latency_to_json (const GenericProcessor* processor, const DataStream* stream, json* stream_json)
     {
         (*stream_json)["name"] = stream->getName().toStdString();
-        (*stream_json)["latency"] = processor->getLatency(stream->getStreamId());
+        (*stream_json)["latency"] = processor->getLatency (stream->getStreamId());
     }
 
     inline GenericProcessor* find_processor (const std::string& id_string)

@@ -613,16 +613,22 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
             break;
 
         case undo:
+        {
             result.setInfo ("Undo", "Undo the last action.", "General", 0);
             result.addDefaultKeypress ('Z', ModifierKeys::commandModifier);
-            result.setActive (! acquisitionStarted && AccessClass::getProcessorGraph()->getUndoManager()->canUndo() && ! getEditorViewport()->isSignalChainLocked());
+            bool undoDisabled = acquisitionStarted && AccessClass::getUndoManager()->getUndoDescription().contains ("Disabled during acquisition");
+            result.setActive (! undoDisabled && AccessClass::getUndoManager()->canUndo() && ! getEditorViewport()->isSignalChainLocked());
             break;
+        }
 
         case redo:
+        {
             result.setInfo ("Redo", "Undo the last action.", "General", 0);
             result.addDefaultKeypress ('Z', ModifierKeys::commandModifier | ModifierKeys::shiftModifier);
-            result.setActive (! acquisitionStarted && AccessClass::getProcessorGraph()->getUndoManager()->canRedo() && ! getEditorViewport()->isSignalChainLocked());
+            bool redoDisabled = acquisitionStarted && AccessClass::getUndoManager()->getRedoDescription().contains ("Disabled during acquisition");
+            result.setActive (! redoDisabled && AccessClass::getUndoManager()->canRedo() && ! getEditorViewport()->isSignalChainLocked());
             break;
+        }
 
         case copySignalChain:
             result.setInfo ("Copy", "Copy selected processors.", "General", 0);

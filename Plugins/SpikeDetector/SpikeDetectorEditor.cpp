@@ -86,7 +86,7 @@ void SpikeDetectorEditor::addSpikeChannels (PopupConfigurationWindow* window, Sp
 
     AddSpikeChannels* action = new AddSpikeChannels (processor, stream, type, count, startChannels, nextAvailableChannel);
 
-    CoreServices::getUndoManager()->beginNewTransaction ("addSpikeChannels");
+    CoreServices::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
     CoreServices::getUndoManager()->perform ((UndoableAction*) action);
 
     if (window != nullptr)
@@ -101,7 +101,7 @@ void SpikeDetectorEditor::removeSpikeChannels (PopupConfigurationWindow* window,
 
     RemoveSpikeChannels* action = new RemoveSpikeChannels (processor, stream, spikeChannelsToRemove, indeces);
 
-    CoreServices::getUndoManager()->beginNewTransaction ("removeSpikeChannels");
+    CoreServices::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
     CoreServices::getUndoManager()->perform ((UndoableAction*) action);
 
     if (window != nullptr)

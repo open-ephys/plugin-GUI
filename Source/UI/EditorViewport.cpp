@@ -262,7 +262,7 @@ GenericProcessor* EditorViewport::addProcessor (Plugin::Description description,
 
     if (! loadingConfig)
     {
-        AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
+        AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction ("Disabled during acquisition");
         AccessClass::getProcessorGraph()->getUndoManager()->perform (action);
         return action->processor;
     }
@@ -280,7 +280,7 @@ void EditorViewport::clearSignalChain()
     {
         LOGD ("Clearing signal chain.");
 
-        AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
+        AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction ("Disabled during acquisition");
         ClearSignalChain* action = new ClearSignalChain();
         AccessClass::getProcessorGraph()->getUndoManager()->perform (action);
     }
@@ -632,7 +632,7 @@ bool EditorViewport::keyPressed (const KeyPress& key)
 
 void EditorViewport::switchIO (GenericProcessor* processor, int path)
 {
-    AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
+    AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction ("Disabled during acquisition");
 
     SwitchIO* switchIO = new SwitchIO (processor, path);
 
@@ -735,7 +735,7 @@ void EditorViewport::paste()
                 processorInfo.add (xml);
             }
 
-            AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
+            AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction ("Disabled during acquisition");
 
             GenericProcessor* source = nullptr;
             GenericProcessor* dest = nullptr;
@@ -1072,7 +1072,7 @@ void EditorViewport::mouseUp (const MouseEvent& e)
 
         if (! getScreenBounds().contains (e.getScreenPosition()))
         {
-            //AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
+            //AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction("Disabled during acquisition");
 
             //DeleteProcessor* action =
             //       new DeleteProcessor(
@@ -1109,7 +1109,7 @@ void EditorViewport::mouseUp (const MouseEvent& e)
                     newDest = editorArray[insertionPoint]->getProcessor();
                 }
 
-                AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
+                AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction ("Disabled during acquisition");
 
                 MoveProcessor* action = new MoveProcessor (
                     editorArray[indexOfMovingComponent]->getProcessor(),
@@ -1528,7 +1528,7 @@ const String EditorViewport::loadPluginState (File fileToLoad, GenericEditor* se
         }
         else
         {
-            AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
+            AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction ("Disabled during acquisition");
 
             LoadPluginSettings* action = new LoadPluginSettings (selectedEditor->getProcessor(), xml.get());
             AccessClass::getProcessorGraph()->getUndoManager()->perform (action);
@@ -1615,7 +1615,7 @@ const String EditorViewport::loadState (File fileToLoad)
         return "Not a valid file.";
     }
 
-    AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
+    AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction ("Disabled during acquisition");
 
     LoadSignalChain* action = new LoadSignalChain (xml);
     AccessClass::getProcessorGraph()->getUndoManager()->perform (action);
@@ -1636,7 +1636,7 @@ void EditorViewport::deleteSelectedProcessors()
     if (signalChainIsLocked)
         return;
 
-    AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction();
+    AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction ("Disabled during acquisition");
 
     Array<GenericEditor*> editors = Array (editorArray);
 
