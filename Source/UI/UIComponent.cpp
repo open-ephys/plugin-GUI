@@ -464,13 +464,9 @@ PopupMenu UIComponent::getMenuForIndex (int menuIndex, const String& menuName)
     }
     else if (menuIndex == 2)
     {
-        PopupMenu clockModeMenu;
-        clockModeMenu.addCommandItem (commandManager, setClockModeDefault);
-        clockModeMenu.addCommandItem (commandManager, setClockModeHHMMSS);
-
-        PopupMenu clockReferenceTimeMenu;
-        clockReferenceTimeMenu.addCommandItem (commandManager, setClockReferenceTimeCumulative);
-        clockReferenceTimeMenu.addCommandItem (commandManager, setClockReferenceTimeAcqStart);
+        PopupMenu clockMenu;
+        clockMenu.addCommandItem (commandManager, setClockModeDefault);
+        clockMenu.addCommandItem (commandManager, setClockModeHHMMSS);
 
         PopupMenu themeMenu;
         themeMenu.addCommandItem (commandManager, setColourThemeLight);
@@ -484,8 +480,7 @@ PopupMenu UIComponent::getMenuForIndex (int menuIndex, const String& menuName)
         menu.addCommandItem (commandManager, toggleGraphViewer);
         menu.addCommandItem (commandManager, showMessageWindow);
         menu.addSeparator();
-        menu.addSubMenu ("Clock display mode", clockModeMenu);
-        menu.addSubMenu ("Clock reference time", clockReferenceTimeMenu);
+        menu.addSubMenu ("Clock mode", clockMenu);
         menu.addSeparator();
         menu.addSubMenu ("Theme", themeMenu);
         menu.addSeparator();
@@ -546,8 +541,6 @@ void UIComponent::getAllCommands (Array<CommandID>& commands)
                               showMessageWindow,
                               setClockModeDefault,
                               setClockModeHHMMSS,
-                              setClockReferenceTimeCumulative,
-                              setClockReferenceTimeAcqStart,
                               showHelp,
                               checkForUpdates,
                               resizeWindow,
@@ -693,16 +686,6 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
         case setClockModeHHMMSS:
             result.setInfo ("HH:MM:SS", "Set clock mode to HH:MM:SS.", "General", 0);
             result.setTicked (controlPanel->clock->getMode() == Clock::HHMMSS);
-            break;
-
-        case setClockReferenceTimeCumulative:
-            result.setInfo ("Cumulative", "Set clock reference time to cumulative.", "General", 0);
-            result.setTicked (controlPanel->clock->getReferenceTime() == Clock::CUMULATIVE);
-            break;
-
-        case setClockReferenceTimeAcqStart:
-            result.setInfo ("Acquisition start", "Set clock to reset when acquisition starts.", "General", 0);
-            result.setTicked (controlPanel->clock->getReferenceTime() == Clock::ACQUISITION_START);
             break;
 
         case setColourThemeLight:
@@ -1001,14 +984,6 @@ bool UIComponent::perform (const InvocationInfo& info)
 
         case setClockModeHHMMSS:
             controlPanel->clock->setMode (Clock::HHMMSS);
-            break;
-
-        case setClockReferenceTimeCumulative:
-            controlPanel->clock->setReferenceTime (Clock::CUMULATIVE);
-            break;
-
-        case setClockReferenceTimeAcqStart:
-            controlPanel->clock->setReferenceTime (Clock::ACQUISITION_START);
             break;
 
         case setColourThemeLight:

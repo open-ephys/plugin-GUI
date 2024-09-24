@@ -37,105 +37,105 @@ class ChannelMapTests : public ::testing::Test
 protected:
     void SetUp() override
     {
-        num_channels = 8;
+        numChannels = 8;
         tester = std::make_unique<ProcessorTester> (TestSourceNodeBuilder (FakeSourceNodeParams {
-            num_channels,
-            sample_rate_,
+            numChannels,
+            sampleRate,
             1.0,
         }));
-        processor = tester->Create<ChannelMap> (Plugin::Processor::FILTER);
+        processor = tester->createProcessor<ChannelMap> (Plugin::Processor::FILTER);
         ASSERT_EQ (processor->getNumDataStreams(), 1);
-        stream_id = processor->getDataStreams()[0]->getStreamId();
+        streamId = processor->getDataStreams()[0]->getStreamId();
 
-        prb_file_path_ = std::filesystem::temp_directory_path() / "prb_file.json";
+        prbFilePath = std::filesystem::temp_directory_path() / "prb_file.json";
     }
 
     void TearDown() override
     {
-        if (std::filesystem::exists (prb_file_path_))
+        if (std::filesystem::exists (prbFilePath))
         {
-            std::filesystem::remove (prb_file_path_);
+            std::filesystem::remove (prbFilePath);
         }
     }
 
     ChannelMap* processor;
-    int num_channels;
-    uint16 stream_id;
+    int numChannels;
+    uint16 streamId;
     std::unique_ptr<ProcessorTester> tester;
-    float sample_rate_ = 30000.0;
-    std::filesystem::path prb_file_path_;
+    float sampleRate = 30000.0;
+    std::filesystem::path prbFilePath;
 };
 
 TEST_F (ChannelMapTests, TestRemapsChannels)
 {
     // Make it backwards:
-    juce::Array<int> new_channel_order;
-    std::unordered_map<int, int> old_to_new_channel_mapping;
-    for (int i = 0; i < num_channels; i++)
+    juce::Array<int> newChanOrder;
+    std::unordered_map<int, int> oldToNewChanMapping;
+    for (int i = 0; i < numChannels; i++)
     {
-        new_channel_order.add (num_channels - 1 - i);
-        old_to_new_channel_mapping[i] = num_channels - 1 - i;
+        newChanOrder.add (numChannels - 1 - i);
+        oldToNewChanMapping[i] = numChannels - 1 - i;
     }
 
-    processor->setChannelOrder (stream_id, new_channel_order);
+    processor->setChannelOrder (streamId, newChanOrder);
     processor->updateSettings();
 
-    auto original_data_stream = tester->GetSourceNodeDataStream (stream_id);
-    auto mapped_data_stream = tester->GetProcessorDataStream (processor->getNodeId(), stream_id);
+    auto originalDataStream = tester->getSourceNodeDataStream (streamId);
+    auto mappedDataStream = tester->getProcessorDataStream (processor->getNodeId(), streamId);
 
-    ASSERT_EQ (mapped_data_stream->getContinuousChannels().size(),
-               original_data_stream->getContinuousChannels().size());
-    for (std::pair<int, int> old_to_new : old_to_new_channel_mapping)
+    ASSERT_EQ (mappedDataStream->getContinuousChannels().size(),
+               originalDataStream->getContinuousChannels().size());
+    for (std::pair<int, int> oldToNew : oldToNewChanMapping)
     {
         ASSERT_EQ (
-            mapped_data_stream->getContinuousChannels()[old_to_new.second]->getGlobalIndex(),
-            original_data_stream->getContinuousChannels()[old_to_new.first]->getGlobalIndex());
+            mappedDataStream->getContinuousChannels()[oldToNew.second]->getGlobalIndex(),
+            originalDataStream->getContinuousChannels()[oldToNew.first]->getGlobalIndex());
     }
 }
 
 TEST_F (ChannelMapTests, TestRespectsEnabledChannels)
 {
-    int expected_mapped_num_channels = 4;
+    int expectedMappedNumChans = 4;
     // Make it backwards:
-    juce::Array<int> new_channel_order;
-    std::unordered_map<int, int> old_to_new_channel_mapping;
-    for (int i = 0; i < num_channels; i++)
+    juce::Array<int> newChanOrder;
+    std::unordered_map<int, int> oldToNewChanMapping;
+    for (int i = 0; i < numChannels; i++)
     {
-        if (i < expected_mapped_num_channels)
+        if (i < expectedMappedNumChans)
         {
             // Enable channels explicitly
-            processor->setChannelEnabled (stream_id, i, 1);
-            old_to_new_channel_mapping[i] = i;
+            processor->setChannelEnabled (streamId, i, 1);
+            oldToNewChanMapping[i] = i;
         }
         else
         {
             // Disable some channels
-            processor->setChannelEnabled (stream_id, i, 0);
+            processor->setChannelEnabled (streamId, i, 0);
         }
 
         // Always map all channels, or else it'll be ignored
-        new_channel_order.add (i);
+        newChanOrder.add (i);
     }
 
-    processor->setChannelOrder (stream_id, new_channel_order);
+    processor->setChannelOrder (streamId, newChanOrder);
     processor->updateSettings();
 
-    auto original_data_stream = tester->GetSourceNodeDataStream (stream_id);
-    auto mapped_data_stream = tester->GetProcessorDataStream (processor->getNodeId(), stream_id);
+    auto originalDataStream = tester->getSourceNodeDataStream (streamId);
+    auto mappedDataStream = tester->getProcessorDataStream (processor->getNodeId(), streamId);
 
-    ASSERT_EQ (original_data_stream->getContinuousChannels().size(), num_channels);
-    ASSERT_EQ (mapped_data_stream->getContinuousChannels().size(), expected_mapped_num_channels);
-    for (std::pair<int, int> old_to_new : old_to_new_channel_mapping)
+    ASSERT_EQ (originalDataStream->getContinuousChannels().size(), numChannels);
+    ASSERT_EQ (mappedDataStream->getContinuousChannels().size(), expectedMappedNumChans);
+    for (std::pair<int, int> oldToNew : oldToNewChanMapping)
     {
         ASSERT_EQ (
-            mapped_data_stream->getContinuousChannels()[old_to_new.second]->getGlobalIndex(),
-            original_data_stream->getContinuousChannels()[old_to_new.first]->getGlobalIndex());
+            mappedDataStream->getContinuousChannels()[oldToNew.second]->getGlobalIndex(),
+            originalDataStream->getContinuousChannels()[oldToNew.first]->getGlobalIndex());
     }
 }
 
 TEST_F (ChannelMapTests, ConfigFileTest)
 {
-    std::vector<std::string> prb_file_contents_list = {
+    std::vector<std::string> prbFileContentsList = {
         "{",
         "  \"0\": {",
         "    \"mapping\": [",
@@ -162,31 +162,31 @@ TEST_F (ChannelMapTests, ConfigFileTest)
         "}"
     };
 
-    std::stringstream prb_file_ss;
-    for (const auto& line : prb_file_contents_list)
+    std::stringstream prbFileSs;
+    for (const auto& line : prbFileContentsList)
     {
-        prb_file_ss << line << std::endl;
+        prbFileSs << line << std::endl;
     }
 
-    std::string prb_file_contents = prb_file_ss.str();
-    auto f = juce::File (prb_file_path_.string());
+    std::string prbFileContents = prbFileSs.str();
+    auto f = juce::File (prbFilePath.string());
     {
         // Write and close it via braces
-        juce::FileOutputStream output_stream (f);
-        output_stream.writeString (prb_file_contents);
+        juce::FileOutputStream outStream (f);
+        outStream.writeString (prbFileContents);
     }
 
-    processor->loadStreamSettings (stream_id, f);
+    processor->loadStreamSettings (streamId, f);
     processor->updateSettings();
 
-    auto original_data_stream = tester->GetSourceNodeDataStream (stream_id);
-    auto mapped_data_stream = tester->GetProcessorDataStream (processor->getNodeId(), stream_id);
+    auto originalDataStream = tester->getSourceNodeDataStream (streamId);
+    auto mappedDataStream = tester->getProcessorDataStream (processor->getNodeId(), streamId);
 
-    ASSERT_EQ (original_data_stream->getContinuousChannels().size(), num_channels);
+    ASSERT_EQ (originalDataStream->getContinuousChannels().size(), numChannels);
     ASSERT_EQ (
-        mapped_data_stream->getContinuousChannels().size(),
-        original_data_stream->getContinuousChannels().size());
-    for (std::pair<int, int> old_to_new :
+        mappedDataStream->getContinuousChannels().size(),
+        originalDataStream->getContinuousChannels().size());
+    for (std::pair<int, int> oldToNew :
          std::unordered_map<int, int> ({
              { 0, 7 },
              { 1, 6 },
@@ -199,7 +199,7 @@ TEST_F (ChannelMapTests, ConfigFileTest)
          }))
     {
         ASSERT_EQ (
-            mapped_data_stream->getContinuousChannels()[old_to_new.second]->getGlobalIndex(),
-            original_data_stream->getContinuousChannels()[old_to_new.first]->getGlobalIndex());
+            mappedDataStream->getContinuousChannels()[oldToNew.second]->getGlobalIndex(),
+            originalDataStream->getContinuousChannels()[oldToNew.first]->getGlobalIndex());
     }
 }

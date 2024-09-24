@@ -47,7 +47,7 @@ namespace juce
 
     @tags{GUI}
 */
-class SidePanel    : public Component,
+class JUCE_API SidePanel    : public Component,
                      private ComponentListener,
                      private ChangeListener
 {

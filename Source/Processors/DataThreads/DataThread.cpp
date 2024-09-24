@@ -131,10 +131,9 @@ void DataThread::addSelectedStreamParameter (Parameter::ParameterScope scope,
                                              const String& description,
                                              Array<String> streamNames,
                                              const int defaultIndex,
-                                             bool syncWithStreamSelector,
                                              bool deactivateDuringAcquisition)
 {
-    sn->addSelectedStreamParameter (scope, name, displayName, description, streamNames, defaultIndex, syncWithStreamSelector, deactivateDuringAcquisition);
+    sn->addSelectedStreamParameter (scope, name, displayName, description, streamNames, defaultIndex, deactivateDuringAcquisition);
 }
 
 void DataThread::addTimeParameter (Parameter::ParameterScope scope,
@@ -193,9 +192,9 @@ void DataThread::run()
         {
             const MessageManagerLock mmLock (Thread::getCurrentThread());
 
-            LOGE ("Acquisition error...stopping thread.");
+            LOGE ("Aquisition error...stopping thread.");
             signalThreadShouldExit();
-            LOGE ("Notifying source node to stop acquisition.");
+            LOGE ("Notifying source node to stop acqusition.");
             sn->connectionLost();
         }
     }

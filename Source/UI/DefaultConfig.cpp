@@ -273,6 +273,8 @@ bool DefaultConfigComponent::keyPressed (const KeyPress& key, Component* origina
             neuropixelsButton->setToggleState (true, sendNotification);
             fileReaderButton->setToggleState (false, sendNotification);
         }
+
+        return true;
     }
     // Handle right/shift+tab key presses to move right
     else if (key == KeyPress::leftKey || key == KeyPress(KeyPress::tabKey, ModifierKeys::shiftModifier, 0))
@@ -287,12 +289,13 @@ bool DefaultConfigComponent::keyPressed (const KeyPress& key, Component* origina
             acqBoardButton->setToggleState (true, sendNotification);
             fileReaderButton->setToggleState (false, sendNotification);
         }
+
+        return true;
     }
     // Handle return key presses to trigger the load button
     else if (key == KeyPress::returnKey)
     {
         goButton->triggerClick();
+        return true;
     }
-
-    return true;
 }

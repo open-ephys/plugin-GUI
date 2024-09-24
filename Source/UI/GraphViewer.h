@@ -232,7 +232,8 @@ public:
     /** Sets the horizontal shift (x-position of node in graph display) */
     void setHorzShift (int newHorizontalShift);
 
-    /** Sets the vertical shift (y-position of node in graph display) */
+    /** Not currently used (consider deleting) */
+    //void switchIO (int path);
     void verticalShift (int pixels);
 
     /** Adjusts the boundaries of this node, based on its inputs and outputs*/
@@ -314,6 +315,9 @@ public:
     /** Sets viewport bounds*/
     void resized() override;
 
+    /** Called when look and feel is updated */
+    void lookAndFeelChanged() override;
+
 private:
     /** Scroll area*/
     std::unique_ptr<Viewport> viewport;
@@ -323,6 +327,8 @@ private:
 
     /** Logos to display*/
     Image bw_logo;
+    Image colour_logo;
+    Image* current_logo;
 };
 
 /**
@@ -354,9 +360,6 @@ public:
 
     /** Adds a graph node for a particular processor */
     void updateNodes (GenericProcessor* processor, Array<GenericProcessor*> rootProcessors);
-
-    /** Re-calculates and updates y positions for all nodes */
-    void updateYPositions();
 
     /** Adds a graph node for a particular processor */
     void addNode (GenericEditor* editor, int level, int offset);
@@ -392,8 +395,6 @@ private:
     OwnedArray<GraphNode> availableNodes;
 
     Array<GenericProcessor*> rootProcessors;
-
-    std::map<int, Array<GraphNode*>> nodesByLevel;
 
     std::map<int, int> levelStartY;
 

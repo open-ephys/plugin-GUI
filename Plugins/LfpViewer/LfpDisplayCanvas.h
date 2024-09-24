@@ -270,14 +270,11 @@ public:
     /** Gets the event channel state for a particular sample */
     const float getEventState (int samp);
 
-    /** Returns the screen buffer's mean of a given channel */
-    float getScreenBufferMean (int chan);
-
-    /** Returns the display buffer's mean of a given channel */
-    float getDisplayBufferMean (int chan);
+    /** Returns the mean of a given channel */
+    float getMean (int chan);
 
     /** Returns the standard deviation of a given channnel*/
-    float getRMS (int chan);
+    float getStd (int chan);
 
     /** Sets the channel to use for display triggering */
     void setTriggerChannel (int);
@@ -309,7 +306,7 @@ public:
     bool fullredraw;
 
     /** Left margin for lfp plots (so the ch number text doesnt overlap) */
-    static const int leftmargin = 60; //
+    static const int leftmargin = 100; //
 
     Array<bool> isChannelEnabled;
 
@@ -347,7 +344,7 @@ public:
     /** Send a message to audio monitor one channel */
     void monitorChannel (int channel);
 
-    uint16 selectedStreamId = 0;
+    uint16 selectedStreamId;
 
     void refreshScreenBuffer();
 

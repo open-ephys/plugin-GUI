@@ -92,8 +92,7 @@ public:
 */
 class TESTABLE RecordNode : public GenericProcessor,
                             public SynchronizingProcessor,
-                            public FilenameComponentListener,
-                            public Timer
+                            public FilenameComponentListener
 {
 public:
     /** Constructor
@@ -252,11 +251,8 @@ public:
 
     DiskSpaceChecker* getDiskSpaceChecker() { return diskSpaceChecker.get(); }
 
-    /** Used to update sync monitors */
-    void timerCallback() override;
-
-    /** Actual sync monitor update -- can be called independently of timer*/
-    void updateSyncMonitors();
+    /*sets record engine to parameter pointer; only for testing*/
+    void overrideRecordEngine (RecordEngineManager* engine);
 
 private:
     /** Handles other types of events (text, sync texts, etc.) */

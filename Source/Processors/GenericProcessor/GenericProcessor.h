@@ -66,34 +66,7 @@ class DeviceInfo;
 
 class Spike;
 
-/** 
-    Measures the time elapsed between the start of each processing 
-    cycle and the end of a GenericProcessor's work.
-*/
-class LatencyMeter
-{
-public:
-    /** Constructor */
-    LatencyMeter (GenericProcessor* processor);
-
-    /** Sets the latest latency values for each data stream */
-    void setLatestLatency (std::map<uint16, juce::int64>& processStartTimes, bool headlessMode);
-
-    /** Returns the latest latency values for each data stream */
-    float getLatestLatency (uint16 streamId);
-
-    /** Updates the available data streams */
-    void update(const Array<const DataStream*>& dataStreams);
-
-private:
-    int counter;
-
-    std::map<uint16, std::vector<int>> latencies;
-    std::map<uint16, float> latestLatencies;
-    GenericProcessor* processor;
-
-    std::mutex latencyMutex;
-};
+class LatencyMeter;
 
 using namespace Plugin;
 
@@ -386,7 +359,6 @@ public:
                                      const String& description,
                                      Array<String> streamNames,
                                      const int defaultIndex,
-                                     bool syncWithStreamSelector = false,
                                      bool deactivateDuringAcquisition = true);
 
     /** Adds a time parameter with microsecond precision in the form HH:MM:SS.sss */
@@ -407,7 +379,7 @@ public:
     /** Adds a parameter that allows the user to select a TTL Line
      * @param maxAvailableLines The number of TTL lines available for selection
      * @param syncMode Set to true if the ttl line will be used for synchronization
-     * @param canSelectNone Set to true if the user can select no TTL line (can't be used with syncMode = true)
+     * @param canSelectNone Set to true if the user can select no TTL line (cant be used with syncMode = true)
      */
     void addTtlLineParameter (Parameter::ParameterScope scope,
                               const String& name,
@@ -591,12 +563,6 @@ public:
     /** Returns a list of undoable actions for a given processor ID */
     static std::vector<ProcessorAction*> getUndoableActions (int nodeId) { return undoableActions[nodeId]; }
 
-    /** Returns the most recent latency measurement for a given stream in this processor */
-    double getLatency (uint16 streamId) const { return latencyMeter->getLatestLatency (streamId); }
-
-    /** Returns the plugin specific recording directory derived from the global recording path */
-    File getPluginRecordingDirectory();
-
 protected:
     static std::map<int, std::vector<ProcessorAction*>> undoableActions;
 
@@ -619,6 +585,12 @@ protected:
                                  uint32 nSamples,
                                  uint16 streamId,
                                  uint16 syncStreamId = 0);
+
+    std::optional<std::pair<int64, double>> getReferenceSampleForBlock (uint16 streamId);
+
+    void setReferenceSample (uint16 streamId,
+                             double timestamp,
+                             int64 sampleIndex);
 
     // --------------------------------------------
     //     CHANNEL INDEXING
@@ -646,7 +618,7 @@ protected:
     virtual void handleSpike (SpikePtr spike) {}
 
     /** Returns info about the default events a specific subprocessor generates.
-	Called by createEventChannels(). It is not needed to implement if createEventChannels() is overridden */
+	Called by createEventChannels(). It is not needed to implement if createEventChannels() is overriden */
     virtual void getDefaultEventInfo (Array<DefaultEventInfo>& events, int subProcessorIdx = 0) const;
 
     // --------------------------------------------
@@ -660,7 +632,7 @@ protected:
         If recording is active, this message will be recorded */
     void broadcastMessage (String msg);
 
-    /** Sends a message String to another processor node in the ProcessorGraph while acquisition
+    /** Sends a message String to another processor node in the ProcessorGraph while acqusition
         not active */
     void sendConfigMessage (GenericProcessor* destination, String message);
 
@@ -766,6 +738,9 @@ private:
     /** First software timestamp of process() callback. */
     juce::int64 m_initialProcessTime;
 
+    /** Map between stream IDs and  reference samples */
+    std::map<uint16, std::optional<std::pair<int64, double>>> referenceSamplesForBlock;
+
     /** Built-in method for creating continuous channels. */
     void createDataChannelsByType (ContinuousChannel::Type type);
 
@@ -831,6 +806,29 @@ private:
     std::unique_ptr<LatencyMeter> latencyMeter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GenericProcessor);
+};
+
+/** 
+    Measures the time elapsed between the start of each processing 
+    cycle and the end of a GenericProcessor's work.
+*/
+class LatencyMeter
+{
+public:
+    /** Constructor */
+    LatencyMeter (GenericProcessor* processor);
+
+    /** Sets the latest latency values for each data stream */
+    void setLatestLatency (std::map<uint16, juce::int64>& processStartTimes);
+
+    /** Updates the available data streams */
+    void update (Array<const DataStream*>);
+
+private:
+    int counter;
+
+    std::map<uint16, Array<int>> latencies;
+    GenericProcessor* processor;
 };
 
 #endif // __GENERICPROCESSOR_H_1F469DAF__

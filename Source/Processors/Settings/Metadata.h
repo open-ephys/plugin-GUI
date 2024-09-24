@@ -89,7 +89,7 @@ public:
     /** Copy constructor */
     MetadataDescriptor (const MetadataDescriptor& other);
 
-    /** Copy constructor */
+    /** Copy construtor */
     MetadataDescriptor& operator= (const MetadataDescriptor& other);
 
     /** Gets the primitive type of this field */

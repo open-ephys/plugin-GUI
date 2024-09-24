@@ -52,6 +52,9 @@ void LfpDisplayNode::initialize (bool signalChainIsLoading)
     {
         LfpDisplayEditor* editor = (LfpDisplayEditor*) getEditor();
         editor->initialize (signalChainIsLoading);
+
+        String message = BroadcastParser::build ("UG3 Electrode Viewer", "updateGrid", {});
+        broadcastMessage (message);
     }
 }
 

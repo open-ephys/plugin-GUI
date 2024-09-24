@@ -33,24 +33,20 @@
 #include <ProcessorHeaders.h>
 #include <TestFixtures.h>
 
-class CommonAverageRefTests : public ::testing::Test
+class CommonAverageRefTests : public testing::Test
 {
 protected:
     void SetUp() override
     {
-        num_channels = 2;
+        numChannels = 2;
         tester = std::make_unique<ProcessorTester> (TestSourceNodeBuilder (FakeSourceNodeParams {
-            num_channels,
-            sample_rate_,
+            numChannels,
+            sampleRate,
             1.0,
         }));
-        processor = tester->Create<CommonAverageRef> (Plugin::Processor::FILTER);
+        processor = tester->createProcessor<CommonAverageRef> (Plugin::Processor::FILTER);
         ASSERT_EQ (processor->getNumDataStreams(), 1);
-        stream_id = processor->getDataStreams()[0]->getStreamId();
-    }
-
-    void TearDown() override
-    {
+        streamId = processor->getDataStreams()[0]->getStreamId();
     }
 
     /** Buffer for the input signal */
@@ -103,10 +99,10 @@ protected:
     }
 
     CommonAverageRef* processor;
-    int num_channels;
-    uint16 stream_id;
+    int numChannels;
+    uint16 streamId;
     std::unique_ptr<ProcessorTester> tester;
-    float sample_rate_ = 30000.0;
+    float sampleRate = 30000.0;
 };
 
 TEST_F (CommonAverageRefTests, ContructorTest)

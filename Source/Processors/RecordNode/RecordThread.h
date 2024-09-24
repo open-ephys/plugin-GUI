@@ -98,10 +98,6 @@ private:
     std::atomic<bool> m_receivedFirstBlock;
     std::atomic<bool> m_cleanExit;
 
-    Array<int> sampleNumbers;
-    std::vector<CircularBufferIndexes> dataBufferIdxs;
-    std::vector<CircularBufferIndexes> timestampBufferIdxs;
-
     int spikesReceived;
     int spikesWritten;
 

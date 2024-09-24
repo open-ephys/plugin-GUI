@@ -38,9 +38,6 @@
 class DataStream;
 class GenericEditor;
 class TTLMonitor;
-class SyncStartTimeMonitor;
-class LastSyncEventMonitor;
-class SyncAccuracyMonitor;
 class DelayMonitor;
 class UtilityButton;
 
@@ -71,10 +68,7 @@ public:
         SAMPLE_RATE,
         DELAY,
         TTL_LINE_STATES,
-        ENABLED,
-        START_TIME,
-        LATEST_SYNC,
-        SYNC_ACCURACY
+        ENABLED
     };
 
     /** Callback when a cell is clicked (not a sub-component) */
@@ -87,7 +81,7 @@ public:
     int getNumRows() override;
 
     /** Updates the underlying StreamInfoView objects */
-    void update (Array<const DataStream*> dataStreams);
+    void update (Array<const DataStream*> dataStreams, int viewedStreamIndex);
 
     /** Determines row colours */
     void paintRowBackground (Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
@@ -108,6 +102,7 @@ private:
 
     StreamSelectorTable* owner;
 
+    int viewedStreamIndex = 0;
     bool isShuttingDown = false;
 
     bool acquisitionIsActive;
@@ -156,15 +151,6 @@ public:
     /** Renders the component*/
     void paint (Graphics& g) override;
 
-    /** Returns a pointer to the SyncStartTimeMonitor for a given DataStream*/
-    SyncStartTimeMonitor* getSyncStartTimeMonitor (const DataStream* stream);
-
-    /** Returns a pointer to the LastSyncEventMonitor for a given DataStream*/
-    LastSyncEventMonitor* getlastSyncEventMonitor (const DataStream* stream);
-
-    /** Returns a pointer to the SyncAccuracyMonitor for a given DataStream*/
-    SyncAccuracyMonitor* getSyncAccuracyMonitor (const DataStream* stream);
-
     /** Returns a pointer to the TTLMonitor for a given DataStream*/
     TTLMonitor* getTTLMonitor (const DataStream* stream);
 
@@ -204,9 +190,6 @@ public:
     /** Index of the currently viewed stream */
     int viewedStreamIndex;
 
-    /** True if this table belongs to a Record Node */
-    bool isRecordNode = false;
-
 private:
     /** Renders delay & TTL monitors */
     void timerCallback() override;
@@ -226,7 +209,6 @@ private:
     int streamInfoViewHeight;
 
     int counter = 0;
-    
 };
 
 /**
@@ -241,9 +223,14 @@ public:
     /** Destructor*/
     ~ExpanderButton() {}
 
+    /** Enables/disables the button*/
+    void setEnabledState (bool isEnabled_) { isEnabled = isEnabled_; }
+
 private:
     /** Renders the button*/
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
+
+    bool isEnabled;
 
     Path iconPath;
 };

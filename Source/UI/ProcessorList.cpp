@@ -209,8 +209,6 @@ void ProcessorList::drawItemName (Graphics& g, ProcessorListItem* item)
 
         if (! item->getName().equalsIgnoreCase ("Processors"))
         {
-            g.setColour (Colours::black.withAlpha(0.25f));
-
             if (item->isOpen())
             {
                 g.fillPath (openArrowPath, AffineTransform::translation (getWidth() - 20, itemHeight / 2 - 5));
@@ -550,6 +548,7 @@ void ProcessorList::loadStateFromXml (XmlElement* xml)
                                                 colourNode->getIntAttribute ("G"),
                                                 colourNode->getIntAttribute ("B")));
 
+                LOGD ("Setting colour ID ", ID, " to ", getLookAndFeel().findColour (ID).toString());
             }
         }
     }

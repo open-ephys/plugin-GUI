@@ -215,7 +215,7 @@ void AudioMonitor::updateFilter (int i, uint16 streamId)
 
 void AudioMonitor::handleBroadcastMessage (const String& msg, const int64 messageTimeMilliseconds)
 {
-    LOGC ("Audio Monitor received message: ", msg);
+    LOGD ("Audio Monitor received message: ", msg);
 
     StringArray parts = StringArray::fromTokens (msg, " ", "");
 
@@ -227,20 +227,7 @@ void AudioMonitor::handleBroadcastMessage (const String& msg, const int64 messag
 
             if (command.equalsIgnoreCase ("SELECT"))
             {
-                if(parts.size() == 3)
-                {
-                    String command = parts[2];
-
-                    if (command.equalsIgnoreCase ("NONE"))
-                    {
-                        Array<var> ch;
-
-                        for (auto stream : getDataStreams())
-                            stream->getParameter ("channels")->setNextValue (ch);
-                        
-                    }
-                }
-                else if (parts.size() >= 4)
+                if (parts.size() >= 4)
                 {
                     uint16 streamId = parts[2].getIntValue();
 
@@ -248,23 +235,13 @@ void AudioMonitor::handleBroadcastMessage (const String& msg, const int64 messag
 
                     if (stream != nullptr)
                     {
-                        Array<var> ch;
-                        int channelCount = 0;
+                        int localChannel = parts[3].getIntValue() - 1;
 
-                        while (channelCount < (parts.size() - 3))
+                        if (localChannel >= 0 && localChannel < stream->getContinuousChannels().size())
                         {
-                            int localChannel = parts[channelCount + 3].getIntValue() - 1;
+                            Array<var> ch;
+                            ch.add (localChannel);
 
-                            if (localChannel >= 0 && localChannel < stream->getContinuousChannels().size())
-                            {
-                                ch.add (localChannel);
-                            }
-
-                            channelCount++;
-                        }
-
-                        if (ch.size() > 0)
-                        {
                             stream->getParameter ("channels")->setNextValue (ch);
                         }
                     }

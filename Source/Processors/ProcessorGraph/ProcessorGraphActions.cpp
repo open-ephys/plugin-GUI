@@ -240,7 +240,7 @@ DeleteProcessor::~DeleteProcessor()
 
 bool DeleteProcessor::perform()
 {
-    LOGDD ("Performing DELETE for processor ", nodeId);
+    LOGDD ("Peforming DELETE for processor ", nodeId);
 
     Array<GenericProcessor*> processorToDelete;
 
@@ -343,7 +343,7 @@ MoveProcessor::~MoveProcessor()
 
 bool MoveProcessor::perform()
 {
-    LOGDD ("Performing MOVE for processor ", nodeId);
+    LOGDD ("Peforming MOVE for processor ", nodeId);
 
     GenericProcessor* processor = processorGraph->getProcessorWithNodeId (nodeId);
 

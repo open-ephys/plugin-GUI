@@ -133,6 +133,8 @@ void SourceNode::updateSettings()
 
         resizeBuffers();
 
+        //std::cout << " Source node num continuous channels: " << continuousChannels.size() << std::endl;
+
         for (int i = 0; i < continuousChannels.size(); i++)
             continuousChannels[i]->addProcessor (this);
 
@@ -198,14 +200,18 @@ bool SourceNode::tryEnablingEditor()
 {
     if (! isSourcePresent())
     {
+        //LOGD("No input source found.");
         return false;
     }
+
+    //LOGD("isEnabled = ", isEnabled, " (tryEnablingEditor)");
 
     if (isEnabled)
     {
         // If we're already enabled (e.g. if we're being called again
         // due to timerCallback()), then there's no need to go through
         // the editor again.
+        //LOGD("We're already enabled; returning.");
         return true;
     }
 
@@ -308,10 +314,16 @@ void SourceNode::process (AudioBuffer<float>& buffer)
                                                                    &timestamp,
                                                                    static_cast<uint64*> (eventCodeBuffers[streamIdx]->getData()),
                                                                    buffer.getNumSamples(),
+                                                                   &timestampSampleIndex,
                                                                    copiedChannels,
                                                                    channelsToCopy);
 
+        //std::cout << getNodeId() << " " << streamIdx << " " << nSamples << std::endl;
+
         copiedChannels += channelsToCopy;
+
+        //if (getFirstSampleNumberForBlock(dataStreams[streamIdx]->getStreamId()) > sampleNumber)
+        //    std::cout << "SET ERROR: " << getNodeId() << " " << dataStreams[streamIdx]->getStreamId() << std::endl;
 
         setTimestampAndSamples (sampleNumber,
                                 timestamp,
@@ -331,12 +343,20 @@ void SourceNode::process (AudioBuffer<float>& buffer)
                 //If there has been no change to the TTL word, avoid doing anything at all here
                 if (lastCode != currentCode)
                 {
-                    Array<TTLEventPtr> events = TTLEvent::createTTLEvent (eventChannels[streamIdx],
+                    //Create a TTL event for each bit that has changed
+                    for (uint8 c = 0; c < maxTTLBits; ++c)
+                    {
+                        if (((currentCode >> c) & 0x01) != ((lastCode >> c) & 0x01))
+                        {
+                            TTLEventPtr event = TTLEvent::createTTLEvent (eventChannels[streamIdx],
                                                                           sampleNumber + sample,
+                                                                          c,
+                                                                          (currentCode >> c) & 0x01,
                                                                           currentCode);
 
-                    for (auto& event : events)
-                        addEvent (event, sample);
+                            addEvent (event, sample);
+                        }
+                    }
 
                     lastCode = currentCode;
                 }

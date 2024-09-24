@@ -2,7 +2,7 @@
     ------------------------------------------------------------------
 
     This file is part of the Open Ephys GUI
-    Copyright (C) 2024 Open Ephys
+    Copyright (C) 2016 Open Ephys
 
     ------------------------------------------------------------------
 
@@ -18,25 +18,25 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #include "DataBuffer.h"
 
 DataBuffer::DataBuffer (int chans, int size)
-    : abstractFifo (size), buffer (chans, size), numChans (chans)
+    : abstractFifo (size),
+      buffer (chans, size),
+      numChans (chans)
 {
     sampleNumberBuffer.malloc (size);
     timestampBuffer.malloc (size);
     eventCodeBuffer.malloc (size);
+    timestampSampleBuffer.malloc (size);
 
     lastSampleNumber = 0;
     lastTimestamp = -1.0;
 }
 
-DataBuffer::~DataBuffer()
-{
-}
+DataBuffer::~DataBuffer() {}
 
 void DataBuffer::clear()
 {
@@ -51,11 +51,10 @@ void DataBuffer::resize (int chans, int size)
 {
     buffer.setSize (chans, size);
 
-    abstractFifo.setTotalSize (size);
-
     sampleNumberBuffer.malloc (size);
     timestampBuffer.malloc (size);
     eventCodeBuffer.malloc (size);
+    timestampSampleBuffer.malloc (size);
 
     lastSampleNumber = 0;
     lastTimestamp = -1.0;
@@ -67,7 +66,9 @@ int DataBuffer::addToBuffer (float* data,
                              int64* sampleNumbers,
                              double* timestamps,
                              uint64* eventCodes,
-                             int numItems)
+                             int numItems,
+                             int chunkSize,
+                             std::optional<int64> timestampSampleIndex)
 {
     int startIndex1, blockSize1, startIndex2, blockSize2;
 
@@ -77,24 +78,32 @@ int DataBuffer::addToBuffer (float* data,
     int si[2] = { startIndex1, startIndex2 };
     int cSize = 0;
     int idx = 0;
+    int blkIdx;
 
-    // for each of the dest blocks we can write to...
     for (int i = 0; bs[i] != 0; ++i)
-    {
-        cSize = bs[i];
-        for (int chan = 0; chan < numChans; ++chan) // write that much, per channel
-        {
-            buffer.copyFrom (chan, // (int destChannel)
-                             si[i], // (int destStartSample)
-                             data + (chan * numItems) + idx, // (const float* source)
-                             cSize); // (int num samples)
+    { // for each of the dest blocks we can write to...
+        blkIdx = 0;
+        for (int j = 0; j < bs[i]; j += chunkSize)
+        { // for each chunk...
+            cSize = chunkSize <= bs[i] - j ? chunkSize : bs[i] - j; // figure our how much you can write
+            for (int chan = 0; chan < numChans; ++chan) // write that much, per channel
+            {
+                buffer.copyFrom (chan, // (int destChannel)
+                                 si[i] + j, // (int destStartSample)
+                                 data + (idx * numChans) + chan, // (const float* source)
+                                 cSize); // (int num samples)
+            }
+
+            for (int k = 0; k < cSize; ++k)
+            {
+                sampleNumberBuffer[si[i] + blkIdx + k] = sampleNumbers[idx + k];
+                timestampBuffer[si[i] + blkIdx + k] = timestamps[idx + k];
+                eventCodeBuffer[si[i] + blkIdx + k] = eventCodes[idx + k];
+                timestampSampleBuffer[si[i] + blkIdx + k] = timestampSampleIndex;
+            }
+            idx += cSize;
+            blkIdx += cSize;
         }
-
-        memcpy (sampleNumberBuffer + si[i], sampleNumbers + idx, (size_t) cSize * sizeof (int64));
-        memcpy (timestampBuffer + si[i], timestamps + idx, (size_t) cSize * sizeof (double));
-        memcpy (eventCodeBuffer + si[i], eventCodes + idx, (size_t) cSize * sizeof (uint64));
-
-        idx += cSize;
     }
 
     // finish write
@@ -110,6 +119,7 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
                                    double* blockTimestamp,
                                    uint64* eventCodes,
                                    int maxSize,
+                                   std::optional<int64>* timestampSampleIndex,
                                    int dstStartChannel,
                                    int numChannels)
 {
@@ -137,6 +147,7 @@ int DataBuffer::readAllFromBuffer (AudioBuffer<float>& data,
         memcpy (blockSampleNumber, sampleNumberBuffer + startIndex1, 8);
         memcpy (blockTimestamp, timestampBuffer + startIndex1, 8);
         memcpy (eventCodes, eventCodeBuffer + startIndex1, blockSize1 * 8);
+        memcpy (timestampSampleIndex, timestampSampleBuffer + startIndex1, sizeof (std::optional<int64>));
     }
     else
     {

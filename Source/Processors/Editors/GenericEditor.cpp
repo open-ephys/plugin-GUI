@@ -22,7 +22,6 @@
 */
 
 #include "GenericEditor.h"
-#include "VisualizerEditor.h"
 
 #include "../../CoreServices.h"
 #include "../GenericProcessor/GenericProcessor.h"
@@ -429,15 +428,7 @@ void GenericEditor::editorStartAcquisition()
     for (auto param : getProcessor()->getParameters())
     {
         if (param->shouldDeactivateDuringAcquisition())
-        {
             param->setEnabled (false);
-
-            if (param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
-                && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
-            {
-                streamSelector->setEnabled (false);
-            }
-        }
     }
 
     for (auto stream : getProcessor()->dataStreams)
@@ -446,24 +437,6 @@ void GenericEditor::editorStartAcquisition()
         {
             if (param->shouldDeactivateDuringAcquisition())
                 param->setEnabled (false);
-        }
-    }
-
-    // Disable Visualizer parameters that should not be active during acquisition
-    if (isVisualizerEditor() && ((VisualizerEditor*) this)->canvas != nullptr)
-    {
-        for (auto* param : ((VisualizerEditor*) this)->canvas->getParameters())
-        {
-            if (param->shouldDeactivateDuringAcquisition())
-            {
-                param->setEnabled (false);
-
-                if (param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
-                    && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
-                {
-                    streamSelector->setEnabled (false);
-                }
-            }
         }
     }
 
@@ -484,15 +457,7 @@ void GenericEditor::editorStopAcquisition()
     for (auto param : getProcessor()->getParameters())
     {
         if (param->shouldDeactivateDuringAcquisition())
-        {
             param->setEnabled (true);
-
-            if (param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
-                && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
-            {
-                streamSelector->setEnabled (true);
-            }
-        }
     }
 
     for (auto stream : getProcessor()->dataStreams)
@@ -501,24 +466,6 @@ void GenericEditor::editorStopAcquisition()
         {
             if (param->shouldDeactivateDuringAcquisition())
                 param->setEnabled (true);
-        }
-    }
-
-    // Disable Visualizer parameters that should not be active during acquisition
-    if (isVisualizerEditor() && ((VisualizerEditor*) this)->canvas != nullptr)
-    {
-        for (auto* param : ((VisualizerEditor*) this)->canvas->getParameters())
-        {
-            if (param->shouldDeactivateDuringAcquisition())
-            {
-                param->setEnabled (true);
-
-                if (param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
-                    && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
-                {
-                    streamSelector->setEnabled (true);
-                }
-            }
         }
     }
 
@@ -1127,20 +1074,6 @@ void GenericEditor::updateSelectedStream (uint16 streamId)
     LOGD (getNameAndId(), " updating selected stream to ", streamId);
 
     selectedStream = streamId;
-
-    if (streamSelector != nullptr)
-    {
-        auto dataStreams = getProcessor()->getDataStreams();
-
-        for (int i = 0; i < dataStreams.size(); i++)
-        {
-            if (dataStreams[i]->getStreamId() == streamId)
-            {
-                streamSelector->setViewedIndex (i);
-                break;
-            }
-        }
-    }
 
     bool streamAvailable = streamId > 0 ? true : false;
 

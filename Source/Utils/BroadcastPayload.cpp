@@ -23,7 +23,6 @@
 
 #include "BroadcastPayload.h"
 
-
 BroadcastPayload::BroadcastPayload() : _commandName ("") {}
 
 BroadcastPayload::BroadcastPayload(String command, DynamicObject::Ptr payload) : _commandName(command), _payload(payload) {}

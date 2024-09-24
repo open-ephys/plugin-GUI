@@ -208,7 +208,6 @@ int Merger::addSettingsFromSourceNode (GenericProcessor* sn, int continuousChann
 void Merger::updateSettings()
 {
     isEnabled = true;
-    bool sourceNodeAIsEmpty = false;
 
     int continuousChannelGlobalIndex = 0;
 
@@ -216,17 +215,17 @@ void Merger::updateSettings()
 
     if (sourceNodeA != nullptr)
     {
+        if (sourceNodeA->isMerger())
+        {
+            isEnabled = false;
+            messageChannel = std::make_unique<EventChannel> (*AccessClass::getMessageCenter()->getMessageChannel());
+            messageChannel->addProcessor (this);
+            return;
+        }
+
         LOGD ("   Merger source A found.");
         continuousChannelGlobalIndex = addSettingsFromSourceNode (sourceNodeA, continuousChannelGlobalIndex);
-
-        if (! sourceNodeA->isEmpty())
-        {
-            isEnabled &= sourceNodeA->isEnabled;
-        }
-        else
-        {
-            sourceNodeAIsEmpty = true;
-        }
+        isEnabled &= sourceNodeA->isEnabled;
 
         if (sourceNodeA->getMessageChannel() != nullptr)
         {
@@ -242,21 +241,21 @@ void Merger::updateSettings()
 
     if (sourceNodeB != nullptr)
     {
+        if (sourceNodeB->isMerger())
+        {
+            isEnabled = false;
+
+            if (messageChannel == nullptr)
+            {
+                messageChannel = std::make_unique<EventChannel> (*AccessClass::getMessageCenter()->getMessageChannel());
+                messageChannel->addProcessor (this);
+            }
+            return;
+        }
+
         LOGD ("   Merger source B found.");
         continuousChannelGlobalIndex = addSettingsFromSourceNode (sourceNodeB, continuousChannelGlobalIndex);
-
-        if (!sourceNodeB->isEmpty())
-        {
-            isEnabled &= sourceNodeB->isEnabled;
-        }
-        else
-        {
-            if (sourceNodeAIsEmpty)
-            {
-				isEnabled = false;
-			}
-        }
-            
+        isEnabled &= sourceNodeB->isEnabled;
 
         if (messageChannel == nullptr && sourceNodeB->getMessageChannel() != nullptr)
         {

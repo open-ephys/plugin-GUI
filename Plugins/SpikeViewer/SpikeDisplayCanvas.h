@@ -30,8 +30,6 @@
 
 #include <vector>
 
-#define MAX_BUFFER_SIZE 50
-
 class SpikePlot;
 class SpikeDisplayNode;
 
@@ -140,8 +138,7 @@ private:
 */
 
 class SpikeDisplayCanvas : public Visualizer,
-                           public Button::Listener,
-                           public ComboBox::Listener
+                           public Button::Listener
 
 {
 public:
@@ -168,9 +165,6 @@ public:
 
     /** Respond to clear / lock thresholds / invert spikes buttons*/
     void buttonClicked (Button* button) override;
-
-    /** Respond to range / history combo boxes*/
-    void comboBoxChanged (ComboBox* comboBox) override;
 
     /** Clears audio monitor selection for all sub-plots*/
     void resetAudioMonitorState();
@@ -200,19 +194,6 @@ private:
     bool newSpike;
 
     int scrollBarThickness;
-    
-    Array<int> ranges = { 50, 100, 250, 500, 1000 };
-    Array<int> histories { 5, 10, 20, MAX_BUFFER_SIZE };
-
-    // Main options
-    std::unique_ptr<Component> mainOptions;
-    std::unique_ptr<Viewport> mainOptionsHolder;
-
-    std::unique_ptr<ComboBox> historySelection;
-    std::unique_ptr<Label> historySelectionLabel;
-
-    std::unique_ptr<ComboBox> rangeSelection;
-    std::unique_ptr<Label> rangeSelectionLabel;
 
     std::unique_ptr<UtilityButton> clearButton;
     std::unique_ptr<SpikeThresholdCoordinator> thresholdCoordinator;

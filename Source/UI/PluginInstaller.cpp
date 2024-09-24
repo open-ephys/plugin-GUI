@@ -266,7 +266,7 @@ void PluginInstaller::installPluginAndDependency (const String& plugin, String v
     int code = tempInfoComponent.downloadPlugin (requiredPluginInfo.pluginName, version, false);
 
     if (code == 1)
-        LOGC ("Install successful!!")
+        LOGC ("Install sucessfull!!")
     else
         LOGC ("Install failed!!");
 }
@@ -1024,7 +1024,7 @@ void PluginInfoComponent::run()
         return;
     }
 
-    // If a plugin has dependencies outside its zip, download them
+    // If a plugin has depencies outside its zip, download them
     for (int i = 0; i < pInfo.dependencies.size(); i++)
     {
         setStatusMessage ("Downloading dependency: " + pInfo.dependencies[i]);
@@ -1069,7 +1069,7 @@ void PluginInfoComponent::run()
         {
             showAlertOnMessageThread (AlertWindow::WarningIcon,
                                       "[Plugin Installer] " + pInfo.dependencies[i],
-                                      "An unknown error occurred while installing dependencies for " + pInfo.displayName
+                                      "An unknown error occured while installing dependencies for " + pInfo.displayName
                                           + ". Please contact the developers.");
 
             LOGE ("Download Failed!!");
@@ -1089,7 +1089,7 @@ void PluginInfoComponent::run()
                                   "[Plugin Installer] " + pInfo.displayName,
                                   pInfo.displayName + " Installed Successfully");
 
-        LOGC ("Download Successful!!");
+        LOGC ("Download Successfull!!");
 
         pInfo.installedVersion = pInfo.selectedVersion;
         installedVerText.setText (pInfo.installedVersion, dontSendNotification);
