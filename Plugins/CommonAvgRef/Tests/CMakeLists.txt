@@ -1,3 +1,3 @@
 cmake_minimum_required(VERSION 3.5.0)
 
-add_sources(${PLUGIN_NAME}_tests CommonAverageRefTests.cpp)
+add_sources(${PLUGIN_NAME}_tests CommonAvgRefTests.cpp)
