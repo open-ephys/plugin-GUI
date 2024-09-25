@@ -648,12 +648,13 @@ SelectedChannelsParameter::SelectedChannelsParameter (ParameterOwner* owner,
       maxSelectableChannels (maxSelectableChannels_),
       channelCount (0)
 {
-    if (defaultValue_.size() == 0)
+    if (defaultValue_.size() == 0 && maxSelectableChannels != std::numeric_limits<int>::max())
     {
         //Set default selected to the first maxSelectableChannels channels
         Array<var> values;
         for (int i = 0; i < maxSelectableChannels; i++)
             values.add (i);
+
         currentValue = values;
     }
     else

@@ -29,10 +29,46 @@
 #include "../Dsp/Dsp.h"
 #include "../GenericProcessor/GenericProcessor.h"
 
-#define MAX_CHANNELS 4
+/**
+  Creates and holds the filter settings for one input stream in the AudioMonitor.
+*/
+class AudioMonitorSettings
+{
+public:
+    AudioMonitorSettings();
+
+    int numChannels;
+    float sampleRate;
+    double destBufferSampleRate;
+    double estimatedSamples;
+
+    /** Bandpass filters (1 per channel)*/
+    OwnedArray<Dsp::Filter> bandpassfilters;
+
+    /** Antialiasing filters (1 per channel)*/
+    OwnedArray<Dsp::Filter> antialiasingfilters;
+    std::map<int, std::unique_ptr<AudioBuffer<float>>> bufferA;
+    std::map<int, std::unique_ptr<AudioBuffer<float>>> bufferB;
+
+    /** Per-channel buffer state information*/
+    std::map<int, double> samplesInBackupBuffer;
+    std::map<int, double> samplesInOverflowBuffer;
+    std::map<int, bool> bufferSwap;
+    double numSamplesExpected;
+    double ratio;
+
+    /** Creates new filters when input settings change*/
+    void createFilters (int numChannels, float sampleRate);
+
+    /** Updates filters when parameters change*/
+    void updateAntiAliasingFilterParameters();
+
+    /** Re-sets the copy buffers prior to starting acquisition*/
+    void setOutputSampleRate (double outputSampleRate, double estimatedSamplesPerBlock);
+};
 
 /**
-  Reads data from a file.
+  Streams data from incoming continuous channels to the computer’s audio output.
 
   @see GenericProcessor
 */
@@ -69,9 +105,6 @@ public:
     /** Resets the connections prior to a new round of data acquisition. */
     void resetConnections() override;
 
-    /** Updates the bandpass filter parameters, given the currently monitored stream*/
-    void updateFilter (int i, uint16 streamId);
-
     /** Allows other processors to configure the Audio Monitor during acquisition*/
     void handleBroadcastMessage (const String& message, const int64 messageTimeMillis) override;
 
@@ -79,29 +112,8 @@ public:
     void setSelectedStream (uint16 streamId);
 
 private:
-    /** Re-sets the copy buffers prior to acquisition*/
-    void recreateBuffers();
-
-    std::map<int, std::unique_ptr<AudioBuffer<float>>> bufferA;
-    std::map<int, std::unique_ptr<AudioBuffer<float>>> bufferB;
-
-    /** Per-channel buffer state information*/
-    std::map<int, double> samplesInBackupBuffer;
-    std::map<int, double> samplesInOverflowBuffer;
-    std::map<int, double> sourceBufferSampleRate;
-    std::map<int, bool> bufferSwap;
-
-    std::map<int, double> numSamplesExpected;
-    std::map<int, double> ratio;
-
-    double destBufferSampleRate;
-    double estimatedSamples;
-
-    /** 4 bandpass filters (1 per selected channel)*/
-    OwnedArray<Dsp::Filter> bandpassfilters;
-
-    /** 4 antialiasing filters (1 per selected channel)*/
-    OwnedArray<Dsp::Filter> antialiasingfilters;
+    /** AudioMonitor settings for each input stream*/
+    StreamSettings<AudioMonitorSettings> settings;
 
     /** Holds the data for one channel, before it's copied to the output*/
     std::unique_ptr<AudioBuffer<float>> tempBuffer;
