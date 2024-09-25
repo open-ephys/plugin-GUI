@@ -1,48 +1,70 @@
 #ifndef TESTFIXTURES_H
 #define TESTFIXTURES_H
 
-#include "gtest/gtest.h"
-#include <juce_audio_processors/juce_audio_processors.h>
+#include "../Processors/FakeSourceNode.h"
+
+#include <Audio/AudioComponent.h>
 #include <Processors/ProcessorGraph/ProcessorGraph.h>
 #include <Processors/SourceNode/SourceNode.h>
-#include <Audio/AudioComponent.h>
 #include <UI/ControlPanel.h>
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <Processors/GenericProcessor/GenericProcessor.h>
 
-
-enum class TestSourceNodeType {Fake, Base};
-
-
-class TestSourceNodeBuilder{
-public:
-	TestSourceNodeBuilder(FakeSourceNodeParams params) : _fake_source_node_params(params), _source_node_type(TestSourceNodeType::Fake) {} 
-	TestSourceNodeBuilder(DataThreadCreator creator) : _data_thread_creator(creator), _source_node_type(TestSourceNodeType::Base) {}
-
-	SourceNode* buildSourceNode(){
-		switch(_source_node_type) {
-			case TestSourceNodeType::Fake : {
-				return (SourceNode*)(new FakeSourceNode(_fake_source_node_params));
-			}
-			case TestSourceNodeType::Base : {
-				return new SourceNode("BaseSourceNode", _data_thread_creator);
-			}
-		}
-	}
-    
-    TestSourceNodeType getTestSourceNodeType() const {
-        return _source_node_type;
-    }
-
-
-private:
-	FakeSourceNodeParams _fake_source_node_params;
-	DataThreadCreator _data_thread_creator;
-	TestSourceNodeType _source_node_type;
+enum class TestSourceNodeType
+{
+    Fake,
+    Base
 };
 
-
-class ProcessorTester {
+class TestSourceNodeBuilder
+{
 public:
-    ProcessorTester(TestSourceNodeBuilder source_node_builder) {
+    TestSourceNodeBuilder (FakeSourceNodeParams params) : 
+        mockSourceNodeParams (params),
+        sourceNodeType (TestSourceNodeType::Fake),
+        dataThreadCreator (nullptr)
+    {}
+
+    TestSourceNodeBuilder (DataThreadCreator creator) : 
+        dataThreadCreator (creator),
+        sourceNodeType (TestSourceNodeType::Base) 
+    {}
+
+    SourceNode* buildSourceNode()
+    {
+        switch (sourceNodeType)
+        {
+            case TestSourceNodeType::Fake:
+            {
+                return (SourceNode*) (new FakeSourceNode (mockSourceNodeParams));
+            }
+            case TestSourceNodeType::Base:
+            {
+                return new SourceNode ("BaseSourceNode", dataThreadCreator);
+            }
+            default:
+                break;
+        }
+
+        return nullptr;
+    }
+
+    TestSourceNodeType getTestSourceNodeType() const
+    {
+        return sourceNodeType;
+    }
+
+private:
+    FakeSourceNodeParams mockSourceNodeParams;
+    DataThreadCreator dataThreadCreator;
+    TestSourceNodeType sourceNodeType;
+};
+
+class ProcessorTester
+{
+public:
+    ProcessorTester (TestSourceNodeBuilder sourceNodeBuilder)
+    {
         // Singletons...
         MessageManager::deleteInstance();
 
@@ -53,44 +75,44 @@ public:
         AccessClass::clearAccessClassStateForTesting();
 
         //Create LookAndFeel object
-        custom_look_and_feel = std::make_unique<CustomLookAndFeel>();
-        LookAndFeel::setDefaultLookAndFeel(custom_look_and_feel.get());
+        customLookAndFeel = std::make_unique<CustomLookAndFeel>();
+        LookAndFeel::setDefaultLookAndFeel (customLookAndFeel.get());
 
-        
         // All of these sets the global state in AccessClass in their constructors
-        audio_component = std::make_unique<AudioComponent>();
-        processor_graph = std::make_unique<ProcessorGraph>(true);
-        control_panel = std::make_unique<ControlPanel>(processor_graph.get(), audio_component.get(), true);
+        audioComponent = std::make_unique<AudioComponent>();
+        processorGraph = std::make_unique<ProcessorGraph> (true);
+        controlPanel = std::make_unique<ControlPanel> (processorGraph.get(), audioComponent.get(), true);
 
-        SourceNode* sn_temp = source_node_builder.buildSourceNode();
-        source_node_id = next_processor_id_++;
-        sn_temp->setNodeId(source_node_id);
-        juce::AudioProcessorGraph::Node* n = processor_graph->addNode(
-            std::move(std::unique_ptr<AudioProcessor>(sn_temp)),
-            juce::AudioProcessorGraph::NodeID(source_node_id));
+        SourceNode* snTemp = sourceNodeBuilder.buildSourceNode();
+        sourceNodeId = nextProcessorId++;
+        snTemp->setNodeId (sourceNodeId);
+        snTemp->registerParameters();
+        juce::AudioProcessorGraph::Node* n = processorGraph->addNode (
+            std::move (std::unique_ptr<AudioProcessor> (snTemp)),
+            juce::AudioProcessorGraph::NodeID (sourceNodeId));
 
         // Create the source node, and place it in the graph
         auto sn = (GenericProcessor*) n->getProcessor();
-        sn->setHeadlessMode(true);
-        sn->initialize(false);
-        sn->setDestNode(nullptr);
+        sn->setHeadlessMode (true);
+        sn->initialize (false);
+        sn->setDestNode (nullptr);
 
-        control_panel->updateRecordEngineList();
+        controlPanel->updateRecordEngineList();
 
         // Refresh everything
-        processor_graph->updateSettings(sn, false);
-    	
-        control_panel ->updateColors();
+        processorGraph->updateSettings (sn);
 
-	}
+        controlPanel->updateColours();
+    }
 
-    ~ProcessorTester() {
-        control_panel = nullptr;
-        processor_graph = nullptr;
-        audio_component = nullptr;
+    virtual ~ProcessorTester()
+    {
+        controlPanel = nullptr;
+        processorGraph = nullptr;
+        audioComponent = nullptr;
 
         AccessClass::clearAccessClassStateForTesting();
-        
+
         DeletedAtShutdown::deleteAll();
         MessageManager::deleteInstance();
     }
@@ -103,118 +125,157 @@ public:
      * @tparam T processor class, derived from GenericProcessor
      * @param args parameters to pass to constructor of the processor, i.e. new FooProcessor(<args>)
      */
-    template<
+    template <
         typename T,
         class... Args,
-        typename std::enable_if<std::is_base_of<GenericProcessor, T>::value>::type * = nullptr>
-    T *Create(Plugin::Processor::Type processorType, Args &&...args) {
-        T *ptr = new T(std::forward<Args>(args)...);
-        ptr->setProcessorType(processorType);
-        ptr->setHeadlessMode(true);
+        typename std::enable_if<std::is_base_of<GenericProcessor, T>::value>::type* = nullptr>
+    T* createProcessor (Plugin::Processor::Type processorType, Args&&... args)
+    {
+        T* ptr = new T (std::forward<Args> (args)...);
+        ptr->setProcessorType (processorType);
+        ptr->setHeadlessMode (true);
 
-        int node_id = next_processor_id_++;
-        ptr->setNodeId(node_id);
-        processor_graph->addNode(
-            std::move(std::unique_ptr<AudioProcessor>(ptr)),
-            juce::AudioProcessorGraph::NodeID(node_id));
+        int nodeId = nextProcessorId++;
+        ptr->setNodeId (nodeId);
+        ptr->registerParameters();
+        processorGraph->addNode (
+            std::move (std::unique_ptr<AudioProcessor> (ptr)),
+            juce::AudioProcessorGraph::NodeID (nodeId));
 
-        ptr = (T *) processor_graph->getProcessorWithNodeId(node_id);
-        ptr->initialize(false);
-        ptr->setDestNode(nullptr);
+        ptr = (T*) processorGraph->getProcessorWithNodeId (nodeId);
+        ptr->initialize (false);
+        ptr->setDestNode (nullptr);
 
         // Place the newly created node into the graph
-        auto source_node = processor_graph->getProcessorWithNodeId(source_node_id);
-        ptr->setSourceNode(source_node);
-        source_node->setDestNode(ptr);
+        auto sourceNode = processorGraph->getProcessorWithNodeId (sourceNodeId);
+        ptr->setSourceNode (sourceNode);
+        sourceNode->setDestNode (ptr);
 
         // Refresh everything
-        processor_graph->updateSettings(ptr, false);
-        return (T *) processor_graph->getProcessorWithNodeId(node_id);
+        processorGraph->updateSettings (ptr);
+        return (T*) processorGraph->getProcessorWithNodeId (nodeId);
     }
 
-    void startAcquisition(bool startRecording) {
-        if (startRecording) {
+    void startAcquisition (bool startRecording, bool forceRecording = false)
+    {
+        if (startRecording)
+        {
             // Do it this way to ensure the GUI elements (which apparently control logic) are set properly
-            control_panel->setRecordingState(true, false);
-        } else {
-            control_panel->startAcquisition(false);
+            controlPanel->setRecordingState (true, forceRecording);
+        }
+        else
+        {
+            controlPanel->startAcquisition (false);
         }
     }
 
-    void stopAcquisition() {
-        control_panel->stopAcquisition();
+    void stopAcquisition()
+    {
+        controlPanel->stopAcquisition();
     }
 
-    const DataStream *GetProcessorDataStream(uint16 node_id, uint16 stream_id) {
-        auto streams = processor_graph->getProcessorWithNodeId(node_id)->getDataStreams();
-        for (auto stream : streams) {
-            if (stream->getStreamId() == stream_id) {
+    const DataStream* getProcessorDataStream (uint16 nodeId, uint16 streamId)
+    {
+        auto streams = processorGraph->getProcessorWithNodeId (nodeId)->getDataStreams();
+        for (auto stream : streams)
+        {
+            if (stream->getStreamId() == streamId)
+            {
                 return stream;
             }
         }
         return nullptr;
     }
 
-    const DataStream *GetSourceNodeDataStream(uint16 stream_id) {
-        return GetProcessorDataStream(source_node_id, stream_id);
+    const DataStream* getSourceNodeDataStream (uint16 streamId)
+    {
+        return getProcessorDataStream (sourceNodeId, streamId);
     }
 
-    static void setRecordingParentDirectory(const std::string& parent_directory) {
-        CoreServices::setRecordingParentDirectory(String(parent_directory));
+    static void setRecordingParentDirectory (const std::string& parent_directory)
+    {
+        CoreServices::setRecordingParentDirectory (String (parent_directory));
     }
 
-    GenericProcessor* getSourceNode() {
-        return (GenericProcessor*)processor_graph->getProcessorWithNodeId(source_node_id);
+    GenericProcessor* getSourceNode()
+    {
+        return processorGraph->getProcessorWithNodeId (sourceNodeId);
     }
-    AudioBuffer<float> ProcessBlock(
-        GenericProcessor *processor,
-        const AudioBuffer<float> &buffer,
-        TTLEvent* maybe_ttl_event = nullptr) {
-        auto audio_processor = (AudioProcessor *)processor;
-        auto data_streams = processor->getDataStreams();
+
+    AudioBuffer<float> processBlock (
+        GenericProcessor* processor,
+        const AudioBuffer<float>& buffer,
+        TTLEvent* maybeTtlEvent = nullptr)
+    {
+        auto audioProcessor = (AudioProcessor*) processor;
+        auto dataStreams = processor->getDataStreams();
 
         MidiBuffer eventBuffer;
-        for (const auto* datastream : data_streams) {
+        for (const auto* datastream : dataStreams)
+        {
             HeapBlock<char> data;
             auto streamId = datastream->getStreamId();
-            size_t dataSize = SystemEvent::fillTimestampAndSamplesData(
+            size_t dataSize = SystemEvent::fillTimestampAndSamplesData (
                 data,
                 processor,
                 streamId,
-                current_sample_index,
+                currentSampleIndex,
                 // NOTE: this timestamp is actually ignored in the current implementation?
                 0,
                 buffer.getNumSamples(),
                 0);
-            eventBuffer.addEvent(data, dataSize, 0);
+            eventBuffer.addEvent (data, dataSize, 0);
 
-            if (maybe_ttl_event != nullptr) {
-                size_t ttl_size = maybe_ttl_event->getChannelInfo()->getDataSize() +
-                    maybe_ttl_event->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
-                HeapBlock<char> ttl_buffer(ttl_size);
-                maybe_ttl_event->serialize(ttl_buffer, ttl_size);
-                eventBuffer.addEvent(ttl_buffer, ttl_size, 0);
+            if (maybeTtlEvent != nullptr)
+            {
+                size_t ttlSize = maybeTtlEvent->getChannelInfo()->getDataSize() + maybeTtlEvent->getChannelInfo()->getTotalEventMetadataSize() + EVENT_BASE_SIZE;
+                HeapBlock<char> ttlBuffer (ttlSize);
+                maybeTtlEvent->serialize (ttlBuffer, ttlSize);
+                eventBuffer.addEvent (ttlBuffer, ttlSize, 0);
             }
         }
 
         // Copies the input buffer so that remains unmodified
-        AudioBuffer<float> output_buffer = buffer;
-        audio_processor->processBlock(output_buffer, eventBuffer);
-        current_sample_index += buffer.getNumSamples();
-        return output_buffer;
+        AudioBuffer<float> outputBuffer = buffer;
+        audioProcessor->processBlock (outputBuffer, eventBuffer);
+        currentSampleIndex += buffer.getNumSamples();
+        return outputBuffer;
     }
 
-private:
-    int source_node_id; // should dynamically retrieve the processor if needed, since it apparently gets re-allocated
+    void updateSourceNodeSettings()
+    {
+        processorGraph->updateSettings (getSourceNode());
+    }
 
-    std::unique_ptr<AudioComponent> audio_component;
-    std::unique_ptr<ProcessorGraph> processor_graph;
-    std::unique_ptr<ControlPanel> control_panel;
+public:
+    int sourceNodeId; // should dynamically retrieve the processor if needed, since it apparently gets re-allocated
 
-    int next_processor_id_ = 1;
-    int current_sample_index = 0;
-    std::unique_ptr<CustomLookAndFeel> custom_look_and_feel;
+    std::unique_ptr<AudioComponent> audioComponent;
+    std::unique_ptr<ProcessorGraph> processorGraph;
+    std::unique_ptr<ControlPanel> controlPanel;
+
+    int nextProcessorId = 1;
+    int currentSampleIndex = 0;
+    std::unique_ptr<CustomLookAndFeel> customLookAndFeel;
 };
 
+class DataThreadTester : public ProcessorTester
+{
+public:
+    DataThreadTester (TestSourceNodeBuilder sourceNodeBuilder) : 
+        ProcessorTester (sourceNodeBuilder)
+    {}
+
+    template <
+        typename T,
+        class... Args,
+        typename std::enable_if<std::is_base_of<DataThread, T>::value>::type* = nullptr>
+    T* createDataThread (Args&&... args)
+    {
+        T* ptr = new T ((SourceNode*) getSourceNode(), std::forward<Args> (args)...);
+
+        return ptr;
+    }
+};
 
 #endif

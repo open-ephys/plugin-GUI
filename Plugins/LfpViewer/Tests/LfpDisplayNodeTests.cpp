@@ -72,7 +72,7 @@ public:
     }
 
     /*Constructs the trace information from internal buffers into an Image object*/
-    Image getImage (int width, int height, Array<Colour> channelColours, Colour backgroundColour, Colour midlineColour, int scaleFactor)
+    Image getImage (int width, int height, Array<Colour> channelColours, Colour backgroundColour, Colour midlineColour, int scaleFactor) const
     {
         Image expectedImage (Image::ARGB, width, height, true);
 
@@ -149,18 +149,18 @@ public:
     int width;
 };
 
-class LfpDisplayNodeTests : public ::testing::Test
+class LfpDisplayNodeTests : public testing::Test
 {
 protected:
     void SetUp() override
     {
-        num_channels = 16;
+        numChannels = 16;
         tester = std::make_unique<ProcessorTester> (TestSourceNodeBuilder (FakeSourceNodeParams {
-            num_channels,
-            sample_rate_,
-            bitVolts_ }));
+            numChannels,
+            sampleRate,
+            bitVolts }));
 
-        processor = tester->Create<LfpViewer::LfpDisplayNode> (Plugin::Processor::SINK);
+        processor = tester->createProcessor<LfpViewer::LfpDisplayNode> (Plugin::Processor::SINK);
 
         width = 0;
         height = 0;
@@ -171,72 +171,68 @@ protected:
         playheadColour = Colours::yellow;
     }
 
-    void TearDown() override
-    {
-    }
-
     /*Create a new AudioBuffer filled with step data*/
-    AudioBuffer<float> CreateBuffer (float starting_value, float step, int num_channels, int num_samples)
+    AudioBuffer<float> createBuffer (float starting_value, float step, int numChannels, int numSamples)
     {
-        AudioBuffer<float> input_buffer (num_channels, num_samples);
+        AudioBuffer<float> inputBuffer (numChannels, numSamples);
 
         // in microvolts
-        float cur_value = starting_value;
-        for (int chidx = 0; chidx < num_channels; chidx++)
+        float currValue = starting_value;
+        for (int chidx = 0; chidx < numChannels; chidx++)
         {
-            for (int sample_idx = 0; sample_idx < num_samples; sample_idx++)
+            for (int sampleIdx = 0; sampleIdx < numSamples; sampleIdx++)
             {
-                input_buffer.setSample (chidx, sample_idx, cur_value);
-                cur_value += step;
+                inputBuffer.setSample (chidx, sampleIdx, currValue);
+                currValue += step;
             }
         }
-        return input_buffer;
+        return inputBuffer;
     }
 
     /*Creates a new AudioBuffer filled with sinusoidal waves*/
-    AudioBuffer<float> CreateBufferSinusoidal (int cycles, int num_channels, int num_samples, int amplitude)
+    AudioBuffer<float> createBufferSinusoidal (int cycles, int numChannels, int numSamples, int amplitude)
     {
-        AudioBuffer<float> input_buffer (num_channels, num_samples);
+        AudioBuffer<float> inputBuffer (numChannels, numSamples);
         float pi = 3.1415;
         // in microvolts
-        for (int chidx = 0; chidx < num_channels; chidx++)
+        for (int chidx = 0; chidx < numChannels; chidx++)
         {
-            for (int sample_idx = 0; sample_idx < num_samples; sample_idx++)
+            for (int sampleIdx = 0; sampleIdx < numSamples; sampleIdx++)
             {
-                float value = amplitude * sin (float (sample_idx) / (float (num_samples) / float (cycles)) * 2 * pi);
-                input_buffer.setSample (chidx, sample_idx, value);
+                float value = amplitude * sin (float (sampleIdx) / (float (numSamples) / float (cycles)) * 2 * pi);
+                inputBuffer.setSample (chidx, sampleIdx, value);
             }
         }
-        return input_buffer;
+        return inputBuffer;
     }
 
     /*Writes data from an AudioBuffer to processor. Verifies that the AudioBuffer is not changed*/
-    void WriteBlock (AudioBuffer<float>& input_buffer)
+    void writeBlock (AudioBuffer<float>& inputBuffer)
     {
-        auto output_buffer = tester->ProcessBlock (processor, input_buffer);
+        auto outputBuffer = tester->processBlock (processor, inputBuffer);
         // Assert the buffer hasn't changed after process()
-        ASSERT_EQ (input_buffer.getNumSamples(), output_buffer.getNumSamples());
-        ASSERT_EQ (input_buffer.getNumChannels(), output_buffer.getNumChannels());
-        for (int chidx = 0; chidx < input_buffer.getNumChannels(); chidx++)
+        ASSERT_EQ (inputBuffer.getNumSamples(), outputBuffer.getNumSamples());
+        ASSERT_EQ (inputBuffer.getNumChannels(), outputBuffer.getNumChannels());
+        for (int chidx = 0; chidx < inputBuffer.getNumChannels(); chidx++)
         {
-            for (int sample_idx = 0; sample_idx < input_buffer.getNumSamples(); ++sample_idx)
+            for (int sampleIdx = 0; sampleIdx < inputBuffer.getNumSamples(); ++sampleIdx)
             {
-                ASSERT_EQ (input_buffer.getSample (chidx, sample_idx), output_buffer.getSample (chidx, sample_idx));
+                ASSERT_EQ (inputBuffer.getSample (chidx, sampleIdx), outputBuffer.getSample (chidx, sampleIdx));
             }
         }
-        current_sample_index += input_buffer.getNumSamples();
+        currentSampleIndex += inputBuffer.getNumSamples();
     }
 
     /*Gets information from canvas needed to build an ExpectedImage*/
-    void SetExpectedImageParameters (LfpViewer::LfpDisplayCanvas* canvas)
+    void setExpectedImageParameters (LfpViewer::LfpDisplayCanvas* canvas)
     {
         canvas->getChannelBitmapBounds (0, x, y, width, height);
         canvas->getChannelColours (0, channelColours, backgroundColour);
-        ASSERT_EQ (channelColours.size(), num_channels);
+        ASSERT_EQ (channelColours.size(), numChannels);
     }
 
     /*Compares 2 Image objects and returns the number of different pixels*/
-    int GetImageDifferencePixelCount (Image expectedImage, Image actualImage)
+    int getImageDifferencePixelCount (Image expectedImage, Image actualImage) const
     {
         int missCount = 0;
         Image diffImage (Image::ARGB, width, height, true);
@@ -276,7 +272,7 @@ protected:
         return missCount;
     }
 
-    void DumpPng (String path, Image image)
+    void dumpPng (String path, Image image)
     {
         FileOutputStream stream ((File (path)));
         PNGImageFormat pngWriter;
@@ -285,11 +281,11 @@ protected:
 
     LfpViewer::LfpDisplayNode* processor;
 
-    int num_channels;
-    float bitVolts_ = 1.0;
+    int numChannels;
+    float bitVolts = 1.0;
     std::unique_ptr<ProcessorTester> tester;
-    int64_t current_sample_index = 0;
-    float sample_rate_ = 2000;
+    int64_t currentSampleIndex = 0;
+    float sampleRate = 2000;
 
     Image expectedImage;
     Colour midlineColour;
@@ -317,58 +313,58 @@ TEST_F (LfpDisplayNodeTests, VisualIntegrityTest)
     canvas->setVisible (true);
 
     //Get LFP size parameters from canvas
-    SetExpectedImageParameters (canvas.get());
+    setExpectedImageParameters (canvas.get());
 
     //Create snapshot of canvas channel bitmap and expected image
     Rectangle<int> canvasSnapshot (x, y, width, height);
-    ExpectedImage expected (num_channels, sample_rate_);
+    ExpectedImage expected (numChannels, sampleRate);
 
     tester->startAcquisition (false);
     canvas->beginAnimation();
 
     //Add 5 10Hz waves with +-125uV amplitude
-    auto input_buffer = CreateBufferSinusoidal (5, num_channels, 1000, 125);
-    WriteBlock (input_buffer);
-    expected.addToBuffer (input_buffer);
+    auto inputBuffer = createBufferSinusoidal (5, numChannels, 1000, 125);
+    writeBlock (inputBuffer);
+    expected.addToBuffer (inputBuffer);
     canvas->refreshState();
-    Image canvas_image = canvas->createComponentSnapshot (canvasSnapshot);
-    Image expected_image = expected.getImage (width, height, channelColours, backgroundColour, midlineColour, 125);
-    int missCount = GetImageDifferencePixelCount (expected_image, canvas_image);
+    Image canvasImage = canvas->createComponentSnapshot (canvasSnapshot);
+    Image expectedImage = expected.getImage (width, height, channelColours, backgroundColour, midlineColour, 125);
+    int missCount = getImageDifferencePixelCount (expectedImage, canvasImage);
     ASSERT_LE (missCount / (width * height), 0.01f);
 
     //Add 5 10Hz waves with +-250uV amplitude
-    input_buffer = CreateBufferSinusoidal (5, num_channels, 1000, 250);
-    WriteBlock (input_buffer);
-    expected.addToBuffer (input_buffer);
+    inputBuffer = createBufferSinusoidal (5, numChannels, 1000, 250);
+    writeBlock (inputBuffer);
+    expected.addToBuffer (inputBuffer);
     canvas->refreshState();
 
-    canvas_image = canvas->createComponentSnapshot (canvasSnapshot);
-    expected_image = expected.getImage (width, height, channelColours, backgroundColour, midlineColour, 125);
-    missCount = GetImageDifferencePixelCount (expected_image, canvas_image);
+    canvasImage = canvas->createComponentSnapshot (canvasSnapshot);
+    expectedImage = expected.getImage (width, height, channelColours, backgroundColour, midlineColour, 125);
+    missCount = getImageDifferencePixelCount (expectedImage, canvasImage);
     ASSERT_LE (float (missCount) / float (width * height), 0.01f);
 
     //Add 10 40Hz waves with +-250uV amplitude
-    input_buffer = CreateBufferSinusoidal (10, num_channels, 500, 250);
-    WriteBlock (input_buffer);
-    expected.addToBuffer (input_buffer);
+    inputBuffer = createBufferSinusoidal (10, numChannels, 500, 250);
+    writeBlock (inputBuffer);
+    expected.addToBuffer (inputBuffer);
     canvas->refreshState();
 
-    canvas_image = canvas->createComponentSnapshot (canvasSnapshot);
-    expected_image = expected.getImage (width, height, channelColours, backgroundColour, midlineColour, 125);
-    missCount = GetImageDifferencePixelCount (expected_image, canvas_image);
+    canvasImage = canvas->createComponentSnapshot (canvasSnapshot);
+    expectedImage = expected.getImage (width, height, channelColours, backgroundColour, midlineColour, 125);
+    missCount = getImageDifferencePixelCount (expectedImage, canvasImage);
     ASSERT_LE (float (missCount) / float (width * height), 0.01f);
 
     //Resize canvas to have half the vertical height and twice the uV range
     canvas->setChannelHeight (0, 20);
     canvas->setChannelRange (0, 500, ContinuousChannel::Type::ELECTRODE);
     canvas->refreshState();
-    SetExpectedImageParameters (canvas.get());
+    setExpectedImageParameters (canvas.get());
 
     canvasSnapshot.setBounds (x, y, width, height);
 
-    canvas_image = canvas->createComponentSnapshot (canvasSnapshot);
-    expected_image = expected.getImage (width, height, channelColours, backgroundColour, midlineColour, 250);
-    missCount = GetImageDifferencePixelCount (expected_image, canvas_image);
+    canvasImage = canvas->createComponentSnapshot (canvasSnapshot);
+    expectedImage = expected.getImage (width, height, channelColours, backgroundColour, midlineColour, 250);
+    missCount = getImageDifferencePixelCount (expectedImage, canvasImage);
     ASSERT_LE (float (missCount) / float (width * height), 0.01f);
 
     tester->stopAcquisition();
@@ -376,11 +372,11 @@ TEST_F (LfpDisplayNodeTests, VisualIntegrityTest)
 
 TEST_F (LfpDisplayNodeTests, DataIntegrityTest)
 {
-    int num_samples = 100;
+    int numSamples = 100;
     tester->startAcquisition (false);
 
-    auto input_buffer = CreateBuffer (1000.0, 20.0, num_channels, num_samples);
-    WriteBlock (input_buffer);
+    auto inputBuffer = createBuffer (1000.0, 20.0, numChannels, numSamples);
+    writeBlock (inputBuffer);
 
     tester->stopAcquisition();
 }

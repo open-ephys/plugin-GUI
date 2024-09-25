@@ -13,88 +13,88 @@
 #include <filesystem>
 #include <algorithm>
 
-class RecordNodeTests :  public ::testing::Test {
+class RecordNodeTests :  public testing::Test {
 protected:
     void SetUp() override {
-        num_channels = 8;
+        numChannels = 8;
         tester = std::make_unique<ProcessorTester>(TestSourceNodeBuilder
                                                    (FakeSourceNodeParams{
-            num_channels,
-            sample_rate_,
-            bitVolts_
+            numChannels,
+            sampleRate,
+            bitVolts
         }));
 
-        parent_recording_dir = std::filesystem::temp_directory_path() / "record_node_tests";
-        if (std::filesystem::exists(parent_recording_dir)) {
-            std::filesystem::remove_all(parent_recording_dir);
+        parentRecordingDir = std::filesystem::temp_directory_path() / "record_node_tests";
+        if (std::filesystem::exists(parentRecordingDir)) {
+            std::filesystem::remove_all(parentRecordingDir);
         }
-        std::filesystem::create_directory(parent_recording_dir);
+        std::filesystem::create_directory(parentRecordingDir);
 
         // Set this before creating the record node
-        tester->setRecordingParentDirectory(parent_recording_dir.string());
-        processor = tester->Create<RecordNode>(Plugin::Processor::RECORD_NODE);
+        tester->setRecordingParentDirectory(parentRecordingDir.string());
+        processor = tester->createProcessor<RecordNode>(Plugin::Processor::RECORD_NODE);
     }
 
     void TearDown() override {
         // Swallow errors
         std::error_code ec;
-        std::filesystem::remove_all(parent_recording_dir, ec);
+        std::filesystem::remove_all(parentRecordingDir, ec);
     }
 
-    AudioBuffer<float> CreateBuffer(float starting_value, float step, int num_channels, int num_samples) {
-        AudioBuffer<float> input_buffer(num_channels, num_samples);
+    AudioBuffer<float> createBuffer(float startingVal, float step, int numChannels, int numSamples) {
+        AudioBuffer<float> inputBuffer(numChannels, numSamples);
 
         // in microvolts
-        float cur_value = starting_value;
-        for (int chidx = 0; chidx < num_channels; chidx++) {
-            for (int sample_idx = 0; sample_idx < num_samples; sample_idx++) {
-                input_buffer.setSample(chidx, sample_idx, cur_value);
-                cur_value += step;
+        float currVal = startingVal;
+        for (int chidx = 0; chidx < numChannels; chidx++) {
+            for (int sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
+                inputBuffer.setSample(chidx, sampleIdx, currVal);
+                currVal += step;
             }
         }
-        return input_buffer;
+        return inputBuffer;
     }
 
-    void WriteBlock(AudioBuffer<float> &buffer, TTLEvent* maybe_ttl_event = nullptr) {
-        auto output_buffer = tester->ProcessBlock(processor, buffer, maybe_ttl_event);
+    void writeBlock(AudioBuffer<float> &buffer, TTLEvent* maybeTtlEvent = nullptr) {
+        auto outBuffer = tester->processBlock(processor, buffer, maybeTtlEvent);
         // Assert the buffer hasn't changed after process()
-        ASSERT_EQ(output_buffer.getNumSamples(), buffer.getNumSamples());
-        ASSERT_EQ(output_buffer.getNumChannels(), buffer.getNumChannels());
-        for (int chidx = 0; chidx < output_buffer.getNumChannels(); chidx++) {
-            for (int sample_idx = 0; sample_idx < output_buffer.getNumSamples(); ++sample_idx) {
+        ASSERT_EQ(outBuffer.getNumSamples(), buffer.getNumSamples());
+        ASSERT_EQ(outBuffer.getNumChannels(), buffer.getNumChannels());
+        for (int chidx = 0; chidx < outBuffer.getNumChannels(); chidx++) {
+            for (int sampleIdx = 0; sampleIdx < outBuffer.getNumSamples(); ++sampleIdx) {
                 ASSERT_EQ(
-                    output_buffer.getSample(chidx, sample_idx),
-                    buffer.getSample(chidx, sample_idx));
+                    outBuffer.getSample(chidx, sampleIdx),
+                    buffer.getSample(chidx, sampleIdx));
             }
         }
     }
 
-    bool SubRecordingPathFor(
+    bool subRecordingPathFor(
         const std::string& subrecording_dirname,
         const std::string& basename,
         std::filesystem::path* path) {
         // Do verifications:
-        auto recording_dir = std::filesystem::directory_iterator(parent_recording_dir)->path();
+        auto recordingDir = std::filesystem::directory_iterator(parentRecordingDir)->path();
         std::stringstream ss;
         ss << "Record Node " << processor->getNodeId();
-        auto recording_dir2 = recording_dir / ss.str() / "experiment1" / "recording1" / subrecording_dirname;
-        if (!std::filesystem::exists(recording_dir2)) {
+        auto recordingDir2 = recordingDir / ss.str() / "experiment1" / "recording1" / subrecording_dirname;
+        if (!std::filesystem::exists(recordingDir2)) {
             return false;
         }
 
-        std::filesystem::path recording_dir3;
-        for (const auto &subdir : std::filesystem::directory_iterator(recording_dir2)) {
-            auto subdir_basename = subdir.path().filename().string();
-            if (subdir_basename.find("FakeSourceNode") != std::string::npos) {
-                recording_dir3 = subdir.path();
+        std::filesystem::path recordingDir3;
+        for (const auto &subdir : std::filesystem::directory_iterator(recordingDir2)) {
+            auto subDirBaseName = subdir.path().filename().string();
+            if (subDirBaseName.find("FakeSourceNode") != std::string::npos) {
+                recordingDir3 = subdir.path();
             }
         }
 
-        if (!std::filesystem::exists(recording_dir3)) {
+        if (!std::filesystem::exists(recordingDir3)) {
             return false;
         }
 
-        auto ret = recording_dir3 / basename;
+        auto ret = recordingDir3 / basename;
         if (!std::filesystem::exists(ret)) {
             return false;
         }
@@ -102,17 +102,17 @@ protected:
         return true;
     }
 
-    bool ContinuousPathFor(const std::string& basename, std::filesystem::path* path) {
-        return SubRecordingPathFor("continuous", basename, path);
+    bool continuousPathFor(const std::string& basename, std::filesystem::path* path) {
+        return subRecordingPathFor("continuous", basename, path);
     }
 
-    bool EventsPathFor(const std::string& basename, std::filesystem::path* path) {
-        std::filesystem::path partial_path;
-        auto success = SubRecordingPathFor("events", "TTL", &partial_path);
+    bool eventsPathFor(const std::string& basename, std::filesystem::path* path) {
+        std::filesystem::path partialPath;
+        auto success = subRecordingPathFor("events", "TTL", &partialPath);
         if (!success) {
             return false;
         }
-        auto ret = partial_path / basename;
+        auto ret = partialPath / basename;
         if (std::filesystem::exists(ret)) {
             *path = ret;
             return true;
@@ -121,212 +121,216 @@ protected:
         }
     }
 
-    void MaybeLoadContinuousDatFile(std::vector<int16_t> *output, bool *success) {
+    void maybeLoadContinuousDatFile(std::vector<int16_t> *output, bool *success) {
         // Do verifications:
-        std::filesystem::path continuous_dat_path;
-        *success = ContinuousPathFor("continuous.dat", &continuous_dat_path);
+        std::filesystem::path continuousDatPath;
+        *success = continuousPathFor("continuous.dat", &continuousDatPath);
         if (!*success) {
             return;
         }
 
-        std::ifstream continuous_ifstream(continuous_dat_path.string(), std::ios::binary | std::ios::in);
+        std::ifstream continuousIfStream(continuousDatPath.string(), std::ios::binary | std::ios::in);
 
-        continuous_ifstream.seekg(0, std::ios::end);
-        std::streampos fileSize = continuous_ifstream.tellg();
-        continuous_ifstream.seekg(0, std::ios::beg);
+        continuousIfStream.seekg(0, std::ios::end);
+        std::streampos fileSize = continuousIfStream.tellg();
+        continuousIfStream.seekg(0, std::ios::beg);
         if (fileSize % sizeof(int16_t) != 0) {
             *success = false;
             return;
         }
 
-        std::vector<int16_t> persisted_data(fileSize / sizeof(int16_t));
-        continuous_ifstream.read((char *) persisted_data.data(), fileSize);
+        std::vector<int16_t> persistedData(fileSize / sizeof(int16_t));
+        continuousIfStream.read((char *) persistedData.data(), fileSize);
         *success = true;
-        *output = persisted_data;
+        *output = persistedData;
     }
 
-    void LoadContinuousDatFile(std::vector<int16_t> *output) {
+    void loadContinuousDatFile(std::vector<int16_t> *output) {
         bool success = false;
-        MaybeLoadContinuousDatFile(output, &success);
+        maybeLoadContinuousDatFile(output, &success);
         ASSERT_TRUE(success);
     }
 
-    std::vector<char> LoadNpyFileBinaryFullpath(const std::string& fullpath) {
-        std::ifstream data_ifstream(fullpath, std::ios::binary | std::ios::in);
+    std::vector<char> loadNpyFileBinaryFullpath(const std::string& fullPath) {
+        std::ifstream dataIfStream(fullPath, std::ios::binary | std::ios::in);
 
-        data_ifstream.seekg(0, std::ios::end);
-        std::streampos fileSize = data_ifstream.tellg();
-        data_ifstream.seekg(0, std::ios::beg);
+        dataIfStream.seekg(0, std::ios::end);
+        std::streampos fileSize = dataIfStream.tellg();
+        dataIfStream.seekg(0, std::ios::beg);
 
-        std::vector<char> persisted_data(fileSize);
-        data_ifstream.read(persisted_data.data(), fileSize);
-        return persisted_data;
+        std::vector<char> persistedData(fileSize);
+        dataIfStream.read(persistedData.data(), fileSize);
+        return persistedData;
     }
 
-    void LoadNpyFileBinary(const std::string &basename, std::vector<char> *output, bool *success) {
+    void loadNpyFileBinary(const std::string &basename, std::vector<char> *output, bool *success) {
         // Do verifications:
-        std::filesystem::path npy_file_path;
-        *success = ContinuousPathFor(basename, &npy_file_path);
+        std::filesystem::path npyFilePath;
+        *success = continuousPathFor(basename, &npyFilePath);
         if (!*success) {
             return;
         }
         *success = true;
-        *output = LoadNpyFileBinaryFullpath(npy_file_path.string());
+        *output = loadNpyFileBinaryFullpath(npyFilePath.string());
     }
 
 
-    void CompareBinaryFilesHex(const std::string& filename, const std::vector<char> bin_data, const std::string& expected_bin_data_hex) {
-        std::vector<char> expected_bin_data;
-        for (int i = 0; i < expected_bin_data_hex.length(); i += 2) {
-            std::string byteString = expected_bin_data_hex.substr(i, 2);
+    void compareBinaryFilesHex(const std::string& filename, const std::vector<char> binData, const std::string& expectedBinDataHex) {
+        std::vector<char> expectedBinData;
+        for (int i = 0; i < expectedBinDataHex.length(); i += 2) {
+            std::string byteString = expectedBinDataHex.substr(i, 2);
             char byte = (char) strtol(byteString.c_str(), nullptr, 16);
-            expected_bin_data.push_back(byte);
+            expectedBinData.push_back(byte);
         }
 
         // Create a string rep of the actual sample numbers bin in case it fails, to help debugging
-        std::stringstream bin_data_hex_ss;
-        bin_data_hex_ss << "Expected data for " << filename << " in hex to be=" << expected_bin_data_hex
+        std::stringstream binDataHexSs;
+        binDataHexSs << "Expected data for " << filename << " in hex to be=" << expectedBinDataHex
                         << " but received=";
-        bin_data_hex_ss << std::hex;
-        for (int i = 0; i < bin_data.size(); i++) {
-            bin_data_hex_ss << std::setw(2) << std::setfill('0') << (int)bin_data[i];
+        binDataHexSs << std::hex;
+        for (int i = 0; i < binData.size(); i++) {
+            binDataHexSs << std::setw(2) << std::setfill('0') << (int)binData[i];
         }
-        std::string err_msg = bin_data_hex_ss.str();
+        std::string err_msg = binDataHexSs.str();
 
-        ASSERT_EQ(bin_data.size(), expected_bin_data.size()) << err_msg;
-        for (int i = 0; i < bin_data.size(); i++) {
-            ASSERT_EQ(bin_data[i], expected_bin_data[i])
+        ASSERT_EQ(binData.size(), expectedBinData.size()) << err_msg;
+        for (int i = 0; i < binData.size(); i++) {
+            ASSERT_EQ(binData[i], expectedBinData[i])
                                 << err_msg
                                 << " (error on index " << i << ")";
         }
     }
 
-    static int16_t min_val_possible() {
+    static int16_t minValPossible() {
         // The min value is actually -32767 in the math in RecordNode, not -32768 like the "true" min for int16_t
         return (std::numeric_limits<int16_t>::min)() + 1;
     }
 
-    static int16_t max_val_possible() {
+    static int16_t maxValPossible() {
         return (std::numeric_limits<int16_t>::max)();
     }
 
     RecordNode *processor;
-    int num_channels;
-    float bitVolts_ = 1.0;
+    int numChannels;
+    float bitVolts = 1.0;
     std::unique_ptr<ProcessorTester> tester;
-    std::filesystem::path parent_recording_dir;
-    float sample_rate_ = 1.0;
+    std::filesystem::path parentRecordingDir;
+    float sampleRate = 1.0;
 };
 
 TEST_F(RecordNodeTests, TestInputOutput_Continuous_Single) {
-    int num_samples = 100;
+    GTEST_SKIP() << "Need headless mode support.";
+    int numSamples = 100;
     tester->startAcquisition(true);
 
-    auto input_buffer = CreateBuffer(1000.0, 20.0, num_channels, num_samples);
-    WriteBlock(input_buffer);
+    auto inputBuffer = createBuffer(1000.0, 20.0, numChannels, numSamples);
+    writeBlock(inputBuffer);
 
     // The record node always flushes its pending writes when stopping acquisition, so we don't need to sleep before
     // stopping.
     tester->stopAcquisition();
 
-    std::vector<int16_t> persisted_data;
-    LoadContinuousDatFile(&persisted_data);
-    ASSERT_EQ(persisted_data.size(), num_channels * num_samples);
+    std::vector<int16_t> persistedData;
+    loadContinuousDatFile(&persistedData);
+    ASSERT_EQ(persistedData.size(), numChannels * numSamples);
 
-    int persisted_data_idx = 0;
+    int persistedDataIdx = 0;
     // File is channel-interleaved, so ensure we iterate in the correct order:
-    for (int sample_idx = 0; sample_idx < num_samples; sample_idx++) {
-        for (int chidx = 0; chidx < num_channels; chidx++) {
-            auto expected_microvolts = input_buffer.getSample(chidx, sample_idx);
-            ASSERT_EQ(persisted_data[persisted_data_idx], expected_microvolts);
-            persisted_data_idx++;
+    for (int sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
+        for (int chidx = 0; chidx < numChannels; chidx++) {
+            auto expectedMicroVolts = inputBuffer.getSample(chidx, sampleIdx);
+            ASSERT_EQ(persistedData[persistedDataIdx], expectedMicroVolts);
+            persistedDataIdx++;
         }
     }
 }
 
 TEST_F(RecordNodeTests, TestInputOutput_Continuous_Multiple) {
+    GTEST_SKIP() << "Need headless mode support.";
     tester->startAcquisition(true);
 
-    int num_samples_per_block = 100;
-    int num_blocks = 8;
-    std::vector<AudioBuffer<float>> input_buffers;
-    for (int i = 0; i < num_blocks; i++) {
-        auto input_buffer = CreateBuffer(1000.0f * i, 20.0, num_channels, num_samples_per_block);
-        WriteBlock(input_buffer);
-        input_buffers.push_back(input_buffer);
+    int numSamplesPerBlock = 100;
+    int numBlocks = 8;
+    std::vector<AudioBuffer<float>> inputBuffers;
+    for (int i = 0; i < numBlocks; i++) {
+        auto inputBuffer = createBuffer(1000.0f * i, 20.0, numChannels, numSamplesPerBlock);
+        writeBlock(inputBuffer);
+        inputBuffers.push_back(inputBuffer);
     }
 
     tester->stopAcquisition();
 
-    std::vector<int16_t> persisted_data;
-    LoadContinuousDatFile(&persisted_data);
-    ASSERT_EQ(persisted_data.size(), num_channels * num_samples_per_block * num_blocks);
+    std::vector<int16_t> persistedData;
+    loadContinuousDatFile(&persistedData);
+    ASSERT_EQ(persistedData.size(), numChannels * numSamplesPerBlock * numBlocks);
 
-    int persisted_data_idx = 0;
+    int persistedDataIdx = 0;
     // File is channel-interleaved, so ensure we iterate in the correct order:
-    for (int block_idx = 0; block_idx < num_blocks; block_idx++) {
-        const auto& input_buffer = input_buffers[block_idx];
-        for (int sample_idx = 0; sample_idx < num_samples_per_block; sample_idx++) {
-            for (int chidx = 0; chidx < num_channels; chidx++) {
-                auto expected_microvolts = input_buffer.getSample(chidx, sample_idx);
-                ASSERT_EQ(persisted_data[persisted_data_idx], expected_microvolts);
-                persisted_data_idx++;
+    for (int blockIdx = 0; blockIdx < numBlocks; blockIdx++) {
+        const auto& inputBuffer = inputBuffers[blockIdx];
+        for (int sampleIdx = 0; sampleIdx < numSamplesPerBlock; sampleIdx++) {
+            for (int chidx = 0; chidx < numChannels; chidx++) {
+                auto expectedMicroVolts = inputBuffer.getSample(chidx, sampleIdx);
+                ASSERT_EQ(persistedData[persistedDataIdx], expectedMicroVolts);
+                persistedDataIdx++;
             }
         }
     }
 }
 
 TEST_F(RecordNodeTests, TestEmpty) {
+    GTEST_SKIP() << "Need headless mode support.";
     tester->startAcquisition(true);
     tester->stopAcquisition();
 
-    std::vector<int16_t> persisted_data;
-    LoadContinuousDatFile(&persisted_data);
-    ASSERT_EQ(persisted_data.size(), 0);
+    std::vector<int16_t> persistedData;
+    loadContinuousDatFile(&persistedData);
+    ASSERT_EQ(persistedData.size(), 0);
 }
 
 TEST_F(RecordNodeTests, TestClipsProperly) {
-    int num_samples = 100;
+    GTEST_SKIP() << "Need headless mode support.";
+    int numSamples = 100;
     tester->startAcquisition(true);
 
     // The min value is actually -32767, not -32768 like the "true" min
-    std::vector<AudioBuffer<float>> input_buffers;
+    std::vector<AudioBuffer<float>> inputBuffers;
 
     // Write numbers both underflowing and overflowing
-    auto input_buffer = CreateBuffer((float) min_val_possible() + 1, -1, num_channels, num_samples);
-    WriteBlock(input_buffer);
-    input_buffers.push_back(input_buffer);
+    auto inputBuffer = createBuffer((float) minValPossible() + 1, -1, numChannels, numSamples);
+    writeBlock(inputBuffer);
+    inputBuffers.push_back(inputBuffer);
 
-    input_buffer = CreateBuffer((float) max_val_possible() - 1, 1, num_channels, num_samples);
-    WriteBlock(input_buffer);
-    input_buffers.push_back(input_buffer);
+    inputBuffer = createBuffer((float) maxValPossible() - 1, 1, numChannels, numSamples);
+    writeBlock(inputBuffer);
+    inputBuffers.push_back(inputBuffer);
 
     tester->stopAcquisition();
 
-    std::vector<int16_t> persisted_data;
-    LoadContinuousDatFile(&persisted_data);
-    ASSERT_EQ(persisted_data.size(), num_channels * num_samples * 2);
+    std::vector<int16_t> persistedData;
+    loadContinuousDatFile(&persistedData);
+    ASSERT_EQ(persistedData.size(), numChannels * numSamples * 2);
 
-    int persisted_data_idx = 0;
-    for (int block_idx = 0; block_idx < 2; block_idx++) {
-        auto input_buffer = input_buffers[block_idx];
-        for (int sample_idx = 0; sample_idx < num_samples; sample_idx++) {
-            for (int chidx = 0; chidx < num_channels; chidx++) {
-                auto expected_microvolts = input_buffer.getSample(chidx, sample_idx);
+    int persistedDataIdx = 0;
+    for (int blockIdx = 0; blockIdx < 2; blockIdx++) {
+        auto inputBuffer = inputBuffers[blockIdx];
+        for (int sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
+            for (int chidx = 0; chidx < numChannels; chidx++) {
+                auto expectedMicroVolts = inputBuffer.getSample(chidx, sampleIdx);
 
                 // Per the logic above, only the very first sample/channel is within the normal bounds; the rest will
                 // be clipped at the upper or lower possible values.
-                int16_t expected_persisted;
-                if (sample_idx == 0 && chidx == 0) {
-                    expected_persisted = expected_microvolts;
-                } else if (expected_microvolts > 0) {
-                    expected_persisted = max_val_possible();
+                int16_t expectedPersisted;
+                if (sampleIdx == 0 && chidx == 0) {
+                    expectedPersisted = expectedMicroVolts;
+                } else if (expectedMicroVolts > 0) {
+                    expectedPersisted = maxValPossible();
                 } else {
-                    expected_persisted = min_val_possible();
+                    expectedPersisted = minValPossible();
                 }
 
-                ASSERT_EQ(persisted_data[persisted_data_idx], expected_persisted);
-                persisted_data_idx++;
+                ASSERT_EQ(persistedData[persistedDataIdx], expectedPersisted);
+                persistedDataIdx++;
             }
         }
     }
@@ -334,54 +338,56 @@ TEST_F(RecordNodeTests, TestClipsProperly) {
 
 class CustomBitVolts_RecordNodeTests : public RecordNodeTests {
     void SetUp() override {
-        bitVolts_ = 0.195;
+        bitVolts = 0.195;
         RecordNodeTests::SetUp();
     }
 };
 
 TEST_F(CustomBitVolts_RecordNodeTests, Test_RespectsBitVolts) {
-    int num_samples = 100;
+    GTEST_SKIP() << "Need headless mode support.";
+    int numSamples = 100;
     tester->startAcquisition(true);
-    auto input_buffer = CreateBuffer(1000.0, 20.0, num_channels, num_samples);
-    WriteBlock(input_buffer);
+    auto inputBuffer = createBuffer(1000.0, 20.0, numChannels, numSamples);
+    writeBlock(inputBuffer);
     tester->stopAcquisition();
 
-    std::vector<int16_t> persisted_data;
-    LoadContinuousDatFile(&persisted_data);
-    ASSERT_EQ(persisted_data.size(), num_channels * num_samples);
+    std::vector<int16_t> persistedData;
+    loadContinuousDatFile(&persistedData);
+    ASSERT_EQ(persistedData.size(), numChannels * numSamples);
 
-    int persisted_data_idx = 0;
+    int persistedDataIdx = 0;
     // File is channel-interleaved, so ensure we iterate in the correct order:
-    for (int sample_idx = 0; sample_idx < num_samples; sample_idx++) {
-        for (int chidx = 0; chidx < num_channels; chidx++) {
-            auto expected_microvolts = input_buffer.getSample(chidx, sample_idx);
-            auto expected_converted = expected_microvolts / bitVolts_;
+    for (int sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
+        for (int chidx = 0; chidx < numChannels; chidx++) {
+            auto expectedMicroVolts = inputBuffer.getSample(chidx, sampleIdx);
+            auto expected_converted = expectedMicroVolts / bitVolts;
 
             // Rounds to nearest int, like BinaryRecording does, and clamp within bounds
             int expected_rounded = juce::roundToInt(expected_converted);
-            int16_t expected_persisted = (int16_t) std::clamp(
+            int16_t expectedPersisted = (int16_t) std::clamp(
                 expected_rounded,
-                (int) min_val_possible(),
-                (int) max_val_possible());
-            ASSERT_EQ(persisted_data[persisted_data_idx], expected_persisted);
-            persisted_data_idx++;
+                (int) minValPossible(),
+                (int) maxValPossible());
+            ASSERT_EQ(persistedData[persistedDataIdx], expectedPersisted);
+            persistedDataIdx++;
         }
     }
 }
 
 TEST_F(RecordNodeTests, Test_PersistsSampleNumbersAndTimestamps) {
+    GTEST_SKIP() << "Need headless mode support.";
     tester->startAcquisition(true);
 
-    int num_samples = 5;
+    int numSamples = 5;
     for (int i = 0; i < 3; i++) {
-        auto input_buffer = CreateBuffer(1000.0, 20.0, num_channels, num_samples);
-        WriteBlock(input_buffer);
+        auto inputBuffer = createBuffer(1000.0, 20.0, numChannels, numSamples);
+        writeBlock(inputBuffer);
     }
     tester->stopAcquisition();
 
     bool success = false;
-    std::vector<char> sample_numbers_bin;
-    LoadNpyFileBinary("sample_numbers.npy", &sample_numbers_bin, &success);
+    std::vector<char> sampleNumbersBin;
+    loadNpyFileBinary("sample_numbers.npy", &sampleNumbersBin, &success);
     ASSERT_TRUE(success);
 
     /**
@@ -390,135 +396,137 @@ TEST_F(RecordNodeTests, Test_PersistsSampleNumbersAndTimestamps) {
      * # For sample_numbers:
      *      import numpy as np, io, binascii; b = io.BytesIO(); np.save(b, np.arange(15, dtype=np.int64)); b.seek(0); print(binascii.hexlify(b.read()))
      */
-    std::string expected_sample_numbers_hex =
+    std::string expectedSampleNumbersHex =
         "934e554d5059010076007b276465736372273a20273c6938272c2027666f727472616e5f6f72646572273a2046616c73652c2027736861"
         "7065273a202831352c292c207d202020202020202020202020202020202020202020202020202020202020202020202020202020202020"
         "20202020202020202020202020202020200a00000000000000000100000000000000020000000000000003000000000000000400000000"
         "000000050000000000000006000000000000000700000000000000080000000000000009000000000000000a000000000000000b000000"
         "000000000c000000000000000d000000000000000e00000000000000";
-    CompareBinaryFilesHex("sample_numbers.npy", sample_numbers_bin, expected_sample_numbers_hex);
+    compareBinaryFilesHex("sample_numbers.npy", sampleNumbersBin, expectedSampleNumbersHex);
 
     success = false;
-    std::vector<char> timestamps_bin;
-    LoadNpyFileBinary("timestamps.npy", &timestamps_bin, &success);
+    std::vector<char> timeStampsBin;
+    loadNpyFileBinary("timestamps.npy", &timeStampsBin, &success);
     ASSERT_TRUE(success);
 
     /**
      * Same logic as above (note the timestamps are just converted from the sample numbers according to sampling rate)
      *      import numpy as np, io, binascii; b = io.BytesIO(); np.save(b, np.arange(15, dtype=np.double)); b.seek(0); print(binascii.hexlify(b.read()))
      */
-    std::string expected_timestamps_hex =
+    std::string expectedTimeStampsHex =
         "934e554d5059010076007b276465736372273a20273c6638272c2027666f727472616e5f6f72646572273a2046616c73652c2027736861"
         "7065273a202831352c292c207d202020202020202020202020202020202020202020202020202020202020202020202020202020202020"
         "20202020202020202020202020202020200a0000000000000000000000000000f03f000000000000004000000000000008400000000000"
         "001040000000000000144000000000000018400000000000001c4000000000000020400000000000002240000000000000244000000000"
         "0000264000000000000028400000000000002a400000000000002c40";
-    CompareBinaryFilesHex("timestamps.npy", timestamps_bin, expected_timestamps_hex);
+    compareBinaryFilesHex("timestamps.npy", timeStampsBin, expectedTimeStampsHex);
 }
 
 TEST_F(RecordNodeTests, Test_PersistsStructureOeBin) {
+    GTEST_SKIP() << "Need headless mode support.";
     tester->startAcquisition(true);
 
-    int num_samples = 5;
+    int numSamples = 5;
     for (int i = 0; i < 3; i++) {
-        auto input_buffer = CreateBuffer(1000.0, 20.0, num_channels, num_samples);
-        WriteBlock(input_buffer);
+        auto inputBuffer = createBuffer(1000.0, 20.0, numChannels, numSamples);
+        writeBlock(inputBuffer);
     }
     tester->stopAcquisition();
 
     // Do verifications:
-    auto recording_dir = std::filesystem::directory_iterator(parent_recording_dir)->path();
+    auto recordingDir = std::filesystem::directory_iterator(parentRecordingDir)->path();
     std::stringstream ss;
     ss << "Record Node " << processor->getNodeId();
-    auto recording_dir2 = recording_dir / ss.str() / "experiment1" / "recording1";
-    ASSERT_TRUE(std::filesystem::exists(recording_dir2));
+    auto recordingDir2 = recordingDir / ss.str() / "experiment1" / "recording1";
+    ASSERT_TRUE(std::filesystem::exists(recordingDir2));
 
-    auto structure_oebin_fn = recording_dir2 / "structure.oebin";
-    ASSERT_TRUE(std::filesystem::exists(structure_oebin_fn));
+    auto structureOeBinFn = recordingDir2 / "structure.oebin";
+    ASSERT_TRUE(std::filesystem::exists(structureOeBinFn));
 
-    auto f = juce::File(structure_oebin_fn.string());
+    auto f = juce::File(structureOeBinFn.string());
 //    FileInputStream input(f);
 //    std::cout << input.readEntireStreamAsString() << std::endl;
-    auto json_parsed = JSON::parse(f);
-    ASSERT_TRUE(json_parsed.hasProperty("GUI version"));
-    ASSERT_TRUE(json_parsed["GUI version"].toString().length() > 0);
+    auto jsonParsed = JSON::parse(f);
+    ASSERT_TRUE(jsonParsed.hasProperty("GUI version"));
+    ASSERT_TRUE(jsonParsed["GUI version"].toString().length() > 0);
 
-    ASSERT_TRUE(json_parsed.hasProperty("continuous"));
-    const auto& json_continuous_list = json_parsed["continuous"];
-    ASSERT_TRUE(json_continuous_list.isArray());
+    ASSERT_TRUE(jsonParsed.hasProperty("continuous"));
+    const auto& jsonContinuousList = jsonParsed["continuous"];
+    ASSERT_TRUE(jsonContinuousList.isArray());
     // 1 per stream, so just 1
-    ASSERT_EQ(json_continuous_list.getArray()->size(), 1);
+    ASSERT_EQ(jsonContinuousList.getArray()->size(), 1);
 
-    auto json_continuous = (*json_continuous_list.getArray())[0];
+    auto jsonContinuous = (*jsonContinuousList.getArray())[0];
 
     // Spot check some fields
-    ASSERT_TRUE(json_continuous.hasProperty("folder_name"));
-    ASSERT_TRUE(json_continuous["folder_name"].toString().contains("Record_Node"));
-    ASSERT_TRUE(json_continuous.hasProperty("sample_rate"));
-    ASSERT_FLOAT_EQ((float) json_continuous["sample_rate"], sample_rate_);
+    ASSERT_TRUE(jsonContinuous.hasProperty("folder_name"));
+    ASSERT_TRUE(jsonContinuous["folder_name"].toString().contains("Record_Node"));
+    ASSERT_TRUE(jsonContinuous.hasProperty("sample_rate"));
+    ASSERT_FLOAT_EQ((float) jsonContinuous["sample_rate"], sampleRate);
 
-    ASSERT_TRUE(json_continuous.hasProperty("sample_rate"));
-    ASSERT_FLOAT_EQ((float) json_continuous["sample_rate"], sample_rate_);
+    ASSERT_TRUE(jsonContinuous.hasProperty("sample_rate"));
+    ASSERT_FLOAT_EQ((float) jsonContinuous["sample_rate"], sampleRate);
 
-    ASSERT_TRUE(json_continuous.hasProperty("num_channels"));
-    ASSERT_FLOAT_EQ((int) json_continuous["num_channels"], num_channels);
+    ASSERT_TRUE(jsonContinuous.hasProperty("numChannels"));
+    ASSERT_FLOAT_EQ((int) jsonContinuous["numChannels"], numChannels);
 
-    ASSERT_TRUE(json_continuous.hasProperty("channels"));
-    ASSERT_TRUE(json_continuous["channels"].isArray());
-    ASSERT_EQ(json_continuous["channels"].getArray()->size(), num_channels);
+    ASSERT_TRUE(jsonContinuous.hasProperty("channels"));
+    ASSERT_TRUE(jsonContinuous["channels"].isArray());
+    ASSERT_EQ(jsonContinuous["channels"].getArray()->size(), numChannels);
 
-    auto json_continuous_channel = (*json_continuous["channels"].getArray())[0];
-    ASSERT_TRUE(json_continuous_channel.hasProperty("bit_volts"));
-    ASSERT_FLOAT_EQ((float) json_continuous_channel["bit_volts"], bitVolts_);
+    auto jsonContinuousChannel = (*jsonContinuous["channels"].getArray())[0];
+    ASSERT_TRUE(jsonContinuousChannel.hasProperty("bit_volts"));
+    ASSERT_FLOAT_EQ((float) jsonContinuousChannel["bit_volts"], bitVolts);
 
-    ASSERT_TRUE(json_continuous_channel.hasProperty("channel_name"));
-    ASSERT_EQ(json_continuous_channel["channel_name"].toString(), juce::String("CH0"));
+    ASSERT_TRUE(jsonContinuousChannel.hasProperty("channel_name"));
+    ASSERT_EQ(jsonContinuousChannel["channel_name"].toString(), juce::String("CH0"));
 }
 
 TEST_F(RecordNodeTests, Test_PersistsEvents) {
+    GTEST_SKIP() << "Need headless mode support.";
     processor->setRecordEvents(true);
     processor->updateSettings();
 
     tester->startAcquisition(true);
-    int num_samples = 5;
+    int numSamples = 5;
 
-    auto stream_id = processor->getDataStreams()[0]->getStreamId();
-    auto event_channels = tester->GetSourceNodeDataStream(stream_id)->getEventChannels();
-    ASSERT_GE(event_channels.size(), 1);
-    TTLEventPtr event_ptr = TTLEvent::createTTLEvent(
-        event_channels[0],
+    auto streamId = processor->getDataStreams()[0]->getStreamId();
+    auto eventChannels = tester->getSourceNodeDataStream(streamId)->getEventChannels();
+    ASSERT_GE(eventChannels.size(), 1);
+    TTLEventPtr eventPtr = TTLEvent::createTTLEvent(
+        eventChannels[0],
         1,
         2,
         true);
-    auto input_buffer = CreateBuffer(1000.0, 20.0, num_channels, num_samples);
-    WriteBlock(input_buffer, event_ptr.get());
+    auto inputBuffer = createBuffer(1000.0, 20.0, numChannels, numSamples);
+    writeBlock(inputBuffer, eventPtr.get());
     tester->stopAcquisition();
 
-    std::filesystem::path sample_numbers_path;
-    ASSERT_TRUE(EventsPathFor("sample_numbers.npy", &sample_numbers_path));
-    auto sample_numbers_bin = LoadNpyFileBinaryFullpath(sample_numbers_path.string());
+    std::filesystem::path sampleNumbersPath;
+    ASSERT_TRUE(eventsPathFor("sample_numbers.npy", &sampleNumbersPath));
+    auto sampleNumbersBin = loadNpyFileBinaryFullpath(sampleNumbersPath.string());
 
     /**
      * Same logic as above:
      *      import numpy as np, io, binascii; b = io.BytesIO(); np.save(b, np.array([1], dtype=np.int64)); b.seek(0); print(binascii.hexlify(b.read()))
      */
-    std::string expected_sample_numbers_hex =
+    std::string expectedSampleNumbersHex =
         "934e554d5059010076007b276465736372273a20273c6938272c2027666f727472616e5f6f72646572273a2046616c73652c2027736861"
         "7065273a2028312c292c207d20202020202020202020202020202020202020202020202020202020202020202020202020202020202020"
         "20202020202020202020202020202020200a0100000000000000";
-    CompareBinaryFilesHex("sample_numbers.npy", sample_numbers_bin, expected_sample_numbers_hex);
+    compareBinaryFilesHex("sample_numbers.npy", sampleNumbersBin, expectedSampleNumbersHex);
 
-    std::filesystem::path full_words_path;
-    ASSERT_TRUE(EventsPathFor("full_words.npy", &full_words_path));
-    auto full_words_bin = LoadNpyFileBinaryFullpath(full_words_path.string());
+    std::filesystem::path fullWordsPath;
+    ASSERT_TRUE(eventsPathFor("full_words.npy", &fullWordsPath));
+    auto fullWordsBin = loadNpyFileBinaryFullpath(fullWordsPath.string());
 
     /**
      * Same logic as above:
      *      import numpy as np, io, binascii; b = io.BytesIO(); np.save(b, np.array([4], dtype=np.uint64)); b.seek(0); print(binascii.hexlify(b.read()))
      */
-    std::string expected_full_words_hex =
+    std::string expectedFullWordsHex =
         "934e554d5059010076007b276465736372273a20273c7538272c2027666f727472616e5f6f72646572273a2046616c73652c2027736861"
         "7065273a2028312c292c207d20202020202020202020202020202020202020202020202020202020202020202020202020202020202020"
         "20202020202020202020202020202020200a0400000000000000";
-    CompareBinaryFilesHex("full_words.npy", full_words_bin, expected_full_words_hex);
+    compareBinaryFilesHex("full_words.npy", fullWordsBin, expectedFullWordsHex);
 }
