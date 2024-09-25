@@ -1489,6 +1489,7 @@ void LfpDisplayOptions::saveParameters (XmlElement* xml)
     }
 
     xmlNode->setAttribute ("ChannelDisplayState", channelDisplayState);
+    xmlNode->setAttribute ("selectedChannelType", (int) selectedChannelType);
 
     xmlNode->setAttribute ("ScrollX", canvasSplit->viewport->getViewPositionX());
     xmlNode->setAttribute ("ScrollY", canvasSplit->viewport->getViewPositionY());
@@ -1532,13 +1533,15 @@ void LfpDisplayOptions::loadParameters (XmlElement* xml)
             String rangeString = xmlNode->getStringAttribute ("Range");
             ranges.addTokens (rangeString, ",", "\"");
 
+            setSelectedType( (ContinuousChannel::Type) xmlNode->getIntAttribute ("selectedChannelType", ContinuousChannel::Type::ELECTRODE));
+
             selectedVoltageRangeValues[0] = ranges[0];
             selectedVoltageRangeValues[1] = ranges[1];
             selectedVoltageRangeValues[2] = ranges[2];
             selectedVoltageRange[0] = voltageRanges[0].indexOf (ranges[0]) + 1;
             selectedVoltageRange[1] = voltageRanges[1].indexOf (ranges[1]) + 1;
             selectedVoltageRange[2] = voltageRanges[2].indexOf (ranges[2]) + 1;
-            rangeSelection->setText (ranges[0]);
+            rangeSelection->setText (ranges[selectedChannelType]);
             lfpDisplay->setRange (ranges[0].getFloatValue() * rangeGain[0], ContinuousChannel::Type::ELECTRODE);
             lfpDisplay->setRange (ranges[1].getFloatValue() * rangeGain[1], ContinuousChannel::Type::AUX);
             lfpDisplay->setRange (ranges[2].getFloatValue() * rangeGain[2], ContinuousChannel::Type::ADC);
