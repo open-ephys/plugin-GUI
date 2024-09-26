@@ -34,8 +34,6 @@
 
 #if JUCE_PLUGINHOST_AU && (JUCE_MAC || JUCE_IOS)
 
-JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
-
 #if JUCE_MAC
 #include <AudioUnit/AUCocoaUIView.h>
 #include <CoreAudioKit/AUGenericView.h>
@@ -227,85 +225,16 @@ namespace AudioUnitFormatHelpers
                 if (manuString != nullptr && CFGetTypeID (manuString) == CFStringGetTypeID())
                     manufacturer = String::fromCFString ((CFStringRef) manuString);
 
-                class ScopedBundleResourceMap final
-                {
-                public:
-                    explicit ScopedBundleResourceMap (CFBundleRef refIn) : ref (refIn),
-                                                                           resFileId (CFBundleOpenBundleResourceMap (ref)),
-                                                                           valid (resFileId != -1)
-                    {
-                        if (valid)
-                            UseResFile (resFileId);
-                    }
+                NSBundle* bundle = [[NSBundle alloc] initWithPath: (NSString*) fileOrIdentifier.toCFString()];
 
-                    ~ScopedBundleResourceMap()
-                    {
-                        if (valid)
-                            CFBundleCloseBundleResourceMap (ref, resFileId);
-                    }
+                NSArray* audioComponents = [bundle objectForInfoDictionaryKey: @"AudioComponents"];
+                NSDictionary* dict = [audioComponents objectAtIndex: 0];
 
-                    bool isValid() const noexcept
-                    {
-                        return valid;
-                    }
+                desc.componentManufacturer = stringToOSType (nsStringToJuce ((NSString*) [dict valueForKey: @"manufacturer"]));
+                desc.componentType         = stringToOSType (nsStringToJuce ((NSString*) [dict valueForKey: @"type"]));
+                desc.componentSubType      = stringToOSType (nsStringToJuce ((NSString*) [dict valueForKey: @"subtype"]));
 
-                private:
-                    const CFBundleRef ref;
-                    const ResFileRefNum resFileId;
-                    const bool valid;
-                };
-
-                const ScopedBundleResourceMap resourceMap { bundleRef.get() };
-
-                const OSType thngType = stringToOSType ("thng");
-                auto numResources = Count1Resources (thngType);
-
-                if (resourceMap.isValid() && numResources > 0)
-                {
-                    for (ResourceIndex i = 1; i <= numResources; ++i)
-                    {
-                        if (Handle h = Get1IndResource (thngType, i))
-                        {
-                            HLock (h);
-                            uint32 types[3];
-                            std::memcpy (types, *h, sizeof (types));
-
-                            if (types[0] == kAudioUnitType_MusicDevice
-                                 || types[0] == kAudioUnitType_MusicEffect
-                                 || types[0] == kAudioUnitType_Effect
-                                 || types[0] == kAudioUnitType_Generator
-                                 || types[0] == kAudioUnitType_Panner
-                                 || types[0] == kAudioUnitType_Mixer
-                                 || types[0] == kAudioUnitType_MIDIProcessor)
-                            {
-                                desc.componentType = types[0];
-                                desc.componentSubType = types[1];
-                                desc.componentManufacturer = types[2];
-
-                                if (AudioComponent comp = AudioComponentFindNext (nullptr, &desc))
-                                    getNameAndManufacturer (comp, name, manufacturer);
-
-                                break;
-                            }
-
-                            HUnlock (h);
-                            ReleaseResource (h);
-                        }
-                    }
-                }
-                else
-                {
-                    NSBundle* bundle = [[NSBundle alloc] initWithPath: (NSString*) fileOrIdentifier.toCFString()];
-
-                    NSArray* audioComponents = [bundle objectForInfoDictionaryKey: @"AudioComponents"];
-                    NSDictionary* dict = [audioComponents objectAtIndex: 0];
-
-                    desc.componentManufacturer = stringToOSType (nsStringToJuce ((NSString*) [dict valueForKey: @"manufacturer"]));
-                    desc.componentType         = stringToOSType (nsStringToJuce ((NSString*) [dict valueForKey: @"type"]));
-                    desc.componentSubType      = stringToOSType (nsStringToJuce ((NSString*) [dict valueForKey: @"subtype"]));
-
-                    [bundle release];
-                }
+                [bundle release];
             }
         }
 
@@ -499,10 +428,7 @@ namespace AudioUnitFormatHelpers
 
     static bool isPluginAUv3 (const AudioComponentDescription& desc)
     {
-        if (@available (macOS 10.11, *))
-            return (desc.componentFlags & kAudioComponentFlag_IsV3AudioUnit) != 0;
-
-        return false;
+        return (desc.componentFlags & kAudioComponentFlag_IsV3AudioUnit) != 0;
     }
 }
 
@@ -580,17 +506,14 @@ static void createAudioUnit (VersionedAudioComponent versionedComponent, AudioUn
 {
     if (versionedComponent.isAUv3)
     {
-        if (@available (macOS 10.11, *))
-        {
-            AudioComponentInstantiate (versionedComponent.audioComponent,
-                                       kAudioComponentInstantiation_LoadOutOfProcess,
-                                       ^(AudioComponentInstance audioUnit, OSStatus err)
-                                       {
-                                           callback (audioUnit, err);
-                                       });
+        AudioComponentInstantiate (versionedComponent.audioComponent,
+                                   kAudioComponentInstantiation_LoadOutOfProcess,
+                                   ^(AudioComponentInstance audioUnit, OSStatus err)
+                                   {
+                                       callback (audioUnit, err);
+                                   });
 
-            return;
-        }
+        return;
     }
 
     AudioComponentInstance audioUnit;
@@ -772,7 +695,10 @@ public:
                                                      &propertySize);
 
                     if (! err && stringValue.outString != nullptr)
+                    {
+                        const CFUniquePtr<CFStringRef> ownedString { stringValue.outString };
                         return String::fromCFString (stringValue.outString).substring (0, maximumLength);
+                    }
                 }
             }
 
@@ -1619,13 +1545,13 @@ public:
 
     int getCurrentProgram() override
     {
-        AUPreset current;
-        current.presetNumber = 0;
+        AUPreset current{};
         UInt32 sz = sizeof (AUPreset);
 
         AudioUnitGetProperty (audioUnit, kAudioUnitProperty_PresentPreset,
                               kAudioUnitScope_Global, 0, &current, &sz);
 
+        const CFUniquePtr<CFStringRef> ownedString { current.presetName };
         return current.presetNumber;
     }
 
@@ -1636,7 +1562,7 @@ public:
         if (factoryPresets.get() != nullptr
             && newIndex < (int) CFArrayGetCount (factoryPresets.get()))
         {
-            AUPreset current;
+            AUPreset current{};
             current.presetNumber = newIndex;
 
             if (auto* p = static_cast<const AUPreset*> (CFArrayGetValueAtIndex (factoryPresets.get(), newIndex)))
@@ -1653,16 +1579,16 @@ public:
     {
         if (index == -1)
         {
-            AUPreset current;
+            AUPreset current{};
             current.presetNumber = -1;
-            current.presetName = CFSTR ("");
 
             UInt32 prstsz = sizeof (AUPreset);
 
             AudioUnitGetProperty (audioUnit, kAudioUnitProperty_PresentPreset,
                                   kAudioUnitScope_Global, 0, &current, &prstsz);
 
-            return String::fromCFString (current.presetName);
+            const CFUniquePtr<CFStringRef> ownedString { current.presetName };
+            return current.presetName != nullptr ? String::fromCFString (current.presetName) : String{};
         }
 
         ScopedFactoryPresets factoryPresets { audioUnit };
@@ -1713,7 +1639,7 @@ public:
             CFUniquePtr<CFWriteStreamRef> stream (CFWriteStreamCreateWithAllocatedBuffers (kCFAllocatorDefault, kCFAllocatorDefault));
             CFWriteStreamOpen (stream.get());
 
-            CFIndex bytesWritten = CFPropertyListWriteToStream (propertyList.object, stream.get(), kCFPropertyListBinaryFormat_v1_0, nullptr);
+            const auto bytesWritten = CFPropertyListWrite (propertyList.object, stream.get(), kCFPropertyListBinaryFormat_v1_0, 0, nullptr);
             CFWriteStreamClose (stream.get());
 
             CFUniquePtr<CFDataRef> data ((CFDataRef) CFWriteStreamCopyProperty (stream.get(), kCFStreamPropertyDataWritten));
@@ -1735,8 +1661,12 @@ public:
         CFReadStreamOpen (stream.get());
 
         CFPropertyListFormat format = kCFPropertyListBinaryFormat_v1_0;
-        CFObjectHolder<CFPropertyListRef> propertyList { CFPropertyListCreateFromStream (kCFAllocatorDefault, stream.get(), 0,
-                                                                                         kCFPropertyListImmutable, &format, nullptr) };
+        CFObjectHolder<CFPropertyListRef> propertyList { CFPropertyListCreateWithStream (kCFAllocatorDefault,
+                                                                                         stream.get(),
+                                                                                         0,
+                                                                                         kCFPropertyListImmutable,
+                                                                                         &format,
+                                                                                         nullptr) };
 
         if (propertyList.object != nullptr)
         {
@@ -1822,7 +1752,10 @@ public:
                                                           0,
                                                           &clumpNameInfo,
                                                           &clumpSz) == noErr)
+                                {
+                                    const CFUniquePtr<CFStringRef> ownedString { clumpNameInfo.outName };
                                     return String::fromCFString (clumpNameInfo.outName);
+                                }
 
                                 return String (info.get().clumpID);
                             }();
@@ -2771,8 +2704,7 @@ private:
         {
             auto size = CGSizeZero;
 
-            if (@available (macOS 10.11, *))
-                size = [controller preferredContentSize];
+            size = [controller preferredContentSize];
 
             if (approximatelyEqual (size.width, 0.0) || approximatelyEqual (size.height, 0.0))
                 size = controller.view.frame.size;
@@ -3017,7 +2949,5 @@ FileSearchPath AudioUnitPluginFormat::getDefaultLocationsToSearch()
 #undef JUCE_AU_LOG
 
 } // namespace juce
-
-JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 
 #endif

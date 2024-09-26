@@ -123,7 +123,7 @@
 #elif (JUCE_LINUX || JUCE_BSD) && JUCE_WEB_BROWSER
  JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wzero-as-null-pointer-constant", "-Wparentheses", "-Wdeprecated-declarations")
 
- // If you're missing this header, you need to install the webkit2gtk-4.0 package
+ // If you're missing this header, you need to install the webkit2gtk-4.1 or webkit2gtk-4.0 package
  #include <gtk/gtk.h>
  #include <gtk/gtkx.h>
  #include <glib-unix.h>
@@ -148,6 +148,16 @@
 #include "misc/juce_PushNotifications.cpp"
 #include "misc/juce_RecentlyOpenedFilesList.cpp"
 #include "misc/juce_SplashScreen.cpp"
+
+#if JUCE_MAC
+ #include "native/juce_SystemTrayIcon_mac.cpp"
+#elif JUCE_WINDOWS
+ #include "native/juce_ActiveXComponent_windows.cpp"
+ #include "native/juce_SystemTrayIcon_windows.cpp"
+#elif JUCE_LINUX || JUCE_BSD
+ #include "native/juce_SystemTrayIcon_linux.cpp"
+#endif
+
 #include "misc/juce_SystemTrayIconComponent.cpp"
 #include "misc/juce_LiveConstantEditor.cpp"
 #include "misc/juce_AnimatedAppComponent.cpp"
@@ -161,7 +171,6 @@
   #include "native/juce_NSViewFrameWatcher_mac.h"
   #include "native/juce_NSViewComponent_mac.mm"
   #include "native/juce_AppleRemote_mac.mm"
-  #include "native/juce_SystemTrayIcon_mac.cpp"
  #endif
 
  #if JUCE_IOS
@@ -174,12 +183,10 @@
 
 //==============================================================================
 #elif JUCE_WINDOWS
- #include "native/juce_ActiveXComponent_windows.cpp"
  #include "native/juce_HWNDComponent_windows.cpp"
  #if JUCE_WEB_BROWSER
   #include "native/juce_WebBrowserComponent_windows.cpp"
  #endif
- #include "native/juce_SystemTrayIcon_windows.cpp"
 
 //==============================================================================
 #elif JUCE_LINUX || JUCE_BSD
@@ -197,8 +204,6 @@
  #endif
 
  JUCE_END_IGNORE_WARNINGS_GCC_LIKE
-
- #include "native/juce_SystemTrayIcon_linux.cpp"
 
 //==============================================================================
 #elif JUCE_ANDROID

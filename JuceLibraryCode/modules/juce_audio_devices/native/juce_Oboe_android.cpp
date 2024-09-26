@@ -398,7 +398,7 @@ private:
                                                   oboe::Direction::Output,
                                                   oboe::SharingMode::Exclusive,
                                                   2,
-                                                  getAndroidSDKVersion() >= 21 ? oboe::AudioFormat::Float : oboe::AudioFormat::I16,
+                                                  oboe::AudioFormat::Float,
                                                   (int) AndroidHighPerformanceAudioHelpers::getNativeSampleRate(),
                                                   bufferSizeHint,
                                                   &callback);
@@ -495,7 +495,7 @@ private:
 
                 startResult = stream->waitForStateChange (expectedState, &nextState, timeoutNanos);
 
-                JUCE_OBOE_LOG ("Starting Oboe stream with result: " + getOboeString (startResult);
+                JUCE_OBOE_LOG ("Starting Oboe stream with result: " + getOboeString (startResult)
                                  + "\nUses AAudio = " + String ((int) stream->usesAAudio())
                                  + "\nDirection = " + getOboeString (stream->getDirection())
                                  + "\nSharingMode = " + getOboeString (stream->getSharingMode())
@@ -1023,19 +1023,18 @@ OboeAudioIODevice::OboeSessionBase* OboeAudioIODevice::OboeSessionBase::create (
                                                                                 int bufferSize)
 {
 
-    std::unique_ptr<OboeSessionBase> session;
-    auto sdkVersion = getAndroidSDKVersion();
-
     // SDK versions 21 and higher should natively support floating point...
-    if (sdkVersion >= 21)
-    {
-        session.reset (new OboeSessionImpl<float> (owner, inputDeviceId, outputDeviceId,
-                                                   numInputChannels, numOutputChannels, sampleRate, bufferSize));
+    std::unique_ptr<OboeSessionBase> session = std::make_unique<OboeSessionImpl<float>> (owner,
+                                                                                         inputDeviceId,
+                                                                                         outputDeviceId,
+                                                                                         numInputChannels,
+                                                                                         numOutputChannels,
+                                                                                         sampleRate,
+                                                                                         bufferSize);
 
-        // ...however, some devices lie so re-try without floating point
-        if (session != nullptr && (! session->openedOk()))
-            session.reset();
-    }
+    // ...however, some devices lie so re-try without floating point
+    if (session != nullptr && (! session->openedOk()))
+        session.reset();
 
     if (session == nullptr)
     {

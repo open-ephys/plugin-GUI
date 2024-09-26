@@ -35,8 +35,6 @@
 namespace juce
 {
 
-#if JUCE_UNIT_TESTS
-
 class ListenerListTests final : public UnitTest
 {
 public:
@@ -105,7 +103,7 @@ public:
     //==============================================================================
     ListenerListTests() : UnitTest ("ListenerList", UnitTestCategories::containers) {}
 
-    void runTest() override
+    void runTest() final
     {
         // This is a test that the pre-iterator adjustment implementation should pass too
         beginTest ("All non-removed listeners should be called - removing an already called listener");
@@ -386,11 +384,11 @@ public:
 
             struct TestCriticalSection
             {
-                TestCriticalSection()  { isAlive() = true; }
-                ~TestCriticalSection() { isAlive() = false; }
+                TestCriticalSection()  noexcept { isAlive() = true; }
+                ~TestCriticalSection() noexcept { isAlive() = false; }
 
                 static void enter() noexcept { numOutOfScopeCalls() += isAlive() ? 0 : 1; }
-                static void exit() noexcept  { numOutOfScopeCalls() += isAlive() ? 0 : 1; }
+                static void exit()  noexcept { numOutOfScopeCalls() += isAlive() ? 0 : 1; }
 
                 static bool tryEnter() noexcept
                 {
@@ -400,13 +398,13 @@ public:
 
                 using ScopedLockType = GenericScopedLock<TestCriticalSection>;
 
-                static bool& isAlive()
+                static bool& isAlive() noexcept
                 {
                     static bool inScope = false;
                     return inScope;
                 }
 
-                static int& numOutOfScopeCalls()
+                static int& numOutOfScopeCalls() noexcept
                 {
                     static int numOutOfScopeCalls = 0;
                     return numOutOfScopeCalls;
@@ -433,25 +431,59 @@ public:
             ListenerList<Listener> listeners;
             expect (listeners.size() == 0);
 
-            Listener listener;
-            listeners.add (&listener);
-            expect (listeners.size() == 1);
+            Listener listener1;
+            Listener listener2;
+            listeners.add (&listener1);
+            listeners.add (&listener2);
+            expect (listeners.size() == 2);
 
-            bool listenerCalled = false;
+            int numberOfCallbacks = 0;
 
             listeners.call ([&] (auto& l)
             {
                 listeners.remove (&l);
-                expect (listeners.size() == 0);
-
-                listeners.add (&l);
                 expect (listeners.size() == 1);
 
-                listenerCalled = true;
+                listeners.add (&l);
+                expect (listeners.size() == 2);
+
+                ++numberOfCallbacks;
             });
 
-            expect (listenerCalled);
-            expect (listeners.size() == 1);
+            expect (numberOfCallbacks == 2);
+            expect (listeners.size() == 2);
+        }
+
+        beginTest ("Add and remove a nested listener");
+        {
+            struct Listener{};
+
+            ListenerList<Listener> listeners;
+            expect (listeners.size() == 0);
+
+            Listener listener1;
+            Listener listener2;
+            listeners.add (&listener1);
+            listeners.add (&listener2);
+            expect (listeners.size() == 2);
+
+            int numberOfCallbacks = 0;
+
+            listeners.call ([&] (auto)
+            {
+                Listener nestedListener;
+
+                listeners.add (&nestedListener);
+                expect (listeners.size() == 3);
+
+                listeners.remove (&nestedListener);
+                expect (listeners.size() == 2);
+
+                ++numberOfCallbacks;
+            });
+
+            expect (numberOfCallbacks == 2);
+            expect (listeners.size() == 2);
         }
     }
 
@@ -467,8 +499,263 @@ private:
     }
 };
 
-static ListenerListTests listenerListTests;
+class LightweightListenerListTests final : public UnitTest
+{
+public:
+    LightweightListenerListTests() : UnitTest ("LightweightListenerList", UnitTestCategories::containers) {}
 
-#endif
+    void runTest() final
+    {
+        class Listener
+        {
+        public:
+            void triggerCallback() { ++numCallbacksTriggered; }
+            int getNumCallbacksTriggered() const { return numCallbacksTriggered; }
+
+        private:
+            int numCallbacksTriggered = 0;
+        };
+
+        beginTest ("Default list is empty");
+        {
+            LightweightListenerList<Listener> listeners;
+            expect (listeners.isEmpty());
+            expect (listeners.size() == 0);
+        }
+
+        beginTest ("Adding a listener");
+        {
+            LightweightListenerList<Listener> listeners;
+            Listener listener;
+
+            expect (listener.getNumCallbacksTriggered() == 0);
+            expect (! listeners.contains (&listener));
+
+            listeners.add (&listener);
+            expect (! listeners.isEmpty());
+            expect (listeners.size() == 1);
+            expect (listeners.contains (&listener));
+            expect (listener.getNumCallbacksTriggered() == 0);
+
+            listeners.call (&Listener::triggerCallback);
+            expect (listener.getNumCallbacksTriggered() == 1);
+            expect (! listeners.isEmpty());
+            expect (listeners.size() == 1);
+
+            listeners.call (&Listener::triggerCallback);
+
+            expect (listener.getNumCallbacksTriggered() == 2);
+        }
+
+        beginTest ("Adding the same listener twice");
+        {
+            LightweightListenerList<Listener> listeners;
+            Listener listener;
+
+            listeners.add (&listener);
+            listeners.add (&listener);
+
+            expect (! listeners.isEmpty());
+            expect (listeners.size() == 1);
+            expect (listeners.contains (&listener));
+            expect (listener.getNumCallbacksTriggered() == 0);
+
+            listeners.call (&Listener::triggerCallback);
+            expect (listener.getNumCallbacksTriggered() == 1);
+        }
+
+        beginTest ("Adding multiple listeners");
+        {
+            LightweightListenerList<Listener> listeners;
+            Listener listener1;
+            Listener listener2;
+            Listener listener3;
+
+            expect (! listeners.contains (&listener1));
+            expect (! listeners.contains (&listener2));
+            expect (! listeners.contains (&listener3));
+
+            listeners.add (&listener1);
+            expect (  listeners.contains (&listener1));
+            expect (! listeners.contains (&listener2));
+            expect (! listeners.contains (&listener3));
+
+            listeners.call (&Listener::triggerCallback);
+            expect (listener1.getNumCallbacksTriggered() == 1);
+            expect (listener2.getNumCallbacksTriggered() == 0);
+            expect (listener3.getNumCallbacksTriggered() == 0);
+
+            listeners.add (&listener2);
+            expect (! listeners.isEmpty());
+            expect (listeners.size() == 2);
+            expect (  listeners.contains (&listener1));
+            expect (  listeners.contains (&listener2));
+            expect (! listeners.contains (&listener3));
+
+            listeners.call (&Listener::triggerCallback);
+            expect (listener1.getNumCallbacksTriggered() == 2);
+            expect (listener2.getNumCallbacksTriggered() == 1);
+            expect (listener3.getNumCallbacksTriggered() == 0);
+
+            listeners.add (&listener3);
+            expect (! listeners.isEmpty());
+            expect (listeners.size() == 3);
+            expect (listeners.contains (&listener1));
+            expect (listeners.contains (&listener2));
+            expect (listeners.contains (&listener3));
+
+            listeners.call (&Listener::triggerCallback);
+            expect (listener1.getNumCallbacksTriggered() == 3);
+            expect (listener2.getNumCallbacksTriggered() == 2);
+            expect (listener3.getNumCallbacksTriggered() == 1);
+        }
+
+        beginTest ("Removing a listener");
+        {
+            LightweightListenerList<Listener> listeners;
+            Listener listener1;
+            Listener listener2;
+            Listener listener3;
+
+            listeners.add (&listener1);
+            listeners.add (&listener2);
+            listeners.add (&listener3);
+
+            listeners.remove (&listener2);
+            expect (listeners.size() == 2);
+            expect (! listeners.contains (&listener2));
+
+            listeners.call (&Listener::triggerCallback);
+            expect (listener1.getNumCallbacksTriggered() == 1);
+            expect (listener2.getNumCallbacksTriggered() == 0);
+            expect (listener3.getNumCallbacksTriggered() == 1);
+
+            listeners.remove (&listener1);
+            expect (listeners.size() == 1);
+            expect (! listeners.contains (&listener1));
+
+            listeners.call (&Listener::triggerCallback);
+            expect (listener1.getNumCallbacksTriggered() == 1);
+            expect (listener2.getNumCallbacksTriggered() == 0);
+            expect (listener3.getNumCallbacksTriggered() == 2);
+
+            listeners.remove (&listener3);
+            expect (listeners.size() == 0);
+            expect (! listeners.contains (&listener3));
+
+            listeners.call (&Listener::triggerCallback);
+            expect (listener1.getNumCallbacksTriggered() == 1);
+            expect (listener2.getNumCallbacksTriggered() == 0);
+            expect (listener3.getNumCallbacksTriggered() == 2);
+        }
+
+        beginTest ("Adding a scoped listener");
+        {
+            LightweightListenerList<Listener> listeners;
+            Listener listener;
+
+            {
+                const auto scopeGuard = listeners.addScoped (listener);
+                expect (! listeners.isEmpty());
+                expect (listeners.size() == 1);
+                expect (listeners.contains (&listener));
+            }
+
+            expect (listeners.isEmpty());
+            expect (listeners.size() == 0);
+            expect (! listeners.contains (&listener));
+        }
+
+        beginTest ("Clear the listeners");
+        {
+            LightweightListenerList<Listener> listeners;
+            Listener listener1;
+            Listener listener2;
+            Listener listener3;
+
+            listeners.add (&listener1);
+            listeners.add (&listener2);
+            listeners.add (&listener3);
+
+            listeners.clear();
+            expect (listeners.isEmpty());
+            expect (listeners.size() == 0);
+
+            listeners.call (&Listener::triggerCallback);
+            expect (listener1.getNumCallbacksTriggered() == 0);
+            expect (listener2.getNumCallbacksTriggered() == 0);
+            expect (listener3.getNumCallbacksTriggered() == 0);
+        }
+
+        beginTest ("Call excluding");
+        {
+            LightweightListenerList<Listener> listeners;
+            Listener listener1;
+            Listener listener2;
+            Listener listener3;
+
+            listeners.add (&listener1);
+            listeners.add (&listener2);
+            listeners.add (&listener3);
+
+            listeners.callExcluding (&listener1, &Listener::triggerCallback);
+            expect (listener1.getNumCallbacksTriggered() == 0);
+            expect (listener2.getNumCallbacksTriggered() == 1);
+            expect (listener3.getNumCallbacksTriggered() == 1);
+
+            listeners.callExcluding (&listener2, &Listener::triggerCallback);
+            expect (listener1.getNumCallbacksTriggered() == 1);
+            expect (listener2.getNumCallbacksTriggered() == 1);
+            expect (listener3.getNumCallbacksTriggered() == 2);
+
+            listeners.callExcluding (&listener3, &Listener::triggerCallback);
+            expect (listener1.getNumCallbacksTriggered() == 2);
+            expect (listener2.getNumCallbacksTriggered() == 2);
+            expect (listener3.getNumCallbacksTriggered() == 2);
+
+        }
+
+        beginTest ("Call with bail-out checker");
+        {
+            LightweightListenerList<Listener> listeners;
+            Listener listener1;
+            Listener listener2;
+            Listener listener3;
+
+            listeners.add (&listener1);
+            listeners.add (&listener2);
+            listeners.add (&listener3);
+
+            struct BailOutChecker
+            {
+                bool shouldBailOut() const { return f(); }
+                std::function<bool()> f;
+            };
+
+            const BailOutChecker bailOutChecker { [&] { return listener2.getNumCallbacksTriggered() == 2; } };
+
+            // all the listeners should be called
+            listeners.callChecked (bailOutChecker, &Listener::triggerCallback);
+            expect (listener1.getNumCallbacksTriggered() == 1);
+            expect (listener2.getNumCallbacksTriggered() == 1);
+            expect (listener3.getNumCallbacksTriggered() == 1);
+
+            // only listeners 1 and 2 should be called
+            listeners.callChecked (bailOutChecker, &Listener::triggerCallback);
+            expect (listener1.getNumCallbacksTriggered() == 2);
+            expect (listener2.getNumCallbacksTriggered() == 2);
+            expect (listener3.getNumCallbacksTriggered() == 1);
+
+            // none of the listeners should be called
+            listeners.callChecked (bailOutChecker, &Listener::triggerCallback);
+            expect (listener1.getNumCallbacksTriggered() == 2);
+            expect (listener2.getNumCallbacksTriggered() == 2);
+            expect (listener3.getNumCallbacksTriggered() == 1);
+        }
+    }
+};
+
+static ListenerListTests listenerListTests;
+static LightweightListenerListTests lightweightListenerListTests;
 
 } // namespace juce

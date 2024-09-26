@@ -42,18 +42,6 @@ JUCEApplicationBase* JUCEApplicationBase::appInstance = nullptr;
 void* JUCEApplicationBase::iOSCustomDelegate = nullptr;
 #endif
 
-JUCEApplicationBase::JUCEApplicationBase()
-{
-    jassert (isStandaloneApp() && appInstance == nullptr);
-    appInstance = this;
-}
-
-JUCEApplicationBase::~JUCEApplicationBase()
-{
-    jassert (appInstance == this);
-    appInstance = nullptr;
-}
-
 void JUCEApplicationBase::setApplicationReturnValue (const int newReturnValue) noexcept
 {
     appReturnValue = newReturnValue;
@@ -153,6 +141,18 @@ bool JUCEApplicationBase::sendCommandLineToPreexistingInstance()
 #else
 struct JUCEApplicationBase::MultipleInstanceHandler {};
 #endif
+
+JUCEApplicationBase::JUCEApplicationBase()
+{
+    jassert (isStandaloneApp() && appInstance == nullptr);
+    appInstance = this;
+}
+
+JUCEApplicationBase::~JUCEApplicationBase()
+{
+    jassert (appInstance == this);
+    appInstance = nullptr;
+}
 
 //==============================================================================
 #if JUCE_ANDROID
@@ -294,7 +294,7 @@ bool JUCEApplicationBase::initialiseApp()
     }
    #endif
 
-   #if JUCE_WINDOWS && (! defined (_CONSOLE)) && (! JUCE_MINGW)
+   #if JUCE_WINDOWS && (! defined (_CONSOLE))
     if (isStandaloneApp() && AttachConsole (ATTACH_PARENT_PROCESS) != 0)
     {
         // if we've launched a GUI app from cmd.exe or PowerShell, we need this to enable printf etc.

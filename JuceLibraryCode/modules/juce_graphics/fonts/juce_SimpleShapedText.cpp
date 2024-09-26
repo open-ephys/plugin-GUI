@@ -77,9 +77,21 @@ public:
         return withMember (*this, &ShapedTextOptions::firstLineIndent, x);
     }
 
+    /*  This controls the space between lines using a proportional value, with a default of 1.0,
+        meaning single line spacing i.e. the descender of the current line + ascender of the next
+        line. This value is multiplied by the leading provided here.
+    */
     [[nodiscard]] ShapedTextOptions withLeading (float x) const
     {
         return withMember (*this, &ShapedTextOptions::leading, x);
+    }
+
+    /*  This controls the space between lines using an additive absolute value, with a default of 0.0.
+        This value is added to the spacing between each two lines.
+    */
+    [[nodiscard]] ShapedTextOptions withAdditiveLineSpacing (float x) const
+    {
+        return withMember (*this, &ShapedTextOptions::additiveLineSpacing, x);
     }
 
     [[nodiscard]] ShapedTextOptions withBaselineAtZero (bool x = true) const
@@ -107,6 +119,11 @@ public:
         return withMember (*this, &ShapedTextOptions::readingDir, x);
     }
 
+    [[nodiscard]] ShapedTextOptions withAllowBreakingInsideWord (bool x = true) const
+    {
+        return withMember (*this, &ShapedTextOptions::allowBreakingInsideWord, x);
+    }
+
     const auto& getReadingDirection() const             { return readingDir; }
     const auto& getJustification() const                { return justification; }
     const auto& getMaxWidth() const                     { return maxWidth; }
@@ -115,10 +132,12 @@ public:
     const auto& getLanguage() const                     { return language; }
     const auto& getFirstLineIndent() const              { return firstLineIndent; }
     const auto& getLeading() const                      { return leading; }
+    const auto& getAdditiveLineSpacing() const          { return additiveLineSpacing; }
     const auto& isBaselineAtZero() const                { return baselineAtZero; }
     const auto& getTrailingWhitespacesShouldFit() const { return trailingWhitespacesShouldFit; }
     const auto& getMaxNumLines() const                  { return maxNumLines; }
     const auto& getEllipsis() const                     { return ellipsis; }
+    const auto& getAllowBreakingInsideWord() const      { return allowBreakingInsideWord; }
 
 private:
     Justification justification { Justification::topLeft };
@@ -130,7 +149,9 @@ private:
     String language = SystemStats::getDisplayLanguage();
     float firstLineIndent = 0.0f;
     float leading = 1.0f;
+    float additiveLineSpacing = 0.0f;
     bool baselineAtZero = false;
+    bool allowBreakingInsideWord = false;
     bool trailingWhitespacesShouldFit;
     int64 maxNumLines = std::numeric_limits<int64>::max();
     String ellipsis;
@@ -275,12 +296,6 @@ constexpr hb_script_t getScriptTag (TextScript type)
     return HB_SCRIPT_COMMON;
 }
 
-struct ResolvedFontRun
-{
-    Font font;
-    Span<const Unicode::Codepoint> run;
-};
-
 SimpleShapedText::SimpleShapedText (const String* data,
                                     const ShapedTextOptions& options)
     : string (*data)
@@ -330,23 +345,66 @@ private:
     size_t beyondEnd{};
 };
 
+enum class ControlCharacter
+{
+    crFollowedByLf,
+    cr,
+    lf,
+    tab
+};
+
+static auto findControlCharacters (Span<juce_wchar> text)
+{
+    constexpr juce_wchar lf = 0x0a;
+    constexpr juce_wchar cr = 0x0d;
+    constexpr juce_wchar tab = 0x09;
+
+    std::map<size_t, ControlCharacter> result;
+
+    const auto iMax = text.size();
+
+    for (const auto [i, c] : enumerate (text, size_t{}))
+    {
+        if (c == lf)
+        {
+            result[i] = ControlCharacter::lf;
+            continue;
+        }
+
+        if (c == cr)
+        {
+            if (iMax - i > 1 && text[i + 1] == lf)
+                result[i] = ControlCharacter::crFollowedByLf;
+            else
+                result[i] = ControlCharacter::cr;
+
+            continue;
+        }
+
+        if (c == tab)
+            result[i] = ControlCharacter::tab;
+    }
+
+    return result;
+}
+
 /*  Returns glyphs in logical order as that favours wrapping. */
 static std::vector<ShapedGlyph> lowLevelShape (const String& string,
                                                Range<int64> range,
                                                const Font& font,
                                                TextScript script,
                                                const String& language,
-                                               TextDirection direction)
+                                               uint8_t embeddingLevel)
 {
     HbBuffer buffer { hb_buffer_create() };
     hb_buffer_clear_contents (buffer.get());
 
-    hb_buffer_set_cluster_level (buffer.get(), HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS);
+    hb_buffer_set_cluster_level (buffer.get(), HB_BUFFER_CLUSTER_LEVEL_MONOTONE_GRAPHEMES);
     hb_buffer_set_script (buffer.get(), getScriptTag (script));
     hb_buffer_set_language (buffer.get(), hb_language_from_string (language.toRawUTF8(), -1));
 
     hb_buffer_set_direction (buffer.get(),
-                             direction == TextDirection::ltr ? HB_DIRECTION_LTR : HB_DIRECTION_RTL);
+                             (embeddingLevel % 2) == 0 ? HB_DIRECTION_LTR : HB_DIRECTION_RTL);
 
     Utf8Lookup utf8Lookup { string };
 
@@ -358,46 +416,32 @@ static std::vector<ShapedGlyph> lowLevelShape (const String& string,
                         0,
                         0);
 
-    // Adding the converted portion of the text with hb_buffer_add_utf32() or especially with
-    // hb_buffer_add() gives us control over cluster numbers. hb_buffer_add_utf32() will increment
-    // cluster numbers by unicode codepoints (as opposed to UTF8 bytes) starting from 0.
-    auto utf32Span = Span { string.toUTF32().getAddress() + (size_t) range.getStart(),
-                            (size_t) range.getLength() };
+    const Span utf32Span { string.toUTF32().getAddress() + (size_t) range.getStart(),
+                           (size_t) range.getLength() };
 
-    // We're using a word joiner (zero width non-breaking space) followed by a non-breaking space
-    // for visual representation. This is so that it's not possible to break the glyph representing
-    // the line breaking glyph on its own.
-    static constexpr uint32_t crLf[] = { 0x2060, 0x00A0 };
+    const auto controlChars = findControlCharacters (utf32Span);
+    auto nextControlChar = controlChars.begin();
 
-    const auto numLineEndsToReplace = [&]
+    for (const auto pair : enumerate (utf32Span, size_t{}))
     {
-        constexpr auto lf = 0x0a;
-        constexpr auto cr = 0x0d;
-
-        if (! utf32Span.empty() && (utf32Span.back() == lf || utf32Span.back() == cr))
+        const auto charToAdd = [&]
         {
-            if (utf32Span.size() >= 2 && utf32Span[utf32Span.size() - 2] == cr)
-                return 2;
+            if (nextControlChar == controlChars.end() || pair.index != nextControlChar->first)
+                return pair.value;
 
-            return 1;
-        }
+            constexpr juce_wchar wordJoiner       = 0x2060;
+            constexpr juce_wchar nonBreakingSpace = 0x00a0;
 
-        return 0;
-    }();
+            const auto replacement = nextControlChar->second == ControlCharacter::crFollowedByLf
+                                   ? wordJoiner
+                                   : nonBreakingSpace;
 
-    hb_buffer_add_utf32 (buffer.get(),
-                         (uint32_t*) utf32Span.data(),
-                         (int) range.getLength() - numLineEndsToReplace,
-                         (unsigned int) 0,
-                         (int) range.getLength() - numLineEndsToReplace);
+            ++nextControlChar;
 
-    for (int i = 0; i < numLineEndsToReplace; ++i)
-    {
-        // The following gets cluster values right, but this does not follow clearly from harfbuzz documentation.
-        // Add at least a regression test checking the correctness of cluster values.
-        hb_buffer_add (buffer.get(),
-                       static_cast<hb_codepoint_t> (*(crLf + (2 - numLineEndsToReplace) + i)),
-                       (unsigned int) ((int) range.getLength() - numLineEndsToReplace + i));
+            return replacement;
+        }();
+
+        hb_buffer_add (buffer.get(), static_cast<hb_codepoint_t> (charToAdd), (unsigned int) pair.index);
     }
 
     const auto postContextByteRange = utf8Lookup.getByteRange (Range<int64> { range.getEnd(), (int64) string.length() });
@@ -452,7 +496,7 @@ static std::vector<ShapedGlyph> lowLevelShape (const String& string,
     // control characters that JUCE doesn't know how to handle appropriately.
     jassert (unknownGlyph == infos.end());
 
-    [[maybe_unused]] const auto trackingAmount = (! HB_DIRECTION_IS_VERTICAL (direction) && ! trackingIsDefault)
+    [[maybe_unused]] const auto trackingAmount = ! trackingIsDefault
                                                ? font.getHeight() * tracking
                                                : 0;
 
@@ -462,7 +506,7 @@ static std::vector<ShapedGlyph> lowLevelShape (const String& string,
 
     for (size_t i = 0; i < infos.size(); ++i)
     {
-        const auto j = direction == TextDirection::ltr ? i : infos.size() - 1 - i;
+        const auto j = (embeddingLevel % 2) == 0 ? i : infos.size() - 1 - i;
 
         const auto glyphId = infos[j].codepoint;
         const auto xAdvance = positions[j].x_advance;
@@ -601,7 +645,7 @@ struct ShapingParams
 {
     TextScript script;
     String language;
-    TextDirection direction;
+    uint8_t embeddingLevel;
     Font resolvedFont;
 };
 
@@ -741,7 +785,7 @@ private:
                                 shapingParams.resolvedFont,
                                 shapingParams.script,
                                 shapingParams.language,
-                                shapingParams.direction);
+                                shapingParams.embeddingLevel);
 
         recalculateAdvances();
     }
@@ -776,50 +820,6 @@ struct LineChunkInLogicalOrder
     Font resolvedFont;
     int bidiLevel{};
 };
-
-static auto getStartingVisualIndices (const std::vector<LineChunkInLogicalOrder>& chunks,
-                                      const Array<Unicode::Codepoint>& analysis)
-{
-    std::vector<size_t> indices (chunks.size());
-
-    std::transform (chunks.cbegin(),
-                    chunks.cend(),
-                    indices.begin(),
-                    [&analysis] (auto& c) { return analysis[(int) c.textRange.getStart()].visualIndex; });
-
-    return indices;
-}
-
-static auto getChunkIndicesInVisualOrder (const std::vector<LineChunkInLogicalOrder>& chunks,
-                                          const Array<Unicode::Codepoint>& analysis)
-{
-    const auto startingVisualIndices = getStartingVisualIndices (chunks, analysis);
-
-    struct ChunkIndexWithVisualIndex
-    {
-        size_t chunkIndex{};
-        size_t visualIndex{};
-    };
-
-    std::vector<ChunkIndexWithVisualIndex> sortableIndices;
-    sortableIndices.reserve (std::size (startingVisualIndices));
-
-    for (const auto [i, visualIndex] : enumerate (startingVisualIndices))
-        sortableIndices.push_back (ChunkIndexWithVisualIndex { (size_t) i, visualIndex });
-
-    std::sort (sortableIndices.begin(),
-               sortableIndices.end(),
-               [] (const auto& a, const auto& b) { return a.visualIndex < b.visualIndex; });
-
-    std::vector<size_t> result (std::size (sortableIndices));
-
-    std::transform (sortableIndices.begin(),
-                    sortableIndices.end(),
-                    result.begin(),
-                    [] (auto x) { return x.chunkIndex; });
-
-    return result;
-}
 
 // Used to avoid signedness warning for types for which std::size() is int
 template <typename T>
@@ -917,7 +917,11 @@ void SimpleShapedText::shape (const String& data,
     std::vector<LineChunkInLogicalOrder> lineChunks;
     int64 numGlyphsInLine = 0;
 
-    const auto analysis = Unicode::performAnalysis (data, options.getReadingDirection());
+    const auto analysis = Unicode::performAnalysis (data);
+
+    std::vector<juce_wchar> data32 ((size_t) data.length());
+    data.copyToUTF32 (data32.data(), data32.size() * sizeof (juce_wchar));
+    const BidiAlgorithm bidiAlgorithm (data32);
 
     IntegralCanBreakBeforeIterator softBreakIterator { makeSpan (analysis) };
 
@@ -926,9 +930,44 @@ void SimpleShapedText::shape (const String& data,
     auto remainingWidth = options.getMaxWidth().has_value() ? (*options.getMaxWidth() - options.getFirstLineIndent())
                                                             : std::optional<float>{};
 
-    const auto commitLine = [&]
+    std::vector<size_t> visualOrder;
+
+    const auto commitLine = [&] (const BidiParagraph& bidiParagraph)
     {
-        const auto indicesInVisualOrder = getChunkIndicesInVisualOrder (lineChunks, analysis);
+        if (lineChunks.empty())
+            return;
+
+        const auto begin = (size_t) lineChunks.front().textRange.getStart();
+        const auto end = (size_t) lineChunks.back().textRange.getEnd();
+        const auto bidiLine = bidiParagraph.createLine (begin, end - begin);
+
+        bidiLine.computeVisualOrder (visualOrder);
+
+        const auto indicesInVisualOrder = [&]
+        {
+            std::vector<size_t> result;
+            result.reserve (lineChunks.size());
+
+            for (auto it = visualOrder.begin(); it != visualOrder.end();)
+            {
+                const auto logicalIndex = *it;
+                const auto chunk = std::lower_bound (lineChunks.begin(),
+                                                     lineChunks.end(),
+                                                     logicalIndex,
+                                                     [] (const LineChunkInLogicalOrder& c, size_t x)
+                                                     {
+                                                         return (size_t) c.textRange.getEnd() <= x;
+                                                     });
+
+                jassert (chunk != lineChunks.end());
+
+                result.push_back ((size_t) std::distance (lineChunks.begin(), chunk));
+                it += std::min ((ptrdiff_t) std::distance (it, visualOrder.end()),
+                                (ptrdiff_t) chunk->textRange.getLength());
+            }
+
+            return result;
+        }();
 
         for (auto chunkIndex : indicesInVisualOrder)
         {
@@ -977,11 +1016,26 @@ void SimpleShapedText::shape (const String& data,
         remainingWidth = options.getMaxWidth();
     };
 
-    const auto append = [&] (Range<int64> range, const ShapingParams& shapingParams)
+    enum class CanAddGlyphsBeyondLineLimits
+    {
+        no,
+        yes
+    };
+
+    struct ConsumedGlyphs
+    {
+        std::vector<ShapedGlyph> glyphs;
+        Range<int64> textRange;
+    };
+
+    const auto append = [&] (const BidiParagraph& bidiParagraph, Range<int64> range, const ShapingParams& shapingParams)
     {
         jassert (! range.isEmpty());
 
-        auto glyphsToConsume = ConsumableGlyphs { data, range, shapingParams };
+        ConsumableGlyphs glyphsToConsume { data, range, shapingParams };
+
+        const auto appendingToFirstLine = [&] { return lineNumbers.isEmpty(); };
+        const auto appendingToLastLine  = [&] { return (int64) lineNumbers.size() == options.getMaxNumLines() - 1; };
 
         while (! glyphsToConsume.isEmpty())
         {
@@ -992,7 +1046,7 @@ void SimpleShapedText::shape (const String& data,
             {
                 int64 breakBefore{};
 
-                // We need to use maybeIgnoringWhitespace in comparisions, but
+                // We need to use maybeIgnoringWhitespace in comparisons, but
                 // includingTrailingWhitespace when using subtraction to calculate the remaining
                 // space.
                 LineAdvance advance{};
@@ -1003,16 +1057,17 @@ void SimpleShapedText::shape (const String& data,
 
             std::optional<BestMatch> bestMatch;
 
+            static constexpr auto floatMax = std::numeric_limits<float>::max();
+
             for (auto breakBefore = softBreakIterator.next();
-                 breakBefore.has_value() && (lineNumbers.size() == 0
-                                             || (int64) lineNumbers.size() < options.getMaxNumLines() - 1);
+                 breakBefore.has_value() && (appendingToFirstLine() || ! appendingToLastLine());
                  breakBefore = softBreakIterator.next())
             {
                 if (auto safeAdvance = glyphsToConsume.getAdvanceXUpToBreakPointIfSafe (*breakBefore,
                                                                                         options.getTrailingWhitespacesShouldFit()))
                 {
-                    if (safeAdvance->maybeIgnoringWhitespace < remainingWidth || ! bestMatch.has_value())
-                        bestMatch = BestMatch { *breakBefore, *safeAdvance, false, std::vector<ShapedGlyph> {} };
+                    if (safeAdvance->maybeIgnoringWhitespace < remainingWidth.value_or (floatMax) || ! bestMatch.has_value())
+                        bestMatch = BestMatch { *breakBefore, *safeAdvance, false, std::vector<ShapedGlyph>{} };
                     else
                         break;  // We found a safe break that is too large to fit. Anything beyond
                                 // this point would be too large to fit.
@@ -1024,7 +1079,7 @@ void SimpleShapedText::shape (const String& data,
                                                  shapingParams.resolvedFont,
                                                  shapingParams.script,
                                                  shapingParams.language,
-                                                 shapingParams.direction);
+                                                 shapingParams.embeddingLevel);
 
                     const auto beyondEnd = [&]
                     {
@@ -1044,10 +1099,10 @@ void SimpleShapedText::shape (const String& data,
 
                     const auto advance = std::accumulate (glyphs.cbegin(),
                                                           beyondEnd,
-                                                          float {},
+                                                          float{},
                                                           [] (auto acc, const auto& elem) { return acc + elem.advance.getX(); });
 
-                    if (advance < remainingWidth || ! bestMatch.has_value())
+                    if (advance < remainingWidth.value_or (floatMax) || ! bestMatch.has_value())
                         bestMatch = BestMatch { *breakBefore, { advance, advance }, true, std::move (glyphs) };
                 }
             }
@@ -1059,12 +1114,12 @@ void SimpleShapedText::shape (const String& data,
                                         *glyphsToConsume.getAdvanceXUpToBreakPointIfSafe (glyphsToConsume.getCodepointRange().getEnd(),
                                                                                           options.getTrailingWhitespacesShouldFit()),
                                         false,
-                                        std::vector<ShapedGlyph> {} };
+                                        std::vector<ShapedGlyph>{} };
             }
 
             jassert (bestMatch.has_value());
 
-            const auto consumeBestMatch = [&]
+            const auto consumeGlyphs = [&]() -> ConsumedGlyphs
             {
                 auto glyphs = [&]
                 {
@@ -1076,35 +1131,114 @@ void SimpleShapedText::shape (const String& data,
 
                 const auto textRange = glyphsToConsume.getCodepointRange().withEnd (bestMatch->breakBefore);
 
-                const auto createFakeBidiNestingLevel = [] (TextDirection dir) { return dir == TextDirection::ltr ? 0 : 1; };
-
-                lineChunks.push_back ({ textRange,
-                                        { glyphs.begin(), glyphs.end() },
-                                        shapingParams.resolvedFont,
-                                        createFakeBidiNestingLevel (shapingParams.direction) });
-
-                numGlyphsInLine += (int64) glyphs.size();
-
-                if (remainingWidth.has_value())
-                    remainingWidth = *remainingWidth - bestMatch->advance.includingTrailingWhitespace;
+                std::vector<ShapedGlyph> copiedGlyphs { glyphs.begin(), glyphs.end() };
 
                 glyphsToConsume.breakBeforeAndConsume (bestMatch->breakBefore);
+
+                return { copiedGlyphs, textRange };
             };
 
-            if (bestMatch->advance.maybeIgnoringWhitespace >= remainingWidth)
+            const auto addGlyphsToLine = [&] (const ConsumedGlyphs& toAdd,
+                                              CanAddGlyphsBeyondLineLimits evenIfFull) -> ConsumedGlyphs
+            {
+                const auto glyphsEnd = [&]
+                {
+                    if (evenIfFull == CanAddGlyphsBeyondLineLimits::yes || ! remainingWidth.has_value())
+                        return toAdd.glyphs.end();
+
+                    auto it = toAdd.glyphs.begin();
+
+                    for (float advance = 0.0f; it != toAdd.glyphs.end();)
+                    {
+                        const auto clusterEnd = std::find_if (it,
+                                                              toAdd.glyphs.end(),
+                                                              [cluster = it->cluster] (const auto& g)
+                                                              {
+                                                                  return g.cluster != cluster;
+                                                              });
+
+                        advance = std::accumulate (it,
+                                                   clusterEnd,
+                                                   advance,
+                                                   [] (auto acc, const auto& g)
+                                                   {
+                                                       return acc + g.advance.getX();
+                                                   });
+
+                        // Consume at least one glyph in each line, even if the line is too short.
+                        if (advance > *remainingWidth
+                            && (numGlyphsInLine == 0 && it != toAdd.glyphs.begin()))
+                        {
+                            break;
+                        }
+
+                        it = clusterEnd;
+                    }
+
+                    if (options.getTrailingWhitespacesShouldFit() || (numGlyphsInLine == 0 && it == toAdd.glyphs.begin()))
+                        return it;
+
+                    return std::find_if (it, toAdd.glyphs.end(), [] (const auto& x) { return ! x.whitespace; });
+                }();
+
+                const auto numGlyphsAdded = (int64) std::distance (toAdd.glyphs.begin(), glyphsEnd);
+
+                const auto textRange = [&]() -> Range<int64>
+                {
+                    if (glyphsEnd == toAdd.glyphs.end())
+                        return toAdd.textRange;
+
+                    return { toAdd.textRange.getStart(), glyphsEnd->cluster };
+                }();
+
+                lineChunks.push_back ({ textRange,
+                                        { toAdd.glyphs.begin(), glyphsEnd },
+                                        shapingParams.resolvedFont,
+                                        shapingParams.embeddingLevel });
+
+                numGlyphsInLine += numGlyphsAdded;
+
+                if (remainingWidth.has_value())
+                {
+                    *remainingWidth -= std::accumulate (toAdd.glyphs.begin(),
+                                                        glyphsEnd,
+                                                        0.0f,
+                                                        [] (auto acc, auto& g) { return acc + g.advance.getX(); });
+                }
+
+                return { { glyphsEnd, toAdd.glyphs.end() }, toAdd.textRange.withStart (textRange.getEnd()) };
+            };
+
+            if (bestMatch->advance.maybeIgnoringWhitespace >= remainingWidth.value_or (floatMax))
             {
                 // Even an empty line is too short to fit any of the text
                 if (numGlyphsInLine == 0 && exactlyEqual (remainingWidth, options.getMaxWidth()))
-                    consumeBestMatch();
+                {
+                    auto glyphsToAdd = consumeGlyphs();
 
-                commitLine();
+                    while (! glyphsToAdd.glyphs.empty())
+                    {
+                        glyphsToAdd = addGlyphsToLine (glyphsToAdd,
+                                                       (appendingToLastLine() || ! options.getAllowBreakingInsideWord()) ? CanAddGlyphsBeyondLineLimits::yes
+                                                                                                                         : CanAddGlyphsBeyondLineLimits::no);
+
+                        if (! glyphsToAdd.glyphs.empty())
+                            commitLine (bidiParagraph);
+                    }
+                }
+                else
+                {
+                    commitLine (bidiParagraph);
+                }
             }
             else
             {
-                consumeBestMatch();
+                [[maybe_unused]] const auto remainder = addGlyphsToLine (consumeGlyphs(),
+                                                                         CanAddGlyphsBeyondLineLimits::yes);
+                jassert (remainder.glyphs.empty());
 
                 if (! glyphsToConsume.isEmpty())
-                    commitLine();
+                    commitLine (bidiParagraph);
             }
         }
     };
@@ -1127,29 +1261,51 @@ void SimpleShapedText::shape (const String& data,
         return resolved;
     }();
 
-    for (Unicode::LineBreakIterator lineIter { makeSpan (analysis) }; auto lineRun = lineIter.next();)
+    bidiAlgorithm.forEachParagraph ([&] (const BidiParagraph& bidiParagraph)
     {
-        for (Unicode::ScriptRunIterator scriptIter { *lineRun };
-             auto scriptRun = scriptIter.next();)
+        const auto bidiLevels = bidiParagraph.getResolvedLevels();
+        const Span paragraphSpan { analysis.getRawDataPointer() + bidiParagraph.getOffset(), bidiParagraph.getLength() };
+
+        for (Unicode::LineBreakIterator lineIter { paragraphSpan }; auto lineRun = lineIter.next();)
         {
-            for (Unicode::BidiRunIterator bidiIter { *scriptRun }; auto bidiRun = bidiIter.next();)
+            for (Unicode::ScriptRunIterator scriptIter { *lineRun }; auto scriptRun = scriptIter.next();)
             {
-                for (const auto& [range, font] : fontsWithFallback.getIntersectionsWith (spanLookup.getRange (*bidiRun)))
+                const auto offsetInText = (size_t) std::distance (analysis.getRawDataPointer(), scriptRun->data());
+                const auto offsetInParagraph = offsetInText - bidiParagraph.getOffset();
+                const auto length = scriptRun->size();
+
+                const auto begin = bidiLevels.data() + offsetInParagraph;
+                const auto end = begin + length;
+
+                for (auto it = begin; it != end;)
                 {
-                    append (range, { scriptRun->front().script,
-                                     options.getLanguage(),
-                                     bidiRun->front().direction,
-                                     font });
+                    const auto next = std::find_if (it, end, [&] (const auto& l) { return l != *it; });
+                    const auto bidiRunOffset = std::distance (begin, it);
+                    const auto bidiRunLength = std::distance (it, next);
+                    const Span bidiRun { analysis.getRawDataPointer() + bidiRunOffset + offsetInText, (size_t) bidiRunLength };
+
+                    for (const auto& [range, font] : fontsWithFallback.getIntersectionsWith (spanLookup.getRange (bidiRun)))
+                    {
+                        append (bidiParagraph,
+                                range,
+                                { scriptRun->front().script,
+                                  options.getLanguage(),
+                                  *it,
+                                  font });
+                    }
+
+                    it = next;
                 }
             }
+
+            if (! lineChunks.empty())
+                commitLine (bidiParagraph);
         }
 
         if (! lineChunks.empty())
-            commitLine();
-    }
+            commitLine (bidiParagraph);
 
-    if (! lineChunks.empty())
-        commitLine();
+    }, options.getReadingDirection());
 }
 
 Range<int64> SimpleShapedText::getGlyphRangeForLine (size_t line) const

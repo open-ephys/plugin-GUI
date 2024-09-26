@@ -637,7 +637,7 @@ public:
 
         gl::loadFunctions();
 
-       #if JUCE_DEBUG
+       #if JUCE_DEBUG && ! JUCE_DISABLE_ASSERTIONS
         if (getOpenGLVersion() >= Version { 4, 3 } && glDebugMessageCallback != nullptr)
         {
             glEnable (GL_DEBUG_OUTPUT);
@@ -1197,7 +1197,8 @@ private:
 
         auto& comp = *getComponent();
 
-       #if JUCE_MAC
+       #if JUCE_MAC && (! defined (MAC_OS_VERSION_15_0) || MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_VERSION_15_0)
+        // According to a warning triggered on macOS 15 and above this doesn't do anything!
         [[(NSView*) comp.getWindowHandle() window] disableScreenUpdatesUntilFlush];
        #endif
 

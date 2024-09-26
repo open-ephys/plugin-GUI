@@ -204,7 +204,7 @@ private:
         bool operator< (const LineItem& other) const noexcept   { return x < other.x; }
     };
 
-    std::vector<int> table;
+    CopyableHeapBlock<int> table;
     Rectangle<int> bounds;
     int maxEdgesPerLine, lineStrideElements;
     bool needToCheckEmptiness = true;

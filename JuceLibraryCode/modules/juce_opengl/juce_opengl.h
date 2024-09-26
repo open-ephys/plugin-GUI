@@ -44,7 +44,7 @@
 
   ID:                 juce_opengl
   vendor:             juce
-  version:            8.0.0
+  version:            8.0.2
   name:               JUCE OpenGL classes
   description:        Classes for rendering OpenGL in a JUCE window.
   website:            http://www.juce.com/juce
@@ -55,7 +55,6 @@
   OSXFrameworks:      OpenGL
   iOSFrameworks:      OpenGLES
   linuxPackages:      gl
-  mingwLibs:          opengl32
 
  END_JUCE_MODULE_DECLARATION
 

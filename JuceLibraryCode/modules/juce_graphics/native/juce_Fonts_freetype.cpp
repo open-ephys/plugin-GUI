@@ -125,7 +125,7 @@ struct FTFaceWrapper final : public ReferenceCountedObject
     MemoryBlock savedFaceData;
     FT_Face face = {};
 
-    JUCE_HEAVYWEIGHT_LEAK_DETECTOR(FTFaceWrapper)
+    JUCE_LEAK_DETECTOR (FTFaceWrapper)
 };
 
 //==============================================================================
@@ -485,7 +485,7 @@ public:
     ~FreeTypeTypeface() override
     {
         if (doCache == DoCache::yes)
-            if (auto* list = FTTypefaceList::getInstance())
+            if (auto* list = FTTypefaceList::getInstanceWithoutCreating())
                 list->removeMemoryFace (ftFace);
     }
 

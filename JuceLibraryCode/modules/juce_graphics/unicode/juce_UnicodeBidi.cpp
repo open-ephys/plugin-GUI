@@ -35,614 +35,281 @@
 namespace juce
 {
 
-class TR9
+class BidiLine
 {
 public:
-    TR9() = delete;
+    using ParagraphPtr = std::unique_ptr<std::remove_pointer_t<SBParagraphRef>, FunctionPointerDestructor<SBParagraphRelease>>;
+    using LinePtr = std::unique_ptr<std::remove_pointer_t<SBLineRef>, FunctionPointerDestructor<SBLineRelease>>;
 
-    struct BidiOutput
+    explicit BidiLine (ParagraphPtr p, LinePtr l) : paragraph (std::move (p)), line (std::move (l)) {}
+
+    Span<const SBRun> getRuns() const
     {
-        int embeddingLevel = -1;
-        std::vector<int> resolvedLevels;
-        std::vector<int> visualOrder;
-    };
+        return { SBLineGetRunsPtr (line.get()), SBLineGetRunCount (line.get()) };
+    }
 
-    static void analyseBidiRun (BidiOutput& output,
-                                Span<UnicodeAnalysisPoint> stream,
-                                std::optional<TextDirection> directionOverride = {})
+    void computeVisualOrder (std::vector<size_t>& result) const
     {
-        // BD1
-        const auto baseLevel = directionOverride.has_value() ? (*directionOverride == TextDirection::rtl ? 1 : 0)
-                                                             : resolveParagraphEmbeddingLevel (stream);
+        result.clear();
 
-        std::for_each (stream.begin(), stream.end(), [baseLevel] (auto& atom)
+        const auto runs = getRuns();
+
+        if (runs.empty())
+            return;
+
+        return computeResultVector (SBLineGetOffset (line.get()),
+                                    SBLineGetLength (line.get()),
+                                    SBParagraphGetBaseLevel (paragraph.get()),
+                                    runs,
+                                    result);
+    }
+
+    static void computeResultVector (SBUInteger offset,
+                                     SBUInteger length,
+                                     SBLevel baseLevel,
+                                     Span<const SBRun> runs,
+                                     std::vector<size_t>& result)
+    {
+        const auto level = [] (const SBRun& x)
         {
-            atom.bidiLevel = (uint16_t) baseLevel;
-        });
+            return x.level;
+        };
 
-        resolveExplicitLevels (stream, baseLevel);
+        const auto high = level (*std::max_element (runs.begin(), runs.end(), [&] (const auto& a, const auto& b)
+        {
+            return level (a) < level (b);
+        }));
 
-        // X9 replace override characters
-        const auto pred = [] (auto atom) { return contains ({ BidiType::rle, BidiType::lre,
-                                                              BidiType::lro, BidiType::rlo,
-                                                              BidiType::pdf }, atom.getBidiType()); };
+        const auto pseudoLevel = [] (const SBRun& x)
+        {
+            const auto l = x.level;
+            return (l % 2) == 1 ? l : 0xff;
+        };
 
-        std::for_each (stream.begin(),
-                       stream.end(),
-                       [&pred] (auto& atom)
-                       {
-                           if (! pred (atom))
-                               return;
+        const auto low = pseudoLevel (*std::min_element (runs.begin(), runs.end(), [&] (const auto& a, const auto& b)
+        {
+            return pseudoLevel (a) < pseudoLevel (b);
+        }));
 
-                           auto copy = atom;
-                           copy.setBidiType (BidiType::bn);
+        result.resize (length);
+        std::iota (result.begin(), result.end(), offset);
 
-                           atom = copy;
-                       });
+        for (auto currentLevel = high; currentLevel >= low; --currentLevel)
+        {
+            const auto doFlip = [&] (auto beginRuns, auto endRuns)
+            {
+                const auto getStartOfRunInResult = [&] (const auto runIterator)
+                {
+                    return runIterator == endRuns ? result.end()
+                                                  : result.begin() + (ptrdiff_t) (runIterator->offset - offset);
+                };
 
-        // W1-W7
-        resolveWeakTypes (stream, {});
+                for (auto it = beginRuns; it != endRuns;)
+                {
+                    const auto begin = std::find_if (it, endRuns, [&] (const SBRun& x) { return currentLevel <= x.level; });
+                    it = std::find_if (begin, endRuns, [&] (const SBRun& x) { return x.level < currentLevel; });
 
-        // N0-N2
-        resolveNeutralTypes (stream, baseLevel, {});
+                    std::reverse (getStartOfRunInResult (begin), getStartOfRunInResult (it));
+                }
+            };
 
-        // I1-I2
-        resolveImplicitTypes (stream, baseLevel, {});
-
-        output.embeddingLevel = baseLevel;
-
-        output.resolvedLevels.clear();
-
-        for (const auto& atom : stream)
-            output.resolvedLevels.push_back (atom.bidiLevel);
-
-        resolveReorderedIndices (output.visualOrder, stream, baseLevel, {});
+            if (baseLevel % 2 == 0)
+                doFlip (runs.begin(), runs.end());
+            else
+                doFlip (std::make_reverse_iterator (runs.end()), std::make_reverse_iterator (runs.begin()));
+        }
     }
 
 private:
-    enum EmbeddingLevel
-    {
-        left  = 0,
-        right = 1
-    };
+    ParagraphPtr paragraph;
+    LinePtr line;
+};
 
-    static auto isOdd (int level)                 { return bool (level & 1); }
-    static auto computeLeastEven (int level)      { return isOdd (level) ? level + 1 : level + 2; }
-    static auto computeLeastOdd (int level)       { return isOdd (level) ? level + 2 : level + 1; }
-    static auto getEmbeddingDirection (int level) { return isOdd (level) ? BidiType::rtl : BidiType::ltr; }
+class BidiParagraph
+{
+public:
+    using ParagraphPtr = BidiLine::ParagraphPtr;
 
-    static bool isStrong (const UnicodeAnalysisPoint& x)
+    explicit BidiParagraph (ParagraphPtr p)
+        : paragraph (std::move (p))
     {
-        return contains ({ BidiType::rtl,   BidiType::ltr,   BidiType::al }, x.getBidiType());
     }
 
-    static bool isNeutral (const UnicodeAnalysisPoint& x)
+    size_t getOffset() const
     {
-        return contains ({ BidiType::b,   BidiType::s,   BidiType::ws,  BidiType::on }, x.getBidiType());
+        return SBParagraphGetOffset (paragraph.get());
     }
 
-    static bool isIsolateInitiator (BidiType x)
+    size_t getLength() const
     {
-        return contains ({ BidiType::lri, BidiType::rli, BidiType::fsi }, x);
+        return SBParagraphGetLength (paragraph.get());
     }
 
-    static bool isIsolateTerminator (BidiType x)
+    Span<const SBLevel> getResolvedLevels() const
     {
-        return contains ({ BidiType::pdi }, x);
+        return { SBParagraphGetLevelsPtr (paragraph.get()), getLength() };
     }
 
-    static bool isIsolate (BidiType x)
+    BidiLine createLine (size_t offset, size_t length) const
     {
-        return isIsolateInitiator (x) || isIsolateTerminator (x);
+        jassert (getOffset() <= offset);
+        jassert (length <= getLength());
+        return BidiLine { ParagraphPtr { SBParagraphRetain (paragraph.get()) },
+                          BidiLine::LinePtr { SBParagraphCreateLine (paragraph.get(), offset, length) } };
     }
 
-    static int resolveParagraphEmbeddingLevel (const Span<UnicodeAnalysisPoint> buffer, Range<int> range = {})
-    {
-        range = range.isEmpty() ? Range<int> { 0, (int) buffer.size() } : range;
+private:
+    ParagraphPtr paragraph;
+};
 
-        auto seek = [buffer] (BidiType type, Range<int> seekRange) -> int
+class BidiAlgorithm
+{
+public:
+    using AlgorithmPtr = std::unique_ptr<std::remove_pointer_t<SBAlgorithmRef>, FunctionPointerDestructor<SBAlgorithmRelease>>;
+
+    explicit BidiAlgorithm (Span<const juce_wchar> t)
+        : text (t.begin(), t.end())
+    {
+    }
+
+    size_t getLength() const
+    {
+        return text.size();
+    }
+
+    BidiParagraph createParagraph (size_t offset, std::optional<TextDirection> d = {}) const
+    {
+        BidiParagraph::ParagraphPtr result { SBAlgorithmCreateParagraph (algorithm.get(), offset, text.size() - offset, [&]() -> SBLevel
         {
-            for (int i = seekRange.getStart(); i < seekRange.getEnd(); i++)
-            {
-                if (buffer[(size_t) i].data.bidi == type)
-                    return i;
-            }
+            if (! d.has_value())
+                return SBLevelDefaultLTR;
+            return *d == TextDirection::rtl ? 1 : 0;
+        }()) };
 
-            return seekRange.getEnd();
-        };
+        jassert (result != nullptr);
 
-        for (int i = range.getStart(); i < range.getEnd(); i++)
-        {
-            const auto& atom = buffer[(size_t) i];
-
-            if (isStrong (atom))
-                return atom == BidiType::ltr ? EmbeddingLevel::left : EmbeddingLevel::right;
-
-            if (isIsolateInitiator (atom.getBidiType()))
-            {
-                // skip to past matching PDI or EOS
-                const auto end = seek (BidiType::pdi, { i, range.getEnd() });
-                i = end != range.getEnd() ? end + 1 : range.getEnd();
-            }
-        }
-
-        return EmbeddingLevel::left;
+        return BidiParagraph { std::move (result) };
     }
 
-    static void resolveNeutralTypes (Span<UnicodeAnalysisPoint> buffer, int embeddingLevel, Range<int> range)
+    template <typename Fn>
+    void forEachParagraph (Fn&& callback, std::optional<TextDirection> dir = {}) const
     {
-        range = range.isEmpty() ? Range<int> { 0, (int) buffer.size() } : range;
-
-        // BD13:
-        const auto bracketRanges = [buffer, range]
+        for (size_t i = 0; i < text.size();)
         {
-            struct Bracket
-            {
-                int position;
-                uint32_t character;
-                Brackets::Kind type;
-            };
-
-            // https://www.unicode.org/reports/tr9/#BD16
-            constexpr auto maxStackSize = 63;
-            std::vector<Bracket> stack;
-            stack.reserve (maxStackSize);
-            std::vector<Range<int>> brackets;
-
-            for (int i = range.getStart(); i < range.getEnd(); i++)
-            {
-                const auto& curr = buffer[(size_t) i];
-
-                if (curr == BidiType::on)
-                {
-                    const auto type = Brackets::getKind (curr.character);
-
-                    if (type == Brackets::Kind::open)
-                    {
-                        if (stack.size() == stack.capacity())
-                            return brackets;
-
-                        stack.push_back ({ i, curr.character, Brackets::Kind::open });
-                    }
-                    else if (type == Brackets::Kind::close)
-                    {
-                        while (! stack.empty())
-                        {
-                            const auto head = stack.back();
-                            stack.pop_back();
-
-                            if (head.type == Brackets::Kind::open)
-                            {
-                                if (Brackets::isMatchingPair (head.character, curr.character))
-                                {
-                                    brackets.push_back ({ head.position, i });
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return brackets;
-        }();
-
-        // N0:
-        for (auto bracketRange : bracketRanges)
-        {
-            const auto dir = getEmbeddingDirection (embeddingLevel);
-            const Span span { buffer.data() + bracketRange.getStart(), (size_t) bracketRange.getLength() };
-            const auto strong = std::find_if (span.begin(), span.end(), [] (const UnicodeAnalysisPoint& atom)
-            {
-                return isStrong (atom);
-            });
-
-            if (strong != span.end())
-            {
-                if (*strong == dir)
-                {
-                    // B:
-                    buffer[(size_t) bracketRange.getStart()].setBidiType (dir);
-                    buffer[(size_t) bracketRange.getEnd()].setBidiType (dir);
-                }
-                else
-                {
-                    // C:
-                    const auto strongContext = [&buf = std::as_const (buffer),
-                            start = bracketRange.getStart(),
-                            dir]
-                    {
-                        for (int i = start; i >= 0; i--)
-                        {
-                            if (isStrong (buf[(size_t) i]))
-                                return buf[(size_t) i].getBidiType();
-                        }
-
-                        return dir;
-                    }();
-
-                    buffer[(size_t) bracketRange.getStart()].setBidiType (strongContext);
-                    buffer[(size_t) bracketRange.getEnd()].setBidiType (strongContext);
-                }
-            }
-        }
-
-        // N1:
-        for (int i = range.getStart(); i < range.getEnd(); i++)
-        {
-            const auto curr = buffer[(size_t) i];
-            const auto prevBidiType = i > 0 ? buffer[(size_t) i - 1].getBidiType() : BidiType::none; // SOS type?
-
-            if (isNeutral (curr) || isIsolate (curr.getBidiType()))
-            {
-                const auto endIndex = [buffer, start = i, end = range.getEnd()]
-                {
-                    for (int j = start; j < end; j++)
-                    {
-                        const auto atom = buffer[(size_t) j];
-
-                        if (! (isNeutral (atom) || isIsolate (atom.getBidiType())))
-                            return j;
-                    }
-
-                    return end - 1;
-                }();
-
-                auto isNumber    = [] (BidiType type) { return contains ({ BidiType::an, BidiType::en }, type); };
-                const auto start = isNumber (prevBidiType) ? BidiType::rtl : prevBidiType;
-                const auto end   = isNumber (buffer[(size_t) endIndex].getBidiType()) ? BidiType::rtl : buffer[(size_t) endIndex].getBidiType();
-
-                const auto type  = start == end ? start : getEmbeddingDirection (embeddingLevel);
-                std::for_each (buffer.begin() + i, buffer.begin() + endIndex, [type] (UnicodeAnalysisPoint& atom)
-                {
-                    atom.setBidiType (type);
-                });
-
-                i = endIndex;
-            }
+            const auto paragraph = createParagraph (i, dir);
+            callback (paragraph);
+            i += paragraph.getLength();
         }
     }
 
-    static void resolveWeakTypes (Span<UnicodeAnalysisPoint> buffer, Range<int> range)
+private:
+    std::vector<juce_wchar> text;
+    AlgorithmPtr algorithm { [&]
     {
-        range = range.isEmpty() ? Range<int> { 0, static_cast<int> (buffer.size()) } : range;
+        SBCodepointSequence sequence { SBStringEncodingUTF32, text.data(), text.size() };
+        return SBAlgorithmCreate (&sequence);
+    }() };
+};
 
-        for (int i = range.getStart(); i < range.getEnd(); i++)
+//==============================================================================
+//==============================================================================
+
+#if JUCE_UNIT_TESTS
+
+class BidiTests : public UnitTest
+{
+public:
+    BidiTests() : UnitTest ("Unicode Bidi", UnitTestCategories::text) {}
+
+    void runTest() override
+    {
+        beginTest ("visual order rtl");
         {
-            auto& curr = buffer[(size_t) i];
-            const auto prevBidiType = i > 0 ? buffer[(size_t) i - 1].getBidiType() : BidiType::none;
-            const auto nextBidiType = i < range.getEnd() - 1 ? buffer[(size_t) i + 1].getBidiType() : BidiType::none;
+            const CharPointer_UTF8 text ("\xd9\x85\xd9\x85\xd9\x85 colour "
+                                         "\xd9\x85\xd9\x85\xd9\x85\xd9\x85\xd9\x85\xd9\x85\xd9\x85\xd9\x85\n");
+            const std::vector<size_t> result { 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 4, 5, 6, 7, 8, 9, 3, 2, 1, 0 };
+            expect (computeVisualOrder (text) == result);
+        }
 
-            // W1:
-            if (curr == BidiType::nsm)
-                curr.setBidiType (isIsolate (prevBidiType) ? BidiType::on : prevBidiType);
+        beginTest ("visual order ltr");
+        {
+            const CharPointer_UTF8 text ("hello \xd9\x85\xd9\x85\xd9\x85 world\n");
+            const std::vector<size_t> result { 0, 1, 2, 3, 4, 5, 8, 7, 6, 9, 10, 11, 12, 13, 14, 15 };
+            expect (computeVisualOrder (text) == result);
+        }
 
-            // W2:
-            else if (curr == BidiType::en)
-            {
-                for (int j = i - 1; j >= 1; j--)
-                {
-                    if (buffer[(size_t) j] == BidiType::al)
-                        curr.setBidiType (BidiType::al);
+        beginTest ("visual order core algorithm");
+        {
+            const char testInput[] { "DID YOU SAY 'he said \"car MEANS CAR\"'?" };
+            const int testLevels[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 1 };
+            const char expectedOutput[] { "?'he said \"RAC SNAEM car\"' YAS UOY DID" };
 
-                    if (isStrong (buffer[(size_t) j]))
-                        break;
-                }
-            }
+            static_assert (std::size (testInput) == std::size (expectedOutput));
+            static_assert (std::size (testInput) - 1 == std::size (testLevels)); // ignore null terminator
 
-            // W3:
-            else if (curr == BidiType::al)
-                curr.setBidiType (BidiType::rtl);
+            const auto [baseLevel, runs] = createRunsFromLevels (testLevels);
 
-            // W4:
-            else if (curr == BidiType::es || curr == BidiType::cs)
-            {
-                if (prevBidiType == BidiType::en && nextBidiType == BidiType::en)
-                {
-                    curr.setBidiType (BidiType::en);
-                }
-                else if (curr == BidiType::cs)
-                {
-                    if (prevBidiType == BidiType::an && nextBidiType == BidiType::an)
-                        curr.setBidiType (BidiType::an);
-                }
-            }
+            std::vector<size_t> result;
+            BidiLine::computeResultVector (0, std::size (testLevels), baseLevel, runs, result);
 
-            // W5:
-            else if (curr == BidiType::et)
-            {
-                if (prevBidiType == BidiType::en || nextBidiType == BidiType::en)
-                    curr.setBidiType (BidiType::en);
-            }
+            std::vector<char> output;
 
-            // W6
-            if (contains ({ BidiType::es, BidiType::cs }, curr.getBidiType()))
-                curr.setBidiType (BidiType::on);
+            for (auto i : result)
+                output.push_back (testInput[i]);
 
-            // W7:
-            else if (curr == BidiType::en)
-            {
-                for (int j = i - 1; j >= 1; j--)
-                {
-                    if (buffer[(size_t) j] == BidiType::ltr)
-                        curr.setBidiType (BidiType::ltr);
-
-                    if (isStrong (buffer[(size_t) j]))
-                        break;
-                }
-            }
+            expect (std::equal (output.begin(), output.end(), expectedOutput));
         }
     }
 
-    static void resolveImplicitTypes (Span<UnicodeAnalysisPoint> buffer, int embeddingLevel, Range<int> range)
+    static std::vector<size_t> computeVisualOrder (const String& text)
     {
-        range = range.isEmpty() ? Range<int> { 0, static_cast<int> (buffer.size()) } : range;
+        std::vector<juce_wchar> chars;
 
-        // I1, I2
-        // https://www.unicode.org/reports/tr9/#Resolving_Implicit_Levels
-        for (int i = range.getStart(); i < range.getEnd(); i++)
-        {
-            auto& curr = buffer[(size_t) i];
+        for (const auto t : text)
+            chars.push_back (t);
 
-            const auto level = (uint16_t) embeddingLevel;
-            const auto isEven = isOdd (level) == false;
+        BidiAlgorithm algorithm { chars };
+        auto paragraph = algorithm.createParagraph (0);
+        auto line = paragraph.createLine (0, paragraph.getLength());
 
-            if (curr.getGeneralCategory() != GeneralCategory::pc)
-            {
-                JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wswitch-enum")
-                switch (curr.getBidiType())
-                {
-                    case BidiType::ltr: curr.bidiLevel = (isEven ? level     : level + 1); break;
-                    case BidiType::rtl: curr.bidiLevel = (isEven ? level + 1 : level    ); break;
-
-                    default: break;
-                }
-                JUCE_END_IGNORE_WARNINGS_GCC_LIKE
-            }
-        }
+        std::vector<size_t> order;
+        line.computeVisualOrder (order);
+        return order;
     }
 
-    static void resolveExplicitLevels (Span<UnicodeAnalysisPoint> buffer, int embeddingLevel)
+    static std::pair<SBLevel, std::vector<SBRun>> createRunsFromLevels (Span<const int> levels)
     {
-        struct State
+        std::vector<SBRun> runs;
+
+        for (size_t i = 0; i < levels.size();)
         {
-            enum DirectionalOverride { Neutral, rtl, ltr };
-            int embeddingLevel;
-            DirectionalOverride directionalOverride;
-            bool isolateStatus;
-        };
+            const auto level = levels[i];
 
-        // X1
-        struct OverflowState
-        {
-            int isolate  = 0;
-            int embedded = 0;
-        };
-
-        // https://www.unicode.org/reports/tr9/#BD2
-        static constexpr auto maxStackSize = 125;
-        std::vector<State> stack;
-        stack.reserve (maxStackSize);
-        OverflowState overflow;
-
-        [[maybe_unused]] const auto canPush = [&stack] { return stack.size() < maxStackSize; };
-        const auto isValid = [&] (auto value) { return (value < maxStackSize) && (overflow.isolate == 0 && overflow.embedded == 0); };
-
-        stack.push_back ({ embeddingLevel, State::Neutral, false });
-
-        // X2-X6a
-        for (auto& atom : buffer)
-        {
-            // X2-X3: Explicit embeddings
-            if (atom == BidiType::rle || atom == BidiType::lre)
+            for (size_t j = i + 1; j < levels.size(); ++j)
             {
-                if (stack.empty())
+                const auto lastElement = j == levels.size() - 1;
+                const auto endIndex = lastElement ? j + 1 : j;
+
+                if (levels[j] != level || lastElement)
+                {
+                    runs.push_back ({ (SBUInteger) i, (SBUInteger) (endIndex - i), (SBLevel) level });
+                    i = endIndex;
                     break;
-
-                auto& head = stack.back();
-                head.embeddingLevel = atom == BidiType::rle ? computeLeastOdd (head.embeddingLevel)
-                                                            : computeLeastEven (head.embeddingLevel);
-
-                if (isValid (head.embeddingLevel))
-                {
-                    head.directionalOverride = State::Neutral;
-                    head.isolateStatus = false;
-
-                    jassert (canPush());
-
-                    stack.push_back (stack.back());
-                }
-                else if (overflow.isolate == 0)
-                {
-                    overflow.embedded++;
-                }
-            }
-
-            // X4-X5: Explicit Overrides
-            else if (atom == BidiType::rlo || atom == BidiType::lro)
-            {
-                if (stack.empty())
-                    break;
-
-                auto& head = stack.back();
-                head.embeddingLevel = atom == BidiType::rlo ? computeLeastOdd (head.embeddingLevel)
-                                                            : computeLeastEven (head.embeddingLevel);
-
-                if (isValid (head.embeddingLevel))
-                {
-                    head.directionalOverride = atom == BidiType::rlo ? State::rtl : State::ltr;
-                    head.isolateStatus = false;
-
-                    jassert (canPush());
-                    stack.push_back (stack.back());
-                }
-                else if (overflow.isolate == 0)
-                {
-                    overflow.embedded++;
-                }
-            }
-
-            // X5a-X5b: Isolates
-            else if (atom == BidiType::rli || atom == BidiType::lri)
-            {
-                if (stack.empty())
-                    break;
-
-                auto& head = stack.back();
-                head.embeddingLevel = atom == BidiType::rli ? computeLeastOdd (head.embeddingLevel)
-                                                            : computeLeastEven (head.embeddingLevel);
-
-                if (head.directionalOverride == State::ltr)
-                    atom.setBidiType (BidiType::ltr);
-                else if (head.directionalOverride == State::rtl)
-                    atom.setBidiType (BidiType::rtl);
-
-                if (isValid (head.embeddingLevel))
-                {
-                    head.directionalOverride = State::Neutral;
-                    head.isolateStatus = true;
-
-                    jassert (canPush());
-                    stack.push_back (stack.back());
-                }
-                else
-                {
-                    overflow.isolate++;
-                }
-            }
-
-            // X6a: Terminating Isolates
-            else if (atom == BidiType::pdi)
-            {
-                if (overflow.isolate > 0)
-                {
-                    overflow.isolate--;
-                }
-                else
-                {
-                    overflow.embedded = 0;
-
-                    while (! stack.empty() && ! stack.back().isolateStatus)
-                        stack.pop_back();
-
-                    if (! stack.empty())
-                        stack.pop_back();
-                }
-
-                if (stack.empty())
-                    break;
-
-                atom.bidiLevel = (uint16_t) stack.back().embeddingLevel;
-            }
-
-            // X7
-            else if (atom == BidiType::pdf)
-            {
-                if (overflow.isolate > 0)
-                {
-                    overflow.isolate--;
-                }
-                else if (overflow.embedded > 0)
-                {
-                    overflow.embedded--;
-                }
-                else if (stack.size() >= 2 && stack.back().isolateStatus == false)
-                {
-                    stack.pop_back();
-                }
-            }
-
-            // X8
-            else if (atom == BidiType::b)
-            {
-                if (stack.empty())
-                    break;
-
-                atom.bidiLevel = (uint16_t) stack.back().embeddingLevel;
-
-                overflow.embedded = 0;
-                overflow.isolate = 0;
-                stack.clear();
-                stack.push_back ({ embeddingLevel, State::Neutral, false });
-            }
-
-            // X6: Everything else
-            // ! (B | BN | RLE | LRE | RLO | LRO | PDF | RLI | LRI | FSI | PDI)
-            else
-            {
-                if (stack.empty())
-                    break;
-
-                atom.bidiLevel = (uint16_t) stack.back().embeddingLevel;
-            }
-        }
-    }
-
-    static void resolveReorderedIndices (std::vector<int>& result,
-                                         const Span<UnicodeAnalysisPoint> buffer,
-                                         int embeddingLevel,
-                                         Range<int> range = {})
-    {
-        range = range.isEmpty() ? Range<int> { 0, static_cast<int> (buffer.size()) } : range;
-
-        std::vector<int> levels ((size_t) range.getLength());
-
-        for (int i = range.getStart(); i < range.getEnd(); i++)
-            levels[(size_t) i] = buffer[(size_t) i].bidiLevel;
-
-        // L1:
-        for (int i = range.getStart(); i < range.getEnd(); i++)
-        {
-            auto curr = buffer[(size_t) i];
-
-            if (contains ({ BidiType::s, BidiType::b }, curr.getBidiType()))
-                levels[(size_t) i] = embeddingLevel;
-
-            for (int j = i - 1; j >= 0; j--)
-            {
-                curr = buffer[(size_t) j];
-
-                if (! isIsolate (curr.getBidiType()))
-                    break;
-
-                levels[(size_t) j] = embeddingLevel;
-            }
-        }
-
-        // L2:
-        result.resize ((size_t) range.getLength());
-        std::iota (result.begin(), result.end(), 0);
-        const auto high = *std::max_element (levels.begin(), levels.end());
-
-        for (int level = high; level > 0; level--)
-        {
-            for (int i = 0; i < range.getLength(); i++)
-            {
-                const auto indexLevel = levels[(size_t) i];
-
-                if (level > 0 && (indexLevel >= level))
-                {
-                    // Find the longest consecutive run of the current level and above
-                    // 1111 = 4
-                    // 1001 = 1
-                    // 1123 = 4
-                    const auto start = i;
-                    const auto end = [start, levels, level]
-                    {
-                        auto e = (size_t) start + 1;
-
-                        while (e < levels.size() && levels[e] >= level)
-                            e++;
-
-                        return e;
-                    }();
-
-                    std::reverse (result.begin() + start, result.begin() + (int) end);
-                    i = (int) end;
                 }
             }
         }
+
+        const auto baseLevel = std::size (levels) == 0 ? 0 : *std::min_element (std::begin (levels), std::end (levels));
+
+        if (baseLevel % 2 != 0)
+            std::reverse (runs.begin(), runs.end());
+
+        return { (SBLevel) baseLevel, runs };
     }
 };
+
+static BidiTests bidiTests;
+
+#endif
 
 } // namespace juce

@@ -70,6 +70,10 @@
  #import <IOKit/pwr_mgt/IOPMLib.h>
  #import <MetalKit/MetalKit.h>
 
+ #if defined (MAC_OS_VERSION_14_4) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_VERSION_14_4
+  #import <ScreenCaptureKit/ScreenCaptureKit.h>
+ #endif
+
 #elif JUCE_IOS
  #if JUCE_PUSH_NOTIFICATIONS
   #import <UserNotifications/UserNotifications.h>
@@ -88,17 +92,11 @@
  #include <sapi.h>
  #include <vfw.h>
  #include <windowsx.h>
+ #include <dwmapi.h>
 
  #if JUCE_ETW_TRACELOGGING
   #include <TraceLoggingProvider.h>
   #include <evntrace.h>
- #endif
-
- #if JUCE_MINGW
-  // Some MinGW headers use 'new' as a parameter name
-  JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wkeyword-macro")
-  #define new new_
-  JUCE_END_IGNORE_WARNINGS_GCC_LIKE
  #endif
 
  #include <uiautomation.h>
@@ -110,13 +108,22 @@
   #include <exdispid.h>
  #endif
 
- #if JUCE_MINGW
-  #include <imm.h>
- #elif ! JUCE_DONT_AUTOLINK_TO_WIN32_LIBRARIES
+ #if ! JUCE_DONT_AUTOLINK_TO_WIN32_LIBRARIES
   #pragma comment(lib, "vfw32.lib")
   #pragma comment(lib, "imm32.lib")
   #pragma comment(lib, "comctl32.lib")
+  #pragma comment(lib, "dwmapi.lib")
 
+  // Link a newer version of the side-by-side comctl32 dll.
+  // Required to enable the newer native message box and visual styles on vista and above.
+  #pragma comment(linker,                             \
+          "\"/MANIFESTDEPENDENCY:type='Win32' "       \
+          "name='Microsoft.Windows.Common-Controls' " \
+          "version='6.0.0.0' "                        \
+          "processorArchitecture='*' "                \
+          "publicKeyToken='6595b64144ccf1df' "        \
+          "language='*'\""                            \
+      )
   #if JUCE_OPENGL
    #pragma comment(lib, "OpenGL32.Lib")
    #pragma comment(lib, "GlU32.Lib")
@@ -190,9 +197,13 @@
  #include "native/juce_MouseCursor_mac.mm"
 
 #elif JUCE_WINDOWS
+ #include <juce_graphics/native/juce_Direct2DMetrics_windows.h>
+ #include <juce_graphics/native/juce_Direct2DGraphicsContext_windows.h>
+ #include <juce_graphics/native/juce_Direct2DHwndContext_windows.h>
  #include <juce_graphics/native/juce_DirectX_windows.h>
+ #include <juce_graphics/native/juce_Direct2DImage_windows.h>
+ #include <juce_graphics/native/juce_Direct2DImageContext_windows.h>
 
- #include "native/accessibility/juce_ComInterfaces_windows.h"
  #include "native/accessibility/juce_WindowsUIAWrapper_windows.h"
  #include "native/accessibility/juce_AccessibilityElement_windows.h"
  #include "native/accessibility/juce_UIAHelpers_windows.h"
@@ -248,6 +259,7 @@
 #endif
 
 //==============================================================================
+#include "native/accessibility/juce_Accessibility.cpp"
 #include "accessibility/juce_AccessibilityHandler.cpp"
 #include "application/juce_Application.cpp"
 #include "buttons/juce_ArrowButton.cpp"
@@ -334,7 +346,6 @@
 #include "mouse/juce_MouseInactivityDetector.cpp"
 #include "mouse/juce_MouseInputSource.cpp"
 #include "mouse/juce_MouseListener.cpp"
-#include "native/accessibility/juce_Accessibility.cpp"
 #include "native/juce_ScopedDPIAwarenessDisabler.cpp"
 #include "positioning/juce_MarkerList.cpp"
 #include "positioning/juce_RelativeCoordinate.cpp"

@@ -190,7 +190,7 @@ String SystemStats::getStackBacktrace()
 {
     String result;
 
-   #if JUCE_ANDROID || JUCE_MINGW || JUCE_WASM
+   #if JUCE_ANDROID || JUCE_WASM
     jassertfalse; // sorry, not implemented yet!
 
    #elif JUCE_WINDOWS
@@ -255,8 +255,6 @@ static void handleCrash (int signum)
     globalCrashHandler ((void*) (pointer_sized_int) signum);
     ::kill (getpid(), SIGKILL);
 }
-
-int juce_siginterrupt (int sig, int flag);
 #endif
 
 void SystemStats::setApplicationCrashHandler (CrashHandlerFunction handler)

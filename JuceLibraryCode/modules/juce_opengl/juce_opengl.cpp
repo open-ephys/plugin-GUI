@@ -84,7 +84,7 @@
 #elif JUCE_WINDOWS
  #include <windowsx.h>
 
- #if ! JUCE_MINGW && ! JUCE_DONT_AUTOLINK_TO_WIN32_LIBRARIES
+ #if ! JUCE_DONT_AUTOLINK_TO_WIN32_LIBRARIES
   #pragma comment(lib, "OpenGL32.Lib")
  #endif
 
@@ -126,7 +126,7 @@ JUCE_GL_EXTENSION_FUNCTIONS
 JUCE_GL_VERTEXBUFFER_FUNCTIONS
 #undef X
 
-#if JUCE_DEBUG && ! defined (JUCE_CHECK_OPENGL_ERROR)
+#if JUCE_DEBUG && ! JUCE_DISABLE_ASSERTIONS && ! defined (JUCE_CHECK_OPENGL_ERROR)
 static const char* getGLErrorMessage (const GLenum e) noexcept
 {
     switch (e)
@@ -197,7 +197,7 @@ static bool checkPeerIsValid (OpenGLContext* context)
     return false;
 }
 
-static void checkGLError (const char* file, const int line)
+static void checkGLError ([[maybe_unused]] const char* file, [[maybe_unused]] const int line)
 {
     for (;;)
     {

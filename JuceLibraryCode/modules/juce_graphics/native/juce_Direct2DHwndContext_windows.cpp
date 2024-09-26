@@ -35,15 +35,9 @@
 namespace juce
 {
 
-//==============================================================================
-class alignas (MEMORY_ALLOCATION_ALIGNMENT) Presentation
+class Presentation
 {
 public:
-    SLIST_ENTRY& getListEntry()
-    {
-        return listEntry;
-    }
-
     auto getPresentationBitmap() const
     {
         jassert (presentationBitmap != nullptr);
@@ -65,7 +59,6 @@ public:
             presentationBitmap = Direct2DBitmap::createBitmap (context,
                                                                Image::ARGB,
                                                                { (uint32) swapSize.getWidth(), (uint32) swapSize.getHeight() },
-                                                               swapSize.getWidth() * 4,
                                                                D2D1_BITMAP_OPTIONS_TARGET);
         }
 
@@ -77,62 +70,149 @@ public:
         paintAreas = std::move (areas);
     }
 
-    auto getPaintAreas() const
+    const RectangleList<int>& getPaintAreas() const
     {
         return paintAreas;
     }
 
-    void setResult (HRESULT x)
-    {
-        hr = x;
-    }
-
-    auto getResult() const
-    {
-        return hr;
-    }
-
 private:
-    SLIST_ENTRY listEntry;
     ComSmartPtr<ID2D1Bitmap> presentationBitmap;
     RectangleList<int> paintAreas;
-    HRESULT hr = S_OK;
 };
 
-class SList
+class PresentationQueue
 {
 public:
-    void push (SLIST_ENTRY& item)
+    Presentation* lockFront()
     {
-        jassert ((reinterpret_cast<uintptr_t> (&item) % MEMORY_ALLOCATION_ALIGNMENT) == 0);
-        InterlockedPushEntrySList (head.get(), &item);
+        const std::scoped_lock lock { mutex };
+        displaying = std::exchange (readyToDisplay, nullptr);
+        return displaying;
     }
 
-    auto* pop()
+    void unlockFront()
     {
-        return InterlockedPopEntrySList (head.get());
+        const std::scoped_lock lock { mutex };
+        displaying = nullptr;
+    }
+
+    Presentation* lockBack()
+    {
+        const std::scoped_lock lock { mutex };
+
+        preparing = [&]() -> Presentation*
+        {
+            for (auto& p : presentations)
+                if (&p != displaying && &p != readyToDisplay)
+                    return &p;
+
+            return nullptr;
+        }();
+
+        return preparing;
+    }
+
+    void unlockBack()
+    {
+        {
+            const std::scoped_lock lock { mutex };
+
+            if (preparing == nullptr)
+                return;
+
+            if (readyToDisplay != nullptr)
+            {
+                // Copy the dirty regions from the newest presentation over the top of the 'ready'
+                // presentation, then combine dirty regions.
+                // We're effectively combining several frames of dirty regions into one, until
+                // the screen update catches up.
+
+                for (const auto& area : preparing->getPaintAreas())
+                {
+                    D2D1_POINT_2U destPoint { (uint32) area.getX(), (uint32) area.getY() };
+                    D2D1_RECT_U sourceRect { (uint32) area.getX(),
+                                             (uint32) area.getY(),
+                                             (uint32) area.getRight(),
+                                             (uint32) area.getBottom() };
+                    readyToDisplay->getPresentationBitmap()->CopyFromBitmap (&destPoint, preparing->getPresentationBitmap(), &sourceRect);
+                }
+
+                auto areas = readyToDisplay->getPaintAreas();
+                areas.add (preparing->getPaintAreas());
+                readyToDisplay->setPaintAreas (std::move (areas));
+            }
+            else
+            {
+                readyToDisplay = std::exchange (preparing, nullptr);
+            }
+        }
+
+        SetEvent (wakeEvent.getHandle());
+    }
+
+    HANDLE getWakeEvent() const
+    {
+        return wakeEvent.getHandle();
     }
 
 private:
-    struct Destructor
-    {
-        void operator() (void* ptr) const
-        {
-            _aligned_free (ptr);
-        }
-    };
+    WindowsScopedEvent wakeEvent;
 
-    std::unique_ptr<SLIST_HEADER, Destructor> head { []() -> SLIST_HEADER*
-    {
-        auto* result = static_cast<SLIST_HEADER*> (_aligned_malloc (sizeof (SLIST_HEADER), MEMORY_ALLOCATION_ALIGNMENT));
-
-        if (result == nullptr)
-            return nullptr;
-
-        InitializeSListHead (result);
-        return result;
-    }() };
+    std::mutex mutex;
+    std::array<Presentation, 2> presentations;
+    Presentation* preparing = nullptr;
+    Presentation* readyToDisplay = nullptr;
+    Presentation* displaying = nullptr;
 };
+
+template <auto lock, auto unlock>
+class PresentationQueueLock
+{
+public:
+    PresentationQueueLock() = default;
+
+    explicit PresentationQueueLock (PresentationQueue& q)
+        : queue (&q),
+          presentation (queue != nullptr ? (queue->*lock)() : nullptr)
+    {
+    }
+
+    ~PresentationQueueLock()
+    {
+        if (queue != nullptr)
+            (queue->*unlock)();
+    }
+
+    PresentationQueueLock (PresentationQueueLock&& other) noexcept
+        : queue (std::exchange (other.queue, nullptr)),
+          presentation (std::exchange (other.presentation, nullptr))
+    {
+    }
+
+    PresentationQueueLock& operator= (PresentationQueueLock&& other) noexcept
+    {
+        PresentationQueueLock { std::move (other) }.swap (*this);
+        return *this;
+    }
+
+    PresentationQueueLock (const PresentationQueueLock&) = delete;
+    PresentationQueueLock& operator= (const PresentationQueueLock&) = delete;
+
+    Presentation* getPresentation() const { return presentation; }
+
+private:
+    void swap (PresentationQueueLock& other) noexcept
+    {
+        std::swap (other.queue, queue);
+        std::swap (other.presentation, presentation);
+    }
+
+    PresentationQueue* queue = nullptr;
+    Presentation* presentation = nullptr;
+};
+
+using BackBufferLock = PresentationQueueLock<&PresentationQueue::lockBack, &PresentationQueue::unlockBack>;
+using FrontBufferLock = PresentationQueueLock<&PresentationQueue::lockFront, &PresentationQueue::unlockFront>;
 
 struct Direct2DHwndContext::HwndPimpl : public Direct2DGraphicsContext::Pimpl
 {
@@ -145,8 +225,6 @@ private:
               multithread (multithreadIn),
               swapChainEventHandle (ownerIn.swap.swapChainEvent->getHandle())
         {
-            for (auto& p : presentations)
-                retired.push (p.getListEntry());
         }
 
         ~SwapChainThread()
@@ -155,38 +233,22 @@ private:
             thread.join();
         }
 
-        Presentation* getFreshPresentation()
+        BackBufferLock getFreshPresentation()
         {
-            if (auto* listEntry = reinterpret_cast<Presentation*> (retired.pop()))
-                return listEntry;
-
-            return nullptr;
-        }
-
-        void pushPaintedPresentation (Presentation* presentationIn)
-        {
-            painted.push (presentationIn->getListEntry());
-            SetEvent (wakeEvent.getHandle());
-        }
-
-        void retirePresentation (Presentation* presentationIn)
-        {
-            retired.push (presentationIn->getListEntry());
+            return BackBufferLock (queue);
         }
 
         void notify()
         {
-            SetEvent (wakeEvent.getHandle());
+            SetEvent (queue.getWakeEvent());
         }
 
     private:
-        SList painted, retired;
         Direct2DHwndContext::HwndPimpl& owner;
+        PresentationQueue queue;
         ComSmartPtr<ID2D1Multithread> multithread;
         HANDLE swapChainEventHandle = nullptr;
-        std::vector<Presentation> presentations = std::vector<Presentation> (2);
 
-        WindowsScopedEvent wakeEvent;
         WindowsScopedEvent quitEvent;
         std::thread thread { [&] { threadLoop(); } };
 
@@ -201,25 +263,25 @@ private:
                 if (! swapChainReady)
                     return;
 
-                auto* listEntry = reinterpret_cast<Presentation*> (painted.pop());
+                FrontBufferLock frontBufferLock { queue };
+                auto* frontBuffer = frontBufferLock.getPresentation();
 
-                if (listEntry == nullptr)
+                if (frontBuffer == nullptr)
                     return;
 
                 JUCE_D2DMETRICS_SCOPED_ELAPSED_TIME (owner.owner.metrics, swapChainThreadTime);
 
                 {
                     ScopedMultithread scopedMultithread { multithread };
-                    owner.present (listEntry, 0);
+                    owner.present (frontBuffer, 0);
                 }
 
-                retired.push (listEntry->getListEntry());
                 swapChainReady = false;
             };
 
             for (;;)
             {
-                const HANDLE handles[] { swapChainEventHandle, quitEvent.getHandle(), wakeEvent.getHandle() };
+                const HANDLE handles[] { swapChainEventHandle, quitEvent.getHandle(), queue.getWakeEvent() };
 
                 const auto waitResult = WaitForMultipleObjects ((DWORD) std::size (handles), handles, FALSE, INFINITE);
 
@@ -251,10 +313,10 @@ private:
     };
 
     SwapChain swap;
+    ComSmartPtr<ID2D1DeviceContext1> deviceContext;
     std::unique_ptr<SwapChainThread> swapChainThread;
-    Presentation* presentation = nullptr;
-    CompositionTree compositionTree;
-    UpdateRegion updateRegion;
+    BackBufferLock presentation;
+    std::optional<CompositionTree> compositionTree;
     RectangleList<int> deferredRepaints;
     Rectangle<int> frameSize;
     std::vector<RECT> dirtyRectangles;
@@ -263,70 +325,66 @@ private:
 
     HWND hwnd = nullptr;
 
-    HRESULT prepare() override
+    bool prepare() override
     {
-        if (! adapter || ! adapter->direct2DDevice)
-        {
-            adapter = directX->adapters.getAdapterForHwnd (hwnd);
+        const auto adapter = directX->adapters.getAdapterForHwnd (hwnd);
 
-            if (! adapter)
-                return E_FAIL;
-        }
+        if (adapter == nullptr)
+            return false;
 
-        if (! deviceResources.canPaint (adapter))
-        {
-            if (auto hr = deviceResources.create (adapter); FAILED (hr))
-                return hr;
-        }
+        if (deviceContext == nullptr)
+            deviceContext = Direct2DDeviceContext::create (adapter);
+
+        if (deviceContext == nullptr)
+            return false;
+
+        if (! deviceResources.has_value())
+            deviceResources = Direct2DDeviceResources::create (deviceContext);
+
+        if (! deviceResources.has_value())
+            return false;
 
         if (! hwnd || frameSize.isEmpty())
-            return E_FAIL;
+            return false;
 
         if (! swap.canPaint())
         {
             if (auto hr = swap.create (hwnd, frameSize, adapter); FAILED (hr))
-                return hr;
+                return false;
 
-            if (auto hr = swap.createBuffer (deviceResources.deviceContext.context); FAILED (hr))
-                return hr;
+            if (auto hr = swap.createBuffer (getDeviceContext()); FAILED (hr))
+                return false;
         }
 
-        if (! swapChainThread)
-        {
-            if (swap.swapChainEvent.has_value())
-                swapChainThread = std::make_unique<SwapChainThread> (*this, directX->getD2DMultithread());
-        }
+        if (! swapChainThread && swap.swapChainEvent.has_value())
+            swapChainThread = std::make_unique<SwapChainThread> (*this, directX->getD2DMultithread());
 
-        if (! compositionTree.canPaint())
-        {
-            if (auto hr = compositionTree.create (adapter->dxgiDevice, hwnd, swap.chain); FAILED (hr))
-                return hr;
-        }
+        if (! compositionTree.has_value())
+            compositionTree = CompositionTree::create (adapter->dxgiDevice, hwnd, swap.chain);
 
-        return S_OK;
+        if (! compositionTree.has_value())
+            return false;
+
+        return true;
     }
 
     void teardown() override
     {
-        compositionTree.release();
+        compositionTree.reset();
         swapChainThread = nullptr;
+        deviceContext = nullptr;
         swap.release();
 
         Pimpl::teardown();
     }
 
-    void updatePaintAreas() override
+    RectangleList<int> getPaintAreas() const override
     {
         // Does the entire buffer need to be filled?
         if (swap.state == SwapChain::State::bufferAllocated || resizing)
-            deferredRepaints = swap.getSize();
+            return swap.getSize();
 
-        // If the window alpha is less than 1.0, clip to the union of the
-        // deferred repaints so the device context Clear() works correctly
-        if (targetAlpha < 1.0f || ! opaque)
-            paintAreas = deferredRepaints.getBounds();
-        else
-            paintAreas = deferredRepaints;
+        return deferredRepaints;
     }
 
     bool checkPaintReady() override
@@ -335,13 +393,9 @@ private:
         if (auto now = Time::getHighResolutionTicks(); Time::highResolutionTicksToSeconds (now - lastFinishFrameTicks) < 0.001)
             return false;
 
-        if (! presentation)
-        {
-            presentation = swapChainThread->getFreshPresentation();
-
-            if (presentation && FAILED (presentation->getResult()))
-                teardown();
-        }
+        if (presentation.getPresentation() == nullptr)
+            if (swapChainThread != nullptr)
+                presentation = swapChainThread->getFreshPresentation();
 
         // Paint if:
         //      resources are allocated
@@ -349,25 +403,22 @@ private:
         //      the swap chain thread is ready
         bool ready = Pimpl::checkPaintReady();
         ready &= swap.canPaint();
-        ready &= compositionTree.canPaint();
+        ready &= compositionTree.has_value();
         ready &= deferredRepaints.getNumRectangles() > 0 || resizing;
-        ready &= presentation != nullptr;
+        ready &= presentation.getPresentation() != nullptr;
         return ready;
     }
 
     JUCE_DECLARE_WEAK_REFERENCEABLE (HwndPimpl)
 
 public:
-    HwndPimpl (Direct2DHwndContext& ownerIn, HWND hwndIn, bool opaqueIn)
-        : Pimpl (ownerIn, opaqueIn),
+    HwndPimpl (Direct2DHwndContext& ownerIn, HWND hwndIn)
+        : Pimpl (ownerIn),
           hwnd (hwndIn)
     {
-        adapter = directX->adapters.getAdapterForHwnd (hwndIn);
     }
 
     ~HwndPimpl() override = default;
-
-    HWND getHwnd() const { return hwnd; }
 
     void handleShowWindow()
     {
@@ -388,15 +439,20 @@ public:
         return Rectangle<int>::leftTopRightBottom (clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
     }
 
-    Rectangle<int> getFrameSize() override
+    Rectangle<int> getFrameSize() const override
     {
         return getClientRect();
     }
 
+    ComSmartPtr<ID2D1DeviceContext1> getDeviceContext() const override
+    {
+        return deviceContext;
+    }
+
     ComSmartPtr<ID2D1Image> getDeviceContextTarget() const override
     {
-        if (presentation != nullptr)
-            return presentation->getPresentationBitmap (swap.getSize(), deviceResources.deviceContext.context);
+        if (auto* p = presentation.getPresentation())
+            return p->getPresentationBitmap (swap.getSize(), getDeviceContext());
 
         return {};
     }
@@ -424,11 +480,11 @@ public:
         // Resize/scale the swap chain
         prepare();
 
-        if (auto deviceContext = deviceResources.deviceContext.context)
+        if (auto dc = getDeviceContext())
         {
             ScopedMultithread scopedMultithread { directX->getD2DMultithread() };
 
-            auto hr = swap.resize (size, deviceContext);
+            auto hr = swap.resize (size, dc);
             jassert (SUCCEEDED (hr));
             if (FAILED (hr))
                 teardown();
@@ -436,8 +492,6 @@ public:
             if (swapChainThread)
                 swapChainThread->notify();
         }
-
-        clearWindowRedirectionBitmap();
     }
 
     void addDeferredRepaint (Rectangle<int> deferredRepaint)
@@ -445,45 +499,6 @@ public:
         deferredRepaints.add (deferredRepaint);
 
         JUCE_TRACE_EVENT_INT_RECT (etw::repaint, etw::paintKeyword, snappedRectangle);
-    }
-
-    void addInvalidWindowRegionToDeferredRepaints()
-    {
-        updateRegion.findRECTAndValidate (hwnd);
-
-        // Call addDeferredRepaint for each RECT in the update region to make
-        // sure they are snapped properly for DPI scaling
-        auto rectArray = updateRegion.getRECTArray();
-
-        for (uint32 i = 0; i < updateRegion.getNumRECT(); ++i)
-            addDeferredRepaint (D2DUtilities::toRectangle (rectArray[i]));
-
-        updateRegion.clear();
-    }
-
-    void clearWindowRedirectionBitmap()
-    {
-        if (! opaque && swap.state == SwapChain::State::bufferAllocated)
-        {
-            deviceResources.deviceContext.createHwndRenderTarget (hwnd);
-
-            // Clear the GDI redirection bitmap using a Direct2D 1.0 render target
-            auto& hwndRenderTarget = deviceResources.deviceContext.hwndRenderTarget;
-
-            if (hwndRenderTarget)
-            {
-                const auto colorF = D2DUtilities::toCOLOR_F (getBackgroundTransparencyKeyColour());
-
-                RECT clientRect;
-                GetClientRect (hwnd, &clientRect);
-
-                D2D1_SIZE_U size { (uint32) (clientRect.right - clientRect.left), (uint32) (clientRect.bottom - clientRect.top) };
-                hwndRenderTarget->Resize (size);
-                hwndRenderTarget->BeginDraw();
-                hwndRenderTarget->Clear (colorF);
-                hwndRenderTarget->EndDraw();
-            }
-        }
     }
 
     SavedState* startFrame (float dpiScale) override
@@ -494,19 +509,19 @@ public:
             setSize (getClientRect());
         }
 
-        auto savedState = Pimpl::startFrame (dpiScale);
+        auto* savedState = Pimpl::startFrame (dpiScale);
+
+        if (savedState == nullptr)
+            return nullptr;
 
         // If a new frame is starting, clear deferredAreas in case repaint is called
         // while the frame is being painted to ensure the new areas are painted on the
         // next frame
-        if (savedState)
-        {
-            JUCE_TRACE_LOG_D2D_PAINT_CALL (etw::direct2dHwndPaintStart, owner.getFrameId());
+        JUCE_TRACE_LOG_D2D_PAINT_CALL (etw::direct2dHwndPaintStart, owner.getFrameId());
 
-            presentation->setPaintAreas (paintAreas);
+        presentation.getPresentation()->setPaintAreas (getPaintAreas());
 
-            deferredRepaints.clear();
-        }
+        deferredRepaints.clear();
 
         return savedState;
     }
@@ -515,24 +530,11 @@ public:
     {
         const ScopeGuard scope { [this]
         {
-            presentation = nullptr;
+            presentation = {};
             lastFinishFrameTicks = Time::getHighResolutionTicks();
         } };
 
-        if (auto hr = Pimpl::finishFrame(); FAILED (hr))
-            return hr;
-
-        if (resizing)
-        {
-            present (presentation, 0);
-            swapChainThread->retirePresentation (presentation);
-        }
-        else
-        {
-            swapChainThread->pushPaintedPresentation (presentation);
-        }
-
-        return S_OK;
+        return Pimpl::finishFrame();
     }
 
     void present (Presentation* paintedPresentation, uint32 flags)
@@ -601,13 +603,14 @@ public:
         if (presentParameters.DirtyRectsCount == 0)
         {
             D2D1_POINT_2U destPoint { 0, 0 };
-            swap.buffer->CopyFromBitmap (&destPoint, paintedPresentation->getPresentationBitmap(), nullptr);
+
+            if (auto bitmap = paintedPresentation->getPresentationBitmap())
+                swap.buffer->CopyFromBitmap (&destPoint, bitmap, nullptr);
         }
 
         // Present the freshly painted buffer
         const auto hr = swap.chain->Present1 (swap.presentSyncInterval, swap.presentFlags | flags, &presentParameters);
-        jassert (SUCCEEDED (hr));
-        paintedPresentation->setResult (hr);
+        jassertquiet (SUCCEEDED (hr));
 
         // The buffer is now completely filled and ready for dirty rectangles for the next frame
         swap.state = SwapChain::State::bufferFilled;
@@ -617,21 +620,27 @@ public:
 
     Image createSnapshot() const
     {
-        if (frameSize.isEmpty() || deviceResources.deviceContext.context == nullptr || swap.buffer == nullptr)
+        // This won't capture child windows. Perhaps a better approach would be to use
+        // IGraphicsCaptureItemInterop, although this is only supported on Windows 10 v1903+
+
+        const auto context = getDeviceContext();
+
+        if (frameSize.isEmpty() || context == nullptr || swap.buffer == nullptr)
             return {};
 
         // Create the bitmap to receive the snapshot
         D2D1_BITMAP_PROPERTIES1 bitmapProperties{};
         bitmapProperties.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET;
-        bitmapProperties.dpiX = bitmapProperties.dpiY = USER_DEFAULT_SCREEN_DPI * owner.getPhysicalPixelScaleFactor();
         bitmapProperties.pixelFormat = swap.buffer->GetPixelFormat();
 
         const D2D_SIZE_U size { (UINT32) frameSize.getWidth(), (UINT32) frameSize.getHeight() };
 
         ComSmartPtr<ID2D1Bitmap1> snapshot;
 
-        if (const auto hr = deviceResources.deviceContext.context->CreateBitmap (size, nullptr, 0, bitmapProperties, snapshot.resetAndGetPointerAddress()); FAILED (hr))
+        if (const auto hr = context->CreateBitmap (size, nullptr, 0, bitmapProperties, snapshot.resetAndGetPointerAddress()); FAILED (hr))
             return {};
+
+        const ScopedMultithread scope { directX->getD2DMultithread() };
 
         swap.chain->Present (0, DXGI_PRESENT_DO_NOT_WAIT);
 
@@ -642,8 +651,7 @@ public:
         if (const auto hr = snapshot->CopyFromBitmap (&p, swap.buffer, &sourceRect); FAILED (hr))
             return {};
 
-        auto pixelData = Direct2DPixelData::fromDirect2DBitmap (snapshot);
-        Image result { pixelData };
+        const Image result { new Direct2DPixelData { context, snapshot } };
 
         swap.chain->Present (0, DXGI_PRESENT_DO_NOT_WAIT);
 
@@ -652,7 +660,7 @@ public:
 };
 
 //==============================================================================
-Direct2DHwndContext::Direct2DHwndContext (void* windowHandle, bool opaque)
+Direct2DHwndContext::Direct2DHwndContext (HWND windowHandle)
 {
    #if JUCE_DIRECT2D_METRICS
     metrics = new Direct2DMetrics { Direct2DMetricsHub::getInstance()->lock,
@@ -661,7 +669,7 @@ Direct2DHwndContext::Direct2DHwndContext (void* windowHandle, bool opaque)
     Direct2DMetricsHub::getInstance()->add (metrics);
    #endif
 
-    pimpl = std::make_unique<HwndPimpl> (*this, reinterpret_cast<HWND> (windowHandle), opaque);
+    pimpl = std::make_unique<HwndPimpl> (*this, windowHandle);
     updateSize();
 }
 
@@ -672,11 +680,6 @@ Direct2DHwndContext::~Direct2DHwndContext()
    #endif
 }
 
-void* Direct2DHwndContext::getHwnd() const noexcept
-{
-    return pimpl->getHwnd();
-}
-
 Direct2DGraphicsContext::Pimpl* Direct2DHwndContext::getPimpl() const noexcept
 {
     return pimpl.get();
@@ -685,11 +688,6 @@ Direct2DGraphicsContext::Pimpl* Direct2DHwndContext::getPimpl() const noexcept
 void Direct2DHwndContext::handleShowWindow()
 {
     pimpl->handleShowWindow();
-}
-
-void Direct2DHwndContext::setWindowAlpha (float alpha)
-{
-    pimpl->setTargetAlpha (alpha);
 }
 
 void Direct2DHwndContext::setResizing (bool x)
@@ -717,11 +715,6 @@ void Direct2DHwndContext::addDeferredRepaint (Rectangle<int> deferredRepaint)
     pimpl->addDeferredRepaint (deferredRepaint);
 }
 
-void Direct2DHwndContext::addInvalidWindowRegionToDeferredRepaints()
-{
-    pimpl->addInvalidWindowRegionToDeferredRepaints();
-}
-
 Image Direct2DHwndContext::createSnapshot() const
 {
     return pimpl->createSnapshot();
@@ -729,13 +722,7 @@ Image Direct2DHwndContext::createSnapshot() const
 
 void Direct2DHwndContext::clearTargetBuffer()
 {
-    // For opaque windows, clear the background to black with the window alpha
-    // For non-opaque windows, clear the background to transparent black
-    // In either case, add a transparency layer if the window alpha is less than 1.0
-    pimpl->getDeviceContext()->Clear (pimpl->backgroundColor);
-
-    if (pimpl->targetAlpha < 1.0f)
-        beginTransparencyLayer (pimpl->targetAlpha);
+    pimpl->getDeviceContext()->Clear();
 }
 
 } // namespace juce

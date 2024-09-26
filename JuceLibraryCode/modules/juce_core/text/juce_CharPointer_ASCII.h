@@ -275,7 +275,7 @@ public:
 
     int compareIgnoreCase (const CharPointer_ASCII other) const
     {
-       #if JUCE_MINGW || (JUCE_WINDOWS && JUCE_CLANG)
+       #if JUCE_WINDOWS && JUCE_CLANG
         return CharacterFunctions::compareIgnoreCase (*this, other);
        #elif JUCE_WINDOWS
         return stricmp (data, other.data);
@@ -345,7 +345,7 @@ public:
     /** Parses this string as a 64-bit integer. */
     int64 getIntValue64() const noexcept
     {
-       #if JUCE_LINUX || JUCE_BSD || JUCE_ANDROID || JUCE_MINGW
+       #if JUCE_LINUX || JUCE_BSD || JUCE_ANDROID
         return atoll (data);
        #elif JUCE_WINDOWS
         return _atoi64 (data);
@@ -366,7 +366,7 @@ public:
     /** Returns true if the given unicode character can be represented in this encoding. */
     static bool canRepresent (juce_wchar character) noexcept
     {
-        return ((unsigned int) character) < (unsigned int) 128;
+        return CharacterFunctions::isAscii (character);
     }
 
     /** Returns true if this data contains a valid string in this encoding. */

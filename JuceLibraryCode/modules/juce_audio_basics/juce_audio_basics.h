@@ -44,7 +44,7 @@
 
   ID:                 juce_audio_basics
   vendor:             juce
-  version:            8.0.0
+  version:            8.0.2
   name:               JUCE audio and MIDI data classes
   description:        Classes for audio buffer manipulation, midi message handling, synthesis, etc.
   website:            http://www.juce.com/juce
@@ -70,10 +70,6 @@
 #undef Factor
 
 //==============================================================================
-#if JUCE_MINGW && ! defined (__SSE2__)
- #define JUCE_USE_SSE_INTRINSICS 0
-#endif
-
 #ifndef JUCE_USE_SSE_INTRINSICS
  #define JUCE_USE_SSE_INTRINSICS 1
 #endif

@@ -380,10 +380,10 @@ static MaxFontAscentAndDescent getMaxFontAscentAndDescentInEnclosingLine (const 
 
     MaxFontAscentAndDescent result;
 
-    for (const auto& [r, font] : fonts)
+    for (const auto& pair : fonts)
     {
-        result.ascent = std::max (result.ascent, font.getAscent());
-        result.descent = std::max (result.descent, font.getDescent());
+        result.ascent = std::max (result.ascent, pair.value.getAscent());
+        result.descent = std::max (result.descent, pair.value.getDescent());
     }
 
     return result;
@@ -417,12 +417,17 @@ void TextLayout::createStandardLayout (const AttributedString& text)
         colours.set (range, attribute.colour);
     }
 
-    ShapedText shapedText { text.getText(), ShapedTextOptions{}.withFontsForRange (getFontsForRange (fonts))
-                                                               .withMaxWidth (width)
-                                                               .withLanguage (SystemStats::getUserLanguage())
-                                                               .withTrailingWhitespacesShouldFit (false)
-                                                               .withJustification (justification)
-                                                               .withReadingDirection (getTextDirection (text)) };
+    auto shapedTextOptions = ShapedTextOptions{}.withFontsForRange (getFontsForRange (fonts))
+                                                .withLanguage (SystemStats::getUserLanguage())
+                                                .withTrailingWhitespacesShouldFit (false)
+                                                .withJustification (justification)
+                                                .withReadingDirection (getTextDirection (text))
+                                                .withAdditiveLineSpacing (text.getLineSpacing());
+
+    if (text.getWordWrap() != AttributedString::none)
+        shapedTextOptions = shapedTextOptions.withMaxWidth (width);
+
+    ShapedText shapedText { text.getText(), shapedTextOptions };
 
     std::optional<int64> lastLineNumber;
     std::unique_ptr<Line> line;
@@ -456,13 +461,23 @@ void TextLayout::createStandardLayout (const AttributedString& text)
                                run->font = font;
                                run->colour = colour;
 
-                               for (decltype (glyphs.size()) i = 0, iMax = glyphs.size(); i < iMax; ++i)
+                               const auto beyondLastNonWhitespace = [&]
                                {
-                                   if (glyphs[i].whitespace)
-                                       continue;
+                                   auto i = glyphs.size();
 
+                                   for (auto it  = std::reverse_iterator { glyphs.end() },
+                                             end = std::reverse_iterator { glyphs.begin() };
+                                        it != end && it->whitespace;
+                                        ++it)
+                                   {
+                                       --i;
+                                   }
+
+                                   return i;
+                               }();
+
+                               for (size_t i = 0; i < beyondLastNonWhitespace; ++i)
                                    run->glyphs.add ({ (int) glyphs[i].glyphId, positions[i] - line->lineOrigin, glyphs[i].advance.x });
-                               }
 
                                line->runs.add (std::move (run));
                            },
