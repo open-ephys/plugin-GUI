@@ -129,8 +129,11 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
 
         loadWindowBounds();
 
-        // Use native title bar on Mac and Linux
-        documentWindow->setUsingNativeTitleBar (true);
+#ifdef JUCE_WINDOWS
+        documentWindow->setUsingNativeTitleBar (false);
+#else
+        documentWindow->setUsingNativeTitleBar (true); // Use native title bar on Mac and Linux
+#endif
 
         documentWindow->addToDesktop (documentWindow->getDesktopWindowStyleFlags()); // prevents the maximize
             // button from randomly disappearing

@@ -31,7 +31,11 @@ DataWindow::DataWindow (Button* cButton, String name)
 
 {
     centreWithSize (1020, 780);
-    setUsingNativeTitleBar (true);
+#ifdef JUCE_WINDOWS
+    setUsingNativeTitleBar (false);
+#else
+    setUsingNativeTitleBar (true); // Use native title bar on Mac and Linux
+#endif
     setResizable (true, false);
 }
 

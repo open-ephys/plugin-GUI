@@ -164,6 +164,7 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
 
             editor->dataWindow->setContentNonOwned (editor->canvas.get(), true);
             editor->dataWindow->setVisible (true);
+            editor->dataWindow->toFront (true);
             editor->dataWindow->addListener (editor);
 
             // Set the rendering engine for the window
@@ -180,14 +181,15 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
             if (editor->windowSelector->getToggleState())
             {
                 editor->dataWindow->setContentNonOwned (editor->canvas.get(), true);
+                editor->dataWindow->setVisible (true);
+                editor->dataWindow->toFront (true);
                 // editor->canvas->setBounds (0, 0, editor->canvas->getParentWidth(), editor->canvas->getParentHeight());
             }
             else
             {
                 editor->dataWindow->setContentNonOwned (0, false);
+                editor->dataWindow->setVisible (false);
             }
-
-            editor->dataWindow->setVisible (editor->windowSelector->getToggleState());
         }
     }
     else if (button == editor->tabSelector.get())

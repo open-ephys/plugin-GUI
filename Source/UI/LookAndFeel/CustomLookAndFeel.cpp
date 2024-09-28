@@ -710,7 +710,6 @@ void CustomLookAndFeel::drawMenuBarBackground (Graphics& g, int width, int heigh
     Rectangle<int> r (1, 0, width - 2, height);
 
     g.setColour (colour.contrasting (0.15f));
-    g.fillRect (r.removeFromTop (1));
     g.fillRect (r.removeFromBottom (1));
 
     g.setGradientFill (ColourGradient::vertical (colour, 0, colour.darker (0.2f), (float) height));
@@ -1063,10 +1062,15 @@ void CustomLookAndFeel::drawDocumentWindowTitleBar (DocumentWindow& window, Grap
 
     auto isActive = window.isActiveWindow();
 
-    g.setColour (findColour (ThemeColours::componentParentBackground));
-    g.fillAll();
+    const Colour colour (findColour (ThemeColours::componentParentBackground));
 
-    Font font (withDefaultMetrics (FontOptions ("Inter", "Bold", (float) h * 0.65f)));
+    g.setGradientFill (ColourGradient::vertical (colour, 0, colour.darker (0.2f), (float) h));
+    g.fillRect (0, 0, w, h);
+
+    g.setColour (colour.contrasting (0.15f));
+    g.fillRect (0, h - 1, w, 1);
+
+    Font font (withDefaultMetrics (FontOptions ("Inter", "Semi Bold", (float) h * 0.65f)));
     g.setFont (font);
 
     auto textW = font.getStringWidth (window.getName());
@@ -1079,7 +1083,7 @@ void CustomLookAndFeel::drawDocumentWindowTitleBar (DocumentWindow& window, Grap
         iconW = icon->getWidth() * iconH / icon->getHeight() + 4;
     }
 
-    textW = jmin (titleSpaceW, textW + iconW);
+    textW = jmin (titleSpaceW, textW + iconW + 4);
     auto textX = drawTitleTextOnLeft ? titleSpaceX
                                      : jmax (titleSpaceX, (w - textW) / 2);
 
@@ -1090,7 +1094,7 @@ void CustomLookAndFeel::drawDocumentWindowTitleBar (DocumentWindow& window, Grap
     {
         g.setOpacity (isActive ? 1.0f : 0.6f);
         g.drawImageWithin (*icon, textX, (h - iconH) / 2, iconW, iconH, RectanglePlacement::centred, false);
-        textX += iconW;
+        textX += iconW + 4;
         textW -= iconW;
     }
 
