@@ -134,7 +134,7 @@ void InteractivePlot::resized()
         return;
 
     int heightOffset = 20;
-    int labelWidth = yLabel->getFont().getStringWidth (yLabel->getText());
+    int labelWidth = GlyphArrangement::getStringWidthInt (yLabel->getFont(), yLabel->getText());
     int axesWidth = labelWidth + 30;
     int axesHeight = 50;
     int padding = 10;

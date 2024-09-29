@@ -1355,7 +1355,7 @@ void ThresholdSlider::paint (Graphics& g)
 
     font = font.withHeight (9.0);
     g.setFont (font);
-    int stringWidth = g.getCurrentFont().getStringWidth (valueString);
+    int stringWidth = GlyphArrangement::getStringWidthInt (font, valueString);
 
     g.setFont (font);
 

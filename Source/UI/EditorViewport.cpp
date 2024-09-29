@@ -859,7 +859,7 @@ void EditorViewport::mouseDown (const MouseEvent& e)
                     editorToUpdate = editorArray[i];
                     editorNamingLabel.setText (editorToUpdate->getDisplayName(), dontSendNotification);
 
-                    int nameWidth = editorNamingLabel.getFont().getStringWidth (editorNamingLabel.getText()) + 10;
+                    int nameWidth = GlyphArrangement::getStringWidthInt (editorNamingLabel.getFont(), editorNamingLabel.getText()) + 10;
                     editorNamingLabel.setSize (nameWidth > 100 ? nameWidth : 100, 20);
                     editorNamingLabel.setColour (Label::backgroundColourId, findColour (ThemeColours::widgetBackground));
                     editorNamingLabel.showEditor();

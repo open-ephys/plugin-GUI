@@ -720,14 +720,14 @@ void CustomLookAndFeel::drawMenuBarBackground (Graphics& g, int width, int heigh
         g.setColour (findColour (ThemeColours::defaultText));
         String ver = "v" + String (ProjectInfo::versionString);
         g.setFont (getCommonMenuFont());
-        int verStrWidth = getCommonMenuFont().getStringWidth (ver);
+        int verStrWidth = GlyphArrangement::getStringWidthInt (getCommonMenuFont(), ver);
         g.drawText (ver, width - verStrWidth - 10, 0, verStrWidth, height, Justification::centred);
     }
 }
 
 Font CustomLookAndFeel::getMenuBarFont (MenuBarComponent& menuBar, int /*itemIndex*/, const String& /*itemText*/)
 {
-    return Font ( FontOptions ( getCommonMenuFont().getTypefaceName(), "Medium", menuBar.getHeight() * 0.65f));
+    return Font (FontOptions (getCommonMenuFont().getTypefaceName(), "Medium", menuBar.getHeight() * 0.65f));
 }
 
 //==================================================================
@@ -1073,7 +1073,7 @@ void CustomLookAndFeel::drawDocumentWindowTitleBar (DocumentWindow& window, Grap
     Font font (withDefaultMetrics (FontOptions ("Inter", "Semi Bold", (float) h * 0.65f)));
     g.setFont (font);
 
-    auto textW = font.getStringWidth (window.getName());
+    auto textW = GlyphArrangement::getStringWidthInt (font, window.getName());
     auto iconW = 0;
     auto iconH = 0;
 
@@ -1127,7 +1127,7 @@ int CustomLookAndFeel::getTabButtonSpaceAroundImage()
 
 int CustomLookAndFeel::getTabButtonBestWidth (TabBarButton& button, int tabDepth)
 {
-    int width = Font ( FontOptions( (float) tabDepth * 0.7f)).getStringWidth (button.getButtonText().trim())
+    int width = GlyphArrangement::getStringWidth (Font (FontOptions ((float) tabDepth * 0.7f)), (button.getButtonText().trim()))
                 + getTabButtonOverlap (tabDepth) * 2 + 15;
 
     if (auto* extraComponent = button.getExtraComponent())

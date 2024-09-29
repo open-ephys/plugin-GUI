@@ -671,7 +671,7 @@ void PluginListBoxComponent::run()
             label = pluginData[i].getProperty ("type", "NULL").toString();
             dispName = pluginData[i].getProperty ("display_name", "NULL").toString();
             
-            pluginTextWidth = Font ( listFont ).getStringWidth (dispName);
+            pluginTextWidth = GlyphArrangement::getStringWidthInt (Font (listFont), dispName);
             if (pluginTextWidth > maxTextWidth)
                 maxTextWidth = pluginTextWidth;
 
