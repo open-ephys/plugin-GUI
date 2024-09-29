@@ -212,7 +212,13 @@ elseif(LINUX)
 	find_package(CURL REQUIRED)
 	find_package(PkgConfig REQUIRED)
 	find_package(Fontconfig REQUIRED)
-	pkg_check_modules(WEBKIT2GTK REQUIRED webkit2gtk-4.0)
+	
+	pkg_check_modules(WEBKIT2GTK QUIET webkit2gtk-4.0)
+	if (NOT WEBKIT2GTK_FOUND)
+		message(STATUS "webkit2gtk-4.0 not found. Looking for webkit2gtk-4.1...")
+		pkg_check_modules(WEBKIT2GTK REQUIRED webkit2gtk-4.1)
+	endif()
+
 	# pkg_check_modules(GTK REQUIRED gtk+-3.0)
 
 	target_include_directories(open-ephys PRIVATE
