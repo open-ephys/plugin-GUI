@@ -87,7 +87,7 @@ SpikeDisplayCanvas::SpikeDisplayCanvas (SpikeDisplayNode* processor_) : Visualiz
     // MAIN OPTIONS
     mainOptionsHolder = std::make_unique<Viewport>();
     mainOptionsHolder->setScrollBarsShown (false, true);
-    mainOptionsHolder->setScrollBarThickness (12);
+    mainOptionsHolder->setScrollBarThickness (10);
     addAndMakeVisible (mainOptionsHolder.get());
 
     mainOptions = std::make_unique<Component> ("Main options");
@@ -188,9 +188,9 @@ void SpikeDisplayCanvas::refreshState()
 
 void SpikeDisplayCanvas::resized()
 {
-    int optionsHeight = 35;
+    int optionsHeight = 40;
     int border = 10;
-    
+
     viewport->setBounds (0, 0, getWidth(), getHeight() - optionsHeight - 5); // leave space at bottom for buttons
 
     spikeDisplay->setBounds (0, 0, getWidth() - scrollBarThickness, 9999); // once to calculate the total height
@@ -198,24 +198,28 @@ void SpikeDisplayCanvas::resized()
 
     mainOptionsHolder->setBounds (0, getHeight() - optionsHeight, getWidth(), optionsHeight);
 
-    rangeSelectionLabel->setBounds (10, 0, 55, 20);
-    rangeSelection->setBounds (rangeSelectionLabel->getRight() + border -10, 0, 90, 20);
+    rangeSelectionLabel->setBounds (10, 10, 55, 20);
+    rangeSelection->setBounds (rangeSelectionLabel->getRight() + border - 10, 10, 90, 20);
 
-    historySelectionLabel->setBounds (rangeSelection->getRight() + border, 0, 100, 20);
-    historySelection->setBounds (historySelectionLabel->getRight() + border - 10, 0, 80, 20);
+    historySelectionLabel->setBounds (rangeSelection->getRight() + border, 10, 100, 20);
+    historySelection->setBounds (historySelectionLabel->getRight() + border - 10, 10, 80, 20);
 
-    clearButton->setBounds (historySelection->getRight() + border*2, 0, 130, 20);
+    clearButton->setBounds (historySelection->getRight() + border * 2, 10, 130, 20);
 
-    lockThresholdsButton->setBounds (clearButton->getRight() + border, 0, 130, 20);
+    lockThresholdsButton->setBounds (clearButton->getRight() + border, 10, 130, 20);
 
-    invertSpikesButton->setBounds (lockThresholdsButton->getRight()+border, 0, 130, 20);
+    invertSpikesButton->setBounds (lockThresholdsButton->getRight() + border, 10, 130, 20);
 
     mainOptions->setBounds (0, 0, invertSpikesButton->getRight(), optionsHeight);
 }
 
 void SpikeDisplayCanvas::paint (Graphics& g)
 {
-   g.fillAll (findColour (ThemeColours::componentParentBackground));
+    g.fillAll (findColour (ThemeColours::componentParentBackground));
+
+    // Fill the main options area
+    g.setColour (findColour (ThemeColours::componentBackground));
+    g.fillRect (mainOptionsHolder->getBounds());
 }
 
 void SpikeDisplayCanvas::refresh()
