@@ -284,14 +284,22 @@ void BooleanParameter::setNextValue (var newValue_, bool undoable)
         newValue = newValue_;
     }
 
-    ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
+    if (undoable)
+    {
+        ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
-    if (shouldDeactivateDuringAcquisition())
-        AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+        if (shouldDeactivateDuringAcquisition())
+            AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+        else
+            AccessClass::getUndoManager()->beginNewTransaction();
+
+        AccessClass::getUndoManager()->perform (action);
+    }
     else
-        AccessClass::getUndoManager()->beginNewTransaction();
-
-    AccessClass::getUndoManager()->perform (action);
+    {
+        getOwner()->parameterChangeRequest (this);
+        valueChanged();
+    }
 }
 
 bool BooleanParameter::getBoolValue()
@@ -348,19 +356,30 @@ CategoricalParameter::CategoricalParameter (ParameterOwner* owner,
 
 void CategoricalParameter::setNextValue (var newValue_, bool undoable)
 {
-    if (newValue_ == currentValue)
+    if (newValue_ == currentValue
+        || ! newValue_.isInt()
+        || (int) newValue_ < 0
+        || (int) newValue_ >= categories.size())
         return;
 
     newValue = (int) newValue_;
 
-    ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
+    if (undoable)
+    {
+        ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
-    if (shouldDeactivateDuringAcquisition())
-        AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+        if (shouldDeactivateDuringAcquisition())
+            AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+        else
+            AccessClass::getUndoManager()->beginNewTransaction();
+
+        AccessClass::getUndoManager()->perform (action);
+    }
     else
-        AccessClass::getUndoManager()->beginNewTransaction();
-
-    AccessClass::getUndoManager()->perform (action);
+    {
+        getOwner()->parameterChangeRequest (this);
+        valueChanged();
+    }
 }
 
 int CategoricalParameter::getSelectedIndex()
@@ -446,14 +465,22 @@ void IntParameter::setNextValue (var newValue_, bool undoable)
     else
         newValue = value;
 
-    ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
+    if (undoable)
+    {
+        ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
-    if (shouldDeactivateDuringAcquisition())
-        AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+        if (shouldDeactivateDuringAcquisition())
+            AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+        else
+            AccessClass::getUndoManager()->beginNewTransaction();
+
+        AccessClass::getUndoManager()->perform (action);
+    }
     else
-        AccessClass::getUndoManager()->beginNewTransaction();
-
-    AccessClass::getUndoManager()->perform (action);
+    {
+        getOwner()->parameterChangeRequest (this);
+        valueChanged();
+    }
 }
 
 int IntParameter::getIntValue()
@@ -511,14 +538,22 @@ void StringParameter::setNextValue (var newValue_, bool undoable)
 
     newValue = newValue_.toString();
 
-    ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
+    if (undoable)
+    {
+        ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
-    if (shouldDeactivateDuringAcquisition())
-        AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+        if (shouldDeactivateDuringAcquisition())
+            AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+        else
+            AccessClass::getUndoManager()->beginNewTransaction();
+
+        AccessClass::getUndoManager()->perform (action);
+    }
     else
-        AccessClass::getUndoManager()->beginNewTransaction();
-
-    AccessClass::getUndoManager()->perform (action);
+    {
+        getOwner()->parameterChangeRequest (this);
+        valueChanged();
+    }
 }
 
 String StringParameter::getStringValue()
@@ -586,7 +621,10 @@ void FloatParameter::setNextValue (var newValue_, bool undoable)
             newValue = value;
     }
 
-    if (currentValue != newValue)
+    if (currentValue == newValue)
+        return;
+
+    if (undoable)
     {
         ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
@@ -596,6 +634,11 @@ void FloatParameter::setNextValue (var newValue_, bool undoable)
             AccessClass::getUndoManager()->beginNewTransaction();
 
         AccessClass::getUndoManager()->perform (action);
+    }
+    else
+    {
+        getOwner()->parameterChangeRequest (this);
+        valueChanged();
     }
 }
 
@@ -684,14 +727,22 @@ void SelectedChannelsParameter::setNextValue (var newValue_, bool undoable)
         return;
     }
 
-    Parameter::ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
+    if (undoable)
+    {
+        Parameter::ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
-    if (shouldDeactivateDuringAcquisition())
-        AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+        if (shouldDeactivateDuringAcquisition())
+            AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+        else
+            AccessClass::getUndoManager()->beginNewTransaction();
+
+        AccessClass::getUndoManager()->perform (action);
+    }
     else
-        AccessClass::getUndoManager()->beginNewTransaction();
-
-    AccessClass::getUndoManager()->perform (action);
+    {
+        getOwner()->parameterChangeRequest (this);
+        valueChanged();
+    }
 }
 
 std::vector<bool> SelectedChannelsParameter::getChannelStates()
@@ -863,14 +914,22 @@ void MaskChannelsParameter::setNextValue (var newValue_, bool undoable)
 
     newValue = values;
 
-    Parameter::ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
+    if (undoable)
+    {
+        Parameter::ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
-    if (shouldDeactivateDuringAcquisition())
-        AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+        if (shouldDeactivateDuringAcquisition())
+            AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+        else
+            AccessClass::getUndoManager()->beginNewTransaction();
+
+        AccessClass::getUndoManager()->perform (action);
+    }
     else
-        AccessClass::getUndoManager()->beginNewTransaction();
-
-    AccessClass::getUndoManager()->perform (action);
+    {
+        getOwner()->parameterChangeRequest (this);
+        valueChanged();
+    }
 }
 
 std::vector<bool> MaskChannelsParameter::getChannelStates()
@@ -1063,14 +1122,22 @@ void TtlLineParameter::setNextValue (var newValue_, bool undoable)
     {
         newValue = newValue_;
 
-        ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
+        if (undoable)
+        {
+            ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
-        if (shouldDeactivateDuringAcquisition())
-            AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+            if (shouldDeactivateDuringAcquisition())
+                AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+            else
+                AccessClass::getUndoManager()->beginNewTransaction();
+
+            AccessClass::getUndoManager()->perform (action);
+        }
         else
-            AccessClass::getUndoManager()->beginNewTransaction();
-
-        AccessClass::getUndoManager()->perform (action);
+        {
+            getOwner()->parameterChangeRequest (this);
+            valueChanged();
+        }
     }
 }
 
@@ -1141,14 +1208,22 @@ void PathParameter::setNextValue (var newValue_, bool undoable)
             newValue = newValue_;
         }
 
-        ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
+        if (undoable)
+        {
+            ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
-        if (shouldDeactivateDuringAcquisition())
-            AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+            if (shouldDeactivateDuringAcquisition())
+                AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+            else
+                AccessClass::getUndoManager()->beginNewTransaction();
+
+            AccessClass::getUndoManager()->perform (action);
+        }
         else
-            AccessClass::getUndoManager()->beginNewTransaction();
-
-        AccessClass::getUndoManager()->perform (action);
+        {
+            getOwner()->parameterChangeRequest (this);
+            valueChanged();
+        }
     }
     else
     {
@@ -1223,14 +1298,22 @@ void SelectedStreamParameter::setNextValue (var newValue_, bool undoable)
     {
         newValue = newValue_;
 
-        ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
+        if (undoable)
+        {
+            ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
-        if (shouldDeactivateDuringAcquisition())
-            AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+            if (shouldDeactivateDuringAcquisition())
+                AccessClass::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+            else
+                AccessClass::getUndoManager()->beginNewTransaction();
+
+            AccessClass::getUndoManager()->perform (action);
+        }
         else
-            AccessClass::getUndoManager()->beginNewTransaction();
-
-        AccessClass::getUndoManager()->perform (action);
+        {
+            getOwner()->parameterChangeRequest (this);
+            valueChanged();
+        }
     }
     else
     {
