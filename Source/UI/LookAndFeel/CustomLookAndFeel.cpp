@@ -216,7 +216,7 @@ void CustomLookAndFeel::setTheme (ColourTheme theme)
 
     setColour (ResizableWindow::backgroundColourId, currentThemeColours[ThemeColours::componentBackground]);
 
-    setColour (DocumentWindow::textColourId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (DocumentWindow::textColourId, currentThemeColours[ThemeColours::controlPanelText]);
 
     setColour (AlertWindow::backgroundColourId, currentThemeColours[ThemeColours::componentBackground]);
     setColour (AlertWindow::textColourId, currentThemeColours[ThemeColours::defaultText]);
@@ -950,7 +950,7 @@ public:
 
     void paintButton (Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
     {
-        auto background = findColour (ThemeColours::widgetBackground);
+        auto pathColour = findColour (ThemeColours::controlPanelText);
 
         // g.fillAll (background);
 
@@ -960,7 +960,6 @@ public:
         if (shouldDrawButtonAsHighlighted)
         {
             g.fillAll();
-            g.setColour (background);
         }
 
         auto& p = getToggleState() ? toggledShape : normalShape;
@@ -970,6 +969,7 @@ public:
                                .toFloat()
                                .reduced ((float) getHeight() * 0.3f);
 
+        g.setColour (pathColour);
         g.fillPath (p, p.getTransformToScaleToFit (reducedRect, true));
     }
 
@@ -990,14 +990,14 @@ Button* CustomLookAndFeel::createDocumentWindowButton (int buttonType)
         shape.addLineSegment ({ 0.0f, 0.0f, 1.0f, 1.0f }, crossThickness);
         shape.addLineSegment ({ 1.0f, 0.0f, 0.0f, 1.0f }, crossThickness);
 
-        return new CustomDocumentWindowButton ("close", Colour (0xff9A131D), shape, shape);
+        return new CustomDocumentWindowButton ("close", Colour (0xffc42b1c), shape, shape);
     }
 
     if (buttonType == DocumentWindow::minimiseButton)
     {
         shape.addLineSegment ({ 0.0f, 0.5f, 1.0f, 0.5f }, crossThickness);
 
-        return new CustomDocumentWindowButton ("minimise", Colour (0xffaa8811), shape, shape);
+        return new CustomDocumentWindowButton ("minimise", findColour (ThemeColours::defaultFill), shape, shape);
     }
 
     if (buttonType == DocumentWindow::maximiseButton)
@@ -1014,7 +1014,7 @@ Button* CustomLookAndFeel::createDocumentWindowButton (int buttonType)
         fullscreenShape.addRectangle (45.0f, 45.0f, 100.0f, 100.0f);
         PathStrokeType (30.0f).createStrokedPath (fullscreenShape, fullscreenShape);
 
-        return new CustomDocumentWindowButton ("maximise", Colour (0xff0A830A), shape, fullscreenShape);
+        return new CustomDocumentWindowButton ("maximise", findColour (ThemeColours::defaultFill), shape, fullscreenShape);
     }
 
     jassertfalse;
@@ -1103,6 +1103,7 @@ void CustomLookAndFeel::drawDocumentWindowTitleBar (DocumentWindow& window, Grap
     else
         g.setColour (Colours::whitesmoke);
 
+    g.setOpacity (isActive ? 1.0f : 0.6f);
     g.drawText (window.getName(), textX, 0, textW, h, Justification::centredLeft, true);
 }
 
