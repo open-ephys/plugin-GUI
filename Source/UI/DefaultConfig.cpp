@@ -196,25 +196,22 @@ void DefaultConfigComponent::buttonClicked (Button* button)
         // Get selected config file name with full path
         String filePath;
 
-        if (acqBoardButton->getToggleState())
+        if (neuropixelsButton->getToggleState())
         {
-            int response = AlertWindow::showYesNoCancelBox (AlertWindow::QuestionIcon, "Select acquisition board type", "What type of FPGA does your acquisition board have? \n\n"
-                                                                                                                        "If it was delivered by Open Ephys Production Site after "
-                                                                                                                        "November 2022, it has a custom FPGA designed by Open Ephys. \n\n"
-                                                                                                                        "Older acquisition boards likely use an Opal Kelly FPGA.",
-                                                            "Open Ephys FPGA",
-                                                            "Opal Kelly FPGA",
+            int response = AlertWindow::showYesNoCancelBox (AlertWindow::QuestionIcon, "Select Neuropixels device type", "What type of acquisition device will you be using?",
+                                                            "PXI Basestation",
+                                                            "OneBox",
                                                             "Cancel");
 
-            if (response == 1) // OE FPGA
+            if (response == 1) // PXI basestation
             {
-                LOGA ("Selected Open Ephys FPGA");
-                filePath = "configs" + File::getSeparatorString() + "oe_acq_board_config.xml";
+                LOGA ("Selected PXI basestation");
+                filePath = "configs" + File::getSeparatorString() + "neuropixels_pxi_config.xml";
             }
             else if (response == 2)
             {
-                LOGA ("Selected Opal Kelly FPGA");
-                filePath = "configs" + File::getSeparatorString() + "acq_board_config.xml";
+                LOGA ("Selected OneBox");
+                filePath = "configs" + File::getSeparatorString() + "onebox_config.xml";
             }
             else
             {
@@ -228,7 +225,7 @@ void DefaultConfigComponent::buttonClicked (Button* button)
 
         else
         {
-            filePath = "configs" + File::getSeparatorString() + "neuropixels_pxi_config.xml";
+            filePath = "configs" + File::getSeparatorString() + "acq_board_config.xml";
         }
 
 #ifdef __APPLE__

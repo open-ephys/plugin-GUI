@@ -10,7 +10,7 @@
              cpu_num_cores="8"/>
   </INFO>
   <SIGNALCHAIN>
-    <PROCESSOR name="Neuropix-PXI" insertionPoint="0" pluginName="Neuropix-PXI"
+    <PROCESSOR name="OneBox" insertionPoint="0" pluginName="OneBox"
                type="4" index="0" libraryName="Neuropix-PXI" libraryVersion=""
                processorType="2" nodeId="100">
       <PROCESSOR_PARAMETERS/>
@@ -23,7 +23,7 @@
         <PARAMETERS/>
       </STREAM>
       <CUSTOM_PARAMETERS/>
-      <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Neuropix-PXI" activeStream="0"
+      <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="OneBox" activeStream="0"
               Type="Visualizer">
         <TAB Active="1"/>
         <WINDOW Active="0"/>

@@ -14,6 +14,7 @@ list(GET VERSION_LIST 0 version_major)
 list(GET VERSION_LIST 1 version_minor)
 list(GET VERSION_LIST 2 version_patch)
 
+
 math(EXPR hex "(${version_major} << 16) + (${version_minor} << 8) + ${version_patch}" OUTPUT_FORMAT HEXADECIMAL)
 set(GUI_VERSION_HEX "${hex}")
 
