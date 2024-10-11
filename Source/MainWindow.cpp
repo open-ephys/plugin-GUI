@@ -135,9 +135,9 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
         documentWindow->setUsingNativeTitleBar (true); // Use native title bar on Mac and Linux
 #endif
 
-        documentWindow->addToDesktop (documentWindow->getDesktopWindowStyleFlags()); // prevents the maximize
-            // button from randomly disappearing
+        documentWindow->addToDesktop();
         documentWindow->setVisible (true);
+        documentWindow->toFront (true);
 
         // Constraining the window's size doesn't seem to work:
         documentWindow->setResizeLimits (800, 600, 10000, 10000);
