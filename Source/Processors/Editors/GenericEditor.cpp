@@ -854,6 +854,7 @@ void UtilityButton::setCorners (bool UL, bool UR, bool LL, bool LR)
 void UtilityButton::setEnabledState (bool state)
 {
     isEnabled = state;
+    setEnabled (state);
 
     repaint();
 }
@@ -865,6 +866,8 @@ void UtilityButton::setRadius (float r)
 
 void UtilityButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
+    isEnabled = Button::isEnabled();
+
     if (getToggleState())
     {
         g.setColour (findColour (ThemeColours::highlightedFill));
@@ -887,10 +890,10 @@ void UtilityButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDow
 
     g.setFont (font);
 
-    if (isEnabled || ! isButtonDown)
-        g.setColour (findColour (ThemeColours::defaultText));
-    else
+    if (! isEnabled || isButtonDown)
         g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.4f));
+    else
+        g.setColour (findColour (ThemeColours::defaultText));
 
     g.drawFittedText (label, 1, 1, getWidth() - 2, getHeight() - 2, Justification::centred, 2, 1.0f);
 }
