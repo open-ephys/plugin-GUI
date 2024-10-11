@@ -63,7 +63,7 @@ AudioWindowButton::AudioWindowButton()
 
 void AudioWindowButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    float alpha = isMouseOver ? 0.6f : 1.0f;
+    float alpha = (isMouseOver && getClickingTogglesState()) ? 0.6f : 1.0f;
 
     if (getToggleState())
         g.setColour (Colours::yellow.withAlpha (alpha));
@@ -203,6 +203,7 @@ void AudioEditor::buttonClicked (Button* button)
             AccessClass::getAudioComponent()->restartDevice();
             audioConfigurationWindow->setLookAndFeel (&getLookAndFeel());
             audioConfigurationWindow->setVisible (true);
+            audioConfigurationWindow->toFront (true);
         }
         else
         {
@@ -293,6 +294,11 @@ AudioConfigurationWindow::AudioConfigurationWindow (AudioDeviceManager& adm, Aud
 
     setContentOwned (adsc, true);
     setVisible (false);
+
+    int fixedWidth = adsc->getWidth() + 10;
+    int fixedHeight = adsc->getHeight() + getTitleBarHeight() + 20;
+
+    setResizeLimits (fixedWidth, fixedHeight, fixedWidth, fixedHeight);
 }
 
 void AudioConfigurationWindow::closeButtonPressed()
