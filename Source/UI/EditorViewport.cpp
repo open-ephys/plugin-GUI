@@ -1622,6 +1622,8 @@ const String EditorViewport::loadState (File fileToLoad)
 
     CoreServices::sendStatusMessage ("Loaded " + fileToLoad.getFileName());
 
+    AccessClass::getControlPanel()->createNewRecordingDirectory();
+
     return "Loaded signal chain.";
 }
 

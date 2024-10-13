@@ -544,8 +544,7 @@ private:
     Path p1, p2;
 
     String recordingDirectoryName;
-
-    
+    bool newDirectoryNeeded = true;
 };
 
 #endif // __CONTROLPANEL_H_AD81E528__

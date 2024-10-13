@@ -499,7 +499,7 @@ ControlPanel::ControlPanel (ProcessorGraph* graph_, AudioComponent* audio_, bool
     newDirectoryButton->setEnabled (false);
     newDirectoryButton->addListener (this);
     newDirectoryButton->setTooltip ("Start a new data directory for next recording");
-    newDirectoryButton->setToggleState (true, sendNotification);
+    newDirectoryButton->setToggleState (newDirectoryNeeded, sendNotification);
     newDirectoryButton->setClickingTogglesState (true);
     addChildComponent (newDirectoryButton.get());
 
@@ -1018,14 +1018,15 @@ void ControlPanel::stopRecording()
 
     if (forceNewDirectoryButton->getToggleState())
     {
-        newDirectoryButton->setToggleState (true, dontSendNotification);
+        newDirectoryNeeded = true;
         newDirectoryButton->setEnabled (false);
     }
     else
     {
-        newDirectoryButton->setToggleState (false, dontSendNotification);
+        newDirectoryNeeded = false;
         newDirectoryButton->setEnabled (true);
     }
+    newDirectoryButton->setToggleState(newDirectoryNeeded, dontSendNotification);
 
     recordButton->updateImages (false);
     showHideRecordingOptionsButton->setCustomBackground (false, findColour (ThemeColours::windowBackground));
@@ -1043,7 +1044,10 @@ void ControlPanel::componentBeingDeleted (Component& component)
 
     //TODO: Assumes any change in filename settings should start a new directory next recording
     if (! newDirectoryButton->getToggleState())
-        newDirectoryButton->setToggleState (true, dontSendNotification);
+    {
+        newDirectoryNeeded = true;
+        newDirectoryButton->setToggleState (newDirectoryNeeded, dontSendNotification);
+    }
 
     CoreServices::saveRecoveryConfig();
 
@@ -1091,7 +1095,8 @@ void ControlPanel::buttonClicked (Button* button)
     {
         if (button->getToggleState())
         {
-            newDirectoryButton->setToggleState (true, dontSendNotification);
+            newDirectoryNeeded = true;
+            newDirectoryButton->setToggleState (newDirectoryNeeded, dontSendNotification);
             newDirectoryButton->setEnabled (false);
         }
         else
@@ -1359,8 +1364,9 @@ String ControlPanel::getRecordingDirectoryName()
 void ControlPanel::createNewRecordingDirectory()
 {
     //TODO: Remove dependency on button states/callbacks
+    newDirectoryNeeded = true;
     MessageManager::callAsync ([this]
-                               { buttonClicked (newDirectoryButton.get()); });
+                               { newDirectoryButton->setToggleState (true, dontSendNotification); });
 }
 
 String ControlPanel::getRecordingDirectoryPrependText()
