@@ -120,6 +120,7 @@ void BinaryRecording::openFiles (File rootFolder, int experimentNumber, int reco
         singleChannelJSON->setProperty ("history", channelInfo->getHistoryString());
         singleChannelJSON->setProperty ("bit_volts", channelInfo->getBitVolts());
         singleChannelJSON->setProperty ("units", channelInfo->getUnits());
+        singleChannelJSON->setProperty ("type", static_cast<int>(channelInfo->getChannelType()));
         createChannelMetadata (channelInfo, singleChannelJSON);
 
         singleStreamJSON.add (var (singleChannelJSON));

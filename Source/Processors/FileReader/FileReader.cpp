@@ -453,11 +453,12 @@ void FileReader::updateSettings()
         for (int i = 0; i < currentNumChannels; i++)
         {
             ContinuousChannel::Settings channelSettings {
-                ContinuousChannel::Type::ELECTRODE,
+                static_cast<ContinuousChannel::Type>(channelInfo[i].type),
                 channelInfo[i].name,
                 "description",
                 "filereader.stream",
                 channelInfo[i].bitVolts, // BITVOLTS VALUE
+
                 dataStreams.getLast()
             };
 

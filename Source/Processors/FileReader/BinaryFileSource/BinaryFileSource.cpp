@@ -103,6 +103,7 @@ void BinaryFileSource::fillRecordInfo()
     Identifier idChannels ("channels");
     Identifier idChannelName ("channel_name");
     Identifier idBitVolts ("bit_volts");
+    Identifier idType ("type");
 
     int numProcessors = continuousData.size();
 
@@ -157,6 +158,7 @@ void BinaryFileSource::fillRecordInfo()
 
             cInfo.name = chan[idChannelName];
             cInfo.bitVolts = chan[idBitVolts];
+            cInfo.type = static_cast<uint8>(int(chan[idType]));
 
             info.channels.add (cInfo);
         }

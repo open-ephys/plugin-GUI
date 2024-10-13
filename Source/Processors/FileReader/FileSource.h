@@ -32,6 +32,7 @@ struct RecordedChannelInfo
 {
     String name;
     float bitVolts;
+    uint8 type;
 };
 
 struct EventInfo
