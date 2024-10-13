@@ -607,7 +607,8 @@ bool RecordNode::startAcquisition()
         eventChannels.getLast()->setDataStream (getDataStream (synchronizer.mainStreamKey), false);
     }
 
-    startTimer (1000);
+    if (!headlessMode)
+        startTimer (1000);
 
     return true;
 }
@@ -649,7 +650,8 @@ bool RecordNode::stopAcquisition()
     eventQueue->reset();
     spikeQueue->reset();
 
-    stopTimer();
+    if (!headlessMode)
+        stopTimer();
 
     return true;
 }
