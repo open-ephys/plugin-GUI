@@ -62,10 +62,9 @@ public:
     /** Checks whether events should be displayed for this channel*/
     void checkEnabledState();
 
-    bool isEnabled;
-
 private:
     int channelNumber;
+    bool isEnabled;
 
     LfpDisplay* display;
     LfpDisplaySplitter* canvasSplit;

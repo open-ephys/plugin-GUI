@@ -36,7 +36,6 @@ EventDisplayInterface::EventDisplayInterface (LfpDisplay* display_, LfpDisplaySp
 
     chButton = std::make_unique<UtilityButton> (String (channelNumber + 1));
     chButton->setRadius (5.0f);
-    chButton->setEnabledState (true);
     chButton->addListener (this);
     addAndMakeVisible (chButton.get());
 
@@ -65,7 +64,7 @@ void EventDisplayInterface::buttonClicked (Button* button)
         display->setEventDisplayState (channelNumber, true);
     }
 
-    chButton->setEnabledState (! isEnabled);
+    isEnabled = ! isEnabled;
 
     repaint();
 }
