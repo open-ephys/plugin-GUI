@@ -213,22 +213,15 @@ elseif(LINUX)
 	find_package(CURL REQUIRED)
 	find_package(PkgConfig REQUIRED)
 	find_package(Fontconfig REQUIRED)
-	
-	pkg_check_modules(WEBKIT2GTK QUIET webkit2gtk-4.0)
-	if (NOT WEBKIT2GTK_FOUND)
-		message(STATUS "webkit2gtk-4.0 not found. Looking for webkit2gtk-4.1...")
-		pkg_check_modules(WEBKIT2GTK REQUIRED webkit2gtk-4.1)
-	endif()
 
 	# pkg_check_modules(GTK REQUIRED gtk+-3.0)
 
 	target_include_directories(open-ephys PRIVATE
 		/usr/include
 		/usr/include/freetype2
-		${CURL_INCLUDE_DIRS}
-		${WEBKIT2GTK_INCLUDE_DIRS}
-	)
-	target_link_libraries(open-ephys GL X11 Xext Xinerama asound dl freetype pthread rt ${Fontconfig_LIBRARIES} ${CURL_LIBRARIES} ${WEBKIT2GTK_LIBRARIES})
+		${CURL_INCLUDE_DIRS})
+
+	target_link_libraries(open-ephys GL X11 Xext Xinerama asound dl freetype pthread rt ${Fontconfig_LIBRARIES} ${CURL_LIBRARIES})
 	set_property(TARGET open-ephys APPEND_STRING PROPERTY LINK_FLAGS
 		"-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/shared'")
 
@@ -238,10 +231,8 @@ elseif(LINUX)
             target_include_directories(gui_testable_source PRIVATE
                 /usr/include
                 /usr/include/freetype2
-                ${CURL_INCLUDE_DIRS}
-                ${WEBKIT2GTK_INCLUDE_DIRS}
-            )
-            target_link_libraries(gui_testable_source GL X11 Xext Xinerama asound dl freetype pthread rt ${Fontconfig_LIBRARIES} ${CURL_LIBRARIES} ${WEBKIT2GTK_LIBRARIES})
+                ${CURL_INCLUDE_DIRS})
+            target_link_libraries(gui_testable_source GL X11 Xext Xinerama asound dl freetype pthread rt ${Fontconfig_LIBRARIES} ${CURL_LIBRARIES})
             set_property(TARGET gui_testable_source APPEND_STRING PROPERTY LINK_FLAGS
                 "-fvisibility=hidden -fPIC -rdynamic -Wl,-rpath,'$ORIGIN/shared'")
 
