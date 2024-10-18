@@ -337,7 +337,7 @@ public:
     void valueChanged();
 
     /** Makes it possible to undo value changes */
-    class ChangeValue : public UndoableAction
+    class PLUGIN_API ChangeValue : public UndoableAction
     {
     public:
         /** Constructor */

@@ -557,6 +557,7 @@ void GenericProcessor::setParameter (int parameterIndex, float newValue)
     if (currentParameter != nullptr)
     {
         currentParameter->updateValue();
+        currentParameter->logValueChange();
         parameterValueChanged (currentParameter);
     }
 }

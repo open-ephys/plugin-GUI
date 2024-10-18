@@ -229,7 +229,7 @@ bool Parameter::ChangeValue::perform()
 {
     Parameter* p = Parameter::parameterMap[key];
 
-    if (! p->isEnabled())
+    if (! p->isEnabled() || p->currentValue == newValue)
         return false;
 
     p->newValue = newValue;
@@ -237,9 +237,10 @@ bool Parameter::ChangeValue::perform()
 
     p->valueChanged();
 
-    p->logValueChange();
-
-    return true;
+    if (p->currentValue == p->previousValue)
+        return false;
+    else
+        return true;
 }
 
 bool Parameter::ChangeValue::undo()
@@ -251,7 +252,7 @@ bool Parameter::ChangeValue::undo()
 
     p->valueChanged();
 
-    p->logValueChange();
+    //p->logValueChange();
 
     return true;
 }
@@ -1338,7 +1339,6 @@ void SelectedStreamParameter::setStreamNames (Array<String> streamNames_)
     {
         getOwner()->parameterChangeRequest (this);
         valueChanged();
-        logValueChange();
     }
 }
 
@@ -1448,8 +1448,6 @@ bool TimeParameter::ChangeValue::perform()
 
     p->valueChanged();
 
-    p->logValueChange();
-
     return true;
 }
 
@@ -1462,8 +1460,6 @@ bool TimeParameter::ChangeValue::undo()
     p->getOwner()->parameterChangeRequest (p);
 
     p->valueChanged();
-
-    p->logValueChange();
 
     return true;
 }
