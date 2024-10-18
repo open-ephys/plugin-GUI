@@ -456,6 +456,8 @@ public:
     /** Callback to update the popup */
     void updatePopup() override;
 
+    void paint (Graphics& g) override;
+
     /** Custom table header component (not currently used)*/
     //std::unique_ptr<TableHeaderComponent> tableHeader;
 
@@ -474,6 +476,8 @@ private:
     std::unique_ptr<SpikeChannelGenerator> spikeChannelGenerator;
 
     std::unique_ptr<Viewport> viewport;
+
+    String popupTitle;
 
     int scrollDistance = 0;
 

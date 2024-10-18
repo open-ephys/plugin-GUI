@@ -1054,6 +1054,9 @@ PopupConfigurationWindow::PopupConfigurationWindow (SpikeDetectorEditor* editor_
 
     addAndMakeVisible (viewport.get());
     update (spikeChannels);
+
+    auto stream = editor->getProcessor()->getDataStream (editor->getCurrentStream());
+    popupTitle = String(stream->getSourceNodeId()) + " " + stream->getSourceNodeName() + " - " + stream->getName();
 }
 
 void PopupConfigurationWindow::scrollBarMoved (ScrollBar* scrollBar, double newRangeStart)
@@ -1088,8 +1091,8 @@ void PopupConfigurationWindow::update (Array<SpikeChannel*> spikeChannels)
             viewport->getVerticalScrollBar().setVisible (false);
         }
 
-        setSize (540 + scrollBarWidth, (numRowsVisible + 1) * 30 + 10 + 40);
-        viewport->setBounds (5, 5, 530 + scrollBarWidth, (numRowsVisible + 1) * 30);
+        setSize (540 + scrollBarWidth, (numRowsVisible + 1) * 30 + 70);
+        viewport->setBounds (5, 25, 530 + scrollBarWidth, (numRowsVisible + 1) * 30);
         electrodeTable->setBounds (0, 0, 530 + scrollBarWidth, (spikeChannels.size() + 1) * 30);
 
         viewport->setViewPosition (0, scrollDistance);
@@ -1104,8 +1107,8 @@ void PopupConfigurationWindow::update (Array<SpikeChannel*> spikeChannels)
     {
         tableModel->update (spikeChannels);
         electrodeTable->setVisible (false);
-        setSize (530, 45);
-        spikeChannelGenerator->setBounds (60, 8, 420, 30);
+        setSize (440, 65);
+        spikeChannelGenerator->setBounds (10, 28, 420, 30);
     }
 }
 
@@ -1113,6 +1116,13 @@ void PopupConfigurationWindow::updatePopup()
 {
     SpikeDetector* spikeDetector = (SpikeDetector*) editor->getProcessor();
     update (spikeDetector->getSpikeChannelsForStream (editor->getCurrentStream()));
+}
+
+void PopupConfigurationWindow::paint (Graphics& g)
+{
+    g.setColour (findColour (ThemeColours::controlPanelText));
+    g.setFont (FontOptions ("Inter", "Regular", 15.0f));
+    g.drawFittedText (popupTitle, 10, 0, getWidth() - 20, 20, Justification::centredLeft, 1);
 }
 
 bool PopupConfigurationWindow::keyPressed (const KeyPress& key)
