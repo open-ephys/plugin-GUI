@@ -182,7 +182,7 @@ private:
     void updateRangeString();
     void parseRangeString();
 
-    std::unique_ptr<Label> titleLabel;
+    String title;
 
     OwnedArray<SelectButton> selectButtons;
     std::unique_ptr<RangeEditor> rangeEditor;

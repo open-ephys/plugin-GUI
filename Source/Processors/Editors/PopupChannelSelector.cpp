@@ -116,8 +116,8 @@ RangeEditor::RangeEditor (const String& name, const Font& font) : TextEditor (na
     setFont (font);
 }
 
-PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelector::Listener* listener_, std::vector<bool> channelStates, Array<String> channelNames, const String& title)
-    : PopupComponent (parent), listener (listener_), nChannels (int (channelStates.size())), mouseDragged (false), startDragCoords (0, 0), shiftKeyDown (false), firstButtonSelectedState (false), isDragging (false), editable (true), maxSelectable (-1)
+PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelector::Listener* listener_, std::vector<bool> channelStates, Array<String> channelNames, const String& title_)
+    : PopupComponent (parent), listener (listener_), nChannels (int (channelStates.size())), mouseDragged (false), startDragCoords (0, 0), shiftKeyDown (false), firstButtonSelectedState (false), isDragging (false), editable (true), maxSelectable (-1), title (title_)
 {
     int nColumns;
 
@@ -154,14 +154,16 @@ PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelec
 
     auto contentComponent = std::make_unique<Component>();
 
-    if (channelNames.isEmpty())
+    if (channelNames.isEmpty() || channelNames.size() != nChannels)
     {
+        channelNames.clear();
         for (int i = 0; i < nChannels; i++)
         {
             channelNames.add ("CH" + String (i + 1));
         }
     }
 
+    // Create buttons for each channel. Use actual channel names as tooltips.
     for (int i = 0; i < nRows; i++)
     {
         for (int j = 0; j < nColumns; j++)
@@ -212,6 +214,7 @@ PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelec
 
             // Add Range Editor
             rangeEditor = std::make_unique<RangeEditor> ("Range", FontOptions (12.0f));
+            rangeEditor->setInputRestrictions (0, "0123456789:");
             rangeEditor->setBounds (0.75 * width, height, 0.25 * width, width / nColumns);
             rangeEditor->addListener (this);
             contentComponent->addAndMakeVisible (rangeEditor.get());
@@ -240,13 +243,7 @@ PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelec
 
     if (title.isNotEmpty())
     {
-        titleLabel = std::make_unique<Label> ("Title", title);
-        titleLabel->setBounds (0, 0, viewport->getWidth(), 20);
-        titleLabel->setJustificationType (Justification::centredLeft);
-        titleLabel->setFont (FontOptions ("Inter", "Regular", 16.0f));
-        addAndMakeVisible (titleLabel.get());
-
-        setSize (viewport->getWidth(), viewport->getHeight() + 20);
+        setSize (viewport->getWidth(), viewport->getHeight() + 24);
     }
     else
     {
@@ -263,8 +260,12 @@ void PopupChannelSelector::resized()
 
 void PopupChannelSelector::paint (Graphics& g)
 {
-    g.setColour (findColour (ThemeColours::widgetBackground));
-    g.fillRoundedRectangle (getLocalBounds().toFloat().reduced (1.0f), 5.0f);
+    if (title.isNotEmpty())
+    {
+        g.setFont (FontOptions ("Inter", "Regular", 15.0f));
+        g.setColour (findColour (ThemeColours::controlPanelText));
+        g.drawFittedText (title, 5, 0, getWidth() - 10, 20, Justification::centredLeft, 1.0f);
+    }
 }
 
 void PopupChannelSelector::updatePopup()

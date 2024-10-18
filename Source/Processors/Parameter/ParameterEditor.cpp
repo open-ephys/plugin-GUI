@@ -611,7 +611,7 @@ void SelectedChannelsParameterEditor::buttonClicked (Button* button_)
     if (p->getOwner()->getType() == ParameterOwner::DATASTREAM)
     {
         DataStream* stream = (DataStream*) p->getOwner();
-        popupTitle = String (stream->getSourceNodeId()) + " - " + stream->getName();
+        popupTitle = String (stream->getSourceNodeId()) + " " + stream->getSourceNodeName() + " - " + stream->getName();
 
         for (auto channel : stream->getContinuousChannels())
             channelNames.add (channel->getName());
@@ -718,7 +718,7 @@ void MaskChannelsParameterEditor::buttonClicked (Button* button_)
     if (p->getOwner()->getType() == ParameterOwner::DATASTREAM)
     {
         DataStream* stream = (DataStream*) p->getOwner();
-        popupTitle = String (stream->getSourceNodeId()) + " - " + stream->getName();
+        popupTitle = String (stream->getSourceNodeId()) + " " + stream->getSourceNodeName() + " - " + stream->getName();
 
         for (auto channel : stream->getContinuousChannels())
             channelNames.add (channel->getName());

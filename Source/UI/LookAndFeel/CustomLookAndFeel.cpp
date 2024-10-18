@@ -211,7 +211,7 @@ void CustomLookAndFeel::setTheme (ColourTheme theme)
     setColour (Slider::rotarySliderOutlineColourId, currentThemeColours[ThemeColours::widgetBackground]);
     setColour (Slider::textBoxTextColourId, currentThemeColours[ThemeColours::defaultText]);
     setColour (Slider::textBoxBackgroundColourId, transparent);
-    setColour (Slider::textBoxHighlightColourId, currentThemeColours[ThemeColours::defaultFill].withAlpha (0.4f));
+    setColour (Slider::textBoxHighlightColourId, currentThemeColours[ThemeColours::menuHighlightBackground].withAlpha (0.4f));
     setColour (Slider::textBoxOutlineColourId, currentThemeColours[ThemeColours::outline]);
 
     setColour (ResizableWindow::backgroundColourId, currentThemeColours[ThemeColours::componentBackground]);
