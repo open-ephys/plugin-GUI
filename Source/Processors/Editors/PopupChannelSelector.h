@@ -172,6 +172,7 @@ public:
 
 private:
     std::unique_ptr<Viewport> viewport;
+    std::unique_ptr<Component> contentComponent;
     Listener* listener;
 
     /** Methods for parsing range strings*/

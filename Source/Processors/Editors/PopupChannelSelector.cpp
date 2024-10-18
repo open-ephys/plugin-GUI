@@ -37,8 +37,6 @@ ChannelButton::ChannelButton (int _id, PopupChannelSelector* _parent) : Button (
 
 void ChannelButton::mouseDown (const MouseEvent& event)
 {
-    parent->startDragCoords.setX (event.x + this->getX());
-    parent->startDragCoords.setY (event.y + this->getY());
     parent->firstButtonSelectedState = ! this->getToggleState();
     parent->mouseDown (event);
 }
@@ -152,7 +150,7 @@ PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelec
 
     buttonColour = Colours::azure;
 
-    auto contentComponent = std::make_unique<Component>();
+    contentComponent = std::make_unique<Component>();
 
     if (channelNames.isEmpty() || channelNames.size() != nChannels)
     {
@@ -226,7 +224,7 @@ PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelec
     int scrollBarThickness = 15;
 
     viewport = std::make_unique<Viewport>();
-    viewport->setViewedComponent (contentComponent.release(), true);
+    viewport->setViewedComponent (contentComponent.get(), false);
     viewport->setScrollBarsShown (true, false);
     viewport->setScrollBarThickness (scrollBarThickness);
 
@@ -250,7 +248,7 @@ PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelec
         setSize (viewport->getWidth(), viewport->getHeight());
     }
 
-    setColour (ColourSelector::backgroundColourId, Colours::transparentBlack);
+    startDragCoords = Point<int> (-1, -1);
 }
 
 void PopupChannelSelector::resized()
@@ -310,19 +308,27 @@ void PopupChannelSelector::mouseMove (const MouseEvent& event)
 void PopupChannelSelector::mouseDown (const MouseEvent& event)
 {
     if (editable)
+    {
         selectedButtons.clear();
+        startDragCoords = event.getEventRelativeTo (contentComponent.get()).getPosition();
+    }
 }
 
 void PopupChannelSelector::mouseDrag (const MouseEvent& event)
 {
     if (editable)
     {
-        mouseDragged = true;
+        MouseEvent e = event.getEventRelativeTo (contentComponent.get());
 
-        int w = event.getDistanceFromDragStartX();
-        int h = event.getDistanceFromDragStartY();
+        int w = e.getDistanceFromDragStartX();
+        int h = e.getDistanceFromDragStartY();
         int x = startDragCoords.getX();
         int y = startDragCoords.getY();
+
+        if (x < 0 || y < 0)
+            return;
+
+        mouseDragged = true;
 
         if (w < 0)
         {
@@ -396,6 +402,8 @@ void PopupChannelSelector::modifierKeysChanged (const ModifierKeys& modifiers)
 
 void PopupChannelSelector::mouseUp (const MouseEvent& event)
 {
+    bool mouseClicked = false;
+
     if (! mouseDragged && editable)
     {
         for (auto button : channelButtons)
@@ -422,11 +430,17 @@ void PopupChannelSelector::mouseUp (const MouseEvent& event)
                     activeChannels.add (button->getId());
                 }
 
+                mouseClicked = true;
+
                 break;
             }
         }
     }
-    listener->channelStateChanged (activeChannels);
+
+    if (mouseClicked || mouseDragged)
+        listener->channelStateChanged (activeChannels);
+
+    startDragCoords = Point<int> (-1, -1);
     mouseDragged = false;
 }
 
