@@ -116,7 +116,7 @@ RangeEditor::RangeEditor (const String& name, const Font& font) : TextEditor (na
     setFont (font);
 }
 
-PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelector::Listener* listener_, std::vector<bool> channelStates)
+PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelector::Listener* listener_, std::vector<bool> channelStates, Array<String> channelNames, const String& title)
     : PopupComponent (parent), listener (listener_), nChannels (int (channelStates.size())), mouseDragged (false), startDragCoords (0, 0), shiftKeyDown (false), firstButtonSelectedState (false), isDragging (false), editable (true), maxSelectable (-1)
 {
     int nColumns;
@@ -153,6 +153,15 @@ PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelec
     buttonColour = Colours::azure;
 
     auto contentComponent = std::make_unique<Component>();
+
+    if (channelNames.isEmpty())
+    {
+        for (int i = 0; i < nChannels; i++)
+        {
+            channelNames.add ("CH" + String (i + 1));
+        }
+    }
+
     for (int i = 0; i < nRows; i++)
     {
         for (int j = 0; j < nColumns; j++)
@@ -162,6 +171,7 @@ PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelec
                 auto* button = new ChannelButton (nColumns * i + j, this);
                 button->setBounds (width / nColumns * j, height / nRows * i, buttonSize, buttonSize);
                 button->setToggleState (channelStates[nColumns * i + j], NotificationType::dontSendNotification);
+                button->setTooltip (channelNames[nColumns * i + j]);
                 button->addListener (this);
                 contentComponent->addAndMakeVisible (button);
 
@@ -228,13 +238,33 @@ PopupChannelSelector::PopupChannelSelector (Component* parent, PopupChannelSelec
         viewport->setSize (width, height + (editable ? buttonSize : 0));
     }
 
-    setSize (viewport->getWidth(), viewport->getHeight());
+    if (title.isNotEmpty())
+    {
+        titleLabel = std::make_unique<Label> ("Title", title);
+        titleLabel->setBounds (0, 0, viewport->getWidth(), 20);
+        titleLabel->setJustificationType (Justification::centredLeft);
+        titleLabel->setFont (FontOptions ("Inter", "Regular", 16.0f));
+        addAndMakeVisible (titleLabel.get());
+
+        setSize (viewport->getWidth(), viewport->getHeight() + 20);
+    }
+    else
+    {
+        setSize (viewport->getWidth(), viewport->getHeight());
+    }
+
     setColour (ColourSelector::backgroundColourId, Colours::transparentBlack);
 }
 
 void PopupChannelSelector::resized()
 {
-    viewport->setBounds (getLocalBounds());
+    viewport->setBounds (0, getHeight() - viewport->getHeight(), getWidth(), viewport->getHeight());
+}
+
+void PopupChannelSelector::paint (Graphics& g)
+{
+    g.setColour (findColour (ThemeColours::widgetBackground));
+    g.fillRoundedRectangle (getLocalBounds().toFloat().reduced (1.0f), 5.0f);
 }
 
 void PopupChannelSelector::updatePopup()

@@ -605,7 +605,19 @@ void SelectedChannelsParameterEditor::buttonClicked (Button* button_)
 
     SelectedChannelsParameter* p = (SelectedChannelsParameter*) param;
 
-    auto* channelSelector = new PopupChannelSelector (button.get(), this, p->getChannelStates());
+    Array<String> channelNames;
+    String popupTitle;
+
+    if (p->getOwner()->getType() == ParameterOwner::DATASTREAM)
+    {
+        DataStream* stream = (DataStream*) p->getOwner();
+        popupTitle = String (stream->getSourceNodeId()) + " - " + stream->getName();
+
+        for (auto channel : stream->getContinuousChannels())
+            channelNames.add (channel->getName());
+    }
+
+    auto* channelSelector = new PopupChannelSelector (button.get(), this, p->getChannelStates(), channelNames, popupTitle);
 
     channelSelector->setChannelButtonColour (param->getColour());
 
@@ -700,7 +712,19 @@ void MaskChannelsParameterEditor::buttonClicked (Button* button_)
 
     std::vector<bool> channelStates = p->getChannelStates();
 
-    auto* channelSelector = new PopupChannelSelector (button.get(), this, channelStates);
+    Array<String> channelNames;
+    String popupTitle;
+
+    if (p->getOwner()->getType() == ParameterOwner::DATASTREAM)
+    {
+        DataStream* stream = (DataStream*) p->getOwner();
+        popupTitle = String (stream->getSourceNodeId()) + " - " + stream->getName();
+
+        for (auto channel : stream->getContinuousChannels())
+            channelNames.add (channel->getName());
+    }
+
+    auto* channelSelector = new PopupChannelSelector (button.get(), this, channelStates, channelNames, popupTitle);
 
     channelSelector->setChannelButtonColour (param->getColour());
 

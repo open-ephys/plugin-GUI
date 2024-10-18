@@ -103,7 +103,7 @@ void SyncAccuracyMonitor::paint (Graphics& g)
     if (isSynchronized)
     {
         g.setColour (findColour (ThemeColours::defaultText));
-        g.drawText (String (std::abs(metric), 3) + " ms", 0, 0, 55, 20, Justification::centred);
+        g.drawText (String (std::abs (metric), 3) + " ms", 0, 0, 55, 20, Justification::centred);
     }
 
     else
@@ -278,9 +278,21 @@ void RecordChannelsParameterEditor::buttonClicked (Button* label)
 
     MaskChannelsParameter* p = (MaskChannelsParameter*) param;
 
+    Array<String> channelNames;
+    String popupTitle;
+
+    if (p->getOwner()->getType() == ParameterOwner::DATASTREAM)
+    {
+        DataStream* stream = (DataStream*) p->getOwner();
+        popupTitle = String (stream->getSourceNodeId()) + " - " + stream->getName();
+
+        for (auto channel : stream->getContinuousChannels())
+            channelNames.add (channel->getName());
+    }
+
     std::vector<bool> channelStates = p->getChannelStates();
 
-    auto* channelSelector = new PopupChannelSelector (label, this, channelStates);
+    auto* channelSelector = new PopupChannelSelector (label, this, channelStates, channelNames, popupTitle);
 
     channelSelector->setChannelButtonColour (param->getColour());
 

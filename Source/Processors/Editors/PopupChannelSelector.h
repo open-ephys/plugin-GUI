@@ -130,7 +130,7 @@ public:
     };
 
     /** Constructor */
-    PopupChannelSelector (Component* parent, Listener* listener, std::vector<bool> channelStates);
+    PopupChannelSelector (Component* parent, Listener* listener, std::vector<bool> channelStates, Array<String> channelNames = Array<String>(), const String& title = String());
 
     /** Destructor */
     ~PopupChannelSelector() {}
@@ -168,6 +168,8 @@ public:
 
     void resized() override;
 
+    void paint (Graphics& g) override;
+
 private:
     std::unique_ptr<Viewport> viewport;
     Listener* listener;
@@ -179,6 +181,8 @@ private:
     void textEditorReturnKeyPressed (TextEditor&) override;
     void updateRangeString();
     void parseRangeString();
+
+    std::unique_ptr<Label> titleLabel;
 
     OwnedArray<SelectButton> selectButtons;
     std::unique_ptr<RangeEditor> rangeEditor;
