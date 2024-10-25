@@ -37,7 +37,7 @@
 
 #include "ConsoleViewer.h"
 
-#ifdef _WIN32
+#if JUCE_WINDOWS
 #include <fcntl.h>
 #include <io.h>
 #include <windows.h>
@@ -46,6 +46,8 @@
 #define dup2 _dup2
 #define read _read
 #define close _close
+#elif JUCE_MAC || JUCE_LINUX
+#include <unistd.h>
 #endif
 
 ConsoleViewer::ConsoleViewer()
@@ -54,15 +56,17 @@ ConsoleViewer::ConsoleViewer()
     addAndMakeVisible (logComponent.get());
 
     copyButton = std::make_unique<UtilityButton> ("Copy");
-    copyButton->setFont (FontOptions(14.0f));
+    copyButton->setFont (FontOptions (14.0f));
     copyButton->setTooltip ("Copy the console output to the clipboard");
-    copyButton->onClick = [this] { logComponent->copyToClipBoard(); };
+    copyButton->onClick = [this]
+    { logComponent->copyToClipBoard(); };
     addAndMakeVisible (copyButton.get());
 
     clearButton = std::make_unique<UtilityButton> ("Clear");
-    clearButton->setFont (FontOptions(14.0f));
+    clearButton->setFont (FontOptions (14.0f));
     clearButton->setTooltip ("Clear the console output");
-    clearButton->onClick = [this] { logComponent->clear(); };
+    clearButton->onClick = [this]
+    { logComponent->clear(); };
     addAndMakeVisible (clearButton.get());
 }
 
@@ -86,8 +90,7 @@ void ConsoleViewer::resized()
 }
 
 LogComponent::LogComponent (bool captureStdErrImmediately, bool captureStdOutImmediately)
-    : stdOutColour (findColour (ThemeColours::defaultText))
-    , stdErrColour (Colours::red.darker(0.25f))
+    : stdOutColour (findColour (ThemeColours::defaultText)), stdErrColour (Colours::red.darker (0.25f))
 {
     addAndMakeVisible (consoleOutputEditor);
     consoleOutputEditor.setMultiLine (true, true);
@@ -112,8 +115,8 @@ LogComponent::LogComponent (bool captureStdErrImmediately, bool captureStdOutImm
 
 LogComponent::~LogComponent()
 {
-    releaseStdOut();
-    releaseStdErr();
+    releaseStdOut (false);
+    releaseStdErr (false);
 }
 
 void LogComponent::clear()
@@ -293,12 +296,6 @@ void LogComponent::addFromStd (char* stringBufferToAdd, size_t bufferSize, juce:
     numNewLinesSinceUpdate += numNewLines;
     numLinesStored += numNewLines;
 
-    // add linebreaks
-    if (stringBufferToAdd[bufferSize - 1] == '\n')
-    {
-        // only add a linebreak to the last line if it really had one - may contain an incomplete line
-        lines.getReference (numLinesStored - 1) += "\n";
-    }
     for (int i = numLinesStored - numNewLines; i < numLinesStored - 1; i++)
     {
         lines.getReference (i) += "\n";
