@@ -202,7 +202,6 @@ public:
 
 private:
     std::unique_ptr<MainWindow> mainWindow;
-    std::ofstream console_out;
 };
 
 //==============================================================================

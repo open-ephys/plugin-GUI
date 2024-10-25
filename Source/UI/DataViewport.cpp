@@ -651,11 +651,20 @@ void DataViewport::loadStateFromXml (XmlElement* xml)
                             LOGD ("Adding tab ", nodeId, " to tabbed component ", index);
 
                             if (nodeId == 0) // info tab
+                            {
+                                removeTab (0);
                                 AccessClass::getUIComponent()->addInfoTab();
+                            }
                             else if (nodeId == 1) // graph tab
+                            {
+                                removeTab (1);
                                 AccessClass::getUIComponent()->addGraphTab();
+                            }
                             else if (nodeId == 2) // console tab
+                            {
+                                removeTab (2);
                                 AccessClass::getUIComponent()->addConsoleTab();
+                            }
                             else if (nodeId > 99) // visualizer tab
                             {
                                 GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId (nodeId);

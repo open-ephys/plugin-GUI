@@ -159,8 +159,6 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
         if (auto peer = documentWindow->getPeer())
             peer->setIcon (windowIcon);
 #endif
-
-        popupManager = std::make_unique<PopupManager>();
     }
 
     controlPanel->updateRecordEngineList();
@@ -218,14 +216,6 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
                 }
             }
         }
-    }
-
-    if (! isConsoleApp)
-    {
-        UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
-        ui->addInfoTab();
-        ui->addGraphTab();
-        ui->addConsoleTab();
     }
 
     http_server_thread = std::make_unique<OpenEphysHttpServer> (processorGraph.get());
@@ -300,7 +290,7 @@ void MainWindow::repaintWindow()
 {
     if (! isConsoleApp)
     {
-        // Repaint all TopLevelWindows (including the MainDocumentWindow) 
+        // Repaint all TopLevelWindows (including the MainDocumentWindow)
         for (int i = 0; i < TopLevelWindow::getNumTopLevelWindows(); i++)
         {
             TopLevelWindow* window = TopLevelWindow::getTopLevelWindow (i);

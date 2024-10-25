@@ -101,6 +101,10 @@ UIComponent::UIComponent (MainWindow* mainWindow_,
 
     getProcessorList()->fillItemList();
 
+    addInfoTab();
+    addGraphTab();
+    addConsoleTab();
+
     popupManager = std::make_unique<PopupManager>();
 }
 
@@ -695,7 +699,7 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
             break;
 
         case toggleConsoleViewer:
-            result.setInfo ("Console Viewer", "Show/hide Console Viewer.", "General", 0);
+            result.setInfo ("Console", "Show/hide built-in console.", "General", 0);
             result.addDefaultKeypress ('C', ModifierKeys::shiftModifier);
             result.setTicked (consoleViewerIsOpen);
 #ifdef DEBUG

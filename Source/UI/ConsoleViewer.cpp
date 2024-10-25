@@ -98,6 +98,7 @@ LogComponent::LogComponent (bool captureStdErrImmediately, bool captureStdOutImm
     consoleOutputEditor.setFont (FontOptions (14.0f));
     consoleOutputEditor.setScrollBarThickness (12);
     consoleOutputEditor.setIndents (10, 15);
+    consoleOutputEditor.setMouseCursor (MouseCursor::NormalCursor);
 
     // save the original stdout and stderr to restore it later
     if (originalStdout == -3)
