@@ -42,6 +42,7 @@ class ProcessorGraph;
 class AudioComponent;
 class GraphViewer;
 class InfoLabel;
+class ConsoleViewer;
 class DataViewport;
 class EditorViewport;
 class SignalChainTabComponent;
@@ -76,6 +77,7 @@ public:
                  ProcessorGraph* pgraph,
                  AudioComponent* audio,
                  ControlPanel* controlPanel,
+                 ConsoleViewer* consoleViewer,
                  CustomLookAndFeel* customLookAndFeel);
 
     /** Destructor */
@@ -170,11 +172,17 @@ public:
     // Adds the graph tab to the DataViewport if it is not already open
     void addGraphTab();
 
+    // Adds the console viewer to the DataViewport if it is not already open
+    void addConsoleTab();
+
     /** Notifies the UI component when the graph viewer is closed */
     void closeGraphViewer() { graphViewerIsOpen = false; }
 
     /** Notifies the UI component when the info tab is closed */
     void closeInfoTab() { infoTabIsOpen = false; }
+
+    /** Notifies the UI component when the console viewer is closed */
+    void closeConsoleViewer() { consoleViewerIsOpen = false; }
 
     /** Finds a child component based on a unique component ID */
     Component* findComponentByIDRecursive (Component* parent, const String& id);
@@ -190,9 +198,11 @@ private:
     ScopedPointer<ProcessorList> processorList;
     ScopedPointer<InfoLabel> infoLabel;
     ScopedPointer<GraphViewer> graphViewer;
+    std::unique_ptr<ConsoleViewer> consoleViewer;
 
     bool infoTabIsOpen = false;
     bool graphViewerIsOpen = false;
+    bool consoleViewerIsOpen = false;
 
     EditorViewport* editorViewport;
 
@@ -241,7 +251,8 @@ private:
         toggleFileInfo = 0x2010,
         toggleInfoTab = 0x2011,
         toggleGraphViewer = 0x2012,
-        showMessageWindow = 0x2013,
+        toggleConsoleViewer = 0x2013,
+        showMessageWindow = 0x2014,
         setClockModeDefault = 0x2111,
         setClockModeHHMMSS = 0x2112,
         setClockReferenceTimeCumulative = 0x2113,

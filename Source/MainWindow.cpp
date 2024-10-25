@@ -23,6 +23,7 @@
 
 #include "MainWindow.h"
 #include "AutoUpdater.h"
+#include "UI/ConsoleViewer.h"
 #include "UI/EditorViewport.h"
 #include "UI/UIComponent.h"
 #include "Utils/OpenEphysHttpServer.h"
@@ -50,6 +51,8 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
     customLookAndFeel = std::make_unique<CustomLookAndFeel>();
     LookAndFeel::setDefaultLookAndFeel (customLookAndFeel.get());
 
+    ConsoleViewer* consoleViewer = nullptr;
+
     if (! isConsoleApp)
     {
         documentWindow = std::make_unique<MainDocumentWindow>();
@@ -58,6 +61,11 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
                                       false); // useBottomCornerRisizer -- doesn't work very well
 
         documentWindow->setLookAndFeel (customLookAndFeel.get());
+
+        // Create a console viewer for the GUI (not for the headless version and debug builds)
+#ifdef NDEBUG
+        consoleViewer = new ConsoleViewer();
+#endif
     }
     else
     {
@@ -77,7 +85,7 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
 
     OELogger::instance().createLogFile (activityLog.getFullPathName().toStdString());
 
-    std::cout << "Session Start Time: " << Time::getCurrentTime().toString (true, true, true, true) << std::endl;
+    std::cout << "--------------- Session Start Time: " << Time::getCurrentTime().toString (true, true, true, true) << " ---------------" << std::endl;
     std::cout << std::endl;
     LOGC ("Open Ephys GUI v", JUCEApplication::getInstance()->getApplicationVersion(), " (Plugin API v", PLUGIN_API_VER, ")");
     LOGC (SystemStats::getJUCEVersion());
@@ -108,7 +116,7 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
     if (! isConsoleApp)
     {
         LOGD ("Creating UI component...");
-        documentWindow->setContentOwned (new UIComponent (this, processorGraph.get(), audioComponent.get(), controlPanel.get(), customLookAndFeel.get()), true);
+        documentWindow->setContentOwned (new UIComponent (this, processorGraph.get(), audioComponent.get(), controlPanel.get(), consoleViewer, customLookAndFeel.get()), true);
 
         UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
 
@@ -217,6 +225,7 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
         UIComponent* ui = (UIComponent*) documentWindow->getContentComponent();
         ui->addInfoTab();
         ui->addGraphTab();
+        ui->addConsoleTab();
     }
 
     http_server_thread = std::make_unique<OpenEphysHttpServer> (processorGraph.get());

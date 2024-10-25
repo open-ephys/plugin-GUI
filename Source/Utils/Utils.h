@@ -68,8 +68,8 @@ public:
     {
         std::lock_guard<std::mutex> lock (mt);
 
-        (std::cout << ... << args);
-        std::cout << std::endl;
+        (std::cerr << ... << args);
+        std::cerr << std::endl;
 
         LOGFile (args...);
     }

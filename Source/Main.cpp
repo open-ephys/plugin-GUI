@@ -87,26 +87,18 @@ public:
         {
             freopen ("CONOUT$", "w", stdout);
             freopen ("CONOUT$", "w", stderr);
-            console_out = std::ofstream ("CONOUT$");
-            std::cout.rdbuf (console_out.rdbuf());
-            std::cerr.rdbuf (console_out.rdbuf());
-            SMALL_RECT windowSize = { 0, 0, 85 - 1, 35 - 1 };
-            COORD bufferSize = { 85, 9999 };
-            HANDLE wHnd = GetStdHandle (STD_OUTPUT_HANDLE);
-            SetConsoleTitle ("Open Ephys GUI ::: Console");
-            SetConsoleWindowInfo (wHnd, true, &windowSize);
-            SetConsoleScreenBufferSize (wHnd, bufferSize);
+            ShowWindow(GetConsoleWindow(), false);
         }
 
-        SetConsoleCtrlHandler (ConsoleHandler, TRUE);
+        // SetConsoleCtrlHandler (ConsoleHandler, TRUE);
 
-        if (HWND hwnd = GetConsoleWindow())
-        {
-            if (HMENU hMenu = GetSystemMenu (hwnd, FALSE))
-            {
-                EnableMenuItem (hMenu, SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
-            }
-        }
+        // if (HWND hwnd = GetConsoleWindow())
+        // {
+        //     if (HMENU hMenu = GetSystemMenu (hwnd, FALSE))
+        //     {
+        //         EnableMenuItem (hMenu, SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+        //     }
+        // }
 
 #endif
 

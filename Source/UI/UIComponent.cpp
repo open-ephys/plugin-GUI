@@ -30,6 +30,7 @@
 #include "../MainWindow.h"
 #include "../Processors/MessageCenter/MessageCenter.h"
 #include "../Processors/ProcessorGraph/ProcessorGraph.h"
+#include "ConsoleViewer.h"
 #include "ControlPanel.h"
 #include "DataViewport.h"
 #include "EditorViewport.h"
@@ -42,6 +43,7 @@ UIComponent::UIComponent (MainWindow* mainWindow_,
                           ProcessorGraph* processorGraph_,
                           AudioComponent* audioComponent_,
                           ControlPanel* controlPanel_,
+                          ConsoleViewer* consoleViewer_,
                           CustomLookAndFeel* customLookAndFeel_)
     : mainWindow (mainWindow_),
       processorGraph (processorGraph_),
@@ -57,6 +59,8 @@ UIComponent::UIComponent (MainWindow* mainWindow_,
 
     graphViewer = new GraphViewer();
     LOGD ("Created graph viewer.");
+
+    consoleViewer.reset (consoleViewer_);
 
     dataViewport = new DataViewport();
     addChildComponent (dataViewport);
@@ -413,6 +417,15 @@ void UIComponent::addGraphTab()
     }
 }
 
+void UIComponent::addConsoleTab()
+{
+    if (consoleViewer != nullptr && ! consoleViewerIsOpen)
+    {
+        dataViewport->addTab ("Console", consoleViewer.get(), 2);
+        consoleViewerIsOpen = true;
+    }
+}
+
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 // MENU BAR METHODS
@@ -482,6 +495,7 @@ PopupMenu UIComponent::getMenuForIndex (int menuIndex, const String& menuName)
         menu.addCommandItem (commandManager, toggleFileInfo);
         menu.addCommandItem (commandManager, toggleInfoTab);
         menu.addCommandItem (commandManager, toggleGraphViewer);
+        menu.addCommandItem (commandManager, toggleConsoleViewer);
         menu.addCommandItem (commandManager, showMessageWindow);
         menu.addSeparator();
         menu.addSubMenu ("Clock display mode", clockModeMenu);
@@ -543,6 +557,7 @@ void UIComponent::getAllCommands (Array<CommandID>& commands)
                               toggleFileInfo,
                               toggleInfoTab,
                               toggleGraphViewer,
+                              toggleConsoleViewer,
                               showMessageWindow,
                               setClockModeDefault,
                               setClockModeHHMMSS,
@@ -683,6 +698,15 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
             result.setInfo ("Graph Viewer", "Show/hide Graph Viewer.", "General", 0);
             result.addDefaultKeypress ('G', ModifierKeys::shiftModifier);
             result.setTicked (graphViewerIsOpen);
+            break;
+
+        case toggleConsoleViewer:
+            result.setInfo ("Console Viewer", "Show/hide Console Viewer.", "General", 0);
+            result.addDefaultKeypress ('C', ModifierKeys::shiftModifier);
+            result.setTicked (consoleViewerIsOpen);
+#ifdef DEBUG
+            result.setActive (false);
+#endif
             break;
 
         case showMessageWindow:
@@ -987,6 +1011,22 @@ bool UIComponent::perform (const InvocationInfo& info)
             }
 
             break;
+
+        case toggleConsoleViewer:
+        {
+            if (consoleViewer == nullptr)
+                break;
+
+            if (consoleViewerIsOpen)
+                dataViewport->removeTab (2);
+            else
+            {
+                dataViewport->addTab ("Console", consoleViewer.get(), 2);
+                consoleViewerIsOpen = true;
+            }
+
+            break;
+        }
 
         case showMessageWindow:
             messageWindow = std::make_unique<MessageWindow>();

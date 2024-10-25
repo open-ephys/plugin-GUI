@@ -2,6 +2,8 @@
 
 #add files in this folder
 add_sources(open-ephys 
+	ConsoleViewer.cpp
+	ConsoleViewer.h
 	ControlPanel.cpp
 	ControlPanel.h
 	CustomArrowButton.cpp
