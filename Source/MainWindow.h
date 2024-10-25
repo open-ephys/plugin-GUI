@@ -104,8 +104,8 @@ public:
     /** Sets the size of the Main Window */
     void centreWithSize (int, int);
 
-    /** Repaints the main window and all of it's components*/
-    void repaint();
+    /** Repaints all TopLevelWindows (including the MainDocumentWindow) and all of it's components*/
+    void repaintWindow();
 
     ColourTheme currentTheme = ColourTheme::MEDIUM;
 

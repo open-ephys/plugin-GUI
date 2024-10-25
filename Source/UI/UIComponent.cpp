@@ -381,13 +381,7 @@ void UIComponent::setTheme (ColourTheme t)
     customLookAndFeel->setTheme (t);
 
     mainWindow->currentTheme = t;
-    mainWindow->repaint();
-
-    controlPanel->updateColours();
-
-    messageCenterButton.updateColours();
-
-    infoLabel->updateColours();
+    mainWindow->repaintWindow();
 
     getProcessorGraph()->refreshColours();
 

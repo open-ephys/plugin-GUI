@@ -296,23 +296,23 @@ void MainWindow::disableHttpServer()
     http_server_thread->stop();
 }
 
-void MainWindow::repaint()
+void MainWindow::repaintWindow()
 {
     if (! isConsoleApp)
     {
-        documentWindow->repaint();
+        // Repaint all TopLevelWindows (including the MainDocumentWindow) 
+        for (int i = 0; i < TopLevelWindow::getNumTopLevelWindows(); i++)
+        {
+            TopLevelWindow* window = TopLevelWindow::getTopLevelWindow (i);
 
-        auto windowBounds = documentWindow->getBounds();
-
-        documentWindow->setBounds (windowBounds.reduced (1));
-
-        if (auto menuBarComp = documentWindow->getMenuBarComponent())
-            menuBarComp->repaint();
+            if (window != nullptr)
+            {
+                window->sendLookAndFeelChange();
+            }
+        }
 
         Colour c = documentWindow->getLookAndFeel().findColour (ResizableWindow::backgroundColourId);
         documentWindow->setBackgroundColour (c);
-
-        documentWindow->setBounds (windowBounds);
     }
 }
 

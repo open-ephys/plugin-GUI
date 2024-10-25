@@ -271,6 +271,8 @@ bool DraggableTabComponent::removeTabForNodeId (int nodeId, bool sendNotificatio
                     AccessClass::getUIComponent()->closeInfoTab();
                 else if (nodeId == 1)
                     AccessClass::getUIComponent()->closeGraphViewer();
+                else if (nodeId == 2)
+                    AccessClass::getUIComponent()->closeConsoleViewer();
             }
         }
 
@@ -652,6 +654,8 @@ void DataViewport::loadStateFromXml (XmlElement* xml)
                                 AccessClass::getUIComponent()->addInfoTab();
                             else if (nodeId == 1) // graph tab
                                 AccessClass::getUIComponent()->addGraphTab();
+                            else if (nodeId == 2) // console tab
+                                AccessClass::getUIComponent()->addConsoleTab();
                             else if (nodeId > 99) // visualizer tab
                             {
                                 GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId (nodeId);

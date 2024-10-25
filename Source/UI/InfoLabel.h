@@ -111,7 +111,7 @@ public:
     void refreshState() {}
 
     /** Updates the colours of the text field */
-    void updateColours();
+    void colourChanged() override;
 
     /** Resizes text field*/
     void resized();

@@ -91,7 +91,7 @@ public:
         
     }
 
-    void updateColours()
+    void colourChanged() override
     {
         expanded.setStrokeFill(findColour(ThemeColours::defaultFill));
         expandedOver.setStrokeFill(findColour(ThemeColours::defaultFill));

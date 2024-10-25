@@ -175,7 +175,7 @@ void InfoLabel::paint (Graphics& g)
     g.fillAll (findColour (ThemeColours::componentBackground));
 }
 
-void InfoLabel::updateColours()
+void InfoLabel::colourChanged()
 {
     aboutText.setColour (findColour (ThemeColours::defaultText));
     authorsText.setColour (findColour (ThemeColours::defaultText));

@@ -102,7 +102,7 @@ public:
         // Refresh everything
         processorGraph->updateSettings (sn);
 
-        controlPanel->updateColours();
+        controlPanel->colourChanged();
     }
 
     virtual ~ProcessorTester()

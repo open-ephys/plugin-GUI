@@ -473,7 +473,7 @@ public:
     String generateDatetimeFromFormat (String format);
 
     /** Updates button colours when colour theme changes */
-    void updateColours();
+    void colourChanged() override;
 
     /** Pointers to owned components */
     std::unique_ptr<FilenameEditorButton> filenameText;

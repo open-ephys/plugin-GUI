@@ -1054,7 +1054,7 @@ void ControlPanel::componentBeingDeleted (Component& component)
     component.removeComponentListener (this);
 }
 
-void ControlPanel::updateColours()
+void ControlPanel::colourChanged()
 {
     playButton->updateImages (getAcquisitionState());
     recordButton->updateImages (getRecordingState());
