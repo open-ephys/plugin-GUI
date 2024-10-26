@@ -55,7 +55,7 @@ ConsoleViewer::ConsoleViewer()
     logComponent = std::make_unique<LogComponent> (true, true);
     addAndMakeVisible (logComponent.get());
 
-    copyButton = std::make_unique<UtilityButton> ("Copy");
+    copyButton = std::make_unique<UtilityButton> ("Copy All");
     copyButton->setFont (FontOptions (14.0f));
     copyButton->setTooltip ("Copy the console output to the clipboard");
     copyButton->onClick = [this]
@@ -85,20 +85,17 @@ void ConsoleViewer::paint (Graphics& g)
 void ConsoleViewer::resized()
 {
     logComponent->setBounds (10, 40, getWidth() - 20, getHeight() - 50);
-    copyButton->setBounds (getWidth() - 125, 10, 55, 25);
+    copyButton->setBounds (getWidth() - 150, 10, 80, 25);
     clearButton->setBounds (getWidth() - 65, 10, 55, 25);
 }
 
 LogComponent::LogComponent (bool captureStdErrImmediately, bool captureStdOutImmediately)
     : stdOutColour (findColour (ThemeColours::defaultText)), stdErrColour (Colours::red.darker (0.25f))
 {
-    consoleEditor.reset (new CodeEditorComponent (codeDocument, nullptr));
-    // consoleEditor->setReadOnly (true);
+    consoleEditor.reset (new ConsoleEditor (codeDocument));
     consoleEditor->setFont (FontOptions (14.0f));
     consoleEditor->setScrollbarThickness (12);
     consoleEditor->setTabSize (4, true);
-    consoleEditor->setLineNumbersShown (false);
-    consoleEditor->setEnabled (false);
     addAndMakeVisible (consoleEditor.get());
 
     // save the original stdout and stderr to restore it later

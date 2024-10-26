@@ -41,6 +41,61 @@
 #include "../Processors/Visualization/Visualizer.h"
 #include <thread>
 
+class ConsoleEditor : public CodeEditorComponent
+{
+public:
+    ConsoleEditor (CodeDocument& document) : CodeEditorComponent (document, nullptr)
+    {
+        setLineNumbersShown (false);
+        setEnabled (false);
+        setMouseCursor (MouseCursor::NormalCursor);
+    }
+
+    void addPopupMenuItems (PopupMenu& m, const MouseEvent*)
+    {
+        m.addItem (StandardApplicationCommandIDs::copy, TRANS ("Copy"), ! getHighlightedRegion().isEmpty());
+        m.addItem (StandardApplicationCommandIDs::selectAll, TRANS ("Select All"));
+
+        m.addSeparator();
+        
+        m.addItem (3, "Reset Font Size", getFont().getHeight() != 14.0f);
+    }
+
+    void performPopupMenuAction (int menuItemID)
+    {
+        if (menuItemID == StandardApplicationCommandIDs::copy)
+            copyToClipboard();
+        else if (menuItemID == StandardApplicationCommandIDs::selectAll)
+            selectAll();
+        else if (menuItemID == 3)
+            setFont (FontOptions (14.0f));
+        else
+            return;
+    }
+
+    void mouseUp (const MouseEvent& e) override
+    {
+        CodeEditorComponent::mouseUp (e);
+        setMouseCursor (MouseCursor::NormalCursor);
+    }
+
+    void mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel) override
+    {
+        if (e.mods.isCommandDown())
+        {
+            float currentFontHeight = getFont().getHeight();
+            if (wheel.deltaY > 0 && currentFontHeight < 36.0f)
+                setFont (FontOptions (currentFontHeight + 0.5f));
+            else if (wheel.deltaY < 0 && currentFontHeight > 10.0f)
+                setFont (FontOptions (currentFontHeight - 0.5f));
+        }
+        else
+        {
+            CodeEditorComponent::mouseWheelMove (e, wheel);
+        }
+    }
+};
+
 /**
  * A component that takes over stdout and stderr and displays it inside
  */
@@ -95,7 +150,7 @@ private:
     CodeDocument codeDocument;
 
     // the editor component
-    std::unique_ptr<CodeEditorComponent> consoleEditor;
+    std::unique_ptr<ConsoleEditor> consoleEditor;
 
     juce::Colour stdOutColour = juce::Colours::black;
     juce::Colour stdErrColour = juce::Colours::red;
