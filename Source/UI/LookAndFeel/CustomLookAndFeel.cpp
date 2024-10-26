@@ -176,6 +176,12 @@ void CustomLookAndFeel::setTheme (ColourTheme theme)
     setColour (TextEditor::focusedOutlineColourId, currentThemeColours[ThemeColours::outline]);
     setColour (TextEditor::shadowColourId, transparent);
 
+    setColour (CodeEditorComponent::backgroundColourId, currentThemeColours[ThemeColours::widgetBackground]);
+    setColour (CodeEditorComponent::defaultTextColourId, currentThemeColours[ThemeColours::defaultText]);
+    setColour (CodeEditorComponent::highlightColourId, currentThemeColours[ThemeColours::widgetBackground].contrasting (0.5f).withAlpha (0.4f));
+    setColour (CodeEditorComponent::lineNumberBackgroundId, currentThemeColours[ThemeColours::widgetBackground]);
+    setColour (CodeEditorComponent::lineNumberTextId, currentThemeColours[ThemeColours::defaultText]);
+
     setColour (CaretComponent::caretColourId, currentThemeColours[ThemeColours::defaultText]);
 
     setColour (Label::backgroundColourId, transparent);

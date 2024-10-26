@@ -41,101 +41,97 @@
 #include "../Processors/Visualization/Visualizer.h"
 #include <thread>
 
-
 /**
  * A component that takes over stdout and stderr and displays it inside
  */
-class LogComponent : public juce::Component, private juce::AsyncUpdater {
-    
+class LogComponent : public juce::Component, private juce::AsyncUpdater
+{
 public:
-    
     /**
      * Creates a new log component. By default, stderr and stdout are captured immediately after
      * construction
      */
     LogComponent (bool captureStdErrImmediately = true, bool captureStdOutImmediately = true);
-    
+
     ~LogComponent();
-    
+
     /** Clears the log */
     void clear();
 
     /** Copies the content of the log to the clipboard */
     void copyToClipBoard();
 
-    /** Sets the colour of the log messages */
-    void colourChanged() override;
-    
     /** Redirects stdout to this component. Call releaseStdOut to restore the prior state */
     bool captureStdOut();
-    
+
     /** Redirects stderr to this component. Call releaseStdErr to restore the prior state */
     bool captureStdErr();
-    
+
     /** Restores the original stdout */
     void releaseStdOut (bool printRestoreMessage = true);
-    
+
     /** Restores the original stderr */
     void releaseStdErr (bool printRestoreMessage = true);
 
     void resized() override;
-    
+
 private:
-    
     // filedescriptors to restore the standard console output streams
     static int originalStdout, originalStderr;
-    
+
     // pipes to redirect the streams to this component
     static int logStdOutputPipe[2];
     static int logErrOutputPipe[2];
-    
+
     static std::unique_ptr<std::thread> stdOutReaderThread;
     static std::unique_ptr<std::thread> stdErrReaderThread;
-    
+
     // indicates if it is the current stdout
     static LogComponent* currentStdOutTarget;
     static LogComponent* currentStdErrTarget;
-    
-    static const int tmpBufLen = 512;
-    juce::TextEditor consoleOutputEditor;
+
+    static const int tmpBufLen = 1024;
+
+    CodeDocument codeDocument;
+
+    // the editor component
+    std::unique_ptr<CodeEditorComponent> consoleEditor;
+
     juce::Colour stdOutColour = juce::Colours::black;
     juce::Colour stdErrColour = juce::Colours::red;
-    
+
     // this is where the text is stored
-    int numLinesToStore = 2000;
-    int numLinesToRemoveWhenFull = 20;
+    int numLinesToStore = 10000;
+    int numLinesToRemoveWhenFull = 50;
     int numLinesStored = 0;
     int numNewLinesSinceUpdate = 0;
     juce::StringArray lines;
-    juce::Array<juce::Colour> lineColours;
     juce::CriticalSection linesLock;
-    
-    static bool createAndAssignPipe (int *pipeIDs, FILE *stream);
-    static void deletePipeAndEndThread (int original, FILE *stream, std::unique_ptr<std::thread>& thread);
-    
+
+    static bool createAndAssignPipe (int* pipeIDs, FILE* stream);
+    static void deletePipeAndEndThread (int original, FILE* stream, std::unique_ptr<std::thread>& thread);
+
     static void readStdOut();
-    
+
     static void readStdErr();
-    
-    void addFromStd (char *stringBufferToAdd, size_t bufferSize, juce::Colour colourOfString);
-    
+
+    void addFromStd (char* stringBufferToAdd, size_t bufferSize);
+
     void handleAsyncUpdate() override;
 };
-
 
 class ConsoleViewer : public Visualizer
 {
 public:
     ConsoleViewer();
     ~ConsoleViewer();
-    
+
     void paint (Graphics& g) override;
     void resized() override;
 
     /** Visualizer virtual functions */
     void refresh() override {}
     void refreshState() override {}
-
 
 private:
     std::unique_ptr<LogComponent> logComponent;

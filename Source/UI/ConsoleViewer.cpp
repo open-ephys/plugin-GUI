@@ -92,13 +92,14 @@ void ConsoleViewer::resized()
 LogComponent::LogComponent (bool captureStdErrImmediately, bool captureStdOutImmediately)
     : stdOutColour (findColour (ThemeColours::defaultText)), stdErrColour (Colours::red.darker (0.25f))
 {
-    addAndMakeVisible (consoleOutputEditor);
-    consoleOutputEditor.setMultiLine (true, true);
-    consoleOutputEditor.setReadOnly (true);
-    consoleOutputEditor.setFont (FontOptions (14.0f));
-    consoleOutputEditor.setScrollBarThickness (12);
-    consoleOutputEditor.setIndents (10, 15);
-    consoleOutputEditor.setMouseCursor (MouseCursor::NormalCursor);
+    consoleEditor.reset (new CodeEditorComponent (codeDocument, nullptr));
+    // consoleEditor->setReadOnly (true);
+    consoleEditor->setFont (FontOptions (14.0f));
+    consoleEditor->setScrollbarThickness (12);
+    consoleEditor->setTabSize (4, true);
+    consoleEditor->setLineNumbersShown (false);
+    consoleEditor->setEnabled (false);
+    addAndMakeVisible (consoleEditor.get());
 
     // save the original stdout and stderr to restore it later
     if (originalStdout == -3)
@@ -124,37 +125,15 @@ void LogComponent::clear()
 {
     const juce::ScopedLock scopedLock (linesLock);
 
-    consoleOutputEditor.clear();
+    consoleEditor->loadContent ("");
     lines.clear();
-    lineColours.clearQuick();
     numLinesStored = 0;
     numNewLinesSinceUpdate = 0;
 }
 
 void LogComponent::copyToClipBoard()
 {
-    consoleOutputEditor.selectAll();
-    consoleOutputEditor.copy();
-    consoleOutputEditor.moveCaretToEnd();
-}
-
-void LogComponent::colourChanged()
-{
-    stdOutColour = findColour (ThemeColours::defaultText);
-
-    linesLock.enter();
-
-    for (int i = 0; i < lineColours.size(); i++)
-    {
-        if (lineColours[i] != stdErrColour)
-            lineColours.set (i, findColour (ThemeColours::defaultText));
-    }
-
-    consoleOutputEditor.clear();
-    numNewLinesSinceUpdate = numLinesStored;
-
-    linesLock.exit();
-    triggerAsyncUpdate();
+    SystemClipboard::copyTextToClipboard (codeDocument.getAllContent());
 }
 
 bool LogComponent::captureStdOut()
@@ -215,7 +194,7 @@ void LogComponent::releaseStdErr (bool printRestoreMessage)
 
 void LogComponent::resized()
 {
-    consoleOutputEditor.setBounds (getLocalBounds());
+    consoleEditor->setBounds (getLocalBounds());
 }
 
 bool LogComponent::createAndAssignPipe (int* pipeIDs, FILE* stream)
@@ -266,7 +245,7 @@ void LogComponent::readStdOut()
         if (currentStdOutTarget == nullptr)
             break;
         tmpStdOutBuf[numCharsRead] = '\0';
-        currentStdOutTarget->addFromStd (tmpStdOutBuf, numCharsRead, currentStdOutTarget->stdOutColour);
+        currentStdOutTarget->addFromStd (tmpStdOutBuf, numCharsRead);
     }
 }
 
@@ -281,18 +260,15 @@ void LogComponent::readStdErr()
         if (currentStdErrTarget == nullptr)
             break;
         tmpStdErrBuf[numCharsRead] = '\0';
-        currentStdErrTarget->addFromStd (tmpStdErrBuf, numCharsRead, currentStdErrTarget->stdErrColour);
+        currentStdErrTarget->addFromStd (tmpStdErrBuf, numCharsRead);
     }
 }
 
-void LogComponent::addFromStd (char* stringBufferToAdd, size_t bufferSize, juce::Colour colourOfString)
+void LogComponent::addFromStd (char* stringBufferToAdd, size_t bufferSize)
 {
-    linesLock.enter();
+    const juce::ScopedLock scopedLock (linesLock);
+
     int numNewLines = lines.addTokens (stringBufferToAdd, "\n", "");
-    for (int i = 0; i < numNewLines; i++)
-    {
-        lineColours.add (colourOfString);
-    }
 
     numNewLinesSinceUpdate += numNewLines;
     numLinesStored += numNewLines;
@@ -302,7 +278,6 @@ void LogComponent::addFromStd (char* stringBufferToAdd, size_t bufferSize, juce:
         lines.getReference (i) += "\n";
     }
 
-    linesLock.exit();
     triggerAsyncUpdate();
 }
 
@@ -317,27 +292,20 @@ void LogComponent::handleAsyncUpdate()
         if (numLinesToRemove < numLinesToRemoveWhenFull)
             numLinesToRemove = numLinesToRemoveWhenFull;
         lines.removeRange (0, numLinesToRemove);
-        lineColours.removeRange (0, numLinesToRemove);
         numLinesStored = lines.size();
 
         // clear the editor and flag all lines as new lines
-        consoleOutputEditor.clear();
+        codeDocument.replaceAllContent (String());
         numNewLinesSinceUpdate = numLinesStored;
     }
 
     // append new lines
     juce::Colour lastColour = stdOutColour;
-    consoleOutputEditor.setColour (TextEditor::textColourId, lastColour);
-    consoleOutputEditor.moveCaretToEnd();
+    consoleEditor->moveCaretToEnd (false);
 
     for (int i = numLinesStored - numNewLinesSinceUpdate; i < numLinesStored; i++)
     {
-        if (lineColours[i] != lastColour)
-        {
-            lastColour = lineColours[i];
-            consoleOutputEditor.setColour (TextEditor::textColourId, lastColour);
-        }
-        consoleOutputEditor.insertTextAtCaret (lines[i]);
+        consoleEditor->insertTextAtCaret (lines[i]);
     }
 
     numNewLinesSinceUpdate = 0;
