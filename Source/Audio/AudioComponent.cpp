@@ -96,7 +96,9 @@ AudioComponent::AudioComponent() : isPlaying (false)
     setup.sampleRate = 44100.0;
 
     String msg = deviceManager.setAudioDeviceSetup (setup, false);
-    std::cout << msg << std::endl;
+
+    if (msg.isNotEmpty())
+        LOGE (msg);
 
     String devType = deviceManager.getCurrentAudioDeviceType();
     LOGC ("Audio device type: ", devType);

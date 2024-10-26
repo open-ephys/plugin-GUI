@@ -63,7 +63,7 @@ static void errorMsg (const char* file, int line, const char* msg)
     if (dw)
     {
         FormatMessage (
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK,
             NULL,
             dw,
             0,
@@ -218,7 +218,7 @@ void PluginManager::loadPlugins (const File& pluginPath)
 
         if (res < 0)
         {
-            LOGE (foundDLLs[i].getFileName(), " Load FAILED");
+            LOGE (foundDLLs[i].getFileName(), " Load FAILED!\n");
         }
         else
         {

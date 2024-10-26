@@ -101,11 +101,11 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
     // Create ProcessorGraph and AudioComponent, and connect them.
     // Callbacks will be set by the play button in the control panel
 
-    LOGD ("Creating processor graph...");
-    processorGraph = std::make_unique<ProcessorGraph> (isConsoleApp);
-
     LOGD ("Creating audio component...");
     audioComponent = std::make_unique<AudioComponent>();
+
+    LOGD ("Creating processor graph...");
+    processorGraph = std::make_unique<ProcessorGraph> (isConsoleApp);
 
     LOGD ("Connecting audio component to processor graph...");
     audioComponent->connectToProcessorGraph (processorGraph.get());
