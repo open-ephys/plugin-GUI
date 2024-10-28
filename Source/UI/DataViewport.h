@@ -214,6 +214,33 @@ private:
 };
 
 /**
+ 
+ Custom resizer bar for tabbed components
+
+*/
+
+class TabbedComponentResizerBar : public StretchableLayoutResizerBar
+{
+public:
+    /** Constructor */
+    TabbedComponentResizerBar (StretchableLayoutManager* layoutToUse);
+
+    /** Destructor */
+    ~TabbedComponentResizerBar() {}
+
+    /** Paints the resizer bar */
+    void paint (Graphics& g) override;
+
+    /** Called when mouse is double clicked. Resets layout */
+    void mouseDoubleClick (const MouseEvent& event) override;
+
+private:
+    StretchableLayoutManager* layout;
+
+    Path dragHandle;
+};
+
+/**
 
   The DataViewport sits in the center of the MainWindow
   and is always visible. Editors that create data
@@ -280,6 +307,10 @@ private:
     //Array<int> savedTabIndices;
     //Array<String> savedTabNames;
     //Array<Component*> savedTabComponents;
+
+    /** Layout manager for tabbed components to allow resizing */
+    StretchableLayoutManager tabbedComponentLayout;
+    std::unique_ptr<TabbedComponentResizerBar> tabbedComponentResizer;
 
     /** Tabbed sub-components **/
     OwnedArray<DraggableTabComponent> draggableTabComponents;

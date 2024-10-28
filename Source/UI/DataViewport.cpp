@@ -468,6 +468,40 @@ void AddTabbedComponentButton::paintButton (Graphics& g, bool isMouseOverButton,
     g.strokePath (path, PathStrokeType (1.0f));
 }
 
+TabbedComponentResizerBar::TabbedComponentResizerBar (StretchableLayoutManager* layoutToUse)
+    : StretchableLayoutResizerBar (layoutToUse, 1, true), layout (layoutToUse)
+{
+    dragHandle = Drawable::parseSVGPath (
+        "M19.63,11.31,16.5,9.17a1,1,0,0,0-1.5.69v4.28a1,1,0,0,0,1.5.69l3.13-2.14A.82.82,0,0,0,19.63,11.31ZM4.37,"
+        "12.69,7.5,14.83A1,1,0,0,0,9,14.14V9.86a1,1,0,0,0-1.5-.69L4.37,11.31A.82.82,0,0,0,4.37,12.69Z");
+}
+
+void TabbedComponentResizerBar::paint (Graphics& g)
+{
+    int w = getWidth();
+    int h = getHeight();
+
+    if (isMouseButtonDown())
+        g.setColour (findColour (ThemeColours::highlightedFill));
+    else if (isMouseOver())
+        g.setColour (findColour (ThemeColours::defaultFill));
+    else
+        g.setColour (findColour (ThemeColours::defaultFill).withAlpha (0.6f));
+
+    g.fillRect ((w / 2) - 1, 0, 2, h);
+
+    g.fillPath (dragHandle, dragHandle.getTransformToScaleToFit (0, (h / 2) - (w / 2), w, w, true));
+}
+
+void TabbedComponentResizerBar::mouseDoubleClick (const MouseEvent& event)
+{
+    if (Component* parent = getParentComponent())
+    {
+        layout->setItemPosition (1, (parent->getWidth() / 2) - (getWidth() / 2));
+        parent->resized();
+    }
+}
+
 DataViewport::DataViewport() : shutdown (false)
 {
     DraggableTabComponent* c = new DraggableTabComponent (this);
@@ -477,15 +511,28 @@ DataViewport::DataViewport() : shutdown (false)
     addTabbedComponentButton = std::make_unique<AddTabbedComponentButton>();
     addAndMakeVisible (addTabbedComponentButton.get());
     addTabbedComponentButton->addListener (this);
+
+    tabbedComponentResizer = std::make_unique<TabbedComponentResizerBar> (&tabbedComponentLayout);
+    addChildComponent (tabbedComponentResizer.get());
 }
 
 void DataViewport::resized()
 {
     int width = getWidth() / draggableTabComponents.size();
 
-    for (int i = 0; i < draggableTabComponents.size(); i++)
+    if (draggableTabComponents.size() == 1)
+        draggableTabComponents[0]->setBounds (0, 0, width, getHeight());
+    else if (draggableTabComponents.size() == 2)
     {
-        draggableTabComponents[i]->setBounds (width * i, 0, width, getHeight());
+        Component* comps[] = { draggableTabComponents[0], tabbedComponentResizer.get(), draggableTabComponents[1] };
+        tabbedComponentLayout.layOutComponents (comps, 3, 0, 0, getWidth(), getHeight(), false, true);
+    }
+    else
+    {
+        for (int i = 0; i < draggableTabComponents.size(); i++)
+        {
+            draggableTabComponents[i]->setBounds (width * i, 0, width, getHeight());
+        }
     }
 
     addTabbedComponentButton->setBounds (getWidth() - 24, getHeight() - 26, 20, 20);
@@ -528,6 +575,11 @@ void DataViewport::removeTab (int nodeId, bool sendNotification)
                 {
                     draggableTabComponents.removeObject (draggableTabComponent);
                     activeTabbedComponent--;
+
+                    tabbedComponentLayout.clearAllItems();
+
+                    tabbedComponentResizer->setVisible (draggableTabComponents.size() == 2);
+
                     resized();
 
                     if (draggableTabComponents[activeTabbedComponent]->getNumTabs() > 1)
@@ -549,6 +601,12 @@ void DataViewport::buttonClicked (Button* button)
         DraggableTabComponent* d = new DraggableTabComponent (this);
         addAndMakeVisible (d);
         draggableTabComponents.add (d);
+
+        tabbedComponentResizer->setVisible (true);
+
+        tabbedComponentLayout.setItemLayout (0, -0.25, -0.75, -0.5);
+        tabbedComponentLayout.setItemLayout (1, 12, 12, 12);
+        tabbedComponentLayout.setItemLayout (2, -0.25, -0.75, -0.5);
 
         resized();
 
@@ -584,6 +642,10 @@ void DataViewport::removeTabbedComponent (DraggableTabComponent* draggableTabCom
 
         if (activeTabbedComponent > draggableTabComponents.size() - 1)
             activeTabbedComponent--;
+
+        tabbedComponentLayout.clearAllItems();
+
+        tabbedComponentResizer->setVisible (draggableTabComponents.size() == 2);
 
         resized();
     }
@@ -634,6 +696,12 @@ void DataViewport::loadStateFromXml (XmlElement* xml)
                         DraggableTabComponent* d = new DraggableTabComponent (this);
                         addAndMakeVisible (d);
                         draggableTabComponents.add (d);
+
+                        tabbedComponentResizer->setVisible (draggableTabComponents.size() == 2);
+
+                        tabbedComponentLayout.setItemLayout (0, -0.25, -0.75, -0.5);
+                        tabbedComponentLayout.setItemLayout (1, 12, 12, 12);
+                        tabbedComponentLayout.setItemLayout (2, -0.25, -0.75, -0.5);
                     }
 
                     activeTabbedComponent = index;
