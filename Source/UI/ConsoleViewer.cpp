@@ -56,14 +56,14 @@ ConsoleViewer::ConsoleViewer()
     addAndMakeVisible (logComponent.get());
 
     copyButton = std::make_unique<UtilityButton> ("Copy All");
-    copyButton->setFont (FontOptions (14.0f));
+    copyButton->setFont (FontOptions (13.0f));
     copyButton->setTooltip ("Copy the console output to the clipboard");
     copyButton->onClick = [this]
     { logComponent->copyToClipBoard(); };
     addAndMakeVisible (copyButton.get());
 
     clearButton = std::make_unique<UtilityButton> ("Clear");
-    clearButton->setFont (FontOptions (14.0f));
+    clearButton->setFont (FontOptions (13.0f));
     clearButton->setTooltip ("Clear the console output");
     clearButton->onClick = [this]
     { logComponent->clear(); };
@@ -78,15 +78,15 @@ void ConsoleViewer::paint (Graphics& g)
 {
     g.fillAll (findColour (ThemeColours::componentBackground));
     g.setColour (findColour (ThemeColours::defaultText));
-    g.setFont (FontOptions ("Inter", "Semi Bold", 16.0f));
-    g.drawText ("Open Ephys GUI Console", getLocalBounds().withHeight (40), Justification::centred);
+    g.setFont (FontOptions ("Inter", "Semi Bold", 20.0f));
+    g.drawText ("Console", 20, 0, getWidth() - 40, 40, Justification::centredLeft);
 }
 
 void ConsoleViewer::resized()
 {
     logComponent->setBounds (10, 40, getWidth() - 20, getHeight() - 50);
-    copyButton->setBounds (getWidth() - 150, 10, 80, 25);
-    clearButton->setBounds (getWidth() - 65, 10, 55, 25);
+    copyButton->setBounds (getWidth() - 140, 10, 70, 22);
+    clearButton->setBounds (getWidth() - 65, 10, 55, 22);
 }
 
 LogComponent::LogComponent (bool captureStdErrImmediately, bool captureStdOutImmediately)
