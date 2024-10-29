@@ -4,6 +4,8 @@
 add_sources(open-ephys 
 	FileReader.cpp
 	FileReader.h
+	FileReaderActions.cpp
+	FileReaderActions.h
 	FileReaderEditor.cpp
 	FileReaderEditor.h
 	FileSource.cpp

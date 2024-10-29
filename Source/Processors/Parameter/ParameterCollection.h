@@ -67,6 +67,9 @@ public:
     /** Copies parameters from an InfoObject */
     void copyParametersFrom (ParameterOwner* pOwner);
 
+    /** Link parameters from parent -> child1, child2 */
+    void linkParameters (Parameter* parent, Parameter* child1, Parameter* child2 = nullptr);
+
     /** Overload indexing operator */
     Parameter* operator[] (String name) const { return parameterMap.at (name); }
 

@@ -374,7 +374,7 @@ public:
                            const String& name,
                            const String& displayName,
                            const String& description,
-                           const String& defaultValue,
+                           const File& defaultValue,
                            const StringArray& validFileExtensions,
                            bool isDirectory,
                            bool deactivateDuringAcquisition = true);

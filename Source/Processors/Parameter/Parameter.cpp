@@ -137,6 +137,12 @@ void Parameter::setOwner (ParameterOwner* parameterOwner_)
     Parameter::registerParameter (this);
 }
 
+void Parameter::linkParameter (Parameter* child1, Parameter* child2)
+{
+    linkedParameters.add (child1);
+    linkedParameters.add (child2);
+}
+
 void Parameter::setEnabled (bool enabled)
 {
     isEnabledFlag = enabled;
@@ -1175,7 +1181,7 @@ PathParameter::PathParameter (ParameterOwner* owner,
                               const String& name,
                               const String& displayName,
                               const String& description,
-                              const String& defaultValue,
+                              const File& defaultValue_,
                               const StringArray& fileExtensions_,
                               bool isDirectory_,
                               bool deactivateDuringAcquisition)
@@ -1185,7 +1191,7 @@ PathParameter::PathParameter (ParameterOwner* owner,
                  name,
                  displayName,
                  description,
-                 defaultValue,
+                 defaultValue_.getFullPathName(),
                  deactivateDuringAcquisition),
       filePatternsAllowed (fileExtensions_),
       isDirectory (isDirectory_)
@@ -1208,8 +1214,17 @@ void PathParameter::setNextValue (var newValue_, bool undoable)
         {
             newValue = newValue_;
         }
-
-        if (undoable)
+        
+        if (! undoable)
+        {
+            getOwner()->parameterChangeRequest (this);
+            valueChanged();
+        }
+        else if (isLinked())
+        {
+            getOwner()->handleLinkedParameterChange (this, newValue);
+        }
+        else 
         {
             ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
@@ -1219,11 +1234,6 @@ void PathParameter::setNextValue (var newValue_, bool undoable)
                 AccessClass::getUndoManager()->beginNewTransaction();
 
             AccessClass::getUndoManager()->perform (action);
-        }
-        else
-        {
-            getOwner()->parameterChangeRequest (this);
-            valueChanged();
         }
     }
     else

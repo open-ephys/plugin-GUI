@@ -21,36 +21,44 @@
 
 */
 
-#ifndef PROCESSORACTION_H_INCLUDED
-#define PROCESSORACTION_H_INCLUDED
+#ifndef __FILEREADER_ACTIONS_H_B327D3D2__
+#define __FILEREADER_ACTIONS_H_B327D3D2__
 
-#include <JuceHeader.h>
+#include "../../../JuceLibraryCode/JuceHeader.h"
 
-#include <map>
-#include <string>
-#include <vector>
+#include "FileReader.h"
 
-/**
-  Defines an UndoableAction that is specific to a Processor.
-
-  @see UndoableAction, GenericProcessor
-*/
-class PLUGIN_API ProcessorAction : public UndoableAction
+class SelectFile : public ProcessorAction
 {
 public:
-    ProcessorAction (const std::string& name_) : name (name_) {}
+    SelectFile (FileReader* processor, PathParameter* pathParam, var newValue, CategoricalParameter* activeStream, TimeParameter* startTime, TimeParameter* endTime);
 
-    /* Defines the perform action */
-    bool perform() override = 0;
+    ~SelectFile() {};
 
-    /* Defines the undo action */
-    bool undo() override = 0;
+    bool perform() override;
 
-    /* Restores the action's owner */
-    virtual void restoreOwner (GenericProcessor* p) = 0;
+    bool undo() override;
+
+    void restoreOwner (GenericProcessor* p) override;
 
 private:
-    std::string name;
+    FileReader* processor;
+
+    std::string pathKey;
+    std::string streamKey;
+    std::string startTimeKey;
+    std::string endTimeKey;
+
+    int originalActiveStream;
+
+    var originalPath;
+    var newPath;
+
+    int originalStartTimeInMs;
+    int originalEndTimeInMs;
+
+    int newStartTimeInMs;
+    int newEndTimeInMs;
 };
 
-#endif // PROCESSORACTION_H_INCLUDED
+#endif // __FILEREADER_ACTIONS_H_B327D3D2__

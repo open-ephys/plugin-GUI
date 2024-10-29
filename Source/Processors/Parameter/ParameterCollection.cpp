@@ -338,3 +338,8 @@ void ParameterCollection::clear()
     parameters.clear();
     parameterMap.clear();
 }
+
+void ParameterCollection::linkParameters (Parameter* parent, Parameter* child1, Parameter* child2)
+{
+    parent->linkParameter (child1, child2);
+}

@@ -80,6 +80,9 @@ public:
     /** Makes it possible to set the selected file remotely */
     String handleConfigMessage (const String& msg) override;
 
+    /** Handles linked parameter changes */
+    void handleLinkedParameterChange (Parameter* param, var newValue) override;
+
     /** Allows parameters to change during acquisition (no longer used) */
     // void setParameter (int parameterIndex, float newValue) override;
     void parameterValueChanged (Parameter* p) override;

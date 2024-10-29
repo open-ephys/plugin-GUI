@@ -336,6 +336,12 @@ public:
     /** Broadcasts a value change to all listeners */
     void valueChanged();
 
+    /** Links this parameter to another parameter */
+    void linkParameter (Parameter* first, Parameter* second = nullptr);
+
+    /** Returns true if this parameter is linked to another parameter */
+    bool isLinked() { return linkedParameters.size() > 0; }
+
     /** Makes it possible to undo value changes */
     class PLUGIN_API ChangeValue : public UndoableAction
     {
@@ -387,6 +393,7 @@ private:
     bool isEnabledFlag;
 
     Array<Listener*> parameterListeners;
+    Array<Parameter*> linkedParameters;
 };
 
 /** 
@@ -873,7 +880,7 @@ public:
                    const String& name,
                    const String& displayName,
                    const String& description,
-                   const String& defaultValue,
+                   const File& defaultValue,
                    const StringArray& filePatternsAllowed,
                    const bool isDirectory,
                    bool deactivateDuringAcquisition = true);

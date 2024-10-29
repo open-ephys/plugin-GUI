@@ -91,6 +91,11 @@ void ParameterOwner::addParameter (Parameter* p)
     parameters.addParameter (p);
 }
 
+void ParameterOwner::linkParameters (Parameter* parent, Parameter* child1, Parameter* child2)
+{
+    parameters.linkParameters (parent, child1, child2);
+}
+
 Parameter* ParameterOwner::getParameter (String name) const
 {
     if (parameters.contains (name))

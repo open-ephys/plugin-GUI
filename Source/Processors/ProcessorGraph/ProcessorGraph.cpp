@@ -276,7 +276,7 @@ GenericProcessor* ProcessorGraph::createProcessor (Plugin::Description& descript
             GenericEditor* editor = (GenericEditor*) addedProc->createEditor();
         }
 
-        if (! signalChainIsLoading && ! undoingDelete)
+        if (! signalChainIsLoading)// && ! undoingDelete)
         {
             addedProc->initialize (false);
         }

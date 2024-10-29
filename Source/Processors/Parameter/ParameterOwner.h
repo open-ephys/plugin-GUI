@@ -113,6 +113,9 @@ public:
     /** Creates a simple editor for modifying this object's parameters */
     virtual Array<ParameterEditor*> createDefaultEditor();
 
+    /** Handles linked parameter changes */
+    virtual void handleLinkedParameterChange (Parameter* param, var newValue) {}
+
     // --------------------------------------------
     //    OTHER METHODS
     // --------------------------------------------
@@ -122,6 +125,9 @@ public:
 
     /** Holds the parameters for this object */
     ParameterCollection parameters;
+
+    /** Link parameters from parent -> child1, child2 */
+    void linkParameters (Parameter* parent, Parameter* child1, Parameter* child2 = nullptr);
 
 protected:
     /** Constructor*/
