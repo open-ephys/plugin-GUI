@@ -141,6 +141,9 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
 
 #ifdef JUCE_WINDOWS
         documentWindow->setUsingNativeTitleBar (false);
+#ifdef NDEBUG
+        ShowWindow (GetConsoleWindow(), SW_HIDE);
+#endif
 #else
         documentWindow->setUsingNativeTitleBar (true); // Use native title bar on Mac and Linux
 #endif

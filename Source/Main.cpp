@@ -83,22 +83,19 @@ public:
 
 #ifdef _WIN32
 
-        if (AllocConsole())
+        SetConsoleTitleA ("Open Ephys GUI Launcher");
+
+        std::cout << "Initializing Open Ephys GUI... DO NOT CLOSE THIS WINDOW" << std::endl;
+
+        SetConsoleCtrlHandler (ConsoleHandler, TRUE);
+
+        if (HWND hwnd = GetConsoleWindow())
         {
-            freopen ("CONOUT$", "w", stdout);
-            freopen ("CONOUT$", "w", stderr);
-            ShowWindow(GetConsoleWindow(), false);
+            if (HMENU hMenu = GetSystemMenu (hwnd, FALSE))
+            {
+                EnableMenuItem (hMenu, SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+            }
         }
-
-        // SetConsoleCtrlHandler (ConsoleHandler, TRUE);
-
-        // if (HWND hwnd = GetConsoleWindow())
-        // {
-        //     if (HMENU hMenu = GetSystemMenu (hwnd, FALSE))
-        //     {
-        //         EnableMenuItem (hMenu, SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
-        //     }
-        // }
 
 #endif
 
