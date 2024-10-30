@@ -21,40 +21,39 @@
 
 */
 
-#ifndef __RECORDCONTROL_H_120DD434__
-#define __RECORDCONTROL_H_120DD434__
-
-#include "RecordControlEditor.h"
-
-#define PROCESSOR_NAME "Record Control"
-
-#include <ProcessorHeaders.h>
-
-/**
-    Stops and stops recording in response to incoming events.
-
-    @see RecordNode
-*/
-class RecordControl : public GenericProcessor
-{
-public:
-    /** Constructor */
-    RecordControl();
-
-    /** Destructor */
-    ~RecordControl() {}
-
-    /** Create Record Control Editor*/
-    AudioProcessorEditor* createEditor() override;
-
-    /** Call handleEvent() */
-    void process (AudioBuffer<float>& buffer) override;
-
-    /** Respond to incoming events */
-    void handleTTLEvent (TTLEventPtr event) override;
-
-private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RecordControl);
-};
-
+#ifndef PROCESSOR_NAME
+    #define PROCESSOR_NAME "Unknown"
 #endif
+
+#undef LOGA
+#define LOGA(...) \
+    getOELogger().LOGFile("[" PROCESSOR_NAME "][action] ", __VA_ARGS__)
+
+#undef LOGB
+#define LOGB(...) \
+    getOELogger().LOGFile("[" PROCESSOR_NAME "][buffer] ", __VA_ARGS__)
+
+#undef LOGC
+#define LOGC(...) \
+    getOELogger().LOGConsole("[" PROCESSOR_NAME "] ", __VA_ARGS__)
+
+#undef LOGD
+#ifdef DEBUG
+#define LOGD(...) \
+    getOELogger().LOGConsole("[" PROCESSOR_NAME "][debug] ", __VA_ARGS__)
+#else
+#define LOGD(...) \
+    getOELogger().LOGFile("[" PROCESSOR_NAME "][debug] ", __VA_ARGS__)
+#endif
+
+#undef LOGDD
+#define LOGDD(...) \
+    getOELogger().LOGFile("[" PROCESSOR_NAME "][ddebug] ", __VA_ARGS__)
+
+#undef LOGE
+#define LOGE(...) \
+    getOELogger().LOGError("[" PROCESSOR_NAME "] ***ERROR*** ", __VA_ARGS__)
+
+// Not applicable for plugins
+#undef LOGF
+#undef LOGG

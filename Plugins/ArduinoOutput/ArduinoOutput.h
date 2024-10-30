@@ -24,9 +24,11 @@
 #ifndef __ARDUINOOUTPUT_H_F7BDA585__
 #define __ARDUINOOUTPUT_H_F7BDA585__
 
-#include <ProcessorHeaders.h>
-#include <SerialLib.h>
+#define PROCESSOR_NAME "Arduino Output"
 
+#include <ProcessorHeaders.h>
+
+#include <SerialLib.h>
 #include "serial/ofArduino.h"
 
 /**

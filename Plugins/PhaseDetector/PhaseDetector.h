@@ -24,6 +24,8 @@
 #ifndef __PHASEDETECTOR_H_F411F29D__
 #define __PHASEDETECTOR_H_F411F29D__
 
+#define PROCESSOR_NAME "Phase Detector"
+
 #include <ProcessorHeaders.h>
 
 enum PhaseType

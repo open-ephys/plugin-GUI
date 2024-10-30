@@ -24,8 +24,9 @@
 #ifndef __BANDPASSFILTER_H_CED428E__
 #define __BANDPASSFILTER_H_CED428E__
 
-#include <ProcessorHeaders.h>
+#define PROCESSOR_NAME "Bandpass Filter"
 
+#include <ProcessorHeaders.h>
 #include <DspLib.h>
 
 #define CHANNELS_PER_THREAD 32

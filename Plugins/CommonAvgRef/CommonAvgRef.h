@@ -24,6 +24,8 @@
 #ifndef CAR_H_INCLUDED
 #define CAR_H_INCLUDED
 
+#define PROCESSOR_NAME "Common Avg Ref"
+
 #include <ProcessorHeaders.h>
 
 /** Holds settings for one stream's CAR*/

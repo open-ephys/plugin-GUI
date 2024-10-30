@@ -90,7 +90,7 @@ void ChannelMapSettings::fromXml (XmlElement* xml)
         }
         else
         {
-            std::cout << channelParams->getTagName() << std::endl;
+            //std::cout << channelParams->getTagName() << std::endl;
         }
     }
 }

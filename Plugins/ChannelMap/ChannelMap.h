@@ -24,6 +24,8 @@
 #ifndef __CHANNELMAP_H_330E50E0__
 #define __CHANNELMAP_H_330E50E0__
 
+#define PROCESSOR_NAME "Channel Map"
+
 #include <ProcessorHeaders.h>
 
 /** Holds channel map settings for one data stream*/

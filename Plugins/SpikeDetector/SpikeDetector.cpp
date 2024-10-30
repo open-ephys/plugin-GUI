@@ -685,7 +685,7 @@ bool SpikeDetector::stopAcquisition()
         spikeChannel->reset();
     }
 
-    //LOGC("SpikeDetector detected ", spikeCount, " spikes in ", totalCallbacks, " callbacks.");
+    LOGC("SpikeDetector detected ", spikeCount, " spikes in ", totalCallbacks, " callbacks.");
 
     return true;
 }
