@@ -156,7 +156,7 @@ public:
     void selectTab (int nodeId);
 
     /** Moves tabs based on node ID */
-    void moveTabAfter (int nodeIdA, String name, int nodeIdB);
+    void moveTabByNodeId (const String& name, int incomingNodeId, int localNodeId);
 
     /** Returns the number of tabs available */
     int getNumTabs() { return tabNodeIds.size(); }

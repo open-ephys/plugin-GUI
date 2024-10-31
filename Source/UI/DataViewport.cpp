@@ -138,7 +138,7 @@ void CustomTabButton::itemDropped (const SourceDetails& dragSourceDetails)
 
     LOGD ("ITEM DROPPED ON TAB");
 
-    parent->moveTabAfter (incomingNodeId, name, nodeId);
+    parent->moveTabByNodeId (name, incomingNodeId, nodeId);
 }
 
 void CustomTabButton::paintButton (Graphics& g,
@@ -220,6 +220,11 @@ void DraggableTabComponent::itemDropped (const juce::DragAndDropTarget::SourceDe
     int incomingNodeId = descr->getUnchecked (1);
     String name = descr->getUnchecked (2);
 
+    // Skip if the tab is already in the tabbed component and the drop is not after the last tab
+    int lastButtonBottom = getTabbedButtonBar().getTabButton (getNumTabs() - 1)->getBounds().getBottom();
+    if (tabNodeIds.contains (incomingNodeId) && dragSourceDetails.localPosition.y < lastButtonBottom)
+        return;
+
     LOGD ("ITEM DROPPED ON PARENT");
 
     Component* contentComponent = dataViewport->getContentComponentForNodeId (incomingNodeId);
@@ -284,18 +289,37 @@ bool DraggableTabComponent::removeTabForNodeId (int nodeId, bool sendNotificatio
     }
 }
 
-void DraggableTabComponent::moveTabAfter (int incomingNodeId, String name, int localNodeId)
+void DraggableTabComponent::moveTabByNodeId (const String& name, int incomingNodeId, int localNodeId)
 {
-    Component* contentComponent = dataViewport->getContentComponentForNodeId (incomingNodeId);
-    dataViewport->removeTab (incomingNodeId, false);
+    int localIndex = tabNodeIds.indexOf (localNodeId);
+    int incomingIndex = tabNodeIds.indexOf (incomingNodeId);
 
-    int index = tabNodeIds.indexOf (localNodeId) + 1;
+    if (localIndex == -1)
+        return;
 
-    tabNodeIds.insert (index, incomingNodeId);
+    if (incomingIndex == -1)
+    {
+        Component* contentComponent = dataViewport->getContentComponentForNodeId (incomingNodeId);
 
-    addTab (name, Colours::darkgrey, contentComponent, false, index);
+        if (contentComponent == nullptr)
+            return;
 
-    setCurrentTabIndex (index);
+        dataViewport->removeTab (incomingNodeId, false);
+
+        tabNodeIds.insert (localIndex + 1, incomingNodeId);
+
+        addTab (name, Colours::darkgrey, contentComponent, false, localIndex + 1);
+
+        setCurrentTabIndex (localIndex + 1);
+
+        return;
+    }
+
+    tabNodeIds.move (incomingIndex, localIndex);
+
+    moveTab (incomingIndex, localIndex);
+
+    setCurrentTabIndex (localIndex);
 }
 
 Component* DraggableTabComponent::getContentComponentForNodeId (int nodeId)
