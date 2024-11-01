@@ -37,8 +37,11 @@
 class DataWindow : public DocumentWindow
 {
 public:
-    /** Constructor */
-    DataWindow (Button* button, String name);
+    /** Constructor 
+     * @param controlButton The button that opens the window. Can be nullptr.
+     * @param name The name of the window
+     */
+    DataWindow (Button* controlButton, String name);
 
     /** Destructor */
     ~DataWindow();
@@ -53,7 +56,7 @@ public:
         virtual ~Listener() {}
 
         /** Called when the window is closed. */
-        virtual void windowClosed() = 0;
+        virtual void windowClosed(const String& name) = 0;
     };
 
     /**

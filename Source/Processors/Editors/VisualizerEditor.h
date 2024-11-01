@@ -100,7 +100,7 @@ public:
     virtual void loadVisualizerEditorParameters (XmlElement* xml) {}
 
     /** Called when the Visualizer window is closed */
-    virtual void windowClosed() override {}
+    virtual void windowClosed(const String& name) override {}
 
     /** Called after tab has been closed. */
     void tabWasClosed();
