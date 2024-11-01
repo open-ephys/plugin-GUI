@@ -118,6 +118,11 @@ UIComponent::~UIComponent()
         delete pluginInstaller;
     }
 
+    if (consoleWindow)
+    {
+        consoleWindow->removeListener (this);
+    }
+
     // setLookAndFeel(nullptr);
 }
 
@@ -417,11 +422,40 @@ void UIComponent::addGraphTab()
 
 void UIComponent::addConsoleTab()
 {
-    if (consoleViewer != nullptr && ! consoleViewerIsOpen)
+    if (consoleViewer != nullptr && ! consoleOpenInTab)
     {
+        if (consoleOpenInWindow)
+        {
+            consoleWindow->closeButtonPressed();
+        }
+
         dataViewport->addTab ("Console", consoleViewer.get(), 2);
-        consoleViewerIsOpen = true;
+        consoleOpenInTab = true;
     }
+}
+
+void UIComponent::openConsoleWindow()
+{
+    if (consoleWindow == nullptr)
+    {
+        consoleWindow = std::make_unique<DataWindow> (nullptr, "Console");
+        consoleWindow->addListener (this);
+        consoleWindow->setLookAndFeel (customLookAndFeel);
+        consoleWindow->setBackgroundColour (findColour (ThemeColours::windowBackground));
+        consoleWindow->setTitle ("Open Ephys GUI Console");
+        consoleWindow->setSize (600, 800);
+    }
+
+    if (consoleOpenInTab)
+    {
+        dataViewport->removeTab (2);
+        consoleOpenInTab = false;
+    }
+
+    consoleWindow->setContentNonOwned (consoleViewer.get(), false);
+    consoleWindow->setVisible (true);
+    consoleWindow->toFront (true);
+    consoleOpenInWindow = true;
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -701,7 +735,7 @@ void UIComponent::getCommandInfo (CommandID commandID, ApplicationCommandInfo& r
         case toggleConsoleViewer:
             result.setInfo ("Console", "Show/hide built-in console.", "General", 0);
             result.addDefaultKeypress ('C', ModifierKeys::shiftModifier);
-            result.setTicked (consoleViewerIsOpen);
+            result.setTicked (consoleOpenInTab || consoleOpenInWindow);
 #ifdef DEBUG
             result.setActive (false);
 #endif
@@ -1015,12 +1049,15 @@ bool UIComponent::perform (const InvocationInfo& info)
             if (consoleViewer == nullptr)
                 break;
 
-            if (consoleViewerIsOpen)
+            if (consoleOpenInTab)
                 dataViewport->removeTab (2);
+            else if (consoleOpenInWindow)
+            {
+                consoleWindow->closeButtonPressed();
+            }
             else
             {
-                dataViewport->addTab ("Console", consoleViewer.get(), 2);
-                consoleViewerIsOpen = true;
+                addConsoleTab();
             }
 
             break;
@@ -1117,6 +1154,7 @@ void UIComponent::saveStateToXml (XmlElement* xml)
     XmlElement* uiComponentState = xml->createNewChildElement ("UICOMPONENT");
     uiComponentState->setAttribute ("isProcessorListOpen", processorList->isOpen());
     uiComponentState->setAttribute ("isEditorViewportOpen", showHideEditorViewportButton->getToggleState());
+    uiComponentState->setAttribute ("consoleOpenState", consoleOpenInTab ? 1 : (consoleOpenInWindow ? 2 : 0));
 }
 
 void UIComponent::loadStateFromXml (XmlElement* xml)
@@ -1132,6 +1170,30 @@ void UIComponent::loadStateFromXml (XmlElement* xml)
         }
 
         showHideEditorViewportButton->setToggleState (isEditorViewportOpen, sendNotification);
+
+        int consoleOpenState = xmlNode->getIntAttribute ("consoleOpenState", -1);
+
+        if (consoleOpenState == 1 || consoleOpenState == -1)
+        {
+            addConsoleTab();
+        }
+        else if (consoleOpenState == 2)
+        {
+            openConsoleWindow();
+        }
+        else
+        {
+            if (consoleOpenInTab)
+            {
+                dataViewport->removeTab (2);
+                consoleOpenInTab = false;
+            }
+
+            if (consoleOpenInWindow)
+            {
+                consoleWindow->closeButtonPressed();
+            }
+        }
     }
 }
 
@@ -1143,6 +1205,14 @@ Array<String> UIComponent::getRecentlyUsedFilenames()
 void UIComponent::setRecentlyUsedFilenames (const Array<String>& filenames)
 {
     controlPanel->setRecentlyUsedFilenames (filenames);
+}
+
+void UIComponent::windowClosed (const String& windowName)
+{
+    if (windowName == "Console")
+    {
+        consoleOpenInWindow = false;
+    }
 }
 
 Component* UIComponent::findComponentByIDRecursive (Component* parent, const String& componentID)

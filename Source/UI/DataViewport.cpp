@@ -431,7 +431,22 @@ void DraggableTabComponent::popupMenuClickOnTab (int tabIndex, const String& tab
 
     // don't allow renaming of info or graph tabs
     if (nodeId < 100)
-        return;
+    {
+        if (nodeId == 2)
+        {
+            PopupMenu m;
+
+            m.addItem ("Move to New Window", [this]()
+                       { AccessClass::getUIComponent()->openConsoleWindow(); });
+
+            m.showMenuAsync (PopupMenu::Options().withStandardItemHeight (20));
+            return;
+        }
+        else
+        {
+            return;
+        }
+    }
 
     auto* tabButton = getTabbedButtonBar().getTabButton (tabIndex);
 
