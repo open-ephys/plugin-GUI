@@ -76,8 +76,8 @@ ConsoleViewer::~ConsoleViewer()
 
 void ConsoleViewer::paint (Graphics& g)
 {
-    g.fillAll (findColour (ThemeColours::componentBackground));
-    g.setColour (findColour (ThemeColours::defaultText));
+    g.fillAll (findColour (ThemeColours::windowBackground));
+    g.setColour (findColour (ThemeColours::controlPanelText));
     g.setFont (FontOptions ("Inter", "Semi Bold", 20.0f));
     g.drawText ("Console", 20, 0, getWidth() - 40, 40, Justification::centredLeft);
 }
@@ -90,7 +90,7 @@ void ConsoleViewer::resized()
 }
 
 LogComponent::LogComponent (bool captureStdErrImmediately, bool captureStdOutImmediately)
-    : stdOutColour (findColour (ThemeColours::defaultText)), stdErrColour (Colours::red.darker (0.25f))
+    : stdOutColour (findColour (ThemeColours::controlPanelText)), stdErrColour (Colours::red.darker (0.25f))
 {
     consoleEditor.reset (new ConsoleEditor (codeDocument));
     consoleEditor->setFont (FontOptions (14.0f));

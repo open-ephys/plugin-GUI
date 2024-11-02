@@ -176,11 +176,12 @@ void CustomLookAndFeel::setTheme (ColourTheme theme)
     setColour (TextEditor::focusedOutlineColourId, currentThemeColours[ThemeColours::outline]);
     setColour (TextEditor::shadowColourId, transparent);
 
-    setColour (CodeEditorComponent::backgroundColourId, currentThemeColours[ThemeColours::widgetBackground]);
-    setColour (CodeEditorComponent::defaultTextColourId, currentThemeColours[ThemeColours::defaultText]);
-    setColour (CodeEditorComponent::highlightColourId, currentThemeColours[ThemeColours::widgetBackground].contrasting (0.5f).withAlpha (0.4f));
-    setColour (CodeEditorComponent::lineNumberBackgroundId, currentThemeColours[ThemeColours::widgetBackground]);
-    setColour (CodeEditorComponent::lineNumberTextId, currentThemeColours[ThemeColours::defaultText]);
+    float darkerAmount = theme == LIGHT ? 0.0f : 0.6f;
+    setColour (CodeEditorComponent::backgroundColourId, currentThemeColours[ThemeColours::controlPanelBackground].darker (darkerAmount));
+    setColour (CodeEditorComponent::defaultTextColourId, currentThemeColours[ThemeColours::controlPanelText]);
+    setColour (CodeEditorComponent::highlightColourId, currentThemeColours[ThemeColours::controlPanelBackground].contrasting (0.5f).withAlpha (0.4f));
+    setColour (CodeEditorComponent::lineNumberBackgroundId, currentThemeColours[ThemeColours::controlPanelBackground]);
+    setColour (CodeEditorComponent::lineNumberTextId, currentThemeColours[ThemeColours::controlPanelText]);
 
     setColour (CaretComponent::caretColourId, currentThemeColours[ThemeColours::defaultText]);
 
