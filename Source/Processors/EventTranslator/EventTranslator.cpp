@@ -121,21 +121,18 @@ void EventTranslator::handleTTLEvent(TTLEventPtr event)
     const uint16 eventStream = event->getStreamId();
     const int ttlLine = event->getLine();
     const int64 sampleNumber = event->getSampleNumber();
+    const bool state = event->getState();
     
     if (synchronizer.getSyncLine(eventStream) == ttlLine)
     {
-        synchronizer.addEvent(eventStream, ttlLine, sampleNumber);
+        synchronizer.addEvent(eventStream, ttlLine, sampleNumber, state);
 
         return;
     }
     
-    if (eventStream == synchronizer.mainStreamId && synchronizer.isStreamSynced(eventStream))
+    if (eventStream == synchronizer.mainstreamId && synchronizer.isStreamSynced(eventStream))
     {
-        
-        //std::cout << "TRANSLATE!" << std::endl;
-        
-        const bool state = event->getState();
-        
+
         double timestamp = synchronizer.convertSampleNumberToTimestamp(eventStream, sampleNumber);
         
         for (auto stream : getDataStreams())
@@ -182,7 +179,7 @@ void EventTranslator::saveCustomParametersToXml(XmlElement* xml)
 
         XmlElement* streamXml = xml->createNewChildElement("STREAM");
 
-        streamXml->setAttribute("isMainStream", synchronizer.mainStreamId == streamId);
+        streamXml->setAttribute("isMainStream", synchronizer.mainstreamId == streamId);
         streamXml->setAttribute("sync_line", getSyncLine(streamId));
         streamXml->setAttribute("name", stream->getName());
         streamXml->setAttribute("source_node_id", stream->getSourceNodeId());

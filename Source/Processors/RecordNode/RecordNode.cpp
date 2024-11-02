@@ -229,11 +229,11 @@ void RecordNode::handleBroadcastMessage(String msg)
     if (recordEvents && isRecording)
     {
 
-        int64 messageSampleNumber = getFirstSampleNumberForBlock(synchronizer.mainStreamId);
+        int64 messageSampleNumber = getFirstSampleNumberForBlock(synchronizer.mainstreamId);
 
         TextEventPtr event = TextEvent::createTextEvent(getMessageChannel(), messageSampleNumber, msg);
 
-        double ts = synchronizer.convertSampleNumberToTimestamp(synchronizer.mainStreamId, messageSampleNumber);
+        double ts = synchronizer.convertSampleNumberToTimestamp(synchronizer.mainstreamId, messageSampleNumber);
 
         event->setTimestampInSeconds(ts);
 
@@ -578,7 +578,7 @@ bool RecordNode::startAcquisition()
     {
         eventChannels.add(new EventChannel(*messageChannel));
         eventChannels.getLast()->addProcessor(processorInfo.get());
-        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamId), false);
+        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainstreamId), false);
     }
     
     return true;
@@ -628,7 +628,7 @@ void RecordNode::startRecording()
     {
         eventChannels.add(new EventChannel(*messageChannel));
         eventChannels.getLast()->addProcessor(processorInfo.get());
-        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainStreamId), false);
+        eventChannels.getLast()->setDataStream(getDataStream(synchronizer.mainstreamId), false);
     }
 
 	int lastSourceNodeId = -1;
@@ -747,7 +747,7 @@ void RecordNode::handleTTLEvent(TTLEventPtr event)
 
 	int64 sampleNumber = event->getSampleNumber();
 
-	synchronizer.addEvent(event->getStreamId(), event->getLine(), sampleNumber);
+	synchronizer.addEvent(event->getStreamId(), event->getLine(), sampleNumber, event->getState());
 
 	if (recordEvents && isRecording)
 	{
@@ -1016,7 +1016,7 @@ void RecordNode::saveCustomParametersToXml(XmlElement* xml)
         {
             XmlElement* streamXml = xml->createNewChildElement("STREAM");
 
-            streamXml->setAttribute("isMainStream", synchronizer.mainStreamId == streamId);
+            streamXml->setAttribute("isMainStream", synchronizer.mainstreamId == streamId);
             streamXml->setAttribute("sync_line", getSyncLine(streamId));
             streamXml->setAttribute("name", stream->getName());
             streamXml->setAttribute("source_node_id", stream->getSourceNodeId());

@@ -1,370 +1,469 @@
 /*
-------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-This file is part of the Open Ephys GUI
-Copyright (C) 2022 Open Ephys
+    This file is part of the Open Ephys GUI
+    Copyright (C) 2024 Open Ephys
 
-------------------------------------------------------------------
+    ------------------------------------------------------------------
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
 #include "Synchronizer.h"
 
-Stream::Stream(uint16 streamId_, float expectedSampleRate_)
-	: streamId(streamId_),
-	  expectedSampleRate(expectedSampleRate_),
-	  actualSampleRate(-1.0f),
-	  sampleRateTolerance(0.01f),
-	  isActive(true)
+SyncStream::SyncStream(uint16 streamId_, float expectedSampleRate_)
+    : streamId(streamId_),
+    expectedSampleRate(expectedSampleRate_),
+    actualSampleRate(-1.0f),
+    isActive(true)
 {
-
-	reset();
 }
 
-void Stream::reset()
+void SyncStream::reset(uint16 mainstreamId)
 {
+    isMainStream = (streamId == mainstreamId);
 
-	startSampleMainTime = -1.0f;
-	lastSampleMainTime = -1.0f;
+    pulses.clear();
+    firstMatchingPulse = SyncPulse();
 
-	actualSampleRate = -1.0f;
-	startSample = -1;
-	lastSample = -1;
+    latestSyncSampleNumber = 0;
+    latestGlobalSyncTime = 0.0;
+    latestSyncMillis = -1;
 
-	receivedEventInWindow = false;
-	receivedMainTimeInWindow = false;
-	isSynchronized = false;
+    if (isMainStream)
+    {
+        actualSampleRate = expectedSampleRate;
+        globalStartTime = 0.0;
+        isSynchronized = true;
+    }
+    else
+    {
+        actualSampleRate = -1.0;
+        globalStartTime = -1.0;
+        isSynchronized = false;
+    }
+}
+
+void SyncStream::addEvent(int64 sampleNumber, bool state)
+{
+    //LOGD ("[+] Adding event for stream ", streamId, " (", sampleNumber, ")");
+
+    if (state) // on event received, pulse initiated
+    {
+        SyncPulse latestPulse;
+        latestPulse.localSampleNumber = sampleNumber;
+        latestPulse.localTimestamp = sampleNumber / expectedSampleRate;
+        latestPulse.computerTimeMillis = Time::currentTimeMillis();
+
+        pulses.insert(pulses.begin(), latestPulse);
+    }
+    else // off event received, pulse terminated
+    {
+        if (pulses.size() > 0)
+        {
+            SyncPulse& latestPulse = pulses.front();
+
+            latestPulse.complete = true;
+            latestPulse.duration =
+                (sampleNumber / expectedSampleRate) - latestPulse.localTimestamp;
+
+            if (pulses.size() > 1)
+            {
+                latestPulse.interval = latestPulse.localTimestamp - pulses[1].localTimestamp;
+            }
+        }
+
+        if (pulses.size() > MAX_PULSES_IN_BUFFER)
+        {
+            pulses.pop_back();
+        }
+    }
+}
+
+double SyncStream::getLatestSyncTime()
+{
+    //LOGD ("Getting latest sync time for stream ", streamId, "...");
+    //LOGD ("Time::currentTimeMillis(): ", Time::currentTimeMillis());
+    //LOGD ("latestSyncMillis: ", latestSyncMillis);
+
+
+    if (latestSyncMillis != -1)
+    {
+        // LOGD ("Returning: ", double (Time::currentTimeMillis() - latestSyncMillis) / 1000.0f);
+        return double(Time::currentTimeMillis() - latestSyncMillis) / 1000.0f;
+    }
+    else
+    {
+        // LOGD ("Returning: ", -1);
+        return -1.0;
+    }
+}
+
+double SyncStream::getSyncAccuracy()
+{
+    if (pulses.size() > 0)
+    {
+
+        //LOGD ("Sync accuracy for stream ", streamId);
+
+        //LOGD ("latestSyncSampleNumber: ", latestSyncSampleNumber);
+        //LOGD ("latestGlobalSyncTime: ", latestGlobalSyncTime);
+        //LOGD ("globalStartTime: ", globalStartTime);
+        //LOGD ("actualSampleRate: ", actualSampleRate);
+        double estimatedGlobalTime = latestSyncSampleNumber / actualSampleRate + globalStartTime;
+        //LOGD ("estimatedGlobalTime: ", estimatedGlobalTime);
+        //LOGD ("difference: ", latestGlobalSyncTime - estimatedGlobalTime);
+
+        return (estimatedGlobalTime - latestGlobalSyncTime) * 1000;
+    }
+    else
+    {
+        return 0.0;
+    }
+}
+
+void SyncStream::syncWith(const SyncStream* mainStream)
+{
+    //LOGD ("Synchronizing ", streamId, " with ", mainStream->streamId, "...")
+
+    if (mainStream->pulses.size() < 2 || pulses.size() < 2)
+    {
+        //LOGD ("Not enough pulses to synchronize.");
+        return;
+    }
+
+    int localIndex = 0;
+    bool foundMatchingPulse = false;
+
+    for (auto& pulse : pulses) // loop through pulses in this stream
+    {
+        if (pulse.complete)
+        {
+            int index = 0;
+
+            for (auto& mainPulse : mainStream->pulses) // loop through pulses in main stream
+            {
+                if (mainPulse.complete)
+                {
+                    if (comparePulses(pulse, mainPulse)) // putative match
+                    {
+                        if (pulses.size() > localIndex + 3 && mainStream->pulses.size() > index + 3)
+                        {
+                            if (comparePulses(pulses[localIndex + 1], mainStream->pulses[index + 1])
+                                && comparePulses(pulses[localIndex + 2], mainStream->pulses[index + 2])
+                                && comparePulses(pulses[localIndex + 3], mainStream->pulses[index + 3]))
+                            {
+                                pulse.matchingPulseIndex = index;
+                                pulse.globalTimestamp = mainPulse.localTimestamp;
+                                latestSyncSampleNumber = pulse.localSampleNumber;
+                                latestGlobalSyncTime = pulse.globalTimestamp;
+                                latestSyncMillis = pulse.computerTimeMillis;
+                                //LOGD ("Pulse at ", pulse.localTimestamp, " matches with 4 main pulses at ", index);
+                                //LOGD ("latestSyncSampleNumber: ", latestSyncSampleNumber, ", latestGlobalSyncTime: ", latestGlobalSyncTime);
+
+
+                                if (firstMatchingPulse.complete == false)
+                                {
+                                    firstMatchingPulse.localTimestamp = pulse.localTimestamp;
+                                    firstMatchingPulse.globalTimestamp = mainPulse.localTimestamp;
+                                    firstMatchingPulse.localSampleNumber = pulse.localSampleNumber;
+                                    firstMatchingPulse.complete = true;
+                                    //LOGD ("Time of first matching pulse: ", firstMatchingPulse.localTimestamp, " (local), ", firstMatchingPulse.globalTimestamp, " (global)");
+                                }
+                            }
+                        }
+
+                        break;
+                    }
+                }
+
+                index++;
+            }
+        }
+
+        if (pulse.matchingPulseIndex != -1)
+        {
+            foundMatchingPulse = true;
+            break;
+        }
+
+        localIndex++;
+    }
+
+    if (foundMatchingPulse)
+    {
+        if (firstMatchingPulse.complete && (pulses[localIndex].localTimestamp - firstMatchingPulse.localTimestamp) > 1.0)
+        {
+            //LOGD ("pulses[localIndex].localSampleNumber: ", pulses[localIndex].localSampleNumber, ", firstMatchingPulse.localSampleNumber: ", firstMatchingPulse.localSampleNumber);
+            //LOGD ("pulses[localIndex].localTimestamp: ", pulses[localIndex].localTimestamp, ", firstMatchingPulse.localTimestamp: ", firstMatchingPulse.localTimestamp);
+            //LOGD ("pulses[localIndex].globalTimestamp: ", pulses[localIndex].globalTimestamp, ", firstMatchingPulse.globalTimestamp: ", firstMatchingPulse.globalTimestamp);
+
+            float estimatedActualSampleRate = (pulses[localIndex].localSampleNumber - firstMatchingPulse.localSampleNumber) / (pulses[localIndex].globalTimestamp - firstMatchingPulse.globalTimestamp);
+
+            double estimatedGlobalStartTime = pulses[localIndex].globalTimestamp - pulses[localIndex].localSampleNumber / actualSampleRate;
+
+            if (std::abs(estimatedActualSampleRate - expectedSampleRate) / expectedSampleRate < 0.001)
+            {
+                actualSampleRate = estimatedActualSampleRate;
+
+                if (std::abs(estimatedGlobalStartTime) < 0.1)
+                {
+                    if (!isSynchronized)
+
+                    {
+                        globalStartTime = estimatedGlobalStartTime;
+                        isSynchronized = true;
+                    }
+                }
+                else
+                {
+                    //LOGD ("Estimated global start time of ", estimatedGlobalStartTime, " is out of bounds. Ignoring.")
+                }
+            }
+            else
+            {
+                //LOGD ("Estimated sample rate of ", estimatedActualSampleRate, " is out of bounds. Ignoring.");
+                return;
+            }
+
+            //LOGD ("Stream ", streamId, " synchronized with main stream. Sample rate: ", actualSampleRate, ", start time: ", globalStartTime);
+        }
+        else
+        {
+            //LOGD ("At least 1 second must elapse before synchronization can be attempted.");
+        }
+    }
+
 
 }
 
-void Stream::setMainTime(float time)
+bool SyncStream::comparePulses(const SyncPulse& pulse1, const SyncPulse& pulse2)
 {
-	if (!receivedMainTimeInWindow)
-	{
-		tempMainTime = time;
-		receivedMainTimeInWindow = true;
-		//LOGD("Stream ", streamId, " received main time: ", time);
+    if (std::abs(pulse1.computerTimeMillis - pulse2.computerTimeMillis) < MAX_TIME_DIFFERENCE_MS)
+    {
+        if (std::abs(pulse1.duration - pulse2.duration) < MAX_DURATION_DIFFERENCE_MS)
+        {
+            if (std::abs(pulse1.interval - pulse2.interval) < MAX_INTERVAL_DIFFERENCE_MS)
+            {
+                return true;
+            }
+        }
+    }
 
-	}
-	else { // multiple events, something could be wrong
-		receivedMainTimeInWindow = false;
-	}
-
-}
-
-void Stream::addEvent(int64 sampleNumber)
-{
-	//LOGD("[+] Adding event for stream ", streamId, " (", sampleNumber, ")");
-	
-    if (!receivedEventInWindow)
-	{
-		tempSampleNum = sampleNumber;
-		receivedEventInWindow = true;
-	}
-	else { // multiple events, something could be wrong
-		receivedEventInWindow = false;
-	}
-
-}
-
-void Stream::closeSyncWindow()
-{
-
-	//LOGC("Stream ", streamId, " Closing Sync Window...receivedEvent: ", receivedEventInWindow, ", receivedMainTime: ", receivedMainTimeInWindow);
-
-	if (receivedEventInWindow && receivedMainTimeInWindow)
-	{
-		if (startSample < 0)
-		{
-			startSample = tempSampleNum;
-			startSampleMainTime = tempMainTime;
-		}
-		else {
-
-			lastSample = tempSampleNum;
-			lastSampleMainTime = tempMainTime;
-
-			double tempSampleRate = (lastSample - startSample) / (lastSampleMainTime - startSampleMainTime);
-
-			if (actualSampleRate < 0.0f)
-			{
-				actualSampleRate = tempSampleRate;
-				isSynchronized = true;
-				//LOGC("Stream ", streamId, " new sample rate: ", actualSampleRate);
-			}
-			else {
-				// check whether the sample rate has changed
-				if (abs((tempSampleRate - actualSampleRate) / actualSampleRate) < sampleRateTolerance)
-				{
-					actualSampleRate = tempSampleRate;
-					isSynchronized = true;
-					//LOGC("Stream ", streamId, " UPDATED sample rate: ", actualSampleRate);
-
-				}
-				else 
-				{   // reset the clock
-					actualSampleRate = -1.0f;
-					startSample = tempSampleNum;
-					startSampleMainTime = tempMainTime;
-					isSynchronized = false;
-					//LOGC("Stream ", streamId, " NO LONGER SYNCHRONIZED.");
-
-				}
-			}
-		}
-	}
-
-	//LOGD("[x] Stream ", streamId, " closed sync window.");
-
-	receivedEventInWindow = false;
-	receivedMainTimeInWindow = false;
+    return false;
 }
 
 // =======================================================
 
 Synchronizer::Synchronizer()
-	: syncWindowLengthMs(50),
-	  syncWindowIsOpen(false),
-	  firstMainSyncEvent(false),
-	  mainStreamId(0),
-	  previousMainStreamId(0),
-	  streamCount(0),
-      acquisitionIsActive(false)
 {
 }
 
 void Synchronizer::reset()
 {
-
-    syncWindowIsOpen = false;
-    firstMainSyncEvent = true;
-	eventCount = 0;
-
-	if (streamCount == 1)
-	{
-		streams[mainStreamId]->actualSampleRate = streams[mainStreamId]->expectedSampleRate;
-		streams[mainStreamId]->isSynchronized = true;
-		streams[mainStreamId]->startSampleMainTime = 0.0;
-		streams[mainStreamId]->startSample = 0;
-		LOGD("Only one stream, setting as synchronized.");
-	} else {
-		for (auto [id, stream] : streams)
-			stream->reset();
-	}
-
+    for (auto [id, stream] : streams)
+        stream->reset(mainstreamId);
 }
 
 void Synchronizer::prepareForUpdate()
 {
-	previousMainStreamId = mainStreamId;
-	mainStreamId = 0;
-	streamCount = 0;
+    previousMainstreamId = mainstreamId;
 
-	for (auto [id, stream] : streams)
-		stream->isActive = false;
+    streamCount = 0;
+
+    for (auto [id, stream] : streams)
+        stream->isActive = false;
 }
 
 void Synchronizer::finishedUpdate()
 {
-
 }
-
 
 void Synchronizer::addDataStream(uint16 streamId, float expectedSampleRate)
 {
-    
-    //std::cout << "Synchronizer adding " << streamId << std::endl;
-	// if this is the first stream, make it the main one
-	if (mainStreamId == 0)
-		mainStreamId = streamId;
-    
+   // std::cout << "Synchronizer adding " << streamId << std::endl;
+    // if this is the first stream, make it the main one
+    if (mainstreamId == 0)
+        mainstreamId = streamId;
+
     //std::cout << "Main stream ID: " << mainStreamId << std::endl;
 
-	// if there's a stored value, and it appears again,
-	// re-instantiate this as the main stream
-	if (streamId == previousMainStreamId)
-		mainStreamId = previousMainStreamId;
+    // if there's a stored value, and it appears again,
+    // re-instantiate this as the main stream
+    if (mainstreamId == previousMainstreamId)
+        mainstreamId = previousMainstreamId;
 
-	// if there's no Stream object yet, create a new one
-	if (streams.count(streamId) == 0)
-	{
+    // if there's no Stream object yet, create a new one
+    if (streams.count(streamId) == 0)
+    {
         //std::cout << "Creating new Stream object" << std::endl;
-		dataStreamObjects.add(new Stream(streamId, expectedSampleRate));
-		streams[streamId] = dataStreamObjects.getLast();
-		setSyncLine(streamId, 0);
-	} else {
-		// otherwise, indicate that the stream is currently active
-		streams[streamId]->isActive = true;
-	}
+        dataStreamObjects.add(new SyncStream(streamId, expectedSampleRate));
+        streams[streamId] = dataStreamObjects.getLast();
+        setSyncLine(streamId, 0);
+    }
+    else
+    {
+        // otherwise, indicate that the stream is currently active
+        streams[streamId]->isActive = true;
+    }
 
-	streamCount++;
-
+    streamCount++;
 }
 
 void Synchronizer::setMainDataStream(uint16 streamId)
 {
-	mainStreamId = streamId;
-	reset();
+    mainstreamId = streamId;
+    reset();
 }
 
 void Synchronizer::setSyncLine(uint16 streamId, int ttlLine)
 {
-	streams[streamId]->syncLine = ttlLine;
-	
-    if (streamId == mainStreamId)
+    streams[streamId]->syncLine = ttlLine;
+
+    if (streamId == mainstreamId)
         reset();
     else
-        streams[streamId]->reset();
+        streams[streamId]->reset(mainstreamId);
 }
 
 int Synchronizer::getSyncLine(uint16 streamId)
 {
-	return streams[streamId]->syncLine;
+    return streams[streamId]->syncLine;
 }
 
 void Synchronizer::startAcquisition()
 {
-    acquisitionIsActive = true;
-    
+
+    LOGC("Synchronizer starting acquisition...");
+
     reset();
+
+    acquisitionIsActive = true;
+
+    startTimer(1000);
 }
 
 void Synchronizer::stopAcquisition()
 {
     acquisitionIsActive = false;
+
+    stopTimer();
 }
 
-void Synchronizer::addEvent(uint16 streamId, int ttlLine, int64 sampleNumber)
+void Synchronizer::addEvent(uint16 streamId,
+    int ttlLine,
+    int64 sampleNumber,
+    bool state)
 {
+    const ScopedLock sl(synchronizerLock);
 
-	if (streamCount == 1 || sampleNumber < 1000)
-		return;
+    if (streamCount == 1 || sampleNumber < 1000)
+        return;
 
-	//LOGC("Synchronizer received sync event for stream ", streamId, ", sampleNumber: ", sampleNumber);
-
-	if (streams[streamId]->syncLine == ttlLine)
-	{
-
-		//LOGC("Correct line!");
-
-		if (!syncWindowIsOpen)
-		{
-			openSyncWindow();
-		}
-
-		streams[streamId]->addEvent(sampleNumber);
-
-		if (streamId == mainStreamId)
-		{
-
-			float mainTimeSec;
-
-			if (!firstMainSyncEvent)
-			{
-				mainTimeSec = (sampleNumber - streams[streamId]->startSample) / streams[streamId]->expectedSampleRate;
-			}
-			else
-			{
-				mainTimeSec = 0.0f;
-				firstMainSyncEvent = false;
-			}
-
-			for (auto [id, stream] : streams)
-			{
-				if (stream->isActive)
-					stream->setMainTime(mainTimeSec);
-			}
-
-			//LOGC("[M] Main time: ", mainTimeSec);
-
-			eventCount++;
-		}
-
-		//LOGC("[T] Estimated time: ", convertSampleNumberToTimestamp(streamId, sampleNumber));
-		//LOGC("[S] Is synchronized: ", streams[streamId]->isSynchronized);
-		//LOGC(" ");
-
-	}
+    if (streams[streamId]->syncLine == ttlLine)
+    {
+        streams[streamId]->addEvent(sampleNumber, state);
+    }
 }
 
 double Synchronizer::convertSampleNumberToTimestamp(uint16 streamId, int64 sampleNumber)
 {
-
-	if (streams[streamId]->isSynchronized)
-	{
-		return (double)(sampleNumber - streams[streamId]->startSample) /
-			streams[streamId]->actualSampleRate +
-			streams[streamId]->startSampleMainTime;
-	}
-	else {
-		return (double) -1.0f;
-	}
+    if (streams[streamId]->isSynchronized)
+    {
+        return (double)sampleNumber / streams[streamId]->actualSampleRate + streams[streamId]->globalStartTime;
+    }
+    else
+    {
+        return (double)-1.0f;
+    }
 }
 
 int64 Synchronizer::convertTimestampToSampleNumber(uint16 streamId, double timestamp)
 {
-
     if (streams[streamId]->isSynchronized)
     {
-        double t = (timestamp - streams[streamId]->startSampleMainTime) * streams[streamId]->actualSampleRate           + streams[streamId]->startSample;
-        
-        return (int64) t;
+        double t = (timestamp - streams[streamId]->globalStartTime) * streams[streamId]->actualSampleRate;
+
+        return (int64)t;
     }
-    else {
+    else
+    {
         return -1;
     }
 }
 
-void Synchronizer::openSyncWindow()
+double Synchronizer::getStartTime(uint16 streamId)
 {
-	startTimer(syncWindowLengthMs);
+    return streams[streamId]->globalStartTime * 1000;
+}
 
-	syncWindowIsOpen = true;
+double Synchronizer::getLastSyncEvent(uint16 streamId)
+{
+    return streams[streamId]->getLatestSyncTime();
+}
+
+double Synchronizer::getAccuracy(uint16 streamId)
+{
+
+    if (!streams[streamId]->isSynchronized)
+        return 0.0;
+    else
+    {
+        if (streamId == mainstreamId)
+            return 0.0;
+        else
+        {
+            return streams[streamId]->getSyncAccuracy();
+        }
+
+    }
+
 }
 
 bool Synchronizer::isStreamSynced(uint16 streamId)
 {
-	return streams[streamId]->isSynchronized;
+    return streams[streamId]->isSynchronized;
 }
 
 SyncStatus Synchronizer::getStatus(uint16 streamId)
 {
 
-	if (streamId <= 0 || !acquisitionIsActive)
+    if (streamId <= 0 || !acquisitionIsActive)
+    {
 		return SyncStatus::OFF;
-
-	if (isStreamSynced(streamId))
-		return SyncStatus::SYNCED;
-	else
-		return SyncStatus::SYNCING;
-
+    }
+      
+    if (isStreamSynced(streamId))
+        return SyncStatus::SYNCED;
+    else
+        return SyncStatus::SYNCING;
 }
 
 void Synchronizer::hiResTimerCallback()
 {
-	stopTimer();
 
-	syncWindowIsOpen = false;
+    const ScopedLock sl(synchronizerLock);
 
-	for (auto [id, stream] : streams)
-		stream->closeSyncWindow();
-
-	//LOGD(" ");
+    for (auto [key, stream] : streams)
+    {
+        if (key != mainstreamId)
+        {
+            stream->syncWith(streams[mainstreamId]);
+        }
+    }
 }
-
 
 // called by RecordNodeEditor (when loading), SyncControlButton
 void SynchronizingProcessor::setMainDataStream(uint16 streamId)
@@ -388,5 +487,5 @@ int SynchronizingProcessor::getSyncLine(uint16 streamId)
 // called by SyncControlButton
 bool SynchronizingProcessor::isMainDataStream(uint16 streamId)
 {
-    return (streamId == synchronizer.mainStreamId);
+    return (streamId == synchronizer.mainstreamId);
 }

@@ -41,7 +41,7 @@ SyncControlButton::SyncControlButton(SynchronizingProcessor* node_,
 
     isPrimary = node->isMainDataStream(streamId);
     LOGD("SyncControlButton::Constructor; Stream: ", streamId, " is main stream: ", isPrimary);
-    startTimer(250);
+    startTimer(500);
     
     setTooltip(name);
     
@@ -113,9 +113,11 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
     g.fillRoundedRectangle(0,0,getWidth(),getHeight(),4);
     
     switch(node->synchronizer.getStatus(streamId)) {
-        
+
         case SyncStatus::OFF :
         {
+            //LOGC("Get status: ", streamId, " SYNC_OFF");
+
             if (isMouseOver)
             {
                 //LIGHT GREY
@@ -130,6 +132,7 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
         }
         case SyncStatus::SYNCING :
         {
+            //LOGC("Get status: ", streamId, " SYNCING");
 
             if (isMouseOver)
             {
@@ -145,6 +148,7 @@ void SyncControlButton::paintButton(Graphics &g, bool isMouseOver, bool isButton
         }
         case SyncStatus::SYNCED :
         {
+            //LOGC("Get status: ", streamId, " SYNCED");
 
             if (isMouseOver)
             {
