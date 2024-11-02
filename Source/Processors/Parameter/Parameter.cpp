@@ -361,9 +361,23 @@ SelectedChannelsParameter::SelectedChannelsParameter(GenericProcessor* processor
 void SelectedChannelsParameter::setNextValue(var newValue_)
 {
 
-    if (newValue_.getArray()->size() <= maxSelectableChannels)
+    if (newValue_ == currentValue)
+        return;
+
+    int arraySize = newValue_.getArray()->size();
+    if (arraySize <= maxSelectableChannels && arraySize <= channelCount)
     {
+        for (int i = 0; i < arraySize; i++)
+        {
+            if ((int) newValue_[i] < 0 || (int) newValue_[i] >= channelCount)
+                return;
+        }
+
         newValue = newValue_;
+    }
+    else
+    {
+        return;
     }
     
     processor->parameterChangeRequest(this);
@@ -446,9 +460,23 @@ Array<var> SelectedChannelsParameter::parseSelectedString(const String& input)
     return selectedChannels;
 }
 
-void SelectedChannelsParameter::setChannelCount(int count)
+void SelectedChannelsParameter::setChannelCount(int newCount)
 {
-    channelCount = count;
+    if (channelCount > newCount && getScope() != ParameterScope::SPIKE_CHANNEL_SCOPE)
+    {
+        Array<var> values;
+        for (int i = 0; i < currentValue.getArray()->size(); i++)
+        {
+            if ((int) currentValue[i] < newCount)
+            {
+                values.add (currentValue[i]);
+            }
+        }
+
+        currentValue = values;
+    }
+
+    channelCount = newCount;
     
    // std::cout << "Setting selected channels channels count to " << count << " at " << this << std::endl;
 }

@@ -106,7 +106,7 @@ void SpikeDisplayNode::setParameter(int param, float val)
 
         for (auto ch : chan->localChannelIndexes)
         {
-            msg += String(ch) + " ";
+            msg += String(ch + 1) + " ";
         }
 
         //std::cout << "MESSAGE: " << msg << std::endl;

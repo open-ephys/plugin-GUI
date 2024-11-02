@@ -790,7 +790,7 @@ void RecordNode::handleSpike(SpikePtr spike)
 
 	eventMonitor->receivedSpikes++;
 
-	if (recordSpikes)
+	if (recordSpikes && isRecording)
 	{
         spike->setTimestampInSeconds(synchronizer.convertSampleNumberToTimestamp(spike->getStreamId(),
                                                                     spike->getSampleNumber()));

@@ -26,10 +26,90 @@
 #include <stdio.h>
 
 
-AudioMonitor::AudioMonitor()
-    : GenericProcessor ("Audio Monitor"),
+AudioMonitorSettings::AudioMonitorSettings()
+    : numChannels(0),
+      sampleRate(0),
       destBufferSampleRate(44100.0f),
       estimatedSamples(1024)
+{
+
+}
+
+void AudioMonitorSettings::createFilters (int nChans, float sampleRate_)
+{
+    numChannels = nChans;
+    sampleRate = sampleRate_;
+
+    bandpassfilters.clear();
+    antialiasingfilters.clear();
+
+    Dsp::Params bandpassParams;
+    bandpassParams[0] = sampleRate; // sample rate
+    bandpassParams[1] = 2;                          // order
+    bandpassParams[2] = (7000 + 100) / 2;     // center frequency
+    bandpassParams[3] = 7000 - 100;           // bandwidth
+    
+    for (int n = 0; n < numChannels; ++n)
+    {
+        bandpassfilters.add(new Dsp::SmoothedFilterDesign
+            <Dsp::Butterworth::Design::BandPass    // design type
+            <2>,                                   // order
+            1,                                     // number of channels (must be const)
+            Dsp::DirectFormII>(1));               // realization
+
+        bandpassfilters.getLast()->setParams (bandpassParams);
+
+        antialiasingfilters.add(new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1>(1024));
+    }
+
+    updateAntiAliasingFilterParameters();
+
+}
+
+void AudioMonitorSettings::updateAntiAliasingFilterParameters ()
+{
+    Dsp::Params antialiasingParams;
+    antialiasingParams[0] = destBufferSampleRate; // sample rate
+    antialiasingParams[1] = destBufferSampleRate / 2; // cutoff frequency
+    antialiasingParams[2] = 1.25; //Q //
+
+    for (int i = 0; i < numChannels; ++i)
+    {
+        antialiasingfilters[i]->setParams(antialiasingParams);
+    }
+}
+
+void AudioMonitorSettings::setOutputSampleRate(double outputSampleRate, double estimatedSamplesPerBlock)
+{
+    destBufferSampleRate = outputSampleRate;
+    estimatedSamples = estimatedSamplesPerBlock;
+
+    numSamplesExpected = (sampleRate / destBufferSampleRate) * estimatedSamples;
+    ratio = sampleRate/destBufferSampleRate;
+
+    samplesInBackupBuffer.clear();
+    samplesInOverflowBuffer.clear();
+    
+    bufferA.clear();
+    bufferB.clear();
+    bufferSwap.clear();
+    
+    for (int i = 0; i < numChannels; i++)
+    {
+        samplesInBackupBuffer.emplace(i, 0.0f);
+        samplesInOverflowBuffer.emplace(i, 0.0f);
+
+        bufferA.emplace(i, std::make_unique<AudioBuffer<float>>(1, (int)destBufferSampleRate));
+        bufferB.emplace(i, std::make_unique<AudioBuffer<float>>(1, (int)destBufferSampleRate));
+        bufferSwap.emplace(i, false);
+    }
+
+    updateAntiAliasingFilterParameters();
+}
+
+
+AudioMonitor::AudioMonitor()
+    : GenericProcessor ("Audio Monitor")
 {
 
     tempBuffer = std::make_unique<AudioSampleBuffer>();
@@ -47,21 +127,9 @@ AudioMonitor::AudioMonitor()
     
     addSelectedChannelsParameter(Parameter::STREAM_SCOPE,
                                  String("Channels"),
-                                 "Channels to monitor",
-                                 4);
+                                 "Channels to monitor");
 
-    for (int i = 0; i < MAX_CHANNELS; i++)
-    {
-        
-        bandpassfilters.add (new Dsp::SmoothedFilterDesign
-                         <Dsp::Butterworth::Design::BandPass    // design type
-                         <2>,                                   // order
-                         1,                                     // number of channels (must be const)
-                         Dsp::DirectFormII> (1));               // realization
-        
-        antialiasingfilters.add (new Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::LowPass, 1> (1024));
-    }
-
+    tempBuffer->setSize(1, 4096);
 }
 
 
@@ -76,21 +144,13 @@ AudioProcessorEditor* AudioMonitor::createEditor()
 void AudioMonitor::updateSettings()
 {
     updatePlaybackBuffer();
-    
+
+    settings.update (getDataStreams());
+
     for (auto stream : dataStreams)
     {
-
-        Array<var>* activeChannels = stream->getParameter("Channels")->getValue().getArray();
-        
-        if (activeChannels->size() > 0)
-        {
-            selectedStream = stream->getStreamId();
-            
-            for (int i = 0; i < activeChannels->size(); i++)
-            {
-                updateFilter(i, selectedStream);
-            }
-        }
+        settings[stream->getStreamId()]->createFilters(stream->getChannelCount(),
+                                                       stream->getSampleRate());
     }
 }
 
@@ -111,132 +171,30 @@ void AudioMonitor::updatePlaybackBuffer()
 
 void AudioMonitor::prepareToPlay(double sampleRate_, int estimatedSamplesPerBlock)
 {
-
-	destBufferSampleRate = sampleRate_;
-    estimatedSamples = estimatedSamplesPerBlock;
-    recreateBuffers();
-
-}
-
-
-void AudioMonitor::recreateBuffers()
-{
-	numSamplesExpected.clear();
-    sourceBufferSampleRate.clear();
-    
-    ratio.clear();
-    
-    for (int i = 0; i < getNumInputs(); i++)
+    for (auto stream : dataStreams)
     {
-        numSamplesExpected.emplace(i,
-                                   continuousChannels[i]->getSampleRate()
-                                   / destBufferSampleRate
-                                   * estimatedSamples);
-        
-        sourceBufferSampleRate.emplace(i, continuousChannels[i]->getSampleRate());
-        
-        ratio.emplace(i, sourceBufferSampleRate[i]/destBufferSampleRate);
-        
+        settings[stream->getStreamId()]->setOutputSampleRate(sampleRate_, estimatedSamplesPerBlock);
     }
-
-    samplesInBackupBuffer.clear();
-    samplesInOverflowBuffer.clear();
-    
-    bufferA.clear();
-    bufferB.clear();
-    bufferSwap.clear();
-    
-    for (int i = 0; i < MAX_CHANNELS; i++)
-    {
-
-        samplesInBackupBuffer.emplace(i, 0.0f);
-        samplesInOverflowBuffer.emplace(i, 0.0f);
-
-        bufferA.emplace(i, std::make_unique<AudioBuffer<float>>(1,44100));
-        bufferB.emplace(i, std::make_unique<AudioBuffer<float>>(1,44100));
-        bufferSwap.emplace(i, false);
-
-    }
-
-    tempBuffer->setSize(1, 4096);
 }
 
 
 void AudioMonitor::parameterValueChanged(Parameter* param)
 {
     
-    LOGD("Audio Monitor: Value changed for ", param->getName(), ": ", (int)param->getValue());
+    LOGD("Audio Monitor: Value changed for ", param->getName());
 
     if (param->getName().equalsIgnoreCase("Channels"))
     {
-        
-        selectedStream = param->getStreamId();
-        
         Array<var>* activeChannels = param->getValue().getArray();
-
-        if (activeChannels->size() == 0)
-            LOGA("No channels selected.");
         
         LOGD("Num selected channels: ", activeChannels->size());
-
-        for (int i = 0; i < activeChannels->size(); i++)
-        {
-            
-            int localIndex =(int) activeChannels->getReference(i);
-
-            LOGA("Selected channel ", localIndex);
-
-            auto continuousChannels = getDataStream(selectedStream)->getContinuousChannels();
-
-            if (continuousChannels.size() > localIndex)
-            {
-                int globalIndex = continuousChannels[localIndex]->getGlobalIndex();
-
-                updateFilter(i, selectedStream);
-            }
-
-        }
-        
-        // clear monitored channels on all other streams
-        //for (auto stream : dataStreams)
-        //{
-        //    if (stream->getStreamId() != selectedStream)
-        //    {
-         //       stream->getParameter("Channels")->currentValue = Array<var>();
-        //    }
-        //}
     }
-}
-
-
-void AudioMonitor::updateFilter(int i, uint16 streamId)
-{
-
-    Dsp::Params params1;
-    params1[0] = getDataStream(streamId)->getSampleRate(); // sample rate
-    params1[1] = 2;                          // order
-    params1[2] = (7000 + 100) / 2;     // center frequency
-    params1[3] = 7000 - 100;           // bandwidth
-
-    bandpassfilters[i]->setParams (params1);
-    
-    double cutoffFreq = destBufferSampleRate / 2; // upsample
-
-    double sampleFreq = destBufferSampleRate;  // upsample
-
-    Dsp::Params params2;
-    params2[0] = sampleFreq; // sample rate
-    params2[1] = cutoffFreq; // cutoff frequency
-    params2[2] = 1.25; //Q //
-
-    antialiasingfilters[i]->setParams(params2);
-
 }
 
 void AudioMonitor::handleBroadcastMessage(String msg)
 {
 
-    LOGD("Audio Monitor received message: ", msg);
+    LOGC("Audio Monitor received message: ", msg);
     
     StringArray parts = StringArray::fromTokens(msg, " ", "");
 
@@ -248,23 +206,45 @@ void AudioMonitor::handleBroadcastMessage(String msg)
 
             if (command.equalsIgnoreCase("SELECT"))
             {
-                if (parts.size() >= 4)
+                if(parts.size() == 3)
+                {
+                    String command = parts[2];
+
+                    if (command.equalsIgnoreCase ("NONE"))
+                    {
+                        Array<var> ch;
+
+                        for (auto stream : getDataStreams())
+                            stream->getParameter ("channels")->setNextValue (ch);
+                        
+                    }
+                }
+                else if (parts.size() >= 4)
                 {
                     uint16 streamId = parts[2].getIntValue();
-                    
-                    DataStream* stream = getDataStream(streamId);
-                    
+
+                    DataStream* stream = getDataStream (streamId);
+
                     if (stream != nullptr)
                     {
-                        
-                        int localChannel = parts[3].getIntValue() - 1;
-                        
-                        if (localChannel >= 0 && localChannel < stream->getContinuousChannels().size())
+                        Array<var> ch;
+                        int channelCount = 0;
+
+                        while (channelCount < (parts.size() - 3))
                         {
-                            Array<var> ch;
-                            ch.add(localChannel);
-                            
-                            stream->getParameter("Channels")->setNextValue(ch);
+                            int localChannel = parts[channelCount + 3].getIntValue() - 1;
+
+                            if (localChannel >= 0 && localChannel < stream->getContinuousChannels().size())
+                            {
+                                ch.add (localChannel);
+                            }
+
+                            channelCount++;
+                        }
+
+                        if (ch.size() > 0)
+                        {
+                            stream->getParameter ("Channels")->setNextValue (ch);
                         }
                     }
                 }
@@ -293,7 +273,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
             if (stream->getStreamId() == selectedStream
                 && (*stream)["enable_stream"])
             {
-                
+                auto streamSettings = settings[selectedStream]; 
                 AudioSampleBuffer* overflowBuffer;
                 AudioSampleBuffer* backupBuffer;
 
@@ -308,34 +288,34 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                     
                     tempBuffer->clear();
 
-                    if (!bufferSwap[i])
+                    if (!streamSettings->bufferSwap[localIndex])
                     {
-                        overflowBuffer = bufferA[i].get();
-                        backupBuffer = bufferB[i].get();
+                        overflowBuffer = streamSettings->bufferA[localIndex].get();
+                        backupBuffer = streamSettings->bufferB[localIndex].get();
 
-                        bufferSwap[i] = true;
+                        streamSettings->bufferSwap[localIndex] = true;
                     }
                     else
                     {
-                        overflowBuffer = bufferB[i].get();
-                        backupBuffer = bufferA[i].get();
+                        overflowBuffer = streamSettings->bufferB[localIndex].get();
+                        backupBuffer = streamSettings->bufferA[localIndex].get();
 
-                        bufferSwap[i] = false;
+                        streamSettings->bufferSwap[localIndex] = false;
                     }
 
                     backupBuffer->clear();
 
-                    samplesInOverflowBuffer[i] = samplesInBackupBuffer[i]; // size of buffer after last round
-                    samplesInBackupBuffer[i] = 0;
+                    streamSettings->samplesInOverflowBuffer[localIndex] = streamSettings->samplesInBackupBuffer[localIndex]; // size of buffer after last round
+                    streamSettings->samplesInBackupBuffer[localIndex] = 0;
 
                     double orphanedSamples = 0;
 
                     // 1. copy overflow buffer
 
                     double samplesToCopyFromOverflowBuffer =
-                        ((samplesInOverflowBuffer[i] <= numSamplesExpected[globalIndex]) ?
-                            samplesInOverflowBuffer[i] :
-                            numSamplesExpected[globalIndex]);
+                        ((streamSettings->samplesInOverflowBuffer[localIndex] <= streamSettings->numSamplesExpected) ?
+                            streamSettings->samplesInOverflowBuffer[localIndex] :
+                            streamSettings->numSamplesExpected);
 
                     // LOGD("Number of samples to copy: ", samplesToCopyFromOverflowBuffer);
                     
@@ -353,7 +333,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                             1.0f              // gain to apply
                         );
 
-                        double leftoverSamples = samplesInOverflowBuffer[i] - samplesToCopyFromOverflowBuffer;
+                        double leftoverSamples = streamSettings->samplesInOverflowBuffer[localIndex] - samplesToCopyFromOverflowBuffer;
                         
                         //std::cout << "Copying to backup buffer: " << leftoverSamples << std::endl;
 
@@ -370,10 +350,10 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                             );
                         }
 
-                        samplesInBackupBuffer[i] = leftoverSamples;
+                        streamSettings->samplesInBackupBuffer[localIndex] = leftoverSamples;
                     }
                     
-                    double remainingSamples = double(numSamplesExpected[globalIndex]) - samplesToCopyFromOverflowBuffer;
+                    double remainingSamples = double(streamSettings->numSamplesExpected) - samplesToCopyFromOverflowBuffer;
 
                     double samplesAvailable = double(getNumSamplesInBlock(selectedStream));
                     
@@ -404,11 +384,12 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                     
                     //std::cout << "Orphaned samples: " << orphanedSamples << std::endl;
 
-                    if (orphanedSamples > 0 && (samplesInBackupBuffer[i] + orphanedSamples < backupBuffer->getNumSamples()))
+                    if (orphanedSamples > 0 && 
+                        (streamSettings->samplesInBackupBuffer[localIndex] + orphanedSamples < backupBuffer->getNumSamples()))
                     {
 
                         backupBuffer->addFrom(0,          // destination channel
-                            samplesInBackupBuffer[i],     // destination start sample
+                            streamSettings->samplesInBackupBuffer[localIndex],     // destination start sample
                             buffer,                       // source
                             globalIndex,                  // source channel
                             (int) remainingSamples,             // source start sample
@@ -416,7 +397,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                             1.0f                          // gain to apply
                         );
 
-                        samplesInBackupBuffer[i] = samplesInBackupBuffer[i] + orphanedSamples;
+                        streamSettings->samplesInBackupBuffer[localIndex] += orphanedSamples;
 
                     }
                     
@@ -431,7 +412,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                     if (totalCopied == 0)
                         continue;
                     
-                    bandpassfilters[i]->process(totalCopied, &ptr);
+                    streamSettings->bandpassfilters[localIndex]->process(totalCopied, &ptr);
                     
                     /*if (i == 0)
                     {
@@ -484,7 +465,7 @@ void AudioMonitor::process (AudioBuffer<float>& buffer)
                             1,                           // number of samples
                             alpha);                      // gain to apply to source
 
-                        subSampleOffset += ratio[globalIndex];
+                        subSampleOffset += streamSettings->ratio;
                         
                         while (subSampleOffset >= 1.0)
                         {

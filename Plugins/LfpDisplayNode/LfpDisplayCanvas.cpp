@@ -1548,7 +1548,7 @@ uint16 LfpDisplaySplitter::getChannelStreamId(int channel)
     return processor->getContinuousChannel(channel)->getStreamId();
 }
 
-float LfpDisplaySplitter::getMean(int chan)
+float LfpDisplaySplitter::getScreenBufferMean(int chan)
 {
     float total = 0.0f;
     float numPts = 0;
@@ -1566,16 +1566,51 @@ float LfpDisplaySplitter::getMean(int chan)
     return total / numPts;
 }
 
+float LfpDisplaySplitter::getDisplayBufferMean(int chan)
+{
+    float total = 0.0f;
+    float numPts = 0;
+
+    float sample = 0.0f;
+
+    // use 0.1s of sample to compute Mean and Std
+    float totalPoints = 0.1 * sampleRate;
+    
+    for (int samp = displayBufferIndex[chan] - totalPoints; samp < displayBufferIndex[chan]; samp += 1)
+    {
+        if (samp >= 0) // read the beginning of the buffer
+            sample = *displayBuffer->getReadPointer(chan, samp);
+        else // read the end of the buffer if negative index
+            sample = *displayBuffer->getReadPointer(chan, displayBuffer->getNumSamples() - samp);
+
+        total += sample;
+        numPts++;
+    }
+
+    //std::cout << sample << std::endl;
+
+    return total / numPts;
+}
+
 float LfpDisplaySplitter::getStd(int chan)
 {
     float std = 0.0f;
+    float sample = 0.0f;
 
-    float mean = getMean(chan);
+    float mean = getDisplayBufferMean(chan);
     float numPts = 1;
 
-    for (int samp = 0; samp < (lfpDisplay->getWidth() - leftmargin); samp += 10)
+    // use 0.1s of sample to compute Mean and Std
+    float totalPoints = 0.1 * sampleRate;
+
+    for (int samp = displayBufferIndex[chan] - totalPoints; samp < displayBufferIndex[chan]; samp += 1)
     {
-        std += pow((*screenBufferMean->getReadPointer(chan, samp) - mean),2);
+        if (samp >= 0) // read the beginning of the buffer
+            sample = *displayBuffer->getReadPointer(chan, samp);
+        else // read the end of the buffer if negative index
+            sample = *displayBuffer->getReadPointer(chan, displayBuffer->getNumSamples() - samp);
+
+        std += pow((sample - mean),2);
         numPts++;
     }
 

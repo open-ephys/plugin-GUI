@@ -176,16 +176,16 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode)
 {
     audioMonitor = static_cast<AudioMonitor*>(parentNode);
     
-    addSelectedChannelsParameterEditor("Channels", 10, 35);
+    addSelectedChannelsParameterEditor("Channels", 15, 35);
 
     Parameter* muteParam = parentNode->getParameter("mute_audio");
-    addCustomParameterEditor(new MonitorMuteButton(muteParam), 135, 35);
+    addCustomParameterEditor(new MonitorMuteButton(muteParam), 130, 35);
 
     Parameter* outputParam = parentNode->getParameter("audio_output");
-    addCustomParameterEditor(new AudioOutputSelector(outputParam), 20, 65);
+    addCustomParameterEditor(new AudioOutputSelector(outputParam), 15, 65);
 
     spikeChannelSelector = std::make_unique<ComboBox>("Spike Channels");
-    spikeChannelSelector->setBounds(20, 100, 140, 20);
+    spikeChannelSelector->setBounds(15, 100, 140, 20);
 
     for (int i = 0; i < audioMonitor->getTotalSpikeChannels() ; i++)
 	{
@@ -198,11 +198,12 @@ AudioMonitorEditor::AudioMonitorEditor (GenericProcessor* parentNode)
 	spikeChannelSelector->addListener(this);
 	addAndMakeVisible(spikeChannelSelector.get());
 
-    desiredWidth = 180;
+    desiredWidth = 170;
 }
 
 void AudioMonitorEditor::selectedStreamHasChanged()
 {
+    audioMonitor->setSelectedStream(selectedStream);
 
     if (selectedStream == 0)
     {
