@@ -438,12 +438,11 @@ void UIComponent::openConsoleWindow()
 {
     if (consoleWindow == nullptr)
     {
-        consoleWindow = std::make_unique<DataWindow> (nullptr, "Console");
+        consoleWindow = std::make_unique<DataWindow> (nullptr, "Open Ephys GUI Console");
         consoleWindow->addListener (this);
         consoleWindow->setLookAndFeel (customLookAndFeel);
         consoleWindow->setBackgroundColour (findColour (ThemeColours::windowBackground));
-        consoleWindow->setTitle ("Open Ephys GUI Console");
-        consoleWindow->setSize (600, 800);
+        consoleWindow->setSize (700, 700);
     }
 
     if (consoleOpenInTab)
@@ -1154,7 +1153,12 @@ void UIComponent::saveStateToXml (XmlElement* xml)
     XmlElement* uiComponentState = xml->createNewChildElement ("UICOMPONENT");
     uiComponentState->setAttribute ("isProcessorListOpen", processorList->isOpen());
     uiComponentState->setAttribute ("isEditorViewportOpen", showHideEditorViewportButton->getToggleState());
-    uiComponentState->setAttribute ("consoleOpenState", consoleOpenInTab ? 1 : (consoleOpenInWindow ? 2 : 0));
+    uiComponentState->setAttribute ("consoleOpenInWindow", consoleOpenInWindow);
+
+    if (consoleOpenInWindow)
+    {
+        uiComponentState->setAttribute ("consoleWindowBounds", consoleWindow->getWindowStateAsString());
+    }
 }
 
 void UIComponent::loadStateFromXml (XmlElement* xml)
@@ -1171,28 +1175,12 @@ void UIComponent::loadStateFromXml (XmlElement* xml)
 
         showHideEditorViewportButton->setToggleState (isEditorViewportOpen, sendNotification);
 
-        int consoleOpenState = xmlNode->getIntAttribute ("consoleOpenState", -1);
+        bool consoleWindowState = xmlNode->getBoolAttribute ("consoleOpenInWindow");
 
-        if (consoleOpenState == 1 || consoleOpenState == -1)
-        {
-            addConsoleTab();
-        }
-        else if (consoleOpenState == 2)
+        if (consoleWindowState)
         {
             openConsoleWindow();
-        }
-        else
-        {
-            if (consoleOpenInTab)
-            {
-                dataViewport->removeTab (2);
-                consoleOpenInTab = false;
-            }
-
-            if (consoleOpenInWindow)
-            {
-                consoleWindow->closeButtonPressed();
-            }
+            consoleWindow->restoreWindowStateFromString (xmlNode->getStringAttribute ("consoleWindowBounds"));
         }
     }
 }
@@ -1209,7 +1197,7 @@ void UIComponent::setRecentlyUsedFilenames (const Array<String>& filenames)
 
 void UIComponent::windowClosed (const String& windowName)
 {
-    if (windowName == "Console")
+    if (windowName == consoleWindow->getName())
     {
         consoleOpenInWindow = false;
     }
