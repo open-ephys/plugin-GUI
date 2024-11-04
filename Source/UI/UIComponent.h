@@ -188,6 +188,9 @@ public:
     /** Notifies the UI component when the console viewer tab is closed */
     void closeConsoleViewer() { consoleOpenInTab = false; }
 
+    /** Returns true if the console viewer is open */
+    bool isConsoleOpen () { return consoleOpenInTab || consoleOpenInWindow; }
+
     /** Notifies the UI component when the console viewer window is closed */
     void windowClosed (const String& windowName) override;
 

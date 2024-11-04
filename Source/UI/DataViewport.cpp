@@ -221,8 +221,8 @@ void DraggableTabComponent::itemDropped (const juce::DragAndDropTarget::SourceDe
     String name = descr->getUnchecked (2);
 
     // Skip if the tab is already in the tabbed component and the drop is not after the last tab
-    int lastButtonBottom = getTabbedButtonBar().getTabButton (getNumTabs() - 1)->getBounds().getBottom();
-    if (tabNodeIds.contains (incomingNodeId) && dragSourceDetails.localPosition.y < lastButtonBottom)
+    if (tabNodeIds.contains (incomingNodeId)
+        && dragSourceDetails.localPosition.y < getTabbedButtonBar().getTabButton (getNumTabs() - 1)->getBounds().getBottom())
         return;
 
     LOGD ("ITEM DROPPED ON PARENT");
@@ -719,6 +719,11 @@ void DataViewport::loadStateFromXml (XmlElement* xml)
     if (dvXml != nullptr)
     {
         LOGD ("Loading DataViewport state from XML...");
+
+        // remove info, graph, and console tabs
+        for (int i = 0; i < 3; i++)
+            removeTab (i);
+
         for (auto* xmlNode : dvXml->getChildIterator())
         {
             if (xmlNode->hasTagName ("TABBEDCOMPONENT"))
@@ -759,17 +764,14 @@ void DataViewport::loadStateFromXml (XmlElement* xml)
 
                             if (nodeId == 0) // info tab
                             {
-                                removeTab (0);
                                 AccessClass::getUIComponent()->addInfoTab();
                             }
                             else if (nodeId == 1) // graph tab
                             {
-                                removeTab (1);
                                 AccessClass::getUIComponent()->addGraphTab();
                             }
                             else if (nodeId == 2) // console tab
                             {
-                                removeTab (2);
                                 AccessClass::getUIComponent()->addConsoleTab();
                             }
                             else if (nodeId > 99) // visualizer tab

@@ -51,6 +51,7 @@
 #endif
 
 ConsoleViewer::ConsoleViewer()
+    : Visualizer (nullptr)
 {
     logComponent = std::make_unique<LogComponent> (true, true);
     addAndMakeVisible (logComponent.get());
