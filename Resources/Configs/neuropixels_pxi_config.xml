@@ -370,6 +370,7 @@
     <TABBEDCOMPONENT index="0" selectedTabNodeId="102">
       <TAB nodeId="0"/>
       <TAB nodeId="1"/>
+      <TAB nodeId="2"/>
       <TAB nodeId="100"/>
       <TAB nodeId="102"/>
       <TAB nodeId="105"/>
