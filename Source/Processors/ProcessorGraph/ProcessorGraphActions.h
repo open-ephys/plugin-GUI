@@ -176,8 +176,7 @@ private:
     int originalDestNodeId;
     int newSourceNodeId;
     int newDestNodeId;
-
-    int originalDestNodeDestNodeId;
+    int newDestNodeSourceNodeId;
 
     bool moveDownstream;
 
