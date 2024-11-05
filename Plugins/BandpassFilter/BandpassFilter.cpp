@@ -98,8 +98,8 @@ AudioProcessorEditor* BandpassFilter::createEditor()
 
 void BandpassFilter::registerParameters()
 {
-    addFloatParameter (Parameter::STREAM_SCOPE, "low_cut", "Low cut", "Filter low cut", "Hz", 100, 0.1, 600, 1.0, false);
-    addFloatParameter (Parameter::STREAM_SCOPE, "high_cut", "High cut", "Filter high cut", "Hz", 5000, 0.1, 6000, 1.0, false);
+    addFloatParameter (Parameter::STREAM_SCOPE, "low_cut", "Low cut", "Filter low cut", "Hz", 300, 0.1, 1000, 1.0, false);
+    addFloatParameter (Parameter::STREAM_SCOPE, "high_cut", "High cut", "Filter high cut", "Hz", 6000, 0.1, 10000, 1.0, false);
     addMaskChannelsParameter (Parameter::STREAM_SCOPE, "channels", "Channels", "Channels to filter for this stream");
 
     Array<String> numThreads { "1", "4", "8", "16", "32", "64" };
