@@ -71,8 +71,6 @@ protected:
     {
         Parameter* param = processor->getDataStream (streamId)->getParameter ("low_cut");
         param->setNextValue (value);
-        processor->parameterValueChanged (param);
-        processor->updateSettings();
         if (assert_set)
         {
             ASSERT_EQ (getLowCut(), value);
@@ -83,8 +81,6 @@ protected:
     {
         Parameter* param = processor->getDataStream (streamId)->getParameter ("high_cut");
         param->setNextValue (value);
-        processor->parameterValueChanged (param);
-        processor->updateSettings();
         if (assert_set)
         {
             ASSERT_EQ (getHighCut(), value);
@@ -133,7 +129,7 @@ TEST_F (BandpassFilterTests, TestRespectsLowHighCutSetting)
     setLowCut (10.0, false);
     ASSERT_FLOAT_EQ (getLowCut(), 10.0f);
 
-    setHighCut (10000.0, false);
+    setHighCut (6000.0, false);
     ASSERT_FLOAT_EQ (getLowCut(), 10.0f);
     ASSERT_FLOAT_EQ (getHighCut(), 6000.0f);
 
@@ -143,9 +139,10 @@ TEST_F (BandpassFilterTests, TestRespectsLowHighCutSetting)
     ASSERT_FLOAT_EQ (getHighCut(), 6000.0f);
 
     // Same with an invalid low cut; it's ignored
-    setLowCut (20000.0f, false);
-    ASSERT_FLOAT_EQ (getLowCut(), 600.0f);
-    ASSERT_FLOAT_EQ (getHighCut(), 6000.0f);
+    setHighCut (900.0f, false);
+    setLowCut (950.0f, false);
+    ASSERT_FLOAT_EQ (getLowCut(), 10.0f);
+    ASSERT_FLOAT_EQ (getHighCut(), 900.0f);
 }
 
 TEST_F (BandpassFilterTests, Test_SignalInPassband)

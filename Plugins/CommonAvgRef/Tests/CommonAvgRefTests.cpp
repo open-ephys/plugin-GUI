@@ -120,10 +120,10 @@ TEST_F (CommonAverageRefTests, CommonAverageTest)
     // Set 1st channel as reference and second as affected in every stream
     for (auto stream : processor->getDataStreams())
     {
-        auto referenceChans = (SelectedChannelsParameter*) stream->getParameter ("Reference");
+        auto referenceChans = (MaskChannelsParameter*) stream->getParameter ("reference");
         referenceChans->currentValue = Array<var> ({ 0 });
 
-        auto affectedChans = (SelectedChannelsParameter*) stream->getParameter ("Affected");
+        auto affectedChans = (MaskChannelsParameter*) stream->getParameter ("affected");
         affectedChans->currentValue = Array<var> ({ 1 });
     }
 

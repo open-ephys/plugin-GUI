@@ -39,7 +39,7 @@ TEST (ChannelInfoObjectTests, GetStreamId)
     DataStream::Settings settings;
     DataStream stream (settings);
     ChannelInfoObject channel (InfoObject::Type::CONTINUOUS_CHANNEL, &stream);
-    uint16_t expectedStreamId = 10060;
+    uint16_t expectedStreamId = stream.getStreamId();
 
     // Act
     uint16_t actualStreamId = channel.getStreamId();
