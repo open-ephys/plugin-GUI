@@ -101,6 +101,7 @@ target_include_directories(open-ephys PRIVATE ${JUCE_DIRECTORY} ${JUCE_DIRECTORY
 target_compile_features(open-ephys PUBLIC cxx_auto_type cxx_generalized_initializers cxx_std_17)
 
 if(BUILD_TESTS)
+	enable_testing()
 	add_definitions(-DBUILD_TESTS)
 	add_library(gui_testable_source SHARED ${JUCE_SOURCE})
 	if(MSVC)

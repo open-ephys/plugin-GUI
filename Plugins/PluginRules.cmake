@@ -113,10 +113,12 @@ if(BUILD_TESTS)
   set_property(
     TARGET ${PLUGIN_NAME}_tests PROPERTY RUNTIME_OUTPUT_DIRECTORY
                                          ${BIN_TESTS_DIR}/${PLUGIN_NAME})
-  # set_property(TARGET ${PLUGIN_NAME}_testable PROPERTY
-  # RUNTIME_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
-  # set_property(TARGET ${PLUGIN_NAME}_testable PROPERTY
-  # LIBRARY_OUTPUT_DIRECTORY ${BIN_TESTS_DIR}/${PLUGIN_NAME})
+
+  add_custom_command(
+    TARGET ${PLUGIN_NAME}_tests
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PLUGIN_NAME}>
+            $<TARGET_FILE_DIR:${PLUGIN_NAME}_tests>)
 
   add_custom_command(
     TARGET ${PLUGIN_NAME}_tests
