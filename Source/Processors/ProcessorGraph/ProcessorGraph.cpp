@@ -69,6 +69,10 @@ ProcessorGraph::ProcessorGraph (bool isConsoleApp_) : isConsoleApp (isConsoleApp
     AccessClass::setProcessorGraph (this);
 
     pluginManager->loadAllPlugins();
+
+#ifdef JUCE_WINDOWS
+    _setmaxstdio (8192);
+#endif
 }
 
 ProcessorGraph::~ProcessorGraph()

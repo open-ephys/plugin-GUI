@@ -554,26 +554,6 @@ void RecordNode::updateSettings()
         else
             ++it;
     }
-
-#ifdef _WIN32
-    // check Open Ephys format on windows
-    if (recordEngine->getEngineId().equalsIgnoreCase ("OPENEPHYS") && getNumInputs() > 300)
-    {
-        int new_max = 0;
-        int calculated_max = getNumInputs() + getTotalEventChannels() + getTotalSpikeChannels() + getNumDataStreams() + 5;
-
-        if (calculated_max < 8192) // actual upper bound of 8192
-            new_max = _setmaxstdio (calculated_max);
-
-        if (new_max != calculated_max)
-        {
-            AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                              "WARNING",
-                                              "Open Ephys format does not support this many simultaneously recorded channels. Resetting to Binary format.");
-            setEngine ("BINARY");
-        }
-    }
-#endif
 }
 
 bool RecordNode::isSynchronized()
