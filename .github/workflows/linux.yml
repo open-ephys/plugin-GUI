@@ -34,20 +34,20 @@ jobs:
     - name: deploy_dev
       if: github.ref == 'refs/heads/development-juce8'
       env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       run: |
         cd Build
         cp -r Release open-ephys
         cp ../LICENSE open-ephys
         zipfile=open-ephys-v1.0.0-dev-linux.zip
         zip -r $zipfile open-ephys
-        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/1.0.0-dev/linux/$zipfile"
+        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-dev/linux/$zipfile"
       shell: bash
     - name: deploy_preview
       if: github.ref_type == 'refs/heads/testing-juce8'
       env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       run: |
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
 
@@ -56,8 +56,8 @@ jobs:
         cp ../LICENSE open-ephys
         zipfile=open-ephys-v1.0.0-alpha.1-linux.zip
         zip -r $zipfile open-ephys
-        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/1.0.0-alpha/linux/$zipfile"
+        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-alpha/linux/$zipfile"
 
         cd ../Resources/Installers/Linux/Open-Ephys_Installer
         mkdir -p usr/local/bin/open-ephys-gui
@@ -67,5 +67,5 @@ jobs:
         dpkg-deb --build Open-Ephys_Installer
         installer=open-ephys-gui-v1.0.0-alpha.1.deb
         mv -v Open-Ephys_Installer.deb $installer
-        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/1.0.0-alpha/linux/$installer"
+        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-alpha/linux/$installer"
       shell: bash

@@ -36,7 +36,7 @@ jobs:
     - name: deploy_dev
       if: github.ref == 'refs/heads/development-juce8'
       env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       run: |
         cd Build
         cp -r Release open-ephys
@@ -49,13 +49,13 @@ jobs:
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-v1.0.0-dev-windows.zip
         powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
-        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/1.0.0-dev/windows/$zipfile"
+        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-dev/windows/$zipfile"
       shell: bash
     - name: deploy_preview
       if: github.ref_type == 'refs/heads/testing-juce8'
       env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       run: |
         cd Build
         cp -r Release open-ephys
@@ -68,8 +68,8 @@ jobs:
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-v1.0.0-alpha.1-windows.zip
         powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
-        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/1.0.0-alpha/windows/$zipfile"
+        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-alpha/windows/$zipfile"
 
         cd open-ephys
         rm -f msvcp140.dll vcruntime140.dll vcruntime140_1.dll
@@ -77,5 +77,5 @@ jobs:
         iscc "windows_installer_script.iss"
         installer=Install-Open-Ephys-GUI-v1.0.0-alpha.1.exe
         mv Open-Ephys_Installer.exe $installer
-        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/1.0.0-alpha/windows/$installer"
+        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-alpha/windows/$installer"
       shell: bash

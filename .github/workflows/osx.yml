@@ -38,7 +38,7 @@ jobs:
     - name: deploy_dev
       if: github.ref == 'refs/heads/development-juce8'
       env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
         MACOS_CERTIFICATE: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
         MACOS_CERTIFICATE_PWD: ${{ secrets.BUILD_CERTIFICATE_PWD }}
         MACOS_CERTIFICATE_NAME: ${{ secrets.BUILD_CERTIFICATE_NAME }}
@@ -95,12 +95,12 @@ jobs:
 
         zipfile=open-ephys-v1.0.0-dev-mac.zip
         /usr/bin/ditto -c -k --sequesterRsrc --keepParent open-ephys $zipfile
-        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/1.0.0-dev/mac/$zipfile"
+        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-dev/mac/$zipfile"
     - name: deploy_preview
       if: github.ref_type == 'refs/heads/testing-juce8'
       env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
         MACOS_CERTIFICATE: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
         MACOS_CERTIFICATE_PWD: ${{ secrets.BUILD_CERTIFICATE_PWD }}
         MACOS_CERTIFICATE_NAME: ${{ secrets.BUILD_CERTIFICATE_NAME }}
@@ -157,8 +157,8 @@ jobs:
 
         zipfile=open-ephys-v1.0.0-alpha.1-mac.zip
         /usr/bin/ditto -c -k --sequesterRsrc --keepParent open-ephys $zipfile
-        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/1.0.0-alpha/mac/$zipfile"
+        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-alpha/mac/$zipfile"
 
         # Create a DMG installer
         brew install create-dmg && create-dmg \
@@ -183,4 +183,4 @@ jobs:
         echo "Attach staple to DMG"
         xcrun stapler staple $installer
 
-        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/1.0.0-alpha/mac/$installer"
+        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-alpha/mac/$installer"
