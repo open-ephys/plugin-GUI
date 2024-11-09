@@ -35,15 +35,15 @@ jobs:
     - name: deploy_dev
       if: github.ref == 'refs/heads/development'
       env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       run: |
         zipfile=open-ephys-latest-mac-dev.zip
         cd Build/Release
         mkdir open-ephys
         mv open-ephys.app/ open-ephys
         zip -r $zipfile open-ephys
-        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Dev/mac/$zipfile"
+        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/Dev/mac/$zipfile"
         brew install create-dmg && create-dmg \
           --volname "Open-Ephys Installer" \
           --volicon "open-ephys/open-ephys.app/Contents/Resources/Icon.icns" \
@@ -58,11 +58,11 @@ jobs:
           "open-ephys/"
         installer=Open_Ephys_GUI_latest-dev.dmg
         mv -v Open-Ephys-Installer.dmg $installer
-        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Dev-Installer/mac/$installer"
+        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/Dev-Installer/mac/$installer"
     - name: deploy_test
       if: github.ref == 'refs/heads/testing'
       env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       run: |
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-${gui_ver}-mac-beta.zip
@@ -70,8 +70,8 @@ jobs:
         mkdir open-ephys
         mv open-ephys.app/ open-ephys
         zip -r $zipfile open-ephys
-        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Test/mac/$zipfile"
+        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/Test/mac/$zipfile"
         brew install create-dmg && create-dmg \
           --volname "Open-Ephys Installer" \
           --volicon "open-ephys/open-ephys.app/Contents/Resources/Icon.icns" \
@@ -86,11 +86,11 @@ jobs:
           "open-ephys/"
         installer=Open_Ephys_GUI_${gui_ver}-beta.dmg
         mv -v Open-Ephys-Installer.dmg $installer
-        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Test-Installer/mac/$installer"
+        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/Test-Installer/mac/$installer"
     - name: deploy_release
       if: github.ref == 'refs/heads/main'
       env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       run: |
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-${gui_ver}-mac.zip
@@ -98,8 +98,8 @@ jobs:
         mkdir open-ephys
         mv open-ephys.app/ open-ephys
         zip -r $zipfile open-ephys
-        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Release/mac/$zipfile"
+        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/Release/mac/$zipfile"
         brew install create-dmg && create-dmg \
           --volname "Open-Ephys Installer" \
           --volicon "open-ephys/open-ephys.app/Contents/Resources/Icon.icns" \
@@ -114,4 +114,4 @@ jobs:
           "open-ephys/"
         installer=Open_Ephys_GUI_${gui_ver}.dmg
         mv -v Open-Ephys-Installer.dmg $installer
-        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Release-Installer/mac/$installer"
+        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/Release-Installer/mac/$installer"

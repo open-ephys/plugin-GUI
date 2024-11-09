@@ -36,7 +36,7 @@ jobs:
     - name: deploy_dev
       if: github.ref == 'refs/heads/development'
       env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       run: |
         cd Build
         cp -r Release open-ephys
@@ -46,18 +46,18 @@ jobs:
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-latest-windows-dev.zip
         powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
-        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Dev/windows/$zipfile"
+        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/Dev/windows/$zipfile"
         cd ../Resources/Installers/Windows
         iscc "windows_installer_script.iss"
         installer=Install-Open-Ephys-GUI-latest-dev.exe
         mv Open-Ephys_Installer.exe $installer
-        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Dev-Installer/windows/$installer"
+        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/Dev-Installer/windows/$installer"
       shell: bash
     - name: deploy_test
       if: github.ref == 'refs/heads/testing'
       env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       run: |
         cd Build
         cp -r Release open-ephys
@@ -67,18 +67,18 @@ jobs:
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-${gui_ver}-windows-beta.zip
         powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
-        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Test/windows/$zipfile"
+        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/Test/windows/$zipfile"
         cd ../Resources/Installers/Windows
         iscc "windows_installer_script.iss"
         installer=Install-Open-Ephys-GUI-${gui_ver}-beta.exe
         mv Open-Ephys_Installer.exe $installer
-        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Test-Installer/windows/$installer"
+        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/Test-Installer/windows/$installer"
       shell: bash
     - name: deploy_release
       if: github.ref == 'refs/heads/main'
       env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       run: |
         cd Build
         cp -r Release open-ephys
@@ -88,11 +88,11 @@ jobs:
         gui_ver=$(git describe --tags $(git rev-list --tags --max-count=1))
         zipfile=open-ephys-${gui_ver}-windows.zip
         powershell Compress-Archive -Path "open-ephys" -DestinationPath ${zipfile}
-        user_info="X-JFrog-Art-Api:$artifactoryApiKey"
-        curl -H $user_info -T $zipfile "https://openephysgui.jfrog.io/artifactory/Release/windows/$zipfile"
+        user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
+        curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/Release/windows/$zipfile"
         cd ../Resources/Installers/Windows
         iscc "windows_installer_script.iss"
         installer=Install-Open-Ephys-GUI-${gui_ver}.exe
         mv Open-Ephys_Installer.exe $installer
-        curl -H $user_info -T $installer "https://openephysgui.jfrog.io/artifactory/Release-Installer/windows/$installer"
+        curl -H $user_info -T $installer "https://openephys.jfrog.io/artifactory/GUI-binaries/Release-Installer/windows/$installer"
       shell: bash
