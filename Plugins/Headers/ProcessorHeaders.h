@@ -33,4 +33,3 @@ Should be included in the source files which declare a processor class.
 #include "../../Source/TestableExport.h"
 #include "../../Source/Utils/BroadcastParser.h"
 #include "DspLib.h"
-#include "Logging.h"

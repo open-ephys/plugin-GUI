@@ -24,8 +24,6 @@
 #ifndef __SPIKEDETECTOR_H_3F920F95__
 #define __SPIKEDETECTOR_H_3F920F95__
 
-#define PROCESSOR_NAME "Spike Detector"
-
 #include <ProcessorHeaders.h>
 
 class SpikeDetectorSettings
