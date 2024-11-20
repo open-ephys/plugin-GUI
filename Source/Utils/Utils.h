@@ -31,12 +31,11 @@
 #include <map>
 #include <mutex>
 #include <string>
-#include <dlfcn.h>
 
 #include "../Processors/PluginManager/OpenEphysPlugin.h"
 
 /* Thread-safe logger */
-class OELogger
+class PLUGIN_API OELogger
 {
 public:
     static OELogger& instance()
@@ -83,34 +82,8 @@ public:
         logFile << "[open-ephys] Session start time: " << ctime (&now);
     }
 
-    std::string getModuleName() const {
-        Dl_info info;
-        if (dladdr(reinterpret_cast<void*>(__builtin_return_address(0)), &info))
-        {
-            if (info.dli_fname) {
-                return formatModuleName(std::string(info.dli_fname));
-            }
-        }
-        return "[unknown]";
-    }
-
-    std::string formatModuleName(const std::string& path) const {
-        size_t lastSlash = path.find_last_of("/\\");
-        std::string basename = path.substr(lastSlash + 1);
-        std::string formatted;
-        for (size_t i = 0; i < basename.length(); ++i) {
-            char ch = basename[i];
-            if (std::isupper(ch)) {
-                if (i > 0) {
-                    formatted += '-'; // Add hyphen before uppercase letters (except the first one)
-                }
-                formatted += std::tolower(ch); // Convert to lowercase
-            } else {
-                formatted += ch;
-            }
-        }
-        return "[" + formatted + "]";
-    }
+    static std::string getModuleName();
+    static std::string formatModuleName(const std::string& path);
 
 private:
     std::mutex mt;

@@ -10,6 +10,7 @@ add_sources(
   BroadcastParser.cpp
   BroadcastPayload.h
   BroadcastPayload.cpp
-  Utils.h)
-
+  Utils.h
+  Utils.cpp
+)
 # add nested directories
