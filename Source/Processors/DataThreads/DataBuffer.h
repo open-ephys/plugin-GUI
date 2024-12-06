@@ -46,6 +46,32 @@ public:
     void clear();
 
     /** Add an array of floats to the buffer.
+        The data is laid out as a set of channels with a series of samples per channel.
+        The number of samples (chunkSize) in each sequence can be from 1..numItems.
+
+        Examples:
+        In the following examples, the numbers shown in the data indicate the channel #.
+
+        numItems = 4
+        chunkSize = 1
+        # channels = 3
+
+        Data:
+        1 2 3 1 2 3 1 2 3 1 2 3
+
+        numItems = 4
+        chunkSize = 2
+        # channels = 3
+
+        Data:
+        1 1 2 2 3 3 1 1 2 2 3 3
+
+        numItmes = 4
+        chunkSize = 4
+        # channels = 3
+
+        Data:
+        1 1 1 1 2 2 2 2 3 3 3 3
 
         @param data The data.
         @param sampleNumbers  Array of sample numbers (integers). Same length as numItems.
@@ -53,7 +79,8 @@ public:
         @param eventCodes Array of event codes. Same length as numItems.
         @param numItems Total number of samples per channel.
         @param chunkSize Number of consecutive samples per channel per chunk.
-        1 by default. Typically 1 or numItems.
+        1 by default. Typically, 1 or numItems.
+        Must be a multiple of numItems.
 
         @return The number of items actually written. May be less than numItems if
         the buffer doesn't have space.

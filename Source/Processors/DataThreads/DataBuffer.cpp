@@ -68,45 +68,104 @@ int DataBuffer::addToBuffer (float* data,
                              int numItems,
                              int chunkSize)
 {
-    int startIndex1, blockSize1, startIndex2, blockSize2;
+    int bs[] = { -1, -1, 0 };    // zero-termintated as check in outer loop
+    int si[] = { -1, -1};
+    int cSize = chunkSize;
+    int offset = 0;
+    
+    abstractFifo.prepareToWrite (numItems, si[0], bs[0], si[1], bs[1]);
 
-    abstractFifo.prepareToWrite (numItems, startIndex1, blockSize1, startIndex2, blockSize2);
+    // The contiguous case is separated from the interleaved version to reduce the
+    // overhead of the for loops and small copies.
+    if (numItems == chunkSize)
+    {
+        for (int chan = 0; chan < numChans; ++chan)
+        {
+            // copy first half
+            buffer.copyFrom (chan,                       // destination channel
+                             si[0],                // offset into buffer
+                             data + chunkSize * chan,    // source data location
+                             bs[0]);                // number of samples
 
-    int bs[3] = { blockSize1, blockSize2, 0 };
-    int si[2] = { startIndex1, startIndex2 };
-    int cSize = 0;
-    int idx = 0;
-    int blkIdx;
-        
-    for (int i = 0; bs[i] != 0; ++i)
-    {                                // for each of the dest blocks we can write to...
-        blkIdx = 0;
-        for (int j = 0; j < bs[i]; j+= chunkSize) 
-        {                     // for each chunk...
-            cSize = chunkSize <= bs[i] - j ? chunkSize : bs[i] - j;     // figure our how much you can write
-            for (int chan = 0; chan < numChans; ++chan)         // write that much, per channel
+            // copy remaining (if any)
+            if (bs[1] != 0)
             {
-                buffer.copyFrom (chan,                           // (int destChannel)
-                                 si[i] + j,                      // (int destStartSample)
-                                 data + (idx * numChans) + chan, // (const float* source)
-                                 cSize);                         // (int num samples)
+                buffer.copyFrom (chan,
+                                 si[1],
+                                 data + chunkSize * chan + bs[0],
+                                 bs[1]);
             }
-
-            for (int k = 0; k < cSize; ++k)
-            {
-                sampleNumberBuffer[si[i] + blkIdx + k] = sampleNumbers[idx + k];
-                timestampBuffer[si[i] + blkIdx + k] = timestamps[idx + k];
-                eventCodeBuffer[si[i] + blkIdx + k] = eventCodes[idx + k];
-            }
-            idx     += cSize;
-            blkIdx  += cSize;
         }
     }
+    else
+    {
+      for (int i = 0; bs[i] != 0; ++i)
+      {                                // for each of the dest blocks we can write to...
+          for (int j = 0; j < bs[i]; )
+          {                     // for each chunk...
+              // If there wasn't enough room at the end of the circular buffer
+              // to copy the full chunk, the rest of that chunk needs to be
+              // copied to the start of the circular buffer.
+              // The bounds check is not necessary since the data is being
+              // copied to the beginning of the circular buffer
+              // (si[1] should always be 0).
+              if (cSize != chunkSize)
+              {
+                  offset = cSize;              // previous amount copied
+                  cSize = chunkSize - cSize;   // remaining to copy
+              }
+              else
+              {
+                  offset = 0;
+                  cSize = chunkSize <= bs[i] - j ? chunkSize : bs[i] - j;     // prevent out-of-bounds on buffer
+              }
 
-    // finish write
-    abstractFifo.finishedWrite (idx);
+              for (int chan = 0; chan < numChans; ++chan)
+              {
+                  buffer.copyFrom (chan,
+                                   si[i] + j,
+                                   data + chunkSize * chan + offset,
+                                   cSize);
+              }
 
-    return idx;
+              j += cSize;   // advance the loop counter based on copied amount
+
+              //  advance source data pointer, continue with full sized chunks.
+              if ((cSize == chunkSize) || (i != 0))
+              {
+                data += chunkSize * numChans;
+                cSize = chunkSize;
+              }
+              // else keep data and cSize to get 'remainder' of current group to
+              // paste into the start of the circular buffer on next iteration.
+              // At this point, internal loop should complete and the external
+              // loop should go to next start/size set.
+          }
+      }
+    }
+
+    // Copy the other items; all of this information is contiguous,
+    // so up to two copies are needed for wrap-around on the circular buffers.
+
+    memcpy(sampleNumberBuffer + si[0], sampleNumbers, bs[0] * sizeof(sampleNumbers[0]));
+    if (bs[1] != 0) {
+      memcpy(sampleNumberBuffer, sampleNumbers + bs[0], bs[1] * sizeof(sampleNumbers[0]));
+    }
+
+    memcpy(timestampBuffer + si[0], timestamps, bs[0] * sizeof(timestamps[0]));
+    if (bs[1] != 0) {
+      memcpy(timestampBuffer, timestamps + bs[0], bs[1] * sizeof(timestamps[0]));
+    }
+
+    memcpy(eventCodeBuffer + si[0], eventCodes, bs[0] * sizeof(eventCodes[0]));
+    if (bs[1] != 0) {
+      memcpy(eventCodeBuffer, eventCodes + bs[0], bs[1] * sizeof(eventCodes[0]));
+    }
+
+    // maintain state of the circular buffer by updating the last written position.
+    abstractFifo.finishedWrite (bs[0] + bs[1]);
+
+    return bs[0] + bs[1];
 }
 
 
