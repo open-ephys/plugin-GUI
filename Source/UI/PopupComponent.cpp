@@ -22,6 +22,7 @@
 */
 
 #include "PopupComponent.h"
+#include "EditorViewport.h"
 #include "UIComponent.h"
 
 #include "../CoreServices.h"
@@ -89,6 +90,13 @@ bool PopupComponent::keyPressed (const KeyPress& key)
             return false;
         }
 
+        if (CoreServices::getAcquisitionStatus()
+            && undoManager->getUndoDescription().contains ("Disabled during acquisition"))
+            return false;
+
+        if (AccessClass::getEditorViewport()->isSignalChainLocked())
+            return false;
+
         undoManager->undo();
 
         if (parent != nullptr)
@@ -108,6 +116,13 @@ bool PopupComponent::keyPressed (const KeyPress& key)
             findParentComponentOfClass<CallOutBox>()->exitModalState (0);
             return false;
         }
+
+        if (CoreServices::getAcquisitionStatus()
+            && undoManager->getRedoDescription().contains ("Disabled during acquisition"))
+            return false;
+
+        if (AccessClass::getEditorViewport()->isSignalChainLocked())
+            return false;
 
         undoManager->redo();
 
