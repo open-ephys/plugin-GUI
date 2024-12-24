@@ -610,23 +610,8 @@ void DataViewport::removeTab (int nodeId, bool sendNotification)
 
             if (foundTab)
             {
-                if (draggableTabComponent->getNumTabs() == 0 && draggableTabComponents.size() > 1)
-                {
-                    draggableTabComponents.removeObject (draggableTabComponent);
-                    activeTabbedComponent--;
-
-                    tabbedComponentLayout.clearAllItems();
-
-                    tabbedComponentResizer->setVisible (draggableTabComponents.size() == 2);
-
-                    resized();
-
-                    if (draggableTabComponents[activeTabbedComponent]->getNumTabs() > 1)
-                        addTabbedComponentButton->setVisible (true);
-                    else
-                        addTabbedComponentButton->setVisible (false);
-                }
-
+                // remove the tabbed component if it's empty
+                removeTabbedComponent (draggableTabComponent);
                 return;
             }
         }
@@ -641,11 +626,14 @@ void DataViewport::buttonClicked (Button* button)
         addAndMakeVisible (d);
         draggableTabComponents.add (d);
 
-        tabbedComponentResizer->setVisible (true);
+        if (draggableTabComponents.size() == 2)
+        {
+            tabbedComponentResizer->setVisible (true);
 
-        tabbedComponentLayout.setItemLayout (0, -0.25, -0.75, -0.5);
-        tabbedComponentLayout.setItemLayout (1, 12, 12, 12);
-        tabbedComponentLayout.setItemLayout (2, -0.25, -0.75, -0.5);
+            tabbedComponentLayout.setItemLayout (0, -0.25, -0.75, -0.5);
+            tabbedComponentLayout.setItemLayout (1, 12, 12, 12);
+            tabbedComponentLayout.setItemLayout (2, -0.25, -0.75, -0.5);
+        }
 
         resized();
 
@@ -684,7 +672,18 @@ void DataViewport::removeTabbedComponent (DraggableTabComponent* draggableTabCom
 
         tabbedComponentLayout.clearAllItems();
 
-        tabbedComponentResizer->setVisible (draggableTabComponents.size() == 2);
+        if (draggableTabComponents.size() == 2)
+        {
+            tabbedComponentResizer->setVisible (true);
+
+            tabbedComponentLayout.setItemLayout (0, -0.25, -0.75, -0.5);
+            tabbedComponentLayout.setItemLayout (1, 12, 12, 12);
+            tabbedComponentLayout.setItemLayout (2, -0.25, -0.75, -0.5);
+        }
+        else
+        {
+            tabbedComponentResizer->setVisible (false);
+        }
 
         resized();
     }
