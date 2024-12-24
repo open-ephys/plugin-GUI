@@ -106,7 +106,7 @@ RecordNode::~RecordNode()
 void RecordNode::registerParameters()
 {
     String defaultRecordDirectory = CoreServices::getRecordingParentDirectory().getFullPathName();
-    addPathParameter (Parameter::PROCESSOR_SCOPE, "directory", "Directory", "Path to write data to", defaultRecordDirectory, {}, true);
+    addPathParameter (Parameter::PROCESSOR_SCOPE, "directory", "Directory", "Path to write data to", defaultRecordDirectory, {}, true, true);
 
     Array<String> recordEngines;
     std::vector<RecordEngineManager*> engines = getAvailableRecordEngines();

@@ -422,6 +422,7 @@ void GenericProcessor::addPathParameter (
     const File& defaultValue,
     const StringArray& validFileExtensions,
     bool isDirectory,
+    bool isRequired,
     bool deactivateDuringAcquisition)
 {
     PathParameter* p =
@@ -433,6 +434,7 @@ void GenericProcessor::addPathParameter (
                            defaultValue,
                            validFileExtensions,
                            isDirectory,
+                           isRequired,
                            deactivateDuringAcquisition);
 
     if (scope == Parameter::PROCESSOR_SCOPE)

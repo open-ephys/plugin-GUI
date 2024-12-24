@@ -120,9 +120,10 @@ void DataThread::addPathParameter (Parameter::ParameterScope scope,
                                    const String& defaultValue,
                                    const StringArray& validFileExtensions,
                                    bool isDirectory,
+                                   bool isRequired,
                                    bool deactivateDuringAcquisition)
 {
-    sn->addPathParameter (scope, name, displayName, description, defaultValue, validFileExtensions, isDirectory, deactivateDuringAcquisition);
+    sn->addPathParameter (scope, name, displayName, description, defaultValue, validFileExtensions, isDirectory, isRequired, deactivateDuringAcquisition);
 }
 
 void DataThread::addSelectedStreamParameter (Parameter::ParameterScope scope,

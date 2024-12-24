@@ -883,6 +883,7 @@ public:
                    const File& defaultValue,
                    const StringArray& filePatternsAllowed,
                    const bool isDirectory,
+                   const bool isRequired = true,
                    bool deactivateDuringAcquisition = true);
 
     /** Sets the current value*/
@@ -912,6 +913,7 @@ public:
 private:
     StringArray filePatternsAllowed;
     bool isDirectory;
+    bool isRequired;
 };
 
 /**

@@ -1184,6 +1184,7 @@ PathParameter::PathParameter (ParameterOwner* owner,
                               const File& defaultValue_,
                               const StringArray& fileExtensions_,
                               bool isDirectory_,
+                              bool isRequired_,
                               bool deactivateDuringAcquisition)
     : Parameter (owner,
                  ParameterType::PATH_PARAM,
@@ -1194,7 +1195,8 @@ PathParameter::PathParameter (ParameterOwner* owner,
                  defaultValue_.getFullPathName(),
                  deactivateDuringAcquisition),
       filePatternsAllowed (fileExtensions_),
-      isDirectory (isDirectory_)
+      isDirectory (isDirectory_),
+      isRequired (isRequired_)
 {
     currentValue = defaultValue;
 }
@@ -1254,6 +1256,10 @@ bool PathParameter::isValid()
         return true;
     }
     else if (isDirectory && File (currentValue.toString()).exists())
+    {
+        return true;
+    }
+    else if (! isRequired)
     {
         return true;
     }

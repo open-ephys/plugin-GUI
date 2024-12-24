@@ -377,6 +377,7 @@ public:
                            const File& defaultValue,
                            const StringArray& validFileExtensions,
                            bool isDirectory,
+                           bool isRequired,
                            bool deactivateDuringAcquisition = true);
 
     /** Adds a selected stream parameter which holds the currentlu selected stream */
