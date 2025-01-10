@@ -1198,7 +1198,9 @@ PathParameter::PathParameter (ParameterOwner* owner,
       isDirectory (isDirectory_),
       isRequired (isRequired_)
 {
-    currentValue = defaultValue;
+    currentValue = "None";
+    if (isRequired)
+        currentValue = defaultValue;
 }
 
 void PathParameter::setNextValue (var newValue_, bool undoable)
@@ -1248,7 +1250,10 @@ bool PathParameter::isValid()
 {
     if (currentValue.toString() == "default")
     {
-        currentValue = defaultValue;
+        if (isRequired)
+            currentValue = defaultValue;
+        else
+            currentValue = "None";
         return true;
     }
     else if (! isDirectory && File (currentValue.toString()).existsAsFile())
