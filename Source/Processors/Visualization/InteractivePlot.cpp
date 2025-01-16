@@ -45,20 +45,17 @@ InteractivePlot::InteractivePlot() : backgroundColour (Colours::darkgrey),
     addAndMakeVisible (drawComponent.get());
 
     titleLabel = std::make_unique<Label> ("Title Label", "Title");
-    titleLabel->setFont (FontOptions ("Fira Code", "Bold", 15.0f));
-    titleLabel->setColour (Label::textColourId, axisColour);
+    titleLabel->setFont (FontOptions ("Inter", "Bold", 15.0f));
     titleLabel->setJustificationType (Justification::centred);
     addAndMakeVisible (titleLabel.get());
 
     xLabel = std::make_unique<Label> ("X-Axis Label", "X Label");
-    xLabel->setFont (FontOptions ("Fira Code", "Regular", 15.0f));
-    xLabel->setColour (Label::textColourId, axisColour);
+    xLabel->setFont (FontOptions ("Inter", "Regular", 15.0f));
     xLabel->setJustificationType (Justification::centred);
     addAndMakeVisible (xLabel.get());
 
     yLabel = std::make_unique<Label> ("Y-Axis Label", "Y Label");
-    yLabel->setFont (FontOptions ("Fira Code", "Regular", 15.0f));
-    yLabel->setColour (Label::textColourId, axisColour);
+    yLabel->setFont (FontOptions ("Inter", "Regular", 15.0f));
     yLabel->setJustificationType (Justification::centred);
     addAndMakeVisible (yLabel.get());
 
@@ -97,6 +94,10 @@ void InteractivePlot::setAxisColour (Colour c)
 {
     xAxis->setAxisColour (c);
     yAxis->setAxisColour (c);
+
+    xLabel->setColour (Label::textColourId, c);
+    yLabel->setColour (Label::textColourId, c);
+    titleLabel->setColour (Label::textColourId, c);
 }
 
 void InteractivePlot::showGrid (bool state)
@@ -141,7 +142,7 @@ void InteractivePlot::resized()
 
     titleLabel->setBounds (axesWidth + padding + 2, 0, w - axesWidth - padding * 2, 20);
     xLabel->setBounds (axesWidth + padding + 2, getHeight() - 20, w - axesWidth - padding * 2, 20);
-    yLabel->setBounds (0, 0, labelWidth, h);
+    yLabel->setBounds (0, 0, labelWidth + 10, h);
 
     if (MIN (w, h) > 250)
     {
@@ -222,7 +223,7 @@ Axis::Axis()
       max (1e4),
       colour (Colours::white)
 {
-    font = FontOptions (15.0f);
+    font = FontOptions ("Inter", "Regular", 15.0f);
 }
 
 void Axis::setInverted (bool state)
@@ -320,7 +321,7 @@ void Axis::setTicks (std::vector<float> ticks_, std::vector<String> tickLabels_)
 
 void Axis::setFontHeight (int height)
 {
-    font = font.withHeight(height);
+    font = font.withHeight (height);
 }
 
 void Axis::setAxisColour (Colour c)

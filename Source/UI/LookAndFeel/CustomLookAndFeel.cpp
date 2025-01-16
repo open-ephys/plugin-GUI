@@ -92,7 +92,7 @@ void CustomLookAndFeel::initializeColours()
     setColour (ProcessorColour::IDs::SYNC_COLOUR, Colour (255, 165, 0));
 
     themeColoursMap[MEDIUM] = {
-        { ThemeColours::componentBackground, Colour (143, 143, 143) },
+        { ThemeColours::componentBackground, Colour (130, 130, 130) },
         { ThemeColours::componentParentBackground, Colour (58, 58, 58) },
         { ThemeColours::windowBackground, Colour (15, 15, 15) },
         { ThemeColours::widgetBackground, Colour (190, 190, 190) },
@@ -103,7 +103,7 @@ void CustomLookAndFeel::initializeColours()
         { ThemeColours::menuHighlightBackground, Colour (244, 148, 32) },
         { ThemeColours::outline, Colours::black },
         { ThemeColours::defaultText, Colours::black },
-        { ThemeColours::defaultFill, Colour (112, 112, 112) },
+        { ThemeColours::defaultFill, Colour (95, 95, 95) },
         { ThemeColours::highlightedText, Colours::black },
         { ThemeColours::highlightedFill, Colour (244, 148, 32) },
         { ThemeColours::dropShadowColour, Colours::black.withAlpha (0.5f) }
