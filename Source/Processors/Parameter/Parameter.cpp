@@ -698,19 +698,6 @@ SelectedChannelsParameter::SelectedChannelsParameter (ParameterOwner* owner,
       maxSelectableChannels (maxSelectableChannels_),
       channelCount (0)
 {
-    if (defaultValue_.size() == 0 && maxSelectableChannels != std::numeric_limits<int>::max())
-    {
-        //Set default selected to the first maxSelectableChannels channels
-        Array<var> values;
-        for (int i = 0; i < maxSelectableChannels; i++)
-            values.add (i);
-
-        currentValue = values;
-    }
-    else
-    {
-        currentValue = defaultValue_;
-    }
 }
 
 void SelectedChannelsParameter::setNextValue (var newValue_, bool undoable)
@@ -865,18 +852,35 @@ Array<var> SelectedChannelsParameter::parseSelectedString (const String& input)
 
 void SelectedChannelsParameter::setChannelCount (int newCount)
 {
-    if (newCount > 0 && channelCount > newCount)
+    if (newCount > 0)
     {
         Array<var> values;
-        for (int i = 0; i < currentValue.getArray()->size(); i++)
-        {
-            if ((int) currentValue[i] < newCount)
-            {
-                values.add (currentValue[i]);
-            }
-        }
 
-        currentValue = values;
+        // If the new count is less than the current count, remove any channels that are out of bounds
+        if (channelCount > newCount)
+        {
+            for (int i = 0; i < currentValue.getArray()->size(); i++)
+            {
+                if ((int) currentValue[i] < newCount)
+                {
+                    values.add (currentValue[i]);
+                }
+            }
+
+            currentValue = values;
+        }
+        else if (channelCount == 0) // If the current count is 0, set the selected channels to the first maxSelectableChannels channels
+        {
+            for (int i = 0; i < maxSelectableChannels; i++)
+            {
+                if (i < newCount)
+                {
+                    values.add (i);
+                }
+            }
+
+            currentValue = values;
+        }
     }
 
     channelCount = newCount;
@@ -1218,7 +1222,7 @@ void PathParameter::setNextValue (var newValue_, bool undoable)
         {
             newValue = newValue_;
         }
-        
+
         if (! undoable)
         {
             getOwner()->parameterChangeRequest (this);
@@ -1228,7 +1232,7 @@ void PathParameter::setNextValue (var newValue_, bool undoable)
         {
             getOwner()->handleLinkedParameterChange (this, newValue);
         }
-        else 
+        else
         {
             ChangeValue* action = new Parameter::ChangeValue (getKey(), newValue);
 
