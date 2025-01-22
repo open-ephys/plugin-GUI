@@ -251,7 +251,7 @@ ThresholdSelectorCustomComponent::~ThresholdSelectorCustomComponent()
 
 void ThresholdSelectorCustomComponent::mouseDown (const MouseEvent& event)
 {
-    if (channel == nullptr)
+    if (channel == nullptr || ! channel->isValid())
         return;
 
     auto* popupComponent = new PopupThresholdComponent (table,
@@ -334,7 +334,9 @@ void ThresholdSelectorCustomComponent::paint (Graphics& g)
 
     thresholdString = thresholdString.substring (0, thresholdString.length() - 1);
 
-    g.setColour (findColour (ThemeColours::defaultText));
+    float alpha = getParentComponent()->isEnabled() ? 1.0f : 0.5f;
+
+    g.setColour (findColour (ThemeColours::defaultText).withAlpha (alpha));
     g.setFont (FontOptions ("Inter", "Regular", 14.0f));
     g.drawFittedText (thresholdString, 4, 0, getWidth() - 8, getHeight(), Justification::centredLeft, 1, 0.75f);
 }
@@ -380,7 +382,7 @@ void ChannelSelectorCustomComponent::showAsPopup()
 
 void ChannelSelectorCustomComponent::mouseDown (const juce::MouseEvent& event)
 {
-    if (acquisitionIsActive)
+    if (acquisitionIsActive || ! getParentComponent()->isEnabled())
         return;
 
     showAsPopup();
@@ -449,7 +451,7 @@ void WaveformSelectorCustomComponent::setRowAndColumn (const int newRow, const i
 
 void DeleteButtonCustomComponent::mouseDown (const juce::MouseEvent& event)
 {
-    if (acquisitionIsActive)
+    if (acquisitionIsActive || ! getParentComponent()->isEnabled())
         return;
 
     table->deleteSelectedRows (row);
@@ -460,7 +462,7 @@ void DeleteButtonCustomComponent::paint (Graphics& g)
     int width = getWidth();
     int height = getHeight();
 
-    if (acquisitionIsActive)
+    if (acquisitionIsActive || ! getParentComponent()->isEnabled())
     {
         g.setColour (Colours::grey);
     }
@@ -471,7 +473,7 @@ void DeleteButtonCustomComponent::paint (Graphics& g)
 
     g.fillEllipse (7, 7, width - 14, height - 14);
     g.setColour (Colours::white);
-    g.fillRect (9, (height / 2) - 2, width - 19, 3);
+    g.fillRect (9, (height / 2) - 1, width - 19, 2);
 }
 
 void DeleteButtonCustomComponent::setRowAndColumn (const int newRow, const int newColumn)
@@ -758,6 +760,15 @@ void SpikeDetectorTableModel::update (Array<SpikeChannel*> spikeChannels_)
 
     table->updateContent();
 
+    if (spikeChannels.size() > 0 && ! spikeChannels[0]->isValid())
+    {
+        table->setEnabled (false);
+    }
+    else
+    {
+        table->setEnabled (true);
+    }
+
     waveformComponents.clear();
     thresholdComponents.clear();
 
@@ -781,33 +792,23 @@ void SpikeDetectorTableModel::paintRowBackground (Graphics& g, int rowNumber, in
     if (rowNumber >= spikeChannels.size())
         return;
 
-    if (rowIsSelected)
-    {
-        if (rowNumber % 2 == 0)
-            g.fillAll (owner->findColour (ThemeColours::componentBackground));
-        else
-            g.fillAll (owner->findColour (ThemeColours::componentBackground).darker (0.25f));
-
-        g.setColour (owner->findColour (ThemeColours::highlightedFill));
-        g.drawRoundedRectangle (2, 2, width - 4, height - 4, 5, 2);
-
-        return;
-    }
+    Colour rowColour;
 
     if (spikeChannels[rowNumber]->isValid())
-    {
-        if (rowNumber % 2 == 0)
-            g.fillAll (owner->findColour (ThemeColours::componentBackground));
-        else
-            g.fillAll (owner->findColour (ThemeColours::componentBackground).darker (0.25f));
-
-        return;
-    }
+        rowColour = owner->findColour (ThemeColours::componentBackground);
+    else
+        rowColour = Colour (90, 50, 50);
 
     if (rowNumber % 2 == 0)
-        g.fillAll (Colour (90, 50, 50));
+        g.fillAll (rowColour);
     else
-        g.fillAll (Colour (60, 30, 30));
+        g.fillAll (rowColour.darker (0.25f));
+
+    if (rowIsSelected)
+    {
+        g.setColour (owner->findColour (ThemeColours::highlightedFill));
+        g.drawRoundedRectangle (2, 2, width - 4, height - 4, 5, 2);
+    }
 }
 
 void SpikeDetectorTableModel::paintCell (Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected)
@@ -1055,8 +1056,14 @@ PopupConfigurationWindow::PopupConfigurationWindow (SpikeDetectorEditor* editor_
     addAndMakeVisible (viewport.get());
     update (spikeChannels);
 
-    auto stream = editor->getProcessor()->getDataStream (editor->getCurrentStream());
-    popupTitle = String(stream->getSourceNodeId()) + " " + stream->getSourceNodeName() + " - " + stream->getName();
+    if (auto stream = editor->getProcessor()->getDataStream (editor->getCurrentStream()))
+    {
+        popupTitle = String (stream->getSourceNodeId()) + " " + stream->getSourceNodeName() + " - " + stream->getName();
+    }
+    else
+    {
+        popupTitle = "No streams available";
+    }
 }
 
 void PopupConfigurationWindow::scrollBarMoved (ScrollBar* scrollBar, double newRangeStart)
@@ -1128,12 +1135,13 @@ void PopupConfigurationWindow::paint (Graphics& g)
 bool PopupConfigurationWindow::keyPressed (const KeyPress& key)
 {
     // Popup component handles globally reserved undo/redo keys
-    PopupComponent::keyPressed (key);
-
-    // Pressing 'a' key adds a new spike channel
-    if (key.getTextCharacter() == 'a')
+    if (! PopupComponent::keyPressed (key))
     {
-        editor->addSpikeChannels (this, spikeChannelGenerator->getSelectedType(), 1);
+        // Pressing 'a' key adds a new spike channel
+        if (key.getTextCharacter() == 'a')
+        {
+            editor->addSpikeChannels (this, spikeChannelGenerator->getSelectedType(), 1);
+        }
     }
 
     return true;

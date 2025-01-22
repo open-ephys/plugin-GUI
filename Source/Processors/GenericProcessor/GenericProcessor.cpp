@@ -539,7 +539,7 @@ void GenericProcessor::addTtlLineParameter (
 }
 
 void GenericProcessor::parameterChangeRequest (Parameter* param)
-{   
+{
     currentParameter = param;
 
     setParameter (-1, 0.0f);
@@ -1622,7 +1622,10 @@ const SpikeChannel* GenericProcessor::getSpikeChannel (uint16 processorId, uint1
 
 DataStream* GenericProcessor::getDataStream (uint16 streamId) const
 {
-    return dataStreamMap.at (streamId);
+    if (dataStreamMap.find (streamId) != dataStreamMap.end())
+        return dataStreamMap.at (streamId);
+    else
+        return nullptr;
 }
 
 DataStream* GenericProcessor::getDataStream (String streamKey) const

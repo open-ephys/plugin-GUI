@@ -80,32 +80,34 @@ void SpikeDetectorEditor::addSpikeChannels (PopupConfigurationWindow* window, Sp
 {
     SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
-    DataStream* stream = processor->getDataStream (getCurrentStream());
+    if (auto stream = processor->getDataStream (getCurrentStream()))
+    {
+        int nextAvailableChannel = processor->getNextAvailableChannelForStream (stream->getStreamId());
 
-    int nextAvailableChannel = processor->getNextAvailableChannelForStream (stream->getStreamId());
+        AddSpikeChannels* action = new AddSpikeChannels (processor, stream, type, count, startChannels, nextAvailableChannel);
 
-    AddSpikeChannels* action = new AddSpikeChannels (processor, stream, type, count, startChannels, nextAvailableChannel);
+        CoreServices::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+        CoreServices::getUndoManager()->perform ((UndoableAction*) action);
 
-    CoreServices::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
-    CoreServices::getUndoManager()->perform ((UndoableAction*) action);
-
-    if (window != nullptr)
-        window->update (processor->getSpikeChannelsForStream (getCurrentStream()));
+        if (window != nullptr)
+            window->update (processor->getSpikeChannelsForStream (getCurrentStream()));
+    }
 }
 
 void SpikeDetectorEditor::removeSpikeChannels (PopupConfigurationWindow* window, Array<SpikeChannel*> spikeChannelsToRemove, Array<int> indeces)
 {
     SpikeDetector* processor = (SpikeDetector*) getProcessor();
 
-    DataStream* stream = processor->getDataStream (getCurrentStream());
+    if (auto stream = processor->getDataStream (getCurrentStream()))
+    {
+        RemoveSpikeChannels* action = new RemoveSpikeChannels (processor, stream, spikeChannelsToRemove, indeces);
 
-    RemoveSpikeChannels* action = new RemoveSpikeChannels (processor, stream, spikeChannelsToRemove, indeces);
+        CoreServices::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+        CoreServices::getUndoManager()->perform ((UndoableAction*) action);
 
-    CoreServices::getUndoManager()->beginNewTransaction ("Disabled during acquisition");
-    CoreServices::getUndoManager()->perform ((UndoableAction*) action);
-
-    if (window != nullptr)
-        window->update (processor->getSpikeChannelsForStream (getCurrentStream()));
+        if (window != nullptr)
+            window->update (processor->getSpikeChannelsForStream (getCurrentStream()));
+    }
 }
 
 int SpikeDetectorEditor::getNumChannelsForCurrentStream()
