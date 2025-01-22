@@ -586,6 +586,11 @@ Array<int> SelectedChannelsParameterEditor::getSelectedChannels()
     return ((SelectedChannelsParameter*) param)->getArrayValue();
 }
 
+int SelectedChannelsParameterEditor::getChannelCount()
+{
+    return ((SelectedChannelsParameter*) param)->getChannelCount();
+}
+
 void SelectedChannelsParameterEditor::channelStateChanged (Array<int> newChannels)
 {
     Array<var> newArray;
@@ -689,6 +694,11 @@ MaskChannelsParameterEditor::MaskChannelsParameterEditor (Parameter* param, int 
 Array<int> MaskChannelsParameterEditor::getSelectedChannels()
 {
     return ((MaskChannelsParameter*) param)->getArrayValue();
+}
+
+int MaskChannelsParameterEditor::getChannelCount()
+{
+    return ((MaskChannelsParameter*) param)->getChannelCount();
 }
 
 void MaskChannelsParameterEditor::channelStateChanged (Array<int> newChannels)

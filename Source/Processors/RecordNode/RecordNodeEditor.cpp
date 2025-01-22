@@ -257,6 +257,11 @@ void RecordChannelsParameterEditor::channelStateChanged (Array<int> newChannels)
     updateView();
 }
 
+int RecordChannelsParameterEditor::getChannelCount()
+{
+    return ((MaskChannelsParameter*) param)->getChannelCount();
+}
+
 Array<int> RecordChannelsParameterEditor::getSelectedChannels()
 {
     MaskChannelsParameter* p = (MaskChannelsParameter*) param;

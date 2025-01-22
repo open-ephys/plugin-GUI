@@ -268,6 +268,12 @@ void PopupChannelSelector::paint (Graphics& g)
 
 void PopupChannelSelector::updatePopup()
 {
+    if (nChannels != listener->getChannelCount())
+    {
+        findParentComponentOfClass<CallOutBox>()->exitModalState (0);
+        return;
+    }
+
     Array<int> selectedChannels = listener->getSelectedChannels();
     for (auto* btn : channelButtons)
     {

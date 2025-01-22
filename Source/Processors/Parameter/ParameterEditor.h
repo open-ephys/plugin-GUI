@@ -399,6 +399,9 @@ public:
     /** Responds to changes in the PopupChannelSelector*/
     void channelStateChanged (Array<int> selectedChannels) override;
 
+    /** Get the number of channels */
+    int getChannelCount() override;
+
     /** Sets sub-component locations */
     virtual void resized() override;
 
@@ -458,6 +461,9 @@ public:
 
     /** Responds to changes in the PopupChannelSelector*/
     void channelStateChanged (Array<int> selectedChannels) override;
+
+    /** Get the number of channels */
+    int getChannelCount() override;
 
     /** Sets sub-component locations */
     virtual void resized() override;

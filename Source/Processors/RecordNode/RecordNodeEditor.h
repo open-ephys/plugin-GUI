@@ -118,8 +118,6 @@ public:
     void paint (Graphics& g);
 };
 
-
-
 class StreamMonitor : public LevelMonitor
 {
 public:
@@ -143,7 +141,6 @@ private:
     int selectedChannels;
     int totalChannels;
 };
-
 
 class DiskMonitor : public LevelMonitor, public DiskSpaceListener
 {
@@ -196,6 +193,9 @@ public:
 
     /** Responds to changes in the PopupChannelSelector*/
     void channelStateChanged (Array<int> selectedChannels) override;
+
+    /** Get the number of channels */
+    int getChannelCount() override;
 
     /** Sets sub-component locations */
     virtual void resized() override;
@@ -314,7 +314,7 @@ public:
     /** Set the time of latest sync pulse */
     void setLastSyncEvent (uint16 streamId, bool isSynchronized, float syncTimeSeconds);
 
-     /** Set the synchronization accuracy metric for a particular stream */
+    /** Set the synchronization accuracy metric for a particular stream */
     void setSyncAccuracy (uint16 streamId, bool isSynchronized, float expectedMinusActual);
 
     std::unique_ptr<FifoDrawerButton> fifoDrawerButton;

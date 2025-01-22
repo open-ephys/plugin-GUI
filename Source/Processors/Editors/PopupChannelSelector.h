@@ -127,6 +127,7 @@ public:
         virtual ~Listener() {}
         virtual Array<int> getSelectedChannels() = 0;
         virtual void channelStateChanged (Array<int> selectedChannels) = 0;
+        virtual int getChannelCount() = 0;
     };
 
     /** Constructor */

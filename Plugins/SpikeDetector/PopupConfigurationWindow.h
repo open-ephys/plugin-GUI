@@ -103,6 +103,12 @@ public:
         channels->setNextValue (newArray);
     }
 
+    /** Get the number of channels */
+    int getChannelCount() override
+    {
+        return channels->getChannelCount();
+    }
+
     /** Sets row and column */
     void setRowAndColumn (const int newRow, const int newColumn);
 
@@ -408,6 +414,9 @@ public:
 
     /** Responds to changes in the PopupChannelSelector*/
     void channelStateChanged (Array<int> selectedChannels);
+
+    /** Get the number of channels */
+    int getChannelCount() { return channelCount; }
 
     /** Responds to button clicks*/
     void buttonClicked (Button* button);

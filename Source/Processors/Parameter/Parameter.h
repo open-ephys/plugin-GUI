@@ -736,6 +736,9 @@ public:
     /** Sets the total number of available channels in this stream*/
     void setChannelCount (int count);
 
+    /** Returns the total number of available channels in this stream*/
+    int getChannelCount() { return channelCount; }
+
     /** Saves the parameter to an XML Element*/
     virtual void toXml (XmlElement*) override;
 
@@ -786,6 +789,9 @@ public:
 
     /** Gets the value change description */
     virtual String getChangeDescription() override;
+
+    /** Returns the total number of available channels in this stream*/
+    int getChannelCount() { return channelCount; }
 
     /** Sets the total number of available channels in this stream*/
     void setChannelCount (int count);
