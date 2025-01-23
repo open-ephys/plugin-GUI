@@ -454,13 +454,13 @@ void ComboBox::lookAndFeelChanged()
 //==============================================================================
 bool ComboBox::keyPressed (const KeyPress& key)
 {
-    if (key == KeyPress::upKey || key == KeyPress::leftKey)
+    if (key == KeyPress::upKey)
     {
         nudgeSelectedItem (-1);
         return true;
     }
 
-    if (key == KeyPress::downKey || key == KeyPress::rightKey)
+    if (key == KeyPress::downKey)
     {
         nudgeSelectedItem (1);
         return true;
