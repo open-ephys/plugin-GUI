@@ -94,6 +94,8 @@ LfpDisplayOptions::LfpDisplayOptions (LfpDisplayCanvas* canvas_, LfpDisplaySplit
     timebaseSelectionLabel->setFont (labelFont);
     mainOptions->addAndMakeVisible (timebaseSelectionLabel.get());
 
+    setTimebaseAndSelectionText (selectedTimebaseValue.getFloatValue());
+
     // Channel height
     spreads.add ("6");
     spreads.add ("10");
@@ -1533,7 +1535,7 @@ void LfpDisplayOptions::loadParameters (XmlElement* xml)
             String rangeString = xmlNode->getStringAttribute ("Range");
             ranges.addTokens (rangeString, ",", "\"");
 
-            setSelectedType( (ContinuousChannel::Type) xmlNode->getIntAttribute ("selectedChannelType", ContinuousChannel::Type::ELECTRODE));
+            setSelectedType ((ContinuousChannel::Type) xmlNode->getIntAttribute ("selectedChannelType", ContinuousChannel::Type::ELECTRODE));
 
             selectedVoltageRangeValues[0] = ranges[0];
             selectedVoltageRangeValues[1] = ranges[1];

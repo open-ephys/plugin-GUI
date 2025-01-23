@@ -713,8 +713,6 @@ LfpDisplaySplitter::LfpDisplaySplitter (LfpDisplayNode* node,
 
     lfpDisplay->options = options.get();
 
-    timescale->setTimebase (timebase);
-
     viewport->setViewedComponent (lfpDisplay.get(), false);
     viewport->setScrollBarsShown (true, false);
 
