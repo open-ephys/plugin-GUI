@@ -165,7 +165,11 @@ private:
 
     void run() override;
 
+    /** Shows the alert message on the message thread **/
     void showAlertOnMessageThread (MessageBoxIconType iconType, const String& title, const String& message);
+
+    /** Updates the UI on the message thread **/
+    void updateUIOnMessageThread();
 
     DropShadower infoCompDropShadower { DropShadow (Colours::black.withAlpha (0.5f), 6, { 2, 2 }) };
 

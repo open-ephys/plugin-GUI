@@ -670,7 +670,7 @@ void PluginListBoxComponent::run()
             pluginName = pluginData[i].getProperty ("name", var()).toString();
             label = pluginData[i].getProperty ("type", "NULL").toString();
             dispName = pluginData[i].getProperty ("display_name", "NULL").toString();
-            
+
             pluginTextWidth = GlyphArrangement::getStringWidthInt (Font (listFont), dispName);
             if (pluginTextWidth > maxTextWidth)
                 maxTextWidth = pluginTextWidth;
@@ -977,8 +977,26 @@ void PluginInfoComponent::setDownloadURL (const String& url)
 
 void PluginInfoComponent::showAlertOnMessageThread (MessageBoxIconType iconType, const String& title, const String& message)
 {
-    MessageManager::callAsync ([iconType, title, message]()
+    MessageManager::callAsync ([=]()
                                { AlertWindow::showMessageBoxAsync (iconType, title, message); });
+}
+
+void PluginInfoComponent::updateUIOnMessageThread()
+{
+    MessageManager::callAsync ([this]()
+    {
+        pInfo.installedVersion = pInfo.selectedVersion;
+        installedVerText.setText (pInfo.installedVersion, dontSendNotification);
+        downloadButton.setEnabled (false);
+        downloadButton.setButtonText ("Installed");
+        uninstallButton.setVisible (true);
+
+        if (pInfo.installedVersion.equalsIgnoreCase (pInfo.latestVersion))
+        {
+            updatablePlugins.removeString (pInfo.pluginName);
+            this->getParentComponent()->resized();
+        } 
+    });
 }
 
 void PluginInfoComponent::run()
@@ -1095,17 +1113,7 @@ void PluginInfoComponent::run()
 
         LOGC ("Download Successful!!");
 
-        pInfo.installedVersion = pInfo.selectedVersion;
-        installedVerText.setText (pInfo.installedVersion, dontSendNotification);
-        downloadButton.setEnabled (false);
-        downloadButton.setButtonText ("Installed");
-        uninstallButton.setVisible (true);
-
-        if (pInfo.latestVersion.equalsIgnoreCase (pInfo.latestVersion))
-        {
-            updatablePlugins.removeString (pInfo.pluginName);
-            this->getParentComponent()->resized();
-        }
+        updateUIOnMessageThread();
     }
     else if (dlReturnCode == ZIP_NOTFOUND)
     {
@@ -1158,17 +1166,7 @@ void PluginInfoComponent::run()
 
         LOGE ("Loading Plugin Failed!!");
 
-        pInfo.installedVersion = pInfo.selectedVersion;
-
-        const MessageManagerLock mmLock;
-        downloadButton.setEnabled (false);
-        downloadButton.setButtonText ("Installed");
-
-        if (pInfo.latestVersion.equalsIgnoreCase (pInfo.latestVersion))
-        {
-            updatablePlugins.removeString (pInfo.pluginName);
-            this->getParentComponent()->repaint();
-        }
+        updateUIOnMessageThread();
     }
     else if (dlReturnCode == HTTP_ERR)
     {
