@@ -62,9 +62,9 @@ jobs:
         security unlock-keychain -p $MACOS_CI_KEYCHAIN_PWD build.keychain
         security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
         security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_CI_KEYCHAIN_PWD build.keychain
-        /usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" -v open-ephys/Open\ Ephys\ GUI.app --deep --strict --timestamp --options=runtime
+        /usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" -v open-ephys/Open\ Ephys\ GUI.app --deep --strict --timestamp --options=runtime --entitlements ../../Resources/Build-files/entitlements.plist
 
-        /usr/bin/codesign -dv --verbose=4 open-ephys/Open\ Ephys\ GUI.app
+        /usr/bin/codesign -dv --verbose=4 --entitlements - open-ephys/Open\ Ephys\ GUI.app
 
         # Store the notarization credentials so that we can prevent a UI password dialog from blocking the CI
 
@@ -124,9 +124,9 @@ jobs:
         security unlock-keychain -p $MACOS_CI_KEYCHAIN_PWD build.keychain
         security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
         security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_CI_KEYCHAIN_PWD build.keychain
-        /usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" -v open-ephys/Open\ Ephys\ GUI.app --deep --strict --timestamp --options=runtime
+        /usr/bin/codesign --force -s "$MACOS_CERTIFICATE_NAME" -v open-ephys/Open\ Ephys\ GUI.app --deep --strict --timestamp --options=runtime --entitlements ../../Resources/Build-files/entitlements.plist
 
-        /usr/bin/codesign -dv --verbose=4 open-ephys/Open\ Ephys\ GUI.app
+        /usr/bin/codesign -dv --verbose=4 --entitlements - open-ephys/Open\ Ephys\ GUI.app
 
         # Store the notarization credentials so that we can prevent a UI password dialog from blocking the CI
 
