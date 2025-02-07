@@ -919,23 +919,25 @@ void EditorViewport::mouseDown (const MouseEvent& e)
                 }
                 else if (result == 6)
                 {
+                    editorArray[i]->deselect();
+
                     File picturesDirectory = File::getSpecialLocation (File::SpecialLocationType::userPicturesDirectory);
 
                     String editorName = editorArray[i]->getName() + "_" + String (editorArray[i]->getProcessor()->getNodeId());
                     File outputFile = picturesDirectory.getNonexistentChildFile (editorName, ".png");
 
-                    juce::Rectangle<int> bounds = juce::Rectangle<int> (3, 3, editorArray[i]->getWidth() - 6, editorArray[i]->getHeight() - 6);
-
                     Image componentImage = editorArray[i]->createComponentSnapshot (
-                        bounds,
+                        editorArray[i]->getLocalBounds(),
                         true,
-                        1.5f);
+                        2.0f);
 
                     FileOutputStream stream (outputFile);
                     PNGImageFormat pngWriter;
                     pngWriter.writeImageToStream (componentImage, stream);
 
                     CoreServices::sendStatusMessage ("Saved image to " + outputFile.getFullPathName());
+
+                    return;
                 }
             }
 
