@@ -33,7 +33,6 @@
 #include "UI/UIComponent.h"
 #include "Utils/OpenEphysHttpServer.h"
 
-
 class OpenEphysHttpServer;
 
 /**
@@ -51,6 +50,12 @@ public:
     /** Called when the user hits the close button of the MainWindow. This destroys
         the MainWindow and closes the application. */
     void closeButtonPressed();
+
+    /** Set the border thickness to 1 unit on all sides. */
+    BorderSize<int> getBorderThickness() const override
+    {
+        return BorderSize<int> (1);
+    }
 };
 
 /**

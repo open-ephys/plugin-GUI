@@ -714,7 +714,7 @@ void CustomLookAndFeel::drawMenuBarBackground (Graphics& g, int width, int heigh
 {
     const Colour colour (findColour (ThemeColours::menuBackground));
 
-    Rectangle<int> r (1, 0, width - 2, height);
+    Rectangle<int> r (0, 0, width, height);
 
     g.setColour (colour.contrasting (0.15f));
     g.fillRect (r.removeFromBottom (1));
