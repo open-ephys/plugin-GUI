@@ -545,12 +545,18 @@ void GenericProcessor::parameterChangeRequest (Parameter* param)
     setParameter (-1, 0.0f);
 
     if (! headlessMode
-        && dataStreams.size() > 0
-        && param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
-        && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
+        && dataStreams.size() > 0)
     {
-        uint16 streamId = dataStreams[param->getValue()]->getStreamId();
-        getEditor()->updateSelectedStream (streamId);
+        if (param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
+            && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
+        {
+            uint16 streamId = dataStreams[param->getValue()]->getStreamId();
+            getEditor()->updateSelectedStream (streamId);
+        }
+        else if (param->getName() == "enable_stream" && param->getStreamId() > 0)
+        {
+            getEditor()->streamEnabledStateChanged (param->getStreamId(), (bool) param->getValue());
+        }
     }
 }
 

@@ -39,44 +39,69 @@ StreamTableModel::StreamTableModel (StreamSelectorTable* owner_)
 
 void StreamTableModel::cellClicked (int rowNumber, int columnId, const MouseEvent& event)
 {
-    if (owner->viewedStreamIndex != rowNumber)
+    if (event.mods.isLeftButtonDown())
     {
-        owner->viewedStreamIndex = rowNumber;
-
-        bool foundSelectedStreamParam = false;
-
-        for (auto param : owner->editor->getProcessor()->getParameters())
+        if (owner->viewedStreamIndex != rowNumber)
         {
-            if (param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
-                && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
-            {
-                param->setNextValue (rowNumber);
-                foundSelectedStreamParam = true;
-                break;
-            }
-        }
+            owner->viewedStreamIndex = rowNumber;
 
-        if (owner->editor->isVisualizerEditor())
-        {
-            auto* visualizerEditor = dynamic_cast<VisualizerEditor*> (owner->editor);
+            bool foundSelectedStreamParam = false;
 
-            if (visualizerEditor->canvas != nullptr)
+            for (auto param : owner->editor->getProcessor()->getParameters())
             {
-                for (auto param : visualizerEditor->canvas->getParameters())
+                if (param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
+                    && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
                 {
-                    if (param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
-                        && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
+                    param->setNextValue (rowNumber);
+                    foundSelectedStreamParam = true;
+                    break;
+                }
+            }
+
+            if (owner->editor->isVisualizerEditor())
+            {
+                auto* visualizerEditor = dynamic_cast<VisualizerEditor*> (owner->editor);
+
+                if (visualizerEditor->canvas != nullptr)
+                {
+                    for (auto param : visualizerEditor->canvas->getParameters())
                     {
-                        param->setNextValue (rowNumber);
-                        foundSelectedStreamParam = true;
-                        break;
+                        if (param->getType() == Parameter::ParameterType::SELECTED_STREAM_PARAM
+                            && ((SelectedStreamParameter*) param)->shouldSyncWithStreamSelector())
+                        {
+                            param->setNextValue (rowNumber);
+                            foundSelectedStreamParam = true;
+                            break;
+                        }
                     }
                 }
             }
+
+            if (! foundSelectedStreamParam)
+                owner->editor->updateSelectedStream (streams[rowNumber]->getStreamId());
         }
 
-        if (! foundSelectedStreamParam)
-            owner->editor->updateSelectedStream (streams[rowNumber]->getStreamId());
+        return;
+    }
+    else if (event.mods.isRightButtonDown() && owner->editor->getProcessor()->isFilter())
+    {
+        PopupMenu m;
+        bool streamState = owner->checkStream (streams[rowNumber]);
+
+        String enableText = (streamState ? "Disable" : "Enable") + String (" stream");
+        m.addItem (1, enableText, ! CoreServices::getAcquisitionStatus());
+
+        int result = m.showMenu (PopupMenu::Options().withParentComponent (owner->editor).withStandardItemHeight (20));
+
+        if (result == 1)
+        {
+            if (auto *param = streams[rowNumber]->getParameter ("enable_stream"))
+            {
+                param->setNextValue (! streamState);
+            }
+        }
+
+        return;
     }
 }
 
@@ -159,12 +184,19 @@ void StreamTableModel::update (Array<const DataStream*> dataStreams_)
 
 void StreamTableModel::paintRowBackground (Graphics& g, int rowNumber, int width, int height, bool rowIsSelected)
 {
-    if (rowNumber % 2 == 0)
-        g.fillAll (owner->findColour (ThemeColours::componentBackground));
+    if (owner->checkStream (streams[rowNumber]))
+    {
+        if (rowNumber % 2 == 0)
+            g.fillAll (owner->findColour (ThemeColours::componentBackground));
+        else
+            g.fillAll (owner->findColour (ThemeColours::componentBackground).darker (0.25f));
+    }
     else
-        g.fillAll (owner->findColour (ThemeColours::componentBackground).darker (0.25f));
+    {
+        g.fillAll (Colours::red.withAlpha (0.5f));
+    }
 
-    if (rowIsSelected)
+    if (owner->getViewedIndex() == rowNumber)
     {
         g.setColour (Colours::yellow);
         g.drawRect (0, 0, width, height, 2);
@@ -177,28 +209,23 @@ void StreamTableModel::paintCell (Graphics& g, int rowNumber, int columnId, int 
     if (rowNumber >= streams.size())
         return;
 
+    g.setColour (owner->editor->findColour (ThemeColours::defaultText));
+    g.setFont (FontOptions (12.0f));
+
     if (columnId == StreamTableModel::Columns::PROCESSOR_ID)
     {
-        g.setFont (FontOptions (12.0f));
-        g.setColour (owner->editor->findColour (ThemeColours::defaultText));
         g.drawText (String (streams[rowNumber]->getSourceNodeId()), 2, 0, width - 4, height, Justification::centredLeft);
     }
     else if (columnId == StreamTableModel::Columns::NAME)
     {
-        g.setFont (FontOptions (12.0f));
-        g.setColour (owner->editor->findColour (ThemeColours::defaultText));
         g.drawText (String (streams[rowNumber]->getName()), 2, 0, width - 5, height, Justification::centredLeft);
     }
     else if (columnId == StreamTableModel::Columns::NUM_CHANNELS)
     {
-        g.setFont (FontOptions (12.0f));
-        g.setColour (owner->editor->findColour (ThemeColours::defaultText));
         g.drawText (String (streams[rowNumber]->getChannelCount()), 2, 0, width - 4, height, Justification::centredLeft);
     }
     else if (columnId == StreamTableModel::Columns::SAMPLE_RATE)
     {
-        g.setFont (FontOptions (12.0f));
-        g.setColour (owner->editor->findColour (ThemeColours::defaultText));
         g.drawText (String (streams[rowNumber]->getSampleRate()), 2, 0, width - 4, height, Justification::centredLeft);
     }
 }
@@ -473,6 +500,7 @@ void StreamSelectorTable::setStreamEnabledState (uint16 streamId, bool isEnabled
 {
     //LOGD("Setting state for stream ", streamId, ":  ", isEnabled);
     streamStates[streamId] = isEnabled;
+    tableModel->table->repaint();
 }
 
 void StreamSelectorTable::resized()
@@ -518,11 +546,23 @@ const DataStream* StreamSelectorTable::getCurrentStream()
 void StreamSelectorTable::add (const DataStream* stream)
 {
     streams.add (stream);
+
+    if (editor->getProcessor()->isFilter())
+    {
+        if (auto *param = stream->getParameter ("enable_stream"))
+        {
+            streamStates[stream->getStreamId()] = param->getValue();
+            return;
+        }
+    }
+
+    streamStates[stream->getStreamId()] = true;
 }
 
 void StreamSelectorTable::beginUpdate()
 {
     streams.clear();
+    streamStates.clear();
 }
 
 uint16 StreamSelectorTable::finishedUpdate()
@@ -563,6 +603,9 @@ void StreamSelectorTable::remove (const DataStream* stream)
 {
     if (streams.contains (stream))
         streams.remove (streams.indexOf (stream));
+    
+    if (streamStates.count (stream->getStreamId()) > 0)
+        streamStates.erase (stream->getStreamId());
 }
 
 StreamEnableButton::StreamEnableButton (const String& name) : Button (name),
