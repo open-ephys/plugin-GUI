@@ -618,18 +618,8 @@ void GenericProcessor::clearSettings()
 {
     LOGDD ("Clearing settings for ", getName());
 
-    Array<ContinuousChannel*> continuousChannelsToKeep;
-
-    for (auto obj : continuousChannels)
-    {
-        if (! obj->isLocal())
-            delete obj;
-        else
-            continuousChannelsToKeep.add (obj);
-    }
-
-    continuousChannels.clearQuick (false);
-    continuousChannels.addArray (continuousChannelsToKeep);
+    // Clear all continuous channels. No need to keep local channels around.
+    continuousChannels.clear();
 
     // Clear all event channels. No need to keep local channels around.
     eventChannels.clear();
