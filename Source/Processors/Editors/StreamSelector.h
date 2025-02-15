@@ -25,6 +25,7 @@
 #define __STREAMSELECTOR_H_BDCEE716__
 
 #include "../../../JuceLibraryCode/JuceHeader.h"
+#include "../../UI/PopupComponent.h"
 #include "../PluginManager/OpenEphysPlugin.h"
 
 /**
@@ -45,7 +46,7 @@ class DelayMonitor;
 class UtilityButton;
 
 class ExpanderButton;
-class StreamEnableButton;
+class ExpandedTableComponent;
 
 class StreamSelectorTable;
 
@@ -218,6 +219,8 @@ private:
     std::unique_ptr<TableListBox> streamTable;
     std::unique_ptr<ExpanderButton> expanderButton;
 
+    ExpandedTableComponent* expandedTableComponent = nullptr;
+
     Array<const DataStream*> streams;
 
     std::map<uint16, bool> streamStates;
@@ -226,7 +229,6 @@ private:
     int streamInfoViewHeight;
 
     int counter = 0;
-    
 };
 
 /**
@@ -249,25 +251,22 @@ private:
 };
 
 /**
-  Displays the name of the current stream
+  Popup Table component for expanded view of stream info table.
+  Supports undo/redo actions.
 */
-class StreamEnableButton : public Button
+class ExpandedTableComponent : public PopupComponent
 {
 public:
     /** Constructor*/
-    StreamEnableButton (const String& name);
+    ExpandedTableComponent (TableListBox* table, Component* parent);
 
     /** Destructor*/
-    ~StreamEnableButton() {}
+    ~ExpandedTableComponent() {}
 
-    /** Enables/disables the button*/
-    void setEnabledState (bool isEnabled_) { isEnabled = isEnabled_; }
+    void updatePopup() override;
 
 private:
-    /** Renders the button*/
-    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
-
-    bool isEnabled;
+    std::unique_ptr<TableListBox> expandedTable;
 };
 
 #endif // __STREAMSELECTOR_H_BDCEE716__

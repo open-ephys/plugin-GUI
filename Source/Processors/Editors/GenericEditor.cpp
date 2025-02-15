@@ -654,7 +654,10 @@ void GenericEditor::update (bool isEnabled_)
         if (numChannels == 0)
         {
             if (drawerButton != nullptr)
+            {
+                drawerButton->setToggleState (false, sendNotification);
                 drawerButton->setVisible (false);
+            }
         }
         else
         {

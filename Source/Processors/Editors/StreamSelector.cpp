@@ -91,11 +91,11 @@ void StreamTableModel::cellClicked (int rowNumber, int columnId, const MouseEven
         String enableText = (streamState ? "Disable" : "Enable") + String (" stream");
         m.addItem (1, enableText, ! CoreServices::getAcquisitionStatus());
 
-        int result = m.showMenu (PopupMenu::Options().withParentComponent (owner->editor).withStandardItemHeight (20));
+        int result = m.showMenu (PopupMenu::Options().withStandardItemHeight (20));
 
         if (result == 1)
         {
-            if (auto *param = streams[rowNumber]->getParameter ("enable_stream"))
+            if (auto* param = streams[rowNumber]->getParameter ("enable_stream"))
             {
                 param->setNextValue (! streamState);
             }
@@ -318,6 +318,10 @@ TableListBox* StreamSelectorTable::createTableView (bool expanded)
 
 StreamSelectorTable::~StreamSelectorTable()
 {
+    if (expandedTableComponent != nullptr)
+    {
+        expandedTableComponent->removeComponentListener (this);
+    }
 }
 
 void StreamSelectorTable::buttonClicked (Button* button)
@@ -335,12 +339,11 @@ void StreamSelectorTable::buttonClicked (Button* button)
         table->selectRow (viewedStreamIndex);
         tableModel->table = table;
 
-        CallOutBox& myBox = CallOutBox::launchAsynchronously (std::unique_ptr<Component> (table),
-                                                              button->getScreenBounds(),
-                                                              nullptr);
+        expandedTableComponent = new ExpandedTableComponent (table, this);
 
-        myBox.setDismissalMouseClicksAreAlwaysConsumed (true);
-        myBox.addComponentListener (this);
+        CoreServices::getPopupManager()->showPopup (std::unique_ptr<PopupComponent> (expandedTableComponent), button);
+
+        expandedTableComponent->addComponentListener (this);
 
         editor->updateDelayAndTTLMonitors();
 
@@ -354,6 +357,7 @@ void StreamSelectorTable::buttonClicked (Button* button)
 
 void StreamSelectorTable::componentBeingDeleted (Component& component)
 {
+    expandedTableComponent = nullptr;
     tableModel->table = streamTable.get();
     streamTable->selectRow (viewedStreamIndex);
 
@@ -501,6 +505,7 @@ void StreamSelectorTable::setStreamEnabledState (uint16 streamId, bool isEnabled
     //LOGD("Setting state for stream ", streamId, ":  ", isEnabled);
     streamStates[streamId] = isEnabled;
     tableModel->table->repaint();
+    streamTable->repaint();
 }
 
 void StreamSelectorTable::resized()
@@ -549,7 +554,7 @@ void StreamSelectorTable::add (const DataStream* stream)
 
     if (editor->getProcessor()->isFilter())
     {
-        if (auto *param = stream->getParameter ("enable_stream"))
+        if (auto* param = stream->getParameter ("enable_stream"))
         {
             streamStates[stream->getStreamId()] = param->getValue();
             return;
@@ -574,16 +579,18 @@ uint16 StreamSelectorTable::finishedUpdate()
         newStreams.add (stream);
     }
 
-    tableModel->update (newStreams);
-
     if (streams.size() == 0)
     {
         expanderButton->setEnabled (false);
+        tableModel->table = streamTable.get();
+        tableModel->update (newStreams);
         return 0;
     }
     else
     {
         expanderButton->setEnabled (true);
+
+        tableModel->update (newStreams);
 
         if (viewedStreamIndex < streams.size())
         {
@@ -603,31 +610,31 @@ void StreamSelectorTable::remove (const DataStream* stream)
 {
     if (streams.contains (stream))
         streams.remove (streams.indexOf (stream));
-    
+
     if (streamStates.count (stream->getStreamId()) > 0)
         streamStates.erase (stream->getStreamId());
 }
 
-StreamEnableButton::StreamEnableButton (const String& name) : Button (name),
-                                                              isEnabled (true)
-{
-}
+// StreamEnableButton::StreamEnableButton (const String& name) : Button (name),
+//                                                               isEnabled (true)
+// {
+// }
 
-void StreamEnableButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
-{
-    if (! getToggleState())
-    {
-        g.setColour (Colours::darkgrey);
-        g.drawRect (0, 0, getWidth(), getHeight(), 1.0);
-        g.drawLine (0, 0, getWidth(), getHeight(), 1.0);
-        g.drawLine (0, getHeight(), getWidth(), 0, 1.0);
+// void StreamEnableButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
+// {
+//     if (! getToggleState())
+//     {
+//         g.setColour (Colours::darkgrey);
+//         g.drawRect (0, 0, getWidth(), getHeight(), 1.0);
+//         g.drawLine (0, 0, getWidth(), getHeight(), 1.0);
+//         g.drawLine (0, getHeight(), getWidth(), 0, 1.0);
 
-        return;
-    }
+//         return;
+//     }
 
-    g.setColour (Colours::black);
-    g.drawRect (0, 0, getWidth(), getHeight(), 1.0);
-}
+//     g.setColour (Colours::black);
+//     g.drawRect (0, 0, getWidth(), getHeight(), 1.0);
+// }
 
 ExpanderButton::ExpanderButton() : Button ("Expander")
 {
@@ -657,4 +664,25 @@ void ExpanderButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDo
         g.setColour (findColour (ThemeColours::defaultText));
 
     g.strokePath (iconPath, PathStrokeType (1.5f));
+}
+
+ExpandedTableComponent::ExpandedTableComponent (TableListBox* table, Component* parent)
+    : PopupComponent (parent)
+{
+    expandedTable.reset (table);
+    addAndMakeVisible (expandedTable.get());
+    setSize (expandedTable->getWidth(), expandedTable->getHeight());
+}
+
+void ExpandedTableComponent::updatePopup()
+{
+    if (expandedTable->getNumRows() == 0)
+    {
+        findParentComponentOfClass<CallOutBox>()->exitModalState (0);
+        return;
+    }
+
+    expandedTable->setSize (expandedTable->getWidth(), expandedTable->getNumRows() * 20 + 24);
+    setSize (expandedTable->getWidth(), expandedTable->getHeight());
+    expandedTable->repaint();
 }
