@@ -79,6 +79,8 @@ void StreamTableModel::cellClicked (int rowNumber, int columnId, const MouseEven
 
             if (! foundSelectedStreamParam)
                 owner->editor->updateSelectedStream (streams[rowNumber]->getStreamId());
+
+            table->repaint();
         }
 
         return;
@@ -184,6 +186,9 @@ void StreamTableModel::update (Array<const DataStream*> dataStreams_)
 
 void StreamTableModel::paintRowBackground (Graphics& g, int rowNumber, int width, int height, bool rowIsSelected)
 {
+    if (rowNumber >= streams.size())
+        return;
+
     if (owner->checkStream (streams[rowNumber]))
     {
         if (rowNumber % 2 == 0)
@@ -590,6 +595,7 @@ uint16 StreamSelectorTable::finishedUpdate()
     {
         expanderButton->setEnabled (true);
 
+        tableModel->table = streamTable.get();
         tableModel->update (newStreams);
 
         if (viewedStreamIndex < streams.size())
@@ -680,6 +686,11 @@ void ExpandedTableComponent::updatePopup()
     {
         findParentComponentOfClass<CallOutBox>()->exitModalState (0);
         return;
+    }
+
+    if (auto* tableModel = dynamic_cast<StreamTableModel*> (expandedTable->getModel()))
+    {
+        tableModel->table = expandedTable.get();
     }
 
     expandedTable->setSize (expandedTable->getWidth(), expandedTable->getNumRows() * 20 + 24);
