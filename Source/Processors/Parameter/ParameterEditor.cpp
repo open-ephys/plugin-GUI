@@ -1032,19 +1032,17 @@ PathParameterEditor::PathParameterEditor (Parameter* param, int rowHeightPixels,
 
 void PathParameterEditor::buttonClicked (Button* button_)
 {
-    String dialogBoxTitle = "Select a ";
     bool isDirectory = ((PathParameter*) param)->getIsDirectory();
+    String dialogBoxTitle;
     String validFilePatterns;
 
-    if (isDirectory)
-    {
-        dialogBoxTitle += "directory...";
-    }
+    if (param->getDescription().isEmpty())
+        dialogBoxTitle = "Select a " + String (isDirectory ? "directory" : "file");
     else
-    {
-        dialogBoxTitle += "file...";
+        dialogBoxTitle = param->getDescription();
+
+    if (! isDirectory)
         validFilePatterns = "*." + ((PathParameter*) param)->getValidFilePatterns().joinIntoString (";*.");
-    }
 
     FileChooser chooser (dialogBoxTitle, File(), validFilePatterns);
 
