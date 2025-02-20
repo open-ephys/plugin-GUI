@@ -37,7 +37,7 @@
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="LFP Viewer" insertionPoint="1" pluginName="LFP Viewer"
-               type="1" index="7" libraryName="LFP viewer" libraryVersion="0.1.0"
+               type="1" index="7" libraryName="LFP viewer" libraryVersion=""
                processorType="3" nodeId="102">
       <PROCESSOR_PARAMETERS/>
       <STREAM name="example_data" description="A description of the File Reader Stream"
@@ -77,7 +77,7 @@
       </EDITOR>
     </PROCESSOR>
     <PROCESSOR name="Bandpass Filter" insertionPoint="1" pluginName="Bandpass Filter"
-               type="1" index="6" libraryName="Bandpass Filter" libraryVersion="0.1.0"
+               type="1" index="6" libraryName="Bandpass Filter" libraryVersion=""
                processorType="1" nodeId="103">
       <PROCESSOR_PARAMETERS threads="1"/>
       <STREAM name="example_data" description="A description of the File Reader Stream"
@@ -89,7 +89,7 @@
               activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="Spike Detector" insertionPoint="1" pluginName="Spike Detector"
-               type="1" index="4" libraryName="Spike Detector" libraryVersion="0.1.0"
+               type="1" index="4" libraryName="Spike Detector" libraryVersion=""
                processorType="1" nodeId="104">
       <PROCESSOR_PARAMETERS/>
       <STREAM name="example_data" description="A description of the File Reader Stream"
@@ -170,7 +170,7 @@
               activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="Spike Viewer" insertionPoint="1" pluginName="Spike Viewer"
-               type="1" index="5" libraryName="Spike Viewer" libraryVersion="0.1.0"
+               type="1" index="5" libraryName="Spike Viewer" libraryVersion=""
                processorType="3" nodeId="107">
       <PROCESSOR_PARAMETERS/>
       <STREAM name="example_data" description="A description of the File Reader Stream"
@@ -259,8 +259,4 @@
     <COLOR ID="807" R="0" G="0" B="0"/>
   </PROCESSORLIST>
   <UICOMPONENT isProcessorListOpen="1" isEditorViewportOpen="1" colorTheme="0"/>
-  <AUDIO sampleRate="44100.0" bufferSize="1024" deviceType="CoreAudio">
-    <DEVICESETUP deviceType="CoreAudio" audioOutputDeviceName="MacBook Pro Speakers"
-                 audioInputDeviceName="" audioDeviceRate="44100.0" audioDeviceBufferSize="1024"/>
-  </AUDIO>
 </SETTINGS>

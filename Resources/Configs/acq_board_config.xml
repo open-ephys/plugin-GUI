@@ -51,7 +51,7 @@
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="LFP Viewer" insertionPoint="1" pluginName="LFP Viewer"
-               type="1" index="8" libraryName="LFP viewer" libraryVersion="0.1.0"
+               type="1" index="8" libraryName="LFP viewer" libraryVersion=""
                processorType="3" nodeId="103">
       <PROCESSOR_PARAMETERS/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
@@ -91,7 +91,7 @@
       </EDITOR>
     </PROCESSOR>
     <PROCESSOR name="Bandpass Filter" insertionPoint="1" pluginName="Bandpass Filter"
-               type="1" index="6" libraryName="Bandpass Filter" libraryVersion="0.1.0"
+               type="1" index="6" libraryName="Bandpass Filter" libraryVersion=""
                processorType="1" nodeId="104">
       <PROCESSOR_PARAMETERS/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
@@ -103,7 +103,7 @@
               activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="Spike Detector" insertionPoint="1" pluginName="Spike Detector"
-               type="1" index="2" libraryName="Spike Detector" libraryVersion="0.1.0"
+               type="1" index="2" libraryName="Spike Detector" libraryVersion=""
                processorType="1" nodeId="105">
       <PROCESSOR_PARAMETERS/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
@@ -171,7 +171,7 @@
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="Spike Viewer" insertionPoint="1" pluginName="Spike Viewer"
-               type="1" index="3" libraryName="Spike Viewer" libraryVersion="0.1.0"
+               type="1" index="3" libraryName="Spike Viewer" libraryVersion=""
                processorType="3" nodeId="107">
       <PROCESSOR_PARAMETERS/>
       <STREAM name="Rhythm Data" description="Continuous and event data from a device running Rhythm FPGA firmware"
@@ -232,11 +232,6 @@
       <TAB nodeId="107"/>
     </TABBEDCOMPONENT>
   </DATAVIEWPORT>
-  <AUDIO sampleRate="48000.0" bufferSize="1024" deviceType="Windows Audio">
-    <DEVICESETUP deviceType="Windows Audio" audioOutputDeviceName="Speaker/HP (Realtek High Definition Audio)"
-                 audioInputDeviceName="" audioDeviceRate="48000.0" audioDeviceBufferSize="1024"
-                 audioDeviceInChans="0" audioDeviceOutChans="11"/>
-  </AUDIO>
   <CONTROLPANEL isOpen="1" recordPath="default" recordEngine="BINARY"/>
   <AUDIOEDITOR isMuted="0" volume="42.0" noiseGate="10.0"/>
   <FILENAMECONFIG>

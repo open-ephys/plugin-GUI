@@ -255,7 +255,7 @@
       <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Record Node" activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="LFP Viewer" insertionPoint="1" pluginName="LFP Viewer"
-               type="1" index="6" libraryName="LFP viewer" libraryVersion="0.1.0"
+               type="1" index="6" libraryName="LFP viewer" libraryVersion=""
                processorType="3" nodeId="102">
       <PROCESSOR_PARAMETERS/>
       <STREAM name="ProbeA-AP" description="description" sample_rate="30000.0"
@@ -299,7 +299,7 @@
       </EDITOR>
     </PROCESSOR>
     <PROCESSOR name="Bandpass Filter" insertionPoint="1" pluginName="Bandpass Filter"
-               type="1" index="1" libraryName="Bandpass Filter" libraryVersion="1.0.0-dev"
+               type="1" index="1" libraryName="Bandpass Filter" libraryVersion=""
                processorType="1" nodeId="103">
       <PROCESSOR_PARAMETERS threads="1"/>
       <STREAM name="ProbeA-AP" description="description" sample_rate="30000.0"
@@ -315,7 +315,7 @@
               activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="Neuropixels CAR" insertionPoint="1" pluginName="Neuropixels CAR"
-               type="1" index="5" libraryName="Neuropixels CAR" libraryVersion="0.1.0"
+               type="1" index="5" libraryName="Neuropixels CAR" libraryVersion=""
                processorType="1" nodeId="104">
       <PROCESSOR_PARAMETERS/>
       <STREAM name="ProbeA-AP" description="description" sample_rate="30000.0"
@@ -331,7 +331,7 @@
               activeStream="0"/>
     </PROCESSOR>
     <PROCESSOR name="Probe Viewer" insertionPoint="1" pluginName="Probe Viewer"
-               type="1" index="7" libraryName="Probe Viewer" libraryVersion="0.4.0"
+               type="1" index="7" libraryName="Probe Viewer" libraryVersion=""
                processorType="3" nodeId="105">
       <PROCESSOR_PARAMETERS trigger_line="-1" display_stream="0"/>
       <STREAM name="ProbeA-AP" description="description" sample_rate="30000.0"
@@ -376,10 +376,6 @@
       <TAB nodeId="105"/>
     </TABBEDCOMPONENT>
   </DATAVIEWPORT>
-  <AUDIO sampleRate="48000.0" bufferSize="1024" deviceType="Windows Audio">
-    <DEVICESETUP deviceType="Windows Audio" audioOutputDeviceName="LG HDR WQHD (NVIDIA High Definition Audio)"
-                 audioInputDeviceName="" audioDeviceRate="48000.0" audioDeviceBufferSize="1024"/>
-  </AUDIO>
   <CONTROLPANEL isOpen="1" recordPath="default" recordEngine="BINARY"/>
   <AUDIOEDITOR isMuted="0" volume="50.0" noiseGate="10.0"/>
   <FILENAMECONFIG>
