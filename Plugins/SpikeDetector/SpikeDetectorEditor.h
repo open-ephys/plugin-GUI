@@ -44,14 +44,15 @@ class PopupConfigurationWindow;
 */
 
 class SpikeDetectorEditor : public GenericEditor,
-                            public Button::Listener
+                            public Button::Listener,
+                            public ComponentListener
 {
 public:
     /** Constructor*/
     SpikeDetectorEditor (GenericProcessor* parentNode);
 
     /** Destructor */
-    virtual ~SpikeDetectorEditor() {}
+    ~SpikeDetectorEditor();
 
     /** Called when configure button is clicked */
     void buttonClicked (Button* button) override;
@@ -70,6 +71,8 @@ public:
 
     /** Update configuration window */
     void updateConfigurationWindow();
+
+    void componentBeingDeleted (Component& component) override;
 
 private:
     std::unique_ptr<UtilityButton> configureButton;

@@ -43,6 +43,15 @@ SpikeDetectorEditor::SpikeDetectorEditor (GenericProcessor* parentNode)
     addAndMakeVisible (configureButton.get());
 }
 
+SpikeDetectorEditor::~SpikeDetectorEditor()
+{
+    if (currentConfigWindow != nullptr)
+    {
+        currentConfigWindow->removeComponentListener (this);
+        currentConfigWindow->tableModel->update (Array<SpikeChannel*> ());
+    }
+}
+
 void SpikeDetectorEditor::selectedStreamHasChanged()
 {
     SpikeDetector* processor = (SpikeDetector*) getProcessor();
@@ -64,6 +73,8 @@ void SpikeDetectorEditor::buttonClicked (Button* button)
                                                             acquisitionIsActive);
 
         CoreServices::getPopupManager()->showPopup (std::unique_ptr<PopupComponent> (currentConfigWindow), button);
+
+        currentConfigWindow->addComponentListener (this);
     }
 }
 
@@ -125,4 +136,13 @@ int SpikeDetectorEditor::getNumChannelsForCurrentStream()
         return stream->getChannelCount();
     else
         return 0;
+}
+
+void SpikeDetectorEditor::componentBeingDeleted (Component& component)
+{
+    if (currentConfigWindow != nullptr)
+    {
+        currentConfigWindow->removeComponentListener (this);
+        currentConfigWindow = nullptr;
+    }
 }
