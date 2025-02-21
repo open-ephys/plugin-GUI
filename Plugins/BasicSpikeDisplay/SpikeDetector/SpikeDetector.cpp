@@ -845,19 +845,14 @@ void SpikeDetector::saveCustomParametersToXml (XmlElement* xml)
 void SpikeDetector::loadCustomParametersFromXml(XmlElement* xml)
 {
 
-    //std::cout << "Spike detector loading params" << std::endl;
-
     Array<const DataStream*> availableStreams = getDataStreams();
 
     for (auto* spikeParamsXml : xml->getChildIterator())
     {
-        //std::cout << spikeParamsXml->getTagName() << std::endl;
 
         if (spikeParamsXml->hasTagName("SPIKE_CHANNEL"))
         {
             String name = spikeParamsXml->getStringAttribute("name", "");
-
-            //std::cout << "SPIKE CHANNEL NAME: " << name << std::endl;
 
             double sample_rate = spikeParamsXml->getDoubleAttribute("sample_rate", 0.0f);
             String stream_name = spikeParamsXml->getStringAttribute("stream_name", "");
@@ -871,25 +866,50 @@ void SpikeDetector::loadCustomParametersFromXml(XmlElement* xml)
 
                 if (streamId > 0)
                 {
-                    //std::cout << "STREAM ID: " << streamId << std::endl;
-
+                    //Create new spike channel with thresholder set to abs value
                     SpikeChannel* spikeChannel = addSpikeChannel(type, streamId, -1, name);
 
+                    //Load local channels
                     spikeChannel->getParameter("local_channels")->fromXml(spikeParamsXml);
-
                     SelectedChannelsParameter* param = (SelectedChannelsParameter*)spikeChannel->getParameter("local_channels");
                     param->getSpikeChannel()->localChannelIndexes = param->getArrayValue();
-                    
-                    spikeChannel->getParameter("thrshlder_type")->fromXml(spikeParamsXml);
-                    
-                    for (int ch = 0; ch < SpikeChannel::getNumChannels(type); ch++)
+
+                    // Load abs threshold parameters
+                    for (int ch = 0; ch < spikeChannel->getNumChannels(); ch++)
                     {
                         spikeChannel->getParameter("abs_threshold" + String(ch+1))->fromXml(spikeParamsXml);
+                        spikeChannel->thresholder->setThreshold(
+                            ch,
+                            (float) spikeChannel->getParameter("abs_threshold" + String(ch+1))->getValue());
+                    }
+
+                    // Load std dev threshold parameters
+                    spikeChannel->thresholder.reset();
+                    spikeChannel->thresholder =
+                        std::make_unique<StdDevThresholder>(
+                        spikeChannel->getNumChannels());
+                    for (int ch = 0; ch < spikeChannel->getNumChannels(); ch++)
+                    {
                         spikeChannel->getParameter("std_threshold" + String(ch+1))->fromXml(spikeParamsXml);
+                    }
+
+                    // Load dynamic threshold parameters
+                    spikeChannel->thresholder.reset();
+                    spikeChannel->thresholder =
+                        std::make_unique<DynamicThresholder>(
+                        spikeChannel->getNumChannels());
+                    for (int ch = 0; ch < spikeChannel->getNumChannels(); ch++)
+                    {
                         spikeChannel->getParameter("dyn_threshold" + String(ch+1))->fromXml(spikeParamsXml);
                     }
+
+                    //Load saved thresholder type
+                    spikeChannel->getParameter("thrshlder_type")->fromXml(spikeParamsXml);
+                    parameterValueChanged(spikeChannel->getParameter("thrshlder_type"));
                     
+                    //Load saved waveform type
                     spikeChannel->getParameter("waveform_type")->fromXml(spikeParamsXml);
+                    parameterValueChanged(spikeChannel->getParameter("waveform_type"));
                 }
             }
         }
