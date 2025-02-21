@@ -685,7 +685,7 @@ bool SpikeDetector::stopAcquisition()
         spikeChannel->reset();
     }
 
-    LOGC("SpikeDetector detected ", spikeCount, " spikes in ", totalCallbacks, " callbacks.");
+    LOGC ("SpikeDetector detected ", spikeCount, " spikes in ", totalCallbacks, " callbacks.");
 
     return true;
 }
@@ -921,10 +921,11 @@ void SpikeDetector::loadCustomParametersFromXml (XmlElement* xml)
 
                     SpikeChannel* spikeChannel = addSpikeChannel (type, streamId, -1, name);
 
-                    spikeChannel->getParameter ("local_channels")->fromXml (spikeParamsXml);
+                    auto* localChansParam = (SelectedChannelsParameter*) spikeChannel->getParameter ("local_channels");
+                    localChansParam->setChannelCount (getDataStream (streamId)->getChannelCount());
+                    localChansParam->fromXml (spikeParamsXml);
 
-                    SelectedChannelsParameter* param = (SelectedChannelsParameter*) spikeChannel->getParameter ("local_channels");
-                    ((SpikeChannel*) param->getOwner())->localChannelIndexes = param->getArrayValue();
+                    ((SpikeChannel*) localChansParam->getOwner())->localChannelIndexes = localChansParam->getArrayValue();
 
                     spikeChannel->getParameter ("thrshlder_type")->fromXml (spikeParamsXml);
 

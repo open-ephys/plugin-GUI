@@ -852,7 +852,7 @@ Array<var> SelectedChannelsParameter::parseSelectedString (const String& input)
 
 void SelectedChannelsParameter::setChannelCount (int newCount)
 {
-    if (newCount > 0)
+    if (newCount > 0 && getScope() != ParameterScope::SPIKE_CHANNEL_SCOPE)
     {
         Array<var> values;
 
@@ -869,7 +869,7 @@ void SelectedChannelsParameter::setChannelCount (int newCount)
 
             currentValue = values;
         }
-        else if (channelCount == 0) // If the current count is 0, set the selected channels to the first maxSelectableChannels channels
+        else if (channelCount == 0 && currentValue.getArray()->size() == 0) // If the current count is 0, set the selected channels to the first maxSelectableChannels channels
         {
             for (int i = 0; i < maxSelectableChannels; i++)
             {
