@@ -628,9 +628,9 @@ void CustomLookAndFeel::drawComboBox (Graphics& g, int width, int height, const 
     auto cornerSize = box.findParentComponentOfClass<ChoicePropertyComponent>() != nullptr ? 0.0f : 3.0f;
     bool flatonRight = box.findParentComponentOfClass<FilenameComponent>() != nullptr;
     Rectangle<int> boxBounds (0, 0, width, height);
-    auto bounds = boxBounds.toFloat();
+    auto bounds = boxBounds.toFloat().reduced (0.5f, 0.5f);
 
-    auto baseColour = findColour (ComboBox::backgroundColourId).withMultipliedSaturation (box.hasKeyboardFocus (true) ? 1.3f : 0.9f).withMultipliedAlpha (box.isEnabled() ? 1.0f : 0.35f);
+    auto baseColour = box.findColour (ComboBox::backgroundColourId).withMultipliedSaturation (box.hasKeyboardFocus (true) ? 1.3f : 0.9f).withMultipliedAlpha (box.isEnabled() ? 1.0f : 0.35f);
 
     g.setColour (baseColour);
 
@@ -645,12 +645,6 @@ void CustomLookAndFeel::drawComboBox (Graphics& g, int width, int height, const 
         g.fillRoundedRectangle (bounds, cornerSize);
     }
 
-    if (box.isPopupActive() || box.hasKeyboardFocus (false))
-    {
-        g.setColour (findColour (ComboBox::focusedOutlineColourId));
-        g.drawRect (boxBounds.toFloat().reduced (0.5f, 0.5f), 1.5f);
-    }
-
     const float outlineThickness = box.isEnabled() ? (isButtonDown ? 1.2f : 0.5f) : 0.3f;
 
     Rectangle<int> arrowZone (buttonX + outlineThickness, buttonY + outlineThickness, buttonW - outlineThickness, buttonH - outlineThickness);
@@ -661,8 +655,14 @@ void CustomLookAndFeel::drawComboBox (Graphics& g, int width, int height, const 
     g.setColour (box.findColour (ComboBox::arrowColourId).withAlpha ((box.isEnabled() ? 0.9f : 0.2f)));
     g.fillPath (path);
 
-    g.setColour (Colours::black);
-    bounds.reduce (0.5f, 0.5f);
+    g.setColour (box.findColour (ComboBox::outlineColourId).withMultipliedAlpha (box.isEnabled() ? 1.0f : 0.5f));
+    float lineThickness = 1.0f;
+
+    if (box.isPopupActive() || box.hasKeyboardFocus (false))
+    {
+        g.setColour (box.findColour (ComboBox::focusedOutlineColourId));
+        lineThickness = 1.5f;
+    }
 
     if (flatonRight)
     {
