@@ -927,8 +927,6 @@ void SpikeDetector::loadCustomParametersFromXml (XmlElement* xml)
 
                     ((SpikeChannel*) localChansParam->getOwner())->localChannelIndexes = localChansParam->getArrayValue();
 
-                    spikeChannel->getParameter ("thrshlder_type")->fromXml (spikeParamsXml);
-
                     for (int ch = 0; ch < SpikeChannel::getNumChannels (type); ch++)
                     {
                         spikeChannel->getParameter ("abs_threshold" + String (ch + 1))->fromXml (spikeParamsXml);
@@ -936,7 +934,10 @@ void SpikeDetector::loadCustomParametersFromXml (XmlElement* xml)
                         spikeChannel->getParameter ("dyn_threshold" + String (ch + 1))->fromXml (spikeParamsXml);
                     }
 
+                    spikeChannel->getParameter ("thrshlder_type")->fromXml (spikeParamsXml);
+                    parameterValueChanged (spikeChannel->getParameter ("thrshlder_type"));
                     spikeChannel->getParameter ("waveform_type")->fromXml (spikeParamsXml);
+                    parameterValueChanged (spikeChannel->getParameter ("waveform_type"));
                 }
             }
         }
