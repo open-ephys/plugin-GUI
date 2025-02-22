@@ -174,6 +174,16 @@ public:
     void updatePopup() override { repaint(); }
 
 private:
+    /** Slider that reverses the fill direction */
+    class SliderReverse : public Slider
+    {
+    public:
+        SliderReverse (const String& componentName) : Slider (componentName) {};
+        ~SliderReverse() {};
+        double proportionOfLengthToValue (double proportion) override { return Slider::proportionOfLengthToValue (1.0f - proportion); };
+        double valueToProportionOfLength (double value) override { return 1.0f - (Slider::valueToProportionOfLength (value)); };
+    };
+
     std::unique_ptr<UtilityButton> lockButton;
     std::unique_ptr<UtilityButton> absButton;
     std::unique_ptr<UtilityButton> stdButton;

@@ -147,16 +147,23 @@ void PopupThresholdComponent::createSliders()
 
     for (int i = 0; i < abs_thresholds.size(); i++)
     {
-        Slider* slider = new Slider ("SLIDER" + String (i + 1));
+        Slider* slider = nullptr;
+
+        if (thresholdType == ABS)
+            slider = new SliderReverse ("SLIDER" + String (i + 1));
+        else
+            slider = new Slider ("SLIDER" + String (i + 1));
+
         slider->setSliderStyle (Slider::LinearBarVertical);
         slider->setTextBoxStyle (Slider::NoTextBox, false, sliderWidth, 10);
         slider->setChangeNotificationOnlyOnRelease (true);
+        slider->setPopupDisplayEnabled (true, false, this);
 
         switch (thresholdType)
         {
             case ABS:
-                slider->setRange (25, 200, 1);
-                slider->setValue (std::abs (abs_thresholds[i]->getFloatValue()), dontSendNotification);
+                slider->setRange (-200, -25, 1);
+                slider->setValue (abs_thresholds[i]->getFloatValue(), dontSendNotification);
                 break;
 
             case STD:
@@ -608,7 +615,7 @@ void SpikeDetectorTableModel::broadcastThresholdToSelectedRows (int rowThatWasCl
             {
                 case ABS:
                     parameterString = "abs_threshold";
-                    actualValue = -value;
+                    actualValue = value;
                     break;
                 case STD:
                     parameterString = "std_threshold";

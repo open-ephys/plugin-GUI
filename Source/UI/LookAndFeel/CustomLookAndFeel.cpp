@@ -252,6 +252,9 @@ void CustomLookAndFeel::setTheme (ColourTheme theme)
 
     setColour (GroupComponent::textColourId, currentThemeColours[ThemeColours::defaultText]);
     setColour (GroupComponent::outlineColourId, currentThemeColours[ThemeColours::defaultText].withAlpha (0.5f));
+
+    setColour (BubbleComponent::backgroundColourId, currentThemeColours[ThemeColours::widgetBackground]);
+    setColour (BubbleComponent::outlineColourId, currentThemeColours[ThemeColours::outline]);
 }
 
 //==============================================================================
