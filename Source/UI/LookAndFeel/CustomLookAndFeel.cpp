@@ -770,14 +770,14 @@ void CustomLookAndFeel::drawButtonBackground (Graphics& g,
 
         g.fillPath (path);
 
-        g.setColour (button.findColour (ComboBox::outlineColourId));
+        g.setColour (button.findColour (ComboBox::outlineColourId).withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.5f));
         g.strokePath (path, PathStrokeType (1.0f));
     }
     else
     {
         g.fillRoundedRectangle (bounds, cornerSize);
 
-        g.setColour (button.findColour (ComboBox::outlineColourId));
+        g.setColour (button.findColour (ComboBox::outlineColourId).withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.5f));
         g.drawRoundedRectangle (bounds, cornerSize, 1.0f);
     }
 }
