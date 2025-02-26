@@ -1105,21 +1105,13 @@ bool UIComponent::perform (const InvocationInfo& info)
 
         case setSoftwareRenderer:
         {
-            if (auto peer = getPeer())
-            {
-                peer->setCurrentRenderingEngine (0);
-                repaint();
-            }
+            setRenderingEngine (0);
             break;
         }
 
         case setDirect2DRenderer:
         {
-            if (auto peer = getPeer())
-            {
-                peer->setCurrentRenderingEngine (1);
-                repaint();
-            }
+            setRenderingEngine (1);
             break;
         }
 
@@ -1146,6 +1138,23 @@ bool UIComponent::perform (const InvocationInfo& info)
     }
 
     return true;
+}
+
+void UIComponent::setRenderingEngine (int index)
+{
+#if JUCE_WINDOWS
+    for (int i = 0; i < TopLevelWindow::getNumTopLevelWindows(); i++)
+    {
+        if (TopLevelWindow* window = TopLevelWindow::getTopLevelWindow (i))
+        {
+            if (auto* peer = window->getPeer())
+            {
+                peer->setCurrentRenderingEngine (index);
+                window->repaint();
+            }
+        }
+    }
+#endif
 }
 
 void UIComponent::saveStateToXml (XmlElement* xml)

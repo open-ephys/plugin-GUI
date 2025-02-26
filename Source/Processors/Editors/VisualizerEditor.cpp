@@ -166,15 +166,6 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
             editor->dataWindow->setVisible (true);
             editor->dataWindow->toFront (true);
             editor->dataWindow->addListener (editor);
-
-            // Set the rendering engine for the window
-            auto editorPeer = editor->getPeer();
-            if (auto peer = editor->canvas->getPeer())
-            {
-                auto editorPeer = editor->getPeer();
-                if (editorPeer)
-                    peer->setCurrentRenderingEngine (editorPeer->getCurrentRenderingEngine());
-            }
         }
         else
         {
@@ -191,6 +182,19 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
                 editor->dataWindow->setVisible (false);
             }
         }
+
+#if JUCE_WINDOWS
+        // Set the rendering engine for the window
+        if (editor->dataWindow->isVisible())
+        {
+            auto editorPeer = editor->getPeer();
+            if (auto peer = editor->dataWindow->getPeer())
+            {
+                if (editorPeer)
+                    peer->setCurrentRenderingEngine (editorPeer->getCurrentRenderingEngine());
+            }
+        }
+#endif
     }
     else if (button == editor->tabSelector.get())
     {

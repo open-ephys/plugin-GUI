@@ -294,6 +294,9 @@ private:
 
     CustomLookAndFeel* customLookAndFeel;
 
+    /** Set the rendering engine to use on Windows - Software (CPU) or Direct2D (GPU))*/
+    void setRenderingEngine (int engineIndex);
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (UIComponent);
 };
 
