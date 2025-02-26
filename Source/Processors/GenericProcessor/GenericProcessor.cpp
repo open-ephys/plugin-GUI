@@ -1793,9 +1793,16 @@ void GenericProcessor::loadFromXml()
             {
                 for (int i = 0; i < xmlNode->getNumAttributes(); i++)
                 {
-                    auto param = getParameter (xmlNode->getAttributeName (i));
-                    param->fromXml (xmlNode);
-                    parameterValueChanged (param);
+                    if (auto* param = getParameter (xmlNode->getAttributeName (i)))
+                    {
+                        param->fromXml (xmlNode);
+                        parameterValueChanged (param);
+                    }
+                    else
+                    {
+                        jassertfalse;
+                        LOGD ("Processor parameter not found: ", xmlNode->getAttributeName (i), ". Skipping...");
+                    }
                 }
             }
 
@@ -1912,6 +1919,8 @@ void GenericProcessor::loadFromXml()
                             }
                             else
                             {
+                                jassertfalse;
+                                LOGD ("Stream parameter not found: ", name, ". Skipping...");
                                 continue;
                             }
                         }
