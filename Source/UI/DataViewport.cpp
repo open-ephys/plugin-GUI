@@ -447,8 +447,32 @@ void DraggableTabComponent::popupMenuClickOnTab (int tabIndex, const String& tab
             return;
         }
     }
+    else
+    {
+        PopupMenu m;
 
+        m.addItem (1, "Rename tab");
+        m.addItem (2, "Save visualizer image");
+
+        m.showMenuAsync (PopupMenu::Options().withStandardItemHeight (20),
+                         [this, tabIndex, tabName] (int result)
+                         {
+                             if (result == 1)
+                             {
+                                 showTabNameEditor (tabIndex, tabName);
+                             }
+                             else if (result == 2)
+                             {
+                                 takeComponentSnapshot (tabIndex, tabName);
+                             }
+                         });
+    }
+}
+
+void DraggableTabComponent::showTabNameEditor (int tabIndex, const String& tabName)
+{
     auto* tabButton = getTabbedButtonBar().getTabButton (tabIndex);
+    int nodeId = tabNodeIds[tabIndex];
 
     // create a label to edit the name
     Label* editNameLabel = new Label ("EditName", tabName);
@@ -481,6 +505,23 @@ void DraggableTabComponent::popupMenuClickOnTab (int tabIndex, const String& tab
     // launch the callout box at the tab button's center position
     auto& editBox = CallOutBox::launchAsynchronously (std::unique_ptr<Component> (editNameLabel), tabBounds, nullptr);
     editBox.setDismissalMouseClicksAreAlwaysConsumed (true);
+}
+
+void DraggableTabComponent::takeComponentSnapshot (int tabIndex, const String& tabName)
+{
+    int nodeId = tabNodeIds[tabIndex];
+    auto tabComponent = getTabContentComponent (tabIndex);
+    if (tabComponent != nullptr)
+    {
+        Image snapshot = tabComponent->createComponentSnapshot (tabComponent->getLocalBounds(), true, 2.0f);
+
+        File outputFile = File::getSpecialLocation (File::userPicturesDirectory).getNonexistentChildFile (tabName + "_" + String (nodeId), ".png");
+        FileOutputStream stream (outputFile);
+
+        PNGImageFormat pngWriter;
+        pngWriter.writeImageToStream (snapshot, stream);
+        CoreServices::sendStatusMessage ("Saved visualizer snapshot to " + outputFile.getFullPathName());
+    }
 }
 
 AddTabbedComponentButton::AddTabbedComponentButton()

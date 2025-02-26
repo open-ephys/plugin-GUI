@@ -173,8 +173,14 @@ public:
     /** Called when close button is clicked **/
     void buttonClicked (Button* button) override;
 
-    /** Opens a popup editable label to rename tab */
+    /** Opens a popup menu when tab is right clicked */
     void popupMenuClickOnTab (int tabIndex, const String& tabName);
+
+    /** Opens a popup editable label to rename tab */
+    void showTabNameEditor (int tabIndex, const String& tabName);
+
+    /** Takes a snapshot of the specified tab content component */
+    void takeComponentSnapshot (int tabIndex, const String& tabName);
 
     /** Parent component*/
     DataViewport* dataViewport;
