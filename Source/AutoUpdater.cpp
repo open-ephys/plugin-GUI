@@ -125,9 +125,14 @@ void LatestVersionCheckerAndUpdater::run()
     if (latestVer.compareNatural (CoreServices::getGUIVersion()) <= 0)
     {
         if (! backgroundCheck)
-            AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
-                                              "No Newer Version Available",
-                                              "You are running the latest available version of the Open Ephys GUI.");
+        {
+            MessageManager::callAsync ([]
+            {
+                AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
+                                                "No Newer Version Available",
+                                                "You are running the latest available version of the Open Ephys GUI."); 
+            });
+        }
         return;
     }
 
@@ -180,9 +185,14 @@ void LatestVersionCheckerAndUpdater::run()
     }
 
     if (! backgroundCheck)
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                          "Failed to find any new downloads",
-                                          "Please try again in a few minutes.");
+    {
+        MessageManager::callAsync ([]
+        {
+            AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+                                            "Failed to find any new downloads",
+                                            "Please try again in a few minutes.");
+        });
+    }
 }
 
 //==============================================================================
@@ -192,19 +202,20 @@ public:
     UpdateDialog (const String& newVersion, const String& releaseNotes, bool automaticVerCheck)
     {
         titleLabel.setText ("Open Ephys GUI version " + newVersion, dontSendNotification);
-        titleLabel.setFont (FontOptions ("Fira Sans", "SemiBold", 18.0f));
+        titleLabel.setFont (FontOptions ("Inter", "Semi Bold", 18.0f));
         titleLabel.setJustificationType (Justification::centred);
         addAndMakeVisible (titleLabel);
 
         contentLabel.setText ("A newer version of Open Ephys GUI is available - would you like to download it?", dontSendNotification);
-        contentLabel.setFont (FontOptions ("Fira Sans", "Regular", 16.0f));
-        contentLabel.setJustificationType (Justification::topLeft);
+        contentLabel.setFont (FontOptions ("Inter", "Regular", 16.0f));
+        contentLabel.setJustificationType (Justification::centredTop);
         contentLabel.setMinimumHorizontalScale (1.0);
         addAndMakeVisible (contentLabel);
 
         releaseNotesEditor.setMultiLine (true);
         releaseNotesEditor.setReadOnly (true);
         releaseNotesEditor.setText (releaseNotes);
+        releaseNotesEditor.setScrollBarThickness (10);
         addAndMakeVisible (releaseNotesEditor);
 
         addAndMakeVisible (downloadButton);
@@ -228,7 +239,7 @@ public:
 #else
         File iconDir = File::getSpecialLocation (File::currentApplicationFile).getParentDirectory();
 #endif
-        juceIcon = Drawable::createFromImageFile (iconDir.getChildFile ("icon-small.png"));
+        openEphysIcon = Drawable::createFromImageFile (iconDir.getChildFile ("icon-small.png"));
         lookAndFeelChanged();
 
         setSize (640, 480);
@@ -238,8 +249,8 @@ public:
     {
         auto b = getLocalBounds().reduced (10);
 
-        auto topSlice = b.removeFromTop (juceIconBounds.getHeight())
-                            .withTrimmedLeft (juceIconBounds.getWidth());
+        auto topSlice = b.removeFromTop (openEphysIconBounds.getHeight())
+                            .withTrimmedLeft (openEphysIconBounds.getWidth());
 
         titleLabel.setBounds (topSlice.removeFromTop (25));
         topSlice.removeFromTop (5);
@@ -256,10 +267,10 @@ public:
 
     void paint (Graphics& g) override
     {
-        g.fillAll (Colours::lightgrey);
+        g.fillAll (findColour (ThemeColours::componentBackground));
 
-        if (juceIcon != nullptr)
-            juceIcon->drawWithin (g, juceIconBounds.toFloat(), RectanglePlacement::stretchToFit, 1.0f);
+        if (openEphysIcon != nullptr)
+            openEphysIcon->drawWithin (g, openEphysIconBounds.toFloat(), RectanglePlacement::stretchToFit, 1.0f);
     }
 
     static std::unique_ptr<DialogWindow> launchDialog (const String& newVersionString,
@@ -286,7 +297,7 @@ private:
     void lookAndFeelChanged() override
     {
         cancelButton.setColour (TextButton::buttonColourId, Colours::crimson);
-        releaseNotesEditor.applyFontToAllText (FontOptions ("Fira Sans", "Regular", 16.0f));
+        releaseNotesEditor.applyFontToAllText (FontOptions ("Inter", "Regular", 16.0f));
     }
 
     void setParentWindow (DialogWindow* parent)
@@ -304,8 +315,8 @@ private:
     TextEditor releaseNotesEditor;
     TextButton downloadButton { "Download" }, cancelButton { "Cancel" };
     ToggleButton dontAskAgainButton { "Don't ask again" };
-    std::unique_ptr<Drawable> juceIcon;
-    juce::Rectangle<int> juceIconBounds { 10, 10, 64, 64 };
+    std::unique_ptr<Drawable> openEphysIcon;
+    juce::Rectangle<int> openEphysIconBounds { 10, 10, 64, 64 };
 
     DialogWindow* parentWindow = nullptr;
 };
