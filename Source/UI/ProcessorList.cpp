@@ -93,6 +93,8 @@ ProcessorList::ProcessorList (Viewport* v) : viewport (v),
 
     searchField = std::make_unique<TextEditor>();
     searchField->setTextToShowWhenEmpty ("Search...", Colours::grey);
+    searchField->setFont (FontOptions ("Fira Code", "Regular", 16.0f));
+    searchField->setJustification (Justification::centredLeft);
     searchField->setPopupMenuEnabled (false);
     searchField->onTextChange = [this]
     {
