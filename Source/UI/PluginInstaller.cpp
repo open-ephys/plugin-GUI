@@ -669,7 +669,12 @@ void PluginListBoxComponent::run()
     String response = URL (baseUrl).readEntireTextStream();
 
     if (response.isEmpty())
-        LOGE ("Unable to fetch plugins! Please check your internet connection and try again.")
+    {
+        String errorMsg = "Unable to fetch plugins! Please check your internet connection and try again.";
+        LOGE (errorMsg);
+        MessageManager::callAsync ([this, errorMsg]
+                                   { pluginInfoPanel.updateStatusMessage (errorMsg, true); });
+    }
 
     var gatewayData;
     Result result = JSON::parse (response, gatewayData);
@@ -1124,11 +1129,16 @@ void PluginInfoComponent::run()
         }
         else if (retCode == HTTP_ERR)
         {
+            String httpErr = "Please check your internet connection...";
+
+            if (httpStatusCode != 0)
+                httpErr = "Status Code: " + String (httpStatusCode);
+
             showAlertOnMessageThread (AlertWindow::WarningIcon,
                                       "[Plugin Installer] " + pInfo.dependencies[i],
-                                      "HTTP request failed!!\nPlease check your internet connection...");
+                                      "HTTP request failed!!\n" + httpErr);
 
-            LOGE ("HTTP request failed!! Please check your internet connection...");
+            LOGE ("HTTP request failed. ", httpErr);
             return;
         }
         else
@@ -1141,6 +1151,8 @@ void PluginInfoComponent::run()
             LOGE ("Download Failed!!");
             return;
         }
+
+        httpStatusCode = 0;
     }
 
     setStatusMessage ("Downloading " + pInfo.displayName + " ...");
@@ -1151,75 +1163,87 @@ void PluginInfoComponent::run()
 
     if (dlReturnCode == SUCCESS)
     {
+        LOGC ("Download Successful!");
+
         showAlertOnMessageThread (AlertWindow::InfoIcon,
                                   "[Plugin Installer] " + pInfo.displayName,
                                   pInfo.displayName + " Installed Successfully");
-
-        LOGC ("Download Successful!!");
 
         updateUIOnMessageThread();
     }
     else if (dlReturnCode == ZIP_NOTFOUND)
     {
+        String errMsg = "Download Failed! ZIP file not found.";
+
+        if (httpStatusCode != 0)
+            errMsg += " HTTP Status Code: " + String (httpStatusCode);
+
+        LOGE (errMsg);
+
         showAlertOnMessageThread (AlertWindow::WarningIcon,
                                   "[Plugin Installer] " + pInfo.displayName,
                                   "Could not find the ZIP file for " + pInfo.displayName
                                       + ". Please contact the developers.");
-
-        LOGE ("Download Failed!!");
     }
     else if (dlReturnCode == UNCMP_ERR)
     {
+        LOGE ("Download Failed! Uncompressing ZIP failed.");
+
         showAlertOnMessageThread (AlertWindow::WarningIcon,
                                   "[Plugin Installer] " + pInfo.displayName,
                                   "Could not uncompress the ZIP file. Please try again.");
-
-        LOGE ("Download Failed!!");
     }
     else if (dlReturnCode == XML_MISSING)
     {
+        LOGE ("XML File Missing! Please relaunch Plugin Installer.");
+
         showAlertOnMessageThread (AlertWindow::WarningIcon,
                                   "[Plugin Installer] " + pInfo.displayName,
-                                  "Unable to locate installedPlugins.xml \n Please restart Plugin Installer and try again.");
-
-        LOGE ("XML File Missing!!");
+                                  "Unable to locate installedPlugins.xml \n Please relaunch Plugin Installer and try again.");
     }
     else if (dlReturnCode == VER_EXISTS_ERR)
     {
+        LOGE ("Download Failed! Version already exists.");
+
         showAlertOnMessageThread (AlertWindow::WarningIcon,
                                   "[Plugin Installer] " + pInfo.displayName,
                                   pInfo.displayName + " v" + pInfo.selectedVersion
                                       + " already exists. Please download another version.");
-
-        LOGE ("Download Failed!!");
     }
     else if (dlReturnCode == XML_WRITE_ERR)
     {
+        LOGE ("Writing to XML Failed! Please try again.");
+
         showAlertOnMessageThread (AlertWindow::WarningIcon,
                                   "[Plugin Installer] " + pInfo.displayName,
                                   "Unable to write to installedPlugins.xml \n Please try again.");
-
-        LOGE ("Writing to XML Failed!!");
     }
     else if (dlReturnCode == LOAD_ERR)
     {
+        LOGE ("Loading Plugin Failed!");
+
         showAlertOnMessageThread (AlertWindow::WarningIcon,
                                   "[Plugin Installer] " + pInfo.displayName,
                                   "Unable to load " + pInfo.displayName
                                       + " in the Processor List.\nLook at console output for more details.");
 
-        LOGE ("Loading Plugin Failed!!");
-
         updateUIOnMessageThread();
     }
     else if (dlReturnCode == HTTP_ERR)
     {
+        String httpErr = "Please check your internet connection...";
+
+        if (httpStatusCode != 0)
+            httpErr = "Status Code: " + String (httpStatusCode);
+
+        LOGE ("HTTP request failed. ", httpErr);
+
         showAlertOnMessageThread (AlertWindow::WarningIcon,
                                   "[Plugin Installer] " + pInfo.displayName,
-                                  "HTTP request failed!!\nPlease check your internet connection...");
-
-        LOGE ("HTTP request failed!! Please check your internet connection...");
+                                  "HTTP request failed!!\n" + httpErr);
     }
+
+    httpStatusCode = 0;
 }
 
 void PluginInfoComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
@@ -1423,11 +1447,19 @@ int PluginInfoComponent::downloadPlugin (const String& plugin, const String& ver
 
     // Could not retrieve data
     if (! fileStream)
-        return 7;
+        return HTTP_ERR;
 
-    // ZIP file empty, return.
-    if (fileStream->getTotalLength() == 0)
-        return 0;
+    if (auto webStream = dynamic_cast<WebInputStream*> (fileStream.get()))
+    {
+        httpStatusCode = webStream->getStatusCode();
+        if (httpStatusCode >= 400)
+        {
+            if (httpStatusCode == 404 || fileStream->getTotalLength() < 1)
+                return ZIP_NOTFOUND;
+            else
+                return HTTP_ERR;
+        }
+    }
 
     //Construct path for downloaded zip file
     String pluginFilePath = CoreServices::getSavedStateDirectory().getFullPathName();
@@ -1446,6 +1478,9 @@ int PluginInfoComponent::downloadPlugin (const String& plugin, const String& ver
 
     //Uncompress zip file contents
     ZipFile pluginZip (pluginFile);
+
+    if (! pluginFile.exists())
+        return ZIP_NOTFOUND;
 
     //Get *.dll/*.so name of plugin
 #if JUCE_WINDOWS

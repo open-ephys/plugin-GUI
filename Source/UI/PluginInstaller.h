@@ -163,6 +163,8 @@ private:
         HTTP_ERR
     };
 
+    int httpStatusCode = 0;
+
     void run() override;
 
     /** Shows the alert message on the message thread **/
