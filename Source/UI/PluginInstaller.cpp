@@ -1472,7 +1472,24 @@ int PluginInfoComponent::downloadPlugin (const String& plugin, const String& ver
 
     //Use the Url's input stream and write it to a file using output stream
     std::unique_ptr<FileOutputStream> out = pluginFile.createOutputStream();
-    out->writeFromInputStream (*fileStream, -1);
+    int64 total = 0;
+    int64 fileSize = fileStream->getTotalLength();
+
+    for (;;)
+    {
+        if (threadShouldExit())
+            return HTTP_ERR;
+
+        auto written = out->writeFromInputStream (*fileStream, 8192);
+
+        if (written == 0)
+            break;
+
+        total += written;
+
+        setProgress ((double) total / (double) fileSize);
+    }
+
     out->flush();
     out.reset();
 
@@ -1555,6 +1572,9 @@ int PluginInfoComponent::downloadPlugin (const String& plugin, const String& ver
 
     if (tempDir.getChildFile ("shared").exists())
         tempDir.getChildFile ("shared").deleteRecursively();
+
+    setProgress (-1.0);
+    setStatusMessage ("Uncompressing ZIP file...");
 
     // Uncompress the plugin zip file to temp directory
     juce::Result res = pluginZip.uncompressTo (tempDir);
