@@ -40,7 +40,7 @@ void ParameterEditor::updateBounds()
     Rectangle<int> bounds = getBounds();
     int finalWidth = bounds.getWidth();
     int finalHeight = bounds.getHeight();
-    int gap = finalWidth < 180 ? 4 : 4;
+    int gap = finalWidth < 180 ? 2 : 4;
 
     switch (layout)
     {

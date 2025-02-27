@@ -522,6 +522,7 @@ DataStreamInfo::DataStreamInfo (DataStream* stream_, GenericEditor* editor, Grap
     {
         // set parameter editor bounds
         paramEditor->setBounds (5, yPos, rowWidthPixels, rowHeightPixels);
+        paramEditor->setLayout (ParameterEditor::nameOnRight);
         paramEditor->updateView();
         yPos += rowHeightPixels + 5;
 
@@ -667,6 +668,7 @@ ProcessorParameterComponent::ProcessorParameterComponent (GenericProcessor* p)
     {
         // set parameter editor bounds
         editor->setBounds (5, yPos, rowWidthPixels, rowHeightPixels);
+        editor->setLayout (ParameterEditor::nameOnRight);
         editor->updateView();
         yPos += rowHeightPixels + 5;
 
