@@ -102,6 +102,9 @@ public:
     to draw scroll bars.*/
     int getTotalHeight();
 
+    /** Update Search button colour*/
+    void lookAndFeelChanged() override;
+
 private:
     /** The main method for drawing the ProcessorList.*/
     void drawItems (Graphics& g);
@@ -155,6 +158,10 @@ private:
     std::unique_ptr<CustomArrowButton> arrowButton;
     Path openArrowPath;
     Path closedArrowPath;
+
+    std::unique_ptr<ShapeButton> searchButton;
+    std::unique_ptr<TextEditor> searchField;
+    String searchText;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProcessorList);
 };

@@ -78,12 +78,45 @@ ProcessorList::ProcessorList (Viewport* v) : viewport (v),
     arrowButton->setClickingTogglesState (false);
     arrowButton->setInterceptsMouseClicks (false, false);
     addAndMakeVisible (arrowButton.get());
+
+    searchButton = std::make_unique<ShapeButton> ("Search", Colours::transparentBlack, Colours::transparentBlack, Colours::transparentBlack);
+    searchButton->setOutline (findColour (ThemeColours::controlPanelText), 1.0f);
+    String searchIconPath = "M15 15m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0 M18.5 18.5l2.5 2.5 M4 6h16 M4 12h4 M4 18h4";
+    searchButton->setShape (Drawable::parseSVGPath (searchIconPath), true, true, false);
+    searchButton->setClickingTogglesState (false);
+    searchButton->onClick = [this]
+    {
+        searchField->setVisible (true);
+        searchField->grabKeyboardFocus();
+    };
+    addAndMakeVisible (searchButton.get());
+
+    searchField = std::make_unique<TextEditor>();
+    searchField->setTextToShowWhenEmpty ("Search...", Colours::grey);
+    searchField->setPopupMenuEnabled (false);
+    searchField->onTextChange = [this]
+    {
+        searchText = searchField->getText();
+        repaint();
+    };
+    searchField->onEscapeKey = [this]
+    {
+        searchField->setText ("");
+        searchField->setVisible (false);
+    };
+    searchField->onFocusLost = [this]
+    {
+        searchField->setText ("");
+        searchField->setVisible (false);
+    };
+    addChildComponent (searchField.get());
 }
 
 void ProcessorList::resized()
 {
     setBounds (0, 0, 195, getTotalHeight());
-
+    searchField->setBounds (0, 0, getWidth(), itemHeight);
+    searchButton->setBounds (getWidth() - 45, (itemHeight / 2) - 8, 16, 16);
     arrowButton->setBounds (getWidth() - 25, (itemHeight / 2) - 10, 20, 20);
 }
 
@@ -92,6 +125,11 @@ void ProcessorList::timerCallback()
     maximumNameOffset += 1;
 
     repaint();
+}
+
+void ProcessorList::lookAndFeelChanged()
+{
+    searchButton->setOutline (findColour (ThemeColours::controlPanelText), 1.0f);
 }
 
 bool ProcessorList::isOpen()
@@ -126,8 +164,12 @@ void ProcessorList::drawItems (Graphics& g)
             {
                 for (int m = 0; m < baseItem->getSubItem (n)->getNumSubItems(); m++)
                 {
-                    setViewport (g, baseItem->getSubItem (n)->getSubItem (m)->hasSubItems());
-                    drawItem (g, baseItem->getSubItem (n)->getSubItem (m));
+                    ProcessorListItem* subSubItem = baseItem->getSubItem (n)->getSubItem (m);
+                    if (subSubItem->getName().containsIgnoreCase (searchText) || searchText.isEmpty())
+                    {
+                        setViewport (g, subSubItem->hasSubItems());
+                        drawItem (g, subSubItem);
+                    }
                 }
             }
         }
@@ -209,7 +251,7 @@ void ProcessorList::drawItemName (Graphics& g, ProcessorListItem* item)
 
         if (! item->getName().equalsIgnoreCase ("Processors"))
         {
-            g.setColour (Colours::black.withAlpha(0.25f));
+            g.setColour (Colours::black.withAlpha (0.25f));
 
             if (item->isOpen())
             {
@@ -263,11 +305,15 @@ ProcessorListItem* ProcessorList::getListItemForYPos (int y)
                 {
                     for (int m = 0; m < baseItem->getSubItem (n)->getNumSubItems(); m++)
                     {
-                        bottom += (yBuffer + subItemHeight);
-
-                        if (y < bottom)
+                        ProcessorListItem* subSubItem = baseItem->getSubItem (n)->getSubItem (m);
+                        if (subSubItem->getName().containsIgnoreCase (searchText) || searchText.isEmpty())
                         {
-                            return baseItem->getSubItem (n)->getSubItem (m);
+                            bottom += (yBuffer + subItemHeight);
+
+                            if (y < bottom)
+                            {
+                                return baseItem->getSubItem (n)->getSubItem (m);
+                            }
                         }
                     }
                 }
@@ -307,6 +353,7 @@ void ProcessorList::toggleState()
     fli->reverseOpenState();
     LOGC ("Processor List - Toggling state of ", fli->getName());
     arrowButton->setToggleState (fli->isOpen(), dontSendNotification);
+    searchButton->setVisible (fli->isOpen());
     AccessClass::getUIComponent()->childComponentChanged();
     repaint();
 }
@@ -552,7 +599,6 @@ void ProcessorList::loadStateFromXml (XmlElement* xml)
                                                 colourNode->getIntAttribute ("R"),
                                                 colourNode->getIntAttribute ("G"),
                                                 colourNode->getIntAttribute ("B")));
-
             }
         }
     }
