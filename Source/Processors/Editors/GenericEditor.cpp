@@ -871,25 +871,24 @@ void UtilityButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDow
 {
     isEnabled = Button::isEnabled();
 
+    Colour backgroundColour = findColour (ThemeColours::widgetBackground);
+
     if (getToggleState())
     {
-        g.setColour (findColour (ThemeColours::highlightedFill));
-    }
-    else
-    {
-        g.setColour (findColour (ThemeColours::widgetBackground));
+        backgroundColour = findColour (ThemeColours::highlightedFill);
     }
 
+    auto baseColour = backgroundColour.withMultipliedSaturation (hasKeyboardFocus (true) ? 1.3f : 1.0f)
+                          .withMultipliedAlpha (isEnabled ? 1.0f : 0.5f);
+
+    if (isButtonDown || isMouseOver)
+        baseColour = baseColour.contrasting (isButtonDown ? 0.2f : 0.05f);
+
+    g.setColour (baseColour);
     g.fillPath (outlinePath);
 
-    if (isMouseOver || ! isEnabled)
-        g.setColour (findColour (ThemeColours::outline).withAlpha (0.4f));
-    else
-        g.setColour (findColour (ThemeColours::outline));
-
+    g.setColour (findColour (ThemeColours::outline).withAlpha (isEnabled ? 1.0f : 0.5f));
     g.strokePath (outlinePath, PathStrokeType (1.0f));
-
-    //int stringWidth = font.getStringWidth(getName());
 
     g.setFont (font);
 
