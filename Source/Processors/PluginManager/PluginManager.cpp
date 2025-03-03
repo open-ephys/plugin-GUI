@@ -270,7 +270,7 @@ int PluginManager::loadPlugin (const String& pluginLoc)
 	to memory mishaps.
 	*/
     void* handle = 0;
-    handle = dlopen (processorLocCString, RTLD_DEEPBIND | RTLD_NOW);
+    handle = dlopen (processorLocCString, RTLD_LOCAL | RTLD_NOW);
 #endif
 
     if (! handle)
