@@ -1123,7 +1123,6 @@ bool UIComponent::perform (const InvocationInfo& info)
             }
             pluginInstaller->setVisible (true);
             pluginInstaller->toFront (true);
-            pluginInstaller->setCentrePosition (this->getScreenBounds().getCentre());
             break;
         }
 

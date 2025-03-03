@@ -84,6 +84,10 @@ PluginInstaller::PluginInstaller (bool loadComponents)
     if (loadComponents)
     {
         setSize (910, 480);
+
+        if (auto window = getActiveTopLevelWindow())
+            setCentrePosition (window->getScreenBounds().getCentre());
+
 #ifdef JUCE_WINDOWS
         setUsingNativeTitleBar (false);
 #else
