@@ -184,30 +184,33 @@ void TextBoxParameterEditor::resized()
     updateBounds();
 }
 
-void CustomToggleButton::paintButton (juce::Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
+void CustomToggleButton::paintButton (juce::Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    // Set the colour based on the button state
+    Colour backgroundColour = findColour (ThemeColours::widgetBackground);
+
     if (getToggleState())
     {
-        g.setColour (findColour (ThemeColours::highlightedFill));
-    }
-    else
-    {
-        g.setColour (findColour (ThemeColours::defaultFill));
+        backgroundColour = findColour (ThemeColours::highlightedFill);
     }
 
-    // Draw a rounded rectangle
-    g.fillRoundedRectangle (getLocalBounds().toFloat(), 3.0f);
+    auto baseColour = backgroundColour.withMultipliedSaturation (hasKeyboardFocus (true) ? 1.3f : 1.0f)
+                          .withMultipliedAlpha (isEnabled() ? 1.0f : 0.5f);
 
-    // Set the text colour
-    g.setColour (findColour (ThemeColours::outline));
+    if (isButtonDown || isMouseOver)
+        baseColour = baseColour.contrasting (isButtonDown ? 0.2f : 0.05f);
 
-    // Draw a rounded rectangle border
-    g.drawRoundedRectangle (getLocalBounds().toFloat(), 3.0f, 1.0f);
+    g.setColour (baseColour);
+    g.fillRoundedRectangle (getLocalBounds().toFloat().reduced (0.5f), 3.0f);
 
-    // Set the text font
+    g.setColour (findColour (ThemeColours::outline).withAlpha (isEnabled() ? 1.0f : 0.5f));
+    g.drawRoundedRectangle (getLocalBounds().toFloat().reduced (0.5f), 3.0f, 1.0f);
+
     g.setFont (FontOptions ("Inter", "Regular", int (0.75 * getHeight())));
-    g.setColour (findColour (ThemeColours::defaultText));
+
+    if (! isEnabled() || isButtonDown)
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.4f));
+    else
+        g.setColour (findColour (ThemeColours::defaultText));
 
     // Set the text based on the button state
     if (getToggleState())
