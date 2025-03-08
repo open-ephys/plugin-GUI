@@ -183,13 +183,14 @@ public:
     void drawDocumentWindowTitleBar (DocumentWindow&, Graphics&, int, int, int, int, const Image*, bool) override;
 
     // ========= custom Alert Window methods: ===========================
+    AlertWindow* createAlertWindow (const String& title, const String& message, const String& button1, const String& button2, const String& button3, MessageBoxIconType iconType, int numButtons, Component* associatedComponent) override;
+    void drawAlertBox (Graphics&, AlertWindow&, const juce::Rectangle<int>& textArea, TextLayout&) override;
     int getAlertWindowButtonHeight() override;
     Font getAlertWindowTitleFont() override;
     Font getAlertWindowMessageFont() override;
     Font getAlertWindowFont() override;
 
     // ======== custom TabButton methods: ================================
-
     int getTabButtonSpaceAroundImage() override;
     int getTabButtonOverlap (int tabDepth) override;
     int getTabButtonBestWidth (TabBarButton&, int tabDepth) override;

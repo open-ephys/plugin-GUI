@@ -727,7 +727,7 @@ void CustomLookAndFeel::drawMenuBarBackground (Graphics& g, int width, int heigh
 
     if (menuBar.getName().equalsIgnoreCase ("MainMenu"))
     {
-        g.setColour (findColour (ThemeColours::defaultText));
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (menuBar.isEnabled() ? 1.0f : 0.5f));
         String ver = "v" + String (ProjectInfo::versionString);
         g.setFont (getCommonMenuFont());
         int verStrWidth = GlyphArrangement::getStringWidthInt (getCommonMenuFont(), ver);
@@ -960,7 +960,7 @@ public:
 
     void paintButton (Graphics& g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
     {
-        auto pathColour = findColour (ThemeColours::controlPanelText);
+        auto pathColour = findColour (ThemeColours::controlPanelText).withAlpha (isEnabled() ? 1.0f : 0.5f);
 
         // g.fillAll (background);
 
@@ -1115,6 +1115,110 @@ void CustomLookAndFeel::drawDocumentWindowTitleBar (DocumentWindow& window, Grap
 
     g.setOpacity (isActive ? 1.0f : 0.6f);
     g.drawText (window.getName(), textX, 0, textW, h, Justification::centredLeft, true);
+}
+
+//==================================================================
+// ALERT WINDOW METHODS :
+//==================================================================
+
+AlertWindow* CustomLookAndFeel::createAlertWindow (const String& title,
+                                                   const String& message,
+                                                   const String& button1,
+                                                   const String& button2,
+                                                   const String& button3,
+                                                   MessageBoxIconType iconType,
+                                                   int numButtons,
+                                                   Component* associatedComponent)
+{
+    auto boundsOffset = 20;
+
+    auto* aw = LookAndFeel_V2::createAlertWindow (title, message, button1, button2, button3, iconType, numButtons, associatedComponent);
+
+    auto bounds = aw->getBounds();
+    bounds = bounds.withSizeKeepingCentre (bounds.getWidth() + boundsOffset, bounds.getHeight() + boundsOffset);
+    aw->setBounds (bounds);
+
+    for (auto* child : aw->getChildren())
+        if (auto* button = dynamic_cast<TextButton*> (child))
+            button->setBounds (button->getBounds() + Point<int> (10, 10));
+
+    return aw;
+}
+
+void CustomLookAndFeel::drawAlertBox (Graphics& g, AlertWindow& alert, const Rectangle<int>& textArea, TextLayout& textLayout)
+{
+    auto cornerSize = 0.0f;
+
+    g.setColour (alert.findColour (AlertWindow::outlineColourId));
+    g.drawRoundedRectangle (alert.getLocalBounds().toFloat(), cornerSize, 2.0f);
+
+    auto bounds = alert.getLocalBounds().reduced (1);
+    g.reduceClipRegion (bounds);
+
+    g.setColour (alert.findColour (AlertWindow::backgroundColourId));
+    g.fillRoundedRectangle (bounds.toFloat(), cornerSize);
+
+    auto iconSpaceUsed = 0;
+
+    auto iconWidth = 50;
+    auto iconSize = jmin (iconWidth, bounds.getHeight());
+
+    if (alert.containsAnyExtraComponents() || alert.getNumButtons() > 2)
+        iconSize = jmin (iconSize, textArea.getHeight() + 50);
+
+    juce::Rectangle<int> iconRect (10, 30, iconSize, iconSize);
+
+    if (alert.getAlertType() != MessageBoxIconType::NoIcon)
+    {
+        Path icon;
+        char character;
+        Colour colour;
+
+        if (alert.getAlertType() == MessageBoxIconType::WarningIcon)
+        {
+            character = '!';
+
+            icon.addTriangle ((float) iconRect.getX() + (float) iconRect.getWidth() * 0.5f,
+                              (float) iconRect.getY(),
+                              static_cast<float> (iconRect.getRight()),
+                              static_cast<float> (iconRect.getBottom()),
+                              static_cast<float> (iconRect.getX()),
+                              static_cast<float> (iconRect.getBottom()));
+
+            icon = icon.createPathWithRoundedCorners (5.0f);
+            colour = findColour (ProcessorColour::SOURCE_COLOUR);
+        }
+        else
+        {
+            colour = findColour (ProcessorColour::FILTER_COLOUR);
+            character = alert.getAlertType() == MessageBoxIconType::InfoIcon ? 'i' : '?';
+
+            icon.addEllipse (iconRect.toFloat());
+        }
+
+        GlyphArrangement ga;
+        ga.addFittedText (withDefaultMetrics (FontOptions { (float) iconRect.getHeight() * 0.9f, Font::bold }),
+                          String::charToString ((juce_wchar) (uint8) character),
+                          static_cast<float> (iconRect.getX()),
+                          static_cast<float> (iconRect.getY()),
+                          static_cast<float> (iconRect.getWidth()),
+                          static_cast<float> (iconRect.getHeight()),
+                          Justification::centred,
+                          1);
+
+        g.setColour (Colour (colour));
+        g.fillPath (icon);
+
+        g.setColour (Colours::white);
+        ga.draw (g);
+
+        iconSpaceUsed = iconWidth + 20;
+    }
+
+    juce::Rectangle<int> alertBounds (bounds.getX() + iconSpaceUsed, 30, bounds.getWidth() - iconSpaceUsed, bounds.getHeight() - getAlertWindowButtonHeight() - 50);
+
+    g.setColour (alert.findColour (AlertWindow::textColourId));
+    textLayout.draw (g, alertBounds.toFloat());
 }
 
 int CustomLookAndFeel::getAlertWindowButtonHeight() { return 30; }

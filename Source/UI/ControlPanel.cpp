@@ -587,7 +587,7 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
         playButton->setToggleState (false, dontSendNotification);
         recordButton->setToggleState (false, dontSendNotification);
 
-        String errorMsg = "No output device found. Unable to start acquisition!";
+        String errorMsg = "No output device found. Unable to start acquisition.";
         LOGE (errorMsg);
 
         if (! isConsoleApp)
@@ -597,7 +597,7 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
                         "and ensure there is an output device selected.";
 
             AlertWindow::showMessageBox (AlertWindow::WarningIcon,
-                                         "Acquisition Error!",
+                                         "Acquisition Error",
                                          errorMsg);
         }
 
@@ -609,7 +609,7 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
         playButton->setToggleState (false, dontSendNotification);
         recordButton->setToggleState (false, dontSendNotification);
 
-        String errorMsg = "Sample rate too low. Unable to start acquisition!";
+        String errorMsg = "Sample rate too low. Unable to start acquisition.";
         LOGE (errorMsg);
 
         if (! isConsoleApp)
@@ -619,7 +619,7 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
                         "to a value of 44.1 kHz or higher. If no such option is available, try changing the output device type.";
 
             AlertWindow::showMessageBox (AlertWindow::WarningIcon,
-                                         "Acquisition Error!",
+                                         "Acquisition Error",
                                          errorMsg);
         }
 
