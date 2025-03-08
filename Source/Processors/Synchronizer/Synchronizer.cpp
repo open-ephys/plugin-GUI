@@ -218,12 +218,21 @@ void SyncStream::syncWith (const SyncStream* mainStream)
             {
                 actualSampleRate = estimatedActualSampleRate;
 
-                if (! isSynchronized)
-
+                if (std::abs(estimatedGlobalStartTime) < 1.0)
                 {
-                    globalStartTime = estimatedGlobalStartTime;
-                    isSynchronized = true;
+                    if (! isSynchronized)
+
+                    {
+                        globalStartTime = estimatedGlobalStartTime;
+                        isSynchronized = true;
+                    }
                 }
+                else
+                {
+					//LOGD ("Estimated global start time of ", estimatedGlobalStartTime, " is out of bounds. Ignoring.");
+				}
+
+                
             }
             else
             {
