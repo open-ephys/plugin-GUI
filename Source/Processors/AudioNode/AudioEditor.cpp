@@ -294,11 +294,6 @@ AudioConfigurationWindow::AudioConfigurationWindow (AudioDeviceManager& adm, Aud
 
     setContentOwned (adsc, true);
     setVisible (false);
-
-    int fixedWidth = adsc->getWidth() + 10;
-    int fixedHeight = adsc->getHeight() + getTitleBarHeight() + 20;
-
-    setResizeLimits (fixedWidth, fixedHeight, fixedWidth, fixedHeight);
 }
 
 void AudioConfigurationWindow::closeButtonPressed()
