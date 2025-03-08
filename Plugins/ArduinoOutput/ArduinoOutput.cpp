@@ -178,13 +178,13 @@ void ArduinoOutput::handleTTLEvent (TTLEventPtr event)
             {
                 arduino.sendDigital (
                     getParameter ("output_pin")->getValue(),
-                    ARD_LOW);
+                    ARD_HIGH);
             }
             else
             {
                 arduino.sendDigital (
                     getParameter ("output_pin")->getValue(),
-                    ARD_HIGH);
+                    ARD_LOW);
             }
         }
     }
