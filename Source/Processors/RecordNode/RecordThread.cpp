@@ -101,10 +101,14 @@ void RecordThread::run()
 
     for (int chan = 0; chan < m_numChannels; ++chan)
     {
-		sampleNumbers.add (0);
-		dataBufferIdxs.push_back (CircularBufferIndexes());
+        sampleNumbers.add (0);
+        dataBufferIdxs.push_back (CircularBufferIndexes());
+    }
+
+    for (int stream = 0; stream < recordNode->getNumDataStreams(); ++stream)
+    {
         timestampBufferIdxs.push_back (CircularBufferIndexes());
-	}
+    }
 
     bool closeEarly = true;
 
@@ -159,23 +163,21 @@ void RecordThread::writeData (const AudioBuffer<float>& dataBuffer,
                               int maxSpikes,
                               bool lastBlock)
 {
-    
-    if (m_dataQueue->startRead(dataBufferIdxs, timestampBufferIdxs, sampleNumbers, maxSamples))
+    if (m_dataQueue->startRead (dataBufferIdxs, timestampBufferIdxs, sampleNumbers, maxSamples))
     {
         m_engine->updateLatestSampleNumbers (sampleNumbers);
 
         /* Copy data to record engine */
         for (int chan = 0; chan < m_numChannels; ++chan)
         {
-
             if (dataBufferIdxs[chan].size1 > 0)
             {
                 const double* r = timestampBuffer.getReadPointer (m_timestampBufferChannelArray[chan],
                                                                   dataBufferIdxs[chan].index1);
 
-                 //if (chan == 0)
-                  //  std::cout << "Writing " << dataBufferIdxs[chan].size1 << " samples for channel 0"
-                  //            << std::endl;
+                //if (chan == 0)
+                //  std::cout << "Writing " << dataBufferIdxs[chan].size1 << " samples for channel 0"
+                //            << std::endl;
 
                 m_engine->writeContinuousData (
                     chan, // write channel (index among all recorded channels)
@@ -237,7 +239,6 @@ void RecordThread::writeData (const AudioBuffer<float>& dataBuffer,
 
         if (SystemEvent::getBaseType (event) == EventBase::Type::SYSTEM_EVENT)
         {
-            
             String syncText = SystemEvent::getSyncText (event);
             m_engine->writeTimestampSyncText (SystemEvent::getStreamId (event), SystemEvent::getSampleNumber (event), 0.0f, SystemEvent::getSyncText (event));
         }
