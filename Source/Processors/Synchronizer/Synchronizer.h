@@ -135,7 +135,7 @@ public:
     const int MAX_PULSES_IN_BUFFER = 10;
 
     /** Threshold for calling pulses synchronous */
-    const int MAX_TIME_DIFFERENCE_MS = 50;
+    const int MAX_TIME_DIFFERENCE_MS = 85;
 
     /** Threshold of calling durations equal */
     const double MAX_DURATION_DIFFERENCE_MS = 2;
