@@ -1169,7 +1169,7 @@ String TtlLineParameter::getValueAsString()
 
 String TtlLineParameter::getChangeDescription()
 {
-    return currentValue.toString();
+    return String(int(currentValue) + 1);
 }
 
 void TtlLineParameter::toXml (XmlElement* xml)
