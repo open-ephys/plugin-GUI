@@ -977,27 +977,45 @@ String MaskChannelsParameter::getChangeDescription()
         curr.add (currentValue[i]);
     }
 
-    //find how many values different from prev to curr
-    int diff = 0;
+    //find how many values in current were not in previous
+    int added = 0;
 
     for (int i = 0; i < curr.size(); i++)
     {
         if (! prev.contains (curr[i]))
-            diff++;
+            added++;
     }
+    
+    // find how many values in previous are not in current
+    int removed = 0;
 
     for (int i = 0; i < prev.size(); i++)
     {
         if (! curr.contains (prev[i]))
-            diff++;
+            removed++;
     }
+    
+    String selectionString;
 
-    if (diff == 0) //should never get here
-        return "No change";
-    else if (diff == 1)
-        return "changed 1";
-    else
-        return "changed " + String (diff);
+    if (added > 0) //should never get here
+        selectionString += "added " + String(added);
+    
+    if (removed > 0)
+    {
+        if (selectionString.length() > 0)
+            selectionString += ", ";
+        selectionString += "removed " + String(removed);
+    }
+    
+    selectionString += " channel";
+    
+    if (added > 1 || removed > 1)
+        selectionString += "s";
+    
+    if (added == 0 && removed == 0)
+        selectionString = "no change";
+    
+    return selectionString;
 }
 
 void MaskChannelsParameter::toXml (XmlElement* xml)

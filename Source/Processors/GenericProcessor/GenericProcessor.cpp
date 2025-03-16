@@ -1919,7 +1919,6 @@ void GenericProcessor::loadFromXml()
                             }
                             else
                             {
-                                jassertfalse;
                                 LOGD ("Stream parameter not found: ", name, ". Skipping...");
                                 continue;
                             }
