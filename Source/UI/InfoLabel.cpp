@@ -324,7 +324,10 @@ void InfoLabel::setAuthorsText()
                             "Martin Spacek\n"
                             "Christopher Stawarz\n"
                             "Daniel Wagenaar\n"
-                            "@whitepine\n\n";
+                            "@whitepine\n"
+                            "Allen Munk\n"
+                            "Ben Mao\n"
+                            "Brandon Parks\n\n";
 
     authorsText.append (otherDevString, FontOptions { "Nimbus Sans", "Regular", 16.0f });
 }
