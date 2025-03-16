@@ -251,7 +251,7 @@ void InfoLabel::setAboutText()
     aboutText.append ("Source Code\n\n", FontOptions { "Nimbus Sans", "Regular", 20.0f });
     aboutText.append ("GitHub repository: ", FontOptions { "Nimbus Sans", "Regular", 16.0f });
 
-    aboutText.append ("github.com/open-ephys/plugin-GUI\n\n\n", FontOptions { "Fira Code", "Regular", 16.0f });
+    aboutText.append ("github.com/open-ephys/plugin-gui\n\n\n", FontOptions { "Fira Code", "Regular", 16.0f });
 
     aboutText.append ("Publications\n\n", FontOptions { "Nimbus Sans", "Regular", 20.0f });
     aboutText.append ("Any publications based on data collected with this software should "
@@ -267,10 +267,10 @@ void InfoLabel::setAboutText()
     aboutText.append ("Contact\n\n", FontOptions { "Nimbus Sans", "Regular", 20.0f });
     aboutText.append ("For questions, email ", FontOptions { "Nimbus Sans", "Regular", 16.0f });
 
-    aboutText.append ("support@open-ephys.org", FontOptions { "Fira Code", "Regular", 16.0f });
+    aboutText.append ("gui@open-ephys.org", FontOptions { "Fira Code", "Regular", 16.0f });
 
     aboutText.append (" or post an issue at ", FontOptions { "Nimbus Sans", "Regular", 16.0f });
-    aboutText.append ("github.com/open-ephys/plugin-GUI/Issues", FontOptions { "Fira Code", "Regular", 16.0f });
+    aboutText.append ("github.com/open-ephys/plugin-gui/Issues", FontOptions { "Fira Code", "Regular", 16.0f });
 }
 
 void InfoLabel::setAuthorsText()

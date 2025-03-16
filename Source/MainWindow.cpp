@@ -351,7 +351,7 @@ void MainWindow::handleCrash (void* input)
 
     AlertWindow::showMessageBox (AlertWindow::NoIcon,
                                  "Open Ephys has stopped working",
-                                 "To help fix the problem, please email the following files to support@open-ephys.org: \n\n"
+                                 "To help fix the problem, please email the following files to gui@open-ephys.org: \n\n"
                                      + recoveryFileLocation
                                      + "\n\n"
                                      + crashLog.getFullPathName());
