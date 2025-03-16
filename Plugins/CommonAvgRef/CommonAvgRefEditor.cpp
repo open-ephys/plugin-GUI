@@ -26,7 +26,7 @@
 CommonAverageRefEditor::CommonAverageRefEditor (GenericProcessor* parentProcessor)
     : GenericEditor (parentProcessor)
 {
-    desiredWidth = 190;
+    desiredWidth = 170;
 
     addMaskChannelsParameterEditor (Parameter::STREAM_SCOPE, "affected", 10, 35);
     addMaskChannelsParameterEditor (Parameter::STREAM_SCOPE, "reference", 10, 65);
