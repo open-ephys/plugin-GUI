@@ -773,40 +773,27 @@ String SelectedChannelsParameter::getValueAsString()
 
 String SelectedChannelsParameter::getChangeDescription()
 {
-    //compare previousValue to currentValue and return a string describing the change
-    Array<int> prev;
-    for (int i = 0; i < previousValue.getArray()->size(); i++)
+    // Check number of selected channels:
+    int selectedChannelCount = currentValue.getArray()->size();
+    
+    // If more than four channels, state the number selected
+    if (selectedChannelCount > 4)
+        return "selected " + String(selectedChannelCount) + " channels";
+    else // Get string describing selected channels
     {
-        prev.add (previousValue[i]);
+        String selectedChannelsString;
+        
+        for (int i = 0; i < selectedChannelCount; i++)
+        {
+            selectedChannelsString += String(int(currentValue[i]) + 1);
+            
+            if (i < selectedChannelCount - 1)
+                selectedChannelsString += ", ";
+        }
+        
+        return selectedChannelsString;
     }
-
-    Array<int> curr;
-    for (int i = 0; i < currentValue.getArray()->size(); i++)
-    {
-        curr.add (currentValue[i]);
-    }
-
-    //find how many values different from prev to curr
-    int diff = 0;
-
-    for (int i = 0; i < curr.size(); i++)
-    {
-        if (! prev.contains (curr[i]))
-            diff++;
-    }
-
-    for (int i = 0; i < prev.size(); i++)
-    {
-        if (! curr.contains (prev[i]))
-            diff++;
-    }
-
-    if (diff == 0) //should never get here
-        return "No change";
-    else if (diff == 1)
-        return "changed 1";
-    else
-        return "changed selection";
+        
 }
 
 void SelectedChannelsParameter::toXml (XmlElement* xml)

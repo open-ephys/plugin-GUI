@@ -582,6 +582,8 @@ SelectedChannelsParameterEditor::SelectedChannelsParameterEditor (Parameter* par
     button->setBounds (0, 0, rowWidthPixels / 2, rowHeightPixels);
 
     editor = (Component*) button.get();
+    
+    updateView();
 }
 
 Array<int> SelectedChannelsParameterEditor::getSelectedChannels()
@@ -648,12 +650,31 @@ void SelectedChannelsParameterEditor::updateView()
     else
     {
         button->setEnabled (true);
+        
         int numChannels = int (((SelectedChannelsParameter*) param)->getChannelStates().size());
-        int selected = 0;
+        
+        int numSelected = 0;
         for (auto chan : ((SelectedChannelsParameter*) param)->getChannelStates())
             if (chan)
-                selected++;
-        button->setButtonText (String (selected) + "/" + String (numChannels));
+                numSelected++;
+        
+        if (numSelected > 4)
+        {
+            button->setButtonText (String (numSelected) + "/" + String (numChannels));
+        } else {
+            String selectedChannelsString;
+            
+            for (int i = 0; i < numSelected; i++)
+            {
+                selectedChannelsString += String(int(param->currentValue[i]) + 1);
+                
+                if (i < numSelected - 1)
+                    selectedChannelsString += ", ";
+            }
+            button->setButtonText (selectedChannelsString);
+        }
+        
+        
     }
 }
 
