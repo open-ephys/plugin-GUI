@@ -31,12 +31,15 @@ SpikePlot::SpikePlot (SpikeDisplayCanvas* sdc,
                       int elecNum,
                       int p,
                       String name_,
-                      std::string identifier_) : canvas (sdc),
-                                                 electrodeNumber (elecNum),
-                                                 plotType (p),
-                                                 limitsChanged (true),
-                                                 name (name_),
-                                                 identifier (identifier_)
+                      Array<String> continuousChannelNames_,
+                      std::string identifier_) : 
+     canvas (sdc),
+     electrodeNumber (elecNum),
+     plotType (p),
+     limitsChanged (true),
+     name (name_),
+     continuousChannelNames(continuousChannelNames_),
+     identifier (identifier_)
 {
     font = FontOptions ("Inter", "Medium", 16.0f);
 
@@ -172,7 +175,7 @@ void SpikePlot::initAxes()
 
     for (int i = 0; i < nWaveAx; i++)
     {
-        WaveAxes* wAx = new WaveAxes (canvas, electrodeNumber, WAVE1 + i, identifier);
+        WaveAxes* wAx = new WaveAxes (canvas, electrodeNumber, WAVE1 + i, continuousChannelNames[i], identifier);
         waveAxes.add (wAx);
         addAndMakeVisible (wAx);
         ranges.add (250.0f); // default range is 250 microvolts
@@ -181,7 +184,21 @@ void SpikePlot::initAxes()
     for (int i = 0; i < nProjAx; i++)
     {
         Projection proj = Projection (int (PROJ1x2) + i);
-        ProjectionAxes* pAx = new ProjectionAxes (canvas, proj);
+        String channelComparison;
+        if (i == 0)
+            channelComparison = continuousChannelNames[0] + " vs " + continuousChannelNames[1];
+        else if (i == 1)
+            channelComparison = continuousChannelNames[0] + " vs " + continuousChannelNames[2];
+        else if (i == 2)
+            channelComparison = continuousChannelNames[0] + " vs " + continuousChannelNames[3];
+        else if (i == 3)
+            channelComparison = continuousChannelNames[1] + " vs " + continuousChannelNames[2];
+        else if (i == 4)
+            channelComparison = continuousChannelNames[1] + " vs " + continuousChannelNames[3];
+        else if (i == 5)
+            channelComparison = continuousChannelNames[2] + " vs " + continuousChannelNames[3];
+        
+        ProjectionAxes* pAx = new ProjectionAxes (canvas, proj, channelComparison);
         projectionAxes.add (pAx);
         addAndMakeVisible (pAx);
     }
@@ -458,9 +475,13 @@ void SpikePlot::invertSpikes (bool shouldInvert)
     }
 }
 
-GenericAxes::GenericAxes (SpikeDisplayCanvas* canvas, SpikePlotType type_) : canvas (canvas),
-                                                                             type (type_),
-                                                                             gotFirstSpike (false)
+GenericAxes::GenericAxes (SpikeDisplayCanvas* canvas,
+                          SpikePlotType type_,
+                          String channelName_) :
+    canvas (canvas),
+    type (type_),
+    channelName(channelName_),
+    gotFirstSpike (false)
 {
     ylims[0] = 0;
     ylims[1] = 1;
@@ -548,21 +569,26 @@ double GenericAxes::ad16ToUv (int x, int gain)
     return result;
 }
 
-WaveAxes::WaveAxes (SpikeDisplayCanvas* canvas, int electrodeIndex, int channel_, std::string identifier_) : GenericAxes (canvas, WAVE_AXES),
-                                                                                                             electrodeIndex (electrodeIndex),
-                                                                                                             drawGrid (true),
-                                                                                                             displayThresholdLevel (0.0f),
-                                                                                                             detectorThresholdLevel (0.0f),
-                                                                                                             spikesReceivedSinceLastRedraw (0),
-                                                                                                             spikeIndex (0),
-                                                                                                             bufferSize (5),
-                                                                                                             range (250.0f),
-                                                                                                             isOverThresholdSlider (false),
-                                                                                                             isDraggingThresholdSlider (false),
-                                                                                                             thresholdCoordinator (nullptr),
-                                                                                                             spikesInverted (false),
-                                                                                                             channel (channel_),
-                                                                                                             identifier (identifier_)
+WaveAxes::WaveAxes (SpikeDisplayCanvas* canvas, 
+                    int electrodeIndex,
+                    int channel_,
+                    String channelName,
+                    std::string identifier_) : 
+ GenericAxes (canvas, WAVE_AXES, channelName),
+ electrodeIndex (electrodeIndex),
+ drawGrid (true),
+ displayThresholdLevel (0.0f),
+ detectorThresholdLevel (0.0f),
+ spikesReceivedSinceLastRedraw (0),
+ spikeIndex (0),
+ bufferSize (5),
+ range (250.0f),
+ isOverThresholdSlider (false),
+ isDraggingThresholdSlider (false),
+ thresholdCoordinator (nullptr),
+ spikesInverted (false),
+ channel (channel_),
+ identifier (identifier_)
 {
     addMouseListener (this, true);
 
@@ -601,6 +627,11 @@ void WaveAxes::paint (Graphics& g)
 
     // draw the threshold line and labels
     drawThresholdSlider (g);
+    
+    // draw underlying channel name
+    g.setColour(Colours::white.withAlpha(0.5f));
+    g.setFont(13);
+    g.drawText(channelName, getWidth()-44, 5, 40, 13, Justification::right);
 
     // if no spikes have been received then don't plot anything
     if (! gotFirstSpike)
@@ -612,16 +643,17 @@ void WaveAxes::paint (Graphics& g)
     {
         if (spikeNum != spikeIndex)
         {
-            plotSpike (spikeBuffer[spikeNum], g);
+            plotSpike (spikeBuffer[spikeNum], g, false);
         }
     }
 
     plotSpike (spikeBuffer[spikeIndex], g);
 
     spikesReceivedSinceLastRedraw = 0;
+
 }
 
-void WaveAxes::plotSpike (const Spike* s, Graphics& g)
+void WaveAxes::plotSpike (const Spike* s, Graphics& g, bool latestSpike)
 {
     if (! s)
         return;
@@ -640,7 +672,13 @@ void WaveAxes::plotSpike (const Spike* s, Graphics& g)
     if (s->getSortedId() > 0)
         g.setColour (colours[(s->getSortedId() - 1) % 8]);
     else
-        g.setColour (Colours::white);
+    {
+        if (latestSpike)
+            g.setColour (Colours::white);
+        else
+            g.setColour(Colours::white.withAlpha(0.4f));
+    }
+        
 
     // type corresponds to channel so we need to calculate the starting
     // sample based upon which channel is getting plotted
@@ -914,12 +952,15 @@ void WaveAxes::setDisplayThreshold (float threshold)
 
 // --------------------------------------------------
 
-ProjectionAxes::ProjectionAxes (SpikeDisplayCanvas* canvas, Projection proj_) : GenericAxes (canvas, PROJECTION_AXES),
-                                                                                imageDim (500),
-                                                                                rangeX (250),
-                                                                                rangeY (250),
-                                                                                spikesReceivedSinceLastRedraw (0),
-                                                                                proj (proj_)
+ProjectionAxes::ProjectionAxes (SpikeDisplayCanvas* canvas, 
+                                Projection proj_,
+                                String channelNames) :
+    GenericAxes (canvas, PROJECTION_AXES, channelNames),
+    imageDim (500),
+    rangeX (250),
+    rangeY (250),
+    spikesReceivedSinceLastRedraw (0),
+    proj (proj_)
 {
     projectionImage = Image (Image::RGB, imageDim, imageDim, true, SoftwareImageType());
 
@@ -947,6 +988,10 @@ void ProjectionAxes::paint (Graphics& g)
                  imageDim - rangeY,
                  rangeX,
                  rangeY);
+    
+    g.setColour(Colours::white.withAlpha(0.3f));
+    g.setFont(13);
+    g.drawText(channelName, 4, 5, 100, 13, Justification::left);
 }
 
 bool ProjectionAxes::updateSpikeData (const Spike* s)

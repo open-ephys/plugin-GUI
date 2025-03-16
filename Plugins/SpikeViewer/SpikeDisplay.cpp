@@ -63,11 +63,11 @@ void SpikeDisplay::clear()
 
 }
 
-SpikePlot* SpikeDisplay::addSpikePlot (int numChannels, int electrodeNum, String name_, std::string identifier_)
+SpikePlot* SpikeDisplay::addSpikePlot (int numChannels, int electrodeNum, String name_, Array<String> channelNames, std::string identifier_)
 {
     LOGD ("Adding spike plot for electrode: ", electrodeNum, " named: ", name_, " with ", numChannels, " channels");
 
-    SpikePlot* spikePlot = new SpikePlot (canvas, electrodeNum, 1000 + numChannels, name_, identifier_);
+    SpikePlot* spikePlot = new SpikePlot (canvas, electrodeNum, 1000 + numChannels, name_, channelNames, identifier_);
 
     if (numChannels == 1)
         singleElectrodePlots.add (spikePlot);

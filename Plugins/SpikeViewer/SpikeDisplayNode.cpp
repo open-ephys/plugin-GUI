@@ -129,6 +129,23 @@ int SpikeDisplayNode::getNumberOfChannelsForElectrode (int i) const
     }
 }
 
+Array<String> SpikeDisplayNode::getChannelNamesForElectrode (int i) const
+{
+    
+    Array<String> channelNames;
+    
+    if (i > -1 && i < electrodes.size())
+    {
+        for (int j = 0; j < electrodes[i]->numChannels; j++)
+        {
+            channelNames.add(electrodes[i]->spikeChannel->getSourceChannels()[j]->getName());
+        }
+    }
+
+    return channelNames;
+    
+}
+
 String SpikeDisplayNode::getNameForElectrode (int i) const
 {
     if (i > -1 && i < electrodes.size())

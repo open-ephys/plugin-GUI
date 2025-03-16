@@ -69,6 +69,9 @@ public:
 
     /** Returns the channel count for an electrode*/
     int getNumberOfChannelsForElectrode (int i) const;
+    
+    /** Returns channel names for an electrode*/
+    Array<String> getChannelNamesForElectrode (int i) const;
 
     /** Returns the total number of available electrodes*/
     int getNumElectrodes() const;

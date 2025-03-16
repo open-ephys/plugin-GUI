@@ -158,7 +158,11 @@ void SpikeDisplayCanvas::updateSettings()
 
     for (int i = 0; i < nPlots; i++)
     {
-        SpikePlot* sp = spikeDisplay->addSpikePlot (processor->getNumberOfChannelsForElectrode (i), i, processor->getNameForElectrode (i), processor->getSpikeChannel (i)->getIdentifier().toStdString());
+        SpikePlot* sp = spikeDisplay->addSpikePlot (processor->getNumberOfChannelsForElectrode (i), 
+                                                    i,
+                                                    processor->getNameForElectrode (i), 
+                                                    processor->getChannelNamesForElectrode(i),
+                                                    processor->getSpikeChannel (i)->getIdentifier().toStdString());
 
         processor->addSpikePlotForElectrode (sp, i);
 

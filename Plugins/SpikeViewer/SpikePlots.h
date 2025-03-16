@@ -100,6 +100,7 @@ public:
                int elecNum,
                int plotType,
                String name_,
+               Array<String> continuousChannelNames,
                std::string identifier_);
 
     /** Destructor */
@@ -208,6 +209,7 @@ private:
     void updateAxesPositions();
 
     String name;
+    Array<String> continuousChannelNames;
     FontOptions font;
 
     CriticalSection spikeArrayLock;
@@ -227,7 +229,7 @@ class GenericAxes : public Component
 {
 public:
     /** Constructor */
-    GenericAxes (SpikeDisplayCanvas* canvas, SpikePlotType type);
+    GenericAxes (SpikeDisplayCanvas* canvas, SpikePlotType type, String channelName);
 
     /** Destructor */
     virtual ~GenericAxes() {}
@@ -260,6 +262,8 @@ protected:
     FontOptions font;
 
     Array<Colour> colours;
+    
+    String channelName;
 
     double ad16ToUv (int x, int gain);
 };
@@ -274,7 +278,11 @@ class WaveAxes : public GenericAxes
 {
 public:
     /** Constructor*/
-    WaveAxes (SpikeDisplayCanvas* canvas, int electrodeIndex, int channel, std::string identifier);
+    WaveAxes (SpikeDisplayCanvas* canvas, 
+              int electrodeIndex,
+              int channel,
+              String channelName,
+              std::string identifier);
 
     /** Destructor*/
     ~WaveAxes() {}
@@ -289,7 +297,7 @@ public:
     void paint (Graphics& g);
 
     /** Draws a single spike */
-    void plotSpike (const Spike* s, Graphics& g);
+    void plotSpike (const Spike* s, Graphics& g, bool latestSpike = true);
 
     /** Removes spikes that have been previously drawn*/
     void clear();
@@ -370,7 +378,9 @@ class ProjectionAxes : public GenericAxes
 {
 public:
     /** Constructor */
-    ProjectionAxes (SpikeDisplayCanvas* canvas, Projection proj);
+    ProjectionAxes (SpikeDisplayCanvas* canvas, 
+                    Projection proj,
+                    String channelName);
 
     /** Destructor*/
     ~ProjectionAxes() {}
