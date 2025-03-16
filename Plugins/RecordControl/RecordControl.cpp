@@ -26,6 +26,10 @@
 RecordControl::RecordControl()
     : GenericProcessor ("Record Control")
 {
+}
+
+void RecordControl::registerParameters()
+{
     addCategoricalParameter (Parameter::PROCESSOR_SCOPE,
                              "trigger_type",
                              "Trigger type",
@@ -40,13 +44,11 @@ RecordControl::RecordControl()
                              { "Rising", "Falling" },
                              0);
 
-    addIntParameter (Parameter::STREAM_SCOPE,
-                     "trigger_line",
-                     "Trigger line",
-                     "The TTL line that triggers a change in recording state",
-                     1,
-                     1,
-                     16);
+    addTtlLineParameter (Parameter::STREAM_SCOPE,
+                         "trigger_line",
+                         "Trigger line",
+                         "The TTL line that triggers a change in recording state",
+                         16);
 }
 
 AudioProcessorEditor* RecordControl::createEditor()
@@ -55,7 +57,7 @@ AudioProcessorEditor* RecordControl::createEditor()
     return editor.get();
 }
 
-void RecordControl::process (AudioSampleBuffer& buffer)
+void RecordControl::process (AudioBuffer<float>& buffer)
 {
     checkForEvents();
 }
@@ -64,7 +66,7 @@ void RecordControl::handleTTLEvent (TTLEventPtr event)
 {
     DataStream* stream = getDataStream (event->getStreamId());
 
-    if (event->getLine() == (int ((*stream)["trigger_line"]) - 1))
+    if (event->getLine() == (int ((*stream)["trigger_line"])))
     {
         if (int (getParameter ("trigger_type")->getValue()) == 0) // edge set
         {

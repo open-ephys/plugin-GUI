@@ -42,6 +42,9 @@ public:
     /** Destructor */
     ~RecordControl() {}
 
+    /** Registers the parameters */
+    void registerParameters() override;
+
     /** Create Record Control Editor*/
     AudioProcessorEditor* createEditor() override;
 
