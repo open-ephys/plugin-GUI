@@ -5,13 +5,13 @@
 namespace BinaryData
 {
     extern const char*  bw_logo72_png;
-    const int           bw_logo72_pngSize = 7010;
+    const int           bw_logo72_pngSize = 7956;
 
     extern const char*  color_logo_png;
     const int           color_logo_pngSize = 144933;
 
     extern const char*  color_logo72_png;
-    const int           color_logo72_pngSize = 13402;
+    const int           color_logo72_pngSize = 17034;
 
     extern const char*  CPMonoBold_otf;
     const int           CPMonoBold_otfSize = 26604;
