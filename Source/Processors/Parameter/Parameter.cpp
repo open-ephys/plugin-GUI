@@ -775,25 +775,25 @@ String SelectedChannelsParameter::getChangeDescription()
 {
     // Check number of selected channels:
     int selectedChannelCount = currentValue.getArray()->size();
-    
-    // If more than four channels, state the number selected
-    if (selectedChannelCount > 4)
-        return "selected " + String(selectedChannelCount) + " channels";
+
+    if (selectedChannelCount == 0) // If no channels selected, return "None"
+        return "none";
+    else if (selectedChannelCount > 4) // If more than four channels, state the number selected
+        return "selected " + String (selectedChannelCount) + " channels";
     else // Get string describing selected channels
     {
         String selectedChannelsString;
-        
+
         for (int i = 0; i < selectedChannelCount; i++)
         {
-            selectedChannelsString += String(int(currentValue[i]) + 1);
-            
+            selectedChannelsString += String (int (currentValue[i]) + 1);
+
             if (i < selectedChannelCount - 1)
                 selectedChannelsString += ", ";
         }
-        
+
         return selectedChannelsString;
     }
-        
 }
 
 void SelectedChannelsParameter::toXml (XmlElement* xml)
@@ -985,7 +985,7 @@ String MaskChannelsParameter::getChangeDescription()
         if (! prev.contains (curr[i]))
             added++;
     }
-    
+
     // find how many values in previous are not in current
     int removed = 0;
 
@@ -994,27 +994,27 @@ String MaskChannelsParameter::getChangeDescription()
         if (! curr.contains (prev[i]))
             removed++;
     }
-    
+
     String selectionString;
 
     if (added > 0) //should never get here
-        selectionString += "added " + String(added);
-    
+        selectionString += "added " + String (added);
+
     if (removed > 0)
     {
         if (selectionString.length() > 0)
             selectionString += ", ";
-        selectionString += "removed " + String(removed);
+        selectionString += "removed " + String (removed);
     }
-    
+
     selectionString += " channel";
-    
+
     if (added > 1 || removed > 1)
         selectionString += "s";
-    
+
     if (added == 0 && removed == 0)
         selectionString = "no change";
-    
+
     return selectionString;
 }
 
@@ -1169,7 +1169,10 @@ String TtlLineParameter::getValueAsString()
 
 String TtlLineParameter::getChangeDescription()
 {
-    return String(int(currentValue) + 1);
+    if ((int) currentValue == -1)
+        return "none";
+    else
+        return String (int (currentValue) + 1);
 }
 
 void TtlLineParameter::toXml (XmlElement* xml)
