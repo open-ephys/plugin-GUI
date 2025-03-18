@@ -43,7 +43,6 @@ protected:
         };
 
         continuousChannel = std::make_unique<ContinuousChannel>(continuousChannelSettings);
-        dataStream->addChannel(continuousChannel.get());
 
         // Set the source node id for the data stream
         nodeId = 0;
@@ -57,6 +56,8 @@ protected:
         processor = std::make_unique<MockProcessor>();
         processor->setNodeId(nodeId);
 
+        dataStream->addProcessor (processor.get());
+        continuousChannel->addProcessor (processor.get());
         eventChannel->addProcessor(processor.get());
 
         event = TTLEvent::createTTLEvent(eventChannel.get(), 0, 0, true);
@@ -78,8 +79,6 @@ This test verifies that multiple Metadata objects inserted into the Midi Buffer 
 */
 TEST_F(MidiBufferTests, ReadWrite)
 {
-    GTEST_SKIP() << "Fix";
-
     size_t size = event->getChannelInfo()->getDataSize() + 
         event->getChannelInfo()->getTotalEventMetadataSize() + 
         EVENT_BASE_SIZE;
@@ -96,11 +95,15 @@ TEST_F(MidiBufferTests, ReadWrite)
     {
         auto metaData = *it;
 
-        auto expectedMetaData = packet.getMetaEventData();
-        auto expectedMetaDataLength = packet.getMetaEventLength();
+        auto expectedMetaData = packet.getRawData();
+        auto expectedMetaDataLength = packet.getRawDataSize();
 
         EXPECT_EQ (metaData.numBytes, expectedMetaDataLength);
-        EXPECT_EQ (metaData.data, expectedMetaData);
+        
+        for (int i = 0; i < expectedMetaDataLength; ++i)
+        {
+			EXPECT_EQ (metaData.data[i], expectedMetaData[i]);
+		}
     }
 }
 
