@@ -153,8 +153,6 @@ void MessageCenterEditor::addIncomingMessage (const String& message)
 
 void MessageCenterEditor::addOutgoingMessage (const String& message, const int64 systemTime)
 {
-    messageCenter->broadcastMessage (message, systemTime);
-    messageCenter->addSavedMessage (message);
     editableMessageDisplayArea->setText (message, dontSendNotification);
 
     outgoingMessageLog->addMessage (new MessageLabel ("message", message));

@@ -40,8 +40,6 @@ TEST_F(MessageCenterTests, GetMessageStream)
 
 TEST_F(MessageCenterTests, AddOutgoingMessage)
 {
-    GTEST_SKIP() << "Need headless support for MessageCenter";
-
     messageCenter->addOutgoingMessage("Test Message", 100);
     EXPECT_EQ(messageCenter->getSavedMessages().size(), 1);
 
@@ -51,8 +49,6 @@ TEST_F(MessageCenterTests, AddOutgoingMessage)
 
 TEST_F(MessageCenterTests, AddSavedMessage)
 {
-    GTEST_SKIP() << "Need headless support for MessageCenter";
-
     messageCenter->addSavedMessage("Test Message");
     EXPECT_EQ(messageCenter->getSavedMessages().size(), 1);
 
@@ -62,8 +58,6 @@ TEST_F(MessageCenterTests, AddSavedMessage)
 
 TEST_F(MessageCenterTests, ClearSavedMessages)
 {
-    GTEST_SKIP() << "Need headless support for MessageCenter";
-
     messageCenter->addSavedMessage("Test Message");
     EXPECT_EQ(messageCenter->getSavedMessages().size(), 1);
 

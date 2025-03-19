@@ -144,7 +144,11 @@ void MessageCenter::broadcastMessage (const String& msg, const int64 systemTimeM
 
 void MessageCenter::addOutgoingMessage (const String& msg, const int64 systemTimeMilliseconds)
 {
-    messageCenterEditor->addOutgoingMessage (msg, systemTimeMilliseconds);
+    broadcastMessage (msg, systemTimeMilliseconds);
+    addSavedMessage (msg);
+
+    if(messageCenterEditor != nullptr)
+		messageCenterEditor->addOutgoingMessage (msg, systemTimeMilliseconds);
 }
 
 void MessageCenter::addSavedMessage (const String& msg)
