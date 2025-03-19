@@ -115,7 +115,6 @@ protected:
 
 TEST_F(DataThreadTests, DataIntegrity)
 {
-    GTEST_SKIP() << "Need to fix Audio Editor class as it is causing crashes in headless mode.";
     tester->startAcquisition(false);
 
     int numSamples = 100;
