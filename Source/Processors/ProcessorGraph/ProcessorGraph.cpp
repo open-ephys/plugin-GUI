@@ -1804,7 +1804,7 @@ void ProcessorGraph::saveToXml (XmlElement* xml)
     XmlElement* info = xml->createNewChildElement ("INFO");
 
     XmlElement* version = info->createNewChildElement ("VERSION");
-    version->addTextElement (JUCEApplication::getInstance()->getApplicationVersion());
+    version->addTextElement (ProjectInfo::versionString);
 
     XmlElement* pluginAPIVersion = info->createNewChildElement ("PLUGIN_API_VERSION");
     pluginAPIVersion->addTextElement (String (PLUGIN_API_VER));
