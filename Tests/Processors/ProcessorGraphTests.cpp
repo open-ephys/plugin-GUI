@@ -55,71 +55,81 @@ TEST_F (ProcessorGraphTest, LoadFromXMLTest)
 
     // An example XML from a real run of OpenEphys. To generate this, we opened OpenEphys, dragged a FileReader and
     // BandpassFilter, and then did File > Save As... and saved the XML. The XML contents were then copied here.
-    std::string docText = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                          "\n"
-                          "<SETTINGS>\n"
-                          "  <INFO>\n"
-                          "    <VERSION>0.6.4</VERSION>\n"
-                          "    <PLUGIN_API_VERSION>8</PLUGIN_API_VERSION>\n"
-                          "    <DATE>17 May 2023 12:50:55</DATE>\n"
-                          "    <OS>Mac OSX 12.6.1</OS>\n"
-                          "    <MACHINE name=\"XXXX-MBP-2\" cpu_model=\"Apple M1 Pro\" cpu_num_cores=\"10\"/>\n"
-                          "  </INFO>\n"
-                          "  <SIGNALCHAIN>\n"
-                          "    <PROCESSOR name=\"File Reader\" insertionPoint=\"0\" pluginName=\"File Reader\"\n"
-                          "               type=\"0\" index=\"2\" libraryName=\"\" libraryVersion=\"\" processorType=\"2\"\n"
-                          "               nodeId=\"100\">\n"
-                          "      <GLOBAL_PARAMETERS/>\n"
-                          "      <STREAM name=\"example_data\" description=\"A description of the File Reader Stream\"\n"
-                          "              sample_rate=\"40000.0\" channel_count=\"16\">\n"
-                          "        <PARAMETERS/>\n"
-                          "      </STREAM>\n"
-                          "      <CUSTOM_PARAMETERS>\n"
-                          "        <FILENAME path=\""
-                          + defaultFileReaderPath + "\" recording=\"0\"/>\n"
-                                                    "      </CUSTOM_PARAMETERS>\n"
-                                                    "      <EDITOR isCollapsed=\"0\" isDrawerOpen=\"0\" displayName=\"File Reader\" activeStream=\"0\">\n"
-                                                    "        <TIME_LIMITS start_time=\"0.0\" stop_time=\"4999.0\"/>\n"
-                                                    "      </EDITOR>\n"
-                                                    "    </PROCESSOR>\n"
-                                                    "    <PROCESSOR name=\"Bandpass Filter\" insertionPoint=\"1\" pluginName=\"Bandpass Filter\"\n"
-                                                    "               type=\"1\" index=\"0\" libraryName=\"Bandpass Filter\" libraryVersion=\"0.1.0\"\n"
-                                                    "               processorType=\"1\" nodeId=\"101\">\n"
-                                                    "      <GLOBAL_PARAMETERS/>\n"
-                                                    "      <STREAM name=\"example_data\" description=\"A description of the File Reader Stream\"\n"
-                                                    "              sample_rate=\"40000.0\" channel_count=\"16\">\n"
-                                                    "        <PARAMETERS enable_stream=\"1\" low_cut=\"300.0\" high_cut=\"6000.0\" Channels=\"\"/>\n"
-                                                    "      </STREAM>\n"
-                                                    "      <CUSTOM_PARAMETERS/>\n"
-                                                    "      <EDITOR isCollapsed=\"0\" isDrawerOpen=\"0\" displayName=\"Bandpass Filter\"\n"
-                                                    "              activeStream=\"0\"/>\n"
-                                                    "    </PROCESSOR>\n"
-                                                    "  </SIGNALCHAIN>\n"
-                                                    "  <CONTROLPANEL isOpen=\"0\" recordPath=\"\" recordEngine=\"BINARY\"\n"
-                                                    "                clockMode=\"0\"/>\n"
-                                                    "  <AUDIOEDITOR isMuted=\"0\" volume=\"50.0\" noiseGate=\"0.0\"/>\n"
-                                                    "  <FILENAMECONFIG>\n"
-                                                    "    <PREPEND state=\"0\" value=\"\"/>\n"
-                                                    "    <MAIN state=\"1\" value=\"YYYY-MM-DD_HH-MM-SS\"/>\n"
-                                                    "    <APPEND state=\"0\" value=\"\"/>\n"
-                                                    "  </FILENAMECONFIG>\n"
-                                                    "  <EDITORVIEWPORT scroll=\"0\">\n"
-                                                    "    <FILE_READER ID=\"100\"/>\n"
-                                                    "    <BANDPASS_FILTER ID=\"101\"/>\n"
-                                                    "  </EDITORVIEWPORT>\n"
-                                                    "  <DATAVIEWPORT selectedTab=\"2\"/>\n"
-                                                    "  <PROCESSORLIST>\n"
-                                                    "    <COLOR ID=\"801\" R=\"59\" G=\"59\" B=\"59\"/>\n"
-                                                    "    <COLOR ID=\"804\" R=\"241\" G=\"90\" B=\"41\"/>\n"
-                                                    "    <COLOR ID=\"802\" R=\"0\" G=\"174\" B=\"239\"/>\n"
-                                                    "    <COLOR ID=\"803\" R=\"0\" G=\"166\" B=\"81\"/>\n"
-                                                    "    <COLOR ID=\"805\" R=\"147\" G=\"149\" B=\"152\"/>\n"
-                                                    "    <COLOR ID=\"806\" R=\"255\" G=\"0\" B=\"0\"/>\n"
-                                                    "    <COLOR ID=\"807\" R=\"0\" G=\"0\" B=\"0\"/>\n"
-                                                    "  </PROCESSORLIST>\n"
-                                                    "  <UICOMPONENT isProcessorListOpen=\"1\" isEditorViewportOpen=\"1\"/>\n"
-                                                    "  <AUDIO sampleRate=\"44100.0\" bufferSize=\"1024\" deviceType=\"CoreAudio\"/>\n"
-                                                    "</SETTINGS>";
+    std::string docText = R"(<?xml version="1.0" encoding="UTF-8"?>
+                            <SETTINGS>
+                            <INFO>
+                                <VERSION>1.0.0</VERSION>
+                                <PLUGIN_API_VERSION>9</PLUGIN_API_VERSION>
+                                <DATE>14 March 2025 12:00:00</DATE>
+                                <OS>fedora</OS>
+                                <MACHINE name="Open-Ephys" cpu_model="11th Gen Intel(R) Core(TM) i7-11700F @ 2.50GHz" cpu_num_cores="16"/>
+                            </INFO>
+                            <SIGNALCHAIN>
+                                <PROCESSOR name="File Reader" insertionPoint="0" pluginName="File Reader"
+                                        type="0" index="2" libraryName="" libraryVersion="" processorType="2"
+                                        nodeId="100">
+                                <PROCESSOR_PARAMETERS selected_file=")"
+                                + defaultFileReaderPath + 
+                                R"(" active_stream="0" start_time="00:00:00" end_time="00:00:03.999"/>
+                                <STREAM name="example_data" description="A description of the File Reader Stream"
+                                        sample_rate="40000.0" channel_count="16">
+                                    <PARAMETERS enable_stream="1"/>
+                                </STREAM>
+                                <CUSTOM_PARAMETERS>
+                                    <SCRUBBERINTERFACE show="false"/>
+                                </CUSTOM_PARAMETERS>
+                                <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="File Reader" activeStream="0"/>
+                                </PROCESSOR>
+                                <PROCESSOR name="Bandpass Filter" insertionPoint="1" pluginName="Bandpass Filter"
+                                        type="1" index="1" libraryName="Bandpass Filter" libraryVersion="1.0.0-dev"
+                                        processorType="1" nodeId="101">
+                                <PROCESSOR_PARAMETERS threads="1"/>
+                                <STREAM name="example_data" description="A description of the File Reader Stream"
+                                        sample_rate="40000.0" channel_count="16">
+                                    <PARAMETERS enable_stream="1" low_cut="300.0" high_cut="6000.0" channels=""/>
+                                </STREAM>
+                                <CUSTOM_PARAMETERS/>
+                                <EDITOR isCollapsed="0" isDrawerOpen="0" displayName="Bandpass Filter"
+                                        activeStream="0"/>
+                                </PROCESSOR>
+                            </SIGNALCHAIN>
+                            <CONTROLPANEL isOpen="0" recordPath="/" recordEngine="BINARY"
+                                            clockMode="0" clockReferenceTime="0" forceNewDirectory="0"/>
+                            <AUDIOEDITOR isMuted="0" volume="50.0" noiseGate="0.0"/>
+                            <FILENAMECONFIG>
+                                <PREPEND state="0" value=""/>
+                                <MAIN state="1" value="YYYY-MM-DD_HH-MM-SS"/>
+                                <APPEND state="0" value=""/>
+                            </FILENAMECONFIG>
+                            <EDITORVIEWPORT selectedTab="0" scroll="0"/>
+                            <GRAPHVIEWER>
+                                <NODE id="100" isProcessorInfoVisible="0">
+                                <STREAM key="100|example_data" isStreamVisible="0" isParamsVisible="0"/>
+                                </NODE>
+                                <NODE id="101" isProcessorInfoVisible="0">
+                                <STREAM key="100|example_data" isStreamVisible="0" isParamsVisible="0"/>
+                                </NODE>
+                            </GRAPHVIEWER>
+                            <DATAVIEWPORT>
+                                <TABBEDCOMPONENT index="0" selectedTabNodeId="1">
+                                <TAB nodeId="0"/>
+                                <TAB nodeId="1"/>
+                                </TABBEDCOMPONENT>
+                            </DATAVIEWPORT>
+                            <PROCESSORLIST>
+                                <COLOUR ID="801" R="50" G="50" B="50"/>
+                                <COLOUR ID="804" R="241" G="90" B="41"/>
+                                <COLOUR ID="802" R="0" G="160" B="225"/>
+                                <COLOUR ID="803" R="0" G="166" B="81"/>
+                                <COLOUR ID="805" R="90" G="110" B="110"/>
+                                <COLOUR ID="806" R="255" G="0" B="0"/>
+                                <COLOUR ID="807" R="0" G="0" B="0"/>
+                            </PROCESSORLIST>
+                            <UICOMPONENT isProcessorListOpen="1" isEditorViewportOpen="1" consoleOpenInWindow="0"/>
+                            <AUDIO sampleRate="44100.0" bufferSize="1024" deviceType="ALSA"/>
+                            <MESSAGES/>
+                            </SETTINGS>
+                            )";
 
     XmlDocument doc (docText);
     std::unique_ptr<XmlElement> xml = doc.getDocumentElement();
