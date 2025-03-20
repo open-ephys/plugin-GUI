@@ -284,12 +284,10 @@ void LfpDisplayCanvas::updateSettings()
 
 void LfpDisplayCanvas::refreshState()
 {
-#ifdef BUILD_TESTS
     for (auto split : displaySplits)
     {
         split->refresh();
     }
-#endif
 }
 
 void LfpDisplayCanvas::select (LfpDisplaySplitter* splitter)
