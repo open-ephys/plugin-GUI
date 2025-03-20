@@ -218,7 +218,7 @@ void SyncStream::syncWith(const SyncStream* mainStream)
             {
                 actualSampleRate = estimatedActualSampleRate;
 
-                if (std::abs(estimatedGlobalStartTime) < 0.1)
+                if (std::abs(estimatedGlobalStartTime) < 1.0)
                 {
                     if (!isSynchronized)
 
