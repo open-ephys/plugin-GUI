@@ -116,9 +116,9 @@ void EventChannel::setLineState (int line, bool state)
     if (line < 64)
     {
         if (state)
-            m_TTLWord |= (1UL << line);
+            m_TTLWord |= (1ULL << line);
         else
-            m_TTLWord &= ~(1UL << line);
+            m_TTLWord &= ~(1ULL << line);
     }
 }
 

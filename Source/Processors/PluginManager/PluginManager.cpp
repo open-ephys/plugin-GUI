@@ -592,7 +592,7 @@ bool PluginManager::removePlugin (String libName)
     {
         ERROR_MSG ("Failed to load function 'getPluginInfo'");
         closeHandle (lib.handle);
-        return -1;
+        return false;
     }
 
     Plugin::PluginInfo pInfo;

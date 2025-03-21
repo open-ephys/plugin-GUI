@@ -40,7 +40,9 @@
 #define WIN32_LEAN_AND_MEAN
 
 #if (_MSC_VER)
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 //http://stackoverflow.com/questions/1904635/warning-c4003-and-errors-c2589-and-c2059-on-x-stdnumeric-limitsintmax
 #endif
 

@@ -468,7 +468,7 @@ static void runInstaller (const File& targetFile)
         {
             auto returnCode = ShellExecute (NULL, (LPCSTR) "runas", targetFile.getFullPathName().toRawUTF8(), NULL, NULL, SW_SHOW);
 
-            if ((int) returnCode > 31)
+            if ((intptr_t) returnCode > 31)
                 JUCEApplication::getInstance()->systemRequestedQuit();
             else
                 LOGE ("Failed to run the installer: ", GetLastError());

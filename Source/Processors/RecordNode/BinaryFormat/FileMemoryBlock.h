@@ -35,7 +35,7 @@ public:
 
     ~FileMemoryBlock()
     {
-        if (~m_flushed)
+        if (!m_flushed)
         {
             m_file->write (m_data, m_finalFlushSamples * sizeof (StorageType));
         }
