@@ -852,6 +852,7 @@ void SpikeDetectorTableModel::paintCell (Graphics& g, int rowNumber, int columnI
                 g.setColour (Colours::white);
                 g.drawText ("TT", 4, 4, width - 8, height - 8, Justification::centred);
                 break;
+            case SpikeChannel::Type::TEMPLATE:
             case SpikeChannel::Type::INVALID:
                 break;
         }

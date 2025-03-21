@@ -453,6 +453,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
                     name += String (++tetrodeCount);
                 }
                 break;
+            case SpikeChannel::TEMPLATE:
             case SpikeChannel::INVALID:
                 break;
         }
@@ -483,6 +484,7 @@ SpikeChannel* SpikeDetector::addSpikeChannel (SpikeChannel::Type type,
                     tetrodeCount++;
                 }
                 break;
+            case SpikeChannel::TEMPLATE:
             case SpikeChannel::INVALID:
                 break;
         }

@@ -99,12 +99,12 @@ public:
     int getSelectedChannel() { return selectedLine; }
 
     /** Mouse listener methods*/
-    void mouseDown (const MouseEvent& event);
-    void mouseMove (const MouseEvent& event);
-    void mouseUp (const MouseEvent& event);
+    void mouseDown (const MouseEvent& event) override;
+    void mouseMove (const MouseEvent& event) override;
+    void mouseUp (const MouseEvent& event) override;
 
     /** Responds to button clicks*/
-    void buttonClicked (Button*);
+    void buttonClicked (Button*) override;
 
     /** Popup update triggered by PopupComponent when undoing/redoing */
     void updatePopup() override;
