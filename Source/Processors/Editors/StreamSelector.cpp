@@ -685,7 +685,7 @@ void ExpandedTableComponent::updatePopup()
         return;
     }
 
-    if (auto* tableModel = dynamic_cast<StreamTableModel*> (expandedTable->getModel()))
+    if (auto* tableModel = dynamic_cast<StreamTableModel*> (expandedTable->getTableListBoxModel()))
     {
         tableModel->table = expandedTable.get();
     }

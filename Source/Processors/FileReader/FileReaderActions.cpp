@@ -60,8 +60,8 @@ bool SelectFile::perform()
     int64 fileDurationMs = processor->samplesToMilliseconds (fileDuration);
 
     // Set the maximum time for the time parameters
-    endTime->getTimeValue()->setMaxTimeInMilliseconds (fileDurationMs);
-    startTime->getTimeValue()->setMaxTimeInMilliseconds (fileDurationMs - 1);
+    endTime->getTimeValue()->setMaxTimeInMilliseconds (int(fileDurationMs));
+    startTime->getTimeValue()->setMaxTimeInMilliseconds (int(fileDurationMs - 1));
 
     // Set the start time to the beginning of the file
     startTime->getTimeValue()->setTimeFromMilliseconds (0);
@@ -69,7 +69,7 @@ bool SelectFile::perform()
     processor->setPlaybackStart (originalStartTimeInMs * processor->getCurrentSampleRate() / 1000);
 
     // Set the end time to the end of the file
-    endTime->getTimeValue()->setTimeFromMilliseconds (fileDurationMs);
+    endTime->getTimeValue()->setTimeFromMilliseconds (int(fileDurationMs));
     endTime->setNextValue (endTime->getTimeValue()->toString(), false);
     processor->setPlaybackStop (originalEndTimeInMs * processor->getCurrentSampleRate() / 1000);
 
