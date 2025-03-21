@@ -52,9 +52,9 @@ public:
     Timeline (FileReader* reader) : fileReader (reader) {}
     virtual ~Timeline() {}
 
-    virtual int getStartInterval() = 0;
-    virtual int getIntervalWidth() = 0;
-    virtual int getIntervalDurationInSeconds() = 0;
+    virtual int getStartInterval() { return 0; };
+    virtual int getIntervalWidth() { return 0; };
+    virtual int getIntervalDurationInSeconds() { return 0; };
 
     virtual void timerCallback() = 0;
 
@@ -113,35 +113,28 @@ public:
     ZoomTimeline (FileReader* fr)
         : Timeline (fr),
           sliderWidth (8),
-          widthInSeconds (30),
-          leftSliderPosition (0),
-          rightSliderPosition (110)
+          sliderPosition (0),
+          sliderIsSelected (false),
+          lastDragXPosition (0)
     {
         startTimer (50);
     }
     ~ZoomTimeline() override {};
 
-    int getStartInterval() { return leftSliderPosition; }
-    int getIntervalWidth() { return rightSliderPosition - leftSliderPosition; }
-    int getIntervalDurationInSeconds();
+    int getSliderPosition() { return sliderPosition; }
 
     void timerCallback() override { repaint(); };
 
 private:
     int sliderWidth;
-    int widthInSeconds;
-    float leftSliderPosition;
-    float rightSliderPosition;
+    float sliderPosition;
+    bool sliderIsSelected;
     float lastDragXPosition;
 
     void paint (Graphics& g) override;
     void mouseDown (const MouseEvent& event) override;
     void mouseDrag (const MouseEvent& event) override;
     void mouseUp (const MouseEvent& event) override;
-
-    bool leftSliderIsSelected;
-    bool rightSliderIsSelected;
-    bool playbackRegionIsSelected;
 };
 
 class ScrubberInterface : public Component, public Button::Listener

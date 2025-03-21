@@ -150,12 +150,6 @@ void FullTimeline::mouseUp (const MouseEvent& event)
     fileReader->getScrubberInterface()->updatePlaybackTimes();
 }
 
-int ZoomTimeline::getIntervalDurationInSeconds()
-{
-    /* Gets fraction of interval width and converts to nearest second */
-    return round (float (rightSliderPosition + sliderWidth - leftSliderPosition) / getWidth() * widthInSeconds);
-}
-
 void ZoomTimeline::paint (Graphics& g)
 {
     /* Draw timeline background */
@@ -210,11 +204,12 @@ void ZoomTimeline::paint (Graphics& g)
 
     /* Draw the scrubber interval */
     g.setColour (Colour (0, 0, 0));
-    g.fillRoundedRectangle (leftSliderPosition, 0, sliderWidth, this->getHeight(), 2);
+    g.fillRoundedRectangle (sliderPosition, 0, sliderWidth, this->getHeight(), 2);
     g.setColour (Colour (110, 110, 110));
     g.setOpacity (0.8f);
-    g.fillRoundedRectangle (leftSliderPosition + 1, 1, sliderWidth - 2, this->getHeight() - 2, 2);
+    g.fillRoundedRectangle (sliderPosition + 1, 1, sliderWidth - 2, this->getHeight() - 2, 2);
 
+    /*
     g.setColour (Colour (0, 0, 0));
     g.fillRoundedRectangle (rightSliderPosition, 0, sliderWidth, this->getHeight(), 2);
     g.setColour (Colour (110, 110, 110));
@@ -236,10 +231,11 @@ void ZoomTimeline::paint (Graphics& g)
         this->getHeight() + tickHeight,
         juce::Justification::centred);
 
+    */
+
     /* Draw the current playback position */
     float timelinePos = (float) (fileReader->getCurrentSample() - startSampleNumber) / (stopSampleNumber - startSampleNumber) * getWidth();
-    //LOGD("Timeline pos: ", timelinePos, " current sample: ", fileReader->getCurrentSample(), " start timestamp: ", startTimestamp, " stop timestamp: ", stopTimestamp);
-    if (fileReader->playbackIsActive() || (! fileReader->playbackIsActive() && timelinePos < rightSliderPosition + sliderWidth))
+    if (fileReader->playbackIsActive() || (! fileReader->playbackIsActive() && timelinePos < sliderPosition + sliderWidth))
     {
         g.setOpacity (1.0f);
         g.fillRoundedRectangle (timelinePos, 0, 1, this->getHeight(), 0.2);
@@ -248,35 +244,22 @@ void ZoomTimeline::paint (Graphics& g)
 
 void ZoomTimeline::mouseDown (const MouseEvent& event)
 {
-    if (event.x > leftSliderPosition && event.x < leftSliderPosition + sliderWidth)
+    if (event.x > sliderPosition && event.x < sliderPosition + sliderWidth)
     {
-        leftSliderIsSelected = true;
-    }
-    else if (event.x > rightSliderPosition && event.x < rightSliderPosition + sliderWidth)
-    {
-        rightSliderIsSelected = true;
-    }
-    else if (event.x > leftSliderPosition && event.x < rightSliderPosition)
-    {
-        playbackRegionIsSelected = true;
+        sliderIsSelected = true;
     }
 }
 
 void ZoomTimeline::mouseDrag (const MouseEvent& event)
 {
-    float regionWidth = rightSliderPosition - leftSliderPosition;
-
-    if (leftSliderIsSelected)
+    if (sliderIsSelected)
     {
-        if (event.x > sliderWidth / 2 && event.x < rightSliderPosition - sliderWidth / 2)
+        if (event.x > sliderWidth / 2 && event.x < getWidth() - sliderWidth / 2)
         {
-            leftSliderPosition = event.x - sliderWidth / 2;
-
-            if (rightSliderPosition < getWidth() - sliderWidth)
-
-                rightSliderPosition = leftSliderPosition + regionWidth;
+            sliderPosition = event.x - sliderWidth / 2;
         }
     }
+    /*
     else if (rightSliderIsSelected)
     {
         if (event.x > leftSliderPosition + 1.5 * sliderWidth && event.x < getWidth() - sliderWidth / 2)
@@ -293,25 +276,28 @@ void ZoomTimeline::mouseDrag (const MouseEvent& event)
             }
         }
     }
+    */
 
     lastDragXPosition = event.x;
 
     // Prevent slider going out of timeline bounds
-    if (leftSliderPosition < 0)
-        leftSliderPosition = 0;
+    if (sliderPosition < 0)
+        sliderPosition = 0;
 
-    if (rightSliderPosition > getWidth() - sliderWidth)
-        rightSliderPosition = getWidth() - sliderWidth;
+    if (sliderPosition > getWidth() - sliderWidth)
+        sliderPosition = getWidth() - sliderWidth;
 
     repaint();
 }
 
 void ZoomTimeline::mouseUp (const MouseEvent& event)
 {
+    sliderIsSelected = false;
+    /*
     leftSliderIsSelected = false;
     rightSliderIsSelected = false;
     playbackRegionIsSelected = false;
-
+    */
     fileReader->getScrubberInterface()->updatePlaybackTimes();
 }
 
