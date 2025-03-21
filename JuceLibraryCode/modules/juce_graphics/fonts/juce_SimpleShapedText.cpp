@@ -467,10 +467,7 @@ static std::vector<ShapedGlyph> lowLevelShape (const String& string,
     auto nativeFont = font.getNativeDetails().font;
 
     if (nativeFont == nullptr)
-    {
-        jassertfalse;
         return {};
-    }
 
     hb_shape (nativeFont.get(), buffer.get(), features.data(), (unsigned int) features.size());
 
