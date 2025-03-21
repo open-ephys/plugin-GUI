@@ -233,7 +233,7 @@ String RecordNode::handleConfigMessage (const String& msg)
     StringArray tokens;
     tokens.addTokens (msg, "=", "\"");
 
-    LOGD (tokens[0]);
+    LOGD ("Record Node received: ", tokens[0]);
 
     if (tokens[0] == "engine")
     {

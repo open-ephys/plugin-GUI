@@ -266,9 +266,6 @@ StreamSelectorTable::StreamSelectorTable (GenericEditor* ed_) : editor (ed_),
 {
     isRecordNode = editor->getProcessor()->isRecordNode();
 
-    LOGD ("Creating stream selector table for editor: ", editor->getProcessor()->getName());
-    LOGD ("Is record node: ", isRecordNode);
-
     tableModel = std::make_unique<StreamTableModel> (this);
     streamTable.reset (createTableView());
     tableModel->table = streamTable.get();

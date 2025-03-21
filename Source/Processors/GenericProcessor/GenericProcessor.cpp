@@ -1096,7 +1096,6 @@ void GenericProcessor::update()
             if (index > -1)
             {
                 LOGD ("GenericProcessor::update() Copying savedDataStreamParameters for ", stream->getStreamId());
-                LOGD ("COPYING STREAM PARAMETERS TO");
                 savedDataStreamParameters[index]->copyParametersTo (stream);
                 savedDataStreamParameters.remove (index);
             }

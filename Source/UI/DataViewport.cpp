@@ -111,7 +111,6 @@ void CustomTabButton::itemDragEnter (const SourceDetails& dragSourceDetails)
 
     repaint();
 
-    LOGD ("Entering ", getName());
 }
 
 void CustomTabButton::itemDragExit (const SourceDetails& dragSourceDetails)
@@ -119,14 +118,10 @@ void CustomTabButton::itemDragExit (const SourceDetails& dragSourceDetails)
     isDraggingOver = false;
 
     repaint();
-
-    LOGD ("Exiting ", getName());
 }
 
 void CustomTabButton::itemDropped (const SourceDetails& dragSourceDetails)
 {
-    LOGD ("DROPPED ON ", getName());
-
     isDraggingOver = false;
 
     repaint();
@@ -135,8 +130,6 @@ void CustomTabButton::itemDropped (const SourceDetails& dragSourceDetails)
     bool tabDrag = String ("Tab").equalsIgnoreCase (descr->getUnchecked (0));
     int incomingNodeId = descr->getUnchecked (1);
     String name = descr->getUnchecked (2);
-
-    LOGD ("ITEM DROPPED ON TAB");
 
     parent->moveTabByNodeId (name, incomingNodeId, nodeId);
 }
@@ -198,16 +191,12 @@ void DraggableTabComponent::itemDragEnter (const SourceDetails& dragSourceDetail
 {
     isDraggingOver = true;
     repaint();
-
-    LOGD ("Entering PARENT");
 }
 
 void DraggableTabComponent::itemDragExit (const SourceDetails& dragSourceDetails)
 {
     isDraggingOver = false;
     repaint();
-
-    LOGD ("Exiting PARENT");
 }
 
 void DraggableTabComponent::itemDropped (const juce::DragAndDropTarget::SourceDetails& dragSourceDetails)
@@ -224,8 +213,6 @@ void DraggableTabComponent::itemDropped (const juce::DragAndDropTarget::SourceDe
     if (tabNodeIds.contains (incomingNodeId)
         && dragSourceDetails.localPosition.y < getTabbedButtonBar().getTabButton (getNumTabs() - 1)->getBounds().getBottom())
         return;
-
-    LOGD ("ITEM DROPPED ON PARENT");
 
     Component* contentComponent = dataViewport->getContentComponentForNodeId (incomingNodeId);
     dataViewport->removeTab (incomingNodeId, false);
@@ -247,11 +234,7 @@ void DraggableTabComponent::addNewTab (String name, Component* component, int no
 
 bool DraggableTabComponent::removeTabForNodeId (int nodeId, bool sendNotification)
 {
-    LOGD ("REMOVING TAB");
-
     int index = tabNodeIds.indexOf (nodeId);
-
-    LOGD ("INDEX: ", index);
 
     if (index > -1)
     {
@@ -646,8 +629,6 @@ void DataViewport::removeTab (int nodeId, bool sendNotification)
         for (auto draggableTabComponent : draggableTabComponents)
         {
             bool foundTab = draggableTabComponent->removeTabForNodeId (nodeId, sendNotification);
-
-            LOGD (foundTab, " ", draggableTabComponent->getNumTabs(), " ", draggableTabComponents.size());
 
             if (foundTab)
             {

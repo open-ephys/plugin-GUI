@@ -287,7 +287,6 @@ void GenericEditor::addCustomParameterEditor (ParameterEditor* ed, int xPos_, in
 
 void GenericEditor::refreshColours()
 {
-    // LOGD(getNameAndId(), " refreshing colours.");
 
     if (getProcessor()->isSource())
         backgroundColour = getLookAndFeel().findColour (ProcessorColour::IDs::SOURCE_COLOUR);
@@ -1164,7 +1163,7 @@ void GenericEditor::updateSelectedStream (uint16 streamId)
         {
             if (streamAvailable)
             {
-                //LOGD("Stream scope");
+
                 auto stream = getProcessor()->getDataStream (streamId);
 
                 if (stream->hasParameter (parameterName))
@@ -1179,7 +1178,6 @@ void GenericEditor::updateSelectedStream (uint16 streamId)
             }
             else
             {
-                //LOGD("Stream not available");
                 ed->setParameter (nullptr);
             }
         }

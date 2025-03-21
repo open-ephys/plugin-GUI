@@ -786,7 +786,6 @@ void ProcessorGraph::updateViews (GenericProcessor* processor, bool updateGraphV
 
         if (processor != nullptr)
         {
-            LOGD ("  Going upstream!! Processor: ", processor->getName());
             if (processor->isSplitter() && ! isConsoleApp)
             {
                 SplitterEditor* sp = (SplitterEditor*) processor->getEditor();
