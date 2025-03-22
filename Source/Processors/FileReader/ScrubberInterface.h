@@ -32,23 +32,6 @@
 
 #define MAX_ZOOM_DURATION_IN_SECONDS 30.0f
 
-class PlaybackButton : public Button
-{
-public:
-    PlaybackButton (FileReader* reader)
-        : juce::Button ("PlaybackButton"), fileReader (reader), isActive (true) {}
-    ~PlaybackButton() {};
-
-    bool getState();
-    void setState (bool isActive);
-
-private:
-    FileReader* fileReader;
-    bool isActive;
-
-    void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown) override;
-};
-
 class Timeline : public Component, public Timer
 {
 public:
@@ -155,8 +138,6 @@ public:
 
     std::unique_ptr<Timeline> fullTimeline;
     std::unique_ptr<Timeline> zoomTimeline;
-
-    //std::unique_ptr<PlaybackButton> playbackButton; //deprecated
 
     void buttonClicked (Button* button) override;
     void paintOverChildren (Graphics& g) override;

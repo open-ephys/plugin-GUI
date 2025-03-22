@@ -215,30 +215,6 @@ void ZoomTimeline::paint (Graphics& g)
     g.setOpacity (0.8f);
     g.fillRoundedRectangle (sliderPosition + 1, 1, sliderWidth - 2, this->getHeight() - 2, 2);
 
-    /*
-    g.setColour (Colour (0, 0, 0));
-    g.fillRoundedRectangle (rightSliderPosition, 0, sliderWidth, this->getHeight(), 2);
-    g.setColour (Colour (110, 110, 110));
-    g.setOpacity (0.8f);
-    g.fillRoundedRectangle (rightSliderPosition + 1, 1, sliderWidth - 2, this->getHeight() - 2, 2);
-
-    g.setColour (Colour (110, 110, 110));
-    g.setOpacity (0.4f);
-
-    g.fillRoundedRectangle (leftSliderPosition, 4, rightSliderPosition + sliderWidth - leftSliderPosition, this->getHeight(), 2);
-
-    g.setColour (Colour (50, 50, 50));
-    g.setFont (16);
-    g.drawText (
-        juce::String (getIntervalDurationInSeconds()),
-        ((leftSliderPosition + rightSliderPosition + sliderWidth) / 2) - 10,
-        0,
-        20,
-        this->getHeight() + tickHeight,
-        juce::Justification::centred);
-
-    */
-
     /* Draw the current playback position */
     float timelinePos = (float) (fileReader->getCurrentSample() - startSampleNumber) / (stopSampleNumber - startSampleNumber) * getWidth();
     if (fileReader->playbackIsActive() || (! fileReader->playbackIsActive() && timelinePos < sliderPosition + sliderWidth))
@@ -304,55 +280,6 @@ void ZoomTimeline::mouseUp (const MouseEvent& event)
         fileReader->getScrubberInterface()->setCurrentSample (sliderPosition);
     }
     sliderIsSelected = false;
-}
-
-void PlaybackButton::setState (bool isActive)
-{
-    this->isActive = isActive;
-
-    if (! isActive) // Pressed play
-        fileReader->getScrubberInterface()->updatePlaybackTimes();
-    else if (! isActive && fileReader->playbackIsActive())
-        fileReader->stopAcquisition();
-}
-
-bool PlaybackButton::getState()
-{
-    return isActive;
-}
-
-void PlaybackButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
-{
-    g.setColour (Colour (0, 0, 0));
-    g.fillRoundedRectangle (0, 0, getWidth(), getHeight(), 0.2 * getWidth());
-
-    g.setColour (Colour (110, 110, 110));
-    g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
-
-    g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 0.2 * getWidth());
-
-    int x = getScreenX();
-    int y = getScreenY();
-    int width = getWidth();
-    int height = getHeight();
-
-    if (isActive)
-    {
-        /* Draw pause button */
-        int padding = 0.3 * width;
-        g.setColour (Colour (255, 255, 255));
-        g.fillRect (padding, padding, 0.2 * width, height - 2 * padding);
-        g.fillRect (width / 2 + 0.075 * width, padding, 0.2 * width, height - 2 * padding);
-    }
-    else
-    {
-        /* Draw playbutton */
-        int padding = 0.3 * height;
-        g.setColour (Colour (255, 255, 255));
-        Path triangle;
-        triangle.addTriangle (padding, padding, padding, height - padding, width - padding, height / 2);
-        g.fillPath (triangle);
-    }
 }
 
 ScrubberInterface::ScrubberInterface (FileReader* fileReader_)
@@ -432,18 +359,6 @@ void ScrubberInterface::updatePlaybackTimes()
     float intervalWidth = totalTimeInSeconds >= MAX_ZOOM_DURATION_IN_SECONDS ? MAX_ZOOM_DURATION_IN_SECONDS : totalTimeInSeconds;
     newStartSample += float (getZoomTimelineStartPosition()) / zoomTimeline->getWidth() * intervalWidth;
     fileReader->setPlaybackStart (newStartSample);
-
-    /* Deprecate playback button
-    if (playbackButton->getState())
-    {
-        fileReader->setPlaybackStop(fileReader->getCurrentNumTotalSamples());
-    }
-    else
-    {
-        int64 stopTimestamp = newStartSample + zoomTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
-        fileReader->setPlaybackStop(stopTimestamp);
-    }
-    */
 }
 
 void ScrubberInterface::paintOverChildren (Graphics& g)
@@ -488,6 +403,7 @@ void ScrubberInterface::update()
     zoomTimeline->setStartStopTimes (startMs, stopMs);
 
     FileReaderEditor* e = static_cast<FileReaderEditor*> (fileReader->getEditor());
+
 
     e->repaint();
 }
