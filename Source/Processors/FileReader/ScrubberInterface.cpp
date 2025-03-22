@@ -290,10 +290,12 @@ ScrubberInterface::ScrubberInterface (FileReader* fileReader_)
 
     zoomStartTimeLabel = std::make_unique<Label> ("ZoomStartTime", "");
     zoomStartTimeLabel->setBounds (0, 30, 100, 10);
+    zoomStartTimeLabel->setTooltip ("Start time of the zoom timeline");
     addAndMakeVisible (zoomStartTimeLabel.get());
 
     zoomMiddleTimeLabel = std::make_unique<Label> ("ZoomMidTime", "");
     zoomMiddleTimeLabel->setBounds (0.39 * scrubInterfaceWidth, 30, 100, 10);
+    zoomMiddleTimeLabel->setTooltip ("Current playhead position");
     addAndMakeVisible (zoomMiddleTimeLabel.get());
 
     //Compute zoom end time based on start/stop time from fileReader
@@ -308,18 +310,22 @@ ScrubberInterface::ScrubberInterface (FileReader* fileReader_)
 
     zoomEndTimeLabel = std::make_unique<Label> ("ZoomEndTime", duration.toString());
     zoomEndTimeLabel->setBounds (0.75 * scrubInterfaceWidth, 30, 100, 10);
+    zoomEndTimeLabel->setTooltip ("End time of the zoom timeline");
     addAndMakeVisible (zoomEndTimeLabel.get());
 
     fullStartTimeLabel = std::make_unique<Label> ("FullStartTime", "");
     fullStartTimeLabel->setBounds (0, 100, 100, 10);
+    fullStartTimeLabel->setTooltip ("Start time of the recording");
     addAndMakeVisible (fullStartTimeLabel.get());
 
     fullMiddleTimeLabel = std::make_unique<Label> ("FullMidTime", "");
     fullMiddleTimeLabel->setBounds (0.39 * scrubInterfaceWidth, 108, 100, 10);
+    fullMiddleTimeLabel->setTooltip ("Current playback position");
     addAndMakeVisible (fullMiddleTimeLabel.get());
 
     fullEndTimeLabel = std::make_unique<Label> ("FullEndTime", "");
     fullEndTimeLabel->setBounds (0.75 * scrubInterfaceWidth, 100, 100, 10);
+    fullEndTimeLabel->setTooltip ("End time of the recording");
     addAndMakeVisible (fullEndTimeLabel.get());
 
     int padding = 30;
