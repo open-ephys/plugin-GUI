@@ -156,10 +156,7 @@ void FileReader::parameterValueChanged (Parameter* p)
 
     if (! headlessMode)
     {
-        if ((stopSample - startSample) / currentSampleRate >= 30.0f)
-            static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer (true);
-        else
-            static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer (false);
+        static_cast<FileReaderEditor*> (getEditor())->enableScrubDrawer (true);
 
         if (input != nullptr)
         {
@@ -167,6 +164,7 @@ void FileReader::parameterValueChanged (Parameter* p)
             getScrubberInterface()->update();
         }
     }
+
 }
 
 void FileReader::handleLinkedParameterChange (Parameter* param, var newValue)

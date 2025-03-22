@@ -79,7 +79,7 @@ void FullTimeline::paint (Graphics& g)
         }
     }
 
-    /* Draw the 30-second interval */
+    /* Draw the MAX_ZOOM_DURATION_IN_SECONDS interval */
     g.setColour (Colour (0, 0, 0));
     g.setOpacity (0.8f);
 
@@ -96,7 +96,7 @@ void FullTimeline::paint (Graphics& g)
     g.setOpacity (1.0f);
     g.fillRoundedRectangle (timelinePos, 0, 1, this->getHeight(), 0.2);
 
-    fileReader->getScrubberInterface()->updateZoomTimeLabels();
+    fileReader->getScrubberInterface()->updateTimeLabels();
 }
 
 void FullTimeline::setIntervalPosition (int pos)
@@ -107,7 +107,10 @@ void FullTimeline::setIntervalPosition (int pos)
     int64 totalSamples = (stopMs - startMs) / 1000.0f * sampleRate;
     float totalTimeInSeconds = float (totalSamples) / sampleRate;
 
-    intervalWidth = 30.0f / totalTimeInSeconds * float (getWidth());
+    if (totalTimeInSeconds >= MAX_ZOOM_DURATION_IN_SECONDS)
+        intervalWidth = MAX_ZOOM_DURATION_IN_SECONDS / totalTimeInSeconds * float (getWidth());
+    else
+        intervalWidth = getWidth();
 
     // Prevent interval from going out of bounds
     if (intervalStartPosition + intervalWidth > getWidth())
@@ -139,7 +142,7 @@ void FullTimeline::mouseDrag (const MouseEvent& event)
     }
 
     repaint();
-    fileReader->getScrubberInterface()->updateZoomTimeLabels();
+    fileReader->getScrubberInterface()->updateTimeLabels();
     fileReader->getEditor()->repaint();
 }
 
@@ -147,8 +150,8 @@ void FullTimeline::mouseUp (const MouseEvent& event)
 {
     if (intervalIsSelected)
     {
-        int pos = getStartInterval();
-        fileReader->getScrubberInterface()->setCurrentSample (pos);
+        int64 currentSample = float(getStartInterval()) / float(getWidth()) * fileReader->getCurrentNumTotalSamples();
+        fileReader->setCurrentSample (currentSample);
     }
     intervalIsSelected = false;
 }
@@ -179,7 +182,7 @@ void ZoomTimeline::paint (Graphics& g)
 
     float sampleRate = fileReader->getCurrentSampleRate();
     int64 totalSamples = (stopMs - startMs) / 1000.0f * sampleRate;
-    int64 intervalSamples = 30 * sampleRate;
+    int64 intervalSamples = totalSamples > MAX_ZOOM_DURATION_IN_SECONDS * sampleRate ? MAX_ZOOM_DURATION_IN_SECONDS * sampleRate : totalSamples;
 
     int intervalStartPos = fileReader->getScrubberInterface()->getFullTimelineStartPosition();
 
@@ -297,7 +300,8 @@ void ZoomTimeline::mouseUp (const MouseEvent& event)
 {
     if (sliderIsSelected)
     {
-        fileReader->getScrubberInterface()->setCurrentSample (event.x);
+        sliderPosition = event.x;
+        fileReader->getScrubberInterface()->setCurrentSample (sliderPosition);
     }
     sliderIsSelected = false;
 }
@@ -357,23 +361,37 @@ ScrubberInterface::ScrubberInterface (FileReader* fileReader_)
 
     int scrubInterfaceWidth = 420;
 
-    zoomStartTimeLabel = std::make_unique<Label> ("ZoomStartTime", "00:00:00.000");
+    zoomStartTimeLabel = std::make_unique<Label> ("ZoomStartTime", "");
     zoomStartTimeLabel->setBounds (0, 30, 100, 10);
     addAndMakeVisible (zoomStartTimeLabel.get());
 
-    zoomMiddleTimeLabel = std::make_unique<Label> ("ZoomMidTime", "00:00:15.000");
+    zoomMiddleTimeLabel = std::make_unique<Label> ("ZoomMidTime", "");
     zoomMiddleTimeLabel->setBounds (0.39 * scrubInterfaceWidth, 30, 100, 10);
     addAndMakeVisible (zoomMiddleTimeLabel.get());
 
-    zoomEndTimeLabel = std::make_unique<Label> ("ZoomEndTime", "00:00:30.000");
+    //Compute zoom end time based on start/stop time from fileReader
+    int64 startMs = fileReader->getPlaybackStart() / 1000.0f;
+    int64 stopMs = fileReader->getPlaybackStop() / 1000.0f;
+    int64 durationMs = stopMs - startMs;
+    int64 intervalSamples = durationMs > 1000*MAX_ZOOM_DURATION_IN_SECONDS ? 1000*MAX_ZOOM_DURATION_IN_SECONDS : durationMs;
+    int64 endMs = startMs + intervalSamples;
+
+    TimeParameter::TimeValue duration = TimeParameter::TimeValue (durationMs);
+    TimeParameter::TimeValue endTime = TimeParameter::TimeValue (endMs);
+
+    zoomEndTimeLabel = std::make_unique<Label> ("ZoomEndTime", duration.toString());
     zoomEndTimeLabel->setBounds (0.75 * scrubInterfaceWidth, 30, 100, 10);
     addAndMakeVisible (zoomEndTimeLabel.get());
 
-    fullStartTimeLabel = std::make_unique<Label> ("FullStartTime", "00:00:00.000");
+    fullStartTimeLabel = std::make_unique<Label> ("FullStartTime", "");
     fullStartTimeLabel->setBounds (0, 100, 100, 10);
     addAndMakeVisible (fullStartTimeLabel.get());
 
-    fullEndTimeLabel = std::make_unique<Label> ("FullEndTime", "00:00:00.000");
+    fullMiddleTimeLabel = std::make_unique<Label> ("FullMidTime", "");
+    fullMiddleTimeLabel->setBounds (0.39 * scrubInterfaceWidth, 108, 100, 10);
+    addAndMakeVisible (fullMiddleTimeLabel.get());
+
+    fullEndTimeLabel = std::make_unique<Label> ("FullEndTime", "");
     fullEndTimeLabel->setBounds (0.75 * scrubInterfaceWidth, 100, 100, 10);
     addAndMakeVisible (fullEndTimeLabel.get());
 
@@ -386,15 +404,6 @@ ScrubberInterface::ScrubberInterface (FileReader* fileReader_)
     fullTimeline->setBounds (padding, 76, scrubInterfaceWidth - 2 * padding, 20);
     addAndMakeVisible (fullTimeline.get());
 
-    /* Deprecate playback button
-    int buttonSize = 24;
-    playbackButton = std::make_unique<PlaybackButton> (fileReader);
-    playbackButton->setState (true);
-    playbackButton->setBounds (scrubInterfaceWidth / 2 - buttonSize / 2, 103, buttonSize, buttonSize);
-    playbackButton->addListener (this);
-    addAndMakeVisible (playbackButton.get());
-    */
-
     setVisible (false);
 }
 
@@ -405,7 +414,9 @@ void ScrubberInterface::setCurrentSample (int zoomTimelinePos)
     TimeParameter* start = static_cast<TimeParameter*> (fileReader->getParameter ("start_time"));
     int64 newCurrentSample = start->getTimeValue()->getTimeInMilliseconds() / 1000.0f * fileReader->getCurrentSampleRate();
     newCurrentSample += float (getFullTimelineStartPosition()) / fullTimeline->getWidth() * totalSamples;
-    newCurrentSample += float (zoomTimelinePos) / zoomTimeline->getWidth() * fileReader->getCurrentSampleRate() * 30.0f;
+    float totalTimeInSeconds = float (totalSamples) / fileReader->getCurrentSampleRate();
+    float intervalWidth = totalTimeInSeconds >= MAX_ZOOM_DURATION_IN_SECONDS ? MAX_ZOOM_DURATION_IN_SECONDS : totalTimeInSeconds;
+    newCurrentSample += float (zoomTimelinePos) / zoomTimeline->getWidth() * intervalWidth * fileReader->getCurrentSampleRate();
     fileReader->setCurrentSample (newCurrentSample);
 }
 
@@ -417,7 +428,9 @@ void ScrubberInterface::updatePlaybackTimes()
 
     int64 newStartSample = start->getTimeValue()->getTimeInMilliseconds() / 1000.0f * fileReader->getCurrentSampleRate();
     newStartSample += float (getFullTimelineStartPosition()) / fullTimeline->getWidth() * totalSamples;
-    newStartSample += float (getZoomTimelineStartPosition()) / zoomTimeline->getWidth() * fileReader->getCurrentSampleRate() * 30.0f;
+    float totalTimeInSeconds = float (totalSamples) / fileReader->getCurrentSampleRate();
+    float intervalWidth = totalTimeInSeconds >= MAX_ZOOM_DURATION_IN_SECONDS ? MAX_ZOOM_DURATION_IN_SECONDS : totalTimeInSeconds;
+    newStartSample += float (getZoomTimelineStartPosition()) / zoomTimeline->getWidth() * intervalWidth;
     fileReader->setPlaybackStart (newStartSample);
 
     /* Deprecate playback button
@@ -476,20 +489,10 @@ void ScrubberInterface::update()
 
     FileReaderEditor* e = static_cast<FileReaderEditor*> (fileReader->getEditor());
 
-    if (duration / 1000.0f < 30)
-    {
-        e->showScrubInterface (false);
-        e->enableScrubDrawer (false);
-    }
-    else
-    {
-        e->enableScrubDrawer (true);
-    }
-
     e->repaint();
 }
 
-void ScrubberInterface::updateZoomTimeLabels()
+void ScrubberInterface::updateTimeLabels()
 {
     int start = ((TimeParameter*) fileReader->getParameter ("start_time"))->getTimeValue()->getTimeInMilliseconds();
     int stop = ((TimeParameter*) fileReader->getParameter ("end_time"))->getTimeValue()->getTimeInMilliseconds();
@@ -499,23 +502,38 @@ void ScrubberInterface::updateZoomTimeLabels()
     int startPos = fullTimeline->getStartInterval();
     float frac = float (startPos) / float (fullTimeline->getWidth());
 
-    for (int i = 0; i < 3; i++)
-    {
-        TimeParameter::TimeValue time = TimeParameter::TimeValue (start + frac * duration + 15000.0f * i);
+    // Update zoom start time label from fullTimeline slider position
+    int pos = fullTimeline->getStartInterval();
+    float startTime = float(pos)/float(fullTimeline->getWidth()) * duration;
+    TimeParameter::TimeValue time = TimeParameter::TimeValue (start + startTime);
+    zoomStartTimeLabel->setText (time.toString(), juce::sendNotificationAsync);
+    int64 zoomStartTime = time.getTimeInMilliseconds();
 
-        if (i == 0)
-            zoomStartTimeLabel->setText (time.toString(), juce::sendNotificationAsync);
-        else if (i == 1)
-        {
-            // Get current playhead time from currentSample
-            int64 currentSample = fileReader->getCurrentSample();
-            float sampleRate = fileReader->getCurrentSampleRate();
-            TimeParameter::TimeValue currentTime = TimeParameter::TimeValue (currentSample / sampleRate * 1000);
-            zoomMiddleTimeLabel->setText (currentTime.toString(), juce::sendNotificationAsync);
-        }
-        else
-        {
-            zoomEndTimeLabel->setText (time.toString(), juce::sendNotificationAsync);
-        }
+    // Update zoom end time label
+    int64 zoomEndTime;
+    if (duration >= 1000*MAX_ZOOM_DURATION_IN_SECONDS)
+    {
+        TimeParameter::TimeValue time = TimeParameter::TimeValue (start + frac * duration + 1000*MAX_ZOOM_DURATION_IN_SECONDS);
+        zoomEndTime = time.getTimeInMilliseconds();
+        zoomEndTimeLabel->setText (time.toString(), juce::sendNotificationAsync);
     }
+    else
+    {
+        TimeParameter::TimeValue time = TimeParameter::TimeValue (start + frac * duration + (stop - start));
+        zoomEndTime = time.getTimeInMilliseconds();
+        zoomEndTimeLabel->setText (time.toString(), juce::sendNotificationAsync);
+    }
+
+    // Update zoom middle time label
+    int currentPos = ((ZoomTimeline*)zoomTimeline.get())->getSliderPosition();
+    int64 zoomMiddleTime = zoomStartTime + float(currentPos) / zoomTimeline->getWidth() * (zoomEndTime - zoomStartTime);
+    TimeParameter::TimeValue middleTime = TimeParameter::TimeValue (zoomMiddleTime);
+    zoomMiddleTimeLabel->setText (middleTime.toString(), juce::sendNotificationAsync);
+
+    // Get current playhead time from currentSample
+    float sampleRate = fileReader->getCurrentSampleRate();
+    int64 currentSample = fileReader->getCurrentSample();
+    float currentTime = currentSample / sampleRate * 1000.0f;
+    TimeParameter::TimeValue currentTimeValue = TimeParameter::TimeValue (currentTime);
+    fullMiddleTimeLabel->setText (currentTimeValue.toString(), juce::sendNotificationAsync);
 }

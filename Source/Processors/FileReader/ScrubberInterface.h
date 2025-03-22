@@ -29,6 +29,9 @@
 
 #include "FileReader.h"
 #include "FileReaderEditor.h"
+
+#define MAX_ZOOM_DURATION_IN_SECONDS 30.0f
+
 class PlaybackButton : public Button
 {
 public:
@@ -147,6 +150,7 @@ public:
     std::unique_ptr<Label> zoomMiddleTimeLabel;
     std::unique_ptr<Label> zoomEndTimeLabel;
     std::unique_ptr<Label> fullStartTimeLabel;
+    std::unique_ptr<Label> fullMiddleTimeLabel;
     std::unique_ptr<Label> fullEndTimeLabel;
 
     std::unique_ptr<Timeline> fullTimeline;
@@ -158,7 +162,7 @@ public:
     void paintOverChildren (Graphics& g) override;
     void setCurrentSample (int zoomTimelinePos);
     void updatePlaybackTimes();
-    void updateZoomTimeLabels();
+    void updateTimeLabels();
     int getFullTimelineStartPosition();
     int getZoomTimelineStartPosition();
     void update();
