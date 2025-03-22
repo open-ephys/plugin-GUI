@@ -145,9 +145,12 @@ void FullTimeline::mouseDrag (const MouseEvent& event)
 
 void FullTimeline::mouseUp (const MouseEvent& event)
 {
+    if (intervalIsSelected)
+    {
+        int pos = getStartInterval();
+        fileReader->getScrubberInterface()->setCurrentSample (pos);
+    }
     intervalIsSelected = false;
-
-    fileReader->getScrubberInterface()->updatePlaybackTimes();
 }
 
 void ZoomTimeline::paint (Graphics& g)
@@ -292,13 +295,11 @@ void ZoomTimeline::mouseDrag (const MouseEvent& event)
 
 void ZoomTimeline::mouseUp (const MouseEvent& event)
 {
+    if (sliderIsSelected)
+    {
+        fileReader->getScrubberInterface()->setCurrentSample (event.x);
+    }
     sliderIsSelected = false;
-    /*
-    leftSliderIsSelected = false;
-    rightSliderIsSelected = false;
-    playbackRegionIsSelected = false;
-    */
-    fileReader->getScrubberInterface()->updatePlaybackTimes();
 }
 
 void PlaybackButton::setState (bool isActive)
@@ -395,6 +396,17 @@ ScrubberInterface::ScrubberInterface (FileReader* fileReader_)
     */
 
     setVisible (false);
+}
+
+void ScrubberInterface::setCurrentSample (int zoomTimelinePos)
+{
+    // Compute the new current sample number based on the full timeline and zoom timeline slider positions
+    int64 totalSamples = fullTimeline->getIntervalDurationInSeconds() * fileReader->getCurrentSampleRate();
+    TimeParameter* start = static_cast<TimeParameter*> (fileReader->getParameter ("start_time"));
+    int64 newCurrentSample = start->getTimeValue()->getTimeInMilliseconds() / 1000.0f * fileReader->getCurrentSampleRate();
+    newCurrentSample += float (getFullTimelineStartPosition()) / fullTimeline->getWidth() * totalSamples;
+    newCurrentSample += float (zoomTimelinePos) / zoomTimeline->getWidth() * fileReader->getCurrentSampleRate() * 30.0f;
+    fileReader->setCurrentSample (newCurrentSample);
 }
 
 void ScrubberInterface::updatePlaybackTimes()

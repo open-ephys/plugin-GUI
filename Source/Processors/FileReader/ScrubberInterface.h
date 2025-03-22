@@ -156,6 +156,7 @@ public:
 
     void buttonClicked (Button* button) override;
     void paintOverChildren (Graphics& g) override;
+    void setCurrentSample (int zoomTimelinePos);
     void updatePlaybackTimes();
     void updateZoomTimeLabels();
     int getFullTimelineStartPosition();

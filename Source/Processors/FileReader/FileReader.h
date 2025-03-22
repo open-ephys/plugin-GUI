@@ -137,8 +137,11 @@ public:
     /** Returns the data sample rate of the current stream */
     float getCurrentSampleRate() const;
 
-    /** Returns the current sample (timestamp) */
+    /** Returns the current sample number */
     int64 getCurrentSample();
+
+    /** Set the current sample number */
+    void setCurrentSample (int64 sampleNumber);
 
     /** Sets the sample number to start playback from */
     void setPlaybackStart (int64 startSampleNumber);

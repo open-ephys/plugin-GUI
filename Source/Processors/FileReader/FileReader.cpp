@@ -418,14 +418,13 @@ int64 FileReader::getCurrentSample()
     return currentSample;
 }
 
-void FileReader::setPlaybackStart (int64 startSample)
+void FileReader::setCurrentSample (int64 sampleNumber)
 {
-    this->startSample = startSample;
-    this->playbackSamplePos = startSample;
+    currentSample = sampleNumber;
+    this->playbackSamplePos = currentSample;
 
     /* Reset stream to start of playback */
-    input->seekTo (startSample);
-    currentSample = startSample;
+    input->seekTo (currentSample);
 
     /* Pre-fills the front buffer with a blocking read */
     readAndFillBufferCache (bufferA);
@@ -433,6 +432,12 @@ void FileReader::setPlaybackStart (int64 startSample)
     readBuffer = &bufferB;
     bufferCacheWindow = 0;
     m_shouldFillBackBuffer.set (false);
+}
+
+void FileReader::setPlaybackStart (int64 startSample)
+{
+    this->startSample = startSample;
+    setCurrentSample (startSample);
 }
 
 void FileReader::setPlaybackStop (int64 stopSample)
