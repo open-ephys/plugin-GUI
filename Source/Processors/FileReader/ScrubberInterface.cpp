@@ -506,8 +506,16 @@ void ScrubberInterface::updateZoomTimeLabels()
         if (i == 0)
             zoomStartTimeLabel->setText (time.toString(), juce::sendNotificationAsync);
         else if (i == 1)
-            zoomMiddleTimeLabel->setText (time.toString(), juce::sendNotificationAsync);
+        {
+            // Get current playhead time from currentSample
+            int64 currentSample = fileReader->getCurrentSample();
+            float sampleRate = fileReader->getCurrentSampleRate();
+            TimeParameter::TimeValue currentTime = TimeParameter::TimeValue (currentSample / sampleRate * 1000);
+            zoomMiddleTimeLabel->setText (currentTime.toString(), juce::sendNotificationAsync);
+        }
         else
+        {
             zoomEndTimeLabel->setText (time.toString(), juce::sendNotificationAsync);
+        }
     }
 }
