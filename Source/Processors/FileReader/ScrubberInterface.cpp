@@ -150,7 +150,7 @@ void FullTimeline::mouseUp (const MouseEvent& event)
 {
     if (intervalIsSelected)
     {
-        int64 currentSample = float(getStartInterval()) / float(getWidth()) * fileReader->getCurrentNumTotalSamples();
+        int64 currentSample = float(getStartInterval()) / float(getWidth()) * fileReader->getCurrentNumTotalSamples() + fileReader->getPlaybackStart();
         fileReader->setCurrentSample (currentSample);
     }
     intervalIsSelected = false;
@@ -236,10 +236,7 @@ void ZoomTimeline::mouseDrag (const MouseEvent& event)
 {
     if (sliderIsSelected)
     {
-        if (event.x > sliderWidth / 2 && event.x < getWidth() - sliderWidth / 2)
-        {
-            sliderPosition = event.x - sliderWidth / 2;
-        }
+        sliderPosition = event.x - sliderWidth / 2;
     }
     /*
     else if (rightSliderIsSelected)
@@ -260,8 +257,6 @@ void ZoomTimeline::mouseDrag (const MouseEvent& event)
     }
     */
 
-    lastDragXPosition = event.x;
-
     // Prevent slider going out of timeline bounds
     if (sliderPosition < 0)
         sliderPosition = 0;
@@ -276,7 +271,6 @@ void ZoomTimeline::mouseUp (const MouseEvent& event)
 {
     if (sliderIsSelected)
     {
-        sliderPosition = event.x;
         fileReader->getScrubberInterface()->setCurrentSample (sliderPosition);
     }
     sliderIsSelected = false;

@@ -100,8 +100,7 @@ public:
         : Timeline (fr),
           sliderWidth (8),
           sliderPosition (0),
-          sliderIsSelected (false),
-          lastDragXPosition (0)
+          sliderIsSelected (false)
     {
         startTimer (50);
     }
@@ -115,7 +114,6 @@ private:
     int sliderWidth;
     float sliderPosition;
     bool sliderIsSelected;
-    float lastDragXPosition;
 
     void paint (Graphics& g) override;
     void mouseDown (const MouseEvent& event) override;
