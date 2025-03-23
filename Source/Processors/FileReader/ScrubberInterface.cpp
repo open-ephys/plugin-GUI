@@ -318,15 +318,28 @@ ScrubberInterface::ScrubberInterface (FileReader* fileReader_)
     fullStartTimeLabel->setTooltip ("Start time of the recording");
     addAndMakeVisible (fullStartTimeLabel.get());
 
+    minStartTimeLabel = std::make_unique<Label> ("MinStartTime", "00:00:00.000");
+    minStartTimeLabel->setBounds (0, 115, 100, 10);
+    minStartTimeLabel->setTooltip ("Minimum start time of the recording");
+    minStartTimeLabel->setAlpha (0.5f);
+    addAndMakeVisible (minStartTimeLabel.get());
+
     fullMiddleTimeLabel = std::make_unique<Label> ("FullMidTime", "");
     fullMiddleTimeLabel->setBounds (0.39 * scrubInterfaceWidth, 108, 100, 10);
     fullMiddleTimeLabel->setTooltip ("Current playback position");
+    fullMiddleTimeLabel->setAlpha (0.5f);
     addAndMakeVisible (fullMiddleTimeLabel.get());
 
     fullEndTimeLabel = std::make_unique<Label> ("FullEndTime", "");
     fullEndTimeLabel->setBounds (0.75 * scrubInterfaceWidth, 100, 100, 10);
     fullEndTimeLabel->setTooltip ("End time of the recording");
     addAndMakeVisible (fullEndTimeLabel.get());
+
+    maxEndTimeLabel = std::make_unique<Label> ("MaxEndTime", "00:00:00.000");
+    maxEndTimeLabel->setBounds (0.75 * scrubInterfaceWidth, 115, 100, 10);
+    maxEndTimeLabel->setTooltip ("Maximum end time of the recording");
+    maxEndTimeLabel->setAlpha (0.5f);
+    addAndMakeVisible (maxEndTimeLabel.get());
 
     int padding = 30;
     zoomTimeline = std::make_unique<ZoomTimeline> (fileReader);
@@ -397,9 +410,13 @@ void ScrubberInterface::update()
 {
     TimeParameter* start = static_cast<TimeParameter*> (fileReader->getParameter ("start_time"));
     fullStartTimeLabel->setText (start->getTimeValue()->toString(), juce::sendNotificationAsync);
+    int minStartTime = start->getTimeValue()->getMinTimeInMilliseconds();
+    minStartTimeLabel->setText (TimeParameter::TimeValue (minStartTime).toString(), juce::sendNotificationAsync);
 
     TimeParameter* stop = static_cast<TimeParameter*> (fileReader->getParameter ("end_time"));
     fullEndTimeLabel->setText (stop->getTimeValue()->toString(), juce::sendNotificationAsync);
+    int maxEndTime = stop->getTimeValue()->getMaxTimeInMilliseconds();
+    maxEndTimeLabel->setText (TimeParameter::TimeValue (maxEndTime).toString(), juce::sendNotificationAsync);
 
     int startMs = start->getTimeValue()->getTimeInMilliseconds();
     int stopMs = stop->getTimeValue()->getTimeInMilliseconds();

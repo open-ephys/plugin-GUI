@@ -139,6 +139,9 @@ public:
     std::unique_ptr<Timeline> fullTimeline;
     std::unique_ptr<Timeline> zoomTimeline;
 
+    std::unique_ptr<Label> minStartTimeLabel;
+    std::unique_ptr<Label> maxEndTimeLabel;
+
     void buttonClicked (Button* button) override;
     void paintOverChildren (Graphics& g) override;
     void setCurrentSample (int zoomTimelinePos);
