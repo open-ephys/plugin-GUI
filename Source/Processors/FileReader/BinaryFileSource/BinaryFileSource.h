@@ -65,8 +65,6 @@ public:
     /** Add info about events occurring within a sample range */
     void processEventData (EventInfo& info, int64 fromSampleNumber, int64 toSampleNumber) override;
 
-    int64 loopCount;
-
 private:
     int numActiveChannels;
     Array<float> bitVolts;

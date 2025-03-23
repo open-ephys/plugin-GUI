@@ -45,7 +45,6 @@ FileReader::FileReader() : GenericProcessor ("File Reader"),
                            currentNumTotalSamples (0),
                            startSample (0),
                            stopSample (0),
-                           loopCount (0),
                            bufferCacheWindow (0),
                            m_shouldFillBackBuffer (false),
                            m_bufferSize (1024),
@@ -334,7 +333,6 @@ void FileReader::setActiveStream (int index, bool reset)
         startSample = 0;
         stopSample = currentNumTotalSamples;
         bufferCacheWindow = 0;
-        loopCount = 0;
 
         /*
         startTime->getTimeValue()->setTimeFromMilliseconds (0);
@@ -536,7 +534,6 @@ void FileReader::updateSettings()
 
     /* Set the sample to start of playback and reset loop counter */
     playbackSamplePos = startSample;
-    loopCount = 0;
 
     /* Setup internal buffer based on audio device settings */
     AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
@@ -668,13 +665,11 @@ void FileReader::process (AudioBuffer<float>& buffer)
 
     int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
 
-    if (! playbackActive && playbackSamplePos + samplesNeededPerBuffer > stopSample)
-    {
-        samplesNeededPerBuffer = int (stopSample - playbackSamplePos);
-        switchNeeded = true;
-    }
-    else
         m_samplesPerBuffer.set (samplesNeededPerBuffer);
+        m_samplesPerBuffer.set (samplesNeededPerBuffer);
+    // FIXME: needs to account for the fact that the ratio might not be an exact
+    //        integer value
+    m_samplesPerBuffer.set (samplesNeededPerBuffer);
     // FIXME: needs to account for the fact that the ratio might not be an exact
     //        integer value
 
@@ -683,8 +678,6 @@ void FileReader::process (AudioBuffer<float>& buffer)
     {
         switchBuffer();
     }
-
-    //std::cout << "Reading " << samplesNeededPerBuffer << " samples. " << std::endl;
 
     const float* tempReadBuffer = readBuffer->getData() + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow);
 
@@ -705,7 +698,7 @@ void FileReader::process (AudioBuffer<float>& buffer)
         //                           samplesNeededPerBuffer);
     }
 
-    setTimestampAndSamples (playbackSamplePos, -1.0, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this
+    setTimestampAndSamples (playbackSamplePos, -1.0, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this could be total or playback
 
     int64 start = playbackSamplePos;
 
@@ -716,6 +709,11 @@ void FileReader::process (AudioBuffer<float>& buffer)
     int64 stop = playbackSamplePos;
 
     addEventsInRange (start, stop);
+
+    if (playbackSamplePos >= stopSample)
+    {
+        playbackSamplePos = startSample + (playbackSamplePos - stopSample);
+    }
 
     bufferCacheWindow += 1;
     bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
@@ -734,7 +732,7 @@ void FileReader::addEventsInRange (int64 start, int64 stop)
 
     for (int i = 0; i < events.channels.size(); i++)
     {
-        int64 absoluteCurrentSampleNumber = events.sampleNumbers[i] + loopCount * (stopSample - startSample);
+        int64 absoluteCurrentSampleNumber = events.sampleNumbers[i];
         if (events.text.size() && ! events.text[i].isEmpty())
         {
             String msg = events.text[i];

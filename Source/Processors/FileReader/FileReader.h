@@ -206,7 +206,6 @@ private:
     int64 stopSample;
     int64 bufferCacheWindow; // the current buffer window to read from readBuffer
     Array<RecordedChannelInfo> channelInfo;
-    int64 loopCount;
     bool playbackActive;
 
     std::unique_ptr<FileSource> input;
@@ -218,7 +217,7 @@ private:
 
     HashMap<String, int> supportedExtensions;
 
-    Atomic<int> m_shouldFillBackBuffer;
+    Atomic<bool> m_shouldFillBackBuffer;
     Atomic<int> m_samplesPerBuffer;
 
     unsigned int m_bufferSize;

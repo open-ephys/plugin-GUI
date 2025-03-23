@@ -27,8 +27,7 @@ using namespace BinarySource;
 
 BinaryFileSource::BinaryFileSource()
     : m_samplePos (0),
-      hasEventData (false),
-      loopCount (0)
+      hasEventData (false)
 {
 }
 
@@ -275,7 +274,6 @@ void BinaryFileSource::processEventData (EventInfo& eventInfo, int64 start, int6
 {
     int64 local_start = start % getActiveNumSamples();
     int64 local_stop = stop % getActiveNumSamples();
-    int64 loop_count = start / getActiveNumSamples();
 
     std::vector<String> includeStreams = { currentStream, "MessageCenter" };
 
@@ -291,7 +289,7 @@ void BinaryFileSource::processEventData (EventInfo& eventInfo, int64 start, int6
             {
                 eventInfo.channels.push_back (info.channels[i] - 1);
                 eventInfo.channelStates.push_back ((info.channelStates[i]));
-                eventInfo.sampleNumbers.push_back (info.sampleNumbers[i] + loop_count * getActiveNumSamples());
+                eventInfo.sampleNumbers.push_back (info.sampleNumbers[i]);
                 eventInfo.text.push_back (info.text[i]);
             }
             i++;

@@ -146,9 +146,6 @@ public:
     /** Get the event information for the current stream */
     const EventInfo& getEventInfo();
 
-    /** Keeps track of how many times the recording has looped */
-    int64 loopCount = 0;
-
 protected:
     /** Holds the name of the current stream */
     String currentStream;
