@@ -547,9 +547,6 @@ void FileReader::updateSettings()
 
     isEnabled = true;
 
-    /* Set the sample to start of playback and reset loop counter */
-    playbackSamplePos = startSample;
-
     /* Setup internal buffer based on audio device settings */
     AudioDeviceManager& adm = AccessClass::getAudioComponent()->deviceManager;
     AudioDeviceManager::AudioDeviceSetup ads;
