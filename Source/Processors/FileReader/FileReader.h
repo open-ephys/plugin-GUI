@@ -196,7 +196,6 @@ private:
     bool sampleRateWarningShown;
 
     /** Total number of samples played back since most recent start of acquisition */
-    int64 playbackSamplePos;
 
     float currentSampleRate;
     int currentNumChannels;
@@ -204,7 +203,6 @@ private:
     int64 currentNumTotalSamples;
     int64 startSample;
     int64 stopSample;
-    int64 bufferCacheWindow; // the current buffer window to read from readBuffer
     Array<RecordedChannelInfo> channelInfo;
     bool playbackActive;
 
@@ -243,6 +241,11 @@ private:
 
     /** Holds a path to the default file */
     File defaultFile;
+
+    CriticalSection bufferLock;
+    Atomic<int64> playbackSamplePos;
+    Atomic<int> bufferCacheWindow;
+    Atomic<bool> needsBufferReset;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileReader);
 };

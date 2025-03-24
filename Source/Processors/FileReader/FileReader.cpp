@@ -414,20 +414,35 @@ int64 FileReader::getCurrentSample()
     return currentSample;
 }
 
-void FileReader::setCurrentSample (int64 sampleNumber)
+void FileReader::setCurrentSample(int64 sampleNumber)
 {
+    // Stop background thread before modifying shared state
+    stopThread(100);
+
+    const ScopedLock sl(bufferLock);
+
     currentSample = sampleNumber;
-    this->playbackSamplePos = currentSample;
+    playbackSamplePos.set(sampleNumber);
 
-    /* Reset stream to start of playback */
-    input->seekTo (currentSample);
+    // Reset file position
+    input->seekTo(sampleNumber);
 
-    /* Pre-fills the front buffer with a blocking read */
-    readAndFillBufferCache (bufferA);
+    // Get the current back buffer without switching
+    HeapBlock<float>* backBuffer = getBackBuffer();
 
-    readBuffer = &bufferB;
-    bufferCacheWindow = 0;
-    m_shouldFillBackBuffer.set (false);
+    // Fill only the back buffer first
+    readAndFillBufferCache(*backBuffer);
+
+    // Signal that we want to switch buffers on next process() call
+    bufferCacheWindow.set(BUFFER_WINDOW_CACHE_SIZE - 1); // Force buffer switch on next process
+    needsBufferReset.set(true);
+
+    // The process() thread will handle the buffer switch and trigger
+    // the background thread to fill the new back buffer
+    m_shouldFillBackBuffer.set(false);
+
+    // Restart background thread
+    startThread();
 }
 
 void FileReader::setPlaybackStart (int64 startSample)
@@ -661,68 +676,57 @@ String FileReader::handleConfigMessage (const String& msg)
 
 void FileReader::process (AudioBuffer<float>& buffer)
 {
-    bool switchNeeded = false;
+    const ScopedLock sl(bufferLock);
 
-    int samplesNeededPerBuffer = int (float (buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
+    if (needsBufferReset.compareAndSetBool(false, true))
+    {
+        // Switch to the newly prepared back buffer
+        switchBuffer();
+        bufferCacheWindow.set(0);
+    }
 
-        m_samplesPerBuffer.set (samplesNeededPerBuffer);
-        m_samplesPerBuffer.set (samplesNeededPerBuffer);
-    // FIXME: needs to account for the fact that the ratio might not be an exact
-    //        integer value
-    m_samplesPerBuffer.set (samplesNeededPerBuffer);
-    // FIXME: needs to account for the fact that the ratio might not be an exact
-    //        integer value
+    int samplesNeededPerBuffer = int(float(buffer.getNumSamples()) * (getDefaultSampleRate() / m_sysSampleRate));
+    m_samplesPerBuffer.set(samplesNeededPerBuffer);
 
-    // if cache window id == 0, we need to read and cache BUFFER_WINDOW_CACHE_SIZE more buffer windows
-    if (bufferCacheWindow == 0)
+    // Handle buffer switching
+    if (bufferCacheWindow.get() == 0)
     {
         switchBuffer();
     }
 
-    const float* tempReadBuffer = readBuffer->getData() + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow);
+    // Get current buffer position
+    const float* tempReadBuffer = readBuffer->getData() + 
+        (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow.get());
 
+    // Copy data to output buffer
     for (int ch = 0; ch < currentNumChannels; ++ch)
     {
-        float* writeBuffer = buffer.getWritePointer (ch);
-
+        float* writeBuffer = buffer.getWritePointer(ch);
         for (int sample = 0; sample < samplesNeededPerBuffer; sample++)
         {
             *(writeBuffer + sample) = *(tempReadBuffer + (currentNumChannels * sample) + ch);
         }
-
-        // DEPRECATED:
-        // offset readBuffer index by current cache window count * buffer window size * num channels
-        //input->processChannelData (*readBuffer + (samplesNeededPerBuffer * currentNumChannels * bufferCacheWindow),
-        //                           buffer.getWritePointer (i, 0),
-        //                           i,
-        //                           samplesNeededPerBuffer);
     }
 
-    setTimestampAndSamples (playbackSamplePos, -1.0, samplesNeededPerBuffer, dataStreams[0]->getStreamId()); //TODO: Look at this could be total or playback
+    // Update timestamps and sample positions atomically
+    int64 start = playbackSamplePos.get();
+    playbackSamplePos.set(start + samplesNeededPerBuffer);
+    int64 stop = playbackSamplePos.get();
 
-    int64 start = playbackSamplePos;
+    setTimestampAndSamples(start, -1.0, samplesNeededPerBuffer, dataStreams[0]->getStreamId());
 
-    playbackSamplePos += samplesNeededPerBuffer;
-
-    //LOGD("Total samples acquired: ", playbackSamplePos);
-
-    int64 stop = playbackSamplePos;
-
-    addEventsInRange (start, stop);
-
-    if (playbackSamplePos >= stopSample)
+    // Handle looping
+    if (playbackSamplePos.get() >= stopSample)
     {
-        playbackSamplePos = startSample + (playbackSamplePos - stopSample);
+        playbackSamplePos.set(startSample + (playbackSamplePos.get() - stopSample));
     }
 
-    bufferCacheWindow += 1;
-    bufferCacheWindow %= BUFFER_WINDOW_CACHE_SIZE;
+    // Process events for this buffer
+    addEventsInRange(start, stop);
 
-    if (switchNeeded)
-    {
-        bufferCacheWindow = 0;
-        this->stopThread (100);
-    }
+    // Update buffer window counter
+    int newWindow = (bufferCacheWindow.get() + 1) % BUFFER_WINDOW_CACHE_SIZE;
+    bufferCacheWindow.set(newWindow);
 }
 
 void FileReader::addEventsInRange (int64 start, int64 stop)
@@ -761,12 +765,14 @@ int64 FileReader::millisecondsToSamples (unsigned int ms) const
 
 void FileReader::switchBuffer()
 {
+    const ScopedLock sl(bufferLock);
+
     if (readBuffer == &bufferA)
         readBuffer = &bufferB;
     else
         readBuffer = &bufferA;
 
-    m_shouldFillBackBuffer.set (true);
+    m_shouldFillBackBuffer.set(true);
     notify();
 }
 
