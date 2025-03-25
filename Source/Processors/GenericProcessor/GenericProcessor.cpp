@@ -137,13 +137,6 @@ GenericProcessor::GenericProcessor (const String& name, bool headlessMode_)
 
 {
     latencyMeter = std::make_unique<LatencyMeter> (this);
-
-    addBooleanParameter (Parameter::STREAM_SCOPE,
-                         "enable_stream",
-                         "Enable",
-                         "Determines whether or not processing is enabled for a particular stream",
-                         true,
-                         true);
 }
 
 GenericProcessor::~GenericProcessor()
@@ -1987,6 +1980,17 @@ void GenericProcessor::setCurrentChannel (int chan)
 void GenericProcessor::setProcessorType (Plugin::Processor::Type processorType)
 {
     m_processorType = processorType;
+
+    // Add "enable_stream" parameter for filters only
+    if (processorType == Plugin::Processor::FILTER)
+    {
+        addBooleanParameter (Parameter::STREAM_SCOPE,
+                             "enable_stream",
+                             "Enable",
+                             "Determines whether or not processing is enabled for a particular stream",
+                             true,
+                             false);
+    }
 }
 
 bool GenericProcessor::canSendSignalTo (GenericProcessor*) const { return true; }

@@ -91,7 +91,7 @@ void StreamTableModel::cellClicked (int rowNumber, int columnId, const MouseEven
         bool streamState = owner->checkStream (streams[rowNumber]);
 
         String enableText = (streamState ? "Disable" : "Enable") + String (" stream");
-        m.addItem (1, enableText, ! CoreServices::getAcquisitionStatus());
+        m.addItem (1, enableText);
 
         int result = m.showMenu (PopupMenu::Options().withStandardItemHeight (20));
 
