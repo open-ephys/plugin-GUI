@@ -109,12 +109,12 @@ void FileReader::registerParameters()
 {
     /* Add parameters */
     addPathParameter (Parameter::PROCESSOR_SCOPE, "selected_file", "Selected File", "Select a file to load data from", defaultFile, getSupportedExtensions(), false, true);
-    addSelectedStreamParameter (Parameter::PROCESSOR_SCOPE, "active_stream", "Active Stream", "Currently active stream", {}, 0);
-    addTimeParameter (Parameter::PROCESSOR_SCOPE, "start_time", "Start Time", "Time to start playback");
-    addTimeParameter (Parameter::PROCESSOR_SCOPE, "end_time", "Stop Time", "Time to end playback");
+    addSelectedStreamParameter (Parameter::PROCESSOR_SCOPE, "active_stream", "Active Stream", "Currently active stream", {"example_data"}, 0);
+    addTimeParameter (Parameter::PROCESSOR_SCOPE, "start_time", "Start Time", "Time to start playback", "00:00:00.000");
+    addTimeParameter (Parameter::PROCESSOR_SCOPE, "end_time", "Stop Time", "Time to end playback", "00:00:04.999");
 
     /* Link parameters -- start_time and end_time valid range depends on selected_file */
-    linkParameters (getParameter ("selected_file"), getParameter ("start_time"), getParameter ("end_time"));
+    //linkParameters (getParameter ("selected_file"), getParameter ("start_time"), getParameter ("end_time"));
 }
 
 void FileReader::parameterValueChanged (Parameter* p)
@@ -200,7 +200,16 @@ void FileReader::initialize (bool signalChainIsLoading)
     if (isEnabled)
         return;
 
-    setFile (defaultFile.getFullPathName(), false);
+    //setFile (defaultFile.getFullPathName(), false);
+    input.reset (createBuiltInFileSource (0));
+    input->openFile (defaultFile.getFullPathName());
+    setActiveStream (0, true);
+    setPlaybackStart (0);
+    setPlaybackStop (input->getActiveNumSamples());
+    setCurrentSample (0);
+
+    TimeParameter* endTime = static_cast<TimeParameter*> (getParameter ("end_time"));
+    endTime->getTimeValue()->setMaxTimeInMilliseconds (samplesToMilliseconds (input->getActiveNumSamples()));
 }
 
 bool FileReader::setFile (String fullpath, bool shouldUpdateSignalChain)
