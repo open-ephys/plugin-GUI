@@ -7,10 +7,15 @@ class PluginManagerTest : public testing::Test
 protected:
     void SetUp() override
     {
+#ifdef JUCE_WINDOWS
+        files =
+        File::getCurrentWorkingDirectory().getChildFile ("../../ArduinoOutput").findChildFiles (File::findFiles, true, "ArduinoOutput.*", File::FollowSymlinks::no);
+#else 
         files =
         File::getCurrentWorkingDirectory().getChildFile ("../ArduinoOutput").findChildFiles (File::findFiles, false, "ArduinoOutput.*", File::FollowSymlinks::no);
+#endif
 
-        ASSERT_EQ (files.size(), 1);
+        ASSERT_EQ (files.size(), 1) << "Arduino Ouput plugin not found. Make sure to build the plugin tests before running the tests.";
 
         String path = files[0].getFullPathName();
 
