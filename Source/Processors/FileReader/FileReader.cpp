@@ -61,31 +61,6 @@ FileReader::FileReader() : GenericProcessor ("File Reader"),
     defaultFile = File::getSpecialLocation (File::currentApplicationFile).getParentDirectory().getChildFile ("resources").getChildFile ("structure.oebin");
 #endif
 
-    /* Add built-in file source (Binary Format) */
-    supportedExtensions.set ("oebin", 1);
-
-    /* Load any plugin file sources */
-    const int numFileSources = AccessClass::getPluginManager()->getNumFileSources();
-
-    LOGD ("Found ", numFileSources, " File Source plugins.");
-
-    for (int i = 0; i < numFileSources; ++i)
-    {
-        Plugin::FileSourceInfo info = AccessClass::getPluginManager()->getFileSourceInfo (i);
-
-        LOGD ("Plugin ", i + 1, ": ", info.name, " (", info.extensions, ")");
-
-        StringArray extensions;
-        extensions.addTokens (info.extensions, ";", "\"");
-
-        const int numExtensions = extensions.size();
-
-        for (int j = 0; j < numExtensions; ++j)
-        {
-            supportedExtensions.set (extensions[j].toLowerCase(), i + 2);
-        }
-    }
-
     /* Create a File Reader device */
     DeviceInfo::Settings settings {
         "File Reader",
@@ -847,8 +822,35 @@ void FileReader::readAndFillBufferCache (HeapBlock<float>& cacheBuffer)
     }
 }
 
-StringArray FileReader::getSupportedExtensions() const
+StringArray FileReader::getSupportedExtensions()
 {
+    if (supportedExtensions.size() == 0)
+    {
+        /* Add built-in file source (Binary Format) */
+        supportedExtensions.set ("oebin", 1);
+
+        /* Load any plugin file sources */
+        const int numFileSources = AccessClass::getPluginManager()->getNumFileSources();
+
+        LOGD ("Found ", numFileSources, " File Source plugins.");
+
+        for (int i = 0; i < numFileSources; ++i)
+        {
+            Plugin::FileSourceInfo info = AccessClass::getPluginManager()->getFileSourceInfo (i);
+
+            LOGD ("Plugin ", i + 1, ": ", info.name, " (", info.extensions, ")");
+
+            StringArray extensions;
+            extensions.addTokens (info.extensions, ";", "\"");
+
+            const int numExtensions = extensions.size();
+
+            for (int j = 0; j < numExtensions; ++j)
+            {
+                supportedExtensions.set (extensions[j].toLowerCase(), i + 2);
+            }
+        }
+    }
     StringArray extensions;
     HashMap<String, int>::Iterator i (supportedExtensions);
     while (i.next())

@@ -118,7 +118,7 @@ public:
     bool isFileSupported (const String& filename) const;
 
     /* Returns a list of file formats supported by the GUI */
-    StringArray getSupportedExtensions() const;
+    StringArray getSupportedExtensions();
 
     /** Sets the current stream to read data from */
     void setActiveStream (int index, bool resetPlayback = false);
