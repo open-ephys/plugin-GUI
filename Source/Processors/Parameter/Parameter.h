@@ -336,11 +336,68 @@ public:
     /** Broadcasts a value change to all listeners */
     void valueChanged();
 
-    /** Links this parameter to another parameter */
-    void linkParameter (Parameter* first, Parameter* second = nullptr);
+    /** Class to store the state of a linked parameter */
+    class LinkedParameterState
+    {
+    public:
+        LinkedParameterState(Parameter* param, var value) 
+            : parameter(param), value(value) {}
+        
+        Parameter* parameter;
+        var value;
+    };
+
+    /** Links this parameter to another parameter and stores its state */
+    void linkParameter(Parameter* param) 
+    { 
+        if (param != nullptr && !linkedParameters.contains(param))
+        {
+            linkedParameters.add(param);
+        }
+    }
+
+    /** Links this parameter to an array of parameters */
+    void linkParameters(const Array<Parameter*>& params)
+    {
+        for (auto* param : params)
+        {
+            if (param != nullptr)
+            {
+                linkParameter(param);
+            }
+        }
+    }
 
     /** Returns true if this parameter is linked to another parameter */
-    bool isLinked() { return linkedParameters.size() > 0; }
+    bool isLinked() const { return linkedParameters.size() > 0; }
+
+    /** Stores the current state of all linked parameters */
+    void storeLinkedStates()
+    {
+        linkedParameterStates.clear();
+        for (auto* param : linkedParameters)
+        {
+            if (param != nullptr)
+            {
+                linkedParameterStates.add(new LinkedParameterState(param, param->getValue()));
+            }
+        }
+    }
+
+    /** Restores the stored state of all linked parameters */
+    void restoreLinkedStates()
+    {
+        for (auto* state : linkedParameterStates)
+        {
+            if (state != nullptr && state->parameter != nullptr)
+            {
+                state->parameter->setNextValue(state->value, false);
+            }
+        }
+    }
+
+    /** Returns the array of linked parameters */
+    const Array<Parameter*>& getLinkedParameters() const { return linkedParameters; }
 
     /** Makes it possible to undo value changes */
     class PLUGIN_API ChangeValue : public UndoableAction
@@ -363,7 +420,6 @@ public:
 
     private:
         std::string key;
-
         var originalValue;
         var newValue;
         bool logChange = false;
@@ -373,27 +429,23 @@ public:
 
 protected:
     ParameterOwner* parameterOwner;
-
     var newValue;
     var previousValue;
-
     var defaultValue;
+    Array<Listener*> parameterListeners;
+    Array<Parameter*> linkedParameters;
+    Array<LinkedParameterState*> linkedParameterStates;
 
 private:
     std::string m_identifier;
-
     ParameterType m_parameterType;
     ParameterScope m_parameterScope;
     ParameterEditorType m_editorType;
     String m_name;
     String m_displayName;
     String m_description;
-
     bool m_deactivateDuringAcquisition;
     bool isEnabledFlag;
-
-    Array<Listener*> parameterListeners;
-    Array<Parameter*> linkedParameters;
 };
 
 /** 

@@ -88,8 +88,14 @@ void FileReader::registerParameters()
     addTimeParameter (Parameter::PROCESSOR_SCOPE, "start_time", "Start Time", "Time to start playback", "00:00:00.000");
     addTimeParameter (Parameter::PROCESSOR_SCOPE, "end_time", "Stop Time", "Time to end playback", "00:00:04.999");
 
-    /* Link parameters -- start_time and end_time valid range depends on selected_file */
-    //linkParameters (getParameter ("selected_file"), getParameter ("start_time"), getParameter ("end_time"));
+    /* Link parameters */
+    PathParameter* fileParam = static_cast<PathParameter*>(getParameter("selected_file"));
+    CategoricalParameter* streamParam = static_cast<CategoricalParameter*>(getParameter("active_stream"));
+    TimeParameter* startTimeParam = static_cast<TimeParameter*>(getParameter("start_time"));
+    TimeParameter* endTimeParam = static_cast<TimeParameter*>(getParameter("end_time"));
+
+    Array<Parameter*> linkedParams = {streamParam, startTimeParam, endTimeParam};
+    fileParam->linkParameters(linkedParams);
 }
 
 void FileReader::parameterValueChanged (Parameter* p)
@@ -97,7 +103,6 @@ void FileReader::parameterValueChanged (Parameter* p)
     if (p->getName() == "selected_file")
     {
         setFile (p->getValue(), false);
-        //handled by handleLinkedParameterChange
     }
     else if (p->getName() == "active_stream")
     {
@@ -111,19 +116,25 @@ void FileReader::parameterValueChanged (Parameter* p)
 
         TimeParameter* endTime = static_cast<TimeParameter*> (getParameter ("end_time"));
         endTime->getTimeValue()->setMinTimeInMilliseconds (samplesToMilliseconds (startSample + 1));
+        
+        setPlaybackStart(startSample);
     }
     else if (p->getName() == "end_time")
     {
         TimeParameter* tp = static_cast<TimeParameter*> (p);
         stopSample = millisecondsToSamples (tp->getTimeValue()->getTimeInMilliseconds());
+        
         if (input != nullptr && stopSample == startSample)
         {
             stopSample = input->getActiveNumSamples();
             String newTime = TimeParameter::TimeValue (1000 * stopSample / input->getActiveSampleRate()).toString();
             p->setNextValue (newTime, false);
         }
+        
         TimeParameter* startTime = static_cast<TimeParameter*> (getParameter ("start_time"));
         startTime->getTimeValue()->setMaxTimeInMilliseconds (samplesToMilliseconds (stopSample - 1));
+        
+        setPlaybackStop(stopSample);
     }
 
     currentNumTotalSamples = stopSample - startSample;
@@ -138,7 +149,6 @@ void FileReader::parameterValueChanged (Parameter* p)
             getScrubberInterface()->update();
         }
     }
-
 }
 
 void FileReader::handleLinkedParameterChange (Parameter* param, var newValue)
@@ -182,6 +192,9 @@ void FileReader::initialize (bool signalChainIsLoading)
     setPlaybackStart (0);
     setPlaybackStop (input->getActiveNumSamples());
     setCurrentSample (0);
+
+    TimeParameter* startTime = static_cast<TimeParameter*> (getParameter ("start_time"));
+    startTime->getTimeValue()->setMaxTimeInMilliseconds (samplesToMilliseconds (input->getActiveNumSamples() - 1));
 
     TimeParameter* endTime = static_cast<TimeParameter*> (getParameter ("end_time"));
     endTime->getTimeValue()->setMaxTimeInMilliseconds (samplesToMilliseconds (input->getActiveNumSamples()));

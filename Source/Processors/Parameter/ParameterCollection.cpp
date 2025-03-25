@@ -339,7 +339,17 @@ void ParameterCollection::clear()
     parameterMap.clear();
 }
 
-void ParameterCollection::linkParameters (Parameter* parent, Parameter* child1, Parameter* child2)
+void ParameterCollection::linkParameters(Parameter* parent, Parameter* child1, Parameter* child2)
 {
-    parent->linkParameter (child1, child2);
+    if (parent != nullptr)
+    {
+        if (child1 != nullptr)
+        {
+            parent->linkParameter(child1);
+        }
+        if (child2 != nullptr)
+        {
+            parent->linkParameter(child2);
+        }
+    }
 }

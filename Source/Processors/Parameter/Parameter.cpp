@@ -137,12 +137,6 @@ void Parameter::setOwner (ParameterOwner* parameterOwner_)
     Parameter::registerParameter (this);
 }
 
-void Parameter::linkParameter (Parameter* child1, Parameter* child2)
-{
-    linkedParameters.add (child1);
-    linkedParameters.add (child2);
-}
-
 void Parameter::setEnabled (bool enabled)
 {
     isEnabledFlag = enabled;
@@ -227,38 +221,48 @@ Parameter::ChangeValue::ChangeValue (std::string key_, var newValue_)
     : key (key_), newValue (newValue_)
 {
     Parameter* p = Parameter::parameterMap[key_];
-
-    originalValue = p->currentValue;
+    if (p != nullptr)
+    {
+        originalValue = p->getValue();
+        
+        // Store linked parameter states before the change
+        if (p->isLinked())
+        {
+            p->storeLinkedStates();
+        }
+    }
 }
 
 bool Parameter::ChangeValue::perform()
 {
     Parameter* p = Parameter::parameterMap[key];
-
-    if (! p->isEnabled() || p->currentValue == newValue)
+    if (p == nullptr || !p->isEnabled() || p->getValue() == newValue)
         return false;
 
-    p->newValue = newValue;
-    p->getOwner()->parameterChangeRequest (p);
-
+    p->setNextValue(newValue, false);
     p->valueChanged();
 
-    if (p->currentValue == p->previousValue)
-        return false;
-    else
+    // Compare current value with new value to check if the change was effective
+    if (p->getValue() == newValue)
         return true;
+    else
+        return false;
 }
 
 bool Parameter::ChangeValue::undo()
 {
     Parameter* p = Parameter::parameterMap[key];
+    if (p == nullptr)
+        return false;
 
-    p->newValue = originalValue;
-    p->getOwner()->parameterChangeRequest (p);
-
+    p->setNextValue(originalValue, false);
     p->valueChanged();
 
-    //p->logValueChange();
+    // Restore linked parameter states
+    if (p->isLinked())
+    {
+        p->restoreLinkedStates();
+    }
 
     return true;
 }
@@ -1448,6 +1452,7 @@ void TimeParameter::setNextValue (var newValue_, bool undoable)
         {
             currentValue = newValue;
             timeValue->setTimeFromString (currentValue.toString());
+            getOwner()->parameterChangeRequest(this);
             valueChanged();
         }
     }
@@ -1468,31 +1473,48 @@ TimeParameter::ChangeValue::ChangeValue (std::string key_, var newValue_)
     : key (key_), newValue (newValue_)
 {
     Parameter* p = Parameter::parameterMap[key_];
-    originalValue = p->currentValue;
+    if (p != nullptr)
+    {
+        originalValue = p->getValue();
+        
+        // Store linked parameter states before the change
+        if (p->isLinked())
+        {
+            p->storeLinkedStates();
+        }
+    }
 }
 
 bool TimeParameter::ChangeValue::perform()
 {
-    TimeParameter* p = (TimeParameter*) Parameter::parameterMap[key];
-    p->getTimeValue()->setTimeFromString (newValue.toString());
+    Parameter* p = Parameter::parameterMap[key];
+    if (p == nullptr || !p->isEnabled() || p->getValue() == newValue)
+        return false;
 
-    p->newValue = newValue;
-    p->getOwner()->parameterChangeRequest (p);
-
+    p->setNextValue(newValue, false);
     p->valueChanged();
 
-    return true;
+    // Compare current value with new value to check if the change was effective
+    if (p->getValue() == newValue)
+        return true;
+    else
+        return false;
 }
 
 bool TimeParameter::ChangeValue::undo()
 {
-    TimeParameter* p = (TimeParameter*) Parameter::parameterMap[key];
-    p->getTimeValue()->setTimeFromString (originalValue.toString());
+    Parameter* p = Parameter::parameterMap[key];
+    if (p == nullptr)
+        return false;
 
-    p->newValue = originalValue;
-    p->getOwner()->parameterChangeRequest (p);
-
+    p->setNextValue(originalValue, false);
     p->valueChanged();
+
+    // Restore linked parameter states
+    if (p->isLinked())
+    {
+        p->restoreLinkedStates();
+    }
 
     return true;
 }

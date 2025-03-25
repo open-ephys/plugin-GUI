@@ -44,7 +44,7 @@ bool SelectFile::perform()
     TimeParameter* startTime = static_cast<TimeParameter*> (Parameter::parameterMap[startTimeKey]);
     TimeParameter* endTime = static_cast<TimeParameter*> (Parameter::parameterMap[endTimeKey]);
 
-    // Set the new path
+    // Set the new path - this will trigger the linked parameter changes
     pathParam->setNextValue (newPath, false);
 
     // Load the new file
@@ -66,12 +66,12 @@ bool SelectFile::perform()
     // Set the start time to the beginning of the file
     startTime->getTimeValue()->setTimeFromMilliseconds (0);
     startTime->setNextValue (startTime->getTimeValue()->toString(), false);
-    processor->setPlaybackStart (originalStartTimeInMs * processor->getCurrentSampleRate() / 1000);
+    processor->setPlaybackStart (0);
 
     // Set the end time to the end of the file
     endTime->getTimeValue()->setTimeFromMilliseconds (int(fileDurationMs));
     endTime->setNextValue (endTime->getTimeValue()->toString(), false);
-    processor->setPlaybackStop (originalEndTimeInMs * processor->getCurrentSampleRate() / 1000);
+    processor->setPlaybackStop (fileDuration);
 
     // Register the action in case the processor is deleted
     processor->registerUndoableAction (processor->getNodeId(), this);
@@ -81,11 +81,13 @@ bool SelectFile::perform()
 
 bool SelectFile::undo()
 {
+    // Get pointers to parameters
     PathParameter* pathParam = static_cast<PathParameter*> (Parameter::parameterMap[pathKey]);
+    CategoricalParameter* activeStream = static_cast<CategoricalParameter*> (Parameter::parameterMap[streamKey]);
     TimeParameter* startTime = static_cast<TimeParameter*> (Parameter::parameterMap[startTimeKey]);
     TimeParameter* endTime = static_cast<TimeParameter*> (Parameter::parameterMap[endTimeKey]);
 
-    // Set the path to the original path
+    // Set the path to the original path - this will trigger the linked parameter changes
     pathParam->setNextValue (originalPath, false);
 
     // Load the original file
