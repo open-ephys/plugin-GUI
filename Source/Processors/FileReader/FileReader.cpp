@@ -52,7 +52,8 @@ FileReader::FileReader() : GenericProcessor ("File Reader"),
                            playbackActive (true),
                            gotNewFile (true),
                            loopPlayback (true),
-                           sampleRateWarningShown (false)
+                           sampleRateWarningShown (false),
+                           firstProcess (false)
 {
     /* Define a default file location based on OS */
 #ifdef __APPLE__
@@ -291,6 +292,8 @@ bool FileReader::setFile (String fullpath, bool shouldUpdateSignalChain)
 
     //Set initial values on time parameters
     endTime->setNextValue (TimeParameter::TimeValue (1000 * stopSample / input->getActiveSampleRate()).toString(), false);
+
+    firstProcess = false;
 
     return true;
 }
@@ -683,7 +686,7 @@ void FileReader::process (AudioBuffer<float>& buffer)
     m_samplesPerBuffer.set(samplesNeededPerBuffer);
 
     // Handle buffer switching
-    if (bufferCacheWindow.get() == 0)
+    if (firstProcess && bufferCacheWindow.get() == 0)
     {
         switchBuffer();
     }
@@ -721,6 +724,9 @@ void FileReader::process (AudioBuffer<float>& buffer)
     // Update buffer window counter
     int newWindow = (bufferCacheWindow.get() + 1) % BUFFER_WINDOW_CACHE_SIZE;
     bufferCacheWindow.set(newWindow);
+
+    if (!firstProcess)
+        firstProcess = true;
 }
 
 void FileReader::addEventsInRange (int64 start, int64 stop)

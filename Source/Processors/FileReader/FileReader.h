@@ -247,6 +247,8 @@ private:
     Atomic<int> bufferCacheWindow;
     Atomic<bool> needsBufferReset;
 
+    bool firstProcess;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileReader);
 };
 
