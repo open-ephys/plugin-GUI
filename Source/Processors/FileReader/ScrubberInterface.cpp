@@ -28,8 +28,7 @@ void FullTimeline::paint (Graphics& g)
     /* Draw timeline background */
     int tickHeight = 4;
     int borderThickness = 1;
-
-    g.setColour (Colours::black);
+    g.setColour (findColour (ThemeColours::componentParentBackground));
 
     int numTicks = 5;
 
@@ -44,7 +43,7 @@ void FullTimeline::paint (Graphics& g)
     }
 
     g.fillRect (0, 0, this->getWidth(), this->getHeight() - tickHeight);
-    g.setColour (Colours::white);
+    g.setColour (findColour (ThemeColours::widgetBackground));
     g.fillRect (borderThickness, borderThickness, this->getWidth() - 2 * borderThickness, this->getHeight() - 2 * borderThickness - tickHeight);
 
     /* Draw a coloured vertical bar for each event */
@@ -72,7 +71,9 @@ void FullTimeline::paint (Graphics& g)
                 if (eventMap.find (timelinePos) != eventMap.end())
                     continue;
                 eventMap[timelinePos] = true;
-                g.setColour (eventChannelColours[info.channels[i]]);
+                Colour c = eventChannelColours[info.channels[i] + 1];
+                g.setColour (c);
+
                 g.setOpacity (1.0f);
                 g.fillRoundedRectangle (timelinePos, 0, 1, this->getHeight() - tickHeight, 0.2);
             }
@@ -80,22 +81,30 @@ void FullTimeline::paint (Graphics& g)
     }
 
     /* Draw the MAX_ZOOM_DURATION_IN_SECONDS interval */
-    g.setColour (Colour (0, 0, 0));
+    g.setColour (findColour (ThemeColours::componentParentBackground));
     g.setOpacity (0.8f);
 
     if (intervalStartPosition < 0)
         return;
+
     setIntervalPosition (intervalStartPosition);
 
+    // Draw the scrubber interval bounds
     g.fillRoundedRectangle (intervalStartPosition, 0, 2, this->getHeight(), 2);
     g.fillRoundedRectangle (intervalStartPosition + intervalWidth, 0, 2, this->getHeight(), 2);
 
-    /* Draw the current playback position */
-    float timelinePos = (float) (fileReader->getCurrentSample() - startSample) / totalSamples * getWidth();
+    // Draw the scrubber interval as a highlight
+    g.setColour (findColour (ThemeColours::menuHighlightBackground));
+    g.setOpacity (0.3);
+    g.fillRect (intervalStartPosition + 1, 0, intervalWidth - 2, this->getHeight()-2);
 
+    /* Draw the current playback position */
+    g.setColour (findColour (ThemeColours::defaultText));
+    float timelinePos = (float) (fileReader->getCurrentSample() - startSample) / totalSamples * getWidth();
     g.setOpacity (1.0f);
     g.fillRoundedRectangle (timelinePos, 0, 1, this->getHeight(), 0.2);
 
+    // Update all time labels
     fileReader->getScrubberInterface()->updateTimeLabels();
 }
 
@@ -162,7 +171,7 @@ void ZoomTimeline::paint (Graphics& g)
     int tickHeight = 4;
     int borderThickness = 1;
 
-    g.setColour (Colours::black);
+    g.setColour (findColour (ThemeColours::componentParentBackground));
 
     int numTicks = 7;
 
@@ -177,7 +186,7 @@ void ZoomTimeline::paint (Graphics& g)
     }
 
     g.fillRect (0, tickHeight, this->getWidth(), this->getHeight() - tickHeight);
-    g.setColour (Colours::white);
+    g.setColour (findColour (ThemeColours::widgetBackground));
     g.fillRect (borderThickness, tickHeight + borderThickness, this->getWidth() - 2 * borderThickness, this->getHeight() - 2 * borderThickness - tickHeight);
 
     float sampleRate = fileReader->getCurrentSampleRate();
@@ -201,27 +210,29 @@ void ZoomTimeline::paint (Graphics& g)
             if (state && sampleNumber >= startSampleNumber && sampleNumber <= stopSampleNumber)
             {
                 float timelinePos = (sampleNumber - startSampleNumber) / float (intervalSamples) * getWidth();
-                g.setColour (eventChannelColours[info.channels[i]]);
+                Colour c = eventChannelColours[info.channels[i] + 1];
+                g.setColour (c);
                 g.setOpacity (1.0f);
                 g.fillRect (int (timelinePos), tickHeight, 1, this->getHeight() - tickHeight);
             }
         }
     }
 
-    /* Draw the scrubber interval */
-    g.setColour (Colour (0, 0, 0));
-    g.fillRoundedRectangle (sliderPosition, 0, sliderWidth, this->getHeight(), 2);
-    g.setColour (Colour (110, 110, 110));
-    g.setOpacity (0.8f);
-    g.fillRoundedRectangle (sliderPosition + 1, 1, sliderWidth - 2, this->getHeight() - 2, 2);
-
     /* Draw the current playback position */
+    g.setColour (findColour (ThemeColours::defaultText));
     float timelinePos = (float) (fileReader->getCurrentSample() - startSampleNumber) / (stopSampleNumber - startSampleNumber) * getWidth();
-    if (fileReader->playbackIsActive() || (! fileReader->playbackIsActive() && timelinePos < sliderPosition + sliderWidth))
+    if (0 < timelinePos < sliderPosition + sliderWidth)
     {
         g.setOpacity (1.0f);
         g.fillRoundedRectangle (timelinePos, 0, 1, this->getHeight(), 0.2);
     }
+
+    /* Draw the scrubber interval */
+    g.setColour (findColour (ThemeColours::componentParentBackground));
+    g.fillRoundedRectangle (sliderPosition, 0, sliderWidth, this->getHeight(), 2);
+    g.setColour (findColour (ThemeColours::componentBackground));
+    g.setOpacity (0.8f);
+    g.fillRoundedRectangle (sliderPosition + 1, 1, sliderWidth - 2, this->getHeight() - 2, 2);
 }
 
 void ZoomTimeline::mouseDown (const MouseEvent& event)
