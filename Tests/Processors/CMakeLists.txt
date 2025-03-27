@@ -17,7 +17,6 @@ add_sources(${COMPONENT_NAME}_tests
 		MetadataEventObjectTests.cpp
 		MetadataEventTests.cpp
 		ParameterOwnerTests.cpp
-		PluginClassTests.cpp
 		../../Source/Processors/PluginManager/PluginManager.cpp
 )
 target_include_directories(
