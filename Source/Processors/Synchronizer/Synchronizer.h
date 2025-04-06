@@ -104,10 +104,10 @@ public:
     bool comparePulses (const SyncPulse& pulse1, const SyncPulse& pulse2);
 
     /** Stated sample rate for this stream */
-    float expectedSampleRate;
+    double expectedSampleRate;
 
     /** Computed sample rate for this stream */
-    float actualSampleRate;
+    double actualSampleRate;
 
     /** TTL line to use for synchronization */
     int syncLine;
@@ -128,8 +128,14 @@ public:
     */
 	std::vector<SyncPulse> pulses;
 
-    /** First pulse matching the global stream */
-    SyncPulse firstMatchingPulse;
+    /** Baseline matching the global stream */
+    SyncPulse baselineMatchingPulse;
+
+    /** Next pulse to become the baseline matching pulse */
+    SyncPulse nextMatchingPulse;
+
+    /** Time interval (in seconds) for updating baseline pulse */
+    const float BASELINE_UPDATE_INTERVAL_S = 10;
 
     /** Determines the maximum size of the sync pulse buffer */
     const int MAX_PULSES_IN_BUFFER = 10;
