@@ -37,7 +37,7 @@ void PopupManager::showPopup (std::unique_ptr<Component> popupComponent, Compone
 
     myBox.setDismissalMouseClicksAreAlwaysConsumed (true);
 
-    LOGD ("***Adding popup: " + componentID);
+    LOGD ("PopupManager adding: " + componentID);
 
     popupStack.push_back (componentID);
 
@@ -51,11 +51,11 @@ void PopupManager::onPopupDismissed (int result)
     {
         String componentID = popupStack.back();
         popupStack.pop_back();
-        LOGD ("***Closed popup " + componentID);
+        LOGD ("PopupManager closed: " + componentID);
     }
     else
     {
-        LOGD ("***No popups to remove");
+        LOGD ("PopupManager: no popups to remove.");
     }
 }
 
