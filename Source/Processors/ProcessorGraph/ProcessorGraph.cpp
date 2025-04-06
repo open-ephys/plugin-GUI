@@ -806,8 +806,6 @@ void ProcessorGraph::updateViews (GenericProcessor* processor, bool updateGraphV
 
         processorArray.add (processor);
 
-        LOGD (" Adding ", processor->getName(), " to editor array.");
-
         if (processor->getDestNode() != nullptr)
         {
             if (processor->getDestNode()->isMerger())

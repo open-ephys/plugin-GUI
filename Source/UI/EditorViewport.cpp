@@ -361,7 +361,6 @@ void EditorViewport::updateVisibleEditors (Array<GenericEditor*> visibleEditors,
     {
         for (auto editor : editorArray)
         {
-            LOGD ("Updating ", editor->getNameAndId());
             editor->setVisible (false);
         }
     }

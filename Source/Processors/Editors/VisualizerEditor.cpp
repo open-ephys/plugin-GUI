@@ -198,19 +198,19 @@ void VisualizerEditor::ButtonResponder::buttonClicked (Button* button)
     }
     else if (button == editor->tabSelector.get())
     {
-        LOGD ("TAB BUTTON CLICKED");
+        LOGD ("VisualizerEditor tab button clicked.");
 
         if (! editor->isOpenInTab)
         {
             if (editor->windowSelector->getToggleState())
             {
-                LOGD ("CLOSING WINDOW");
+                LOGD ("VisualizerEditor closing window.");
                 editor->dataWindow->setContentNonOwned (0, false);
                 editor->windowSelector->setToggleState (false, dontSendNotification);
                 editor->dataWindow->setVisible (false);
             }
 
-            LOGD ("ADDING TAB");
+            LOGD ("VisualizerEditor adding tab.");
             editor->addTab();
         }
         else
