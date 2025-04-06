@@ -1135,6 +1135,8 @@ void ControlPanel::buttonClicked (Button* button)
             {
                 if (! graph->allRecordNodesAreSynchronized() && ! forceRecording)
                 {
+                    recordButton->setToggleState (false, dontSendNotification);
+
                     int response = AlertWindow::showOkCancelBox (AlertWindow::WarningIcon,
                                                                  "Data streams not synchronized",
                                                                  "One or more data streams are not yet synchronized within "
@@ -1145,10 +1147,10 @@ void ControlPanel::buttonClicked (Button* button)
                     if (! response)
                     {
                         CoreServices::sendStatusMessage ("Recording was cancelled.");
-                        recordButton->setToggleState (false, dontSendNotification);
                         return;
                     }
 
+                    recordButton->setToggleState (true, dontSendNotification);
                     forceRecording = false;
                 }
             }
