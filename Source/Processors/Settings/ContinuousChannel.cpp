@@ -31,6 +31,23 @@ ContinuousChannel::ContinuousChannel (ContinuousChannel::Settings settings) : Ch
     setName (settings.name);
     setDescription (settings.description);
     setBitVolts (settings.bitVolts);
+
+    if (m_type == ContinuousChannel::ELECTRODE)
+    {
+        setUnits ("uV");
+    }
+    else if (m_type == ContinuousChannel::ADC)
+    {
+        setUnits ("V");
+    }
+    else if (m_type == ContinuousChannel::AUX)
+    {
+        setUnits ("mV");
+    }
+    else
+    {
+        setUnits ("none");
+    }
 }
 
 ContinuousChannel::~ContinuousChannel()
