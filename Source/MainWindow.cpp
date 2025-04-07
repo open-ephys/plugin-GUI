@@ -200,11 +200,16 @@ MainWindow::MainWindow (const File& fileToLoad, bool isConsoleApp_) : isConsoleA
                 if (! isConsoleApp)
                 {
                     LOGD ("Detected difference between recoveryConfig and lastConfig; displaying alert window...");
-                    loadRecovery = AlertWindow::showYesNoCancelBox (AlertWindow::WarningIcon, "Reloading Settings", "It looks like the GUI crashed during your last run, "
-                                                                                                                    "causing the configured settings to not save properly. "
+                    loadRecovery = AlertWindow::showYesNoCancelBox (AlertWindow::WarningIcon, "Reloading Settings", "It looks like the GUI crashed the last time it was run. \n\n"
+                                                                                                                    "Any changes made before the crash are available in the "
+                                                                                                                    "'Recovered Signal Chain'.\n\nIf you want to load the settings "
+                                                                                                                    "from the last time the GUI was launched, select the "
+                                                                                                                    "'Signal Chain from Previous Launch'. \n\n"
+                                                                                                                    "Alternatively, you can start fresh with an "
+                                                                                                                    "'Empty Signal Chain'. \n\n"
                                                                                                                     "Which configuration do you want to load?",
-                                                                    "Recovery Config",
-                                                                    "Last Config",
+                                                                    "Recovered Signal Chain",
+                                                                    "Signal Chain from Previous Launch",
                                                                     "Empty Signal Chain",
                                                                     documentWindow->getContentComponent());
                 }
