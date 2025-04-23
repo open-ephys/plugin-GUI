@@ -542,6 +542,19 @@ void RecordNode::updateSettings()
         synchronizer.addDataStream (stream->getKey(), stream->getSampleRate());
 
         fifoUsage[streamId] = 0.0f;
+
+        // Get the stream's event channels and set the number of available lines in the sync line parameter
+        const Array<EventChannel*> eventChannels = stream->getEventChannels();
+
+        int numLines;
+        if (eventChannels.size() > 0)
+            numLines = eventChannels[0]->getMaxTTLBits();
+        else
+            numLines = 1;
+
+        // Update the number of available lines in the sync line parameter
+        TtlLineParameter* syncLineParam = static_cast<TtlLineParameter*> (stream->getParameter ("sync_line"));
+        syncLineParam->setMaxAvailableLines (numLines);
     }
 
     synchronizer.finishedUpdate();
@@ -587,7 +600,7 @@ bool RecordNode::startAcquisition()
         eventChannels.getLast()->setDataStream (getDataStream (synchronizer.mainStreamKey), false);
     }
 
-    if (!headlessMode)
+    if (! headlessMode)
         startTimer (1000);
 
     return true;
@@ -630,7 +643,7 @@ bool RecordNode::stopAcquisition()
     eventQueue->reset();
     spikeQueue->reset();
 
-    if (!headlessMode)
+    if (! headlessMode)
         stopTimer();
 
     return true;
@@ -922,7 +935,6 @@ void RecordNode::process (AudioBuffer<float>& buffer)
                 fifoAlmostFull = true;
 
             samplesWritten += numSamples;
-
         }
 
         if (fifoAlmostFull)
@@ -973,9 +985,7 @@ void RecordNode::filenameComponentChanged (FilenameComponent* fnc)
 
 void RecordNode::timerCallback()
 {
-
     updateSyncMonitors();
-    
 }
 
 void RecordNode::updateSyncMonitors()
@@ -990,7 +1000,6 @@ void RecordNode::updateSyncMonitors()
         editor->setStreamStartTime (streamId, synchronizer.isStreamSynced (streamKey), synchronizer.getStartTime (streamKey));
         editor->setLastSyncEvent (streamId, synchronizer.isStreamSynced (streamKey), synchronizer.getLastSyncEvent (streamKey));
         editor->setSyncAccuracy (streamId, synchronizer.isStreamSynced (streamKey), synchronizer.getAccuracy (streamKey));
-
     }
 }
 
