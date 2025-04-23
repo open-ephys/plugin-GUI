@@ -457,6 +457,21 @@ void UIComponent::openConsoleWindow()
     consoleOpenInWindow = true;
 }
 
+void UIComponent::paintOverChildren (Graphics& g)
+{
+    if (isBusy)
+    {
+        g.setColour (Colours::white.withAlpha (0.4f));
+        g.fillAll();
+    }
+}
+
+void UIComponent::setUIBusy (bool busy)
+{
+    isBusy = busy;
+    repaint();
+}
+
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 // MENU BAR METHODS
