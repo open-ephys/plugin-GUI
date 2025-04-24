@@ -30,6 +30,7 @@ ContinuousChannel::ContinuousChannel (ContinuousChannel::Settings settings) : Ch
 {
     setName (settings.name);
     setDescription (settings.description);
+    setIdentifier (settings.identifier);
     setBitVolts (settings.bitVolts);
 
     if (m_type == ContinuousChannel::ELECTRODE)
