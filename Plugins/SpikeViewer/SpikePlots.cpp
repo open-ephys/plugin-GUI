@@ -93,6 +93,13 @@ SpikePlot::SpikePlot (SpikeDisplayCanvas* sdc,
     monitorButton->addListener (this);
     addAndMakeVisible (monitorButton.get());
 
+    channelNameLabel = std::make_unique<Label>();
+    channelNameLabel->setText (name, dontSendNotification);
+    channelNameLabel->setFont (font);
+    channelNameLabel->setColour (Label::textColourId, findColour (ThemeColours::defaultText));
+    channelNameLabel->setBounds (10, 0, 200, 20);
+    addAndMakeVisible (channelNameLabel.get());
+
     mostRecentSpikes.ensureStorageAllocated (MAX_BUFFER_SIZE);
 }
 
@@ -113,7 +120,7 @@ void SpikePlot::paint (Graphics& g)
 {
     g.setFont (font);
     g.setColour (findColour (ThemeColours::controlPanelText));
-    g.drawText (name, 10, 0, 200, 20, Justification::left, false);
+    //g.drawText (name, 10, 0, 200, 20, Justification::left, false);
 }
 
 void SpikePlot::refresh()
@@ -600,6 +607,20 @@ WaveAxes::WaveAxes (SpikeDisplayCanvas* canvas,
     {
         spikeBuffer.add (nullptr);
     }
+
+    thresholdLabel = std::make_unique<Label>();
+    thresholdLabel->setFont(font);
+    thresholdLabel->setJustificationType(Justification::right);
+    thresholdLabel->setColour(Label::textColourId, thresholdColour);
+    addAndMakeVisible(thresholdLabel.get());
+
+    channelNameLabel = std::make_unique<Label>();
+    channelNameLabel->setFont(font);
+    channelNameLabel->setJustificationType(Justification::left);
+    channelNameLabel->setColour(Label::textColourId, Colours::white);
+    channelNameLabel->setText(channelName, dontSendNotification);
+    channelNameLabel->setBounds(getWidth()-44, 5, 40, 13);
+    addAndMakeVisible(channelNameLabel.get());
 }
 
 void WaveAxes::setRange (float r)
@@ -628,11 +649,6 @@ void WaveAxes::paint (Graphics& g)
     // draw the threshold line and labels
     drawThresholdSlider (g);
     
-    // draw underlying channel name
-    g.setColour(Colours::white.withAlpha(0.5f));
-    g.setFont(13);
-    g.drawText(channelName, getWidth()-44, 5, 40, 13, Justification::right);
-
     // if no spikes have been received then don't plot anything
     if (! gotFirstSpike)
     {
@@ -744,8 +760,13 @@ void WaveAxes::drawThresholdSlider (Graphics& g)
 
     if (isOverThresholdSlider)
     {
-        g.setFont (font);
-        g.drawText (String (int (displayThresholdLevel)), getWidth() - 25, h + 4, 22, 12, Justification::right, false);
+        thresholdLabel->setText(String(int(displayThresholdLevel)), dontSendNotification);
+        thresholdLabel->setBounds(getWidth() - 25, h + 4, 22, 12);
+        thresholdLabel->setVisible(true);
+    }
+    else
+    {
+        thresholdLabel->setVisible(false);
     }
     
 
@@ -793,7 +814,7 @@ void WaveAxes::drawWaveformGrid (Graphics& g)
                 g.fillRect (0.0f, yy, w, 1.0f);
         }
 
-        g.drawText (String (y, 0), Rectangle<float> (0, yy + 3, 40, 10), Justification::centredLeft);
+        //g.drawText (String (y, 0), Rectangle<float> (0, yy + 3, 40, 10), Justification::centredLeft);
     }
 }
 
@@ -967,6 +988,14 @@ ProjectionAxes::ProjectionAxes (SpikeDisplayCanvas* canvas,
     clear();
 
     n2ProjIdx (proj, &ampDim1, &ampDim2);
+
+    channelNameLabel = std::make_unique<Label>();
+    channelNameLabel->setFont(13);
+    channelNameLabel->setJustificationType(Justification::left);
+    channelNameLabel->setColour(Label::textColourId, Colours::white.withAlpha(0.3f));
+    channelNameLabel->setText(channelName, dontSendNotification);
+    channelNameLabel->setBounds(4, 5, 100, 13);
+    addAndMakeVisible(channelNameLabel.get());
 }
 
 void ProjectionAxes::setRange (float x, float y)
@@ -988,11 +1017,7 @@ void ProjectionAxes::paint (Graphics& g)
                  imageDim - rangeY,
                  rangeX,
                  rangeY);
-    
-    g.setColour(Colours::white.withAlpha(0.3f));
-    g.setFont(13);
-    g.drawText(channelName, 4, 5, 100, 13, Justification::left);
-}
+    }
 
 bool ProjectionAxes::updateSpikeData (const Spike* s)
 {
