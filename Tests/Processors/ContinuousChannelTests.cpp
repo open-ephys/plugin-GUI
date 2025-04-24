@@ -35,7 +35,7 @@ protected:
                 ContinuousChannel::Type::ELECTRODE,
                 "Continuous Channel",
                 "Continuous Channel Description",
-                "Continuous Channel Identifier",
+                "continuous.channel.identifier",
                 0.0f,
                 dataStream.get()
             }
@@ -79,4 +79,28 @@ Continuous Channel should be able to get the channel type.
 TEST_F(ContinuousChannelTests, GetChannelType)
 {
     EXPECT_EQ(continuousChannel->getChannelType(), ContinuousChannel::Type::ELECTRODE);
+}
+
+/*
+Continuous Channel should be able to get the name string.
+*/
+TEST_F(ContinuousChannelTests, GetName)
+{
+    EXPECT_EQ(continuousChannel->getName(), "Continuous Channel");
+}
+
+/*
+Continuous Channel should be able to get the identifier string.
+*/
+TEST_F(ContinuousChannelTests, GetIdentifier)
+{
+    EXPECT_EQ(continuousChannel->getIdentifier(), "continuous.channel.identifier");
+}
+
+/*
+Continuous Channel should be able to get the description string.
+*/
+TEST_F(ContinuousChannelTests, GetDescription)
+{
+    EXPECT_EQ(continuousChannel->getDescription(), "Continuous Channel Description");
 }
