@@ -141,16 +141,19 @@ inline var nsDictionaryToVar (const NSDictionary* dictionary)
     return jsonDataToVar (jsonObjectToData (dictionary));
 }
 
-#if JUCE_MAC
+// NSRect is just another name for CGRect, but CGRect is available on iOS *and* macOS.
+// Use makeCGRect below.
 template <typename RectangleType>
-NSRect makeNSRect (const RectangleType& r) noexcept
+CGRect makeNSRect (const RectangleType& r) noexcept = delete;
+
+template <typename RectangleType>
+CGRect makeCGRect (const RectangleType& r) noexcept
 {
-    return NSMakeRect (static_cast<CGFloat> (r.getX()),
+    return CGRectMake (static_cast<CGFloat> (r.getX()),
                        static_cast<CGFloat> (r.getY()),
                        static_cast<CGFloat> (r.getWidth()),
                        static_cast<CGFloat> (r.getHeight()));
 }
-#endif
 
 #if JUCE_INTEL
  template <typename T>
@@ -180,7 +183,11 @@ template <typename SuperType, typename ReturnType, typename... Params>
 inline ReturnType ObjCMsgSendSuper (id self, SEL sel, Params... params)
 {
     using SuperFn = ReturnType (*) (struct objc_super*, SEL, Params...);
+
+    // objc_msgSendSuper_stret is declared to return void, but will actually return non-void
+    JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wcast-function-type-mismatch")
     const auto fn = reinterpret_cast<SuperFn> (MetaSuperFn<ReturnType>::value);
+    JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 
     objc_super s = { self, [SuperType class] };
     return fn (&s, sel, params...);
@@ -343,7 +350,11 @@ struct ObjCClass
     void addMethod (SEL selector, Result (*callbackFn) (id, SEL, Args...))
     {
         const auto s = detail::makeCompileTimeStr (@encode (Result), @encode (id), @encode (SEL), @encode (Args)...);
+
+        JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wcast-function-type-mismatch")
         [[maybe_unused]] const auto b = class_addMethod (cls, selector, (IMP) callbackFn, s.data());
+        JUCE_END_IGNORE_WARNINGS_GCC_LIKE
+
         jassert (b);
     }
 
@@ -563,5 +574,38 @@ private:
     id object = nullptr;
     Class klass = nullptr;
 };
+
+#if JUCE_IOS
+
+// Defines a function that will check the requested version both at
+// build time, and, if necessary, at runtime.
+// The function's first template argument is a trait type containing
+// two static member functions named newFn and oldFn.
+// When the deployment target is at least equal to major.minor,
+// newFn will be selected at compile time.
+// When the build sdk does not support iOS SDK major.minor,
+// oldFn will be selected at compile time.
+// Otherwise, the OS version will be checked at runtime and newFn
+// will be called if the OS version is at least equal to major.minor,
+// otherwise oldFn will be called.
+#define JUCE_DEFINE_IOS_VERSION_CHECKER_FOR_VERSION(major, minor)           \
+    template <typename Trait, typename... Args>                             \
+    auto ifelse_ ## major ## _ ## minor (Args&&... args)                    \
+    {                                                                       \
+        constexpr auto fullVersion = major * 10'000 + minor * 100;          \
+        if constexpr (fullVersion <= __IPHONE_OS_VERSION_MIN_REQUIRED)      \
+            return Trait::newFn (std::forward<Args> (args)...);             \
+        else if constexpr (__IPHONE_OS_VERSION_MAX_ALLOWED < fullVersion)   \
+            return Trait::oldFn (std::forward<Args> (args)...);             \
+        else if (@available (ios major ## . ## minor, *))                   \
+            return Trait::newFn (std::forward<Args> (args)...);             \
+        else                                                                \
+            return Trait::oldFn (std::forward<Args> (args)...);             \
+    }
+
+JUCE_DEFINE_IOS_VERSION_CHECKER_FOR_VERSION (14, 0)
+JUCE_DEFINE_IOS_VERSION_CHECKER_FOR_VERSION (17, 0)
+
+#endif
 
 } // namespace juce

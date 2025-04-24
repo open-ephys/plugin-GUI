@@ -345,6 +345,8 @@ void XmlElement::writeElementAsText (OutputStream& outputStream,
     }
 }
 
+XmlElement::TextFormat::TextFormat() {}
+
 XmlElement::TextFormat XmlElement::TextFormat::singleLine() const
 {
     auto f = *this;

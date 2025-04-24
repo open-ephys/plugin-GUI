@@ -144,10 +144,10 @@ public:
     /** A struct containing options for formatting the text when representing an
         XML element as a string.
     */
-    struct TextFormat
+    struct JUCE_API TextFormat
     {
         /** Default constructor. */
-        TextFormat() {};
+        TextFormat();
 
         String dtd;                        /**< If supplied, this DTD will be added to the document. */
         String customHeader;               /**< If supplied, this header will be used (and customEncoding & addDefaultHeader will be ignored). */

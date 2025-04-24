@@ -49,8 +49,10 @@ class WebBrowserComponent;
     WebBrowserComponent::Options::withWebViewLifetimeListener. This can be useful for
     types using the WebBrowserComponent::Options::withOptionsFrom function as they have to be
     constructed before the WebBrowserComponent.
+
+    @tags{GUI}
 */
-class WebViewLifetimeListener
+class JUCE_API WebViewLifetimeListener
 {
 public:
     virtual ~WebViewLifetimeListener() = default;
@@ -606,6 +608,9 @@ public:
 
         The errorInfo contains some platform dependent string describing the
         error.
+
+        Calling goToURL() inside this callback can encounter further network
+        errors, potentially causing an infinite loop.
     */
     virtual bool pageLoadHadNetworkError (const String& errorInfo);
 

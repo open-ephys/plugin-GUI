@@ -328,9 +328,11 @@ public:
 
     RenderStatus renderFrame (MessageManager::Lock& mmLock)
     {
-       if (! isFlagSet (state, StateFlags::initialised))
-       {
-            switch (initialiseOnThread())
+        ScopedContextActivator contextActivator;
+
+        if (! isFlagSet (state, StateFlags::initialised))
+        {
+            switch (initialiseOnThread (contextActivator))
             {
                 case InitResult::fatal:
                 case InitResult::retry: return RenderStatus::noWork;
@@ -346,7 +348,6 @@ public:
        #endif
 
         std::optional<MessageManager::Lock::ScopedTryLockType> scopedLock;
-        ScopedContextActivator contextActivator;
 
         const auto stateToUse = state.fetch_and (StateFlags::persistent);
 
@@ -617,14 +618,14 @@ public:
     }
 
     //==============================================================================
-    InitResult initialiseOnThread()
+    InitResult initialiseOnThread (ScopedContextActivator& activator)
     {
         // On android, this can get called twice, so drop any previous state.
         associatedObjectNames.clear();
         associatedObjects.clear();
         cachedImageFrameBuffer.release();
 
-        context.makeActive();
+        activator.activate (context);
 
         if (const auto nativeResult = nativeContext->initialiseOnRenderThread (context); nativeResult != InitResult::success)
             return nativeResult;
@@ -898,7 +899,7 @@ public:
         {
             connection.emplace (sharedDisplayLinks->registerFactory ([this] (CGDirectDisplayID display)
             {
-                return [this, display]
+                return [this, display] (double)
                 {
                     if (display == lastDisplay)
                         triggerRepaint();
@@ -1197,9 +1198,11 @@ private:
 
         auto& comp = *getComponent();
 
-       #if JUCE_MAC && (! defined (MAC_OS_VERSION_15_0) || MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_VERSION_15_0)
+       #if JUCE_MAC
+        #if ! JUCE_MAC_API_VERSION_MIN_REQUIRED_AT_LEAST (15, 0)
         // According to a warning triggered on macOS 15 and above this doesn't do anything!
         [[(NSView*) comp.getWindowHandle() window] disableScreenUpdatesUntilFlush];
+        #endif
        #endif
 
         if (auto* oldCachedImage = CachedImage::get (comp))
@@ -1224,6 +1227,8 @@ private:
         if (auto* cachedImage = CachedImage::get (*getComponent()))
             cachedImage->checkViewportBounds();
     }
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Attachment)
 };
 
 //==============================================================================
@@ -1349,16 +1354,16 @@ OpenGLContext* OpenGLContext::getContextAttachedTo (Component& c) noexcept
     return nullptr;
 }
 
-static ThreadLocalValue<OpenGLContext*> currentThreadActiveContext;
+thread_local OpenGLContext* currentThreadActiveContext = nullptr;
 
 OpenGLContext* OpenGLContext::getCurrentContext()
 {
-    return currentThreadActiveContext.get();
+    return currentThreadActiveContext;
 }
 
 bool OpenGLContext::makeActive() const noexcept
 {
-    auto& current = currentThreadActiveContext.get();
+    auto& current = currentThreadActiveContext;
 
     if (nativeContext != nullptr && nativeContext->makeActive())
     {
@@ -1378,7 +1383,7 @@ bool OpenGLContext::isActive() const noexcept
 void OpenGLContext::deactivateCurrentContext()
 {
     NativeContext::deactivateCurrentContext();
-    currentThreadActiveContext.get() = nullptr;
+    currentThreadActiveContext = nullptr;
 }
 
 void OpenGLContext::triggerRepaint()
@@ -1520,14 +1525,22 @@ struct DepthTestDisabler
 void OpenGLContext::copyTexture (const Rectangle<int>& targetClipArea,
                                  const Rectangle<int>& anchorPosAndTextureSize,
                                  const int contextWidth, const int contextHeight,
-                                 bool flippedVertically)
+                                 bool flippedVertically,
+                                 bool blend)
 {
     if (contextWidth <= 0 || contextHeight <= 0)
         return;
 
     JUCE_CHECK_OPENGL_ERROR
-    glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable (GL_BLEND);
+    if (blend)
+    {
+        glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable (GL_BLEND);
+    }
+    else
+    {
+        glDisable (GL_BLEND);
+    }
 
     DepthTestDisabler depthDisabler;
 
