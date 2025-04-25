@@ -1527,19 +1527,20 @@ uint16 LfpDisplaySplitter::getChannelStreamId (int channel)
 
 float LfpDisplaySplitter::getScreenBufferMean (int chan)
 {
-    float total = 0.0f;
-    float numPts = 0;
-    int sbi = screenBufferIndex[chan];
+    const int width = lfpDisplay->getWidth() - leftmargin;
+    const int step = 100;
+    const int bufferSize = screenBufferWidth;
 
-    for (int samp = 0; samp < (lfpDisplay->getWidth() - leftmargin); samp += 10)
+    float total = 0.0f;
+    int sbi = screenBufferIndex[chan];
+    const float* buffer = screenBufferMean->getReadPointer(chan);
+
+    for (int samp = 0; samp < width; samp += step)
     {
-        total += screenBufferMean->getSample (chan, (sbi - samp + screenBufferWidth) % screenBufferWidth);
-        numPts++;
+        total += buffer[chan, (sbi - samp + bufferSize) % bufferSize];
     }
 
-    //std::cout << sample << std::endl;
-
-    return total / numPts;
+    return total / (width / step);
 }
 
 float LfpDisplaySplitter::getDisplayBufferMean (int chan)
