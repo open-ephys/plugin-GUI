@@ -852,16 +852,36 @@ public:
     /** Returns the length of the processor's tail, in seconds. */
     virtual double getTailLengthSeconds() const = 0;
 
-    /** Returns true if the processor wants MIDI messages. */
+    /** Returns true if the processor wants MIDI messages.
+
+        This must return the same value every time it is called.
+        This may be called by the audio thread, so this should be fast.
+        Ideally, just return a constant.
+    */
     virtual bool acceptsMidi() const = 0;
 
-    /** Returns true if the processor produces MIDI messages. */
+    /** Returns true if the processor produces MIDI messages.
+
+        This must return the same value every time it is called.
+        This may be called by the audio thread, so this should be fast.
+        Ideally, just return a constant.
+    */
     virtual bool producesMidi() const = 0;
 
-    /** Returns true if the processor supports MPE. */
+    /** Returns true if the processor supports MPE.
+
+        This must return the same value every time it is called.
+        This may be called by the audio thread, so this should be fast.
+        Ideally, just return a constant.
+    */
     virtual bool supportsMPE() const                            { return false; }
 
-    /** Returns true if this is a MIDI effect plug-in and does no audio processing. */
+    /** Returns true if this is a MIDI effect plug-in and does no audio processing.
+
+        This must return the same value every time it is called.
+        This may be called by the audio thread, so this should be fast.
+        Ideally, just return a constant.
+    */
     virtual bool isMidiEffect() const                           { return false; }
 
     //==============================================================================
@@ -1134,7 +1154,11 @@ public:
 
         See also the helper function getXmlFromBinary() for loading settings as XML.
 
-        @see setCurrentProgramStateInformation
+        VST3ClientExtensions::getCompatibleParameterIds() will always be called after
+        setStateInformation() therefore you can use information from the plugin state
+        to determine which parameter mapping to use if necessary.
+
+        @see setCurrentProgramStateInformation, VST3ClientExtensions::getCompatibleParameterIds
     */
     virtual void setStateInformation (const void* data, int sizeInBytes) = 0;
 
@@ -1281,8 +1305,8 @@ public:
         AudioProcessor is loaded. */
     struct TrackProperties
     {
-        String name;    // The name of the track - this will be empty if the track name is not known
-        Colour colour;  // The colour of the track - this will be transparentBlack if the colour is not known
+        std::optional<String> name;     // The name of the track - this will be empty if the track name is not known
+        std::optional<Colour> colour;   // The colour of the track - this will be empty if the colour is not known
 
         // other properties may be added in the future
     };
@@ -1302,6 +1326,21 @@ public:
         The default implementation of this callback will do nothing.
     */
     virtual void updateTrackProperties (const TrackProperties& properties);
+
+    /** Returns a custom name for a MIDI note number.
+
+        This method allows the host to query your plugin for a custom name to display
+        for a given MIDI note number. It's useful for plugins that work with drum kits,
+        microtonal scales, or other mappings.
+
+        @param note         The MIDI note number for which the name is being requested.
+                            Some DAWs can request a note range outside of the standard
+                            [0-127]. Ensure your plugin can handle this.
+        @param midiChannel  The MIDI channel associated with the note. This is a 1-based
+                            index (1-16). Use this parameter if your plugin provides
+                            channel-specific note mappings.
+    */
+    virtual std::optional<String> getNameForMidiNoteNumber (int note, int midiChannel);
 
     //==============================================================================
     /** Helper function that just converts an xml element into a binary blob.
