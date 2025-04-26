@@ -176,7 +176,7 @@ public:
     bool fullredraw; // used to indicate that a full redraw is required. is set false after each full redraw
 
 protected:
-    void drawEventOverlay (int x, int yfrom, int yto, Image::BitmapData* image);
+    void drawEventOverlay (const int rawEventState, int x, int yfrom, int yto, Graphics& g);
 
     LfpDisplaySplitter* canvasSplit;
     LfpDisplay* display;

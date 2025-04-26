@@ -102,6 +102,7 @@ void LfpChannelDisplay::pxPaint()
     }
 
     Image::BitmapData bdLfpChannelBitmap (display->lfpChannelBitmap, Image::BitmapData::readWrite);
+    Graphics overlayGraphics (display->lfpChannelBitmap);
 
     int center = getHeight() / 2;
 
@@ -128,10 +129,8 @@ void LfpChannelDisplay::pxPaint()
     // draw most recent drawn sample position
     if (ito_local < display->lfpChannelBitmap.getWidth() - 1)
     {
-        for (int k = jfrom_wholechannel; k <= jto_wholechannel; k += 2) // draw line
-        {
-            bdLfpChannelBitmap.setPixelColour (ito_local + 1, k, Colours::yellow);
-        }
+        overlayGraphics.setColour (Colours::yellow);
+        overlayGraphics.fillRect (ito_local + 1, jfrom_wholechannel, 1, jto_wholechannel - jfrom_wholechannel + 1); // draw yellow line
     }
 
     bool clipWarningHi = false; // keep track if something clipped in the display, so we can draw warnings after the data pixels are done
@@ -200,40 +199,23 @@ void LfpChannelDisplay::pxPaint()
 
         // draw event markers
         const int rawEventState = canvasSplit->getEventState (index); // get event state
+        drawEventOverlay (rawEventState, i, jfrom_wholechannel, jto_wholechannel, overlayGraphics); // draw event markers
 
-        for (int ev_ch = 0; ev_ch < 8; ev_ch++) // for all event channels
-        {
-            if (display->getEventDisplayState (ev_ch)) // check if plotting for this channel is enabled
-            {
-                if (rawEventState & (1 << ev_ch)) // events are  represented by a bit code, so we have to extract the individual bits with a mask
-                {
-                    //                        std::cout << "Drawing event." << std::endl;
-                    const Colour currentcolour = display->channelColours[ev_ch * 2];
-
-                    for (int k = jfrom_wholechannel; k <= jto_wholechannel; k++) // draw line
-                    {
-                        bdLfpChannelBitmap.setPixelColour (i,
-                                                           k,
-                                                           bdLfpChannelBitmap.getPixelColour (i, k).interpolatedWith (currentcolour, 0.3f));
-                    }
-                }
-            }
-        }
+        // get y-coordinates for plotting
+        double a_raw = canvasSplit->getYCoordMax (chan, index);
+        double b_raw = canvasSplit->getYCoordMin (chan, index);
 
         // set max-min range for plotting
-        double a = (canvasSplit->getYCoordMax (chan, index) / range * channelHeightFloat);
-        double b = (canvasSplit->getYCoordMin (chan, index) / range * channelHeightFloat);
-
-        double mean = (canvasSplit->getScreenBufferMean (chan) / range * channelHeightFloat);
+        double a = (a_raw / range * channelHeightFloat);
+        double b = (b_raw / range * channelHeightFloat);
 
         if (drawWithOffsetCorrection)
         {
+            double mean = (canvasSplit->getScreenBufferMean (chan) / range * channelHeightFloat);
             a -= mean;
             b -= mean;
         }
 
-        double a_raw = canvasSplit->getYCoordMax (chan, index);
-        double b_raw = canvasSplit->getYCoordMin (chan, index);
         double from_raw = 0;
         double to_raw = 0;
 
@@ -394,6 +376,7 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
     }
 
     Image::BitmapData bdLfpChannelBitmap (display->lfpChannelBitmap, Image::BitmapData::readWrite);
+    Graphics overlayGraphics (display->lfpChannelBitmap);
 
     int center = getHeight() / 2;
 
@@ -416,10 +399,8 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
 
     if (playhead < rightEdge - 1)
     {
-        for (int k = jfrom_wholechannel; k <= jto_wholechannel; k += 2) // draw yellow line
-        {
-            bdLfpChannelBitmap.setPixelColour (playhead + 1, k, Colours::yellow);
-        }
+        overlayGraphics.setColour (Colours::yellow);
+        overlayGraphics.fillRect (playhead + 1, jfrom_wholechannel, 1, jto_wholechannel - jfrom_wholechannel + 1); // draw yellow line
     }
 
     bool clipWarningHi = false; // keep track if something clipped in the display, so we can draw warnings after the data pixels are done
@@ -503,40 +484,23 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
 
         // draw event markers
         const int rawEventState = canvasSplit->getEventState (index); // get event state
+        drawEventOverlay (rawEventState, i, jfrom_wholechannel, jto_wholechannel, overlayGraphics); // draw event markers
 
-        for (int ev_ch = 0; ev_ch < 8; ev_ch++) // for all event channels
-        {
-            if (display->getEventDisplayState (ev_ch)) // check if plotting for this channel is enabled
-            {
-                if (rawEventState & (1 << ev_ch)) // events are  represented by a bit code, so we have to extract the individual bits with a mask
-                {
-                    //                        std::cout << "Drawing event." << std::endl;
-                    const Colour currentcolour = display->channelColours[ev_ch * 2];
-
-                    for (int k = jfrom_wholechannel; k <= jto_wholechannel; k++) // draw line
-                    {
-                        bdLfpChannelBitmap.setPixelColour (i,
-                                                           k,
-                                                           bdLfpChannelBitmap.getPixelColour (i, k).interpolatedWith (currentcolour, 0.3f));
-                    }
-                }
-            }
-        }
+        // get y max-min for plotting
+        double a_raw = canvasSplit->getYCoordMax (chan, index);
+        double b_raw = canvasSplit->getYCoordMin (chan, index);
 
         // set max-min range for plotting
-        double a = (canvasSplit->getYCoordMax (chan, index) / range * channelHeightFloat);
-        double b = (canvasSplit->getYCoordMin (chan, index) / range * channelHeightFloat);
-
-        double mean = (canvasSplit->getScreenBufferMean (chan) / range * channelHeightFloat);
+        double a = (a_raw / range * channelHeightFloat);
+        double b = (b_raw / range * channelHeightFloat);
 
         if (drawWithOffsetCorrection)
         {
+            double mean = (canvasSplit->getScreenBufferMean (chan) / range * channelHeightFloat);
             a -= mean;
             b -= mean;
         }
 
-        double a_raw = canvasSplit->getYCoordMax (chan, index);
-        double b_raw = canvasSplit->getYCoordMin (chan, index);
         double from_raw = 0;
         double to_raw = 0;
 
@@ -689,27 +653,14 @@ void LfpChannelDisplay::pxPaintHistory (int playhead, int rightEdge, int maxScre
     } //  for (int index = ifrom; index < ito; index++)
 }
 
-void LfpChannelDisplay::drawEventOverlay (int x, int yfrom, int yto, Image::BitmapData* image)
+void LfpChannelDisplay::drawEventOverlay (const int rawEventState, int x, int yfrom, int yto, Graphics& g)
 {
-    // draw event markers
-    const int rawEventState = canvasSplit->getEventState (x); // get event state
-
-    for (int ev_ch = 0; ev_ch < 8; ev_ch++) // for all event channels
+    for (int ev_ch = 0; ev_ch < 8; ev_ch++)
     {
-        if (display->getEventDisplayState (ev_ch)) // check if plotting for this channel is enabled
+        if (display->getEventDisplayState (ev_ch) && (rawEventState & (1 << ev_ch)))
         {
-            if (rawEventState & (1 << ev_ch)) // events are  represented by a bit code, so we have to extract the individual bits with a mask
-            {
-                //                        std::cout << "Drawing event." << std::endl;
-                const Colour currentcolour = display->channelColours[ev_ch * 2];
-
-                for (int k = yfrom; k <= yto; k++) // draw line
-                {
-                    image->setPixelColour (x,
-                                           k,
-                                           image->getPixelColour (x, k).interpolatedWith (currentcolour, 0.3f));
-                }
-            }
+            g.setColour (display->channelColours[ev_ch * 2].withAlpha (0.3f));
+            g.fillRect (x, yfrom, 1, yto - yfrom + 1);
         }
     }
 }
