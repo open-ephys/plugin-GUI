@@ -697,10 +697,21 @@ void LfpDisplayCanvas::loadCustomParametersFromXml (XmlElement* xml)
 LfpDisplaySplitter::LfpDisplaySplitter (LfpDisplayNode* node,
                                         LfpDisplayCanvas* canvas_,
                                         DisplayBuffer* db,
-                                        int id) : timebase (1.0f), displayGain (1.0f), timeOffset (0.0f), triggerChannel (-1), trialAveraging (false), splitID (id), processor (node), displayBuffer (db), canvas (canvas_), reachedEnd (false), screenBufferWidth (0)
+                                        int id) : timebase (1.0f),
+                                                  displayGain (1.0f),
+                                                  timeOffset (0.0f),
+                                                  triggerChannel (-1),
+                                                  trialAveraging (false),
+                                                  splitID (id),
+                                                  processor (node),
+                                                  displayBuffer (db),
+                                                  canvas (canvas_),
+                                                  reachedEnd (false),
+                                                  screenBufferWidth (0),
+                                                  nChans (0),
+                                                  selectedStreamId (0),
+                                                  isSelected (false)
 {
-    isSelected = false;
-
     viewport = std::make_unique<LfpViewport> (this);
     lfpDisplay = std::make_unique<LfpDisplay> (this, viewport.get());
     timescale = std::make_unique<LfpTimescale> (this, lfpDisplay.get());
@@ -720,8 +731,6 @@ LfpDisplaySplitter::LfpDisplaySplitter (LfpDisplayNode* node,
     addAndMakeVisible (timescale.get());
     addAndMakeVisible (viewport.get());
     addAndMakeVisible (streamSelection.get());
-
-    nChans = 0;
 
     drawSaturationWarning = false;
     drawClipWarning = false;
@@ -1533,7 +1542,7 @@ float LfpDisplaySplitter::getScreenBufferMean (int chan)
 
     float total = 0.0f;
     int sbi = screenBufferIndex[chan];
-    const float* buffer = screenBufferMean->getReadPointer(chan);
+    const float* buffer = screenBufferMean->getReadPointer (chan);
 
     for (int samp = 0; samp < width; samp += step)
     {
