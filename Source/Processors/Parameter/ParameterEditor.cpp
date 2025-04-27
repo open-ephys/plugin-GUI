@@ -1046,13 +1046,21 @@ PathParameterEditor::PathParameterEditor (Parameter* param, int rowHeightPixels,
     jassert (param->getType() == Parameter::PATH_PARAM);
 
     setBounds (0, 0, rowWidthPixels, rowHeightPixels);
-
+    
     button = std::make_unique<TextButton> ("Browse");
     button->setName (param->getKey());
     button->addListener (this);
     button->setClickingTogglesState (false);
-    button->setTooltip (param->getValueAsString());
+    button->addMouseListener (this, true);
     addAndMakeVisible (button.get());
+
+    clearButton = std::make_unique<TextButton> ("Clear");
+    clearButton->setButtonText("x");
+    clearButton->addListener (this);
+    clearButton->addMouseListener (this, true);
+    addAndMakeVisible (clearButton.get());
+    clearButton->setVisible (false);
+    clearButton->setTooltip ("Clear custom value");
 
     label = std::make_unique<Label> ("Parameter name", param->getDisplayName()); // == "" ? param->getName().replace("_", " ") : param->getDisplayName());
     Font labelFont = FontOptions ("Inter", "Regular", int (0.75 * rowHeightPixels));
@@ -1061,35 +1069,43 @@ PathParameterEditor::PathParameterEditor (Parameter* param, int rowHeightPixels,
     addAndMakeVisible (label.get());
 
     int width = rowWidthPixels;
-
     label->setBounds (width / 2 + 4, 0, width / 2, rowHeightPixels);
     button->setBounds (0, 0, width / 2, rowHeightPixels);
+    clearButton->setBounds (width / 2 - rowHeightPixels, 0, rowHeightPixels, rowHeightPixels);
 
     editor = (Component*) button.get();
+
 }
 
 void PathParameterEditor::buttonClicked (Button* button_)
 {
-    bool isDirectory = ((PathParameter*) param)->getIsDirectory();
-    String dialogBoxTitle;
-    String validFilePatterns;
-
-    if (param->getDescription().isEmpty())
-        dialogBoxTitle = "Select a " + String (isDirectory ? "directory" : "file");
-    else
-        dialogBoxTitle = param->getDescription();
-
-    if (! isDirectory)
-        validFilePatterns = "*." + ((PathParameter*) param)->getValidFilePatterns().joinIntoString (";*.");
-
-    FileChooser chooser (dialogBoxTitle, File(), validFilePatterns);
-
-    bool success = isDirectory ? chooser.browseForDirectory() : chooser.browseForFileToOpen();
-    if (success)
+    if (button_ == clearButton.get())
     {
-        File file = chooser.getResult();
-        param->setNextValue (file.getFullPathName());
+        param->setNextValue ("None");
+        clearButton->setVisible (false);
         updateView();
+    } else {
+        bool isDirectory = ((PathParameter*) param)->getIsDirectory();
+        String dialogBoxTitle;
+        String validFilePatterns;
+
+        if (param->getDescription().isEmpty())
+            dialogBoxTitle = "Select a " + String (isDirectory ? "directory" : "file");
+        else
+            dialogBoxTitle = param->getDescription();
+
+        if (! isDirectory)
+            validFilePatterns = "*." + ((PathParameter*) param)->getValidFilePatterns().joinIntoString (";*.");
+
+        FileChooser chooser (dialogBoxTitle, File(), validFilePatterns);
+
+        bool success = isDirectory ? chooser.browseForDirectory() : chooser.browseForFileToOpen();
+        if (success)
+        {
+            File file = chooser.getResult();
+            param->setNextValue (file.getFullPathName());
+            updateView();
+        }
     }
 }
 
@@ -1102,7 +1118,16 @@ void PathParameterEditor::updateView()
 
     if (param)
     {
-        button->setButtonText (param->getValueAsString());
+        if (param->getValue().toString() == "None")
+        {
+            button->setButtonText ("[ default path ]");
+            button->setTooltip ("Override default...");
+        }
+        else
+        {
+            button->setButtonText (param->getValueAsString());
+            button->setTooltip (param->getValueAsString());
+        }
         if (! ((PathParameter*) param)->isValid())
         {
             button->setColour (TextButton::textColourOnId, Colours::red);
@@ -1114,15 +1139,28 @@ void PathParameterEditor::updateView()
             button->removeColour (TextButton::textColourOnId);
             button->removeColour (TextButton::textColourOffId);
         }
-        //Alternatively:
-        //button->setButtonText(File(param->getValueAsString()).getFileName());
-        button->setTooltip (param->getValueAsString());
     }
 }
 
 void PathParameterEditor::resized()
 {
     updateBounds();
+    if (button != nullptr){
+        auto buttonBounds = button->getBounds();
+        auto clearButtonBounds = clearButton->getBounds();
+        clearButton->setBounds(buttonBounds.getX() + buttonBounds.getWidth() - clearButtonBounds.getWidth(), buttonBounds.getY(), clearButtonBounds.getWidth(), clearButtonBounds.getHeight());
+    }
+}
+
+void PathParameterEditor::mouseEnter(const juce::MouseEvent& _)
+{
+    if (param->getValue().toString() != "None" && !reinterpret_cast<PathParameter*>(param)->getIsRequired())
+        clearButton->setVisible (true);
+}
+
+void PathParameterEditor::mouseExit(const juce::MouseEvent& _)
+{
+    clearButton->setVisible (false);
 }
 
 SelectedStreamParameterEditor::SelectedStreamParameterEditor (Parameter* param, int rowHeightPixels, int rowWidthPixels) : ParameterEditor (param)

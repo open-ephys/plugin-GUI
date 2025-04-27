@@ -1230,6 +1230,9 @@ void PathParameter::setNextValue (var newValue_, bool undoable)
         else if (isDirectory && File (newValue_.toString()).exists())
         {
             newValue = newValue_;
+        } else if (!isRequired && newValue_.toString() == "None")
+        {
+            newValue = newValue_;
         }
 
         if (! undoable)

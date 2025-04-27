@@ -962,11 +962,15 @@ public:
     /** Returns true if the path should be a directory */
     bool getIsDirectory() { return isDirectory; }
 
+    /** Returns true if the path is required */
+    bool getIsRequired() { return isRequired; }
+
     /** Returns a list of valid file extensions if applicable */
     StringArray getValidFilePatterns() { return filePatternsAllowed; }
 
     /** Returns true if the current path is valid for this parameter */
     bool isValid() override;
+
 
 private:
     StringArray filePatternsAllowed;

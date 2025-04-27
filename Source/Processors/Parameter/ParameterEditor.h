@@ -575,8 +575,12 @@ public:
     /** Sets sub-component locations */
     virtual void resized() override;
 
+    void mouseEnter(const juce::MouseEvent&) override;
+    void mouseExit(const juce::MouseEvent&) override;
+
 private:
     std::unique_ptr<TextButton> button;
+    std::unique_ptr<TextButton> clearButton;
 };
 
 class PLUGIN_API TimeParameterEditor : public ParameterEditor,
