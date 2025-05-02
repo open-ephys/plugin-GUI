@@ -1,5 +1,5 @@
 # plugin build file
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.15)
 
 # include common rules
 include(../PluginRules.cmake)
