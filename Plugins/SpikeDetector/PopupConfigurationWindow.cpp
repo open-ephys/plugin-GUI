@@ -139,6 +139,12 @@ PopupThresholdComponent::PopupThresholdComponent (SpikeDetectorTableModel* table
     }
 }
 
+void PopupThresholdComponent::paint (Graphics& g)
+{
+    g.setColour (findColour (ThemeColours::componentBackground));
+    g.fillRoundedRectangle (getLocalBounds().toFloat().reduced(0.5f), 5.0f);
+}
+
 void PopupThresholdComponent::createSliders()
 {
     const int sliderWidth = 20;
