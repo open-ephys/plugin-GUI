@@ -137,7 +137,7 @@ public:
     SyncPulse nextMatchingPulse;
 
     /** Time interval (in seconds) for updating sample rate estimate */
-    const float SAMPLE_RATE_UPDATE_INTERVAL_S = 5;
+    const float SAMPLE_RATE_UPDATE_INTERVAL_S = 60;
 
     /** Determines the maximum size of the sync pulse buffer */
     const int MAX_PULSES_IN_BUFFER = 10;
