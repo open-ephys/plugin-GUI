@@ -144,8 +144,8 @@ double SyncStream::getSyncAccuracy()
 
 void SyncStream::syncWith (const SyncStream* mainStream)
 {
-    LOGC ("Synchronizing ", streamKey, " with ", mainStream->streamKey, "...");
-    LOGD ("Expected sample rate: ", expectedSampleRate);
+    //LOGD ("Synchronizing ", streamKey, " with ", mainStream->streamKey, "...");
+    //LOGD ("Expected sample rate: ", expectedSampleRate);
 
     if (mainStream->pulses.size() < 2 || pulses.size() < 2)
     {
@@ -214,20 +214,20 @@ void SyncStream::syncWith (const SyncStream* mainStream)
 
                                                 if (std::abs (estimatedActualSampleRate - expectedSampleRate) / expectedSampleRate < 0.01)
                                                 {
-                                                    std::cout << ">>> UPDATING " << streamKey << " SAMPLE RATE TO " << estimatedActualSampleRate << std::endl;
+                                                    //std::cout << ">>> UPDATING " << streamKey << " SAMPLE RATE TO " << estimatedActualSampleRate << std::endl;
                                                     actualSampleRate = estimatedActualSampleRate;
                                                 }
 
                                                 //baselineMatchingPulse = nextMatchingPulse;
 
-                                                LOGC ("Time of new matching pulse: ",
-                                                      nextMatchingPulse.localTimestamp,
-                                                      " (local), ",
-                                                      nextMatchingPulse.globalTimestamp,
-                                                      " (global)");
+                                                //LOGD ("Time of new matching pulse: ",
+                                                 //     nextMatchingPulse.localTimestamp,
+                                                  //    " (local), ",
+                                                  //    nextMatchingPulse.globalTimestamp,
+                                                  //    " (global)");
 
                                                 double estimatedPulseTime = synchronizer->convertSampleNumberToTimestamp (streamKey, nextMatchingPulse.localSampleNumber);
-                                                LOGD ("pulses[localIndex].estimatedPulseTime: ", estimatedPulseTime);
+                                                //LOGD ("pulses[localIndex].estimatedPulseTime: ", estimatedPulseTime);
 
                                                 nextMatchingPulse.localTimestamp = pulse.localTimestamp;
                                                 nextMatchingPulse.globalTimestamp = mainPulse.localTimestamp;
@@ -264,27 +264,27 @@ void SyncStream::syncWith (const SyncStream* mainStream)
     {
         if (baselineMatchingPulse.complete && (pulses[localIndex].localTimestamp - baselineMatchingPulse.localTimestamp) > 1.0)
         {
-            LOGD ("pulses[localIndex].localSampleNumber: ", pulses[localIndex].localSampleNumber, ", baselineMatchingPulse.localSampleNumber: ", baselineMatchingPulse.localSampleNumber);
-            LOGD ("pulses[localIndex].localTimestamp: ", pulses[localIndex].localTimestamp, ", baselineMatchingPulse.localTimestamp: ", baselineMatchingPulse.localTimestamp);
-            LOGD ("pulses[localIndex].globalTimestamp: ", pulses[localIndex].globalTimestamp, ", baselineMatchingPulse.globalTimestamp: ", baselineMatchingPulse.globalTimestamp);
+            //LOGD ("pulses[localIndex].localSampleNumber: ", pulses[localIndex].localSampleNumber, ", baselineMatchingPulse.localSampleNumber: ", baselineMatchingPulse.localSampleNumber);
+            //LOGD ("pulses[localIndex].localTimestamp: ", pulses[localIndex].localTimestamp, ", baselineMatchingPulse.localTimestamp: ", baselineMatchingPulse.localTimestamp);
+            //LOGD ("pulses[localIndex].globalTimestamp: ", pulses[localIndex].globalTimestamp, ", baselineMatchingPulse.globalTimestamp: ", baselineMatchingPulse.globalTimestamp);
 
             double estimatedActualSampleRate = double(pulses[localIndex].localSampleNumber - baselineMatchingPulse.localSampleNumber) 
                 / double(pulses[localIndex].globalTimestamp - baselineMatchingPulse.globalTimestamp);
 
-            LOGD ("actualSampleRate: ", actualSampleRate, ", estimatedActualSampleRate: ", estimatedActualSampleRate);
+            LOGC (streamKey, " actualSampleRate: ", actualSampleRate, ", estimatedActualSampleRate: ", estimatedActualSampleRate);
 
             double estimatedGlobalStartTime = pulses[localIndex].globalTimestamp 
                 - double (pulses[localIndex].localSampleNumber) / estimatedActualSampleRate;
 
             double estimatedPulseTime = synchronizer->convertSampleNumberToTimestamp(streamKey, pulses[localIndex].localSampleNumber);
-            LOGD ("estimatedPulseTime: ", estimatedPulseTime);
-            LOGD ("diff from global time: ", estimatedPulseTime - pulses[localIndex].globalTimestamp);
+            LOGC (streamKey, " estimatedPulseTime: ", estimatedPulseTime);
+            LOGC (streamKey, " diff from global time: ", estimatedPulseTime - pulses[localIndex].globalTimestamp);
 
             if (std::abs (estimatedActualSampleRate - expectedSampleRate) / expectedSampleRate < 0.01)
             {
                 if (actualSampleRate == -1.0)
                 {
-                    std::cout << "!!! INITIAL UPDATING SAMPLE RATE TO " << estimatedActualSampleRate << std::endl;
+                    //std::cout << "!!! INITIAL UPDATING SAMPLE RATE TO " << estimatedActualSampleRate << std::endl;
                     actualSampleRate = estimatedActualSampleRate;
 
                     if (std::abs (estimatedGlobalStartTime) < 1.0)
@@ -305,7 +305,7 @@ void SyncStream::syncWith (const SyncStream* mainStream)
             }
             else
             {
-                LOGD ("Estimated sample rate of ", estimatedActualSampleRate, " is out of bounds. Expected sample rate = ", expectedSampleRate);
+                //LOGD ("Estimated sample rate of ", estimatedActualSampleRate, " is out of bounds. Expected sample rate = ", expectedSampleRate);
                 return;
             }
 
