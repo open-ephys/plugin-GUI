@@ -35,6 +35,10 @@
 namespace juce
 {
 
+#define JUCE_PUSH_NOTIFICATIONS_IMPL 1
+
+JUCE_BEGIN_IGNORE_DEPRECATION_WARNINGS
+
 namespace PushNotificationsDelegateDetailsOsx
 {
     using Action = PushNotifications::Notification::Action;
@@ -341,9 +345,9 @@ private:
 bool PushNotifications::Notification::isValid() const noexcept { return true; }
 
 //==============================================================================
-struct PushNotifications::Pimpl : private PushNotificationsDelegate
+struct PushNotifications::Impl : private PushNotificationsDelegate
 {
-    Pimpl (PushNotifications& p)
+    explicit Impl (PushNotifications& p)
         : owner (p)
     {
     }
@@ -531,5 +535,7 @@ private:
 
     PushNotifications::Settings settings;
 };
+
+JUCE_END_IGNORE_DEPRECATION_WARNINGS
 
 } // namespace juce

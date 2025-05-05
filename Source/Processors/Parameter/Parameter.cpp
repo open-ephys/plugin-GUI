@@ -620,20 +620,17 @@ FloatParameter::FloatParameter (ParameterOwner* owner,
 
 void FloatParameter::setNextValue (var newValue_, bool undoable)
 {
-    if (newValue_.isDouble())
-    {
-        float value = (float) newValue_;
-
-        if (value < minValue)
-            newValue = minValue;
-        else if (value > maxValue)
-            newValue = maxValue;
-        else
-            newValue = value;
-    }
-
-    if (currentValue == newValue)
+    if (newValue_ == currentValue)
         return;
+
+    float value = (float) newValue_;
+
+    if (value < minValue)
+        newValue = minValue;
+    else if (value > maxValue)
+        newValue = maxValue;
+    else
+        newValue = value;
 
     if (undoable)
     {

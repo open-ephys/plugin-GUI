@@ -215,6 +215,8 @@ private:
     CriticalSection spikeArrayLock;
 
     WeakReference<SpikeThresholdCoordinator> thresholdCoordinator;
+
+    std::unique_ptr<Label> channelNameLabel;
 };
 
 /**
@@ -328,7 +330,7 @@ public:
         spikesInverted = shouldInvert;
         repaint();
     }
-
+ 
 private:
     std::string identifier;
 
@@ -366,6 +368,9 @@ private:
     SpikeThresholdCoordinator* thresholdCoordinator;
 
     bool spikesInverted;
+
+    std::unique_ptr<Label> thresholdLabel;
+    std::unique_ptr<Label> channelNameLabel;
 };
 
 /**
@@ -420,6 +425,8 @@ private:
     int rangeY;
 
     int spikesReceivedSinceLastRedraw;
+
+    std::unique_ptr<Label> channelNameLabel;
 };
 
 #endif // SPIKEPLOTS_H_

@@ -619,6 +619,9 @@ ScopedThreadDPIAwarenessSetter::ScopedThreadDPIAwarenessSetter (void* nativeWind
 
 ScopedThreadDPIAwarenessSetter::~ScopedThreadDPIAwarenessSetter() = default;
 
+ScopedThreadDPIAwarenessSetter::ScopedThreadDPIAwarenessSetter (ScopedThreadDPIAwarenessSetter&&) noexcept = default;
+ScopedThreadDPIAwarenessSetter& ScopedThreadDPIAwarenessSetter::operator= (ScopedThreadDPIAwarenessSetter&&) noexcept = default;
+
 static auto& getScopedDPIAwarenessDisablerFunctions()
 {
     struct Functions
@@ -1199,7 +1202,7 @@ namespace IconConverters
                 for (int i = 0; i < numPixels; ++i)
                     opacityMask[i] = (bitmapImageData[i] == 0);
 
-                Image result = Image (Image::ARGB, bm.bmWidth, bm.bmHeight, true);
+                Image result = Image (Image::ARGB, bm.bmWidth, bm.bmHeight, true, SoftwareImageType{});
                 Image::BitmapData imageData (result, Image::BitmapData::readWrite);
 
                 memset (bitmapImageData, 0, numColourComponents);
@@ -1410,10 +1413,7 @@ struct RenderContext
     virtual void dispatchDeferredRepaints() = 0;
     virtual void performAnyPendingRepaintsNow() = 0;
     virtual void onVBlank() = 0;
-    virtual void setResizing (bool) = 0;
-    virtual bool getResizing() const = 0;
     virtual void handleShowWindow() = 0;
-    virtual void setSize (int, int) = 0;
 
     /*  Gets a snapshot of whatever the render context is currently showing. */
     virtual Image createSnapshot() = 0;
@@ -1533,7 +1533,7 @@ public:
         return BorderSize<int> { 0, 0, 0, 0 };
     }
 
-    BorderSize<int> findPhysicalBorderSize() const
+    std::optional<BorderSize<int>> findPhysicalBorderSize() const
     {
         if (const auto custom = getCustomBorderSize())
             return *custom;
@@ -1546,20 +1546,15 @@ public:
         if (! GetWindowInfo (hwnd, &info))
             return {};
 
-        return { info.rcClient.top - info.rcWindow.top,
-                 info.rcClient.left - info.rcWindow.left,
-                 info.rcWindow.bottom - info.rcClient.bottom,
-                 info.rcWindow.right - info.rcClient.right };
-    }
+        // Sometimes GetWindowInfo returns bogus information when called in the middle of restoring
+        // the window
+        if (info.rcWindow.left <= -32000 && info.rcWindow.top <= -32000)
+            return {};
 
-    void updateBorderSize()
-    {
-        if (renderContext == nullptr)
-            return;
-
-        RECT r;
-        GetClientRect (hwnd, &r);
-        renderContext->setSize (r.right - r.left, r.bottom - r.top);
+        return BorderSize<int> { info.rcClient.top - info.rcWindow.top,
+                                 info.rcClient.left - info.rcWindow.left,
+                                 info.rcWindow.bottom - info.rcClient.bottom,
+                                 info.rcWindow.right - info.rcClient.right };
     }
 
     void setBounds (const Rectangle<int>& bounds, bool isNowFullScreen) override
@@ -1574,16 +1569,9 @@ public:
         if (isNowFullScreen != isFullScreen())
             setFullScreen (isNowFullScreen);
 
-        // This is more of a guess than a certainty, but if we've captured the mouse and we're also
-        // updating the bounds, there's a good chance we're in a client-initiated resize.
-        // The resizing flag will be unset by WM_CAPTURECHANGED.
-        if (GetCapture() == hwnd)
-            if (renderContext != nullptr)
-                renderContext->setResizing (true);
-
         const ScopedValueSetter<bool> scope (shouldIgnoreModalDismiss, true);
 
-        const auto borderSize = findPhysicalBorderSize();
+        const auto borderSize = findPhysicalBorderSize().value_or (BorderSize<int>{});
         auto newBounds = borderSize.addedTo ([&]
         {
             ScopedThreadDPIAwarenessSetter setter { hwnd };
@@ -1633,7 +1621,6 @@ public:
 
         if (hasResized && isValidPeer (this))
         {
-            updateBorderSize();
             repaintNowIfTransparent();
         }
     }
@@ -1651,7 +1638,7 @@ public:
                 // This means that we may end up clipping off up to one logical pixel under the physical
                 // window border, but this is preferable to displaying an uninitialised/unpainted
                 // region of the client area.
-                const auto physicalBorder = findPhysicalBorderSize();
+                const auto physicalBorder = findPhysicalBorderSize().value_or (BorderSize<int>{});
 
                 const auto physicalBounds = D2DUtilities::toRectangle (getWindowScreenRect (hwnd));
                 const auto physicalClient = physicalBorder.subtractedFrom (physicalBounds);
@@ -1758,8 +1745,6 @@ public:
             if (constrainer != nullptr)
                 constrainer->resizeEnd();
         }
-
-        updateBorderSize();
     }
 
     bool isFullScreen() const override
@@ -1793,11 +1778,7 @@ public:
 
         const auto screenPos = convertLogicalScreenPointToPhysical (localPos + getScreenPosition(), hwnd);
 
-        if (trueIfInAChildWindow)
-            return getClientRectInScreen().contains (screenPos);
-
         auto w = WindowFromPoint (D2DUtilities::toPOINT (screenPos));
-
         return w == hwnd || (trueIfInAChildWindow && (IsChild (hwnd, w) != 0));
     }
 
@@ -1808,7 +1789,7 @@ public:
 
     BorderSize<int> getFrameSize() const override
     {
-        return findPhysicalBorderSize().multipliedBy (1.0 / scaleFactor);
+        return findPhysicalBorderSize().value_or (BorderSize<int>{}).multipliedBy (1.0 / scaleFactor);
     }
 
     bool setAlwaysOnTop (bool alwaysOnTop) override
@@ -1947,9 +1928,9 @@ public:
     }
 
     //==============================================================================
-    void onVBlank() override
+    void onVBlank (double timestampSec) override
     {
-        vBlankListeners.call ([] (auto& l) { l.onVBlank(); });
+        callVBlankListeners (timestampSec);
         dispatchDeferredRepaints();
 
         if (renderContext != nullptr)
@@ -2054,7 +2035,7 @@ public:
         }
 
         HWNDComponentPeer& peer;
-        ComponentPeer::DragInfo dragInfo;
+        DragInfo dragInfo;
         bool peerIsDeleted = false;
 
     private:
@@ -2253,7 +2234,7 @@ private:
     uint32 lastPaintTime = 0;
     ULONGLONG lastMagnifySize = 0;
     bool isDragging = false, isMouseOver = false,
-         hasCreatedCaret = false, constrainerIsResizing = false;
+         hasCreatedCaret = false, constrainerIsResizing = false, sizing = false;
     IconConverters::IconPtr currentWindowIcon;
     FileDropTarget* dropTarget = nullptr;
     UWPUIViewSettings uwpViewSettings;
@@ -2317,7 +2298,7 @@ private:
 
         LPCTSTR getWindowClassName() const noexcept     { return (LPCTSTR) (pointer_sized_uint) atom; }
 
-        JUCE_DECLARE_SINGLETON_SINGLETHREADED_MINIMAL (WindowClassHolder)
+        JUCE_DECLARE_SINGLETON_SINGLETHREADED_MINIMAL_INLINE (WindowClassHolder)
 
     private:
         ATOM atom;
@@ -2417,6 +2398,7 @@ private:
         const auto hasMax = (styleFlags & windowHasMaximiseButton) != 0;
         const auto appearsOnTaskbar = (styleFlags & windowAppearsOnTaskbar) != 0;
         const auto resizable = (styleFlags & windowIsResizable) != 0;
+        const auto usesDropShadow = windowUsesNativeShadow();
 
         if (parentToAddTo != nullptr)
         {
@@ -2424,13 +2406,14 @@ private:
         }
         else
         {
-            if (titled || windowUsesNativeShadow())
+            if (titled || usesDropShadow)
             {
+                type |= usesDropShadow ? WS_CAPTION : 0;
                 type |= titled ? (WS_OVERLAPPED | WS_CAPTION) : WS_POPUP;
                 type |= hasClose ? (WS_SYSMENU | WS_CAPTION) : 0;
                 type |= hasMin ? (WS_MINIMIZEBOX | WS_CAPTION | WS_SYSMENU) : 0;
                 type |= hasMax ? (WS_MAXIMIZEBOX | WS_CAPTION | WS_SYSMENU) : 0;
-                type |= resizable || windowUsesNativeShadow() ? WS_THICKFRAME : 0;
+                type |= resizable ? WS_THICKFRAME : 0;
             }
             else
             {
@@ -2447,7 +2430,7 @@ private:
                                L"", type, 0, 0, 0, 0, parentToAddTo, nullptr,
                                (HINSTANCE) Process::getCurrentModuleInstanceHandle(), nullptr);
 
-        if (! titled && windowUsesNativeShadow())
+        if (! titled && usesDropShadow)
         {
             // The choice of margins is very particular.
             // - Using 0 for all values disables the system decoration (shadow etc.) completely.
@@ -2502,7 +2485,6 @@ private:
                 scaleFactor = getScaleFactorForWindow (hwnd);
 
             setMessageFilter();
-            updateBorderSize();
             checkForPointerAPI();
 
             // This is needed so that our plugin window gets notified of WM_SETTINGCHANGE messages
@@ -2704,22 +2686,15 @@ private:
         client,
     };
 
-    std::optional<LRESULT> doMouseMove (LPARAM lParam, bool isMouseDownEvent, WindowArea area)
+    std::optional<LRESULT> doMouseMove (const LPARAM lParam, bool isMouseDownEvent, WindowArea area)
     {
-        auto point = getPOINTFromLParam (lParam);
-
-        if (area == WindowArea::client)
-            ClientToScreen (hwnd, &point);
-
-        const auto adjustedLParam = MAKELPARAM (point.x, point.y);
-
         // Check if the mouse has moved since being pressed in the caption area.
         // If it has, then we defer to DefWindowProc to handle the mouse movement.
         // Allowing DefWindowProc to handle WM_NCLBUTTONDOWN directly will pause message
         // processing (and therefore painting) when the mouse is clicked in the caption area,
         // which is why we wait until the mouse is *moved* before asking the system to take over.
         // Letting the system handle the move is important for things like Aero Snap to work.
-        if (captionMouseDown.has_value() && *captionMouseDown != adjustedLParam)
+        if (area == WindowArea::nonclient && captionMouseDown.has_value() && *captionMouseDown != lParam)
         {
             captionMouseDown.reset();
 
@@ -2731,19 +2706,20 @@ private:
             // ModifierKeys::currentModifiers gets left in the wrong state. As a workaround, we
             // manually update the modifier keys after DefWindowProc exits, and update the
             // capture state if necessary.
-            const auto result = DefWindowProc (hwnd, WM_NCLBUTTONDOWN, HTCAPTION, adjustedLParam);
+            const auto result = DefWindowProc (hwnd, WM_NCLBUTTONDOWN, HTCAPTION, lParam);
             getMouseModifiers();
             releaseCaptureIfNecessary();
             return result;
         }
-
-        const auto position = getLocalPointFromScreenLParam (adjustedLParam);
 
         ModifierKeys modsToSend (ModifierKeys::currentModifiers);
 
         // this will be handled by WM_TOUCH
         if (isTouchEvent() || areOtherTouchSourcesActive())
             return {};
+
+        const auto position = area == WindowArea::client ? getPointFromLocalLParam (lParam)
+                                                         : getLocalPointFromScreenLParam (lParam);
 
         if (! isMouseOver)
         {
@@ -2812,7 +2788,7 @@ private:
             ReleaseCapture();
     }
 
-    void doMouseDown (LPARAM lParam, const WPARAM wParam, WindowArea area)
+    void doMouseDown (LPARAM lParam, const WPARAM wParam)
     {
         // this will be handled by WM_TOUCH
         if (isTouchEvent() || areOtherTouchSourcesActive())
@@ -2821,7 +2797,7 @@ private:
         if (GetCapture() != hwnd)
             SetCapture (hwnd);
 
-        doMouseMove (lParam, true, area);
+        doMouseMove (lParam, true, WindowArea::client);
 
         if (isValidPeer (this))
         {
@@ -2829,9 +2805,7 @@ private:
 
             isDragging = true;
 
-            const auto position = area == WindowArea::client ? getPointFromLocalLParam (lParam)
-                                                             : getLocalPointFromScreenLParam (lParam);
-            doMouseEvent (position, MouseInputSource::defaultPressure);
+            doMouseEvent (getPointFromLocalLParam (lParam), MouseInputSource::defaultPressure);
         }
     }
 
@@ -2864,9 +2838,6 @@ private:
 
             constrainerIsResizing = false;
         }
-
-        if (renderContext != nullptr && renderContext->getResizing())
-            renderContext->setResizing (false);
 
         if (isDragging)
             doMouseUp (getCurrentMousePos(), (WPARAM) 0, false);
@@ -2927,14 +2898,8 @@ private:
         // the window with focus, despite what the MSDN docs might say.
         // This is the behaviour we want; if we're receiving a scroll event, we can assume it
         // should be processed by the current peer.
-        const auto currentMousePos = getPOINTFromLParam ((LPARAM) GetMessagePos());
-        auto* peer = getOwnerOfWindow (WindowFromPoint (currentMousePos));
-
-        if (peer == nullptr)
-            return false;
-
-        const auto localPos = peer->globalToLocal (convertPhysicalScreenPointToLogical (D2DUtilities::toPoint (currentMousePos), hwnd).toFloat());
-        peer->handleMouseWheel (getPointerType (wParam), localPos, getMouseEventTime(), wheel);
+        const auto localPos = getLocalPointFromScreenLParam ((LPARAM) GetMessagePos());
+        handleMouseWheel (getPointerType (wParam), localPos, getMouseEventTime(), wheel);
         return true;
     }
 
@@ -3394,10 +3359,12 @@ private:
                                                                       movingLeft,
                                                                       movingBottom,
                                                                       movingRight);
-            r = D2DUtilities::toRECT (modifiedPhysicalBounds);
-        }
 
-        updateBorderSize();
+            if (! modifiedPhysicalBounds.has_value())
+                return TRUE;
+
+            r = D2DUtilities::toRECT (*modifiedPhysicalBounds);
+        }
 
         return TRUE;
     }
@@ -3411,12 +3378,14 @@ private:
                  && ! Component::isMouseButtonDownAnywhere())
             {
                 const auto requestedPhysicalBounds = D2DUtilities::toRectangle ({ wp.x, wp.y, wp.x + wp.cx, wp.y + wp.cy });
-                const auto modifiedPhysicalBounds = getConstrainedBounds (requestedPhysicalBounds, false, false, false, false);
 
-                wp.x  = modifiedPhysicalBounds.getX();
-                wp.y  = modifiedPhysicalBounds.getY();
-                wp.cx = modifiedPhysicalBounds.getWidth();
-                wp.cy = modifiedPhysicalBounds.getHeight();
+                if (const auto modifiedPhysicalBounds = getConstrainedBounds (requestedPhysicalBounds, false, false, false, false))
+                {
+                    wp.x  = modifiedPhysicalBounds->getX();
+                    wp.y  = modifiedPhysicalBounds->getY();
+                    wp.cx = modifiedPhysicalBounds->getWidth();
+                    wp.cy = modifiedPhysicalBounds->getHeight();
+                }
             }
         }
 
@@ -3428,9 +3397,17 @@ private:
         return 0;
     }
 
-    Rectangle<int> getConstrainedBounds (Rectangle<int> proposed, bool top, bool left, bool bottom, bool right) const
+    std::optional<Rectangle<int>> getConstrainedBounds (Rectangle<int> proposed,
+                                                        bool top,
+                                                        bool left,
+                                                        bool bottom,
+                                                        bool right) const
     {
         const auto physicalBorder = findPhysicalBorderSize();
+
+        if (! physicalBorder.has_value())
+            return {};
+
         const auto logicalBorder = getFrameSize();
 
         // The constrainer expects to operate in logical coordinate space.
@@ -3442,7 +3419,7 @@ private:
         // After the constrainer returns, we substitute in the other direction, replacing logical
         // borders with physical.
         const auto requestedPhysicalBounds = proposed;
-        const auto requestedPhysicalClient = physicalBorder.subtractedFrom (requestedPhysicalBounds);
+        const auto requestedPhysicalClient = physicalBorder->subtractedFrom (requestedPhysicalBounds);
         const auto requestedLogicalClient = detail::ScalingHelpers::unscaledScreenPosToScaled (
                 component,
                 convertPhysicalScreenRectangleToLogical (requestedPhysicalClient, hwnd));
@@ -3488,7 +3465,7 @@ private:
             return modified;
         }();
 
-        return physicalBorder.addedTo (withSnappedPosition);
+        return physicalBorder->addedTo (withSnappedPosition);
     }
 
     enum class ForceRefreshDispatcher
@@ -3533,7 +3510,6 @@ private:
                 return true;
         }
 
-        updateBorderSize();
         handleMovedOrResized();
         updateCurrentMonitorAndRefreshVBlankDispatcher();
 
@@ -3743,19 +3719,19 @@ private:
 
     Point<float> getPointFromLocalLParam (LPARAM lParam) noexcept
     {
-        auto p = D2DUtilities::toPoint (getPOINTFromLParam (lParam));
+        const auto p = D2DUtilities::toPoint (getPOINTFromLParam (lParam));
 
-        if (isPerMonitorDPIAwareWindow (hwnd))
-        {
-            // LPARAM is relative to this window's top-left but may be on a different monitor so we need to calculate the
-            // physical screen position and then convert this to local logical coordinates
-            auto r = getWindowScreenRect (hwnd);
-            const auto windowBorder = findPhysicalBorderSize();
-            return globalToLocal (Desktop::getInstance().getDisplays().physicalToLogical (D2DUtilities::toPoint ({ r.left + p.x + windowBorder.getLeft(),
-                                                                                                                   r.top  + p.y + windowBorder.getTop() })).toFloat());
-        }
+        if (! isPerMonitorDPIAwareWindow (hwnd))
+            return p.toFloat();
 
-        return p.toFloat();
+        // LPARAM is relative to this window's top-left but may be on a different monitor so we need to calculate the
+        // physical screen position and then convert this to local logical coordinates
+        auto r = getWindowScreenRect (hwnd);
+        const auto windowBorder = findPhysicalBorderSize().value_or (BorderSize<int>{});
+        const auto offset = p
+                          + Point { (int) r.left, (int) r.top }
+                          + Point { windowBorder.getLeft(), windowBorder.getTop() };
+        return globalToLocal (Desktop::getInstance().getDisplays().physicalToLogical (offset).toFloat());
     }
 
     Point<float> getCurrentMousePos() noexcept
@@ -3765,12 +3741,12 @@ private:
 
     static ModifierKeys getMouseModifiers()
     {
-        HWNDComponentPeer::updateKeyModifiers();
+        updateKeyModifiers();
 
         int mouseMods = 0;
-        if (HWNDComponentPeer::isKeyDown (VK_LBUTTON))  mouseMods |= ModifierKeys::leftButtonModifier;
-        if (HWNDComponentPeer::isKeyDown (VK_RBUTTON))  mouseMods |= ModifierKeys::rightButtonModifier;
-        if (HWNDComponentPeer::isKeyDown (VK_MBUTTON))  mouseMods |= ModifierKeys::middleButtonModifier;
+        if (isKeyDown (VK_LBUTTON))  mouseMods |= ModifierKeys::leftButtonModifier;
+        if (isKeyDown (VK_RBUTTON))  mouseMods |= ModifierKeys::rightButtonModifier;
+        if (isKeyDown (VK_MBUTTON))  mouseMods |= ModifierKeys::middleButtonModifier;
 
         ModifierKeys::currentModifiers = ModifierKeys::currentModifiers.withoutMouseButtons().withFlags (mouseMods);
 
@@ -3821,8 +3797,12 @@ private:
                         if (const auto result = DefWindowProc (h, message, wParam, lParam); HTSIZEFIRST <= result && result <= HTSIZELAST)
                             return result;
 
-                    const auto localPoint = getLocalPointFromScreenLParam (lParam).toFloat();
-                    const auto kind = component.findControlAtPoint (localPoint);
+                    const auto physicalPoint = D2DUtilities::toPoint (getPOINTFromLParam (lParam));
+                    const auto logicalPoint = convertPhysicalScreenPointToLogical (physicalPoint, hwnd);
+                    const auto localPoint = globalToLocal (logicalPoint.toFloat());
+                    const auto componentPoint = detail::ScalingHelpers::unscaledScreenPosToScaled (component, localPoint);
+
+                    const auto kind = component.findControlAtPoint (componentPoint);
 
                     using Kind = Component::WindowControlKind;
                     switch (kind)
@@ -3993,7 +3973,7 @@ private:
             case WM_LBUTTONDOWN:
             case WM_MBUTTONDOWN:
             case WM_RBUTTONDOWN:
-                doMouseDown (lParam, wParam, WindowArea::client);
+                doMouseDown (lParam, wParam);
                 return 0;
 
             case WM_LBUTTONUP:
@@ -4030,23 +4010,26 @@ private:
 
                 break;
 
-            case WM_EXITSIZEMOVE:
-                if (renderContext != nullptr)
-                    renderContext->setResizing (false);
-
+            //==============================================================================
+            case WM_ENTERSIZEMOVE:
+                sizing = true;
                 break;
 
-            //==============================================================================
-            case WM_SIZING:
-                if (renderContext != nullptr)
-                    renderContext->setResizing (true);
+            case WM_EXITSIZEMOVE:
+                sizing = false;
+                break;
 
+            case WM_SIZING:
+                sizing = true;
                 return handleSizeConstraining (*(RECT*) lParam, wParam);
 
             case WM_MOVING:
                 return handleSizeConstraining (*(RECT*) lParam, 0);
 
             case WM_WINDOWPOSCHANGING:
+                if (hasTitleBar() && sizing)
+                    break;
+
                 return handlePositionChanging (*(WINDOWPOS*) lParam);
 
             case 0x2e0: /* WM_DPICHANGED */  return handleDPIChanging ((int) HIWORD (wParam), *(RECT*) lParam);
@@ -4127,7 +4110,7 @@ private:
 
                 if (auto* modal = Component::getCurrentlyModalComponent())
                     if (auto* peer = modal->getPeer())
-                        if ((peer->getStyleFlags() & ComponentPeer::windowIsTemporary) != 0)
+                        if ((peer->getStyleFlags() & windowIsTemporary) != 0)
                             sendInputAttemptWhenModalMessage();
 
                 break;
@@ -4303,17 +4286,33 @@ private:
                 switch (wParam)
                 {
                     case HTCLOSE:
-                        PostMessage (h, WM_CLOSE, 0, 0);
+                        if ((styleFlags & windowHasCloseButton) != 0 && ! sendInputAttemptWhenModalMessage())
+                        {
+                            if (hasTitleBar())
+                                PostMessage (h, WM_CLOSE, 0, 0);
+                            else
+                                component.windowControlClickedClose();
+                        }
                         return 0;
 
                     case HTMAXBUTTON:
                         if ((styleFlags & windowHasMaximiseButton) != 0 && ! sendInputAttemptWhenModalMessage())
-                            setFullScreen (! isFullScreen());
+                        {
+                            if (hasTitleBar())
+                                setFullScreen (! isFullScreen());
+                            else
+                                component.windowControlClickedMaximise();
+                        }
                         return 0;
 
                     case HTMINBUTTON:
                         if ((styleFlags & windowHasMinimiseButton) != 0 && ! sendInputAttemptWhenModalMessage())
-                            setMinimised (true);
+                        {
+                            if (hasTitleBar())
+                                setMinimised (true);
+                            else
+                                component.windowControlClickedMinimise();
+                        }
                         return 0;
                 }
                 break;
@@ -4326,7 +4325,7 @@ private:
             case WM_IME_SETCONTEXT:
                 imeHandler.handleSetContext (h, wParam == TRUE);
                 lParam &= ~(LPARAM) ISC_SHOWUICOMPOSITIONWINDOW;
-                return ImmIsUIMessage (h, message, wParam, lParam);
+                break;
 
             case WM_IME_STARTCOMPOSITION:  imeHandler.handleStartComposition (*this); return 0;
             case WM_IME_ENDCOMPOSITION:    imeHandler.handleEndComposition (*this, h); return 0;
@@ -4584,9 +4583,10 @@ private:
         {
             if (auto* targetComp = dynamic_cast<Component*> (target))
             {
-                auto area = peer.getComponent().getLocalArea (targetComp, target->getCaretRectangle());
+                const auto screenPos = targetComp->localPointToGlobal (target->getCaretRectangle().getBottomLeft());
+                const auto relativePos = peer.globalToLocal (screenPos) * peer.getPlatformScaleFactor();
 
-                CANDIDATEFORM pos = { 0, CFS_CANDIDATEPOS, { area.getX(), area.getBottom() }, { 0, 0, 0, 0 } };
+                CANDIDATEFORM pos { 0, CFS_CANDIDATEPOS, D2DUtilities::toPOINT (relativePos), { 0, 0, 0, 0 } };
                 ImmSetCandidateWindow (hImc, &pos);
             }
         }
@@ -4819,11 +4819,8 @@ public:
              : createSnapshotOfNormalWindow();
     }
 
-    void setSize (int, int) override {}
     void onVBlank() override {}
 
-    void setResizing (bool x) override { resizing = x; }
-    bool getResizing() const override { return resizing; }
     void handleShowWindow() override {}
 
 private:
@@ -4980,7 +4977,7 @@ private:
                     peer.handlePaint (*context);
                 }
 
-                auto* image = static_cast<WindowsBitmapImage*> (offscreenImage.getPixelData());
+                auto* image = static_cast<WindowsBitmapImage*> (offscreenImage.getPixelData().get());
 
                 if (perPixelTransparent)
                 {
@@ -5062,10 +5059,10 @@ private:
     HWNDComponentPeer& peer;
     TemporaryImage offscreenImageGenerator;
     RectangleList<int> deferredRepaints;
-    bool resizing = false;
 };
 
-class D2DRenderContext : public RenderContext
+class D2DRenderContext : public RenderContext,
+                         private Direct2DHwndContext::SwapchainDelegate
 {
 public:
     static constexpr auto name = "Direct2D";
@@ -5084,7 +5081,7 @@ public:
         if (transparent != direct2DContext->supportsTransparency())
         {
             direct2DContext.reset();
-            direct2DContext = getContextForPeer (peer);
+            direct2DContext = getContextForPeer (peer, *this);
         }
 
         if (direct2DContext->supportsTransparency())
@@ -5126,24 +5123,6 @@ public:
         handleDirect2DPaint();
     }
 
-    void setResizing (bool x) override
-    {
-        direct2DContext->setResizing (x);
-    }
-
-    bool getResizing() const override
-    {
-        return direct2DContext->getResizing();
-    }
-
-    void setSize (int w, int h) override
-    {
-        JUCE_TRACE_LOG_D2D_RESIZE (WM_NCCALCSIZE);
-
-        if (peer.getComponent().isVisible())
-            direct2DContext->setSize (w, h);
-    }
-
     void handleShowWindow() override
     {
         direct2DContext->handleShowWindow();
@@ -5151,14 +5130,16 @@ public:
     }
 
 private:
+    void onSwapchainEvent() override
+    {
+        handleDirect2DPaint();
+    }
+
     struct WrappedD2DHwndContextBase
     {
         virtual ~WrappedD2DHwndContextBase() = default;
         virtual void addDeferredRepaint (Rectangle<int> area) = 0;
         virtual Image createSnapshot() const = 0;
-        virtual void setResizing (bool x) = 0;
-        virtual bool getResizing() const = 0;
-        virtual void setSize (int w, int h) = 0;
         virtual void handleShowWindow() = 0;
         virtual LowLevelGraphicsContext* startFrame (float dpiScale) = 0;
         virtual void endFrame() = 0;
@@ -5184,7 +5165,8 @@ private:
     class WrappedD2DHwndContext : public WrappedD2DHwndContextBase
     {
     public:
-        explicit WrappedD2DHwndContext (HWND hwnd) : ctx (hwnd) {}
+        WrappedD2DHwndContext (HWND hwnd, SwapchainDelegate& swapDelegate)
+            : ctx (hwnd, swapDelegate) {}
 
         void addDeferredRepaint (Rectangle<int> area) override
         {
@@ -5194,21 +5176,6 @@ private:
         Image createSnapshot() const override
         {
             return ctx.createSnapshot();
-        }
-
-        void setResizing (bool x) override
-        {
-            ctx.setResizing (x);
-        }
-
-        bool getResizing() const override
-        {
-            return ctx.getResizing();
-        }
-
-        void setSize (int w, int h) override
-        {
-            ctx.setSize (w, h);
         }
 
         void handleShowWindow() override
@@ -5317,7 +5284,7 @@ private:
 
         Image getImage() const
         {
-            return Image { new Direct2DPixelData { deviceContext, bitmap } };
+            return Image { new Direct2DPixelData { adapter->direct2DDevice, bitmap } };
         }
 
         ComSmartPtr<ID2D1Bitmap1> getBitmap() const
@@ -5383,10 +5350,6 @@ private:
             return renderer.getImage();
         }
 
-        void setResizing (bool x) override { resizing = x; }
-        bool getResizing() const override { return resizing; }
-
-        void setSize (int, int) override {}
         void handleShowWindow() override {}
 
         LowLevelGraphicsContext* startFrame (float scale) override
@@ -5478,7 +5441,6 @@ private:
 
         DxgiBitmapRenderer bitmapRenderer;
         RectangleList<int> deferredRepaints;
-        bool resizing = false;
     };
 
     void handleDirect2DPaint()
@@ -5520,17 +5482,18 @@ private:
        #endif
     }
 
-    static std::unique_ptr<WrappedD2DHwndContextBase> getContextForPeer (HWNDComponentPeer& peer)
+    static std::unique_ptr<WrappedD2DHwndContextBase> getContextForPeer (HWNDComponentPeer& peer,
+                                                                         SwapchainDelegate& delegate)
     {
         if (peer.getTransparencyKind() != HWNDComponentPeer::TransparencyKind::opaque)
             return std::make_unique<WrappedD2DHwndContextTransparent> (peer);
 
-        return std::make_unique<WrappedD2DHwndContext> (peer.getHWND());
+        return std::make_unique<WrappedD2DHwndContext> (peer.getHWND(), delegate);
     }
 
     HWNDComponentPeer& peer;
 
-    std::unique_ptr<WrappedD2DHwndContextBase> direct2DContext = getContextForPeer (peer);
+    std::unique_ptr<WrappedD2DHwndContextBase> direct2DContext = getContextForPeer (peer, *this);
     UpdateRegion updateRegion;
 
    #if JUCE_ETW_TRACELOGGING
@@ -5627,8 +5590,6 @@ JUCE_API ComponentPeer* createNonRepaintingEmbeddedWindowsPeer (Component& compo
 
     return nullptr;
 }
-
-JUCE_IMPLEMENT_SINGLETON (HWNDComponentPeer::WindowClassHolder)
 
 //==============================================================================
 bool KeyPress::isKeyCurrentlyDown (const int keyCode)

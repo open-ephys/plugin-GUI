@@ -44,7 +44,7 @@ public:
     VBlankThread (ComSmartPtr<IDXGIOutput> out,
                   HMONITOR mon,
                   VBlankListener& listener)
-        : Thread ("VBlankThread"),
+        : Thread (SystemStats::getJUCEVersion() + ": VBlankThread"),
           output (out),
           monitor (mon)
     {
@@ -56,12 +56,7 @@ public:
     {
         cancelPendingUpdate();
 
-        {
-            const std::scoped_lock lock { mutex };
-            threadState = ThreadState::exit;
-        }
-
-        condvar.notify_one();
+        state |= flagExit;
 
         stopThread (-1);
     }
@@ -121,59 +116,51 @@ private:
         {
             if (output->WaitForVBlank() == S_OK)
             {
-                if (const auto now = Time::getMillisecondCounterHiRes();
-                    now - std::exchange (lastVBlankEvent, now) < 1.0)
-                {
-                    Thread::sleep (1);
-                }
+                const auto now = Time::getMillisecondCounterHiRes();
 
-                std::unique_lock lock { mutex };
-                condvar.wait (lock, [this] { return threadState != ThreadState::sleep; });
+                if (now - lastVBlankEvent.exchange (now) < 1.0)
+                    sleep (1);
 
-                if (threadState == ThreadState::exit)
+                const auto stateToRead = state.fetch_or (flagPaintPending);
+
+                if ((stateToRead & flagExit) != 0)
                     return;
 
-                threadState = ThreadState::sleep;
+                if ((stateToRead & flagPaintPending) != 0)
+                    continue;
+
                 triggerAsyncUpdate();
             }
             else
             {
-                Thread::sleep (1);
+                sleep (1);
             }
         }
     }
 
     void handleAsyncUpdate() override
     {
+        const auto timestampSec = lastVBlankEvent / 1000.0;
+
         for (auto& listener : listeners)
-            listener.get().onVBlank();
+            listener.get().onVBlank (timestampSec);
 
-        {
-            const std::scoped_lock lock { mutex };
-
-            if (threadState == ThreadState::sleep)
-                threadState = ThreadState::paint;
-        }
-
-        condvar.notify_one();
+        state &= ~flagPaintPending;
     }
+
+    enum Flags
+    {
+        flagExit = 1 << 0,
+        flagPaintPending = 1 << 1,
+    };
 
     //==============================================================================
     ComSmartPtr<IDXGIOutput> output;
     HMONITOR monitor = nullptr;
     std::vector<std::reference_wrapper<VBlankListener>> listeners;
 
-    enum class ThreadState
-    {
-        sleep,
-        paint,
-        exit,
-    };
-
-    double lastVBlankEvent = 0.0;
-    ThreadState threadState = ThreadState::paint;
-    std::condition_variable condvar;
-    std::mutex mutex;
+    std::atomic<double> lastVBlankEvent{};
+    std::atomic<int> state{};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VBlankThread)
     JUCE_DECLARE_NON_MOVEABLE (VBlankThread)
@@ -225,7 +212,6 @@ public:
         if (threadWithListener != threads.end())
             removeListener (threadWithListener, listener);
 
-        SharedResourcePointer<DirectX> directX;
         for (const auto& adapter : directX->adapters.getAdapterArray())
         {
             UINT i = 0;
@@ -253,7 +239,6 @@ public:
 
     void reconfigureDisplays()
     {
-        SharedResourcePointer<DirectX> directX;
         directX->adapters.updateAdapters();
 
         for (auto& thread : threads)
@@ -265,7 +250,7 @@ public:
                        threads.end());
     }
 
-    JUCE_DECLARE_SINGLETON_SINGLETHREADED (VBlankDispatcher, false)
+    JUCE_DECLARE_SINGLETON_SINGLETHREADED_INLINE (VBlankDispatcher, false)
 
 private:
     //==============================================================================
@@ -299,11 +284,10 @@ private:
 
     //==============================================================================
     Threads threads;
+    SharedResourcePointer<DirectX> directX;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VBlankDispatcher)
     JUCE_DECLARE_NON_MOVEABLE (VBlankDispatcher)
 };
-
-JUCE_IMPLEMENT_SINGLETON (VBlankDispatcher)
 
 } // namespace juce

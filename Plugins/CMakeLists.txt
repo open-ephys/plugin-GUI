@@ -1,6 +1,6 @@
 # Open Ephys GUI main plugin build file. Cannot be used standalone, but called
 # by the main GUI build file
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.15)
 
 project(open-ephys-plugins)
 set(PLUGIN_HEADER_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Headers)

@@ -32,7 +32,7 @@
 #include <mutex>
 #include <string>
 
-#include "../Processors/PluginManager/OpenEphysPlugin.h"
+#include "../Processors/PluginManager/PluginAPI.h"
 
 /* Thread-safe logger */
 class PLUGIN_API OELogger

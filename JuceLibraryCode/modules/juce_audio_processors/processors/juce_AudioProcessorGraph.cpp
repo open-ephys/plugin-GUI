@@ -473,10 +473,14 @@ public:
 
                 preparedNodes.insert (node->nodeID);
 
-                node->getProcessor()->setProcessingPrecision (node->getProcessor()->supportsDoublePrecisionProcessing() ? current->precision
-                                                                                                                        : AudioProcessor::singlePrecision);
-                node->getProcessor()->setRateAndBufferSizeDetails (current->sampleRate, current->blockSize);
-                node->getProcessor()->prepareToPlay               (current->sampleRate, current->blockSize);
+                auto* nodeProcessor = node->getProcessor();
+                const auto precision = nodeProcessor->supportsDoublePrecisionProcessing()
+                                     ? current->precision
+                                     : AudioProcessor::singlePrecision;
+
+                nodeProcessor->setProcessingPrecision (precision);
+                nodeProcessor->setRateAndBufferSizeDetails (current->sampleRate, current->blockSize);
+                nodeProcessor->prepareToPlay               (current->sampleRate, current->blockSize);
             }
         }
 
@@ -788,7 +792,11 @@ struct GraphRenderSequence
                 }
             }
 
-            return std::make_unique<ProcessOp> (node, audioChannelsUsed, totalNumChans, midiBuffer);
+            return std::make_unique<ProcessOp> (node,
+                                                audioChannelsUsed,
+                                                totalNumChans,
+                                                midiBuffer,
+                                                *precisionConversionBuffer);
         }();
 
         renderOps.push_back (std::move (op));
@@ -800,6 +808,8 @@ struct GraphRenderSequence
         renderingBuffer.clear();
         currentAudioOutputBuffer.setSize (numBuffersNeeded + 1, blockSize);
         currentAudioOutputBuffer.clear();
+
+        precisionConversionBuffer->setSize (numBuffersNeeded, blockSize);
 
         currentMidiOutputBuffer.clear();
 
@@ -898,10 +908,18 @@ private:
 
     struct ProcessOp final : public NodeOp
     {
-        using NodeOp::NodeOp;
+        ProcessOp (const Node::Ptr& n,
+                   const Array<int>& audioChannelsUsed,
+                   int totalNumChans,
+                   int midiBufferIndex,
+                   AudioBuffer<float>& tempBuffer)
+            : NodeOp (n, audioChannelsUsed, totalNumChans, midiBufferIndex),
+              temporaryBuffer (tempBuffer)
+        {}
 
         void processWithBuffer (const GlobalIO&, bool bypass, AudioBuffer<FloatType>& audio, MidiBuffer& midi) final
         {
+            const ScopedLock lock { this->processor.getCallbackLock() };
             callProcess (bypass, audio, midi);
         }
 
@@ -909,9 +927,14 @@ private:
         {
             if (this->processor.isUsingDoublePrecision())
             {
-                tempBufferDouble.makeCopyOf (buffer, true);
-                processImpl (bypass, this->processor, tempBufferDouble, midi);
-                buffer.makeCopyOf (tempBufferDouble, true);
+                // The graph is processing in single-precision, but this node is expecting a
+                // double-precision buffer. If the graph is using single-precision, it
+                // should also have set its internal nodes to use single-precision
+                // during prepareToPlay(). You should avoid calling setProcessingPrecision()
+                // directly on processors within an AudioProcessorGraph.
+                jassertfalse;
+                buffer.clear();
+                midi.clear();
             }
             else
             {
@@ -927,9 +950,11 @@ private:
             }
             else
             {
-                tempBufferFloat.makeCopyOf (buffer, true);
-                processImpl (bypass, this->processor, tempBufferFloat, midi);
-                buffer.makeCopyOf (tempBufferFloat, true);
+                // This branch will be taken if the graph is configured for double-precision but
+                // this node only supports single-precision.
+                temporaryBuffer.makeCopyOf (buffer, true);
+                processImpl (bypass, this->processor, temporaryBuffer, midi);
+                buffer.makeCopyOf (temporaryBuffer, true);
             }
         }
 
@@ -942,7 +967,7 @@ private:
                 p.processBlock (audio, midi);
         }
 
-        AudioBuffer<float> tempBufferFloat, tempBufferDouble;
+        AudioBuffer<float>& temporaryBuffer;
     };
 
     struct MidiInOp final : public NodeOp
@@ -996,6 +1021,8 @@ private:
     };
 
     std::vector<std::unique_ptr<RenderOp>> renderOps;
+
+    std::unique_ptr<AudioBuffer<float>> precisionConversionBuffer = std::make_unique<AudioBuffer<float>>();
 };
 
 //==============================================================================
@@ -1035,20 +1062,20 @@ private:
     {
         NodeAndChannel channel;
 
-        static AssignedBuffer createReadOnlyEmpty() noexcept    { return { { zeroNodeID(), 0 } }; }
-        static AssignedBuffer createFree() noexcept             { return { { freeNodeID(), 0 } }; }
+        static constexpr AssignedBuffer createReadOnlyEmpty() noexcept    { return { { zeroNodeID, 0 } }; }
+        static constexpr AssignedBuffer createFree() noexcept             { return { { freeNodeID, 0 } }; }
 
-        bool isReadOnlyEmpty() const noexcept                   { return channel.nodeID == zeroNodeID(); }
-        bool isFree() const noexcept                            { return channel.nodeID == freeNodeID(); }
-        bool isAssigned() const noexcept                        { return ! (isReadOnlyEmpty() || isFree()); }
+        constexpr bool isReadOnlyEmpty() const noexcept                   { return channel.nodeID == zeroNodeID; }
+        constexpr bool isFree() const noexcept                            { return channel.nodeID == freeNodeID; }
+        constexpr bool isAssigned() const noexcept                        { return ! (isReadOnlyEmpty() || isFree()); }
 
-        void setFree() noexcept                                 { channel = { freeNodeID(), 0 }; }
-        void setAssignedToNonExistentNode() noexcept            { channel = { anonNodeID(), 0 }; }
+        constexpr void setFree() noexcept                                 { channel = { freeNodeID, 0 }; }
+        constexpr void setAssignedToNonExistentNode() noexcept            { channel = { anonNodeID, 0 }; }
 
     private:
-        static NodeID anonNodeID() { return NodeID (0x7ffffffd); }
-        static NodeID zeroNodeID() { return NodeID (0x7ffffffe); }
-        static NodeID freeNodeID() { return NodeID (0x7fffffff); }
+        constexpr static inline NodeID anonNodeID { 0x7ffffffd };
+        constexpr static inline NodeID zeroNodeID { 0x7ffffffe };
+        constexpr static inline NodeID freeNodeID { 0x7fffffff };
     };
 
     Array<AssignedBuffer> audioBuffers, midiBuffers;
@@ -1678,34 +1705,6 @@ private:
 };
 
 //==============================================================================
-AudioProcessorGraph::Connection::Connection (NodeAndChannel src, NodeAndChannel dst) noexcept
-    : source (src), destination (dst)
-{
-}
-
-bool AudioProcessorGraph::Connection::operator== (const Connection& other) const noexcept
-{
-    return source == other.source && destination == other.destination;
-}
-
-bool AudioProcessorGraph::Connection::operator!= (const Connection& c) const noexcept
-{
-    return ! operator== (c);
-}
-
-bool AudioProcessorGraph::Connection::operator< (const Connection& other) const noexcept
-{
-    const auto tie = [] (auto& x)
-    {
-        return std::tie (x.source.nodeID,
-                         x.destination.nodeID,
-                         x.source.channelIndex,
-                         x.destination.channelIndex);
-    };
-    return tie (*this) < tie (other);
-}
-
-//==============================================================================
 class AudioProcessorGraph::Pimpl
 {
 public:
@@ -2275,6 +2274,63 @@ public:
             expect (graph.getLatencySamples() == nodeALatency + nodeBLatency + finalLatency);
         }
 
+        beginTest ("nodes use double precision if supported");
+        {
+            AudioProcessorGraph graph;
+            constexpr auto blockSize = 512;
+            AudioBuffer<float>  bufferFloat  (2, blockSize);
+            AudioBuffer<double> bufferDouble (2, blockSize);
+            MidiBuffer midi;
+
+            auto processorOwner = BasicProcessor::make (BasicProcessor::getStereoProperties(), MidiIn::no, MidiOut::no);
+            auto* processor = processorOwner.get();
+            graph.addNode (std::move (processorOwner));
+
+            // Process in single-precision
+            {
+                graph.setProcessingPrecision (AudioProcessor::singlePrecision);
+                graph.prepareToPlay (44100.0, blockSize);
+
+                graph.processBlock (bufferFloat, midi);
+                expect (processor->getProcessingPrecision() == AudioProcessor::singlePrecision);
+                expect (processor->getLastBlockPrecision() == AudioProcessor::singlePrecision);
+
+                graph.releaseResources();
+            }
+
+            // Process in double-precision
+            {
+                graph.setProcessingPrecision (AudioProcessor::doublePrecision);
+                graph.prepareToPlay (44100.0, blockSize);
+
+                graph.processBlock (bufferDouble, midi);
+                expect (processor->getProcessingPrecision() == AudioProcessor::doublePrecision);
+                expect (processor->getLastBlockPrecision() == AudioProcessor::doublePrecision);
+
+                graph.releaseResources();
+            }
+
+            // Process in double-precision when node only supports single-precision
+            {
+                processor->setSupportsDoublePrecisionProcessing (false);
+
+                graph.setProcessingPrecision (AudioProcessor::doublePrecision);
+                graph.prepareToPlay (44100.0, blockSize);
+
+                graph.processBlock (bufferDouble, midi);
+                expect (processor->getProcessingPrecision() == AudioProcessor::singlePrecision);
+                expect (processor->getLastBlockPrecision() == AudioProcessor::singlePrecision);
+
+                graph.releaseResources();
+            }
+
+            // It's not possible for the node to *only* support double-precision.
+            // It's also not possible to prepare the graph in single-precision mode, and then
+            // to set an individual node into double-precision mode. This would require calling
+            // prepareToPlay() on an individual node after preparing the graph as a whole, which is
+            // not a supported usage pattern.
+        }
+
         beginTest ("large render sequence can be built");
         {
             AudioProcessorGraph graph;
@@ -2331,15 +2387,22 @@ private:
         void setStateInformation (const void*, int) override          {}
         void prepareToPlay (double, int) override                     {}
         void releaseResources() override                              {}
-        void processBlock (AudioBuffer<float>&, MidiBuffer&) override {}
-        bool supportsDoublePrecisionProcessing() const override       { return true; }
+        bool supportsDoublePrecisionProcessing() const override       { return doublePrecisionSupported; }
         bool isMidiEffect() const override                            { return {}; }
         void reset() override                                         {}
         void setNonRealtime (bool) noexcept override                  {}
 
-        using AudioProcessor::processBlock;
+        void processBlock (AudioBuffer<float>&, MidiBuffer&) override
+        {
+            blockPrecision = singlePrecision;
+        }
 
-        static std::unique_ptr<AudioProcessor> make (const BusesProperties& layout,
+        void processBlock (AudioBuffer<double>&, MidiBuffer&) override
+        {
+            blockPrecision = doublePrecision;
+        }
+
+        static std::unique_ptr<BasicProcessor> make (const BusesProperties& layout,
                                                      MidiIn midiIn,
                                                      MidiOut midiOut)
         {
@@ -2363,9 +2426,15 @@ private:
                                     .withOutput ("out", AudioChannelSet::discreteChannels (numChannels));
         }
 
+        void setSupportsDoublePrecisionProcessing (bool x) { doublePrecisionSupported = x; }
+
+        ProcessingPrecision getLastBlockPrecision() const { return blockPrecision; }
+
     private:
         MidiIn midiIn;
         MidiOut midiOut;
+        ProcessingPrecision blockPrecision = ProcessingPrecision (-1); // initially invalid
+        bool doublePrecisionSupported = true;
     };
 };
 

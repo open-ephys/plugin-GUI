@@ -728,6 +728,8 @@ private:
     CriticalSection activeCollectorLock;
     ReferenceCountedArray<MidiInCollector> activeCollectors;
     Array<MidiOutHandle*> activeOutputHandles;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Win32MidiService)
 };
 
 Array<Win32MidiService::MidiInCollector*, CriticalSection> Win32MidiService::MidiInCollector::activeMidiCollectors;
@@ -1029,7 +1031,7 @@ private:
                                      EventRegistrationToken& added,
                                      EventRegistrationToken& removed,
                                      EventRegistrationToken& updated)
-                    : Thread ("WinRT Device Enumeration Thread"), handler (h), watcher (w),
+                    : Thread (SystemStats::getJUCEVersion() + ": WinRT Device Enumeration Thread"), handler (h), watcher (w),
                       deviceAddedToken (added), deviceRemovedToken (removed), deviceUpdatedToken (updated)
             {}
 
@@ -1879,7 +1881,7 @@ struct MidiService final : public DeletedAtShutdown
         return *getInstance()->internal.get();
     }
 
-    JUCE_DECLARE_SINGLETON (MidiService, false)
+    JUCE_DECLARE_SINGLETON_INLINE (MidiService, false)
 
 private:
     std::unique_ptr<MidiServiceType> internal;
@@ -1888,8 +1890,6 @@ private:
         MidiDeviceListConnectionBroadcaster::get().notify();
     } };
 };
-
-JUCE_IMPLEMENT_SINGLETON (MidiService)
 
 //==============================================================================
 static int findDefaultDeviceIndex (const Array<MidiDeviceInfo>& available, const MidiDeviceInfo& defaultDevice)

@@ -161,6 +161,9 @@ public:
     /** Destructor */
     ~PopupThresholdComponent();
 
+    /** Paint the component background */
+    void paint (Graphics& g) override;
+
     /** Creates the threshold sliders */
     void createSliders();
 

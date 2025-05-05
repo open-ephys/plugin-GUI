@@ -58,14 +58,14 @@ namespace
 
         const auto defaultPort = []
         {
-           #if defined (MAC_OS_VERSION_12_0) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_VERSION_12_0
+           #if JUCE_MAC_API_VERSION_CAN_BE_BUILT (12, 0)
             if (@available (macOS 12.0, *))
                 return kIOMainPortDefault;
            #endif
 
-            JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
+            JUCE_BEGIN_IGNORE_DEPRECATION_WARNINGS
             return kIOMasterPortDefault;
-            JUCE_END_IGNORE_WARNINGS_GCC_LIKE
+            JUCE_END_IGNORE_DEPRECATION_WARNINGS
         }();
 
         if (IOServiceGetMatchingServices (defaultPort, dict, &iter) == kIOReturnSuccess

@@ -127,10 +127,20 @@ TextBoxParameterEditor::TextBoxParameterEditor (Parameter* param, int rowHeightP
     label->setFont (labelFont);
     addAndMakeVisible (label.get());
 
-    if (param->getType() == Parameter::FLOAT_PARAM)
-        valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), String (float (param->getValue())), "0123456789.", ((FloatParameter*) param)->getUnit());
-    else if (param->getType() == Parameter::INT_PARAM)
-        valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), String (int (param->getValue())), "0123456789");
+    if (param->getType() == Parameter::FLOAT_PARAM) {
+        if (((FloatParameter*) param)->getMinValue() < 0) {
+            valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), String (float (param->getValue())), "-0123456789.");
+        } else {
+            valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), String (float (param->getValue())), "0123456789.");
+        }
+    }
+    else if (param->getType() == Parameter::INT_PARAM) {
+        if (((IntParameter*) param)->getMinValue() < 0) {
+            valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), String (int (param->getValue())), "-0123456789");
+        } else {
+            valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), String (int (param->getValue())), "0123456789");
+        }
+    }
     else
         valueTextBox = std::make_unique<CustomTextBox> (param->getKey(), param->getValue().toString(), "");
 

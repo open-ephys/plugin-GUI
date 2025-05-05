@@ -800,6 +800,10 @@ namespace WavFileHelpers
                         {
                             MemoryBlock mb;
                             input.readIntoMemoryBlock (mb, (ssize_t) infoLength);
+
+                            if (infoLength & 1)
+                                input.skipNextBytes (1);
+
                             values[type] = String::createStringFromData ((const char*) mb.getData(),
                                                                          (int) mb.getSize());
                             break;
@@ -1273,16 +1277,18 @@ public:
                     // read the format chunk
                     auto format = (unsigned short) input->readShort();
                     numChannels = (unsigned int) input->readShort();
-                    sampleRate = input->readInt();
-                    auto bytesPerSec = input->readInt();
+                    const auto intSampleRate = (uint32_t) input->readInt();
+                    sampleRate = intSampleRate;
+                    auto bytesPerSec = (uint32_t) input->readInt();
                     input->skipNextBytes (2);
                     bitsPerSample = (unsigned int) (int) input->readShort();
 
-                    if (bitsPerSample > 64 && (int) sampleRate != 0)
+                    if (bitsPerSample > 64 && intSampleRate > 0)
                     {
-                        bytesPerFrame = bytesPerSec / (int) sampleRate;
+                        bytesPerFrame = (int) (bytesPerSec / intSampleRate);
+                        jassert (bytesPerFrame >= 0);
 
-                        if (numChannels != 0)
+                        if (numChannels > 0)
                             bitsPerSample = 8 * (unsigned int) bytesPerFrame / numChannels;
                     }
                     else
@@ -2145,7 +2151,11 @@ struct WaveAudioFormatTests final : public UnitTest
         for (int i = numElementsInArray (WavFileHelpers::ListInfoChunk::types); --i >= 0;)
             metadataValues[WavFileHelpers::ListInfoChunk::types[i]] = WavFileHelpers::ListInfoChunk::types[i];
 
-        metadataValues[WavAudioFormat::internationalStandardRecordingCode] = WavAudioFormat::internationalStandardRecordingCode;
+        const String prefixCode { "AA6Q7" }; // two letters followed by three alphanumeric characters
+        const String yearOfReference { "20" }; // two digits, 20 meaning the year 2020
+        const String designationCode { "00047" }; // five digits
+
+        metadataValues[WavAudioFormat::internationalStandardRecordingCode] = prefixCode + yearOfReference + designationCode;;
 
         if (metadataValues.size() > 0)
             metadataValues["MetaDataSource"] = "WAV";

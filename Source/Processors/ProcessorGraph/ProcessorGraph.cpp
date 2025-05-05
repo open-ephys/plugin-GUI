@@ -1950,6 +1950,7 @@ void ProcessorGraph::loadFromXml (XmlElement* xml)
     {
         MouseCursor::showWaitCursor();
 
+        AccessClass::getUIComponent()->setUIBusy (true);
         AccessClass::getUIComponent()->loadStateFromXml (xml); // load the UI settings first
         AccessClass::getProcessorList()->loadStateFromXml (xml); // load the processor list settings (may override theme colours)
     }
@@ -2050,6 +2051,7 @@ void ProcessorGraph::loadFromXml (XmlElement* xml)
         if (graphViewerXml != nullptr)
             AccessClass::getGraphViewer()->loadStateFromXml (graphViewerXml);
 
+        AccessClass::getUIComponent()->setUIBusy (false);
         MouseCursor::hideWaitCursor();
     }
 

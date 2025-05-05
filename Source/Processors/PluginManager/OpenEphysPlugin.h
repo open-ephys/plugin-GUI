@@ -25,18 +25,8 @@
 #define OPENEPHYSPLUGIN_H_INCLUDED
 
 #include <JuceHeader.h>
-
+#include "PluginAPI.h"
 #include "PluginIDs.h"
-
-#ifdef _WIN32
-#ifdef OEPLUGIN
-#define PLUGIN_API __declspec (dllimport)
-#else
-#define PLUGIN_API __declspec (dllexport)
-#endif
-#else
-#define PLUGIN_API __attribute__ ((visibility ("default")))
-#endif
 
 struct ProcessorInfo;
 struct LibraryInfo;
@@ -47,7 +37,7 @@ class SourceNode;
 class RecordEngineManager;
 class FileSource;
 
-#define PLUGIN_API_VER 9
+#define PLUGIN_API_VER 10
 
 typedef GenericProcessor* (*ProcessorCreator)();
 typedef DataThread* (*DataThreadCreator) (SourceNode*);

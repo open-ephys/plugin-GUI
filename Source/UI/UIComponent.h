@@ -201,6 +201,12 @@ public:
     of the MainWindow, or to account for opening/closing events.*/
     void resized();
 
+    /** Paints the an overlay on the UIComponent to show busy state */
+    void paintOverChildren (Graphics& g) override;
+
+    /** Sets the busy state of the UIComponent */
+    void setUIBusy (bool busy);
+
 private:
     ScopedPointer<DataViewport> dataViewport;
     ScopedPointer<SignalChainTabComponent> signalChainTabComponent;
@@ -293,6 +299,8 @@ private:
     bool messageCenterIsCollapsed = true;
 
     CustomLookAndFeel* customLookAndFeel;
+
+    bool isBusy = false;
 
     /** Set the rendering engine to use on Windows - Software (CPU) or Direct2D (GPU))*/
     void setRenderingEngine (int engineIndex);

@@ -70,15 +70,13 @@
  #import <IOKit/pwr_mgt/IOPMLib.h>
  #import <MetalKit/MetalKit.h>
 
- #if defined (MAC_OS_VERSION_14_4) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_VERSION_14_4
+ #if JUCE_MAC_API_VERSION_MIN_REQUIRED_AT_LEAST (14, 4)
   #import <ScreenCaptureKit/ScreenCaptureKit.h>
  #endif
 
 #elif JUCE_IOS
- #if JUCE_PUSH_NOTIFICATIONS
-  #import <UserNotifications/UserNotifications.h>
- #endif
-
+ #import <UserNotifications/UserNotifications.h>
+ #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
  #import <MetalKit/MetalKit.h>
  #import <UIKit/UIActivityViewController.h>
 
@@ -93,6 +91,8 @@
  #include <vfw.h>
  #include <windowsx.h>
  #include <dwmapi.h>
+ #include <dwrite_3.h>
+ #include <dcomp.h>
 
  #if JUCE_ETW_TRACELOGGING
   #include <TraceLoggingProvider.h>
@@ -192,15 +192,20 @@
   #include "native/juce_NativeMessageBox_mac.mm"
   #include "native/juce_MainMenu_mac.mm"
   #include "native/juce_FileChooser_mac.mm"
+  #include "detail/juce_ComponentPeerHelpers.h"
+  #include "detail/juce_ComponentPeerHelpers.cpp"
  #endif
 
  #include "native/juce_MouseCursor_mac.mm"
 
 #elif JUCE_WINDOWS
+ #include <juce_graphics/fonts/juce_FunctionPointerDestructor.h>
  #include <juce_graphics/native/juce_Direct2DMetrics_windows.h>
  #include <juce_graphics/native/juce_Direct2DGraphicsContext_windows.h>
- #include <juce_graphics/native/juce_Direct2DHwndContext_windows.h>
  #include <juce_graphics/native/juce_DirectX_windows.h>
+ #include <juce_graphics/native/juce_Direct2DPixelDataPage_windows.h>
+ #include <juce_graphics/images/juce_ImagePixelDataNativeExtensions.h>
+ #include <juce_graphics/native/juce_Direct2DGraphicsContextImpl_windows.h>
  #include <juce_graphics/native/juce_Direct2DImage_windows.h>
  #include <juce_graphics/native/juce_Direct2DImageContext_windows.h>
 
@@ -210,6 +215,8 @@
  #include "native/accessibility/juce_UIAProviders_windows.h"
  #include "native/accessibility/juce_AccessibilityElement_windows.cpp"
  #include "native/accessibility/juce_Accessibility_windows.cpp"
+ #include "native/juce_Direct2DHwndContext_windows.h"
+ #include "native/juce_Direct2DHwndContext_windows.cpp"
  #include "native/juce_WindowsHooks_windows.h"
  #include "native/juce_WindowUtils_windows.cpp"
  #include "native/juce_VBlank_windows.cpp"
@@ -370,6 +377,7 @@
 #include "widgets/juce_Slider.cpp"
 #include "widgets/juce_TableHeaderComponent.cpp"
 #include "widgets/juce_TableListBox.cpp"
+#include "widgets/juce_TextEditorModel.cpp"
 #include "widgets/juce_TextEditor.cpp"
 #include "widgets/juce_Toolbar.cpp"
 #include "widgets/juce_ToolbarItemComponent.cpp"

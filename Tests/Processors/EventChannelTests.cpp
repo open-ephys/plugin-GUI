@@ -22,7 +22,7 @@ protected:
                 EventChannel::Type::TTL,
                 "Event Channel",
                 "Event Channel Description",
-                "Event Channel Identifier",
+                "event.channel.identifier",
                 dataStream.get(),
                 8,
                 EventChannel::BinaryDataType::UINT8_ARRAY,
@@ -43,6 +43,33 @@ with a specific type
 TEST_F(EventChannelTests, GetType)
 {
     EXPECT_EQ(eventChannel->getType(), EventChannel::Type::TTL);
+}
+
+/*
+Event Channel should return the correct name when initialized
+with a specific name
+*/
+TEST_F(EventChannelTests, GetName)
+{
+    EXPECT_EQ(eventChannel->getName(), "Event Channel");
+}
+
+/*
+Event Channel should return the correct description when initialized
+with a specific description
+*/
+TEST_F(EventChannelTests, GetDescription)
+{
+    EXPECT_EQ(eventChannel->getDescription(), "Event Channel Description");
+}
+
+/*
+Event Channel should return the correct identifier when initialized
+with a specific identifier
+*/
+TEST_F(EventChannelTests, GetIdentifier)
+{
+    EXPECT_EQ(eventChannel->getIdentifier(), "event.channel.identifier");
 }
 
 /*

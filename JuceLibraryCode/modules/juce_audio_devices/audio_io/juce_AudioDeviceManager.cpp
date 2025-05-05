@@ -587,6 +587,10 @@ void AudioDeviceManager::insertDefaultDeviceNames (AudioDeviceSetup& setup) cons
         if (setup.inputDeviceName.isEmpty() && ! inputsToTest.isEmpty())
             setup.inputDeviceName = inputsToTest[0];
 
+        // No pairs to validate
+        if (outputsToTest.size() < 2 && inputsToTest.size() < 2)
+            return;
+
         // We check all possible in-out pairs until the first validation pass. If no pair passes we
         // leave the setup unchanged.
         for (const auto& out : outputsToTest)
@@ -922,10 +926,8 @@ void AudioDeviceManager::updateXml()
 
     if (currentAudioDevice != nullptr)
     {
-        lastExplicitSettings->setAttribute ("audioDeviceRate", currentAudioDevice->getCurrentSampleRate());
-
-        if (currentAudioDevice->getDefaultBufferSize() != currentAudioDevice->getCurrentBufferSizeSamples())
-            lastExplicitSettings->setAttribute ("audioDeviceBufferSize", currentAudioDevice->getCurrentBufferSizeSamples());
+        lastExplicitSettings->setAttribute ("audioDeviceRate",       currentAudioDevice->getCurrentSampleRate());
+        lastExplicitSettings->setAttribute ("audioDeviceBufferSize", currentAudioDevice->getCurrentBufferSizeSamples());
 
         if (! currentSetup.useDefaultInputChannels)
             lastExplicitSettings->setAttribute ("audioDeviceInChans", currentSetup.inputChannels.toString (2));
@@ -1398,6 +1400,8 @@ public:
 
     void runTest() override
     {
+        ScopedJuceInitialiser_GUI libraryInitialiser;
+
         beginTest ("When the AudioDeviceSetup has non-empty device names, initialise uses the requested devices");
         {
             AudioDeviceManager manager;

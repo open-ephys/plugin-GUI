@@ -32,6 +32,11 @@
   ==============================================================================
 */
 
+// This type isn't in the headers until v2.36
+#if ! WEBKIT_CHECK_VERSION (2, 36, 0)
+struct WebKitURISchemeResponse;
+#endif
+
 namespace juce
 {
 
@@ -250,7 +255,7 @@ public:
                                          (gpointer), void)
 
     //==============================================================================
-    JUCE_DECLARE_SINGLETON_SINGLETHREADED_MINIMAL (WebKitSymbols)
+    JUCE_DECLARE_SINGLETON_SINGLETHREADED_MINIMAL_INLINE (WebKitSymbols)
 
 private:
     WebKitSymbols() = default;
@@ -411,8 +416,6 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WebKitSymbols)
 };
-
-JUCE_IMPLEMENT_SINGLETON (WebKitSymbols)
 
 //==============================================================================
 extern "C" int juce_gtkWebkitMain (int argc, const char* const* argv);
@@ -1134,11 +1137,11 @@ private:
         // Using the non-deprecated webkit_javascript_result_get_js_value() functions seems easier
         // but returned values fail the JS_IS_VALUE() internal assertion. The example code from the
         // documentation doesn't seem to work either.
-        JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
+        JUCE_BEGIN_IGNORE_DEPRECATION_WARNINGS
         WebKitJavascriptResultUniquePtr jsResult { wk.juce_webkit_web_view_run_javascript_finish (owner->webview,
                                                                                                      result,
                                                                                                      &error) };
-        JUCE_END_IGNORE_WARNINGS_GCC_LIKE
+        JUCE_END_IGNORE_DEPRECATION_WARNINGS
 
         if (jsResult == nullptr)
         {
@@ -1222,7 +1225,7 @@ public:
     Platform (WebBrowserComponent& browserIn,
               const WebBrowserComponent::Options& optionsIn,
               const StringArray& userStrings)
-        : Thread ("Webview"), browser (browserIn), userAgent (optionsIn.getUserAgent())
+        : Thread (SystemStats::getJUCEVersion() + ": Webview"), browser (browserIn), userAgent (optionsIn.getUserAgent())
     {
         webKitIsAvailable = WebKitSymbols::getInstance()->isWebKitAvailable();
         init (InitialisationData { optionsIn.getNativeIntegrationsEnabled(),

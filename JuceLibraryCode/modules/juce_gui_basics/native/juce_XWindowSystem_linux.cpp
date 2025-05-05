@@ -2207,7 +2207,7 @@ void XWindowSystem::blitToWindow (::Window windowH, Image image, Rectangle<int> 
 {
     jassert (windowH != 0);
 
-    auto* xbitmap = static_cast<XBitmapImage*> (image.getPixelData());
+    auto* xbitmap = static_cast<XBitmapImage*> (image.getPixelData().get());
 
     xbitmap->blitToWindow (windowH,
                            destinationRect.getX(), destinationRect.getY(),
@@ -3773,6 +3773,8 @@ void XWindowSystem::dismissBlockingModals (LinuxComponentPeer* peer) const
 
 void XWindowSystem::handleConfigureNotifyEvent (LinuxComponentPeer* peer, XConfigureEvent& confEvent) const
 {
+    const ScopedValueSetter<bool> scope { peer->inConfigureNotifyHandler, true };
+
     peer->updateWindowBounds();
     peer->updateBorderSize();
     peer->handleMovedOrResized();
@@ -3999,8 +4001,6 @@ void XWindowSystem::windowMessageReceive (XEvent& event)
 }
 
 //==============================================================================
-JUCE_IMPLEMENT_SINGLETON (XWindowSystem)
-
 Image createSnapshotOfNativeWindow (void* window)
 {
     ::Window root;
