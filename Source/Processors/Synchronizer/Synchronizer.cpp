@@ -23,12 +23,13 @@
 
 #include "Synchronizer.h"
 
-SyncStream::SyncStream (String streamKey_, float expectedSampleRate_)
-    : streamKey (streamKey_),
+SyncStream::SyncStream (String streamKey_, float expectedSampleRate_, Synchronizer* synchronizer_)
+    : streamKey (streamKey_), synchronizer(synchronizer_),
       expectedSampleRate (expectedSampleRate_),
       actualSampleRate (-1.0f),
       isActive (true)
 {
+    LOGD ("Created sync stream ", streamKey, " with sample rate ", expectedSampleRate);
 }
 
 void SyncStream::reset (String mainStreamKey)
@@ -143,7 +144,8 @@ double SyncStream::getSyncAccuracy()
 
 void SyncStream::syncWith (const SyncStream* mainStream)
 {
-    //LOGC ("Synchronizing ", streamKey, " with ", mainStream->streamKey, "...")
+    LOGC ("Synchronizing ", streamKey, " with ", mainStream->streamKey, "...");
+    LOGD ("Expected sample rate: ", expectedSampleRate);
 
     if (mainStream->pulses.size() < 2 || pulses.size() < 2)
     {
@@ -168,6 +170,7 @@ void SyncStream::syncWith (const SyncStream* mainStream)
                     {
                         if (pulses.size() > localIndex + 3 && mainStream->pulses.size() > index + 3)
                         {
+                            // previous three pulses also match
                             if (comparePulses (pulses[localIndex + 1], mainStream->pulses[index + 1])
                                 && comparePulses (pulses[localIndex + 2], mainStream->pulses[index + 2])
                                 && comparePulses (pulses[localIndex + 3], mainStream->pulses[index + 3]))
@@ -187,11 +190,11 @@ void SyncStream::syncWith (const SyncStream* mainStream)
                                     baselineMatchingPulse.globalTimestamp = mainPulse.localTimestamp;
                                     baselineMatchingPulse.localSampleNumber = pulse.localSampleNumber;
                                     baselineMatchingPulse.complete = true;
-                                    //LOGC ("Time of first matching pulse: ", baselineMatchingPulse.localTimestamp, " (local), ", baselineMatchingPulse.globalTimestamp, " (global)");
+                                    LOGC ("Time of first matching pulse: ", baselineMatchingPulse.localTimestamp, " (local), ", baselineMatchingPulse.globalTimestamp, " (global)");
                                 }
                                 else
                                 {
-                                    if (pulse.localTimestamp - baselineMatchingPulse.localTimestamp > BASELINE_UPDATE_INTERVAL_S)
+                                    if (pulse.localTimestamp - baselineMatchingPulse.localTimestamp > SAMPLE_RATE_UPDATE_INTERVAL_S)
                                     {
 
                                         if (nextMatchingPulse.complete == false)
@@ -203,15 +206,15 @@ void SyncStream::syncWith (const SyncStream* mainStream)
 										}
                                         else
                                         {
-                                            if (pulse.localTimestamp - nextMatchingPulse.localTimestamp > BASELINE_UPDATE_INTERVAL_S)
+                                            if (pulse.localTimestamp - nextMatchingPulse.localTimestamp > SAMPLE_RATE_UPDATE_INTERVAL_S)
                                             {
 
                                                 double estimatedActualSampleRate = double (nextMatchingPulse.localSampleNumber - baselineMatchingPulse.localSampleNumber)
                                                                                    / double (nextMatchingPulse.globalTimestamp - baselineMatchingPulse.globalTimestamp);
 
-                                                if (std::abs (estimatedActualSampleRate - expectedSampleRate) / expectedSampleRate < 0.001)
+                                                if (std::abs (estimatedActualSampleRate - expectedSampleRate) / expectedSampleRate < 0.01)
                                                 {
-                                                    std::cout << ">>> UPDATING SAMPLE RATE TO " << estimatedActualSampleRate << std::endl;
+                                                    std::cout << ">>> UPDATING " << streamKey << " SAMPLE RATE TO " << estimatedActualSampleRate << std::endl;
                                                     actualSampleRate = estimatedActualSampleRate;
                                                 }
 
@@ -222,6 +225,9 @@ void SyncStream::syncWith (const SyncStream* mainStream)
                                                       " (local), ",
                                                       nextMatchingPulse.globalTimestamp,
                                                       " (global)");
+
+                                                double estimatedPulseTime = synchronizer->convertSampleNumberToTimestamp (streamKey, nextMatchingPulse.localSampleNumber);
+                                                LOGD ("pulses[localIndex].estimatedPulseTime: ", estimatedPulseTime);
 
                                                 nextMatchingPulse.localTimestamp = pulse.localTimestamp;
                                                 nextMatchingPulse.globalTimestamp = mainPulse.localTimestamp;
@@ -258,17 +264,23 @@ void SyncStream::syncWith (const SyncStream* mainStream)
     {
         if (baselineMatchingPulse.complete && (pulses[localIndex].localTimestamp - baselineMatchingPulse.localTimestamp) > 1.0)
         {
-            //LOGD ("pulses[localIndex].localSampleNumber: ", pulses[localIndex].localSampleNumber, ", baselineMatchingPulse.localSampleNumber: ", baselineMatchingPulse.localSampleNumber);
-            //LOGD ("pulses[localIndex].localTimestamp: ", pulses[localIndex].localTimestamp, ", baselineMatchingPulse.localTimestamp: ", baselineMatchingPulse.localTimestamp);
-            //LOGD ("pulses[localIndex].globalTimestamp: ", pulses[localIndex].globalTimestamp, ", baselineMatchingPulse.globalTimestamp: ", baselineMatchingPulse.globalTimestamp);
+            LOGD ("pulses[localIndex].localSampleNumber: ", pulses[localIndex].localSampleNumber, ", baselineMatchingPulse.localSampleNumber: ", baselineMatchingPulse.localSampleNumber);
+            LOGD ("pulses[localIndex].localTimestamp: ", pulses[localIndex].localTimestamp, ", baselineMatchingPulse.localTimestamp: ", baselineMatchingPulse.localTimestamp);
+            LOGD ("pulses[localIndex].globalTimestamp: ", pulses[localIndex].globalTimestamp, ", baselineMatchingPulse.globalTimestamp: ", baselineMatchingPulse.globalTimestamp);
 
             double estimatedActualSampleRate = double(pulses[localIndex].localSampleNumber - baselineMatchingPulse.localSampleNumber) 
                 / double(pulses[localIndex].globalTimestamp - baselineMatchingPulse.globalTimestamp);
 
+            LOGD ("actualSampleRate: ", actualSampleRate, ", estimatedActualSampleRate: ", estimatedActualSampleRate);
+
             double estimatedGlobalStartTime = pulses[localIndex].globalTimestamp 
                 - double (pulses[localIndex].localSampleNumber) / estimatedActualSampleRate;
 
-            if (std::abs (estimatedActualSampleRate - expectedSampleRate) / expectedSampleRate < 0.001)
+            double estimatedPulseTime = synchronizer->convertSampleNumberToTimestamp(streamKey, pulses[localIndex].localSampleNumber);
+            LOGD ("estimatedPulseTime: ", estimatedPulseTime);
+            LOGD ("diff from global time: ", estimatedPulseTime - pulses[localIndex].globalTimestamp);
+
+            if (std::abs (estimatedActualSampleRate - expectedSampleRate) / expectedSampleRate < 0.01)
             {
                 if (actualSampleRate == -1.0)
                 {
@@ -293,7 +305,7 @@ void SyncStream::syncWith (const SyncStream* mainStream)
             }
             else
             {
-                //LOGD ("Estimated sample rate of ", estimatedActualSampleRate, " is out of bounds. Ignoring.");
+                LOGD ("Estimated sample rate of ", estimatedActualSampleRate, " is out of bounds. Expected sample rate = ", expectedSampleRate);
                 return;
             }
 
@@ -352,7 +364,7 @@ void Synchronizer::finishedUpdate()
 
 void Synchronizer::addDataStream (String streamKey, float expectedSampleRate)
 {
-    //std::cout << "Synchronizer adding " << streamId << std::endl;
+    LOGD ("Synchronizer adding ", streamKey, " with sample rate ", expectedSampleRate);
     // if this is the first stream, make it the main one
     if (mainStreamKey == "")
         mainStreamKey = streamKey;
@@ -368,14 +380,15 @@ void Synchronizer::addDataStream (String streamKey, float expectedSampleRate)
     if (streams.count (streamKey) == 0)
     {
         //std::cout << "Creating new Stream object" << std::endl;
-        dataStreamObjects.add (new SyncStream (streamKey, expectedSampleRate));
+        dataStreamObjects.add (new SyncStream (streamKey, expectedSampleRate, this));
         streams[streamKey] = dataStreamObjects.getLast();
         setSyncLine (streamKey, 0);
     }
     else
     {
-        // otherwise, indicate that the stream is currently active
+        // otherwise, indicate that the stream is currently active and update sample rate
         streams[streamKey]->isActive = true;
+        streams[streamKey]->expectedSampleRate = expectedSampleRate;
     }
 
     streamCount++;
@@ -383,6 +396,7 @@ void Synchronizer::addDataStream (String streamKey, float expectedSampleRate)
 
 void Synchronizer::setMainDataStream (String streamKey)
 {
+    LOGD ("Synchronizer setting mainDataStream to ", streamKey);
     mainStreamKey = streamKey;
     reset();
 }
@@ -452,11 +466,11 @@ int64 Synchronizer::convertTimestampToSampleNumber (String streamKey, double tim
 {
     if (streams[streamKey]->isSynchronized)
     {
-        double t = (timestamp - streams[streamKey]->baselineMatchingPulse.globalTimestamp) 
-            * streams[streamKey]->actualSampleRate
-            + double(streams[streamKey]->baselineMatchingPulse.localSampleNumber);
+        int64 t = int64 ((timestamp - streams[streamKey]->baselineMatchingPulse.globalTimestamp + streams[streamKey]->globalStartTime) 
+            * streams[streamKey]->actualSampleRate)
+                  + streams[streamKey]->baselineMatchingPulse.localSampleNumber;
 
-        return (int64) t;
+        return t;
     }
     else
     {

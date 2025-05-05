@@ -186,21 +186,25 @@ void EventTranslator::handleTTLEvent (TTLEventPtr event)
 
             if (synchronizer.isStreamSynced (streamKey))
             {
-                //std::cout << "original sample number: " <<sampleNumber << std::endl;
-                //std::cout << "original timestamp: " <<timestamp << std::endl;
+               // std::cout << "original sample number: " << sampleNumber << std::endl;
+                //std::cout << "original timestamp: " << timestamp << std::endl;
 
                 int64 newSampleNumber = synchronizer.convertTimestampToSampleNumber (streamKey, timestamp);
 
-                //std::cout << "new sample number (" << streamId << "): " << newSampleNumber << std::endl;
-                //std::cout << std::endl;
+               // std::cout << "new sample number (" << streamId << "): " << newSampleNumber << std::endl;
 
-                if (newSampleNumber < getFirstSampleNumberForBlock (streamId))
-                    newSampleNumber = getFirstSampleNumberForBlock (streamId);
+                int64 firstSampleNumberForBlock = getFirstSampleNumberForBlock (streamId);
+
+                if (newSampleNumber < firstSampleNumberForBlock)
+                    newSampleNumber = firstSampleNumberForBlock;
+
+                //std::cout << "translated sample number (" << streamId << "): " << newSampleNumber - firstSampleNumberForBlock << std::endl;
+                //std::cout << std::endl;
 
                 TTLEventPtr translatedEvent =
                     settings[streamId]->createEvent (newSampleNumber, timestamp, ttlLine, state);
 
-                addEvent (translatedEvent, 0);
+                addEvent (translatedEvent, newSampleNumber - firstSampleNumberForBlock);
             }
         }
     }

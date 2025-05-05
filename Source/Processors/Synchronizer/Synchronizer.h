@@ -33,6 +33,8 @@
 #include "../../../JuceLibraryCode/JuceHeader.h"
 #include "../../Utils/Utils.h"
 
+class Synchronizer;
+
 /** 
 
 	Represents a single sync pulse
@@ -43,10 +45,10 @@ struct SyncPulse
     /** The time (in seconds) since the start of acquisition
         for the pulse's stream
         */
-    double localTimestamp;
+    double localTimestamp = 0.0f;
 
     /** The sample number at which this event occurred */
-    int64 localSampleNumber;
+    int64 localSampleNumber = 0;
 
     /** The computer clock time at which this event was received 
         by the synchronizer */
@@ -65,7 +67,7 @@ struct SyncPulse
     int matchingPulseIndex = -1;
 
     /** Global timestamp of pulse (if known) */
-    double globalTimestamp = -1.0;
+    double globalTimestamp = 0.0;
 };
 
 /**
@@ -77,7 +79,7 @@ class SyncStream
 {
 public:
     /** Constructor */
-    SyncStream (String streamKey, float expectedSampleRate);
+    SyncStream (String streamKey, float expectedSampleRate, Synchronizer* synchronizer);
 
     /** Resets stream parameters before acquisition */
     void reset (String mainStreamKey);
@@ -134,8 +136,8 @@ public:
     /** Next pulse to become the baseline matching pulse */
     SyncPulse nextMatchingPulse;
 
-    /** Time interval (in seconds) for updating baseline pulse */
-    const float BASELINE_UPDATE_INTERVAL_S = 10;
+    /** Time interval (in seconds) for updating sample rate estimate */
+    const float SAMPLE_RATE_UPDATE_INTERVAL_S = 5;
 
     /** Determines the maximum size of the sync pulse buffer */
     const int MAX_PULSES_IN_BUFFER = 10;
@@ -154,6 +156,8 @@ private:
     int64 latestSyncSampleNumber = 0;
     double latestGlobalSyncTime = 0.0;
     int64 latestSyncMillis = -1;
+
+    Synchronizer* synchronizer;
 };
 
 enum PLUGIN_API SyncStatus

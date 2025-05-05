@@ -538,7 +538,7 @@ void RecordNode::updateSettings()
         const uint16 streamId = stream->getStreamId();
         activeStreamIds.add (streamId);
 
-        LOGD ("Record Node found stream: (", streamId, ") ", stream->getName());
+        LOGD ("Record Node found stream: (", streamId, ") ", stream->getName(), " with sample rate ", stream->getSampleRate());
         synchronizer.addDataStream (stream->getKey(), stream->getSampleRate());
 
         fifoUsage[streamId] = 0.0f;
