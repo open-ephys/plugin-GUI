@@ -464,7 +464,7 @@ int64 Synchronizer::convertTimestampToSampleNumber (String streamKey, double tim
 {
     if (streams[streamKey]->isSynchronized)
     {
-        int64 t = int64 ((timestamp - streams[streamKey]->baselineMatchingPulse.globalTimestamp + streams[streamKey]->globalStartTime) 
+        int64 t = int64 ((timestamp - streams[streamKey]->baselineMatchingPulse.globalTimestamp) 
             * streams[streamKey]->actualSampleRate)
                   + streams[streamKey]->baselineMatchingPulse.localSampleNumber;
 
