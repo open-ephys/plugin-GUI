@@ -190,11 +190,11 @@ void SyncStream::syncWith (const SyncStream* mainStream)
                                     baselineMatchingPulse.globalTimestamp = mainPulse.localTimestamp;
                                     baselineMatchingPulse.localSampleNumber = pulse.localSampleNumber;
                                     baselineMatchingPulse.complete = true;
-                                    LOGC ("Time of first matching pulse: ", baselineMatchingPulse.localTimestamp, " (local), ", baselineMatchingPulse.globalTimestamp, " (global)");
+                                    //LOGC ("Time of first matching pulse: ", baselineMatchingPulse.localTimestamp, " (local), ", baselineMatchingPulse.globalTimestamp, " (global)");
                                 }
                                 else
                                 {
-                                    if (pulse.localTimestamp - baselineMatchingPulse.localTimestamp > SAMPLE_RATE_UPDATE_INTERVAL_S)
+                                    if (pulse.localTimestamp - baselineMatchingPulse.localTimestamp > INITIAL_SAMPLE_RATE_UPDATE_INTERVAL_S)
                                     {
 
                                         if (nextMatchingPulse.complete == false)
@@ -214,7 +214,6 @@ void SyncStream::syncWith (const SyncStream* mainStream)
 
                                                 if (std::abs (estimatedActualSampleRate - expectedSampleRate) / expectedSampleRate < 0.01)
                                                 {
-                                                    //std::cout << ">>> UPDATING " << streamKey << " SAMPLE RATE TO " << estimatedActualSampleRate << std::endl;
                                                     actualSampleRate = estimatedActualSampleRate;
                                                 }
 
@@ -271,20 +270,19 @@ void SyncStream::syncWith (const SyncStream* mainStream)
             double estimatedActualSampleRate = double(pulses[localIndex].localSampleNumber - baselineMatchingPulse.localSampleNumber) 
                 / double(pulses[localIndex].globalTimestamp - baselineMatchingPulse.globalTimestamp);
 
-            LOGC (streamKey, " actualSampleRate: ", actualSampleRate, ", estimatedActualSampleRate: ", estimatedActualSampleRate);
+            //LOGC (streamKey, " actualSampleRate: ", actualSampleRate, ", estimatedActualSampleRate: ", estimatedActualSampleRate);
 
             double estimatedGlobalStartTime = pulses[localIndex].globalTimestamp 
                 - double (pulses[localIndex].localSampleNumber) / estimatedActualSampleRate;
 
             double estimatedPulseTime = synchronizer->convertSampleNumberToTimestamp(streamKey, pulses[localIndex].localSampleNumber);
-            LOGC (streamKey, " estimatedPulseTime: ", estimatedPulseTime);
-            LOGC (streamKey, " diff from global time: ", estimatedPulseTime - pulses[localIndex].globalTimestamp);
+            //LOGC (streamKey, " estimatedPulseTime: ", estimatedPulseTime);
+            //LOGC (streamKey, " diff from global time: ", estimatedPulseTime - pulses[localIndex].globalTimestamp);
 
             if (std::abs (estimatedActualSampleRate - expectedSampleRate) / expectedSampleRate < 0.01)
             {
                 if (actualSampleRate == -1.0)
                 {
-                    //std::cout << "!!! INITIAL UPDATING SAMPLE RATE TO " << estimatedActualSampleRate << std::endl;
                     actualSampleRate = estimatedActualSampleRate;
 
                     if (std::abs (estimatedGlobalStartTime) < 1.0)
