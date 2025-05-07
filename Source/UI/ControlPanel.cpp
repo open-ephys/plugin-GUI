@@ -36,18 +36,8 @@ const int SIZE_AUDIO_EDITOR_MAX_WIDTH = 500;
 
 NewDirectoryButton::NewDirectoryButton() : Button ("NewDirectory")
 {
-    //XmlDocument xmlDoc (R"(
-    //    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"
-    //    fill="currentColor"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"
-    //   stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder-plus">
-    // <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v3.5" />
-    //<path d="M16 19h6" /><path d="M19 16v6" /></svg>)");
-
     XmlDocument xmlDoc (R"(
         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-folder"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 3a1 1 0 0 1 .608 .206l.1 .087l2.706 2.707h6.586a3 3 0 0 1 2.995 2.824l.005 .176v8a3 3 0 0 1 -2.824 2.995l-.176 .005h-14a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-11a3 3 0 0 1 2.824 -2.995l.176 -.005h4z" /></svg>)");
-
-    //XmlDocument xmlDoc (R"(
-    //   <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-lock"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 2a5 5 0 0 1 5 5v3a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-10a3 3 0 0 1 -3 -3v-6a3 3 0 0 1 3 -3v-3a5 5 0 0 1 5 -5m0 12a2 2 0 0 0 -1.995 1.85l-.005 .15a2 2 0 1 0 2 -2m0 -10a3 3 0 0 0 -3 3v3h6v-3a3 3 0 0 0 -3 -3" /></svg>)");
 
     newDirectoryIcon = Drawable::createFromSVG (*xmlDoc.getDocumentElement().get());
 
@@ -58,24 +48,36 @@ NewDirectoryButton::NewDirectoryButton() : Button ("NewDirectory")
 
 void NewDirectoryButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
-    Colour buttonColour;
+    Colour backgroundColour;
+    Colour iconColour;
 
     if (getToggleState())
-        buttonColour = findColour (ThemeColours::highlightedFill);
+    {
+        backgroundColour = findColour (ThemeColours::highlightedFill);
+        iconColour = Colours::black;
+    }
     else
-        buttonColour = findColour (ThemeColours::controlPanelBackground);
+    {
+        backgroundColour = findColour (ThemeColours::widgetBackground);
+        iconColour = findColour (ThemeColours::defaultText);
+    }
 
     if (isMouseOver)
-        buttonColour = buttonColour.brighter (0.2f);
+    {
+        backgroundColour = backgroundColour.contrasting (0.1f);
+        iconColour = iconColour.contrasting (0.1f);
+    }
 
-    g.setColour (Colours::black);
+    g.setColour (findColour (ThemeColours::outline));
     g.fillRoundedRectangle (0, 0, getWidth(), getHeight(), 5);
-    g.setColour (buttonColour);
+    g.setColour (backgroundColour);
     g.fillRoundedRectangle (1, 1, getWidth() - 2, getHeight() - 2, 3);
 
     g.setColour (Colours::black);
+    newDirectoryIcon->replaceColour (Colours::black, iconColour);
     newDirectoryIcon->drawWithin (g, juce::Rectangle<float> (2, 2.5, 18, 18), RectanglePlacement::centred, 1.0f);
-    g.setColour (buttonColour);
+    newDirectoryIcon->replaceColour (iconColour, Colours::black);
+    g.setColour (backgroundColour);
     g.drawRect (10, 9, 2, 6);
     g.drawRect (8, 11, 6, 2);
 }
