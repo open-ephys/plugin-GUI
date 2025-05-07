@@ -441,11 +441,11 @@ void Clock::mouseDown (const MouseEvent& e)
         else if (result == 5)
         {
             setReferenceTime (CUMULATIVE);
-		}
+        }
         else if (result == 6)
         {
             setReferenceTime (ACQUISITION_START);
-		}
+        }
     }
 }
 
@@ -661,7 +661,6 @@ void ControlPanel::startAcquisition (bool recordingShouldAlsoStart)
 
         clock->resetAcquisitionTime();
         audio->beginCallbacks(); // starts acquisition callbacks
-        
     }
 }
 
@@ -805,10 +804,13 @@ void ControlPanel::paint (Graphics& g)
 
     if (open)
     {
-        createPaths();
         g.setColour (findColour (ThemeColours::windowBackground));
         g.fillPath (p1);
         g.fillPath (p2);
+
+        // Fill record engine selector background area with control panel background colour
+        g.setColour (findColour (ThemeColours::controlPanelBackground));
+        g.fillRoundedRectangle (recordSelector->getBounds().toFloat(), 3.0f);
     }
 }
 
@@ -1026,7 +1028,8 @@ void ControlPanel::stopRecording()
         newDirectoryNeeded = false;
         newDirectoryButton->setEnabled (true);
     }
-    newDirectoryButton->setToggleState(newDirectoryNeeded, dontSendNotification);
+
+    newDirectoryButton->setToggleState (newDirectoryNeeded, dontSendNotification);
 
     recordButton->updateImages (false);
     showHideRecordingOptionsButton->setCustomBackground (false, findColour (ThemeColours::windowBackground));

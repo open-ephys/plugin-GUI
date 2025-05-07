@@ -633,7 +633,7 @@ void CustomLookAndFeel::drawComboBox (Graphics& g, int width, int height, const 
     Rectangle<int> boxBounds (0, 0, width, height);
     auto bounds = boxBounds.toFloat().reduced (0.5f, 0.5f);
 
-    auto baseColour = box.findColour (ComboBox::backgroundColourId).withMultipliedSaturation (box.hasKeyboardFocus (true) ? 1.3f : 0.9f).withMultipliedAlpha (box.isEnabled() ? 1.0f : 0.35f);
+    auto baseColour = box.findColour (ComboBox::backgroundColourId).withMultipliedSaturation (box.hasKeyboardFocus (true) ? 1.3f : 0.9f).withMultipliedAlpha (box.isEnabled() ? 1.0f : 0.5f);
 
     g.setColour (baseColour);
 
