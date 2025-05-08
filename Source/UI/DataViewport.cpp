@@ -469,6 +469,7 @@ void DraggableTabComponent::showTabNameEditor (int tabIndex, const String& tabNa
     editNameLabel->onTextChange = [this, tabIndex, nodeId, editNameLabel]()
     {
         setTabName (tabIndex, editNameLabel->getText());
+        getTabbedButtonBar().getTabButton (tabIndex)->setName (editNameLabel->getText());
 
         // update the tab text in the VisualizerEditor
         GenericProcessor* processor = AccessClass::getProcessorGraph()->getProcessorWithNodeId (nodeId);

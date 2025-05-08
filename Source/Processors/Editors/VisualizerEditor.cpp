@@ -290,6 +290,13 @@ void VisualizerEditor::loadCustomParametersFromXml (XmlElement* xml)
                 */
                 checkForCanvas();
 
+                // If tab is already open, remove and re-add the tab to update its text
+                if (isOpenInTab)
+                {
+                    removeTab();
+                    addTab();
+                }
+
                 break;
             }
         }
