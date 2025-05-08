@@ -80,6 +80,7 @@ public:
         String identifier;
 
         float sample_rate;
+        bool generates_timestamps;
     };
 
     /** Constructor */
@@ -118,6 +119,9 @@ public:
     /** Returns true if this DataStream has a device associated with it.*/
     bool hasDevice() const;
 
+    /** Returns true if this DataStream generates timestamps. */
+    bool generatesTimestamps() const;
+
     /** Gets all of the continuous channels for this stream.*/
     Array<ContinuousChannel*> getContinuousChannels() const;
 
@@ -137,6 +141,7 @@ private:
     Array<SpikeChannel*> spikeChannels;
 
     float m_sample_rate;
+    bool m_generates_timestamps;
 
     uint16 streamId;
 };
