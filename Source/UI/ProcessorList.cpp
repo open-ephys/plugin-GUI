@@ -202,8 +202,6 @@ void ProcessorList::drawItemName (Graphics& g, ProcessorListItem* item)
     else
         g.setColour (Colours::white);
 
-    g.setFont (listFontPlain);
-
     float offsetX, offsetY;
 
     if (item->getNumSubItems() == 0)
@@ -215,9 +213,11 @@ void ProcessorList::drawItemName (Graphics& g, ProcessorListItem* item)
 
         offsetX = 20.0f;
 
+        g.setFont (listFontPlain);
+
         if (item == hoverItem)
         {
-            maxWidth = GlyphArrangement::getStringWidth (Font (listFontPlain), name);
+            maxWidth = GlyphArrangement::getStringWidth (g.getCurrentFont(), name) + 5.0f;
 
             if (maxWidth + 25 < getWidth() - scrollbarOffset)
             {
@@ -234,13 +234,11 @@ void ProcessorList::drawItemName (Graphics& g, ProcessorListItem* item)
 
         offsetY = 0.72f;
 
-        g.setFont (listFontPlain);
-
         if (item->isSelected())
         {
             g.drawText (">", offsetX - 15, 5, getWidth() - 9, itemHeight, Justification::left, false);
         }
-        g.drawText (name, offsetX, 5, maxWidth + offsetX, itemHeight, Justification::left, false);
+        g.drawText (name, offsetX, 5, maxWidth, itemHeight, Justification::left, false);
     }
     else
     {
