@@ -34,6 +34,7 @@ DataStream::DataStream (DataStream::Settings settings)
     : InfoObject (InfoObject::Type::DATASTREAM_INFO),
       ParameterOwner (ParameterOwner::Type::DATASTREAM),
       m_sample_rate (settings.sample_rate),
+      m_generates_timestamps (settings.generates_timestamps),
       device (nullptr)
 {
     setName (settings.name);
@@ -86,6 +87,11 @@ void DataStream::addChannel (InfoObject* channel)
 float DataStream::getSampleRate() const
 {
     return m_sample_rate;
+}
+
+bool DataStream::generatesTimestamps() const
+{
+    return m_generates_timestamps;
 }
 
 int DataStream::getChannelCount() const

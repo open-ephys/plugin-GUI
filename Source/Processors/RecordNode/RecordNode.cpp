@@ -903,11 +903,20 @@ void RecordNode::process (AudioBuffer<float>& buffer)
 
             float totalFifoUsage = 0.0f;
 
+            double first, second;
+
             if (numSamples > 0)
             {
-                double first = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
-                double second = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber + 1);
-
+                if (!stream->generatesTimestamps())
+                {
+                    first = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber);
+                    second = synchronizer.convertSampleNumberToTimestamp (streamKey, sampleNumber + 1);
+                }
+                else
+                {
+                    first = getFirstTimestampForBlock (streamId);
+                    second = first + 1 / stream->getSampleRate();
+                }
                 dataQueue->writeSynchronizedTimestamps (
                     first,
                     second - first,
