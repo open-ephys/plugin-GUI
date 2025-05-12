@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-22.04
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
     - name: build
       env:
         CC: gcc-10
@@ -45,7 +45,7 @@ jobs:
         curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-dev/linux/$zipfile"
       shell: bash
     - name: deploy_preview
-      if: github.ref_type == 'refs/heads/testing-juce8'
+      if: github.ref == 'refs/heads/testing-juce8'
       env:
         ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       run: |

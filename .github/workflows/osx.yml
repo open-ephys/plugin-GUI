@@ -21,10 +21,7 @@ jobs:
         os: [macos-latest]
     
     steps:
-    - uses: actions/checkout@v1
-    - uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: latest-stable
+    - uses: actions/checkout@v4
     - name: configure
       run: |
         cd Build 
@@ -98,7 +95,7 @@ jobs:
         user_info="X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN"
         curl -H $user_info -T $zipfile "https://openephys.jfrog.io/artifactory/GUI-binaries/1.0.0-dev/mac/$zipfile"
     - name: deploy_preview
-      if: github.ref_type == 'refs/heads/testing-juce8'
+      if: github.ref == 'refs/heads/testing-juce8'
       env:
         ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
         MACOS_CERTIFICATE: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
