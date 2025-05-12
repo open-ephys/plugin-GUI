@@ -79,6 +79,8 @@ PluginInstaller::PluginInstaller (bool loadComponents)
     else if ((os & SystemStats::OperatingSystemType::Linux) != 0)
         osType = "linux";
 
+    createXmlFile();
+
     //Initialize Plugin Installer Components
 
     if (loadComponents)
@@ -97,9 +99,15 @@ PluginInstaller::PluginInstaller (bool loadComponents)
         setVisible (true);
         setResizable (true, false); // useBottomCornerRisizer -- doesn't work very well
         setResizeLimits (910, 480, 8192, 5120);
-    }
 
-    createXmlFile();
+#ifdef __APPLE__
+        File iconDir = File::getSpecialLocation (File::currentApplicationFile).getChildFile ("Contents/Resources");
+#else
+        File iconDir = File::getSpecialLocation (File::currentApplicationFile).getParentDirectory();
+#endif
+        Image titleBarIcon = ImageCache::getFromFile (iconDir.getChildFile ("icon-small.png"));
+        setIcon (titleBarIcon);
+    }
 
     MouseCursor::hideWaitCursor();
     CoreServices::sendStatusMessage ("Plugin Installer is ready!");
@@ -137,6 +145,8 @@ void PluginInstaller::createXmlFile()
     }
     else
     {
+        xml->setAttribute ("gui_version", JUCEApplication::getInstance()->getApplicationVersion());
+
         auto child = xml->getFirstChildElement();
         Array<XmlElement*> elementsToRemove;
 
@@ -203,7 +213,7 @@ void PluginInstaller::installPluginAndDependency (const String& plugin, String v
 
     if (! platforms->contains (osType))
     {
-        LOGD ("*********** No platform specific package found for ", plugin);
+        LOGD ("No platform specific package found for ", plugin);
         return;
     }
 
@@ -373,7 +383,7 @@ PluginInstallerComponent::PluginInstallerComponent() : ThreadWithProgressWindow 
 void PluginInstallerComponent::paint (Graphics& g)
 {
     g.fillAll (findColour (ThemeColours::componentBackground).darker());
-    g.setColour (findColour (ThemeColours::defaultFill).withAlpha (0.5f));
+    g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
     g.fillRect (195, 5, 2, 38);
     g.fillRect (405, 5, 2, 38);
 }
@@ -635,7 +645,7 @@ void PluginListBoxComponent::paintListBoxItem (int rowNumber, Graphics& g, int w
 {
     if (rowIsSelected)
     {
-        g.fillAll (findColour (ThemeColours::componentParentBackground).withAlpha (0.5f));
+        g.fillAll (findColour (ThemeColours::defaultFill).withAlpha (0.5f));
         g.setColour (findColour (ThemeColours::defaultText));
     }
     else
@@ -678,6 +688,8 @@ void PluginListBoxComponent::run()
         LOGE (errorMsg);
         MessageManager::callAsync ([this, errorMsg]
                                    { pluginInfoPanel.updateStatusMessage (errorMsg, true); });
+
+        return;
     }
 
     var gatewayData;
@@ -708,7 +720,6 @@ void PluginListBoxComponent::run()
             if (apiVer.equalsIgnoreCase (String (PLUGIN_API_VER)))
             {
                 compatibleVersions.add (version);
-                break;
             }
         }
 
