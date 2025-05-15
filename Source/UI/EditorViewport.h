@@ -277,9 +277,6 @@ private:
     /** Draws the SignalChainTabButton.*/
     void paintButton (Graphics& g, bool isMouseOver, bool isButtonDown);
 
-    /** Called when a mouse click occurs inside a SignalChainTabButton.*/
-    void clicked();
-
     int num;
 
     FontOptions buttonFont;

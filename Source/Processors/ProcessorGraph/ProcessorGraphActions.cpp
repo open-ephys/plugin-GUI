@@ -566,3 +566,32 @@ bool SwitchIO::undo()
 
     return true;
 }
+
+SwitchSignalChain::SwitchSignalChain (int prevIndex_, int newIndex_)
+    : processorGraph (AccessClass::getProcessorGraph()),
+      prevIndex (prevIndex_),
+      newIndex (newIndex_)
+{
+}
+
+SwitchSignalChain::~SwitchSignalChain()
+{
+}
+
+bool SwitchSignalChain::perform()
+{
+    LOGDD ("Switching to SignalChain: ", String::charToString ('A' + newIndex));
+
+    processorGraph->viewSignalChain (newIndex);
+
+    return true;
+}
+
+bool SwitchSignalChain::undo()
+{
+    LOGDD ("Switching to SignalChain: ", String::charToString ('A' + prevIndex));
+
+    processorGraph->viewSignalChain (prevIndex);
+
+    return true;
+}

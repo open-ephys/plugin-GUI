@@ -1163,16 +1163,6 @@ SignalChainTabButton::SignalChainTabButton (int index) : Button ("Signal Chain T
     offset = 0;
 }
 
-void SignalChainTabButton::clicked()
-{
-    if (getToggleState())
-    {
-        LOGDD ("Tab button clicked: ", num);
-
-        AccessClass::getProcessorGraph()->viewSignalChain (num);
-    }
-}
-
 void SignalChainTabButton::paintButton (Graphics& g, bool isMouseOver, bool isButtonDown)
 {
     ColourGradient grad1, grad2;
@@ -1282,6 +1272,15 @@ SignalChainTabComponent::SignalChainTabComponent()
         SignalChainTabButton* button = new SignalChainTabButton (i);
         signalChainTabButtonArray.add (button);
         addChildComponent (signalChainTabButtonArray.getLast());
+        button->onClick = [this, i]
+        {
+            if (selectedTab == i)
+                return;
+
+            AccessClass::getProcessorGraph()->getUndoManager()->beginNewTransaction ("Disabled during acquisition");
+            SwitchSignalChain* switchChain = new SwitchSignalChain (selectedTab, i);
+            AccessClass::getProcessorGraph()->getUndoManager()->perform (switchChain);
+        };
     }
 }
 

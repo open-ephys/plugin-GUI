@@ -280,7 +280,7 @@ GenericProcessor* ProcessorGraph::createProcessor (Plugin::Description& descript
             GenericEditor* editor = (GenericEditor*) addedProc->createEditor();
         }
 
-        if (! signalChainIsLoading)// && ! undoingDelete)
+        if (! signalChainIsLoading) // && ! undoingDelete)
         {
             addedProc->initialize (false);
         }
@@ -838,6 +838,9 @@ void ProcessorGraph::updateViews (GenericProcessor* processor, bool updateGraphV
 
 void ProcessorGraph::viewSignalChain (int index)
 {
+    if (index < 0 || index >= rootNodes.size())
+        return;
+
     updateViews (rootNodes[index]);
 }
 

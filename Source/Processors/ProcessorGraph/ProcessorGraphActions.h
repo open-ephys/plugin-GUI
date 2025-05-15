@@ -305,4 +305,34 @@ private:
     int originalPath;
 };
 
+/**
+    Changes the viewed signal chain
+
+    Undo: restores the viewed signal chain back to its
+    original state
+
+    @see SignalChainTabComponent
+*/
+class SwitchSignalChain : public UndoableAction
+{
+public:
+    /** Constructor */
+    SwitchSignalChain (int prevIndex, int newIndex);
+
+    /** Destructor */
+    ~SwitchSignalChain();
+
+    /** Perform the action*/
+    bool perform();
+
+    /** Undo the action*/
+    bool undo();
+
+private:
+    ProcessorGraph* processorGraph;
+
+    int prevIndex;
+    int newIndex;
+};
+
 #endif /* ProcessorGraphActions_h */
